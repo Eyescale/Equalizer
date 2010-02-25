@@ -23,7 +23,7 @@
 #include "segmentVisitor.h"  // used in inline method
 
 #include <eq/client/segment.h>      // base class
-#include <eq/client/viewport.h>     // member
+#include <eq/fabric/viewport.h>     // member
 
 namespace eq
 {

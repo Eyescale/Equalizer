@@ -19,9 +19,10 @@
 #define EQ_VIEW_H
 
 #include <eq/client/frustum.h>        // base class
-#include <eq/client/viewport.h>       // member
 #include <eq/client/visitorResult.h>  // enum
 #include <eq/client/types.h>          // member
+
+#include <eq/fabric/viewport.h>       // member
 
 namespace eq
 {

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -20,10 +20,13 @@
 #define EQ_IMAGE_H
 
 #include <eq/client/frame.h>         // for Frame::Buffer enum
-#include <eq/client/pixelViewport.h> // member
-#include <eq/client/viewport.h>      // member
 #include <eq/client/windowSystem.h>  // for OpenGL types
+
+#include <eq/fabric/pixelViewport.h> // member
+#include <eq/fabric/viewport.h>      // member
+
 #include <eq/util/texture.h>         // member
+
 #include <eq/base/compressor.h>
 
 namespace eq

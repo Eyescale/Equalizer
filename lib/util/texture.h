@@ -27,7 +27,6 @@
 namespace eq
 {
     class Image;
-    class PixelViewport;
 
 namespace util
 {

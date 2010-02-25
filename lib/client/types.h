@@ -19,6 +19,7 @@
 #ifndef EQ_TYPES_H
 #define EQ_TYPES_H
 
+#include <eq/fabric/types.h>
 #include <eq/base/refPtr.h>
 
 #include <vmmlib/vmmlib.hpp>
@@ -28,6 +29,12 @@
 
 namespace eq
 {
+namespace fabric
+{
+class Pixel;
+class PixelViewport;
+class Viewport;
+}
 
 class Canvas;
 class Channel;
@@ -39,14 +46,16 @@ class Layout;
 class Node;
 class Observer;
 class Pipe;
-class PixelViewport;
 class Segment;
 class Server;
 class View;
-class Viewport;
 class Window;
 class X11Connection;
 struct Statistic;
+
+typedef fabric::Pixel Pixel;
+typedef fabric::PixelViewport PixelViewport;
+typedef fabric::Viewport Viewport;
 
 //----- Vectors
 /** A vector of pointers to eq::Node */
@@ -83,20 +92,20 @@ typedef base::RefPtr< Client >        ClientPtr;
 /** A reference-counted pointer to an eq::Server */
 typedef base::RefPtr< Server >        ServerPtr;
 
-typedef vmml::matrix< 3, 3, double > Matrix3d; //!< A 3x3 double matrix
-typedef vmml::matrix< 4, 4, double > Matrix4d; //!< A 4x4 double matrix
-typedef vmml::matrix< 3, 3, float >  Matrix3f; //!< A 3x3 float matrix
-typedef vmml::matrix< 4, 4, float >  Matrix4f; //!< A 4x4 float matrix
-typedef vmml::vector< 2, int > Vector2i; //!< A two-component integer vector
-typedef vmml::vector< 3, int > Vector3i; //!< A three-component integer vector
-typedef vmml::vector< 4, int > Vector4i; //!< A four-component integer vector
-typedef vmml::vector< 3, double >Vector3d; //!< A three-component double vector
-typedef vmml::vector< 4, double >Vector4d; //!< A four-component double vector
-typedef vmml::vector< 2, float > Vector2f; //!< A two-component float vector
-typedef vmml::vector< 3, float > Vector3f; //!< A three-component float vector
-typedef vmml::vector< 4, float > Vector4f; //!< A four-component float vector
-/** A three-component byte vector */
-typedef vmml::vector< 3, unsigned char > Vector3ub;
+typedef fabric::Matrix3d Matrix3d;   //!< A 3x3 double matrix
+typedef fabric::Matrix4d Matrix4d;   //!< A 4x4 double matrix
+typedef fabric::Matrix3f Matrix3f;   //!< A 3x3 float matrix
+typedef fabric::Matrix4f Matrix4f;   //!< A 4x4 float matrix
+typedef fabric::Vector2i Vector2i;   //!< A two-component integer vector
+typedef fabric::Vector3i Vector3i;   //!< A three-component integer vector
+typedef fabric::Vector4i Vector4i;   //!< A four-component integer vector
+typedef fabric::Vector3d Vector3d;   //!< A three-component double vector
+typedef fabric::Vector4d Vector4d;   //!< A four-component double vector
+typedef fabric::Vector2f Vector2f;   //!< A two-component float vector
+typedef fabric::Vector3f Vector3f;   //!< A three-component float vector
+typedef fabric::Vector4f Vector4f;   //!< A four-component float vector
+typedef fabric::Vector3ub Vector3ub; //!< A three-component byte vector
+
 typedef vmml::frustum< float >  Frustumf; //!< A frustum definition
 /** Frustum culling helper */
 typedef vmml::frustum_culler< float >  FrustumCullerf;

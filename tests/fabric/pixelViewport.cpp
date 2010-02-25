@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +18,8 @@
 // Tests the functionality of the pixel viewport
 
 #include <test.h>
-#include <eq/client/pixelViewport.h>
+#include <eq/client/types.h>
+#include <eq/fabric/pixelViewport.h>
 
 using namespace eq;
 

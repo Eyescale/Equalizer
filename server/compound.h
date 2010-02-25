@@ -31,9 +31,9 @@
 #include <eq/client/renderContext.h>
 #include <eq/client/subPixel.h>
 #include <eq/client/task.h>
-#include <eq/client/viewport.h>
 #include <eq/client/wall.h>
 #include <eq/client/zoom.h>
+#include <eq/fabric/viewport.h> // member
 #include <eq/net/barrier.h>
 #include <eq/base/thread.h>
 #include <iostream>

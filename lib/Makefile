@@ -86,7 +86,12 @@ HEADER_SRC = \
 	fabric/init.h \
 	fabric/leafVisitor.h \
 	fabric/object.h \
+	fabric/pixel.h \
+	fabric/pixelViewport.h \
+	fabric/types.h \
+	fabric/viewport.h \
 	fabric/visitorResult.h \
+	fabric/zoom.h \
 	client/canvas.h \
 	client/canvasVisitor.h \
 	client/channel.h \
@@ -132,8 +137,6 @@ HEADER_SRC = \
 	client/packets.h \
 	client/pipe.h \
 	client/pipeVisitor.h \
-	client/pixel.h \
-	client/pixelViewport.h \
 	client/projection.h \
 	client/range.h \
 	client/renderContext.h \
@@ -147,7 +150,6 @@ HEADER_SRC = \
 	client/types.h \
 	client/version.h \
 	client/view.h \
-	client/viewport.h \
 	client/viewVisitor.h \
 	client/visitorResult.h \
 	client/wall.h \
@@ -230,6 +232,9 @@ CXXFILES = \
 	net/versionedSlaveCM.cpp \
 	fabric/init.cpp \
 	fabric/object.cpp \
+	fabric/pixel.cpp \
+	fabric/viewport.cpp \
+	fabric/zoom.cpp \
 	client/canvas.cpp \
 	client/channel.cpp \
 	client/channelStatistics.cpp \
@@ -252,7 +257,6 @@ CXXFILES = \
 	client/frustum.cpp \
 	client/global.cpp \
 	client/glWindow.cpp \
-	client/pixel.cpp \
 	client/image.cpp \
 	client/init.cpp \
 	client/jitter.cpp \
@@ -278,12 +282,10 @@ CXXFILES = \
 	client/subPixel.cpp \
 	client/version.cpp \
 	client/view.cpp \
-	client/viewport.cpp \
 	client/wall.cpp \
 	client/window.cpp \
 	client/windowStatistics.cpp \
 	client/windowSystem.cpp \
-	client/zoom.cpp \
 	util/accum.cpp \
 	util/accumBufferObject.cpp \
 	util/bitmapFont.cpp \

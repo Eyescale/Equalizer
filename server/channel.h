@@ -31,8 +31,8 @@
 
 #include <eq/client/channel.h>
 #include <eq/client/commands.h>
-#include <eq/client/pixelViewport.h>
-#include <eq/client/viewport.h>
+#include <eq/fabric/pixelViewport.h> // member
+#include <eq/fabric/viewport.h>      // member
 #include <eq/net/object.h>
 #include <eq/net/packets.h>
 

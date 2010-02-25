@@ -22,7 +22,7 @@
 #include "visitorResult.h" // enum
 
 #include <eq/client/global.h>           // eq::OFF enum
-#include <eq/client/pixelViewport.h>    // member
+#include <eq/fabric/pixelViewport.h>    // member
 #include <eq/net/object.h>              // base class
 #include <eq/base/monitor.h>            // member
 

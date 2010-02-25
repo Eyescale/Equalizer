@@ -19,9 +19,9 @@
 #define EQ_COMPOSITOR_H
 
 #include <eq/client/frame.h>          // nested type Frame::Buffer 
-#include <eq/client/pixel.h>          // member
 #include <eq/client/types.h>          // type definitions
-#include <eq/base/base.h>             // EQ_EXPORT definition
+
+#include <eq/fabric/pixel.h>          // member
 
 #include <vector>
 

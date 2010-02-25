@@ -1,9 +1,10 @@
-Fix Posix build
+Move pixel, pixel viewport, zoom, viewport to fabric namespace, add
+typedefs in eq.
 
-[ ] May break build
+[x] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

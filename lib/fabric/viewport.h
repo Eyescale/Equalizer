@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,19 +15,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_VIEWPORT_H
-#define EQ_VIEWPORT_H
+#ifndef EQFABRIC_VIEWPORT_H
+#define EQFABRIC_VIEWPORT_H
 
+#include <eq/fabric/types.h>
 #include <eq/base/base.h>
 #include <eq/base/debug.h>
-#include <eq/client/types.h>
-
-#include <vector>         // WAR: vector4.h does not include these headers. Fix 
-#include <limits> //      vector4.h after vmmlib upgrade and remove them
 
 #include <iostream>
 
 namespace eq
+{
+namespace fabric
 {
     class PixelViewport;
     class Viewport;
@@ -50,7 +49,7 @@ namespace eq
         //@}
 
         void invalidate() { x=0.0f; y=0.0f; w=-1.0f; h=-1.0f; }
-        void apply ( const Viewport& rhs )
+        void apply( const Viewport& rhs )
             {
                 EQASSERTINFO( isValid(), *this);
                 EQASSERTINFO( rhs.isValid(), rhs );                
@@ -60,7 +59,7 @@ namespace eq
                 h *= rhs.h;
             }
             
-        void transform ( const Viewport& rhs )
+        void transform( const Viewport& rhs )
             {
                 w = w / rhs.w;
                 h = h / rhs.h;
@@ -143,17 +142,17 @@ namespace eq
             }
 
         /** Apply the view coverage to this viewport. */
-        EQ_EXPORT void applyView( const Viewport& segmentVP, 
-                                  const Viewport& viewVP,
-                                  const PixelViewport& pvp, 
-                                  const Vector4i& overdraw );
+        EQFABRIC_EXPORT void applyView( const Viewport& segmentVP, 
+                                        const Viewport& viewVP,
+                                        const PixelViewport& pvp, 
+                                        const Vector4i& overdraw );
 
         float x;
         float y;
         float w;
         float h;
 
-        EQ_EXPORT static const Viewport FULL;
+        EQFABRIC_EXPORT static const Viewport FULL;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Viewport& vp )
@@ -162,5 +161,6 @@ namespace eq
         return os;
     }
 }
+}
 
-#endif // EQ_VIEWPORT_H
+#endif // EQFABRIC_VIEWPORT_H

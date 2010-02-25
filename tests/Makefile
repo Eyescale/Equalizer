@@ -8,6 +8,7 @@ SUBDIRS = \
 	client \
 	compositor \
 	connection \
+	fabric \
 	loader \
 	net \
 	netperf \

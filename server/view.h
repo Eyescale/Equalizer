@@ -23,7 +23,7 @@
 #include "types.h"
 
 #include <eq/client/view.h>     // base class
-#include <eq/client/viewport.h> // member
+#include <eq/fabric/viewport.h> // member
 
 namespace eq
 {

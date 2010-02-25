@@ -20,11 +20,10 @@
 #define EQUTIL_ACCUM_H
 
 #include <eq/client/os.h>  // for GLEW
+#include <eq/client/types.h>
 
 namespace eq
 {
-    class PixelViewport;
-
 namespace util
 {
     class AccumBufferObject;

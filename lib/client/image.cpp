@@ -20,7 +20,6 @@
 
 #include "frame.h"
 #include "frameData.h"
-#include "pixel.h"
 #include "log.h"
 #include "windowSystem.h"
 

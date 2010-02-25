@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,13 +15,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_PIXELVIEWPORT_H
-#define EQ_PIXELVIEWPORT_H
+#ifndef EQFABRIC_PIXELVIEWPORT_H
+#define EQFABRIC_PIXELVIEWPORT_H
 
-#include <eq/client/viewport.h> // used in inline method
-#include <eq/client/pixel.h>    // used in inline method
-#include <eq/client/zoom.h>     // used in inline method
-#include <eq/client/types.h>
+#include <eq/fabric/viewport.h> // used in inline method
+#include <eq/fabric/pixel.h>    // used in inline method
+#include <eq/fabric/zoom.h>     // used in inline method
 
 #include <eq/base/base.h>
 #include <eq/base/debug.h>
@@ -31,9 +30,9 @@
 
 namespace eq
 {
-    /**
-     * Holds a pixel viewport along with some methods for manipulation.
-     */
+namespace fabric
+{
+    /** Holds a pixel viewport along with some methods for manipulation. */
     class PixelViewport 
     {
     public:
@@ -48,9 +47,7 @@ namespace eq
                 : x(x_), y(y_), w(w_), h(h_)  {}
         //@}
 
-        /** 
-         * Invalidates the pixel viewport.
-         */
+        /** Invalidate the pixel viewport. */
         void invalidate() { x = 0; y = 0; w = -1; h = -1; }
 
         /** 
@@ -177,11 +174,11 @@ namespace eq
                 return PixelViewport( x+offset.x(), y+offset.y(), w, h );
             }
 
-        const PixelViewport operator * ( const eq::Pixel& pixel ) const
+        const PixelViewport operator * ( const Pixel& pixel ) const
             {
                 return PixelViewport( x, y, w * pixel.w, h * pixel.h );
             }
-        PixelViewport& operator *= ( const eq::Pixel& pixel )
+        PixelViewport& operator *= ( const Pixel& pixel )
             {
                 w *= pixel.w;
                 h *= pixel.h;
@@ -282,5 +279,6 @@ namespace eq
         return os;
     }
 }
+}
 
-#endif // EQ_PIXELVIEWPORT_H
+#endif // EQFABRIC_PIXELVIEWPORT_H

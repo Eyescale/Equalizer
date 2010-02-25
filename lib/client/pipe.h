@@ -27,10 +27,11 @@
 
 #include <eq/client/eye.h>            // Eye enum
 #include <eq/client/os.h>             // WGLEWContext
-#include <eq/client/pixelViewport.h>  // member
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
 #include <eq/client/windowSystem.h>   // enum
+
+#include <eq/fabric/pixelViewport.h>  // member
 
 #include <eq/net/object.h>
 #include <eq/net/objectVersion.h>

@@ -27,10 +27,9 @@
 
 #include "types.h"
 #include "visitorResult.h"  // enum
-#include "swapBarrier.h"
 
-#include <eq/client/pixelViewport.h>
 #include <eq/client/window.h>
+#include <eq/fabric/pixelViewport.h> // member
 #include <eq/net/barrier.h>
 #include <eq/net/object.h>
 
@@ -41,6 +40,7 @@ namespace eq
 {
 namespace server
 {
+    class SwapBarrier;
     class WindowVisitor;
     struct ChannelPath;
     struct WindowPath;

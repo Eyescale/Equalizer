@@ -19,13 +19,15 @@
 #define EQ_FRAMEDATA_H
 
 #include <eq/client/frame.h>         // enum Frame::Buffer
-#include <eq/client/pixelViewport.h> // member
-#include <eq/client/pixel.h>         // member
 #include <eq/client/range.h>         // member
 #include <eq/client/types.h>         // member
 
-#include <eq/base/monitor.h>         // member
+#include <eq/fabric/pixelViewport.h> // member
+#include <eq/fabric/pixel.h>         // member
+
 #include <eq/net/object.h>           // base class
+
+#include <eq/base/monitor.h>         // member
 
 #include <set>                       // member
 

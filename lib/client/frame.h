@@ -20,7 +20,7 @@
 
 #include <eq/client/eye.h>    // enum Eye
 #include <eq/client/window.h> // nested ObjectManager type
-#include <eq/client/types.h>  // member
+#include <eq/client/types.h>
 #include <eq/client/zoom.h>   // member
 
 #include <eq/base/monitor.h>
@@ -37,7 +37,6 @@ namespace server
     class FrameData;
     class Image;
     class Pipe;
-    class Pixel;
     class Range;
 
     /**

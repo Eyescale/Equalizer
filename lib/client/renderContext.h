@@ -20,12 +20,13 @@
 
 #include <eq/client/colorMask.h>        // member
 #include <eq/client/eye.h>              // member
-#include <eq/client/pixel.h>            // member
 #include <eq/client/subPixel.h>         // member
-#include <eq/client/pixelViewport.h>    // member
 #include <eq/client/range.h>            // member
 #include <eq/client/types.h>
 #include <eq/client/zoom.h>             // member
+
+#include <eq/fabric/pixel.h>            // member
+#include <eq/fabric/pixelViewport.h>    // member
 
 #include <eq/net/objectVersion.h>
 #include <eq/base/base.h>

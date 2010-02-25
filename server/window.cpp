@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,6 +28,7 @@
 #include "paths.h"
 #include "pipe.h"
 #include "windowVisitor.h"
+#include "swapBarrier.h"
 
 #include <eq/client/packets.h>
 #include <eq/net/command.h>

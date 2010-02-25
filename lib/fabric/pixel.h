@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,13 +15,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_PIXEL_H
-#define EQ_PIXEL_H
+#ifndef EQFABRIC_PIXEL_H
+#define EQFABRIC_PIXEL_H
 
 #include <eq/base/base.h>
 #include <eq/base/log.h>
 
 namespace eq
+{
+namespace fabric
 {
     class Pixel;
     std::ostream& operator << ( std::ostream& os, const Pixel& pixel );
@@ -90,7 +92,7 @@ namespace eq
         uint32_t w;
         uint32_t h;
 
-        EQ_EXPORT static const Pixel ALL;
+        EQFABRIC_EXPORT static const Pixel ALL;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Pixel& pixel )
@@ -101,5 +103,6 @@ namespace eq
         return os;
     }
 }
+}
 
-#endif // EQ_PIXEL_H
+#endif // EQFABRIC_PIXEL_H

@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2009       Maxim Makhinya
+/* Copyright (c) 2009, Maxim Makhinya
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,6 +18,7 @@
 
 #include "roiEmptySpaceFinder.h"
 
+#include <eq/fabric/pixelViewport.h>
 
 namespace eq
 {

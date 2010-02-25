@@ -19,7 +19,6 @@
 #define EQ_WINDOW_H
 
 #include <eq/client/drawableConfig.h> // member
-#include <eq/client/pixelViewport.h>  // member
 #include <eq/client/renderContext.h>  // member
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h> // enum
@@ -29,6 +28,7 @@
 #include <eq/net/object.h>           // base class
 
 #include <eq/fabric/channel.h>       // friend
+#include <eq/fabric/pixelViewport.h> // member
 
 namespace eq
 {

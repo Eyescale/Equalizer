@@ -1,4 +1,5 @@
-/* Copyright (c) 2009       Maxim Makhinya
+/* Copyright (c) 2009, Maxim Makhinya
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,9 +18,11 @@
 #ifndef EQ_ROI_TRACKER_H
 #define EQ_ROI_TRACKER_H
 
-#include <eq/client/pixelViewport.h>
 #include <eq/client/types.h>
-#include <eq/base/stdExt.h>
+
+#include <eq/fabric/pixelViewport.h> // member
+
+#include <eq/base/stdExt.h>          // member
 
 #include <vector>
 #include <string>

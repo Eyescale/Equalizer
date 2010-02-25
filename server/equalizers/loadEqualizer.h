@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -23,7 +23,7 @@
 #include "equalizer.h"          // base class
 
 #include <eq/client/range.h>
-#include <eq/client/viewport.h>
+#include <eq/fabric/viewport.h> // member
 
 #include <deque>
 #include <vector>

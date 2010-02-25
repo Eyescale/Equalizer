@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,8 +25,8 @@
 #include "../view.h"
 #include "../segment.h"
 
-#include <eq/client/viewport.h>
 #include <eq/client/zoom.h>
+#include <eq/fabric/viewport.h>
 #include <eq/base/debug.h>
 #include <vmmlib/vmmlib.hpp>
 
