@@ -38,9 +38,6 @@
 #include "eventConnection.h" // member
 #include "udpConnection.h"   // member
 
-#include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
-//#include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
 
 namespace eq
@@ -78,16 +75,6 @@ namespace net
     private:
         typedef base::RefPtr< RSPConnection > RSPConnectionPtr;
 
-        enum RSPState
-        {
-            RSP_STOPPED,
-            RSP_ID,
-            RSP_DISCOVER,
-            RSP_RUNNING,
-            RSP_ERROR
-        };
-        base::Monitor< RSPState > _rspState;
-
         /* manages RSP protocol directly using the udp connection */
         class Thread : public base::Thread
         {
@@ -97,6 +84,7 @@ namespace net
             virtual ~Thread(){ _connection = 0; }
         protected:
             virtual void run();
+            virtual bool init() { return _connection->_initThread(); }
             
         private:
             RSPConnectionPtr _connection;
@@ -137,6 +125,16 @@ namespace net
         
         struct DatagramNack
         {
+            void set( uint16_t rID, uint16_t wID, 
+                      uint16_t sID, uint16_t n )
+            {
+                type       = NACK;
+                readerID   = rID; 
+                writerID   = wID;   
+                sequenceID = sID; 
+                count      = n;
+            }
+
             uint16_t       type;
             uint16_t       readerID;    // ID of the connection reader
             uint16_t       writerID;    // ID of the connection writer
@@ -170,6 +168,8 @@ namespace net
             };
 
             RepeatRequest() : type( NACK ), start( 0 ), end( 0 ) {}
+            RepeatRequest( const uint32_t s, const uint32_t e ) 
+                  : type( NACK ), start( s ), end( e ) {}
             RepeatRequest( const Type& t ) 
                 : type( t ), start( 0 ), end( 0 ) {}
 
@@ -188,11 +188,11 @@ namespace net
         // a link for all connection in the multicast network 
         RSPConnectionVector _children;
 
-		// a link for all connection in the multicast network 
+		// a link for all connection with stat connecting in the multicast network 
         RSPConnectionVector _childrenConnecting;
         
         uint16_t _id; //!< The identifier used to demultiplex multipe writers
-        
+        bool _idAccepted;
         int32_t _timeouts;
 
         typedef base::RefPtr< EventConnection > EventConnectionPtr;
@@ -245,9 +245,7 @@ namespace net
         
         int32_t _handleWrite(); //!< @return time to call again
         void _finishWriteQueue();
-        void _handleTimeout( const boost::system::error_code& error );
-        void _handleData( const boost::system::error_code& error,
-                          const size_t bytes );
+
         bool _handleDataDatagram( Buffer& buffer );
         bool _handleAck( const DatagramAck* ack );
         bool _handleNack( const DatagramNack* nack );
@@ -260,9 +258,23 @@ namespace net
 
         /* Run the reader thread */
         void _runThread();
+
+        /* init the reader thread */
+        bool _initThread();
         
-        void _handleInitData();
-        
+        /* handle data about the comunication state */ 
+        void _handleData( const boost::system::error_code& error,
+                              const size_t bytes );
+        void _handleConnectedData( const void* data );
+        void _handleInitData( const void* data );
+        void _handleAcceptIDData( const void* data );
+
+        /* handle timeout about the comunication state */
+        void _handleTimeout( const boost::system::error_code& error );
+        void _handleConnectedTimeout( );
+        void _handleInitTimeout( );
+        void _handleAcceptIDTimeout( );
+
         /** find the connection corresponding to the identifier */
         RSPConnectionPtr _findConnection( const uint16_t id );
         
@@ -276,6 +288,9 @@ namespace net
         void _handleRepeat();
         void _addRepeat( const uint16_t* repeatIDs, uint16_t size );
 
+        /** format and send an simple request which use only type and id field*/
+        void _sendSimpleDatagram( DatagramType type, uint16_t id );
+        
         /** format and send an ack request*/
         void _sendAckRequest( const uint16_t sequenceID );
 
@@ -289,10 +304,11 @@ namespace net
         void _checkNewID( const uint16_t id );
 
         /* add a new connection detected in the multicast network */
-        void _addNewConnection( const uint16_t id );
+        bool _addNewConnection( const uint16_t id );
         void _removeConnection( const uint16_t id );
 
         void _resetTimeout( uint32_t timeOut );
+        void _asyncReceiveFrom();
 
         CHECK_THREAD_DECLARE( _recvThread );
  

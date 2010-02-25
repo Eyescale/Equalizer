@@ -26,6 +26,8 @@
 #include <eq/base/rng.h>
 #include <eq/base/sleep.h>
 
+#include <boost/bind.hpp>
+
 //#define EQ_INSTRUMENT_RSP
 #define EQ_RSP_MERGE_WRITES
 
@@ -69,6 +71,7 @@ base::a_int32_t nTimeOuts;
 RSPConnection::RSPConnection()
         : _sendBuffer( Global::getIAttribute( Global::IATTR_UDP_MTU ))
         , _id( 0 )
+        , _idAccepted( false )
         , _timeouts( 0 )
         , _event( new EventConnection )
         , _connection( 0 )
@@ -150,11 +153,7 @@ void RSPConnection::_close()
     if( _thread )
     {
         EQASSERT( !_thread->isCurrent( ));
-        const DatagramNode exitNode = { ID_EXIT, _id };
-        _connection->send_to(
-            boost::asio::buffer( &exitNode, sizeof( DatagramNode )),
-            _writeAddr );
-
+        _sendSimpleDatagram( ID_EXIT, _id );
         _ioService.stop();
         _thread->join();
 		_thread = 0;
@@ -244,15 +243,11 @@ bool RSPConnection::listen()
     // init a thread to manage the communication protocol 
     _thread = new Thread( this );
     _numWriteAcks =  0;
-    _rspState = RSP_ID;
     _allowedData = 0;
     _sendRate = _description->bandwidth;
 
     // waits until RSP protocol establishes connection to the multicast network
-    EQCHECK( _thread->start( ));
-    _rspState.waitGE( RSP_RUNNING );
-
-    if( _rspState == RSP_ERROR )
+    if( !_thread->start( ) )
     {
         close();
         return false;
@@ -362,41 +357,6 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
     return bytes;
 }
 
-void RSPConnection::_handleInitData()
-{
-    void* data = _recvBuffer.getData();
-    const uint16_t type = *reinterpret_cast< uint16_t* >( data );
-    const DatagramNode* node = reinterpret_cast< const DatagramNode* >( data );
-    switch( type )
-    {
-        case ID_HELLO:
-            _timeouts = 0;
-            _checkNewID( node->connectionID ) ;
-            return;
-
-        case ID_CONFIRM:
-            _timeouts = 0;
-            _addNewConnection( node->connectionID );
-            return;
-
-        case COUNTNODE:
-            if( _handleCountNode( ))
-            {
-                _state = STATE_LISTENING;
-                _rspState = RSP_RUNNING;
-            }
-            break;
-    
-        case ID_EXIT:
-            _removeConnection( node->connectionID );
-            return;
-
-        default:
-            EQUNIMPLEMENTED;
-            break;
-    }
-}
-
 void RSPConnection::Thread::run()
 {
     _connection->_runThread();
@@ -408,114 +368,106 @@ void RSPConnection::_handleTimeout( const boost::system::error_code& error )
 {
     if( error == boost::asio::error::operation_aborted )
         return;
-
-    switch( _rspState.get( ))
-    {
-        case RSP_ID:
-            ++_timeouts;
-            if ( _timeouts < 20 )
-            {
-                EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
-                const DatagramNode ackNode ={ ID_HELLO, _id };
-                _connection->send_to( boost::asio::buffer( &ackNode,
-                                                           sizeof( ackNode )),
-                                     _writeAddr );
-            }
-            else 
-            {
-                EQLOG( LOG_RSP ) << "Confirm " << _id << std::endl;
-                EQINFO << "opened RSP connection " << _id << std::endl;
-                const DatagramNode confirmNode ={ ID_CONFIRM, _id };
-                _connection->send_to( boost::asio::buffer( &confirmNode,
-                                                         sizeof( confirmNode )),
-                                     _writeAddr );
-                _addNewConnection( _id );
-                _rspState = RSP_DISCOVER;
-                _timeouts = 0;
-                // send a first datagram to announce me and discover all other
-                // connections
-                _sendDatagramCountNode();
-            }
-            _resetTimeout( 10 );
-            break;
-            
-        case RSP_DISCOVER:
-            ++_timeouts;
-            if( _timeouts < 20 )
-                _sendDatagramCountNode();
-            else
-            {
-                _state = STATE_LISTENING;
-                _rspState = RSP_RUNNING;
-                _timeouts = 0;
-            }
-            _resetTimeout( 10 );
-            break;
-
-        case RSP_RUNNING:
-        {
-            if( _ackSend && _repeatQueue.empty( ))
-            {
-#ifdef EQ_INSTRUMENT_RSP
-                ++nTimeOuts;
-#endif
-                ++_timeouts;
-                if( _timeouts >= 
-                    Global::getIAttribute( Global::IATTR_RSP_MAX_TIMEOUTS ))
-                {
-                    EQERROR << "Too many timeouts during send: " << _timeouts
-                            << std::endl;
-
-                    const DatagramNode exitNode = { ID_EXIT, _id };
-                    _connection->send_to(
-                              boost::asio::buffer( &exitNode, 
-							                       sizeof( DatagramNode )),
-				                                   _writeAddr );
-
-                    _appBuffers.pushFront( 0 ); // unlock write function
-                    for( RSPConnectionVector::iterator i = _children.begin();
-                         i != _children.end(); ++i )
-                    {
-                        RSPConnectionPtr child = *i;
-                        child->_state = STATE_CLOSING;
-                        child->_appBuffers.push( 0 ); // unlock read func
-                    }
-                    _ioService.stop();
-                    return;
-                }
-                
-                // repeat ack request
-                EQASSERT( _sequenceID > 0 );
-                _sendAckRequest( _sequenceID - 1 );
-            }
-            else
-                _timeouts = 0;
-
-            if( _state == STATE_LISTENING )
-            {
-                const int32_t timeout = _handleWrite();
-                if( timeout >= 0 )
-                {
-                    EQLOG( LOG_RSP ) << "_handleTimeout timeout " 
-						             << timeout << std::endl;
-                    _resetTimeout( timeout );   
-                }
-                else
-                    _timer.cancel();
-            }
-            else
-                _ioService.stop();
-            break;
-        }
-
-        default:
-            EQUNIMPLEMENTED;
-    }
+    
+    if( _state == STATE_LISTENING )
+        _handleConnectedTimeout();
+    else if( _idAccepted )
+        _handleInitTimeout();
+    else
+        _handleAcceptIDTimeout();
 }
 
-void RSPConnection::_runThread()
+void RSPConnection::_handleAcceptIDTimeout( )
 {
-    //__debugbreak();
+    ++_timeouts;
+    if ( _timeouts < 20 )
+    {
+        EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
+        _sendSimpleDatagram( ID_HELLO, _id );
+    }
+    else 
+    {
+        EQLOG( LOG_RSP ) << "Confirm " << _id << std::endl;
+        EQINFO << "opened RSP connection " << _id << std::endl;
+        _sendSimpleDatagram( ID_CONFIRM, _id );
+        _addNewConnection( _id );
+        _idAccepted = true;
+        _timeouts = 0;
+        // send a first datagram to announce me and discover all other
+        // connections
+        _sendDatagramCountNode();
+    }
+    _resetTimeout( 10 );
+}
+
+void RSPConnection::_handleInitTimeout( )
+{
+    EQASSERT( _state != STATE_LISTENING );
+    ++_timeouts;
+    if( _timeouts < 20 )
+        _sendDatagramCountNode();
+    else
+    {
+        _state = STATE_LISTENING;
+        _timeouts = 0;
+        if ( _children.empty() )
+            _ioService.stop();
+    } 
+    _resetTimeout( 10 );
+}
+
+void RSPConnection::_handleConnectedTimeout( )
+{
+    if( _ackSend && _repeatQueue.empty( ))
+    {
+#ifdef EQ_INSTRUMENT_RSP
+        ++nTimeOuts;
+#endif
+        ++_timeouts;
+        if( _timeouts >= 
+            Global::getIAttribute( Global::IATTR_RSP_MAX_TIMEOUTS ))
+        {
+            EQERROR << "Too many timeouts during send: " << _timeouts
+                    << std::endl;
+            _sendSimpleDatagram( ID_EXIT, _id );
+            _appBuffers.pushFront( 0 ); // unlock write function
+            for( RSPConnectionVector::iterator i = _children.begin();
+                 i != _children.end(); ++i )
+            {
+                RSPConnectionPtr child = *i;
+                child->_state = STATE_CLOSING;
+                child->_appBuffers.push( 0 ); // unlock read func
+            }
+            _ioService.stop();
+            return;
+        }
+                
+        // repeat ack request
+        EQASSERT( _sequenceID > 0 );
+        _sendAckRequest( _sequenceID - 1 );
+    }
+    else
+        _timeouts = 0;
+
+    if( _state == STATE_LISTENING )
+    {
+        const int32_t timeout = _handleWrite();
+        if( timeout >= 0 )
+        {
+            EQLOG( LOG_RSP ) << "_handleTimeout timeout " 
+				             << timeout << std::endl;
+            _resetTimeout( timeout );   
+        }
+        else
+            _timer.cancel();
+    }
+    else
+        _ioService.stop();
+
+}
+
+bool RSPConnection::_initThread()
+{
     EQINFO << "Started RSP protocol thread" << std::endl;
     _timeouts = 0;
 
@@ -525,18 +477,18 @@ void RSPConnection::_runThread()
  
    // send a first datagram for announce me and discover other connection 
     EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
-    const DatagramNode newnode = { ID_HELLO, _id };
-    _connection->send_to( boost::asio::buffer( &newnode, 
-		                                       sizeof( DatagramNode )),
-                                               _writeAddr );
+    _sendSimpleDatagram( ID_HELLO, _id );
     _resetTimeout( 10 ); 
-    
-    _connection->async_receive_from(
-        boost::asio::buffer( _recvBuffer.getData(), _mtu ), _readAddr,
-        boost::bind( &RSPConnection::_handleData, this,
-                     boost::asio::placeholders::error,
-                     boost::asio::placeholders::bytes_transferred ));
+    _asyncReceiveFrom();
+    _ioService.run();
+    return  _state == STATE_LISTENING;
+}
 
+void RSPConnection::_runThread()
+{
+    //__debugbreak();
+    EQINFO << "Started RSP protocol thread" << std::endl;
+    _ioService.reset();
     _ioService.run();
 }
 
@@ -736,7 +688,7 @@ void RSPConnection::_finishWriteQueue()
 #ifndef NDEBUG
         const DatagramData* datagram = 
             reinterpret_cast< const DatagramData* >( buffer->getData( ));
-        EQASSERT( datagram->writerID == _id );;
+        EQASSERT( datagram->writerID == _id );
         EQASSERT( datagram->sequenceID == 
                   connection->_sequenceID + readBuffers.size( ));
         EQLOG( LOG_RSP ) << "receive " << datagram->size
@@ -801,135 +753,170 @@ void RSPConnection::_finishWriteQueue()
 #endif
 }
 
-
 void RSPConnection::_handleData( const boost::system::error_code& error,
                                  const size_t bytes )
 {
     int32_t timeout = 10;
-    switch( _rspState.get( ))
+    void* data = _recvBuffer.getData();
+    const uint16_t type = *reinterpret_cast< uint16_t* >( data );
+    const DatagramNode* node = 
+        reinterpret_cast< const DatagramNode* >( data );
+
+    if( _state == STATE_LISTENING )
     {
-        case RSP_ID:
+        _handleConnectedData( _recvBuffer.getData() );
+
+        if( _state == STATE_LISTENING )
+            timeout = _handleWrite();
+        else
         {
-            void* data = _recvBuffer.getData();
-            const uint16_t type = *reinterpret_cast< uint16_t* >( data );
-            const DatagramNode* node = 
-                reinterpret_cast< const DatagramNode* >( data );
-            switch( type )
-            {
-                case ID_HELLO:
-                    _checkNewID( node->connectionID );
-                    break;
-
-                case ID_DENY:
-                    // a connection refused my ID, try another ID
-                    if( node->connectionID == _id ) 
-                    {
-                        _timeouts = 0;
-                        const DatagramNode newnode = { ID_HELLO, _buildNewID()};
-                        EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
-                        _connection->send_to( 
-                            boost::asio::buffer( &newnode, sizeof( newnode )),
-                                     _writeAddr );
-                    }
-                    break;
-
-                case ID_EXIT:
-                    _removeConnection( node->connectionID );
-                    break;
-
-                default:
-                    break;    
-            }
-            break;
+            _ioService.stop();
+            return;
         }
+    }
+    else if ( _idAccepted )
+        _handleInitData( _recvBuffer.getData() );
+    else
+        _handleAcceptIDData( _recvBuffer.getData() );
 
-        case RSP_DISCOVER:
-            _handleInitData();
-            break;
-
-        case RSP_RUNNING:
-        {
-            void* data = _recvBuffer.getData();
-            const uint16_t type = *reinterpret_cast< uint16_t* >( data );
-            switch( type )
-            {
-                case DATA:
-                    EQCHECK( _handleDataDatagram( _recvBuffer ));
-                    break;
-
-                case ACK:
-                    EQCHECK( _handleAck( 
-                              reinterpret_cast< const DatagramAck* >( data )));
-                    break;
-
-                case NACK:
-                    EQCHECK( _handleNack(
-                              reinterpret_cast< const DatagramNack* >( data )));
-                    break;
-
-                case ACKREQ: // The writer asks for an ack/nack
-                    EQCHECK( _handleAckRequest(
-                        reinterpret_cast< const DatagramAckRequest* >( data )));
-                    break;
+    EQLOG( LOG_RSP ) << "_handleData timeout " << timeout << std::endl;
     
-                case ID_HELLO:
-                {
-                    const DatagramNode* node =
-                        reinterpret_cast< const DatagramNode* >( data );
-                    _checkNewID( node->connectionID );
-                    break;
-                }
+    _asyncReceiveFrom();
+    
+    if( timeout >= 0 )
+        _resetTimeout( timeout );
+    else
+        _timer.cancel();
+}
 
-                case ID_CONFIRM:
-                {
-                    const DatagramNode* node =
-                        reinterpret_cast< const DatagramNode* >( data );
-                    _addNewConnection( node->connectionID );
-                    break;
-                }
+void RSPConnection::_handleAcceptIDData( const void* data )
+{
+    const uint16_t type = *reinterpret_cast< const uint16_t* >( data );
+    const DatagramNode* node = 
+        reinterpret_cast< const DatagramNode* >( data );
+    switch( type )
+    {
+        case ID_HELLO:
+            _checkNewID( node->connectionID );
+            break;
 
-                case ID_EXIT:
-                {
-                    const DatagramNode* node = 
-                        reinterpret_cast< const DatagramNode* >( data );
-                    _removeConnection( node->connectionID );
-                    break;
-                }
-
-                case COUNTNODE:
-                    _handleCountNode();
-                    break;
-
-                default:
-                    EQASSERTINFO( false, 
-                                  "Don't know how to handle packet of type " <<
-                                  type );
-            }
-
-            if( _state == STATE_LISTENING )
-                timeout = _handleWrite();
-            else
+        case ID_DENY:
+            // a connection refused my ID, try another ID
+            if( node->connectionID == _id ) 
             {
-                _ioService.stop();
-                return;
+                _timeouts = 0;
+                _sendSimpleDatagram( ID_HELLO, _buildNewID() );
+                EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
             }
             break;
-        }
+
+        case ID_EXIT:
+            _removeConnection( node->connectionID );
+            break;
+
+        default:
+            break;    
+    }
+}
+
+void RSPConnection::_handleInitData( const void* data)
+{
+    const uint16_t type = *reinterpret_cast< const uint16_t* >( data );
+    const DatagramNode* node = reinterpret_cast< const DatagramNode* >( data );
+    switch( type )
+    {
+        case ID_HELLO:
+            _timeouts = 0;
+            _checkNewID( node->connectionID ) ;
+            return;
+
+        case ID_CONFIRM:
+            _timeouts = 0;
+            _addNewConnection( node->connectionID );
+            return;
+
+        case COUNTNODE:
+            if( _handleCountNode( ))
+                _state = STATE_LISTENING;
+            break;
+    
+        case ID_EXIT:
+            _removeConnection( node->connectionID );
+            return;
 
         default:
             EQUNIMPLEMENTED;
+            break;
+    }
+}
+void RSPConnection::_handleConnectedData( const void* data )
+{
+    const uint16_t type = *reinterpret_cast< const uint16_t* >( data );
+    switch( type )
+    {
+        case DATA:
+            EQCHECK( _handleDataDatagram( _recvBuffer ));
+            break;
+
+        case ACK:
+            EQCHECK( _handleAck( 
+                      reinterpret_cast< const DatagramAck* >( data )));
+            break;
+
+        case NACK:
+            EQCHECK( _handleNack(
+                      reinterpret_cast< const DatagramNack* >( data )));
+            break;
+
+        case ACKREQ: // The writer asks for an ack/nack
+            EQCHECK( _handleAckRequest(
+                reinterpret_cast< const DatagramAckRequest* >( data )));
+            break;
+
+        case ID_HELLO:
+        {
+            const DatagramNode* node =
+                reinterpret_cast< const DatagramNode* >( data );
+            _checkNewID( node->connectionID );
+            break;
+        }
+
+        case ID_CONFIRM:
+        {
+            const DatagramNode* node =
+                reinterpret_cast< const DatagramNode* >( data );
+            _addNewConnection( node->connectionID );
+            break;
+        }
+
+        case ID_EXIT:
+        {
+            const DatagramNode* node = 
+                reinterpret_cast< const DatagramNode* >( data );
+            _removeConnection( node->connectionID );
+            break;
+        }
+
+        case COUNTNODE:
+            _handleCountNode();
+            break;
+
+        default:
+            EQASSERTINFO( false, 
+                          "Don't know how to handle packet of type " <<
+                          type );
     }
 
-    EQLOG( LOG_RSP ) << "_handleData timeout " << timeout << std::endl;
+}
+
+
+void RSPConnection::_asyncReceiveFrom()
+{
     _connection->async_receive_from(
         boost::asio::buffer( _recvBuffer.getData(), _mtu ), _readAddr,
         boost::bind( &RSPConnection::_handleData, this,
                      boost::asio::placeholders::error,
                      boost::asio::placeholders::bytes_transferred ));
-    if( timeout >= 0 )
-        _resetTimeout( timeout );
-    else
-        _timer.cancel();
 }
 
 bool RSPConnection::_handleDataDatagram( Buffer& buffer )
@@ -1190,11 +1177,8 @@ void RSPConnection::_addRepeat( const uint16_t* nacks, uint16_t num )
 
     for( size_t i = 0; i < num; ++i )
     {
-        RepeatRequest request;
-        request.start = nacks[ i * 2 ];
-        request.end   = nacks[ i * 2 + 1 ];
+        RepeatRequest request( nacks[ i * 2 ], nacks[ i * 2 + 1 ] );
         EQLOG( LOG_RSP ) << request.start << ".." << request.end << " ";
-
         EQASSERT( request.start <= request.end );
         EQASSERT( request.end - request.start + 1 <= _writeBuffers.getSize( ));
 
@@ -1354,9 +1338,7 @@ bool RSPConnection::_handleCountNode()
     if( _children.size() == countConn->numConnections ) 
         return true;
 
-    RSPConnectionPtr connection = _findConnection( countConn->clientID );
-    if( !connection )
-        _addNewConnection( countConn->clientID );
+    _addNewConnection( countConn->clientID );
 
     return false;
 }
@@ -1367,10 +1349,7 @@ void RSPConnection::_checkNewID( uint16_t id )
     if( id == _id || _findConnection( id ).isValid() )
     {
         EQLOG( LOG_RSP ) << "Deny " << id << std::endl;
-        DatagramNode nodeSend = { ID_DENY, _id };
-        _connection->send_to( 
-            boost::asio::buffer( &nodeSend, sizeof( DatagramNode )),
-           _writeAddr );
+        _sendSimpleDatagram( ID_DENY, _id );
     }
 }
 
@@ -1387,24 +1366,22 @@ RSPConnection::RSPConnectionPtr RSPConnection::_findConnection(
 }
 
 
-void RSPConnection::_addNewConnection( const uint16_t id )
+bool RSPConnection::_addNewConnection( const uint16_t id )
 {
     if( _findConnection( id ).isValid() )
-        return;
+        return false;
 
 	for( std::vector< RSPConnectionPtr >::const_iterator i = 
 		      _childrenConnecting.begin();
          i != _childrenConnecting.end(); ++i )
     {
         if( (*i)->_id == id )
-            return ;
+            return false;
     }
 
     RSPConnectionPtr connection = new RSPConnection();
-    connection->_connection   = 0;
     connection->_id           = id;
     connection->_parent      = this;
-    connection->_connection  = 0;
     connection->_state       = STATE_CONNECTED;
     connection->_description = _description;
     connection->_appBuffers.clear();
@@ -1427,6 +1404,7 @@ void RSPConnection::_addNewConnection( const uint16_t id )
     }
 
     _sendDatagramCountNode();
+    return true;
 }
 
 void RSPConnection::_removeConnection( const uint16_t id )
@@ -1448,7 +1426,6 @@ void RSPConnection::_removeConnection( const uint16_t id )
     }
     
     _sendDatagramCountNode();
-
 }
 
 int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
@@ -1546,6 +1523,13 @@ void RSPConnection::_sendDatagramCountNode()
                          _writeAddr );
 }
 
+void RSPConnection::_sendSimpleDatagram( DatagramType type, uint16_t id )
+{
+    const DatagramNode simple = { type, id };
+    _connection->send_to( boost::asio::buffer( &simple, sizeof( simple )),
+                          _writeAddr );
+}
+
 void RSPConnection::_sendAck( const uint16_t writerID, 
                               const uint16_t sequenceID )
 {
@@ -1580,11 +1564,7 @@ void RSPConnection::_sendNack( const uint16_t writerID,
     DatagramNack* header =
         reinterpret_cast< DatagramNack* >( _nackBuffer.getData( ));
 
-    header->type = NACK;
-    header->readerID = _id;
-    header->writerID = writerID;
-    header->sequenceID = sequenceID;
-    header->count = count;
+    header->set( _id, writerID, sequenceID, count );
 
     memcpy( header + 1, repeats, size - sizeof( DatagramNack ));
     _connection->send_to( boost::asio::buffer( header, size ), _writeAddr );
