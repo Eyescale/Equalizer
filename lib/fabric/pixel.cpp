@@ -17,4 +17,4 @@
 
 #include "pixel.h"
 
-EQ_EXPORT const eq::fabric::Pixel eq::fabric::Pixel::ALL;
+const eq::fabric::Pixel eq::fabric::Pixel::ALL;

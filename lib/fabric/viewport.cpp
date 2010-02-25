@@ -18,7 +18,7 @@
 #include "viewport.h"
 #include "pixelViewport.h"
 
-EQ_EXPORT const eq::fabric::Viewport eq::fabric::Viewport::FULL;
+const eq::fabric::Viewport eq::fabric::Viewport::FULL;
 
 namespace eq
 {

@@ -54,7 +54,7 @@ namespace fabric
         void invalidate() { x() = y() = 0.f; }
 
         /** The zoom NONE (1,1) value. */
-        EQFABRIC_EXPORT static const Zoom NONE;
+        EQ_EXPORT static const Zoom NONE;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Zoom& zoom )

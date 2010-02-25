@@ -142,17 +142,17 @@ namespace fabric
             }
 
         /** Apply the view coverage to this viewport. */
-        EQFABRIC_EXPORT void applyView( const Viewport& segmentVP, 
-                                        const Viewport& viewVP,
-                                        const PixelViewport& pvp, 
-                                        const Vector4i& overdraw );
+        EQ_EXPORT void applyView( const Viewport& segmentVP, 
+                                  const Viewport& viewVP,
+                                  const PixelViewport& pvp, 
+                                  const Vector4i& overdraw );
 
         float x;
         float y;
         float w;
         float h;
 
-        EQFABRIC_EXPORT static const Viewport FULL;
+        EQ_EXPORT static const Viewport FULL;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Viewport& vp )

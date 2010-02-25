@@ -17,4 +17,4 @@
 
 #include "zoom.h"
 
-EQ_EXPORT const eq::fabric::Zoom eq::fabric::Zoom::NONE;
+const eq::fabric::Zoom eq::fabric::Zoom::NONE;

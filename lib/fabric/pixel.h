@@ -92,7 +92,7 @@ namespace fabric
         uint32_t w;
         uint32_t h;
 
-        EQFABRIC_EXPORT static const Pixel ALL;
+        EQ_EXPORT static const Pixel ALL;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Pixel& pixel )
