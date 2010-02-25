@@ -19,6 +19,7 @@
 #include "dso.h"
 #include "file.h"
 #include "global.h"
+#include "debug.h"
 #include "pluginRegistry.h"
 
 #include <vector>
