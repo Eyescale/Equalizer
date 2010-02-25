@@ -224,6 +224,8 @@ bool RSPConnection::listen()
         _connection->open( endpoint.protocol( ));
         _connection->set_option( ip::udp::socket::reuse_address( true ));
         _connection->set_option( ip::multicast::enable_loopback( false ));
+        _connection->set_option( ip::multicast::outbound_interface(
+                                     listenAddress.to_v4( )));
         _connection->bind( endpoint );
 
         const ip::address multicastAddress(
