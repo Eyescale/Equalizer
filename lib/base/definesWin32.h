@@ -41,7 +41,7 @@
 #  endif
 #endif
 
-#if 0
+#if 1
 #  ifndef EQ_COMPRESS_STREAM
 #    define EQ_COMPRESS_STREAM
 #  endif

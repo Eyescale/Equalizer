@@ -17,13 +17,13 @@
  */
 
 #include "dataOStream.h"
-
 #include "global.h"
 #include "log.h"
 #include "node.h"
 #include "types.h"
 
 #include <eq/base/compressor.h>
+#include <eq/base/global.h>
 
 //#define EQ_INSTRUMENT_DATAOSTREAM
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
@@ -59,7 +59,7 @@ DataOStream::DataOStream()
     const base::PluginRegistry& registry = base::Global::getPluginRegistry();
     const uint32_t name = 
         registry.chooseCompressor( EQ_COMPRESSOR_DATATYPE_BYTE );
-    _initPlugin( name );
+    _initCompressorPlugin( name );
     _initCompressor();
 #endif
 
