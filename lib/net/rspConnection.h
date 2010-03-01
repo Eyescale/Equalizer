@@ -202,8 +202,9 @@ namespace net
         boost::asio::ip::udp::socket* _read;
         boost::asio::ip::udp::socket* _write;
         boost::asio::ip::udp::endpoint _readAddr;
+        boost::asio::deadline_timer _timeout;
+        boost::asio::deadline_timer _wakeup;
         
-        boost::asio::deadline_timer _timer;
         eq::base::Clock _clock;
         size_t _allowedData;
         int64_t _sendRate;
@@ -308,7 +309,8 @@ namespace net
         bool _addNewConnection( const uint16_t id );
         void _removeConnection( const uint16_t id );
 
-        void _resetTimeout( uint32_t timeOut );
+        void _resetTimeout( int32_t timeOut );
+        void _postWakeup();
         void _asyncReceiveFrom();
 
         CHECK_THREAD_DECLARE( _recvThread );

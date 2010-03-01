@@ -76,7 +76,8 @@ RSPConnection::RSPConnection()
         , _event( new EventConnection )
         , _read( 0 )
         , _write( 0 )
-        , _timer( _ioService )
+        , _timeout( _ioService )
+        , _wakeup( _ioService )
         , _allowedData( 0 )
         , _sendRate( 0 )
         , _numWriteAcks( 0 )
@@ -476,13 +477,9 @@ void RSPConnection::_handleConnectedTimeout( )
     {
         const int32_t timeout = _handleWrite();
         if( timeout >= 0 )
-        {
             EQLOG( LOG_RSP ) << "_handleTimeout timeout " 
-				             << timeout << std::endl;
-            _resetTimeout( timeout );   
-        }
-        else
-            _timer.cancel();
+                             << timeout << std::endl;
+        _resetTimeout( timeout );   
     }
     else
         _ioService.stop();
@@ -511,11 +508,23 @@ void RSPConnection::_runThread()
     _ioService.run();
 }
 
-void RSPConnection::_resetTimeout( uint32_t timeOut )
+void RSPConnection::_resetTimeout( int32_t timeOut )
 {
-    _timer.expires_from_now( boost::posix_time::milliseconds( timeOut ));
-    _timer.async_wait( boost::bind( &RSPConnection::_handleTimeout, this,
-                                    placeholders::error ));
+    if( timeOut >= 0 )
+    {
+        _timeout.expires_from_now( boost::posix_time::milliseconds( timeOut ));
+        _timeout.async_wait( boost::bind( &RSPConnection::_handleTimeout, this,
+                                          placeholders::error ));
+    }
+    else
+        _timeout.cancel();
+}
+
+void RSPConnection::_postWakeup()
+{
+    _timeout.expires_from_now( boost::posix_time::milliseconds( 0 ));
+    _timeout.async_wait( boost::bind( &RSPConnection::_handleTimeout, this,
+                                      placeholders::error ));
 }
 
 int32_t RSPConnection::_handleWrite()
@@ -795,11 +804,7 @@ void RSPConnection::_handleData( const boost::system::error_code& error,
     EQLOG( LOG_RSP ) << "_handleData timeout " << timeout << std::endl;
     
     _asyncReceiveFrom();
-    
-    if( timeout >= 0 )
-        _resetTimeout( timeout );
-    else
-        _timer.cancel();
+    _resetTimeout( timeout );
 }
 
 void RSPConnection::_handleAcceptIDData( const void* data )
@@ -1470,7 +1475,7 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
             _appBuffers.isEmpty( ))
         {
             // trigger processing
-            _resetTimeout( 0 );
+            _postWakeup();
         }
         Buffer* buffer = _appBuffers.pop();
         if( !buffer )
@@ -1491,7 +1496,7 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
 
         EQCHECK( _threadBuffers.push( buffer ));
     }
-    _resetTimeout( 0 );
+    _postWakeup();
     EQLOG( LOG_RSP ) << "queued " << nDatagrams << " datagrams, " 
                      << bytes << " bytes" << std::endl;
     return bytes;
