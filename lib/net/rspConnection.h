@@ -199,9 +199,11 @@ namespace net
         EventConnectionPtr _event;
 
         boost::asio::io_service _ioService;
-        boost::asio::ip::udp::socket* _connection;
-        boost::asio::ip::udp::endpoint _writeAddr;
+        boost::asio::ip::udp::socket* _read;
+        boost::asio::ip::udp::socket* _write;
         boost::asio::ip::udp::endpoint _readAddr;
+        boost::asio::ip::udp::endpoint _writeAddr;
+        
         boost::asio::deadline_timer _timer;
         eq::base::Clock _clock;
         size_t _allowedData;

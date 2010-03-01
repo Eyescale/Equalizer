@@ -74,7 +74,8 @@ RSPConnection::RSPConnection()
         , _idAccepted( false )
         , _timeouts( 0 )
         , _event( new EventConnection )
-        , _connection( 0 )
+        , _read( 0 )
+        , _write( 0 )
         , _timer( _ioService )
         , _allowedData( 0 )
         , _sendRate( 0 )
@@ -173,9 +174,15 @@ void RSPConnection::_close()
 
 	{
 		base::ScopedMutex<> mutex( _mutexEvent );
-		if( _connection )
-			_connection->close();
-		_connection = 0;
+        if( _read )
+            _read->close();
+        delete _read;
+        _read = 0;
+ 
+        if( _write )
+            _write->close();
+        delete _write;
+        _write = 0;
 
 		_threadBuffers.clear();
 		_appBuffers.push( 0 ); // unlock any other read/write threads
@@ -215,30 +222,43 @@ bool RSPConnection::listen()
 
     try
     {
-        _connection = new ip::udp::socket( _ioService );
+        const ip::address readAddress( ip::address::from_string( "0.0.0.0" ));
+        const ip::udp::endpoint readEndpoint( readAddress, _description->port );
 
-        const ip::address listenAddress( 
-            ip::address::from_string( _description->getInterface( )));
-        ip::udp::endpoint endpoint( listenAddress, _description->port );
-
-        _connection->open( endpoint.protocol( ));
-        _connection->set_option( ip::udp::socket::reuse_address( true ));
-        _connection->set_option( ip::multicast::enable_loopback( false ));
-        _connection->set_option( ip::multicast::outbound_interface(
-                                     listenAddress.to_v4( )));
-        _connection->bind( endpoint );
-
-        const ip::address multicastAddress(
+        const ip::address mcAddr(
             ip::address::from_string( _description->getHostname( )));
-        _connection->set_option(
-            ip::multicast::join_group( multicastAddress ));
+        const ip::udp::endpoint writeEndpoint( mcAddr, _description->port );
+
+        _read = new ip::udp::socket( _ioService );
+        _write = new ip::udp::socket( _ioService );
+        _read->open( readEndpoint.protocol( ));
+        _write->open( writeEndpoint.protocol( ));
+
+        _read->set_option( ip::udp::socket::reuse_address( true ));
+        _write->set_option( ip::udp::socket::reuse_address( true ));
+
+        _read->bind( readEndpoint );
+
+        const ip::address ifAddr( 
+            ip::address::from_string( _description->getInterface( )));
+
+        _read->set_option( ip::multicast::join_group( mcAddr.to_v4(),
+                                                      ifAddr.to_v4( )));
+        _write->set_option( ip::multicast::outbound_interface( ifAddr.to_v4()));
+
+        _write->connect( writeEndpoint );
+
+        _read->set_option( ip::multicast::enable_loopback( false ));
+        _write->set_option( ip::multicast::enable_loopback( false ));
     }
     catch( boost::system::system_error& error )
     {
         EQWARN << "can't setup underlying UDP connection " << error.what()
                << std::endl;
-        delete _connection;
-        _connection = 0;
+        delete _read;
+        delete _write;
+        _read = 0;
+        _write = 0;
         return false;
     }
 
@@ -560,7 +580,7 @@ int32_t RSPConnection::_handleWrite()
     //  Note: We could optimize the send away if we're all alone, but this
     //        is not a use case for RSP, so we don't care.
     _waitWritable( size ); // OPT: process incoming in between
-    _connection->send_to( boost::asio::buffer( header, size ),
+    _write->send_to( boost::asio::buffer( header, size ),
                          _writeAddr );
     // Note: the data to myself will be 'written' in _finishWriteQueue once
     // we've got all other acks
@@ -647,8 +667,8 @@ void RSPConnection::_handleRepeat()
 
     // send data
     _waitWritable( size ); // OPT: process incoming in between
-    _connection->send_to( boost::asio::buffer( header, size ),
-                         _writeAddr );
+    _write->send_to( boost::asio::buffer( header, size ),
+                     _writeAddr );
 #ifdef EQ_INSTRUMENT_RSP
     ++nTotalDatagrams;
 #endif
@@ -910,7 +930,7 @@ void RSPConnection::_handleConnectedData( const void* data )
 
 void RSPConnection::_asyncReceiveFrom()
 {
-    _connection->async_receive_from(
+    _read->async_receive_from(
         boost::asio::buffer( _recvBuffer.getData(), _mtu ), _readAddr,
         boost::bind( &RSPConnection::_handleData, this,
                      boost::asio::placeholders::error,
@@ -1436,7 +1456,7 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
 
     EQASSERT( _state == STATE_LISTENING );
 
-    if ( !_connection )
+    if ( !_write )
         return -1;
 
     // compute number of datagrams
@@ -1517,14 +1537,14 @@ void RSPConnection::_sendDatagramCountNode()
 
     EQLOG( LOG_RSP ) << _children.size() << " nodes" << std::endl;
     const DatagramCount count = { COUNTNODE, _id, _children.size() };
-    _connection->send_to( boost::asio::buffer( &count, sizeof( count )),
+    _write->send_to( boost::asio::buffer( &count, sizeof( count )),
                          _writeAddr );
 }
 
 void RSPConnection::_sendSimpleDatagram( DatagramType type, uint16_t id )
 {
     const DatagramNode simple = { type, id };
-    _connection->send_to( boost::asio::buffer( &simple, sizeof( simple )),
+    _write->send_to( boost::asio::buffer( &simple, sizeof( simple )),
                           _writeAddr );
 }
 
@@ -1537,7 +1557,7 @@ void RSPConnection::_sendAck( const uint16_t writerID,
     ++nAcksSendTotal;
 #endif
     const DatagramAck ack = { ACK, _id, writerID, sequenceID };
-    _connection->send_to( boost::asio::buffer( &ack, sizeof( ack )),
+    _write->send_to( boost::asio::buffer( &ack, sizeof( ack )),
                           _writeAddr );
 }
 
@@ -1565,7 +1585,7 @@ void RSPConnection::_sendNack( const uint16_t writerID,
     header->set( _id, writerID, sequenceID, count );
 
     memcpy( header + 1, repeats, size - sizeof( DatagramNack ));
-    _connection->send_to( boost::asio::buffer( header, size ), _writeAddr );
+    _write->send_to( boost::asio::buffer( header, size ), _writeAddr );
 }
 
 void RSPConnection::_sendAckRequest( const uint16_t sequenceID )
@@ -1576,7 +1596,7 @@ void RSPConnection::_sendAckRequest( const uint16_t sequenceID )
 #endif
     EQLOG( LOG_RSP ) << "send ack request for " << sequenceID << std::endl;
     const DatagramAckRequest ackRequest = { ACKREQ, _id, sequenceID };
-    _connection->send_to(
+    _write->send_to(
         boost::asio::buffer( &ackRequest, sizeof( DatagramAckRequest )),
         _writeAddr );
 }
