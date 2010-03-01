@@ -759,10 +759,6 @@ void RSPConnection::_handleData( const boost::system::error_code& error,
                                  const size_t bytes )
 {
     int32_t timeout = 10;
-    void* data = _recvBuffer.getData();
-    const uint16_t type = *reinterpret_cast< uint16_t* >( data );
-    const DatagramNode* node = 
-        reinterpret_cast< const DatagramNode* >( data );
 
     if( _state == STATE_LISTENING )
     {
