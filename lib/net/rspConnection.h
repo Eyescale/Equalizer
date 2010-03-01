@@ -202,7 +202,6 @@ namespace net
         boost::asio::ip::udp::socket* _read;
         boost::asio::ip::udp::socket* _write;
         boost::asio::ip::udp::endpoint _readAddr;
-        boost::asio::ip::udp::endpoint _writeAddr;
         
         boost::asio::deadline_timer _timer;
         eq::base::Clock _clock;

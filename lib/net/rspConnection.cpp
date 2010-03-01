@@ -137,7 +137,8 @@ void RSPConnection::close()
     if( _parent.isValid() && _parent->_id == _id )
         _parent->close();
 
-    while(( !_parent && (!_threadBuffers.isEmpty() || !_writeBuffers.isEmpty( ))))
+    while( !_parent &&
+           ( !_threadBuffers.isEmpty() || !_writeBuffers.isEmpty( )))
     {
         base::sleep( 10 );
     }
@@ -492,10 +493,6 @@ bool RSPConnection::_initThread()
 {
     EQINFO << "Started RSP protocol thread" << std::endl;
     _timeouts = 0;
-
-    const ip::address listenAddress( 
-        ip::address::from_string( _description->getHostname( )));
-    _writeAddr = ip::udp::endpoint( listenAddress, _description->port );
  
    // send a first datagram for announce me and discover other connection 
     EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
@@ -580,8 +577,7 @@ int32_t RSPConnection::_handleWrite()
     //  Note: We could optimize the send away if we're all alone, but this
     //        is not a use case for RSP, so we don't care.
     _waitWritable( size ); // OPT: process incoming in between
-    _write->send_to( boost::asio::buffer( header, size ),
-                         _writeAddr );
+    _write->send( boost::asio::buffer( header, size ));
     // Note: the data to myself will be 'written' in _finishWriteQueue once
     // we've got all other acks
 
@@ -667,8 +663,7 @@ void RSPConnection::_handleRepeat()
 
     // send data
     _waitWritable( size ); // OPT: process incoming in between
-    _write->send_to( boost::asio::buffer( header, size ),
-                     _writeAddr );
+    _write->send( boost::asio::buffer( header, size ) );
 #ifdef EQ_INSTRUMENT_RSP
     ++nTotalDatagrams;
 #endif
@@ -927,14 +922,13 @@ void RSPConnection::_handleConnectedData( const void* data )
 
 }
 
-
 void RSPConnection::_asyncReceiveFrom()
 {
     _read->async_receive_from(
-        boost::asio::buffer( _recvBuffer.getData(), _mtu ), _readAddr,
+        buffer( _recvBuffer.getData(), _mtu ), _readAddr,
         boost::bind( &RSPConnection::_handleData, this,
-                     boost::asio::placeholders::error,
-                     boost::asio::placeholders::bytes_transferred ));
+                     placeholders::error,
+                     placeholders::bytes_transferred ));
 }
 
 bool RSPConnection::_handleDataDatagram( Buffer& buffer )
@@ -1537,15 +1531,13 @@ void RSPConnection::_sendDatagramCountNode()
 
     EQLOG( LOG_RSP ) << _children.size() << " nodes" << std::endl;
     const DatagramCount count = { COUNTNODE, _id, _children.size() };
-    _write->send_to( boost::asio::buffer( &count, sizeof( count )),
-                         _writeAddr );
+    _write->send( buffer( &count, sizeof( count )) );
 }
 
 void RSPConnection::_sendSimpleDatagram( DatagramType type, uint16_t id )
 {
     const DatagramNode simple = { type, id };
-    _write->send_to( boost::asio::buffer( &simple, sizeof( simple )),
-                          _writeAddr );
+    _write->send( buffer( &simple, sizeof( simple )) );
 }
 
 void RSPConnection::_sendAck( const uint16_t writerID, 
@@ -1557,8 +1549,7 @@ void RSPConnection::_sendAck( const uint16_t writerID,
     ++nAcksSendTotal;
 #endif
     const DatagramAck ack = { ACK, _id, writerID, sequenceID };
-    _write->send_to( boost::asio::buffer( &ack, sizeof( ack )),
-                          _writeAddr );
+    _write->send( buffer( &ack, sizeof( ack )) );
 }
 
 void RSPConnection::_sendNack( const uint16_t writerID, 
@@ -1585,7 +1576,7 @@ void RSPConnection::_sendNack( const uint16_t writerID,
     header->set( _id, writerID, sequenceID, count );
 
     memcpy( header + 1, repeats, size - sizeof( DatagramNack ));
-    _write->send_to( boost::asio::buffer( header, size ), _writeAddr );
+    _write->send( buffer( header, size ));
 }
 
 void RSPConnection::_sendAckRequest( const uint16_t sequenceID )
@@ -1596,9 +1587,7 @@ void RSPConnection::_sendAckRequest( const uint16_t sequenceID )
 #endif
     EQLOG( LOG_RSP ) << "send ack request for " << sequenceID << std::endl;
     const DatagramAckRequest ackRequest = { ACKREQ, _id, sequenceID };
-    _write->send_to(
-        boost::asio::buffer( &ackRequest, sizeof( DatagramAckRequest )),
-        _writeAddr );
+    _write->send( buffer( &ackRequest, sizeof( DatagramAckRequest )) );
 }
 
 std::ostream& operator << ( std::ostream& os,
