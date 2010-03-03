@@ -255,13 +255,6 @@ public:
                             delete receiver;
                             _receivers.erase( i );
                             std::cerr << --_nClients << " clients" << std::endl;
-                            if( _nClients == 1 &&  
-                                resultConn->getDescription()->type == 
-                                  CONNECTIONTYPE_RSP )
-                            {
-                                removeAllReceiver();
-                                _nClients = 0;
-                            }
                         }
                         break;
                     }

@@ -140,7 +140,8 @@ void RSPConnection::_close()
     if( _state == STATE_CLOSED )
         return;
     _state = STATE_CLOSING;
-
+    base::ScopedMutex<> mutex( _mutexEvent );
+ 
     if( _thread )
     {
         EQASSERT( !_thread->isCurrent( ));
@@ -148,20 +149,20 @@ void RSPConnection::_close()
         _ioService.stop();
         _thread->join();
         _thread = 0;
-    }
-
-    base::ScopedMutex<> mutex( _mutexEvent );
-    for( RSPConnectionVector::iterator i = _children.begin();
+        
+		for( RSPConnectionVector::iterator i = _children.begin();
          i != _children.end(); ++i )
-    {
-        RSPConnectionPtr child = *i;
-        base::ScopedMutex<> mutexChild( child->_mutexEvent );
-        child->_appBuffers.push( 0 );
-        child->_event->set();
+		{
+			RSPConnectionPtr child = *i;
+			base::ScopedMutex<> mutexChild( child->_mutexEvent );
+			child->_appBuffers.push( 0 );
+			child->_event->set();
+		}
+
+		_children.clear();
+		_childrenConnecting.clear();
     }
 
-    _children.clear();
-    _childrenConnecting.clear();
     _parent = 0;
 
     if( _read )
