@@ -174,6 +174,8 @@ void RSPConnection::_close()
     }
 
     _children.clear();
+	_allChildren.clear();
+	_childrenConnecting.clear();
     _parent = 0;
 	{
 		base::ScopedMutex<> mutex( _mutexEvent );

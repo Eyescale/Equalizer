@@ -216,16 +216,16 @@ namespace net
         typedef base::RefPtr< EventConnection > EventConnectionPtr;
         EventConnectionPtr _event;
 
-        boost::asio::io_service _ioService;
-        boost::asio::ip::udp::socket* _read;
-        boost::asio::ip::udp::socket* _write;
+        boost::asio::io_service        _ioService;
+        boost::asio::ip::udp::socket*  _read;
+        boost::asio::ip::udp::socket*  _write;
         boost::asio::ip::udp::endpoint _readAddr;
-        boost::asio::deadline_timer _timeout;
-        boost::asio::deadline_timer _wakeup;
+        boost::asio::deadline_timer    _timeout;
+        boost::asio::deadline_timer    _wakeup;
         
         eq::base::Clock _clock;
-        size_t _allowedData;
-        int64_t _sendRate;
+        size_t          _allowedData;
+        int64_t         _sendRate;
 
         uint32_t         _numWriteAcks;
         Thread*          _thread;
