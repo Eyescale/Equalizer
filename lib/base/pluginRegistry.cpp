@@ -23,7 +23,7 @@
 #include "pluginRegistry.h"
 
 #include <vector>
-
+#include <typeinfo>
 namespace eq
 {
 namespace base
