@@ -109,6 +109,13 @@ namespace net
             uint16_t connectionID;
         };
 
+        struct DatagramProperty
+        {
+            uint16_t type;
+            uint16_t clientID;
+            uint16_t sequenceID;
+        };
+
         struct DatagramCount
         {
             uint16_t type;
@@ -188,12 +195,23 @@ namespace net
         // a link for all connection in the multicast network 
         RSPConnectionVector _children;
 
-		// a link for all connection with stat connecting in the multicast network 
+        // a link for all connection in the connecting state 
         RSPConnectionVector _childrenConnecting;
+
+        // a link for all knowing connection
+        RSPConnectionVector _allChildren;
+
+        base::Monitor< bool > _solveConnection;
         
         uint16_t _id; //!< The identifier used to demultiplex multipe writers
-        bool _idAccepted;
-        int32_t _timeouts;
+        bool     _idAccepted;
+        int32_t  _mtu;     
+        int32_t  _ackFreq;
+        uint64_t _maxBucketSize;
+        uint32_t _payloadSize;
+        int32_t  _maxNAck;
+        int32_t  _timeouts;
+        base::a_bool_t _isInWrite;
 
         typedef base::RefPtr< EventConnection > EventConnectionPtr;
         EventConnectionPtr _event;
@@ -214,10 +232,10 @@ namespace net
         base::Lock       _mutexConnection;
         base::Lock       _mutexEvent;
         RSPConnectionPtr _parent;
-
-        int32_t _ackReceived;  // sequence ID of last received/send ack
-        int32_t _lastAck; // sequence ID of last confirmed ack
-        bool _ackSend;    // ack exchange in progress
+        bool             _isClosing;
+        int32_t          _ackReceived;  // sequence ID of last received/send ack
+        int32_t          _lastAck;      // sequence ID of last confirmed ack
+        bool             _ackSend;      // ack exchange in progress
 
         typedef base::Bufferb Buffer;
         typedef std::vector< Buffer* > BufferVector;
@@ -238,9 +256,6 @@ namespace net
         uint16_t _sequenceID; //!< the next usable (write) or expected (read)
         base::Buffer< Buffer* > _writeBuffers;    //!< Write buffers in flight
         std::deque< RepeatRequest > _repeatQueue; //!< nacks to repeat
-
-        static uint32_t _payloadSize;
-        static int32_t  _maxNAck;
 
         void _close();
         uint16_t _buildNewID();
@@ -263,7 +278,8 @@ namespace net
 
         /* init the reader thread */
         bool _initThread();
-        
+        /* Make all buffers available for reading */
+        void initBuffers();
         /* handle data about the comunication state */ 
         void _handleData( const boost::system::error_code& error,
                               const size_t bytes );
@@ -301,7 +317,7 @@ namespace net
         
         /** format and send a negative ack*/ 
         void _sendNack( const uint16_t toWriterID, const uint16_t sequenceID,
-                        const uint16_t countNack, const uint16_t* nacks );
+                        const uint16_t countNack,  const uint16_t* nacks );
         
         void _checkNewID( const uint16_t id );
 
@@ -312,6 +328,11 @@ namespace net
         void _resetTimeout( int32_t timeOut );
         void _postWakeup();
         void _asyncReceiveFrom();
+        bool _isWriting()
+            { return !_threadBuffers.isEmpty() || !_writeBuffers.isEmpty( ); }
+
+        /* look if each connection have the same mtu */
+        bool isFinishedMtuExchange();
 
         CHECK_THREAD_DECLARE( _recvThread );
  

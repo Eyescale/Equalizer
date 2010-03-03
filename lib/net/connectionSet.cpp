@@ -324,9 +324,11 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                         _selfConnection->reset();
                         return EVENT_INTERRUPT;
                     }
-                    
                     if( event == EVENT_DATA && _connection->isListening( ))
-                        event = EVENT_CONNECT;
+                        event = EVENT_CONNECT; 
+					else if( event == EVENT_DATA && _connection->isClosing( ))
+                        event = EVENT_DISCONNECT;
+                   
 
                     EQVERB << "selected connection " << _connection << " of "
                            << getSize() << ", event " << event << std::endl;

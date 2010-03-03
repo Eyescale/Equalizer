@@ -100,6 +100,8 @@ namespace net
         /** @return true if the connection is in the listening state. */
         bool isListening() const { return _state == STATE_LISTENING; }
 
+		/** @return true if the connection is in the closing state. */
+        bool isClosing() const { return _state == STATE_CLOSING; }
         /** 
          * Set the connection parameter description.
          * 

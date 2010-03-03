@@ -39,13 +39,6 @@ namespace eq
 namespace net
 {
 
-static int32_t _mtu = -1;
-static int32_t _ackFreq = -1;
-static uint64_t _maxBucketSize = 0;
-
-uint32_t RSPConnection::_payloadSize = 0;
-int32_t RSPConnection::_maxNAck = 0;
-
 namespace
 {
 #ifdef EQ_INSTRUMENT_RSP
@@ -69,10 +62,16 @@ base::a_int32_t nTimeOuts;
 }
 
 RSPConnection::RSPConnection()
-        : _sendBuffer( Global::getIAttribute( Global::IATTR_UDP_MTU ))
+        : _solveConnection( false )
         , _id( 0 )
         , _idAccepted( false )
+        , _mtu( -1 )
+        , _ackFreq( -1 )
+        , _maxBucketSize( 0 )
+        , _payloadSize( 0 )
+        , _maxNAck( 0 )
         , _timeouts( 0 )
+		, _isInWrite( false )
         , _event( new EventConnection )
         , _read( 0 )
         , _write( 0 )
@@ -83,11 +82,10 @@ RSPConnection::RSPConnection()
         , _numWriteAcks( 0 )
         , _thread ( 0 )
         , _parent( 0 )
+        , _isClosing( false )
         , _ackReceived( -1 )
         , _lastAck( -1 )
         , _ackSend( false )
-        , _threadBuffers( Global::getIAttribute( Global::IATTR_RSP_NUM_BUFFERS))
-        , _recvBuffer( Global::getIAttribute( Global::IATTR_UDP_MTU ))
         , _readBuffer( 0 )
         , _readBufferPos( 0 )
         , _sequenceID( 0 )
@@ -107,9 +105,14 @@ RSPConnection::RSPConnection()
         _maxNAck = EQ_MIN( _maxNAck, _ackFreq );
         EQASSERT( _maxNAck < std::numeric_limits< uint16_t >::max( ));
 
-        _maxBucketSize = (_mtu * _ackFreq) >> 1;
+        _maxBucketSize = ( _mtu * _ackFreq) >> 1;
     }
 
+    _sendBuffer.resize( _mtu );
+    _threadBuffers.resize( 
+		                Global::getIAttribute( Global::IATTR_RSP_NUM_BUFFERS ));
+    _recvBuffer.resize( _mtu );
+    
     _buffers.reserve( Global::getIAttribute( Global::IATTR_RSP_NUM_BUFFERS ));
     while( static_cast< int32_t >( _buffers.size( )) <
            Global::getIAttribute( Global::IATTR_RSP_NUM_BUFFERS ))
@@ -138,8 +141,7 @@ void RSPConnection::close()
     if( _parent.isValid() && _parent->_id == _id )
         _parent->close();
 
-    while( !_parent &&
-           ( !_threadBuffers.isEmpty() || !_writeBuffers.isEmpty( )))
+    while(( !_parent && _isWriting() ))
     {
         base::sleep( 10 );
     }
@@ -173,7 +175,6 @@ void RSPConnection::_close()
 
     _children.clear();
     _parent = 0;
-
 	{
 		base::ScopedMutex<> mutex( _mutexEvent );
         if( _read )
@@ -278,7 +279,7 @@ bool RSPConnection::listen()
     }
 
     // Make all buffers available for writing
-    _appBuffers.clear();
+    EQASSERT(_appBuffers.isEmpty());
     _appBuffers.push( _buffers );
 
     _fireStateChanged();
@@ -294,7 +295,9 @@ ConnectionPtr RSPConnection::acceptSync()
     CHECK_THREAD( _recvThread );
     if( _state != STATE_LISTENING )
         return 0;
-    
+        
+    // protect event->set, _children and _childrenConnecting
+    base::ScopedMutex<> mutexConn( _mutexConnection );
     EQASSERT ( !_childrenConnecting.empty() );
 
 	RSPConnectionPtr newConnection = _childrenConnecting.back();
@@ -303,7 +306,6 @@ ConnectionPtr RSPConnection::acceptSync()
     _sendDatagramCountNode();
 
     EQINFO << "accepted RSP connection " << newConnection->_id << std::endl;
-    base::ScopedMutex<> mutexConn( _mutexConnection );
 
     if ( !_childrenConnecting.empty() )
         _event->set();
@@ -371,8 +373,14 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
     else
     {
         base::ScopedMutex<> mutex( _mutexEvent );
-        if( _appBuffers.isEmpty( ))
+        if ( _isClosing )
+        {
+            _state = STATE_CLOSING;
+            _event->set();
+        }
+        else if( _appBuffers.isEmpty( ))
             _event->reset();
+
     }
 
 #ifdef EQ_INSTRUMENT_RSP
@@ -522,8 +530,8 @@ void RSPConnection::_resetTimeout( int32_t timeOut )
 
 void RSPConnection::_postWakeup()
 {
-    _timeout.expires_from_now( boost::posix_time::milliseconds( 0 ));
-    _timeout.async_wait( boost::bind( &RSPConnection::_handleTimeout, this,
+    _wakeup.expires_from_now( boost::posix_time::milliseconds( 0 ));
+    _wakeup.async_wait( boost::bind( &RSPConnection::_handleTimeout, this,
                                       placeholders::error ));
 }
 
@@ -1085,7 +1093,6 @@ RSPConnection::Buffer* RSPConnection::_newDataBuffer( Buffer& inBuffer )
         EQLOG( LOG_RSP ) << "Reader too slow, dropping data" << std::endl;
         return 0;
     }
-    // else
 
     buffer->swap( inBuffer );
     return buffer;
@@ -1387,21 +1394,23 @@ bool RSPConnection::_addNewConnection( const uint16_t id )
 {
     if( _findConnection( id ).isValid() )
         return false;
-
-	for( std::vector< RSPConnectionPtr >::const_iterator i = 
-		      _childrenConnecting.begin();
-         i != _childrenConnecting.end(); ++i )
     {
-        if( (*i)->_id == id )
-            return false;
+        base::ScopedMutex<> mutexConn( _mutexConnection );
+	    for( std::vector< RSPConnectionPtr >::const_iterator i = 
+		          _allChildren.begin();
+             i != _allChildren.end(); ++i )
+        {
+            if( (*i)->_id == id )
+                return false;
+        }
     }
 
     RSPConnectionPtr connection = new RSPConnection();
-    connection->_id           = id;
-    connection->_parent      = this;
-    connection->_state       = STATE_CONNECTED;
-    connection->_description = _description;
-    connection->_appBuffers.clear();
+    connection->_id            = id;
+    connection->_parent        = this;
+    connection->_state         = STATE_CONNECTED;
+    connection->_description   = _description;
+    EQASSERT( connection->_appBuffers.isEmpty() );
 
     // Make all buffers available for reading
     for( BufferVector::iterator i = connection->_buffers.begin();
@@ -1415,6 +1424,7 @@ bool RSPConnection::_addNewConnection( const uint16_t id )
     // in acceptSync
     {
         base::ScopedMutex<> mutexConn( _mutexConnection );
+        _allChildren.push_back( connection );
         _childrenConnecting.push_back( connection );
         EQINFO << "new rsp connection " << id << std::endl;
         _event->set();
@@ -1428,15 +1438,34 @@ void RSPConnection::_removeConnection( const uint16_t id )
 {
     EQWARN << "remove connection " << id << std::endl;
 
+	if ( id == _id )
+		return;
+
     for( std::vector< RSPConnectionPtr >::iterator i = _children.begin(); 
           i != _children.end(); ++i )
     {
         RSPConnectionPtr child = *i;
         if( child->_id == id )
         {
-            _children.erase( i );
-            base::ScopedMutex<> mutex( _mutexEvent );
-            child->_appBuffers.push( 0 );
+            base::ScopedMutex<> mutex( _mutexEvent ); 
+            if ( child->_appBuffers.isEmpty() || child->_writeBuffers.isEmpty() )
+            {
+                for( std::vector< RSPConnectionPtr >::iterator j = 
+					   _allChildren.begin(); j != _allChildren.end(); ++j )
+				{
+					if( (*j)->_id == id )
+					{
+						_allChildren.erase( j );
+						break;
+					}
+				}
+				
+				_children.erase( i );
+                
+                child->_appBuffers.push( 0 );
+                child->_state = STATE_CLOSING;
+            }
+            _isClosing = true;
             child->_event->set();
             break;
         }
@@ -1447,12 +1476,7 @@ void RSPConnection::_removeConnection( const uint16_t id )
 
 int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
 {
-    if( _state != STATE_CONNECTED && _state != STATE_LISTENING )
-        return -1;
-    
-    if ( _parent.isValid() )
-        return _parent->write( inData, bytes );
-
+    EQASSERT( !_parent.isValid() );
     EQASSERT( _state == STATE_LISTENING );
 
     if ( !_write )

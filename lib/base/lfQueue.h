@@ -46,10 +46,15 @@ namespace base
     template< typename T > class LFQueue : public NonCopyable
     {
     public:
-        /** Construct a new queue. @version 1.0 */
+        /** Construct a new queue with size element. @version 1.0 */
         LFQueue( const int32_t size )
                 : _data( size + 1 ), _readPos( 0 ), _writePos( 0 )
             { EQASSERT( size > 0 ); }
+
+        /** Construct a new queue with one element. @version 1.0 */
+        LFQueue( )
+                : _data( 1 ), _readPos( 0 ), _writePos( 0 )
+            { }
 
         /** Destruct this queue. @version 1.0 */
         ~LFQueue() {}
@@ -63,6 +68,14 @@ namespace base
                 CHECK_THREAD_SCOPED( _reader );
                 _readPos = 0;
                 _writePos = 0;
+            }
+            
+        /** Resize and reset the queue. @version 1.0 */
+        void resize( const int32_t size )
+            {
+                _readPos = 0;
+                _writePos = 0;
+                _data.resize( size + 1 );
             }
 
         /** 

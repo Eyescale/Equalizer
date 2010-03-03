@@ -324,6 +324,7 @@ private:
 #endif
 
 typedef Atomic< long > a_int32_t;
+typedef Atomic< bool > a_bool_t;
 }
 
 }

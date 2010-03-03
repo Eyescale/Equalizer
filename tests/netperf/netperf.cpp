@@ -266,6 +266,8 @@ public:
                         break;
                     }
                     case ConnectionSet::EVENT_DISCONNECT:
+                        resultConn = _connectionSet.getConnection();
+                        resultConn->close();
                     case ConnectionSet::EVENT_INVALID_HANDLE:  // client done
                         resultConn = _connectionSet.getConnection();
                         _connectionSet.removeConnection( resultConn );
