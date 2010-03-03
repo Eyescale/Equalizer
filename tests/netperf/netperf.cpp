@@ -255,7 +255,7 @@ public:
                             delete receiver;
                             _receivers.erase( i );
                             std::cerr << --_nClients << " clients" << std::endl;
-                            if ( _nClients == 1 &&  
+                            if( _nClients == 1 &&  
                                 resultConn->getDescription()->type == 
                                   CONNECTIONTYPE_RSP )
                             {
@@ -266,8 +266,6 @@ public:
                         break;
                     }
                     case ConnectionSet::EVENT_DISCONNECT:
-                        resultConn = _connectionSet.getConnection();
-                        resultConn->close();
                     case ConnectionSet::EVENT_INVALID_HANDLE:  // client done
                         resultConn = _connectionSet.getConnection();
                         _connectionSet.removeConnection( resultConn );

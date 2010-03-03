@@ -185,12 +185,6 @@ namespace net
             uint32_t end;
         };
         
-        // Buffer to send one NACK packet.
-        eq::base::Bufferb _nackBuffer;
-
-        // The buffer used by the write function in udp socket
-        eq::base::Bufferb _sendBuffer;
-
         typedef std::vector< RSPConnectionPtr > RSPConnectionVector;
         // a link for all connection in the multicast network 
         RSPConnectionVector _children;
@@ -198,11 +192,6 @@ namespace net
         // a link for all connection in the connecting state 
         RSPConnectionVector _childrenConnecting;
 
-        // a link for all knowing connection
-        RSPConnectionVector _allChildren;
-
-        base::Monitor< bool > _solveConnection;
-        
         uint16_t _id; //!< The identifier used to demultiplex multipe writers
         bool     _idAccepted;
         int32_t  _mtu;     
@@ -211,7 +200,12 @@ namespace net
         uint32_t _payloadSize;
         int32_t  _maxNAck;
         int32_t  _timeouts;
-        base::a_bool_t _isInWrite;
+
+        // Buffer to send one NACK packet.
+        eq::base::Bufferb _nackBuffer;
+
+        // The buffer used by the write function in udp socket
+        eq::base::Bufferb _sendBuffer;
 
         typedef base::RefPtr< EventConnection > EventConnectionPtr;
         EventConnectionPtr _event;
@@ -232,7 +226,6 @@ namespace net
         base::Lock       _mutexConnection;
         base::Lock       _mutexEvent;
         RSPConnectionPtr _parent;
-        bool             _isClosing;
         int32_t          _ackReceived;  // sequence ID of last received/send ack
         int32_t          _lastAck;      // sequence ID of last confirmed ack
         bool             _ackSend;      // ack exchange in progress
