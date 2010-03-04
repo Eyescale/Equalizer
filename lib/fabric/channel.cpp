@@ -60,7 +60,8 @@ Channel< T, W >::Channel( W* parent )
 
 template< typename T, typename W >
 Channel< T, W >::Channel( const Channel& from, W* parent )
-        : _window( parent )
+        : Object( from )
+        , _window( parent )
         , _context( &_nativeContext )
         , _color( from._color )
         , _tasks( from._tasks )

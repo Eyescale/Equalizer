@@ -1,9 +1,9 @@
-Potential Windows build fix
+Fix Channel copies
 
 [ ] Will break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

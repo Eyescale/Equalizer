@@ -353,6 +353,7 @@ bool Channel::_syncConfigExit()
 
     _state = STATE_STOPPED;
     setTasks( fabric::TASK_NONE );
+    sync();
     return success;
 }
 
