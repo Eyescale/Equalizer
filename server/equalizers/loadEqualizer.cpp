@@ -823,7 +823,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                 if ( lengthUp > pvpMaxRightY / pvpH  ) 
                     splitPos = end - pvpMaxRightY / pvpH;  
                 else if( splitPos > pvpMaxLeftY / pvpH )
-                    splitPos = vp.y + pvpMaxRightY /pvpH;
+                    splitPos = vp.y + pvpMaxLeftY /pvpH;
                 
                 if( (splitPos - vp.y) < boundary )
                     splitPos = vp.y + boundary;
