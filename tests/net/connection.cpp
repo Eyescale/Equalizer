@@ -16,7 +16,6 @@
  */
 
 // Tests basic connection functionality
-#define EQ_TEST_NO_WATCHDOG
 #include <test.h>
 #include <eq/base/monitor.h>
 #include <eq/net/connection.h>
