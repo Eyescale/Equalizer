@@ -24,10 +24,6 @@
 
 #include <eq/client/log.h>
 
-using namespace std;
-using namespace stde;
-using namespace eq::base;
-
 namespace eq
 {
 namespace server
@@ -50,19 +46,19 @@ VisitorResult CompoundUpdateOutputVisitor::visit( Compound* compound )
 
 void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 {
-    const std::vector< Frame* >& outputFrames = compound->getOutputFrames();
-    const Channel*               channel      = compound->getChannel();
+    const FrameVector& outputFrames = compound->getOutputFrames();
+    const Channel* channel = compound->getChannel();
 
-    if( !compound->testInheritTask( eq::TASK_READBACK ) || !channel )
+    if( !compound->testInheritTask( fabric::TASK_READBACK ) || !channel )
         return;
 
     if( outputFrames.empty( ))
     {
-        compound->unsetInheritTask( eq::TASK_READBACK );
+        compound->unsetInheritTask( fabric::TASK_READBACK );
         return;
     }
 
-    for( vector<Frame*>::const_iterator i = outputFrames.begin(); 
+    for( FrameVector::const_iterator i = outputFrames.begin(); 
          i != outputFrames.end(); ++i )
     {
         //----- Check uniqueness of output frame name
@@ -72,19 +68,20 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         if( _outputFrames.find( name ) != _outputFrames.end())
         {
             EQWARN << "Multiple output frames of the same name are unsupported"
-                   << ", ignoring output frame " << name << endl;
+                   << ", ignoring output frame " << name << std::endl;
             frame->unsetData();
             continue;
         }
 
         //----- compute readback area
-        const eq::Viewport& frameVP = frame->getViewport();
-        const eq::PixelViewport& inheritPVP=compound->getInheritPixelViewport();
-        eq::PixelViewport framePVP = inheritPVP.getSubPVP( frameVP );
+        const Viewport& frameVP = frame->getViewport();
+        const PixelViewport& inheritPVP=compound->getInheritPixelViewport();
+        PixelViewport framePVP = inheritPVP.getSubPVP( frameVP );
         
         if( !framePVP.hasArea( )) // output frame has no pixels
         {
-            EQINFO << "Skipping output frame " << name << ", no pixels" << endl;
+            EQINFO << "Skipping output frame " << name << ", no pixels"
+                   << std::endl;
             frame->unsetData();
             continue;
         }
@@ -96,8 +93,8 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         FrameData* frameData = frame->getMasterData();
         EQASSERT( frameData );
 
-        EQLOG( eq::LOG_ASSEMBLY )
-            << disableFlush << "Output frame \"" << name << "\" id " 
+        EQLOG( LOG_ASSEMBLY )
+            << base::disableFlush << "Output frame \"" << name << "\" id " 
             << frame->getID() << " v" << frame->getVersion()+1
             << " data id " << frameData->getID() << " v" 
             << frameData->getVersion() + 1 << " on channel \""
@@ -130,13 +127,13 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         //----- Set frame parameters:
         // 1) offset is position wrt window, i.e., the channel position
         if( compound->getInheritChannel() == channel ||
-            compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) == eq::ON )
+            compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) == ON )
         {
             frame->setInheritOffset( Vector2i( inheritPVP.x, inheritPVP.y ));
         }
         else
         {
-            const eq::PixelViewport& nativePVP = channel->getPixelViewport();
+            const PixelViewport& nativePVP = channel->getPixelViewport();
             frame->setInheritOffset( Vector2i( nativePVP.x, nativePVP.y ));
         }
 
@@ -148,18 +145,19 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         frame->commit();
 
         _outputFrames[name] = frame;
-        EQLOG( eq::LOG_ASSEMBLY ) 
+        EQLOG( LOG_ASSEMBLY ) 
             << " buffers " << frameData->getBuffers() << " read area "
             << framePVP << " readback " << frame->getInheritZoom()
-            << " assemble " << frameData->getZoom() << endl << enableFlush;
+            << " assemble " << frameData->getZoom() << std::endl
+            << base::enableFlush;
     }
 }
 
 void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
                                                Frame* frame )
 {
-    eq::Zoom zoom = frame->getZoom();
-    eq::Zoom zoom_1;
+    Zoom zoom = frame->getZoom();
+    Zoom zoom_1;
 
     if( !zoom.isValid( )) // if zoom is not set, auto-calculate from parent
     {
@@ -178,11 +176,11 @@ void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
     {
         FrameData* frameData = frame->getMasterData();
         frameData->setZoom( zoom_1 ); // textures are zoomed by input frame
-        frame->setInheritZoom( eq::Zoom( ));
+        frame->setInheritZoom( Zoom( ));
     }
     else
     {
-        eq::Zoom inputZoom;
+        Zoom inputZoom;
         /* Output frames downscale pixel data during readback, and upscale it on
          * the input frame by setting the input frame's inherit zoom. */
         if( zoom.x() > 1.0f )

@@ -854,7 +854,7 @@ compoundField:
           layout = 0;
           view = 0;
       }
-    | EQTOKEN_TASK '['   { eqCompound->setTasks( eq::TASK_NONE ); }
+    | EQTOKEN_TASK '['   { eqCompound->setTasks( eq::fabric::TASK_NONE ); }
         compoundTasks ']'
     | EQTOKEN_EYE  '['   { eqCompound->setEyes( eq::server::Compound::EYE_UNDEFINED );}
         compoundEyes  ']'
@@ -931,10 +931,10 @@ viewSegmentRefField:
 
 compoundTasks: /*null*/ | compoundTasks compoundTask
 compoundTask:
-    EQTOKEN_CLEAR      { eqCompound->enableTask( eq::TASK_CLEAR ); }
-    | EQTOKEN_DRAW     { eqCompound->enableTask( eq::TASK_DRAW ); }
-    | EQTOKEN_ASSEMBLE { eqCompound->enableTask( eq::TASK_ASSEMBLE );}
-    | EQTOKEN_READBACK { eqCompound->enableTask( eq::TASK_READBACK );}
+    EQTOKEN_CLEAR      { eqCompound->enableTask( eq::fabric::TASK_CLEAR ); }
+    | EQTOKEN_DRAW     { eqCompound->enableTask( eq::fabric::TASK_DRAW ); }
+    | EQTOKEN_ASSEMBLE { eqCompound->enableTask( eq::fabric::TASK_ASSEMBLE );}
+    | EQTOKEN_READBACK { eqCompound->enableTask( eq::fabric::TASK_READBACK );}
 
 compoundEyes: /*null*/ | compoundEyes compoundEye
 compoundEye:

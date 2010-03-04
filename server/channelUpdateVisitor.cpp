@@ -31,9 +31,6 @@
 
 #include <eq/client/log.h>
 
-using namespace std;
-using namespace eq::base;
-
 namespace eq
 {
 namespace server
@@ -42,7 +39,7 @@ ChannelUpdateVisitor::ChannelUpdateVisitor( Channel* channel,
                                             const uint32_t frameID,
                                             const uint32_t frameNumber )
         : _channel( channel )
-        , _eye( eq::EYE_CYCLOP )
+        , _eye( EYE_CYCLOP )
         , _frameID( frameID )
         , _frameNumber( frameNumber )
         , _updated( false )
@@ -52,7 +49,7 @@ bool ChannelUpdateVisitor::_skipCompound( const Compound* compound )
 {
     if( compound->getChannel() != _channel ||
         !compound->testInheritEye( _eye ) ||
-        compound->getInheritTasks() == TASK_NONE )
+        compound->getInheritTasks() == fabric::TASK_NONE )
     {
         return true;
     }
@@ -70,21 +67,21 @@ VisitorResult ChannelUpdateVisitor::visitPre( const Compound* compound )
     if( _skipCompound( compound ))
         return TRAVERSE_CONTINUE;
 
-    eq::RenderContext context;
+    RenderContext context;
     _setupRenderContext( compound, context );
 
     _updateFrameRate( compound );
     _updateViewStart( compound, context );
 
-    if( compound->testInheritTask( eq::TASK_CLEAR ))
+    if( compound->testInheritTask( fabric::TASK_CLEAR ))
     {
-        eq::ChannelFrameClearPacket clearPacket;        
+        ChannelFrameClearPacket clearPacket;        
         clearPacket.context = context;
 
         _channel->send( clearPacket );
         _updated = true;
-        EQLOG( eq::LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
-                               << &clearPacket << endl;
+        EQLOG( LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
+                               << &clearPacket << std::endl;
     }
     return TRAVERSE_CONTINUE;
 }
@@ -101,29 +98,29 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
     }
 
     // OPT: Send render context once before task packets?
-    eq::RenderContext context;
+    RenderContext context;
     _setupRenderContext( compound, context );
     _updateFrameRate( compound );
     _updateViewStart( compound, context );
 
-    if( compound->testInheritTask( eq::TASK_CLEAR ))
+    if( compound->testInheritTask( fabric::TASK_CLEAR ))
     {
-        eq::ChannelFrameClearPacket clearPacket;        
+        ChannelFrameClearPacket clearPacket;        
         clearPacket.context = context;
         _channel->send( clearPacket );
         _updated = true;
-        EQLOG( eq::LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
-                           << &clearPacket << endl;
+        EQLOG( LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
+                           << &clearPacket << std::endl;
     }
-    if( compound->testInheritTask( eq::TASK_DRAW ))
+    if( compound->testInheritTask( fabric::TASK_DRAW ))
     {
-        eq::ChannelFrameDrawPacket drawPacket;
+        ChannelFrameDrawPacket drawPacket;
 
         drawPacket.context = context;
         _channel->send( drawPacket );
         _updated = true;
-        EQLOG( eq::LOG_TASKS ) << "TASK draw " << _channel->getName() <<  " " 
-                           << &drawPacket << endl;
+        EQLOG( LOG_TASKS ) << "TASK draw " << _channel->getName() <<  " " 
+                           << &drawPacket << std::endl;
     }
     
     _updateDrawFinish( compound );
@@ -139,7 +136,7 @@ VisitorResult ChannelUpdateVisitor::visitPost( const Compound* compound )
     if( _skipCompound( compound ))
         return TRAVERSE_CONTINUE;
 
-    eq::RenderContext context;
+    RenderContext context;
     _setupRenderContext( compound, context );
     _updatePostDraw( compound, context );
 
@@ -148,7 +145,7 @@ VisitorResult ChannelUpdateVisitor::visitPost( const Compound* compound )
 
 
 void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
-                                                eq::RenderContext& context )
+                                                RenderContext& context )
 {
     const Channel* destChannel = compound->getInheritChannel();
     EQASSERT( destChannel );
@@ -185,9 +182,9 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     }
 
     if( _channel != destChannel &&
-        compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) != eq::ON )
+        compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) != ON )
     {
-        const eq::PixelViewport& nativePVP = _channel->getPixelViewport();
+        const PixelViewport& nativePVP = _channel->getPixelViewport();
         context.pvp.x = nativePVP.x;
         context.pvp.y = nativePVP.y;
     }
@@ -213,14 +210,14 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     // Channel::frameDrawFinish
     Node* node = _channel->getNode();
 
-    eq::ChannelFrameDrawFinishPacket channelPacket;
+    ChannelFrameDrawFinishPacket channelPacket;
     channelPacket.objectID    = _channel->getID();
     channelPacket.frameNumber = _frameNumber;
     channelPacket.frameID     = _frameID;
 
     node->send( channelPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK channel draw finish " << _channel->getName()
-                           <<  " " << &channelPacket <<endl;
+    EQLOG( LOG_TASKS ) << "TASK channel draw finish " << _channel->getName()
+                       <<  " " << &channelPacket << std::endl;
 
     if( !lastDrawCompound )
         _channel->setLastDrawCompound( compound );
@@ -232,14 +229,14 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     if( lastDrawChannel && lastDrawChannel != _channel )
         return;
 
-    eq::WindowFrameDrawFinishPacket windowPacket;
+    WindowFrameDrawFinishPacket windowPacket;
     windowPacket.objectID    = window->getID();
     windowPacket.frameNumber = _frameNumber;
     windowPacket.frameID     = _frameID;
 
     node->send( windowPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK window draw finish "  << window->getName() 
-                           <<  " " << &windowPacket << endl;
+    EQLOG( LOG_TASKS ) << "TASK window draw finish "  << window->getName() 
+                           <<  " " << &windowPacket << std::endl;
     if( !lastDrawChannel )
         window->setLastDrawChannel( _channel );
 
@@ -249,14 +246,14 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     if( lastDrawWindow && lastDrawWindow != window )
         return;
 
-    eq::PipeFrameDrawFinishPacket pipePacket;
+    PipeFrameDrawFinishPacket pipePacket;
     pipePacket.objectID    = pipe->getID();
     pipePacket.frameNumber = _frameNumber;
     pipePacket.frameID     = _frameID;
 
     node->send( pipePacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK pipe draw finish " 
-                           << pipe->getName() <<  " " << &pipePacket << endl;
+    EQLOG( LOG_TASKS ) << "TASK pipe draw finish " 
+                           << pipe->getName() <<  " " << &pipePacket << std::endl;
     if( !lastDrawWindow )
         pipe->setLastDrawWindow( window );
 
@@ -265,14 +262,14 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     if( lastDrawPipe && lastDrawPipe != pipe )
         return;
 
-    eq::NodeFrameDrawFinishPacket nodePacket;
+    NodeFrameDrawFinishPacket nodePacket;
     nodePacket.objectID    = node->getID();
     nodePacket.frameNumber = _frameNumber;
     nodePacket.frameID     = _frameID;
 
     node->send( nodePacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK node draw finish " << node->getName() 
-                           <<  " " << &nodePacket << endl;
+    EQLOG( LOG_TASKS ) << "TASK node draw finish " << node->getName() 
+                           <<  " " << &nodePacket << std::endl;
     if( !lastDrawPipe )
         node->setLastDrawPipe( pipe );
 }
@@ -288,7 +285,7 @@ void ChannelUpdateVisitor::_updateFrameRate( const Compound* compound ) const
 
 GLenum ChannelUpdateVisitor::_getDrawBuffer() const
 {
-    const eq::DrawableConfig& drawableConfig =
+    const DrawableConfig& drawableConfig =
         _channel->getWindow()->getDrawableConfig();
     
     if( !drawableConfig.stereo )
@@ -304,10 +301,10 @@ GLenum ChannelUpdateVisitor::_getDrawBuffer() const
         {
             switch( _eye )
             {
-                case eq::EYE_LEFT:
+                case EYE_LEFT:
                     return GL_BACK_LEFT;
                     break;
-                case eq::EYE_RIGHT:
+                case EYE_RIGHT:
                     return GL_BACK_RIGHT;
                     break;
                 default:
@@ -318,10 +315,10 @@ GLenum ChannelUpdateVisitor::_getDrawBuffer() const
         // else singlebuffered
         switch( _eye )
         {
-            case eq::EYE_LEFT:
+            case EYE_LEFT:
                 return GL_FRONT_LEFT;
                 break;
-            case eq::EYE_RIGHT:
+            case EYE_RIGHT:
                 return GL_FRONT_RIGHT;
                 break;
             default:
@@ -335,26 +332,26 @@ eq::ColorMask ChannelUpdateVisitor::_getDrawBufferMask(const Compound* compound)
     const
 {
     if( compound->getInheritIAttribute( Compound::IATTR_STEREO_MODE ) !=
-        eq::ANAGLYPH )
-        return eq::ColorMask::ALL;
+        ANAGLYPH )
+        return ColorMask::ALL;
 
     switch( _eye )
     {
-        case eq::EYE_LEFT:
+        case EYE_LEFT:
             return ColorMask( 
                 compound->getInheritIAttribute(
                     Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK ));
-        case eq::EYE_RIGHT:
+        case EYE_RIGHT:
             return ColorMask( 
                 compound->getInheritIAttribute( 
                     Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK ));
         default:
-            return eq::ColorMask::ALL;
+            return ColorMask::ALL;
     }
 }
 
 void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
-                                            eq::RenderContext& context )
+                                            RenderContext& context )
 {
     // compute eye position in screen space
     const Vector3f  eyeW = _getEyePosition( compound );
@@ -362,7 +359,7 @@ void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
     const Matrix4f& xfm  = frustumData.getTransform();
     const Vector3f  eye  = xfm * eyeW;
 
-    EQVERB << "Eye position world: " << eyeW << " screen " << eye << endl;
+    EQVERB << "Eye position world: " << eyeW << " screen " << eye << std::endl;
 
     // compute perspective and orthographic frusta from size and eye position
     _computeFrustumCorners( context.frustum, compound, frustumData, eye, false);
@@ -402,15 +399,15 @@ Vector3f ChannelUpdateVisitor::_getEyePosition( const Compound* compound )
 
     switch( _eye )
     {
-        case eq::EYE_LEFT:
+        case EYE_LEFT:
             return Vector3f(-eyeBase_2, 0.f, 0.f );
 
-        case eq::EYE_RIGHT:
+        case EYE_RIGHT:
             return Vector3f( eyeBase_2, 0.f, 0.f );
 
         default:
             EQUNIMPLEMENTED;
-        case eq::EYE_CYCLOP:
+        case EYE_CYCLOP:
             return Vector3f( 0.f, 0.f, 0.f );
     }
 }
@@ -458,11 +455,11 @@ void ChannelUpdateVisitor::_computeFrustumCorners( Frustumf& frustum,
     }
 
     // move frustum according to pixel decomposition
-    const eq::Pixel& pixel = compound->getInheritPixel();
-    if( pixel != eq::Pixel::ALL && pixel.isValid( ))
+    const Pixel& pixel = compound->getInheritPixel();
+    if( pixel != Pixel::ALL && pixel.isValid( ))
     {
         const Channel*    inheritChannel = compound->getInheritChannel();
-        const eq::PixelViewport& destPVP = inheritChannel->getPixelViewport();
+        const PixelViewport& destPVP = inheritChannel->getPixelViewport();
         
         if( pixel.w > 1 )
         {
@@ -490,8 +487,8 @@ void ChannelUpdateVisitor::_computeFrustumCorners( Frustumf& frustum,
 
     // adjust to viewport (screen-space decomposition)
     // Note: vp is computed pixel-correct by Compound::updateInheritData()
-    const eq::Viewport vp = compound->getInheritViewport();
-    if( vp != eq::Viewport::FULL && vp.isValid( ))
+    const Viewport vp = compound->getInheritViewport();
+    if( vp != Viewport::FULL && vp.isValid( ))
     {
         const float frustumWidth = frustum.right() - frustum.left();
         frustum.left()  += frustumWidth * vp.x;
@@ -504,7 +501,7 @@ void ChannelUpdateVisitor::_computeFrustumCorners( Frustumf& frustum,
 }
 
 void ChannelUpdateVisitor::_updatePostDraw( const Compound* compound, 
-                                            const eq::RenderContext& context )
+                                            const RenderContext& context )
 {
     _updateAssemble( compound, context );
     _updateReadback( compound, context );
@@ -512,16 +509,16 @@ void ChannelUpdateVisitor::_updatePostDraw( const Compound* compound,
 }
 
 void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
-                                            const eq::RenderContext& context )
+                                            const RenderContext& context )
 {
-    if( !compound->testInheritTask( eq::TASK_ASSEMBLE ))
+    if( !compound->testInheritTask( fabric::TASK_ASSEMBLE ))
         return;
 
-    const std::vector< Frame* >& inputFrames = compound->getInputFrames();
+    const FrameVector& inputFrames = compound->getInputFrames();
     EQASSERT( !inputFrames.empty( ));
 
-    vector<net::ObjectVersion> frameIDs;
-    for( vector<Frame*>::const_iterator iter = inputFrames.begin(); 
+    std::vector< net::ObjectVersion > frameIDs;
+    for( FrameVector::const_iterator iter = inputFrames.begin(); 
          iter != inputFrames.end(); ++iter )
     {
         Frame* frame = *iter;
@@ -536,28 +533,28 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
         return;
 
     // assemble task
-    eq::ChannelFrameAssemblePacket packet;
+    ChannelFrameAssemblePacket packet;
     packet.context   = context;
     packet.nFrames   = frameIDs.size();
 
-    EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS ) 
-        << "TASK assemble " << _channel->getName() <<  " " << &packet << endl;
+    EQLOG( LOG_ASSEMBLY | LOG_TASKS ) 
+        << "TASK assemble " << _channel->getName() <<  " " << &packet << std::endl;
     _channel->send<net::ObjectVersion>( packet, frameIDs );
     _updated = true;
 }
     
 void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
-                                            const eq::RenderContext& context )
+                                            const RenderContext& context )
 {
-    if( !compound->testInheritTask( eq::TASK_READBACK ))
+    if( !compound->testInheritTask( fabric::TASK_READBACK ))
         return;
 
     const std::vector< Frame* >& outputFrames = compound->getOutputFrames();
     EQASSERT( !outputFrames.empty( ));
 
-    FrameVector                frames;
-    vector<net::ObjectVersion> frameIDs;
-    for( vector<Frame*>::const_iterator i = outputFrames.begin(); 
+    FrameVector frames;
+    std::vector< net::ObjectVersion > frameIDs;
+    for( FrameVector::const_iterator i = outputFrames.begin(); 
          i != outputFrames.end(); ++i )
     {
         Frame* frame = *i;
@@ -573,29 +570,28 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
         return;
 
     // readback task
-    eq::ChannelFrameReadbackPacket packet;
+    ChannelFrameReadbackPacket packet;
     packet.context   = context;
     packet.nFrames   = frames.size();
 
     _channel->send<net::ObjectVersion>( packet, frameIDs );
     _updated = true;
-    EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS ) 
-        << "TASK readback " << _channel->getName() <<  " " << &packet << endl;
+    EQLOG( LOG_ASSEMBLY | LOG_TASKS ) 
+        << "TASK readback " << _channel->getName() <<  " " << &packet << std::endl;
 
     // transmit tasks
-    Node*                 node         = _channel->getNode();
-    net::NodePtr   netNode      = node->getNode();
+    Node* node = _channel->getNode();
+    net::NodePtr netNode = node->getNode();
     const net::NodeID&  outputNodeID = netNode->getNodeID();
-    for( vector<Frame*>::const_iterator i = frames.begin(); 
-         i != frames.end(); ++i )
+    for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
     {
         Frame* outputFrame = *i;
 
-        const vector<Frame*>& inputFrames = 
+        const FrameVector& inputFrames =
             outputFrame->getInputFrames( context.eye);
 
-        vector<net::NodeID> nodeIDs;
-        for( vector<Frame*>::const_iterator j = inputFrames.begin();
+        std::vector< net::NodeID > nodeIDs;
+        for( FrameVector::const_iterator j = inputFrames.begin();
              j != inputFrames.end(); ++j )
         {
             const Frame* inputFrame   = *j;
@@ -617,50 +613,50 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
             continue;
 
         // send
-        eq::ChannelFrameTransmitPacket transmitPacket;
+        ChannelFrameTransmitPacket transmitPacket;
         transmitPacket.sessionID = packet.sessionID;
         transmitPacket.objectID  = packet.objectID;
         transmitPacket.context   = context;
         transmitPacket.frame     = net::ObjectVersion( outputFrame );
         transmitPacket.nNodes    = nodeIDs.size();
 
-        EQLOG( eq::LOG_ASSEMBLY | eq::LOG_TASKS )
+        EQLOG( LOG_ASSEMBLY | LOG_TASKS )
             << "TASK transmit " << _channel->getName() <<  " " << 
-            &transmitPacket << " first " << nodeIDs[0] << endl;
+            &transmitPacket << " first " << nodeIDs[0] << std::endl;
 
         _channel->send<net::NodeID>( transmitPacket, nodeIDs );
     }        
 }
 
 void ChannelUpdateVisitor::_updateViewStart( const Compound* compound,
-                                             const eq::RenderContext& context )
+                                             const RenderContext& context )
 {
     EQASSERT( !_skipCompound( compound ));
-    if( !compound->testInheritTask( eq::TASK_VIEW ))
+    if( !compound->testInheritTask( fabric::TASK_VIEW ))
         return;
     
     // view start task
-    eq::ChannelFrameViewStartPacket packet;
+    ChannelFrameViewStartPacket packet;
     packet.context   = context;
 
-    EQLOG( eq::LOG_TASKS ) << "TASK view start " << _channel->getName() <<  " "
-                           << &packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK view start " << _channel->getName() <<  " "
+                           << &packet << std::endl;
     _channel->send( packet );
 }
 
 void ChannelUpdateVisitor::_updateViewFinish( const Compound* compound,
-                                              const eq::RenderContext& context )
+                                              const RenderContext& context )
 {
     EQASSERT( !_skipCompound( compound ));
-    if( !compound->testInheritTask( eq::TASK_VIEW ))
+    if( !compound->testInheritTask( fabric::TASK_VIEW ))
         return;
     
     // view finish task
-    eq::ChannelFrameViewFinishPacket packet;
+    ChannelFrameViewFinishPacket packet;
     packet.context   = context;
 
-    EQLOG( eq::LOG_TASKS ) << "TASK view finish " << _channel->getName() <<  " "
-                           << &packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK view finish " << _channel->getName() <<  " "
+                       << &packet << std::endl;
     _channel->send( packet );
 }
 

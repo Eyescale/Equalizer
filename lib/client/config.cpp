@@ -34,9 +34,9 @@
 #include "packets.h"
 #include "pipe.h"
 #include "server.h"
-#include "task.h"
 #include "view.h"
 
+#include <eq/fabric/task.h>
 #include <eq/net/command.h>
 #include <eq/net/global.h>
 
@@ -690,12 +690,12 @@ bool Config::_needsLocalSync() const
             break;
 
         case DRAW_SYNC:
-            if( !(node->getTasks() & TASK_DRAW) )
+            if( !(node->getTasks() & fabric::TASK_DRAW) )
                 return false;
             break;
 
         case LOCAL_SYNC:
-            if( node->getTasks() == TASK_NONE )
+            if( node->getTasks() == fabric::TASK_NONE )
                 return false;
             break;
                 

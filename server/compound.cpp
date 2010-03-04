@@ -51,15 +51,11 @@
 
 #include "compoundActivateVisitor.h"
 
-using namespace eq::base;
-using namespace std;
-using namespace stde;
-
 namespace eq
 {
 namespace server
 {
-#define MAKE_ATTR_STRING( attr ) ( string("EQ_COMPOUND_") + #attr )
+#define MAKE_ATTR_STRING( attr ) ( std::string("EQ_COMPOUND_") + #attr )
 std::string Compound::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_STEREO_MODE ),
     MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_LEFT_MASK ),
@@ -78,7 +74,7 @@ Compound::Compound()
         , _frustum( _data.frustumData )
         , _swapBarrier( 0 )
 {
-    EQINFO << "New Compound @" << (void*)this << endl;
+    EQINFO << "New Compound @" << (void*)this << std::endl;
 }
 
 // copy constructor
@@ -196,10 +192,10 @@ Compound::InheritData::InheritData()
         , overdraw( Vector4i::ZERO )
         , buffers( eq::Frame::BUFFER_UNDEFINED )
         , eyes( EYE_UNDEFINED )
-        , tasks( eq::TASK_DEFAULT )
+        , tasks( fabric::TASK_DEFAULT )
         , period( EQ_UNDEFINED_UINT32 )
         , phase( EQ_UNDEFINED_UINT32 )
-        , maxFPS( numeric_limits< float >::max( ))
+        , maxFPS( std::numeric_limits< float >::max( ))
         , active( true )
 {
     const Global* global = Global::instance();
@@ -234,10 +230,9 @@ Compound* Compound::getNext() const
     if( !_parent )
         return 0;
 
-    vector<Compound*>&          siblings = _parent->_children;
-    vector<Compound*>::iterator result   = find( siblings.begin(),
-                                                 siblings.end(), this);
-
+    CompoundVector&          siblings = _parent->_children;
+    CompoundVector::iterator result   = find( siblings.begin(), siblings.end(), 
+                                              this );
     if( result == siblings.end() )
         return 0;
     result++;
@@ -378,8 +373,8 @@ void Compound::setSwapBarrier( SwapBarrier* barrier )
 {
     if( barrier && barrier->getName().empty( ))
     {
-        const Compound* root     = getRoot();
-        const string&   rootName = root->getName();
+        const Compound* root = getRoot();
+        const std::string& rootName = root->getName();
         if( rootName.empty( ))
             barrier->setName( "barrier" );
         else
@@ -445,16 +440,16 @@ bool Compound::isDestination() const
 //---------------------------------------------------------------------------
 // frustum operations
 //---------------------------------------------------------------------------
-void Compound::setWall( const eq::Wall& wall )
+void Compound::setWall( const Wall& wall )
 {
     _frustum.setWall( wall );
-    EQVERB << "Wall: " << _data.frustumData << endl;
+    EQVERB << "Wall: " << _data.frustumData << std::endl;
 }
 
-void Compound::setProjection( const eq::Projection& projection )
+void Compound::setProjection( const Projection& projection )
 {
     _frustum.setProjection( projection );
-    EQVERB << "Projection: " << _data.frustumData << endl;
+    EQVERB << "Projection: " << _data.frustumData << std::endl;
 }
 
 void Compound::updateFrustum()
@@ -798,14 +793,14 @@ void Compound::update( const uint32_t frameNumber )
     CompoundUpdateOutputVisitor updateOutputVisitor( frameNumber );
     accept( updateOutputVisitor );
 
-    const hash_map<std::string, Frame*>& outputFrames =
+    const stde::hash_map<std::string, Frame*>& outputFrames =
         updateOutputVisitor.getOutputFrames();
     CompoundUpdateInputVisitor updateInputVisitor( outputFrames );
     accept( updateInputVisitor );
 
     const BarrierMap& swapBarriers = updateOutputVisitor.getSwapBarriers();
 
-    for( hash_map<string, net::Barrier*>::const_iterator i = 
+    for( stde::hash_map< std::string, net::Barrier* >::const_iterator i = 
              swapBarriers.begin(); i != swapBarriers.end(); ++i )
     {
         net::Barrier* barrier = i->second;
@@ -823,7 +818,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
     if( !_parent )
     {
         _inherit = _data;
-        _inherit.zoom = eq::Zoom::NONE; // will be reapplied below
+        _inherit.zoom = Zoom::NONE; // will be reapplied below
 
         if( _inherit.eyes == EYE_UNDEFINED )
             _inherit.eyes = EYE_CYCLOP_BIT;
@@ -840,17 +835,17 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
             _inherit.buffers = eq::Frame::BUFFER_COLOR;
 
-        if( _inherit.iAttributes[IATTR_STEREO_MODE] == eq::UNDEFINED )
-            _inherit.iAttributes[IATTR_STEREO_MODE] = eq::QUAD;
+        if( _inherit.iAttributes[IATTR_STEREO_MODE] == UNDEFINED )
+            _inherit.iAttributes[IATTR_STEREO_MODE] = QUAD;
 
         if( _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] == 
-            eq::UNDEFINED )
+            UNDEFINED )
         {
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] = 
                 COLOR_MASK_RED;
         }
         if( _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] == 
-            eq::UNDEFINED )
+            UNDEFINED )
         {   
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] =
                 COLOR_MASK_GREEN | COLOR_MASK_BLUE;
@@ -903,15 +898,15 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         if( _data.buffers != eq::Frame::BUFFER_UNDEFINED )
             _inherit.buffers = _data.buffers;
         
-        if( _data.iAttributes[IATTR_STEREO_MODE] != eq::UNDEFINED )
+        if( _data.iAttributes[IATTR_STEREO_MODE] != UNDEFINED )
             _inherit.iAttributes[IATTR_STEREO_MODE] =
                 _data.iAttributes[IATTR_STEREO_MODE];
 
-        if( _data.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] != eq::UNDEFINED)
+        if( _data.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] != UNDEFINED)
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] = 
                 _data.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK];
 
-        if( _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] !=eq::UNDEFINED)
+        if( _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] !=UNDEFINED)
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] = 
                 _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK];
     }
@@ -921,7 +916,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         _inherit.pvp.apply( _data.pixel );
 
         // Zoom
-        const eq::PixelViewport unzoomedPVP( _inherit.pvp );
+        const PixelViewport unzoomedPVP( _inherit.pvp );
         _inherit.pvp.apply( _data.zoom );
 
         // Compute the inherit zoom to be pixel-correct with the integer-rounded
@@ -936,22 +931,22 @@ void Compound::updateInheritData( const uint32_t frameNumber )
     {
         // Channels with no PVP or range do not execute tasks (ignored during
         // init)
-        _inherit.tasks = eq::TASK_NONE;
+        _inherit.tasks = fabric::TASK_NONE;
     }
-    else if( _data.tasks == eq::TASK_DEFAULT )
+    else if( _data.tasks == fabric::TASK_DEFAULT )
     {
         if( isLeaf( ))
-            _inherit.tasks = eq::TASK_ALL;
+            _inherit.tasks = fabric::TASK_ALL;
         else
-            _inherit.tasks = eq::TASK_ASSEMBLE | eq::TASK_READBACK;
+            _inherit.tasks = fabric::TASK_ASSEMBLE | fabric::TASK_READBACK;
     }
     else
         _inherit.tasks = _data.tasks;
 
     if( isDestination() && getChannel()->getView( ))
-        _inherit.tasks |= eq::TASK_VIEW;
+        _inherit.tasks |= fabric::TASK_VIEW;
     else
-        _inherit.tasks &= ~eq::TASK_VIEW;        
+        _inherit.tasks &= ~fabric::TASK_VIEW;        
 
     // DPlex activation
     _inherit.active = (( frameNumber % _inherit.period ) == _inherit.phase);
@@ -1020,12 +1015,12 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
     if( !compound )
         return os;
     
-    os << disableFlush << "compound" << endl;
-    os << "{" << endl << indent;
+    os << base::disableFlush << "compound" << std::endl;
+    os << "{" << std::endl << base::indent;
       
     const std::string& name = compound->getName();
     if( !name.empty( ))
-        os << "name     \"" << name << "\"" << endl;
+        os << "name     \"" << name << "\"" << std::endl;
 
     const Channel* channel = compound->getChannel();
     if( channel )
@@ -1040,7 +1035,7 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
             if( !channelName.empty() && 
                 config->findChannel( channelName ) == channel )
             {
-                os << "channel  \"" << channelName << "\"" << endl;
+                os << "channel  \"" << channelName << "\"" << std::endl;
             }
             else
             {
@@ -1089,25 +1084,25 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
                     else
                         os << view->getPath();
 
-                    os << " )" << endl; 
+                    os << " )" << std::endl; 
                 }
                 else
-                    os << "channel  ( " << channel->getPath() << " )" << endl;
+                    os << "channel  ( " << channel->getPath() << " )" << std::endl;
             }
         }
     }
 
     const uint32_t tasks = compound->getTasks();
-    if( tasks != eq::TASK_DEFAULT )
+    if( tasks != fabric::TASK_DEFAULT )
     {
         os << "task     [";
-        if( tasks &  eq::TASK_CLEAR )    os << " CLEAR";
-        if( tasks &  eq::TASK_CULL )     os << " CULL";
+        if( tasks &  fabric::TASK_CLEAR )    os << " CLEAR";
+        if( tasks &  fabric::TASK_CULL )     os << " CULL";
         if( compound->isLeaf() && 
-            ( tasks &  eq::TASK_DRAW ))  os << " DRAW";
-        if( tasks &  eq::TASK_ASSEMBLE ) os << " ASSEMBLE";
-        if( tasks &  eq::TASK_READBACK ) os << " READBACK";
-        os << " ]" << endl;
+            ( tasks &  fabric::TASK_DRAW ))  os << " DRAW";
+        if( tasks &  fabric::TASK_ASSEMBLE ) os << " ASSEMBLE";
+        if( tasks &  fabric::TASK_READBACK ) os << " READBACK";
+        os << " ]" << std::endl;
     }
 
     const uint32_t buffers = compound->getBuffers();
@@ -1116,28 +1111,28 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
         os << "buffers  [";
         if( buffers & eq::Frame::BUFFER_COLOR )  os << " COLOR";
         if( buffers & eq::Frame::BUFFER_DEPTH )  os << " DEPTH";
-        os << " ]" << endl;
+        os << " ]" << std::endl;
     }
 
-    const eq::Viewport& vp = compound->getViewport();
-    if( vp.isValid() && vp != eq::Viewport::FULL )
-        os << "viewport " << vp << endl;
+    const Viewport& vp = compound->getViewport();
+    if( vp.isValid() && vp != Viewport::FULL )
+        os << "viewport " << vp << std::endl;
     
-    const eq::Range& range = compound->getRange();
-    if( range.isValid() && range != eq::Range::ALL )
-        os << range << endl;
+    const Range& range = compound->getRange();
+    if( range.isValid() && range != Range::ALL )
+        os << range << std::endl;
 
-    const eq::Pixel& pixel = compound->getPixel();
-    if( pixel.isValid() && pixel != eq::Pixel::ALL )
-        os << pixel << endl;
+    const Pixel& pixel = compound->getPixel();
+    if( pixel.isValid() && pixel != Pixel::ALL )
+        os << pixel << std::endl;
 
-    const eq::SubPixel& subpixel = compound->getSubPixel();
-    if( subpixel.isValid() && subpixel != eq::SubPixel::ALL )
-            os << subpixel << endl;
+    const SubPixel& subpixel = compound->getSubPixel();
+    if( subpixel.isValid() && subpixel != SubPixel::ALL )
+            os << subpixel << std::endl;
 
-    const eq::Zoom& zoom = compound->getZoom();
-    if( zoom.isValid() && zoom != eq::Zoom::NONE )
-        os << zoom << endl;
+    const Zoom& zoom = compound->getZoom();
+    if( zoom.isValid() && zoom != Zoom::NONE )
+        os << zoom << std::endl;
 
     const uint32_t eye = compound->getEyes();
     if( eye )
@@ -1149,7 +1144,7 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
             os << "LEFT ";
         if( eye & Compound::EYE_RIGHT_BIT )
             os << "RIGHT ";
-        os << "]" << endl;
+        os << "]" << std::endl;
     }
 
     const uint32_t period = compound->getPeriod();
@@ -1161,7 +1156,7 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
         os << "phase " << phase;
 
     if( period != EQ_UNDEFINED_UINT32 || phase != EQ_UNDEFINED_UINT32 )
-        os << endl;
+        os << std::endl;
 
     // attributes
     bool attrPrinted = false;
@@ -1176,8 +1171,8 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
 
         if( !attrPrinted )
         {
-            os << endl << "attributes" << endl;
-            os << "{" << endl << indent;
+            os << std::endl << "attributes" << std::endl;
+            os << "{" << std::endl << base::indent;
             attrPrinted = true;
         }
         
@@ -1191,12 +1186,12 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
         switch( i )
         {
             case Compound::IATTR_STEREO_MODE:
-                os << static_cast<eq::IAttrValue>( value ) << endl;
+                os << static_cast<IAttrValue>( value ) << std::endl;
                 break;
 
             case Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK:
             case Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK:
-                os << ColorMask( value ) << endl;
+                os << ColorMask( value ) << std::endl;
                 break;
 
             default:
@@ -1205,15 +1200,15 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
     }
     
     if( attrPrinted )
-        os << exdent << "}" << endl << endl;
+        os << base::exdent << "}" << std::endl << std::endl;
 
     switch( compound->getFrustumType( ))
     {
-        case eq::Frustum::TYPE_WALL:
-            os << compound->getWall() << endl;
+        case Frustum::TYPE_WALL:
+            os << compound->getWall() << std::endl;
             break;
-        case eq::Frustum::TYPE_PROJECTION:
-            os << compound->getProjection() << endl;
+        case Frustum::TYPE_PROJECTION:
+            os << compound->getProjection() << std::endl;
             break;
         default: 
             break;
@@ -1229,7 +1224,7 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
     const CompoundVector& children = compound->getChildren();
     if( !children.empty( ))
     {
-        os << endl;
+        os << std::endl;
         for( CompoundVector::const_iterator i = children.begin();
              i != children.end(); ++i )
 
@@ -1250,7 +1245,7 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
 
     os << compound->getSwapBarrier();
 
-    os << exdent << "}" << endl << enableFlush;
+    os << base::exdent << "}" << std::endl << base::enableFlush;
     return os;
 }
 

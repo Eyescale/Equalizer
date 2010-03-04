@@ -30,7 +30,6 @@
 #include "packets.h"
 #include "pipe.h"
 #include "server.h"
-#include "task.h"
 
 #ifdef AGL
 #  include "aglEventHandler.h"
@@ -38,12 +37,10 @@
 #  include "wglEventHandler.h"
 #endif
 
-#include <eq/base/scopedMutex.h>
+#include <eq/fabric/task.h>
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
-
-using namespace eq::base;
-using namespace std;
+#include <eq/base/scopedMutex.h>
 
 namespace eq
 {
@@ -51,7 +48,7 @@ namespace eq
 typedef net::CommandFunc<Node> NodeFunc;
 /** @endcond */
 
-#define MAKE_ATTR_STRING( attr ) ( string("EQ_NODE_") + #attr )
+#define MAKE_ATTR_STRING( attr ) ( std::string("EQ_NODE_") + #attr )
 std::string Node::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_THREAD_MODEL ),
     MAKE_ATTR_STRING( IATTR_LAUNCH_TIMEOUT ),
@@ -62,20 +59,20 @@ std::string Node::_iAttributeStrings[IATTR_ALL] = {
 Node::Node( Config* parent )
         : transmitter( this )
         , _config( parent )
-        , _tasks( TASK_NONE )
+        , _tasks( fabric::TASK_NONE )
         , _state( STATE_STOPPED )
         , _unlockedFrame( 0 )
         , _finishedFrame( 0 )
 {
     parent->_addNode( this );
-    EQINFO << " New eq::Node @" << (void*)this << endl;
+    EQINFO << " New eq::Node @" << (void*)this << std::endl;
 }
 
 Node::~Node()
 {
     _config->_removeNode( this );
 
-    EQINFO << " Delete eq::Node @" << (void*)this << endl;
+    EQINFO << " Delete eq::Node @" << (void*)this << std::endl;
 }
 
 void Node::attachToSession( const uint32_t id, 
@@ -314,18 +311,18 @@ void Node::_finishFrame( const uint32_t frameNumber ) const
 void Node::_frameFinish( const uint32_t frameID, const uint32_t frameNumber )
 {
     frameFinish( frameID, frameNumber );
-    EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << frameNumber << endl;
+    EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << frameNumber << std::endl;
 
     if( _unlockedFrame < frameNumber )
     {
         EQWARN << "Finished frame was not locally unlocked, enforcing unlock" 
-               << endl;
+               << std::endl;
         releaseFrameLocal( frameNumber );
     }
 
     if( _finishedFrame < frameNumber )
     {
-        EQWARN << "Finished frame was not released, enforcing unlock" << endl;
+        EQWARN << "Finished frame was not released, enforcing unlock" << std::endl;
         releaseFrame( frameNumber );
     }
 }
@@ -357,7 +354,7 @@ void Node::releaseFrameLocal( const uint32_t frameNumber )
     EQASSERT( config->getNodes()[0] == this );
     config->releaseFrameLocal( frameNumber );
 
-    EQLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame << endl;
+    EQLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame << std::endl;
 }
 
 void Node::frameStart( const uint32_t frameID, const uint32_t frameNumber )
@@ -393,7 +390,7 @@ void Node::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
                  i != _pipes.end(); ++i )
             {
                 const Pipe* pipe = *i;
-                if( pipe->getTasks() & TASK_DRAW )
+                if( pipe->getTasks() & fabric::TASK_DRAW )
                     pipe->waitFrameLocal( frameNumber );
             }
             
@@ -418,7 +415,7 @@ void Node::frameTasksFinish( const uint32_t frameID, const uint32_t frameNumber)
                  i != _pipes.end(); ++i )
             {
                 const Pipe* pipe = *i;
-                if( pipe->getTasks() != TASK_NONE )
+                if( pipe->getTasks() != fabric::TASK_NONE )
                     pipe->waitFrameLocal( frameNumber );
             }
             
@@ -493,7 +490,7 @@ void Node::TransmitThread::run()
             return; // exit thread
         
         EQLOG( LOG_ASSEMBLY ) << "node transmit " << task.data->getID()
-                              << " to " << task.node->getNodeID() << endl;
+                              << " to " << task.node->getNodeID() << std::endl;
         task.data->transmit( task.node, task.frameNumber );
     }
 }
@@ -505,7 +502,7 @@ net::CommandResult Node::_cmdCreatePipe( net::Command& command )
 {
     const NodeCreatePipePacket* packet = 
         command.getPacket<NodeCreatePipePacket>();
-    EQLOG( LOG_INIT ) << "Create pipe " << packet << endl;
+    EQLOG( LOG_INIT ) << "Create pipe " << packet << std::endl;
 
     CHECK_THREAD( _nodeThread );
     EQASSERT( packet->pipeID != EQ_ID_INVALID );
@@ -524,7 +521,7 @@ net::CommandResult Node::_cmdDestroyPipe( net::Command& command )
 {
     const NodeDestroyPipePacket* packet = 
         command.getPacket<NodeDestroyPipePacket>();
-    EQLOG( LOG_INIT ) << "Destroy pipe " << packet << endl;
+    EQLOG( LOG_INIT ) << "Destroy pipe " << packet << std::endl;
 
     CHECK_THREAD( _nodeThread );
     Pipe* pipe = _findPipe( packet->pipeID );
@@ -542,7 +539,7 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
 
     const NodeConfigInitPacket* packet = 
         command.getPacket<NodeConfigInitPacket>();
-    EQLOG( LOG_INIT ) << "Init node " << packet << endl;
+    EQLOG( LOG_INIT ) << "Init node " << packet << std::endl;
 
     _state = STATE_INITIALIZING;
     _name  = packet->name;
@@ -573,7 +570,7 @@ net::CommandResult Node::_cmdConfigExit( net::Command& command )
 {
     const NodeConfigExitPacket* packet = 
         command.getPacket<NodeConfigExitPacket>();
-    EQLOG( LOG_INIT ) << "Node exit " << packet << endl;
+    EQLOG( LOG_INIT ) << "Node exit " << packet << std::endl;
 
     CHECK_THREAD( _nodeThread );
     for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); 
@@ -601,12 +598,12 @@ net::CommandResult Node::_cmdFrameStart( net::Command& command )
     CHECK_THREAD( _nodeThread );
     const NodeFrameStartPacket* packet = 
         command.getPacket<NodeFrameStartPacket>();
-    EQVERB << "handle node frame start " << packet << endl;
+    EQVERB << "handle node frame start " << packet << std::endl;
 
     const uint32_t frameNumber = packet->frameNumber;
     EQASSERT( _currentFrame == frameNumber-1 );
 
-    EQLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber << endl;
+    EQLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber << std::endl;
 
     _config->_frameStart();
     frameStart( packet->frameID, frameNumber );
@@ -622,7 +619,7 @@ net::CommandResult Node::_cmdFrameFinish( net::Command& command )
     const NodeFrameFinishPacket* packet = 
         command.getPacket<NodeFrameFinishPacket>();
     EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
-                       << endl;
+                       << std::endl;
 
     const uint32_t frameNumber = packet->frameNumber;
 
@@ -636,7 +633,7 @@ net::CommandResult Node::_cmdFrameDrawFinish( net::Command& command )
     NodeFrameDrawFinishPacket* packet = 
         command.getPacket< NodeFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
-                       << endl;
+                       << std::endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
     return net::COMMAND_HANDLED;
@@ -647,7 +644,7 @@ net::CommandResult Node::_cmdFrameTasksFinish( net::Command& command )
     NodeFrameTasksFinishPacket* packet = 
         command.getPacket< NodeFrameTasksFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK tasks finish " << getName() <<  " " << packet
-                       << endl;
+                       << std::endl;
 
     frameTasksFinish( packet->frameID, packet->frameNumber );
     return net::COMMAND_HANDLED;

@@ -28,7 +28,6 @@
 #include "pipeVisitor.h"
 #include "packets.h"
 #include "server.h"
-#include "task.h"
 #include "view.h"
 #include "X11Connection.h"
 #include "window.h"
@@ -51,6 +50,7 @@
 #  include "cudaContext.h"
 #endif
 
+#include <eq/fabric/task.h>
 #include <eq/net/command.h>
 #include <sstream>
 
@@ -69,7 +69,7 @@ Pipe::Pipe( Node* parent )
         : _osPipe( 0 )
         , _node( parent )
         , _windowSystem( WINDOW_SYSTEM_NONE )
-        , _tasks( TASK_NONE )
+        , _tasks( fabric::TASK_NONE )
         , _port( EQ_UNDEFINED_UINT32 )
         , _device( EQ_UNDEFINED_UINT32 )
         , _state( STATE_STOPPED )

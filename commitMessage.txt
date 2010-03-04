@@ -1,13 +1,10 @@
-Move all relevant channel data to fabric namespace:
-- massive refactoring of server and client channel
-- eq::Channel is now a mapped slave object
+Potential Windows build fix, move missing file to fabric namespace, code
+cleanups
 
-Will surely break Windows build - to be fixed soon.
-
-[x] Will break build
+[ ] Will break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[x] Bugfix
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

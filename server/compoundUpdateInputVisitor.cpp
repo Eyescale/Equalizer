@@ -22,10 +22,6 @@
 
 #include <eq/client/log.h>
 
-using namespace std;
-using namespace stde;
-using namespace eq::base;
-
 namespace eq
 {
 namespace server
@@ -43,12 +39,12 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
     const FrameVector& inputFrames = compound->getInputFrames();
     const Channel* channel = compound->getChannel();
 
-    if( !compound->testInheritTask( eq::TASK_ASSEMBLE ) || !channel )
+    if( !compound->testInheritTask( fabric::TASK_ASSEMBLE ) || !channel )
         return TRAVERSE_CONTINUE;
 
     if( inputFrames.empty( ))
     {
-        compound->unsetInheritTask( eq::TASK_ASSEMBLE );
+        compound->unsetInheritTask( fabric::TASK_ASSEMBLE );
         return TRAVERSE_CONTINUE;
     }
 
@@ -65,7 +61,7 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         if( j == _outputFrames.end( ))
         {
             EQVERB << "Can't find matching output frame, ignoring input frame "
-                   << name << endl;
+                   << name << std::endl;
             frame->unsetData();
             continue;
         }
@@ -77,14 +73,14 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
                                frame->getOffset();
 
         if( channel != compound->getInheritChannel() &&
-            compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) != eq::ON )
+            compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) != ON )
         {
             // compute delta offset between source and destination, since the
             // channel's native origin (as opposed to destination) is used.
-            const eq::Viewport& frameVP = frame->getViewport();
-            const eq::PixelViewport& inheritPVP =
+            const Viewport& frameVP = frame->getViewport();
+            const PixelViewport& inheritPVP =
                 compound->getInheritPixelViewport();
-            const eq::PixelViewport& framePVP = inheritPVP.getSubPVP( frameVP );
+            const PixelViewport& framePVP = inheritPVP.getSubPVP( frameVP );
             frameOffset.x() -= framePVP.x;
             frameOffset.y() -= framePVP.y;
 
@@ -109,11 +105,11 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
 
         //----- Commit
         frame->commit();
-        EQLOG( eq::LOG_ASSEMBLY )
+        EQLOG( LOG_ASSEMBLY )
             << "Input frame  \"" << name << "\" on channel \"" 
             << channel->getName() << "\" id " << frame->getID() << " v"
             << frame->getVersion() << "\" tile pos " << frameOffset << ' ' 
-            << frame->getInheritZoom() << endl;
+            << frame->getInheritZoom() << std::endl;
     }
 
     return TRAVERSE_CONTINUE;

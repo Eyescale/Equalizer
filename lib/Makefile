@@ -93,6 +93,7 @@ HEADER_SRC = \
 	fabric/range.h \
 	fabric/renderContext.h \
 	fabric/subPixel.h \
+	fabric/task.h \
 	fabric/types.h \
 	fabric/viewport.h \
 	fabric/visitorResult.h \
@@ -147,7 +148,6 @@ HEADER_SRC = \
 	client/server.h \
 	client/statistic.h \
 	client/statisticSampler.h \
-	client/task.h \
 	client/types.h \
 	client/version.h \
 	client/view.h \

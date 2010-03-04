@@ -33,9 +33,6 @@
 #include <eq/client/packets.h>
 #include <eq/net/command.h>
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 namespace server
@@ -46,15 +43,15 @@ void Window::_construct()
 {
     _active          = 0;
     _pipe            = 0;
-    _tasks           = eq::TASK_NONE;
+    _tasks           = fabric::TASK_NONE;
     _fixedPVP        = false;
     _lastDrawChannel = 0;
-    _maxFPS          = numeric_limits< float >::max();
+    _maxFPS          = std::numeric_limits< float >::max();
     _swapFinish      = false;
     _swap            = false;
     _nvSwapBarrier   = 0;
     _nvNetBarrier    = 0;
-    EQINFO << "New window @" << (void*)this << endl;
+    EQINFO << "New window @" << (void*)this << std::endl;
 }
 
 Window::Window()
@@ -79,7 +76,7 @@ Window::Window( const Window& from, Pipe* pipe )
 
     pipe->addWindow( this );
 
-    for( int i=0; i<eq::Window::IATTR_ALL; ++i )
+    for( int i=0; i< eq::Window::IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
 
     const ChannelVector& channels = from.getChannels();
@@ -92,7 +89,7 @@ Window::Window( const Window& from, Pipe* pipe )
 
 Window::~Window()
 {
-    EQINFO << "Delete window @" << (void*)this << endl;
+    EQINFO << "Delete window @" << (void*)this << std::endl;
 
     if( _pipe )
         _pipe->removeWindow( this );
@@ -116,13 +113,13 @@ void Window::attachToSession( const uint32_t id, const uint32_t instanceID,
     
     net::CommandQueue* commandQueue = getCommandThreadQueue();
 
-    registerCommand( eq::CMD_WINDOW_CONFIG_INIT_REPLY, 
+    registerCommand( CMD_WINDOW_CONFIG_INIT_REPLY, 
                      WindowFunc( this, &Window::_cmdConfigInitReply),
                      commandQueue );
-    registerCommand( eq::CMD_WINDOW_CONFIG_EXIT_REPLY, 
+    registerCommand( CMD_WINDOW_CONFIG_EXIT_REPLY, 
                      WindowFunc( this, &Window::_cmdConfigExitReply),
                      commandQueue );
-    registerCommand( eq::CMD_WINDOW_SET_PVP, 
+    registerCommand( CMD_WINDOW_SET_PVP, 
                      WindowFunc( this, &Window::_cmdSetPixelViewport ),
                      commandQueue );
                          
@@ -293,7 +290,7 @@ void Window::addTasks( const uint32_t tasks )
 //----------------------------------------------------------------------
 // viewport
 //----------------------------------------------------------------------
-void Window::setPixelViewport( const eq::PixelViewport& pvp )
+void Window::setPixelViewport( const PixelViewport& pvp )
 {
     if( !pvp.isValid( ))
         return;
@@ -308,7 +305,7 @@ void Window::setPixelViewport( const eq::PixelViewport& pvp )
     notifyViewportChanged();
 }
 
-void Window::setViewport( const eq::Viewport& vp )
+void Window::setViewport( const Viewport& vp )
 {
     if( !vp.hasArea( ))
         return;
@@ -327,7 +324,7 @@ void Window::notifyViewportChanged()
 {
     if( _pipe )
     {
-        eq::PixelViewport pipePVP = _pipe->getPixelViewport();
+        PixelViewport pipePVP = _pipe->getPixelViewport();
         if( pipePVP.hasArea( ))
         {
             if( _fixedPVP ) // update viewport
@@ -336,7 +333,7 @@ void Window::notifyViewportChanged()
                 _pvp = pipePVP.getSubPVP( _vp );
         }
     }
-    EQINFO << "Window viewport update: " << _pvp << ":" << _vp << endl;
+    EQINFO << "Window viewport update: " << _pvp << ":" << _vp << std::endl;
 
     for( ChannelVector::iterator i = _channels.begin();
          i != _channels.end(); ++i )
@@ -353,7 +350,7 @@ void Window::_resetSwapBarriers()
     Node* node = getNode();
     EQASSERT( node );
 
-    for( vector<net::Barrier*>::iterator i = _masterSwapBarriers.begin();
+    for( std::vector< net::Barrier* >::iterator i = _masterSwapBarriers.begin();
          i != _masterSwapBarriers.end(); ++i )
             
         node->releaseBarrier( *i );
@@ -520,11 +517,11 @@ void Window::_configInit( const uint32_t initID )
     getConfig()->registerObject( this );
 
     EQLOG( LOG_INIT ) << "Create Window" << std::endl;
-    eq::PipeCreateWindowPacket createWindowPacket;
+    PipeCreateWindowPacket createWindowPacket;
     createWindowPacket.windowID = getID();
     _pipe->send( createWindowPacket );
 
-    eq::WindowConfigInitPacket packet;
+    WindowConfigInitPacket packet;
     packet.initID = initID;
     packet.tasks  = _tasks;
 
@@ -538,7 +535,7 @@ void Window::_configInit( const uint32_t initID )
     
     EQLOG( LOG_INIT ) << "Init Window" << std::endl;
     _send( packet, _name );
-    EQLOG( eq::LOG_TASKS ) << "TASK window configInit  " << &packet << endl;
+    EQLOG( LOG_TASKS ) << "TASK window configInit  " << &packet << std::endl;
 }
 
 bool Window::_syncConfigInit()
@@ -552,7 +549,7 @@ bool Window::_syncConfigInit()
     if( success )
         _state = STATE_RUNNING;
     else
-        EQWARN << "Window initialization failed: " << _error << endl;
+        EQWARN << "Window initialization failed: " << _error << std::endl;
 
     return success;
 }
@@ -566,11 +563,11 @@ void Window::_configExit()
     _state = STATE_EXITING;
 
     EQLOG( LOG_INIT ) << "Exit Window" << std::endl;
-    eq::WindowConfigExitPacket packet;
+    WindowConfigExitPacket packet;
     send( packet );
 
     EQLOG( LOG_INIT ) << "Destroy Window" << std::endl;
-    eq::PipeDestroyWindowPacket destroyWindowPacket;
+    PipeDestroyWindowPacket destroyWindowPacket;
     destroyWindowPacket.windowID = getID();
     _pipe->send( destroyWindowPacket );
 }
@@ -588,7 +585,7 @@ bool Window::_syncConfigExit()
 
     _state = STATE_STOPPED; // EXIT_FAILED -> STOPPED transition
     _nvSwapBarrier = 0;
-    _tasks = eq::TASK_NONE;
+    _tasks = fabric::TASK_NONE;
     return success;
 }
 
@@ -602,12 +599,12 @@ void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
 
     _swap = false;
 
-    eq::WindowFrameStartPacket startPacket;
+    WindowFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
     send( startPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK window start frame  " << &startPacket 
-                           << endl;
+    EQLOG( LOG_TASKS ) << "TASK window start frame  " << &startPacket 
+                           << std::endl;
 
     for( ChannelVector::const_iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
@@ -619,9 +616,9 @@ void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
 
     if( _swapFinish )
     {
-        eq::WindowFinishPacket packet;
+        WindowFinishPacket packet;
         send( packet );
-        EQLOG( eq::LOG_TASKS ) << "TASK finish  " << &packet << endl;
+        EQLOG( LOG_TASKS ) << "TASK finish  " << &packet << std::endl;
         _swapFinish = false;
     }
 }
@@ -631,30 +628,30 @@ void Window::updatePost( const uint32_t frameID,
 {
     _updateSwap( frameNumber );
 
-    eq::WindowFrameFinishPacket finishPacket;
+    WindowFrameFinishPacket finishPacket;
     finishPacket.frameID     = frameID;
     finishPacket.frameNumber = frameNumber;
     send( finishPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK window finish frame  " << &finishPacket
-                           << endl;
+    EQLOG( LOG_TASKS ) << "TASK window finish frame  " << &finishPacket
+                           << std::endl;
     _lastDrawChannel = 0;
 }
 
 void Window::_updateSwap( const uint32_t frameNumber )
 {
-    if( _maxFPS < numeric_limits< float >::max( ))
+    if( _maxFPS < std::numeric_limits< float >::max( ))
     {
-        eq::WindowThrottleFramerate packetThrottle;
+        WindowThrottleFramerate packetThrottle;
         packetThrottle.minFrameTime = 1000.0f / _maxFPS;
         
         send( packetThrottle );
-        EQLOG( eq::LOG_TASKS ) << "TASK Throttle framerate  " 
-                               << &packetThrottle << endl;
+        EQLOG( LOG_TASKS ) << "TASK Throttle framerate  " 
+                               << &packetThrottle << std::endl;
 
-        _maxFPS = numeric_limits< float >::max();
+        _maxFPS = std::numeric_limits< float >::max();
     }
     
-    for( vector<net::Barrier*>::iterator i = _swapBarriers.begin();
+    for( std::vector<net::Barrier*>::iterator i = _swapBarriers.begin();
          i != _swapBarriers.end(); ++i )
     {
         const net::Barrier*   barrier = *i;
@@ -662,15 +659,15 @@ void Window::_updateSwap( const uint32_t frameNumber )
         if( barrier->getHeight() <= 1 )
         {
             EQINFO << "Ignoring swap barrier of height " << barrier->getHeight()
-                   << endl;
+                   << std::endl;
             continue;
         }
 
-        eq::WindowBarrierPacket packet;
+        WindowBarrierPacket packet;
         packet.barrier = barrier;
         send( packet );
 
-        EQLOG( eq::LOG_TASKS ) << "TASK barrier  " << &packet << endl;
+        EQLOG( LOG_TASKS ) << "TASK barrier  " << &packet << std::endl;
     }
 
     if( _nvNetBarrier )
@@ -689,7 +686,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
             // with a barrier.
 
             // Now enter the swap group and post-sync with the barrier again.
-            eq::WindowNVBarrierPacket packet;
+            WindowNVBarrierPacket packet;
             packet.barrier = _nvSwapBarrier->getNVSwapBarrier();
             packet.group   = _nvSwapBarrier->getNVSwapGroup();
             packet.netBarrier = _nvNetBarrier;
@@ -701,10 +698,10 @@ void Window::_updateSwap( const uint32_t frameNumber )
 
     if( _swap )
     {
-        eq::WindowSwapPacket packet;
+        WindowSwapPacket packet;
 
         send( packet );
-        EQLOG( eq::LOG_TASKS ) << "TASK swap  " << &packet << endl;
+        EQLOG( LOG_TASKS ) << "TASK swap  " << &packet << std::endl;
     }
 }
 
@@ -713,9 +710,9 @@ void Window::_updateSwap( const uint32_t frameNumber )
 //===========================================================================
 net::CommandResult Window::_cmdConfigInitReply( net::Command& command )
 {
-    const eq::WindowConfigInitReplyPacket* packet =
-        command.getPacket<eq::WindowConfigInitReplyPacket>();
-    EQVERB << "handle window configInit reply " << packet << endl;
+    const WindowConfigInitReplyPacket* packet =
+        command.getPacket<WindowConfigInitReplyPacket>();
+    EQVERB << "handle window configInit reply " << packet << std::endl;
 
     if( packet->pvp.isValid( ))
         setPixelViewport( packet->pvp );
@@ -735,9 +732,9 @@ net::CommandResult Window::_cmdConfigInitReply( net::Command& command )
 
 net::CommandResult Window::_cmdConfigExitReply( net::Command& command )
 {
-    const eq::WindowConfigExitReplyPacket* packet =
-        command.getPacket<eq::WindowConfigExitReplyPacket>();
-    EQVERB << "handle window configExit reply " << packet << endl;
+    const WindowConfigExitReplyPacket* packet =
+        command.getPacket<WindowConfigExitReplyPacket>();
+    EQVERB << "handle window configExit reply " << packet << std::endl;
 
     if( packet->result )
         _state = STATE_EXIT_SUCCESS;
@@ -749,9 +746,9 @@ net::CommandResult Window::_cmdConfigExitReply( net::Command& command )
 
 net::CommandResult Window::_cmdSetPixelViewport( net::Command& command)
 {
-    const eq::WindowSetPVPPacket* packet = 
-        command.getPacket<eq::WindowSetPVPPacket>();
-    EQVERB << "handle window set pvp " << packet << endl;
+    const WindowSetPVPPacket* packet = 
+        command.getPacket<WindowSetPVPPacket>();
+    EQVERB << "handle window set pvp " << packet << std::endl;
 
     setPixelViewport( packet->pvp );
     return net::COMMAND_HANDLED;
@@ -762,24 +759,24 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
     if( !window )
         return os;
     
-    os << disableFlush << disableHeader << "window" << endl;
-    os << "{" << endl << indent; 
+    os << base::disableFlush << base::disableHeader << "window" << std::endl;
+    os << "{" << std::endl << base::indent;
 
     const std::string& name = window->getName();
     if( !name.empty( ))
-        os << "name     \"" << name << "\"" << endl;
+        os << "name     \"" << name << "\"" << std::endl;
 
-    const eq::Viewport& vp  = window->getViewport();
+    const Viewport& vp  = window->getViewport();
     if( vp.isValid( ) && !window->_fixedPVP )
     {
-        if( vp != eq::Viewport::FULL )
-            os << "viewport " << vp << endl;
+        if( vp != Viewport::FULL )
+            os << "viewport " << vp << std::endl;
     }
     else
     {
-        const eq::PixelViewport& pvp = window->getPixelViewport();
+        const PixelViewport& pvp = window->getPixelViewport();
         if( pvp.isValid( ))
-            os << "viewport " << pvp << endl;
+            os << "viewport " << pvp << std::endl;
     }
 
     bool attrPrinted   = false;
@@ -794,8 +791,8 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
 
         if( !attrPrinted )
         {
-            os << endl << "attributes" << endl;
-            os << "{" << endl << indent;
+            os << std::endl << "attributes" << std::endl;
+            os << "{" << std::endl << base::indent;
             attrPrinted = true;
         }
         
@@ -827,11 +824,11 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
                     "planes_accum_alpha " :
                 i==eq::Window::IATTR_PLANES_SAMPLES ?
                     "planes_samples     " : "ERROR" )
-           << static_cast<eq::IAttrValue>( value ) << endl;
+           << static_cast<IAttrValue>( value ) << std::endl;
     }
     
     if( attrPrinted )
-        os << exdent << "}" << endl << endl;
+        os << base::exdent << "}" << std::endl << std::endl;
 
     const ChannelVector& channels = window->getChannels();
     for( ChannelVector::const_iterator i = channels.begin(); 
@@ -844,7 +841,8 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
         os << channel;
     }
 
-    os << exdent << "}" << endl << enableHeader << enableFlush;
+    os << base::exdent << "}" << std::endl << base::enableHeader
+       << base::enableFlush;
     return os;
 }
 

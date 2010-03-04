@@ -30,7 +30,6 @@
 #include "osWindow.h"
 #include "packets.h"
 #include "server.h"
-#include "task.h"
 #include "windowStatistics.h"
 #include "windowVisitor.h"
 
@@ -44,6 +43,7 @@
 #  include "wglWindow.h"
 #endif
 
+#include <eq/fabric/task.h>
 #include <eq/net/barrier.h>
 #include <eq/net/command.h>
 #include <eq/base/sleep.h>
@@ -89,7 +89,7 @@ Window::Window( Pipe* parent )
         : _pipe( parent )
         , _sharedContextWindow( 0 ) // default set below
         , _osWindow( 0 )
-        , _tasks( TASK_NONE )
+        , _tasks( fabric::TASK_NONE )
         , _state( STATE_STOPPED )
         , _objectManager( 0 )
         , _lastTime ( 0.0 )

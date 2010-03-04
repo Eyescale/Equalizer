@@ -16,6 +16,7 @@
  */
 
 #include "channel.h"
+#include "task.h"
 
 #include <eq/net/dataOStream.h>
 #include <eq/net/dataIStream.h>

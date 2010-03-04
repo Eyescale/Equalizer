@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -423,7 +423,7 @@ void ConfigTool::_writeDB( Config* config ) const
     compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
 
     if( !_useDestination )
-        compound->setTasks( eq::TASK_CLEAR | eq::TASK_ASSEMBLE );
+        compound->setTasks( eq::fabric::TASK_CLEAR | eq::fabric::TASK_ASSEMBLE );
 
     eq::Wall wall;
     wall.bottomLeft  = eq::Vector3f( -.32f, -.2f, -.75f );
@@ -482,7 +482,7 @@ void ConfigTool::_writeDBStream( Config* config ) const
     compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
 
     if( !_useDestination )
-        compound->setTasks( eq::TASK_CLEAR | eq::TASK_ASSEMBLE );
+        compound->setTasks( eq::fabric::TASK_CLEAR | eq::fabric::TASK_ASSEMBLE );
 
     eq::Wall wall;
     wall.bottomLeft  = eq::Vector3f( -.32f, -.2f, -.75f );
@@ -739,7 +739,7 @@ void ConfigTool::_writeDPlex( Config* config ) const
     wall.bottomRight = eq::Vector3f(  .32f, -.2f, -.75f );
     wall.topLeft     = eq::Vector3f( -.32f,  .2f, -.75f );
     compound->setWall( wall );
-    compound->setTasks( eq::TASK_CLEAR | eq::TASK_ASSEMBLE );
+    compound->setTasks( eq::fabric::TASK_CLEAR | eq::fabric::TASK_ASSEMBLE );
     compound->addEqualizer( new FramerateEqualizer );
     
     const unsigned period = _nChannels - 1;

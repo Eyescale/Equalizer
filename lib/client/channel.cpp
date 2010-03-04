@@ -34,7 +34,6 @@
 #include "packets.h"
 #include "pipe.h"
 #include "server.h"
-#include "task.h"
 #include "view.h"
 
 #include <eq/util/accum.h>

@@ -352,7 +352,7 @@ bool Channel::_syncConfigExit()
     EQASSERT( success || _state == STATE_EXIT_FAILED );
 
     _state = STATE_STOPPED;
-    setTasks( TASK_NONE );
+    setTasks( fabric::TASK_NONE );
     return success;
 }
 
@@ -612,6 +612,3 @@ std::ostream& operator << ( std::ostream& os, const Channel* channel)
 
 }
 }
-
-#include "../lib/fabric/channel.cpp"
-template class eq::fabric::Channel< eq::server::Channel, eq::server::Window >;

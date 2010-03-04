@@ -56,7 +56,7 @@ void Node::_construct()
 {
     _active         = 0;
     _config         = 0;
-    _tasks          = TASK_NONE;
+    _tasks          = fabric::TASK_NONE;
     _lastDrawPipe   = 0;
     _flushedFrame   = 0;
     _finishedFrame  = 0;
@@ -395,7 +395,7 @@ bool Node::_syncConfigExit()
     _config->deregisterObject( this );
 
     _state = STATE_STOPPED; // EXIT_FAILED -> STOPPED transition
-    _tasks = TASK_NONE;
+    _tasks = fabric::TASK_NONE;
     _frameIDs.clear();
     _flushBarriers();
     return success;
@@ -443,7 +443,7 @@ uint32_t Node::_getFinishLatency() const
     switch( getIAttribute( eq::Node::IATTR_THREAD_MODEL ))
     {
         case DRAW_SYNC:
-            if( _tasks & TASK_DRAW )
+            if( _tasks & fabric::TASK_DRAW )
             {
                 // More than one frame latency doesn't make sense, since the
                 // draw sync for frame+1 does not allow for more
@@ -455,7 +455,7 @@ uint32_t Node::_getFinishLatency() const
             break;
 
         case LOCAL_SYNC:
-            if( _tasks != TASK_NONE )
+            if( _tasks != fabric::TASK_NONE )
                 // local sync enforces no latency
                 return 0;
             break;

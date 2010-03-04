@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,12 +15,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_TASK_H
-#define EQ_TASK_H
+#ifndef EQFABRIC_TASK_H
+#define EQFABRIC_TASK_H
 
 #include <iostream>
 
 namespace eq
+{
+namespace fabric
 {
     /**
      * Tasks define the actions executed by a channel during rendering.
@@ -41,5 +43,5 @@ namespace eq
         TASK_ALL      = EQ_BIT_ALL
     };
 }
-
+}
 #endif // EQ_TASK_H

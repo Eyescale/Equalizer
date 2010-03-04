@@ -26,10 +26,10 @@
 #include <eq/client/frameData.h>
 #include <eq/client/global.h>
 #include <eq/client/projection.h>
-#include <eq/client/task.h>
 #include <eq/client/wall.h>
 #include <eq/fabric/range.h>    // member
 #include <eq/fabric/subPixel.h> // member
+#include <eq/fabric/task.h>     // enum
 #include <eq/fabric/viewport.h> // member
 #include <eq/fabric/zoom.h>     // member
 #include <eq/net/barrier.h>
@@ -70,10 +70,10 @@ namespace server
          */
         enum EyeMask
         {
-            EYE_UNDEFINED  = 0,                 //!< use inherited eye(s)
-            EYE_CYCLOP_BIT = 1<<eq::EYE_CYCLOP, //!<  monoscopic 'middle' eye
-            EYE_LEFT_BIT   = 1<<eq::EYE_LEFT,   //!< left eye
-            EYE_RIGHT_BIT  = 1<<eq::EYE_RIGHT   //!< right eye
+            EYE_UNDEFINED  = 0,             //!< use inherited eye(s)
+            EYE_CYCLOP_BIT = 1<<EYE_CYCLOP, //!<  monoscopic 'middle' eye
+            EYE_LEFT_BIT   = 1<<EYE_LEFT,   //!< left eye
+            EYE_RIGHT_BIT  = 1<<EYE_RIGHT   //!< right eye
         };
 
         /** The color mask bits, used for anaglyphic stereo. */
@@ -206,7 +206,7 @@ namespace server
          * 
          * @param task the compound task to add.
          */
-        void enableTask( const eq::Task task ) { _data.tasks |= task; }
+        void enableTask( const fabric::Task task ) { _data.tasks |= task; }
 
         /** @return the tasks executed by this compound. */
         uint32_t getTasks() const { return _data.tasks; }
@@ -231,11 +231,11 @@ namespace server
         /** @return the image buffers used by this compound. */
         uint32_t getBuffers() const { return _data.buffers; }
 
-        void setViewport( const eq::Viewport& vp ) { _data.vp = vp; }
-        const eq::Viewport& getViewport() const    { return _data.vp; }
+        void setViewport( const Viewport& vp ) { _data.vp = vp; }
+        const Viewport& getViewport() const    { return _data.vp; }
 
-        void setRange( const eq::Range& range )    { _data.range = range; }
-        const eq::Range& getRange() const          { return _data.range; }
+        void setRange( const Range& range )    { _data.range = range; }
+        const Range& getRange() const          { return _data.range; }
 
         void setPeriod( const uint32_t period )    { _data.period = period; }
         uint32_t getPeriod() const                 { return _data.period; }
@@ -243,15 +243,15 @@ namespace server
         void setPhase( const uint32_t phase )      { _data.phase = phase; }
         uint32_t getPhase() const                  { return _data.phase; }
 
-        void setPixel( const eq::Pixel& pixel )    { _data.pixel = pixel; }
-        const eq::Pixel& getPixel() const          { return _data.pixel; }
+        void setPixel( const Pixel& pixel )    { _data.pixel = pixel; }
+        const Pixel& getPixel() const          { return _data.pixel; }
 
-        void setSubPixel( const eq::SubPixel& subpixel )
+        void setSubPixel( const SubPixel& subpixel )
             { _data.subpixel = subpixel; }
-        const eq::SubPixel& getSubPixel() const    { return _data.subpixel; }
+        const SubPixel& getSubPixel() const    { return _data.subpixel; }
 
-        void setZoom( const eq::Zoom& zoom )       { _data.zoom = zoom; }
-        const eq::Zoom& getZoom() const            { return _data.zoom; }
+        void setZoom( const Zoom& zoom )       { _data.zoom = zoom; }
+        const Zoom& getZoom() const            { return _data.zoom; }
 
         void setMaxFPS( const float fps )          { _data.maxFPS = fps; }
         float getMaxFPS() const                    { return _data.maxFPS; }
@@ -269,7 +269,7 @@ namespace server
          * Set a swap barrier.
          *
          * Windows of compounds with the same swap barrier name will enter a
-         * barrier before executing eq::Window::swap. Setting an empty string
+         * barrier before executing Window::swap. Setting an empty string
          * disables the swap barrier.
          * 
          * @param barrier the swap barrier.
@@ -309,16 +309,16 @@ namespace server
          */
         //@{
         uint32_t getInheritBuffers() const { return _inherit.buffers; }
-        const eq::PixelViewport& getInheritPixelViewport() const 
+        const PixelViewport& getInheritPixelViewport() const 
             { return _inherit.pvp; }
         const Vector4i& getInheritOverdraw() const
             { return _inherit.overdraw; }
-        const eq::Viewport& getInheritViewport() const { return _inherit.vp; }
-        const eq::Range& getInheritRange()   const { return _inherit.range; }
-        const eq::Pixel& getInheritPixel()   const { return _inherit.pixel; }
-        const eq::SubPixel& getInheritSubPixel() const 
+        const Viewport& getInheritViewport() const { return _inherit.vp; }
+        const Range& getInheritRange()   const { return _inherit.range; }
+        const Pixel& getInheritPixel()   const { return _inherit.pixel; }
+        const SubPixel& getInheritSubPixel() const 
             { return _inherit.subpixel; }
-        const eq::Zoom& getInheritZoom()     const { return _inherit.zoom; }
+        const Zoom& getInheritZoom()     const { return _inherit.zoom; }
         uint32_t getInheritPeriod()          const { return _inherit.period; }
         uint32_t getInheritPhase()           const { return _inherit.phase; }
         float getInheritMaxFPS()             const { return _inherit.maxFPS; }
@@ -331,15 +331,15 @@ namespace server
         const Channel* getInheritChannel()   const { return _inherit.channel; }
         
         /** @return true if the task is set, false if not. */
-        bool testInheritTask( const eq::Task task ) const
+        bool testInheritTask( const fabric::Task task ) const
             { return (_inherit.tasks & task); }
 
         /** Delete an inherit task, if it was set. */
-        void unsetInheritTask( const eq::Task task )
+        void unsetInheritTask( const fabric::Task task )
             { _inherit.tasks &= ~task; }
 
         /** @return true if the eye pass is used, false if not. */
-        bool testInheritEye( const eq::Eye eye ) const
+        bool testInheritEye( const Eye eye ) const
             { return ( _inherit.eyes & (1<<eye) ); }
         //@}
 
@@ -352,28 +352,28 @@ namespace server
          * 
          * @param wall the wall description.
          */
-        EQSERVER_EXPORT void setWall( const eq::Wall& wall );
+        EQSERVER_EXPORT void setWall( const Wall& wall );
         
         /** @return the last specified wall description. */
-        const eq::Wall& getWall() const { return _frustum.getWall(); }
+        const Wall& getWall() const { return _frustum.getWall(); }
 
         /** 
          * Set the compound's frustum using a projection description
          * 
          * @param projection the projection description.
          */
-        EQSERVER_EXPORT void setProjection( const eq::Projection& projection );
+        EQSERVER_EXPORT void setProjection( const Projection& projection );
 
         /** @return the last specified projection description. */
-        const eq::Projection& getProjection() const 
+        const Projection& getProjection() const 
             { return _frustum.getProjection(); }
 
         /** @return the type of the latest specified frustum. */
-        eq::Frustum::Type getFrustumType() const
+        Frustum::Type getFrustumType() const
             { return _frustum.getCurrentType(); }
 
         /** @return the frustum. */
-        const eq::Frustum& getFrustum() const { return _frustum; }
+        const Frustum& getFrustum() const { return _frustum; }
 
         /** Update the frustum from the view or segment. */
         void updateFrustum();
@@ -504,14 +504,14 @@ namespace server
             InheritData();
 
             Channel*          channel;
-            eq::Viewport      vp;
-            eq::PixelViewport pvp;
+            Viewport          vp;
+            PixelViewport     pvp;
             Vector4i          overdraw;
-            eq::Range         range;
-            eq::Pixel         pixel;
-            eq::SubPixel      subpixel;
+            Range             range;
+            Pixel             pixel;
+            SubPixel          subpixel;
             FrustumData       frustumData;
-            eq::Zoom          zoom;
+            Zoom              zoom;
             uint32_t          buffers;
             uint32_t          eyes;
             uint32_t          tasks;

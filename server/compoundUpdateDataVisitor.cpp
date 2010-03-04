@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,9 +22,6 @@
 #include <eq/client/client.h>
 #include <eq/client/log.h>
 #include <eq/client/server.h>
-
-using namespace std;
-using namespace eq::base;
 
 namespace eq
 {
@@ -50,7 +47,7 @@ VisitorResult CompoundUpdateDataVisitor::visit(
 
 void CompoundUpdateDataVisitor::_updateDrawFinish( Compound* compound )
 {
-    if( !compound->testInheritTask( eq::TASK_DRAW ) ||
+    if( !compound->testInheritTask( fabric::TASK_DRAW ) ||
         !compound->isActive( ))
         return;
 

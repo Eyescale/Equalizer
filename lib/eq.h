@@ -45,7 +45,6 @@
 #include <eq/client/packets.h>
 #include <eq/client/pipe.h>
 #include <eq/client/server.h>
-#include <eq/client/task.h>
 #include <eq/client/types.h>
 #include <eq/client/version.h>
 #include <eq/client/view.h>
