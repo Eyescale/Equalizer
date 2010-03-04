@@ -16,7 +16,7 @@
  */
 
 // Tests basic connection functionality
-
+#define EQ_TEST_NO_WATCHDOG
 #include <test.h>
 #include <eq/base/monitor.h>
 #include <eq/net/connection.h>
@@ -32,9 +32,6 @@ static eq::net::ConnectionType types[] =
 {
     eq::net::CONNECTIONTYPE_TCPIP,
     eq::net::CONNECTIONTYPE_PIPE,
-#if defined(EQ_USE_BOOST) || defined(EQ_PGM)
-    eq::net::CONNECTIONTYPE_MCIP,
-#endif
 #ifdef EQ_USE_BOOST
     eq::net::CONNECTIONTYPE_RSP,
 #endif
@@ -44,10 +41,6 @@ static eq::net::ConnectionType types[] =
 #ifdef EQ_INFINIBAND
     eq::net::CONNECTIONTYPE_IB,
 #endif
-#ifdef EQ_PGM
-    eq::net::CONNECTIONTYPE_PGM,
-#endif
-
     eq::net::CONNECTIONTYPE_NONE // must be last
 };
 
@@ -82,14 +75,12 @@ int main( int argc, char **argv )
 
             case eq::net::CONNECTIONTYPE_MCIP:
             case eq::net::CONNECTIONTYPE_RSP:
-            case eq::net::CONNECTIONTYPE_PGM:
                 TESTINFO( listener->listen(), desc );
                 listener->acceptNB();
 
                 writer = listener;
                 reader = listener->acceptSync();
                 break;
-
             default:
                 TESTINFO( listener->listen(), desc );
                 listener->acceptNB();

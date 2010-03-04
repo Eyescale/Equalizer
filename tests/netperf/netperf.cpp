@@ -142,8 +142,6 @@ private:
     uint8_t    _lastPacket;
 };
 
-
-
 class Selector : public eq::base::Thread
 {
 public:

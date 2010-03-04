@@ -363,7 +363,13 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
                                 &flags, &_overlapped, 0 );
     if( result == 0 ) // got data already
     {
-        EQASSERT( _overlappedDone > 0 );
+		if( _overlappedDone == 0 ) // socket closed
+        {
+            EQINFO << "Got EOF, closing connection" << std::endl;
+            close();
+        }
+
+        EQASSERT( _overlappedDone >= 0 );
         SetEvent( _overlapped.hEvent );
     }
     else if( GetLastError() != WSA_IO_PENDING )
@@ -397,9 +403,6 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes )
             return got;
 
         const int err = WSAGetLastError();
-        if( err != ERROR_SUCCESS )
-            EQWARN << "got " << got << " bytes, " << base::sysError
-                   << std::endl;
 
         switch( err )
         {

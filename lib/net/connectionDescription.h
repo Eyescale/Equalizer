@@ -40,6 +40,8 @@ namespace net
                 : type( CONNECTIONTYPE_TCPIP )
                 , bandwidth( 0 )
                 , port( 0 )
+				, _filename( "default" )
+
             {
             }
 
