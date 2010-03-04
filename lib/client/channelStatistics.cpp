@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -66,6 +66,8 @@ ChannelStatistics::~ChannelStatistics()
 
     if( event.data.statistic.endTime == 0 )
         event.data.statistic.endTime = _owner->getConfig()->getTime();
+    if( event.data.statistic.endTime == event.data.statistic.startTime )
+        ++event.data.statistic.endTime;
 
     _owner->addStatistic( event.data );
 }

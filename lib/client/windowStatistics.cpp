@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -65,6 +65,8 @@ WindowStatistics::~WindowStatistics()
         _owner->finish();
 
     event.data.statistic.endTime = _owner->getConfig()->getTime();
+    if( event.data.statistic.endTime == event.data.statistic.startTime )
+        ++event.data.statistic.endTime;
     _owner->processEvent( event.data );
 }
 
