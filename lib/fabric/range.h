@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_RANGE_H
-#define EQ_RANGE_H
+#ifndef EQFABRIC_RANGE_H
+#define EQFABRIC_RANGE_H
 
 #include <eq/base/base.h>
 
@@ -24,9 +24,9 @@
 
 namespace eq
 {
-    /**
-     * Holds a fractional range along with some methods for manipulation.
-     */
+namespace fabric
+{
+    /** Holds a fractional range along with some methods for manipulation. */
     class Range 
     {
     public:
@@ -76,5 +76,5 @@ namespace eq
         return os;
     }
 }
-
-#endif // EQ_RANGE_H
+}
+#endif // EQFABRIC_RANGE_H

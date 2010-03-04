@@ -32,14 +32,14 @@
 #include "view.h"
 #include "window.h"
 
-#include <eq/base/base.h>
-#include <eq/base/debug.h>
-#include <eq/net/command.h>
 #include <eq/client/commands.h>
 #include <eq/client/global.h>
 #include <eq/client/log.h>
 #include <eq/client/packets.h>
 #include <eq/client/view.h>
+#include <eq/net/command.h>
+#include <eq/base/base.h>
+#include <eq/base/debug.h>
 
 #include "channel.ipp"
 

@@ -20,13 +20,14 @@
 
 #include <eq/client/channelVisitor.h> // template typedef
 #include <eq/client/event.h>          // member
-#include <eq/client/renderContext.h>  // member
+#include <eq/client/eye.h>            // enum
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
 #include <eq/client/windowSystem.h>   // GLEWContext
 #include <eq/client/window.h>         // nested Window::ObjectManager class
 
 #include <eq/fabric/channel.h>        // base class
+#include <eq/fabric/renderContext.h>  // member
 
 namespace eq
 {

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
                  2007-2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -25,10 +25,6 @@
 #include "window.h"
 #include "hlp.h"
 #include "framesOrderer.h"
-#include <eq/client/zoom.h>
-
-using namespace eq::base;
-using namespace std;
 
 namespace eVolve
 {
@@ -46,7 +42,7 @@ static void checkError( const std::string& msg )
 {
     const GLenum error = glGetError();
     if (error != GL_NO_ERROR)
-        EQERROR << msg << " GL Error: " << error << endl;
+        EQERROR << msg << " GL Error: " << error << std::endl;
 }
 
 
@@ -54,7 +50,7 @@ bool Channel::configInit( const uint32_t initID )
 {
     if( !eq::Channel::configInit( initID ))
         return false;
-    EQINFO << "Init channel initID " << initID << " ptr " << this << endl;
+    EQINFO << "Init channel initID " << initID << " ptr " << this << std::endl;
 
     // chose projection type
     setNearFar( 0.001f, 10.0f );
@@ -206,10 +202,10 @@ void Channel::_calcMVandITMV(
 
 
 static void _expandPVP( eq::PixelViewport& pvp, 
-                        const vector< eq::Image* >& images,
+                        const eq::ImageVector& images,
                         const eq::Vector2i& offset )
 {
-    for( vector< eq::Image* >::const_iterator i = images.begin();
+    for( eq::ImageVector::const_iterator i = images.begin();
          i != images.end(); ++i )
     {
         const eq::PixelViewport imagePVP = (*i)->getPixelViewport() + offset;

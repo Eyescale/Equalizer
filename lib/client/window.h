@@ -19,16 +19,16 @@
 #define EQ_WINDOW_H
 
 #include <eq/client/drawableConfig.h> // member
-#include <eq/client/renderContext.h>  // member
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h> // enum
 
 #include <eq/util/bitmapFont.h>      // member
 #include <eq/util/objectManager.h>   // member
-#include <eq/net/object.h>           // base class
-
 #include <eq/fabric/channel.h>       // friend
 #include <eq/fabric/pixelViewport.h> // member
+#include <eq/fabric/renderContext.h> // member
+#include <eq/net/object.h>           // base class
+
 
 namespace eq
 {

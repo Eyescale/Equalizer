@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
- *                   , Sarah Amsellem <sarah.amsellem@gmail.com>
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,13 +16,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_SUBPIXEL_H
-#define EQ_SUBPIXEL_H
+#ifndef EQFABRIC_SUBPIXEL_H
+#define EQFABRIC_SUBPIXEL_H
 
 #include <eq/base/base.h>
 #include <eq/base/log.h>
 
 namespace eq
+{
+namespace fabric
 {
     class SubPixel;
     std::ostream& operator << ( std::ostream& os, const SubPixel& subPixel );
@@ -31,8 +33,9 @@ namespace eq
      * Holds a subpixel decomposition specification along with some methods for
      * manipulation.
      *
-     * The index represents the contributor ID within the subpixel decomposition.
-     * The size determines how many contributors are performing anti-aliasing.
+     * The index represents the contributor ID within the subpixel
+     * decomposition.  The size determines how many contributors are performing
+     * anti-aliasing.
      */
     class SubPixel
     {
@@ -85,12 +88,15 @@ namespace eq
         EQ_EXPORT static const SubPixel ALL;
     };
 
-    inline std::ostream& operator << ( std::ostream& os, const SubPixel& subPixel )
+    inline std::ostream& operator << ( std::ostream& os,
+                                       const SubPixel& subPixel )
     {
         if( subPixel.isValid( ))
-            os << "subpixel  [ " << subPixel.index << ' ' << subPixel.size << " ]";
+            os << "subpixel  [ " << subPixel.index << ' ' << subPixel.size
+               << " ]";
         return os;
     }
 }
+}
 
-#endif // EQ_SUBPIXEL_H
+#endif // EQFABRIC_SUBPIXEL_H

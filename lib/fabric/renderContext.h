@@ -15,30 +15,29 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_RENDERCONTEXT_H
-#define EQ_RENDERCONTEXT_H
+#ifndef EQFABRIC_RENDERCONTEXT_H
+#define EQFABRIC_RENDERCONTEXT_H
 
-#include <eq/client/colorMask.h>        // member
-#include <eq/client/eye.h>              // member
-#include <eq/client/subPixel.h>         // member
-#include <eq/client/range.h>            // member
-#include <eq/client/types.h>
-#include <eq/client/zoom.h>             // member
-
+#include <eq/fabric/colorMask.h>        // member
+#include <eq/fabric/eye.h>              // member
 #include <eq/fabric/pixel.h>            // member
 #include <eq/fabric/pixelViewport.h>    // member
+#include <eq/fabric/range.h>            // member
+#include <eq/fabric/subPixel.h>         // member
+#include <eq/fabric/types.h>
+#include <eq/fabric/zoom.h>             // member
 
 #include <eq/net/objectVersion.h>
 #include <eq/base/base.h>
 
-
-
 namespace eq
+{
+namespace fabric
 {
     /**
      * The context applied by the server during rendering operations.
      */
-    struct RenderContext 
+    class RenderContext 
     {
     public: 
         EQ_EXPORT RenderContext();
@@ -73,5 +72,5 @@ namespace eq
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
                                           const RenderContext& ctx );
 }
-
-#endif // EQ_RENDERCONTEXT_H
+}
+#endif // EQFABRIC_RENDERCONTEXT_H

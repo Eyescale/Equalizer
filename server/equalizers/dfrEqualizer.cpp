@@ -22,8 +22,8 @@
 #include "../config.h"
 #include "../log.h"
 
+#include <eq/fabric/zoom.h>
 #include <eq/base/debug.h>
-#include <eq/client/zoom.h>
 
 namespace eq
 {

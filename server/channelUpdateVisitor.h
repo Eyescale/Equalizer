@@ -20,10 +20,9 @@
 
 #include "compoundVisitor.h" // base class
 
-#include <eq/client/colorMask.h>
+#include <eq/client/types.h>
 #include <eq/client/eye.h>
 #include <eq/client/os.h>
-#include <eq/client/renderContext.h>
 
 namespace eq
 {

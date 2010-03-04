@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,17 +20,15 @@
 
 #include "compound.h"
 
-#include <eq/client/colorMask.h>
+#include <eq/fabric/colorMask.h> // base class
 #include <iostream>
 
 namespace eq
 {
 namespace server
 {
-    /**
-     * Extends eq::Colormask with functionality needed only by the server.
-     */
-    class ColorMask : public eq::ColorMask
+    /** Extends color mask with functionality needed only by the server. */
+    class ColorMask : public eq::fabric::ColorMask
     {
     public:
         ColorMask(){}

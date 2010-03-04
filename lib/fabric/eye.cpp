@@ -1,6 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
- *                   , Sarah Amsellem <sarah.amsellem@gmail.com>
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,6 +15,34 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "subPixel.h"
+#include "eye.h"
 
-EQ_EXPORT const eq::SubPixel eq::SubPixel::ALL;
+#include <eq/base/debug.h>   // for EQABORT
+
+namespace eq
+{
+namespace fabric
+{
+std::ostream& operator << ( std::ostream& os, const Eye& eye )
+{
+    switch( eye )
+    {
+        case EYE_LEFT: 
+            os << "left eye";
+            break;
+        case EYE_RIGHT: 
+            os << "right eye";
+            break;
+        case EYE_CYCLOP: 
+            os << "cyclop eye";
+            break;
+        case EYE_ALL: 
+        default: 
+            EQABORT( "Invalid eye value" );
+    }
+    
+    return os;
+}
+
+}
+}

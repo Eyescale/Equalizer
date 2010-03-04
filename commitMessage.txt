@@ -1,6 +1,6 @@
-RSP cleanups
+Move RenderContext and friends into fabric namespace
 
-[ ] May break build
+[x] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature

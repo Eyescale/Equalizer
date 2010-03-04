@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,14 +15,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_ZOOM_H
-#define EQ_ZOOM_H
+#include "colorMask.h"
 
-#include <eq/fabric/zoom.h>  // base class
-
-namespace eq
-{
-    typedef fabric::Zoom Zoom;
-}
-
-#endif // EQ_ZOOM_H
+const eq::fabric::ColorMask eq::fabric::ColorMask::ALL;

@@ -22,8 +22,6 @@
 #include <eq/fabric/types.h>
 #include <eq/base/refPtr.h>
 
-#include <vmmlib/vmmlib.hpp>
-
 #include <map>
 #include <vector>
 
@@ -31,9 +29,14 @@ namespace eq
 {
 namespace fabric
 {
+class ColorMask;
 class Pixel;
 class PixelViewport;
+class Range;
+class RenderContext;
+class SubPixel;
 class Viewport;
+class Zoom;
 }
 
 class Canvas;
@@ -53,9 +56,14 @@ class Window;
 class X11Connection;
 struct Statistic;
 
+typedef fabric::ColorMask ColorMask;
 typedef fabric::Pixel Pixel;
 typedef fabric::PixelViewport PixelViewport;
+typedef fabric::Range Range;
+typedef fabric::RenderContext RenderContext;
+typedef fabric::SubPixel SubPixel;
 typedef fabric::Viewport Viewport;
+typedef fabric::Zoom Zoom;
 
 //----- Vectors
 /** A vector of pointers to eq::Node */
@@ -105,8 +113,8 @@ typedef fabric::Vector2f Vector2f;   //!< A two-component float vector
 typedef fabric::Vector3f Vector3f;   //!< A three-component float vector
 typedef fabric::Vector4f Vector4f;   //!< A four-component float vector
 typedef fabric::Vector3ub Vector3ub; //!< A three-component byte vector
+typedef fabric::Frustumf Frustumf;   //!< A frustum definition
 
-typedef vmml::frustum< float >  Frustumf; //!< A frustum definition
 /** Frustum culling helper */
 typedef vmml::frustum_culler< float >  FrustumCullerf;
 

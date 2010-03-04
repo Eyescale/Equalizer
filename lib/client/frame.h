@@ -21,10 +21,10 @@
 #include <eq/client/eye.h>    // enum Eye
 #include <eq/client/window.h> // nested ObjectManager type
 #include <eq/client/types.h>
-#include <eq/client/zoom.h>   // member
 
-#include <eq/base/monitor.h>
+#include <eq/fabric/zoom.h>   // member
 #include <eq/net/object.h>
+#include <eq/base/monitor.h>
 
 namespace eq
 {
@@ -33,15 +33,11 @@ namespace server
 {
     class Frame;
 }
-
     class FrameData;
     class Image;
     class Pipe;
-    class Range;
 
-    /**
-     * A holder for a frame data and parameters.
-     */
+    /** A holder for a frame's data and parameters. */
     class Frame : public net::Object
     {
     public:

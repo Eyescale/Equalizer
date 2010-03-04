@@ -18,8 +18,9 @@
 #ifndef EQ_EVENT_H
 #define EQ_EVENT_H
 
-#include <eq/client/renderContext.h> // member
+#include <eq/client/types.h>
 #include <eq/client/statistic.h>     // member
+#include <eq/fabric/renderContext.h> // member
 
 #include <eq/base/base.h>
 

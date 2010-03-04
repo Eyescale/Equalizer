@@ -83,11 +83,16 @@ HEADER_SRC = \
 	net/udpConnection.h \
 	net/version.h \
 	fabric/channel.h \
+	fabric/colorMask.h \
+	fabric/eye.h \
 	fabric/init.h \
 	fabric/leafVisitor.h \
 	fabric/object.h \
 	fabric/pixel.h \
 	fabric/pixelViewport.h \
+	fabric/range.h \
+	fabric/renderContext.h \
+	fabric/subPixel.h \
 	fabric/types.h \
 	fabric/viewport.h \
 	fabric/visitorResult.h \
@@ -98,7 +103,6 @@ HEADER_SRC = \
 	client/channelStatistics.h \
 	client/channelVisitor.h \
 	client/client.h \
-	client/colorMask.h \
 	client/commandQueue.h \
 	client/commands.h \
 	client/compositor.h \
@@ -138,14 +142,11 @@ HEADER_SRC = \
 	client/pipe.h \
 	client/pipeVisitor.h \
 	client/projection.h \
-	client/range.h \
-	client/renderContext.h \
 	client/segment.h \
 	client/segmentVisitor.h \
 	client/server.h \
 	client/statistic.h \
 	client/statisticSampler.h \
-	client/subPixel.h \
 	client/task.h \
 	client/types.h \
 	client/version.h \
@@ -157,7 +158,6 @@ HEADER_SRC = \
 	client/windowStatistics.h \
 	client/windowSystem.h \
 	client/windowVisitor.h \
-	client/zoom.h \
 	util/accum.h \
 	util/accumBufferObject.h \
 	util/bitmapFont.h \
@@ -230,16 +230,20 @@ CXXFILES = \
 	net/udpConnection.cpp \
 	net/unbufferedMasterCM.cpp \
 	net/versionedSlaveCM.cpp \
+	fabric/colorMask.cpp \
+	fabric/eye.cpp \
 	fabric/init.cpp \
 	fabric/object.cpp \
 	fabric/pixel.cpp \
+	fabric/range.cpp \
+	fabric/renderContext.cpp \
+	fabric/subPixel.cpp \
 	fabric/viewport.cpp \
 	fabric/zoom.cpp \
 	client/canvas.cpp \
 	client/channel.cpp \
 	client/channelStatistics.cpp \
 	client/client.cpp \
-	client/colorMask.cpp \
 	client/commandQueue.cpp \
 	client/compositor.cpp \
 	client/computeContext.cpp \
@@ -251,7 +255,6 @@ CXXFILES = \
 	client/cudaContext.cpp \
 	client/event.cpp \
 	client/eventHandler.cpp \
-	client/eye.cpp \
 	client/frame.cpp \
 	client/frameData.cpp \
 	client/frustum.cpp \
@@ -271,15 +274,12 @@ CXXFILES = \
 	client/pipe.cpp \
 	client/pipeStatistics.cpp \
 	client/projection.cpp \
-	client/range.cpp \
 	client/roiFinder.cpp \
 	client/roiTracker.cpp \
 	client/roiEmptySpaceFinder.cpp \
-	client/renderContext.cpp \
 	client/segment.cpp \
 	client/server.cpp \
 	client/statistic.cpp \
-	client/subPixel.cpp \
 	client/version.cpp \
 	client/view.cpp \
 	client/wall.cpp \

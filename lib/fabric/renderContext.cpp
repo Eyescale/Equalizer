@@ -17,18 +17,17 @@
 
 #include "renderContext.h"
 
-#include "os.h"
-
-using namespace eq::base;
-
 namespace eq
 {
+namespace fabric
+{
+
 RenderContext::RenderContext()
         : headTransform( Matrix4f::IDENTITY )
         , overdraw( Vector4i::ZERO )
         , offset( Vector2i::ZERO )
         , frameID( 0 )
-        , buffer( GL_BACK ) 
+        , buffer( 0x0405 ) // GL_BACK
         , taskID( 0 )
         , period( 1 )
         , phase( 0 )
@@ -44,5 +43,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
     os << "ID " << ctx.frameID << " pvp " << ctx.pvp << " vp " << ctx.vp << " "
        << ctx.range << " " << ctx.eye;
     return os;
+}
+
 }
 }

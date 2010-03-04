@@ -40,7 +40,6 @@
 
 #include <eq/base/base.h>
 #include <eq/base/stdExt.h>
-#include <eq/client/colorMask.h>
 #include <eq/client/global.h>
 #include <eq/client/packets.h>
 #include <eq/client/windowSystem.h>

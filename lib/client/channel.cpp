@@ -33,8 +33,6 @@
 #include "osWindow.h"
 #include "packets.h"
 #include "pipe.h"
-#include "range.h"
-#include "renderContext.h"
 #include "server.h"
 #include "task.h"
 #include "view.h"

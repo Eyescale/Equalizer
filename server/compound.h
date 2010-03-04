@@ -22,18 +22,16 @@
 #include "frustum.h"               // member
 #include "frustumData.h"           // member
 
-#include <eq/client/colorMask.h>
 #include <eq/client/frame.h>
 #include <eq/client/frameData.h>
 #include <eq/client/global.h>
 #include <eq/client/projection.h>
-#include <eq/client/range.h>
-#include <eq/client/renderContext.h>
-#include <eq/client/subPixel.h>
 #include <eq/client/task.h>
 #include <eq/client/wall.h>
-#include <eq/client/zoom.h>
+#include <eq/fabric/range.h>    // member
+#include <eq/fabric/subPixel.h> // member
 #include <eq/fabric/viewport.h> // member
+#include <eq/fabric/zoom.h>     // member
 #include <eq/net/barrier.h>
 #include <eq/base/thread.h>
 #include <iostream>
@@ -248,8 +246,9 @@ namespace server
         void setPixel( const eq::Pixel& pixel )    { _data.pixel = pixel; }
         const eq::Pixel& getPixel() const          { return _data.pixel; }
 
-        void setSubPixel( const eq::SubPixel& subpixel ) { _data.subpixel = subpixel; }
-        const eq::SubPixel& getSubPixel() const      { return _data.subpixel; }
+        void setSubPixel( const eq::SubPixel& subpixel )
+            { _data.subpixel = subpixel; }
+        const eq::SubPixel& getSubPixel() const    { return _data.subpixel; }
 
         void setZoom( const eq::Zoom& zoom )       { _data.zoom = zoom; }
         const eq::Zoom& getZoom() const            { return _data.zoom; }

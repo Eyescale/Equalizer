@@ -15,13 +15,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_COLORMASK_H
-#define EQ_COLORMASK_H
+#ifndef EQFABRIC_COLORMASK_H
+#define EQFABRIC_COLORMASK_H
 
 #include <eq/base/base.h>
 #include <iostream>
 
 namespace eq
+{
+namespace fabric
 {
     /**
      * Defines which parts of the color buffer are to be written.
@@ -56,5 +58,6 @@ namespace eq
         return os;
     }
 }
+}
 
-#endif // EQ_COLORMASK_H
+#endif // EQFABRIC_COLORMASK_H

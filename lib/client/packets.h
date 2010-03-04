@@ -22,10 +22,10 @@
 #include <eq/client/channel.h>       // Channel::IATTR_ALL enum
 #include <eq/client/commands.h>
 #include <eq/client/node.h>          // Node::IATTR_ALL enum
-#include <eq/client/renderContext.h> // member
 #include <eq/client/types.h>         // member
 #include <eq/client/window.h>        // Window::IATTR_ALL enum
 
+#include <eq/fabric/renderContext.h> // member
 #include <eq/fabric/viewport.h>      // member
 
 #include <eq/net/packets.h>
