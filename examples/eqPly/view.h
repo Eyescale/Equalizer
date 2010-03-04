@@ -46,7 +46,7 @@ namespace eqPly
                                   const uint64_t dirtyBits );
 
         /** @sa eq::net::Object::notifyNewVersion() */
-        virtual void notifyNewVersion();
+        virtual void notifyNewVersion() { sync(); }
 
         /** The changed parts of the view. */
         enum DirtyBits

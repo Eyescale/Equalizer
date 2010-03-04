@@ -56,15 +56,6 @@ void View::deserialize( eq::net::DataIStream& is, const uint64_t dirtyBits )
     }
 }
 
-void View::notifyNewVersion()
-{
-    EQASSERT( isMaster( ));
-    eq::View::notifyNewVersion();
-
-    Config* config = static_cast< Config* >( getSession( ));
-    config->notifyNewVersion( this );
-}
-
 void View::setModelID( const uint32_t id )
 {
     _modelID = id;

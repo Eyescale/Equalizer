@@ -76,10 +76,6 @@ namespace eqPly
         /** @return true if an user event required a redraw. */
         bool isUserEvent();
 
-        /** Notify that a master object has received a slave delta. */
-        void notifyNewVersion( eq::Object* object )
-            { _dirtyObjects.push( object ); }
-
     protected:
         virtual ~Config();
 
@@ -114,7 +110,6 @@ namespace eqPly
         void _updateData();
 
         uint32_t _numFramesAA;
-        eq::base::MTQueue< eq::Object* > _dirtyObjects;
     };
 }
 

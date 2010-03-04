@@ -1,6 +1,6 @@
-Move RenderContext and friends into fabric namespace
+Simplify eqPly::View syncing
 
-[x] May break build
+[ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
