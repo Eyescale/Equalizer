@@ -335,7 +335,7 @@ namespace fabric
         void setDrawable( const uint32_t drawable ); //!< @internal
 
         /** Notification that parameters influencing the vp/pvp have changed.*/
-        virtual void notifyViewportChanged();
+        EQFABRIC_EXPORT virtual void notifyViewportChanged();
 
         /** @name Render context access @internal */
         //@{

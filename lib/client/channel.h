@@ -465,7 +465,7 @@ namespace util
         //@}
 
         /** Notification that parameters influencing the vp/pvp have changed.*/
-        virtual void notifyViewportChanged();
+        EQ_EXPORT virtual void notifyViewportChanged();
 
     private:
         //-------------------- Members --------------------
