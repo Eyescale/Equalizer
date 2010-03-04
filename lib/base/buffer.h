@@ -121,7 +121,7 @@ namespace base
                     free( _data );
                 
                 _data = static_cast< T* >( malloc( newSize * sizeof( T )));
-                _maxSize = _size;
+                _maxSize = newSize;
             }
 
         /** Append elements to the buffer, increasing the size. @version 1.0 */
