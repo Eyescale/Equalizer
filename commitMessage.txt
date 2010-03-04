@@ -1,10 +1,9 @@
-Potential Windows build fix, move missing file to fabric namespace, code
-cleanups
+Potential Windows build fix
 
 [ ] Will break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
