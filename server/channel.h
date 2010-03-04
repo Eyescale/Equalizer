@@ -29,10 +29,9 @@
 #include "channelVisitor.h" // template typedef
 #include "types.h"
 
-#include <eq/client/channel.h>
-#include <eq/client/commands.h>
 #include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/viewport.h>      // member
+#include <eq/fabric/channel.h>
 #include <eq/net/object.h>
 #include <eq/net/packets.h>
 
@@ -41,6 +40,7 @@
 
 namespace eq
 {
+    struct Statistic;
 
 namespace server
 {
@@ -131,54 +131,15 @@ namespace server
         /** @return the channel's segment. */
         Segment* getSegment() { return _segment; }
 
-        /** 
-         * Set the channel's pixel viewport wrt its parent window.
-         * 
-         * @param pvp the viewport in pixels.
-         */
-        void setPixelViewport( const eq::PixelViewport& pvp );
-
-        /** 
-         * Return this channel's pixel viewport.
-         * 
-         * @return the pixel viewport.
-         */
-        const eq::PixelViewport& getPixelViewport() const { return _pvp; }
-
-        /**
-         * Notify this channel that the viewport has changed.
-         *
-         * The channel updates the viewport or pixel viewport accordingly. 
-         */
-        void notifyViewportChanged();
-
-        /** 
-         * Set the channel's viewport wrt its parent window.
-         * 
-         * @param vp the fractional viewport.
-         */
-        void setViewport( const eq::Viewport& vp );
-
-        /** 
-         * Return this channel's viewport.
-         * 
-         * @return the fractional viewport.
-         */
-        const eq::Viewport& getViewport() const { return _vp; }
-
-        /** 
-         * Returns the current near and far planes for this channel.
-         *
-         * @param nearPlane a pointer to store the near plane.
-         * @param farPlane a pointer to store the far plane.
-         */
-        void getNearFar( float* nearPlane, float* farPlane ) const 
-            { *nearPlane = _near; *farPlane = _far; }
-
         /** The last drawing compound for this entity. */
         void setLastDrawCompound( const Compound* compound )
             { _lastDrawCompound = compound; }
         const Compound* getLastDrawCompound() const { return _lastDrawCompound;}
+
+        void setIAttribute( const IAttribute attr, const int32_t value )
+            { fabric::Channel< Channel, Window >::setIAttribute( attr, value );}
+        void setDrawable( const uint32_t drawable )
+            { fabric::Channel< Channel, Window >::setDrawable( drawable ); }
         //@}
 
         /**
@@ -228,39 +189,13 @@ namespace server
         void removeListener( ChannelListener* listener );
         //@}
 
-       /**
-         * @name Attributes
-         */
-        //@{
-        void setIAttribute( const eq::Channel::IAttribute attr,
-                            const int32_t value )
-            { _iAttributes[attr] = value; }
-        int32_t  getIAttribute( const eq::Channel::IAttribute attr ) const
-            { return _iAttributes[attr]; }
-        //@}
-
-        /** @name Error information. */
-        //@{
-        /** @return the error message from the last operation. */
-        const std::string& getErrorMessage() const { return _error; }
-        //@}
-        
-        /* Set the channel's drawable. */
-        void setDrawable( const uint32_t drawable );
-
-        /* Get the channel's drawable. */
-        uint32_t getDrawable() const { return _drawable; }
-
-        void setOverdraw( const Vector4i& overdraw )
-            { _overdraw = overdraw; }
-        const Vector4i& getOverdraw() const { return _overdraw; }
-        const Vector2i& getMaxSize()  const { return _maxSize; }
-
     protected:
         /** @sa net::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 
                                       const uint32_t instanceID, 
                                       net::Session* session );
+        virtual void deserialize( eq::net::DataIStream&, const uint64_t );
+
     private:
         //-------------------- Members --------------------
         friend class Window;
@@ -274,34 +209,7 @@ namespace server
         /** The segment used by this channel. */
         Segment* _segment;
 
-        /** The reason for the last error. */
-        std::string _error;
-
-        /** Integer attributes. */
-        int32_t _iAttributes[eq::Channel::IATTR_ALL];
-
-        /** The fractional viewport with respect to the window. */
-        eq::Viewport _vp;
-
-        /** The pixel viewport within the window. */
-        eq::PixelViewport _pvp;
-
-        /** The alternate drawable (fbo) to use. */
-        uint32_t _drawable;
-        
-        /** true if the pvp is immutable, false if the vp is immutable */
-        bool _fixedPVP;
-
-        /** Frustum near plane. */
-        float        _near;
-        /** Frustum far plane. */
-        float        _far;
-
         Vector4i    _overdraw;
-        Vector2i    _maxSize;
-
-        /** Worst-case set of tasks. */
-        uint32_t _tasks;
 
         /** The current state for state change synchronization. */
         base::Monitor< State > _state;
@@ -316,7 +224,7 @@ namespace server
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
         //-------------------- Methods --------------------
@@ -331,19 +239,15 @@ namespace server
         bool _syncConfigExit();
 
         void _setupRenderContext( const uint32_t frameID,
-                                  eq::RenderContext& context );
+                                  RenderContext& context );
 
         void _fireLoadData( const uint32_t frameNumber, 
                             const uint32_t nStatistics,
                             const eq::Statistic* statistics );
 
-        virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
-        virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }
-
         /* command handler functions. */
         net::CommandResult _cmdConfigInitReply( net::Command& command );
         net::CommandResult _cmdConfigExitReply( net::Command& command );
-        net::CommandResult _cmdSetNearFar( net::Command& command );
         net::CommandResult _cmdFrameFinishReply( net::Command& command );
 
         // For access to _fixedPVP

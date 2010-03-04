@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,11 +18,17 @@
 #ifndef EQSERVER_TYPES_H
 #define EQSERVER_TYPES_H
 
+#include <eq/fabric/types.h>
 #include <eq/base/refPtr.h>
 #include <vector>
 
 namespace eq
 {
+namespace fabric
+{
+class RenderContext;
+}
+
 namespace server
 {
 
@@ -43,7 +49,6 @@ class Observer;
 class Segment;
 class View;
 
-
 typedef std::vector< Config* >   ConfigVector;
 typedef std::vector< Node* >     NodeVector;
 typedef std::vector< Pipe* >     PipeVector;
@@ -62,6 +67,10 @@ typedef std::vector< View* >         ViewVector;
 typedef base::RefPtr< Server > ServerPtr;
 typedef base::RefPtr< ConnectionDescription >   ConnectionDescriptionPtr;
 typedef std::vector< ConnectionDescriptionPtr > ConnectionDescriptionVector;
+
+typedef fabric::Vector4i Vector4i;   //!< A four-component integer vector
+typedef fabric::Vector3ub Vector3ub; //!< A three-component byte vector
+typedef fabric::RenderContext RenderContext;
 }
 }
 #endif // EQSERVER_TYPES_H

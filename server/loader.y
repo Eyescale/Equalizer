@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -441,12 +441,12 @@ global:
      | EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS IATTR
      {
          eq::server::Global::instance()->setChannelIAttribute(
-             eq::Channel::IATTR_HINT_STATISTICS, $2 );
+             eq::server::Channel::IATTR_HINT_STATISTICS, $2 );
      }
      | EQTOKEN_CHANNEL_IATTR_HINT_SENDTOKEN IATTR
      {
          eq::server::Global::instance()->setChannelIAttribute(
-             eq::Channel::IATTR_HINT_SENDTOKEN, $2 );
+             eq::server::Channel::IATTR_HINT_SENDTOKEN, $2 );
      }
      | EQTOKEN_COMPOUND_IATTR_STEREO_MODE IATTR 
      { 
@@ -690,9 +690,11 @@ channelField:
 channelAttributes: /*null*/ | channelAttributes channelAttribute
 channelAttribute:
     EQTOKEN_HINT_STATISTICS IATTR
-        { channel->setIAttribute( eq::Channel::IATTR_HINT_STATISTICS, $2 ); }
+        { channel->setIAttribute( eq::server::Channel::IATTR_HINT_STATISTICS, 
+                                  $2 ); }
     | EQTOKEN_HINT_SENDTOKEN IATTR
-        { channel->setIAttribute( eq::Channel::IATTR_HINT_SENDTOKEN, $2 ); }
+        { channel->setIAttribute( eq::server::Channel::IATTR_HINT_SENDTOKEN,
+                                  $2 ); }
 
 
 observer: EQTOKEN_OBSERVER '{' { observer = new eq::server::Observer; }

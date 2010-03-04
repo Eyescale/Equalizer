@@ -103,7 +103,7 @@ Window::~Window()
     {
         Channel* channel = *i;
 
-        EQASSERT( channel->_window == this );
+        EQASSERT( channel->getWindow() == this );
         delete channel;
     }
     EQASSERT( _channels.empty( ));
@@ -134,13 +134,13 @@ void Window::_addChannel( Channel* channel )
               _channels.end( ));
 
     _channels.push_back( channel ); 
-    EQASSERT( channel->_window == this );
+    EQASSERT( channel->getWindow() == this );
 }
 
 bool Window::_removeChannel( Channel* channel )
 {
     ChannelVector::iterator i = find( _channels.begin(), _channels.end(),
-                                        channel );
+                                      channel );
     if( i == _channels.end( ))
         return false;
 
@@ -340,8 +340,9 @@ void Window::notifyViewportChanged()
 
     for( ChannelVector::iterator i = _channels.begin();
          i != _channels.end(); ++i )
-
+    {
         (*i)->notifyViewportChanged();
+    }
 }
 
 //---------------------------------------------------------------------------

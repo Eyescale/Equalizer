@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -35,9 +35,13 @@ ObjectVersion::ObjectVersion( const uint32_t id_, const uint32_t version_ )
 {}
 
 ObjectVersion::ObjectVersion( const Object* object )
-        : identifier( object->getID( )), 
-          version( object->getVersion( )) 
+        : identifier( EQ_ID_INVALID ), version( VERSION_NONE )
 {
+    if( object )
+    {
+        identifier = object->getID();
+        version = object->getVersion(); 
+    }
 }
 
 ObjectVersion& ObjectVersion::operator = ( const Object* object )

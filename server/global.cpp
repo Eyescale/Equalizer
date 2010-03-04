@@ -105,15 +105,15 @@ void Global::_setupDefaults()
 #endif
     
     // channel
-    for( uint32_t i=0; i<eq::Channel::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<Channel::IATTR_ALL; ++i )
         _channelIAttributes[i] = eq::UNDEFINED;
 
 #ifdef NDEBUG
-    _channelIAttributes[eq::Channel::IATTR_HINT_STATISTICS] = eq::FASTEST;
+    _channelIAttributes[Channel::IATTR_HINT_STATISTICS] = eq::FASTEST;
 #else
-    _channelIAttributes[eq::Channel::IATTR_HINT_STATISTICS] = eq::NICEST;
+    _channelIAttributes[Channel::IATTR_HINT_STATISTICS] = eq::NICEST;
 #endif
-    _channelIAttributes[eq::Channel::IATTR_HINT_SENDTOKEN] = eq::OFF;
+    _channelIAttributes[Channel::IATTR_HINT_SENDTOKEN] = eq::OFF;
 
     // compound
     for( uint32_t i=0; i<Compound::IATTR_ALL; ++i )
@@ -195,10 +195,10 @@ void Global::_readEnvironment()
         if( envValue )
             _windowIAttributes[i] = atol( envValue );
     }
-    for( uint32_t i=0; i<eq::Channel::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<Channel::IATTR_ALL; ++i )
     {
-        const std::string& name     = eq::Channel::getIAttributeString(
-            (eq::Channel::IAttribute)i);
+        const std::string& name = Channel::getIAttributeString(
+            (Channel::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
         if( envValue )
@@ -336,14 +336,14 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
            << static_cast<eq::IAttrValue>( value ) << std::endl;
     }
 
-    for( uint32_t i=0; i<eq::Channel::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<Channel::IATTR_ALL; ++i )
     {
         const int value = global->_channelIAttributes[i];
         if( value == reference._channelIAttributes[i] )
             continue;
 
-        const std::string& name = eq::Channel::getIAttributeString(
-            static_cast<eq::Channel::IAttribute>( i ));
+        const std::string& name = Channel::getIAttributeString(
+            static_cast<Channel::IAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << static_cast<eq::IAttrValue>( value ) << std::endl;
     }

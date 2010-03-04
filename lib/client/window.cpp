@@ -352,7 +352,7 @@ void Window::setPixelViewport( const PixelViewport& pvp )
     for( std::vector<Channel*>::iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
     {
-        (*i)->_notifyViewportChanged();
+        (*i)->notifyViewportChanged();
     }
 }
 
@@ -444,7 +444,7 @@ const std::string&  Window::getIAttributeString( const IAttribute attr )
     return _iAttributeStrings[attr];
 }
 
-uint32_t Window::getColorFormat()
+uint32_t Window::getColorFormat() const
 {
     switch( getIAttribute( Window::IATTR_PLANES_COLOR ))
     {
@@ -686,6 +686,11 @@ GLEWContext* Window::glewGetContext()
     return _osWindow->glewGetContext();
 }
 
+const GLEWContext* Window::glewGetContext() const
+{ 
+    return _osWindow->glewGetContext();
+}
+
 void Window::_enterBarrier( net::ObjectVersion barrier )
 {
     EQLOG( net::LOG_BARRIER ) << "swap barrier " << barrier << std::endl;
@@ -780,7 +785,8 @@ net::CommandResult Window::_cmdCreateChannel( net::Command& command )
     EQLOG( LOG_INIT ) << "Create channel " << packet << endl;
 
     Channel* channel = Global::getNodeFactory()->createChannel( this );
-    getConfig()->attachObject( channel, packet->channelID, EQ_ID_INVALID );
+    Config* config = getConfig();
+    EQCHECK( config->mapObject( channel, packet->channelID ));
 
     return net::COMMAND_HANDLED;
 }
@@ -792,7 +798,7 @@ net::CommandResult Window::_cmdDestroyChannel( net::Command& command )
     EQLOG( LOG_INIT ) << "Destroy channel " << packet << endl;
 
     Channel* channel = _findChannel( packet->channelID );
-    EQASSERT( channel )
+    EQASSERT( channel );
 
     Config*  config  = getConfig();
     config->detachObject( channel );

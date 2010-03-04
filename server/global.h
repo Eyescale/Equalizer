@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,14 +19,13 @@
 #define EQSERVER_GLOBAL_H
 
 #include "compound.h"                // nested enum
+#include "channel.h"                 // nested enum
 #include "config.h"                  // nested enum
 #include "connectionDescription.h"   // nested enum
 #include "pipe.h"                    // nested enum
 #include "node.h"                    // nested enum
 
-//#include <eq/client/global.h>
 #include <eq/client/node.h>      // nested enum
-#include <eq/client/channel.h>   // nested enum
 #include <eq/client/window.h>    // nested enum
 
 namespace eq
@@ -111,10 +110,10 @@ namespace server
         /**
          * @name Channel Attributes.
          */
-        void setChannelIAttribute( const eq::Channel::IAttribute attr,
-                                  const int32_t value )
+        void setChannelIAttribute( const Channel::IAttribute attr,
+                                   const int32_t value )
             { _channelIAttributes[attr] = value; }
-        int32_t getChannelIAttribute( const eq::Channel::IAttribute attr ) const
+        int32_t getChannelIAttribute( const Channel::IAttribute attr ) const
             { return _channelIAttributes[attr]; }
 
         /**
@@ -142,7 +141,7 @@ namespace server
 
         int32_t     _windowIAttributes[eq::Window::IATTR_ALL];
 
-        int32_t     _channelIAttributes[eq::Channel::IATTR_ALL];
+        int32_t     _channelIAttributes[Channel::IATTR_ALL];
         
         int32_t     _compoundIAttributes[Compound::IATTR_ALL];
 

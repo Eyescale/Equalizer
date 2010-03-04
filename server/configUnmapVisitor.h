@@ -25,10 +25,10 @@ namespace eq
 namespace server
 {
 /** Unmaps all mapped config children. */
-class UnmapVisitor : public ConfigVisitor
+class ConfigUnmapVisitor : public ConfigVisitor
 {
 public:
-    virtual ~UnmapVisitor(){}
+    virtual ~ConfigUnmapVisitor(){}
 
     virtual VisitorResult visitPre( Canvas* canvas )
         {
@@ -55,6 +55,12 @@ public:
     virtual VisitorResult visit( Observer* observer )
         { 
             _unmap( observer );
+            return TRAVERSE_CONTINUE; 
+        }
+
+    virtual VisitorResult visit( Channel* channel )
+        { 
+            _unmap( channel );
             return TRAVERSE_CONTINUE; 
         }
 

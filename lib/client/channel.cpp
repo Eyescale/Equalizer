@@ -44,24 +44,13 @@
 
 namespace eq
 {
-#define MAKE_ATTR_STRING( attr ) ( std::string("EQ_CHANNEL_") + #attr )
-std::string Channel::_iAttributeStrings[IATTR_ALL] = {
-    MAKE_ATTR_STRING( IATTR_HINT_STATISTICS ),
-    MAKE_ATTR_STRING( IATTR_HINT_SENDTOKEN ),
-    MAKE_ATTR_STRING( IATTR_FILL1 ),
-    MAKE_ATTR_STRING( IATTR_FILL2 )
-};
+typedef fabric::Channel< Channel, Window > Super;
 
 Channel::Channel( Window* parent )
-        : fabric::Channel< Channel, Window >( parent )
-        , _context( &_nativeContext )
-        , _tasks( TASK_NONE )
+        : Super( parent )
         , _state( STATE_STOPPED )
-        , _fixedPVP( false )
-        , _fbo(0)
-        , _drawable( 0 )
+        , _fbo( 0 )
         , _initialSize( Vector2i::ZERO )
-        , _maxSize( Vector2i::ZERO )
 {
     EQINFO << " New eq::Channel @" << (void*)this << std::endl;
 }
@@ -80,7 +69,7 @@ void Channel::attachToSession( const uint32_t id,
                                net::Session* session )
 {
     net::Object::attachToSession( id, instanceID, session );
-    net::CommandQueue* queue = _window->getPipeThreadQueue();
+    net::CommandQueue* queue = getWindow()->getPipeThreadQueue();
 
     registerCommand( CMD_CHANNEL_CONFIG_INIT, 
                      CmdFunc( this, &Channel::_cmdConfigInit ), queue );
@@ -110,67 +99,78 @@ void Channel::attachToSession( const uint32_t id,
 
 Pipe* Channel::getPipe()
 {
-    EQASSERT( _window );
-    return ( _window ? _window->getPipe() : 0 );
+    Window* window = getWindow();
+    EQASSERT( window );
+    return ( window ? window->getPipe() : 0 );
 }
 const Pipe* Channel::getPipe() const
 {
-    EQASSERT( _window );
-    return ( _window ? _window->getPipe() : 0 );
+    const Window* window = getWindow();
+    EQASSERT( window );
+    return ( window ? window->getPipe() : 0 );
 }
 
 Node* Channel::getNode()
 {
-    EQASSERT( _window );
-    return ( _window ? _window->getNode() : 0 );
+    Window* window = getWindow();
+    EQASSERT( window );
+    return ( window ? window->getNode() : 0 );
 }
 const Node* Channel::getNode() const
 {
-    EQASSERT( _window );
-    return ( _window ? _window->getNode() : 0 );
+    const Window* window = getWindow();
+    EQASSERT( window );
+    return ( window ? window->getNode() : 0 );
 }
 
 Config* Channel::getConfig()
 {
-    EQASSERT( _window );
-    return ( _window ? _window->getConfig() : 0 );
+    Window* window = getWindow();
+    EQASSERT( window );
+    return ( window ? window->getConfig() : 0 );
 }
 const Config* Channel::getConfig() const
 {
-    EQASSERT( _window );
-    return ( _window ? _window->getConfig() : 0 );
+    const Window* window = getWindow();
+    EQASSERT( window );
+    return ( window ? window->getConfig() : 0 );
 }
 
 ServerPtr Channel::getServer()
 {
-    EQASSERT( _window );
-    return ( _window ? _window->getServer() : 0 );
+    Window* window = getWindow();
+    EQASSERT( window );
+    return ( window ? window->getServer() : 0 );
 }
 
 Window::ObjectManager* Channel::getObjectManager()
 {
-    EQASSERT( _window );
-    return _window->getObjectManager();
+    Window* window = getWindow();
+    EQASSERT( window );
+    return window->getObjectManager();
 }
 
 const DrawableConfig& Channel::getDrawableConfig() const
 {
-    EQASSERT( _window );
+    const Window* window = getWindow();
+    EQASSERT( window );
     if( _fbo )
         return _drawableConfig;
 
-    return _window->getDrawableConfig();
+    return window->getDrawableConfig();
 }
 
 GLEWContext* Channel::glewGetContext()
 {
-    EQASSERT( _window );
-    return _window->glewGetContext();
+    Window* window = getWindow();
+    EQASSERT( window );
+    return window->glewGetContext();
 }
 const GLEWContext* Channel::glewGetContext() const
 {
-    EQASSERT( _window );
-    return _window->glewGetContext();
+    const Window* window = getWindow();
+    EQASSERT( window );
+    return window->glewGetContext();
 }
 
 bool Channel::configExit()
@@ -186,10 +186,12 @@ bool Channel::configInit( const uint32_t initID )
 
 bool Channel::_configInitFBO()
 {
-    if( _drawable == FB_WINDOW )
+    const uint32_t drawable = getDrawable();
+    if( drawable == FB_WINDOW )
         return true;
     
-    if( !_window->getOSWindow()  ||
+    const Window* window = getWindow();
+    if( !window->getOSWindow()  ||
         !GLEW_ARB_texture_non_power_of_two || !GLEW_EXT_framebuffer_object )
     {
         setErrorMessage( "Can't use FBO due to missing GL extensions" );
@@ -198,27 +200,27 @@ bool Channel::_configInitFBO()
         
     // needs glew initialized (see above)
     _fbo = new util::FrameBufferObject( glewGetContext( ));
-    _fbo->setColorFormat( _window->getColorFormat( ));
+    _fbo->setColorFormat( window->getColorFormat( ));
         
     int depthSize = 0;
-    if( _drawable & FBO_DEPTH )
+    if( drawable & FBO_DEPTH )
     {
-        depthSize = _window->getIAttribute( Window::IATTR_PLANES_DEPTH );
+        depthSize = window->getIAttribute( Window::IATTR_PLANES_DEPTH );
 
         if( depthSize < 1 )
             depthSize = 24;
     }
 
     int stencilSize = 0;
-    if( _drawable & FBO_STENCIL )
+    if( drawable & FBO_STENCIL )
     {
-        stencilSize = _window->getIAttribute( Window::IATTR_PLANES_STENCIL );
+        stencilSize = window->getIAttribute( Window::IATTR_PLANES_STENCIL );
 
         if( stencilSize < 1 )
             stencilSize = 1;
     }
 
-    const PixelViewport& pvp = _nativeContext.pvp;
+    const PixelViewport& pvp = getNativePixelViewport();
 
     if( _fbo->init( pvp.w, pvp.h, depthSize, stencilSize ))
         return true;
@@ -232,7 +234,8 @@ bool Channel::_configInitFBO()
 
 void Channel::_initDrawableConfig()
 {
-    _drawableConfig = _window->getDrawableConfig();
+    const Window* window = getWindow();
+    _drawableConfig = window->getDrawableConfig();
     if( !_fbo )
         return;
 
@@ -259,139 +262,26 @@ void Channel::_initDrawableConfig()
         }
     }
 }
-//----------------------------------------------------------------------
-// viewport
-//----------------------------------------------------------------------
-void Channel::_setPixelViewport( const PixelViewport& pvp )
+
+
+void Channel::notifyViewportChanged()
 {
-    EQASSERT( pvp.hasArea( ));
-    if( !pvp.hasArea( ))
+    const PixelViewport oldPVP = getPixelViewport();
+    Super::notifyViewportChanged();
+    const PixelViewport& newPVP = getPixelViewport();
+
+    if( newPVP == oldPVP )
         return;
 
-    _fixedPVP = true;
+    Event event;
+    event.type       = Event::CHANNEL_RESIZE;
+    event.originator = getID();
+    event.resize.x   = newPVP.x;
+    event.resize.y   = newPVP.y;
+    event.resize.w   = newPVP.w;
+    event.resize.h   = newPVP.h;
 
-    if( _nativeContext.pvp == pvp && _nativeContext.vp.hasArea( ))
-        return;
-
-    _nativeContext.pvp = pvp;
-    _nativeContext.vp.invalidate();
-
-    if( !_window )
-        return;
-    
-    const PixelViewport& windowPVP = _window->getPixelViewport();
-    if( windowPVP.isValid( ))
-        _nativeContext.vp = pvp.getSubVP( windowPVP );
-
-    EQVERB << "Channel pvp set: " << _nativeContext.pvp << ":" 
-           << _nativeContext.vp << std::endl;
-}
-
-void Channel::_setViewport( const Viewport& vp )
-{
-    if( !vp.hasArea( ))
-        return;
-    
-    _fixedPVP = false;
-
-    if( _nativeContext.vp == vp && _nativeContext.pvp.hasArea( ))
-        return;
-
-    _nativeContext.vp = vp;
-    _nativeContext.pvp.invalidate();
-
-    if( !_window )
-        return;
-
-    PixelViewport windowPVP = _window->getPixelViewport();
-    if( windowPVP.isValid( ))
-    {
-        windowPVP.x = 0;
-        windowPVP.y = 0;
-        _nativeContext.pvp = windowPVP.getSubPVP( vp );
-
-        // send event
-        Event event;
-        event.type       = Event::CHANNEL_RESIZE;
-        event.originator = getID();
-        event.resize.x   = _nativeContext.pvp.x;
-        event.resize.y   = _nativeContext.pvp.y;
-        event.resize.w   = _nativeContext.pvp.w;
-        event.resize.h   = _nativeContext.pvp.h;
-
-        processEvent( event );
-    }
-
-    EQVERB << "Channel vp set: " << _nativeContext.pvp << ":" 
-           << _nativeContext.vp << std::endl;
-}
-
-void Channel::_notifyViewportChanged()
-{
-    if( !_window )
-        return;
-
-    eq::PixelViewport windowPVP = _window->getPixelViewport();
-    if( !windowPVP.isValid( ))
-        return;
-
-    windowPVP.x = 0;
-    windowPVP.y = 0;
-
-    if( _fixedPVP ) // update viewport
-        _nativeContext.vp = _nativeContext.pvp.getSubVP( windowPVP );
-    else            // update pixel viewport
-    {
-        const eq::PixelViewport pvp = windowPVP.getSubPVP( _nativeContext.vp );
-        if( _nativeContext.pvp == pvp )
-            return;
-
-        _nativeContext.pvp = pvp;
-
-        // send event
-        Event event;
-        event.type       = Event::CHANNEL_RESIZE;
-        event.originator = getID();
-        event.resize.x   = _nativeContext.pvp.x;
-        event.resize.y   = _nativeContext.pvp.y;
-        event.resize.w   = _nativeContext.pvp.w;
-        event.resize.h   = _nativeContext.pvp.h;
-
-        processEvent( event );
-    }
-
-    EQINFO << "Channel viewport update: " << _nativeContext.pvp << ":" 
-           << _nativeContext.vp << std::endl;
-}
-
-void Channel::setNearFar( const float nearPlane, const float farPlane )
-{
-    if( _context->frustum.near_plane() == nearPlane && 
-        _context->frustum.far_plane() == farPlane )
-    {
-        return;
-    }
-
-    _nativeContext.frustum.adjust_near( nearPlane );
-    _nativeContext.frustum.far_plane() = farPlane;
-    _nativeContext.ortho.near_plane()  = nearPlane;
-    _nativeContext.ortho.far_plane()   = farPlane;
-
-    if( _context != &_nativeContext )
-    {
-        _context->frustum.adjust_near( nearPlane );
-        _context->frustum.far_plane() = farPlane;
-        _context->ortho.near_plane() = nearPlane;
-        _context->ortho.far_plane()  = farPlane;
-    }
-
-    ChannelSetNearFarPacket packet;
-    packet.nearPlane = nearPlane;
-    packet.farPlane  = farPlane;
-    
-    ServerPtr server = getServer();
-    net::NodePtr node = server.get();
-    send( node, packet );
+    processEvent( event );
 }
 
 void Channel::addStatistic( Event& event )
@@ -483,95 +373,11 @@ void Channel::resetAssemblyState()
     Compositor::resetAssemblyState();
 }
 
-void Channel::setErrorMessage( const std::string& message )
-{
-    _error = message;
-}
-
 void Channel::_setRenderContext( RenderContext& context )
 {
-    _context = &context;
-    _window->_addRenderContext( context );
-}
-
-const Viewport& Channel::getViewport() const
-{
-    return _context->vp;
-}
-
-const PixelViewport& Channel::getPixelViewport() const
-{
-    return _context->pvp;
-}
-
-const Vector2i& Channel::getPixelOffset() const
-{
-    return _context->offset;
-}
-
-uint32_t Channel::getDrawBuffer() const
-{
-    return _context->buffer;
-}
-
-uint32_t Channel::getReadBuffer() const
-{
-    return _context->buffer;
-}
-
-const ColorMask& Channel::getDrawBufferMask() const
-{
-    return _context->bufferMask;
-}
-
-const Frustumf& Channel::getFrustum() const
-{
-    return _context->frustum;
-}
-
-const Frustumf& Channel::getOrtho() const
-{
-    return _context->ortho;
-}
-
-const Range& Channel::getRange() const
-{
-    return _context->range;
-}
-
-const Pixel& Channel::getPixel() const
-{
-    return _context->pixel;
-}
-
-const SubPixel& Channel::getSubPixel() const
-{
-    return _context->subpixel;
-}
-
-const Zoom& Channel::getZoom() const
-{
-    return _context->zoom;
-}
-
-uint32_t Channel::getPeriod() const
-{
-    return _context->period;
-}
-
-uint32_t Channel::getPhase() const
-{
-    return _context->phase;
-}
-
-Eye Channel::getEye() const
-{
-    return _context->eye;
-}
-
-const Matrix4f& Channel::getHeadTransform() const
-{
-    return _context->headTransform;
+    overrideContext( context );
+    Window* window = getWindow();
+    window->_addRenderContext( context );
 }
 
 Frustumf Channel::getScreenFrustum() const
@@ -591,22 +397,6 @@ Frustumf Channel::getScreenFrustum() const
                          -1.f, 1.f );
 }
 
-const Vector4i& Channel::getOverdraw() const
-{
-    return _context->overdraw;
-}
-
-void Channel::setMaxSize( const Vector2i& size )
-{
-    _maxSize = size;
-}
-
-
-uint32_t Channel::getTaskID() const
-{
-    return _context->taskID;
-}
-
 util::FrameBufferObject* Channel::getFrameBufferObject()
 {
     return _fbo;
@@ -615,25 +405,25 @@ util::FrameBufferObject* Channel::getFrameBufferObject()
 View* Channel::getView()
 {
     Pipe* pipe = getPipe();
-    return pipe->getView( _context->view );
+    return pipe->getView( getContext().view );
 }
 
 const View* Channel::getView() const
 {
     const Pipe* pipe = getPipe();
-    return pipe->getView( _context->view );
+    return pipe->getView( getContext().view );
 }
 
 View* Channel::getNativeView()
 {
     Pipe* pipe = getPipe();
-    return pipe->getView( _nativeContext.view );
+    return pipe->getView( getNativeContext().view );
 }
 
 const View* Channel::getNativeView() const
 {
     const Pipe* pipe = getPipe();
-    return pipe->getView( _nativeContext.view );
+    return pipe->getView( getNativeContext().view );
 }
 
 //---------------------------------------------------------------------------
@@ -644,7 +434,8 @@ void Channel::applyFrameBufferObject()
 {
     if( _fbo )
     {
-        _fbo->resize( _nativeContext.pvp.w, _nativeContext.pvp.h );
+        const PixelViewport& pvp = getNativePixelViewport();
+        _fbo->resize( pvp.w, pvp.h );
         _fbo->bind(); 
     }
     else if( GLEW_EXT_framebuffer_object )
@@ -653,7 +444,8 @@ void Channel::applyFrameBufferObject()
 
 void Channel::applyBuffer()
 {
-    if( !_fbo && _window->getOSWindow()->getFrameBufferObject() == 0 )
+    const Window* window = getWindow();
+    if( !_fbo && window->getOSWindow()->getFrameBufferObject() == 0 )
     {
         EQ_GL_CALL( glReadBuffer( getReadBuffer( )));
         EQ_GL_CALL( glDrawBuffer( getDrawBuffer( )));
@@ -664,13 +456,14 @@ void Channel::applyBuffer()
 
 void Channel::bindFrameBuffer()
 {
-   if( !_window->getOSWindow() )
+    const Window* window = getWindow();
+    if( !window->getOSWindow() )
        return;
         
    if( _fbo )
        applyFrameBufferObject();
    else
-       _window->bindFrameBuffer();
+       window->bindFrameBuffer();
 }
 
 void Channel::applyColorMask() const
@@ -811,7 +604,7 @@ bool Channel::processEvent( const Event& event )
 
         case Event::CHANNEL_RESIZE:
         {
-            const uint32_t viewID = _nativeContext.view.identifier;
+            const uint32_t viewID = getNativeContext().view.identifier;
             if( viewID == EQ_ID_INVALID )
                 return true;
 
@@ -888,7 +681,8 @@ void Channel::drawStatistics()
     glClear( GL_DEPTH_BUFFER_BIT );
     glEnable( GL_DEPTH_TEST );
     
-    const Window::Font* font = _window->getSmallFont();
+    Window* window = getWindow();
+    const Window::Font* font = window->getSmallFont();
 
     // find min/max time
     int64_t                 xMax      = 0;
@@ -1162,7 +956,7 @@ void Channel::drawStatistics()
     // nextY -= (HEIGHT + SPACE);
     
     glColor3f( 1.f, 1.f, 1.f );
-    _window->drawFPS();
+    window->drawFPS();
     EQ_GL_CALL( resetAssemblyState( ));
 }
 
@@ -1185,16 +979,6 @@ void Channel::outlineViewport()
     resetAssemblyState();
 }
 
-int32_t Channel::getIAttribute( const IAttribute attr ) const
-{
-    return _iAttributes[attr];
-}
-
-const std::string& Channel::getIAttributeString( const IAttribute attr )
-{
-    return _iAttributeStrings[attr];
-}
-
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -1205,34 +989,22 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
     EQLOG( LOG_INIT ) << "TASK channel config init " << packet << std::endl;
 
     ChannelConfigInitReplyPacket reply;
-    _error.clear();
+    setErrorMessage( std::string( ));
 
-    if( _window->isRunning( ))
+    const Window* window = getWindow();
+    if( window->isRunning( ))
     {
         _state = STATE_INITIALIZING;
-        if( packet->pvp.isValid( ))
-            _setPixelViewport( packet->pvp );
-        else
-            _setViewport( packet->vp );
-        
-        setName( packet->name );
-        _tasks    = packet->tasks;
-        _color    = packet->color;
-        _drawable = packet->drawable;
-        _nativeContext.view = packet->view;
-        _initialSize.x() = _nativeContext.pvp.w;
-        _initialSize.y() = _nativeContext.pvp.h;
 
-        memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof(int32_t));
+        const PixelViewport& pvp = getPixelViewport();
+        _initialSize.x() = pvp.w;
+        _initialSize.y() = pvp.h;
 
         reply.result = configInit( packet->initID );
 
-        reply.nearPlane   = _nativeContext.frustum.near_plane();
-        reply.farPlane    = _nativeContext.frustum.far_plane();
-        reply.maxSize     = _maxSize;
-
         if( reply.result )
         {
+            commit();
             _initDrawableConfig();
             _state = STATE_RUNNING;
         }
@@ -1240,8 +1012,9 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
     else
         reply.result = false;
 
-    EQLOG( LOG_INIT ) << "TASK channel config init reply " << &reply << std::endl;
-    send( command.getNode(), reply, _error );
+    EQLOG( LOG_INIT ) << "TASK channel config init reply " << &reply
+                      << std::endl;
+    send( command.getNode(), reply );
     return net::COMMAND_HANDLED;
 }
 
@@ -1269,13 +1042,13 @@ net::CommandResult Channel::_cmdFrameStart( net::Command& command )
     EQVERB << "handle channel frame start " << packet << std::endl;
 
     //_grabFrame( packet->frameNumber ); single-threaded
-    _nativeContext.view     = packet->context.view;
-    _nativeContext.overdraw = packet->context.overdraw;
+    sync( packet->version );
+    //_nativeContext.overdraw = packet->context.overdraw;
 
-    _context = &packet->context;
+    overrideContext( packet->context );
     bindFrameBuffer();
     frameStart( packet->context.frameID, packet->frameNumber );
-    _context = &_nativeContext;
+    resetContext();
 
     return net::COMMAND_HANDLED;
 }
@@ -1287,9 +1060,10 @@ net::CommandResult Channel::_cmdFrameFinish( net::Command& command )
     EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
                        << std::endl;
 
-    _context = &packet->context;
+    overrideContext( packet->context );
     frameFinish( packet->context.frameID, packet->frameNumber );
-    _context = &_nativeContext;
+    resetContext();
+    commit();
 
     ChannelFrameFinishReplyPacket reply( packet );
     reply.nStatistics = _statistics.size();
@@ -1304,12 +1078,13 @@ net::CommandResult Channel::_cmdFrameClear( net::Command& command )
 {
     ChannelFrameClearPacket* packet = 
         command.getPacket<ChannelFrameClearPacket>();
-    EQLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet << std::endl;
+    EQLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet
+                       << std::endl;
 
     _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
     frameClear( packet->context.frameID );
-    _context = &_nativeContext;
+    resetContext();
 
     return net::COMMAND_HANDLED;
 }
@@ -1318,12 +1093,13 @@ net::CommandResult Channel::_cmdFrameDraw( net::Command& command )
 {
     ChannelFrameDrawPacket* packet = 
         command.getPacket<ChannelFrameDrawPacket>();
-    EQLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet << std::endl;
+    EQLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet
+                       << std::endl;
 
     _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_DRAW, this );
     frameDraw( packet->context.frameID );
-    _context = &_nativeContext;
+    resetContext();
 
     return net::COMMAND_HANDLED;
 }
@@ -1368,7 +1144,7 @@ net::CommandResult Channel::_cmdFrameAssemble( net::Command& command )
         (*i)->setData( 0 );
     }
     _inputFrames.clear();
-    _context = &_nativeContext;
+    resetContext();
 
     return net::COMMAND_HANDLED;
 }
@@ -1400,7 +1176,7 @@ net::CommandResult Channel::_cmdFrameReadback( net::Command& command )
     }
 
     _outputFrames.clear();
-    _context = &_nativeContext;
+    resetContext();
     return net::COMMAND_HANDLED;
 }
 
@@ -1442,9 +1218,8 @@ net::CommandResult Channel::_cmdFrameViewStart( net::Command& command )
                                        << packet << std::endl;
 
     _setRenderContext( packet->context );
-    // TBD ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
     frameViewStart( packet->context.frameID );
-    _context = &_nativeContext;
+    resetContext();
 
     return net::COMMAND_HANDLED;
 }
@@ -1458,10 +1233,8 @@ net::CommandResult Channel::_cmdFrameViewFinish( net::Command& command )
 
     _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_VIEW_FINISH, this );
-
-    // TBD ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
     frameViewFinish( packet->context.frameID );
-    _context = &_nativeContext;
+    resetContext();
 
     return net::COMMAND_HANDLED;
 }

@@ -1,9 +1,13 @@
-Remove obsolete Server::useConfig
+Move all relevant channel data to fabric namespace:
+- massive refactoring of server and client channel
+- eq::Channel is now a mapped slave object
 
-[ ] May break build
+Will surely break Windows build - to be fixed soon.
+
+[x] Will break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

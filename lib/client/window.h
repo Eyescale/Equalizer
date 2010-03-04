@@ -213,6 +213,9 @@ namespace eq
          */
         EQ_EXPORT GLEWContext* glewGetContext();
 
+        /** Const version of glewGetContext(). */
+        EQ_EXPORT const GLEWContext* glewGetContext() const;
+
         /** @return information about the current drawable. */
         const DrawableConfig& getDrawableConfig() const
             { return _drawableConfig; }
@@ -221,7 +224,7 @@ namespace eq
          * @return the OpenGL texture format corresponding to the window's color
          *         drawable configuration
          */
-        EQ_EXPORT uint32_t getColorFormat();
+        EQ_EXPORT uint32_t getColorFormat() const;
         //@}
 
         /**

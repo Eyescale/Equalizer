@@ -436,7 +436,7 @@ void ChannelUpdateVisitor::_computeFrustumCorners( Frustumf& frustum,
                                                    const bool ortho )
 {
     const Channel* destination = compound->getInheritChannel();
-    destination->getNearFar( &frustum.near_plane(), &frustum.far_plane() );
+    frustum = destination->getFrustum();
 
     const float ratio    = ortho ? 1.0f : frustum.near_plane() / eye.z();
     const float width_2  = frustumData.getWidth()  * .5f;

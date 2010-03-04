@@ -115,8 +115,9 @@ uint32_t VersionedSlaveCM::sync( const uint32_t version )
     }
 
     EQASSERTINFO( _version <= version,
-                  "can't sync to older version of object " << _object->getID()<<
-                  " (" << _version << ", " << version <<")");
+                  "can't sync to older version of object " << 
+                  typeid( *_object ).name() << " " << _object->getID() <<
+                  " (" << _version << ", " << version <<")" );
 
     while( _version < version )
     {

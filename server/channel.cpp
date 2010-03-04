@@ -43,59 +43,41 @@
 
 #include "channel.ipp"
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 namespace server
 {
 typedef net::CommandFunc<Channel> CmdFunc;
+typedef fabric::Channel< Channel, Window > Super;
 
 void Channel::_construct()
 {
     _active           = 0;
     _view             = 0;
     _segment          = 0;
-    _fixedPVP         = false;
     _lastDrawCompound = 0;
-    _near             = .1f;
-    _far              = 10.f;
-    _overdraw         = Vector4i::ZERO;
-    _maxSize          = Vector2i::ZERO;
 
-    _drawable         = 0;
-    _tasks            = eq::TASK_NONE;
-    EQINFO << "New channel @" << (void*)this << endl;
+    EQINFO << "New channel @" << (void*)this << std::endl;
 }
 
 Channel::Channel( Window* parent )
-        : fabric::Channel< Channel, Window >( parent )
+        : Super( parent )
 {
     _construct();
 
     const Global* global = Global::instance();
-    for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
-        _iAttributes[i] = global->getChannelIAttribute(
-            static_cast<eq::Channel::IAttribute>( i ));
-    notifyViewportChanged();
+    for( unsigned i = 0; i < IATTR_ALL; ++i )
+    {
+        const IAttribute attr = static_cast< IAttribute >( i );
+        setIAttribute( attr, global->getChannelIAttribute( attr ));
+    }
 }
 
 Channel::Channel( const Channel& from, Window* parent )
-        : fabric::Channel< Channel, Window >( parent )
+        : Super( from, parent )
 {
     _construct();
-
-    _vp       = from._vp;
-    _pvp      = from._pvp;
-    _fixedPVP = from._fixedPVP;
-    _drawable = from._drawable;
     // Don't copy view and segment. Will be re-set by segment copy ctor
-
-    for( int i=0; i<eq::Channel::IATTR_ALL; ++i )
-        _iAttributes[i] = from._iAttributes[i];
-
-    notifyViewportChanged();
 }
 
 void Channel::attachToSession( const uint32_t id, const uint32_t instanceID, 
@@ -106,69 +88,75 @@ void Channel::attachToSession( const uint32_t id, const uint32_t instanceID,
     net::CommandQueue* serverQ  = getServerThreadQueue();
     net::CommandQueue* commandQ = getCommandThreadQueue();
 
-    registerCommand( eq::CMD_CHANNEL_CONFIG_INIT_REPLY, 
+    registerCommand( CMD_CHANNEL_CONFIG_INIT_REPLY, 
                      CmdFunc( this, &Channel::_cmdConfigInitReply ), commandQ );
-    registerCommand( eq::CMD_CHANNEL_CONFIG_EXIT_REPLY,
+    registerCommand( CMD_CHANNEL_CONFIG_EXIT_REPLY,
                      CmdFunc( this, &Channel::_cmdConfigExitReply ), commandQ );
-    registerCommand( eq::CMD_CHANNEL_SET_NEARFAR,
-                     CmdFunc( this, &Channel::_cmdSetNearFar ), commandQ );
-    registerCommand( eq::CMD_CHANNEL_FRAME_FINISH_REPLY,
+    registerCommand( CMD_CHANNEL_FRAME_FINISH_REPLY,
                      CmdFunc( this, &Channel::_cmdFrameFinishReply ), serverQ );
 }
 
 Channel::~Channel()
 {
-    EQINFO << "Delete channel @" << (void*)this << endl;
-    _window->_removeChannel( this );
+    EQINFO << "Delete channel @" << (void*)this << std::endl;
 }
 
-void Channel::setDrawable( const uint32_t drawable ) 
-{ 
-    _drawable = drawable; 
+void Channel::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
+{
+    Super::deserialize( is, dirtyBits );
+    EQASSERT( isMaster( ));
+    setDirty( dirtyBits ); // redistribute slave changes
 }
 
 Config* Channel::getConfig()
 {
-    EQASSERT( _window );
-    return _window ? _window->getConfig() : 0; 
+    Window* window = getWindow();
+    EQASSERT( window );
+    return window ? window->getConfig() : 0; 
 }
 
 const Config* Channel::getConfig() const
 {
-    EQASSERT( _window );
-    return _window ? _window->getConfig() : 0;
+    const Window* window = getWindow();
+    EQASSERT( window );
+    return window ? window->getConfig() : 0;
 }
 
 Node* Channel::getNode() 
 { 
-    EQASSERT( _window );
-    return _window ? _window->getNode() : 0;
+    Window* window = getWindow();
+    EQASSERT( window );
+    return window ? window->getNode() : 0;
 }
 
 const Node* Channel::getNode() const
 { 
-    EQASSERT( _window );
-    return _window ? _window->getNode() : 0;
+    const Window* window = getWindow();
+    EQASSERT( window );
+    return window ? window->getNode() : 0;
 }
 
 Pipe* Channel::getPipe() 
 { 
-    EQASSERT( _window );
-    return _window ? _window->getPipe() : 0;
+    Window* window = getWindow();
+    EQASSERT( window );
+    return window ? window->getPipe() : 0;
 }
 
 const Pipe* Channel::getPipe() const
 { 
-    EQASSERT( _window );
-    return _window ? _window->getPipe() : 0;
+    const Window* window = getWindow();
+    EQASSERT( window );
+    return window ? window->getPipe() : 0;
 }
 
 ChannelPath Channel::getPath() const
 {
-    EQASSERT( _window );
-    ChannelPath path( _window->getPath( ));
+    const Window* window = getWindow();
+    EQASSERT( window );
+    ChannelPath path( window->getPath( ));
     
-    const ChannelVector&   channels = _window->getChannels();
+    const ChannelVector&   channels = window->getChannels();
     ChannelVector::const_iterator i = std::find( channels.begin(),
                                                  channels.end(), this );
     EQASSERT( i != channels.end( ));
@@ -183,35 +171,39 @@ const CompoundVector& Channel::getCompounds() const
 
 net::CommandQueue* Channel::getServerThreadQueue()
 {
-    EQASSERT( _window );
-    return _window->getServerThreadQueue(); 
+    Window* window = getWindow();
+    EQASSERT( window );
+    return window->getServerThreadQueue(); 
 }
 
 net::CommandQueue* Channel::getCommandThreadQueue()
 {
-    EQASSERT( _window );
-    return _window->getCommandThreadQueue(); 
+    Window* window = getWindow();
+    EQASSERT( window );
+    return window->getCommandThreadQueue(); 
 }
 
 void Channel::activate()
 { 
-    EQASSERT( _window );
+    Window* window = getWindow();
+    EQASSERT( window );
 
     ++_active;
-    if( _window ) 
-        _window->activate();
+    if( window ) 
+        window->activate();
 
     EQLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
 }
 
 void Channel::deactivate()
 { 
+    Window* window = getWindow();
     EQASSERT( _active != 0 );
-    EQASSERT( _window );
+    EQASSERT( window );
 
     --_active; 
-    if( _window ) 
-        _window->deactivate(); 
+    if( window ) 
+        window->deactivate(); 
 
     EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 }
@@ -247,77 +239,10 @@ const Layout* Channel::getLayout() const
 
 void Channel::addTasks( const uint32_t tasks )
 {
-    EQASSERT( _window );
-    _tasks |= tasks;
-    _window->addTasks( tasks );
-}
-
-Vector3ub Channel::_getUniqueColor() const
-{
-    Vector3ub color = Vector3ub::ZERO;
-    uint32_t  value = (reinterpret_cast< size_t >( this ) & 0xffffffffu);
-
-    for( unsigned i=0; i<8; ++i )
-    {
-        color.r() |= ( value&1 << (7-i) ); value >>= 1;
-        color.g() |= ( value&1 << (7-i) ); value >>= 1;
-        color.b() |= ( value&1 << (7-i) ); value >>= 1;
-    }
-    
-    return color;
-}
-
-//----------------------------------------------------------------------
-// viewport
-//----------------------------------------------------------------------
-void Channel::setPixelViewport( const eq::PixelViewport& pvp )
-{
-    if( !pvp.isValid( ))
-        return;
-    
-    _fixedPVP = true;
-
-    if( pvp == _pvp )
-        return;
-
-    _pvp = pvp;
-    _vp.invalidate();
-    notifyViewportChanged();
-}
-
-void Channel::setViewport( const eq::Viewport& vp )
-{
-    if( !vp.hasArea( ))
-        return;
-     
-    _fixedPVP = false;
-
-    if( vp == _vp )
-        return;
-
-    _vp = vp;
-    _pvp.invalidate();
-    notifyViewportChanged();
-}
-
-void Channel::notifyViewportChanged()
-{
-    if( !_window )
-        return;
-
-    eq::PixelViewport windowPVP = _window->getPixelViewport();
-    if( !windowPVP.isValid( ))
-        return;
-
-    windowPVP.x = 0;
-    windowPVP.y = 0;
-
-    if( _fixedPVP ) // update viewport
-        _vp = _pvp.getSubVP( windowPVP );
-    else            // update pixel viewport
-        _pvp = windowPVP.getSubPVP( _vp );
-
-    EQINFO << "Channel viewport update: " << _pvp << ":" << _vp << endl;
+    Window* window = getWindow();
+    EQASSERT( window );
+    setTasks( getTasks() | tasks );
+    window->addTasks( tasks );
 }
 
 //===========================================================================
@@ -353,6 +278,9 @@ bool Channel::syncRunning()
 
     EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED || 
               _state == STATE_INIT_FAILED );
+
+    if( getID() != EQ_ID_INVALID ) // TODO: remove (see TODO below)
+        commit();
     return success;
 }
 
@@ -362,28 +290,21 @@ bool Channel::syncRunning()
 void Channel::_configInit( const uint32_t initID )
 {
     EQASSERT( _state == STATE_STOPPED );
-    _state         = STATE_INITIALIZING;
+    _state = STATE_INITIALIZING;
 
-    getConfig()->registerObject( this );
-
-    eq::WindowCreateChannelPacket createChannelPacket;
-    createChannelPacket.channelID = getID();
-    _window->send( createChannelPacket );
-
-    eq::ChannelConfigInitPacket packet;
-    packet.initID = initID;
-    packet.view   = _view;
-    packet.color  = _getUniqueColor();
-    packet.tasks  = _tasks;
-    packet.drawable = _drawable;
-    
-    if( _fixedPVP )
-        packet.pvp    = _pvp; 
+    setViewVersion( _view );
+    if( getID() == EQ_ID_INVALID ) // TODO: do at Server::chooseConfig time
+        getConfig()->registerObject( this );
     else
-        packet.vp     = _vp;
-    memcpy( packet.iAttributes, _iAttributes, 
-            eq::Channel::IATTR_ALL * sizeof( int32_t )); 
+        commit();
 
+    WindowCreateChannelPacket createChannelPacket;
+    createChannelPacket.channelID = getID();
+    getWindow()->send( createChannelPacket );
+
+    ChannelConfigInitPacket packet;
+    packet.initID = initID;
+    
     EQLOG( LOG_INIT ) << "Init channel" << std::endl;
     send( packet, getName( ));
 }
@@ -399,7 +320,7 @@ bool Channel::_syncConfigInit()
     if( success )
         _state = STATE_RUNNING;
     else
-        EQWARN << "Channel initialization failed: " << _error << endl;
+        EQWARN << "Channel initialization failed: " << getErrorMessage() << std::endl;
 
     return success;
 }
@@ -413,12 +334,12 @@ void Channel::_configExit()
     _state = STATE_EXITING;
 
     EQLOG( LOG_INIT ) << "Exit channel" << std::endl;
-    eq::ChannelConfigExitPacket packet;
+    ChannelConfigExitPacket packet;
     send( packet );
 
-    eq::WindowDestroyChannelPacket destroyChannelPacket;
+    WindowDestroyChannelPacket destroyChannelPacket;
     destroyChannelPacket.channelID = getID();
-    _window->send( destroyChannelPacket );
+    getWindow()->send( destroyChannelPacket );
 }
 
 bool Channel::_syncConfigExit()
@@ -430,10 +351,8 @@ bool Channel::_syncConfigExit()
     const bool success = ( _state == STATE_EXIT_SUCCESS );
     EQASSERT( success || _state == STATE_EXIT_FAILED );
 
-    getConfig()->deregisterObject( this );
-
     _state = STATE_STOPPED;
-    _tasks = eq::TASK_NONE;
+    setTasks( TASK_NONE );
     return success;
 }
 
@@ -441,26 +360,30 @@ bool Channel::_syncConfigExit()
 // update
 //---------------------------------------------------------------------------
 void Channel::_setupRenderContext( const uint32_t frameID, 
-                                   eq::RenderContext& context )
+                                   RenderContext& context )
 {
     context.frameID       = frameID;
-    context.pvp           = _pvp;
+    context.pvp           = getPixelViewport();
     context.view          = _view;
-    context.vp            = _vp;
+    context.vp            = getViewport();
 }
 
 bool Channel::update( const uint32_t frameID, const uint32_t frameNumber )
 {
+    sync();
+    setViewVersion( _view );
+
     EQASSERT( _state == STATE_RUNNING );
     EQASSERT( _active > 0 );
 
-    eq::ChannelFrameStartPacket startPacket;
+    ChannelFrameStartPacket startPacket;
     startPacket.frameNumber = frameNumber;
+    startPacket.version     = commit();
     _setupRenderContext( frameID, startPacket.context );
 
     send( startPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK channel " << getName() << " start frame  " 
-                           << &startPacket << endl;
+    EQLOG( LOG_TASKS ) << "TASK channel " << getName() << " start frame  " 
+                           << &startPacket << std::endl;
 
     bool updated = false;
     const CompoundVector& compounds = getCompounds();
@@ -471,25 +394,25 @@ bool Channel::update( const uint32_t frameID, const uint32_t frameNumber )
         const Compound* compound = *i;
         ChannelUpdateVisitor visitor( this, frameID, frameNumber );
 
-        visitor.setEye( eq::EYE_CYCLOP );
+        visitor.setEye( EYE_CYCLOP );
         compound->accept( visitor );
 
-        visitor.setEye( eq::EYE_LEFT );
+        visitor.setEye( EYE_LEFT );
         compound->accept( visitor );
 
-        visitor.setEye( eq::EYE_RIGHT );
+        visitor.setEye( EYE_RIGHT );
         compound->accept( visitor );
         
         updated |= visitor.isUpdated();
     }
 
-    eq::ChannelFrameFinishPacket finishPacket;
+    ChannelFrameFinishPacket finishPacket;
     finishPacket.frameNumber = frameNumber;
     finishPacket.context = startPacket.context;
 
     send( finishPacket );
-    EQLOG( eq::LOG_TASKS ) << "TASK channel " << getName() << " finish frame  "
-                           << &finishPacket << endl;
+    EQLOG( LOG_TASKS ) << "TASK channel " << getName() << " finish frame  "
+                           << &finishPacket << std::endl;
     _lastDrawCompound = 0;
 
     return updated;
@@ -529,7 +452,7 @@ void Channel::removeListener(  ChannelListener* listener )
 
 void Channel::_fireLoadData( const uint32_t frameNumber, 
                              const uint32_t nStatistics,
-                             const eq::Statistic* statistics )
+                             const Statistic* statistics )
 {
     CHECK_THREAD( _serverThread );
 
@@ -544,56 +467,34 @@ void Channel::_fireLoadData( const uint32_t frameNumber,
 //===========================================================================
 net::CommandResult Channel::_cmdConfigInitReply( net::Command& command ) 
 {
-    const eq::ChannelConfigInitReplyPacket* packet = 
-        command.getPacket<eq::ChannelConfigInitReplyPacket>();
-    EQVERB << "handle channel configInit reply " << packet << endl;
+    const ChannelConfigInitReplyPacket* packet = 
+        command.getPacket<ChannelConfigInitReplyPacket>();
+    EQVERB << "handle channel configInit reply " << packet << std::endl;
 
-    _near    = packet->nearPlane;
-    _far     = packet->farPlane;
-    _maxSize = packet->maxSize;
-    _error   = packet->error;
-
-    if( packet->result )
-        _state = STATE_INIT_SUCCESS;
-    else
-        _state = STATE_INIT_FAILED;
-
+    _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
     return net::COMMAND_HANDLED;
 }
 
 net::CommandResult Channel::_cmdConfigExitReply( net::Command& command ) 
 {
-    const eq::ChannelConfigExitReplyPacket* packet = 
-        command.getPacket<eq::ChannelConfigExitReplyPacket>();
-    EQVERB << "handle channel configExit reply " << packet << endl;
+    const ChannelConfigExitReplyPacket* packet = 
+        command.getPacket<ChannelConfigExitReplyPacket>();
+    EQVERB << "handle channel configExit reply " << packet << std::endl;
 
-    if( packet->result )
-        _state = STATE_EXIT_SUCCESS;
-    else
-        _state = STATE_EXIT_FAILED;
-
-    return net::COMMAND_HANDLED;
-}
-
-net::CommandResult Channel::_cmdSetNearFar( net::Command& command )
-{
-    const eq::ChannelSetNearFarPacket* packet = 
-        command.getPacket<eq::ChannelSetNearFarPacket>();
-    _near = packet->nearPlane;
-    _far  = packet->farPlane;
+    _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
     return net::COMMAND_HANDLED;
 }
 
 net::CommandResult Channel::_cmdFrameFinishReply( net::Command& command )
 {
-    const eq::ChannelFrameFinishReplyPacket* packet = 
-        command.getPacket<eq::ChannelFrameFinishReplyPacket>();
+    const ChannelFrameFinishReplyPacket* packet = 
+        command.getPacket<ChannelFrameFinishReplyPacket>();
 
     // output received events
     for( uint32_t i = 0; i<packet->nStatistics; ++i )
     {
-        const eq::Statistic& data = packet->statistics[i];
-        EQLOG( eq::LOG_STATS ) << data << endl;
+        const Statistic& data = packet->statistics[i];
+        EQLOG( LOG_STATS ) << data << std::endl;
     }
 
     _fireLoadData(packet->frameNumber, packet->nStatistics, packet->statistics);
@@ -606,12 +507,12 @@ std::ostream& operator << ( std::ostream& os, const Channel* channel)
     if( !channel )
         return os;
     
-    os << disableFlush << disableHeader << "channel" << endl;
-    os << "{" << endl << indent;
+    os << base::disableFlush << base::disableHeader << "channel" << std::endl;
+    os << "{" << std::endl << base::indent;
 
     const std::string& name = channel->getName();
     if( !name.empty( ))
-        os << "name     \"" << name << "\"" << endl;
+        os << "name     \"" << name << "\"" << std::endl;
 
     const Segment* segment = channel->getSegment();
     const View*    view    = channel->getView();
@@ -638,49 +539,49 @@ std::ostream& operator << ( std::ostream& os, const Channel* channel)
         else
             os << view->getPath();
         
-        os << " )" << endl; 
+        os << " )" << std::endl; 
     }
 
-    const eq::Viewport& vp  = channel->getViewport();
-    if( vp.isValid( ) && !channel->_fixedPVP )
+    const Viewport& vp  = channel->getViewport();
+    if( vp.isValid( ) && channel->hasFixedViewport( ))
     {
-        if( vp != eq::Viewport::FULL )
-            os << "viewport " << vp << endl;
+        if( vp != Viewport::FULL )
+            os << "viewport " << vp << std::endl;
     }
     else
     {
-        const eq::PixelViewport& pvp = channel->getPixelViewport();
+        const PixelViewport& pvp = channel->getPixelViewport();
         if( pvp.isValid( ))
-            os << "viewport " << pvp << endl;
+            os << "viewport " << pvp << std::endl;
     }
 
 
     const uint32_t drawable = channel->getDrawable();
-    if( drawable !=  eq::Channel::FB_WINDOW )
+    if( drawable !=  Channel::FB_WINDOW )
     {
         os << "drawable [";
         
-        if ((drawable &  eq::Channel::FBO_COLOR) != 0 )
+        if ((drawable &  Channel::FBO_COLOR) != 0 )
         {
            os << " FBO_COLOR";
         }
         
-        if ((drawable &  eq::Channel::FBO_DEPTH) != 0)
+        if ((drawable &  Channel::FBO_DEPTH) != 0)
         {
            os << " FBO_DEPTH"; 
         } 
-        if ((drawable &  eq::Channel::FBO_STENCIL) != 0) 
+        if ((drawable &  Channel::FBO_STENCIL) != 0) 
         {
            os << " FBO_STENCIL";  
         }
         
-        os << " ]" << endl;
+        os << " ]" << std::endl;
     }
     bool attrPrinted   = false;
     
-    for( eq::Channel::IAttribute i = static_cast<eq::Channel::IAttribute>( 0 );
-         i<eq::Channel::IATTR_ALL; 
-         i = static_cast<eq::Channel::IAttribute>( static_cast<uint32_t>(i)+1 ))
+    for( Channel::IAttribute i = static_cast<Channel::IAttribute>( 0 );
+         i < Channel::IATTR_ALL; 
+         i = static_cast<Channel::IAttribute>( static_cast<uint32_t>(i)+1 ))
     {
         const int value = channel->getIAttribute( i );
         if( value == Global::instance()->getChannelIAttribute( i ))
@@ -688,22 +589,23 @@ std::ostream& operator << ( std::ostream& os, const Channel* channel)
 
         if( !attrPrinted )
         {
-            os << endl << "attributes" << endl;
-            os << "{" << endl << indent;
+            os << std::endl << "attributes" << std::endl;
+            os << "{" << std::endl << base::indent;
             attrPrinted = true;
         }
         
-        os << ( i==eq::Channel::IATTR_HINT_STATISTICS ?
+        os << ( i==Channel::IATTR_HINT_STATISTICS ?
                 "hint_statistics   " :
-                i==eq::Channel::IATTR_HINT_SENDTOKEN ?
+                i==Channel::IATTR_HINT_SENDTOKEN ?
                     "hint_sendtoken    " : "ERROR" )
-           << static_cast<eq::IAttrValue>( value ) << endl;
+           << static_cast<IAttrValue>( value ) << std::endl;
     }
     
     if( attrPrinted )
-        os << exdent << "}" << endl << endl;
+        os << base::exdent << "}" << std::endl << std::endl;
 
-    os << exdent << "}" << endl << enableHeader << enableFlush;
+    os << base::exdent << "}" << std::endl << base::enableHeader
+       << base::enableFlush;
 
     return os;
 }

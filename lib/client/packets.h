@@ -808,13 +808,6 @@ namespace eq
             }
 
         uint32_t        initID;
-        uint32_t        drawable;
-        int32_t         iAttributes[ eq::Channel::IATTR_ALL ];
-        int32_t         tasks;
-        PixelViewport   pvp;
-        Viewport        vp;
-        Vector3ub color;
-        net::ObjectVersion view;
         EQ_ALIGN8( char name[8] );
     };
 
@@ -824,14 +817,9 @@ namespace eq
             {
                 command   = CMD_CHANNEL_CONFIG_INIT_REPLY;
                 size      = sizeof( ChannelConfigInitReplyPacket );
-                error[0]  = '\0';
             }
 
-        Vector2i maxSize;
-        float    nearPlane;
-        float    farPlane;
-        bool     result;
-        EQ_ALIGN8( char error[8] );
+        bool result;
     };
 
     struct ChannelConfigExitPacket : public net::ObjectPacket
@@ -854,18 +842,6 @@ namespace eq
         bool     result;
     };
 
-    struct ChannelSetNearFarPacket : public net::ObjectPacket
-    {
-        ChannelSetNearFarPacket()
-            {
-                command   = CMD_CHANNEL_SET_NEARFAR;
-                size      = sizeof( ChannelSetNearFarPacket );
-            }
-
-        float    nearPlane;
-        float    farPlane;
-    };
-
     struct ChannelTaskPacket : public net::ObjectPacket
     {
         RenderContext context;
@@ -880,6 +856,7 @@ namespace eq
             }
 
         uint32_t frameNumber;
+        uint32_t version;
     };
 
     struct ChannelFrameFinishPacket : public ChannelTaskPacket

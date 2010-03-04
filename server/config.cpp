@@ -1131,7 +1131,7 @@ void Config::unmap()
         _serializer = 0;
     }
 
-    UnmapVisitor unmapper;
+    ConfigUnmapVisitor unmapper;
     accept( unmapper );
 }
 
