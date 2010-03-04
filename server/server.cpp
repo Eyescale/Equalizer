@@ -51,9 +51,6 @@ Server::Server()
     registerCommand( eq::CMD_SERVER_CHOOSE_CONFIG,
                      ServerFunc( this, &Server::_cmdChooseConfig ),
                      &_serverThreadQueue );
-    registerCommand( eq::CMD_SERVER_USE_CONFIG,
-                     ServerFunc( this, &Server::_cmdUseConfig ),
-                     &_serverThreadQueue );
     registerCommand( eq::CMD_SERVER_RELEASE_CONFIG,
                      ServerFunc( this, &Server::_cmdReleaseConfig ),
                      &_serverThreadQueue );
@@ -269,59 +266,6 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
     reply.configID = configID;
     node->send( reply );
 
-    return net::COMMAND_HANDLED;
-}
-
-net::CommandResult Server::_cmdUseConfig( net::Command& command ) 
-{
-    const eq::ServerUseConfigPacket* packet = 
-        command.getPacket<eq::ServerUseConfigPacket>();
-    EQINFO << "Handle use config " << packet << std::endl;
-
-    std::string    configInfo = packet->configInfo;
-    size_t           colonPos = configInfo.find( '#' );
-    const std::string workDir = configInfo.substr( 0, colonPos );
-    
-    configInfo = configInfo.substr( colonPos + 1 );
-    colonPos   = configInfo.find( '#' );
-    const std::string renderClient = configInfo.substr( 0, colonPos );
-    const std::string configData   = configInfo.substr( colonPos + 1 );
- 
-    Loader loader;
-    Config* config = loader.parseConfig( configData.c_str( ));
-
-    eq::ServerChooseConfigReplyPacket reply( packet );
-    net::NodePtr               node = command.getNode();
-
-    if( !config )
-    {
-        EQWARN << "Use config parsing failed " << std::endl;
-        reply.configID = net::SessionID::ZERO;
-        node->send( reply );
-        return net::COMMAND_HANDLED;
-    }
-
-    EQINFO << "Using config: " << std::endl << Global::instance() << config
-           << std::endl;
-    config->setApplicationNetNode( node );
-    config->_server = this;
-    registerConfig( config );
-
-    const net::SessionID& configID = config->getID();
-    config->setWorkDir( workDir );
-    config->setRenderClient( renderClient );
-    _appConfigs[configID] = config;
-
-    const std::string& name = config->getName();
-
-    eq::ServerCreateConfigPacket createConfigPacket;
-    createConfigPacket.configID  = configID;
-    createConfigPacket.objectID  = config->getDistributorID();
-    createConfigPacket.appNodeID = node->getNodeID();
-    node->send( createConfigPacket, name );
-
-    reply.configID = configID;
-    node->send( reply );
     return net::COMMAND_HANDLED;
 }
 

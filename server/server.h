@@ -131,7 +131,6 @@ namespace server
 
         /** The command functions. */
         net::CommandResult _cmdChooseConfig( net::Command& command );
-        net::CommandResult _cmdUseConfig( net::Command& command );
         net::CommandResult _cmdReleaseConfig( net::Command& command );
         net::CommandResult _cmdShutdown( net::Command& command );
     };

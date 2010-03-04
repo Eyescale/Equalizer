@@ -1,4 +1,4 @@
-Simplify eqPly::View syncing
+Remove obsolete Server::useConfig
 
 [ ] May break build
 [ ] May break existing applications

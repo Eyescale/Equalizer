@@ -115,41 +115,6 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
     return static_cast<Config*>( ptr );
 }
 
-Config* Server::useConfig( const ConfigParams& parameters, 
-                           const std::string& config )
-{
-    if( !isConnected( ))
-        return 0;
-
-    const string& renderClient = parameters.getRenderClient();
-    if( renderClient.empty( ))
-    {
-        EQWARN << "No render client in ConfigParams specified" << endl;
-        return 0;
-    }
-
-    ServerUseConfigPacket packet;
-    const string& workDir = parameters.getWorkDir();
-
-    packet.requestID  = registerRequest();
-    string configInfo = workDir + '#' + renderClient;
-#ifdef WIN32 // replace dir delimiters since '\' is often used as escape char
-    for( size_t i=0; i<configInfo.length(); ++i )
-        if( configInfo[i] == '\\' )
-            configInfo[i] = '/';
-#endif
-
-    configInfo += '#' + config;
-    send( packet, configInfo );
-
-    while( !isRequestServed( packet.requestID ))
-        _client->processCommand();
-
-    void* ptr = 0;
-    waitRequest( packet.requestID, ptr );
-    return static_cast<Config*>( ptr );
-}
-
 void Server::releaseConfig( Config* config )
 {
     EQASSERT( isConnected( ));

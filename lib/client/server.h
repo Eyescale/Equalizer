@@ -63,10 +63,6 @@ namespace eq
          */
         EQ_EXPORT Config* chooseConfig( const ConfigParams& parameters );
 
-        /** @warning Undocumented - may not be supported in the future */
-        EQ_EXPORT Config* useConfig( const ConfigParams& parameters, 
-                                     const std::string& config );
-
         /** 
          * Release a configuration.
          * 

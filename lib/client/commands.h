@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -27,7 +27,6 @@ namespace eq
     enum ServerCommand
     {
         CMD_SERVER_CHOOSE_CONFIG        = net::CMD_NODE_CUSTOM,
-        CMD_SERVER_USE_CONFIG,
         CMD_SERVER_CHOOSE_CONFIG_REPLY,
         CMD_SERVER_CREATE_CONFIG,
         CMD_SERVER_CREATE_CONFIG_REPLY,
