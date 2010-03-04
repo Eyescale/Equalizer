@@ -547,7 +547,6 @@ server
 
             compound { task [ CLEAR ] channel "channel2" }
             compound { task [ CLEAR ] channel "channel3" }
-            compound { task [ CLEAR ] channel "channel4" }
 
             compound
             {
@@ -585,7 +584,6 @@ server
         {
             channel ( segment 0 layout "Pixel" view 0 )
 
-            compound { task [ CLEAR ] channel "channel1" }
             compound { task [ CLEAR ] channel "channel2" }
             compound { task [ CLEAR ] channel "channel3" }
             compound { task [ CLEAR ] channel "channel4" }
