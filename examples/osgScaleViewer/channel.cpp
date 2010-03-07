@@ -57,12 +57,6 @@ void Channel::frameDraw( const uint32_t frameID )
     const eq::PixelViewport& pvp = getPixelViewport();
     view->setViewport( pvp.x, pvp.y, pvp.w, pvp.h );
 
-    // - Frustum
-    const eq::Frustumf& frustum = getFrustum();
-    view->setProjectionMatrixAsFrustum( 
-        frustum.left(), frustum.right(), frustum.bottom(), frustum.top(),
-        frustum.near_plane(), frustum.far_plane( ));
-
     // - Stereo
     view->setDrawBufferValue( getDrawBuffer( ));
     const eq::ColorMask& colorMask = getDrawBufferMask();
@@ -70,6 +64,12 @@ void Channel::frameDraw( const uint32_t frameID )
     osgUtil::RenderStage* stage = view->getRenderStage();
     osg::ref_ptr< osg::ColorMask > osgMask = stage->getColorMask();
     osgMask->setMask( colorMask.red, colorMask.green, colorMask.blue, true );
+
+    // - Frustum (Projection matrix)
+    const eq::Frustumf& frustum = getFrustum();
+    view->setProjectionMatrixAsFrustum( 
+        frustum.left(), frustum.right(), frustum.bottom(), frustum.top(),
+        frustum.near_plane(), frustum.far_plane( ));
 
     // - Camera (Model Matrix)
     const Pipe *pipe = static_cast< const Pipe* >( getPipe( ));
