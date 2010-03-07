@@ -24,7 +24,7 @@
 namespace eq
 {
 /** 
- * @brief The Equalizer data transport and synchronization fabric.
+ * @brief The Equalizer data synchronization fabric.
  *
  * This namespace implements the common data transport layer between the
  * Equalizer applications, the server and the administrative interface, which

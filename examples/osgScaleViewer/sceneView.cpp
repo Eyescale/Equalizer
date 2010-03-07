@@ -37,7 +37,7 @@ using namespace osgUtil;
 namespace osgScaleViewer
 {
 
-SceneView::SceneView(DisplaySettings* ds)
+SceneView::SceneView( osg::DisplaySettings* ds)
 {
     _displaySettings = ds;
 
@@ -791,17 +791,17 @@ bool SceneView::getProjectionMatrixAsPerspective(double& fovy,double& aspectRati
     return getProjectionMatrix().getPerspective(fovy, aspectRatio, zNear, zFar);
 }                                                 
 
-void SceneView::setViewMatrixAsLookAt(const Vec3& eye,const Vec3& center,const Vec3& up)
+void SceneView::setViewMatrixAsLookAt(const osg::Vec3& eye,const osg::Vec3& center,const osg::Vec3& up)
 {
     setViewMatrix(osg::Matrixd::lookAt(eye,center,up));
 }
 
-void SceneView::getViewMatrixAsLookAt(Vec3& eye,Vec3& center,Vec3& up,float lookDistance) const
+void SceneView::getViewMatrixAsLookAt(osg::Vec3& eye,osg::Vec3& center,osg::Vec3& up,float lookDistance) const
 {
     getViewMatrix().getLookAt(eye,center,up,lookDistance);
 }
 
-bool SceneView::getStats(Statistics& stats)
+bool SceneView::getStats(osgUtil::Statistics& stats)
 {
     return _renderStage->getStats(stats);
 }

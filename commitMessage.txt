@@ -1,4 +1,4 @@
-Minor cleanup
+Doxygen cleanups
 
 [ ] Will break build
 [ ] May break existing applications
