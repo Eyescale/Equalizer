@@ -59,6 +59,7 @@ protected:
 
     /** @sa eq::Channel::frameViewFinish() */
     void frameViewFinish( const uint32_t frameID );
+
 private:
 };
 
