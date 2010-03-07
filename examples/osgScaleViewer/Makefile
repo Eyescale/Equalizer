@@ -20,6 +20,7 @@ CXXFILES = \
 	pipe.cpp \
 	quad.cpp \
 	sceneReader.cpp \
+	sceneView.cpp \
 	tracker.cpp \
 	window.cpp \
 	main.cpp

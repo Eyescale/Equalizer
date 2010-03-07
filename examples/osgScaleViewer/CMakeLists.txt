@@ -57,6 +57,7 @@ ADD_EXECUTABLE(osgScaleViewer
   node.cpp
   pipe.cpp
   sceneReader.cpp
+  sceneView.cpp
   tracker.cpp
   window.cpp
   quad.cpp

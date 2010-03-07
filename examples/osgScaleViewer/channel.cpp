@@ -50,19 +50,28 @@ void Channel::frameDraw( const uint32_t frameID )
     // setup OpenGL State
     eq::Channel::frameDraw( frameID );
 
+    // - 2D viewport
     Window *window = static_cast< Window* >( getWindow( ));
-    osg::ref_ptr< osgUtil::SceneView > view = window->getSceneView();
+    osg::ref_ptr< SceneView > view = window->getSceneView();
     
     const eq::PixelViewport& pvp = getPixelViewport();
     view->setViewport( pvp.x, pvp.y, pvp.w, pvp.h );
 
+    // - Frustum
     const eq::Frustumf& frustum = getFrustum();
     view->setProjectionMatrixAsFrustum( 
         frustum.left(), frustum.right(), frustum.bottom(), frustum.top(),
         frustum.near_plane(), frustum.far_plane( ));
 
-    // set a view matrix and make sure it is multiplied with the head
-    // matrix of Equalizer
+    // - Stereo
+    view->setDrawBufferValue( getDrawBuffer( ));
+    const eq::ColorMask& colorMask = getDrawBufferMask();
+
+    osgUtil::RenderStage* stage = view->getRenderStage();
+    osg::ref_ptr< osg::ColorMask > osgMask = stage->getColorMask();
+    osgMask->setMask( colorMask.red, colorMask.green, colorMask.blue, true );
+
+    // - Camera (Model Matrix)
     const Pipe *pipe = static_cast< const Pipe* >( getPipe( ));
     const FrameData& frameData = pipe->getFrameData();
     
@@ -75,12 +84,13 @@ void Channel::frameDraw( const uint32_t frameID )
     const osg::Vec3f up( upVector.x(), upVector.y(), upVector.z( ));
   
     view->setViewMatrixAsLookAt( pos, look, up );
-    osg::Matrix headView = view->getViewMatrix();
 
+    // - Frustum position (View Matrix)
+    osg::Matrix headView = view->getViewMatrix();
     headView.postMult( vmmlToOsg( getHeadTransform( )));
     view->setViewMatrix( headView );
-    //view->setLODScale( .001f );
 
+    // - Render
     view->cull();
     view->draw();
 }

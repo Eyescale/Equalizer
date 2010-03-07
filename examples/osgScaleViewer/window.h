@@ -19,7 +19,7 @@
 #define OSG_SV_WINDOW_H
 
 #include <eq/eq.h>
-#include <osgUtil/SceneView>
+#include "sceneView.h"
 
 namespace osgScaleViewer
 {
@@ -31,7 +31,7 @@ namespace osgScaleViewer
     public:
         Window( eq::Pipe* parent ) : eq::Window( parent ) {}
         
-        osg::ref_ptr< osgUtil::SceneView > getSceneView() { return _sceneView; }
+        osg::ref_ptr< SceneView > getSceneView() { return _sceneView; }
 
     protected:
         virtual ~Window() {}
@@ -39,7 +39,7 @@ namespace osgScaleViewer
         virtual bool configExitGL();
 
     private:
-        osg::ref_ptr< osgUtil::SceneView > _sceneView;
+        osg::ref_ptr< SceneView > _sceneView;
     };
 }
 

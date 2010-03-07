@@ -1,4 +1,5 @@
-Fix Channel copies
+osgScaleViewer: Fix stereo by using a simplified SceneView which does
+not interfere with quad/anaglyphic stereo
 
 [ ] Will break build
 [ ] May break existing applications

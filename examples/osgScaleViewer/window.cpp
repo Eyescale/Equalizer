@@ -39,11 +39,12 @@ bool Window::configInitGL( const uint32_t initID )
         static eq::base::Lock lock;
         eq::base::ScopedMutex<> mutex( lock );
         
-        _sceneView = new osgUtil::SceneView;
-        _sceneView->setDefaults( osgUtil::SceneView::STANDARD_SETTINGS );
+        _sceneView = new SceneView;
+        _sceneView->setDefaults( SceneView::STANDARD_SETTINGS );
         _sceneView->setFrameStamp( node->getFrameStamp( ));
         _sceneView->init();
         _sceneView->getState()->setContextID( node->getUniqueContextID( ));
+        _sceneView->getRenderStage()->setColorMask( new osg::ColorMask );
 
         osg::ref_ptr< osg::Node > model = node->getModel();
         _sceneView->setSceneData( model );
