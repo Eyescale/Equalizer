@@ -54,8 +54,8 @@ class SceneView : public osg::Object, public osg::CullSettings
             HEADLIGHT = 0x1,
             SKY_LIGHT = 0x2,
             COMPILE_GLOBJECTS_AT_INIT = 0x4,
-            STANDARD_SETTINGS = HEADLIGHT |
-                                COMPILE_GLOBJECTS_AT_INIT                                
+            STANDARD_SETTINGS = SKY_LIGHT |
+                                COMPILE_GLOBJECTS_AT_INIT
         };
 
         /* Set defaults. */
