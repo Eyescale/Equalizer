@@ -396,11 +396,11 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
                     break;
             }
             break;
-
+#ifdef EQ_USE_MAGELLAN
         case WM_INPUT:
             _magellanEventHandler( lParam );
             break;
-
+#endif
         default:
             event.type = Event::UNKNOWN;
             EQVERB << "Unhandled message 0x" << std::hex << uMsg << std::dec
@@ -707,9 +707,8 @@ bool WGLEventHandler::initMagellan(Node* node)
 
     EQINFO << "Found and connected." << std::endl;
      _magellanNode = node;
-
-    return true;
 #endif
+    return true;
 }
 
 void WGLEventHandler::exitMagellan(eq::Node *node)
