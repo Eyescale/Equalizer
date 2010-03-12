@@ -19,7 +19,6 @@
 
 #include "config.h"
 #include "global.h"
-#include "paths.h"
 
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>

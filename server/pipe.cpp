@@ -23,7 +23,6 @@
 #include "global.h"
 #include "log.h"
 #include "node.h"
-#include "paths.h"
 #include "pipeVisitor.h"
 #include "window.h"
 

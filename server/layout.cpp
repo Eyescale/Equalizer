@@ -20,7 +20,6 @@
 #include "config.h"
 #include "layoutVisitor.h"
 #include "nameFinder.h"
-#include "paths.h"
 #include "view.h"
 
 #include <eq/fabric/paths.h>

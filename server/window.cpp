@@ -25,7 +25,6 @@
 #include "compound.h"
 #include "log.h"
 #include "node.h"
-#include "paths.h"
 #include "pipe.h"
 #include "windowVisitor.h"
 #include "swapBarrier.h"

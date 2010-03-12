@@ -20,7 +20,6 @@
 #include "canvas.h"
 #include "channel.h"
 #include "config.h"
-#include "paths.h"
 #include "view.h"
 
 #include <eq/fabric/paths.h>

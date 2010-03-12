@@ -26,7 +26,6 @@
 #include "global.h"
 #include "log.h"
 #include "node.h"
-#include "paths.h"
 #include "segment.h"
 #include "view.h"
 #include "window.h"

@@ -55,7 +55,7 @@ namespace fabric
         ObserverPath getPath() const;
 
         /** Set the eye separation of this observer. @version 1.0 */
-        EQ_EXPORT void setEyeBase( const float eyeBase );
+        EQFABRIC_EXPORT void setEyeBase( const float eyeBase );
 
         /** @return the current eye separation. @version 1.0 */
         float getEyeBase() const { return _eyeBase; }

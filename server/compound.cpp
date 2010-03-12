@@ -33,7 +33,6 @@
 #include "global.h"
 #include "layout.h"
 #include "log.h"
-#include "paths.h"
 #include "segment.h"
 #include "swapBarrier.h"
 #include "view.h"

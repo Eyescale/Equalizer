@@ -24,7 +24,6 @@
 #include "log.h"
 #include "nameFinder.h"
 #include "node.h"
-#include "paths.h"
 #include "pipe.h"
 #include "segment.h"
 #include "window.h"

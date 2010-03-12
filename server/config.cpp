@@ -32,7 +32,6 @@
 #include "log.h"
 #include "node.h"
 #include "observer.h"
-#include "paths.h"
 #include "segment.h"
 #include "server.h"
 #include "view.h"

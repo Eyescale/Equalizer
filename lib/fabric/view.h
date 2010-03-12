@@ -39,13 +39,13 @@ namespace fabric
         /** @name Data Access. */
         //@{
         /** @return the viewport of the view wrt its layout. @version 1.0 */
-        EQ_EXPORT const Viewport& getViewport() const;
+        EQFABRIC_EXPORT const Viewport& getViewport() const;
 
         /** @return the parent layout of this view. @version 1.0 */
-        EQ_EXPORT L* getLayout() { return _layout; }
+        EQFABRIC_EXPORT L* getLayout() { return _layout; }
 
         /** @return the parent layout of this view. @version 1.0 */
-        EQ_EXPORT const L* getLayout() const { return _layout; }
+        EQFABRIC_EXPORT const L* getLayout() const { return _layout; }
 
         /**
          * @return the observer tracking this view, or 0 for untracked views.
@@ -57,7 +57,7 @@ namespace fabric
         const O* getObserver() const { return _observer; }
 
         /** @warning  Undocumented - may not be supported in the future */
-        EQ_EXPORT void setOverdraw( const Vector2i& pixels );
+        EQFABRIC_EXPORT void setOverdraw( const Vector2i& pixels );
 
         /** @warning  Undocumented - may not be supported in the future */
         const Vector2i& getOverdraw() const { return _overdraw; }
@@ -78,10 +78,10 @@ namespace fabric
          * @return the result of the visitor traversal.
          * @version 1.0
          */
-        EQ_EXPORT VisitorResult accept( LeafVisitor< V >& visitor );
+        EQFABRIC_EXPORT VisitorResult accept( LeafVisitor< V >& visitor );
 
         /** Const-version of accept(). @version 1.0 */
-        EQ_EXPORT VisitorResult accept( LeafVisitor< V >& visitor ) const;
+        EQFABRIC_EXPORT VisitorResult accept( LeafVisitor< V >& visitor ) const;
         //@}
 
     protected:
@@ -93,23 +93,23 @@ namespace fabric
         };
 
         /** Construct a new view. @internal */
-        EQ_EXPORT View( L* layout );
+        EQFABRIC_EXPORT View( L* layout );
 
         /** Construct a new deep copy of a view. @internal */
-        EQ_EXPORT View( const View& from, L* layout );
+        EQFABRIC_EXPORT View( const View& from, L* layout );
 
         /** Destruct this view. @internal */
-        EQ_EXPORT virtual ~View();
+        EQFABRIC_EXPORT virtual ~View();
 
         virtual ChangeType getChangeType() const { return DELTA; }
 
         /** @sa Frustum::serialize() */
-        EQ_EXPORT virtual void serialize( net::DataOStream& os,
-                                          const uint64_t dirtyBits );
+        EQFABRIC_EXPORT virtual void serialize( net::DataOStream& os,
+                                                const uint64_t dirtyBits );
 
         /** @sa Frustum::deserialize() */
-        EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
-                                            const uint64_t dirtyBits );
+        EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
+                                                  const uint64_t dirtyBits );
     private:
         /** Parent layout (application-side). */
         L* const _layout;

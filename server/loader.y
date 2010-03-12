@@ -30,7 +30,6 @@
 #include "layout.h"
 #include "node.h"
 #include "observer.h"
-#include "paths.h"
 #include "pipe.h"
 #include "segment.h"
 #include "server.h"

@@ -18,7 +18,6 @@
 #ifndef EQSERVER_SEGMENT_H
 #define EQSERVER_SEGMENT_H
 
-#include "paths.h"
 #include "types.h"
 #include "segmentVisitor.h"  // used in inline method
 

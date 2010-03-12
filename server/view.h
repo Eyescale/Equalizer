@@ -18,7 +18,6 @@
 #ifndef EQSERVER_VIEW_H
 #define EQSERVER_VIEW_H
 
-#include "paths.h"
 #include "types.h"
 
 #include <eq/fabric/view.h>     // base class
