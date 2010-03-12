@@ -22,7 +22,7 @@
 #include "compoundVisitor.h"      // base class
 #include "layoutVisitor.h"        // base class
 #include "nodeVisitor.h"          // base class
-#include "observerVisitor.h"      // base class
+#include "types.h"
 
 namespace eq
 {

@@ -151,6 +151,23 @@ bool Server::shutdown()
     return result;
 }
 
+void Server::_addConfig( Config* config )
+{ 
+    EQASSERT( config->getServer() == this );
+    _configs.push_back( config );
+}
+
+bool Server::_removeConfig( Config* config )
+{
+    ConfigVector::iterator i = find( _configs.begin(), _configs.end(),
+                                      config );
+    if( i == _configs.end( ))
+        return false;
+
+    _configs.erase( i );
+    return true;
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------

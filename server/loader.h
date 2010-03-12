@@ -66,14 +66,6 @@ namespace server
          */
         ServerPtr parseServer( const char* config );
 
-        /** 
-         * Parse a Config given as a parameter.
-         * 
-         * @param config the config.
-         * @return the parsed config.
-         */
-        Config* parseConfig( const char* config );
-
         /**
          * Add a Compound for each output channel.
          *

@@ -42,7 +42,8 @@ public:
         { return new eqPly::Window( parent ); }
     virtual eq::Channel* createChannel( eq::Window* parent )
         { return new eqPly::Channel( parent ); }
-    virtual eq::View* createView() { return new eqPly::View(); }
+    virtual eq::View* createView( eq::Layout* parent )
+        { return new eqPly::View( parent ); }
 };
 
 int main( const int argc, char** argv )

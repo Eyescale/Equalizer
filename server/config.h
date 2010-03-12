@@ -24,7 +24,7 @@
 #include "server.h"        // used in inline method
 #include "visitorResult.h" // enum
 
-#include <eq/net/session.h>
+#include <eq/fabric/config.h> // base class
 
 #include <iostream>
 #include <vector>
@@ -35,47 +35,35 @@ namespace server
 {
     class ConfigSerializer;
     class ConfigVisitor;
-    struct CanvasPath;
-    struct ChannelPath;
-    struct LayoutPath;
-    struct ObserverPath;
-    struct SegmentPath;
-    struct ViewPath;
+    class Observer;
 
     /**
      * The config.
      */
-    class Config : public net::Session
+    class Config : public fabric::Config< Server, Config, Observer >
     {
     public:
-        /** 
-         * Constructs a new Config.
-         */
-        EQSERVER_EXPORT Config();
+        /** Construct a new config. */
+        EQSERVER_EXPORT Config( ServerPtr parent );
         virtual ~Config();
 
-        /** 
-         * Constructs a new deep copy of a config.
-         */
-        Config( const Config& from );
+        /** Constructs a new deep copy of a config. */
+        Config( const Config& from, ServerPtr parent );
         
         /**
          * @name Data Access.
          */
         //@{
-        Server* getServer() { return _server; }
-        
         Channel* getChannel( const ChannelPath& path );
         Canvas* getCanvas( const CanvasPath& path );
         Segment* getSegment( const SegmentPath& path );
         Layout* getLayout( const LayoutPath& path );
-        Observer* getObserver( const ObserverPath& path );
         View* getView( const ViewPath& path );
 
         bool    isRunning() const { return ( _state == STATE_RUNNING ); }
 
         net::CommandQueue* getServerThreadQueue()
-            { EQASSERT( _server ); return _server->getServerThreadQueue(); }
+            { return getServer()->getServerThreadQueue(); }
         
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
@@ -100,43 +88,11 @@ namespace server
         const NodeVector& getNodes() const { return _nodes; }
 
         /** 
-         * Adds a new observer to this config.
-         * 
-         * @param observer the observer.
-         */
-        void addObserver( Observer* observer );
-
-        /** 
-         * Removes a observer from this config.
-         * 
-         * @param observer the observer
-         * @return <code>true</code> if the observer was removed,
-         *         <code>false</code> otherwise.
-         */
-        bool removeObserver( Observer* observer );
-
-        /** @return the vecotr of observers. */
-        const ObserverVector& getObservers() const { return _observers; }
-
-        /** 
-         * Find the first observer of a given name.
-         * 
-         * @param name the name of the observer to find
-         * @return the first observer with the name, or <code>0</code> if no
-         *         observer with the name exists.
-         */
-        Observer* findObserver( const std::string& name );
-        const Observer* findObserver( const std::string& name ) const;
-
-        /** @return the observer mapped to the given identifier, or 0. */
-        Observer* findObserver( const uint32_t id );
-
-        /** 
          * Adds a new layout to this config.
          * 
          * @param layout the layout.
          */
-        EQSERVER_EXPORT void addLayout( Layout* layout );
+        void _addLayout( Layout* layout );
 
         /** 
          * Removes a layout from this config.
@@ -145,7 +101,7 @@ namespace server
          * @return <code>true</code> if the layout was removed,
          *         <code>false</code> otherwise.
          */
-        bool removeLayout( Layout* layout );
+        bool _removeLayout( Layout* layout );
 
         /** @return the vecotr of layouts. */
         const LayoutVector& getLayouts() const { return _layouts; }
@@ -248,7 +204,8 @@ namespace server
          * @param view the view.
          * @return the channel for updating the view/segment intersection.
          */
-        EQSERVER_EXPORT Channel* findChannel( const Segment* segment, const View* view );
+        EQSERVER_EXPORT Channel* findChannel( const Segment* segment,
+                                              const View* view );
 
         /** 
          * Traverse this config and all children using a config visitor.
@@ -367,6 +324,8 @@ namespace server
         virtual void notifyMapped( net::NodePtr node );
 
     private:
+        Config( const Config& from );
+
         /** The config name */
         std::string _name;
 
@@ -379,15 +338,8 @@ namespace server
         /** String representation of float attributes. */
         static std::string _fAttributeStrings[FATTR_ALL];
 
-        /** The eq server hosting the session. */
-        Server* _server;
-        friend class Server;
-
         /** The list of nodes. */
         NodeVector _nodes;
-
-        /** The list of observers. */
-        ObserverVector _observers;
 
         /** The list of layouts. */
         LayoutVector _layouts;

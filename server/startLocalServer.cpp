@@ -51,8 +51,9 @@ protected:
             EQCHECK( _server->run( ));
 
             _server->close();
+            _server->deleteConfigs();
 
-            EQINFO << "Server thread done, ref count " 
+            EQINFO << "Server thread done, still referenced by " 
                    << _server->getRefCount() - 1 << std::endl;
             EQASSERTINFO( _server->getRefCount() == 1, _server->getRefCount( ));
 
@@ -109,7 +110,7 @@ EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer(
         eq::net::Connection::create( desc ));
 
     // Wrap in one RefPtr to do correct reference counting and avoid deletion
-    eq::net::ConnectionPtr  conn = connection;
+    eq::net::ConnectionPtr conn = connection;
 
     if( !connection->connect( ))
     {

@@ -17,6 +17,7 @@
 
 #include "observer.h"
 #include "leafVisitor.h"
+#include "paths.h"
 
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
@@ -37,7 +38,7 @@ Observer< C, O >::Observer( C* config )
 }
 
 template< typename C, typename O >
-Observer< C, O >::Observer( C* config, const O& from )
+Observer< C, O >::Observer( const O& from, C* config )
         : _config( config )
         , _eyeBase( from._eyeBase )
         , _headMatrix( from._headMatrix )
@@ -89,12 +90,17 @@ VisitorResult Observer< C, O >::accept( LeafVisitor< O >& visitor ) const
 }
 
 template< typename C, typename O >
-void Observer< C, O >::deregister()
+ObserverPath Observer< C, O >::getPath() const
 {
-    EQASSERT( _config );
-    EQASSERT( isMaster( ));
+    const ObserverVector&  observers = _config->getObservers();
+    typename ObserverVector::const_iterator i = std::find( observers.begin(), 
+                                                           observers.end(),
+                                                           this );
+    EQASSERT( i != observers.end( ));
 
-    _config->deregisterObject( this );
+    ObserverPath path;
+    path.observerIndex = std::distance( observers.begin(), i );
+    return path;
 }
 
 template< typename C, typename O >

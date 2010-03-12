@@ -29,8 +29,10 @@
 #include "layout.h"
 #include "log.h"
 #include "messagePump.h"
+#include "nameFinder.h"
 #include "node.h"
 #include "nodeFactory.h"
+#include "observer.h"
 #include "packets.h"
 #include "pipe.h"
 #include "server.h"
@@ -46,10 +48,11 @@ namespace eq
 {
 /** @cond IGNORE */
 typedef net::CommandFunc<Config> ConfigFunc;
+typedef fabric::Config< Server, Config, Observer > Super;
 /** @endcond */
 
 Config::Config( ServerPtr server )
-        : net::Session()
+        : Super( server )
         , _eyeBase( 0.f )
         , _lastEvent( 0 )
         , _latency( 0 )
@@ -65,7 +68,6 @@ Config::Config( ServerPtr server )
 Config::~Config()
 {
     EQINFO << "Delete config @" << (void*)this << std::endl;
-    EQASSERT( _observers.empty( ));
     EQASSERT( _layouts.empty( ));
     EQASSERT( _canvases.empty( ));
     
@@ -116,7 +118,7 @@ CommandQueue* Config::getNodeThreadQueue()
 
 namespace
 {
-template< typename P, typename T > class IDFinder : public P
+template< typename T > class IDFinder : public ConfigVisitor
 {
 public:
     IDFinder( const uint32_t id ) : _id( id ), _result( 0 ) {}
@@ -140,23 +142,8 @@ private:
     T*             _result;
 };
 
-typedef IDFinder< ConfigVisitor, Observer > ObserverIDFinder;
-typedef IDFinder< ConfigVisitor, Layout > LayoutIDFinder;
-typedef IDFinder< ConfigVisitor, View > ViewIDFinder;
-}
-
-Observer* Config::findObserver( const uint32_t id )
-{
-    ObserverIDFinder finder( id );
-    accept( finder );
-    return finder.getResult();
-}
-
-const Observer* Config::findObserver( const uint32_t id ) const
-{
-    ObserverIDFinder finder( id );
-    accept( finder );
-    return finder.getResult();
+typedef IDFinder< Layout > LayoutIDFinder;
+typedef IDFinder< View > ViewIDFinder;
 }
 
 Layout* Config::findLayout( const uint32_t id )
@@ -285,14 +272,6 @@ VisitorResult Config::accept( ConfigVisitor& visitor ) const
     return _accept( this, visitor );
 }
 
-ServerPtr Config::getServer()
-{ 
-    net::NodePtr node = net::Session::getServer();
-    EQASSERT( dynamic_cast< Server* >( node.get( )));
-    ServerPtr server = static_cast< Server* >( node.get( ));
-    return server;
-}
-
 ClientPtr Config::getClient()
 { 
     return getServer()->getClient(); 
@@ -321,20 +300,6 @@ Node* Config::_findNode( const uint32_t id )
             return node;
     }
     return 0;
-}
-
-void Config::_addObserver( Observer* observer )
-{
-    observer->_config = this;
-    _observers.push_back( observer );
-}
-
-void Config::_removeObserver( Observer* observer )
-{
-    ObserverVector::iterator i = find( _observers.begin(), _observers.end(), 
-                                       observer );
-    EQASSERT( i != _observers.end( ));
-    _observers.erase( i );
 }
 
 void Config::_addLayout( Layout* layout )
@@ -936,15 +901,14 @@ net::CommandResult Config::_cmdUnmap( net::Command& command )
     }
     _layouts.clear();
 
-    for( ObserverVector::const_iterator i = _observers.begin();
-         i != _observers.end(); ++i )
+    const ObserverVector& observers = getObservers();
+    while( !observers.empty( ))
     {
-        Observer* observer = *i;
-        observer->deregister();
-        observer->_config = 0;
+        Observer* observer = observers.back();
+        unmapObject( observer );
+        _removeObserver( observer );
         nodeFactory->releaseObserver( observer );
     }
-    _observers.clear();
 
     ConfigUnmapReplyPacket reply( packet );
     send( command.getNode(), reply );
@@ -953,3 +917,7 @@ net::CommandResult Config::_cmdUnmap( net::Command& command )
 }
 
 }
+
+#include "../fabric/config.cpp"
+template class eq::fabric::Config< eq::Server, eq::Config, eq::Observer >;
+

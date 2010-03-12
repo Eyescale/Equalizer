@@ -72,6 +72,8 @@ int main( const int argc, char** argv )
     }
 
     server->exitLocal();
+    server->deleteConfigs();
+
     EQINFO << "Server ref count: " << server->getRefCount() << std::endl;
 
     return eq::server::exit() ? EXIT_SUCCESS : EXIT_FAILURE;

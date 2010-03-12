@@ -18,7 +18,8 @@
 #ifndef EQ_WINDOWVISITOR_H
 #define EQ_WINDOWVISITOR_H
 
-#include <eq/client/channelVisitor.h> // base class
+#include <eq/client/types.h>
+#include <eq/fabric/leafVisitor.h> // base class
 
 namespace eq
 {

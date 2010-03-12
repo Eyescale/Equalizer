@@ -42,8 +42,6 @@ namespace server
 {
     class SwapBarrier;
     class WindowVisitor;
-    struct ChannelPath;
-    struct WindowPath;
 
     /**
      * The window.
@@ -77,21 +75,6 @@ namespace server
          * @name Data Access
          */
         //@{
-        /** 
-         * Add a new channel to this window.
-         * 
-         * @param channel the channel.
-         */
-        EQSERVER_EXPORT void _addChannel( Channel* channel );
-
-        /** 
-         * Removes a channel from this window.
-         * 
-         * @param channel the channel
-         * @return true if the channel was removed, false otherwise.
-         */
-        bool _removeChannel( Channel* channel );
-
         /** @return the vector of channels. */
         const ChannelVector& getChannels() const { return _channels; }
 
@@ -343,6 +326,13 @@ namespace server
 
         /** common code for all constructors */
         void _construct();
+
+        friend class fabric::Channel< Channel, Window >;
+        /** Add a new channel to this window. */
+        void _addChannel( Channel* channel );
+
+        /** Remove a channel from this window. */
+        bool _removeChannel( Channel* channel );
 
         /** Clears all swap barriers of the window. */
         void _resetSwapBarriers();

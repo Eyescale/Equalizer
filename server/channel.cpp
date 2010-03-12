@@ -20,7 +20,6 @@
 
 #include "channelListener.h"
 #include "channelUpdateVisitor.h"
-#include "channelVisitor.h"
 #include "compound.h"
 #include "compoundVisitor.h"
 #include "config.h"
@@ -37,6 +36,7 @@
 #include <eq/client/log.h>
 #include <eq/client/packets.h>
 #include <eq/client/view.h>
+#include <eq/fabric/paths.h>
 #include <eq/net/command.h>
 #include <eq/base/base.h>
 #include <eq/base/debug.h>
@@ -279,7 +279,7 @@ bool Channel::syncRunning()
     EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED || 
               _state == STATE_INIT_FAILED );
 
-    if( getID() != EQ_ID_INVALID ) // TODO: remove (see TODO below)
+    if( getID() != EQ_ID_INVALID ) // TODO: remove if (see TODO below)
         commit();
     return success;
 }

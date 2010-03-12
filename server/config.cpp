@@ -30,7 +30,6 @@
 #include "idFinder.h"
 #include "layout.h"
 #include "log.h"
-#include "nameFinder.h"
 #include "node.h"
 #include "observer.h"
 #include "paths.h"
@@ -40,12 +39,14 @@
 #include "window.h"
 
 #include <eq/client/configEvent.h>
+#include <eq/fabric/paths.h>
 #include <eq/net/command.h>
 #include <eq/net/global.h>
 #include <eq/base/sleep.h>
 
 #include "configSyncVisitor.h"
 #include "configUnmapVisitor.h"
+#include "nameFinder.h"
 
 using eq::net::ConnectionDescriptionVector;
 
@@ -54,6 +55,7 @@ namespace eq
 namespace server
 {
 typedef net::CommandFunc<Config> ConfigFunc;
+typedef fabric::Config< Server, Config, Observer > Super;
 
 #define MAKE_ATTR_STRING( attr ) ( std::string("EQ_CONFIG_") + #attr )
 std::string Config::_fAttributeStrings[FATTR_ALL] = 
@@ -76,7 +78,8 @@ void Config::_construct()
     EQINFO << "New config @" << (void*)this << std::endl;
 }
 
-Config::Config()
+Config::Config( ServerPtr parent )
+        : Super( parent )
 {
     _construct();
     const Global* global = Global::instance();    
@@ -84,10 +87,8 @@ Config::Config()
         _fAttributes[i] = global->getConfigFAttribute( (FAttribute)i );
 }
 
-Config::Config( const Config& from )
-        : net::Session()
-        , _name( from._name )
-        , _server( from._server )
+Config::Config( const Config& from, ServerPtr parent )
+        : Super( from, parent )
 {
     _construct();
     _appNetNode = from._appNetNode;
@@ -103,13 +104,6 @@ Config::Config( const Config& from )
         
         if( node == from._appNode )
             _appNode = nodeClone;
-    }
-
-    const ObserverVector& observers = from.getObservers();
-    for( ObserverVector::const_iterator i = observers.begin(); 
-         i != observers.end(); ++i )
-    {
-        new Observer( **i, this );
     }
 
     const LayoutVector& layouts = from.getLayouts();
@@ -137,7 +131,6 @@ Config::Config( const Config& from )
 Config::~Config()
 {
     EQINFO << "Delete config @" << (void*)this << std::endl;
-    _server     = 0;
     _appNode    = 0;
     _appNetNode = 0;
 
@@ -160,25 +153,12 @@ Config::~Config()
     }
     _canvases.clear();
 
-    for( LayoutVector::const_iterator i = _layouts.begin(); 
-         i != _layouts.end(); ++i )
+    while( !_layouts.empty( ))
     {
-        Layout* layout = *i;
-
-        layout->_config = 0;
+        Layout* layout = _layouts.back();
+        _removeLayout( layout );
         delete layout;
     }
-    _layouts.clear();
-
-    for( ObserverVector::const_iterator i = _observers.begin(); 
-         i != _observers.end(); ++i )
-    {
-        Observer* observer = *i;
-
-        observer->_config = 0;
-        delete observer;
-    }
-    _observers.clear();
 
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
@@ -239,58 +219,20 @@ bool Config::removeNode( Node* node )
     return true;
 }
 
-void Config::addObserver( Observer* observer )
+void Config::_addLayout( Layout* layout )
 {
-    observer->_config = this;
-    _observers.push_back( observer );
-}
-
-bool Config::removeObserver( Observer* observer )
-{
-    ObserverVector::iterator i = find( _observers.begin(), _observers.end(),
-                                       observer );
-    if( i == _observers.end( ))
-        return false;
-
-    _observers.erase( i );
-    observer->_config = 0;
-    return true;
-}
-
-Observer* Config::findObserver( const std::string& name )
-{
-    ObserverFinder finder( name );
-    accept( finder );
-    return finder.getResult();
-}
-const Observer* Config::findObserver( const std::string& name ) const
-{
-    ConstObserverFinder finder( name );
-    accept( finder );
-    return finder.getResult();
-}
-Observer* Config::findObserver( const uint32_t id )
-{
-    ObserverIDFinder finder( id );
-    accept( finder );
-    return finder.getResult();
-}
-
-
-void Config::addLayout( Layout* layout )
-{
-    layout->_config = this;
+    EQASSERT( layout->getConfig() == this );
     _layouts.push_back( layout );
 }
 
-bool Config::removeLayout( Layout* layout )
+bool Config::_removeLayout( Layout* layout )
 {
     LayoutVector::iterator i = find( _layouts.begin(), _layouts.end(), layout );
     if( i == _layouts.end( ))
         return false;
 
+    EQASSERT( layout->getConfig() == this );
     _layouts.erase( i );
-    layout->_config = 0;
     return true;
 }
 
@@ -566,17 +508,6 @@ Segment* Config::getSegment( const SegmentPath& path )
         return canvas->getSegment( path );
 
     return 0;
-}
-
-Observer* Config::getObserver( const ObserverPath& path )
-{
-    EQASSERTINFO( _observers.size() > path.observerIndex,
-                  _observers.size() << " <= " << path.observerIndex );
-
-    if( _observers.size() <= path.observerIndex )
-        return 0;
-
-    return _observers[ path.observerIndex ];
 }
 
 Layout* Config::getLayout( const LayoutPath& path )
@@ -896,10 +827,11 @@ bool Config::_syncConnectNode( Node* node, const base::Clock& clock )
     if( !localNode->syncConnect( netNode, timeOut ))
     {
         std::ostringstream data;
-        const net::ConnectionDescriptionVector& descs = netNode->getConnectionDescriptions();
+        const net::ConnectionDescriptionVector& descs = 
+            netNode->getConnectionDescriptions();
 
-        for( net::ConnectionDescriptionVector::const_iterator i = descs.begin(); 
-            i != descs.end(); ++i )
+        for( net::ConnectionDescriptionVector::const_iterator i = descs.begin();
+             i != descs.end(); ++i )
         {
             net::ConnectionDescriptionPtr desc = *i;
             data << desc->getHostname() << ' ';
@@ -1024,7 +956,7 @@ uint32_t Config::_createConfig( Node* node )
 void Config::_syncClock()
 {
     ConfigSyncClockPacket packet;
-    packet.time = _server->getTime();
+    packet.time = getServer()->getTime();
 
     send( _appNetNode, packet );
 
@@ -1052,8 +984,9 @@ bool Config::_init( const uint32_t initID )
     _finishedFrame = 0;
     _initID = initID;
 
-    for( ObserverVector::const_iterator i = _observers.begin();
-         i != _observers.end(); ++i )
+    const ObserverVector& observers = getObservers();
+    for( ObserverVector::const_iterator i = observers.begin();
+         i != observers.end(); ++i )
     {
         Observer* observer = *i;
         observer->init();
@@ -1261,11 +1194,8 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
         command.getPacket<ConfigStartFramePacket>();
     EQVERB << "handle config frame start " << packet << std::endl;
 
-    if( packet->nChanges > 0 )
-    {
-        ConfigSyncVisitor syncer( packet->nChanges, packet->changes );
-        accept( syncer );
-    }
+    ConfigSyncVisitor syncer( packet->nChanges, packet->changes );
+    accept( syncer );
 
     if( _updateRunning( ))
         _startFrame( packet->frameID );
@@ -1439,3 +1369,8 @@ std::ostream& operator << ( std::ostream& os, const Config* config )
 
 }
 }
+
+#include "../lib/fabric/config.cpp"
+template class eq::fabric::Config< eq::server::Server, eq::server::Config,
+                                   eq::server::Observer >;
+

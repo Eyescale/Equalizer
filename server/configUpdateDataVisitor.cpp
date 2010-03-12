@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,6 +20,7 @@
 #include "channel.h"
 #include "node.h"
 #include "pipe.h"
+#include "view.h"
 #include "window.h"
 
 using namespace std;
@@ -34,6 +35,12 @@ ConfigUpdateDataVisitor::ConfigUpdateDataVisitor()
     , _lastDrawPipe( 0 )
 {}
 
+
+VisitorResult ConfigUpdateDataVisitor::visit( View* view )
+{
+    static_cast< net::Object* >( view )->commit();
+    return TRAVERSE_CONTINUE;
+}
 
 VisitorResult ConfigUpdateDataVisitor::visitPre( Node* node )
 {

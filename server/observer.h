@@ -19,50 +19,39 @@
 #define EQSERVER_OBSERVER_H
 
 #include "types.h"
-#include "observerVisitor.h"    // used in inline method
 
-#include <eq/client/eye.h>      // enum
-#include <eq/client/observer.h> // base class
+#include <eq/fabric/observer.h> // base class
+#include <eq/fabric/eye.h>      // enum
 #include <string>
 
 namespace eq
 {
 namespace server
 {
-    struct ObserverPath;
-
-    /**
-     * The observer. @sa eq::Observer
-     */
-    class Observer : public eq::Observer
+    /** The observer. @sa eq::Observer */
+    class Observer : public fabric::Observer< Config, Observer >
     {
     public:
         /** 
          * Constructs a new Observer.
          */
-        Observer();
+        Observer( Config* parent );
 
         /** Creates a new, deep copy of a observer. */
-        Observer( const Observer& from, Config* config );
+        Observer( const Observer& from, Config* parent );
 
         /** Destruct this observer. */
         virtual ~Observer();
 
         /** @name Data Access */
         //@{
-        /** @return the index path to this observer. */
-        ObserverPath getPath() const;
-
         /** @return the position of an eye in world-space coordinates. */
-        const Vector3f& getEyePosition( const eq::Eye eye ) const
+        const fabric::Vector3f& getEyePosition( const fabric::Eye eye ) const
             { return _eyes[ eye ]; }
 
         /** @return the inverse of the current head matrix. */
-        const Matrix4f& getInverseHeadMatrix() const
+        const fabric::Matrix4f& getInverseHeadMatrix() const
             { return _inverseHeadMatrix; }
-
-        /** @return the config of this observer. */
-        Config* getConfig() { return _config; }
         //@}
 
         /**
@@ -71,17 +60,6 @@ namespace server
         //@{
         /** Initialize the observer parameters. */
         void init();
-
-        /** 
-         * Traverse this observer using a observer visitor.
-         * 
-         * @param visitor the visitor.
-         * @return the result of the visitor traversal.
-         */
-        VisitorResult accept( ObserverVisitor& visitor )
-            { return visitor.visit( this ); }
-        VisitorResult accept( ObserverVisitor& visitor ) const
-            { return visitor.visit( this ); }
 
         /** Unmap this observer and all its children. */
         void unmap();
@@ -95,15 +73,11 @@ namespace server
     private:
         virtual void getInstanceData( net::DataOStream& os );
 
-        /** The parent Config. */
-        Config* _config;
-        friend class Config;
-
         /** Cached inverse head matrix. */
-        Matrix4f _inverseHeadMatrix;
+        fabric::Matrix4f _inverseHeadMatrix;
 
         /** The eye positions in world space. */ 
-        Vector3f _eyes[eq::EYE_ALL];
+        fabric::Vector3f _eyes[ fabric::EYE_ALL ];
 
         union // placeholder for binary-compatible changes
         {

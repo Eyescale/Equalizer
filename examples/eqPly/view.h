@@ -28,7 +28,7 @@ namespace eqPly
     class View : public eq::View
     {
     public:
-        View();
+        View( eq::Layout* parent );
         virtual ~View();
 
         void setModelID( const uint32_t id );
@@ -37,25 +37,35 @@ namespace eqPly
         void setIdleSteps( const uint32_t steps );
         uint32_t getIdleSteps() const { return _idleSteps; }
 
-    protected:
-        /** @sa eq::View::serialize() */
-        virtual void serialize( eq::net::DataOStream& os,
-                                const uint64_t dirtyBits );
-        /** @sa eq::View::deserialize() */
-        virtual void deserialize( eq::net::DataIStream& is, 
-                                  const uint64_t dirtyBits );
-
-        /** @sa eq::net::Object::notifyNewVersion() */
-        virtual void notifyNewVersion() { sync(); }
-
-        /** The changed parts of the view. */
-        enum DirtyBits
+    private:
+        class Proxy : public eq::fabric::Serializable
         {
-            DIRTY_MODEL       = eq::View::DIRTY_CUSTOM << 0,
-            DIRTY_IDLE        = eq::View::DIRTY_CUSTOM << 1
+        public:
+            Proxy( View* view ) : _view( view ) {}
+
+        protected:
+            /** The changed parts of the view. */
+            enum DirtyBits
+            {
+                DIRTY_MODEL       = eq::fabric::Serializable::DIRTY_CUSTOM << 0,
+                DIRTY_IDLE        = eq::fabric::Serializable::DIRTY_CUSTOM << 1
+            };
+
+            virtual void serialize( eq::net::DataOStream& os,
+                                    const uint64_t dirtyBits );
+            virtual void deserialize( eq::net::DataIStream& is, 
+                                      const uint64_t dirtyBits );
+            virtual void notifyNewVersion() { sync(); }
+
+        private:
+            View* const _view;
+            friend class View;
         };
 
-    private:
+        virtual void deserialize( eq::net::DataIStream& is, 
+                                  const uint64_t dirtyBits );
+        Proxy _proxy;
+        friend class Proxy;
         uint32_t _modelID;
         uint32_t _idleSteps;
     };

@@ -27,13 +27,6 @@ namespace eq
 {
 namespace fabric
 {
-    class Config;
-    class Layout;
-    class Observer;
-    class Pipe;
-    class ViewVisitor;
-    struct Event;
-
     /**
      * A View is a 2D area of a Layout. It is a view of the application's data
      * on a model, in the sense used by the MVC pattern. It can be a scene,
@@ -43,7 +36,7 @@ namespace fabric
      * @warning Never commit a View. Equalizer does take care of this to
      *          correctly associate view version with rendering frames.
      */
-    templace< class L, class V, class O > class View : public Frustum
+    template< class L, class V, class O > class View : public Frustum
     {
     public:
         /** @name Data Access. */
@@ -52,18 +45,26 @@ namespace fabric
         EQ_EXPORT const Viewport& getViewport() const;
 
         /** @return the layout of this view. */
-        EQ_EXPORT Layout* getLayout() { return _layout; }
+        EQ_EXPORT L* getLayout() { return _layout; }
 
         /** @return the layout of this view. */
-        EQ_EXPORT const Layout* getLayout() const { return _layout; }
+        EQ_EXPORT const L* getLayout() const { return _layout; }
 
         /** @return the entity tracking this view, 0 for untracked views. */
         O* getObserver() { return _observer; }
+
+        /** const version of getObserver() */
         const O* getObserver() const { return _observer; }
 
         /** @warning  Undocumented - may not be supported in the future */
         EQ_EXPORT void setOverdraw( const Vector2i& pixels );
         const Vector2i& getOverdraw() const { return _overdraw; }
+
+        /** Set the 2D viewport wrt Layout and Canvas. @internal */
+        void setViewport( const Viewport& viewport );
+
+        /** Set the entity tracking this view. @internal */
+        void setObserver( O* observer );
         //@}
 
         /** @name Operations */
@@ -81,11 +82,23 @@ namespace fabric
         //@}
 
     protected:
+        enum DirtyBits
+        {
+            DIRTY_VIEWPORT   = Frustum::DIRTY_CUSTOM << 0,
+            DIRTY_OBSERVER   = Frustum::DIRTY_CUSTOM << 1,
+            DIRTY_OVERDRAW   = Frustum::DIRTY_CUSTOM << 2
+        };
+
         /** Construct a new view. */
         EQ_EXPORT View( L* layout );
 
+        /** Construct a new deep copy of a view. @internal */
+        EQ_EXPORT View( const View& from, L* layout );
+
         /** Destruct this view. */
         EQ_EXPORT virtual ~View();
+
+        virtual ChangeType getChangeType() const { return DELTA; }
 
         /** @sa Frustum::serialize() */
         EQ_EXPORT virtual void serialize( net::DataOStream& os,
@@ -94,28 +107,15 @@ namespace fabric
         /** @sa Frustum::deserialize() */
         EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
                                             const uint64_t dirtyBits );
-
-        enum DirtyBits
-        {
-            DIRTY_VIEWPORT   = Frustum::DIRTY_CUSTOM << 0,
-            DIRTY_OBSERVER   = Frustum::DIRTY_CUSTOM << 1,
-            DIRTY_OVERDRAW   = Frustum::DIRTY_CUSTOM << 2,
-            DIRTY_FILL1      = Frustum::DIRTY_CUSTOM << 3,
-            DIRTY_FILL2      = Frustum::DIRTY_CUSTOM << 4,
-            DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 5,
-        };
-
-        virtual ChangeType getChangeType() const { return DELTA; }
-
     private:
         /** Parent layout (application-side). */
         L* const _layout;
 
-        /** Logical 2D area of Canvas covered. */
-        Viewport    _viewport;
-
         /** The observer for tracking. */
         O* _observer;
+
+        /** Logical 2D area of Canvas covered. */
+        Viewport _viewport;
 
         /** Enlarge size of all dest channels and adjust frustum accordingly. */
         Vector2i _overdraw;
@@ -126,7 +126,8 @@ namespace fabric
         };
     };
 
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const View& view );
+    template< class L, class V, class O >
+    std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view );
 }
 }
 #endif // EQFABRIC_VIEW_H

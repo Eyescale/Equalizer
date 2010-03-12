@@ -31,8 +31,6 @@ namespace eq
 namespace server
 {
     class CanvasVisitor;
-    struct CanvasPath;
-    struct SegmentPath;
 
     /**
      * The canvas. @sa eq::Canvas

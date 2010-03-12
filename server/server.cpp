@@ -62,16 +62,8 @@ Server::Server()
 
 Server::~Server()
 {
-    for( ConfigVector::const_iterator i = _configs.begin(); 
-         i != _configs.end(); ++i )
-    {
-        Config* config = *i;
-
-        config->_server = 0;
-        delete config;
-    }
-
-    _configs.clear();
+    EQASSERT( _configs.empty( )); // not possible - config RefPtr's myself
+    deleteConfigs();
     base::Log::setClock( 0 );
 }
 
@@ -149,10 +141,22 @@ bool Server::run()
     return true;
 }
 
-void Server::addConfig( Config* config )
+void Server::_addConfig( Config* config )
 { 
-    config->_server = this;
+    EQASSERT( config->getServer() == this );
     _configs.push_back( config );
+}
+
+bool Server::_removeConfig( Config* config )
+{
+    ConfigVector::iterator i = find( _configs.begin(), _configs.end(),
+                                      config );
+    if( i == _configs.end( ))
+        return false;
+
+    EQASSERT( config->getServer() == this );
+    _configs.erase( i );
+    return true;
 }
 
 void Server::registerConfig( Config* config )
@@ -165,6 +169,16 @@ void Server::registerConfig( Config* config )
     }
 
     registerSession( config );
+}
+
+void Server::deleteConfigs()
+{
+    while( !_configs.empty( ))
+    {
+        Config* config = _configs.back();
+        _removeConfig( config );
+        delete config;
+    }
 }
 
 //===========================================================================
@@ -239,7 +253,7 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
         return net::COMMAND_HANDLED;
     }
 
-    Config* appConfig = new Config( *config );
+    Config* appConfig = new Config( *config, this );
     appConfig->setApplicationNetNode( node );
 
     registerConfig( appConfig );

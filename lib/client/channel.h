@@ -18,7 +18,6 @@
 #ifndef EQ_CHANNEL_H
 #define EQ_CHANNEL_H
 
-#include <eq/client/channelVisitor.h> // template typedef
 #include <eq/client/event.h>          // member
 #include <eq/client/eye.h>            // enum
 #include <eq/client/types.h>

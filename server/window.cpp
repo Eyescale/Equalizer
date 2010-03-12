@@ -31,6 +31,7 @@
 #include "swapBarrier.h"
 
 #include <eq/client/packets.h>
+#include <eq/fabric/paths.h>
 #include <eq/net/command.h>
 
 namespace eq

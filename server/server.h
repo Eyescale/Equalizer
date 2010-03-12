@@ -30,6 +30,10 @@
 
 namespace eq
 {
+namespace fabric
+{
+    template< class S, class C, class O > class Config;
+}
 namespace server
 {
     class ServerVisitor;
@@ -55,24 +59,11 @@ namespace server
 
         void registerConfig( Config* config );
         
-        /** 
-         * Add a new config to this server.
-         * 
-         * @param config the config.
-         */
-        EQSERVER_EXPORT void addConfig( Config* config );
-
-        /** 
-         * Remove a config from this config.
-         * 
-         * @param config the config
-         * @return <code>true</code> if the config was removed,
-         *         <code>false</code> otherwise.
-         */
-        bool removeConfig( Config* config );
-
         /** @return the vector of configurations. */
         const ConfigVector& getConfigs() const { return _configs; }
+
+        /** Delete all configs of this server (exit). */
+        void deleteConfigs();
 
         /** @return the command queue to the server thread */
         net::CommandQueue* getServerThreadQueue() 
@@ -126,6 +117,14 @@ namespace server
 
         /** @sa net::Node::getType */
         virtual uint32_t getType() const { return eq::TYPE_EQ_SERVER; }
+
+        friend class fabric::Config< Server, Config, Observer >;
+
+        /**  Add a new config to this server. */
+        void _addConfig( Config* config );
+
+        /** Remove a config from this server. */
+        bool _removeConfig( Config* config );
 
         void        _handleCommands(); 
 

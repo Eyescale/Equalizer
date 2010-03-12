@@ -29,6 +29,7 @@
 
 #include <eq/client/commands.h>
 #include <eq/client/packets.h>
+#include <eq/fabric/paths.h>
 #include <eq/net/command.h>
 
 namespace eq
@@ -144,12 +145,12 @@ bool Pipe::removeWindow( Window* window )
     return true;
 }
 
-Server* Pipe::getServer()
+ServerPtr Pipe::getServer()
 { 
     EQASSERT( _node );
     return _node ? _node->getServer() : 0; 
 }
-const Server* Pipe::getServer() const
+const ServerPtr Pipe::getServer() const
 { 
     EQASSERT( _node );
     return _node ? _node->getServer() : 0; 

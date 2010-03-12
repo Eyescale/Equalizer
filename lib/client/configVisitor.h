@@ -21,7 +21,7 @@
 #include <eq/client/canvasVisitor.h>        // base class
 #include <eq/client/layoutVisitor.h>        // base class
 #include <eq/client/nodeVisitor.h>          // base class
-#include <eq/client/observerVisitor.h>          // base class
+#include <eq/client/types.h>
 
 namespace eq
 {

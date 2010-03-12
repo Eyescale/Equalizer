@@ -40,6 +40,7 @@ class SubPixel;
 class Viewport;
 class Wall;
 class Zoom;
+template< typename T > class LeafVisitor;
 }
 
 class Canvas;
@@ -71,7 +72,18 @@ typedef fabric::Viewport Viewport;
 typedef fabric::Wall Wall;
 typedef fabric::Zoom Zoom;
 
+/** A visitor to traverse channels. @sa Channel::accept() */
+typedef fabric::LeafVisitor< Channel > ChannelVisitor;
+
+/** A visitor to traverse views. @sa View::accept() */
+typedef fabric::LeafVisitor< View > ViewVisitor;
+
+/** A visitor to traverse views. @sa View::accept() */
+typedef fabric::LeafVisitor< Observer > ObserverVisitor;
+
 //----- Vectors
+/** A vector of pointers to eq::Config */
+typedef std::vector< Config* >     ConfigVector;
 /** A vector of pointers to eq::Node */
 typedef std::vector< Node* >     NodeVector;
 /** A vector of pointers to eq::Pipe */

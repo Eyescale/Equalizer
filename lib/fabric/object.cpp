@@ -17,8 +17,7 @@
 
 #include "object.h"
 
-#include <eq/net/dataOStream.h>
-#include <eq/net/dataIStream.h>
+#include <eq/net/session.h>
 
 namespace eq
 {
@@ -26,73 +25,105 @@ namespace fabric
 {
 
 Object::Object()
-        : _dirty( DIRTY_NONE )
-{}
-
-Object::Object( const Object& from )
-        : net::Object()
-        , _dirty ( DIRTY_NONE )
-        , _name( from._name )
+        : _userData( 0 )
 {}
 
 Object::~Object()
+{}
+
+bool Object::isDirty() const
 {
+    if( !_userData || _userData->getID() == EQ_ID_INVALID )
+        return Serializable::isDirty();
+
+    return Serializable::isDirty() || _userData->isDirty();
 }
 
-void Object::getInstanceData( net::DataOStream& os )
+uint32_t Object::commitNB()
 {
-    os << static_cast< uint64_t >( DIRTY_ALL );
-    serialize( os, DIRTY_ALL );
-}
-
-void Object::pack( net::DataOStream& os )
-{
-    if( _dirty == DIRTY_NONE )
-        return;
-
-    os << _dirty;
-    serialize( os, _dirty );
-    _dirty = DIRTY_NONE;
-}
-
-void Object::applyInstanceData( net::DataIStream& is )
-{
-    if( is.getRemainingBufferSize() == 0 && is.nRemainingBuffers() == 0 )
-        return;
-    
-    uint64_t dirty;
-    is >> dirty;
-    deserialize( is, dirty );
+    if( _userData && _userData->isDirty() && 
+        _userData->getID() != EQ_ID_INVALID )
+    {
+        _userDataVersion.identifier = _userData->getID();
+        _userDataVersion.version = _userData->commit();
+        setDirty( DIRTY_USERDATA );
+        EQASSERT( !_userData->isDirty( ))
+    }
+    return Serializable::commitNB();
 }
 
 void Object::serialize( net::DataOStream& os, const uint64_t dirtyBits )
 {
     if( dirtyBits & DIRTY_NAME )
         os << _name;
+    if( dirtyBits & DIRTY_USERDATA )
+        os << _userDataVersion;
 }
 
 void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
     if( dirtyBits & DIRTY_NAME )
         is >> _name;
-}
+    if( dirtyBits & DIRTY_USERDATA )
+    {
+        is >> _userDataVersion;
 
-void Object::setDirty( const uint64_t bits )
-{
-    _dirty |= bits;
-}
-
-void Object::attachToSession( const uint32_t id, const uint32_t instanceID, 
-                              net::Session* session )
-{
-    net::Object::attachToSession( id, instanceID, session );
-    _dirty = DIRTY_NONE;
+        if( _userData )
+        {
+            if( _userDataVersion.identifier == EQ_ID_INVALID )
+            {
+                if( _userData && !_userData->isMaster() && 
+                    _userData->getID() != EQ_ID_INVALID )
+                {
+                    getSession()->unmapObject( _userData );
+                }
+            }
+            else
+            {
+                if( _userData->getID() == EQ_ID_INVALID )
+                    getSession()->mapObject( _userData,
+                                             _userDataVersion.identifier, 
+                                             _userDataVersion.version );
+                
+                EQASSERT( !_userData->isMaster( ));
+                EQASSERTINFO( _userData->getID() == _userDataVersion.identifier,
+                              _userData->getID() << " != " << 
+                              _userDataVersion.identifier );
+                _userData->sync( _userDataVersion.version );
+            }
+        }
+    }
+    if( isMaster( )) // redistribute changes
+        setDirty( dirtyBits & ( DIRTY_NAME | DIRTY_USERDATA ));
 }
 
 void Object::setName( const std::string& name )
 {
+    if( _name == name )
+        return;
     _name = name;
     setDirty( DIRTY_NAME );
+}
+
+void Object::setUserData( net::Object* userData )
+{
+    _userData = userData;
+    if( !userData )
+        return;
+
+    if( userData->isMaster( ))
+    {
+        _userDataVersion.identifier = userData->getID();
+        _userDataVersion.version = userData->getVersion();
+    }
+    else if( _userDataVersion.identifier != EQ_ID_INVALID &&
+             _userData->getID() == EQ_ID_INVALID )
+    {
+        net::Session* session = getSession();
+        if( session )
+            session->mapObject( _userData, _userDataVersion.identifier, 
+                                _userDataVersion.version );
+    }
 }
 
 const std::string& Object::getName() const

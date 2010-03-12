@@ -20,28 +20,29 @@
 
 #include "configVisitor.h"  // base class
 #include "types.h"
+
+// TODO move to fabric namespace once class migration is done
  
-namespace eq
-{
-namespace server
+namespace
 {
 
-template< typename T > class NameFinder : public ConfigVisitor
+template< typename T > class NameFinder : public eq::server::ConfigVisitor
 {
 public:
     NameFinder( const std::string& name ) 
             : _name( name ), _result( 0 ) {}
     virtual ~NameFinder(){}
 
-    virtual VisitorResult visitPre( T* node ) { return visit( node ); }
-    virtual VisitorResult visit( T* node )
+    virtual eq::server::VisitorResult visitPre( T* node )
+        { return visit( node ); }
+    virtual eq::server::VisitorResult visit( T* node )
         {
             if( node->getName() == _name )
             {
                 _result = node;
-                return TRAVERSE_TERMINATE;
+                return eq::server::TRAVERSE_TERMINATE;
             }
-            return TRAVERSE_CONTINUE;
+            return eq::server::TRAVERSE_CONTINUE;
         }
 
     T* getResult() { return _result; }
@@ -51,25 +52,24 @@ private:
     T*                _result;
 };
 
-typedef NameFinder< Observer > ObserverFinder;
-typedef NameFinder< const Observer > ConstObserverFinder;
+typedef NameFinder< eq::server::Observer > ObserverFinder;
+typedef NameFinder< const eq::server::Observer > ConstObserverFinder;
 
-typedef NameFinder< Layout > LayoutFinder;
-typedef NameFinder< const Layout > ConstLayoutFinder;
+typedef NameFinder< eq::server::Layout > LayoutFinder;
+typedef NameFinder< const eq::server::Layout > ConstLayoutFinder;
 
-typedef NameFinder< View > ViewFinder;
-typedef NameFinder< const View > ConstViewFinder;
+typedef NameFinder< eq::server::View > ViewFinder;
+typedef NameFinder< const eq::server::View > ConstViewFinder;
 
-typedef NameFinder< Canvas > CanvasFinder;
-typedef NameFinder< const Canvas > ConstCanvasFinder;
+typedef NameFinder< eq::server::Canvas > CanvasFinder;
+typedef NameFinder< const eq::server::Canvas > ConstCanvasFinder;
 
-typedef NameFinder< Segment > SegmentFinder;
-typedef NameFinder< const Segment > ConstSegmentFinder;
+typedef NameFinder< eq::server::Segment > SegmentFinder;
+typedef NameFinder< const eq::server::Segment > ConstSegmentFinder;
 
-typedef NameFinder< Channel > ChannelFinder;
-typedef NameFinder< const Channel > ConstChannelFinder;
+typedef NameFinder< eq::server::Channel > ChannelFinder;
+typedef NameFinder< const eq::server::Channel > ConstChannelFinder;
 
-}
 }
 
 #endif // EQSERVER_NAMEFINDER_H

@@ -23,6 +23,7 @@
 #include "paths.h"
 #include "view.h"
 
+#include <eq/fabric/paths.h>
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
 
@@ -33,33 +34,37 @@ namespace eq
 namespace server
 {
 
-Layout::Layout()
-        : _config( 0 )
-{}
-
-Layout::Layout( const Layout& from, Config* config )
-        : Object( from )
-        , _config( 0 )
+Layout::Layout( Config* parent )
+        : _config( parent )
 {
+    EQASSERT( parent );
+    parent->_addLayout( this );
+}
+
+Layout::Layout( const Layout& from, Config* parent )
+        : Object( from )
+        , _config( parent )
+{
+    EQASSERT( parent );
     for( ViewVector::const_iterator i = from._views.begin();
          i != from._views.end(); ++i )
     {
-        addView( new View( **i, config ));
+        new View( **i, this );
     }
 
-    config->addLayout( this );
-    EQASSERT( _config );
+    parent->_addLayout( this );
 }
 
 Layout::~Layout()
 {
-    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
+    while( !_views.empty( ))
     {
-        View* view = *i;
-        view->_layout = 0;
+        View* view = _views.back();
+        EQASSERT( view->getLayout() == this );
+        _removeView( view );
         delete view;
     }
-    _views.clear();
+    _config->_removeLayout( this );
 }
 
 void Layout::getInstanceData( net::DataOStream& os )
@@ -93,7 +98,7 @@ void Layout::serialize( net::DataOStream& os, const uint64_t dirtyBits )
 View* Layout::getView( const ViewPath& path )
 {
     EQASSERTINFO( _views.size() > path.viewIndex,
-                  _views.size() << " <= " << path.viewIndex );
+                  _views.size() << " <= " << path.viewIndex << " " << this );
 
     if( _views.size() <= path.viewIndex )
         return 0;
@@ -168,21 +173,21 @@ VisitorResult Layout::accept( LayoutVisitor& visitor ) const
     return _accept( this, visitor );
 }
 
-void Layout::addView( View* view )
+void Layout::_addView( View* view )
 {
     EQASSERT( view );
-    view->_layout = this;
+    EQASSERT( view->getLayout() == this );
     _views.push_back( view );
 }
 
-bool Layout::removeView( View* view )
+bool Layout::_removeView( View* view )
 {
     ViewVector::iterator i = find( _views.begin(), _views.end(), view );
     if( i == _views.end( ))
         return false;
 
+    EQASSERT( view->getLayout() == this );
     _views.erase( i );
-    view->_layout = 0;
     return true;
 }
 
@@ -223,7 +228,7 @@ std::ostream& operator << ( std::ostream& os, const Layout* layout )
 
     const ViewVector& views = layout->getViews();
     for( ViewVector::const_iterator i = views.begin(); i != views.end(); ++i )
-        os << *i;
+        os << **i;
 
     os << exdent << "}" << std::endl << enableHeader << enableFlush;
     return os;

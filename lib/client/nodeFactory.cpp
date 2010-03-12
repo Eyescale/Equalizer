@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -51,9 +51,9 @@ void NodeFactory::releaseNode( Node* node )
     delete node;
 }
 
-Observer* NodeFactory::createObserver()
+Observer* NodeFactory::createObserver( Config* parent )
 {
-    return new Observer();
+    return new Observer( parent );
 }
 void NodeFactory::releaseObserver( Observer* observer )
 {
@@ -69,9 +69,9 @@ void NodeFactory::releaseLayout( Layout* layout )
     delete layout;
 }
 
-View* NodeFactory::createView()
+View* NodeFactory::createView( Layout* parent )
 {
-    return new View();
+    return new View( parent );
 }
 void NodeFactory::releaseView( View* view )
 {

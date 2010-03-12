@@ -204,8 +204,7 @@ void ConfigTool::writeConfig() const
         global->setWindowIAttribute( eq::Window::IATTR_PLANES_STENCIL, eq::ON );
 
     ServerPtr server = new Server;
-    Config* config = new Config;
-    server->addConfig( config );
+    Config* config = new Config( server );
 
     _writeResources( config );
     _writeCompound( config );
@@ -767,10 +766,9 @@ void ConfigTool::_writeDPlex( Config* config ) const
 
 void ConfigTool::_writeWall( Config* config ) const
 {
-    Layout* layout = new Layout;
-    config->addLayout( layout );
+    Layout* layout = new Layout( config );
     layout->setName( "1x1" );
-    layout->addView( new View );
+    new View( layout );
 
     Canvas* canvas = new Canvas;
     config->addCanvas( canvas );    

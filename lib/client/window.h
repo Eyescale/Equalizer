@@ -31,6 +31,10 @@
 
 namespace eq
 {
+namespace fabric
+{
+    template< typename T, typename W > class Channel;
+}
     class OSPipe;
     class OSWindow;
     class WindowVisitor;

@@ -26,7 +26,6 @@
 #include <eq/base/monitor.h>
 
 #include "base.h"
-#include "channelVisitor.h" // template typedef
 #include "types.h"
 
 #include <eq/fabric/pixelViewport.h> // member
@@ -46,7 +45,6 @@ namespace server
 {
     class ChannelListener;
     class Window;
-    struct ChannelPath;
 
     class Channel : public fabric::Channel< Channel, Window >
     {

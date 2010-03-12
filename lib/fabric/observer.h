@@ -23,12 +23,14 @@
 #include <eq/fabric/visitorResult.h> // enum
 
 #include <string>
+#include <vector>
 
 namespace eq
 {
 namespace fabric
 {
     template< typename T > class LeafVisitor;
+    struct ObserverPath;
 
     /**
      * An Observer looks at one or more views from a certain position (head
@@ -39,6 +41,8 @@ namespace fabric
     template< typename C, typename O > class Observer : public Object
     {
     public:
+        typedef std::vector< O* > ObserverVector;
+
         /**
          * @name Data Access
          */
@@ -48,6 +52,9 @@ namespace fabric
 
         /** @return the parent config of this observer. */
         C* getConfig() { return _config; }
+
+        /** @return the index path to this observer. */
+        ObserverPath getPath() const;
 
         /** Set the eye separation of this observer. */
         EQ_EXPORT void setEyeBase( const float eyeBase );
@@ -86,9 +93,6 @@ namespace fabric
 
         /** Const-version of accept(). */
         EQFABRIC_EXPORT VisitorResult accept( LeafVisitor< O >& visitor ) const;
-
-        /** Deregister this observer from its net::Session. @internal */
-        EQ_EXPORT virtual void deregister();
         //@}
         
     protected:
@@ -96,7 +100,7 @@ namespace fabric
         EQFABRIC_EXPORT Observer( C* config );
 
         /** Construct a new copy of the observer. @internal */
-        Observer( C* config, const O& from );
+        Observer( const O& from, C* config );
 
         /** Destruct this observer. */
         EQFABRIC_EXPORT virtual ~Observer();

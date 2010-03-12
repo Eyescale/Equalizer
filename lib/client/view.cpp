@@ -22,121 +22,46 @@
 #include "pipe.h"
 #include "layout.h"
 #include "observer.h"
-#include "viewVisitor.h"
 
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
 
 namespace eq
 {
-View::View()
-        : _layout( 0 )
-        , _pipe( 0 )
-        , _observer( 0 )
-        , _overdraw( Vector2i::ZERO )
+typedef fabric::View< Layout, View, Observer > Super;
+
+View::View( Layout* parent )
+        : Super( parent )
 {
 }
 
 View::~View()
 {
-    EQASSERT( !_layout );
-    _layout = 0;
-}
-
-void View::serialize( net::DataOStream& os, const uint64_t dirtyBits )
-{
-    Frustum::serialize( os, dirtyBits );
-    if( dirtyBits & DIRTY_VIEWPORT )
-        os << _viewport;
-    if( dirtyBits & DIRTY_OBSERVER )
-        os << ( _observer ? _observer->getID() : EQ_ID_INVALID );
-    if( dirtyBits & DIRTY_OVERDRAW )
-        os << _overdraw;
 }
 
 void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
-    Frustum::deserialize( is, dirtyBits );
-    if( dirtyBits & DIRTY_VIEWPORT )
-        is >> _viewport;
-    if( dirtyBits & DIRTY_OBSERVER )
-    {
-        uint32_t id;
-        is >> id;
-
-        if( id == EQ_ID_INVALID )
-            _observer = 0;
-        else
-        {
-            Config* config = getConfig();
-            EQASSERT( config );
-            _observer = const_cast< Observer* >( config->findObserver( id ));
-        }
-    }
-    if( dirtyBits & DIRTY_OVERDRAW )
-        is >> _overdraw;
-
+    Super::deserialize( is, dirtyBits );
     if( dirtyBits == ( DIRTY_CUSTOM - 1 ))
         _baseFrustum = *this; // save baseline data for resizing
 }
 
 Config* View::getConfig()
 {
-    EQASSERT( _layout || _pipe );
+    Layout* layout = getLayout();
+    if( layout )
+        return layout->getConfig();
 
-    if( _layout )
-    {
-        EQASSERT( !_pipe );
-        return _layout->getConfig();
-    }
-
-    if( _pipe )
-    { 
-        EQASSERT( !_layout );
-        return _pipe->getConfig();
-    } 
-
-    return 0;
+    return EQSAFECAST( Config*, getSession( )) ;
 }
 
 const Config* View::getConfig() const
 {
-    EQASSERT( _layout || _pipe );
+    const Layout* layout = getLayout();
+    if( layout )
+        return layout->getConfig();
 
-    if( _layout )
-    {
-        EQASSERT( !_pipe );
-        return _layout->getConfig();
-    }
-
-    if( _pipe )
-    {
-        EQASSERT( !_layout );
-        return _pipe->getConfig();
-    }
-
-    return 0;
-}
-
-const Viewport& View::getViewport() const
-{
-    return _viewport;
-}
-
-void View::setOverdraw( const Vector2i& pixels )
-{
-    _overdraw = pixels;
-    setDirty( DIRTY_OVERDRAW );
-}
-
-VisitorResult View::accept( ViewVisitor& visitor )
-{
-    return visitor.visit( this );
-}
-
-VisitorResult View::accept( ViewVisitor& visitor ) const
-{
-    return visitor.visit( this );
+    return EQSAFECAST( const Config*, getSession( )) ;
 }
 
 bool View::handleEvent( const Event& event )
@@ -187,3 +112,8 @@ bool View::handleEvent( const Event& event )
 
 
 }
+#include "../fabric/view.cpp"
+template class eq::fabric::View< eq::Layout, eq::View, eq::Observer >;
+template std::ostream& eq::fabric::operator << ( std::ostream&,
+                const eq::fabric::View< eq::Layout, eq::View, eq::Observer >& );
+

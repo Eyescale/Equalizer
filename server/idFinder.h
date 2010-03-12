@@ -20,27 +20,28 @@
 
 #include "configVisitor.h"  // base class
 #include "types.h"
+
+// TODO move to fabric namespace once class migration is done
  
-namespace eq
-{
-namespace server
+namespace
 {
 
-template< typename T > class IDFinder : public ConfigVisitor
+template< typename T > class IDFinder : public eq::server::ConfigVisitor
 {
 public:
     IDFinder( const uint32_t id ) : _id( id ), _result( 0 ) {}
     virtual ~IDFinder(){}
 
-    virtual VisitorResult visitPre( T* node ) { return visit( node ); }
-    virtual VisitorResult visit( T* node )
+    virtual eq::server::VisitorResult visitPre( T* node )
+        { return visit( node ); }
+    virtual eq::server::VisitorResult visit( T* node )
         {
             if( node->getID() == _id )
             {
                 _result = node;
-                return TRAVERSE_TERMINATE;
+                return eq::server::TRAVERSE_TERMINATE;
             }
-            return TRAVERSE_CONTINUE;
+            return eq::server::TRAVERSE_CONTINUE;
         }
 
     T* getResult() { return _result; }
@@ -50,25 +51,24 @@ private:
     T*             _result;
 };
 
-typedef IDFinder< Observer > ObserverIDFinder;
-typedef IDFinder< const Observer > ConstObserverIDFinder;
+typedef IDFinder< eq::server::Observer > ObserverIDFinder;
+typedef IDFinder< const eq::server::Observer > ConstObserverIDFinder;
 
-typedef IDFinder< Layout > LayoutIDFinder;
-typedef IDFinder< const Layout > ConstLayoutIDFinder;
+typedef IDFinder< eq::server::Layout > LayoutIDFinder;
+typedef IDFinder< const eq::server::Layout > ConstLayoutIDFinder;
 
-typedef IDFinder< View > ViewIDFinder;
-typedef IDFinder< const View > ConstViewIDFinder;
+typedef IDFinder< eq::server::View > ViewIDFinder;
+typedef IDFinder< const eq::server::View > ConstViewIDFinder;
 
-typedef IDFinder< Canvas > CanvasIDFinder;
-typedef IDFinder< const Canvas > ConstCanvasIDFinder;
+typedef IDFinder< eq::server::Canvas > CanvasIDFinder;
+typedef IDFinder< const eq::server::Canvas > ConstCanvasIDFinder;
 
-typedef IDFinder< Segment > SegmentIDFinder;
-typedef IDFinder< const Segment > ConstSegmentIDFinder;
+typedef IDFinder< eq::server::Segment > SegmentIDFinder;
+typedef IDFinder< const eq::server::Segment > ConstSegmentIDFinder;
 
-typedef IDFinder< Channel > ChannelIDFinder;
-typedef IDFinder< const Channel > ConstChannelIDFinder;
+typedef IDFinder< eq::server::Channel > ChannelIDFinder;
+typedef IDFinder< const eq::server::Channel > ConstChannelIDFinder;
 
-}
 }
 
 #endif // EQSERVER_IDFINDER_H

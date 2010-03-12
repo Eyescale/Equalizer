@@ -38,6 +38,7 @@
 #include "view.h"
 #include "window.h"
 
+#include <eq/fabric/paths.h>
 #include <eq/base/base.h>
 #include <eq/base/file.h>
 #include <string>
@@ -501,18 +502,8 @@ serverConnection: EQTOKEN_CONNECTION
             }
 
 configs: config | configs config
-config: EQTOKEN_CONFIG '{'
-            {
-                config = new eq::server::Config();
-                if( server.isValid( )) 
-                    server->addConfig( config ); 
-            }
-        configFields
-        '}' {
-                if( server.isValid( )) 
-                    config = 0;
-                // else leave config for Loader::parseConfig()
-            }
+config: EQTOKEN_CONFIG '{' { config = new eq::server::Config( server ); }
+        configFields '}' { config = 0; }
 configFields: /*null*/ | configFields configField
 configField:
     node
@@ -697,22 +688,22 @@ channelAttribute:
                                   $2 ); }
 
 
-observer: EQTOKEN_OBSERVER '{' { observer = new eq::server::Observer; }
-            observerFields '}' { config->addObserver( observer ); observer = 0;}
+observer: EQTOKEN_OBSERVER '{' { observer = new eq::server::Observer( config );}
+            observerFields '}' { observer = 0; }
 observerFields: /*null*/ | observerFields observerField
 observerField:
     EQTOKEN_NAME STRING { observer->setName( $2 ); }
     | EQTOKEN_EYE_BASE FLOAT { observer->setEyeBase( $2 ); }
 
-layout: EQTOKEN_LAYOUT '{' { layout = new eq::server::Layout; }
-            layoutFields '}' { config->addLayout( layout ); layout = 0; }
+layout: EQTOKEN_LAYOUT '{' { layout = new eq::server::Layout( config ); }
+            layoutFields '}' { layout = 0; }
 layoutFields: /*null*/ | layoutFields layoutField
 layoutField:
     EQTOKEN_NAME STRING { layout->setName( $2 ); }
     | view
 
-view: EQTOKEN_VIEW '{' { view = new eq::server::View; }
-          viewFields '}' { layout->addView( view ); view = 0; }
+view: EQTOKEN_VIEW '{' { view = new eq::server::View( layout ); }
+          viewFields '}' { view = 0; }
 viewFields: /*null*/ | viewFields viewField
 viewField:
     EQTOKEN_NAME STRING { view->setName( $2 ); }
@@ -1276,12 +1267,6 @@ void Loader::_parseString( const char* data )
         loader::server = 0;
 
     eq::loader::loader = 0;
-}
-
-Config* Loader::parseConfig( const char* data )
-{
-    _parseString( data );
-    return config;
 }
 
 ServerPtr Loader::parseServer( const char* data )

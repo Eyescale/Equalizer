@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -31,8 +31,10 @@ namespace eq
 namespace server
 {
 
-Observer::Observer()
-        : _config( 0 )
+typedef fabric::Observer< Config, Observer > Super;
+
+Observer::Observer( Config* parent )
+        : Super( parent )
         , _inverseHeadMatrix( Matrix4f::IDENTITY )
 {
 #ifdef EQ_USE_DEPRECATED
@@ -41,13 +43,10 @@ Observer::Observer()
     _updateEyes();
 }
 
-Observer::Observer( const Observer& from, Config* config )
-        : eq::Observer( from )
-        , _config( 0 )
+Observer::Observer( const Observer& from, Config* parent )
+        : Super( from, parent )
         , _inverseHeadMatrix( from._inverseHeadMatrix )
 {
-    config->addObserver( this );
-    EQASSERT( _config );
     _updateEyes();
 }
 
@@ -68,26 +67,12 @@ void Observer::getInstanceData( net::DataOStream& os )
 
 void Observer::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
-    eq::Observer::deserialize( is, dirtyBits );
+    Super::deserialize( is, dirtyBits );
 
     if( dirtyBits & ( DIRTY_EYE_BASE | DIRTY_HEAD ))
         _updateEyes();
     if( dirtyBits & DIRTY_HEAD )
         getHeadMatrix().inverse( _inverseHeadMatrix );
-}
-
-ObserverPath Observer::getPath() const
-{
-    EQASSERT( _config );
-    
-    const ObserverVector&  observers = _config->getObservers();
-    ObserverVector::const_iterator i = std::find( observers.begin(), 
-                                                  observers.end(), this );
-    EQASSERT( i != observers.end( ));
-
-    ObserverPath path;
-    path.observerIndex = std::distance( observers.begin(), i );
-    return path;
 }
 
 void Observer::unmap()
@@ -133,3 +118,7 @@ void Observer::_updateEyes()
 
 }
 }
+#include "../lib/fabric/observer.cpp"
+template class eq::fabric::Observer< eq::server::Config, eq::server::Observer >;
+template std::ostream& eq::fabric::operator << ( std::ostream&,
+      const eq::fabric::Observer< eq::server::Config, eq::server::Observer >* );

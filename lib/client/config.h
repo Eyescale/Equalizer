@@ -20,11 +20,10 @@
 #define EQ_CONFIG_H
 
 #include <eq/client/commandQueue.h>  // member
-#include <eq/client/observer.h>      // member
 #include <eq/client/types.h>         // typedefs
 #include <eq/client/visitorResult.h> // enum
 
-#include <eq/net/session.h>          // base class
+#include <eq/fabric/config.h>        // base class
 #include <eq/base/monitor.h>         // member
 
 namespace eq
@@ -32,7 +31,7 @@ namespace eq
     class ConfigDeserializer;
     class ConfigVisitor;
     class Node;
-    class SceneObject;
+    class Observer;
     struct ConfigEvent;
 
     /**
@@ -55,7 +54,7 @@ namespace eq
      * The render client processes have only access to the current View for each
      * of their channels.
      */
-    class Config : public net::Session
+    class Config : public fabric::Config< Server, Config, Observer >
     {
     public:
         /** Construct a new config. @version 1.0 */
@@ -71,9 +70,6 @@ namespace eq
 
         /** @return the local client node. @version 1.0 */
         EQ_EXPORT ClientPtr getClient();
-        
-        /** @return the local server proxy. @version 1.0 */
-        EQ_EXPORT ServerPtr getServer();
 
         /** @internal */
         EQ_EXPORT CommandQueue* getNodeThreadQueue();
@@ -106,15 +102,6 @@ namespace eq
          * @version 1.0
          */
         const NodeVector& getNodes() const { return _nodes; }
-
-        /** @return the vector of observers, app-node only. @version 1.0 */
-        const ObserverVector& getObservers() const { return _observers; }
-
-        /** @return the observer of the given identifier, or 0. @version 1.0 */
-        Observer* findObserver( const uint32_t id );
-
-        /** @return the observer of the given identifier, or 0. @version 1.0 */
-        const Observer* findObserver( const uint32_t id ) const;
 
         /** @return the vector of layouts, app-node only. @version 1.0 */
         const LayoutVector& getLayouts() const { return _layouts; }
@@ -386,9 +373,6 @@ namespace eq
         /** Locally-instantiated nodes of this config. */
         NodeVector _nodes;
 
-        /** The list of observers, app-node only. */
-        ObserverVector _observers;
-
         /** The list of layouts, app-node only. */
         LayoutVector _layouts;
 
@@ -431,7 +415,7 @@ namespace eq
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
         friend class Node;
@@ -441,8 +425,6 @@ namespace eq
         void _frameStart();
 
         friend class ConfigDeserializer;
-        void _addObserver( Observer* observer );
-        void _removeObserver( Observer* observer );
         void _addLayout( Layout* layout );
         void _removeLayout( Layout* layout );
         void _addCanvas( Canvas* canvas );

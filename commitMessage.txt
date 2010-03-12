@@ -1,9 +1,13 @@
-Update git ignore
+Move Config, View and Observer to fabric namespace
+Forbid subclassing for data distribution of View (and other Eq entities):
+- The master instance has to be on the server for various reasons
+- The server does not know how to deserialize application data
+- A new 'userdata' object can be attached to distribute data (see eqPly::View)
 
-[ ] Will break build
-[ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[x] Will break build
+[x] May break existing applications
+[ ] Bugfix
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

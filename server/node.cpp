@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>    
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -29,9 +29,10 @@
 #include "server.h"
 #include "window.h"
 
+#include <eq/client/packets.h>
+#include <eq/fabric/paths.h>
 #include <eq/net/barrier.h>
 #include <eq/net/command.h>
-#include <eq/client/packets.h>
 
 namespace eq
 {

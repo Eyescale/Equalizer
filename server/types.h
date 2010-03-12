@@ -29,6 +29,18 @@ namespace fabric
 class Projection;
 class RenderContext;
 class Wall;
+
+struct NodePath;
+struct PipePath;
+struct WindowPath;
+struct ChannelPath;
+struct CanvasPath;
+struct SegmentPath;
+struct ObserverPath;
+struct LayoutPath;
+struct ViewPath;
+
+template< typename T > class LeafVisitor;
 }
 
 namespace server
@@ -75,6 +87,26 @@ typedef fabric::Vector3ub Vector3ub; //!< A three-component byte vector
 typedef fabric::Projection Projection;
 typedef fabric::RenderContext RenderContext;
 typedef fabric::Wall Wall;
+
+typedef fabric::NodePath NodePath;
+typedef fabric::PipePath PipePath;
+typedef fabric::WindowPath WindowPath;
+typedef fabric::ChannelPath ChannelPath;
+typedef fabric::CanvasPath CanvasPath;
+typedef fabric::SegmentPath SegmentPath;
+typedef fabric::ObserverPath ObserverPath;
+typedef fabric::LayoutPath LayoutPath;
+typedef fabric::ViewPath ViewPath;
+
+/** A visitor to traverse channels. @sa Channel::accept() */
+typedef fabric::LeafVisitor< Channel > ChannelVisitor;
+
+/** A visitor to traverse views. @sa View::accept() */
+typedef fabric::LeafVisitor< View > ViewVisitor;
+
+/** A visitor to traverse views. @sa View::accept() */
+typedef fabric::LeafVisitor< Observer > ObserverVisitor;
+
 }
 }
 #endif // EQSERVER_TYPES_H

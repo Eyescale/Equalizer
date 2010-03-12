@@ -19,10 +19,9 @@
 #define EQSERVER_VIEW_H
 
 #include "paths.h"
-#include "viewVisitor.h"        // used in inline method
 #include "types.h"
 
-#include <eq/client/view.h>     // base class
+#include <eq/fabric/view.h>     // base class
 #include <eq/fabric/viewport.h> // member
 
 namespace eq
@@ -35,46 +34,23 @@ namespace server
     /** 
      * Extends the eq::View to implement server-side logic.
      */
-    class View : public eq::View
+    class View : public fabric::View< Layout, View, Observer >
     {
     public:
-        EQSERVER_EXPORT View();
+        EQSERVER_EXPORT View( Layout* parent );
 
-        /** Creates a new, deep copy of a view. */
-        View( const View& from, Config* config );
+        /** Create a new, deep copy of a view. */
+        View( const View& from, Layout* parent );
 
         virtual ~View();
 
-        /** @name Operations */
-        //@{
-        /** 
-         * Traverse this view using a view visitor.
-         * 
-         * @param visitor the visitor.
-         * @return the result of the visitor traversal.
-         */
-        VisitorResult accept( ViewVisitor& visitor )
-            { return visitor.visit( this ); }
-        VisitorResult accept( ViewVisitor& visitor ) const
-            { return visitor.visit( this ); }
-        //@}
-        
         /** @name Data Access. */
         //@{
-        /** Set the area covered by this wrt it parent Layout. */
-        void setViewport( const Viewport& viewport );
-
         /** @return the config of this view. */
         Config* getConfig();
 
         /** @return the config of this view. */
         const Config* getConfig() const;
-
-        /** @return the layout of this view. */
-        Layout* getLayout() { return _layout; }
-
-        /** @return the layout of this view. */
-        const Layout* getLayout() const { return _layout; }
 
         /** @return the index path to this view. */
         ViewPath getPath() const;
@@ -97,9 +73,6 @@ namespace server
         
         /** @return the vector of channels. */
         const ChannelVector& getChannels() const{ return _channels; }
-
-        /** Set the entity tracking this view. */
-        void setObserver( Observer* observer );
         //@}
 
     protected:
@@ -108,22 +81,15 @@ namespace server
                                   const uint64_t dirtyBits );
 
     private:
-        virtual void getInstanceData( net::DataOStream& os );
-
-        /** The parent Layout. */
-        Layout* _layout;
-        friend class Layout;
 
         /** The list of channels. */
         ChannelVector _channels;
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
     };
-
-    std::ostream& operator << ( std::ostream& os, const View* view );
 }
 }
 #endif // EQSERVER_VIEW_H

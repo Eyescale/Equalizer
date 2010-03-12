@@ -18,7 +18,6 @@
 #include "channel.h"
 
 #include "channelStatistics.h"
-#include "channelVisitor.h"
 #include "client.h"
 #include "compositor.h"
 #include "commands.h"
@@ -1242,5 +1241,4 @@ net::CommandResult Channel::_cmdFrameViewFinish( net::Command& command )
 
 #include "../fabric/channel.cpp"
 template class eq::fabric::Channel< eq::Channel, eq::Window >;
-
 

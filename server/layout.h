@@ -26,11 +26,13 @@
 
 namespace eq
 {
+namespace fabric
+{
+    template< class L, class V, class O > class View;
+}
 namespace server
 {
     class LayoutVisitor;
-    struct LayoutPath;
-    struct ViewPath;
 
     /**
      * The layout. @sa eq::Layout
@@ -41,10 +43,10 @@ namespace server
         /** 
          * Constructs a new Layout.
          */
-        EQSERVER_EXPORT Layout();
+        EQSERVER_EXPORT Layout( Config* parent );
 
         /** Creates a new, deep copy of a layout. */
-        Layout( const Layout& from, Config* config );
+        Layout( const Layout& from, Config* parent );
 
         /** Destruct this layout. */
         virtual ~Layout();
@@ -53,12 +55,6 @@ namespace server
          * @name Data Access
          */
         //@{
-        /** Add a new view to this layout. */
-        EQSERVER_EXPORT void addView( View* view );
-        
-        /** remove the view from this layout. */
-        bool removeView( View* view );
-        
         /** Get the list of views. */
         const ViewVector& getViews() const { return _views; }
 
@@ -107,15 +103,18 @@ namespace server
         virtual void getInstanceData( net::DataOStream& os );
 
         /** The parent Config. */
-        Config* _config;
-        friend class Config;
+        Config* const _config;
 
         /** Child views on this layout. */
         ViewVector _views;
 
+        friend class fabric::View< Layout, View, Observer >;
+        void _addView( View* view );
+        bool _removeView( View* view );
+        
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
     };
 

@@ -25,6 +25,10 @@
 
 namespace eq
 {
+namespace fabric
+{
+    template< class S, class C, class O > class Config;
+}
     class Client;
     class Config;
     class ConfigParams;
@@ -75,6 +79,9 @@ namespace eq
 
         /** Undocumented - may not be supported in the future */
         EQ_EXPORT bool shutdown();
+        
+        /** @return the vector of configurations. */
+        const ConfigVector& getConfigs() const { return _configs; }
 
     protected:
         /**
@@ -87,6 +94,9 @@ namespace eq
         ClientPtr _client;
         friend class Client; // to call invokeCommand()
 
+        /** The list of configurations. */
+        ConfigVector _configs;
+
         /** Process-local server */
         bool _localServer;
 
@@ -97,6 +107,13 @@ namespace eq
 
         /** @sa net::Node::getType */
         virtual uint32_t getType() const { return TYPE_EQ_SERVER; }
+
+        friend class fabric::Config< Server, Config, Observer >;
+        /**  Add a new config to this server. */
+        void _addConfig( Config* config );
+
+        /** Remove a config from this server. */
+        bool _removeConfig( Config* config );
 
         /* The command handler functions. */
         net::CommandResult _cmdCreateConfig( net::Command& command );

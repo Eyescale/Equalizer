@@ -34,8 +34,6 @@ namespace eq
 namespace server
 {
     class PipeVisitor;
-    struct ChannelPath;
-    struct PipePath;
 
     /**
      * The pipe.
@@ -65,8 +63,8 @@ namespace server
          */
         Pipe( const Pipe& from, Node* node );
 
-        Server* getServer();
-        const Server* getServer() const;
+        ServerPtr getServer();
+        const ServerPtr getServer() const;
 
         Node*       getNode()       { return _node; }
         const Node* getNode() const { return _node; }

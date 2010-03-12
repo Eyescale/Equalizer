@@ -16,6 +16,7 @@
  */
 
 #include "channel.h"
+#include "leafVisitor.h"
 #include "task.h"
 
 #include <eq/net/dataOStream.h>

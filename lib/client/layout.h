@@ -30,6 +30,11 @@ namespace server
 {
     class Layout;
 }
+namespace fabric
+{
+    template< class L, class V, class O > class View;
+}
+
     class Config;
     class LayoutVisitor;
 
@@ -112,6 +117,8 @@ namespace server
 
 
         void _deregister();
+
+        friend class fabric::View< Layout, View, Observer >;
         void _addView( View* view );
         bool _removeView( View* view );
     };

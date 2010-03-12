@@ -48,8 +48,8 @@ namespace eq
                 return TRAVERSE_PRUNE; // no need to visit segments
             }
         virtual VisitorResult visit( View* view )
-            { 
-                _commit( view );
+            {
+                static_cast< net::Object*>( view )->commit();
                 return TRAVERSE_CONTINUE; 
             }
         
@@ -64,12 +64,12 @@ namespace eq
         
         void _commit( net::Object* object )
             {
-                const uint32_t oldVersion = object->getVersion();
-                const uint32_t newVersion = object->commit();
+                if( !object->isDirty( ))
+                    return;
 
-                if( oldVersion != newVersion )
-                    _changes.push_back( net::ObjectVersion( object->getID(),
-                                                            newVersion ));
+                const uint32_t version = object->commit();
+                _changes.push_back( net::ObjectVersion( object->getID(),
+                                                        version ));
             }
     };
 }

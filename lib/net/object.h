@@ -167,7 +167,7 @@ namespace net
          * @return the new head version.
          * @sa commitNB, commitSync
          */
-        EQ_EXPORT virtual uint32_t commit();
+        EQ_EXPORT uint32_t commit();
 
         /** 
          * Start committing a new version of this object.
@@ -178,7 +178,7 @@ namespace net
          * @return the commit identifier to be passed to commitSync
          * @sa commitSync
          */
-        EQ_EXPORT uint32_t commitNB();
+        EQ_EXPORT virtual uint32_t commitNB();
         
         /** 
          * Finalizes a commit transaction.
@@ -186,7 +186,7 @@ namespace net
          * @param commitID the commit identifier returned from commitNB
          * @return the new head version.
          */
-        EQ_EXPORT uint32_t commitSync( const uint32_t commitID );
+        EQ_EXPORT virtual uint32_t commitSync( const uint32_t commitID );
 
         /** 
          * Explicitly obsoletes all versions including version.

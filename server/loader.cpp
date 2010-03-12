@@ -127,10 +127,10 @@ static void _addDestinationViews( Compound* compound )
         if( channel->getView( ))
             return;
         
-        Layout* layout = new Layout;
-        View*   view   = new View;
+        Config* config = compound->getConfig();
+        Layout* layout = new Layout( config );
+        View*   view   = new View( layout );
         *static_cast< eq::Frustum* >( view ) = compound->getFrustum();
-        layout->addView( view );
         
         Canvas* canvas = new Canvas;
         canvas->addLayout( layout );
@@ -139,8 +139,6 @@ static void _addDestinationViews( Compound* compound )
         segment->setChannel( channel );
         canvas->addSegment( segment );
         
-        Config* config = compound->getConfig();
-        config->addLayout( layout );
         config->addCanvas( canvas );
         
         Channel* newChannel = config->findChannel( segment, view );
@@ -172,11 +170,11 @@ static void _addDestinationViews( Compound* compound )
     if( segments.empty( ))
         return;
 
-    Layout* layout = new Layout;
-    View*   view   = new View;
-    layout->addView( view );
-        
+    Config* config = compound->getConfig();
+    Layout* layout = new Layout( config );
+    View*   view   = new View( layout );        
     Canvas* canvas = new Canvas;
+
     canvas->addLayout( layout );
     *static_cast< eq::Frustum* >( canvas ) = compound->getFrustum();
     
@@ -193,8 +191,6 @@ static void _addDestinationViews( Compound* compound )
         canvas->addSegment( segment );
     }
 
-    Config* config = compound->getConfig();
-    config->addLayout( layout );
     config->addCanvas( canvas );
 
     for( size_t i = 0; i < segments.size(); ++i )
@@ -243,7 +239,7 @@ class AddObserverVisitor : public ServerVisitor
             if( !observers.empty( ))
                 return TRAVERSE_PRUNE;
 
-            config->addObserver( new Observer );
+            new Observer( config );
             return TRAVERSE_CONTINUE;            
         }
 

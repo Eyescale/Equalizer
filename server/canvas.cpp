@@ -29,6 +29,7 @@
 #include "segment.h"
 #include "window.h"
 
+#include <eq/fabric/paths.h>
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
 

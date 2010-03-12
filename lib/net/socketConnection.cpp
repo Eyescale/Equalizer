@@ -363,7 +363,7 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
                                 &flags, &_overlapped, 0 );
     if( result == 0 ) // got data already
     {
-		if( _overlappedDone == 0 ) // socket closed
+        if( _overlappedDone == 0 ) // socket closed
         {
             EQINFO << "Got EOF, closing connection" << std::endl;
             close();

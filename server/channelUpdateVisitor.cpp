@@ -30,6 +30,7 @@
 #include "channel.ipp"
 
 #include <eq/client/log.h>
+#include <eq/fabric/paths.h>
 
 namespace eq
 {
@@ -387,8 +388,7 @@ Vector3f ChannelUpdateVisitor::_getEyePosition( const Compound* compound )
     const FrustumData& frustumData = compound->getInheritFrustumData();
     const Channel* destChannel = compound->getInheritChannel();
     const View* view = destChannel->getView();
-    const Observer* observer = static_cast< const Observer* >(
-        view ? view->getObserver() : 0 );
+    const Observer* observer = view ? view->getObserver() : 0;
 
     if( observer && frustumData.getType() == Wall::TYPE_FIXED )
         return observer->getEyePosition( _eye );

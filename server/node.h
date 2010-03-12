@@ -34,8 +34,6 @@ namespace eq
 namespace server
 {
     class NodeVisitor;
-    struct ChannelPath;
-    struct NodePath;
 
     /**
      * The node.
@@ -68,7 +66,7 @@ namespace server
         /** @name Data Access. */
         //@{
         Config* getConfig() const { return _config; }
-        Server* getServer() const
+        ServerPtr getServer() const
             { return _config ? _config->getServer() : 0; }
 
         net::NodePtr getNode() const { return _node; }

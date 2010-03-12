@@ -23,37 +23,25 @@
 #include "configVisitor.h"
 #include "layout.h"
 #include "observer.h"
-#include "paths.h"
 
+#include <eq/fabric/paths.h>
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
-
-using namespace eq::base;
 
 namespace eq
 {
 namespace server
 {
+typedef  fabric::View< Layout, View, Observer > Super;
 
-View::View()
-        : _layout( 0 )
+View::View( Layout* parent )
+        : Super( parent )
 {
 }
 
-View::View( const View& from, Config* config )
-        : eq::View( from )
-        , _layout( 0 )
+View::View( const View& from, Layout* parent )
+        : Super( from, parent )
 {
-    if( from._observer )
-    {
-        const Observer* oldObserver = static_cast< const Observer* >( 
-            from._observer );
-        const ObserverPath path( oldObserver->getPath( ));
-
-        _observer = config->getObserver( path );
-        EQASSERT( _observer );
-    }
-
     // _channels will be added by Segment copy ctor
 }
 
@@ -70,21 +58,6 @@ View::~View()
 
     EQASSERT( _channels.empty( ));
     _channels.clear();
-
-    if( _layout )
-        _layout->removeView( this );
-    _layout = 0;
-}
-
-void View::getInstanceData( net::DataOStream& os )
-{
-    // This function is overwritten from eq::Object, since the class is
-    // intended to be subclassed on the client side. When serializing a
-    // server::View, we only transmit the effective bits, not all since that
-    // potentially includes bits from subclassed eq::Views.
-    const uint64_t dirty = DIRTY_CUSTOM - 1;
-    os << dirty;
-    serialize( os, dirty );
 }
 
 namespace
@@ -119,14 +92,9 @@ private:
 
 void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
-    eq::View::deserialize( is, dirtyBits );
-
-    const uint64_t left = is.getRemainingBufferSize();
-    is.advanceBuffer( left );
-    EQASSERTINFO( is.getRemainingBufferSize() == 0,
-                  "The view object serializes a lot of data. This is not " <<
-                  "recommended for performance, since the server also " <<
-                  "receives the data" );
+    EQASSERT( isMaster( ));
+    Super::deserialize( is, dirtyBits );
+    setDirty( dirtyBits ); // redistribute slave changes
 
     if( dirtyBits & ( DIRTY_WALL | DIRTY_PROJECTION | DIRTY_OVERDRAW ))
     {
@@ -139,22 +107,18 @@ void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     }
 }
 
-void View::setViewport( const Viewport& viewport )
-{
-    _viewport = viewport;
-    setDirty( DIRTY_VIEWPORT );
-}
-
 Config* View::getConfig()
 {
-    EQASSERT( _layout );
-    return _layout ? _layout->getConfig() : 0;
+    Layout* layout = getLayout();
+    EQASSERT( layout );
+    return layout ? layout->getConfig() : 0;
 }
 
 const Config* View::getConfig() const
 {
-    EQASSERT( _layout );
-    return _layout ? _layout->getConfig() : 0;
+    const Layout* layout = getLayout();
+    EQASSERT( layout );
+    return layout ? layout->getConfig() : 0;
 }
 
 void View::addChannel( Channel* channel )
@@ -177,10 +141,11 @@ bool View::removeChannel( Channel* channel )
 
 ViewPath View::getPath() const
 {
-    EQASSERT( _layout );
-    ViewPath path( _layout->getPath( ));
+    const Layout* layout = getLayout();
+    EQASSERT( layout );
+    ViewPath path( layout->getPath( ));
     
-    const ViewVector&   views = _layout->getViews();
+    const ViewVector& views = layout->getViews();
     ViewVector::const_iterator i = std::find( views.begin(),
                                               views.end(), this );
     EQASSERT( i != views.end( ));
@@ -188,61 +153,14 @@ ViewPath View::getPath() const
     return path;
 }
 
-void View::setObserver( Observer* observer )
-{
-    if( _observer == observer )
-        return;
-
-    _observer = observer;
-    setDirty( DIRTY_OBSERVER );
-}
-
-std::ostream& operator << ( std::ostream& os, const View* view )
-{
-    if( !view )
-        return os;
-    
-    os << disableFlush << disableHeader << "view" << std::endl;
-    os << "{" << std::endl << indent;
-    
-    const std::string& name = view->getName();
-    if( !name.empty( ))
-        os << "name     \"" << name << "\"" << std::endl;
-
-    const eq::Viewport& vp  = view->getViewport();
-    if( vp.isValid( ) && vp != eq::Viewport::FULL )
-        os << "viewport " << vp << std::endl;
-
-    const Observer* observer = static_cast< const Observer* >(
-        view->getObserver( ));
-    if( observer )
-    {
-        const Config* config = view->getConfig();
-        const std::string& observerName = observer->getName();
-        if( observerName.empty() ||
-            config->findObserver( observerName ) != observer )
-        {
-            os << observer->getPath() << std::endl;
-        }
-        else
-            os << "observer \"" << observer->getName() << "\"" << std::endl;
-    } 
-
-    switch( view->getCurrentType( ))
-    {
-        case eq::View::TYPE_WALL:
-            os << view->getWall() << std::endl;
-            break;
-        case eq::View::TYPE_PROJECTION:
-            os << view->getProjection() << std::endl;
-            break;
-        default: 
-            break;
-    }
-
-    os << exdent << "}" << std::endl << enableHeader << enableFlush;
-    return os;
-}
-
 }
 }
+
+#include "../lib/fabric/view.cpp"
+
+template class eq::fabric::View< eq::server::Layout, eq::server::View,
+                                 eq::server::Observer >;
+template std::ostream& eq::fabric::operator << ( std::ostream&,
+                         const eq::fabric::View< eq::server::Layout,
+                                                 eq::server::View,
+                                                 eq::server::Observer >& );

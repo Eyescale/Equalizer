@@ -33,22 +33,26 @@ namespace server
                 : _nChanges( nChanges ), _changes( changes ), _current( 0 ) {}
         virtual ~ConfigSyncVisitor() {}
 
+    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
     virtual VisitorResult visit( Observer* observer )
         {
-            return _sync( observer );
+            _sync( observer );
+            return TRAVERSE_CONTINUE;
         }
     virtual VisitorResult visitPre( Canvas* canvas )
         {
-            return _sync( canvas );
+            _sync( canvas );
+            return TRAVERSE_CONTINUE;
         }
     virtual VisitorResult visit( View* view )
-        { 
-            return _sync( view );
-        }
-    virtual VisitorResult visitPost( Config* config )
-        { 
-            EQUNREACHABLE;
+        {
+            view->sync();
             return TRAVERSE_CONTINUE;
+        }
+    virtual VisitorResult visitPre( Compound* compound )
+        {
+            EQASSERT( _current == _nChanges );
+            return TRAVERSE_TERMINATE;
         }
  
     private:
@@ -56,20 +60,19 @@ namespace server
         const net::ObjectVersion* _changes;
         uint32_t                  _current;
 
-        VisitorResult _sync( net::Object* object )
+        void _sync( net::Object* object )
             {
+                if( _current == _nChanges )
+                    return;
+
                 EQASSERT( _current < _nChanges );
                 const net::ObjectVersion& change = _changes[ _current ];
 
                 if( change.identifier != object->getID( ))
-                    return TRAVERSE_CONTINUE;
+                    return;
 
                 object->sync( change.version );
                 ++_current;
-
-                if( _current == _nChanges )
-                    return TRAVERSE_TERMINATE; // all done
-                return TRAVERSE_CONTINUE;
             }
     };
 }

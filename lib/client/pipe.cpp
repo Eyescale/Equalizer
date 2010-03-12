@@ -417,8 +417,7 @@ View* Pipe::getView( const net::ObjectVersion& viewVersion )
     if( !view )
     {
         NodeFactory* nodeFactory = Global::getNodeFactory();
-        view = nodeFactory->createView();
-        view->_pipe = this;
+        view = nodeFactory->createView( 0 );
 
         net::Session* session = const_cast< net::Session* >( getSession( ));
         EQCHECK( session->mapObject( view, viewVersion.identifier ));

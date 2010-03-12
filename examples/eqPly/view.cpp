@@ -22,11 +22,14 @@
 namespace eqPly
 {
 
-View::View()
-        : eq::View()
+View::View( eq::Layout* parent )
+        : eq::View( parent )
+        , _proxy( this )
         , _modelID( EQ_ID_INVALID )
         , _idleSteps( 0 )
-{}
+{
+    setUserData( &_proxy );
+}
 
 View::~View()
 {
@@ -34,38 +37,46 @@ View::~View()
     _idleSteps = 0;
 }
 
-void View::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
+void View::Proxy::serialize( eq::net::DataOStream& os, const
+                               uint64_t dirtyBits )
 {
-    eq::View::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_MODEL )
-        os << _modelID;
+        os << _view->_modelID;
     if( dirtyBits & DIRTY_IDLE )
-        os << _idleSteps;
+        os << _view->_idleSteps;
 }
 
-void View::deserialize( eq::net::DataIStream& is, const uint64_t dirtyBits )
+void View::Proxy::deserialize( eq::net::DataIStream& is,
+                               const uint64_t dirtyBits )
 {
-    eq::View::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_MODEL )
-        is >> _modelID;
+        is >> _view->_modelID;
     if( dirtyBits & DIRTY_IDLE )
     {
-        is >> _idleSteps;
+        is >> _view->_idleSteps;
         if( isMaster( ))
             setDirty( DIRTY_IDLE ); // redistribute slave settings
     }
 }
 
+void View::deserialize( eq::net::DataIStream& is,
+                               const uint64_t dirtyBits )
+{
+    eq::View::deserialize( is, dirtyBits );
+    if( getLayout( )) // app view instance
+        getSession()->registerObject( &_proxy );
+}
+
 void View::setModelID( const uint32_t id )
 {
     _modelID = id;
-    setDirty( DIRTY_MODEL );
+    _proxy.setDirty( Proxy::DIRTY_MODEL );
 }
 
 void View::setIdleSteps( const uint32_t steps )
 {
     _idleSteps = steps;
-    setDirty( DIRTY_IDLE );
+    _proxy.setDirty( Proxy::DIRTY_IDLE );
 }
 
 }

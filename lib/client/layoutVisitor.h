@@ -18,7 +18,8 @@
 #ifndef EQ_LAYOUTVISITOR_H
 #define EQ_LAYOUTVISITOR_H
 
-#include <eq/client/viewVisitor.h> // base class
+#include <eq/client/types.h>
+#include <eq/fabric/leafVisitor.h> // base class
 
 namespace eq
 {

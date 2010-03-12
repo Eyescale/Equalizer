@@ -57,22 +57,13 @@ void Layout::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     {
         EQASSERT( _views.empty( ));
         EQASSERT( _config );
-        const uint32_t latency = _config->getLatency();
 
         NodeFactory* nodeFactory = Global::getNodeFactory();
         uint32_t id;
         for( is >> id; id != EQ_ID_INVALID; is >> id )
         {
-            View* view = nodeFactory->createView();
-            view->_layout = this;
-            _views.push_back( view );
-
+            View* view = nodeFactory->createView( this );
             _config->mapObject( view, id );
-            view->becomeMaster();
-            
-            // Note: Views are potentially mapped by source channels in
-            // frameFoo(), which means that we have to keep #latency copies
-            view->setAutoObsolete( latency );
         }
     }
 }
@@ -84,18 +75,16 @@ void Layout::_deregister()
 
     NodeFactory* nodeFactory = Global::getNodeFactory();
 
-    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
+    while( !_views.empty( ))
     {
-        View* view = *i;
+        View* view = _views.back();
         EQASSERT( view->getID() != EQ_ID_INVALID );
-        EQASSERT( view->isMaster( ));
 
-        _config->deregisterObject( view );
-        view->_layout = 0;
+        _config->unmapObject( view );
+        _removeView( view );
         nodeFactory->releaseView( view );
     }
 
-    _views.clear();
     _config->unmapObject( this );
 }
 
@@ -156,7 +145,7 @@ VisitorResult Layout::accept( LayoutVisitor& visitor ) const
 void Layout::_addView( View* view )
 {
     EQASSERT( view );
-    view->_layout = this;
+    EQASSERT( view->getLayout() == this );
     _views.push_back( view );
 }
 
@@ -166,8 +155,8 @@ bool Layout::_removeView( View* view )
     if( i == _views.end( ))
         return false;
 
+    EQASSERT( view->getLayout() == this );
     _views.erase( i );
-    view->_layout = 0;
     return true;
 }
 

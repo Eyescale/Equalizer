@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,6 +22,7 @@
 #include "global.h"
 #include "layout.h"
 #include "nodeFactory.h"
+#include "observer.h"
 #include "view.h"
 
 #include <eq/net/dataIStream.h>
@@ -68,12 +69,9 @@ void ConfigDeserializer::applyInstanceData( net::DataIStream& is )
         {
             case TYPE_OBSERVER:
             {
-                Observer* observer = nodeFactory->createObserver();
+                Observer* observer = nodeFactory->createObserver( _config );
                 EQASSERT( observer );
-                _config->_addObserver( observer );
-
                 EQCHECK( _config->mapObject( observer, id )); //OPT: async map
-                objects.push_back( observer );
                 break;
             }
                 

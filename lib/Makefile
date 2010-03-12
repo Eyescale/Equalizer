@@ -84,20 +84,25 @@ HEADER_SRC = \
 	net/version.h \
 	fabric/channel.h \
 	fabric/colorMask.h \
+	fabric/config.h \
 	fabric/eye.h \
 	fabric/frustum.h \
 	fabric/init.h \
 	fabric/leafVisitor.h \
 	fabric/object.h \
+	fabric/observer.h \
+	fabric/paths.h \
 	fabric/pixel.h \
 	fabric/pixelViewport.h \
 	fabric/projection.h \
 	fabric/range.h \
 	fabric/renderContext.h \
+	fabric/serializable.h \
 	fabric/subPixel.h \
 	fabric/task.h \
 	fabric/types.h \
 	fabric/viewport.h \
+	fabric/view.h \
 	fabric/visitorResult.h \
 	fabric/wall.h \
 	fabric/zoom.h \
@@ -105,7 +110,6 @@ HEADER_SRC = \
 	client/canvasVisitor.h \
 	client/channel.h \
 	client/channelStatistics.h \
-	client/channelVisitor.h \
 	client/client.h \
 	client/commandQueue.h \
 	client/commands.h \
@@ -137,7 +141,6 @@ HEADER_SRC = \
 	client/nodeVisitor.h \
 	client/object.h \
 	client/observer.h \
-	client/observerVisitor.h \
 	client/os.h \
 	client/osPipe.h \
 	client/osWindow.h \
@@ -152,7 +155,6 @@ HEADER_SRC = \
 	client/types.h \
 	client/version.h \
 	client/view.h \
-	client/viewVisitor.h \
 	client/visitorResult.h \
 	client/window.h \
 	client/windowStatistics.h \

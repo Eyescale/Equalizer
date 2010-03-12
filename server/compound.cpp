@@ -38,12 +38,13 @@
 #include "swapBarrier.h"
 #include "view.h"
 
-#include <eq/base/base.h>
-#include <eq/base/stdExt.h>
 #include <eq/client/global.h>
 #include <eq/client/packets.h>
 #include <eq/client/windowSystem.h>
+#include <eq/fabric/paths.h>
 #include <eq/net/session.h>
+#include <eq/base/base.h>
+#include <eq/base/stdExt.h>
 
 #include <algorithm>
 #include <math.h>
@@ -103,7 +104,7 @@ Compound::Compound( const Compound& from, Config* config, Compound* parent )
     if( from._data.channel )
     {
         const Channel* oldChannel = from._data.channel;
-        const ChannelPath    path = oldChannel->getPath();
+        const ChannelPath path = oldChannel->getPath();
 
         _data.channel = getConfig()->getChannel( path );
         EQASSERT( _data.channel );

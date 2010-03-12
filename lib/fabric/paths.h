@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,14 +15,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSERVER_PATHS_H
-#define EQSERVER_PATHS_H
+#ifndef EQFABRIC_PATHS_H
+#define EQFABRIC_PATHS_H
 
 #include "types.h"
 
 namespace eq
 {
-namespace server
+namespace fabric
 {
 
 //----- defines path types with are used to reference entities
@@ -143,4 +143,4 @@ inline std::ostream& operator << ( std::ostream& os, const SegmentPath& path )
 
 }
 }
-#endif // EQSERVER_PATHS_H
+#endif // EQFABRIC_PATHS_H
