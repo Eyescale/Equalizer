@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,8 +17,8 @@
 
 #include "frustumData.h"
 
-#include <eq/client/projection.h>
-#include <eq/client/wall.h>
+#include <eq/fabric/projection.h>
+#include <eq/fabric/wall.h>
 
 #define DEG2RAD( angle ) ( (angle) * static_cast<float>(M_PI) / 180.f )
 

@@ -85,11 +85,13 @@ HEADER_SRC = \
 	fabric/channel.h \
 	fabric/colorMask.h \
 	fabric/eye.h \
+	fabric/frustum.h \
 	fabric/init.h \
 	fabric/leafVisitor.h \
 	fabric/object.h \
 	fabric/pixel.h \
 	fabric/pixelViewport.h \
+	fabric/projection.h \
 	fabric/range.h \
 	fabric/renderContext.h \
 	fabric/subPixel.h \
@@ -97,6 +99,7 @@ HEADER_SRC = \
 	fabric/types.h \
 	fabric/viewport.h \
 	fabric/visitorResult.h \
+	fabric/wall.h \
 	fabric/zoom.h \
 	client/canvas.h \
 	client/canvasVisitor.h \
@@ -120,7 +123,6 @@ HEADER_SRC = \
 	client/eye.h \
 	client/frame.h \
 	client/frameData.h \
-	client/frustum.h \
 	client/global.h \
 	client/glWindow.h \
 	client/image.h \
@@ -142,7 +144,6 @@ HEADER_SRC = \
 	client/packets.h \
 	client/pipe.h \
 	client/pipeVisitor.h \
-	client/projection.h \
 	client/segment.h \
 	client/segmentVisitor.h \
 	client/server.h \
@@ -153,7 +154,6 @@ HEADER_SRC = \
 	client/view.h \
 	client/viewVisitor.h \
 	client/visitorResult.h \
-	client/wall.h \
 	client/window.h \
 	client/windowStatistics.h \
 	client/windowSystem.h \
@@ -232,13 +232,16 @@ CXXFILES = \
 	net/versionedSlaveCM.cpp \
 	fabric/colorMask.cpp \
 	fabric/eye.cpp \
+	fabric/frustum.cpp \
 	fabric/init.cpp \
 	fabric/object.cpp \
 	fabric/pixel.cpp \
+	fabric/projection.cpp \
 	fabric/range.cpp \
 	fabric/renderContext.cpp \
 	fabric/subPixel.cpp \
 	fabric/viewport.cpp \
+	fabric/wall.cpp \
 	fabric/zoom.cpp \
 	client/canvas.cpp \
 	client/channel.cpp \
@@ -257,7 +260,6 @@ CXXFILES = \
 	client/eventHandler.cpp \
 	client/frame.cpp \
 	client/frameData.cpp \
-	client/frustum.cpp \
 	client/global.cpp \
 	client/glWindow.cpp \
 	client/image.cpp \
@@ -273,7 +275,6 @@ CXXFILES = \
 	client/osWindow.cpp \
 	client/pipe.cpp \
 	client/pipeStatistics.cpp \
-	client/projection.cpp \
 	client/roiFinder.cpp \
 	client/roiTracker.cpp \
 	client/roiEmptySpaceFinder.cpp \
@@ -282,7 +283,6 @@ CXXFILES = \
 	client/statistic.cpp \
 	client/version.cpp \
 	client/view.cpp \
-	client/wall.cpp \
 	client/window.cpp \
 	client/windowStatistics.cpp \
 	client/windowSystem.cpp \

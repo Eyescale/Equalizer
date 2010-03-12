@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,15 +15,17 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_PROJECTION_H
-#define EQ_PROJECTION_H
+#ifndef EQFABRIC_PROJECTION_H
+#define EQFABRIC_PROJECTION_H
 
+#include <eq/fabric/types.h>
 #include <eq/base/base.h>
-#include <eq/client/types.h>
   
 #include <iostream>
 
 namespace eq
+{
+namespace fabric
 {
     class Wall;
     /**
@@ -67,5 +69,6 @@ namespace eq
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Projection& );
 }
-#endif // EQ_PROJECTION_H
+}
+#endif // EQFABRIC_PROJECTION_H
 

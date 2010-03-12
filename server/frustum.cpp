@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,8 +23,6 @@
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
 
-using namespace eq::base;
-
 namespace eq
 {
 namespace server
@@ -36,21 +34,21 @@ Frustum::Frustum( FrustumData& data )
 }
 
 Frustum::Frustum( const Frustum& from, FrustumData& data )
-        : eq::Frustum( from )
+        : fabric::Frustum( from )
         , _data( data )
 {
     _updateFrustum();
 }
 
-void Frustum::setWall( const eq::Wall& wall )
+void Frustum::setWall( const Wall& wall )
 {
-    eq::Frustum::setWall( wall );
+    fabric::Frustum::setWall( wall );
     _updateFrustum();
 }
         
-void Frustum::setProjection( const eq::Projection& projection )
+void Frustum::setProjection( const Projection& projection )
 {
-    eq::Frustum::setProjection( projection );
+    fabric::Frustum::setProjection( projection );
     _updateFrustum();
 }
 

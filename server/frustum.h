@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +18,7 @@
 #ifndef EQSERVER_FRUSTUM_H
 #define EQSERVER_FRUSTUM_H
 
-#include <eq/client/frustum.h>     // base class
+#include <eq/fabric/frustum.h>     // base class
 
 namespace eq
 {
@@ -27,9 +27,9 @@ namespace server
     class FrustumData;
 
     /** 
-     * Extends the eq::Frustum to update server-side generic frustum data.
+     * Extends the fabric::Frustum to update server-side generic frustum data.
      */
-    class Frustum : public eq::Frustum
+    class Frustum : public fabric::Frustum
     {
     public:
         Frustum( FrustumData& data );
@@ -53,8 +53,6 @@ namespace server
         /** Update the frustum (wall/projection). */
         void _updateFrustum();
     };
-
-    std::ostream& operator << ( std::ostream& os, const Frustum* frustum );
 }
 }
 #endif // EQ_FRUSTUM_H

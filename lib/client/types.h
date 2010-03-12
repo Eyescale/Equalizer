@@ -30,12 +30,15 @@ namespace eq
 namespace fabric
 {
 class ColorMask;
+class Frustum;
 class Pixel;
 class PixelViewport;
+class Projection;
 class Range;
 class RenderContext;
 class SubPixel;
 class Viewport;
+class Wall;
 class Zoom;
 }
 
@@ -57,12 +60,15 @@ class X11Connection;
 struct Statistic;
 
 typedef fabric::ColorMask ColorMask;
+typedef fabric::Frustum Frustum;
 typedef fabric::Pixel Pixel;
 typedef fabric::PixelViewport PixelViewport;
+typedef fabric::Projection Projection;
 typedef fabric::Range Range;
 typedef fabric::RenderContext RenderContext;
 typedef fabric::SubPixel SubPixel;
 typedef fabric::Viewport Viewport;
+typedef fabric::Wall Wall;
 typedef fabric::Zoom Zoom;
 
 //----- Vectors

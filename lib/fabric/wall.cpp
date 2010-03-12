@@ -17,17 +17,17 @@
 
 #include "wall.h"
 #include "projection.h"
+#include "pixelViewport.h"
 
-#include <eq/fabric/pixelViewport.h>
 #include <eq/base/log.h>
-
-using namespace eq::base;
-using namespace std;
 
 #define DEG2RAD( angle ) ((angle) * static_cast<float>(M_PI) / 180.f)
 
 namespace eq
 {
+namespace fabric
+{
+
 Wall::Wall()
         : bottomLeft( -.8f, -.5f, -1.f )
         , bottomRight( .8f, -.5f, -1.f )
@@ -178,15 +178,16 @@ bool Wall::operator != ( const Wall& rhs ) const
              !topLeft.equals( rhs.topLeft, 0.0001f ));
 }
 
-ostream& operator << ( ostream& os, const Wall& wall )
+std::ostream& operator << ( std::ostream& os, const Wall& wall )
 {
-    os << "wall" << endl;
-    os << "{" << endl << indent;
-    os << "bottom_left  " << wall.bottomLeft << endl;
-    os << "bottom_right " << wall.bottomRight << endl;
-    os << "top_left     " << wall.topLeft << endl;
-    os << exdent << "}" << endl;
+    os << "wall" << std::endl;
+    os << "{" << std::endl << base::indent;
+    os << "bottom_left  " << wall.bottomLeft << std::endl;
+    os << "bottom_right " << wall.bottomRight << std::endl;
+    os << "top_left     " << wall.topLeft << std::endl;
+    os << base::exdent << "}" << std::endl;
     return os;
 }
 
+}
 }

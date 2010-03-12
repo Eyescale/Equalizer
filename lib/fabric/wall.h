@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_WALL_H
-#define EQ_WALL_H
+#ifndef EQFABRIC_WALL_H
+#define EQFABRIC_WALL_H
 
 #include <eq/base/base.h>
 
@@ -24,6 +24,8 @@
 #include <iostream>
 
 namespace eq
+{
+namespace fabric
 {
     class Projection;
 
@@ -109,5 +111,6 @@ namespace eq
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Wall& wall );
 }
-#endif // EQ_WALL_H
+}
+#endif // EQFABRIC_WALL_H
 

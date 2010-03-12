@@ -26,7 +26,9 @@ namespace eq
 {
 namespace fabric
 {
+class Projection;
 class RenderContext;
+class Wall;
 }
 
 namespace server
@@ -70,7 +72,9 @@ typedef std::vector< ConnectionDescriptionPtr > ConnectionDescriptionVector;
 
 typedef fabric::Vector4i Vector4i;   //!< A four-component integer vector
 typedef fabric::Vector3ub Vector3ub; //!< A three-component byte vector
+typedef fabric::Projection Projection;
 typedef fabric::RenderContext RenderContext;
+typedef fabric::Wall Wall;
 }
 }
 #endif // EQSERVER_TYPES_H

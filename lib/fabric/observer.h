@@ -15,19 +15,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_OBSERVER_H
-#define EQ_OBSERVER_H
+#ifndef EQFABRIC_OBSERVER_H
+#define EQFABRIC_OBSERVER_H
 
-#include <eq/client/object.h>         // base class
-#include <eq/client/types.h>
-#include <eq/client/visitorResult.h>  // enum
+#include <eq/fabric/object.h>         // base class
+#include <eq/fabric/types.h>
+#include <eq/fabric/visitorResult.h> // enum
 
 #include <string>
 
 namespace eq
 {
-    class Config;
-    class ObserverVisitor;
+namespace fabric
+{
+    template< typename T > class LeafVisitor;
 
     /**
      * An Observer looks at one or more views from a certain position (head
@@ -35,21 +36,19 @@ namespace eq
      * can be used to update independent viewers from one configuration, e.g., a
      * control host, a HMD and a Cave.
      */
-    class Observer : public Object
+    template< typename C, typename O > class Observer : public Object
     {
     public:
-        /** 
-         * Constructs a new Observer.
-         */
-        EQ_EXPORT Observer();
-
-        /** Destruct this observer. */
-        EQ_EXPORT virtual ~Observer();
-
         /**
          * @name Data Access
          */
         //@{
+        /** @return the parent config of this observer. */
+        const C* getConfig() const { return _config; }
+
+        /** @return the parent config of this observer. */
+        C* getConfig() { return _config; }
+
         /** Set the eye separation of this observer. */
         EQ_EXPORT void setEyeBase( const float eyeBase );
 
@@ -67,7 +66,7 @@ namespace eq
          *
          * @param matrix the matrix
          */
-        EQ_EXPORT void setHeadMatrix( const Matrix4f& matrix );
+        EQFABRIC_EXPORT void setHeadMatrix( const Matrix4f& matrix );
 
         /** @return the current head matrix. */
         const Matrix4f& getHeadMatrix() const { return _headMatrix; }
@@ -83,22 +82,31 @@ namespace eq
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        EQ_EXPORT VisitorResult accept( ObserverVisitor& visitor );
+        EQFABRIC_EXPORT VisitorResult accept( LeafVisitor< O >& visitor );
 
         /** Const-version of accept(). */
-        EQ_EXPORT VisitorResult accept( ObserverVisitor& visitor ) const;
+        EQFABRIC_EXPORT VisitorResult accept( LeafVisitor< O >& visitor ) const;
 
-        /** Deregister this observer from its net::Session.*/
+        /** Deregister this observer from its net::Session. @internal */
         EQ_EXPORT virtual void deregister();
         //@}
         
     protected:
+        /** Construct a new Observer. */
+        EQFABRIC_EXPORT Observer( C* config );
+
+        /** Construct a new copy of the observer. @internal */
+        Observer( C* config, const O& from );
+
+        /** Destruct this observer. */
+        EQFABRIC_EXPORT virtual ~Observer();
+
         /** @sa Object::serialize */
-        EQ_EXPORT virtual void serialize( net::DataOStream& os,
-                                          const uint64_t dirtyBits );
+        virtual void serialize( net::DataOStream& os,
+                                const uint64_t dirtyBits );
         /** @sa Object::deserialize */
-        EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
-                                            const uint64_t dirtyBits );
+        virtual void deserialize( net::DataIStream& is,
+                                  const uint64_t dirtyBits );
 
         enum DirtyBits
         {
@@ -111,8 +119,7 @@ namespace eq
 
     private:
         /** The parent Config. */
-        Config* _config;
-        friend class Config;
+        C* const _config;
 
         /** The current eye separation. */
         float _eyeBase;
@@ -125,5 +132,10 @@ namespace eq
             char dummy[32];
         };
     };
+
+    template< typename C, typename O >
+    EQFABRIC_EXPORT std::ostream& operator << ( std::ostream&,
+                                                const Observer< C, O >* );
 }
-#endif // EQ_OBSERVER_H
+}
+#endif // EQFABRIC_OBSERVER_H

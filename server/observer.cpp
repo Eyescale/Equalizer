@@ -131,6 +131,5 @@ void Observer::_updateEyes()
     EQVERB << "Eye position: " << _eyes[ eq:: EYE_CYCLOP ] << std::endl;
 }
 
-
 }
 }

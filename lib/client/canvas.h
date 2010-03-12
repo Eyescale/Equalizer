@@ -18,9 +18,9 @@
 #ifndef EQ_CANVAS_H
 #define EQ_CANVAS_H
 
-#include <eq/client/frustum.h>        // base class
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
+#include <eq/fabric/frustum.h>        // base class
 
 #include <eq/net/object.h>
 #include <string>
@@ -53,7 +53,7 @@ namespace server
      * render on the canvas. The layout can be switched at runtime. A canvas
      * with a NULL layout does not render anything, i.e., it is not active.
      */
-    class Canvas : public Frustum
+    class Canvas : public fabric::Frustum
     {
     public:
         /** Construct a new Canvas. @version 1.0 */

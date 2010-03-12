@@ -25,13 +25,13 @@
 #include <eq/client/frame.h>
 #include <eq/client/frameData.h>
 #include <eq/client/global.h>
-#include <eq/client/projection.h>
-#include <eq/client/wall.h>
-#include <eq/fabric/range.h>    // member
-#include <eq/fabric/subPixel.h> // member
-#include <eq/fabric/task.h>     // enum
-#include <eq/fabric/viewport.h> // member
-#include <eq/fabric/zoom.h>     // member
+#include <eq/fabric/projection.h> // used in inline method
+#include <eq/fabric/range.h>      // member
+#include <eq/fabric/subPixel.h>   // member
+#include <eq/fabric/task.h>       // enum
+#include <eq/fabric/viewport.h>   // member
+#include <eq/fabric/wall.h>       // used in inline method
+#include <eq/fabric/zoom.h>       // member
 #include <eq/net/barrier.h>
 #include <eq/base/thread.h>
 #include <iostream>

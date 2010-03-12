@@ -25,7 +25,6 @@
 #include <eq/util/bitmapFont.h>      // member
 #include <eq/util/objectManager.h>   // member
 #include <eq/fabric/channel.h>       // friend
-#include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/renderContext.h> // member
 #include <eq/net/object.h>           // base class
 

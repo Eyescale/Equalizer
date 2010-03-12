@@ -15,14 +15,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_FRUSTUM_H
-#define EQ_FRUSTUM_H
+#ifndef EQFABRIC_FRUSTUM_H
+#define EQFABRIC_FRUSTUM_H
 
-#include <eq/client/object.h>     // base class
-#include <eq/client/projection.h> // member
-#include <eq/client/wall.h>       // member
+#include <eq/fabric/object.h>     // base class
+#include <eq/fabric/projection.h> // member
+#include <eq/fabric/wall.h>       // member
 
 namespace eq
+{
+namespace fabric
 {
     /** A distributed Object for frustum data */
     class Frustum : public Object
@@ -97,10 +99,11 @@ namespace eq
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Frustum& );
 }
-#endif // EQ_FRUSTUM_H
+}
+#endif // EQFABRIC_FRUSTUM_H

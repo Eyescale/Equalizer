@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder
-                 2009, Stefan Eilemann <eilemann@equalizergraphics.com>
+                 2009-2010, Stefan Eilemann <eilemann@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,10 +17,10 @@
  */
 
 #include <test.h>
-#include <eq/client/wall.h>
-#include <eq/client/projection.h>
+#include <eq/fabric/wall.h>
+#include <eq/fabric/projection.h>
 
-using namespace eq;
+using namespace eq::fabric;
 
 int main( int argc, char **argv )
 {

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,15 +17,15 @@
 
 #include "projection.h"
 #include "wall.h"
-#include <eq/base/log.h>
 
-using namespace eq::base;
-using namespace std;
+#include <eq/base/log.h>
 
 #define DEG2RAD( angle ) ((angle) * static_cast<float>(M_PI) / 180.f)
 #define RAD2DEG( angle ) ((angle) * 180.f / static_cast<float>(M_PI))
 
 namespace eq
+{
+namespace fabric
 {
 Projection::Projection()
         : origin( 0.f, 0.f, 0.f ),
@@ -132,16 +132,17 @@ bool Projection::operator != ( const Projection& rhs ) const
 }
 
 
-ostream& operator << ( ostream& os, const Projection& projection )
+std::ostream& operator << ( std::ostream& os, const Projection& projection )
 {
-    os << "projection" << endl;
-    os << "{" << endl << indent;
-    os << "origin   " << projection.origin << endl;
-    os << "distance " << projection.distance << endl;
-    os << "fov      " << projection.fov << endl;
-    os << "hpr      " << projection.hpr << endl;
-    os << exdent << "}";
+    os << "projection" << std::endl;
+    os << "{" << std::endl << base::indent;
+    os << "origin   " << projection.origin << std::endl;
+    os << "distance " << projection.distance << std::endl;
+    os << "fov      " << projection.fov << std::endl;
+    os << "hpr      " << projection.hpr << std::endl;
+    os << base::exdent << "}";
     return os;
 }
 
+}
 }

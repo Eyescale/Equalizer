@@ -48,9 +48,7 @@ namespace server
         /** Destruct this observer. */
         virtual ~Observer();
 
-        /**
-         * @name Data Access
-         */
+        /** @name Data Access */
         //@{
         /** @return the index path to this observer. */
         ObserverPath getPath() const;
@@ -109,7 +107,7 @@ namespace server
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
         void _updateEyes();

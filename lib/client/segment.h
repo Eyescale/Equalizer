@@ -18,9 +18,9 @@
 #ifndef EQ_SEGMENT_H
 #define EQ_SEGMENT_H
 
-#include <eq/client/frustum.h>        // base class
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
+#include <eq/fabric/frustum.h>        // base class
 #include <eq/fabric/viewport.h>       // member
 
 namespace eq
@@ -38,7 +38,7 @@ namespace server
      * one output Channel of the whole projection area, typically a projector or
      * screen.
      */
-    class Segment : public eq::Frustum
+    class Segment : public fabric::Frustum
     {
     public:
         /** Construct a new Segment. */
@@ -56,7 +56,7 @@ namespace server
         EQ_EXPORT const Config* getConfig() const;
 
         /** @return the segment's viewport. */
-        const eq::Viewport& getViewport() const { return _vp; }
+        const Viewport& getViewport() const { return _vp; }
         //@}
         
         /** @name Operations */
@@ -95,7 +95,7 @@ namespace server
         friend class Canvas;
 
         /** The 2D area of this segment wrt to the canvas. */
-        eq::Viewport _vp;
+        Viewport _vp;
         friend class server::Segment;
 
         union // placeholder for binary-compatible changes
