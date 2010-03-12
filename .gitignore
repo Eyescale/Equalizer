@@ -11,8 +11,8 @@ externals/vmmlib/
 build
 obj
 TAGS
-XCode/*.pbxuser
-XCode/*.mode1v3
+*.pbxuser
+*.mode1v3
 lib/base/defines.h
 auxilary
 

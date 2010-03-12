@@ -1,4 +1,4 @@
-Fix layout bug with non-threaded pipes
+Update git ignore
 
 [ ] Will break build
 [ ] May break existing applications
