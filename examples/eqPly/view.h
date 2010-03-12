@@ -59,7 +59,7 @@ namespace eqPly
 
         private:
             View* const _view;
-            friend class View;
+            friend class eqPly::View;
         };
 
         virtual void deserialize( eq::net::DataIStream& is, 

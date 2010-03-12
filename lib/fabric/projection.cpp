@@ -118,7 +118,7 @@ Projection& Projection::operator = ( const Wall& wall )
 bool Projection::operator == ( const Projection& rhs ) const
 {
     return(  origin.equals( rhs.origin, 0.0001f )   &&
-           (abs( distance - rhs.distance ) < 0.0001f ) &&
+           (fabsf( distance - rhs.distance ) < 0.0001f ) &&
            fov.equals( rhs.fov, 0.0001f ) &&
            hpr.equals( rhs.hpr, 0.0001f ));
 }
@@ -126,7 +126,7 @@ bool Projection::operator == ( const Projection& rhs ) const
 bool Projection::operator != ( const Projection& rhs ) const
 {
     return ( !origin.equals( rhs.origin, 0.0001f )  ||
-            (abs(distance - rhs.distance) >= 0.0001f ) ||
+            (fabsf(distance - rhs.distance) >= 0.0001f ) ||
             !fov.equals( rhs.fov, 0.0001f ) ||
             !hpr.equals( rhs.hpr, 0.0001f ));
 }
