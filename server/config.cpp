@@ -1135,21 +1135,13 @@ void Config::unmap()
     accept( unmapper );
 }
 
-bool Config::_startFrame( const uint32_t frameID )
+void Config::_startFrame( const uint32_t frameID )
 {
-    if( !_updateRunning( ))
-    {
-        ++_currentFrame;
-        return false;
-    }
+    EQASSERT( _state == STATE_RUNNING );
 
     ++_currentFrame;
     EQLOG( base::LOG_ANY ) << "----- Start Frame ----- " << _currentFrame
                            << std::endl;
-
-    if( _state == STATE_STOPPED )
-        return true;
-    EQASSERT( _state == STATE_RUNNING );
 
     if( !_appNode || !_appNode->isActive( )) // release appNode local sync
     {
@@ -1174,7 +1166,6 @@ bool Config::_startFrame( const uint32_t frameID )
         if( node->isActive( ))
             node->update( frameID, _currentFrame );
     }
-    return true;
 }
 
 void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
@@ -1276,10 +1267,19 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
         accept( syncer );
     }
 
-    if( !_startFrame( packet->frameID ))
+    if( _updateRunning( ))
+        _startFrame( packet->frameID );
+    else
     {
         EQWARN << "Start frame failed, exiting config: " << _error << std::endl;
         exit();
+        ++_currentFrame;
+    }
+    
+    if( packet->requestID != EQ_ID_INVALID ) // unlock app
+    {
+        ConfigStartFrameReplyPacket reply( packet );
+        send( command.getNode(), reply );
     }
 
     if( _state == STATE_STOPPED )

@@ -466,9 +466,9 @@ namespace eq
         net::CommandResult _cmdSyncClock( net::Command& command );
         net::CommandResult _cmdCreateNode( net::Command& command );
         net::CommandResult _cmdDestroyNode( net::Command& command );
+        net::CommandResult _cmdStartFrameReply( net::Command& command );
         net::CommandResult _cmdInitReply( net::Command& command );
         net::CommandResult _cmdExitReply( net::Command& command );
-        net::CommandResult _cmdStartFrameReply( net::Command& command );
         net::CommandResult _cmdReleaseFrameLocal( net::Command& command );
         net::CommandResult _cmdFrameFinish( net::Command& command );
         net::CommandResult _cmdUnmap( net::Command& command );

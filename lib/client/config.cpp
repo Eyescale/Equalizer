@@ -91,6 +91,8 @@ void Config::notifyMapped( net::NodePtr node )
                      ConfigFunc( this, &Config::_cmdCreateNode ), queue );
     registerCommand( CMD_CONFIG_DESTROY_NODE,
                      ConfigFunc( this, &Config::_cmdDestroyNode ), queue );
+    registerCommand( CMD_CONFIG_START_FRAME_REPLY,
+                     ConfigFunc( this, &Config::_cmdStartFrameReply ), queue );
     registerCommand( CMD_CONFIG_INIT_REPLY, 
                      ConfigFunc( this, &Config::_cmdInitReply ), queue );
     registerCommand( CMD_CONFIG_EXIT_REPLY, 
@@ -423,15 +425,27 @@ uint32_t Config::startFrame( const uint32_t frameID )
     accept( committer );
     const std::vector< net::ObjectVersion >& changes = committer.getChanges();
     
-    if( committer.needsFinish( ))
-        finishAllFrames();
-    
-    // Request new frame
     ConfigStartFramePacket packet;
-    packet.frameID   = frameID;
-    packet.nChanges  = changes.size();
+    ClientPtr client = getClient();
 
+    if( committer.needsFinish( ))
+    {
+        packet.requestID = client->registerRequest();
+        finishAllFrames();
+    }
+
+    // Request new frame
+    packet.frameID  = frameID;
+    packet.nChanges = changes.size();
     send( packet, changes );
+
+    if( packet.requestID != EQ_ID_INVALID )
+    {
+        while( !client->isRequestServed( packet.requestID ))
+            client->processCommand();
+
+        client->waitRequest( packet.requestID );
+    }
     ++_currentFrame;
 
     EQLOG( base::LOG_ANY ) << "---- Started Frame ---- " << _currentFrame
@@ -818,6 +832,15 @@ net::CommandResult Config::_cmdDestroyNode( net::Command& command )
     detachObject( node );
     Global::getNodeFactory()->releaseNode( node );
 
+    return net::COMMAND_HANDLED;
+}
+
+net::CommandResult Config::_cmdStartFrameReply( net::Command& command ) 
+{
+    const ConfigStartFrameReplyPacket* packet =
+        command.getPacket< ConfigStartFrameReplyPacket >();
+
+    getClient()->serveRequest( packet->requestID );
     return net::COMMAND_HANDLED;
 }
 

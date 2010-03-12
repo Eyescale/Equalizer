@@ -282,13 +282,26 @@ namespace eq
     struct ConfigStartFramePacket : public ConfigPacket
     {
         ConfigStartFramePacket()
+                : requestID( EQ_ID_INVALID )
             {
                 command   = CMD_CONFIG_START_FRAME;
                 size      = sizeof( ConfigStartFramePacket );
             }
         uint32_t frameID;
+        uint32_t requestID;
         uint32_t nChanges;
         EQ_ALIGN8( net::ObjectVersion changes[1] );
+    };
+
+    struct ConfigStartFrameReplyPacket : public ConfigPacket
+    {
+        ConfigStartFrameReplyPacket( const ConfigStartFramePacket* request )
+                : requestID( request->requestID )
+            {
+                command   = CMD_CONFIG_START_FRAME_REPLY;
+                size      = sizeof( ConfigStartFrameReplyPacket );
+            }
+        uint32_t requestID;
     };
 
     struct ConfigReleaseFrameLocalPacket : public ConfigPacket

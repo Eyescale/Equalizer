@@ -1,9 +1,9 @@
-Move Frustum, Projection and Wall into fabric namespace
+Fix layout bug with non-threaded pipes
 
 [ ] Will break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
