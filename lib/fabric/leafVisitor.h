@@ -24,7 +24,7 @@ namespace eq
 {
 namespace fabric
 {
-    /** A visitor to traverse leaf nodes */
+    /** A visitor to traverse leaf nodes of a graph. */
     template< typename T > class LeafVisitor
     {
     public:
@@ -34,11 +34,11 @@ namespace fabric
         /** Destruct the leaf visitor. @version 1.0 */
         virtual ~LeafVisitor(){}
 
-        /** Visit a channel. @version 1.0 */
+        /** Visit a leaf node. @version 1.0 */
         virtual VisitorResult visit( T* node )
             { return visit( static_cast< const T* >( node )); }
 
-        /** Visit a channel during a const traversal. @version 1.0 */
+        /** Visit a leaf node during a const traversal. @version 1.0 */
         virtual VisitorResult visit( const T* node )
             { return TRAVERSE_CONTINUE; }
     };

@@ -66,23 +66,15 @@ namespace fabric
         /** @return the parent window. @version 1.0 */
         const W* getWindow() const { return _window; }
 
-        /** 
-         * Set the channel's pixel viewport wrt its parent window.
-         * 
-         * @param pvp the viewport in pixels.
-         */
+        /** Set the channel's pixel viewport wrt its parent window. @internal */
         void setPixelViewport( const PixelViewport& pvp );
+
+        /** Set the channel's viewport wrt its parent window. @internal */
+        void setViewport( const Viewport& vp );
 
         /** @return the native pixel viewport. @version 1.0 */
         const PixelViewport& getNativePixelViewport() const
             { return _nativeContext.pvp; }
-
-        /** 
-         * Set the channel's viewport wrt its parent window.
-         * 
-         * @param vp the fractional viewport.
-         */
-        void setViewport( const Viewport& vp );
 
         /** @return true if a viewport was specified last. @version 1.0 */
         bool hasFixedViewport() const { return _fixedVP; }
@@ -137,9 +129,7 @@ namespace fabric
         EQFABRIC_EXPORT void setMaxSize( const Vector2i& size );
 
         void setOverdraw( const Vector4i& overdraw ); //!< @internal
-
-        /** @internal */
-        const Vector2i& getMaxSize()  const { return _maxSize; }
+        const Vector2i& getMaxSize()  const { return _maxSize; } //!< @internal
         //@}
 
         /**
@@ -304,7 +294,7 @@ namespace fabric
         /** Construct a new deep copy of a channel. @internal */
         Channel( const Channel& from, W* parent );
 
-        /** Destruct the channel. @version 1.0 */
+        /** Destruct the channel. @internal */
         EQFABRIC_EXPORT virtual ~Channel();
 
         enum DirtyBits
@@ -314,9 +304,6 @@ namespace fabric
             DIRTY_MEMBER     = Object::DIRTY_CUSTOM << 2,
             DIRTY_ERROR      = Object::DIRTY_CUSTOM << 3,
             DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 4,
-            DIRTY_FILL1      = Object::DIRTY_CUSTOM << 5,
-            DIRTY_FILL2      = Object::DIRTY_CUSTOM << 6,
-            DIRTY_CUSTOM     = Object::DIRTY_CUSTOM << 7,
         };
 
         /** @internal */
@@ -363,7 +350,6 @@ namespace fabric
     private:
         /** The parent window. */
         W* const _window;
-        friend class Window;
 
         /** The native render context parameters of this channel. */
         RenderContext _nativeContext;

@@ -28,8 +28,9 @@ namespace eq
 namespace fabric
 {
     class Wall;
+
     /**
-     * A projection definition defining a view frustum.
+     * A projector definition defining a view frustum.
      * 
      * The frustum is defined by a projection system positioned at origin,
      * orientated as defined by the head-pitch-roll angles projecting to a
@@ -45,6 +46,7 @@ namespace fabric
          * Resize the horizontal FOV.
          * 
          * @param ratio the amount by which the FOV is grown or shrunk.
+         * @version 1.0
          */
         EQ_EXPORT void resizeHorizontal( const float ratio );
 
@@ -52,13 +54,26 @@ namespace fabric
          * Resize the vertical FOV.
          * 
          * @param ratio the amount by which the FOV is grown or shrunk.
+         * @version 1.0
          */
         EQ_EXPORT void resizeVertical( const float ratio );
 
-        /** Set the projection parameters from a wall description. */
+        /**
+         * Convert the projection parameters from a wall description.
+         * @version 1.0
+         */
         EQ_EXPORT Projection& operator = ( const Wall& wall );
 
+        /**
+         * @return true if the two projection definitions are identical.
+         * @version 1.0
+         */
         EQ_EXPORT bool operator == ( const Projection& rhs ) const;
+
+        /**
+         * @return true if the two projection definitions are not identical.
+         * @version 1.0
+         */
         EQ_EXPORT bool operator != ( const Projection& rhs ) const;
         
         Vector3f origin;

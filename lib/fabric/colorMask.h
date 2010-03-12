@@ -33,13 +33,18 @@ namespace fabric
     class ColorMask
     {
     public:
-        ColorMask() : red( true ), green( true ), blue( true ) {}
-        ColorMask( const bool r, const bool g, const bool b )
-            : red( r ), green( g ), blue( b ) {}
+        /** Construct a color mask with all components enabled. @version 1.0 */
+        ColorMask() : red( true ), green( true ), blue( true ), alpha( true ) {}
+        
+        /** Construct a color mask with given default values. @version 1.0 */
+        ColorMask( const bool r, const bool g, const bool b, 
+                   const bool a = true )
+                : red( r ), green( g ), blue( b ), alpha( a ) {}
 
         bool red;
         bool green;
         bool blue;
+        bool alpha;
 
         EQ_EXPORT static const ColorMask ALL;
     };

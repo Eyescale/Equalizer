@@ -34,75 +34,73 @@ namespace fabric
 
     /**
      * An Observer looks at one or more views from a certain position (head
-     * matrix) with a given eye separation. Multiple observer in a configuration
-     * can be used to update independent viewers from one configuration, e.g., a
-     * control host, a HMD and a Cave.
+     * matrix) with a given eye separation. Multiple observers in a
+     * configuration can be used to update independent viewers from one
+     * configuration, e.g., a control host, a HMD and a Cave.
      */
     template< typename C, typename O > class Observer : public Object
     {
     public:
         typedef std::vector< O* > ObserverVector;
 
-        /**
-         * @name Data Access
-         */
+        /** @name Data Access */
         //@{
-        /** @return the parent config of this observer. */
+        /** @return the parent config of this observer. @version 1.0 */
         const C* getConfig() const { return _config; }
 
-        /** @return the parent config of this observer. */
+        /** @return the parent config of this observer. @version 1.0 */
         C* getConfig() { return _config; }
 
-        /** @return the index path to this observer. */
+        /** @return the index path to this observer. @internal */
         ObserverPath getPath() const;
 
-        /** Set the eye separation of this observer. */
+        /** Set the eye separation of this observer. @version 1.0 */
         EQ_EXPORT void setEyeBase( const float eyeBase );
 
-        /** @return the current eye separation. */
+        /** @return the current eye separation. @version 1.0 */
         float getEyeBase() const { return _eyeBase; }
 
         /** 
          * Set the head matrix.
          *
          * The head matrix specifies the transformation origin->observer.
-         * Together with the eye separation, this determines the eye positions.
-         * The eye position and wall or projection description define the shape
-         * of the frustum and the channel's head transformation during
-         * rendering.
+         * Together with the eye separation, this determines the eye positions
+         * in the global coordinate system. The eye position and wall or
+         * projection description define the shape of the frustum and the
+         * channel's head transformation during rendering.
          *
          * @param matrix the matrix
+         * @version 1.0
          */
         EQFABRIC_EXPORT void setHeadMatrix( const Matrix4f& matrix );
 
-        /** @return the current head matrix. */
+        /** @return the current head matrix. @version 1.0 */
         const Matrix4f& getHeadMatrix() const { return _headMatrix; }
         //@}
 
-        /**
-         * @name Operations
-         */
+        /** @name Operations */
         //@{
         /** 
          * Traverse this observer using a observer visitor.
          * 
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
+         * @version 1.0
          */
         EQFABRIC_EXPORT VisitorResult accept( LeafVisitor< O >& visitor );
 
-        /** Const-version of accept(). */
+        /** Const-version of accept(). @version 1.0 */
         EQFABRIC_EXPORT VisitorResult accept( LeafVisitor< O >& visitor ) const;
         //@}
         
     protected:
-        /** Construct a new Observer. */
+        /** Construct a new Observer. @internal */
         EQFABRIC_EXPORT Observer( C* config );
 
         /** Construct a new copy of the observer. @internal */
         Observer( const O& from, C* config );
 
-        /** Destruct this observer. */
+        /** Destruct this observer. @internal */
         EQFABRIC_EXPORT virtual ~Observer();
 
         /** @sa Object::serialize */
@@ -115,10 +113,7 @@ namespace fabric
         enum DirtyBits
         {
             DIRTY_EYE_BASE   = Object::DIRTY_CUSTOM << 0,
-            DIRTY_HEAD       = Object::DIRTY_CUSTOM << 1,
-            DIRTY_FILL1      = Object::DIRTY_CUSTOM << 2,
-            DIRTY_FILL2      = Object::DIRTY_CUSTOM << 3,
-            DIRTY_CUSTOM     = Object::DIRTY_CUSTOM << 4
+            DIRTY_HEAD       = Object::DIRTY_CUSTOM << 1
         };
 
     private:
@@ -139,7 +134,7 @@ namespace fabric
 
     template< typename C, typename O >
     EQFABRIC_EXPORT std::ostream& operator << ( std::ostream&,
-                                                const Observer< C, O >* );
+                                                const Observer< C, O >& );
 }
 }
 #endif // EQFABRIC_OBSERVER_H

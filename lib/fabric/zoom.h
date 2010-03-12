@@ -25,7 +25,7 @@ namespace eq
 namespace fabric
 {
     /**
-     * Holds a zoom specification along with some methods for manipulation.
+     * A zoom specification with methods for manipulation.
      *
      * The x, y paramenters determine the factor by which the channel's
      * rendering is zoomed.
@@ -33,24 +33,27 @@ namespace fabric
     class Zoom : public Vector2f
     {
     public:
-        /** Construct a new zoom specification set to 1, 1. */
+        /** Construct a new zoom specification set to 1, 1. @version 1.0 */
         Zoom() : Vector2f( 1.f, 1.f )  {}
 
-        /** Construct a new zoom specification. */
+        /**
+         * Construct a new zoom specification with default values.
+         * @version 1.0
+         */
         Zoom( const float x_, const float y_ ) : Vector2f( x_, y_ ) {}
         //@}
 
-        /** @return true if this zoom defines a valid zoom factor. */
+        /** @return true if this zoom defines a valid zoom factor. @internal */
         bool isValid() const { return ( x() != 0.f && y() != 0.f ); }
 
-        /** Enforce the zoom to be valid. */
+        /** Enforce the zoom to be valid. @internal */
         void validate()
             {
                 if( x() == 0.f ) x() = 1.f;
                 if( y() == 0.f ) y() = 1.f;
             }
 
-        /** Make the zoom factor invalid. */
+        /** Make the zoom factor invalid. @internal */
         void invalidate() { x() = y() = 0.f; }
 
         /** The zoom NONE (1,1) value. */

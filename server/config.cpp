@@ -1340,7 +1340,7 @@ std::ostream& operator << ( std::ostream& os, const Config* config )
     for( ObserverVector::const_iterator i = observers.begin(); 
          i !=observers.end(); ++i )
     {
-        os << *i;
+        os << **i;
     }
     const LayoutVector& layouts = config->getLayouts();
     for( LayoutVector::const_iterator i = layouts.begin(); 

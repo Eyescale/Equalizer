@@ -33,7 +33,7 @@ namespace fabric
     };
 
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const VisitorResult result )
+                                       const VisitorResult& result )
     {
         switch( result )
         {

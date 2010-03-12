@@ -331,7 +331,10 @@ void Window::notifyViewportChanged()
             if( _fixedPVP ) // update viewport
                 _vp = _pvp.getSubVP( pipePVP );
             else            // update pixel viewport
-                _pvp = pipePVP.getSubPVP( _vp );
+            {
+                _pvp = pipePVP;
+                _pvp.apply( _vp );
+            }
         }
     }
     EQINFO << "Window viewport update: " << _pvp << ":" << _vp << std::endl;
@@ -839,7 +842,7 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
         if( channel->getView() && channel->getSegment( ))
             continue; // don't print generated channels for now
 
-        os << channel;
+        os << *channel;
     }
 
     os << base::exdent << "}" << std::endl << base::enableHeader

@@ -1,13 +1,9 @@
-Move Config, View and Observer to fabric namespace
-Forbid subclassing for data distribution of View (and other Eq entities):
-- The master instance has to be on the server for various reasons
-- The server does not know how to deserialize application data
-- A new 'userdata' object can be attached to distribute data (see eqPly::View)
+Clean up ostream operators for fabric objects, doxygen improvements
 
-[x] Will break build
-[x] May break existing applications
+[ ] Will break build
+[ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

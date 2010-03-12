@@ -26,9 +26,10 @@ namespace eq
 /** 
  * @brief The Equalizer data synchronization fabric.
  *
- * This namespace implements the common data transport layer between the
- * Equalizer applications, the server and the administrative interface, which
- * use the eq, eq::server and eq::admin namespace, respectively.
+ * This namespace implements the common data management and transport layer
+ * between the Equalizer applications, the server and the administrative
+ * interface, which use the eq, eq::server and eq::admin namespace,
+ * respectively.
  */
 namespace fabric
 {
@@ -40,6 +41,7 @@ namespace fabric
      *
      * @return <code>true</code> if the library was successfully initialized,
      *         <code>false</code> otherwise.
+     * @version 1.0
      */
     EQ_EXPORT bool init( const int argc, char** argv );
     
@@ -48,6 +50,7 @@ namespace fabric
      *
      * @return <code>true</code> if the library was successfully de-initialized,
      *         <code>false</code> otherwise.
+     * @version 1.0
      */
     EQ_EXPORT bool exit();
 }

@@ -37,19 +37,6 @@ namespace fabric
     class Serializable : public net::Object
     {
     public:
-        /** Construct a new Serializable. @version 1.0 */
-        Serializable() : _dirty( DIRTY_NONE ) {}
-        
-        /**
-         * Construct an unmapped, unregistered copy of an serializable.
-         * @version 1.0
-         */
-        Serializable( const Serializable& from )
-                : net::Object(), _dirty ( DIRTY_NONE ) {}
-        
-        /** Destruct the serializable. @version 1.0 */
-        virtual ~Serializable() {}
-
         /** @return the current dirty bit mask. @version 1.0 */
         uint64_t getDirty() const { return _dirty; }
 
@@ -64,6 +51,19 @@ namespace fabric
             }
 
     protected:
+        /** Construct a new Serializable. @version 1.0 */
+        Serializable() : _dirty( DIRTY_NONE ) {}
+        
+        /**
+         * Construct an unmapped, unregistered copy of an serializable.
+         * @version 1.0
+         */
+        Serializable( const Serializable& from )
+                : net::Object(), _dirty ( DIRTY_NONE ) {}
+        
+        /** Destruct the serializable. @version 1.0 */
+        virtual ~Serializable() {}
+
         /** 
          * Worker for pack() and getInstanceData().
          *
@@ -107,7 +107,7 @@ namespace fabric
             DIRTY_ALL        = 0xFFFFFFFFFFFFFFFFull
         };
 
-        /** Set dirty flags to mark data for distribution. @version 1.0 */
+        /** Add dirty flags to mark data for distribution. @version 1.0 */
         void setDirty( const uint64_t bits ) { _dirty |= bits; }
 
         /** @sa eq::net::Object::attachToSession. @internal */

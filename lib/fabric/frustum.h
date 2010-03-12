@@ -26,17 +26,17 @@ namespace eq
 {
 namespace fabric
 {
-    /** A distributed Object for frustum data */
+    /** A distributed object for frustum data. */
     class Frustum : public Object
     {
     public:
-        /** Construct a new Frustum. */
+        /** Construct a new frustum. @version 1.0 */
         EQ_EXPORT Frustum();
         
-        /** Destruct the frustum. */
+        /** Destruct the frustum. @version 1.0 */
         EQ_EXPORT virtual ~Frustum();
 
-        /** The type of the latest specified frustum. */
+        /** The type of the last specified frustum. @version 1.0 */
         enum Type
         {
             TYPE_NONE,        //!< No frustum has been specified
@@ -44,22 +44,22 @@ namespace fabric
             TYPE_PROJECTION   //!< A projection description has been set last
         };
 
-        /** Set the frustum using a wall description. */
+        /** Set the frustum using a wall description. @version 1.0 */
         EQ_EXPORT void setWall( const Wall& wall );
         
-        /** Set the frustum using a projection description. */
+        /** Set the frustum using a projection description. @version 1.0 */
         EQ_EXPORT void setProjection( const Projection& projection );
 
-        /** @return the last specified frustum as a wall. */
+        /** @return the last specified frustum as a wall. @version 1.0 */
         EQ_EXPORT const Wall& getWall() const { return _wall; }
 
-        /** @return the last specified frustum as a projection. */
+        /** @return the last specified frustum as a projection. @version 1.0 */
         EQ_EXPORT const Projection& getProjection() const { return _projection;}
 
-        /** @return the type of the latest specified frustum. */
+        /** @return the type of the latest specified frustum. @version 1.0 */
         EQ_EXPORT Type getCurrentType() const { return _current; }
 
-        /** Set the last specified frustum to TYPE_NONE. */
+        /** Set the last specified frustum to TYPE_NONE. @version 1.0 */
         EQ_EXPORT void unsetFrustum();
 
     protected:
@@ -99,7 +99,7 @@ namespace fabric
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[32];
+            char dummy[16];
         };
     };
 

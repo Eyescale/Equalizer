@@ -385,9 +385,9 @@ void Window::_setViewport( const Viewport& vp )
     if( !_pipe )
         return;
 
-    PixelViewport pipePVP = _pipe->getPixelViewport();
-    if( pipePVP.isValid( ))
-        _pvp = pipePVP.getSubPVP( vp );
+    _pvp = _pipe->getPixelViewport();
+    if( _pvp.isValid( ))    
+        _pvp.apply( vp );
     EQINFO << "Window vp set: " << _pvp << ":" << _vp << endl;
 }
 
@@ -420,7 +420,7 @@ bool Window::getRenderContext( const int32_t x, const int32_t y,
     for( ; i != end; ++i )
     {
         const RenderContext& candidate = *i;
-        if( candidate.pvp.isPointInside( x, glY ))
+        if( candidate.pvp.isInside( x, glY ))
         {
             context = candidate;
             return true;

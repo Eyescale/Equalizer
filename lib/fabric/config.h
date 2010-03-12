@@ -80,7 +80,7 @@ namespace fabric
         /** @return the first observer of the given name, or 0. @version 1.0 */
         const O* findObserver( const std::string& name ) const;
 
-        /** @return the observer at the given path. */
+        /** @return the observer at the given path. @internal */
         O* getObserver( const ObserverPath& path );
         //@}
 

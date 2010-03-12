@@ -503,25 +503,22 @@ net::CommandResult Channel::_cmdFrameFinishReply( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
-std::ostream& operator << ( std::ostream& os, const Channel* channel)
+std::ostream& operator << ( std::ostream& os, const Channel& channel)
 {
-    if( !channel )
-        return os;
-    
     os << base::disableFlush << base::disableHeader << "channel" << std::endl;
     os << "{" << std::endl << base::indent;
 
-    const std::string& name = channel->getName();
+    const std::string& name = channel.getName();
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << std::endl;
 
-    const Segment* segment = channel->getSegment();
-    const View*    view    = channel->getView();
+    const Segment* segment = channel.getSegment();
+    const View*    view    = channel.getView();
     if( view && segment )
     {
         os << "path     ( ";
 
-        const Config* config = channel->getConfig();
+        const Config* config = channel.getConfig();
         const std::string& segmentName = segment->getName();
         if( !segmentName.empty() && 
             config->findSegment( segmentName ) == segment )
@@ -543,21 +540,21 @@ std::ostream& operator << ( std::ostream& os, const Channel* channel)
         os << " )" << std::endl; 
     }
 
-    const Viewport& vp  = channel->getViewport();
-    if( vp.isValid( ) && channel->hasFixedViewport( ))
+    const Viewport& vp  = channel.getViewport();
+    if( vp.isValid( ) && channel.hasFixedViewport( ))
     {
         if( vp != Viewport::FULL )
             os << "viewport " << vp << std::endl;
     }
     else
     {
-        const PixelViewport& pvp = channel->getPixelViewport();
+        const PixelViewport& pvp = channel.getPixelViewport();
         if( pvp.isValid( ))
             os << "viewport " << pvp << std::endl;
     }
 
 
-    const uint32_t drawable = channel->getDrawable();
+    const uint32_t drawable = channel.getDrawable();
     if( drawable !=  Channel::FB_WINDOW )
     {
         os << "drawable [";
@@ -584,7 +581,7 @@ std::ostream& operator << ( std::ostream& os, const Channel* channel)
          i < Channel::IATTR_ALL; 
          i = static_cast<Channel::IAttribute>( static_cast<uint32_t>(i)+1 ))
     {
-        const int value = channel->getIAttribute( i );
+        const int value = channel.getIAttribute( i );
         if( value == Global::instance()->getChannelIAttribute( i ))
             continue;
 

@@ -33,17 +33,19 @@ namespace fabric
      * A wall defining a view frustum.
      * 
      * The three points describe the bottom left, bottom right and top left
-     * coordinate of the wall in real-world coordinates.
+     * coordinate of the wall in real-world coordinates (meters).
      */
     class Wall
     {
     public:
+        /** Construct a new wall description. */
         EQ_EXPORT Wall();
 
         /** 
          * Resize the wall horizontally.
          * 
          * @param ratio the amount by which the wall is grown or shrunk.
+         * @version 1.0
          */
         EQ_EXPORT void resizeHorizontal( const float ratio );
 
@@ -51,6 +53,7 @@ namespace fabric
          * Resize the wall vertically.
          * 
          * @param ratio the amount by which the wall is grown or shrunk.
+         * @version 1.0
          */
         EQ_EXPORT void resizeVertical( const float ratio );
         
@@ -58,6 +61,7 @@ namespace fabric
          * Resize the wall on the left side.
          * 
          * @param ratio the amount by which the wall is grown or shrunk.
+         * @version 1.0
          */
         EQ_EXPORT void resizeLeft( const float ratio );
 
@@ -65,6 +69,7 @@ namespace fabric
          * Resize the wall on the right side.
          * 
          * @param ratio the amount by which the wall is grown or shrunk.
+         * @version 1.0
          */
         EQ_EXPORT void resizeRight( const float ratio );
 
@@ -72,6 +77,7 @@ namespace fabric
          * Resize the wall on the top side.
          * 
          * @param ratio the amount by which the wall is grown or shrunk.
+         * @version 1.0
          */
         EQ_EXPORT void resizeTop( const float ratio );
 
@@ -79,34 +85,45 @@ namespace fabric
          * Resize the wall on the bottom side.
          * 
          * @param ratio the amount by which the wall is grown or shrunk.
+         * @version 1.0
          */
         EQ_EXPORT void resizeBottom( const float ratio );
 
-        /** Compute the sub-frustum for a 2D area on the full wall. */
+        /**
+         * Compute the sub-frustum for a 2D area on the full wall.
+         * @version 1.0
+         */
         EQ_EXPORT void apply( const Viewport& viewport);
 
-        /** Set the wall parameters from a projection description. */
+        /**
+         * Set the wall parameters from a projection description.
+         * @version 1.0
+         */
         EQ_EXPORT Wall& operator = ( const Projection& projection );
 
-        /** @return the width of the wall. */
+        /** @return the width of the wall. @version 1.0 */
         float getWidth() const { return (bottomRight - bottomLeft).length(); }
 
-        /** @return the height of the wall. */
+        /** @return the height of the wall. @version 1.0 */
         float getHeight() const { return (topLeft - bottomLeft).length(); }
 
+        /** @return true if the two walls are identical. @version 1.0 */
         EQ_EXPORT bool operator == ( const Wall& rhs ) const;
+
+        /** @return true if the two walls are not identical. @version 1.0 */
         EQ_EXPORT bool operator != ( const Wall& rhs ) const;
 
-        Vector3f bottomLeft;
-        Vector3f bottomRight;
-        Vector3f topLeft;
+        Vector3f bottomLeft;  //!< The bottom-left corner
+        Vector3f bottomRight; //!< The bottom-right corner
+        Vector3f topLeft;     //!< The top-left corner
         
+        /** The reference system type of the wall. */
         enum Type
         {
-            TYPE_FIXED,
-            TYPE_HMD
+            TYPE_FIXED, //!< A fixed mounted projection wall
+            TYPE_HMD    //!< A wall fixed to the observer (head-mounted display)
         };
-        Type type;
+        Type type; //!< The wall type
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Wall& wall );

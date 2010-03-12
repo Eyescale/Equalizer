@@ -32,32 +32,34 @@ namespace fabric
      * on a model, in the sense used by the MVC pattern. It can be a scene,
      * viewing mode, viewing position, or any other representation of the
      * application's data.
-     *
-     * @warning Never commit a View. Equalizer does take care of this to
-     *          correctly associate view version with rendering frames.
      */
     template< class L, class V, class O > class View : public Frustum
     {
     public:
         /** @name Data Access. */
         //@{
-        /** @return the viewport of the view. */
+        /** @return the viewport of the view wrt its layout. @version 1.0 */
         EQ_EXPORT const Viewport& getViewport() const;
 
-        /** @return the layout of this view. */
+        /** @return the parent layout of this view. @version 1.0 */
         EQ_EXPORT L* getLayout() { return _layout; }
 
-        /** @return the layout of this view. */
+        /** @return the parent layout of this view. @version 1.0 */
         EQ_EXPORT const L* getLayout() const { return _layout; }
 
-        /** @return the entity tracking this view, 0 for untracked views. */
+        /**
+         * @return the observer tracking this view, or 0 for untracked views.
+         * @version 1.0
+         */
         O* getObserver() { return _observer; }
 
-        /** const version of getObserver() */
+        /** const version of getObserver(). @version 1.0 */
         const O* getObserver() const { return _observer; }
 
         /** @warning  Undocumented - may not be supported in the future */
         EQ_EXPORT void setOverdraw( const Vector2i& pixels );
+
+        /** @warning  Undocumented - may not be supported in the future */
         const Vector2i& getOverdraw() const { return _overdraw; }
 
         /** Set the 2D viewport wrt Layout and Canvas. @internal */
@@ -74,10 +76,11 @@ namespace fabric
          * 
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
+         * @version 1.0
          */
         EQ_EXPORT VisitorResult accept( LeafVisitor< V >& visitor );
 
-        /** Const-version of accept(). */
+        /** Const-version of accept(). @version 1.0 */
         EQ_EXPORT VisitorResult accept( LeafVisitor< V >& visitor ) const;
         //@}
 
@@ -89,13 +92,13 @@ namespace fabric
             DIRTY_OVERDRAW   = Frustum::DIRTY_CUSTOM << 2
         };
 
-        /** Construct a new view. */
+        /** Construct a new view. @internal */
         EQ_EXPORT View( L* layout );
 
         /** Construct a new deep copy of a view. @internal */
         EQ_EXPORT View( const View& from, L* layout );
 
-        /** Destruct this view. */
+        /** Destruct this view. @internal */
         EQ_EXPORT virtual ~View();
 
         virtual ChangeType getChangeType() const { return DELTA; }

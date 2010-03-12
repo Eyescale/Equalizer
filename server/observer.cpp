@@ -120,5 +120,7 @@ void Observer::_updateEyes()
 }
 #include "../lib/fabric/observer.cpp"
 template class eq::fabric::Observer< eq::server::Config, eq::server::Observer >;
+/** @cond IGNORE */
 template std::ostream& eq::fabric::operator << ( std::ostream&,
-      const eq::fabric::Observer< eq::server::Config, eq::server::Observer >* );
+      const eq::fabric::Observer< eq::server::Config, eq::server::Observer >& );
+/** @endcond */

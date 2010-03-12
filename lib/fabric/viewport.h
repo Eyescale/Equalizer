@@ -32,23 +32,24 @@ namespace fabric
     class Viewport;
     std::ostream& operator << ( std::ostream& os, const Viewport& vp );
 
-    /**
-     * Holds a fractional viewport along with some methods for manipulation.
-     */
+    /** A fractional viewport with methods for manipulation. */
     class Viewport 
     {
     public:
-        /**
-         * @name Constructors
-         */
+        /** @name Constructors */
         //@{
+        /** Construct a full fractional viewport. @version 1.0 */
         Viewport() : x(0.0f), y(0.0f), w(1.0f), h(1.0f)  {}
 
+        /** Construct a fractional viewport with default values. @version 1.0 */
         Viewport( const float x_, const float y_, const float w_,const float h_)
                 : x(x_), y(y_), w(w_), h(h_)  {}
         //@}
 
+        /** Make the viewport invalid. @internal */
         void invalidate() { x=0.0f; y=0.0f; w=-1.0f; h=-1.0f; }
+
+        /** Apply (accumulate) another viewport. @internal */
         void apply( const Viewport& rhs )
             {
                 EQASSERTINFO( isValid(), *this);
@@ -59,6 +60,7 @@ namespace fabric
                 h *= rhs.h;
             }
             
+        /** Transform this viewport into the rhs viewport space. @internal */
         void transform( const Viewport& rhs )
             {
                 w = w / rhs.w;
@@ -67,11 +69,19 @@ namespace fabric
                 y = ( y - rhs.y ) / rhs.h;
             }
 
+        /**
+         * @return true if the two viewports are identical.
+         * @version 1.0
+         */
         bool operator == ( const Viewport& rhs ) const 
             { 
                 return ( x==rhs.x && y==rhs.y && w==rhs.w && h==rhs.h);
             }
 
+        /**
+         * @return true if the two viewports are not identical.
+         * @version 1.0
+         */
         bool operator != ( const Viewport& rhs ) const 
             { 
                 return ( x!=rhs.x || x!=rhs.y || w!=rhs.w || h!=rhs.h);
@@ -80,6 +90,7 @@ namespace fabric
         /** 
          * @return true if the viewport has a non-negative, but potentially
          *         empty, size.
+         * @version 1.0
          */
         bool isValid() const 
             { return ( x>=0.0f && y>=0.0f && w>=0.0f && h>=0.0f ); }
@@ -87,19 +98,20 @@ namespace fabric
         /** 
          * @return true if the viewport has a non-zero area, i.e, it is
          *         not empty.
+         * @version 1.0
          */
         bool hasArea() const { return (w>0.0f && h>0.0f); }
 
-        /** @return the area of this viewport */
+        /** @return the area of this viewport. @version 1.0 */
         float getArea() const { return w*h; }
 
-        /** @return the X end position */
+        /** @return the X end position. @version 1.0 */
         float getXEnd() const { return x+w; }
 
-        /** @return the Y end position */
+        /** @return the Y end position. @version 1.0 */
         float getYEnd() const { return y+h; }
 
-        /** create the intersection viewport  */
+        /** Create the intersection of the two viewports. @version 1.0 */
         void intersect( const Viewport& rhs )
             {
                 if( *this == rhs )
@@ -131,7 +143,10 @@ namespace fabric
                 h = EQ_MIN( sEy, dEy ) - y;
             }
 
-        /** Compute the coverage of another Viewport on this viewport. */
+        /**
+         * Compute the coverage of another viewport on this viewport.
+         * @internal
+         */
         Viewport getCoverage( const Viewport& with ) const
             {
                 Viewport coverage( with );
@@ -141,7 +156,7 @@ namespace fabric
                 return coverage;
             }
 
-        /** Apply the view coverage to this viewport. */
+        /** Apply the view coverage to this viewport. @internal */
         EQ_EXPORT void applyView( const Viewport& segmentVP, 
                                   const Viewport& viewVP,
                                   const PixelViewport& pvp, 
@@ -152,7 +167,7 @@ namespace fabric
         float w;
         float h;
 
-        EQ_EXPORT static const Viewport FULL;
+        EQ_EXPORT static const Viewport FULL; //!< A full viewport.
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Viewport& vp )

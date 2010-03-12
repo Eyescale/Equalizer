@@ -76,7 +76,8 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         //----- compute readback area
         const Viewport& frameVP = frame->getViewport();
         const PixelViewport& inheritPVP=compound->getInheritPixelViewport();
-        PixelViewport framePVP = inheritPVP.getSubPVP( frameVP );
+        PixelViewport framePVP( inheritPVP );
+        framePVP.apply( frameVP );
         
         if( !framePVP.hasArea( )) // output frame has no pixels
         {

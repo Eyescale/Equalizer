@@ -195,7 +195,10 @@ void Channel< T, W >::notifyViewportChanged()
     windowPVP.y = 0;
 
     if( _fixedVP ) // update pixel viewport
-        _nativeContext.pvp = windowPVP.getSubPVP( _nativeContext.vp );
+    {
+        _nativeContext.pvp = windowPVP;
+        _nativeContext.pvp.apply( _nativeContext.vp );
+    }
     else           // update viewport
         _nativeContext.vp = _nativeContext.pvp.getSubVP( windowPVP );
 

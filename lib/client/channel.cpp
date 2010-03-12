@@ -386,7 +386,7 @@ Frustumf Channel::getScreenFrustum() const
 
     pvp.x = static_cast<int32_t>( pvp.w / vp.w * vp.x );
     pvp.y = static_cast<int32_t>( pvp.h / vp.h * vp.y );
-    pvp *= pixel;
+    pvp.unapply( pixel );
 
     return eq::Frustumf( static_cast< float >( pvp.x ),
                          static_cast< float >( pvp.getXEnd( )),

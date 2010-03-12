@@ -34,16 +34,10 @@ namespace fabric
     class Object : public fabric::Serializable
     {
     public:
-        /** Construct a new Object. */
-        EQ_EXPORT Object();
-        
-        /** Destruct the object. */
-        EQ_EXPORT virtual ~Object();
-
-        /** Set the name of the object. */
+        /** Set the name of the object. @version 1.0 */
         EQ_EXPORT void setName( const std::string& name );
 
-        /** @return the name of the object. */
+        /** @return the name of the object. @version 1.0 */
         EQ_EXPORT const std::string& getName() const;
 
         /**
@@ -53,22 +47,29 @@ namespace fabric
          * user data object. Commit, sync and Session::mapObject of the user
          * data object are automatically executed when commiting and syncing
          * this object. Not all instances of the object have to set a user data
-         * object.
+         * object. All instances have to set the same type of object.
+         * @version 1.0
          */
         EQ_EXPORT void setUserData( net::Object* userData );
 
-        /** @return the user-specific data. */
+        /** @return the user-specific data. @version 1.0 */
         net::Object* getUserData() { return _userData; }
 
-        /** @return the user-specific data. */
+        /** @return the user-specific data. @version 1.0 */
         const net::Object* getUserData() const { return _userData; }
 
-        /** @return true if the view has data to commit. */
+        /** @return true if the view has data to commit. @version 1.0 */
         EQ_EXPORT virtual bool isDirty() const;
 
-        EQ_EXPORT virtual uint32_t commitNB();
+        EQ_EXPORT virtual uint32_t commitNB(); //!< @internal
 
     protected:
+        /** Construct a new Object. */
+        EQ_EXPORT Object();
+        
+        /** Destruct the object. */
+        EQ_EXPORT virtual ~Object();
+
         EQ_EXPORT virtual void serialize( net::DataOStream& os,
                                           const uint64_t dirtyBits );
 

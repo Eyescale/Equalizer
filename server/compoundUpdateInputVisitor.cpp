@@ -80,7 +80,9 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
             const Viewport& frameVP = frame->getViewport();
             const PixelViewport& inheritPVP =
                 compound->getInheritPixelViewport();
-            const PixelViewport& framePVP = inheritPVP.getSubPVP( frameVP );
+            PixelViewport framePVP( inheritPVP );
+
+            framePVP.apply( frameVP );
             frameOffset.x() -= framePVP.x;
             frameOffset.y() -= framePVP.y;
 

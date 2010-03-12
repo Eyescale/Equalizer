@@ -32,43 +32,58 @@ namespace eq
 {
 namespace fabric
 {
-    /** Holds a pixel viewport along with some methods for manipulation. */
+    /** Holds a 2D pixel viewport with methods for manipulation. */
     class PixelViewport 
     {
     public:
-        /**
-         * @name Constructors
-         */
+        /** @name Constructors */
         //@{
+        /** Construct a new, invalid pixel viewport. @version 1.0 */
         PixelViewport() : x(0), y(0), w(-1), h(-1)  {}
 
+        /** Construct a new pixel viewport with default values. @version 1.0 */
         PixelViewport( const int32_t x_, const int32_t y_, 
                        const int32_t w_, const int32_t h_ )
                 : x(x_), y(y_), w(w_), h(h_)  {}
         //@}
 
-        /** Invalidate the pixel viewport. */
+        /** @name Data Access */
+        //@{
+        /** Invalidate the pixel viewport. @version 1.0 */
         void invalidate() { x = 0; y = 0; w = -1; h = -1; }
 
         /** 
          * @return true if the pixel viewport has a non-negative, but
          *         potentially empty, size.
+         * @version 1.0
          */
         bool isValid() const { return (w>=0 && h>=0); }
         
         /** 
          * @return true if the pixel viewport has a non-zero area, i.e, it is
          *         not empty.
+         * @version 1.0
          */
         bool hasArea() const { return (w>0 && h>0); }
 
-        /** @return the area in pixels. */
+        /** @return the area in pixels. @version 1.0 */
         uint32_t getArea() const { return w * h; }
 
         /**
-         * @name Operators
+         * @return true if the given point is inside the pixel viewport.
+         * @version 1.0
          */
+        bool isInside( const int32_t pX, const int32_t pY ) const
+            {
+                if( pX < x || pY < y || pX > (x+w) || pY > (y+h) )
+                    return false;
+                return true;
+            }
+        //@}
+
+        /** @name Operations */
         //@{
+        /** Apply a fractional viewport to this pixel viewport. @internal */
         void apply( const Viewport& rhs )
             {
                 // honor position over size to avoid rounding artifacts
@@ -81,6 +96,7 @@ namespace fabric
                 h = yEnd - y;
             }
 
+        /** Apply a pixel decomposition to this pixel viewport. @internal */
         void apply( const Pixel& pixel )
             {
                 if( pixel.w > 1 )
@@ -107,6 +123,7 @@ namespace fabric
                 }
         }
 
+        /** Apply a zoom to this pixel viewport. @internal */
         void apply( const Zoom& zoom )
             {
                 if( zoom == Zoom::NONE )
@@ -115,26 +132,12 @@ namespace fabric
                 w = static_cast< int32_t >( w * zoom.x() + .5f );
                 h = static_cast< int32_t >( h * zoom.y() + .5f );
             }
-
-        const PixelViewport getSubPVP( const Viewport& rhs ) const
-            {
-                if( rhs == Viewport::FULL )
-                    return *this;
-
-                PixelViewport result;
-
-                // honor position over size to avoid rounding artifacts
-                const int32_t xEnd = x + static_cast<int32_t>((rhs.x+rhs.w)*w);
-                const int32_t yEnd = y + static_cast<int32_t>((rhs.y+rhs.h)*h);
-
-                result.x = x + static_cast<int32_t>( w * rhs.x );
-                result.y = y + static_cast<int32_t>( h * rhs.y );
-                result.w = xEnd - result.x;
-                result.h = yEnd - result.y;
-
-                return result;
-            }
-
+        
+        /**
+         * @return the viewport which would result in the given rhs pixel
+         *         viewport when applied to this pixel viewport.
+         * @internal
+         */
         const Viewport getSubVP( const PixelViewport& rhs ) const
             {
                 if( *this == rhs )
@@ -150,6 +153,11 @@ namespace fabric
                                   ( h )/ static_cast<float>( rhs.h ));
             }
 
+        /**
+         * @return the zoom which would result in the given rhs pixel
+         *         viewport when applied to this pixel viewport.
+         * @internal
+         */
         const Zoom getZoom( const PixelViewport& rhs ) const
             {
                 if( *this == rhs )
@@ -163,40 +171,53 @@ namespace fabric
                              h / static_cast<float>( rhs.h ));
             }
 
-        /** @return the X end position */
+        /** @return the X end position. @version 1.0 */
         int32_t getXEnd() const { return x+w; }
 
-        /** @return the Y end position */
+        /** @return the Y end position. @version 1.0 */
         int32_t getYEnd() const { return y+h; }
 
+        /** @return the addition of this pvp with an offset. @version 1.0 */
         const PixelViewport operator + ( const Vector2i& offset ) const
             {
                 return PixelViewport( x+offset.x(), y+offset.y(), w, h );
             }
 
-        const PixelViewport operator * ( const Pixel& pixel ) const
-            {
-                return PixelViewport( x, y, w * pixel.w, h * pixel.h );
-            }
-        PixelViewport& operator *= ( const Pixel& pixel )
+        /**
+         * Perform the inverse operation of applying a pixel decomposition to
+         * this pixel viewport.
+         * @version 1.0
+         */
+        void unapply( const Pixel& pixel )
             {
                 w *= pixel.w;
                 h *= pixel.h;
                 x += pixel.x;
                 y += pixel.y;
-                return *this;
             }
 
+        /**
+         * @return true if the two pixel viewports are identical.
+         * @version 1.0
+         */
         bool operator == ( const PixelViewport& rhs ) const 
             { 
                 return ( x==rhs.x && y==rhs.y && w==rhs.w && h==rhs.h );
             }
+
+        /**
+         * @return true if the two pixel viewports are not identical.
+         * @version 1.0
+         */
         bool operator != ( const PixelViewport& rhs ) const 
             { 
                 return ( x!=rhs.x || y!=rhs.y || w!=rhs.w || h!=rhs.h );
             }
 
-        /** create a pixel viewport that includes both viewports (union) */
+        /**
+         * Create a pixel viewport that includes both viewports (union).
+         * @version 1.0
+         */
         void merge( const PixelViewport& rhs )
             {
                 if( *this == rhs || !rhs.hasArea() )
@@ -219,7 +240,7 @@ namespace fabric
                 h = EQ_MAX( sEy, dEy ) - y;
             }
 
-        /** create the intersection pixel viewport  */
+        /** Create the intersection of the two pixel viewports. @version 1.0 */
         void intersect( const PixelViewport& rhs )
             {
                 if( *this == rhs )
@@ -252,18 +273,6 @@ namespace fabric
             }
 
         //@}
-
-        /**
-         * @name Tests
-         */
-        //@{
-        /** @returns true if the point (pX,pY) is inside, false if not. */
-        bool isPointInside( const int32_t pX, const int32_t pY ) const
-            {
-                if( pX < x || pY < y || pX > (x+w) || pY > (y+h) )
-                    return false;
-                return true;
-            }
 
         int32_t x;
         int32_t y;

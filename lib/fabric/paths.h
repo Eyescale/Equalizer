@@ -20,6 +20,7 @@
 
 #include "types.h"
 
+/** @cond IGNORE */
 namespace eq
 {
 namespace fabric
@@ -140,6 +141,7 @@ inline std::ostream& operator << ( std::ostream& os, const SegmentPath& path )
        << path.segmentIndex;
     return os;
 }
+/** @endcond */
 
 }
 }

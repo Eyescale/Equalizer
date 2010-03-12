@@ -118,19 +118,16 @@ void Observer< C, O >::setHeadMatrix( const Matrix4f& matrix )
 }
 
 template< typename C, typename O >
-std::ostream& operator << ( std::ostream& os, const Observer< C, O >* observer )
+std::ostream& operator << ( std::ostream& os, const Observer< C, O >& observer )
 {
-    if( !observer )
-        return os;
-    
     os << base::disableFlush << base::disableHeader << "observer" << std::endl;
     os << "{" << std::endl << base::indent; 
 
-    const std::string& name = observer->getName();
+    const std::string& name = observer.getName();
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << std::endl;
 
-    const float eyeBase = observer->getEyeBase();
+    const float eyeBase = observer.getEyeBase();
     if( eyeBase != 0.05f /* TODO use Config::FATTR_EYE_BASE */ )
         os << eyeBase << std::endl;
 

@@ -35,21 +35,25 @@ namespace fabric
      *
      * The index represents the contributor ID within the subpixel
      * decomposition.  The size determines how many contributors are performing
-     * anti-aliasing.
+     * anti-aliasing or any other subpixel decomposition.
      */
     class SubPixel
     {
     public:
-        /**
-         * @name Constructors
-         */
+        /** @name Constructors */
         //@{
+        /** Construct an empty subpixel specification. @version 1.0 */
         SubPixel() : index( 0 ), size( 1 )  {}
 
+        /**
+         * Construct a subpixel specification with default values.
+         * @version 1.0
+         */
         SubPixel( const uint32_t index_, const uint32_t size_ )
                 : index( index_ ), size( size_ ) {}
         //@}
 
+        /** Apply (accumulate) another subpixel specification. @internal */
         void apply( const SubPixel& rhs )
         {
             if( !isValid() || !rhs.isValid( ))
@@ -59,18 +63,28 @@ namespace fabric
             size  *= rhs.size;
         }
 
+        /**
+         * @return true if the two subpixel specifications are identical.
+         * @version 1.0
+         */
         bool operator == ( const SubPixel& rhs ) const
         {
             return index==rhs.index && size==rhs.size;
         }
 
+        /**
+         * @return true if the two subpixel specifications are not identical.
+         * @version 1.0
+         */
         bool operator != ( const SubPixel& rhs ) const
         {
             return index != rhs.index || size != rhs.size;
         }
 
+        /** Make the subpixel specification invalid. @internal */
         void invalidate() { index = size = 0; }
 
+        /** Make the subpixel specification valid. @internal */
         void validate()
         {
             if( isValid( )) return;
@@ -80,12 +94,13 @@ namespace fabric
             EQWARN << "Corrected " << *this << std::endl;
         }
 
+        /** @return true if the pixel specification is valid. @internal */
         bool isValid() const { return ( index < size ); }
 
         uint32_t index;
         uint32_t size;
 
-        EQ_EXPORT static const SubPixel ALL;
+        EQ_EXPORT static const SubPixel ALL; 
     };
 
     inline std::ostream& operator << ( std::ostream& os,

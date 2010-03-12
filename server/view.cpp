@@ -160,7 +160,9 @@ ViewPath View::getPath() const
 
 template class eq::fabric::View< eq::server::Layout, eq::server::View,
                                  eq::server::Observer >;
+/** @cond IGNORE */
 template std::ostream& eq::fabric::operator << ( std::ostream&,
                          const eq::fabric::View< eq::server::Layout,
                                                  eq::server::View,
                                                  eq::server::Observer >& );
+/** @endcond */

@@ -249,10 +249,10 @@ namespace server
         net::CommandResult _cmdFrameFinishReply( net::Command& command );
 
         // For access to _fixedPVP
-        friend std::ostream& operator << ( std::ostream&, const Channel*);
+        friend std::ostream& operator << ( std::ostream&, const Channel& );
     };
 
-    std::ostream& operator << ( std::ostream& os, const Channel* channel);
+    std::ostream& operator << ( std::ostream& os, const Channel& channel);
 }
 }
 #endif // EQSERVER_CHANNEL_H

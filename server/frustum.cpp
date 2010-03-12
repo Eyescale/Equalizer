@@ -40,13 +40,13 @@ Frustum::Frustum( const Frustum& from, FrustumData& data )
     _updateFrustum();
 }
 
-void Frustum::setWall( const Wall& wall )
+void Frustum::setWall( const fabric::Wall& wall )
 {
     fabric::Frustum::setWall( wall );
     _updateFrustum();
 }
         
-void Frustum::setProjection( const Projection& projection )
+void Frustum::setProjection( const fabric::Projection& projection )
 {
     fabric::Frustum::setProjection( projection );
     _updateFrustum();
