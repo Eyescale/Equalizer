@@ -63,7 +63,7 @@ namespace server
         const ConfigVector& getConfigs() const { return _configs; }
 
         /** Delete all configs of this server (exit). */
-        void deleteConfigs();
+        EQSERVER_EXPORT void deleteConfigs();
 
         /** @return the command queue to the server thread */
         net::CommandQueue* getServerThreadQueue() 
