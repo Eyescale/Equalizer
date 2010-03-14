@@ -24,6 +24,8 @@
 
 namespace eq
 {
+namespace fabric
+{
     /** Stores the characteristics of a window's frame buffer configuration. */
     struct DrawableConfig
     {
@@ -55,6 +57,6 @@ namespace eq
     }
 
 }
-
+}
 #endif // EQ_DRAWABLECONFIG_H
 

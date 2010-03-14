@@ -30,6 +30,7 @@ namespace eq
 namespace fabric
 {
 class ColorMask;
+struct DrawableConfig;
 class Frustum;
 class Pixel;
 class PixelViewport;
@@ -61,6 +62,7 @@ class X11Connection;
 struct Statistic;
 
 typedef fabric::ColorMask ColorMask;
+typedef fabric::DrawableConfig DrawableConfig;
 typedef fabric::Frustum Frustum;
 typedef fabric::Pixel Pixel;
 typedef fabric::PixelViewport PixelViewport;
@@ -72,14 +74,32 @@ typedef fabric::Viewport Viewport;
 typedef fabric::Wall Wall;
 typedef fabric::Zoom Zoom;
 
-/** A visitor to traverse channels. @sa Channel::accept() */
-typedef fabric::LeafVisitor< Channel > ChannelVisitor;
+/** A visitor to traverse segments. @sa  Segment ::accept() */
+//typedef fabric::LeafVisitor< Segment > SegmentVisitor;
 
 /** A visitor to traverse views. @sa View::accept() */
 typedef fabric::LeafVisitor< View > ViewVisitor;
 
-/** A visitor to traverse views. @sa View::accept() */
+/** A visitor to traverse channels. @sa Channel::accept() */
 typedef fabric::LeafVisitor< Observer > ObserverVisitor;
+
+/** A visitor to traverse channels. @sa Channel::accept() */
+typedef fabric::LeafVisitor< Channel > ChannelVisitor;
+
+/** A visitor to traverse Canvas and children. */
+//typedef fabric::ElementVisitor< Canvas, SegmentVisitor > CanvasVisitor;
+
+/** A visitor to traverse windows and children. */
+//typedef fabric::ElementVisitor< Window, ChannelVisitor > WindowVisitor;   
+    
+/** A visitor to traverse pipes and children. */
+//typedef fabric::ElementVisitor< Pipe, WindowVisitor > PipeVisitor;
+
+/** A visitor to traverse nodes and children. */
+//typedef fabric::ElementVisitor< Node, PipeVisitor > NodeVisitor;
+
+/** A visitor to traverse layouts and children. */
+//typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
 
 //----- Vectors
 /** A vector of pointers to eq::Config */

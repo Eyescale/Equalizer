@@ -18,7 +18,7 @@
 #ifndef EQ_WINDOW_H
 #define EQ_WINDOW_H
 
-#include <eq/client/drawableConfig.h> // member
+#include <eq/fabric/drawableConfig.h> // member
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h> // enum
 

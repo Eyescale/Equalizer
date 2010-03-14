@@ -85,6 +85,8 @@ HEADER_SRC = \
 	fabric/channel.h \
 	fabric/colorMask.h \
 	fabric/config.h \
+	fabric/drawableConfig.h \
+	fabric/elementVisitor.h \
 	fabric/eye.h \
 	fabric/frustum.h \
 	fabric/init.h \
@@ -121,7 +123,6 @@ HEADER_SRC = \
 	client/configStatistics.h \
 	client/configVisitor.h \
 	client/cudaContext.h \
-	client/drawableConfig.h \
 	client/event.h \
 	client/eventHandler.h \
 	client/eye.h \

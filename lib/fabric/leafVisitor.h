@@ -35,11 +35,11 @@ namespace fabric
         virtual ~LeafVisitor(){}
 
         /** Visit a leaf node. @version 1.0 */
-        virtual VisitorResult visit( T* node )
-            { return visit( static_cast< const T* >( node )); }
+        virtual VisitorResult visit( T* leaf )
+            { return visit( static_cast< const T* >( leaf )); }
 
         /** Visit a leaf node during a const traversal. @version 1.0 */
-        virtual VisitorResult visit( const T* node )
+        virtual VisitorResult visit( const T* leaf )
             { return TRAVERSE_CONTINUE; }
     };
 }
