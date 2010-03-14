@@ -1441,7 +1441,10 @@ void RSPConnection::_removeConnection( const uint16_t id )
 
 int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
 {
-    EQASSERT( !_parent );
+    // to do : modify caller for use only rsp parent write
+    if ( _parent.isValid() )
+        return _parent->write( inData, bytes );
+
     EQASSERT( _state == STATE_LISTENING );
 
     if ( !_write )
