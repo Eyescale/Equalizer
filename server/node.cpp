@@ -23,12 +23,12 @@
 #include "config.h"
 #include "global.h"
 #include "log.h"
-#include "nodeVisitor.h"
 #include "pipe.h"
 #include "server.h"
 #include "window.h"
 
 #include <eq/client/packets.h>
+#include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
 #include <eq/net/barrier.h>
 #include <eq/net/command.h>

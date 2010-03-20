@@ -32,7 +32,6 @@ namespace fabric
 }
 namespace server
 {
-    class LayoutVisitor;
 
     /**
      * The layout. @sa eq::Layout

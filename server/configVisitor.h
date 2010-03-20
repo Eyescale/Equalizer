@@ -18,10 +18,8 @@
 #ifndef EQSERVER_CONFIGVISITOR_H
 #define EQSERVER_CONFIGVISITOR_H
 
-#include "canvasVisitor.h"        // base class
 #include "compoundVisitor.h"      // base class
-#include "layoutVisitor.h"        // base class
-#include "nodeVisitor.h"          // base class
+#include <eq/fabric/elementVisitor.h>
 #include "types.h"
 
 namespace eq

@@ -18,7 +18,6 @@
 #include "layout.h"
 
 #include "config.h"
-#include "layoutVisitor.h"
 #include "nameFinder.h"
 #include "view.h"
 

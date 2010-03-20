@@ -19,8 +19,8 @@
 
 #include "canvas.h"
 #include "config.h"
-#include "segmentVisitor.h"
 
+#include <eq/fabric/leafVisitor.h>
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
 

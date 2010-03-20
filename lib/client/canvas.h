@@ -31,7 +31,6 @@ namespace server
 {
     class Canvas;
 }
-    class CanvasVisitor;
 
     /**
      * A canvas represents a logical 2D projection surface.

@@ -26,7 +26,6 @@
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
-#include "nodeVisitor.h"
 #include "packets.h"
 #include "pipe.h"
 #include "server.h"
@@ -37,6 +36,7 @@
 #  include "wglEventHandler.h"
 #endif
 
+#include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/task.h>
 #include <eq/net/command.h>
 #include <eq/net/connection.h>

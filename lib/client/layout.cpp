@@ -19,10 +19,9 @@
 
 #include "config.h"
 #include "global.h"
-#include "layoutVisitor.h"
 #include "nodeFactory.h"
 #include "view.h"
-
+#include <eq/fabric/elementVisitor.h>
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
 

@@ -36,7 +36,6 @@ namespace fabric
 }
 
     class Config;
-    class LayoutVisitor;
 
     /**
      * A layout groups one or more View which logically belong together.

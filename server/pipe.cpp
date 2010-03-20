@@ -23,11 +23,11 @@
 #include "global.h"
 #include "log.h"
 #include "node.h"
-#include "pipeVisitor.h"
 #include "window.h"
 
 #include <eq/client/commands.h>
 #include <eq/client/packets.h>
+#include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
 #include <eq/net/command.h>
 

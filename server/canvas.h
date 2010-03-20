@@ -30,8 +30,6 @@ namespace eq
 {
 namespace server
 {
-    class CanvasVisitor;
-
     /**
      * The canvas. @sa eq::Canvas
      */

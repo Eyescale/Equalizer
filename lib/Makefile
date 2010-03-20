@@ -109,7 +109,6 @@ HEADER_SRC = \
 	fabric/wall.h \
 	fabric/zoom.h \
 	client/canvas.h \
-	client/canvasVisitor.h \
 	client/channel.h \
 	client/channelStatistics.h \
 	client/client.h \
@@ -133,7 +132,6 @@ HEADER_SRC = \
 	client/image.h \
 	client/init.h \
 	client/layout.h \
-	client/layoutVisitor.h \
 	client/log.h \
 	client/messagePump.h \
 	client/node.h \
@@ -147,9 +145,7 @@ HEADER_SRC = \
 	client/osWindow.h \
 	client/packets.h \
 	client/pipe.h \
-	client/pipeVisitor.h \
 	client/segment.h \
-	client/segmentVisitor.h \
 	client/server.h \
 	client/statistic.h \
 	client/statisticSampler.h \
@@ -160,7 +156,6 @@ HEADER_SRC = \
 	client/window.h \
 	client/windowStatistics.h \
 	client/windowSystem.h \
-	client/windowVisitor.h \
 	util/accum.h \
 	util/accumBufferObject.h \
 	util/bitmapFont.h \

@@ -25,7 +25,6 @@
 #include "log.h"
 #include "nodeFactory.h"
 #include "pipeStatistics.h"
-#include "pipeVisitor.h"
 #include "packets.h"
 #include "server.h"
 #include "view.h"
@@ -50,6 +49,7 @@
 #  include "cudaContext.h"
 #endif
 
+#include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/task.h>
 #include <eq/net/command.h>
 #include <sstream>

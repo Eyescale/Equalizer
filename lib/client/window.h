@@ -37,7 +37,6 @@ namespace fabric
 }
     class OSPipe;
     class OSWindow;
-    class WindowVisitor;
     struct Event;
 
     /**

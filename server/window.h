@@ -41,7 +41,6 @@ namespace eq
 namespace server
 {
     class SwapBarrier;
-    class WindowVisitor;
 
     /**
      * The window.

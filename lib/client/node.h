@@ -29,7 +29,6 @@ namespace eq
 {
     class CommandQueue;
     class FrameData;
-    class NodeVisitor;
 
     /**
      * A Node represents a single computer in the cluster.

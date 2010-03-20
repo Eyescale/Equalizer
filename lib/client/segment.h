@@ -31,7 +31,6 @@ namespace server
 }
 
     class Canvas;
-    class SegmentVisitor;
 
     /**
      * A segment covers a sub-area of a Canvas. It has a Frustum, and defines

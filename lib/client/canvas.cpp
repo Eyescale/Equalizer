@@ -17,13 +17,13 @@
 
 #include "canvas.h"
 
-#include "canvasVisitor.h"
 #include "config.h"
 #include "global.h"
 #include "layout.h"
 #include "nodeFactory.h"
 #include "segment.h"
 
+#include <eq/fabric/elementVisitor.h>
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
 

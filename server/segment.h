@@ -19,17 +19,16 @@
 #define EQSERVER_SEGMENT_H
 
 #include "types.h"
-#include "segmentVisitor.h"  // used in inline method
-
+#include "visitorResult.h"  // enum
 #include <eq/client/segment.h>      // base class
-#include <eq/fabric/viewport.h>     // member
+#include <eq/fabric/leafVisitor.h>  // type leaf visitor
 
 namespace eq
 {
 namespace server
 {
     class Canvas;
-
+    
     /**
      * The segment. @sa eq::Segment
      */

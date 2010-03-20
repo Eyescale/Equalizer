@@ -45,7 +45,6 @@ namespace eq
     class CommandQueue;
     class MessagePump;
     class OSPipe;
-    class PipeVisitor;
     class ComputeContext;
 
     /**

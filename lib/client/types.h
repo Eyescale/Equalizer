@@ -41,6 +41,7 @@ class SubPixel;
 class Viewport;
 class Wall;
 class Zoom;
+template< typename T, typename L > class ElementVisitor;
 template< typename T > class LeafVisitor;
 }
 
@@ -75,7 +76,7 @@ typedef fabric::Wall Wall;
 typedef fabric::Zoom Zoom;
 
 /** A visitor to traverse segments. @sa  Segment ::accept() */
-//typedef fabric::LeafVisitor< Segment > SegmentVisitor;
+typedef fabric::LeafVisitor< Segment > SegmentVisitor;
 
 /** A visitor to traverse views. @sa View::accept() */
 typedef fabric::LeafVisitor< View > ViewVisitor;
@@ -87,19 +88,19 @@ typedef fabric::LeafVisitor< Observer > ObserverVisitor;
 typedef fabric::LeafVisitor< Channel > ChannelVisitor;
 
 /** A visitor to traverse Canvas and children. */
-//typedef fabric::ElementVisitor< Canvas, SegmentVisitor > CanvasVisitor;
+typedef fabric::ElementVisitor< Canvas, SegmentVisitor > CanvasVisitor;
 
 /** A visitor to traverse windows and children. */
-//typedef fabric::ElementVisitor< Window, ChannelVisitor > WindowVisitor;   
+typedef fabric::ElementVisitor< Window, ChannelVisitor > WindowVisitor;   
     
 /** A visitor to traverse pipes and children. */
-//typedef fabric::ElementVisitor< Pipe, WindowVisitor > PipeVisitor;
+typedef fabric::ElementVisitor< Pipe, WindowVisitor > PipeVisitor;
 
 /** A visitor to traverse nodes and children. */
-//typedef fabric::ElementVisitor< Node, PipeVisitor > NodeVisitor;
+typedef fabric::ElementVisitor< Node, PipeVisitor > NodeVisitor;
 
 /** A visitor to traverse layouts and children. */
-//typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
+typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
 
 //----- Vectors
 /** A vector of pointers to eq::Config */

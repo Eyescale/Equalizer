@@ -40,6 +40,7 @@ struct ObserverPath;
 struct LayoutPath;
 struct ViewPath;
 
+template< typename T, typename L > class ElementVisitor;
 template< typename T > class LeafVisitor;
 }
 
@@ -98,14 +99,32 @@ typedef fabric::ObserverPath ObserverPath;
 typedef fabric::LayoutPath LayoutPath;
 typedef fabric::ViewPath ViewPath;
 
-/** A visitor to traverse channels. @sa Channel::accept() */
-typedef fabric::LeafVisitor< Channel > ChannelVisitor;
+/** A visitor to traverse segments. @sa  Segment ::accept() */
+typedef fabric::LeafVisitor< Segment > SegmentVisitor;
 
 /** A visitor to traverse views. @sa View::accept() */
 typedef fabric::LeafVisitor< View > ViewVisitor;
 
-/** A visitor to traverse views. @sa View::accept() */
+/** A visitor to traverse channels. @sa Channel::accept() */
 typedef fabric::LeafVisitor< Observer > ObserverVisitor;
+
+/** A visitor to traverse channels. @sa Channel::accept() */
+typedef fabric::LeafVisitor< Channel > ChannelVisitor;
+
+/** A visitor to traverse Canvas and children. */
+typedef fabric::ElementVisitor< Canvas, SegmentVisitor > CanvasVisitor;
+
+/** A visitor to traverse windows and children. */
+typedef fabric::ElementVisitor< Window, ChannelVisitor > WindowVisitor;   
+    
+/** A visitor to traverse pipes and children. */
+typedef fabric::ElementVisitor< Pipe, WindowVisitor > PipeVisitor;
+
+/** A visitor to traverse nodes and children. */
+typedef fabric::ElementVisitor< Node, PipeVisitor > NodeVisitor;
+
+/** A visitor to traverse layouts and children. */
+typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
 
 }
 }

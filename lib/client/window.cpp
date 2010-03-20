@@ -31,7 +31,7 @@
 #include "packets.h"
 #include "server.h"
 #include "windowStatistics.h"
-#include "windowVisitor.h"
+#include <eq/fabric/elementVisitor.h>
 
 #ifdef AGL
 #  include "aglWindow.h"

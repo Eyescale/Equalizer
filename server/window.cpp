@@ -26,10 +26,10 @@
 #include "log.h"
 #include "node.h"
 #include "pipe.h"
-#include "windowVisitor.h"
 #include "swapBarrier.h"
 
 #include <eq/client/packets.h>
+#include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
 #include <eq/net/command.h>
 

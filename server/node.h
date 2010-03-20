@@ -33,7 +33,6 @@ namespace eq
 {
 namespace server
 {
-    class NodeVisitor;
 
     /**
      * The node.
