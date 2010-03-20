@@ -267,16 +267,14 @@ void ConfigTool::_writeResources( Config* config ) const
 
         for( unsigned p=0; p < _nPipes && c < _nChannels; ++p )
         {
-            Pipe* pipe = new Pipe;
-            node->addPipe( pipe );
+            Pipe* pipe = new Pipe( node );
 
             std::ostringstream pipeName;
             pipeName << "pipe" << p << "n" << n;
             pipe->setName( pipeName.str( ));
             pipe->setDevice( p );
             
-            eq::server::Window* window = new eq::server::Window;
-            pipe->addWindow( window );
+            eq::server::Window* window = new eq::server::Window( pipe );
 
             std::ostringstream windowName;
             windowName << "window" << c;

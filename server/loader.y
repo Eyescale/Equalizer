@@ -581,8 +581,7 @@ nodeAttribute:
 
 pipe: EQTOKEN_PIPE '{' 
             {
-                eqPipe = new eq::server::Pipe();
-                node->addPipe( eqPipe );
+                eqPipe = new eq::server::Pipe( node );
             }
         pipeFields
         '}' { eqPipe = 0; }
@@ -607,8 +606,7 @@ pipeAttribute:
 
 window: EQTOKEN_WINDOW '{' 
             {
-                window = new eq::server::Window();
-                eqPipe->addWindow( window ); 
+                window = new eq::server::Window( eqPipe );
             }
         windowFields
         '}' { window = 0; }

@@ -54,9 +54,11 @@ void Window::_construct()
     EQINFO << "New window @" << (void*)this << std::endl;
 }
 
-Window::Window()
+Window::Window( Pipe* parent )
 {
     _construct();
+
+    parent->addWindow( this );
     
     const Global* global = Global::instance();
     for( int i=0; i<eq::Window::IATTR_ALL; ++i )

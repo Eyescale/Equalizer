@@ -58,10 +58,11 @@ void Pipe::_construct()
     EQINFO << "New pipe @" << (void*)this << std::endl;
 }
 
-Pipe::Pipe()
+Pipe::Pipe( Node* parent )
 {
     _construct();
 
+    parent->addPipe( this );
     const Global* global = Global::instance();
     for( int i=0; i<IATTR_ALL; ++i )
         _iAttributes[i] = global->getPipeIAttribute(

@@ -63,7 +63,7 @@ namespace server
         /** 
          * Constructs a new Window.
          */
-        EQSERVER_EXPORT Window();
+        EQSERVER_EXPORT Window( Pipe* parent );
 
         /** 
          * Constructs a new deep copy of a window.

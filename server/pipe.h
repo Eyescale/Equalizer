@@ -55,7 +55,7 @@ namespace server
         /** 
          * Constructs a new Pipe.
          */
-        EQSERVER_EXPORT Pipe();
+        EQSERVER_EXPORT Pipe(  Node* parent );
 
         /** 
          * Constructs a new deep copy of a pipe.
