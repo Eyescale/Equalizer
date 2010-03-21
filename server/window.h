@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -29,9 +30,8 @@
 #include "visitorResult.h"  // enum
 
 #include <eq/client/window.h>
-#include <eq/fabric/pixelViewport.h> // member
 #include <eq/net/barrier.h>
-#include <eq/net/object.h>
+#include <eq/fabric/window.h> // base class
 
 #include <iostream>
 #include <vector>
@@ -45,7 +45,7 @@ namespace server
     /**
      * The window.
      */
-    class Window : public net::Object
+    class Window : public fabric::Window< Pipe, Window, Channel >
     {
     public:
         enum State
@@ -68,17 +68,12 @@ namespace server
         /** 
          * Constructs a new deep copy of a window.
          */
-        Window( const Window& from, Pipe* pipe );
+        Window( const Window& from, Pipe* parent );
 
         /**
          * @name Data Access
          */
         //@{
-        /** @return the vector of channels. */
-        const ChannelVector& getChannels() const { return _channels; }
-
-        Pipe*       getPipe()       { return _pipe; }
-        const Pipe* getPipe() const { return _pipe; }
 
         Node* getNode();
         const Node* getNode() const;
@@ -90,9 +85,6 @@ namespace server
         WindowPath getPath() const;
 
         Channel* getChannel( const ChannelPath& path );
-
-        const eq::DrawableConfig& getDrawableConfig() const
-            { return _drawableConfig; }
 
         net::CommandQueue* getServerThreadQueue();
         net::CommandQueue* getCommandThreadQueue();
@@ -124,8 +116,6 @@ namespace server
          */
         void addTasks( const uint32_t tasks );
 
-        void setName( const std::string& name ) { _name = name; }
-        const std::string& getName() const      { return _name; }
 
         /** 
          * Set the window's pixel viewport wrt its parent pipe.
@@ -134,12 +124,6 @@ namespace server
          */
         EQSERVER_EXPORT void setPixelViewport( const eq::PixelViewport& pvp );
 
-        /** 
-         * Return this window's pixel viewport.
-         * 
-         * @return the pixel viewport.
-         */
-        const eq::PixelViewport& getPixelViewport() const { return _pvp; }
 
         /** 
          * Set the window's viewport wrt its parent pipe.
@@ -147,13 +131,6 @@ namespace server
          * @param vp the fractional viewport.
          */
         void setViewport( const eq::Viewport& vp );
-
-        /** 
-         * Return this window's viewport.
-         * 
-         * @return the fractional viewport.
-         */
-        const eq::Viewport& getViewport() const { return _vp; }
 
         /**
          * Notify this window that the viewport has changed. 
@@ -226,23 +203,6 @@ namespace server
         void updatePost( const uint32_t frameID, const uint32_t frameNumber );
         //@}
 
-        /**
-         * @name Attributes
-         */
-        //@{
-        void setIAttribute( const eq::Window::IAttribute attr,
-                            const int32_t value )
-            { _iAttributes[attr] = value; }
-        int32_t  getIAttribute( const eq::Window::IAttribute attr ) const
-            { return _iAttributes[attr]; }
-        //@}
-
-        /** @name Error information. */
-        //@{
-        /** @return the error message from the last operation. */
-        const std::string& getErrorMessage() const { return _error; }
-        //@}
-
         void send( net::ObjectPacket& packet );
 
     protected:
@@ -252,39 +212,17 @@ namespace server
         virtual void attachToSession( const uint32_t id, 
                                       const uint32_t instanceID, 
                                       net::Session* session );
+
     private:
-        eq::DrawableConfig _drawableConfig;
-
-        /** The window's name */
-        std::string _name;
-
-        /** The reason for the last error. */
-        std::string            _error;
-
-        /** Integer attributes. */
-        int32_t _iAttributes[eq::Window::IATTR_ALL];
-
-        /** The child channels. */
-        ChannelVector _channels;
 
         /** Number of activations for this window. */
         uint32_t _active;
 
         /** The parent pipe. */
-        Pipe* _pipe;
         friend class Pipe;
-
-        /** Worst-case set of tasks. */
-        uint32_t _tasks;
 
         /** The current state for state change synchronization. */
         base::Monitor< State > _state;
-            
-        /** The absolute size and position of the window. */
-        eq::PixelViewport _pvp;
-        
-        /** The fractional size and position of the window. */
-        eq::Viewport _vp;
         
         /** The maximum frame rate allowed for this window. */
         float _maxFPS;
@@ -326,13 +264,6 @@ namespace server
         /** common code for all constructors */
         void _construct();
 
-        friend class fabric::Channel< Channel, Window >;
-        /** Add a new channel to this window. */
-        void _addChannel( Channel* channel );
-
-        /** Remove a channel from this window. */
-        bool _removeChannel( Channel* channel );
-
         /** Clears all swap barriers of the window. */
         void _resetSwapBarriers();
 
@@ -344,9 +275,6 @@ namespace server
         bool _syncConfigExit();
 
         void _updateSwap( const uint32_t frameNumber );
-
-        virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
-        virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }
 
         /* command handler functions. */
         net::CommandResult _cmdConfigInitReply( net::Command& command ); 

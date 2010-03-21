@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -37,13 +38,12 @@ namespace eq
 {
 namespace server
 {
+typedef fabric::Window< Pipe, Window, Channel > Super;
 typedef net::CommandFunc<Window> WindowFunc;
 
 void Window::_construct()
 {
     _active          = 0;
-    _pipe            = 0;
-    _tasks           = fabric::TASK_NONE;
     _fixedPVP        = false;
     _lastDrawChannel = 0;
     _maxFPS          = std::numeric_limits< float >::max();
@@ -54,33 +54,38 @@ void Window::_construct()
     EQINFO << "New window @" << (void*)this << std::endl;
 }
 
-Window::Window( Pipe* parent )
+Window::Window( Pipe* parent ) 
+        : Super( parent )
 {
     _construct();
 
     parent->addWindow( this );
     
     const Global* global = Global::instance();
-    for( int i=0; i<eq::Window::IATTR_ALL; ++i )
-        _iAttributes[i] = global->getWindowIAttribute(
-            static_cast<eq::Window::IAttribute>( i ));
+    for( unsigned i = 0; i < IATTR_ALL; ++i )
+    {
+        const IAttribute attr = static_cast< IAttribute >( i );
+        setIAttribute( attr, global->getWindowIAttribute( attr ));
+    }
 }
 
-Window::Window( const Window& from, Pipe* pipe )
-        : net::Object()
+Window::Window( const Window& from, Pipe* parent )
+        : Super( parent )
 {
     _construct();
 
-    _name     = from._name;
+    setName( from.getName() );
     _pvp      = from._pvp;
     _vp       = from._vp;
     _fixedPVP = from._fixedPVP;
 
-    pipe->addWindow( this );
+    parent->addWindow( this );
 
-    for( int i=0; i< eq::Window::IATTR_ALL; ++i )
-        _iAttributes[i] = from._iAttributes[i];
-
+    for( unsigned i = 0; i < IATTR_ALL; ++i )
+    {
+        const IAttribute attr = static_cast< IAttribute >( i );
+        setIAttribute( attr, from.getIAttribute( attr ));
+    }
     const ChannelVector& channels = from.getChannels();
     for( ChannelVector::const_iterator i = channels.begin();
          i != channels.end(); ++i )
@@ -93,10 +98,10 @@ Window::~Window()
 {
     EQINFO << "Delete window @" << (void*)this << std::endl;
 
-    if( _pipe )
-        _pipe->removeWindow( this );
+    if( getPipe() )
+        getPipe()->removeWindow( this );
     
-    ChannelVector channels = _channels; // copy - ~Channel modifies it
+    ChannelVector& channels = _getChannels(); 
     for( ChannelVector::const_iterator i = channels.begin(); 
          i != channels.end(); ++i )
     {
@@ -105,7 +110,7 @@ Window::~Window()
         EQASSERT( channel->getWindow() == this );
         delete channel;
     }
-    EQASSERT( _channels.empty( ));
+    EQASSERT( channels.empty( ));
 }
 
 void Window::attachToSession( const uint32_t id, const uint32_t instanceID, 
@@ -127,66 +132,54 @@ void Window::attachToSession( const uint32_t id, const uint32_t instanceID,
                          
 }
 
-void Window::_addChannel( Channel* channel )
+const Node* Window::getNode() const 
 {
-    EQASSERT( find( _channels.begin(), _channels.end(), channel ) == 
-              _channels.end( ));
-
-    _channels.push_back( channel ); 
-    EQASSERT( channel->getWindow() == this );
-}
-
-bool Window::_removeChannel( Channel* channel )
-{
-    ChannelVector::iterator i = find( _channels.begin(), _channels.end(),
-                                      channel );
-    if( i == _channels.end( ))
-        return false;
-
-    _channels.erase( i );
-    return true;
+    const Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return ( pipe ? pipe->getNode() : 0 );
 }
 
 Node* Window::getNode()
 {
-    EQASSERT( _pipe );
-    return (_pipe ? _pipe->getNode() : 0); 
-}
-const Node* Window::getNode() const
-{
-    EQASSERT( _pipe );
-    return (_pipe ? _pipe->getNode() : 0); 
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return ( pipe ? pipe->getNode() : 0 );
 }
 
-Config* Window::getConfig()
+const Config* Window::getConfig() const
 {
-    EQASSERT( _pipe );
-    return (_pipe ? _pipe->getConfig() : 0); 
+    const Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return ( pipe ? pipe->getConfig() : 0);
 }
-const Config* Window::getConfig() const 
+Config* Window::getConfig() 
 {
-    EQASSERT( _pipe );
-    return (_pipe ? _pipe->getConfig() : 0); 
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return ( pipe ? pipe->getConfig() : 0);
 }
-        
+
 net::CommandQueue* Window::getServerThreadQueue()
 {
-    EQASSERT( _pipe );
-    return _pipe->getServerThreadQueue(); 
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return pipe->getServerThreadQueue(); 
 }
 
 net::CommandQueue* Window::getCommandThreadQueue()
 { 
-    EQASSERT( _pipe );
-    return _pipe->getCommandThreadQueue(); 
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return pipe->getCommandThreadQueue(); 
 }
 
 WindowPath Window::getPath() const
 {
-    EQASSERT( _pipe );
-    WindowPath path( _pipe->getPath( ));
+    const Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    WindowPath path( pipe->getPath( ));
     
-    const WindowVector&    windows = _pipe->getWindows();
+    const WindowVector&    windows = pipe->getWindows();
     WindowVector::const_iterator i = std::find( windows.begin(), windows.end(),
                                                 this );
     EQASSERT( i != windows.end( ));
@@ -196,12 +189,13 @@ WindowPath Window::getPath() const
 
 Channel* Window::getChannel( const ChannelPath& path )
 {
-    EQASSERT( _channels.size() > path.channelIndex );
+    ChannelVector& channels = _getChannels(); 
+    EQASSERT( channels.size() > path.channelIndex );
 
-    if( _channels.size() <= path.channelIndex )
+    if( channels.size() <= path.channelIndex )
         return 0;
 
-    return _channels[ path.channelIndex ];
+    return channels[ path.channelIndex ];
 }
 
 namespace
@@ -261,11 +255,12 @@ VisitorResult Window::accept( WindowVisitor& visitor ) const
 
 void Window::activate()
 {   
-    EQASSERT( _pipe );
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
 
     ++_active;
-    if( _pipe ) 
-        _pipe->activate();
+    if( pipe ) 
+        pipe->activate();
 
     EQLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
 }
@@ -273,20 +268,22 @@ void Window::activate()
 void Window::deactivate()
 { 
     EQASSERT( _active != 0 );
-    EQASSERT( _pipe );
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
 
     --_active; 
-    if( _pipe ) 
-        _pipe->deactivate(); 
+    if( pipe ) 
+        pipe->deactivate(); 
 
     EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 };
 
 void Window::addTasks( const uint32_t tasks )
 {
-    EQASSERT( _pipe );
-    _tasks |= tasks;
-    _pipe->addTasks( tasks );
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    _setTasks( getTasks() | tasks );
+    pipe->addTasks( tasks );
 }
 
 //----------------------------------------------------------------------
@@ -324,9 +321,10 @@ void Window::setViewport( const Viewport& vp )
 
 void Window::notifyViewportChanged()
 {
-    if( _pipe )
+    Pipe* pipe = getPipe();
+    if( pipe )
     {
-        PixelViewport pipePVP = _pipe->getPixelViewport();
+        PixelViewport pipePVP = pipe->getPixelViewport();
         if( pipePVP.hasArea( ))
         {
             if( _fixedPVP ) // update viewport
@@ -339,9 +337,10 @@ void Window::notifyViewportChanged()
         }
     }
     EQINFO << "Window viewport update: " << _pvp << ":" << _vp << std::endl;
-
-    for( ChannelVector::iterator i = _channels.begin();
-         i != _channels.end(); ++i )
+    
+    ChannelVector& channels = _getChannels(); 
+    for( ChannelVector::iterator i = channels.begin();
+         i != channels.end(); ++i )
     {
         (*i)->notifyViewportChanged();
     }
@@ -380,8 +379,8 @@ net::Barrier* Window::joinSwapBarrier( net::Barrier* barrier )
         return barrier;
     }
 
-    EQASSERT( _pipe );
-    const WindowVector& windows = _pipe->getWindows();
+    EQASSERT( getPipe() );
+    const WindowVector& windows = getPipe()->getWindows();
     bool beforeSelf = true;
 
     // Check if another window in the same thread is using the swap barrier
@@ -469,8 +468,9 @@ void Window::updateRunning( const uint32_t initID )
         _configInit( initID );
 
     // Let all running channels update their running state (incl. children)
-    for( ChannelVector::const_iterator i = _channels.begin(); 
-         i != _channels.end(); ++i )
+    ChannelVector& channels = _getChannels();
+    for( ChannelVector::const_iterator i = channels.begin(); 
+         i != channels.end(); ++i )
     {
         (*i)->updateRunning( initID );
     }
@@ -486,14 +486,16 @@ bool Window::syncRunning()
 
     // Sync state updates
     bool success = true;
-    for( ChannelVector::const_iterator i = _channels.begin(); 
-         i != _channels.end(); ++i )
+    ChannelVector& channels = _getChannels(); 
+    for( ChannelVector::const_iterator i = channels.begin(); 
+         i != channels.end(); ++i )
     {
         Channel* channel = *i;
         if( !channel->syncRunning( ))
         {
-            _error += "channel " + channel->getName() + ": '" + 
-                      channel->getErrorMessage() + '\'';
+            setErrorMessage( getErrorMessage() + "channel " + 
+                             channel->getName() + ": '" + 
+                             channel->getErrorMessage() + '\'' );
             success = false;
         }
     }
@@ -524,22 +526,25 @@ void Window::_configInit( const uint32_t initID )
     EQLOG( LOG_INIT ) << "Create Window" << std::endl;
     PipeCreateWindowPacket createWindowPacket;
     createWindowPacket.windowID = getID();
-    _pipe->send( createWindowPacket );
+    getPipe()->send( createWindowPacket );
 
     WindowConfigInitPacket packet;
     packet.initID = initID;
-    packet.tasks  = _tasks;
+    packet.tasks  = getTasks();
 
     if( _fixedPVP )
         packet.pvp    = _pvp; 
     else
         packet.vp     = _vp;
 
-    memcpy( packet.iAttributes, _iAttributes, 
-            eq::Window::IATTR_ALL * sizeof( int32_t ));
+    for( unsigned i = 0; i < IATTR_ALL; ++i )
+    {
+        const IAttribute attr = static_cast< IAttribute >( i );
+        packet.iAttributes[ i ] = getIAttribute( attr );
+    }
     
     EQLOG( LOG_INIT ) << "Init Window" << std::endl;
-    _send( packet, _name );
+    _send( packet, getName() );
     EQLOG( LOG_TASKS ) << "TASK window configInit  " << &packet << std::endl;
 }
 
@@ -554,7 +559,7 @@ bool Window::_syncConfigInit()
     if( success )
         _state = STATE_RUNNING;
     else
-        EQWARN << "Window initialization failed: " << _error << std::endl;
+        EQWARN << "Window initialization failed: " << getErrorMessage() << std::endl;
 
     return success;
 }
@@ -574,7 +579,7 @@ void Window::_configExit()
     EQLOG( LOG_INIT ) << "Destroy Window" << std::endl;
     PipeDestroyWindowPacket destroyWindowPacket;
     destroyWindowPacket.windowID = getID();
-    _pipe->send( destroyWindowPacket );
+    getPipe()->send( destroyWindowPacket );
 }
 
 bool Window::_syncConfigExit()
@@ -590,7 +595,7 @@ bool Window::_syncConfigExit()
 
     _state = STATE_STOPPED; // EXIT_FAILED -> STOPPED transition
     _nvSwapBarrier = 0;
-    _tasks = fabric::TASK_NONE;
+    _setTasks( fabric::TASK_NONE );
     return success;
 }
 
@@ -611,8 +616,9 @@ void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     EQLOG( LOG_TASKS ) << "TASK window start frame  " << &startPacket 
                            << std::endl;
 
-    for( ChannelVector::const_iterator i = _channels.begin(); 
-         i != _channels.end(); ++i )
+    ChannelVector& channels = _getChannels(); 
+    for( ChannelVector::const_iterator i = channels.begin(); 
+         i != channels.end(); ++i )
     {
         Channel* channel = *i;
         if( channel->isActive( ))
@@ -722,11 +728,11 @@ net::CommandResult Window::_cmdConfigInitReply( net::Command& command )
     if( packet->pvp.isValid( ))
         setPixelViewport( packet->pvp );
 
-    _error = packet->error;
+    setErrorMessage( packet->error );
 
     if( packet->result )
     {
-        _drawableConfig = packet->drawableConfig;
+        _setDrawableConfig( packet->drawableConfig );
         _state = STATE_INIT_SUCCESS;
     }
     else
@@ -786,9 +792,9 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
 
     bool attrPrinted   = false;
     
-    for( eq::Window::IAttribute i = static_cast<eq::Window::IAttribute>( 0 );
-         i<eq::Window::IATTR_ALL; 
-         i = static_cast<eq::Window::IAttribute>( static_cast<uint32_t>( i )+1))
+    for( Window::IAttribute i = static_cast<Window::IAttribute>( 0 );
+         i < Window::IATTR_ALL; 
+         i = static_cast<Window::IAttribute>( static_cast<uint32_t>( i )+1))
     {
         const int value = window->getIAttribute( i );
         if( value == Global::instance()->getWindowIAttribute( i ))
@@ -801,33 +807,33 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
             attrPrinted = true;
         }
         
-        os << ( i==eq::Window::IATTR_HINT_STEREO ?
+        os << ( i== Window::IATTR_HINT_STEREO ?
                     "hint_stereo        " :
-                i==eq::Window::IATTR_HINT_DOUBLEBUFFER ?
+                i== Window::IATTR_HINT_DOUBLEBUFFER ?
                     "hint_doublebuffer  " :
-                i==eq::Window::IATTR_HINT_FULLSCREEN ?
+                i== Window::IATTR_HINT_FULLSCREEN ?
                     "hint_fullscreen    " :
-                i==eq::Window::IATTR_HINT_DECORATION ?
+                i== Window::IATTR_HINT_DECORATION ?
                     "hint_decoration    " :
-                i==eq::Window::IATTR_HINT_SWAPSYNC ?
+                i== Window::IATTR_HINT_SWAPSYNC ?
                     "hint_swapsync      " :
-                i==eq::Window::IATTR_HINT_DRAWABLE ?
+                i== Window::IATTR_HINT_DRAWABLE ?
                     "hint_drawable      " :
-                i==eq::Window::IATTR_HINT_STATISTICS ?
+                i== Window::IATTR_HINT_STATISTICS ?
                     "hint_statistics    " :
-                i==eq::Window::IATTR_PLANES_COLOR ? 
+                i== Window::IATTR_PLANES_COLOR ? 
                     "planes_color       " :
-                i==eq::Window::IATTR_PLANES_ALPHA ?
+                i== Window::IATTR_PLANES_ALPHA ?
                     "planes_alpha       " :
-                i==eq::Window::IATTR_PLANES_DEPTH ?
+                i== Window::IATTR_PLANES_DEPTH ?
                     "planes_depth       " :
-                i==eq::Window::IATTR_PLANES_STENCIL ?
+                i== Window::IATTR_PLANES_STENCIL ?
                     "planes_stencil     " :
-                i==eq::Window::IATTR_PLANES_ACCUM ?
+                i== Window::IATTR_PLANES_ACCUM ?
                     "planes_accum       " :
-                i==eq::Window::IATTR_PLANES_ACCUM_ALPHA ?
+                i== Window::IATTR_PLANES_ACCUM_ALPHA ?
                     "planes_accum_alpha " :
-                i==eq::Window::IATTR_PLANES_SAMPLES ?
+                i== Window::IATTR_PLANES_SAMPLES ?
                     "planes_samples     " : "ERROR" )
            << static_cast<IAttrValue>( value ) << std::endl;
     }

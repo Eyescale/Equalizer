@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,8 +23,8 @@
 #include "visitorResult.h" // enum
 
 #include <eq/client/global.h>           // eq::OFF enum
+#include <eq/fabric/pipe.h>             // parent
 #include <eq/fabric/pixelViewport.h>    // member
-#include <eq/net/object.h>              // base class
 #include <eq/base/monitor.h>            // member
 
 #include <ostream>
@@ -37,7 +38,7 @@ namespace server
     /**
      * The pipe.
      */
-    class Pipe : public net::Object
+    class Pipe : public fabric::Pipe< Node, Pipe, Window >
     {
     public:
         enum State
@@ -64,9 +65,6 @@ namespace server
 
         ServerPtr getServer();
         const ServerPtr getServer() const;
-
-        Node*       getNode()       { return _node; }
-        const Node* getNode() const { return _node; }
 
         Config* getConfig();
         const Config* getConfig() const;
@@ -98,9 +96,6 @@ namespace server
          */
         bool removeWindow( Window* window );
 
-        /** @return the vector of windows. */
-        const WindowVector& getWindows() const { return _windows; }
-
         /** 
          * Traverse this pipe and all children using a pipe visitor.
          * 
@@ -125,17 +120,10 @@ namespace server
          */
         void addTasks( const uint32_t tasks );
 
-        void setName( const std::string& name ) { _name = name; }
-        const std::string& getName() const      { return _name; }
-
         /**
          * @name Data Access
          */
         //@{
-        void setPort( const uint32_t port )      { _port = port; }
-        uint32_t getPort() const                 { return _port; }
-        void setDevice( const uint32_t device )  { _device = device; }
-        uint32_t getDevice() const               { return _device; }
 
         /** 
          * Set (force) the pixel viewport.
@@ -147,9 +135,6 @@ namespace server
          * @param pvp the pixel viewport.
          */
         void setPixelViewport( const eq::PixelViewport& pvp );
-
-        /** @return the pixel viewport. */
-        const eq::PixelViewport& getPixelViewport() const { return _pvp; }
 
         /** The last drawing compound for this entity. @internal */
         void setLastDrawWindow( const Window* window )
@@ -181,31 +166,16 @@ namespace server
          * @name Attributes
          */
         //@{
-        // Note: also update string array initialization in pipe.cpp
-        enum IAttribute
-        {
-            IATTR_HINT_THREAD,
-            IATTR_HINT_CUDA_GL_INTEROP,
-            IATTR_FILL1,
-            IATTR_FILL2,
-            IATTR_ALL
-        };
-
+        /** Set a pipe attribute. */
         void setIAttribute( const IAttribute attr, const int32_t value )
             { _iAttributes[attr] = value; }
+
+        /** @return the value of a pipe attribute. */
         int32_t  getIAttribute( const IAttribute attr ) const
             { return _iAttributes[attr]; }
-        static const std::string&  getIAttributeString( const IAttribute attr )
-            { return _iAttributeStrings[attr]; }
 
         bool isThreaded() const
             { return (getIAttribute( IATTR_HINT_THREAD ) != eq::OFF ); }
-        //@}
-
-        /** @name Error information. */
-        //@{
-        /** @return the error message from the last operation. */
-        const std::string& getErrorMessage() const { return _error; }
         //@}
 
         void send( net::ObjectPacket& packet );
@@ -218,44 +188,20 @@ namespace server
                                       const uint32_t instanceID, 
                                       net::Session* session );
     private:
-        /** The pipe's name */
-        std::string _name;
 
         /** Integer attributes. */
         int32_t _iAttributes[IATTR_ALL];
-        /** String representation of integer attributes. */
-        static std::string _iAttributeStrings[IATTR_ALL];
-
-        /** The list of windows. */
-        WindowVector _windows;
 
         /** Number of activations for this pipe. */
         uint32_t _active;
 
-        /** The reason for the last error. */
-        std::string _error;
-
-        /** The parent node. */
-        Node* _node;
         friend class Node;
-
-        /** Worst-case set of tasks. */
-        uint32_t _tasks;
 
         /** The current state for state change synchronization. */
         base::Monitor< State > _state;
-            
-        /** The display (X11) or ignored (Win32, AGL). */
-        uint32_t _port;
-
-        /** The screen (X11), GPU (Win32) or virtual screen (AGL). */
-        uint32_t _device;
 
         /* The display (AGL) or output channel (X11?, Win32). */
         //uint32_t _monitor;
-
-        /** The absolute size and position of the pipe. */
-        eq::PixelViewport _pvp;
 
         /** The last draw window for this entity. */
         const Window* _lastDrawWindow;
@@ -274,9 +220,6 @@ namespace server
         bool _syncConfigInit();
         void _configExit();
         bool _syncConfigExit();
-
-        virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
-        virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }
 
         /* command handler functions. */
         net::CommandResult _cmdConfigInitReply( net::Command& command );

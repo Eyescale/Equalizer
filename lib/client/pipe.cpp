@@ -56,6 +56,7 @@
 
 namespace eq
 {
+typedef fabric::Pipe< Node, Pipe, Window > Super;
 namespace
 {
 static const Window* _ntCurrentWindow = 0;
@@ -66,12 +67,9 @@ typedef net::CommandFunc<Pipe> PipeFunc;
 /** @endcond */
 
 Pipe::Pipe( Node* parent )
-        : _osPipe( 0 )
-        , _node( parent )
+        : Super( parent )
+        , _osPipe( 0 )
         , _windowSystem( WINDOW_SYSTEM_NONE )
-        , _tasks( fabric::TASK_NONE )
-        , _port( EQ_UNDEFINED_UINT32 )
-        , _device( EQ_UNDEFINED_UINT32 )
         , _state( STATE_STOPPED )
         , _currentFrame( 0 )
         , _frameTime( 0 )
@@ -79,7 +77,7 @@ Pipe::Pipe( Node* parent )
         , _thread( 0 )
         , _pipeThreadQueue( 0 )
         , _currentWindow( 0 )
-		, _computeContext( 0 )
+        , _computeContext( 0 )
 {
     parent->_addPipe( this );
     EQINFO << " New eq::Pipe @" << (void*)this << std::endl;
@@ -87,32 +85,36 @@ Pipe::Pipe( Node* parent )
 
 Pipe::~Pipe()
 {
-    _node->_removePipe( this );
+    getNode()->_removePipe( this );
     delete _thread;
     _thread = 0;
 }
 
 Config* Pipe::getConfig()
 {
-    EQASSERT( _node );
-    return (_node ? _node->getConfig() : 0);
+    Node* node = getNode();
+    EQASSERT( node );
+    return ( node ? node->getConfig() : 0);
 }
 const Config* Pipe::getConfig() const
 {
-    EQASSERT( _node );
-    return (_node ? _node->getConfig() : 0);
+    const Node* node = getNode();
+    EQASSERT( node );
+    return ( node ? node->getConfig() : 0);
 }
 
 ClientPtr Pipe::getClient()
 {
-    EQASSERT( _node );
-    return (_node ? _node->getClient() : 0);
+    Node* node = getNode();
+    EQASSERT( node );
+    return ( node ? node->getClient() : 0);
 }
 
 ServerPtr Pipe::getServer()
 {
-    EQASSERT( _node );
-    return (_node ? _node->getServer() : 0);
+    Node* node = getNode();
+    EQASSERT( node );
+    return ( node ? node->getServer() : 0);
 }
 
 int64_t Pipe::getFrameTime() const
@@ -198,33 +200,6 @@ void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID,
                      PipeFunc( this, &Pipe::_cmdFrameDrawFinish ), queue );
     registerCommand( CMD_PIPE_FRAME_START_CLOCK,
                      PipeFunc( this, &Pipe::_cmdFrameStartClock ), 0 );
-}
-
-void Pipe::_addWindow( Window* window )
-{
-    EQASSERT( window->getPipe() == this );
-    _windows.push_back( window );
-}
-
-void Pipe::_removeWindow( Window* window )
-{
-    WindowVector::iterator iter = find( _windows.begin(), _windows.end(),
-                                        window );
-    EQASSERT( iter != _windows.end( ))
-    
-    _windows.erase( iter );
-}
-
-eq::Window* Pipe::_findWindow( const uint32_t id )
-{
-    for( WindowVector::const_iterator i = _windows.begin(); 
-         i != _windows.end(); ++i )
-    {
-        Window* window = *i;
-        if( window->getID() == id )
-            return window;
-    }
-    return 0;
 }
 
 bool Pipe::supportsWindowSystem( const WindowSystem windowSystem ) const
@@ -355,7 +330,7 @@ void Pipe::_runThread()
 net::CommandQueue* Pipe::getPipeThreadQueue()
 {
     if( !_thread )
-        return _node->getNodeThreadQueue();
+        return getNode()->getNodeThreadQueue();
 
     return _pipeThreadQueue;
 }
@@ -580,13 +555,13 @@ bool Pipe::configInit( const uint32_t initID )
     {
         setErrorMessage( "OS Pipe initialization failed: " + 
                          osPipe->getErrorMessage( ));
-        EQERROR << _error << std::endl;
+        EQERROR << getErrorMessage() << std::endl;
         delete osPipe;
         return false;
     }
 
     setOSPipe( osPipe );
-	
+
     // -------------------------------------------------------------------------
     EQASSERT(!_computeContext);
 
@@ -596,7 +571,7 @@ bool Pipe::configInit( const uint32_t initID )
     {
         EQINFO << "Initializing CUDAContext" << std::endl;
         ComputeContext* computeCtx = new CUDAContext( this );
-		
+
         if( !computeCtx->configInit() )
         {
             setErrorMessage( "GPU Computing context initialization failed: " + 
@@ -604,7 +579,7 @@ bool Pipe::configInit( const uint32_t initID )
             EQERROR << _error << std::endl;
             delete computeCtx;
             return false;
-        }	
+        }
         setComputeContext( computeCtx );
     }
     else
@@ -623,8 +598,8 @@ bool Pipe::configExit()
         _computeContext->configExit();
         delete _computeContext;
         _computeContext = 0;
-    }	
-	
+    }
+
     if( _osPipe )
     {
         _osPipe->configExit( );
@@ -743,7 +718,7 @@ net::CommandResult Pipe::_cmdCreateWindow(  net::Command& command  )
     Window* window = Global::getNodeFactory()->createWindow( this );
     getConfig()->attachObject( window, packet->windowID, EQ_ID_INVALID );
     
-    EQASSERT( !_windows.empty( ));
+    EQASSERT( !getWindows().empty( ));
     return net::COMMAND_HANDLED;
 }
 
@@ -758,8 +733,9 @@ net::CommandResult Pipe::_cmdDestroyWindow(  net::Command& command  )
 
     // re-set shared windows accordingly
     Window* newSharedWindow = 0;
-    for( WindowVector::const_iterator i = _windows.begin(); 
-         i != _windows.end(); ++i )
+    WindowVector& windows = _getWindows(); 
+    for( WindowVector::const_iterator i = windows.begin(); 
+         i != windows.end(); ++i )
     {
         Window* candidate = *i;
         
@@ -795,18 +771,20 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
     EQLOG( LOG_INIT ) << "Init pipe " << packet << std::endl;
 
     PipeConfigInitReplyPacket reply;
-    _error.clear();
+    setErrorMessage( std::string( ));
 
-    _node->waitInitialized();
+    Node* node = getNode();
+    EQASSERT( node );
+    node->waitInitialized();
 
-    if( _node->isRunning( ))
+    if( node->isRunning( ))
     {
-        _name          = packet->name;
-        _port          = packet->port;
-        _device        = packet->device;
-        _tasks         = packet->tasks;
+        setName( packet->name );
+        setPort( packet->port );
+        setDevice( packet->device );
+        _setTasks( packet->tasks );
         _pvp           = packet->pvp;
-		_cudaGLInterop = packet->cudaGLInterop;
+        _cudaGLInterop = packet->cudaGLInterop;
  
         _currentFrame  = packet->frameNumber;
         _finishedFrame = packet->frameNumber;
@@ -824,18 +802,18 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
 
     EQLOG( LOG_INIT ) << "TASK pipe config init reply " << &reply << std::endl;
 
-    net::NodePtr node = command.getNode();
+    net::NodePtr nodePtr = command.getNode();
 
     if( !_osPipe || !reply.result )
     {
-        send( node, reply, _error );
+        send( nodePtr, reply, getErrorMessage() );
         return net::COMMAND_HANDLED;
     }
 
     _state = STATE_RUNNING;
 
     reply.pvp = _pvp;
-    send( node, reply );
+    send( nodePtr, reply );
     return net::COMMAND_HANDLED;
 }
 
@@ -961,3 +939,6 @@ net::CommandResult Pipe::_cmdFrameDrawFinish( net::Command& command )
 }
 
 }
+
+#include "../fabric/pipe.cpp"
+template class eq::fabric::Pipe< eq::Node, eq::Pipe, eq::Window >;

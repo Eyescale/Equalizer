@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2008-2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -626,35 +627,35 @@ windowField:
 windowAttributes: /*null*/ | windowAttributes windowAttribute
 windowAttribute:
     EQTOKEN_HINT_STEREO IATTR
-        { window->setIAttribute( eq::Window::IATTR_HINT_STEREO, $2 ); }
+        { window->setIAttribute( eq::server::Window::IATTR_HINT_STEREO, $2 ); }
     | EQTOKEN_HINT_DOUBLEBUFFER IATTR
-        { window->setIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER, $2 ); }
+        { window->setIAttribute( eq::server::Window::IATTR_HINT_DOUBLEBUFFER, $2 ); }
     | EQTOKEN_HINT_FULLSCREEN IATTR
-        { window->setIAttribute( eq::Window::IATTR_HINT_FULLSCREEN, $2 ); }
+        { window->setIAttribute( eq::server::Window::IATTR_HINT_FULLSCREEN, $2 ); }
     | EQTOKEN_HINT_DECORATION IATTR
-        { window->setIAttribute( eq::Window::IATTR_HINT_DECORATION, $2 ); }
+        { window->setIAttribute( eq::server::Window::IATTR_HINT_DECORATION, $2 ); }
     | EQTOKEN_HINT_SWAPSYNC IATTR
-        { window->setIAttribute( eq::Window::IATTR_HINT_SWAPSYNC, $2 ); }
+        { window->setIAttribute( eq::server::Window::IATTR_HINT_SWAPSYNC, $2 ); }
     | EQTOKEN_HINT_DRAWABLE IATTR
-        { window->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, $2 ); }
+        { window->setIAttribute( eq::server::Window::IATTR_HINT_DRAWABLE, $2 ); }
     | EQTOKEN_HINT_STATISTICS IATTR
-        { window->setIAttribute( eq::Window::IATTR_HINT_STATISTICS, $2 ); }
+        { window->setIAttribute( eq::server::Window::IATTR_HINT_STATISTICS, $2 ); }
     | EQTOKEN_HINT_SCREENSAVER IATTR
-        { window->setIAttribute( eq::Window::IATTR_HINT_SCREENSAVER, $2 ); }
+        { window->setIAttribute( eq::server::Window::IATTR_HINT_SCREENSAVER, $2 ); }
     | EQTOKEN_PLANES_COLOR IATTR
-        { window->setIAttribute( eq::Window::IATTR_PLANES_COLOR, $2 ); }
+        { window->setIAttribute( eq::server::Window::IATTR_PLANES_COLOR, $2 ); }
     | EQTOKEN_PLANES_ALPHA IATTR
-        { window->setIAttribute( eq::Window::IATTR_PLANES_ALPHA, $2 ); }
+        { window->setIAttribute( eq::server::Window::IATTR_PLANES_ALPHA, $2 ); }
     | EQTOKEN_PLANES_DEPTH IATTR
-        { window->setIAttribute( eq::Window::IATTR_PLANES_DEPTH, $2 ); }
+        { window->setIAttribute( eq::server::Window::IATTR_PLANES_DEPTH, $2 ); }
     | EQTOKEN_PLANES_STENCIL IATTR
-        { window->setIAttribute( eq::Window::IATTR_PLANES_STENCIL, $2 ); }
+        { window->setIAttribute( eq::server::Window::IATTR_PLANES_STENCIL, $2 ); }
     | EQTOKEN_PLANES_ACCUM IATTR
-        { window->setIAttribute( eq::Window::IATTR_PLANES_ACCUM, $2 ); }
+        { window->setIAttribute( eq::server::Window::IATTR_PLANES_ACCUM, $2 ); }
     | EQTOKEN_PLANES_ACCUM_ALPHA IATTR
-        { window->setIAttribute( eq::Window::IATTR_PLANES_ACCUM_ALPHA, $2 ); }
+        { window->setIAttribute( eq::server::Window::IATTR_PLANES_ACCUM_ALPHA, $2 ); }
     | EQTOKEN_PLANES_SAMPLES IATTR
-        { window->setIAttribute( eq::Window::IATTR_PLANES_SAMPLES, $2 ); }
+        { window->setIAttribute( eq::server::Window::IATTR_PLANES_SAMPLES, $2 ); }
                      
 channel: EQTOKEN_CHANNEL '{' 
             { channel = new eq::server::Channel( window ); }

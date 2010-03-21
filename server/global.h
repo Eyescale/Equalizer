@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2008-2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,9 +25,9 @@
 #include "connectionDescription.h"   // nested enum
 #include "pipe.h"                    // nested enum
 #include "node.h"                    // nested enum
-
+#include "window.h"                  // nested enum
 #include <eq/client/node.h>      // nested enum
-#include <eq/client/window.h>    // nested enum
+
 
 namespace eq
 {
@@ -104,7 +105,7 @@ namespace server
         void setWindowIAttribute( const eq::Window::IAttribute attr,
                                   const int32_t value )
             { _windowIAttributes[attr] = value; }
-        int32_t getWindowIAttribute( const eq::Window::IAttribute attr ) const
+        int32_t getWindowIAttribute( const Window::IAttribute attr ) const
             { return _windowIAttributes[attr]; }
 
         /**
@@ -139,7 +140,7 @@ namespace server
 
         int32_t     _pipeIAttributes[Pipe::IATTR_ALL];
 
-        int32_t     _windowIAttributes[eq::Window::IATTR_ALL];
+        int32_t     _windowIAttributes[Window::IATTR_ALL];
 
         int32_t     _channelIAttributes[Channel::IATTR_ALL];
         

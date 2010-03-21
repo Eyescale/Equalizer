@@ -117,7 +117,7 @@ Node::~Node()
     {
         Pipe* pipe = *i;
 
-        pipe->_node = 0;
+        pipe->_setNode( 0 );
         delete pipe;
     }
     _pipes.clear();
@@ -143,7 +143,7 @@ void Node::addPipe( Pipe* pipe )
     EQASSERT( pipe->getWindows().empty( ));
 
     _pipes.push_back( pipe ); 
-    pipe->_node = this;
+    pipe->_setNode( this );
 }
 
 bool Node::removePipe( Pipe* pipe )
@@ -155,7 +155,7 @@ bool Node::removePipe( Pipe* pipe )
         return false;
 
     _pipes.erase( i );
-    pipe->_node = 0; 
+    pipe->_setNode( 0 ); 
 
     return true;
 }

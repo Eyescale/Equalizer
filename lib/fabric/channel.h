@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,7 +29,6 @@ namespace eq
 namespace fabric
 {
     class ChannelVisitor;
-    class Window;
     template< typename T > class LeafVisitor;
 
     /**

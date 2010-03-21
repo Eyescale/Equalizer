@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -54,30 +55,11 @@ using namespace std;
 namespace eq
 {
 
+typedef fabric::Window< Pipe, Window, Channel > Super;
+
 /** @cond IGNORE */
 typedef net::CommandFunc<Window> WindowFunc;
 /** @endcond */
-
-#define MAKE_ATTR_STRING( attr ) ( string("EQ_WINDOW_") + #attr )
-std::string Window::_iAttributeStrings[IATTR_ALL] = {
-    MAKE_ATTR_STRING( IATTR_HINT_STEREO ),
-    MAKE_ATTR_STRING( IATTR_HINT_DOUBLEBUFFER ),
-    MAKE_ATTR_STRING( IATTR_HINT_FULLSCREEN ),
-    MAKE_ATTR_STRING( IATTR_HINT_DECORATION ),
-    MAKE_ATTR_STRING( IATTR_HINT_SWAPSYNC ),
-    MAKE_ATTR_STRING( IATTR_HINT_DRAWABLE ),
-    MAKE_ATTR_STRING( IATTR_HINT_STATISTICS ),
-    MAKE_ATTR_STRING( IATTR_HINT_SCREENSAVER ),
-    MAKE_ATTR_STRING( IATTR_PLANES_COLOR ),
-    MAKE_ATTR_STRING( IATTR_PLANES_ALPHA ),
-    MAKE_ATTR_STRING( IATTR_PLANES_DEPTH ),
-    MAKE_ATTR_STRING( IATTR_PLANES_STENCIL ),
-    MAKE_ATTR_STRING( IATTR_PLANES_ACCUM ),
-    MAKE_ATTR_STRING( IATTR_PLANES_ACCUM_ALPHA ),
-    MAKE_ATTR_STRING( IATTR_PLANES_SAMPLES ),
-    MAKE_ATTR_STRING( IATTR_FILL1 ),
-    MAKE_ATTR_STRING( IATTR_FILL2 )
-};
 
 namespace
 {
@@ -86,10 +68,9 @@ const char* _mediumFontKey = "eq_medium_font";
 }
 
 Window::Window( Pipe* parent )
-        : _pipe( parent )
+        : Super( parent )
         , _sharedContextWindow( 0 ) // default set below
         , _osWindow( 0 )
-        , _tasks( fabric::TASK_NONE )
         , _state( STATE_STOPPED )
         , _objectManager( 0 )
         , _lastTime ( 0.0 )
@@ -108,10 +89,11 @@ Window::Window( Pipe* parent )
 
 Window::~Window()
 {
-    if( _pipe->isCurrent( this ))
-        _pipe->setCurrent( 0 );
+    Pipe* pipe = getPipe(); 
+    if( pipe->isCurrent( this ))
+        pipe->setCurrent( 0 );
 
-    _pipe->_removeWindow( this );
+    pipe->_removeWindow( this );
 
     delete _objectManager;
     _objectManager = 0;
@@ -123,7 +105,7 @@ void Window::attachToSession( const uint32_t id,
 {
     net::Object::attachToSession( id, instanceID, session );
 
-    net::CommandQueue* queue = _pipe->getPipeThreadQueue();
+    net::CommandQueue* queue = getPipe()->getPipeThreadQueue();
 
     registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
                      WindowFunc( this, &Window::_cmdCreateChannel ), 
@@ -210,70 +192,50 @@ void Window::drawFPS()
     font->draw( fpsText.str( ));
 }
 
-void Window::_addChannel( Channel* channel )
-{
-    EQASSERT( channel->getWindow() == this );
-    _channels.push_back( channel );
-}
-
-void Window::_removeChannel( Channel* channel )
-{
-    ChannelVector::iterator i = find( _channels.begin(), _channels.end(), 
-                                      channel );
-    EQASSERT( i != _channels.end( ))
-    
-    _channels.erase( i );
-}
-
-Channel* Window::_findChannel( const uint32_t id )
-{
-    for( ChannelVector::const_iterator i = _channels.begin(); 
-         i != _channels.end(); ++i )
-    {
-        Channel* channel = *i;
-        if( channel->getID() == id )
-            return channel;
-    }
-    return 0;
-}
-
 net::CommandQueue* Window::getPipeThreadQueue()
 { 
-    EQASSERT( _pipe );
-    return _pipe->getPipeThreadQueue(); 
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return pipe->getPipeThreadQueue(); 
 }
 
 const Node* Window::getNode() const 
 {
-    EQASSERT( _pipe );
-    return ( _pipe ? _pipe->getNode() : 0 );
+    const Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return ( pipe ? pipe->getNode() : 0 );
 }
 Node* Window::getNode()
 {
-    EQASSERT( _pipe );
-    return ( _pipe ? _pipe->getNode() : 0 );
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return ( pipe ? pipe->getNode() : 0 );
 }
 
 const Config* Window::getConfig() const
 {
-    EQASSERT( _pipe );
-    return (_pipe ? _pipe->getConfig() : 0);
+    const Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return ( pipe ? pipe->getConfig() : 0);
 }
 Config* Window::getConfig() 
 {
-    EQASSERT( _pipe );
-    return (_pipe ? _pipe->getConfig() : 0);
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return ( pipe ? pipe->getConfig() : 0);
 }
 
 ClientPtr Window::getClient()
 {
-    EQASSERT( _pipe );
-    return ( _pipe ? _pipe->getClient() : 0 ); 
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return ( pipe ? pipe->getClient() : 0 ); 
 }
 ServerPtr Window::getServer() 
 {
-    EQASSERT( _pipe );
-    return ( _pipe ? _pipe->getServer() : 0 );
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return ( pipe ? pipe->getServer() : 0 );
 }
 
 namespace
@@ -349,8 +311,9 @@ void Window::setPixelViewport( const PixelViewport& pvp )
     net::NodePtr node = server.get();
     send( node, packet );
 
-    for( std::vector<Channel*>::iterator i = _channels.begin(); 
-         i != _channels.end(); ++i )
+    ChannelVector& channels = _getChannels(); 
+    for( std::vector<Channel*>::iterator i = channels.begin(); 
+         i != channels.end(); ++i )
     {
         (*i)->notifyViewportChanged();
     }
@@ -364,9 +327,9 @@ bool Window::_setPixelViewport( const PixelViewport& pvp )
     _pvp = pvp;
     _vp.invalidate();
 
-    EQASSERT( _pipe );
+    EQASSERT( getPipe() );
     
-    const PixelViewport& pipePVP = _pipe->getPixelViewport();
+    const PixelViewport& pipePVP = getPipe()->getPixelViewport();
     if( pipePVP.isValid( ))
         _vp = pvp.getSubVP( pipePVP );
 
@@ -382,10 +345,10 @@ void Window::_setViewport( const Viewport& vp )
     _vp = vp;
     _pvp.invalidate();
 
-    if( !_pipe )
+    if( !getPipe() )
         return;
 
-    _pvp = _pipe->getPixelViewport();
+    _pvp = getPipe()->getPixelViewport();
     if( _pvp.isValid( ))    
         _pvp.apply( vp );
     EQINFO << "Window vp set: " << _pvp << ":" << _vp << endl;
@@ -429,21 +392,6 @@ bool Window::getRenderContext( const int32_t x, const int32_t y,
     return false;
 }
 
-void Window::setIAttribute( const IAttribute attr, const int32_t value )
-{
-    _iAttributes[attr] = value;
-}
-
-int32_t  Window::getIAttribute( const IAttribute attr ) const
-{
-    return _iAttributes[attr];
-}
-
-const std::string&  Window::getIAttributeString( const IAttribute attr )
-{
-    return _iAttributeStrings[attr];
-}
-
 uint32_t Window::getColorFormat() const
 {
     switch( getIAttribute( Window::IATTR_PLANES_COLOR ))
@@ -463,20 +411,22 @@ void Window::setOSWindow( OSWindow* window )
 
     // Initialize context-specific data
     makeCurrent();
-    _osWindow->queryDrawableConfig( _drawableConfig );
+    _osWindow->queryDrawableConfig( _getDrawableConfig() );
     _setupObjectManager();
 }
 
 const OSPipe* Window::getOSPipe() const
 {
-    EQASSERT( _pipe );
-    return _pipe->getOSPipe();
+    const Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return pipe->getOSPipe();
 }
 
 OSPipe* Window::getOSPipe()
 {
-    EQASSERT( _pipe );
-    return _pipe->getOSPipe();
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return pipe->getOSPipe();
 }
 
 void Window::frameFinish( const uint32_t frameID, const uint32_t frameNumber )
@@ -542,7 +492,7 @@ bool Window::configInitOSWindow( const uint32_t initID )
     EQASSERT( osWindow );
     if( !osWindow->configInit( ))
     {
-        EQWARN << "OS Window initialization failed: " << _error << endl;
+        EQWARN << "OS Window initialization failed: " << getErrorMessage() << endl;
         delete osWindow;
         return false;
     }
@@ -590,7 +540,7 @@ const Window::Font* Window::getSmallFont()
     if( !font )
     {
         font = _objectManager->newEqBitmapFont( _smallFontKey );
-        font->init( _pipe->getWindowSystem(), "" );
+        font->init( getPipe()->getWindowSystem(), "" );
     }
 
     EQASSERT( _objectManager->getEqBitmapFont( _smallFontKey ));
@@ -607,7 +557,7 @@ const Window::Font* Window::getMediumFont()
     if( !font )
     {
         font = _objectManager->newEqBitmapFont( _mediumFontKey );
-        font->init( _pipe->getWindowSystem(), "", 20 );
+        font->init( getPipe()->getWindowSystem(), "", 20 );
     }
     return _objectManager->getEqBitmapFont( _mediumFontKey );
 }
@@ -654,16 +604,17 @@ bool Window::configExitOSWindow()
         delete _osWindow;
         _osWindow = 0;
     }
-
-    if( _pipe->isCurrent( this ))
-        _pipe->setCurrent( 0 );
+    
+    Pipe* pipe = getPipe();
+    if( pipe->isCurrent( this ))
+        pipe->setCurrent( 0 );
 
     return true;
 }
 
 void Window::makeCurrent( const bool useCache ) const
 {
-    if( useCache && _pipe->isCurrent( this ))
+    if( useCache && getPipe()->isCurrent( this ))
         return;
 
     _osWindow->makeCurrent();
@@ -701,15 +652,6 @@ void Window::_enterBarrier( net::ObjectVersion barrier )
     netBarrier->enter();
 }
 
-void Window::setErrorMessage( const std::string& message )
-{
-    _error = message;
-}
-
-const std::string& Window::getErrorMessage() const
-{
-    return _error;
-}
 
 //======================================================================
 // event-handler methods
@@ -750,7 +692,7 @@ bool Window::processEvent( const Event& event )
                 case ON:
                     return false; // screen saver becomes active
                 default: // AUTO
-                    if( _drawableConfig.doublebuffered &&
+                    if( getDrawableConfig().doublebuffered &&
                         getIAttribute( IATTR_HINT_DRAWABLE ) == WINDOW )
                     {
                         return true; // screen saver stays inactive
@@ -814,9 +756,9 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
     EQLOG( LOG_INIT ) << "TASK window config init " << packet << endl;
 
     WindowConfigInitReplyPacket reply;
-    _error.clear();
+    setErrorMessage( std::string( ));
 
-    if( _pipe->isRunning( ))
+    if( getPipe()->isRunning( ))
     {
         _state = STATE_INITIALIZING;
         if( packet->pvp.isValid( ))
@@ -824,10 +766,14 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
         else
             _setViewport( packet->vp );
         
-        _name  = packet->name;
-        _tasks = packet->tasks;
+        setName( packet->name );
+        _setTasks( packet->tasks );
         
-        memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof(int32_t));
+        for( unsigned i = 0; i < IATTR_ALL; ++i )
+        {
+            const IAttribute attr = static_cast< IAttribute >( i );
+            setIAttribute( attr, packet->iAttributes[ attr ]);
+        }
 
         reply.result = configInit( packet->initID );
     }
@@ -839,11 +785,11 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
     net::NodePtr node = command.getNode();
     if( !reply.result )
     {
-        send( node, reply, _error );
+        send( node, reply, getErrorMessage() );
         return net::COMMAND_HANDLED;
     }
 
-    reply.pvp            = _pvp;
+    reply.pvp            = getPixelViewport();
     reply.drawableConfig = getDrawableConfig();
     send( node, reply );
 
@@ -863,10 +809,10 @@ net::CommandResult Window::_cmdConfigExit( net::Command& command )
         reply.result = true;
     else
     {
-        if( _pipe->isRunning( ) && _osWindow )
+        if( getPipe()->isRunning( ) && _osWindow )
         {
             makeCurrent();
-            _pipe->flushFrames();
+            getPipe()->flushFrames();
         }
         // else emergency exit, no context available.
 
@@ -973,7 +919,7 @@ net::CommandResult Window::_cmdSwap( net::Command& command )
     EQLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << packet
                        << endl;
 
-    if( _drawableConfig.doublebuffered )
+    if( getDrawableConfig().doublebuffered )
     {
         // swap
         WindowStatistics stat( Statistic::WINDOW_SWAP, this );
@@ -995,3 +941,6 @@ net::CommandResult Window::_cmdFrameDrawFinish( net::Command& command )
 }
 
 }
+
+#include "../fabric/window.cpp"
+template class eq::fabric::Window< eq::Pipe, eq::Window, eq::Channel >;

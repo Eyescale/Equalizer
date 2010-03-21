@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -283,11 +284,11 @@ void ConfigTool::_writeResources( Config* config ) const
             if( c == 0 ) // destination window
             {
                 if( !_fullScreen )
-                    window->setIAttribute( eq::Window::IATTR_HINT_FULLSCREEN, 
+                    window->setIAttribute( eq::server::Window::IATTR_HINT_FULLSCREEN, 
                                            eq::OFF );
-                window->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, 
+                window->setIAttribute( eq::server::Window::IATTR_HINT_DRAWABLE, 
                                        eq::WINDOW );
-                window->setIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER, 
+                window->setIAttribute( eq::server::Window::IATTR_HINT_DOUBLEBUFFER, 
                                        eq::ON );
             }
 

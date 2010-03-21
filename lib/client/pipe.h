@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,10 +31,9 @@
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
 #include <eq/client/windowSystem.h>   // enum
+#include <eq/fabric/pipe.h>           // base class
 
-#include <eq/fabric/pixelViewport.h>  // member
 
-#include <eq/net/object.h>
 #include <eq/net/objectVersion.h>
 
 #include <eq/base/refPtr.h>
@@ -55,7 +55,7 @@ namespace eq
      * the pipe is non-threaded, in which case the tasks are executed on the
      * Node's main thread.
      */
-    class Pipe : public net::Object
+    class Pipe : public fabric::Pipe< Node, Pipe, Window >
     {
     public:
         /** Constructs a new pipe. */
@@ -67,30 +67,12 @@ namespace eq
         /** @name Data Access. */
         //@{
         EQ_EXPORT net::CommandQueue* getPipeThreadQueue();
-        Node*       getNode()       { return _node; }
-        const Node* getNode() const { return _node; }
 
         EQ_EXPORT Config* getConfig();
         EQ_EXPORT const Config* getConfig() const;
 
         EQ_EXPORT ClientPtr getClient();
         EQ_EXPORT ServerPtr getServer();
-
-        const WindowVector& getWindows() const { return _windows; }
-
-        const std::string& getName() const { return _name; }
-
-        /** 
-         * Return the set of tasks this pipe's channels might execute in the
-         * worst case.
-         * 
-         * It is not guaranteed that all the tasks will be actually executed
-         * during rendering.
-         * 
-         * @warning Not finalized, might change in the future.
-         * @return the tasks.
-         */
-        uint32_t getTasks() const { return _tasks; }
 
         bool isThreaded() const { return ( _thread != 0 ); }
         uint32_t getCurrentFrame()  const { return _currentFrame; }
@@ -115,35 +97,6 @@ namespace eq
          * @param pvp the viewport in pixels.
          */
          void setPixelViewport( const eq::PixelViewport& pvp ){ _pvp = pvp; }
-
-        /** 
-         * @return the pipe's pixel viewport
-         */
-        const PixelViewport& getPixelViewport() const { return _pvp; }
-
-        /**
-         * Returns the port number of this pipe.
-         * 
-         * The port number identifies the X server for systems using the
-         * X11/GLX window system. It currently has no meaning on other systems.
-         *
-         * @return the port number of this pipe, or
-         *         <code>EQ_UNDEFINED_UINT32</code>.
-         */
-        uint32_t getPort() const { return _port; }
-
-        /** 
-         * Returns the device number of this pipe.
-         * 
-         * The device number identifies the X screen for systems using the
-         * X11/GLX window system, or the number of the virtual screen for the
-         * AGL window system. On Windows systems it identifies the graphics
-         * adapter. Normally the device identifies a GPU.
-         *
-         * @return the device number of this pipe, or 
-         *         <code>EQ_UNDEFINED_UINT32</code>.
-         */
-        uint32_t getDevice() const { return _device; }
 
         /** 
          * Return the window system used by this pipe. 
@@ -235,7 +188,7 @@ namespace eq
 
         //@}
 
-		/** 
+        /** 
          * @name Interface to and from the ComputeContext
          */
         //@{
@@ -247,20 +200,7 @@ namespace eq
             { return _computeContext; }
 
         /** @return the compute context. */
-		ComputeContext* getComputeContext() { return _computeContext; }		
-        //@}
-		
-        /** @name Error information. */
-        //@{
-        /** 
-         * Set a message why the last operation failed.
-         * 
-         * The message will be transmitted to the originator of the request, for
-         * example to Config::init when set from within the configInit method.
-         *
-         * @param message the error message.
-         */
-        void setErrorMessage( const std::string& message ) { _error = message; }
+        ComputeContext* getComputeContext() { return _computeContext; }		
         //@}
 
         /** @name Configuration. */
@@ -418,38 +358,15 @@ namespace eq
 
     private:
         //-------------------- Members --------------------
-        /** The reason for the last error. */
-        std::string _error;
 
         /** Window-system specific functions class */
         OSPipe *_osPipe;
 
-        /** The parent node. */
-        Node* const    _node;
-
-        /** The name. */
-        std::string    _name;
-
-        /** The windows of this pipe. */
-        WindowVector   _windows;
-
         /** The current window system. */
         WindowSystem _windowSystem;
 
-        /** The size (and location) of the pipe. */
-        PixelViewport _pvp;
-		
         /** CUDA GL interop mode. */
-		bool _cudaGLInterop;
-
-        /** Worst-case set of tasks. */
-        uint32_t _tasks;
-
-        /** The display (GLX) or ignored (Win32, AGL). */
-        uint32_t _port;
-
-        /** The screen (GLX), GPU (Win32) or virtual screen (AGL). */
-        uint32_t _device;
+        bool _cudaGLInterop;
 
         enum State
         {
@@ -508,9 +425,9 @@ namespace eq
         /** The last window made current. */
         const mutable Window* _currentWindow;
 
-		/** GPU Computing context */
+        /** GPU Computing context */
         ComputeContext *_computeContext;
-				
+
         union // placeholder for binary-compatible changes
         {
             char dummy[64];
@@ -522,12 +439,6 @@ namespace eq
         void _exitCommandQueue();
 
         friend class Window;
-        void _addWindow( Window* window );
-        void _removeWindow( Window* window );
-        Window* _findWindow( const uint32_t id );
-
-        virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
-        virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }
 
         /** @internal Release the views not used for some revisions. */
         void _releaseViews();

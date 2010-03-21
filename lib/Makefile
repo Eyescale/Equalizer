@@ -94,6 +94,7 @@ HEADER_SRC = \
 	fabric/object.h \
 	fabric/observer.h \
 	fabric/paths.h \
+	fabric/pipe.h \
 	fabric/pixel.h \
 	fabric/pixelViewport.h \
 	fabric/projection.h \
@@ -107,6 +108,7 @@ HEADER_SRC = \
 	fabric/view.h \
 	fabric/visitorResult.h \
 	fabric/wall.h \
+	fabric/window.h \
 	fabric/zoom.h \
 	client/canvas.h \
 	client/channel.h \
@@ -137,7 +139,6 @@ HEADER_SRC = \
 	client/node.h \
 	client/nodeFactory.h \
 	client/nodeType.h \
-	client/nodeVisitor.h \
 	client/object.h \
 	client/observer.h \
 	client/os.h \
