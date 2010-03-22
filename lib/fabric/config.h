@@ -76,10 +76,10 @@ namespace fabric
         const LayoutVector& getLayouts() const { return _layouts; }
 
         /** @return the entity of the given identifier, or 0. @version 1.0 */
-        EQFABRIC_EXPORT template< typename T > T* find( const uint32_t id );
+        template< typename T > EQFABRIC_EXPORT T* find( const uint32_t id );
 
         /** @return the entity of the given identifier, or 0. @version 1.0 */
-        EQFABRIC_EXPORT template< typename T > const T* find( const uint32_t id)
+        template< typename T > EQFABRIC_EXPORT const T* find( const uint32_t id)
             const;
 
         /** @return the first entity of the given name, or 0. @version 1.0 */
