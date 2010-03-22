@@ -26,6 +26,9 @@
 
 namespace eq
 {
+class Layout;
+namespace server { class Layout; }
+
 namespace fabric
 {
     struct LayoutPath;
@@ -126,7 +129,8 @@ namespace fabric
 
         void _deregister();
 
-        friend class Layout::Layout_t;
+        friend class eq::Layout;
+        friend class eq::server::Layout;
         template< class, class, class > friend class View;
         void _addView( V* view );
         bool _removeView( V* view );

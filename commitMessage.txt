@@ -1,9 +1,9 @@
-Fix XCode build, add eqc highlighting for XCode (S. Furlani)
+Ok, template classes can't really be friends (may fix Linux&VS build)
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
-[x] New Feature
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
