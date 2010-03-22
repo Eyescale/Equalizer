@@ -25,7 +25,7 @@ CXXFILES = \
 	window.cpp \
 	main.cpp
 
-CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS) -I/usr/local/include
+CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS) -isystem /usr/local/include
 LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS) -L/usr/local/lib \
             -losg -losgViewer -lOpenThreads -losgDB -losgUtil -losgGA
 

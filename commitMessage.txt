@@ -1,9 +1,9 @@
-Move Layout data code into fabric namespace
+Fix Posix and XCode build, clean up stdext handling
 
-[x] Will break build
-[x] May break existing applications
-[ ] Bugfix
-[x] New Feature
+[x] May break build
+[ ] May break existing applications
+[x] Bugfix
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

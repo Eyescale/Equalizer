@@ -29,14 +29,13 @@
 #ifdef EQ_USE_BOOST
 #include <eq/net/connectionSet.h> // member
 #include <eq/net/types.h>
+#include "eventConnection.h" // member
+#include "udpConnection.h"   // member
 
 #include <eq/base/base.h>
 #include <eq/base/buffer.h>  // member
 #include <eq/base/lfQueue.h> // member
 #include <eq/base/mtQueue.h> // member
-
-#include "eventConnection.h" // member
-#include "udpConnection.h"   // member
 
 #include <boost/asio.hpp>
 

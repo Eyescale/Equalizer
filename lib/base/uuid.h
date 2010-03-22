@@ -150,7 +150,7 @@ namespace base
 }
 }
 
-#ifdef _MSC_VER
+#ifdef EQ_STDEXT_VC8
 template<> inline size_t stde::hash_compare< eq::base::UUID >::operator() 
     ( const eq::base::UUID& key ) const
 {
@@ -161,43 +161,17 @@ template<> inline size_t stde::hash_value( const eq::base::UUID& key )
 {
     return key._low;
 }
-
-#elif defined (WIN32)
-
-namespace __gnu_cxx
-{
-    template<> struct hash< eq::base::UUID >
-    {
-        size_t operator()( const eq::base::UUID& key ) const
-        {
-            return key._low;
-        }
-    };
-}
-
-#else // POSIX
-
-#  ifdef __GNUC__              // GCC 3.1 and later
-#    if defined EQ_GCC_4_2_OR_LATER && !defined __INTEL_COMPILER
-namespace std { namespace tr1
-#    else
-namespace __gnu_cxx
-#    endif
-#  else //  other compilers
-namespace std
-#  endif
-{
-    template<> struct hash< eq::base::UUID >
-    {
-        size_t operator()( const eq::base::UUID& key ) const
-        {
-            return key._low;
-        }
-    };
-#if defined EQ_GCC_4_2_OR_LATER && !defined __INTEL_COMPILER
-}
 #endif
-}
 
-#endif // _MSC_VER
+
+EQ_STDEXT_NAMESPACE_OPEN
+    template<> struct hash< eq::base::UUID >
+    {
+        size_t operator()( const eq::base::UUID& key ) const
+        {
+            return key._low;
+        }
+    };
+EQ_STDEXT_NAMESPACE_CLOSE
+
 #endif // EQBASE_NODE_H

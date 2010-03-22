@@ -71,19 +71,8 @@ namespace net
 }
 }
 
-#ifdef __GNUC__              // GCC 3.1 and later
-#  if defined EQ_GCC_4_2_OR_LATER && !defined __INTEL_COMPILER
-namespace std { namespace tr1
-#  else
-namespace __gnu_cxx
-#  endif
-#elif defined (WIN32)
-namespace stdext
-#else //  other compilers
-namespace std
-#endif
-{
-#ifdef WIN32
+EQ_STDEXT_NAMESPACE_OPEN
+#ifdef EQ_STDEXT_VC8
     /** ObjectVersion hash function. */
     template<>
     inline size_t hash_compare< eq::net::ObjectVersion >::operator()
@@ -99,13 +88,10 @@ namespace std
         template< typename P > size_t operator()( const P& key ) const
         {
             return hash< uint64_t >()(
-                (static_cast< uint64_t >( key.identifier ) << 32) + key.version );
+                (static_cast<uint64_t>( key.identifier ) << 32) + key.version);
         }
     };
 #endif
-}
-#if defined EQ_GCC_4_2_OR_LATER && !defined __INTEL_COMPILER
-}
-#endif
+EQ_STDEXT_NAMESPACE_CLOSE
 
 #endif // EQNET_OBJECT_H

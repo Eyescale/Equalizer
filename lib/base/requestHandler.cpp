@@ -75,12 +75,12 @@ void RequestHandler::unregisterRequest( const uint32_t requestID )
     if( !_mutex )
         CHECK_THREAD( _thread );
 
-    RequestHash::iterator iter = _requests.find( requestID );
-    if( iter == _requests.end( ))
+    RequestHash::iterator i = _requests.find( requestID );
+    if( i == _requests.end( ))
         return;
 
-    Request* request = iter->second;
-    _requests.erase( iter );
+    Request* request = i->second;
+    _requests.erase( i );
     _freeRequests.push_front( request );
 
     if( _mutex )
@@ -130,14 +130,14 @@ bool RequestHandler::_waitRequest( const uint32_t requestID,
     if( _mutex ) _mutex->set();
     else         CHECK_THREAD( _thread );
 
-    RequestHash::iterator iter = _requests.find( requestID );
-    if( iter == _requests.end( ))
+    RequestHash::iterator i = _requests.find( requestID );
+    if( i == _requests.end( ))
     {
         if( _mutex ) _mutex->unset();
         return false;
     }
 
-    Request*   request       = iter->second;
+    Request*   request       = i->second;
     if( _mutex ) _mutex->unset();
 
     const bool requestServed = request->lock.set( timeout );
@@ -145,8 +145,8 @@ bool RequestHandler::_waitRequest( const uint32_t requestID,
         result = request->result;
 
     ScopedMutex<> mutex( _mutex );
-    iter = _requests.find( requestID );
-    _requests.erase( iter );
+    i = _requests.find( requestID );
+    _requests.erase( i );
     _freeRequests.push_front( request );
     
     return requestServed;
@@ -165,11 +165,11 @@ void* RequestHandler::getRequestData( const uint32_t requestID )
 void RequestHandler::serveRequest( const uint32_t requestID, void* result )
 {
     if( _mutex ) _mutex->set();
-    RequestHash::const_iterator iter = _requests.find( requestID );
-    EQASSERTINFO( iter != _requests.end(),
+    RequestHash::const_iterator i = _requests.find( requestID );
+    EQASSERTINFO( i != _requests.end(),
                   "Attempt to serve unregistered request " << requestID );
 
-    Request* request = iter->second;
+    Request* request = i->second;
     if( _mutex ) _mutex->unset();
 
     request->result.rPointer = result;
@@ -178,11 +178,11 @@ void RequestHandler::serveRequest( const uint32_t requestID, void* result )
 void RequestHandler::serveRequest( const uint32_t requestID, uint32_t result )
 {
     if( _mutex ) _mutex->set();
-    RequestHash::const_iterator iter = _requests.find( requestID );
-    EQASSERTINFO( iter != _requests.end(),
+    RequestHash::const_iterator i = _requests.find( requestID );
+    EQASSERTINFO( i != _requests.end(),
                   "Attempt to serve unregistered request " << requestID );
 
-    Request* request = iter->second;
+    Request* request = i->second;
     if( _mutex ) _mutex->unset();
 
     request->result.rUint32 = result;
@@ -191,11 +191,11 @@ void RequestHandler::serveRequest( const uint32_t requestID, uint32_t result )
 void RequestHandler::serveRequest( const uint32_t requestID, bool result )
 {
     if( _mutex ) _mutex->set();
-    RequestHash::const_iterator iter = _requests.find( requestID );
-    EQASSERTINFO( iter != _requests.end(),
+    RequestHash::const_iterator i = _requests.find( requestID );
+    EQASSERTINFO( i != _requests.end(),
                   "Attempt to serve unregistered request " << requestID );
 
-    Request* request = iter->second;
+    Request* request = i->second;
     if( _mutex ) _mutex->unset();
 
     request->result.rBool = result;
@@ -205,11 +205,11 @@ void RequestHandler::serveRequest( const uint32_t requestID, bool result )
 bool RequestHandler::isRequestServed( const uint32_t requestID ) const
 {
     ScopedMutex<> mutex( _mutex );
-    RequestHash::const_iterator iter = _requests.find( requestID );
-    if( iter == _requests.end( ))
+    RequestHash::const_iterator i = _requests.find( requestID );
+    if( i == _requests.end( ))
         return false;
 
-    Request* request = iter->second;
+    Request* request = i->second;
     if( !request->lock.isSet( ))
         return true;
 

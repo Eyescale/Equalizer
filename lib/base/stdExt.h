@@ -28,53 +28,70 @@
 #include <string>
 
 //----- Common extensions of the STL
-#ifdef __GNUC__              // GCC 3.1 and later
-#  if defined EQ_GCC_4_2_OR_LATER && !defined __INTEL_COMPILER
-#    include <tr1/unordered_map>
-#    include <tr1/unordered_set>
+#ifdef __GNUC__
+#  if defined EQ_GCC_4_3_OR_LATER && !defined __INTEL_COMPILER
+#    define EQ_STDEXT_TR1
+#  else
+#    define EQ_STDEXT_EXT
+#  endif
+#else
+#  ifdef WIN32
+#    define EQ_STDEXT_VC8
+#  else
+#    define EQ_STDEXT_STD
+#  endif
+#endif
+
+#ifdef EQ_STDEXT_TR1
+#  include <tr1/unordered_map>
+#  include <tr1/unordered_set>
 /* Alias stde namespace to uniformly access stl extensions. */
 namespace stde = std::tr1;
-#  else
-#    include <ext/hash_map>
-#    include <ext/hash_set>
+#  define EQ_STDEXT_NAMESPACE_OPEN namespace std { namespace tr1 {
+#  define EQ_STDEXT_NAMESPACE_CLOSE }}
+#endif
+
+#ifdef EQ_STDEXT_EXT
+#  include <ext/hash_map>
+#  include <ext/hash_set>
 /* Alias stde namespace to uniformly access stl extensions. */
 namespace stde = __gnu_cxx; 
-#  endif
-#else                        //  other compilers
+#  define EQ_STDEXT_NAMESPACE_OPEN namespace __gnu_cxx {
+#  define EQ_STDEXT_NAMESPACE_CLOSE }
+#endif
+
+#ifdef EQ_STDEXT_VC8
 #  include <hash_map>
 #  include <hash_set>
-#  ifdef WIN32
 /* Alias stde namespace to uniformly access stl extensions. */
 namespace stde = stdext;
-#  else
+#  define EQ_STDEXT_NAMESPACE_OPEN namespace stdext {
+#  define EQ_STDEXT_NAMESPACE_CLOSE }
+#endif
+
+#ifdef EQ_STDEXT_STD
+#  include <hash_map>
+#  include <hash_set>
 /* Alias stde namespace to uniformly access stl extensions. */
 namespace stde = std;
-#  endif
+#  define EQ_STDEXT_NAMESPACE_OPEN namespace std {
+#  define EQ_STDEXT_NAMESPACE_CLOSE }
 #endif
 
+
+EQ_STDEXT_NAMESPACE_OPEN
 
 //----- Our extensions of the STL 
-#ifdef __GNUC__              // GCC 3.1 and later
-#  if defined EQ_GCC_4_2_OR_LATER && !defined __INTEL_COMPILER
-namespace std { namespace tr1
-#  else
-namespace __gnu_cxx
-#  endif
-#elif defined (WIN32)
-namespace stdext
-#else //  other compilers
-namespace std
-#endif
-{
-#  ifdef __GNUC__
-#    if defined EQ_GCC_4_2_OR_LATER && !defined __INTEL_COMPILER
+#ifdef EQ_STDEXT_TR1
     template<class K, class T, class H = hash< K >, 
              class P = std::equal_to< K >, class A = std::allocator< K > >
     class hash_map : public unordered_map< K, T, H, P, A >
     {
     };
-#    else
-#      ifndef EQ_HAVE_STRING_HASH
+#endif
+
+#ifdef EQ_STDEXT_EXT
+#  ifndef EQ_HAVE_STRING_HASH
     /** std::string hash function. @version 1.0 */
     template<> struct hash< std::string >
     {
@@ -83,9 +100,9 @@ namespace std
             return hash< const char* >()( str.c_str() );
         }
     };
-#      endif
+#  endif // EQ_HAVE_STRING_HASH
 
-#      if !defined __INTEL_COMPILER
+#  if !defined __INTEL_COMPILER
     /** uint64_t hash function. @version 1.0 */
     template<> struct hash< uint64_t >
     {
@@ -96,11 +113,9 @@ namespace std
             return static_cast< size_t >( val );
         }
     };
-#      endif
+#  endif // !__INTEL_COMPILER
 
-#    endif
-
-#    ifndef EQ_HAVE_VOID_PTR_HASH
+#  ifndef EQ_HAVE_VOID_PTR_HASH
     /** void* hash functions. @version 1.0 */
     template<> struct hash< void* >
     {
@@ -119,10 +134,11 @@ namespace std
             return reinterpret_cast<size_t>(key);
         }
     };
-#    endif // EQ_HAVE_VOID_PTR_HASH
+#  endif // EQ_HAVE_VOID_PTR_HASH
+#endif // EQ_STDEXT_EXT
 
-#  else // WIN32
-#    ifndef EQ_HAVE_STRING_HASH
+#ifdef EQ_STDEXT_VC8
+#  ifndef EQ_HAVE_STRING_HASH
 
     /** std::string hash function. @version 1.0 */
     template<> inline size_t hash_compare< std::string >::operator()
@@ -131,8 +147,8 @@ namespace std
         return hash_value( key.c_str( ));
     }
 
-#    endif
 #  endif
+#endif
 
     /**
      * Uniquely sorts and eliminates duplicates in a STL container.
@@ -143,9 +159,6 @@ namespace std
         std::sort( c.begin(), c.end( ));
         c.erase( std::unique( c.begin(), c.end( )), c.end( ));
     }
-#if defined EQ_GCC_4_2_OR_LATER && !defined __INTEL_COMPILER
-}
-#endif
-}
+EQ_STDEXT_NAMESPACE_CLOSE
 
 #endif // EQBASE_STDEXT_H

@@ -1,6 +1,9 @@
 
-#USE_OPENMP       = 1
+#USE_OPENMP      = 1
 #EQ_USE_MAGELLAN = 1
+
+CC ?= /usr/bin/gcc-4.2
+CXX ?= /usr/bin/g++-4.2
 
 DSO_SUFFIX       = dylib
 DSO_LDFLAGS     += -dynamiclib

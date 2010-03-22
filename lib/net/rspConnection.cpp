@@ -17,6 +17,7 @@
  */
 
 #include "rspConnection.h"
+
 #ifdef EQ_USE_BOOST
 #include "connection.h"
 #include "connectionDescription.h"

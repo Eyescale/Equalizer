@@ -2,8 +2,8 @@
                          Darwin-Specific Notes
 
  Equalizer is developed on the latest OS X version, at the time of
- writing 10.6.2. Other versions may work, but are not tested.
-
+ writing 10.6.2. Other versions may work, but are not tested. The
+ minimum version is gcc 4.2, version 4.0.1 is no longer supported.
 
 Prerequisites:
 

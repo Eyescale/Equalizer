@@ -576,7 +576,7 @@ bool Pipe::configInit( const uint32_t initID )
         {
             setErrorMessage( "GPU Computing context initialization failed: " + 
                 computeCtx->getErrorMessage( ));
-            EQERROR << _error << std::endl;
+            EQERROR << getErrorMessage() << std::endl;
             delete computeCtx;
             return false;
         }
