@@ -25,14 +25,14 @@ namespace eq
 {
 namespace fabric
 {
-    /** A visitor to traverse non-leaf element and their children in a tree. */
+    /** A visitor to traverse non-leaf elements and their children in a tree. */
     template< typename T, typename L  > class ElementVisitor : public L
     {
     public:
-        /** Construct a new element. */
+        /** Construct a new visitor. */
         ElementVisitor(){}
         
-        /** Destruct the element. */
+        /** Destruct the visitor. */
         virtual ~ElementVisitor(){}  
 
         /** Visit an element on the down traversal. */
@@ -43,11 +43,11 @@ namespace fabric
         virtual VisitorResult visitPost( T* element )
             { return visitPost( static_cast< const T* >( element )); }
 
-        /** Visit an element on the down traversal. */
+        /** Visit an element on a const down traversal. */
         virtual VisitorResult visitPre( const T* element )
             { return TRAVERSE_CONTINUE; }
 
-        /** Visit an element on the up traversal. */
+        /** Visit an element on a const up traversal. */
         virtual VisitorResult visitPost( const T* element )
             { return TRAVERSE_CONTINUE; }
     };
