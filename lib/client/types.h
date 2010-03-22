@@ -43,6 +43,7 @@ class Wall;
 class Zoom;
 template< typename T, typename L > class ElementVisitor;
 template< typename T > class LeafVisitor;
+template< typename T, typename C  > class ElementVisitor;
 }
 
 class Canvas;

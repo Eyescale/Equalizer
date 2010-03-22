@@ -30,6 +30,7 @@ namespace eq
 {
     class ConfigDeserializer;
     class ConfigVisitor;
+    class Layout;
     class Node;
     class Observer;
     struct ConfigEvent;
@@ -54,7 +55,7 @@ namespace eq
      * The render client processes have only access to the current View for each
      * of their channels.
      */
-    class Config : public fabric::Config< Server, Config, Observer >
+    class Config : public fabric::Config< Server, Config, Observer, Layout >
     {
     public:
         /** Construct a new config. @version 1.0 */
@@ -102,15 +103,6 @@ namespace eq
          * @version 1.0
          */
         const NodeVector& getNodes() const { return _nodes; }
-
-        /** @return the vector of layouts, app-node only. @version 1.0 */
-        const LayoutVector& getLayouts() const { return _layouts; }
-
-        /** @return the layout of the given identifier, or 0. @version 1.0 */
-        EQ_EXPORT Layout* findLayout( const uint32_t id );
-
-        /** @return the view of the given identifier, or 0. @version 1.0 */
-        EQ_EXPORT View* findView( const uint32_t id );
 
         /** @return the vector of canvases, app-node only. @version 1.0 */
         const CanvasVector& getCanvases() const { return _canvases; }
@@ -373,9 +365,6 @@ namespace eq
         /** Locally-instantiated nodes of this config. */
         NodeVector _nodes;
 
-        /** The list of layouts, app-node only. */
-        LayoutVector _layouts;
-
         /** The list of canvases, app-node only. */
         CanvasVector _canvases;
 
@@ -425,8 +414,6 @@ namespace eq
         void _frameStart();
 
         friend class ConfigDeserializer;
-        void _addLayout( Layout* layout );
-        void _removeLayout( Layout* layout );
         void _addCanvas( Canvas* canvas );
         void _removeCanvas( Canvas* canvas );
 

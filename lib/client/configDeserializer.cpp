@@ -37,24 +37,32 @@ void ConfigDeserializer::applyInstanceData( net::DataIStream& is )
     NodeFactory* nodeFactory = Global::getNodeFactory();
     
     // Clean up - should never be necessary
-    EQASSERT( _config->_canvases.empty( ));
-     for( CanvasVector::const_iterator i = _config->_canvases.begin();
-         i != _config->_canvases.end(); ++i )
+    const ObserverVector& observers = _config->getObservers();
+    EQASSERT( observers.empty( ));
+    while( !observers.empty( ))
+    {
+        Observer* observer = observers.back();
+        //observer->_deregister();
+        nodeFactory->releaseObserver( observer );
+    }
+
+    const CanvasVector& canvases = _config->getCanvases();
+    EQASSERT( canvases.empty( ));
+    for( CanvasVector::const_iterator i = canvases.begin();
+         i != canvases.end(); ++i )
     {
         Canvas* canvas = *i;
         nodeFactory->releaseCanvas( canvas );
     }
-    _config->_canvases.clear();
 
-    EQASSERT( _config->_layouts.empty( ));
-    for( LayoutVector::const_iterator i = _config->_layouts.begin();
-         i != _config->_layouts.end(); ++i )
+    const LayoutVector& layouts = _config->getLayouts();
+    EQASSERT( layouts.empty( ));
+    while( !layouts.empty( ))
     {
-        Layout* layout = *i;
+        Layout* layout = layouts.back();
         //layout->_deregister();
         nodeFactory->releaseLayout( layout );
     }
-    _config->_layouts.clear();
 
     // map all config children
     net::ObjectVector objects; // save objects to convert to master
@@ -88,12 +96,9 @@ void ConfigDeserializer::applyInstanceData( net::DataIStream& is )
 
             case TYPE_LAYOUT:
             {
-                Layout* layout = nodeFactory->createLayout();
+                Layout* layout = nodeFactory->createLayout( _config );
                 EQASSERT( layout );
-                _config->_addLayout( layout );
-
                 EQCHECK( _config->mapObject( layout, id )); //OPT: async mapping
-                // RO, don't convert to master
                 break;
             }
                 

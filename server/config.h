@@ -35,12 +35,13 @@ namespace server
 {
     class ConfigSerializer;
     class ConfigVisitor;
+    class Layout;
     class Observer;
 
     /**
      * The config.
      */
-    class Config : public fabric::Config< Server, Config, Observer >
+    class Config : public fabric::Config< Server, Config, Observer, Layout >
     {
     public:
         /** Construct a new config. */
@@ -57,7 +58,6 @@ namespace server
         Channel* getChannel( const ChannelPath& path );
         Canvas* getCanvas( const CanvasPath& path );
         Segment* getSegment( const SegmentPath& path );
-        Layout* getLayout( const LayoutPath& path );
         View* getView( const ViewPath& path );
 
         bool    isRunning() const { return ( _state == STATE_RUNNING ); }
@@ -86,38 +86,6 @@ namespace server
 
         /** @return the vector of nodes. */
         const NodeVector& getNodes() const { return _nodes; }
-
-        /** 
-         * Adds a new layout to this config.
-         * 
-         * @param layout the layout.
-         */
-        void _addLayout( Layout* layout );
-
-        /** 
-         * Removes a layout from this config.
-         * 
-         * @param layout the layout
-         * @return <code>true</code> if the layout was removed,
-         *         <code>false</code> otherwise.
-         */
-        bool _removeLayout( Layout* layout );
-
-        /** @return the vecotr of layouts. */
-        const LayoutVector& getLayouts() const { return _layouts; }
-
-        /** 
-         * Find the first layout of a given name.
-         * 
-         * @param name the name of the layout to find
-         * @return the first layout with the name, or <code>0</code> if no
-         *         layout with the name exists.
-         */
-        Layout* findLayout( const std::string& name );
-        const Layout* findLayout( const std::string& name ) const;
-
-        /** @return the layout mapped to the given identifier, or 0. */
-        Layout* findLayout( const uint32_t id );
 
         /** 
          * Find the first view of a given name.
@@ -340,9 +308,6 @@ namespace server
 
         /** The list of nodes. */
         NodeVector _nodes;
-
-        /** The list of layouts. */
-        LayoutVector _layouts;
 
         /** The list of canvases. */
         CanvasVector _canvases;

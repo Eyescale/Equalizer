@@ -1072,7 +1072,7 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
                         const Layout* layout = view->getLayout();
                         const std::string& layoutName = layout->getName();
                         if( !layoutName.empty() && 
-                            config->findLayout( layoutName ) == layout )
+                            config->find< Layout >( layoutName ) == layout )
                         {
                             os << "layout \"" << layoutName << "\" ";
                         }
@@ -1087,7 +1087,8 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
                     os << " )" << std::endl; 
                 }
                 else
-                    os << "channel  ( " << channel->getPath() << " )" << std::endl;
+                    os << "channel  ( " << channel->getPath() << " )"
+                       << std::endl;
             }
         }
     }

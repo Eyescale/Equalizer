@@ -26,7 +26,7 @@ namespace eq
 namespace fabric
 {
     /** A visitor to traverse non-leaf elements and their children in a tree. */
-    template< typename T, typename L  > class ElementVisitor : public L
+    template< typename T, typename C  > class ElementVisitor : public C
     {
     public:
         /** Construct a new visitor. */

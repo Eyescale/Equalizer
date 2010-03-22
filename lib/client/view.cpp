@@ -35,6 +35,12 @@ View::View( Layout* parent )
 {
 }
 
+View::View( const View& from, Layout* parent )
+        : Super( from, parent )
+{
+    EQDONTCALL;
+}
+
 View::~View()
 {
 }

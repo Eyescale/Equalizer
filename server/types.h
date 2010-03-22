@@ -42,6 +42,7 @@ struct ViewPath;
 
 template< typename T, typename L > class ElementVisitor;
 template< typename T > class LeafVisitor;
+template< typename T, typename C  > class ElementVisitor;
 }
 
 namespace server
@@ -105,7 +106,10 @@ typedef fabric::LeafVisitor< Segment > SegmentVisitor;
 /** A visitor to traverse views. @sa View::accept() */
 typedef fabric::LeafVisitor< View > ViewVisitor;
 
-/** A visitor to traverse channels. @sa Channel::accept() */
+/** A visitor to traverse layouts and children. */
+typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
+
+/** A visitor to traverse observers. @sa Observer::accept() */
 typedef fabric::LeafVisitor< Observer > ObserverVisitor;
 
 /** A visitor to traverse channels. @sa Channel::accept() */

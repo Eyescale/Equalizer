@@ -76,7 +76,10 @@ namespace net
                                                 const uint32_t instanceID, 
                                                 Session* session );
 
-        /** Called when object is detached from session. @internal */
+        /**
+         * Called when the object is detached from the session from the receiver
+         * thread. @internal
+         */
         EQ_EXPORT virtual void detachFromSession();
 
         /** 

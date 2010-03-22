@@ -89,6 +89,7 @@ HEADER_SRC = \
 	fabric/elementVisitor.h \
 	fabric/eye.h \
 	fabric/frustum.h \
+	fabric/layout.h \
 	fabric/init.h \
 	fabric/leafVisitor.h \
 	fabric/object.h \

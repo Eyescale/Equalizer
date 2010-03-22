@@ -96,13 +96,12 @@ void View< L, V, O >::deserialize( net::DataIStream& is,
         {
             if( !_observer && _layout ) // don't map render client observers yet
             {
-                EQASSERT( static_cast< V* >( this )->getConfig( ));
-                _observer = (static_cast< V* >( this )->getConfig( ))->
-                                findObserver( observer.identifier );
-
-                EQASSERT( _observer );
-                EQASSERT( _observer->getID() == observer.identifier );
+                L* layout = getLayout();
+                EQASSERT( layout && layout->getConfig( ));
+                layout->getConfig()->find( observer.identifier, &_observer );
             }
+            EQASSERT( _observer );
+            EQASSERT( _observer->getID() == observer.identifier );
             if( _observer )
                 _observer->sync( observer.version );
         }
@@ -172,8 +171,10 @@ std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view )
     {
         const std::string& observerName = observer->getName();
         const L* layout = view.getLayout();
-        if( layout && 
-            layout->getConfig()->findObserver( observerName ) == observer )
+        const O* foundObserver = 0;
+        layout->getConfig()->find( observerName, &foundObserver );
+
+        if( layout && foundObserver == observer )
         {
             os << "observer \"" << observerName << "\"" << std::endl;
         }

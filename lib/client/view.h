@@ -47,6 +47,9 @@ namespace eq
         EQ_EXPORT View( Layout* parent );
         EQ_EXPORT virtual ~View();
 
+        /** @internal */
+        View( const View& from, Layout* parent );
+
         /** @name Data Access. */
         //@{
         /** @return the config of this view. */

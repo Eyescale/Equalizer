@@ -462,6 +462,7 @@ void Session::unmapObject( Object* object )
 
     // no unsubscribe sent: Detach directly
     detachObject( object );
+    object->_setChangeManager( ObjectCM::ZERO );
 }
 
 bool Session::registerObject( Object* object )
@@ -595,7 +596,7 @@ CommandResult Session::_invokeObjectCommand( Command& command )
                   "No objects to handle command " << objPacket );
 
     // create copy of objects vector for thread-safety
-    ObjectVector objects = _objects.data[id];
+    const ObjectVector objects = _objects.data[id];
     EQASSERTINFO( !objects.empty(), objPacket );
 
     _objects.lock.unset();
@@ -783,6 +784,7 @@ CommandResult Session::_cmdDetachObject( Command& command )
         }
     }
 
+    EQASSERT( packet->requestID != EQ_ID_INVALID );
     _localNode->serveRequest( packet->requestID );    
     return COMMAND_HANDLED;
 }

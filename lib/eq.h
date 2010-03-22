@@ -41,6 +41,7 @@
 #include <eq/client/log.h>
 #include <eq/client/node.h>
 #include <eq/client/nodeFactory.h>
+#include <eq/client/object.h>
 #include <eq/client/observer.h>
 #include <eq/client/packets.h>
 #include <eq/client/pipe.h>

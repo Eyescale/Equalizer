@@ -62,7 +62,7 @@ namespace fabric
                 : net::Object(), _dirty ( DIRTY_NONE ) {}
         
         /** Destruct the serializable. @version 1.0 */
-        virtual ~Serializable() {}
+        virtual ~Serializable() { EQASSERT( getID() == EQ_ID_INVALID ); }
 
         /** 
          * Worker for pack() and getInstanceData().
@@ -92,7 +92,7 @@ namespace fabric
         virtual void deserialize( net::DataIStream& is, 
                                   const uint64_t dirtyBits ) = 0;
 
-        virtual ChangeType getChangeType() const { return UNBUFFERED; }
+        virtual ChangeType getChangeType() const { return DELTA; }
 
         /** 
          * The changed parts of the serializable since the last pack().

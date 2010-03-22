@@ -25,212 +25,65 @@
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
 
-using namespace eq::base;
-
 namespace eq
 {
 namespace server
 {
+typedef fabric::Layout< Config, Layout, View > Super;
 
 Layout::Layout( Config* parent )
-        : _config( parent )
+        : Super( parent )
 {
-    EQASSERT( parent );
-    parent->_addLayout( this );
 }
 
 Layout::Layout( const Layout& from, Config* parent )
-        : Object( from )
-        , _config( parent )
+        : Super( from, parent )
 {
-    EQASSERT( parent );
-    for( ViewVector::const_iterator i = from._views.begin();
-         i != from._views.end(); ++i )
-    {
-        new View( **i, this );
-    }
-
-    parent->_addLayout( this );
 }
 
 Layout::~Layout()
 {
-    while( !_views.empty( ))
-    {
-        View* view = _views.back();
-        EQASSERT( view->getLayout() == this );
-        _removeView( view );
-        delete view;
-    }
-    _config->_removeLayout( this );
 }
 
-void Layout::getInstanceData( net::DataOStream& os )
-{
-    // This function is overwritten from eq::Object, since the class is
-    // intended to be subclassed on the client side. When serializing a
-    // server::Layout, we only transmit the effective bits, not all since that
-    // potentially includes bits from subclassed eq::Layouts.
-    const uint64_t dirty = eq::Layout::DIRTY_CUSTOM - 1;
-    os << dirty;
-    serialize( os, dirty );
-}
-
-void Layout::serialize( net::DataOStream& os, const uint64_t dirtyBits )
-{
-    Object::serialize( os, dirtyBits );
-
-    if( dirtyBits & eq::Layout::DIRTY_VIEWS )
-    {
-        for( ViewVector::const_iterator i = _views.begin();
-             i != _views.end(); ++i )
-        {
-            View* view = *i;
-            EQASSERT( view->getID() != EQ_ID_INVALID );
-            os << view->getID();
-        }
-        os << EQ_ID_INVALID;
-    }
-}
-
-View* Layout::getView( const ViewPath& path )
-{
-    EQASSERTINFO( _views.size() > path.viewIndex,
-                  _views.size() << " <= " << path.viewIndex << " " << this );
-
-    if( _views.size() <= path.viewIndex )
-        return 0;
-
-    return _views[ path.viewIndex ];
-}
-
-LayoutPath Layout::getPath() const
-{
-    EQASSERT( _config );
-    
-    const LayoutVector&    layouts = _config->getLayouts();
-    LayoutVector::const_iterator i = std::find( layouts.begin(), layouts.end(),
-                                              this );
-    EQASSERT( i != layouts.end( ));
-
-    LayoutPath path;
-    path.layoutIndex = std::distance( layouts.begin(), i );
-    return path;
-}
-
-namespace
-{
-template< class C >
-VisitorResult _accept( C* layout, LayoutVisitor& visitor )
-{ 
-    VisitorResult result = visitor.visitPre( layout );
-    if( result != TRAVERSE_CONTINUE )
-        return result;
-
-    const ViewVector& views = layout->getViews();
-    for( ViewVector::const_iterator i = views.begin(); i != views.end(); ++i )
-    {
-        switch( (*i)->accept( visitor ))
-        {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-                
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    switch( visitor.visitPost( layout ))
-    {
-        case TRAVERSE_TERMINATE:
-            return TRAVERSE_TERMINATE;
-
-        case TRAVERSE_PRUNE:
-            return TRAVERSE_PRUNE;
-                
-        case TRAVERSE_CONTINUE:
-        default:
-            break;
-    }
-
-    return result;
-}
-}
-
-VisitorResult Layout::accept( LayoutVisitor& visitor )
-{
-    return _accept( this, visitor );
-}
-VisitorResult Layout::accept( LayoutVisitor& visitor ) const
-{
-    return _accept( this, visitor );
-}
-
-void Layout::_addView( View* view )
-{
-    EQASSERT( view );
-    EQASSERT( view->getLayout() == this );
-    _views.push_back( view );
-}
-
-bool Layout::_removeView( View* view )
-{
-    ViewVector::iterator i = find( _views.begin(), _views.end(), view );
-    if( i == _views.end( ))
-        return false;
-
-    EQASSERT( view->getLayout() == this );
-    _views.erase( i );
-    return true;
-}
-
-View* Layout::findView( const std::string& name )
-{
-    ViewFinder finder( name );
-    accept( finder );
-    return finder.getResult();
-}
-
-void Layout::unmap()
+void Layout::deregister()
 {
     net::Session* session = getSession();
     EQASSERT( session );
-    for( ViewVector::const_iterator i = _views.begin(); i != _views.end(); ++i )
+    EQASSERT( getID() != EQ_ID_INVALID );
+    EQASSERT( isMaster( ));
+    
+    const ViewVector views = getViews();
+    for( ViewVector::const_iterator i = views.begin(); i != views.end(); ++i )
     {
         View* view = *i;
         EQASSERT( view->getID() != EQ_ID_INVALID );
-        
-        session->unmapObject( view );
+        EQASSERT( view->isMaster( ));
+
+        session->deregisterObject( view );
     }
-
-    EQASSERT( getID() != EQ_ID_INVALID );
-    session->unmapObject( this );
+    session->deregisterObject( this );
 }
 
-std::ostream& operator << ( std::ostream& os, const Layout* layout )
+View* Layout::createView()
 {
-    if( !layout )
-        return os;
-    
-    os << disableFlush << disableHeader << "layout" << std::endl;
-    os << "{" << std::endl << indent; 
+    return new View( this );
+}
 
-    const std::string& name = layout->getName();
-    if( !name.empty( ))
-        os << "name     \"" << name << "\"" << std::endl;
-
-    const ViewVector& views = layout->getViews();
-    for( ViewVector::const_iterator i = views.begin(); i != views.end(); ++i )
-        os << **i;
-
-    os << exdent << "}" << std::endl << enableHeader << enableFlush;
-    return os;
+void Layout::releaseView( View* view )
+{
+    delete view;
 }
 
 }
 }
+
+#include "../lib/fabric/layout.cpp"
+template class eq::fabric::Layout< eq::server::Config, eq::server::Layout,
+                                   eq::server::View >;
+/** @cond IGNORE */
+template std::ostream& eq::fabric::operator << ( std::ostream&,
+                                                 const eq::fabric::Layout<
+                                                 eq::server::Config,
+                                                 eq::server::Layout,
+                                                 eq::server::View >& );
+/** @endcond */

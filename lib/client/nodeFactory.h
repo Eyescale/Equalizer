@@ -69,7 +69,7 @@ namespace eq
          * 
          * @return the layout.
          */
-        virtual Layout* createLayout();
+        virtual Layout* createLayout( Config* parent );
 
         /** Release a layout. */
         virtual void releaseLayout( Layout* layout );

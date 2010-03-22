@@ -461,7 +461,7 @@ std::ostream& operator << ( std::ostream& os, const Canvas* canvas )
             const Config*      config     = layout->getConfig();
             const std::string& layoutName = layout->getName();
             if( layoutName.empty() || 
-                config->findLayout( layoutName ) != layout )
+                config->find< Layout >( layoutName ) != layout )
                 os << layout->getPath() << std::endl;
             else
                 os << "layout   \"" << layout->getName() << "\"" << std::endl;

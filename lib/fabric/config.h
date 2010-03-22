@@ -29,8 +29,10 @@ namespace eq
 {
 namespace fabric
 {
-    template< typename C, typename O > class Observer;
+    template< class C, class O > class Observer;
+    template< class C, class L, class V > class Layout;
     struct ObserverPath;
+    struct LayoutPath;
 
     /**
      * A configuration is a visualization session driven by an application.
@@ -52,10 +54,13 @@ namespace fabric
      * The render client processes have only access to the current View for each
      * of their channels.
      */
-    template< class S, class C, class O >
+    template< class S, class C, class O, class L >
     class Config : public net::Session
     {
     public:
+        typedef std::vector< O* > ObserverVector;
+        typedef std::vector< L* > LayoutVector;
+
         /** Destruct a config. @version 1.0 */
         EQFABRIC_EXPORT virtual ~Config();
 
@@ -64,24 +69,36 @@ namespace fabric
         /** @return the local server proxy. @version 1.0 */
         EQFABRIC_EXPORT base::RefPtr< S > getServer();
 
-        typedef std::vector< O* > ObserverVector;
         /** @return the vector of observers, app-node only. @version 1.0 */
         const ObserverVector& getObservers() const { return _observers; }
 
-        /** @return the observer of the given identifier, or 0. @version 1.0 */
-        O* findObserver( const uint32_t id );
+        /** @return the vector of layouts, app-node only. @version 1.0 */
+        const LayoutVector& getLayouts() const { return _layouts; }
 
-        /** @return the observer of the given identifier, or 0. @version 1.0 */
-        const O* findObserver( const uint32_t id ) const;
+        /** @return the entity of the given identifier, or 0. @version 1.0 */
+        template< typename T > T* find( const uint32_t id );
 
-        /** @return the first observer of the given name, or 0. @version 1.0 */
-        O* findObserver( const std::string& name );
+        /** @return the entity of the given identifier, or 0. @version 1.0 */
+        template< typename T > const T* find( const uint32_t id ) const;
 
-        /** @return the first observer of the given name, or 0. @version 1.0 */
-        const O* findObserver( const std::string& name ) const;
+        /** @return the first entity of the given name, or 0. @version 1.0 */
+        template< typename T > T* find( const std::string& name );
+
+        /** @return the first entity of the given name, or 0. @version 1.0 */
+        template< typename T > const T* find( const std::string& name ) const;
 
         /** @return the observer at the given path. @internal */
         O* getObserver( const ObserverPath& path );
+
+        /** @return the layout at the given path. @internal */
+        L* getLayout( const LayoutPath& path );
+
+        /** @internal */
+        template< typename T > void find( const uint32_t id, T** result );
+
+        /** @internal */
+        template< typename T > void find( const std::string& name,
+                                          const T** result ) const;
         //@}
 
     protected:
@@ -93,14 +110,21 @@ namespace fabric
 
         friend class fabric::Observer< C, O >;
         void _addObserver( O* observer );
-        void _removeObserver( O* observer );
+        bool _removeObserver( O* observer );
+        
+        template< class, class, class > friend class Layout;
+        void _addLayout( L* layout );
+        bool _removeLayout( L* layout );
 
     private:
         /** The parent server. */
         base::RefPtr< S > _server;
 
-        /** The list of observers, app-node only. */
+        /** The list of observers. */
         ObserverVector _observers;
+
+        /** The list of layouts. */
+        LayoutVector _layouts;
 
         union // placeholder for binary-compatible changes
         {

@@ -120,6 +120,8 @@ namespace server
             DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 4
         };
 
+        virtual ChangeType getChangeType() const { return UNBUFFERED; }
+
     private:
         /** The parent config. */
         Config* _config;

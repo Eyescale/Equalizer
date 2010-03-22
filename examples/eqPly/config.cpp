@@ -389,7 +389,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                 return true;
             }
             
-            const eq::View* view = findView( viewID );
+            const eq::View* view = find< eq::View> ( viewID );
             const eq::Layout* layout = view->getLayout();
             const eq::CanvasVector& canvases = getCanvases();
             for( eq::CanvasVector::const_iterator i = canvases.begin();
@@ -605,7 +605,8 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             if( !layout )
                 return true;
 
-            const eq::View* current = findView( _frameData.getCurrentViewID( ));
+            const eq::View* current = find< eq::View >(
+                                                _frameData.getCurrentViewID( ));
             const eq::ViewVector& views = layout->getViews();
             EQASSERT( !views.empty( ))
 
@@ -635,7 +636,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 
             // current model
             const uint32_t viewID = _frameData.getCurrentViewID();
-            View* view = static_cast< View* >( findView( viewID ));
+            View* view = static_cast< View* >( find< eq::View >( viewID ));
             const uint32_t currentID = view ? 
                 view->getModelID() : _frameData.getModelID();
 

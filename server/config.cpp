@@ -54,7 +54,7 @@ namespace eq
 namespace server
 {
 typedef net::CommandFunc<Config> ConfigFunc;
-typedef fabric::Config< Server, Config, Observer > Super;
+typedef fabric::Config< Server, Config, Observer, Layout > Super;
 
 #define MAKE_ATTR_STRING( attr ) ( std::string("EQ_CONFIG_") + #attr )
 std::string Config::_fAttributeStrings[FATTR_ALL] = 
@@ -105,13 +105,6 @@ Config::Config( const Config& from, ServerPtr parent )
             _appNode = nodeClone;
     }
 
-    const LayoutVector& layouts = from.getLayouts();
-    for( LayoutVector::const_iterator i = layouts.begin(); 
-         i != layouts.end(); ++i )
-    {
-        new Layout( **i, this );
-    }
-
     const CanvasVector& canvases = from.getCanvases();
     for( CanvasVector::const_iterator i = canvases.begin(); 
          i != canvases.end(); ++i )
@@ -151,13 +144,6 @@ Config::~Config()
         delete canvas;
     }
     _canvases.clear();
-
-    while( !_layouts.empty( ))
-    {
-        Layout* layout = _layouts.back();
-        _removeLayout( layout );
-        delete layout;
-    }
 
     for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
     {
@@ -208,7 +194,7 @@ void Config::addNode( Node* node )
 
 bool Config::removeNode( Node* node )
 {
-    NodeVector::iterator i = find( _nodes.begin(), _nodes.end(), node );
+    NodeVector::iterator i = std::find( _nodes.begin(), _nodes.end(), node );
     if( i == _nodes.end( ))
         return false;
 
@@ -216,43 +202,6 @@ bool Config::removeNode( Node* node )
     node->_config = 0; 
 
     return true;
-}
-
-void Config::_addLayout( Layout* layout )
-{
-    EQASSERT( layout->getConfig() == this );
-    _layouts.push_back( layout );
-}
-
-bool Config::_removeLayout( Layout* layout )
-{
-    LayoutVector::iterator i = find( _layouts.begin(), _layouts.end(), layout );
-    if( i == _layouts.end( ))
-        return false;
-
-    EQASSERT( layout->getConfig() == this );
-    _layouts.erase( i );
-    return true;
-}
-
-
-Layout* Config::findLayout( const std::string& name )
-{
-    LayoutFinder finder( name );
-    accept( finder );
-    return finder.getResult();
-}
-const Layout* Config::findLayout( const std::string& name ) const
-{
-    ConstLayoutFinder finder( name );
-    accept( finder );
-    return finder.getResult();
-}
-Layout* Config::findLayout( const uint32_t id )
-{
-    LayoutIDFinder finder( id );
-    accept( finder );
-    return finder.getResult();
 }
 
 View* Config::findView( const std::string& name )
@@ -389,8 +338,8 @@ void Config::addCanvas( Canvas* canvas )
 
 bool Config::removeCanvas( Canvas* canvas )
 {
-    CanvasVector::iterator i = find( _canvases.begin(), _canvases.end(),
-                                     canvas );
+    CanvasVector::iterator i = std::find( _canvases.begin(), _canvases.end(),
+                                          canvas );
     if( i == _canvases.end( ))
         return false;
 
@@ -435,8 +384,8 @@ void Config::addCompound( Compound* compound )
 
 bool Config::removeCompound( Compound* compound )
 {
-    CompoundVector::iterator i = find( _compounds.begin(), _compounds.end(),
-                                       compound );
+    CompoundVector::iterator i = std::find( _compounds.begin(),
+                                            _compounds.end(), compound );
     if( i == _compounds.end( ))
         return false;
 
@@ -507,17 +456,6 @@ Segment* Config::getSegment( const SegmentPath& path )
         return canvas->getSegment( path );
 
     return 0;
-}
-
-Layout* Config::getLayout( const LayoutPath& path )
-{
-    EQASSERTINFO( _layouts.size() > path.layoutIndex,
-                  _layouts.size() << " <= " << path.layoutIndex );
-
-    if( _layouts.size() <= path.layoutIndex )
-        return 0;
-
-    return _layouts[ path.layoutIndex ];
 }
 
 View* Config::getView( const ViewPath& path )
@@ -1345,7 +1283,7 @@ std::ostream& operator << ( std::ostream& os, const Config* config )
     for( LayoutVector::const_iterator i = layouts.begin(); 
          i !=layouts.end(); ++i )
     {
-        os << *i;
+        os << **i;
     }
     const CanvasVector& canvases = config->getCanvases();
     for( CanvasVector::const_iterator i = canvases.begin(); 
@@ -1371,5 +1309,60 @@ std::ostream& operator << ( std::ostream& os, const Config* config )
 
 #include "../lib/fabric/config.cpp"
 template class eq::fabric::Config< eq::server::Server, eq::server::Config,
-                                   eq::server::Observer >;
+                                   eq::server::Observer, eq::server::Layout >;
+
+#define FIND_ID_TEMPLATE1( type )                                       \
+    template void eq::fabric::Config< eq::server::Server, eq::server::Config,\
+                                      eq::server::Observer,             \
+                                      eq::server::Layout >::find< type >( \
+                                          const uint32_t, type** );
+FIND_ID_TEMPLATE1( eq::server::Observer );
+
+#define FIND_ID_TEMPLATE2( type )                                       \
+    template type* eq::fabric::Config< eq::server::Server,              \
+                                       eq::server::Config,              \
+                                       eq::server::Observer,            \
+                                       eq::server::Layout >::           \
+                                            find< type >( const uint32_t );
+FIND_ID_TEMPLATE2( eq::server::Observer );
+FIND_ID_TEMPLATE2( eq::server::Layout );
+FIND_ID_TEMPLATE2( eq::server::View );
+
+
+#define FIND_NAME_TEMPLATE1( type )\
+    template void eq::fabric::Config< eq::server::Server, eq::server::Config, \
+                                      eq::server::Observer, \
+                                      eq::server::Layout >::find< type >( \
+                                          const std::string&,           \
+                                          const type** ) const;
+
+FIND_NAME_TEMPLATE1( eq::server::Observer );
+
+#define FIND_NAME_TEMPLATE2( type )                                     \
+    template type* eq::fabric::Config< eq::server::Server,              \
+                                       eq::server::Config,              \
+                                       eq::server::Observer,            \
+                                       eq::server::Layout >::           \
+                                           find< type >( const std::string& );
+
+FIND_NAME_TEMPLATE2( eq::server::Canvas );
+FIND_NAME_TEMPLATE2( eq::server::Channel );
+FIND_NAME_TEMPLATE2( eq::server::Layout );
+FIND_NAME_TEMPLATE2( eq::server::Observer );
+FIND_NAME_TEMPLATE2( eq::server::Segment );
+FIND_NAME_TEMPLATE2( eq::server::View );
+
+#define CONST_FIND_NAME_TEMPLATE2( type )                               \
+    template const type* eq::fabric::Config< eq::server::Server,        \
+                                             eq::server::Config,        \
+                                             eq::server::Observer,      \
+                                             eq::server::Layout >::     \
+                                       find< type >( const std::string& ) const;
+
+CONST_FIND_NAME_TEMPLATE2( eq::server::Canvas );
+CONST_FIND_NAME_TEMPLATE2( eq::server::Channel );
+CONST_FIND_NAME_TEMPLATE2( eq::server::Layout );
+CONST_FIND_NAME_TEMPLATE2( eq::server::Observer );
+CONST_FIND_NAME_TEMPLATE2( eq::server::Segment );
+CONST_FIND_NAME_TEMPLATE2( eq::server::View );
 

@@ -1,9 +1,9 @@
-Minor code cleanup
+Move Layout data code into fabric namespace
 
-[ ] Will break build
-[ ] May break existing applications
+[x] Will break build
+[x] May break existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -33,6 +33,16 @@ View::View( eq::Layout* parent )
 
 View::~View()
 {
+    if( _proxy.getID() != EQ_ID_INVALID )
+    {
+        eq::net::Session* session = _proxy.getSession();
+        EQASSERT( session );
+        if( _proxy.isMaster( ))
+            session->deregisterObject( &_proxy );
+        else
+            session->unmapObject( &_proxy );
+    }
+
     _modelID = EQ_ID_INVALID;
     _idleSteps = 0;
 }
@@ -59,12 +69,14 @@ void View::Proxy::deserialize( eq::net::DataIStream& is,
     }
 }
 
-void View::deserialize( eq::net::DataIStream& is,
-                               const uint64_t dirtyBits )
+void View::deserialize( eq::net::DataIStream& is, const uint64_t dirtyBits )
 {
     eq::View::deserialize( is, dirtyBits );
-    if( getLayout( )) // app view instance
+    if( _proxy.getID() == EQ_ID_INVALID && getLayout( )) // app view instance
+    {
         getSession()->registerObject( &_proxy );
+        _proxy.setAutoObsolete( getConfig()->getLatency( ));
+    }
 }
 
 void View::setModelID( const uint32_t id )

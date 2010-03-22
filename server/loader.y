@@ -711,7 +711,8 @@ viewField:
     | projection { view->setProjection( projection ); }
     | EQTOKEN_OBSERVER STRING
       {
-          eq::server::Observer* observer = config->findObserver( $2 );
+          eq::server::Observer* observer = 
+              config->find< eq::server::Observer >( $2 );
           if( !observer )
           {
               yyerror( "No observer of the given name" );
@@ -741,7 +742,7 @@ canvasField:
     EQTOKEN_NAME STRING { canvas->setName( $2 ); }
     | EQTOKEN_LAYOUT STRING 
       {
-          eq::server::Layout* layout = config->findLayout( $2 );
+          eq::server::Layout* layout = config->find< eq::server::Layout >( $2 );
           if( !layout )
           {
               yyerror( "No layout of the given name" );
@@ -777,7 +778,8 @@ segmentField:
     EQTOKEN_NAME STRING { segment->setName( $2 ); }
     | EQTOKEN_CHANNEL STRING
         {
-            eq::server::Channel* channel = config->findChannel( $2 );
+            eq::server::Channel* channel = 
+                config->find< eq::server::Channel >( $2 );
             if( !channel )
             {
                 yyerror( "No channel of the given name" );
@@ -810,7 +812,8 @@ compoundField:
     | EQTOKEN_NAME STRING { eqCompound->setName( $2 ); }
     | EQTOKEN_CHANNEL STRING
       {
-          eq::server::Channel* channel = config->findChannel( $2 );
+          eq::server::Channel* channel = 
+              config->find< eq::server::Channel >( $2 );
           if( !channel )
           {
               yyerror( "No channel of the given name" );
@@ -828,7 +831,8 @@ compoundField:
           }
           else
           {
-              eq::server::Channel* channel = config->findChannel(segment, view);
+              eq::server::Channel* channel = 
+                  config->findChannel( segment, view );
               if( channel )
                   eqCompound->setChannel( channel );
               else
@@ -882,7 +886,7 @@ viewSegmentRef:
 viewSegmentRefFields : /*null*/ | viewSegmentRefFields viewSegmentRefField
 viewSegmentRefField:
     EQTOKEN_CANVAS STRING 
-        { canvas = config->findCanvas( $2 ); }
+        { canvas = config->find< eq::server::Canvas >( $2 ); }
     | EQTOKEN_CANVAS UNSIGNED 
         { canvas = config->getCanvas( eq::server::CanvasPath( $2 )); }
     | EQTOKEN_SEGMENT STRING 
@@ -890,7 +894,7 @@ viewSegmentRefField:
             if( canvas )
                 segment = canvas->findSegment( $2 ); 
             else
-                segment = config->findSegment( $2 );
+                segment = config->find< eq::server::Segment >( $2 );
         }
     | EQTOKEN_SEGMENT UNSIGNED 
         {
@@ -900,7 +904,7 @@ viewSegmentRefField:
                 segment = config->getSegment( eq::server::SegmentPath( $2 ));
         }
     | EQTOKEN_LAYOUT STRING 
-        { layout = config->findLayout( $2 ); }
+        { layout = config->find< eq::server::Layout >( $2 ); }
     | EQTOKEN_LAYOUT UNSIGNED 
         { layout = config->getLayout( eq::server::LayoutPath( $2 )); }
     | EQTOKEN_VIEW STRING 
@@ -908,7 +912,7 @@ viewSegmentRefField:
             if( layout )
                 view = layout->findView( $2 ); 
             else
-                view = config->findView( $2 );
+                view = config->find< eq::server::View >( $2 );
         }
     | EQTOKEN_VIEW UNSIGNED 
         {

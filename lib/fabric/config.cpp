@@ -24,16 +24,16 @@ namespace eq
 namespace fabric
 {
 
-template< class S, class C, class O >
-Config< S, C, O >::Config( base::RefPtr< S > server )
+template< class S, class C, class O, class L >
+Config< S, C, O, L >::Config( base::RefPtr< S > server )
         : net::Session()
         , _server( server )
 {
     server->_addConfig( static_cast< C* >( this ));
 }
 
-template< class S, class C, class O >
-Config< S, C, O >::Config( const Config& from, base::RefPtr< S > server )
+template< class S, class C, class O, class L >
+Config< S, C, O, L >::Config( const Config& from, base::RefPtr< S > server )
         : net::Session()
         , _server( server )
 {
@@ -43,11 +43,17 @@ Config< S, C, O >::Config( const Config& from, base::RefPtr< S > server )
     {
         new O( **i, static_cast< C* >( this ));
     }
+    const LayoutVector& layouts = from.getLayouts();
+    for( typename LayoutVector::const_iterator i = layouts.begin(); 
+         i != layouts.end(); ++i )
+    {
+        new L( **i, static_cast< C* >( this ));
+    }
     server->_addConfig( static_cast< C* >( this ));
 }
 
-template< class S, class C, class O >
-Config< S, C, O >::~Config()
+template< class S, class C, class O, class L >
+Config< S, C, O, L >::~Config()
 {
     while( !_observers.empty( ))
     {
@@ -55,53 +61,77 @@ Config< S, C, O >::~Config()
         _removeObserver( observer );
         delete observer;
     }
-    EQASSERT( _observers.empty( ));
+
+    while( !_layouts.empty( ))
+    {
+        L* layout = _layouts.back();;
+        _removeLayout( layout );
+        delete layout;
+    }
+
     _server->_removeConfig( static_cast< C* >( this ));
     _server = 0;
 }
 
 
-template< class S, class C, class O >
-base::RefPtr< S > Config< S, C, O >::getServer()
+template< class S, class C, class O, class L >
+base::RefPtr< S > Config< S, C, O, L >::getServer()
 {
     return _server;
 }
 
-template< class S, class C, class O >
-O* Config< S, C, O >::findObserver( const uint32_t id )
+template< class S, class C, class O, class L > template< typename T >
+void Config< S, C, O, L >::find( const uint32_t id, T** result )
 {
-    IDFinder< O > finder( id );
+    IDFinder< T > finder( id );
+    static_cast< C* >( this )->accept( finder );
+    *result = finder.getResult();
+}
+
+template< class S, class C, class O, class L > template< typename T >
+void Config< S, C, O, L >::find( const std::string& name, 
+                                 const T** result ) const
+{
+    NameFinder< T > finder( name );
+    static_cast< const C* >( this )->accept( finder );
+    *result = finder.getResult();
+}
+
+template< class S, class C, class O, class L > template< typename T >
+T* Config< S, C, O, L >::find( const uint32_t id )
+{
+    IDFinder< T > finder( id );
     static_cast< C* >( this )->accept( finder );
     return finder.getResult();
 }
 
-template< class S, class C, class O >
-const O* Config< S, C, O >::findObserver( const uint32_t id ) const
+template< class S, class C, class O, class L > template< typename T >
+const T* Config< S, C, O, L >::find( const uint32_t id ) const
 {
-    IDFinder< const O > finder( id );
+    IDFinder< const T > finder( id );
     static_cast< const C* >( this )->accept( finder );
     return finder.getResult();
 }
 
-template< class S, class C, class O >
-O* Config< S, C, O >::findObserver( const std::string& name )
+template< class S, class C, class O, class L > template< typename T >
+T* Config< S, C, O, L >::find( const std::string& name )
 {
-    ObserverFinder finder( name );
+    NameFinder< T > finder( name );
     static_cast< C* >( this )->accept( finder );
     return finder.getResult();
 }
 
-template< class S, class C, class O >
-const O* Config< S, C, O >::findObserver( const std::string& name ) const
+template< class S, class C, class O, class L > template< typename T >
+const T* Config< S, C, O, L >::find( const std::string& name ) const
 {
-    ConstObserverFinder finder( name );
+    NameFinder< const T > finder( name );
     static_cast< const C* >( this )->accept( finder );
     return finder.getResult();
 }
 
 
-template< class S, class C, class O >
-O* Config< S, C, O >::getObserver( const ObserverPath& path )
+template< class S, class C, class O, class L >
+O* Config< S, C, O, L >::getObserver( const ObserverPath& path )
 {
     EQASSERTINFO( _observers.size() > path.observerIndex,
                   _observers.size() << " <= " << path.observerIndex );
@@ -112,24 +142,57 @@ O* Config< S, C, O >::getObserver( const ObserverPath& path )
     return _observers[ path.observerIndex ];
 }
 
-template< class S, class C, class O >
-void Config< S, C, O >::_addObserver( O* observer )
+template< class S, class C, class O, class L >
+L* Config< S, C, O, L >::getLayout( const LayoutPath& path )
+{
+    EQASSERTINFO( _layouts.size() > path.layoutIndex,
+                  _layouts.size() << " <= " << path.layoutIndex );
+
+    if( _layouts.size() <= path.layoutIndex )
+        return 0;
+
+    return _layouts[ path.layoutIndex ];
+}
+
+template< class S, class C, class O, class L >
+void Config< S, C, O, L >::_addObserver( O* observer )
 {
     EQASSERT( observer->getConfig() == this );
     _observers.push_back( observer );
 }
 
-template< class S, class C, class O >
-void Config< S, C, O >::_removeObserver( O* observer )
+template< class S, class C, class O, class L >
+bool Config< S, C, O, L >::_removeObserver( O* observer )
 {
     typename ObserverVector::iterator i = std::find( _observers.begin(),
-                                                     _observers.end(), 
+                                                     _observers.end(),
                                                      observer );
     if( i == _observers.end( ))
-        return;
+        return false;
 
     EQASSERT( observer->getConfig() == this );
     _observers.erase( i );
+    return true;
+}
+
+template< class S, class C, class O, class L >
+void Config< S, C, O, L >::_addLayout( L* layout )
+{
+    EQASSERT( layout->getConfig() == this );
+    _layouts.push_back( layout );
+}
+
+template< class S, class C, class O, class L >
+bool Config< S, C, O, L >::_removeLayout( L* layout )
+{
+    typename LayoutVector::iterator i = std::find( _layouts.begin(),
+                                                   _layouts.end(), layout );
+    if( i == _layouts.end( ))
+        return false;
+
+    EQASSERT( layout->getConfig() == this );
+    _layouts.erase( i );
+    return true;
 }
 
 }

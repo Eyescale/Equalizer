@@ -17,8 +17,9 @@
 
 #ifndef EQ_CONFIGVISITOR_H
 #define EQ_CONFIGVISITOR_H
+
 #include <eq/client/types.h>
-#include <eq/fabric/elementVisitor.h>
+#include <eq/fabric/elementVisitor.h>       // base class
 
 namespace eq
 {

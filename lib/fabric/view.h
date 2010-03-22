@@ -101,8 +101,6 @@ namespace fabric
         /** Destruct this view. @internal */
         EQFABRIC_EXPORT virtual ~View();
 
-        virtual ChangeType getChangeType() const { return DELTA; }
-
         /** @sa Frustum::serialize() */
         EQFABRIC_EXPORT virtual void serialize( net::DataOStream& os,
                                                 const uint64_t dirtyBits );

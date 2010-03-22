@@ -18,24 +18,20 @@
 #ifndef EQ_LAYOUT_H
 #define EQ_LAYOUT_H
 
-#include <eq/client/object.h>         // base class
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
 
-#include <string>
+#include <eq/fabric/layout.h>         // base class
 
 namespace eq
 {
-namespace server
-{
-    class Layout;
-}
 namespace fabric
 {
     template< class L, class V, class O > class View;
 }
 
     class Config;
+    class Observer;
 
     /**
      * A layout groups one or more View which logically belong together.
@@ -50,78 +46,29 @@ namespace fabric
      * typically used as a destination Channel in a compound. They are
      * automatically created when the configuration is loaded.
      */
-    class Layout : public Object
+    class Layout : public fabric::Layout< Config, Layout, View >
     {
     public:
         /** Construct a new layout. */
-        EQ_EXPORT Layout();
+        EQ_EXPORT Layout( Config* parent );
 
         /** Destruct this layout. */
         EQ_EXPORT virtual ~Layout();
 
-        /** @name Data Access */
-        //@{
-        /** Get the list of views. */
-        const ViewVector& getViews() const { return _views; }
+        Layout( const Layout& from, Config* parent ); //!< @internal
 
-        /** @return the current Config. */
-        Config* getConfig() { return _config; }
-
-        /** @return the current Config. */
-        const Config* getConfig() const { return _config; }
-        //@}
-
-        /**
-         * @name Operations
-         */
-        //@{
-        /** 
-         * Traverse this layout and all children using a layout visitor.
-         * 
-         * @param visitor the visitor.
-         * @return the result of the visitor traversal.
-         */
-        EQ_EXPORT VisitorResult accept( LayoutVisitor& visitor );
-
-        /** Const-version of accept(). */
-        EQ_EXPORT VisitorResult accept( LayoutVisitor& visitor ) const;
-        //@}
-        
     protected:
-        /** @sa Object::deserialize */
-        EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
-                                            const uint64_t dirtyBits );
-
-        enum DirtyBits
-        {
-            DIRTY_VIEWS      = Object::DIRTY_CUSTOM << 0,
-            DIRTY_FILL1      = Object::DIRTY_CUSTOM << 1,
-            DIRTY_FILL2      = Object::DIRTY_CUSTOM << 2,
-            DIRTY_CUSTOM     = Object::DIRTY_CUSTOM << 3
-        };
-        friend class server::Layout;
+        virtual View* createView(); //!< @internal
+        virtual void releaseView( View* view ); //!< @internal
 
     private:
-        /** The parent Config. */
-        Config* _config;
-        friend class Config;
-
-        /** Child views on this layout. */
-        ViewVector _views;
-
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
-
-        void _deregister();
-
-        friend class fabric::View< Layout, View, Observer >;
-        void _addView( View* view );
-        bool _removeView( View* view );
+        friend class Config;
+        void _unmap();
     };
-
-    std::ostream& operator << ( std::ostream& os, const Layout* layout);
 }
 #endif // EQ_LAYOUT_H

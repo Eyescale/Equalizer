@@ -60,9 +60,9 @@ void NodeFactory::releaseObserver( Observer* observer )
     delete observer;
 }
 
-Layout* NodeFactory::createLayout()
+Layout* NodeFactory::createLayout( Config* parent )
 {
-    return new Layout();
+    return new Layout( parent );
 }
 void NodeFactory::releaseLayout( Layout* layout )
 {

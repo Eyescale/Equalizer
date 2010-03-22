@@ -81,7 +81,7 @@ void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
                 _layouts.push_back( 0 );
             else
             {
-                Layout* layout = _config->findLayout( id );
+                Layout* layout = _config->find< Layout >( id );
                 _layouts.push_back( layout );
                 EQASSERT( layout );
             }
