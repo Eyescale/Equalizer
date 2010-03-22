@@ -43,7 +43,7 @@ Layout< C, L, V >::Layout( const Layout& from, C* config )
     for( typename ViewVector::const_iterator i = from._views.begin();
          i != from._views.end(); ++i )
     {
-        new V( **i, static_cast< const L* >( this ));
+        new V( **i, static_cast< L* >( this ));
     }
 
     config->_addLayout( static_cast< L* >( this ));

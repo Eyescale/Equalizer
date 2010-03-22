@@ -161,8 +161,8 @@ template<> inline size_t stde::hash_value( const eq::base::UUID& key )
 {
     return key._low;
 }
-#endif
 
+#else
 
 EQ_STDEXT_NAMESPACE_OPEN
     template<> struct hash< eq::base::UUID >
@@ -174,4 +174,5 @@ EQ_STDEXT_NAMESPACE_OPEN
     };
 EQ_STDEXT_NAMESPACE_CLOSE
 
+#endif
 #endif // EQBASE_NODE_H

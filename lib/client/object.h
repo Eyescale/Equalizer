@@ -26,7 +26,7 @@ namespace eq
      * Base class for all distributed, inheritable objects in the eq namespace.
      *
      * This class implements one usage pattern of net::Object, which allows
-     * subclassing and serialization of distributed Objects used by
+     * sub-classing and serialization of distributed Objects used by
      * Equalizer. The inheritance Object -> Frustum -> View illustrates
      * the usage of eq::Object.
      */
@@ -34,10 +34,10 @@ namespace eq
     {
     public:
         /** Construct a new Object. */
-        EQ_EXPORT Object() {}
+        Object() {}
         
         /** Destruct the object. */
-        EQ_EXPORT virtual ~Object() {}
+        virtual ~Object() {}
     };
 }
 #endif // EQ_OBJECT_H

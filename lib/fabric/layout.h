@@ -31,6 +31,7 @@ namespace server { class Layout; }
 
 namespace fabric
 {
+    template< class, class, class > class View;
     struct LayoutPath;
     struct ViewPath;
 
@@ -126,8 +127,6 @@ namespace fabric
         {
             char dummy[32];
         };
-
-        void _deregister();
 
         friend class eq::Layout;
         friend class eq::server::Layout;
