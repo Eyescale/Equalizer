@@ -216,7 +216,7 @@ void ConfigTool::writeConfig() const
                                          << eq::base::disableFlush;
 }
 
-void readNodenames
+static void readNodenames
 (
     const string &filename,
     const unsigned maxNodes,

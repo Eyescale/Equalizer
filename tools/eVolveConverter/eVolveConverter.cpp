@@ -216,10 +216,10 @@ static int writeDimensionsToSav(       FILE*    file,
 }
 
 
-int readScalesFormSav( FILE* file,
-                       float& wScale, 
-                       float& hScale,
-                       float& dScale  )
+static int readScalesFormSav( FILE* file,
+                              float& wScale, 
+                              float& hScale,
+                              float& dScale  )
 {
     if( fscanf( file, "wScale=%g\n", &wScale ) == EOF )
         ::exit( EXIT_FAILURE );
@@ -232,10 +232,10 @@ int readScalesFormSav( FILE* file,
 }
 
 
-int writeScalesToSav(       FILE* file,
-                      const float wScale, 
-                      const float hScale,
-                      const float dScale  )
+static int writeScalesToSav( FILE* file,
+                             const float wScale, 
+                             const float hScale,
+                             const float dScale  )
 {
         fprintf( file, "wScale=%g\n", wScale );
         fprintf( file, "hScale=%g\n", hScale );
@@ -246,7 +246,7 @@ int writeScalesToSav(       FILE* file,
 }
 
 
-int readTrasferFunction( FILE* file,  vector<unsigned char>& TF )
+static int readTransferFunction( FILE* file,  vector<unsigned char>& TF )
 {
     if( fscanf(file,"TF:\n") !=0 )
         return lFailed( "Error in header file", 0 );
@@ -285,7 +285,7 @@ int readTrasferFunction( FILE* file,  vector<unsigned char>& TF )
 }
 
 
-int writeTrasferFunction( FILE* file,  const vector<unsigned char>& TF )
+static int writeTransferFunction( FILE* file,  const vector<unsigned char>& TF )
 {
     int TFSize = TF.size() / 4;
     
@@ -305,14 +305,14 @@ int writeTrasferFunction( FILE* file,  const vector<unsigned char>& TF )
     return 0;
 }
 
-int writeVHF( const string&  filename,
-              const unsigned w,
-              const unsigned h,
-              const unsigned d,
-              const float    wScale,
-              const float    hScale,
-              const float    dScale,
-              const vector<unsigned char>& TF )
+static int writeVHF( const string&  filename,
+                     const unsigned w,
+                     const unsigned h,
+                     const unsigned d,
+                     const float    wScale,
+                     const float    hScale,
+                     const float    dScale,
+                     const vector<unsigned char>& TF )
 {
     hFile info( fopen( filename.c_str(), "wb" ) );
     FILE* file = info.f;
@@ -322,7 +322,7 @@ int writeVHF( const string&  filename,
     writeDimensionsToSav( file, w, h, d );
     writeScalesToSav( file, wScale, hScale, dScale );
 
-    writeTrasferFunction( file, TF );
+    writeTransferFunction( file, TF );
     
     return 0;
 }
@@ -352,7 +352,7 @@ int RawConverter::CompareTwoRawDerVhf( const string& src1,
         lFailed( "Wrong format of the first header file" );
     
     //reading transfer function
-    const size_t tfSize1 = readTrasferFunction( file, TF1 );
+    const size_t tfSize1 = readTransferFunction( file, TF1 );
     
     configFileName = src2;
     hFile info2( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
@@ -365,7 +365,7 @@ int RawConverter::CompareTwoRawDerVhf( const string& src1,
         lFailed( "Wrong format of the second header file" );
     
     //reading transfer function
-    const size_t tfSize2 = readTrasferFunction( file, TF2 );
+    const size_t tfSize2 = readTransferFunction( file, TF2 );
     
     //comparing headers
     if( w1!=w2 ) return lFailed(" Widths are not equal ");
@@ -741,7 +741,7 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
             lFailed( "Wrong format of the source header file" );
 
         //reading transfer function
-        readTrasferFunction( file, TF );
+        readTransferFunction( file, TF );
     }
     //writing header
     unsigned wD = static_cast<unsigned>( wS*scaleX );

@@ -1,9 +1,9 @@
-Fix Posix and XCode build, clean up stdext handling
+Fix XCode build, add eqc highlighting for XCode (S. Furlani)
 
-[x] May break build
+[ ] May break build
 [ ] May break existing applications
 [x] Bugfix
-[ ] New Feature
+[x] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

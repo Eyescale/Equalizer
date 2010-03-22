@@ -37,6 +37,7 @@
 int yylineno = 0;
 const char* yyinString = 0;
 
+void yyerror( char *errmsg );
 void yyerror( char *errmsg )
 {
     EQERROR << "Parse error: '" << errmsg << "', line " << yylineno+1

@@ -45,14 +45,14 @@ inline unsigned int DDS_shiftl(const unsigned int value,const int bits)
 inline unsigned int DDS_shiftr(const unsigned int value,const int bits)
    {return((bits>=32)?0:value>>bits);}
 
-void initbuffer()
+static void initbuffer()
    {
    DDS_buffer=0;
    DDS_bufsize=0;
    DDS_bitcnt=0;
    }
 
-void DDS_swapuint(unsigned int *x)
+static void DDS_swapuint(unsigned int *x)
    {
    unsigned int tmp=*x;
 
@@ -62,7 +62,7 @@ void DDS_swapuint(unsigned int *x)
       ((tmp&0xff000000)>>24);
    }
 
-void writebits(FILE *file,unsigned int value,int bits)
+static void writebits(FILE *file,unsigned int value,int bits)
    {
    if (bits<0 || bits>32) ERRORMSG();
 
@@ -88,7 +88,7 @@ void writebits(FILE *file,unsigned int value,int bits)
    DDS_bitcnt+=bits;
    }
 
-void flushbits(FILE *file)
+static void flushbits(FILE *file)
    {
    if (DDS_bufsize>0)
       {
@@ -99,7 +99,7 @@ void flushbits(FILE *file)
       }
    }
 
-unsigned int readbits(FILE *file,int bits)
+static unsigned int readbits(FILE *file,int bits)
    {
    unsigned int value;
 
@@ -136,7 +136,7 @@ inline int DDS_decode(int bits)
    {return(bits>=1?bits+1:bits);}
 
 // deinterleave a byte stream
-void deinterleave(unsigned char *data,unsigned int bytes,unsigned int skip,unsigned int block=0,BOOLINT restore=FALSE)
+static void deinterleave(unsigned char *data,unsigned int bytes,unsigned int skip,unsigned int block=0,BOOLINT restore=FALSE)
    {
    unsigned int i,j,k;
 
@@ -197,7 +197,7 @@ void deinterleave(unsigned char *data,unsigned int bytes,unsigned int skip,unsig
    }
 
 // interleave a byte stream
-void interleave(unsigned char *data,unsigned int bytes,unsigned int skip,unsigned int block=0)
+static void interleave(unsigned char *data,unsigned int bytes,unsigned int skip,unsigned int block=0)
    {deinterleave(data,bytes,skip,block,TRUE);}
 
 // write a Differential Data Stream
@@ -489,7 +489,7 @@ unsigned char *readRAWfile(char *filename,unsigned int *bytes)
    return(data);
    }
 
-void swapshort(unsigned char *ptr,unsigned int size)
+static void swapshort(unsigned char *ptr,unsigned int size)
    {
    unsigned int i;
 
