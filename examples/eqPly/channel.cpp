@@ -54,7 +54,6 @@ Channel::Channel( eq::Window* parent )
 
 bool Channel::configInit( const uint32_t initID )
 {
-    EQINFO << getID() << ": " << getName() << std::endl;
     if( !eq::Channel::configInit( initID ))
         return false;
 

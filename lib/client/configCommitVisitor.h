@@ -36,7 +36,7 @@ namespace eq
 
         virtual VisitorResult visit( Observer* observer )
             { 
-                _commit( observer );
+                observer->commit();
                 return TRAVERSE_CONTINUE; 
             }
         virtual VisitorResult visitPre( Canvas* canvas )

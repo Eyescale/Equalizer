@@ -148,10 +148,11 @@ void Frame::syncReadback()
     _frameData->syncReadback();
 }
 
-void Frame::transmit( net::NodePtr toNode, const uint32_t frameNumber )
+void Frame::transmit( net::NodePtr toNode, const uint32_t frameNumber,
+                      const uint32_t originator )
 {
     EQASSERT( _frameData );
-    _frameData->transmit( toNode, frameNumber );
+    _frameData->transmit( toNode, frameNumber, originator );
 }
 
 void Frame::setReady()

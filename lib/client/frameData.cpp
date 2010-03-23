@@ -19,6 +19,7 @@
 #include "frameData.h"
 
 #include "commands.h"
+#include "config.h"
 #include "frameDataStatistics.h"
 #include "image.h"
 #include "log.h"
@@ -304,9 +305,11 @@ void FrameData::_setReady( const uint32_t version )
 }
 
 
-void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber )
+void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
+                          const uint32_t originator )
 {
-    FrameDataStatistics event( Statistic::FRAME_TRANSMIT, this, frameNumber );
+    FrameDataStatistics event( Statistic::FRAME_TRANSMIT, this, frameNumber,
+                               originator );
 
     if( _data.buffers == 0 )
     {
@@ -354,9 +357,9 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber )
         {
             uint64_t rawSize( 0 );
             FrameDataStatistics compressEvent( Statistic::FRAME_COMPRESS, this, 
-                                               frameNumber );
+                                               frameNumber, originator );
             compressEvent.event.data.statistic.ratio = 1.0f;
-            if( !useCompression )
+            if( !useCompression ) // don't send event
                 compressEvent.event.data.statistic.frameNumber = 0;
 
             // Prepare image pixel data
@@ -508,8 +511,14 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
 
     EQASSERT( packet->pvp.isValid( ));
 
+    // Ugly way to get our local eq::Node object identifier
+    uint32_t originator = getID();
+    Config* config = EQSAFECAST( Config*, getSession( ));
+    if( config )
+        originator = config->getNodes().front()->getID();
+
     FrameDataStatistics event( Statistic::FRAME_RECEIVE, this, 
-                               packet->frameNumber );
+                               packet->frameNumber, originator );
 
     Image*   image = _allocImage( Frame::TYPE_MEMORY, DrawableConfig( ));
     // Note on the const_cast: since the PixelData structure stores non-const

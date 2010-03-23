@@ -491,7 +491,7 @@ void Node::TransmitThread::run()
         
         EQLOG( LOG_ASSEMBLY ) << "node transmit " << task.data->getID()
                               << " to " << task.node->getNodeID() << std::endl;
-        task.data->transmit( task.node, task.frameNumber );
+        task.data->transmit( task.node, task.frameNumber, _node->getID( ));
     }
 }
 

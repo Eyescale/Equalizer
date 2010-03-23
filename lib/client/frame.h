@@ -146,8 +146,10 @@ namespace server
          * 
          * @param toNode the receiving node.
          * @param frameNumber the current frame number
+         * @param originator the sender object id for statistics
          */        
-        void transmit( net::NodePtr toNode, const uint32_t frameNumber );
+        void transmit( net::NodePtr toNode, const uint32_t frameNumber,
+                       const uint32_t originator );
 
         /** 
          * Set the frame ready.

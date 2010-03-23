@@ -102,12 +102,12 @@ Window::~Window()
         getPipe()->removeWindow( this );
     
     ChannelVector& channels = _getChannels(); 
-    for( ChannelVector::const_iterator i = channels.begin(); 
-         i != channels.end(); ++i )
+    while( !channels.empty( ))
     {
-        Channel* channel = *i;
+        Channel* channel = channels.back();
 
         EQASSERT( channel->getWindow() == this );
+        _removeChannel( channel );
         delete channel;
     }
     channels.clear();

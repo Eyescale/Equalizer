@@ -997,10 +997,10 @@ namespace eq
                 size    = sizeof( FrameDataTransmitPacket );
             }
 
+        PixelViewport pvp;
         uint32_t      version;
         uint32_t      buffers;
         uint32_t      frameNumber;
-        PixelViewport pvp;
         bool          ignoreAlpha;
 
         EQ_ALIGN8( uint8_t data[8] );

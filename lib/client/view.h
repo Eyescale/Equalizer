@@ -92,8 +92,6 @@ namespace eq
             char dummy[32];
         };
     };
-
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const View& view );
 }
 
 #endif //EQ_VIEW_H

@@ -1,4 +1,8 @@
-Ok, template classes can't really be friends (may fix Linux&VS build)
+Fix observer-related assertion
+Fix viewport update in some cases
+Fix layout output
+Clean up compositing frame statistics
+
 
 [ ] May break build
 [ ] May break existing applications

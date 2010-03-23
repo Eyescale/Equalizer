@@ -104,7 +104,10 @@ void Channel< T, W >::serialize( net::DataOStream& os, const uint64_t dirtyBits)
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
     if( dirtyBits & DIRTY_VIEWPORT )
+    {
         os << _nativeContext.vp << _nativeContext.pvp << _fixedVP << _maxSize;
+        notifyViewportChanged();
+    }
     if( dirtyBits & DIRTY_MEMBER )
         os << _drawable << _tasks << _color << _nativeContext.view
            << _nativeContext.overdraw;
@@ -196,16 +199,22 @@ void Channel< T, W >::notifyViewportChanged()
 
     if( _fixedVP ) // update pixel viewport
     {
+        const PixelViewport oldPVP = _nativeContext.pvp;
         _nativeContext.pvp = windowPVP;
         _nativeContext.pvp.apply( _nativeContext.vp );
+        if( oldPVP != _nativeContext.pvp )
+            setDirty( DIRTY_VIEWPORT );
     }
     else           // update viewport
+    {
+        const Viewport oldVP = _nativeContext.vp;
         _nativeContext.vp = _nativeContext.pvp.getSubVP( windowPVP );
+        if( oldVP != _nativeContext.vp )
+            setDirty( DIRTY_VIEWPORT );
+    }
 
-
-    setDirty( DIRTY_VIEWPORT );
-    EQINFO << "Channel viewport update: " << _nativeContext.pvp << ":" 
-           << _nativeContext.vp << std::endl;
+    EQINFO << getName() << " viewport update: " << _nativeContext.vp << ":"
+           << _nativeContext.pvp << std::endl;
 }
 
 template< typename T, typename W >

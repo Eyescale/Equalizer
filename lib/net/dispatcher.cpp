@@ -38,8 +38,7 @@ Dispatcher::Dispatcher( const Dispatcher& from )
 {}
 
 Dispatcher::~Dispatcher()
-{
-}
+{}
 
 //===========================================================================
 // command handling

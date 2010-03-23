@@ -99,9 +99,9 @@ void View< L, V, O >::deserialize( net::DataIStream& is,
                 L* layout = getLayout();
                 EQASSERT( layout && layout->getConfig( ));
                 layout->getConfig()->find( observer.identifier, &_observer );
+                EQASSERT( _observer );
+                EQASSERT( _observer->getID() == observer.identifier );
             }
-            EQASSERT( _observer );
-            EQASSERT( _observer->getID() == observer.identifier );
             if( _observer )
                 _observer->sync( observer.version );
         }

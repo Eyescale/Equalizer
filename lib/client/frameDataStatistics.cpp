@@ -31,11 +31,11 @@ namespace eq
 
 FrameDataStatistics::FrameDataStatistics( const Statistic::Type type, 
                                           FrameData* frameData, 
-                                          const uint32_t frameNumber )
+                                          const uint32_t frameNumber,
+                                          const uint32_t originator )
         : StatisticSampler< FrameData >( type, frameData, frameNumber )
 {
-    snprintf( event.data.statistic.resourceName, 32, "frame %d",
-              frameData->getID( ));
+    snprintf( event.data.statistic.resourceName, 32, "node %d", originator );
 
     const net::Session* session = frameData->getSession();
     EQASSERT( session );
@@ -47,6 +47,7 @@ FrameDataStatistics::FrameDataStatistics( const Statistic::Type type,
 
     const Config* config = EQSAFECAST( const Config*, session );
     event.data.statistic.startTime = config->getTime();
+    event.data.originator = originator;
 }
 
 

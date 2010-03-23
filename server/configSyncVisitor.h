@@ -36,7 +36,7 @@ namespace server
     virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
     virtual VisitorResult visit( Observer* observer )
         {
-            _sync( observer );
+            observer->sync();
             return TRAVERSE_CONTINUE;
         }
     virtual VisitorResult visitPre( Canvas* canvas )

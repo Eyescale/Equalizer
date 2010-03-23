@@ -227,7 +227,7 @@ std::ostream& operator << ( std::ostream& os, const Layout< C, L, V >& layout )
     for( typename std::vector< V* >::const_iterator i = views.begin();
          i != views.end(); ++i )
     {
-        os << *i;
+        os << **i;
     }
     os << base::exdent << "}" << std::endl << base::enableHeader
        << base::enableFlush;

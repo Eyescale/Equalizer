@@ -104,7 +104,7 @@ namespace net
         std::vector< CommandFunc< Dispatcher > > _vTable;
         
         /** Defines a queue to which commands are dispatched from the recv. */
-        std::vector< CommandQueue* >       _qTable;
+        std::vector< CommandQueue* > _qTable;
     };
 
     template< typename T >
