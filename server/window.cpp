@@ -110,7 +110,6 @@ Window::~Window()
         _removeChannel( channel );
         delete channel;
     }
-    channels.clear();
     EQASSERT( channels.empty( ));
 }
 

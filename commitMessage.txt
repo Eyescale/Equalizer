@@ -1,8 +1,4 @@
-Fix observer-related assertion
-Fix viewport update in some cases
-Fix layout output
-Clean up compositing frame statistics
-
+Fix 2975096: window exit assert
 
 [ ] May break build
 [ ] May break existing applications
