@@ -103,17 +103,6 @@ namespace fabric
         bool isRunning() const { return (_state == STATE_RUNNING); }
 
         /** 
-         * Traverse this window and all children using a window visitor.
-         * 
-         * @param visitor the visitor.
-         * @return the result of the visitor traversal.
-         */
-        EQ_EXPORT VisitorResult accept( WindowVisitor& visitor );
-
-        /** Const-version of accept(). */
-        EQ_EXPORT VisitorResult accept( WindowVisitor& visitor ) const;
-
-        /** 
          * Set the window's pixel viewport wrt its parent pipe.
          *
          * Updates the fractional viewport of the window and its channels

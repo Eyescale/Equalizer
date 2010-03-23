@@ -29,7 +29,6 @@
 #include "types.h"
 #include "visitorResult.h"  // enum
 
-#include <eq/client/window.h>
 #include <eq/net/barrier.h>
 #include <eq/fabric/window.h> // base class
 
@@ -92,15 +91,6 @@ namespace server
         /** @return the state of this window. */
         State getState() const { return _state.get(); }
 
-        /** 
-         * Traverse this window and all children using a window visitor.
-         * 
-         * @param visitor the visitor.
-         * @return the result of the visitor traversal.
-         */
-        EQSERVER_EXPORT VisitorResult accept( WindowVisitor& visitor );
-        EQSERVER_EXPORT VisitorResult accept( WindowVisitor& visitor ) const;
-
         /** Increase window activition count. */
         void activate();
 
@@ -122,7 +112,7 @@ namespace server
          * 
          * @param pvp the viewport in pixels.
          */
-        EQSERVER_EXPORT void setPixelViewport( const eq::PixelViewport& pvp );
+        EQSERVER_EXPORT void setPixelViewport( const fabric::PixelViewport& pvp );
 
 
         /** 
@@ -130,7 +120,7 @@ namespace server
          * 
          * @param vp the fractional viewport.
          */
-        void setViewport( const eq::Viewport& vp );
+        void setViewport( const fabric::Viewport& vp );
 
         /**
          * Notify this window that the viewport has changed. 

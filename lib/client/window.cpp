@@ -49,9 +49,6 @@
 #include <eq/net/command.h>
 #include <eq/base/sleep.h>
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 
@@ -84,7 +81,7 @@ Window::Window( Pipe* parent )
         setSharedContextWindow( windows.front( ));
 
     parent->_addWindow( this );
-    EQINFO << " New eq::Window @" << (void*)this << endl;
+    EQINFO << " New eq::Window @" << (void*)this << std::endl;
 }
 
 Window::~Window()
@@ -180,8 +177,8 @@ void Window::_updateFPS()
 
 void Window::drawFPS()
 {
-    ostringstream fpsText;
-    fpsText << setprecision(3) << getFPS() << " FPS";
+    std::ostringstream fpsText;
+    fpsText << std::setprecision(3) << getFPS() << " FPS";
 
     const Font* font = getSmallFont();
     const PixelViewport& pvp = getPixelViewport();
@@ -229,7 +226,7 @@ ClientPtr Window::getClient()
 {
     Pipe* pipe = getPipe();
     EQASSERT( pipe );
-    return ( pipe ? pipe->getClient() : 0 ); 
+    return ( pipe ? pipe->getClient() : 0 );
 }
 ServerPtr Window::getServer() 
 {
@@ -238,60 +235,6 @@ ServerPtr Window::getServer()
     return ( pipe ? pipe->getServer() : 0 );
 }
 
-namespace
-{
-template< class C >
-VisitorResult _accept( C* window, WindowVisitor& visitor )
-{ 
-    VisitorResult result = visitor.visitPre( window );
-    if( result != TRAVERSE_CONTINUE )
-        return result;
-
-    const ChannelVector& channels = window->getChannels();
-    for( ChannelVector::const_iterator i = channels.begin(); 
-         i != channels.end(); ++i )
-    {
-        switch( (*i)->accept( visitor ))
-        {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-                
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    switch( visitor.visitPost( window ))
-    {
-        case TRAVERSE_TERMINATE:
-            return TRAVERSE_TERMINATE;
-
-        case TRAVERSE_PRUNE:
-            return TRAVERSE_PRUNE;
-                
-        case TRAVERSE_CONTINUE:
-        default:
-            break;
-    }
-
-    return result;
-}
-}
-
-VisitorResult Window::accept( WindowVisitor& visitor )
-{
-    return _accept( this, visitor );
-}
-
-VisitorResult Window::accept( WindowVisitor& visitor ) const
-{
-    return _accept( this, visitor );
-}
 
 //======================================================================
 // pipe-thread methods
@@ -333,7 +276,7 @@ bool Window::_setPixelViewport( const PixelViewport& pvp )
     if( pipePVP.isValid( ))
         _vp = pvp.getSubVP( pipePVP );
 
-    EQINFO << "Window pvp set: " << _pvp << ":" << _vp << endl;
+    EQINFO << "Window pvp set: " << _pvp << ":" << _vp << std::endl;
     return true;
 }
 
@@ -351,7 +294,7 @@ void Window::_setViewport( const Viewport& vp )
     _pvp = getPipe()->getPixelViewport();
     if( _pvp.isValid( ))    
         _pvp.apply( vp );
-    EQINFO << "Window vp set: " << _pvp << ":" << _vp << endl;
+    EQINFO << "Window vp set: " << _pvp << ":" << _vp << std::endl;
 }
 
 //----------------------------------------------------------------------
@@ -373,9 +316,9 @@ bool Window::getRenderContext( const int32_t x, const int32_t y,
     const DrawableConfig& drawableConfig = getDrawableConfig();
     const unsigned which = drawableConfig.doublebuffered ? FRONT : BACK;
 
-    vector< RenderContext >::const_reverse_iterator i   =
+    std::vector< RenderContext >::const_reverse_iterator i   =
         _renderContexts[which].rbegin(); 
-    vector< RenderContext >::const_reverse_iterator end =
+    std::vector< RenderContext >::const_reverse_iterator end =
         _renderContexts[which].rend();
 
     const int32_t glY = _pvp.h - y; // invert y to follow GL convention
@@ -485,14 +428,14 @@ bool Window::configInitOSWindow( const uint32_t initID )
 
         default:
             EQERROR << "Window system " << pipe->getWindowSystem() 
-                    << " not implemented or supported" << endl;
+                    << " not implemented or supported" << std::endl;
             return false;
     }
 
     EQASSERT( osWindow );
     if( !osWindow->configInit( ))
     {
-        EQWARN << "OS Window initialization failed: " << getErrorMessage() << endl;
+        EQWARN << "OS Window initialization failed: " << getErrorMessage() << std::endl;
         delete osWindow;
         return false;
     }
@@ -629,7 +572,7 @@ void Window::bindFrameBuffer() const
 void Window::swapBuffers()
 {
     _osWindow->swapBuffers();
-    EQVERB << "----- SWAP -----" << endl;
+    EQVERB << "----- SWAP -----" << std::endl;
 }
 
 GLEWContext* Window::glewGetContext()
@@ -706,7 +649,7 @@ bool Window::processEvent( const Event& event )
 
         default:
             EQWARN << "Unhandled window event of type " << event.type
-                   << endl;
+                   << std::endl;
             EQUNIMPLEMENTED;
     }
 
@@ -724,7 +667,7 @@ net::CommandResult Window::_cmdCreateChannel( net::Command& command )
 {
     const WindowCreateChannelPacket* packet = 
         command.getPacket<WindowCreateChannelPacket>();
-    EQLOG( LOG_INIT ) << "Create channel " << packet << endl;
+    EQLOG( LOG_INIT ) << "Create channel " << packet << std::endl;
 
     Channel* channel = Global::getNodeFactory()->createChannel( this );
     Config* config = getConfig();
@@ -737,7 +680,7 @@ net::CommandResult Window::_cmdDestroyChannel( net::Command& command )
 {
     const WindowDestroyChannelPacket* packet =
         command.getPacket<WindowDestroyChannelPacket>();
-    EQLOG( LOG_INIT ) << "Destroy channel " << packet << endl;
+    EQLOG( LOG_INIT ) << "Destroy channel " << packet << std::endl;
 
     Channel* channel = _findChannel( packet->channelID );
     EQASSERT( channel );
@@ -753,7 +696,7 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
 {
     const WindowConfigInitPacket* packet = 
         command.getPacket<WindowConfigInitPacket>();
-    EQLOG( LOG_INIT ) << "TASK window config init " << packet << endl;
+    EQLOG( LOG_INIT ) << "TASK window config init " << packet << std::endl;
 
     WindowConfigInitReplyPacket reply;
     setErrorMessage( std::string( ));
@@ -780,7 +723,7 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
     else
         reply.result = false;
 
-    EQLOG( LOG_INIT ) << "TASK window config init reply " << &reply << endl;
+    EQLOG( LOG_INIT ) << "TASK window config init reply " << &reply << std::endl;
 
     net::NodePtr node = command.getNode();
     if( !reply.result )
@@ -801,7 +744,7 @@ net::CommandResult Window::_cmdConfigExit( net::Command& command )
 {
     const WindowConfigExitPacket* packet =
         command.getPacket<WindowConfigExitPacket>();
-    EQLOG( LOG_INIT ) << "TASK window config exit " << packet << endl;
+    EQLOG( LOG_INIT ) << "TASK window config exit " << packet << std::endl;
 
     WindowConfigExitReplyPacket reply;
     
@@ -851,7 +794,7 @@ net::CommandResult Window::_cmdFrameFinish( net::Command& command )
 {
     const WindowFrameFinishPacket* packet =
         command.getPacket<WindowFrameFinishPacket>();
-    EQVERB << "handle window frame sync " << packet << endl;
+    EQVERB << "handle window frame sync " << packet << std::endl;
 
     makeCurrent();
     frameFinish( packet->frameID, packet->frameNumber );
@@ -873,7 +816,7 @@ net::CommandResult  Window::_cmdThrottleFramerate( net::Command& command )
     WindowThrottleFramerate* packet = 
         command.getPacket< WindowThrottleFramerate >();
     EQLOG( LOG_TASKS ) << "TASK throttle framerate " << getName() << " "
-                       << packet << endl;
+                       << packet << std::endl;
 
     // throttle to given framerate
     const int64_t elapsed  = getConfig()->getTime() - _lastSwapTime;
@@ -893,8 +836,8 @@ net::CommandResult Window::_cmdBarrier( net::Command& command )
 {
     const WindowBarrierPacket* packet = 
         command.getPacket<WindowBarrierPacket>();
-    EQVERB << "handle barrier " << packet << endl;
-    EQLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << endl;
+    EQVERB << "handle barrier " << packet << std::endl;
+    EQLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << std::endl;
     
     _enterBarrier( packet->barrier );
     return net::COMMAND_HANDLED;
@@ -904,7 +847,7 @@ net::CommandResult Window::_cmdNVBarrier( net::Command& command )
 {
     const WindowNVBarrierPacket* packet = 
         command.getPacket<WindowNVBarrierPacket>();
-    EQLOG( LOG_TASKS ) << "TASK join NV_swap_group" << endl;
+    EQLOG( LOG_TASKS ) << "TASK join NV_swap_group" << std::endl;
     
     EQASSERT( _osWindow );
     _osWindow->joinNVSwapBarrier( packet->group, packet->barrier );
@@ -917,7 +860,7 @@ net::CommandResult Window::_cmdSwap( net::Command& command )
 {
     WindowSwapPacket* packet = command.getPacket< WindowSwapPacket >();
     EQLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << packet
-                       << endl;
+                       << std::endl;
 
     if( getDrawableConfig().doublebuffered )
     {
@@ -934,7 +877,7 @@ net::CommandResult Window::_cmdFrameDrawFinish( net::Command& command )
     WindowFrameDrawFinishPacket* packet = 
         command.getPacket< WindowFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
-                       << endl;
+                       << std::endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
     return net::COMMAND_HANDLED;

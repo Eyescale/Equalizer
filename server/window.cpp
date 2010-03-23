@@ -198,61 +198,6 @@ Channel* Window::getChannel( const ChannelPath& path )
     return channels[ path.channelIndex ];
 }
 
-namespace
-{
-template< class C >
-VisitorResult _accept( C* window, WindowVisitor& visitor )
-{ 
-    VisitorResult result = visitor.visitPre( window );
-    if( result != TRAVERSE_CONTINUE )
-        return result;
-
-    const ChannelVector& channels = window->getChannels();
-    for( ChannelVector::const_iterator i = channels.begin(); 
-         i != channels.end(); ++i )
-    {
-        switch( (*i)->accept( visitor ))
-        {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-                
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    switch( visitor.visitPost( window ))
-    {
-        case TRAVERSE_TERMINATE:
-            return TRAVERSE_TERMINATE;
-
-        case TRAVERSE_PRUNE:
-            return TRAVERSE_PRUNE;
-                
-        case TRAVERSE_CONTINUE:
-        default:
-            break;
-    }
-
-    return result;
-}
-}
-
-VisitorResult Window::accept( WindowVisitor& visitor )
-{
-    return _accept( this, visitor );
-}
-
-VisitorResult Window::accept( WindowVisitor& visitor ) const
-{
-    return _accept( this, visitor );
-}
-
 void Window::activate()
 {   
     Pipe* pipe = getPipe();

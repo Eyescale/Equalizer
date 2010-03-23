@@ -115,5 +115,63 @@ const std::string&  Window< P, W, C >::getIAttributeString( const IAttribute att
     return _iWindowAttributeStrings[attr];
 }
 
+
+namespace
+{
+template< class W, class V >
+VisitorResult _accept( W* window, V& visitor )
+{ 
+    VisitorResult result = visitor.visitPre( window );
+    if( result != TRAVERSE_CONTINUE )
+        return result;
+
+    const typename W::ChannelVector& channels = window->getChannels();
+    for( typename W::ChannelVector::const_iterator i = channels.begin(); 
+         i != channels.end(); ++i )
+    {
+        switch( (*i)->accept( visitor ))
+        {
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
+
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
+                break;
+                
+            case TRAVERSE_CONTINUE:
+            default:
+                break;
+        }
+    }
+
+    switch( visitor.visitPost( window ))
+    {
+        case TRAVERSE_TERMINATE:
+            return TRAVERSE_TERMINATE;
+
+        case TRAVERSE_PRUNE:
+            return TRAVERSE_PRUNE;
+                
+        case TRAVERSE_CONTINUE:
+        default:
+            break;
+    }
+
+    return result;
+}
+}
+
+template< typename P, typename W, typename C >
+VisitorResult Window< P, W, C >::accept( Visitor& visitor )
+{
+    return _accept( static_cast< W* >( this ), visitor );
+}
+
+template< typename P, typename W, typename C >
+VisitorResult Window< P, W, C >::accept( Visitor& visitor  ) const
+{
+    return _accept( static_cast< const W* >( this ), visitor );
+}
+
 }
 }

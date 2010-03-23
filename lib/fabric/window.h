@@ -25,8 +25,7 @@
 #include <eq/fabric/pixelViewport.h>
 #include <eq/fabric/viewport.h>
 #include <eq/fabric/visitorResult.h> // enum
-#include <eq/fabric/window.h>        // parent
-
+#include <eq/fabric/ElementVisitor.h> // enum
 namespace eq
 {
 
@@ -40,7 +39,7 @@ namespace fabric
 
         /** A vector of pointers to Channel */
         typedef std::vector< C* >  ChannelVector; 
-        
+        typedef ElementVisitor< W, LeafVisitor< C > > Visitor;
         /** @name Error Information. */
         //@{
         /** 
@@ -63,6 +62,17 @@ namespace fabric
         /** @return the Pipe of this window. */
         P*       getPipe()       { return _pipe; }
         
+        /** 
+         * Traverse this window and all children using a window visitor.
+         * 
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
+         */
+        EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor );
+
+        /** Const-version of accept(). */
+        EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor ) const;
+
         /**
          * @name Attributes
          */
