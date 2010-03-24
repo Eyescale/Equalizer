@@ -25,13 +25,14 @@
 #include <eq/fabric/pixelViewport.h>
 #include <eq/fabric/viewport.h>
 #include <eq/fabric/visitorResult.h> // enum
-#include <eq/fabric/ElementVisitor.h> // enum
+
 namespace eq
 {
-
 namespace fabric
 {
     template< typename T, typename W > class Channel;
+    template< typename T, typename C  > class ElementVisitor;
+    template< typename T > class LeafVisitor;
 
     template< typename P, typename W, typename C > class Window : public Object
     {

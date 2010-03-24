@@ -1,4 +1,4 @@
-Fix channel aspect ratio frustum updates
+Fix build
 
 [ ] May break build
 [ ] May break existing applications

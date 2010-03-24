@@ -16,8 +16,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <eq/fabric/task.h>
 #include <eq/fabric/window.h>
+
+#include <eq/fabric/elementVisitor.h>
+#include <eq/fabric/task.h>
 #include <eq/net/dataOStream.h>
 #include <eq/net/dataIStream.h>
 
