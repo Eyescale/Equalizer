@@ -80,7 +80,6 @@ Window::Window( Pipe* parent )
     else
         setSharedContextWindow( windows.front( ));
 
-    parent->_addWindow( this );
     EQINFO << " New eq::Window @" << (void*)this << std::endl;
 }
 

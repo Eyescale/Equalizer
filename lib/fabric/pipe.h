@@ -50,7 +50,8 @@ namespace fabric
          * @version 1.0
          */
         EQFABRIC_EXPORT void setErrorMessage( const std::string& message );
-
+        //@}
+        
         /**
          * @name Data Access
          */
@@ -123,6 +124,8 @@ namespace fabric
                                                       const IAttribute attr );
         //@}
     protected: 
+
+        //-------------------- Members --------------------
 
         /** Constructs a new pipe. */
         Pipe( N* parent );       

@@ -32,6 +32,10 @@
 
 namespace eq
 {
+namespace fabric
+{
+    template< typename P, typename W, typename C > class Window;
+}
 namespace server
 {
 
@@ -181,6 +185,7 @@ namespace server
         void send( net::ObjectPacket& packet );
 
     protected:
+        friend class fabric::Window< eq::server::Pipe, eq::server::Window, eq::server::Channel >;
         virtual ~Pipe();
 
         /** @sa net::Object::attachToSession. */

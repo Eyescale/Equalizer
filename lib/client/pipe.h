@@ -31,13 +31,14 @@
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
 #include <eq/client/windowSystem.h>   // enum
+
 #include <eq/fabric/pipe.h>           // base class
 
 
 #include <eq/net/objectVersion.h>
 
-#include <eq/base/refPtr.h>
 #include <eq/base/lock.h>
+#include <eq/base/refPtr.h>
 #include <eq/base/thread.h>
 
 namespace eq
@@ -46,7 +47,10 @@ namespace eq
     class MessagePump;
     class OSPipe;
     class ComputeContext;
-
+namespace fabric
+{
+    template< typename P, typename W, typename C > class Window;
+}
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
      *
@@ -233,7 +237,7 @@ namespace eq
 
     protected:
         friend class Node;
-
+        friend class fabric::Window< eq::Pipe, eq::Window, eq::Channel >;
         /** @name Actions */
         //@{
         /** 

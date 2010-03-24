@@ -41,28 +41,38 @@ namespace fabric
         /** A vector of pointers to Channel */
         typedef std::vector< C* >  ChannelVector; 
         typedef ElementVisitor< W, LeafVisitor< C > > Visitor;
-        /** @name Error Information. */
+
+        /** @name Data Access */
         //@{
-        /** 
-         * Set a message why the last operation failed.
-         * 
-         * The message will be transmitted to the originator of the request, for
-         * example to Config::init when set from within configInit().
-         *
-         * @param message the error message.
-         * @version 1.0
-         */
-        EQFABRIC_EXPORT void setErrorMessage( const std::string& message );
-
-        /** @return the error message from the last operation. */
-        const std::string& getErrorMessage() const { return _error; }
-        //@}
-
         /** @return the Pipe of this window. */
         const P* getPipe() const { return _pipe; }
         /** @return the Pipe of this window. */
         P*       getPipe()       { return _pipe; }
-        
+
+        /**  @return a vector of all channels of this window.  */
+        const ChannelVector& getChannels() const { return _channels; }
+
+        /** 
+         * Return the set of tasks this window's channels might execute in the
+         * worst case.
+         * 
+         * It is not guaranteed that all the tasks will be actually executed
+         * during rendering.
+         * 
+         * @warning Not finalized, might change in the future.
+         * @return the tasks.
+         */
+        uint32_t getTasks() const { return _tasks; }
+
+        const DrawableConfig& getDrawableConfig() const
+            { return _drawableConfig; }
+
+        /** @return the window's pixel viewport */
+        EQFABRIC_EXPORT const PixelViewport& getPixelViewport() const { return _pvp; }
+
+        /** @return the window's fractional viewport. */
+        const Viewport& getViewport() const { return _vp; }
+
         /** 
          * Traverse this window and all children using a window visitor.
          * 
@@ -73,6 +83,8 @@ namespace fabric
 
         /** Const-version of accept(). */
         EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor ) const;
+
+        //@}
 
         /**
          * @name Attributes
@@ -123,34 +135,21 @@ namespace fabric
                                                       const IAttribute attr );
         //@}
 
-        /**
-         * @name Data Access
-         */
+        /** @name Error Information. */
         //@{
-        /**  @return a vector of all channels of this window.  */
-        const ChannelVector& getChannels() const { return _channels; }
-
         /** 
-         * Return the set of tasks this window's channels might execute in the
-         * worst case.
+         * Set a message why the last operation failed.
          * 
-         * It is not guaranteed that all the tasks will be actually executed
-         * during rendering.
-         * 
-         * @warning Not finalized, might change in the future.
-         * @return the tasks.
+         * The message will be transmitted to the originator of the request, for
+         * example to Config::init when set from within configInit().
+         *
+         * @param message the error message.
+         * @version 1.0
          */
-        uint32_t getTasks() const { return _tasks; }
+        EQFABRIC_EXPORT void setErrorMessage( const std::string& message );
 
-        const DrawableConfig& getDrawableConfig() const
-            { return _drawableConfig; }
-
-        /** @return the window's pixel viewport */
-        EQFABRIC_EXPORT const PixelViewport& getPixelViewport() const { return _pvp; }
-
-        /** @return the window's fractional viewport. */
-        const Viewport& getViewport() const { return _vp; }
-
+        /** @return the error message from the last operation. */
+        const std::string& getErrorMessage() const { return _error; }
         //@}
 
     protected: 

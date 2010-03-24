@@ -58,8 +58,6 @@ Window::Window( Pipe* parent )
         : Super( parent )
 {
     _construct();
-
-    parent->addWindow( this );
     
     const Global* global = Global::instance();
     for( unsigned i = 0; i < IATTR_ALL; ++i )
@@ -67,6 +65,7 @@ Window::Window( Pipe* parent )
         const IAttribute attr = static_cast< IAttribute >( i );
         setIAttribute( attr, global->getWindowIAttribute( attr ));
     }
+    notifyViewportChanged();
 }
 
 Window::Window( const Window& from, Pipe* parent )
@@ -79,8 +78,6 @@ Window::Window( const Window& from, Pipe* parent )
     _vp       = from._vp;
     _fixedPVP = from._fixedPVP;
 
-    parent->addWindow( this );
-
     for( unsigned i = 0; i < IATTR_ALL; ++i )
     {
         const IAttribute attr = static_cast< IAttribute >( i );
@@ -92,6 +89,7 @@ Window::Window( const Window& from, Pipe* parent )
     {
         new Channel( **i, this );
     }            
+    notifyViewportChanged();
 }
 
 Window::~Window()

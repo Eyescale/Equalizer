@@ -58,6 +58,7 @@ Window< P, W, C >::Window( P* parent )
     , _pipe( parent )
 {
     EQASSERT( parent );
+    parent->_addWindow( static_cast< W* >( this ) );
 }
 
 template< typename P, typename W, typename C >
@@ -67,6 +68,8 @@ Window< P, W, C >::Window( const W& from, P* parent )
     , _pipe( parent )
 {
     EQASSERT( parent );
+    parent->_addWindow( static_cast< W* >( this ) );
+
 }
 
 template< typename P, typename W, typename C >
