@@ -592,6 +592,15 @@ CommandResult Session::_invokeObjectCommand( Command& command )
 
     _objects.lock.set();
 
+    // When the instance ID is set to none, we only care about the packet when
+    // we have an object of the given ID (multicast)
+    if( _objects->find( id ) == _objects->end() &&
+        objPacket->instanceID == EQ_ID_NONE )
+    {
+        _objects.lock.unset();
+        return COMMAND_HANDLED;
+    }
+
     EQASSERTINFO( _objects->find( id ) != _objects->end(), 
                   "No objects to handle command " << objPacket );
 

@@ -1,6 +1,4 @@
-Fix object serialization bug when the footer is empty
-- Don't use chunk'd send for this packet
-- Handle 0-sized data packets in istreams
+Fix occasional assertion in Session::invokeObjectCommand
 
 [ ] May break build
 [ ] May break existing applications
