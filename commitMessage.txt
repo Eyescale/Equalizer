@@ -1,4 +1,4 @@
-Fix 2975096: window exit assert
+Fix channel aspect ratio frustum updates
 
 [ ] May break build
 [ ] May break existing applications

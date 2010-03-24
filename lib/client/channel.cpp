@@ -995,6 +995,7 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
         _state = STATE_INITIALIZING;
 
         const PixelViewport& pvp = getPixelViewport();
+        EQASSERT( pvp.hasArea( ));
         _initialSize.x() = pvp.w;
         _initialSize.y() = pvp.h;
 
