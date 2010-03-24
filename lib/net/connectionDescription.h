@@ -83,7 +83,7 @@ namespace net
         EQ_EXPORT void setHostname( const std::string& hostname );
         EQ_EXPORT const std::string& getHostname() const;
 
-        EQ_EXPORT void setInterface( const std::string& interface );
+        EQ_EXPORT void setInterface( const std::string& interfacename );
         EQ_EXPORT const std::string& getInterface() const;
 
         EQ_EXPORT void setFilename( const std::string& filename );
