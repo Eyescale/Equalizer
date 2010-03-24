@@ -51,7 +51,16 @@ void ObjectDeltaDataOStream::_sendPacket( ObjectDeltaPacket& packet,
                          << _connections.size()
                          << " receivers " << std::endl;
 
-    Connection::send( _connections, packet, chunks, chunkSizes, packet.nChunks);
+
+    if( sizeUncompressed > 0 )
+        Connection::send( _connections, packet, chunks, chunkSizes, 
+                          packet.nChunks );
+    else
+    {
+        EQASSERT( packet.nChunks == 1 );
+        EQASSERT( chunkSizes[ 0 ] == 0 );
+        Connection::send( _connections, packet );
+    }
 }
 
 void ObjectDeltaDataOStream::sendData( const uint32_t name,

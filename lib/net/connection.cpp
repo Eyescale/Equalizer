@@ -381,9 +381,11 @@ bool Connection::send( const ConnectionVector& connections, Packet& packet,
         return true;
 
     const uint64_t headerSize = packet.size;
-    packet.size = headerSize;
     for( size_t i = 0; i < nItems; ++i )
+    {
+        EQASSERT( itemSizes[i] > 0 );
         packet.size += itemSizes[ i ] + sizeof( uint64_t );
+    }
 
     for( ConnectionVector::const_iterator i = connections.begin(); 
          i < connections.end(); ++i )

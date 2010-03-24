@@ -109,14 +109,12 @@ void DataIStream::advanceBuffer( const uint64_t offset )
 
 bool DataIStream::_checkBuffer()
 {
-    if( _position < _inputSize )
-        return true;
-
-    if( !getNextBuffer( &_input, &_inputSize ))
+    while( _position >= _inputSize )
     {
-        return false;
+        if( !getNextBuffer( &_input, &_inputSize ))
+            return false;
+        _position = 0;
     }
-    _position = 0;
     return true;
 }
 

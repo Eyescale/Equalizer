@@ -62,8 +62,16 @@ void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
         packet.command = CMD_SESSION_INSTANCE;
         packet.nodeID = _nodeID;
     }
-    
-    Connection::send( _connections, packet, chunks, chunkSizes, packet.nChunks);
+
+    if( sizeUncompressed > 0 )
+        Connection::send( _connections, packet, chunks, chunkSizes, 
+                          packet.nChunks );
+    else
+    {
+        EQASSERT( packet.nChunks == 1 );
+        EQASSERT( chunkSizes[ 0 ] == 0 );
+        Connection::send( _connections, packet );
+    }
 }
 
 void ObjectInstanceDataOStream::sendData( const uint32_t name,

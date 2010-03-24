@@ -153,6 +153,9 @@ template< typename P > bool ObjectDataIStream::_getNextBuffer(
 
     const P* packet = command->getPacket< P >();
 
+    if( packet->dataSize == 0 ) // empty packet
+        return _getNextBuffer< P >( cmd, buffer, size );
+
     *size = packet->dataSize;
     const uint8_t* data = reinterpret_cast<const uint8_t*>( packet+1 );
 

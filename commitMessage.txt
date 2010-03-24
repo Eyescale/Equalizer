@@ -1,4 +1,6 @@
-Fix build
+Fix object serialization bug when the footer is empty
+- Don't use chunk'd send for this packet
+- Handle 0-sized data packets in istreams
 
 [ ] May break build
 [ ] May break existing applications
