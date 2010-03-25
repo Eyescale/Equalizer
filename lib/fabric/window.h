@@ -178,7 +178,7 @@ namespace fabric
         void _addChannel( C* channel );
 
         /** Remove a channel from this window. */
-        bool _removeChannel( C* channel );
+        EQFABRIC_EXPORT bool _removeChannel( C* channel );
 
         C* _findChannel( const uint32_t id );
 

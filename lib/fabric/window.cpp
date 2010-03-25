@@ -93,8 +93,7 @@ bool Window< P, W, C >::_removeChannel( C* channel )
 {
     ChannelVector& channels = _getChannels();
     typename ChannelVector::iterator iter = find( channels.begin(), 
-                                                  channels.end(),
-                                                  channel );
+                                                  channels.end(), channel );
     if( iter == channels.end( ))
         return false;
 
