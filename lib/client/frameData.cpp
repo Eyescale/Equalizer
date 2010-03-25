@@ -206,9 +206,9 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
 }
 
 
-void FrameData::startReadback( const Frame& frame,
-                               Window::ObjectManager* glObjects,
-                               const DrawableConfig& config  )
+void FrameData::readback( const Frame& frame,
+                          Window::ObjectManager* glObjects,
+                          const DrawableConfig& config  )
 {
     if( _data.buffers == Frame::BUFFER_NONE )
         return;
@@ -240,18 +240,8 @@ void FrameData::startReadback( const Frame& frame,
         pvp.intersect( absPVP );
                 
         Image* image = newImage( _data.frameType, config );
-        image->startReadback( _data.buffers, pvp, zoom, glObjects );
+        image->readback( _data.buffers, pvp, zoom, glObjects );
         image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
-    }
-}
-
-void FrameData::syncReadback()
-{
-    for( vector<Image*>::const_iterator iter = _images.begin();
-         iter != _images.end(); ++iter )
-    {
-        Image* image = *iter;
-        image->syncReadback();
 
 #ifndef NDEBUG
         if( getenv( "EQ_DUMP_IMAGES" ))

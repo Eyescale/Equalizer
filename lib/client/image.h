@@ -195,15 +195,6 @@ namespace eq
         EQ_EXPORT void setPixelData( const Frame::Buffer buffer,
                                      const PixelData& data );
 
-        /** Switch PBO usage for image transfers on. */
-        void enablePBO() { _usePBO = true; }
-
-        /** Switch PBO usage for image transfers off. */
-        void disablePBO() { _usePBO = false; }
-
-        /** @return if this image should use PBO for image transfers. */
-        bool usePBO() const { return _usePBO; }
-
         /** Enable compression and transport of alpha data. */
         EQ_EXPORT void enableAlphaUsage();
 
@@ -252,13 +243,10 @@ namespace eq
          * @param glObjects the GL object manager for the current GL context.
          * @sa setStorageType()
          */
-        EQ_EXPORT void startReadback( const uint32_t buffers, 
-                                      const PixelViewport& pvp,
-                                      const Zoom& zoom,
-                                      Window::ObjectManager* glObjects );
-
-        /** Make sure that the last readback operation is complete. */
-        EQ_EXPORT void syncReadback();
+        EQ_EXPORT void readback( const uint32_t buffers, 
+                                 const PixelViewport& pvp,
+                                 const Zoom& zoom,
+                                 Window::ObjectManager* glObjects );
 
         /** Writes the pixel data as rgb image files. */
         EQ_EXPORT void writeImage( const std::string& filename,
@@ -278,9 +266,6 @@ namespace eq
         /** Delete all cache data of this image. */
         EQ_EXPORT void flush();
         //@}
-
-        /** @return the GL function table, valid during readback. */
-        GLEWContext* glewGetContext() { return _glObjects->glewGetContext(); }
 
         /** @return the number of channels in a pixel. */
         EQ_EXPORT uint8_t getNumChannels( const Frame::Buffer buffer ) const;
@@ -321,7 +306,7 @@ namespace eq
         struct Memory : public PixelData
         {
         public:
-            Memory() : state( INVALID ), pboSize(0) {}
+            Memory() : state( INVALID ) {}
 
             void resize( const uint32_t size );
             void flush();
@@ -329,13 +314,10 @@ namespace eq
             enum State
             {
                 INVALID,
-                PBO_READBACK,
-                ZOOM_READBACK,
                 VALID
             };
 
             State     state;   //!< The current state of the memory
-            uint32_t  pboSize; //!< the size of the PBO
         };
 
         /** @return the compressor token type for the given buffer.*/
@@ -343,9 +325,6 @@ namespace eq
 
         /** @return an appropriate compressor name for the buffer data type.*/
         uint32_t _getCompressorName( const Frame::Buffer buffer ) const;
-
-        /** The GL object manager, valid during a readback operation. */
-        Window::ObjectManager* _glObjects;
 
         /** The storage type for the pixel data. */
         Frame::Type _type;
@@ -390,9 +369,6 @@ namespace eq
         /** Find and activate a decompression engine */
         bool _allocDecompressor( Attachment& attachment, uint32_t name );
 
-        /** PBO Usage. */
-        bool _usePBO;
-
         /** Alpha channel significance. */
         bool _ignoreAlpha;
 
@@ -406,13 +382,14 @@ namespace eq
 
         bool _canIgnoreAlpha( const Frame::Buffer buffer ) const;
 
-        void _startReadback( const Frame::Buffer buffer, const Zoom& zoom );
-        void _startReadbackPBO( const Frame::Buffer buffer );
-        void _startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom );
-                                
-        void _syncReadback( const Frame::Buffer buffer );
-        void _syncReadbackPBO( const Frame::Buffer buffer );
-        void _syncReadbackZoom( const Frame::Buffer buffer );
+        void _readback( const Frame::Buffer buffer, const Zoom& zoom,
+                        Window::ObjectManager* glObjects );
+        void _readbackTexture( const Frame::Buffer buffer,
+                               Window::ObjectManager* glObjects );
+        void _readbackPixels( const Frame::Buffer buffer,
+                              Window::ObjectManager* glObjects );
+        void _readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
+                            Window::ObjectManager* glObjects );
 
         friend std::ostream& operator << ( std::ostream& os, const Image* );
     };

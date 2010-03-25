@@ -135,17 +135,11 @@ void Frame::setQuality( const Frame::Buffer buffer, const float quality )
         _frameData->setQuality( buffer, quality );
 }
 
-void Frame::startReadback( Window::ObjectManager* glObjects,
-                           const DrawableConfig& config ) 
+void Frame::readback( Window::ObjectManager* glObjects,
+                      const DrawableConfig& config ) 
 {
     EQASSERT( _frameData );
-    _frameData->startReadback( *this, glObjects, config );
-}
-
-void Frame::syncReadback() 
-{
-    EQASSERT( _frameData );
-    _frameData->syncReadback();
+    _frameData->readback( *this, glObjects, config );
 }
 
 void Frame::transmit( net::NodePtr toNode, const uint32_t frameNumber,

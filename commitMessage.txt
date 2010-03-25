@@ -1,12 +1,11 @@
-Fabric work:
-- move Segment data code to fabric
-- fix Channel template parameter order
-- template fabric::Node (needed for getPath( ))
+Simplify image:
+- merge async readback methods
+- remove unused PBO code
 
 [ ] May break build
-[ ] May break existing applications
+[x] May break existing applications
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

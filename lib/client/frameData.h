@@ -115,9 +115,9 @@ namespace server
          * @param glObjects the GL object manager for the current GL context.
          * @param config the configuration of the source frame buffer.
          */
-        void startReadback( const Frame& frame, 
-                            Window::ObjectManager* glObjects,
-                            const DrawableConfig& config );
+        void readback( const Frame& frame, 
+                       Window::ObjectManager* glObjects,
+                       const DrawableConfig& config );
 
         /** Synchronize the last image readback. */
         void syncReadback();

@@ -43,9 +43,10 @@
 
 namespace eq
 {
+#define glewGetContext glObjects->glewGetContext
+
 Image::Image()
-        : _glObjects( 0 )
-        , _type( Frame::TYPE_MEMORY )
+        : _type( Frame::TYPE_MEMORY )
 {
     reset();
 }
@@ -56,7 +57,6 @@ Image::~Image()
 
 void Image::reset()
 {
-    _usePBO = false;
     _ignoreAlpha = false;
     setPixelViewport( PixelViewport( ));
 }
@@ -384,37 +384,26 @@ const Image::PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
     return _getAttachment( buffer ).memory;
 }
 
-void Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
-                           const Zoom& zoom, Window::ObjectManager* glObjects )
+void Image::readback( const uint32_t buffers, const PixelViewport& pvp,
+                      const Zoom& zoom, Window::ObjectManager* glObjects )
 {
     EQASSERT( glObjects );
-    EQASSERTINFO( !_glObjects, "Another readback in progress?" );
     EQLOG( LOG_ASSEMBLY ) << "startReadback " << pvp << ", buffers " << buffers
                           << std::endl;
 
-    _glObjects = glObjects;
     _pvp       = pvp;
 
     _color.memory.state = Memory::INVALID;
     _depth.memory.state = Memory::INVALID;
 
     if( buffers & Frame::BUFFER_COLOR )
-        _startReadback( Frame::BUFFER_COLOR, zoom );
+        _readback( Frame::BUFFER_COLOR, zoom, glObjects );
 
     if( buffers & Frame::BUFFER_DEPTH )
-        _startReadback( Frame::BUFFER_DEPTH, zoom );
+        _readback( Frame::BUFFER_DEPTH, zoom, glObjects );
 
-
-    _pvp.apply( zoom );
     _pvp.x = 0;
     _pvp.y = 0;
-}
-
-void Image::syncReadback()
-{
-    _syncReadback( Frame::BUFFER_COLOR );
-    _syncReadback( Frame::BUFFER_DEPTH );
-    _glObjects = 0;
 }
 
 void Image::Memory::resize( const uint32_t size )
@@ -438,7 +427,8 @@ const void* Image::_getBufferKey( const Frame::Buffer buffer ) const
     }
 }
 
-void Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom )
+void Image::_readback( const Frame::Buffer buffer, const Zoom& zoom,
+                       Window::ObjectManager* glObjects )
 {
     Attachment& attachment = _getAttachment( buffer );
     attachment.memory.isCompressed = false;
@@ -447,75 +437,53 @@ void Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom )
     {
         EQASSERTINFO( zoom == Zoom::NONE, "Texture readback zoom not "
                       << "implemented, zoom happens during compositing" );
-        util::Texture& texture = _getAttachment( buffer ).texture;
-        texture.setGLEWContext( _glObjects->glewGetContext( ));
-        texture.copyFromFrameBuffer( _pvp );
-        texture.setGLEWContext( 0 );
-        return;
+        _readbackTexture( buffer, glObjects );
     }
-
-    if( _usePBO && _glObjects->supportsBuffers( )) // use async PBO readback
-    {
-        EQASSERTINFO( zoom == Zoom::NONE, "Not Implemented" );
-        _startReadbackPBO( buffer );
-        return;
-    }
-
-    if( zoom == Zoom::NONE ) // normal glReadPixels
-    {
-        Memory&    memory = attachment.memory;
-        const size_t size = getPixelDataSize( buffer );
-
-        memory.resize( size );
-        glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, memory.format,
-                      memory.type, memory.pixels.getData() );
-        memory.state = Memory::VALID;
-        return;
-    }
-    // else copy to texture, draw zoomed quad into FBO, (read FBO texture)
-    _startReadbackZoom( buffer, zoom );
+    else if( zoom == Zoom::NONE ) // normal glReadPixels
+        _readbackPixels( buffer, glObjects );
+    else // copy to texture, draw zoomed quad into FBO, (read FBO texture)
+        _readbackZoom( buffer, zoom, glObjects );
 }
 
-void Image::_startReadbackPBO( const Frame::Buffer buffer )
+void Image::_readbackTexture( const Frame::Buffer buffer,
+                              Window::ObjectManager* glObjects )
 {
-    Memory& memory = _getAttachment( buffer ).memory;
-    memory.state = Memory::PBO_READBACK;
+    util::Texture& texture = _getAttachment( buffer ).texture;
+    texture.setGLEWContext( glewGetContext( ));
+    texture.copyFromFrameBuffer( _pvp );
+    texture.setGLEWContext( 0 );
+}
 
-    const void* bufferKey = _getBufferKey( buffer );
-    GLuint pbo = _glObjects->obtainBuffer( bufferKey );
-    
-    EQ_GL_CALL( glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo ));
 
+void Image::_readbackPixels( const Frame::Buffer buffer,
+                             Window::ObjectManager* glObjects )
+{
+    Attachment& attachment = _getAttachment( buffer );
+    Memory&    memory = attachment.memory;
     const size_t size = getPixelDataSize( buffer );
-    if( memory.pboSize < size )
-    {
-        EQ_GL_CALL( glBufferData( GL_PIXEL_PACK_BUFFER, size, 0,
-                                  GL_DYNAMIC_READ ));
-        memory.pboSize = size;
-    }
-    
-    EQ_GL_CALL( glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h,
-                             getFormat( buffer ), getType( buffer ), 0 ));
-    EQ_GL_CALL( glBindBuffer( GL_PIXEL_PACK_BUFFER, 0 ));
-} 
 
-void Image::_startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom )
+    memory.resize( size );
+    glReadPixels( _pvp.x, _pvp.y, _pvp.w, _pvp.h, memory.format,
+                  memory.type, memory.pixels.getData() );
+    memory.state = Memory::VALID;
+    return;
+}
+
+void Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
+                           Window::ObjectManager* glObjects )
 {
-    EQASSERT( _glObjects );
-    EQASSERT( _glObjects->supportsEqTexture( ));
-    EQASSERT( _glObjects->supportsEqFrameBufferObject( ));
+    EQASSERT( glObjects );
+    EQASSERT( glObjects->supportsEqTexture( ));
+    EQASSERT( glObjects->supportsEqFrameBufferObject( ));
 
     PixelViewport pvp = _pvp;
     pvp.apply( zoom );
     if( !pvp.hasArea( ))
         return;
 
-    Memory& memory = _getAttachment( buffer ).memory;
-    memory.state = Memory::ZOOM_READBACK;
-    
     // copy frame buffer to texture
     const void* bufferKey = _getBufferKey( buffer );
-    util::Texture* texture = _glObjects->obtainEqTexture( bufferKey );
+    util::Texture* texture = glObjects->obtainEqTexture( bufferKey );
 
     texture->setInternalFormat( getInternalTextureFormat( buffer ));
     texture->copyFromFrameBuffer( _pvp );
@@ -523,7 +491,7 @@ void Image::_startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom )
     // draw zoomed quad into FBO
     //  uses the same FBO for color and depth, with masking.
     const void*     fboKey = _getBufferKey( Frame::BUFFER_COLOR );
-    util::FrameBufferObject* fbo = _glObjects->getEqFrameBufferObject( fboKey );
+    util::FrameBufferObject* fbo = glObjects->getEqFrameBufferObject( fboKey );
 
     if( fbo )
     {
@@ -531,7 +499,7 @@ void Image::_startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom )
     }
     else
     {
-        fbo = _glObjects->newEqFrameBufferObject( fboKey );
+        fbo = glObjects->newEqFrameBufferObject( fboKey );
         fbo->setColorFormat( getInternalTextureFormat( buffer ) );
         fbo->init( pvp.w, pvp.h, 24, 0 );
     }
@@ -582,65 +550,12 @@ void Image::_startReadbackZoom( const Frame::Buffer buffer, const Zoom& zoom )
     fbo->unbind();
 
     EQLOG( LOG_ASSEMBLY ) << "Scale " << _pvp << " -> " << pvp << std::endl;
-}
+    _pvp = pvp;
 
-void Image::_syncReadback( const Frame::Buffer buffer )
-{
-    Memory& memory = _getAttachment( buffer ).memory;
-    switch( memory.state )
-    {
-        case Memory::PBO_READBACK:
-            _syncReadbackPBO( buffer );
-            break;
-
-        case Memory::ZOOM_READBACK:
-            _syncReadbackZoom( buffer );
-            break;
-
-        default:
-            break;
-    }
-}
-
-void Image::_syncReadbackPBO( const Frame::Buffer buffer )
-{
-    // async readback only possible when PBOs are used and supported
-    EQASSERT( _usePBO );
-    EQASSERT( _glObjects->supportsBuffers( ));
-    EQ_GL_ERROR( "before Image::_syncReadback" );
-
-    const size_t size      = getPixelDataSize( buffer );
-    const void*  bufferKey = _getBufferKey( buffer );
-    GLuint       pbo       = _glObjects->getBuffer( bufferKey );
-    EQASSERT( pbo != Window::ObjectManager::INVALID );
-
-    Memory& memory = _getAttachment( buffer ).memory;
-    memory.resize( size );
-
-    EQ_GL_CALL( glBindBuffer( GL_PIXEL_PACK_BUFFER, pbo ));
-    const void* data = glMapBuffer( GL_PIXEL_PACK_BUFFER, GL_READ_ONLY );
-    EQ_GL_ERROR( "glMapBuffer" );
-    EQASSERT( data );
-
-    memcpy( memory.pixels.getData(), data, size );
-
-    glUnmapBuffer( GL_PIXEL_PACK_BUFFER );
-    glBindBuffer( GL_PIXEL_PACK_BUFFER, 0 );
-
-    memory.state = Memory::VALID;
-}
-
-void Image::_syncReadbackZoom( const Frame::Buffer buffer )
-{
     Memory& memory = _getAttachment( buffer ).memory;
     const size_t size = getPixelDataSize( buffer );
     memory.resize( size );
 
-    const void*  bufferKey = _getBufferKey( buffer );
-    util::FrameBufferObject* fbo =
-        _glObjects->getEqFrameBufferObject( bufferKey );
-    EQASSERT( fbo != 0 );
-    
     switch( buffer )
     {
         case Frame::BUFFER_COLOR:
@@ -896,7 +811,6 @@ bool Image::_allocDecompressor( Attachment& attachment, uint32_t name )
 
 void Image::Memory::flush()
 {
-    pboSize = 0;
     state = INVALID;
     isCompressed = false;
     PixelData::flush();

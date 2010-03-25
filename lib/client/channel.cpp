@@ -348,12 +348,7 @@ void Channel::frameReadback( const uint32_t frameID )
     for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
     {
         Frame* frame = *i;
-        frame->startReadback( glObjects, drawableConfig );
-    }
-    for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
-    {
-        Frame* frame = *i;
-        frame->syncReadback();
+        frame->readback( glObjects, drawableConfig );
     }
 
     EQ_GL_CALL( resetAssemblyState( ));

@@ -132,12 +132,9 @@ namespace server
          * @param glObjects the GL object manager for the current GL context.
          * @param config the configuration of the source frame buffer.
          */
-        EQ_EXPORT void startReadback( Window::ObjectManager* glObjects,
-                                      const DrawableConfig& config );
+        EQ_EXPORT void readback( Window::ObjectManager* glObjects,
+                                 const DrawableConfig& config );
         
-        /** Synchronize the image readback. */
-        EQ_EXPORT void syncReadback();
-
         /** 
          * Transmit the frame data to the specified node.
          *

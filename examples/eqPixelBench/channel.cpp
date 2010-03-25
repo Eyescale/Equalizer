@@ -183,13 +183,10 @@ void Channel::_testFormats()
         image->setFormat( eq::Frame::BUFFER_COLOR, _enums[i].format );
         image->setType(   eq::Frame::BUFFER_COLOR, _enums[i].type );
         image->clearPixelData( eq::Frame::BUFFER_COLOR );
-        image->disablePBO();
 
         // read
         clock.reset();
-        image->startReadback( eq::Frame::BUFFER_COLOR, pvp, eq::Zoom(), 
-                              glObjects );
-        image->syncReadback();
+        image->readback( eq::Frame::BUFFER_COLOR, pvp, eq::Zoom(), glObjects );
         event.msec = clock.getTimef();
 
         GLenum error = glGetError();
@@ -202,25 +199,6 @@ void Channel::_testFormats()
 
         if( error != GL_NO_ERROR )
             continue;
-
-        // PBO readback
-        event.data.type = ConfigEvent::READBACK_PBO;
-        image->clearPixelData( eq::Frame::BUFFER_COLOR );
-        image->enablePBO();
-        
-        clock.reset();
-        image->startReadback( eq::Frame::BUFFER_COLOR, pvp, eq::Zoom(),
-                              glObjects );
-        image->syncReadback();
-        event.msec = clock.getTimef();
-        
-        error = glGetError();
-        if( error != GL_NO_ERROR )
-            event.msec = - static_cast<float>( error );
-        config->sendEvent( event );
-        
-        _saveImage( image, _enums[i].typeString, _enums[i].formatString,
-                    "formats_PBO" );
 
         // draw
         event.data.type = ConfigEvent::ASSEMBLE;
@@ -282,15 +260,13 @@ void Channel::_testTiledOperations()
         {
             subPVP.y = pvp.y + j * subPVP.h;
             eq::Image* image = images[ j ];
-            image->disablePBO();
             image->setFormat( eq::Frame::BUFFER_COLOR, GL_DEPTH_COMPONENT );
             image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_INT );
             image->clearPixelData( eq::Frame::BUFFER_COLOR );
 
             clock.reset();
-            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, eq::Zoom(),
-                                  glObjects );
-            image->syncReadback();
+            image->readback( eq::Frame::BUFFER_COLOR, subPVP, eq::Zoom(),
+                             glObjects );
             event.msec += clock.getTimef();
         }
 
@@ -301,37 +277,6 @@ void Channel::_testTiledOperations()
                 _saveImage( images[j],
                             "GL_DEPTH_COMPONENT","GL_UNSIGNED_INT","tiles" );
 
-
-        event.data.type = ConfigEvent::READBACK_PBO;
-
-        for( unsigned j = 0; j <= tiles; ++j )
-        {
-            eq::Image* image = images[ j ];
-            image->enablePBO();
-            image->setFormat( eq::Frame::BUFFER_COLOR, GL_DEPTH_COMPONENT );
-            image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_INT );
-            image->clearPixelData( eq::Frame::BUFFER_COLOR );
-        }
-        clock.reset();
-        for( unsigned j = 0; j <= tiles; ++j )
-        {
-            subPVP.y = pvp.y + j * subPVP.h;
-            images[ j ]->startReadback( eq::Frame::BUFFER_COLOR, subPVP,
-                                        eq::Zoom(), glObjects );
-        }
-
-        for( unsigned j = 0; j <= tiles; ++j )
-            images[ j ]->syncReadback();
-
-        event.msec = clock.getTimef();
-        config->sendEvent( event );
-
-        if( tiles == NUM_IMAGES-1 )
-            for( unsigned j = 0; j <= tiles; ++j )
-              _saveImage(images[j],
-                            "GL_DEPTH_COMPONENT","GL_UNSIGNED_INT","tiles_PBO");
-
-
         //---- readback of 'tiles' color images
         event.data.type = ConfigEvent::READBACK;
         snprintf( event.formatType, 64, "%d color tiles", tiles+1 );
@@ -341,53 +286,20 @@ void Channel::_testTiledOperations()
         {
             subPVP.y = pvp.y + j * subPVP.h;
             eq::Image* image = images[ j ];
-            image->disablePBO();
             image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
             image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
             image->clearPixelData( eq::Frame::BUFFER_COLOR );
 
             clock.reset();
-            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP, eq::Zoom(),
-                                  glObjects );
-            image->syncReadback();
+            image->readback( eq::Frame::BUFFER_COLOR, subPVP, eq::Zoom(),
+                             glObjects );
             event.msec += clock.getTimef();
         }
-
         config->sendEvent( event );
 
         if( tiles == NUM_IMAGES-1 )
             for( unsigned j = 0; j <= tiles; ++j )
                 _saveImage( images[j],"GL_BGRA","GL_UNSIGNED_BYTE","tiles" );
-
-
-        event.data.type = ConfigEvent::READBACK_PBO;
-
-        for( unsigned j = 0; j <= tiles; ++j )
-        {
-            eq::Image* image = images[ j ];
-            image->enablePBO();
-            image->setFormat( eq::Frame::BUFFER_COLOR, GL_BGRA );
-            image->setType(   eq::Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
-            image->clearPixelData( eq::Frame::BUFFER_COLOR );
-        }
-        clock.reset();
-        for( unsigned j = 0; j <= tiles; ++j )
-        {
-            subPVP.y = pvp.y + j * subPVP.h;
-            images[ j ]->startReadback( eq::Frame::BUFFER_COLOR, subPVP,
-                                        eq::Zoom(), glObjects );
-        }
-
-        for( unsigned j = 0; j <= tiles; ++j )
-            images[ j ]->syncReadback();
-
-        event.msec = clock.getTimef();
-        config->sendEvent( event );
-
-        if( tiles == NUM_IMAGES-1 )
-            for( unsigned j = 0; j <= tiles; ++j )
-                _saveImage(images[j],"GL_BGRA","GL_UNSIGNED_BYTE","tiles_PBO" );
-
 
         //---- benchmark assembly operations
         subPVP.y = pvp.y + tiles * subPVP.h;
@@ -464,10 +376,8 @@ void Channel::_testDepthAssemble()
         image->clearPixelData( eq::Frame::BUFFER_COLOR );
         image->clearPixelData( eq::Frame::BUFFER_DEPTH );
 
-        image->startReadback( eq::Frame::BUFFER_COLOR | 
-                              eq::Frame::BUFFER_DEPTH, pvp, eq::Zoom(),
-                              glObjects );
-        image->syncReadback();
+        image->readback( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH,
+                         pvp, eq::Zoom(), glObjects );
 
         if( i == NUM_IMAGES-1 )
             _saveImage( image,"GL_BGRA","GL_UNSIGNED_BYTE","depthAssemble" );

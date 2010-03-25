@@ -300,9 +300,8 @@ void Channel::frameAssemble( const uint32_t frameID )
             _frame.setOffset( eq::Vector2i( 0, 0 ));
             _frame.setZoom( zoom );
             _frame.setPixelViewport( coveredPVP );
-            _frame.startReadback( glObjects, getDrawableConfig( ));
+            _frame.readback( glObjects, getDrawableConfig( ));
             clearViewport( coveredPVP );
-            _frame.syncReadback();
 
             // offset for assembly
             _frame.setOffset( eq::Vector2i( coveredPVP.x, coveredPVP.y ));
