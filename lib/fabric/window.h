@@ -22,6 +22,7 @@
 #include <eq/fabric/object.h>        // base class
 
 #include <eq/fabric/drawableConfig.h> // enum
+#include <eq/fabric/paths.h>
 #include <eq/fabric/pixelViewport.h>
 #include <eq/fabric/viewport.h>
 #include <eq/fabric/visitorResult.h> // enum
@@ -30,15 +31,14 @@ namespace eq
 {
 namespace fabric
 {
-    template< typename T, typename W > class Channel;
-    template< typename T, typename C  > class ElementVisitor;
-    template< typename T > class LeafVisitor;
+    template< class T, class W > class Channel;
+    template< class T, class C  > class ElementVisitor;
+    template< class T > class LeafVisitor;
 
-    template< typename P, typename W, typename C > class Window : public Object
+    template< class P, class W, class C > class Window : public Object
     {
     public:
-
-        /** A vector of pointers to Channel */
+        /** A vector of pointers to channels */
         typedef std::vector< C* >  ChannelVector; 
         typedef ElementVisitor< W, LeafVisitor< C > > Visitor;
 
@@ -150,6 +150,8 @@ namespace fabric
 
         /** @return the error message from the last operation. */
         const std::string& getErrorMessage() const { return _error; }
+        /** @return the index path to this window. @internal */
+        EQFABRIC_EXPORT WindowPath getPath() const;
         //@}
 
     protected: 
@@ -166,7 +168,7 @@ namespace fabric
         /** The fractional size and position of the window. */
         Viewport _vp;
         
-        friend class Channel< C, W >;
+        friend class Channel< W, C >;
 
         /**
          * @name Data Access
@@ -193,6 +195,8 @@ namespace fabric
         //@}
 
         void _setPipe( P* pipe ){ _pipe = pipe; }
+
+        virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:
 

@@ -1,9 +1,12 @@
-Fix occasional assertion in Session::invokeObjectCommand
+Fabric work:
+- move Segment data code to fabric
+- fix Channel template parameter order
+- template fabric::Node (needed for getPath( ))
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[ ] Bugfix
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

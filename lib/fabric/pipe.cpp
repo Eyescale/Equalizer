@@ -38,7 +38,7 @@ std::string _iPipeAttributeStrings[] = {
 
 }
 
-template< typename N, typename P, typename W >
+template< class N, class P, class W >
 Pipe< N, P, W >::Pipe( N* parent )
         : _tasks( fabric::TASK_NONE )        
         , _port( EQ_UNDEFINED_UINT32 )
@@ -46,7 +46,7 @@ Pipe< N, P, W >::Pipe( N* parent )
         , _node( parent )
 {}
 
-template< typename N, typename P, typename W >
+template< class N, class P, class W >
 Pipe< N, P, W >::Pipe( const P& from, N* node  ) 
         : Object()
         , _tasks( fabric::TASK_NONE )        
@@ -56,7 +56,7 @@ Pipe< N, P, W >::Pipe( const P& from, N* node  )
 
 {}
 
-template< typename N, typename P, typename W >
+template< class N, class P, class W >
 void Pipe< N, P, W >::setErrorMessage( const std::string& message )
 {
     if( _error == message )
@@ -64,14 +64,30 @@ void Pipe< N, P, W >::setErrorMessage( const std::string& message )
     _error = message;
 }
 
-template< typename N, typename P, typename W >
+template< class N, class P, class W >
+PipePath Pipe< N, P, W >::getPath() const
+{
+    const N* node = getNode();
+    EQASSERT( node );
+    PipePath path( node->getPath( ));
+    
+    const typename std::vector< P* >& pipes = node->getPipes();
+    typename std::vector< P* >::const_iterator i = std::find( pipes.begin(),
+                                                              pipes.end(),
+                                                              this );
+    EQASSERT( i != pipes.end( ));
+    path.pipeIndex = std::distance( pipes.begin(), i );
+    return path;
+}
+
+template< class N, class P, class W >
 void Pipe< N, P, W >::_addWindow( W* window )
 {
     EQASSERT( window->getPipe() == this );
     _windows.push_back( window );
 }
 
-template< typename N, typename P, typename W >
+template< class N, class P, class W >
 bool Pipe< N, P, W >::_removeWindow( W* window )
 {
     typename WindowVector::iterator i = find( _windows.begin(), _windows.end(),
@@ -84,7 +100,7 @@ bool Pipe< N, P, W >::_removeWindow( W* window )
     return true;
 }
 
-template< typename N, typename P, typename W >
+template< class N, class P, class W >
 W* Pipe< N, P, W >::_findWindow( const uint32_t id )
 {
     for( typename WindowVector::const_iterator i = _windows.begin(); 
@@ -97,7 +113,7 @@ W* Pipe< N, P, W >::_findWindow( const uint32_t id )
     return 0;
 }
 
-template< typename N, typename P, typename W >
+template< class N, class P, class W >
 const std::string& Pipe< N, P, W >::getIAttributeString( const IAttribute attr )
 {
     return _iPipeAttributeStrings[attr];

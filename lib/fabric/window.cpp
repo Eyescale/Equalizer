@@ -16,10 +16,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <eq/fabric/window.h>
+#include "window.h"
 
-#include <eq/fabric/elementVisitor.h>
-#include <eq/fabric/task.h>
+#include "elementVisitor.h"
+#include "task.h"
+
 #include <eq/net/dataOStream.h>
 #include <eq/net/dataIStream.h>
 
@@ -52,7 +53,7 @@ std::string _iWindowAttributeStrings[] = {
 };
 }
 
-template< typename P, typename W, typename C >
+template< class P, class W, class C >
 Window< P, W, C >::Window( P* parent )
     : _tasks( fabric::TASK_NONE ) 
     , _pipe( parent )
@@ -61,7 +62,7 @@ Window< P, W, C >::Window( P* parent )
     parent->_addWindow( static_cast< W* >( this ) );
 }
 
-template< typename P, typename W, typename C >
+template< class P, class W, class C >
 Window< P, W, C >::Window( const W& from, P* parent ) 
     : Object()
     , _tasks( fabric::TASK_NONE )
@@ -72,7 +73,7 @@ Window< P, W, C >::Window( const W& from, P* parent )
 
 }
 
-template< typename P, typename W, typename C >
+template< class P, class W, class C >
 void Window< P, W, C >::setErrorMessage( const std::string& message )
 {
     if( _error == message )
@@ -80,14 +81,14 @@ void Window< P, W, C >::setErrorMessage( const std::string& message )
     _error = message;
 }
 
-template< typename P, typename W, typename C >
+template< class P, class W, class C >
 void Window< P, W, C >::_addChannel( C* channel )
 {
     EQASSERT( channel->getWindow() == this );
     _channels.push_back( channel );
 }
 
-template< typename P, typename W, typename C >
+template< class P, class W, class C >
 bool Window< P, W, C >::_removeChannel( C* channel )
 {
     ChannelVector& channels = _getChannels();
@@ -101,7 +102,7 @@ bool Window< P, W, C >::_removeChannel( C* channel )
     return true;
 }
 
-template< typename P, typename W, typename C >
+template< class P, class W, class C >
 C* Window< P, W, C >::_findChannel( const uint32_t id )
 {
     for( typename ChannelVector::const_iterator i = _channels.begin(); 
@@ -114,12 +115,27 @@ C* Window< P, W, C >::_findChannel( const uint32_t id )
     return 0;
 }
 
-template< typename P, typename W, typename C >
+template< class P, class W, class C >
 const std::string&  Window< P, W, C >::getIAttributeString( const IAttribute attr )
 {
     return _iWindowAttributeStrings[attr];
 }
 
+template< class P, class W, class C >
+WindowPath Window< P, W, C >::getPath() const
+{
+    const P* pipe = getPipe();
+    EQASSERT( pipe );
+    WindowPath path( pipe->getPath( ));
+    
+    const typename std::vector< W* >& windows = pipe->getWindows();
+    typename std::vector< W* >::const_iterator i = std::find( windows.begin(),
+                                                              windows.end(),
+                                                              this );
+    EQASSERT( i != windows.end( ));
+    path.windowIndex = std::distance( windows.begin(), i );
+    return path;
+}
 
 namespace
 {
@@ -166,13 +182,13 @@ VisitorResult _accept( W* window, V& visitor )
 }
 }
 
-template< typename P, typename W, typename C >
+template< class P, class W, class C >
 VisitorResult Window< P, W, C >::accept( Visitor& visitor )
 {
     return _accept( static_cast< W* >( this ), visitor );
 }
 
-template< typename P, typename W, typename C >
+template< class P, class W, class C >
 VisitorResult Window< P, W, C >::accept( Visitor& visitor  ) const
 {
     return _accept( static_cast< const W* >( this ), visitor );

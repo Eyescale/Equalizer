@@ -483,7 +483,8 @@ void Compound::updateFrustum()
         {
             case Frustum::TYPE_WALL:
                 setWall( wall );
-                EQLOG( LOG_VIEW ) << "Compound wall: " << wall << std::endl;
+                EQLOG( LOG_VIEW ) << "View wall for " << channel->getName() 
+                                  << ": " << wall << std::endl;
                 return;
 
             case Frustum::TYPE_PROJECTION:
@@ -491,8 +492,8 @@ void Compound::updateFrustum()
                 Projection projection( view->getProjection( )); // keep distance
                 projection = wall;
                 setProjection( projection );
-                EQLOG( LOG_VIEW ) << "Compound projection: " << projection
-                                  << std::endl;
+                EQLOG( LOG_VIEW ) << "View projection for " <<channel->getName()
+                                  << ": " << projection << std::endl;
                 return;
             }
 
@@ -522,7 +523,8 @@ void Compound::updateFrustum()
             case Frustum::TYPE_WALL:
             {
                 setWall( wall );
-                EQLOG( LOG_VIEW ) << "Compound wall: " << wall << std::endl;
+                EQLOG( LOG_VIEW ) << "Segment wall for " << channel->getName()
+                                  << ": " << wall << std::endl;
                 return;
             }
 
@@ -531,7 +533,8 @@ void Compound::updateFrustum()
                 Projection projection( segment->getProjection( ));
                 projection = wall;
                 setProjection( projection );
-                EQLOG( LOG_VIEW ) << "Compound projection: " << projection
+                EQLOG( LOG_VIEW ) << "Segment projection for " 
+                                  << channel->getName() << ": " << projection
                                   << std::endl;
                 return;
             }

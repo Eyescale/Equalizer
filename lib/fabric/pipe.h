@@ -20,6 +20,7 @@
 #define EQFABRIC_PIPE_H
 
 #include <eq/fabric/object.h>        // base class
+#include <eq/fabric/paths.h>
 #include <eq/fabric/pixelViewport.h> // base class
 #include <eq/fabric/types.h>
 
@@ -28,7 +29,7 @@ namespace eq
 
 namespace fabric
 {
-    template< typename N, typename P, typename W > class Pipe : public Object
+    template< class N, class P, class W > class Pipe : public Object
     {
     public:
         
@@ -101,6 +102,8 @@ namespace fabric
         /** @return the pixel viewport. */
         const PixelViewport& getPixelViewport() const { return _pvp; }
 
+        /** @return the index path to this pipe. @internal */
+        EQFABRIC_EXPORT PipePath getPath() const;
         //@}
 
         /** @return the vector of windows. */
@@ -147,8 +150,9 @@ namespace fabric
         /** The size (and location) of the pipe. */
         PixelViewport _pvp;
 
-    private:
+        virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
+    private:
         /** The reason for the last error. */
         std::string _error;
 
@@ -169,13 +173,11 @@ namespace fabric
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
-
-        
     };
 }
 }
 
-#endif // EQFABRIC_WINDOW_H
+#endif // EQFABRIC_PIPE_H
 

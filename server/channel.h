@@ -46,7 +46,7 @@ namespace server
     class ChannelListener;
     class Window;
 
-    class Channel : public fabric::Channel< Channel, Window >
+    class Channel : public fabric::Channel< Window, Channel >
     {
     public:
         enum State
@@ -87,9 +87,6 @@ namespace server
 
         Pipe* getPipe();
         const Pipe* getPipe() const;
-
-        /** @return the index path to this channel. */
-        ChannelPath getPath() const;
 
         const CompoundVector& getCompounds() const;
 
@@ -135,9 +132,9 @@ namespace server
         const Compound* getLastDrawCompound() const { return _lastDrawCompound;}
 
         void setIAttribute( const IAttribute attr, const int32_t value )
-            { fabric::Channel< Channel, Window >::setIAttribute( attr, value );}
+            { fabric::Channel< Window, Channel >::setIAttribute( attr, value );}
         void setDrawable( const uint32_t drawable )
-            { fabric::Channel< Channel, Window >::setDrawable( drawable ); }
+            { fabric::Channel< Window, Channel >::setDrawable( drawable ); }
         //@}
 
         /**

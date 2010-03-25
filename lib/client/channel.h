@@ -42,7 +42,7 @@ namespace util
      * RenderContext, which is computed by the server based on the rendering
      * description of the current configuration.
      */
-    class Channel : public fabric::Channel< Channel, Window >
+    class Channel : public fabric::Channel< Window, Channel >
     {
     public:
         /** Construct a new channel. @version 1.0 */

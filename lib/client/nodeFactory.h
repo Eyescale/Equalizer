@@ -99,7 +99,7 @@ namespace eq
          * 
          * @return the segment.
          */
-        virtual Segment* createSegment();
+        virtual Segment* createSegment( Canvas* parent );
 
         /** Release a segment. */
         virtual void releaseSegment( Segment* segment );

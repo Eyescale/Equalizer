@@ -171,20 +171,6 @@ net::CommandQueue* Window::getCommandThreadQueue()
     return pipe->getCommandThreadQueue(); 
 }
 
-WindowPath Window::getPath() const
-{
-    const Pipe* pipe = getPipe();
-    EQASSERT( pipe );
-    WindowPath path( pipe->getPath( ));
-    
-    const WindowVector&    windows = pipe->getWindows();
-    WindowVector::const_iterator i = std::find( windows.begin(), windows.end(),
-                                                this );
-    EQASSERT( i != windows.end( ));
-    path.windowIndex = std::distance( windows.begin(), i );
-    return path;
-}
-
 Channel* Window::getChannel( const ChannelPath& path )
 {
     ChannelVector& channels = _getChannels(); 
@@ -802,3 +788,8 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
 
 }
 }
+
+#include "../lib/fabric/window.cpp"
+template class eq::fabric::Window< eq::server::Pipe, eq::server::Window, 
+                                   eq::server::Channel >;
+

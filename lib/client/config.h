@@ -144,6 +144,10 @@ namespace eq
          * @version 1.0
          */
         int64_t getTime() const { return _clock.getTime64(); }
+
+        /** @internal */
+        const Channel* findChannel( const std::string& name ) const
+            { return find< Channel >( name ); }
         //@}
 
         /** @name Operations */

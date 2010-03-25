@@ -37,8 +37,8 @@ static std::string _iAttributeStrings[] = {
 };
 }
 
-template< typename T, typename W >
-Channel< T, W >::Channel( W* parent )
+template< class W, class C >
+Channel< W, C >::Channel( W* parent )
         : _window( parent )
         , _context( &_nativeContext )
         , _color( Vector3ub::ZERO )
@@ -47,7 +47,7 @@ Channel< T, W >::Channel( W* parent )
         , _maxSize( Vector2i::ZERO )
         , _fixedVP( true )
 {
-    parent->_addChannel( static_cast< T* >( this ));
+    parent->_addChannel( static_cast< C* >( this ));
     notifyViewportChanged();
 
     uint32_t value = (reinterpret_cast< size_t >( this ) & 0xffffffffu);
@@ -59,8 +59,8 @@ Channel< T, W >::Channel( W* parent )
     }
 }
 
-template< typename T, typename W >
-Channel< T, W >::Channel( const Channel& from, W* parent )
+template< class W, class C >
+Channel< W, C >::Channel( const Channel& from, W* parent )
         : Object( from )
         , _window( parent )
         , _nativeContext( from._nativeContext )
@@ -71,7 +71,7 @@ Channel< T, W >::Channel( const Channel& from, W* parent )
         , _maxSize( from._maxSize )
         , _fixedVP( from._fixedVP )
 {
-    parent->_addChannel( static_cast< T* >( this ));
+    parent->_addChannel( static_cast< C* >( this ));
 
     for( int i = 0; i < IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
@@ -79,26 +79,26 @@ Channel< T, W >::Channel( const Channel& from, W* parent )
     notifyViewportChanged();
 }
 
-template< typename T, typename W >
-Channel< T, W >::~Channel()
+template< class W, class C >
+Channel< W, C >::~Channel()
 {  
-    _window->_removeChannel( static_cast< T* >( this ));
+    _window->_removeChannel( static_cast< C* >( this ));
 }
 
-template< typename T, typename W >
-VisitorResult Channel< T, W >::accept( LeafVisitor< T >& visitor )
+template< class W, class C >
+VisitorResult Channel< W, C >::accept( Visitor& visitor )
 {
-    return visitor.visit( static_cast< T* >( this ));
+    return visitor.visit( static_cast< C* >( this ));
 }
 
-template< typename T, typename W >
-VisitorResult Channel< T, W >::accept( LeafVisitor< T >& visitor ) const
+template< class W, class C >
+VisitorResult Channel< W, C >::accept( Visitor& visitor ) const
 {
-    return visitor.visit( static_cast< const T* >( this ));
+    return visitor.visit( static_cast< const C* >( this ));
 }
 
-template< typename T, typename W >
-void Channel< T, W >::serialize( net::DataOStream& os, const uint64_t dirtyBits)
+template< class W, class C >
+void Channel< W, C >::serialize( net::DataOStream& os, const uint64_t dirtyBits)
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
@@ -116,8 +116,8 @@ void Channel< T, W >::serialize( net::DataOStream& os, const uint64_t dirtyBits)
         os << _color;
 }
 
-template< typename T, typename W >
-void Channel< T, W >::deserialize( net::DataIStream& is,
+template< class W, class C >
+void Channel< W, C >::deserialize( net::DataIStream& is,
                                    const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
@@ -142,8 +142,8 @@ void Channel< T, W >::deserialize( net::DataIStream& is,
 //----------------------------------------------------------------------
 // viewport
 //----------------------------------------------------------------------
-template< typename T, typename W >
-void Channel< T, W >::setPixelViewport( const PixelViewport& pvp )
+template< class W, class C >
+void Channel< W, C >::setPixelViewport( const PixelViewport& pvp )
 {
     EQASSERT( pvp.hasArea( ));
     if( !pvp.hasArea( ))
@@ -163,8 +163,8 @@ void Channel< T, W >::setPixelViewport( const PixelViewport& pvp )
            << _nativeContext.vp << std::endl;
 }
 
-template< typename T, typename W >
-void Channel< T, W >::setViewport( const Viewport& vp )
+template< class W, class C >
+void Channel< W, C >::setViewport( const Viewport& vp )
 {
     if( !vp.hasArea( ))
         return;
@@ -184,8 +184,8 @@ void Channel< T, W >::setViewport( const Viewport& vp )
            << _nativeContext.vp << std::endl;
 }
 
-template< typename T, typename W >
-void Channel< T, W >::notifyViewportChanged()
+template< class W, class C >
+void Channel< W, C >::notifyViewportChanged()
 {
     if( !_window )
         return;
@@ -217,8 +217,8 @@ void Channel< T, W >::notifyViewportChanged()
            << _nativeContext.pvp << std::endl;
 }
 
-template< typename T, typename W >
-void Channel< T, W >::setNearFar( const float nearPlane, const float farPlane )
+template< class W, class C >
+void Channel< W, C >::setNearFar( const float nearPlane, const float farPlane )
 {
     EQASSERT( _context );
     if( _nativeContext.frustum.near_plane() == nearPlane && 
@@ -242,15 +242,15 @@ void Channel< T, W >::setNearFar( const float nearPlane, const float farPlane )
     setDirty( DIRTY_FRUSTUM );
 }
 
-template< typename T, typename W >
-void Channel< T, W >::setDrawable( const uint32_t drawable ) 
+template< class W, class C >
+void Channel< W, C >::setDrawable( const uint32_t drawable ) 
 { 
     _drawable = drawable;
     setDirty( DIRTY_MEMBER );
 }
 
-template< typename T, typename W >
-void Channel< T, W >::setTasks( const uint32_t tasks )
+template< class W, class C >
+void Channel< W, C >::setTasks( const uint32_t tasks )
 {
     if( _tasks == tasks )
         return;
@@ -258,8 +258,8 @@ void Channel< T, W >::setTasks( const uint32_t tasks )
     setDirty( DIRTY_MEMBER );
 }
 
-template< typename T, typename W >
-void Channel< T, W >::setViewVersion( const net::ObjectVersion& view )
+template< class W, class C >
+void Channel< W, C >::setViewVersion( const net::ObjectVersion& view )
 {
     if( _nativeContext.view == view )
         return;
@@ -267,15 +267,15 @@ void Channel< T, W >::setViewVersion( const net::ObjectVersion& view )
     setDirty( DIRTY_MEMBER );
 }
 
-template< typename T, typename W >
-void Channel< T, W >::setMaxSize( const Vector2i& size )
+template< class W, class C >
+void Channel< W, C >::setMaxSize( const Vector2i& size )
 {
     _maxSize = size;
     setDirty( DIRTY_VIEWPORT );
 }
 
-template< typename T, typename W >
-void Channel< T, W >::setOverdraw( const Vector4i& overdraw )
+template< class W, class C >
+void Channel< W, C >::setOverdraw( const Vector4i& overdraw )
 {
     if( _nativeContext.overdraw == overdraw )
         return;
@@ -283,21 +283,38 @@ void Channel< T, W >::setOverdraw( const Vector4i& overdraw )
     setDirty( DIRTY_MEMBER );
 }
 
-template< typename T, typename W >
-int32_t Channel< T, W >::getIAttribute( const IAttribute attr ) const
+template< class W, class C >
+ChannelPath Channel< W, C >::getPath() const
+{
+    const W* window = getWindow();
+    EQASSERT( window );
+    ChannelPath path( window->getPath( ));
+    
+    const typename W::ChannelVector& channels = window->getChannels();
+    typename W::ChannelVector::const_iterator i = std::find( channels.begin(),
+                                                             channels.end(),
+                                                             this );
+    EQASSERT( i != channels.end( ));
+    path.channelIndex = std::distance( channels.begin(), i );
+    return path;
+}
+
+
+template< class W, class C >
+int32_t Channel< W, C >::getIAttribute( const IAttribute attr ) const
 {
     EQASSERT( attr < IATTR_ALL );
     return _iAttributes[ attr ];
 }
 
-template< typename T, typename W >
-const std::string& Channel< T, W >::getIAttributeString( const IAttribute attr )
+template< class W, class C >
+const std::string& Channel< W, C >::getIAttributeString( const IAttribute attr )
 {
     return _iAttributeStrings[attr];
 }
 
-template< typename T, typename W >
-void Channel< T, W >::setErrorMessage( const std::string& message )
+template< class W, class C >
+void Channel< W, C >::setErrorMessage( const std::string& message )
 {
     if( _error == message )
         return;

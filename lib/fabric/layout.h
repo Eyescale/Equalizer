@@ -108,15 +108,16 @@ namespace fabric
         EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
 
+        virtual ChangeType getChangeType() const { return UNBUFFERED; }
         virtual V* createView() = 0;
         virtual void releaseView( V* view ) = 0;
 
+    private:
         enum DirtyBits
         {
             DIRTY_VIEWS      = Object::DIRTY_CUSTOM << 0,
         };
 
-    private:
         /** The parent Config. */
         C* const _config;
 

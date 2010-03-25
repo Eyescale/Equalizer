@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -135,9 +135,8 @@ static void _addDestinationViews( Compound* compound )
         Canvas* canvas = new Canvas;
         canvas->addLayout( layout );
         
-        Segment* segment = new Segment;
+        Segment* segment = new Segment( canvas );
         segment->setChannel( channel );
-        canvas->addSegment( segment );
         
         config->addCanvas( canvas );
         
@@ -182,13 +181,11 @@ static void _addDestinationViews( Compound* compound )
          i != segments.end(); ++i )
     {
         Compound* child = *i;
-        Segment* segment = new Segment;
+        Segment* segment = new Segment( canvas );
 
         segment->setChannel( child->getChannel( ));
         segment->setViewport( child->getViewport( ));
         *static_cast< eq::Frustum* >( segment ) = child->getFrustum();
-
-        canvas->addSegment( segment );
     }
 
     config->addCanvas( canvas );

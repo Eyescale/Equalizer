@@ -42,7 +42,7 @@
 
 namespace eq
 {
-typedef fabric::Channel< Channel, Window > Super;
+typedef fabric::Channel< Window, Channel > Super;
 
 Channel::Channel( Window* parent )
         : Super( parent )
@@ -1241,5 +1241,5 @@ net::CommandResult Channel::_cmdFrameViewFinish( net::Command& command )
 }
 
 #include "../fabric/channel.cpp"
-template class eq::fabric::Channel< eq::Channel, eq::Window >;
+template class eq::fabric::Channel< eq::Window, eq::Channel >;
 

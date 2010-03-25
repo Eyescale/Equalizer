@@ -20,6 +20,7 @@
 #define EQFABRIC_CHANNEL_H
 
 #include <eq/fabric/object.h>        // base class
+#include <eq/fabric/paths.h>
 #include <eq/fabric/renderContext.h> // member
 #include <eq/fabric/types.h>
 #include <eq/fabric/visitorResult.h> // enum
@@ -28,7 +29,6 @@ namespace eq
 {
 namespace fabric
 {
-    class ChannelVisitor;
     template< typename T > class LeafVisitor;
 
     /**
@@ -40,9 +40,11 @@ namespace fabric
      * RenderContext, which is computed by the server based on the rendering
      * description of the current configuration.
      */
-    template< typename T, typename W > class Channel : public Object
+    template< class W, class C > class Channel : public Object
     {
-    public:    
+    public: 
+        typedef LeafVisitor< C > Visitor;
+   
         /** 
          * The drawable format defines the components used as an alternate
          * drawable for this cannel. If an alternate drawable is configured, the
@@ -120,16 +122,19 @@ namespace fabric
          * @return the result of the visitor traversal.
          * @version 1.0
          */
-        EQFABRIC_EXPORT VisitorResult accept( LeafVisitor< T > & visitor );
+        EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor );
 
         /** Const-version of accept(). @version 1.0 */
-        EQFABRIC_EXPORT VisitorResult accept( LeafVisitor< T >& visitor ) const;
+        EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor ) const;
 
         /** @warning  Undocumented - may not be supported in the future */
         EQFABRIC_EXPORT void setMaxSize( const Vector2i& size );
 
         void setOverdraw( const Vector4i& overdraw ); //!< @internal
         const Vector2i& getMaxSize()  const { return _maxSize; } //!< @internal
+
+        /** @return the index path to this channel. @internal */
+        EQFABRIC_EXPORT ChannelPath getPath() const;
         //@}
 
         /**
@@ -346,6 +351,7 @@ namespace fabric
             { _iAttributes[attr] = value; setDirty( DIRTY_ATTRIBUTES ); }
         //@}
 
+        virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:
         /** The parent window. */

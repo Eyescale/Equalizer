@@ -786,7 +786,7 @@ void ConfigTool::_writeWall( Config* config ) const
     {
         for( unsigned column = 0; column < _columns; ++column )
         {
-            Segment* segment = new Segment;
+            Segment* segment = new Segment( canvas );
             std::ostringstream segmentName;
             segmentName << "segment_" << row << "_" << column;
             segment->setName( segmentName.str( ));
@@ -796,8 +796,6 @@ void ConfigTool::_writeWall( Config* config ) const
             channelName << "channel" << column + row * _columns;
             Channel* segmentChannel = config->findChannel( channelName.str( ));
             segment->setChannel( segmentChannel );
-
-            canvas->addSegment( segment );
         }
     }
 }

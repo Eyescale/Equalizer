@@ -20,6 +20,7 @@
 
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
+#include <eq/fabric/node.h>           // base class
 
 #include <eq/net/barrier.h>
 #include <eq/net/objectVersion.h>
@@ -35,7 +36,7 @@ namespace eq
      *
      * Each node is executed in a seperate process.
      */
-    class Node : public net::Object
+    class Node : public fabric::Node< Config, Node, Pipe >
     {
     public:
         /** Constructs a new node. */

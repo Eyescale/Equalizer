@@ -22,6 +22,7 @@
 #include "connectionDescription.h" // used in inline method
 
 #include <eq/client/node.h> // enum eq::Node::IAttribute
+#include <eq/fabric/node.h> // base class
 
 #include <eq/net/barrier.h>
 #include <eq/net/bufferConnection.h>
@@ -33,11 +34,12 @@ namespace eq
 {
 namespace server
 {
+    class Config;
+    class Node;
+    class Pipe;
 
-    /**
-     * The node.
-     */
-    class Node : public net::Object
+    /** The node. */
+    class Node : public fabric::Node< Config, Node, Pipe >
     {
     public:
         enum State
@@ -72,9 +74,6 @@ namespace server
         void setNode( net::NodePtr node ) { _node = node; }
         bool isApplicationNode() const
             { return (this == _config->getApplicationNode( )); }
-
-        /** @return the index path to this node. */
-        NodePath getPath() const;
 
         Channel* getChannel( const ChannelPath& path );
 

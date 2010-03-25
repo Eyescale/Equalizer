@@ -32,18 +32,22 @@ namespace eq
 namespace server
 {
 
-Segment::Segment()
-        : _canvas( 0 )
+typedef fabric::Segment< Canvas, Segment > Super;
+
+Segment::Segment( Canvas* parent )
+        : Super( parent )
         , _channel( 0 )
 {
     EQINFO << "New segment @" << (void*)this << std::endl;
 }
 
-Segment::Segment( const Segment& from, Config* config )
-        : eq::Segment( from )
-        , _canvas( 0 )
+Segment::Segment( const Segment& from, Canvas* parent )
+        : Super( from, parent )
         , _channel( 0 )
 {
+    Config* config = parent->getConfig();
+    EQASSERT( config );
+
     if( from._channel )
     {
         const Channel* oldChannel = from._channel;
@@ -91,37 +95,21 @@ Segment::~Segment()
     EQASSERT( _destinationChannels.empty( ));
     _destinationChannels.clear();
     _channel = 0;
-    _canvas  = 0;
-}
-
-void Segment::getInstanceData( net::DataOStream& os )
-{
-    // This function is overwritten from eq::Object, since the class is
-    // intended to be subclassed on the client side. When serializing a
-    // server::Segment, we only transmit the effective bits, not all since that
-    // potentially includes bits from subclassed eq::Segments.
-    const uint64_t dirty = DIRTY_CUSTOM - 1;
-    os << dirty;
-    serialize( os, dirty );
 }
 
 Config* Segment::getConfig()
 {
-    EQASSERT( _canvas );
-    return _canvas ? _canvas->getConfig() : 0;
+    Canvas* canvas = getCanvas();
+    EQASSERT( canvas );
+    return canvas ? canvas->getConfig() : 0;
 }
 
 
 const Config* Segment::getConfig() const
 {
-    EQASSERT( _canvas );
-    return _canvas ? _canvas->getConfig() : 0;
-}
-
-void Segment::setViewport( const eq::Viewport& vp ) 
-{
-    _vp = vp; 
-    setDirty( DIRTY_VIEWPORT );
+    const Canvas* canvas = getCanvas();
+    EQASSERT( canvas );
+    return canvas ? canvas->getConfig() : 0;
 }
 
 void Segment::addDestinationChannel( Channel* channel )
@@ -152,42 +140,23 @@ bool Segment::removeDestinationChannel( Channel* channel )
 
 SegmentPath Segment::getPath() const
 {
-    EQASSERT( _canvas );
-    SegmentPath path( _canvas->getPath( ));
+    const Canvas* canvas = getCanvas();
+    EQASSERT( canvas );
+    SegmentPath path( canvas->getPath( ));
     
-    const SegmentVector&   segments = _canvas->getSegments();
+    const SegmentVector& segments = canvas->getSegments();
     SegmentVector::const_iterator i = std::find( segments.begin(),
                                                  segments.end(), this );
     EQASSERT( i != segments.end( ));
     path.segmentIndex = std::distance( segments.begin(), i );
     return path;
 }
-
-std::ostream& operator << ( std::ostream& os, const Segment* segment)
-{
-    if( !segment )
-        return os;
-    
-    os << disableFlush << disableHeader << "segment" << std::endl;
-    os << "{" << std::endl << indent;
-    
-    const std::string& name = segment->getName();
-    if( !name.empty( ))
-        os << "name     \"" << name << "\"" << std::endl;
-
-    const Channel* channel = segment->getChannel();
-    if( channel && !channel->getName().empty( ))
-        os << "channel  \"" << channel->getName() << "\"" << std::endl;
-
-    const eq::Viewport& vp  = segment->getViewport();
-    if( vp.isValid( ) && vp != eq::Viewport::FULL )
-        os << "viewport " << vp << std::endl;
-
-    os << static_cast< const eq::Frustum& >( *segment );
-
-    os << exdent << "}" << std::endl << enableHeader << enableFlush;
-    return os;
-}
-
 }
 }
+
+#include "../lib/fabric/segment.cpp"
+template class eq::fabric::Segment< eq::server::Canvas, eq::server::Segment >;
+/** @cond IGNORE */
+template std::ostream& eq::fabric::operator << ( std::ostream&,
+        const eq::fabric::Segment< eq::server::Canvas, eq::server::Segment >& );
+/** @endcond */

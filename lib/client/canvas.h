@@ -31,6 +31,11 @@ namespace server
 {
     class Canvas;
 }
+namespace fabric
+{
+    template< class C, class S > class Segment;
+}
+    class Segment;
 
     /**
      * A canvas represents a logical 2D projection surface.
@@ -136,6 +141,7 @@ namespace server
 
         /** Child segments on this canvas. */
         SegmentVector _segments;
+        friend class fabric::Segment< Canvas, Segment >;
 
         union // placeholder for binary-compatible changes
         {
@@ -144,6 +150,9 @@ namespace server
 
         /** Deregister this canvas, and all children, from its net::Session.*/
         void _deregister();
+
+        void _addSegment( Segment* segment );
+        bool _removeSegment( Segment* segment );
     };
 }
 #endif // EQ_CANVAS_H

@@ -67,12 +67,8 @@ void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
         uint32_t id;
         for( is >> id; id != EQ_ID_INVALID; is >> id )
         {
-            Segment* segment = nodeFactory->createSegment();
-            segment->_canvas = this;
-            _segments.push_back( segment );
-
+            Segment* segment = nodeFactory->createSegment( this );
             _config->mapObject( segment, id );
-            // RO, don't: segment->becomeMaster();
         }
         for( is >> id; id != EQ_ID_INVALID; is >> id )
         {
@@ -95,20 +91,37 @@ void Canvas::_deregister()
     EQASSERT( isMaster( ));
     NodeFactory* nodeFactory = Global::getNodeFactory();
 
-    for( SegmentVector::const_iterator i = _segments.begin(); 
-         i != _segments.end(); ++i )
+    while( !_segments.empty( ))
     {
-        Segment* segment = *i;
+        Segment* segment = _segments.back();
         EQASSERT( segment->getID() != EQ_ID_INVALID );
         EQASSERT( !segment->isMaster( ));
 
         _config->unmapObject( segment );
-        segment->_canvas = 0;
+        _removeSegment( segment );
         nodeFactory->releaseSegment( segment );
     }
-    
-    _segments.clear();
+
     _config->deregisterObject( this );
+}
+
+void Canvas::_addSegment( Segment* segment )
+{
+    EQASSERT( segment );
+    EQASSERT( segment->getCanvas() == this );
+    _segments.push_back( segment );
+}
+
+bool Canvas::_removeSegment( Segment* segment )
+{
+    SegmentVector::iterator i = find( _segments.begin(), _segments.end(), 
+                                      segment );
+    if( i == _segments.end( ))
+        return false;
+
+    EQASSERT( segment->getCanvas() == this );
+    _segments.erase( i );
+    return true;
 }
 
 const Layout* Canvas::getActiveLayout() const

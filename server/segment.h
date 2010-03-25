@@ -20,8 +20,8 @@
 
 #include "types.h"
 #include "visitorResult.h"  // enum
-#include <eq/client/segment.h>      // base class
-#include <eq/fabric/leafVisitor.h>  // type leaf visitor
+
+#include <eq/fabric/segment.h>      // base class
 
 namespace eq
 {
@@ -32,28 +32,24 @@ namespace server
     /**
      * The segment. @sa eq::Segment
      */
-    class Segment : public eq::Segment
+    class Segment : public fabric::Segment< Canvas, Segment >
     {
     public:
-        /** 
-         * Constructs a new Segment.
-         */
-        EQSERVER_EXPORT Segment();
+        /** Construct a new Segment. */
+        EQSERVER_EXPORT Segment( Canvas* parent );
 
         /** Creates a new, deep copy of a segment. */
-        Segment( const Segment& from, Config* config );
+        Segment( const Segment& from, Canvas* parent );
 
         /** Destruct this segment. */
         virtual ~Segment();
 
-        /**
-         * @name Data Access
-         */
+        /** @name Data Access */
         //@{
-        /** @return the config of this view. */
+        /** @return the config of this segment. */
         Config* getConfig();
 
-        /** @return the config of this view. */
+        /** @return the config of this segment. */
         const Config* getConfig() const;
 
         /** @return the index path to this segment. */
@@ -73,24 +69,6 @@ namespace server
         Channel* getChannel()               { return _channel; }
         const Channel* getChannel() const   { return _channel; }
 
-        /** Return the parent canvas of this segment. */
-        Canvas* getCanvas()               { return _canvas; }
-        const Canvas* getCanvas() const   { return _canvas; }
-
-        /** 
-         * Set the segment's viewport wrt its canvas.
-         *
-         * The viewport defines which 2D area of the canvas is covered by this
-         * segment. Destination channels are created on the intersection of
-         * segment viewports and the views of the layout used by the canvas.
-         * 
-         * @param vp the fractional viewport.
-         */
-        EQSERVER_EXPORT void setViewport( const eq::Viewport& vp );
-
-        /** @return the segment's viewport. */
-        const eq::Viewport& getViewport() const { return _vp; }
-
         /** Add a destination (View) channel. */
         void addDestinationChannel( Channel* channel );
 
@@ -102,30 +80,8 @@ namespace server
         const ChannelVector& getDestinationChannels() const 
             { return _destinationChannels; }
         //@}
-        
-        /** Operations */
-        //@{
-        /** 
-         * Traverse this segment using a segment visitor.
-         * 
-         * @param visitor the visitor.
-         * @return the result of the visitor traversal.
-         */
-        VisitorResult accept( SegmentVisitor& visitor )
-            { return visitor.visit( this ); }
-        VisitorResult accept( SegmentVisitor& visitor ) const
-            { return visitor.visit( this ); }
-        //@}
-
-    protected:
 
     private:
-        virtual void getInstanceData( net::DataOStream& os );
-
-        /** The parent canvas. */
-        Canvas* _canvas;
-        friend class Canvas;
-
         /** The output channel of this segment. */
         Channel* _channel;
 
@@ -134,14 +90,12 @@ namespace server
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
         /** Update the view (wall/projection). */
         void _updateView();
     };
-
-    std::ostream& operator << ( std::ostream& os, const Segment* segment);
 }
 }
 #endif // EQSERVER_SEGMENT_H

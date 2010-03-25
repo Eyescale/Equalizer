@@ -80,9 +80,6 @@ namespace server
         Config* getConfig();
         const Config* getConfig() const;
         
-        /** @return the index path to this window. */
-        WindowPath getPath() const;
-
         Channel* getChannel( const ChannelPath& path );
 
         net::CommandQueue* getServerThreadQueue();

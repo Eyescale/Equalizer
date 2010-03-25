@@ -46,6 +46,7 @@ namespace eq
 {
 /** @cond IGNORE */
 typedef net::CommandFunc<Node> NodeFunc;
+typedef fabric::Node< Config, Node, Pipe > Super;
 /** @endcond */
 
 #define MAKE_ATTR_STRING( attr ) ( std::string("EQ_NODE_") + #attr )
@@ -650,3 +651,7 @@ net::CommandResult Node::_cmdFrameTasksFinish( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 }
+
+
+#include "../fabric/node.cpp"
+template class eq::fabric::Node< eq::Config, eq::Node, eq::Pipe >;

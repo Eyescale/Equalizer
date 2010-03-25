@@ -47,7 +47,7 @@ namespace eq
 namespace server
 {
 typedef net::CommandFunc<Channel> CmdFunc;
-typedef fabric::Channel< Channel, Window > Super;
+typedef fabric::Channel< Window, Channel > Super;
 
 void Channel::_construct()
 {
@@ -147,20 +147,6 @@ const Pipe* Channel::getPipe() const
     const Window* window = getWindow();
     EQASSERT( window );
     return window ? window->getPipe() : 0;
-}
-
-ChannelPath Channel::getPath() const
-{
-    const Window* window = getWindow();
-    EQASSERT( window );
-    ChannelPath path( window->getPath( ));
-    
-    const ChannelVector&   channels = window->getChannels();
-    ChannelVector::const_iterator i = std::find( channels.begin(),
-                                                 channels.end(), this );
-    EQASSERT( i != channels.end( ));
-    path.channelIndex = std::distance( channels.begin(), i );
-    return path;
 }
 
 const CompoundVector& Channel::getCompounds() const
@@ -609,3 +595,7 @@ std::ostream& operator << ( std::ostream& os, const Channel& channel)
 
 }
 }
+
+#include "../lib/fabric/channel.cpp"
+template class eq::fabric::Channel< eq::server::Window, eq::server::Channel >;
+

@@ -771,8 +771,8 @@ canvasField:
     | projection { canvas->setProjection( projection ); }
     | segment
 
-segment: EQTOKEN_SEGMENT '{' { segment = new eq::server::Segment; }
-          segmentFields '}' { canvas->addSegment( segment ); segment = 0; }
+segment: EQTOKEN_SEGMENT '{' { segment = new eq::server::Segment( canvas ); }
+          segmentFields '}'
 segmentFields: /*null*/ | segmentFields segmentField
 segmentField:
     EQTOKEN_NAME STRING { segment->setName( $2 ); }

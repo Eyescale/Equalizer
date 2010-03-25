@@ -37,6 +37,8 @@ namespace eq
 {
 namespace server
 {
+typedef fabric::Node< Config, Node, Pipe > Super;
+
 #define MAKE_ATTR_STRING( attr ) ( std::string("EQ_NODE_") + #attr )
 
 std::string Node::_sAttributeStrings[SATTR_ALL] = {
@@ -77,7 +79,7 @@ Node::Node()
 }
 
 Node::Node( const Node& from, Config* config )
-        : net::Object()
+        : Super()
 {
     _construct();
 
@@ -158,20 +160,6 @@ bool Node::removePipe( Pipe* pipe )
     pipe->_setNode( 0 ); 
 
     return true;
-}
-
-NodePath Node::getPath() const
-{
-    EQASSERT( _config );
-    
-    const NodeVector&      nodes = _config->getNodes();
-    NodeVector::const_iterator i = std::find( nodes.begin(), nodes.end(),
-                                              this );
-    EQASSERT( i != nodes.end( ));
-
-    NodePath path;
-    path.nodeIndex = std::distance( nodes.begin(), i );
-    return path;
 }
 
 Channel* Node::getChannel( const ChannelPath& path )
@@ -724,3 +712,7 @@ std::ostream& operator << ( std::ostream& os, const Node* node )
 
 }
 }
+
+#include "../lib/fabric/node.cpp"
+template class eq::fabric::Node< eq::server::Config, eq::server::Node,
+                                 eq::server::Pipe >;

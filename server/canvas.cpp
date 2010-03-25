@@ -47,7 +47,7 @@ Canvas::Canvas()
 
 Canvas::Canvas( const Canvas& from, Config* config )
         : eq::Frustum( from )
-        , _config( 0 )
+        , _config( config )
         , _activeLayout( from._activeLayout )
 {
     EQASSERT( config );
@@ -55,7 +55,7 @@ Canvas::Canvas( const Canvas& from, Config* config )
     for( SegmentVector::const_iterator i = from._segments.begin();
          i != from._segments.end(); ++i )
     {
-        addSegment( new Segment( **i, config ));
+        new Segment( **i, this );
     }
 
     for( LayoutVector::const_iterator i = from._layouts.begin();
@@ -77,14 +77,12 @@ Canvas::Canvas( const Canvas& from, Config* config )
 
 Canvas::~Canvas()
 {
-    for( SegmentVector::const_iterator i = _segments.begin();
-         i != _segments.end(); ++i )
+    while( !_segments.empty( ))
     {
-        Segment* segment = *i;
-        segment->_canvas = 0;
+        Segment* segment = _segments.back();
+        _removeSegment( segment );
         delete segment;
     }
-    _segments.clear();
     _layouts.clear();
 
     if( _config )
@@ -176,46 +174,27 @@ CanvasPath Canvas::getPath() const
     return path;
 }
 
-void Canvas::addSegment( Segment* segment )
+void Canvas::_addSegment( Segment* segment )
 {
     EQASSERT( segment );
+    EQASSERT( segment->getCanvas() == this );
     EQASSERT( std::find( _segments.begin(), _segments.end(), segment ) == 
               _segments.end( ));
-    
-    // if segment has no frustum...
-    if( segment->getCurrentType() == TYPE_NONE )
-    {
-        if( getCurrentType() != TYPE_NONE ) // ... and canvas has frustum
-        {
-            eq::Wall wall( getWall( ));
-            const Viewport& viewport( segment->getViewport( ));
-            wall.apply( viewport );
-                    
-            switch( getCurrentType( ))
-            {
-                case Frustum::TYPE_WALL:
-                    segment->setWall( wall );
-                    EQLOG( LOG_VIEW ) << "Segment " << segment->getName() 
-                                      << segment->getWall() << std::endl;
-                    break;
-
-                case Frustum::TYPE_PROJECTION:
-                {
-                    Projection projection( getProjection( )); // keep distance
-                    projection = wall;
-                    segment->setProjection( projection );
-                    break;
-                }
-                default: 
-                    EQUNIMPLEMENTED;
-                    break; 
-            }
-        }
-    }
-
-    segment->_canvas = this;
     _segments.push_back( segment );
 }
+
+bool Canvas::_removeSegment( Segment* segment )
+{
+    SegmentVector::iterator i = find( _segments.begin(), _segments.end(), 
+                                      segment );
+    if( i == _segments.end( ))
+        return false;
+
+    EQASSERT( segment->getCanvas() == this );
+    _segments.erase( i );
+    return true;
+}
+
 
 Segment* Canvas::findSegment( const std::string& name )
 {
@@ -476,7 +455,7 @@ std::ostream& operator << ( std::ostream& os, const Canvas* canvas )
     for( SegmentVector::const_iterator i = segments.begin(); 
          i != segments.end(); ++i )
     {
-        os << *i;
+        os << **i;
     }
     os << exdent << "}" << std::endl << enableHeader << enableFlush;
     return os;

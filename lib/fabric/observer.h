@@ -29,7 +29,7 @@ namespace eq
 {
 namespace fabric
 {
-    template< typename T > class LeafVisitor;
+    template< class T > class LeafVisitor;
     struct ObserverPath;
 
     /**
@@ -38,7 +38,7 @@ namespace fabric
      * configuration can be used to update independent viewers from one
      * configuration, e.g., a control host, a HMD and a Cave.
      */
-    template< typename C, typename O > class Observer : public Object
+    template< class C, class O > class Observer : public Object
     {
     public:
         typedef std::vector< O* > ObserverVector;
@@ -116,6 +116,8 @@ namespace fabric
             DIRTY_HEAD       = Object::DIRTY_CUSTOM << 1
         };
 
+        virtual ChangeType getChangeType() const { return UNBUFFERED; }
+
     private:
         /** The parent Config. */
         C* const _config;
@@ -132,7 +134,7 @@ namespace fabric
         };
     };
 
-    template< typename C, typename O >
+    template< class C, class O >
     EQFABRIC_EXPORT std::ostream& operator << ( std::ostream&,
                                                 const Observer< C, O >& );
 }

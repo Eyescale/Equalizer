@@ -21,7 +21,6 @@ CXXFILES = \
 	equalizers/loadEqualizer.cpp \
 	equalizers/monitorEqualizer.cpp \
 	equalizers/viewEqualizer.cpp \
-	fabric.cpp \
 	frame.cpp \
 	frameData.cpp \
 	frustum.cpp \

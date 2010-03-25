@@ -28,11 +28,13 @@
 
 namespace eq
 {
+namespace fabric
+{
+    template< class C, class S > class Segment;
+}
 namespace server
 {
-    /**
-     * The canvas. @sa eq::Canvas
-     */
+    /** The canvas. @sa eq::Canvas */
     class Canvas : public eq::Frustum
     {
     public:
@@ -54,9 +56,6 @@ namespace server
         Config* getConfig()             { return _config; }
         const Config* getConfig() const { return _config; }
 
-        /** Add a new segment to this canvas. */
-        EQSERVER_EXPORT void addSegment( Segment* segment );
-        
         /** @return the vector of child segments. */
         const SegmentVector& getSegments() const { return _segments; }
 
@@ -112,8 +111,6 @@ namespace server
                                   const uint64_t dirtyBits );
 
     private:
-        virtual void getInstanceData( net::DataOStream& os );
-
         /** The parent config. */
         Config* _config;
         friend class Config;
@@ -132,9 +129,15 @@ namespace server
             char dummy[64];
         };
 
+        virtual void getInstanceData( net::DataOStream& os );
+
         /** Run-time layout switch */
         void _useLayout( const uint32_t index );
         void _switchLayout( const uint32_t oldIndex, const uint32_t newIndex );
+
+        void _addSegment( Segment* segment );
+        bool _removeSegment( Segment* segment );
+        friend class fabric::Segment< Canvas, Segment >;
     };
 
     std::ostream& operator << ( std::ostream& os, const Canvas* canvas);

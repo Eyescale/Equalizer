@@ -25,7 +25,7 @@ namespace eq
 namespace fabric
 {
     /** A visitor to traverse leaf nodes of a graph. */
-    template< typename T > class LeafVisitor
+    template< class T > class LeafVisitor
     {
     public:
         /** Constructs a new leaf visitor. @version 1.0 */

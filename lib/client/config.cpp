@@ -914,3 +914,18 @@ FIND_ID_TEMPLATE2( eq::View );
                                           const type** ) const;
 
 FIND_NAME_TEMPLATE1( eq::Observer );
+
+
+#define CONST_FIND_NAME_TEMPLATE2( type )                       \
+    template const type* eq::fabric::Config< eq::Server,        \
+                                             eq::Config,        \
+                                             eq::Observer,      \
+                                             eq::Layout >::             \
+                                       find< type >( const std::string& ) const;
+
+CONST_FIND_NAME_TEMPLATE2( eq::Canvas );
+CONST_FIND_NAME_TEMPLATE2( eq::Channel );
+CONST_FIND_NAME_TEMPLATE2( eq::Layout );
+CONST_FIND_NAME_TEMPLATE2( eq::Observer );
+CONST_FIND_NAME_TEMPLATE2( eq::View );
+

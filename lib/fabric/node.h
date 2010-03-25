@@ -1,6 +1,5 @@
 
 /* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,22 +15,35 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "types.h"
-#include "node.h"
-#include "pipe.h"
-#include "channel.h"
-#include "window.h"
-#include "../lib/fabric/window.cpp"
-#include "../lib/fabric/pipe.cpp"
-#include "../lib/fabric/channel.cpp"
+#ifndef EQFABRIC_NODE_H
+#define EQFABRIC_NODE_H
 
-template class eq::fabric::Channel< eq::server::Channel, eq::server::Window >;
+#include <eq/fabric/object.h>        // base class
+#include <eq/fabric/paths.h>
+#include <eq/fabric/pixelViewport.h> // base class
+#include <eq/fabric/types.h>
 
-template class eq::fabric::Window< eq::server::Pipe, 
-                                   eq::server::Window, 
-                                   eq::server::Channel >;
+namespace eq
+{
 
-template class eq::fabric::Pipe< eq::server::Node, 
-                                 eq::server::Pipe, 
-                                 eq::server::Window >;
+namespace fabric
+{
+    template< class C, class N, class P > class Node : public Object
+    {
+    public:
+        typedef std::vector< P* > PipeVector;
+
+        /** @name Data Access */
+        //@{
+        /** @return the index path to this node. @internal */
+        EQFABRIC_EXPORT NodePath getPath() const;
+        //@}
+
+    protected:
+        virtual ChangeType getChangeType() const { return UNBUFFERED; }
+    };
+}
+}
+
+#endif // EQFABRIC_NODE_H
 

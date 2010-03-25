@@ -87,9 +87,9 @@ void NodeFactory::releaseCanvas( Canvas* canvas )
     delete canvas;
 }
 
-Segment* NodeFactory::createSegment()
+Segment* NodeFactory::createSegment( Canvas* parent )
 {
-    return new Segment();
+    return new Segment( parent );
 }
 void NodeFactory::releaseSegment( Segment* segment )
 {

@@ -92,6 +92,7 @@ HEADER_SRC = \
 	fabric/layout.h \
 	fabric/init.h \
 	fabric/leafVisitor.h \
+	fabric/node.h \
 	fabric/object.h \
 	fabric/observer.h \
 	fabric/paths.h \
@@ -101,6 +102,7 @@ HEADER_SRC = \
 	fabric/projection.h \
 	fabric/range.h \
 	fabric/renderContext.h \
+	fabric/segment.h \
 	fabric/serializable.h \
 	fabric/subPixel.h \
 	fabric/task.h \

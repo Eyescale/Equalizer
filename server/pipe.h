@@ -76,9 +76,6 @@ namespace server
         net::CommandQueue* getServerThreadQueue();
         net::CommandQueue* getCommandThreadQueue();
 
-        /** @return the index path to this pipe. */
-        PipePath getPath() const;
-
         Channel* getChannel( const ChannelPath& path );
 
         /** @return the state of this pipe. */

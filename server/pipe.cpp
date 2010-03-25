@@ -174,20 +174,6 @@ net::CommandQueue* Pipe::getCommandThreadQueue()
     return node->getCommandThreadQueue(); 
 }
 
-PipePath Pipe::getPath() const
-{
-    const Node* node = getNode();
-    EQASSERT( node );
-    PipePath path( node->getPath( ));
-    
-    const PipeVector&      pipes = node->getPipes();
-    PipeVector::const_iterator i = std::find( pipes.begin(), pipes.end(),
-                                              this );
-    EQASSERT( i != pipes.end( ));
-    path.pipeIndex = std::distance( pipes.begin(), i );
-    return path;
-}
-
 Channel* Pipe::getChannel( const ChannelPath& path )
 {
     WindowVector& windows = _getWindows(); 
@@ -603,3 +589,8 @@ std::ostream& operator << ( std::ostream& os, const Pipe* pipe )
 
 }
 }
+
+#include "../lib/fabric/pipe.cpp"
+template class eq::fabric::Pipe< eq::server::Node, eq::server::Pipe, 
+                                 eq::server::Window >;
+
