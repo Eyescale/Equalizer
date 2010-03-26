@@ -209,7 +209,7 @@ namespace eq
         EQ_EXPORT virtual HGLRC createWGLContext();
 
         /** Destroy the given WGL context. */
-        EQ_EXPORT virtual destroyWGLContext( HGLRC context );
+        EQ_EXPORT virtual void destroyWGLContext( HGLRC context );
 
         EQ_EXPORT virtual void initEventHandler();
         EQ_EXPORT virtual void exitEventHandler();
