@@ -115,6 +115,7 @@ void Segment< C, S >::setViewport( const Viewport& vp )
         }
         default: 
             EQUNIMPLEMENTED;
+        case Frustum::TYPE_NONE:
             break; 
     }
 }
