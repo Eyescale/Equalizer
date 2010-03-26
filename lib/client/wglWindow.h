@@ -69,16 +69,16 @@ namespace eq
                                                   const uint32_t barrier );
 
         /** @return the Win32 window handle. */
-        EQ_EXPORT virtual HWND getWGLWindowHandle() const { return _wglWindow; }
+        virtual HWND getWGLWindowHandle() const { return _wglWindow; }
 
         /** @return the Win32 off screen PBuffer handle. */
-        EQ_EXPORT virtual HPBUFFERARB getWGLPBufferHandle() const { return _wglPBuffer; }
+        virtual HPBUFFERARB getWGLPBufferHandle() const { return _wglPBuffer; }
 
         /** @return the Win32 device context used for the current drawable. */
-        EQ_EXPORT virtual HDC getWGLDC() const { return _wglDC; }
+        virtual HDC getWGLDC() const { return _wglDC; }
 
         /** @return the WGL rendering context. */
-        EQ_EXPORT virtual HGLRC getWGLContext() const { return _wglContext; }
+        virtual HGLRC getWGLContext() const { return _wglContext; }
 
         /** @return the WGL event handler. */
         const WGLEventHandler* getWGLEventHandler() const 
@@ -207,6 +207,9 @@ namespace eq
          * @return the context, or 0 if context creation failed.
          */
         EQ_EXPORT virtual HGLRC createWGLContext();
+
+        /** Destroy the given WGL context. */
+        EQ_EXPORT virtual destroyWGLContext( HGLRC context );
 
         EQ_EXPORT virtual void initEventHandler();
         EQ_EXPORT virtual void exitEventHandler();

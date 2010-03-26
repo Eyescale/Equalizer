@@ -77,7 +77,7 @@ void WGLWindow::configExit( )
     setWGLPBufferHandle( 0 );
 
     if( context )
-        wglDeleteContext( context );
+        destroyWGLContext( context );
 
     if( hWnd )
     {
@@ -842,6 +842,12 @@ HGLRC WGLWindow::createWGLContext()
     }
 
     return context;
+}
+
+void WGLWindow::destroyWGLContext( HGLRC context )
+{
+    EQASSERT( context );
+    wglDeleteContext( context );
 }
 
 void WGLWindow::initEventHandler()

@@ -1,9 +1,7 @@
-Simplify image:
-- merge async readback methods
-- remove unused PBO code
+Make wgl context destruction configurable
 
 [ ] May break build
-[x] May break existing applications
+[ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
