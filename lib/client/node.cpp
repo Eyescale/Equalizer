@@ -58,7 +58,10 @@ std::string Node::_iAttributeStrings[IATTR_ALL] = {
 };
 
 Node::Node( Config* parent )
+#pragma warning( push )
+#pragma warning( disable : 4355 )
         : transmitter( this )
+#pragma warning( push )
         , _config( parent )
         , _tasks( fabric::TASK_NONE )
         , _state( STATE_STOPPED )

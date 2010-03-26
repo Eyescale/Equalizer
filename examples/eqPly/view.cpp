@@ -24,7 +24,10 @@ namespace eqPly
 
 View::View( eq::Layout* parent )
         : eq::View( parent )
+#pragma warning( push )
+#pragma warning( disable : 4355 )
         , _proxy( this )
+#pragma warning( pop )
         , _modelID( EQ_ID_INVALID )
         , _idleSteps( 0 )
 {

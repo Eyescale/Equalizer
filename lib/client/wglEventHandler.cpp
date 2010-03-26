@@ -124,8 +124,13 @@ WGLEventHandler::WGLEventHandler( WGLWindowIF* window )
     }
 
     registerHandler( _hWnd, this );
+
+// Issue warning 4312 only once.
+#pragma warning( push )
+#pragma warning( disable : 4312 )
     _prevWndProc = (WNDPROC)SetWindowLongPtr( _hWnd, GWLP_WNDPROC, 
                                               (LONG_PTR)wndProc );
+#pragma warning( pop ) 
     if( _prevWndProc == wndProc ) // avoid recursion
         _prevWndProc = DefWindowProc;
 }
