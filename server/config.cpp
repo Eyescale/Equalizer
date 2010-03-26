@@ -1036,6 +1036,9 @@ void Config::_startFrame( const uint32_t frameID )
         if( node->isActive( ))
             node->update( frameID, _currentFrame );
     }
+
+    // Fix 2976899: Config::finishFrame deadlocks when no nodes are active
+    notifyNodeFrameFinished( _currentFrame );
 }
 
 void Config::notifyNodeFrameFinished( const uint32_t frameNumber )

@@ -1,9 +1,9 @@
-Make wgl context destruction configurable
+Fix 2976899: Config::finishFrame deadlocks when no nodes are active
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

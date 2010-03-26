@@ -1,57 +1,44 @@
 #Equalizer 1.0 ascii
 
-# two-to-one sort-first config for cluster at unizh
-global
-{
-#    EQ_WINDOW_IATTR_HINT_DRAWABLE pbuffer
-}
-
+# 'Hello, World!' config: one window rendering from the application process.
 server
 {
-    connection { hostname "157.26.73.104" }
     config
     {
         appNode
         {
-            connection { hostname "157.26.73.104" }
-            connection { hostname "239.255.42.44" type RSP port 4242 }
-            pipe 
+            pipe
             {
                 window
                 {
-                    viewport [ .25 .25 .5 .5 ]
-                    attributes{ hint_drawable window }
-                    channel { name "channel1" }
+                    viewport [ 0.25 0.25 0.5 0.5 ]
+                    
+                    channel { name "channel" }
                 }
             }
         }
-        node
+        layout
         {
-            connection { hostname "157.26.73.115" port 1234 }
-            connection { hostname "239.255.42.44" type RSP port 4242 }
-            pipe { window { channel { name "channel2" }}}
+            view
+            {
+                wall
+                {
+                    bottom_left  [      -0.32       -0.2      -0.75 ]
+                    bottom_right [       0.32       -0.2      -0.75 ]
+                    top_left     [      -0.32        0.2      -0.75 ]
+                }
+                
+            }
+        }
+        canvas
+        {
+            layout   0
+            layout   OFF
+            segment { channel  "channel" }
         }
         compound
         {
-            channel "channel1"
-            wall
-            {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
-            }
-
-            compound
-            {
-                viewport [ 0 0 1 .5 ]
-            }
-            compound
-            {
-                channel "channel2"
-                viewport [ 0 .5 1 .5 ]
-                outputframe {}
-            }
-            inputframe { name "frame.channel2" }
+            channel  ( canvas 0 segment 0 layout   0 view 0 )
         }
     }    
 }
