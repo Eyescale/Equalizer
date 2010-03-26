@@ -1,4 +1,4 @@
-Fix 2976899: Config::finishFrame deadlocks when no nodes are active
+Potential fix for win32 network hangs
 
 [ ] May break build
 [ ] May break existing applications

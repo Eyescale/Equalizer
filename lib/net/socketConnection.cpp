@@ -34,7 +34,8 @@
 #  ifndef WSA_FLAG_SDP
 #    define WSA_FLAG_SDP 0x40
 #  endif
-#  define EQTIMER_WSA_IO_PENDING 250
+#  define EQ_RECV_TIMEOUT 250 /*ms*/
+#  define EQ_HARD_TIMEOUT true
 #else
 #  include <arpa/inet.h>
 #  include <netdb.h>
@@ -399,35 +400,35 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes )
 
     while( true )
     {
-        if( WSAGetOverlappedResult(_readFD, &_overlapped, &got, TRUE, &flags ))
+        const bool wait = !EQ_HARD_TIMEOUT;
+        if( WSAGetOverlappedResult(_readFD, &_overlapped, &got, wait, &flags ))
             return got;
 
         const int err = WSAGetLastError();
+        if( err == ERROR_SUCCESS || got > 0 )
+        {
+            EQWARN << "Got " << base::sysError << " with " << got << " bytes"
+                   << std::endl;
+            return got;
+        }
 
+        if( startTime == 0 )
+            startTime = GetTickCount();
         switch( err )
         {
             case WSASYSCALLFAILURE:  // happens sometimes!?
                 return got;
 
             case WSA_IO_PENDING:
-                if( got > 0 ) // continue and ignore the pending message
-                    return got;
-
-                if( startTime == 0)
-                    startTime = GetTickCount();
-                else
+                if( GetTickCount() - startTime > EQ_RECV_TIMEOUT ) // timeout   
                 {
-                    EQWARN << "WSAGetOverlappedResult loop WSA_IO_PENDING"
-                           << std::endl;
-                    base::sleep( 1 ); // one millisecond to recover
-                
-                    //timeout   
-                    if( GetTickCount() - startTime > EQTIMER_WSA_IO_PENDING )
-                    {
-                        EQWARN << "got timeout " << std::endl;
-                        return -1;
-                    }
+                    EQWARN << "got timeout " << std::endl;
+                    return -1;
                 }
+
+                EQWARN << "WSAGetOverlappedResult loop WSA_IO_PENDING"
+                       << std::endl;
+                base::sleep( 1 ); // one millisecond to recover
                 break;
 
             case ERROR_INVALID_HANDLE:
@@ -436,8 +437,31 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes )
                 close();
                 return -1;
 
-            case ERROR_SUCCESS:
-                return got;
+            case WSA_IO_INCOMPLETE:
+                EQASSERT( EQ_HARD_TIMEOUT );
+                if( EQ_HARD_TIMEOUT )
+                {
+                    if( GetTickCount() - startTime > EQ_RECV_TIMEOUT )
+                    {
+                        EQWARN << "got timeout " << std::endl;
+                        return 0;
+                    }
+
+                    switch( WaitForSingleObject( _overlapped.hEvent,
+                                                 EQ_RECV_TIMEOUT ))
+                    {
+                        case WAIT_TIMEOUT: // try again, will timeout if no data
+                        case WAIT_OBJECT_0: // data ready
+                            break;
+
+                        case WAIT_FAILED:
+                            EQWARN << "Got " << base::sysError
+                                   << ", closing connection" << std::endl;
+                            close();
+                            return -1;
+                    }
+                }
+                // no break
 
             default:
                 EQWARN << "unknown error " << base::sysError << std::endl;
