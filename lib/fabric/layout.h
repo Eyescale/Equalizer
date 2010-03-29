@@ -55,7 +55,6 @@ namespace fabric
         //@{
         typedef ElementVisitor< L, LeafVisitor< V > > Visitor;
         typedef std::vector< V* > ViewVector;
-        typedef L Layout_t;
 
         /** Get the list of views. */
         const ViewVector& getViews() const { return _views; }

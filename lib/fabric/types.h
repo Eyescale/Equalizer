@@ -41,7 +41,6 @@ typedef vmml::vector< 4, float > Vector4f; //!< A four-component float vector
 /** A three-component byte vector */
 typedef vmml::vector< 3, unsigned char > Vector3ub;
 typedef vmml::frustum< float >  Frustumf; //!< A frustum definition
-
 }
 }
 #endif // EQFABRIC_TYPES_H

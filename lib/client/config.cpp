@@ -48,7 +48,7 @@ namespace eq
 {
 /** @cond IGNORE */
 typedef net::CommandFunc<Config> ConfigFunc;
-typedef fabric::Config< Server, Config, Observer, Layout > Super;
+typedef fabric::Config< Server, Config, Observer, Layout, Canvas > Super;
 /** @endcond */
 
 Config::Config( ServerPtr server )
@@ -70,7 +70,7 @@ Config::~Config()
     EQINFO << "Delete config @" << (void*)this << std::endl;
     EQASSERT( getObservers().empty( ));
     EQASSERT( getLayouts().empty( ));
-    EQASSERT( _canvases.empty( ));
+    EQASSERT( getCanvases().empty( ));
     
     while( tryNextEvent( )) /* flush all pending events */ ;
     if( _lastEvent )
@@ -288,20 +288,6 @@ Node* Config::_findNode( const uint32_t id )
     return 0;
 }
 
-void Config::_addCanvas( Canvas* canvas )
-{
-    canvas->_config = this;
-    _canvases.push_back( canvas );
-}
-
-void Config::_removeCanvas( Canvas* canvas )
-{
-    CanvasVector::iterator i = std::find( _canvases.begin(), _canvases.end(),
-                                          canvas );
-    EQASSERT( i != _canvases.end( ));
-    _canvases.erase( i );
-}
-
 bool Config::init( const uint32_t initID )
 {
     EQASSERT( !_running );
@@ -361,7 +347,6 @@ uint32_t Config::startFrame( const uint32_t frameID )
 
     ConfigCommitVisitor committer;
     accept( committer );
-    const std::vector< net::ObjectVersion >& changes = committer.getChanges();
     
     ConfigStartFramePacket packet;
     ClientPtr client = getClient();
@@ -374,8 +359,7 @@ uint32_t Config::startFrame( const uint32_t frameID )
 
     // Request new frame
     packet.frameID  = frameID;
-    packet.nChanges = changes.size();
-    send( packet, changes );
+    send( packet );
 
     if( packet.requestID != EQ_ID_INVALID )
     {
@@ -854,15 +838,14 @@ net::CommandResult Config::_cmdUnmap( net::Command& command )
 
     NodeFactory* nodeFactory = Global::getNodeFactory();
 
-    for( CanvasVector::const_iterator i = _canvases.begin();
-         i != _canvases.end(); ++i )
+    const CanvasVector& canvases = getCanvases();
+    while( !canvases.empty( ))
     {
-        Canvas* canvas = *i;
-        canvas->_deregister();
-        canvas->_config = 0;
+        Canvas* canvas = canvases.back();
+        canvas->_unmap();
+        _removeCanvas( canvas );
         nodeFactory->releaseCanvas( canvas );
     }
-    _canvases.clear();
 
     const LayoutVector& layouts = getLayouts();
     while( !layouts.empty( ))
@@ -892,36 +875,29 @@ net::CommandResult Config::_cmdUnmap( net::Command& command )
 
 #include "../fabric/config.cpp"
 template class eq::fabric::Config< eq::Server, eq::Config, eq::Observer,
-                                   eq::Layout >;
+                                   eq::Layout, eq::Canvas >;
 #define FIND_ID_TEMPLATE1( type )                                       \
-    template void eq::fabric::Config< eq::Server, eq::Config, eq::Observer, \
-                                      eq::Layout >::find< type >(       \
-                                          const uint32_t, type** );
+    template void eq::Super::find< type >( const uint32_t, type** );
+
 FIND_ID_TEMPLATE1( eq::Observer );
+FIND_ID_TEMPLATE1( eq::Layout );
 
 #define FIND_ID_TEMPLATE2( type )                                       \
-    template type* eq::fabric::Config< eq::Server, eq::Config, eq::Observer, \
-                                       eq::Layout >::find< type >(      \
-                                           const uint32_t );
+    template type* eq::Super::find< type >( const uint32_t );
+
 FIND_ID_TEMPLATE2( eq::Observer );
 FIND_ID_TEMPLATE2( eq::Layout );
 FIND_ID_TEMPLATE2( eq::View );
 
 #define FIND_NAME_TEMPLATE1( type )\
-    template void eq::fabric::Config< eq::Server, eq::Config, eq::Observer, \
-                                      eq::Layout >::find< type >(       \
-                                          const std::string&,           \
+    template void eq::Super::find< type >(const std::string&,   \
                                           const type** ) const;
-
 FIND_NAME_TEMPLATE1( eq::Observer );
+FIND_NAME_TEMPLATE1( eq::Layout );
 
 
-#define CONST_FIND_NAME_TEMPLATE2( type )                       \
-    template const type* eq::fabric::Config< eq::Server,        \
-                                             eq::Config,        \
-                                             eq::Observer,      \
-                                             eq::Layout >::             \
-                                       find< type >( const std::string& ) const;
+#define CONST_FIND_NAME_TEMPLATE2( type )                               \
+    template const type* eq::Super::find< type >( const std::string& ) const;
 
 CONST_FIND_NAME_TEMPLATE2( eq::Canvas );
 CONST_FIND_NAME_TEMPLATE2( eq::Channel );

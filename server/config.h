@@ -41,7 +41,8 @@ namespace server
     /**
      * The config.
      */
-    class Config : public fabric::Config< Server, Config, Observer, Layout >
+    class Config : public fabric::Config< Server, Config, Observer, Layout,
+                                          Canvas >
     {
     public:
         /** Construct a new config. */
@@ -56,7 +57,6 @@ namespace server
          */
         //@{
         Channel* getChannel( const ChannelPath& path );
-        Canvas* getCanvas( const CanvasPath& path );
         Segment* getSegment( const SegmentPath& path );
         View* getView( const ViewPath& path );
 
@@ -88,55 +88,6 @@ namespace server
         const NodeVector& getNodes() const { return _nodes; }
 
         /** 
-         * Find the first view of a given name.
-         * 
-         * @param name the name of the view to find
-         * @return the first view with the name, or <code>0</code> if no
-         *         view with the name exists.
-         */
-        View* findView( const std::string& name );
-        const View* findView( const std::string& name ) const;
-
-        /** 
-         * Adds a new canvas to this config.
-         * 
-         * @param canvas the canvas.
-         */
-        EQSERVER_EXPORT void addCanvas( Canvas* canvas );
-
-        /** 
-         * Removes a canvas from this config.
-         * 
-         * @param canvas the canvas
-         * @return <code>true</code> if the canvas was removed,
-         *         <code>false</code> otherwise.
-         */
-        bool removeCanvas( Canvas* canvas );
-
-        /** @return the vecotr of canvases. */
-        const CanvasVector& getCanvases() const { return _canvases; }
-
-        /** 
-         * Find the first canvas of a given name.
-         * 
-         * @param name the name of the canvas to find
-         * @return the first canvas with the name, or <code>0</code> if no
-         *         canvas with the name exists.
-         */
-        Canvas* findCanvas( const std::string& name );
-        const Canvas* findCanvas( const std::string& name ) const;
-
-        /** 
-         * Find the first segment of a given name.
-         * 
-         * @param name the name of the segment to find
-         * @return the first segment with the name, or <code>0</code> if no
-         *         segment with the name exists.
-         */
-        Segment* findSegment( const std::string& name );
-        const Segment* findSegment( const std::string& name ) const;
-
-        /** 
          * Adds a new compound to this config.
          * 
          * @param compound the compound.
@@ -162,7 +113,6 @@ namespace server
          * @return the first channel with the name, or <code>0</code> if no
          *         channel with the name exists.
          */
-        EQSERVER_EXPORT Channel* findChannel( const std::string& name );
         const Channel* findChannel( const std::string& name ) const;
 
         /** 
@@ -287,6 +237,9 @@ namespace server
         /** Return the initID for late initialization  */
         uint32_t getInitID(){ return _initID; }
 
+        /** Activate the given canvas after it is complete (dest channels) */
+        virtual void activateCanvas( Canvas* canvas );
+
     protected:
         /** @sa net::Session::notifyMapped. */
         virtual void notifyMapped( net::NodePtr node );
@@ -308,9 +261,6 @@ namespace server
 
         /** The list of nodes. */
         NodeVector _nodes;
-
-        /** The list of canvases. */
-        CanvasVector _canvases;
 
         /** The list of compounds. */
         CompoundVector _compounds;

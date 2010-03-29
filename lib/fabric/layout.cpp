@@ -21,6 +21,7 @@
 
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
+#include <eq/base/stdExt.h>
 
 namespace eq
 {
@@ -169,7 +170,7 @@ void Layout< C, L, V >::_addView( V* view )
 template< class C, class L, class V >
 bool Layout< C, L, V >::_removeView( V* view )
 {
-    typename ViewVector::iterator i = find( _views.begin(), _views.end(), view);
+    typename ViewVector::iterator i = stde::find( _views, view );
     if( i == _views.end( ))
         return false;
 

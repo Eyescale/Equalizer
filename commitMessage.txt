@@ -1,9 +1,9 @@
-Potential fix for win32 network hangs
+Move Canvas to fabric
 
-[ ] May break build
-[ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[x] Will break build
+[x] May break existing applications
+[ ] Bugfix
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

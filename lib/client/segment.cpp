@@ -31,6 +31,10 @@ Segment::Segment( Canvas* parent )
 {
 }
 
+Segment::Segment( const Segment& from, Canvas* parent )
+        : fabric::Segment< Canvas, Segment >( from, parent )
+{ EQDONTCALL; }
+
 Segment::~Segment()
 {
 }

@@ -28,51 +28,28 @@ namespace server
     class ConfigSyncVisitor : public ConfigVisitor
     {
     public:
-        ConfigSyncVisitor( const uint32_t nChanges, 
-                           const net::ObjectVersion* changes )
-                : _nChanges( nChanges ), _changes( changes ), _current( 0 ) {}
+        ConfigSyncVisitor() {}
         virtual ~ConfigSyncVisitor() {}
 
-    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
-    virtual VisitorResult visit( Observer* observer )
-        {
-            observer->sync();
-            return TRAVERSE_CONTINUE;
-        }
-    virtual VisitorResult visitPre( Canvas* canvas )
-        {
-            _sync( canvas );
-            return TRAVERSE_CONTINUE;
-        }
-    virtual VisitorResult visit( View* view )
-        {
-            view->sync();
-            return TRAVERSE_CONTINUE;
-        }
-    virtual VisitorResult visitPre( Compound* compound )
-        {
-            EQASSERT( _current == _nChanges );
-            return TRAVERSE_TERMINATE;
-        }
- 
-    private:
-        const uint32_t            _nChanges;
-        const net::ObjectVersion* _changes;
-        uint32_t                  _current;
-
-        void _sync( net::Object* object )
+        virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
+        virtual VisitorResult visit( Observer* observer )
             {
-                if( _current == _nChanges )
-                    return;
-
-                EQASSERT( _current < _nChanges );
-                const net::ObjectVersion& change = _changes[ _current ];
-
-                if( change.identifier != object->getID( ))
-                    return;
-
-                object->sync( change.version );
-                ++_current;
+                observer->sync();
+                return TRAVERSE_CONTINUE;
+            }
+        virtual VisitorResult visitPre( Canvas* canvas )
+            {
+                canvas->sync();
+                return TRAVERSE_CONTINUE;
+            }
+        virtual VisitorResult visit( View* view )
+            {
+                view->sync();
+                return TRAVERSE_CONTINUE;
+            }
+        virtual VisitorResult visitPre( Compound* compound )
+            {
+                return TRAVERSE_TERMINATE;
             }
     };
 }

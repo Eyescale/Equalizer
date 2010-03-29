@@ -29,169 +29,66 @@
 
 namespace eq
 {
+typedef fabric::Canvas< Config, Canvas, Segment, Layout > Super;
 
-Canvas::Canvas()
-        : _config( 0 )
-        , _activeLayout( 0 )
+Canvas::Canvas( Config* parent )
+        : Super( parent )
 {
 }
+
+Canvas::Canvas( const Canvas& from, Config* parent )
+        : Super( from, parent )
+{
+    EQDONTCALL;
+}
+
 
 Canvas::~Canvas()
 {
-    EQASSERT( !_config );
 }
 
-void Canvas::serialize( net::DataOStream& os, const uint64_t dirtyBits )
+Segment* Canvas::createSegment()
 {
-    Frustum::serialize( os, dirtyBits );
-
-    if( dirtyBits & DIRTY_LAYOUT )
-        os << _activeLayout;
-
-    EQASSERT( !(dirtyBits & DIRTY_CHILDREN ));
-}
-
-void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
-{
-    Frustum::deserialize( is, dirtyBits );
-
-    if( dirtyBits & DIRTY_LAYOUT )
-        is >> _activeLayout;
-
-    if( dirtyBits & DIRTY_CHILDREN )
-    {
-        EQASSERT( _segments.empty( ));
-        EQASSERT( _config );
-
-        NodeFactory* nodeFactory = Global::getNodeFactory();
-        uint32_t id;
-        for( is >> id; id != EQ_ID_INVALID; is >> id )
-        {
-            Segment* segment = nodeFactory->createSegment( this );
-            _config->mapObject( segment, id );
-        }
-        for( is >> id; id != EQ_ID_INVALID; is >> id )
-        {
-            EQASSERT( _config );
-            if( id == EQ_ID_NONE )
-                _layouts.push_back( 0 );
-            else
-            {
-                Layout* layout = _config->find< Layout >( id );
-                _layouts.push_back( layout );
-                EQASSERT( layout );
-            }
-        }
-    }
-}
-
-void Canvas::_deregister()
-{
-    EQASSERT( _config );
-    EQASSERT( isMaster( ));
     NodeFactory* nodeFactory = Global::getNodeFactory();
+    return nodeFactory->createSegment( this );
+}
 
-    while( !_segments.empty( ))
+void Canvas::releaseSegment( Segment* segment )
+{
+    NodeFactory* nodeFactory = Global::getNodeFactory();
+    nodeFactory->releaseSegment( segment );
+}
+
+void Canvas::_unmap()
+{
+    EQASSERT( !isMaster( ));
+
+    Config* config = getConfig();
+    NodeFactory* nodeFactory = Global::getNodeFactory();
+    const SegmentVector& segments = getSegments();
+
+    while( !segments.empty( ))
     {
         Segment* segment = _segments.back();
         EQASSERT( segment->getID() != EQ_ID_INVALID );
         EQASSERT( !segment->isMaster( ));
 
-        _config->unmapObject( segment );
+        config->unmapObject( segment );
         _removeSegment( segment );
         nodeFactory->releaseSegment( segment );
     }
 
-    _config->deregisterObject( this );
-}
-
-void Canvas::_addSegment( Segment* segment )
-{
-    EQASSERT( segment );
-    EQASSERT( segment->getCanvas() == this );
-    _segments.push_back( segment );
-}
-
-bool Canvas::_removeSegment( Segment* segment )
-{
-    SegmentVector::iterator i = find( _segments.begin(), _segments.end(), 
-                                      segment );
-    if( i == _segments.end( ))
-        return false;
-
-    EQASSERT( segment->getCanvas() == this );
-    _segments.erase( i );
-    return true;
-}
-
-const Layout* Canvas::getActiveLayout() const
-{
-    EQASSERT( _activeLayout < _layouts.size( ));
-    return _layouts[ _activeLayout ];
-}
-
-void Canvas::useLayout( const uint32_t index )
-{
-    if( _activeLayout == index )
-        return;
-
-    _activeLayout = index;
-    setDirty( DIRTY_LAYOUT );
-}
-
-namespace
-{
-template< class C >
-VisitorResult _accept( C* canvas, CanvasVisitor& visitor )
-{
-    VisitorResult result = visitor.visitPre( canvas );
-    if( result != TRAVERSE_CONTINUE )
-        return result;
-
-    const SegmentVector& segments = canvas->getSegments();
-    for( SegmentVector::const_iterator i = segments.begin(); 
-         i != segments.end(); ++i )
-    {
-        switch( (*i)->accept( visitor ))
-        {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-                
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    switch( visitor.visitPost( canvas ))
-    {
-        case TRAVERSE_TERMINATE:
-            return TRAVERSE_TERMINATE;
-
-        case TRAVERSE_PRUNE:
-            return TRAVERSE_PRUNE;
-                
-        case TRAVERSE_CONTINUE:
-        default:
-            break;
-    }
-
-    return result;
-}
-}
-
-VisitorResult Canvas::accept( CanvasVisitor& visitor )
-{
-    return _accept( this, visitor );
-}
-
-VisitorResult Canvas::accept( CanvasVisitor& visitor ) const
-{
-    return _accept( this, visitor );
+    config->unmapObject( this );
 }
 
 }
+
+
+#include "../fabric/canvas.cpp"
+template class eq::fabric::Canvas< eq::Config, eq::Canvas, eq::Segment,
+                                   eq::Layout >;
+/** @cond IGNORE */
+template std::ostream& eq::fabric::operator << ( std::ostream&,
+    const eq::fabric::Canvas< eq::Config, eq::Canvas, eq::Segment,
+                              eq::Layout >& );
+/** @endcond */

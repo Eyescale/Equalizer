@@ -69,7 +69,7 @@ static void _mode2D(       Config*        config,
         std::ostringstream channelName;
         channelName << "channel" << i;
 
-        Channel* childChannel = config->findChannel( channelName.str( ));
+        Channel* childChannel = config->find< Channel >( channelName.str( ));
         child->setChannel( childChannel );
 
         child->setViewport( 
@@ -115,7 +115,7 @@ static void _modeDB(       Config*  config,
             std::ostringstream channelName;
             channelName << "channel" << n*nPipes;
 
-            Channel* childChannel = config->findChannel( channelName.str( ));
+            Channel* childChannel = config->find< Channel >( channelName.str());
             childNode->setChannel( childChannel );
         }
 
@@ -132,7 +132,8 @@ static void _modeDB(       Config*  config,
                 std::ostringstream channelName;
                 channelName << "channel" << i;
 
-                Channel* childChannel = config->findChannel( channelName.str());
+                Channel* childChannel =
+                    config->find< Channel >( channelName.str( ));
                 childPipe->setChannel( childChannel );
 
                 std::ostringstream frameName;
@@ -240,7 +241,7 @@ static void _modeDS(       Config*                config,
             std::ostringstream channelName;
             channelName << "channel" << n*nPipes;
 
-            Channel* childChannel = config->findChannel( channelName.str( ));
+            Channel* childChannel = config->find< Channel >( channelName.str());
             child->setChannel( childChannel );
         }
 
@@ -260,7 +261,8 @@ static void _modeDS(       Config*                config,
                 std::ostringstream channelName;
                 channelName << "channel" << i;
 
-                Channel* childChannel = config->findChannel( channelName.str());
+                Channel* childChannel =
+                    config->find< Channel >( channelName.str( ));
                 childPipe->setChannel( childChannel );
 
 
@@ -423,7 +425,7 @@ void ConfigTool::_writeFromDescription( Config* config ) const
     Compound* compound = new Compound;
     config->addCompound( compound );
 
-    Channel* channel = config->findChannel( "channel0" );
+    Channel* channel = config->find< Channel >( "channel0" );
     compound->setChannel( channel );
 
     eq::Wall wall;

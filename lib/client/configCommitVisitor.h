@@ -44,7 +44,7 @@ namespace eq
                 if( canvas->hasDirtyLayout( ))
                     _needFinish = true;
 
-                _commit( canvas );
+                static_cast< net::Object*>( canvas )->commit();
                 return TRAVERSE_PRUNE; // no need to visit segments
             }
         virtual VisitorResult visit( View* view )
@@ -55,22 +55,8 @@ namespace eq
         
         bool needsFinish() const { return _needFinish; }
 
-        const std::vector< net::ObjectVersion >& getChanges() const
-            { return _changes; }
-
     private:
         bool _needFinish;
-        std::vector< net::ObjectVersion > _changes;
-        
-        void _commit( net::Object* object )
-            {
-                if( !object->isDirty( ))
-                    return;
-
-                const uint32_t version = object->commit();
-                _changes.push_back( net::ObjectVersion( object->getID(),
-                                                        version ));
-            }
     };
 }
 

@@ -29,10 +29,12 @@ namespace eq
 {
 namespace fabric
 {
-    template< class C, class O > class Observer;
+    template< class CFG, class C, class S, class L > class Canvas;
     template< class C, class L, class V > class Layout;
-    struct ObserverPath;
+    template< class C, class O > class Observer;
+    struct CanvasPath;
     struct LayoutPath;
+    struct ObserverPath;
 
     /**
      * A configuration is a visualization session driven by an application.
@@ -54,12 +56,13 @@ namespace fabric
      * The render client processes have only access to the current View for each
      * of their channels.
      */
-    template< class S, class C, class O, class L >
+    template< class S, class C, class O, class L, class CV >
     class Config : public net::Session
     {
     public:
         typedef std::vector< O* > ObserverVector;
         typedef std::vector< L* > LayoutVector;
+        typedef std::vector< CV* > CanvasVector;
 
         /** Destruct a config. @version 1.0 */
         EQFABRIC_EXPORT virtual ~Config();
@@ -74,6 +77,9 @@ namespace fabric
 
         /** @return the vector of layouts, app-node only. @version 1.0 */
         const LayoutVector& getLayouts() const { return _layouts; }
+
+        /** @return the vector of canvases, app-node only. @version 1.0 */
+        const CanvasVector& getCanvases() const { return _canvases; }
 
         /** @return the entity of the given identifier, or 0. @version 1.0 */
         template< typename T > EQFABRIC_EXPORT T* find( const uint32_t id );
@@ -94,12 +100,18 @@ namespace fabric
         /** @return the layout at the given path. @internal */
         L* getLayout( const LayoutPath& path );
 
+        /** @return the canvas at the given path. @internal */
+        CV* getCanvas( const CanvasPath& path );
+
         /** @internal */
         template< typename T > void find( const uint32_t id, T** result );
 
         /** @internal */
         template< typename T > void find( const std::string& name,
                                           const T** result ) const;
+
+        /** Activate the given canvas after it is complete. @internal */
+        virtual void activateCanvas( CV* canvas ) { /* NOP */ }
         //@}
 
     protected:
@@ -116,6 +128,10 @@ namespace fabric
         template< class, class, class > friend class Layout;
         void _addLayout( L* layout );
         bool _removeLayout( L* layout );
+        
+        template< class, class, class, class > friend class Canvas;
+        void _addCanvas( CV* canvas );
+        bool _removeCanvas( CV* canvas );
 
     private:
         /** The parent server. */
@@ -126,6 +142,9 @@ namespace fabric
 
         /** The list of layouts. */
         LayoutVector _layouts;
+
+        /** The list of canvases. */
+        CanvasVector _canvases;
 
         union // placeholder for binary-compatible changes
         {

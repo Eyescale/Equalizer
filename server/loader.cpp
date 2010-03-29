@@ -132,13 +132,13 @@ static void _addDestinationViews( Compound* compound )
         View*   view   = new View( layout );
         *static_cast< eq::Frustum* >( view ) = compound->getFrustum();
         
-        Canvas* canvas = new Canvas;
+        Canvas* canvas = new Canvas( config );
         canvas->addLayout( layout );
         
         Segment* segment = new Segment( canvas );
         segment->setChannel( channel );
         
-        config->addCanvas( canvas );
+        config->activateCanvas( canvas );
         
         Channel* newChannel = config->findChannel( segment, view );
         EQASSERT( newChannel );
@@ -172,7 +172,7 @@ static void _addDestinationViews( Compound* compound )
     Config* config = compound->getConfig();
     Layout* layout = new Layout( config );
     View*   view   = new View( layout );        
-    Canvas* canvas = new Canvas;
+    Canvas* canvas = new Canvas( config );
 
     canvas->addLayout( layout );
     *static_cast< eq::Frustum* >( canvas ) = compound->getFrustum();
@@ -188,7 +188,7 @@ static void _addDestinationViews( Compound* compound )
         *static_cast< eq::Frustum* >( segment ) = child->getFrustum();
     }
 
-    config->addCanvas( canvas );
+    config->activateCanvas( canvas );
 
     for( size_t i = 0; i < segments.size(); ++i )
     {

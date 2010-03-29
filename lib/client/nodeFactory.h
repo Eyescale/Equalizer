@@ -89,7 +89,7 @@ namespace eq
          * 
          * @return the canvas.
          */
-        virtual Canvas* createCanvas();
+        virtual Canvas* createCanvas( Config* parent );
 
         /** Release a canvas. */
         virtual void releaseCanvas( Canvas* canvas );

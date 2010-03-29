@@ -33,138 +33,43 @@
 #include <eq/net/dataOStream.h>
 
 
-using namespace eq::base;
-
 namespace eq
 {
 namespace server
 {
+typedef fabric::Canvas< Config, Canvas, Segment, Layout > Super;
 
-Canvas::Canvas()
-        : _config( 0 )
-        , _activeLayout( 0 )
+Canvas::Canvas( Config* parent )
+        : Super( parent )
 {}
 
-Canvas::Canvas( const Canvas& from, Config* config )
-        : eq::Frustum( from )
-        , _config( config )
-        , _activeLayout( from._activeLayout )
+Canvas::Canvas( const Canvas& from, Config* parent )
+        : Super( from, parent )
 {
-    EQASSERT( config );
-
-    for( SegmentVector::const_iterator i = from._segments.begin();
-         i != from._segments.end(); ++i )
-    {
-        new Segment( **i, this );
-    }
-
-    for( LayoutVector::const_iterator i = from._layouts.begin();
-         i != from._layouts.end(); ++i )
-    {
-        const Layout* layout = *i;
-        if( layout )
-        {
-            const LayoutPath path( layout->getPath( ));
-            addLayout( config->getLayout( path ));
-        }
-        else
-            addLayout( 0 );
-    }
-
-    config->addCanvas( this );
-    EQASSERT( _config );
 }
 
 Canvas::~Canvas()
 {
-    while( !_segments.empty( ))
-    {
-        Segment* segment = _segments.back();
-        _removeSegment( segment );
-        delete segment;
-    }
-    _layouts.clear();
-
-    if( _config )
-        _config->removeCanvas( this );
-
-    _config = 0;
-    _activeLayout = 0;
-}
-
-void Canvas::getInstanceData( net::DataOStream& os )
-{
-    // This function is overwritten from eq::Object, since the class is
-    // intended to be subclassed on the client side. When serializing a
-    // server::Canvas, we only transmit the effective bits, not all since that
-    // potentially includes bits from subclassed eq::Canvases.
-    const uint64_t dirty = eq::Canvas::DIRTY_CUSTOM - 1;
-    os << dirty;
-    serialize( os, dirty );
-}
-
-void Canvas::serialize( net::DataOStream& os, const uint64_t dirtyBits )
-{
-    Frustum::serialize( os, dirtyBits );
-
-    if( dirtyBits & eq::Canvas::DIRTY_LAYOUT )
-        os << _activeLayout;
-
-    if( dirtyBits & eq::Canvas::DIRTY_CHILDREN )
-    {
-        for( SegmentVector::const_iterator i = _segments.begin(); 
-             i != _segments.end(); ++i )
-        {
-            Segment* segment = *i;
-            EQASSERT( segment->getID() != EQ_ID_INVALID );
-            os << segment->getID();
-        }
-        os << EQ_ID_INVALID;
-
-        for( LayoutVector::const_iterator i = _layouts.begin(); 
-             i != _layouts.end(); ++i )
-        {
-            Layout* layout = *i;
-            if( layout )
-            {
-                EQASSERT( layout->getID() != EQ_ID_INVALID );
-                os << layout->getID();
-            }
-            else
-                os << EQ_ID_NONE;
-        }
-        os << EQ_ID_INVALID;
-    }
-}
-
-void Canvas::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
-{
-    Frustum::deserialize( is, dirtyBits );
-
-    if( dirtyBits & eq::Canvas::DIRTY_LAYOUT )
-    {
-        uint32_t index;
-        is >> index;
-        _useLayout( index );
-    }
 }
 
 Segment* Canvas::getSegment( const SegmentPath& path )
 {
-    EQASSERTINFO( _segments.size() > path.segmentIndex,
-                  _segments.size() << " <= " << path.segmentIndex );
+    const SegmentVector& segments = getSegments();
+    EQASSERTINFO( segments.size() > path.segmentIndex,
+                  segments.size() << " <= " << path.segmentIndex );
 
-    if( _segments.size() <= path.segmentIndex )
+    if( segments.size() <= path.segmentIndex )
         return 0;
 
-    return _segments[ path.segmentIndex ];
+    return segments[ path.segmentIndex ];
 }
 
 CanvasPath Canvas::getPath() const
 {
-    EQASSERT( _config );
+    const Config* config = getConfig();
+    EQASSERT( config );
 
-    const CanvasVector& canvases = _config->getCanvases();
+    const CanvasVector& canvases = config->getCanvases();
     CanvasVector::const_iterator i = std::find( canvases.begin(),
                                                  canvases.end(), this );
     EQASSERT( i != canvases.end( ));
@@ -174,28 +79,6 @@ CanvasPath Canvas::getPath() const
     return path;
 }
 
-void Canvas::_addSegment( Segment* segment )
-{
-    EQASSERT( segment );
-    EQASSERT( segment->getCanvas() == this );
-    EQASSERT( std::find( _segments.begin(), _segments.end(), segment ) == 
-              _segments.end( ));
-    _segments.push_back( segment );
-}
-
-bool Canvas::_removeSegment( Segment* segment )
-{
-    SegmentVector::iterator i = find( _segments.begin(), _segments.end(), 
-                                      segment );
-    if( i == _segments.end( ))
-        return false;
-
-    EQASSERT( segment->getCanvas() == this );
-    _segments.erase( i );
-    return true;
-}
-
-
 Segment* Canvas::findSegment( const std::string& name )
 {
     SegmentFinder finder( name );
@@ -203,31 +86,31 @@ Segment* Canvas::findSegment( const std::string& name )
     return finder.getResult();
 }
 
-void Canvas::addLayout( Layout* layout )
+void Canvas::activateLayout( const uint32_t index )
 {
-    EQASSERT( std::find( _layouts.begin(), _layouts.end(), layout ) == 
-              _layouts.end( ));
-
-    // dest channel creation is done be Config::addCanvas
-    _layouts.push_back( layout );
+    const Config* config = getConfig();
+    if( config && config->isRunning( ))
+        _switchLayout( getActiveLayoutIndex(), index );
 }
 
-void Canvas::_useLayout( const uint32_t index )
+Segment* Canvas::createSegment()
 {
-    if( _config && _config->isRunning( ))
-        _switchLayout( _activeLayout, index );
+    return new Segment( this );
+}
 
-    _activeLayout = index;
+void Canvas::releaseSegment( Segment* segment )
+{
+    delete segment;
 }
 
 void Canvas::init()
 {
-    _switchLayout( EQ_ID_NONE, _activeLayout );
+    _switchLayout( EQ_ID_NONE, getActiveLayoutIndex( ));
 }
 
 void Canvas::exit()
 {
-    _switchLayout( _activeLayout, EQ_ID_NONE );
+    _switchLayout( getActiveLayoutIndex(), EQ_ID_NONE );
 }
 
 namespace
@@ -296,16 +179,19 @@ private:
 
 void Canvas::_switchLayout( const uint32_t oldIndex, const uint32_t newIndex )
 {
-    EQASSERT( _config );
+    Config* config = getConfig();
+    EQASSERT( config );
     if( oldIndex == newIndex )
         return;
 
-    const size_t nLayouts = _layouts.size();
-    const Layout* oldLayout = (oldIndex >= nLayouts) ? 0 :_layouts[oldIndex];
-    const Layout* newLayout = (newIndex >= nLayouts) ? 0 :_layouts[newIndex];
+    const LayoutVector& layouts = getLayouts();
+    const size_t nLayouts = layouts.size();
+    const Layout* oldLayout = (oldIndex >= nLayouts) ? 0 : layouts[oldIndex];
+    const Layout* newLayout = (newIndex >= nLayouts) ? 0 : layouts[newIndex];
 
-    for( SegmentVector::const_iterator i = _segments.begin();
-         i != _segments.end(); ++i )
+    const SegmentVector& segments = getSegments();
+    for( SegmentVector::const_iterator i = segments.begin();
+         i != segments.end(); ++i )
     {
         const Segment* segment = *i;        
         const ChannelVector& destChannels = segment->getDestinationChannels();
@@ -324,7 +210,7 @@ void Canvas::_switchLayout( const uint32_t oldIndex, const uint32_t newIndex )
             }
             
             ActivateVisitor activator( usedChannels );
-            _config->accept( activator );
+            config->accept( activator );
         }
 
         if( oldLayout )
@@ -341,125 +227,41 @@ void Canvas::_switchLayout( const uint32_t oldIndex, const uint32_t newIndex )
                     usedChannels.push_back( channel );
             }
             DeactivateVisitor deactivator( usedChannels );
-            _config->accept( deactivator );
+            config->accept( deactivator );
         }
     }
 }
 
-namespace
-{
-template< class C >
-VisitorResult _accept( C* canvas, CanvasVisitor& visitor )
-{
-    VisitorResult result = visitor.visitPre( canvas );
-    if( result != TRAVERSE_CONTINUE )
-        return result;
-
-    const SegmentVector& segments = canvas->getSegments();
-    for( SegmentVector::const_iterator i = segments.begin(); 
-         i != segments.end(); ++i )
-    {
-        switch( (*i)->accept( visitor ))
-        {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-                
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    switch( visitor.visitPost( canvas ))
-    {
-        case TRAVERSE_TERMINATE:
-            return TRAVERSE_TERMINATE;
-
-        case TRAVERSE_PRUNE:
-            return TRAVERSE_PRUNE;
-                
-        case TRAVERSE_CONTINUE:
-        default:
-            break;
-    }
-
-    return result;
-}
-}
-
-VisitorResult Canvas::accept( CanvasVisitor& visitor )
-{
-    return _accept( this, visitor );
-}
-
-VisitorResult Canvas::accept( CanvasVisitor& visitor ) const
-{
-    return _accept( this, visitor );
-}
-
-void Canvas::unmap()
+void Canvas::deregister()
 {
     net::Session* session = getSession();
     EQASSERT( session );
-    for( SegmentVector::const_iterator i = _segments.begin(); 
-         i != _segments.end(); ++i )
-    {
-        Segment* segment = *i;
-        EQASSERT( segment->getID() != EQ_ID_INVALID );
-        
-        session->unmapObject( segment );
-    }
 
-    EQASSERT( getID() != EQ_ID_INVALID );
-    session->unmapObject( this );
-}
-
-std::ostream& operator << ( std::ostream& os, const Canvas* canvas )
-{
-    if( !canvas )
-        return os;
-    
-    os << disableFlush << disableHeader << "canvas" << std::endl;
-    os << "{" << std::endl << indent; 
-
-    const std::string& name = canvas->getName();
-    if( !name.empty( ))
-        os << "name     \"" << name << "\"" << std::endl;
-
-    const LayoutVector& layouts = canvas->getLayouts();
-    for( LayoutVector::const_iterator i = layouts.begin(); 
-         i != layouts.end(); ++i )
-    {
-        Layout* layout = *i;
-        if( layout )
-        {
-            const Config*      config     = layout->getConfig();
-            const std::string& layoutName = layout->getName();
-            if( layoutName.empty() || 
-                config->find< Layout >( layoutName ) != layout )
-                os << layout->getPath() << std::endl;
-            else
-                os << "layout   \"" << layout->getName() << "\"" << std::endl;
-        }
-        else
-            os << "layout   OFF" << std::endl;
-    }
-
-    os << static_cast< const eq::Frustum& >( *canvas );
-
-    const SegmentVector& segments = canvas->getSegments();
+    const SegmentVector& segments = getSegments();
     for( SegmentVector::const_iterator i = segments.begin(); 
          i != segments.end(); ++i )
     {
-        os << **i;
+        Segment* segment = *i;
+        EQASSERT( segment->getID() != EQ_ID_INVALID );
+        EQASSERT( segment->isMaster( ));
+        
+        session->deregisterObject( segment );
     }
-    os << exdent << "}" << std::endl << enableHeader << enableFlush;
-    return os;
+
+    EQASSERT( getID() != EQ_ID_INVALID );
+    EQASSERT( isMaster( ));
+    session->deregisterObject( this );
 }
+
 
 }
 }
+
+#include "../lib/fabric/canvas.cpp"
+template class eq::fabric::Canvas< eq::server::Config, eq::server::Canvas,
+                                   eq::server::Segment, eq::server::Layout >;
+/** @cond IGNORE */
+template std::ostream& eq::fabric::operator << ( std::ostream&,
+    const eq::fabric::Canvas< eq::server::Config, eq::server::Canvas,
+                              eq::server::Segment, eq::server::Layout >& );
+/** @endcond */

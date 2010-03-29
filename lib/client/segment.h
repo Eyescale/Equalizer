@@ -39,6 +39,9 @@ namespace eq
         /** Construct a new Segment. */
         EQ_EXPORT Segment( Canvas* parent );
 
+        /** @internal. */
+        Segment( const Segment& from, Canvas* parent );
+
         /** Destruct this segment. */
         EQ_EXPORT virtual ~Segment();
 

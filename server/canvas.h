@@ -21,7 +21,7 @@
 #include "types.h"
 #include "visitorResult.h"  // enum
 
-#include <eq/client/canvas.h>
+#include <eq/fabric/canvas.h> // base class
 
 #include <eq/base/base.h>
 #include <string>
@@ -35,16 +35,16 @@ namespace fabric
 namespace server
 {
     /** The canvas. @sa eq::Canvas */
-    class Canvas : public eq::Frustum
+    class Canvas : public fabric::Canvas< Config, Canvas, Segment, Layout >
     {
     public:
         /** 
          * Constructs a new Canvas.
          */
-        EQSERVER_EXPORT Canvas();
+        EQSERVER_EXPORT Canvas( Config* parent );
 
         /** Creates a new, deep copy of a canvas. */
-        Canvas( const Canvas& from, Config* config );
+        Canvas( const Canvas& from, Config* parent );
 
         /** Destruct this canvas. */
         virtual ~Canvas();
@@ -53,12 +53,6 @@ namespace server
          * @name Data Access
          */
         //@{
-        Config* getConfig()             { return _config; }
-        const Config* getConfig() const { return _config; }
-
-        /** @return the vector of child segments. */
-        const SegmentVector& getSegments() const { return _segments; }
-
         /** 
          * Find the first segment of a given name.
          * 
@@ -71,13 +65,7 @@ namespace server
         /** @return the segment of the given path. */
         Segment* getSegment( const SegmentPath& path );
 
-        /** Add a new allowed layout to this canvas, can be 0. */
-        EQSERVER_EXPORT void addLayout( Layout* layout );
-
-        /** Get the vector of allowed layouts for this canvas. */
-        const LayoutVector& getLayouts() const { return _layouts; }
-        
-        /** @return the index path to this canvas. */
+        /** @return the index path to this canvas. @internal */
         CanvasPath getPath() const;
         //@}
 
@@ -88,59 +76,25 @@ namespace server
         void init();
         void exit();
 
-        /** 
-         * Traverse this canvas and all children using a canvas visitor.
-         * 
-         * @param visitor the visitor.
-         * @return the result of the visitor traversal.
-         */
-        VisitorResult accept( CanvasVisitor& visitor );
-        VisitorResult accept( CanvasVisitor& visitor ) const;
-
         /** Unmap this canvas and all its children. */
-        void unmap();
+        void deregister();
         //@}
         
     protected:
-        /** @sa Frustum::serialize */
-        virtual void serialize( net::DataOStream& os, 
-                                const uint64_t dirtyBits );
-
-        /** @sa Frustum::deserialize */
-        virtual void deserialize( net::DataIStream& is, 
-                                  const uint64_t dirtyBits );
+        virtual void activateLayout( const uint32_t index );
+        virtual Segment* createSegment();
+        virtual void releaseSegment( Segment* segment );
 
     private:
-        /** The parent config. */
-        Config* _config;
-        friend class Config;
-
-        /** The allowed layout for this canvas. */
-        LayoutVector _layouts;
-        
-        /** The currently active layout. */
-        uint32_t _activeLayout;
-
-        /** Child segments on this canvas. */
-        SegmentVector _segments;
-
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
-        virtual void getInstanceData( net::DataOStream& os );
-
         /** Run-time layout switch */
-        void _useLayout( const uint32_t index );
         void _switchLayout( const uint32_t oldIndex, const uint32_t newIndex );
-
-        void _addSegment( Segment* segment );
-        bool _removeSegment( Segment* segment );
-        friend class fabric::Segment< Canvas, Segment >;
     };
 
-    std::ostream& operator << ( std::ostream& os, const Canvas* canvas);
 }
 }
 #endif // EQSERVER_CANVAS_H

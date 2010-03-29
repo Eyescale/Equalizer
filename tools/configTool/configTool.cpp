@@ -360,7 +360,7 @@ void ConfigTool::_write2D( Config* config ) const
     Compound* compound = new Compound;
     config->addCompound( compound );
 
-    Channel* channel = config->findChannel( "channel0" );
+    Channel* channel = config->find< Channel >( "channel0" );
     compound->setChannel( channel );
     
     eq::Wall wall;
@@ -380,7 +380,7 @@ void ConfigTool::_write2D( Config* config ) const
         std::ostringstream channelName;
         channelName << "channel" << i;
         
-        Channel* childChannel = config->findChannel( channelName.str( ));
+        Channel* childChannel = config->find< Channel >( channelName.str( ));
         child->setChannel( childChannel );
 
         if( i == _nChannels - 1 ) // last - correct rounding 'error'
@@ -416,7 +416,7 @@ void ConfigTool::_writeDB( Config* config ) const
     Compound* compound = new Compound;
     config->addCompound( compound );
 
-    Channel* channel = config->findChannel( "channel0" );
+    Channel* channel = config->find< Channel >( "channel0" );
     compound->setChannel( channel );
     compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
 
@@ -441,7 +441,7 @@ void ConfigTool::_writeDB( Config* config ) const
         std::ostringstream channelName;
         channelName << "channel" << i;
         
-        Channel* childChannel = config->findChannel( channelName.str( ));
+        Channel* childChannel = config->find< Channel >( channelName.str( ));
         child->setChannel( childChannel );
 
         if( i == _nChannels - 1 ) // last - correct rounding 'error'
@@ -475,7 +475,7 @@ void ConfigTool::_writeDBStream( Config* config ) const
     Compound* compound = new Compound;
     config->addCompound( compound );
 
-    Channel* channel = config->findChannel( "channel0" );
+    Channel* channel = config->find< Channel >( "channel0" );
     compound->setChannel( channel );
     compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
 
@@ -500,7 +500,7 @@ void ConfigTool::_writeDBStream( Config* config ) const
         std::ostringstream channelName;
         channelName << "channel" << i-1;
         
-        Channel* childChannel = config->findChannel( channelName.str( ));
+        Channel* childChannel = config->find< Channel >( channelName.str( ));
         child->setChannel( childChannel );
 
         if( i-1 == stop ) // last - correct rounding error
@@ -538,7 +538,7 @@ void ConfigTool::_writeDS( Config* config ) const
     Compound* compound = new Compound;
     config->addCompound( compound );
 
-    Channel* channel = config->findChannel( "channel0" );
+    Channel* channel = config->find< Channel >( "channel0" );
     compound->setChannel( channel );
     compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
 
@@ -560,7 +560,7 @@ void ConfigTool::_writeDS( Config* config ) const
         std::ostringstream channelName;
         channelName << "channel" << i;
         
-        Channel* childChannel = config->findChannel( channelName.str( ));
+        Channel* childChannel = config->find< Channel >( channelName.str( ));
         child->setChannel( childChannel );
 
         // leaf draw + tile readback compound
@@ -729,7 +729,7 @@ void ConfigTool::_writeDPlex( Config* config ) const
     Compound* compound = new Compound;
     config->addCompound( compound );
 
-    Channel* channel = config->findChannel( "channel0" );
+    Channel* channel = config->find< Channel >( "channel0" );
     compound->setChannel( channel );
     
     eq::Wall wall;
@@ -750,7 +750,7 @@ void ConfigTool::_writeDPlex( Config* config ) const
         std::ostringstream channelName;
         channelName << "channel" << i;
         
-        Channel* childChannel = config->findChannel( channelName.str( ));
+        Channel* childChannel = config->find< Channel >( channelName.str( ));
         child->setChannel( childChannel );
 
         child->setPeriod( period );
@@ -769,8 +769,7 @@ void ConfigTool::_writeWall( Config* config ) const
     layout->setName( "1x1" );
     new View( layout );
 
-    Canvas* canvas = new Canvas;
-    config->addCanvas( canvas );    
+    Canvas* canvas = new Canvas( config );
     canvas->setName( "wall" );
     
     eq::Wall wall;
@@ -794,8 +793,10 @@ void ConfigTool::_writeWall( Config* config ) const
                                                 width, height ));
             std::ostringstream channelName;
             channelName << "channel" << column + row * _columns;
-            Channel* segmentChannel = config->findChannel( channelName.str( ));
+            Channel* segmentChannel = 
+                config->find< Channel >( channelName.str( ));
             segment->setChannel( segmentChannel );
         }
     }
+    config->activateCanvas( canvas );    
 }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <string>
+#include <vector>
 
 //----- Common extensions of the STL
 #ifdef __GNUC__
@@ -159,6 +160,17 @@ EQ_STDEXT_NAMESPACE_OPEN
         std::sort( c.begin(), c.end( ));
         c.erase( std::unique( c.begin(), c.end( )), c.end( ));
     }
+
+    /** Find the element in the given container @version 1.0 */
+    template< typename T > typename std::vector< T >::iterator 
+    find( std::vector< T >& container, T& element )
+        { return std::find( container.begin(), container.end(), element ); }
+
+    /** Find the element in the given container @version 1.0 */
+    template< typename T > typename std::vector< T >::const_iterator 
+    find( const std::vector< T >& container, const T& element )
+        { return std::find( container.begin(), container.end(), element ); }
+
 EQ_STDEXT_NAMESPACE_CLOSE
 
 #endif // EQBASE_STDEXT_H

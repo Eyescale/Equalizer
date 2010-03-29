@@ -65,7 +65,6 @@ void ConfigDeserializer::applyInstanceData( net::DataIStream& is )
     }
 
     // map all config children
-    net::ObjectVector objects; // save objects to convert to master
     Type type;
     for( is >> type; type != TYPE_LAST; is >> type )
     {
@@ -85,12 +84,9 @@ void ConfigDeserializer::applyInstanceData( net::DataIStream& is )
                 
             case TYPE_CANVAS:
             {
-                Canvas* canvas = nodeFactory->createCanvas();
+                Canvas* canvas = nodeFactory->createCanvas( _config );
                 EQASSERT( canvas );
-                _config->_addCanvas( canvas );
-
                 EQCHECK( _config->mapObject( canvas, id )); //OPT: async mapping
-                objects.push_back( canvas );
                 break;
             }
 
@@ -105,14 +101,6 @@ void ConfigDeserializer::applyInstanceData( net::DataIStream& is )
             default:
                 EQUNIMPLEMENTED;
         }
-    }
-
-    // Convert objects to master after all the mapping has happened, since the
-    // objects refer to each other using identifiers during deserialization.
-    for( net::ObjectVector::const_iterator i = objects.begin();
-         i != objects.end(); ++i )
-    {
-        (*i)->becomeMaster();
     }
 }
 

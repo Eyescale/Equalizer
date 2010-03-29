@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -27,7 +27,7 @@ namespace eq
 {
 namespace fabric
 {
-    template< class S, class C, class O, class L > class Config;
+template< class S, class C, class O, class L, class CV > class Config;
 }
     class Client;
     class Config;
@@ -108,7 +108,7 @@ namespace fabric
         /** @sa net::Node::getType */
         virtual uint32_t getType() const { return TYPE_EQ_SERVER; }
 
-        friend class fabric::Config< Server, Config, Observer, Layout >;
+        friend class fabric::Config< Server, Config, Observer, Layout, Canvas >;
         /**  Add a new config to this server. */
         void _addConfig( Config* config );
 

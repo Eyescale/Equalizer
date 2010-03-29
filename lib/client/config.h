@@ -55,7 +55,8 @@ namespace eq
      * The render client processes have only access to the current View for each
      * of their channels.
      */
-    class Config : public fabric::Config< Server, Config, Observer, Layout >
+    class Config : public fabric::Config< Server, Config, Observer, Layout,
+                                          Canvas >
     {
     public:
         /** Construct a new config. @version 1.0 */
@@ -103,9 +104,6 @@ namespace eq
          * @version 1.0
          */
         const NodeVector& getNodes() const { return _nodes; }
-
-        /** @return the vector of canvases, app-node only. @version 1.0 */
-        const CanvasVector& getCanvases() const { return _canvases; }
 
         /** 
          * Traverse this config and all children using a config visitor.
@@ -369,9 +367,6 @@ namespace eq
         /** Locally-instantiated nodes of this config. */
         NodeVector _nodes;
 
-        /** The list of canvases, app-node only. */
-        CanvasVector _canvases;
-
         /** The default distance between the left and the right eye. */
         float _eyeBase;
 
@@ -418,8 +413,6 @@ namespace eq
         void _frameStart();
 
         friend class ConfigDeserializer;
-        void _addCanvas( Canvas* canvas );
-        void _removeCanvas( Canvas* canvas );
 
         bool _needsLocalSync() const;
 

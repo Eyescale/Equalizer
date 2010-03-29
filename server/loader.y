@@ -735,8 +735,8 @@ viewField:
       }
 
 
-canvas: EQTOKEN_CANVAS '{' { canvas = new eq::server::Canvas; }
-            canvasFields '}' { config->addCanvas( canvas ); canvas = 0; }
+canvas: EQTOKEN_CANVAS '{' { canvas = new eq::server::Canvas( config ); }
+            canvasFields '}' { config->activateCanvas( canvas ); canvas = 0; }
 canvasFields: /*null*/ | canvasFields canvasField
 canvasField:
     EQTOKEN_NAME STRING { canvas->setName( $2 ); }

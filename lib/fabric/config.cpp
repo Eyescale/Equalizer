@@ -24,42 +24,30 @@ namespace eq
 namespace fabric
 {
 
-template< class S, class C, class O, class L >
-Config< S, C, O, L >::Config( base::RefPtr< S > server )
+template< class S, class C, class O, class L, class CV >
+Config< S, C, O, L, CV >::Config( base::RefPtr< S > server )
         : net::Session()
         , _server( server )
 {
     server->_addConfig( static_cast< C* >( this ));
 }
 
-template< class S, class C, class O, class L >
-Config< S, C, O, L >::Config( const Config& from, base::RefPtr< S > server )
+template< class S, class C, class O, class L, class CV >
+Config< S, C, O, L, CV >::Config( const Config& from, base::RefPtr< S > server )
         : net::Session()
         , _server( server )
 {
-    const ObserverVector& observers = from.getObservers();
-    for( typename ObserverVector::const_iterator i = observers.begin(); 
-         i != observers.end(); ++i )
-    {
-        new O( **i, static_cast< C* >( this ));
-    }
-    const LayoutVector& layouts = from.getLayouts();
-    for( typename LayoutVector::const_iterator i = layouts.begin(); 
-         i != layouts.end(); ++i )
-    {
-        new L( **i, static_cast< C* >( this ));
-    }
     server->_addConfig( static_cast< C* >( this ));
 }
 
-template< class S, class C, class O, class L >
-Config< S, C, O, L >::~Config()
+template< class S, class C, class O, class L, class CV >
+Config< S, C, O, L, CV >::~Config()
 {
-    while( !_observers.empty( ))
+    while( !_canvases.empty( ))
     {
-        O* observer = _observers.back();;
-        _removeObserver( observer );
-        delete observer;
+        CV* canvas = _canvases.back();;
+        _removeCanvas( canvas );
+        delete canvas;
     }
 
     while( !_layouts.empty( ))
@@ -69,27 +57,34 @@ Config< S, C, O, L >::~Config()
         delete layout;
     }
 
+    while( !_observers.empty( ))
+    {
+        O* observer = _observers.back();;
+        _removeObserver( observer );
+        delete observer;
+    }
+
     _server->_removeConfig( static_cast< C* >( this ));
     _server = 0;
 }
 
 
-template< class S, class C, class O, class L >
-base::RefPtr< S > Config< S, C, O, L >::getServer()
+template< class S, class C, class O, class L, class CV >
+base::RefPtr< S > Config< S, C, O, L, CV >::getServer()
 {
     return _server;
 }
 
-template< class S, class C, class O, class L > template< typename T >
-void Config< S, C, O, L >::find( const uint32_t id, T** result )
+template< class S, class C, class O, class L, class CV > template< typename T >
+void Config< S, C, O, L, CV >::find( const uint32_t id, T** result )
 {
     IDFinder< T > finder( id );
     static_cast< C* >( this )->accept( finder );
     *result = finder.getResult();
 }
 
-template< class S, class C, class O, class L > template< typename T >
-void Config< S, C, O, L >::find( const std::string& name, 
+template< class S, class C, class O, class L, class CV > template< typename T >
+void Config< S, C, O, L, CV >::find( const std::string& name, 
                                  const T** result ) const
 {
     NameFinder< T > finder( name );
@@ -97,32 +92,32 @@ void Config< S, C, O, L >::find( const std::string& name,
     *result = finder.getResult();
 }
 
-template< class S, class C, class O, class L > template< typename T >
-T* Config< S, C, O, L >::find( const uint32_t id )
+template< class S, class C, class O, class L, class CV > template< typename T >
+T* Config< S, C, O, L, CV >::find( const uint32_t id )
 {
     IDFinder< T > finder( id );
     static_cast< C* >( this )->accept( finder );
     return finder.getResult();
 }
 
-template< class S, class C, class O, class L > template< typename T >
-const T* Config< S, C, O, L >::find( const uint32_t id ) const
+template< class S, class C, class O, class L, class CV > template< typename T >
+const T* Config< S, C, O, L, CV >::find( const uint32_t id ) const
 {
     IDFinder< const T > finder( id );
     static_cast< const C* >( this )->accept( finder );
     return finder.getResult();
 }
 
-template< class S, class C, class O, class L > template< typename T >
-T* Config< S, C, O, L >::find( const std::string& name )
+template< class S, class C, class O, class L, class CV > template< typename T >
+T* Config< S, C, O, L, CV >::find( const std::string& name )
 {
     NameFinder< T > finder( name );
     static_cast< C* >( this )->accept( finder );
     return finder.getResult();
 }
 
-template< class S, class C, class O, class L > template< typename T >
-const T* Config< S, C, O, L >::find( const std::string& name ) const
+template< class S, class C, class O, class L, class CV > template< typename T >
+const T* Config< S, C, O, L, CV >::find( const std::string& name ) const
 {
     NameFinder< const T > finder( name );
     static_cast< const C* >( this )->accept( finder );
@@ -130,8 +125,8 @@ const T* Config< S, C, O, L >::find( const std::string& name ) const
 }
 
 
-template< class S, class C, class O, class L >
-O* Config< S, C, O, L >::getObserver( const ObserverPath& path )
+template< class S, class C, class O, class L, class CV >
+O* Config< S, C, O, L, CV >::getObserver( const ObserverPath& path )
 {
     EQASSERTINFO( _observers.size() > path.observerIndex,
                   _observers.size() << " <= " << path.observerIndex );
@@ -142,8 +137,8 @@ O* Config< S, C, O, L >::getObserver( const ObserverPath& path )
     return _observers[ path.observerIndex ];
 }
 
-template< class S, class C, class O, class L >
-L* Config< S, C, O, L >::getLayout( const LayoutPath& path )
+template< class S, class C, class O, class L, class CV >
+L* Config< S, C, O, L, CV >::getLayout( const LayoutPath& path )
 {
     EQASSERTINFO( _layouts.size() > path.layoutIndex,
                   _layouts.size() << " <= " << path.layoutIndex );
@@ -154,15 +149,27 @@ L* Config< S, C, O, L >::getLayout( const LayoutPath& path )
     return _layouts[ path.layoutIndex ];
 }
 
-template< class S, class C, class O, class L >
-void Config< S, C, O, L >::_addObserver( O* observer )
+template< class S, class C, class O, class L, class CV >
+CV* Config< S, C, O, L, CV >::getCanvas( const CanvasPath& path )
+{
+    EQASSERTINFO( _canvases.size() > path.canvasIndex,
+                  _canvases.size() << " <= " << path.canvasIndex );
+
+    if( _canvases.size() <= path.canvasIndex )
+        return 0;
+
+    return _canvases[ path.canvasIndex ];
+}
+
+template< class S, class C, class O, class L, class CV >
+void Config< S, C, O, L, CV >::_addObserver( O* observer )
 {
     EQASSERT( observer->getConfig() == this );
     _observers.push_back( observer );
 }
 
-template< class S, class C, class O, class L >
-bool Config< S, C, O, L >::_removeObserver( O* observer )
+template< class S, class C, class O, class L, class CV >
+bool Config< S, C, O, L, CV >::_removeObserver( O* observer )
 {
     typename ObserverVector::iterator i = std::find( _observers.begin(),
                                                      _observers.end(),
@@ -175,15 +182,15 @@ bool Config< S, C, O, L >::_removeObserver( O* observer )
     return true;
 }
 
-template< class S, class C, class O, class L >
-void Config< S, C, O, L >::_addLayout( L* layout )
+template< class S, class C, class O, class L, class CV >
+void Config< S, C, O, L, CV >::_addLayout( L* layout )
 {
     EQASSERT( layout->getConfig() == this );
     _layouts.push_back( layout );
 }
 
-template< class S, class C, class O, class L >
-bool Config< S, C, O, L >::_removeLayout( L* layout )
+template< class S, class C, class O, class L, class CV >
+bool Config< S, C, O, L, CV >::_removeLayout( L* layout )
 {
     typename LayoutVector::iterator i = std::find( _layouts.begin(),
                                                    _layouts.end(), layout );
@@ -192,6 +199,26 @@ bool Config< S, C, O, L >::_removeLayout( L* layout )
 
     EQASSERT( layout->getConfig() == this );
     _layouts.erase( i );
+    return true;
+}
+
+template< class S, class C, class O, class L, class CV >
+void Config< S, C, O, L, CV >::_addCanvas( CV* canvas )
+{
+    EQASSERT( canvas->getConfig() == this );
+    _canvases.push_back( canvas );
+}
+
+template< class S, class C, class O, class L, class CV >
+bool Config< S, C, O, L, CV >::_removeCanvas( CV* canvas )
+{
+    typename CanvasVector::iterator i = std::find( _canvases.begin(),
+                                                   _canvases.end(), canvas );
+    if( i == _canvases.end( ))
+        return false;
+
+    EQASSERT( canvas->getConfig() == this );
+    _canvases.erase( i );
     return true;
 }
 

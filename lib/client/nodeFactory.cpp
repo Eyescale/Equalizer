@@ -78,9 +78,9 @@ void NodeFactory::releaseView( View* view )
     delete view;
 }
 
-Canvas* NodeFactory::createCanvas()
+Canvas* NodeFactory::createCanvas( Config* parent )
 {
-    return new Canvas();
+    return new Canvas( parent );
 }
 void NodeFactory::releaseCanvas( Canvas* canvas )
 {

@@ -1036,7 +1036,7 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
             EQASSERT( config );
 
             if( !channelName.empty() && 
-                config->findChannel( channelName ) == channel )
+                config->find< Channel >( channelName ) == channel )
             {
                 os << "channel  \"" << channelName << "\"" << std::endl;
             }
@@ -1051,12 +1051,12 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
 
                     const std::string& segmentName = segment->getName();
                     if( !segmentName.empty() && 
-                        config->findSegment( segmentName ) == segment )
+                        config->find< Segment >( segmentName ) == segment )
                     {
                         const Canvas* canvas = segment->getCanvas();
                         const std::string& canvasName = canvas->getName();
                         if( !canvasName.empty() && 
-                            config->findCanvas( canvasName ) == canvas )
+                            config->find< Canvas >( canvasName ) == canvas )
                         {
                             os << "canvas \"" << canvasName << "\" ";
                         }
@@ -1070,7 +1070,7 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
 
                     const std::string& viewName = view->getName();
                     if( !viewName.empty() && 
-                        config->findView( viewName ) == view )
+                        config->find< View >( viewName ) == view )
                     {
                         const Layout* layout = view->getLayout();
                         const std::string& layoutName = layout->getName();

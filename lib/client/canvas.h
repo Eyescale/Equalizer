@@ -20,7 +20,7 @@
 
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
-#include <eq/fabric/frustum.h>        // base class
+#include <eq/fabric/canvas.h>         // base class
 
 #include <eq/net/object.h>
 #include <string>
@@ -57,102 +57,29 @@ namespace fabric
      * render on the canvas. The layout can be switched at runtime. A canvas
      * with a NULL layout does not render anything, i.e., it is not active.
      */
-    class Canvas : public fabric::Frustum
+    class Canvas : public fabric::Canvas< Config, Canvas, Segment, Layout >
     {
     public:
         /** Construct a new Canvas. @version 1.0 */
-        EQ_EXPORT Canvas();
+        EQ_EXPORT Canvas( Config* parent );
+        Canvas( const Canvas& from, Config* parent ); //!< @internal
 
         /** Destruct this canvas. @version 1.0 */
         EQ_EXPORT virtual ~Canvas();
 
-        /** @name Data Access */
-        //@{
-        /** @return the parent config. @version 1.0 */
-        Config*       getConfig()       { return _config; }
-        /** @return the parent config. @version 1.0 */
-        const Config* getConfig() const { return _config; }
-
-        /** @return the index of the active layout. @version 1.0 */
-        uint32_t getActiveLayoutIndex() const { return _activeLayout; }
-
-        /** @return the active layout. @version 1.0 */
-        EQ_EXPORT const Layout* getActiveLayout() const;
-
-        /** @return the vector of child segments. @version 1.0 */
-        const SegmentVector& getSegments() const { return _segments; }        
-
-        /** @return the vector of possible layouts. @version 1.0 */
-        const LayoutVector& getLayouts() const { return _layouts; }        
-        //@}
-
-        /** @name Operations */
-        //@{
-        /** Activate the given layout on this canvas. @version 1.0 */
-        EQ_EXPORT virtual void useLayout( const uint32_t index );
-
-        /** 
-         * Traverse this canvas and all children using a canvas visitor.
-         * 
-         * @param visitor the visitor.
-         * @return the result of the visitor traversal.
-         * @version 1.0
-         */
-        EQ_EXPORT VisitorResult accept( CanvasVisitor& visitor );
-
-        /** Const-version of accept(). */
-        EQ_EXPORT VisitorResult accept( CanvasVisitor& visitor ) const;
-
-        /** @return true if the layout has changed. @internal */
-        bool hasDirtyLayout() const { return getDirty() & DIRTY_LAYOUT; }
-        //@}
-
-    protected:
-        /** @sa Frustum::serialize. @version 1.0 */
-        EQ_EXPORT void serialize( net::DataOStream& os, 
-                                  const uint64_t dirtyBits );
-
-        /** @sa Frustum::deserialize. @version 1.0 */
-        EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
-                                            const uint64_t dirtyBits );
-        enum DirtyBits
-        {
-            DIRTY_LAYOUT     = Frustum::DIRTY_CUSTOM << 0,
-            DIRTY_CHILDREN   = Frustum::DIRTY_CUSTOM << 1,
-            DIRTY_FILL1      = Frustum::DIRTY_CUSTOM << 2,
-            DIRTY_FILL2      = Frustum::DIRTY_CUSTOM << 3,
-            /** First usable dirty bit for sub-classes of a canvas. */
-            DIRTY_CUSTOM     = Frustum::DIRTY_CUSTOM << 4
-        };
-
-        virtual ChangeType getChangeType() const { return UNBUFFERED; }
-
     private:
-        /** The parent config. */
-        Config* _config;
-        friend class Config;
-        friend class server::Canvas;
-
-        /** The currently active layout on this canvas. */
-        uint32_t _activeLayout;
-
-        /** Allowed layouts on this canvas. */
-        LayoutVector _layouts;
-
-        /** Child segments on this canvas. */
-        SegmentVector _segments;
-        friend class fabric::Segment< Canvas, Segment >;
-
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
         /** Deregister this canvas, and all children, from its net::Session.*/
-        void _deregister();
+        void _unmap();
+        friend class Config;
 
-        void _addSegment( Segment* segment );
-        bool _removeSegment( Segment* segment );
+        friend class fabric::Canvas< Config, Canvas, Segment, Layout >;
+        virtual Segment* createSegment();
+        virtual void releaseSegment( Segment* segment );
     };
 }
 #endif // EQ_CANVAS_H

@@ -506,7 +506,7 @@ std::ostream& operator << ( std::ostream& os, const Channel& channel)
         const Config* config = channel.getConfig();
         const std::string& segmentName = segment->getName();
         if( !segmentName.empty() && 
-            config->findSegment( segmentName ) == segment )
+            config->find< Segment >( segmentName ) == segment )
         {
             os << "segment \"" << segmentName << "\" ";
         }
@@ -515,7 +515,7 @@ std::ostream& operator << ( std::ostream& os, const Channel& channel)
         
         const std::string& viewName = view->getName();
         if( !viewName.empty() && 
-            config->findView( viewName ) == view )
+            config->find< View >( viewName ) == view )
         {
             os << "view \"" << viewName << '\"';
         }
