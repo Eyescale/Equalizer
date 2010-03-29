@@ -41,7 +41,7 @@ namespace
 static bool _initialized = false;
 }
 
-EQ_EXPORT bool init( const int argc, char** argv, NodeFactory* nodeFactory )
+bool init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
     EQINFO << "Equalizer v" << Version::getString() << " initializing"
            << std::endl;
@@ -96,7 +96,7 @@ EQ_EXPORT bool init( const int argc, char** argv, NodeFactory* nodeFactory )
     return fabric::init( argc, argv );
 }
 
-EQ_EXPORT bool exit()
+bool exit()
 {
     if( !_initialized )
     {
@@ -113,7 +113,7 @@ EQ_EXPORT bool exit()
     return fabric::exit();
 }
 
-EQ_EXPORT Config* getConfig( const int argc, char** argv )
+Config* getConfig( const int argc, char** argv )
 {
     // 1. initialization of a local client node
     ClientPtr client = new Client;
@@ -146,7 +146,7 @@ EQ_EXPORT Config* getConfig( const int argc, char** argv )
     return 0;
 }
 
-EQ_EXPORT void releaseConfig( Config* config )
+void releaseConfig( Config* config )
 {
     if( !config )
         return;
