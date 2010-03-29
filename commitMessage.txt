@@ -1,9 +1,9 @@
-Move Canvas to fabric
+Prepare build system for admin library
 
-[x] Will break build
-[x] May break existing applications
+[ ] Will break build
+[ ] May break existing applications
 [ ] Bugfix
 [x] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
