@@ -455,11 +455,13 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes )
                             break;
 
                         case WAIT_FAILED:
+                        default:
                             EQWARN << "Got " << base::sysError
                                    << ", closing connection" << std::endl;
                             close();
                             return -1;
                     }
+                    break;
                 }
                 // no break
 
