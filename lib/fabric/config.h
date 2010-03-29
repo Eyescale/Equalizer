@@ -89,10 +89,12 @@ namespace fabric
             const;
 
         /** @return the first entity of the given name, or 0. @version 1.0 */
-        template< typename T > T* find( const std::string& name );
+        template< typename T >
+        EQFABRIC_EXPORT T* find( const std::string& name );
 
         /** @return the first entity of the given name, or 0. @version 1.0 */
-        template< typename T > const T* find( const std::string& name ) const;
+        template< typename T >
+        EQFABRIC_EXPORT const T* find( const std::string& name ) const;
 
         /** @return the observer at the given path. @internal */
         O* getObserver( const ObserverPath& path );
