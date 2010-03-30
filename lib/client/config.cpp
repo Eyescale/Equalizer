@@ -17,7 +17,7 @@
  */
 
 #include "config.h"
-
+#include "channel.h"
 #include "canvas.h"
 #include "client.h"
 #include "configDeserializer.h"

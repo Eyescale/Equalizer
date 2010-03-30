@@ -84,7 +84,7 @@ namespace fabric
          */
         bool operator != ( const Viewport& rhs ) const 
             { 
-                return ( x!=rhs.x || x!=rhs.y || w!=rhs.w || h!=rhs.h);
+                return ( x!=rhs.x || y!=rhs.y || w!=rhs.w || h!=rhs.h);
             }
 
         /** 
