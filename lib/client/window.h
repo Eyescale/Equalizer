@@ -103,16 +103,6 @@ namespace fabric
         bool isRunning() const { return (_state == STATE_RUNNING); }
 
         /** 
-         * Set the window's pixel viewport wrt its parent pipe.
-         *
-         * Updates the fractional viewport of the window and its channels
-         * accordingly.
-         * 
-         * @param pvp the viewport in pixels.
-         */
-        EQ_EXPORT void setPixelViewport( const PixelViewport& pvp );
-
-        /** 
          * Get the last rendering context at the x, y position.
          *
          * If no render context is found on the given position, false is
@@ -182,8 +172,6 @@ namespace fabric
          */
         EQ_EXPORT uint32_t getColorFormat() const;
         //@}
-
-        
 
         /** @name Actions */
         //@{
@@ -383,8 +371,6 @@ namespace fabric
         //@}
 
     private:
-
-
         /** The window sharing the OpenGL context. */
         Window* _sharedContextWindow;
 
@@ -422,16 +408,13 @@ namespace fabric
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
         friend class Channel;
         
         /** Add a channel's rendering context to the current frame's list */
         void _addRenderContext( const RenderContext& context );
-
-        bool _setPixelViewport( const PixelViewport& pvp );
-        void _setViewport( const Viewport& vp );
 
         /** Set up object manager during initialization. */
         void _setupObjectManager();

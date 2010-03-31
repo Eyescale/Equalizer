@@ -29,6 +29,11 @@
 
 namespace eq
 {
+    class Window;
+namespace server 
+{ 
+    class Window;    
+}
 namespace fabric
 {
     template< class T, class W > class Channel;
@@ -68,11 +73,33 @@ namespace fabric
             { return _drawableConfig; }
 
         /** @return the window's pixel viewport */
-        EQFABRIC_EXPORT const PixelViewport& getPixelViewport() const { return _pvp; }
+        const PixelViewport& getPixelViewport() const { return _pvp; }
 
         /** @return the window's fractional viewport. */
         const Viewport& getViewport() const { return _vp; }
 
+        /** 
+         * Set the window's pixel viewport wrt its parent pipe.
+         *
+         * Updates the fractional viewport of the window and its channels
+         * accordingly.
+         * 
+         * @param pvp the viewport in pixels.
+         */
+        EQFABRIC_EXPORT virtual void setPixelViewport( const PixelViewport& pvp );
+
+        /** 
+         * Set the window's viewport wrt its parent pipe.
+         * 
+         * @param vp the fractional viewport.
+         */
+        void setViewport( const eq::fabric::Viewport& vp );
+
+        /** Notify this window that the viewport has changed. */
+        void notifyViewportChanged();
+
+        /** @return true if a viewport was specified last. @version 1.0 */
+        bool hasFixedViewport( ) const { return _fixedVP; }
         /** 
          * Traverse this window and all children using a window visitor.
          * 
@@ -155,18 +182,27 @@ namespace fabric
         //@}
 
     protected: 
-
         /** Construct a new window. */
         Window( P* parent );
 
         /** Constructs a new deep copy of a window. */
-        Window( const W& from, P* pipe );
+        Window( const Window& from, P* pipe );
 
-        /** The absolute size and position of the window. */
-        PixelViewport _pvp;
-        
-        /** The fractional size and position of the window. */
-        Viewport _vp;
+        EQFABRIC_EXPORT virtual ~Window( );
+        enum DirtyBits
+        {
+            DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 0,
+            DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 1,
+            DIRTY_MEMBER     = Object::DIRTY_CUSTOM << 2,
+            DIRTY_ERROR      = Object::DIRTY_CUSTOM << 3,
+        };
+
+        /** @internal */
+        EQFABRIC_EXPORT virtual void serialize( net::DataOStream& os,
+                                                const uint64_t dirtyBits );
+        /** @internal */
+        EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
+                                                  const uint64_t dirtyBits );
         
         friend class Channel< W, C >;
 
@@ -185,10 +221,9 @@ namespace fabric
         /**  @return a vector of all channels of this window.  */
         ChannelVector& _getChannels() { return _channels; }
 
-        void _setTasks( uint32_t tasks ) { _tasks = tasks; }
+        void _setTasks( const uint32_t tasks );
 
-        void _setDrawableConfig( const DrawableConfig drawableConfig )
-            { _drawableConfig = drawableConfig; }
+        void _setDrawableConfig( const DrawableConfig drawableConfig );
 
         DrawableConfig& _getDrawableConfig()
             { return _drawableConfig; }
@@ -199,7 +234,6 @@ namespace fabric
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:
-
         /** Integer attributes. */
         int32_t _iAttributes[ IATTR_ALL ];
         
@@ -216,12 +250,23 @@ namespace fabric
         DrawableConfig _drawableConfig;
 
         /** The parent pipe. */
-        P* _pipe;
+        P* const _pipe;
+
+        /** The absolute size and position of the window. */
+        PixelViewport _pvp;
+        
+        /** The fractional size and position of the window. */
+        Viewport _vp;
+
+        /** true if the pixel viewport is mutable, false if the viewport 
+            is immutable */
+        bool _fixedVP;
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
+
     };
 }
 }

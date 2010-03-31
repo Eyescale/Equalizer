@@ -23,8 +23,8 @@
 #include "changeLatencyVisitor.h"
 #include "compound.h"
 #include "compoundVisitor.h"
-#include "configUpdateDataVisitor.h"
 #include "configSerializer.h"
+#include "configUpdateDataVisitor.h"
 #include "equalizers/equalizer.h"
 #include "global.h"
 #include "idFinder.h"
@@ -627,7 +627,7 @@ static net::NodePtr _createNetNode( Node* node )
     }
 
     netNode->setLaunchTimeout( 
-        node->getIAttribute( eq::Node::IATTR_LAUNCH_TIMEOUT ));
+        node->getIAttribute( Node::IATTR_LAUNCH_TIMEOUT ));
     netNode->setLaunchCommand( 
         node->getSAttribute( Node::SATTR_LAUNCH_COMMAND ));
     netNode->setLaunchCommandQuote( 

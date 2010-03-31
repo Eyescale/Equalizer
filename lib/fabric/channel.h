@@ -29,6 +29,7 @@ namespace eq
 {
 namespace fabric
 {
+    template< class, class, class > class Window;
     template< typename T > class LeafVisitor;
 
     /**
@@ -354,6 +355,7 @@ namespace fabric
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:
+        template< class, class, class > friend class Window;
         /** The parent window. */
         W* const _window;
 

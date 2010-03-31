@@ -20,6 +20,7 @@
 #include "loader.h"
 
 #include "canvas.h"
+#include "channel.h"
 #include "compound.h"
 #include "equalizers/dfrEqualizer.h"
 #include "equalizers/framerateEqualizer.h"
@@ -342,12 +343,12 @@ global:
      | EQTOKEN_NODE_IATTR_THREAD_MODEL IATTR
      {
          eq::server::Global::instance()->setNodeIAttribute(
-             eq::Node::IATTR_THREAD_MODEL, $2 );
+             eq::server::Node::IATTR_THREAD_MODEL, $2 );
      }
      | EQTOKEN_NODE_IATTR_LAUNCH_TIMEOUT UNSIGNED
      {
          eq::server::Global::instance()->setNodeIAttribute(
-             eq::Node::IATTR_LAUNCH_TIMEOUT, $2 );
+             eq::server::Node::IATTR_LAUNCH_TIMEOUT, $2 );
      }
      | EQTOKEN_NODE_IATTR_HINT_STATISTICS IATTR
      {
@@ -569,9 +570,9 @@ nodeAttribute:
         { node->setCAttribute( eq::server::Node::CATTR_LAUNCH_COMMAND_QUOTE,
                                $2 ); }
     | EQTOKEN_THREAD_MODEL IATTR 
-        { node->setIAttribute( eq::Node::IATTR_THREAD_MODEL, $2 ); }
+        { node->setIAttribute( eq::server::Node::IATTR_THREAD_MODEL, $2 ); }
     | EQTOKEN_LAUNCH_TIMEOUT IATTR 
-        { node->setIAttribute( eq::Node::IATTR_LAUNCH_TIMEOUT, $2 ); }
+        { node->setIAttribute( eq::server::Node::IATTR_LAUNCH_TIMEOUT, $2 ); }
     | EQTOKEN_HINT_STATISTICS IATTR
         {
             EQWARN
@@ -674,7 +675,7 @@ channelField:
             else
                 channel->setViewport(eq::Viewport( $2[0], $2[1], $2[2], $2[3]));
         }
-    | EQTOKEN_DRAWABLE '[' { flags = eq::Channel::FB_WINDOW; }
+    | EQTOKEN_DRAWABLE '[' { flags = eq::server::Channel::FB_WINDOW; }
          drawables ']' { channel->setDrawable( flags ); flags = 0; }
 channelAttributes: /*null*/ | channelAttributes channelAttribute
 channelAttribute:
@@ -942,9 +943,9 @@ buffer:
     
 drawables:  /*null*/ | drawables drawable
 drawable:  
-    EQTOKEN_FBO_COLOR     { flags |= eq::Channel::FBO_COLOR; }
-    | EQTOKEN_FBO_DEPTH   { flags |= eq::Channel::FBO_DEPTH; }
-    | EQTOKEN_FBO_STENCIL { flags |= eq::Channel::FBO_STENCIL; }
+    EQTOKEN_FBO_COLOR     { flags |= eq::server::Channel::FBO_COLOR; }
+    | EQTOKEN_FBO_DEPTH   { flags |= eq::server::Channel::FBO_DEPTH; }
+    | EQTOKEN_FBO_STENCIL { flags |= eq::server::Channel::FBO_STENCIL; }
 
 wall: EQTOKEN_WALL '{' { wall = eq::Wall(); } wallFields '}'
 

@@ -100,7 +100,7 @@ namespace fabric
          *
          * @param pvp the viewport in pixels.
          */
-         void setPixelViewport( const eq::PixelViewport& pvp ){ _pvp = pvp; }
+         void setPixelViewport( const eq::PixelViewport& pvp );
 
         /** 
          * Return the window system used by this pipe. 

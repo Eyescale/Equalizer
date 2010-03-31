@@ -49,14 +49,6 @@ typedef net::CommandFunc<Node> NodeFunc;
 typedef fabric::Node< Config, Node, Pipe > Super;
 /** @endcond */
 
-#define MAKE_ATTR_STRING( attr ) ( std::string("EQ_NODE_") + #attr )
-std::string Node::_iAttributeStrings[IATTR_ALL] = {
-    MAKE_ATTR_STRING( IATTR_THREAD_MODEL ),
-    MAKE_ATTR_STRING( IATTR_LAUNCH_TIMEOUT ),
-    MAKE_ATTR_STRING( IATTR_FILL1 ),
-    MAKE_ATTR_STRING( IATTR_FILL2 )
-};
-
 Node::Node( Config* parent )
 #pragma warning( push )
 #pragma warning( disable : 4355 )
@@ -463,21 +455,6 @@ void Node::_flushObjects()
     _frameDatasMutex.unset();
 }
 
-void Node::setIAttribute( const IAttribute attr, const int32_t value )
-{
-    _iAttributes[attr] = value;
-}
-
-int32_t Node::getIAttribute( const IAttribute attr ) const
-{
-    return _iAttributes[attr];
-}
-
-const std::string& Node::getIAttributeString( const IAttribute attr )
-{
-    return _iAttributeStrings[attr];
-}
-
 void Node::TransmitThread::send( FrameData* data, net::NodePtr node, 
                                  const uint32_t frameNumber )
 {
@@ -546,7 +523,7 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
     EQLOG( LOG_INIT ) << "Init node " << packet << std::endl;
 
     _state = STATE_INITIALIZING;
-    _name  = packet->name;
+    setName( packet->name );
     _tasks = packet->tasks;
 
     memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));

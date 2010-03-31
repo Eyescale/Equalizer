@@ -210,7 +210,7 @@ namespace server
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
         /** common code for all constructors */

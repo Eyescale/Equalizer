@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
- *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
+ *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
@@ -21,7 +22,6 @@
 #include "config.h"                // used in inline method
 #include "connectionDescription.h" // used in inline method
 
-#include <eq/client/node.h> // enum eq::Node::IAttribute
 #include <eq/fabric/node.h> // base class
 
 #include <eq/net/barrier.h>
@@ -128,9 +128,6 @@ namespace server
         /** Add additional tasks this node might potentially execute. */
         void addTasks( const uint32_t tasks ) { _tasks |= tasks; }
 
-        void setName( const std::string& name ) { _name = name; }
-        const std::string& getName() const      { return _name; }
-
         /** The last drawing channel for this entity. */
         void setLastDrawPipe( const Pipe* pipe )
             { _lastDrawPipe = pipe; }
@@ -196,12 +193,6 @@ namespace server
             { _cattributes[attr] = value; }
         char getCAttribute( const CAttribute attr ) const
             { return _cattributes[attr]; }
-
-        void setIAttribute( const eq::Node::IAttribute attr, 
-                            const int32_t value )
-            { _iAttributes[attr] = value; }
-        int32_t  getIAttribute( const eq::Node::IAttribute attr ) const
-            { return _iAttributes[attr]; }
 
         static const std::string&  getSAttributeString( const SAttribute attr )
             { return _sAttributeStrings[attr]; }
@@ -288,17 +279,12 @@ namespace server
                                       const uint32_t instanceID, 
                                       net::Session* session );
     private:
-        /** The node name */
-        std::string _name;
 
         /** String attributes. */
         std::string _sattributes[SATTR_ALL];
 
         /** Character attributes. */
         char _cattributes[CATTR_ALL];
-
-        /** Integer attributes. */
-        int32_t _iAttributes[eq::Node::IATTR_ALL];
 
         /** String representation of string attributes. */
         static std::string _sAttributeStrings[SATTR_ALL];
@@ -350,7 +336,7 @@ namespace server
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
         /** common code for all constructors */

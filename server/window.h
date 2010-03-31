@@ -68,7 +68,8 @@ namespace server
          * Constructs a new deep copy of a window.
          */
         Window( const Window& from, Pipe* parent );
-
+        
+        virtual ~Window();
         /**
          * @name Data Access
          */
@@ -102,29 +103,6 @@ namespace server
          * potentially execute.
          */
         void addTasks( const uint32_t tasks );
-
-
-        /** 
-         * Set the window's pixel viewport wrt its parent pipe.
-         * 
-         * @param pvp the viewport in pixels.
-         */
-        EQSERVER_EXPORT void setPixelViewport( const fabric::PixelViewport& pvp );
-
-
-        /** 
-         * Set the window's viewport wrt its parent pipe.
-         * 
-         * @param vp the fractional viewport.
-         */
-        void setViewport( const fabric::Viewport& vp );
-
-        /**
-         * Notify this window that the viewport has changed. 
-         *
-         * The window updates the viewport or pixel viewport accordingly. 
-         */
-        void notifyViewportChanged();
 
         /** 
          * Join a swap barrier for the next update.
@@ -193,20 +171,18 @@ namespace server
         void send( net::ObjectPacket& packet );
 
     protected:
-        virtual ~Window();
 
         /** @sa net::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 
                                       const uint32_t instanceID, 
                                       net::Session* session );
 
+        virtual void deserialize( eq::net::DataIStream&, const uint64_t );
+
     private:
 
         /** Number of activations for this window. */
         uint32_t _active;
-
-        /** The parent pipe. */
-        friend class Pipe;
 
         /** The current state for state change synchronization. */
         base::Monitor< State > _state;
@@ -222,12 +198,6 @@ namespace server
          * the last update.
          */
         bool _swap;
-
-        /** 
-         * true if the pixel viewport is immutable, false if the viewport is
-         * immutable
-         */
-        bool _fixedPVP;
 
         /** The list of master swap barriers for the current frame. */
         net::BarrierVector _masterSwapBarriers;
@@ -245,7 +215,7 @@ namespace server
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
         /** common code for all constructors */
@@ -266,7 +236,6 @@ namespace server
         /* command handler functions. */
         net::CommandResult _cmdConfigInitReply( net::Command& command ); 
         net::CommandResult _cmdConfigExitReply( net::Command& command ); 
-        net::CommandResult _cmdSetPixelViewport( net::Command& command );
 
         // For access to _fixedPVP
         friend std::ostream& operator << ( std::ostream&, const Window*);

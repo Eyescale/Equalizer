@@ -18,6 +18,7 @@
 #ifndef EQFABRIC_NODE_H
 #define EQFABRIC_NODE_H
 
+#include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/object.h>        // base class
 #include <eq/fabric/paths.h>
 #include <eq/fabric/pixelViewport.h> // base class
@@ -37,10 +38,41 @@ namespace fabric
         //@{
         /** @return the index path to this node. @internal */
         EQFABRIC_EXPORT NodePath getPath() const;
+
+        /**
+         * @name Attributes
+         */
+        //@{
+        // Note: also update string array initialization in node.cpp
+        /** Node attributes. */
+        enum IAttribute
+        {
+            /** <a href="http://www.equalizergraphics.com/documents/design/threads.html#sync">Threading model</a> */
+            IATTR_THREAD_MODEL,
+            IATTR_LAUNCH_TIMEOUT,         //!< Launch timeout
+            IATTR_FILL1,
+            IATTR_FILL2,
+            IATTR_ALL
+        };
+
+        EQFABRIC_EXPORT void setIAttribute( const IAttribute attr,
+                                            const int32_t value );
+        EQFABRIC_EXPORT int32_t getIAttribute( const IAttribute attr ) const;
+        EQFABRIC_EXPORT static const std::string& getIAttributeString(
+                                                        const IAttribute attr );
         //@}
 
     protected:
+        
+        /** Integer attributes. */
+        int32_t _iAttributes[IATTR_ALL];
+
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
+
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[32];
+        };
     };
 }
 }

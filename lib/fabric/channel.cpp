@@ -19,8 +19,8 @@
 #include "leafVisitor.h"
 #include "task.h"
 
-#include <eq/net/dataOStream.h>
 #include <eq/net/dataIStream.h>
+#include <eq/net/dataOStream.h>
 
 namespace eq
 {
@@ -175,7 +175,6 @@ void Channel< W, C >::setViewport( const Viewport& vp )
         return;
 
     _nativeContext.vp = vp;
-    const PixelViewport oldPVP = _nativeContext.pvp;
     _nativeContext.pvp.invalidate();
     notifyViewportChanged();
     setDirty( DIRTY_VIEWPORT );

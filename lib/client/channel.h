@@ -22,8 +22,9 @@
 #include <eq/client/eye.h>            // enum
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
-#include <eq/client/windowSystem.h>   // GLEWContext
 #include <eq/client/window.h>         // nested Window::ObjectManager class
+#include <eq/client/windowSystem.h>   // GLEWContext
+
 
 #include <eq/fabric/channel.h>        // base class
 
@@ -32,6 +33,10 @@ namespace eq
 namespace util
 {
     class FrameBufferObject;
+}
+namespace fabric
+{
+    template< class P, class W, class C > class Window ;
 }
     /**
      * A channel represents a two-dimensional viewport within a Window.
@@ -468,7 +473,7 @@ namespace util
 
     private:
         //-------------------- Members --------------------
-        friend class Window;
+        friend class fabric::Window< Pipe, Window, Channel >;
 
         /** The channel's drawable config (FBO). */
         DrawableConfig _drawableConfig;

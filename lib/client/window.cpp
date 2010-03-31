@@ -21,8 +21,8 @@
 #include "channel.h"
 #include "client.h"
 #include "commands.h"
-#include "configEvent.h"
 #include "config.h"
+#include "configEvent.h"
 #include "event.h"
 #include "global.h"
 #include "log.h"
@@ -85,11 +85,11 @@ Window::Window( Pipe* parent )
 
 Window::~Window()
 {
-    Pipe* pipe = getPipe(); 
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+
     if( pipe->isCurrent( this ))
         pipe->setCurrent( 0 );
-
-    pipe->_removeWindow( this );
 
     delete _objectManager;
     _objectManager = 0;
@@ -240,63 +240,6 @@ ServerPtr Window::getServer()
 //======================================================================
 
 //----------------------------------------------------------------------
-// viewport
-//----------------------------------------------------------------------
-void Window::setPixelViewport( const PixelViewport& pvp )
-{
-    if( !_setPixelViewport( pvp ))
-        return; // nothing changed
-
-    WindowSetPVPPacket packet;
-    packet.pvp = pvp;
-    ServerPtr server = getServer();
-    net::NodePtr node = server.get();
-    send( node, packet );
-
-    ChannelVector& channels = _getChannels(); 
-    for( std::vector<Channel*>::iterator i = channels.begin(); 
-         i != channels.end(); ++i )
-    {
-        (*i)->notifyViewportChanged();
-    }
-}
-
-bool Window::_setPixelViewport( const PixelViewport& pvp )
-{
-    if( pvp == _pvp || !pvp.isValid( ))
-        return false;
-
-    _pvp = pvp;
-    _vp.invalidate();
-
-    EQASSERT( getPipe() );
-    
-    const PixelViewport& pipePVP = getPipe()->getPixelViewport();
-    if( pipePVP.isValid( ))
-        _vp = pvp.getSubVP( pipePVP );
-
-    EQINFO << "Window pvp set: " << _pvp << ":" << _vp << std::endl;
-    return true;
-}
-
-void Window::_setViewport( const Viewport& vp )
-{
-    if( !vp.hasArea( ))
-        return;
-    
-    _vp = vp;
-    _pvp.invalidate();
-
-    if( !getPipe() )
-        return;
-
-    _pvp = getPipe()->getPixelViewport();
-    if( _pvp.isValid( ))    
-        _pvp.apply( vp );
-    EQINFO << "Window vp set: " << _pvp << ":" << _vp << std::endl;
-}
-
-//----------------------------------------------------------------------
 // render context
 //----------------------------------------------------------------------
 void Window::_addRenderContext( const RenderContext& context )
@@ -320,7 +263,8 @@ bool Window::getRenderContext( const int32_t x, const int32_t y,
     std::vector< RenderContext >::const_reverse_iterator end =
         _renderContexts[which].rend();
 
-    const int32_t glY = _pvp.h - y; // invert y to follow GL convention
+    // invert y to follow GL convention
+    const int32_t glY = getPixelViewport().h - y; 
 
     for( ; i != end; ++i )
     {
@@ -383,7 +327,7 @@ void Window::frameFinish( const uint32_t frameID, const uint32_t frameNumber )
 //----------------------------------------------------------------------
 bool Window::configInit( const uint32_t initID )
 {
-    if( !_pvp.isValid( ))
+    if( !getPixelViewport().isValid( ))
     {
         setErrorMessage( "Window pixel viewport invalid - pipe init failed?" );
         return false;
@@ -703,20 +647,6 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
     if( getPipe()->isRunning( ))
     {
         _state = STATE_INITIALIZING;
-        if( packet->pvp.isValid( ))
-            _setPixelViewport( packet->pvp );
-        else
-            _setViewport( packet->vp );
-        
-        setName( packet->name );
-        _setTasks( packet->tasks );
-        
-        for( unsigned i = 0; i < IATTR_ALL; ++i )
-        {
-            const IAttribute attr = static_cast< IAttribute >( i );
-            setIAttribute( attr, packet->iAttributes[ attr ]);
-        }
-
         reply.result = configInit( packet->initID );
     }
     else
@@ -731,8 +661,7 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
         return net::COMMAND_HANDLED;
     }
 
-    reply.pvp            = getPixelViewport();
-    reply.drawableConfig = getDrawableConfig();
+    commit();
     send( node, reply );
 
     _state = STATE_RUNNING;
@@ -761,8 +690,8 @@ net::CommandResult Window::_cmdConfigExit( net::Command& command )
         reply.result = configExit();
     }
 
-    send( command.getNode(), reply );
     _state = STATE_STOPPED;
+    send( command.getNode(), reply );
     return net::COMMAND_HANDLED;
 }
 
@@ -776,6 +705,7 @@ net::CommandResult Window::_cmdFrameStart( net::Command& command )
                        << std::endl;
 
     //_grabFrame( packet->frameNumber ); single-threaded
+    sync( packet->version );
 
     EQASSERT( _osWindow );
     const DrawableConfig& drawableConfig = getDrawableConfig();
@@ -797,6 +727,7 @@ net::CommandResult Window::_cmdFrameFinish( net::Command& command )
 
     makeCurrent();
     frameFinish( packet->frameID, packet->frameNumber );
+    commit();
     return net::COMMAND_HANDLED;
 }
 

@@ -126,8 +126,7 @@ namespace fabric
         EQFABRIC_EXPORT static const std::string& getIAttributeString(
                                                       const IAttribute attr );
         //@}
-    protected: 
-
+    protected:
         //-------------------- Members --------------------
 
         /** Constructs a new pipe. */
@@ -142,7 +141,7 @@ namespace fabric
         WindowVector& _getWindows() { return _windows; }
 
         void _addWindow( W* window );
-        bool _removeWindow( W* window );
+        EQFABRIC_EXPORT bool _removeWindow( W* window );
         W* _findWindow( const uint32_t id );
 
         void _setNode( N* node ){ _node = node; }

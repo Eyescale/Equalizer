@@ -89,12 +89,10 @@ Pipe::~Pipe()
         node->removePipe( this );
     
     WindowVector& windows = _getWindows(); 
-    for( WindowVector::const_iterator i = windows.begin(); 
-         i != windows.end(); ++i )
+    while( !windows.empty() )
     {
-        Window* window = *i;
-
-        window->_setPipe( 0 );
+        Window* window = windows.back();
+        _removeWindow( window );
         delete window;
     }
     windows.clear();
@@ -116,7 +114,6 @@ void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID,
 void Pipe::addWindow( Window* window )
 {
     EQASSERT( window->getChannels().empty( ));
-    window->_setPipe( this );
     _addWindow( window );
     window->notifyViewportChanged();
 }
@@ -125,11 +122,7 @@ bool Pipe::removeWindow( Window* window )
 {
     EQASSERT( window->getChannels().empty( ));
 
-    if ( !_removeWindow( window ) )
-        return false;
-
-    window->_setPipe( 0 );
-    return true;
+    return _removeWindow( window );
 }
 
 ServerPtr Pipe::getServer()
@@ -488,6 +481,13 @@ void Pipe::setPixelViewport( const PixelViewport& pvp )
         return;
 
     _pvp = pvp;
+
+    const WindowVector& windows = getWindows();
+    for( WindowVector::const_iterator i = windows.begin(); 
+         i != windows.end(); ++i )
+    {
+        (*i)->notifyViewportChanged();
+    }
     EQINFO << "Pipe pvp set: " << _pvp << std::endl;
 }
 

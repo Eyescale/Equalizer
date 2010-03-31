@@ -18,11 +18,12 @@
 
 #include "window.h"
 
+#include "channel.h"
 #include "elementVisitor.h"
 #include "task.h"
 
-#include <eq/net/dataOStream.h>
 #include <eq/net/dataIStream.h>
+#include <eq/net/dataOStream.h>
 
 namespace eq
 {
@@ -57,20 +58,37 @@ template< class P, class W, class C >
 Window< P, W, C >::Window( P* parent )
     : _tasks( fabric::TASK_NONE ) 
     , _pipe( parent )
+    , _fixedVP( true )
 {
     EQASSERT( parent );
     parent->_addWindow( static_cast< W* >( this ) );
+    notifyViewportChanged();
 }
 
 template< class P, class W, class C >
-Window< P, W, C >::Window( const W& from, P* parent ) 
-    : Object()
+Window< P, W, C >::Window( const Window& from, P* parent ) 
+    : Object( from )
     , _tasks( fabric::TASK_NONE )
     , _pipe( parent )
+    , _pvp( from._pvp )
+    , _vp( from._vp )
+    , _fixedVP( from._fixedVP )
 {
     EQASSERT( parent );
     parent->_addWindow( static_cast< W* >( this ) );
 
+    for( unsigned i = 0; i < IATTR_ALL; ++i )
+    {
+        const IAttribute attr = static_cast< IAttribute >( i );
+        setIAttribute( attr, from.getIAttribute( attr ));
+    }
+    notifyViewportChanged();
+}
+
+template< class P, class W, class C >
+Window< P, W, C >::~Window( )
+{
+    _pipe->_removeWindow( static_cast< W* >( this ) );
 }
 
 template< class P, class W, class C >
@@ -79,6 +97,7 @@ void Window< P, W, C >::setErrorMessage( const std::string& message )
     if( _error == message )
         return;
     _error = message;
+    setDirty( DIRTY_ERROR );
 }
 
 template< class P, class W, class C >
@@ -191,6 +210,124 @@ template< class P, class W, class C >
 VisitorResult Window< P, W, C >::accept( Visitor& visitor  ) const
 {
     return _accept( static_cast< const W* >( this ), visitor );
+}
+
+template< class P, class W, class C >
+void Window< P, W, C >::setPixelViewport( const PixelViewport& pvp )
+{
+    EQASSERT( pvp.hasArea( ));
+    if( !pvp.hasArea( ))
+        return;
+
+    _fixedVP = false;
+
+    if( pvp == _pvp && _vp.hasArea( ))
+        return;
+
+    _pvp      = pvp;
+    _vp.invalidate();
+    setDirty( DIRTY_VIEWPORT );
+    notifyViewportChanged();
+    
+    ChannelVector& channels = _getChannels();
+    for( std::vector< C* >::iterator i = channels.begin(); 
+         i != channels.end(); ++i )
+    {
+        (*i)->notifyViewportChanged();
+    }
+}
+
+template< class P, class W, class C >
+void Window< P, W, C >::setViewport( const Viewport& vp )
+{
+    if( !vp.hasArea())
+        return;
+
+    _fixedVP = true;
+
+    if( vp == _vp && _pvp.hasArea( ))
+        return;
+    setDirty( DIRTY_VIEWPORT );
+    _vp = vp;
+    _pvp.invalidate();
+
+    notifyViewportChanged();
+}
+
+template< class P, class W, class C >
+void Window< P, W, C >::notifyViewportChanged()
+{
+    if( !_pipe )
+        return;
+
+    const PixelViewport pipePVP = _pipe->getPixelViewport();
+
+    if( _fixedVP ) // update pixel viewport
+    {
+        const PixelViewport oldPVP = _pvp;
+        _pvp = pipePVP;
+        _pvp.apply( _vp );
+        if( oldPVP != _pvp )
+            setDirty( DIRTY_VIEWPORT );
+    }
+    else           // update viewport
+    {
+        const Viewport oldVP = _vp;
+        _vp = _pvp.getSubVP( pipePVP );
+        if( oldVP != _vp )
+            setDirty( DIRTY_VIEWPORT );
+    }
+
+    EQINFO << "Window vp set: " << _pvp << ":" << _vp << std::endl;
+}
+
+template< class P, class W, class C >
+void Window< P, W, C >::_setDrawableConfig( const DrawableConfig drawableConfig )
+{ 
+    _drawableConfig = drawableConfig; 
+    setDirty( DIRTY_MEMBER );
+}
+
+template< class P, class W, class C >
+void Window< P, W, C >::_setTasks( const uint32_t tasks )
+{
+    if( _tasks == tasks )
+        return;
+    _tasks = tasks;
+    setDirty( DIRTY_MEMBER );
+}
+
+template< class P, class W, class C >
+void Window< P, W, C >::serialize( net::DataOStream& os, 
+                                   const uint64_t dirtyBits)
+{
+    Object::serialize( os, dirtyBits );
+    if( dirtyBits & DIRTY_ATTRIBUTES )
+        os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+    if( dirtyBits & DIRTY_VIEWPORT )
+        os << _vp << _pvp << _fixedVP;
+    if( dirtyBits & DIRTY_MEMBER )
+        os << _drawableConfig << _tasks;
+    if( dirtyBits & DIRTY_ERROR )
+        os << _error;
+}
+
+template< class P, class W, class C >
+void Window< P, W, C >::deserialize( net::DataIStream& is,
+                                     const uint64_t dirtyBits )
+{
+    Object::deserialize( is, dirtyBits );
+    if( dirtyBits & DIRTY_ATTRIBUTES )
+        is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+    if( dirtyBits & DIRTY_VIEWPORT )
+    {
+        is >> _vp >> _pvp >> _fixedVP;
+        notifyViewportChanged();
+    }
+    if( dirtyBits & DIRTY_MEMBER )
+        is >> _drawableConfig >> _tasks;
+    if( dirtyBits & DIRTY_ERROR )
+        is >> _error;
 }
 
 }

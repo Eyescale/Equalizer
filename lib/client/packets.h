@@ -19,11 +19,9 @@
 #ifndef EQ_PACKETS_H
 #define EQ_PACKETS_H
 
-#include <eq/client/channel.h>       // Channel::IATTR_ALL enum
 #include <eq/client/commands.h>
 #include <eq/client/node.h>          // Node::IATTR_ALL enum
-#include <eq/client/types.h>         // member
-#include <eq/client/window.h>        // Window::IATTR_ALL enum
+#include <eq/client/statistic.h>         // member
 
 #include <eq/fabric/renderContext.h> // member
 #include <eq/fabric/viewport.h>      // member
@@ -645,10 +643,6 @@ namespace eq
             }
 
         uint32_t       initID;
-        int32_t        iAttributes[ eq::Window::IATTR_ALL ];
-        int32_t        tasks;
-        PixelViewport  pvp;
-        Viewport       vp;
         EQ_ALIGN8( char name[8] );
     };
 
@@ -658,13 +652,9 @@ namespace eq
             {
                 command   = CMD_WINDOW_CONFIG_INIT_REPLY;
                 size      = sizeof( WindowConfigInitReplyPacket );
-                error[0]  = '\0';
             }
 
-        PixelViewport   pvp;
-        DrawableConfig  drawableConfig;
         bool            result;
-        EQ_ALIGN8( char error[8] );
     };
 
     struct WindowConfigExitPacket : public net::ObjectPacket
@@ -707,17 +697,6 @@ namespace eq
             }
 
         uint32_t channelID;
-    };
-
-    struct WindowSetPVPPacket : public net::ObjectPacket
-    {
-        WindowSetPVPPacket()
-            {
-                command = CMD_WINDOW_SET_PVP;
-                size    = sizeof( WindowSetPVPPacket );
-            }
-
-        PixelViewport pvp;
     };
 
     struct WindowFinishPacket : public net::ObjectPacket
@@ -781,6 +760,7 @@ namespace eq
 
         uint32_t frameID;
         uint32_t frameNumber;
+        uint32_t version;
     };
 
     struct WindowFrameFinishPacket : public net::ObjectPacket
@@ -1141,13 +1121,6 @@ namespace eq
                                       const WindowDestroyChannelPacket* packet )
     {
         os << (net::ObjectPacket*)packet << " id " << packet->channelID;
-        return os;
-    }
-    inline std::ostream& operator << ( std::ostream& os, 
-                                     const WindowConfigInitReplyPacket* packet )
-    {
-        os << (net::ObjectPacket*)packet << " result " << packet->result
-           << " pvp " << packet->pvp;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

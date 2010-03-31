@@ -63,6 +63,11 @@ public:
             _unmap( channel );
             return TRAVERSE_CONTINUE; 
         }
+    virtual VisitorResult visitPre( Window* window )
+        { 
+            _unmap( window );
+            return TRAVERSE_CONTINUE; 
+        }
 
 private:
     void _unmap( net::Object* object )

@@ -21,7 +21,16 @@ namespace eq
 {
 namespace fabric
 {
-
+namespace
+{
+#define MAKE_ATTR_STRING( attr ) ( std::string("EQ_NODE_") + #attr )
+std::string _iAttributeStrings[] = {
+    MAKE_ATTR_STRING( IATTR_THREAD_MODEL ),
+    MAKE_ATTR_STRING( IATTR_LAUNCH_TIMEOUT ),
+    MAKE_ATTR_STRING( IATTR_FILL1 ),
+    MAKE_ATTR_STRING( IATTR_FILL2 )
+};
+}
 template< class C, class N, class P >
 NodePath Node< C, N, P >::getPath() const
 {
@@ -37,6 +46,24 @@ NodePath Node< C, N, P >::getPath() const
     NodePath path;
     path.nodeIndex = std::distance( nodes.begin(), i );
     return path;
+}
+
+template< class C, class N, class P >
+void Node< C, N, P >::setIAttribute( const IAttribute attr, const int32_t value )
+{
+    _iAttributes[attr] = value;
+}
+
+template< class C, class N, class P >
+int32_t Node< C, N, P >::getIAttribute( const IAttribute attr ) const
+{
+    return _iAttributes[attr];
+}
+
+template< class C, class N, class P >
+const std::string& Node< C, N, P >::getIAttributeString( const IAttribute attr )
+{
+    return _iAttributeStrings[attr];
 }
 
 }

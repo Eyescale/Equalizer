@@ -39,17 +39,17 @@ namespace server
 {
 typedef fabric::Node< Config, Node, Pipe > Super;
 
-#define MAKE_ATTR_STRING( attr ) ( std::string("EQ_NODE_") + #attr )
+#define MAKE_ATTRIB_STRING( attr ) ( std::string("EQ_NODE_") + #attr )
 
 std::string Node::_sAttributeStrings[SATTR_ALL] = {
-    MAKE_ATTR_STRING( SATTR_LAUNCH_COMMAND ),
-    MAKE_ATTR_STRING( SATTR_FILL1 ),
-    MAKE_ATTR_STRING( SATTR_FILL2 )
+    MAKE_ATTRIB_STRING( SATTR_LAUNCH_COMMAND ),
+    MAKE_ATTRIB_STRING( SATTR_FILL1 ),
+    MAKE_ATTRIB_STRING( SATTR_FILL2 )
 };
 std::string Node::_cAttributeStrings[CATTR_ALL] = {
-    MAKE_ATTR_STRING( CATTR_LAUNCH_COMMAND_QUOTE ),
-    MAKE_ATTR_STRING( CATTR_FILL1 ),
-    MAKE_ATTR_STRING( CATTR_FILL2 )
+    MAKE_ATTRIB_STRING( CATTR_LAUNCH_COMMAND_QUOTE ),
+    MAKE_ATTRIB_STRING( CATTR_FILL1 ),
+    MAKE_ATTRIB_STRING( CATTR_FILL2 )
 };
 
 typedef net::CommandFunc<Node> NodeFunc;
@@ -75,15 +75,13 @@ Node::Node()
     for( int i=0; i < Node::CATTR_ALL; ++i )
         _cattributes[i] = global->getNodeCAttribute((Node::CAttribute)i);
     for( int i=0; i < eq::Node::IATTR_ALL; ++i )
-        _iAttributes[i] = global->getNodeIAttribute((eq::Node::IAttribute)i);
+        _iAttributes[i] = global->getNodeIAttribute((Node::IAttribute)i);
 }
 
 Node::Node( const Node& from, Config* config )
-        : Super()
+        : Super( from )
 {
     _construct();
-
-    _name = from._name;
     _node = from._node;
 
     config->addNode( this );
@@ -332,7 +330,7 @@ void Node::_configInit( const uint32_t initID, const uint32_t frameNumber )
     memcpy( packet.iAttributes, _iAttributes, 
             eq::Node::IATTR_ALL * sizeof( int32_t ));
 
-    _send( packet, _name );
+    _send( packet, getName() );
 }
 
 bool Node::_syncConfigInit()
@@ -428,7 +426,7 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
 
 uint32_t Node::_getFinishLatency() const
 {
-    switch( getIAttribute( eq::Node::IATTR_THREAD_MODEL ))
+    switch( getIAttribute( Node::IATTR_THREAD_MODEL ))
     {
         case DRAW_SYNC:
             if( _tasks & fabric::TASK_DRAW )
@@ -677,9 +675,9 @@ std::ostream& operator << ( std::ostream& os, const Node* node )
            << "'" << value << "'" << std::endl;
     }
     
-    for( eq::Node::IAttribute i = static_cast<eq::Node::IAttribute>( 0 );
-         i<eq::Node::IATTR_ALL; 
-         i = static_cast<eq::Node::IAttribute>( static_cast<uint32_t>( i )+1))
+    for( Node::IAttribute i = static_cast< Node::IAttribute>( 0 );
+         i< Node::IATTR_ALL; 
+         i = static_cast< Node::IAttribute >( static_cast<uint32_t>( i )+1))
     {
         const int value = node->getIAttribute( i );
         if( value == Global::instance()->getNodeIAttribute( i ))
@@ -692,8 +690,8 @@ std::ostream& operator << ( std::ostream& os, const Node* node )
             attrPrinted = true;
         }
         
-        os << ( i==eq::Node::IATTR_LAUNCH_TIMEOUT ? "launch_timeout       " :
-                i==eq::Node::IATTR_THREAD_MODEL   ? "thread_model         " :
+        os << ( i== Node::IATTR_LAUNCH_TIMEOUT ? "launch_timeout       " :
+                i== Node::IATTR_THREAD_MODEL   ? "thread_model         " :
                 "ERROR" )
            << static_cast<IAttrValue>( value ) << std::endl;
     }

@@ -57,7 +57,6 @@ namespace eq
         EQ_EXPORT ServerPtr getServer();
 
         const PipeVector& getPipes() const { return _pipes; }
-        const std::string& getName() const { return _name; }
 
         /** 
          * Return the set of tasks this nodes's channels might execute in the
@@ -116,28 +115,6 @@ namespace eq
 
         uint32_t getFinishedFrame() const { return _finishedFrame; }
 
-        /**
-         * @name Attributes
-         */
-        //@{
-        // Note: also update string array initialization in node.cpp
-        /** Node attributes. */
-        enum IAttribute
-        {
-            /** <a href="http://www.equalizergraphics.com/documents/design/threads.html#sync">Threading model</a> */
-            IATTR_THREAD_MODEL,
-            IATTR_LAUNCH_TIMEOUT,         //!< Launch timeout
-            IATTR_FILL1,
-            IATTR_FILL2,
-            IATTR_ALL
-        };
-
-        EQ_EXPORT void setIAttribute( const IAttribute attr,
-                                      const int32_t value );
-        EQ_EXPORT int32_t getIAttribute( const IAttribute attr ) const;
-        EQ_EXPORT static const std::string& getIAttributeString(
-                                                        const IAttribute attr );
-        //@}
 
         class TransmitThread : public base::Thread
         {
@@ -298,14 +275,6 @@ namespace eq
         /** The parent config */
         Config* const          _config;
 
-        /** The name. */
-        std::string            _name;
-
-        /** Integer attributes. */
-        int32_t _iAttributes[IATTR_ALL];
-        /** String representation of integer attributes. */
-        static std::string _iAttributeStrings[IATTR_ALL];
-
         /** Worst-case set of tasks. */
         uint32_t _tasks;
 
@@ -346,7 +315,7 @@ namespace eq
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
         friend class Pipe;

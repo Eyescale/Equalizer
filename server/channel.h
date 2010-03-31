@@ -25,12 +25,13 @@
 #endif
 #include <eq/base/monitor.h>
 
+#include <eq/fabric/channel.h>
+
 #include "base.h"
 #include "types.h"
 
 #include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/viewport.h>      // member
-#include <eq/fabric/channel.h>
 #include <eq/net/object.h>
 #include <eq/net/packets.h>
 
@@ -193,8 +194,6 @@ namespace server
 
     private:
         //-------------------- Members --------------------
-        friend class Window;
-
         /** Number of activations for this channel. */
         uint32_t _active;
 

@@ -26,7 +26,7 @@
 #include "pipe.h"                    // nested enum
 #include "node.h"                    // nested enum
 #include "window.h"                  // nested enum
-#include <eq/client/node.h>      // nested enum
+#include <eq/client/node.h>          // nested enum
 
 
 namespace eq
@@ -84,10 +84,10 @@ namespace server
         char getNodeCAttribute( const Node::CAttribute attr ) const
             { return _nodeCAttributes[attr]; }
 
-        void setNodeIAttribute( const eq::Node::IAttribute attr,
+        void setNodeIAttribute( const Node::IAttribute attr,
                                 const int32_t value )
             { _nodeIAttributes[attr] = value; }
-        int32_t getNodeIAttribute( const eq::Node::IAttribute attr ) const
+        int32_t getNodeIAttribute( const Node::IAttribute attr ) const
             { return _nodeIAttributes[attr]; }
 
         /**

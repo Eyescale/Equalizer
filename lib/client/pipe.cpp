@@ -28,8 +28,8 @@
 #include "packets.h"
 #include "server.h"
 #include "view.h"
-#include "X11Connection.h"
 #include "window.h"
+#include "X11Connection.h"
 
 #ifdef GLX
 #  include "glXMessagePump.h"
@@ -381,6 +381,18 @@ const View* Pipe::getView( const net::ObjectVersion& viewVersion ) const
     return const_cast< Pipe* >( this )->getView( viewVersion );
 }
 
+void Pipe::setPixelViewport( const eq::PixelViewport& pvp )
+{ 
+    _pvp = pvp; 
+
+    const WindowVector& windows = getWindows();
+    for( WindowVector::const_iterator i = windows.begin(); 
+         i != windows.end(); ++i )
+    {
+        (*i)->notifyViewportChanged();
+    }
+
+}
 View* Pipe::getView( const net::ObjectVersion& viewVersion )
 {
     CHECK_THREAD( _pipeThread );
@@ -716,9 +728,10 @@ net::CommandResult Pipe::_cmdCreateWindow(  net::Command& command  )
     EQLOG( LOG_INIT ) << "Create window " << packet << std::endl;
 
     Window* window = Global::getNodeFactory()->createWindow( this );
-    getConfig()->attachObject( window, packet->windowID, EQ_ID_INVALID );
+
+    Config* config = getConfig();
+    EQCHECK( config->mapObject( window, packet->windowID ));
     
-    EQASSERT( !getWindows().empty( ));
     return net::COMMAND_HANDLED;
 }
 
