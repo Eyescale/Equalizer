@@ -229,8 +229,6 @@ namespace fabric
             { return _drawableConfig; }
         //@}
 
-        void _setPipe( P* pipe ){ _pipe = pipe; }
-
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:
