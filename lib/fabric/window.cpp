@@ -308,7 +308,9 @@ void Window< P, W, C >::serialize( net::DataOStream& os,
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _vp << _pvp << _fixedVP;
     if( dirtyBits & DIRTY_MEMBER )
-        os << _drawableConfig << _tasks;
+        os << _tasks;
+    if( dirtyBits & DIRTY_DRAWABLECONFIG )     
+        os << _drawableConfig;
     if( dirtyBits & DIRTY_ERROR )
         os << _error;
 }
@@ -326,7 +328,14 @@ void Window< P, W, C >::deserialize( net::DataIStream& is,
         notifyViewportChanged();
     }
     if( dirtyBits & DIRTY_MEMBER )
-        is >> _drawableConfig >> _tasks;
+        is >> _tasks;
+    if( dirtyBits & DIRTY_DRAWABLECONFIG )
+    {
+        /** Drawable characteristics of this window */
+        DrawableConfig drawableConfig;
+        is >> drawableConfig;
+        _setDrawableConfig( drawableConfig );        
+    }
     if( dirtyBits & DIRTY_ERROR )
         is >> _error;
 }
