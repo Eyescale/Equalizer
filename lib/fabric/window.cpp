@@ -282,10 +282,11 @@ void Window< P, W, C >::notifyViewportChanged()
 }
 
 template< class P, class W, class C >
-void Window< P, W, C >::_setDrawableConfig( const DrawableConfig drawableConfig )
+void Window< P, W, C >::_setDrawableConfig( 
+                                      const DrawableConfig& drawableConfig )
 { 
     _drawableConfig = drawableConfig; 
-    setDirty( DIRTY_MEMBER );
+    setDirty( DIRTY_MEMBER ); 
 }
 
 template< class P, class W, class C >

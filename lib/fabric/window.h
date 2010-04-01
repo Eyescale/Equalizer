@@ -223,10 +223,7 @@ namespace fabric
 
         void _setTasks( const uint32_t tasks );
 
-        void _setDrawableConfig( const DrawableConfig drawableConfig );
-
-        DrawableConfig& _getDrawableConfig()
-            { return _drawableConfig; }
+        void _setDrawableConfig( const DrawableConfig& drawableConfig );
         //@}
 
         virtual ChangeType getChangeType() const { return UNBUFFERED; }

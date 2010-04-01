@@ -297,7 +297,10 @@ void Window::setOSWindow( OSWindow* window )
 
     // Initialize context-specific data
     makeCurrent();
-    _osWindow->queryDrawableConfig( _getDrawableConfig() );
+    
+    DrawableConfig drawableConfig;
+    _osWindow->queryDrawableConfig( drawableConfig );
+    _setDrawableConfig( drawableConfig );
     _setupObjectManager();
 }
 
