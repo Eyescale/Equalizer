@@ -55,10 +55,8 @@ Node::Node( Config* parent )
         : transmitter( this )
 #pragma warning( push )
         , _config( parent )
-        , _tasks( fabric::TASK_NONE )
         , _state( STATE_STOPPED )
         , _unlockedFrame( 0 )
-        , _finishedFrame( 0 )
 {
     parent->_addNode( this );
     EQINFO << " New eq::Node @" << (void*)this << std::endl;
@@ -493,7 +491,8 @@ net::CommandResult Node::_cmdCreatePipe( net::Command& command )
     if( packet->threaded )
         pipe->startThread();
 
-    _config->attachObject( pipe, packet->pipeID, EQ_ID_INVALID );
+    Config* config = getConfig();
+    EQCHECK( config->mapObject( pipe, packet->pipeID ));
 
     return net::COMMAND_HANDLED;
 }

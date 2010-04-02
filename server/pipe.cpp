@@ -59,7 +59,7 @@ Pipe::Pipe( Node* parent ) : Super( parent )
             static_cast<IAttribute>( i ));
 }
 
-Pipe::Pipe( const Pipe& from, Node* parent ) : Super( parent )
+Pipe::Pipe( const Pipe& from, Node* parent ) : Super( from, parent )
 {
     _construct();
 

@@ -113,9 +113,6 @@ namespace eq
          */
         EQ_EXPORT void waitFrameStarted( const uint32_t frameNumber ) const;
 
-        uint32_t getFinishedFrame() const { return _finishedFrame; }
-
-
         class TransmitThread : public base::Thread
         {
         public:
@@ -275,15 +272,6 @@ namespace eq
         /** The parent config */
         Config* const          _config;
 
-        /** Worst-case set of tasks. */
-        uint32_t _tasks;
-
-        /** Pipe children. */
-        PipeVector             _pipes;
-
-        /** The reason for the last error. */
-        std::string            _error;
-
         enum State
         {
             STATE_STOPPED,
@@ -299,9 +287,6 @@ namespace eq
 
         /** The number of the last locally released frame. */
         uint32_t _unlockedFrame;
-
-        /** The number of the last finished frame. */
-        uint32_t _finishedFrame;
 
         typedef stde::hash_map< uint32_t, net::Barrier* > BarrierHash;
         /** All barriers mapped by the node. */

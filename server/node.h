@@ -85,9 +85,6 @@ namespace server
         net::CommandQueue* getCommandThreadQueue()
             { return _config->getCommandThreadQueue(); }
 
-        /** @return the number of the last finished frame. */
-        uint32_t getFinishedFrame() const { return _finishedFrame; }
-
         /** 
          * Adds a new pipe to this node.
          * 
@@ -124,9 +121,6 @@ namespace server
 
         /** @return if this pipe is actively used for rendering. */
         bool isActive() const { return ( _active != 0 ); }
-
-        /** Add additional tasks this node might potentially execute. */
-        void addTasks( const uint32_t tasks ) { _tasks |= tasks; }
 
         /** The last drawing channel for this entity. */
         void setLastDrawPipe( const Pipe* pipe )
@@ -272,6 +266,7 @@ namespace server
         //@}
 
     protected:
+
         virtual ~Node();
 
         /** @sa net::Object::attachToSession. */
@@ -295,12 +290,6 @@ namespace server
         Config* _config;
         friend class Config;
 
-        /** The vector of pipes belonging to this node. */
-        PipeVector _pipes;
-
-        /** The reason for the last error. */
-        std::string _error;
-
         /** Number of activations for this node. */
         uint32_t _active;
 
@@ -315,12 +304,6 @@ namespace server
 
         /** The number of the last flushed frame (frame finish packet sent). */
         uint32_t _flushedFrame;
-
-        /** The number of the last finished frame. */
-        uint32_t _finishedFrame;
-
-        /** Worst-case set of tasks. */
-        uint32_t _tasks;
 
         /** The current state for state change synchronization. */
         base::Monitor< State > _state;

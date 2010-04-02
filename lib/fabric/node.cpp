@@ -31,6 +31,22 @@ std::string _iAttributeStrings[] = {
     MAKE_ATTR_STRING( IATTR_FILL2 )
 };
 }
+
+template< class C, class N, class P >
+Node< C, N, P >::Node() 
+        : _tasks( fabric::TASK_NONE )
+        , _finishedFrame( 0 )
+{
+}
+
+template< class C, class N, class P >
+Node< C, N, P >::Node( const Node& from, C* config )
+        : Object( from )
+        , _tasks( TASK_NONE )
+        , _finishedFrame( 0 )
+{
+}
+
 template< class C, class N, class P >
 NodePath Node< C, N, P >::getPath() const
 {

@@ -58,7 +58,6 @@ void Node::_construct()
 {
     _active         = 0;
     _config         = 0;
-    _tasks          = fabric::TASK_NONE;
     _lastDrawPipe   = 0;
     _flushedFrame   = 0;
     _finishedFrame  = 0;
@@ -66,6 +65,7 @@ void Node::_construct()
 }
 
 Node::Node()
+    : Super()
 {
     _construct();
 
@@ -79,7 +79,7 @@ Node::Node()
 }
 
 Node::Node( const Node& from, Config* config )
-        : Super( from )
+        : Super( from, config )
 {
     _construct();
     _node = from._node;
