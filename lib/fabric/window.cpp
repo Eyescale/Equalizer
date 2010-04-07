@@ -230,7 +230,7 @@ void Window< P, W, C >::setPixelViewport( const PixelViewport& pvp )
     notifyViewportChanged();
     
     ChannelVector& channels = _getChannels();
-    for( std::vector< C* >::iterator i = channels.begin(); 
+    for( typename std::vector< C* >::iterator i = channels.begin(); 
          i != channels.end(); ++i )
     {
         (*i)->notifyViewportChanged();
