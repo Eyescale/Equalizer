@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,9 +25,6 @@
 #include "window.h"
 
 #include <stdlib.h>
-
-using namespace eq::base;
-using namespace std;
 
 class NodeFactory : public eq::NodeFactory
 {
@@ -57,7 +54,7 @@ int main( const int argc, char** argv )
     const std::string& logFilename = initData.getLogFilename();
     if( !logFilename.empty( ))
     {
-        logFile = new ofstream( logFilename.c_str( ));
+        logFile = new std::ofstream( logFilename.c_str( ));
         eq::base::Log::setOutput( *logFile );
     }
     
@@ -65,15 +62,15 @@ int main( const int argc, char** argv )
     NodeFactory nodeFactory;
     if( !eq::init( argc, argv, &nodeFactory ))
     {
-        EQERROR << "Equalizer init failed" << endl;
+        EQERROR << "Equalizer init failed" << std::endl;
         return EXIT_FAILURE;
     }
     
     // 4. initialization of local client node
-    RefPtr< eqPly::EqPly > client = new eqPly::EqPly( initData );
+    eq::base::RefPtr< eqPly::EqPly > client = new eqPly::EqPly( initData );
     if( !client->initLocal( argc, argv ))
     {
-        EQERROR << "Can't init client" << endl;
+        EQERROR << "Can't init client" << std::endl;
         eq::exit();
         return EXIT_FAILURE;
     }

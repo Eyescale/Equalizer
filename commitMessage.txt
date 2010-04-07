@@ -1,4 +1,4 @@
-More clean up of client/server-side includes
+Minor code cleanup
 
 [ ] May break build
 [ ] May break existing applications

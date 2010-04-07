@@ -36,7 +36,7 @@ AccumBufferObject::~AccumBufferObject()
 }
 
 bool AccumBufferObject::init( const PixelViewport& pvp,
-                              GLuint textureFormat )
+                              const GLuint textureFormat )
 {
     _texture = new Texture( glewGetContext( ));
     _texture->setInternalFormat( textureFormat );
@@ -64,7 +64,7 @@ void AccumBufferObject::exit()
     FrameBufferObject::exit();
 }
 
-void AccumBufferObject::load( GLfloat value )
+void AccumBufferObject::load( const GLfloat value )
 {
     EQ_GL_ERROR( "before AccumBufferObject::load" );
     _texture->copyFromFrameBuffer( _pvp );
@@ -75,7 +75,7 @@ void AccumBufferObject::load( GLfloat value )
     EQ_GL_ERROR( "after AccumBufferObject::load" );
 }
 
-void AccumBufferObject::accum( GLfloat value )
+void AccumBufferObject::accum( const GLfloat value )
 {
     _texture->copyFromFrameBuffer( _pvp );
 
@@ -90,14 +90,14 @@ void AccumBufferObject::accum( GLfloat value )
     unbind();
 }
 
-void AccumBufferObject::display( GLfloat value )
+void AccumBufferObject::display( const GLfloat value )
 {
     _drawQuadWithTexture( getColorTextures()[0], _pvp, value );
 }
 
 void AccumBufferObject::_drawQuadWithTexture( Texture* texture, 
                                               const PixelViewport& pvp, 
-                                              GLfloat value )
+                                              const GLfloat value )
 {
     texture->bind();
 
