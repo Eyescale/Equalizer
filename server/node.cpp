@@ -313,7 +313,8 @@ void Node::_configInit( const uint32_t initID, const uint32_t frameNumber )
     _finishedFrame = 0;
     _frameIDs.clear();
 
-    _config->registerObject( this );
+    EQASSERT( isMaster( ));
+    commit();
 
     EQLOG( LOG_INIT ) << "Create node" << std::endl;
     ConfigCreateNodePacket createNodePacket;
@@ -378,12 +379,11 @@ bool Node::_syncConfigExit()
     const bool success = ( _state == STATE_EXIT_SUCCESS );
     EQASSERT( success || _state == STATE_EXIT_FAILED );
 
-    _config->deregisterObject( this );
-
     _state = STATE_STOPPED; // EXIT_FAILED -> STOPPED transition
     _tasks = fabric::TASK_NONE;
     _frameIDs.clear();
     _flushBarriers();
+    sync();
     return success;
 }
 

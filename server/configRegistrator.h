@@ -70,10 +70,19 @@ namespace
                 _register( channel );
                 return TRAVERSE_CONTINUE; 
             }
-
         virtual VisitorResult visitPost( Window* window )
             {
                 _register( window );
+                return TRAVERSE_CONTINUE; 
+            }
+        virtual VisitorResult visitPost( Pipe* pipe )
+            {
+                _register( pipe );
+                return TRAVERSE_CONTINUE; 
+            }
+        virtual VisitorResult visitPost( Node* node )
+            {
+                _register( node );
                 return TRAVERSE_CONTINUE; 
             }
 

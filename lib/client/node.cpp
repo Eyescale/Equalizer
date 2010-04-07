@@ -183,10 +183,10 @@ void Node::_removePipe( Pipe* pipe )
 
 Pipe* Node::_findPipe( const uint32_t id )
 {
-    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); 
-         ++i )
+    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
     {
         Pipe* pipe = *i;
+        EQASSERT( pipe->getID() != EQ_ID_INVALID )
         if( pipe->getID() == id )
             return pipe;
     }
@@ -505,6 +505,7 @@ net::CommandResult Node::_cmdDestroyPipe( net::Command& command )
 
     CHECK_THREAD( _nodeThread );
     Pipe* pipe = _findPipe( packet->pipeID );
+    EQASSERT( pipe );
     pipe->joinThread();
 
     _config->detachObject( pipe );

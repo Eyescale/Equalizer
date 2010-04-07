@@ -374,7 +374,7 @@ bool Window::syncRunning()
 void Window::_configInit( const uint32_t initID )
 {
     EQASSERT( _state == STATE_STOPPED );
-    _state         = STATE_INITIALIZING;
+    _state = STATE_INITIALIZING;
 
     EQASSERT( isMaster( ));
     commit();

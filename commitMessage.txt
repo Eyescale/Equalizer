@@ -1,11 +1,9 @@
-Create config proxy object for proper serialization
-- add new helper functions to (de)serialize children in data streams
-- remove old config serialization code
+Fix race condition since pipe/node was deregistered to early.
 
-[x] May break build
+[ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
-[x] Cleanup
+[x] Bugfix
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

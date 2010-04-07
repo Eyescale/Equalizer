@@ -58,14 +58,24 @@ public:
             return TRAVERSE_CONTINUE; 
         }
 
-    virtual VisitorResult visit( Channel* channel )
+    virtual VisitorResult visitPre( Node* node )
         { 
-            _deregister( channel );
+            _deregister( node );
+            return TRAVERSE_CONTINUE; 
+        }
+    virtual VisitorResult visitPre( Pipe* pipe )
+        { 
+            _deregister( pipe );
             return TRAVERSE_CONTINUE; 
         }
     virtual VisitorResult visitPre( Window* window )
         { 
             _deregister( window );
+            return TRAVERSE_CONTINUE; 
+        }
+    virtual VisitorResult visit( Channel* channel )
+        { 
+            _deregister( channel );
             return TRAVERSE_CONTINUE; 
         }
 

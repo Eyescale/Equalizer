@@ -353,9 +353,10 @@ bool Pipe::syncRunning()
 void Pipe::_configInit( const uint32_t initID, const uint32_t frameNumber )
 {
     EQASSERT( _state == STATE_STOPPED );
-    _state         = STATE_INITIALIZING;
+    _state = STATE_INITIALIZING;
 
-    getConfig()->registerObject( this );
+    EQASSERT( isMaster( ));
+    commit();
 
     EQLOG( LOG_INIT ) << "Create pipe" << std::endl;
     NodeCreatePipePacket createPipePacket;
@@ -421,10 +422,9 @@ bool Pipe::_syncConfigExit()
     const bool success = ( _state == STATE_EXIT_SUCCESS );
     EQASSERT( success || _state == STATE_EXIT_FAILED );
 
-    getConfig()->deregisterObject( this );
-
     _state = STATE_STOPPED; // EXIT_FAILED -> STOPPED transition
     _setTasks( fabric::TASK_NONE );
+    sync();
     return success;
 }
 
