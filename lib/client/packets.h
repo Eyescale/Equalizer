@@ -542,12 +542,7 @@ namespace eq
             }
 
         uint32_t      initID;
-        uint32_t      port;
-        uint32_t      device;
         uint32_t      frameNumber;
-        int32_t       tasks;
-        bool          cudaGLInterop;
-        PixelViewport pvp;
         EQ_ALIGN8( char name[8] );
     };
 
@@ -557,12 +552,9 @@ namespace eq
             {
                 command   = CMD_PIPE_CONFIG_INIT_REPLY;
                 size      = sizeof( PipeConfigInitReplyPacket );
-                error[0]  = '\0';
             }
 
         bool          result;
-        PixelViewport pvp;
-        EQ_ALIGN8( char error[8] );
     };
 
     struct PipeConfigExitPacket : public net::ObjectPacket
@@ -605,6 +597,7 @@ namespace eq
 
         uint32_t frameID;
         uint32_t frameNumber;
+        uint32_t version;
     };
 
     struct PipeFrameFinishPacket : public net::ObjectPacket
@@ -1077,10 +1070,8 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeConfigInitPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " init id " << packet->initID
-           << " port " << packet->port << " device " << packet->device
-           << " tasks " << packet->tasks << " frame " << packet->frameNumber
-		   << " cuda GL interop " << packet->cudaGLInterop;
+        os << (net::ObjectPacket*)packet << " init id "
+           << " frame " << packet->frameNumber;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

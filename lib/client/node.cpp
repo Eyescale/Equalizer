@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder<cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -165,32 +166,6 @@ VisitorResult Node::accept( NodeVisitor& visitor )
 VisitorResult Node::accept( NodeVisitor& visitor ) const
 {
     return _accept( this, visitor );
-}
-
-void Node::_addPipe( Pipe* pipe )
-{
-    EQASSERT( pipe->getNode() == this );
-    _pipes.push_back( pipe );
-}
-
-void Node::_removePipe( Pipe* pipe )
-{
-    PipeVector::iterator iter = find( _pipes.begin(), _pipes.end(), pipe );
-    EQASSERT( iter != _pipes.end( ))
-    
-    _pipes.erase( iter );
-}
-
-Pipe* Node::_findPipe( const uint32_t id )
-{
-    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
-    {
-        Pipe* pipe = *i;
-        EQASSERT( pipe->getID() != EQ_ID_INVALID )
-        if( pipe->getID() == id )
-            return pipe;
-    }
-    return 0;
 }
 
 net::Barrier* Node::getBarrier( const net::ObjectVersion barrier )

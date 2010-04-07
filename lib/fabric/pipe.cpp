@@ -18,8 +18,9 @@
 
 #include "pipe.h"
 #include "task.h"
-#include <eq/net/dataOStream.h>
+
 #include <eq/net/dataIStream.h>
+#include <eq/net/dataOStream.h>
 
 namespace eq
 {
@@ -44,17 +45,38 @@ Pipe< N, P, W >::Pipe( N* parent )
         , _port( EQ_UNDEFINED_UINT32 )
         , _device( EQ_UNDEFINED_UINT32 )
         , _node( parent )
-{}
+{
+    parent->_addPipe( static_cast< P* >( this ) );
+}
 
 template< class N, class P, class W >
-Pipe< N, P, W >::Pipe( const P& from, N* node  ) 
-        : Object()
+Pipe< N, P, W >::Pipe( const Pipe& from, N* parent  ) 
+        : Object( from )
         , _tasks( fabric::TASK_NONE )        
-        , _port( EQ_UNDEFINED_UINT32 )
-        , _device( EQ_UNDEFINED_UINT32 )
-        , _node( node )
+        , _port( from.getPort() )
+        , _device( from.getDevice() )
+        , _pvp( from._pvp )
+        , _node( parent )
+        , _cudaGLInterop( from._cudaGLInterop )
+{
+    parent->_addPipe( static_cast< P* >( this ) );
 
-{}
+    notifyPixelViewportChanged();
+}
+
+template< class N, class P, class W >
+Pipe< N, P, W >::~Pipe()
+{    
+    WindowVector& windows = _getWindows(); 
+    while( !windows.empty() )
+    {
+        W* window = windows.back();
+        _removeWindow( window );
+        delete window;
+    }
+    windows.clear();
+    _node->_removePipe( static_cast< P* >( this ) );
+}
 
 template< class N, class P, class W >
 void Pipe< N, P, W >::setErrorMessage( const std::string& message )
@@ -62,6 +84,7 @@ void Pipe< N, P, W >::setErrorMessage( const std::string& message )
     if( _error == message )
         return;
     _error = message;
+    setDirty( DIRTY_ERROR );
 }
 
 template< class N, class P, class W >
@@ -85,6 +108,20 @@ void Pipe< N, P, W >::_addWindow( W* window )
 {
     EQASSERT( window->getPipe() == this );
     _windows.push_back( window );
+}
+
+template< class N, class P, class W >
+void Pipe< N, P, W >::setDevice( const uint32_t device )  
+{ 
+    _device = device; 
+    setDirty( DIRTY_MEMBER );
+}
+
+template< class N, class P, class W >
+void Pipe< N, P, W >::setPort( const uint32_t port )      
+{ 
+    _port = port; 
+    setDirty( DIRTY_MEMBER );
 }
 
 template< class N, class P, class W >
@@ -117,6 +154,65 @@ template< class N, class P, class W >
 const std::string& Pipe< N, P, W >::getIAttributeString( const IAttribute attr )
 {
     return _iPipeAttributeStrings[attr];
+}
+
+//----------------------------------------------------------------------
+// viewport
+//----------------------------------------------------------------------
+template< class N, class P, class W >
+void Pipe< N, P, W >::setPixelViewport( const PixelViewport& pvp )
+{
+    if( pvp == _pvp || !pvp.hasArea( ))
+        return;
+
+    _pvp = pvp;
+
+    notifyPixelViewportChanged();
+    
+    EQINFO << "Pipe pvp set: " << _pvp << std::endl;
+}
+
+template< class N, class P, class W >
+void Pipe< N, P, W >::notifyPixelViewportChanged()
+{
+    const WindowVector& windows = getWindows();
+    for( WindowVector::const_iterator i = windows.begin(); 
+         i != windows.end(); ++i )
+    {
+        (*i)->notifyViewportChanged();
+    }
+    setDirty( DIRTY_PIXELVIEWPORT );
+    EQINFO << getName() << "pipe pvp update: " << _pvp << std::endl;
+}
+
+template< class N, class P, class W  >
+void Pipe< N, P, W >::serialize( net::DataOStream& os, 
+                                   const uint64_t dirtyBits)
+{
+    Object::serialize( os, dirtyBits );
+    if( dirtyBits & DIRTY_PIXELVIEWPORT )
+        os << _pvp;
+    if( dirtyBits & DIRTY_MEMBER )
+        os << _port << _device << _cudaGLInterop << _tasks;
+    if( dirtyBits & DIRTY_ERROR )
+        os << _error;
+}
+
+template< class N, class P, class W  >
+void Pipe< N, P, W >::deserialize( net::DataIStream& is,
+                                     const uint64_t dirtyBits )
+{
+    Object::deserialize( is, dirtyBits );
+    if( dirtyBits & DIRTY_PIXELVIEWPORT )
+    {
+        PixelViewport pvp;
+        is >> pvp;
+        setPixelViewport( pvp );
+    }
+    if( dirtyBits & DIRTY_MEMBER )
+        is >> _port >> _device >> _cudaGLInterop >> _tasks;
+    if( dirtyBits & DIRTY_ERROR )
+        is >> _error;
 }
 
 }

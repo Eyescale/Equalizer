@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+ *               2010, Cedric Stalder<cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -29,6 +30,7 @@ namespace eq
 
 namespace fabric
 {
+    template< class, class, class > class Pipe;
     template< class C, class N, class P > class Node : public Object
     {
     public:
@@ -70,10 +72,12 @@ namespace fabric
         void addTasks( const uint32_t tasks ) { _tasks |= tasks; }
 
     protected:
-        
         Node();
 
         Node( const Node& from, C* config );
+
+        EQFABRIC_EXPORT virtual ~Node(){}
+
         /** Pipe children. */
         PipeVector             _pipes;
         
@@ -95,6 +99,11 @@ namespace fabric
         {
             char dummy[32];
         };
+
+        template< class, class, class > friend class Pipe;
+        void _addPipe( P* pipe );
+        bool _removePipe( P* pipe );
+        P* _findPipe( const uint32_t id );
 
     };
 }

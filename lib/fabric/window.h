@@ -32,7 +32,7 @@ namespace eq
     class Window;
 namespace server 
 { 
-    class Window;    
+    class Window;
 }
 namespace fabric
 {
@@ -189,6 +189,7 @@ namespace fabric
         Window( const Window& from, P* pipe );
 
         EQFABRIC_EXPORT virtual ~Window( );
+
         enum DirtyBits
         {
             DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,

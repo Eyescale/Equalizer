@@ -44,32 +44,28 @@ void Pipe::_construct()
 {
     _active         = 0;
     _lastDrawWindow = 0;
-
     EQINFO << "New pipe @" << (void*)this << std::endl;
 }
 
-Pipe::Pipe( Node* parent ) : Super( parent )
+Pipe::Pipe( Node* parent )
+        : Super( parent )
 {
     _construct();
 
-    parent->addPipe( this );
     const Global* global = Global::instance();
-    for( int i=0; i<IATTR_ALL; ++i )
-        _iAttributes[i] = global->getPipeIAttribute(
-            static_cast<IAttribute>( i ));
+    for( unsigned i = 0; i < IATTR_ALL; ++i )
+    {
+        const IAttribute attr = static_cast< IAttribute >( i );
+        setIAttribute( attr, global->getPipeIAttribute( attr ));
+    }
+
+    setCudaGLInterop( getIAttribute( IATTR_HINT_CUDA_GL_INTEROP ));
 }
 
-Pipe::Pipe( const Pipe& from, Node* parent ) : Super( from, parent )
+Pipe::Pipe( const Pipe& from, Node* parent )
+        : Super( from, parent )
 {
     _construct();
-
-    setName( from.getName() );
-    setPort( from.getPort() );
-    setDevice( from.getDevice() );
-    _pvp    = from._pvp;
-
-    parent->addPipe( this );
-
     for( int i=0; i<IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
 
@@ -84,18 +80,6 @@ Pipe::Pipe( const Pipe& from, Node* parent ) : Super( from, parent )
 Pipe::~Pipe()
 {
     EQINFO << "Delete pipe @" << (void*)this << std::endl;
-    Node* node = getNode();
-    if( node )
-        node->removePipe( this );
-    
-    WindowVector& windows = _getWindows(); 
-    while( !windows.empty() )
-    {
-        Window* window = windows.back();
-        _removeWindow( window );
-        delete window;
-    }
-    windows.clear();
 }
 
 void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID, 
@@ -265,6 +249,7 @@ void Pipe::addTasks( const uint32_t tasks )
     EQASSERT( node );
     _setTasks( getTasks() | tasks );
     node->addTasks( tasks );
+    setDirty( DIRTY_MEMBER );
 }
 
 void Pipe::send( net::ObjectPacket& packet )
@@ -342,6 +327,9 @@ bool Pipe::syncRunning()
         // becoming inactive
         success = false;
 
+    EQASSERT( isMaster( ));
+    commit();
+
     EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED ||
               _state == STATE_INIT_FAILED );
     return success;
@@ -368,12 +356,7 @@ void Pipe::_configInit( const uint32_t initID, const uint32_t frameNumber )
     EQLOG( LOG_INIT ) << "Init pipe" << std::endl;
     PipeConfigInitPacket packet;
     packet.initID = initID;
-    packet.port   = getPort();
-    packet.device = getDevice();
-    packet.tasks  = getTasks();
-    packet.pvp    = _pvp;
     packet.frameNumber = frameNumber;
-    packet.cudaGLInterop = getIAttribute( IATTR_HINT_CUDA_GL_INTEROP );
     _send( packet, getName() );
 }
 
@@ -442,6 +425,7 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
     PipeFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
+    startPacket.version     = commit();
     send( startPacket );
     EQLOG( LOG_TASKS ) << "TASK pipe start frame " << &startPacket << std::endl;
 
@@ -472,24 +456,7 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
     _lastDrawWindow = 0;
 }
 
-//----------------------------------------------------------------------
-// viewport
-//----------------------------------------------------------------------
-void Pipe::setPixelViewport( const PixelViewport& pvp )
-{
-    if( pvp == _pvp || !pvp.hasArea( ))
-        return;
 
-    _pvp = pvp;
-
-    const WindowVector& windows = getWindows();
-    for( WindowVector::const_iterator i = windows.begin(); 
-         i != windows.end(); ++i )
-    {
-        (*i)->notifyViewportChanged();
-    }
-    EQINFO << "Pipe pvp set: " << _pvp << std::endl;
-}
 
 //===========================================================================
 // command handling
@@ -500,13 +467,7 @@ net::CommandResult Pipe::_cmdConfigInitReply( net::Command& command )
         command.getPacket<PipeConfigInitReplyPacket>();
     EQVERB << "handle pipe configInit reply " << packet << std::endl;
 
-    setErrorMessage( getErrorMessage() + packet->error );
-    setPixelViewport( packet->pvp );
-
-    if( packet->result )
-        _state = STATE_RUNNING;
-    else
-        _state = STATE_INIT_FAILED;
+    _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
 
     return net::COMMAND_HANDLED;
 }
@@ -517,14 +478,17 @@ net::CommandResult Pipe::_cmdConfigExitReply( net::Command& command )
         command.getPacket<PipeConfigExitReplyPacket>();
     EQVERB << "handle pipe configExit reply " << packet << std::endl;
 
-    if( packet->result )
-        _state = STATE_EXIT_SUCCESS;
-    else
-        _state = STATE_EXIT_FAILED;
+    _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
 
     return net::COMMAND_HANDLED;
 }
 
+void Pipe::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
+{
+    Super::deserialize( is, dirtyBits );
+    EQASSERT( isMaster( ));
+    setDirty( dirtyBits ); // redistribute slave changes
+}
 
 std::ostream& operator << ( std::ostream& os, const Pipe* pipe )
 {

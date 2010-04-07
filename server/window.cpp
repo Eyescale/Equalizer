@@ -70,30 +70,12 @@ Window::Window( Pipe* parent )
 Window::Window( const Window& from, Pipe* parent )
         : Super( from, parent )
 {
-    _construct();
- 
-    const ChannelVector& channels = from.getChannels();
-    for( ChannelVector::const_iterator i = channels.begin();
-         i != channels.end(); ++i )
-    {
-        new Channel( **i, this );
-    }            
+    _construct();          
 }
 
 Window::~Window()
 {
     EQINFO << "Delete window @" << (void*)this << std::endl;
-    
-    ChannelVector& channels = _getChannels(); 
-    while( !channels.empty( ))
-    {
-        Channel* channel = channels.back();
-
-        EQASSERT( channel->getWindow() == this );
-        _removeChannel( channel );
-        delete channel;
-    }
-    EQASSERT( channels.empty( ));
 }
 
 void Window::attachToSession( const uint32_t id, const uint32_t instanceID, 

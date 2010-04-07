@@ -86,13 +86,6 @@ namespace server
             { return _config->getCommandThreadQueue(); }
 
         /** 
-         * Adds a new pipe to this node.
-         * 
-         * @param pipe the pipe.
-         */
-        EQSERVER_EXPORT void addPipe( Pipe* pipe );
-
-        /** 
          * Removes a pipe from this node.
          * 
          * @param pipe the pipe

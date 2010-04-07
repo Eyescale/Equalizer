@@ -287,6 +287,8 @@ namespace fabric
         EQ_EXPORT virtual void outlineViewport();
 
     protected:
+
+        Channel( const Channel& from, Window* window ); //!< @internal
         /** @internal */
         EQ_EXPORT void attachToSession( const uint32_t id, 
                                         const uint32_t instanceID, 

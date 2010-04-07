@@ -51,6 +51,11 @@ namespace server
                 window->sync();
                 return TRAVERSE_CONTINUE;
             }
+        virtual VisitorResult visitPre( Pipe* pipe )
+            {
+                pipe->sync();
+                return TRAVERSE_CONTINUE;
+            }
         virtual VisitorResult visit( Channel* channel )
             {
                 channel->sync();

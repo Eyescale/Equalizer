@@ -29,6 +29,7 @@ namespace eq
 
 namespace fabric
 {
+    template< class, class, class > class Window;
     template< class N, class P, class W > class Pipe : public Object
     {
     public:
@@ -83,7 +84,7 @@ namespace fabric
          */
         uint32_t getPort() const { return _port; }
         
-        void setPort( const uint32_t port )      { _port = port; }
+        void setPort( const uint32_t port );
         /** 
          * Returns the device number of this pipe.
          * 
@@ -97,10 +98,24 @@ namespace fabric
          */
         uint32_t getDevice() const { return _device; }
 
-        void setDevice( const uint32_t device )  { _device = device; }
+        // EXPORT needed for setDevice in configTools.
+        EQFABRIC_EXPORT void setDevice( const uint32_t device );
 
         /** @return the pixel viewport. */
         const PixelViewport& getPixelViewport() const { return _pvp; }
+
+        void setCudaGLInterop ( const bool cudaGLInterop )
+            { _cudaGLInterop = cudaGLInterop; } 
+        /**
+         * Set the pipes's pixel viewport.
+         *
+         *  Used from _osPipe calls
+         *
+         * @param pvp the viewport in pixels.
+         */
+        EQFABRIC_EXPORT void setPixelViewport( const eq::PixelViewport& pvp );
+
+        void notifyPixelViewportChanged();
 
         /** @return the index path to this pipe. @internal */
         EQFABRIC_EXPORT PipePath getPath() const;
@@ -133,18 +148,33 @@ namespace fabric
         Pipe( N* parent );       
         
         /** Constructs a new deep copy of a pipe. */
-        Pipe( const P& from, N* node );
+        Pipe( const Pipe& from, N* parent );
 
+        EQFABRIC_EXPORT virtual ~Pipe( );
+
+        enum DirtyBits
+        {
+            DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
+            DIRTY_PIXELVIEWPORT   = Object::DIRTY_CUSTOM << 1,
+            DIRTY_MEMBER          = Object::DIRTY_CUSTOM << 2,
+            DIRTY_ERROR           = Object::DIRTY_CUSTOM << 3,
+        };
+
+        /** @internal */
+        EQFABRIC_EXPORT virtual void serialize( net::DataOStream& os,
+                                                const uint64_t dirtyBits );
+        /** @internal */
+        EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
+                                                  const uint64_t dirtyBits );
         void _setTasks( uint32_t tasks ) { _tasks = tasks; }
 
         /** @return the vector of windows. */
         WindowVector& _getWindows() { return _windows; }
 
+        template< class, class, class > friend class Window;
         void _addWindow( W* window );
         EQFABRIC_EXPORT bool _removeWindow( W* window );
         W* _findWindow( const uint32_t id );
-
-        void _setNode( N* node ){ _node = node; }
 
         /** The size (and location) of the pipe. */
         PixelViewport _pvp;
@@ -165,10 +195,13 @@ namespace fabric
         uint32_t _device;
 
         /** The parent node. */
-        N* _node;
+        N* const _node;
         
         /** The list of windows. */
         WindowVector _windows;
+
+        /** CUDA GL interop mode. */
+        bool _cudaGLInterop;
 
         union // placeholder for binary-compatible changes
         {

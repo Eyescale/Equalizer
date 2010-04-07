@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+ *               2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -80,6 +81,37 @@ template< class C, class N, class P >
 const std::string& Node< C, N, P >::getIAttributeString( const IAttribute attr )
 {
     return _iAttributeStrings[attr];
+}
+
+template< class C, class N, class P >
+void Node< C, N, P >::_addPipe( P* pipe )
+{
+    EQASSERT( pipe->getNode() == this );
+    _pipes.push_back( pipe );
+}
+
+template< class C, class N, class P >
+bool Node< C, N, P >::_removePipe( P* pipe )
+{
+    PipeVector::iterator i = find( _pipes.begin(), _pipes.end(), pipe );
+    if( i == _pipes.end( ))
+        return false;
+
+    _pipes.erase( i );
+    return true;
+}
+
+template< class C, class N, class P >
+P* Node< C, N, P >::_findPipe( const uint32_t id )
+{
+    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); 
+         ++i )
+    {
+        P* pipe = *i;
+        if( pipe->getID() == id )
+            return pipe;
+    }
+    return 0;
 }
 
 }

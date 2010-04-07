@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder<cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -302,11 +303,6 @@ namespace eq
         {
             char dummy[32];
         };
-
-        friend class Pipe;
-        void _addPipe( Pipe* pipe );
-        void _removePipe( Pipe* pipe );
-        Pipe* _findPipe( const uint32_t id );
 
         void _finishFrame( const uint32_t frameNumber ) const;
         void _frameFinish( const uint32_t frameID, const uint32_t frameNumber );

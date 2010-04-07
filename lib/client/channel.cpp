@@ -53,6 +53,12 @@ Channel::Channel( Window* parent )
     EQINFO << " New eq::Channel @" << (void*)this << std::endl;
 }
 
+Channel::Channel( const Channel& from, Window* window ) 
+        : Super( from, window )
+{
+    EQINFO << " New eq::Channel @" << (void*)this << std::endl;
+}
+
 Channel::~Channel()
 {  
     EQINFO << " Delete eq::Channel @" << (void*)this << std::endl;

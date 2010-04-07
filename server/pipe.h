@@ -32,10 +32,6 @@
 
 namespace eq
 {
-namespace fabric
-{
-    template< typename P, typename W, typename C > class Window;
-}
 namespace server
 {
 
@@ -65,7 +61,9 @@ namespace server
         /** 
          * Constructs a new deep copy of a pipe.
          */
-        Pipe( const Pipe& from, Node* node );
+        Pipe( const Pipe& from, Node* parent );
+
+        virtual ~Pipe();
 
         ServerPtr getServer();
         const ServerPtr getServer() const;
@@ -126,16 +124,6 @@ namespace server
          */
         //@{
 
-        /** 
-         * Set (force) the pixel viewport.
-         *
-         * If the pixel viewport is invalid, it is determined automatically
-         * during initialisation of the pipe. If it is valid, it force this pipe
-         * to assume the given size and position.
-         * 
-         * @param pvp the pixel viewport.
-         */
-        void setPixelViewport( const eq::PixelViewport& pvp );
 
         /** The last drawing compound for this entity. @internal */
         void setLastDrawWindow( const Window* window )
@@ -182,13 +170,13 @@ namespace server
         void send( net::ObjectPacket& packet );
 
     protected:
-        friend class fabric::Window< eq::server::Pipe, eq::server::Window, eq::server::Channel >;
-        virtual ~Pipe();
 
         /** @sa net::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 
                                       const uint32_t instanceID, 
                                       net::Session* session );
+        virtual void deserialize( eq::net::DataIStream&, const uint64_t );
+
     private:
 
         /** Integer attributes. */

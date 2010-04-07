@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder<cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -79,13 +80,11 @@ Pipe::Pipe( Node* parent )
         , _currentWindow( 0 )
         , _computeContext( 0 )
 {
-    parent->_addPipe( this );
     EQINFO << " New eq::Pipe @" << (void*)this << std::endl;
 }
 
 Pipe::~Pipe()
 {
-    getNode()->_removePipe( this );
     delete _thread;
     _thread = 0;
 }
@@ -381,18 +380,6 @@ const View* Pipe::getView( const net::ObjectVersion& viewVersion ) const
     return const_cast< Pipe* >( this )->getView( viewVersion );
 }
 
-void Pipe::setPixelViewport( const eq::PixelViewport& pvp )
-{ 
-    _pvp = pvp; 
-
-    const WindowVector& windows = getWindows();
-    for( WindowVector::const_iterator i = windows.begin(); 
-         i != windows.end(); ++i )
-    {
-        (*i)->notifyViewportChanged();
-    }
-
-}
 View* Pipe::getView( const net::ObjectVersion& viewVersion )
 {
     CHECK_THREAD( _pipeThread );
@@ -792,13 +779,6 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
 
     if( node->isRunning( ))
     {
-        setName( packet->name );
-        setPort( packet->port );
-        setDevice( packet->device );
-        _setTasks( packet->tasks );
-        _pvp           = packet->pvp;
-        _cudaGLInterop = packet->cudaGLInterop;
- 
         _currentFrame  = packet->frameNumber;
         _finishedFrame = packet->frameNumber;
         _unlockedFrame = packet->frameNumber;
@@ -822,10 +802,9 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
         send( nodePtr, reply, getErrorMessage() );
         return net::COMMAND_HANDLED;
     }
-
+    commit();
     _state = STATE_RUNNING;
 
-    reply.pvp = _pvp;
     send( nodePtr, reply );
     return net::COMMAND_HANDLED;
 }
@@ -878,7 +857,7 @@ net::CommandResult Pipe::_cmdFrameStart( net::Command& command )
         command.getPacket<PipeFrameStartPacket>();
     EQVERB << "handle pipe frame start " << packet << std::endl;
     EQLOG( LOG_TASKS ) << "---- TASK start frame ---- " << packet << std::endl;
-
+    sync( packet->version );
     const int64_t lastFrameTime = _frameTime;
 
     _frameTimeMutex.set();
@@ -936,6 +915,7 @@ net::CommandResult Pipe::_cmdFrameFinish( net::Command& command )
     }
 
     _releaseViews();
+    commit();
     return net::COMMAND_HANDLED;
 }
 

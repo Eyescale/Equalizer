@@ -47,10 +47,6 @@ namespace eq
     class MessagePump;
     class OSPipe;
     class ComputeContext;
-namespace fabric
-{
-    template< typename P, typename W, typename C > class Window;
-}
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
      *
@@ -94,15 +90,6 @@ namespace fabric
         EQ_EXPORT VisitorResult accept( PipeVisitor& visitor ) const;
 
         /**
-         * Set the pipes's pixel viewport.
-         *
-         *  Used from _osPipe calls
-         *
-         * @param pvp the viewport in pixels.
-         */
-         void setPixelViewport( const eq::PixelViewport& pvp );
-
-        /** 
          * Return the window system used by this pipe. 
          * 
          * The return value is quaranteed to be constant for an initialized
@@ -237,7 +224,6 @@ namespace fabric
 
     protected:
         friend class Node;
-        friend class fabric::Window< eq::Pipe, eq::Window, eq::Channel >;
         /** @name Actions */
         //@{
         /** 
@@ -368,9 +354,6 @@ namespace fabric
 
         /** The current window system. */
         WindowSystem _windowSystem;
-
-        /** CUDA GL interop mode. */
-        bool _cudaGLInterop;
 
         enum State
         {

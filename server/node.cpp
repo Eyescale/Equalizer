@@ -113,11 +113,11 @@ Node::~Node()
     if( _config )
         _config->removeNode( this );
     
-    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
+    while( !_pipes.empty() )
     {
-        Pipe* pipe = *i;
-
-        pipe->_setNode( 0 );
+        Pipe* pipe = _pipes.back();
+        EQASSERT( pipe->getNode() == this );
+        _removePipe( pipe );
         delete pipe;
     }
     _pipes.clear();
@@ -136,28 +136,6 @@ void Node::attachToSession( const uint32_t id, const uint32_t instanceID,
                      NodeFunc( this, &Node::_cmdConfigExitReply ), queue );
     registerCommand( CMD_NODE_FRAME_FINISH_REPLY,
                      NodeFunc( this, &Node::_cmdFrameFinishReply ), queue );
-}
-
-void Node::addPipe( Pipe* pipe )
-{
-    EQASSERT( pipe->getWindows().empty( ));
-
-    _pipes.push_back( pipe ); 
-    pipe->_setNode( this );
-}
-
-bool Node::removePipe( Pipe* pipe )
-{
-    EQASSERT( pipe->getWindows().empty( ));
-
-    PipeVector::iterator i = find( _pipes.begin(), _pipes.end(), pipe );
-    if( i == _pipes.end( ))
-        return false;
-
-    _pipes.erase( i );
-    pipe->_setNode( 0 ); 
-
-    return true;
 }
 
 Channel* Node::getChannel( const ChannelPath& path )

@@ -83,11 +83,29 @@ Window< P, W, C >::Window( const Window& from, P* parent )
         setIAttribute( attr, from.getIAttribute( attr ));
     }
     notifyViewportChanged();
+
+    const ChannelVector& channels = from.getChannels();
+    for( ChannelVector::const_iterator i = channels.begin();
+         i != channels.end(); ++i )
+    {
+        new C( **i, static_cast< W* >( this ) );
+    }  
 }
 
 template< class P, class W, class C >
 Window< P, W, C >::~Window( )
-{
+{    
+    ChannelVector& channels = _getChannels(); 
+    while( !channels.empty( ))
+    {
+        C* channel = channels.back();
+
+        EQASSERT( channel->getWindow() == this );
+        _removeChannel( channel );
+        delete channel;
+    }
+    EQASSERT( channels.empty( ));
+
     _pipe->_removeWindow( static_cast< W* >( this ) );
 }
 
@@ -261,15 +279,19 @@ void Window< P, W, C >::notifyViewportChanged()
         const PixelViewport oldPVP = _pvp;
         _pvp = pipePVP;
         _pvp.apply( _vp );
-        if( oldPVP == _pvp )
+        if( oldPVP != _pvp )
+        {
             setDirty( DIRTY_VIEWPORT );
+        }
     }
     else           // update viewport
     {
-        const Viewport oldVP = _vp;
+        const Viewport oldVP = _vp;            
         _vp = _pvp.getSubVP( pipePVP );
         if( oldVP != _vp )
+        {
             setDirty( DIRTY_VIEWPORT );
+        }
     }
 
     ChannelVector& channels = _getChannels();
