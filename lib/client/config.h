@@ -180,7 +180,7 @@ namespace eq
         EQ_EXPORT void freezeLoadBalancing( const bool onOff );
 
         /** @sa fabric::Config::setLatency() */
-        virtual void setLatency( const uint32_t latency );
+        EQ_EXPORT virtual void setLatency( const uint32_t latency );
         //@}
 
         /** @name Frame Control */
@@ -337,7 +337,7 @@ namespace eq
         //@{
         /** @internal */
         EQ_EXPORT virtual void notifyMapped( net::NodePtr node );
-        virtual void changeLatency( const uint32_t latency ); //!< @internal
+        EQ_EXPORT virtual void changeLatency( const uint32_t latency ); //!< @internal
         //@}
 
     private:
@@ -394,12 +394,12 @@ namespace eq
         void _frameStart();
 
         friend class ConfigDeserializer;
-        virtual Observer* createObserver();
-        virtual void releaseObserver( Observer* observer );
-        virtual Layout* createLayout();
-        virtual void releaseLayout( Layout* layout );
-        virtual Canvas* createCanvas();
-        virtual void releaseCanvas( Canvas* canvas );
+        EQ_EXPORT virtual Observer* createObserver();
+        EQ_EXPORT virtual void releaseObserver( Observer* observer );
+        EQ_EXPORT virtual Layout* createLayout();
+        EQ_EXPORT virtual void releaseLayout( Layout* layout );
+        EQ_EXPORT virtual Canvas* createCanvas();
+        EQ_EXPORT virtual void releaseCanvas( Canvas* canvas );
 
         bool _needsLocalSync() const;
 

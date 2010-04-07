@@ -89,6 +89,7 @@ Segment::~Segment()
          i != destinationChannels.end(); ++i )
     {
         Channel* channel = *i;
+        EQASSERT( channel );
         channel->unsetOutput();
     }
 
@@ -114,6 +115,7 @@ const Config* Segment::getConfig() const
 
 void Segment::addDestinationChannel( Channel* channel )
 {
+    EQASSERT( channel );
     EQASSERT( std::find( _destinationChannels.begin(), 
                          _destinationChannels.end(), channel ) == 
               _destinationChannels.end( ));
