@@ -174,7 +174,7 @@ void Window::addTasks( const uint32_t tasks )
 {
     Pipe* pipe = getPipe();
     EQASSERT( pipe );
-    _setTasks( getTasks() | tasks );
+    setTasks( getTasks() | tasks );
     pipe->addTasks( tasks );
 }
 
@@ -418,7 +418,7 @@ bool Window::_syncConfigExit()
 
     _state = STATE_STOPPED; // EXIT_FAILED -> STOPPED transition
     _nvSwapBarrier = 0;
-    _setTasks( fabric::TASK_NONE );
+    setTasks( fabric::TASK_NONE );
     sync();
     return success;
 }

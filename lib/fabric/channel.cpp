@@ -42,7 +42,6 @@ Channel< W, C >::Channel( W* parent )
         : _window( parent )
         , _context( &_nativeContext )
         , _color( Vector3ub::ZERO )
-        , _tasks( TASK_NONE )
         , _drawable( FB_WINDOW )
         , _maxSize( Vector2i::ZERO )
         , _fixedVP( true )
@@ -61,12 +60,11 @@ Channel< W, C >::Channel( W* parent )
 
 template< class W, class C >
 Channel< W, C >::Channel( const Channel& from, W* parent )
-        : Object( from )
+        : Entity( from )
         , _window( parent )
         , _nativeContext( from._nativeContext )
         , _context( &_nativeContext )
         , _color( from._color )
-        , _tasks( from._tasks )
         , _drawable( from._drawable )
         , _maxSize( from._maxSize )
         , _fixedVP( from._fixedVP )
@@ -100,16 +98,14 @@ VisitorResult Channel< W, C >::accept( Visitor& visitor ) const
 template< class W, class C >
 void Channel< W, C >::serialize( net::DataOStream& os, const uint64_t dirtyBits)
 {
-    Object::serialize( os, dirtyBits );
+    Entity::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _nativeContext.vp << _nativeContext.pvp << _fixedVP << _maxSize;
     if( dirtyBits & DIRTY_MEMBER )
-        os << _drawable << _tasks << _color << _nativeContext.view
+        os << _drawable << _color << _nativeContext.view
            << _nativeContext.overdraw;
-    if( dirtyBits & DIRTY_ERROR )
-        os << _error;
     if( dirtyBits & DIRTY_FRUSTUM )
         os << _nativeContext.frustum;
     if( dirtyBits & DIRTY_ALL )
@@ -120,7 +116,7 @@ template< class W, class C >
 void Channel< W, C >::deserialize( net::DataIStream& is,
                                    const uint64_t dirtyBits )
 {
-    Object::deserialize( is, dirtyBits );
+    Entity::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
     if( dirtyBits & DIRTY_VIEWPORT )
@@ -129,10 +125,8 @@ void Channel< W, C >::deserialize( net::DataIStream& is,
         notifyViewportChanged();
     }
     if( dirtyBits & DIRTY_MEMBER )
-        is >> _drawable >> _tasks >> _color >> _nativeContext.view
+        is >> _drawable >> _color >> _nativeContext.view
            >> _nativeContext.overdraw;
-    if( dirtyBits & DIRTY_ERROR )
-        is >> _error;
     if( dirtyBits & DIRTY_FRUSTUM )
         is >> _nativeContext.frustum;
     if( dirtyBits & DIRTY_ALL )
@@ -245,15 +239,6 @@ void Channel< W, C >::setDrawable( const uint32_t drawable )
 }
 
 template< class W, class C >
-void Channel< W, C >::setTasks( const uint32_t tasks )
-{
-    if( _tasks == tasks )
-        return;
-    _tasks = tasks;
-    setDirty( DIRTY_MEMBER );
-}
-
-template< class W, class C >
 void Channel< W, C >::setViewVersion( const net::ObjectVersion& view )
 {
     if( _nativeContext.view == view )
@@ -306,15 +291,6 @@ template< class W, class C >
 const std::string& Channel< W, C >::getIAttributeString( const IAttribute attr )
 {
     return _iAttributeStrings[attr];
-}
-
-template< class W, class C >
-void Channel< W, C >::setErrorMessage( const std::string& message )
-{
-    if( _error == message )
-        return;
-    _error = message;
-    setDirty( DIRTY_ERROR );
 }
 
 }

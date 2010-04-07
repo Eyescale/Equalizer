@@ -247,9 +247,8 @@ void Pipe::addTasks( const uint32_t tasks )
 {
     Node* node = getNode();
     EQASSERT( node );
-    _setTasks( getTasks() | tasks );
+    setTasks( getTasks() | tasks );
     node->addTasks( tasks );
-    setDirty( DIRTY_MEMBER );
 }
 
 void Pipe::send( net::ObjectPacket& packet )
@@ -406,7 +405,7 @@ bool Pipe::_syncConfigExit()
     EQASSERT( success || _state == STATE_EXIT_FAILED );
 
     _state = STATE_STOPPED; // EXIT_FAILED -> STOPPED transition
-    _setTasks( fabric::TASK_NONE );
+    setTasks( fabric::TASK_NONE );
     sync();
     return success;
 }

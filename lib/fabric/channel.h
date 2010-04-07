@@ -19,7 +19,7 @@
 #ifndef EQFABRIC_CHANNEL_H
 #define EQFABRIC_CHANNEL_H
 
-#include <eq/fabric/object.h>        // base class
+#include <eq/fabric/Entity.h>        // base class
 #include <eq/fabric/paths.h>
 #include <eq/fabric/renderContext.h> // member
 #include <eq/fabric/types.h>
@@ -41,7 +41,7 @@ namespace fabric
      * RenderContext, which is computed by the server based on the rendering
      * description of the current configuration.
      */
-    template< class W, class C > class Channel : public Object
+    template< class W, class C > class Channel : public Entity
     {
     public: 
         typedef LeafVisitor< C > Visitor;
@@ -81,17 +81,6 @@ namespace fabric
 
         /** @return true if a viewport was specified last. @version 1.0 */
         bool hasFixedViewport() const { return _fixedVP; }
-
-        /** 
-         * Return the set of tasks this channel might execute in the worst case.
-         * 
-         * It is not guaranteed that all the tasks will be actually executed
-         * during rendering.
-         * 
-         * @return the tasks.
-         * @warning Experimental - may not be supported in the future
-         */
-        uint32_t getTasks() const { return _tasks; }
 
         /** 
          * Set the near and far planes for this channel.
@@ -275,23 +264,6 @@ namespace fabric
         EQFABRIC_EXPORT static const std::string& getIAttributeString(
                                                         const IAttribute attr );
         //@}
-
-        /** @name Error Information. */
-        //@{
-        /** 
-         * Set a message why the last operation failed.
-         * 
-         * The message will be transmitted to the originator of the request, for
-         * example to Config::init when set from within configInit().
-         *
-         * @param message the error message.
-         * @version 1.0
-         */
-        EQFABRIC_EXPORT void setErrorMessage( const std::string& message );
-
-        /** @return the error message from the last operation. */
-        const std::string& getErrorMessage() const { return _error; }
-        //@}
         
     protected:
         /** Construct a new channel. @internal */
@@ -305,11 +277,10 @@ namespace fabric
 
         enum DirtyBits
         {
-            DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 0,
-            DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 1,
-            DIRTY_MEMBER     = Object::DIRTY_CUSTOM << 2,
-            DIRTY_ERROR      = Object::DIRTY_CUSTOM << 3,
-            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 4,
+            DIRTY_ATTRIBUTES = Entity::DIRTY_CUSTOM << 0,
+            DIRTY_VIEWPORT   = Entity::DIRTY_CUSTOM << 1,
+            DIRTY_MEMBER     = Entity::DIRTY_CUSTOM << 2,
+            DIRTY_FRUSTUM    = Entity::DIRTY_CUSTOM << 3,
         };
 
         /** @internal */
@@ -318,9 +289,6 @@ namespace fabric
         /** @internal */
         EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
-
-        /** Set thetasks this channel might potentially execute. @internal */
-        void setTasks( const uint32_t tasks );
 
         /** Update the native view identifier and version. @internal */
         void setViewVersion( const net::ObjectVersion& view );
@@ -371,14 +339,8 @@ namespace fabric
         /** Integer attributes. */
         int32_t _iAttributes[IATTR_ALL];
 
-        /** Worst-case set of tasks. */
-        uint32_t _tasks;
-
         /** An alternate drawable config. */
         uint32_t _drawable;
-
-        /** The reason for the last error. */
-        std::string _error;
 
         /** Overdraw limiter */
         Vector2i    _maxSize;

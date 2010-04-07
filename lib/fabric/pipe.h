@@ -19,7 +19,7 @@
 #ifndef EQFABRIC_PIPE_H
 #define EQFABRIC_PIPE_H
 
-#include <eq/fabric/object.h>        // base class
+#include <eq/fabric/entity.h>        // base class
 #include <eq/fabric/paths.h>
 #include <eq/fabric/pixelViewport.h> // base class
 #include <eq/fabric/types.h>
@@ -30,7 +30,7 @@ namespace eq
 namespace fabric
 {
     template< class, class, class > class Window;
-    template< class N, class P, class W > class Pipe : public Object
+    template< class N, class P, class W > class Pipe : public Entity
     {
     public:
         
@@ -39,39 +39,6 @@ namespace fabric
         
         N*       getNode()       { return _node; }
         const N* getNode() const { return _node; }
-
-        /** @name Error Information. */
-        //@{
-        /** 
-         * Set a message why the last operation failed.
-         * 
-         * The message will be transmitted to the originator of the request, for
-         * example to Config::init when set from within configInit().
-         *
-         * @param message the error message.
-         * @version 1.0
-         */
-        EQFABRIC_EXPORT void setErrorMessage( const std::string& message );
-        //@}
-        
-        /**
-         * @name Data Access
-         */
-        //@{
-        /** @return the error message from the last operation. */
-        const std::string& getErrorMessage() const { return _error; }
-        
-        /** 
-         * Return the set of tasks this pipe's channels might execute in the
-         * worst case.
-         * 
-         * It is not guaranteed that all the tasks will be actually executed
-         * during rendering.
-         * 
-         * @warning Not finalized, might change in the future.
-         * @return the tasks.
-         */
-        uint32_t getTasks() const { return _tasks; }
 
          /**
          * Returns the port number of this pipe.
@@ -157,7 +124,6 @@ namespace fabric
             DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
             DIRTY_PIXELVIEWPORT   = Object::DIRTY_CUSTOM << 1,
             DIRTY_MEMBER          = Object::DIRTY_CUSTOM << 2,
-            DIRTY_ERROR           = Object::DIRTY_CUSTOM << 3,
         };
 
         /** @internal */
@@ -166,7 +132,6 @@ namespace fabric
         /** @internal */
         EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
-        void _setTasks( uint32_t tasks ) { _tasks = tasks; }
 
         /** @return the vector of windows. */
         WindowVector& _getWindows() { return _windows; }
@@ -182,12 +147,6 @@ namespace fabric
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:
-        /** The reason for the last error. */
-        std::string _error;
-
-        /** Worst-case set of tasks. */
-        uint32_t _tasks;
-
         /** The display (GLX) or ignored (Win32, AGL). */
         uint32_t _port;
 

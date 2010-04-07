@@ -56,9 +56,8 @@ std::string _iWindowAttributeStrings[] = {
 
 template< class P, class W, class C >
 Window< P, W, C >::Window( P* parent )
-    : _tasks( fabric::TASK_NONE ) 
-    , _pipe( parent )
-    , _fixedVP( true )
+        : _pipe( parent )
+        , _fixedVP( true )
 {
     EQASSERT( parent );
     parent->_addWindow( static_cast< W* >( this ) );
@@ -67,12 +66,11 @@ Window< P, W, C >::Window( P* parent )
 
 template< class P, class W, class C >
 Window< P, W, C >::Window( const Window& from, P* parent ) 
-    : Object( from )
-    , _tasks( fabric::TASK_NONE )
-    , _pipe( parent )
-    , _pvp( from._pvp )
-    , _vp( from._vp )
-    , _fixedVP( from._fixedVP )
+        : Entity( from )
+        , _pipe( parent )
+        , _pvp( from._pvp )
+        , _vp( from._vp )
+        , _fixedVP( from._fixedVP )
 {
     EQASSERT( parent );
     parent->_addWindow( static_cast< W* >( this ) );
@@ -107,15 +105,6 @@ Window< P, W, C >::~Window( )
     EQASSERT( channels.empty( ));
 
     _pipe->_removeWindow( static_cast< W* >( this ) );
-}
-
-template< class P, class W, class C >
-void Window< P, W, C >::setErrorMessage( const std::string& message )
-{
-    if( _error == message )
-        return;
-    _error = message;
-    setDirty( DIRTY_ERROR );
 }
 
 template< class P, class W, class C >
@@ -286,7 +275,7 @@ void Window< P, W, C >::notifyViewportChanged()
     }
     else           // update viewport
     {
-        const Viewport oldVP = _vp;            
+        const Viewport oldVP = _vp;
         _vp = _pvp.getSubVP( pipePVP );
         if( oldVP != _vp )
         {
@@ -308,42 +297,28 @@ template< class P, class W, class C >
 void Window< P, W, C >::_setDrawableConfig( 
                                       const DrawableConfig& drawableConfig )
 { 
-    _drawableConfig = drawableConfig; 
-    setDirty( DIRTY_MEMBER ); 
+    _drawableConfig = drawableConfig;
     setDirty( DIRTY_DRAWABLECONFIG );
-}
-
-template< class P, class W, class C >
-void Window< P, W, C >::_setTasks( const uint32_t tasks )
-{
-    if( _tasks == tasks )
-        return;
-    _tasks = tasks;
-    setDirty( DIRTY_MEMBER );
 }
 
 template< class P, class W, class C >
 void Window< P, W, C >::serialize( net::DataOStream& os,
                                    const uint64_t dirtyBits)
 {
-    Object::serialize( os, dirtyBits );
+    Entity::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _vp << _pvp << _fixedVP;
     if( dirtyBits & DIRTY_DRAWABLECONFIG )
         os << _drawableConfig;
-    if( dirtyBits & DIRTY_MEMBER )
-        os << _tasks;
-    if( dirtyBits & DIRTY_ERROR )
-        os << _error;
 }
 
 template< class P, class W, class C >
 void Window< P, W, C >::deserialize( net::DataIStream& is,
                                      const uint64_t dirtyBits )
 {
-    Object::deserialize( is, dirtyBits );
+    Entity::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
     if( dirtyBits & DIRTY_VIEWPORT )
@@ -353,10 +328,6 @@ void Window< P, W, C >::deserialize( net::DataIStream& is,
     }
     if( dirtyBits & DIRTY_DRAWABLECONFIG )
         is >> _drawableConfig;
-    if( dirtyBits & DIRTY_MEMBER )
-        is >> _tasks;
-    if( dirtyBits & DIRTY_ERROR )
-        is >> _error;
 }
 
 }

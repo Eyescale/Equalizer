@@ -41,8 +41,7 @@ std::string _iPipeAttributeStrings[] = {
 
 template< class N, class P, class W >
 Pipe< N, P, W >::Pipe( N* parent )
-        : _tasks( fabric::TASK_NONE )        
-        , _port( EQ_UNDEFINED_UINT32 )
+        : _port( EQ_UNDEFINED_UINT32 )
         , _device( EQ_UNDEFINED_UINT32 )
         , _node( parent )
 {
@@ -51,8 +50,7 @@ Pipe< N, P, W >::Pipe( N* parent )
 
 template< class N, class P, class W >
 Pipe< N, P, W >::Pipe( const Pipe& from, N* parent  ) 
-        : Object( from )
-        , _tasks( fabric::TASK_NONE )        
+        : Entity( from )
         , _port( from.getPort() )
         , _device( from.getDevice() )
         , _pvp( from._pvp )
@@ -60,7 +58,6 @@ Pipe< N, P, W >::Pipe( const Pipe& from, N* parent  )
         , _cudaGLInterop( from._cudaGLInterop )
 {
     parent->_addPipe( static_cast< P* >( this ) );
-
     notifyPixelViewportChanged();
 }
 
@@ -76,15 +73,6 @@ Pipe< N, P, W >::~Pipe()
     }
     windows.clear();
     _node->_removePipe( static_cast< P* >( this ) );
-}
-
-template< class N, class P, class W >
-void Pipe< N, P, W >::setErrorMessage( const std::string& message )
-{
-    if( _error == message )
-        return;
-    _error = message;
-    setDirty( DIRTY_ERROR );
 }
 
 template< class N, class P, class W >
@@ -193,9 +181,7 @@ void Pipe< N, P, W >::serialize( net::DataOStream& os,
     if( dirtyBits & DIRTY_PIXELVIEWPORT )
         os << _pvp;
     if( dirtyBits & DIRTY_MEMBER )
-        os << _port << _device << _cudaGLInterop << _tasks;
-    if( dirtyBits & DIRTY_ERROR )
-        os << _error;
+        os << _port << _device << _cudaGLInterop;
 }
 
 template< class N, class P, class W  >
@@ -210,9 +196,7 @@ void Pipe< N, P, W >::deserialize( net::DataIStream& is,
         setPixelViewport( pvp );
     }
     if( dirtyBits & DIRTY_MEMBER )
-        is >> _port >> _device >> _cudaGLInterop >> _tasks;
-    if( dirtyBits & DIRTY_ERROR )
-        is >> _error;
+        is >> _port >> _device >> _cudaGLInterop;
 }
 
 }

@@ -19,7 +19,7 @@
 #ifndef EQFABRIC_WINDOW_H
 #define EQFABRIC_WINDOW_H
 
-#include <eq/fabric/object.h>        // base class
+#include <eq/fabric/entity.h>        // base class
 
 #include <eq/fabric/drawableConfig.h> // enum
 #include <eq/fabric/paths.h>
@@ -40,7 +40,7 @@ namespace fabric
     template< class T, class C  > class ElementVisitor;
     template< class T > class LeafVisitor;
 
-    template< class P, class W, class C > class Window : public Object
+    template< class P, class W, class C > class Window : public Entity
     {
     public:
         /** A vector of pointers to channels */
@@ -56,18 +56,6 @@ namespace fabric
 
         /**  @return a vector of all channels of this window.  */
         const ChannelVector& getChannels() const { return _channels; }
-
-        /** 
-         * Return the set of tasks this window's channels might execute in the
-         * worst case.
-         * 
-         * It is not guaranteed that all the tasks will be actually executed
-         * during rendering.
-         * 
-         * @warning Not finalized, might change in the future.
-         * @return the tasks.
-         */
-        uint32_t getTasks() const { return _tasks; }
 
         const DrawableConfig& getDrawableConfig() const
             { return _drawableConfig; }
@@ -162,21 +150,6 @@ namespace fabric
                                                       const IAttribute attr );
         //@}
 
-        /** @name Error Information. */
-        //@{
-        /** 
-         * Set a message why the last operation failed.
-         * 
-         * The message will be transmitted to the originator of the request, for
-         * example to Config::init when set from within configInit().
-         *
-         * @param message the error message.
-         * @version 1.0
-         */
-        EQFABRIC_EXPORT void setErrorMessage( const std::string& message );
-
-        /** @return the error message from the last operation. */
-        const std::string& getErrorMessage() const { return _error; }
         /** @return the index path to this window. @internal */
         EQFABRIC_EXPORT WindowPath getPath() const;
         //@}
@@ -192,11 +165,9 @@ namespace fabric
 
         enum DirtyBits
         {
-            DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
-            DIRTY_VIEWPORT        = Object::DIRTY_CUSTOM << 1,
-            DIRTY_DRAWABLECONFIG  = Object::DIRTY_CUSTOM << 2,
-            DIRTY_MEMBER          = Object::DIRTY_CUSTOM << 3,
-            DIRTY_ERROR           = Object::DIRTY_CUSTOM << 4
+            DIRTY_ATTRIBUTES      = Entity::DIRTY_CUSTOM << 0,
+            DIRTY_VIEWPORT        = Entity::DIRTY_CUSTOM << 1,
+            DIRTY_DRAWABLECONFIG  = Entity::DIRTY_CUSTOM << 2,
         };
 
         /** @internal */
@@ -223,8 +194,6 @@ namespace fabric
         /**  @return a vector of all channels of this window.  */
         ChannelVector& _getChannels() { return _channels; }
 
-        void _setTasks( const uint32_t tasks );
-
         void _setDrawableConfig( const DrawableConfig& drawableConfig );
         //@}
 
@@ -233,12 +202,6 @@ namespace fabric
     private:
         /** Integer attributes. */
         int32_t _iAttributes[ IATTR_ALL ];
-        
-        /** The reason for the last error. */
-        std::string _error;
-
-        /** Worst-case set of tasks. */
-        uint32_t _tasks;
 
         /** The channels of this window. */
         ChannelVector     _channels;

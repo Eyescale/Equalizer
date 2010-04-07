@@ -89,6 +89,7 @@ HEADER_SRC = \
 	fabric/drawableConfig.h \
 	fabric/elementVisitor.h \
 	fabric/eye.h \
+	fabric/entity.h \
 	fabric/fabric.h \
 	fabric/frustum.h \
 	fabric/layout.h \
@@ -236,6 +237,7 @@ CXXFILES = \
 	net/versionedSlaveCM.cpp \
 	fabric/colorMask.cpp \
 	fabric/eye.cpp \
+	fabric/entity.cpp \
 	fabric/frustum.cpp \
 	fabric/init.cpp \
 	fabric/object.cpp \
