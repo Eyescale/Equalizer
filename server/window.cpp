@@ -687,6 +687,8 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
 }
 
 #include "../lib/fabric/window.cpp"
+#include <eq/client/channel.h> // TODO remove
+#include <eq/client/pipe.h> // TODO remove
 template class eq::fabric::Window< eq::server::Pipe, eq::server::Window, 
                                    eq::server::Channel >;
 
