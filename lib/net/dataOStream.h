@@ -86,9 +86,6 @@ namespace DataStreamTest
 
         /** Write a number of bytes from data into the stream. */
         EQ_EXPORT void write( const void* data, uint64_t size );
-
-        /** Write one block of data into the stream and close it immediately. */
-        EQ_EXPORT void writeOnce( const void* data, uint64_t size );
         //@}
 
  

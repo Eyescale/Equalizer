@@ -546,6 +546,7 @@ namespace net
     struct ObjectDataPacket : public ObjectPacket
     {
         ObjectDataPacket() : dataSize( 0 )
+                           , sequence( 0 )
                            , compressorName( 0 )
                            , nChunks( 0 )
                            , last( false ) {}

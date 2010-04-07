@@ -159,7 +159,7 @@ template< typename P > bool ObjectDataIStream::_getNextBuffer(
     *size = packet->dataSize;
     const uint8_t* data = reinterpret_cast<const uint8_t*>( packet+1 );
 
-    if( packet->compressorName != EQ_COMPRESSOR_NONE )
+    if( packet->compressorName > EQ_COMPRESSOR_NONE )
     {
         _decompress( data, buffer, packet->compressorName, packet->nChunks,
                      packet->dataSize );

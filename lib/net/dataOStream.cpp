@@ -223,35 +223,6 @@ void DataOStream::write( const void* data, uint64_t size )
         _flush();
 }
 
-void DataOStream::writeOnce( const void* data, uint64_t size )
-{
-    EQASSERT( _enabled );
-    EQASSERT( !_dataSent );
-    EQASSERT( _bufferStart == 0 );
-    EQASSERT( _buffer.isEmpty( ));
-#ifdef EQ_INSTRUMENT_DATAOSTREAM
-    nBytes += size;
-#endif    
-    
-    if( _save )
-    {
-        _bufferType = BUFFER_NONE;
-        _buffer.append( static_cast< const uint8_t* >( data ), size );
-    }
-
-    if( !_connections.empty( ))
-    {
-        _bufferType = BUFFER_ALL;
-        _compress( data, size );
-        _sendFooter( data, size );
-    }
-
-    reset();
-    _enabled = false;
-    _dataSent = true;
-    _connections.clear();
-}
-
 void DataOStream::_flush()
 {
     EQASSERT( _enabled );

@@ -99,11 +99,15 @@ uint32_t UnbufferedMasterCM::addSlave( Command& command )
 
     if( !os.hasSentData( )) // if no data, send empty packet to set version
     {
-        os.enable( node, true );
-        os.writeOnce( 0, 0 );
-        os.disable();
+        ObjectInstancePacket instancePacket;
+        instancePacket.nChunks = 0;
+        instancePacket.last = true;
+        instancePacket.version = _version;
+        instancePacket.dataSize = 0;
+        instancePacket.instanceID = instanceID;
+        instancePacket.masterInstanceID = _object->getInstanceID();
+        _object->send( node, instancePacket );
     }
-
 #ifdef EQ_INSTRUMENT_MULTICAST
     ++_miss;
 #endif
