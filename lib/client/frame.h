@@ -19,16 +19,20 @@
 #define EQ_FRAME_H
 
 #include <eq/client/eye.h>    // enum Eye
-#include <eq/client/window.h> // nested ObjectManager type
 #include <eq/client/types.h>
 
 #include <eq/fabric/zoom.h>   // member
 #include <eq/net/object.h>
+#include <eq/net/objectVersion.h>
+#include <eq/net/types.h>
 #include <eq/base/monitor.h>
 
 namespace eq
 {
-
+namespace util
+{
+    template< typename T > class ObjectManager;
+}
 namespace server
 {
     class Frame;
@@ -132,7 +136,7 @@ namespace server
          * @param glObjects the GL object manager for the current GL context.
          * @param config the configuration of the source frame buffer.
          */
-        EQ_EXPORT void readback( Window::ObjectManager* glObjects,
+        EQ_EXPORT void readback( util::ObjectManager< const void* >* glObjects,
                                  const DrawableConfig& config );
         
         /** 
@@ -197,7 +201,7 @@ namespace server
         /** Enable/disable alpha usage for newly allocated images. */
         EQ_EXPORT void setAlphaUsage( const bool useAlpha );
 
-        /** Set the compressor quality value. */
+        /** Set the minimum quality after compression. */
         EQ_EXPORT void setQuality( const Frame::Buffer buffer, 
                                    const float quality );
 

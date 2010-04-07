@@ -24,6 +24,7 @@
 #include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/pixel.h>         // member
 #include <eq/fabric/range.h>         // member
+#include <eq/fabric/subPixel.h>      // member
 #include <eq/net/object.h>           // base class
 #include <eq/base/monitor.h>         // member
 
@@ -82,7 +83,7 @@ namespace server
         /** Enable/disable alpha usage for newly allocated images. */
         void setAlphaUsage( const bool useAlpha ) { _useAlpha = useAlpha; }
 
-        /** Set the compressor quality value. */
+        /** Set the minimum quality after compression. */
         void setQuality( const Frame::Buffer buffer, const float quality );
         //@}
 
@@ -116,7 +117,7 @@ namespace server
          * @param config the configuration of the source frame buffer.
          */
         void readback( const Frame& frame, 
-                       Window::ObjectManager* glObjects,
+                       util::ObjectManager< const void* >* glObjects,
                        const DrawableConfig& config );
 
         /** Synchronize the last image readback. */

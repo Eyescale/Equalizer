@@ -1,4 +1,4 @@
-Clean up server-side includes
+More clean up of client/server-side includes
 
 [ ] May break build
 [ ] May break existing applications

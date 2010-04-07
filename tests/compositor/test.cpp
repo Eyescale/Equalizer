@@ -19,6 +19,7 @@
 #include <test.h>
 
 #include <eq/base/clock.h>
+#include <eq/fabric/drawableConfig.h>
 #include <eq/client/compositor.h>
 #include <eq/client/frame.h>
 #include <eq/client/frameData.h>

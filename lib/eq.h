@@ -72,6 +72,7 @@
 #include <eq/base/rng.h>
 #include <eq/base/sleep.h>
 #include <eq/net/net.h>
+#include <eq/fabric/fabric.h>
 #include <eq/util/util.h>
 
 #include <vmmlib/vmmlib.hpp>

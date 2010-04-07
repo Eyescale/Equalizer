@@ -368,77 +368,77 @@ global:
 	 | EQTOKEN_WINDOW_IATTR_HINT_STEREO IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_HINT_STEREO, $2 );
+             eq::server::Window::IATTR_HINT_STEREO, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_HINT_DOUBLEBUFFER, $2 );
+             eq::server::Window::IATTR_HINT_DOUBLEBUFFER, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_HINT_FULLSCREEN, $2 );
+             eq::server::Window::IATTR_HINT_FULLSCREEN, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_HINT_DECORATION IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_HINT_DECORATION, $2 );
+             eq::server::Window::IATTR_HINT_DECORATION, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_HINT_SWAPSYNC IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_HINT_SWAPSYNC, $2 );
+             eq::server::Window::IATTR_HINT_SWAPSYNC, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_HINT_DRAWABLE IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_HINT_DRAWABLE, $2 );
+             eq::server::Window::IATTR_HINT_DRAWABLE, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_HINT_STATISTICS IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_HINT_STATISTICS, $2 );
+             eq::server::Window::IATTR_HINT_STATISTICS, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_HINT_SCREENSAVER IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_HINT_SCREENSAVER, $2 );
+             eq::server::Window::IATTR_HINT_SCREENSAVER, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_PLANES_COLOR IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_PLANES_COLOR, $2 );
+             eq::server::Window::IATTR_PLANES_COLOR, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_PLANES_ALPHA IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_PLANES_ALPHA, $2 );
+             eq::server::Window::IATTR_PLANES_ALPHA, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_PLANES_DEPTH IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_PLANES_DEPTH, $2 );
+             eq::server::Window::IATTR_PLANES_DEPTH, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_PLANES_STENCIL IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_PLANES_STENCIL, $2 );
+             eq::server::Window::IATTR_PLANES_STENCIL, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_PLANES_ACCUM IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_PLANES_ACCUM, $2 );
+             eq::server::Window::IATTR_PLANES_ACCUM, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_PLANES_ACCUM_ALPHA IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_PLANES_ACCUM_ALPHA, $2 );
+             eq::server::Window::IATTR_PLANES_ACCUM_ALPHA, $2 );
      }
      | EQTOKEN_WINDOW_IATTR_PLANES_SAMPLES IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
-             eq::Window::IATTR_PLANES_SAMPLES, $2 );
+             eq::server::Window::IATTR_PLANES_SAMPLES, $2 );
      }
      | EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS IATTR
      {

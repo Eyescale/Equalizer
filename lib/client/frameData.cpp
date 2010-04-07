@@ -207,7 +207,7 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
 
 
 void FrameData::readback( const Frame& frame,
-                          Window::ObjectManager* glObjects,
+                          util::ObjectManager< const void* >* glObjects,
                           const DrawableConfig& config  )
 {
     if( _data.buffers == Frame::BUFFER_NONE )

@@ -197,12 +197,16 @@ bool ConfigTool::parseArguments( int argc, char** argv )
 void ConfigTool::writeConfig() const
 {
     Global* global = Global::instance();
-    global->setWindowIAttribute( eq::Window::IATTR_HINT_FULLSCREEN, eq::ON );
-    global->setWindowIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER, eq::OFF );
-    global->setWindowIAttribute( eq::Window::IATTR_HINT_DRAWABLE, eq::PBUFFER );
+    global->setWindowIAttribute( eq::server::Window::IATTR_HINT_FULLSCREEN,
+                                 eq::ON );
+    global->setWindowIAttribute( eq::server::Window::IATTR_HINT_DOUBLEBUFFER,
+                                 eq::OFF );
+    global->setWindowIAttribute( eq::server::Window::IATTR_HINT_DRAWABLE,
+                                 eq::PBUFFER );
 
-    if( _mode != MODE_2D )
-        global->setWindowIAttribute( eq::Window::IATTR_PLANES_STENCIL, eq::ON );
+    if( _mode >= MODE_DB && _mode <= MODE_DB_DS_AC )
+        global->setWindowIAttribute( eq::server::Window::IATTR_PLANES_STENCIL,
+                                     eq::ON );
 
     ServerPtr server = new Server;
     Config* config = new Config( server );

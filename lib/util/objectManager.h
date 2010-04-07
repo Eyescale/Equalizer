@@ -48,8 +48,7 @@ namespace util
      * obtain - get or new,
      * delete - delete.
      */
-    template< typename T >
-    class ObjectManager : public base::NonCopyable
+    template< typename T > class ObjectManager : public base::NonCopyable
     {
     public:
         enum

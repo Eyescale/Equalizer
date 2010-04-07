@@ -246,7 +246,7 @@ namespace eq
         EQ_EXPORT void readback( const uint32_t buffers, 
                                  const PixelViewport& pvp,
                                  const Zoom& zoom,
-                                 Window::ObjectManager* glObjects );
+                                 util::ObjectManager< const void* >* glObjects );
 
         /** Writes the pixel data as rgb image files. */
         EQ_EXPORT void writeImage( const std::string& filename,
@@ -383,13 +383,13 @@ namespace eq
         bool _canIgnoreAlpha( const Frame::Buffer buffer ) const;
 
         void _readback( const Frame::Buffer buffer, const Zoom& zoom,
-                        Window::ObjectManager* glObjects );
+                        util::ObjectManager< const void* >* glObjects );
         void _readbackTexture( const Frame::Buffer buffer,
-                               Window::ObjectManager* glObjects );
+                               util::ObjectManager< const void* >* glObjects );
         void _readbackPixels( const Frame::Buffer buffer,
-                              Window::ObjectManager* glObjects );
+                              util::ObjectManager< const void* >* glObjects );
         void _readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
-                            Window::ObjectManager* glObjects );
+                            util::ObjectManager< const void* >* glObjects );
 
         friend std::ostream& operator << ( std::ostream& os, const Image* );
     };

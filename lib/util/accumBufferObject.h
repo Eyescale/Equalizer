@@ -21,6 +21,8 @@
 
 #include <eq/util/frameBufferObject.h> // base class
 
+#include <eq/fabric/pixelViewport.h> // member
+
 namespace eq
 {
 namespace util
@@ -51,8 +53,7 @@ namespace util
          * @return true on success, false otherwise
          * @sa Window::getColorFormat(), glReadBuffer()
          */
-        EQ_EXPORT bool init( const PixelViewport& pvp,
-                             GLuint format );
+        EQ_EXPORT bool init( const PixelViewport& pvp, const GLuint format );
 
         /** De-initialize the Accumulation Buffer Object. */
         EQ_EXPORT void exit();
@@ -65,7 +66,7 @@ namespace util
          * @param value a floating-point value multiplying the source values
          *              during the load operation.
          */
-        EQ_EXPORT void load( GLfloat value );
+        EQ_EXPORT void load( const GLfloat value );
 
         /**
          * Accumulate the current read buffer into the accumulation buffer.
@@ -75,7 +76,7 @@ namespace util
          * @param value a floating-point value multiplying the source values
          *              during the accum operation.
          */
-        EQ_EXPORT void accum( GLfloat value );
+        EQ_EXPORT void accum( const GLfloat value );
 
         /**
          * Transfers accumulation buffer values to the write buffer.
@@ -84,7 +85,7 @@ namespace util
          * @param value a floating-point value multiplying the accumulation
          *              values during the operation.
          */
-        EQ_EXPORT void display( GLfloat value );
+        EQ_EXPORT void display( const GLfloat value );
 
     private:
         /**
@@ -93,7 +94,8 @@ namespace util
          * @param texture a texture object.
          * @param value the brightness factor of the result.
          */
-        void _drawQuadWithTexture( Texture* texture, const PixelViewport& pvp, GLfloat value );
+        void _drawQuadWithTexture( Texture* texture, const PixelViewport& pvp,
+                                   const GLfloat value );
 
         Texture* _texture;
         PixelViewport _pvp;

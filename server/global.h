@@ -102,7 +102,7 @@ namespace server
         /**
          * @name Window Attributes.
          */
-        void setWindowIAttribute( const eq::Window::IAttribute attr,
+        void setWindowIAttribute( const Window::IAttribute attr,
                                   const int32_t value )
             { _windowIAttributes[attr] = value; }
         int32_t getWindowIAttribute( const Window::IAttribute attr ) const

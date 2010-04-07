@@ -89,6 +89,7 @@ HEADER_SRC = \
 	fabric/drawableConfig.h \
 	fabric/elementVisitor.h \
 	fabric/eye.h \
+	fabric/fabric.h \
 	fabric/frustum.h \
 	fabric/layout.h \
 	fabric/init.h \

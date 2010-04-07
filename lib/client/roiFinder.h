@@ -20,7 +20,8 @@
 #include "roiEmptySpaceFinder.h"
 #include "roiTracker.h"
 
-#include <eq/client/image.h>   // member
+#include "image.h"   // member
+#include "window.h"  // Window::ObjectManager
 
 #include <vector>
 #include <string>

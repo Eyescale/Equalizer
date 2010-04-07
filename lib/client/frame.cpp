@@ -135,7 +135,7 @@ void Frame::setQuality( const Frame::Buffer buffer, const float quality )
         _frameData->setQuality( buffer, quality );
 }
 
-void Frame::readback( Window::ObjectManager* glObjects,
+void Frame::readback( util::ObjectManager< const void* >* glObjects,
                       const DrawableConfig& config ) 
 {
     EQASSERT( _frameData );

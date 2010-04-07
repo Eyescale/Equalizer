@@ -24,7 +24,9 @@
 #include "windowSystem.h"
 
 #include <eq/util/frameBufferObject.h>
+#include <eq/util/objectManager.h>
 
+#include <eq/fabric/colorMask.h>
 #include <eq/net/node.h>
 
 #include <eq/base/global.h>
@@ -385,7 +387,8 @@ const Image::PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
 }
 
 void Image::readback( const uint32_t buffers, const PixelViewport& pvp,
-                      const Zoom& zoom, Window::ObjectManager* glObjects )
+                      const Zoom& zoom, 
+                      util::ObjectManager< const void* >* glObjects )
 {
     EQASSERT( glObjects );
     EQLOG( LOG_ASSEMBLY ) << "startReadback " << pvp << ", buffers " << buffers
@@ -428,7 +431,7 @@ const void* Image::_getBufferKey( const Frame::Buffer buffer ) const
 }
 
 void Image::_readback( const Frame::Buffer buffer, const Zoom& zoom,
-                       Window::ObjectManager* glObjects )
+                       util::ObjectManager< const void* >* glObjects )
 {
     Attachment& attachment = _getAttachment( buffer );
     attachment.memory.isCompressed = false;
@@ -446,7 +449,7 @@ void Image::_readback( const Frame::Buffer buffer, const Zoom& zoom,
 }
 
 void Image::_readbackTexture( const Frame::Buffer buffer,
-                              Window::ObjectManager* glObjects )
+                              util::ObjectManager< const void* >* glObjects )
 {
     util::Texture& texture = _getAttachment( buffer ).texture;
     texture.setGLEWContext( glewGetContext( ));
@@ -456,7 +459,7 @@ void Image::_readbackTexture( const Frame::Buffer buffer,
 
 
 void Image::_readbackPixels( const Frame::Buffer buffer,
-                             Window::ObjectManager* glObjects )
+                             util::ObjectManager< const void* >* glObjects )
 {
     Attachment& attachment = _getAttachment( buffer );
     Memory&    memory = attachment.memory;
@@ -470,7 +473,7 @@ void Image::_readbackPixels( const Frame::Buffer buffer,
 }
 
 void Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
-                           Window::ObjectManager* glObjects )
+                           util::ObjectManager< const void* >* glObjects )
 {
     EQASSERT( glObjects );
     EQASSERT( glObjects->supportsEqTexture( ));

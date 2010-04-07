@@ -86,22 +86,22 @@ void Global::_setupDefaults()
     _pipeIAttributes[Pipe::IATTR_HINT_CUDA_GL_INTEROP] = eq::OFF;
 
     // window
-    for( uint32_t i=0; i<eq::Window::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<Window::IATTR_ALL; ++i )
         _windowIAttributes[i] = eq::UNDEFINED;
 
-    _windowIAttributes[eq::Window::IATTR_HINT_STEREO]       = eq::AUTO;
-    _windowIAttributes[eq::Window::IATTR_HINT_DOUBLEBUFFER] = eq::AUTO;
-    _windowIAttributes[eq::Window::IATTR_HINT_FULLSCREEN]   = eq::OFF;
-    _windowIAttributes[eq::Window::IATTR_HINT_DECORATION]   = eq::ON;
-    _windowIAttributes[eq::Window::IATTR_HINT_DRAWABLE]     = eq::WINDOW;
-    _windowIAttributes[eq::Window::IATTR_HINT_SCREENSAVER]  = eq::AUTO;
-    _windowIAttributes[eq::Window::IATTR_PLANES_COLOR]      = eq::AUTO;
-    _windowIAttributes[eq::Window::IATTR_PLANES_DEPTH]      = eq::AUTO;
-    _windowIAttributes[eq::Window::IATTR_PLANES_STENCIL]    = eq::AUTO;
+    _windowIAttributes[Window::IATTR_HINT_STEREO]       = eq::AUTO;
+    _windowIAttributes[Window::IATTR_HINT_DOUBLEBUFFER] = eq::AUTO;
+    _windowIAttributes[Window::IATTR_HINT_FULLSCREEN]   = eq::OFF;
+    _windowIAttributes[Window::IATTR_HINT_DECORATION]   = eq::ON;
+    _windowIAttributes[Window::IATTR_HINT_DRAWABLE]     = eq::WINDOW;
+    _windowIAttributes[Window::IATTR_HINT_SCREENSAVER]  = eq::AUTO;
+    _windowIAttributes[Window::IATTR_PLANES_COLOR]      = eq::AUTO;
+    _windowIAttributes[Window::IATTR_PLANES_DEPTH]      = eq::AUTO;
+    _windowIAttributes[Window::IATTR_PLANES_STENCIL]    = eq::AUTO;
 #ifdef NDEBUG
-    _windowIAttributes[eq::Window::IATTR_HINT_STATISTICS]   = eq::FASTEST;
+    _windowIAttributes[Window::IATTR_HINT_STATISTICS]   = eq::FASTEST;
 #else
-    _windowIAttributes[eq::Window::IATTR_HINT_STATISTICS]   = eq::NICEST;
+    _windowIAttributes[Window::IATTR_HINT_STATISTICS]   = eq::NICEST;
 #endif
     
     // channel
@@ -186,10 +186,10 @@ void Global::_readEnvironment()
         if( envValue )
             _pipeIAttributes[i] = atol( envValue );
     }
-    for( uint32_t i=0; i<eq::Window::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<Window::IATTR_ALL; ++i )
     {
-        const std::string& name     = eq::Window::getIAttributeString(
-            (eq::Window::IAttribute)i);
+        const std::string& name     = Window::getIAttributeString(
+            (Window::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
         if( envValue )
@@ -324,14 +324,14 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
            << static_cast<eq::IAttrValue>( value ) << std::endl;
     }
 
-    for( uint32_t i=0; i<eq::Window::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<Window::IATTR_ALL; ++i )
     {
         const int value = global->_windowIAttributes[i];
         if( value == reference._windowIAttributes[i] )
             continue;
 
-        const std::string& name = eq::Window::getIAttributeString( 
-            static_cast<eq::Window::IAttribute>( i ));
+        const std::string& name = Window::getIAttributeString( 
+            static_cast<Window::IAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << static_cast<eq::IAttrValue>( value ) << std::endl;
     }

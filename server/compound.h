@@ -21,6 +21,7 @@
 #include "channel.h"               // used in inline method
 #include "frustum.h"               // member
 #include "frustumData.h"           // member
+#include "visitorResult.h"         // enum
 
 #include <eq/client/frame.h>
 #include <eq/client/global.h>
