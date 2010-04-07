@@ -263,7 +263,7 @@ namespace net
         virtual void notifyNewVersion() {}
         //@}
 
-        /** @name Methods used by session during mapping. */
+        /** @name Methods used by session during mapping. @internal */
         //@{
         /** 
          * Setup the change manager.
@@ -277,13 +277,6 @@ namespace net
                                   const bool master, 
                               const uint32_t masterInstanceID = EQ_ID_INVALID );
         //@}
-
-    protected:
-        /** Copy constructor. */
-        EQ_EXPORT Object( const Object& );
-
-        /** NOP assignment operator. */
-        EQ_EXPORT const Object& operator = ( const Object& ) { return *this; }
 
         /**
          * @name Automatic Instantiation and Versioning
@@ -344,6 +337,13 @@ namespace net
         bool send( NodePtr node, ObjectPacket& packet, 
                    const void* data, const uint64_t size );
         //@}
+
+    protected:
+        /** Copy constructor. */
+        EQ_EXPORT Object( const Object& );
+
+        /** NOP assignment operator. */
+        EQ_EXPORT const Object& operator = ( const Object& ) { return *this; }
 
     private:
         /** Indicates if this instance is the copy on the server node. */

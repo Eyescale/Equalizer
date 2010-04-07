@@ -135,19 +135,8 @@ namespace server
         VisitorResult accept( ConfigVisitor& visitor ) const;
         //@}
 
-        /** 
-         * Set the maximum accepted latency for this config.
-         * 
-         * The latency is defined as the maximum number of frames between the
-         * start of a frame and the finish of the last rendering task for that
-         * frame.
-         *
-         * @param latency the latency.
-         */
-        void setLatency( const uint32_t latency ) { _latency = latency; }
-
-        /** @return the latency for this config. */
-        uint32_t getLatency() const { return _latency; }
+        /** @sa fabric::Config::changeLatency() */
+        virtual void changeLatency( const uint32_t latency );
 
         /** @return the last finished frame. */
         uint32_t getFinishedFrame() const { return _finishedFrame; }
@@ -200,10 +189,16 @@ namespace server
         bool exit();
 
         /** 
-         * Unmap all shared objects of the session, called before session
+         * Register all shared objects of the session and return the identifier
+         * of the config proxy.
+         */
+        uint32_t register_();
+
+        /** 
+         * Deregister all shared objects of the session, called before session
          * teardown.
          */
-        void unmap();
+        void deregister();
         
         /** @name Attributes */
         //@{
@@ -230,9 +225,6 @@ namespace server
         /** @return the error message from the last operation. */
         const std::string& getErrorMessage() const { return _error; }
         //@}
-
-        /** Used by server during appNode initialization. */
-        uint32_t getDistributorID();
 
         /** Return the initID for late initialization  */
         uint32_t getInitID(){ return _initID; }
@@ -283,9 +275,6 @@ namespace server
         /** The working directory of the render client. */
         std::string _workDir;
 
-        /** The maximum latency between frame start and end frame, in frames. */
-        uint32_t _latency;
-
         /** The last started frame, or 0. */
         uint32_t _currentFrame;
 
@@ -330,6 +319,13 @@ namespace server
         void _flushAllFrames();
         //@}
 
+        virtual Observer* createObserver();
+        virtual void releaseObserver( Observer* observer );
+        virtual Layout* createLayout();
+        virtual void releaseLayout( Layout* layout );
+        virtual Canvas* createCanvas();
+        virtual void releaseCanvas( Canvas* canvas );
+
         /** The command functions. */
         net::CommandResult _cmdInit( net::Command& command );
         net::CommandResult _cmdExit( net::Command& command );
@@ -338,7 +334,6 @@ namespace server
         net::CommandResult _cmdCreateReply( net::Command& command );
         net::CommandResult _cmdFreezeLoadBalancing( net::Command& command );
         net::CommandResult _cmdUnmapReply( net::Command& command );
-        net::CommandResult _cmdChangeLatency( net::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Config* config );

@@ -23,7 +23,6 @@
 #include "changeLatencyVisitor.h"
 #include "compound.h"
 #include "compoundVisitor.h"
-#include "configSerializer.h"
 #include "configUpdateDataVisitor.h"
 #include "equalizers/equalizer.h"
 #include "global.h"
@@ -43,8 +42,9 @@
 #include <eq/net/global.h>
 #include <eq/base/sleep.h>
 
+#include "configDeregistrator.h"
+#include "configRegistrator.h"
 #include "configSyncVisitor.h"
-#include "configUnmapVisitor.h"
 #include "nameFinder.h"
 
 using eq::net::ConnectionDescriptionVector;
@@ -67,12 +67,10 @@ std::string Config::_fAttributeStrings[FATTR_ALL] =
 
 void Config::_construct()
 {
-    _latency       = 1;
     _currentFrame  = 0;
     _finishedFrame = 0;
     _state         = STATE_STOPPED;
     _appNode       = 0;
-    _serializer    = 0;
 
     EQINFO << "New config @" << (void*)this << std::endl;
 }
@@ -88,10 +86,9 @@ Config::Config( ServerPtr parent )
 
 Config::Config( const Config& from, ServerPtr parent )
         : Super( from, parent )
+        , _appNetNode( from._appNetNode )
 {
     _construct();
-    _appNetNode = from._appNetNode;
-    _latency    = from._latency;
     for( int i=0; i<FATTR_ALL; ++i )
         _fAttributes[i] = from.getFAttribute( (FAttribute)i );
 
@@ -182,9 +179,6 @@ void Config::notifyMapped( net::NodePtr node )
     registerCommand( CMD_CONFIG_UNMAP_REPLY,
                      ConfigFunc( this, &Config::_cmdUnmapReply ), 
                      commandQueue );
-    registerCommand( CMD_CONFIG_CHANGE_LATENCY, 
-                     ConfigFunc( this, &Config::_cmdChangeLatency ), 
-                     serverQueue );
 }
 
 void Config::addNode( Node* node )
@@ -328,6 +322,37 @@ void Config::activateCanvas( Canvas* canvas )
     }
 }
 
+Observer* Config::createObserver()
+{
+    return new Observer( this );
+}
+
+void Config::releaseObserver( Observer* observer )
+{
+    delete observer;
+}
+
+Layout* Config::createLayout()
+{
+    return new Layout( this );
+}
+
+void Config::releaseLayout( Layout* layout )
+{
+    delete layout;
+}
+
+Canvas* Config::createCanvas()
+{
+    return new Canvas( this );
+}
+
+void Config::releaseCanvas( Canvas* canvas )
+{
+    delete canvas;
+}
+
+
 void Config::addCompound( Compound* compound )
 {
     compound->_config = this;
@@ -336,8 +361,7 @@ void Config::addCompound( Compound* compound )
 
 bool Config::removeCompound( Compound* compound )
 {
-    CompoundVector::iterator i = std::find( _compounds.begin(),
-                                            _compounds.end(), compound );
+    CompoundVector::iterator i = stde::find( _compounds, compound );
     if( i == _compounds.end( ))
         return false;
 
@@ -532,13 +556,24 @@ VisitorResult Config::accept( ConfigVisitor& visitor ) const
 // operations
 //===========================================================================
 
-uint32_t Config::getDistributorID()
+uint32_t Config::register_()
 {
-    EQASSERT( !_serializer );
+    ConfigRegistrator registrator( this );
+    accept( registrator );
+    return Super::register_();
+}
 
-    _serializer = new ConfigSerializer( this );
-    registerObject( _serializer );
-    return _serializer->getID();
+void Config::deregister()
+{
+    net::NodePtr localNode = getLocalNode();
+    ConfigUnmapPacket packet;
+    packet.requestID = localNode->registerRequest();
+    send( _appNetNode, packet );
+    localNode->waitRequest( packet.requestID );
+
+    Super::deregister();
+    ConfigDeregistrator deregistrator;
+    accept( deregistrator );
 }
 
 //---------------------------------------------------------------------------
@@ -915,25 +950,6 @@ bool Config::exit()
     return success;
 }
 
-void Config::unmap()
-{
-    net::NodePtr localNode = getLocalNode();
-    ConfigUnmapPacket packet;
-    packet.requestID = localNode->registerRequest();
-    send( _appNetNode, packet );
-    localNode->waitRequest( packet.requestID );
-
-    if( _serializer ) // Config::init never happened
-    {
-        deregisterObject( _serializer );
-        delete _serializer;
-        _serializer = 0;
-    }
-
-    ConfigUnmapVisitor unmapper;
-    accept( unmapper );
-}
-
 void Config::_startFrame( const uint32_t frameID )
 {
     EQASSERT( _state == STATE_RUNNING );
@@ -1011,17 +1027,24 @@ void Config::_flushAllFrames()
     EQLOG( base::LOG_ANY ) << "--- Flush All Frames -- " << std::endl;
 }
 
+void Config::changeLatency( const uint32_t latency )
+{
+    if( getLatency() == latency )
+        return;
+
+    setLatency( latency );
+
+    // update latency on all frames and barriers
+    ChangeLatencyVisitor visitor( latency );
+    accept( visitor );
+}
+
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
 net::CommandResult Config::_cmdInit( net::Command& command )
 {
-    // clients have retrieved distributed data
-    EQASSERT( _serializer );
-    deregisterObject( _serializer );
-    delete _serializer;
-    _serializer = 0;
-
     const ConfigInitPacket* packet =
         command.getPacket<ConfigInitPacket>();
     EQVERB << "handle config start init " << packet << std::endl;
@@ -1144,20 +1167,6 @@ net::CommandResult Config::_cmdFreezeLoadBalancing( net::Command& command )
 
     FreezeVisitor visitor( packet->freeze );
     accept( visitor );
-
-    return net::COMMAND_HANDLED;
-}
-
-net::CommandResult Config::_cmdChangeLatency( net::Command& command )
-{
-    const ConfigChangeLatency* packet = 
-        command.getPacket<ConfigChangeLatency>();
-
-    _latency = packet->latency;
-
-    // update latency on all frame and barrier
-    ChangeLatencyVisitor changeLatency( _latency );
-    accept( changeLatency );
 
     return net::COMMAND_HANDLED;
 }

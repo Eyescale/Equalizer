@@ -297,10 +297,9 @@ void Window::setOSWindow( OSWindow* window )
 
     // Initialize context-specific data
     makeCurrent();
-    
-    DrawableConfig drawableConfig;
-    _osWindow->queryDrawableConfig( drawableConfig );
-    _setDrawableConfig( drawableConfig );
+    DrawableConfig config;
+    _osWindow->queryDrawableConfig( config );
+    _setDrawableConfig( config );
     _setupObjectManager();
 }
 
@@ -655,7 +654,7 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
     else
         reply.result = false;
 
-    EQLOG( LOG_INIT ) << "TASK window config init reply " << &reply << std::endl;
+    EQLOG( LOG_INIT ) << "TASK window config init reply " << &reply <<std::endl;
 
     net::NodePtr node = command.getNode();
     if( !reply.result )

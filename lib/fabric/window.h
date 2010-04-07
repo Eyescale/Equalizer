@@ -195,7 +195,7 @@ namespace fabric
             DIRTY_VIEWPORT        = Object::DIRTY_CUSTOM << 1,
             DIRTY_DRAWABLECONFIG  = Object::DIRTY_CUSTOM << 2,
             DIRTY_MEMBER          = Object::DIRTY_CUSTOM << 3,
-            DIRTY_ERROR           = Object::DIRTY_CUSTOM << 4,
+            DIRTY_ERROR           = Object::DIRTY_CUSTOM << 4
         };
 
         /** @internal */

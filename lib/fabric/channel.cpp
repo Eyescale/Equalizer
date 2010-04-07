@@ -156,11 +156,9 @@ void Channel< W, C >::setPixelViewport( const PixelViewport& pvp )
 
     _nativeContext.pvp = pvp;
     _nativeContext.vp.invalidate();
+
     notifyViewportChanged();
     setDirty( DIRTY_VIEWPORT );
-
-    EQVERB << "Channel pvp set: " << _nativeContext.pvp << ":" 
-           << _nativeContext.vp << std::endl;
 }
 
 template< class W, class C >
@@ -176,11 +174,9 @@ void Channel< W, C >::setViewport( const Viewport& vp )
 
     _nativeContext.vp = vp;
     _nativeContext.pvp.invalidate();
+
     notifyViewportChanged();
     setDirty( DIRTY_VIEWPORT );
-
-    EQVERB << "Channel vp set: " << _nativeContext.pvp << ":" 
-           << _nativeContext.vp << std::endl;
 }
 
 template< class W, class C >
@@ -212,7 +208,7 @@ void Channel< W, C >::notifyViewportChanged()
             setDirty( DIRTY_VIEWPORT );
     }
 
-    EQVERB << getName() << " viewport update: " << _nativeContext.vp << ":"
+    EQINFO << getName() << " viewport update: " << _nativeContext.vp << ":"
            << _nativeContext.pvp << std::endl;
 }
 

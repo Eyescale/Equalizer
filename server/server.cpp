@@ -273,7 +273,7 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
 
     eq::ServerCreateConfigPacket createConfigPacket;
     createConfigPacket.configID  = configID;
-    createConfigPacket.objectID  = appConfig->getDistributorID();
+    createConfigPacket.objectID  = appConfig->register_();
     createConfigPacket.appNodeID = node->getNodeID();
     node->send( createConfigPacket, name );
 
@@ -306,7 +306,7 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
         config->exit(); // Make sure config is exited
     }
 
-    config->unmap();
+    config->deregister();
 
     eq::ServerDestroyConfigPacket destroyConfigPacket;
     destroyConfigPacket.configID  = config->getID();

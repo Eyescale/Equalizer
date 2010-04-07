@@ -86,6 +86,17 @@ namespace DataStreamTest
 
         /** Write a number of bytes from data into the stream. */
         EQ_EXPORT void write( const void* data, uint64_t size );
+
+        /**
+         * Serialize child objects.
+         *
+         * The DataIStream has a deserialize counterpart to this method. The
+         * master instance has to register all child objects beforehand. Slave
+         * instance can commit unmapped children, which will be serialized
+         * in-line.
+         */
+        template< typename O, typename C >
+        void serializeChildren( O* object, const std::vector< C* >& children );
         //@}
 
  
@@ -111,14 +122,12 @@ namespace DataStreamTest
                                  const uint64_t sizeUncompressed ) = 0;
         //@}
 
-
         /** Reset the whole stream. */
         virtual void reset();
 
         /** Locked connections to the receivers, if _enabled */
         ConnectionVector _connections;
         friend class DataStreamTest::Sender;
-        
 
     private:
         void*  _compressor;   //!< the instance of the compressor
@@ -206,6 +215,14 @@ namespace net
 
     /** Write an object identifier and version. */
     template<> inline DataOStream& 
+    DataOStream::operator << ( const Object* const& object )
+    {
+        (*this) << ObjectVersion( object );
+        return *this;
+    }
+ 
+    /** Write an object identifier and version. */
+    template<> inline DataOStream& 
     DataOStream::operator << ( Object* const& object )
     {
         (*this) << ObjectVersion( object );
@@ -217,12 +234,39 @@ namespace net
     DataOStream::operator << ( const std::vector< T >& value )
     {
         const uint64_t nElems = value.size();
-        write( &nElems, sizeof( nElems ));
+        (*this) << nElems;
         for( uint64_t i =0; i < nElems; ++i )
             (*this) << value[i];
         return *this;
     }
  
+    template< typename O, typename C > inline void
+    DataOStream::serializeChildren( O* object, const std::vector<C*>& children )
+    {
+        const uint64_t nElems = children.size();
+        (*this) << nElems;
+
+        std::vector< C* > unmapped;
+        for( typename std::vector< C* >::const_iterator i = children.begin();
+             i != children.end(); ++i )
+        {
+            C* child = *i;
+            (*this) << static_cast< const Object* >( child );
+            if( child->getID() == EQ_ID_INVALID )
+            {
+                EQASSERTINFO( !object->isMaster(),
+                              "Found unregistered object on master instance" );
+                unmapped.push_back( child );
+            }
+        }
+        for( typename std::vector< C* >::const_iterator i = unmapped.begin();
+             i != unmapped.end(); ++i )
+        {
+            Object* child = *i;
+            child->getInstanceData( *this );
+        }
+    }
+
     /** Optimized specialization to write a std::vector of uint8_t. */
     template<> inline DataOStream& 
     DataOStream::operator << ( const std::vector< uint8_t >& value )

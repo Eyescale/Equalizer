@@ -171,6 +171,17 @@ EQ_STDEXT_NAMESPACE_OPEN
     find( const std::vector< T >& container, const T& element )
         { return std::find( container.begin(), container.end(), element ); }
 
+    /** Find the element matching the predicate @version 1.0 */
+    template< typename T, typename P > typename std::vector< T >::iterator 
+    find_if( std::vector< T >& container, const P& predicate )
+        { return std::find_if( container.begin(), container.end(), predicate );}
+
+    /** Find the element matching the predicate @version 1.0 */
+    template< typename T, typename P > typename std::vector<T>::const_iterator 
+    find_if( std::vector< const T >& container, const P& predicate )
+        { return std::find_if( container.begin(), container.end(), predicate );}
+
+
 EQ_STDEXT_NAMESPACE_CLOSE
 
 #endif // EQBASE_STDEXT_H

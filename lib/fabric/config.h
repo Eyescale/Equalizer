@@ -19,7 +19,6 @@
 #ifndef EQFABRIC_CONFIG_H
 #define EQFABRIC_CONFIG_H
 
-#include <eq/fabric/object.h>        // base class
 #include <eq/fabric/types.h>         // typedefs
 #include <eq/fabric/visitorResult.h> // enum
 
@@ -27,6 +26,8 @@
 
 namespace eq
 {
+class Config;
+
 namespace fabric
 {
     template< class CFG, class C, class S, class L > class Canvas;
@@ -35,6 +36,8 @@ namespace fabric
     struct CanvasPath;
     struct LayoutPath;
     struct ObserverPath;
+
+    template< class S, class C, class O, class L, class CV > class ConfigProxy;
 
     /**
      * A configuration is a visualization session driven by an application.
@@ -116,6 +119,25 @@ namespace fabric
         virtual void activateCanvas( CV* canvas ) { /* NOP */ }
         //@}
 
+        /** @name Operations */
+        //@{
+        /** 
+         * Set the maximum accepted latency for this config.
+         * 
+         * The latency is defined as the maximum number of frames between the
+         * start of a frame and the finish of the last rendering task for that
+         * frame. Setting the latency of a running config flushes all pending
+         * frames.
+         *
+         * @param latency the latency.
+         * @version 1.0
+         */
+        virtual void setLatency( const uint32_t latency );
+
+        /** @return the latency of this config. @version 1.0 */
+        uint32_t getLatency() const { return _latency; }
+        //@}
+
     protected:
         /** Construct a new config. @version 1.0 */
         EQFABRIC_EXPORT Config( base::RefPtr< S > parent );
@@ -123,17 +145,24 @@ namespace fabric
         /** Construct a new deep copy of a config. @internal */
         Config( const Config& from, base::RefPtr< S > server );
 
-        friend class fabric::Observer< C, O >;
-        void _addObserver( O* observer );
-        bool _removeObserver( O* observer );
-        
-        template< class, class, class > friend class Layout;
-        void _addLayout( L* layout );
-        bool _removeLayout( L* layout );
-        
-        template< class, class, class, class > friend class Canvas;
-        void _addCanvas( CV* canvas );
-        bool _removeCanvas( CV* canvas );
+        /** @internal */
+        //@{
+        virtual O* createObserver() = 0;
+        virtual void releaseObserver( O* observer ) = 0;
+        virtual L* createLayout() = 0;
+        virtual void releaseLayout( L* layout ) = 0;
+        virtual CV* createCanvas() = 0;
+        virtual void releaseCanvas( CV* canvas ) = 0;
+
+        uint32_t register_();
+        void deregister();
+        void map( const uint32_t proxyID );
+        void unmap();
+        uint32_t commit();
+        void sync( const uint32_t version );
+
+        virtual void changeLatency( const uint32_t latency ) { /* NOP */ }
+        //@}
 
     private:
         /** The parent server. */
@@ -147,6 +176,27 @@ namespace fabric
 
         /** The list of canvases. */
         CanvasVector _canvases;
+
+        /** The maximum latency between frame start and end frame, in frames. */
+        uint32_t _latency;
+
+        /** Data distribution proxy */
+        ConfigProxy< S, C, O, L, CV >* const _proxy;
+        template< class, class, class, class, class > friend class ConfigProxy;
+
+        friend class eq::Config;
+
+        friend class fabric::Observer< C, O >;
+        void _addObserver( O* observer );
+        bool _removeObserver( O* observer );
+        
+        template< class, class, class > friend class Layout;
+        void _addLayout( L* layout );
+        bool _removeLayout( L* layout );
+        
+        template< class, class, class, class > friend class Canvas;
+        void _addCanvas( CV* canvas );
+        bool _removeCanvas( CV* canvas );
 
         union // placeholder for binary-compatible changes
         {

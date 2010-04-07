@@ -264,8 +264,8 @@ bool Channel::syncRunning()
     EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED || 
               _state == STATE_INIT_FAILED );
 
-    if( getID() != EQ_ID_INVALID ) // TODO: remove if (see TODO below)
-        commit();
+    EQASSERT( isMaster( ));
+    commit();
     return success;
 }
 
@@ -278,10 +278,8 @@ void Channel::_configInit( const uint32_t initID )
     _state = STATE_INITIALIZING;
 
     setViewVersion( _view );
-    if( getID() == EQ_ID_INVALID ) // TODO: do at Server::chooseConfig time
-        getConfig()->registerObject( this );
-    else
-        commit();
+    EQASSERT( isMaster( ));
+    commit();
 
     WindowCreateChannelPacket createChannelPacket;
     createChannelPacket.channelID = getID();
@@ -356,7 +354,6 @@ void Channel::_setupRenderContext( const uint32_t frameID,
 
 bool Channel::update( const uint32_t frameID, const uint32_t frameNumber )
 {
-    sync();
     setViewVersion( _view );
 
     EQASSERT( _state == STATE_RUNNING );
@@ -525,17 +522,19 @@ std::ostream& operator << ( std::ostream& os, const Channel& channel)
         os << " )" << std::endl; 
     }
 
-    const Viewport& vp  = channel.getViewport();
+    const Viewport& vp = channel.getViewport();
+    const PixelViewport& pvp = channel.getPixelViewport();
     if( vp.isValid( ) && channel.hasFixedViewport( ))
     {
-        if( vp != Viewport::FULL )
-            os << "viewport " << vp << std::endl;
-    }
-    else
-    {
-        const PixelViewport& pvp = channel.getPixelViewport();
-        if( pvp.isValid( ))
+        if( pvp.hasArea( ))
             os << "viewport " << pvp << std::endl;
+        os << "viewport " << vp << std::endl;
+    }
+    else if( pvp.hasArea( ))
+    {
+        if( vp != Viewport::FULL && vp.isValid( ))
+            os << "viewport " << vp << std::endl;
+        os << "viewport " << pvp << std::endl;
     }
 
 

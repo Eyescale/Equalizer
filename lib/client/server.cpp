@@ -187,7 +187,7 @@ net::CommandResult Server::_cmdCreateConfig( net::Command& command )
     localNode->mapSession( command.getNode(), config, packet->configID );
 
     if( packet->objectID != EQ_ID_INVALID )
-        config->_initAppNode( packet->objectID );
+        config->map( packet->objectID );
 
     if( packet->requestID != EQ_ID_INVALID )
     {

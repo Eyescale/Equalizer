@@ -19,6 +19,8 @@
 #include "config.h"
 #include "paths.h"
 
+#include "configProxy.ipp"
+
 namespace eq
 {
 namespace fabric
@@ -28,6 +30,11 @@ template< class S, class C, class O, class L, class CV >
 Config< S, C, O, L, CV >::Config( base::RefPtr< S > server )
         : net::Session()
         , _server( server )
+        , _latency( 1 )
+#pragma warning( push )
+#pragma warning( disable : 4355 )
+        , _proxy( new ConfigProxy< S, C, O, L, CV >( *this ))
+#pragma warning( pop )
 {
     server->_addConfig( static_cast< C* >( this ));
 }
@@ -36,6 +43,11 @@ template< class S, class C, class O, class L, class CV >
 Config< S, C, O, L, CV >::Config( const Config& from, base::RefPtr< S > server )
         : net::Session()
         , _server( server )
+        , _latency( from._latency )
+#pragma warning( push )
+#pragma warning( disable : 4355 )
+        , _proxy( new ConfigProxy< S, C, O, L, CV >( *this ))
+#pragma warning( pop )
 {
     server->_addConfig( static_cast< C* >( this ));
 }
@@ -66,8 +78,9 @@ Config< S, C, O, L, CV >::~Config()
 
     _server->_removeConfig( static_cast< C* >( this ));
     _server = 0;
-}
 
+    delete _proxy;
+}
 
 template< class S, class C, class O, class L, class CV >
 base::RefPtr< S > Config< S, C, O, L, CV >::getServer()
@@ -220,6 +233,56 @@ bool Config< S, C, O, L, CV >::_removeCanvas( CV* canvas )
     EQASSERT( canvas->getConfig() == this );
     _canvases.erase( i );
     return true;
+}
+
+template< class S, class C, class O, class L, class CV >
+void Config< S, C, O, L, CV >::setLatency( const uint32_t latency )
+{
+    if( _latency == latency )
+        return;
+
+    _latency = latency;
+    _proxy->setDirty( ConfigProxy< S, C, O, L, CV >::DIRTY_MEMBER );
+}
+
+// TODO move visitors for operations on childs here.
+template< class S, class C, class O, class L, class CV >
+uint32_t Config< S, C, O, L, CV >::register_()
+{
+    EQASSERT( _proxy->getID() == EQ_ID_INVALID );
+    EQCHECK( registerObject( _proxy ));
+    return _proxy->getID();
+}
+
+template< class S, class C, class O, class L, class CV >
+void Config< S, C, O, L, CV >::deregister()
+{
+    EQASSERT( _proxy->getID() != EQ_ID_INVALID );
+    deregisterObject( _proxy );
+}
+
+template< class S, class C, class O, class L, class CV >
+void Config< S, C, O, L, CV >::map( const uint32_t proxyID )
+{
+    EQCHECK( mapObject( _proxy, proxyID ));
+}
+
+template< class S, class C, class O, class L, class CV >
+void Config< S, C, O, L, CV >::unmap()
+{
+    unmapObject( _proxy );
+}
+
+template< class S, class C, class O, class L, class CV >
+uint32_t Config< S, C, O, L, CV >::commit()
+{
+    return _proxy->commit();
+}
+
+template< class S, class C, class O, class L, class CV >
+void Config< S, C, O, L, CV >::sync( const uint32_t version )
+{
+    _proxy->sync( version );
 }
 
 }

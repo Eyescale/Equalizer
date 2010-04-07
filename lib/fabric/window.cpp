@@ -224,17 +224,11 @@ void Window< P, W, C >::setPixelViewport( const PixelViewport& pvp )
     if( pvp == _pvp && _vp.hasArea( ))
         return;
 
-    _pvp      = pvp;
+    _pvp = pvp;
     _vp.invalidate();
-    setDirty( DIRTY_VIEWPORT );
+
     notifyViewportChanged();
-    
-    ChannelVector& channels = _getChannels();
-    for( typename std::vector< C* >::iterator i = channels.begin(); 
-         i != channels.end(); ++i )
-    {
-        (*i)->notifyViewportChanged();
-    }
+    setDirty( DIRTY_VIEWPORT );
 }
 
 template< class P, class W, class C >
@@ -247,10 +241,10 @@ void Window< P, W, C >::setViewport( const Viewport& vp )
 
     if( vp == _vp && _pvp.hasArea( ))
         return;
-    setDirty( DIRTY_VIEWPORT );
     _vp = vp;
     _pvp.invalidate();
 
+    setDirty( DIRTY_VIEWPORT );
     notifyViewportChanged();
 }
 
@@ -267,7 +261,7 @@ void Window< P, W, C >::notifyViewportChanged()
         const PixelViewport oldPVP = _pvp;
         _pvp = pipePVP;
         _pvp.apply( _vp );
-        if( oldPVP != _pvp )
+        if( oldPVP == _pvp )
             setDirty( DIRTY_VIEWPORT );
     }
     else           // update viewport
@@ -278,7 +272,14 @@ void Window< P, W, C >::notifyViewportChanged()
             setDirty( DIRTY_VIEWPORT );
     }
 
-    EQINFO << "Window vp set: " << _pvp << ":" << _vp << std::endl;
+    ChannelVector& channels = _getChannels();
+    for( typename ChannelVector::const_iterator i = channels.begin(); 
+         i != channels.end(); ++i )
+    {
+        (*i)->notifyViewportChanged();
+    }
+    EQINFO << getName() << " viewport update: " << _pvp << ":" << _vp
+           << std::endl;
 }
 
 template< class P, class W, class C >
@@ -287,6 +288,7 @@ void Window< P, W, C >::_setDrawableConfig(
 { 
     _drawableConfig = drawableConfig; 
     setDirty( DIRTY_MEMBER ); 
+    setDirty( DIRTY_DRAWABLECONFIG );
 }
 
 template< class P, class W, class C >
@@ -299,7 +301,7 @@ void Window< P, W, C >::_setTasks( const uint32_t tasks )
 }
 
 template< class P, class W, class C >
-void Window< P, W, C >::serialize( net::DataOStream& os, 
+void Window< P, W, C >::serialize( net::DataOStream& os,
                                    const uint64_t dirtyBits)
 {
     Object::serialize( os, dirtyBits );
@@ -307,10 +309,10 @@ void Window< P, W, C >::serialize( net::DataOStream& os,
         os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _vp << _pvp << _fixedVP;
+    if( dirtyBits & DIRTY_DRAWABLECONFIG )
+        os << _drawableConfig;
     if( dirtyBits & DIRTY_MEMBER )
         os << _tasks;
-    if( dirtyBits & DIRTY_DRAWABLECONFIG )     
-        os << _drawableConfig;
     if( dirtyBits & DIRTY_ERROR )
         os << _error;
 }
@@ -327,15 +329,10 @@ void Window< P, W, C >::deserialize( net::DataIStream& is,
         is >> _vp >> _pvp >> _fixedVP;
         notifyViewportChanged();
     }
+    if( dirtyBits & DIRTY_DRAWABLECONFIG )
+        is >> _drawableConfig;
     if( dirtyBits & DIRTY_MEMBER )
         is >> _tasks;
-    if( dirtyBits & DIRTY_DRAWABLECONFIG )
-    {
-        /** Drawable characteristics of this window */
-        DrawableConfig drawableConfig;
-        is >> drawableConfig;
-        _setDrawableConfig( drawableConfig );        
-    }
     if( dirtyBits & DIRTY_ERROR )
         is >> _error;
 }

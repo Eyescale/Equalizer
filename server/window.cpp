@@ -360,8 +360,8 @@ bool Window::syncRunning()
         // becoming inactive
         success = false;
 
-    if( getID() != EQ_ID_INVALID ) // TODO: remove (see TODO below)
-        commit();
+    EQASSERT( isMaster( ));
+    commit();
 
     EQASSERT( _state == STATE_STOPPED || _state == STATE_RUNNING || 
               _state == STATE_INIT_FAILED );
@@ -376,10 +376,8 @@ void Window::_configInit( const uint32_t initID )
     EQASSERT( _state == STATE_STOPPED );
     _state         = STATE_INITIALIZING;
 
-    if( getID() == EQ_ID_INVALID ) // TODO: do at Server::chooseConfig time
-        getConfig()->registerObject( this );
-    else
-        commit();
+    EQASSERT( isMaster( ));
+    commit();
 
     EQLOG( LOG_INIT ) << "Create Window" << std::endl;
     PipeCreateWindowPacket createWindowPacket;
@@ -450,7 +448,6 @@ bool Window::_syncConfigExit()
 //---------------------------------------------------------------------------
 void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
 {
-    sync();
     EQASSERT( _state == STATE_RUNNING );
     EQASSERT( _active > 0 );
 
@@ -606,17 +603,19 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << std::endl;
 
-    const Viewport& vp  = window->getViewport();
-    if( vp.isValid( ) && !window->hasFixedViewport() )
+    const Viewport& vp = window->getViewport();
+    const PixelViewport& pvp = window->getPixelViewport();
+    if( vp.isValid( ) && window->hasFixedViewport( ))
     {
-        if( vp != Viewport::FULL )
-            os << "viewport " << vp << std::endl;
-    }
-    else
-    {
-        const PixelViewport& pvp = window->getPixelViewport();
-        if( pvp.isValid( ))
+        if( pvp.hasArea( ))
             os << "viewport " << pvp << std::endl;
+        os << "viewport " << vp << std::endl;
+    }
+    else if( pvp.hasArea( ))
+    {
+        if( vp != Viewport::FULL && vp.isValid( ))
+            os << "viewport " << vp << std::endl;
+        os << "viewport " << pvp << std::endl;
     }
 
     bool attrPrinted   = false;

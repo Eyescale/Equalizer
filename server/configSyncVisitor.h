@@ -31,7 +31,6 @@ namespace server
         ConfigSyncVisitor() {}
         virtual ~ConfigSyncVisitor() {}
 
-        virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
         virtual VisitorResult visit( Observer* observer )
             {
                 observer->sync();
@@ -45,6 +44,16 @@ namespace server
         virtual VisitorResult visit( View* view )
             {
                 view->sync();
+                return TRAVERSE_CONTINUE;
+            }
+        virtual VisitorResult visitPre( Window* window )
+            {
+                window->sync();
+                return TRAVERSE_CONTINUE;
+            }
+        virtual VisitorResult visit( Channel* channel )
+            {
+                channel->sync();
                 return TRAVERSE_CONTINUE;
             }
         virtual VisitorResult visitPre( Compound* compound )

@@ -1,0 +1,100 @@
+
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
+ *  
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+namespace eq
+{
+namespace fabric
+{
+
+template< class S, class C, class O, class L, class CV >
+class ConfigProxy : public Object //!< Used for data distribution 
+{
+public:
+    ConfigProxy( Config< S, C, O, L, CV >& config );
+    virtual ~ConfigProxy() {}
+
+    enum DirtyBits
+    {
+        DIRTY_OBSERVERS = Object::DIRTY_CUSTOM << 0,
+        DIRTY_LAYOUTS   = Object::DIRTY_CUSTOM << 1,
+        DIRTY_CANVASES  = Object::DIRTY_CUSTOM << 2,
+        DIRTY_MEMBER    = Object::DIRTY_CUSTOM << 3
+    };
+            
+    void create( O** observer ) { *observer = _config.createObserver(); }
+    void release( O* observer ) { _config.releaseObserver( observer ); }
+    void create( L** layout ) { *layout = _config.createLayout(); }
+    void release( L* layout ) { _config.releaseLayout( layout ); }
+    void create( CV** canvas ) { *canvas = _config.createCanvas(); }
+    void release( CV* canvas ) { _config.releaseCanvas( canvas ); }
+
+protected:
+    virtual void serialize( net::DataOStream& os, const uint64_t dirtyBits );
+    virtual void deserialize( net::DataIStream& is, const uint64_t dirtyBits );
+
+private:
+    Config< S, C, O, L, CV >& _config;
+    template< class, class, class, class, class > friend class Config;
+};
+
+template< class S, class C, class O, class L, class CV >
+ConfigProxy< S, C, O, L, CV >::ConfigProxy( Config< S, C, O, L, CV >& config )
+        : _config( config )
+{}
+
+template< class S, class C, class O, class L, class CV >
+void ConfigProxy< S, C, O, L, CV >::serialize( net::DataOStream& os,
+                                               const uint64_t dirtyBits )
+{
+    Object::serialize( os, dirtyBits );
+
+    if( dirtyBits & DIRTY_OBSERVERS )
+        os.serializeChildren( this, _config._observers );
+    if( dirtyBits & DIRTY_LAYOUTS )
+        os.serializeChildren( this, _config._layouts );
+    if( dirtyBits & DIRTY_CANVASES )
+        os.serializeChildren( this, _config._canvases );
+    if( dirtyBits & DIRTY_MEMBER )
+        os << _config._latency;
+}
+
+template< class S, class C, class O, class L, class CV >
+void ConfigProxy< S, C, O, L, CV >::deserialize( net::DataIStream& is, 
+                                                 const uint64_t dirtyBits )
+{
+    Object::deserialize( is, dirtyBits );
+
+    if( dirtyBits & DIRTY_OBSERVERS )
+        is.deserializeChildren( this, _config._observers );
+    if( dirtyBits & DIRTY_LAYOUTS )
+        is.deserializeChildren( this, _config._layouts );
+    if( dirtyBits & DIRTY_CANVASES )
+        is.deserializeChildren( this, _config._canvases );
+    if( dirtyBits & DIRTY_MEMBER )
+    {
+        uint32_t latency = 0;
+        is >> latency;
+        if( _config._latency != latency )
+        {
+            _config._latency = latency;
+            _config.changeLatency( _config._latency );
+        }
+    }
+}
+
+}
+}

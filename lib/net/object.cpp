@@ -64,9 +64,9 @@ Object::Object( const Object& object )
 
 Object::~Object()
 {
-    if( _session ) // Still registered
-        EQERROR << "Object " << _id << " is still registered in session "
-                << _session->getID() << " in destructor" << endl;
+    EQASSERTINFO( !_session,
+                  "Object " << _id << " is still registered in session " <<
+                  _session->getID() << " in destructor" );
 
     if( _cm != ObjectCM::ZERO )
         delete _cm;

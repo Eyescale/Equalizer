@@ -1,9 +1,11 @@
-Remove Object::removeSlave for symmetry reasons
+Create config proxy object for proper serialization
+- add new helper functions to (de)serialize children in data streams
+- remove old config serialization code
 
-[ ] Will break build
+[x] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

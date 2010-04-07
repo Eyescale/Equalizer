@@ -20,7 +20,6 @@
 #include "channel.h"
 #include "canvas.h"
 #include "client.h"
-#include "configDeserializer.h"
 #include "configEvent.h"
 #include "configStatistics.h"
 #include "frame.h"
@@ -53,9 +52,7 @@ typedef fabric::Config< Server, Config, Observer, Layout, Canvas > Super;
 
 Config::Config( ServerPtr server )
         : Super( server )
-        , _eyeBase( 0.f )
         , _lastEvent( 0 )
-        , _latency( 0 )
         , _currentFrame( 0 )
         , _unlockedFrame( 0 )
         , _finishedFrame( 0 )
@@ -288,6 +285,36 @@ Node* Config::_findNode( const uint32_t id )
     return 0;
 }
 
+Observer* Config::createObserver()
+{
+    return Global::getNodeFactory()->createObserver( this );
+}
+
+void Config::releaseObserver( Observer* observer )
+{
+    Global::getNodeFactory()->releaseObserver( observer );
+}
+
+Layout* Config::createLayout()
+{
+    return Global::getNodeFactory()->createLayout( this );
+}
+
+void Config::releaseLayout( Layout* layout )
+{
+    Global::getNodeFactory()->releaseLayout( layout );
+}
+
+Canvas* Config::createCanvas()
+{
+    return Global::getNodeFactory()->createCanvas( this );
+}
+
+void Config::releaseCanvas( Canvas* canvas )
+{
+    Global::getNodeFactory()->releaseCanvas( canvas );
+}
+
 bool Config::init( const uint32_t initID )
 {
     EQASSERT( !_running );
@@ -379,7 +406,7 @@ uint32_t Config::startFrame( const uint32_t frameID )
 void Config::_frameStart()
 {
     _frameTimes.push_back( _clock.getTime64( ));
-    while( _frameTimes.size() > _latency )
+    while( _frameTimes.size() > getLatency() )
     {
         const int64_t age = _frameTimes.back() - _frameTimes.front();
         expireInstanceData( age );
@@ -390,8 +417,9 @@ void Config::_frameStart()
 uint32_t Config::finishFrame()
 {
     ClientPtr client = getClient();
-    const uint32_t frameToFinish = (_currentFrame >= _latency) ? 
-                                      _currentFrame - _latency : 0;
+    const uint32_t latency = getLatency();
+    const uint32_t frameToFinish = (_currentFrame >= latency) ? 
+                                      _currentFrame - latency : 0;
 
     ConfigStatistics stat( Statistic::CONFIG_FINISH_FRAME, this );
     stat.event.data.statistic.frameNumber = frameToFinish;
@@ -464,16 +492,19 @@ private:
 };
 }
 
+void Config::setLatency( const uint32_t latency )
+{
+    if( getLatency() == latency )
+        return;
+
+    setLatency( latency );
+    changeLatency( latency );
+}
+
 void Config::changeLatency( const uint32_t latency )
 {
     finishAllFrames();
-    _latency = latency;
-    
-
-    // send latency to the server
-    ConfigChangeLatency packet;
-    packet.latency = latency;
-    send( packet );
+    commit();
 
     // update views
     ChangeLatencyVisitor changeLatencyVisitor( latency );
@@ -718,13 +749,6 @@ void Config::freezeLoadBalancing( const bool onOff )
     send( packet );
 }
 
-void Config::_initAppNode( const uint32_t distributorID )
-{
-    ConfigDeserializer distributor( this );
-    EQCHECK( mapObject( &distributor, distributorID ));
-    unmapObject( &distributor ); // data was retrieved, unmap
-}
-
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -865,6 +889,7 @@ net::CommandResult Config::_cmdUnmap( net::Command& command )
         nodeFactory->releaseObserver( observer );
     }
 
+    unmap();
     ConfigUnmapReplyPacket reply( packet );
     send( command.getNode(), reply );
 

@@ -62,7 +62,7 @@ namespace fabric
                 : net::Object(), _dirty ( DIRTY_NONE ) {}
         
         /** Destruct the serializable. @version 1.0 */
-        virtual ~Serializable() { EQASSERT( getID() == EQ_ID_INVALID ); }
+        virtual ~Serializable() {}
 
         /** 
          * Worker for pack() and getInstanceData().

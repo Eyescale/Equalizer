@@ -18,9 +18,9 @@
 #ifndef EQNET_DATAISTREAM_H
 #define EQNET_DATAISTREAM_H
 
+#include "dataStream.h"     // Base Class
 #include <eq/net/types.h>
 #include <eq/base/buffer.h> // member
-#include "dataStream.h"     // Base Class
 #include <iostream>
 #include <vector>
 
@@ -66,6 +66,18 @@ namespace net
 
             return *this; 
         }
+
+        /**
+         * Deserialize child objects.
+         *
+         * Existing children are synced to the new version. New children are
+         * created by calling the <code>void create( C** child )</code> method
+         * on the object, and registered or mapped to the object's
+         * session. Removed children are released by calling the <code>void
+         * release( C* )</code> method on the object.
+         */
+        template< typename O, typename C >
+        void deserializeChildren( O* object, std::vector< C* >& children );
 
         /** Read a number of bytes from the stream into a buffer.  */
         EQ_EXPORT void read( void* data, uint64_t size );
@@ -132,6 +144,7 @@ namespace net
 
 #include <eq/net/object.h>
 #include <eq/net/objectVersion.h>
+#include <eq/net/session.h>
 
 namespace eq
 {
@@ -165,6 +178,81 @@ namespace net
         EQASSERT( object->getID() == data.identifier );
         object->sync( data.version );
         return *this;
+    }
+
+    namespace
+    {
+    class ObjectFinder
+    {
+    public:
+        ObjectFinder( const uint32_t id ) : _id( id ) {}
+        bool operator()( net::Object* candidate )
+            { return candidate->getID() == _id; }
+
+    private:
+        const uint32_t _id;
+    };
+    }
+
+    template< typename O, typename C > inline void
+    DataIStream::deserializeChildren( O* object, std::vector< C* >& children )
+    {
+        ObjectVersionVector versions;
+        (*this) >> versions;
+        std::vector< C* > old = children;
+
+        // rebuild vector from serialized list
+        children.clear();
+        for( ObjectVersionVector::const_iterator i = versions.begin();
+             i != versions.end(); ++i )
+        {
+            const ObjectVersion& version = *i;
+            typename std::vector< C* >::iterator j =
+                stde::find_if( old, ObjectFinder( version.identifier ));
+            if( j == old.end( )) // previously unknown child
+            {
+                C* child = 0;
+                object->create( &child );
+                Session* session = object->getSession();
+                EQASSERT( child );
+                EQASSERT( session );
+
+                if( object->isMaster( ))
+                {
+                    EQASSERT( version.identifier == EQ_ID_INVALID );
+                    static_cast< Object* >( child )->applyInstanceData( *this );
+                    session->registerObject( child );
+                }
+                else
+                {
+                    EQASSERT( version.identifier != EQ_ID_INVALID );
+                    session->mapObject( child, version );
+                }
+                children.push_back( child );
+            }
+            else
+            {
+                C* child = *j;
+                old.erase( j );
+                child->sync( version.version );
+                children.push_back( child );
+            }
+        }
+
+        while( !old.empty( )) // removed children
+        {
+            C* child = old.back();
+            old.pop_back();
+            Session* session = object->getSession();
+            EQASSERT( session );
+            
+            if( object->isMaster( ))
+                session->deregisterObject( child );
+            else
+                session->unmapObject( child );
+            
+            object->release( child );
+        }
     }
 
     /** Optimized specialization to read a std::vector of uint8_t. */

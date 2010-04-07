@@ -83,23 +83,6 @@ namespace eq
         uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
 
         /**
-         * @return the latency, i.e., the maximum distance between the finished
-         *          and started frame.
-         * @version 1.0
-         */
-        uint32_t getLatency() const { return _latency; }
-
-        /**
-         * Change the latency of the configuration.
-         *
-         * The config has to be running. Pending rendering frames are finished
-         * by this method, making it relatively expensive.
-         *
-         * @warning Experimental - may not be supported in the future
-         */
-        EQ_EXPORT void changeLatency( const uint32_t latency );
-
-        /**
          * @return the vector of nodes instantiated on this process.
          * @version 1.0
          */
@@ -195,6 +178,9 @@ namespace eq
 
         /** @warning Experimental - may not be supported in the future */
         EQ_EXPORT void freezeLoadBalancing( const bool onOff );
+
+        /** @sa fabric::Config::setLatency() */
+        virtual void setLatency( const uint32_t latency );
         //@}
 
         /** @name Frame Control */
@@ -351,6 +337,7 @@ namespace eq
         //@{
         /** @internal */
         EQ_EXPORT virtual void notifyMapped( net::NodePtr node );
+        virtual void changeLatency( const uint32_t latency ); //!< @internal
         //@}
 
     private:
@@ -367,9 +354,6 @@ namespace eq
         /** Locally-instantiated nodes of this config. */
         NodeVector _nodes;
 
-        /** The default distance between the left and the right eye. */
-        float _eyeBase;
-
         /** The reason for the last error. */
         std::string _error;
 
@@ -382,9 +366,6 @@ namespace eq
         /** Global statistics events, index per frame and channel. */
         std::deque< FrameStatistics > _statistics;
         base::Lock                    _statisticsMutex;
-
-        /** The maximum number of outstanding frames. */
-        uint32_t _latency;
         
         /** The last started frame. */
         uint32_t _currentFrame;
@@ -413,6 +394,12 @@ namespace eq
         void _frameStart();
 
         friend class ConfigDeserializer;
+        virtual Observer* createObserver();
+        virtual void releaseObserver( Observer* observer );
+        virtual Layout* createLayout();
+        virtual void releaseLayout( Layout* layout );
+        virtual Canvas* createCanvas();
+        virtual void releaseCanvas( Canvas* canvas );
 
         bool _needsLocalSync() const;
 
@@ -421,9 +408,6 @@ namespace eq
          * for visualization.
          */
         void _updateStatistics( const uint32_t finishedFrame );
-
-        /** Init the application node instance */
-        void _initAppNode( const uint32_t distributorID );
 
         /** Exit the current message pump */
         void _exitMessagePump();
