@@ -240,6 +240,14 @@ namespace net
         /** Finalize the mapping of a distributed object. */
         EQ_EXPORT bool mapObjectSync( const uint32_t requestID );
 
+        /** Convenience wrapper for mapObject(). */
+        bool mapObject( Object* object, const ObjectVersion& v )
+            { return mapObject( object, v.identifier, v.version ); }
+
+        /** Convenience wrapper for mapObjectNB(). */
+        uint32_t mapObjectNB( Object* object, const ObjectVersion& v )
+            { return mapObjectNB( object, v.identifier, v.version ); }
+
         /** 
          * Unmap a mapped object.
          * 

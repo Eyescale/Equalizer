@@ -130,6 +130,9 @@ namespace net
 }
 }
 
+#include <eq/net/object.h>
+#include <eq/net/objectVersion.h>
+
 namespace eq
 {
 namespace net
@@ -152,6 +155,17 @@ namespace net
             advanceBuffer( nElems );
         }
         return *this; 
+    }
+
+    /** Deserialize an object (id+version). */
+    template<>
+    inline DataIStream& DataIStream::operator >> ( Object*& object )
+    {
+        ObjectVersion data;
+        (*this) >> data;
+        EQASSERT( object->getID() == data.identifier );
+        object->sync( data.version );
+        return *this;
     }
 
     /** Optimized specialization to read a std::vector of uint8_t. */

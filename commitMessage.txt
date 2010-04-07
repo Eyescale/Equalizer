@@ -1,4 +1,4 @@
-Prepare build system for admin library
+Simplify child object serialization and mapping, reduce noisyness
 
 [ ] Will break build
 [ ] May break existing applications

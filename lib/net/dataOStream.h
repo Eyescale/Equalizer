@@ -77,20 +77,12 @@ namespace DataStreamTest
         /** @name Data output */
         //@{
         /** Write a plain data item by copying it to the stream. */
-        template< typename T >
-        DataOStream& operator << ( const T& value )
+        template< typename T > DataOStream& operator << ( const T& value )
             { write( &value, sizeof( value )); return *this; }
 
         /** Write a std::vector of serializable items. */
         template< typename T >
-        DataOStream& operator << ( const std::vector< T >& value )
-            {
-                const uint64_t nElems = value.size();
-                write( &nElems, sizeof( nElems ));
-                for( uint64_t i =0; i < nElems; ++i )
-                    (*this) << value[i];
-                return *this;
-            }
+        DataOStream& operator << ( const std::vector< T >& value );
 
         /** Write a number of bytes from data into the stream. */
         EQ_EXPORT void write( const void* data, uint64_t size );
@@ -194,6 +186,9 @@ namespace DataStreamTest
 }
 }
 
+#include <eq/net/object.h>
+#include <eq/net/objectVersion.h>
+
 namespace eq
 {
 namespace net
@@ -212,6 +207,25 @@ namespace net
         return *this;
     }
 
+    /** Write an object identifier and version. */
+    template<> inline DataOStream& 
+    DataOStream::operator << ( Object* const& object )
+    {
+        (*this) << ObjectVersion( object );
+        return *this;
+    }
+ 
+    /** Write a std::vector of serializable items. */
+    template< typename T > inline DataOStream& 
+    DataOStream::operator << ( const std::vector< T >& value )
+    {
+        const uint64_t nElems = value.size();
+        write( &nElems, sizeof( nElems ));
+        for( uint64_t i =0; i < nElems; ++i )
+            (*this) << value[i];
+        return *this;
+    }
+ 
     /** Optimized specialization to write a std::vector of uint8_t. */
     template<>
     inline DataOStream& DataOStream::operator << ( const std::vector< uint8_t >&

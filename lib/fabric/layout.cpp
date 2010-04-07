@@ -71,14 +71,8 @@ void Layout< C, L, V >::serialize( net::DataOStream& os,
 
     if( dirtyBits & DIRTY_VIEWS )
     {
-        for( typename ViewVector::const_iterator i = _views.begin();
-             i != _views.end(); ++i )
-        {
-            const V* view = *i;
-            EQASSERT( view->getID() != EQ_ID_INVALID );
-            os << view->getID();
-        }
-        os << EQ_ID_INVALID;
+        EQASSERT( isMaster( ));
+        os << reinterpret_cast< std::vector< net::Object* >& >( _views );
     }
 }
 
@@ -90,14 +84,17 @@ void Layout< C, L, V >::deserialize( net::DataIStream& is,
 
     if( dirtyBits & DIRTY_VIEWS )
     {
+        EQASSERT( !isMaster( ));
         EQASSERT( _views.empty( ));
         EQASSERT( _config );
+        std::vector< net::ObjectVersion > ids;
+        is >> ids;
 
-        uint32_t id;
-        for( is >> id; id != EQ_ID_INVALID; is >> id )
+        for( std::vector< net::ObjectVersion >::const_iterator i = ids.begin();
+             i != ids.end(); ++i )
         {
             V* view = createView();
-            _config->mapObject( view, id );
+            _config->mapObject( view, *i );
         }
     }
 }
