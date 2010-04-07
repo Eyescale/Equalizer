@@ -21,7 +21,7 @@
 
 #include <eq/client/commands.h>
 #include <eq/client/node.h>          // Node::IATTR_ALL enum
-#include <eq/client/statistic.h>         // member
+#include <eq/client/statistic.h>     // member
 
 #include <eq/fabric/renderContext.h> // member
 #include <eq/fabric/viewport.h>      // member

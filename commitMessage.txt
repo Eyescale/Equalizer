@@ -1,9 +1,9 @@
-Fix race condition since pipe/node was deregistered to early.
+Clean up server-side includes
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

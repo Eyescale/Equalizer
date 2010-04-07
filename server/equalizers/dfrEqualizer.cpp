@@ -22,6 +22,7 @@
 #include "../config.h"
 #include "../log.h"
 
+#include <eq/client/statistic.h>
 #include <eq/fabric/zoom.h>
 #include <eq/base/debug.h>
 

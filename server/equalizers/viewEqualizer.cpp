@@ -23,6 +23,10 @@
 #include "../log.h"
 #include "../pipe.h"
 
+#include <eq/client/statistic.h>
+
+#include <set>
+
 #define MIN_USAGE .1f // 10%
 
 namespace eq

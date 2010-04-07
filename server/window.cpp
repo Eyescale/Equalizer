@@ -29,9 +29,7 @@
 #include "pipe.h"
 #include "swapBarrier.h"
   
-#include <eq/client/channel.h>
 #include <eq/client/packets.h>
-#include <eq/client/pipe.h>
 
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>

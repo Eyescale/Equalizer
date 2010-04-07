@@ -21,8 +21,7 @@
 #include "../compound.h"
 #include "../log.h"
 
-#include <eq/client/client.h>
-#include <eq/client/server.h>
+#include <eq/client/statistic.h>
 #include <eq/base/debug.h>
 
 namespace eq

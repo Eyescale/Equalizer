@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,11 +18,11 @@
 #ifndef EQS_CHANNEL_LISTENER_H
 #define EQS_CHANNEL_LISTENER_H
 
-#include <eq/client/event.h>
 #include <eq/base/base.h>
 
 namespace eq
 {
+    struct Statistic;
 
 namespace server
 {
@@ -45,7 +45,7 @@ namespace server
         virtual void notifyLoadData( Channel* channel, 
                                      const uint32_t frameNumber,
                                      const uint32_t nStatistics,
-                                     const eq::Statistic* statistics )=0;
+                                     const Statistic* statistics ) = 0;
     };
 }
 }

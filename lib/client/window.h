@@ -1,6 +1,6 @@
 
-/* Copyright (c)      2010, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,6 +18,7 @@
 
 #ifndef EQ_WINDOW_H
 #define EQ_WINDOW_H
+
 #include <eq/fabric/window.h>         // base class
 
 #include <eq/client/types.h>

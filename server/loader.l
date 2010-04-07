@@ -1,6 +1,6 @@
 
 %{
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,8 +20,6 @@
 #include "equalizers/loadEqualizer.h"
 #include "parser.hpp"
 
-#include <eq/client/client.h>
-#include <eq/client/server.h>
 #include <eq/base/base.h>
 #include <stdlib.h>
 

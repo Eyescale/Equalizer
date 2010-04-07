@@ -34,7 +34,6 @@
 #include <eq/client/global.h>
 #include <eq/client/log.h>
 #include <eq/client/packets.h>
-#include <eq/client/view.h>
 #include <eq/fabric/paths.h>
 #include <eq/net/command.h>
 #include <eq/base/base.h>
