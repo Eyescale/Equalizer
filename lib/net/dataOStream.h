@@ -227,60 +227,44 @@ namespace net
     }
  
     /** Optimized specialization to write a std::vector of uint8_t. */
-    template<>
-    inline DataOStream& DataOStream::operator << ( const std::vector< uint8_t >&
-                                                   value )
-    {
-        return _writeFlatVector( value );
-    }
+    template<> inline DataOStream& 
+    DataOStream::operator << ( const std::vector< uint8_t >& value )
+    { return _writeFlatVector( value ); }
 
     /** Optimized specialization to write a std::vector of uint32_t. */
-    template<>
-    inline DataOStream& DataOStream::operator << ( const std::vector< uint32_t>&
-                                                   value )
-    {
-        return _writeFlatVector( value );
-    }
+    template<> inline DataOStream& 
+    DataOStream::operator << ( const std::vector< uint32_t >& value )
+    { return _writeFlatVector( value ); }
 
     /** Optimized specialization to write a std::vector of int32_t. */
-    template<>
-    inline DataOStream& DataOStream::operator << ( const std::vector< int32_t >&
-                                                   value )
-    {
-        return _writeFlatVector( value );
-    }
+    template<> inline DataOStream&
+    DataOStream::operator << ( const std::vector< int32_t >& value )
+    { return _writeFlatVector( value ); }
 
     /** Optimized specialization to write a std::vector of uint64_t. */
-    template<>
-    inline DataOStream& DataOStream::operator << ( const std::vector< uint64_t>&
-                                                   value )
-    {
-        return _writeFlatVector( value );
-    }
+    template<> inline DataOStream&
+    DataOStream::operator << ( const std::vector< uint64_t >& value )
+    { return _writeFlatVector( value ); }
 
     /** Optimized specialization to write a std::vector of int64_t. */
-    template<>
-    inline DataOStream& DataOStream::operator << ( const std::vector< int64_t >&
-                                                   value )
-    {
-        return _writeFlatVector( value );
-    }
+    template<> inline DataOStream&
+    DataOStream::operator << ( const std::vector< int64_t >& value )
+    { return _writeFlatVector( value ); }
 
     /** Optimized specialization to write a std::vector of float. */
-    template<>
-    inline DataOStream& DataOStream::operator << ( const std::vector< float >& 
-                                                   value )
-    {
-        return _writeFlatVector( value );
-    }
+    template<> inline DataOStream&
+    DataOStream::operator << ( const std::vector< float >& value )
+    { return _writeFlatVector( value ); }
 
     /** Optimized specialization to write a std::vector of double. */
-    template<>
-    inline DataOStream& DataOStream::operator << ( const std::vector< double >& 
-                                                   value )
-    {
-        return _writeFlatVector( value );
-    }
+    template<> inline DataOStream&
+    DataOStream::operator << ( const std::vector< double >& value )
+    { return _writeFlatVector( value ); }
+
+    /** Optimized specialization to write a std::vector of ObjectVersion. */
+    template<> inline DataOStream&
+    DataOStream::operator << ( const std::vector< ObjectVersion >& value )
+    { return _writeFlatVector( value ); }
     //@}
 }
 }

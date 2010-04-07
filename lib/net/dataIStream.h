@@ -158,8 +158,7 @@ namespace net
     }
 
     /** Deserialize an object (id+version). */
-    template<>
-    inline DataIStream& DataIStream::operator >> ( Object*& object )
+    template<> inline DataIStream& DataIStream::operator >> ( Object*& object )
     {
         ObjectVersion data;
         (*this) >> data;
@@ -169,53 +168,44 @@ namespace net
     }
 
     /** Optimized specialization to read a std::vector of uint8_t. */
-    template<>
-    inline DataIStream& DataIStream::operator >> (std::vector< uint8_t >& value)
-    {
-        return _readFlatVector( value );
-    }
+    template<> inline DataIStream&
+    DataIStream::operator >> ( std::vector< uint8_t >& value )
+    { return _readFlatVector( value );}
 
     /** Optimized specialization to read a std::vector of uint32_t. */
-    template<>
-    inline DataIStream& DataIStream::operator >> (std::vector< uint32_t>& value)
-    {
-        return _readFlatVector( value );
-    }
+    template<> inline DataIStream&
+    DataIStream::operator >> ( std::vector< uint32_t >& value )
+    { return _readFlatVector( value ); }
 
     /** Optimized specialization to read a std::vector of int32_t. */
-    template<>
-    inline DataIStream& DataIStream::operator >> (std::vector< int32_t >& value)
-    {
-        return _readFlatVector( value );
-    }
+    template<> inline DataIStream&
+    DataIStream::operator >> ( std::vector< int32_t >& value )
+    { return _readFlatVector( value ); }
 
     /** Optimized specialization to read a std::vector of uint64_t. */
-    template<>
-    inline DataIStream& DataIStream::operator >> (std::vector< uint64_t>& value)
-    {
-        return _readFlatVector( value );
-    }
+    template<> inline DataIStream&
+    DataIStream::operator >> ( std::vector< uint64_t>& value )
+    { return _readFlatVector( value ); }
 
     /** Optimized specialization to read a std::vector of int64_t. */
-    template<>
-    inline DataIStream& DataIStream::operator >> (std::vector< int64_t >& value)
-    {
-        return _readFlatVector( value );
-    }
+    template<> inline DataIStream&
+    DataIStream::operator >> ( std::vector< int64_t >& value )
+    { return _readFlatVector( value ); }
 
     /** Optimized specialization to read a std::vector of float. */
-    template<>
-    inline DataIStream& DataIStream::operator >> ( std::vector< float >& value )
-    {
-        return _readFlatVector( value );
-    }
+    template<> inline DataIStream&
+    DataIStream::operator >> ( std::vector< float >& value )
+    { return _readFlatVector( value ); }
 
     /** Optimized specialization to read a std::vector of double. */
-    template<>
-    inline DataIStream& DataIStream::operator >> ( std::vector< double >& value)
-    {
-        return _readFlatVector( value );
-    }
+    template<> inline DataIStream&
+    DataIStream::operator >> ( std::vector< double >& value )
+    { return _readFlatVector( value ); }
+
+    /** Optimized specialization to read a std::vector of ObjectVersion. */
+    template<> inline DataIStream&
+    DataIStream::operator >> ( std::vector< ObjectVersion >& value )
+    { return _readFlatVector( value ); }
     //@}
 }
 }

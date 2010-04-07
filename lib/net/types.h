@@ -39,6 +39,7 @@ class Command;
 class Connection;
 class ConnectionDescription;
 class ObjectInstanceDataIStream;
+struct ObjectVersion;
 
 /** A unique identifier for nodes. */
 typedef base::UUID NodeID;
@@ -65,6 +66,7 @@ typedef std::vector< ConnectionPtr >             ConnectionVector;
 typedef std::vector< ConnectionDescriptionPtr >  ConnectionDescriptionVector;
 
 /** @cond IGNORE */
+typedef std::vector< ObjectVersion > ObjectVersionVector;
 typedef std::vector< Command* > CommandVector;
 typedef std::deque< Command* > CommandDeque;
 typedef stde::hash_map< uint32_t, ObjectVector > ObjectVectorHash;
