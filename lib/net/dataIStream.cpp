@@ -125,7 +125,7 @@ void DataIStream::_decompress( const uint8_t* src, const uint8_t** dst,
     _data.resize( dataSize );
     *dst = _data.getData();
         
-    EQASSERT( name != EQ_COMPRESSOR_NONE );
+    EQASSERT( name > EQ_COMPRESSOR_NONE );
 
     _initDecompressor( name );
 
