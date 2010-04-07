@@ -1,4 +1,4 @@
-Remove DataOStream::writeOnce
+Remove Object::removeSlave for symmetry reasons
 
 [ ] Will break build
 [ ] May break existing applications

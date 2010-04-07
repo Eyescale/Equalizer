@@ -331,13 +331,6 @@ namespace net
         virtual void unpack( DataIStream& is ) { applyInstanceData( is ); }
         //@}
 
-        /** 
-         * Remove a subscribed slave.
-         * 
-         * @param node the slave node. 
-         */
-        EQ_EXPORT void removeSlave( NodePtr node );
-
         /** @name Packet Transmission */
         //@{
         /** Send a packet to peer object instance(s) on another node. */

@@ -1019,7 +1019,7 @@ CommandResult Session::_cmdUnsubscribeObject( Command& command )
                 if( object->isMaster() && 
                     object->getInstanceID() == packet->masterInstanceID )
                 {
-                    object->removeSlave( node );
+                    object->_cm->removeSlave( node );
                     break;
                 }
             }   

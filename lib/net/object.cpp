@@ -330,11 +330,6 @@ uint32_t Object::getMasterInstanceID() const
     return _cm->getMasterInstanceID();
 }
 
-void Object::removeSlave( NodePtr node )
-{
-    _cm->removeSlave( node );
-}
-
 CommandResult Object::_cmdForward( Command& command )
 {
     return _cm->invokeCommand( command );
