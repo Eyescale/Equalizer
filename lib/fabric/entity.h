@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_ENTITY_H
 #define EQFABRIC_ENTITY_H
 
-#include <eq/fabric/Object.h>        // base class
+#include <eq/fabric/object.h>        // base class
 
 namespace eq
 {

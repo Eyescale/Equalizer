@@ -71,8 +71,11 @@ namespace fabric
         /** @return the pixel viewport. */
         const PixelViewport& getPixelViewport() const { return _pvp; }
 
-        void setCudaGLInterop ( const bool cudaGLInterop )
+        void setCudaGLInterop( const bool cudaGLInterop )
             { _cudaGLInterop = cudaGLInterop; } 
+
+        bool getCudaGLInterop() const { return _cudaGLInterop; }
+
         /**
          * Set the pipes's pixel viewport.
          *
@@ -141,9 +144,6 @@ namespace fabric
         EQFABRIC_EXPORT bool _removeWindow( W* window );
         W* _findWindow( const uint32_t id );
 
-        /** The size (and location) of the pipe. */
-        PixelViewport _pvp;
-
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:
@@ -152,6 +152,9 @@ namespace fabric
 
         /** The screen (GLX), GPU (Win32) or virtual screen (AGL). */
         uint32_t _device;
+
+        /** The size (and location) of the pipe. */
+        PixelViewport _pvp;
 
         /** The parent node. */
         N* const _node;

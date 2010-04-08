@@ -566,7 +566,7 @@ bool Pipe::configInit( const uint32_t initID )
 
     // for now we only support CUDA
 #ifdef EQ_USE_CUDA
-    if( _cudaGLInterop )
+    if( getCudaGLInterop( ))
     {
         EQINFO << "Initializing CUDAContext" << std::endl;
         ComputeContext* computeCtx = new CUDAContext( this );

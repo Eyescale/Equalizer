@@ -93,7 +93,7 @@ void Node< C, N, P >::_addPipe( P* pipe )
 template< class C, class N, class P >
 bool Node< C, N, P >::_removePipe( P* pipe )
 {
-    PipeVector::iterator i = find( _pipes.begin(), _pipes.end(), pipe );
+    typename PipeVector::iterator i = stde::find( _pipes, pipe );
     if( i == _pipes.end( ))
         return false;
 
@@ -104,8 +104,8 @@ bool Node< C, N, P >::_removePipe( P* pipe )
 template< class C, class N, class P >
 P* Node< C, N, P >::_findPipe( const uint32_t id )
 {
-    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); 
-         ++i )
+    for( typename PipeVector::const_iterator i = _pipes.begin();
+         i != _pipes.end(); ++i )
     {
         P* pipe = *i;
         if( pipe->getID() == id )

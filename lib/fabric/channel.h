@@ -19,7 +19,7 @@
 #ifndef EQFABRIC_CHANNEL_H
 #define EQFABRIC_CHANNEL_H
 
-#include <eq/fabric/Entity.h>        // base class
+#include <eq/fabric/entity.h>        // base class
 #include <eq/fabric/paths.h>
 #include <eq/fabric/renderContext.h> // member
 #include <eq/fabric/types.h>

@@ -164,7 +164,7 @@ template< class N, class P, class W >
 void Pipe< N, P, W >::notifyPixelViewportChanged()
 {
     const WindowVector& windows = getWindows();
-    for( WindowVector::const_iterator i = windows.begin(); 
+    for( typename WindowVector::const_iterator i = windows.begin(); 
          i != windows.end(); ++i )
     {
         (*i)->notifyViewportChanged();

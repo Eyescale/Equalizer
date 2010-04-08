@@ -83,7 +83,7 @@ Window< P, W, C >::Window( const Window& from, P* parent )
     notifyViewportChanged();
 
     const ChannelVector& channels = from.getChannels();
-    for( ChannelVector::const_iterator i = channels.begin();
+    for( typename ChannelVector::const_iterator i = channels.begin();
          i != channels.end(); ++i )
     {
         new C( **i, static_cast< W* >( this ) );
