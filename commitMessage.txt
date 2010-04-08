@@ -1,4 +1,4 @@
-Minor code cleanup
+Refactor fabric part of Global and Client
 
 [ ] May break build
 [ ] May break existing applications

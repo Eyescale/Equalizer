@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,26 +15,27 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_CLIENT_H
-#define EQ_CLIENT_H
+#ifndef EQFABRIC_CLIENT_H
+#define EQFABRIC_CLIENT_H
 
-#include <eq/client/types.h>        // basic types
-#include <eq/fabric/client.h>       // base class
+#include <eq/fabric/types.h>        // basic types
+#include <eq/net/node.h>            // base class
 
 namespace eq
 {
-    class CommandQueue;
-    class Server;
-
+namespace fabric
+{
     /** 
      * The client represents a network node of the application in the cluster.
      *
      * The methods initLocal() and exitLocal() should be used to set up and exit
      * the listening node instance for each application process.
      */
-    class Client : public fabric::Client< Server, Client >
+    template< typename S, typename C > class Client : public net::Node
     {
     public:
+        typedef base::RefPtr< S > ServerPtr; //!< The server handle
+
         /** Construct a new client. @version 1.0 */
         EQ_EXPORT Client();
 
@@ -61,59 +62,23 @@ namespace eq
          */
         EQ_EXPORT bool disconnectServer( ServerPtr server );
 
-        /**
-         * @return true if the client has commands pending, false otherwise.
-         * @version 1.0 
-         */
-        EQ_EXPORT bool hasCommands();
-
-        /** 
-         * Get and process one pending command from the node command queue.
-         *
-         * @version 1.0 
-         */
-        EQ_EXPORT void processCommand();
-
-        /** @return the command queue to the main node thread. @internal */
-        CommandQueue* getNodeThreadQueue() { return _nodeThreadQueue; }
-
     protected:
-        /**
-         * Implements the processing loop for render clients. 
-         *
-         * As long as the node is running, that is, between initLocal() and an
-         * exit send from the server, this method executes received commands
-         * using processCommand() and triggers the message pump between
-         * commands.
-         *
-         * @sa net::Node::clientLoop(), Pipe::createMessagePump()
-         * @version 1.0 
-         */
-        EQ_EXPORT virtual bool clientLoop();
+        /** @sa net::Node::dispatchCommand. @internal */
+        EQ_EXPORT virtual bool dispatchCommand( net::Command& command );
 
-        /** Reimplemented to also call eq::exit() on render clients. @internal*/
-        EQ_EXPORT virtual bool exitClient();
-
-        /** @internal */
-        EQ_EXPORT virtual bool listen();
-
-        /** @internal */
-        EQ_EXPORT virtual bool close();
+        /** @sa net::Node::invokeCommand. @internal */
+        EQ_EXPORT virtual net::CommandResult invokeCommand( net::Command& );
 
     private:
-        /** The command->node command queue. */
-        CommandQueue* _nodeThreadQueue;
-        
-        bool _running;
-
         union // placeholder for binary-compatible changes
         {
             char dummy[32];
         };
 
-        /** The command functions. */
-        net::CommandResult _cmdExit( net::Command& command );
+        /** @sa net::Node::createNode */
+        EQ_EXPORT virtual net::NodePtr createNode( const uint32_t type );
     };
 }
+}
 
-#endif // EQ_CLIENT_H
+#endif // EQFABRIC_CLIENT_H

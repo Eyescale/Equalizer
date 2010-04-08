@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -19,24 +19,12 @@
 #include "global.h"
 #include "nodeFactory.h"
 
-#include <eq/base/file.h>
-#include <eq/net/global.h>
-
-#include <algorithm>
-
-#ifdef WIN32_API
-#  include <direct.h>
-#  define getcwd _getcwd
-#  ifndef MAXPATHLEN
-#    define MAXPATHLEN 1024
-#  endif
-#endif
-
+#include <eq/base/lock.h>
 
 namespace eq
 {
 NodeFactory* Global::_nodeFactory = 0;
-std::string Global::_server;
+
 #ifdef WIN32
 std::string Global::_configFile = "../examples/configs/4-window.all.eqc";
 #else
@@ -46,17 +34,6 @@ std::string Global::_configFile = "examples/configs/4-window.all.eqc";
 #ifdef AGL
 static base::Lock _carbonLock;
 #endif
-
-
-void Global::setServer( const std::string& server )
-{
-    _server = server;
-}
-
-const std::string& Global::getServer()
-{
-    return _server;
-}
 
 void Global::setConfigFile( const std::string& configFile )
 {

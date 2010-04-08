@@ -86,12 +86,14 @@ HEADER_SRC = \
 	fabric/channel.h \
 	fabric/colorMask.h \
 	fabric/config.h \
+	fabric/client.h \
 	fabric/drawableConfig.h \
 	fabric/elementVisitor.h \
 	fabric/eye.h \
 	fabric/entity.h \
 	fabric/fabric.h \
 	fabric/frustum.h \
+	fabric/global.h \
 	fabric/layout.h \
 	fabric/init.h \
 	fabric/leafVisitor.h \
@@ -239,6 +241,7 @@ CXXFILES = \
 	fabric/eye.cpp \
 	fabric/entity.cpp \
 	fabric/frustum.cpp \
+	fabric/global.cpp \
 	fabric/init.cpp \
 	fabric/object.cpp \
 	fabric/pixel.cpp \

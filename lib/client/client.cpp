@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -39,10 +39,13 @@ static void _joinLocalServer();
 
 typedef net::ConnectionPtr (*eqsStartLocalServer_t)( const std::string& file );
 typedef void (*eqsJoinLocalServer_t)();
+
+typedef fabric::Client< Server, Client > Super;
 /** @endcond */
 
 Client::Client()
-        : _nodeThreadQueue( 0 )
+        : Super()
+        , _nodeThreadQueue( 0 )
         , _running( false )
 {
     EQINFO << "New client at " << (void*)this << std::endl;
@@ -77,40 +80,14 @@ bool Client::close()
 
 bool Client::connectServer( ServerPtr server )
 {
-    if( server->isConnected( ))
+    if( Super::connectServer( server ))
         return true;
-    bool explicitAddress = true;
 
-    if( server->getConnectionDescriptions().empty( ))
+    if( !server->getConnectionDescriptions().empty() ||
+        !Global::getServer().empty() || getenv( "EQ_SERVER" ))
     {
-        net::ConnectionDescriptionPtr connDesc = 
-            new net::ConnectionDescription;
-        connDesc->port = EQ_DEFAULT_PORT;
-    
-        const std::string globalServer = Global::getServer();
-        const char* envServer = getenv( "EQ_SERVER" );
-        std::string address = !globalServer.empty() ? globalServer :
-                               envServer            ? envServer : "localhost";
-
-        if( !connDesc->fromString( address ))
-            EQWARN << "Can't parse server address " << address << std::endl;
-        EQASSERT( address.empty( ));
-        EQINFO << "Connecting to " << connDesc->toString() << std::endl;
-
-        server->addConnectionDescription( connDesc );
-
-        if( globalServer.empty() && !envServer )
-            explicitAddress = false;
-    }
-
-    if( connect( net::NodePtr( server.get( )) ))
-    {
-        server->setClient( this );
-        return true;
-    }
-
-    if( explicitAddress )
         return false;
+    }
 
     // Use app-local server if no explicit server was set
     net::ConnectionPtr connection = _startLocalServer();
@@ -182,46 +159,18 @@ static void _joinLocalServer()
 
 bool Client::disconnectServer( ServerPtr server )
 {
-    if( !server->isConnected( ))
-    {
-        EQWARN << "Trying to disconnect unconnected server" << std::endl;
-        return false;
-    }
-
     // shut down process-local server (see _startLocalServer)
     if( server->_localServer )
     {
+        EQASSERT( server->isConnected( ))
         server->shutdown();
         _joinLocalServer();
+        server->_localServer = false;
     }
 
-    server->setClient( 0 );
-    server->_localServer = false;
-
-    const int success = net::Node::close( server.get( ));
-    if( !success )
-        EQWARN << "Server disconnect failed" << std::endl;
-
-    // cleanup
+    const int success = Super::disconnectServer( server );
     _nodeThreadQueue->flush();
     return success;
-}
-
-
-net::NodePtr Client::createNode( const uint32_t type )
-{ 
-    switch( type )
-    {
-        case TYPE_EQ_SERVER:
-        {
-            Server* server = new Server;
-            server->setClient( this );
-            return server;
-        }
-
-        default:
-            return net::Node::createNode( type );
-    }
 }
 
 bool Client::clientLoop()
@@ -268,53 +217,6 @@ void Client::processCommand()
     command->release();
 }
 
-bool Client::dispatchCommand( net::Command& command )
-{
-    EQVERB << "dispatchCommand " << command << std::endl;
-
-    switch( command->datatype )
-    {
-        case DATATYPE_EQ_CLIENT:
-            return net::Dispatcher::dispatchCommand( command );
-
-        case DATATYPE_EQ_SERVER:
-        {
-            net::NodePtr node = command.getNode();
-
-            EQASSERT( dynamic_cast< Server* >( node.get( )) );
-            ServerPtr server = static_cast< Server* >( node.get( ));
-
-            return server->net::Dispatcher::dispatchCommand( command );
-        }
-
-        default:
-            return net::Node::dispatchCommand( command );
-    }
-}
-
-net::CommandResult Client::invokeCommand( net::Command& command )
-{
-    EQVERB << "invokeCommand " << command << std::endl;
-
-    switch( command->datatype )
-    {
-        case DATATYPE_EQ_CLIENT:
-            return net::Dispatcher::invokeCommand( command );
-
-        case DATATYPE_EQ_SERVER:
-        {
-            net::NodePtr node = command.getNode();
-
-            EQASSERT( dynamic_cast<Server*>( node.get( )) );
-            ServerPtr server = static_cast<Server*>( node.get( ));
-
-            return server->net::Dispatcher::invokeCommand( command );
-        }
-        default:
-            return net::Node::invokeCommand( command );
-    }
-}
-
 net::CommandResult Client::_cmdExit( net::Command& command )
 {
     _running = false;
@@ -323,3 +225,7 @@ net::CommandResult Client::_cmdExit( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 }
+
+#include "../fabric/client.ipp"
+template class eq::fabric::Client< eq::Server, eq::Client >;
+

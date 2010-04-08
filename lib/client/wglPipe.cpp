@@ -88,7 +88,6 @@ bool WGLPipe::configInit()
         pvp.y = 0;
         pvp.w = GetDeviceCaps( dc, HORZRES );
         pvp.h = GetDeviceCaps( dc, VERTRES );
-        _pipe->setPixelViewport( pvp );
 
         DeleteDC( dc );
     }

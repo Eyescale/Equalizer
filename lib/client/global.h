@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -19,10 +19,9 @@
 #ifndef EQ_GLOBAL_H
 #define EQ_GLOBAL_H
 
-#include <eq/base/base.h>
-#include <eq/base/lock.h> // member
 #include <eq/client/types.h>
-#include <string>
+#include <eq/fabric/global.h> // base class
+#include <eq/base/base.h>
 
 namespace eq
 {
@@ -62,21 +61,11 @@ namespace eq
     /** 
      * Global parameter handling for the Equalizer client library. 
      */
-    class Global
+    class Global : public fabric::Global
     {
     public:
         /** @return the node factory. */
         static NodeFactory* getNodeFactory() { return _nodeFactory; }
-
-        /** 
-         * Set the default Equalizer server.
-         * 
-         * @param server the default server.
-         */
-        EQ_EXPORT static void setServer( const std::string& server );
-
-        /** @return the default Equalizer server. */
-        EQ_EXPORT static const std::string& getServer();
 
         /** 
          * Set the config file for the app-local server.
@@ -104,7 +93,6 @@ namespace eq
         
         static NodeFactory* _nodeFactory;
 
-        static std::string  _server;
         static std::string  _configFile;
     };
 
