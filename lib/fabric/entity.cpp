@@ -69,7 +69,5 @@ void Entity::deserialize( net::DataIStream& is,
         is >> _error;
 }
 
-
-
 }
 }

@@ -57,8 +57,6 @@ namespace eq
         EQ_EXPORT ClientPtr getClient();
         EQ_EXPORT ServerPtr getServer();
 
-        const PipeVector& getPipes() const { return _pipes; }
-
         /** 
          * Return the set of tasks this nodes's channels might execute in the
          * worst case.

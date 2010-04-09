@@ -51,7 +51,8 @@ namespace fabric
          */
         uint32_t getPort() const { return _port; }
         
-        void setPort( const uint32_t port );
+        EQFABRIC_EXPORT void setPort( const uint32_t port ); //!< @internal
+
         /** 
          * Returns the device number of this pipe.
          * 
@@ -65,8 +66,7 @@ namespace fabric
          */
         uint32_t getDevice() const { return _device; }
 
-        // EXPORT needed for setDevice in configTools.
-        EQFABRIC_EXPORT void setDevice( const uint32_t device );
+        EQFABRIC_EXPORT void setDevice( const uint32_t device ); //!< @internal
 
         /** @return the pixel viewport. */
         const PixelViewport& getPixelViewport() const { return _pvp; }

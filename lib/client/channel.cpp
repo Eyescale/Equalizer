@@ -56,7 +56,7 @@ Channel::Channel( Window* parent )
 Channel::Channel( const Channel& from, Window* window ) 
         : Super( from, window )
 {
-    EQINFO << " New eq::Channel @" << (void*)this << std::endl;
+    EQDONTCALL;
 }
 
 Channel::~Channel()

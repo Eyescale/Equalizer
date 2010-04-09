@@ -69,7 +69,7 @@ namespace fabric
         /** Destruct the entity. @internal */
         virtual EQFABRIC_EXPORT ~Entity();
 
-        /** Set thetasks this entity might potentially execute. @internal */
+        /** Set the tasks this entity might potentially execute. @internal */
         void EQFABRIC_EXPORT setTasks( const uint32_t tasks );
 
         /** 

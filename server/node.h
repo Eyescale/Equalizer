@@ -86,18 +86,6 @@ namespace server
             { return _config->getCommandThreadQueue(); }
 
         /** 
-         * Removes a pipe from this node.
-         * 
-         * @param pipe the pipe
-         * @return <code>true</code> if the pipe was removed, <code>false</code>
-         *         otherwise.
-         */
-        bool removePipe( Pipe* pipe );
-
-        /** @return vector of pipes */
-        const PipeVector& getPipes() const { return _pipes; }
-
-        /** 
          * Traverse this node and all children using a node visitor.
          * 
          * @param visitor the visitor.

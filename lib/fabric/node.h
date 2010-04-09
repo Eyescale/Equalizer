@@ -38,12 +38,14 @@ namespace fabric
 
         /** @name Data Access */
         //@{
+        const PipeVector& getPipes() const { return _pipes; }
+
         /** @return the index path to this node. @internal */
         EQFABRIC_EXPORT NodePath getPath() const;
 
-        
         /** @return the number of the last finished frame. */
         uint32_t getFinishedFrame() const { return _finishedFrame; }
+        //@}
 
         /**
          * @name Attributes
@@ -79,7 +81,7 @@ namespace fabric
         EQFABRIC_EXPORT virtual ~Node(){}
 
         /** Pipe children. */
-        PipeVector             _pipes;
+        PipeVector _pipes;
         
         /** The reason for the last error. */
         std::string _error;
