@@ -23,6 +23,7 @@
 #include <eq/client/node.h>          // Node::IATTR_ALL enum
 #include <eq/client/statistic.h>     // member
 
+#include <eq/fabric/packetType.h>    // member
 #include <eq/fabric/renderContext.h> // member
 #include <eq/fabric/viewport.h>      // member
 
@@ -34,19 +35,12 @@ namespace eq
     class Window;
 
 /** @cond IGNORE */
-    enum DataType
-    {
-        DATATYPE_EQ_CLIENT = net::DATATYPE_EQNET_CUSTOM, // 128
-        DATATYPE_EQ_SERVER,
-        DATATYPE_EQ_CUSTOM = 1<<8 // 256
-    };
-
     //------------------------------------------------------------
     // Client
     //------------------------------------------------------------
     struct ClientPacket : public net::Packet
     {
-        ClientPacket(){ datatype = DATATYPE_EQ_CLIENT; }
+        ClientPacket(){ type = fabric::PACKETTYPE_EQ_CLIENT; }
     };
 
     struct ClientExitPacket : public ClientPacket
@@ -63,7 +57,7 @@ namespace eq
     //------------------------------------------------------------
     struct ServerPacket : public net::Packet
     {
-        ServerPacket(){ datatype = DATATYPE_EQ_SERVER; }
+        ServerPacket(){ type = fabric::PACKETTYPE_EQ_SERVER; }
     };
 
     struct ServerChooseConfigPacket : public ServerPacket

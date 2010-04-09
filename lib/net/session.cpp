@@ -528,13 +528,13 @@ bool Session::dispatchCommand( Command& command )
     EQASSERT( command.isValid( ));
     CHECK_THREAD( _receiverThread );
 
-    switch( command->datatype )
+    switch( command->type )
     {
-        case DATATYPE_EQNET_SESSION:
+        case PACKETTYPE_EQNET_SESSION:
             EQCHECK( Dispatcher::dispatchCommand( command ));
             return true;
 
-        case DATATYPE_EQNET_OBJECT:
+        case PACKETTYPE_EQNET_OBJECT:
         {
             EQASSERT( command.isValid( ));
             const ObjectPacket* objPacket = command.getPacket<ObjectPacket>();
@@ -555,7 +555,7 @@ bool Session::dispatchCommand( Command& command )
         }
 
         default:
-            EQABORT( "Unknown datatype " << command->datatype << " for "
+            EQABORT( "Unknown packet type " << command->type << " for "
                      << command );
             return true;
     }
@@ -566,12 +566,12 @@ CommandResult Session::invokeCommand( Command& command )
     EQVERB << "invoke " << command << std::endl;
     EQASSERT( command.isValid( ));
 
-    switch( command->datatype )
+    switch( command->type )
     {
-        case DATATYPE_EQNET_SESSION:
+        case PACKETTYPE_EQNET_SESSION:
             return Dispatcher::invokeCommand( command );
 
-        case DATATYPE_EQNET_OBJECT:
+        case PACKETTYPE_EQNET_OBJECT:
             return _invokeObjectCommand( command );
 
         default:
@@ -583,7 +583,7 @@ CommandResult Session::invokeCommand( Command& command )
 CommandResult Session::_invokeObjectCommand( Command& command )
 {
     EQASSERT( command.isValid( ));
-    EQASSERT( command->datatype == DATATYPE_EQNET_OBJECT );
+    EQASSERT( command->type == PACKETTYPE_EQNET_OBJECT );
 
     const ObjectPacket* objPacket = command.getPacket<ObjectPacket>();
     const uint32_t      id        = objPacket->objectID;
@@ -1069,7 +1069,7 @@ CommandResult Session::_cmdInstance( Command& command )
     CHECK_THREAD( _commandThread );
     EQASSERT( _localNode.isValid( ));
 
-    packet->datatype = DATATYPE_EQNET_OBJECT;
+    packet->type = PACKETTYPE_EQNET_OBJECT;
     packet->command = CMD_OBJECT_INSTANCE;
 
     uint32_t usage = 0;

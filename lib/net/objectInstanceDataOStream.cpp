@@ -58,7 +58,7 @@ void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
         EQASSERTINFO( _connections.size() == 1,
                       "Expected multicast to one group" );
 
-        packet.datatype = DATATYPE_EQNET_SESSION;
+        packet.type = PACKETTYPE_EQNET_SESSION;
         packet.command = CMD_SESSION_INSTANCE;
         packet.nodeID = _nodeID;
     }

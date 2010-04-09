@@ -1,4 +1,4 @@
-Fix Posix build
+Clean up packet-related enums (node type, packet type)
 
 [ ] May break build
 [ ] May break existing applications

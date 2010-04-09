@@ -22,7 +22,7 @@
 #include <eq/net/commandCache.h>             // member
 #include <eq/net/commandQueue.h>             // member
 #include <eq/net/connectionSet.h>            // member
-#include <eq/net/nodeType.h>                 // for TYPE_EQNET_NODE enum
+#include <eq/net/nodeType.h>                 // for NODETYPE_EQNET_NODE enum
 #include <eq/net/types.h>
 
 #include <eq/base/base.h>
@@ -563,7 +563,7 @@ namespace net
         virtual bool clientLoop() { return true; }
 
         /** @return the type of the node, used during connect(). */
-        virtual uint32_t getType() const { return TYPE_EQNET_NODE; }
+        virtual uint32_t getType() const { return NODETYPE_EQNET_NODE; }
 
         /** 
          * Factory method to create a new node.

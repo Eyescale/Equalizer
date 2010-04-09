@@ -186,9 +186,9 @@ void Server::deleteConfigs()
 //===========================================================================
 bool Server::dispatchCommand( net::Command& command )
 {
-    switch( command->datatype )
+    switch( command->type )
     {
-        case eq::DATATYPE_EQ_SERVER:
+        case fabric::PACKETTYPE_EQ_SERVER:
             return net::Dispatcher::dispatchCommand( command );
             
         default:
@@ -198,9 +198,9 @@ bool Server::dispatchCommand( net::Command& command )
 
 net::CommandResult Server::invokeCommand( net::Command& command )
 {
-    switch( command->datatype )
+    switch( command->type )
     {
-        case eq::DATATYPE_EQ_SERVER:
+        case fabric::PACKETTYPE_EQ_SERVER:
             return net::Dispatcher::invokeCommand( command );
             
         default:

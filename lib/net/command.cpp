@@ -73,13 +73,13 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& command )
     {
         os << "command< ";
         const Packet* packet = command.getPacket() ;
-        switch( packet->datatype )
+        switch( packet->type )
         {
-            case DATATYPE_EQNET_SESSION:
+            case PACKETTYPE_EQNET_SESSION:
                 os << static_cast< const SessionPacket* >( packet );
                 break;
 
-            case DATATYPE_EQNET_OBJECT:
+            case PACKETTYPE_EQNET_OBJECT:
                 os << static_cast< const ObjectPacket* >( packet );
                 break;
 

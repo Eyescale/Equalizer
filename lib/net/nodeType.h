@@ -27,9 +27,9 @@ namespace net
     /** Node types to identify connecting nodes. */
     enum NodeType
     {
-        TYPE_EQNET_INVALID,         //!< Invalid type
-        TYPE_EQNET_NODE,            //!< A plain eq::net::Node
-        TYPE_EQNET_USER = 0x100     //!< Application-specific types
+        NODETYPE_EQNET_INVALID,         //!< Invalid type
+        NODETYPE_EQNET_NODE,            //!< A plain eq::net::Node
+        NODETYPE_EQNET_USER = 0x100     //!< Application-specific types
     };
 
     inline std::ostream& operator << ( std::ostream& os, const NodeType& type )

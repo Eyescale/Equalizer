@@ -22,7 +22,7 @@
 #include "types.h"
 #include "visitorResult.h" // enum
 
-#include <eq/client/nodeType.h>  // for TYPE_EQ_SERVER enum
+#include <eq/fabric/nodeType.h>  // for NODETYPE_EQ_SERVER enum
 
 #include <eq/net/command.h>      // used in inline method
 #include <eq/net/commandQueue.h> // member
@@ -116,7 +116,7 @@ namespace server
         };
 
         /** @sa net::Node::getType */
-        virtual uint32_t getType() const { return eq::TYPE_EQ_SERVER; }
+        virtual uint32_t getType() const { return fabric::NODETYPE_EQ_SERVER; }
 
         friend class fabric::Config< Server, Config, Observer, Layout, Canvas >;
 

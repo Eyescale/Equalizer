@@ -29,12 +29,12 @@ namespace eq
 {
 namespace net
 {
-    enum
+    enum PacketType
     {
-        DATATYPE_EQNET_NODE,
-        DATATYPE_EQNET_SESSION,
-        DATATYPE_EQNET_OBJECT,
-        DATATYPE_EQNET_CUSTOM = 1<<7
+        PACKETTYPE_EQNET_NODE,
+        PACKETTYPE_EQNET_SESSION,
+        PACKETTYPE_EQNET_OBJECT,
+        PACKETTYPE_EQNET_CUSTOM = 1<<7
     };
 
     /**
@@ -44,7 +44,7 @@ namespace net
     {
         Packet(){}
         uint64_t size;
-        uint32_t datatype;
+        uint32_t type;
         uint32_t command;
         
 #if 0
@@ -69,7 +69,7 @@ namespace net
     //------------------------------------------------------------
     struct NodePacket: public Packet
     {
-        NodePacket(){ datatype = DATATYPE_EQNET_NODE; }
+        NodePacket(){ type = PACKETTYPE_EQNET_NODE; }
     };
 
 /** @cond IGNORE */
@@ -159,7 +159,7 @@ namespace net
 
         NodeID   nodeID;
         uint32_t requestID;
-        uint32_t type;
+        uint32_t nodeType;
         uint32_t launchID;
         uint32_t fill;
         EQ_ALIGN8( char nodeData[8] );
@@ -177,7 +177,7 @@ namespace net
 
         NodeID   nodeID;
         uint32_t requestID;
-        uint32_t type;
+        uint32_t nodeType;
         EQ_ALIGN8( char nodeData[8] );
     };
 
@@ -200,7 +200,7 @@ namespace net
             }
 
         NodeID   id;
-        uint32_t type;
+        uint32_t nodeType;
         EQ_ALIGN8( char data[8] );
     };
 
@@ -241,7 +241,7 @@ namespace net
 
         NodeID   nodeID;
         uint32_t requestID;
-        uint32_t type;        
+        uint32_t nodeType; 
         EQ_ALIGN8( char nodeData[8] );
     };
 
@@ -285,7 +285,7 @@ namespace net
     //------------------------------------------------------------
     struct SessionPacket : public NodePacket
     {
-        SessionPacket() { datatype = DATATYPE_EQNET_SESSION; }
+        SessionPacket() { type = PACKETTYPE_EQNET_SESSION; }
         base::UUID sessionID;
     };
 
@@ -523,7 +523,7 @@ namespace net
     {
         ObjectPacket()
             {
-                datatype   = DATATYPE_EQNET_OBJECT; 
+                type   = PACKETTYPE_EQNET_OBJECT; 
                 instanceID = EQ_ID_ANY;
             }
         uint32_t objectID;
@@ -648,7 +648,7 @@ namespace net
     inline std::ostream& operator << ( std::ostream& os, 
                                        const Packet* packet )
     {
-        os << "packet dt " << packet->datatype << " cmd "
+        os << "packet dt " << packet->type << " cmd "
            << packet->command;
         return os;
     }
@@ -676,7 +676,7 @@ namespace net
                                        const NodeConnectPacket* packet )
     {
         os << (NodePacket*)packet << " req " << packet->requestID << " type "
-           << packet->type << " launchID " << packet->launchID << " data "
+           << packet->nodeType << " launchID " << packet->launchID << " data "
            << packet->nodeData;
         return os;
     }
@@ -684,7 +684,7 @@ namespace net
                                        const NodeConnectReplyPacket* packet )
     {
         os << (NodePacket*)packet << " req " << packet->requestID << " type "
-           << packet->type << " data " << packet->nodeData;
+           << packet->nodeType << " data " << packet->nodeData;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

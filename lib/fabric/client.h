@@ -31,7 +31,7 @@ namespace fabric
      * The methods initLocal() and exitLocal() should be used to set up and exit
      * the listening node instance for each application process.
      */
-    template< typename S, typename C > class Client : public net::Node
+    template< class S, class C > class Client : public net::Node
     {
     public:
         typedef base::RefPtr< S > ServerPtr; //!< The server handle

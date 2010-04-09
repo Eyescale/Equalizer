@@ -50,7 +50,7 @@ UnbufferedMasterCM::~UnbufferedMasterCM()
 uint32_t UnbufferedMasterCM::addSlave( Command& command )
 {
     CHECK_THREAD( _cmdThread );
-    EQASSERT( command->datatype == DATATYPE_EQNET_SESSION );
+    EQASSERT( command->type == PACKETTYPE_EQNET_SESSION );
     EQASSERT( command->command == CMD_SESSION_SUBSCRIBE_OBJECT );
 
     NodePtr node = command.getNode();

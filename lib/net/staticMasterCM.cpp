@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -42,7 +42,7 @@ StaticMasterCM::~StaticMasterCM()
 
 uint32_t StaticMasterCM::addSlave( Command& command )
 {
-    EQASSERT( command->datatype == DATATYPE_EQNET_SESSION );
+    EQASSERT( command->type == PACKETTYPE_EQNET_SESSION );
     EQASSERT( command->command == CMD_SESSION_SUBSCRIBE_OBJECT );
 
     NodePtr node = command.getNode();

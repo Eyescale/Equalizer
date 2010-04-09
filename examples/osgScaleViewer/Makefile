@@ -1,7 +1,4 @@
 
-# Building these files is a huge memory hog - disable parallel build
-.NOTPARALLEL: %.cpp
-
 # Check for OpenSceneGraph installation
 OSG = $(wildcard /usr/local/include/osg/ref_ptr /usr/include/osg/ref_ptr)
 ifeq ($(findstring ref_ptr, $(OSG)),ref_ptr)

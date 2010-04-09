@@ -179,7 +179,7 @@ ConnectionPtr Node::getMulticast()
 
     NodeIDPacket packet;
     packet.id = node->getNodeID();
-    packet.type = getType();
+    packet.nodeType = getType();
 
     data.connection->send( packet, node->serialize( ));
     _outMulticast.data = data.connection;
@@ -776,7 +776,7 @@ bool Node::deserialize( std::string& data )
 
 NodePtr Node::createNode( const uint32_t type )
 {
-    EQASSERTINFO( type == TYPE_EQNET_NODE, type );
+    EQASSERTINFO( type == NODETYPE_EQNET_NODE, type );
     return new Node();
 }
 
@@ -884,7 +884,7 @@ bool Node::_connect( NodePtr node, ConnectionPtr connection )
     NodeConnectPacket packet;
     packet.requestID = registerRequest( node.get( ));
     packet.nodeID    = _id;
-    packet.type      = getType();
+    packet.nodeType  = getType();
     packet.launchID  = node->_launchID;
     node->_launchID  = EQ_ID_INVALID;
     connection->send( packet, serialize( ));
@@ -1440,7 +1440,7 @@ bool Node::_handleData()
     // This is one of the initial packets during the connection handshake, at
     // this point the remote node is not yet available.
     EQASSERTINFO( node.isValid() ||
-                 ( command->datatype == DATATYPE_EQNET_NODE &&
+                 ( command->type == PACKETTYPE_EQNET_NODE &&
                   ( command->command == CMD_NODE_CONNECT  || 
                     command->command == CMD_NODE_CONNECT_REPLY ||
                     command->command == CMD_NODE_ID )),
@@ -1470,15 +1470,15 @@ bool Node::dispatchCommand( Command& command )
     EQVERB << "dispatch " << command << " by " << _id << std::endl;
     EQASSERT( command.isValid( ));
 
-    const uint32_t datatype = command->datatype;
-    switch( datatype )
+    const uint32_t type = command->type;
+    switch( type )
     {
-        case DATATYPE_EQNET_NODE:
+        case PACKETTYPE_EQNET_NODE:
             EQCHECK( Dispatcher::dispatchCommand( command ));
             return true;
 
-        case DATATYPE_EQNET_SESSION:
-        case DATATYPE_EQNET_OBJECT:
+        case PACKETTYPE_EQNET_SESSION:
+        case PACKETTYPE_EQNET_OBJECT:
         {
             const SessionPacket* sessionPacket = 
                 static_cast<SessionPacket*>( command.getPacket( ));
@@ -1492,7 +1492,7 @@ bool Node::dispatchCommand( Command& command )
         }
 
         default:
-            EQABORT( "Unknown datatype " << datatype << " for " << command );
+            EQABORT( "Unknown packet type " << type << " for " << command );
             return true;
     }
 }
@@ -1571,14 +1571,14 @@ CommandResult Node::invokeCommand( Command& command )
     EQVERB << "dispatch " << command << " by " << _id << std::endl;
     EQASSERT( command.isValid( ));
 
-    const uint32_t datatype = command->datatype;
-    switch( datatype )
+    const uint32_t type = command->type;
+    switch( type )
     {
-        case DATATYPE_EQNET_NODE:
+        case PACKETTYPE_EQNET_NODE:
             return Dispatcher::invokeCommand( command );
 
-        case DATATYPE_EQNET_SESSION:
-        case DATATYPE_EQNET_OBJECT:
+        case PACKETTYPE_EQNET_SESSION:
+        case PACKETTYPE_EQNET_OBJECT:
         {
             const SessionPacket* sessionPacket = 
                 static_cast<SessionPacket*>( command.getPacket( ));
@@ -1599,7 +1599,7 @@ CommandResult Node::invokeCommand( Command& command )
         }
 
         default:
-            EQABORT( "Unknown datatype " << datatype << " for " << command );
+            EQABORT( "Unknown packet type " << type << " for " << command );
             return COMMAND_ERROR;
     }
 }
@@ -1788,7 +1788,7 @@ CommandResult Node::_cmdConnect( Command& command )
             remoteNode = static_cast< Node* >( ptr );
         }
         else
-            remoteNode = createNode( packet->type );
+            remoteNode = createNode( packet->nodeType );
     }
     else
     {
@@ -1816,7 +1816,7 @@ CommandResult Node::_cmdConnect( Command& command )
     // send our information as reply
     NodeConnectReplyPacket reply( packet );
     reply.nodeID    = _id;
-    reply.type      = getType();
+    reply.nodeType  = getType();
 
     connection->send( reply, serialize( ));
 
@@ -1870,12 +1870,12 @@ CommandResult Node::_cmdConnectReply( Command& command )
             remoteNode = static_cast< Node* >( ptr );
         }
         else
-            remoteNode = createNode( packet->type );
+            remoteNode = createNode( packet->nodeType );
     }
 
     remoteNode->_connectionDescriptions.clear(); // use data from peer
 
-    EQASSERT( remoteNode->getType() == packet->type );
+    EQASSERT( remoteNode->getType() == packet->nodeType );
     EQASSERT( remoteNode->getState() == STATE_STOPPED );
 
     std::string data = packet->nodeData;
@@ -1946,7 +1946,7 @@ CommandResult Node::_cmdID( Command& command )
         if( i == _nodes->end( ))
         {
             // unknown node: create and add unconnected node
-            node = createNode( packet->type );
+            node = createNode( packet->nodeType );
             std::string data = packet->data;
 
             if( !node->deserialize( data ))
@@ -2056,13 +2056,13 @@ CommandResult Node::_cmdGetNodeData( Command& command)
     std::string nodeData;
     if( node.isValid( ))
     {
-        reply.type = node->getType();
+        reply.nodeType = node->getType();
         nodeData   = node->serialize();
     }
     else
     {
         EQVERB << "Node " << nodeID << " unknown" << std::endl;
-        reply.type = TYPE_EQNET_INVALID;
+        reply.nodeType = NODETYPE_EQNET_INVALID;
     }
 
     NodePtr toNode = command.getNode();
@@ -2094,14 +2094,14 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
         return COMMAND_HANDLED;
     }
 
-    if( packet->type == TYPE_EQNET_INVALID )
+    if( packet->nodeType == NODETYPE_EQNET_INVALID )
     {
         serveRequest( requestID, (void*)0 );
         return COMMAND_HANDLED;
     }
 
     // new node: create and add unconnected node        
-    NodePtr node = createNode( packet->type );
+    NodePtr node = createNode( packet->nodeType );
     EQASSERT( node.isValid( ));
 
     std::string data = packet->nodeData;

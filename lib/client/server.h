@@ -18,8 +18,8 @@
 #ifndef EQ_SERVER_H
 #define EQ_SERVER_H
 
-#include <eq/client/nodeType.h>  // for TYPE_EQ_SERVER enum
 #include <eq/client/types.h>     // basic typedefs
+#include <eq/fabric/nodeType.h>  // for NODETYPE_EQ_SERVER enum
 
 #include <eq/net/node.h>         // base class
 
@@ -32,8 +32,6 @@ template< class S, class C, class O, class L, class CV > class Config;
     class Client;
     class Config;
     class ConfigParams;
-    class Node;
-    struct ServerPacket;
 
     /**
      * Proxy object for the connection to an Equalizer server.
@@ -106,7 +104,7 @@ template< class S, class C, class O, class L, class CV > class Config;
         };
 
         /** @sa net::Node::getType */
-        virtual uint32_t getType() const { return TYPE_EQ_SERVER; }
+        virtual uint32_t getType() const { return fabric::NODETYPE_EQ_SERVER; }
 
         friend class fabric::Config< Server, Config, Observer, Layout, Canvas >;
         /**  Add a new config to this server. */

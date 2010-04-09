@@ -98,8 +98,10 @@ HEADER_SRC = \
 	fabric/init.h \
 	fabric/leafVisitor.h \
 	fabric/node.h \
+	fabric/nodeType.h \
 	fabric/object.h \
 	fabric/observer.h \
+	fabric/packetType.h \
 	fabric/paths.h \
 	fabric/pipe.h \
 	fabric/pixel.h \
@@ -146,7 +148,6 @@ HEADER_SRC = \
 	client/messagePump.h \
 	client/node.h \
 	client/nodeFactory.h \
-	client/nodeType.h \
 	client/object.h \
 	client/observer.h \
 	client/os.h \

@@ -18,6 +18,7 @@
 #include "client.h"
 
 #include "global.h"
+#include "nodeType.h"
 
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
@@ -28,18 +29,18 @@ namespace eq
 namespace fabric
 {
 
-template< typename S, typename C >
+template< class S, class C >
 Client< S, C >::Client()
 {
 }
 
-template< typename S, typename C >
+template< class S, class C >
 Client< S, C >::~Client()
 {
     close();
 }
 
-template< typename S, typename C >
+template< class S, class C >
 bool Client< S, C >::connectServer( ServerPtr server )
 {
     if( server->isConnected( ))
@@ -76,7 +77,7 @@ bool Client< S, C >::connectServer( ServerPtr server )
     return false;
 }
 
-template< typename S, typename C >
+template< class S, class C >
 bool Client< S, C >::disconnectServer( ServerPtr server )
 {
     if( !server->isConnected( ))
@@ -95,12 +96,12 @@ bool Client< S, C >::disconnectServer( ServerPtr server )
 }
 
 
-template< typename S, typename C >
+template< class S, class C >
 net::NodePtr Client< S, C >::createNode( const uint32_t type )
 { 
     switch( type )
     {
-        case TYPE_EQ_SERVER:
+        case NODETYPE_EQ_SERVER:
         {
             S* server = new S;
             server->setClient( static_cast< C* >( this ));
@@ -112,17 +113,17 @@ net::NodePtr Client< S, C >::createNode( const uint32_t type )
     }
 }
 
-template< typename S, typename C >
+template< class S, class C >
 bool Client< S, C >::dispatchCommand( net::Command& command )
 {
     EQVERB << "dispatchCommand " << command << std::endl;
 
-    switch( command->datatype )
+    switch( command->type )
     {
-        case DATATYPE_EQ_CLIENT:
+        case PACKETTYPE_EQ_CLIENT:
             return net::Dispatcher::dispatchCommand( command );
 
-        case DATATYPE_EQ_SERVER:
+        case PACKETTYPE_EQ_SERVER:
         {
             net::NodePtr node = command.getNode();
 
@@ -137,17 +138,17 @@ bool Client< S, C >::dispatchCommand( net::Command& command )
     }
 }
 
-template< typename S, typename C >
+template< class S, class C >
 net::CommandResult Client< S, C >::invokeCommand( net::Command& command )
 {
     EQVERB << "invokeCommand " << command << std::endl;
 
-    switch( command->datatype )
+    switch( command->type )
     {
-        case DATATYPE_EQ_CLIENT:
+        case PACKETTYPE_EQ_CLIENT:
             return net::Dispatcher::invokeCommand( command );
 
-        case DATATYPE_EQ_SERVER:
+        case PACKETTYPE_EQ_SERVER:
         {
             net::NodePtr node = command.getNode();
 
