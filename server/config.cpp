@@ -819,7 +819,7 @@ void Config::_stopNodes()
             }
         }
 
-        if( netNode->getState() == net::Node::STATE_CONNECTED )
+        if( netNode->isConnected( ))
         {
             net::NodePtr localNode = getLocalNode();
             EQASSERT( localNode.isValid( ));

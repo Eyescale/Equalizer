@@ -124,7 +124,7 @@ VisitorResult Server::accept( ServerVisitor& visitor ) const
 
 bool Server::run()
 {
-    EQASSERT( getState() == net::Node::STATE_LISTENING );
+    EQASSERT( isListening( ));
     base::Thread::setDebugName( typeid( *this ).name( ));
 
     if( _configs.empty( ))

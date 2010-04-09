@@ -47,7 +47,7 @@ typedef CommandFunc<Node> NodeFunc;
 Node::Node()
         : base::RequestHandler( true )
         , _id( true )
-        , _state( STATE_STOPPED )
+        , _state( STATE_CLOSED )
         , _autoLaunch( false )
         , _launchID( EQ_ID_INVALID )
         , _launchTimeout( 60000 ) // ms
@@ -263,7 +263,7 @@ bool Node::initLocal( const int argc, char** argv )
 
     if( !listen( ))
     {
-        EQWARN << "Can't setup listener(s)" << std::endl; 
+        EQWARN << "Can't setup listener(s) on " << *this << std::endl; 
         return false;
     }
     
@@ -284,7 +284,7 @@ bool Node::initLocal( const int argc, char** argv )
 
 bool Node::listen()
 {
-    if( _state != STATE_STOPPED )
+    if( !isClosed( ))
         return false;
 
     if( !_connectSelf( ))
@@ -384,7 +384,7 @@ void Node::_removeConnection( ConnectionPtr connection )
 void Node::_cleanup()
 {
     EQVERB << "Clean up stopped node" << std::endl;
-    EQASSERTINFO( _state == STATE_STOPPED, _state );
+    EQASSERTINFO( _state == STATE_CLOSED, _state );
 
     _multicasts.clear();
     _removeConnection( _outgoing );
@@ -400,7 +400,7 @@ void Node::_cleanup()
 
         if( node.isValid( ))
         {
-            node->_state = STATE_STOPPED;
+            node->_state = STATE_CLOSED;
             node->_outMulticast.data = 0;
             node->_outgoing = 0;
             node->_multicasts.clear();
@@ -693,7 +693,7 @@ std::string Node::serialize() const
  
 bool Node::deserialize( std::string& data )
 {
-    EQASSERT( getState() == STATE_STOPPED || getState() == STATE_LAUNCHED );
+    EQASSERT( _state == STATE_CLOSED || _state == STATE_LAUNCHED );
 
     EQVERB << "Node data: " << data << std::endl;
     if( !_connectionDescriptions.empty( ))
@@ -805,9 +805,7 @@ void Node::releaseSendToken( NodePtr node )
 //----------------------------------------------------------------------
 bool Node::connect( NodePtr node )
 {
-    if( node->getState() == STATE_CONNECTED ||
-        node->getState() == STATE_LISTENING )
-
+    if( node->_state == STATE_CONNECTED || node->_state == STATE_LISTENING )
         return true;
 
     if( !initConnect( node ))
@@ -823,13 +821,10 @@ bool Node::connect( NodePtr node )
 bool Node::initConnect( NodePtr node )
 {
     EQASSERTINFO( _state == STATE_LISTENING, _state );
-    if( node->getState() == STATE_CONNECTED ||
-        node->getState() == STATE_LISTENING )
-    {
+    if( node->_state == STATE_CONNECTED || node->_state == STATE_LISTENING )
         return true;
-    }
 
-    EQASSERT( node->getState() == STATE_STOPPED );
+    EQASSERT( node->_state == STATE_CLOSED );
 
     // try connecting using the given descriptions
     const ConnectionDescriptionVector& cds = node->getConnectionDescriptions();
@@ -873,7 +868,7 @@ bool Node::_connect( NodePtr node, ConnectionPtr connection )
     EQASSERT( connection.isValid( ));
 
     if( !node.isValid() || _state != STATE_LISTENING ||
-        !connection->isConnected() || node->_state != STATE_STOPPED )
+        !connection->isConnected() || node->_state != STATE_CLOSED )
     {
         return false;
     }
@@ -903,17 +898,17 @@ bool Node::_connect( NodePtr node, ConnectionPtr connection )
 bool Node::syncConnect( NodePtr node, const uint32_t timeout )
 {
     if( node->_launchID == EQ_ID_INVALID )
-        return ( node->getState() == STATE_CONNECTED );
+        return ( node->_state == STATE_CONNECTED );
 
     void* ret;
     if( waitRequest( node->_launchID, ret, timeout ))
     {
-        EQASSERT( node->getState() == STATE_CONNECTED );
+        EQASSERT( node->_state == STATE_CONNECTED );
         node->_launchID = EQ_ID_INVALID;
         return true;
     }
 
-    node->_state = STATE_STOPPED;
+    node->_state = STATE_CLOSED;
     unregisterRequest( node->_launchID );
     node->_launchID = EQ_ID_INVALID;
     return false;
@@ -1025,7 +1020,7 @@ bool Node::_launch( NodePtr node,
                     ConnectionDescriptionPtr description )
 {
     EQASSERT( node->_autoLaunch );
-    EQASSERT( node->getState() == STATE_STOPPED );
+    EQASSERT( node->_state == STATE_CLOSED );
 
     node->_launchID = registerRequest( node.get() );
 
@@ -1104,7 +1099,7 @@ std::string Node::_createLaunchCommand( NodePtr node,
 
 std::string Node::_createRemoteCommand( NodePtr node, const char quote )
 {
-    if( getState() != STATE_LISTENING )
+    if( _state != STATE_LISTENING )
     {
         EQERROR << "Node is not listening, can't launch " << this << std::endl;
         return "";
@@ -1352,7 +1347,7 @@ void Node::_handleDisconnect()
         if( node->_outgoing == connection )
         {
             _connectionNodes.erase( i );
-            node->_state    = STATE_STOPPED;
+            node->_state    = STATE_CLOSED;
             node->_outgoing = 0;
 
             EQINFO << node << " disconnected from " << this << std::endl;
@@ -1609,7 +1604,7 @@ CommandResult Node::_cmdStop( Command& command )
     EQINFO << "Cmd stop " << this << std::endl;
     EQASSERT( _state == STATE_LISTENING );
 
-    _state = STATE_STOPPED;
+    _state = STATE_CLOSED;
     _incoming.interrupt();
 
     return COMMAND_HANDLED;
@@ -1618,7 +1613,7 @@ CommandResult Node::_cmdStop( Command& command )
 CommandResult Node::_cmdRegisterSession( Command& command )
 {
     CHECK_THREAD( _recvThread );
-    EQASSERT( getState() == STATE_LISTENING );
+    EQASSERT( _state == STATE_LISTENING );
     EQASSERTINFO( command.getNode() == this, 
                   command.getNode() << " != " << this );
 
@@ -1639,7 +1634,7 @@ CommandResult Node::_cmdRegisterSession( Command& command )
 CommandResult Node::_cmdMapSession( Command& command )
 {
     CHECK_THREAD( _cmdThread );
-    EQASSERT( getState() == STATE_LISTENING );
+    EQASSERT( _state == STATE_LISTENING );
 
     const NodeMapSessionPacket* packet = 
         command.getPacket<NodeMapSessionPacket>();
@@ -1876,7 +1871,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
     remoteNode->_connectionDescriptions.clear(); // use data from peer
 
     EQASSERT( remoteNode->getType() == packet->nodeType );
-    EQASSERT( remoteNode->getState() == STATE_STOPPED );
+    EQASSERT( remoteNode->_state == STATE_CLOSED );
 
     std::string data = packet->nodeData;
     if( !remoteNode->deserialize( data ))
@@ -2022,7 +2017,7 @@ CommandResult Node::_cmdDisconnect( Command& command )
     ConnectionPtr connection = node->_outgoing;
     if( connection.isValid( ))
     {
-        node->_state    = STATE_STOPPED;
+        node->_state    = STATE_CLOSED;
         node->_outgoing = 0;
 
         _removeConnection( connection );
@@ -2038,7 +2033,7 @@ CommandResult Node::_cmdDisconnect( Command& command )
                << connection->getRefCount() << std::endl;
     }
 
-    EQASSERT( node->_state == STATE_STOPPED );
+    EQASSERT( node->_state == STATE_CLOSED );
     serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }
@@ -2172,9 +2167,28 @@ CommandResult Node::_cmdReleaseSendToken( Command& command )
     return COMMAND_HANDLED;
 }
 
-EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Node::State state)
+std::ostream& operator << ( std::ostream& os, const Node& node )
 {
-    os << ( state == Node::STATE_STOPPED ? "stopped" :
+    if( !&node )
+    {
+        os << "NULL node";
+        return os;
+    }
+    // else
+    
+    os << "node " << node.getNodeID() << " " << node._state;
+    const ConnectionDescriptionVector& descs = node.getConnectionDescriptions();
+    for( ConnectionDescriptionVector::const_iterator i = descs.begin();
+         i != descs.end(); ++i )
+    {
+        os << ", " << *i;
+    }
+    return os;
+}
+
+std::ostream& operator << ( std::ostream& os, const Node::State state)
+{
+    os << ( state == Node::STATE_CLOSED ? "closed" :
             state == Node::STATE_LAUNCHED ? "launched" :
             state == Node::STATE_CONNECTED ? "connected" :
             state == Node::STATE_LISTENING ? "listening" : "ERROR" );

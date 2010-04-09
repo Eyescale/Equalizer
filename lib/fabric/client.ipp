@@ -19,6 +19,7 @@
 
 #include "global.h"
 #include "nodeType.h"
+#include "packetType.h"
 
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
@@ -37,7 +38,7 @@ Client< S, C >::Client()
 template< class S, class C >
 Client< S, C >::~Client()
 {
-    close();
+    EQASSERT( isClosed( ));
 }
 
 template< class S, class C >

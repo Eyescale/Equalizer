@@ -163,7 +163,7 @@ namespace base
     template< class T >
     inline std::ostream& operator << ( std::ostream& os, const RefPtr<T>& rp )
     {
-        os << "RefPtr<" << rp.get() << ">";
+        os << "RP<" << rp.get() << ">";
         return os;
     }
 }

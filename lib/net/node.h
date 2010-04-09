@@ -62,15 +62,6 @@ namespace net
                  public base::Referenced
     {
     public:
-        /** The state of the node. */
-        enum State 
-        {
-            STATE_STOPPED,   //!< initial state
-            STATE_LAUNCHED,  //!< proxy for a remote node, launched
-            STATE_CONNECTED, //!< proxy for a remote node, connected  
-            STATE_LISTENING  //!< local node, listening
-        };
-
         /** Construct a new Node. */
         EQ_EXPORT Node();
 
@@ -78,10 +69,10 @@ namespace net
         //@{
         bool operator == ( const Node* n ) const;
 
-        /**  @return the state of this node. */
-        State getState()    const { return _state; }
         bool  isConnected() const 
             { return (_state == STATE_CONNECTED || _state == STATE_LISTENING); }
+        bool  isClosed() const { return _state == STATE_CLOSED; }
+        bool  isListening() const { return _state == STATE_LISTENING; }
 
         /** 
          * Get a node by identifier.
@@ -575,6 +566,17 @@ namespace net
         EQ_EXPORT virtual NodePtr createNode( const uint32_t type );
 
     private:
+        /** The state of the node. */
+        enum State
+        {
+            STATE_CLOSED,    //!< initial state
+            STATE_LAUNCHED,  //!< proxy for a remote node, launched
+            STATE_CONNECTED, //!< proxy for a remote node, connected  
+            STATE_LISTENING  //!< local node, listening
+        };
+        friend std::ostream& operator << ( std::ostream& os, const Node& node );
+        friend std::ostream& operator << ( std::ostream&, const State );
+
         /** Globally unique node identifier. */
         NodeID _id;
 
@@ -791,18 +793,8 @@ namespace net
         CHECK_THREAD_DECLARE( _recvThread );
     };
 
-    inline std::ostream& operator << ( std::ostream& os, const Node* node )
-    {
-        if( node )
-            os << "node " << node->getNodeID();
-        else
-            os << "NULL node";
-        
-        return os;
-    }
-
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
-                                          const Node::State state );
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Node& node );
+    EQ_EXPORT std::ostream& operator << ( std::ostream&, const Node::State );
 }
 }
 

@@ -377,7 +377,7 @@ uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
     }
 
     NodePtr master = _localNode->connect( masterNodeID );
-    if( !master || master->getState() == Node::STATE_STOPPED )
+    if( !master || master->isClosed( ))
     {
         EQWARN << "Can't connect master node with id " << masterNodeID
                << " for object id " << id << std::endl;
