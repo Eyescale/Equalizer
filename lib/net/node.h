@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -574,8 +575,9 @@ namespace net
             STATE_CONNECTED, //!< proxy for a remote node, connected  
             STATE_LISTENING  //!< local node, listening
         };
-        friend std::ostream& operator << ( std::ostream& os, const Node& node );
-        friend std::ostream& operator << ( std::ostream&, const State );
+
+        friend EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Node& node );
+        friend EQ_EXPORT std::ostream& operator << ( std::ostream&, const State );
 
         /** Globally unique node identifier. */
         NodeID _id;
