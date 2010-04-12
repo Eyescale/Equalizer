@@ -468,6 +468,7 @@ net::CommandResult Node::_cmdCreatePipe( net::Command& command )
 
     Config* config = getConfig();
     EQCHECK( config->mapObject( pipe, packet->pipeID ));
+    pipe->notifyMapped();
 
     return net::COMMAND_HANDLED;
 }

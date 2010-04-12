@@ -81,7 +81,8 @@ int main( const int argc, char** argv )
     // 6. cleanup and exit
     client->exitLocal();
 
-    // TODO EQASSERTINFO( client->getRefCount() == 1, client->getRefCount( ));
+    EQASSERTINFO( client->getRefCount() == 1, "Client still referenced by " <<
+                  client->getRefCount() - 1 );
     client = 0;
 
     eq::exit();

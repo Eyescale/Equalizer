@@ -135,9 +135,10 @@ namespace eq
         View* getView( const net::ObjectVersion& viewVersion );
         //@}
 
-        /** Wait for the pipe to be exited. */
-        EQ_EXPORT void waitExited() const;
-        EQ_EXPORT bool isRunning() const;
+        /** Wait for the pipe to be exited. @internal */
+        void waitExited() const;
+        bool isRunning() const; //!< @internal
+        void notifyMapped(); //!< @internal
         
         /** 
          * Wait for a frame to be finished.
@@ -155,10 +156,10 @@ namespace eq
          */
         EQ_EXPORT void waitFrameLocal( const uint32_t frameNumber ) const;
 
-        /** Start the pipe thread. */
+        /** Start the pipe thread. @internal */
         void startThread();
 
-        /** Wait for the pipe thread to exit. */
+        /** Wait for the pipe thread to exit. internal */
         void joinThread();
 
         /** 
@@ -348,7 +349,6 @@ namespace eq
 
     private:
         //-------------------- Members --------------------
-
         /** Window-system specific functions class */
         OSPipe *_osPipe;
 
@@ -358,6 +358,7 @@ namespace eq
         enum State
         {
             STATE_STOPPED,
+            STATE_MAPPED,
             STATE_INITIALIZING,
             STATE_RUNNING
         };

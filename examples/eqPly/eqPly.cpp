@@ -147,7 +147,8 @@ int EqPly::run()
     if( !disconnectServer( server ))
         EQERROR << "Client::disconnectServer failed" << endl;
 
-    // TODO EQASSERTINFO( server->getRefCount() == 1, server->getRefCount( ));
+    //EQASSERTINFO( server->getRefCount() == 1, "Server still referenced by " <<
+    //              server->getRefCount() - 1 );
     server = 0;
 
     return EXIT_SUCCESS;

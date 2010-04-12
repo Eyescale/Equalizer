@@ -493,6 +493,12 @@ bool Pipe::isRunning() const
     return (_state == STATE_RUNNING);
 }
 
+void Pipe::notifyMapped()
+{
+    EQASSERT( _state == STATE_STOPPED );
+    _state = STATE_MAPPED;
+}
+
 void Pipe::waitFrameFinished( const uint32_t frameNumber ) const
 {
     _finishedFrame.waitGE( frameNumber );
@@ -769,6 +775,8 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
     const PipeConfigInitPacket* packet = 
         command.getPacket<PipeConfigInitPacket>();
     EQLOG( LOG_INIT ) << "Init pipe " << packet << std::endl;
+
+    _state.waitEQ( STATE_MAPPED );
 
     PipeConfigInitReplyPacket reply;
     setErrorMessage( std::string( ));
