@@ -26,10 +26,19 @@
 #include "packets.h"
 #include "session.h"
 
+//#define EQ_INSTRUMENT
+
 namespace eq
 {
 namespace net
 {
+namespace
+{
+#ifdef EQ_INSTRUMENT
+base::a_int32_t _bytesBuffered;
+#endif
+}
+
 typedef CommandFunc<FullMasterCM> CmdFunc;
 
 FullMasterCM::FullMasterCM( Object* object )
@@ -70,29 +79,43 @@ FullMasterCM::~FullMasterCM()
     _instanceDataCache.clear();
 }
 
-// Obsoletes old changes based on number of commits or number of versions,
-// depending on the obsolete flags.
+void FullMasterCM::increaseCommitCount()
+{
+    ObjectCommitPacket packet;
+    packet.instanceID = _object->_instanceID;
+    packet.requestID = EQ_ID_INVALID;
+
+    NodePtr localNode = _object->getLocalNode();
+    _object->send( localNode, packet );    
+}
+
 void FullMasterCM::_obsolete()
 {
     if( _obsoleteFlags & Object::AUTO_OBSOLETE_COUNT_COMMITS )
     {
-        InstanceData* lastInstanceData = _instanceDatas.front();
-        if( lastInstanceData->commitCount < (_commitCount - _nVersions) &&
+        InstanceData* data = _instanceDatas.front();
+        if( data->commitCount < (_commitCount - _nVersions) &&
             _instanceDatas.size() > 1 )
         {
-            _instanceDataCache.push_back( lastInstanceData );
+#ifdef EQ_INSTRUMENT
+            _bytesBuffered -= data->os.getSaveBuffer().getSize();
+            EQINFO << _bytesBuffered << " bytes used" << std::endl;
+#endif
+            _instanceDataCache.push_back( data );
             _instanceDatas.pop_front();
         }
-        _checkConsistency();
-        return;
     }
-    // else count versions
-    while( _instanceDatas.size() > (_nVersions+1) )
+    // count versions
+    else while( _instanceDatas.size() > (_nVersions+1) )
     {
+#ifdef EQ_INSTRUMENT
+        _bytesBuffered -= _instanceDatas.front()->os.getSaveBuffer().getSize();
+        EQINFO << _bytesBuffered << " bytes used" << std::endl;
+#endif
         _instanceDataCache.push_back( _instanceDatas.front( ));
         _instanceDatas.pop_front();
-        _checkConsistency();
     }
+    _checkConsistency();
 }
 
 uint32_t FullMasterCM::getOldestVersion() const
@@ -227,8 +250,17 @@ void FullMasterCM::_checkConsistency() const
          i != _instanceDatas.rend(); ++i )
     {
         const InstanceData* data = *i;
-        EQASSERT( data->os.getVersion() == version );
         EQASSERT( data->os.getVersion() > 0 );
+        EQASSERTINFO( data->os.getVersion() == version,
+                      data->os.getVersion() << " != " << version );
+        if( _obsoleteFlags & Object::AUTO_OBSOLETE_COUNT_COMMITS &&
+            data != _instanceDatas.front( ))
+        {
+            
+            EQASSERTINFO( data->commitCount + _nVersions >= _commitCount,
+                          data->commitCount << ", " << _commitCount << " [" <<
+                          _nVersions << "]" );
+        }
         --version;
     }
 #endif
@@ -255,6 +287,15 @@ FullMasterCM::InstanceData* FullMasterCM::_newInstanceData()
     return instanceData;
 }
 
+void FullMasterCM::_addInstanceData( InstanceData* data )
+{
+    _instanceDatas.push_back( data );
+#ifdef EQ_INSTRUMENT
+    _bytesBuffered += data->os.getSaveBuffer().getSize();
+    EQINFO << _bytesBuffered << " bytes used" << std::endl;
+#endif
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -269,29 +310,28 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
 
     ++_commitCount;
 
-    InstanceData* instanceData = _newInstanceData();
-    instanceData->commitCount = _commitCount;
-    instanceData->os.setVersion( _version + 1 );
-
-    instanceData->os.enable( _slaves );
-    _object->getInstanceData( instanceData->os );
-    instanceData->os.disable();
-
-    if( instanceData->os.hasSentData( ))
+    if( packet->requestID != EQ_ID_INVALID )
     {
-        ++_version;
-        EQASSERT( _version );
-    
-        _instanceDatas.push_back( instanceData );
-        EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
-                             << _object->getID() << std::endl;
+        InstanceData* instanceData = _newInstanceData();
+        instanceData->commitCount = _commitCount;
+        instanceData->os.setVersion( _version + 1 );
+
+        instanceData->os.enable( _slaves );
+        _object->getInstanceData( instanceData->os );
+        instanceData->os.disable();
+
+        if( instanceData->os.hasSentData( ))
+        {
+            ++_version;
+            EQASSERT( _version );
+            EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
+                                 << _object->getID() << std::endl;
+        }
+        _addInstanceData( instanceData );
+        _object->getLocalNode()->serveRequest( packet->requestID, _version );
     }
-    else
-        _instanceDataCache.push_back( instanceData );
 
     _obsolete();
-    _checkConsistency();
-    _object->getLocalNode()->serveRequest( packet->requestID, _version );
     return COMMAND_HANDLED;
 }
 

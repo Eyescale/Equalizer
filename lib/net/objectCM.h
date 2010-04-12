@@ -78,8 +78,11 @@ namespace net
          */
         virtual uint32_t commitSync( const uint32_t commitID ) = 0;
 
+        /** Increase the count of how often commit() was called. */
+        virtual void increaseCommitCount() { /* NOP */ }
+
         /** 
-         * Explicitily obsolete all versions.
+         * Explicitily obsolete versions.
          * 
          * @param version the version to obsolete
          */

@@ -62,43 +62,40 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
 
     ++_commitCount;
 
-    _deltaData.reset();
-    _deltaData.setVersion( _version + 1 );
-    _deltaData.enable( _slaves );
-    _object->pack( _deltaData );
-    _deltaData.disable();
-
-    NodePtr localNode = _object->getLocalNode();
-    if( !_deltaData.hasSentData( ))
+    if( packet->requestID != EQ_ID_INVALID )
     {
-        _obsolete();
-        _checkConsistency();
+        _deltaData.reset();
+        _deltaData.setVersion( _version + 1 );
+        _deltaData.enable( _slaves );
+        _object->pack( _deltaData );
+        _deltaData.disable();
 
+        NodePtr localNode = _object->getLocalNode();
+        if( _deltaData.hasSentData( ))
+        {
+            // save instance data
+            InstanceData* instanceData = _newInstanceData();
+            instanceData->commitCount = _commitCount;
+            instanceData->os.setVersion( _version + 1 );
+
+            instanceData->os.enable();
+            _object->getInstanceData( instanceData->os );
+            instanceData->os.disable();
+
+            ++_version;
+            EQASSERT( _version );
+
+            _addInstanceData( instanceData );
+
+            EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
+                                 << _object->getID() << std::endl;
+        }
         localNode->serveRequest( packet->requestID, _version );
-        return COMMAND_HANDLED;
     }
 
-    // save instance data
-    InstanceData* instanceData = _newInstanceData();
-    instanceData->commitCount = _commitCount;
-    instanceData->os.setVersion( _version + 1 );
-
-    instanceData->os.enable();
-    _object->getInstanceData( instanceData->os );
-    instanceData->os.disable();
-
-    ++_version;
-    EQASSERT( _version );
-    
-    _instanceDatas.push_back( instanceData );
-    
     _obsolete();
-    _checkConsistency();
-
-    EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
-                         << _object->getID() << std::endl;
-    localNode->serveRequest( packet->requestID, _version );
     return COMMAND_HANDLED;
 }
+
 }
 }

@@ -277,8 +277,10 @@ bool Object::isMaster() const
 uint32_t Object::commitNB()
 {
     if( !isDirty( ))
+    {
+        _cm->increaseCommitCount();
         return EQ_ID_INVALID;
-
+    }
     return _cm->commitNB();
 }
 

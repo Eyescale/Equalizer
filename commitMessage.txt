@@ -1,4 +1,4 @@
-Fix unapplied deltas on config deregistration
+Fix commit-based object auto obsoletion, switch to commit-based for Eq objects.
 
 [ ] May break build
 [ ] May break existing applications

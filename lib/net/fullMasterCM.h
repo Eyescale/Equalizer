@@ -41,9 +41,7 @@ namespace net
         FullMasterCM( Object* object );
         virtual ~FullMasterCM();
 
-        /**
-         * @name Versioning
-         */
+        /** @name Versioning */
         //@{
         virtual void obsolete( const uint32_t version ) { EQUNIMPLEMENTED; }
 
@@ -51,6 +49,7 @@ namespace net
                                       const uint32_t flags )
             { _nVersions = count; _obsoleteFlags = flags; }
         
+        virtual void increaseCommitCount();
         virtual uint32_t getAutoObsoleteCount() const { return _nVersions; }
         virtual uint32_t getOldestVersion() const;
         //@}
@@ -62,12 +61,6 @@ namespace net
         /** The number of commits, needed for auto-obsoletion. */
         uint32_t _commitCount;
 
-        /** The number of old versions to retain. */
-        uint32_t _nVersions;
-
-        /** The flags for automatic version obsoletion. */
-        uint32_t _obsoleteFlags;
-
         struct InstanceData
         {
             InstanceData( const Object* object ) 
@@ -77,17 +70,25 @@ namespace net
             uint32_t commitCount;
         };
         
+        InstanceData* _newInstanceData();
+        void _addInstanceData( InstanceData* data );
+
+        void _obsolete();
+        void _checkConsistency() const;
+
+    private:
+        /** The number of old versions to retain. */
+        uint32_t _nVersions;
+
+        /** The flags for automatic version obsoletion. */
+        uint32_t _obsoleteFlags;
+
         typedef std::deque< InstanceData* > InstanceDataDeque;
         typedef std::vector< InstanceData* > InstanceDataVector;
 
         /** The list of full instance datas, head version last. */
         InstanceDataDeque _instanceDatas;
         InstanceDataVector _instanceDataCache;
-
-        InstanceData* _newInstanceData();
-
-        void _obsolete();
-        void _checkConsistency() const;
 
         /* The command handlers. */
         CommandResult _cmdCommit( Command& command );

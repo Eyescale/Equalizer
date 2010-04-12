@@ -216,7 +216,7 @@ namespace net
          * @param flags additional flags for the auto-obsoletion mechanism
          */
         EQ_EXPORT void setAutoObsolete( const uint32_t count, 
-                          const uint32_t flags = AUTO_OBSOLETE_COUNT_VERSIONS );
+                          const uint32_t flags = AUTO_OBSOLETE_COUNT_COMMITS );
 
         /** @return get the number of versions this object retains. */
         EQ_EXPORT uint32_t getAutoObsoleteCount() const;
