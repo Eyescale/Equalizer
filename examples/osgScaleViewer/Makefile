@@ -1,7 +1,7 @@
 
 # Check for OpenSceneGraph installation
-OSG = $(wildcard /usr/local/include/osg/ref_ptr /usr/include/osg/ref_ptr)
-ifeq ($(findstring ref_ptr, $(OSG)),ref_ptr)
+OSG = $(wildcard /usr/local/include/osg/GLBeginEndAdapter /usr/include/osg/GLBeginEndAdapter)
+ifeq ($(findstring GLBeginEndAdapter, $(OSG)),GLBeginEndAdapter)
 
 include $(TOP)/make/system.mk
 

@@ -100,11 +100,8 @@ void CompressorRLE4BU::compress( const void* const inData,
     _nResults = _setupResults( 1, size, _results );
 
     const uint64_t nElems  = (size%8) ? (size>>3)+1 : (size>>3);
-    const ssize_t nResults = _results.size();
-
-
     const float width = static_cast< float >( nElems ) /
-                        static_cast< float >( nResults );
+                        static_cast< float >( _nResults );
 
     const uint64_t* const data =
         reinterpret_cast< const uint64_t* >( inData );
@@ -112,7 +109,7 @@ void CompressorRLE4BU::compress( const void* const inData,
 #ifdef EQ_USE_OPENMP
 #pragma omp parallel for
 #endif
-    for( ssize_t i = 0; i < nResults; ++i )
+    for( ssize_t i = 0; i < static_cast< ssize_t >( _nResults ); ++i )
     {
         const uint64_t startIndex = static_cast< uint64_t >( i * width );
         const uint64_t endIndex   = static_cast< uint64_t >( (i+1) * width );
@@ -132,7 +129,6 @@ void CompressorRLE4BU::decompress( const void* const* inData,
                                    const eq_uint64_t nPixels, 
                                    const bool useAlpha )
 {
-
     if( nPixels == 0 )
         return;
 

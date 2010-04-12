@@ -1,4 +1,4 @@
-Fix commit-based object auto obsoletion, switch to commit-based for Eq objects.
+Fix two compressor bugs
 
 [ ] May break build
 [ ] May break existing applications
