@@ -571,6 +571,9 @@ void Config::deregister()
     send( _appNetNode, packet );
     localNode->waitRequest( packet.requestID );
 
+    ConfigSyncVisitor syncer;
+    accept( syncer );
+
     Super::deregister();
     ConfigDeregistrator deregistrator;
     accept( deregistrator );

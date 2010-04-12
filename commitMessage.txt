@@ -1,4 +1,4 @@
-Delay pipe initialization until it is fully mapped.
+Fix unapplied deltas on config deregistration
 
 [ ] May break build
 [ ] May break existing applications

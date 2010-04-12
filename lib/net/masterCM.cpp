@@ -44,8 +44,8 @@ MasterCM::MasterCM( Object* object )
 MasterCM::~MasterCM()
 {
     EQASSERTINFO( _pendingDeltas.empty(), "Incomplete slave commits pending" );
-    EQASSERTINFO( _queuedDeltas.isEmpty(), 
-                  "Unapplied slave commits on " << typeid( *_object ).name( ));
+    EQASSERTINFO( _queuedDeltas.isEmpty(), _queuedDeltas.getSize() <<
+                  " unapplied slave commits on " << typeid( *_object ).name( ));
 
     while( !_pendingDeltas.empty( ))
     {
