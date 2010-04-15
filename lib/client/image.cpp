@@ -887,13 +887,11 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     memory.compressedSize.resize( numResults );
     memory.compressedData.resize( numResults );
 
-    for( size_t i = 0; i < numResults ; i++ )
+    for( size_t i = 0; i < numResults ; ++i )
     {
-        attachment.compressor->plugin->getResult( attachment.compressor->instance,
-                                                  attachment.compressor->name,
-                                                  i, 
-                                                  &memory.compressedData[i], 
-                                                  &memory.compressedSize[i] );
+        attachment.compressor->plugin->getResult( 
+            attachment.compressor->instance, attachment.compressor->name,
+            i, &memory.compressedData[i], &memory.compressedSize[i] );
     }
 
     memory.isCompressed = true;

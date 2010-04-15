@@ -113,7 +113,7 @@ static void _compare( const void* data, const void* destData,
 
         const float max = ( 1.f - quality ) * std::numeric_limits< T >::max();
         TESTINFO( abs( value[k] - destValue[k] ) <= max,
-                  "comparison of initial data and decompressed data failed" );
+                  "Comparison of initial data and decompressed data failed" );
     }
 }
 }
@@ -305,7 +305,7 @@ int main( int argc, char **argv )
                                           quality );
                     break;
                 case 4:
-		    _compare< float >( data, destData, buffer,
+                    _compare< float >( data, destData, buffer,
                                        image.ignoreAlpha(), nElem,
                                        quality );
                     break;
