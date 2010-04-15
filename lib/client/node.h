@@ -49,18 +49,6 @@ namespace eq
         EQ_EXPORT ClientPtr getClient();
         EQ_EXPORT ServerPtr getServer();
 
-        /** 
-         * Return the set of tasks this nodes's channels might execute in the
-         * worst case.
-         * 
-         * It is not guaranteed that all the tasks will be actually executed
-         * during rendering.
-         * 
-         * @warning Not finalized, might change in the future.
-         * @return a bitwise combination of the Task enum.
-         */
-        uint32_t getTasks() const { return _tasks; }
-
         EQ_EXPORT CommandQueue* getNodeThreadQueue();
 
         /** 
@@ -244,19 +232,6 @@ namespace eq
          */
         EQ_EXPORT virtual void frameTasksFinish( const uint32_t frameID, 
                                                  const uint32_t frameNumber );
-        //@}
-
-        /** @name Error information. */
-        //@{
-        /** 
-         * Set a message why the last operation failed.
-         * 
-         * The message will be transmitted to the originator of the request, for
-         * example to Config::init when set from within the init method.
-         *
-         * @param message the error message.
-         */
-        EQ_EXPORT void setErrorMessage( const std::string& message );
         //@}
 
     private:

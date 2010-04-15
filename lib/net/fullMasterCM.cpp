@@ -44,8 +44,7 @@ typedef CommandFunc<FullMasterCM> CmdFunc;
 FullMasterCM::FullMasterCM( Object* object )
         : MasterCM( object ),
           _commitCount( 0 ),
-          _nVersions( 0 ),
-          _obsoleteFlags( Object::AUTO_OBSOLETE_COUNT_VERSIONS )
+          _nVersions( 0 )
 {
     InstanceData* data = _newInstanceData();
     data->os.setVersion( 1 );
@@ -91,29 +90,25 @@ void FullMasterCM::increaseCommitCount()
 
 void FullMasterCM::_obsolete()
 {
-    if( _obsoleteFlags & Object::AUTO_OBSOLETE_COUNT_COMMITS )
+    if( _instanceDatas.size() > 1 )
     {
-        InstanceData* data = _instanceDatas.front();
-        if( data->commitCount < (_commitCount - _nVersions) &&
-            _instanceDatas.size() > 1 )
+        InstanceData* data = _instanceDatas[1];
+        
+        if( data->commitCount < (_commitCount - _nVersions))
         {
+            data = _instanceDatas.front();
 #ifdef EQ_INSTRUMENT
             _bytesBuffered -= data->os.getSaveBuffer().getSize();
             EQINFO << _bytesBuffered << " bytes used" << std::endl;
 #endif
+            EQLOG( LOG_OBJECTS )
+                << "Remove v" << data->os.getVersion() << " c"
+                << data->commitCount << "[" << _commitCount << "] from "
+                << ObjectVersion( _object ) << std::endl;
+
             _instanceDataCache.push_back( data );
             _instanceDatas.pop_front();
         }
-    }
-    // count versions
-    else while( _instanceDatas.size() > (_nVersions+1) )
-    {
-#ifdef EQ_INSTRUMENT
-        _bytesBuffered -= _instanceDatas.front()->os.getSaveBuffer().getSize();
-        EQINFO << _bytesBuffered << " bytes used" << std::endl;
-#endif
-        _instanceDataCache.push_back( _instanceDatas.front( ));
-        _instanceDatas.pop_front();
     }
     _checkConsistency();
 }
@@ -188,7 +183,10 @@ uint32_t FullMasterCM::addSlave( Command& command )
                          << ", instantiate on " << node->getNodeID() 
                          << " with v" 
                          << ((requested == VERSION_OLDEST) ? oldest : requested)
-                         << " sending v" << start << ".." << end << std::endl;
+                         << " (" << requested << ") sending " << start << ".."
+                         << end << " have " << _version - _nVersions << ".."
+                         << _version << " " << _instanceDatas.size()
+                         << std::endl;
 
     EQASSERT( start >= oldest );
 
@@ -253,10 +251,8 @@ void FullMasterCM::_checkConsistency() const
         EQASSERT( data->os.getVersion() > 0 );
         EQASSERTINFO( data->os.getVersion() == version,
                       data->os.getVersion() << " != " << version );
-        if( _obsoleteFlags & Object::AUTO_OBSOLETE_COUNT_COMMITS &&
-            data != _instanceDatas.front( ))
+        if( data != _instanceDatas.front( ))
         {
-            
             EQASSERTINFO( data->commitCount + _nVersions >= _commitCount,
                           data->commitCount << ", " << _commitCount << " [" <<
                           _nVersions << "]" );

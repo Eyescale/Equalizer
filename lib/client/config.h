@@ -331,7 +331,9 @@ namespace eq
         //@{
         /** @internal */
         EQ_EXPORT virtual void notifyMapped( net::NodePtr node );
-        EQ_EXPORT virtual void changeLatency( const uint32_t latency ); //!< @internal
+        /** @internal */
+        EQ_EXPORT virtual void changeLatency( const uint32_t latency );
+        virtual void unmap(); //!< @internal
         //@}
 
     private:
@@ -409,7 +411,6 @@ namespace eq
         net::CommandResult _cmdExitReply( net::Command& command );
         net::CommandResult _cmdReleaseFrameLocal( net::Command& command );
         net::CommandResult _cmdFrameFinish( net::Command& command );
-        net::CommandResult _cmdUnmap( net::Command& command );
     };
 }
 

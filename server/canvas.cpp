@@ -43,11 +43,6 @@ Canvas::Canvas( Config* parent )
         : Super( parent )
 {}
 
-Canvas::Canvas( const Canvas& from, Config* parent )
-        : Super( from, parent )
-{
-}
-
 Canvas::~Canvas()
 {
 }

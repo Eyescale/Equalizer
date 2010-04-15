@@ -32,12 +32,6 @@ Layout::Layout( Config* parent )
 {
 }
 
-Layout::Layout( const Layout& from, Config* parent )
-        : Super( from, parent )
-{
-    EQDONTCALL;
-}
-
 Layout::~Layout()
 {
     EQASSERT( getViews().empty( ));

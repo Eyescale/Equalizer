@@ -45,9 +45,8 @@ namespace net
         //@{
         virtual void obsolete( const uint32_t version ) { EQUNIMPLEMENTED; }
 
-        virtual void setAutoObsolete( const uint32_t count, 
-                                      const uint32_t flags )
-            { _nVersions = count; _obsoleteFlags = flags; }
+        virtual void setAutoObsolete( const uint32_t count )
+            { _nVersions = count; }
         
         virtual void increaseCommitCount();
         virtual uint32_t getAutoObsoleteCount() const { return _nVersions; }
@@ -79,9 +78,6 @@ namespace net
     private:
         /** The number of old versions to retain. */
         uint32_t _nVersions;
-
-        /** The flags for automatic version obsoletion. */
-        uint32_t _obsoleteFlags;
 
         typedef std::deque< InstanceData* > InstanceDataDeque;
         typedef std::vector< InstanceData* > InstanceDataVector;

@@ -80,9 +80,6 @@ namespace fabric
         /** Construct a new Segment. */
         EQFABRIC_EXPORT Segment( C* canvas );
 
-        /** Construct a new, deep copy of a segment. */
-        EQFABRIC_EXPORT Segment( const Segment& from, C* canvas );
-
         /** Destruct this segment. */
         EQFABRIC_EXPORT virtual ~Segment();
 

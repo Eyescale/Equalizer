@@ -25,55 +25,67 @@ namespace eq
 namespace fabric
 {
 Frustum::Frustum()
-        : _current( TYPE_NONE )
 {}
 
 Frustum::~Frustum()
 {
-    _current = TYPE_NONE;
+    _data.current = TYPE_NONE;
+}
+
+void Frustum::backup()
+{
+    Object::backup();
+    _backup = _data;
+}
+
+void Frustum::restore()
+{
+    Object::restore();
+    _data = _backup;
+    setDirty( DIRTY_TYPE | DIRTY_WALL | DIRTY_PROJECTION );
 }
 
 void Frustum::serialize( net::DataOStream& os, const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_TYPE )
-        os << _current;
+        os << _data.current;
     if( dirtyBits & DIRTY_WALL )
-        os << _wall;
+        os << _data.wall;
     if( dirtyBits & DIRTY_PROJECTION )
-        os << _projection;
+        os << _data.projection;
 }
 
 void Frustum::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_TYPE )
-        is >> _current;
+        is >> _data.current;
     if( dirtyBits & DIRTY_WALL )
-        is >> _wall;
+        is >> _data.wall;
     if( dirtyBits & DIRTY_PROJECTION )
-        is >> _projection;
+        is >> _data.projection;
 }
 
 void Frustum::setWall( const Wall& wall )
 {
-    _wall       = wall;
-    _projection = wall;
-    _current    = TYPE_WALL;
+    _data.wall       = wall;
+    _data.projection = wall;
+    _data.current    = TYPE_WALL;
     setDirty( DIRTY_TYPE | DIRTY_WALL );
 }
         
 void Frustum::setProjection( const Projection& projection )
 {
-    _projection = projection;
-    _wall       = projection;
-    _current    = TYPE_PROJECTION;
+    _data.projection = projection;
+    _data.wall       = projection;
+    _data.current    = TYPE_PROJECTION;
     setDirty( DIRTY_TYPE | DIRTY_PROJECTION );
 }
 
 void Frustum::unsetFrustum()
 {
-    _current = TYPE_NONE;
+    _data.current = TYPE_NONE;
     setDirty( DIRTY_TYPE );
 }
 

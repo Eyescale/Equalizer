@@ -37,6 +37,9 @@
 
 #include <sstream>
 
+#include "configBackupVisitor.h"
+#include "configRestoreVisitor.h"
+
 namespace eq
 {
 namespace server
@@ -44,17 +47,19 @@ namespace server
 typedef net::CommandFunc<Server> ServerFunc;
 
 Server::Server()
-        : _configID(0)
+        : _running( false )
 {
     base::Log::setClock( &_clock );
 
-    registerCommand( eq::CMD_SERVER_CHOOSE_CONFIG,
+    registerCommand( CMD_SERVER_CHOOSE_CONFIG,
                      ServerFunc( this, &Server::_cmdChooseConfig ),
                      &_serverThreadQueue );
-    registerCommand( eq::CMD_SERVER_RELEASE_CONFIG,
+    registerCommand( CMD_SERVER_RELEASE_CONFIG,
                      ServerFunc( this, &Server::_cmdReleaseConfig ),
                      &_serverThreadQueue );
-    registerCommand( eq::CMD_SERVER_SHUTDOWN,
+    registerCommand( CMD_SERVER_DESTROY_CONFIG_REPLY,
+                     ServerFunc( this, &Server::_cmdDestroyConfigReply ), 0 );
+    registerCommand( CMD_SERVER_SHUTDOWN,
                      ServerFunc( this, &Server::_cmdShutdown ),
                      &_serverThreadQueue );
     EQINFO << "New server @" << (void*)this << std::endl;
@@ -76,11 +81,11 @@ VisitorResult _accept( C* server, V& visitor )
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    const ConfigVector& configs = server->getConfigs();
-    for( ConfigVector::const_iterator i = configs.begin();
+    const ConfigHash& configs = server->getConfigs();
+    for( ConfigHash::const_iterator i = configs.begin();
          i != configs.end(); ++i )
     {
-        switch( (*i)->accept( visitor ))
+        switch( i->second->accept( visitor ))
         {
             case TRAVERSE_TERMINATE:
                 return TRAVERSE_TERMINATE;
@@ -128,57 +133,82 @@ bool Server::run()
     base::Thread::setDebugName( typeid( *this ).name( ));
 
     if( _configs.empty( ))
-    {
-        EQERROR << "No configurations loaded" << std::endl;
-        return false;
-    }
+        EQWARN << "No configurations loaded" << std::endl;
 
     EQINFO << base::disableFlush << "Running server: " << std::endl
-           << base::indent << Global::instance() << this << base::exdent
+           << base::indent << Global::instance() << *this << base::exdent
            << base::enableFlush;
 
+    for( ConfigHash::const_iterator i = _configs.begin();
+         i != _configs.end(); ++i )
+    {
+        Config* config = i->second;
+        registerConfig( config );
+    }
+
     _handleCommands();
+
+    for( ConfigHash::const_iterator i = _configs.begin();
+         i != _configs.end(); ++i )
+    {
+        Config* config = i->second;
+        deregisterConfig( config );
+    }
     return true;
 }
 
 void Server::_addConfig( Config* config )
 { 
     EQASSERT( config->getServer() == this );
-    _configs.push_back( config );
+    EQASSERT( _configs.find( config->getID( )) == _configs.end( ));
+    _configs[ config->getID() ] = config;
+
+    if( config->getName().empty( ))
+    {
+        std::ostringstream stringStream;
+        stringStream << "EQ_CONFIG_" << config->getID();
+        config->setName( stringStream.str( ));
+    }
+
+    if( _running )
+        registerConfig( config );
 }
 
 bool Server::_removeConfig( Config* config )
 {
-    ConfigVector::iterator i = find( _configs.begin(), _configs.end(),
-                                      config );
+    ConfigHash::iterator i = _configs.find( config->getID( ));
     if( i == _configs.end( ))
         return false;
+
+    if( _running )
+        deregisterConfig( config );
 
     EQASSERT( config->getServer() == this );
     _configs.erase( i );
     return true;
 }
 
-void Server::registerConfig( Config* config )
-{
-    if( config->getName().empty( ))
-    {
-        std::ostringstream stringStream;
-        stringStream << "EQ_CONFIG_" << (++_configID);
-        config->setName( stringStream.str( ));
-    }
-
-    registerSession( config );
-}
-
 void Server::deleteConfigs()
 {
     while( !_configs.empty( ))
     {
-        Config* config = _configs.back();
+        ConfigHash::iterator i = _configs.begin();
+        Config* config = i->second;
         _removeConfig( config );
         delete config;
     }
+}
+
+void Server::registerConfig( Config* config )
+{
+    registerSession( config );
+    config->register_();
+}
+
+bool Server::deregisterConfig( Config* config )
+{
+    config->deregister();
+    return deregisterSession( config );
 }
 
 //===========================================================================
@@ -236,14 +266,20 @@ void Server::_handleCommands()
 
 net::CommandResult Server::_cmdChooseConfig( net::Command& command ) 
 {
-    const eq::ServerChooseConfigPacket* packet = 
-        command.getPacket<eq::ServerChooseConfigPacket>();
+    const ServerChooseConfigPacket* packet = 
+        command.getPacket<ServerChooseConfigPacket>();
     EQINFO << "Handle choose config " << packet << std::endl;
 
-    // TODO
-    Config* config = _configs.empty() ? 0 : _configs[0];
+    Config* config = 0;
+    for( ConfigHash::const_iterator i = _configs.begin();
+         i != _configs.end() && !config; ++i )
+    {
+        Config* candidate = i->second;
+        if( !candidate->isUsed( ))
+            config = candidate;
+    }
     
-    eq::ServerChooseConfigReplyPacket reply( packet );
+    ServerChooseConfigReplyPacket reply( packet );
     net::NodePtr node = command.getNode();
 
     if( !config )
@@ -253,31 +289,26 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
         return net::COMMAND_HANDLED;
     }
 
-    Config* appConfig = new Config( *config, this );
-    appConfig->setApplicationNetNode( node );
+    ConfigBackupVisitor backup;
+    config->accept( backup );
+    config->setApplicationNetNode( node );
 
-    registerConfig( appConfig );
+    const std::string  rendererInfo = packet->rendererInfo;
+    const size_t       colonPos     = rendererInfo.find( '#' );
+    const std::string  workDir      = rendererInfo.substr( 0, colonPos );
+    const std::string  renderClient = rendererInfo.substr( colonPos + 1 );
+    const std::string& name         = config->getName();
 
-    // TODO: move to open?: appConfig->setAppName( appName );
-    const std::string rendererInfo = packet->rendererInfo;
-    const size_t      colonPos     = rendererInfo.find( '#' );
-    const std::string workDir      = rendererInfo.substr( 0, colonPos );
-    const std::string renderClient = rendererInfo.substr( colonPos + 1 );
- 
-    const net::SessionID& configID = appConfig->getID();
-    appConfig->setWorkDir( workDir );
-    appConfig->setRenderClient( renderClient );
-    _appConfigs[configID] = appConfig;
+    config->setWorkDir( workDir );
+    config->setRenderClient( renderClient );
 
-    const std::string& name = appConfig->getName();
-
-    eq::ServerCreateConfigPacket createConfigPacket;
-    createConfigPacket.configID  = configID;
-    createConfigPacket.objectID  = appConfig->register_();
+    ServerCreateConfigPacket createConfigPacket;
+    createConfigPacket.configID  = config->getID();
+    createConfigPacket.objectID  = config->getProxyID();
     createConfigPacket.appNodeID = node->getNodeID();
     node->send( createConfigPacket, name );
 
-    reply.configID = configID;
+    reply.configID = config->getID();
     node->send( reply );
 
     return net::COMMAND_HANDLED;
@@ -285,62 +316,77 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
 
 net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
 {
-    const eq::ServerReleaseConfigPacket* packet = 
-        command.getPacket<eq::ServerReleaseConfigPacket>();
+    const ServerReleaseConfigPacket* packet = 
+        command.getPacket<ServerReleaseConfigPacket>();
     EQINFO << "Handle release config " << packet << std::endl;
 
-    eq::ServerReleaseConfigReplyPacket reply( packet );
-    Config* config = _appConfigs[packet->configID];
+    ServerReleaseConfigReplyPacket reply( packet );
     net::NodePtr node = command.getNode();
+    ConfigHash::const_iterator i = _configs.find( packet->configID );
 
-    if( !config )
+    if( i == _configs.end( ))
     {
         EQWARN << "Release request for unknown config" << std::endl;
         node->send( reply );
         return net::COMMAND_HANDLED;
     }
 
+    Config* config = i->second;
     if( config->isRunning( ))
     {
         EQWARN << "Release of running configuration" << std::endl;
         config->exit(); // Make sure config is exited
     }
 
-    config->deregister();
-
-    eq::ServerDestroyConfigPacket destroyConfigPacket;
+    ServerDestroyConfigPacket destroyConfigPacket;
+    destroyConfigPacket.requestID = registerRequest();
     destroyConfigPacket.configID  = config->getID();
     node->send( destroyConfigPacket );
+    waitRequest( destroyConfigPacket.requestID );
 
-    EQCHECK( deregisterSession( config ));
-
-    _appConfigs.erase( packet->configID );
-    delete config;
+    ConfigRestoreVisitor restore;
+    config->accept( restore );
 
     node->send( reply );
     EQLOG( base::LOG_ANY ) << "----- Released Config -----" << std::endl;
+    return net::COMMAND_HANDLED;
+}
 
+net::CommandResult Server::_cmdDestroyConfigReply( net::Command& command ) 
+{
+    const ServerDestroyConfigReplyPacket* packet = 
+        command.getPacket< ServerDestroyConfigReplyPacket >();
+
+    serveRequest( packet->requestID );
     return net::COMMAND_HANDLED;
 }
 
 net::CommandResult Server::_cmdShutdown( net::Command& command )
 {
-    const eq::ServerShutdownPacket* packet = 
-        command.getPacket< eq::ServerShutdownPacket >();
+    const ServerShutdownPacket* packet = 
+        command.getPacket< ServerShutdownPacket >();
 
-    eq::ServerShutdownReplyPacket reply( packet );
-
-    reply.result = _appConfigs.empty();
-    if( reply.result )
-    {
-        _running = false;
-        EQINFO << "Shutting down server" << std::endl;
-    }
-    else
-        EQWARN << "Ignoring shutdown request, " << _appConfigs.size() 
-               << " configs still active" << std::endl;
-
+    ServerShutdownReplyPacket reply( packet );
     net::NodePtr node = command.getNode();
+
+    for( ConfigHash::const_iterator i = _configs.begin();
+         i != _configs.end(); ++i )
+    {
+        Config* candidate = i->second;
+        if( candidate->isUsed( ))
+        {
+            EQWARN << "Ignoring shutdown request due to used config" 
+                   << std::endl;
+
+            node->send( reply );
+            return net::COMMAND_HANDLED;
+        }
+    }
+
+    EQINFO << "Shutting down server" << std::endl;
+
+    _running = false;
+    reply.result = true;
     node->send( reply );
 
 #ifndef WIN32
@@ -351,27 +397,27 @@ net::CommandResult Server::_cmdShutdown( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
-std::ostream& operator << ( std::ostream& os, const Server* server )
+std::ostream& operator << ( std::ostream& os, const Server& server )
 {
-    if( !server )
-        return os;
-    
     os << base::disableFlush << base::disableHeader << "server " << std::endl;
     os << "{" << std::endl << base::indent;
     
     const net::ConnectionDescriptionVector& cds =
-        server->getConnectionDescriptions();
+        server.getConnectionDescriptions();
     for( net::ConnectionDescriptionVector::const_iterator i = cds.begin();
          i != cds.end(); ++i )
-        
+    {       
         os << static_cast< const ConnectionDescription* >( (*i).get( ));
+    }
 
-    const ConfigVector& configs = server->getConfigs();
-    for( ConfigVector::const_iterator i = configs.begin();
+    const ConfigHash& configs = server.getConfigs();
+    for( ConfigHash::const_iterator i = configs.begin();
          i != configs.end(); ++i )
+    {
+        Config* config = i->second;
+        os << *config;
+    }
 
-        os << *i;
-    
     os << base::exdent << "}"  << base::enableHeader << base::enableFlush
        << std::endl;
 

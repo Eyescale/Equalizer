@@ -39,12 +39,6 @@ View::View( Layout* parent )
 {
 }
 
-View::View( const View& from, Layout* parent )
-        : Super( from, parent )
-{
-    // _channels will be added by Segment copy ctor
-}
-
 View::~View()
 {
     // Use copy - Channel::unsetOutput modifies vector

@@ -40,9 +40,6 @@ namespace eq
         /** Destruct this observer. */
         EQ_EXPORT virtual ~Observer();
 
-        /** @internal */
-        Observer( const Observer& from, Config* parent );
-
     private:
         union // placeholder for binary-compatible changes
         {

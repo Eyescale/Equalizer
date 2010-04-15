@@ -68,7 +68,7 @@ namespace fabric
         const CFG* getConfig() const { return _config; }
 
         /** @return the index of the active layout. @version 1.0 */
-        uint32_t getActiveLayoutIndex() const { return _activeLayout; }
+        uint32_t getActiveLayoutIndex() const { return _data.activeLayout; }
 
         /** @return the active layout. @version 1.0 */
         EQFABRIC_EXPORT const L* getActiveLayout() const;
@@ -102,14 +102,13 @@ namespace fabric
 
         /** @return true if the layout has changed. @internal */
         bool hasDirtyLayout() const { return getDirty() & DIRTY_LAYOUT; }
+
+        virtual void restore(); //!< @internal
         //@}
 
     protected:
         /** Construct a new Canvas. @version 1.0 */
         EQFABRIC_EXPORT Canvas( CFG* config );
-
-        /** Construct a new deep copy of a canvas. @internal */
-        EQFABRIC_EXPORT Canvas( const Canvas& from, CFG* config );
 
         /** Destruct this canvas. @version 1.0 */
         EQFABRIC_EXPORT virtual ~Canvas();
@@ -136,8 +135,14 @@ namespace fabric
         /** The parent config. */
         CFG* const _config;
 
-        /** The currently active layout on this canvas. */
-        uint32_t _activeLayout;
+        struct BackupData
+        {
+            BackupData() : activeLayout( 0 ) {}
+
+            /** The currently active layout on this canvas. */
+            uint32_t activeLayout;
+        }
+            _data, _backup;
 
         /** Allowed layouts on this canvas. */
         LayoutVector _layouts;

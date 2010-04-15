@@ -17,21 +17,17 @@
 
 #include "requestHandler.h"
 
-#include "lock.h"
 #include "scopedMutex.h"
 #include "idPool.h"
 
 #include <eq/base/debug.h>
 
-using namespace std;
-
 namespace eq
 {
 namespace base
 {
-RequestHandler::RequestHandler( const bool threadSafe )
-        : _mutex( threadSafe ? new Lock() : 0 ),
-          _requestID( 1 ) 
+RequestHandler::RequestHandler()
+        : _requestID( 1 ) 
 {}
 
 RequestHandler::~RequestHandler()
@@ -42,16 +38,11 @@ RequestHandler::~RequestHandler()
         _freeRequests.pop_front();
         delete request;
     }
-
-    delete _mutex;
-    _mutex = 0;
 }
 
 uint32_t RequestHandler::registerRequest( void* data )
 {
-    ScopedMutex<> mutex( _mutex );
-    if( !_mutex )
-        CHECK_THREAD( _thread );
+    ScopedMutex< SpinLock > mutex( _mutex );
 
     Request* request;
     if( _freeRequests.empty( ))
@@ -65,15 +56,14 @@ uint32_t RequestHandler::registerRequest( void* data )
     request->data = data;
     _requestID = ( _requestID + 1 ) % IDPool::MAX_CAPACITY;
     _requests[ _requestID ] = request;
-    
+
+    //EQINFO << "Registered " << _requestID << std::endl;
     return _requestID;
 }
 
 void RequestHandler::unregisterRequest( const uint32_t requestID )
 {
-    ScopedMutex<> mutex( _mutex );
-    if( !_mutex )
-        CHECK_THREAD( _thread );
+    ScopedMutex< SpinLock > mutex( _mutex );
 
     RequestHash::iterator i = _requests.find( requestID );
     if( i == _requests.end( ))
@@ -82,9 +72,6 @@ void RequestHandler::unregisterRequest( const uint32_t requestID )
     Request* request = i->second;
     _requests.erase( i );
     _freeRequests.push_front( request );
-
-    if( _mutex )
-        _mutex->unset();
 }
 
 bool RequestHandler::waitRequest( const uint32_t requestID, void*& rPointer,
@@ -127,34 +114,33 @@ bool RequestHandler::_waitRequest( const uint32_t requestID,
                                    Request::Result& result,
                                    const uint32_t timeout )
 {
-    if( _mutex ) _mutex->set();
-    else         CHECK_THREAD( _thread );
-
-    RequestHash::iterator i = _requests.find( requestID );
-    if( i == _requests.end( ))
+    Request* request = 0;
     {
-        if( _mutex ) _mutex->unset();
-        return false;
-    }
+        ScopedMutex< SpinLock > mutex( _mutex );
 
-    Request*   request       = i->second;
-    if( _mutex ) _mutex->unset();
+        RequestHash::const_iterator i = _requests.find( requestID );
+        if( i == _requests.end( ))
+            return false;
+
+        request = i->second;
+    }
 
     const bool requestServed = request->lock.set( timeout );
     if( requestServed )
         result = request->result;
 
-    ScopedMutex<> mutex( _mutex );
-    i = _requests.find( requestID );
+    ScopedMutex< SpinLock > mutex( _mutex );
+    RequestHash::iterator i = _requests.find( requestID );
     _requests.erase( i );
     _freeRequests.push_front( request );
     
+    //EQINFO << "Cleared " << requestID << std::endl;
     return requestServed;
 }
 
 void* RequestHandler::getRequestData( const uint32_t requestID )
 {
-    ScopedMutex<> mutex( _mutex );
+    ScopedMutex< SpinLock > mutex( _mutex );
     RequestHash::const_iterator i = _requests.find( requestID );
     if( i == _requests.end( ))
         return 0;
@@ -164,47 +150,61 @@ void* RequestHandler::getRequestData( const uint32_t requestID )
 
 void RequestHandler::serveRequest( const uint32_t requestID, void* result )
 {
-    if( _mutex ) _mutex->set();
-    RequestHash::const_iterator i = _requests.find( requestID );
-    EQASSERTINFO( i != _requests.end(),
-                  "Attempt to serve unregistered request " << requestID );
+    Request* request = 0;
+    {
+        ScopedMutex< SpinLock > mutex( _mutex );
+        RequestHash::const_iterator i = _requests.find( requestID );
+        EQASSERTINFO( i != _requests.end(),
+                      "Attempt to serve unregistered request " << requestID );
 
-    Request* request = i->second;
-    if( _mutex ) _mutex->unset();
-
-    request->result.rPointer = result;
-    request->lock.unset();
+        request = i->second;
+    }
+    if( request )
+    {
+        request->result.rPointer = result;
+        request->lock.unset();
+    }
 }
+
 void RequestHandler::serveRequest( const uint32_t requestID, uint32_t result )
 {
-    if( _mutex ) _mutex->set();
-    RequestHash::const_iterator i = _requests.find( requestID );
-    EQASSERTINFO( i != _requests.end(),
-                  "Attempt to serve unregistered request " << requestID );
+    Request* request = 0;
+    {
+        ScopedMutex< SpinLock > mutex( _mutex );
+        RequestHash::const_iterator i = _requests.find( requestID );
+        EQASSERTINFO( i != _requests.end(),
+                      "Attempt to serve unregistered request " << requestID );
 
-    Request* request = i->second;
-    if( _mutex ) _mutex->unset();
-
-    request->result.rUint32 = result;
-    request->lock.unset();
+        request = i->second;
+    }
+    if( request )
+    {
+        request->result.rUint32 = result;
+        request->lock.unset();
+    }
 }
+
 void RequestHandler::serveRequest( const uint32_t requestID, bool result )
 {
-    if( _mutex ) _mutex->set();
-    RequestHash::const_iterator i = _requests.find( requestID );
-    EQASSERTINFO( i != _requests.end(),
-                  "Attempt to serve unregistered request " << requestID );
+    Request* request = 0;
+    {
+        ScopedMutex< SpinLock > mutex( _mutex );
+        RequestHash::const_iterator i = _requests.find( requestID );
+        EQASSERTINFO( i != _requests.end(),
+                      "Attempt to serve unregistered request " << requestID );
 
-    Request* request = i->second;
-    if( _mutex ) _mutex->unset();
-
-    request->result.rBool = result;
-    request->lock.unset();
+        request = i->second;
+    }
+    if( request )
+    {
+        request->result.rBool = result;
+        request->lock.unset();
+    }
 }
     
 bool RequestHandler::isRequestServed( const uint32_t requestID ) const
 {
-    ScopedMutex<> mutex( _mutex );
+    ScopedMutex< SpinLock > mutex( _mutex );
     RequestHash::const_iterator i = _requests.find( requestID );
     if( i == _requests.end( ))
         return false;
@@ -214,6 +214,19 @@ bool RequestHandler::isRequestServed( const uint32_t requestID ) const
         return true;
 
     return false;
+}
+
+std::ostream& operator << ( std::ostream& os, const RequestHandler& rh )
+{
+    ScopedMutex< SpinLock > mutex( rh._mutex );
+    for( RequestHandler::RequestHash::const_iterator i = rh._requests.begin();
+         i != rh._requests.end(); ++i )
+    {
+        os << "request " << i->first << " served " << i->second->lock.isSet()
+           << std::endl;
+    }
+
+    return os;    
 }
 
 }

@@ -653,7 +653,7 @@ void ChannelUpdateVisitor::_updateViewFinish( const Compound* compound,
     
     // view finish task
     ChannelFrameViewFinishPacket packet;
-    packet.context   = context;
+    packet.context = context;
 
     EQLOG( LOG_TASKS ) << "TASK view finish " << _channel->getName() <<  " "
                        << &packet << std::endl;

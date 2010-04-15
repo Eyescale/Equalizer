@@ -37,9 +37,6 @@ namespace server
          */
         Observer( Config* parent );
 
-        /** Creates a new, deep copy of a observer. */
-        Observer( const Observer& from, Config* parent );
-
         /** Destruct this observer. */
         virtual ~Observer();
 
@@ -71,8 +68,6 @@ namespace server
                                   const uint64_t dirtyBits );
 
     private:
-        virtual void getInstanceData( net::DataOStream& os );
-
         /** Cached inverse head matrix. */
         fabric::Matrix4f _inverseHeadMatrix;
 

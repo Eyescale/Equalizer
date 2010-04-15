@@ -93,10 +93,8 @@ namespace net
          * 
          * @param count the number of versions to retain, excluding the head
          *              version.
-         * @param flags additional flags for the auto-obsoletion mechanism
          */
-        virtual void setAutoObsolete( const uint32_t count,
-                                      const uint32_t flags ) = 0;
+        virtual void setAutoObsolete( const uint32_t count ) = 0;
  
         /** @return get the number of versions this object retains. */
         virtual uint32_t getAutoObsoleteCount() const = 0;

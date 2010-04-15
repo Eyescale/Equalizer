@@ -106,8 +106,6 @@ void Config::notifyMapped( net::NodePtr node )
                      ConfigFunc( this, &Config::_cmdUnknown ), &_eventQueue );
     registerCommand( CMD_CONFIG_SYNC_CLOCK, 
                      ConfigFunc( this, &Config::_cmdSyncClock ), 0 );
-    registerCommand( CMD_CONFIG_UNMAP, ConfigFunc( this, &Config::_cmdUnmap ),
-                     queue );
 }
 
 CommandQueue* Config::getNodeThreadQueue()
@@ -289,6 +287,40 @@ Canvas* Config::createCanvas()
 void Config::releaseCanvas( Canvas* canvas )
 {
     Global::getNodeFactory()->releaseCanvas( canvas );
+}
+
+void Config::unmap()
+{
+    NodeFactory* nodeFactory = Global::getNodeFactory();
+
+    const CanvasVector& canvases = getCanvases();
+    while( !canvases.empty( ))
+    {
+        Canvas* canvas = canvases.back();
+        canvas->_unmap();
+        _removeCanvas( canvas );
+        nodeFactory->releaseCanvas( canvas );
+    }
+
+    const LayoutVector& layouts = getLayouts();
+    while( !layouts.empty( ))
+    {
+        Layout* layout = layouts.back();;
+        layout->_unmap();
+        _removeLayout( layout );
+        nodeFactory->releaseLayout( layout );
+    }
+
+    const ObserverVector& observers = getObservers();
+    while( !observers.empty( ))
+    {
+        Observer* observer = observers.back();
+        unmapObject( observer );
+        _removeObserver( observer );
+        nodeFactory->releaseObserver( observer );
+    }
+
+    Super::unmap();
 }
 
 bool Config::init( const uint32_t initID )
@@ -828,47 +860,6 @@ net::CommandResult Config::_cmdSyncClock( net::Command& command )
            << packet->time - _clock.getTime64() << std::endl;
 
     _clock.set( packet->time );
-    return net::COMMAND_HANDLED;
-}
-
-net::CommandResult Config::_cmdUnmap( net::Command& command )
-{
-    const ConfigUnmapPacket* packet = command.getPacket< ConfigUnmapPacket >();
-    EQVERB << "Handle unmap " << packet << std::endl;
-
-    NodeFactory* nodeFactory = Global::getNodeFactory();
-
-    const CanvasVector& canvases = getCanvases();
-    while( !canvases.empty( ))
-    {
-        Canvas* canvas = canvases.back();
-        canvas->_unmap();
-        _removeCanvas( canvas );
-        nodeFactory->releaseCanvas( canvas );
-    }
-
-    const LayoutVector& layouts = getLayouts();
-    while( !layouts.empty( ))
-    {
-        Layout* layout = layouts.back();;
-        layout->_unmap();
-        _removeLayout( layout );
-        nodeFactory->releaseLayout( layout );
-    }
-
-    const ObserverVector& observers = getObservers();
-    while( !observers.empty( ))
-    {
-        Observer* observer = observers.back();
-        unmapObject( observer );
-        _removeObserver( observer );
-        nodeFactory->releaseObserver( observer );
-    }
-
-    unmap();
-    ConfigUnmapReplyPacket reply( packet );
-    send( command.getNode(), reply );
-
     return net::COMMAND_HANDLED;
 }
 

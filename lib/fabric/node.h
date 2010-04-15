@@ -78,13 +78,8 @@ namespace fabric
                                                         const IAttribute attr );
         //@}
 
-        /** Add additional tasks this node might potentially execute. */
-        void addTasks( const uint32_t tasks ) { _tasks |= tasks; }
-
     protected:
         Node( C* parent );
-
-        Node( const Node& from, C* config );
 
         EQFABRIC_EXPORT virtual ~Node(){}
 
@@ -94,12 +89,6 @@ namespace fabric
         /** The parent config */
         C* const          _config;
         
-        /** The reason for the last error. */
-        std::string _error;
-
-        /** Worst-case set of tasks. */
-        uint32_t _tasks;
-
         /** Integer attributes. */
         int32_t _iAttributes[IATTR_ALL];
 

@@ -43,10 +43,7 @@ namespace net
          */
         //@{
         virtual void obsolete( const uint32_t version ) { EQUNIMPLEMENTED; }
-
-        virtual void setAutoObsolete( const uint32_t count, 
-                                      const uint32_t flags ) { EQDONTCALL; }
-        
+        virtual void setAutoObsolete( const uint32_t count ) { EQDONTCALL; } 
         virtual uint32_t getAutoObsoleteCount() const { return 0; }
         virtual uint32_t getOldestVersion() const { return _version; }
         //@}

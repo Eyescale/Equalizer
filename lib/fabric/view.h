@@ -95,9 +95,6 @@ namespace fabric
         /** Construct a new view. @internal */
         EQFABRIC_EXPORT View( L* layout );
 
-        /** Construct a new deep copy of a view. @internal */
-        EQFABRIC_EXPORT View( const View& from, L* layout );
-
         /** Destruct this view. @internal */
         EQFABRIC_EXPORT virtual ~View();
 

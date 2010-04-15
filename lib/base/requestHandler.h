@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,6 +21,7 @@
 #include <eq/base/base.h>      // EQ_EXPORT definition
 #include <eq/base/hash.h>      // member
 #include <eq/base/thread.h>    // thread-safety macros
+#include <eq/base/spinLock.h>  // member
 #include <eq/base/timedLock.h> // member
 
 #include <list>
@@ -29,10 +30,8 @@ namespace eq
 {
 namespace base
 {
-    class Lock;
-
     /**
-     * A request handler.
+     * A thread-safe request handler.
      * 
      * Different execution threads can synchronize using a request handler. One
      * thread registers a request, and later waits for the request to be
@@ -47,15 +46,8 @@ namespace base
     class RequestHandler : public NonCopyable
     {
     public:
-        /** 
-         * Construct a new request handler.
-         * 
-         * @param threadSafe if <code>true</code>, all public functions are
-         *                   thread-safe and can be called from multiple
-         *                   threads.
-         * @version 1.0
-         */
-        EQ_EXPORT RequestHandler( const bool threadSafe = false );
+        /** Construct a new request handler.  @version 1.0 */
+        EQ_EXPORT RequestHandler();
 
         /** Destruct the request handler. */
         EQ_EXPORT ~RequestHandler();
@@ -148,7 +140,7 @@ namespace base
         bool hasPendingRequests() const { return !_requests.empty( ); }
 
     private:
-        Lock*        _mutex;
+        mutable SpinLock _mutex;
 
         //! @cond IGNORE
         struct Request
@@ -176,12 +168,15 @@ namespace base
         uint32_t            _requestID;
         RequestHash         _requests;
         std::list<Request*> _freeRequests;
+        friend std::ostream& operator << (std::ostream&, const RequestHandler&);
 
         bool _waitRequest( const uint32_t requestID, Request::Result& result,
                            const uint32_t timeout );
 
         CHECK_THREAD_DECLARE( _thread );
     };
+
+    std::ostream& operator << ( std::ostream&, const RequestHandler& );
 }
 
 }

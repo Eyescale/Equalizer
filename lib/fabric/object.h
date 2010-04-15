@@ -34,6 +34,8 @@ namespace fabric
     class Object : public fabric::Serializable
     {
     public:
+        /** @name Data Access. */
+        //@{
         /** Set the name of the object. @version 1.0 */
         EQ_EXPORT void setName( const std::string& name );
 
@@ -57,11 +59,49 @@ namespace fabric
 
         /** @return the user-specific data. @version 1.0 */
         const net::Object* getUserData() const { return _userData; }
+        //@}
+
+        /** @name Error Information. */
+        //@{
+        /** 
+         * Set a message why the last operation failed.
+         * 
+         * The message will be transmitted to the originator of the request, for
+         * example to Config::init when set from within configInit().
+         *
+         * @param message the error message.
+         * @version 1.0
+         */
+        EQFABRIC_EXPORT void setErrorMessage( const std::string& message );
+
+        /** @return the error message from the last operation. */
+        const std::string& getErrorMessage() const { return _error; }
+        //@}
+
+        /** @name Data Access */
+        //@{
+        /** 
+         * Return the set of tasks this channel might execute in the worst case.
+         * 
+         * It is not guaranteed that all the tasks will be actually executed
+         * during rendering.
+         * 
+         * @return the tasks.
+         * @warning Experimental - may not be supported in the future
+         */
+        uint32_t getTasks() const { return _tasks; }
+        //@}
 
         /** @return true if the view has data to commit. @version 1.0 */
         EQ_EXPORT virtual bool isDirty() const;
 
         EQ_EXPORT virtual uint32_t commitNB(); //!< @internal
+
+        /** Back up app-specific data, excluding child data. @internal */
+        virtual void backup();
+
+        /** Restore the last backup. @internal */
+        virtual void restore();
 
     protected:
         /** Construct a new Object. */
@@ -70,12 +110,14 @@ namespace fabric
         /** Destruct the object. */
         EQ_EXPORT virtual ~Object();
 
+        /** Set the tasks this entity might potentially execute. @internal */
+        void EQFABRIC_EXPORT setTasks( const uint32_t tasks );
+
         EQ_EXPORT virtual void serialize( net::DataOStream& os,
                                           const uint64_t dirtyBits );
 
         EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
                                             const uint64_t dirtyBits );
-
         /** 
          * The changed parts of the object since the last pack().
          *
@@ -85,22 +127,31 @@ namespace fabric
         {
             DIRTY_NAME       = Serializable::DIRTY_CUSTOM << 0,
             DIRTY_USERDATA   = Serializable::DIRTY_CUSTOM << 1,
+            DIRTY_ERROR      = Serializable::DIRTY_CUSTOM << 2,
+            DIRTY_TASKS      = Serializable::DIRTY_CUSTOM << 3,
             // Leave room for binary-compatible patches
-            DIRTY_FILL1      = Serializable::DIRTY_CUSTOM << 2,
-            DIRTY_FILL2      = Serializable::DIRTY_CUSTOM << 3,
-            DIRTY_CUSTOM     = Serializable::DIRTY_CUSTOM << 4
+            DIRTY_CUSTOM     = Serializable::DIRTY_CUSTOM << 6
         };
 
-
     private:
-        /** The application-defined name of the object. */
-        std::string _name;
+        struct BackupData
+        {
+            /** The application-defined name of the object. */
+            std::string name;
+
+            /** The user data parameters if no _userData object is set. */
+            net::ObjectVersion userData;
+        }
+            _data, _backup;
 
         /** The user data. */
         net::Object* _userData;
 
-        /** The user data parameters if no _userData object is set. */
-        net::ObjectVersion _userDataVersion;
+        /** Worst-case set of tasks. */
+        uint32_t _tasks;
+
+        /** The reason for the last error. */
+        std::string _error;
 
         union // placeholder for binary-compatible changes
         {

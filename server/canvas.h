@@ -43,9 +43,6 @@ namespace server
          */
         EQSERVER_EXPORT Canvas( Config* parent );
 
-        /** Creates a new, deep copy of a canvas. */
-        Canvas( const Canvas& from, Config* parent );
-
         /** Destruct this canvas. */
         virtual ~Canvas();
 

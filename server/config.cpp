@@ -85,51 +85,6 @@ Config::Config( ServerPtr parent )
         _fAttributes[i] = global->getConfigFAttribute( (FAttribute)i );
 }
 
-Config::Config( const Config& from, ServerPtr parent )
-        : Super( from, parent )
-        , _appNetNode( from._appNetNode )
-{
-    _construct();
-    for( int i=0; i<FATTR_ALL; ++i )
-        _fAttributes[i] = from.getFAttribute( (FAttribute)i );
-
-    const NodeVector& nodes = from.getNodes();
-    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
-    {
-        const Node* node      = *i;
-        Node*       nodeClone = new Node( *node, this );
-        
-        if( node == from._appNode )
-            _appNode = nodeClone;
-    }
-
-    const ObserverVector& observers = from.getObservers();
-    for( ObserverVector::const_iterator i = observers.begin(); 
-         i != observers.end(); ++i )
-    {
-        new Observer( **i, this );
-    }
-    const LayoutVector& layouts = from.getLayouts();
-    for( LayoutVector::const_iterator i = layouts.begin(); 
-         i != layouts.end(); ++i )
-    {
-        new Layout( **i, this );
-    }
-    const CanvasVector& canvases = from.getCanvases();
-    for( CanvasVector::const_iterator i = canvases.begin(); 
-         i != canvases.end(); ++i )
-    {
-        new Canvas( **i, this );
-    }
-
-    const CompoundVector& compounds = from.getCompounds();
-    for( CompoundVector::const_iterator i = compounds.begin(); 
-         i != compounds.end(); ++i )
-    {
-        new Compound( **i, this, 0 );
-    }
-}
-
 Config::~Config()
 {
     EQINFO << "Delete config @" << (void*)this << std::endl;
@@ -176,9 +131,6 @@ void Config::notifyMapped( net::NodePtr node )
     registerCommand( CMD_CONFIG_FREEZE_LOAD_BALANCING, 
                      ConfigFunc( this, &Config::_cmdFreezeLoadBalancing ), 
                      serverQueue );
-    registerCommand( CMD_CONFIG_UNMAP_REPLY,
-                     ConfigFunc( this, &Config::_cmdUnmapReply ), 
-                     commandQueue );
 }
 
 namespace
@@ -532,7 +484,6 @@ VisitorResult Config::accept( ConfigVisitor& visitor ) const
     return _accept( this, visitor );
 }
 
-
 //===========================================================================
 // operations
 //===========================================================================
@@ -546,18 +497,23 @@ uint32_t Config::register_()
 
 void Config::deregister()
 {
-    net::NodePtr localNode = getLocalNode();
-    ConfigUnmapPacket packet;
-    packet.requestID = localNode->registerRequest();
-    send( _appNetNode, packet );
-    localNode->waitRequest( packet.requestID );
-
     ConfigSyncVisitor syncer;
     accept( syncer );
 
     Super::deregister();
     ConfigDeregistrator deregistrator;
     accept( deregistrator );
+}
+
+void Config::restore()
+{
+    _currentFrame = 0;
+    _finishedFrame = 0;
+    _appNode = 0;
+    _appNetNode = 0;
+    _workDir.clear();
+    _renderClient.clear();
+    Super::restore();
 }
 
 //---------------------------------------------------------------------------
@@ -572,7 +528,7 @@ bool Config::_updateRunning()
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING ||
               _state == STATE_EXITING );
 
-    _error.clear();
+    setErrorMessage( "" );
 
     if( !_connectNodes( ))
         return false;
@@ -590,8 +546,9 @@ bool Config::_updateRunning()
         Node* node = *i;
         if( !node->syncRunning( ))
         {
-            _error += "node " + node->getName() + ": '" +
-                          node->getErrorMessage() + '\'';
+            setErrorMessage( getErrorMessage() +
+                             "node " + node->getName() + ": '" + 
+                             node->getErrorMessage() + '\'' );
             success = false;
         }
     }
@@ -683,7 +640,7 @@ bool Config::_connectNode( Node* node )
         nodeString << "Connection to node failed, node does not run and launch "
                    << "command failed: " << node;
         
-        _error += nodeString.str();
+        setErrorMessage( getErrorMessage() + nodeString.str( ));
         EQERROR << "Connection to " << netNode->getNodeID() << " failed." 
                 << std::endl;
         return false;
@@ -719,9 +676,10 @@ bool Config::_syncConnectNode( Node* node, const base::Clock& clock )
             net::ConnectionDescriptionPtr desc = *i;
             data << desc->getHostname() << ' ';
         }
-        _error += "Connection of node failed, node did not start ( " +
-            data.str() + ") ";
-        EQERROR << _error << std::endl;
+        setErrorMessage( getErrorMessage() + 
+                         "Connection of node failed, node did not start ( " +
+                         data.str() + ") " );
+        EQERROR << getErrorMessage() << std::endl;
 
         node->setNode( 0 );
         EQASSERT( netNode->getRefCount() == 1 );
@@ -1037,7 +995,7 @@ net::CommandResult Config::_cmdInit( net::Command& command )
 
     ConfigInitReplyPacket reply( packet );
     reply.result = _init( packet->initID );
-    std::string error = _error;
+    const std::string& error = getErrorMessage();
 
     if( !reply.result )
         exit();
@@ -1046,6 +1004,7 @@ net::CommandResult Config::_cmdInit( net::Command& command )
            << error << std::endl;
 
     send( command.getNode(), reply, error );
+    setErrorMessage( "" );
     return net::COMMAND_HANDLED;
 }
 
@@ -1079,7 +1038,8 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
         _startFrame( packet->frameID );
     else
     {
-        EQWARN << "Start frame failed, exiting config: " << _error << std::endl;
+        EQWARN << "Start frame failed, exiting config: " 
+               << getErrorMessage() << std::endl;
         exit();
         ++_currentFrame;
     }
@@ -1157,37 +1117,23 @@ net::CommandResult Config::_cmdFreezeLoadBalancing( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
-net::CommandResult Config::_cmdUnmapReply( net::Command& command ) 
+std::ostream& operator << ( std::ostream& os, const Config& config )
 {
-    const ConfigUnmapReplyPacket* packet = 
-        command.getPacket< ConfigUnmapReplyPacket >();
-    EQVERB << "Handle unmap reply " << packet << std::endl;
-
-    getLocalNode()->serveRequest( packet->requestID );
-    return net::COMMAND_HANDLED;
-}
-
-
-std::ostream& operator << ( std::ostream& os, const Config* config )
-{
-    if( !config )
-        return os;
-
     os << base::disableFlush << base::disableHeader << "config " << std::endl;
     os << "{" << std::endl << base::indent;
 
-    if( !config->getName().empty( ))
-        os << "name    \"" << config->getName() << '"' << std::endl;
+    if( !config.getName().empty( ))
+        os << "name    \"" << config.getName() << '"' << std::endl;
 
-    if( config->getLatency() != 1 )
-        os << "latency " << config->getLatency() << std::endl;
+    if( config.getLatency() != 1 )
+        os << "latency " << config.getLatency() << std::endl;
     os << std::endl;
 
-    EQASSERTINFO( config->getFAttribute( Config::FATTR_VERSION ) ==
+    EQASSERTINFO( config.getFAttribute( Config::FATTR_VERSION ) ==
                   Global::instance()->getConfigFAttribute(Config::FATTR_VERSION)
                   , "Per-config versioning not implemented" );
 
-    const float value = config->getFAttribute( Config::FATTR_EYE_BASE );
+    const float value = config.getFAttribute( Config::FATTR_EYE_BASE );
     if( value != 
         Global::instance()->getConfigFAttribute( Config::FATTR_EYE_BASE ))
     {
@@ -1196,30 +1142,30 @@ std::ostream& operator << ( std::ostream& os, const Config* config )
            << base::exdent << "}" << std::endl;
     }
 
-    const NodeVector& nodes = config->getNodes();
+    const NodeVector& nodes = config.getNodes();
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
         os << *i;
 
-    const ObserverVector& observers = config->getObservers();
+    const ObserverVector& observers = config.getObservers();
     for( ObserverVector::const_iterator i = observers.begin(); 
          i !=observers.end(); ++i )
     {
         os << **i;
     }
-    const LayoutVector& layouts = config->getLayouts();
+    const LayoutVector& layouts = config.getLayouts();
     for( LayoutVector::const_iterator i = layouts.begin(); 
          i !=layouts.end(); ++i )
     {
         os << **i;
     }
-    const CanvasVector& canvases = config->getCanvases();
+    const CanvasVector& canvases = config.getCanvases();
     for( CanvasVector::const_iterator i = canvases.begin(); 
          i != canvases.end(); ++i )
     {
         os << **i;
     }
 
-    const CompoundVector& compounds = config->getCompounds();
+    const CompoundVector& compounds = config.getCompounds();
     for( CompoundVector::const_iterator i = compounds.begin(); 
          i != compounds.end(); ++i )
     {

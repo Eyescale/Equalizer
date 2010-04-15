@@ -36,11 +36,6 @@ Layout::Layout( Config* parent )
 {
 }
 
-Layout::Layout( const Layout& from, Config* parent )
-        : Super( from, parent )
-{
-}
-
 Layout::~Layout()
 {
 }

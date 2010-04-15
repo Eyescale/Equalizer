@@ -36,21 +36,6 @@ Layout< C, L, V >::Layout( C* config )
 }
 
 template< class C, class L, class V >
-Layout< C, L, V >::Layout( const Layout& from, C* config )
-        : Object( from )
-        , _config( config )
-{
-    EQASSERT( config );
-    for( typename ViewVector::const_iterator i = from._views.begin();
-         i != from._views.end(); ++i )
-    {
-        new V( **i, static_cast< L* >( this ));
-    }
-
-    config->_addLayout( static_cast< L* >( this ));
-}
-
-template< class C, class L, class V >
 Layout< C, L, V >::~Layout()
 {
     while( !_views.empty( ))

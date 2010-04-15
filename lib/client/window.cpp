@@ -85,6 +85,8 @@ Window::Window( Pipe* parent )
 
 Window::~Window()
 {
+    EQASSERT( getChannels().empty( ));
+
     Pipe* pipe = getPipe();
     EQASSERT( pipe );
 

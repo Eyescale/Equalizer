@@ -63,11 +63,6 @@ namespace server
          * Constructs a new Window.
          */
         EQSERVER_EXPORT Window( Pipe* parent );
-
-        /** 
-         * Constructs a new deep copy of a window.
-         */
-        Window( const Window& from, Pipe* parent );
         
         virtual ~Window();
         /**

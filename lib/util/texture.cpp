@@ -39,7 +39,7 @@ Texture::Texture( GLEWContext* const glewContext )
 Texture::~Texture()
 {
     if( _id != 0 )
-        EQWARN << "OpenGL texture was not freed" << std::endl;
+        EQWARN << "OpenGL texture " << _id << " was not freed" << std::endl;
 
     _id      = 0;
     _defined = false;

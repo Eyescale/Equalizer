@@ -67,12 +67,6 @@ Window::Window( Pipe* parent )
     }
 }
 
-Window::Window( const Window& from, Pipe* parent )
-        : Super( from, parent )
-{
-    _construct();          
-}
-
 Window::~Window()
 {
     EQINFO << "Delete window @" << (void*)this << std::endl;
@@ -341,8 +335,6 @@ bool Window::syncRunning()
         success = false;
 
     EQASSERT( isMaster( ));
-    commit();
-
     EQASSERT( _state == STATE_STOPPED || _state == STATE_RUNNING || 
               _state == STATE_INIT_FAILED );
     return success;

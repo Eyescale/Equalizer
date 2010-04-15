@@ -85,6 +85,7 @@ Pipe::Pipe( Node* parent )
 
 Pipe::~Pipe()
 {
+    EQASSERT( getWindows().empty( ));
     delete _thread;
     _thread = 0;
 }
@@ -343,7 +344,7 @@ Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye )
         net::Session* session = getSession();
         frame = new Frame();
         
-        EQCHECK( session->mapObject( frame, frameVersion.identifier ));
+        EQCHECK( session->mapObject( frame, frameVersion ));
         _frames[ frameVersion.identifier ] = frame;
     }
     
@@ -394,7 +395,7 @@ View* Pipe::getView( const net::ObjectVersion& viewVersion )
         view = nodeFactory->createView( 0 );
 
         net::Session* session = const_cast< net::Session* >( getSession( ));
-        EQCHECK( session->mapObject( view, viewVersion.identifier ));
+        EQCHECK( session->mapObject( view, viewVersion ));
 
         _views[ viewVersion.identifier ] = view;
     }

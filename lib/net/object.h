@@ -44,15 +44,6 @@ namespace net
     class Object : public Dispatcher
     {
     public:
-        /**
-         * Flags for auto obsoletion.
-         */
-        enum ObsoleteFlags
-        {
-            AUTO_OBSOLETE_COUNT_VERSIONS = 0,
-            AUTO_OBSOLETE_COUNT_COMMITS  = 1
-        };
-
         /** Object change handling characteristics, see Programming Guide */
         enum ChangeType
         {
@@ -203,20 +194,14 @@ namespace net
         /** 
          * Automatically obsolete old versions.
          *
-         * Flags are a bitwise combination of the following values:
-         *
-         * AUTO_OBSOLETE_COUNT_VERSIONS: count 'full' versions are retained.
-         * AUTO_OBSOLETE_COUNT_COMMIT: The versions for the last count commits
-         *   are retained. Note that the number of versions may be less since
-         *   commit may not generate a new version. This flags takes precedence
-         *   over AUTO_OBSOLETE_COUNT_VERSIONS.
+         * The versions for the last count commits are retained. Note that the
+         * number of versions may be less since a commit may not generate a new
+         * version.
          * 
          * @param count the number of versions to retain, excluding the head
          *              version.
-         * @param flags additional flags for the auto-obsoletion mechanism
          */
-        EQ_EXPORT void setAutoObsolete( const uint32_t count, 
-                          const uint32_t flags = AUTO_OBSOLETE_COUNT_COMMITS );
+        EQ_EXPORT void setAutoObsolete( const uint32_t count );
 
         /** @return get the number of versions this object retains. */
         EQ_EXPORT uint32_t getAutoObsoleteCount() const;

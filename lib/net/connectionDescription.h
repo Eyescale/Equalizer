@@ -107,7 +107,7 @@ namespace net
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream&,
-                                          const ConnectionDescription* );
+                                          const ConnectionDescription& );
 }
 }
 

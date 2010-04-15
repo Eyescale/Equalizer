@@ -36,20 +36,9 @@ std::string _iAttributeStrings[] = {
 template< class C, class N, class P >
 Node< C, N, P >::Node( C* parent )  
         : _config( parent )
-        , _tasks( fabric::TASK_NONE )
         , _finishedFrame( 0 )
 {
     parent->_addNode( static_cast< N* >( this ) );
-}
-
-template< class C, class N, class P >
-Node< C, N, P >::Node( const Node& from, C* config )
-        : Object( from )
-        , _config( config )
-        , _tasks( TASK_NONE )
-        , _finishedFrame( 0 )
-{
-    config->_addNode( static_cast< N* >( this ) );
 }
 
 template< class C, class N, class P >

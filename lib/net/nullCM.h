@@ -50,8 +50,7 @@ namespace net
 
         virtual void obsolete( const uint32_t version ) { EQDONTCALL; }
 
-        virtual void setAutoObsolete( const uint32_t count,
-                                      const uint32_t flags ) { EQDONTCALL; }
+        virtual void setAutoObsolete( const uint32_t count ) { EQDONTCALL; }
         virtual uint32_t getAutoObsoleteCount() const
             { EQDONTCALL; return 0; }
 

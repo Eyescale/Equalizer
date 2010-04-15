@@ -62,21 +62,6 @@ Pipe::Pipe( Node* parent )
     setCudaGLInterop( getIAttribute( IATTR_HINT_CUDA_GL_INTEROP ));
 }
 
-Pipe::Pipe( const Pipe& from, Node* parent )
-        : Super( from, parent )
-{
-    _construct();
-    for( int i=0; i<IATTR_ALL; ++i )
-        _iAttributes[i] = from._iAttributes[i];
-
-    const WindowVector& windows = from.getWindows();
-    for( WindowVector::const_iterator i = windows.begin(); 
-         i != windows.end(); ++i )
-    {
-        new Window( **i, this );
-    }
-}
-
 Pipe::~Pipe()
 {
     EQINFO << "Delete pipe @" << (void*)this << std::endl;
@@ -327,8 +312,6 @@ bool Pipe::syncRunning()
         success = false;
 
     EQASSERT( isMaster( ));
-    commit();
-
     EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED ||
               _state == STATE_INIT_FAILED );
     return success;

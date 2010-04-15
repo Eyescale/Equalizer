@@ -297,9 +297,9 @@ void Object::obsolete( const uint32_t version )
     _cm->obsolete( version );
 }
 
-void Object::setAutoObsolete( const uint32_t count, const uint32_t flags )
+void Object::setAutoObsolete( const uint32_t count )
 {
-    _cm->setAutoObsolete( count, flags );
+    _cm->setAutoObsolete( count );
 }
 
 uint32_t Object::getAutoObsoleteCount() const 

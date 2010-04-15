@@ -51,7 +51,6 @@ namespace fabric
     public:
         /** Construct a new layout. */
         EQ_EXPORT Layout( Config* parent );
-        Layout( const Layout& from, Config* parent ); //!< @internal
 
         /** Destruct this layout. */
         EQ_EXPORT virtual ~Layout();

@@ -39,10 +39,7 @@ namespace server
         /** Construct a new Layout. */
         EQSERVER_EXPORT Layout( Config* parent );
 
-        /** Construct a new, deep copy of a layout. */
-        Layout( const Layout& from, Config* parent );
-
-        /** Destruct this layout. */
+         /** Destruct this layout. */
         virtual ~Layout();
 
         /** Unmap this layout and all its children. */

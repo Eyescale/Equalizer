@@ -58,7 +58,7 @@ namespace fabric
         EQFABRIC_EXPORT void setEyeBase( const float eyeBase );
 
         /** @return the current eye separation. @version 1.0 */
-        float getEyeBase() const { return _eyeBase; }
+        float getEyeBase() const { return _data.eyeBase; }
 
         /** 
          * Set the head matrix.
@@ -75,7 +75,7 @@ namespace fabric
         EQFABRIC_EXPORT void setHeadMatrix( const Matrix4f& matrix );
 
         /** @return the current head matrix. @version 1.0 */
-        const Matrix4f& getHeadMatrix() const { return _headMatrix; }
+        const Matrix4f& getHeadMatrix() const { return _data.headMatrix; }
         //@}
 
         /** @name Operations */
@@ -91,14 +91,14 @@ namespace fabric
 
         /** Const-version of accept(). @version 1.0 */
         EQFABRIC_EXPORT VisitorResult accept( LeafVisitor< O >& visitor ) const;
+
+        virtual void backup(); //!< @internal
+        virtual void restore(); //!< @internal
         //@}
         
     protected:
         /** Construct a new Observer. @internal */
         EQFABRIC_EXPORT Observer( C* config );
-
-        /** Construct a new copy of the observer. @internal */
-        Observer( const O& from, C* config );
 
         /** Destruct this observer. @internal */
         EQFABRIC_EXPORT virtual ~Observer();
@@ -122,11 +122,17 @@ namespace fabric
         /** The parent Config. */
         C* const _config;
 
-        /** The current eye separation. */
-        float _eyeBase;
+        struct BackupData
+        {
+            BackupData() : eyeBase( .05f ), headMatrix( Matrix4f::IDENTITY ) {}
 
-        /** The current head position. */
-        Matrix4f _headMatrix;
+            /** The current eye separation. */
+            float eyeBase;
+
+            /** The current head position. */
+            Matrix4f headMatrix;
+        }
+            _data, _backup;
 
         union // placeholder for binary-compatible changes
         {

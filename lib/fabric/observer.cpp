@@ -30,18 +30,6 @@ namespace fabric
 template< typename C, typename O >
 Observer< C, O >::Observer( C* config )
         : _config( config )
-        , _eyeBase( 0.05f )
-        , _headMatrix( Matrix4f::IDENTITY )
-{
-    EQASSERT( config );
-    config->_addObserver( static_cast< O* >( this ));
-}
-
-template< typename C, typename O >
-Observer< C, O >::Observer( const O& from, C* config )
-        : _config( config )
-        , _eyeBase( from._eyeBase )
-        , _headMatrix( from._headMatrix )
 {
     EQASSERT( config );
     config->_addObserver( static_cast< O* >( this ));
@@ -54,15 +42,30 @@ Observer< C, O >::~Observer()
 }
 
 template< typename C, typename O >
+void Observer< C, O >::backup()
+{
+    Object::backup();
+    _backup = _data;
+}
+
+template< typename C, typename O >
+void Observer< C, O >::restore()
+{
+    _data = _backup;
+    Object::restore();
+    setDirty( DIRTY_EYE_BASE | DIRTY_HEAD );
+}
+
+template< typename C, typename O >
 void Observer< C, O >::serialize( net::DataOStream& os, 
                                   const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
 
     if( dirtyBits & DIRTY_EYE_BASE )
-        os << _eyeBase;
+        os << _data.eyeBase;
     if( dirtyBits & DIRTY_HEAD )
-        os << _headMatrix;
+        os << _data.headMatrix;
 }
 
 template< typename C, typename O >
@@ -72,9 +75,9 @@ void Observer< C, O >::deserialize( net::DataIStream& is,
     Object::deserialize( is, dirtyBits );
 
     if( dirtyBits & DIRTY_EYE_BASE )
-        is >> _eyeBase;
+        is >> _data.eyeBase;
     if( dirtyBits & DIRTY_HEAD )
-        is >> _headMatrix;
+        is >> _data.headMatrix;
 }
 
 template< typename C, typename O >
@@ -106,14 +109,14 @@ ObserverPath Observer< C, O >::getPath() const
 template< typename C, typename O >
 void Observer< C, O >::setEyeBase( const float eyeBase )
 {
-    _eyeBase = eyeBase;
+    _data.eyeBase = eyeBase;
     setDirty( DIRTY_EYE_BASE );
 }
 
 template< typename C, typename O >
 void Observer< C, O >::setHeadMatrix( const Matrix4f& matrix )
 {
-    _headMatrix = matrix;
+    _data.headMatrix = matrix;
     setDirty( DIRTY_HEAD );
 }
 

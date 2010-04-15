@@ -57,10 +57,8 @@ namespace server
          */
         EQSERVER_EXPORT bool run();
 
-        void registerConfig( Config* config );
-        
-        /** @return the vector of configurations. */
-        const ConfigVector& getConfigs() const { return _configs; }
+        /** @return the configurations. */
+        const ConfigHash& getConfigs() const { return _configs; }
 
         /** Delete all configs of this server (exit). */
         EQSERVER_EXPORT void deleteConfigs();
@@ -81,6 +79,9 @@ namespace server
         /** @return the global time in milliseconds. */
         int64_t getTime() const { return _clock.getTime64(); }
 
+        void registerConfig( Config* config );
+        bool deregisterConfig( Config* config );
+
     protected:
         virtual ~Server();
 
@@ -91,18 +92,11 @@ namespace server
         virtual net::CommandResult invokeCommand( net::Command& command );
         
     private:
-        /** The unique config identifier. */
-        uint32_t _configID;
-
-        /** The list of configurations. */
-        ConfigVector _configs;
-
-        typedef base::UUIDHash< Config* > ConfigHash;
-        /** The application-allocated configurations, mapped by identifier. */
-        ConfigHash _appConfigs;
+        /** All configurations, mapped by identifier. */
+        ConfigHash _configs;
 
         /** The receiver->main command queue. */
-        net::CommandQueue    _serverThreadQueue;
+        net::CommandQueue _serverThreadQueue;
 
         /** The global clock. */
         base::Clock _clock;
@@ -132,10 +126,11 @@ namespace server
         /** The command functions. */
         net::CommandResult _cmdChooseConfig( net::Command& command );
         net::CommandResult _cmdReleaseConfig( net::Command& command );
+        net::CommandResult _cmdDestroyConfigReply( net::Command& command );
         net::CommandResult _cmdShutdown( net::Command& command );
     };
 
-    EQSERVER_EXPORT std::ostream& operator << ( std::ostream&, const Server* );
+    EQSERVER_EXPORT std::ostream& operator << ( std::ostream&, const Server& );
 }
 }
 #endif // EQSERVER_SERVER_H

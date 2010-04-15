@@ -38,9 +38,6 @@ namespace server
     public:
         EQSERVER_EXPORT View( Layout* parent );
 
-        /** Create a new, deep copy of a view. */
-        View( const View& from, Layout* parent );
-
         virtual ~View();
 
         /** @name Data Access. */

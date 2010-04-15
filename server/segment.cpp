@@ -41,44 +41,6 @@ Segment::Segment( Canvas* parent )
     EQINFO << "New segment @" << (void*)this << std::endl;
 }
 
-Segment::Segment( const Segment& from, Canvas* parent )
-        : Super( from, parent )
-        , _channel( 0 )
-{
-    Config* config = parent->getConfig();
-    EQASSERT( config );
-
-    if( from._channel )
-    {
-        const Channel* oldChannel = from._channel;
-        const ChannelPath path( oldChannel->getPath( ));
-
-        _channel = config->getChannel( path );
-        EQASSERT( _channel );
-    }
-
-    for( ChannelVector::const_iterator i = from._destinationChannels.begin();
-         i != from._destinationChannels.end(); ++i )
-    {
-        const Channel* oldChannel = *i;
-        const ChannelPath channelPath( oldChannel->getPath( ));
-
-        Channel* newChannel = config->getChannel( channelPath );
-        EQASSERT( newChannel );
-
-        const View* oldView = oldChannel->getView();
-        EQASSERT( oldView );
-        const ViewPath viewPath( oldView->getPath( ));
-
-        View* newView = config->getView( viewPath );
-        EQASSERT( newView );
-
-        newChannel->setOutput( newView, this );
-    }
-
-    EQINFO << "Copy segment @" << (void*)this << std::endl;
-}
-
 Segment::~Segment()
 {
     EQINFO << "Delete segment @" << (void*)this << std::endl;

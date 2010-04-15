@@ -89,12 +89,12 @@ private:
 
 void Loader::addOutputCompounds( ServerPtr server )
 {
-    const ConfigVector& configs = server->getConfigs();
-    for( ConfigVector::const_iterator i = configs.begin(); 
+    const ConfigHash& configs = server->getConfigs();
+    for( ConfigHash::const_iterator i = configs.begin(); 
          i != configs.end(); ++i )
     {
         UnusedOutputChannelFinder finder;
-        Config* config = *i;
+        Config* config = i->second;
         config->accept( finder );
 
         const ChannelVector& channels = finder.getResult();

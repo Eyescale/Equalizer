@@ -39,27 +39,6 @@ View< L, V, O >::View( L* layout )
 }
 
 template< class L, class V, class O > 
-View< L, V, O >::View( const View& from, L* layout )
-        : Frustum( from )
-        , _layout( layout )
-        , _observer( 0 )
-        , _viewport( from._viewport )
-        , _overdraw( from._overdraw )
-{
-    EQASSERT( layout );
-    layout->_addView( static_cast< V* >( this ));
-
-    if( from._observer )
-    {
-        const ObserverPath path( from._observer->getPath( ));
-
-        EQASSERT( layout->getConfig( ));
-        _observer = layout->getConfig()->getObserver( path );
-        EQASSERT( _observer );
-    }
-}
-
-template< class L, class V, class O > 
 View< L, V, O >::~View()
 {
     if( _layout )

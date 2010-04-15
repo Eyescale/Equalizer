@@ -285,13 +285,8 @@ namespace net
          * @name Connectivity information. 
          */
         //@{
-        /** 
-         * Returns if the node is local.
-         * 
-         * @return <code>true</code> if the node is local, <code>false</code>
-         *         otherwise.
-         */
-        bool isLocal() const { return (_state==STATE_LISTENING); }
+        /** @return true if the node is local (listening), false otherwise. */
+        bool isLocal() const { return isListening(); }
 
         /** 
          * Adds a new description how this node can be reached.

@@ -279,7 +279,8 @@ void Node::_finishFrame( const uint32_t frameNumber ) const
 void Node::_frameFinish( const uint32_t frameID, const uint32_t frameNumber )
 {
     frameFinish( frameID, frameNumber );
-    EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << frameNumber << std::endl;
+    EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << frameNumber
+                       << std::endl;
 
     if( _unlockedFrame < frameNumber )
     {
@@ -322,7 +323,8 @@ void Node::releaseFrameLocal( const uint32_t frameNumber )
     EQASSERT( config->getNodes()[0] == this );
     config->releaseFrameLocal( frameNumber );
 
-    EQLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame << std::endl;
+    EQLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame
+                       << std::endl;
 }
 
 void Node::frameStart( const uint32_t frameID, const uint32_t frameNumber )
@@ -393,11 +395,6 @@ void Node::frameTasksFinish( const uint32_t frameID, const uint32_t frameNumber)
         default:
             EQUNIMPLEMENTED;
     }
-}
-
-void Node::setErrorMessage( const std::string& message )
-{
-    _error = message;
 }
 
 void Node::_flushObjects()
@@ -499,7 +496,7 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
 
     _state = STATE_INITIALIZING;
     setName( packet->name );
-    _tasks = packet->tasks;
+    setTasks( packet->tasks );
 
     memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
 
@@ -508,7 +505,7 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
     _finishedFrame = packet->frameNumber;
 
     transmitter.start();
-    _error.clear();
+    setErrorMessage( "" );
     NodeConfigInitReplyPacket reply;
     reply.result = configInit( packet->initID );
 
@@ -518,7 +515,7 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
     _state = reply.result ? STATE_RUNNING : STATE_INIT_FAILED;
 
     memcpy( reply.iAttributes, _iAttributes, IATTR_ALL * sizeof( int32_t ));
-    send( command.getNode(), reply, _error );
+    send( command.getNode(), reply, getErrorMessage( ));
     return net::COMMAND_HANDLED;
 }
 
@@ -559,7 +556,8 @@ net::CommandResult Node::_cmdFrameStart( net::Command& command )
     const uint32_t frameNumber = packet->frameNumber;
     EQASSERT( _currentFrame == frameNumber-1 );
 
-    EQLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber << std::endl;
+    EQLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber
+                       << std::endl;
 
     _config->_frameStart();
     frameStart( packet->frameID, frameNumber );

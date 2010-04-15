@@ -90,9 +90,11 @@ int main( int argc, char **argv )
     TEST( eq::init( argc, argv, &nodeFactory ));
 
     eq::ClientPtr client = new Client;
+    TEST( client->getRefCount() == 1 );
     TEST( client->initLocal( argc, argv ));
 
     eq::ServerPtr server = new eq::Server;
+    TEST( server->getRefCount() == 1 );
     TEST( client->connectServer( server ));
 
     Config* config = new Config( server );

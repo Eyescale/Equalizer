@@ -128,6 +128,26 @@ namespace fabric
 
         /** Activate the given canvas after it is complete. @internal */
         virtual void activateCanvas( CV* canvas ) { /* NOP */ }
+
+        /** Set the name of the object. @version 1.0 */
+        EQFABRIC_EXPORT void setName( const std::string& name );
+
+        /** @return the name of the object. @version 1.0 */
+        EQFABRIC_EXPORT const std::string& getName() const;
+
+        /**
+         * Set a message why the last operation failed.
+         * 
+         * The message will be transmitted to the originator of the request, for
+         * example to Config::init when set from within configInit().
+         *
+         * @param message the error message.
+         * @version 1.0
+         */
+        EQFABRIC_EXPORT void setErrorMessage( const std::string& message );
+
+        /** @return the error message from the last operation. */
+        EQFABRIC_EXPORT const std::string& getErrorMessage() const;
         //@}
 
         /** @name Operations */
@@ -146,15 +166,20 @@ namespace fabric
         virtual void setLatency( const uint32_t latency );
 
         /** @return the latency of this config. @version 1.0 */
-        uint32_t getLatency() const { return _latency; }
+        uint32_t getLatency() const { return _data.latency; }
+
+        EQFABRIC_EXPORT uint32_t getProxyID() const; //!< @internal
+
+        /** Back up app-specific data, excluding child data. @internal */
+        virtual void backup();
+
+        /** Restore the last backup. @internal */
+        virtual void restore();
         //@}
 
     protected:
         /** Construct a new config. @version 1.0 */
         EQFABRIC_EXPORT Config( base::RefPtr< S > parent );
-
-        /** Construct a new deep copy of a config. @internal */
-        Config( const Config& from, base::RefPtr< S > server );
 
         /** @internal */
         //@{
@@ -168,7 +193,7 @@ namespace fabric
         uint32_t register_();
         void deregister();
         void map( const uint32_t proxyID );
-        void unmap();
+        virtual void unmap();
         uint32_t commit();
         void sync( const uint32_t version );
 
@@ -191,8 +216,14 @@ namespace fabric
         /** The list of nodes. */
         NodeVector _nodes;
 
-        /** The maximum latency between frame start and end frame, in frames. */
-        uint32_t _latency;
+        struct BackupData
+        {
+            BackupData() : latency( 1 ) {}
+
+            /** The latency between frame start and end frame, in frames. */
+            uint32_t latency;
+        }
+            _data, _backup;
 
         /** Data distribution proxy */
         ConfigProxy< S, C, O, L, CV, N >* const _proxy;
@@ -229,4 +260,3 @@ namespace fabric
 }
 }
 #endif // EQFABRIC_CONFIG_H
-

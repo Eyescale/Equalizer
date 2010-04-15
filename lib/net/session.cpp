@@ -43,7 +43,7 @@ namespace net
 typedef CommandFunc<Session> CmdFunc;
 
 Session::Session()
-        : _id( SessionID::ZERO )
+        : _id( true )
         , _isMaster( false )
         , _idPool( 0 ) // Master pool is filled in Node::registerSession
         , _instanceIDs( std::numeric_limits< long >::min( )) 
@@ -56,8 +56,7 @@ Session::Session()
 Session::~Session()
 {
     EQINFO << "Delete Session @" << (void*)this << std::endl;
-    EQASSERTINFO( _id == SessionID::ZERO,
-                  "Session still mapped during deletion");
+    EQASSERTINFO( !_server, "Session still mapped during deletion");
 
     _id        = SessionID::ZERO;
     _isMaster  = false;
@@ -948,7 +947,7 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
     CHECK_THREAD( _commandThread );
     const SessionSubscribeObjectReplyPacket* packet = 
         command.getPacket<SessionSubscribeObjectReplyPacket>();
-    EQLOG( LOG_OBJECTS ) << "Cmd object subscribe reply " << packet
+    EQLOG( LOG_OBJECTS ) << "Cmd subscribe object reply " << packet
                          << std::endl;
 
     // Subscribe reply packets are potentially multicasted (see above)

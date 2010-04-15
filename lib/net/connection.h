@@ -392,7 +392,7 @@ namespace net
         std::vector< ConnectionListener* > _listeners;
     };
 
-    std::ostream& operator << ( std::ostream&, const Connection* );
+    std::ostream& operator << ( std::ostream&, const Connection& );
 
 #   include "connection.ipp" // template implementation
 

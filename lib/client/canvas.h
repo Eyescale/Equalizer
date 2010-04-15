@@ -62,7 +62,6 @@ namespace fabric
     public:
         /** Construct a new Canvas. @version 1.0 */
         EQ_EXPORT Canvas( Config* parent );
-        Canvas( const Canvas& from, Config* parent ); //!< @internal
 
         /** Destruct this canvas. @version 1.0 */
         EQ_EXPORT virtual ~Canvas();

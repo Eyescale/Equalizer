@@ -19,7 +19,7 @@
 #ifndef EQFABRIC_WINDOW_H
 #define EQFABRIC_WINDOW_H
 
-#include <eq/fabric/entity.h>        // base class
+#include <eq/fabric/object.h>        // base class
 
 #include <eq/fabric/drawableConfig.h> // enum
 #include <eq/fabric/paths.h>
@@ -40,7 +40,7 @@ namespace fabric
     template< class T, class C  > class ElementVisitor;
     template< class T > class LeafVisitor;
 
-    template< class P, class W, class C > class Window : public Entity
+    template< class P, class W, class C > class Window : public Object
     {
     public:
         /** A vector of pointers to channels */
@@ -61,10 +61,10 @@ namespace fabric
             { return _drawableConfig; }
 
         /** @return the window's pixel viewport */
-        const PixelViewport& getPixelViewport() const { return _pvp; }
+        const PixelViewport& getPixelViewport() const { return _data.pvp; }
 
         /** @return the window's fractional viewport. */
-        const Viewport& getViewport() const { return _vp; }
+        const Viewport& getViewport() const { return _data.vp; }
 
         /** 
          * Set the window's pixel viewport wrt its parent pipe.
@@ -74,7 +74,7 @@ namespace fabric
          * 
          * @param pvp the viewport in pixels.
          */
-        EQFABRIC_EXPORT virtual void setPixelViewport( const PixelViewport& pvp );
+        EQFABRIC_EXPORT virtual void setPixelViewport(const PixelViewport& pvp);
 
         /** 
          * Set the window's viewport wrt its parent pipe.
@@ -87,7 +87,7 @@ namespace fabric
         void notifyViewportChanged();
 
         /** @return true if a viewport was specified last. @version 1.0 */
-        bool hasFixedViewport( ) const { return _fixedVP; }
+        bool hasFixedViewport( ) const { return _data.fixedVP; }
         /** 
          * Traverse this window and all children using a window visitor.
          * 
@@ -152,22 +152,22 @@ namespace fabric
 
         /** @return the index path to this window. @internal */
         EQFABRIC_EXPORT WindowPath getPath() const;
+
+        virtual void backup(); //!< @internal
+        virtual void restore(); //!< @internal
         //@}
 
     protected: 
         /** Construct a new window. */
         Window( P* parent );
 
-        /** Constructs a new deep copy of a window. */
-        Window( const Window& from, P* pipe );
-
         EQFABRIC_EXPORT virtual ~Window( );
 
         enum DirtyBits
         {
-            DIRTY_ATTRIBUTES      = Entity::DIRTY_CUSTOM << 0,
-            DIRTY_VIEWPORT        = Entity::DIRTY_CUSTOM << 1,
-            DIRTY_DRAWABLECONFIG  = Entity::DIRTY_CUSTOM << 2,
+            DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
+            DIRTY_VIEWPORT        = Object::DIRTY_CUSTOM << 1,
+            DIRTY_DRAWABLECONFIG  = Object::DIRTY_CUSTOM << 2,
         };
 
         /** @internal */
@@ -178,7 +178,6 @@ namespace fabric
                                                   const uint64_t dirtyBits );
         
         friend class Channel< W, C >;
-
         /**
          * @name Data Access
          */
@@ -200,27 +199,32 @@ namespace fabric
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:
+        /** The parent pipe. */
+        P* const _pipe;
+
         /** Integer attributes. */
         int32_t _iAttributes[ IATTR_ALL ];
 
         /** The channels of this window. */
-        ChannelVector     _channels;
+        ChannelVector _channels;
 
         /** Drawable characteristics of this window */
         DrawableConfig _drawableConfig;
 
-        /** The parent pipe. */
-        P* const _pipe;
-
-        /** The absolute size and position of the window. */
-        PixelViewport _pvp;
+        struct BackupData
+        {
+            BackupData() : fixedVP( true ) {}
+            /** The absolute size and position of the window. */
+            PixelViewport pvp;
         
-        /** The fractional size and position of the window. */
-        Viewport _vp;
+            /** The fractional size and position of the window. */
+            Viewport vp;
 
-        /** true if the pixel viewport is mutable, false if the viewport 
-            is immutable */
-        bool _fixedVP;
+            /** true if the pixel viewport is mutable, false if the viewport 
+                is immutable */
+            bool fixedVP;
+        }
+            _data, _backup;
 
         union // placeholder for binary-compatible changes
         {

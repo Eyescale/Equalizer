@@ -18,7 +18,7 @@
 #ifndef EQ_OBJECT_H
 #define EQ_OBJECT_H
 
-#include <eq/fabric/object.h>        // base class
+#include <eq/fabric/serializable.h>        // base class
 
 namespace eq
 {
@@ -30,14 +30,6 @@ namespace eq
      * Equalizer. The inheritance Object -> Frustum -> View illustrates
      * the usage of eq::Object.
      */
-    class Object : public fabric::Object // TODO retire?
-    {
-    public:
-        /** Construct a new Object. */
-        Object() {}
-        
-        /** Destruct the object. */
-        virtual ~Object() {}
-    };
+    typedef fabric::Serializable Object;
 }
 #endif // EQ_OBJECT_H

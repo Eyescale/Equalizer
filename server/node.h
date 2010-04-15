@@ -59,11 +59,6 @@ namespace server
          */
         EQSERVER_EXPORT Node( Config* parent );
 
-        /** 
-         * Constructs a new deep copy of a node.
-         */
-        Node( const Node& from, Config* config );
-
         virtual ~Node();
 
         /** @name Data Access. */
@@ -103,6 +98,12 @@ namespace server
 
         /** @return if this pipe is actively used for rendering. */
         bool isActive() const { return ( _active != 0 ); }
+
+        /**
+         * Add additional tasks this pipe, and all its parents, might
+         * potentially execute.
+         */
+        void addTasks( const uint32_t tasks );
 
         /** The last drawing channel for this entity. */
         void setLastDrawPipe( const Pipe* pipe )
@@ -240,12 +241,6 @@ namespace server
         /** @return the vector of connection descriptions. */
         const ConnectionDescriptionVector& getConnectionDescriptions()
             const { return _connectionDescriptions; }
-
-        /** @name Error information. */
-        //@{
-        /** @return the error message from the last operation. */
-        const std::string& getErrorMessage() const { return _error; }
-        //@}
 
     protected:
 

@@ -19,7 +19,7 @@
 #ifndef EQFABRIC_CHANNEL_H
 #define EQFABRIC_CHANNEL_H
 
-#include <eq/fabric/entity.h>        // base class
+#include <eq/fabric/object.h>        // base class
 #include <eq/fabric/paths.h>
 #include <eq/fabric/renderContext.h> // member
 #include <eq/fabric/types.h>
@@ -41,7 +41,7 @@ namespace fabric
      * RenderContext, which is computed by the server based on the rendering
      * description of the current configuration.
      */
-    template< class W, class C > class Channel : public Entity
+    template< class W, class C > class Channel : public Object
     {
     public: 
         typedef LeafVisitor< C > Visitor;
@@ -75,12 +75,15 @@ namespace fabric
         /** Set the channel's viewport wrt its parent window. @internal */
         void setViewport( const Viewport& vp );
 
+        /** Notification that the vp/pvp has changed. @internal */
+        virtual void notifyViewportChanged();
+
         /** @return the native pixel viewport. @version 1.0 */
         const PixelViewport& getNativePixelViewport() const
-            { return _nativeContext.pvp; }
+            { return _data.nativeContext.pvp; }
 
         /** @return true if a viewport was specified last. @version 1.0 */
-        bool hasFixedViewport() const { return _fixedVP; }
+        bool hasFixedViewport() const { return _data.fixedVP; }
 
         /** 
          * Set the near and far planes for this channel.
@@ -125,6 +128,9 @@ namespace fabric
 
         /** @return the index path to this channel. @internal */
         EQFABRIC_EXPORT ChannelPath getPath() const;
+
+        virtual void backup(); //!< @internal
+        virtual void restore(); //!< @internal
         //@}
 
         /**
@@ -277,10 +283,10 @@ namespace fabric
 
         enum DirtyBits
         {
-            DIRTY_ATTRIBUTES = Entity::DIRTY_CUSTOM << 0,
-            DIRTY_VIEWPORT   = Entity::DIRTY_CUSTOM << 1,
-            DIRTY_MEMBER     = Entity::DIRTY_CUSTOM << 2,
-            DIRTY_FRUSTUM    = Entity::DIRTY_CUSTOM << 3,
+            DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 0,
+            DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 1,
+            DIRTY_MEMBER     = Object::DIRTY_CUSTOM << 2,
+            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 3,
         };
 
         /** @internal */
@@ -295,22 +301,20 @@ namespace fabric
 
         void setDrawable( const uint32_t drawable ); //!< @internal
 
-        /** Notification that parameters influencing the vp/pvp have changed.*/
-        virtual void notifyViewportChanged();
-
         /** @name Render context access @internal */
         //@{
         /** Override the channel's native render context. @internal */
         void overrideContext( RenderContext& context ) { _context = &context; }
 
         /** Re-set the channel's native render context. @internal */
-        void resetContext() { _context = &_nativeContext; }
+        void resetContext() { _context = &_data.nativeContext; }
 
         /** @return the current render context. @internal */
         const RenderContext& getContext() const { return *_context; }
 
         /** @return the native render context. @internal */
-        const RenderContext& getNativeContext() const { return _nativeContext; }
+        const RenderContext& getNativeContext() const
+            { return _data.nativeContext; }
         //@}
 
         /** @name Attributes */
@@ -323,12 +327,21 @@ namespace fabric
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:
-        template< class, class, class > friend class Window;
+        //template< class, class, class > friend class Window;
         /** The parent window. */
         W* const _window;
 
-        /** The native render context parameters of this channel. */
-        RenderContext _nativeContext;
+        struct BackupData
+        {
+            BackupData() : fixedVP( true ) {}
+
+            /** The native render context parameters of this channel. */
+            RenderContext nativeContext;
+
+            /** true if the vp is immutable, false if the pvp is immutable */
+            bool fixedVP;
+        }
+            _data, _backup;
 
         /** The current rendering context. */
         RenderContext* _context;
@@ -345,9 +358,6 @@ namespace fabric
         /** Overdraw limiter */
         Vector2i    _maxSize;
         
-        /** true if the vp is immutable, false if the pvp is immutable */
-        bool _fixedVP;
-
         union // placeholder for binary-compatible changes
         {
             char dummy[32];

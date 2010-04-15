@@ -37,16 +37,6 @@ Segment< C, S >::Segment( C* canvas )
 }
 
 template< class C, class S >
-Segment< C, S >::Segment( const Segment& from, C* canvas )
-        : Frustum( from )
-        , _canvas( canvas )
-        , _vp( from._vp )
-{
-    EQASSERT( canvas );
-    canvas->_addSegment( static_cast< S* >( this ));
-}
-
-template< class C, class S >
 Segment< C, S >::~Segment()
 {
     _canvas->_removeSegment( static_cast< S* >( this ));

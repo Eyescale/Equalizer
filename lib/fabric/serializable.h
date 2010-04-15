@@ -77,7 +77,7 @@ namespace fabric
          * @version 1.0
          */
         virtual void serialize( net::DataOStream& os,
-                                const uint64_t dirtyBits ) = 0;
+                                const uint64_t dirtyBits ){};
 
         /** 
          * Worker for unpack() and applyInstanceData().
@@ -90,7 +90,7 @@ namespace fabric
          * @version 1.0
          */
         virtual void deserialize( net::DataIStream& is, 
-                                  const uint64_t dirtyBits ) = 0;
+                                  const uint64_t dirtyBits ){};
 
         virtual ChangeType getChangeType() const { return DELTA; }
 

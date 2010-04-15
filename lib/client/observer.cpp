@@ -27,12 +27,6 @@ Observer::Observer( Config* parent )
 {
 }
 
-Observer::Observer( const Observer& from, Config* parent )
-        : fabric::Observer< Config, Observer >( from, parent )
-{
-    EQDONTCALL;
-}
-
 Observer::~Observer()
 {
 }

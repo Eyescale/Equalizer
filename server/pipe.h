@@ -58,11 +58,6 @@ namespace server
          */
         EQSERVER_EXPORT Pipe(  Node* parent );
 
-        /** 
-         * Constructs a new deep copy of a pipe.
-         */
-        Pipe( const Pipe& from, Node* parent );
-
         virtual ~Pipe();
 
         ServerPtr getServer();

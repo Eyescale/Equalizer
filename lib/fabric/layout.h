@@ -94,9 +94,6 @@ namespace fabric
         /** Construct a new layout. */
         EQFABRIC_EXPORT Layout( C* config );
 
-        /** Construct a new, deep copy of a layout. */
-        Layout( const Layout& from, C* config );
-
         /** Destruct this layout. */
         EQFABRIC_EXPORT virtual ~Layout();
 

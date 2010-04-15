@@ -1,9 +1,42 @@
-Fix two compressor bugs
+Replace deep copy ctor with backup mechanism: So far, a config was
+    copied, registered and then used. With the admin interface configs
+    are always registered. Using a backup mechanism for running configs
+    is easier and more logical than copying the config
 
-[ ] May break build
+- Introduce new backup/restore for fabric objects
+- Remove copy ctors
+- Unmap configs in destroy (as opposed to explicit command)
+- Channel copy ctor remains for creating view/segment dest channels
+
+Configs are now registered when the server is started, or when they are
+added to a running server, net::Session identifier is generated in ctor
+and not changed for session master
+
+The server now selects the first non-used config in chooseConfig instead
+of copying the first. One config can only be used by one application.
+
+
+Bugfixes:
+- Fix one cause of 2985875: eqPly sometimes crashes on start on linux
+  o commit-based auto-obsoletion did free streams too early
+- Fix rare mapping failure when map and commit are called concurrently
+  from two threads in the same process
+
+
+Cleanups:
+- Merge fabric::Entity in fabric::Object
+  o eq::Object is now a fabric::Serializable instead of fabric::Object
+- Modify RefPtr output to output reference, not pointer
+- base::RequestHandler:
+  o always thread-safe now
+  o use SpinLock for performance.
+  o Add ostream operator for debugging
+- Remove unused, unneeded version-based auto-obsoletion of objects
+
+[x] May break build
 [ ] May break existing applications
 [x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

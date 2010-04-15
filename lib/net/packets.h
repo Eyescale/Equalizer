@@ -733,7 +733,7 @@ namespace net
                                        const SessionMapObjectPacket* packet )
     {
         os << (SessionPacket*)packet << " id " << packet->objectID << " req "
-           << packet->requestID;
+           << packet->requestID << " v" << packet->version;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
@@ -754,7 +754,7 @@ namespace net
                                const SessionSubscribeObjectReplyPacket* packet )
     {
         os << (SessionPacket*)packet << " id " << packet->objectID << " req "
-           << packet->requestID;
+           << packet->requestID << " v" << packet->cachedVersion;
         return os;
     }
 

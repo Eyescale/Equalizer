@@ -205,19 +205,13 @@ bool ConnectionDescription::isSameMulticastGroup( ConnectionDescriptionPtr rhs )
 }
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
-                                      const ConnectionDescription* desc)
+                                      const ConnectionDescription& desc)
 {
-    if( !desc )
-    {
-        os << "NULL connection description";
-        return os;
-    }
-
-    os << "connection " << desc->type << ' ' << desc->getHostname() << ':';
-    if( desc->port > 0 )
-        os << desc->port;
-    else if( desc->getFilename() != "default" )
-        os << desc->getFilename();
+    os << "connection " << desc.type << ' ' << desc.getHostname() << ':';
+    if( desc.port > 0 )
+        os << desc.port;
+    else if( desc.getFilename() != "default" )
+        os << desc.getFilename();
 
     return os;
 }

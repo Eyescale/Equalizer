@@ -76,32 +76,6 @@ Node::Node( Config* parent )
         _iAttributes[i] = global->getNodeIAttribute((Node::IAttribute)i);
 }
 
-Node::Node( const Node& from, Config* config )
-        : Super( from, config )
-{
-    _construct();
-    _node = from._node;
-
-    for( int i=0; i < Node::SATTR_ALL; ++i )
-        _sattributes[i] = from._sattributes[i];
-    memcpy( _cattributes, from._cattributes, Node::CATTR_ALL * sizeof( char ));
-    memcpy( _iAttributes, from._iAttributes, 
-            eq::Node::IATTR_ALL * sizeof( int32_t ));
-
-    const ConnectionDescriptionVector& descriptions =
-        from.getConnectionDescriptions();
-    for( ConnectionDescriptionVector::const_iterator i = descriptions.begin();
-         i != descriptions.end(); ++i )
-    {
-        const ConnectionDescriptionPtr desc = *i;
-        addConnectionDescription( new ConnectionDescription( *desc ));
-    }
-
-    const PipeVector& pipes = from.getPipes();
-    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
-        new Pipe( **i, this );
-}
-
 Node::~Node()
 {
     EQINFO << "Delete node @" << (void*)this << std::endl;
@@ -211,6 +185,11 @@ void Node::deactivate()
     EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 };
 
+void Node::addTasks( const uint32_t tasks )
+{
+    setTasks( getTasks() | tasks );
+}
+
 //===========================================================================
 // Operations
 //===========================================================================
@@ -255,8 +234,8 @@ bool Node::syncRunning()
         Pipe* pipe = *i;
         if( !pipe->syncRunning( ))
         {
-            _error += "pipe " + pipe->getName() + ": '" + 
-                      pipe->getErrorMessage() + '\'';
+            setErrorMessage( getErrorMessage() +  "pipe " + pipe->getName() +
+                             ": '" + pipe->getErrorMessage() + '\'' );
             success = false;
         }
     }
@@ -299,7 +278,7 @@ void Node::_configInit( const uint32_t initID, const uint32_t frameNumber )
     EQLOG( LOG_INIT ) << "Init node" << std::endl;
     NodeConfigInitPacket packet;
     packet.initID      = initID;
-    packet.tasks       = _tasks;
+    packet.tasks       = getTasks();
     packet.frameNumber = frameNumber;
 
     memcpy( packet.iAttributes, _iAttributes, 
@@ -319,7 +298,8 @@ bool Node::_syncConfigInit()
     if( success )
         _state = STATE_RUNNING;
     else
-        EQWARN << "Node initialization failed: " << _error << std::endl;
+        EQWARN << "Node initialization failed: " << getErrorMessage()
+               << std::endl;
 
     return success;
 }
@@ -354,7 +334,7 @@ bool Node::_syncConfigExit()
     EQASSERT( success || _state == STATE_EXIT_FAILED );
 
     _state = STATE_STOPPED; // EXIT_FAILED -> STOPPED transition
-    _tasks = fabric::TASK_NONE;
+    setTasks( fabric::TASK_NONE );
     _frameIDs.clear();
     _flushBarriers();
     sync();
@@ -403,7 +383,7 @@ uint32_t Node::_getFinishLatency() const
     switch( getIAttribute( Node::IATTR_THREAD_MODEL ))
     {
         case DRAW_SYNC:
-            if( _tasks & fabric::TASK_DRAW )
+            if( getTasks() & fabric::TASK_DRAW )
             {
                 // More than one frame latency doesn't make sense, since the
                 // draw sync for frame+1 does not allow for more
@@ -415,7 +395,7 @@ uint32_t Node::_getFinishLatency() const
             break;
 
         case LOCAL_SYNC:
-            if( _tasks != fabric::TASK_NONE )
+            if( getTasks() != fabric::TASK_NONE )
                 // local sync enforces no latency
                 return 0;
             break;
@@ -484,9 +464,7 @@ net::Barrier* Node::getBarrier()
     {
         net::Barrier* barrier = new net::Barrier( _node );
         _config->registerObject( barrier );
-        barrier->setAutoObsolete( getConfig()->getLatency()+1, 
-                                  Object::AUTO_OBSOLETE_COUNT_VERSIONS );
-        
+        barrier->setAutoObsolete( getConfig()->getLatency() + 1 );
         return barrier;
     }
 
@@ -502,8 +480,7 @@ void Node::changeLatency( const uint32_t latency )
          i != _barriers.end(); ++ i )
     {
         net::Barrier* barrier = *i;
-        barrier->setAutoObsolete( latency + 1, 
-                                  Object::AUTO_OBSOLETE_COUNT_VERSIONS );
+        barrier->setAutoObsolete( latency + 1 );
     }
 }
 
@@ -551,7 +528,7 @@ net::CommandResult Node::_cmdConfigInitReply( net::Command& command )
     EQVERB << "handle configInit reply " << packet << std::endl;
     EQASSERT( _state == STATE_INITIALIZING );
 
-    _error = packet->error;
+    setErrorMessage( packet->error );
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
     memcpy( _iAttributes, packet->iAttributes, 
             eq::Node::IATTR_ALL * sizeof( int32_t ));

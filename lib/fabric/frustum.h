@@ -51,16 +51,20 @@ namespace fabric
         EQ_EXPORT void setProjection( const Projection& projection );
 
         /** @return the last specified frustum as a wall. @version 1.0 */
-        EQ_EXPORT const Wall& getWall() const { return _wall; }
+        EQ_EXPORT const Wall& getWall() const { return _data.wall; }
 
         /** @return the last specified frustum as a projection. @version 1.0 */
-        EQ_EXPORT const Projection& getProjection() const { return _projection;}
+        EQ_EXPORT const Projection& getProjection() const
+            { return _data.projection; }
 
         /** @return the type of the latest specified frustum. @version 1.0 */
-        EQ_EXPORT Type getCurrentType() const { return _current; }
+        EQ_EXPORT Type getCurrentType() const { return _data.current; }
 
         /** Set the last specified frustum to TYPE_NONE. @version 1.0 */
         EQ_EXPORT void unsetFrustum();
+
+        virtual void backup(); //!< @internal
+        virtual void restore(); //!< @internal
 
     protected:
         /** @sa Object::serialize() */
@@ -76,26 +80,24 @@ namespace fabric
             DIRTY_TYPE       = Object::DIRTY_CUSTOM << 0,
             DIRTY_WALL       = Object::DIRTY_CUSTOM << 1,
             DIRTY_PROJECTION = Object::DIRTY_CUSTOM << 2,
-            DIRTY_FILL1      = Object::DIRTY_CUSTOM << 3,
-            DIRTY_FILL2      = Object::DIRTY_CUSTOM << 4,
             DIRTY_CUSTOM     = Object::DIRTY_CUSTOM << 5,
         };
 
-        // Disable - the application should never need to commit a Frustum
-        virtual uint32_t commit() { return Object::commit(); }
-        uint32_t commitNB() { return Object::commitNB(); }
-        uint32_t commitSync( const uint32_t commitID )
-            { return Object::commitSync( commitID ); }
-
     private:
-        /** The frustum description as a wall. */
-        Wall _wall;
+        struct BackupData
+        {
+            BackupData() : current( TYPE_NONE ) {}
 
-        /** The frustum description as a projection. */
-        Projection _projection;
+            /** The frustum description as a wall. */
+            Wall wall;
 
-        /** The type of the last specified frustum description. */
-        Type _current;
+            /** The frustum description as a projection. */
+            Projection projection;
+
+            /** The type of the last specified frustum description. */
+            Type current;
+        }
+            _data, _backup;
 
         union // placeholder for binary-compatible changes
         {

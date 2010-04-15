@@ -34,13 +34,8 @@ namespace eq
     class Segment : public fabric::Segment< Canvas, Segment >
     {
     public:
-        typedef Channel Channel_t;
-
         /** Construct a new Segment. */
         EQ_EXPORT Segment( Canvas* parent );
-
-        /** @internal. */
-        Segment( const Segment& from, Canvas* parent );
 
         /** Destruct this segment. */
         EQ_EXPORT virtual ~Segment();

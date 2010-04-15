@@ -36,15 +36,10 @@ Canvas::Canvas( Config* parent )
 {
 }
 
-Canvas::Canvas( const Canvas& from, Config* parent )
-        : Super( from, parent )
-{
-    EQDONTCALL;
-}
-
 
 Canvas::~Canvas()
 {
+    EQASSERT( getSegments().empty( ));
 }
 
 Segment* Canvas::createSegment()

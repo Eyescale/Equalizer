@@ -49,7 +49,8 @@
     namespace loader
     {
         static eq::server::Loader*      loader = 0;
-        
+        std::string filename;
+
         static eq::server::ServerPtr    server;
         static eq::server::Config*      config = 0;
         static eq::server::Node*        node = 0;
@@ -67,9 +68,9 @@
         static eq::server::SwapBarrier* swapBarrier = 0;
         static eq::server::Frame*       frame = 0;
         static eq::server::ConnectionDescriptionPtr connectionDescription;
-        static eq::Wall           wall;
-        static eq::Projection     projection;
-        static uint32_t           flags = 0;
+        static eq::fabric::Wall         wall;
+        static eq::fabric::Projection   projection;
+        static uint32_t                 flags = 0;
     }
     }
 
@@ -503,7 +504,11 @@ serverConnection: EQTOKEN_CONNECTION
             }
 
 configs: config | configs config
-config: EQTOKEN_CONFIG '{' { config = new eq::server::Config( server ); }
+config: EQTOKEN_CONFIG '{' 
+            {
+                config = new eq::server::Config( server );
+                config->setName( filename );
+            }
         configFields '}' { config = 0; }
 configFields: /*null*/ | configFields configField
 configField:
@@ -1225,29 +1230,17 @@ ServerPtr Loader::loadFile( const std::string& filename )
         return 0;
     }
 
+    loader::filename = filename;
     loader::server = 0;
     config = 0;
     const bool error = ( eqLoader_parse() != 0 );
 
     fclose( yyin );
     eq::loader::loader = 0;
+    loader::filename.clear();
 
-    if( loader::server.isValid( ))
-    {
-        if( error )
-            loader::server = 0;
-        else
-        {
-            const server::ConfigVector& configs = loader::server->getConfigs();
-            for( server::ConfigVector::const_iterator i = configs.begin();
-                 i != configs.end(); ++i )
-            {
-                Config* config = *i;
-                if( config->getName().empty( ))
-                    config->setName( eq::base::getFilename( filename ));
-            }
-        }
-    }
+    if( loader::server.isValid() && error )
+        loader::server = 0;
 
     eq::server::ServerPtr server = loader::server;
     loader::server = 0;

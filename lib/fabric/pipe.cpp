@@ -41,24 +41,11 @@ std::string _iPipeAttributeStrings[] = {
 
 template< class N, class P, class W >
 Pipe< N, P, W >::Pipe( N* parent )
-        : _port( EQ_UNDEFINED_UINT32 )
+        : _node( parent )
+        , _port( EQ_UNDEFINED_UINT32 )
         , _device( EQ_UNDEFINED_UINT32 )
-        , _node( parent )
 {
     parent->_addPipe( static_cast< P* >( this ) );
-}
-
-template< class N, class P, class W >
-Pipe< N, P, W >::Pipe( const Pipe& from, N* parent  ) 
-        : Entity( from )
-        , _port( from.getPort() )
-        , _device( from.getDevice() )
-        , _pvp( from._pvp )
-        , _node( parent )
-        , _cudaGLInterop( from._cudaGLInterop )
-{
-    parent->_addPipe( static_cast< P* >( this ) );
-    notifyPixelViewportChanged();
 }
 
 template< class N, class P, class W >
@@ -73,6 +60,23 @@ Pipe< N, P, W >::~Pipe()
     }
     windows.clear();
     _node->_removePipe( static_cast< P* >( this ) );
+}
+
+template< class N, class P, class W >
+void Pipe< N, P, W >::backup()
+{
+    Object::backup();
+    _backup = _data;
+}
+
+
+template< class N, class P, class W >
+void Pipe< N, P, W >::restore()
+{
+    _data = _backup;
+    Object::restore();
+    notifyPixelViewportChanged();
+    setDirty( DIRTY_PIXELVIEWPORT );
 }
 
 template< class N, class P, class W >
@@ -150,14 +154,13 @@ const std::string& Pipe< N, P, W >::getIAttributeString( const IAttribute attr )
 template< class N, class P, class W >
 void Pipe< N, P, W >::setPixelViewport( const PixelViewport& pvp )
 {
-    if( pvp == _pvp || !pvp.hasArea( ))
+    if( pvp == _data.pvp || !pvp.hasArea( ))
         return;
 
-    _pvp = pvp;
+    _data.pvp = pvp;
 
-    notifyPixelViewportChanged();
-    
-    EQINFO << "Pipe pvp set: " << _pvp << std::endl;
+    notifyPixelViewportChanged();    
+    EQINFO << "Pipe pvp set: " << _data.pvp << std::endl;
 }
 
 template< class N, class P, class W >
@@ -170,23 +173,23 @@ void Pipe< N, P, W >::notifyPixelViewportChanged()
         (*i)->notifyViewportChanged();
     }
     setDirty( DIRTY_PIXELVIEWPORT );
-    EQINFO << getName() << "pipe pvp update: " << _pvp << std::endl;
+    EQINFO << getName() << " pipe pvp update: " << _data.pvp << std::endl;
 }
 
 template< class N, class P, class W  >
-void Pipe< N, P, W >::serialize( net::DataOStream& os, 
-                                   const uint64_t dirtyBits)
+void Pipe< N, P, W >::serialize( net::DataOStream& os,
+                                 const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_PIXELVIEWPORT )
-        os << _pvp;
+        os << _data.pvp;
     if( dirtyBits & DIRTY_MEMBER )
         os << _port << _device << _cudaGLInterop;
 }
 
 template< class N, class P, class W  >
 void Pipe< N, P, W >::deserialize( net::DataIStream& is,
-                                     const uint64_t dirtyBits )
+                                   const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_PIXELVIEWPORT )

@@ -420,19 +420,13 @@ void Connection::setDescription( ConnectionDescriptionPtr description )
     EQASSERT( description->bandwidth > 0 );
 }
 
-std::ostream& operator << ( std::ostream& os, const Connection* connection )
+std::ostream& operator << ( std::ostream& os, const Connection& connection )
 {
-    if( !connection )
-    {
-        os << "NULL connection";
-        return os;
-    }
-    
-    Connection::State        state = connection->getState();
-    ConnectionDescriptionPtr desc  = connection->getDescription();
+    Connection::State        state = connection.getState();
+    ConnectionDescriptionPtr desc  = connection.getDescription();
 
-    os << "Connection " << (void*)connection << " type "
-       << typeid(*connection).name() << " state "
+    os << "Connection " << (void*)&connection << " type "
+       << typeid( connection ).name() << " state "
        << ( state == Connection::STATE_CLOSED     ? "closed" :
             state == Connection::STATE_CONNECTING ? "connecting" :
             state == Connection::STATE_CONNECTED  ? "connected" :

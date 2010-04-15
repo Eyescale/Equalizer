@@ -291,10 +291,34 @@ void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache,
 // command handlers
 //---------------------------------------------------------------------------
 
+bool VersionedSlaveCM::_ignoreCommand( const Command& command ) const
+{
+    if( _version != VERSION_NONE || !_queuedVersions.isEmpty( ))
+        return false;
+
+    const ObjectPacket* packet = command.getPacket< const ObjectPacket >();
+
+    if( packet->instanceID == _object->getInstanceID( ))
+        return false;
+
+    // Detected the following case:
+    // - p1, t1 calls commit
+    // - p1, t2 calls mapObject
+    // - p1, cmd commits new version
+    // - p1, cmd subscribes object
+    // - p1, rcv attaches object
+    // - p1, cmd receives commit data
+    // -> newly attached object recv new commit data before map data, ignore it
+    return true;
+}
+
 CommandResult VersionedSlaveCM::_cmdInstance( Command& command )
 {
     CHECK_THREAD( _cmdThread );
     EQASSERT( command.getNode().isValid( ));
+
+    if( _ignoreCommand( command ))
+        return COMMAND_HANDLED;
 
     if( !_currentIStream )
         _currentIStream = new ObjectInstanceDataIStream;
@@ -318,6 +342,10 @@ CommandResult VersionedSlaveCM::_cmdInstance( Command& command )
 CommandResult VersionedSlaveCM::_cmdDelta( Command& command )
 {
     CHECK_THREAD( _cmdThread );
+
+    if( _ignoreCommand( command ))
+        return COMMAND_HANDLED;
+
     if( !_currentIStream )
         _currentIStream = new ObjectDeltaDataIStream;
 

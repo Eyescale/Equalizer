@@ -104,6 +104,19 @@ namespace eq
             }
 
         net::SessionID configID;
+        uint32_t requestID;
+    };
+
+    struct ServerDestroyConfigReplyPacket : public ServerPacket
+    {
+        ServerDestroyConfigReplyPacket(const ServerDestroyConfigPacket* request)
+            {
+                command       = CMD_SERVER_DESTROY_CONFIG_REPLY;
+                size          = sizeof( ServerDestroyConfigReplyPacket );
+                requestID     = request->requestID;
+            }
+
+        uint32_t requestID;
     };
 
     struct ServerChooseConfigReplyPacket : public ServerPacket
@@ -196,17 +209,6 @@ namespace eq
             }
 
         uint32_t nodeID;
-    };
-
-    struct ConfigChangeLatency : public ConfigPacket
-    {
-        ConfigChangeLatency()
-            {
-                command = CMD_CONFIG_CHANGE_LATENCY;
-                size    = sizeof( ConfigChangeLatency );
-            }
-
-        uint32_t latency;
     };
 
     struct ConfigDestroyNodePacket : public ConfigPacket
@@ -342,29 +344,6 @@ namespace eq
             }
 
         int64_t time;
-    };
-
-    struct ConfigUnmapPacket : public ConfigPacket
-    {
-        ConfigUnmapPacket()
-            {
-                command       = CMD_CONFIG_UNMAP;
-                size          = sizeof( ConfigUnmapPacket );
-            }
-
-        uint32_t requestID;
-    };
-
-    struct ConfigUnmapReplyPacket : public ConfigPacket
-    {
-        ConfigUnmapReplyPacket( const ConfigUnmapPacket* request )
-            {
-                command       = CMD_CONFIG_UNMAP_REPLY;
-                size          = sizeof( ConfigUnmapReplyPacket );
-                requestID     = request->requestID;
-            }
-
-        uint32_t requestID;
     };
 
     //------------------------------------------------------------

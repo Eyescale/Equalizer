@@ -38,9 +38,6 @@ namespace server
         /** Construct a new Segment. */
         EQSERVER_EXPORT Segment( Canvas* parent );
 
-        /** Creates a new, deep copy of a segment. */
-        Segment( const Segment& from, Canvas* parent );
-
         /** Destruct this segment. */
         virtual ~Segment();
 

@@ -40,11 +40,10 @@ static std::string _iAttributeStrings[] = {
 template< class W, class C >
 Channel< W, C >::Channel( W* parent )
         : _window( parent )
-        , _context( &_nativeContext )
+        , _context( &_data.nativeContext )
         , _color( Vector3ub::ZERO )
         , _drawable( FB_WINDOW )
         , _maxSize( Vector2i::ZERO )
-        , _fixedVP( true )
 {
     parent->_addChannel( static_cast< C* >( this ));
     notifyViewportChanged();
@@ -60,14 +59,13 @@ Channel< W, C >::Channel( W* parent )
 
 template< class W, class C >
 Channel< W, C >::Channel( const Channel& from, W* parent )
-        : Entity( from )
+        : Object( from )
         , _window( parent )
-        , _nativeContext( from._nativeContext )
-        , _context( &_nativeContext )
+        , _data( from._data )
+        , _context( &_data.nativeContext )
         , _color( from._color )
         , _drawable( from._drawable )
         , _maxSize( from._maxSize )
-        , _fixedVP( from._fixedVP )
 {
     parent->_addChannel( static_cast< C* >( this ));
 
@@ -96,18 +94,35 @@ VisitorResult Channel< W, C >::accept( Visitor& visitor ) const
 }
 
 template< class W, class C >
+void Channel< W, C >::backup()
+{
+    Object::backup();
+    _backup = _data;
+}
+
+template< class W, class C >
+void Channel< W, C >::restore()
+{
+    _data = _backup;
+    Object::restore();
+    notifyViewportChanged();
+    setDirty( DIRTY_VIEWPORT | DIRTY_MEMBER | DIRTY_FRUSTUM );
+}
+
+template< class W, class C >
 void Channel< W, C >::serialize( net::DataOStream& os, const uint64_t dirtyBits)
 {
-    Entity::serialize( os, dirtyBits );
+    Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
     if( dirtyBits & DIRTY_VIEWPORT )
-        os << _nativeContext.vp << _nativeContext.pvp << _fixedVP << _maxSize;
+        os << _data.nativeContext.vp << _data.nativeContext.pvp 
+           << _data.fixedVP << _maxSize;
     if( dirtyBits & DIRTY_MEMBER )
-        os << _drawable << _color << _nativeContext.view
-           << _nativeContext.overdraw;
+        os << _drawable << _color << _data.nativeContext.view
+           << _data.nativeContext.overdraw;
     if( dirtyBits & DIRTY_FRUSTUM )
-        os << _nativeContext.frustum;
+        os << _data.nativeContext.frustum;
     if( dirtyBits & DIRTY_ALL )
         os << _color;
 }
@@ -116,19 +131,20 @@ template< class W, class C >
 void Channel< W, C >::deserialize( net::DataIStream& is,
                                    const uint64_t dirtyBits )
 {
-    Entity::deserialize( is, dirtyBits );
+    Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
     if( dirtyBits & DIRTY_VIEWPORT )
     {
-        is >> _nativeContext.vp >> _nativeContext.pvp >> _fixedVP >> _maxSize;
+        is >> _data.nativeContext.vp >> _data.nativeContext.pvp
+           >> _data.fixedVP >> _maxSize;
         notifyViewportChanged();
     }
     if( dirtyBits & DIRTY_MEMBER )
-        is >> _drawable >> _color >> _nativeContext.view
-           >> _nativeContext.overdraw;
+        is >> _drawable >> _color >> _data.nativeContext.view
+           >> _data.nativeContext.overdraw;
     if( dirtyBits & DIRTY_FRUSTUM )
-        is >> _nativeContext.frustum;
+        is >> _data.nativeContext.frustum;
     if( dirtyBits & DIRTY_ALL )
         is >> _color;
 }
@@ -143,13 +159,13 @@ void Channel< W, C >::setPixelViewport( const PixelViewport& pvp )
     if( !pvp.hasArea( ))
         return;
 
-    _fixedVP = false;
+    _data.fixedVP = false;
 
-    if( _nativeContext.pvp == pvp && _nativeContext.vp.hasArea( ))
+    if( _data.nativeContext.pvp == pvp && _data.nativeContext.vp.hasArea( ))
         return;
 
-    _nativeContext.pvp = pvp;
-    _nativeContext.vp.invalidate();
+    _data.nativeContext.pvp = pvp;
+    _data.nativeContext.vp.invalidate();
 
     notifyViewportChanged();
     setDirty( DIRTY_VIEWPORT );
@@ -161,13 +177,13 @@ void Channel< W, C >::setViewport( const Viewport& vp )
     if( !vp.hasArea( ))
         return;
     
-    _fixedVP = true;
+    _data.fixedVP = true;
 
-    if( _nativeContext.vp == vp && _nativeContext.pvp.hasArea( ))
+    if( _data.nativeContext.vp == vp && _data.nativeContext.pvp.hasArea( ))
         return;
 
-    _nativeContext.vp = vp;
-    _nativeContext.pvp.invalidate();
+    _data.nativeContext.vp = vp;
+    _data.nativeContext.pvp.invalidate();
 
     notifyViewportChanged();
     setDirty( DIRTY_VIEWPORT );
@@ -186,42 +202,42 @@ void Channel< W, C >::notifyViewportChanged()
     windowPVP.x = 0;
     windowPVP.y = 0;
 
-    if( _fixedVP ) // update pixel viewport
+    if( _data.fixedVP ) // update pixel viewport
     {
-        const PixelViewport oldPVP = _nativeContext.pvp;
-        _nativeContext.pvp = windowPVP;
-        _nativeContext.pvp.apply( _nativeContext.vp );
-        if( oldPVP != _nativeContext.pvp )
+        const PixelViewport oldPVP = _data.nativeContext.pvp;
+        _data.nativeContext.pvp = windowPVP;
+        _data.nativeContext.pvp.apply( _data.nativeContext.vp );
+        if( oldPVP != _data.nativeContext.pvp )
             setDirty( DIRTY_VIEWPORT );
     }
     else           // update viewport
     {
-        const Viewport oldVP = _nativeContext.vp;
-        _nativeContext.vp = _nativeContext.pvp.getSubVP( windowPVP );
-        if( oldVP != _nativeContext.vp )
+        const Viewport oldVP = _data.nativeContext.vp;
+        _data.nativeContext.vp = _data.nativeContext.pvp.getSubVP( windowPVP );
+        if( oldVP != _data.nativeContext.vp )
             setDirty( DIRTY_VIEWPORT );
     }
 
-    EQINFO << getName() << " viewport update: " << _nativeContext.vp << ":"
-           << _nativeContext.pvp << std::endl;
+    EQINFO << getName() << " viewport update: " << _data.nativeContext.vp << ":"
+           << _data.nativeContext.pvp << std::endl;
 }
 
 template< class W, class C >
 void Channel< W, C >::setNearFar( const float nearPlane, const float farPlane )
 {
     EQASSERT( _context );
-    if( _nativeContext.frustum.near_plane() == nearPlane && 
-        _nativeContext.frustum.far_plane() == farPlane )
+    if( _data.nativeContext.frustum.near_plane() == nearPlane && 
+        _data.nativeContext.frustum.far_plane() == farPlane )
     {
         return;
     }
 
-    _nativeContext.frustum.adjust_near( nearPlane );
-    _nativeContext.frustum.far_plane() = farPlane;
-    _nativeContext.ortho.near_plane()  = nearPlane;
-    _nativeContext.ortho.far_plane()   = farPlane;
+    _data.nativeContext.frustum.adjust_near( nearPlane );
+    _data.nativeContext.frustum.far_plane() = farPlane;
+    _data.nativeContext.ortho.near_plane()  = nearPlane;
+    _data.nativeContext.ortho.far_plane()   = farPlane;
 
-    if( _context != &_nativeContext )
+    if( _context != &_data.nativeContext )
     {
         _context->frustum.adjust_near( nearPlane );
         _context->frustum.far_plane() = farPlane;
@@ -241,9 +257,9 @@ void Channel< W, C >::setDrawable( const uint32_t drawable )
 template< class W, class C >
 void Channel< W, C >::setViewVersion( const net::ObjectVersion& view )
 {
-    if( _nativeContext.view == view )
+    if( _data.nativeContext.view == view )
         return;
-    _nativeContext.view = view;
+    _data.nativeContext.view = view;
     setDirty( DIRTY_MEMBER );
 }
 
@@ -257,9 +273,9 @@ void Channel< W, C >::setMaxSize( const Vector2i& size )
 template< class W, class C >
 void Channel< W, C >::setOverdraw( const Vector4i& overdraw )
 {
-    if( _nativeContext.overdraw == overdraw )
+    if( _data.nativeContext.overdraw == overdraw )
         return;
-    _nativeContext.overdraw = overdraw;
+    _data.nativeContext.overdraw = overdraw;
     setDirty( DIRTY_MEMBER );
 }
 

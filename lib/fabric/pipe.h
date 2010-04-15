@@ -19,7 +19,7 @@
 #ifndef EQFABRIC_PIPE_H
 #define EQFABRIC_PIPE_H
 
-#include <eq/fabric/entity.h>        // base class
+#include <eq/fabric/object.h>        // base class
 #include <eq/fabric/paths.h>
 #include <eq/fabric/pixelViewport.h> // base class
 #include <eq/fabric/types.h>
@@ -30,10 +30,9 @@ namespace eq
 namespace fabric
 {
     template< class, class, class > class Window;
-    template< class N, class P, class W > class Pipe : public Entity
+    template< class N, class P, class W > class Pipe : public Object
     {
     public:
-        
         /** A vector of pointers to Window */
         typedef std::vector< W* >  WindowVector; 
         
@@ -69,7 +68,7 @@ namespace fabric
         EQFABRIC_EXPORT void setDevice( const uint32_t device ); //!< @internal
 
         /** @return the pixel viewport. */
-        const PixelViewport& getPixelViewport() const { return _pvp; }
+        const PixelViewport& getPixelViewport() const { return _data.pvp; }
 
         void setCudaGLInterop( const bool cudaGLInterop )
             { _cudaGLInterop = cudaGLInterop; } 
@@ -111,15 +110,16 @@ namespace fabric
         EQFABRIC_EXPORT static const std::string& getIAttributeString(
                                                       const IAttribute attr );
         //@}
+
+        virtual void backup(); //!< @internal
+        virtual void restore(); //!< @internal
+
     protected:
         //-------------------- Members --------------------
 
         /** Constructs a new pipe. */
         Pipe( N* parent );       
         
-        /** Constructs a new deep copy of a pipe. */
-        Pipe( const Pipe& from, N* parent );
-
         EQFABRIC_EXPORT virtual ~Pipe( );
 
         enum DirtyBits
@@ -147,20 +147,24 @@ namespace fabric
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:
+        /** The parent node. */
+        N* const _node;
+        
+        /** The list of windows. */
+        WindowVector _windows;
+
         /** The display (GLX) or ignored (Win32, AGL). */
         uint32_t _port;
 
         /** The screen (GLX), GPU (Win32) or virtual screen (AGL). */
         uint32_t _device;
 
-        /** The size (and location) of the pipe. */
-        PixelViewport _pvp;
-
-        /** The parent node. */
-        N* const _node;
-        
-        /** The list of windows. */
-        WindowVector _windows;
+        struct BackupData
+        {
+            /** The size (and location) of the pipe. */
+            PixelViewport pvp;
+        }
+            _data, _backup;
 
         /** CUDA GL interop mode. */
         bool _cudaGLInterop;

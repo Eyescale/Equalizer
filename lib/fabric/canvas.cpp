@@ -31,42 +31,9 @@ namespace fabric
 template< class CFG, class C, class S, class L >
 Canvas< CFG, C, S, L >::Canvas( CFG* config )
         : _config( config )
-        , _activeLayout( 0 )
 {
     EQASSERT( config );
     config->_addCanvas( static_cast< C* >( this ));
-}
-
-
-template< class CFG, class C, class S, class L >
-Canvas< CFG, C, S, L >::Canvas( const Canvas& from, CFG* config )
-        : eq::Frustum( from )
-        , _config( config )
-        , _activeLayout( from._activeLayout )
-{
-    EQASSERT( config );
-    config->_addCanvas( static_cast< C* >( this ));
-
-    for( typename SegmentVector::const_iterator i = from._segments.begin();
-         i != from._segments.end(); ++i )
-    {
-        new S( **i, static_cast< C* >( this ));
-    }
-
-    for( typename LayoutVector::const_iterator i = from._layouts.begin();
-         i != from._layouts.end(); ++i )
-    {
-        const L* layout = *i;
-        if( layout )
-        {
-            const LayoutPath path( layout->getPath( ));
-            addLayout( config->getLayout( path ));
-        }
-        else
-            addLayout( static_cast< L* >( 0 ));
-    }
-
-    config->activateCanvas( static_cast< C* >( this ));
 }
 
 template< class CFG, class C, class S, class L >
@@ -79,9 +46,18 @@ Canvas< CFG, C, S, L >::~Canvas()
         delete segment;
     }
 
-    _activeLayout = 0;
+    _data.activeLayout = 0;
     _layouts.clear();
     _config->_removeCanvas( static_cast< C* >( this ));
+}
+
+template< class CFG, class C, class S, class L >
+void Canvas< CFG, C, S, L >::restore()
+{
+    Object::restore();
+    activateLayout( 0 );
+    _data.activeLayout = 0;
+    setDirty( DIRTY_LAYOUT );
 }
 
 template< class CFG, class C, class S, class L >
@@ -91,7 +67,7 @@ void Canvas< CFG, C, S, L >::serialize( net::DataOStream& os,
     Frustum::serialize( os, dirtyBits );
 
     if( dirtyBits & DIRTY_LAYOUT )
-        os << _activeLayout;
+        os << _data.activeLayout;
 
     if( dirtyBits & DIRTY_CHILDREN )
     {
@@ -133,7 +109,7 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
         uint32_t index;
         is >> index;
         activateLayout( index );
-        _activeLayout = index;
+        _data.activeLayout = index;
     }
 
     if( dirtyBits & DIRTY_CHILDREN )
@@ -197,18 +173,18 @@ void Canvas< CFG, C, S, L >::addLayout( L* layout )
 template< class CFG, class C, class S, class L >
 const L* Canvas< CFG, C, S, L >::getActiveLayout() const
 {
-    EQASSERT( _activeLayout < _layouts.size( ));
-    return _layouts[ _activeLayout ];
+    EQASSERT( _data.activeLayout < _layouts.size( ));
+    return _layouts[ _data.activeLayout ];
 }
 
 template< class CFG, class C, class S, class L >
 void Canvas< CFG, C, S, L >::useLayout( const uint32_t index )
 {
     EQASSERT( index < _layouts.size( ));
-    if( _activeLayout == index )
+    if( _data.activeLayout == index )
         return;
 
-    _activeLayout = index;
+    _data.activeLayout = index;
     setDirty( DIRTY_LAYOUT );
 }
 

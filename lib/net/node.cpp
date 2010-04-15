@@ -45,8 +45,7 @@ namespace net
 typedef CommandFunc<Node> NodeFunc;
 
 Node::Node()
-        : base::RequestHandler( true )
-        , _id( true )
+        : _id( true )
         , _state( STATE_CLOSED )
         , _autoLaunch( false )
         , _launchID( EQ_ID_INVALID )
@@ -351,7 +350,8 @@ bool Node::close()
     }
 #endif
 
-    EQASSERT( !hasPendingRequests( ));
+    EQASSERTINFO( !hasPendingRequests(),
+                  *static_cast< base::RequestHandler* >( this ));
     return true;
 }
 
@@ -613,8 +613,11 @@ void Node::_removeSession( Session* session )
 
     session->_setLocalNode( 0 );
     session->_server    = 0;
-    session->_id        = SessionID::ZERO;
-    session->_isMaster  = false;
+    if( session->_isMaster )
+        session->_isMaster  = false;
+    else
+        // generate a new id for a slave session so it can become a master
+        session->_id = SessionID( true );
 }
 
 void Node::registerSession( Session* session )
@@ -1625,7 +1628,7 @@ CommandResult Node::_cmdRegisterSession( Command& command )
         getRequestData( packet->requestID ));
     EQASSERT( session );
 
-    _addSession( session, this, SessionID( true /* generate */ ));
+    _addSession( session, this, session->getID( ));
     serveRequest( packet->requestID );
     return COMMAND_HANDLED;
 }

@@ -53,8 +53,7 @@ namespace net
 
         virtual void obsolete( const uint32_t version ) { EQDONTCALL; }
 
-        virtual void setAutoObsolete( const uint32_t count,
-                                      const uint32_t flags ) { EQDONTCALL; }
+        virtual void setAutoObsolete( const uint32_t count ) { EQDONTCALL; }
         virtual uint32_t getAutoObsoleteCount() const
             { EQDONTCALL; return 0; }
 
@@ -108,6 +107,8 @@ namespace net
 
         /** Apply the data in the input stream to the object */
         virtual void _unpackOneVersion( ObjectDataIStream* is );
+
+        bool _ignoreCommand( const Command& command ) const;
 
         /* The command handlers. */
         CommandResult _cmdInstance( Command& command );

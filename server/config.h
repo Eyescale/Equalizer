@@ -33,7 +33,6 @@ namespace eq
 {
 namespace server
 {
-    class ConfigSerializer;
     class ConfigVisitor;
     class Layout;
     class Observer;
@@ -49,9 +48,6 @@ namespace server
         EQSERVER_EXPORT Config( ServerPtr parent );
         virtual ~Config();
 
-        /** Constructs a new deep copy of a config. */
-        Config( const Config& from, ServerPtr parent );
-        
         /**
          * @name Data Access.
          */
@@ -60,14 +56,12 @@ namespace server
         Segment* getSegment( const SegmentPath& path );
         View* getView( const ViewPath& path );
 
-        bool    isRunning() const { return ( _state == STATE_RUNNING ); }
+        bool isRunning() const { return ( _state == STATE_RUNNING ); }
+        bool isUsed() const { return _appNetNode.isValid(); }
 
         net::CommandQueue* getServerThreadQueue()
             { return getServer()->getServerThreadQueue(); }
         
-        void setName( const std::string& name ) { _name = name; }
-        const std::string& getName() const      { return _name; }
-
         /** 
          * Adds a new compound to this config.
          * 
@@ -121,11 +115,8 @@ namespace server
 
         /** @return the last finished frame. */
         uint32_t getFinishedFrame() const { return _finishedFrame; }
-        /** 
-         * Set the name of the application.
-         * 
-         * @param name the name of the application.
-         */
+
+        /** Set the name of the application. */
         void setApplicationName( const std::string& name )  { _appName = name; }
 
         /** 
@@ -181,6 +172,8 @@ namespace server
          */
         void deregister();
         
+        virtual void restore();
+
         /** @name Attributes */
         //@{
         // Note: also update string array initialization in config.cpp
@@ -201,12 +194,6 @@ namespace server
             { return _fAttributeStrings[attr]; }
         //@}
  
-        /** @name Error information. */
-        //@{
-        /** @return the error message from the last operation. */
-        const std::string& getErrorMessage() const { return _error; }
-        //@}
-
         /** Return the initID for late initialization  */
         uint32_t getInitID(){ return _initID; }
 
@@ -220,9 +207,6 @@ namespace server
     private:
         Config( const Config& from );
 
-        /** The config name */
-        std::string _name;
-
         /** The initID for late initialization. */
         uint32_t _initID;
         
@@ -234,9 +218,6 @@ namespace server
 
         /** The list of compounds. */
         CompoundVector _compounds;
-
-        /** The reason for the last error. */
-        std::string _error;
 
         /** The name of the application. */
         std::string _appName;
@@ -267,8 +248,6 @@ namespace server
             STATE_EXITING,      // next: STOPPED
         }
         _state;
-
-        ConfigSerializer* _serializer;
 
         union // placeholder for binary-compatible changes
         {
@@ -311,10 +290,9 @@ namespace server
         net::CommandResult _cmdFinishAllFrames( net::Command& command ); 
         net::CommandResult _cmdCreateReply( net::Command& command );
         net::CommandResult _cmdFreezeLoadBalancing( net::Command& command );
-        net::CommandResult _cmdUnmapReply( net::Command& command );
     };
 
-    std::ostream& operator << ( std::ostream& os, const Config* config );
+    std::ostream& operator << ( std::ostream& os, const Config& config );
 }
 }
 #endif // EQSERVER_CONFIG_H

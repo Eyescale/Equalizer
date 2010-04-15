@@ -69,7 +69,7 @@ void ConfigProxy< S, C, O, L, CV, N >::serialize( net::DataOStream& os,
     if( dirtyBits & DIRTY_CANVASES )
         os.serializeChildren( this, _config._canvases );
     if( dirtyBits & DIRTY_MEMBER )
-        os << _config._latency;
+        os << _config._data.latency;
 }
 
 template< class S, class C, class O, class L, class CV, class N >
@@ -88,10 +88,10 @@ void ConfigProxy< S, C, O, L, CV, N >::deserialize( net::DataIStream& is,
     {
         uint32_t latency = 0;
         is >> latency;
-        if( _config._latency != latency )
+        if( _config._data.latency != latency )
         {
-            _config._latency = latency;
-            _config.changeLatency( _config._latency );
+            _config._data.latency = latency;
+            _config.changeLatency( latency );
         }
     }
 }
