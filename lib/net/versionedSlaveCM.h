@@ -19,7 +19,6 @@
 #define EQNET_VERSIONEDSLAVECM_H
 
 #include <eq/net/objectCM.h>     // base class
-#include <eq/net/commandQueue.h> // member
 #include <eq/net/version.h>      // enum
 #include <eq/base/idPool.h>      // for EQ_ID_INVALID
 
@@ -114,7 +113,6 @@ namespace net
         CommandResult _cmdInstance( Command& command );
         CommandResult _cmdDelta( Command& command );
         CommandResult _cmdCommit( Command& command );
-        CommandResult _cmdVersion( Command& command );
 
         CHECK_THREAD_DECLARE( _thread );
         CHECK_THREAD_DECLARE( _cmdThread );

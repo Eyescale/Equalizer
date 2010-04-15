@@ -153,9 +153,6 @@ namespace net
                                        const uint32_t startVersion )
             { EQDONTCALL; }
 
-        /** Add the old master as a slave. */
-        virtual void addOldMaster( NodePtr node, const uint32_t instanceID ) =0;
-
         /** The default CM for unattached objects. */
         static ObjectCM* ZERO;
 

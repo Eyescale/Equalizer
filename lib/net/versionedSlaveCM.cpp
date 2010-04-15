@@ -49,8 +49,6 @@ VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
                      CmdFunc( this, &VersionedSlaveCM::_cmdDelta ), 0 );
     registerCommand( CMD_OBJECT_COMMIT, 
                      CmdFunc( this, &VersionedSlaveCM::_cmdCommit ), 0 );
-    registerCommand( CMD_OBJECT_VERSION,
-                     CmdFunc( this, &VersionedSlaveCM::_cmdVersion ), 0 );
 }
 
 VersionedSlaveCM::~VersionedSlaveCM()
@@ -171,7 +169,8 @@ void VersionedSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
 {
     EQASSERT( is );
     EQASSERTINFO( _version == is->getVersion() - 1, "Expected version " 
-                  << _version + 1 << ", got " << is->getVersion() );
+                  << _version + 1 << ", got " << is->getVersion() << " for "
+                  << *_object );
 
     if( is->getType() == ObjectDataIStream::TYPE_INSTANCE )
         _object->applyInstanceData( *is );
@@ -386,15 +385,6 @@ CommandResult VersionedSlaveCM::_cmdCommit( Command& command )
     _ostream.disable();
 
     localNode->serveRequest( packet->requestID, _object->getVersion( ));
-    return COMMAND_HANDLED;
-}
-
-CommandResult VersionedSlaveCM::_cmdVersion( Command& command )
-{
-    const ObjectVersionPacket* packet = 
-        command.getPacket< ObjectVersionPacket >();
-    _version = packet->version;
-    EQASSERT( _version != VERSION_INVALID );
     return COMMAND_HANDLED;
 }
 

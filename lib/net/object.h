@@ -125,18 +125,6 @@ namespace net
         virtual ChangeType getChangeType() const { return STATIC; }
 
         /** 
-         * Switches a slave object to become the master instance.
-         * 
-         * This function unmaps and registers this instance, making it a master
-         * instance with a new identifier. The old master is informed of this
-         * change and becomes a slave.
-         *
-         * Additional slaves are not informed. The object is synced to the head
-         * version before switching.
-         */
-        void becomeMaster();
-
-        /** 
          * Return if this object needs a commit.
          * 
          * This function is used for optimization, to detect early that no
@@ -360,10 +348,10 @@ namespace net
 
         /* The command handlers. */
         CommandResult _cmdForward( Command& command );
-        CommandResult _cmdNewMaster( Command& command );
 
         CHECK_THREAD_DECLARE( _thread );
     };
+    std::ostream& operator << ( std::ostream&, const Object& );
 }
 }
 

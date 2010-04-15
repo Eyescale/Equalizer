@@ -595,30 +595,6 @@ namespace net
         base::UUID commit;
     };
 
-    struct ObjectNewMasterPacket : public ObjectPacket
-    {
-        ObjectNewMasterPacket()
-            {
-                command = CMD_OBJECT_NEW_MASTER;
-                size    = sizeof( ObjectNewMasterPacket );
-            };
-
-        uint32_t newMasterID;
-        uint32_t newMasterInstanceID;
-        uint32_t changeType;
-    };
-
-    struct ObjectVersionPacket : public ObjectPacket
-    {
-        ObjectVersionPacket()
-            {
-                command = CMD_OBJECT_VERSION;
-                size    = sizeof( ObjectVersionPacket );
-            };
-
-        uint32_t version;
-    };
-
     //------------------------------------------------------------
     // Barrier
     //------------------------------------------------------------

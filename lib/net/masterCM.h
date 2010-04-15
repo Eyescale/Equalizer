@@ -55,7 +55,6 @@ namespace net
         virtual uint32_t getVersion() const     { return _version; }
         //@}
 
-        virtual void addOldMaster( NodePtr node, const uint32_t instanceID );
         virtual bool isMaster() const { return true; }
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_ID_INVALID; }

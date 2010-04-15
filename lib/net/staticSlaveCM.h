@@ -19,15 +19,14 @@
 #define EQNET_STATICSLAVECM_H
 
 #include <eq/net/objectCM.h>     // base class
-#include <eq/net/command.h>      // member
 #include <eq/net/version.h>      // enum
 #include <eq/base/idPool.h>      // for EQ_ID_INVALID
-#include <eq/base/monitor.h>     // member
 
 namespace eq
 {
 namespace net
 {
+    class Command;
     class Node;
     class ObjectDataIStream;
 
@@ -70,8 +69,6 @@ namespace net
         virtual uint32_t addSlave( Command& command )
             { EQDONTCALL; return VERSION_INVALID; }
         virtual void removeSlave( NodePtr node ) { EQDONTCALL; }
-        virtual void addOldMaster( NodePtr node, const uint32_t instanceID )
-            { EQDONTCALL }
 
         virtual void applyMapData();
         virtual void addInstanceDatas( const InstanceDataDeque& cache, 

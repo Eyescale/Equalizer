@@ -72,8 +72,6 @@ namespace net
             { EQDONTCALL; return EQ_ID_INVALID; }
         virtual uint32_t addSlave( Command& command );
         virtual void removeSlave( NodePtr node ) {}
-        virtual void addOldMaster( NodePtr node, const uint32_t instanceID )
-            { EQDONTCALL }
 
         virtual void applyMapData() { EQDONTCALL; }
 

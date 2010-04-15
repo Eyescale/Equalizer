@@ -96,10 +96,6 @@ void Object::attachToSession( const uint32_t id, const uint32_t instanceID,
                      CmdFunc( this, &Object::_cmdForward ), queue );
     registerCommand( CMD_OBJECT_COMMIT, 
                      CmdFunc( this, &Object::_cmdForward ), queue );
-    registerCommand( CMD_OBJECT_NEW_MASTER, 
-                     CmdFunc( this, &Object::_cmdNewMaster ),queue );
-    registerCommand( CMD_OBJECT_VERSION, 
-                     CmdFunc( this, &Object::_cmdForward ), queue );
 
     EQLOG( LOG_OBJECTS ) << _id << '.' << _instanceID << ": " 
                          << typeid( *this ).name()
@@ -176,49 +172,6 @@ bool Object::send( NodePtr node, ObjectPacket& packet,
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return node->send( packet, data, size );
-}
-
-void Object::becomeMaster()
-{
-    EQASSERT( _session );
-    EQASSERT( !isMaster( ));
-    EQASSERT( _id != EQ_ID_INVALID );
-
-    // save location of master instance
-    Session* session = _session;
-    const NodeID& masterNodeID = session->getIDMaster( _id );
-    EQASSERT( masterNodeID != NodeID::ZERO );
-
-    NodePtr localNode = session->getLocalNode();
-    NodePtr master    = localNode->getNode( masterNodeID );
-    EQASSERT( master.isValid( ));
-    EQASSERT( master->isConnected( ));
-
-    const uint32_t masterID = _id;
-    const uint32_t masterInstanceID = getMasterInstanceID();
-    EQASSERT( masterInstanceID != EQ_ID_INVALID );
-
-    // remap as master
-    session->unmapObject( this );
-    sync();
-    session->registerObject( this );
-
-    EQINFO << "became master " << masterID << '.' << masterInstanceID << " to "
-           << _id << '.' << _instanceID << std::endl;
-
-    // tell old master
-    ObjectNewMasterPacket packet;
-    packet.sessionID  = session->getID();
-    packet.objectID   = masterID;
-    packet.instanceID = masterInstanceID;
-    packet.newMasterID = _id;
-    packet.newMasterInstanceID = _instanceID;
-    packet.changeType = getChangeType();
-
-    master->send( packet );
-
-    // subscribe slave (old master)
-    _cm->addOldMaster( master, masterInstanceID );
 }
 
 uint32_t Object::commit()
@@ -337,23 +290,11 @@ CommandResult Object::_cmdForward( Command& command )
     return _cm->invokeCommand( command );
 }
 
-CommandResult Object::_cmdNewMaster( Command& command )
+std::ostream& operator << ( std::ostream& os, const Object& object )
 {
-    ObjectNewMasterPacket* packet = command.getPacket<ObjectNewMasterPacket>();
-    EQVERB << "become slave " << _id << '.' << _instanceID << " to "
-           << packet->newMasterID << '.' << packet->newMasterInstanceID
-           << std::endl;
-    EQASSERT( isMaster( ));
-
-    const uint32_t instanceID = _instanceID; // save - reset during deregister
-    Session* session = getSession();
-    session->deregisterObject( this );
-
-    setupChangeManager( static_cast< Object::ChangeType >( packet->changeType ),
-                        false, packet->newMasterInstanceID );
-    session->attachObject( this, packet->newMasterID, instanceID );
-
-    return COMMAND_HANDLED;
+    os << typeid( object ).name() << " " << object.getID() << "."
+       << object.getInstanceID() << " v" << object.getVersion();
+    return os;
 }
 
 }

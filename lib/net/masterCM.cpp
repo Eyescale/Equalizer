@@ -117,21 +117,6 @@ uint32_t MasterCM::sync( const uint32_t version )
     return _version;
 }
 
-void MasterCM::addOldMaster( NodePtr node, const uint32_t instanceID )
-{
-    EQASSERT( _version != VERSION_NONE );
-
-    // add to subscribers
-    ++_slavesCount[ node->getNodeID() ];
-    _slaves.push_back( node );
-    stde::usort( _slaves );
-
-    ObjectVersionPacket packet;
-    packet.instanceID = instanceID;
-    packet.version    = _version;
-    _object->send( node, packet );
-}
-
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------

@@ -1,12 +1,9 @@
-Fix XCode build
--- integrate glsl.h generation
-
-Fix Posix build
+Remove now-obsolete Object::becomeMaster
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

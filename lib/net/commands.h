@@ -83,8 +83,6 @@ namespace net
         CMD_OBJECT_DELTA,
         CMD_OBJECT_SLAVE_DELTA,
         CMD_OBJECT_COMMIT,
-        CMD_OBJECT_NEW_MASTER,
-        CMD_OBJECT_VERSION,
         CMD_OBJECT_FILL1, // some buffer for binary-compatible patches
         CMD_OBJECT_FILL2,
         CMD_OBJECT_FILL3,
