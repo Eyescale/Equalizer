@@ -56,7 +56,7 @@ namespace eq
      * of their channels.
      */
     class Config : public fabric::Config< Server, Config, Observer, Layout,
-                                          Canvas >
+                                          Canvas, Node >
     {
     public:
         /** Construct a new config. @version 1.0 */
@@ -81,12 +81,6 @@ namespace eq
 
         /** @return the frame number of the last frame finished. @version 1.0 */
         uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
-
-        /**
-         * @return the vector of nodes instantiated on this process.
-         * @version 1.0
-         */
-        const NodeVector& getNodes() const { return _nodes; }
 
         /** 
          * Traverse this config and all children using a config visitor.
@@ -351,9 +345,6 @@ namespace eq
         /** The node running the application thread. */
         net::NodePtr _appNode;
 
-        /** Locally-instantiated nodes of this config. */
-        NodeVector _nodes;
-
         /** The reason for the last error. */
         std::string _error;
 
@@ -388,9 +379,6 @@ namespace eq
         };
 
         friend class Node;
-        void _addNode( Node* node );
-        void _removeNode( Node* node );
-        Node* _findNode( const uint32_t id );
         void _frameStart();
 
         friend class ConfigDeserializer;

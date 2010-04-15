@@ -42,7 +42,7 @@ namespace server
      * The config.
      */
     class Config : public fabric::Config< Server, Config, Observer, Layout,
-                                          Canvas >
+                                          Canvas, Node >
     {
     public:
         /** Construct a new config. */
@@ -67,25 +67,6 @@ namespace server
         
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }
-
-        /** 
-         * Adds a new node to this config.
-         * 
-         * @param node the node.
-         */
-        EQSERVER_EXPORT void addNode( Node* node );
-
-        /** 
-         * Removes a node from this config.
-         * 
-         * @param node the node
-         * @return <code>true</code> if the node was removed, 
-         *         <code>false</code> otherwise.
-         */
-        bool removeNode( Node* node );
-
-        /** @return the vector of nodes. */
-        const NodeVector& getNodes() const { return _nodes; }
 
         /** 
          * Adds a new compound to this config.
@@ -152,7 +133,7 @@ namespace server
          * 
          * @param node the application node.
          */
-        void addApplicationNode( Node* node );
+        void setAsApplicationNode( Node* node );
 
         /** @return the application node, or 0 if it was not set. */
         Node* getApplicationNode() { return _appNode; }
@@ -250,9 +231,6 @@ namespace server
 
         /** String representation of float attributes. */
         static std::string _fAttributeStrings[FATTR_ALL];
-
-        /** The list of nodes. */
-        NodeVector _nodes;
 
         /** The list of compounds. */
         CompoundVector _compounds;

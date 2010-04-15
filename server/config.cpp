@@ -54,7 +54,8 @@ namespace eq
 namespace server
 {
 typedef net::CommandFunc<Config> ConfigFunc;
-typedef fabric::Config< Server, Config, Observer, Layout, Canvas > Super;
+typedef fabric::Config< Server, Config, Observer, 
+                        Layout, Canvas, Node > Super;
 
 #define MAKE_ATTR_STRING( attr ) ( std::string("EQ_CONFIG_") + #attr )
 std::string Config::_fAttributeStrings[FATTR_ALL] = 
@@ -144,14 +145,13 @@ Config::~Config()
     }
     _compounds.clear();
 
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    NodeVector nodes = getNodes();
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-
-        node->_config = 0;
         delete node;
     }
-    _nodes.clear();
+    nodes.clear();
 }
 
 void Config::notifyMapped( net::NodePtr node )
@@ -179,25 +179,6 @@ void Config::notifyMapped( net::NodePtr node )
     registerCommand( CMD_CONFIG_UNMAP_REPLY,
                      ConfigFunc( this, &Config::_cmdUnmapReply ), 
                      commandQueue );
-}
-
-void Config::addNode( Node* node )
-{
-    _nodes.push_back( node ); 
-    
-    node->_config = this; 
-}
-
-bool Config::removeNode( Node* node )
-{
-    NodeVector::iterator i = std::find( _nodes.begin(), _nodes.end(), node );
-    if( i == _nodes.end( ))
-        return false;
-
-    _nodes.erase( i );
-    node->_config = 0; 
-
-    return true;
 }
 
 namespace
@@ -370,13 +351,12 @@ bool Config::removeCompound( Compound* compound )
     return true;
 }
 
-void Config::addApplicationNode( Node* node )
+void Config::setAsApplicationNode( Node* node )
 {
     EQASSERT( _state == STATE_STOPPED );
     EQASSERTINFO( !_appNode, "Only one application node per config possible" );
 
     _appNode = node;
-    addNode( node );
 }
 
 void Config::setApplicationNetNode( net::NodePtr node )
@@ -389,13 +369,14 @@ void Config::setApplicationNetNode( net::NodePtr node )
 
 Channel* Config::getChannel( const ChannelPath& path )
 {
-    EQASSERTINFO( _nodes.size() > path.nodeIndex,
-                  _nodes.size() << " <= " << path.nodeIndex );
+    NodeVector nodes = getNodes();
+    EQASSERTINFO( nodes.size() > path.nodeIndex,
+                  nodes.size() << " <= " << path.nodeIndex );
 
-    if( _nodes.size() <= path.nodeIndex )
+    if( nodes.size() <= path.nodeIndex )
         return 0;
 
-    return _nodes[ path.nodeIndex ]->getChannel( path );
+    return nodes[ path.nodeIndex ]->getChannel( path );
 }
 
 Segment* Config::getSegment( const SegmentPath& path )
@@ -597,14 +578,14 @@ bool Config::_updateRunning()
         return false;
 
     _startNodes();
-
+    const NodeVector nodes = getNodes();
     // Let all running nodes update their running state (incl. children)
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
         (*i)->updateRunning( _initID, _currentFrame );
 
     // Sync state updates
     bool success = true;
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         if( !node->syncRunning( ))
@@ -625,8 +606,8 @@ bool Config::_connectNodes()
 {
     bool success = true;
     base::Clock clock;
-
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    const NodeVector nodes = getNodes();
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         if( node->isActive() && !_connectNode( node ))
@@ -636,7 +617,7 @@ bool Config::_connectNodes()
         }
     }
 
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         if( node->isActive() && !_syncConnectNode( node, clock ))
@@ -754,7 +735,8 @@ void Config::_startNodes()
     // start up newly running nodes
     std::vector< uint32_t > requests;
     NodeVector startingNodes;
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    const NodeVector nodes = getNodes();
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         const Node::State state = node->getState();
@@ -780,7 +762,8 @@ void Config::_stopNodes()
 {
     // wait for the nodes to stop, destroy entities, disconnect
     NodeVector stoppingNodes;
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    const NodeVector nodes = getNodes();
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         if( node->getState() != Node::STATE_STOPPED || node == _appNode )
@@ -1254,7 +1237,7 @@ std::ostream& operator << ( std::ostream& os, const Config* config )
 #include "../lib/fabric/config.cpp"
 template class eq::fabric::Config< eq::server::Server, eq::server::Config,
                                    eq::server::Observer, eq::server::Layout,
-                                   eq::server::Canvas >;
+                                   eq::server::Canvas, eq::server::Node >;
 
 #define FIND_ID_TEMPLATE1( type )                                       \
     template void eq::server::Super::find< type >( const uint32_t, type** );

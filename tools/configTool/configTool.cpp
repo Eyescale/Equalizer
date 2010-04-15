@@ -260,9 +260,7 @@ void ConfigTool::_writeResources( Config* config ) const
         else
             nodeName << "node" << n;
 
-        Node* node = new Node;
-        config->addNode( node );
-
+        Node* node = new Node( config );
         node->setName( nodeName.str( ));
 
         ConnectionDescriptionPtr connectionDescription = 

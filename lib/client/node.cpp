@@ -51,15 +51,14 @@ typedef fabric::Node< Config, Node, Pipe > Super;
 /** @endcond */
 
 Node::Node( Config* parent )
+        : Super( parent )
 #pragma warning( push )
 #pragma warning( disable : 4355 )
-        : transmitter( this )
+        , transmitter( this )
 #pragma warning( push )
-        , _config( parent )
         , _state( STATE_STOPPED )
         , _unlockedFrame( 0 )
 {
-    parent->_addNode( this );
     EQINFO << " New eq::Node @" << (void*)this << std::endl;
 }
 

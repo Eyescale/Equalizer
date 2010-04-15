@@ -46,14 +46,6 @@ namespace eq
         /** Destructs the node. */
         EQ_EXPORT virtual ~Node();
 
-        /** 
-         * Returns the config of this node.
-         * 
-         * @return the config of this node. 
-         */
-        Config*       getConfig()       { return _config; }
-        const Config* getConfig() const { return _config; }
-
         EQ_EXPORT ClientPtr getClient();
         EQ_EXPORT ServerPtr getServer();
 
@@ -268,8 +260,6 @@ namespace eq
         //@}
 
     private:
-        /** The parent config */
-        Config* const          _config;
 
         enum State
         {

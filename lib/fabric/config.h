@@ -27,17 +27,24 @@
 namespace eq
 {
 class Config;
+class Node;
+namespace server
+{
+    class Node;
+    class Config;
+}
 
 namespace fabric
 {
     template< class CFG, class C, class S, class L > class Canvas;
     template< class C, class L, class V > class Layout;
+    template< class, class, class > class Node;
     template< class C, class O > class Observer;
     struct CanvasPath;
     struct LayoutPath;
     struct ObserverPath;
 
-    template< class S, class C, class O, class L, class CV > class ConfigProxy;
+    template< class S, class C, class O, class L, class CV, class N > class ConfigProxy;
 
     /**
      * A configuration is a visualization session driven by an application.
@@ -59,13 +66,14 @@ namespace fabric
      * The render client processes have only access to the current View for each
      * of their channels.
      */
-    template< class S, class C, class O, class L, class CV >
+    template< class S, class C, class O, class L, class CV, class N >
     class Config : public net::Session
     {
     public:
         typedef std::vector< O* > ObserverVector;
         typedef std::vector< L* > LayoutVector;
         typedef std::vector< CV* > CanvasVector;
+        typedef std::vector< N* >  NodeVector;
 
         /** Destruct a config. @version 1.0 */
         EQFABRIC_EXPORT virtual ~Config();
@@ -83,6 +91,9 @@ namespace fabric
 
         /** @return the vector of canvases, app-node only. @version 1.0 */
         const CanvasVector& getCanvases() const { return _canvases; }
+
+        /** @return the vector of nodes. @version 1.0*/
+        const NodeVector& getNodes() const { return _nodes; }
 
         /** @return the entity of the given identifier, or 0. @version 1.0 */
         template< typename T > EQFABRIC_EXPORT T* find( const uint32_t id );
@@ -177,12 +188,16 @@ namespace fabric
         /** The list of canvases. */
         CanvasVector _canvases;
 
+        /** The list of nodes. */
+        NodeVector _nodes;
+
         /** The maximum latency between frame start and end frame, in frames. */
         uint32_t _latency;
 
         /** Data distribution proxy */
-        ConfigProxy< S, C, O, L, CV >* const _proxy;
-        template< class, class, class, class, class > friend class ConfigProxy;
+        ConfigProxy< S, C, O, L, CV, N >* const _proxy;
+        template< class, class, class, 
+                  class, class, class > friend class ConfigProxy;
 
         friend class eq::Config;
 
@@ -198,6 +213,14 @@ namespace fabric
         void _addCanvas( CV* canvas );
         bool _removeCanvas( CV* canvas );
 
+        friend class eq::Node;
+        friend class eq::server::Node;
+        friend class eq::server::Config;
+        template< class, class, class > friend class Node;
+        void _addNode( N* node );
+        EQFABRIC_EXPORT bool _removeNode( N* node );
+        N* _findNode( const uint32_t id );
+        
         union // placeholder for binary-compatible changes
         {
             char dummy[32];

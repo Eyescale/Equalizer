@@ -57,16 +57,17 @@ namespace server
         /** 
          * Constructs a new Node.
          */
-        EQSERVER_EXPORT Node();
+        EQSERVER_EXPORT Node( Config* parent );
 
         /** 
          * Constructs a new deep copy of a node.
          */
         Node( const Node& from, Config* config );
 
+        virtual ~Node();
+
         /** @name Data Access. */
         //@{
-        Config* getConfig() const { return _config; }
         ServerPtr getServer() const
             { return _config ? _config->getServer() : 0; }
 
@@ -248,8 +249,6 @@ namespace server
 
     protected:
 
-        virtual ~Node();
-
         /** @sa net::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 
                                       const uint32_t instanceID, 
@@ -266,10 +265,6 @@ namespace server
         static std::string _sAttributeStrings[SATTR_ALL];
         /** String representation of character attributes. */
         static std::string _cAttributeStrings[CATTR_ALL];
-
-        /** The parent config. */
-        Config* _config;
-        friend class Config;
 
         /** Number of activations for this node. */
         uint32_t _active;

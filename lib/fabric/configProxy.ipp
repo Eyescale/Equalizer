@@ -20,11 +20,11 @@ namespace eq
 namespace fabric
 {
 
-template< class S, class C, class O, class L, class CV >
+template< class S, class C, class O, class L, class CV, class N >
 class ConfigProxy : public Object //!< Used for data distribution 
 {
 public:
-    ConfigProxy( Config< S, C, O, L, CV >& config );
+    ConfigProxy( Config< S, C, O, L, CV, N >& config );
     virtual ~ConfigProxy() {}
 
     enum DirtyBits
@@ -47,17 +47,17 @@ protected:
     virtual void deserialize( net::DataIStream& is, const uint64_t dirtyBits );
 
 private:
-    Config< S, C, O, L, CV >& _config;
-    template< class, class, class, class, class > friend class Config;
+    Config< S, C, O, L, CV, N >& _config;
+    template< class, class, class, class, class, class > friend class Config;
 };
 
-template< class S, class C, class O, class L, class CV >
-ConfigProxy< S, C, O, L, CV >::ConfigProxy( Config< S, C, O, L, CV >& config )
+template< class S, class C, class O, class L, class CV, class N >
+ConfigProxy< S, C, O, L, CV, N >::ConfigProxy( Config< S, C, O, L, CV, N >& config )
         : _config( config )
 {}
 
-template< class S, class C, class O, class L, class CV >
-void ConfigProxy< S, C, O, L, CV >::serialize( net::DataOStream& os,
+template< class S, class C, class O, class L, class CV, class N >
+void ConfigProxy< S, C, O, L, CV, N >::serialize( net::DataOStream& os,
                                                const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
@@ -72,8 +72,8 @@ void ConfigProxy< S, C, O, L, CV >::serialize( net::DataOStream& os,
         os << _config._latency;
 }
 
-template< class S, class C, class O, class L, class CV >
-void ConfigProxy< S, C, O, L, CV >::deserialize( net::DataIStream& is, 
+template< class S, class C, class O, class L, class CV, class N >
+void ConfigProxy< S, C, O, L, CV, N >::deserialize( net::DataIStream& is, 
                                                  const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );

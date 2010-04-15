@@ -522,8 +522,7 @@ configAttribute:
 
 node: appNode | renderNode
 renderNode: EQTOKEN_NODE '{' {
-                                 node = new eq::server::Node();
-                                 config->addNode( node );
+                                 node = new eq::server::Node( config );
                              }
                nodeFields
                '}' { 
@@ -534,8 +533,8 @@ renderNode: EQTOKEN_NODE '{' {
                    }
 appNode: EQTOKEN_APPNODE '{' 
             {
-                node = new eq::server::Node();
-                config->addApplicationNode( node );
+                node = new eq::server::Node( config );
+                config->setAsApplicationNode( node );
             }
             nodeFields
             '}' { node = 0; }

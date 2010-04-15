@@ -40,6 +40,14 @@ namespace fabric
         //@{
         const PipeVector& getPipes() const { return _pipes; }
 
+        /** 
+         * Returns the config of this node.
+         * 
+         * @return the config of this node. 
+         */
+        C*       getConfig()       { return _config; }
+        const C* getConfig() const { return _config; }
+
         /** @return the index path to this node. @internal */
         EQFABRIC_EXPORT NodePath getPath() const;
 
@@ -74,7 +82,7 @@ namespace fabric
         void addTasks( const uint32_t tasks ) { _tasks |= tasks; }
 
     protected:
-        Node();
+        Node( C* parent );
 
         Node( const Node& from, C* config );
 
@@ -82,6 +90,9 @@ namespace fabric
 
         /** Pipe children. */
         PipeVector _pipes;
+
+        /** The parent config */
+        C* const          _config;
         
         /** The reason for the last error. */
         std::string _error;

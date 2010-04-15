@@ -47,7 +47,8 @@ namespace eq
 {
 /** @cond IGNORE */
 typedef net::CommandFunc<Config> ConfigFunc;
-typedef fabric::Config< Server, Config, Observer, Layout, Canvas > Super;
+typedef fabric::Config< Server, Config, Observer, 
+                        Layout, Canvas, Node > Super;
 /** @endcond */
 
 Config::Config( ServerPtr server )
@@ -258,31 +259,6 @@ VisitorResult Config::accept( ConfigVisitor& visitor ) const
 ClientPtr Config::getClient()
 { 
     return getServer()->getClient(); 
-}
-
-void Config::_addNode( Node* node )
-{
-    EQASSERT( node->getConfig() == this );
-    _nodes.push_back( node );
-}
-
-void Config::_removeNode( Node* node )
-{
-    NodeVector::iterator i = std::find( _nodes.begin(), _nodes.end(), node );
-    EQASSERT( i != _nodes.end( ));
-    _nodes.erase( i );
-}
-
-Node* Config::_findNode( const uint32_t id )
-{
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); 
-         ++i )
-    {
-        Node* node = *i;
-        if( node->getID() == id )
-            return node;
-    }
-    return 0;
 }
 
 Observer* Config::createObserver()
@@ -900,7 +876,7 @@ net::CommandResult Config::_cmdUnmap( net::Command& command )
 
 #include "../fabric/config.cpp"
 template class eq::fabric::Config< eq::Server, eq::Config, eq::Observer,
-                                   eq::Layout, eq::Canvas >;
+                                   eq::Layout, eq::Canvas, eq::Node >;
 #define FIND_ID_TEMPLATE1( type )                                       \
     template void eq::Super::find< type >( const uint32_t, type** );
 

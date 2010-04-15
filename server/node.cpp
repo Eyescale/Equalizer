@@ -57,18 +57,16 @@ typedef net::CommandFunc<Node> NodeFunc;
 void Node::_construct()
 {
     _active         = 0;
-    _config         = 0;
     _lastDrawPipe   = 0;
     _flushedFrame   = 0;
     _finishedFrame  = 0;
     EQINFO << "New node @" << (void*)this << std::endl;
 }
 
-Node::Node()
-    : Super()
+Node::Node( Config* parent )
+    : Super( parent ) 
 {
     _construct();
-
     const Global* global = Global::instance();    
     for( int i=0; i < Node::SATTR_ALL; ++i )
         _sattributes[i] = global->getNodeSAttribute((Node::SAttribute)i);
@@ -83,8 +81,6 @@ Node::Node( const Node& from, Config* config )
 {
     _construct();
     _node = from._node;
-
-    config->addNode( this );
 
     for( int i=0; i < Node::SATTR_ALL; ++i )
         _sattributes[i] = from._sattributes[i];
@@ -111,7 +107,7 @@ Node::~Node()
     EQINFO << "Delete node @" << (void*)this << std::endl;
 
     if( _config )
-        _config->removeNode( this );
+        _config->_removeNode( this );
     
     while( !_pipes.empty() )
     {

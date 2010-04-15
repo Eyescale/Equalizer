@@ -27,7 +27,7 @@ namespace eq
 {
 namespace fabric
 {
-template< class S, class C, class O, class L, class CV > class Config;
+template< class, class, class, class, class, class > class Config;
 }
     class Client;
     class Config;
@@ -106,7 +106,9 @@ template< class S, class C, class O, class L, class CV > class Config;
         /** @sa net::Node::getType */
         virtual uint32_t getType() const { return fabric::NODETYPE_EQ_SERVER; }
 
-        friend class fabric::Config< Server, Config, Observer, Layout, Canvas >;
+        template< class, class, class,
+                  class, class, class > friend class fabric::Config;
+
         /**  Add a new config to this server. */
         void _addConfig( Config* config );
 
