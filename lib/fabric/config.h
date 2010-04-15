@@ -171,10 +171,10 @@ namespace fabric
         EQFABRIC_EXPORT uint32_t getProxyID() const; //!< @internal
 
         /** Back up app-specific data, excluding child data. @internal */
-        virtual void backup();
+        EQFABRIC_EXPORT virtual void backup();
 
         /** Restore the last backup. @internal */
-        virtual void restore();
+        EQFABRIC_EXPORT virtual void restore();
         //@}
 
     protected:

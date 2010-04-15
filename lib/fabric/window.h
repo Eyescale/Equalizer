@@ -153,8 +153,8 @@ namespace fabric
         /** @return the index path to this window. @internal */
         EQFABRIC_EXPORT WindowPath getPath() const;
 
-        virtual void backup(); //!< @internal
-        virtual void restore(); //!< @internal
+        EQFABRIC_EXPORT virtual void backup(); //!< @internal
+        EQFABRIC_EXPORT virtual void restore(); //!< @internal
         //@}
 
     protected: 

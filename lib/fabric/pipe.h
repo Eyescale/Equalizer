@@ -111,8 +111,8 @@ namespace fabric
                                                       const IAttribute attr );
         //@}
 
-        virtual void backup(); //!< @internal
-        virtual void restore(); //!< @internal
+        EQFABRIC_EXPORT virtual void backup(); //!< @internal
+        EQFABRIC_EXPORT virtual void restore(); //!< @internal
 
     protected:
         //-------------------- Members --------------------

@@ -129,8 +129,8 @@ namespace fabric
         /** @return the index path to this channel. @internal */
         EQFABRIC_EXPORT ChannelPath getPath() const;
 
-        virtual void backup(); //!< @internal
-        virtual void restore(); //!< @internal
+        EQFABRIC_EXPORT virtual void backup(); //!< @internal
+        EQFABRIC_EXPORT virtual void restore(); //!< @internal
         //@}
 
         /**

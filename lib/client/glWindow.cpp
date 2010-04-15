@@ -149,7 +149,7 @@ void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
         
     glGetBooleanv( GL_DOUBLEBUFFER, &result );
     drawableConfig.doublebuffered = result;
-        
+
     GLint stencilBits;
     glGetIntegerv( GL_STENCIL_BITS, &stencilBits );
     drawableConfig.stencilBits = stencilBits;
