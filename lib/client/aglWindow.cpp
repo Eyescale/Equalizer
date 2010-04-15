@@ -64,13 +64,7 @@ void AGLWindow::configExit( )
     {
         Global::enterCarbon();
         if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) != ON )
-        {
-#ifdef LEOPARD
             aglSetWindowRef( context, 0 );
-#else
-            aglSetDrawable( context, 0 );
-#endif
-        }
         DisposeWindow( window );
         Global::leaveCarbon();
     }
@@ -161,21 +155,8 @@ AGLPixelFormat AGLWindow::chooseAGLPixelFormat()
 
     Global::enterCarbon();
 
-#ifdef LEOPARD
     CGOpenGLDisplayMask glDisplayMask =
         CGDisplayIDToOpenGLDisplayMask( displayID );
-#else
-    GDHandle          displayHandle = 0;
-
-    DMGetGDeviceByDisplayID( (DisplayIDType)displayID, &displayHandle, false );
-
-    if( !displayHandle )
-    {
-        _window->setErrorMessage( "Can't get display handle" );
-        Global::leaveCarbon();
-        return 0;
-    }
-#endif
 
     // build attribute list
     std::vector<GLint> attributes;
@@ -190,10 +171,8 @@ AGLPixelFormat AGLWindow::chooseAGLPixelFormat()
 
         attributes.push_back( AGL_FULLSCREEN );
 
-#ifdef LEOPARD
     attributes.push_back( AGL_DISPLAY_MASK );
     attributes.push_back( glDisplayMask );
-#endif
 
     const int colorSize = getIAttribute( Window::IATTR_PLANES_COLOR );
     if( colorSize > 0 || colorSize == AUTO )
@@ -282,12 +261,7 @@ AGLPixelFormat AGLWindow::chooseAGLPixelFormat()
     AGLPixelFormat pixelFormat = 0;
     while( true )
     {
-#ifdef LEOPARD
         pixelFormat = aglCreatePixelFormat( &attributes.front( ));
-#else
-        pixelFormat = aglChoosePixelFormat( &displayHandle, 1,
-                                            &attributes.front( ));
-#endif
 
         if( pixelFormat ||              // found one or
             backoffAttributes.empty( )) // nothing else to try
@@ -519,7 +493,6 @@ bool AGLWindow::configInitAGLWindow()
     SetWindowTitleWithCFString( windowRef, title );
     CFRelease( title );
         
-#ifdef LEOPARD
     if( !aglSetWindowRef( context, windowRef ))
     {
         _window->setErrorMessage( "aglSetWindowRef failed: " +
@@ -527,15 +500,6 @@ bool AGLWindow::configInitAGLWindow()
         Global::leaveCarbon();
         return false;
     }
-#else
-    if( !aglSetDrawable( context, GetWindowPort( windowRef )))
-    {
-        _window->setErrorMessage( "aglSetDrawable failed: " +
-                                  ERROR( aglGetError( )));
-        Global::leaveCarbon();
-        return false;
-    }
-#endif
 
     // show
     ShowWindow( windowRef );

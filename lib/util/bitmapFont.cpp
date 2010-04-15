@@ -109,6 +109,11 @@ bool BitmapFont< OMT >::_initGLX( const std::string& name, const uint32_t size )
         font << name;
     font << "-*-r-*-*-" << size << "-*-*-*-*-*-*-*";
 
+    // X11 font initialization is not thread safe. Using a mutex here is not
+    // performance-critical
+    static base::Lock lock;
+    base::ScopedMutex<> mutex( lock );
+
     XFontStruct* fontStruct = XLoadQueryFont( display, font.str().c_str( )); 
     if( !fontStruct )
     {

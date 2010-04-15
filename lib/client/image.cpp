@@ -607,7 +607,7 @@ void Image::clearPixelData( const Frame::Buffer buffer )
         if( getDepth( Frame::BUFFER_COLOR ) == 4 )
         {
             uint8_t* data = memory.pixels.getData();
-#ifdef LEOPARD
+#ifdef Darwin
             const unsigned char pixel[4] = { 0, 0, 0, 255 };
             memset_pattern4( data, &pixel, size );
 #else

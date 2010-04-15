@@ -1,0 +1,2 @@
+
+WINDOW_SYSTEM   ?= AGL GLX

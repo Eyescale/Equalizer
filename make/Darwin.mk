@@ -7,7 +7,6 @@ CXX ?= /usr/bin/g++-4.2
 
 DSO_SUFFIX       = dylib
 DSO_LDFLAGS     += -dynamiclib
-WINDOW_SYSTEM   ?= AGL 
 
 AR               = libtool
 ARFLAGS          = -static
@@ -18,6 +17,16 @@ BOOST_INCLUDE_PATH ?= /opt/local/include
 CUDA_LIBRARY_PATH ?= /usr/local/cuda/lib
 CUDA_INCLUDE_PATH ?= /usr/local/cuda/include
 
+ifeq ($(findstring 10., $(RELARCH)),10.) # 10.6
+  DARWIN_RELEASE = 10.6
+endif # SNOWLEOPARD
+
+ifeq ($(findstring 9., $(RELARCH)),9.) # 10.5
+  DARWIN_RELEASE = 10.5
+endif # LEOPARD
+
+include $(TOP)/make/$(ARCH).$(DARWIN_RELEASE).mk
+
 # Check presence of CUDA
 ifeq ($(wildcard $(CUDA_LIBRARY_PATH)/libcuda.dylib), $(CUDA_LIBRARY_PATH)/libcuda.dylib)
     DEFFLAGS += -DEQ_USE_CUDA
@@ -27,17 +36,6 @@ endif
 ifeq (0,${MAKELEVEL})
   CXXFLAGS        += -Wextra
 endif
-
-ifeq ($(findstring 10., $(RELARCH)),10.) # 10.6
-  LEOPARD       = 1
-endif # SNOWLEOPARD
-
-ifeq ($(findstring 9., $(RELARCH)),9.) # 10.5
-  LEOPARD       = 1
-endif # LEOPARD
-
-ifdef LEOPARD
-  CXXFLAGS     += -DLEOPARD
 
 ifeq ($(findstring icc, $(CXX)),icc)
   ARCHFLAGS     ?= -m32
@@ -69,16 +67,10 @@ else
   endif
 endif
 
-endif # LEOPARD
-
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
   WINDOW_SYSTEM_LIBS += -L/usr/X11R6/lib -lX11 -lGL
   WINDOW_SYSTEM_INCS += -I/usr/X11R6/include
   CFLAGS += -DGLEW_APPLE_GLX
-ifdef LEOPARD
-    # war to broken libGL in Leopard
-    WINDOW_SYSTEM_LIBS += -dylib_file /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib
-endif # LEOPARD
 endif # GLX
 
 ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
@@ -86,15 +78,7 @@ ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
   PROGRAMS            = $(PROGRAM_EXE) $(PROGRAM_APP)
 endif
 
-ifdef LEOPARD
-  BISON        = bison
-else
- # default bison on Tiger and earlier is too old, use fink or macports version
- BISONS       = $(wildcard /opt/local/bin/bison /sw/bin/bison )
- BISON        = $(word 1, $(BISONS))
-endif
-
 ifdef EQ_USE_MAGELLAN
   WINDOW_SYSTEM_LIBS += -framework 3DconnexionClient
-  CXXFLAGS     += -DEQ_USE_MAGELLAN
+  CXXFLAGS           += -DEQ_USE_MAGELLAN
 endif
