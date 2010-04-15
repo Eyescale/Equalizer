@@ -528,6 +528,24 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             _advance = 0;
             return true;
 
+        case 'k':
+        {
+            eq::base::RNG rng;
+            if( rng.get< bool >( ))
+                _frameData.toggleOrtho();
+            if( rng.get< bool >( ))
+                _frameData.toggleStatistics();
+            if( rng.get< bool >( ))
+                _switchCanvas();
+            if( rng.get< bool >( ))
+                _switchView();
+            if( rng.get< bool >( ))
+                _switchLayout();
+            if( rng.get< bool >( ))
+                _switchModel();
+            return true;
+        }
+
         case 'o':
         case 'O':
             _frameData.toggleOrtho();
@@ -565,145 +583,23 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 
         case 'c':
         case 'C':
-        {
-            const eq::CanvasVector& canvases = getCanvases();
-            if( canvases.empty( ))
-                return true;
-
-            _frameData.setCurrentViewID( EQ_ID_INVALID );
-
-            if( !_currentCanvas )
-            {
-                _currentCanvas = canvases.front();
-                return true;
-            }
-
-            eq::CanvasVector::const_iterator i = std::find( canvases.begin(),
-                                                            canvases.end(), 
-                                                            _currentCanvas );
-            EQASSERT( i != canvases.end( ));
-
-            ++i;
-            if( i == canvases.end( ))
-                _currentCanvas = canvases.front();
-            else
-                _currentCanvas = *i;
+            _switchCanvas();
             return true;
-        }
 
         case 'v':
         case 'V':
-        {
-            const eq::CanvasVector& canvases = getCanvases();
-            if( !_currentCanvas && !canvases.empty( ))
-                _currentCanvas = canvases.front();
-
-            if( !_currentCanvas )
-                return true;
-
-            const eq::Layout* layout = _currentCanvas->getActiveLayout();
-            if( !layout )
-                return true;
-
-            const eq::View* current = find< eq::View >(
-                                                _frameData.getCurrentViewID( ));
-            const eq::ViewVector& views = layout->getViews();
-            EQASSERT( !views.empty( ))
-
-            if( !current )
-            {
-                _frameData.setCurrentViewID( views.front()->getID( ));
-                return true;
-            }
-
-            eq::ViewVector::const_iterator i = std::find( views.begin(),
-                                                          views.end(), current);
-            EQASSERT( i != views.end( ));
-
-            ++i;
-            if( i == views.end( ))
-                _frameData.setCurrentViewID( EQ_ID_INVALID );
-            else
-                _frameData.setCurrentViewID( (*i)->getID( ));
+            _switchView();
             return true;
-        }
 
         case 'm':
         case 'M':
-        {
-            if( _modelDist.empty( )) // no models
-                return true;
-
-            // current model
-            const uint32_t viewID = _frameData.getCurrentViewID();
-            View* view = static_cast< View* >( find< eq::View >( viewID ));
-            const uint32_t currentID = view ? 
-                view->getModelID() : _frameData.getModelID();
-
-            // next model
-            ModelDistVector::const_iterator i;
-            for( i = _modelDist.begin(); i != _modelDist.end(); ++i )
-            {
-                if( (*i)->getID() != currentID )
-                    continue;
-                
-                ++i;
-                break;
-            }
-            if( i == _modelDist.end( ))
-                i = _modelDist.begin(); // wrap around
-            
-            // set identifier on view or frame data (default model)
-            const uint32_t modelID = (*i)->getID();
-            if( view )
-                view->setModelID( modelID );
-            else
-                _frameData.setModelID( modelID );
-            
-            if( view )
-            {
-                const Model* model = getModel( modelID );
-                _setMessage( "Model " + eq::base::getFilename( model->getName())
-                             + " active" );
-            }
+            _switchModel();
             return true;
-        }
 
         case 'l':
         case 'L':
-        {
-            if( !_currentCanvas )
-                return true;
-
-            _frameData.setCurrentViewID( EQ_ID_INVALID );
-
-            uint32_t index = _currentCanvas->getActiveLayoutIndex() + 1;
-            const eq::LayoutVector& layouts = _currentCanvas->getLayouts();
-            EQASSERT( !layouts.empty( ))
-
-            if( index >= layouts.size( ))
-                index = 0;
-
-            _currentCanvas->useLayout( index );
-            
-            const eq::Layout* layout = _currentCanvas->getLayouts()[index];
-            std::ostringstream stream;
-            stream << "Layout ";
-            if( layout )
-            {
-                const std::string& name = layout->getName();
-                if( name.empty( ))
-                    stream << index;
-                else
-                    stream << name;
-            }
-            else
-                stream << "NONE";
-            
-            stream << " active";
-            _setMessage( stream.str( ));
+            _switchLayout();
             return true;
-        }
 
         case 'w':
         case 'W':
@@ -804,6 +700,137 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         default:
             return false;
     }
+}
+
+void Config::_switchCanvas()
+{
+    const eq::CanvasVector& canvases = getCanvases();
+    if( canvases.empty( ))
+        return;
+
+    _frameData.setCurrentViewID( EQ_ID_INVALID );
+
+    if( !_currentCanvas )
+    {
+        _currentCanvas = canvases.front();
+        return;
+    }
+
+    eq::CanvasVector::const_iterator i = stde::find( canvases, _currentCanvas );
+    EQASSERT( i != canvases.end( ));
+
+    ++i;
+    if( i == canvases.end( ))
+        _currentCanvas = canvases.front();
+    else
+        _currentCanvas = *i;
+}
+
+void Config::_switchView()
+{
+    const eq::CanvasVector& canvases = getCanvases();
+    if( !_currentCanvas && !canvases.empty( ))
+        _currentCanvas = canvases.front();
+
+    if( !_currentCanvas )
+        return;
+
+    const eq::Layout* layout = _currentCanvas->getActiveLayout();
+    if( !layout )
+        return;
+
+    const eq::View* current = find< eq::View >( _frameData.getCurrentViewID( ));
+    const eq::ViewVector& views = layout->getViews();
+    EQASSERT( !views.empty( ));
+
+    if( !current )
+    {
+        _frameData.setCurrentViewID( views.front()->getID( ));
+        return;
+    }
+
+    eq::ViewVector::const_iterator i = std::find( views.begin(), views.end(),
+                                                  current );
+    EQASSERT( i != views.end( ));
+
+    ++i;
+    if( i == views.end( ))
+        _frameData.setCurrentViewID( EQ_ID_INVALID );
+    else
+        _frameData.setCurrentViewID( (*i)->getID( ));
+}
+
+void Config::_switchModel()
+{
+    if( _modelDist.empty( )) // no models
+        return;
+
+    // current model
+    const uint32_t viewID = _frameData.getCurrentViewID();
+    View* view = static_cast< View* >( find< eq::View >( viewID ));
+    const uint32_t currentID = view ?
+                               view->getModelID() : _frameData.getModelID();
+
+    // next model
+    ModelDistVector::const_iterator i;
+    for( i = _modelDist.begin(); i != _modelDist.end(); ++i )
+    {
+        if( (*i)->getID() != currentID )
+            continue;
+                
+        ++i;
+        break;
+    }
+    if( i == _modelDist.end( ))
+        i = _modelDist.begin(); // wrap around
+
+    // set identifier on view or frame data (default model)
+    const uint32_t modelID = (*i)->getID();
+    if( view )
+        view->setModelID( modelID );
+    else
+        _frameData.setModelID( modelID );
+
+    if( view )
+    {
+        const Model* model = getModel( modelID );
+        _setMessage( "Model " + eq::base::getFilename( model->getName()) +
+                     " active" );
+    }
+}
+
+void Config::_switchLayout()
+{
+    if( !_currentCanvas )
+        return;
+
+    _frameData.setCurrentViewID( EQ_ID_INVALID );
+
+    uint32_t index = _currentCanvas->getActiveLayoutIndex() + 1;
+    const eq::LayoutVector& layouts = _currentCanvas->getLayouts();
+    EQASSERT( !layouts.empty( ))
+
+        if( index >= layouts.size( ))
+            index = 0;
+
+    _currentCanvas->useLayout( index );
+
+    const eq::Layout* layout = _currentCanvas->getLayouts()[index];
+    std::ostringstream stream;
+    stream << "Layout ";
+    if( layout )
+    {
+        const std::string& name = layout->getName();
+        if( name.empty( ))
+            stream << index;
+        else
+            stream << name;
+    }
+    else
+        stream << "NONE";
+
+    stream << " active";
+    _setMessage( stream.str( ));
 }
 
 // Note: real applications would use one tracking device per observer

@@ -1,9 +1,10 @@
-Remove now-obsolete Object::becomeMaster
+Implement RNG::get< bool >()
+Clean up eqPly event handler and add stress-test generator switch
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

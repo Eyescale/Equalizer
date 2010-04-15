@@ -104,8 +104,15 @@ namespace eqPly
         void _loadPath();
         void _deregisterData();
         bool _handleKeyEvent( const eq::KeyEvent& event );
+
+        void _switchCanvas();
+        void _switchView();
+        void _switchModel();
+        void _switchLayout();
+
         void _setHeadMatrix( const eq::Matrix4f& matrix );
         const eq::Matrix4f& _getHeadMatrix() const;
+
         void _setMessage( const std::string& message );
         void _updateData();
 

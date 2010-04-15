@@ -52,7 +52,7 @@ static const std::string _help(
                                                                 walk)\n" ) +
     string( "\t\tr:                         Switch rendering mode (display\
                                                     list, VBO, immediate)\n" ) +
-    string( "\t\tv:                         Switch active canvas\n" ) +
+    string( "\t\tc:                         Switch active canvas\n" ) +
     string( "\t\tv:                         Switch active view\n" ) +
     string( "\t\tm:                         Switch model for active view\n" ) +
     string( "\t\tl:                         Switch layout for active canvas\n"

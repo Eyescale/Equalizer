@@ -104,18 +104,23 @@ namespace base
         friend EQ_EXPORT bool exit();
     };
 
-    template< > inline float RNG::get()
+    template<> inline float RNG::get()
     {
         const float max_limits =
             static_cast< float >( std::numeric_limits< uint32_t >::max( ));
         return ( get< uint32_t >() / max_limits);
     }
     
-    template< > inline double RNG::get()
+    template<> inline double RNG::get()
     {
         const double max_limits =
             static_cast< double >( std::numeric_limits< uint64_t >::max( ));
         return ( get< uint64_t >() / max_limits);
+    }
+    
+    template<> inline bool RNG::get()
+    {
+        return ( get< uint32_t >() & 1 );
     }
 }
 }

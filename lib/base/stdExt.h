@@ -181,7 +181,6 @@ EQ_STDEXT_NAMESPACE_OPEN
     find_if( std::vector< const T >& container, const P& predicate )
         { return std::find_if( container.begin(), container.end(), predicate );}
 
-
 EQ_STDEXT_NAMESPACE_CLOSE
 
 #endif // EQBASE_STDEXT_H
