@@ -137,31 +137,31 @@ O* Config< S, C, O, L, CV, N >::getObserver( const ObserverPath& path )
 }
 
 template< class S, class C, class O, class L, class CV, class N >
-void Config< S, C, O, L, CV >::setName( const std::string& name )
+void Config< S, C, O, L, CV, N >::setName( const std::string& name )
 {
     _proxy->setName( name );
 }
 
 template< class S, class C, class O, class L, class CV, class N >
-const std::string& Config< S, C, O, L, CV >::getName() const
+const std::string& Config< S, C, O, L, CV, N >::getName() const
 {
     return _proxy->getName();
 }
 
 template< class S, class C, class O, class L, class CV, class N >
-void Config< S, C, O, L, CV >::setErrorMessage( const std::string& message )
+void Config< S, C, O, L, CV, N >::setErrorMessage( const std::string& message )
 {
     _proxy->setErrorMessage( message );
 }
 
 template< class S, class C, class O, class L, class CV, class N >
-const std::string& Config< S, C, O, L, CV >::getErrorMessage() const
+const std::string& Config< S, C, O, L, CV, N >::getErrorMessage() const
 {
     return _proxy->getErrorMessage();
 }
 
 template< class S, class C, class O, class L, class CV, class N >
-L* Config< S, C, O, L, CV >::getLayout( const LayoutPath& path )
+L* Config< S, C, O, L, CV, N >::getLayout( const LayoutPath& path )
 {
     EQASSERTINFO( _layouts.size() > path.layoutIndex,
                   _layouts.size() << " <= " << path.layoutIndex );
@@ -255,21 +255,21 @@ void Config< S, C, O, L, CV, N >::setLatency( const uint32_t latency )
     _proxy->setDirty( ConfigProxy< S, C, O, L, CV, N >::DIRTY_MEMBER );
 }
 
-template< class S, class C, class O, class L, class CV >
-uint32_t Config< S, C, O, L, CV >::getProxyID() const
+template< class S, class C, class O, class L, class CV, class N >
+uint32_t Config< S, C, O, L, CV, N >::getProxyID() const
 {
     return _proxy->getID();
 }
 
-template< class S, class C, class O, class L, class CV >
-void Config< S, C, O, L, CV >::backup()
+template< class S, class C, class O, class L, class CV, class N >
+void Config< S, C, O, L, CV, N >::backup()
 {
     _backup = _data;
     _proxy->backup();
 }
 
-template< class S, class C, class O, class L, class CV >
-void Config< S, C, O, L, CV >::restore()
+template< class S, class C, class O, class L, class CV, class N >
+void Config< S, C, O, L, CV, N >::restore()
 {
     _proxy->restore();
     if( _data.latency != _backup.latency )
@@ -279,8 +279,7 @@ void Config< S, C, O, L, CV >::restore()
     }
     else
         _data = _backup;
-    _proxy->setDirty( ConfigProxy< S, C, O, L, CV >::DIRTY_MEMBER );
->>>>>>> Replace deep copy ctor with backup mechanism: So far, a config was
+    _proxy->setDirty( ConfigProxy< S, C, O, L, CV, N >::DIRTY_MEMBER );
 }
 
 // TODO move visitors for operations on childs here.

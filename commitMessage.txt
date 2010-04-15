@@ -1,15 +1,12 @@
-Create per-system defines.h files to allow coexistence of one set of
-headers with n sets of libraries in third-party build environments
-- Auto-create defines<arch>.h for make builds
-- Use existing definesXCode/Win32.h
-- conditionally include per-system files in defines.h
+Fix XCode build
+-- integrate glsl.h generation
 
-Separate Make/XCode build on Darwin for better coexistence
+Fix Posix build
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
-[x] Cleanup
+[x] Bugfix
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

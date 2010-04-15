@@ -12,7 +12,7 @@ my $base = basename($stringname);
 
 open( FILE, "<$filename" ) or die "Can't open $filename: $!";
 
-print "//Generated file - Edit $filename!\n";
+print "//Generated file - Edit " . basename( $filename ) . "!\n";
 print "static const std::string $base = \"";
 
 foreach my $line (<FILE>)
