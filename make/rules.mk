@@ -8,14 +8,14 @@ all: $(TARGETS)
 precompile: $(CXX_DEFINES_FILE) $(BUILD_MODE)
 
 $(CXX_DEFINES_FILE)::
-	@echo "#ifndef EQ_DEFINES_H" >> $@.tmp
-	@echo "#define EQ_DEFINES_H" >> $@.tmp
+	@echo "#ifndef EQBASE_DEFINES_$(ARCH)_H" >> $@.tmp
+	@echo "#define EQBASE_DEFINES_$(ARCH)_H" >> $@.tmp
 	@for line in $(CXX_DEFINES_TXT); do  \
 		echo "#ifndef $$line" >> $@.tmp ;\
 		echo "#  define $$line" >> $@.tmp ;\
 		echo "#endif" >> $@.tmp ;\
 	done
-	@echo "#endif // EQ_DEFINES_H" >> $@.tmp
+	@echo "#endif // EQBASE_DEFINES_$(ARCH)_H" >> $@.tmp
 	@cmp -s $@ $@.tmp || cp $@.tmp $@
 	@rm $@.tmp
 

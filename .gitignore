@@ -8,7 +8,8 @@ VS2005/Equalizer.suo
 auxilary
 build
 externals/vmmlib/
-lib/base/defines.h
+lib/base/definesDarwin.h
+lib/base/definesLinux.h
 make/local.mk
 obj
 server/lexer.cpp

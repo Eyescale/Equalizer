@@ -123,7 +123,7 @@ void Channel< W, C >::serialize( net::DataOStream& os, const uint64_t dirtyBits)
            << _data.nativeContext.overdraw;
     if( dirtyBits & DIRTY_FRUSTUM )
         os << _data.nativeContext.frustum;
-    if( dirtyBits & DIRTY_ALL )
+    if( dirtyBits == DIRTY_ALL )
         os << _color;
 }
 
@@ -145,7 +145,7 @@ void Channel< W, C >::deserialize( net::DataIStream& is,
            >> _data.nativeContext.overdraw;
     if( dirtyBits & DIRTY_FRUSTUM )
         is >> _data.nativeContext.frustum;
-    if( dirtyBits & DIRTY_ALL )
+    if( dirtyBits == DIRTY_ALL )
         is >> _color;
 }
 

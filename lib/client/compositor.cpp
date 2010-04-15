@@ -1209,7 +1209,8 @@ void Compositor::_drawPixels( const Image* image,
                          GL_NEAREST );
         glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER,
                          GL_NEAREST );
-    }else
+    }
+    else
     {
         glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
                          GL_LINEAR );

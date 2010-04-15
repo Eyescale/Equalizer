@@ -179,7 +179,7 @@ XVisualInfo* GLXWindow::chooseXVisualInfo()
         attributes.push_back( samplesSize );
     }
     
-#ifdef DARWIN
+#ifdef Darwin
     // WAR: glDrawBuffer( GL_BACK ) renders only to the left back buffer on a
     // stereo visual on Darwin which creates ugly flickering on mono configs
     if( getIAttribute( Window::IATTR_HINT_STEREO ) == ON )
@@ -206,7 +206,7 @@ XVisualInfo* GLXWindow::chooseXVisualInfo()
         if( getIAttribute( Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO )
             backoffAttributes.push_back( GLX_DOUBLEBUFFER );
 
-#ifndef DARWIN
+#ifndef Darwin
         if( getIAttribute( Window::IATTR_HINT_STEREO ) == AUTO )
             backoffAttributes.push_back( GLX_STEREO );
 #endif

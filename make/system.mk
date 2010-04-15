@@ -142,7 +142,7 @@ endif # -g
 CXX_DEFINES_TMP   = $(sort $(filter -D%,$(CXXFLAGS))) \
                     $(sort $(filter -D%,$(CFLAGS)))
 CXX_DEFINES       = $(CXX_DEFINES_TMP:NDEBUG=)
-CXX_DEFINES_FILE ?= lib/base/defines.h
+CXX_DEFINES_FILE ?= lib/base/defines$(ARCH).h
 CXX_DEFINES_TXT   = $(CXX_DEFINES:-D%= %)
 
 # include file variables

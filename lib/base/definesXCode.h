@@ -1,5 +1,5 @@
-#ifndef EQ_DEFINES_H
-#define EQ_DEFINES_H
+#ifndef EQBASE_DEFINES_XCode_H
+#define EQBASE_DEFINES_XCode_H
 #ifndef Darwin
 #  define Darwin
 #endif
@@ -22,4 +22,4 @@
 #    define EQ_COMPRESS_STREAM
 #  endif
 #endif
-#endif // EQ_DEFINES_H
+#endif // EQBASE_DEFINES_XCode_H

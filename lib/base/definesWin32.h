@@ -1,6 +1,7 @@
 /* Eq-Specific Defines */
-#ifndef EQ_DEFINES_H
-#define EQ_DEFINES_H
+
+#ifndef EQBASE_DEFINES_MSC_H
+#define EQBASE_DEFINES_MSC_H
 #ifndef WGL
 #  define WGL
 #endif
@@ -47,4 +48,4 @@
 #  endif
 #endif
 
-#endif // EQ_DEFINES_H
+#endif // EQBASE_DEFINES_MSC_H

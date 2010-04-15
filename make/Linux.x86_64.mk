@@ -16,9 +16,3 @@ else
   CUDA_LIBRARY_PATH  ?= /usr/local/cuda/lib64
   BOOST_LIBRARY_PATH ?= /opt/local/lib64
 endif
-
-# Check presence of CUDA
-ifeq ($(wildcard $(CUDA_LIBRARY_PATH)/libcuda.so), $(CUDA_LIBRARY_PATH)/libcuda.so)
-    DEFFLAGS += -DEQ_USE_CUDA
-endif
-

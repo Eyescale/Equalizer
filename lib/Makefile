@@ -1,5 +1,4 @@
 
-
 include $(TOP)/make/system.mk
 
 MODULE = eq
@@ -15,6 +14,7 @@ HEADER_SRC = \
 	base/compareAndSwap.h \
 	base/debug.h \
 	base/defines.h \
+	base/defines$(ARCH).h \
 	base/dso.h \
 	base/executionListener.h \
 	base/file.h \
