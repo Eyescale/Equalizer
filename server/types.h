@@ -49,13 +49,12 @@ template< typename T, typename C  > class ElementVisitor;
 namespace server
 {
 
-class Server;
 class Config;
 class Node;
 class Pipe;
 class Window;
 class Channel;
-
+class Server;
 class Canvas;
 class Compound;
 class ConnectionDescription;

@@ -50,7 +50,7 @@ Pipe< N, P, W >::Pipe( N* parent )
 
 template< class N, class P, class W >
 Pipe< N, P, W >::~Pipe()
-{    
+{
     WindowVector& windows = _getWindows(); 
     while( !windows.empty() )
     {

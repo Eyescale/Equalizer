@@ -803,7 +803,8 @@ void Config::_syncClock()
 
     send( _appNetNode, packet );
 
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    const NodeVector nodes = getNodes();
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         if( node->isActive( ))
@@ -919,7 +920,8 @@ void Config::_startFrame( const uint32_t frameID )
     ConfigUpdateDataVisitor configDataVisitor;
     accept( configDataVisitor );
 
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    const NodeVector nodes = getNodes();
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         if( node->isActive( ))
@@ -935,7 +937,8 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
     if( _finishedFrame >= frameNumber ) // node finish already done
         return;
 
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    const NodeVector nodes = getNodes();
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         const Node* node = *i;
         if( node->isActive() && node->getFinishedFrame() < frameNumber )
@@ -961,7 +964,8 @@ void Config::_flushAllFrames()
     if( _currentFrame == 0 )
         return;
 
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); ++i )
+    const NodeVector nodes = getNodes();
+    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         if( node->isActive( ))

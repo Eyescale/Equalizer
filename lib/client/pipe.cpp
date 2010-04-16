@@ -24,6 +24,7 @@
 #include "frame.h"
 #include "global.h"
 #include "log.h"
+#include "node.h"
 #include "nodeFactory.h"
 #include "pipeStatistics.h"
 #include "packets.h"

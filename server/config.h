@@ -129,6 +129,9 @@ namespace server
         /** @return the application node, or 0 if it was not set. */
         Node* getApplicationNode() { return _appNode; }
 
+        /** @return the application node, or 0 if it was not set. */
+        const Node* getApplicationNode() const { return _appNode; }
+
         /** @return true if the node is the application node. */
         bool isApplicationNode( const Node* node ) const
             { return (_appNode == node); }
@@ -262,13 +265,13 @@ namespace server
         void _construct();
 
         bool _updateRunning();
-        bool   _connectNodes();
-        bool     _connectNode( Node* node );
-        bool     _syncConnectNode( Node* node, const base::Clock& clock );
-        void   _startNodes();
+        bool _connectNodes();
+        bool _connectNode( Node* node );
+        bool _syncConnectNode( Node* node, const base::Clock& clock );
+        void _startNodes();
         uint32_t _createConfig( Node* node );
-        void   _stopNodes();
-        void   _syncClock();
+        void _stopNodes();
+        void _syncClock();
 
         bool _init( const uint32_t initID );
 

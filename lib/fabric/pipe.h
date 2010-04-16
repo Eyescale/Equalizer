@@ -21,7 +21,7 @@
 
 #include <eq/fabric/object.h>        // base class
 #include <eq/fabric/paths.h>
-#include <eq/fabric/pixelViewport.h> // base class
+#include <eq/fabric/pixelViewport.h> // property
 #include <eq/fabric/types.h>
 
 namespace eq

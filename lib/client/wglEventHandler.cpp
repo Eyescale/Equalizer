@@ -20,13 +20,13 @@
 #include <eq/base/perThread.h> // then get perThread to have template code
 
 #include "wglEventHandler.h"
-
-#include "log.h"
-#include "event.h"
-#include "window.h"
-#include "wglWindow.h"
 #include "config.h"
 #include "configEvent.h"
+#include "event.h"
+#include "log.h"
+#include "node.h"
+#include "wglWindow.h"
+#include "window.h"
 
 #include <eq/base/debug.h>
 #include <eq/base/executionListener.h>

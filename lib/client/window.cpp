@@ -26,6 +26,7 @@
 #include "event.h"
 #include "global.h"
 #include "log.h"
+#include "node.h"
 #include "nodeFactory.h"
 #include "pipe.h"
 #include "osWindow.h"
