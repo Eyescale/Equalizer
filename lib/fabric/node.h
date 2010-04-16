@@ -80,8 +80,7 @@ namespace fabric
 
     protected:
         Node( C* parent );
-
-        EQFABRIC_EXPORT virtual ~Node(){}
+        EQFABRIC_EXPORT virtual ~Node();
 
         /** Pipe children. */
         PipeVector _pipes;

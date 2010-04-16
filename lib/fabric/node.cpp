@@ -42,6 +42,21 @@ Node< C, N, P >::Node( C* parent )
 }
 
 template< class C, class N, class P >
+Node< C, N, P >::~Node()
+{
+    while( !_pipes.empty() )
+    {
+        P* pipe = _pipes.back();
+        EQASSERT( pipe->getNode() == static_cast< N* >( this ) );
+        _removePipe( pipe );
+        delete pipe;
+    }
+    _pipes.clear();
+
+    getConfig()->_removeNode( static_cast< N* >( this ) );
+}
+
+template< class C, class N, class P >
 NodePath Node< C, N, P >::getPath() const
 {
     const C* config = static_cast< const N* >( this )->getConfig( );

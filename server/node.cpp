@@ -27,7 +27,9 @@
 #include "server.h"
 #include "window.h"
 
+#include <eq/client/config.h>
 #include <eq/client/packets.h>
+#include <eq/client/pipe.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
 #include <eq/net/barrier.h>
@@ -79,18 +81,6 @@ Node::Node( Config* parent )
 Node::~Node()
 {
     EQINFO << "Delete node @" << (void*)this << std::endl;
-
-    if( _config )
-        _config->_removeNode( this );
-    
-    while( !_pipes.empty() )
-    {
-        Pipe* pipe = _pipes.back();
-        EQASSERT( pipe->getNode() == this );
-        _removePipe( pipe );
-        delete pipe;
-    }
-    _pipes.clear();
 }
 
 void Node::attachToSession( const uint32_t id, const uint32_t instanceID, 

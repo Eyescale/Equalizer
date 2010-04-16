@@ -64,8 +64,6 @@ Node::Node( Config* parent )
 
 Node::~Node()
 {
-    _config->_removeNode( this );
-
     EQINFO << " Delete eq::Node @" << (void*)this << std::endl;
 }
 
