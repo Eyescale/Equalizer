@@ -70,8 +70,8 @@ namespace fabric
     class Config : public net::Session
     {
     public:
-        typedef std::vector< O* > ObserverVector;
-        typedef std::vector< L* > LayoutVector;
+        typedef std::vector< O* >  ObserverVector;
+        typedef std::vector< L* >  LayoutVector;
         typedef std::vector< CV* > CanvasVector;
         typedef std::vector< N* >  NodeVector;
 
@@ -83,6 +83,9 @@ namespace fabric
         /** @return the local server proxy. @version 1.0 */
         EQFABRIC_EXPORT base::RefPtr< S > getServer();
 
+        /** @return the local server proxy. @version 1.0 */
+        const EQFABRIC_EXPORT base::RefPtr< S > getServer() const;
+
         /** @return the vector of observers, app-node only. @version 1.0 */
         const ObserverVector& getObservers() const { return _observers; }
 
@@ -92,7 +95,7 @@ namespace fabric
         /** @return the vector of canvases, app-node only. @version 1.0 */
         const CanvasVector& getCanvases() const { return _canvases; }
 
-        /** @return the vector of nodes. @version 1.0*/
+        /** @return the vector of nodes. */
         const NodeVector& getNodes() const { return _nodes; }
 
         /** @return the entity of the given identifier, or 0. @version 1.0 */
@@ -244,9 +247,6 @@ namespace fabric
         void _addCanvas( CV* canvas );
         bool _removeCanvas( CV* canvas );
 
-        friend class eq::Node;
-        friend class eq::server::Node;
-        friend class eq::server::Config;
         template< class, class, class > friend class Node;
         void _addNode( N* node );
         EQFABRIC_EXPORT bool _removeNode( N* node );

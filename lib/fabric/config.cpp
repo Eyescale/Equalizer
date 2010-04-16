@@ -18,7 +18,7 @@
 
 #include "config.h"
 #include "paths.h"
-#include <vector>
+
 #include "configProxy.ipp"
 
 namespace eq
@@ -43,21 +43,21 @@ Config< S, C, O, L, CV, N >::~Config()
 {
     while( !_canvases.empty( ))
     {
-        CV* canvas = _canvases.back();;
+        CV* canvas = _canvases.back();
         _removeCanvas( canvas );
         delete canvas;
     }
 
     while( !_layouts.empty( ))
     {
-        L* layout = _layouts.back();;
+        L* layout = _layouts.back();
         _removeLayout( layout );
         delete layout;
     }
 
     while( !_observers.empty( ))
     {
-        O* observer = _observers.back();;
+        O* observer = _observers.back();
         _removeObserver( observer );
         delete observer;
     }
@@ -70,6 +70,12 @@ Config< S, C, O, L, CV, N >::~Config()
 
 template< class S, class C, class O, class L, class CV, class N >
 base::RefPtr< S > Config< S, C, O, L, CV, N >::getServer()
+{
+    return _server;
+}
+
+template< class S, class C, class O, class L, class CV, class N >
+const base::RefPtr< S > Config< S, C, O, L, CV, N >::getServer() const 
 {
     return _server;
 }
@@ -345,7 +351,7 @@ bool Config< S, C, O, L, CV, N >::_removeNode( N* node )
 template< class S, class C, class O, class L, class CV, class N >
 N* Config< S, C, O, L, CV, N >::_findNode( const uint32_t id )
 {
-    for( typename NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); 
+    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); 
          ++i )
     {
         N* node = *i;
