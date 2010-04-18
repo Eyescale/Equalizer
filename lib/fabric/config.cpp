@@ -351,8 +351,8 @@ bool Config< S, C, O, L, CV, N >::_removeNode( N* node )
 template< class S, class C, class O, class L, class CV, class N >
 N* Config< S, C, O, L, CV, N >::_findNode( const uint32_t id )
 {
-    for( NodeVector::const_iterator i = _nodes.begin(); i != _nodes.end(); 
-         ++i )
+    for( typename NodeVector::const_iterator i = _nodes.begin(); 
+		 i != _nodes.end(); ++i )
     {
         N* node = *i;
         if( node->getID() == id )
