@@ -22,10 +22,7 @@
 #ifndef CHANNEL_H
 #define CHANNEL_H
 
-#ifdef WIN32
 #define EQ_IGNORE_GLEW
-#endif
-
 #include <eq/eq.h>
 
 #include <osg/LightSource>

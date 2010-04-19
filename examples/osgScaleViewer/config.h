@@ -26,6 +26,7 @@
 #include "initData.h"
 #include "tracker.h"
 
+#define EQ_IGNORE_GLEW
 #include <eq/eq.h>
 
 namespace osgScaleViewer

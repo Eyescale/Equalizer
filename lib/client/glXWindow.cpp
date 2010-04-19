@@ -31,14 +31,16 @@ GLXWindow::GLXWindow( Window* parent )
     , _xDrawable ( 0 )
     , _glXContext( 0 )
     , _glXNVSwapGroup( 0 )
-    , _glxewInitialized( 0 )
+    , _glxewContext( new GLXEWContext )
+    , _glxewInitialized( false )
 {
     
 }
 
 GLXWindow::~GLXWindow( )
 {
-    
+    _glxewInitialized = false;
+    delete _glxewContext;
 }
 
 //---------------------------------------------------------------------------

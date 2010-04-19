@@ -80,7 +80,7 @@ namespace eq
         /** @return GLX display */
         virtual Display* getXDisplay();
         virtual Display* getXDisplay() const;
-	GLXEWContext* glxewGetContext() { return &_glxewContext; }
+        GLXEWContext* glxewGetContext() { return _glxewContext; }
         //@}
 
     protected:
@@ -164,8 +164,8 @@ namespace eq
         /** Unbind a GLX_NV_swap_barrier. */ 
         void leaveNVSwapBarrier();
 
-	/** Initialize the GLXEW context for this window. */
-	void initGLXEW();
+        /** Initialize the GLXEW context for this window. */
+        void initGLXEW();
 
         /** De-initialize the GLXEW context. */
         void exitGLXEW() { _glxewInitialized = false; }
@@ -178,11 +178,11 @@ namespace eq
         /** The currently joined swap group. */
         uint32_t _glXNVSwapGroup;
 
-	/** The GLX extension pointer table. */
-	GLXEWContext _glxewContext;
+        /** The GLX extension pointer table. */
+        GLXEWContext* const _glxewContext;
 
-	/** The GLX extension pointer table is initialized. */
-	bool _glxewInitialized;
+        /** The GLX extension pointer table is initialized. */
+        bool _glxewInitialized;
 
         union // placeholder for binary-compatible changes
         {

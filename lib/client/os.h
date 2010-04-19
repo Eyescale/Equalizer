@@ -37,8 +37,10 @@
 #ifdef EQ_IGNORE_GLEW
 struct GLEWContextStruct;
 struct WGLEWContextStruct;
+struct GLXEWContextStruct;
 typedef struct GLEWContextStruct GLEWContext;
 typedef struct WGLEWContextStruct WGLEWContext;
+typedef struct GLXEWContextStruct GLXEWContext;
 #else
 #  include <GL/glew.h>
 #  ifdef GLX

@@ -18,6 +18,7 @@
 #ifndef FOB_TRACKER_H
 #define FOB_TRACKER_H
 
+#define EQ_IGNORE_GLEW
 #include <eq/eq.h>
 #include <string>
 

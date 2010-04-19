@@ -38,7 +38,6 @@ GLWindow::~GLWindow()
 {
     _glewInitialized = false;
     delete _glewContext;
-    _glewContext = 0;
 }
 
 void GLWindow::makeCurrent() const 

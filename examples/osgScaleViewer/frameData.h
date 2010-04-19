@@ -22,6 +22,7 @@
 #ifndef OSGSV_FRAMEDATA_H
 #define OSGSV_FRAMEDATA_H
 
+#define EQ_IGNORE_GLEW
 #include <eq/eq.h>
 
 #include <osg/ref_ptr>

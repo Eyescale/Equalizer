@@ -21,10 +21,7 @@
 #ifndef OSGSV_PIPE_H
 #define OSGSV_PIPE_H
 
-#ifdef WIN32
-#  define EQ_IGNORE_GLEW
-#endif
-
+#define EQ_IGNORE_GLEW
 #include <eq/eq.h>
 
 #include "frameData.h"

@@ -1,8 +1,9 @@
-Minor code cleanups
+Fix osgSV/Win32 build (untested)
+Fix EQ_IGNORE_GLEW for Posix build
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

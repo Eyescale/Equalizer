@@ -79,14 +79,13 @@ namespace eq
         EQ_EXPORT virtual const GLEWContext* glewGetContext() const;
 
         /** Set up _drawableConfig by querying the current context. */
-        EQ_EXPORT virtual void queryDrawableConfig(
-            DrawableConfig& drawableConfig );
+        EQ_EXPORT virtual void queryDrawableConfig( DrawableConfig& );
 
     private:
         bool _glewInitialized ;
         
         /** Extended OpenGL function entries when window has a context. */
-        GLEWContext*   _glewContext;
+        GLEWContext* const _glewContext;
 
         /** Frame buffer object for FBO drawables. */       
         util::FrameBufferObject* _fbo;

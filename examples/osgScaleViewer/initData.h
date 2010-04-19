@@ -21,6 +21,7 @@
 #ifndef INITDATA_H
 #define INITDATA_H
 
+#define EQ_IGNORE_GLEW
 #include <eq/eq.h>
 
 namespace osgScaleViewer
