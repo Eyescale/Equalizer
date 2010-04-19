@@ -539,7 +539,7 @@ renderNode: EQTOKEN_NODE '{' {
 appNode: EQTOKEN_APPNODE '{' 
             {
                 node = new eq::server::Node( config );
-                config->setAsApplicationNode( node );
+                config->setApplicationNode( node );
             }
             nodeFields
             '}' { node = 0; }

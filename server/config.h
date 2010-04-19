@@ -124,7 +124,7 @@ namespace server
          * 
          * @param node the application node.
          */
-        void setAsApplicationNode( Node* node );
+        void setApplicationNode( Node* node );
 
         /** @return the application node, or 0 if it was not set. */
         Node* getApplicationNode() { return _appNode; }

@@ -303,7 +303,7 @@ bool Config::removeCompound( Compound* compound )
     return true;
 }
 
-void Config::setAsApplicationNode( Node* node )
+void Config::setApplicationNode( Node* node )
 {
     EQASSERT( _state == STATE_STOPPED );
     EQASSERTINFO( !_appNode, "Only one application node per config possible" );
@@ -534,7 +534,7 @@ bool Config::_updateRunning()
         return false;
 
     _startNodes();
-    const NodeVector nodes = getNodes();
+    const NodeVector& nodes = getNodes();
     // Let all running nodes update their running state (incl. children)
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
         (*i)->updateRunning( _initID, _currentFrame );
@@ -563,7 +563,7 @@ bool Config::_connectNodes()
 {
     bool success = true;
     base::Clock clock;
-    const NodeVector nodes = getNodes();
+    const NodeVector& nodes = getNodes();
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
@@ -693,7 +693,7 @@ void Config::_startNodes()
     // start up newly running nodes
     std::vector< uint32_t > requests;
     NodeVector startingNodes;
-    const NodeVector nodes = getNodes();
+    const NodeVector& nodes = getNodes();
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
@@ -720,7 +720,7 @@ void Config::_stopNodes()
 {
     // wait for the nodes to stop, destroy entities, disconnect
     NodeVector stoppingNodes;
-    const NodeVector nodes = getNodes();
+    const NodeVector& nodes = getNodes();
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;

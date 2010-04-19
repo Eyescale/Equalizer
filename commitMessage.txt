@@ -1,9 +1,4 @@
-Cleanups:
-- Fully disable EQVERB in release builds
-- Simplify client node init
-- leave finishedFrame in client/server classes
-- remove some friend declarations
-- doxygen fixes/cleanups
+Minor code cleanups
 
 [ ] May break build
 [ ] May break existing applications
