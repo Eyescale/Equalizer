@@ -201,6 +201,7 @@ namespace fabric
         void sync( const uint32_t version );
 
         virtual void changeLatency( const uint32_t latency ) { /* NOP */ }
+        virtual bool distributeChildren() { return false; }
         //@}
 
     private:

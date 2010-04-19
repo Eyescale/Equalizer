@@ -297,18 +297,18 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
     const size_t       colonPos     = rendererInfo.find( '#' );
     const std::string  workDir      = rendererInfo.substr( 0, colonPos );
     const std::string  renderClient = rendererInfo.substr( colonPos + 1 );
-    const std::string& name         = config->getName();
 
     config->setWorkDir( workDir );
     config->setRenderClient( renderClient );
 
     ServerCreateConfigPacket createConfigPacket;
-    createConfigPacket.configID  = config->getID();
-    createConfigPacket.objectID  = config->getProxyID();
     createConfigPacket.appNodeID = node->getNodeID();
-    node->send( createConfigPacket, name );
+    createConfigPacket.configID = config->getID();
+    createConfigPacket.proxyID = config->getProxyID();
 
     reply.configID = config->getID();
+
+    node->send( createConfigPacket );
     node->send( reply );
 
     return net::COMMAND_HANDLED;

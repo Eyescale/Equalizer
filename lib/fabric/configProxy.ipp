@@ -74,16 +74,31 @@ void ConfigProxy< S, C, O, L, CV, N >::serialize( net::DataOStream& os,
 
 template< class S, class C, class O, class L, class CV, class N >
 void ConfigProxy< S, C, O, L, CV, N >::deserialize( net::DataIStream& is, 
-                                                 const uint64_t dirtyBits )
+                                                    const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
+    const bool mapChildren = _config.distributeChildren();
 
-    if( dirtyBits & DIRTY_OBSERVERS )
-        is.deserializeChildren( this, _config._observers );
-    if( dirtyBits & DIRTY_LAYOUTS )
-        is.deserializeChildren( this, _config._layouts );
-    if( dirtyBits & DIRTY_CANVASES )
-        is.deserializeChildren( this, _config._canvases );
+    if( mapChildren )
+    {
+        if( dirtyBits & DIRTY_OBSERVERS )
+            is.deserializeChildren( this, _config._observers );
+        if( dirtyBits & DIRTY_LAYOUTS )
+            is.deserializeChildren( this, _config._layouts );
+        if( dirtyBits & DIRTY_CANVASES )
+            is.deserializeChildren( this, _config._canvases );
+    }
+    else
+    {
+        net::ObjectVersionVector childIDs;
+        if( dirtyBits & DIRTY_OBSERVERS )
+            is >> childIDs;
+        if( dirtyBits & DIRTY_LAYOUTS )
+            is >> childIDs;
+        if( dirtyBits & DIRTY_CANVASES )
+            is >> childIDs;
+    }
+
     if( dirtyBits & DIRTY_MEMBER )
     {
         uint32_t latency = 0;

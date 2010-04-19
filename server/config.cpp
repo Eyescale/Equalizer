@@ -785,13 +785,13 @@ uint32_t Config::_createConfig( Node* node )
     // create config (session) on each non-app node
     //   app-node already has config from chooseConfig
     ServerCreateConfigPacket createConfigPacket;
-    createConfigPacket.configID  = getID();
     createConfigPacket.appNodeID = _appNetNode->getNodeID();
+    createConfigPacket.configID = getID();
     createConfigPacket.requestID = getLocalNode()->registerRequest();
+    createConfigPacket.proxyID = getProxyID();
 
-    const std::string&   name = getName();
     net::NodePtr netNode = node->getNode();
-    netNode->send( createConfigPacket, name );
+    netNode->send( createConfigPacket );
 
     return createConfigPacket.requestID;
 }

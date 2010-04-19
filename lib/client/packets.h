@@ -79,25 +79,22 @@ namespace eq
     {
         ServerCreateConfigPacket()
                 : requestID( EQ_ID_INVALID )
-                , objectID( EQ_ID_INVALID ) 
-                , fill( 0 )
+                , proxyID( EQ_ID_INVALID ) 
             {
                 command   = CMD_SERVER_CREATE_CONFIG;
                 size      = sizeof( ServerCreateConfigPacket );
-                name[0]   = '\0';
             }
 
         net::NodeID appNodeID;
         net::SessionID configID;
         uint32_t    requestID;
-        uint32_t    objectID;
-        uint32_t    fill;
-        EQ_ALIGN8( char name[8] );
+        uint32_t    proxyID;
     };
 
     struct ServerDestroyConfigPacket : public ServerPacket
     {
         ServerDestroyConfigPacket()
+                : requestID ( EQ_ID_INVALID )
             {
                 command = CMD_SERVER_DESTROY_CONFIG;
                 size    = sizeof( ServerDestroyConfigPacket );

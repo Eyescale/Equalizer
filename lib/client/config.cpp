@@ -707,6 +707,12 @@ void Config::getStatistics( std::vector< FrameStatistics >& statistics )
     _statisticsMutex.unset();
 }
 
+bool Config::distributeChildren()
+{
+    // only on application node...
+    return (getClient()->getNodeID() == _appNodeID);
+}
+
 void Config::setupMessagePump( Pipe* pipe )
 {
     const bool isThreaded = pipe->isThreaded();

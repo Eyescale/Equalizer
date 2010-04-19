@@ -334,6 +334,7 @@ namespace eq
         /** @internal */
         EQ_EXPORT virtual void changeLatency( const uint32_t latency );
         EQ_EXPORT virtual void unmap(); //!< @internal
+        virtual bool distributeChildren(); //!< @internal
         //@}
 
     private:

@@ -168,19 +168,15 @@ net::CommandResult Server::_cmdCreateConfig( net::Command& command )
 {
     const ServerCreateConfigPacket* packet = 
         command.getPacket<ServerCreateConfigPacket>();
-    EQVERB << "Handle create config " << packet << ", name " << packet->name 
-           << std::endl;
+    EQVERB << "Handle create config " << packet << std::endl;
+    EQASSERT( packet->proxyID != EQ_ID_INVALID );
     
     net::NodePtr localNode = command.getLocalNode();
     Config* config = Global::getNodeFactory()->createConfig( this );
 
-    config->_name      = packet->name;
     config->_appNodeID = packet->appNodeID;
-
     localNode->mapSession( command.getNode(), config, packet->configID );
-
-    EQASSERT( packet->objectID != EQ_ID_INVALID );
-    config->map( packet->objectID );
+    config->map( packet->proxyID );
 
     if( packet->requestID != EQ_ID_INVALID )
     {
@@ -208,8 +204,11 @@ net::CommandResult Server::_cmdDestroyConfig( net::Command& command )
     EQCHECK( localNode->unmapSession( config ));
     Global::getNodeFactory()->releaseConfig( config );
 
-    ServerDestroyConfigReplyPacket reply( packet );
-    command.getNode()->send( reply );
+    if( packet->requestID != EQ_ID_INVALID )
+    {
+        ServerDestroyConfigReplyPacket reply( packet );
+        command.getNode()->send( reply );
+    }
     return net::COMMAND_HANDLED;
 }
 

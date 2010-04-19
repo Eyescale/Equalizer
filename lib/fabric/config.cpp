@@ -264,6 +264,7 @@ void Config< S, C, O, L, CV, N >::setLatency( const uint32_t latency )
 template< class S, class C, class O, class L, class CV, class N >
 uint32_t Config< S, C, O, L, CV, N >::getProxyID() const
 {
+    EQASSERT( _proxy->isMaster( ));
     return _proxy->getID();
 }
 

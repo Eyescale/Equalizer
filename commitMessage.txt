@@ -1,4 +1,4 @@
-Fix disconnect of process-local server
+Fix multi-node configs
 
 [ ] May break build
 [ ] May break existing applications

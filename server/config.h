@@ -207,6 +207,8 @@ namespace server
         /** @sa net::Session::notifyMapped. */
         virtual void notifyMapped( net::NodePtr node );
 
+        virtual bool distributeChildren() { return true; } //!< @internal
+
     private:
         Config( const Config& from );
 
