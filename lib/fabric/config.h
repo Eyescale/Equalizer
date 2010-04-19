@@ -249,7 +249,7 @@ namespace fabric
 
         template< class, class, class > friend class Node;
         void _addNode( N* node );
-        bool _removeNode( N* node );
+        EQFABRIC_EXPORT bool _removeNode( N* node );
         N* _findNode( const uint32_t id );
         
         union // placeholder for binary-compatible changes
