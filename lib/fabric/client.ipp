@@ -96,7 +96,6 @@ bool Client< S, C >::disconnectServer( ServerPtr server )
     return false;
 }
 
-
 template< class S, class C >
 net::NodePtr Client< S, C >::createNode( const uint32_t type )
 { 

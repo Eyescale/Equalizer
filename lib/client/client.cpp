@@ -140,6 +140,8 @@ static void _joinLocalServer()
 
 bool Client::disconnectServer( ServerPtr server )
 {
+    bool success = true;
+
     // shut down process-local server (see _startLocalServer)
     if( server->_localServer )
     {
@@ -147,9 +149,12 @@ bool Client::disconnectServer( ServerPtr server )
         server->shutdown();
         _joinLocalServer();
         server->_localServer = false;
+        server->setClient( 0 );
+        EQASSERT( !server->isConnected( ))
     }
+    else
+        success = Super::disconnectServer( server );
 
-    const int success = Super::disconnectServer( server );
     _nodeThreadQueue.flush();
     return success;
 }
