@@ -92,6 +92,9 @@ namespace eq
          */
         EQ_EXPORT void waitFrameStarted( const uint32_t frameNumber ) const;
 
+        /** @return the number of the last finished frame. @internal */
+        uint32_t getFinishedFrame() const { return _finishedFrame; }
+
         class TransmitThread : public base::Thread
         {
         public:
@@ -248,6 +251,9 @@ namespace eq
 
         /** The number of the last started frame. */
         base::Monitor<uint32_t> _currentFrame;
+
+        /** The number of the last finished frame. */
+        uint32_t _finishedFrame;
 
         /** The number of the last locally released frame. */
         uint32_t _unlockedFrame;

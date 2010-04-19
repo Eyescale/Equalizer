@@ -194,6 +194,7 @@ namespace net
     };
     }
 
+/** @cond IGNORE */
     template< typename O, typename C > inline void
     DataIStream::deserializeChildren( O* object, std::vector< C* >& children )
     {
@@ -254,6 +255,7 @@ namespace net
             object->release( child );
         }
     }
+/** @endcond */
 
     /** Optimized specialization to read a std::vector of uint8_t. */
     template<> inline DataIStream&

@@ -45,9 +45,11 @@ typedef fabric::Client< Server, Client > Super;
 
 Client::Client()
         : Super()
-        , _nodeThreadQueue( 0 )
         , _running( false )
 {
+    registerCommand( CMD_CLIENT_EXIT, ClientFunc( this, &Client::_cmdExit ),
+                     &_nodeThreadQueue );
+
     EQINFO << "New client at " << (void*)this << std::endl;
 }
 
@@ -55,27 +57,6 @@ Client::~Client()
 {
     EQINFO << "Delete client at " << (void*)this << std::endl;
     close();
-}
-
-bool Client::listen()
-{
-    EQASSERT( !_nodeThreadQueue );
-    _nodeThreadQueue = new CommandQueue;
-
-    registerCommand( CMD_CLIENT_EXIT, ClientFunc( this, &Client::_cmdExit ),
-                     _nodeThreadQueue );
-
-    return net::Node::listen();
-}
-
-bool Client::close()
-{
-    if( !net::Node::close( ))
-        return false;
-
-    delete _nodeThreadQueue;
-    _nodeThreadQueue = 0;
-    return true;
 }
 
 bool Client::connectServer( ServerPtr server )
@@ -169,7 +150,7 @@ bool Client::disconnectServer( ServerPtr server )
     }
 
     const int success = Super::disconnectServer( server );
-    _nodeThreadQueue->flush();
+    _nodeThreadQueue.flush();
     return success;
 }
 
@@ -182,7 +163,7 @@ bool Client::clientLoop()
         processCommand();
 
     // cleanup
-    _nodeThreadQueue->flush();
+    _nodeThreadQueue.flush();
     EQASSERT( !hasSessions( ));
 
     return true;
@@ -195,12 +176,12 @@ bool Client::exitClient()
 
 bool Client::hasCommands()
 {
-    return !_nodeThreadQueue->isEmpty();
+    return !_nodeThreadQueue.isEmpty();
 }
 
 void Client::processCommand()
 {
-    net::Command* command = _nodeThreadQueue->pop();
+    net::Command* command = _nodeThreadQueue.pop();
     if( !command ) // just a wakeup()
         return;
 

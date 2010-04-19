@@ -803,7 +803,7 @@ void Config::_syncClock()
 
     send( _appNetNode, packet );
 
-    const NodeVector nodes = getNodes();
+    const NodeVector& nodes = getNodes();
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
@@ -920,7 +920,7 @@ void Config::_startFrame( const uint32_t frameID )
     ConfigUpdateDataVisitor configDataVisitor;
     accept( configDataVisitor );
 
-    const NodeVector nodes = getNodes();
+    const NodeVector& nodes = getNodes();
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
@@ -937,7 +937,7 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
     if( _finishedFrame >= frameNumber ) // node finish already done
         return;
 
-    const NodeVector nodes = getNodes();
+    const NodeVector& nodes = getNodes();
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         const Node* node = *i;
@@ -964,7 +964,7 @@ void Config::_flushAllFrames()
     if( _currentFrame == 0 )
         return;
 
-    const NodeVector nodes = getNodes();
+    const NodeVector& nodes = getNodes();
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;

@@ -57,6 +57,7 @@ Node::Node( Config* parent )
         , transmitter( this )
 #pragma warning( push )
         , _state( STATE_STOPPED )
+        , _finishedFrame( 0 )
         , _unlockedFrame( 0 )
 {
     EQINFO << " New eq::Node @" << (void*)this << std::endl;
@@ -73,8 +74,9 @@ void Node::attachToSession( const uint32_t id,
 {
     net::Object::attachToSession( id, instanceID, session );
 
-    EQASSERT( _config );
-    net::CommandQueue* queue = _config->getNodeThreadQueue();
+    Config* config = getConfig();
+    EQASSERT( config );
+    net::CommandQueue* queue = config->getNodeThreadQueue();
 
     registerCommand( CMD_NODE_CREATE_PIPE, 
                      NodeFunc( this, &Node::_cmdCreatePipe ), queue );
@@ -96,14 +98,16 @@ void Node::attachToSession( const uint32_t id,
 
 ClientPtr Node::getClient()
 {
-    EQASSERT( _config );
-    return (_config ? _config->getClient() : 0);
+    Config* config = getConfig();
+    EQASSERT( config );
+    return (config ? config->getClient() : 0);
 }
 
 ServerPtr Node::getServer()
 {
-    EQASSERT( _config );
-    return (_config ? _config->getServer() : 0);
+    Config* config = getConfig();
+    EQASSERT( config );
+    return (config ? config->getServer() : 0);
 }
 
 CommandQueue* Node::getNodeThreadQueue()
@@ -263,7 +267,8 @@ void Node::startFrame( const uint32_t frameNumber )
 
 void Node::_finishFrame( const uint32_t frameNumber ) const
 {
-    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
+    const PipeVector& pipes = getPipes();
+    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         const Pipe* pipe = *i;
         EQASSERT( pipe->isThreaded() || 
@@ -306,7 +311,8 @@ void Node::releaseFrame( const uint32_t frameNumber )
     NodeFrameFinishReplyPacket packet;
     packet.frameNumber = frameNumber;
 
-    ServerPtr server = _config->getServer();
+    Config* config = getConfig();
+    ServerPtr server = config->getServer();
     net::NodePtr node = server.get();
     send( node, packet );
 }
@@ -354,8 +360,10 @@ void Node::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
             break;
 
         case DRAW_SYNC:
-            for( PipeVector::const_iterator i = _pipes.begin();
-                 i != _pipes.end(); ++i )
+        {
+            const PipeVector& pipes = getPipes();
+            for( PipeVector::const_iterator i = pipes.begin();
+                 i != pipes.end(); ++i )
             {
                 const Pipe* pipe = *i;
                 if( pipe->getTasks() & fabric::TASK_DRAW )
@@ -364,7 +372,7 @@ void Node::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
             
             releaseFrameLocal( frameNumber );
             break;
-
+        }
         default:
             EQUNIMPLEMENTED;
     }
@@ -379,8 +387,10 @@ void Node::frameTasksFinish( const uint32_t frameID, const uint32_t frameNumber)
             break;
 
         case LOCAL_SYNC:
-            for( PipeVector::const_iterator i = _pipes.begin();
-                 i != _pipes.end(); ++i )
+        {
+            const PipeVector& pipes = getPipes();
+            for( PipeVector::const_iterator i = pipes.begin();
+                 i != pipes.end(); ++i )
             {
                 const Pipe* pipe = *i;
                 if( pipe->getTasks() != fabric::TASK_NONE )
@@ -389,7 +399,7 @@ void Node::frameTasksFinish( const uint32_t frameID, const uint32_t frameNumber)
             
             releaseFrameLocal( frameNumber );
             break;
-
+        }
         default:
             EQUNIMPLEMENTED;
     }
@@ -474,11 +484,12 @@ net::CommandResult Node::_cmdDestroyPipe( net::Command& command )
     EQLOG( LOG_INIT ) << "Destroy pipe " << packet << std::endl;
 
     CHECK_THREAD( _nodeThread );
-    Pipe* pipe = _findPipe( packet->pipeID );
+    Pipe* pipe = findPipe( packet->pipeID );
     EQASSERT( pipe );
     pipe->joinThread();
 
-    _config->detachObject( pipe );
+    Config* config = getConfig();
+    config->detachObject( pipe );
     Global::getNodeFactory()->releasePipe( pipe );
 
     return net::COMMAND_HANDLED;
@@ -524,8 +535,8 @@ net::CommandResult Node::_cmdConfigExit( net::Command& command )
     EQLOG( LOG_INIT ) << "Node exit " << packet << std::endl;
 
     CHECK_THREAD( _nodeThread );
-    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); 
-         ++i )
+    const PipeVector& pipes = getPipes();
+    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         Pipe* pipe = *i;
         pipe->waitExited();
@@ -557,7 +568,8 @@ net::CommandResult Node::_cmdFrameStart( net::Command& command )
     EQLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber
                        << std::endl;
 
-    _config->_frameStart();
+    Config* config = getConfig();
+    config->_frameStart();
     frameStart( packet->frameID, frameNumber );
     EQASSERTINFO( _currentFrame >= frameNumber, 
                   "Node::frameStart() did not start frame " << frameNumber );

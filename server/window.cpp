@@ -482,7 +482,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
     for( std::vector<net::Barrier*>::iterator i = _swapBarriers.begin();
          i != _swapBarriers.end(); ++i )
     {
-        const net::Barrier*   barrier = *i;
+        const net::Barrier* barrier = *i;
 
         if( barrier->getHeight() <= 1 )
         {

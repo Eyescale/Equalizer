@@ -36,12 +36,6 @@ namespace fabric
     public:
         typedef base::RefPtr< S > ServerPtr; //!< The server handle
 
-        /** Construct a new client. @version 1.0 */
-        EQ_EXPORT Client();
-
-        /** Destruct the client. @version 1.0 */
-        EQ_EXPORT virtual ~Client();
-
         /** 
          * Open and connect an Equalizer server to the local client.
          *
@@ -63,6 +57,12 @@ namespace fabric
         EQ_EXPORT bool disconnectServer( ServerPtr server );
 
     protected:
+        /** Construct a new client. @internal */
+        EQ_EXPORT Client();
+
+        /** Destruct the client. @internal */
+        EQ_EXPORT virtual ~Client();
+
         /** @sa net::Node::dispatchCommand. @internal */
         EQ_EXPORT virtual bool dispatchCommand( net::Command& command );
 

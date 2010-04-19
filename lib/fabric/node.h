@@ -19,18 +19,20 @@
 #ifndef EQFABRIC_NODE_H
 #define EQFABRIC_NODE_H
 
-#include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/object.h>        // base class
-#include <eq/fabric/paths.h>
-#include <eq/fabric/pixelViewport.h> // base class
 #include <eq/fabric/types.h>
 
 namespace eq
 {
-
+namespace server
+{
+     class Node;
+}
 namespace fabric
 {
+    struct NodePath;
     template< class, class, class > class Pipe;
+
     template< class C, class N, class P > class Node : public Object
     {
     public:
@@ -40,19 +42,14 @@ namespace fabric
         //@{
         const PipeVector& getPipes() const { return _pipes; }
 
-        /** 
-         * Returns the config of this node.
-         * 
-         * @return the config of this node. 
-         */
+        /** @return the config of this node. */
         C*       getConfig()       { return _config; }
         const C* getConfig() const { return _config; }
 
         /** @return the index path to this node. @internal */
         EQFABRIC_EXPORT NodePath getPath() const;
 
-        /** @return the number of the last finished frame. */
-        uint32_t getFinishedFrame() const { return _finishedFrame; }
+        P* findPipe( const uint32_t id ); //!< @internal
         //@}
 
         /**
@@ -82,19 +79,19 @@ namespace fabric
         Node( C* parent );
         EQFABRIC_EXPORT virtual ~Node();
 
+        virtual ChangeType getChangeType() const { return UNBUFFERED; }
+
+    private:
         /** Pipe children. */
         PipeVector _pipes;
 
-        /** The parent config */
-        C* const          _config;
+        /** The parent config. */
+        C* const _config;
         
         /** Integer attributes. */
         int32_t _iAttributes[IATTR_ALL];
-
-        /** The number of the last finished frame. */
-        uint32_t _finishedFrame;
-
-        virtual ChangeType getChangeType() const { return UNBUFFERED; }
+        friend class eq::Node; // TODO remove
+        friend class eq::server::Node; // TODO remove
 
         union // placeholder for binary-compatible changes
         {
@@ -104,8 +101,6 @@ namespace fabric
         template< class, class, class > friend class Pipe;
         void _addPipe( P* pipe );
         bool _removePipe( P* pipe );
-        P* _findPipe( const uint32_t id );
-
     };
 }
 }

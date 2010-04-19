@@ -553,7 +553,7 @@ WARN_LOGFILE           =
 # with spaces.
 
 INPUT                  = lib \
-                         admin \
+                         auxilary/admin \
                          examples \
                          externals/vmmlib \
                          server

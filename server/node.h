@@ -64,12 +64,12 @@ namespace server
         /** @name Data Access. */
         //@{
         ServerPtr getServer() const
-            { return _config ? _config->getServer() : 0; }
+            { return getConfig() ? getConfig()->getServer() : 0; }
 
         net::NodePtr getNode() const { return _node; }
         void setNode( net::NodePtr node ) { _node = node; }
         bool isApplicationNode() const
-            { return (this == _config->getApplicationNode( )); }
+            { return getConfig()->isApplicationNode( this ); }
 
         Channel* getChannel( const ChannelPath& path );
 
@@ -77,9 +77,9 @@ namespace server
         State getState()    const { return _state.get(); }
 
         net::CommandQueue* getServerThreadQueue()
-            { return _config->getServerThreadQueue(); }
+            { return getConfig()->getServerThreadQueue(); }
         net::CommandQueue* getCommandThreadQueue()
-            { return _config->getCommandThreadQueue(); }
+            { return getConfig()->getCommandThreadQueue(); }
 
         /** 
          * Traverse this node and all children using a node visitor.
@@ -109,6 +109,9 @@ namespace server
         void setLastDrawPipe( const Pipe* pipe )
             { _lastDrawPipe = pipe; }
         const Pipe* getLastDrawPipe() const { return _lastDrawPipe;}
+
+        /** @return the number of the last finished frame. @internal */
+        uint32_t getFinishedFrame() const { return _finishedFrame; }
         //@}
 
         /**
@@ -203,18 +206,18 @@ namespace server
 
         void send( net::SessionPacket& packet ) 
             { 
-                packet.sessionID = _config->getID(); 
+                packet.sessionID = getConfig()->getID(); 
                 _bufferedTasks.send( packet );
             }
         void send( net::SessionPacket& packet, const std::string& string ) 
             {
-                packet.sessionID = _config->getID(); 
+                packet.sessionID = getConfig()->getID(); 
                 _bufferedTasks.send( packet, string );
             }
         template< typename T >
         void send( net::SessionPacket &packet, const std::vector<T>& data )
             {
-                packet.sessionID = _config->getID(); 
+                packet.sessionID = getConfig()->getID(); 
                 _bufferedTasks.send( packet, data );
             }
 
@@ -272,6 +275,9 @@ namespace server
 
         /** The frame identifiers non-finished frames. */
         std::map< uint32_t, uint32_t > _frameIDs;
+
+        /** The number of the last finished frame. */
+        uint32_t _finishedFrame;
 
         /** The number of the last flushed frame (frame finish packet sent). */
         uint32_t _flushedFrame;

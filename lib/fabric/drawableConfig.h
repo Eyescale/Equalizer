@@ -50,7 +50,7 @@ namespace fabric
             os << "|st" << config.stencilBits;
         os << "|rgb" << config.colorBits;
         if( config.alphaBits )
-            os << "|a" << config.alphaBits;
+            os << "a" << config.alphaBits;
         if( config.accumBits )
             os << "|acc" << config.accumBits;
         return os;

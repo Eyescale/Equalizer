@@ -281,14 +281,6 @@ namespace fabric
         /** Destruct the channel. @internal */
         EQFABRIC_EXPORT virtual ~Channel();
 
-        enum DirtyBits
-        {
-            DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 0,
-            DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 1,
-            DIRTY_MEMBER     = Object::DIRTY_CUSTOM << 2,
-            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 3,
-        };
-
         /** @internal */
         EQFABRIC_EXPORT virtual void serialize( net::DataOStream& os,
                                                 const uint64_t dirtyBits );
@@ -327,7 +319,6 @@ namespace fabric
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:
-        //template< class, class, class > friend class Window;
         /** The parent window. */
         W* const _window;
 
@@ -361,6 +352,14 @@ namespace fabric
         union // placeholder for binary-compatible changes
         {
             char dummy[32];
+        };
+
+        enum DirtyBits
+        {
+            DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 0,
+            DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 1,
+            DIRTY_MEMBER     = Object::DIRTY_CUSTOM << 2,
+            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 3,
         };
     };
 }

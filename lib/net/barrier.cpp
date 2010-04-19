@@ -124,11 +124,10 @@ void Barrier::enter()
 CommandResult Barrier::_cmdEnter( Command& command )
 {
     CHECK_THREAD( _thread );
-    EQASSERTINFO( !_master || _master == getSession()->getLocalNode( ),
+    EQASSERTINFO( !_master || _master == getSession()->getLocalNode(),
                   _master );
 
     const BarrierEnterPacket* packet = command.getPacket<BarrierEnterPacket>();
-
     EQLOG( LOG_BARRIER ) << "handle barrier enter " << packet << " barrier v"
                          << getVersion() << endl;
 

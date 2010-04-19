@@ -228,7 +228,8 @@ namespace net
         (*this) << ObjectVersion( object );
         return *this;
     }
- 
+
+/** @cond IGNORE */
     /** Write a std::vector of serializable items. */
     template< typename T > inline DataOStream& 
     DataOStream::operator << ( const std::vector< T >& value )
@@ -266,6 +267,7 @@ namespace net
             child->getInstanceData( *this );
         }
     }
+/** @endcond */
 
     /** Optimized specialization to write a std::vector of uint8_t. */
     template<> inline DataOStream& 

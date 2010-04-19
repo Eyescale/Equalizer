@@ -36,15 +36,15 @@ namespace server
 
 namespace fabric
 {
-    template< class CFG, class C, class S, class L > class Canvas;
-    template< class C, class L, class V > class Layout;
+    template< class, class, class, class > class Canvas;
+    template< class, class > class Observer;
+    template< class, class, class > class Layout;
     template< class, class, class > class Node;
-    template< class C, class O > class Observer;
     struct CanvasPath;
     struct LayoutPath;
     struct ObserverPath;
 
-    template< class S, class C, class O, class L, class CV, class N > class ConfigProxy;
+    template< class, class, class, class, class, class > class ConfigProxy;
 
     /**
      * A configuration is a visualization session driven by an application.
@@ -84,7 +84,7 @@ namespace fabric
         EQFABRIC_EXPORT base::RefPtr< S > getServer();
 
         /** @return the local server proxy. @version 1.0 */
-        const EQFABRIC_EXPORT base::RefPtr< S > getServer() const;
+        EQFABRIC_EXPORT base::RefPtr< S > getServer() const;
 
         /** @return the vector of observers, app-node only. @version 1.0 */
         const ObserverVector& getObservers() const { return _observers; }
@@ -230,12 +230,12 @@ namespace fabric
 
         /** Data distribution proxy */
         ConfigProxy< S, C, O, L, CV, N >* const _proxy;
-        template< class, class, class, 
-                  class, class, class > friend class ConfigProxy;
+        template< class, class, class, class, class, class >
+        friend class ConfigProxy;
 
-        friend class eq::Config;
+        friend class eq::Config; // TODO remove
 
-        friend class fabric::Observer< C, O >;
+        template< class, class > friend class Observer;
         void _addObserver( O* observer );
         bool _removeObserver( O* observer );
         
@@ -249,7 +249,7 @@ namespace fabric
 
         template< class, class, class > friend class Node;
         void _addNode( N* node );
-        EQFABRIC_EXPORT bool _removeNode( N* node );
+        bool _removeNode( N* node );
         N* _findNode( const uint32_t id );
         
         union // placeholder for binary-compatible changes

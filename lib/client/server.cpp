@@ -29,22 +29,20 @@
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
 
-using namespace eq::base;
-using namespace std;
-using eq::net::CommandFunc;
-using eq::net::NodePtr;
-
 namespace eq
 {
+
+typedef net::CommandFunc<Server> CmdFunc;
+
 Server::Server()
         : _localServer( false )
 {
-    EQINFO << "New server at " << (void*)this << endl;
+    EQINFO << "New server at " << (void*)this << std::endl;
 }
 
 Server::~Server()
 {
-    EQINFO << "Delete server at " << (void*)this << endl;
+    EQINFO << "Delete server at " << (void*)this << std::endl;
     _client = 0;
 }
 
@@ -57,20 +55,15 @@ void Server::setClient( ClientPtr client )
     net::CommandQueue* queue = client->getNodeThreadQueue();
 
     registerCommand( CMD_SERVER_CREATE_CONFIG, 
-                     CommandFunc<Server>( this, &Server::_cmdCreateConfig ),
-                     queue );
+                     CmdFunc( this, &Server::_cmdCreateConfig ), queue );
     registerCommand( CMD_SERVER_DESTROY_CONFIG, 
-                     CommandFunc<Server>( this, &Server::_cmdDestroyConfig ),
-                     queue );
+                     CmdFunc( this, &Server::_cmdDestroyConfig ), queue );
     registerCommand( CMD_SERVER_CHOOSE_CONFIG_REPLY, 
-                    CommandFunc<Server>( this, &Server::_cmdChooseConfigReply ),
-                     queue );
+                     CmdFunc( this, &Server::_cmdChooseConfigReply ), queue );
     registerCommand( CMD_SERVER_RELEASE_CONFIG_REPLY, 
-                   CommandFunc<Server>( this, &Server::_cmdReleaseConfigReply ),
-                     queue );
+                     CmdFunc( this, &Server::_cmdReleaseConfigReply ), queue );
     registerCommand( CMD_SERVER_SHUTDOWN_REPLY, 
-                     CommandFunc<Server>( this, &Server::_cmdShutdownReply ),
-                     queue );
+                     CmdFunc( this, &Server::_cmdShutdownReply ), queue );
 }
 
 net::CommandQueue* Server::getNodeThreadQueue() 
@@ -88,18 +81,18 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
     if( !isConnected( ))
         return 0;
 
-    const string& renderClient = parameters.getRenderClient();
+    const std::string& renderClient = parameters.getRenderClient();
     if( renderClient.empty( ))
     {
-        EQWARN << "No render client in ConfigParams specified" << endl;
+        EQWARN << "No render client in ConfigParams specified" << std::endl;
         return 0;
     }
 
     ServerChooseConfigPacket packet;
-    const string& workDir = parameters.getWorkDir();
+    const std::string& workDir = parameters.getWorkDir();
 
-    packet.requestID      = registerRequest();
-    string rendererInfo   = workDir + '#' + renderClient;
+    packet.requestID         = registerRequest();
+    std::string rendererInfo = workDir + '#' + renderClient;
 #ifdef WIN32 // replace dir delimiters since '\' is often used as escape char
     for( size_t i=0; i<rendererInfo.length(); ++i )
         if( rendererInfo[i] == '\\' )
@@ -176,10 +169,10 @@ net::CommandResult Server::_cmdCreateConfig( net::Command& command )
     const ServerCreateConfigPacket* packet = 
         command.getPacket<ServerCreateConfigPacket>();
     EQVERB << "Handle create config " << packet << ", name " << packet->name 
-           << endl;
+           << std::endl;
     
-    NodePtr localNode = command.getLocalNode();
-    Config* config    = Global::getNodeFactory()->createConfig( this );
+    net::NodePtr localNode = command.getLocalNode();
+    Config* config = Global::getNodeFactory()->createConfig( this );
 
     config->_name      = packet->name;
     config->_appNodeID = packet->appNodeID;
@@ -202,9 +195,9 @@ net::CommandResult Server::_cmdDestroyConfig( net::Command& command )
 {
     const ServerDestroyConfigPacket* packet = 
         command.getPacket<ServerDestroyConfigPacket>();
-    EQVERB << "Handle destroy config " << packet << endl;
+    EQVERB << "Handle destroy config " << packet << std::endl;
     
-    NodePtr       localNode  = command.getLocalNode();
+    net::NodePtr  localNode  = command.getLocalNode();
     net::Session* session    = localNode->getSession( packet->configID );
 
     EQASSERTINFO( dynamic_cast<Config*>( session ), typeid(*session).name( ));
@@ -224,7 +217,7 @@ net::CommandResult Server::_cmdChooseConfigReply( net::Command& command )
 {
     const ServerChooseConfigReplyPacket* packet = 
         command.getPacket<ServerChooseConfigReplyPacket>();
-    EQVERB << "Handle choose config reply " << packet << endl;
+    EQVERB << "Handle choose config reply " << packet << std::endl;
 
     if( packet->configID == net::SessionID::ZERO )
     {
@@ -232,7 +225,7 @@ net::CommandResult Server::_cmdChooseConfigReply( net::Command& command )
         return net::COMMAND_HANDLED;
     }
 
-    NodePtr       localNode = command.getLocalNode();
+    net::NodePtr  localNode = command.getLocalNode();
     net::Session* session   = localNode->getSession( packet->configID );
     Config*       config    = static_cast< Config* >( session );
     EQASSERTINFO( dynamic_cast< Config* >( session ), 
@@ -255,7 +248,7 @@ net::CommandResult Server::_cmdShutdownReply( net::Command& command )
 {
     const ServerShutdownReplyPacket* packet = 
         command.getPacket<ServerShutdownReplyPacket>();
-    EQINFO << "Handle shutdown reply " << packet << endl;
+    EQINFO << "Handle shutdown reply " << packet << std::endl;
 
     serveRequest( packet->requestID, packet->result );
     return net::COMMAND_HANDLED;

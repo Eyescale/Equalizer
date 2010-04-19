@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,7 +21,7 @@
  * This file contains the logging classes for Equalizer. The macros EQERROR,
  * EQWARN, EQINFO and EQVERB output messages at their respective logging level,
  * if the level is active. They use a per-thread base::Log instance, which is a
- * std::ostream.
+ * std::ostream. EQVERB is always inactive in release builds.
  */
 
 #ifndef EQBASE_LOG_H
@@ -242,9 +242,15 @@ namespace base
 /** Output an informational message to the per-thread Log. @version 1.0 */
 #define EQINFO  (eq::base::Log::level >= eq::base::LOG_INFO)  &&    \
     eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+
+#ifdef NDEBUG
+#  define EQVERB if( false )                                    \
+        eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+#else
 /** Output a verbatim message to the per-thread Log stream. @version 1.0 */
-#define EQVERB  (eq::base::Log::level >= eq::base::LOG_VERB)  &&    \
+#  define EQVERB (eq::base::Log::level >= eq::base::LOG_VERB)  &&    \
     eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+#endif
 
 /**
  * Output a message pertaining to a topic to the per-thread Log stream.

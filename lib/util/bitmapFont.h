@@ -24,6 +24,8 @@
 
 #include <string>
 
+/** @file util/bitmapFont.h */
+
 namespace eq
 {
     class Window;

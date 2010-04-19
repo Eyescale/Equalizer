@@ -36,24 +36,21 @@ std::string _iAttributeStrings[] = {
 template< class C, class N, class P >
 Node< C, N, P >::Node( C* parent )  
         : _config( parent )
-        , _finishedFrame( 0 )
 {
     parent->_addNode( static_cast< N* >( this ) );
 }
 
 template< class C, class N, class P >
-Node< C, N, P >::~Node()
+Node< C, N, P >::~Node()  
 {
     while( !_pipes.empty() )
     {
         P* pipe = _pipes.back();
-        EQASSERT( pipe->getNode() == static_cast< N* >( this ) );
         _removePipe( pipe );
         delete pipe;
     }
-    _pipes.clear();
 
-    getConfig()->_removeNode( static_cast< N* >( this ) );
+    _config->_removeNode( static_cast< N* >( this ) );
 }
 
 template< class C, class N, class P >
@@ -110,7 +107,7 @@ bool Node< C, N, P >::_removePipe( P* pipe )
 }
 
 template< class C, class N, class P >
-P* Node< C, N, P >::_findPipe( const uint32_t id )
+P* Node< C, N, P >::findPipe( const uint32_t id )
 {
     for( typename PipeVector::const_iterator i = _pipes.begin();
          i != _pipes.end(); ++i )

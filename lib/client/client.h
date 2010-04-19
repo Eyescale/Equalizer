@@ -18,12 +18,12 @@
 #ifndef EQ_CLIENT_H
 #define EQ_CLIENT_H
 
+#include <eq/client/commandQueue.h> // member
 #include <eq/client/types.h>        // basic types
 #include <eq/fabric/client.h>       // base class
 
 namespace eq
 {
-    class CommandQueue;
     class Server;
 
     /** 
@@ -75,7 +75,7 @@ namespace eq
         EQ_EXPORT void processCommand();
 
         /** @return the command queue to the main node thread. @internal */
-        CommandQueue* getNodeThreadQueue() { return _nodeThreadQueue; }
+        CommandQueue* getNodeThreadQueue() { return &_nodeThreadQueue; }
 
     protected:
         /**
@@ -94,15 +94,9 @@ namespace eq
         /** Reimplemented to also call eq::exit() on render clients. @internal*/
         EQ_EXPORT virtual bool exitClient();
 
-        /** @internal */
-        EQ_EXPORT virtual bool listen();
-
-        /** @internal */
-        EQ_EXPORT virtual bool close();
-
     private:
         /** The command->node command queue. */
-        CommandQueue* _nodeThreadQueue;
+        CommandQueue _nodeThreadQueue;
         
         bool _running;
 

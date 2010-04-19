@@ -127,9 +127,7 @@ bool Client< S, C >::dispatchCommand( net::Command& command )
         case PACKETTYPE_EQ_SERVER:
         {
             net::NodePtr node = command.getNode();
-
-            EQASSERT( dynamic_cast< S* >( node.get( )) );
-            ServerPtr server = static_cast< S* >( node.get( ));
+            ServerPtr server = EQSAFECAST( S*, node.get( ));
 
             return server->net::Dispatcher::dispatchCommand( command );
         }
@@ -152,12 +150,11 @@ net::CommandResult Client< S, C >::invokeCommand( net::Command& command )
         case PACKETTYPE_EQ_SERVER:
         {
             net::NodePtr node = command.getNode();
-
-            EQASSERT( dynamic_cast<S*>( node.get( )) );
-            ServerPtr server = static_cast<S*>( node.get( ));
+            ServerPtr server = EQSAFECAST( S*, node.get( ));
 
             return server->net::Dispatcher::invokeCommand( command );
         }
+
         default:
             return net::Node::invokeCommand( command );
     }

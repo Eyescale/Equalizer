@@ -107,10 +107,10 @@ namespace fabric
         //@}
 
     protected:
-        /** Construct a new Canvas. @version 1.0 */
+        /** Construct a new Canvas. @internal */
         EQFABRIC_EXPORT Canvas( CFG* config );
 
-        /** Destruct this canvas. @version 1.0 */
+        /** Destruct this canvas. @internal */
         EQFABRIC_EXPORT virtual ~Canvas();
 
         /** @sa Frustum::serialize. @internal */
@@ -119,14 +119,8 @@ namespace fabric
         /** @sa Frustum::deserialize. @internal */
         EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
-        enum DirtyBits
-        {
-            DIRTY_LAYOUT     = Frustum::DIRTY_CUSTOM << 0,
-            DIRTY_CHILDREN   = Frustum::DIRTY_CUSTOM << 1
-        };
 
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
-
         virtual S* createSegment() = 0;
         virtual void releaseSegment( S* segment ) = 0;
         virtual void activateLayout( const uint32_t index ) { /* NOP */ }
@@ -153,6 +147,12 @@ namespace fabric
         union // placeholder for binary-compatible changes
         {
             char dummy[32];
+        };
+
+        enum DirtyBits
+        {
+            DIRTY_LAYOUT     = Frustum::DIRTY_CUSTOM << 0,
+            DIRTY_CHILDREN   = Frustum::DIRTY_CUSTOM << 1
         };
 
         template< class, class > friend class Segment;

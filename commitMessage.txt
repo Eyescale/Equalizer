@@ -1,10 +1,14 @@
-Implement RNG::get< bool >()
-Clean up eqPly event handler and add stress-test generator switch
+Cleanups:
+- Fully disable EQVERB in release builds
+- Simplify client node init
+- leave finishedFrame in client/server classes
+- remove some friend declarations
+- doxygen fixes/cleanups
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

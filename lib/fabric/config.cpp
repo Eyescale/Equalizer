@@ -75,7 +75,7 @@ base::RefPtr< S > Config< S, C, O, L, CV, N >::getServer()
 }
 
 template< class S, class C, class O, class L, class CV, class N >
-const base::RefPtr< S > Config< S, C, O, L, CV, N >::getServer() const 
+base::RefPtr< S > Config< S, C, O, L, CV, N >::getServer() const 
 {
     return _server;
 }

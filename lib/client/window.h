@@ -30,6 +30,8 @@
 #include <eq/fabric/renderContext.h> // member
 
 
+/** @file client/window.h */
+
 namespace eq
 {
 namespace fabric
