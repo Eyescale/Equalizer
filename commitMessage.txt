@@ -1,9 +1,9 @@
-Clean up pipe attribute handling
+Fix: clean up pipe attribute handling
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

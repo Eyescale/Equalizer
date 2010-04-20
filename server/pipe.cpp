@@ -322,6 +322,7 @@ void Pipe::_configInit( const uint32_t initID, const uint32_t frameNumber )
     NodeCreatePipePacket createPipePacket;
     createPipePacket.objectID = getNode()->getID();
     createPipePacket.pipeID   = getID();
+    createPipePacket.threaded = getIAttribute( IATTR_HINT_THREAD );
     getNode()->send( createPipePacket );
 
     EQLOG( LOG_INIT ) << "Init pipe" << std::endl;

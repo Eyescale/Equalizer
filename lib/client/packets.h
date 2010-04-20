@@ -405,6 +405,7 @@ namespace eq
             }
 
         uint32_t pipeID;
+        bool     threaded;
     };
 
     struct NodeDestroyPipePacket : public net::ObjectPacket

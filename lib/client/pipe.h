@@ -73,7 +73,6 @@ namespace eq
         EQ_EXPORT ClientPtr getClient();
         EQ_EXPORT ServerPtr getServer();
 
-        bool isThreaded() const { return ( _thread != 0 ); }
         uint32_t getCurrentFrame()  const { return _currentFrame; }
         EQ_EXPORT uint32_t getFinishedFrame() const;
 
@@ -137,6 +136,7 @@ namespace eq
         /** Wait for the pipe to be exited. @internal */
         void waitExited() const;
         bool isRunning() const; //!< @internal
+        void notifyMapped(); //!< @internal
         
         /** 
          * Wait for a frame to be finished.
@@ -344,6 +344,7 @@ namespace eq
         enum State
         {
             STATE_STOPPED,
+            STATE_MAPPED,
             STATE_INITIALIZING,
             STATE_RUNNING
         };

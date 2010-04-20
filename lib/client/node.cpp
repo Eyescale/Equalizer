@@ -467,11 +467,12 @@ net::CommandResult Node::_cmdCreatePipe( net::Command& command )
 
     Pipe* pipe = Global::getNodeFactory()->createPipe( this );
 
+    if( packet->threaded )
+        pipe->startThread();
+
     Config* config = getConfig();
     EQCHECK( config->mapObject( pipe, packet->pipeID ));
-
-    if( pipe->isThreaded( ))
-        pipe->startThread();
+    pipe->notifyMapped();
 
     return net::COMMAND_HANDLED;
 }
