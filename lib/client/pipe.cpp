@@ -495,12 +495,6 @@ bool Pipe::isRunning() const
     return (_state == STATE_RUNNING);
 }
 
-void Pipe::notifyMapped()
-{
-    EQASSERT( _state == STATE_STOPPED );
-    _state = STATE_MAPPED;
-}
-
 void Pipe::waitFrameFinished( const uint32_t frameNumber ) const
 {
     _finishedFrame.waitGE( frameNumber );
@@ -574,7 +568,7 @@ bool Pipe::configInit( const uint32_t initID )
 
     // for now we only support CUDA
 #ifdef EQ_USE_CUDA
-    if( getCudaGLInterop( ))
+    if( getIAttribute( IATTR_HINT_CUDA_GL_INTEROP ) == eq::ON )
     {
         EQINFO << "Initializing CUDAContext" << std::endl;
         ComputeContext* computeCtx = new CUDAContext( this );
@@ -778,8 +772,6 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
         command.getPacket<PipeConfigInitPacket>();
     EQLOG( LOG_INIT ) << "Init pipe " << packet << std::endl;
 
-    _state.waitEQ( STATE_MAPPED );
-
     PipeConfigInitReplyPacket reply;
     setErrorMessage( std::string( ));
 
@@ -834,7 +826,7 @@ net::CommandResult Pipe::_cmdConfigExit( net::Command& command )
 
     send( command.getNode(), reply );
 
-    if( packet->exitThread )
+    if( isThreaded( ))
     {
         EQASSERT( _thread );
 

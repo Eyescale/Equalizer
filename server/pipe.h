@@ -118,8 +118,6 @@ namespace server
          * @name Data Access
          */
         //@{
-
-
         /** The last drawing compound for this entity. @internal */
         void setLastDrawWindow( const Window* window )
             { _lastDrawWindow = window; }
@@ -146,22 +144,6 @@ namespace server
         void update( const uint32_t frameID, const uint32_t frameNumber );
         //@}
 
-        /**
-         * @name Attributes
-         */
-        //@{
-        /** Set a pipe attribute. */
-        void setIAttribute( const IAttribute attr, const int32_t value )
-            { _iAttributes[attr] = value; }
-
-        /** @return the value of a pipe attribute. */
-        int32_t  getIAttribute( const IAttribute attr ) const
-            { return _iAttributes[attr]; }
-
-        bool isThreaded() const
-            { return (getIAttribute( IATTR_HINT_THREAD ) != eq::OFF ); }
-        //@}
-
         void send( net::ObjectPacket& packet );
 
     protected:
@@ -173,10 +155,6 @@ namespace server
         virtual void deserialize( eq::net::DataIStream&, const uint64_t );
 
     private:
-
-        /** Integer attributes. */
-        int32_t _iAttributes[IATTR_ALL];
-
         /** Number of activations for this pipe. */
         uint32_t _active;
 
@@ -198,8 +176,6 @@ namespace server
 
         /** common code for all constructors */
         void _construct();
-
-        void _send( net::ObjectPacket& packet, const std::string& string ) ;
 
         void _configInit( const uint32_t initID, const uint32_t frameNumber );
         bool _syncConfigInit();

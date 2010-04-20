@@ -70,11 +70,6 @@ namespace fabric
         /** @return the pixel viewport. */
         const PixelViewport& getPixelViewport() const { return _data.pvp; }
 
-        void setCudaGLInterop( const bool cudaGLInterop )
-            { _cudaGLInterop = cudaGLInterop; } 
-
-        bool getCudaGLInterop() const { return _cudaGLInterop; }
-
         /**
          * Set the pipes's pixel viewport.
          *
@@ -82,7 +77,7 @@ namespace fabric
          *
          * @param pvp the viewport in pixels.
          */
-        EQFABRIC_EXPORT void setPixelViewport( const eq::PixelViewport& pvp );
+        EQFABRIC_EXPORT void setPixelViewport( const PixelViewport& pvp );
 
         void notifyPixelViewportChanged();
 
@@ -105,6 +100,17 @@ namespace fabric
             IATTR_FILL2,
             IATTR_ALL
         };
+
+        /** Set a pipe attribute. @internal */
+        void setIAttribute( const IAttribute attr, const int32_t value );
+
+        /** @return the value of a pipe attribute. */
+        int32_t  getIAttribute( const IAttribute attr ) const
+            { return _iAttributes[attr]; }
+
+        /** @return true if commands are executed in a separate thread. */
+        bool isThreaded() const
+            { return (getIAttribute( IATTR_HINT_THREAD ) == 1 ); }
         
         /** @return the name of a window attribute. */
         EQFABRIC_EXPORT static const std::string& getIAttributeString(
@@ -153,6 +159,9 @@ namespace fabric
         /** The list of windows. */
         WindowVector _windows;
 
+        /** Integer attributes. */
+        int32_t _iAttributes[IATTR_ALL];
+
         /** The display (GLX) or ignored (Win32, AGL). */
         uint32_t _port;
 
@@ -165,9 +174,6 @@ namespace fabric
             PixelViewport pvp;
         }
             _data, _backup;
-
-        /** CUDA GL interop mode. */
-        bool _cudaGLInterop;
 
         union // placeholder for binary-compatible changes
         {

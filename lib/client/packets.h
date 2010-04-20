@@ -405,7 +405,6 @@ namespace eq
             }
 
         uint32_t pipeID;
-        bool     threaded;
     };
 
     struct NodeDestroyPipePacket : public net::ObjectPacket
@@ -508,12 +507,10 @@ namespace eq
             {
                 command = CMD_PIPE_CONFIG_INIT;
                 size    = sizeof( PipeConfigInitPacket );
-                name[0] = '\0';
             }
 
         uint32_t      initID;
         uint32_t      frameNumber;
-        EQ_ALIGN8( char name[8] );
     };
 
     struct PipeConfigInitReplyPacket : public net::ObjectPacket
@@ -534,7 +531,6 @@ namespace eq
                 command = CMD_PIPE_CONFIG_EXIT;
                 size    = sizeof( PipeConfigExitPacket );
             }
-        bool exitThread;
     };
 
     struct PipeConfigExitReplyPacket : public net::ObjectPacket

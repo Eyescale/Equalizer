@@ -98,6 +98,34 @@ void Window< P, W, C >::restore()
     setDirty( DIRTY_VIEWPORT );
 }
 
+template< class P, class W, class C >
+void Window< P, W, C >::serialize( net::DataOStream& os,
+                                   const uint64_t dirtyBits )
+{
+    Object::serialize( os, dirtyBits );
+    if( dirtyBits & DIRTY_ATTRIBUTES )
+        os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+    if( dirtyBits & DIRTY_VIEWPORT )
+        os << _data.vp << _data.pvp << _data.fixedVP;
+    if( dirtyBits & DIRTY_DRAWABLECONFIG )
+        os << _drawableConfig;
+}
+
+template< class P, class W, class C >
+void Window< P, W, C >::deserialize( net::DataIStream& is,
+                                     const uint64_t dirtyBits )
+{
+    Object::deserialize( is, dirtyBits );
+    if( dirtyBits & DIRTY_ATTRIBUTES )
+        is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+    if( dirtyBits & DIRTY_VIEWPORT )
+    {
+        is >> _data.vp >> _data.pvp >> _data.fixedVP;
+        notifyViewportChanged();
+    }
+    if( dirtyBits & DIRTY_DRAWABLECONFIG )
+        is >> _drawableConfig;
+}
 
 template< class P, class W, class C >
 void Window< P, W, C >::_addChannel( C* channel )
@@ -291,35 +319,6 @@ void Window< P, W, C >::_setDrawableConfig(
 { 
     _drawableConfig = drawableConfig;
     setDirty( DIRTY_DRAWABLECONFIG );
-}
-
-template< class P, class W, class C >
-void Window< P, W, C >::serialize( net::DataOStream& os,
-                                   const uint64_t dirtyBits )
-{
-    Object::serialize( os, dirtyBits );
-    if( dirtyBits & DIRTY_ATTRIBUTES )
-        os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
-    if( dirtyBits & DIRTY_VIEWPORT )
-        os << _data.vp << _data.pvp << _data.fixedVP;
-    if( dirtyBits & DIRTY_DRAWABLECONFIG )
-        os << _drawableConfig;
-}
-
-template< class P, class W, class C >
-void Window< P, W, C >::deserialize( net::DataIStream& is,
-                                     const uint64_t dirtyBits )
-{
-    Object::deserialize( is, dirtyBits );
-    if( dirtyBits & DIRTY_ATTRIBUTES )
-        is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
-    if( dirtyBits & DIRTY_VIEWPORT )
-    {
-        is >> _data.vp >> _data.pvp >> _data.fixedVP;
-        notifyViewportChanged();
-    }
-    if( dirtyBits & DIRTY_DRAWABLECONFIG )
-        is >> _drawableConfig;
 }
 
 }

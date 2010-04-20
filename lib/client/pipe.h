@@ -34,7 +34,6 @@
 
 #include <eq/fabric/pipe.h>           // base class
 
-
 #include <eq/net/objectVersion.h>
 
 #include <eq/base/lock.h>
@@ -138,7 +137,6 @@ namespace eq
         /** Wait for the pipe to be exited. @internal */
         void waitExited() const;
         bool isRunning() const; //!< @internal
-        void notifyMapped(); //!< @internal
         
         /** 
          * Wait for a frame to be finished.
@@ -159,7 +157,7 @@ namespace eq
         /** Start the pipe thread. @internal */
         void startThread();
 
-        /** Wait for the pipe thread to exit. internal */
+        /** Wait for the pipe thread to exit. @internal */
         void joinThread();
 
         /** 
@@ -197,18 +195,6 @@ namespace eq
 
         /** @name Configuration. */
         //@{
-#ifdef EQ_USE_DEPRECATED
-        /** 
-         * Enable or disable automatic or external OS event dispatch for the
-         * pipe thread.
-         *
-         * @return true if Equalizer shall dispatch OS events, false if the
-         *         application dispatches OS events.
-         * @sa Event handling documentation on website.
-         */
-        virtual bool useMessagePump() { return true; }
-#endif
-
         /** 
          * Create a new MessagePump for this pipe.
          *
@@ -358,7 +344,6 @@ namespace eq
         enum State
         {
             STATE_STOPPED,
-            STATE_MAPPED,
             STATE_INITIALIZING,
             STATE_RUNNING
         };

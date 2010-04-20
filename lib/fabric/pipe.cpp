@@ -79,6 +79,36 @@ void Pipe< N, P, W >::restore()
     setDirty( DIRTY_PIXELVIEWPORT );
 }
 
+template< class N, class P, class W  >
+void Pipe< N, P, W >::serialize( net::DataOStream& os,
+                                 const uint64_t dirtyBits )
+{
+    Object::serialize( os, dirtyBits );
+    if( dirtyBits & DIRTY_ATTRIBUTES )
+        os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+    if( dirtyBits & DIRTY_PIXELVIEWPORT )
+        os << _data.pvp;
+    if( dirtyBits & DIRTY_MEMBER )
+        os << _port << _device;
+}
+
+template< class N, class P, class W  >
+void Pipe< N, P, W >::deserialize( net::DataIStream& is,
+                                   const uint64_t dirtyBits )
+{
+    Object::deserialize( is, dirtyBits );
+    if( dirtyBits & DIRTY_ATTRIBUTES )
+        is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+    if( dirtyBits & DIRTY_PIXELVIEWPORT )
+    {
+        PixelViewport pvp;
+        is >> pvp;
+        setPixelViewport( pvp );
+    }
+    if( dirtyBits & DIRTY_MEMBER )
+        is >> _port >> _device;
+}
+
 template< class N, class P, class W >
 PipePath Pipe< N, P, W >::getPath() const
 {
@@ -101,6 +131,17 @@ void Pipe< N, P, W >::_addWindow( W* window )
     EQASSERT( window->getPipe() == this );
     _windows.push_back( window );
 }
+
+template< class N, class P, class W >
+void Pipe< N, P, W >::setIAttribute( const IAttribute attr,
+                                     const int32_t value )
+{
+    if( _iAttributes[attr] == value )
+        return;
+
+    _iAttributes[attr] = value;
+    setDirty( DIRTY_ATTRIBUTES );
+ }
 
 template< class N, class P, class W >
 void Pipe< N, P, W >::setDevice( const uint32_t device )  
@@ -174,32 +215,6 @@ void Pipe< N, P, W >::notifyPixelViewportChanged()
     }
     setDirty( DIRTY_PIXELVIEWPORT );
     EQINFO << getName() << " pipe pvp update: " << _data.pvp << std::endl;
-}
-
-template< class N, class P, class W  >
-void Pipe< N, P, W >::serialize( net::DataOStream& os,
-                                 const uint64_t dirtyBits )
-{
-    Object::serialize( os, dirtyBits );
-    if( dirtyBits & DIRTY_PIXELVIEWPORT )
-        os << _data.pvp;
-    if( dirtyBits & DIRTY_MEMBER )
-        os << _port << _device << _cudaGLInterop;
-}
-
-template< class N, class P, class W  >
-void Pipe< N, P, W >::deserialize( net::DataIStream& is,
-                                   const uint64_t dirtyBits )
-{
-    Object::deserialize( is, dirtyBits );
-    if( dirtyBits & DIRTY_PIXELVIEWPORT )
-    {
-        PixelViewport pvp;
-        is >> pvp;
-        setPixelViewport( pvp );
-    }
-    if( dirtyBits & DIRTY_MEMBER )
-        is >> _port >> _device >> _cudaGLInterop;
 }
 
 }

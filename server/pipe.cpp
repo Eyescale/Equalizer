@@ -58,8 +58,6 @@ Pipe::Pipe( Node* parent )
         const IAttribute attr = static_cast< IAttribute >( i );
         setIAttribute( attr, global->getPipeIAttribute( attr ));
     }
-
-    setCudaGLInterop( getIAttribute( IATTR_HINT_CUDA_GL_INTEROP ));
 }
 
 Pipe::~Pipe()
@@ -244,14 +242,6 @@ void Pipe::send( net::ObjectPacket& packet )
     node->send( packet ); 
 }
 
-void Pipe::_send( net::ObjectPacket& packet, const std::string& string ) 
-{
-    Node* node = getNode();
-    EQASSERT( node );
-    packet.objectID = getID(); 
-    node->send( packet, string ); 
-}
-
 //===========================================================================
 // Operations
 //===========================================================================
@@ -332,14 +322,13 @@ void Pipe::_configInit( const uint32_t initID, const uint32_t frameNumber )
     NodeCreatePipePacket createPipePacket;
     createPipePacket.objectID = getNode()->getID();
     createPipePacket.pipeID   = getID();
-    createPipePacket.threaded = getIAttribute( IATTR_HINT_THREAD );
     getNode()->send( createPipePacket );
 
     EQLOG( LOG_INIT ) << "Init pipe" << std::endl;
     PipeConfigInitPacket packet;
     packet.initID = initID;
     packet.frameNumber = frameNumber;
-    _send( packet, getName() );
+    send( packet );
 }
 
 bool Pipe::_syncConfigInit()
@@ -353,7 +342,8 @@ bool Pipe::_syncConfigInit()
     if( success )
         _state = STATE_RUNNING;
     else
-        EQWARN << "Pipe initialization failed: " << getErrorMessage() << std::endl;
+        EQWARN << "Pipe initialization failed: " << getErrorMessage()
+               << std::endl;
 
     return success;
 }
@@ -368,7 +358,6 @@ void Pipe::_configExit()
 
     EQLOG( LOG_INIT ) << "Exit pipe" << std::endl;
     PipeConfigExitPacket packet;
-    packet.exitThread = ( getIAttribute( IATTR_HINT_THREAD ) != OFF );
     send( packet );
 
     EQLOG( LOG_INIT ) << "Destroy pipe" << std::endl;
