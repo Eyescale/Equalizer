@@ -1,4 +1,4 @@
-Fix: clean up pipe attribute handling
+Code cleanups in Texture
 
 [ ] May break build
 [ ] May break existing applications

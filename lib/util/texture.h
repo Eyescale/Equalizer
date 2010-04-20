@@ -100,9 +100,9 @@ namespace util
         EQ_EXPORT bool isValid() const;
 
         /** Writes the texture data as a rgb image file. */
-        EQ_EXPORT void writeTexture( const std::string& filename,
-                                     const eq::Frame::Buffer buffer,
-                                     const PixelViewport& pvp ) const;
+        EQ_EXPORT void writeRGB( const std::string& filename,
+                                 const eq::Frame::Buffer buffer,
+                                 const PixelViewport& pvp ) const;
 
         GLEWContext* glewGetContext() { return _glewContext; }
         const GLEWContext* glewGetContext() const { return _glewContext; }
@@ -137,14 +137,14 @@ namespace util
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
         /** Generate, if needed, a GL texture name. */
         void _generate();
 
         /** Set the size of the texture, updating the _defined flag. */
-        void _resize( const int32_t width, const int32_t height );
+        void _grow( const int32_t width, const int32_t height );
 
         CHECK_THREAD_DECLARE( _thread );
     };

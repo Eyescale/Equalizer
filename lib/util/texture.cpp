@@ -147,7 +147,7 @@ static bool _isPOT( const uint32_t width, const uint32_t height )
 }
 }
 
-void Texture::_resize( const int32_t width, const int32_t height )
+void Texture::_grow( const int32_t width, const int32_t height )
 {
     if( _width < width )
     {
@@ -169,15 +169,16 @@ void Texture::copyFromFrameBuffer( const PixelViewport& pvp )
     EQASSERT( _internalFormat != 0 );
 
     _generate();
-    _resize( pvp.w, pvp.h );
-    glBindTexture( _target, _id );
+    _grow( pvp.w, pvp.h );
 
-    if( !_defined )
+    if( _defined )
+        glBindTexture( _target, _id );
+    else
         resize( _width, _height );
 
     EQ_GL_CALL( glCopyTexSubImage2D( _target, 0, 0, 0,
                                      pvp.x, pvp.y, pvp.w, pvp.h ));
-    glFinish();
+    //glFinish();
     EQ_GL_ERROR( "after Texture::copyFromFrameBuffer" );
 }
 
@@ -188,21 +189,21 @@ void Texture::upload( const Image* image, const Frame::Buffer which )
     setInternalFormat( image->getInternalTextureFormat( which ));
     EQASSERT( _internalFormat != 0 );
 
-    const eq::PixelViewport& pvp = image->getPixelViewport();
-
     _format = image->getFormat( which );
     _type = image->getType( which );
 
+    const eq::PixelViewport& pvp = image->getPixelViewport();
     upload( pvp.w, pvp.h, ( void* )image->getPixelPointer( which ));
 }
 
 void Texture::upload( const int width, const int height, void* ptr )
 {
     _generate();
-    _resize( width, height );
-    glBindTexture( _target, _id );
+    _grow( width, height );
 
-    if( !_defined )
+    if( _defined )
+        glBindTexture( _target, _id );
+    else
         resize( _width, _height );
 
     EQ_GL_CALL( glTexSubImage2D( _target, 0, 0, 0,
@@ -273,23 +274,21 @@ void Texture::resize( const int width, const int height )
     _defined = true;
 }
 
-void Texture::writeTexture( const std::string& filename, 
-                            const Frame::Buffer buffer,
-                            const PixelViewport& pvp ) const
+void Texture::writeRGB( const std::string& filename, 
+                        const Frame::Buffer buffer,
+                        const PixelViewport& pvp ) const
 {
-    eq::Image* image = new eq::Image();
+    eq::Image image;
 
-    image->setFormat( buffer, _format );
-    image->setType( buffer, _type );
+    image.setFormat( buffer, _format );
+    image.setType( buffer, _type );
 
-    image->setPixelViewport( pvp );
-    image->validatePixelData( buffer );
+    image.setPixelViewport( pvp );
+    image.validatePixelData( buffer );
 
-    download( image->getPixelPointer( buffer ));
+    download( image.getPixelPointer( buffer ));
 
-    image->writeImage( filename + ".rgb", buffer );
-
-    delete image;
+    image.writeImage( filename + ".rgb", buffer );
 }
 
 }
