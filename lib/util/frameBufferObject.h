@@ -122,11 +122,7 @@ namespace util
     private:
         GLuint _fboID;
 
-        int _width;
-        int _height;
-
         TextureVector _colors; //!< Multiple color textures
-
         Texture _depth;
         Texture _stencil;
 
@@ -139,13 +135,13 @@ namespace util
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
         CHECK_THREAD_DECLARE( _thread );
 
-        /** Check the result after changes to an FBO. */
-        bool _checkFBOStatus();
+        /** Check the result after changes to an FBO and set the _valid flag. */
+        bool _checkStatus();
     };
 }
 }

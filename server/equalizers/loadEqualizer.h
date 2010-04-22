@@ -120,7 +120,7 @@ namespace server
             float     usage;     //<! total usage of subtree
             float     boundaryf;
             Vector2i  boundary2i;
-            Vector2i  pvpMax;
+            Vector2i  maxSize;
         };
         friend std::ostream& operator << ( std::ostream& os, const Node* node );
         typedef std::vector< Node* > LBNodeVector;

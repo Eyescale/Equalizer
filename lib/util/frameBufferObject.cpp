@@ -31,8 +31,6 @@ namespace util
 
 FrameBufferObject::FrameBufferObject( GLEWContext* glewContext )
     : _fboID( 0 )
-    , _width( 0 )
-    , _height( 0 )
     , _depth( glewContext )
     , _stencil( glewContext )
     , _glewContext( glewContext )
@@ -105,11 +103,7 @@ bool FrameBufferObject::init( const int width    , const int height,
         // Note: stencil FBO textures often don't work
         _stencil.bindToFBO( GL_STENCIL_ATTACHMENT, width, height );
 
-    _width  = width;
-    _height = height;
-
-    _valid = _checkFBOStatus();
-    if( _valid )
+    if( _checkStatus( ))
         return true;
     // else
 
@@ -133,16 +127,15 @@ void FrameBufferObject::exit()
     _stencil.flush();
 
     _valid = false;
-    _width = 0;
-    _height = 0;
 }
 
-bool FrameBufferObject::_checkFBOStatus()
+bool FrameBufferObject::_checkStatus()
 {
     switch( glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT ))
     {
         case GL_FRAMEBUFFER_COMPLETE_EXT:
             EQVERB << "FBO supported and complete" << std::endl;
+            _valid = true;
             return true;
 
         case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
@@ -173,6 +166,7 @@ bool FrameBufferObject::_checkFBOStatus()
     }
 
     EQWARN << _error << std::endl;
+    _valid = false;
     return false;
 }
 
@@ -193,7 +187,10 @@ bool FrameBufferObject::resize( const int width, const int height )
     CHECK_THREAD( _thread );
     EQASSERT( width > 0 && height > 0 );
 
-    if( _width == width && _height == height && _valid )
+    EQASSERT( !_colors.empty( ));
+    Texture* color = _colors.front();
+
+    if( color->getWidth() == width && color->getHeight() == height && _valid )
        return true;
 
     for( size_t i = 0; i < _colors.size(); ++i )
@@ -205,16 +202,14 @@ bool FrameBufferObject::resize( const int width, const int height )
     if ( _stencil.isValid( ))
         _stencil.resize( width, height );
 
-    _width  = width;
-    _height = height;
-    _valid  = true;
-
-    return _checkFBOStatus();
+    return _checkStatus();
 }
 
 PixelViewport FrameBufferObject::getPixelViewport() const
 {
-    return PixelViewport( 0, 0, _width, _height );
+    EQASSERT( !_colors.empty( ));
+    Texture* color = _colors.front();
+    return PixelViewport( 0, 0, color->getWidth(), color->getHeight( ));
 }
 
 }

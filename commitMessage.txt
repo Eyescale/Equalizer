@@ -1,9 +1,9 @@
-Allow the up-scale of readback frames on the destination
+Cleanups in FBO, Texture and 2D LB
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -34,22 +34,24 @@ namespace util
      * A wrapper around GL textures.
      * 
      * So far used by the Image and Compositor. The target is assumed to be
-     * GL_TEXTURE_RECTANGLE_ARB.
+     * GL_TEXTURE_RECTANGLE_ARB or GL_TEXTURE_2D.
      */
     class Texture : public base::NonCopyable
     {
     public:
-        /** Construct a new Texture. */
+        /** Construct a new Texture. @version 1.0 */
         EQ_EXPORT Texture( GLEWContext* const glewContext = 0 );
+
+        /** Destruct the texture. @version 1.0 */
         EQ_EXPORT virtual ~Texture();
 
-        /** Clear the texture, including the GL texture name. */
+        /** Clear the texture, including the GL texture name. @version 1.0 */
         EQ_EXPORT void flush();
 
-        /** Set the target of the texture. */
+        /** Set the target of the texture. @version 1.0 */
         EQ_EXPORT void setTarget( const GLenum target );
 
-        /** @return the target of the texture. */
+        /** @return the target of the texture. @version 1.0 */
         GLenum getTarget() const { return _target; }
 
         /** Set the internal pixel format of the texture, e.g., GL_RGBA16F. */
@@ -63,6 +65,12 @@ namespace util
 
         /** @return the data type of the texture, e.g., GL_HALF_FLOAT. */
         GLuint getType() const { return _type; }
+
+        /** @return the current width */
+        int32_t getWidth() const { return _width; }
+
+        /** @return the current height */
+        int32_t getHeight() const { return _height; }
 
         /** 
          * Copy the specified area from the current read buffer to the
