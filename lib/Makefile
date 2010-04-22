@@ -85,6 +85,7 @@ HEADER_SRC = \
 	fabric/canvas.h \
 	fabric/channel.h \
 	fabric/colorMask.h \
+	fabric/commands.h \
 	fabric/config.h \
 	fabric/client.h \
 	fabric/drawableConfig.h \
@@ -124,7 +125,6 @@ HEADER_SRC = \
 	client/channelStatistics.h \
 	client/client.h \
 	client/commandQueue.h \
-	client/commands.h \
 	client/compositor.h \
 	client/computeContext.h \
 	client/config.h \

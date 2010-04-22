@@ -19,7 +19,6 @@
 #include "pipe.h"
 
 #include "client.h"
-#include "commands.h"
 #include "config.h"
 #include "frame.h"
 #include "global.h"
@@ -185,21 +184,21 @@ void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID,
     
     net::CommandQueue* queue = getPipeThreadQueue();
 
-    registerCommand( CMD_PIPE_CONFIG_INIT, 
+    registerCommand( fabric::CMD_PIPE_CONFIG_INIT, 
                      PipeFunc( this, &Pipe::_cmdConfigInit ), queue );
-    registerCommand( CMD_PIPE_CONFIG_EXIT, 
+    registerCommand( fabric::CMD_PIPE_CONFIG_EXIT, 
                      PipeFunc( this, &Pipe::_cmdConfigExit ), queue );
-    registerCommand( CMD_PIPE_CREATE_WINDOW,
+    registerCommand( fabric::CMD_PIPE_CREATE_WINDOW,
                      PipeFunc( this, &Pipe::_cmdCreateWindow ), queue );
-    registerCommand( CMD_PIPE_DESTROY_WINDOW, 
+    registerCommand( fabric::CMD_PIPE_DESTROY_WINDOW, 
                      PipeFunc( this, &Pipe::_cmdDestroyWindow ), queue );
-    registerCommand( CMD_PIPE_FRAME_START,
+    registerCommand( fabric::CMD_PIPE_FRAME_START,
                      PipeFunc( this, &Pipe::_cmdFrameStart ), queue );
-    registerCommand( CMD_PIPE_FRAME_FINISH,
+    registerCommand( fabric::CMD_PIPE_FRAME_FINISH,
                      PipeFunc( this, &Pipe::_cmdFrameFinish ), queue );
-    registerCommand( CMD_PIPE_FRAME_DRAW_FINISH, 
+    registerCommand( fabric::CMD_PIPE_FRAME_DRAW_FINISH, 
                      PipeFunc( this, &Pipe::_cmdFrameDrawFinish ), queue );
-    registerCommand( CMD_PIPE_FRAME_START_CLOCK,
+    registerCommand( fabric::CMD_PIPE_FRAME_START_CLOCK,
                      PipeFunc( this, &Pipe::_cmdFrameStartClock ), 0 );
 }
 

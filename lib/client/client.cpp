@@ -18,7 +18,6 @@
 #include "client.h"
 
 #include "commandQueue.h"
-#include "commands.h"
 #include "global.h"
 #include "init.h"
 #include "nodeFactory.h"
@@ -47,8 +46,8 @@ Client::Client()
         : Super()
         , _running( false )
 {
-    registerCommand( CMD_CLIENT_EXIT, ClientFunc( this, &Client::_cmdExit ),
-                     &_nodeThreadQueue );
+    registerCommand( fabric::CMD_CLIENT_EXIT, 
+                     ClientFunc( this, &Client::_cmdExit ), &_nodeThreadQueue );
 
     EQINFO << "New client at " << (void*)this << std::endl;
 }

@@ -26,7 +26,6 @@
 #include "node.h"
 #include "window.h"
 
-#include <eq/client/commands.h>
 #include <eq/client/packets.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
@@ -72,9 +71,9 @@ void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID,
     
     net::CommandQueue* queue = getCommandThreadQueue();
 
-    registerCommand( CMD_PIPE_CONFIG_INIT_REPLY,
+    registerCommand( fabric::CMD_PIPE_CONFIG_INIT_REPLY,
                      PipeFunc( this, &Pipe::_cmdConfigInitReply ), queue );
-    registerCommand( CMD_PIPE_CONFIG_EXIT_REPLY, 
+    registerCommand( fabric::CMD_PIPE_CONFIG_EXIT_REPLY, 
                      PipeFunc( this, &Pipe::_cmdConfigExitReply ), queue );
 }
 

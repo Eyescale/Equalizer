@@ -88,23 +88,23 @@ void Config::notifyMapped( net::NodePtr node )
     ServerPtr          server = getServer();
     net::CommandQueue* queue  = server->getNodeThreadQueue();
 
-    registerCommand( CMD_CONFIG_CREATE_NODE,
+    registerCommand( fabric::CMD_CONFIG_CREATE_NODE,
                      ConfigFunc( this, &Config::_cmdCreateNode ), queue );
-    registerCommand( CMD_CONFIG_DESTROY_NODE,
+    registerCommand( fabric::CMD_CONFIG_DESTROY_NODE,
                      ConfigFunc( this, &Config::_cmdDestroyNode ), queue );
-    registerCommand( CMD_CONFIG_START_FRAME_REPLY,
+    registerCommand( fabric::CMD_CONFIG_START_FRAME_REPLY,
                      ConfigFunc( this, &Config::_cmdStartFrameReply ), queue );
-    registerCommand( CMD_CONFIG_INIT_REPLY, 
+    registerCommand( fabric::CMD_CONFIG_INIT_REPLY, 
                      ConfigFunc( this, &Config::_cmdInitReply ), queue );
-    registerCommand( CMD_CONFIG_EXIT_REPLY, 
+    registerCommand( fabric::CMD_CONFIG_EXIT_REPLY, 
                      ConfigFunc( this, &Config::_cmdExitReply ), queue );
-    registerCommand( CMD_CONFIG_RELEASE_FRAME_LOCAL, 
+    registerCommand( fabric::CMD_CONFIG_RELEASE_FRAME_LOCAL, 
                      ConfigFunc( this, &Config::_cmdReleaseFrameLocal ), queue);
-    registerCommand( CMD_CONFIG_FRAME_FINISH, 
+    registerCommand( fabric::CMD_CONFIG_FRAME_FINISH, 
                      ConfigFunc( this, &Config::_cmdFrameFinish ), 0 );
-    registerCommand( CMD_CONFIG_EVENT, 
+    registerCommand( fabric::CMD_CONFIG_EVENT, 
                      ConfigFunc( this, &Config::_cmdUnknown ), &_eventQueue );
-    registerCommand( CMD_CONFIG_SYNC_CLOCK, 
+    registerCommand( fabric::CMD_CONFIG_SYNC_CLOCK, 
                      ConfigFunc( this, &Config::_cmdSyncClock ), 0 );
 }
 

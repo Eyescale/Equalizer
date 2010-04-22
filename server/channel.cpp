@@ -30,7 +30,6 @@
 #include "view.h"
 #include "window.h"
 
-#include <eq/client/commands.h>
 #include <eq/client/global.h>
 #include <eq/client/log.h>
 #include <eq/client/packets.h>
@@ -86,11 +85,11 @@ void Channel::attachToSession( const uint32_t id, const uint32_t instanceID,
     net::CommandQueue* serverQ  = getServerThreadQueue();
     net::CommandQueue* commandQ = getCommandThreadQueue();
 
-    registerCommand( CMD_CHANNEL_CONFIG_INIT_REPLY, 
+    registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT_REPLY, 
                      CmdFunc( this, &Channel::_cmdConfigInitReply ), commandQ );
-    registerCommand( CMD_CHANNEL_CONFIG_EXIT_REPLY,
+    registerCommand( fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY,
                      CmdFunc( this, &Channel::_cmdConfigExitReply ), commandQ );
-    registerCommand( CMD_CHANNEL_FRAME_FINISH_REPLY,
+    registerCommand( fabric::CMD_CHANNEL_FRAME_FINISH_REPLY,
                      CmdFunc( this, &Channel::_cmdFrameFinishReply ), serverQ );
 }
 

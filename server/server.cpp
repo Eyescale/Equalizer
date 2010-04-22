@@ -51,15 +51,15 @@ Server::Server()
 {
     base::Log::setClock( &_clock );
 
-    registerCommand( CMD_SERVER_CHOOSE_CONFIG,
+    registerCommand( fabric::CMD_SERVER_CHOOSE_CONFIG,
                      ServerFunc( this, &Server::_cmdChooseConfig ),
                      &_serverThreadQueue );
-    registerCommand( CMD_SERVER_RELEASE_CONFIG,
+    registerCommand( fabric::CMD_SERVER_RELEASE_CONFIG,
                      ServerFunc( this, &Server::_cmdReleaseConfig ),
                      &_serverThreadQueue );
-    registerCommand( CMD_SERVER_DESTROY_CONFIG_REPLY,
+    registerCommand( fabric::CMD_SERVER_DESTROY_CONFIG_REPLY,
                      ServerFunc( this, &Server::_cmdDestroyConfigReply ), 0 );
-    registerCommand( CMD_SERVER_SHUTDOWN,
+    registerCommand( fabric::CMD_SERVER_SHUTDOWN,
                      ServerFunc( this, &Server::_cmdShutdown ),
                      &_serverThreadQueue );
     EQINFO << "New server @" << (void*)this << std::endl;

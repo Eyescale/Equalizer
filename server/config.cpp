@@ -116,19 +116,19 @@ void Config::notifyMapped( net::NodePtr node )
     net::CommandQueue* serverQueue  = getServerThreadQueue();
     net::CommandQueue* commandQueue = getCommandThreadQueue();
 
-    registerCommand( CMD_CONFIG_INIT,
+    registerCommand( fabric::CMD_CONFIG_INIT,
                      ConfigFunc( this, &Config::_cmdInit), serverQueue );
-    registerCommand( CMD_CONFIG_EXIT,
+    registerCommand( fabric::CMD_CONFIG_EXIT,
                      ConfigFunc( this, &Config::_cmdExit ), serverQueue );
-    registerCommand( CMD_CONFIG_CREATE_REPLY,
+    registerCommand( fabric::CMD_CONFIG_CREATE_REPLY,
                      ConfigFunc( this, &Config::_cmdCreateReply ),
                      commandQueue );
-    registerCommand( CMD_CONFIG_START_FRAME, 
+    registerCommand( fabric::CMD_CONFIG_START_FRAME, 
                      ConfigFunc( this, &Config::_cmdStartFrame ), serverQueue );
-    registerCommand( CMD_CONFIG_FINISH_ALL_FRAMES, 
+    registerCommand( fabric::CMD_CONFIG_FINISH_ALL_FRAMES, 
                      ConfigFunc( this, &Config::_cmdFinishAllFrames ),
                      serverQueue );
-    registerCommand( CMD_CONFIG_FREEZE_LOAD_BALANCING, 
+    registerCommand( fabric::CMD_CONFIG_FREEZE_LOAD_BALANCING, 
                      ConfigFunc( this, &Config::_cmdFreezeLoadBalancing ), 
                      serverQueue );
 }

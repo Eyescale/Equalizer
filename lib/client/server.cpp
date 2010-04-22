@@ -54,15 +54,15 @@ void Server::setClient( ClientPtr client )
 
     net::CommandQueue* queue = client->getNodeThreadQueue();
 
-    registerCommand( CMD_SERVER_CREATE_CONFIG, 
+    registerCommand( fabric::CMD_SERVER_CREATE_CONFIG, 
                      CmdFunc( this, &Server::_cmdCreateConfig ), queue );
-    registerCommand( CMD_SERVER_DESTROY_CONFIG, 
+    registerCommand( fabric::CMD_SERVER_DESTROY_CONFIG, 
                      CmdFunc( this, &Server::_cmdDestroyConfig ), queue );
-    registerCommand( CMD_SERVER_CHOOSE_CONFIG_REPLY, 
+    registerCommand( fabric::CMD_SERVER_CHOOSE_CONFIG_REPLY, 
                      CmdFunc( this, &Server::_cmdChooseConfigReply ), queue );
-    registerCommand( CMD_SERVER_RELEASE_CONFIG_REPLY, 
+    registerCommand( fabric::CMD_SERVER_RELEASE_CONFIG_REPLY, 
                      CmdFunc( this, &Server::_cmdReleaseConfigReply ), queue );
-    registerCommand( CMD_SERVER_SHUTDOWN_REPLY, 
+    registerCommand( fabric::CMD_SERVER_SHUTDOWN_REPLY, 
                      CmdFunc( this, &Server::_cmdShutdownReply ), queue );
 }
 

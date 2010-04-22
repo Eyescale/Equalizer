@@ -18,7 +18,6 @@
 
 #include "frameData.h"
 
-#include "commands.h"
 #include "config.h"
 #include "frameDataStatistics.h"
 #include "image.h"
@@ -109,13 +108,13 @@ void FrameData::attachToSession( const uint32_t id, const uint32_t instanceID,
 
     net::CommandQueue* queue = session->getCommandThreadQueue();
 
-    registerCommand( CMD_FRAMEDATA_TRANSMIT,
+    registerCommand( fabric::CMD_FRAMEDATA_TRANSMIT,
                      CommandFunc<FrameData>( this, &FrameData::_cmdTransmit ),
                      queue );
-    registerCommand( CMD_FRAMEDATA_READY,
+    registerCommand( fabric::CMD_FRAMEDATA_READY,
                      CommandFunc<FrameData>( this, &FrameData::_cmdReady ),
                      queue );
-    registerCommand( CMD_FRAMEDATA_UPDATE,
+    registerCommand( fabric::CMD_FRAMEDATA_UPDATE,
                      CommandFunc<FrameData>( this, &FrameData::_cmdUpdate ),
                      queue );
 }

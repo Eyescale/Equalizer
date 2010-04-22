@@ -1,4 +1,4 @@
-Cleanups in FBO, Texture and 2D LB
+Move command list to fabric
 
 [ ] May break build
 [ ] May break existing applications

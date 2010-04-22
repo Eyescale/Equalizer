@@ -21,7 +21,6 @@
 #include "node.h"
 
 #include "client.h"
-#include "commands.h"
 #include "config.h"
 #include "frameData.h"
 #include "global.h"
@@ -78,21 +77,21 @@ void Node::attachToSession( const uint32_t id,
     EQASSERT( config );
     net::CommandQueue* queue = config->getNodeThreadQueue();
 
-    registerCommand( CMD_NODE_CREATE_PIPE, 
+    registerCommand( fabric::CMD_NODE_CREATE_PIPE, 
                      NodeFunc( this, &Node::_cmdCreatePipe ), queue );
-    registerCommand( CMD_NODE_DESTROY_PIPE,
+    registerCommand( fabric::CMD_NODE_DESTROY_PIPE,
                      NodeFunc( this, &Node::_cmdDestroyPipe ), queue );
-    registerCommand( CMD_NODE_CONFIG_INIT, 
+    registerCommand( fabric::CMD_NODE_CONFIG_INIT, 
                      NodeFunc( this, &Node::_cmdConfigInit ), queue );
-    registerCommand( CMD_NODE_CONFIG_EXIT,
+    registerCommand( fabric::CMD_NODE_CONFIG_EXIT,
                      NodeFunc( this, &Node::_cmdConfigExit ), queue );
-    registerCommand( CMD_NODE_FRAME_START,
+    registerCommand( fabric::CMD_NODE_FRAME_START,
                      NodeFunc( this, &Node::_cmdFrameStart ), queue );
-    registerCommand( CMD_NODE_FRAME_FINISH,
+    registerCommand( fabric::CMD_NODE_FRAME_FINISH,
                      NodeFunc( this, &Node::_cmdFrameFinish ), queue );
-    registerCommand( CMD_NODE_FRAME_DRAW_FINISH, 
+    registerCommand( fabric::CMD_NODE_FRAME_DRAW_FINISH, 
                      NodeFunc( this, &Node::_cmdFrameDrawFinish ), queue );
-    registerCommand( CMD_NODE_FRAME_TASKS_FINISH, 
+    registerCommand( fabric::CMD_NODE_FRAME_TASKS_FINISH, 
                      NodeFunc( this, &Node::_cmdFrameTasksFinish ), queue );
 }
 

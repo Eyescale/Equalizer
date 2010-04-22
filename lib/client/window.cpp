@@ -20,7 +20,6 @@
 
 #include "channel.h"
 #include "client.h"
-#include "commands.h"
 #include "config.h"
 #include "configEvent.h"
 #include "event.h"
@@ -106,40 +105,31 @@ void Window::attachToSession( const uint32_t id,
 
     net::CommandQueue* queue = getPipe()->getPipeThreadQueue();
 
-    registerCommand( CMD_WINDOW_CREATE_CHANNEL, 
-                     WindowFunc( this, &Window::_cmdCreateChannel ), 
-                     queue );
-    registerCommand( CMD_WINDOW_DESTROY_CHANNEL,
-                     WindowFunc( this, &Window::_cmdDestroyChannel ), 
-                     queue );
-    registerCommand( CMD_WINDOW_CONFIG_INIT,
-                     WindowFunc( this, &Window::_cmdConfigInit ), 
-                     queue );
-    registerCommand( CMD_WINDOW_CONFIG_EXIT, 
-                     WindowFunc( this, &Window::_cmdConfigExit ), 
-                     queue );
-    registerCommand( CMD_WINDOW_FRAME_START,
-                     WindowFunc( this, &Window::_cmdFrameStart ), 
-                     queue );
-    registerCommand( CMD_WINDOW_FRAME_FINISH,
-                     WindowFunc( this, &Window::_cmdFrameFinish ), 
-                     queue );
-    registerCommand( CMD_WINDOW_FINISH, 
+    registerCommand( fabric::CMD_WINDOW_CREATE_CHANNEL, 
+                     WindowFunc( this, &Window::_cmdCreateChannel ), queue );
+    registerCommand( fabric::CMD_WINDOW_DESTROY_CHANNEL,
+                     WindowFunc( this, &Window::_cmdDestroyChannel ), queue );
+    registerCommand( fabric::CMD_WINDOW_CONFIG_INIT,
+                     WindowFunc( this, &Window::_cmdConfigInit ), queue );
+    registerCommand( fabric::CMD_WINDOW_CONFIG_EXIT, 
+                     WindowFunc( this, &Window::_cmdConfigExit ), queue );
+    registerCommand( fabric::CMD_WINDOW_FRAME_START,
+                     WindowFunc( this, &Window::_cmdFrameStart ), queue );
+    registerCommand( fabric::CMD_WINDOW_FRAME_FINISH,
+                     WindowFunc( this, &Window::_cmdFrameFinish ), queue );
+    registerCommand( fabric::CMD_WINDOW_FINISH, 
                      WindowFunc( this, &Window::_cmdFinish), queue );
-    registerCommand( CMD_WINDOW_THROTTLE_FRAMERATE, 
-                    WindowFunc( this, &Window::_cmdThrottleFramerate ),
+    registerCommand( fabric::CMD_WINDOW_THROTTLE_FRAMERATE, 
+                     WindowFunc( this, &Window::_cmdThrottleFramerate ),
                      queue );
-    registerCommand( CMD_WINDOW_BARRIER, 
-                     WindowFunc( this, &Window::_cmdBarrier ), 
-                     queue );
-    registerCommand( CMD_WINDOW_NV_BARRIER, 
-                     WindowFunc( this, &Window::_cmdNVBarrier ), 
-                     queue );
-    registerCommand( CMD_WINDOW_SWAP, 
+    registerCommand( fabric::CMD_WINDOW_BARRIER, 
+                     WindowFunc( this, &Window::_cmdBarrier ), queue );
+    registerCommand( fabric::CMD_WINDOW_NV_BARRIER, 
+                     WindowFunc( this, &Window::_cmdNVBarrier ), queue );
+    registerCommand( fabric::CMD_WINDOW_SWAP, 
                      WindowFunc( this, &Window::_cmdSwap), queue );
-    registerCommand( CMD_WINDOW_FRAME_DRAW_FINISH, 
-                     WindowFunc( this, &Window::_cmdFrameDrawFinish ), 
-                     queue );
+    registerCommand( fabric::CMD_WINDOW_FRAME_DRAW_FINISH, 
+                     WindowFunc( this, &Window::_cmdFrameDrawFinish ), queue );
 }
 
 void Window::_updateFPS()

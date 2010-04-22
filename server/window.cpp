@@ -79,10 +79,10 @@ void Window::attachToSession( const uint32_t id, const uint32_t instanceID,
     
     net::CommandQueue* commandQueue = getCommandThreadQueue();
 
-    registerCommand( CMD_WINDOW_CONFIG_INIT_REPLY, 
+    registerCommand( fabric::CMD_WINDOW_CONFIG_INIT_REPLY, 
                      WindowFunc( this, &Window::_cmdConfigInitReply),
                      commandQueue );
-    registerCommand( CMD_WINDOW_CONFIG_EXIT_REPLY, 
+    registerCommand( fabric::CMD_WINDOW_CONFIG_EXIT_REPLY, 
                      WindowFunc( this, &Window::_cmdConfigExitReply),
                      commandQueue );
 }

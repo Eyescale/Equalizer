@@ -20,7 +20,6 @@
 #include "channelStatistics.h"
 #include "client.h"
 #include "compositor.h"
-#include "commands.h"
 #include "config.h"
 #include "configEvent.h"
 #include "frame.h"
@@ -37,6 +36,7 @@
 
 #include <eq/util/accum.h>
 #include <eq/util/frameBufferObject.h>
+#include <eq/fabric/commands.h>
 #include <eq/net/command.h>
 #include <eq/base/rng.h>
 
@@ -69,29 +69,29 @@ void Channel::attachToSession( const uint32_t id,
     net::Object::attachToSession( id, instanceID, session );
     net::CommandQueue* queue = getWindow()->getPipeThreadQueue();
 
-    registerCommand( CMD_CHANNEL_CONFIG_INIT, 
+    registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT, 
                      CmdFunc( this, &Channel::_cmdConfigInit ), queue );
-    registerCommand( CMD_CHANNEL_CONFIG_EXIT, 
+    registerCommand( fabric::CMD_CHANNEL_CONFIG_EXIT, 
                      CmdFunc( this, &Channel::_cmdConfigExit ), queue );
-    registerCommand( CMD_CHANNEL_FRAME_START,
+    registerCommand( fabric::CMD_CHANNEL_FRAME_START,
                      CmdFunc( this, &Channel::_cmdFrameStart ), queue );
-    registerCommand( CMD_CHANNEL_FRAME_FINISH,
+    registerCommand( fabric::CMD_CHANNEL_FRAME_FINISH,
                      CmdFunc( this, &Channel::_cmdFrameFinish ), queue );
-    registerCommand( CMD_CHANNEL_FRAME_CLEAR, 
+    registerCommand( fabric::CMD_CHANNEL_FRAME_CLEAR, 
                      CmdFunc( this, &Channel::_cmdFrameClear ), queue );
-    registerCommand( CMD_CHANNEL_FRAME_DRAW, 
+    registerCommand( fabric::CMD_CHANNEL_FRAME_DRAW, 
                      CmdFunc( this, &Channel::_cmdFrameDraw ), queue );
-    registerCommand( CMD_CHANNEL_FRAME_DRAW_FINISH, 
+    registerCommand( fabric::CMD_CHANNEL_FRAME_DRAW_FINISH, 
                     CmdFunc( this, &Channel::_cmdFrameDrawFinish ), queue );
-    registerCommand( CMD_CHANNEL_FRAME_ASSEMBLE, 
+    registerCommand( fabric::CMD_CHANNEL_FRAME_ASSEMBLE, 
                      CmdFunc( this, &Channel::_cmdFrameAssemble ), queue );
-    registerCommand( CMD_CHANNEL_FRAME_READBACK, 
+    registerCommand( fabric::CMD_CHANNEL_FRAME_READBACK, 
                      CmdFunc( this, &Channel::_cmdFrameReadback ), queue );
-    registerCommand( CMD_CHANNEL_FRAME_TRANSMIT, 
+    registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT, 
                      CmdFunc( this, &Channel::_cmdFrameTransmit ), queue );
-    registerCommand( CMD_CHANNEL_FRAME_VIEW_START, 
+    registerCommand( fabric::CMD_CHANNEL_FRAME_VIEW_START, 
                      CmdFunc( this, &Channel::_cmdFrameViewStart ), queue );
-    registerCommand( CMD_CHANNEL_FRAME_VIEW_FINISH, 
+    registerCommand( fabric::CMD_CHANNEL_FRAME_VIEW_FINISH, 
                      CmdFunc( this, &Channel::_cmdFrameViewFinish ), queue );
 }
 

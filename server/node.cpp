@@ -90,11 +90,11 @@ void Node::attachToSession( const uint32_t id, const uint32_t instanceID,
     
     net::CommandQueue* queue = getCommandThreadQueue();
 
-    registerCommand( CMD_NODE_CONFIG_INIT_REPLY, 
+    registerCommand( fabric::CMD_NODE_CONFIG_INIT_REPLY, 
                      NodeFunc( this, &Node::_cmdConfigInitReply ), queue );
-    registerCommand( CMD_NODE_CONFIG_EXIT_REPLY, 
+    registerCommand( fabric::CMD_NODE_CONFIG_EXIT_REPLY, 
                      NodeFunc( this, &Node::_cmdConfigExitReply ), queue );
-    registerCommand( CMD_NODE_FRAME_FINISH_REPLY,
+    registerCommand( fabric::CMD_NODE_FRAME_FINISH_REPLY,
                      NodeFunc( this, &Node::_cmdFrameFinishReply ), queue );
 }
 

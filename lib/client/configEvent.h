@@ -46,7 +46,7 @@ namespace eq
         /** Construct a new config event. @version 1.0 */
         ConfigEvent()
             {
-                command = CMD_CONFIG_EVENT;
+                command = fabric::CMD_CONFIG_EVENT;
                 size    = sizeof( ConfigEvent );
             }
         
