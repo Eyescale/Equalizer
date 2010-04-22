@@ -38,6 +38,7 @@ Frame::Frame()
         , _type( eq::Frame::TYPE_MEMORY )
         , _masterFrameData( 0 )
 {
+    _data.zoom.invalidate(); // to inherit zoom from compound unless set
     for( unsigned i = 0; i<eq::EYE_ALL; ++i )
         _frameData[i] = 0;
 }
