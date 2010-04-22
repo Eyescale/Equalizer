@@ -1,5 +1,4 @@
-Implement 2990876: Mouse Wheel support
--- agl and wgl [Marc, untested]
+Template admin client initialization
 
 [ ] May break build
 [ ] May break existing applications

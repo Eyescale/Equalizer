@@ -101,6 +101,8 @@ namespace server
         /** The global clock. */
         base::Clock _clock;
 
+        net::NodeVector _admins; //!< connected admin clients
+
         /** The current state. */
         bool _running;
 
@@ -128,6 +130,8 @@ namespace server
         net::CommandResult _cmdReleaseConfig( net::Command& command );
         net::CommandResult _cmdDestroyConfigReply( net::Command& command );
         net::CommandResult _cmdShutdown( net::Command& command );
+        net::CommandResult _cmdMap( net::Command& command );
+        net::CommandResult _cmdUnmap( net::Command& command );
     };
 
     EQSERVER_EXPORT std::ostream& operator << ( std::ostream&, const Server& );

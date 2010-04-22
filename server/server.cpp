@@ -27,13 +27,14 @@
 #include "serverVisitor.h"
 #include "window.h"
 
-#include <eq/base/refPtr.h>
-#include <eq/base/sleep.h>
+#include <eq/admin/packets.h>
+#include <eq/client/packets.h>
 #include <eq/net/command.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/net/init.h>
 #include <eq/net/node.h>
-#include <eq/client/packets.h>
+#include <eq/base/refPtr.h>
+#include <eq/base/sleep.h>
 
 #include <sstream>
 
@@ -61,6 +62,12 @@ Server::Server()
                      ServerFunc( this, &Server::_cmdDestroyConfigReply ), 0 );
     registerCommand( fabric::CMD_SERVER_SHUTDOWN,
                      ServerFunc( this, &Server::_cmdShutdown ),
+                     &_serverThreadQueue );
+    registerCommand( fabric::CMD_SERVER_MAP,
+                     ServerFunc( this, &Server::_cmdMap ),
+                     &_serverThreadQueue );
+    registerCommand( fabric::CMD_SERVER_UNMAP,
+                     ServerFunc( this, &Server::_cmdUnmap ),
                      &_serverThreadQueue );
     EQINFO << "New server @" << (void*)this << std::endl;
 }
@@ -369,6 +376,15 @@ net::CommandResult Server::_cmdShutdown( net::Command& command )
     ServerShutdownReplyPacket reply( packet );
     net::NodePtr node = command.getNode();
 
+    if( !_admins.empty( ))
+    {
+        EQWARN << "Ignoring shutdown request, " << _admins.size()
+               << " admin clients connected" << std::endl;
+
+        node->send( reply );
+        return net::COMMAND_HANDLED;
+    }
+
     for( ConfigHash::const_iterator i = _configs.begin();
          i != _configs.end(); ++i )
     {
@@ -396,6 +412,55 @@ net::CommandResult Server::_cmdShutdown( net::Command& command )
 
     return net::COMMAND_HANDLED;
 }
+
+net::CommandResult Server::_cmdMap( net::Command& command )
+{
+    net::NodePtr node = command.getNode();
+    _admins.push_back( node );
+
+    for( ConfigHash::const_iterator i = _configs.begin();
+         i != _configs.end(); ++i )
+    {
+        Config* config = i->second;
+        ServerCreateConfigPacket createConfigPacket;
+        createConfigPacket.configID = config->getID();
+        createConfigPacket.proxyID = config->getProxyID();
+        node->send( createConfigPacket );
+    }
+
+    const admin::ServerMapPacket* packet =
+        command.getPacket< admin::ServerMapPacket >();
+    admin::ServerMapReplyPacket reply( packet );
+    node->send( reply );
+    return net::COMMAND_HANDLED;
+}
+
+net::CommandResult Server::_cmdUnmap( net::Command& command )
+{
+    net::NodePtr node = command.getNode();
+    net::NodeVector::iterator i = stde::find( _admins, node );
+
+    EQASSERT( i != _admins.end( ));
+    if( i != _admins.end( ))
+    {
+        _admins.erase( i );
+        for( ConfigHash::const_iterator j = _configs.begin();
+             j != _configs.end(); ++j )
+        {
+            Config* config = j->second;
+            ServerDestroyConfigPacket destroyConfigPacket;
+            destroyConfigPacket.configID  = config->getID();
+            node->send( destroyConfigPacket );
+        }
+    }
+
+    const admin::ServerUnmapPacket* packet = 
+        command.getPacket< admin::ServerUnmapPacket >();
+    admin::ServerUnmapReplyPacket reply( packet );
+    node->send( reply );
+    return net::COMMAND_HANDLED;
+}
+
 
 std::ostream& operator << ( std::ostream& os, const Server& server )
 {
