@@ -81,6 +81,7 @@ namespace eq
 
     private:
         friend class Pipe; // for commit()
+
         /** Unmodified, baseline view frustum data, used when resizing. */
         Frustum _baseFrustum;
 

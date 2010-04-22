@@ -177,7 +177,7 @@ void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
     {
         FrameData* frameData = frame->getMasterData();
         frameData->setZoom( zoom_1 ); // textures are zoomed by input frame
-        frame->setInheritZoom( Zoom( ));
+        frame->setInheritZoom( Zoom::NONE );
     }
     else
     {

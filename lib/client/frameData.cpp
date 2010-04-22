@@ -221,7 +221,7 @@ void FrameData::readback( const Frame& frame,
 
     if( !zoom.isValid( ))
     {
-        EQWARN << "Invalid zoom factor, skipping frame." << endl;
+        EQWARN << "Invalid zoom factor, skipping frame" << endl;
         return;
     }
 
@@ -246,7 +246,7 @@ void FrameData::readback( const Frame& frame,
 #ifndef NDEBUG
         if( getenv( "EQ_DUMP_IMAGES" ))
         {
-            static uint32_t counter = 0;
+            static base::a_int32_t counter;
             ostringstream stringstream;
 
             stringstream << "Image_" << setfill( '0' ) << setw(5) << ++counter;

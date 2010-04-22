@@ -260,8 +260,8 @@ void Channel::frameAssemble( const uint32_t frameID )
             eq::ChannelStatistics stat(eq::Statistic::CHANNEL_WAIT_FRAME, this);
             frame->waitReady( );
         }
-        const eq::Range& curRange = frame->getRange();
-        if( curRange == eq::Range::ALL ) // 2D frame, assemble directly
+        const eq::Range& range = frame->getRange();
+        if( range == eq::Range::ALL ) // 2D frame, assemble directly
             eq::Compositor::assembleFrame( frame, this );
         else
         {

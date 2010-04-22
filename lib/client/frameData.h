@@ -91,10 +91,6 @@ namespace server
          * @name Operations
          */
         //@{
-
-        /** Flush the frame by deleting all images. */
-        void flush();
-
         /** 
          * Allocate and add a new image.
          * 
@@ -102,6 +98,9 @@ namespace server
          */
         EQ_EXPORT Image* newImage( const Frame::Type type,
                                    const DrawableConfig& config );
+
+        /** Flush the frame by deleting all images. */
+        void flush();
 
         /** Clear the frame by recycling the attached images. */
         EQ_EXPORT void clear();
@@ -119,9 +118,6 @@ namespace server
         void readback( const Frame& frame, 
                        util::ObjectManager< const void* >* glObjects,
                        const DrawableConfig& config );
-
-        /** Synchronize the last image readback. */
-        void syncReadback();
 
         /** 
          * Transmit the frame data to the specified node.

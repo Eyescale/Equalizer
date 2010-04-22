@@ -99,8 +99,13 @@ namespace server
         /** @return the zoom factor for readback or assemble. */
         const Zoom& getZoom() const { return _data.zoom; }
 
-        /** Set zoom, used for frames created by user; normally zoom is set by 
-            server implicitly and not through this function */
+        /**
+         * Set the zoom for this frame holder.
+         *
+         * The zoom is only applied for operations on this frame holder, i.e.,
+         * it does not apply to other (input) frames using the same underlying
+         * frame data.
+         */
         void setZoom( const Zoom& zoom ) { _data.zoom = zoom; }
 
         /** The images of this frame */
@@ -155,8 +160,8 @@ namespace server
         /** 
          * Set the frame ready.
          * 
-         * The frame is automatically set ready by syncReadback and upon
-         * receiving of the transmit commands.
+         * The frame is automatically set ready by readback and upon receiving
+         * of the transmit commands.
          */
         void setReady();
 
@@ -223,8 +228,8 @@ namespace server
         {
             Data() : offset( Vector2i::ZERO ), zoom( 0.f, 0.f ) {}
 
-            Vector2i     offset;
-            Zoom               zoom;
+            Vector2i offset;
+            Zoom zoom;
             net::ObjectVersion frameData[EYE_ALL];
         }
         _data;
