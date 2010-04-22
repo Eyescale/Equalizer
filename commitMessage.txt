@@ -1,9 +1,10 @@
-Move command list to fabric
+Implement 2990876: Mouse Wheel support
+-- agl and wgl [Marc, untested]
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

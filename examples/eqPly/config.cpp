@@ -462,6 +462,13 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             }
             return true;
 
+        case eq::Event::POINTER_WHEEL:
+            _frameData.moveCamera( -0.05f * event->data.pointerWheel.yAxis,
+                                   0.f,
+                                   0.05f * event->data.pointerWheel.xAxis );
+            _redraw = true;
+            return true;
+
         case eq::Event::MAGELLAN_AXIS:
             _spinX = 0;
             _spinY = 0;

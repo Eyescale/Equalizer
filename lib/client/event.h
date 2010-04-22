@@ -113,6 +113,8 @@ namespace eq
         int32_t dy;            //!< Y position change since last event
         uint32_t buttons;      //!< current state of all buttons
         uint32_t button;       //!< fired button
+        int32_t xAxis;         //!< x wheel rotation
+        int32_t yAxis;         //!< y wheel rotation
     };
 
     /** Event for a key press or release. */
@@ -176,6 +178,7 @@ namespace eq
             POINTER_BUTTON_PRESS,
             /** Pointer button release data in pointerButtonRelease */
             POINTER_BUTTON_RELEASE,
+            POINTER_WHEEL,        //!< Mouse wheel data in wheel
             KEY_PRESS,            //!< Key press data in keyPress
             KEY_RELEASE,          //!< Key release data in keyRelease
             CHANNEL_RESIZE,       //!< Channel resize data in resize
@@ -212,6 +215,7 @@ namespace eq
             PointerEvent  pointerMotion;      //!< Pointer motion data
             PointerEvent  pointerButtonPress; //!< Mouse button press data
             PointerEvent  pointerButtonRelease; //!< Mouse button release data
+            PointerEvent  pointerWheel;       //!< Mouse wheel motion data
 
             KeyEvent      key;                //!< Key event data
             KeyEvent      keyPress;           //!< Key press event data

@@ -562,6 +562,7 @@ bool Window::processEvent( const Event& event )
         case Event::POINTER_MOTION:
         case Event::POINTER_BUTTON_PRESS:
         case Event::POINTER_BUTTON_RELEASE:
+        case Event::POINTER_WHEEL:
         case Event::STATISTIC:
             break;
 

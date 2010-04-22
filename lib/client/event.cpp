@@ -40,6 +40,7 @@ static std::string _eventTypeNames[ Event::ALL ] =
     "pointer motion",
     "pointer button press",
     "pointer button release",
+    "pointer wheel",
     "key press",
     "key release",
     "channel resize",
@@ -55,6 +56,7 @@ Event::Event()
         : type( UNKNOWN )
         , originator( EQ_ID_INVALID )
 {
+    bzero( &user, sizeof( user ));
 }
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event& event )
@@ -77,6 +79,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event& event )
         case Event::POINTER_MOTION:
         case Event::POINTER_BUTTON_PRESS:
         case Event::POINTER_BUTTON_RELEASE:
+        case Event::POINTER_WHEEL:
             os << event.pointer;
             break;
 
@@ -118,7 +121,8 @@ std::ostream& operator << ( std::ostream& os, const ResizeEvent& event )
 std::ostream& operator << ( std::ostream& os, const PointerEvent& event )
 {
     os << '[' << event.x << "], [" << event.y << "] d(" << event.dx << ", "
-       << event.dy << ')' << " buttons ";
+       << event.dy << ')' << " wheel " << '[' << event.xAxis << ", " 
+       << event.yAxis << "] buttons ";
 
     if( event.buttons == PTR_BUTTON_NONE ) os << "none";
     if( event.buttons & PTR_BUTTON1 ) os << "1";

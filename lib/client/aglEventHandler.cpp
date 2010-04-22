@@ -70,6 +70,7 @@ AGLEventHandler::AGLEventHandler( AGLWindowIF* window )
         { kEventClassMouse,    kEventMouseDragged },
         { kEventClassMouse,    kEventMouseDown },
         { kEventClassMouse,    kEventMouseUp },
+        { kEventClassMouse,    kEventMouseWheelMoved },
         { kEventClassKeyboard, kEventRawKeyDown },
         { kEventClassKeyboard, kEventRawKeyUp },
         { kEventClassKeyboard, kEventRawKeyRepeat }
@@ -362,6 +363,34 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event )
             _getRenderContext( window, windowEvent );
             break;
 
+        case kEventMouseWheelMoved:
+        {
+            windowEvent.type = Event::POINTER_WHEEL;
+            windowEvent.pointerWheel.button  = PTR_BUTTON_NONE;
+            windowEvent.pointerWheel.buttons = _getButtonState();
+            windowEvent.pointerWheel.dx = _lastDX;
+            windowEvent.pointerWheel.dy = _lastDY;
+
+            EventMouseWheelAxis axis;
+            SInt32 delta;
+            GetEventParameter( event, kEventParamMouseWheelAxis,
+                               typeMouseWheelAxis, 0, sizeof( axis ), 0, &axis);
+            GetEventParameter( event, kEventParamMouseWheelDelta,
+                               typeLongInteger, 0, sizeof( delta ), 0, &delta );
+            
+            switch( axis )
+            {
+                case kEventMouseWheelAxisY: // NO typo - y is the primary axis
+                    windowEvent.pointerWheel.xAxis = delta;
+                    break;
+                case kEventMouseWheelAxisX:
+                    windowEvent.pointerWheel.yAxis = delta;
+                    break;
+                default:
+                    EQUNIMPLEMENTED;
+            }
+            break;
+        }
         default:
             EQINFO << "Unhandled mouse event " << GetEventKind( event ) << endl;
             windowEvent.type = Event::UNKNOWN;

@@ -133,6 +133,10 @@ WGLEventHandler::WGLEventHandler( WGLWindowIF* window )
 
     if( _prevWndProc == wndProc ) // avoid recursion
         _prevWndProc = DefWindowProc;
+
+    UINT scrollLines;
+    SystemParametersInfo( SPI_GETWHEELSCROLLLINES, 0, &scrollLines, 0 );
+    _wheelDeltaPerLine = WHEEL_DELTA / scrollLines;
 }
 
 WGLEventHandler::~WGLEventHandler()
@@ -371,6 +375,14 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             result = TRUE;
             break;
 
+        case WM_MOUSEWHEEL:
+            event.type = Event::POINTER_WHEEL;
+            event.pointerWheel.x     = GET_X_LPARAM( lParam );
+            event.pointerWheel.y     = GET_Y_LPARAM( lParam );
+            event.pointerWheel.buttons = _buttonState;
+            event.pointerWheel.xAxis = _getWheelDelta( wParam );
+            break;
+
         case WM_SYSKEYDOWN:
         case WM_KEYDOWN:
             event.type = Event::KEY_PRESS;
@@ -489,6 +501,13 @@ uint32_t WGLEventHandler::_getKey( LPARAM lParam, WPARAM wParam )
     }
     EQWARN << "Unrecognized virtual key code " << wParam << std::endl;
     return KC_VOID;
+}
+
+int32_t WGLEventHandler::_getWheelDelta( WPARAM wParam ) const
+{
+    const int32_t rawDelta = 
+        static_cast< int32_t >( GET_WHEEL_DELTA_WPARAM( wParam ));
+    return rawDelta / _wheelDeltaPerLine;
 }
 
 

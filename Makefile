@@ -29,7 +29,7 @@ lib: precompile externals
 tests: lib server
 examples: lib
 contrib: lib
-server: lib
+server: lib $(OPTIONAL)
 tools: server
 auxilary: lib
 

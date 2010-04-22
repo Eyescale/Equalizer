@@ -68,6 +68,8 @@ namespace eq
         WNDPROC      _prevWndProc;
         uint32_t     _buttonState;
 
+        int32_t      _wheelDeltaPerLine;
+
         union // placeholder for binary-compatible changes
         {
             char dummy[64];
@@ -81,6 +83,7 @@ namespace eq
 
         void      _syncButtonState( WPARAM wParam );
         uint32_t  _getKey( LPARAM lParam, WPARAM wParam );
+        int32_t   _getWheelDelta( WPARAM wParam ) const;
     };
 }
 
