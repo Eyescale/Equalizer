@@ -99,6 +99,19 @@ void Frame::setRange( const Range& range )
     _frameData->setRange( range );    
 }
 
+void Frame::setInputZoom( const Zoom& zoom )
+{
+    EQASSERT( _frameData );
+    EQASSERT( zoom.isValid( ));
+    _frameData->setZoom( zoom );
+}
+
+const Zoom& Frame::getInputZoom() const
+{
+    EQASSERT( _frameData );
+    return _frameData->getZoom();
+}
+
 const ImageVector& Frame::getImages() const
 {
     EQASSERT( _frameData );

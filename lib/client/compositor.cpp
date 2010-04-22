@@ -89,7 +89,8 @@ static bool _useCPUAssembly( const FrameVector& frames, Channel* channel,
     {
         const Frame* frame = *i;
         if( frame->getPixel() != Pixel::ALL ||
-            frame->getSubPixel() != SubPixel::ALL ) // Not yet supported
+            frame->getSubPixel() != SubPixel::ALL ||
+            frame->getZoom() != Zoom::NONE ) // Not supported by CPU compositor
         {
             return false;
         }
@@ -102,8 +103,8 @@ static bool _useCPUAssembly( const FrameVector& frames, Channel* channel,
 
     // Now wait for all images to be ready and test if our assumption was
     // correct, that there are enough images to make a CPU-based assembly
-    // worthwhile and all other preconditions for our current CPU-based assembly
-    // code are true.
+    // worthwhile and all other preconditions for our CPU-based assembly code
+    // are true.
     size_t   nImages     = 0;
     uint32_t colorFormat = 0;
     uint32_t colorType   = 0;
@@ -118,6 +119,9 @@ static bool _useCPUAssembly( const FrameVector& frames, Channel* channel,
             ChannelStatistics event( Statistic::CHANNEL_WAIT_FRAME, channel );
             frame->waitReady();
         }
+
+        if( frame->getInputZoom() != Zoom::NONE )
+            return false;
 
         const ImageVector& images = frame->getImages();        
         for( ImageVector::const_iterator j = images.begin(); 
@@ -163,9 +167,6 @@ static bool _useCPUAssembly( const FrameVector& frames, Channel* channel,
                 ++nImages;
             }
         }
-
-        if( nImages > 1 ) // early-out to reduce wait time
-            return true;
     }
 
     return false;
@@ -518,9 +519,11 @@ bool Compositor::_collectOutputData( const FrameVector& frames,
         Frame* frame = *i;
         frame->waitReady();
 
-        EQASSERTINFO( frame->getPixel() == Pixel::ALL || 
-                      frame->getSubPixel() == SubPixel::ALL,
-                      "CPU-based (sub)pixel recomposition not implemented" );
+        EQASSERTINFO( frame->getPixel() == Pixel::ALL &&
+                      frame->getSubPixel() == SubPixel::ALL &&
+                      frame->getZoom() == Zoom::NONE &&
+                      frame->getInputZoom() == Zoom::NONE,
+                      "CPU-based compositing not implemented for given frames");
         if( frame->getPixel() != Pixel::ALL )
             return false;
 
@@ -955,7 +958,6 @@ bool Compositor::_mergeImage_PC( int operation, void* destColor,
 #endif
 }
 
-
 void Compositor::assembleFrame( const Frame* frame, Channel* channel )
 {
     const ImageVector& images = frame->getImages();
@@ -968,6 +970,7 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
     operation.offset  = frame->getOffset();
     operation.pixel   = frame->getPixel();
     operation.zoom    = frame->getZoom();
+    operation.zoom.apply( frame->getInputZoom( ));
 
     for( ImageVector::const_iterator i = images.begin(); 
          i != images.end(); ++i )
@@ -1411,12 +1414,12 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     const float startX = static_cast< float >
         ( op.offset.x() + pvp.x * op.pixel.w + op.pixel.x );
     const float endX   = static_cast< float >
-        ( op.offset.x() + (pvp.x + pvp.w) * op.pixel.w + op.pixel.x );
+        ( op.offset.x() + (pvp.x+pvp.w) * op.pixel.w*op.zoom.x() + op.pixel.x );
     const float startY = static_cast< float >
         ( op.offset.y() + pvp.y * op.pixel.h + op.pixel.y );
     const float endY   = static_cast< float >
-        ( op.offset.y() + (pvp.y + pvp.h) * op.pixel.h + op.pixel.y );
-    
+        ( op.offset.y() + (pvp.y+pvp.h) * op.pixel.h*op.zoom.y() + op.pixel.y );
+
     const float w = static_cast< float >( pvp.w );
     const float h = static_cast< float >( pvp.h );
 

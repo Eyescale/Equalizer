@@ -60,6 +60,8 @@ namespace server
 
         /** @return the database-range relative to the destination channel. */
         const Range& getRange() const { return _data.range; }
+
+        /** @internal */
         void setRange( const Range& range ) { _data.range = range; }
         
         /** @return the pixel decomposition wrt the destination channel. */
@@ -85,6 +87,12 @@ namespace server
 
         /** Set the minimum quality after compression. */
         void setQuality( const Frame::Buffer buffer, const float quality );
+
+        /** Set additional zoom during compositing, distributed. @internal */
+        void setZoom( const Zoom& zoom ) { _zoom = zoom; }
+
+        /** @return the additional zoom. @internal */
+        const Zoom& getZoom() const { return _zoom; }
         //@}
 
         /**
@@ -223,7 +231,9 @@ namespace server
             uint32_t version;
         };
         std::list<ImageVersion> _pendingImages;
-        std::set< uint32_t >    _readyVersions;
+
+        typedef std::deque< net::Command* > Commands;
+        Commands _readyVersions;
 
         /** Data ready monitor synchronization primitive. */
         base::Monitor<uint32_t> _readyVersion;
@@ -236,7 +246,8 @@ namespace server
         bool _useSendToken;
         float _colorQuality;
         float _depthQuality;
-        
+        Zoom  _zoom;
+
         union // placeholder for binary-compatible changes
         {
             char dummy[32];

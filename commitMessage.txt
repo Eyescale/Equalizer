@@ -1,9 +1,9 @@
-Minor code cleanups
+Allow the up-scale of readback frames on the destination
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

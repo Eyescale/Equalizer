@@ -108,6 +108,21 @@ namespace server
          */
         void setZoom( const Zoom& zoom ) { _data.zoom = zoom; }
 
+        /**
+         * Set an additional zoom for all input frames of this (output) frame
+         *
+         * This method sets a zoom on the frame's data which is transported to
+         * all consumers (aka input frames) of the data. The input frames use
+         * this zoom in addition to their specific zoom. It is ignored during
+         * readback.
+         *
+         * @warning experimental - may not be supported in the future.
+         */
+        void setInputZoom( const Zoom& zoom );
+
+        /** @return the input zoom. @warning experimental */
+        const Zoom& getInputZoom() const;
+
         /** The images of this frame */
         EQ_EXPORT const ImageVector& getImages() const;
 
@@ -226,7 +241,7 @@ namespace server
         friend class eq::server::Frame;
         struct Data
         {
-            Data() : offset( Vector2i::ZERO ), zoom( 0.f, 0.f ) {}
+            Data() : offset( Vector2i::ZERO ) {}
 
             Vector2i offset;
             Zoom zoom;

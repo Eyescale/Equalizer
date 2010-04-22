@@ -951,6 +951,7 @@ namespace eq
                 command = CMD_FRAMEDATA_READY;
                 size    = sizeof( FrameDataReadyPacket );
             }
+        Zoom     zoom;
         uint32_t version;
     };
 

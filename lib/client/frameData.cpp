@@ -457,6 +457,7 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
     }
 
     FrameDataReadyPacket readyPacket;
+    readyPacket.zoom      = _zoom;
     readyPacket.sessionID = session->getID();
     readyPacket.objectID  = getID();
     readyPacket.version   = getVersion();
@@ -597,13 +598,16 @@ net::CommandResult FrameData::_cmdReady( net::Command& command )
     if( getVersion() == packet->version )
     {
         _applyVersion( packet->version );
+        _zoom = packet->zoom;
         _setReady( packet->version );
     }
     else
-        _readyVersions.insert( packet->version );
+    {
+        command.retain();
+        _readyVersions.push_back( &command );
+    }
 
     EQLOG( LOG_ASSEMBLY ) << this << " received v" << packet->version << endl;
-
     return net::COMMAND_HANDLED;
 }
 
@@ -615,11 +619,21 @@ net::CommandResult FrameData::_cmdUpdate( net::Command& command )
 
     _applyVersion( packet->version );
 
-    std::set< uint32_t >::iterator i = _readyVersions.find( packet->version );
-    if( i != _readyVersions.end( ))
+    for( Commands::iterator i = _readyVersions.begin();
+         i != _readyVersions.end(); ++i )
     {
+        net::Command* cmd = *i;
+        const FrameDataReadyPacket* candidate =
+            cmd->getPacket<FrameDataReadyPacket>();
+
+        if( candidate->version != packet->version )
+            continue;
+
+        _zoom = candidate->zoom;
+        cmd->release();
         _readyVersions.erase( i );
         _setReady( packet->version );
+        break;        
     }
 
     return net::COMMAND_HANDLED;

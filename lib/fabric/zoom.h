@@ -56,6 +56,13 @@ namespace fabric
         /** Make the zoom factor invalid. @internal */
         void invalidate() { x() = y() = 0.f; }
 
+        /** Apply an additional zoom factor to this zoom. @internal */
+        void apply( const Zoom& rhs )
+            {
+                x() *= rhs.x();
+                y() *= rhs.y();
+            }
+
         /** The zoom NONE (1,1) value. */
         EQ_EXPORT static const Zoom NONE;
     };
