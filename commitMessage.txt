@@ -1,4 +1,4 @@
-Template admin client initialization
+Template admin client initialization (VS, XCode)
 
 [ ] May break build
 [ ] May break existing applications
