@@ -29,10 +29,11 @@ public:
 
     enum DirtyBits
     {
-        DIRTY_OBSERVERS = Object::DIRTY_CUSTOM << 0,
-        DIRTY_LAYOUTS   = Object::DIRTY_CUSTOM << 1,
-        DIRTY_CANVASES  = Object::DIRTY_CUSTOM << 2,
-        DIRTY_MEMBER    = Object::DIRTY_CUSTOM << 3
+        DIRTY_MEMBER    = Object::DIRTY_CUSTOM << 0,
+        DIRTY_OBSERVERS = Object::DIRTY_CUSTOM << 1,
+        DIRTY_LAYOUTS   = Object::DIRTY_CUSTOM << 2,
+        DIRTY_CANVASES  = Object::DIRTY_CUSTOM << 3,
+        DIRTY_LATENCY   = Object::DIRTY_CUSTOM << 4,
     };
             
     void create( O** observer ) { *observer = _config.createObserver(); }
@@ -62,13 +63,15 @@ void ConfigProxy< S, C, O, L, CV, N >::serialize( net::DataOStream& os,
 {
     Object::serialize( os, dirtyBits );
 
+    if( dirtyBits & DIRTY_MEMBER )
+        os << _config._appNodeID;
     if( dirtyBits & DIRTY_OBSERVERS )
         os.serializeChildren( this, _config._observers );
     if( dirtyBits & DIRTY_LAYOUTS )
         os.serializeChildren( this, _config._layouts );
     if( dirtyBits & DIRTY_CANVASES )
         os.serializeChildren( this, _config._canvases );
-    if( dirtyBits & DIRTY_MEMBER )
+    if( dirtyBits & DIRTY_LAYOUTS )
         os << _config._data.latency;
 }
 
@@ -77,9 +80,11 @@ void ConfigProxy< S, C, O, L, CV, N >::deserialize( net::DataIStream& is,
                                                     const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
-    const bool mapChildren = _config.distributeChildren();
 
-    if( mapChildren )
+    if( dirtyBits & DIRTY_MEMBER )
+        is >> _config._appNodeID;
+
+    if( _config.distributeChildren( )) // depends on _config._appNodeID !
     {
         if( dirtyBits & DIRTY_OBSERVERS )
             is.deserializeChildren( this, _config._observers );
@@ -99,7 +104,7 @@ void ConfigProxy< S, C, O, L, CV, N >::deserialize( net::DataIStream& is,
             is >> childIDs;
     }
 
-    if( dirtyBits & DIRTY_MEMBER )
+    if( dirtyBits & DIRTY_LATENCY )
     {
         uint32_t latency = 0;
         is >> latency;

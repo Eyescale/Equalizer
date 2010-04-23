@@ -79,16 +79,14 @@ namespace eq
     {
         ServerCreateConfigPacket()
                 : requestID( EQ_ID_INVALID )
-                , proxyID( EQ_ID_INVALID ) 
             {
                 command   = fabric::CMD_SERVER_CREATE_CONFIG;
                 size      = sizeof( ServerCreateConfigPacket );
             }
 
-        net::NodeID appNodeID;
         net::SessionID configID;
-        uint32_t    requestID;
-        uint32_t    proxyID;
+        uint32_t requestID;
+        net::ObjectVersion proxy;
     };
 
     struct ServerDestroyConfigPacket : public ServerPacket
@@ -239,13 +237,11 @@ namespace eq
                 size      = sizeof( ConfigInitReplyPacket );
                 requestID = requestPacket->requestID;
                 sessionID = requestPacket->sessionID;
-                error[0]  = '\0';
             }
 
         uint32_t requestID;
-        uint32_t configID;
+        uint32_t version;
         bool     result;
-        EQ_ALIGN8( char error[8] );
     };
 
     struct ConfigExitPacket : public ConfigPacket

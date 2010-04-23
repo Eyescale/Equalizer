@@ -309,9 +309,9 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
     config->setRenderClient( renderClient );
 
     ServerCreateConfigPacket createConfigPacket;
-    createConfigPacket.appNodeID = node->getNodeID();
     createConfigPacket.configID = config->getID();
-    createConfigPacket.proxyID = config->getProxyID();
+    createConfigPacket.proxy.identifier = config->getProxyID();
+    createConfigPacket.proxy.version    = config->commit();
 
     reply.configID = config->getID();
 
@@ -424,7 +424,8 @@ net::CommandResult Server::_cmdMap( net::Command& command )
         Config* config = i->second;
         ServerCreateConfigPacket createConfigPacket;
         createConfigPacket.configID = config->getID();
-        createConfigPacket.proxyID = config->getProxyID();
+        createConfigPacket.proxy.identifier = config->getProxyID();
+        createConfigPacket.proxy.version    = config->commit();
         node->send( createConfigPacket );
     }
 

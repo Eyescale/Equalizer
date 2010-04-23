@@ -209,6 +209,8 @@ namespace server
 
         virtual bool distributeChildren() { return true; } //!< @internal
 
+        friend class Server; // for commit()
+
     private:
         Config( const Config& from );
 

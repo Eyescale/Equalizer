@@ -41,6 +41,8 @@ Config< S, C, O, L, CV, N >::Config( base::RefPtr< S > server )
 template< class S, class C, class O, class L, class CV, class N >
 Config< S, C, O, L, CV, N >::~Config()
 {
+    _appNodeID = net::NodeID::ZERO;
+
     while( !_canvases.empty( ))
     {
         CV* canvas = _canvases.back();
@@ -262,6 +264,16 @@ void Config< S, C, O, L, CV, N >::setLatency( const uint32_t latency )
 }
 
 template< class S, class C, class O, class L, class CV, class N >
+void Config< S, C, O, L, CV, N >::setAppNodeID( const net::NodeID& nodeID )
+{
+    if( _appNodeID == nodeID )
+        return;
+
+    _appNodeID = nodeID;
+    _proxy->setDirty( ConfigProxy< S, C, O, L, CV, N >::DIRTY_MEMBER );
+}
+
+template< class S, class C, class O, class L, class CV, class N >
 uint32_t Config< S, C, O, L, CV, N >::getProxyID() const
 {
     EQASSERT( _proxy->isMaster( ));
@@ -306,9 +318,9 @@ void Config< S, C, O, L, CV, N >::deregister()
 }
 
 template< class S, class C, class O, class L, class CV, class N >
-void Config< S, C, O, L, CV, N >::map( const uint32_t proxyID )
+void Config< S, C, O, L, CV, N >::map( const net::ObjectVersion proxy )
 {
-    EQCHECK( mapObject( _proxy, proxyID ));
+    EQCHECK( mapObject( _proxy, proxy ));
 }
 
 template< class S, class C, class O, class L, class CV, class N >

@@ -67,9 +67,6 @@ namespace eq
 
         /** @name Data Access */
         //@{
-        /** @return the name of this config. @version 1.0 */
-        const std::string& getName() const { return _name; }
-
         /** @return the local client node. @version 1.0 */
         EQ_EXPORT ClientPtr getClient();
 
@@ -309,12 +306,6 @@ namespace eq
         EQ_EXPORT virtual bool handleEvent( const ConfigEvent* event );
         //@}
         
-        /** @name Error Information */
-        //@{
-        /** @return the error message from the last operation. @version 1.0 */
-        const std::string& getErrorMessage() const { return _error; }
-        //@}
-
         /** @internal */
         //@{
         /** 
@@ -329,27 +320,17 @@ namespace eq
 
         /** @internal */
         //@{
-        /** @internal */
         EQ_EXPORT virtual void notifyMapped( net::NodePtr node );
-        /** @internal */
         EQ_EXPORT virtual void changeLatency( const uint32_t latency );
         EQ_EXPORT virtual void unmap(); //!< @internal
         virtual bool distributeChildren(); //!< @internal
         //@}
 
+        friend class Server; // for unmap()
+
     private:
-        /** The node identifier of the node running the application thread. */
-        net::NodeID _appNodeID;
-        friend class Server;
-
-        /** The name. */
-        std::string _name;
-
         /** The node running the application thread. */
         net::NodePtr _appNode;
-
-        /** The reason for the last error. */
-        std::string _error;
 
         /** The receiver->app thread event queue. */
         CommandQueue _eventQueue;

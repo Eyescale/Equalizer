@@ -1,9 +1,11 @@
-Template admin client initialization (VS, XCode)
+Move Config::_appNodeID to fabric
+- clean up leftover error/name in eq::Config
+- create configs with proper version directly
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

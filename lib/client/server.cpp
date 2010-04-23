@@ -169,14 +169,13 @@ net::CommandResult Server::_cmdCreateConfig( net::Command& command )
     const ServerCreateConfigPacket* packet = 
         command.getPacket<ServerCreateConfigPacket>();
     EQVERB << "Handle create config " << packet << std::endl;
-    EQASSERT( packet->proxyID != EQ_ID_INVALID );
+    EQASSERT( packet->proxy.identifier != EQ_ID_INVALID );
     
     net::NodePtr localNode = command.getLocalNode();
     Config* config = Global::getNodeFactory()->createConfig( this );
 
-    config->_appNodeID = packet->appNodeID;
     localNode->mapSession( command.getNode(), config, packet->configID );
-    config->map( packet->proxyID );
+    config->map( packet->proxy );
 
     if( packet->requestID != EQ_ID_INVALID )
     {

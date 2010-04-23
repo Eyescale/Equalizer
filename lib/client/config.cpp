@@ -75,8 +75,6 @@ Config::~Config()
         _lastEvent->release();
     _eventQueue.flush();
     _lastEvent = 0;
-
-    _appNodeID = net::NodeID::ZERO;
     _appNode   = 0;
     base::Log::setClock( 0 );
 }
@@ -370,9 +368,7 @@ bool Config::exit()
     _eventQueue.flush();
     _lastEvent = 0;
     _running = false;
-
     _appNode   = 0;
-    _appNodeID = net::NodeID::ZERO;
     return ret;
 }
 
@@ -523,12 +519,12 @@ void Config::sendEvent( ConfigEvent& event )
 {
     EQASSERT( event.data.type != Event::STATISTIC ||
               event.data.statistic.type != Statistic::NONE );
-    EQASSERT( _appNodeID != base::UUID::ZERO );
+    EQASSERT( getAppNodeID() != net::NodeID::ZERO );
 
     if( !_appNode )
     {
         net::NodePtr localNode = getLocalNode();
-        _appNode = localNode->connect( _appNodeID );
+        _appNode = localNode->connect( getAppNodeID( ));
     }
     EQASSERT( _appNode );
 
@@ -710,7 +706,7 @@ void Config::getStatistics( std::vector< FrameStatistics >& statistics )
 bool Config::distributeChildren()
 {
     // only on application node...
-    return (getClient()->getNodeID() == _appNodeID);
+    return (getClient()->getNodeID() == getAppNodeID( ));
 }
 
 void Config::setupMessagePump( Pipe* pipe )
@@ -810,9 +806,7 @@ net::CommandResult Config::_cmdInitReply( net::Command& command )
         command.getPacket<ConfigInitReplyPacket>();
     EQVERB << "handle init reply " << packet << std::endl;
 
-    if( !packet->result )
-        _error = packet->error;
-
+    sync( packet->version );
     getLocalNode()->serveRequest( packet->requestID, (void*)(packet->result) );
     return net::COMMAND_HANDLED;
 }

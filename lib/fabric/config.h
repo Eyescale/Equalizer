@@ -195,11 +195,13 @@ namespace fabric
 
         uint32_t register_();
         void deregister();
-        void map( const uint32_t proxyID );
+        void map( const net::ObjectVersion proxy );
         virtual void unmap();
         uint32_t commit();
         void sync( const uint32_t version );
 
+        void setAppNodeID( const net::NodeID& nodeID );
+        const net::NodeID& getAppNodeID() const { return _appNodeID; }
         virtual void changeLatency( const uint32_t latency ) { /* NOP */ }
         virtual bool distributeChildren() { return false; }
         //@}
@@ -219,6 +221,9 @@ namespace fabric
 
         /** The list of nodes. */
         NodeVector _nodes;
+
+        /** The node identifier of the node running the application thread. */
+        net::NodeID _appNodeID;
 
         struct BackupData
         {

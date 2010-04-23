@@ -1,4 +1,5 @@
 *.mode1v3
+*.orig
 *.pbxuser
 *.ply.*.bin
 *.vcproj.*.user

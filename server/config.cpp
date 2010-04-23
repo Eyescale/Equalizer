@@ -314,9 +314,12 @@ void Config::setApplicationNode( Node* node )
 void Config::setApplicationNetNode( net::NodePtr node )
 {
     EQASSERT( _state == STATE_STOPPED );
-    EQASSERT( !_appNetNode );
 
     _appNetNode = node;
+    if( node.isValid( ))
+        setAppNodeID( node->getNodeID( ));
+    else
+        setAppNodeID( net::NodeID::ZERO );
 }
 
 Channel* Config::getChannel( const ChannelPath& path )
@@ -510,7 +513,7 @@ void Config::restore()
     _currentFrame = 0;
     _finishedFrame = 0;
     _appNode = 0;
-    _appNetNode = 0;
+    setApplicationNetNode( 0 );
     _workDir.clear();
     _renderClient.clear();
     Super::restore();
@@ -785,10 +788,10 @@ uint32_t Config::_createConfig( Node* node )
     // create config (session) on each non-app node
     //   app-node already has config from chooseConfig
     ServerCreateConfigPacket createConfigPacket;
-    createConfigPacket.appNodeID = _appNetNode->getNodeID();
     createConfigPacket.configID = getID();
     createConfigPacket.requestID = getLocalNode()->registerRequest();
-    createConfigPacket.proxyID = getProxyID();
+    createConfigPacket.proxy.identifier = getProxyID();
+    createConfigPacket.proxy.version    = commit();
 
     net::NodePtr netNode = node->getNode();
     netNode->send( createConfigPacket );
@@ -999,15 +1002,15 @@ net::CommandResult Config::_cmdInit( net::Command& command )
 
     ConfigInitReplyPacket reply( packet );
     reply.result = _init( packet->initID );
-    const std::string& error = getErrorMessage();
-
     if( !reply.result )
         exit();
 
+    sync( net::VERSION_HEAD );
     EQINFO << "Config init " << (reply.result ? "successful": "failed: ") 
-           << error << std::endl;
+           << getErrorMessage() << std::endl;
 
-    send( command.getNode(), reply, error );
+    reply.version = commit();
+    send( command.getNode(), reply );
     setErrorMessage( "" );
     return net::COMMAND_HANDLED;
 }
