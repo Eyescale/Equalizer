@@ -383,6 +383,16 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             event.pointerWheel.xAxis = _getWheelDelta( wParam );
             break;
 
+#ifdef WM_MOUSEHWHEEL // only available on vista or later
+        case WM_MOUSEHWHEEL:
+            event.type = Event::POINTER_WHEEL;
+            event.pointerWheel.x     = GET_X_LPARAM( lParam );
+            event.pointerWheel.y     = GET_Y_LPARAM( lParam );
+            event.pointerWheel.buttons = _buttonState;
+            event.pointerWheel.yAxis = _getWheelDelta( wParam );
+            break;
+#endif
+
         case WM_SYSKEYDOWN:
         case WM_KEYDOWN:
             event.type = Event::KEY_PRESS;

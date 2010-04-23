@@ -1,11 +1,9 @@
-Move Config::_appNodeID to fabric
-- clean up leftover error/name in eq::Config
-- create configs with proper version directly
+Support for second mouse wheel for Windows >= Vista (Marc)
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
