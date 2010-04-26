@@ -40,6 +40,7 @@ namespace fabric
     template< class, class > class Observer;
     template< class, class, class > class Layout;
     template< class, class, class > class Node;
+    template< class, class, class > class Server;
     struct CanvasPath;
     struct LayoutPath;
     struct ObserverPath;

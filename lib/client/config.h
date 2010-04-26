@@ -329,7 +329,7 @@ namespace fabric
         EQ_EXPORT virtual void changeLatency( const uint32_t latency );
         EQ_EXPORT virtual void unmap(); //!< @internal
         template< class, class, class > friend class fabric::Server; // unmap
-        virtual bool distributeChildren(); //!< @internal
+        EQ_EXPORT virtual bool distributeChildren(); //!< @internal
         //@}
 
         friend class Server; // for unmap()
