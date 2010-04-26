@@ -28,6 +28,11 @@
 
 namespace eq
 {
+namespace fabric
+{
+    template< class, class, class > class Server;
+}
+
     class ConfigDeserializer;
     class ConfigVisitor;
     class Layout;
@@ -323,6 +328,7 @@ namespace eq
         EQ_EXPORT virtual void notifyMapped( net::NodePtr node );
         EQ_EXPORT virtual void changeLatency( const uint32_t latency );
         EQ_EXPORT virtual void unmap(); //!< @internal
+        template< class, class, class > friend class fabric::Server; // unmap
         virtual bool distributeChildren(); //!< @internal
         //@}
 

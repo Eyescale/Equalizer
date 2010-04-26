@@ -33,6 +33,7 @@ namespace eq
 {
 
 typedef net::CommandFunc<Server> CmdFunc;
+typedef fabric::Server< Client, Server, Config > Super;
 
 Server::Server()
         : _localServer( false )
@@ -43,21 +44,19 @@ Server::Server()
 Server::~Server()
 {
     EQINFO << "Delete server at " << (void*)this << std::endl;
-    _client = 0;
 }
 
 void Server::setClient( ClientPtr client )
 {
-    _client = client;
     if( !client )
+    {
+        Super::setClient( 0, 0 );
         return;
+    }
 
     net::CommandQueue* queue = client->getNodeThreadQueue();
+    Super::setClient( client, queue );
 
-    registerCommand( fabric::CMD_SERVER_CREATE_CONFIG, 
-                     CmdFunc( this, &Server::_cmdCreateConfig ), queue );
-    registerCommand( fabric::CMD_SERVER_DESTROY_CONFIG, 
-                     CmdFunc( this, &Server::_cmdDestroyConfig ), queue );
     registerCommand( fabric::CMD_SERVER_CHOOSE_CONFIG_REPLY, 
                      CmdFunc( this, &Server::_cmdChooseConfigReply ), queue );
     registerCommand( fabric::CMD_SERVER_RELEASE_CONFIG_REPLY, 
@@ -66,14 +65,24 @@ void Server::setClient( ClientPtr client )
                      CmdFunc( this, &Server::_cmdShutdownReply ), queue );
 }
 
+Config* Server::_createConfig()
+{
+    return Global::getNodeFactory()->createConfig( this );
+}
+
+void Server::_releaseConfig( Config* config )
+{
+    Global::getNodeFactory()->releaseConfig( config );
+}
+
 net::CommandQueue* Server::getNodeThreadQueue() 
 {
-    return _client->getNodeThreadQueue();
+    return getClient()->getNodeThreadQueue();
 }
 
 net::CommandQueue* Server::getCommandThreadQueue() 
 {
-    return _client->getCommandThreadQueue();
+    return getClient()->getCommandThreadQueue();
 }
 
 Config* Server::chooseConfig( const ConfigParams& parameters )
@@ -101,7 +110,7 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
     send( packet, rendererInfo );
 
     while( !isRequestServed( packet.requestID ))
-        _client->processCommand();
+        getClient()->processCommand();
 
     void* ptr = 0;
     waitRequest( packet.requestID, ptr );
@@ -118,7 +127,7 @@ void Server::releaseConfig( Config* config )
     send( packet );
 
     while( !isRequestServed( packet.requestID ))
-        _client->processCommand();
+        getClient()->processCommand();
 
     waitRequest( packet.requestID );
 }
@@ -133,84 +142,20 @@ bool Server::shutdown()
     send( packet );
 
     while( !isRequestServed( packet.requestID ))
-        _client->processCommand();
+        getClient()->processCommand();
 
     bool result = false;
     waitRequest( packet.requestID, result );
 
     if( result )
-        static_cast< net::Node* >( _client.get( ))->close( this );
+        static_cast< net::Node* >( getClient().get( ))->close( this );
 
     return result;
-}
-
-void Server::_addConfig( Config* config )
-{ 
-    EQASSERT( config->getServer() == this );
-    _configs.push_back( config );
-}
-
-bool Server::_removeConfig( Config* config )
-{
-    ConfigVector::iterator i = find( _configs.begin(), _configs.end(),
-                                      config );
-    if( i == _configs.end( ))
-        return false;
-
-    _configs.erase( i );
-    return true;
 }
 
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-net::CommandResult Server::_cmdCreateConfig( net::Command& command )
-{
-    const ServerCreateConfigPacket* packet = 
-        command.getPacket<ServerCreateConfigPacket>();
-    EQVERB << "Handle create config " << packet << std::endl;
-    EQASSERT( packet->proxy.identifier != EQ_ID_INVALID );
-    
-    net::NodePtr localNode = command.getLocalNode();
-    Config* config = Global::getNodeFactory()->createConfig( this );
-
-    localNode->mapSession( command.getNode(), config, packet->configID );
-    config->map( packet->proxy );
-
-    if( packet->requestID != EQ_ID_INVALID )
-    {
-        ConfigCreateReplyPacket reply( packet );
-        command.getNode()->send( reply );
-    }
-
-    return net::COMMAND_HANDLED;
-}
-
-net::CommandResult Server::_cmdDestroyConfig( net::Command& command )
-{
-    const ServerDestroyConfigPacket* packet = 
-        command.getPacket<ServerDestroyConfigPacket>();
-    EQVERB << "Handle destroy config " << packet << std::endl;
-    
-    net::NodePtr  localNode  = command.getLocalNode();
-    net::Session* session    = localNode->getSession( packet->configID );
-
-    EQASSERTINFO( dynamic_cast<Config*>( session ), typeid(*session).name( ));
-    Config* config = static_cast<Config*>( session );
-
-    config->unmap();
-    config->_exitMessagePump();
-    EQCHECK( localNode->unmapSession( config ));
-    Global::getNodeFactory()->releaseConfig( config );
-
-    if( packet->requestID != EQ_ID_INVALID )
-    {
-        ServerDestroyConfigReplyPacket reply( packet );
-        command.getNode()->send( reply );
-    }
-    return net::COMMAND_HANDLED;
-}
-
 net::CommandResult Server::_cmdChooseConfigReply( net::Command& command )
 {
     const ServerChooseConfigReplyPacket* packet = 
@@ -252,3 +197,7 @@ net::CommandResult Server::_cmdShutdownReply( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 }
+
+#include "../fabric/server.ipp"
+template class eq::fabric::Server< eq::Client, eq::Server, eq::Config >;
+

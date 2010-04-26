@@ -1,9 +1,9 @@
-Support for second mouse wheel for Windows >= Vista (Marc)
+Refactor common client-side server code into fabric
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

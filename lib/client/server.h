@@ -20,8 +20,7 @@
 
 #include <eq/client/types.h>     // basic typedefs
 #include <eq/fabric/nodeType.h>  // for NODETYPE_EQ_SERVER enum
-
-#include <eq/net/node.h>         // base class
+#include <eq/fabric/server.h>    // base class
 
 namespace eq
 {
@@ -41,7 +40,7 @@ template< class, class, class, class, class, class > class Config;
      * and release a Config from the server.
      * @sa Client::connectServer
      */
-    class Server : public net::Node
+    class Server : public fabric::Server< Client, Server, Config >
     {
     public:
         /** Construct a new server. */
@@ -50,8 +49,6 @@ template< class, class, class, class, class, class > class Config;
         /** @name Internal */
         //@{
         void setClient( ClientPtr client );
-        ClientPtr getClient(){ return _client; }
-
         EQ_EXPORT net::CommandQueue* getNodeThreadQueue();
         EQ_EXPORT net::CommandQueue* getCommandThreadQueue();
         //@}
@@ -78,62 +75,31 @@ template< class, class, class, class, class, class > class Config;
         /** Undocumented - may not be supported in the future */
         EQ_EXPORT bool shutdown();
         
-        /** @return the vector of configurations. */
-        const ConfigVector& getConfigs() const { return _configs; }
-
     protected:
         /**
          * Destructs this server.
          */
         EQ_EXPORT virtual ~Server();
 
-    private:
-        /** The local client connected to the server */
-        ClientPtr _client;
-        friend class Client; // to call invokeCommand()
+        virtual Config* _createConfig(); //!< @internal
+        virtual void _releaseConfig( Config* config ); //!< @internal
 
-        /** The list of configurations. */
-        ConfigVector _configs;
+    private:
+        friend class Client; // to call invokeCommand()
 
         /** Process-local server */
         bool _localServer;
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
-        /** @sa net::Node::getType */
-        virtual uint32_t getType() const { return fabric::NODETYPE_EQ_SERVER; }
-
-        template< class, class, class,
-                  class, class, class > friend class fabric::Config;
-
-        /**  Add a new config to this server. */
-        void _addConfig( Config* config );
-
-        /** Remove a config from this server. */
-        bool _removeConfig( Config* config );
-
         /* The command handler functions. */
-        net::CommandResult _cmdCreateConfig( net::Command& command );
-        net::CommandResult _cmdDestroyConfig( net::Command& command );
         net::CommandResult _cmdChooseConfigReply( net::Command& command );
         net::CommandResult _cmdReleaseConfigReply( net::Command& command );
         net::CommandResult _cmdShutdownReply( net::Command& command );
     };
-
-    inline std::ostream& operator << ( std::ostream& os, const Server* server )
-    {
-        if( !server )
-        {
-            os << "NULL server";
-            return os;
-        }
-
-        os << "server " << (void*)server;
-        return os;
-    }
 }
 
 #endif // EQ_SERVER_H

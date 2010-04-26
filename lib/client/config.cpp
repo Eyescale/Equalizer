@@ -318,6 +318,7 @@ void Config::unmap()
         nodeFactory->releaseObserver( observer );
     }
 
+    _exitMessagePump();
     Super::unmap();
 }
 

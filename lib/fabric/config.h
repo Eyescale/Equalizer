@@ -199,6 +199,7 @@ namespace fabric
         virtual void unmap();
         uint32_t commit();
         void sync( const uint32_t version );
+        template< class, class, class > friend class Server; // map/unmap
 
         void setAppNodeID( const net::NodeID& nodeID );
         const net::NodeID& getAppNodeID() const { return _appNodeID; }

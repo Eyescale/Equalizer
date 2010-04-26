@@ -208,16 +208,15 @@ void ConfigTool::writeConfig() const
         global->setWindowIAttribute( eq::server::Window::IATTR_PLANES_STENCIL,
                                      eq::ON );
 
-    ServerPtr server = new Server;
+    ServerPtr server = new eq::server::Server;
     Config* config = new Config( server );
 
     _writeResources( config );
     _writeCompound( config );
 
-    eq::base::Log::instance( "", "", 0 ) << eq::base::disableHeader
-                                         << global << server.get()
-                                         << std::endl << eq::base::enableHeader
-                                         << eq::base::disableFlush;
+    eq::base::Log::instance( "", "", 0 )
+        << eq::base::disableHeader << global << server.get() << std::endl
+        << eq::base::enableHeader << eq::base::disableFlush;
 }
 
 static void readNodenames

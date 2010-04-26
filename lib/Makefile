@@ -111,6 +111,7 @@ HEADER_SRC = \
 	fabric/renderContext.h \
 	fabric/segment.h \
 	fabric/serializable.h \
+	fabric/server.h \
 	fabric/subPixel.h \
 	fabric/task.h \
 	fabric/types.h \
