@@ -30,7 +30,7 @@ namespace eq
 {
 namespace fabric
 {
-    template< class, class, class > class Server;
+    template< class, class, class, class > class Server;
 }
 
     class ConfigDeserializer;
@@ -328,11 +328,9 @@ namespace fabric
         EQ_EXPORT virtual void notifyMapped( net::NodePtr node );
         EQ_EXPORT virtual void changeLatency( const uint32_t latency );
         EQ_EXPORT virtual void unmap(); //!< @internal
-        template< class, class, class > friend class fabric::Server; // unmap
+        template< class, class, class, class > friend class fabric::Server;
         EQ_EXPORT virtual bool distributeChildren(); //!< @internal
         //@}
-
-        friend class Server; // for unmap()
 
     private:
         /** The node running the application thread. */
@@ -370,15 +368,6 @@ namespace fabric
 
         friend class Node;
         void _frameStart();
-
-        friend class ConfigDeserializer;
-        EQ_EXPORT virtual Observer* createObserver();
-        EQ_EXPORT virtual void releaseObserver( Observer* observer );
-        EQ_EXPORT virtual Layout* createLayout();
-        EQ_EXPORT virtual void releaseLayout( Layout* layout );
-        EQ_EXPORT virtual Canvas* createCanvas();
-        EQ_EXPORT virtual void releaseCanvas( Canvas* canvas );
-
         bool _needsLocalSync() const;
 
         /** 

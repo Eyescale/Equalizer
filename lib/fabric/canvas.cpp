@@ -121,7 +121,8 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
         uint32_t id;
         for( is >> id; id != EQ_ID_INVALID; is >> id )
         {
-            S* segment = createSegment();
+            S* segment = _config->getServer()->getNodeFactory()->createSegment(
+                static_cast< C* >( this ));
             _config->mapObject( segment, id );
         }
         for( is >> id; id != EQ_ID_INVALID; is >> id )

@@ -55,10 +55,6 @@ namespace fabric
         /** Destruct this layout. */
         EQ_EXPORT virtual ~Layout();
 
-    protected:
-        virtual View* createView(); //!< @internal
-        virtual void releaseView( View* view ); //!< @internal
-
     private:
         union // placeholder for binary-compatible changes
         {

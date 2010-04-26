@@ -23,6 +23,7 @@
 #include "global.h"
 #include "loader.h"
 #include "node.h"
+#include "nodeFactory.h"
 #include "pipe.h"
 #include "serverVisitor.h"
 #include "window.h"
@@ -45,10 +46,17 @@ namespace eq
 {
 namespace server
 {
+namespace
+{
+static NodeFactory _nf;
+}
+
 typedef net::CommandFunc<Server> ServerFunc;
+typedef fabric::Server< net::Node, Server, Config, NodeFactory > Super;
 
 Server::Server()
-        : _running( false )
+        : Super( &_nf )
+        , _running( false )
 {
     base::Log::setClock( &_clock );
 
@@ -492,3 +500,8 @@ std::ostream& operator << ( std::ostream& os, const Server& server )
 
 }
 }
+#include "../lib/fabric/server.ipp"
+template class eq::fabric::Server< eq::net::Node, eq::server::Server,
+                                   eq::server::Config,
+                                   eq::server::NodeFactory >;
+

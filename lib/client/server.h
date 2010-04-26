@@ -19,7 +19,6 @@
 #define EQ_SERVER_H
 
 #include <eq/client/types.h>     // basic typedefs
-#include <eq/fabric/nodeType.h>  // for NODETYPE_EQ_SERVER enum
 #include <eq/fabric/server.h>    // base class
 
 namespace eq
@@ -31,6 +30,7 @@ template< class, class, class, class, class, class > class Config;
     class Client;
     class Config;
     class ConfigParams;
+    class NodeFactory;
 
     /**
      * Proxy object for the connection to an Equalizer server.
@@ -40,7 +40,7 @@ template< class, class, class, class, class, class > class Config;
      * and release a Config from the server.
      * @sa Client::connectServer
      */
-    class Server : public fabric::Server< Client, Server, Config >
+    class Server : public fabric::Server< Client, Server, Config, NodeFactory >
     {
     public:
         /** Construct a new server. */
@@ -80,9 +80,6 @@ template< class, class, class, class, class, class > class Config;
          * Destructs this server.
          */
         EQ_EXPORT virtual ~Server();
-
-        virtual Config* _createConfig(); //!< @internal
-        virtual void _releaseConfig( Config* config ); //!< @internal
 
     private:
         friend class Client; // to call invokeCommand()

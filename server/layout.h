@@ -45,10 +45,6 @@ namespace server
         /** Unmap this layout and all its children. */
         void deregister();
         
-    protected:
-        virtual View* createView();
-        virtual void releaseView( View* view );
-
     private:
         union // placeholder for binary-compatible changes
         {

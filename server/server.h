@@ -22,26 +22,26 @@
 #include "types.h"
 #include "visitorResult.h" // enum
 
-#include <eq/fabric/nodeType.h>  // for NODETYPE_EQ_SERVER enum
-
+#include <eq/fabric/server.h>    // base class
 #include <eq/net/command.h>      // used in inline method
 #include <eq/net/commandQueue.h> // member
-#include <eq/net/node.h>         // base class & eqsStartLocalServer declaration
 
 namespace eq
 {
 namespace fabric
 {
-    template< class S, class C, class O, class L, class CV, class N > class Config;
+    template< class S, class C, class O, class L, class CV, class N >
+    class Config;
 }
 namespace server
 {
+    class NodeFactory;
     class ServerVisitor;
 
     /**
      * The Equalizer server.
      */
-    class Server : public net::Node
+    class Server : public fabric::Server<net::Node, Server, Config, NodeFactory>
     {
     public:
         /** 

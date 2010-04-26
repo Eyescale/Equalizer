@@ -88,16 +88,6 @@ void Canvas::activateLayout( const uint32_t index )
         _switchLayout( getActiveLayoutIndex(), index );
 }
 
-Segment* Canvas::createSegment()
-{
-    return new Segment( this );
-}
-
-void Canvas::releaseSegment( Segment* segment )
-{
-    delete segment;
-}
-
 void Canvas::init()
 {
     _switchLayout( EQ_ID_NONE, getActiveLayoutIndex( ));
@@ -252,7 +242,9 @@ void Canvas::deregister()
 }
 }
 
+#include "nodeFactory.h"
 #include "../lib/fabric/canvas.cpp"
+
 template class eq::fabric::Canvas< eq::server::Config, eq::server::Canvas,
                                    eq::server::Segment, eq::server::Layout >;
 /** @cond IGNORE */

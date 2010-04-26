@@ -1187,6 +1187,7 @@ std::ostream& operator << ( std::ostream& os, const Config& config )
 }
 }
 
+#include "nodeFactory.h"
 #include "../lib/fabric/config.cpp"
 template class eq::fabric::Config< eq::server::Server, eq::server::Config,
                                    eq::server::Observer, eq::server::Layout,

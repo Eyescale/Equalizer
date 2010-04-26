@@ -22,22 +22,24 @@ namespace eq
 namespace fabric
 {
 
-#define CmdFunc net::CommandFunc< Server< CL, S, CFG > >
+#define CmdFunc net::CommandFunc< Server< CL, S, CFG, NF > >
 
-template< class CL, class S, class CFG >
-Server< CL, S, CFG >::Server()
+template< class CL, class S, class CFG, class NF >
+Server< CL, S, CFG, NF >::Server( NF* nodeFactory )
+        : _nodeFactory( nodeFactory )
 {
+    EQASSERT( nodeFactory );
 }
 
-template< class CL, class S, class CFG >
-Server< CL, S, CFG >::~Server()
+template< class CL, class S, class CFG, class NF >
+Server< CL, S, CFG, NF >::~Server()
 {
     _client = 0;
     EQASSERT( _configs.empty( ));
 }
 
-template< class CL, class S, class CFG >
-void Server< CL, S, CFG >::setClient( ClientPtr client, net::CommandQueue* queue )
+template< class CL, class S, class CFG, class NF >
+void Server< CL, S, CFG, NF >::setClient( ClientPtr client, net::CommandQueue* queue )
 {
     _client = client;
     if( !client )
@@ -49,15 +51,15 @@ void Server< CL, S, CFG >::setClient( ClientPtr client, net::CommandQueue* queue
                      CmdFunc( this, &Server::_cmdDestroyConfig ), queue );
 }
 
-template< class CL, class S, class CFG >
-void Server< CL, S, CFG >::_addConfig( CFG* config )
+template< class CL, class S, class CFG, class NF >
+void Server< CL, S, CFG, NF >::_addConfig( CFG* config )
 { 
     EQASSERT( config->getServer() == static_cast< S* >( this ));
     _configs.push_back( config );
 }
 
-template< class CL, class S, class CFG >
-bool Server< CL, S, CFG >::_removeConfig( CFG* config )
+template< class CL, class S, class CFG, class NF >
+bool Server< CL, S, CFG, NF >::_removeConfig( CFG* config )
 {
     typename ConfigVector::iterator i = stde::find( _configs, config );
     if( i == _configs.end( ))
@@ -70,15 +72,15 @@ bool Server< CL, S, CFG >::_removeConfig( CFG* config )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-template< class CL, class S, class CFG > net::CommandResult
-Server< CL, S, CFG >::_cmdCreateConfig( net::Command& command )
+template< class CL, class S, class CFG, class NF > net::CommandResult
+Server< CL, S, CFG, NF >::_cmdCreateConfig( net::Command& command )
 {
     const ServerCreateConfigPacket* packet = 
         command.getPacket<ServerCreateConfigPacket>();
     EQVERB << "Handle create config " << packet << std::endl;
     EQASSERT( packet->proxy.identifier != EQ_ID_INVALID );
     
-    CFG* config = _createConfig();
+    CFG* config = _nodeFactory->createConfig( static_cast< S* >( this ));
     net::NodePtr localNode = command.getLocalNode();
     localNode->mapSession( command.getNode(), config, packet->configID );
     config->map( packet->proxy );
@@ -92,8 +94,8 @@ Server< CL, S, CFG >::_cmdCreateConfig( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
-template< class CL, class S, class CFG > net::CommandResult
-Server< CL, S, CFG >::_cmdDestroyConfig( net::Command& command )
+template< class CL, class S, class CFG, class NF > net::CommandResult
+Server< CL, S, CFG, NF >::_cmdDestroyConfig( net::Command& command )
 {
     const ServerDestroyConfigPacket* packet = 
         command.getPacket<ServerDestroyConfigPacket>();
@@ -105,7 +107,7 @@ Server< CL, S, CFG >::_cmdDestroyConfig( net::Command& command )
     CFG* config = EQSAFECAST( CFG*, session );
     config->unmap();
     EQCHECK( localNode->unmapSession( config ));
-    _releaseConfig( config );
+    _nodeFactory->releaseConfig( config );
 
     if( packet->requestID != EQ_ID_INVALID )
     {

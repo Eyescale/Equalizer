@@ -1,4 +1,4 @@
-Refactor common client-side server code into fabric
+Refactor entity creation by moving nodefactory to fabric.
 
 [ ] May break build
 [ ] May break existing applications

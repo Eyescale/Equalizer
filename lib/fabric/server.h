@@ -37,7 +37,8 @@ namespace fabric
      * and release a Config from the server.
      * @sa Client::connectServer
      */
-    template< class CL, class S, class CFG > class Server : public net::Node
+    template< class CL, class S, class CFG, class NF >
+    class Server : public net::Node
     {
     public:
         typedef base::RefPtr< CL > ClientPtr;
@@ -49,19 +50,22 @@ namespace fabric
         /** @return the vector of configurations. */
         const ConfigVector& getConfigs() const { return _configs; }
 
+        /** @return the node factory. @internal. */
+        NF* getNodeFactory() { return _nodeFactory; }
+
     protected:
         /** Construct a new server. */
-        EQ_EXPORT Server();
+        EQ_EXPORT Server( NF* nodeFactory );
 
         /** Destruct this server. */
         EQ_EXPORT virtual ~Server();
 
         /** @internal */
         void setClient( ClientPtr client, net::CommandQueue* queue );
-        virtual CFG* _createConfig() = 0; //!< @internal
-        virtual void _releaseConfig( CFG* config ) = 0; //!< @internal
 
     private:
+        NF* const _nodeFactory; //!< the factory to create all child instances
+
         /** The local client connected to the server */
         ClientPtr _client;
         //friend class Client; // to call invokeCommand()

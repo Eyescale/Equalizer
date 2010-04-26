@@ -121,8 +121,6 @@ namespace fabric
                                                   const uint64_t dirtyBits );
 
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
-        virtual S* createSegment() = 0;
-        virtual void releaseSegment( S* segment ) = 0;
         virtual void activateLayout( const uint32_t index ) { /* NOP */ }
 
     private:

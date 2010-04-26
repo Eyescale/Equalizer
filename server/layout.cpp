@@ -59,20 +59,12 @@ void Layout::deregister()
     session->deregisterObject( this );
 }
 
-View* Layout::createView()
-{
-    return new View( this );
-}
-
-void Layout::releaseView( View* view )
-{
-    delete view;
-}
-
 }
 }
 
+#include "nodeFactory.h"
 #include "../lib/fabric/layout.cpp"
+
 template class eq::fabric::Layout< eq::server::Config, eq::server::Layout,
                                    eq::server::View >;
 /** @cond IGNORE */

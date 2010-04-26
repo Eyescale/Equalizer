@@ -257,36 +257,6 @@ ClientPtr Config::getClient()
     return getServer()->getClient(); 
 }
 
-Observer* Config::createObserver()
-{
-    return Global::getNodeFactory()->createObserver( this );
-}
-
-void Config::releaseObserver( Observer* observer )
-{
-    Global::getNodeFactory()->releaseObserver( observer );
-}
-
-Layout* Config::createLayout()
-{
-    return Global::getNodeFactory()->createLayout( this );
-}
-
-void Config::releaseLayout( Layout* layout )
-{
-    Global::getNodeFactory()->releaseLayout( layout );
-}
-
-Canvas* Config::createCanvas()
-{
-    return Global::getNodeFactory()->createCanvas( this );
-}
-
-void Config::releaseCanvas( Canvas* canvas )
-{
-    Global::getNodeFactory()->releaseCanvas( canvas );
-}
-
 void Config::unmap()
 {
     NodeFactory* nodeFactory = Global::getNodeFactory();

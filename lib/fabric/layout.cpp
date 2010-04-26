@@ -78,7 +78,8 @@ void Layout< C, L, V >::deserialize( net::DataIStream& is,
         for( std::vector< net::ObjectVersion >::const_iterator i = ids.begin();
              i != ids.end(); ++i )
         {
-            V* view = createView();
+            V* view = _config->getServer()->getNodeFactory()->createView(
+                static_cast< L* >( this ));
             _config->mapObject( view, *i );
         }
     }

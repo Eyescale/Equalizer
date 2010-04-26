@@ -33,10 +33,11 @@ namespace eq
 {
 
 typedef net::CommandFunc<Server> CmdFunc;
-typedef fabric::Server< Client, Server, Config > Super;
+typedef fabric::Server< Client, Server, Config, NodeFactory > Super;
 
 Server::Server()
-        : _localServer( false )
+        : Super( Global::getNodeFactory( ))
+        , _localServer( false )
 {
     EQINFO << "New server at " << (void*)this << std::endl;
 }
@@ -63,16 +64,6 @@ void Server::setClient( ClientPtr client )
                      CmdFunc( this, &Server::_cmdReleaseConfigReply ), queue );
     registerCommand( fabric::CMD_SERVER_SHUTDOWN_REPLY, 
                      CmdFunc( this, &Server::_cmdShutdownReply ), queue );
-}
-
-Config* Server::_createConfig()
-{
-    return Global::getNodeFactory()->createConfig( this );
-}
-
-void Server::_releaseConfig( Config* config )
-{
-    Global::getNodeFactory()->releaseConfig( config );
 }
 
 net::CommandQueue* Server::getNodeThreadQueue() 
@@ -199,5 +190,6 @@ net::CommandResult Server::_cmdShutdownReply( net::Command& command )
 }
 
 #include "../fabric/server.ipp"
-template class eq::fabric::Server< eq::Client, eq::Server, eq::Config >;
+template class eq::fabric::Server< eq::Client, eq::Server, eq::Config,
+                                   eq::NodeFactory >;
 

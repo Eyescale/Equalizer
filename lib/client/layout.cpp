@@ -37,18 +37,6 @@ Layout::~Layout()
     EQASSERT( getViews().empty( ));
 }
 
-View* Layout::createView()
-{
-    NodeFactory* nodeFactory = Global::getNodeFactory();
-    return nodeFactory->createView( this );
-}
-
-void Layout::releaseView( View* view )
-{
-    NodeFactory* nodeFactory = Global::getNodeFactory();
-    nodeFactory->releaseView( view );
-}
-
 void Layout::_unmap()
 {
     Config* config = getConfig();
@@ -63,7 +51,7 @@ void Layout::_unmap()
 
         config->unmapObject( view );
         _removeView( view );
-        releaseView( view );
+        Global::getNodeFactory()->releaseView( view );
     }
 
     config->unmapObject( this );
@@ -71,7 +59,9 @@ void Layout::_unmap()
 
 }
 
+#include "server.h"
 #include "../fabric/layout.cpp"
+
 template class eq::fabric::Layout< eq::Config, eq::Layout, eq::View >;
 /** @cond IGNORE */
 template std::ostream& eq::fabric::operator << ( std::ostream&,

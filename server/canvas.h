@@ -79,8 +79,6 @@ namespace server
         
     protected:
         virtual void activateLayout( const uint32_t index );
-        virtual Segment* createSegment();
-        virtual void releaseSegment( Segment* segment );
 
     private:
         union // placeholder for binary-compatible changes

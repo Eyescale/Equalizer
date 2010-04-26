@@ -75,10 +75,6 @@ namespace fabric
         /** Deregister this canvas, and all children, from its net::Session.*/
         void _unmap();
         friend class Config;
-
-        friend class fabric::Canvas< Config, Canvas, Segment, Layout >;
-        virtual Segment* createSegment();
-        virtual void releaseSegment( Segment* segment );
     };
 }
 #endif // EQ_CANVAS_H

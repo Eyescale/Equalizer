@@ -105,8 +105,6 @@ namespace fabric
                                                   const uint64_t dirtyBits );
 
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
-        virtual V* createView() = 0;
-        virtual void releaseView( V* view ) = 0;
 
     private:
         enum DirtyBits

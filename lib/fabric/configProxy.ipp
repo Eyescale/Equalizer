@@ -35,13 +35,30 @@ public:
         DIRTY_CANVASES  = Object::DIRTY_CUSTOM << 3,
         DIRTY_LATENCY   = Object::DIRTY_CUSTOM << 4,
     };
-            
-    void create( O** observer ) { *observer = _config.createObserver(); }
-    void release( O* observer ) { _config.releaseObserver( observer ); }
-    void create( L** layout ) { *layout = _config.createLayout(); }
-    void release( L* layout ) { _config.releaseLayout( layout ); }
-    void create( CV** canvas ) { *canvas = _config.createCanvas(); }
-    void release( CV* canvas ) { _config.releaseCanvas( canvas ); }
+
+    void create( O** observer ) 
+        {
+            *observer = _config.getServer()->getNodeFactory()->createObserver(
+                static_cast< C* >( &_config ));
+        }
+    void release( O* observer ) 
+        { _config.getServer()->getNodeFactory()->releaseObserver( observer ); }
+
+    void create( L** layout )
+        {
+            *layout = _config.getServer()->getNodeFactory()->createLayout(
+                static_cast< C* >( &_config ));
+        }
+    void release( L* layout )
+        { _config.getServer()->getNodeFactory()->releaseLayout( layout ); }
+
+    void create( CV** canvas )
+        {
+            *canvas = _config.getServer()->getNodeFactory()->createCanvas(
+                static_cast< C* >( &_config ));
+        }
+    void release( CV* canvas )
+        { _config.getServer()->getNodeFactory()->releaseCanvas( canvas ); }
 
 protected:
     virtual void serialize( net::DataOStream& os, const uint64_t dirtyBits );

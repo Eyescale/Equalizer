@@ -40,7 +40,7 @@ namespace fabric
     template< class, class > class Observer;
     template< class, class, class > class Layout;
     template< class, class, class > class Node;
-    template< class, class, class > class Server;
+    template< class, class, class, class > class Server;
     struct CanvasPath;
     struct LayoutPath;
     struct ObserverPath;
@@ -187,20 +187,13 @@ namespace fabric
 
         /** @internal */
         //@{
-        virtual O* createObserver() = 0;
-        virtual void releaseObserver( O* observer ) = 0;
-        virtual L* createLayout() = 0;
-        virtual void releaseLayout( L* layout ) = 0;
-        virtual CV* createCanvas() = 0;
-        virtual void releaseCanvas( CV* canvas ) = 0;
-
         uint32_t register_();
         void deregister();
         void map( const net::ObjectVersion proxy );
         virtual void unmap();
         uint32_t commit();
         void sync( const uint32_t version );
-        template< class, class, class > friend class Server; // map/unmap
+        template< class, class, class, class > friend class Server; // map/unmap
 
         void setAppNodeID( const net::NodeID& nodeID );
         const net::NodeID& getAppNodeID() const { return _appNodeID; }

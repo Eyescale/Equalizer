@@ -42,18 +42,6 @@ Canvas::~Canvas()
     EQASSERT( getSegments().empty( ));
 }
 
-Segment* Canvas::createSegment()
-{
-    NodeFactory* nodeFactory = Global::getNodeFactory();
-    return nodeFactory->createSegment( this );
-}
-
-void Canvas::releaseSegment( Segment* segment )
-{
-    NodeFactory* nodeFactory = Global::getNodeFactory();
-    nodeFactory->releaseSegment( segment );
-}
-
 void Canvas::_unmap()
 {
     EQASSERT( !isMaster( ));
@@ -79,6 +67,7 @@ void Canvas::_unmap()
 }
 
 
+#include "server.h"
 #include "../fabric/canvas.cpp"
 template class eq::fabric::Canvas< eq::Config, eq::Canvas, eq::Segment,
                                    eq::Layout >;
