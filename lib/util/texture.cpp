@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -126,7 +127,7 @@ void Texture::setInternalFormat( const GLuint format )
     }
 }
 
-void Texture::_generate()
+void Texture::generate()
 {
     CHECK_THREAD( _thread );
     if( _id != 0 )
@@ -134,6 +135,22 @@ void Texture::_generate()
 
     _defined = false;
     glGenTextures( 1, &_id );
+}
+
+void Texture::flushNoDelete()
+{
+    if( _id == 0 )
+        return;
+
+    CHECK_THREAD( _thread );
+    _id = 0;
+    _defined = false;
+}
+
+void Texture::setGLData( const GLuint id, const int width, const int height )
+{
+    _id = id;
+    resize( width, height );
 }
 
 namespace
@@ -162,14 +179,25 @@ void Texture::_grow( const int32_t width, const int32_t height )
     }
 }
 
+void Texture::copyFromFrameBuffer( const eq_uint64_t  inDims[4] )
+{
+    _copyFromFrameBuffer( inDims[0], inDims[1], inDims[2], inDims[3] );
+}
+
 void Texture::copyFromFrameBuffer( const PixelViewport& pvp )
+{
+    _copyFromFrameBuffer( pvp.x, pvp.w, pvp.y, pvp.h );
+}
+
+void Texture::_copyFromFrameBuffer( uint32_t x, uint32_t w, 
+                                    uint32_t y, uint32_t h )
 {
     EQ_GL_ERROR( "before Texture::copyFromFrameBuffer" );
     CHECK_THREAD( _thread );
     EQASSERT( _internalFormat != 0 );
 
-    _generate();
-    _grow( pvp.w, pvp.h );
+    generate();
+    _grow( w, h );
 
     if( _defined )
         glBindTexture( _target, _id );
@@ -177,7 +205,7 @@ void Texture::copyFromFrameBuffer( const PixelViewport& pvp )
         resize( _width, _height );
 
     EQ_GL_CALL( glCopyTexSubImage2D( _target, 0, 0, 0,
-                                     pvp.x, pvp.y, pvp.w, pvp.h ));
+                                     x, y, w, h ));
     //glFinish();
     EQ_GL_ERROR( "after Texture::copyFromFrameBuffer" );
 }
@@ -198,7 +226,7 @@ void Texture::upload( const Image* image, const Frame::Buffer which )
 
 void Texture::upload( const int width, const int height, void* ptr )
 {
-    _generate();
+    generate();
     _grow( width, height );
 
     if( _defined )
@@ -206,8 +234,8 @@ void Texture::upload( const int width, const int height, void* ptr )
     else
         resize( _width, _height );
 
-    EQ_GL_CALL( glTexSubImage2D( _target, 0, 0, 0,
-                                 width, height, _format, _type, ptr ));
+    glTexSubImage2D( _target, 0, 0, 0,
+                     width, height, _format, _type, ptr );
 }
 
 void Texture::download( void* buffer, const uint32_t format,
@@ -237,7 +265,7 @@ void Texture::bindToFBO( const GLenum target, const int width,
     EQASSERT( _internalFormat );
     EQASSERT( _glewContext );
 
-    _generate();
+    generate();
 
     glBindTexture( _target, _id );
     glTexImage2D( _target, 0, _internalFormat, width, height, 0,
@@ -266,8 +294,8 @@ void Texture::resize( const int width, const int height )
     }
 
     glBindTexture( _target, _id );
-    glTexImage2D( _target, 0, _internalFormat, width, height, 0,
-                  _format, _type, 0 );
+    EQ_GL_CALL( glTexImage2D( _target, 0, _internalFormat, width, height, 0,
+                  _format, _type, 0 ));
 
     _width  = width;
     _height = height;

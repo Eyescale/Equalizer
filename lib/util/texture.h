@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -48,6 +49,26 @@ namespace util
         /** Clear the texture, including the GL texture name. @version 1.0 */
         EQ_EXPORT void flush();
 
+        /**
+         * Flush the texture without deleting the GL texture name.
+         * @version 1.0
+         */
+        void flushNoDelete();
+
+        /** 
+         * Use an OpenGL texture created externally.
+         *
+         * The previous GL texture, if any, is deallocated using flush(). The
+         * new texture has to be of the correct target, size and internal
+         * format. The texture is validated by this method.
+         *
+         * @param id The OpenGL texture name.
+         * @param width the width of the texture.
+         * @param height the height of the texture.
+         * @sa setTarget(), setInternalFormat()
+         */
+        void setGLData( const GLuint id, const int width, const int height );
+
         /** Set the target of the texture. @version 1.0 */
         EQ_EXPORT void setTarget( const GLenum target );
 
@@ -66,6 +87,9 @@ namespace util
         /** @return the data type of the texture, e.g., GL_HALF_FLOAT. */
         GLuint getType() const { return _type; }
 
+        /** @return the texture ID, */
+        GLuint getID() const { return _id; }
+
         /** @return the current width */
         int32_t getWidth() const { return _width; }
 
@@ -77,6 +101,12 @@ namespace util
          * texture at 0,0.
          */
         EQ_EXPORT void copyFromFrameBuffer( const PixelViewport& pvp );
+        
+        /** 
+         * Copy the specified area from the current read buffer to the
+         * texture at 0,0.
+         */
+        EQ_EXPORT void copyFromFrameBuffer( const uint64_t  inDims[4] );
 
         /** Copy the specified image buffer to the texture at 0,0. */
         EQ_EXPORT void upload( const Image* image, const Frame::Buffer which );
@@ -101,6 +131,9 @@ namespace util
         EQ_EXPORT void bindToFBO( const GLenum target, const int width,
                                   const int height );
 
+        /** Generate, if needed, a GL texture name. */
+        void generate();
+        
         /** Resize the texture. */
         EQ_EXPORT void resize( const int width, const int height );
 
@@ -148,11 +181,15 @@ namespace util
             char dummy[32];
         };
 
-        /** Generate, if needed, a GL texture name. */
-        void _generate();
-
         /** Set the size of the texture, updating the _defined flag. */
         void _grow( const int32_t width, const int32_t height );
+
+        /** 
+         * Copy the specified area from the current read buffer to the
+         * texture at 0,0.
+         */
+        void _copyFromFrameBuffer( uint32_t x, uint32_t w, 
+                                   uint32_t y, uint32_t h );
 
         CHECK_THREAD_DECLARE( _thread );
     };
