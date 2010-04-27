@@ -119,6 +119,11 @@ namespace util
         GLEWContext* glewGetContext() { return _glewContext; }
         const GLEWContext* glewGetContext() const { return _glewContext; }
 
+        /**
+         * @return true if the fbo is valid.
+         */
+        const GLuint isValid() const { return _valid; }
+
     private:
         GLuint _fboID;
 
