@@ -55,10 +55,10 @@ namespace fabric
 
     protected:
         /** Construct a new server. */
-        EQ_EXPORT Server( NF* nodeFactory );
+        Server( NF* nodeFactory );
 
         /** Destruct this server. */
-        EQ_EXPORT virtual ~Server();
+        virtual ~Server();
 
         /** @internal */
         void setClient( ClientPtr client, net::CommandQueue* queue );

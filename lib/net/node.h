@@ -461,8 +461,8 @@ namespace net
          * @return <code>true</code> if the session was mapped,
          *         <code>false</code> if not.
          */
-        bool mapSession( NodePtr server, Session* session, 
-                         const SessionID& id );
+        EQ_EXPORT bool mapSession( NodePtr server, Session* session, 
+                                   const SessionID& id );
 
         /** 
          * Unmaps a mapped session.
@@ -474,7 +474,7 @@ namespace net
         EQ_EXPORT bool unmapSession( Session* session );
 
         /** @return the mapped session with the given identifier, or 0. */
-        Session* getSession( const SessionID& id );
+        EQ_EXPORT Session* getSession( const SessionID& id );
 
         bool hasSessions() const { return !_sessions->empty(); }
         //@}
