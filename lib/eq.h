@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -31,7 +31,6 @@
 #include <eq/client/config.h>
 #include <eq/client/configEvent.h>
 #include <eq/client/configParams.h>
-#include <eq/client/configVisitor.h>
 #include <eq/client/event.h>
 #include <eq/client/frame.h>
 #include <eq/client/frameData.h>

@@ -20,17 +20,17 @@
 #define EQFABRIC_PIPE_H
 
 #include <eq/fabric/object.h>        // base class
-#include <eq/fabric/paths.h>
 #include <eq/fabric/pixelViewport.h> // property
 #include <eq/fabric/types.h>
+#include <eq/fabric/visitorResult.h> // enum
 
 namespace eq
 {
-
 namespace fabric
 {
-    template< class, class, class > class Window;
-    template< class N, class P, class W > class Pipe : public Object
+    struct PipePath;
+
+    template< class N, class P, class W, class V > class Pipe : public Object
     {
     public:
         /** A vector of pointers to Window */
@@ -83,10 +83,23 @@ namespace fabric
 
         /** @return the index path to this pipe. @internal */
         EQFABRIC_EXPORT PipePath getPath() const;
-        //@}
 
         /** @return the vector of windows. */
         const WindowVector& getWindows() const { return _windows; }
+
+        /** 
+         * Traverse this pipe and all children using a pipe visitor.
+         * 
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
+         * @version 1.0
+         */
+        EQFABRIC_EXPORT VisitorResult accept( V& visitor );
+
+        /** Const-version of accept(). */
+        EQFABRIC_EXPORT VisitorResult accept( V& visitor ) const;
+        //@}
+
         /**
          * @name Attributes
          */
@@ -128,13 +141,6 @@ namespace fabric
         
         EQFABRIC_EXPORT virtual ~Pipe( );
 
-        enum DirtyBits
-        {
-            DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
-            DIRTY_PIXELVIEWPORT   = Object::DIRTY_CUSTOM << 1,
-            DIRTY_MEMBER          = Object::DIRTY_CUSTOM << 2,
-        };
-
         /** @internal */
         EQFABRIC_EXPORT virtual void serialize( net::DataOStream& os,
                                                 const uint64_t dirtyBits );
@@ -153,6 +159,13 @@ namespace fabric
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:
+        enum DirtyBits
+        {
+            DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
+            DIRTY_PIXELVIEWPORT   = Object::DIRTY_CUSTOM << 1,
+            DIRTY_MEMBER          = Object::DIRTY_CUSTOM << 2,
+        };
+
         /** The parent node. */
         N* const _node;
         

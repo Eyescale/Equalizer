@@ -25,11 +25,6 @@
 
 namespace eq
 {
-namespace fabric
-{
-    template< class L, class V, class O > class View;
-}
-
     class Config;
     class Observer;
 

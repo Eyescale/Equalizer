@@ -38,7 +38,7 @@ namespace server
     /**
      * The pipe.
      */
-    class Pipe : public fabric::Pipe< Node, Pipe, Window >
+    class Pipe : public fabric::Pipe< Node, Pipe, Window, PipeVisitor >
     {
     public:
         enum State
@@ -66,7 +66,7 @@ namespace server
         Config* getConfig();
         const Config* getConfig() const;
 
-        net::CommandQueue* getServerThreadQueue();
+        net::CommandQueue* getMainThreadQueue();
         net::CommandQueue* getCommandThreadQueue();
 
         Channel* getChannel( const ChannelPath& path );
@@ -89,15 +89,6 @@ namespace server
          *         <code>false</code> otherwise.
          */
         bool removeWindow( Window* window );
-
-        /** 
-         * Traverse this pipe and all children using a pipe visitor.
-         * 
-         * @param visitor the visitor.
-         * @return the result of the visitor traversal.
-         */
-        VisitorResult accept( PipeVisitor& visitor );
-        VisitorResult accept( PipeVisitor& visitor ) const;
 
         /** Increase pipe activition count. */
         void activate();

@@ -62,21 +62,20 @@ Server::Server()
 
     registerCommand( fabric::CMD_SERVER_CHOOSE_CONFIG,
                      ServerFunc( this, &Server::_cmdChooseConfig ),
-                     &_serverThreadQueue );
+                     &_mainThreadQueue );
     registerCommand( fabric::CMD_SERVER_RELEASE_CONFIG,
                      ServerFunc( this, &Server::_cmdReleaseConfig ),
-                     &_serverThreadQueue );
+                     &_mainThreadQueue );
     registerCommand( fabric::CMD_SERVER_DESTROY_CONFIG_REPLY,
                      ServerFunc( this, &Server::_cmdDestroyConfigReply ), 0 );
     registerCommand( fabric::CMD_SERVER_SHUTDOWN,
                      ServerFunc( this, &Server::_cmdShutdown ),
-                     &_serverThreadQueue );
+                     &_mainThreadQueue );
     registerCommand( fabric::CMD_SERVER_MAP,
-                     ServerFunc( this, &Server::_cmdMap ),
-                     &_serverThreadQueue );
+                     ServerFunc( this, &Server::_cmdMap ), &_mainThreadQueue );
     registerCommand( fabric::CMD_SERVER_UNMAP,
                      ServerFunc( this, &Server::_cmdUnmap ),
-                     &_serverThreadQueue );
+                     &_mainThreadQueue );
     EQINFO << "New server @" << (void*)this << std::endl;
 }
 
@@ -258,7 +257,7 @@ void Server::_handleCommands()
     _running = true;
     while( _running ) // set to false in _cmdShutdown()
     {
-        net::Command* command = _serverThreadQueue.pop();
+        net::Command* command = _mainThreadQueue.pop();
 
         switch( invokeCommand( *command ))
         {
@@ -276,7 +275,7 @@ void Server::_handleCommands()
 
         command->release();
     }
-    _serverThreadQueue.flush();
+    _mainThreadQueue.flush();
 }
 
 net::CommandResult Server::_cmdChooseConfig( net::Command& command ) 
@@ -316,7 +315,7 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
     config->setWorkDir( workDir );
     config->setRenderClient( renderClient );
 
-    ServerCreateConfigPacket createConfigPacket;
+    fabric::ServerCreateConfigPacket createConfigPacket;
     createConfigPacket.configID = config->getID();
     createConfigPacket.proxy.identifier = config->getProxyID();
     createConfigPacket.proxy.version    = config->commit();
@@ -353,7 +352,7 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
         config->exit(); // Make sure config is exited
     }
 
-    ServerDestroyConfigPacket destroyConfigPacket;
+    fabric::ServerDestroyConfigPacket destroyConfigPacket;
     destroyConfigPacket.requestID = registerRequest();
     destroyConfigPacket.configID  = config->getID();
     node->send( destroyConfigPacket );
@@ -369,8 +368,8 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
 
 net::CommandResult Server::_cmdDestroyConfigReply( net::Command& command ) 
 {
-    const ServerDestroyConfigReplyPacket* packet = 
-        command.getPacket< ServerDestroyConfigReplyPacket >();
+    const fabric::ServerDestroyConfigReplyPacket* packet = 
+        command.getPacket< fabric::ServerDestroyConfigReplyPacket >();
 
     serveRequest( packet->requestID );
     return net::COMMAND_HANDLED;
@@ -430,7 +429,7 @@ net::CommandResult Server::_cmdMap( net::Command& command )
          i != _configs.end(); ++i )
     {
         Config* config = i->second;
-        ServerCreateConfigPacket createConfigPacket;
+        fabric::ServerCreateConfigPacket createConfigPacket;
         createConfigPacket.configID = config->getID();
         createConfigPacket.proxy.identifier = config->getProxyID();
         createConfigPacket.proxy.version    = config->commit();
@@ -457,7 +456,7 @@ net::CommandResult Server::_cmdUnmap( net::Command& command )
              j != _configs.end(); ++j )
         {
             Config* config = j->second;
-            ServerDestroyConfigPacket destroyConfigPacket;
+            fabric::ServerDestroyConfigPacket destroyConfigPacket;
             destroyConfigPacket.configID  = config->getID();
             node->send( destroyConfigPacket );
         }

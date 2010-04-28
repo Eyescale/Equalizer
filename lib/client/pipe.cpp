@@ -57,7 +57,7 @@
 
 namespace eq
 {
-typedef fabric::Pipe< Node, Pipe, Window > Super;
+    typedef fabric::Pipe< Node, Pipe, Window, PipeVisitor > Super;
 namespace
 {
 static const Window* _ntCurrentWindow = 0;
@@ -122,60 +122,6 @@ int64_t Pipe::getFrameTime() const
     return getConfig()->getTime() - _frameTime;
 }
 
-namespace
-{
-template< class C >
-VisitorResult _accept( C* pipe, PipeVisitor& visitor )
-{ 
-    VisitorResult result = visitor.visitPre( pipe );
-    if( result != TRAVERSE_CONTINUE )
-        return result;
-
-    const WindowVector& windows = pipe->getWindows();
-    for( WindowVector::const_iterator i = windows.begin(); 
-         i != windows.end(); ++i )
-    {
-        switch( (*i)->accept( visitor ))
-        {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-                
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    switch( visitor.visitPost( pipe ))
-    {
-        case TRAVERSE_TERMINATE:
-            return TRAVERSE_TERMINATE;
-
-        case TRAVERSE_PRUNE:
-            return TRAVERSE_PRUNE;
-                
-        case TRAVERSE_CONTINUE:
-        default:
-            break;
-    }
-
-    return result;
-}
-}
-
-VisitorResult Pipe::accept( PipeVisitor& visitor )
-{
-    return _accept( this, visitor );
-}
-
-VisitorResult Pipe::accept( PipeVisitor& visitor ) const
-{
-    return _accept( this, visitor );
-}
 
 void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID, 
                             net::Session* session )
@@ -330,7 +276,7 @@ void Pipe::_runThread()
 net::CommandQueue* Pipe::getPipeThreadQueue()
 {
     if( !_thread )
-        return getNode()->getNodeThreadQueue();
+        return getNode()->getMainThreadQueue();
 
     return _pipeThreadQueue;
 }
@@ -943,4 +889,5 @@ net::CommandResult Pipe::_cmdFrameDrawFinish( net::Command& command )
 }
 
 #include "../fabric/pipe.cpp"
-template class eq::fabric::Pipe< eq::Node, eq::Pipe, eq::Window >;
+template class eq::fabric::Pipe< eq::Node, eq::Pipe, eq::Window,
+                                 eq::PipeVisitor >;

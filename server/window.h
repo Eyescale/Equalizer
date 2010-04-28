@@ -78,7 +78,7 @@ namespace server
         
         Channel* getChannel( const ChannelPath& path );
 
-        net::CommandQueue* getServerThreadQueue();
+        net::CommandQueue* getMainThreadQueue();
         net::CommandQueue* getCommandThreadQueue();
 
         /** @return the state of this window. */

@@ -28,13 +28,6 @@
 
 namespace eq
 {
-namespace fabric
-{
-    template< class, class, class, class > class Server;
-}
-
-    class ConfigDeserializer;
-    class ConfigVisitor;
     class Layout;
     class Node;
     class Observer;
@@ -61,7 +54,7 @@ namespace fabric
      * of their channels.
      */
     class Config : public fabric::Config< Server, Config, Observer, Layout,
-                                          Canvas, Node >
+                                          Canvas, Node, ConfigVisitor >
     {
     public:
         /** Construct a new config. @version 1.0 */
@@ -76,25 +69,13 @@ namespace fabric
         EQ_EXPORT ClientPtr getClient();
 
         /** @internal */
-        EQ_EXPORT CommandQueue* getNodeThreadQueue();
+        EQ_EXPORT CommandQueue* getMainThreadQueue();
 
         /** @return the frame number of the last frame started. @version 1.0 */
         uint32_t getCurrentFrame()  const { return _currentFrame; }
 
         /** @return the frame number of the last frame finished. @version 1.0 */
         uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
-
-        /** 
-         * Traverse this config and all children using a config visitor.
-         * 
-         * @param visitor the visitor.
-         * @return the result of the visitor traversal.
-         * @version 1.0
-         */
-        EQ_EXPORT VisitorResult accept( ConfigVisitor& visitor );
-
-        /** Const-version of accept(). @version 1.0 */
-        EQ_EXPORT VisitorResult accept( ConfigVisitor& visitor ) const;
 
         /** Get all received statistics. @internal */
         EQ_EXPORT void getStatistics( std::vector< FrameStatistics >& stats );
@@ -329,7 +310,7 @@ namespace fabric
         EQ_EXPORT virtual void changeLatency( const uint32_t latency );
         EQ_EXPORT virtual void unmap(); //!< @internal
         template< class, class, class, class > friend class fabric::Server;
-        EQ_EXPORT virtual bool distributeChildren(); //!< @internal
+        EQ_EXPORT virtual bool mapViewObjects(); //!< @internal
         //@}
 
     private:

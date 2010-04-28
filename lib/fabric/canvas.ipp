@@ -17,6 +17,7 @@
 
 #include "canvas.h"
 #include "elementVisitor.h"
+#include "nameFinder.h"
 #include "paths.h"
 #include "segment.h"
 
@@ -159,6 +160,14 @@ bool Canvas< CFG, C, S, L >::_removeSegment( S* segment )
     EQASSERT( segment->getCanvas() == this );
     _segments.erase( i );
     return true;
+}
+
+template< class CFG, class C, class S, class L >
+S* Canvas< CFG, C, S, L >::findSegment( const std::string& name )
+{
+    NameFinder< S, Visitor > finder( name );
+    accept( finder );
+    return finder.getResult();
 }
 
 template< class CFG, class C, class S, class L >

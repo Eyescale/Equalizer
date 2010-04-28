@@ -49,15 +49,11 @@ Server::~Server()
 
 void Server::setClient( ClientPtr client )
 {
+    Super::setClient( client );
     if( !client )
-    {
-        Super::setClient( 0, 0 );
         return;
-    }
 
-    net::CommandQueue* queue = client->getNodeThreadQueue();
-    Super::setClient( client, queue );
-
+    net::CommandQueue* queue = client->getMainThreadQueue();
     registerCommand( fabric::CMD_SERVER_CHOOSE_CONFIG_REPLY, 
                      CmdFunc( this, &Server::_cmdChooseConfigReply ), queue );
     registerCommand( fabric::CMD_SERVER_RELEASE_CONFIG_REPLY, 
@@ -66,9 +62,9 @@ void Server::setClient( ClientPtr client )
                      CmdFunc( this, &Server::_cmdShutdownReply ), queue );
 }
 
-net::CommandQueue* Server::getNodeThreadQueue() 
+net::CommandQueue* Server::getMainThreadQueue()
 {
-    return getClient()->getNodeThreadQueue();
+    return getClient()->getMainThreadQueue();
 }
 
 net::CommandQueue* Server::getCommandThreadQueue() 

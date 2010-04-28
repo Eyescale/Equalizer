@@ -68,7 +68,7 @@ void Canvas::_unmap()
 
 
 #include "server.h"
-#include "../fabric/canvas.cpp"
+#include "../fabric/canvas.ipp"
 template class eq::fabric::Canvas< eq::Config, eq::Canvas, eq::Segment,
                                    eq::Layout >;
 /** @cond IGNORE */

@@ -20,9 +20,9 @@
 #include "channel.h"
 #include "compound.h"
 #include "config.h"
+#include "configVisitor.h"
 #include "layout.h"
 #include "log.h"
-#include "nameFinder.h"
 #include "node.h"
 #include "pipe.h"
 #include "segment.h"
@@ -72,13 +72,6 @@ CanvasPath Canvas::getPath() const
     CanvasPath path;
     path.canvasIndex = std::distance( canvases.begin(), i );
     return path;
-}
-
-Segment* Canvas::findSegment( const std::string& name )
-{
-    SegmentFinder finder( name );
-    accept( finder );
-    return finder.getResult();
 }
 
 void Canvas::activateLayout( const uint32_t index )
@@ -243,7 +236,7 @@ void Canvas::deregister()
 }
 
 #include "nodeFactory.h"
-#include "../lib/fabric/canvas.cpp"
+#include "../lib/fabric/canvas.ipp"
 
 template class eq::fabric::Canvas< eq::server::Config, eq::server::Canvas,
                                    eq::server::Segment, eq::server::Layout >;

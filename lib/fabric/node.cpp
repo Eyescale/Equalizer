@@ -18,6 +18,10 @@
 
 #include "node.h"
 
+#include "elementVisitor.h"
+#include "leafVisitor.h"
+#include "paths.h"
+
 namespace eq
 {
 namespace fabric
@@ -33,15 +37,15 @@ std::string _iAttributeStrings[] = {
 };
 }
 
-template< class C, class N, class P >
-Node< C, N, P >::Node( C* parent )  
+template< class C, class N, class P, class V >
+Node< C, N, P, V >::Node( C* parent )  
         : _config( parent )
 {
     parent->_addNode( static_cast< N* >( this ) );
 }
 
-template< class C, class N, class P >
-Node< C, N, P >::~Node()  
+template< class C, class N, class P, class V >
+Node< C, N, P, V >::~Node()  
 {
     while( !_pipes.empty() )
     {
@@ -53,8 +57,65 @@ Node< C, N, P >::~Node()
     _config->_removeNode( static_cast< N* >( this ) );
 }
 
-template< class C, class N, class P >
-NodePath Node< C, N, P >::getPath() const
+namespace
+{
+template< class N, class V >
+VisitorResult _accept( N* node, V& visitor )
+{
+    VisitorResult result = visitor.visitPre( node );
+    if( result != TRAVERSE_CONTINUE )
+        return result;
+
+    const typename N::PipeVector& pipes = node->getPipes();
+    for( typename N::PipeVector::const_iterator i = pipes.begin(); 
+         i != pipes.end(); ++i )
+    {
+        switch( (*i)->accept( visitor ))
+        {
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
+
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
+                break;
+                
+            case TRAVERSE_CONTINUE:
+            default:
+                break;
+        }
+    }
+
+    switch( visitor.visitPost( node ))
+    {
+        case TRAVERSE_TERMINATE:
+            return TRAVERSE_TERMINATE;
+
+        case TRAVERSE_PRUNE:
+            return TRAVERSE_PRUNE;
+                
+        case TRAVERSE_CONTINUE:
+        default:
+            break;
+    }
+
+    return result;
+}
+}
+
+template< class C, class N, class P, class V >
+VisitorResult Node< C, N, P, V >::accept( V& visitor )
+{
+    return _accept( static_cast< N* >( this ), visitor );
+}
+
+template< class C, class N, class P, class V >
+VisitorResult Node< C, N, P, V >::accept( V& visitor ) const
+{
+    return _accept( static_cast< const N* >( this ), visitor );
+}
+
+template< class C, class N, class P, class V >
+NodePath Node< C, N, P, V >::getPath() const
 {
     const C* config = static_cast< const N* >( this )->getConfig( );
     EQASSERT( config );
@@ -70,33 +131,33 @@ NodePath Node< C, N, P >::getPath() const
     return path;
 }
 
-template< class C, class N, class P >
-void Node< C, N, P >::setIAttribute( const IAttribute attr, const int32_t value )
+template< class C, class N, class P, class V >
+void Node< C, N, P, V >::setIAttribute( const IAttribute attr, const int32_t value )
 {
     _iAttributes[attr] = value;
 }
 
-template< class C, class N, class P >
-int32_t Node< C, N, P >::getIAttribute( const IAttribute attr ) const
+template< class C, class N, class P, class V >
+int32_t Node< C, N, P, V >::getIAttribute( const IAttribute attr ) const
 {
     return _iAttributes[attr];
 }
 
-template< class C, class N, class P >
-const std::string& Node< C, N, P >::getIAttributeString( const IAttribute attr )
+template< class C, class N, class P, class V >
+const std::string& Node< C, N, P, V >::getIAttributeString( const IAttribute attr )
 {
     return _iAttributeStrings[attr];
 }
 
-template< class C, class N, class P >
-void Node< C, N, P >::_addPipe( P* pipe )
+template< class C, class N, class P, class V >
+void Node< C, N, P, V >::_addPipe( P* pipe )
 {
     EQASSERT( pipe->getNode() == this );
     _pipes.push_back( pipe );
 }
 
-template< class C, class N, class P >
-bool Node< C, N, P >::_removePipe( P* pipe )
+template< class C, class N, class P, class V >
+bool Node< C, N, P, V >::_removePipe( P* pipe )
 {
     typename PipeVector::iterator i = stde::find( _pipes, pipe );
     if( i == _pipes.end( ))
@@ -106,8 +167,8 @@ bool Node< C, N, P >::_removePipe( P* pipe )
     return true;
 }
 
-template< class C, class N, class P >
-P* Node< C, N, P >::findPipe( const uint32_t id )
+template< class C, class N, class P, class V >
+P* Node< C, N, P, V >::findPipe( const uint32_t id )
 {
     for( typename PipeVector::const_iterator i = _pipes.begin();
          i != _pipes.end(); ++i )

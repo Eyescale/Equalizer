@@ -27,7 +27,7 @@ namespace eq
 {
 namespace fabric
 {
-    template< class, class, class, class, class, class > class Config;
+    template< class, class, class, class, class, class, class > class Config;
 
     /**
      * Proxy object for the connection to an Equalizer server.
@@ -44,6 +44,9 @@ namespace fabric
         typedef base::RefPtr< CL > ClientPtr;
         typedef std::vector< CFG* > ConfigVector;
 
+        /** @internal */
+        void setClient( ClientPtr client );
+
         /** @return the local client proxy. */
         ClientPtr getClient() { return _client; }
 
@@ -59,9 +62,6 @@ namespace fabric
 
         /** Destruct this server. */
         virtual ~Server();
-
-        /** @internal */
-        void setClient( ClientPtr client, net::CommandQueue* queue );
 
     private:
         NF* const _nodeFactory; //!< the factory to create all child instances
@@ -81,7 +81,7 @@ namespace fabric
         /** @sa net::Node::getType */
         virtual uint32_t getType() const { return NODETYPE_EQ_SERVER; }
 
-        template< class, class, class, class, class, class >
+        template< class, class, class, class, class, class, class >
         friend class Config;
 
         /**  Add a new config to this server. */

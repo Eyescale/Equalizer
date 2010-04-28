@@ -30,12 +30,12 @@ namespace eq
 {
 namespace fabric
 {
-    template< class S, class C, class O, class L, class CV, class N >
-    class Config;
+    template< class, class, class, class, class, class, class > class Config;
 }
 namespace server
 {
     class NodeFactory;
+    class ConfigVisitor;
     class ServerVisitor;
 
     /**
@@ -64,8 +64,7 @@ namespace server
         EQSERVER_EXPORT void deleteConfigs();
 
         /** @return the command queue to the server thread */
-        net::CommandQueue* getServerThreadQueue() 
-            { return &_serverThreadQueue; }
+        net::CommandQueue* getMainThreadQueue() { return &_mainThreadQueue; }
 
         /** 
          * Traverse this server and all children using a server visitor.
@@ -96,7 +95,7 @@ namespace server
         ConfigHash _configs;
 
         /** The receiver->main command queue. */
-        net::CommandQueue _serverThreadQueue;
+        net::CommandQueue _mainThreadQueue;
 
         /** The global clock. */
         base::Clock _clock;
@@ -114,8 +113,8 @@ namespace server
         /** @sa net::Node::getType */
         virtual uint32_t getType() const { return fabric::NODETYPE_EQ_SERVER; }
 
-        friend class fabric::Config< Server, Config, Observer, 
-                                     Layout, Canvas, eq::server::Node >;
+        friend class fabric::Config< Server, Config, Observer, Layout, Canvas,
+                                     eq::server::Node, ConfigVisitor >;
 
         /**  Add a new config to this server. */
         void _addConfig( Config* config );

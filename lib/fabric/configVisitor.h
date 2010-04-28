@@ -15,21 +15,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_CONFIGVISITOR_H
-#define EQ_CONFIGVISITOR_H
+#ifndef EQFABRIC_CONFIGVISITOR_H
+#define EQFABRIC_CONFIGVISITOR_H
 
-#include <eq/client/types.h>
+#include <eq/fabric/types.h>
 #include <eq/fabric/elementVisitor.h>       // base class
 
 namespace eq
 {
-    class Config;
-
+namespace fabric
+{
     /** A visitor to traverse configs and all children. @sa Config::accept() */
-    class ConfigVisitor : public NodeVisitor, 
-                          public ObserverVisitor,
-                          public LayoutVisitor,
-                          public CanvasVisitor
+    template< class C, class OV, class LV, class CV, class NV >
+    class ConfigVisitor : public OV, public LV, public CV, public NV
     {
     public:
         /** Construct a new config visitor. @version 1.0 */
@@ -39,20 +37,21 @@ namespace eq
         virtual ~ConfigVisitor(){}
 
         /** Visit a config on the down traversal. @version 1.0 */
-        virtual VisitorResult visitPre( Config* config )
-            { return visitPre( static_cast< const Config* >( config )); }
+        virtual VisitorResult visitPre( C* config )
+            { return visitPre( static_cast< const C* >( config )); }
 
         /** Visit a config on the up traversal. @version 1.0 */
-        virtual VisitorResult visitPost( Config* config )
-            { return visitPost( static_cast< const Config* >( config )); }
+        virtual VisitorResult visitPost( C* config )
+            { return visitPost( static_cast< const C* >( config )); }
 
         /** Visit a config on the down traversal. @version 1.0 */
-        virtual VisitorResult visitPre( const Config* config )
+        virtual VisitorResult visitPre( const C* config )
             { return TRAVERSE_CONTINUE; }
 
         /** Visit a config on the up traversal. @version 1.0 */
-        virtual VisitorResult visitPost( const Config* config )
+        virtual VisitorResult visitPost( const C* config )
             { return TRAVERSE_CONTINUE; }
     };
 }
-#endif // EQ_CONFIGVISITOR_H
+}
+#endif // EQFABRIC_CONFIGVISITOR_H

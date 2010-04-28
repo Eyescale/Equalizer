@@ -18,7 +18,6 @@
 #include "layout.h"
 
 #include "config.h"
-#include "nameFinder.h"
 #include "view.h"
 
 #include <eq/fabric/paths.h>
@@ -63,7 +62,7 @@ void Layout::deregister()
 }
 
 #include "nodeFactory.h"
-#include "../lib/fabric/layout.cpp"
+#include "../lib/fabric/layout.ipp"
 
 template class eq::fabric::Layout< eq::server::Config, eq::server::Layout,
                                    eq::server::View >;

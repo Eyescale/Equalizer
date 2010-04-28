@@ -150,7 +150,7 @@ ViewPath View::getPath() const
 }
 }
 
-#include "../lib/fabric/view.cpp"
+#include "../lib/fabric/view.ipp"
 
 template class eq::fabric::View< eq::server::Layout, eq::server::View,
                                  eq::server::Observer >;

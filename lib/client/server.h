@@ -25,7 +25,7 @@ namespace eq
 {
 namespace fabric
 {
-template< class, class, class, class, class, class > class Config;
+    template< class, class, class, class, class, class, class > class Config;
 }
     class Client;
     class Config;
@@ -49,7 +49,7 @@ template< class, class, class, class, class, class > class Config;
         /** @name Internal */
         //@{
         void setClient( ClientPtr client );
-        EQ_EXPORT net::CommandQueue* getNodeThreadQueue();
+        EQ_EXPORT net::CommandQueue* getMainThreadQueue();
         EQ_EXPORT net::CommandQueue* getCommandThreadQueue();
         //@}
 

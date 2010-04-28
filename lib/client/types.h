@@ -41,9 +41,9 @@ class SubPixel;
 class Viewport;
 class Wall;
 class Zoom;
-template< typename T, typename L > class ElementVisitor;
-template< typename T > class LeafVisitor;
-template< typename T, typename C  > class ElementVisitor;
+template< class C, class OV, class LV, class CV, class NV > class ConfigVisitor;
+template< class T, class C > class ElementVisitor;
+template< class T > class LeafVisitor;
 }
 
 class Canvas;
@@ -102,6 +102,11 @@ typedef fabric::ElementVisitor< Node, PipeVisitor > NodeVisitor;
 
 /** A visitor to traverse layouts and children. */
 typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
+
+/** A visitor to traverse configs and children. */
+typedef fabric::ConfigVisitor< Config, ObserverVisitor, LayoutVisitor,
+                               CanvasVisitor, NodeVisitor > ConfigVisitor;
+
 
 //----- Vectors
 /** A vector of pointers to eq::Config */

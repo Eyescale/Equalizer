@@ -113,9 +113,9 @@ bool View::handleEvent( const Event& event )
     return false;
 }
 
-
 }
-#include "../fabric/view.cpp"
+
+#include "../fabric/view.ipp"
 template class eq::fabric::View< eq::Layout, eq::View, eq::Observer >;
 /** @cond IGNORE */
 template std::ostream& eq::fabric::operator << ( std::ostream&,

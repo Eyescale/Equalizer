@@ -18,7 +18,8 @@
 #ifndef EQ_CONFIGCOMMITVISITOR_H
 #define EQ_CONFIGCOMMITVISITOR_H
 
-#include <eq/client/configVisitor.h> // base class
+#include <eq/client/types.h>
+#include <eq/fabric/configVisitor.h> // base class
 
 namespace eq
 {

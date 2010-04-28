@@ -18,6 +18,7 @@
 #ifndef EQFABRIC_H
 #define EQFABRIC_H
 
+#include <eq/fabric/configVisitor.h>
 #include <eq/fabric/drawableConfig.h>
 
 #endif // EQFABRIC_H

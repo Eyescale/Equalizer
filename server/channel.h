@@ -91,7 +91,7 @@ namespace server
 
         const CompoundVector& getCompounds() const;
 
-        net::CommandQueue* getServerThreadQueue();
+        net::CommandQueue* getMainThreadQueue();
         net::CommandQueue* getCommandThreadQueue();
 
         /** Increase channel activition count. */

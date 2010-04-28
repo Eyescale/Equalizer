@@ -87,6 +87,7 @@ HEADER_SRC = \
 	fabric/colorMask.h \
 	fabric/commands.h \
 	fabric/config.h \
+	fabric/configVisitor.h \
 	fabric/client.h \
 	fabric/drawableConfig.h \
 	fabric/elementVisitor.h \
@@ -101,6 +102,7 @@ HEADER_SRC = \
 	fabric/nodeType.h \
 	fabric/object.h \
 	fabric/observer.h \
+	fabric/packets.h \
 	fabric/packetType.h \
 	fabric/paths.h \
 	fabric/pipe.h \
@@ -132,7 +134,6 @@ HEADER_SRC = \
 	client/configEvent.h \
 	client/configParams.h \
 	client/configStatistics.h \
-	client/configVisitor.h \
 	client/cudaContext.h \
 	client/event.h \
 	client/eventHandler.h \

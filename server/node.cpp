@@ -39,7 +39,7 @@ namespace eq
 {
 namespace server
 {
-typedef fabric::Node< Config, Node, Pipe > Super;
+typedef fabric::Node< Config, Node, Pipe, NodeVisitor > Super;
 
 #define MAKE_ATTRIB_STRING( attr ) ( std::string("EQ_NODE_") + #attr )
 
@@ -106,60 +106,6 @@ Channel* Node::getChannel( const ChannelPath& path )
         return 0;
 
     return _pipes[ path.pipeIndex ]->getChannel( path );
-}
-
-namespace
-{
-template< class C >
-VisitorResult _accept( C* node, NodeVisitor& visitor )
-{ 
-    VisitorResult result = visitor.visitPre( node );
-    if( result != TRAVERSE_CONTINUE )
-        return result;
-
-    const PipeVector& pipes = node->getPipes();
-    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
-    {
-        switch( (*i)->accept( visitor ))
-        {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-                
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    switch( visitor.visitPost( node ))
-    {
-        case TRAVERSE_TERMINATE:
-            return TRAVERSE_TERMINATE;
-
-        case TRAVERSE_PRUNE:
-            return TRAVERSE_PRUNE;
-                
-        case TRAVERSE_CONTINUE:
-        default:
-            break;
-    }
-
-    return result;
-}
-}
-
-VisitorResult Node::accept( NodeVisitor& visitor )
-{
-    return _accept( this, visitor );
-}
-
-VisitorResult Node::accept( NodeVisitor& visitor ) const
-{
-    return _accept( this, visitor );
 }
 
 void Node::activate()
@@ -654,4 +600,4 @@ std::ostream& operator << ( std::ostream& os, const Node* node )
 
 #include "../lib/fabric/node.cpp"
 template class eq::fabric::Node< eq::server::Config, eq::server::Node,
-                                 eq::server::Pipe >;
+                                 eq::server::Pipe, eq::server::NodeVisitor >;

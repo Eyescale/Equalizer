@@ -1,6 +1,11 @@
-Refactor entity creation by moving nodefactory to fabric.
+Admin API refactoring:
+- Rename fabric view entity impl files to .ipp
+- Simplify fabric server command registration
+- Move config/node/pipe accept to fabric
+- Move common command packets to fabric
+- Add serialization of config nodevector
 
-[ ] May break build
+[x] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature

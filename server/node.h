@@ -39,7 +39,7 @@ namespace server
     class Pipe;
 
     /** The node. */
-    class Node : public fabric::Node< Config, Node, Pipe >
+    class Node : public fabric::Node< Config, Node, Pipe, NodeVisitor >
     {
     public:
         enum State
@@ -76,19 +76,10 @@ namespace server
         /** @return the state of this node. */
         State getState()    const { return _state.get(); }
 
-        net::CommandQueue* getServerThreadQueue()
-            { return getConfig()->getServerThreadQueue(); }
+        net::CommandQueue* getMainThreadQueue()
+            { return getConfig()->getMainThreadQueue(); }
         net::CommandQueue* getCommandThreadQueue()
             { return getConfig()->getCommandThreadQueue(); }
-
-        /** 
-         * Traverse this node and all children using a node visitor.
-         * 
-         * @param visitor the visitor.
-         * @return the result of the visitor traversal.
-         */
-        VisitorResult accept( NodeVisitor& visitor );
-        VisitorResult accept( NodeVisitor& visitor ) const;
 
         /** Increase node activition count. */
         void activate();

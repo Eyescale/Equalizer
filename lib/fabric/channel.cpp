@@ -195,7 +195,7 @@ void Channel< W, C >::notifyViewportChanged()
     if( !_window )
         return;
 
-    eq::PixelViewport windowPVP = _window->getPixelViewport();
+    PixelViewport windowPVP = _window->getPixelViewport();
     if( !windowPVP.isValid( ))
         return;
 

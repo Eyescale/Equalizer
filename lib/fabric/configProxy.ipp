@@ -15,16 +15,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "object.h"
+
 namespace eq
 {
 namespace fabric
 {
 
-template< class S, class C, class O, class L, class CV, class N >
+template< class S, class C, class O, class L, class CV, class N, class V >
 class ConfigProxy : public Object //!< Used for data distribution 
 {
 public:
-    ConfigProxy( Config< S, C, O, L, CV, N >& config );
+    ConfigProxy( Config< S, C, O, L, CV, N, V >& config );
     virtual ~ConfigProxy() {}
 
     enum DirtyBits
@@ -34,6 +36,7 @@ public:
         DIRTY_LAYOUTS   = Object::DIRTY_CUSTOM << 2,
         DIRTY_CANVASES  = Object::DIRTY_CUSTOM << 3,
         DIRTY_LATENCY   = Object::DIRTY_CUSTOM << 4,
+        DIRTY_NODES     = Object::DIRTY_CUSTOM << 5,
     };
 
     void create( O** observer ) 
@@ -60,22 +63,31 @@ public:
     void release( CV* canvas )
         { _config.getServer()->getNodeFactory()->releaseCanvas( canvas ); }
 
+    void create( N** node )
+        {
+            *node = _config.getServer()->getNodeFactory()->createNode(
+                static_cast< C* >( &_config ));
+        }
+    void release( N* node )
+        { _config.getServer()->getNodeFactory()->releaseNode( node ); }
+
 protected:
     virtual void serialize( net::DataOStream& os, const uint64_t dirtyBits );
     virtual void deserialize( net::DataIStream& is, const uint64_t dirtyBits );
 
 private:
-    Config< S, C, O, L, CV, N >& _config;
-    template< class, class, class, class, class, class > friend class Config;
+    Config< S, C, O, L, CV, N, V >& _config;
+    template< class, class, class, class, class, class, class >
+    friend class Config;
 };
 
-template< class S, class C, class O, class L, class CV, class N >
-ConfigProxy< S, C, O, L, CV, N >::ConfigProxy( Config< S, C, O, L, CV, N >& config )
+template< class S, class C, class O, class L, class CV, class N, class V >
+ConfigProxy< S, C, O, L, CV, N, V >::ConfigProxy( Config< S, C, O, L, CV, N, V >& config )
         : _config( config )
 {}
 
-template< class S, class C, class O, class L, class CV, class N >
-void ConfigProxy< S, C, O, L, CV, N >::serialize( net::DataOStream& os,
+template< class S, class C, class O, class L, class CV, class N, class V >
+void ConfigProxy< S, C, O, L, CV, N, V >::serialize( net::DataOStream& os,
                                                const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
@@ -88,20 +100,22 @@ void ConfigProxy< S, C, O, L, CV, N >::serialize( net::DataOStream& os,
         os.serializeChildren( this, _config._layouts );
     if( dirtyBits & DIRTY_CANVASES )
         os.serializeChildren( this, _config._canvases );
-    if( dirtyBits & DIRTY_LAYOUTS )
+    if( dirtyBits & DIRTY_NODES )
+        os.serializeChildren( this, _config._nodes );
+    if( dirtyBits & DIRTY_LATENCY )
         os << _config._data.latency;
 }
 
-template< class S, class C, class O, class L, class CV, class N >
-void ConfigProxy< S, C, O, L, CV, N >::deserialize( net::DataIStream& is, 
-                                                    const uint64_t dirtyBits )
+template< class S, class C, class O, class L, class CV, class N, class V >
+void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is, 
+                                                      const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
 
     if( dirtyBits & DIRTY_MEMBER )
         is >> _config._appNodeID;
 
-    if( _config.distributeChildren( )) // depends on _config._appNodeID !
+    if( _config.mapViewObjects( )) // depends on _config._appNodeID !
     {
         if( dirtyBits & DIRTY_OBSERVERS )
             is.deserializeChildren( this, _config._observers );
@@ -110,7 +124,7 @@ void ConfigProxy< S, C, O, L, CV, N >::deserialize( net::DataIStream& is,
         if( dirtyBits & DIRTY_CANVASES )
             is.deserializeChildren( this, _config._canvases );
     }
-    else
+    else // consume unused ObjectVersions
     {
         net::ObjectVersionVector childIDs;
         if( dirtyBits & DIRTY_OBSERVERS )
@@ -119,6 +133,17 @@ void ConfigProxy< S, C, O, L, CV, N >::deserialize( net::DataIStream& is,
             is >> childIDs;
         if( dirtyBits & DIRTY_CANVASES )
             is >> childIDs;
+    }
+
+    if( dirtyBits & DIRTY_NODES )
+    {
+        if( _config.mapNodeObjects( ))
+            is.deserializeChildren( this, _config._nodes );
+        else // consume unused ObjectVersions
+        {
+            net::ObjectVersionVector childIDs;
+            is >> childIDs;
+        }
     }
 
     if( dirtyBits & DIRTY_LATENCY )

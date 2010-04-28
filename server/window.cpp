@@ -114,11 +114,11 @@ Config* Window::getConfig()
     return ( pipe ? pipe->getConfig() : 0);
 }
 
-net::CommandQueue* Window::getServerThreadQueue()
+net::CommandQueue* Window::getMainThreadQueue()
 {
     Pipe* pipe = getPipe();
     EQASSERT( pipe );
-    return pipe->getServerThreadQueue(); 
+    return pipe->getMainThreadQueue(); 
 }
 
 net::CommandQueue* Window::getCommandThreadQueue()

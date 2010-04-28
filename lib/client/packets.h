@@ -24,10 +24,9 @@
 
 #include <eq/fabric/commands.h>      // enum 
 #include <eq/fabric/packetType.h>    // member
+#include <eq/fabric/packets.h>
 #include <eq/fabric/renderContext.h> // member
 #include <eq/fabric/viewport.h>      // member
-
-#include <eq/net/packets.h>
 
 namespace eq
 {
@@ -55,12 +54,7 @@ namespace eq
     //------------------------------------------------------------
     // Server
     //------------------------------------------------------------
-    struct ServerPacket : public net::Packet
-    {
-        ServerPacket(){ type = fabric::PACKETTYPE_EQ_SERVER; }
-    };
-
-    struct ServerChooseConfigPacket : public ServerPacket
+    struct ServerChooseConfigPacket : public fabric::ServerPacket
     {
         ServerChooseConfigPacket()
                 : fill ( 0 )
@@ -75,46 +69,7 @@ namespace eq
         EQ_ALIGN8( char rendererInfo[8] );
     };
 
-    struct ServerCreateConfigPacket : public ServerPacket
-    {
-        ServerCreateConfigPacket()
-                : requestID( EQ_ID_INVALID )
-            {
-                command   = fabric::CMD_SERVER_CREATE_CONFIG;
-                size      = sizeof( ServerCreateConfigPacket );
-            }
-
-        net::SessionID configID;
-        uint32_t requestID;
-        net::ObjectVersion proxy;
-    };
-
-    struct ServerDestroyConfigPacket : public ServerPacket
-    {
-        ServerDestroyConfigPacket()
-                : requestID ( EQ_ID_INVALID )
-            {
-                command = fabric::CMD_SERVER_DESTROY_CONFIG;
-                size    = sizeof( ServerDestroyConfigPacket );
-            }
-
-        net::SessionID configID;
-        uint32_t requestID;
-    };
-
-    struct ServerDestroyConfigReplyPacket : public ServerPacket
-    {
-        ServerDestroyConfigReplyPacket(const ServerDestroyConfigPacket* request)
-            {
-                command       = fabric::CMD_SERVER_DESTROY_CONFIG_REPLY;
-                size          = sizeof( ServerDestroyConfigReplyPacket );
-                requestID     = request->requestID;
-            }
-
-        uint32_t requestID;
-    };
-
-    struct ServerChooseConfigReplyPacket : public ServerPacket
+    struct ServerChooseConfigReplyPacket : public fabric::ServerPacket
     {
         ServerChooseConfigReplyPacket( const ServerChooseConfigPacket*
                                        requestPacket )
@@ -128,7 +83,7 @@ namespace eq
         uint32_t requestID;
     };
 
-    struct ServerReleaseConfigPacket : public ServerPacket
+    struct ServerReleaseConfigPacket : public fabric::ServerPacket
     {
         ServerReleaseConfigPacket()
             {
@@ -140,7 +95,7 @@ namespace eq
         uint32_t requestID;
     };
 
-    struct ServerReleaseConfigReplyPacket : public ServerPacket
+    struct ServerReleaseConfigReplyPacket : public fabric::ServerPacket
     {
         ServerReleaseConfigReplyPacket( const ServerReleaseConfigPacket*
                                         requestPacket )
@@ -153,7 +108,7 @@ namespace eq
         uint32_t requestID;
     };
 
-    struct ServerShutdownPacket : public ServerPacket
+    struct ServerShutdownPacket : public fabric::ServerPacket
     {
         ServerShutdownPacket()
             {
@@ -164,7 +119,7 @@ namespace eq
         uint32_t requestID;
     };
 
-    struct ServerShutdownReplyPacket : public ServerPacket
+    struct ServerShutdownReplyPacket : public fabric::ServerPacket
     {
         ServerShutdownReplyPacket( const ServerShutdownPacket* requestPacket )
             {
@@ -181,19 +136,6 @@ namespace eq
     // Config
     //------------------------------------------------------------
     typedef net::SessionPacket ConfigPacket;
-
-    struct ConfigCreateReplyPacket : public ConfigPacket
-    {
-        ConfigCreateReplyPacket( const ServerCreateConfigPacket* request )
-        {
-            command   = fabric::CMD_CONFIG_CREATE_REPLY;
-            size      = sizeof( ConfigCreateReplyPacket );
-            sessionID = request->configID;
-            requestID = request->requestID;
-        }
-
-        uint32_t requestID;
-    };
 
     struct ConfigCreateNodePacket : public ConfigPacket
     {
@@ -965,28 +907,21 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ServerChooseConfigPacket* packet )
     {
-        os << (ServerPacket*)packet << " req " << packet->requestID
+        os << (fabric::ServerPacket*)packet << " req " << packet->requestID
            << " renderer " << packet->rendererInfo;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                   const ServerChooseConfigReplyPacket* packet )
     {
-        os << (ServerPacket*)packet << " req " << packet->requestID << " id " 
-           << packet->configID;
+        os << (fabric::ServerPacket*)packet << " req " << packet->requestID
+           << " id " << packet->configID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
         const ServerReleaseConfigPacket* packet )
     {
-        os << (ServerPacket*)packet << " config " << packet->configID;
-        return os;
-    }
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const ServerCreateConfigPacket* packet )
-    {
-        os << (ServerPacket*)packet << " config " << packet->configID 
-            << " request " << packet->requestID;
+        os << (fabric::ServerPacket*)packet << " config " << packet->configID;
         return os;
     }
 

@@ -46,6 +46,7 @@ namespace eq
     class MessagePump;
     class OSPipe;
     class ComputeContext;
+
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
      *
@@ -54,7 +55,7 @@ namespace eq
      * the pipe is non-threaded, in which case the tasks are executed on the
      * Node's main thread.
      */
-    class Pipe : public fabric::Pipe< Node, Pipe, Window >
+    class Pipe : public fabric::Pipe< Node, Pipe, eq::Window, PipeVisitor >
     {
     public:
         /** Constructs a new pipe. */
@@ -75,17 +76,6 @@ namespace eq
 
         uint32_t getCurrentFrame()  const { return _currentFrame; }
         EQ_EXPORT uint32_t getFinishedFrame() const;
-
-        /** 
-         * Traverse this pipe and all children using a pipe visitor.
-         * 
-         * @param visitor the visitor.
-         * @return the result of the visitor traversal.
-         */
-        EQ_EXPORT VisitorResult accept( PipeVisitor& visitor );
-
-        /** Const-version of accept(). */
-        EQ_EXPORT VisitorResult accept( PipeVisitor& visitor ) const;
 
         /**
          * Return the window system used by this pipe. 

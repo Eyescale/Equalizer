@@ -118,7 +118,7 @@ SegmentPath Segment::getPath() const
 }
 }
 
-#include "../lib/fabric/segment.cpp"
+#include "../lib/fabric/segment.ipp"
 template class eq::fabric::Segment< eq::server::Canvas, eq::server::Segment >;
 /** @cond IGNORE */
 template std::ostream& eq::fabric::operator << ( std::ostream&,

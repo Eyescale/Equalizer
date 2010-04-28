@@ -36,16 +36,12 @@ namespace server
 
 namespace fabric
 {
-    template< class, class, class, class > class Canvas;
-    template< class, class > class Observer;
-    template< class, class, class > class Layout;
-    template< class, class, class > class Node;
-    template< class, class, class, class > class Server;
     struct CanvasPath;
     struct LayoutPath;
     struct ObserverPath;
 
-    template< class, class, class, class, class, class > class ConfigProxy;
+    template< class, class, class, class, class, class, class >
+    class ConfigProxy;
 
     /**
      * A configuration is a visualization session driven by an application.
@@ -67,7 +63,7 @@ namespace fabric
      * The render client processes have only access to the current View for each
      * of their channels.
      */
-    template< class S, class C, class O, class L, class CV, class N >
+    template< class S, class C, class O, class L, class CV, class N, class V >
     class Config : public net::Session
     {
     public:
@@ -98,6 +94,18 @@ namespace fabric
 
         /** @return the vector of nodes. */
         const NodeVector& getNodes() const { return _nodes; }
+
+        /** 
+         * Traverse this config and all children using a config visitor.
+         * 
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
+         * @version 1.0
+         */
+        EQFABRIC_EXPORT VisitorResult accept( V& visitor );
+
+        /** Const-version of accept(). @version 1.0 */
+        EQFABRIC_EXPORT VisitorResult accept( V& visitor ) const;
 
         /** @return the entity of the given identifier, or 0. @version 1.0 */
         template< typename T > EQFABRIC_EXPORT T* find( const uint32_t id );
@@ -198,7 +206,15 @@ namespace fabric
         void setAppNodeID( const net::NodeID& nodeID );
         const net::NodeID& getAppNodeID() const { return _appNodeID; }
         virtual void changeLatency( const uint32_t latency ) { /* NOP */ }
-        virtual bool distributeChildren() { return false; }
+        virtual bool mapViewObjects() { return false; }
+        virtual bool mapNodeObjects() { return false; }
+
+        virtual VisitorResult _acceptCompounds( V& visitor )
+            { return TRAVERSE_CONTINUE; }
+        virtual VisitorResult _acceptCompounds( V& visitor ) const
+            { return TRAVERSE_CONTINUE; }
+        template< class C2, class V2 > 
+        friend VisitorResult _acceptImpl( C2*, V2& );
         //@}
 
     private:
@@ -230,8 +246,8 @@ namespace fabric
             _data, _backup;
 
         /** Data distribution proxy */
-        ConfigProxy< S, C, O, L, CV, N >* const _proxy;
-        template< class, class, class, class, class, class >
+        ConfigProxy< S, C, O, L, CV, N, V >* const _proxy;
+        template< class, class, class, class, class, class, class >
         friend class ConfigProxy;
 
         friend class eq::Config; // TODO remove
@@ -248,7 +264,7 @@ namespace fabric
         void _addCanvas( CV* canvas );
         bool _removeCanvas( CV* canvas );
 
-        template< class, class, class > friend class Node;
+        template< class, class, class, class > friend class Node;
         void _addNode( N* node );
         EQFABRIC_EXPORT bool _removeNode( N* node );
         N* _findNode( const uint32_t id );

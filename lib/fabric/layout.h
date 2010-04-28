@@ -26,11 +26,13 @@
 
 namespace eq
 {
-class Layout;
-namespace server { class Layout; }
+    class Layout;
+    namespace server { class Layout; }
 
 namespace fabric
 {
+    template< typename T, typename C  > class ElementVisitor;
+    template< class T > class LeafVisitor;
     template< class, class, class > class View;
     struct LayoutPath;
     struct ViewPath;

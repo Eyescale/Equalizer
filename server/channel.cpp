@@ -82,7 +82,7 @@ void Channel::attachToSession( const uint32_t id, const uint32_t instanceID,
 {
     net::Object::attachToSession( id, instanceID, session );
     
-    net::CommandQueue* serverQ  = getServerThreadQueue();
+    net::CommandQueue* serverQ  = getMainThreadQueue();
     net::CommandQueue* commandQ = getCommandThreadQueue();
 
     registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT_REPLY, 
@@ -152,11 +152,11 @@ const CompoundVector& Channel::getCompounds() const
     return getConfig()->getCompounds();
 }
 
-net::CommandQueue* Channel::getServerThreadQueue()
+net::CommandQueue* Channel::getMainThreadQueue()
 {
     Window* window = getWindow();
     EQASSERT( window );
-    return window->getServerThreadQueue(); 
+    return window->getMainThreadQueue(); 
 }
 
 net::CommandQueue* Channel::getCommandThreadQueue()

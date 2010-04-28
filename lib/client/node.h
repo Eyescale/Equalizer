@@ -37,7 +37,7 @@ namespace eq
      *
      * Each node is executed in a seperate process.
      */
-    class Node : public fabric::Node< Config, Node, Pipe >
+    class Node : public fabric::Node< Config, Node, Pipe, NodeVisitor >
     {
     public:
         /** Constructs a new node. */
@@ -49,18 +49,7 @@ namespace eq
         EQ_EXPORT ClientPtr getClient();
         EQ_EXPORT ServerPtr getServer();
 
-        EQ_EXPORT CommandQueue* getNodeThreadQueue();
-
-        /** 
-         * Traverse this node and all children using a node visitor.
-         * 
-         * @param visitor the visitor.
-         * @return the result of the visitor traversal.
-         */
-        EQ_EXPORT VisitorResult accept( NodeVisitor& visitor );
-
-        /** Const-version of accept(). */
-        EQ_EXPORT VisitorResult accept( NodeVisitor& visitor ) const;
+        EQ_EXPORT CommandQueue* getMainThreadQueue();
 
         /** 
          * Get a network barrier. 

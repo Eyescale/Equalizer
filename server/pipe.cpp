@@ -36,7 +36,7 @@ namespace eq
 namespace server
 {
 
-typedef fabric::Pipe< Node, Pipe, Window > Super;
+typedef fabric::Pipe< Node, Pipe, Window, PipeVisitor > Super;
 typedef net::CommandFunc<Pipe> PipeFunc;
 
 void Pipe::_construct()
@@ -119,11 +119,11 @@ const Config* Pipe::getConfig() const
     return ( node ? node->getConfig() : 0);
 }
 
-net::CommandQueue* Pipe::getServerThreadQueue()
+net::CommandQueue* Pipe::getMainThreadQueue()
 { 
     Node* node = getNode();
     EQASSERT( node );
-    return node->getServerThreadQueue(); 
+    return node->getMainThreadQueue(); 
 }
 
 net::CommandQueue* Pipe::getCommandThreadQueue()
@@ -142,61 +142,6 @@ Channel* Pipe::getChannel( const ChannelPath& path )
         return 0;
 
     return windows[ path.windowIndex ]->getChannel( path );
-}
-
-namespace
-{
-template< class C >
-VisitorResult _accept( C* pipe, PipeVisitor& visitor )
-{ 
-    VisitorResult result = visitor.visitPre( pipe );
-    if( result != TRAVERSE_CONTINUE )
-        return result;
-
-    const WindowVector& windows = pipe->getWindows();
-    for( WindowVector::const_iterator i = windows.begin(); 
-         i != windows.end(); ++i )
-    {
-        switch( (*i)->accept( visitor ))
-        {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-                
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    switch( visitor.visitPost( pipe ))
-    {
-        case TRAVERSE_TERMINATE:
-            return TRAVERSE_TERMINATE;
-
-        case TRAVERSE_PRUNE:
-            return TRAVERSE_PRUNE;
-                
-        case TRAVERSE_CONTINUE:
-        default:
-            break;
-    }
-
-    return result;
-}
-}
-
-VisitorResult Pipe::accept( PipeVisitor& visitor )
-{
-    return _accept( this, visitor );
-}
-
-VisitorResult Pipe::accept( PipeVisitor& visitor ) const
-{
-    return _accept( this, visitor );
 }
 
 void Pipe::activate()
@@ -527,5 +472,5 @@ std::ostream& operator << ( std::ostream& os, const Pipe* pipe )
 
 #include "../lib/fabric/pipe.cpp"
 template class eq::fabric::Pipe< eq::server::Node, eq::server::Pipe, 
-                                 eq::server::Window >;
+                                 eq::server::Window, eq::server::PipeVisitor >;
 

@@ -1,6 +1,6 @@
 
-/* Copyright (c)      2010, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,6 +17,9 @@
  */
 
 #include "pipe.h"
+
+#include "elementVisitor.h"
+#include "leafVisitor.h"
 #include "task.h"
 
 #include <eq/net/dataIStream.h>
@@ -39,8 +42,8 @@ std::string _iPipeAttributeStrings[] = {
 
 }
 
-template< class N, class P, class W >
-Pipe< N, P, W >::Pipe( N* parent )
+template< class N, class P, class W, class V >
+Pipe< N, P, W, V >::Pipe( N* parent )
         : _node( parent )
         , _port( EQ_UNDEFINED_UINT32 )
         , _device( EQ_UNDEFINED_UINT32 )
@@ -48,8 +51,8 @@ Pipe< N, P, W >::Pipe( N* parent )
     parent->_addPipe( static_cast< P* >( this ) );
 }
 
-template< class N, class P, class W >
-Pipe< N, P, W >::~Pipe()
+template< class N, class P, class W, class V >
+Pipe< N, P, W, V >::~Pipe()
 {
     WindowVector& windows = _getWindows(); 
     while( !windows.empty() )
@@ -62,16 +65,16 @@ Pipe< N, P, W >::~Pipe()
     _node->_removePipe( static_cast< P* >( this ) );
 }
 
-template< class N, class P, class W >
-void Pipe< N, P, W >::backup()
+template< class N, class P, class W, class V >
+void Pipe< N, P, W, V >::backup()
 {
     Object::backup();
     _backup = _data;
 }
 
 
-template< class N, class P, class W >
-void Pipe< N, P, W >::restore()
+template< class N, class P, class W, class V >
+void Pipe< N, P, W, V >::restore()
 {
     _data = _backup;
     Object::restore();
@@ -79,9 +82,9 @@ void Pipe< N, P, W >::restore()
     setDirty( DIRTY_PIXELVIEWPORT );
 }
 
-template< class N, class P, class W  >
-void Pipe< N, P, W >::serialize( net::DataOStream& os,
-                                 const uint64_t dirtyBits )
+template< class N, class P, class W, class V >
+void Pipe< N, P, W, V >::serialize( net::DataOStream& os,
+                                    const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
@@ -92,8 +95,8 @@ void Pipe< N, P, W >::serialize( net::DataOStream& os,
         os << _port << _device;
 }
 
-template< class N, class P, class W  >
-void Pipe< N, P, W >::deserialize( net::DataIStream& is,
+template< class N, class P, class W, class V >
+void Pipe< N, P, W, V >::deserialize( net::DataIStream& is,
                                    const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
@@ -109,8 +112,65 @@ void Pipe< N, P, W >::deserialize( net::DataIStream& is,
         is >> _port >> _device;
 }
 
-template< class N, class P, class W >
-PipePath Pipe< N, P, W >::getPath() const
+namespace
+{
+template< class P, class V >
+VisitorResult _accept( P* pipe, V& visitor )
+{
+    VisitorResult result = visitor.visitPre( pipe );
+    if( result != TRAVERSE_CONTINUE )
+        return result;
+
+    const typename P::WindowVector& windows = pipe->getWindows();
+    for( typename P::WindowVector::const_iterator i = windows.begin(); 
+         i != windows.end(); ++i )
+    {
+        switch( (*i)->accept( visitor ))
+        {
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
+
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
+                break;
+                
+            case TRAVERSE_CONTINUE:
+            default:
+                break;
+        }
+    }
+
+    switch( visitor.visitPost( pipe ))
+    {
+        case TRAVERSE_TERMINATE:
+            return TRAVERSE_TERMINATE;
+
+        case TRAVERSE_PRUNE:
+            return TRAVERSE_PRUNE;
+                
+        case TRAVERSE_CONTINUE:
+        default:
+            break;
+    }
+
+    return result;
+}
+}
+
+template< class N, class P, class W, class V >
+VisitorResult Pipe< N, P, W, V >::accept( V& visitor )
+{
+    return _accept( static_cast< P* >( this ), visitor );
+}
+
+template< class N, class P, class W, class V >
+VisitorResult Pipe< N, P, W, V >::accept( V& visitor ) const
+{
+    return _accept( static_cast< const P* >( this ), visitor );
+}
+
+template< class N, class P, class W, class V >
+PipePath Pipe< N, P, W, V >::getPath() const
 {
     const N* node = getNode();
     EQASSERT( node );
@@ -125,15 +185,15 @@ PipePath Pipe< N, P, W >::getPath() const
     return path;
 }
 
-template< class N, class P, class W >
-void Pipe< N, P, W >::_addWindow( W* window )
+template< class N, class P, class W, class V >
+void Pipe< N, P, W, V >::_addWindow( W* window )
 {
     EQASSERT( window->getPipe() == this );
     _windows.push_back( window );
 }
 
-template< class N, class P, class W >
-void Pipe< N, P, W >::setIAttribute( const IAttribute attr,
+template< class N, class P, class W, class V >
+void Pipe< N, P, W, V >::setIAttribute( const IAttribute attr,
                                      const int32_t value )
 {
     if( _iAttributes[attr] == value )
@@ -143,22 +203,22 @@ void Pipe< N, P, W >::setIAttribute( const IAttribute attr,
     setDirty( DIRTY_ATTRIBUTES );
  }
 
-template< class N, class P, class W >
-void Pipe< N, P, W >::setDevice( const uint32_t device )  
+template< class N, class P, class W, class V >
+void Pipe< N, P, W, V >::setDevice( const uint32_t device )  
 { 
     _device = device; 
     setDirty( DIRTY_MEMBER );
 }
 
-template< class N, class P, class W >
-void Pipe< N, P, W >::setPort( const uint32_t port )      
+template< class N, class P, class W, class V >
+void Pipe< N, P, W, V >::setPort( const uint32_t port )      
 { 
     _port = port; 
     setDirty( DIRTY_MEMBER );
 }
 
-template< class N, class P, class W >
-bool Pipe< N, P, W >::_removeWindow( W* window )
+template< class N, class P, class W, class V >
+bool Pipe< N, P, W, V >::_removeWindow( W* window )
 {
     typename WindowVector::iterator i = find( _windows.begin(), _windows.end(),
                                         window );
@@ -170,8 +230,8 @@ bool Pipe< N, P, W >::_removeWindow( W* window )
     return true;
 }
 
-template< class N, class P, class W >
-W* Pipe< N, P, W >::_findWindow( const uint32_t id )
+template< class N, class P, class W, class V >
+W* Pipe< N, P, W, V >::_findWindow( const uint32_t id )
 {
     for( typename WindowVector::const_iterator i = _windows.begin(); 
          i != _windows.end(); ++i )
@@ -183,8 +243,8 @@ W* Pipe< N, P, W >::_findWindow( const uint32_t id )
     return 0;
 }
 
-template< class N, class P, class W >
-const std::string& Pipe< N, P, W >::getIAttributeString( const IAttribute attr )
+template< class N, class P, class W, class V >
+const std::string& Pipe< N, P, W, V >::getIAttributeString( const IAttribute attr )
 {
     return _iPipeAttributeStrings[attr];
 }
@@ -192,8 +252,8 @@ const std::string& Pipe< N, P, W >::getIAttributeString( const IAttribute attr )
 //----------------------------------------------------------------------
 // viewport
 //----------------------------------------------------------------------
-template< class N, class P, class W >
-void Pipe< N, P, W >::setPixelViewport( const PixelViewport& pvp )
+template< class N, class P, class W, class V >
+void Pipe< N, P, W, V >::setPixelViewport( const PixelViewport& pvp )
 {
     if( pvp == _data.pvp || !pvp.hasArea( ))
         return;
@@ -204,8 +264,8 @@ void Pipe< N, P, W >::setPixelViewport( const PixelViewport& pvp )
     EQINFO << "Pipe pvp set: " << _data.pvp << std::endl;
 }
 
-template< class N, class P, class W >
-void Pipe< N, P, W >::notifyPixelViewportChanged()
+template< class N, class P, class W, class V >
+void Pipe< N, P, W, V >::notifyPixelViewportChanged()
 {
     const WindowVector& windows = getWindows();
     for( typename WindowVector::const_iterator i = windows.begin(); 

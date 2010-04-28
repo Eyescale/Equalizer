@@ -76,6 +76,9 @@ namespace fabric
         /** @return the vector of child segments. @version 1.0 */
         const SegmentVector& getSegments() const { return _segments; }        
 
+        /** Find the first segment of a given name. @internal */
+        S* findSegment( const std::string& name );
+
         /** @return the vector of possible layouts. @version 1.0 */
         const LayoutVector& getLayouts() const { return _layouts; }        
 

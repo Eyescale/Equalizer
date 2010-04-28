@@ -19,7 +19,6 @@
 
 #include "config.h"
 #include "global.h"
-#include "nameFinder.h"
 #include "nodeFactory.h"
 #include "view.h"
 
@@ -60,7 +59,7 @@ void Layout::_unmap()
 }
 
 #include "server.h"
-#include "../fabric/layout.cpp"
+#include "../fabric/layout.ipp"
 
 template class eq::fabric::Layout< eq::Config, eq::Layout, eq::View >;
 /** @cond IGNORE */

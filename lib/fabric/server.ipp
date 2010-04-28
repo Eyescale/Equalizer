@@ -17,6 +17,10 @@
 
 #include "server.h"
 
+#include "packets.h"
+
+#include <eq/net/command.h>
+
 namespace eq
 {
 namespace fabric
@@ -39,15 +43,16 @@ Server< CL, S, CFG, NF >::~Server()
 }
 
 template< class CL, class S, class CFG, class NF >
-void Server< CL, S, CFG, NF >::setClient( ClientPtr client, net::CommandQueue* queue )
+void Server< CL, S, CFG, NF >::setClient( ClientPtr client )
 {
     _client = client;
     if( !client )
         return;
 
-    registerCommand( fabric::CMD_SERVER_CREATE_CONFIG, 
+    net::CommandQueue* queue = static_cast< S* >( this )->getMainThreadQueue();
+    registerCommand( CMD_SERVER_CREATE_CONFIG, 
                      CmdFunc( this, &Server::_cmdCreateConfig ), queue );
-    registerCommand( fabric::CMD_SERVER_DESTROY_CONFIG, 
+    registerCommand( CMD_SERVER_DESTROY_CONFIG, 
                      CmdFunc( this, &Server::_cmdDestroyConfig ), queue );
 }
 

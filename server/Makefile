@@ -29,6 +29,7 @@ CXXFILES = \
 	layout.cpp \
 	loader.cpp \
 	node.cpp \
+	nodeFactory.cpp \
 	observer.cpp \
 	parser.cpp \
 	pipe.cpp \

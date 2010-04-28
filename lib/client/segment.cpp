@@ -49,7 +49,7 @@ const Config* Segment::getConfig() const
 
 }
 
-#include "../fabric/segment.cpp"
+#include "../fabric/segment.ipp"
 template class eq::fabric::Segment< eq::Canvas, eq::Segment >;
 /** @cond IGNORE */
 template std::ostream& eq::fabric::operator << ( std::ostream&,

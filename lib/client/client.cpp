@@ -47,7 +47,7 @@ Client::Client()
         , _running( false )
 {
     registerCommand( fabric::CMD_CLIENT_EXIT, 
-                     ClientFunc( this, &Client::_cmdExit ), &_nodeThreadQueue );
+                     ClientFunc( this, &Client::_cmdExit ), &_mainThreadQueue );
 
     EQINFO << "New client at " << (void*)this << std::endl;
 }
@@ -154,7 +154,7 @@ bool Client::disconnectServer( ServerPtr server )
     else
         success = Super::disconnectServer( server );
 
-    _nodeThreadQueue.flush();
+    _mainThreadQueue.flush();
     return success;
 }
 
@@ -167,7 +167,7 @@ bool Client::clientLoop()
         processCommand();
 
     // cleanup
-    _nodeThreadQueue.flush();
+    _mainThreadQueue.flush();
     EQASSERT( !hasSessions( ));
 
     return true;
@@ -180,12 +180,12 @@ bool Client::exitClient()
 
 bool Client::hasCommands()
 {
-    return !_nodeThreadQueue.isEmpty();
+    return !_mainThreadQueue.isEmpty();
 }
 
 void Client::processCommand()
 {
-    net::Command* command = _nodeThreadQueue.pop();
+    net::Command* command = _mainThreadQueue.pop();
     if( !command ) // just a wakeup()
         return;
 

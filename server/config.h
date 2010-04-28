@@ -41,7 +41,7 @@ namespace server
      * The config.
      */
     class Config : public fabric::Config< Server, Config, Observer, Layout,
-                                          Canvas, Node >
+                                          Canvas, Node, ConfigVisitor >
     {
     public:
         /** Construct a new config. */
@@ -59,8 +59,8 @@ namespace server
         bool isRunning() const { return ( _state == STATE_RUNNING ); }
         bool isUsed() const { return _appNetNode.isValid(); }
 
-        net::CommandQueue* getServerThreadQueue()
-            { return getServer()->getServerThreadQueue(); }
+        net::CommandQueue* getMainThreadQueue()
+            { return getServer()->getMainThreadQueue(); }
         
         /** 
          * Adds a new compound to this config.
@@ -99,15 +99,6 @@ namespace server
          */
         EQSERVER_EXPORT Channel* findChannel( const Segment* segment,
                                               const View* view );
-
-        /** 
-         * Traverse this config and all children using a config visitor.
-         * 
-         * @param visitor the visitor.
-         * @return the result of the visitor traversal.
-         */
-        EQSERVER_EXPORT VisitorResult accept( ConfigVisitor& visitor );
-        VisitorResult accept( ConfigVisitor& visitor ) const;
         //@}
 
         /** @sa fabric::Config::changeLatency() */
@@ -203,11 +194,17 @@ namespace server
         /** Activate the given canvas after it is complete (dest channels) */
         virtual void activateCanvas( Canvas* canvas );
 
+        /** @internal */
+        virtual VisitorResult _acceptCompounds( ConfigVisitor& visitor );
+        /** @internal */
+        virtual VisitorResult _acceptCompounds( ConfigVisitor& visitor ) const;
+
     protected:
         /** @sa net::Session::notifyMapped. */
         virtual void notifyMapped( net::NodePtr node );
 
-        virtual bool distributeChildren() { return true; } //!< @internal
+        virtual bool mapViewObjects() { return true; } //!< @internal
+        virtual bool mapNodeObjects() { return true; } //!< @internal
 
         friend class Server; // for commit()
 

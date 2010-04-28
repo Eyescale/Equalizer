@@ -41,6 +41,14 @@ typedef vmml::vector< 4, float > Vector4f; //!< A four-component float vector
 /** A three-component byte vector */
 typedef vmml::vector< 3, unsigned char > Vector3ub;
 typedef vmml::frustum< float >  Frustumf; //!< A frustum definition
+
+template< class, class > class Observer;
+template< class, class, class > class Layout;
+template< class, class, class > class Window;
+template< class, class, class, class > class Canvas;
+template< class, class, class, class > class Node;
+template< class, class, class, class > class Pipe;
+template< class, class, class, class > class Server;
 }
 }
 #endif // EQFABRIC_TYPES_H

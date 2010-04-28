@@ -28,7 +28,6 @@
 #include "layout.h"
 #include "log.h"
 #include "messagePump.h"
-#include "nameFinder.h"
 #include "node.h"
 #include "nodeFactory.h"
 #include "observer.h"
@@ -48,7 +47,7 @@ namespace eq
 /** @cond IGNORE */
 typedef net::CommandFunc<Config> ConfigFunc;
 typedef fabric::Config< Server, Config, Observer, 
-                        Layout, Canvas, Node > Super;
+                        Layout, Canvas, Node, ConfigVisitor > Super;
 /** @endcond */
 
 Config::Config( ServerPtr server )
@@ -84,7 +83,7 @@ void Config::notifyMapped( net::NodePtr node )
     net::Session::notifyMapped( node );
 
     ServerPtr          server = getServer();
-    net::CommandQueue* queue  = server->getNodeThreadQueue();
+    net::CommandQueue* queue  = server->getMainThreadQueue();
 
     registerCommand( fabric::CMD_CONFIG_CREATE_NODE,
                      ConfigFunc( this, &Config::_cmdCreateNode ), queue );
@@ -106,150 +105,9 @@ void Config::notifyMapped( net::NodePtr node )
                      ConfigFunc( this, &Config::_cmdSyncClock ), 0 );
 }
 
-CommandQueue* Config::getNodeThreadQueue()
+CommandQueue* Config::getMainThreadQueue()
 {
-    return getClient()->getNodeThreadQueue();
-}
-
-namespace
-{
-template< typename T > class IDFinder : public ConfigVisitor
-{
-public:
-    IDFinder( const uint32_t id ) : _id( id ), _result( 0 ) {}
-    virtual ~IDFinder(){}
-
-    virtual VisitorResult visitPre( T* node ) { return visit( node ); }
-    virtual VisitorResult visit( T* node )
-        {
-            if( node->getID() == _id )
-            {
-                _result = node;
-                return TRAVERSE_TERMINATE;
-            }
-            return TRAVERSE_CONTINUE;
-        }
-
-    T* getResult() { return _result; }
-
-private:
-    const uint32_t _id;
-    T*             _result;
-};
-
-typedef IDFinder< View > ViewIDFinder;
-}
-
-namespace
-{
-template< class C >
-VisitorResult _accept( C* config, ConfigVisitor& visitor )
-{ 
-    VisitorResult result = visitor.visitPre( config );
-    if( result != TRAVERSE_CONTINUE )
-        return result;
-
-    const NodeVector& nodes = config->getNodes();
-    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
-    {
-        switch( (*i)->accept( visitor ))
-        {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-                
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    const ObserverVector& observers = config->getObservers();
-    for( ObserverVector::const_iterator i = observers.begin(); 
-         i != observers.end(); ++i )
-    {
-        switch( (*i)->accept( visitor ))
-        {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-                
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    const LayoutVector& layouts = config->getLayouts();
-    for( LayoutVector::const_iterator i = layouts.begin(); 
-         i != layouts.end(); ++i )
-    {
-        switch( (*i)->accept( visitor ))
-        {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-                
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    const CanvasVector& canvases = config->getCanvases();
-    for( CanvasVector::const_iterator i = canvases.begin();
-         i != canvases.end(); ++i )
-    {
-        switch( (*i)->accept( visitor ))
-        {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-                
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    switch( visitor.visitPost( config ))
-    {
-        case TRAVERSE_TERMINATE:
-            return TRAVERSE_TERMINATE;
-
-        case TRAVERSE_PRUNE:
-            result = TRAVERSE_PRUNE;
-            break;
-                
-        case TRAVERSE_CONTINUE:
-        default:
-            break;
-    }
-
-    return result;
-}
-}
-
-VisitorResult Config::accept( ConfigVisitor& visitor )
-{
-    return _accept( this, visitor );
-}
-
-VisitorResult Config::accept( ConfigVisitor& visitor ) const
-{
-    return _accept( this, visitor );
+    return getClient()->getMainThreadQueue();
 }
 
 ClientPtr Config::getClient()
@@ -674,7 +532,7 @@ void Config::getStatistics( std::vector< FrameStatistics >& statistics )
     _statisticsMutex.unset();
 }
 
-bool Config::distributeChildren()
+bool Config::mapViewObjects()
 {
     // only on application node...
     return (getClient()->getNodeID() == getAppNodeID( ));
@@ -701,7 +559,7 @@ void Config::setupMessagePump( Pipe* pipe )
     _eventQueue.setMessagePump( pump );
 
     ClientPtr client = getClient();
-    CommandQueue* queue = client->getNodeThreadQueue();
+    CommandQueue* queue = client->getMainThreadQueue();
     EQASSERT( queue );
     EQASSERT( !queue->getMessagePump( ));
 
@@ -715,7 +573,7 @@ void Config::_exitMessagePump()
     _eventQueue.setMessagePump( 0 );
 
     ClientPtr client = getClient();
-    CommandQueue* queue = client->getNodeThreadQueue();
+    CommandQueue* queue = client->getMainThreadQueue();
     EQASSERT( queue );
     EQASSERT( queue->getMessagePump() == pump );
 
@@ -818,7 +676,7 @@ net::CommandResult Config::_cmdFrameFinish( net::Command& command )
         _unlockedFrame = _finishedFrame.get();
     }
 
-    getNodeThreadQueue()->wakeup();
+    getMainThreadQueue()->wakeup();
     return net::COMMAND_HANDLED;
 }
 
@@ -838,7 +696,8 @@ net::CommandResult Config::_cmdSyncClock( net::Command& command )
 
 #include "../fabric/config.cpp"
 template class eq::fabric::Config< eq::Server, eq::Config, eq::Observer,
-                                   eq::Layout, eq::Canvas, eq::Node >;
+                                   eq::Layout, eq::Canvas, eq::Node,
+                                   eq::ConfigVisitor >;
 #define FIND_ID_TEMPLATE1( type )                                       \
     template void eq::Super::find< type >( const uint32_t, type** );
 

@@ -21,19 +21,18 @@
 
 #include <eq/fabric/object.h>        // base class
 #include <eq/fabric/types.h>
+#include <eq/fabric/visitorResult.h> // enum
 
 namespace eq
 {
-namespace server
-{
-     class Node;
-}
+    class Node;
+    namespace server { class Node; }
+
 namespace fabric
 {
     struct NodePath;
-    template< class, class, class > class Pipe;
 
-    template< class C, class N, class P > class Node : public Object
+    template< class C, class N, class P, class V > class Node : public Object
     {
     public:
         typedef std::vector< P* > PipeVector;
@@ -50,6 +49,18 @@ namespace fabric
         EQFABRIC_EXPORT NodePath getPath() const;
 
         P* findPipe( const uint32_t id ); //!< @internal
+
+        /** 
+         * Traverse this node and all children using a node visitor.
+         * 
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
+         * @version 1.0
+         */
+        EQFABRIC_EXPORT VisitorResult accept( V& visitor );
+
+        /** Const-version of accept(). */
+        EQFABRIC_EXPORT VisitorResult accept( V& visitor ) const;
         //@}
 
         /**
@@ -98,7 +109,7 @@ namespace fabric
             char dummy[32];
         };
 
-        template< class, class, class > friend class Pipe;
+        template< class, class, class, class > friend class Pipe;
         void _addPipe( P* pipe );
         bool _removePipe( P* pipe );
     };

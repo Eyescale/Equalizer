@@ -46,7 +46,7 @@ namespace eq
 {
 /** @cond IGNORE */
 typedef net::CommandFunc<Node> NodeFunc;
-typedef fabric::Node< Config, Node, Pipe > Super;
+typedef fabric::Node< Config, Node, Pipe, NodeVisitor > Super;
 /** @endcond */
 
 Node::Node( Config* parent )
@@ -75,7 +75,7 @@ void Node::attachToSession( const uint32_t id,
 
     Config* config = getConfig();
     EQASSERT( config );
-    net::CommandQueue* queue = config->getNodeThreadQueue();
+    net::CommandQueue* queue = config->getMainThreadQueue();
 
     registerCommand( fabric::CMD_NODE_CREATE_PIPE, 
                      NodeFunc( this, &Node::_cmdCreatePipe ), queue );
@@ -109,63 +109,9 @@ ServerPtr Node::getServer()
     return (config ? config->getServer() : 0);
 }
 
-CommandQueue* Node::getNodeThreadQueue()
+CommandQueue* Node::getMainThreadQueue()
 {
-    return getClient()->getNodeThreadQueue();
-}
-
-namespace
-{
-template< class C >
-VisitorResult _accept( C* node, NodeVisitor& visitor )
-{ 
-    VisitorResult result = visitor.visitPre( node );
-    if( result != TRAVERSE_CONTINUE )
-        return result;
-
-    const PipeVector& pipes = node->getPipes();
-    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
-    {
-        switch( (*i)->accept( visitor ))
-        {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-                
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    switch( visitor.visitPost( node ))
-    {
-        case TRAVERSE_TERMINATE:
-            return TRAVERSE_TERMINATE;
-
-        case TRAVERSE_PRUNE:
-            return TRAVERSE_PRUNE;
-                
-        case TRAVERSE_CONTINUE:
-        default:
-            break;
-    }
-
-    return result;
-}
-}
-
-VisitorResult Node::accept( NodeVisitor& visitor )
-{
-    return _accept( this, visitor );
-}
-
-VisitorResult Node::accept( NodeVisitor& visitor ) const
-{
-    return _accept( this, visitor );
+    return getClient()->getMainThreadQueue();
 }
 
 net::Barrier* Node::getBarrier( const net::ObjectVersion barrier )
@@ -616,4 +562,5 @@ net::CommandResult Node::_cmdFrameTasksFinish( net::Command& command )
 
 
 #include "../fabric/node.cpp"
-template class eq::fabric::Node< eq::Config, eq::Node, eq::Pipe >;
+template class eq::fabric::Node< eq::Config, eq::Node, eq::Pipe,
+                                 eq::NodeVisitor >;

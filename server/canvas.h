@@ -50,15 +50,6 @@ namespace server
          * @name Data Access
          */
         //@{
-        /** 
-         * Find the first segment of a given name.
-         * 
-         * @param name the name of the segment to find
-         * @return the first segment with the name, or <code>0</code> if no
-         *         segment with the name exists.
-         */
-        Segment* findSegment( const std::string& name );
-
         /** @return the segment of the given path. */
         Segment* getSegment( const SegmentPath& path );
 

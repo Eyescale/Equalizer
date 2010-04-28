@@ -75,7 +75,7 @@ namespace eq
         EQ_EXPORT void processCommand();
 
         /** @return the command queue to the main node thread. @internal */
-        CommandQueue* getNodeThreadQueue() { return &_nodeThreadQueue; }
+        CommandQueue* getMainThreadQueue() { return &_mainThreadQueue; }
 
     protected:
         /**
@@ -96,7 +96,7 @@ namespace eq
 
     private:
         /** The command->node command queue. */
-        CommandQueue _nodeThreadQueue;
+        CommandQueue _mainThreadQueue;
         
         bool _running;
 

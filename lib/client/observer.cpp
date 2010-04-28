@@ -33,7 +33,7 @@ Observer::~Observer()
 
 }
 
-#include "../fabric/observer.cpp"
+#include "../fabric/observer.ipp"
 template class eq::fabric::Observer< eq::Config, eq::Observer >;
 /** @cond IGNORE */
 template std::ostream& eq::fabric::operator << ( std::ostream&,

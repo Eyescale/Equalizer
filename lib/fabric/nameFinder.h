@@ -15,16 +15,17 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_NAMEFINDER_H
-#define EQ_NAMEFINDER_H
+#ifndef EQFABRIC_NAMEFINDER_H
+#define EQFABRIC_NAMEFINDER_H
 
 #include "configVisitor.h"  // base class
 #include "types.h"
  
 namespace eq
 {
-
-template< typename T > class NameFinder : public ConfigVisitor
+namespace fabric
+{
+template< class T, class V > class NameFinder : public V
 {
 public:
     NameFinder( const std::string& name ) 
@@ -49,26 +50,9 @@ private:
     T*                _result;
 };
 
-typedef NameFinder< Observer > ObserverFinder;
-typedef NameFinder< const Observer > ConstObserverFinder;
-
-typedef NameFinder< Layout > LayoutFinder;
-typedef NameFinder< const Layout > ConstLayoutFinder;
-
-typedef NameFinder< View > ViewFinder;
-typedef NameFinder< const View > ConstViewFinder;
-
-typedef NameFinder< Canvas > CanvasFinder;
-typedef NameFinder< const Canvas > ConstCanvasFinder;
-
-typedef NameFinder< Segment > SegmentFinder;
-typedef NameFinder< const Segment > ConstSegmentFinder;
-
-typedef NameFinder< Channel > ChannelFinder;
-typedef NameFinder< const Channel > ConstChannelFinder;
-
+}
 }
 
-#endif // EQ_NAMEFINDER_H
+#endif // EQFABRIC_NAMEFINDER_H
 
 

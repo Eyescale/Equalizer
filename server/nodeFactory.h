@@ -18,15 +18,7 @@
 #ifndef EQSERVER_NODEFACTORY_H
 #define EQSERVER_NODEFACTORY_H
 
-#include "canvas.h"
-#include "channel.h"
-#include "layout.h"
-#include "node.h"
-#include "observer.h"
-#include "pipe.h"
-#include "segment.h"
-#include "view.h"
-#include "window.h"
+#include "types.h"
 
 namespace eq
 {
@@ -35,35 +27,35 @@ namespace server
     class NodeFactory
     {
     public:
-        Config* createConfig( ServerPtr parent ) { return new Config( parent );}
-        void releaseConfig( Config* config ) { delete config; }
+        Config* createConfig( ServerPtr parent );
+        void releaseConfig( Config* config );
 
-        Node* createNode( Config* parent ) { return new Node( parent ); }
-        void releaseNode( Node* node ) { delete node; }
+        Node* createNode( Config* parent );
+        void releaseNode( Node* node );
 
-        Observer* createObserver( Config* parent ){return new Observer(parent);}
-        void releaseObserver( Observer* observer ) { delete observer; }
+        Observer* createObserver( Config* parent );
+        void releaseObserver( Observer* observer );
 
-        Layout* createLayout( Config* parent ) { return new Layout( parent ); }
-        void releaseLayout( Layout* layout ) { delete layout; }
+        Layout* createLayout( Config* parent );
+        void releaseLayout( Layout* layout );
 
-        View* createView( Layout* parent ) { return new View( parent ); }
-        void releaseView( View* view ) { delete view; }
+        View* createView( Layout* parent );
+        void releaseView( View* view );
 
-        Canvas* createCanvas( Config* parent ) { return new Canvas( parent ); }
-        void releaseCanvas( Canvas* canvas ) { delete canvas; }
+        Canvas* createCanvas( Config* parent );
+        void releaseCanvas( Canvas* canvas );
 
-        Segment* createSegment( Canvas* parent ) { return new Segment(parent); }
-        void releaseSegment( Segment* segment ) { delete segment; }
+        Segment* createSegment( Canvas* parent );
+        void releaseSegment( Segment* segment );
 
-        Pipe* createPipe( Node* parent ) { return new Pipe( parent ); }
-        void releasePipe( Pipe* pipe ) { delete pipe; }
+        Pipe* createPipe( Node* parent );
+        void releasePipe( Pipe* pipe );
 
-        Window* createWindow( Pipe* parent ) { return new Window( parent ); }
-        void releaseWindow( Window* window ) { delete window; }
+        Window* createWindow( Pipe* parent );
+        void releaseWindow( Window* window );
 
-        Channel* createChannel( Window* parent ) { return new Channel(parent); }
-        void releaseChannel( Channel* channel ) { delete channel; }
+        Channel* createChannel( Window* parent );
+        void releaseChannel( Channel* channel );
 
         ~NodeFactory(){}
     };

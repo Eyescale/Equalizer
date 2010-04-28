@@ -17,6 +17,7 @@
 
 #include "layout.h"
 #include "elementVisitor.h"
+#include "nameFinder.h"
 #include "paths.h"
 
 #include <eq/net/dataIStream.h>
@@ -192,7 +193,7 @@ LayoutPath Layout< C, L, V >::getPath() const
 template< class C, class L, class V >
 V* Layout< C, L, V >::findView( const std::string& name )
 {
-    NameFinder< V > finder( name );
+    NameFinder< V, Visitor > finder( name );
     accept( finder );
     return finder.getResult();
 }
