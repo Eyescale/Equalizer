@@ -74,10 +74,13 @@ namespace net
          * created by calling the <code>void create( C** child )</code> method
          * on the object, and registered or mapped to the object's
          * session. Removed children are released by calling the <code>void
-         * release( C* )</code> method on the object.
+         * release( C* )</code> method on the object. The resulting child vector
+         * is created in result. The old and result vector can be the same
+         * object, the result vector is cleared and rebuild completely.
          */
         template< typename O, typename C >
-        void deserializeChildren( O* object, std::vector< C* >& children );
+        void deserializeChildren( O* object, const std::vector< C* >& old,
+                                  std::vector< C* >& result );
 
         /** Read a number of bytes from the stream into a buffer.  */
         EQ_EXPORT void read( void* data, uint64_t size );
@@ -196,14 +199,15 @@ namespace net
 
 /** @cond IGNORE */
     template< typename O, typename C > inline void
-    DataIStream::deserializeChildren( O* object, std::vector< C* >& children )
+    DataIStream::deserializeChildren( O* object, const std::vector< C* >& old_,
+                                      std::vector< C* >& result )
     {
         ObjectVersionVector versions;
         (*this) >> versions;
-        std::vector< C* > old = children;
+        std::vector< C* > old = old_;
 
         // rebuild vector from serialized list
-        children.clear();
+        result.clear();
         for( ObjectVersionVector::const_iterator i = versions.begin();
              i != versions.end(); ++i )
         {
@@ -229,14 +233,14 @@ namespace net
                     EQASSERT( version.identifier != EQ_ID_INVALID );
                     session->mapObject( child, version );
                 }
-                children.push_back( child );
+                result.push_back( child );
             }
             else
             {
                 C* child = *j;
                 old.erase( j );
                 child->sync( version.version );
-                children.push_back( child );
+                result.push_back( child );
             }
         }
 

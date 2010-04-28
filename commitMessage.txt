@@ -1,12 +1,9 @@
-Admin API refactoring:
-- Move config fattrs to fabric
-- Move server, config output to fabric
-- Remove server-side ConfigHash
+Fix deserialization of child object vectors (double entries)
 
-[x] May break build
+[ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

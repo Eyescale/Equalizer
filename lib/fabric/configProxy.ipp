@@ -123,11 +123,26 @@ void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
     if( _config.mapViewObjects( )) // depends on _config._appNodeID !
     {
         if( dirtyBits & DIRTY_OBSERVERS )
-            is.deserializeChildren( this, _config._observers );
+        {
+            typename C::ObserverVector result;
+            is.deserializeChildren( this, _config._observers, result );
+            _config._observers.swap( result );
+            EQASSERT( _config._observers.size() == result.size( ));
+        }
         if( dirtyBits & DIRTY_LAYOUTS )
-            is.deserializeChildren( this, _config._layouts );
+        {
+            typename C::LayoutVector result;
+            is.deserializeChildren( this, _config._layouts, result );
+            _config._layouts.swap( result );
+            EQASSERT( _config._layouts.size() == result.size( ));
+        }
         if( dirtyBits & DIRTY_CANVASES )
-            is.deserializeChildren( this, _config._canvases );
+        {
+            typename C::CanvasVector result;
+            is.deserializeChildren( this, _config._canvases, result );
+            _config._canvases.swap( result );
+            EQASSERT( _config._canvases.size() == result.size( ));
+        }
     }
     else // consume unused ObjectVersions
     {
@@ -143,7 +158,12 @@ void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
     if( dirtyBits & DIRTY_NODES )
     {
         if( _config.mapNodeObjects( ))
-            is.deserializeChildren( this, _config._nodes );
+        {
+            typename C::NodeVector result;
+            is.deserializeChildren( this, _config._nodes, result );
+            _config._nodes.swap( result );
+            EQASSERT( _config._canvases.size() == result.size( ));
+        }
         else // consume unused ObjectVersions
         {
             net::ObjectVersionVector childIDs;
