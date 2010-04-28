@@ -18,6 +18,7 @@
 #include "node.h"
 
 #include "command.h"
+#include "connectionDescription.h"
 #include "connectionSet.h"
 #include "global.h"
 #include "pipeConnection.h"

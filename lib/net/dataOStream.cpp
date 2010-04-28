@@ -17,6 +17,8 @@
  */
 
 #include "dataOStream.h"
+
+#include "connectionDescription.h"
 #include "global.h"
 #include "log.h"
 #include "node.h"
