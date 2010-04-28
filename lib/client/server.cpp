@@ -32,7 +32,7 @@
 namespace eq
 {
 
-typedef net::CommandFunc<Server> CmdFunc;
+typedef net::CommandFunc< Server > CmdFunc;
 typedef fabric::Server< Client, Server, Config, NodeFactory > Super;
 
 Server::Server()

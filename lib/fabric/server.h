@@ -27,8 +27,6 @@ namespace eq
 {
 namespace fabric
 {
-    template< class, class, class, class, class, class, class > class Config;
-
     /**
      * Proxy object for the connection to an Equalizer server.
      *
@@ -44,8 +42,7 @@ namespace fabric
         typedef base::RefPtr< CL > ClientPtr;
         typedef std::vector< CFG* > ConfigVector;
 
-        /** @internal */
-        void setClient( ClientPtr client );
+        virtual void setClient( ClientPtr client ); //!< @internal
 
         /** @return the local client proxy. */
         ClientPtr getClient() { return _client; }
@@ -63,12 +60,17 @@ namespace fabric
         /** Destruct this server. */
         virtual ~Server();
 
+        /**  Add a new config to this server. @internal */
+        void _addConfig( CFG* config );
+
+        /** Remove a config from this server. @internal */
+        bool _removeConfig( CFG* config );
+
     private:
         NF* const _nodeFactory; //!< the factory to create all child instances
 
         /** The local client connected to the server */
         ClientPtr _client;
-        //friend class Client; // to call invokeCommand()
 
         /** The list of configurations. */
         ConfigVector _configs;
@@ -84,16 +86,13 @@ namespace fabric
         template< class, class, class, class, class, class, class >
         friend class Config;
 
-        /**  Add a new config to this server. */
-        void _addConfig( CFG* config );
-
-        /** Remove a config from this server. */
-        bool _removeConfig( CFG* config );
-
         /* The command handler functions. */
         net::CommandResult _cmdCreateConfig( net::Command& command );
         net::CommandResult _cmdDestroyConfig( net::Command& command );
     };
+
+    template< class CL, class S, class CFG, class NF > EQFABRIC_EXPORT
+    std::ostream& operator << ( std::ostream&, const Server< CL, S, CFG, NF>& );
 }
 }
 

@@ -48,7 +48,7 @@ namespace fabric
 
         /** @name Internal */
         //@{
-        void setClient( ClientPtr client );
+        virtual void setClient( ClientPtr client );
         EQ_EXPORT net::CommandQueue* getMainThreadQueue();
         EQ_EXPORT net::CommandQueue* getCommandThreadQueue();
         //@}

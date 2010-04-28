@@ -561,7 +561,7 @@ namespace server
         void _fireChildRemove( Compound* child );
     };
 
-    std::ostream& operator << ( std::ostream& os, const Compound* compound );
+    std::ostream& operator << ( std::ostream& os, const Compound& compound );
 }
 }
 #endif // EQSERVER_COMPOUND_H

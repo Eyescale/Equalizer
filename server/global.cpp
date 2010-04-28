@@ -52,11 +52,12 @@ void Global::_setupDefaults()
     for( uint32_t i=0; i<ConnectionDescription::IATTR_ALL; ++i )
         _connectionIAttributes[i] = eq::UNDEFINED;
 
-    _connectionIAttributes[ConnectionDescription::IATTR_TYPE] = 
+    _connectionIAttributes[ ConnectionDescription::IATTR_TYPE ] = 
         net::CONNECTIONTYPE_TCPIP;
-    _connectionIAttributes[ConnectionDescription::IATTR_PORT]     = 0;
-    _connectionIAttributes[ConnectionDescription::IATTR_BANDWIDTH]= 0;
-    
+    _connectionIAttributes[ ConnectionDescription::IATTR_PORT ] = 0;
+    _connectionIAttributes[ ConnectionDescription::IATTR_BANDWIDTH ] = 0;
+    _connectionSAttributes[ ConnectionDescription::SATTR_FILENAME ] = "default";
+
     // config
     for( uint32_t i=0; i<Config::FATTR_ALL; ++i )
         _configFAttributes[i] = 0.f;

@@ -204,15 +204,38 @@ bool ConnectionDescription::isSameMulticastGroup( ConnectionDescriptionPtr rhs )
             port == rhs->port );
 }
 
-EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
-                                      const ConnectionDescription& desc)
+std::ostream& operator << ( std::ostream& os, 
+                            const ConnectionDescription& desc)
 {
-    os << "connection " << desc.type << ' ' << desc.getHostname() << ':';
-    if( desc.port > 0 )
-        os << desc.port;
-    else if( desc.getFilename() != "default" )
-        os << desc.getFilename();
+    os << base::disableFlush << "connection" << std::endl;
+    os << "{" << std::endl << base::indent;
 
+    os << "type          " 
+       << ( desc.type == net::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
+            desc.type == net::CONNECTIONTYPE_SDP   ? "SDP" : 
+            desc.type == net::CONNECTIONTYPE_PIPE  ? "ANON_PIPE" :
+            desc.type == net::CONNECTIONTYPE_NAMEDPIPE ? "PIPE" :
+            desc.type == net::CONNECTIONTYPE_IB    ? "IB" :
+            desc.type == net::CONNECTIONTYPE_MCIP  ? "MCIP" :
+            desc.type == net::CONNECTIONTYPE_PGM   ? "PGM" :
+            desc.type == net::CONNECTIONTYPE_RSP   ? "RSP" :
+            "ERROR" ) << std::endl;
+    
+    os << "hostname      \"" << desc.getHostname() << "\"" << std::endl;
+
+    if( !desc.getInterface().empty( ))
+        os << "interface     \"" << desc.getInterface() << "\"" << std::endl;
+
+    if( desc.port != 0 )
+        os << "port          " << desc.port << std::endl;
+
+    if( !desc.getFilename().empty( ))
+        os << "filename      \"" << desc.getFilename() << "\"" << std::endl;
+
+    if( desc.bandwidth != 0 )
+        os << "bandwidth     " << desc.bandwidth << std::endl;
+
+    os << base::exdent << "}" << base::enableFlush << std::endl;
     return os;
 }
 

@@ -70,11 +70,9 @@ namespace server
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
     };
-
-    std::ostream& operator << ( std::ostream&, const ConnectionDescription* );
 }
 }
 #endif // EQNET_CONNECTION_DESCRIPTION_H

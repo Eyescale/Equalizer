@@ -41,7 +41,8 @@ namespace server
     /**
      * The Equalizer server.
      */
-    class Server : public fabric::Server<net::Node, Server, Config, NodeFactory>
+    class Server : public fabric::Server< net::Node, Server, Config,
+                                          NodeFactory >
     {
     public:
         /** 
@@ -56,9 +57,6 @@ namespace server
          *         <code>false</code> if not.
          */
         EQSERVER_EXPORT bool run();
-
-        /** @return the configurations. */
-        const ConfigHash& getConfigs() const { return _configs; }
 
         /** Delete all configs of this server (exit). */
         EQSERVER_EXPORT void deleteConfigs();
@@ -91,9 +89,6 @@ namespace server
         virtual net::CommandResult invokeCommand( net::Command& command );
         
     private:
-        /** All configurations, mapped by identifier. */
-        ConfigHash _configs;
-
         /** The receiver->main command queue. */
         net::CommandQueue _mainThreadQueue;
 
@@ -107,14 +102,14 @@ namespace server
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
         /** @sa net::Node::getType */
         virtual uint32_t getType() const { return fabric::NODETYPE_EQ_SERVER; }
 
         friend class fabric::Config< Server, Config, Observer, Layout, Canvas,
-                                     eq::server::Node, ConfigVisitor >;
+                                     server::Node, ConfigVisitor >;
 
         /**  Add a new config to this server. */
         void _addConfig( Config* config );
@@ -132,8 +127,6 @@ namespace server
         net::CommandResult _cmdMap( net::Command& command );
         net::CommandResult _cmdUnmap( net::Command& command );
     };
-
-    EQSERVER_EXPORT std::ostream& operator << ( std::ostream&, const Server& );
 }
 }
 #endif // EQSERVER_SERVER_H

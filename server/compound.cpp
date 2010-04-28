@@ -1015,26 +1015,23 @@ void Compound::_updateInheritOverdraw()
                   _inherit.overdraw.y() + _inherit.overdraw.w( ));
 }
 
-std::ostream& operator << (std::ostream& os, const Compound* compound)
+std::ostream& operator << (std::ostream& os, const Compound& compound)
 {
-    if( !compound )
-        return os;
-    
     os << base::disableFlush << "compound" << std::endl;
     os << "{" << std::endl << base::indent;
       
-    const std::string& name = compound->getName();
+    const std::string& name = compound.getName();
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << std::endl;
 
-    const Channel* channel = compound->getChannel();
+    const Channel* channel = compound.getChannel();
     if( channel )
     {
-        Compound* parent = compound->getParent();
+        Compound* parent = compound.getParent();
         if( !parent || parent->getChannel() != channel )
         {
             const std::string& channelName = channel->getName();
-            const Config*      config      = compound->getConfig();
+            const Config*      config      = compound.getConfig();
             EQASSERT( config );
 
             if( !channelName.empty() && 
@@ -1098,20 +1095,20 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
         }
     }
 
-    const uint32_t tasks = compound->getTasks();
+    const uint32_t tasks = compound.getTasks();
     if( tasks != fabric::TASK_DEFAULT )
     {
         os << "task     [";
         if( tasks &  fabric::TASK_CLEAR )    os << " CLEAR";
         if( tasks &  fabric::TASK_CULL )     os << " CULL";
-        if( compound->isLeaf() && 
+        if( compound.isLeaf() && 
             ( tasks &  fabric::TASK_DRAW ))  os << " DRAW";
         if( tasks &  fabric::TASK_ASSEMBLE ) os << " ASSEMBLE";
         if( tasks &  fabric::TASK_READBACK ) os << " READBACK";
         os << " ]" << std::endl;
     }
 
-    const uint32_t buffers = compound->getBuffers();
+    const uint32_t buffers = compound.getBuffers();
     if( buffers != eq::Frame::BUFFER_UNDEFINED )
     {
         os << "buffers  [";
@@ -1120,27 +1117,27 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
         os << " ]" << std::endl;
     }
 
-    const Viewport& vp = compound->getViewport();
+    const Viewport& vp = compound.getViewport();
     if( vp.isValid() && vp != Viewport::FULL )
         os << "viewport " << vp << std::endl;
     
-    const Range& range = compound->getRange();
+    const Range& range = compound.getRange();
     if( range.isValid() && range != Range::ALL )
         os << range << std::endl;
 
-    const Pixel& pixel = compound->getPixel();
+    const Pixel& pixel = compound.getPixel();
     if( pixel.isValid() && pixel != Pixel::ALL )
         os << pixel << std::endl;
 
-    const SubPixel& subpixel = compound->getSubPixel();
+    const SubPixel& subpixel = compound.getSubPixel();
     if( subpixel.isValid() && subpixel != SubPixel::ALL )
             os << subpixel << std::endl;
 
-    const Zoom& zoom = compound->getZoom();
+    const Zoom& zoom = compound.getZoom();
     if( zoom.isValid() && zoom != Zoom::NONE )
         os << zoom << std::endl;
 
-    const uint32_t eye = compound->getEyes();
+    const uint32_t eye = compound.getEyes();
     if( eye )
     {
         os << "eye      [ ";
@@ -1153,8 +1150,8 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
         os << "]" << std::endl;
     }
 
-    const uint32_t period = compound->getPeriod();
-    const uint32_t phase  = compound->getPhase();
+    const uint32_t period = compound.getPeriod();
+    const uint32_t phase  = compound.getPhase();
     if( period != EQ_UNDEFINED_UINT32 )
         os << "period " << period << "  ";
 
@@ -1171,7 +1168,7 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
          i<Compound::IATTR_ALL; 
          i = static_cast< Compound::IAttribute >( static_cast<uint32_t>( i )+1))
     {
-        const int value = compound->getIAttribute( i );
+        const int value = compound.getIAttribute( i );
         if( value == Global::instance()->getCompoundIAttribute( i ))
             continue;
 
@@ -1208,26 +1205,26 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
     if( attrPrinted )
         os << base::exdent << "}" << std::endl << std::endl;
 
-    switch( compound->getFrustumType( ))
+    switch( compound.getFrustumType( ))
     {
         case Frustum::TYPE_WALL:
-            os << compound->getWall() << std::endl;
+            os << compound.getWall() << std::endl;
             break;
         case Frustum::TYPE_PROJECTION:
-            os << compound->getProjection() << std::endl;
+            os << compound.getProjection() << std::endl;
             break;
         default: 
             break;
     }
 
-    const EqualizerVector& equalizers = compound->getEqualizers();
+    const EqualizerVector& equalizers = compound.getEqualizers();
     for( EqualizerVector::const_iterator i = equalizers.begin();
          i != equalizers.end(); ++i )
     {
         os << *i;
     }
 
-    const CompoundVector& children = compound->getChildren();
+    const CompoundVector& children = compound.getChildren();
     if( !children.empty( ))
     {
         os << std::endl;
@@ -1237,19 +1234,19 @@ std::ostream& operator << (std::ostream& os, const Compound* compound)
             os << *i;
     }
 
-    const FrameVector& inputFrames = compound->getInputFrames();
+    const FrameVector& inputFrames = compound.getInputFrames();
     for( FrameVector::const_iterator i = inputFrames.begin();
          i != inputFrames.end(); ++i )
         
         os << "input" << *i;
 
-    const FrameVector& outputFrames = compound->getOutputFrames();
+    const FrameVector& outputFrames = compound.getOutputFrames();
     for( FrameVector::const_iterator i = outputFrames.begin();
          i != outputFrames.end(); ++i )
         
         os << "output"  << *i;
 
-    os << compound->getSwapBarrier();
+    os << compound.getSwapBarrier();
 
     os << base::exdent << "}" << std::endl << base::enableFlush;
     return os;

@@ -81,7 +81,7 @@ Server::Server()
 
 Server::~Server()
 {
-    EQASSERT( _configs.empty( )); // not possible - config RefPtr's myself
+    EQASSERT( getConfigs().empty( )); // not possible - config RefPtr's myself
     deleteConfigs();
     base::Log::setClock( 0 );
 }
@@ -95,11 +95,11 @@ VisitorResult _accept( C* server, V& visitor )
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    const ConfigHash& configs = server->getConfigs();
-    for( ConfigHash::const_iterator i = configs.begin();
+    const ConfigVector& configs = server->getConfigs();
+    for( ConfigVector::const_iterator i = configs.begin();
          i != configs.end(); ++i )
     {
-        switch( i->second->accept( visitor ))
+        switch( (*i)->accept( visitor ))
         {
             case TRAVERSE_TERMINATE:
                 return TRAVERSE_TERMINATE;
@@ -146,36 +146,33 @@ bool Server::run()
     EQASSERT( isListening( ));
     base::Thread::setDebugName( typeid( *this ).name( ));
 
-    if( _configs.empty( ))
+    const ConfigVector& configs = getConfigs();
+    if( configs.empty( ))
         EQWARN << "No configurations loaded" << std::endl;
 
     EQINFO << base::disableFlush << "Running server: " << std::endl
            << base::indent << Global::instance() << *this << base::exdent
            << base::enableFlush;
 
-    for( ConfigHash::const_iterator i = _configs.begin();
-         i != _configs.end(); ++i )
+    for( ConfigVector::const_iterator i = configs.begin();
+         i != configs.end(); ++i )
     {
-        Config* config = i->second;
-        registerConfig( config );
+        registerConfig( *i );
     }
 
     _handleCommands();
 
-    for( ConfigHash::const_iterator i = _configs.begin();
-         i != _configs.end(); ++i )
+    for( ConfigVector::const_iterator i = configs.begin();
+         i != configs.end(); ++i )
     {
-        Config* config = i->second;
-        deregisterConfig( config );
+        deregisterConfig( *i );
     }
     return true;
 }
 
 void Server::_addConfig( Config* config )
-{ 
-    EQASSERT( config->getServer() == this );
-    EQASSERT( _configs.find( config->getID( )) == _configs.end( ));
-    _configs[ config->getID() ] = config;
+{
+    Super::_addConfig( config );
 
     if( config->getName().empty( ))
     {
@@ -190,24 +187,22 @@ void Server::_addConfig( Config* config )
 
 bool Server::_removeConfig( Config* config )
 {
-    ConfigHash::iterator i = _configs.find( config->getID( ));
-    if( i == _configs.end( ))
+    const ConfigVector& configs = getConfigs();
+    if( stde::find( configs, config ) == configs.end( ))
         return false;
 
     if( _running )
         deregisterConfig( config );
 
-    EQASSERT( config->getServer() == this );
-    _configs.erase( i );
-    return true;
+    return Super::_removeConfig( config );
 }
 
 void Server::deleteConfigs()
 {
-    while( !_configs.empty( ))
+    const ConfigVector& configs = getConfigs();
+    while( !configs.empty( ))
     {
-        ConfigHash::iterator i = _configs.begin();
-        Config* config = i->second;
+        Config* config = configs.back();
         _removeConfig( config );
         delete config;
     }
@@ -285,10 +280,11 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
     EQINFO << "Handle choose config " << packet << std::endl;
 
     Config* config = 0;
-    for( ConfigHash::const_iterator i = _configs.begin();
-         i != _configs.end() && !config; ++i )
+    const ConfigVector& configs = getConfigs();
+    for( ConfigVector::const_iterator i = configs.begin();
+         i != configs.end() && !config; ++i )
     {
-        Config* candidate = i->second;
+        Config* candidate = *i;
         if( !candidate->isUsed( ))
             config = candidate;
     }
@@ -336,16 +332,25 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
 
     ServerReleaseConfigReplyPacket reply( packet );
     net::NodePtr node = command.getNode();
-    ConfigHash::const_iterator i = _configs.find( packet->configID );
 
-    if( i == _configs.end( ))
+
+    Config* config = 0;
+    const ConfigVector& configs = getConfigs();
+    for( ConfigVector::const_iterator i = configs.begin();
+         i != configs.end() && !config; ++i )
+    {
+        Config* candidate = *i;
+        if( candidate->getID() == packet->configID )
+            config = candidate;
+    }
+
+    if( !config )
     {
         EQWARN << "Release request for unknown config" << std::endl;
         node->send( reply );
         return net::COMMAND_HANDLED;
     }
 
-    Config* config = i->second;
     if( config->isRunning( ))
     {
         EQWARN << "Release of running configuration" << std::endl;
@@ -392,10 +397,11 @@ net::CommandResult Server::_cmdShutdown( net::Command& command )
         return net::COMMAND_HANDLED;
     }
 
-    for( ConfigHash::const_iterator i = _configs.begin();
-         i != _configs.end(); ++i )
+    const ConfigVector& configs = getConfigs();
+    for( ConfigVector::const_iterator i = configs.begin();
+         i != configs.end(); ++i )
     {
-        Config* candidate = i->second;
+        Config* candidate = *i;
         if( candidate->isUsed( ))
         {
             EQWARN << "Ignoring shutdown request due to used config" 
@@ -425,10 +431,11 @@ net::CommandResult Server::_cmdMap( net::Command& command )
     net::NodePtr node = command.getNode();
     _admins.push_back( node );
 
-    for( ConfigHash::const_iterator i = _configs.begin();
-         i != _configs.end(); ++i )
+    const ConfigVector& configs = getConfigs();
+    for( ConfigVector::const_iterator i = configs.begin();
+         i != configs.end(); ++i )
     {
-        Config* config = i->second;
+        Config* config = *i;
         fabric::ServerCreateConfigPacket createConfigPacket;
         createConfigPacket.configID = config->getID();
         createConfigPacket.proxy.identifier = config->getProxyID();
@@ -452,10 +459,11 @@ net::CommandResult Server::_cmdUnmap( net::Command& command )
     if( i != _admins.end( ))
     {
         _admins.erase( i );
-        for( ConfigHash::const_iterator j = _configs.begin();
-             j != _configs.end(); ++j )
+        const ConfigVector& configs = getConfigs();
+        for( ConfigVector::const_iterator j = configs.begin();
+             j != configs.end(); ++j )
         {
-            Config* config = j->second;
+            Config* config = *j;
             fabric::ServerDestroyConfigPacket destroyConfigPacket;
             destroyConfigPacket.configID  = config->getID();
             node->send( destroyConfigPacket );
@@ -467,34 +475,6 @@ net::CommandResult Server::_cmdUnmap( net::Command& command )
     admin::ServerUnmapReplyPacket reply( packet );
     node->send( reply );
     return net::COMMAND_HANDLED;
-}
-
-
-std::ostream& operator << ( std::ostream& os, const Server& server )
-{
-    os << base::disableFlush << base::disableHeader << "server " << std::endl;
-    os << "{" << std::endl << base::indent;
-    
-    const net::ConnectionDescriptionVector& cds =
-        server.getConnectionDescriptions();
-    for( net::ConnectionDescriptionVector::const_iterator i = cds.begin();
-         i != cds.end(); ++i )
-    {       
-        os << static_cast< const ConnectionDescription* >( (*i).get( ));
-    }
-
-    const ConfigHash& configs = server.getConfigs();
-    for( ConfigHash::const_iterator i = configs.begin();
-         i != configs.end(); ++i )
-    {
-        Config* config = i->second;
-        os << *config;
-    }
-
-    os << base::exdent << "}"  << base::enableHeader << base::enableFlush
-       << std::endl;
-
-    return os;
 }
 
 }

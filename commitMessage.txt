@@ -1,9 +1,12 @@
-Fix Posix build
+Admin API refactoring:
+- Move config fattrs to fabric
+- Move server, config output to fabric
+- Remove server-side ConfigHash
 
-[ ] May break build
+[x] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

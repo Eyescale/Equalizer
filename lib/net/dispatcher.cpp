@@ -80,7 +80,7 @@ bool Dispatcher::dispatchCommand( Command& command )
 #ifndef NDEBUG
     if( which >= _qTable.size( ))
     {
-        EQABORT( "Command " << which
+        EQABORT( "Command " << command
                  << " higher than number of registered command handlers ("
                  << _qTable.size() << ") for object of type "
                  << typeid(*this).name() << endl );

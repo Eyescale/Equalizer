@@ -162,6 +162,27 @@ namespace fabric
         EQFABRIC_EXPORT const std::string& getErrorMessage() const;
         //@}
 
+        /** @name Attributes */
+        //@{
+        // Note: also update string array initialization in config.cpp
+        enum FAttribute
+        {
+            FATTR_EYE_BASE,
+            FATTR_VERSION,
+            FATTR_FILL1,
+            FATTR_FILL2,
+            FATTR_ALL
+        };
+        
+        void setFAttribute( const FAttribute attr, const float value )
+            { _fAttributes[attr] = value; }
+        float getFAttribute( const FAttribute attr ) const
+            { return _fAttributes[attr]; }
+        static const std::string&  getFAttributeString( const FAttribute attr )
+            { return _fAttributeStrings[attr]; }
+        //@}
+ 
+
         /** @name Operations */
         //@{
         /** 
@@ -220,6 +241,12 @@ namespace fabric
     private:
         /** The parent server. */
         base::RefPtr< S > _server;
+        
+        /** float attributes. */
+        float _fAttributes[FATTR_ALL];
+
+        /** String representation of float attributes. */
+        static std::string _fAttributeStrings[FATTR_ALL];
 
         /** The list of observers. */
         ObserverVector _observers;
@@ -274,6 +301,10 @@ namespace fabric
             char dummy[32];
         };
     };
+
+    template< class S, class C, class O, class L, class CV, class N, class V >
+    EQFABRIC_EXPORT std::ostream& operator << ( std::ostream& os,
+                                 const Config< S, C, O, L, CV, N, V >& config );
 }
 }
 #endif // EQFABRIC_CONFIG_H

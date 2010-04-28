@@ -73,6 +73,5 @@ template class eq::fabric::Canvas< eq::Config, eq::Canvas, eq::Segment,
                                    eq::Layout >;
 /** @cond IGNORE */
 template std::ostream& eq::fabric::operator << ( std::ostream&,
-    const eq::fabric::Canvas< eq::Config, eq::Canvas, eq::Segment,
-                              eq::Layout >& );
+                                                 const eq::Super& );
 /** @endcond */

@@ -65,7 +65,7 @@ class Observer;
 class Segment;
 class View;
 
-typedef base::UUIDHash< Config* > ConfigHash;
+typedef std::vector< Config* >   ConfigVector;
 typedef std::vector< Node* >     NodeVector;
 typedef std::vector< Pipe* >     PipeVector;
 typedef std::vector< Window* >   WindowVector;

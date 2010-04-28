@@ -27,6 +27,17 @@ namespace eq
 namespace fabric
 {
 
+#define MAKE_ATTR_STRING( attr ) ( std::string("EQ_CONFIG_") + #attr )
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+std::string Config< S, C, O, L, CV, N, V >::_fAttributeStrings[FATTR_ALL] = 
+{
+    MAKE_ATTR_STRING( FATTR_EYE_BASE ),
+    MAKE_ATTR_STRING( FATTR_VERSION ),
+    MAKE_ATTR_STRING( FATTR_FILL1 ),
+    MAKE_ATTR_STRING( FATTR_FILL2 )
+};
+
 template< class S, class C, class O, class L, class CV, class N, class V >
 Config< S, C, O, L, CV, N, V >::Config( base::RefPtr< S > server )
         : net::Session()
@@ -533,6 +544,58 @@ N* Config< S, C, O, L, CV, N, V >::_findNode( const uint32_t id )
             return node;
     }
     return 0;
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+std::ostream& operator << ( std::ostream& os,
+                            const Config< S, C, O, L, CV, N, V >& config )
+{
+    os << base::disableFlush << base::disableHeader << "config " << std::endl;
+    os << "{" << std::endl << base::indent;
+
+    if( !config.getName().empty( ))
+        os << "name    \"" << config.getName() << '"' << std::endl;
+
+    if( config.getLatency() != 1 )
+        os << "latency " << config.getLatency() << std::endl;
+    os << std::endl;
+
+    os << "attributes" << std::endl << "{" << std::endl << base::indent
+       << "eye_base     " << config.getFAttribute( C::FATTR_EYE_BASE )
+       << std::endl
+       << base::exdent << "}" << std::endl;
+
+    const typename C::NodeVector& nodes = config.getNodes();
+    for( typename C::NodeVector::const_iterator i = nodes.begin();
+         i != nodes.end(); ++i )
+    {
+        os << *i;
+    }
+    const typename C::ObserverVector& observers = config.getObservers();
+    for( typename C::ObserverVector::const_iterator i = observers.begin(); 
+         i !=observers.end(); ++i )
+    {
+        os << **i;
+    }
+    const typename C::LayoutVector& layouts = config.getLayouts();
+    for( typename C::LayoutVector::const_iterator i = layouts.begin(); 
+         i !=layouts.end(); ++i )
+    {
+        os << **i;
+    }
+    const typename C::CanvasVector& canvases = config.getCanvases();
+    for( typename C::CanvasVector::const_iterator i = canvases.begin(); 
+         i != canvases.end(); ++i )
+    {
+        os << **i;
+    }
+
+    static_cast< const C& >( config ).output( os );
+
+    os << base::exdent << "}" << std::endl << base::enableHeader
+       << base::enableFlush;
+
+    return os;
 }
 
 }

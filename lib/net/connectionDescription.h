@@ -18,7 +18,7 @@
 #ifndef EQNET_CONNECTIONDESCRIPTION_H
 #define EQNET_CONNECTIONDESCRIPTION_H
 
-#include <eq/net/connectionType.h> // member
+#include <eq/net/connectionType.h> // member enum
 #include <eq/net/types.h>
 
 #include <eq/base/base.h>
@@ -41,9 +41,7 @@ namespace net
                 , bandwidth( 0 )
                 , port( 0 )
 				, _filename( "default" )
-
-            {
-            }
+            {}
 
         /** The network protocol for the connection. */
         ConnectionType type;

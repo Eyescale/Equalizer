@@ -23,6 +23,7 @@
 
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
+#include <eq/net/connectionDescription.h>
 #include <eq/base/dso.h>
 
 namespace eq

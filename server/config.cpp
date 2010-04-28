@@ -55,15 +55,6 @@ typedef net::CommandFunc<Config> ConfigFunc;
 typedef fabric::Config< Server, Config, Observer, Layout, Canvas, Node,
                         ConfigVisitor > Super;
 
-#define MAKE_ATTR_STRING( attr ) ( std::string("EQ_CONFIG_") + #attr )
-std::string Config::_fAttributeStrings[FATTR_ALL] = 
-{
-    MAKE_ATTR_STRING( FATTR_EYE_BASE ),
-    MAKE_ATTR_STRING( FATTR_VERSION ),
-    MAKE_ATTR_STRING( FATTR_FILL1 ),
-    MAKE_ATTR_STRING( FATTR_FILL2 )
-};
-
 void Config::_construct()
 {
     _currentFrame  = 0;
@@ -80,7 +71,10 @@ Config::Config( ServerPtr parent )
     _construct();
     const Global* global = Global::instance();    
     for( int i=0; i<FATTR_ALL; ++i )
-        _fAttributes[i] = global->getConfigFAttribute( (FAttribute)i );
+    {
+        const FAttribute attr = static_cast< FAttribute >( i );
+        setFAttribute( attr, global->getConfigFAttribute( attr ));
+    }
 }
 
 Config::~Config()
@@ -1029,64 +1023,17 @@ net::CommandResult Config::_cmdFreezeLoadBalancing( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
-std::ostream& operator << ( std::ostream& os, const Config& config )
+void Config::output( std::ostream& os ) const
 {
-    os << base::disableFlush << base::disableHeader << "config " << std::endl;
-    os << "{" << std::endl << base::indent;
+    os << base::disableFlush << base::disableHeader;
 
-    if( !config.getName().empty( ))
-        os << "name    \"" << config.getName() << '"' << std::endl;
-
-    if( config.getLatency() != 1 )
-        os << "latency " << config.getLatency() << std::endl;
-    os << std::endl;
-
-    EQASSERTINFO( config.getFAttribute( Config::FATTR_VERSION ) ==
-                  Global::instance()->getConfigFAttribute(Config::FATTR_VERSION)
-                  , "Per-config versioning not implemented" );
-
-    const float value = config.getFAttribute( Config::FATTR_EYE_BASE );
-    if( value != 
-        Global::instance()->getConfigFAttribute( Config::FATTR_EYE_BASE ))
-    {
-        os << "attributes" << std::endl << "{" << std::endl << base::indent
-           << "eye_base     " << value << std::endl
-           << base::exdent << "}" << std::endl;
-    }
-
-    const NodeVector& nodes = config.getNodes();
-    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
-        os << *i;
-
-    const ObserverVector& observers = config.getObservers();
-    for( ObserverVector::const_iterator i = observers.begin(); 
-         i !=observers.end(); ++i )
-    {
-        os << **i;
-    }
-    const LayoutVector& layouts = config.getLayouts();
-    for( LayoutVector::const_iterator i = layouts.begin(); 
-         i !=layouts.end(); ++i )
-    {
-        os << **i;
-    }
-    const CanvasVector& canvases = config.getCanvases();
-    for( CanvasVector::const_iterator i = canvases.begin(); 
-         i != canvases.end(); ++i )
+    for( CompoundVector::const_iterator i = _compounds.begin(); 
+         i != _compounds.end(); ++i )
     {
         os << **i;
     }
 
-    const CompoundVector& compounds = config.getCompounds();
-    for( CompoundVector::const_iterator i = compounds.begin(); 
-         i != compounds.end(); ++i )
-    {
-        os << *i;
-    }
-    os << base::exdent << "}" << std::endl << base::enableHeader
-       << base::enableFlush;
-
-    return os;
+    os << base::enableHeader << base::enableFlush;
 }
 
 }
@@ -1098,6 +1045,9 @@ template class eq::fabric::Config< eq::server::Server, eq::server::Config,
                                    eq::server::Observer, eq::server::Layout,
                                    eq::server::Canvas, eq::server::Node,
                                    eq::server::ConfigVisitor >;
+
+template std::ostream& eq::fabric::operator << ( std::ostream&,
+                                                 const eq::server::Super& );
 
 #define FIND_ID_TEMPLATE1( type )                                       \
     template void eq::server::Super::find< type >( const uint32_t, type** );

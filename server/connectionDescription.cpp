@@ -55,52 +55,7 @@ ConnectionDescription::ConnectionDescription()
     bandwidth = global->getConnectionIAttribute( IATTR_BANDWIDTH );
 
     port = global->getConnectionIAttribute( IATTR_PORT );
-    setFilename( global->getConnectionSAttribute( SATTR_FILENAME));
-}
-
-std::ostream& operator << ( std::ostream& os, 
-                            const ConnectionDescription* desc )
-{
-    os << disableFlush << "connection" << endl;
-    os << "{" << endl << indent;
-
-    const Global* global = Global::instance();
-
-    if( desc->type != global->getConnectionIAttribute( 
-            ConnectionDescription::IATTR_TYPE ))
-        os << "type          " 
-           << ( desc->type == net::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
-                desc->type == net::CONNECTIONTYPE_SDP   ? "SDP" : 
-                desc->type == net::CONNECTIONTYPE_PIPE  ? "ANON_PIPE" :
-                desc->type == net::CONNECTIONTYPE_NAMEDPIPE  ? "PIPE" :
-                desc->type == net::CONNECTIONTYPE_IB    ? "IB" :
-                desc->type == net::CONNECTIONTYPE_MCIP  ? "MCIP" :
-                desc->type == net::CONNECTIONTYPE_PGM   ? "PGM" :
-                desc->type == net::CONNECTIONTYPE_RSP   ? "RSP" :
-                "ERROR" ) << endl;
-    
-    if( desc->getHostname() != global->getConnectionSAttribute( 
-            ConnectionDescription::SATTR_HOSTNAME ))
-        os << "hostname      \"" << desc->getHostname() << "\"" << endl;
-
-    if( !desc->getInterface().empty( ))
-        os << "interface     \"" << desc->getInterface() << "\"" << endl;
-
-    if( desc->port != global->getConnectionIAttribute( 
-            ConnectionDescription::IATTR_PORT ))
-        os << "port          " << desc->port << endl;
-
-    if( desc->getFilename() != global->getConnectionSAttribute( 
-            ConnectionDescription::SATTR_FILENAME ))
-        os << "filename \"" << desc->getFilename() << "\"" << endl;
-
-    if( desc->bandwidth != global->getConnectionIAttribute( 
-            ConnectionDescription::IATTR_BANDWIDTH ))
-        os << "bandwidth     " << desc->bandwidth << endl;
-
-    os << exdent << "}" << enableFlush << endl;
-
-    return os;
+    setFilename( global->getConnectionSAttribute( SATTR_FILENAME ));
 }
 
 }

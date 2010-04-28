@@ -49,6 +49,7 @@ template< class, class, class, class > class Canvas;
 template< class, class, class, class > class Node;
 template< class, class, class, class > class Pipe;
 template< class, class, class, class > class Server;
+template< class, class, class, class, class, class, class > class Config;
 }
 }
 #endif // EQFABRIC_TYPES_H

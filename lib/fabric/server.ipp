@@ -20,6 +20,7 @@
 #include "packets.h"
 
 #include <eq/net/command.h>
+#include <eq/net/connectionDescription.h>
 
 namespace eq
 {
@@ -60,6 +61,7 @@ template< class CL, class S, class CFG, class NF >
 void Server< CL, S, CFG, NF >::_addConfig( CFG* config )
 { 
     EQASSERT( config->getServer() == static_cast< S* >( this ));
+    EQASSERT( stde::find( _configs, config ) == _configs.end( ));
     _configs.push_back( config );
 }
 
@@ -120,6 +122,36 @@ Server< CL, S, CFG, NF >::_cmdDestroyConfig( net::Command& command )
         command.getNode()->send( reply );
     }
     return net::COMMAND_HANDLED;
+}
+
+template< class CL, class S, class CFG, class NF >
+std::ostream& operator << ( std::ostream& os, 
+                            const Server< CL, S, CFG, NF >& server )
+{
+    os << base::disableFlush << base::disableHeader << "server " << std::endl;
+    os << "{" << std::endl << base::indent;
+    
+    const net::ConnectionDescriptionVector& cds =
+        server.getConnectionDescriptions();
+    for( net::ConnectionDescriptionVector::const_iterator i = cds.begin();
+         i != cds.end(); ++i )
+    {
+        net::ConnectionDescriptionPtr desc = *i;
+        os << *desc;
+    }
+
+    const std::vector< CFG* >& configs = server.getConfigs();
+    for( typename std::vector< CFG* >::const_iterator i = configs.begin();
+         i != configs.end(); ++i )
+    {
+        const CFG* config = *i;
+        os << *config;
+    }
+
+    os << base::exdent << "}"  << base::enableHeader << base::enableFlush
+       << std::endl;
+
+    return os;
 }
 
 }

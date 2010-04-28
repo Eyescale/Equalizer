@@ -168,26 +168,6 @@ namespace server
         
         virtual void restore();
 
-        /** @name Attributes */
-        //@{
-        // Note: also update string array initialization in config.cpp
-        enum FAttribute
-        {
-            FATTR_EYE_BASE,
-            FATTR_VERSION,
-            FATTR_FILL1,
-            FATTR_FILL2,
-            FATTR_ALL
-        };
-        
-        void setFAttribute( const FAttribute attr, const float value )
-            { _fAttributes[attr] = value; }
-        float getFAttribute( const FAttribute attr ) const
-            { return _fAttributes[attr]; }
-        static const std::string&  getFAttributeString( const FAttribute attr )
-            { return _fAttributeStrings[attr]; }
-        //@}
- 
         /** Return the initID for late initialization  */
         uint32_t getInitID(){ return _initID; }
 
@@ -198,6 +178,8 @@ namespace server
         virtual VisitorResult _acceptCompounds( ConfigVisitor& visitor );
         /** @internal */
         virtual VisitorResult _acceptCompounds( ConfigVisitor& visitor ) const;
+
+        void output( std::ostream& os ) const; //!< @internal
 
     protected:
         /** @sa net::Session::notifyMapped. */
@@ -213,12 +195,6 @@ namespace server
 
         /** The initID for late initialization. */
         uint32_t _initID;
-        
-        /** float attributes. */
-        float _fAttributes[FATTR_ALL];
-
-        /** String representation of float attributes. */
-        static std::string _fAttributeStrings[FATTR_ALL];
 
         /** The list of compounds. */
         CompoundVector _compounds;
@@ -295,8 +271,6 @@ namespace server
         net::CommandResult _cmdCreateReply( net::Command& command );
         net::CommandResult _cmdFreezeLoadBalancing( net::Command& command );
     };
-
-    std::ostream& operator << ( std::ostream& os, const Config& config );
 }
 }
 #endif // EQSERVER_CONFIG_H

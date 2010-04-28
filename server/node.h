@@ -312,9 +312,6 @@ namespace server
         /** Send the frame finish packet for the given frame number. */
         void _sendFrameFinish( const uint32_t frameNumber );
 
-        virtual void getInstanceData( net::DataOStream& os ) { EQDONTCALL }
-        virtual void applyInstanceData( net::DataIStream& is ) { EQDONTCALL }
-
         /* Command handler functions. */
         net::CommandResult _cmdConfigInitReply( net::Command& command );
         net::CommandResult _cmdConfigExitReply( net::Command& command );

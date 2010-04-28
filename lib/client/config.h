@@ -303,7 +303,6 @@ namespace eq
         //@}
 
     protected:
-
         /** @internal */
         //@{
         EQ_EXPORT virtual void notifyMapped( net::NodePtr node );

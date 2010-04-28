@@ -31,12 +31,13 @@ public:
 
     enum DirtyBits
     {
-        DIRTY_MEMBER    = Object::DIRTY_CUSTOM << 0,
-        DIRTY_OBSERVERS = Object::DIRTY_CUSTOM << 1,
-        DIRTY_LAYOUTS   = Object::DIRTY_CUSTOM << 2,
-        DIRTY_CANVASES  = Object::DIRTY_CUSTOM << 3,
-        DIRTY_LATENCY   = Object::DIRTY_CUSTOM << 4,
-        DIRTY_NODES     = Object::DIRTY_CUSTOM << 5,
+        DIRTY_MEMBER     = Object::DIRTY_CUSTOM << 0,
+        DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 1,
+        DIRTY_OBSERVERS  = Object::DIRTY_CUSTOM << 2,
+        DIRTY_LAYOUTS    = Object::DIRTY_CUSTOM << 3,
+        DIRTY_CANVASES   = Object::DIRTY_CUSTOM << 4,
+        DIRTY_LATENCY    = Object::DIRTY_CUSTOM << 5,
+        DIRTY_NODES      = Object::DIRTY_CUSTOM << 6,
     };
 
     void create( O** observer ) 
@@ -94,6 +95,8 @@ void ConfigProxy< S, C, O, L, CV, N, V >::serialize( net::DataOStream& os,
 
     if( dirtyBits & DIRTY_MEMBER )
         os << _config._appNodeID;
+    if( dirtyBits & DIRTY_ATTRIBUTES )
+        os.write( _config._fAttributes, C::FATTR_ALL * sizeof( float ));
     if( dirtyBits & DIRTY_OBSERVERS )
         os.serializeChildren( this, _config._observers );
     if( dirtyBits & DIRTY_LAYOUTS )
@@ -114,6 +117,8 @@ void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
 
     if( dirtyBits & DIRTY_MEMBER )
         is >> _config._appNodeID;
+    if( dirtyBits & DIRTY_ATTRIBUTES )
+        is.read( _config._fAttributes, C::FATTR_ALL * sizeof( float ));
 
     if( _config.mapViewObjects( )) // depends on _config._appNodeID !
     {
