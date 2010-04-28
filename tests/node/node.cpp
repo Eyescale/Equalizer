@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,6 +20,7 @@
 #include <eq/base/lock.h>
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
+#include <eq/net/connectionDescription.h>
 #include <eq/net/init.h>
 #include <eq/net/node.h>
 #include <eq/net/packets.h>

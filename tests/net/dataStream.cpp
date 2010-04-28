@@ -21,6 +21,7 @@
 #include <eq/net/dataOStream.h>
 
 #include <eq/base/thread.h>
+#include <eq/net/connectionDescription.h>
 #include <eq/net/command.h>
 #include <eq/net/commandQueue.h>
 #include <eq/net/connection.h>

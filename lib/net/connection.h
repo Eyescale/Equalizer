@@ -18,6 +18,7 @@
 #ifndef EQNET_CONNECTION_H
 #define EQNET_CONNECTION_H
 
+#include <eq/net/connectionType.h>        // enum
 #include <eq/net/packets.h>               // used in inline method
 #include <eq/net/types.h>                 // ConnectionVector type
 
@@ -43,7 +44,6 @@ namespace net
 {
     class ConnectionDescription;
     class ConnectionListener;
-    enum ConnectionType;
 
     /**
      * An interface definition for communication between hosts.
