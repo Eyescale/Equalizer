@@ -74,8 +74,12 @@ Node::Node( Config* parent )
         _sattributes[i] = global->getNodeSAttribute((Node::SAttribute)i);
     for( int i=0; i < Node::CATTR_ALL; ++i )
         _cattributes[i] = global->getNodeCAttribute((Node::CAttribute)i);
-    for( int i=0; i < eq::Node::IATTR_ALL; ++i )
-        _iAttributes[i] = global->getNodeIAttribute((Node::IAttribute)i);
+    
+    for( int i = 0; i < IATTR_ALL; ++i )
+    {
+        const IAttribute attr = static_cast< IAttribute >( i );
+        setIAttribute( attr, global->getNodeIAttribute( attr ));
+    }
 }
 
 Node::~Node()
@@ -100,12 +104,18 @@ void Node::attachToSession( const uint32_t id, const uint32_t instanceID,
 
 Channel* Node::getChannel( const ChannelPath& path )
 {
-    EQASSERT( _pipes.size() > path.pipeIndex );
+    const PipeVector& pipes = getPipes();
+    EQASSERT( pipes.size() > path.pipeIndex );
 
-    if( _pipes.size() <= path.pipeIndex )
+    if( pipes.size() <= path.pipeIndex )
         return 0;
 
-    return _pipes[ path.pipeIndex ]->getChannel( path );
+    return pipes[ path.pipeIndex ]->getChannel( path );
+}
+
+void Node::addTasks( const uint32_t tasks )
+{
+    setTasks( getTasks() | tasks );
 }
 
 void Node::activate()
@@ -120,11 +130,6 @@ void Node::deactivate()
     --_active; 
     EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 };
-
-void Node::addTasks( const uint32_t tasks )
-{
-    setTasks( getTasks() | tasks );
-}
 
 //===========================================================================
 // Operations
@@ -146,7 +151,8 @@ void Node::updateRunning( const uint32_t initID, const uint32_t frameNumber )
     }
 
     // Let all running pipes update their running state (incl. children)
-    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
+    const PipeVector& pipes = getPipes();
+    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
         (*i)->updateRunning( initID, frameNumber );
 
     if( !isActive( )) // becoming inactive
@@ -165,12 +171,14 @@ bool Node::syncRunning()
 
     // Sync state updates
     bool success = true;
-    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
+
+    const PipeVector& pipes = getPipes();
+    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         Pipe* pipe = *i;
         if( !pipe->syncRunning( ))
         {
-            setErrorMessage( getErrorMessage() +  "pipe " + pipe->getName() +
+            setErrorMessage( getErrorMessage() + "pipe " + pipe->getName() +
                              ": '" + pipe->getErrorMessage() + '\'' );
             success = false;
         }
@@ -186,6 +194,9 @@ bool Node::syncRunning()
         // becoming inactive
         success = false;
 
+    EQASSERT( isMaster( ));
+    commit();
+
     EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED );
     return success;
 }
@@ -198,6 +209,9 @@ void Node::_configInit( const uint32_t initID, const uint32_t frameNumber )
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
 
+    EQASSERT( isMaster( ));
+    commit();
+
     _flushedFrame  = 0;
     _finishedFrame = 0;
     _frameIDs.clear();
@@ -208,19 +222,15 @@ void Node::_configInit( const uint32_t initID, const uint32_t frameNumber )
     EQLOG( LOG_INIT ) << "Create node" << std::endl;
     ConfigCreateNodePacket createNodePacket;
     createNodePacket.nodeID = getID();
-    createNodePacket.sessionID = _config->getID();
+    createNodePacket.sessionID = getConfig()->getID();
     _node->send( createNodePacket );
 
     EQLOG( LOG_INIT ) << "Init node" << std::endl;
     NodeConfigInitPacket packet;
     packet.initID      = initID;
-    packet.tasks       = getTasks();
     packet.frameNumber = frameNumber;
 
-    memcpy( packet.iAttributes, _iAttributes, 
-            eq::Node::IATTR_ALL * sizeof( int32_t ));
-
-    _send( packet, getName() );
+    _send( packet );
 }
 
 bool Node::_syncConfigInit()
@@ -256,7 +266,7 @@ void Node::_configExit()
     EQLOG( LOG_INIT ) << "Destroy node" << std::endl;
     ConfigDestroyNodePacket destroyNodePacket;
     destroyNodePacket.nodeID = getID();
-    destroyNodePacket.sessionID = _config->getID();
+    destroyNodePacket.sessionID = getConfig()->getID();
     _node->send( destroyNodePacket );
 }
 
@@ -291,10 +301,12 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     NodeFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
+    startPacket.version     = commit();
     _send( startPacket );
     EQLOG( LOG_TASKS ) << "TASK node start frame " << &startPacket << std::endl;
 
-    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
+    const PipeVector& pipes = getPipes();
+    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         Pipe* pipe = *i;
         if( pipe->isActive( ))
@@ -348,7 +360,8 @@ uint32_t Node::_getFinishLatency() const
 
 void Node::_finish( const uint32_t currentFrame )
 {
-    for( PipeVector::const_iterator i = _pipes.begin(); i != _pipes.end(); ++i )
+    const PipeVector& pipes = getPipes();
+    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         const Pipe* pipe = *i;
         if( pipe->getIAttribute( Pipe::IATTR_HINT_THREAD ))
@@ -399,7 +412,7 @@ net::Barrier* Node::getBarrier()
     if( _barriers.empty() )
     {
         net::Barrier* barrier = new net::Barrier( _node );
-        _config->registerObject( barrier );
+        getConfig()->registerObject( barrier );
         barrier->setAutoObsolete( getConfig()->getLatency() + 1 );
         return barrier;
     }
@@ -431,10 +444,17 @@ void Node::_flushBarriers()
          i != _barriers.end(); ++ i )
     {
         net::Barrier* barrier = *i;
-        _config->deregisterObject( barrier );
+        getConfig()->deregisterObject( barrier );
         delete barrier;
     }
     _barriers.clear();
+}
+
+void Node::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
+{
+    Super::deserialize( is, dirtyBits );
+    EQASSERT( isMaster( ));
+    setDirty( dirtyBits ); // redistribute slave changes
 }
 
 bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
@@ -463,11 +483,7 @@ net::CommandResult Node::_cmdConfigInitReply( net::Command& command )
         command.getPacket<NodeConfigInitReplyPacket>();
     EQVERB << "handle configInit reply " << packet << std::endl;
     EQASSERT( _state == STATE_INITIALIZING );
-
-    setErrorMessage( packet->error );
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
-    memcpy( _iAttributes, packet->iAttributes, 
-            eq::Node::IATTR_ALL * sizeof( int32_t ));
 
     return net::COMMAND_HANDLED;
 }
@@ -490,7 +506,7 @@ net::CommandResult Node::_cmdFrameFinishReply( net::Command& command )
     EQVERB << "handle frame finish reply " << packet << std::endl;
     
     _finishedFrame = packet->frameNumber;
-    _config->notifyNodeFrameFinished( packet->frameNumber );
+    getConfig()->notifyNodeFrameFinished( packet->frameNumber );
 
     return net::COMMAND_HANDLED;
 }

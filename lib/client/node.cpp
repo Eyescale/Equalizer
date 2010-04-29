@@ -99,14 +99,14 @@ ClientPtr Node::getClient()
 {
     Config* config = getConfig();
     EQASSERT( config );
-    return (config ? config->getClient() : 0);
+    return ( config ? config->getClient() : 0 );
 }
 
 ServerPtr Node::getServer()
 {
     Config* config = getConfig();
     EQASSERT( config );
-    return (config ? config->getServer() : 0);
+    return ( config ? config->getServer() : 0 );
 }
 
 CommandQueue* Node::getMainThreadQueue()
@@ -449,10 +449,6 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
     EQLOG( LOG_INIT ) << "Init node " << packet << std::endl;
 
     _state = STATE_INITIALIZING;
-    setName( packet->name );
-    setTasks( packet->tasks );
-
-    memcpy( _iAttributes, packet->iAttributes, IATTR_ALL * sizeof( int32_t ));
 
     _currentFrame  = packet->frameNumber;
     _unlockedFrame = packet->frameNumber;
@@ -463,13 +459,13 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
     NodeConfigInitReplyPacket reply;
     reply.result = configInit( packet->initID );
 
-    if( _iAttributes[ IATTR_THREAD_MODEL ] == eq::UNDEFINED )
-        _iAttributes[ IATTR_THREAD_MODEL ] = eq::DRAW_SYNC;
+    if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
+        setIAttribute( IATTR_THREAD_MODEL, eq::DRAW_SYNC );
+    commit();
 
     _state = reply.result ? STATE_RUNNING : STATE_INIT_FAILED;
 
-    memcpy( reply.iAttributes, _iAttributes, IATTR_ALL * sizeof( int32_t ));
-    send( command.getNode(), reply, getErrorMessage( ));
+    send( command.getNode(), reply );
     return net::COMMAND_HANDLED;
 }
 
@@ -513,6 +509,7 @@ net::CommandResult Node::_cmdFrameStart( net::Command& command )
     EQLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber
                        << std::endl;
 
+    sync( packet->version );
     Config* config = getConfig();
     config->_frameStart();
     frameStart( packet->frameID, frameNumber );
@@ -534,6 +531,7 @@ net::CommandResult Node::_cmdFrameFinish( net::Command& command )
 
     _finishFrame( frameNumber );
     _frameFinish( packet->frameID, frameNumber );
+    commit();
     return net::COMMAND_HANDLED;
 }
 

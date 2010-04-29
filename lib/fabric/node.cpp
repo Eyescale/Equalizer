@@ -45,11 +45,12 @@ Node< C, N, P, V >::Node( C* parent )
 }
 
 template< class C, class N, class P, class V >
-Node< C, N, P, V >::~Node()  
+Node< C, N, P, V >::~Node()
 {
     while( !_pipes.empty() )
     {
         P* pipe = _pipes.back();
+        EQASSERT( pipe->getNode() == static_cast< N* >( this ) );
         _removePipe( pipe );
         delete pipe;
     }
@@ -135,6 +136,7 @@ template< class C, class N, class P, class V >
 void Node< C, N, P, V >::setIAttribute( const IAttribute attr, const int32_t value )
 {
     _iAttributes[attr] = value;
+    setDirty( DIRTY_ATTRIBUTES );
 }
 
 template< class C, class N, class P, class V >
@@ -178,6 +180,24 @@ P* Node< C, N, P, V >::findPipe( const uint32_t id )
             return pipe;
     }
     return 0;
+}
+
+template< class C, class N, class P, class V >
+void Node< C, N, P, V >::serialize( net::DataOStream& os, 
+                                 const uint64_t dirtyBits)
+{
+    Object::serialize( os, dirtyBits );
+    if( dirtyBits & DIRTY_ATTRIBUTES )
+        os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+}
+
+template< class C, class N, class P, class V >
+void Node< C, N, P, V >::deserialize( net::DataIStream& is,
+                                     const uint64_t dirtyBits )
+{
+    Object::deserialize( is, dirtyBits );
+    if( dirtyBits & DIRTY_ATTRIBUTES )
+        is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
 }
 
 }

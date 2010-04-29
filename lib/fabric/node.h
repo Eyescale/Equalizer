@@ -39,6 +39,7 @@ namespace fabric
 
         /** @name Data Access */
         //@{
+        /** @return vector of pipes */
         const PipeVector& getPipes() const { return _pipes; }
 
         /** @return the config of this node. */
@@ -91,6 +92,18 @@ namespace fabric
         EQFABRIC_EXPORT virtual ~Node();
 
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
+        
+        enum DirtyBits
+        {
+            DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
+        };
+
+        /** @internal */
+        EQFABRIC_EXPORT virtual void serialize( net::DataOStream& os,
+                                                const uint64_t dirtyBits );
+        /** @internal */
+        EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
+                                                  const uint64_t dirtyBits );
 
     private:
         /** Pipe children. */
@@ -98,9 +111,10 @@ namespace fabric
 
         /** The parent config. */
         C* const _config;
-        
+
         /** Integer attributes. */
         int32_t _iAttributes[IATTR_ALL];
+
         friend class eq::Node; // TODO remove
         friend class eq::server::Node; // TODO remove
 

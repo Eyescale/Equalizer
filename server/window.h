@@ -219,8 +219,6 @@ namespace server
         /** Clears all swap barriers of the window. */
         void _resetSwapBarriers();
 
-        void _send( net::ObjectPacket& packet, const std::string& string );
-
         void _configInit( const uint32_t initID );
         bool _syncConfigInit();
         void _configExit();

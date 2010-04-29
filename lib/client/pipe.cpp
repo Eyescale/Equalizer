@@ -754,7 +754,7 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
 
     if( !_osPipe || !reply.result )
     {
-        send( nodePtr, reply, getErrorMessage() );
+        send( nodePtr, reply );
         return net::COMMAND_HANDLED;
     }
     commit();

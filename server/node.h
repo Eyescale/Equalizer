@@ -242,6 +242,9 @@ namespace server
         virtual void attachToSession( const uint32_t id, 
                                       const uint32_t instanceID, 
                                       net::Session* session );
+        
+        void deserialize( net::DataIStream& is, const uint64_t dirtyBits );
+    
     private:
 
         /** String attributes. */

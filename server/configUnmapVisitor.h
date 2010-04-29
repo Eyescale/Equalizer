@@ -74,6 +74,11 @@ public:
             _unmap( pipe );
             return TRAVERSE_CONTINUE; 
         }
+    virtual VisitorResult visitPre( Node* node )
+        { 
+            _unmap( node );
+            return TRAVERSE_CONTINUE; 
+        }
 
 private:
     void _unmap( net::Object* object )

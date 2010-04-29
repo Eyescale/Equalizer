@@ -172,7 +172,6 @@ namespace server
         bool update( const uint32_t frameID, const uint32_t frameNumber );
 
         void send( net::ObjectPacket& packet );
-        void send( net::ObjectPacket& packet, const std::string& string );
         template< typename T >
         void send( net::ObjectPacket &packet, const std::vector<T>& data );
         //@}

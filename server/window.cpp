@@ -271,12 +271,6 @@ void Window::send( net::ObjectPacket& packet )
     getNode()->send( packet ); 
 }
 
-void Window::_send( net::ObjectPacket& packet, const std::string& string ) 
-{
-    packet.objectID = getID(); 
-    getNode()->send( packet, string ); 
-}
-
 //===========================================================================
 // Operations
 //===========================================================================
@@ -360,7 +354,7 @@ void Window::_configInit( const uint32_t initID )
     packet.initID = initID;
     
     EQLOG( LOG_INIT ) << "Init Window" << std::endl;
-    _send( packet, getName() );
+    send( packet );
     EQLOG( LOG_TASKS ) << "TASK window configInit  " << &packet << std::endl;
 }
 

@@ -266,11 +266,12 @@ uint32_t Config::finishFrame()
             while( _unlockedFrame < _currentFrame )
                 client->processCommand();
 
+        const NodeVector& nodes = getNodes();
         // local node finish (frame-latency) sync
-        if( !_nodes.empty( ))
+        if( !nodes.empty( ))
         {
-            EQASSERT( _nodes.size() == 1 );
-            const Node* node = _nodes.front();
+            EQASSERT( nodes.size() == 1 );
+            const Node* node = nodes.front();
 
             while( node->getFinishedFrame() < frameToFinish )
                 client->processCommand();
@@ -478,11 +479,12 @@ bool Config::handleEvent( const ConfigEvent* event )
 
 bool Config::_needsLocalSync() const
 {
-    if( _nodes.empty( ))
+    const NodeVector& nodes = getNodes();
+    if( nodes.empty( ))
         return false;
 
-    EQASSERT( _nodes.size() == 1 );
-    const Node* node = _nodes.front();
+    EQASSERT( nodes.size() == 1 );
+    const Node* node = nodes.front();
     switch( node->getIAttribute( Node::IATTR_THREAD_MODEL ))
     {
         case ASYNC:
@@ -599,7 +601,7 @@ net::CommandResult Config::_cmdCreateNode( net::Command& command )
     EQASSERT( packet->nodeID != EQ_ID_INVALID );
 
     Node* node = Global::getNodeFactory()->createNode( this );
-    attachObject( node, packet->nodeID, EQ_ID_INVALID );
+    EQCHECK( mapObject( node, packet->nodeID ));
 
     return net::COMMAND_HANDLED;
 }

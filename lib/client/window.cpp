@@ -653,7 +653,7 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
     net::NodePtr node = command.getNode();
     if( !reply.result )
     {
-        send( node, reply, getErrorMessage() );
+        send( node, reply );
         return net::COMMAND_HANDLED;
     }
 

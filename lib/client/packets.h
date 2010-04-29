@@ -19,7 +19,6 @@
 #ifndef EQ_PACKETS_H
 #define EQ_PACKETS_H
 
-#include <eq/client/node.h>          // Node::IATTR_ALL enum
 #include <eq/client/statistic.h>     // member
 
 #include <eq/fabric/commands.h>      // enum 
@@ -290,14 +289,10 @@ namespace eq
             {
                 command        = fabric::CMD_NODE_CONFIG_INIT;
                 size           = sizeof( NodeConfigInitPacket );
-                name[0]        = '\0';
             }
 
         uint32_t initID;
         uint32_t frameNumber;
-        int32_t  iAttributes[ eq::Node::IATTR_ALL ];
-        int32_t  tasks;
-        EQ_ALIGN8( char name[8] );
     };
 
     struct NodeConfigInitReplyPacket : public net::ObjectPacket
@@ -306,12 +301,9 @@ namespace eq
             {
                 command   = fabric::CMD_NODE_CONFIG_INIT_REPLY;
                 size      = sizeof( NodeConfigInitReplyPacket );
-                error[0]  = '\0';
             }
 
-        int32_t  iAttributes[ eq::Node::IATTR_ALL ];
         bool     result;
-        EQ_ALIGN8( char error[8] );
     };
 
     struct NodeConfigExitPacket : public net::ObjectPacket
@@ -367,6 +359,7 @@ namespace eq
 
         uint32_t frameID;
         uint32_t frameNumber;
+        uint32_t version;
     };
 
     struct NodeFrameFinishPacket : public net::ObjectPacket
@@ -537,11 +530,9 @@ namespace eq
             {
                 command = fabric::CMD_WINDOW_CONFIG_INIT;
                 size    = sizeof( WindowConfigInitPacket );
-                name[0] = '\0';
             }
 
         uint32_t       initID;
-        EQ_ALIGN8( char name[8] );
     };
 
     struct WindowConfigInitReplyPacket : public net::ObjectPacket
@@ -693,11 +684,9 @@ namespace eq
             {
                 command = fabric::CMD_CHANNEL_CONFIG_INIT;
                 size    = sizeof( ChannelConfigInitPacket );
-                name[0] = '\0';
             }
 
         uint32_t        initID;
-        EQ_ALIGN8( char name[8] );
     };
 
     struct ChannelConfigInitReplyPacket : public net::ObjectPacket

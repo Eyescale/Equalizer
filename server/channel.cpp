@@ -286,7 +286,7 @@ void Channel::_configInit( const uint32_t initID )
     packet.initID = initID;
     
     EQLOG( LOG_INIT ) << "Init channel" << std::endl;
-    send( packet, getName( ));
+    send( packet );
 }
 
 bool Channel::_syncConfigInit()
@@ -402,12 +402,6 @@ void Channel::send( net::ObjectPacket& packet )
 { 
     packet.objectID = getID();
     getNode()->send( packet );
-}
-
-void Channel::send( net::ObjectPacket& packet, const std::string& string ) 
-{
-    packet.objectID = getID();
-    getNode()->send( packet, string ); 
 }
 
 //---------------------------------------------------------------------------

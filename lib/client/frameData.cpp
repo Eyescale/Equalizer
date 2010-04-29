@@ -22,6 +22,7 @@
 #include "frameDataStatistics.h"
 #include "image.h"
 #include "log.h"
+#include "node.h"
 #include "packets.h"
 #include "roiFinder.h"
 
