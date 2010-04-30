@@ -155,19 +155,6 @@ static void _modeDB(       Config*  config,
     }
 }
 
-static eq::Viewport _unite( const eq::Viewport& vp1, const eq::Viewport& vp2 )
-{
-    eq::Viewport res;
-    res.x = MIN( vp1.x, vp2.x );
-    res.y = MIN( vp1.y, vp2.y );
-
-    res.w = MAX( vp1.x+vp1.w, vp2.x+vp2.w ) - res.x;
-    res.h = MAX( vp1.y+vp1.h, vp2.y+vp2.h ) - res.y;
-
-    return res;
-}
-
-
 /** DB_ds rendering when each node compose result from its pipes on to first 
     pipe, then result is used in DB_ds compositing between nodes */
 static void _modeDS(       Config*                config,
@@ -224,7 +211,7 @@ static void _modeDS(       Config*                config,
         vp[i] = tmpVP[vals[0]];
 
         for( size_t j  = 1; j < vals.size(); ++j )
-            vp[i] = _unite( vp[i], tmpVP[vals[j]] );
+            vp[i].unite( tmpVP[vals[j]] );
     }
 
     unsigned i = 0;

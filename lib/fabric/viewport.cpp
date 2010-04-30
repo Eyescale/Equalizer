@@ -25,7 +25,7 @@ namespace eq
 namespace fabric
 {
 void Viewport::applyView( const Viewport& segmentVP, const Viewport& viewVP,
-                      const PixelViewport& pvp, const Vector4i& overdraw )
+                          const PixelViewport& pvp, const Vector4i& overdraw )
 {
     // part of view covered by segment
     Viewport contribution( segmentVP );

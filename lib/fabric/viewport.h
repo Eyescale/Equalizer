@@ -143,6 +143,17 @@ namespace fabric
                 h = EQ_MIN( sEy, dEy ) - y;
             }
 
+        /** Create the union of the two viewports. @version 1.0 */
+        void unite( const Viewport& rhs )
+            {
+                const float xEnd = EQ_MAX( getXEnd(), rhs.getXEnd( ));
+                const float yEnd = EQ_MAX( getYEnd(), rhs.getYEnd( ));
+                x = EQ_MIN( x, rhs.x );
+                y = EQ_MIN( y, rhs.y );
+                w = xEnd - x;
+                h = yEnd - y;
+            }
+
         /**
          * Compute the coverage of another viewport on this viewport.
          * @internal

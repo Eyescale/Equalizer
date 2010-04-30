@@ -44,6 +44,6 @@ int main( int argc, char **argv )
 
     const Viewport vp2 = pvp.getSubVP( PixelViewport(-1000, 1000, 1000, 1000));
     TESTINFO( vp == vp2, vp2 );
-    
+
     return EXIT_SUCCESS;
 }

@@ -107,8 +107,8 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         frameData->setOffset( Vector2i( framePVP.x, framePVP.y ));
 
         // 2) pvp is area within channel
-        framePVP.x = (int32_t)(frameVP.x * inheritPVP.w);
-        framePVP.y = (int32_t)(frameVP.y * inheritPVP.h);
+        framePVP.x = static_cast< int32_t >( frameVP.x * inheritPVP.w );
+        framePVP.y = static_cast< int32_t >( frameVP.y * inheritPVP.h );
         frameData->setPixelViewport( framePVP );
 
         // 3) image buffers and storage type
