@@ -1,0 +1,87 @@
+#Equalizer 1.0 ascii
+
+# Config stress-testing the 2D load-balancer
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ .25 .2 .5 .5 ]
+                    channel { name "buffer0" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer1" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer2" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer3" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer4" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer5" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer6" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer7" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer8" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer9" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer10" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer11" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer12" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer13" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer14" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer15" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer16" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer17" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer18" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+                    channel { name "buffer19" drawable [ FBO_COLOR FBO_DEPTH ] viewport [ 0 0 1 .5 ] }
+
+                    channel { name "channel" }
+                }
+            }
+        }
+        compound
+        {
+            channel "channel"
+            load_equalizer { mode HORIZONTAL }
+
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+
+            compound { channel "buffer0" outputframe { type texture }}
+            compound { channel "buffer1" outputframe { type texture }}
+            compound { channel "buffer2" outputframe { type texture }}
+            compound { channel "buffer3" outputframe { type texture }}
+            compound { channel "buffer4" outputframe { type texture }}
+            compound { channel "buffer5" outputframe { type texture }}
+            compound { channel "buffer6" outputframe { type texture }}
+            compound { channel "buffer7" outputframe { type texture }}
+            compound { channel "buffer8" outputframe { type texture }}
+            compound { channel "buffer9" outputframe { type texture }}
+            compound { channel "buffer10" outputframe { type texture }}
+            compound { channel "buffer11" outputframe { type texture }}
+            compound { channel "buffer12" outputframe { type texture }}
+            compound { channel "buffer13" outputframe { type texture }}
+            compound { channel "buffer14" outputframe { type texture }}
+            compound { channel "buffer15" outputframe { type texture }}
+
+            inputframe { name "frame.buffer0" }
+            inputframe { name "frame.buffer1" }
+            inputframe { name "frame.buffer2" }
+            inputframe { name "frame.buffer3" }
+            inputframe { name "frame.buffer4" }
+            inputframe { name "frame.buffer5" }
+            inputframe { name "frame.buffer6" }
+            inputframe { name "frame.buffer7" }
+            inputframe { name "frame.buffer8" }
+            inputframe { name "frame.buffer9" }
+            inputframe { name "frame.buffer10" }
+            inputframe { name "frame.buffer11" }
+            inputframe { name "frame.buffer12" }
+            inputframe { name "frame.buffer13" }
+            inputframe { name "frame.buffer14" }
+            inputframe { name "frame.buffer15" }
+        }
+    }    
+}

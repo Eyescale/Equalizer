@@ -698,6 +698,11 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
 
             childVP.x = childVP.getXEnd();
             childVP.w = end - childVP.x;
+            // Fix 2994111: Rounding errors with 2D LB and 16 sources
+            //   Floating point rounding may create a width for the 'right'
+            //   child which is slightly below the parent width. Correct it.
+            while( childVP.getXEnd() < end )
+                childVP.w += std::numeric_limits< float >::epsilon();
             _computeSplit( node->right, sortedData, childVP, range );
             break;
         }
@@ -851,6 +856,8 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
 
             childVP.y = childVP.getYEnd();
             childVP.h = end - childVP.y;
+            while( childVP.getYEnd() < end )
+                childVP.h += std::numeric_limits< float >::epsilon();
             _computeSplit( node->right, sortedData, childVP, range );
             break;
         }

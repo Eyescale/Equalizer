@@ -1,4 +1,4 @@
-Fix deserialization of child object vectors (double entries)
+Fix 2994111: Rounding errors with 2D LB and 16 sources
 
 [ ] May break build
 [ ] May break existing applications
