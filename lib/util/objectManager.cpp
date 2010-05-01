@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,6 +20,7 @@
 
 #include "accum.h"
 #include "bitmapFont.h"
+#include "compressorDataGPU.h"
 #include "frameBufferObject.h"
 #include "texture.h"
 
@@ -554,6 +556,53 @@ void ObjectManager<T>::deleteEqAccum( const T& key )
 
     accum->exit();
     delete accum;
+}
+
+// eq::CompressorData object functions
+template< typename T >
+CompressorDataGPU* ObjectManager<T>::getEqUploader( const T& key ) const
+{
+    typename UploaderHash::const_iterator i = _data->eqUploaders.find( key );
+    if( i == _data->eqUploaders.end( ))
+        return 0;
+
+    return i->second;
+}
+
+template< typename T >
+CompressorDataGPU* ObjectManager<T>::newEqUploader( const T& key )
+{
+    if( _data->eqUploaders.find( key ) != _data->eqUploaders.end( ))
+    {
+        EQWARN << "Requested new Accumulation for existing key" << endl;
+        return 0;
+    }
+
+    CompressorDataGPU* compressorData = new CompressorDataGPU( _glewContext );
+    _data->eqUploaders[ key ] = compressorData;
+    return compressorData;
+}
+
+template< typename T >
+CompressorDataGPU* ObjectManager<T>::obtainEqUploader( const T& key )
+{
+    CompressorDataGPU* compressorData = getEqUploader( key );
+    if( compressorData )
+        return compressorData;
+    return newEqUploader( key );
+}
+
+template< typename T >
+void ObjectManager<T>::deleteEqUploader( const T& key )
+{
+    typename UploaderHash::iterator i = _data->eqUploaders.find( key );
+    if( i == _data->eqUploaders.end( ))
+        return;
+
+    CompressorDataGPU* compressorData = i->second;
+    _data->eqUploaders.erase( i );
+
+    delete compressorData;
 }
 
 // eq::Texture object functions

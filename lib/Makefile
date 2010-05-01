@@ -170,6 +170,9 @@ HEADER_SRC = \
 	util/accum.h \
 	util/accumBufferObject.h \
 	util/bitmapFont.h \
+	util/compressorData.h \
+	util/compressorDataCPU.h \
+	util/compressorDataGPU.h \
 	util/frameBufferObject.h \
 	util/objectManager.h \
 	util/texture.h \
@@ -299,6 +302,9 @@ CXXFILES = \
 	util/accum.cpp \
 	util/accumBufferObject.cpp \
 	util/bitmapFont.cpp \
+	util/compressorData.cpp \
+	util/compressorDataCPU.cpp \
+	util/compressorDataGPU.cpp \
 	util/frameBufferObject.cpp \
 	util/objectManager.cpp \
 	util/texture.cpp \

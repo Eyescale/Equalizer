@@ -32,6 +32,7 @@ namespace util
 {
     template< typename T > class BitmapFont;
     class Accum;
+    class CompressorDataGPU;
     class FrameBufferObject;
     class Texture;
 
@@ -101,7 +102,12 @@ namespace util
         EQ_EXPORT Accum* getEqAccum( const T& key ) const;
         EQ_EXPORT Accum* newEqAccum( const T& key );
         EQ_EXPORT Accum* obtainEqAccum( const T& key );
-        EQ_EXPORT void deleteEqAccum( const T& key );
+        EQ_EXPORT void   deleteEqAccum( const T& key );
+
+        EQ_EXPORT CompressorDataGPU* getEqUploader( const T& key ) const;
+        EQ_EXPORT CompressorDataGPU* newEqUploader( const T& key );
+        EQ_EXPORT CompressorDataGPU* obtainEqUploader( const T& key );
+        EQ_EXPORT void   deleteEqUploader( const T& key );
 
         EQ_EXPORT bool     supportsEqTexture() const;
         EQ_EXPORT Texture* getEqTexture( const T& key ) const;
@@ -137,6 +143,7 @@ namespace util
         typedef stde::hash_map< T, FrameBufferObject* > FBOHash;
         typedef stde::hash_map< T, util::BitmapFont< T >* > FontHash;
         typedef stde::hash_map< T, Accum* > AccumHash;
+        typedef stde::hash_map< T, CompressorDataGPU* > UploaderHash;
 
         struct SharedData : public base::Referenced
         {
@@ -147,10 +154,12 @@ namespace util
             ObjectHash buffers;
             ObjectHash programs;
             ObjectHash shaders;
+            ObjectHash uploaderDatas;
             AccumHash accums;
             TextureHash eqTextures;
             FBOHash eqFrameBufferObjects;
             FontHash eqFonts;
+            UploaderHash eqUploaders;
 
             union // placeholder for binary-compatible changes
             {
