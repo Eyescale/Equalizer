@@ -25,7 +25,8 @@
 #include "compressorRLEU.h"
 #include "compressorRLE565.h"
 #include "compressorRLE10A2.h"
-
+#include "compressorYUV.h"
+#include "compressor1To1.h"
 namespace eq
 {
 namespace plugin
@@ -43,6 +44,12 @@ namespace
         eq::plugin::CompressorDiffRLE565::getFunctions(),
         eq::plugin::CompressorRLEB::getFunctions(),
         eq::plugin::CompressorDiffRLE10A2::getFunctions(),
+        eq::plugin::Compressor1TO1Color8::getFunctions(),
+        eq::plugin::Compressor1TO1Color32F::getFunctions(),
+        eq::plugin::Compressor1TO1Color16F::getFunctions(),
+        eq::plugin::Compressor1TO1Color10A2::getFunctions(),
+        eq::plugin::Compressor1TO1Depth8::getFunctions(),
+        eq::plugin::CompressorYUVColor8::getFunctions(),
 #if 0
         eq::plugin::CompressorRLE3B::getFunctions(),
         eq::plugin::CompressorRLE4F::getFunctions(),
@@ -174,3 +181,49 @@ void EqCompressorDecompress( void* const decompressor, const unsigned name,
         eq::plugin::_findFunctions( name );
     functions.decompress( in, inSizes, nInputs, out, nPixels, useAlpha );
 }
+
+bool EqCompressorIsCompatible( const unsigned     name,
+                               GLEWContext*       glewContext )
+{
+    eq::plugin::Compressor::Functions& functions = 
+        eq::plugin::_findFunctions( name );
+    
+    if ( functions.isCompatible == 0 )
+    {
+        assert( false );
+        return false;
+    }
+
+    return functions.isCompatible( glewContext );
+}
+
+void EqCompressorDownload( void* const        ptr,
+                           const unsigned     name,
+                           GLEWContext*       glewContext,
+                           const eq_uint64_t  inDims[4],
+                           const unsigned     source,
+                           const eq_uint64_t  flags,
+                           eq_uint64_t        outDims[4],
+                           void**             out )
+{
+    eq::plugin::Compressor* compressor = 
+        reinterpret_cast< eq::plugin::Compressor* >( ptr );
+    compressor->download( glewContext, inDims, source, flags, outDims, out );
+}
+
+
+void EqCompressorUpload( void* const        ptr,
+                         const unsigned     name,
+                         GLEWContext*       glewContext, 
+                         const void*        buffer,
+                         const eq_uint64_t  inDims[4],
+                         const eq_uint64_t  flags,
+                         const eq_uint64_t  outDims[4],  
+                         const unsigned     destination )
+{
+    eq::plugin::Compressor* compressor = 
+        reinterpret_cast< eq::plugin::Compressor* >( ptr );
+    compressor->upload( glewContext, buffer, inDims,
+                      flags, outDims, destination );
+}
+

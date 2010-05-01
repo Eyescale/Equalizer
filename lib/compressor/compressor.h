@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2009 - 2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *               2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -45,17 +45,36 @@ namespace plugin
                                       eq_uint64_t* const,
                                       const unsigned, void* const, 
                                       const eq_uint64_t, const bool );
-
+        typedef bool ( *IsCompatible_t ) ( GLEWContext* );
+        typedef void ( *Download_t )( GLEWContext*, const eq_uint64_t*,
+                                      const unsigned, const eq_uint64_t,
+                                      eq_uint64_t*, void** );
+        typedef void ( *Upload_t )( GLEWContext*, const void*,
+                                    const eq_uint64_t*,
+                                    const eq_uint64_t, const eq_uint64_t*,
+                                    const unsigned );
         struct Functions
         {
             Functions();
             
-            unsigned                 name;
-            CompressorGetInfo_t      getInfo;
-            NewCompressor_t          newCompressor;
-            Decompress_t             decompress;
+            unsigned             name;
+            CompressorGetInfo_t  getInfo;
+            NewCompressor_t      newCompressor;
+            Decompress_t         decompress;
+            IsCompatible_t       isCompatible;
+            Download_t           download;
+            Upload_t             upload;
         };
     
+        enum BufferType
+        {
+            BUFFER_NONE      = EQ_BIT_NONE,
+            BUFFER_UNDEFINED = EQ_BIT1,  //!< Inherit, only if no others are set
+            BUFFER_COLOR     = EQ_BIT5,  //!< Use color images
+            BUFFER_DEPTH     = EQ_BIT9,  //!< Use depth images
+            BUFFER_ALL       = EQ_BIT_ALL
+        };
+
         /**
          * Construct a new compressor.
          */
@@ -72,7 +91,7 @@ namespace plugin
          */
         virtual void compress( const void* const inData,
                                const eq_uint64_t nPixels, 
-                               const bool useAlpha ) = 0;
+                               const bool useAlpha ) { EQDONTCALL; };
 
 
         typedef eq::base::Bufferb Result;
@@ -83,6 +102,46 @@ namespace plugin
 
         /** @return the number of result items produced. */
         unsigned getNResults() const { return _nResults; }
+
+        /**
+         * Transfer frame buffer data into main memory.
+         * 
+         * @param compressor the compressor instance.
+         * @param name the type name of the compressor.
+         * @param glewContext the initialized GLEW context describing
+         *                    corresponding to the current OpenGL context.
+         * @param inDims the dimensions of the input data (x, w, y, h).
+         * @param source texture name to process.
+         * @param flags capability flags for the compression (see description).
+         * @param outDims the dimensions of the output data (see description).
+         * @param out the pointer to the output data.
+         */        
+        virtual void download( GLEWContext*       glewContext,
+                               const eq_uint64_t  inDims[4],
+                               const unsigned     source,
+                               const eq_uint64_t  flags,
+                               eq_uint64_t        outDims[4],
+                               void**             out ){ EQDONTCALL; }
+
+        /**
+         * Transfer data from main memory into GPU memory.
+         *
+         * @param compressor the compressor instance.
+         * @param name the type name of the compressor.
+         * @param glewContext the initialized GLEW context describing
+         *                    corresponding to the current OpenGL context.
+         * @param buffer the datas input.
+         * @param inDims the dimension of data in the frame buffer.
+         * @param flags capability flags for the compression.
+         * @param outDims the result data size
+         * @param destination the destination texture name.
+         */
+        virtual void upload( GLEWContext*       glewContext, 
+                             const void*        buffer,
+                             const eq_uint64_t  inDims[4],
+                             const eq_uint64_t  flags,
+                             const eq_uint64_t  outDims[4],  
+                             const unsigned     destination ) { EQDONTCALL; }
 
     protected: 
         ResultVector _results;  //!< The compressed data

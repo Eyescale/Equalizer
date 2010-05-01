@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *               2009, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -58,10 +58,27 @@ bool Compressor::init( const std::string& libraryName )
     newDecompressor = ( NewDecompressor_t )
         ( _dso.getFunctionPointer( "EqCompressorNewDecompressor" ));
 
+    isCompatible = ( IsCompatible_t )
+        ( _dso.getFunctionPointer( "EqCompressorIsCompatible" ));
+    
+    download = ( Download_t )
+        ( _dso.getFunctionPointer( "EqCompressorDownload" ));
+    
+    upload = ( Upload_t )
+        ( _dso.getFunctionPointer( "EqCompressorUpload" ));
+    
+    bool find = newDecompressor && newCompressor && deleteCompressor && 
+                deleteDecompressor && getResult && getNumResults && 
+                decompress && compress && getInfo && getNumCompressors;
 
-    if (!( newDecompressor && newCompressor && deleteCompressor && 
-          deleteDecompressor && getResult && getNumResults && 
-          decompress && compress && getInfo && getNumCompressors ))
+    if ( newDecompressor && newCompressor && deleteCompressor && 
+         deleteDecompressor && isCompatible && download && 
+         upload )
+    {
+        find = true;
+    }
+    
+    if ( !find )
     {
         EQWARN << "Initializing compression DSO " << libraryName 
                << " failed, at least one entry point missing" << std::endl;

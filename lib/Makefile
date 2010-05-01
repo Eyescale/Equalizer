@@ -303,6 +303,8 @@ CXXFILES = \
 	util/objectManager.cpp \
 	util/texture.cpp \
 	compressor/compressor.cpp \
+	compressor/compressor1To1.cpp \
+	compressor/compressorYUV.cpp \
 	compressor/compressorRLEB.cpp \
 	compressor/compressorRLE4B.cpp \
 	compressor/compressorRLE4BU.cpp \
@@ -312,8 +314,9 @@ CXXFILES = \
 
 SHADERS = \
 	client/roiFragmentShader_glsl.h \
-	client/roiFragmentShaderRGB_glsl.h
-
+	client/roiFragmentShaderRGB_glsl.h \
+	compressor/yuv420readback_glsl.h \
+	compressor/yuv420unpack_glsl.h
 
 CFILES += \
 	glew/glew.c
