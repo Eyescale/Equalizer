@@ -179,7 +179,7 @@ void Texture::_grow( const int32_t width, const int32_t height )
     }
 }
 
-void Texture::copyFromFrameBuffer( const eq_uint64_t  inDims[4] )
+void Texture::copyFromFrameBuffer( const uint64_t inDims[4] )
 {
     _copyFromFrameBuffer( inDims[0], inDims[1], inDims[2], inDims[3] );
 }

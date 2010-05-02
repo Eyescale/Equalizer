@@ -1046,8 +1046,10 @@ template class eq::fabric::Config< eq::server::Server, eq::server::Config,
                                    eq::server::Canvas, eq::server::Node,
                                    eq::server::ConfigVisitor >;
 
+/** @cond IGNORE */
 template std::ostream& eq::fabric::operator << ( std::ostream&,
                                                  const eq::server::Super& );
+/** @endcond */
 
 #define FIND_ID_TEMPLATE1( type )                                       \
     template void eq::server::Super::find< type >( const uint32_t, type** );
