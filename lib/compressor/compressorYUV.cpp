@@ -15,7 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "compressorYuv.h"
+#include "compressorYUV.h"
 #include <eq/util/frameBufferObject.h>
 
 #include <GL/glew.h>
