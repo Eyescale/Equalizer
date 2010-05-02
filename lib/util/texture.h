@@ -106,7 +106,7 @@ namespace util
          * Copy the specified area from the current read buffer to the
          * texture at 0,0.
          */
-        EQ_EXPORT void copyFromFrameBuffer( const uint64_t inDims[4] );
+        EQ_EXPORT void copyFromFrameBuffer( const uint64_t  inDims[4] );
 
         /** Copy the specified image buffer to the texture at 0,0. */
         EQ_EXPORT void upload( const Image* image, const Frame::Buffer which );

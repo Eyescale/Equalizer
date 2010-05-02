@@ -99,9 +99,9 @@ void CompressorYUV::_init( GLEWContext* glewContext,
 }
 
 
-void CompressorYUV::_compress( GLEWContext*      glewContext,
-                               const eq_uint64_t inDims[4],
-                               eq_uint64_t       outDims[4] )
+void CompressorYUV::_compress( GLEWContext*   glewContext,
+                               const uint64_t inDims[4],
+                               uint64_t       outDims[4] )
 {
 
     if ( _fbo )
@@ -153,12 +153,12 @@ void CompressorYUV::_download( void* datas )
                                           GL_UNSIGNED_BYTE );
 }
 
-void CompressorYUV::download( GLEWContext*       glewContext,
-                              const eq_uint64_t  inDims[4],
-                              const unsigned     source,
-                              const eq_uint64_t  flags,
-                              eq_uint64_t        outDims[4],
-                              void**             out )
+void CompressorYUV::download( GLEWContext*    glewContext,
+                              const uint64_t  inDims[4],
+                              const unsigned  source,
+                              const uint64_t  flags,
+                              uint64_t        outDims[4],
+                              void**          out )
 {
     outDims[0] = inDims[0];
     outDims[1] = (inDims[1] + 1) / 2;
@@ -205,9 +205,9 @@ void CompressorYUV::download( GLEWContext*       glewContext,
     out[0] = buffer.getData();
 }
 
-void CompressorYUV::_uncompress( GLEWContext* glewContext,
-                                 const eq_uint64_t  inDims[4],
-                                 const eq_uint64_t  outDims[4] )
+void CompressorYUV::_uncompress( GLEWContext*   glewContext,
+                                 const uint64_t inDims[4],
+                                 const uint64_t outDims[4] )
 {
     glDepthMask( false );
     _init( glewContext, yuv420unpack_glsl.c_str() );
@@ -258,12 +258,12 @@ void CompressorYUV::_uncompress( GLEWContext* glewContext,
     glDepthMask( true );
 }
 
-void CompressorYUV::upload( GLEWContext*       glewContext, 
-                            const void*        datas,
-                            const eq_uint64_t  inDims[4],
-                            const eq_uint64_t  flags,
-                            const eq_uint64_t  outDims[4],  
-                            const unsigned     destination )
+void CompressorYUV::upload( GLEWContext*    glewContext, 
+                            const void*     datas,
+                            const uint64_t  inDims[4],
+                            const uint64_t  flags,
+                            const uint64_t  outDims[4],  
+                            const unsigned  destination )
 {
 
     if ( !_texture )

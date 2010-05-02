@@ -38,35 +38,35 @@ public:
     static void* getNewCompressor( ){ return new eq::plugin::CompressorYUV; }
 
     virtual void compress( const void* const inData, 
-                           const eq_uint64_t nPixels, 
-                           const bool useAlpha )
+                           const uint64_t    nPixels, 
+                           const bool        useAlpha )
         { EQDONTCALL; }
 
     static bool isCompatible( const GLEWContext* glewContext );
     
-    virtual void download( GLEWContext*       glewContext,
-                           const eq_uint64_t  inDims[4],
-                           const unsigned     source,
-                           const eq_uint64_t  flags,
-                           eq_uint64_t        outDims[4],
-                           void**             out );
+    virtual void download( GLEWContext*    glewContext,
+                           const uint64_t  inDims[4],
+                           const unsigned  source,
+                           const uint64_t  flags,
+                           uint64_t        outDims[4],
+                           void**          out );
 
-    virtual void upload( GLEWContext*       glewContext, 
-                         const void*        datas,
-                         const eq_uint64_t  inDims[4],
-                         const eq_uint64_t  flags,
-                         const eq_uint64_t  outDims[4],  
-                         const unsigned     destination );
+    virtual void upload( GLEWContext*    glewContext, 
+                         const void*     datas,
+                         const uint64_t  inDims[4],
+                         const uint64_t  flags,
+                         const uint64_t  outDims[4],  
+                         const unsigned  destination );
 private:
     void _init( GLEWContext* glewContext, const char* fShaderPtr );
-    void _compress( GLEWContext* glewContext,
-                    const eq_uint64_t  inDims[4],
-                    eq_uint64_t  outDims[4] );
+    void _compress( GLEWContext*   glewContext,
+                    const uint64_t inDims[4],
+                    uint64_t       outDims[4] );
     void _download( void* datas );
 
     void _uncompress( GLEWContext* glewContext,
-                      const eq_uint64_t  inDims[4],
-                      const eq_uint64_t  outDims[4]);
+                      const uint64_t  inDims[4],
+                      const uint64_t  outDims[4]);
     
     util::FrameBufferObject* _fbo;
     util::Texture* _texture;

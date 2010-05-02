@@ -23,7 +23,7 @@
 
 #include <eq/base/base.h>
 #include <eq/base/buffer.h>
-
+#include <typeinfo>
 #include <vector>
 
 /**

@@ -54,7 +54,7 @@ namespace util
          */
         void getResult( const unsigned i, 
                         void** const out, 
-                        eq_uint64_t* const outSize );
+                        uint64_t* const outSize );
 
         /**
          * decompress Data
@@ -68,11 +68,11 @@ namespace util
          * @param flags capability flags for the decompression.
          */
         void decompress( const void* const* in, 
-                         const eq_uint64_t* const inSizes,
+                         const uint64_t* const inSizes,
                          const unsigned numInputs,
                          void* const out,
                          fabric::PixelViewport& pvpOut,
-                         const eq_uint64_t flags );
+                         const uint64_t flags );
 
         bool initCompressor( uint32_t name )
         { 

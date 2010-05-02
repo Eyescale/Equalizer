@@ -38,18 +38,18 @@ unsigned CompressorDataCPU::getNumResults( )
 }
 
 void CompressorDataCPU::getResult( const unsigned i, 
-                                void** const out, 
-                                eq_uint64_t* const outSize )
+                                   void** const out, 
+                                   uint64_t* const outSize )
 {
     return _plugin->getResult( _instance, _name, i, out, outSize ); 
 }
 
 void CompressorDataCPU::decompress( const void* const* in, 
-                                 const eq_uint64_t* const inSizes,
-                                 const unsigned numInputs,
-                                 void* const out,
-                                 fabric::PixelViewport& pvpOut,
-                                 const eq_uint64_t flags )
+                                    const uint64_t* const inSizes,
+                                    const unsigned numInputs,
+                                    void* const out,
+                                    fabric::PixelViewport& pvpOut,
+                                    const uint64_t flags )
 { 
     uint64_t outDim[4] = { pvpOut.x, pvpOut.w, pvpOut.y, pvpOut.h };
     _plugin->decompress( _instance, _name, in, inSizes,
