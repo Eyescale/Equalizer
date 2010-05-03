@@ -27,7 +27,6 @@ namespace eq
 namespace plugin
 {
 
-/** Construct a new compressor Yuv */
 Compressor1TO1::Compressor1TO1( uint32_t format, uint32_t type, 
                                 uint32_t depth ) 
         : Compressor()
@@ -42,7 +41,6 @@ bool Compressor1TO1::isCompatible( const GLEWContext* glewContext )
     return ( GL_VERSION_1_2 );
 }
 
-/** Destruct the compressor Yuv */
 Compressor1TO1::~Compressor1TO1( )
 { 
     delete _texture;

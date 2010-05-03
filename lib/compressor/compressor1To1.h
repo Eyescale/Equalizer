@@ -59,10 +59,10 @@ public:
                  const unsigned     destination );
 protected:
     eq::base::Bufferb _buffer;
-    util::Texture* _texture;
-    uint32_t _format;         //!< the GL format
-    uint32_t _type;           //!< the GL type 
-    uint32_t _depth;          //!< the GL type 
+    util::Texture*    _texture;
+    uint32_t          _format;         //!< the GL format
+    uint32_t          _type;           //!< the GL type 
+    uint32_t          _depth;          //!< the GL type 
 
     void _init( const uint64_t  inDims[4],
                       uint64_t  outDims[4] );
@@ -72,7 +72,8 @@ class Compressor1TO1Color8 : public Compressor1TO1
 {
 public:
     Compressor1TO1Color8(): Compressor1TO1( GL_RGBA, GL_UNSIGNED_BYTE, 4 ){}
-    static void* getNewCompressor( ){ return new eq::plugin::Compressor1TO1Color8; }
+    static void* getNewCompressor( ){ 
+                                  return new eq::plugin::Compressor1TO1Color8; }
     
     static void getInfo( EqCompressorInfo* const info )
     {

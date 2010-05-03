@@ -66,9 +66,7 @@ namespace plugin
             Upload_t             upload;
         };
 
-        /**
-         * Construct a new compressor.
-         */
+        /** Construct a new compressor. */
         Compressor();
 
         virtual ~Compressor();
@@ -97,8 +95,6 @@ namespace plugin
         /**
          * Transfer frame buffer data into main memory.
          * 
-         * @param compressor the compressor instance.
-         * @param name the type name of the compressor.
          * @param glewContext the initialized GLEW context describing
          *                    corresponding to the current OpenGL context.
          * @param inDims the dimensions of the input data (x, w, y, h).
@@ -117,8 +113,6 @@ namespace plugin
         /**
          * Transfer data from main memory into GPU memory.
          *
-         * @param compressor the compressor instance.
-         * @param name the type name of the compressor.
          * @param glewContext the initialized GLEW context describing
          *                    corresponding to the current OpenGL context.
          * @param buffer the datas input.

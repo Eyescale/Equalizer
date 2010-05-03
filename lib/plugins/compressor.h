@@ -199,8 +199,10 @@ extern "C"
     #define EQ_COMPRESSOR_DATATYPE_3_HALF_FLOAT 1026
     /** Data is processed in four interleaved streams of float16 tokens. */
     #define EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT 1027
-    /** Data is processed in four interleaved streams of BGRA color of float16 tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_BGRA_HALF  EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT
+    /** Data is processed in four interleaved streams of 
+      * BGRA color of float16 tokens. 
+      */
+    #define EQ_COMPRESSOR_DATATYPE_BGRA_HALF EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT
     /** Data is processed in four interleaved streams of float32 tokens. */
     #define EQ_COMPRESSOR_DATATYPE_3_FLOAT      1028
     /** Data is processed in four interleaved streams of float32 tokens. */
@@ -209,10 +211,13 @@ extern "C"
     #define EQ_COMPRESSOR_DATATYPE_BGRA_FLOAT EQ_COMPRESSOR_DATATYPE_4_FLOAT  
     /**Data is processed in two interleaved streams, one 24 bit and one 8 bit.*/
     #define EQ_COMPRESSOR_DATATYPE_3BYTE_1BYTE  2048
-    /** Data is processed in four interleaved streams of BGRA color of 10A2 tokens. */
+    /** Data is processed in four interleaved streams of 
+      * BGRA color of 10A2 tokens. 
+      */
     #define EQ_COMPRESSOR_DATATYPE_BGRA_10A2 EQ_COMPRESSOR_DATATYPE_3BYTE_1BYTE
     /** Data is processed in four interleaved streams of YUV components. 
-        Special image format with reduced color components. */
+      * Special image format with reduced color components. 
+      */
     #define EQ_COMPRESSOR_DATATYPE_YUV_50P     2049
 
     /**

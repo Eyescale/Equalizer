@@ -29,7 +29,6 @@ ConfigParams::ConfigParams()
 {
 }
 
-
 void ConfigParams::setRenderClient( const std::string& renderClient )
 {
     _renderClient = renderClient;
