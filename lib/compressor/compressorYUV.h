@@ -32,7 +32,7 @@ namespace plugin
 class CompressorYUV : public Compressor
 {
 public:
-    CompressorYUV( uint32_t format, uint32_t type, uint32_t _depth );
+    CompressorYUV( uint32_t format, uint32_t type, uint32_t depth );
     virtual ~CompressorYUV();
 
     virtual void compress( const void* const inData, 
@@ -73,7 +73,7 @@ protected:
     uint32_t _format;         //!< the GL format
     uint32_t _type;           //!< the GL type 
     uint32_t _depth;          //!< the GL type
-    GLuint _program;
+    GLuint   _program;
     eq::base::Bufferb buffer;
 
 };
