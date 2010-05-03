@@ -19,6 +19,7 @@
 #define EQ_PLUGIN_COMPRESSOR1TO1
 #include "compressor.h"
 #include <eq/base/buffer.h>
+#include <GL/glew.h>
 namespace eq
 {
 
@@ -33,7 +34,7 @@ namespace plugin
 class Compressor1TO1 : public Compressor
 {
 public:
-    Compressor1TO1();
+    Compressor1TO1( uint32_t format, uint32_t type, uint32_t _depth );
     virtual ~Compressor1TO1();
 
     virtual void compress( const void* const inData, 
@@ -44,17 +45,17 @@ public:
     static bool isCompatible( const GLEWContext* glewContext );
     
     void download( GLEWContext*       glewContext,
-                   const eq_uint64_t  inDims[4],
+                   const uint64_t     inDims[4],
                    const unsigned     source,
-                   const eq_uint64_t  flags,
-                   eq_uint64_t        outDims[4],
+                   const uint64_t     flags,
+                   uint64_t           outDims[4],
                    void**             out );
 
     void upload( GLEWContext*       glewContext, 
                  const void*        buffer,
-                 const eq_uint64_t  inDims[4],
-                 const eq_uint64_t  flags,
-                 const eq_uint64_t  outDims[4],  
+                 const uint64_t     inDims[4],
+                 const uint64_t     flags,
+                 const uint64_t     outDims[4],  
                  const unsigned     destination );
 protected:
     eq::base::Bufferb _buffer;
@@ -62,16 +63,15 @@ protected:
     uint32_t _format;         //!< the GL format
     uint32_t _type;           //!< the GL type 
     uint32_t _depth;          //!< the GL type 
-    BufferType _bufferType;
 
-    void _init( const eq_uint64_t  inDims[4],
-                eq_uint64_t        outDims[4] );
+    void _init( const uint64_t  inDims[4],
+                      uint64_t  outDims[4] );
 };
 
 class Compressor1TO1Color8 : public Compressor1TO1
 {
 public:
-    Compressor1TO1Color8();
+    Compressor1TO1Color8(): Compressor1TO1( GL_RGBA, GL_UNSIGNED_BYTE, 4 ){}
     static void* getNewCompressor( ){ return new eq::plugin::Compressor1TO1Color8; }
     
     static void getInfo( EqCompressorInfo* const info )
@@ -79,7 +79,8 @@ public:
         info->version      = EQ_COMPRESSOR_VERSION;
         info->name         = EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_8;
         info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
-                             EQ_COMPRESSOR_IGNORE_MSE | EQ_COMPRESSOR_USE_TEXTURE |
+                             EQ_COMPRESSOR_IGNORE_MSE | 
+                             EQ_COMPRESSOR_USE_TEXTURE |
                              EQ_COMPRESSOR_USE_FRAMEBUFFER;
         info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGRA_BYTE;
 
@@ -112,15 +113,17 @@ public:
 class Compressor1TO1Color32F : public Compressor1TO1
 {
 public:
-    Compressor1TO1Color32F();
-    static void* getNewCompressor( ){ return new eq::plugin::Compressor1TO1Color32F; }
+    Compressor1TO1Color32F(): Compressor1TO1( GL_RGBA, GL_FLOAT,16 ){}
+    static void* getNewCompressor( )
+                              { return new eq::plugin::Compressor1TO1Color32F; }
     
     static void getInfo( EqCompressorInfo* const info )
     {
         info->version      = EQ_COMPRESSOR_VERSION;
         info->name         = EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_32F;
         info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
-                             EQ_COMPRESSOR_IGNORE_MSE | EQ_COMPRESSOR_USE_TEXTURE |
+                             EQ_COMPRESSOR_IGNORE_MSE | 
+                             EQ_COMPRESSOR_USE_TEXTURE |
                              EQ_COMPRESSOR_USE_FRAMEBUFFER;
         info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGRA_FLOAT;
 
@@ -155,15 +158,17 @@ public:
 class Compressor1TO1Color16F : public Compressor1TO1
 {
 public:
-    Compressor1TO1Color16F();
-    static void* getNewCompressor( ){ return new eq::plugin::Compressor1TO1Color16F; }
+    Compressor1TO1Color16F(): Compressor1TO1( GL_RGBA, GL_HALF_FLOAT, 8 ){}
+    static void* getNewCompressor( )
+                              { return new eq::plugin::Compressor1TO1Color16F; }
     
     static void getInfo( EqCompressorInfo* const info )
     {
         info->version      = EQ_COMPRESSOR_VERSION;
         info->name         = EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_16F;
         info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
-                             EQ_COMPRESSOR_IGNORE_MSE | EQ_COMPRESSOR_USE_TEXTURE |
+                             EQ_COMPRESSOR_IGNORE_MSE | 
+                             EQ_COMPRESSOR_USE_TEXTURE |
                              EQ_COMPRESSOR_USE_FRAMEBUFFER;
         info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGRA_HALF;
 
@@ -197,15 +202,18 @@ public:
 class Compressor1TO1Color10A2 : public Compressor1TO1
 {
 public:
-    Compressor1TO1Color10A2();
-    static void* getNewCompressor( ){ return new eq::plugin::Compressor1TO1Color10A2; }
+    Compressor1TO1Color10A2(): Compressor1TO1( GL_RGBA, 
+                                               GL_UNSIGNED_INT_10_10_10_2, 4 ){}
+    static void* getNewCompressor( )
+                             { return new eq::plugin::Compressor1TO1Color10A2; }
     
     static void getInfo( EqCompressorInfo* const info )
     {
         info->version      = EQ_COMPRESSOR_VERSION;
         info->name         = EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_10A2;
         info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
-                             EQ_COMPRESSOR_IGNORE_MSE | EQ_COMPRESSOR_USE_TEXTURE |
+                             EQ_COMPRESSOR_IGNORE_MSE | 
+                             EQ_COMPRESSOR_USE_TEXTURE |
                              EQ_COMPRESSOR_USE_FRAMEBUFFER;
         info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGRA_10A2;
 
@@ -239,15 +247,17 @@ public:
 class Compressor1TO1Depth8 : public Compressor1TO1
 {
 public:
-    Compressor1TO1Depth8();
-    static void* getNewCompressor( ){ return new eq::plugin::Compressor1TO1Depth8; }
+    Compressor1TO1Depth8(): Compressor1TO1( GL_RGBA, GL_UNSIGNED_INT, 4 ){}
+    static void* getNewCompressor( )
+                                { return new eq::plugin::Compressor1TO1Depth8; }
     
     static void getInfo( EqCompressorInfo* const info )
     {
         info->version      = EQ_COMPRESSOR_VERSION;
         info->name         = EQ_COMPRESSOR_TRANSFER_1TO1_DEPTH_8;
         info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
-                             EQ_COMPRESSOR_IGNORE_MSE | EQ_COMPRESSOR_USE_TEXTURE |
+                             EQ_COMPRESSOR_IGNORE_MSE | 
+                             EQ_COMPRESSOR_USE_TEXTURE |
                              EQ_COMPRESSOR_USE_FRAMEBUFFER;
         info->tokenType    = EQ_COMPRESSOR_DATATYPE_UNSIGNED;
 
@@ -265,7 +275,7 @@ public:
         functions.name            = EQ_COMPRESSOR_TRANSFER_1TO1_DEPTH_8;
         functions.newCompressor   = getNewCompressor;      
         functions.getInfo         = getInfo;
-        functions.isCompatible = (IsCompatible_t)Compressor1TO1::isCompatible;
+        functions.isCompatible   = (IsCompatible_t)Compressor1TO1::isCompatible;
         return functions;
     }
 

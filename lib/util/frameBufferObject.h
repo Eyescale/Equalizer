@@ -122,7 +122,7 @@ namespace util
         /**
          * @return true if the fbo is valid.
          */
-        const GLuint isValid() const { return _valid; }
+        const bool isValid() const { return _valid; }
 
     private:
         GLuint _fboID;

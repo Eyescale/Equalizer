@@ -375,7 +375,7 @@ typedef struct tagTHREADNAME_INFO
 
 void Thread::setDebugName( const std::string& name )
 {
-#ifdef WIN32
+#ifdef _MSC_VER
 #  ifndef NDEBUG
     ::Sleep(10);
 

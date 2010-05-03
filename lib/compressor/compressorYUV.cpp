@@ -31,18 +31,13 @@ namespace plugin
 {
 
 /** Construct a new compressor Yuv */
-CompressorYUV::CompressorYUV( )
-        : _fbo( 0 )
+CompressorYUV::CompressorYUV( uint32_t format, uint32_t type, uint32_t _depth )
+        : Compressor()
+        , _fbo( 0 )
         , _texture( 0 )
         , _program( 0 )
 { }
 
-CompressorYUVColor8::CompressorYUVColor8( )
-{
-    _format = GL_RGBA;
-    _type   = GL_UNSIGNED_BYTE;
-    _depth  = 4;
-}
 /** Destruct the compressor Yuv */
 CompressorYUV::~CompressorYUV( )
 {
@@ -54,7 +49,6 @@ CompressorYUV::~CompressorYUV( )
     if ( _texture )
         delete _texture;
     _texture = 0;
-
 }
 
 bool CompressorYUV::isCompatible( const GLEWContext* glewContext )
@@ -172,8 +166,7 @@ void CompressorYUV::download( GLEWContext*    glewContext,
         _texture->setInternalFormat( _format );   
     }
     // the data location are in the frame buffer
-    if( ( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER ) == 
-             EQ_COMPRESSOR_USE_FRAMEBUFFER )
+    if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
         // read data in frame Buffer
         // compress data 
@@ -184,14 +177,13 @@ void CompressorYUV::download( GLEWContext*    glewContext,
     }
     // the data location are in the texture id define by
     // the field source
-    else if( ( flags & EQ_COMPRESSOR_USE_TEXTURE ) == 
-             EQ_COMPRESSOR_USE_TEXTURE )
+    else if( flags & EQ_COMPRESSOR_USE_TEXTURE )
     {
         // assign texture id to the local texture class
         // compress Data
         // allow buffer memory on cpu
         // transfer data from gpu to cpu
-        _texture->setGLData( source, outDims[1], outDims[3] );
+        _texture->setGLData( source, inDims[1], inDims[3] );
         _compress( glewContext, inDims, outDims );
         buffer.resize( outDims[1] * outDims[3] * 4 );
         _download( buffer.getData() );
@@ -246,7 +238,8 @@ void CompressorYUV::_uncompress( GLEWContext*   glewContext,
         glTexCoord2f( static_cast< float >( inDims[1] ), 0.0f );
         glVertex3f( endX, startY, 0.0f );
 
-        glTexCoord2f( static_cast<float>( inDims[1] ), static_cast<float>( inDims[3] ));
+        glTexCoord2f( static_cast<float>( inDims[1] ), 
+                      static_cast<float>( inDims[3] ));
         glVertex3f( endX, endY, 0.0f );
         
         glTexCoord2f( 0.0f, static_cast< float >( inDims[3] ));
@@ -272,15 +265,12 @@ void CompressorYUV::upload( GLEWContext*    glewContext,
         _texture->setInternalFormat( _format );   
     }
     
-    if ( (flags & EQ_COMPRESSOR_USE_FRAMEBUFFER) == 
-         EQ_COMPRESSOR_USE_FRAMEBUFFER )
+    if ( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {    
-        
         _texture->upload( inDims[1], inDims[3], const_cast<void*>( datas ) );
         _uncompress( glewContext, outDims, inDims );
     }
-    else if(( flags & EQ_COMPRESSOR_USE_TEXTURE ) == 
-              EQ_COMPRESSOR_USE_TEXTURE )
+    else if( flags & EQ_COMPRESSOR_USE_TEXTURE  )
     {
   
         if ( !_fbo )
@@ -299,8 +289,7 @@ void CompressorYUV::upload( GLEWContext*    glewContext,
         else
             _fbo->init( outDims[1], outDims[3], 0, 0 );
 
-
-        _texture->upload( inDims[1], inDims[3], const_cast<void*>( datas ) );
+        _texture->upload( inDims[1], inDims[3], datas );
         _uncompress( glewContext, outDims, inDims );
         _fbo->unbind();
         texture->flushNoDelete();

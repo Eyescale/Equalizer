@@ -68,6 +68,19 @@ namespace util
          * @sa setTarget(), setInternalFormat()
          */
         void setGLData( const GLuint id, const int width, const int height );
+        /** 
+         * Init an OpenGL texture.
+         *
+         * The previous GL texture, if any, is deallocated using flush(). The
+         * new texture has to be of the correct target, size and internal
+         * format. The texture is validated by this method.
+         *
+         * @param format The OpenGL texture internal format.
+         * @param width the width of the texture.
+         * @param height the height of the texture.
+         * @sa setTarget(), setInternalFormat()
+         */
+        void init( const GLuint format, const int width, const int height );
 
         /** Set the target of the texture. @version 1.0 */
         EQ_EXPORT void setTarget( const GLenum target );
@@ -112,7 +125,8 @@ namespace util
         EQ_EXPORT void upload( const Image* image, const Frame::Buffer which );
 
         /** Copy the specified buffer to the texture at 0,0. */
-        EQ_EXPORT void upload( const int width, const int height, void* ptr );
+        EQ_EXPORT void upload( const int width, 
+                               const int height, const void* ptr );
 
         /** Copy the texture data to the given memory address. */
         EQ_EXPORT void download( void* buffer, const uint32_t format, 
@@ -130,9 +144,6 @@ namespace util
         /** Create and bind a texture to the current FBO. */
         EQ_EXPORT void bindToFBO( const GLenum target, const int width,
                                   const int height );
-
-        /** Generate, if needed, a GL texture name. */
-        void generate();
         
         /** Resize the texture. */
         EQ_EXPORT void resize( const int width, const int height );
@@ -181,6 +192,9 @@ namespace util
             char dummy[32];
         };
 
+        /** Generate, if needed, a GL texture name. */
+        void _generate();
+        
         /** Set the size of the texture, updating the _defined flag. */
         void _grow( const int32_t width, const int32_t height );
 

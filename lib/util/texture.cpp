@@ -33,9 +33,7 @@ Texture::Texture( GLEWContext* const glewContext )
         , _width( 0 )
         , _height( 0 )
         , _defined( false ) 
-        , _glewContext( glewContext )
-{
-}
+        , _glewContext( glewContext ){}
 
 Texture::~Texture()
 {
@@ -127,7 +125,7 @@ void Texture::setInternalFormat( const GLuint format )
     }
 }
 
-void Texture::generate()
+void Texture::_generate()
 {
     CHECK_THREAD( _thread );
     if( _id != 0 )
@@ -147,10 +145,18 @@ void Texture::flushNoDelete()
     _defined = false;
 }
 
+void Texture::init( const GLuint format, const int width, const int height )
+{
+    setInternalFormat( format );
+    _generate();
+    resize( width, height );
+}
+
 void Texture::setGLData( const GLuint id, const int width, const int height )
 {
     _id = id;
-    resize( width, height );
+    _width = width;
+    _height = height;
 }
 
 namespace
@@ -196,7 +202,7 @@ void Texture::_copyFromFrameBuffer( uint32_t x, uint32_t w,
     CHECK_THREAD( _thread );
     EQASSERT( _internalFormat != 0 );
 
-    generate();
+    _generate();
     _grow( w, h );
 
     if( _defined )
@@ -224,9 +230,9 @@ void Texture::upload( const Image* image, const Frame::Buffer which )
     upload( pvp.w, pvp.h, ( void* )image->getPixelPointer( which ));
 }
 
-void Texture::upload( const int width, const int height, void* ptr )
+void Texture::upload( const int width, const int height, const void* ptr )
 {
-    generate();
+    _generate();
     _grow( width, height );
 
     if( _defined )
@@ -265,7 +271,7 @@ void Texture::bindToFBO( const GLenum target, const int width,
     EQASSERT( _internalFormat );
     EQASSERT( _glewContext );
 
-    generate();
+    _generate();
 
     glBindTexture( _target, _id );
     glTexImage2D( _target, 0, _internalFormat, width, height, 0,

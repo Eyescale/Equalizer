@@ -669,7 +669,7 @@ int WGLWindow::_chooseWGLPixelFormatARB( HDC pfDC )
     }
     else if ( colorSize == RGBA16F || colorSize == RGBA32F )
     {
-        const int colorBits = colorSize == RGBA16F ? 16 :  32;
+        const int colorBitsF = colorSize == RGBA16F ? 16 :  32;
 
         if ( !WGLEW_ARB_pixel_format_float )
         {
@@ -680,7 +680,7 @@ int WGLWindow::_chooseWGLPixelFormatARB( HDC pfDC )
         attributes.push_back( WGL_TYPE_RGBA_FLOAT_ARB );
 
         attributes.push_back( WGL_COLOR_BITS_ARB );
-        attributes.push_back( colorBits * 4);
+        attributes.push_back( colorBitsF * 4);
     }
 
     const int alphaSize = getIAttribute( Window::IATTR_PLANES_ALPHA );

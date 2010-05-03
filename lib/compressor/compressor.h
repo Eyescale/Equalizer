@@ -65,15 +65,6 @@ namespace plugin
             Download_t           download;
             Upload_t             upload;
         };
-    
-        enum BufferType
-        {
-            BUFFER_NONE      = EQ_BIT_NONE,
-            BUFFER_UNDEFINED = EQ_BIT1,  //!< Inherit, only if no others are set
-            BUFFER_COLOR     = EQ_BIT5,  //!< Use color images
-            BUFFER_DEPTH     = EQ_BIT9,  //!< Use depth images
-            BUFFER_ALL       = EQ_BIT_ALL
-        };
 
         /**
          * Construct a new compressor.

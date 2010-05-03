@@ -32,10 +32,8 @@ namespace plugin
 class CompressorYUV : public Compressor
 {
 public:
-    CompressorYUV();
+    CompressorYUV( uint32_t format, uint32_t type, uint32_t _depth );
     virtual ~CompressorYUV();
-
-    static void* getNewCompressor( ){ return new eq::plugin::CompressorYUV; }
 
     virtual void compress( const void* const inData, 
                            const uint64_t    nPixels, 
@@ -83,15 +81,19 @@ protected:
 class CompressorYUVColor8 : public CompressorYUV
 {
 public:
-    CompressorYUVColor8();
-    static void* getNewCompressor( ){ return new eq::plugin::CompressorYUVColor8; }
+    CompressorYUVColor8()
+        : CompressorYUV( GL_RGBA , GL_UNSIGNED_BYTE, 4 ){}
+
+    static void* getNewCompressor( ){ 
+                                   return new eq::plugin::CompressorYUVColor8; }
     
     static void getInfo( EqCompressorInfo* const info )
     {
         info->version      = EQ_COMPRESSOR_VERSION;
         info->name         = EQ_COMPRESSOR_TRANSFER_YUV_COLOR_8_50P;
         info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
-                             EQ_COMPRESSOR_IGNORE_MSE | EQ_COMPRESSOR_USE_FRAMEBUFFER;
+                             EQ_COMPRESSOR_IGNORE_MSE | 
+                             EQ_COMPRESSOR_USE_FRAMEBUFFER;
         info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGRA_BYTE;
 
         info->quality      = 0.5f;
