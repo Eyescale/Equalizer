@@ -9,6 +9,9 @@
 #ifndef GLX
 #  define GLX
 #endif
+#ifndef XCODE
+#  define XCODE
+#endif
 #if 0
 #  ifndef EQ_USE_BOOST
 #    define EQ_USE_BOOST

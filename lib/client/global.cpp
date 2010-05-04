@@ -18,17 +18,25 @@
 
 #include "global.h"
 #include "nodeFactory.h"
-
+#include <eq/base/base.h>
 #include <eq/base/lock.h>
 
 namespace eq
 {
 NodeFactory* Global::_nodeFactory = 0;
 
-#ifdef WIN32
-std::string Global::_configFile = "../examples/configs/4-window.all.eqc";
-#else
-std::string Global::_configFile = "examples/configs/4-window.all.eqc";
+#ifdef WIN32 
+   std::string Global::_configFile = "../examples/configs/4-window.all.eqc";
+#endif
+#ifdef __APPLE__
+#    ifdef XCODE
+        std::string Global::_configFile = "./../../../examples/configs/4-window.all.eqc";
+#    else // must be darwin
+        std::string Global::_configFile = "examples/configs/4-window.all.eqc";	
+#    endif
+#endif
+#ifdef Linux
+   std::string Global::_configFile = "examples/configs/4-window.all.eqc";	
 #endif
 
 #ifdef AGL
