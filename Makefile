@@ -32,7 +32,7 @@ examples: lib
 contrib: lib
 server: lib
 tools: server
-auxilary: admin
+auxilary: lib
 admin: lib
 
 postcompile: subdirs

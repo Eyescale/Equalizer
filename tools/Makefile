@@ -3,8 +3,9 @@ include $(TOP)/make/system.mk
 
 SUBDIRS = \
 	configTool \
+	eVolveConverter \
 	netproxy \
-	eVolveConverter
+	windowAdmin \
 
 TARGETS = subdirs
 
