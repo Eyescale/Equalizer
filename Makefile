@@ -9,6 +9,7 @@ SUBDIRS = \
 	externals \
 	lib \
 	server \
+	admin \
 	tools \
 	examples \
 	contrib \
@@ -31,7 +32,8 @@ examples: lib
 contrib: lib
 server: lib
 tools: server
-auxilary: lib
+auxilary: admin
+admin: lib
 
 postcompile: subdirs
 	@echo
