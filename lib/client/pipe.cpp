@@ -888,6 +888,6 @@ net::CommandResult Pipe::_cmdFrameDrawFinish( net::Command& command )
 
 }
 
-#include "../fabric/pipe.cpp"
+#include "../fabric/pipe.ipp"
 template class eq::fabric::Pipe< eq::Node, eq::Pipe, eq::Window,
                                  eq::PipeVisitor >;

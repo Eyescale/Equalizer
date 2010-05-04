@@ -559,6 +559,6 @@ net::CommandResult Node::_cmdFrameTasksFinish( net::Command& command )
 }
 
 
-#include "../fabric/node.cpp"
+#include "../fabric/node.ipp"
 template class eq::fabric::Node< eq::Config, eq::Node, eq::Pipe,
                                  eq::NodeVisitor >;

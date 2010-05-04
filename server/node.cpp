@@ -614,6 +614,6 @@ std::ostream& operator << ( std::ostream& os, const Node* node )
 }
 }
 
-#include "../lib/fabric/node.cpp"
+#include "../lib/fabric/node.ipp"
 template class eq::fabric::Node< eq::server::Config, eq::server::Node,
                                  eq::server::Pipe, eq::server::NodeVisitor >;

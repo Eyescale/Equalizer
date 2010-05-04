@@ -654,7 +654,7 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
 }
 }
 
-#include "../lib/fabric/window.cpp"
+#include "../lib/fabric/window.ipp"
 template class eq::fabric::Window< eq::server::Pipe, eq::server::Window, 
                                    eq::server::Channel >;
 

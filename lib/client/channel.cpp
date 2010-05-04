@@ -1235,6 +1235,6 @@ net::CommandResult Channel::_cmdFrameViewFinish( net::Command& command )
 
 }
 
-#include "../fabric/channel.cpp"
+#include "../fabric/channel.ipp"
 template class eq::fabric::Channel< eq::Window, eq::Channel >;
 

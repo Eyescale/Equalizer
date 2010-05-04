@@ -1,14 +1,8 @@
-Fix restarting a config
-- unmap, not detach mapped client entities
-- reset nodes correctly
-- reset master ID caches on deregister
-
-Move unmapping code from client to fabric 
-Add some more data to backup structures
+Rename remaining fabric template implementation files to .ipp
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

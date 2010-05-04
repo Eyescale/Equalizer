@@ -811,5 +811,5 @@ net::CommandResult Window::_cmdFrameDrawFinish( net::Command& command )
 
 }
 
-#include "../fabric/window.cpp"
+#include "../fabric/window.ipp"
 template class eq::fabric::Window< eq::Pipe, eq::Window, eq::Channel >;

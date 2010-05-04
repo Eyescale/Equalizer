@@ -586,6 +586,6 @@ std::ostream& operator << ( std::ostream& os, const Channel& channel)
 }
 }
 
-#include "../lib/fabric/channel.cpp"
+#include "../lib/fabric/channel.ipp"
 template class eq::fabric::Channel< eq::server::Window, eq::server::Channel >;
 

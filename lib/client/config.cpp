@@ -667,7 +667,7 @@ net::CommandResult Config::_cmdSyncClock( net::Command& command )
 
 }
 
-#include "../fabric/config.cpp"
+#include "../fabric/config.ipp"
 template class eq::fabric::Config< eq::Server, eq::Config, eq::Observer,
                                    eq::Layout, eq::Canvas, eq::Node,
                                    eq::ConfigVisitor >;

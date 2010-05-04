@@ -470,7 +470,7 @@ std::ostream& operator << ( std::ostream& os, const Pipe* pipe )
 }
 }
 
-#include "../lib/fabric/pipe.cpp"
+#include "../lib/fabric/pipe.ipp"
 template class eq::fabric::Pipe< eq::server::Node, eq::server::Pipe, 
                                  eq::server::Window, eq::server::PipeVisitor >;
 
