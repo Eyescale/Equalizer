@@ -71,10 +71,6 @@ namespace fabric
         {
             char dummy[32];
         };
-
-        /** Deregister this canvas, and all children, from its net::Session.*/
-        void _unmap();
-        friend class Config;
     };
 }
 #endif // EQ_CANVAS_H

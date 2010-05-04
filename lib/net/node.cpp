@@ -1484,7 +1484,7 @@ bool Node::dispatchCommand( Command& command )
             const SessionID& id = sessionPacket->sessionID;
             SessionHash::const_iterator i = _sessions->find( id );
             EQASSERTINFO( i != _sessions->end(),
-                          "Can't find session for " << sessionPacket );
+                          "Can't find session for " << command );
 
             Session* session = i->second;            
             return session->dispatchCommand( command );

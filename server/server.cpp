@@ -333,7 +333,6 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
     ServerReleaseConfigReplyPacket reply( packet );
     net::NodePtr node = command.getNode();
 
-
     Config* config = 0;
     const ConfigVector& configs = getConfigs();
     for( ConfigVector::const_iterator i = configs.begin();
@@ -365,6 +364,7 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
 
     ConfigRestoreVisitor restore;
     config->accept( restore );
+    EQINFO << "Released " << *config << std::endl;
 
     node->send( reply );
     EQLOG( base::LOG_ANY ) << "----- Released Config -----" << std::endl;

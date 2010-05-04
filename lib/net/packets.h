@@ -333,13 +333,26 @@ namespace net
     struct SessionSetIDMasterPacket : public SessionPacket
     {
         SessionSetIDMasterPacket()
+                : requestID( EQ_ID_INVALID )
             {
                 command   = CMD_SESSION_SET_ID_MASTER;
                 size      = sizeof( SessionSetIDMasterPacket ); 
-                requestID = EQ_ID_INVALID;
             }
 
         NodeID   masterID;
+        uint32_t identifier;
+        uint32_t requestID;
+    };
+
+    struct SessionUnsetIDMasterPacket : public SessionPacket
+    {
+        SessionUnsetIDMasterPacket()
+                : requestID( EQ_ID_INVALID )
+            {
+                command   = CMD_SESSION_UNSET_ID_MASTER;
+                size      = sizeof( SessionUnsetIDMasterPacket ); 
+            }
+
         uint32_t identifier;
         uint32_t requestID;
     };

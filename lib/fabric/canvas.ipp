@@ -143,6 +143,28 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
 }
 
 template< class CFG, class C, class S, class L >
+void Canvas< CFG, C, S, L >::_unmap()
+{
+    EQASSERT( !isMaster( ));
+
+    CFG* config = getConfig();
+    const SegmentVector& segments = getSegments();
+
+    while( !segments.empty( ))
+    {
+        S* segment = _segments.back();
+        EQASSERT( segment->getID() != EQ_ID_INVALID );
+        EQASSERT( !segment->isMaster( ));
+
+        config->unmapObject( segment );
+        _removeSegment( segment );
+        config->getServer()->getNodeFactory()->releaseSegment( segment );
+    }
+
+    config->unmapObject( this );
+}
+
+template< class CFG, class C, class S, class L >
 void Canvas< CFG, C, S, L >::_addSegment( S* segment )
 {
     EQASSERT( segment );

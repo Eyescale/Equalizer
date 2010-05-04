@@ -41,6 +41,7 @@ namespace fabric
     public:
         typedef base::RefPtr< CL > ClientPtr;
         typedef std::vector< CFG* > ConfigVector;
+        typedef NF NodeFactory;
 
         virtual void setClient( ClientPtr client ); //!< @internal
 

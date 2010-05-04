@@ -90,11 +90,6 @@ namespace
                 channel->backup();
                 return TRAVERSE_CONTINUE;
             }
-        virtual VisitorResult visit( Compound* compound )
-            {
-                //compound->backup();
-                return TRAVERSE_CONTINUE;
-            }
     };
 }
 }

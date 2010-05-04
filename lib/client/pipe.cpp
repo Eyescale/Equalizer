@@ -710,7 +710,7 @@ net::CommandResult Pipe::_cmdDestroyWindow(  net::Command& command  )
     }
 
     Config* config = getConfig();
-    config->detachObject( window );
+    config->unmapObject( window );
     Global::getNodeFactory()->releaseWindow( window );
 
     return net::COMMAND_HANDLED;

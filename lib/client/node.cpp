@@ -434,7 +434,7 @@ net::CommandResult Node::_cmdDestroyPipe( net::Command& command )
     pipe->joinThread();
 
     Config* config = getConfig();
-    config->detachObject( pipe );
+    config->unmapObject( pipe );
     Global::getNodeFactory()->releasePipe( pipe );
 
     return net::COMMAND_HANDLED;

@@ -133,16 +133,30 @@ NodePath Node< C, N, P, V >::getPath() const
 }
 
 template< class C, class N, class P, class V >
+void Node< C, N, P, V >::backup()
+{
+    Object::backup();
+    _backup = _data;
+}
+
+template< class C, class N, class P, class V >
+void Node< C, N, P, V >::restore()
+{
+    _data = _backup;
+    Object::restore();
+}
+
+template< class C, class N, class P, class V >
 void Node< C, N, P, V >::setIAttribute( const IAttribute attr, const int32_t value )
 {
-    _iAttributes[attr] = value;
+    _data.iAttributes[attr] = value;
     setDirty( DIRTY_ATTRIBUTES );
 }
 
 template< class C, class N, class P, class V >
 int32_t Node< C, N, P, V >::getIAttribute( const IAttribute attr ) const
 {
-    return _iAttributes[attr];
+    return _data.iAttributes[attr];
 }
 
 template< class C, class N, class P, class V >
@@ -188,7 +202,7 @@ void Node< C, N, P, V >::serialize( net::DataOStream& os,
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+        os.write( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
 }
 
 template< class C, class N, class P, class V >
@@ -197,7 +211,7 @@ void Node< C, N, P, V >::deserialize( net::DataIStream& is,
 {
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+        is.read( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
 }
 
 }

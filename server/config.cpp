@@ -411,7 +411,6 @@ void Config::restore()
 {
     _currentFrame = 0;
     _finishedFrame = 0;
-    _appNode = 0;
     setApplicationNetNode( 0 );
     _workDir.clear();
     _renderClient.clear();
@@ -626,8 +625,14 @@ void Config::_stopNodes()
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->getState() != Node::STATE_STOPPED || node == _appNode )
+        if( node->getState() != Node::STATE_STOPPED )
             continue;
+
+        if( node == _appNode )
+        {
+            node->setNode( 0 );
+            continue;
+        }
 
         net::NodePtr netNode = node->getNode();
         if( !netNode ) // already disconnected

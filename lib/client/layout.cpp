@@ -36,26 +36,6 @@ Layout::~Layout()
     EQASSERT( getViews().empty( ));
 }
 
-void Layout::_unmap()
-{
-    Config* config = getConfig();
-    EQASSERT( config );
-    EQASSERT( !isMaster( ));
-
-    const ViewVector& views = getViews();
-    while( !views.empty( ))
-    {
-        View* view = views.back();
-        EQASSERT( view->getID() != EQ_ID_INVALID );
-
-        config->unmapObject( view );
-        _removeView( view );
-        Global::getNodeFactory()->releaseView( view );
-    }
-
-    config->unmapObject( this );
-}
-
 }
 
 #include "server.h"

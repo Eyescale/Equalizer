@@ -117,35 +117,6 @@ ClientPtr Config::getClient()
 
 void Config::unmap()
 {
-    NodeFactory* nodeFactory = Global::getNodeFactory();
-
-    const CanvasVector& canvases = getCanvases();
-    while( !canvases.empty( ))
-    {
-        Canvas* canvas = canvases.back();
-        canvas->_unmap();
-        _removeCanvas( canvas );
-        nodeFactory->releaseCanvas( canvas );
-    }
-
-    const LayoutVector& layouts = getLayouts();
-    while( !layouts.empty( ))
-    {
-        Layout* layout = layouts.back();;
-        layout->_unmap();
-        _removeLayout( layout );
-        nodeFactory->releaseLayout( layout );
-    }
-
-    const ObserverVector& observers = getObservers();
-    while( !observers.empty( ))
-    {
-        Observer* observer = observers.back();
-        unmapObject( observer );
-        _removeObserver( observer );
-        nodeFactory->releaseObserver( observer );
-    }
-
     _exitMessagePump();
     Super::unmap();
 }
@@ -616,7 +587,7 @@ net::CommandResult Config::_cmdDestroyNode( net::Command& command )
     if( !node )
         return net::COMMAND_HANDLED;
 
-    detachObject( node );
+    unmapObject( node );
     Global::getNodeFactory()->releaseNode( node );
 
     return net::COMMAND_HANDLED;

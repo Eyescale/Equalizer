@@ -413,6 +413,8 @@ namespace net
                 _localNode->send( packet );
             }
 
+        template< class P > void _ackRequest( Command& command );
+
         CommandResult _invokeObjectCommand( Command& packet );
         void _attachObject( Object* object, const uint32_t id, 
                             const uint32_t instanceID );
@@ -420,6 +422,8 @@ namespace net
 
         uint32_t _setIDMasterNB( const uint32_t id, const NodeID& master );
         void _setIDMasterSync( const uint32_t requestID );
+        uint32_t _unsetIDMasterNB( const uint32_t id );
+        void _unsetIDMasterSync( const uint32_t requestID );
 
 
         /** The command handler functions. */
@@ -427,6 +431,7 @@ namespace net
         CommandResult _cmdGenIDs( Command& packet );
         CommandResult _cmdGenIDsReply( Command& packet );
         CommandResult _cmdSetIDMaster( Command& packet );
+        CommandResult _cmdUnsetIDMaster( Command& packet );
         CommandResult _cmdGetIDMaster( Command& packet );
         CommandResult _cmdGetIDMasterReply( Command& packet );
         CommandResult _cmdAttachObject( Command& command );

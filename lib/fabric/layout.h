@@ -125,11 +125,14 @@ namespace fabric
             char dummy[32];
         };
 
-        friend class eq::Layout;
-        friend class eq::server::Layout;
         template< class, class, class > friend class View;
         void _addView( V* view );
         bool _removeView( V* view );
+
+        /** Deregister this layout, and all children, from its net::Session.*/
+        void _unmap();
+        template< class, class, class, class, class, class, class >
+        friend class Config;
     };
 
     template< class C, class L, class V >

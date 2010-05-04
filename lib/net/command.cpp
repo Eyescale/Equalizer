@@ -71,7 +71,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& command )
 {
     if( command.isValid( ))
     {
-        os << "command< ";
+        os << base::disableFlush << "command< ";
         const Packet* packet = command.getPacket() ;
         switch( packet->type )
         {
@@ -87,7 +87,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& command )
                 os << packet;
         }
 
-        os << ", " << command.getNode() << " >";
+        os << ", " << command.getNode() << " >" << base::enableFlush;
     }
     else
         os << "command< empty >";

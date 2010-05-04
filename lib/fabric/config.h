@@ -208,6 +208,9 @@ namespace fabric
 
         /** Restore the last backup. @internal */
         EQFABRIC_EXPORT virtual void restore();
+
+        /** Commit a new version. @internal */
+        uint32_t commit();
         //@}
 
     protected:
@@ -220,7 +223,6 @@ namespace fabric
         void deregister();
         void map( const net::ObjectVersion proxy );
         virtual void unmap();
-        uint32_t commit();
         void sync( const uint32_t version );
         template< class, class, class, class > friend class Server; // map/unmap
 

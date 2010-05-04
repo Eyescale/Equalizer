@@ -39,6 +39,7 @@ CompoundInitVisitor::CompoundInitVisitor()
 
 VisitorResult CompoundInitVisitor::visit( Compound* compound )
 {
+    compound->backup();
     compound->setTaskID( ++_taskID );
 
     Channel* channel = compound->getChannel();

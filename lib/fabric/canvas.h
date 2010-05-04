@@ -160,6 +160,11 @@ namespace fabric
         friend class eq::Canvas;
         void _addSegment( S* segment );
         bool _removeSegment( S* segment );
+
+        /** Deregister this canvas, and all children, from its net::Session.*/
+        void _unmap();
+        template< class, class, class, class, class, class, class >
+        friend class Config;
     };
 
     template< class CFG, class C, class S, class L >

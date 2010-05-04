@@ -86,6 +86,27 @@ void Layout< C, L, V >::deserialize( net::DataIStream& is,
     }
 }
 
+template< class C, class L, class V >
+void Layout< C, L, V >::_unmap()
+{
+    C* config = getConfig();
+    EQASSERT( config );
+    EQASSERT( !isMaster( ));
+
+    const ViewVector& views = getViews();
+    while( !views.empty( ))
+    {
+        V* view = views.back();
+        EQASSERT( view->getID() != EQ_ID_INVALID );
+
+        config->unmapObject( view );
+        _removeView( view );
+        config->getServer()->getNodeFactory()->releaseView( view );
+    }
+
+    config->unmapObject( this );
+}
+
 namespace
 {
 template< class L, class V >

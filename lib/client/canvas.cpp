@@ -42,28 +42,6 @@ Canvas::~Canvas()
     EQASSERT( getSegments().empty( ));
 }
 
-void Canvas::_unmap()
-{
-    EQASSERT( !isMaster( ));
-
-    Config* config = getConfig();
-    NodeFactory* nodeFactory = Global::getNodeFactory();
-    const SegmentVector& segments = getSegments();
-
-    while( !segments.empty( ))
-    {
-        Segment* segment = _segments.back();
-        EQASSERT( segment->getID() != EQ_ID_INVALID );
-        EQASSERT( !segment->isMaster( ));
-
-        config->unmapObject( segment );
-        _removeSegment( segment );
-        nodeFactory->releaseSegment( segment );
-    }
-
-    config->unmapObject( this );
-}
-
 }
 
 

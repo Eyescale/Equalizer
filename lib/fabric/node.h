@@ -87,17 +87,15 @@ namespace fabric
                                                         const IAttribute attr );
         //@}
 
+        EQFABRIC_EXPORT virtual void backup(); //!< @internal
+        EQFABRIC_EXPORT virtual void restore(); //!< @internal
+
     protected:
         Node( C* parent );
         EQFABRIC_EXPORT virtual ~Node();
 
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
         
-        enum DirtyBits
-        {
-            DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
-        };
-
         /** @internal */
         EQFABRIC_EXPORT virtual void serialize( net::DataOStream& os,
                                                 const uint64_t dirtyBits );
@@ -106,14 +104,23 @@ namespace fabric
                                                   const uint64_t dirtyBits );
 
     private:
+        enum DirtyBits
+        {
+            DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
+        };
+
         /** Pipe children. */
         PipeVector _pipes;
 
         /** The parent config. */
         C* const _config;
 
-        /** Integer attributes. */
-        int32_t _iAttributes[IATTR_ALL];
+        struct BackupData
+        {
+            /** Integer attributes. */
+            int32_t iAttributes[IATTR_ALL];
+        }
+            _data, _backup;
 
         friend class eq::Node; // TODO remove
         friend class eq::server::Node; // TODO remove

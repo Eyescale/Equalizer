@@ -58,7 +58,7 @@ namespace fabric
         const ChannelVector& getChannels() const { return _channels; }
 
         const DrawableConfig& getDrawableConfig() const
-            { return _drawableConfig; }
+            { return _data.drawableConfig; }
 
         /** @return the window's pixel viewport */
         const PixelViewport& getPixelViewport() const { return _data.pvp; }
@@ -139,11 +139,11 @@ namespace fabric
         /** Set a window attribute. */
         EQFABRIC_EXPORT void setIAttribute( const IAttribute attr,
                                       const int32_t value )
-            { _iAttributes[attr] = value; }
+            { _data.iAttributes[attr] = value; }
 
         /** @return the value of a window attribute. */
         EQFABRIC_EXPORT int32_t  getIAttribute( const IAttribute attr ) const
-            { return _iAttributes[attr]; }
+            { return _data.iAttributes[attr]; }
 
         /** @return the name of a window attribute. */
         EQFABRIC_EXPORT static const std::string& getIAttributeString(
@@ -162,13 +162,6 @@ namespace fabric
         Window( P* parent );
 
         EQFABRIC_EXPORT virtual ~Window( );
-
-        enum DirtyBits
-        {
-            DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
-            DIRTY_VIEWPORT        = Object::DIRTY_CUSTOM << 1,
-            DIRTY_DRAWABLECONFIG  = Object::DIRTY_CUSTOM << 2,
-        };
 
         /** @internal */
         EQFABRIC_EXPORT virtual void serialize( net::DataOStream& os,
@@ -199,21 +192,29 @@ namespace fabric
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:
+        enum DirtyBits
+        {
+            DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
+            DIRTY_VIEWPORT        = Object::DIRTY_CUSTOM << 1,
+            DIRTY_DRAWABLECONFIG  = Object::DIRTY_CUSTOM << 2,
+        };
+
         /** The parent pipe. */
         P* const _pipe;
-
-        /** Integer attributes. */
-        int32_t _iAttributes[ IATTR_ALL ];
 
         /** The channels of this window. */
         ChannelVector _channels;
 
-        /** Drawable characteristics of this window */
-        DrawableConfig _drawableConfig;
-
         struct BackupData
         {
             BackupData() : fixedVP( true ) {}
+
+            /** Integer attributes. */
+            int32_t iAttributes[ IATTR_ALL ];
+
+            /** Drawable characteristics of this window */
+            DrawableConfig drawableConfig;
+
             /** The absolute size and position of the window. */
             PixelViewport pvp;
         

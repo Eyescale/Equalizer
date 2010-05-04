@@ -426,15 +426,17 @@ namespace server
         /** @return if the compound is activated and current (DPlex). */
         bool isActive() const;
 
-        /** 
-         * Initializes this compound.
-         */
+        /** Initialize this compound. */
         void init();
 
-        /** 
-         * Exits this compound.
-         */
+        /** Exit this compound. */
         void exit();
+
+        /** Back up all relevant compound data. */
+        void backup() { _backup = _data; }
+
+        /** Restore all relevant compound data. */
+        void restore() { _data = _backup; } 
 
         /** 
          * Updates this compound.
@@ -528,6 +530,7 @@ namespace server
         };
 
         InheritData _data;
+        InheritData _backup;
         InheritData _inherit;
 
         /** The frustum description of this compound. */

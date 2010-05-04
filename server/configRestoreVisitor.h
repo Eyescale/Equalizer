@@ -36,56 +36,51 @@ namespace
         virtual VisitorResult visitPre( Config* config )
             {
                 config->restore();
+                config->commit();
                 return TRAVERSE_CONTINUE;
             }
         virtual VisitorResult visit( Observer* observer )
             {
-                observer->restore();
-                return TRAVERSE_CONTINUE;
+                return _restore( observer );
             }
         virtual VisitorResult visitPre( Canvas* canvas )
             {
-                canvas->restore();
-                return TRAVERSE_CONTINUE;
+                return _restore( canvas );
             }
         virtual VisitorResult visit( Segment* segment )
             {
-                segment->restore();
-                return TRAVERSE_CONTINUE;
+                return _restore( segment );
             }
         virtual VisitorResult visitPre( Layout* layout )
             {
-                layout->restore();
-                return TRAVERSE_CONTINUE;
+                return _restore( layout );
             }
         virtual VisitorResult visit( View* view )
             {
-                view->restore();
-                return TRAVERSE_CONTINUE;
+                return _restore( view );
             }
         virtual VisitorResult visitPre( Node* node )
             {
-                node->restore();
-                return TRAVERSE_CONTINUE;
+                return _restore( node );
             }
         virtual VisitorResult visitPre( Pipe* pipe )
             {
-                pipe->restore();
-                return TRAVERSE_CONTINUE;
+                return _restore( pipe );
             }
         virtual VisitorResult visitPre( Window* window )
             {
-                window->restore();
-                return TRAVERSE_CONTINUE;
+                return _restore( window );
             }
         virtual VisitorResult visit( Channel* channel )
             {
-                channel->restore();
-                return TRAVERSE_CONTINUE;
+                return _restore( channel );
             }
-        virtual VisitorResult visit( Compound* compound )
+
+    private:
+        VisitorResult _restore( fabric::Object* object )
             {
-                //compound->restore();
+                object->restore();
+                object->commit();
                 return TRAVERSE_CONTINUE;
             }
     };

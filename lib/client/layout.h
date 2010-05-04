@@ -55,9 +55,6 @@ namespace eq
         {
             char dummy[32];
         };
-
-        friend class Config;
-        void _unmap();
     };
 }
 #endif // EQ_LAYOUT_H

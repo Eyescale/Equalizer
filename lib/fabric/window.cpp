@@ -33,7 +33,7 @@ namespace fabric
 namespace
 {
 #define MAKE_WINDOW_ATTR_STRING( attr ) ( std::string("EQ_WINDOW_") + #attr )
-std::string _iWindowAttributeStrings[] = {
+std::string _iAttributeStrings[] = {
     MAKE_WINDOW_ATTR_STRING( IATTR_HINT_STEREO ),
     MAKE_WINDOW_ATTR_STRING( IATTR_HINT_DOUBLEBUFFER ),
     MAKE_WINDOW_ATTR_STRING( IATTR_HINT_FULLSCREEN ),
@@ -91,7 +91,7 @@ template< class P, class W, class C >
 void Window< P, W, C >::restore()
 {
     _data = _backup;
-    _drawableConfig = DrawableConfig();
+    _data.drawableConfig = DrawableConfig();
 
     Object::restore();
     notifyViewportChanged();
@@ -104,11 +104,11 @@ void Window< P, W, C >::serialize( net::DataOStream& os,
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+        os.write( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _data.vp << _data.pvp << _data.fixedVP;
     if( dirtyBits & DIRTY_DRAWABLECONFIG )
-        os << _drawableConfig;
+        os << _data.drawableConfig;
 }
 
 template< class P, class W, class C >
@@ -117,14 +117,14 @@ void Window< P, W, C >::deserialize( net::DataIStream& is,
 {
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+        is.read( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
     if( dirtyBits & DIRTY_VIEWPORT )
     {
         is >> _data.vp >> _data.pvp >> _data.fixedVP;
         notifyViewportChanged();
     }
     if( dirtyBits & DIRTY_DRAWABLECONFIG )
-        is >> _drawableConfig;
+        is >> _data.drawableConfig;
 }
 
 template< class P, class W, class C >
@@ -163,7 +163,7 @@ C* Window< P, W, C >::_findChannel( const uint32_t id )
 template< class P, class W, class C >
 const std::string&  Window< P, W, C >::getIAttributeString( const IAttribute attr )
 {
-    return _iWindowAttributeStrings[attr];
+    return _iAttributeStrings[attr];
 }
 
 template< class P, class W, class C >
@@ -309,15 +309,14 @@ void Window< P, W, C >::notifyViewportChanged()
     {
         (*i)->notifyViewportChanged();
     }
-    EQINFO << getName() << " viewport update: " << _data.pvp << ":" << _data.vp
+    EQINFO << getName() << " viewport update: " << _data.vp << ":" << _data.pvp
            << std::endl;
 }
 
 template< class P, class W, class C >
-void Window< P, W, C >::_setDrawableConfig( 
-                                      const DrawableConfig& drawableConfig )
+void Window< P, W, C >::_setDrawableConfig(const DrawableConfig& drawableConfig)
 { 
-    _drawableConfig = drawableConfig;
+    _data.drawableConfig = drawableConfig;
     setDirty( DIRTY_DRAWABLECONFIG );
 }
 

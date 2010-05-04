@@ -65,7 +65,8 @@ VisitorResult CompoundExitVisitor::visit( Compound* compound )
         //  layout destination channel compounds are deactivated by canvas
         compound->deactivate();
     }
-    
+
+    compound->restore();
     return TRAVERSE_CONTINUE;    
 }
 
