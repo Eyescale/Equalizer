@@ -1,4 +1,4 @@
-Add stub test app for runtime window creation
+Clean up appNode flag handling
 
 [ ] May break build
 [ ] May break existing applications

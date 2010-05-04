@@ -46,9 +46,16 @@ namespace fabric
         C*       getConfig()       { return _config; }
         const C* getConfig() const { return _config; }
 
+        /**
+         * @return true if all render tasks for this node are executed by the
+         *         application process, false otherwise.
+         * @internal
+         */
+        bool isApplicationNode() const { return _isAppNode; }
+        void setApplicationNode( const bool isAppNode ); //!< @internal
+
         /** @return the index path to this node. @internal */
         EQFABRIC_EXPORT NodePath getPath() const;
-
         P* findPipe( const uint32_t id ); //!< @internal
 
         /** 
@@ -107,6 +114,7 @@ namespace fabric
         enum DirtyBits
         {
             DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
+            DIRTY_MEMBER          = Object::DIRTY_CUSTOM << 1,
         };
 
         /** Pipe children. */
@@ -122,8 +130,10 @@ namespace fabric
         }
             _data, _backup;
 
-        friend class eq::Node; // TODO remove
-        friend class eq::server::Node; // TODO remove
+        bool _isAppNode; //!< execute render tasks in application process
+
+        //friend class eq::Node; // TODO remove
+        //friend class eq::server::Node; // TODO remove
 
         union // placeholder for binary-compatible changes
         {

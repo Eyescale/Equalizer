@@ -40,6 +40,7 @@ std::string _iAttributeStrings[] = {
 template< class C, class N, class P, class V >
 Node< C, N, P, V >::Node( C* parent )  
         : _config( parent )
+        , _isAppNode( false )
 {
     parent->_addNode( static_cast< N* >( this ) );
 }
@@ -147,6 +148,15 @@ void Node< C, N, P, V >::restore()
 }
 
 template< class C, class N, class P, class V >
+void Node< C, N, P, V >::setApplicationNode( const bool isAppNode )
+{
+    if( _isAppNode == isAppNode )
+        return;
+    _isAppNode = isAppNode;
+    setDirty( DIRTY_MEMBER );
+}
+
+template< class C, class N, class P, class V >
 void Node< C, N, P, V >::setIAttribute( const IAttribute attr, const int32_t value )
 {
     _data.iAttributes[attr] = value;
@@ -203,6 +213,8 @@ void Node< C, N, P, V >::serialize( net::DataOStream& os,
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os.write( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
+    if( dirtyBits & DIRTY_MEMBER )
+        os << _isAppNode;
 }
 
 template< class C, class N, class P, class V >
@@ -212,6 +224,8 @@ void Node< C, N, P, V >::deserialize( net::DataIStream& is,
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         is.read( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
+    if( dirtyBits & DIRTY_MEMBER )
+        is >> _isAppNode;
 }
 
 }

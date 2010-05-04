@@ -517,8 +517,7 @@ std::ostream& operator << ( std::ostream& os, const Node* node )
         return os;
     
     os << base::disableFlush << base::disableHeader;
-    const Config* config = node->getConfig();
-    if( config && config->isApplicationNode( node ))
+    if( node->isApplicationNode( ))
         os << "appNode" << std::endl;
     else
         os << "node" << std::endl;

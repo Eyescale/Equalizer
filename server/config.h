@@ -107,26 +107,6 @@ namespace server
         /** @return the last finished frame. */
         uint32_t getFinishedFrame() const { return _finishedFrame; }
 
-        /** Set the name of the application. */
-        void setApplicationName( const std::string& name )  { _appName = name; }
-
-        /** 
-         * Add the config node running the application thread.
-         * 
-         * @param node the application node.
-         */
-        void setApplicationNode( Node* node );
-
-        /** @return the application node, or 0 if it was not set. */
-        Node* getApplicationNode() { return _appNode; }
-
-        /** @return the application node, or 0 if it was not set. */
-        const Node* getApplicationNode() const { return _appNode; }
-
-        /** @return true if the node is the application node. */
-        bool isApplicationNode( const Node* node ) const
-            { return (_appNode == node); }
-
         /** 
          * Set the network node running the application thread.
          * 
@@ -198,12 +178,6 @@ namespace server
 
         /** The list of compounds. */
         CompoundVector _compounds;
-
-        /** The name of the application. */
-        std::string _appName;
-
-        /** The node running the application thread. */
-        Node*       _appNode;
 
         /** The network node running the application thread. */
         net::NodePtr _appNetNode;

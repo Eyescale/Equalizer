@@ -68,8 +68,6 @@ namespace server
 
         net::NodePtr getNode() const { return _node; }
         void setNode( net::NodePtr node ) { _node = node; }
-        bool isApplicationNode() const
-            { return getConfig()->isApplicationNode( this ); }
 
         Channel* getChannel( const ChannelPath& path );
 

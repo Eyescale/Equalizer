@@ -60,7 +60,6 @@ void Config::_construct()
     _currentFrame  = 0;
     _finishedFrame = 0;
     _state         = STATE_STOPPED;
-    _appNode       = 0;
 
     EQINFO << "New config @" << (void*)this << std::endl;
 }
@@ -80,7 +79,6 @@ Config::Config( ServerPtr parent )
 Config::~Config()
 {
     EQINFO << "Delete config @" << (void*)this << std::endl;
-    _appNode    = 0;
     _appNetNode = 0;
 
     for( CompoundVector::const_iterator i = _compounds.begin(); 
@@ -293,14 +291,6 @@ bool Config::removeCompound( Compound* compound )
     _compounds.erase( i );
     compound->_config = 0;
     return true;
-}
-
-void Config::setApplicationNode( Node* node )
-{
-    EQASSERT( _state == STATE_STOPPED );
-    EQASSERTINFO( !_appNode, "Only one application node per config possible" );
-
-    _appNode = node;
 }
 
 void Config::setApplicationNetNode( net::NodePtr node )
@@ -525,7 +515,7 @@ bool Config::_connectNode( Node* node )
     net::NodePtr localNode = getLocalNode();
     EQASSERT( localNode.isValid( ));
     
-    if( node == _appNode )
+    if( node->isApplicationNode( ))
         netNode = _appNetNode;
     else
     {
@@ -604,7 +594,7 @@ void Config::_startNodes()
         {
             EQASSERT( state == Node::STATE_STOPPED );
             startingNodes.push_back( node );
-            if( node != _appNode )
+            if( !node->isApplicationNode( ))
                 requests.push_back( _createConfig( node ));
         }
     }
@@ -628,7 +618,7 @@ void Config::_stopNodes()
         if( node->getState() != Node::STATE_STOPPED )
             continue;
 
-        if( node == _appNode )
+        if( node->isApplicationNode( ))
         {
             node->setNode( 0 );
             continue;
@@ -686,7 +676,7 @@ void Config::_stopNodes()
 
 uint32_t Config::_createConfig( Node* node )
 {
-    EQASSERT( node != _appNode );
+    EQASSERT( !node->isApplicationNode( ));
     EQASSERT( node->isActive( ));
 
     // create config (session) on each non-app node
@@ -810,13 +800,6 @@ void Config::_startFrame( const uint32_t frameID )
     EQLOG( base::LOG_ANY ) << "----- Start Frame ----- " << _currentFrame
                            << std::endl;
 
-    if( !_appNode || !_appNode->isActive( )) // release appNode local sync
-    {
-        ConfigReleaseFrameLocalPacket packet;
-        packet.frameNumber = _currentFrame;
-        send( _appNetNode, packet );
-    }
-
     for( CompoundVector::const_iterator i = _compounds.begin(); 
          i != _compounds.end(); ++i )
     {
@@ -828,11 +811,23 @@ void Config::_startFrame( const uint32_t frameID )
     accept( configDataVisitor );
 
     const NodeVector& nodes = getNodes();
+    bool appNodeRunning = false;
     for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         if( node->isActive( ))
+        {
             node->update( frameID, _currentFrame );
+            if( node->isApplicationNode( ))
+                appNodeRunning = true;
+        }
+    }
+
+    if( !appNodeRunning ) // release appNode local sync
+    {
+        ConfigReleaseFrameLocalPacket packet;
+        packet.frameNumber = _currentFrame;
+        send( _appNetNode, packet );
     }
 
     // Fix 2976899: Config::finishFrame deadlocks when no nodes are active
