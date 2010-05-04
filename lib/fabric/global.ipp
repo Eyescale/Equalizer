@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,158 +21,145 @@
 
 namespace eq
 {
-namespace server
+namespace fabric
 {
-
-static Global *_instance = 0;
-
-Global* Global::instance()
-{
-    if( !_instance ) 
-        _instance = new Global();
-
-    return _instance;
-}
-
-void Global::clear()
-{
-    delete _instance;
-    _instance = 0;
-}
-
-Global::Global()
+template< class CFG, class N, class P, class W, class C >
+Global< CFG, N, P, W, C >::Global()
 {
     _setupDefaults();
     _readEnvironment();
 }
 
-void Global::_setupDefaults()
+template< class CFG, class N, class P, class W, class C >
+void Global< CFG, N, P, W, C >::_setupDefaults()
 {
     // connection
-    for( uint32_t i=0; i<ConnectionDescription::IATTR_ALL; ++i )
-        _connectionIAttributes[i] = eq::UNDEFINED;
+    for( uint32_t i = 0; i < net::ConnectionDescription::IATTR_ALL; ++i )
+        _connectionIAttributes[i] = UNDEFINED;
 
-    _connectionIAttributes[ ConnectionDescription::IATTR_TYPE ] = 
+    _connectionIAttributes[ net::ConnectionDescription::IATTR_TYPE ] = 
         net::CONNECTIONTYPE_TCPIP;
-    _connectionIAttributes[ ConnectionDescription::IATTR_PORT ] = 0;
-    _connectionIAttributes[ ConnectionDescription::IATTR_BANDWIDTH ] = 0;
-    _connectionSAttributes[ ConnectionDescription::SATTR_FILENAME ] = "default";
+    _connectionIAttributes[ net::ConnectionDescription::IATTR_PORT ] = 0;
+    _connectionIAttributes[ net::ConnectionDescription::IATTR_BANDWIDTH ] = 0;
+    _connectionSAttributes[ net::ConnectionDescription::SATTR_FILENAME ] =
+        "default";
 
     // config
-    for( uint32_t i=0; i<Config::FATTR_ALL; ++i )
+    for( uint32_t i=0; i < CFG::FATTR_ALL; ++i )
         _configFAttributes[i] = 0.f;
 
-    _configFAttributes[Config::FATTR_EYE_BASE]         = 0.05f;
+    _configFAttributes[ CFG::FATTR_EYE_BASE ] = 0.05f;
 
     // node
-    for( uint32_t i=0; i < Node::CATTR_ALL; ++i )
+    for( uint32_t i=0; i < N::CATTR_ALL; ++i )
         _nodeCAttributes[i] = 0;
-    for( uint32_t i=0; i < eq::Node::IATTR_ALL; ++i )
-        _nodeIAttributes[i] = eq::UNDEFINED;
+    for( uint32_t i=0; i < N::IATTR_ALL; ++i )
+        _nodeIAttributes[i] = UNDEFINED;
 
-    _nodeIAttributes[eq::Node::IATTR_LAUNCH_TIMEOUT] = 60000; // ms
+    _nodeIAttributes[N::IATTR_LAUNCH_TIMEOUT] = 60000; // ms
 #ifdef WIN32
-    _nodeSAttributes[Node::SATTR_LAUNCH_COMMAND] = "ssh -n %h %c";
-    _nodeCAttributes[Node::CATTR_LAUNCH_COMMAND_QUOTE] = '\"';
+    _nodeSAttributes[N::SATTR_LAUNCH_COMMAND] = "ssh -n %h %c";
+    _nodeCAttributes[N::CATTR_LAUNCH_COMMAND_QUOTE] = '\"';
 #else
-    _nodeSAttributes[Node::SATTR_LAUNCH_COMMAND] = "ssh -n %h %c >& %h.%n.log";
-    _nodeCAttributes[Node::CATTR_LAUNCH_COMMAND_QUOTE] = '\'';
+    _nodeSAttributes[N::SATTR_LAUNCH_COMMAND] = "ssh -n %h %c >& %h.%n.log";
+    _nodeCAttributes[N::CATTR_LAUNCH_COMMAND_QUOTE] = '\'';
 #endif
 
     // pipe
     for( uint32_t i=0; i<Pipe::IATTR_ALL; ++i )
-        _pipeIAttributes[i] = eq::UNDEFINED;
+        _pipeIAttributes[i] = UNDEFINED;
 
-    _pipeIAttributes[Pipe::IATTR_HINT_THREAD] = eq::ON;
-    _pipeIAttributes[Pipe::IATTR_HINT_CUDA_GL_INTEROP] = eq::OFF;
+    _pipeIAttributes[Pipe::IATTR_HINT_THREAD] = ON;
+    _pipeIAttributes[Pipe::IATTR_HINT_CUDA_GL_INTEROP] = OFF;
 
     // window
     for( uint32_t i=0; i<Window::IATTR_ALL; ++i )
-        _windowIAttributes[i] = eq::UNDEFINED;
+        _windowIAttributes[i] = UNDEFINED;
 
-    _windowIAttributes[Window::IATTR_HINT_STEREO]       = eq::AUTO;
-    _windowIAttributes[Window::IATTR_HINT_DOUBLEBUFFER] = eq::AUTO;
-    _windowIAttributes[Window::IATTR_HINT_FULLSCREEN]   = eq::OFF;
-    _windowIAttributes[Window::IATTR_HINT_DECORATION]   = eq::ON;
-    _windowIAttributes[Window::IATTR_HINT_DRAWABLE]     = eq::WINDOW;
-    _windowIAttributes[Window::IATTR_HINT_SCREENSAVER]  = eq::AUTO;
-    _windowIAttributes[Window::IATTR_PLANES_COLOR]      = eq::AUTO;
-    _windowIAttributes[Window::IATTR_PLANES_DEPTH]      = eq::AUTO;
-    _windowIAttributes[Window::IATTR_PLANES_STENCIL]    = eq::AUTO;
+    _windowIAttributes[Window::IATTR_HINT_STEREO]       = AUTO;
+    _windowIAttributes[Window::IATTR_HINT_DOUBLEBUFFER] = AUTO;
+    _windowIAttributes[Window::IATTR_HINT_FULLSCREEN]   = OFF;
+    _windowIAttributes[Window::IATTR_HINT_DECORATION]   = ON;
+    _windowIAttributes[Window::IATTR_HINT_DRAWABLE]     = WINDOW;
+    _windowIAttributes[Window::IATTR_HINT_SCREENSAVER]  = AUTO;
+    _windowIAttributes[Window::IATTR_PLANES_COLOR]      = AUTO;
+    _windowIAttributes[Window::IATTR_PLANES_DEPTH]      = AUTO;
+    _windowIAttributes[Window::IATTR_PLANES_STENCIL]    = AUTO;
 #ifdef NDEBUG
-    _windowIAttributes[Window::IATTR_HINT_STATISTICS]   = eq::FASTEST;
+    _windowIAttributes[Window::IATTR_HINT_STATISTICS]   = FASTEST;
 #else
-    _windowIAttributes[Window::IATTR_HINT_STATISTICS]   = eq::NICEST;
+    _windowIAttributes[Window::IATTR_HINT_STATISTICS]   = NICEST;
 #endif
     
     // channel
     for( uint32_t i=0; i<Channel::IATTR_ALL; ++i )
-        _channelIAttributes[i] = eq::UNDEFINED;
+        _channelIAttributes[i] = UNDEFINED;
 
 #ifdef NDEBUG
-    _channelIAttributes[Channel::IATTR_HINT_STATISTICS] = eq::FASTEST;
+    _channelIAttributes[Channel::IATTR_HINT_STATISTICS] = FASTEST;
 #else
-    _channelIAttributes[Channel::IATTR_HINT_STATISTICS] = eq::NICEST;
+    _channelIAttributes[Channel::IATTR_HINT_STATISTICS] = NICEST;
 #endif
-    _channelIAttributes[Channel::IATTR_HINT_SENDTOKEN] = eq::OFF;
+    _channelIAttributes[Channel::IATTR_HINT_SENDTOKEN] = OFF;
 
     // compound
     for( uint32_t i=0; i<Compound::IATTR_ALL; ++i )
-        _compoundIAttributes[i] = eq::UNDEFINED;
+        _compoundIAttributes[i] = UNDEFINED;
 }
 
-void Global::_readEnvironment()
+template< class CFG, class N, class P, class W, class C >
+void Global< CFG, N, P, W, C >::_readEnvironment()
 {
-    for( uint32_t i=0; i<ConnectionDescription::SATTR_ALL; ++i )
+    for( uint32_t i=0; i<net::ConnectionDescription::SATTR_ALL; ++i )
     {
-        const std::string& name = ConnectionDescription::getSAttributeString(
-            (ConnectionDescription::SAttribute)i);
+        const std::string& name = net::ConnectionDescription::getSAttributeString(
+            (net::ConnectionDescription::SAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
         if( envValue )
             _connectionSAttributes[i] = envValue;
     }
-    for( uint32_t i=0; i<ConnectionDescription::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<net::ConnectionDescription::IATTR_ALL; ++i )
     {
-        const std::string& name = ConnectionDescription::getIAttributeString(
-            (ConnectionDescription::IAttribute)i);
+        const std::string& name = net::ConnectionDescription::getIAttributeString(
+            (net::ConnectionDescription::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
         if( envValue )
             _connectionIAttributes[i] = atol( envValue );
     }
-    for( uint32_t i=0; i<Config::FATTR_ALL; ++i )
+    for( uint32_t i=0; i<CFG::FATTR_ALL; ++i )
     {
-        const std::string& name     = Config::getFAttributeString(
-            (Config::FAttribute)i);
+        const std::string& name     = CFG::getFAttributeString(
+            (CFG::FAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
         if( envValue )
             _configFAttributes[i] = atof( envValue );
     }
 
-    for( uint32_t i=0; i<Node::SATTR_ALL; ++i )
+    for( uint32_t i=0; i<N::SATTR_ALL; ++i )
     {
-        const std::string& name = Node::getSAttributeString(
-            (Node::SAttribute)i);
+        const std::string& name = N::getSAttributeString(
+            (N::SAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
         if( envValue )
             _nodeSAttributes[i] = envValue;
     }
-    for( uint32_t i=0; i<Node::CATTR_ALL; ++i )
+    for( uint32_t i=0; i<N::CATTR_ALL; ++i )
     {
-        const std::string& name = Node::getCAttributeString(
-            (Node::CAttribute)i);
+        const std::string& name = N::getCAttributeString(
+            (N::CAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
         if( envValue )
             _nodeCAttributes[i] = envValue[0];
     }
-    for( uint32_t i=0; i<eq::Node::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<N::IATTR_ALL; ++i )
     {
-        const std::string& name     = eq::Node::getIAttributeString(
-            (eq::Node::IAttribute)i);
+        const std::string& name     = N::getIAttributeString(
+            (N::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
         if( envValue )
@@ -218,30 +205,32 @@ void Global::_readEnvironment()
 
 #define GLOBAL_ATTR_LENGTH 50
 
-std::ostream& operator << ( std::ostream& os, const Global* global )
+template< class CFG, class N, class P, class W, class C >
+std::ostream& operator << ( std::ostream& os, 
+                            const Global< CFG, N, P, W, C >& global )
 {
     Global reference;
     reference._setupDefaults(); // ignore environment variables
 
     os << base::disableFlush << base::disableHeader
-       << "#Equalizer " << global->getConfigFAttribute( Config::FATTR_VERSION )
+       << "#Equalizer " << global.getConfigFAttribute( CFG::FATTR_VERSION )
        << " ascii" << std::endl << std::endl
        << "global" << std::endl
        << '{' << base::indent << std::endl;
 
-    for( uint32_t i=0; i<ConnectionDescription::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<net::ConnectionDescription::IATTR_ALL; ++i )
     {
-        const int value = global->_connectionIAttributes[i];
+        const int value = global._connectionIAttributes[i];
         if( value == reference._connectionIAttributes[i] )
             continue;
 
-        const std::string& name = ConnectionDescription::getIAttributeString( 
-            static_cast<ConnectionDescription::IAttribute>( i ));
+        const std::string& name = net::ConnectionDescription::getIAttributeString( 
+            static_cast<net::ConnectionDescription::IAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' );
                 
         switch( i )
         { 
-            case ConnectionDescription::IATTR_TYPE:
+            case net::ConnectionDescription::IATTR_TYPE:
                 os << static_cast< net::ConnectionType >( value );
                 break;
             default:
@@ -250,108 +239,108 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         os << std::endl;
     }
 
-    for( uint32_t i=0; i<ConnectionDescription::SATTR_ALL; ++i )
+    for( uint32_t i=0; i<net::ConnectionDescription::SATTR_ALL; ++i )
     {
-        const std::string& value = global->_connectionSAttributes[i];
+        const std::string& value = global._connectionSAttributes[i];
         if( value == reference._connectionSAttributes[i] )
             continue;
 
-        const std::string& name = ConnectionDescription::getSAttributeString( 
-            static_cast<ConnectionDescription::SAttribute>( i ));
+        const std::string& name = net::ConnectionDescription::getSAttributeString( 
+            static_cast<net::ConnectionDescription::SAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << "\"" << value << "\"" << std::endl;
     }
 
-    for( uint32_t i=0; i<Config::FATTR_ALL; ++i )
+    for( uint32_t i=0; i<CFG::FATTR_ALL; ++i )
     {
-        if( i == Config::FATTR_VERSION )
+        if( i == CFG::FATTR_VERSION )
             continue;
 
-        const float value = global->_configFAttributes[i];
+        const float value = global._configFAttributes[i];
         if( value == reference._configFAttributes[i] )
             continue;
 
-        const std::string& name = Config::getFAttributeString( 
-            static_cast<Config::FAttribute>( i ));
+        const std::string& name = CFG::getFAttributeString( 
+            static_cast<CFG::FAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << value << std::endl;
     }
 
-    for( uint32_t i=0; i<Node::SATTR_ALL; ++i )
+    for( uint32_t i=0; i<N::SATTR_ALL; ++i )
     {
-        const std::string& value = global->_nodeSAttributes[i];
+        const std::string& value = global._nodeSAttributes[i];
         if( value == reference._nodeSAttributes[i] )
             continue;
 
-        const std::string& name = Node::getSAttributeString( 
-            static_cast<Node::SAttribute>( i ));
+        const std::string& name = N::getSAttributeString( 
+            static_cast<N::SAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << "\"" << value << "\"" << std::endl;
     }
 
-    for( uint32_t i=0; i<Node::CATTR_ALL; ++i )
+    for( uint32_t i=0; i<N::CATTR_ALL; ++i )
     {
-        const char value = global->_nodeCAttributes[i];
+        const char value = global._nodeCAttributes[i];
         if( value == reference._nodeCAttributes[i] )
             continue;
 
-        const std::string& name = Node::getCAttributeString( 
-            static_cast<Node::CAttribute>( i ));
+        const std::string& name = N::getCAttributeString( 
+            static_cast<N::CAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << "'" << value << "'" << std::endl;
     }
 
-    for( uint32_t i=0; i < eq::Node::IATTR_ALL; ++i )
+    for( uint32_t i=0; i < N::IATTR_ALL; ++i )
     {
-        const int32_t value = global->_nodeIAttributes[i];
+        const int32_t value = global._nodeIAttributes[i];
         if( value == reference._nodeIAttributes[i] )
             continue;
 
-        const std::string& name = eq::Node::getIAttributeString( 
-            static_cast<eq::Node::IAttribute>( i ));
+        const std::string& name = N::getIAttributeString( 
+            static_cast<N::IAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
-           << static_cast< fabric::IAttribute >( value ) << std::endl;
+           << static_cast<IAttrValue>( value ) << std::endl;
     }
 
     for( uint32_t i=0; i<Pipe::IATTR_ALL; ++i )
     {
-        const int value = global->_pipeIAttributes[i];
+        const int value = global._pipeIAttributes[i];
         if( value == reference._pipeIAttributes[i] )
             continue;
 
         const std::string& name = Pipe::getIAttributeString( 
             static_cast<Pipe::IAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
-           << static_cast< fabric::IAttribute >( value ) << std::endl;
+           << static_cast<IAttrValue>( value ) << std::endl;
     }
 
     for( uint32_t i=0; i<Window::IATTR_ALL; ++i )
     {
-        const int value = global->_windowIAttributes[i];
+        const int value = global._windowIAttributes[i];
         if( value == reference._windowIAttributes[i] )
             continue;
 
         const std::string& name = Window::getIAttributeString( 
             static_cast<Window::IAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
-           << static_cast< fabric::IAttribute >( value ) << std::endl;
+           << static_cast<IAttrValue>( value ) << std::endl;
     }
 
     for( uint32_t i=0; i<Channel::IATTR_ALL; ++i )
     {
-        const int value = global->_channelIAttributes[i];
+        const int value = global._channelIAttributes[i];
         if( value == reference._channelIAttributes[i] )
             continue;
 
         const std::string& name = Channel::getIAttributeString(
             static_cast<Channel::IAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
-           << static_cast< fabric::IAttribute >( value ) << std::endl;
+           << static_cast<IAttrValue>( value ) << std::endl;
     }
 
     for( uint32_t i=0; i<Compound::IATTR_ALL; ++i )
     {
-        const int value = global->_compoundIAttributes[i];
+        const int value = global._compoundIAttributes[i];
         if( value == reference._compoundIAttributes[i] )
             continue;
 
@@ -362,7 +351,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         switch( i )
         {
             case Compound::IATTR_STEREO_MODE:
-                os << static_cast< fabric::IAttribute >( value ) << std::endl;
+                os << static_cast<IAttrValue>( value ) << std::endl;
                 break;
 
             case Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK:

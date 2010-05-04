@@ -59,29 +59,4 @@ void Global::leaveCarbon()
 #endif
 }
 
-EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
-                                      const IAttrValue value )
-{
-    if( value > ON ) // ugh
-        os << static_cast<int>( value );
-    else
-        os << ( value == UNDEFINED  ? "UNDEFINED" :
-                value == OFF        ? "OFF" :
-                value == ON         ? "ON" : 
-                value == AUTO       ? "AUTO" :
-                value == NICEST     ? "NICEST" :
-                value == QUAD       ? "QUAD" :
-                value == ANAGLYPH   ? "ANAGLYPH" :
-                value == VERTICAL   ? "VERTICAL" :
-                value == WINDOW     ? "window" :
-                value == PBUFFER    ? "pbuffer" : 
-                value == FBO        ? "FBO" : 
-                value == RGBA16F    ? "RGBA16F" :
-                value == RGBA32F    ? "RGBA32F" :
-                value == ASYNC      ? "ASYNC" : 
-                value == DRAW_SYNC  ? "DRAW_SYNC" : 
-                value == LOCAL_SYNC ? "LOCAL_SYNC" : 
-                "ERROR"  );
-    return os;
-}
 }

@@ -49,7 +49,7 @@ BIN_DIR        ?= $(BUILD_DIR)/bin
 WINDOW_SYSTEM_DEFINES = $(foreach WS,$(WINDOW_SYSTEM),-D$(WS))
 DEP_CXX        ?= $(CXX)
 DEFFLAGS       += -D$(ARCH) $(WINDOW_SYSTEM_DEFINES) -DGLEW_MX
-	 # -DEQ_USE_DEPRECATED
+		  #-DEQ_USE_DEPRECATED
 
 SHADERS_PARSER  = $(TOP)/make/stringify.pl
 

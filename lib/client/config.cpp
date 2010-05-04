@@ -17,8 +17,9 @@
  */
 
 #include "config.h"
-#include "channel.h"
+
 #include "canvas.h"
+#include "channel.h"
 #include "client.h"
 #include "configEvent.h"
 #include "configStatistics.h"

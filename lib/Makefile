@@ -96,6 +96,7 @@ HEADER_SRC = \
 	fabric/frustum.h \
 	fabric/global.h \
 	fabric/layout.h \
+	fabric/iAttribute.h \
 	fabric/init.h \
 	fabric/leafVisitor.h \
 	fabric/node.h \
@@ -247,6 +248,7 @@ CXXFILES = \
 	fabric/eye.cpp \
 	fabric/frustum.cpp \
 	fabric/global.cpp \
+	fabric/iAttribute.cpp \
 	fabric/init.cpp \
 	fabric/object.cpp \
 	fabric/pixel.cpp \

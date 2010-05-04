@@ -27,9 +27,9 @@
 #include "server.h"
 #include "window.h"
 
-#include <eq/client/config.h>
+//#include <eq/client/config.h>
 #include <eq/client/packets.h>
-#include <eq/client/pipe.h>
+//#include <eq/client/pipe.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
 #include <eq/net/barrier.h>
@@ -586,7 +586,7 @@ std::ostream& operator << ( std::ostream& os, const Node* node )
         os << ( i== Node::IATTR_LAUNCH_TIMEOUT ? "launch_timeout       " :
                 i== Node::IATTR_THREAD_MODEL   ? "thread_model         " :
                 "ERROR" )
-           << static_cast<IAttrValue>( value ) << std::endl;
+           << static_cast< fabric::IAttribute >( value ) << std::endl;
     }
     
     if( attrPrinted )

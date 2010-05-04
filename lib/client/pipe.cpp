@@ -179,11 +179,6 @@ WindowSystem Pipe::selectWindowSystem() const
 
 void Pipe::_setupCommandQueue()
 {
-#ifdef EQ_USE_DEPRECATED
-    if( !useMessagePump( ))
-        return;
-#endif
-
     EQASSERT( _windowSystem != WINDOW_SYSTEM_NONE );
     EQINFO << "Set up pipe message pump for " << _windowSystem << std::endl;
 

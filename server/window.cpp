@@ -629,7 +629,7 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
                     "planes_accum_alpha " :
                 i== Window::IATTR_PLANES_SAMPLES ?
                     "planes_samples     " : "ERROR" )
-           << static_cast<IAttrValue>( value ) << std::endl;
+           << static_cast< fabric::IAttribute >( value ) << std::endl;
     }
     
     if( attrPrinted )

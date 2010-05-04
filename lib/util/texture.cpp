@@ -210,9 +210,7 @@ void Texture::_copyFromFrameBuffer( uint32_t x, uint32_t w,
     else
         resize( _width, _height );
 
-    EQ_GL_CALL( glCopyTexSubImage2D( _target, 0, 0, 0,
-                                     x, y, w, h ));
-    //glFinish();
+    EQ_GL_CALL( glCopyTexSubImage2D( _target, 0, 0, 0, x, y, w, h ));
     EQ_GL_ERROR( "after Texture::copyFromFrameBuffer" );
 }
 

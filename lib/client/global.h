@@ -20,43 +20,37 @@
 #define EQ_GLOBAL_H
 
 #include <eq/client/types.h>
-#include <eq/fabric/global.h> // base class
+
+#include <eq/fabric/global.h>     // base class
+#include <eq/fabric/iAttribute.h> // enum definition
+
 #include <eq/base/base.h>
 
 namespace eq
 {
     class NodeFactory;
-    
-    /** Possible values for integer attributes */
-    enum IAttrValue
-    {
-        UNDEFINED  = -0xfffffff, //!< Undefined value
-        RGBA32F    = -13, //!< Float32 framebuffer (Window::IATTR_PLANES_COLOR)
-        RGBA16F    = -12, //!< Float16 framebuffer (Window::IATTR_PLANES_COLOR)
-        FBO        = -11, //!< FBO drawable (Window::IATTR_HINT_DRAWABLE)
-        LOCAL_SYNC = -10, //!< Full local sync (Node::IATTR_THREAD_MODEL)
-        DRAW_SYNC  = -9,  //!< Local draw sync (Node::IATTR_THREAD_MODEL)
-        ASYNC      = -8,  //!< No local sync (Node::IATTR_THREAD_MODEL)
-        PBUFFER    = -7,  //!< PBuffer drawable (Window::IATTR_HINT_DRAWABLE)
-        WINDOW     = -6,  //!< Window drawable (Window::IATTR_HINT_DRAWABLE)
-        VERTICAL   = -5,  //!< Vertical load-balancing
-        QUAD       = -4,  //!< Quad-buffered stereo decomposition
-        ANAGLYPH   = -3,  //!< Anaglyphic stereo decomposition
-        /** 
-         * Nicest statisics gathering (Window::IATTR_HINT_STATISTICS,
-         * Channel::IATTR_HINT_STATISTICS)
-         */
-        NICEST     = -2,
-        AUTO       = -1,  //!< Automatic selection (various attributes)
-        OFF        = 0,   //!< disabled (various attributes)
-        ON         = 1,   //!< enabled (various attributes)
-        /** 
-         * Fastest statisics gathering (Window::IATTR_HINT_STATISTICS,
-         * Channel::IATTR_HINT_STATISTICS)
-         */
-        FASTEST    = ON,
-        HORIZONTAL = ON   //!< Horizontal load-balancing
-    };
+
+#ifdef EQ_USE_DEPRECATED
+    typedef fabric::IAttribute IAttrValue;
+#endif
+    using fabric::UNDEFINED;
+    using fabric::RGBA32F;
+    using fabric::RGBA16F;
+    using fabric::FBO;
+    using fabric::LOCAL_SYNC;
+    using fabric::DRAW_SYNC;
+    using fabric::ASYNC;
+    using fabric::PBUFFER;
+    using fabric::WINDOW;
+    using fabric::VERTICAL;
+    using fabric::QUAD;
+    using fabric::ANAGLYPH;
+    using fabric::NICEST;
+    using fabric::AUTO;
+    using fabric::OFF;
+    using fabric::ON;
+    using fabric::FASTEST;
+    using fabric::HORIZONTAL;
 
     /** 
      * Global parameter handling for the Equalizer client library. 
@@ -95,9 +89,6 @@ namespace eq
 
         static std::string  _configFile;
     };
-
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
-                                          const IAttrValue value );
 }
 
 #endif // EQ_GLOBAL_H

@@ -30,7 +30,6 @@
 #include "view.h"
 #include "window.h"
 
-#include <eq/client/global.h>
 #include <eq/client/log.h>
 #include <eq/client/packets.h>
 #include <eq/fabric/paths.h>
@@ -571,7 +570,7 @@ std::ostream& operator << ( std::ostream& os, const Channel& channel)
                 "hint_statistics   " :
                 i==Channel::IATTR_HINT_SENDTOKEN ?
                     "hint_sendtoken    " : "ERROR" )
-           << static_cast<IAttrValue>( value ) << std::endl;
+           << static_cast< fabric::IAttribute >( value ) << std::endl;
     }
     
     if( attrPrinted )

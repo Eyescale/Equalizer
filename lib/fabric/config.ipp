@@ -29,14 +29,16 @@ namespace fabric
 
 #define MAKE_ATTR_STRING( attr ) ( std::string("EQ_CONFIG_") + #attr )
 
-template< class S, class C, class O, class L, class CV, class N, class V >
-std::string Config< S, C, O, L, CV, N, V >::_fAttributeStrings[FATTR_ALL] = 
+namespace
+{
+std::string _fAttributeStrings[] = 
 {
     MAKE_ATTR_STRING( FATTR_EYE_BASE ),
     MAKE_ATTR_STRING( FATTR_VERSION ),
     MAKE_ATTR_STRING( FATTR_FILL1 ),
     MAKE_ATTR_STRING( FATTR_FILL2 )
 };
+}
 
 template< class S, class C, class O, class L, class CV, class N, class V >
 Config< S, C, O, L, CV, N, V >::Config( base::RefPtr< S > server )
@@ -338,6 +340,13 @@ template< class S, class C, class O, class L, class CV, class N, class V >
 const std::string& Config< S, C, O, L, CV, N, V >::getErrorMessage() const
 {
     return _proxy->getErrorMessage();
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+const std::string& Config< S, C, O, L, CV, N, V >::getFAttributeString(
+    const FAttribute attr )
+{
+    return _fAttributeStrings[ attr ];
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >

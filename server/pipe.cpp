@@ -448,7 +448,7 @@ std::ostream& operator << ( std::ostream& os, const Pipe* pipe )
                 "hint_thread          " :
                 i == Pipe::IATTR_HINT_CUDA_GL_INTEROP ?
                 "hint_cuda_GL_interop " : "ERROR" )
-           << static_cast<IAttrValue>( value ) << std::endl;
+           << static_cast< fabric::IAttribute >( value ) << std::endl;
     }
     
     if( attrPrinted )

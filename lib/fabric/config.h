@@ -164,7 +164,7 @@ namespace fabric
 
         /** @name Attributes */
         //@{
-        // Note: also update string array initialization in config.cpp
+        // Note: also update string array initialization in config.ipp
         enum FAttribute
         {
             FATTR_EYE_BASE,
@@ -178,8 +178,7 @@ namespace fabric
             { _fAttributes[attr] = value; }
         float getFAttribute( const FAttribute attr ) const
             { return _fAttributes[attr]; }
-        static const std::string&  getFAttributeString( const FAttribute attr )
-            { return _fAttributeStrings[attr]; }
+        static const std::string&  getFAttributeString( const FAttribute attr );
         //@}
  
 
@@ -246,9 +245,6 @@ namespace fabric
         
         /** float attributes. */
         float _fAttributes[FATTR_ALL];
-
-        /** String representation of float attributes. */
-        static std::string _fAttributeStrings[FATTR_ALL];
 
         /** The list of observers. */
         ObserverVector _observers;

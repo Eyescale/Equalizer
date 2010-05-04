@@ -37,9 +37,7 @@
 #include "swapBarrier.h"
 #include "view.h"
 
-#include <eq/client/global.h>
 #include <eq/client/packets.h>
-#include <eq/client/windowSystem.h>
 #include <eq/fabric/paths.h>
 #include <eq/net/session.h>
 #include <eq/base/base.h>
@@ -1189,7 +1187,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
         switch( i )
         {
             case Compound::IATTR_STEREO_MODE:
-                os << static_cast<IAttrValue>( value ) << std::endl;
+                os << static_cast< fabric::IAttribute >( value ) << std::endl;
                 break;
 
             case Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK:

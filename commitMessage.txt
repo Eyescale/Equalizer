@@ -1,4 +1,4 @@
-Move node string and char attributes to fabric
+Move IAttribute enum to fabric
 
 [ ] May break build
 [ ] May break existing applications
