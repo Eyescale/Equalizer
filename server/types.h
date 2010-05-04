@@ -85,7 +85,10 @@ typedef base::RefPtr< ConnectionDescription >   ConnectionDescriptionPtr;
 typedef std::vector< ConnectionDescriptionPtr > ConnectionDescriptionVector;
 
 typedef fabric::Vector4i Vector4i;   //!< A four-component integer vector
+typedef fabric::Vector3f Vector3f;   //!< A three-component float vector
 typedef fabric::Vector3ub Vector3ub; //!< A three-component byte vector
+typedef fabric::Matrix4f Matrix4f;   //!< A 4x4 float matrix
+typedef fabric::Frustumf Frustumf;   //!< A frustum definition
 typedef fabric::Projection Projection;
 typedef fabric::RenderContext RenderContext;
 typedef fabric::Wall Wall;

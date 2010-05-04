@@ -19,13 +19,18 @@
 #define EQSERVER_CHANNELUPDATEVISITOR_H
 
 #include "compoundVisitor.h" // base class
+#include "types.h"
 
-#include <eq/client/types.h>
-#include <eq/client/eye.h>
-#include <eq/client/os.h>
+#include <eq/fabric/eye.h>         // member
 
 namespace eq
 {
+namespace fabric
+{
+    class ColorMask;
+    class RenderContext;
+}
+
 namespace server
 {
     class Channel;
@@ -39,7 +44,7 @@ namespace server
                               const uint32_t frameNumber );
         virtual ~ChannelUpdateVisitor() {}
 
-        void setEye( const eq::Eye eye ) { _eye = eye; }
+        void setEye( const fabric::Eye eye ) { _eye = eye; }
 
         /** Visit a non-leaf compound on the down traversal. */
         virtual VisitorResult visitPre( const Compound* compound );
@@ -52,7 +57,7 @@ namespace server
 
     private:
         Channel*       _channel;
-        eq::Eye        _eye;
+        fabric::Eye    _eye;
         const uint32_t _frameID;
         const uint32_t _frameNumber;
         bool           _updated;
@@ -62,33 +67,33 @@ namespace server
         void _updateDrawFinish( const Compound* compound ) const;
         void _updateFrameRate( const Compound* compound ) const;
 
-        GLenum _getDrawBuffer() const;
-        eq::ColorMask _getDrawBufferMask( const Compound* compound ) const;
+        uint32_t _getDrawBuffer() const;
+        fabric::ColorMask _getDrawBufferMask( const Compound* compound ) const;
 
         void _setupRenderContext( const Compound* compound,
-                                  eq::RenderContext& context );
+                                  fabric::RenderContext& context );
 
         void _computeFrustum( const Compound* compound,
-                              eq::RenderContext& context );
-        eq::Vector3f _getEyePosition( const Compound* compound ) const;
-        const eq::Matrix4f& _getInverseHeadMatrix( const Compound* compound )
+                              fabric::RenderContext& context );
+        Vector3f _getEyePosition( const Compound* compound ) const;
+        const Matrix4f& _getInverseHeadMatrix( const Compound* compound )
             const;
 
-        void   _computeFrustumCorners( eq::Frustumf& frustum,
+        void   _computeFrustumCorners( Frustumf& frustum,
                                        const Compound* compound,
                                        const FrustumData& frustumData,
-                                       const eq::Vector3f& eye,
+                                       const Vector3f& eye,
                                        const bool ortho );
         void _updatePostDraw( const Compound* compound, 
-                              const eq::RenderContext& context );
+                              const fabric::RenderContext& context );
         void _updateAssemble( const Compound* compound,
-                              const eq::RenderContext& context );
+                              const fabric::RenderContext& context );
         void _updateReadback( const Compound* compound,
-                              const eq::RenderContext& context );  
+                              const fabric::RenderContext& context );  
         void _updateViewStart( const Compound* compound,
-                               const eq::RenderContext& context );
+                               const fabric::RenderContext& context );
         void _updateViewFinish( const Compound* compound,
-                                const eq::RenderContext& context );
+                                const fabric::RenderContext& context );
     };
 }
 }

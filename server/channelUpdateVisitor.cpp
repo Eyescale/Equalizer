@@ -32,6 +32,15 @@
 #include <eq/client/log.h>
 #include <eq/fabric/paths.h>
 
+#ifndef GL_BACK_LEFT
+#  define GL_FRONT_LEFT 0x0400
+#  define GL_FRONT_RIGHT 0x0401
+#  define GL_BACK_LEFT 0x0402
+#  define GL_BACK_RIGHT 0x0403
+#  define GL_FRONT 0x0404
+#  define GL_BACK 0x0405
+#endif
+
 namespace eq
 {
 namespace server
@@ -284,7 +293,7 @@ void ChannelUpdateVisitor::_updateFrameRate( const Compound* compound ) const
         window->setMaxFPS( maxFPS );
 }
 
-GLenum ChannelUpdateVisitor::_getDrawBuffer() const
+uint32_t ChannelUpdateVisitor::_getDrawBuffer() const
 {
     const DrawableConfig& drawableConfig =
         _channel->getWindow()->getDrawableConfig();

@@ -23,6 +23,7 @@
 #include "window.h"
 
 #include <eq/client/log.h>
+#include <eq/fabric/iAttribute.h>
 
 namespace eq
 {
@@ -128,7 +129,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         //----- Set frame parameters:
         // 1) offset is position wrt window, i.e., the channel position
         if( compound->getInheritChannel() == channel ||
-            compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) == ON )
+            compound->getIAttribute( Compound::IATTR_HINT_OFFSET )==fabric::ON )
         {
             frame->setInheritOffset( Vector2i( inheritPVP.x, inheritPVP.y ));
         }

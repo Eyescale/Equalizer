@@ -24,7 +24,6 @@
 #include "visitorResult.h"         // enum
 
 #include <eq/client/frame.h>
-#include <eq/client/global.h>
 #include <eq/fabric/projection.h> // used in inline method
 #include <eq/fabric/range.h>      // member
 #include <eq/fabric/subPixel.h>   // member

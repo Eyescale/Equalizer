@@ -1,4 +1,4 @@
-Move IAttribute enum to fabric
+Reduce client/server include dependencies.
 
 [ ] May break build
 [ ] May break existing applications

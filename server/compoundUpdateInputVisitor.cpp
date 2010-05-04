@@ -21,6 +21,7 @@
 #include "frameData.h"
 
 #include <eq/client/log.h>
+#include <eq/fabric/iAttribute.h>
 
 namespace eq
 {
@@ -73,7 +74,7 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
                                frame->getOffset();
 
         if( channel != compound->getInheritChannel() &&
-            compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) != ON )
+            compound->getIAttribute( Compound::IATTR_HINT_OFFSET )!=fabric::ON )
         {
             // compute delta offset between source and destination, since the
             // channel's native origin (as opposed to destination) is used.
