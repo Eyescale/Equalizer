@@ -555,6 +555,11 @@ void Session::deregisterObject( Object* object )
     const NodeVector* slaves = object->_getSlaveNodes();
     if( slaves && !slaves->empty( ))
     {
+        EQWARN << slaves->size() 
+               << " slave nodes subscribed during deregisterObject of "
+               << typeid( *object ).name() << " id " << object->getID()
+               << std::endl;
+
         SessionUnmapObjectPacket packet;
         packet.sessionID = _id;
         packet.objectID = id;

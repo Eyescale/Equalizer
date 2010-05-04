@@ -56,11 +56,6 @@ MasterCM::~MasterCM()
     ObjectDataIStream* is = 0;
     while( _queuedDeltas.tryPop( is ))
         delete is;
-
-    if( !_slaves.empty( ))
-        EQWARN << _slaves.size() 
-               << " slave nodes subscribed during deregisterObject of "
-               << typeid( *_object ).name() << std::endl;
     _slaves.clear();
 }
 

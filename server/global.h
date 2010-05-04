@@ -26,7 +26,6 @@
 #include "pipe.h"                    // nested enum
 #include "node.h"                    // nested enum
 #include "window.h"                  // nested enum
-#include <eq/client/node.h>          // nested enum
 
 
 namespace eq
@@ -136,7 +135,7 @@ namespace server
 
         std::string _nodeSAttributes[Node::SATTR_ALL];
         char        _nodeCAttributes[Node::CATTR_ALL];
-        int32_t     _nodeIAttributes[eq::Node::IATTR_ALL];
+        int32_t     _nodeIAttributes[Node::IATTR_ALL];
 
         int32_t     _pipeIAttributes[Pipe::IATTR_ALL];
 

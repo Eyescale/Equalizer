@@ -67,10 +67,10 @@ void Global::_setupDefaults()
     // node
     for( uint32_t i=0; i < Node::CATTR_ALL; ++i )
         _nodeCAttributes[i] = 0;
-    for( uint32_t i=0; i < eq::Node::IATTR_ALL; ++i )
+    for( uint32_t i=0; i < Node::IATTR_ALL; ++i )
         _nodeIAttributes[i] = eq::UNDEFINED;
 
-    _nodeIAttributes[eq::Node::IATTR_LAUNCH_TIMEOUT] = 60000; // ms
+    _nodeIAttributes[Node::IATTR_LAUNCH_TIMEOUT] = 60000; // ms
 #ifdef WIN32
     _nodeSAttributes[Node::SATTR_LAUNCH_COMMAND] = "ssh -n %h %c";
     _nodeCAttributes[Node::CATTR_LAUNCH_COMMAND_QUOTE] = '\"';
@@ -169,10 +169,10 @@ void Global::_readEnvironment()
         if( envValue )
             _nodeCAttributes[i] = envValue[0];
     }
-    for( uint32_t i=0; i<eq::Node::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<Node::IATTR_ALL; ++i )
     {
-        const std::string& name     = eq::Node::getIAttributeString(
-            (eq::Node::IAttribute)i);
+        const std::string& name     = Node::getIAttributeString(
+            (Node::IAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
         if( envValue )
@@ -301,14 +301,14 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
            << "'" << value << "'" << std::endl;
     }
 
-    for( uint32_t i=0; i < eq::Node::IATTR_ALL; ++i )
+    for( uint32_t i=0; i < Node::IATTR_ALL; ++i )
     {
         const int32_t value = global->_nodeIAttributes[i];
         if( value == reference._nodeIAttributes[i] )
             continue;
 
-        const std::string& name = eq::Node::getIAttributeString( 
-            static_cast<eq::Node::IAttribute>( i ));
+        const std::string& name = Node::getIAttributeString( 
+            static_cast<Node::IAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
     }

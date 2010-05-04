@@ -264,7 +264,7 @@ namespace net
          * @return true if all data has been read, false if not.
          */
         bool send( const Packet& packet )
-            { return send( &packet, packet.size); }
+            { return send( &packet, packet.size ); }
 
         /** 
          * Sends a packaged message including a string using the connection.
