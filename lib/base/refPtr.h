@@ -165,7 +165,7 @@ namespace base
     {
         const T* p = rp.get();
         if( p ) 
-            os << "RP<" << *p << ">";
+            os << disableFlush << "RP<" << *p << ">" << enableFlush;
         else
             os << "RP< NULL >";
 

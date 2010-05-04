@@ -33,7 +33,7 @@ Command::Command()
 
 Command::~Command() 
 {
-    EQASSERTINFO( _refCount == 0, _refCount );
+    EQASSERTINFO( _refCount == 0, _refCount << ", " << *this );
     _free(); 
 }
 

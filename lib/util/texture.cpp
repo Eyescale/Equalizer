@@ -240,8 +240,7 @@ void Texture::upload( const int width, const int height, const void* ptr )
     else
         resize( _width, _height );
 
-    glTexSubImage2D( _target, 0, 0, 0,
-                     width, height, _format, _type, ptr );
+    glTexSubImage2D( _target, 0, 0, 0, width, height, _format, _type, ptr );
 }
 
 void Texture::download( void* buffer, const uint32_t format,

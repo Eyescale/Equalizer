@@ -22,40 +22,38 @@
 
 #include <stdlib.h>
 
-using namespace std;
-
 namespace eqPly
 {
 
 namespace
 {
 static const std::string _help(
-    string( "eqPly - Equalizer polygonal rendering example\n" ) +
-    string( "\tRun-time commands:\n" ) +
-    string( "\t\tLeft Mouse Button:         Rotate model\n" ) +
-    string( "\t\tMiddle Mouse Button:       Move model in X, Y\n" ) +
-    string( "\t\tRight Mouse Button:        Move model in Z\n" ) +
-    string( "\t\t<Cursor Keys>:             Move head in X,Y plane\n" )+
-    string( "\t\t<Page Up,Down>:            Move head in Z\n" )+
-    string( "\t\t<Esc>, All Mouse Buttons:  Exit program\n" ) +
-    string( "\t\t<Space>:                   Reset camera\n" ) +
-    string( "\t\tF1, h:                     Toggle help overlay\n" ) +
-    string( "\t\ti:                         Reset camera for Immersive Setups\n"
+    std::string( "eqPly - Equalizer polygonal rendering example\n" ) +
+    std::string( "\tRun-time commands:\n" ) +
+    std::string( "\t\tLeft Mouse Button:         Rotate model\n" ) +
+    std::string( "\t\tMiddle Mouse Button:       Move model in X, Y\n" ) +
+    std::string( "\t\tRight Mouse Button:        Move model in Z\n" ) +
+    std::string( "\t\t<Cursor Keys>:             Move head in X,Y plane\n" )+
+    std::string( "\t\t<Page Up,Down>:            Move head in Z\n" )+
+    std::string( "\t\t<Esc>, All Mouse Buttons:  Exit program\n" ) +
+    std::string( "\t\t<Space>:                   Reset camera\n" ) +
+    std::string( "\t\tF1, h:                     Toggle help overlay\n" ) +
+    std::string( "\t\ti:                         Reset camera for Immersive Setups\n"
                                                                             ) +
-    string( "\t\to:                         Toggle perspective/orthographic\n"
+    std::string( "\t\to:                         Toggle perspective/orthographic\n"
                                                                             ) +
-    string( "\t\ts:                         Toggle statistics overlay\n" ) +
-    string( "\t\tw:                         Toggle wireframe mode\n" ) +
-    string( "\t\td:                         Toggle color demo mode\n" ) +
-    string( "\t\tq, Q:                      Adjust non-idle image quality\n" ) +
-    string( "\t\tp:                         Toggle navigation mode (trackball,\
+    std::string( "\t\ts:                         Toggle statistics overlay\n" ) +
+    std::string( "\t\tw:                         Toggle wireframe mode\n" ) +
+    std::string( "\t\td:                         Toggle color demo mode\n" ) +
+    std::string( "\t\tq, Q:                      Adjust non-idle image quality\n" ) +
+    std::string( "\t\tp:                         Toggle navigation mode (trackball,\
                                                                 walk)\n" ) +
-    string( "\t\tr:                         Switch rendering mode (display\
+    std::string( "\t\tr:                         Switch rendering mode (display\
                                                     list, VBO, immediate)\n" ) +
-    string( "\t\tc:                         Switch active canvas\n" ) +
-    string( "\t\tv:                         Switch active view\n" ) +
-    string( "\t\tm:                         Switch model for active view\n" ) +
-    string( "\t\tl:                         Switch layout for active canvas\n"
+    std::string( "\t\tc:                         Switch active canvas\n" ) +
+    std::string( "\t\tv:                         Switch active view\n" ) +
+    std::string( "\t\tm:                         Switch model for active view\n" ) +
+    std::string( "\t\tl:                         Switch layout for active canvas\n"
                                                                             ));
 }
 
@@ -74,7 +72,7 @@ int EqPly::run()
     eq::ServerPtr server = new eq::Server;
     if( !connectServer( server ))
     {
-        EQERROR << "Can't open server" << endl;
+        EQERROR << "Can't open server" << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -84,7 +82,7 @@ int EqPly::run()
 
     if( !config )
     {
-        EQERROR << "No matching config on server" << endl;
+        EQERROR << "No matching config on server" << std::endl;
         disconnectServer( server );
         return EXIT_FAILURE;
     }
@@ -96,14 +94,14 @@ int EqPly::run()
     if( !config->init( ))
     {
         EQERROR << "Config initialization failed: " 
-                << config->getErrorMessage() << endl;
+                << config->getErrorMessage() << std::endl;
         server->releaseConfig( config );
         disconnectServer( server );
         return EXIT_FAILURE;
     }
 
     EQLOG( LOG_STATS ) << "Config init took " << clock.getTimef() << " ms"
-                       << endl;
+                       << std::endl;
 
     // 4. run main loop
     uint32_t maxFrames = _initData.getMaxFrames();
@@ -126,7 +124,7 @@ int EqPly::run()
             {
                 const eq::ConfigEvent* event = config->nextEvent();
                 if( !config->handleEvent( event ))
-                    EQVERB << "Unhandled " << event << endl;
+                    EQVERB << "Unhandled " << event << std::endl;
             }
         }
         config->handleEvents(); // process all pending events
@@ -135,17 +133,17 @@ int EqPly::run()
     const float    time  = clock.getTimef();
     EQLOG( LOG_STATS ) << "Rendering took " << time << " ms (" << frame
                        << " frames @ " << ( frame / time * 1000.f) << " FPS)"
-                       << endl;
+                       << std::endl;
 
     // 5. exit config
     clock.reset();
     config->exit();
-    EQLOG( LOG_STATS ) << "Exit took " << clock.getTimef() << " ms" <<endl;
+    EQLOG( LOG_STATS ) << "Exit took " << clock.getTimef() << " ms" <<std::endl;
 
     // 6. cleanup and exit
     server->releaseConfig( config );
     if( !disconnectServer( server ))
-        EQERROR << "Client::disconnectServer failed" << endl;
+        EQERROR << "Client::disconnectServer failed" << std::endl;
 
     //EQASSERTINFO( server->getRefCount() == 1, "Server still referenced by " <<
     //              server->getRefCount() - 1 );
@@ -164,7 +162,7 @@ bool EqPly::clientLoop()
     {
         if( !eq::Client::clientLoop( ))
             return false;
-        EQINFO << "One configuration run successfully executed" << endl;
+        EQINFO << "One configuration run successfully executed" << std::endl;
     }
     return true;
 }

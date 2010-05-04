@@ -59,11 +59,10 @@ static std::vector< uint32_t > _getCompressorNames()
         for( eq::base::CompressorInfoVector::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
-			
-			if( ((*j).capabilities & EQ_COMPRESSOR_TRANSFER ) == 
-			     EQ_COMPRESSOR_TRANSFER ) 
+			const EqCompressorInfo& info = *j;
+			if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
 				continue;
-            names.push_back( (*j).name );
+            names.push_back( info.name );
         }
     }
     

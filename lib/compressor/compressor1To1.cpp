@@ -42,7 +42,11 @@ bool Compressor1TO1::isCompatible( const GLEWContext* glewContext )
 }
 
 Compressor1TO1::~Compressor1TO1( )
+<<<<<<< HEAD
 { 
+=======
+{
+>>>>>>> Minor code cleanups
     delete _texture;
     _texture = 0;
 }
@@ -98,8 +102,7 @@ void Compressor1TO1::upload( GLEWContext*       glewContext,
     if ( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
         glRasterPos2i( outDims[0], outDims[2] );
-        glDrawPixels( outDims[1], outDims[3], _format,
-                      _type, buffer );
+        glDrawPixels( outDims[1], outDims[3], _format, _type, buffer );
     }
     else if( flags & EQ_COMPRESSOR_USE_TEXTURE )
     {

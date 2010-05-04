@@ -67,32 +67,25 @@ bool Compressor::init( const std::string& libraryName )
     upload = ( Upload_t )
         ( _dso.getFunctionPointer( "EqCompressorUpload" ));
     
-    bool find = newDecompressor && newCompressor && deleteCompressor && 
-                deleteDecompressor && getResult && getNumResults && 
-                decompress && compress && getInfo && getNumCompressors;
+    const bool foundBase = newDecompressor && newCompressor &&
+        deleteCompressor && deleteDecompressor && getInfo && getNumCompressors;
 
-    if ( newDecompressor && newCompressor && deleteCompressor && 
-         deleteDecompressor && isCompatible && download && 
-         upload )
+    if(( foundBase && getResult && getNumResults && decompress && compress ) ||
+       ( foundBase && isCompatible && download && upload ))
     {
-        find = true;
-    }
+        const size_t nCompressors = getNumCompressors();
+        EQASSERT( nCompressors > 0 );
+        _infos.resize( nCompressors );
+
+        for( size_t i = 0; i < nCompressors; ++i )
+            getInfo( i, &_infos[i] );
     
-    if ( !find )
-    {
-        EQWARN << "Initializing compression DSO " << libraryName 
-               << " failed, at least one entry point missing" << std::endl;
-        return false;
+        return true;
     }
 
-    const size_t nCompressors = getNumCompressors();
-    EQASSERT( nCompressors > 0 );
-    _infos.resize( nCompressors );
-
-    for( size_t i = 0; i < nCompressors; ++i )
-        getInfo( i, &_infos[i] );
-    
-    return true;
+    EQWARN << "Initializing compression DSO " << libraryName 
+           << " failed, at least one entry point missing" << std::endl;
+    return false;
 }
 
 bool Compressor::implementsType( const uint32_t name )

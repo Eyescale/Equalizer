@@ -65,7 +65,7 @@ int main( const int argc, char** argv )
         EQERROR << "Equalizer init failed" << std::endl;
         return EXIT_FAILURE;
     }
-    
+
     // 4. initialization of local client node
     eq::base::RefPtr< eqPly::EqPly > client = new eqPly::EqPly( initData );
     if( !client->initLocal( argc, argv ))

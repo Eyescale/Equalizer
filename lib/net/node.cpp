@@ -895,7 +895,7 @@ bool Node::_connect( NodePtr node, ConnectionPtr connection )
 
     EQASSERT( node->_id != NodeID::ZERO );
     EQASSERTINFO( node->_id != _id, _id );
-    EQINFO << node << " connected to " << this << std::endl;
+    EQINFO << node << " connected to " << *this << std::endl;
     return true;
 }
 
@@ -2185,7 +2185,7 @@ std::ostream& operator << ( std::ostream& os, const Node& node )
     for( ConnectionDescriptionVector::const_iterator i = descs.begin();
          i != descs.end(); ++i )
     {
-        os << ", " << *i;
+        os << ", " << (*i)->toString();
     }
     return os;
 }

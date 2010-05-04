@@ -17,9 +17,11 @@
 
 #ifndef EQUTIL_COMPRSSORDATA_H
 #define EQUTIL_COMPRSSORDATA_H
-#include"eq/base/compressor.h"
-#include"eq/base/buffer.h"
+
 #include"eq/fabric/pixelViewport.h"
+
+#include"eq/base/buffer.h"
+#include"eq/base/compressor.h"
 
 namespace eq
 {
