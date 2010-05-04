@@ -42,11 +42,7 @@ bool Compressor1TO1::isCompatible( const GLEWContext* glewContext )
 }
 
 Compressor1TO1::~Compressor1TO1( )
-<<<<<<< HEAD
 { 
-=======
-{
->>>>>>> Minor code cleanups
     delete _texture;
     _texture = 0;
 }

@@ -1,9 +1,9 @@
-Add stub admin library
+Fix build due to overlooked merge problem
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
+[x] Bugfix
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
