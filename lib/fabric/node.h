@@ -75,8 +75,8 @@ namespace fabric
          * @name Attributes
          */
         //@{
-        // Note: also update string array initialization in node.cpp
-        /** Node attributes. */
+        // Note: also update string array initialization in node.ipp
+        /** Integer attributes. */
         enum IAttribute
         {
             /** <a href="http://www.equalizergraphics.com/documents/design/threads.html#sync">Threading model</a> */
@@ -87,11 +87,37 @@ namespace fabric
             IATTR_ALL
         };
 
+        /** String attributes. */
+        enum SAttribute
+        {
+            SATTR_LAUNCH_COMMAND,
+            SATTR_FILL1,
+            SATTR_FILL2,
+            SATTR_ALL
+        };
+
+        /** Character attributes. */
+        enum CAttribute
+        {
+            CATTR_LAUNCH_COMMAND_QUOTE,
+            CATTR_FILL1,
+            CATTR_FILL2,
+            CATTR_ALL
+        };
+
         EQFABRIC_EXPORT void setIAttribute( const IAttribute attr,
                                             const int32_t value );
         EQFABRIC_EXPORT int32_t getIAttribute( const IAttribute attr ) const;
-        EQFABRIC_EXPORT static const std::string& getIAttributeString(
-                                                        const IAttribute attr );
+
+        void setSAttribute( const SAttribute attr, const std::string& value );
+        const std::string& getSAttribute( const SAttribute attr ) const;
+
+        void setCAttribute( const CAttribute attr, const char value );
+        char getCAttribute( const CAttribute attr ) const;
+
+        static const std::string& getIAttributeString( const IAttribute attr );
+        static const std::string& getSAttributeString( const SAttribute attr );
+        static const std::string& getCAttributeString( const CAttribute attr );
         //@}
 
         EQFABRIC_EXPORT virtual void backup(); //!< @internal
@@ -127,6 +153,12 @@ namespace fabric
         {
             /** Integer attributes. */
             int32_t iAttributes[IATTR_ALL];
+
+            /** String attributes. */
+            std::string sAttributes[SATTR_ALL];
+
+            /** Character attributes. */
+            char cAttributes[CATTR_ALL];
         }
             _data, _backup;
 

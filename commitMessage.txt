@@ -1,4 +1,4 @@
-Clean up appNode flag handling
+Move node string and char attributes to fabric
 
 [ ] May break build
 [ ] May break existing applications

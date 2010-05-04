@@ -40,20 +40,6 @@ namespace eq
 namespace server
 {
 typedef fabric::Node< Config, Node, Pipe, NodeVisitor > Super;
-
-#define MAKE_ATTRIB_STRING( attr ) ( std::string("EQ_NODE_") + #attr )
-
-std::string Node::_sAttributeStrings[SATTR_ALL] = {
-    MAKE_ATTRIB_STRING( SATTR_LAUNCH_COMMAND ),
-    MAKE_ATTRIB_STRING( SATTR_FILL1 ),
-    MAKE_ATTRIB_STRING( SATTR_FILL2 )
-};
-std::string Node::_cAttributeStrings[CATTR_ALL] = {
-    MAKE_ATTRIB_STRING( CATTR_LAUNCH_COMMAND_QUOTE ),
-    MAKE_ATTRIB_STRING( CATTR_FILL1 ),
-    MAKE_ATTRIB_STRING( CATTR_FILL2 )
-};
-
 typedef net::CommandFunc<Node> NodeFunc;
 
 void Node::_construct()
@@ -71,10 +57,15 @@ Node::Node( Config* parent )
     _construct();
     const Global* global = Global::instance();    
     for( int i=0; i < Node::SATTR_ALL; ++i )
-        _sattributes[i] = global->getNodeSAttribute((Node::SAttribute)i);
+    {
+        const SAttribute attr = static_cast< SAttribute >( i );
+        setSAttribute( attr, global->getNodeSAttribute( attr ));
+    }
     for( int i=0; i < Node::CATTR_ALL; ++i )
-        _cattributes[i] = global->getNodeCAttribute((Node::CAttribute)i);
-    
+    {
+        const CAttribute attr = static_cast< CAttribute >( i );
+        setCAttribute( attr, global->getNodeCAttribute( attr ));
+    }
     for( int i = 0; i < IATTR_ALL; ++i )
     {
         const IAttribute attr = static_cast< IAttribute >( i );

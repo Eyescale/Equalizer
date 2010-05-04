@@ -134,41 +134,6 @@ namespace server
         //@}
 
 
-        /** @name Attributes */
-        //@{
-        // Note: also update string array init in node.cpp
-        enum SAttribute
-        {
-            SATTR_LAUNCH_COMMAND,
-            SATTR_FILL1,
-            SATTR_FILL2,
-            SATTR_ALL
-        };
-
-        enum CAttribute
-        {
-            CATTR_LAUNCH_COMMAND_QUOTE,
-            CATTR_FILL1,
-            CATTR_FILL2,
-            CATTR_ALL
-        };
-
-        void setSAttribute( const SAttribute attr, const std::string& value )
-            { _sattributes[attr] = value; }
-        const std::string&  getSAttribute( const SAttribute attr ) const
-            { return _sattributes[attr]; }
-
-        void setCAttribute( const CAttribute attr, const char value )
-            { _cattributes[attr] = value; }
-        char getCAttribute( const CAttribute attr ) const
-            { return _cattributes[attr]; }
-
-        static const std::string&  getSAttributeString( const SAttribute attr )
-            { return _sAttributeStrings[attr]; }
-        static const std::string&  getCAttributeString( const CAttribute attr )
-            { return _cAttributeStrings[attr]; }
-        //@}
-
         /**
          * @name Barrier Cache
          *
@@ -244,18 +209,6 @@ namespace server
         void deserialize( net::DataIStream& is, const uint64_t dirtyBits );
     
     private:
-
-        /** String attributes. */
-        std::string _sattributes[SATTR_ALL];
-
-        /** Character attributes. */
-        char _cattributes[CATTR_ALL];
-
-        /** String representation of string attributes. */
-        static std::string _sAttributeStrings[SATTR_ALL];
-        /** String representation of character attributes. */
-        static std::string _cAttributeStrings[CATTR_ALL];
-
         /** Number of activations for this node. */
         uint32_t _active;
 
