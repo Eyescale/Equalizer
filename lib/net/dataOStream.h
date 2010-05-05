@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,11 +19,11 @@
 #ifndef EQNET_DATAOSTREAM_H
 #define EQNET_DATAOSTREAM_H
 
+
 #include <eq/net/types.h>   // ConnectionVector member
-#include "dataStream.h"     // base class
 
 #include <eq/base/buffer.h> // member
-
+#include <eq/base/compressorDataCPU.h>
 #include <iostream>
 #include <vector>
 
@@ -41,13 +42,13 @@ namespace DataStreamTest
      *
      * Derived classes send the data using the appropriate command packets.
      */
-    class DataOStream : public DataStream
+    class DataOStream
     {
     public:
         /** @name Internal */
         //@{
         DataOStream();
-        DataOStream( const DataOStream& from ) : DataStream( from ){}
+        DataOStream( const DataOStream& from );
         virtual ~DataOStream();
 
         /** Enable output, locks the connections to the receivers */ 
@@ -102,6 +103,8 @@ namespace DataStreamTest
  
     protected:
 
+        base::CompressorDataCPU compressor;
+
         /** Flush remaining data in the buffer. */
         void _flush();
 
@@ -130,7 +133,6 @@ namespace DataStreamTest
         friend class DataStreamTest::Sender;
 
     private:
-        void*  _compressor;   //!< the instance of the compressor
         
         enum BufferType
         {
@@ -171,9 +173,6 @@ namespace DataStreamTest
         }
         /** Send the trailing data (packet) to the receivers */
         void _sendFooter( const void* buffer, const uint64_t size );
-
-        /** intanciate compressor */
-        void _initCompressor( );
 
         /**
          * Collect compressed data.

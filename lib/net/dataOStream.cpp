@@ -50,33 +50,24 @@ base::a_int32_t nBytesCompressedSend;
 }
 
 DataOStream::DataOStream()
-        : _compressor( 0 )
-        , _bufferType( BUFFER_NONE )
+        : _bufferType( BUFFER_NONE )
         , _bufferStart( 0 )
         , _enabled( false )
         , _dataSent( false )
         , _save( false )
 {
-#ifdef EQ_COMPRESS_STREAM
-    const base::PluginRegistry& registry = base::Global::getPluginRegistry();
-    const uint32_t name = 
-        registry.chooseCompressor( EQ_COMPRESSOR_DATATYPE_BYTE );
-    _initCompressorPlugin( name );
-    _initCompressor();
-#endif
+    compressor.findAndInitCompressor( EQ_COMPRESSOR_DATATYPE_BYTE );
+}
 
+DataOStream::DataOStream( const DataOStream& from )
+{
+    compressor.initCompressor( from.compressor.getName() );
 }
 
 DataOStream::~DataOStream()
 {
     // Can't call disable() from destructor since it uses virtual functions
     EQASSERT( !_enabled );
-
-    base::Compressor* plugin = _getCompressorPlugin();
-    if( plugin && _compressor )
-        plugin->deleteCompressor( _compressor );
-    
-    _compressor = 0;
 }
 
 void DataOStream::enable( const NodeVector& receivers )
@@ -266,11 +257,9 @@ void DataOStream::_sendData( const void* data, const uint64_t size )
 
     if( !_connections.empty( ))
     {
-        if( _bufferType != BUFFER_NONE && _compressor )
+        if( _bufferType != BUFFER_NONE )
         {
-            base::Compressor* plugin = _getCompressorPlugin();
-            const uint32_t name = _getCompressorName();
-            const uint32_t nChunks = plugin->getNumResults( _compressor, name );
+            const uint32_t nChunks = compressor.getNumResults( );
 
             uint64_t* chunkSizes = static_cast< uint64_t* >( 
                                     alloca( nChunks * sizeof( uint64_t )));
@@ -282,7 +271,8 @@ void DataOStream::_sendData( const void* data, const uint64_t size )
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
                 nBytesCompressedSend += dataSize;
 #endif
-                sendData( name, nChunks, chunks, chunkSizes, size );
+                sendData( compressor.getName(), nChunks, chunks, 
+                          chunkSizes, size );
                 _dataSent = true;
                 return;
             }
@@ -296,11 +286,9 @@ void DataOStream::_sendData( const void* data, const uint64_t size )
 
 void DataOStream::_sendFooter( const void* buffer, const uint64_t size )
 {
-    if( _bufferType != BUFFER_NONE && _compressor )
+    if( _bufferType != BUFFER_NONE )
     {
-        base::Compressor* plugin = _getCompressorPlugin();
-        const uint32_t name = _getCompressorName();
-        const uint32_t nChunks = plugin->getNumResults( _compressor, name );
+        const uint32_t nChunks = compressor.getNumResults( );
 
         uint64_t* chunkSizes = static_cast< uint64_t* >( 
                                 alloca( nChunks * sizeof( uint64_t )));
@@ -312,7 +300,7 @@ void DataOStream::_sendFooter( const void* buffer, const uint64_t size )
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
             nBytesCompressedSend += dataSize;
 #endif
-            sendFooter( name, nChunks, chunks, chunkSizes, size );
+            sendFooter( compressor.getName(), nChunks, chunks, chunkSizes, size );
             return;
         }
     }
@@ -325,7 +313,7 @@ void DataOStream::_compress( const void* src, const uint64_t  sizeSrc )
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
     nBytesTryToCompress += sizeSrc;
 #endif
-    if( !_compressor )
+    if ( !compressor.isValid() )
     {
         _bufferType = BUFFER_NONE;
         return;
@@ -336,16 +324,12 @@ void DataOStream::_compress( const void* src, const uint64_t  sizeSrc )
     eq::base::Clock clock;
 #endif
     const uint64_t inDims[2] = { 0, sizeSrc };
-    base::Compressor* plugin = _getCompressorPlugin();
-    const uint32_t name = _getCompressorName();
-    EQASSERT( plugin );
 
-    plugin->compress( _compressor, name, const_cast< void* >( src ), inDims,
-                      EQ_COMPRESSOR_DATA_1D );
+    compressor.compress( const_cast< void* >( src ), inDims );
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
     timeToCompress += clock.getTime64();
-    const uint32_t nChunks = plugin->getNumResults( _compressor, name );
+    const uint32_t nChunks = compressor.getNumResults( );
 
     EQASSERT( nChunks > 0 );
     for ( size_t i = 0; i < nChunks; i++ )
@@ -353,7 +337,7 @@ void DataOStream::_compress( const void* src, const uint64_t  sizeSrc )
         void* chunk;
         uint64_t chunkSize;
 
-        plugin->getResult( _compressor, name, i, &chunk, &chunkSize );
+        compressor.getResult(  i, &chunk, &chunkSize );
         nBytesCompressed += chunkSize;
     }
 #endif
@@ -363,30 +347,17 @@ uint64_t DataOStream::_getCompressedData( void** chunks, uint64_t* chunkSizes )
     const
 {    
     EQASSERT( _bufferType != BUFFER_NONE );
-    const base::Compressor* plugin = _getCompressorPlugin();
-    const uint32_t name = _getCompressorName();
-    const uint32_t nChunks = plugin->getNumResults( _compressor, name );
+    const uint32_t nChunks = compressor.getNumResults( );
     EQASSERT( nChunks > 0 );
 
     uint64_t dataSize = 0;
     for ( uint32_t i = 0; i < nChunks; i++ )
     {
-        plugin->getResult( _compressor, name, i, &chunks[i], &chunkSizes[i] );
+        compressor.getResult( i, &chunks[i], &chunkSizes[i] );
         dataSize += chunkSizes[i];
     }
 
     return dataSize;
-}
-
-void DataOStream::_initCompressor()
-{
-    const uint32_t name = _getCompressorName();
-    if( name != EQ_COMPRESSOR_NONE )
-    {
-        EQASSERT( !_compressor );
-        base::Compressor* plugin = _getCompressorPlugin();
-        _compressor = plugin->newCompressor( name );
-    }
 }
 
 std::ostream& operator << ( std::ostream& os,

@@ -42,10 +42,4 @@
 #  endif
 #endif
 
-#if 1
-#  ifndef EQ_COMPRESS_STREAM
-#    define EQ_COMPRESS_STREAM
-#  endif
-#endif
-
 #endif // EQBASE_DEFINES_MSC_H

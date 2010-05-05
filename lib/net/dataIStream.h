@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,9 +19,9 @@
 #ifndef EQNET_DATAISTREAM_H
 #define EQNET_DATAISTREAM_H
 
-#include "dataStream.h"     // Base Class
 #include <eq/net/types.h>
 #include <eq/base/buffer.h> // member
+#include <eq/base/compressorDataCPU.h>
 #include <iostream>
 #include <vector>
 
@@ -28,16 +29,24 @@ namespace eq
 {
 namespace net
 {
-    
+    class DataIStream;
     /** A std::istream-like input data stream for binary data. */
-    class DataIStream : public DataStream
+    class DataIStream
     {
     public:
         /** @name Internal */
         //@{ 
-        DataIStream();
-        DataIStream( const DataIStream& from );
-        virtual ~DataIStream();
+        DataIStream()
+              : _input( 0 )
+              , _inputSize( 0 )
+              , _position( 0 ){}
+
+        DataIStream( const DataIStream& from )
+              : _input( 0 )
+              , _inputSize( 0 )
+              , _position( 0 ){}
+
+        virtual ~DataIStream(){ reset(); }
 
         /** Get the number of remaining buffers. */
         virtual size_t nRemainingBuffers() const = 0;
@@ -102,10 +111,11 @@ namespace net
         EQ_EXPORT uint64_t       getRemainingBufferSize();
 
         /** Advance the current buffer by a number of bytes. */
-        EQ_EXPORT void           advanceBuffer( const uint64_t offset ); 
+        EQ_EXPORT void           advanceBuffer( const uint64_t offset );
         //@}
  
     protected:
+        base::CompressorDataCPU decompressor;
         virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size ) =0;
 
         void _decompress( const uint8_t* src, const uint8_t** dst, 
@@ -120,10 +130,7 @@ namespace net
         /** The current read position in the buffer */
         uint64_t  _position;
 
-        void* _decompressor;   //!< the instance of the decompressor
         eq::base::Bufferb _data; //!< decompress buffer
-
-        void _initDecompressor( const uint32_t name );
         /**
          * Check that the current buffer has data left, get the next buffer is
          * necessary, return false if no data is left. 
@@ -138,7 +145,7 @@ namespace net
             read( &nElems, sizeof( nElems ));
             value.resize( nElems );
             if( nElems > 0 )
-                read( &value.front(), nElems * sizeof( T ));            
+                read( &value.front(), nElems * sizeof( T ));
             return *this; 
         }
     };

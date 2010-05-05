@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,7 +22,6 @@
 #include "node.h"
 
 #include <eq/base/debug.h>
-#include <eq/base/compressor.h>
 
 #include <string.h>
 
@@ -29,29 +29,6 @@ namespace eq
 {
 namespace net
 {
-DataIStream::DataIStream()
-        : _input( 0 )
-        , _inputSize( 0 )
-        , _position( 0 )
-        , _decompressor( 0 )
-{}
-
-DataIStream::DataIStream( const DataIStream& from )
-        : DataStream( from )
-        , _input( 0 )
-        , _inputSize( 0 )
-        , _position( 0 )
-        , _decompressor( 0 )
-{}
-
-DataIStream::~DataIStream()
-{
-    reset();
-    
-    base::Compressor* plugin = _getCompressorPlugin();
-    if( plugin && _decompressor )
-        plugin->deleteDecompressor( _decompressor );
-}
 
 void DataIStream::reset()
 {
@@ -127,7 +104,8 @@ void DataIStream::_decompress( const uint8_t* src, const uint8_t** dst,
         
     EQASSERT( name > EQ_COMPRESSOR_NONE );
 
-    _initDecompressor( name );
+    if ( !decompressor.isValid( name ) )
+        decompressor.initDecompressor( name );
 
     uint64_t outDim[2] = { 0, dataSize };
     uint64_t* chunkSizes = static_cast< uint64_t* >( 
@@ -146,30 +124,9 @@ void DataIStream::_decompress( const uint8_t* src, const uint8_t** dst,
         src += size;
     }
 
-    base::Compressor* plugin = _getCompressorPlugin();
-    EQASSERT( plugin );
-    plugin->decompress( _decompressor, name, chunks, chunkSizes, nChunks, 
-                        _data.getData(), outDim, EQ_COMPRESSOR_DATA_1D );
+    decompressor.decompress( chunks, chunkSizes, nChunks, 
+                            _data.getData(), outDim );
 
-}
-
-void DataIStream::_initDecompressor( const uint32_t name )
-{
-    if( _getCompressorName() != name && _decompressor )
-    {
-        base::Compressor* plugin = _getCompressorPlugin();
-        EQASSERT( plugin );
-        plugin->deleteDecompressor( _decompressor );
-        _decompressor = 0;
-    }
-
-    base::Compressor* plugin = _initCompressorPlugin( name );
-
-    if( !_decompressor )
-    {
-        EQASSERT( plugin );
-        _decompressor = plugin->newDecompressor( name );
-    }
 }
 
 }

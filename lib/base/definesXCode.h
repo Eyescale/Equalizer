@@ -20,9 +20,4 @@
 #ifndef GLEW_MX
 #  define GLEW_MX
 #endif
-#if 0
-#  ifndef EQ_COMPRESS_STREAM
-#    define EQ_COMPRESS_STREAM
-#  endif
-#endif
 #endif // EQBASE_DEFINES_XCode_H
