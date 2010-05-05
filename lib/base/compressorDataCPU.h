@@ -22,7 +22,7 @@
 
 namespace eq
 {
-namespace util
+namespace base
 {
     /** A C++ class to abstract a compressor instance */
     class CompressorDataCPU : public CompressorData
@@ -31,6 +31,11 @@ namespace util
         /** Construct a new compressorData */
         CompressorDataCPU( ){}
 
+        bool isValid();
+        virtual bool isValid( uint32_t name )
+        {
+           return CompressorData::isValid( name );
+        }
         /**
          * Compress data 
          *
@@ -39,11 +44,19 @@ namespace util
          * @param flags capability flags for the compression
          */
         void compress( void* const in, 
-                       const fabric::PixelViewport& pvpIn,
+                       const uint64_t  pvpIn[4],
                        const eq_uint64_t flags );
 
+        /**
+         * Compress data  in 1D dimension
+         *
+         * @param in the pointer to the input data. 
+         * @param inDims the dimensions of the input data
+         */
+        void compress( void* const in, const uint64_t inDims[2] );
+
         /** get the number of chunks compressed */
-        unsigned getNumResults( );
+        const unsigned getNumResults( ) const;
 
         /**
          * get the compressed Data for the specified chunk 
@@ -54,7 +67,7 @@ namespace util
          */
         void getResult( const unsigned i, 
                         void** const out, 
-                        uint64_t* const outSize );
+                        uint64_t* const outSize ) const ;
 
         /**
          * decompress Data
@@ -71,9 +84,48 @@ namespace util
                          const uint64_t* const inSizes,
                          const unsigned numInputs,
                          void* const out,
-                         fabric::PixelViewport& pvpOut,
+                         uint64_t pvpOut[4],
                          const uint64_t flags );
+        /**
+         * decompress Data in 1D dimension
+         *
+         * @param in the pointer to an array of input data pointers
+         * @param inSizes the array of input data sizes in bytes
+         * @param numInputs the number of input data elements
+         * @param out the pointer to a pre-allocated buffer for the 
+         *            uncompressed output result.
+         * @param outDim the dimensions of the output data.
+         */
+        void decompress( const void* const* in, 
+                         const uint64_t* const inSizes,
+                         const unsigned numInputs,
+                         void* const out,
+                         uint64_t outDim[2]);
 
+        
+        /**
+         * Find the best compressor in all plugins for the given parameters.
+         *
+         * This convenience method searches all compressors in all plugins to
+         * find the compressor which matches best the given parameters.
+         *
+         * @param tokenType the structure of the data to compress.
+         * @param minQuality minimal quality of the compressed data, with 0 = no
+         *                   quality and 1 = full quality, no loss.
+         * @param ignoreMSE the most-significant element of each token can be
+         *                  ignored, typically the alpha channel of an image.
+         */
+        EQ_EXPORT uint32_t chooseCompressor( const uint32_t tokenType, 
+                                             const float minQuality = 1.0f,
+                                             const bool ignoreMSE = false )
+            const;
+        /**
+         * find and init the compressor for the specifed data type
+         *
+         * @param dataType the datatype whuch will be use compressor
+         */
+        EQ_EXPORT void findAndInitCompressor( uint32_t dataType ); 
+        
         bool initCompressor( uint32_t name )
         { 
             _isCompressor = true;

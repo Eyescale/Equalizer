@@ -18,14 +18,15 @@
 #ifndef EQUTIL_COMPRSSORDATAGPU_H
 #define EQUTIL_COMPRSSORDATAGPU_H
 
-#include "compressorData.h"
+#include <eq/base/compressorData.h>
+#include <eq/fabric/pixelViewport.h>
 
 namespace eq
 {
 namespace util
 {
     /** A C++ class to abstract a compressor instance */
-    class CompressorDataGPU : public CompressorData
+    class CompressorDataGPU : public base::CompressorData
     {
     public:
         /** Construct a new compressorData */

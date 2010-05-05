@@ -18,14 +18,12 @@
 #ifndef EQUTIL_COMPRSSORDATA_H
 #define EQUTIL_COMPRSSORDATA_H
 
-#include"eq/fabric/pixelViewport.h"
-
-#include"eq/base/buffer.h"
-#include"eq/base/compressor.h"
+#include "buffer.h"
+#include "compressor.h"
 
 namespace eq
 {
-namespace util
+namespace base
 {
     /** A C++ class to abstract a compressor instance */
     class CompressorData
@@ -43,14 +41,14 @@ namespace util
         base::Compressor* getPlugin(){ return _plugin; }
         
         /** @return the name of the compressor. */
-        uint32_t getName(){ return _name; }
+        uint32_t getName() const { return _name; }
 
         /** Set the name of the compressor. */
         void setName( uint32_t name );
 
         /** @return true if the compressor is ready for the 
                     current compressor name. */
-        bool isValid( uint32_t name );
+        virtual bool isValid( uint32_t name );
 
         uint32_t getTypeProcessing() const { return _info.outputTokenType; }
         uint32_t getSizeTypeProcessing() const { return _info.outputTokenSize; }

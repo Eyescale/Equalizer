@@ -21,7 +21,7 @@
 
 namespace eq
 {
-namespace util
+namespace base
 {
 
 void CompressorData::_reset()
@@ -77,8 +77,6 @@ bool CompressorData::_initCompressor( uint32_t name )
     EQASSERT( _instance );
     
     _name = name;
-    _quality = 
-    EQINFO << "Instantiated compressor of type " << name << std::endl;
     return true; 
 }
 
@@ -101,7 +99,6 @@ bool CompressorData::_initDecompressor( uint32_t name )
     _instance = _plugin->newDecompressor( name );
     
     _name = name;
-    EQINFO << "Instantiated compressor of type " << name << std::endl;
     return true; 
 }
 
