@@ -248,7 +248,7 @@ public:
 class Compressor1TO1Depth8 : public Compressor1TO1
 {
 public:
-    Compressor1TO1Depth8(): Compressor1TO1( GL_RGBA, GL_UNSIGNED_INT, 4 ){}
+    Compressor1TO1Depth8(): Compressor1TO1( GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 4 ){}
     static void* getNewCompressor( )
                                 { return new eq::plugin::Compressor1TO1Depth8; }
     

@@ -16,15 +16,11 @@
  */
 
 #include "lock.h"
-
 #include "log.h"
 
 #include <errno.h>
 #include <string.h>
 #include <pthread.h>
-#include <string.h>
-
-using namespace std;
 
 namespace eq
 {
@@ -49,11 +45,12 @@ Lock::Lock()
     const int error = pthread_mutex_init( &_data->mutex, 0 );
     if( error )
     {
-        EQERROR << "Error creating pthread mutex: " << strerror(error) << endl;
+        EQERROR << "Error creating pthread mutex: "
+                << strerror(error) << std::endl;
         return;
     }
 #endif
-    EQVERB << "New Lock @" << (void*)this << endl;
+    EQVERB << "New Lock @" << (void*)this << std::endl;
 }
 
 Lock::~Lock()
@@ -76,7 +73,6 @@ void Lock::set()
 #endif
 }
 
-
 void Lock::unset()
 {
 #ifdef WIN32
@@ -86,7 +82,6 @@ void Lock::unset()
 #endif
 }
 
-
 bool Lock::trySet()
 {
 #ifdef WIN32
@@ -95,7 +90,6 @@ bool Lock::trySet()
     return ( pthread_mutex_trylock( &_data->mutex ) == 0 );
 #endif
 }
-
 
 bool Lock::isSet()
 {
