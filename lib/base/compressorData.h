@@ -36,6 +36,9 @@ namespace base
                 , _instance( 0 )
                 , _plugin( 0 )
                 , _isCompressor( true ){}
+		
+		/** destructor of compressorData */
+		virtual ~CompressorData(){}
         
         /** @return the plugin for the current compressor. */
         base::Compressor* getPlugin(){ return _plugin; }

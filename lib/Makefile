@@ -10,6 +10,8 @@ HEADER_SRC = \
 	base/base.h \
 	base/buffer.h \
 	base/compressor.h \
+	base/compressorData.h \
+	base/compressorDataCPU.h \
 	base/clock.h \
 	base/compareAndSwap.h \
 	base/debug.h \
@@ -61,7 +63,6 @@ HEADER_SRC = \
 	net/connectionListener.h \
 	net/connectionSet.h \
 	net/connectionType.h \
-	net/dataStream.h \
 	net/dataIStream.h \
 	net/dataOStream.h \
 	net/dispatcher.h \
@@ -171,8 +172,6 @@ HEADER_SRC = \
 	util/accum.h \
 	util/accumBufferObject.h \
 	util/bitmapFont.h \
-	util/compressorData.h \
-	util/compressorDataCPU.h \
 	util/compressorDataGPU.h \
 	util/frameBufferObject.h \
 	util/objectManager.h \
@@ -183,6 +182,8 @@ HEADER_SRC = \
 
 CXXFILES = \
 	base/compressor.cpp \
+	base/compressorData.cpp \
+	base/compressorDataCPU.cpp \
 	base/debug.cpp \
 	base/dso.cpp \
 	base/global.cpp \
@@ -209,7 +210,6 @@ CXXFILES = \
 	net/connection.cpp \
 	net/connectionDescription.cpp \
 	net/connectionSet.cpp \
-	net/dataStream.cpp \
 	net/dataIStream.cpp \
 	net/dataOStream.cpp \
 	net/deltaMasterCM.cpp \
@@ -304,8 +304,6 @@ CXXFILES = \
 	util/accum.cpp \
 	util/accumBufferObject.cpp \
 	util/bitmapFont.cpp \
-	util/compressorData.cpp \
-	util/compressorDataCPU.cpp \
 	util/compressorDataGPU.cpp \
 	util/frameBufferObject.cpp \
 	util/objectManager.cpp \
