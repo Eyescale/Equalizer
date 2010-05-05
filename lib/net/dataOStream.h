@@ -47,20 +47,20 @@ namespace DataStreamTest
     public:
         /** @name Internal */
         //@{
-        DataOStream();
+        EQ_EXPORT DataOStream();
         DataOStream( const DataOStream& from );
-        virtual ~DataOStream();
+        virtual EQ_EXPORT ~DataOStream();
 
         /** Enable output, locks the connections to the receivers */ 
         void enable( const NodeVector& receivers );
         void enable( NodePtr node, const bool useMulticast );
-        void enable();
+        EQ_EXPORT void enable();
 
         /** Resend the saved buffer. */
         void resend( NodePtr node );
 
         /** Disable, flush and unlock the output to the current receivers. */
-        void disable();
+        EQ_EXPORT void disable();
 
         /** Enable copying of all data into a saved buffer. */
         void enableSave();
@@ -126,7 +126,7 @@ namespace DataStreamTest
         //@}
 
         /** Reset the whole stream. */
-        virtual void reset();
+        virtual EQ_EXPORT void reset();
 
         /** Locked connections to the receivers, if _enabled */
         ConnectionVector _connections;

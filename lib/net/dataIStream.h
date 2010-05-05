@@ -53,7 +53,7 @@ namespace net
 
         virtual uint32_t getVersion() const = 0;
 
-        virtual void reset();
+        virtual EQ_EXPORT void reset();
         //@}
 
         /** @name Data input */

@@ -40,11 +40,11 @@ namespace net
     class CommandCache
     {
     public:
-        CommandCache();
-        ~CommandCache();
+        EQ_EXPORT CommandCache();
+        EQ_EXPORT ~CommandCache();
 
         /** @return a new command. */
-        Command& alloc( NodePtr node, NodePtr localNode, const uint64_t size );
+        EQ_EXPORT Command& alloc( NodePtr node, NodePtr localNode, const uint64_t size );
 
         /** Flush all allocated commands. */
         void flush();

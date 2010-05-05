@@ -24,7 +24,7 @@ namespace eq
 namespace base
 {
 
-void CompressorData::_reset()
+void CompressorData::reset()
 {
     if ( _instance )
     {
@@ -41,7 +41,7 @@ void CompressorData::_reset()
 
 void CompressorData::setName( uint32_t name )
 {
-    _reset();
+    reset();
     _name = name;
 }
 
@@ -58,7 +58,7 @@ bool CompressorData::isValid( uint32_t name )
 
 bool CompressorData::_initCompressor( uint32_t name )
 {
-    _reset();
+    reset();
     
     if ( name <= EQ_COMPRESSOR_NONE )
     {
@@ -82,7 +82,7 @@ bool CompressorData::_initCompressor( uint32_t name )
 
 bool CompressorData::_initDecompressor( uint32_t name )
 {
-    _reset();
+    reset();
     if ( name <= EQ_COMPRESSOR_NONE )
     {
         _name = name;

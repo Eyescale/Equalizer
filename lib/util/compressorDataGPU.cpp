@@ -111,7 +111,7 @@ void CompressorDataGPU::initUploader( uint32_t gpuTokenType,
     }
 
     if ( name == EQ_COMPRESSOR_NONE )
-        _reset();
+        reset();
     else if( name != _name )
         _initCompressor( name );    
 }
@@ -160,7 +160,7 @@ void CompressorDataGPU::initDownloader( float minQuality,
     }
 
     if ( name == EQ_COMPRESSOR_NONE )
-        _reset();
+        reset();
     else if( name != _name )
     {
         _initCompressor( name );

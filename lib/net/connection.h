@@ -314,7 +314,7 @@ namespace net
          * @param isLocked true if the connection is locked externally.
          * @return true if the packet was sent successfully to all connections.
          */
-        static bool send( const ConnectionVector& connections,
+        static EQ_EXPORT bool send( const ConnectionVector& connections,
                           const Packet& packet, const bool isLocked = false );
         /** 
          * Sends a packaged message including additional data to multiple
@@ -327,7 +327,7 @@ namespace net
          * @param isLocked true if the connection is locked externally.
          * @return true if the packet was sent successfully to all receivers.
          */
-        static bool send( const ConnectionVector& connections, Packet& packet,
+        static EQ_EXPORT bool send( const ConnectionVector& connections, Packet& packet,
                           const void* data, const uint64_t size,
                           const bool isLocked = false );
         /** 

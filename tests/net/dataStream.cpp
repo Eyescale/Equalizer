@@ -66,6 +66,9 @@ struct FooterPacket : public eq::net::Packet
 
 class DataOStream : public eq::net::DataOStream
 {
+public:
+    DataOStream()
+        { compressor.reset(); }
 protected:
     virtual void sendData( const uint32_t name, const uint32_t nChunks,
                            const void* const* buffer, const uint64_t* size,

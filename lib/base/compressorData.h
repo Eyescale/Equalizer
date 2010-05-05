@@ -51,10 +51,14 @@ namespace base
 
         /** @return true if the compressor is ready for the 
                     current compressor name. */
-        virtual bool isValid( uint32_t name );
+        virtual EQ_EXPORT bool isValid( uint32_t name );
 
         uint32_t getTypeProcessing() const { return _info.outputTokenType; }
+        
         uint32_t getSizeTypeProcessing() const { return _info.outputTokenSize; }
+        
+        /** remove all information about the current comprossor. */
+        EQ_EXPORT void reset();
 
     protected:
         /** the name of the (de)compressor */
@@ -73,7 +77,7 @@ namespace base
         /** If the insttance is a compressor or downloader Type */
         bool _isCompressor;
         
-        void _reset();
+        
 
        /**
          * Find the plugin where located the compressor
