@@ -78,6 +78,13 @@ Config< S, C, O, L, CV, N, V >::~Config()
         delete observer;
     }
 
+    while( !_nodes.empty( ))
+    {
+        N* node = _nodes.back();
+        _removeNode( node );
+        delete node;
+    }
+
     _server->_removeConfig( static_cast< C* >( this ));
     _server = 0;
 

@@ -486,7 +486,7 @@ const Image* Compositor::mergeFramesCPU( const FrameVector& frames,
     EQASSERT( colorType   != GL_NONE );
 
     result->setFormat( Frame::BUFFER_COLOR, colorFormat );
-    result->setType(   Frame::BUFFER_COLOR, colorType );
+    result->setType( Frame::BUFFER_COLOR, colorType );
     result->setPixelViewport( destPVP );
     result->clearPixelData( Frame::BUFFER_COLOR );
 

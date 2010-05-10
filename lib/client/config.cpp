@@ -69,6 +69,7 @@ Config::~Config()
     EQASSERT( getObservers().empty( ));
     EQASSERT( getLayouts().empty( ));
     EQASSERT( getCanvases().empty( ));
+    EQASSERT( getNodes().empty( ));
     
     while( tryNextEvent( )) /* flush all pending events */ ;
     if( _lastEvent )

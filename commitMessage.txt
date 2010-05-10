@@ -1,9 +1,9 @@
-Add template vsproj for Admin API
+Config exit fix
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[x] Bugfix
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

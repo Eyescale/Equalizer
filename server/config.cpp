@@ -89,14 +89,6 @@ Config::~Config()
         delete compound;
     }
     _compounds.clear();
-
-    NodeVector nodes = getNodes();
-    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
-    {
-        Node* node = *i;
-        delete node;
-    }
-    nodes.clear();
 }
 
 void Config::notifyMapped( net::NodePtr node )
