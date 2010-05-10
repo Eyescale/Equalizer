@@ -1,12 +1,9 @@
-Admin API:
-- map pipes...channels
-- move packets.h into proper place
-- clean up fabric::Pipe/Window
+Add template vsproj for Admin API
 
-[x] May break build
+[ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [x] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
