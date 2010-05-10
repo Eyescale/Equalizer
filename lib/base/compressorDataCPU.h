@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQUTIL_COMPRSSORDATACPU_H
-#define EQUTIL_COMPRSSORDATACPU_H
+#ifndef EQUTIL_COMPRESSORDATACPU_H
+#define EQUTIL_COMPRESSORDATACPU_H
 
 #include "compressorData.h"
 
@@ -24,7 +24,7 @@ namespace eq
 {
 namespace base
 {
-    /** A C++ class to abstract a compressor instance */
+    /** A C++ class to abstract a compressor instance for CPU compression. */
     class CompressorDataCPU : public CompressorData
     {
     public:
@@ -36,11 +36,12 @@ namespace base
         {
            return CompressorData::isValid( name );
         }
+
         /**
-         * Compress data 
+         * Compress two-dimensional data.
          *
          * @param in the pointer to the input data. 
-         * @param pvpIn the dimensions of the input data
+         * @param pvp the dimensions of the input data
          * @param flags capability flags for the compression
          */
         void compress( void* const in, 
@@ -48,15 +49,15 @@ namespace base
                        const eq_uint64_t flags );
 
         /**
-         * Compress data  in 1D dimension
+         * Compress one-dimensional data.
          *
          * @param in the pointer to the input data. 
          * @param inDims the dimensions of the input data
          */
         void compress( void* const in, const uint64_t inDims[2] );
 
-        /** get the number of chunks compressed */
-        const unsigned getNumResults( ) const;
+        /** get the number of compressed chunks. */
+        const unsigned getNumResults() const;
 
         /**
          * get the compressed Data for the specified chunk 
@@ -70,7 +71,7 @@ namespace base
                         uint64_t* const outSize ) const ;
 
         /**
-         * decompress Data
+         * Decompress two-dimensional data.
          *
          * @param in the pointer to an array of input data pointers
          * @param inSizes the array of input data sizes in bytes
@@ -86,8 +87,9 @@ namespace base
                          void* const out,
                          uint64_t pvpOut[4],
                          const uint64_t flags );
+
         /**
-         * decompress Data in 1D dimension
+         * Decompress one-dimensional data.
          *
          * @param in the pointer to an array of input data pointers
          * @param inSizes the array of input data sizes in bytes
@@ -119,10 +121,11 @@ namespace base
                                              const float minQuality = 1.0f,
                                              const bool ignoreMSE = false )
             const;
+
         /**
-         * find and init the compressor for the specifed data type
+         * find and init a loss-less compressor for the specifed data type
          *
-         * @param dataType the datatype whuch will be use compressor
+         * @param dataType the datatype which will be use compressor
          */
         EQ_EXPORT void findAndInitCompressor( uint32_t dataType ); 
         
@@ -137,9 +140,7 @@ namespace base
             _isCompressor = false;
             return _initDecompressor( name );
         }
-
-
     };
 }
 }
-#endif  // EQUTIL_COMPRSSORDATACPU_H
+#endif  // EQUTIL_COMPRESSORDATACPU_H

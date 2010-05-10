@@ -60,9 +60,9 @@ public:
 protected:
     eq::base::Bufferb _buffer;
     util::Texture*    _texture;
-    uint32_t          _format;         //!< the GL format
-    uint32_t          _type;           //!< the GL type 
-    uint32_t          _depth;          //!< the GL type 
+    const uint32_t    _format;         //!< the GL format
+    const uint32_t    _type;           //!< the GL type 
+    const uint32_t    _depth;          //!< the size of one output token
 
     void _init( const uint64_t  inDims[4],
                       uint64_t  outDims[4] );
@@ -200,6 +200,7 @@ public:
     bool isCompatible( const GLEWContext* glewContext )
         { return true; }
 };
+
 class Compressor1TO1Color10A2 : public Compressor1TO1
 {
 public:
@@ -245,6 +246,7 @@ public:
     bool isCompatible( const GLEWContext* glewContext )
         { return true; }
 };
+
 class Compressor1TO1Depth8 : public Compressor1TO1
 {
 public:

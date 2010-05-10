@@ -12,7 +12,7 @@ RELARCH ?= $(shell uname -r)
 -include $(TOP)/make/local.mk
 include $(TOP)/make/$(ARCH).mk
 
-DOXYGEN         ?= Doxygen
+DOXYGEN         ?= doxygen
 FLEX            ?= flex
 BISON           ?= bison
 PC_LIBRARY_PATH ?= /opt/paracomp/lib64

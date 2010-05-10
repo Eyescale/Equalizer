@@ -55,6 +55,14 @@ public:
                          const uint64_t  flags,
                          const uint64_t  outDims[4],  
                          const unsigned  destination );
+
+protected:
+    const uint32_t _format;         //!< the GL format
+    const uint32_t _type;           //!< the GL type 
+    const uint32_t _depth;          //!< the depth of one output token
+    GLuint   _program;
+    eq::base::Bufferb buffer;
+
 private:
     void _init( GLEWContext* glewContext, const char* fShaderPtr );
     void _compress( GLEWContext*   glewContext,
@@ -68,13 +76,6 @@ private:
     
     util::FrameBufferObject* _fbo;
     util::Texture* _texture;
-
-protected:
-    uint32_t _format;         //!< the GL format
-    uint32_t _type;           //!< the GL type 
-    uint32_t _depth;          //!< the GL type
-    GLuint   _program;
-    eq::base::Bufferb buffer;
 
 };
 

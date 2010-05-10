@@ -33,12 +33,12 @@ namespace plugin
 /** Construct a new compressor Yuv */
 CompressorYUV::CompressorYUV( uint32_t format, uint32_t type, uint32_t depth )
         : Compressor()
-        , _fbo( 0 )
-        , _texture( 0 )
         , _format( format )
         , _type( type )
         , _depth( depth )
         , _program( 0 )
+        , _fbo( 0 )
+        , _texture( 0 )
 { }
 
 /** Destruct the compressor Yuv */

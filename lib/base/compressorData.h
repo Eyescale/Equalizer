@@ -25,19 +25,19 @@ namespace eq
 {
 namespace base
 {
-    /** A C++ class to abstract a compressor instance */
+    /** A C++ class to abstract a compressor instance. */
     class CompressorData
     {
     public:
 
-        /** Construct a new compressorData */
+        /** Construct a new compressor data. */
         CompressorData( )
                 : _name( 0 )
                 , _instance( 0 )
                 , _plugin( 0 )
                 , _isCompressor( true ){}
 		
-		/** destructor of compressorData */
+		/** Destruct the compressor. data */
 		virtual ~CompressorData(){}
         
         /** @return the plugin for the current compressor. */
@@ -50,14 +50,14 @@ namespace base
         void setName( uint32_t name );
 
         /** @return true if the compressor is ready for the 
-                    current compressor name. */
+         *          current compressor name. */
         virtual EQ_EXPORT bool isValid( uint32_t name );
 
         uint32_t getTypeProcessing() const { return _info.outputTokenType; }
         
         uint32_t getSizeTypeProcessing() const { return _info.outputTokenSize; }
         
-        /** remove all information about the current comprossor. */
+        /** Remove all information about the current compressor. */
         EQ_EXPORT void reset();
 
     protected:
