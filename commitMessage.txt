@@ -1,9 +1,9 @@
-Reduce client/server include dependencies.
+Q&D Posix compile fix (will merge with Cedric's real fix)
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

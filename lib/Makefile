@@ -14,6 +14,8 @@ HEADER_SRC = \
 	base/compressorDataCPU.h \
 	base/clock.h \
 	base/compareAndSwap.h \
+	base/compressorData.h \
+	base/compressorDataCPU.h \
 	base/debug.h \
 	base/defines.h \
 	base/defines$(ARCH).h \

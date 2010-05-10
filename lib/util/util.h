@@ -23,7 +23,7 @@
 #include <eq/util/bitmapFont.h>
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
-#include <eq/util/compressorDataGPU.h>
+
 /** 
  * @namespace eq::util
  * @brief Equalizer utility classes
