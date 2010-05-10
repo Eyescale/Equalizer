@@ -160,14 +160,13 @@ namespace server
         virtual VisitorResult _acceptCompounds( ConfigVisitor& visitor ) const;
 
         void output( std::ostream& os ) const; //!< @internal
+        virtual bool mapNodeObjects() { return true; } //!< @internal
 
     protected:
         /** @sa net::Session::notifyMapped. */
         virtual void notifyMapped( net::NodePtr node );
 
         virtual bool mapViewObjects() { return true; } //!< @internal
-        virtual bool mapNodeObjects() { return true; } //!< @internal
-        template< class, class, class, class > friend class fabric::Node;
 
         friend class Server; // for commit()
 

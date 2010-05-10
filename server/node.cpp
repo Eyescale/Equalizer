@@ -92,6 +92,21 @@ void Node::attachToSession( const uint32_t id, const uint32_t instanceID,
                      NodeFunc( this, &Node::_cmdFrameFinishReply ), queue );
 }
 
+ServerPtr Node::getServer() const
+{
+    return getConfig() ? getConfig()->getServer() : 0;
+}
+
+net::CommandQueue* Node::getMainThreadQueue()
+{
+    return getConfig()->getMainThreadQueue();
+}
+
+net::CommandQueue* Node::getCommandThreadQueue()
+{
+    return getConfig()->getCommandThreadQueue();
+}
+
 Channel* Node::getChannel( const ChannelPath& path )
 {
     const PipeVector& pipes = getPipes();

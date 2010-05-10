@@ -58,7 +58,7 @@ namespace fabric
      * The Config in the application process has access to all Canvas, Segment,
      * Layout, View and Observer instances. Only the active Layout of the each
      * Canvas, the Frustum of each View and the Observer parameters are
-     * writable. Views can be subclassed to attach application-specific data.
+     * writable. Views can be sub-classed to attach application-specific data.
      *
      * The render client processes have only access to the current View for each
      * of their channels.

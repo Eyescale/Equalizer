@@ -63,8 +63,7 @@ namespace server
 
         /** @name Data Access. */
         //@{
-        ServerPtr getServer() const
-            { return getConfig() ? getConfig()->getServer() : 0; }
+        ServerPtr getServer() const;
 
         net::NodePtr getNode() const { return _node; }
         void setNode( net::NodePtr node ) { _node = node; }
@@ -74,10 +73,8 @@ namespace server
         /** @return the state of this node. */
         State getState()    const { return _state.get(); }
 
-        net::CommandQueue* getMainThreadQueue()
-            { return getConfig()->getMainThreadQueue(); }
-        net::CommandQueue* getCommandThreadQueue()
-            { return getConfig()->getCommandThreadQueue(); }
+        net::CommandQueue* getMainThreadQueue();
+        net::CommandQueue* getCommandThreadQueue();
 
         /** Increase node activition count. */
         void activate();
@@ -146,16 +143,16 @@ namespace server
          * @return the barrier.
          */
         net::Barrier* getBarrier();
-        /** 
-         * change latence on all barrier
-         */
-        void changeLatency( const uint32_t latency );
+
         /** 
          * Release a barrier server by this node.
          * 
          * @param barrier the barrier.
          */
         void releaseBarrier( net::Barrier* barrier );
+
+        /** Change the latency on all objects (barrier) */
+        void changeLatency( const uint32_t latency );
         //@}
 
         void send( net::SessionPacket& packet ) 
