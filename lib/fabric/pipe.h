@@ -132,6 +132,8 @@ namespace fabric
 
         EQFABRIC_EXPORT virtual void backup(); //!< @internal
         EQFABRIC_EXPORT virtual void restore(); //!< @internal
+        void create( W** window ); //!< @internal
+        void release( W* window ); //!< @internal
 
     protected:
         //-------------------- Members --------------------
@@ -148,22 +150,17 @@ namespace fabric
         EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
 
-        /** @return the vector of windows. */
-        WindowVector& _getWindows() { return _windows; }
-
-        template< class, class, class > friend class Window;
-        void _addWindow( W* window );
-        EQFABRIC_EXPORT bool _removeWindow( W* window );
-        W* _findWindow( const uint32_t id );
-
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
+
+        W* _findWindow( const uint32_t id ); //!< @internal
 
     private:
         enum DirtyBits
         {
             DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
-            DIRTY_PIXELVIEWPORT   = Object::DIRTY_CUSTOM << 1,
-            DIRTY_MEMBER          = Object::DIRTY_CUSTOM << 2,
+            DIRTY_WINDOWS         = Object::DIRTY_CUSTOM << 1,
+            DIRTY_PIXELVIEWPORT   = Object::DIRTY_CUSTOM << 2,
+            DIRTY_MEMBER          = Object::DIRTY_CUSTOM << 3,
         };
 
         /** The parent node. */
@@ -192,6 +189,12 @@ namespace fabric
         {
             char dummy[32];
         };
+
+        void _addWindow( W* window );
+        EQFABRIC_EXPORT bool _removeWindow( W* window );
+        template< class, class, class > friend class Window;
+
+        bool _mapNodeObjects() { return _node->_mapNodeObjects(); }
     };
 }
 }

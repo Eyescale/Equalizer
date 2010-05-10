@@ -24,6 +24,7 @@
 #include "global.h"
 #include "log.h"
 #include "node.h"
+#include "nodeFactory.h"
 #include "window.h"
 
 #include <eq/client/packets.h>
@@ -77,20 +78,6 @@ void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID,
                      PipeFunc( this, &Pipe::_cmdConfigExitReply ), queue );
 }
 
-void Pipe::addWindow( Window* window )
-{
-    EQASSERT( window->getChannels().empty( ));
-    _addWindow( window );
-    window->notifyViewportChanged();
-}
-
-bool Pipe::removeWindow( Window* window )
-{
-    EQASSERT( window->getChannels().empty( ));
-
-    return _removeWindow( window );
-}
-
 ServerPtr Pipe::getServer()
 {
     Node* node = getNode();
@@ -135,7 +122,7 @@ net::CommandQueue* Pipe::getCommandThreadQueue()
 
 Channel* Pipe::getChannel( const ChannelPath& path )
 {
-    WindowVector& windows = _getWindows(); 
+    const WindowVector& windows = getWindows(); 
     EQASSERT( windows.size() > path.windowIndex );
 
     if( windows.size() <= path.windowIndex )
@@ -205,7 +192,7 @@ void Pipe::updateRunning( const uint32_t initID, const uint32_t frameNumber )
         _configInit( initID, frameNumber );
 
     // Let all running windows update their running state (incl. children)
-    WindowVector& windows = _getWindows(); 
+    const WindowVector& windows = getWindows(); 
     for( WindowVector::const_iterator i = windows.begin(); 
          i != windows.end(); ++i )
     {
@@ -223,7 +210,7 @@ bool Pipe::syncRunning()
 
     // Sync state updates
     bool success = true;
-    WindowVector& windows = _getWindows(); 
+    const WindowVector& windows = getWindows(); 
     for( WindowVector::const_iterator i = windows.begin();
          i != windows.end(); ++i )
     {
@@ -345,7 +332,7 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
     send( startPacket );
     EQLOG( LOG_TASKS ) << "TASK pipe start frame " << &startPacket << std::endl;
 
-    WindowVector& windows = _getWindows(); 
+    const WindowVector& windows = getWindows(); 
     for( WindowVector::const_iterator i = windows.begin();
          i != windows.end(); ++i )
     {

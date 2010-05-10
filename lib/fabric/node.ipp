@@ -160,6 +160,58 @@ void Node< C, N, P, V >::restore()
 }
 
 template< class C, class N, class P, class V >
+void Node< C, N, P, V >::serialize( net::DataOStream& os, 
+                                 const uint64_t dirtyBits)
+{
+    Object::serialize( os, dirtyBits );
+    if( dirtyBits & DIRTY_ATTRIBUTES )
+        os.write( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
+    if( dirtyBits & DIRTY_PIPES )
+        os.serializeChildren( this, _pipes );
+    if( dirtyBits & DIRTY_MEMBER )
+        os << _isAppNode;
+}
+
+template< class C, class N, class P, class V >
+void Node< C, N, P, V >::deserialize( net::DataIStream& is,
+                                     const uint64_t dirtyBits )
+{
+    Object::deserialize( is, dirtyBits );
+    if( dirtyBits & DIRTY_ATTRIBUTES )
+        is.read( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
+    if( dirtyBits & DIRTY_PIPES )
+    {
+        if( _mapNodeObjects( ))
+        {
+            PipeVector result;
+            is.deserializeChildren( this, _pipes, result );
+            _pipes.swap( result );
+            EQASSERT( _pipes.size() == result.size( ));
+        }
+        else // consume unused ObjectVersions
+        {
+            net::ObjectVersionVector childIDs;
+            is >> childIDs;
+        }
+    }
+    if( dirtyBits & DIRTY_MEMBER )
+        is >> _isAppNode;
+}
+
+template< class C, class N, class P, class V >
+void Node< C, N, P, V >::create( P** pipe )
+{
+    *pipe = _config->getServer()->getNodeFactory()->createPipe( 
+        static_cast< N* >( this ));
+}
+
+template< class C, class N, class P, class V >
+void Node< C, N, P, V >::release( P* pipe )
+{
+    _config->getServer()->getNodeFactory()->releasePipe( pipe );
+}
+
+template< class C, class N, class P, class V >
 void Node< C, N, P, V >::setApplicationNode( const bool isAppNode )
 {
     if( _isAppNode == isAppNode )
@@ -262,28 +314,6 @@ P* Node< C, N, P, V >::findPipe( const uint32_t id )
             return pipe;
     }
     return 0;
-}
-
-template< class C, class N, class P, class V >
-void Node< C, N, P, V >::serialize( net::DataOStream& os, 
-                                 const uint64_t dirtyBits)
-{
-    Object::serialize( os, dirtyBits );
-    if( dirtyBits & DIRTY_ATTRIBUTES )
-        os.write( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
-    if( dirtyBits & DIRTY_MEMBER )
-        os << _isAppNode;
-}
-
-template< class C, class N, class P, class V >
-void Node< C, N, P, V >::deserialize( net::DataIStream& is,
-                                     const uint64_t dirtyBits )
-{
-    Object::deserialize( is, dirtyBits );
-    if( dirtyBits & DIRTY_ATTRIBUTES )
-        is.read( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
-    if( dirtyBits & DIRTY_MEMBER )
-        is >> _isAppNode;
 }
 
 }

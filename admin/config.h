@@ -48,11 +48,9 @@ namespace admin
         void output( std::ostream& os ) const {} //!< @internal
 
     protected:
-        /** @internal */
-        //@{
         virtual bool mapViewObjects() { return true; } //!< @internal
         virtual bool mapNodeObjects() { return true; } //!< @internal
-        //@}
+        template< class, class, class, class > friend class fabric::Node;
 
     private:
         union // placeholder for binary-compatible changes

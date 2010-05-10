@@ -18,7 +18,11 @@
 #include "window.h"
 
 #include "channel.h"
+#include "config.h"
+#include "node.h"
+#include "nodeFactory.h"
 #include "pipe.h"
+#include "server.h"
 
 namespace eq
 {

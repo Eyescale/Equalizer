@@ -607,7 +607,7 @@ std::ostream& operator << ( std::ostream& os,
     for( typename C::NodeVector::const_iterator i = nodes.begin();
          i != nodes.end(); ++i )
     {
-        os << *i;
+        os << **i;
     }
     const typename C::ObserverVector& observers = config.getObservers();
     for( typename C::ObserverVector::const_iterator i = observers.begin(); 

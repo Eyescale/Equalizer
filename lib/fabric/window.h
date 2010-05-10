@@ -155,6 +155,8 @@ namespace fabric
 
         EQFABRIC_EXPORT virtual void backup(); //!< @internal
         EQFABRIC_EXPORT virtual void restore(); //!< @internal
+        void create( C** channel ); //!< @internal
+        void release( C* channel ); //!< @internal
         //@}
 
     protected: 
@@ -170,33 +172,19 @@ namespace fabric
         EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
         
-        friend class Channel< W, C >;
-        /**
-         * @name Data Access
-         */
-        //@{        
-        /** Add a new channel to this window. */
-        void _addChannel( C* channel );
-
-        /** Remove a channel from this window. */
-        EQFABRIC_EXPORT bool _removeChannel( C* channel );
-
-        C* _findChannel( const uint32_t id );
-
-        /**  @return a vector of all channels of this window.  */
-        ChannelVector& _getChannels() { return _channels; }
-
         void _setDrawableConfig( const DrawableConfig& drawableConfig );
-        //@}
 
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
+
+        C* _findChannel( const uint32_t id ); //!< @internal
 
     private:
         enum DirtyBits
         {
             DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
-            DIRTY_VIEWPORT        = Object::DIRTY_CUSTOM << 1,
-            DIRTY_DRAWABLECONFIG  = Object::DIRTY_CUSTOM << 2,
+            DIRTY_CHANNELS        = Object::DIRTY_CUSTOM << 1,
+            DIRTY_VIEWPORT        = Object::DIRTY_CUSTOM << 2,
+            DIRTY_DRAWABLECONFIG  = Object::DIRTY_CUSTOM << 3,
         };
 
         /** The parent pipe. */
@@ -232,6 +220,14 @@ namespace fabric
             char dummy[32];
         };
 
+        friend class Channel< W, C >;
+        /** Add a new channel to this window. */
+        void _addChannel( C* channel );
+
+        /** Remove a channel from this window. */
+        EQFABRIC_EXPORT bool _removeChannel( C* channel );
+
+        bool _mapNodeObjects() { return _pipe->_mapNodeObjects(); }
     };
 }
 }

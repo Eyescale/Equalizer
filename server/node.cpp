@@ -23,13 +23,12 @@
 #include "config.h"
 #include "global.h"
 #include "log.h"
+#include "nodeFactory.h"
 #include "pipe.h"
 #include "server.h"
 #include "window.h"
 
-//#include <eq/client/config.h>
 #include <eq/client/packets.h>
-//#include <eq/client/pipe.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
 #include <eq/net/barrier.h>
@@ -502,25 +501,22 @@ net::CommandResult Node::_cmdFrameFinishReply( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
-std::ostream& operator << ( std::ostream& os, const Node* node )
+std::ostream& operator << ( std::ostream& os, const Node& node )
 {
-    if( !node )
-        return os;
-    
     os << base::disableFlush << base::disableHeader;
-    if( node->isApplicationNode( ))
+    if( node.isApplicationNode( ))
         os << "appNode" << std::endl;
     else
         os << "node" << std::endl;
 
     os << "{" << std::endl << base::indent;
 
-    const std::string& name = node->getName();
+    const std::string& name = node.getName();
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << std::endl;
 
     const ConnectionDescriptionVector& descriptions = 
-        node->getConnectionDescriptions();
+        node.getConnectionDescriptions();
     for( ConnectionDescriptionVector::const_iterator i = descriptions.begin();
          i != descriptions.end(); ++i )
 
@@ -532,7 +528,7 @@ std::ostream& operator << ( std::ostream& os, const Node* node )
          i<Node::SATTR_ALL; 
          i = static_cast<Node::SAttribute>( static_cast<uint32_t>( i )+1))
     {
-        const std::string& value = node->getSAttribute( i );
+        const std::string& value = node.getSAttribute( i );
         if( value == Global::instance()->getNodeSAttribute( i ))
             continue;
 
@@ -552,7 +548,7 @@ std::ostream& operator << ( std::ostream& os, const Node* node )
          i<Node::CATTR_ALL; 
          i = static_cast<Node::CAttribute>( static_cast<uint32_t>( i )+1))
     {
-        const char value = node->getCAttribute( i );
+        const char value = node.getCAttribute( i );
         if( value == Global::instance()->getNodeCAttribute( i ))
             continue;
 
@@ -572,7 +568,7 @@ std::ostream& operator << ( std::ostream& os, const Node* node )
          i< Node::IATTR_ALL; 
          i = static_cast< Node::IAttribute >( static_cast<uint32_t>( i )+1))
     {
-        const int value = node->getIAttribute( i );
+        const int value = node.getIAttribute( i );
         if( value == Global::instance()->getNodeIAttribute( i ))
             continue;
 
@@ -592,7 +588,7 @@ std::ostream& operator << ( std::ostream& os, const Node* node )
     if( attrPrinted )
         os << base::exdent << "}" << std::endl << std::endl;
 
-    const PipeVector& pipes = node->getPipes();
+    const PipeVector& pipes = node.getPipes();
     for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
         os << *i;
 

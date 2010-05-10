@@ -1,9 +1,12 @@
-Move connection description attrs to fabric 
+Admin API:
+- map pipes...channels
+- move packets.h into proper place
+- clean up fabric::Pipe/Window
 
-[ ] May break build
+[x] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -17,6 +17,8 @@
 
 #include <eq/admin/admin.h>
 
+void _runMainLoop( eq::admin::ServerPtr server );
+
 int main( const int argc, char** argv )
 {
     // 1. Equalizer admin initialization
@@ -45,6 +47,7 @@ int main( const int argc, char** argv )
         return EXIT_FAILURE;
     }
 
+    _runMainLoop( server );
 
     // 4. cleanup and exit
     if( !client->disconnectServer( server ))
@@ -56,4 +59,35 @@ int main( const int argc, char** argv )
     client = 0;
     eq::admin::exit();
     return EXIT_SUCCESS;
+}
+
+void _runMainLoop( eq::admin::ServerPtr server )
+{
+    // Find first pipe...
+    const eq::admin::ConfigVector& configs = server->getConfigs();
+    if( configs.empty( ))
+    {
+        std::cout << "No configs on server, exiting" << std::endl;
+        return;
+    }
+
+    const eq::admin::Config* config = configs.front();
+    const eq::admin::NodeVector& nodes = config->getNodes();
+    if( nodes.empty( ))
+    {
+        std::cout << "No nodes in config, exiting" << std::endl;
+        return;
+    }
+ 
+    const eq::admin::Node* node = nodes.front();
+    const eq::admin::PipeVector& pipes = node->getPipes();
+    if( pipes.empty( ))
+    {
+        std::cout << "No pipes in node, exiting" << std::endl;
+        return;
+    }
+
+    eq::admin::Pipe* pipe = pipes.front();
+    EQASSERT( pipe );
+    //std::cout << "Using " << *pipe << std::endl;
 }

@@ -30,7 +30,7 @@ lib: precompile externals
 tests: lib server
 examples: lib
 contrib: lib
-server: lib
+server: lib admin
 tools: server
 auxilary: lib
 admin: lib

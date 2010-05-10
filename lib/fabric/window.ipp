@@ -66,17 +66,14 @@ Window< P, W, C >::Window( P* parent )
 template< class P, class W, class C >
 Window< P, W, C >::~Window( )
 {    
-    ChannelVector& channels = _getChannels(); 
-    while( !channels.empty( ))
+    while( !_channels.empty( ))
     {
-        C* channel = channels.back();
+        C* channel = _channels.back();
 
         EQASSERT( channel->getWindow() == this );
         _removeChannel( channel );
         delete channel;
     }
-    EQASSERT( channels.empty( ));
-
     _pipe->_removeWindow( static_cast< W* >( this ) );
 }
 
@@ -105,6 +102,8 @@ void Window< P, W, C >::serialize( net::DataOStream& os,
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os.write( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
+    if( dirtyBits & DIRTY_CHANNELS )
+        os.serializeChildren( this, _channels );
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _data.vp << _data.pvp << _data.fixedVP;
     if( dirtyBits & DIRTY_DRAWABLECONFIG )
@@ -118,6 +117,21 @@ void Window< P, W, C >::deserialize( net::DataIStream& is,
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         is.read( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
+    if( dirtyBits & DIRTY_CHANNELS )
+    {
+        if( _mapNodeObjects( ))
+        {
+            ChannelVector result;
+            is.deserializeChildren( this, _channels, result );
+            _channels.swap( result );
+            EQASSERT( _channels.size() == result.size( ));
+        }
+        else // consume unused ObjectVersions
+        {
+            net::ObjectVersionVector childIDs;
+            is >> childIDs;
+        }
+    }
     if( dirtyBits & DIRTY_VIEWPORT )
     {
         is >> _data.vp >> _data.pvp >> _data.fixedVP;
@@ -125,6 +139,19 @@ void Window< P, W, C >::deserialize( net::DataIStream& is,
     }
     if( dirtyBits & DIRTY_DRAWABLECONFIG )
         is >> _data.drawableConfig;
+}
+
+template< class P, class W, class C >
+void Window< P, W, C >::create( C** channel )
+{
+    *channel = _pipe->getServer()->getNodeFactory()->createChannel( 
+        static_cast< W* >( this ));
+}
+
+template< class P, class W, class C >
+void Window< P, W, C >::release( C* channel )
+{
+    _pipe->getServer()->getNodeFactory()->releaseChannel( channel );
 }
 
 template< class P, class W, class C >
@@ -137,13 +164,11 @@ void Window< P, W, C >::_addChannel( C* channel )
 template< class P, class W, class C >
 bool Window< P, W, C >::_removeChannel( C* channel )
 {
-    ChannelVector& channels = _getChannels();
-    typename ChannelVector::iterator iter = find( channels.begin(), 
-                                                  channels.end(), channel );
-    if( iter == channels.end( ))
+    typename ChannelVector::iterator i = stde::find( _channels, channel );
+    if( i == _channels.end( ))
         return false;
 
-    channels.erase( iter );
+    _channels.erase( i );
     return true;
 }
 
@@ -160,8 +185,8 @@ C* Window< P, W, C >::_findChannel( const uint32_t id )
     return 0;
 }
 
-template< class P, class W, class C >
-const std::string&  Window< P, W, C >::getIAttributeString( const IAttribute attr )
+template< class P, class W, class C > const std::string&
+Window< P, W, C >::getIAttributeString( const IAttribute attr )
 {
     return _iAttributeStrings[attr];
 }
@@ -303,9 +328,8 @@ void Window< P, W, C >::notifyViewportChanged()
         }
     }
 
-    ChannelVector& channels = _getChannels();
-    for( typename ChannelVector::const_iterator i = channels.begin(); 
-         i != channels.end(); ++i )
+    for( typename ChannelVector::const_iterator i = _channels.begin(); 
+         i != _channels.end(); ++i )
     {
         (*i)->notifyViewportChanged();
     }

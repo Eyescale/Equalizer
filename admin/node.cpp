@@ -19,8 +19,10 @@
 
 #include "config.h"
 #include "layout.h"
+#include "nodeFactory.h"
 #include "pipe.h"
 #include "segment.h"
+#include "server.h"
 
 namespace eq
 {
@@ -34,6 +36,13 @@ Node::Node( Config* parent )
 
 Node::~Node()
 {}
+
+ServerPtr Node::getServer()
+{
+    Config* config = getConfig();
+    EQASSERT( config );
+    return ( config ? config->getServer() : 0 );
+}
 
 }
 }

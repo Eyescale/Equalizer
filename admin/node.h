@@ -37,6 +37,11 @@ namespace admin
         /** Destruct a node. @version 1.0 */
         EQADMIN_EXPORT virtual ~Node();
 
+        /** @name Data Access. */
+        //@{
+        ServerPtr getServer();
+        //@}
+
     private:
         union // placeholder for binary-compatible changes
         {

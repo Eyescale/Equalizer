@@ -122,6 +122,8 @@ namespace fabric
 
         EQFABRIC_EXPORT virtual void backup(); //!< @internal
         EQFABRIC_EXPORT virtual void restore(); //!< @internal
+        void create( P** pipe ); //!< @internal
+        void release( P* pipe ); //!< @internal
 
     protected:
         Node( C* parent );
@@ -140,7 +142,8 @@ namespace fabric
         enum DirtyBits
         {
             DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
-            DIRTY_MEMBER          = Object::DIRTY_CUSTOM << 1,
+            DIRTY_PIPES           = Object::DIRTY_CUSTOM << 1,
+            DIRTY_MEMBER          = Object::DIRTY_CUSTOM << 2,
         };
 
         /** Pipe children. */
@@ -164,9 +167,6 @@ namespace fabric
 
         bool _isAppNode; //!< execute render tasks in application process
 
-        //friend class eq::Node; // TODO remove
-        //friend class eq::server::Node; // TODO remove
-
         union // placeholder for binary-compatible changes
         {
             char dummy[32];
@@ -175,6 +175,8 @@ namespace fabric
         template< class, class, class, class > friend class Pipe;
         void _addPipe( P* pipe );
         bool _removePipe( P* pipe );
+
+        bool _mapNodeObjects() { return _config->mapNodeObjects(); }
     };
 }
 }

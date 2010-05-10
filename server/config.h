@@ -167,6 +167,7 @@ namespace server
 
         virtual bool mapViewObjects() { return true; } //!< @internal
         virtual bool mapNodeObjects() { return true; } //!< @internal
+        template< class, class, class, class > friend class fabric::Node;
 
         friend class Server; // for commit()
 

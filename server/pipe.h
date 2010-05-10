@@ -74,22 +74,6 @@ namespace server
         /** @return the state of this pipe. */
         State getState()    const { return _state.get(); }
 
-        /** 
-         * Adds a new window to this config.
-         * 
-         * @param window the window.
-         */
-        EQSERVER_EXPORT void addWindow( Window* window );
-
-        /** 
-         * Removes a window from this config.
-         * 
-         * @param window the window
-         * @return <code>true</code> if the window was removed, 
-         *         <code>false</code> otherwise.
-         */
-        bool removeWindow( Window* window );
-
         /** Increase pipe activition count. */
         void activate();
 

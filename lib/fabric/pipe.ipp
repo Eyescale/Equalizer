@@ -54,14 +54,12 @@ Pipe< N, P, W, V >::Pipe( N* parent )
 template< class N, class P, class W, class V >
 Pipe< N, P, W, V >::~Pipe()
 {
-    WindowVector& windows = _getWindows(); 
-    while( !windows.empty() )
+    while( !_windows.empty() )
     {
-        W* window = windows.back();
+        W* window = _windows.back();
         _removeWindow( window );
         delete window;
     }
-    windows.clear();
     _node->_removePipe( static_cast< P* >( this ) );
 }
 
@@ -89,6 +87,8 @@ void Pipe< N, P, W, V >::serialize( net::DataOStream& os,
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+    if( dirtyBits & DIRTY_WINDOWS )
+        os.serializeChildren( this, _windows );
     if( dirtyBits & DIRTY_PIXELVIEWPORT )
         os << _data.pvp;
     if( dirtyBits & DIRTY_MEMBER )
@@ -102,6 +102,21 @@ void Pipe< N, P, W, V >::deserialize( net::DataIStream& is,
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+    if( dirtyBits & DIRTY_WINDOWS )
+    {
+        if( _mapNodeObjects( ))
+        {
+            WindowVector result;
+            is.deserializeChildren( this, _windows, result );
+            _windows.swap( result );
+            EQASSERT( _windows.size() == result.size( ));
+        }
+        else // consume unused ObjectVersions
+        {
+            net::ObjectVersionVector childIDs;
+            is >> childIDs;
+        }
+    }
     if( dirtyBits & DIRTY_PIXELVIEWPORT )
     {
         PixelViewport pvp;
@@ -110,6 +125,19 @@ void Pipe< N, P, W, V >::deserialize( net::DataIStream& is,
     }
     if( dirtyBits & DIRTY_MEMBER )
         is >> _port >> _device;
+}
+
+template< class N, class P, class W, class V >
+void Pipe< N, P, W, V >::create( W** window )
+{
+    *window = _node->getServer()->getNodeFactory()->createWindow( 
+        static_cast< P* >( this ));
+}
+
+template< class N, class P, class W, class V >
+void Pipe< N, P, W, V >::release( W* window )
+{
+    _node->getServer()->getNodeFactory()->releaseWindow( window );
 }
 
 namespace

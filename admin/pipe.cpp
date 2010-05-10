@@ -17,7 +17,10 @@
 
 #include "pipe.h"
 
+#include "config.h"
 #include "node.h"
+#include "nodeFactory.h"
+#include "server.h"
 #include "window.h"
 
 namespace eq
@@ -32,6 +35,14 @@ Pipe::Pipe( Node* parent )
 
 Pipe::~Pipe()
 {}
+
+
+ServerPtr Pipe::getServer()
+{
+    Node* node = getNode();
+    EQASSERT( node );
+    return ( node ? node->getServer() : 0 );
+}
 
 }
 }

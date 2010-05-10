@@ -10,10 +10,12 @@ HEADER_SRC = \
 	canvas.h \
 	channel.h \
 	client.h \
+	config.h \
 	init.h \
 	layout.h \
 	node.h \
 	observer.h \
+	packets.h \
 	pipe.h \
 	segment.h \
 	server.h \

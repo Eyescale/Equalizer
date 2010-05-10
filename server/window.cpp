@@ -26,6 +26,7 @@
 #include "compound.h"
 #include "log.h"
 #include "node.h"
+#include "nodeFactory.h"
 #include "pipe.h"
 #include "swapBarrier.h"
   
@@ -130,7 +131,7 @@ net::CommandQueue* Window::getCommandThreadQueue()
 
 Channel* Window::getChannel( const ChannelPath& path )
 {
-    ChannelVector& channels = _getChannels(); 
+    const ChannelVector& channels = getChannels(); 
     EQASSERT( channels.size() > path.channelIndex );
 
     if( channels.size() <= path.channelIndex )
@@ -288,7 +289,7 @@ void Window::updateRunning( const uint32_t initID )
         _configInit( initID );
 
     // Let all running channels update their running state (incl. children)
-    ChannelVector& channels = _getChannels();
+    const ChannelVector& channels = getChannels();
     for( ChannelVector::const_iterator i = channels.begin(); 
          i != channels.end(); ++i )
     {
@@ -306,7 +307,7 @@ bool Window::syncRunning()
 
     // Sync state updates
     bool success = true;
-    ChannelVector& channels = _getChannels(); 
+    const ChannelVector& channels = getChannels(); 
     for( ChannelVector::const_iterator i = channels.begin(); 
          i != channels.end(); ++i )
     {
@@ -427,7 +428,7 @@ void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     EQLOG( LOG_TASKS ) << "TASK window start frame  " << &startPacket 
                            << std::endl;
 
-    ChannelVector& channels = _getChannels(); 
+    const ChannelVector& channels = getChannels(); 
     for( ChannelVector::const_iterator i = channels.begin(); 
          i != channels.end(); ++i )
     {

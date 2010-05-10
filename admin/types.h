@@ -79,6 +79,27 @@ typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
 /** A visitor to traverse configs and children. */
 typedef fabric::ConfigVisitor< Config, ObserverVisitor, LayoutVisitor,
                                CanvasVisitor, NodeVisitor > ConfigVisitor;
+//----- Vectors
+/** A vector of pointers to eq::Config */
+typedef std::vector< Config* >     ConfigVector;
+/** A vector of pointers to eq::Node */
+typedef std::vector< Node* >     NodeVector;
+/** A vector of pointers to eq::Pipe */
+typedef std::vector< Pipe* >     PipeVector;
+/** A vector of pointers to eq::Window */
+typedef std::vector< Window* >   WindowVector;
+/** A vector of pointers to eq::Channel */
+typedef std::vector< Channel* >  ChannelVector;
+/** A vector of pointers to eq::Observer */
+typedef std::vector< Observer* > ObserverVector;
+/** A vector of pointers to eq::Canvas */
+typedef std::vector< Canvas* >   CanvasVector;
+/** A vector of pointers to eq::Layout */
+typedef std::vector< Layout* >   LayoutVector;
+/** A vector of pointers to eq::Segment */
+typedef std::vector< Segment* >  SegmentVector;
+/** A vector of pointers to eq::View */
+typedef std::vector< View* >     ViewVector;
 }
 }
 #endif // EQADMIN_TYPES_H

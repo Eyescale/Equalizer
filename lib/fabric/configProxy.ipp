@@ -162,7 +162,7 @@ void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
             typename C::NodeVector result;
             is.deserializeChildren( this, _config._nodes, result );
             _config._nodes.swap( result );
-            EQASSERT( _config._canvases.size() == result.size( ));
+            EQASSERT( _config._nodes.size() == result.size( ));
         }
         else // consume unused ObjectVersions
         {

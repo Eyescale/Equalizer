@@ -272,7 +272,7 @@ namespace server
         net::CommandResult _cmdFrameFinishReply( net::Command& command );
     };
 
-    std::ostream& operator << ( std::ostream& os, const Node* node );
+    std::ostream& operator << ( std::ostream& os, const Node& node );
 }
 }
 #endif // EQSERVER_NODE_H

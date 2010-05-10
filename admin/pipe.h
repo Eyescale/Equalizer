@@ -37,6 +37,11 @@ namespace admin
         /** Destruct a pipe. @version 1.0 */
         EQADMIN_EXPORT virtual ~Pipe();
 
+        /** @name Data Access. */
+        //@{
+        ServerPtr getServer();
+        //@}
+
     private:
         union // placeholder for binary-compatible changes
         {

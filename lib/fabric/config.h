@@ -237,6 +237,8 @@ namespace fabric
             { return TRAVERSE_CONTINUE; }
         template< class C2, class V2 > 
         friend VisitorResult _acceptImpl( C2*, V2& );
+
+        N* _findNode( const uint32_t id );
         //@}
 
     private:
@@ -274,8 +276,11 @@ namespace fabric
         ConfigProxy< S, C, O, L, CV, N, V >* const _proxy;
         template< class, class, class, class, class, class, class >
         friend class ConfigProxy;
-
-        friend class eq::Config; // TODO remove
+        
+        union // placeholder for binary-compatible changes
+        {
+            char dummy[32];
+        };
 
         template< class, class > friend class Observer;
         void _addObserver( O* observer );
@@ -292,12 +297,6 @@ namespace fabric
         template< class, class, class, class > friend class Node;
         void _addNode( N* node );
         EQFABRIC_EXPORT bool _removeNode( N* node );
-        N* _findNode( const uint32_t id );
-        
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
     };
 
     template< class S, class C, class O, class L, class CV, class N, class V >

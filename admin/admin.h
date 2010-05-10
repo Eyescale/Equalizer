@@ -22,7 +22,9 @@
 #pragma warning(disable : 4244) //conversion from .. to ..,possible loss of data
 
 #include <eq/admin/client.h>
+#include <eq/admin/config.h>
 #include <eq/admin/init.h>
+#include <eq/admin/node.h>
 #include <eq/admin/server.h>
 #include <eq/admin/types.h>
 
