@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,17 +19,32 @@
 
 #include <sstream>
 
-using namespace std;
-
 namespace eq
 {
 namespace net
 {
 
 #define SEPARATOR '#'
+#define MAKE_ATTR_STRING( attr ) ( std::string("EQ_CONNECTION_") + #attr )
 
 namespace
 {
+static std::string _sAttributeStrings[ ConnectionDescription::SATTR_ALL ] =
+{
+    MAKE_ATTR_STRING( SATTR_HOSTNAME ),
+    MAKE_ATTR_STRING( SATTR_PIPE_FILENAME ),
+    MAKE_ATTR_STRING( SATTR_FILL1 ),
+    MAKE_ATTR_STRING( SATTR_FILL2 )
+};
+static std::string _iAttributeStrings[ ConnectionDescription::IATTR_ALL ] =
+{
+    MAKE_ATTR_STRING( IATTR_TYPE ),
+    MAKE_ATTR_STRING( IATTR_TCPIP_PORT ),
+    MAKE_ATTR_STRING( IATTR_BANDWIDTH ),
+    MAKE_ATTR_STRING( IATTR_FILL1 ),
+    MAKE_ATTR_STRING( IATTR_FILL2 )
+};
+
 static ConnectionType _getConnectionType( const std::string& string )
 {
     if( string == "TCPIP" )
@@ -58,9 +73,21 @@ static ConnectionType _getConnectionType( const std::string& string )
 }
 }
 
-string ConnectionDescription::toString() const
+const std::string& ConnectionDescription::getSAttributeString(
+    const SAttribute attr )
 {
-    ostringstream description;
+    return _sAttributeStrings[ attr ];
+}
+
+const std::string& ConnectionDescription::getIAttributeString( 
+    const IAttribute attr )
+{
+    return _iAttributeStrings[ attr ];
+}
+
+std::string ConnectionDescription::toString() const
+{
+    std::ostringstream description;
     serialize( description );
     return description.str();
 }
@@ -77,11 +104,11 @@ bool ConnectionDescription::fromString( std::string& data )
     {
         size_t nextPos = data.find( SEPARATOR );
         // assume hostname[:port][:type] or filename:PIPE format
-        if( nextPos == string::npos )
+        if( nextPos == std::string::npos )
         {
             type     = CONNECTIONTYPE_TCPIP;
             nextPos = data.find( ':' );
-            if( nextPos == string::npos ) // assume hostname format
+            if( nextPos == std::string::npos ) // assume hostname format
             {
                 _hostname = data;
                 data.clear();
@@ -91,10 +118,10 @@ bool ConnectionDescription::fromString( std::string& data )
             _hostname = data.substr( 0, nextPos );
             data      = data.substr( nextPos + 1 );
 
-            while( nextPos != string::npos )
+            while( nextPos != std::string::npos )
             {
                 nextPos            = data.find( ':' );
-                const string token = data.substr( 0, nextPos );
+                const std::string token = data.substr( 0, nextPos );
                 data               = data.substr( nextPos + 1 );
                 
                 if( !token.empty() && isdigit( token[0] )) // port
@@ -117,7 +144,7 @@ bool ConnectionDescription::fromString( std::string& data )
         }
 
         // else assume SEPARATOR-delimited list
-        const string typeStr = data.substr( 0, nextPos );
+        const std::string typeStr = data.substr( 0, nextPos );
         data                 = data.substr( nextPos + 1 );
 
         type = _getConnectionType( typeStr );
@@ -125,37 +152,37 @@ bool ConnectionDescription::fromString( std::string& data )
             goto error;
 
         nextPos = data.find( SEPARATOR );
-        if( nextPos == string::npos )
+        if( nextPos == std::string::npos )
             goto error;
 
-        const string bandwidthStr = data.substr( 0, nextPos );
+        const std::string bandwidthStr = data.substr( 0, nextPos );
         data                      = data.substr( nextPos + 1 );
         bandwidth = atoi( bandwidthStr.c_str( ));
     
         nextPos = data.find( SEPARATOR );
-        if( nextPos == string::npos )
+        if( nextPos == std::string::npos )
             goto error;
 
         _hostname = data.substr( 0, nextPos );
         data      = data.substr( nextPos + 1 );
 
         nextPos = data.find( SEPARATOR );
-        if( nextPos == string::npos )
+        if( nextPos == std::string::npos )
             goto error;
 
         _interface = data.substr( 0, nextPos );
         data       = data.substr( nextPos + 1 );
 
         nextPos = data.find( SEPARATOR );
-        if( nextPos == string::npos )
+        if( nextPos == std::string::npos )
             goto error;
         
-        const string portStr = data.substr( 0, nextPos );
+        const std::string portStr = data.substr( 0, nextPos );
         data                 = data.substr( nextPos + 1 );
         port                 = atoi( portStr.c_str( ));
 
         nextPos = data.find( SEPARATOR );
-        if( nextPos == string::npos )
+        if( nextPos == std::string::npos )
             goto error;
 
         _filename = data.substr( 0, nextPos );
@@ -164,7 +191,7 @@ bool ConnectionDescription::fromString( std::string& data )
     return true;
 
   error:
-    EQWARN << "Could not parse connection description: " << data << endl;
+    EQWARN << "Could not parse connection description: " << data << std::endl;
     return false;
 }
 
@@ -188,12 +215,12 @@ const std::string& ConnectionDescription::getFilename() const
     return _filename;
 }
 
-const string& ConnectionDescription::getHostname() const
+const std::string& ConnectionDescription::getHostname() const
 {
     return _hostname;
 }
 
-const string& ConnectionDescription::getInterface() const
+const std::string& ConnectionDescription::getInterface() const
 {
     return _interface;
 }

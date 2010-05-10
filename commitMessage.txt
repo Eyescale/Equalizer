@@ -1,9 +1,9 @@
-Q&D Posix compile fix (will merge with Cedric's real fix)
+Move connection description attrs to fabric 
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,29 +21,10 @@
 #include <eq/base/log.h>
 #include <eq/net/connection.h>
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 namespace server
 {
-#define MAKE_ATTR_STRING( attr ) ( string("EQ_CONNECTION_") + #attr )
-
-std::string ConnectionDescription::_sAttributeStrings[SATTR_ALL] = {
-    MAKE_ATTR_STRING( SATTR_HOSTNAME ),
-    MAKE_ATTR_STRING( SATTR_PIPE_FILENAME ),
-    MAKE_ATTR_STRING( SATTR_FILL1 ),
-    MAKE_ATTR_STRING( SATTR_FILL2 )
-};
-std::string ConnectionDescription::_iAttributeStrings[IATTR_ALL] = {
-    MAKE_ATTR_STRING( IATTR_TYPE ),
-    MAKE_ATTR_STRING( IATTR_TCPIP_PORT ),
-    MAKE_ATTR_STRING( IATTR_BANDWIDTH ),
-    MAKE_ATTR_STRING( IATTR_FILL1 ),
-    MAKE_ATTR_STRING( IATTR_FILL2 )
-};
-
 ConnectionDescription::ConnectionDescription()
 {
     const Global* global = Global::instance();

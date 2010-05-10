@@ -79,7 +79,7 @@ namespace eq
         static void enterCarbon();
         /** Global unlock for all non-thread-safe Carbon API calls */
         static void leaveCarbon();
-        
+
     private:
         EQ_EXPORT friend bool init( const int argc, char** argv, 
                                     NodeFactory* nodeFactory );

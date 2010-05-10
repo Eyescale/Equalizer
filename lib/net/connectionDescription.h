@@ -90,6 +90,38 @@ namespace net
         EQ_EXPORT bool isSameMulticastGroup( ConnectionDescriptionPtr rhs );
         //@}
 
+        /**
+         * @name Attributes
+         */
+        //@{
+        // Note: also update string array init in connectionDescription.cpp
+        /** String attributes */
+        enum SAttribute
+        {
+            SATTR_HOSTNAME,
+            SATTR_FILENAME,
+            SATTR_FILL1,
+            SATTR_FILL2,
+            SATTR_ALL
+        };
+
+        /** Integer attributes */
+        enum IAttribute
+        {
+            IATTR_TYPE,
+            IATTR_PORT,
+            IATTR_BANDWIDTH,
+            IATTR_FILL1,
+            IATTR_FILL2,
+            IATTR_ALL
+        };
+        //@}
+
+        EQ_EXPORT static const std::string&
+        getSAttributeString( const SAttribute attr );
+        EQ_EXPORT static const std::string&
+        getIAttributeString( const IAttribute attr );
+
     protected:
         EQ_EXPORT virtual ~ConnectionDescription() {}
 
