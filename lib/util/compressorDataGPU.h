@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQUTIL_COMPRSSORDATAGPU_H
-#define EQUTIL_COMPRSSORDATAGPU_H
+#ifndef EQUTIL_COMPRESSORDATAGPU_H
+#define EQUTIL_COMPRESSORDATAGPU_H
 
 #include <eq/base/compressorData.h>
 #include <eq/fabric/pixelViewport.h>
@@ -25,7 +25,7 @@ namespace eq
 {
 namespace util
 {
-    /** A C++ class to abstract a compressor instance */
+    /** A C++ class to abstract a GPU compressor instance. */
     class CompressorDataGPU : public base::CompressorData
     {
     public:
@@ -35,7 +35,7 @@ namespace util
             , _glewContext( glewContext ){}
 
 		/** Set a valid glewContext */
-        void setGlewContext( GLEWContext* glewContext )
+        void setGLEWContext( GLEWContext* glewContext )
             { _glewContext = glewContext; }
 
 		/**
@@ -55,18 +55,7 @@ namespace util
          * @param inputToken the input token type.
          * @param outputToken the output token produced 
          */
-        bool isValidUploader( uint32_t inputToken, 
-                              uint32_t outputToken );
-
-		/**
-         * found and init an uploader for the given quality 
-		 * and tokentype
-         *
-         * @param minQuality the minimum quality.
-         * @param tokenType the token type of the data 
-         */		
-        void initUploader( uint32_t gpuTokenType, 
-                           uint32_t tokenType );
+        bool isValidUploader( uint32_t inputToken, uint32_t outputToken );
 
 		/**
          * found and init a downloader for the given quality 
@@ -75,13 +64,19 @@ namespace util
          * @param minQuality the minimum quality.
          * @param tokenType the token type of the data 
          */
-        void initDownloader( float minQuality, 
-                             uint32_t tokenType );
+        void initDownloader( float minQuality, uint32_t tokenType );
+
+		/**
+         * Find and init an uploader for the given quality and token type.
+         *
+         * @param minQuality the minimum quality.
+         * @param tokenType the token type of the data 
+         */		
+        void initUploader( uint32_t gpuTokenType, uint32_t tokenType );
+
 		/**
          * Download data from the frame buffer or texture to cpu
          *
-         * @param glewContext the initialized GLEW context 
-         *                    corresponding to the current OpenGL context.
          * @param pvpIn the dimensions of the input data
          * @param source texture name to process.
          * @param flags capability flags for the compression
@@ -117,4 +112,4 @@ namespace util
     };
 }
 }
-#endif  // EQUTIL_COMPRSSORDATACPU_H
+#endif  // EQUTIL_COMPRESSORDATACPU_H

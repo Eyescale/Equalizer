@@ -28,10 +28,10 @@ NodeFactory* Global::_nodeFactory = 0;
 #ifdef WIN32 
    std::string Global::_configFile = "../examples/configs/4-window.all.eqc";
 #endif
-#ifdef __APPLE__
+#ifdef Darwin
 #    ifdef XCODE
         std::string Global::_configFile = "./../../../examples/configs/4-window.all.eqc";
-#    else // must be darwin
+#    else // make
         std::string Global::_configFile = "examples/configs/4-window.all.eqc";	
 #    endif
 #endif

@@ -655,11 +655,11 @@ int WGLWindow::_chooseWGLPixelFormatARB( HDC pfDC )
     attributes.push_back( WGL_FULL_ACCELERATION_ARB );
 
     const int colorSize = getIAttribute( Window::IATTR_PLANES_COLOR );
-    const int colorBits = colorSize>0 ? colorSize : 8;
 
     if( colorSize > 0 || colorSize == AUTO ||
         getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
     {
+        const int colorBits = colorSize>0 ? colorSize : 8;
         attributes.push_back( WGL_RED_BITS_ARB );
         attributes.push_back( colorBits );
         attributes.push_back( WGL_GREEN_BITS_ARB );
@@ -669,18 +669,17 @@ int WGLWindow::_chooseWGLPixelFormatARB( HDC pfDC )
     }
     else if ( colorSize == RGBA16F || colorSize == RGBA32F )
     {
-        const int colorBitsF = colorSize == RGBA16F ? 16 :  32;
-
         if ( !WGLEW_ARB_pixel_format_float )
         {
             _window->setErrorMessage( "Floating-point framebuffer unsupported");
             return 0;
         }
+
+        const int colorBits = (colorSize == RGBA16F) ? 16 :  32;
         attributes.push_back( WGL_PIXEL_TYPE_ARB );
         attributes.push_back( WGL_TYPE_RGBA_FLOAT_ARB );
-
         attributes.push_back( WGL_COLOR_BITS_ARB );
-        attributes.push_back( colorBitsF * 4);
+        attributes.push_back( colorBits * 4);
     }
 
     const int alphaSize = getIAttribute( Window::IATTR_PLANES_ALPHA );
