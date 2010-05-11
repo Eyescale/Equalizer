@@ -46,11 +46,10 @@ namespace admin
             { return find< Channel >( name ); }
 
         void output( std::ostream& os ) const {} //!< @internal
+        virtual bool mapNodeObjects() { return true; } //!< @internal
 
     protected:
         virtual bool mapViewObjects() { return true; } //!< @internal
-        virtual bool mapNodeObjects() { return true; } //!< @internal
-        template< class, class, class, class > friend class fabric::Node;
 
     private:
         union // placeholder for binary-compatible changes

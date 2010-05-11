@@ -19,7 +19,7 @@
 #ifndef EQ_PIPE_H
 #define EQ_PIPE_H
 
-#ifdef EQUALIZER_EXPORTS
+#ifdef EQ_EXPORTS
    // We need to instantiate a Monitor< State > when compiling the library,
    // but we don't want to have <pthread.h> for a normal build, hence this hack
 #  include <pthread.h>

@@ -29,7 +29,7 @@
 #  ifndef HAVE_PTHREAD_H
 #    define HAVE_PTHREAD_H
 #  endif
-#  ifndef EQUALIZER_EXPORTS // pthread.h included, not building Eq (inline impl)
+#  ifndef EQ_EXPORTS // pthread.h included, not building Eq (inline impl)
 #    define EQ_PT_EXPORT
 #  endif
 #endif

@@ -47,7 +47,7 @@
 #ifdef _MSC_VER
 #  define EQ_DLLEXPORT __declspec(dllexport) 
 #  define EQ_DLLIMPORT __declspec(dllimport)
-#  ifdef EQUALIZER_EXPORTS
+#  ifdef EQ_EXPORTS
 #    define EQ_EXPORT EQ_DLLEXPORT
 #    define GLEW_BUILD
 #    define EQFABRIC_EXPORT EQ_EXPORT
@@ -56,11 +56,14 @@
 #  endif
    // Need to predefine server library exports for forward declaration of 
    // eqsStartLocalServer
-#  ifdef EQUALIZERSERVERLIBRARY_EXPORTS
+#  ifdef EQSERVER_EXPORTS
 #    define EQSERVER_EXPORT EQ_DLLEXPORT
 #    define EQFABRIC_EXPORT EQSERVER_EXPORT
 #  else
 #    define EQSERVER_EXPORT EQ_DLLIMPORT
+#  endif
+#  ifdef EQADMIN_EXPORTS
+#    define EQFABRIC_EXPORT EQ_DLLEXPORT
 #  endif
 #  ifndef EQFABRIC_EXPORT
 #    define EQFABRIC_EXPORT EQ_DLLIMPORT

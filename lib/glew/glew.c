@@ -36,7 +36,7 @@
 #  undef DEPRECATED_ATTRIBUTE
 #  define DEPRECATED_ATTRIBUTE
 #endif
-#ifdef EQUALIZER_EXPORTS
+#ifdef EQ_EXPORTS
 #  include <eq/base/defines.h>
 #endif
 

@@ -351,7 +351,7 @@ namespace net
 
         CHECK_THREAD_DECLARE( _thread );
     };
-    std::ostream& operator << ( std::ostream&, const Object& );
+    EQ_EXPORT std::ostream& operator << ( std::ostream&, const Object& );
 }
 }
 

@@ -18,7 +18,7 @@
 #ifndef EQNET_CONNECTION_SET_H
 #define EQNET_CONNECTION_SET_H
 
-#ifdef EQUALIZER_EXPORTS
+#ifdef EQ_EXPORTS
    // We need to instantiate a Monitor< Event > when compiling the library,
    // but we don't want to have <pthread.h> for a normal build, hence this hack
 #  include <pthread.h>

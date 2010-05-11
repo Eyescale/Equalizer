@@ -45,7 +45,7 @@ namespace fabric
          * @return true if the server was connected, false if not.
          * @version 1.0 
          */
-        EQ_EXPORT bool connectServer( ServerPtr server );
+        EQFABRIC_EXPORT bool connectServer( ServerPtr server );
 
         /** 
          * Disconnect and close the connection to an Equalizer server.
@@ -54,20 +54,20 @@ namespace fabric
          * @return true if the server was disconnected, false if not.
          * @version 1.0 
          */
-        EQ_EXPORT bool disconnectServer( ServerPtr server );
+        EQFABRIC_EXPORT bool disconnectServer( ServerPtr server );
 
     protected:
         /** Construct a new client. @internal */
-        EQ_EXPORT Client();
+        EQFABRIC_EXPORT Client();
 
         /** Destruct the client. @internal */
-        EQ_EXPORT virtual ~Client();
+        EQFABRIC_EXPORT virtual ~Client();
 
         /** @sa net::Node::dispatchCommand. @internal */
-        EQ_EXPORT virtual bool dispatchCommand( net::Command& command );
+        EQFABRIC_EXPORT virtual bool dispatchCommand( net::Command& command );
 
         /** @sa net::Node::invokeCommand. @internal */
-        EQ_EXPORT virtual net::CommandResult invokeCommand( net::Command& );
+        EQFABRIC_EXPORT virtual net::CommandResult invokeCommand(net::Command&);
 
     private:
         union // placeholder for binary-compatible changes
@@ -76,7 +76,7 @@ namespace fabric
         };
 
         /** @sa net::Node::createNode */
-        EQ_EXPORT virtual net::NodePtr createNode( const uint32_t type );
+        EQFABRIC_EXPORT virtual net::NodePtr createNode( const uint32_t type );
     };
 }
 }

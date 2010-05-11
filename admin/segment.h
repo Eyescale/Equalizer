@@ -39,10 +39,10 @@ namespace admin
         /** @name Data Access */
         //@{
         /** @return the config of this view. */
-        EQ_EXPORT Config* getConfig();
+        EQADMIN_EXPORT Config* getConfig();
 
         /** @return the config of this view. */
-        EQ_EXPORT const Config* getConfig() const;
+        EQADMIN_EXPORT const Config* getConfig() const;
 
         const Channel* getChannel() const { return 0; } //!< @internal
         //@}

@@ -18,7 +18,7 @@
 #ifndef EQSERVER_CHANNEL_H
 #define EQSERVER_CHANNEL_H
 
-#ifdef EQUALIZERSERVERLIBRARY_EXPORTS
+#ifdef EQSERVER_EXPORTS
    // We need to instantiate a Monitor< State > when compiling the library,
    // but we don't want to have <pthread.h> for a normal build, hence this hack
 #  include <pthread.h>
