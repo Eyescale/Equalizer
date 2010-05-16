@@ -94,8 +94,8 @@ namespace fabric
         /** Const-version of accept(). @version 1.0 */
         EQFABRIC_EXPORT VisitorResult accept( LeafVisitor< V >& visitor ) const;
 
-        virtual void backup(); //!< @internal
-        virtual void restore(); //!< @internal
+        virtual EQFABRIC_EXPORT void backup(); //!< @internal
+        virtual EQFABRIC_EXPORT void restore(); //!< @internal
         //@}
 
     protected:
