@@ -1,14 +1,16 @@
 
 This example now uses the Equalizer make environment. It should get
-compiled together with Equalizer, so the text below no longer applies.
+compiled together with Equalizer when using 'make'. The text below is
+for using CMake to build osgScaleViewer, e.g., on Windows.
 
 
 This project uses CMake, you'll need CMake version 2.6 or later.
 A quick guide can be found at http://www.cmake.org/cmake/help/runningcmake.html.
 
-The basic steps to get eqOSG to compile are:
+The basic steps to get osgScaleViewer to compile are:
 
-1. Change into the eqOSG source dir
+1. Change into the osgScaleViewer source dir
+    cd examples/osgScaleViewer
 2. Create a build directory:
     mkdir build
 3. Change into the build directory:
@@ -21,5 +23,5 @@ The basic steps to get eqOSG to compile are:
     cmake ..
 6. Run make:
     make
-7. Optionally install eqOSG
+7. Optionally install osgScaleViewer
     make install

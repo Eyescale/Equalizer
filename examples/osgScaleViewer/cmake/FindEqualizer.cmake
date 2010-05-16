@@ -47,8 +47,8 @@ IF("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
 ENDIF("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
 
 IF("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-  SET(CMAKE_CXX_FLAGS "-arch i386 ${CMAKE_CXX_FLAGS}")
-  SET(CMAKE_C_FLAGS "-arch i386 ${CMAKE_CXX_FLAGS}")
+  SET(CMAKE_CXX_FLAGS "-arch i386 ${CMAKE_CXX_FLAGS} -DDarwin")
+  SET(CMAKE_C_FLAGS "-arch i386 ${CMAKE_CXX_FLAGS} -DDarwin")
 ENDIF("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
 
 # This apparently is needed, because otherwise the compiler fails with
@@ -59,6 +59,9 @@ IF(UNIX AND CMAKE_SIZEOF_VOID_P EQUAL 4)
   SET(CMAKE_CXX_FLAGS "-msse3 -march=i686 -mtune=i686 ${CMAKE_CXX_FLAGS}")
   SET(CMAKE_C_FLAGS "-msse3 -march=686 -mcpu=i686 ${CMAKE_CXX_FLAGS}")
 ENDIF(UNIX AND CMAKE_SIZEOF_VOID_P EQUAL 4)
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/X11R6/include")
+SET(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -L/usr/X11R6/lib")
 
 # Set Equalizer_FOUND to YES if the includes and the libraries have been found.
 SET(Equalizer_FOUND "NO")

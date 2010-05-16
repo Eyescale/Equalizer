@@ -1,6 +1,4 @@
-Bugfixes:
-- Serialization order of config children
-- Segment channel serialization
+Fix osgScaleViewer documentation and cmake files
 
 [ ] May break build
 [ ] May break existing applications
@@ -8,4 +6,4 @@ Bugfixes:
 [ ] New Feature
 [ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

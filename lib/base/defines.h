@@ -25,7 +25,7 @@
 #    include "definesXCode.h"
 #  endif
 #endif
-#ifdef Linux
+#ifdef __linux
 #  include "definesLinux.h"
 #endif
 #ifdef _MSC_VER
