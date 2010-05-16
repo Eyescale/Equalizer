@@ -27,10 +27,8 @@
 
 namespace eq
 {
-    class Canvas;
 namespace fabric
 {
-    template< class C, class S > class Segment;
     struct CanvasPath;
 
     /**
@@ -168,7 +166,7 @@ namespace fabric
             DIRTY_FRUSTUM   = Object::DIRTY_CUSTOM << 2
         };
 
-        template< class, class > friend class Segment;
+        template< class, class, class > friend class Segment;
         void _addSegment( S* segment );
         bool _removeSegment( S* segment );
 

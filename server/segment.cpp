@@ -32,11 +32,10 @@ namespace eq
 namespace server
 {
 
-typedef fabric::Segment< Canvas, Segment > Super;
+typedef fabric::Segment< Canvas, Segment, Channel > Super;
 
 Segment::Segment( Canvas* parent )
         : Super( parent )
-        , _channel( 0 )
 {
     EQINFO << "New segment @" << (void*)this << std::endl;
 }
@@ -57,7 +56,6 @@ Segment::~Segment()
 
     EQASSERT( _destinationChannels.empty( ));
     _destinationChannels.clear();
-    _channel = 0;
 }
 
 Config* Segment::getConfig()
@@ -115,12 +113,14 @@ SegmentPath Segment::getPath() const
     path.segmentIndex = std::distance( segments.begin(), i );
     return path;
 }
+
 }
 }
 
 #include "../lib/fabric/segment.ipp"
-template class eq::fabric::Segment< eq::server::Canvas, eq::server::Segment >;
+template class eq::fabric::Segment< eq::server::Canvas, eq::server::Segment,
+                                    eq::server::Channel >;
 /** @cond IGNORE */
 template std::ostream& eq::fabric::operator << ( std::ostream&,
-        const eq::fabric::Segment< eq::server::Canvas, eq::server::Segment >& );
+                                                 const eq::server::Super& );
 /** @endcond */

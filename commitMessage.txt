@@ -1,6 +1,5 @@
 Admin API:
-- template channel/segment/view creation code
-- template admin config commit
+- Move segment channel to fabric namespace
 
 [ ] May break build
 [ ] May break existing applications

@@ -28,22 +28,24 @@ namespace eq
 namespace fabric
 {
 
-template< class C, class S >
-Segment< C, S >::Segment( C* canvas )
+template< class C, class S, class CH >
+Segment< C, S, CH >::Segment( C* canvas )
         : _canvas( canvas )
+        , _channel( 0 )
 {
     EQASSERT( canvas );
     canvas->_addSegment( static_cast< S* >( this ));
 }
 
-template< class C, class S >
-Segment< C, S >::~Segment()
+template< class C, class S, class CH >
+Segment< C, S, CH >::~Segment()
 {
     _canvas->_removeSegment( static_cast< S* >( this ));
+    _channel = 0;
 }
 
-template< class C, class S >
-void Segment< C, S >::serialize( net::DataOStream& os,
+template< class C, class S, class CH >
+void Segment< C, S, CH >::serialize( net::DataOStream& os,
                                  const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
@@ -51,10 +53,12 @@ void Segment< C, S >::serialize( net::DataOStream& os,
         os << _vp;
     if( dirtyBits & DIRTY_FRUSTUM )
         os << *static_cast< Frustum* >( this );
+    if( dirtyBits & DIRTY_CHANNEL )
+        os << _channel;
 }
 
-template< class C, class S >
-void Segment< C, S >::deserialize( net::DataIStream& is,
+template< class C, class S, class CH >
+void Segment< C, S, CH >::deserialize( net::DataIStream& is,
                                    const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
@@ -62,34 +66,48 @@ void Segment< C, S >::deserialize( net::DataIStream& is,
         is >> _vp;
     if( dirtyBits & DIRTY_FRUSTUM )
         is >> *static_cast< Frustum* >( this );
+    if( dirtyBits & DIRTY_CHANNEL )
+    {
+        EQASSERT( _canvas->getConfig()->mapViewObjects( ))
+
+        net::ObjectVersion ov;
+        is >> ov;
+        if( ov.identifier == EQ_ID_NONE )
+            _channel = 0;
+        else
+        {
+            _canvas->getConfig()->find( ov.identifier, &_channel );
+            EQASSERT( _channel );
+        }
+    }
 }
 
-template< class C, class S >
-VisitorResult Segment< C, S >::accept( Visitor& visitor )
+template< class C, class S, class CH >
+VisitorResult Segment< C, S, CH >::accept( Visitor& visitor )
 {
     return visitor.visit( static_cast< S* >( this ));
 }
 
-template< class C, class S >
-VisitorResult Segment< C, S >::accept( Visitor& visitor ) const
+template< class C, class S, class CH >
+VisitorResult Segment< C, S, CH >::accept( Visitor& visitor ) const
 {
     return visitor.visit( static_cast< const S* >( this ));
 }
 
-template< class C, class S >void Segment< C, S >::backup()
+template< class C, class S, class CH > void Segment< C, S, CH >::backup()
 {
     Frustum::backup();
     Object::backup();
 }
 
-template< class C, class S >void Segment< C, S >::restore()
+template< class C, class S, class CH > void Segment< C, S, CH >::restore()
 {
     Object::restore();
     Frustum::restore();
 }
 
-template< class C, class S >
-void Segment< C, S >::setViewport( const Viewport& vp ) 
+template< class C, class S, class CH >
+void Segment< C, S, CH >::setViewport( const Viewport& vp ) 
 {
     if( _vp == vp )
         return;
@@ -124,8 +142,8 @@ void Segment< C, S >::setViewport( const Viewport& vp )
     }
 }
 
-template< class C, class S >
-void Segment< C, S >::setWall( const Wall& wall )
+template< class C, class S, class CH >
+void Segment< C, S, CH >::setWall( const Wall& wall )
 {
     if( getWall() == wall && getCurrentType() == TYPE_WALL )
         return;
@@ -134,8 +152,8 @@ void Segment< C, S >::setWall( const Wall& wall )
     setDirty( DIRTY_FRUSTUM );
 }
 
-template< class C, class S >
-void Segment< C, S >::setProjection( const Projection& projection )
+template< class C, class S, class CH >
+void Segment< C, S, CH >::setProjection( const Projection& projection )
 {
     if( getProjection() == projection && getCurrentType() == TYPE_PROJECTION )
         return;
@@ -144,8 +162,8 @@ void Segment< C, S >::setProjection( const Projection& projection )
     setDirty( DIRTY_FRUSTUM );
 }
 
-template< class C, class S >
-void Segment< C, S >::unsetFrustum()
+template< class C, class S, class CH >
+void Segment< C, S, CH >::unsetFrustum()
 {
     if( getCurrentType() == TYPE_NONE )
         return;
@@ -154,8 +172,8 @@ void Segment< C, S >::unsetFrustum()
     setDirty( DIRTY_FRUSTUM );
 }
 
-template< class C, class S >
-std::ostream& operator << ( std::ostream& os, const Segment< C, S >& s )
+template< class C, class S, class CH >
+std::ostream& operator << ( std::ostream& os, const Segment< C, S, CH >& s )
 {
     const S& segment = static_cast< const S& >( s );
     os << base::disableFlush << base::disableHeader << "segment" << std::endl;

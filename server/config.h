@@ -160,13 +160,12 @@ namespace server
         virtual VisitorResult _acceptCompounds( ConfigVisitor& visitor ) const;
 
         void output( std::ostream& os ) const; //!< @internal
+        virtual bool mapViewObjects() const { return true; } //!< @internal
         virtual bool mapNodeObjects() const { return true; } //!< @internal
 
     protected:
         /** @sa net::Session::notifyMapped. */
         virtual void notifyMapped( net::NodePtr node );
-
-        virtual bool mapViewObjects() const { return true; } //!< @internal
 
         friend class Server; // for commit()
 

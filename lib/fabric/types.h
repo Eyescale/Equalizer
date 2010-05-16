@@ -44,6 +44,7 @@ typedef vmml::frustum< float >  Frustumf; //!< A frustum definition
 
 template< class, class > class Observer;
 template< class, class, class > class Layout;
+template< class, class, class > class Segment;
 template< class, class, class > class Window;
 template< class, class, class, class > class Canvas;
 template< class, class, class, class > class Node;

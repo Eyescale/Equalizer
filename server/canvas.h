@@ -28,10 +28,6 @@
 
 namespace eq
 {
-namespace fabric
-{
-    template< class C, class S > class Segment;
-}
 namespace server
 {
     /** The canvas. @sa eq::Canvas */

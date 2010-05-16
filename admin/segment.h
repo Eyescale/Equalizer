@@ -27,7 +27,7 @@ namespace admin
 {
     class Canvas;
 
-    class Segment : public fabric::Segment< Canvas, Segment >
+    class Segment : public fabric::Segment< Canvas, Segment, Channel >
     {
     public:
         /** Construct a new segment. @version 1.0 */
@@ -43,8 +43,6 @@ namespace admin
 
         /** @return the config of this view. */
         EQADMIN_EXPORT const Config* getConfig() const;
-
-        const Channel* getChannel() const { return 0; } //!< @internal
         //@}
 
     private:

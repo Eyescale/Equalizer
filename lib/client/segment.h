@@ -31,7 +31,7 @@ namespace eq
      * one output Channel of the whole projection area, typically a projector or
      * screen.
      */
-    class Segment : public fabric::Segment< Canvas, Segment >
+    class Segment : public fabric::Segment< Canvas, Segment, Channel >
     {
     public:
         /** Construct a new Segment. */
@@ -47,8 +47,6 @@ namespace eq
 
         /** @return the config of this view. */
         EQ_EXPORT const Config* getConfig() const;
-
-        const Channel* getChannel() const { return 0; } //!< @internal
         //@}
 
     private:

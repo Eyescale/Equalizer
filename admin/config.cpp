@@ -68,8 +68,9 @@ template std::ostream& eq::fabric::operator << ( std::ostream&,
 #define FIND_ID_TEMPLATE1( type )                                       \
     template void eq::admin::Super::find< type >( const uint32_t, type** );
 
-FIND_ID_TEMPLATE1( eq::admin::Observer );
+FIND_ID_TEMPLATE1( eq::admin::Channel );
 FIND_ID_TEMPLATE1( eq::admin::Layout );
+FIND_ID_TEMPLATE1( eq::admin::Observer );
 
 #define FIND_ID_TEMPLATE2( type )                                       \
     template type* eq::admin::Super::find< type >( const uint32_t );

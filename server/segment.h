@@ -32,7 +32,7 @@ namespace server
     /**
      * The segment. @sa eq::Segment
      */
-    class Segment : public fabric::Segment< Canvas, Segment >
+    class Segment : public fabric::Segment< Canvas, Segment, Channel >
     {
     public:
         /** Construct a new Segment. */
@@ -52,20 +52,6 @@ namespace server
         /** @return the index path to this segment. */
         SegmentPath getPath() const;
 
-        /** 
-         * Set the channel of this segment.
-         *
-         * The channel defines the output area for this segment, typically a
-         * rendering area covering a graphics card output.
-         * 
-         * @param channel the channel.
-         */
-        void setChannel( Channel* channel ) { _channel = channel; }
-
-        /** Return the output channel of this segment. */
-        Channel* getChannel()               { return _channel; }
-        const Channel* getChannel() const   { return _channel; }
-
         /** Add a destination (View) channel. */
         void addDestinationChannel( Channel* channel );
 
@@ -79,9 +65,6 @@ namespace server
         //@}
 
     private:
-        /** The output channel of this segment. */
-        Channel* _channel;
-
         /** The resulting destination channels from the view intersections. */
         ChannelVector _destinationChannels;
 

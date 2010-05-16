@@ -27,7 +27,7 @@ namespace eq
 {
 namespace admin
 {
-typedef fabric::Segment< Canvas, Segment > Super;
+typedef fabric::Segment< Canvas, Segment, Channel > Super;
 
 Segment::Segment( Canvas* parent )
         : Super( parent )
@@ -52,7 +52,8 @@ const Config* Segment::getConfig() const
 }
 
 #include "../lib/fabric/segment.ipp"
-template class eq::fabric::Segment< eq::admin::Canvas, eq::admin::Segment >;
+template class eq::fabric::Segment< eq::admin::Canvas, eq::admin::Segment,
+                                    eq::admin::Channel >;
 
 /** @cond IGNORE */
 template std::ostream& eq::fabric::operator << ( std::ostream&,

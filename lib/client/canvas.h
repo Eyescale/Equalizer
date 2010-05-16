@@ -27,14 +27,6 @@
 
 namespace eq
 {
-namespace server
-{
-    class Canvas;
-}
-namespace fabric
-{
-    template< class C, class S > class Segment;
-}
     class Segment;
 
     /**

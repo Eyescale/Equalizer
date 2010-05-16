@@ -220,14 +220,6 @@ namespace net
         return *this;
     }
  
-    /** Write an object identifier and version. */
-    template<> inline DataOStream& 
-    DataOStream::operator << ( Object* const& object )
-    {
-        (*this) << ObjectVersion( object );
-        return *this;
-    }
-
 /** @cond IGNORE */
     /** Write a std::vector of serializable items. */
     template< typename T > inline DataOStream& 

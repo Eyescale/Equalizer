@@ -49,10 +49,8 @@ namespace admin
             { return find< Channel >( name ); }
 
         void output( std::ostream& os ) const {} //!< @internal
-        virtual bool mapNodeObjects() const { return true; } //!< @internal
-
-    protected:
         virtual bool mapViewObjects() const { return true; } //!< @internal
+        virtual bool mapNodeObjects() const { return true; } //!< @internal
 
     private:
         union // placeholder for binary-compatible changes

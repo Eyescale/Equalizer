@@ -33,7 +33,7 @@ namespace fabric
      * one output Channel of the whole projection area, typically a projector or
      * screen.
      */
-    template< class C, class S >
+    template< class C, class S, class CH >
     class Segment : public Object, public Frustum
     {
     public:
@@ -61,6 +61,24 @@ namespace fabric
          * @internal
          */
         EQFABRIC_EXPORT void setViewport( const Viewport& vp );
+
+        /** 
+         * Set the channel of this segment.
+         *
+         * The channel defines the output area for this segment, typically a
+         * rendering area covering a graphics card output.
+         * 
+         * @param channel the channel.
+         * @internal
+         */
+        void setChannel( CH* channel )
+            { _channel = channel; setDirty( DIRTY_CHANNEL ); }
+
+        /** Return the output channel of this segment. */
+        CH* getChannel()               { return _channel; }
+
+        /** Return the output channel of this segment. */
+        const CH* getChannel() const   { return _channel; }
 
         /** @sa Frustum::setWall() */
         EQFABRIC_EXPORT virtual void setWall( const Wall& wall );
@@ -110,7 +128,8 @@ namespace fabric
         enum DirtyBits
         {
             DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 0,
-            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 1
+            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 1,
+            DIRTY_CHANNEL    = Object::DIRTY_CUSTOM << 2
         };
 
         /** The parent canvas. */
@@ -119,14 +138,17 @@ namespace fabric
         /** The 2D area of this segment wrt to the canvas. */
         Viewport _vp;
 
+        /** The output channel of this segment. */
+        CH* _channel;
+
         union // placeholder for binary-compatible changes
         {
             char dummy[32];
         };
     };
 
-    template< class C, class S >
-    std::ostream& operator << ( std::ostream&, const Segment< C, S >& );
+    template< class C, class S, class CH >
+    std::ostream& operator << ( std::ostream&, const Segment< C, S, CH >& );
 }
 }
 #endif // EQFABRIC_SEGMENT_H

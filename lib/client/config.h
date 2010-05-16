@@ -313,7 +313,7 @@ namespace eq
         EQ_EXPORT virtual void unmap(); //!< @internal
         template< class, class, class, class > friend class fabric::Server;
         EQ_EXPORT virtual bool mapViewObjects() const; //!< @internal
-        //template< class, class, class > friend class fabric::Layout;
+        template< class, class, class > friend class fabric::Segment;
         //@}
 
     private:
