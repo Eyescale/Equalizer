@@ -215,7 +215,7 @@ void ConfigTool::writeConfig() const
     _writeCompound( config );
 
     eq::base::Log::instance( "", "", 0 )
-        << eq::base::disableHeader << global << server.get() << std::endl
+        << eq::base::disableHeader << global << *server << std::endl
         << eq::base::enableHeader << eq::base::disableFlush;
 }
 

@@ -564,7 +564,7 @@ bool Pipe::configExit()
 
 
 void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber ) 
-{ 
+{
     CHECK_THREAD( _pipeThread );
 
     const Node* node = getNode();

@@ -90,7 +90,7 @@ public:
             const eq::base::ScopedMutex<> mutex( _mutexPrint );
             std::cerr << "Recv perf: " << _mBytesSec / time * _nSamples
                       << "MB/s (" << _nSamples / time * 1000.f  << "pps) from "
-                      << desc.get() << std::endl;
+                      << *desc << std::endl;
             _nSamples = 0;
             return true;
         }

@@ -46,14 +46,12 @@ server
             }
             compound  # right eye draw operation on channel1
             { 
-                channel "channel1"
                 eye     [ RIGHT ]
-                outputframe {}
-            }
-            compound  # right eye 'copy' operation on channel2
-            {
-                task [ ASSEMBLE ]
-                eye  [ RIGHT ]
+                compound
+                {
+                    channel "channel1"
+                    outputframe {}
+                }
                 inputframe { name "frame.channel1" }
             }
         }

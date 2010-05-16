@@ -1228,8 +1228,9 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
         os << std::endl;
         for( CompoundVector::const_iterator i = children.begin();
              i != children.end(); ++i )
-
-            os << *i;
+        {
+            os << **i;
+        }
     }
 
     const FrameVector& inputFrames = compound.getInputFrames();
