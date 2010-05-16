@@ -505,6 +505,9 @@ uint32_t WGLEventHandler::_getKey( LPARAM lParam, WPARAM wParam )
 
         default: 
             // 'Useful' Latin1 characters
+            if ( !(GetKeyState(VK_LSHIFT) & 0x1000 ) )
+                if( wParam >= 'A' && wParam <= 'Z' )
+                    return wParam + 32;
             if( wParam >= ' ' && wParam <= '~' )
                 return wParam;
             break;
