@@ -1,5 +1,5 @@
 Admin API:
-- Move segment channel to fabric namespace
+- Template channel/segment set
 
 [ ] May break build
 [ ] May break existing applications

@@ -93,16 +93,16 @@ void _runMainLoop( eq::admin::ServerPtr server )
 
     // Add window (->channel->segment->canvas->layout->view)
     eq::admin::Window* window = new eq::admin::Window( pipe );
-    /*eq::admin::Channel* channel = */new eq::admin::Channel( window );
+    eq::admin::Channel* channel = new eq::admin::Channel( window );
     eq::admin::Canvas* canvas = new eq::admin::Canvas( config );
-    /*eq::admin::Segment* segment = */new eq::admin::Segment( canvas );
+    eq::admin::Segment* segment = new eq::admin::Segment( canvas );
     eq::admin::Layout* layout = new eq::admin::Layout( config );
     new eq::admin::View( layout );
 
     window->setViewport( eq::fabric::Viewport( 0.1f, 0.1f, 0.3f, 0.3f ));
     window->setName( "Runtime-created window" );
     
-    //segment->setChannel( channel );
+    segment->setChannel( channel );
     canvas->addLayout( layout );
     
     config->commit();
