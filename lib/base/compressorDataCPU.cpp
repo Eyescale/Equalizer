@@ -19,6 +19,8 @@
 #include "global.h"
 #include "pluginRegistry.h"
 
+#include <typeinfo>
+
 namespace eq
 {
 namespace base
