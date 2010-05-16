@@ -54,7 +54,7 @@ void Segment< C, S, CH >::serialize( net::DataOStream& os,
     if( dirtyBits & DIRTY_FRUSTUM )
         os << *static_cast< Frustum* >( this );
     if( dirtyBits & DIRTY_CHANNEL )
-        os << _channel;
+        os << static_cast< const net::Object* >( _channel );
 }
 
 template< class C, class S, class CH >
@@ -72,13 +72,10 @@ void Segment< C, S, CH >::deserialize( net::DataIStream& is,
 
         net::ObjectVersion ov;
         is >> ov;
-        if( ov.identifier == EQ_ID_NONE )
-            _channel = 0;
-        else
-        {
+
+        _channel = 0;
+        if( ov.identifier != EQ_ID_NONE )
             _canvas->getConfig()->find( ov.identifier, &_channel );
-            EQASSERT( _channel );
-        }
     }
 }
 

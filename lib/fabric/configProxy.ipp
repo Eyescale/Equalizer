@@ -97,14 +97,14 @@ void ConfigProxy< S, C, O, L, CV, N, V >::serialize( net::DataOStream& os,
         os << _config._appNodeID;
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os.write( _config._fAttributes, C::FATTR_ALL * sizeof( float ));
+    if( dirtyBits & DIRTY_NODES )
+        os.serializeChildren( this, _config._nodes );
     if( dirtyBits & DIRTY_OBSERVERS )
         os.serializeChildren( this, _config._observers );
     if( dirtyBits & DIRTY_LAYOUTS )
         os.serializeChildren( this, _config._layouts );
     if( dirtyBits & DIRTY_CANVASES )
         os.serializeChildren( this, _config._canvases );
-    if( dirtyBits & DIRTY_NODES )
-        os.serializeChildren( this, _config._nodes );
     if( dirtyBits & DIRTY_LATENCY )
         os << _config._data.latency;
 }
@@ -119,6 +119,22 @@ void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
         is >> _config._appNodeID;
     if( dirtyBits & DIRTY_ATTRIBUTES )
         is.read( _config._fAttributes, C::FATTR_ALL * sizeof( float ));
+
+    if( dirtyBits & DIRTY_NODES )
+    {
+        if( _config.mapNodeObjects( ))
+        {
+            typename C::NodeVector result;
+            is.deserializeChildren( this, _config._nodes, result );
+            _config._nodes.swap( result );
+            EQASSERT( _config._nodes.size() == result.size( ));
+        }
+        else // consume unused ObjectVersions
+        {
+            net::ObjectVersionVector childIDs;
+            is >> childIDs;
+        }
+    }
 
     if( _config.mapViewObjects( )) // depends on _config._appNodeID !
     {
@@ -153,22 +169,6 @@ void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
             is >> childIDs;
         if( dirtyBits & DIRTY_CANVASES )
             is >> childIDs;
-    }
-
-    if( dirtyBits & DIRTY_NODES )
-    {
-        if( _config.mapNodeObjects( ))
-        {
-            typename C::NodeVector result;
-            is.deserializeChildren( this, _config._nodes, result );
-            _config._nodes.swap( result );
-            EQASSERT( _config._nodes.size() == result.size( ));
-        }
-        else // consume unused ObjectVersions
-        {
-            net::ObjectVersionVector childIDs;
-            is >> childIDs;
-        }
     }
 
     if( dirtyBits & DIRTY_LATENCY )
