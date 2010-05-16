@@ -1,14 +1,11 @@
-Cleanups:
-- const-correctness fixes
-- Posix build fix
-- Make fabric::Frustum a non-distributed Object
-- Create fabric::Frustum serializers
-- simplify Channel copy ctor used for view/segment channel creation
+Admin API:
+- template channel/segment/view creation code
+- template admin config commit
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

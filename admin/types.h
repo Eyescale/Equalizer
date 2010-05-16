@@ -79,6 +79,8 @@ typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
 /** A visitor to traverse configs and children. */
 typedef fabric::ConfigVisitor< Config, ObserverVisitor, LayoutVisitor,
                                CanvasVisitor, NodeVisitor > ConfigVisitor;
+
+
 //----- Vectors
 /** A vector of pointers to eq::Config */
 typedef std::vector< Config* >     ConfigVector;

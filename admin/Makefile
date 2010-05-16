@@ -21,6 +21,7 @@ HEADER_SRC = \
 	server.h \
 	types.h \
 	view.h \
+	visitorResult.h \
 	window.h \
 
 CXXFILES = \

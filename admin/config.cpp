@@ -27,6 +27,8 @@
 #include "server.h"
 #include "view.h"
 
+#include "configCommitVisitor.h"
+
 namespace eq
 {
 namespace admin
@@ -40,6 +42,14 @@ Config::Config( ServerPtr parent )
 
 Config::~Config()
 {}
+
+uint32_t Config::commit()
+{
+    const uint32_t result = Super::commit();
+    ConfigCommitVisitor visitor;
+    accept( visitor );
+    return result;
+}
 
 }
 }

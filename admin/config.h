@@ -41,6 +41,9 @@ namespace admin
         /** Destruct a config. @version 1.0 */
         EQADMIN_EXPORT virtual ~Config();
 
+        /** Commit all pending changes. @version 1.0 */
+        uint32_t commit();
+
         /** @internal */
         const Channel* findChannel( const std::string& name ) const
             { return find< Channel >( name ); }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,26 +15,23 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQADMIN_H
-#define EQADMIN_H
+#ifndef EQADMIN_VISITORRESULT_H
+#define EQADMIN_VISITORRESULT_H
 
-#pragma warning(push)
-#pragma warning(disable : 4244) //conversion from .. to ..,possible loss of data
+#include <eq/fabric/visitorResult.h> // 'base' class
 
-#include <eq/admin/canvas.h>
-#include <eq/admin/channel.h>
-#include <eq/admin/client.h>
-#include <eq/admin/config.h>
-#include <eq/admin/init.h>
-#include <eq/admin/layout.h>
-#include <eq/admin/node.h>
-#include <eq/admin/segment.h>
-#include <eq/admin/server.h>
-#include <eq/admin/types.h>
-#include <eq/admin/view.h>
-#include <eq/admin/visitorResult.h>
-#include <eq/admin/window.h>
-#include <eq/net/net.h>
+namespace eq
+{
+namespace admin
+{
+     /** The result code from any visit operation. */
+    typedef fabric::VisitorResult VisitorResult;
 
-#pragma warning(pop)
-#endif // EQADMIN_H
+    /** @cond IGNORE */
+    using fabric::TRAVERSE_CONTINUE;
+    using fabric::TRAVERSE_TERMINATE;
+    using fabric::TRAVERSE_PRUNE;
+    /** @endcond */
+}
+}
+#endif // EQADMIN_VISITORRESULT_H
