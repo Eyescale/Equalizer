@@ -69,8 +69,8 @@ Channel::Channel( Window* parent )
     }
 }
 
-Channel::Channel( const Channel& from, Window* parent )
-        : Super( from, parent )
+Channel::Channel( const Channel& from )
+        : Super( from )
 {
     _construct();
     // Don't copy view and segment. Will be re-set by segment copy ctor

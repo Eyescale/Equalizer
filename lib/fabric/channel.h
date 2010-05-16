@@ -275,8 +275,8 @@ namespace fabric
         /** Construct a new channel. @internal */
         EQFABRIC_EXPORT Channel( W* parent );
 
-        /** Construct a new deep copy of a channel. @internal */
-        Channel( const Channel& from, W* parent );
+        /** Construct a copy of a channel (view/segment dest). @internal */
+        Channel( const Channel& from );
 
         /** Destruct the channel. @internal */
         EQFABRIC_EXPORT virtual ~Channel();

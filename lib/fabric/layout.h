@@ -58,14 +58,14 @@ namespace fabric
         typedef ElementVisitor< L, LeafVisitor< V > > Visitor;
         typedef std::vector< V* > ViewVector;
 
-        /** Get the list of views. */
-        const ViewVector& getViews() const { return _views; }
-
         /** @return the current config. */
         C* getConfig() { return _config; }
 
         /** @return the current Config. */
         const C* getConfig() const { return _config; }
+
+        /** Get the list of views. */
+        const ViewVector& getViews() const { return _views; }
 
         /** @return the view of the given path. @internal */
         V* getView( const ViewPath& path );
@@ -90,6 +90,9 @@ namespace fabric
         /** Const-version of accept(). */
         EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor )
             const;
+
+        void create( V** view ); //!< @internal
+        void release( V* view ); //!< @internal
         //@}
         
     protected:

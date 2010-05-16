@@ -40,6 +40,7 @@ namespace fabric
     {
     public:
         typedef base::RefPtr< CL > ClientPtr;
+        typedef base::RefPtr< const CL > ConstClientPtr;
         typedef std::vector< CFG* > ConfigVector;
         typedef NF NodeFactory;
 
@@ -47,6 +48,9 @@ namespace fabric
 
         /** @return the local client proxy. */
         ClientPtr getClient() { return _client; }
+
+        /** @return the local client proxy. */
+        ConstClientPtr getClient() const { return _client; }
 
         /** @return the vector of configurations. */
         const ConfigVector& getConfigs() const { return _configs; }

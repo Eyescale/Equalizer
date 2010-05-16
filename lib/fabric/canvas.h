@@ -21,6 +21,7 @@
 #include <eq/fabric/types.h>
 #include <eq/fabric/visitorResult.h>  // enum
 #include <eq/fabric/frustum.h>        // base class
+#include <eq/fabric/object.h>         // base class
 
 #include <string>
 
@@ -53,7 +54,7 @@ namespace fabric
      * with a NULL layout does not render anything, i.e., it is not active.
      */
     template< class CFG, class C, class S, class L >
-    class Canvas : public Frustum
+    class Canvas : public Object, public Frustum
     {
     public:
         typedef std::vector< S* > SegmentVector;
@@ -84,6 +85,15 @@ namespace fabric
 
         /** Add a new allowed layout to this canvas, can be 0. @internal */
         EQFABRIC_EXPORT void addLayout( L* layout );
+
+        /** @sa Frustum::setWall() */
+        EQFABRIC_EXPORT virtual void setWall( const Wall& wall );
+        
+        /** @sa Frustum::setProjection() */
+        EQFABRIC_EXPORT virtual void setProjection( const Projection& );
+
+        /** @sa Frustum::unsetFrustum() */
+        EQFABRIC_EXPORT virtual void unsetFrustum();
         //@}
 
         /** @name Operations */
@@ -106,6 +116,7 @@ namespace fabric
         /** @return true if the layout has changed. @internal */
         bool hasDirtyLayout() const { return getDirty() & DIRTY_LAYOUT; }
 
+        virtual void backup(); //!< @internal
         virtual void restore(); //!< @internal
         //@}
 
@@ -152,12 +163,12 @@ namespace fabric
 
         enum DirtyBits
         {
-            DIRTY_LAYOUT     = Frustum::DIRTY_CUSTOM << 0,
-            DIRTY_CHILDREN   = Frustum::DIRTY_CUSTOM << 1
+            DIRTY_LAYOUT    = Object::DIRTY_CUSTOM << 0,
+            DIRTY_CHILDREN  = Object::DIRTY_CUSTOM << 1,
+            DIRTY_FRUSTUM   = Object::DIRTY_CUSTOM << 2
         };
 
         template< class, class > friend class Segment;
-        friend class eq::Canvas;
         void _addSegment( S* segment );
         bool _removeSegment( S* segment );
 

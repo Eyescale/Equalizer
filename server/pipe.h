@@ -61,7 +61,7 @@ namespace server
         virtual ~Pipe();
 
         ServerPtr getServer();
-        const ServerPtr getServer() const;
+        ConstServerPtr getServer() const;
 
         Config* getConfig();
         const Config* getConfig() const;

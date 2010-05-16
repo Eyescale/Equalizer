@@ -90,7 +90,7 @@ void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     Super::deserialize( is, dirtyBits );
     setDirty( dirtyBits ); // redistribute slave changes
 
-    if( dirtyBits & ( DIRTY_WALL | DIRTY_PROJECTION | DIRTY_OVERDRAW ))
+    if( dirtyBits & ( DIRTY_FRUSTUM | DIRTY_OVERDRAW ))
     {
         const ChannelVector& channels = getChannels();
         Config*              config   = getConfig();

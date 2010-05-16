@@ -43,7 +43,7 @@ void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
     Super::deserialize( is, dirtyBits );
     if( _baseFrustum.getCurrentType() == TYPE_NONE && 
-        ( dirtyBits & DIRTY_TYPE ))
+        ( dirtyBits & DIRTY_FRUSTUM ))
     {
         _baseFrustum = *this; // save baseline data for resizing
     }

@@ -85,7 +85,7 @@ ServerPtr Pipe::getServer()
     return ( node ? node->getServer() : 0);
 }
 
-const ServerPtr Pipe::getServer() const
+ConstServerPtr Pipe::getServer() const
 { 
     const Node* node = getNode();
     EQASSERT( node );

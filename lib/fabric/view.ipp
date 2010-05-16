@@ -48,20 +48,22 @@ View< L, V, O >::~View()
 template< class L, class V, class O > 
 void View< L, V, O >::serialize( net::DataOStream& os, const uint64_t dirtyBits)
 {
-    Frustum::serialize( os, dirtyBits );
+    Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _viewport;
     if( dirtyBits & DIRTY_OBSERVER )
         os << net::ObjectVersion( _observer );
     if( dirtyBits & DIRTY_OVERDRAW )
         os << _overdraw;
+    if( dirtyBits & DIRTY_FRUSTUM )
+        os << *static_cast< Frustum* >( this );
 }
 
 template< class L, class V, class O > 
 void View< L, V, O >::deserialize( net::DataIStream& is, 
                                    const uint64_t dirtyBits )
 {
-    Frustum::deserialize( is, dirtyBits );
+    Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_VIEWPORT )
         is >> _viewport;
     if( dirtyBits & DIRTY_OBSERVER )
@@ -87,6 +89,8 @@ void View< L, V, O >::deserialize( net::DataIStream& is,
     }
     if( dirtyBits & DIRTY_OVERDRAW )
         is >> _overdraw;
+    if( dirtyBits & DIRTY_FRUSTUM )
+        is >> *static_cast< Frustum* >( this );
 }
 
 template< class L, class V, class O > 
@@ -94,6 +98,18 @@ void View< L, V, O >::setViewport( const Viewport& viewport )
 {
     _viewport = viewport;
     setDirty( DIRTY_VIEWPORT );
+}
+
+template< class L, class V, class O > void View< L, V, O >::backup()
+{
+    Frustum::backup();
+    Object::backup();
+}
+
+template< class L, class V, class O > void View< L, V, O >::restore()
+{
+    Object::restore();
+    Frustum::restore();
 }
 
 template< class L, class V, class O > 
@@ -129,6 +145,36 @@ template< class L, class V, class O >
 VisitorResult View< L, V, O >::accept( LeafVisitor< V >& visitor ) const
 {
     return visitor.visit( static_cast< const V* >( this ));
+}
+
+template< class L, class V, class O > 
+void View< L, V, O >::setWall( const Wall& wall )
+{
+    if( getWall() == wall && getCurrentType() == TYPE_WALL )
+        return;
+
+    Frustum::setWall( wall );
+    setDirty( DIRTY_FRUSTUM );
+}
+
+template< class L, class V, class O > 
+void View< L, V, O >::setProjection( const Projection& projection )
+{
+    if( getProjection() == projection && getCurrentType() == TYPE_PROJECTION )
+        return;
+
+    Frustum::setProjection( projection );
+    setDirty( DIRTY_FRUSTUM );
+}
+
+template< class L, class V, class O > 
+void View< L, V, O >::unsetFrustum()
+{
+    if( getCurrentType() == TYPE_NONE )
+        return;
+
+    Frustum::unsetFrustum();
+    setDirty( DIRTY_FRUSTUM );
 }
 
 template< class L, class V, class O >

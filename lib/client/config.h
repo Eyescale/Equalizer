@@ -68,6 +68,9 @@ namespace eq
         /** @return the local client node. @version 1.0 */
         EQ_EXPORT ClientPtr getClient();
 
+        /** @return the local client node. @version 1.0 */
+        EQ_EXPORT ConstClientPtr getClient() const;
+
         /** @internal */
         EQ_EXPORT CommandQueue* getMainThreadQueue();
 
@@ -309,7 +312,8 @@ namespace eq
         EQ_EXPORT virtual void changeLatency( const uint32_t latency );
         EQ_EXPORT virtual void unmap(); //!< @internal
         template< class, class, class, class > friend class fabric::Server;
-        EQ_EXPORT virtual bool mapViewObjects(); //!< @internal
+        EQ_EXPORT virtual bool mapViewObjects() const; //!< @internal
+        //template< class, class, class > friend class fabric::Layout;
         //@}
 
     private:

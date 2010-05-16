@@ -142,6 +142,8 @@ typedef std::vector< Statistic >         Statistics;
 
 /** A reference-counted pointer to an eq::Client */
 typedef base::RefPtr< Client >        ClientPtr;
+/** A reference-counted pointer to a const eq::Client */
+typedef base::RefPtr< const Client >  ConstClientPtr;
 /** A reference-counted pointer to an eq::Server */
 typedef base::RefPtr< Server >        ServerPtr;
 

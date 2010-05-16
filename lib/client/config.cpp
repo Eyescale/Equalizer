@@ -117,6 +117,11 @@ ClientPtr Config::getClient()
     return getServer()->getClient(); 
 }
 
+ConstClientPtr Config::getClient() const
+{ 
+    return getServer()->getClient(); 
+}
+
 void Config::unmap()
 {
     _exitMessagePump();
@@ -507,10 +512,10 @@ void Config::getStatistics( std::vector< FrameStatistics >& statistics )
     _statisticsMutex.unset();
 }
 
-bool Config::mapViewObjects()
+bool Config::mapViewObjects() const
 {
     // only on application node...
-    return (getClient()->getNodeID() == getAppNodeID( ));
+    return ( getClient()->getNodeID() == getAppNodeID( ));
 }
 
 void Config::setupMessagePump( Pipe* pipe )

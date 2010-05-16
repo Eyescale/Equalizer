@@ -21,6 +21,7 @@
 #include <eq/fabric/types.h>
 #include <eq/fabric/visitorResult.h>  // enum
 #include <eq/fabric/frustum.h>        // base class
+#include <eq/fabric/object.h>         // base class
 #include <eq/fabric/viewport.h>       // member
 
 namespace eq
@@ -32,7 +33,8 @@ namespace fabric
      * one output Channel of the whole projection area, typically a projector or
      * screen.
      */
-    template< class C, class S > class Segment : public Frustum
+    template< class C, class S >
+    class Segment : public Object, public Frustum
     {
     public:
         typedef LeafVisitor< S > Visitor;
@@ -59,6 +61,15 @@ namespace fabric
          * @internal
          */
         EQFABRIC_EXPORT void setViewport( const Viewport& vp );
+
+        /** @sa Frustum::setWall() */
+        EQFABRIC_EXPORT virtual void setWall( const Wall& wall );
+        
+        /** @sa Frustum::setProjection() */
+        EQFABRIC_EXPORT virtual void setProjection( const Projection& );
+
+        /** @sa Frustum::unsetFrustum() */
+        EQFABRIC_EXPORT virtual void unsetFrustum();
         //@}
         
         /** @name Operations */
@@ -74,6 +85,9 @@ namespace fabric
 
         /** Const-version of accept(). @version 1.0 */
         EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor ) const;
+
+        virtual void backup(); //!< @internal
+        virtual void restore(); //!< @internal
         //@}
 
     protected:
@@ -95,7 +109,8 @@ namespace fabric
     private:
         enum DirtyBits
         {
-            DIRTY_VIEWPORT   = Frustum::DIRTY_CUSTOM << 0
+            DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 0,
+            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 1
         };
 
         /** The parent canvas. */

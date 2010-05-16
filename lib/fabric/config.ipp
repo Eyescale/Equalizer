@@ -224,7 +224,7 @@ base::RefPtr< S > Config< S, C, O, L, CV, N, V >::getServer()
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-base::RefPtr< S > Config< S, C, O, L, CV, N, V >::getServer() const 
+base::RefPtr< const S > Config< S, C, O, L, CV, N, V >::getServer() const 
 {
     return _server;
 }

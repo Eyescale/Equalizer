@@ -27,6 +27,8 @@
 #include <eq/admin/node.h>
 #include <eq/admin/server.h>
 #include <eq/admin/types.h>
+#include <eq/admin/window.h>
+#include <eq/net/net.h>
 
 #pragma warning(pop)
 #endif // EQADMIN_H

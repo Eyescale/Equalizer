@@ -58,16 +58,16 @@ Channel< W, C >::Channel( W* parent )
 }
 
 template< class W, class C >
-Channel< W, C >::Channel( const Channel& from, W* parent )
+Channel< W, C >::Channel( const Channel& from )
         : Object( from )
-        , _window( parent )
+        , _window( from._window )
         , _data( from._data )
         , _context( &_data.nativeContext )
         , _color( from._color )
         , _drawable( from._drawable )
         , _maxSize( from._maxSize )
 {
-    parent->_addChannel( static_cast< C* >( this ));
+    _window->_addChannel( static_cast< C* >( this ));
 
     for( int i = 0; i < IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];

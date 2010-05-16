@@ -34,37 +34,12 @@ Frustum::~Frustum()
 
 void Frustum::backup()
 {
-    Object::backup();
     _backup = _data;
 }
 
 void Frustum::restore()
 {
-    Object::restore();
     _data = _backup;
-    setDirty( DIRTY_TYPE | DIRTY_WALL | DIRTY_PROJECTION );
-}
-
-void Frustum::serialize( net::DataOStream& os, const uint64_t dirtyBits )
-{
-    Object::serialize( os, dirtyBits );
-    if( dirtyBits & DIRTY_TYPE )
-        os << _data.current;
-    if( dirtyBits & DIRTY_WALL )
-        os << _data.wall;
-    if( dirtyBits & DIRTY_PROJECTION )
-        os << _data.projection;
-}
-
-void Frustum::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
-{
-    Object::deserialize( is, dirtyBits );
-    if( dirtyBits & DIRTY_TYPE )
-        is >> _data.current;
-    if( dirtyBits & DIRTY_WALL )
-        is >> _data.wall;
-    if( dirtyBits & DIRTY_PROJECTION )
-        is >> _data.projection;
 }
 
 void Frustum::setWall( const Wall& wall )
@@ -72,7 +47,6 @@ void Frustum::setWall( const Wall& wall )
     _data.wall       = wall;
     _data.projection = wall;
     _data.current    = TYPE_WALL;
-    setDirty( DIRTY_TYPE | DIRTY_WALL );
 }
         
 void Frustum::setProjection( const Projection& projection )
@@ -80,13 +54,11 @@ void Frustum::setProjection( const Projection& projection )
     _data.projection = projection;
     _data.wall       = projection;
     _data.current    = TYPE_PROJECTION;
-    setDirty( DIRTY_TYPE | DIRTY_PROJECTION );
 }
 
 void Frustum::unsetFrustum()
 {
     _data.current = TYPE_NONE;
-    setDirty( DIRTY_TYPE );
 }
 
 std::ostream& operator << ( std::ostream& os, const Frustum& frustum )
@@ -106,6 +78,59 @@ std::ostream& operator << ( std::ostream& os, const Frustum& frustum )
             break;
     }
     return os;
+}
+
+net::DataOStream& operator << ( net::DataOStream& os, const Frustum& frustum )
+{
+    switch( frustum.getCurrentType( ))
+    {
+        case Frustum::TYPE_WALL:
+            os << Frustum::TYPE_WALL << frustum.getWall();
+            break;
+
+        case Frustum::TYPE_PROJECTION:
+            os << Frustum::TYPE_PROJECTION << frustum.getProjection();
+            break;
+
+        case Frustum::TYPE_NONE:
+            os << Frustum::TYPE_NONE;
+            break;
+
+        default:
+            EQASSERT( false );
+    }
+    return os;
+}
+
+net::DataIStream& operator >> ( net::DataIStream& is, Frustum& frustum )
+{
+    Frustum::Type type;
+    is >> type;
+
+    switch( type )
+    {
+        case Frustum::TYPE_WALL:
+        {
+            Wall wall;
+            is >> wall;
+            frustum.setWall( wall );
+            break;
+        }
+        case Frustum::TYPE_PROJECTION:
+        {
+            Projection projection;
+            is >> projection;
+            frustum.setProjection( projection );
+            break;
+        }
+        case Frustum::TYPE_NONE:
+            frustum.unsetFrustum();
+            break;
+
+        default:
+            EQASSERT( false );
+    }
+    return is;
 }
 
 }

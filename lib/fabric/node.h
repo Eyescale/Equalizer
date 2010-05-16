@@ -39,12 +39,12 @@ namespace fabric
 
         /** @name Data Access */
         //@{
-        /** @return vector of pipes */
-        const PipeVector& getPipes() const { return _pipes; }
-
         /** @return the config of this node. */
         C*       getConfig()       { return _config; }
         const C* getConfig() const { return _config; }
+
+        /** @return vector of pipes */
+        const PipeVector& getPipes() const { return _pipes; }
 
         /**
          * @return true if all render tasks for this node are executed by the
@@ -129,14 +129,14 @@ namespace fabric
         Node( C* parent );
         EQFABRIC_EXPORT virtual ~Node();
 
-        virtual ChangeType getChangeType() const { return UNBUFFERED; }
-        
         /** @internal */
         EQFABRIC_EXPORT virtual void serialize( net::DataOStream& os,
                                                 const uint64_t dirtyBits );
         /** @internal */
         EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
+        
+        virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:
         enum DirtyBits

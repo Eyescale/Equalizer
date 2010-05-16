@@ -63,7 +63,8 @@ namespace server
 
         /** @name Data Access. */
         //@{
-        ServerPtr getServer() const;
+        ServerPtr getServer();
+        ConstServerPtr getServer() const;
 
         net::NodePtr getNode() const { return _node; }
         void setNode( net::NodePtr node ) { _node = node; }

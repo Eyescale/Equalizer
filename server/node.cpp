@@ -92,7 +92,12 @@ void Node::attachToSession( const uint32_t id, const uint32_t instanceID,
                      NodeFunc( this, &Node::_cmdFrameFinishReply ), queue );
 }
 
-ServerPtr Node::getServer() const
+ServerPtr Node::getServer()
+{
+    return getConfig() ? getConfig()->getServer() : 0;
+}
+
+ConstServerPtr Node::getServer() const
 {
     return getConfig() ? getConfig()->getServer() : 0;
 }

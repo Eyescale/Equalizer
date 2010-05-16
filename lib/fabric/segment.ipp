@@ -46,20 +46,22 @@ template< class C, class S >
 void Segment< C, S >::serialize( net::DataOStream& os,
                                  const uint64_t dirtyBits )
 {
-    Frustum::serialize( os, dirtyBits );
-
+    Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _vp;
+    if( dirtyBits & DIRTY_FRUSTUM )
+        os << *static_cast< Frustum* >( this );
 }
 
 template< class C, class S >
 void Segment< C, S >::deserialize( net::DataIStream& is,
                                    const uint64_t dirtyBits )
 {
-    Frustum::deserialize( is, dirtyBits );
-
+    Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_VIEWPORT )
         is >> _vp;
+    if( dirtyBits & DIRTY_FRUSTUM )
+        is >> *static_cast< Frustum* >( this );
 }
 
 template< class C, class S >
@@ -72,6 +74,18 @@ template< class C, class S >
 VisitorResult Segment< C, S >::accept( Visitor& visitor ) const
 {
     return visitor.visit( static_cast< const S* >( this ));
+}
+
+template< class C, class S >void Segment< C, S >::backup()
+{
+    Frustum::backup();
+    Object::backup();
+}
+
+template< class C, class S >void Segment< C, S >::restore()
+{
+    Object::restore();
+    Frustum::restore();
 }
 
 template< class C, class S >
@@ -108,6 +122,36 @@ void Segment< C, S >::setViewport( const Viewport& vp )
         case Frustum::TYPE_NONE:
             break; 
     }
+}
+
+template< class C, class S >
+void Segment< C, S >::setWall( const Wall& wall )
+{
+    if( getWall() == wall && getCurrentType() == TYPE_WALL )
+        return;
+
+    Frustum::setWall( wall );
+    setDirty( DIRTY_FRUSTUM );
+}
+
+template< class C, class S >
+void Segment< C, S >::setProjection( const Projection& projection )
+{
+    if( getProjection() == projection && getCurrentType() == TYPE_PROJECTION )
+        return;
+
+    Frustum::setProjection( projection );
+    setDirty( DIRTY_FRUSTUM );
+}
+
+template< class C, class S >
+void Segment< C, S >::unsetFrustum()
+{
+    if( getCurrentType() == TYPE_NONE )
+        return;
+
+    Frustum::unsetFrustum();
+    setDirty( DIRTY_FRUSTUM );
 }
 
 template< class C, class S >

@@ -40,7 +40,7 @@ namespace base
     {
     public:
         /** Increase the reference count. @version 1.0 .*/
-        void ref()   
+        void ref() const
         {
 #ifndef NDEBUG
             EQASSERTINFO( !_hasBeenDeleted, typeid( *this ).name( ));
@@ -54,7 +54,7 @@ namespace base
          * The object is deleted when the reference count reaches 0.
          * @version 1.0
          */
-        void unref() 
+        void unref() const
             { 
 #ifndef NDEBUG
                 EQASSERT( !_hasBeenDeleted );
@@ -71,7 +71,7 @@ namespace base
     protected:
         /** Construct a new reference-counted object. @version 1.0 */
         Referenced()
-            : _refCount(0)
+            : _refCount( 0 )
 #ifndef NDEBUG
             , _hasBeenDeleted( false )
 #endif
@@ -79,7 +79,7 @@ namespace base
 
         /** Construct a new copy of a reference-counted object. @version 1.0 */
         Referenced( const Referenced& ) 
-            : _refCount(0)
+            : _refCount( 0 )
 #ifndef NDEBUG
             , _hasBeenDeleted( false )
 #endif
@@ -97,10 +97,10 @@ namespace base
             }
 
     protected:
-        EQ_EXPORT void deleteReferenced( Referenced* object );
+        EQ_EXPORT void deleteReferenced( const Referenced* object ) const;
 
     private:
-        a_int32_t _refCount;
+        mutable a_int32_t _refCount;
         bool _hasBeenDeleted;
     };
 }

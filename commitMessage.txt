@@ -1,4 +1,9 @@
-Minor cleanups
+Cleanups:
+- const-correctness fixes
+- Posix build fix
+- Make fabric::Frustum a non-distributed Object
+- Create fabric::Frustum serializers
+- simplify Channel copy ctor used for view/segment channel creation
 
 [ ] May break build
 [ ] May break existing applications

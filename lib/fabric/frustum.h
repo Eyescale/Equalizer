@@ -18,16 +18,21 @@
 #ifndef EQFABRIC_FRUSTUM_H
 #define EQFABRIC_FRUSTUM_H
 
-#include <eq/fabric/object.h>     // base class
 #include <eq/fabric/projection.h> // member
 #include <eq/fabric/wall.h>       // member
 
 namespace eq
 {
+namespace net
+{
+    class DataOStream;
+    class DataIStream;
+}
+
 namespace fabric
 {
     /** A distributed object for frustum data. */
-    class Frustum : public Object
+    class Frustum
     {
     public:
         /** Construct a new frustum. @version 1.0 */
@@ -45,10 +50,10 @@ namespace fabric
         };
 
         /** Set the frustum using a wall description. @version 1.0 */
-        EQ_EXPORT void setWall( const Wall& wall );
+        EQ_EXPORT virtual void setWall( const Wall& wall );
         
         /** Set the frustum using a projection description. @version 1.0 */
-        EQ_EXPORT void setProjection( const Projection& projection );
+        EQ_EXPORT virtual void setProjection( const Projection& projection );
 
         /** @return the last specified frustum as a wall. @version 1.0 */
         EQ_EXPORT const Wall& getWall() const { return _data.wall; }
@@ -61,27 +66,12 @@ namespace fabric
         EQ_EXPORT Type getCurrentType() const { return _data.current; }
 
         /** Set the last specified frustum to TYPE_NONE. @version 1.0 */
-        EQ_EXPORT void unsetFrustum();
+        EQ_EXPORT virtual void unsetFrustum();
 
         EQFABRIC_EXPORT virtual void backup(); //!< @internal
         EQFABRIC_EXPORT virtual void restore(); //!< @internal
 
     protected:
-        /** @sa Object::serialize() */
-        EQ_EXPORT virtual void serialize( net::DataOStream& os,
-                                          const uint64_t dirtyBits );
-        /** @sa Object::deserialize() */
-        EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
-                                            const uint64_t dirtyBits );
-
-        /** The changed parts of the frustum since the last pack(). */
-        enum DirtyBits
-        {
-            DIRTY_TYPE       = Object::DIRTY_CUSTOM << 0,
-            DIRTY_WALL       = Object::DIRTY_CUSTOM << 1,
-            DIRTY_PROJECTION = Object::DIRTY_CUSTOM << 2,
-            DIRTY_CUSTOM     = Object::DIRTY_CUSTOM << 5,
-        };
 
     private:
         struct BackupData
@@ -106,6 +96,8 @@ namespace fabric
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Frustum& );
+    EQ_EXPORT net::DataOStream& operator << (net::DataOStream&, const Frustum&);
+    EQ_EXPORT net::DataIStream& operator >> (net::DataIStream&, Frustum& );
 }
 }
 #endif // EQFABRIC_FRUSTUM_H

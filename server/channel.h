@@ -65,8 +65,8 @@ namespace server
         /** Construct a new channel. */
         EQSERVER_EXPORT Channel( Window* parent );
 
-        /** Construct a new deep copy of a channel. */
-        Channel( const Channel& from, Window* window );
+        /** Construct a copy of a channel. */
+        Channel( const Channel& from );
 
         /** Destruct this channel. */
         virtual ~Channel();

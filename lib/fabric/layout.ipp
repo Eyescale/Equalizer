@@ -58,7 +58,7 @@ void Layout< C, L, V >::serialize( net::DataOStream& os,
     if( dirtyBits & DIRTY_VIEWS )
     {
         EQASSERT( isMaster( ));
-        os << reinterpret_cast< std::vector< net::Object* >& >( _views );
+        os.serializeChildren( this, _views );
     }
 }
 
@@ -73,16 +73,11 @@ void Layout< C, L, V >::deserialize( net::DataIStream& is,
         EQASSERT( !isMaster( ));
         EQASSERT( _views.empty( ));
         EQASSERT( _config );
-        std::vector< net::ObjectVersion > ids;
-        is >> ids;
 
-        for( std::vector< net::ObjectVersion >::const_iterator i = ids.begin();
-             i != ids.end(); ++i )
-        {
-            V* view = _config->getServer()->getNodeFactory()->createView(
-                static_cast< L* >( this ));
-            _config->mapObject( view, *i );
-        }
+        ViewVector result;
+        is.deserializeChildren( this, _views, result );
+        _views.swap( result );
+        EQASSERT( _views.size() == result.size( ));
     }
 }
 
@@ -105,6 +100,19 @@ void Layout< C, L, V >::_unmap()
     }
 
     config->unmapObject( this );
+}
+
+template< class C, class L, class V >
+void Layout< C, L, V >::create( V** view )
+{
+    *view = getConfig()->getServer()->getNodeFactory()->createView( 
+        static_cast< L* >( this ));
+}
+
+template< class C, class L, class V >
+void Layout< C, L, V >::release( V* view )
+{
+    getConfig()->getServer()->getNodeFactory()->releaseView( view );
 }
 
 namespace

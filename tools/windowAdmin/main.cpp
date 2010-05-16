@@ -71,7 +71,7 @@ void _runMainLoop( eq::admin::ServerPtr server )
         return;
     }
 
-    const eq::admin::Config* config = configs.front();
+    eq::admin::Config* config = configs.front();
     const eq::admin::NodeVector& nodes = config->getNodes();
     if( nodes.empty( ))
     {
@@ -90,4 +90,9 @@ void _runMainLoop( eq::admin::ServerPtr server )
     eq::admin::Pipe* pipe = pipes.front();
     EQASSERT( pipe );
     //std::cout << "Using " << *pipe << std::endl;
+
+    eq::admin::Window* window = new eq::admin::Window( pipe );
+    window->setViewport( eq::fabric::Viewport( 0.1f, 0.1f, 0.3f, 0.3f ));
+                         
+    config->commit();
 }

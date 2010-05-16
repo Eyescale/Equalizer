@@ -303,9 +303,6 @@ void Window< P, W, C >::setViewport( const Viewport& vp )
 template< class P, class W, class C >
 void Window< P, W, C >::notifyViewportChanged()
 {
-    if( !_pipe )
-        return;
-
     const PixelViewport pipePVP = _pipe->getPixelViewport();
 
     if( _data.fixedVP ) // update pixel viewport

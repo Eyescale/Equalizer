@@ -19,6 +19,7 @@
 #define EQFABRIC_VIEW_H
 
 #include <eq/fabric/frustum.h>        // base class
+#include <eq/fabric/object.h>         // base class
 #include <eq/fabric/types.h>
 #include <eq/fabric/viewport.h>       // member
 #include <eq/fabric/visitorResult.h>  // enum
@@ -33,7 +34,8 @@ namespace fabric
      * viewing mode, viewing position, or any other representation of the
      * application's data.
      */
-    template< class L, class V, class O > class View : public Frustum
+    template< class L, class V, class O >
+    class View : public Object, public Frustum
     {
     public:
         /** @name Data Access. */
@@ -55,6 +57,15 @@ namespace fabric
 
         /** const version of getObserver(). @version 1.0 */
         const O* getObserver() const { return _observer; }
+
+        /** @sa Frustum::setWall() */
+        EQFABRIC_EXPORT virtual void setWall( const Wall& wall );
+        
+        /** @sa Frustum::setProjection() */
+        EQFABRIC_EXPORT virtual void setProjection( const Projection& );
+
+        /** @sa Frustum::unsetFrustum() */
+        EQFABRIC_EXPORT virtual void unsetFrustum();
 
         /** @warning  Undocumented - may not be supported in the future */
         EQFABRIC_EXPORT void setOverdraw( const Vector2i& pixels );
@@ -82,14 +93,18 @@ namespace fabric
 
         /** Const-version of accept(). @version 1.0 */
         EQFABRIC_EXPORT VisitorResult accept( LeafVisitor< V >& visitor ) const;
+
+        virtual void backup(); //!< @internal
+        virtual void restore(); //!< @internal
         //@}
 
     protected:
         enum DirtyBits
         {
-            DIRTY_VIEWPORT   = Frustum::DIRTY_CUSTOM << 0,
-            DIRTY_OBSERVER   = Frustum::DIRTY_CUSTOM << 1,
-            DIRTY_OVERDRAW   = Frustum::DIRTY_CUSTOM << 2
+            DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 0,
+            DIRTY_OBSERVER   = Object::DIRTY_CUSTOM << 1,
+            DIRTY_OVERDRAW   = Object::DIRTY_CUSTOM << 2,
+            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 3
         };
 
         /** Construct a new view. @internal */

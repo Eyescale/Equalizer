@@ -39,10 +39,20 @@ namespace base
     public:
         /** Construct a new, empty reference pointer. @version 1.0 */
         RefPtr()                     : _ptr( 0 )         {}
+
         /** Construct a reference pointer from a C pointer. @version 1.0 */
         RefPtr( T* const ptr )       : _ptr( ptr )       { ref(); }
+
         /** Construct a copy of a reference pointer. @version 1.0 */
         RefPtr( const RefPtr& from ) : _ptr( from._ptr ) { ref(); }
+
+        /**
+         * Construct a copy of a reference pointer of a different type.
+         * @version 1.0
+         */
+        template< class O > RefPtr( const RefPtr< O >& from )
+                : _ptr( from.get( )) { ref(); }
+
         /** Destruct this reference pointer. @version 1.0 */
         ~RefPtr() { unref(); _ptr = 0; }
 

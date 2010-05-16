@@ -180,7 +180,6 @@ HEADER_SRC = \
 	util/texture.h \
 	util/types.h \
 	util/util.h \
-	admin/packets.h
 
 CXXFILES = \
 	base/compressor.cpp \

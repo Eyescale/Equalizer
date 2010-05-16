@@ -214,13 +214,6 @@ PipePath Pipe< N, P, W, V >::getPath() const
 }
 
 template< class N, class P, class W, class V >
-void Pipe< N, P, W, V >::_addWindow( W* window )
-{
-    EQASSERT( window->getPipe() == this );
-    _windows.push_back( window );
-}
-
-template< class N, class P, class W, class V >
 void Pipe< N, P, W, V >::setIAttribute( const IAttribute attr,
                                      const int32_t value )
 {
@@ -243,6 +236,13 @@ void Pipe< N, P, W, V >::setPort( const uint32_t port )
 { 
     _port = port; 
     setDirty( DIRTY_MEMBER );
+}
+
+template< class N, class P, class W, class V >
+void Pipe< N, P, W, V >::_addWindow( W* window )
+{
+    EQASSERT( window->getPipe() == this );
+    _windows.push_back( window );
 }
 
 template< class N, class P, class W, class V >
@@ -302,7 +302,7 @@ void Pipe< N, P, W, V >::notifyPixelViewportChanged()
         (*i)->notifyViewportChanged();
     }
     setDirty( DIRTY_PIXELVIEWPORT );
-    EQINFO << getName() << " pipe pvp update: " << _data.pvp << std::endl;
+    EQINFO << getName() << " pvp update: " << _data.pvp << std::endl;
 }
 
 }

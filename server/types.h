@@ -81,6 +81,7 @@ typedef std::vector< Segment* >      SegmentVector;
 typedef std::vector< View* >         ViewVector;
 
 typedef base::RefPtr< Server > ServerPtr;
+typedef base::RefPtr< const Server > ConstServerPtr;
 typedef base::RefPtr< ConnectionDescription >   ConnectionDescriptionPtr;
 typedef std::vector< ConnectionDescriptionPtr > ConnectionDescriptionVector;
 

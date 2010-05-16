@@ -53,11 +53,20 @@ Canvas< CFG, C, S, L >::~Canvas()
 }
 
 template< class CFG, class C, class S, class L >
+void Canvas< CFG, C, S, L >::backup()
+{
+    _backup = _data;
+    Object::backup();
+    Frustum::backup();
+}
+
+template< class CFG, class C, class S, class L >
 void Canvas< CFG, C, S, L >::restore()
 {
+    Frustum::restore();
     Object::restore();
-    activateLayout( 0 );
-    _data.activeLayout = 0;
+    activateLayout( _backup.activeLayout );
+    _data = _backup;
     setDirty( DIRTY_LAYOUT );
 }
 
@@ -65,7 +74,7 @@ template< class CFG, class C, class S, class L >
 void Canvas< CFG, C, S, L >::serialize( net::DataOStream& os,
                                         const uint64_t dirtyBits )
 {
-    Frustum::serialize( os, dirtyBits );
+    Object::serialize( os, dirtyBits );
 
     if( dirtyBits & DIRTY_LAYOUT )
         os << _data.activeLayout;
@@ -97,13 +106,15 @@ void Canvas< CFG, C, S, L >::serialize( net::DataOStream& os,
         }
         os << EQ_ID_INVALID;
     }
+    if( dirtyBits & DIRTY_FRUSTUM )
+        os << *static_cast< Frustum* >( this );
 }
 
 template< class CFG, class C, class S, class L >
 void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
                                           const uint64_t dirtyBits )
 {
-    Frustum::deserialize( is, dirtyBits );
+    Object::deserialize( is, dirtyBits );
 
     if( dirtyBits & DIRTY_LAYOUT )
     {
@@ -140,6 +151,8 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
             }
         }
     }
+    if( dirtyBits & DIRTY_FRUSTUM )
+        is >> *static_cast< Frustum* >( this );
 }
 
 template< class CFG, class C, class S, class L >
@@ -275,6 +288,36 @@ template< class CFG, class C, class S, class L >
 VisitorResult Canvas< CFG, C, S, L >::accept( Visitor& visitor ) const
 {
     return _accept( static_cast< const C* >( this ), visitor );
+}
+
+template< class CFG, class C, class S, class L >
+void Canvas< CFG, C, S, L >::setWall( const Wall& wall )
+{
+    if( getWall() == wall && getCurrentType() == TYPE_WALL )
+        return;
+
+    Frustum::setWall( wall );
+    setDirty( DIRTY_FRUSTUM );
+}
+
+template< class CFG, class C, class S, class L >
+void Canvas< CFG, C, S, L >::setProjection( const Projection& projection )
+{
+    if( getProjection() == projection && getCurrentType() == TYPE_PROJECTION )
+        return;
+
+    Frustum::setProjection( projection );
+    setDirty( DIRTY_FRUSTUM );
+}
+
+template< class CFG, class C, class S, class L >
+void Canvas< CFG, C, S, L >::unsetFrustum()
+{
+    if( getCurrentType() == TYPE_NONE )
+        return;
+
+    Frustum::unsetFrustum();
+    setDirty( DIRTY_FRUSTUM );
 }
 
 template< class CFG, class C, class S, class L >

@@ -33,11 +33,14 @@ namespace fabric
     template< class N, class P, class W, class V > class Pipe : public Object
     {
     public:
-        /** A vector of pointers to Window */
+        /** A vector of pointers to windows */
         typedef std::vector< W* >  WindowVector; 
         
         N*       getNode()       { return _node; }
         const N* getNode() const { return _node; }
+
+        /** @return the vector of windows. */
+        const WindowVector& getWindows() const { return _windows; }
 
          /**
          * Returns the port number of this pipe.
@@ -83,9 +86,6 @@ namespace fabric
 
         /** @return the index path to this pipe. @internal */
         EQFABRIC_EXPORT PipePath getPath() const;
-
-        /** @return the vector of windows. */
-        const WindowVector& getWindows() const { return _windows; }
 
         /** 
          * Traverse this pipe and all children using a pipe visitor.

@@ -81,7 +81,7 @@ namespace fabric
         EQFABRIC_EXPORT base::RefPtr< S > getServer();
 
         /** @return the local server proxy. @version 1.0 */
-        EQFABRIC_EXPORT base::RefPtr< S > getServer() const;
+        EQFABRIC_EXPORT base::RefPtr< const S > getServer() const;
 
         /** @return the vector of observers, app-node only. @version 1.0 */
         const ObserverVector& getObservers() const { return _observers; }
@@ -228,8 +228,8 @@ namespace fabric
         void setAppNodeID( const net::NodeID& nodeID );
         const net::NodeID& getAppNodeID() const { return _appNodeID; }
         virtual void changeLatency( const uint32_t latency ) { /* NOP */ }
-        virtual bool mapViewObjects() { return false; }
-        virtual bool mapNodeObjects() { return false; }
+        virtual bool mapViewObjects() const { return false; }
+        virtual bool mapNodeObjects() const { return false; }
 
         virtual VisitorResult _acceptCompounds( V& visitor )
             { return TRAVERSE_CONTINUE; }

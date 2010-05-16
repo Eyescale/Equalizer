@@ -208,9 +208,7 @@ void Config::activateCanvas( Canvas* canvas )
 
                 if( !channel ) // create and add new channel
                 {
-                    Window* window = segmentChannel->getWindow();
-                    channel = new Channel( *segmentChannel, window );
-
+                    channel = new Channel( *segmentChannel );
                     channel->setOutput( view, segment );
                 }
 
