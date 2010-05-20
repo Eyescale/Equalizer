@@ -36,7 +36,7 @@ namespace eVolve
         /** @name Rendering flags. */
         //*{
         void setOrtho( const bool ortho );
-
+        void adjustQuality( const float delta );
         void toggleOrtho( );
         void toggleHelp();
         void toggleStatistics();
@@ -53,7 +53,7 @@ namespace eVolve
 
         const eq::Vector3f& getTranslation() const { return _translation; }
         const eq::Matrix4f& getRotation()    const { return _rotation;    }
-
+        float getQuality() const { return _quality; }
         //*}
 
         /** @name View interface. */
@@ -97,7 +97,7 @@ namespace eVolve
         bool         _ortho;
         bool         _statistics;
         bool         _help;
-
+        float        _quality;
         uint32_t     _currentViewID;
         std::string  _message;
     };

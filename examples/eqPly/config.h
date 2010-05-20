@@ -108,7 +108,7 @@ namespace eqPly
         void _switchCanvas();
         void _switchView();
         void _switchModel();
-        void _switchLayout();
+        void _switchLayout( int32_t increment );
 
         void _setHeadMatrix( const eq::Matrix4f& matrix );
         const eq::Matrix4f& _getHeadMatrix() const;

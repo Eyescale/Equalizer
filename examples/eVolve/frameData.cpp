@@ -25,6 +25,7 @@ FrameData::FrameData()
     : _ortho(         false )
     , _statistics(    false )
     , _help(          false )
+    , _quality( 1.0f )
     , _currentViewID( EQ_ID_INVALID )
 {
     reset();
@@ -104,6 +105,15 @@ void FrameData::setCurrentViewID( const uint32_t id )
     setDirty( DIRTY_VIEW );
 }
 
+void FrameData::adjustQuality( const float delta )
+{
+    _quality += delta;
+    _quality = EQ_MAX( _quality, 0.1f );
+    _quality = EQ_MIN( _quality, 1.0f );
+    setDirty( DIRTY_FLAGS );
+    EQINFO << "Set non-idle image quality to " << _quality << std::endl;
+}
+
 void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
 {
     eq::Object::serialize( os, dirtyBits );
@@ -114,7 +124,7 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
         os << _rotation << _translation;
 
     if( dirtyBits & DIRTY_FLAGS )
-        os << _ortho << _statistics << _help;
+        os << _ortho << _statistics << _quality  << _help;
 
     if( dirtyBits & DIRTY_MESSAGE )
         os << _message;
@@ -130,7 +140,7 @@ void FrameData::deserialize( eq::net::DataIStream& is, const uint64_t dirtyBits)
         is >> _rotation >> _translation;
 
     if( dirtyBits & DIRTY_FLAGS )
-        is >> _ortho >> _statistics >> _help;
+        is >> _ortho >> _statistics  >> _quality >> _help;
 
     if( dirtyBits & DIRTY_MESSAGE )
         is >> _message;

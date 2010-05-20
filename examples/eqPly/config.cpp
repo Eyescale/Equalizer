@@ -547,7 +547,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             if( rng.get< bool >( ))
                 _switchView();
             if( rng.get< bool >( ))
-                _switchLayout();
+                _switchLayout( 1 );
             if( rng.get< bool >( ))
                 _switchModel();
             return true;
@@ -604,8 +604,10 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             return true;
 
         case 'l':
+            _switchLayout( 1 );
+            return true;
         case 'L':
-            _switchLayout();
+            _switchLayout( -1 );
             return true;
 
         case 'w':
@@ -806,19 +808,21 @@ void Config::_switchModel()
     }
 }
 
-void Config::_switchLayout()
+void Config::_switchLayout( int32_t increment )
 {
     if( !_currentCanvas )
         return;
 
     _frameData.setCurrentViewID( EQ_ID_INVALID );
 
-    uint32_t index = _currentCanvas->getActiveLayoutIndex() + 1;
+    int32_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::LayoutVector& layouts = _currentCanvas->getLayouts();
     EQASSERT( !layouts.empty( ))
 
-        if( index >= layouts.size( ))
+        if( index >= static_cast<int32_t>(layouts.size( )) )
             index = 0;
+        else if ( index < 0 )
+            index = layouts.size( ) - 1;
 
     _currentCanvas->useLayout( index );
 

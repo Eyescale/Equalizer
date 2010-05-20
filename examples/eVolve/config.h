@@ -62,7 +62,7 @@ namespace eVolve
     private:
         void _resetMessage();
         void _setMessage( const std::string& message );
-
+        void _switchLayout( int32_t increment );
         void _deregisterData();
         bool _handleKeyEvent( const eq::KeyEvent& event );
 

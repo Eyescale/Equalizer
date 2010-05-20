@@ -225,43 +225,19 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             return true;
 
         case 'l':
-        case 'L':
-        {
-            if( !_currentCanvas )
-                return true;
-
-            _frameData.setCurrentViewID( EQ_ID_INVALID );
-
-            uint32_t index = _currentCanvas->getActiveLayoutIndex() + 1;
-            const eq::LayoutVector& layouts =
-                                           _currentCanvas->getLayouts();
-            EQASSERT( !layouts.empty( ));
-
-            if( index >= layouts.size( ))
-                index = 0;
-
-            _currentCanvas->useLayout( index );
-    
-            const eq::Layout* layout =
-                                    _currentCanvas->getLayouts()[index];
-
-            std::ostringstream stream;
-            stream << "Layout ";
-            if( layout )
-            {
-                const std::string& name = layout->getName();
-                if( name.empty( ))
-                    stream << index;
-                else
-                    stream << name;
-            }
-            else
-                stream << "NONE";
-
-            stream << " active";
-            _setMessage( stream.str( ));
+            _switchLayout( 1 );
             return true;
-        }
+        case 'L':
+            _switchLayout( -1 );
+            return true;
+
+        case 'q':
+            _frameData.adjustQuality( -.1f );
+            return true;
+
+        case 'Q':
+            _frameData.adjustQuality( .1f );
+            return true;
 
         case 'c':
         case 'C':
@@ -342,5 +318,40 @@ void Config::_setMessage( const std::string& message )
     _messageTime = getTime();
 }
 
+void Config::_switchLayout( int32_t increment )
+{
+    if( !_currentCanvas )
+        return;
+
+    _frameData.setCurrentViewID( EQ_ID_INVALID );
+
+    int32_t index = _currentCanvas->getActiveLayoutIndex() + increment;
+    const eq::LayoutVector& layouts = _currentCanvas->getLayouts();
+    EQASSERT( !layouts.empty( ))
+
+        if( index >= static_cast<int32_t>(layouts.size( )) )
+            index = 0;
+        else if ( index < 0 )
+            index = layouts.size( ) - 1;
+
+    _currentCanvas->useLayout( index );
+
+    const eq::Layout* layout = _currentCanvas->getLayouts()[index];
+    std::ostringstream stream;
+    stream << "Layout ";
+    if( layout )
+    {
+        const std::string& name = layout->getName();
+        if( name.empty( ))
+            stream << index;
+        else
+            stream << name;
+    }
+    else
+        stream << "NONE";
+
+    stream << " active";
+    _setMessage( stream.str( ));
+}
 
 }
