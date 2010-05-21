@@ -42,43 +42,50 @@ namespace admin
 
         virtual VisitorResult visitPre( Pipe* pipe )
             {
-                pipe->commit();
+                if( pipe->getID() != EQ_ID_INVALID )
+                    pipe->commit();
                 return TRAVERSE_CONTINUE;
             }
 
         virtual VisitorResult visitPre( Window* window )
             {
-                window->commit();
+                if( window->getID() != EQ_ID_INVALID )
+                    window->commit();
                 return TRAVERSE_CONTINUE;
             }
 
         virtual VisitorResult visit( Channel* channel )
             {
-                channel->commit();
+                if( channel->getID() != EQ_ID_INVALID )
+                    channel->commit();
                 return TRAVERSE_CONTINUE;
             }
 
         virtual VisitorResult visitPre( Layout* layout )
             {
-                layout->commit();
+                if( layout->getID() != EQ_ID_INVALID )
+                    layout->commit();
                 return TRAVERSE_CONTINUE;
             }
 
         virtual VisitorResult visit( View* view )
             {
-                view->commit();
+                if( view->getID() != EQ_ID_INVALID )
+                    view->commit();
                 return TRAVERSE_CONTINUE;
             }
 
         virtual VisitorResult visitPre( Canvas* canvas )
             {
-                canvas->commit();
+                if( canvas->getID() != EQ_ID_INVALID )
+                    canvas->commit();
                 return TRAVERSE_CONTINUE;
             }
 
         virtual VisitorResult visit( Segment* segment )
             {
-                segment->commit();
+                if( segment->getID() != EQ_ID_INVALID )
+                    segment->commit();
                 return TRAVERSE_CONTINUE;
             }
     };

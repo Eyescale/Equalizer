@@ -26,7 +26,7 @@ namespace admin
 {
 
 /** @cond IGNORE */
-typedef fabric::Client< Server, Client > Super;
+typedef fabric::Client< Client > Super;
 /** @endcond */
 
 Client::Client()
@@ -43,9 +43,10 @@ Client::~Client()
 
 bool Client::connectServer( ServerPtr server )
 {
-    if( !Super::connectServer( server ))
+    if( !Super::connectServer( server.get( )))
         return false;
 
+    server->setClient( this );
     server->map();
     EQINFO << "Connected " << server << std::endl;
     return true;
@@ -54,7 +55,8 @@ bool Client::connectServer( ServerPtr server )
 bool Client::disconnectServer( ServerPtr server )
 {
     server->unmap();
-    return Super::disconnectServer( server );
+    server->setClient( 0 );
+    return Super::disconnectServer( server.get( ));
 }
 
 void Client::processCommand()
@@ -76,9 +78,25 @@ void Client::processCommand()
     command->release();
 }
 
+net::NodePtr Client::createNode( const uint32_t type )
+{ 
+    switch( type )
+    {
+        case fabric::NODETYPE_EQ_SERVER:
+        {
+            Server* server = new Server;
+            server->setClient( this );
+            return server;
+        }
+
+        default:
+            return net::Node::createNode( type );
+    }
+}
+
 }
 }
 
 #include "../lib/fabric/client.ipp"
-template class eq::fabric::Client< eq::admin::Server, eq::admin::Client >;
+template class eq::fabric::Client< eq::admin::Client >;
 

@@ -20,15 +20,10 @@
 
 #include <eq/admin/base.h>
 #include <eq/admin/types.h>
-#include <eq/fabric/nodeType.h>     // enum
 #include <eq/fabric/server.h>       // base class
 
 namespace eq
 {
-namespace fabric
-{
-    template< class S, class C > class Client;
-}
 namespace admin
 {
     class NodeFactory;

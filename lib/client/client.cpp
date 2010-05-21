@@ -24,6 +24,7 @@
 #include "packets.h"
 #include "server.h"
 
+#include <eq/fabric/nodeType.h>
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
 #include <eq/net/connectionDescription.h>
@@ -40,7 +41,7 @@ static void _joinLocalServer();
 typedef net::ConnectionPtr (*eqsStartLocalServer_t)( const std::string& file );
 typedef void (*eqsJoinLocalServer_t)();
 
-typedef fabric::Client< Server, Client > Super;
+typedef fabric::Client< Client > Super;
 /** @endcond */
 
 Client::Client()
@@ -61,8 +62,11 @@ Client::~Client()
 
 bool Client::connectServer( ServerPtr server )
 {
-    if( Super::connectServer( server ))
+    if( Super::connectServer( server.get( )))
+    {
+        server->setClient( this );
         return true;
+    }
 
     if( !server->getConnectionDescriptions().empty() ||
         !Global::getServer().empty() || getenv( "EQ_SERVER" ))
@@ -153,7 +157,10 @@ bool Client::disconnectServer( ServerPtr server )
         EQASSERT( !server->isConnected( ))
     }
     else
-        success = Super::disconnectServer( server );
+    {
+        server->setClient( 0 );
+        success = Super::disconnectServer( server.get( ));
+    }
 
     _mainThreadQueue.flush();
     return success;
@@ -203,6 +210,22 @@ void Client::processCommand()
     command->release();
 }
 
+net::NodePtr Client::createNode( const uint32_t type )
+{ 
+    switch( type )
+    {
+        case fabric::NODETYPE_EQ_SERVER:
+        {
+            Server* server = new Server;
+            server->setClient( this );
+            return server;
+        }
+
+        default:
+            return net::Node::createNode( type );
+    }
+}
+
 net::CommandResult Client::_cmdExit( net::Command& command )
 {
     _running = false;
@@ -213,5 +236,5 @@ net::CommandResult Client::_cmdExit( net::Command& command )
 }
 
 #include "../fabric/client.ipp"
-template class eq::fabric::Client< eq::Server, eq::Client >;
+template class eq::fabric::Client< eq::Client >;
 

@@ -31,11 +31,9 @@ namespace fabric
      * The methods initLocal() and exitLocal() should be used to set up and exit
      * the listening node instance for each application process.
      */
-    template< class S, class C > class Client : public net::Node
+    template< class C > class Client : public net::Node
     {
     public:
-        typedef base::RefPtr< S > ServerPtr; //!< The server handle
-
         /** 
          * Open and connect an Equalizer server to the local client.
          *
@@ -45,7 +43,7 @@ namespace fabric
          * @return true if the server was connected, false if not.
          * @version 1.0 
          */
-        EQFABRIC_EXPORT bool connectServer( ServerPtr server );
+        EQFABRIC_EXPORT bool connectServer( net::NodePtr server );
 
         /** 
          * Disconnect and close the connection to an Equalizer server.
@@ -54,7 +52,7 @@ namespace fabric
          * @return true if the server was disconnected, false if not.
          * @version 1.0 
          */
-        EQFABRIC_EXPORT bool disconnectServer( ServerPtr server );
+        EQFABRIC_EXPORT bool disconnectServer( net::NodePtr server );
 
     protected:
         /** Construct a new client. @internal */
@@ -74,9 +72,6 @@ namespace fabric
         {
             char dummy[32];
         };
-
-        /** @sa net::Node::createNode */
-        EQFABRIC_EXPORT virtual net::NodePtr createNode( const uint32_t type );
     };
 }
 }

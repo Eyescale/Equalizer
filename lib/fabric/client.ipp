@@ -31,19 +31,16 @@ namespace eq
 namespace fabric
 {
 
-template< class S, class C >
-Client< S, C >::Client()
+template< class C > Client< C >::Client()
 {
 }
 
-template< class S, class C >
-Client< S, C >::~Client()
+template< class C > Client< C >::~Client()
 {
     EQASSERT( isClosed( ));
 }
 
-template< class S, class C >
-bool Client< S, C >::connectServer( ServerPtr server )
+template< class C > bool Client< C >::connectServer( net::NodePtr server )
 {
     if( server->isConnected( ))
         return true;
@@ -67,11 +64,8 @@ bool Client< S, C >::connectServer( ServerPtr server )
         server->addConnectionDescription( connDesc );
     }
 
-    if( connect( net::NodePtr( server.get( )) ))
-    {
-        server->setClient( static_cast< C* >( this ));
+    if( connect( server ))
         return true;
-    }
     
     if( connDesc.isValid( )) // clean up
         server->removeConnectionDescription( connDesc );
@@ -79,8 +73,7 @@ bool Client< S, C >::connectServer( ServerPtr server )
     return false;
 }
 
-template< class S, class C >
-bool Client< S, C >::disconnectServer( ServerPtr server )
+template< class C > bool Client< C >::disconnectServer( net::NodePtr server )
 {
     if( !server->isConnected( ))
     {
@@ -88,34 +81,14 @@ bool Client< S, C >::disconnectServer( ServerPtr server )
         return false;
     }
 
-    server->setClient( 0 );
-
-    if( net::Node::close( server.get( )))
+    if( net::Node::close( server ))
         return true;
 
     EQWARN << "Server disconnect failed" << std::endl;
     return false;
 }
 
-template< class S, class C >
-net::NodePtr Client< S, C >::createNode( const uint32_t type )
-{ 
-    switch( type )
-    {
-        case NODETYPE_EQ_SERVER:
-        {
-            S* server = new S;
-            server->setClient( static_cast< C* >( this ));
-            return server;
-        }
-
-        default:
-            return net::Node::createNode( type );
-    }
-}
-
-template< class S, class C >
-bool Client< S, C >::dispatchCommand( net::Command& command )
+template< class C > bool Client< C >::dispatchCommand( net::Command& command )
 {
     EQVERB << "dispatchCommand " << command << std::endl;
 
@@ -135,8 +108,8 @@ bool Client< S, C >::dispatchCommand( net::Command& command )
     }
 }
 
-template< class S, class C >
-net::CommandResult Client< S, C >::invokeCommand( net::Command& command )
+template< class C > 
+net::CommandResult Client< C >::invokeCommand( net::Command& command )
 {
     EQVERB << "invokeCommand " << command << std::endl;
 

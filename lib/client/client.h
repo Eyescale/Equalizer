@@ -32,7 +32,7 @@ namespace eq
      * The methods initLocal() and exitLocal() should be used to set up and exit
      * the listening node instance for each application process.
      */
-    class Client : public fabric::Client< Server, Client >
+    class Client : public fabric::Client< Client >
     {
     public:
         /** Construct a new client. @version 1.0 */
@@ -104,6 +104,9 @@ namespace eq
         {
             char dummy[32];
         };
+
+        /** @sa net::Node::createNode */
+        EQ_EXPORT virtual net::NodePtr createNode( const uint32_t type );
 
         /** The command functions. */
         net::CommandResult _cmdExit( net::Command& command );
