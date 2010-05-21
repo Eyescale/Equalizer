@@ -778,7 +778,7 @@ bool Config::exit()
     exitEvent.data.type = Event::EXIT;
     send( _appNetNode, exitEvent );
     
-    _state         = STATE_STOPPED;
+    _state = STATE_STOPPED;
     return success;
 }
 
