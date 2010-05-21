@@ -1,13 +1,9 @@
-Revert fabric/client server relationship since connecting a
-admin::Server to an existing eq::Client can't work:
-- move default connection setup to client/server code
-  o admin::Client does not have nor need a default connection
-- change eqPly code to init/exit an admin::Client
+Fix build
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -17,7 +17,6 @@
 
 #include "client.h"
 
-#include "connectServer.h"
 #include "server.h"
 #include <eq/net/command.h>
 
