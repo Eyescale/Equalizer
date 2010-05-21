@@ -42,7 +42,7 @@ namespace admin
         EQADMIN_EXPORT virtual ~Config();
 
         /** Commit all pending changes. @version 1.0 */
-        uint32_t commit();
+        EQADMIN_EXPORT uint32_t commit();
 
         /** @internal */
         const Channel* findChannel( const std::string& name ) const

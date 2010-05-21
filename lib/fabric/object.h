@@ -95,6 +95,21 @@ namespace fabric
         /** @return true if the view has data to commit. @version 1.0 */
         EQ_EXPORT virtual bool isDirty() const;
 
+        /**
+        * The changed parts of the object since the last pack().
+        *
+        * Subclasses should define their own bits, starting at DIRTY_CUSTOM.
+        */
+        enum DirtyBits
+        {
+            DIRTY_NAME       = Serializable::DIRTY_CUSTOM << 0,
+            DIRTY_USERDATA   = Serializable::DIRTY_CUSTOM << 1,
+            DIRTY_ERROR      = Serializable::DIRTY_CUSTOM << 2,
+            DIRTY_TASKS      = Serializable::DIRTY_CUSTOM << 3,
+            // Leave room for binary-compatible patches
+            DIRTY_CUSTOM     = Serializable::DIRTY_CUSTOM << 6
+        };
+
         EQ_EXPORT virtual uint32_t commitNB(); //!< @internal
 
         /** Back up app-specific data, excluding child data. @internal */
@@ -118,20 +133,6 @@ namespace fabric
 
         EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
                                             const uint64_t dirtyBits );
-        /** 
-         * The changed parts of the object since the last pack().
-         *
-         * Subclasses should define their own bits, starting at DIRTY_CUSTOM.
-         */
-        enum DirtyBits
-        {
-            DIRTY_NAME       = Serializable::DIRTY_CUSTOM << 0,
-            DIRTY_USERDATA   = Serializable::DIRTY_CUSTOM << 1,
-            DIRTY_ERROR      = Serializable::DIRTY_CUSTOM << 2,
-            DIRTY_TASKS      = Serializable::DIRTY_CUSTOM << 3,
-            // Leave room for binary-compatible patches
-            DIRTY_CUSTOM     = Serializable::DIRTY_CUSTOM << 6
-        };
 
     private:
         struct BackupData

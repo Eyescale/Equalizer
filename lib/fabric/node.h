@@ -137,7 +137,7 @@ namespace fabric
                                                   const uint64_t dirtyBits );
         
         /** @sa Serializable::setDirty() @internal */
-        virtual void setDirty( const uint64_t bits );
+        EQFABRIC_EXPORT virtual void setDirty( const uint64_t bits );
 
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 

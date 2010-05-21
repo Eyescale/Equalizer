@@ -59,7 +59,7 @@ namespace fabric
          *
          * @version 1.0 
          */
-        void processCommand();
+        EQFABRIC_EXPORT void processCommand();
 
         /** @return the command queue to the main node thread. @internal */
         virtual net::CommandQueue* getMainThreadQueue() = 0;
