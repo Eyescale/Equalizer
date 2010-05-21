@@ -34,7 +34,7 @@ namespace admin
      *
      * @sa Client::connectServer
      */
-    class Server : public fabric::Server< Client, Server, Config, NodeFactory >
+    class Server : public fabric::Server< Server, Config, NodeFactory >
     {
     public:
         /** Construct a new server. @version 1.0 */

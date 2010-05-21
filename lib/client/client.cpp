@@ -41,7 +41,7 @@ static void _joinLocalServer();
 typedef net::ConnectionPtr (*eqsStartLocalServer_t)( const std::string& file );
 typedef void (*eqsJoinLocalServer_t)();
 
-typedef fabric::Client< Client > Super;
+typedef fabric::Client Super;
 /** @endcond */
 
 Client::Client()
@@ -191,25 +191,6 @@ bool Client::hasCommands()
     return !_mainThreadQueue.isEmpty();
 }
 
-void Client::processCommand()
-{
-    net::Command* command = _mainThreadQueue.pop();
-    if( !command ) // just a wakeup()
-        return;
-
-    switch( invokeCommand( *command ))
-    {
-        case net::COMMAND_HANDLED:
-        case net::COMMAND_DISCARD:
-            break;
-            
-        case net::COMMAND_ERROR:
-            EQABORT( "Error handling command packet" );
-            break;
-    }
-    command->release();
-}
-
 net::NodePtr Client::createNode( const uint32_t type )
 { 
     switch( type )
@@ -234,7 +215,4 @@ net::CommandResult Client::_cmdExit( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 }
-
-#include "../fabric/client.ipp"
-template class eq::fabric::Client< eq::Client >;
 

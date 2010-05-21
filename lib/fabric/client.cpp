@@ -31,16 +31,16 @@ namespace eq
 namespace fabric
 {
 
-template< class C > Client< C >::Client()
+Client::Client()
 {
 }
 
-template< class C > Client< C >::~Client()
+Client::~Client()
 {
     EQASSERT( isClosed( ));
 }
 
-template< class C > bool Client< C >::connectServer( net::NodePtr server )
+bool Client::connectServer( net::NodePtr server )
 {
     if( server->isConnected( ))
         return true;
@@ -73,7 +73,7 @@ template< class C > bool Client< C >::connectServer( net::NodePtr server )
     return false;
 }
 
-template< class C > bool Client< C >::disconnectServer( net::NodePtr server )
+bool Client::disconnectServer( net::NodePtr server )
 {
     if( !server->isConnected( ))
     {
@@ -88,7 +88,29 @@ template< class C > bool Client< C >::disconnectServer( net::NodePtr server )
     return false;
 }
 
-template< class C > bool Client< C >::dispatchCommand( net::Command& command )
+void Client::processCommand()
+{
+    net::CommandQueue* queue = getMainThreadQueue();
+    EQASSERT( queue );
+
+    net::Command* command = queue->pop();
+    if( !command ) // just a wakeup()
+        return;
+
+    switch( invokeCommand( *command ))
+    {
+        case net::COMMAND_HANDLED:
+        case net::COMMAND_DISCARD:
+            break;
+            
+        case net::COMMAND_ERROR:
+            EQABORT( "Error handling command packet" );
+            break;
+    }
+    command->release();
+}
+
+bool Client::dispatchCommand( net::Command& command )
 {
     EQVERB << "dispatchCommand " << command << std::endl;
 
@@ -108,8 +130,7 @@ template< class C > bool Client< C >::dispatchCommand( net::Command& command )
     }
 }
 
-template< class C > 
-net::CommandResult Client< C >::invokeCommand( net::Command& command )
+net::CommandResult Client::invokeCommand( net::Command& command )
 {
     EQVERB << "invokeCommand " << command << std::endl;
 

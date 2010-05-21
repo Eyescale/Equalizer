@@ -20,6 +20,7 @@
 #define EQFABRIC_TYPES_H
 
 #include <eq/base/base.h>
+#include <eq/base/refPtr.h>
 #include <vmmlib/vmmlib.hpp>
 
 namespace eq
@@ -42,15 +43,19 @@ typedef vmml::vector< 4, float > Vector4f; //!< A four-component float vector
 typedef vmml::vector< 3, unsigned char > Vector3ub;
 typedef vmml::frustum< float >  Frustumf; //!< A frustum definition
 
+class Client;
 template< class, class > class Observer;
 template< class, class, class > class Layout;
 template< class, class, class > class Segment;
+template< class, class, class > class Server;
 template< class, class, class > class Window;
 template< class, class, class, class > class Canvas;
 template< class, class, class, class > class Node;
 template< class, class, class, class > class Pipe;
-template< class, class, class, class > class Server;
 template< class, class, class, class, class, class, class > class Config;
+
+typedef base::RefPtr< Client > ClientPtr;
+typedef base::RefPtr< const Client > ConstClientPtr;
 }
 }
 #endif // EQFABRIC_TYPES_H

@@ -32,7 +32,7 @@ namespace eq
      * The methods initLocal() and exitLocal() should be used to set up and exit
      * the listening node instance for each application process.
      */
-    class Client : public fabric::Client< Client >
+    class Client : public fabric::Client
     {
     public:
         /** Construct a new client. @version 1.0 */
@@ -67,15 +67,9 @@ namespace eq
          */
         EQ_EXPORT bool hasCommands();
 
-        /** 
-         * Get and process one pending command from the node command queue.
-         *
-         * @version 1.0 
-         */
-        EQ_EXPORT void processCommand();
-
         /** @return the command queue to the main node thread. @internal */
-        CommandQueue* getMainThreadQueue() { return &_mainThreadQueue; }
+        virtual net::CommandQueue* getMainThreadQueue()
+            { return &_mainThreadQueue; }
 
     protected:
         /**

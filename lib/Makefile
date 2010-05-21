@@ -245,6 +245,7 @@ CXXFILES = \
 	net/udpConnection.cpp \
 	net/unbufferedMasterCM.cpp \
 	net/versionedSlaveCM.cpp \
+	fabric/client.cpp \
 	fabric/colorMask.cpp \
 	fabric/eye.cpp \
 	fabric/frustum.cpp \

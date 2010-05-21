@@ -35,12 +35,10 @@ namespace fabric
      * and release a Config from the server.
      * @sa Client::connectServer
      */
-    template< class CL, class S, class CFG, class NF >
+    template< class S, class CFG, class NF >
     class Server : public net::Node
     {
     public:
-        typedef base::RefPtr< CL > ClientPtr;
-        typedef base::RefPtr< const CL > ConstClientPtr;
         typedef std::vector< CFG* > ConfigVector;
         typedef NF NodeFactory;
 
@@ -96,8 +94,8 @@ namespace fabric
         net::CommandResult _cmdDestroyConfig( net::Command& command );
     };
 
-    template< class CL, class S, class CFG, class NF > EQFABRIC_EXPORT
-    std::ostream& operator << ( std::ostream&, const Server< CL, S, CFG, NF>& );
+    template< class S, class CFG, class NF > EQFABRIC_EXPORT
+    std::ostream& operator << ( std::ostream&, const Server< S, CFG, NF>& );
 }
 }
 

@@ -17,6 +17,7 @@
 
 #include "server.h"
 
+#include "client.h"
 #include "packets.h"
 
 #include <eq/net/command.h>
@@ -27,24 +28,24 @@ namespace eq
 namespace fabric
 {
 
-#define CmdFunc net::CommandFunc< Server< CL, S, CFG, NF > >
+#define CmdFunc net::CommandFunc< Server< S, CFG, NF > >
 
-template< class CL, class S, class CFG, class NF >
-Server< CL, S, CFG, NF >::Server( NF* nodeFactory )
+template< class S, class CFG, class NF >
+Server< S, CFG, NF >::Server( NF* nodeFactory )
         : _nodeFactory( nodeFactory )
 {
     EQASSERT( nodeFactory );
 }
 
-template< class CL, class S, class CFG, class NF >
-Server< CL, S, CFG, NF >::~Server()
+template< class S, class CFG, class NF >
+Server< S, CFG, NF >::~Server()
 {
     _client = 0;
     EQASSERT( _configs.empty( ));
 }
 
-template< class CL, class S, class CFG, class NF >
-void Server< CL, S, CFG, NF >::setClient( ClientPtr client )
+template< class S, class CFG, class NF >
+void Server< S, CFG, NF >::setClient( ClientPtr client )
 {
     _client = client;
     if( !client )
@@ -57,16 +58,16 @@ void Server< CL, S, CFG, NF >::setClient( ClientPtr client )
                      CmdFunc( this, &Server::_cmdDestroyConfig ), queue );
 }
 
-template< class CL, class S, class CFG, class NF >
-void Server< CL, S, CFG, NF >::_addConfig( CFG* config )
+template< class S, class CFG, class NF >
+void Server< S, CFG, NF >::_addConfig( CFG* config )
 { 
     EQASSERT( config->getServer() == static_cast< S* >( this ));
     EQASSERT( stde::find( _configs, config ) == _configs.end( ));
     _configs.push_back( config );
 }
 
-template< class CL, class S, class CFG, class NF >
-bool Server< CL, S, CFG, NF >::_removeConfig( CFG* config )
+template< class S, class CFG, class NF >
+bool Server< S, CFG, NF >::_removeConfig( CFG* config )
 {
     typename ConfigVector::iterator i = stde::find( _configs, config );
     if( i == _configs.end( ))
@@ -79,8 +80,8 @@ bool Server< CL, S, CFG, NF >::_removeConfig( CFG* config )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-template< class CL, class S, class CFG, class NF > net::CommandResult
-Server< CL, S, CFG, NF >::_cmdCreateConfig( net::Command& command )
+template< class S, class CFG, class NF > net::CommandResult
+Server< S, CFG, NF >::_cmdCreateConfig( net::Command& command )
 {
     const ServerCreateConfigPacket* packet = 
         command.getPacket<ServerCreateConfigPacket>();
@@ -101,8 +102,8 @@ Server< CL, S, CFG, NF >::_cmdCreateConfig( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
-template< class CL, class S, class CFG, class NF > net::CommandResult
-Server< CL, S, CFG, NF >::_cmdDestroyConfig( net::Command& command )
+template< class S, class CFG, class NF > net::CommandResult
+Server< S, CFG, NF >::_cmdDestroyConfig( net::Command& command )
 {
     const ServerDestroyConfigPacket* packet = 
         command.getPacket<ServerDestroyConfigPacket>();
@@ -124,9 +125,9 @@ Server< CL, S, CFG, NF >::_cmdDestroyConfig( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
-template< class CL, class S, class CFG, class NF >
+template< class S, class CFG, class NF >
 std::ostream& operator << ( std::ostream& os, 
-                            const Server< CL, S, CFG, NF >& server )
+                            const Server< S, CFG, NF >& server )
 {
     os << base::disableFlush << base::disableHeader << "server " << std::endl;
     os << "{" << std::endl << base::indent;

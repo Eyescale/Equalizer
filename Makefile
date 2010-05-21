@@ -28,7 +28,7 @@ docs:
 
 lib: precompile externals
 tests: lib server
-examples: lib
+examples: lib admin
 contrib: lib
 server: lib admin
 tools: server

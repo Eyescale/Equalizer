@@ -52,7 +52,7 @@ static NodeFactory _nf;
 }
 
 typedef net::CommandFunc<Server> ServerFunc;
-typedef fabric::Server< net::Node, Server, Config, NodeFactory > Super;
+typedef fabric::Server< Server, Config, NodeFactory > Super;
 
 Server::Server()
         : Super( &_nf )
@@ -480,7 +480,6 @@ net::CommandResult Server::_cmdUnmap( net::Command& command )
 }
 }
 #include "../lib/fabric/server.ipp"
-template class eq::fabric::Server< eq::net::Node, eq::server::Server,
-                                   eq::server::Config,
+template class eq::fabric::Server< eq::server::Server, eq::server::Config,
                                    eq::server::NodeFactory >;
 

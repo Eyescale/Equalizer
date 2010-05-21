@@ -72,7 +72,7 @@ namespace eq
         EQ_EXPORT ConstClientPtr getClient() const;
 
         /** @internal */
-        EQ_EXPORT CommandQueue* getMainThreadQueue();
+        EQ_EXPORT net::CommandQueue* getMainThreadQueue();
 
         /** @return the frame number of the last frame started. @version 1.0 */
         uint32_t getCurrentFrame()  const { return _currentFrame; }

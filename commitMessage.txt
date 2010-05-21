@@ -1,4 +1,4 @@
-Simplify fabric::CLient to enable connection of admin::Servers to eq::Clients 
+Simplify fabric::Client and Server impl
 
 [ ] May break build
 [ ] May break existing applications

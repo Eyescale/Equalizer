@@ -109,7 +109,7 @@ ServerPtr Node::getServer()
     return ( config ? config->getServer() : 0 );
 }
 
-CommandQueue* Node::getMainThreadQueue()
+net::CommandQueue* Node::getMainThreadQueue()
 {
     return getClient()->getMainThreadQueue();
 }

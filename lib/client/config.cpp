@@ -107,7 +107,7 @@ void Config::notifyMapped( net::NodePtr node )
                      ConfigFunc( this, &Config::_cmdSyncClock ), 0 );
 }
 
-CommandQueue* Config::getMainThreadQueue()
+net::CommandQueue* Config::getMainThreadQueue()
 {
     return getClient()->getMainThreadQueue();
 }
@@ -539,7 +539,8 @@ void Config::setupMessagePump( Pipe* pipe )
     _eventQueue.setMessagePump( pump );
 
     ClientPtr client = getClient();
-    CommandQueue* queue = client->getMainThreadQueue();
+    CommandQueue* queue = EQSAFECAST( CommandQueue*, 
+                                      client->getMainThreadQueue( ));
     EQASSERT( queue );
     EQASSERT( !queue->getMessagePump( ));
 
@@ -553,7 +554,8 @@ void Config::_exitMessagePump()
     _eventQueue.setMessagePump( 0 );
 
     ClientPtr client = getClient();
-    CommandQueue* queue = client->getMainThreadQueue();
+    CommandQueue* queue = EQSAFECAST( CommandQueue*, 
+                                      client->getMainThreadQueue( ));
     EQASSERT( queue );
     EQASSERT( queue->getMessagePump() == pump );
 

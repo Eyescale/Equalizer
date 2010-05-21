@@ -157,8 +157,8 @@ void releaseConfig( Config* config )
 
     ClientPtr client = server->getClient();
     EQASSERT( client.isValid( ));
-    client->disconnectServer( server );
 
+    client->disconnectServer( server );
     client->exitLocal();
 
     EQASSERTINFO( client->getRefCount() == 1, client->getRefCount( ));

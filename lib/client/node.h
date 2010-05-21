@@ -49,7 +49,7 @@ namespace eq
         EQ_EXPORT ClientPtr getClient();
         EQ_EXPORT ServerPtr getServer();
 
-        EQ_EXPORT CommandQueue* getMainThreadQueue();
+        EQ_EXPORT net::CommandQueue* getMainThreadQueue();
 
         /** 
          * Get a network barrier. 

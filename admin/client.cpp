@@ -26,7 +26,7 @@ namespace admin
 {
 
 /** @cond IGNORE */
-typedef fabric::Client< Client > Super;
+typedef fabric::Client Super;
 /** @endcond */
 
 Client::Client()
@@ -59,25 +59,6 @@ bool Client::disconnectServer( ServerPtr server )
     return Super::disconnectServer( server.get( ));
 }
 
-void Client::processCommand()
-{
-    net::Command* command = _mainThreadQueue.pop();
-    if( !command ) // just a wakeup()
-        return;
-
-    switch( invokeCommand( *command ))
-    {
-        case net::COMMAND_HANDLED:
-        case net::COMMAND_DISCARD:
-            break;
-            
-        case net::COMMAND_ERROR:
-            EQABORT( "Error handling command packet" );
-            break;
-    }
-    command->release();
-}
-
 net::NodePtr Client::createNode( const uint32_t type )
 { 
     switch( type )
@@ -96,7 +77,4 @@ net::NodePtr Client::createNode( const uint32_t type )
 
 }
 }
-
-#include "../lib/fabric/client.ipp"
-template class eq::fabric::Client< eq::admin::Client >;
 

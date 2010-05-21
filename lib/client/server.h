@@ -23,10 +23,6 @@
 
 namespace eq
 {
-namespace fabric
-{
-    template< class, class, class, class, class, class, class > class Config;
-}
     class Client;
     class Config;
     class ConfigParams;
@@ -40,7 +36,7 @@ namespace fabric
      * and release a Config from the server.
      * @sa Client::connectServer
      */
-    class Server : public fabric::Server< Client, Server, Config, NodeFactory >
+    class Server : public fabric::Server< Server, Config, NodeFactory >
     {
     public:
         /** Construct a new server. */
@@ -52,6 +48,12 @@ namespace fabric
         EQ_EXPORT net::CommandQueue* getMainThreadQueue();
         EQ_EXPORT net::CommandQueue* getCommandThreadQueue();
         //@}
+
+        /** @return the local client proxy. */
+        EQ_EXPORT ClientPtr getClient();
+
+        /** @return the local client proxy. */
+        EQ_EXPORT ConstClientPtr getClient() const;
 
         /** 
          * Choose a configuration on the server.
@@ -82,10 +84,9 @@ namespace fabric
         EQ_EXPORT virtual ~Server();
 
     private:
-        friend class Client; // to call invokeCommand()
-
         /** Process-local server */
         bool _localServer;
+        friend class Client;
 
         union // placeholder for binary-compatible changes
         {

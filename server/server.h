@@ -41,8 +41,7 @@ namespace server
     /**
      * The Equalizer server.
      */
-    class Server : public fabric::Server< net::Node, Server, Config,
-                                          NodeFactory >
+    class Server : public fabric::Server< Server, Config, NodeFactory >
     {
     public:
         /** 
