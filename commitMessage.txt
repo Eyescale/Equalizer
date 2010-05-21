@@ -1,9 +1,9 @@
-Simplify vector typedef names (use EQ_USE_DEPRECATED for old naming)
+Fix merge error/build
 
 [ ] May break build
-[x] May break existing applications
-[ ] Bugfix
+[ ] May break existing applications
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

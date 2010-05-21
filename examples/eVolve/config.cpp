@@ -326,13 +326,13 @@ void Config::_switchLayout( int32_t increment )
     _frameData.setCurrentViewID( EQ_ID_INVALID );
 
     int32_t index = _currentCanvas->getActiveLayoutIndex() + increment;
-    const eq::LayoutVector& layouts = _currentCanvas->getLayouts();
-    EQASSERT( !layouts.empty( ))
+    const eq::Layouts& layouts = _currentCanvas->getLayouts();
+    EQASSERT( !layouts.empty( ));
 
-        if( index >= static_cast<int32_t>(layouts.size( )) )
-            index = 0;
-        else if ( index < 0 )
-            index = layouts.size( ) - 1;
+    if( index >= static_cast<int32_t>(layouts.size( )) )
+        index = 0;
+    else if ( index < 0 )
+        index = layouts.size( ) - 1;
 
     _currentCanvas->useLayout( index );
 
