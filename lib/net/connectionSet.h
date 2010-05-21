@@ -77,7 +77,7 @@ namespace net
         size_t getSize()  const { return _connections.size(); }
         bool   isEmpty() const { return _connections.empty(); }
 
-        const ConnectionVector& getConnections() const{ return _allConnections;}
+        const Connections& getConnections() const{ return _allConnections; }
 
         /** 
          * Selects a Connection which is ready for I/O.
@@ -122,9 +122,9 @@ namespace net
         };
 
 
-        typedef std::vector< Thread* > ThreadVector;
+        typedef std::vector< Thread* > Threads;
         /** Threads used to handle more than MAXIMUM_WAIT_OBJECTS connections */
-        ThreadVector _threads;
+        Threads _threads;
 
         /** Result thread. */
         Thread* _thread;
@@ -146,10 +146,10 @@ namespace net
         base::Lock _mutex;
 
         /** The connections of this set */
-        ConnectionVector _allConnections;
+        Connections _allConnections;
 
         /** The connections to handle */
-        ConnectionVector _connections;
+        Connections _connections;
 
         // Note: std::vector had to much overhead here
 #ifdef WIN32

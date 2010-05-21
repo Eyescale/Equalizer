@@ -41,7 +41,7 @@ namespace fabric
     public:
         typedef base::RefPtr< CL > ClientPtr;
         typedef base::RefPtr< const CL > ConstClientPtr;
-        typedef std::vector< CFG* > ConfigVector;
+        typedef std::vector< CFG* > Configs;
         typedef NF NodeFactory;
 
         virtual void setClient( ClientPtr client ); //!< @internal
@@ -53,7 +53,7 @@ namespace fabric
         ConstClientPtr getClient() const { return _client; }
 
         /** @return the vector of configurations. */
-        const ConfigVector& getConfigs() const { return _configs; }
+        const Configs& getConfigs() const { return _configs; }
 
         /** @return the node factory. @internal. */
         NF* getNodeFactory() { return _nodeFactory; }
@@ -78,7 +78,7 @@ namespace fabric
         ClientPtr _client;
 
         /** The list of configurations. */
-        ConfigVector _configs;
+        Configs _configs;
 
         union // placeholder for binary-compatible changes
         {

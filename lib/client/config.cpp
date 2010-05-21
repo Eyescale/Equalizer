@@ -244,7 +244,7 @@ uint32_t Config::finishFrame()
             while( _unlockedFrame < _currentFrame )
                 client->processCommand();
 
-        const NodeVector& nodes = getNodes();
+        const Nodes& nodes = getNodes();
         // local node finish (frame-latency) sync
         if( !nodes.empty( ))
         {
@@ -457,7 +457,7 @@ bool Config::handleEvent( const ConfigEvent* event )
 
 bool Config::_needsLocalSync() const
 {
-    const NodeVector& nodes = getNodes();
+    const Nodes& nodes = getNodes();
     if( nodes.empty( ))
         return false;
 

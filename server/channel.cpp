@@ -146,7 +146,7 @@ const Pipe* Channel::getPipe() const
     return window ? window->getPipe() : 0;
 }
 
-const CompoundVector& Channel::getCompounds() const
+const Compounds& Channel::getCompounds() const
 { 
     return getConfig()->getCompounds();
 }
@@ -365,9 +365,8 @@ bool Channel::update( const uint32_t frameID, const uint32_t frameNumber )
                            << &startPacket << std::endl;
 
     bool updated = false;
-    const CompoundVector& compounds = getCompounds();
-
-    for( CompoundVector::const_iterator i = compounds.begin(); 
+    const Compounds& compounds = getCompounds();
+    for( Compounds::const_iterator i = compounds.begin();
          i != compounds.end(); ++i )
     {
         const Compound* compound = *i;

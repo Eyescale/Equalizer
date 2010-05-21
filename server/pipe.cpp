@@ -122,7 +122,7 @@ net::CommandQueue* Pipe::getCommandThreadQueue()
 
 Channel* Pipe::getChannel( const ChannelPath& path )
 {
-    const WindowVector& windows = getWindows(); 
+    const Windows& windows = getWindows(); 
     EQASSERT( windows.size() > path.windowIndex );
 
     if( windows.size() <= path.windowIndex )
@@ -192,9 +192,8 @@ void Pipe::updateRunning( const uint32_t initID, const uint32_t frameNumber )
         _configInit( initID, frameNumber );
 
     // Let all running windows update their running state (incl. children)
-    const WindowVector& windows = getWindows(); 
-    for( WindowVector::const_iterator i = windows.begin(); 
-         i != windows.end(); ++i )
+    const Windows& windows = getWindows(); 
+    for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
     {
         (*i)->updateRunning( initID );
     }
@@ -210,9 +209,8 @@ bool Pipe::syncRunning()
 
     // Sync state updates
     bool success = true;
-    const WindowVector& windows = getWindows(); 
-    for( WindowVector::const_iterator i = windows.begin();
-         i != windows.end(); ++i )
+    const Windows& windows = getWindows(); 
+    for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
     {
         Window* window = *i;
         if( !window->syncRunning( ))
@@ -332,17 +330,15 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
     send( startPacket );
     EQLOG( LOG_TASKS ) << "TASK pipe start frame " << &startPacket << std::endl;
 
-    const WindowVector& windows = getWindows(); 
-    for( WindowVector::const_iterator i = windows.begin();
-         i != windows.end(); ++i )
+    const Windows& windows = getWindows(); 
+    for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
     {
         Window* window = *i;
         if( window->isActive( ))
             window->updateDraw( frameID, frameNumber );
     }
-    
-    for( WindowVector::const_iterator i = windows.begin(); 
-         i != windows.end(); ++i )
+ 
+    for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
     {
         Window* window = *i;
         if( window->isActive( ))
@@ -443,10 +439,8 @@ std::ostream& operator << ( std::ostream& os, const Pipe* pipe )
 
     os << std::endl;
 
-    const WindowVector& windows = pipe->getWindows();
-    for( WindowVector::const_iterator i = windows.begin();
-         i != windows.end(); ++i )
-
+    const Windows& windows = pipe->getWindows();
+    for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
         os << *i;
 
     os << base::exdent << "}" << std::endl << base::enableHeader

@@ -37,7 +37,7 @@ namespace base
         void exit();
         
         /** @return all registered compressor plugins */
-        EQ_EXPORT const CompressorVector& getCompressors() const;
+        EQ_EXPORT const Compressors& getCompressors() const;
 
         /** @return the plugin containing the given compressor, or 0. */
         EQ_EXPORT Compressor* findCompressor( const uint32_t name );
@@ -60,7 +60,7 @@ namespace base
             const;
 
     private:
-        CompressorVector _compressors;
+        Compressors _compressors;
 
         /** Initialize a single DSO .*/
         void _initCompressor( const std::string& filename );

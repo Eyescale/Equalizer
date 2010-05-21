@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,8 +26,11 @@ namespace util
 class Texture;
 
 /** A vector of pointers to eq::util::Texture */
-typedef std::vector< Texture* >  TextureVector;
+typedef std::vector< Texture* >  Textures;
 
+#ifdef EQ_USE_DEPRECATED
+typedef Textures TextureVector
+#endif
 }
 }
 #endif // EQUTIL_TYPES_H

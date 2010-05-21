@@ -51,8 +51,8 @@ public:
 
     virtual VisitorResult visit( const Compound* compound )
         {
-            const FrameVector& outputFrames = compound->getOutputFrames();
-            for( FrameVector::const_iterator i = outputFrames.begin(); 
+            const Frames& outputFrames = compound->getOutputFrames();
+            for( Frames::const_iterator i = outputFrames.begin(); 
                  i != outputFrames.end(); ++i )
             {
                 Frame* frame = *i;
@@ -112,8 +112,8 @@ void MonitorEqualizer::_updateViewports()
     if( !compound )
         return;
 
-    const FrameVector& inputFrames = compound->getInputFrames();
-    for( FrameVector::const_iterator i = inputFrames.begin(); 
+    const Frames& inputFrames = compound->getInputFrames();
+    for( Frames::const_iterator i = inputFrames.begin(); 
          i != inputFrames.end(); ++i )
     {
         const Frame* frame = *i;
@@ -149,7 +149,7 @@ void MonitorEqualizer::_updateZoomAndOffset()
     const Compound* compound( getCompound( ));
     const PixelViewport& pvp( compound->getInheritPixelViewport( ));
 
-    const FrameVector& inputFrames( compound->getInputFrames( ));
+    const Frames& inputFrames( compound->getInputFrames( ));
     const size_t size( inputFrames.size( ));
     EQASSERTINFO( size == _outputFrames.size(), 
                   size << " != " << _outputFrames.size( ));

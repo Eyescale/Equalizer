@@ -80,11 +80,11 @@ namespace net
         uint32_t _nVersions;
 
         typedef std::deque< InstanceData* > InstanceDataDeque;
-        typedef std::vector< InstanceData* > InstanceDataVector;
+        typedef std::vector< InstanceData* > InstanceDatas;
 
         /** The list of full instance datas, head version last. */
         InstanceDataDeque _instanceDatas;
-        InstanceDataVector _instanceDataCache;
+        InstanceDatas _instanceDataCache;
 
         /* The command handlers. */
         CommandResult _cmdCommit( Command& command );

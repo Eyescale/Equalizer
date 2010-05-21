@@ -98,8 +98,8 @@ static VisitorResult _acceptImpl( C* config, V& visitor )
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    const typename C::NodeVector& nodes = config->getNodes();
-    for( typename C::NodeVector::const_iterator i = nodes.begin();
+    const typename C::Nodes& nodes = config->getNodes();
+    for( typename C::Nodes::const_iterator i = nodes.begin();
          i != nodes.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
@@ -117,8 +117,8 @@ static VisitorResult _acceptImpl( C* config, V& visitor )
         }
     }
 
-    const typename C::ObserverVector& observers = config->getObservers();
-    for( typename C::ObserverVector::const_iterator i = observers.begin(); 
+    const typename C::Observers& observers = config->getObservers();
+    for( typename C::Observers::const_iterator i = observers.begin(); 
          i != observers.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
@@ -136,8 +136,8 @@ static VisitorResult _acceptImpl( C* config, V& visitor )
         }
     }
 
-    const typename C::LayoutVector& layouts = config->getLayouts();
-    for( typename C::LayoutVector::const_iterator i = layouts.begin(); 
+    const typename C::Layouts& layouts = config->getLayouts();
+    for( typename C::Layouts::const_iterator i = layouts.begin(); 
          i != layouts.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
@@ -155,8 +155,8 @@ static VisitorResult _acceptImpl( C* config, V& visitor )
         }
     }
 
-    const typename C::CanvasVector& canvases = config->getCanvases();
-    for( typename C::CanvasVector::const_iterator i = canvases.begin();
+    const typename C::Canvases& canvases = config->getCanvases();
+    for( typename C::Canvases::const_iterator i = canvases.begin();
          i != canvases.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
@@ -390,9 +390,8 @@ void Config< S, C, O, L, CV, N, V >::_addObserver( O* observer )
 template< class S, class C, class O, class L, class CV, class N, class V >
 bool Config< S, C, O, L, CV, N, V >::_removeObserver( O* observer )
 {
-    typename ObserverVector::iterator i = std::find( _observers.begin(),
-                                                     _observers.end(),
-                                                     observer );
+    typename Observers::iterator i = std::find( _observers.begin(),
+                                                _observers.end(), observer );
     if( i == _observers.end( ))
         return false;
 
@@ -411,7 +410,7 @@ void Config< S, C, O, L, CV, N, V >::_addLayout( L* layout )
 template< class S, class C, class O, class L, class CV, class N, class V >
 bool Config< S, C, O, L, CV, N, V >::_removeLayout( L* layout )
 {
-    typename LayoutVector::iterator i = std::find( _layouts.begin(),
+    typename Layouts::iterator i = std::find( _layouts.begin(),
                                                    _layouts.end(), layout );
     if( i == _layouts.end( ))
         return false;
@@ -431,8 +430,8 @@ void Config< S, C, O, L, CV, N, V >::_addCanvas( CV* canvas )
 template< class S, class C, class O, class L, class CV, class N, class V >
 bool Config< S, C, O, L, CV, N, V >::_removeCanvas( CV* canvas )
 {
-    typename CanvasVector::iterator i = std::find( _canvases.begin(),
-                                                   _canvases.end(), canvas );
+    typename Canvases::iterator i = std::find( _canvases.begin(),
+                                               _canvases.end(), canvas );
     if( i == _canvases.end( ))
         return false;
 
@@ -516,7 +515,7 @@ void Config< S, C, O, L, CV, N, V >::unmap()
 {
     typename S::NodeFactory* nodeFactory = getServer()->getNodeFactory();
 
-    const CanvasVector& canvases = getCanvases();
+    const Canvases& canvases = getCanvases();
     while( !canvases.empty( ))
     {
         CV* canvas = canvases.back();
@@ -525,7 +524,7 @@ void Config< S, C, O, L, CV, N, V >::unmap()
         nodeFactory->releaseCanvas( canvas );
     }
 
-    const LayoutVector& layouts = getLayouts();
+    const Layouts& layouts = getLayouts();
     while( !layouts.empty( ))
     {
         L* layout = layouts.back();;
@@ -534,7 +533,7 @@ void Config< S, C, O, L, CV, N, V >::unmap()
         nodeFactory->releaseLayout( layout );
     }
 
-    const ObserverVector& observers = getObservers();
+    const Observers& observers = getObservers();
     while( !observers.empty( ))
     {
         O* observer = observers.back();
@@ -574,7 +573,7 @@ void Config< S, C, O, L, CV, N, V >::_addNode( N* node )
 template< class S, class C, class O, class L, class CV, class N, class V >
 bool Config< S, C, O, L, CV, N, V >::_removeNode( N* node )
 {
-    typename NodeVector::iterator i = std::find( _nodes.begin(),
+    typename Nodes::iterator i = std::find( _nodes.begin(),
                                                  _nodes.end(), node );
     if( i == _nodes.end( ))
         return false;
@@ -587,7 +586,7 @@ bool Config< S, C, O, L, CV, N, V >::_removeNode( N* node )
 template< class S, class C, class O, class L, class CV, class N, class V >
 N* Config< S, C, O, L, CV, N, V >::_findNode( const uint32_t id )
 {
-    for( typename NodeVector::const_iterator i = _nodes.begin(); 
+    for( typename Nodes::const_iterator i = _nodes.begin(); 
 		 i != _nodes.end(); ++i )
     {
         N* node = *i;
@@ -616,26 +615,26 @@ std::ostream& operator << ( std::ostream& os,
        << std::endl
        << base::exdent << "}" << std::endl;
 
-    const typename C::NodeVector& nodes = config.getNodes();
-    for( typename C::NodeVector::const_iterator i = nodes.begin();
+    const typename C::Nodes& nodes = config.getNodes();
+    for( typename C::Nodes::const_iterator i = nodes.begin();
          i != nodes.end(); ++i )
     {
         os << **i;
     }
-    const typename C::ObserverVector& observers = config.getObservers();
-    for( typename C::ObserverVector::const_iterator i = observers.begin(); 
+    const typename C::Observers& observers = config.getObservers();
+    for( typename C::Observers::const_iterator i = observers.begin(); 
          i !=observers.end(); ++i )
     {
         os << **i;
     }
-    const typename C::LayoutVector& layouts = config.getLayouts();
-    for( typename C::LayoutVector::const_iterator i = layouts.begin(); 
+    const typename C::Layouts& layouts = config.getLayouts();
+    for( typename C::Layouts::const_iterator i = layouts.begin(); 
          i !=layouts.end(); ++i )
     {
         os << **i;
     }
-    const typename C::CanvasVector& canvases = config.getCanvases();
-    for( typename C::CanvasVector::const_iterator i = canvases.begin(); 
+    const typename C::Canvases& canvases = config.getCanvases();
+    for( typename C::Canvases::const_iterator i = canvases.begin(); 
          i != canvases.end(); ++i )
     {
         os << **i;

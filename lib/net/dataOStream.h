@@ -20,7 +20,7 @@
 #define EQNET_DATAOSTREAM_H
 
 
-#include <eq/net/types.h>   // ConnectionVector member
+#include <eq/net/types.h>   // Connections member
 
 #include <eq/base/buffer.h> // member
 #include <eq/base/compressorDataCPU.h>
@@ -52,7 +52,7 @@ namespace DataStreamTest
         virtual EQ_EXPORT ~DataOStream();
 
         /** Enable output, locks the connections to the receivers */ 
-        void enable( const NodeVector& receivers );
+        void enable( const Nodes& receivers );
         void enable( NodePtr node, const bool useMulticast );
         EQ_EXPORT void enable();
 
@@ -129,7 +129,7 @@ namespace DataStreamTest
         virtual EQ_EXPORT void reset();
 
         /** Locked connections to the receivers, if _enabled */
-        ConnectionVector _connections;
+        Connections _connections;
         friend class DataStreamTest::Sender;
 
     private:

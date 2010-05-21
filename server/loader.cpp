@@ -78,33 +78,32 @@ public:
             return TRAVERSE_PRUNE; // only check destination channels
         }
 
-    const ChannelVector& getResult() const { return _channels; }
+    const Channels& getResult() const { return _channels; }
 
 private:
     Channel* _candidate;
-    ChannelVector _channels;
+    Channels _channels;
 };
 
 }
 
 void Loader::addOutputCompounds( ServerPtr server )
 {
-    const ConfigVector& configs = server->getConfigs();
-    for( ConfigVector::const_iterator i = configs.begin(); 
-         i != configs.end(); ++i )
+    const Configs& configs = server->getConfigs();
+    for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
     {
         UnusedOutputChannelFinder finder;
         Config* config = *i;
         config->accept( finder );
 
-        const ChannelVector& channels = finder.getResult();
+        const Channels& channels = finder.getResult();
         if( channels.empty( ))
             continue;
 
         Compound* group = new Compound;
         config->addCompound( group );
 
-        for( ChannelVector::const_iterator j = channels.begin(); 
+        for( Channels::const_iterator j = channels.begin(); 
              j != channels.end(); ++j )
         {
             Compound* compound = new Compound;
@@ -150,9 +149,9 @@ static void _addDestinationViews( Compound* compound )
     }
        
     // segment group
-    CompoundVector segments;
-    const CompoundVector& children = compound->getChildren();
-    for( CompoundVector::const_iterator i = children.begin();
+    Compounds segments;
+    const Compounds& children = compound->getChildren();
+    for( Compounds::const_iterator i = children.begin();
          i != children.end(); ++i )
     {
         Compound* child = *i;
@@ -177,7 +176,7 @@ static void _addDestinationViews( Compound* compound )
     canvas->addLayout( layout );
     *static_cast< eq::Frustum* >( canvas ) = compound->getFrustum();
     
-    for( CompoundVector::const_iterator i = segments.begin(); 
+    for( Compounds::const_iterator i = segments.begin(); 
          i != segments.end(); ++i )
     {
         Compound* child = *i;
@@ -232,7 +231,7 @@ class AddObserverVisitor : public ServerVisitor
 {
     virtual VisitorResult visitPre( Config* config )
         {
-            const ObserverVector& observers = config->getObservers();
+            const Observers& observers = config->getObservers();
             if( !observers.empty( ))
                 return TRAVERSE_PRUNE;
 
@@ -242,7 +241,7 @@ class AddObserverVisitor : public ServerVisitor
 
     virtual VisitorResult visit( View* view )
         {
-            const ObserverVector& observers = view->getConfig()->getObservers();
+            const Observers& observers = view->getConfig()->getObservers();
             EQASSERT( observers.size() == 1 );
 
             view->setObserver( observers.front( ));

@@ -473,7 +473,7 @@ uint8_t ROIFinder::_splitArea( Area& a )
 }
 
 
-void ROIFinder::_findAreas( PixelViewportVector& resultPVPs )
+void ROIFinder::_findAreas( PixelViewports& resultPVPs )
 {
     EQASSERT( _areasToCheck.size() == 0 );
 
@@ -679,14 +679,14 @@ static PixelViewport _getBoundingPVP( const PixelViewport& pvp )
 }
 
 
-PixelViewportVector ROIFinder::findRegions( const uint32_t         buffers,
-                                            const PixelViewport&   pvp,
-                                            const Zoom&            zoom,
-                                            const uint32_t         stage,
-                                            const uint32_t         frameID,
-                                            Window::ObjectManager* glObjects )
+PixelViewports ROIFinder::findRegions( const uint32_t         buffers,
+                                       const PixelViewport&   pvp,
+                                       const Zoom&            zoom,
+                                       const uint32_t         stage,
+                                       const uint32_t         frameID,
+                                       Window::ObjectManager* glObjects )
 {
-    PixelViewportVector result;
+    PixelViewports result;
     result.push_back( pvp );
 
 #ifndef EQ_USE_ROI

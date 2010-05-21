@@ -45,8 +45,6 @@
 #include "configRegistrator.h"
 #include "configSyncVisitor.h"
 
-using eq::net::ConnectionDescriptionVector;
-
 namespace eq
 {
 namespace server
@@ -81,7 +79,7 @@ Config::~Config()
     EQINFO << "Delete config @" << (void*)this << std::endl;
     _appNetNode = 0;
 
-    for( CompoundVector::const_iterator i = _compounds.begin(); 
+    for( Compounds::const_iterator i = _compounds.begin(); 
          i != _compounds.end(); ++i )
     {
         Compound* compound = *i;
@@ -162,23 +160,23 @@ void Config::activateCanvas( Canvas* canvas )
 {
     EQASSERT( stde::find( getCanvases(), canvas ) != getCanvases().end( ));
 
-    const LayoutVector& layouts = canvas->getLayouts();
-    const SegmentVector& segments = canvas->getSegments();
+    const Layouts& layouts = canvas->getLayouts();
+    const Segments& segments = canvas->getSegments();
 
-    for( LayoutVector::const_iterator i = layouts.begin();
+    for( Layouts::const_iterator i = layouts.begin();
          i != layouts.end(); ++i )
     {
         const Layout* layout = *i;
         if( !layout )
             continue;
 
-        const ViewVector& views = layout->getViews();
-        for( ViewVector::const_iterator j = views.begin(); 
+        const Views& views = layout->getViews();
+        for( Views::const_iterator j = views.begin(); 
              j != views.end(); ++j )
         {
             View* view = *j;
 
-            for( SegmentVector::const_iterator k = segments.begin();
+            for( Segments::const_iterator k = segments.begin();
                  k != segments.end(); ++k )
             {
                 Segment* segment = *k;
@@ -274,7 +272,7 @@ void Config::addCompound( Compound* compound )
 
 bool Config::removeCompound( Compound* compound )
 {
-    CompoundVector::iterator i = stde::find( _compounds, compound );
+    Compounds::iterator i = stde::find( _compounds, compound );
     if( i == _compounds.end( ))
         return false;
 
@@ -296,7 +294,7 @@ void Config::setApplicationNetNode( net::NodePtr node )
 
 Channel* Config::getChannel( const ChannelPath& path )
 {
-    NodeVector nodes = getNodes();
+    Nodes nodes = getNodes();
     EQASSERTINFO( nodes.size() > path.nodeIndex,
                   nodes.size() << " <= " << path.nodeIndex );
 
@@ -334,8 +332,8 @@ template< class C >
 static VisitorResult _accept( C* config, ConfigVisitor& visitor )
 { 
     VisitorResult result = TRAVERSE_CONTINUE;
-    const CompoundVector& compounds = config->getCompounds();
-    for( CompoundVector::const_iterator i = compounds.begin();
+    const Compounds& compounds = config->getCompounds();
+    for( Compounds::const_iterator i = compounds.begin();
          i != compounds.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
@@ -415,14 +413,14 @@ bool Config::_updateRunning()
         return false;
 
     _startNodes();
-    const NodeVector& nodes = getNodes();
+    const Nodes& nodes = getNodes();
     // Let all running nodes update their running state (incl. children)
-    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
         (*i)->updateRunning( _initID, _currentFrame );
 
     // Sync state updates
     bool success = true;
-    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         if( !node->syncRunning( ))
@@ -444,8 +442,8 @@ bool Config::_connectNodes()
 {
     bool success = true;
     base::Clock clock;
-    const NodeVector& nodes = getNodes();
-    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    const Nodes& nodes = getNodes();
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         if( node->isActive() && !_connectNode( node ))
@@ -455,7 +453,7 @@ bool Config::_connectNodes()
         }
     }
 
-    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         if( node->isActive() && !_syncConnectNode( node, clock ))
@@ -472,13 +470,12 @@ static net::NodePtr _createNetNode( Node* node )
 {
     net::NodePtr netNode = new net::Node;
 
-    const ConnectionDescriptionVector& descriptions = 
+    const ConnectionDescriptions& descriptions = 
         node->getConnectionDescriptions();
-    for( ConnectionDescriptionVector::const_iterator i = descriptions.begin();
+    for( ConnectionDescriptions::const_iterator i = descriptions.begin();
          i != descriptions.end(); ++i )
     {
         const net::ConnectionDescription* desc = (*i).get();
-        
         netNode->addConnectionDescription( 
             new net::ConnectionDescription( *desc ));
     }
@@ -548,10 +545,10 @@ bool Config::_syncConnectNode( Node* node, const base::Clock& clock )
     if( !localNode->syncConnect( netNode, timeOut ))
     {
         std::ostringstream data;
-        const net::ConnectionDescriptionVector& descs = 
+        const net::ConnectionDescriptions& descs = 
             netNode->getConnectionDescriptions();
 
-        for( net::ConnectionDescriptionVector::const_iterator i = descs.begin();
+        for( net::ConnectionDescriptions::const_iterator i = descs.begin();
              i != descs.end(); ++i )
         {
             net::ConnectionDescriptionPtr desc = *i;
@@ -573,9 +570,9 @@ void Config::_startNodes()
 {
     // start up newly running nodes
     std::vector< uint32_t > requests;
-    NodeVector startingNodes;
-    const NodeVector& nodes = getNodes();
-    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    Nodes startingNodes;
+    const Nodes& nodes = getNodes();
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         const Node::State state = node->getState();
@@ -600,9 +597,9 @@ void Config::_startNodes()
 void Config::_stopNodes()
 {
     // wait for the nodes to stop, destroy entities, disconnect
-    NodeVector stoppingNodes;
-    const NodeVector& nodes = getNodes();
-    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    Nodes stoppingNodes;
+    const Nodes& nodes = getNodes();
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         if( node->getState() != Node::STATE_STOPPED )
@@ -634,7 +631,7 @@ void Config::_stopNodes()
 
     // now wait that the render clients disconnect
     uint32_t nSleeps = 50; // max 5 seconds for all clients
-    for( NodeVector::const_iterator i = stoppingNodes.begin();
+    for( Nodes::const_iterator i = stoppingNodes.begin();
          i != stoppingNodes.end(); ++i )
     {
         Node*        node    = *i;
@@ -690,8 +687,8 @@ void Config::_syncClock()
 
     send( _appNetNode, packet );
 
-    const NodeVector& nodes = getNodes();
-    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    const Nodes& nodes = getNodes();
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         if( node->isActive( ))
@@ -715,23 +712,23 @@ bool Config::_init( const uint32_t initID )
     _finishedFrame = 0;
     _initID = initID;
 
-    const ObserverVector& observers = getObservers();
-    for( ObserverVector::const_iterator i = observers.begin();
+    const Observers& observers = getObservers();
+    for( Observers::const_iterator i = observers.begin();
          i != observers.end(); ++i )
     {
         Observer* observer = *i;
         observer->init();
     }
 
-    const CanvasVector& canvases = getCanvases();
-    for( CanvasVector::const_iterator i = canvases.begin();
+    const Canvases& canvases = getCanvases();
+    for( Canvases::const_iterator i = canvases.begin();
          i != canvases.end(); ++i )
     {
         Canvas* canvas = *i;
         canvas->init();
     }
 
-    for( CompoundVector::const_iterator i = _compounds.begin();
+    for( Compounds::const_iterator i = _compounds.begin();
          i != _compounds.end(); ++i )
     {
         Compound* compound = *i;
@@ -757,15 +754,15 @@ bool Config::exit()
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING );
     _state = STATE_EXITING;
 
-    for( CompoundVector::const_iterator i = _compounds.begin();
+    for( Compounds::const_iterator i = _compounds.begin();
          i != _compounds.end(); ++i )
     {
         Compound* compound = *i;
         compound->exit();
     }
 
-    const CanvasVector& canvases = getCanvases();
-    for( CanvasVector::const_iterator i = canvases.begin();
+    const Canvases& canvases = getCanvases();
+    for( Canvases::const_iterator i = canvases.begin();
          i != canvases.end(); ++i )
     {
         Canvas* canvas = *i;
@@ -790,7 +787,7 @@ void Config::_startFrame( const uint32_t frameID )
     EQLOG( base::LOG_ANY ) << "----- Start Frame ----- " << _currentFrame
                            << std::endl;
 
-    for( CompoundVector::const_iterator i = _compounds.begin(); 
+    for( Compounds::const_iterator i = _compounds.begin(); 
          i != _compounds.end(); ++i )
     {
         Compound* compound = *i;
@@ -800,9 +797,9 @@ void Config::_startFrame( const uint32_t frameID )
     ConfigUpdateDataVisitor configDataVisitor;
     accept( configDataVisitor );
 
-    const NodeVector& nodes = getNodes();
+    const Nodes& nodes = getNodes();
     bool appNodeRunning = false;
-    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         if( node->isActive( ))
@@ -829,8 +826,8 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
     if( _finishedFrame >= frameNumber ) // node finish already done
         return;
 
-    const NodeVector& nodes = getNodes();
-    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    const Nodes& nodes = getNodes();
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         const Node* node = *i;
         if( node->isActive() && node->getFinishedFrame() < frameNumber )
@@ -856,8 +853,8 @@ void Config::_flushAllFrames()
     if( _currentFrame == 0 )
         return;
 
-    const NodeVector& nodes = getNodes();
-    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    const Nodes& nodes = getNodes();
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
         if( node->isActive( ))
@@ -988,8 +985,8 @@ public:
 
     virtual VisitorResult visit( Compound* compound )
         { 
-            const EqualizerVector& equalizers = compound->getEqualizers();
-            for( EqualizerVector::const_iterator i = equalizers.begin();
+            const Equalizers& equalizers = compound->getEqualizers();
+            for( Equalizers::const_iterator i = equalizers.begin();
                  i != equalizers.end(); ++i )
             {
                 (*i)->setFrozen( _freeze );
@@ -1017,7 +1014,7 @@ void Config::output( std::ostream& os ) const
 {
     os << base::disableFlush << base::disableHeader;
 
-    for( CompoundVector::const_iterator i = _compounds.begin(); 
+    for( Compounds::const_iterator i = _compounds.begin(); 
          i != _compounds.end(); ++i )
     {
         os << **i;

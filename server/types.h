@@ -65,25 +65,25 @@ class Observer;
 class Segment;
 class View;
 
-typedef std::vector< Config* >   ConfigVector;
-typedef std::vector< Node* >     NodeVector;
-typedef std::vector< Pipe* >     PipeVector;
-typedef std::vector< Window* >   WindowVector;
-typedef std::vector< Channel* >  ChannelVector;
+typedef std::vector< Config* >   Configs;
+typedef std::vector< Node* >     Nodes;
+typedef std::vector< Pipe* >     Pipes;
+typedef std::vector< Window* >   Windows;
+typedef std::vector< Channel* >  Channels;
 
-typedef std::vector< Canvas* >       CanvasVector;
-typedef std::vector< Compound* >     CompoundVector;
-typedef std::vector< Frame* >        FrameVector;
-typedef std::vector< Layout* >       LayoutVector;
-typedef std::vector< Equalizer* >    EqualizerVector;
-typedef std::vector< Observer* >     ObserverVector;
-typedef std::vector< Segment* >      SegmentVector;
-typedef std::vector< View* >         ViewVector;
+typedef std::vector< Canvas* >       Canvases;
+typedef std::vector< Compound* >     Compounds;
+typedef std::vector< Frame* >        Frames;
+typedef std::vector< Layout* >       Layouts;
+typedef std::vector< Equalizer* >    Equalizers;
+typedef std::vector< Observer* >     Observers;
+typedef std::vector< Segment* >      Segments;
+typedef std::vector< View* >         Views;
 
 typedef base::RefPtr< Server > ServerPtr;
 typedef base::RefPtr< const Server > ConstServerPtr;
 typedef base::RefPtr< ConnectionDescription >   ConnectionDescriptionPtr;
-typedef std::vector< ConnectionDescriptionPtr > ConnectionDescriptionVector;
+typedef std::vector< ConnectionDescriptionPtr > ConnectionDescriptions;
 
 typedef fabric::Vector4i Vector4i;   //!< A four-component integer vector
 typedef fabric::Vector3f Vector3f;   //!< A three-component float vector

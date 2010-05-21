@@ -309,7 +309,7 @@ namespace net
          * 
          * @return the number of stored connection descriptions. 
          */
-        EQ_EXPORT const ConnectionDescriptionVector& getConnectionDescriptions()
+        EQ_EXPORT const ConnectionDescriptions& getConnectionDescriptions()
                             const;
 
         /** @return the connection to this node. */
@@ -650,7 +650,7 @@ namespace net
         CommandCache _commandCache;
 
         /** The list of descriptions on how this node is reachable. */
-        ConnectionDescriptionVector _connectionDescriptions;
+        ConnectionDescriptions _connectionDescriptions;
 
         /** The name of the program to autolaunch. */
         std::string _programName;

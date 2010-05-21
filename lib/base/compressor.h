@@ -38,8 +38,8 @@ namespace base
      * @internal
      */
     class Compressor;
-    typedef std::vector< EqCompressorInfo > CompressorInfoVector;
-    typedef std::vector< Compressor* > CompressorVector;
+    typedef std::vector< EqCompressorInfo > CompressorInfos;
+    typedef std::vector< Compressor* > Compressors;
 
     class Compressor
     {
@@ -119,10 +119,10 @@ namespace base
         bool implementsType( const uint32_t name );
 
         /** @return the information for all compressors contained in the DSO. */
-        const CompressorInfoVector& getInfos() const { return _infos; }
+        const CompressorInfos& getInfos() const { return _infos; }
 
     private:
-        CompressorInfoVector _infos;
+        CompressorInfos _infos;
         base::DSO _dso;   
     };
 

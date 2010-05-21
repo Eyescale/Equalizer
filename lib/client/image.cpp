@@ -255,17 +255,17 @@ std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
     EQINFO << "Searching compressors for token type " << tokenType << std::endl;
 
     const base::PluginRegistry& registry = base::Global::getPluginRegistry();
-    const base::CompressorVector& compressors = registry.getCompressors();
+    const base::Compressors& compressors = registry.getCompressors();
     std::vector< uint32_t > names;
 
-    for( base::CompressorVector::const_iterator i = compressors.begin();
+    for( base::Compressors::const_iterator i = compressors.begin();
          i != compressors.end(); ++i )
     {
         const base::Compressor* compressor = *i;
-        const base::CompressorInfoVector& infos = compressor->getInfos();
+        const base::CompressorInfos& infos = compressor->getInfos();
 
         EQINFO << "Searching in DSO " << (void*)compressor << std::endl;        
-        for( base::CompressorInfoVector::const_iterator j = infos.begin();
+        for( base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
             const EqCompressorInfo& info = *j;

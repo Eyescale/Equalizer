@@ -230,8 +230,8 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 // Note: real applications would use one tracking device per observer
 void Config::_setHeadMatrix( const eq::Matrix4f& matrix )
 {
-    const eq::ObserverVector& observers = getObservers();
-    for( eq::ObserverVector::const_iterator i = observers.begin();
+    const eq::Observers& observers = getObservers();
+    for( eq::Observers::const_iterator i = observers.begin();
          i != observers.end(); ++i )
     {
         (*i)->setHeadMatrix( matrix );
@@ -240,7 +240,7 @@ void Config::_setHeadMatrix( const eq::Matrix4f& matrix )
 
 const eq::Matrix4f& Config::_getHeadMatrix() const
 {
-    const eq::ObserverVector& observers = getObservers();
+    const eq::Observers& observers = getObservers();
     if( observers.empty( ))
         return eq::Matrix4f::IDENTITY;
 

@@ -20,7 +20,7 @@
 
 #include <eq/net/dispatcher.h>    // base class
 #include <eq/net/node.h>          // used in RefPtr
-#include <eq/net/types.h>         // for NodeVector
+#include <eq/net/types.h>         // for Nodes
 #include <eq/net/version.h>       // used as default parameter
 
 namespace eq
@@ -344,7 +344,7 @@ namespace net
         bool _threadSafe;
 
         void _setChangeManager( ObjectCM* cm );
-        const NodeVector* _getSlaveNodes() const;
+        const Nodes* _getSlaveNodes() const;
 
         /* The command handlers. */
         CommandResult _cmdForward( Command& command );

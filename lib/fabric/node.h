@@ -35,7 +35,7 @@ namespace fabric
     template< class C, class N, class P, class V > class Node : public Object
     {
     public:
-        typedef std::vector< P* > PipeVector;
+        typedef std::vector< P* > Pipes;
 
         /** @name Data Access */
         //@{
@@ -44,7 +44,7 @@ namespace fabric
         const C* getConfig() const { return _config; }
 
         /** @return vector of pipes */
-        const PipeVector& getPipes() const { return _pipes; }
+        const Pipes& getPipes() const { return _pipes; }
 
         /**
          * @return true if all render tasks for this node are executed by the
@@ -150,7 +150,7 @@ namespace fabric
         };
 
         /** Pipe children. */
-        PipeVector _pipes;
+        Pipes _pipes;
 
         /** The parent config. */
         C* const _config;

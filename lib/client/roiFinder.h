@@ -1,4 +1,5 @@
-/* Copyright (c) 2009       Maxim Makhinya
+/* Copyright (c) 2009 Maxim Makhinya
+ *               2010 Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -51,12 +52,12 @@ namespace eq
          * 
          * @return Areas for readback
          */
-        PixelViewportVector findRegions( const uint32_t         buffers,
-                                         const PixelViewport&   pvp,
-                                         const Zoom&            zoom,
-                                         const uint32_t         stage,
-                                         const uint32_t         frameID,
-                                         Window::ObjectManager* glObjects );
+        PixelViewports findRegions( const uint32_t         buffers,
+                                    const PixelViewport&   pvp,
+                                    const Zoom&            zoom,
+                                    const uint32_t         stage,
+                                    const uint32_t         frameID,
+                                    Window::ObjectManager* glObjects );
 
         /** @return the GL function table, valid during readback. */
         GLEWContext* glewGetContext() { return _glObjects->glewGetContext(); }
@@ -97,7 +98,7 @@ namespace eq
         void _updateSubArea( const uint8_t type );
 
         /** Find areas in current mask*/
-        void _findAreas( PixelViewportVector& resultPVPs );
+        void _findAreas( PixelViewports& resultPVPs );
 
         /** Only used in debug build, to invalidate unused areas */
         void _invalidateAreas( Area* areas, uint8_t num );

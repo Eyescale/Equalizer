@@ -123,7 +123,7 @@ namespace server
             Vector2i  maxSize;
         };
         friend std::ostream& operator << ( std::ostream& os, const Node* node );
-        typedef std::vector< Node* > LBNodeVector;
+        typedef std::vector< Node* > LBNodes;
 
         Node* _tree; // <! The binary split tree of all children
 
@@ -139,8 +139,8 @@ namespace server
             float        load;          //<! time/vp.area
         };
 
-        typedef std::vector< Data >                  LBDataVector;
-        typedef std::pair< uint32_t,  LBDataVector > LBFrameData;
+        typedef std::vector< Data >                  LBDatas;
+        typedef std::pair< uint32_t,  LBDatas > LBFrameData;
         
         std::deque< LBFrameData > _history;
 
@@ -150,7 +150,7 @@ namespace server
         
         //-------------------- Methods --------------------
         /** @return true if we have a valid LB tree */
-        Node* _buildTree( const CompoundVector& children );
+        Node* _buildTree( const Compounds& children );
 
         /** Clear the tree, does not delete the nodes. */
         void _clearTree( Node* node );
@@ -163,8 +163,8 @@ namespace server
         float _assignTargetTimes( Node* node, const float totalTime, 
                                   const float resourceTime );
         void _assignLeftoverTime( Node* node, const float time );
-        void _removeEmpty( LBDataVector& items );
-        void _computeSplit( Node* node, LBDataVector* sortedData,
+        void _removeEmpty( LBDatas& items );
+        void _computeSplit( Node* node, LBDatas* sortedData,
                             const eq::Viewport& vp, const eq::Range& range );
 
         static bool _compareX( const Data& data1, const Data& data2 )

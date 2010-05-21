@@ -234,7 +234,7 @@ void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache,
     }
 
     InstanceDataDeque  head;
-    InstanceDataVector tail;
+    InstanceDatas tail;
 
     for( InstanceDataDeque::const_iterator i = cache.begin();
          i != cache.end(); ++i )
@@ -263,7 +263,7 @@ void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache,
     }
 
     EQLOG( LOG_OBJECTS ) << " back ";
-    for( InstanceDataVector::const_iterator i = tail.begin();
+    for( InstanceDatas::const_iterator i = tail.begin();
          i != tail.end(); ++i )
     {
         const ObjectInstanceDataIStream* stream = *i;
@@ -273,7 +273,7 @@ void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache,
 
 #ifndef NDEBUG // consistency check
     uint32_t version = std::numeric_limits< uint32_t >::max();
-    for( InstanceDataVector::const_iterator i = tail.begin();
+    for( InstanceDatas::const_iterator i = tail.begin();
          i != tail.end(); ++i )
     {
         const ObjectInstanceDataIStream* stream = *i;

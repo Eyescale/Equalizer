@@ -44,7 +44,7 @@ namespace fabric
     {
     public:
         /** A vector of pointers to channels */
-        typedef std::vector< C* >  ChannelVector; 
+        typedef std::vector< C* >  Channels; 
         typedef ElementVisitor< W, LeafVisitor< C > > Visitor;
 
         /** @name Data Access */
@@ -55,7 +55,7 @@ namespace fabric
         P*       getPipe()       { return _pipe; }
 
         /**  @return a vector of all channels of this window.  */
-        const ChannelVector& getChannels() const { return _channels; }
+        const Channels& getChannels() const { return _channels; }
 
         const DrawableConfig& getDrawableConfig() const
             { return _data.drawableConfig; }
@@ -194,7 +194,7 @@ namespace fabric
         P* const _pipe;
 
         /** The channels of this window. */
-        ChannelVector _channels;
+        Channels _channels;
 
         struct BackupData
         {

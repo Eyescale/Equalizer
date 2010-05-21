@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -61,7 +61,7 @@ ViewEqualizer::Listener::~Listener()
 
 void ViewEqualizer::attach( Compound* compound )
 {
-    for( ListenerVector::iterator i = _listeners.begin();
+    for( Listeners::iterator i = _listeners.begin();
          i != _listeners.end(); ++i )
     {
         (*i).clear();
@@ -293,10 +293,10 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
     EQLOG( LOG_LB1 ) << "Using data from frame " << frame << std::endl;
 
     //----- Gather data for frame
-    LoadVector loads;
+    Loads loads;
     int64_t totalTime( 0 );
 
-    for( ListenerVector::iterator i = _listeners.begin();
+    for( Listeners::iterator i = _listeners.begin();
          i != _listeners.end(); ++i )
     {
         Listener& listener = *i;
@@ -331,7 +331,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
     EQLOG( LOG_LB1 ) << resourceTime << "ms/resource" << std::endl;
 
     //----- Assign new resource usage
-    const CompoundVector& children = compound->getChildren();
+    const Compounds& children = compound->getChildren();
     const size_t size( _listeners.size( ));
     EQASSERT( children.size() == size );
     base::PtrHash< Pipe*, float > pipeUsage;
@@ -427,7 +427,7 @@ uint32_t ViewEqualizer::_findInputFrameNumber() const
 
     uint32_t frame = std::numeric_limits< uint32_t >::max();
 
-    for( ListenerVector::const_iterator i = _listeners.begin();
+    for( Listeners::const_iterator i = _listeners.begin();
          i != _listeners.end(); ++i )
     {
         const Listener& listener = *i;
@@ -448,7 +448,7 @@ void ViewEqualizer::_updateListeners()
     }
 
     Compound* compound = getCompound();
-    const CompoundVector& children = compound->getChildren();
+    const Compounds& children = compound->getChildren();
     const size_t nChildren = children.size();
 
     _listeners.resize( nChildren );

@@ -68,7 +68,7 @@ void Server< CL, S, CFG, NF >::_addConfig( CFG* config )
 template< class CL, class S, class CFG, class NF >
 bool Server< CL, S, CFG, NF >::_removeConfig( CFG* config )
 {
-    typename ConfigVector::iterator i = stde::find( _configs, config );
+    typename Configs::iterator i = stde::find( _configs, config );
     if( i == _configs.end( ))
         return false;
 
@@ -131,9 +131,9 @@ std::ostream& operator << ( std::ostream& os,
     os << base::disableFlush << base::disableHeader << "server " << std::endl;
     os << "{" << std::endl << base::indent;
     
-    const net::ConnectionDescriptionVector& cds =
+    const net::ConnectionDescriptions& cds =
         server.getConnectionDescriptions();
-    for( net::ConnectionDescriptionVector::const_iterator i = cds.begin();
+    for( net::ConnectionDescriptions::const_iterator i = cds.begin();
          i != cds.end(); ++i )
     {
         net::ConnectionDescriptionPtr desc = *i;

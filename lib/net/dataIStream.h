@@ -209,13 +209,13 @@ namespace net
     DataIStream::deserializeChildren( O* object, const std::vector< C* >& old_,
                                       std::vector< C* >& result )
     {
-        ObjectVersionVector versions;
+        ObjectVersions versions;
         (*this) >> versions;
         std::vector< C* > old = old_;
 
         // rebuild vector from serialized list
         result.clear();
-        for( ObjectVersionVector::const_iterator i = versions.begin();
+        for( ObjectVersions::const_iterator i = versions.begin();
              i != versions.end(); ++i )
         {
             const ObjectVersion& version = *i;

@@ -51,9 +51,9 @@ int main( int argc, char **argv )
     image = frameData->newImage( Frame::TYPE_MEMORY, DrawableConfig( ));
     TEST( image->readImage( "Image_3_color.rgb", Frame::BUFFER_COLOR ));
     
-    FrameVector  frames;
-    Clock        clock;
-    float        time;
+    Frames frames;
+    Clock clock;
+    float time;
     const size_t size = image->getPixelDataSize( Frame::BUFFER_COLOR ) * 3;
     frames.push_back( &frame );
 
@@ -92,7 +92,7 @@ int main( int argc, char **argv )
 #ifdef EQ_USE_PARACOMP_DEPTH
      cout << "Using Paracomp PC compositing (depth)" << endl;
 #endif
-    const ImageVector& images = frameData->getImages();
+    const Images& images = frameData->getImages();
 
     image = images[0];
     TEST( image->readImage( "Image_1_depth.rgb", Frame::BUFFER_DEPTH ));

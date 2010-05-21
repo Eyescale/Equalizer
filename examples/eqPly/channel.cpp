@@ -188,10 +188,9 @@ void Channel::frameAssemble( const uint32_t frameID )
     // else
     
     bool subPixelALL = true;
-    const eq::FrameVector& frames = getInputFrames();
+    const eq::Frames& frames = getInputFrames();
 
-    for( eq::FrameVector::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
+    for( eq::Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
     {
         eq::Frame* frame = *i;
         const eq::SubPixel& curSubPixel = frame->getSubPixel();
@@ -221,9 +220,8 @@ void Channel::frameReadback( const uint32_t frameID )
 
     // OPT: Drop alpha channel from all frames during network transport
     const FrameData& frameData = _getFrameData();
-    const eq::FrameVector& frames = getOutputFrames();
-    for( eq::FrameVector::const_iterator i = frames.begin(); 
-         i != frames.end(); ++i )
+    const eq::Frames& frames = getOutputFrames();
+    for( eq::Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
     {
         eq::Frame* frame = *i;
         frame->setAlphaUsage( false );

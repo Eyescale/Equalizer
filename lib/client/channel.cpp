@@ -237,7 +237,7 @@ void Channel::_initDrawableConfig()
     if( !_fbo )
         return;
 
-    const util::TextureVector& colors = _fbo->getColorTextures();
+    const util::Textures& colors = _fbo->getColorTextures();
     if( !colors.empty( ))
     {
         switch( colors.front()->getType( ))
@@ -344,8 +344,8 @@ void Channel::frameReadback( const uint32_t frameID )
     Window::ObjectManager* glObjects = getObjectManager();
     const DrawableConfig& drawableConfig = getDrawableConfig();
 
-    const FrameVector& frames = getOutputFrames();
-    for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
+    const Frames& frames = getOutputFrames();
+    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i)
     {
         Frame* frame = *i;
         frame->readback( glObjects, drawableConfig );
@@ -1130,7 +1130,7 @@ net::CommandResult Channel::_cmdFrameAssemble( net::Command& command )
 
     frameAssemble( packet->context.frameID );
 
-    for( FrameVector::const_iterator i = _inputFrames.begin();
+    for( Frames::const_iterator i = _inputFrames.begin();
          i != _inputFrames.end(); ++i )
     {
         // Unset the frame data on input frames, so that they only get flushed
@@ -1162,7 +1162,7 @@ net::CommandResult Channel::_cmdFrameReadback( net::Command& command )
 
     frameReadback( packet->context.frameID );
 
-    for( FrameVector::const_iterator i = _outputFrames.begin(); 
+    for( Frames::const_iterator i = _outputFrames.begin(); 
          i != _outputFrames.end(); ++i)
     {
         Frame* frame = *i;

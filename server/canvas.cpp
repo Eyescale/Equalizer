@@ -31,7 +31,7 @@
 #include <eq/fabric/paths.h>
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
-
+#include <eq/base/stdExt.h>
 
 namespace eq
 {
@@ -49,7 +49,7 @@ Canvas::~Canvas()
 
 Segment* Canvas::getSegment( const SegmentPath& path )
 {
-    const SegmentVector& segments = getSegments();
+    const Segments& segments = getSegments();
     EQASSERTINFO( segments.size() > path.segmentIndex,
                   segments.size() << " <= " << path.segmentIndex );
 
@@ -64,9 +64,9 @@ CanvasPath Canvas::getPath() const
     const Config* config = getConfig();
     EQASSERT( config );
 
-    const CanvasVector& canvases = config->getCanvases();
-    CanvasVector::const_iterator i = std::find( canvases.begin(),
-                                                 canvases.end(), this );
+    const Canvases& canvases = config->getCanvases();
+    Canvases::const_iterator i = std::find( canvases.begin(), canvases.end(),
+                                            this );
     EQASSERT( i != canvases.end( ));
 
     CanvasPath path;
@@ -96,7 +96,7 @@ namespace
 class ActivateVisitor : public ConfigVisitor
 {
 public:
-    ActivateVisitor( const ChannelVector& channels ) : _channels( channels ) {}
+    ActivateVisitor( const Channels& channels ) : _channels( channels ) {}
     virtual ~ActivateVisitor() {}
 
     virtual VisitorResult visit( Compound* compound )
@@ -105,7 +105,7 @@ public:
             if( !channel )
                 return TRAVERSE_CONTINUE;
             
-            for( ChannelVector::iterator i = _channels.begin();
+            for( Channels::iterator i = _channels.begin();
                  i != _channels.end(); ++i )
             {
                 Channel* destChannel = *i;
@@ -120,13 +120,13 @@ public:
         }
 
 private:
-    ChannelVector _channels;
+    Channels _channels;
 };
 
 class DeactivateVisitor : public ConfigVisitor
 {
 public:
-    DeactivateVisitor( ChannelVector& channels )
+    DeactivateVisitor( Channels& channels )
             : _channels( channels ) {}
     virtual ~DeactivateVisitor() {}
 
@@ -136,7 +136,7 @@ public:
             if( !channel )
                 return TRAVERSE_CONTINUE;
             
-            for( ChannelVector::iterator i = _channels.begin();
+            for( Channels::iterator i = _channels.begin();
                  i != _channels.end(); ++i )
             {
                 Channel* destChannel = *i;
@@ -151,7 +151,7 @@ public:
         }
 
 private:
-    ChannelVector& _channels;
+    Channels& _channels;
 };
 }
 
@@ -162,23 +162,23 @@ void Canvas::_switchLayout( const uint32_t oldIndex, const uint32_t newIndex )
     if( oldIndex == newIndex )
         return;
 
-    const LayoutVector& layouts = getLayouts();
+    const Layouts& layouts = getLayouts();
     const size_t nLayouts = layouts.size();
     const Layout* oldLayout = (oldIndex >= nLayouts) ? 0 : layouts[oldIndex];
     const Layout* newLayout = (newIndex >= nLayouts) ? 0 : layouts[newIndex];
 
-    const SegmentVector& segments = getSegments();
-    for( SegmentVector::const_iterator i = segments.begin();
+    const Segments& segments = getSegments();
+    for( Segments::const_iterator i = segments.begin();
          i != segments.end(); ++i )
     {
         const Segment* segment = *i;        
-        const ChannelVector& destChannels = segment->getDestinationChannels();
+        const Channels& destChannels = segment->getDestinationChannels();
 
         if( newLayout )
         {
             // activate channels used by new layout
-            ChannelVector usedChannels;
-            for( ChannelVector::const_iterator j = destChannels.begin();
+            Channels usedChannels;
+            for( Channels::const_iterator j = destChannels.begin();
                  j != destChannels.end(); ++j )
             {
                 Channel*       channel       = *j;
@@ -194,9 +194,9 @@ void Canvas::_switchLayout( const uint32_t oldIndex, const uint32_t newIndex )
         if( oldLayout )
         {
             // de-activate channels used by old layout
-            ChannelVector usedChannels;
+            Channels usedChannels;
 
-            for( ChannelVector::const_iterator j = destChannels.begin();
+            for( Channels::const_iterator j = destChannels.begin();
                  j != destChannels.end(); ++j )
             {
                 Channel*       channel       = *j;
@@ -215,8 +215,8 @@ void Canvas::deregister()
     net::Session* session = getSession();
     EQASSERT( session );
 
-    const SegmentVector& segments = getSegments();
-    for( SegmentVector::const_iterator i = segments.begin(); 
+    const Segments& segments = getSegments();
+    for( Segments::const_iterator i = segments.begin(); 
          i != segments.end(); ++i )
     {
         Segment* segment = *i;

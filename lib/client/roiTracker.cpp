@@ -123,8 +123,8 @@ bool ROITracker::useROIFinder( const PixelViewport& pvp,
 }
 
 
-void ROITracker::updateDelay( const PixelViewportVector& pvps,
-                              const uint8_t*             ticket )
+void ROITracker::updateDelay( const PixelViewports& pvps,
+                              const uint8_t* ticket )
 {
     EQASSERT( _needsUpdate );
     EQASSERTINFO( ticket == _ticket, "Wrong ticket" );

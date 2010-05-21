@@ -149,7 +149,7 @@ void Node::setWorkDir( const std::string& name )
     _workDir = name;
 }
 
-const ConnectionDescriptionVector& Node::getConnectionDescriptions() const 
+const ConnectionDescriptions& Node::getConnectionDescriptions() const 
 {
     return _connectionDescriptions;
 }
@@ -281,7 +281,7 @@ bool Node::listen()
     if( !_connectSelf( ))
         return false;
 
-    for( ConnectionDescriptionVector::const_iterator i =
+    for( ConnectionDescriptions::const_iterator i =
              _connectionDescriptions.begin();
          i != _connectionDescriptions.end(); ++i )
     {
@@ -334,8 +334,8 @@ bool Node::close()
     EQINFO << _incoming.getSize() << " connections open after close"
            << std::endl;
 #ifndef NDEBUG
-    const ConnectionVector& connections = _incoming.getConnections();
-    for( ConnectionVector::const_iterator i = connections.begin();
+    const Connections& connections = _incoming.getConnections();
+    for( Connections::const_iterator i = connections.begin();
          i != connections.end(); ++i )
     {
         EQINFO << "    " << *i << std::endl;
@@ -384,7 +384,7 @@ void Node::_cleanup()
     _outMulticast.data = 0;
     _outgoing = 0;
 
-    const ConnectionVector& connections = _incoming.getConnections();
+    const Connections& connections = _incoming.getConnections();
     while( !connections.empty( ))
     {
         ConnectionPtr connection = connections.back();
@@ -472,7 +472,7 @@ void Node::_connectMulticast( NodePtr node )
         return;
 
     // Search if the connected node is in the same multicast group as we are
-    for( ConnectionDescriptionVector::const_iterator i =
+    for( ConnectionDescriptions::const_iterator i =
              _connectionDescriptions.begin();
          i != _connectionDescriptions.end(); ++i )
     {
@@ -480,9 +480,9 @@ void Node::_connectMulticast( NodePtr node )
         if( description->type < CONNECTIONTYPE_MULTICAST )
             continue;
 
-        const ConnectionDescriptionVector& fromDescs = 
+        const ConnectionDescriptions& fromDescs =
             node->getConnectionDescriptions();
-        for( ConnectionDescriptionVector::const_iterator j = fromDescs.begin();
+        for( ConnectionDescriptions::const_iterator j = fromDescs.begin();
              j != fromDescs.end(); ++j )
         {
             ConnectionDescriptionPtr fromDescription = *j;
@@ -554,9 +554,8 @@ void Node::addConnectionDescription( ConnectionDescriptionPtr cd )
 
 bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
 {
-    ConnectionDescriptionVector::iterator i = 
-        std::find( _connectionDescriptions.begin(),
-                   _connectionDescriptions.end(), cd );
+    ConnectionDescriptions::iterator i = stde::find( _connectionDescriptions,
+                                                     cd );
     if( i == _connectionDescriptions.end( ))
         return false;
 
@@ -675,8 +674,8 @@ std::string Node::serialize() const
          << _launchTimeout << SEPARATOR << _connectionDescriptions.size()
          << SEPARATOR;
 
-    for( ConnectionDescriptionVector::const_iterator i = 
-             _connectionDescriptions.begin(); 
+    for( ConnectionDescriptions::const_iterator i =
+             _connectionDescriptions.begin();
          i != _connectionDescriptions.end(); ++i )
     {
         ConnectionDescriptionPtr desc = *i;
@@ -822,11 +821,11 @@ bool Node::initConnect( NodePtr node )
     EQASSERT( node->_state == STATE_CLOSED );
 
     // try connecting using the given descriptions
-    const ConnectionDescriptionVector& cds = node->getConnectionDescriptions();
+    const ConnectionDescriptions& cds = node->getConnectionDescriptions();
     EQASSERTINFO( !cds.empty(),
                   "Can't connect to a node without connection descriptions" );
 
-    for( ConnectionDescriptionVector::const_iterator i = cds.begin();
+    for( ConnectionDescriptions::const_iterator i = cds.begin();
         i != cds.end(); ++i )
     {
         ConnectionDescriptionPtr description = *i;
@@ -846,8 +845,8 @@ bool Node::initConnect( NodePtr node )
         return false;
     
     EQINFO << "Attempting to launch node." << std::endl;
-    for( ConnectionDescriptionVector::const_iterator i = cds.begin();
-        i != cds.end(); ++i )
+    for( ConnectionDescriptions::const_iterator i = cds.begin();
+         i != cds.end(); ++i )
     {
         ConnectionDescriptionPtr description = *i;
 
@@ -915,7 +914,7 @@ NodePtr Node::connect( const NodeID& nodeID )
     EQASSERT( _state == STATE_LISTENING );
 
     // Extract all node pointers, the _nodes hash will be modified later
-    NodeVector nodes;
+    Nodes nodes;
     {
         base::ScopedMutex<> mutex( _nodes );
         for( NodeHash::const_iterator i = _nodes->begin();
@@ -930,7 +929,7 @@ NodePtr Node::connect( const NodeID& nodeID )
         }
     }
 
-    for( NodeVector::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         NodePtr node = _connect( nodeID, *i );
         if( node.isValid( ))
@@ -2172,8 +2171,8 @@ std::ostream& operator << ( std::ostream& os, const Node& node )
     // else
     
     os << "node " << node.getNodeID() << " " << node._state;
-    const ConnectionDescriptionVector& descs = node.getConnectionDescriptions();
-    for( ConnectionDescriptionVector::const_iterator i = descs.begin();
+    const ConnectionDescriptions& descs = node.getConnectionDescriptions();
+    for( ConnectionDescriptions::const_iterator i = descs.begin();
          i != descs.end(); ++i )
     {
         os << ", " << (*i)->toString();

@@ -79,7 +79,7 @@ namespace server
        EQSERVER_EXPORT bool removeCompound( Compound* compound );
 
         /** @return the vecotr of compounds. */
-        const CompoundVector& getCompounds() const { return _compounds; }
+        const Compounds& getCompounds() const { return _compounds; }
 
         /** 
          * Find the first channel of a given name.
@@ -176,7 +176,7 @@ namespace server
         uint32_t _initID;
 
         /** The list of compounds. */
-        CompoundVector _compounds;
+        Compounds _compounds;
 
         /** The network node running the application thread. */
         net::NodePtr _appNetNode;

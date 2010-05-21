@@ -131,7 +131,7 @@ net::CommandQueue* Window::getCommandThreadQueue()
 
 Channel* Window::getChannel( const ChannelPath& path )
 {
-    const ChannelVector& channels = getChannels(); 
+    const Channels& channels = getChannels(); 
     EQASSERT( channels.size() > path.channelIndex );
 
     if( channels.size() <= path.channelIndex )
@@ -207,11 +207,11 @@ net::Barrier* Window::joinSwapBarrier( net::Barrier* barrier )
     }
 
     EQASSERT( getPipe() );
-    const WindowVector& windows = getPipe()->getWindows();
+    const Windows& windows = getPipe()->getWindows();
     bool beforeSelf = true;
 
     // Check if another window in the same thread is using the swap barrier
-    for( WindowVector::const_iterator i = windows.begin(); 
+    for( Windows::const_iterator i = windows.begin(); 
          i != windows.end(); ++i )
     {
         Window* window = *i;
@@ -222,8 +222,8 @@ net::Barrier* Window::joinSwapBarrier( net::Barrier* barrier )
             continue;
         }
 
-        net::BarrierVector& barriers = window->_swapBarriers;
-        net::BarrierVector::iterator j =
+        net::Barriers& barriers = window->_swapBarriers;
+        net::Barriers::iterator j =
             std::find( barriers.begin(), barriers.end(), barrier );
         if( j == barriers.end( ))
             continue;
@@ -289,8 +289,8 @@ void Window::updateRunning( const uint32_t initID )
         _configInit( initID );
 
     // Let all running channels update their running state (incl. children)
-    const ChannelVector& channels = getChannels();
-    for( ChannelVector::const_iterator i = channels.begin(); 
+    const Channels& channels = getChannels();
+    for( Channels::const_iterator i = channels.begin(); 
          i != channels.end(); ++i )
     {
         (*i)->updateRunning( initID );
@@ -307,8 +307,8 @@ bool Window::syncRunning()
 
     // Sync state updates
     bool success = true;
-    const ChannelVector& channels = getChannels(); 
-    for( ChannelVector::const_iterator i = channels.begin(); 
+    const Channels& channels = getChannels(); 
+    for( Channels::const_iterator i = channels.begin(); 
          i != channels.end(); ++i )
     {
         Channel* channel = *i;
@@ -428,8 +428,8 @@ void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     EQLOG( LOG_TASKS ) << "TASK window start frame  " << &startPacket 
                            << std::endl;
 
-    const ChannelVector& channels = getChannels(); 
-    for( ChannelVector::const_iterator i = channels.begin(); 
+    const Channels& channels = getChannels(); 
+    for( Channels::const_iterator i = channels.begin(); 
          i != channels.end(); ++i )
     {
         Channel* channel = *i;
@@ -636,8 +636,8 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
     if( attrPrinted )
         os << base::exdent << "}" << std::endl << std::endl;
 
-    const ChannelVector& channels = window->getChannels();
-    for( ChannelVector::const_iterator i = channels.begin(); 
+    const Channels& channels = window->getChannels();
+    for( Channels::const_iterator i = channels.begin(); 
          i != channels.end(); ++i )
     {
         const Channel* channel = *i;

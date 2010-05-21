@@ -74,7 +74,7 @@ Window::Window( Pipe* parent )
         , _avgFPS ( 0.0 )
         , _lastSwapTime( 0 )
 {
-    const WindowVector& windows = parent->getWindows();
+    const Windows& windows = parent->getWindows();
     if( windows.empty( ))
         setSharedContextWindow( this );
     else

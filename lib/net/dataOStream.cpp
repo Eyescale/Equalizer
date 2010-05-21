@@ -70,7 +70,7 @@ DataOStream::~DataOStream()
     EQASSERT( !_enabled );
 }
 
-void DataOStream::enable( const NodeVector& receivers )
+void DataOStream::enable( const Nodes& receivers )
 {
 #ifdef NDEBUG
     const bool useMulticast = receivers.size() > 1;
@@ -78,10 +78,9 @@ void DataOStream::enable( const NodeVector& receivers )
     const bool useMulticast = true;
 #endif
 
-    ConnectionDescriptionVector mcSet;
+    ConnectionDescriptions mcSet;
 
-    for( NodeVector::const_iterator i = receivers.begin(); 
-         i != receivers.end(); ++i )
+    for( Nodes::const_iterator i = receivers.begin(); i != receivers.end(); ++i)
     {
         NodePtr       node       = *i;
         ConnectionPtr connection = useMulticast ? node->getMulticast() : 0;

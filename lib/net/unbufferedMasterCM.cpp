@@ -124,7 +124,7 @@ void UnbufferedMasterCM::removeSlave( NodePtr node )
     --_slavesCount[ nodeID ];
     if( _slavesCount[ nodeID ] == 0 )
     {
-        NodeVector::iterator i = find( _slaves.begin(), _slaves.end(), node );
+        Nodes::iterator i = find( _slaves.begin(), _slaves.end(), node );
         EQASSERT( i != _slaves.end( ));
         _slaves.erase( i );
         _slavesCount.erase( nodeID );

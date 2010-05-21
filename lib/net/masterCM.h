@@ -19,7 +19,7 @@
 #define EQNET_MASTERCM_H
 
 #include <eq/net/objectCM.h> // base class
-#include <eq/net/types.h>       // for NodeVector
+#include <eq/net/types.h>       // for Nodes
 #include <eq/base/idPool.h>  // ID_ enum
 #include <eq/base/mtQueue.h> // member
 #include <eq/base/thread.h>  // thread-safety check
@@ -59,14 +59,14 @@ namespace net
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_ID_INVALID; }
         virtual void applyMapData() { EQDONTCALL; }
-        virtual const NodeVector* getSlaveNodes() const { return &_slaves; }
+        virtual const Nodes* getSlaveNodes() const { return &_slaves; }
 
     protected:
         /** The managed object. */
         Object* const _object;
 
         /** The list of subsribed slave nodes. */
-        NodeVector _slaves;
+        Nodes _slaves;
 
         /** The number of object instances subscribed per slave node. */
         base::UUIDHash< uint32_t > _slavesCount;

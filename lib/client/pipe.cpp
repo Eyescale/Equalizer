@@ -681,9 +681,8 @@ net::CommandResult Pipe::_cmdDestroyWindow(  net::Command& command  )
 
     // re-set shared windows accordingly
     Window* newSharedWindow = 0;
-    const WindowVector& windows = getWindows(); 
-    for( WindowVector::const_iterator i = windows.begin(); 
-         i != windows.end(); ++i )
+    const Windows& windows = getWindows(); 
+    for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
     {
         Window* candidate = *i;
         

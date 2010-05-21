@@ -102,7 +102,7 @@ namespace net
         NodePtr _master;
 
         /** Slave nodes which have entered the barrier, index per version. */
-        std::map< uint32_t, NodeVector > _enteredNodes;
+        std::map< uint32_t, Nodes > _enteredNodes;
         
         /** The monitor used for barrier leave notification. */
         base::Monitor<uint32_t> _leaveNotify;

@@ -57,9 +57,8 @@ void CommandCache::flush()
 {
     for( size_t i = 0; i < CACHE_ALL; ++i )
     {
-        CommandVector& cache = _caches[ i ];
-        for( CommandVector::const_iterator j = cache.begin(); 
-             j != cache.end(); ++j )
+        Commands& cache = _caches[ i ];
+        for( Commands::const_iterator j = cache.begin(); j != cache.end(); ++j )
         {
             delete *j;
         }
@@ -84,7 +83,7 @@ Command& CommandCache::alloc( NodePtr node, NodePtr localNode,
     CHECK_THREAD( _thread );
 
     const Cache which = (size > Packet::minSize) ? CACHE_BIG : CACHE_SMALL;
-    CommandVector& cache = _caches[ which ];
+    Commands& cache = _caches[ which ];
     size_t& i = _positions[ which ];
 
     EQASSERT( !cache.empty( ));
@@ -148,10 +147,10 @@ Command& CommandCache::alloc( NodePtr node, NodePtr localNode,
 
                 for( size_t j = 0; j < CACHE_ALL; ++j )
                 {
-                    CommandVector& cache1 = _caches[ j ];
+                    Commands& cache1 = _caches[ j ];
                     packets += cache1.size();
 
-                    for( CommandVector::const_iterator k = cache1.begin(); 
+                    for( Commands::const_iterator k = cache1.begin(); 
                          k != cache1.end(); ++k )
                     {
                         const Command* cmd = *k;

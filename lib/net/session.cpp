@@ -69,14 +69,14 @@ Session::~Session()
         EQWARN << _objects->size() << " attached objects in destructor"
                << std::endl;
         
-        for( ObjectVectorHash::const_iterator i = _objects->begin();
+        for( ObjectsHash::const_iterator i = _objects->begin();
              i != _objects->end(); ++i )
         {
-            const ObjectVector& objects = i->second;
+            const Objects& objects = i->second;
             EQWARN << "  " << objects.size() << " objects with id " 
                    << i->first << std::endl;
             
-            for( ObjectVector::const_iterator j = objects.begin();
+            for( Objects::const_iterator j = objects.begin();
                  j != objects.end(); ++j )
             {
                 const Object* object = *j;
@@ -318,7 +318,7 @@ void Session::_attachObject( Object* object, const uint32_t id,
 
     {
         base::ScopedMutex< base::SpinLock > mutex( _objects );
-        ObjectVector& objects = _objects.data[ id ];
+        Objects& objects = _objects.data[ id ];
         objects.push_back( object );
     }
 
@@ -358,8 +358,8 @@ void Session::_detachObject( Object* object )
     EQLOG( LOG_OBJECTS ) << "Detach " << typeid( *object ).name() 
                          << " from id " << id << std::endl;
 
-    ObjectVector& objects = _objects.data[ id ];
-    ObjectVector::iterator i = find( objects.begin(),objects.end(), object );
+    Objects& objects = _objects.data[ id ];
+    Objects::iterator i = find( objects.begin(),objects.end(), object );
     EQASSERT( i != objects.end( ));
 
     {
@@ -552,7 +552,7 @@ void Session::deregisterObject( Object* object )
     const uint32_t requestID = _unsetIDMasterNB( id );
 
     // unmap slaves
-    const NodeVector* slaves = object->_getSlaveNodes();
+    const Nodes* slaves = object->_getSlaveNodes();
     if( slaves && !slaves->empty( ))
     {
         EQWARN << slaves->size() 
@@ -564,7 +564,7 @@ void Session::deregisterObject( Object* object )
         packet.sessionID = _id;
         packet.objectID = id;
 
-        for( NodeVector::const_iterator i = slaves->begin();
+        for( Nodes::const_iterator i = slaves->begin();
              i != slaves->end(); ++i )
         {
             NodePtr node = *i;
@@ -678,13 +678,12 @@ CommandResult Session::_invokeObjectCommand( Command& command )
                   "No objects to handle command " << objPacket );
 
     // create copy of objects vector for thread-safety
-    const ObjectVector objects = _objects.data[id];
+    const Objects objects = _objects.data[id];
     EQASSERTINFO( !objects.empty(), objPacket );
 
     _objects.lock.unset();
 
-    for( ObjectVector::const_iterator i = objects.begin();
-         i != objects.end(); ++i )
+    for( Objects::const_iterator i = objects.begin(); i != objects.end(); ++i )
     {
         Object* object = *i;
         const bool isInstance = objPacket->instanceID ==object->getInstanceID();
@@ -858,13 +857,13 @@ CommandResult Session::_cmdDetachObject( Command& command )
     EQLOG( LOG_OBJECTS ) << "Cmd detach object " << packet << std::endl;
 
     const uint32_t id = packet->objectID;
-    ObjectVectorHash::const_iterator i = _objects->find( id );
+    ObjectsHash::const_iterator i = _objects->find( id );
     if( i != _objects->end( ))
     {
-        const ObjectVector& objects = i->second;
+        const Objects& objects = i->second;
 
-        for( ObjectVector::const_iterator j = objects.begin();
-            j != objects.end(); ++j )
+        for( Objects::const_iterator j = objects.begin();
+             j != objects.end(); ++j )
         {
             Object* object = *j;
             if( object->getInstanceID() == packet->objectInstanceID )
@@ -937,12 +936,12 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
     Object* master = 0;
     {
         base::ScopedMutex< base::SpinLock > mutex( _objects );
-        ObjectVectorHash::const_iterator i = _objects->find( id );
+        ObjectsHash::const_iterator i = _objects->find( id );
         if( i != _objects->end( ))
         {
-            const ObjectVector& objects = i->second;
+            const Objects& objects = i->second;
 
-            for( ObjectVector::const_iterator j = objects.begin();
+            for( Objects::const_iterator j = objects.begin();
                  j != objects.end(); ++j )
             {
                 Object* object = *j;
@@ -1090,12 +1089,12 @@ CommandResult Session::_cmdUnsubscribeObject( Command& command )
 
     {
         base::ScopedMutex< base::SpinLock > mutex( _objects );
-        ObjectVectorHash::const_iterator i = _objects->find( id );
+        ObjectsHash::const_iterator i = _objects->find( id );
         if( i != _objects->end( ))
         {
-            const ObjectVector& objects = i->second;
+            const Objects& objects = i->second;
 
-            for( ObjectVector::const_iterator j = objects.begin();
+            for( Objects::const_iterator j = objects.begin();
                  j != objects.end(); ++j )
             {
                 Object* object = *j;
@@ -1124,18 +1123,17 @@ CommandResult Session::_cmdUnmapObject( Command& command )
 
     _instanceCache.erase( packet->objectID );
 
-    ObjectVectorHash::iterator i = _objects->find( packet->objectID );
+    ObjectsHash::iterator i = _objects->find( packet->objectID );
     if( i == _objects->end( )) // nothing to do
         return COMMAND_HANDLED;
 
-    const ObjectVector objects = i->second;
+    const Objects objects = i->second;
     {
         base::ScopedMutex< base::SpinLock > mutex( _objects );
         _objects->erase( i );
     }
 
-    for( ObjectVector::const_iterator j = objects.begin();
-         j != objects.end(); ++j )
+    for( Objects::const_iterator j = objects.begin(); j != objects.end(); ++j )
     {
         Object* object = *j;
         object->detachFromSession();

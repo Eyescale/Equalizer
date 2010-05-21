@@ -49,14 +49,14 @@ static std::vector< uint32_t > _getCompressorNames()
 {
     const eq::base::PluginRegistry& registry = 
         eq::base::Global::getPluginRegistry();
-    const eq::base::CompressorVector& plugins = registry.getCompressors();
+    const eq::base::Compressors& plugins = registry.getCompressors();
 
     std::vector< uint32_t > names;
-    for( eq::base::CompressorVector::const_iterator i = plugins.begin();
+    for( eq::base::Compressors::const_iterator i = plugins.begin();
          i != plugins.end(); ++i )
     {
-        const eq::base::CompressorInfoVector& infos = (*i)->getInfos();
-        for( eq::base::CompressorInfoVector::const_iterator j = infos.begin();
+        const eq::base::CompressorInfos& infos = (*i)->getInfos();
+        for( eq::base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
 			const EqCompressorInfo& info = *j;
@@ -74,14 +74,14 @@ static float _getCompressorQuality( const uint32_t name )
 {
     const eq::base::PluginRegistry& registry = 
         eq::base::Global::getPluginRegistry();
-    const eq::base::CompressorVector& plugins = registry.getCompressors();
+    const eq::base::Compressors& plugins = registry.getCompressors();
 
     float quality = 1.0f;
-    for( eq::base::CompressorVector::const_iterator i = plugins.begin();
+    for( eq::base::Compressors::const_iterator i = plugins.begin();
          i != plugins.end(); ++i )
     {
-        const eq::base::CompressorInfoVector& infos = (*i)->getInfos();
-        for( eq::base::CompressorInfoVector::const_iterator j = infos.begin();
+        const eq::base::CompressorInfos& infos = (*i)->getInfos();
+        for( eq::base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
             if( name != (*j).name )
@@ -126,9 +126,9 @@ int main( int argc, char **argv )
     eq::NodeFactory nodeFactory;
     TEST( eq::init( argc, argv, &nodeFactory ));
 
-    eq::StringVector images;
-    eq::StringVector candidates = eq::base::searchDirectory( "images", "*.rgb");
-    for( eq::StringVector::const_iterator i = candidates.begin();
+    eq::Strings images;
+    eq::Strings candidates = eq::base::searchDirectory( "images", "*.rgb");
+    for( eq::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
     {
         const std::string& filename = *i;
@@ -138,7 +138,7 @@ int main( int argc, char **argv )
     }
 
     candidates = eq::base::searchDirectory( "../compositor", "Result*.rgb" );
-    for( eq::StringVector::const_iterator i = candidates.begin();
+    for( eq::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
     {
         const std::string& filename = *i;
@@ -174,7 +174,7 @@ int main( int argc, char **argv )
             float totalDecompressTime( 0.f );
     
             // For each image
-            for( eq::StringVector::const_iterator j = images.begin();
+            for( eq::Strings::const_iterator j = images.begin();
                  j != images.end(); ++j )
             {
                 const std::string& filename = *j;

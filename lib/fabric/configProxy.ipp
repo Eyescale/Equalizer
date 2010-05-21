@@ -111,14 +111,14 @@ void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
     {
         if( _config.mapNodeObjects( ))
         {
-            typename C::NodeVector result;
+            typename C::Nodes result;
             is.deserializeChildren( this, _config._nodes, result );
             _config._nodes.swap( result );
             EQASSERT( _config._nodes.size() == result.size( ));
         }
         else // consume unused ObjectVersions
         {
-            net::ObjectVersionVector childIDs;
+            net::ObjectVersions childIDs;
             is >> childIDs;
         }
     }
@@ -127,21 +127,21 @@ void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
     {
         if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_OBSERVERS )
         {
-            typename C::ObserverVector result;
+            typename C::Observers result;
             is.deserializeChildren( this, _config._observers, result );
             _config._observers.swap( result );
             EQASSERT( _config._observers.size() == result.size( ));
         }
         if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_LAYOUTS )
         {
-            typename C::LayoutVector result;
+            typename C::Layouts result;
             is.deserializeChildren( this, _config._layouts, result );
             _config._layouts.swap( result );
             EQASSERT( _config._layouts.size() == result.size( ));
         }
         if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_CANVASES )
         {
-            typename C::CanvasVector result;
+            typename C::Canvases result;
             is.deserializeChildren( this, _config._canvases, result );
             _config._canvases.swap( result );
             EQASSERT( _config._canvases.size() == result.size( ));
@@ -149,7 +149,7 @@ void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
     }
     else // consume unused ObjectVersions
     {
-        net::ObjectVersionVector childIDs;
+        net::ObjectVersions childIDs;
         if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_OBSERVERS )
             is >> childIDs;
         if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_LAYOUTS )

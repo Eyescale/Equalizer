@@ -104,7 +104,7 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
     {
         EQASSERT( _config );
 
-        SegmentVector result;
+        Segments result;
         is.deserializeChildren( this, _segments, result );
         _segments.swap( result );
         EQASSERT( _segments.size() == result.size( ));
@@ -115,9 +115,9 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
         EQASSERT( _config );
         EQASSERT( _layouts.empty( ));
 
-        net::ObjectVersionVector layouts;
+        net::ObjectVersions layouts;
         is >> layouts;
-        for( net::ObjectVersionVector::const_iterator i = layouts.begin();
+        for( net::ObjectVersions::const_iterator i = layouts.begin();
              i != layouts.end(); ++i )
         {
             const uint32_t id = (*i).identifier;
@@ -164,7 +164,7 @@ void Canvas< CFG, C, S, L >::_unmap()
     EQASSERT( !isMaster( ));
 
     CFG* config = getConfig();
-    const SegmentVector& segments = getSegments();
+    const Segments& segments = getSegments();
 
     while( !segments.empty( ))
     {
@@ -191,7 +191,7 @@ void Canvas< CFG, C, S, L >::_addSegment( S* segment )
 template< class CFG, class C, class S, class L >
 bool Canvas< CFG, C, S, L >::_removeSegment( S* segment )
 {
-    typename SegmentVector::iterator i = stde::find( _segments, segment );
+    typename Segments::iterator i = stde::find( _segments, segment );
     if( i == _segments.end( ))
         return false;
 
@@ -245,8 +245,8 @@ VisitorResult _accept( C* canvas, V& visitor )
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    const typename C::SegmentVector& segments = canvas->getSegments();
-    for( typename C::SegmentVector::const_iterator i = segments.begin(); 
+    const typename C::Segments& segments = canvas->getSegments();
+    for( typename C::Segments::const_iterator i = segments.begin(); 
          i != segments.end(); ++i )
     {
         switch( (*i)->accept( visitor ))

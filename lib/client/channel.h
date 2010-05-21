@@ -148,13 +148,13 @@ namespace fabric
          * @return the list of input frames, used from frameAssemble().
          * @version 1.0
          */
-        const FrameVector& getInputFrames() { return _inputFrames; }
+        const Frames& getInputFrames() { return _inputFrames; }
 
         /**
          * @return the list of output frames, used from frameReadback().
          * @version 1.0
          */
-        const FrameVector& getOutputFrames() { return _outputFrames; }
+        const Frames& getOutputFrames() { return _outputFrames; }
 
         /** 
          * Get the channel's current View.
@@ -488,10 +488,10 @@ namespace fabric
         State _state;
 
         /** server-supplied vector of output frames for current task. */
-        FrameVector _outputFrames;
+        Frames _outputFrames;
 
         /** server-supplied vector of input frames for current task. */
-        FrameVector _inputFrames;
+        Frames _inputFrames;
 
         /** Used as an alternate drawable. */       
         util::FrameBufferObject* _fbo; 

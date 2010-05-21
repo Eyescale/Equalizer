@@ -41,14 +41,14 @@ Config::Config( eq::base::RefPtr< eq::Server > parent )
 
 Config::~Config()
 {
-    for( ModelVector::const_iterator i = _models.begin(); 
+    for( Models::const_iterator i = _models.begin(); 
          i != _models.end(); ++i )
     {
         delete *i;
     }
     _models.clear();
 
-    for( ModelDistVector::const_iterator i = _modelDist.begin(); 
+    for( ModelDists::const_iterator i = _modelDist.begin(); 
          i != _modelDist.end(); ++i )
     {
         EQASSERT( (*i)->getID() == EQ_ID_INVALID );
@@ -102,7 +102,7 @@ bool Config::init()
         }
     }
 
-    const eq::CanvasVector& canvases = getCanvases();
+    const eq::Canvases& canvases = getCanvases();
     if( canvases.empty( ))
         _currentCanvas = 0;
     else
@@ -152,7 +152,7 @@ void Config::_loadModels()
 {
     if( _models.empty( )) // only load on the first config run
     {
-        eq::StringVector filenames = _initData.getFilenames();
+        eq::Strings filenames = _initData.getFilenames();
         while( !filenames.empty( ))
         {
             const std::string filename = filenames.back();
@@ -181,12 +181,12 @@ void Config::_loadModels()
                     continue;
 
                 // recursively search directories
-                const eq::StringVector subFiles = 
+                const eq::Strings subFiles =
                     eq::base::searchDirectory( filename, "*" );
 
                 if( !subFiles.empty( ))
                     EQINFO << "Searching " << filename << std::endl;
-                for( eq::StringVector::const_iterator i = subFiles.begin();
+                for( eq::Strings::const_iterator i = subFiles.begin();
                      i != subFiles.end(); ++i )
                 {
                     filenames.push_back( filename + '/' + *i );
@@ -229,7 +229,7 @@ void Config::_loadModels()
 
 void Config::_deregisterData()
 {
-    for( ModelDistVector::const_iterator i = _modelDist.begin(); 
+    for( ModelDists::const_iterator i = _modelDist.begin(); 
          i != _modelDist.end(); ++i )
     {
         ModelDist* modelDist = *i;
@@ -263,7 +263,7 @@ void Config::mapData( const uint32_t initDataID )
 
 void Config::unmapData()
 {
-    for( ModelDistVector::const_iterator i = _modelDist.begin(); 
+    for( ModelDists::const_iterator i = _modelDist.begin(); 
          i != _modelDist.end(); ++i )
     {
         ModelDist* modelDist = *i;
@@ -402,8 +402,8 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             
             const eq::View* view = find< eq::View> ( viewID );
             const eq::Layout* layout = view->getLayout();
-            const eq::CanvasVector& canvases = getCanvases();
-            for( eq::CanvasVector::const_iterator i = canvases.begin();
+            const eq::Canvases& canvases = getCanvases();
+            for( eq::Canvases::const_iterator i = canvases.begin();
                  i != canvases.end(); ++i )
             {
                 eq::Canvas* canvas = *i;
@@ -735,7 +735,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 
 void Config::_switchCanvas()
 {
-    const eq::CanvasVector& canvases = getCanvases();
+    const eq::Canvases& canvases = getCanvases();
     if( canvases.empty( ))
         return;
 
@@ -747,7 +747,7 @@ void Config::_switchCanvas()
         return;
     }
 
-    eq::CanvasVector::const_iterator i = stde::find( canvases, _currentCanvas );
+    eq::Canvases::const_iterator i = stde::find( canvases, _currentCanvas );
     EQASSERT( i != canvases.end( ));
 
     ++i;
@@ -759,7 +759,7 @@ void Config::_switchCanvas()
 
 void Config::_switchView()
 {
-    const eq::CanvasVector& canvases = getCanvases();
+    const eq::Canvases& canvases = getCanvases();
     if( !_currentCanvas && !canvases.empty( ))
         _currentCanvas = canvases.front();
 
@@ -771,7 +771,7 @@ void Config::_switchView()
         return;
 
     const eq::View* current = find< eq::View >( _frameData.getCurrentViewID( ));
-    const eq::ViewVector& views = layout->getViews();
+    const eq::Views& views = layout->getViews();
     EQASSERT( !views.empty( ));
 
     if( !current )
@@ -780,8 +780,8 @@ void Config::_switchView()
         return;
     }
 
-    eq::ViewVector::const_iterator i = std::find( views.begin(), views.end(),
-                                                  current );
+    eq::Views::const_iterator i = std::find( views.begin(), views.end(),
+                                             current );
     EQASSERT( i != views.end( ));
 
     ++i;
@@ -803,7 +803,7 @@ void Config::_switchModel()
                                view->getModelID() : _frameData.getModelID();
 
     // next model
-    ModelDistVector::const_iterator i;
+    ModelDists::const_iterator i;
     for( i = _modelDist.begin(); i != _modelDist.end(); ++i )
     {
         if( (*i)->getID() != currentID )
@@ -838,7 +838,7 @@ void Config::_switchLayout( int32_t increment )
     _frameData.setCurrentViewID( EQ_ID_INVALID );
 
     int32_t index = _currentCanvas->getActiveLayoutIndex() + increment;
-    const eq::LayoutVector& layouts = _currentCanvas->getLayouts();
+    const eq::Layouts& layouts = _currentCanvas->getLayouts();
     EQASSERT( !layouts.empty( ))
 
         if( index >= static_cast<int32_t>(layouts.size( )) )
@@ -869,8 +869,8 @@ void Config::_switchLayout( int32_t increment )
 // Note: real applications would use one tracking device per observer
 void Config::_setHeadMatrix( const eq::Matrix4f& matrix )
 {
-    const eq::ObserverVector& observers = getObservers();
-    for( eq::ObserverVector::const_iterator i = observers.begin();
+    const eq::Observers& observers = getObservers();
+    for( eq::Observers::const_iterator i = observers.begin();
          i != observers.end(); ++i )
     {
         (*i)->setHeadMatrix( matrix );
@@ -879,7 +879,7 @@ void Config::_setHeadMatrix( const eq::Matrix4f& matrix )
 
 const eq::Matrix4f& Config::_getHeadMatrix() const
 {
-    const eq::ObserverVector& observers = getObservers();
+    const eq::Observers& observers = getObservers();
     if( observers.empty( ))
         return eq::Matrix4f::IDENTITY;
 

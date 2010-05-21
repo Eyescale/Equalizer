@@ -25,8 +25,6 @@
 #include <eq/fabric/paths.h>
 #include <eq/net/dataOStream.h>
 
-using namespace eq::base;
-
 namespace eq
 {
 namespace server
@@ -45,8 +43,8 @@ Segment::~Segment()
     EQINFO << "Delete segment @" << (void*)this << std::endl;
 
     // Use copy - Channel::unsetOutput modifies vector
-    ChannelVector destinationChannels = _destinationChannels;
-    for( ChannelVector::const_iterator i = destinationChannels.begin();
+    Channels destinationChannels = _destinationChannels;
+    for( Channels::const_iterator i = destinationChannels.begin();
          i != destinationChannels.end(); ++i )
     {
         Channel* channel = *i;
@@ -85,8 +83,7 @@ void Segment::addDestinationChannel( Channel* channel )
 
 bool Segment::removeDestinationChannel( Channel* channel )
 {
-    ChannelVector::iterator i = find( _destinationChannels.begin(), 
-                                      _destinationChannels.end(), channel );
+    Channels::iterator i = stde::find( _destinationChannels, channel );
 
     EQASSERT( i !=  _destinationChannels.end( ));
     if( i == _destinationChannels.end( ))
@@ -106,9 +103,9 @@ SegmentPath Segment::getPath() const
     EQASSERT( canvas );
     SegmentPath path( canvas->getPath( ));
     
-    const SegmentVector& segments = canvas->getSegments();
-    SegmentVector::const_iterator i = std::find( segments.begin(),
-                                                 segments.end(), this );
+    const Segments& segments = canvas->getSegments();
+    Segments::const_iterator i = std::find( segments.begin(), segments.end(),
+                                            this );
     EQASSERT( i != segments.end( ));
     path.segmentIndex = std::distance( segments.begin(), i );
     return path;

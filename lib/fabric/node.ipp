@@ -80,8 +80,8 @@ VisitorResult _accept( N* node, V& visitor )
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    const typename N::PipeVector& pipes = node->getPipes();
-    for( typename N::PipeVector::const_iterator i = pipes.begin(); 
+    const typename N::Pipes& pipes = node->getPipes();
+    for( typename N::Pipes::const_iterator i = pipes.begin(); 
          i != pipes.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
@@ -188,14 +188,14 @@ void Node< C, N, P, V >::deserialize( net::DataIStream& is,
         is >> useChildren;
         if( useChildren && _mapNodeObjects( ))
         {
-            PipeVector result;
+            Pipes result;
             is.deserializeChildren( this, _pipes, result );
             _pipes.swap( result );
             EQASSERT( _pipes.size() == result.size( ));
         }
         else // consume unused ObjectVersions
         {
-            net::ObjectVersionVector childIDs;
+            net::ObjectVersions childIDs;
             is >> childIDs;
         }
     }
@@ -308,7 +308,7 @@ void Node< C, N, P, V >::_addPipe( P* pipe )
 template< class C, class N, class P, class V >
 bool Node< C, N, P, V >::_removePipe( P* pipe )
 {
-    typename PipeVector::iterator i = stde::find( _pipes, pipe );
+    typename Pipes::iterator i = stde::find( _pipes, pipe );
     if( i == _pipes.end( ))
         return false;
 
@@ -319,7 +319,7 @@ bool Node< C, N, P, V >::_removePipe( P* pipe )
 template< class C, class N, class P, class V >
 P* Node< C, N, P, V >::findPipe( const uint32_t id )
 {
-    for( typename PipeVector::const_iterator i = _pipes.begin();
+    for( typename Pipes::const_iterator i = _pipes.begin();
          i != _pipes.end(); ++i )
     {
         P* pipe = *i;

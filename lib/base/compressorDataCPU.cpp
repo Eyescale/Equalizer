@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -90,14 +91,14 @@ uint32_t CompressorDataCPU::chooseCompressor( const uint32_t tokenType,
     float minDiffQuality = 1.0f;
 
     base::PluginRegistry& registry = base::Global::getPluginRegistry();
-    const base::CompressorVector& compressors = registry.getCompressors();
-    for( base::CompressorVector::const_iterator i = compressors.begin();
+    const base::Compressors& compressors = registry.getCompressors();
+    for( base::Compressors::const_iterator i = compressors.begin();
          i != compressors.end(); ++i )
     {
         const base::Compressor* compressor = *i;
-        const base::CompressorInfoVector& infos = compressor->getInfos();
+        const base::CompressorInfos& infos = compressor->getInfos();
         
-        for( base::CompressorInfoVector::const_iterator j = infos.begin();
+        for( base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
             const EqCompressorInfo& info = *j;

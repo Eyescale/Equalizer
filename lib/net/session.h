@@ -397,7 +397,7 @@ namespace net
         base::Lock _idMasterMutex;
         
         /** All registered and mapped objects. */
-        base::Lockable< ObjectVectorHash, base::SpinLock > _objects;
+        base::Lockable< ObjectsHash, base::SpinLock > _objects;
 
         InstanceCache _instanceCache; //!< cached object mapping data
 

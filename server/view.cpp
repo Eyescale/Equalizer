@@ -42,8 +42,8 @@ View::View( Layout* parent )
 View::~View()
 {
     // Use copy - Channel::unsetOutput modifies vector
-    ChannelVector channels = _channels;
-    for( ChannelVector::const_iterator i = channels.begin();
+    Channels channels = _channels;
+    for( Channels::const_iterator i = channels.begin();
          i != channels.end(); ++i )
     {
         Channel* channel = *i;
@@ -59,7 +59,7 @@ namespace
 class ViewUpdater : public ConfigVisitor
 {
 public:
-    ViewUpdater( const ChannelVector& channels ) : _channels( channels ) {}
+    ViewUpdater( const Channels& channels ) : _channels( channels ) {}
     virtual ~ViewUpdater() {}
 
     virtual VisitorResult visit( Compound* compound )
@@ -80,7 +80,7 @@ public:
             return TRAVERSE_PRUNE;            
         }
 private:
-    const ChannelVector& _channels;
+    const Channels& _channels;
 };
 }
 
@@ -92,7 +92,7 @@ void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 
     if( dirtyBits & ( DIRTY_FRUSTUM | DIRTY_OVERDRAW ))
     {
-        const ChannelVector& channels = getChannels();
+        const Channels& channels = getChannels();
         Config*              config   = getConfig();
         EQASSERT( config );
 
@@ -122,8 +122,7 @@ void View::addChannel( Channel* channel )
 
 bool View::removeChannel( Channel* channel )
 {
-    ChannelVector::iterator i = find( _channels.begin(), 
-                                      _channels.end(), channel );
+    Channels::iterator i = stde::find( _channels, channel );
 
     EQASSERT( i != _channels.end( ));
     if( i == _channels.end( ))
@@ -139,9 +138,8 @@ ViewPath View::getPath() const
     EQASSERT( layout );
     ViewPath path( layout->getPath( ));
     
-    const ViewVector& views = layout->getViews();
-    ViewVector::const_iterator i = std::find( views.begin(),
-                                              views.end(), this );
+    const Views& views = layout->getViews();
+    Views::const_iterator i = std::find( views.begin(), views.end(), this );
     EQASSERT( i != views.end( ));
     path.viewIndex = std::distance( views.begin(), i );
     return path;

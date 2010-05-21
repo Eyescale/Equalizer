@@ -60,13 +60,13 @@ namespace server
 
         /** @return the vector of channels resulting from the segment/view
          *          intersection. */
-        const ChannelVector& getDestinationChannels() const 
+        const Channels& getDestinationChannels() const 
             { return _destinationChannels; }
         //@}
 
     private:
         /** The resulting destination channels from the view intersections. */
-        ChannelVector _destinationChannels;
+        Channels _destinationChannels;
 
         union // placeholder for binary-compatible changes
         {

@@ -128,7 +128,7 @@ void Object::_setChangeManager( ObjectCM* cm )
                          << " for " << typeid( *this ).name() << endl;
 }
 
-const NodeVector* Object::_getSlaveNodes() const
+const Nodes* Object::_getSlaveNodes() const
 {
     return _cm->getSlaveNodes();
 }

@@ -56,10 +56,9 @@ GLXEventHandler::~GLXEventHandler()
 {
     EQASSERT( _pipeConnections.isValid( ));
 
-    const net::ConnectionVector& connections = 
-        _pipeConnections->getConnections();
+    const net::Connections& connections = _pipeConnections->getConnections();
 
-    for( net::ConnectionVector::const_iterator i = connections.begin(); 
+    for( net::Connections::const_iterator i = connections.begin(); 
          i != connections.end(); ++i )
     {
         net::ConnectionPtr connection = *i;
@@ -142,9 +141,9 @@ void GLXEventHandler::dispatchAll()
     if( !pipeConnections )
         return;
 
-    const net::ConnectionVector& connections =pipeConnections->getConnections();
+    const net::Connections& connections = pipeConnections->getConnections();
 
-    for( net::ConnectionVector::const_iterator i = connections.begin(); 
+    for( net::Connections::const_iterator i = connections.begin(); 
          i != connections.end(); ++i )
     {
         net::ConnectionPtr connection = *i;
@@ -208,14 +207,13 @@ void _getWindowSize( Display* display, XID drawable, ResizeEvent& event )
 
 void GLXEventHandler::_processEvent( GLXWindowEvent& event, Pipe* pipe )
 {
-    XEvent&             xEvent    = event.xEvent;
-    XID                 drawable  = xEvent.xany.window;
-    const WindowVector& windows   = pipe->getWindows();
-    GLXWindowIF*        glXWindow = 0;
+    XEvent& xEvent = event.xEvent;
+    XID drawable = xEvent.xany.window;
+    const Windows& windows = pipe->getWindows();
+    GLXWindowIF* glXWindow = 0;
 
     Window* window   = 0;
-    for( WindowVector::const_iterator i = windows.begin(); 
-         i != windows.end(); ++i )
+    for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
     {
         Window* const candidate = *i;
         glXWindow = _getGLXWindow( candidate );

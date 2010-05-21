@@ -112,7 +112,7 @@ const Zoom& Frame::getInputZoom() const
     return _frameData->getZoom();
 }
 
-const ImageVector& Frame::getImages() const
+const Images& Frame::getImages() const
 {
     EQASSERT( _frameData );
     return _frameData->getImages();

@@ -128,7 +128,7 @@ namespace server
         bool isDestination() const;
         
         /** @return the children of this compound. */
-        const CompoundVector& getChildren() const { return _children; }
+        const Compounds& getChildren() const { return _children; }
 
         /** @return the parent compound. */
         Compound* getParent() const
@@ -185,7 +185,7 @@ namespace server
         EQSERVER_EXPORT void addEqualizer( Equalizer* equalizer );
 
         /** Get the attached load balancers. */
-        const EqualizerVector& getEqualizers() const
+        const Equalizers& getEqualizers() const
             { return _equalizers; }
 
         /** 
@@ -286,7 +286,7 @@ namespace server
         EQSERVER_EXPORT void addInputFrame( Frame* frame );
 
         /** @return the vector of input frames. */
-        const FrameVector& getInputFrames() const {return _inputFrames; }
+        const Frames& getInputFrames() const {return _inputFrames; }
 
         /** 
          * Add a new output frame for this compound.
@@ -296,7 +296,7 @@ namespace server
         EQSERVER_EXPORT void addOutputFrame( Frame* frame );
 
         /** @return the vector of output frames. */
-        const FrameVector& getOutputFrames() const { return _outputFrames; }
+        const Frames& getOutputFrames() const { return _outputFrames; }
         //@}
 
         /** 
@@ -485,8 +485,8 @@ namespace server
         friend class Config;
         Config* _config;
 
-        Compound*       _parent;
-        CompoundVector  _children;
+        Compound* _parent;
+        Compounds _children;
 
         /** Has been activated (by layout) */
         bool _active;
@@ -538,12 +538,12 @@ namespace server
         typedef std::vector< CompoundListener* > CompoundListeners;
         CompoundListeners _listeners;
 
-        EqualizerVector _equalizers;
+        Equalizers _equalizers;
 
         SwapBarrier* _swapBarrier;
 
-        FrameVector _inputFrames;
-        FrameVector _outputFrames;
+        Frames _inputFrames;
+        Frames _outputFrames;
 
         union // placeholder for binary-compatible changes
         {

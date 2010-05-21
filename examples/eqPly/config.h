@@ -29,8 +29,8 @@
 
 namespace eqPly
 {
-    typedef std::vector< Model* >     ModelVector;
-    typedef std::vector< ModelDist* > ModelDistVector;
+    typedef std::vector< Model* >     Models;
+    typedef std::vector< ModelDist* > ModelDists;
 
     /**
      * The configuration, run be the EqPly application. 
@@ -92,8 +92,8 @@ namespace eqPly
 
         Tracker _tracker;
 
-        ModelVector     _models;
-        ModelDistVector _modelDist;
+        Models     _models;
+        ModelDists _modelDist;
         eq::base::Lock  _modelLock;
 
         CameraAnimation _animation;

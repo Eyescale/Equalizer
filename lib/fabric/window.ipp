@@ -126,14 +126,14 @@ void Window< P, W, C >::deserialize( net::DataIStream& is,
         is >> useChildren;
         if( useChildren && _mapNodeObjects( ))
         {
-            ChannelVector result;
+            Channels result;
             is.deserializeChildren( this, _channels, result );
             _channels.swap( result );
             EQASSERT( _channels.size() == result.size( ));
         }
         else // consume unused ObjectVersions
         {
-            net::ObjectVersionVector childIDs;
+            net::ObjectVersions childIDs;
             is >> childIDs;
         }
     }
@@ -177,7 +177,7 @@ void Window< P, W, C >::_addChannel( C* channel )
 template< class P, class W, class C >
 bool Window< P, W, C >::_removeChannel( C* channel )
 {
-    typename ChannelVector::iterator i = stde::find( _channels, channel );
+    typename Channels::iterator i = stde::find( _channels, channel );
     if( i == _channels.end( ))
         return false;
 
@@ -188,7 +188,7 @@ bool Window< P, W, C >::_removeChannel( C* channel )
 template< class P, class W, class C >
 C* Window< P, W, C >::_findChannel( const uint32_t id )
 {
-    for( typename ChannelVector::const_iterator i = _channels.begin(); 
+    for( typename Channels::const_iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
     {
         C* channel = *i;
@@ -229,8 +229,8 @@ VisitorResult _accept( W* window, V& visitor )
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    const typename W::ChannelVector& channels = window->getChannels();
-    for( typename W::ChannelVector::const_iterator i = channels.begin(); 
+    const typename W::Channels& channels = window->getChannels();
+    for( typename W::Channels::const_iterator i = channels.begin(); 
          i != channels.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
@@ -338,7 +338,7 @@ void Window< P, W, C >::notifyViewportChanged()
         }
     }
 
-    for( typename ChannelVector::const_iterator i = _channels.begin(); 
+    for( typename Channels::const_iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
     {
         (*i)->notifyViewportChanged();

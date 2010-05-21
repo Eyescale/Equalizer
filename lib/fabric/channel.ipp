@@ -294,10 +294,9 @@ ChannelPath Channel< W, C >::getPath() const
     EQASSERT( window );
     ChannelPath path( window->getPath( ));
     
-    const typename W::ChannelVector& channels = window->getChannels();
-    typename W::ChannelVector::const_iterator i = std::find( channels.begin(),
-                                                             channels.end(),
-                                                             this );
+    const typename W::Channels& channels = window->getChannels();
+    typename W::Channels::const_iterator i = std::find( channels.begin(),
+                                                        channels.end(), this );
     EQASSERT( i != channels.end( ));
     path.channelIndex = std::distance( channels.begin(), i );
     return path;

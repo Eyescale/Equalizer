@@ -72,19 +72,19 @@ void CompressorDataGPU::initUploader( uint32_t gpuTokenType,
                                       uint32_t tokenType )
 {
     base::PluginRegistry& registry = base::Global::getPluginRegistry();
-    const base::CompressorVector& compressors = registry.getCompressors();
+    const base::Compressors& compressors = registry.getCompressors();
 
     uint32_t name = EQ_COMPRESSOR_NONE;
     float speed = 0.0f;
-    for( base::CompressorVector::const_iterator i = compressors.begin();
+    for( base::Compressors::const_iterator i = compressors.begin();
          i != compressors.end(); ++i )
     {
         const base::Compressor* compressor = *i;
-        const base::CompressorInfoVector& infos = compressor->getInfos();
+        const base::CompressorInfos& infos = compressor->getInfos();
 
         EQINFO << "Searching in DSO " << (void*)compressor << std::endl;
         
-        for( base::CompressorInfoVector::const_iterator j = infos.begin();
+        for( base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
             const EqCompressorInfo& info = *j;
@@ -120,20 +120,20 @@ void CompressorDataGPU::initDownloader( float minQuality,
                                         uint32_t tokenType )
 { 
     base::PluginRegistry& registry = base::Global::getPluginRegistry();
-    const base::CompressorVector& compressors = registry.getCompressors();
+    const base::Compressors& compressors = registry.getCompressors();
 
     float factor = 1.1f;
     uint32_t name = EQ_COMPRESSOR_NONE;
 
-    for( base::CompressorVector::const_iterator i = compressors.begin();
+    for( base::Compressors::const_iterator i = compressors.begin();
          i != compressors.end(); ++i )
     {
         const base::Compressor* compressor = *i;
-        const base::CompressorInfoVector& infos = compressor->getInfos();
+        const base::CompressorInfos& infos = compressor->getInfos();
 
         EQINFO << "Searching in DSO " << (void*)compressor << std::endl;
         
-        for( base::CompressorInfoVector::const_iterator j = infos.begin();
+        for( base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
             const EqCompressorInfo& info = *j;

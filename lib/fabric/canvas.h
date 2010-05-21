@@ -55,8 +55,8 @@ namespace fabric
     class Canvas : public Object, public Frustum
     {
     public:
-        typedef std::vector< S* > SegmentVector;
-        typedef std::vector< L* > LayoutVector;
+        typedef std::vector< S* > Segments;
+        typedef std::vector< L* > Layouts;
         typedef ElementVisitor< C, LeafVisitor< S > > Visitor;
         
         /** @name Data Access */
@@ -73,13 +73,13 @@ namespace fabric
         EQFABRIC_EXPORT const L* getActiveLayout() const;
 
         /** @return the vector of child segments. @version 1.0 */
-        const SegmentVector& getSegments() const { return _segments; }        
+        const Segments& getSegments() const { return _segments; }        
 
         /** Find the first segment of a given name. @internal */
         S* findSegment( const std::string& name );
 
         /** @return the vector of possible layouts. @version 1.0 */
-        const LayoutVector& getLayouts() const { return _layouts; }        
+        const Layouts& getLayouts() const { return _layouts; }        
 
         /** Add a new allowed layout to this canvas, can be 0. @internal */
         EQFABRIC_EXPORT void addLayout( L* layout );
@@ -155,10 +155,10 @@ namespace fabric
             _data, _backup;
 
         /** Allowed layouts on this canvas. */
-        LayoutVector _layouts;
+        Layouts _layouts;
 
         /** Child segments on this canvas. */
-        SegmentVector _segments;
+        Segments _segments;
 
         union // placeholder for binary-compatible changes
         {

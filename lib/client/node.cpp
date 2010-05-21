@@ -212,8 +212,8 @@ void Node::startFrame( const uint32_t frameNumber )
 
 void Node::_finishFrame( const uint32_t frameNumber ) const
 {
-    const PipeVector& pipes = getPipes();
-    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
+    const Pipes& pipes = getPipes();
+    for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         const Pipe* pipe = *i;
         EQASSERT( pipe->isThreaded() || 
@@ -306,8 +306,8 @@ void Node::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
 
         case DRAW_SYNC:
         {
-            const PipeVector& pipes = getPipes();
-            for( PipeVector::const_iterator i = pipes.begin();
+            const Pipes& pipes = getPipes();
+            for( Pipes::const_iterator i = pipes.begin();
                  i != pipes.end(); ++i )
             {
                 const Pipe* pipe = *i;
@@ -333,9 +333,8 @@ void Node::frameTasksFinish( const uint32_t frameID, const uint32_t frameNumber)
 
         case LOCAL_SYNC:
         {
-            const PipeVector& pipes = getPipes();
-            for( PipeVector::const_iterator i = pipes.begin();
-                 i != pipes.end(); ++i )
+            const Pipes& pipes = getPipes();
+            for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i)
             {
                 const Pipe* pipe = *i;
                 if( pipe->getTasks() != fabric::TASK_NONE )
@@ -476,8 +475,8 @@ net::CommandResult Node::_cmdConfigExit( net::Command& command )
     EQLOG( LOG_INIT ) << "Node exit " << packet << std::endl;
 
     CHECK_THREAD( _nodeThread );
-    const PipeVector& pipes = getPipes();
-    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
+    const Pipes& pipes = getPipes();
+    for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         Pipe* pipe = *i;
         pipe->waitExited();

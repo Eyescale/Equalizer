@@ -38,10 +38,10 @@ void PluginRegistry::init()
     EQASSERT( _compressors.size() == 1 );
 
     // search all plugin directories for compressor DSOs
-    const StringVector& directories = Global::getPluginDirectories();
+    const Strings& directories = Global::getPluginDirectories();
 
     // for each directory
-    for( StringVector::const_iterator i = directories.begin();
+    for( Strings::const_iterator i = directories.begin();
          i != directories.end(); ++i )
     {
         const std::string& directory = *i;
@@ -49,22 +49,18 @@ void PluginRegistry::init()
 
         // search the number of files in the director
 #ifdef WIN32
-        StringVector files = searchDirectory( directory, 
-                                              "EqualizerCompressor*.dll");
+        Strings files = searchDirectory( directory, "EqualizerCompressor*.dll");
         const char DIRSEP = '\\';
 #elif defined (Darwin)
-        StringVector files = searchDirectory( directory, 
-                                              "libeqCompressor*dylib" );
+        Strings files = searchDirectory( directory, "libeqCompressor*dylib" );
         const char DIRSEP = '/';
 #else
-        StringVector files = searchDirectory( directory,
-                                              "libeqCompressor*so" );
+        Strings files = searchDirectory( directory, "libeqCompressor*so" );
         const char DIRSEP = '/';
 #endif
         
         // for each file in the directory
-        for( StringVector::const_iterator j = files.begin();
-             j != files.end(); ++j )
+        for( Strings::const_iterator j = files.begin(); j != files.end(); ++j )
         {
             // build path + name of library
             const std::string libraryName = 
@@ -79,14 +75,14 @@ void PluginRegistry::_initCompressor( const std::string& filename )
     Compressor* compressor = new Compressor(); 
     bool add = compressor->init( filename );
 
-    const CompressorInfoVector& infos = compressor->getInfos();
+    const CompressorInfos& infos = compressor->getInfos();
     if( infos.empty( ))
         add = false;
             
-    for( CompressorVector::const_iterator i = _compressors.begin();
+    for( Compressors::const_iterator i = _compressors.begin();
          add && i != _compressors.end(); ++i )
     {
-        const CompressorInfoVector& infos2 = (*i)->getInfos();
+        const CompressorInfos& infos2 = (*i)->getInfos();
         // Simple test to avoid using the same dll twice
         if( infos.front().name == infos2.front().name )
             add = false;
@@ -105,7 +101,7 @@ void PluginRegistry::_initCompressor( const std::string& filename )
 
 void PluginRegistry::exit()
 {
-    for( CompressorVector::const_iterator i = _compressors.begin(); 
+    for( Compressors::const_iterator i = _compressors.begin(); 
          i != _compressors.end(); ++i )
     {
         Compressor* compressor = *i;
@@ -119,7 +115,7 @@ void PluginRegistry::exit()
 Compressor* PluginRegistry::findCompressor( const uint32_t name )
 {
 
-    for( CompressorVector::const_iterator i = _compressors.begin(); 
+    for( Compressors::const_iterator i = _compressors.begin(); 
          i != _compressors.end(); ++i )
     {
         Compressor* compressor = *i;
@@ -130,7 +126,7 @@ Compressor* PluginRegistry::findCompressor( const uint32_t name )
     return 0;
 }
 
-const CompressorVector& PluginRegistry::getCompressors() const
+const Compressors& PluginRegistry::getCompressors() const
 {
     return _compressors;
 }
@@ -146,15 +142,15 @@ uint32_t PluginRegistry::chooseCompressor( const uint32_t tokenType,
     EQINFO << "Searching compressor for token type " << tokenType << " quality "
            << minQuality << std::endl;
 
-    for( CompressorVector::const_iterator i = _compressors.begin();
+    for( Compressors::const_iterator i = _compressors.begin();
          i != _compressors.end(); ++i )
     {
         const Compressor* compressor = *i;
-        const CompressorInfoVector& infos = compressor->getInfos();
+        const CompressorInfos& infos = compressor->getInfos();
 
         EQINFO << "Searching in DSO " << (void*)compressor << std::endl;
         
-        for( CompressorInfoVector::const_iterator j = infos.begin();
+        for( CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
             const EqCompressorInfo& info = *j;

@@ -32,11 +32,9 @@ static bool cmpRangesInc(const eq::Frame* frame1, const eq::Frame* frame2)
 }
 
 
-void orderFrames( eq::FrameVector&    frames,
-                  const eq::Matrix4d& modelviewM,
+void orderFrames( eq::Frames& frames, const eq::Matrix4d& modelviewM,
                   const eq::Matrix3d& modelviewITM,
-                  const eq::Matrix4f& rotation,
-                  const bool          orthographic )
+                  const eq::Matrix4f& rotation, const bool orthographic )
 {
     if( orthographic )
     {
@@ -56,7 +54,7 @@ void orderFrames( eq::FrameVector&    frames,
     std::vector<double> dotVals;
 
     // of projection to the middle of slices' boundaries
-    for( eq::FrameVector::const_iterator i = frames.begin();
+    for( eq::Frames::const_iterator i = frames.begin();
          i != frames.end(); ++i )
     {
         const eq::Frame* frame = *i;
@@ -81,7 +79,7 @@ void orderFrames( eq::FrameVector&    frames,
     minPos++;
     if( minPos < frames.size()-1 )
     {
-        eq::FrameVector framesTmp = frames;
+        eq::Frames framesTmp = frames;
 
         // copy slices that should be rendered first
         memcpy( &frames[ nFrames-minPos-1 ], &framesTmp[0],

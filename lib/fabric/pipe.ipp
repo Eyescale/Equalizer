@@ -111,14 +111,14 @@ void Pipe< N, P, W, V >::deserialize( net::DataIStream& is,
         is >> useChildren;
         if( useChildren && _mapNodeObjects( ))
         {
-            WindowVector result;
+            Windows result;
             is.deserializeChildren( this, _windows, result );
             _windows.swap( result );
             EQASSERT( _windows.size() == result.size( ));
         }
         else // consume unused ObjectVersions
         {
-            net::ObjectVersionVector childIDs;
+            net::ObjectVersions childIDs;
             is >> childIDs;
         }
     }
@@ -162,8 +162,8 @@ VisitorResult _accept( P* pipe, V& visitor )
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    const typename P::WindowVector& windows = pipe->getWindows();
-    for( typename P::WindowVector::const_iterator i = windows.begin(); 
+    const typename P::Windows& windows = pipe->getWindows();
+    for( typename P::Windows::const_iterator i = windows.begin(); 
          i != windows.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
@@ -261,8 +261,8 @@ void Pipe< N, P, W, V >::_addWindow( W* window )
 template< class N, class P, class W, class V >
 bool Pipe< N, P, W, V >::_removeWindow( W* window )
 {
-    typename WindowVector::iterator i = find( _windows.begin(), _windows.end(),
-                                        window );
+    typename Windows::iterator i = find( _windows.begin(), _windows.end(),
+                                         window );
     
     if ( i == _windows.end( ) )
         return false;
@@ -274,7 +274,7 @@ bool Pipe< N, P, W, V >::_removeWindow( W* window )
 template< class N, class P, class W, class V >
 W* Pipe< N, P, W, V >::_findWindow( const uint32_t id )
 {
-    for( typename WindowVector::const_iterator i = _windows.begin(); 
+    for( typename Windows::const_iterator i = _windows.begin(); 
          i != _windows.end(); ++i )
     {
         W* window = *i;
@@ -308,8 +308,8 @@ void Pipe< N, P, W, V >::setPixelViewport( const PixelViewport& pvp )
 template< class N, class P, class W, class V >
 void Pipe< N, P, W, V >::notifyPixelViewportChanged()
 {
-    const WindowVector& windows = getWindows();
-    for( typename WindowVector::const_iterator i = windows.begin(); 
+    const Windows& windows = getWindows();
+    for( typename Windows::const_iterator i = windows.begin(); 
          i != windows.end(); ++i )
     {
         (*i)->notifyViewportChanged();

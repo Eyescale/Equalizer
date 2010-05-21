@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *               2007-2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -57,7 +57,7 @@ namespace eVolve
     private:
         void _startAssemble();
 
-        void _orderFrames( eq::FrameVector& frames );
+        void _orderFrames( eq::Frames& frames );
 
         void _calcMVandITMV( eq::Matrix4f& modelviewM, 
                              eq::Matrix3f& modelviewITM ) const;

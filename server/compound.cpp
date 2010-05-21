@@ -107,13 +107,13 @@ Compound::Compound( const Compound& from, Config* config, Compound* parent )
         EQASSERT( _data.channel );
     }
 
-    for( CompoundVector::const_iterator i = from._children.begin();
+    for( Compounds::const_iterator i = from._children.begin();
          i != from._children.end(); ++i )
     {
         new Compound( **i, 0, this );
     }
 
-    for( EqualizerVector::const_iterator i = from._equalizers.begin();
+    for( Equalizers::const_iterator i = from._equalizers.begin();
          i != from._equalizers.end(); ++i )
     {
         addEqualizer( (*i)->clone( ));
@@ -122,13 +122,13 @@ Compound::Compound( const Compound& from, Config* config, Compound* parent )
     if( from._swapBarrier )
         _swapBarrier = new SwapBarrier( *from._swapBarrier );
 
-    for( FrameVector::const_iterator i = from._inputFrames.begin();
+    for( Frames::const_iterator i = from._inputFrames.begin();
          i != from._inputFrames.end(); ++i )
     {
         addInputFrame( new Frame( **i ));
     }
 
-    for( FrameVector::const_iterator i = from._outputFrames.begin();
+    for( Frames::const_iterator i = from._outputFrames.begin();
          i != from._outputFrames.end(); ++i )
     {
         addOutputFrame( new Frame( **i ));
@@ -140,7 +140,7 @@ Compound::~Compound()
     delete _swapBarrier;
     _swapBarrier = 0;
 
-    for( EqualizerVector::const_iterator i = _equalizers.begin();
+    for( Equalizers::const_iterator i = _equalizers.begin();
          i != _equalizers.end(); ++i )
     {
         Equalizer* equalizer = *i;
@@ -149,7 +149,7 @@ Compound::~Compound()
     }
     _equalizers.clear();
 
-    for( CompoundVector::const_iterator i = _children.begin(); 
+    for( Compounds::const_iterator i = _children.begin(); 
          i != _children.end(); ++i )
     {
         Compound* compound = *i;
@@ -162,7 +162,7 @@ Compound::~Compound()
 
     _config = 0;
 
-    for( FrameVector::const_iterator i = _inputFrames.begin(); 
+    for( Frames::const_iterator i = _inputFrames.begin(); 
          i != _inputFrames.end(); ++i )
     {
         Frame* frame = *i;
@@ -172,7 +172,7 @@ Compound::~Compound()
     }
     _inputFrames.clear();
 
-    for( FrameVector::const_iterator i = _outputFrames.begin(); 
+    for( Frames::const_iterator i = _outputFrames.begin(); 
          i != _outputFrames.end(); ++i )
     {
         Frame* frame = *i;
@@ -212,8 +212,7 @@ void Compound::addChild( Compound* child )
 
 bool Compound::removeChild( Compound* child )
 {
-    CompoundVector::iterator i = find( _children.begin(), _children.end(),
-                                        child );
+    Compounds::iterator i = stde::find( _children, child );
     if( i == _children.end( ))
         return false;
 
@@ -228,12 +227,12 @@ Compound* Compound::getNext() const
     if( !_parent )
         return 0;
 
-    CompoundVector&          siblings = _parent->_children;
-    CompoundVector::iterator result   = find( siblings.begin(), siblings.end(), 
+    Compounds&          siblings = _parent->_children;
+    Compounds::iterator result   = std::find( siblings.begin(), siblings.end(),
                                               this );
     if( result == siblings.end() )
         return 0;
-    result++;
+    ++result;
     if( result == siblings.end() )
         return 0;
 
@@ -663,7 +662,7 @@ VisitorResult _accept( C* compound, CompoundVisitor& visitor )
         C* parent = current->getParent();
         C* next   = current->getNext();
 
-        const CompoundVector& children = current->getChildren();
+        const Compounds& children = current->getChildren();
         C* child  = children.empty() ? 0 : children[0];
 
         //---------- down-right traversal
@@ -1215,32 +1214,32 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
             break;
     }
 
-    const EqualizerVector& equalizers = compound.getEqualizers();
-    for( EqualizerVector::const_iterator i = equalizers.begin();
+    const Equalizers& equalizers = compound.getEqualizers();
+    for( Equalizers::const_iterator i = equalizers.begin();
          i != equalizers.end(); ++i )
     {
         os << *i;
     }
 
-    const CompoundVector& children = compound.getChildren();
+    const Compounds& children = compound.getChildren();
     if( !children.empty( ))
     {
         os << std::endl;
-        for( CompoundVector::const_iterator i = children.begin();
+        for( Compounds::const_iterator i = children.begin();
              i != children.end(); ++i )
         {
             os << **i;
         }
     }
 
-    const FrameVector& inputFrames = compound.getInputFrames();
-    for( FrameVector::const_iterator i = inputFrames.begin();
+    const Frames& inputFrames = compound.getInputFrames();
+    for( Frames::const_iterator i = inputFrames.begin();
          i != inputFrames.end(); ++i )
         
         os << "input" << *i;
 
-    const FrameVector& outputFrames = compound.getOutputFrames();
-    for( FrameVector::const_iterator i = outputFrames.begin();
+    const Frames& outputFrames = compound.getOutputFrames();
+    for( Frames::const_iterator i = outputFrames.begin();
          i != outputFrames.end(); ++i )
         
         os << "output"  << *i;

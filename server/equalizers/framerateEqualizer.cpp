@@ -111,7 +111,7 @@ void FramerateEqualizer::_init()
     _nSamples = 1;
 
     // Subscribe to child channel load events
-    const CompoundVector& children = compound->getChildren();
+    const Compounds& children = compound->getChildren();
     
     EQASSERT( _loadListeners.empty( ));
     _loadListeners.resize( children.size( ));
@@ -140,7 +140,7 @@ void FramerateEqualizer::_exit()
     if( !compound || _nSamples == 0 )
         return;
 
-    const CompoundVector& children = compound->getChildren();
+    const Compounds& children = compound->getChildren();
 
     EQASSERT( _loadListeners.size() == children.size( ));
     for( size_t i = 0; i < children.size(); ++i )

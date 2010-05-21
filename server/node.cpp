@@ -114,7 +114,7 @@ net::CommandQueue* Node::getCommandThreadQueue()
 
 Channel* Node::getChannel( const ChannelPath& path )
 {
-    const PipeVector& pipes = getPipes();
+    const Pipes& pipes = getPipes();
     EQASSERT( pipes.size() > path.pipeIndex );
 
     if( pipes.size() <= path.pipeIndex )
@@ -161,8 +161,8 @@ void Node::updateRunning( const uint32_t initID, const uint32_t frameNumber )
     }
 
     // Let all running pipes update their running state (incl. children)
-    const PipeVector& pipes = getPipes();
-    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
+    const Pipes& pipes = getPipes();
+    for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
         (*i)->updateRunning( initID, frameNumber );
 
     if( !isActive( )) // becoming inactive
@@ -182,8 +182,8 @@ bool Node::syncRunning()
     // Sync state updates
     bool success = true;
 
-    const PipeVector& pipes = getPipes();
-    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
+    const Pipes& pipes = getPipes();
+    for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         Pipe* pipe = *i;
         if( !pipe->syncRunning( ))
@@ -315,8 +315,8 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     _send( startPacket );
     EQLOG( LOG_TASKS ) << "TASK node start frame " << &startPacket << std::endl;
 
-    const PipeVector& pipes = getPipes();
-    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
+    const Pipes& pipes = getPipes();
+    for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         Pipe* pipe = *i;
         if( pipe->isActive( ))
@@ -370,8 +370,8 @@ uint32_t Node::_getFinishLatency() const
 
 void Node::_finish( const uint32_t currentFrame )
 {
-    const PipeVector& pipes = getPipes();
-    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
+    const Pipes& pipes = getPipes();
+    for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         const Pipe* pipe = *i;
         if( pipe->getIAttribute( Pipe::IATTR_HINT_THREAD ))
@@ -469,7 +469,7 @@ void Node::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 
 bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
 {
-    ConnectionDescriptionVector::iterator i = 
+    ConnectionDescriptions::iterator i = 
         std::find( _connectionDescriptions.begin(),
                    _connectionDescriptions.end(), cd );
     if( i == _connectionDescriptions.end( ))
@@ -535,9 +535,9 @@ std::ostream& operator << ( std::ostream& os, const Node& node )
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << std::endl;
 
-    const ConnectionDescriptionVector& descriptions = 
+    const ConnectionDescriptions& descriptions = 
         node.getConnectionDescriptions();
-    for( ConnectionDescriptionVector::const_iterator i = descriptions.begin();
+    for( ConnectionDescriptions::const_iterator i = descriptions.begin();
          i != descriptions.end(); ++i )
 
         os << (*i).get();
@@ -608,8 +608,8 @@ std::ostream& operator << ( std::ostream& os, const Node& node )
     if( attrPrinted )
         os << base::exdent << "}" << std::endl << std::endl;
 
-    const PipeVector& pipes = node.getPipes();
-    for( PipeVector::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
+    const Pipes& pipes = node.getPipes();
+    for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
         os << *i;
 
     os << base::exdent << "}" << std::endl

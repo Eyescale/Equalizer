@@ -124,7 +124,7 @@ namespace server
         const Zoom& getInputZoom() const;
 
         /** The images of this frame */
-        EQ_EXPORT const ImageVector& getImages() const;
+        EQ_EXPORT const Images& getImages() const;
 
         /** Set the data for this frame. */
         void setData( FrameData* data ) { _frameData = data; }

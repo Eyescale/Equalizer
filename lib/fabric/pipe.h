@@ -34,13 +34,13 @@ namespace fabric
     {
     public:
         /** A vector of pointers to windows */
-        typedef std::vector< W* >  WindowVector; 
+        typedef std::vector< W* >  Windows; 
         
         N*       getNode()       { return _node; }
         const N* getNode() const { return _node; }
 
         /** @return the vector of windows. */
-        const WindowVector& getWindows() const { return _windows; }
+        const Windows& getWindows() const { return _windows; }
 
          /**
          * Returns the port number of this pipe.
@@ -170,7 +170,7 @@ namespace fabric
         N* const _node;
         
         /** The list of windows. */
-        WindowVector _windows;
+        Windows _windows;
 
         /** Integer attributes. */
         int32_t _iAttributes[IATTR_ALL];

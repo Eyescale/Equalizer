@@ -110,33 +110,33 @@ typedef fabric::ConfigVisitor< Config, ObserverVisitor, LayoutVisitor,
 
 //----- Vectors
 /** A vector of pointers to eq::Config */
-typedef std::vector< Config* >     ConfigVector;
+typedef std::vector< Config* >     Configs;
 /** A vector of pointers to eq::Node */
-typedef std::vector< Node* >     NodeVector;
+typedef std::vector< Node* >     Nodes;
 /** A vector of pointers to eq::Pipe */
-typedef std::vector< Pipe* >     PipeVector;
+typedef std::vector< Pipe* >     Pipes;
 /** A vector of pointers to eq::Window */
-typedef std::vector< Window* >   WindowVector;
+typedef std::vector< Window* >   Windows;
 /** A vector of pointers to eq::Channel */
-typedef std::vector< Channel* >  ChannelVector;
+typedef std::vector< Channel* >  Channels;
 /** A vector of pointers to eq::Frame */
-typedef std::vector< Frame* >    FrameVector;
+typedef std::vector< Frame* >    Frames;
 /** A vector of pointers to eq::Image */
-typedef std::vector< Image* >    ImageVector;
+typedef std::vector< Image* >    Images;
 /** A vector of pointers to eq::Observer */
-typedef std::vector< Observer* > ObserverVector;
+typedef std::vector< Observer* > Observers;
 /** A vector of pointers to eq::Canvas */
-typedef std::vector< Canvas* >   CanvasVector;
+typedef std::vector< Canvas* >   Canvases;
 /** A vector of pointers to eq::Layout */
-typedef std::vector< Layout* >   LayoutVector;
+typedef std::vector< Layout* >   Layouts;
 /** A vector of pointers to eq::Segment */
-typedef std::vector< Segment* >  SegmentVector;
+typedef std::vector< Segment* >  Segments;
 /** A vector of pointers to eq::View */
-typedef std::vector< View* >     ViewVector;
+typedef std::vector< View* >     Views;
 /** A vector of eq::Viewport */
-typedef std::vector< Viewport >      ViewportVector;
+typedef std::vector< Viewport >      Viewports;
 /** A vector of eq::PixelViewport */
-typedef std::vector< PixelViewport > PixelViewportVector;
+typedef std::vector< PixelViewport > PixelViewports;
 /** A vector of eq::Statistic events */
 typedef std::vector< Statistic >         Statistics;
 
@@ -166,11 +166,11 @@ typedef fabric::Frustumf Frustumf;   //!< A frustum definition
 typedef vmml::frustum_culler< float >  FrustumCullerf;
 
 /** A vector of std::string */
-typedef std::vector< std::string >   StringVector;
+typedef std::vector< std::string >   Strings;
 /** A vector of bytes */
-typedef std::vector<uint8_t>    Vectorub;
+typedef std::vector< uint8_t >    Vectorub;
 /** A vector of unsigned shorts */
-typedef std::vector<uint16_t>   Vectorus;
+typedef std::vector< uint16_t >   Vectorus;
 
 
 /** @cond IGNORE */
@@ -182,5 +182,24 @@ typedef std::map< uint32_t, Statistics >        SortedStatistics;
 // frame id, config statistics
 typedef std::pair< uint32_t, SortedStatistics > FrameStatistics;
 /** @endcond */
+
+#ifdef EQ_USE_DEPRECATED
+typedef Configs ConfigVector;
+typedef Nodes NodeVector;
+typedef Pipes PipeVector;
+typedef Windows WindowVector;
+typedef Channels ChannelVector;
+typedef Frames FrameVector;
+typedef Images ImageVector;
+typedef Observers ObserverVector;
+typedef Canvases CanvasVector;
+typedef Layouts LayoutVector;
+typedef Segments SegmentVector;
+typedef Views ViewVector;
+typedef Viewports ViewportVector;
+typedef PixelViewports PixelViewportVector;
+typedef Statistics StatisticVector;
+typedef Strings StringVector
+#endif
 }
 #endif // EQ_TYPES_H

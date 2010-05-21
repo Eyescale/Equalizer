@@ -71,7 +71,7 @@ public:
 static base::PerThread< ResultImage > _resultImage;
 
 
-static bool _useCPUAssembly( const FrameVector& frames, Channel* channel, 
+static bool _useCPUAssembly( const Frames& frames, Channel* channel, 
                              const bool blendAlpha = false )
 {
     // It doesn't make sense to use CPU-assembly for only one frame
@@ -85,7 +85,7 @@ static bool _useCPUAssembly( const FrameVector& frames, Channel* channel,
     const uint32_t desiredBuffers = blendAlpha ? Frame::BUFFER_COLOR :
                                     Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH;
     size_t nFrames = 0;
-    for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
+    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i)
     {
         const Frame* frame = *i;
         if( frame->getPixel() != Pixel::ALL ||
@@ -111,7 +111,7 @@ static bool _useCPUAssembly( const FrameVector& frames, Channel* channel,
     uint32_t depthFormat = 0;
     uint32_t depthType   = 0;
 
-    for( FrameVector::const_iterator i = frames.begin();
+    for( Frames::const_iterator i = frames.begin();
          i != frames.end(); ++i )
     {
         const Frame* frame = *i;
@@ -123,8 +123,8 @@ static bool _useCPUAssembly( const FrameVector& frames, Channel* channel,
         if( frame->getInputZoom() != Zoom::NONE )
             return false;
 
-        const ImageVector& images = frame->getImages();        
-        for( ImageVector::const_iterator j = images.begin(); 
+        const Images& images = frame->getImages();        
+        for( Images::const_iterator j = images.begin(); 
              j != images.end(); ++j )
         {
             const Image* image = *j;
@@ -173,7 +173,7 @@ static bool _useCPUAssembly( const FrameVector& frames, Channel* channel,
 }
 }
 
-uint32_t Compositor::assembleFrames( const FrameVector& frames,
+uint32_t Compositor::assembleFrames( const Frames& frames,
                                      Channel* channel, util::Accum* accum )
 {
     if( frames.empty( ))
@@ -209,7 +209,7 @@ util::Accum* Compositor::_obtainAccum( Channel* channel )
     return accum;
 }
 
-uint32_t Compositor::assembleFramesSorted( const FrameVector& frames,
+uint32_t Compositor::assembleFramesSorted( const Frames& frames,
                                            Channel* channel, util::Accum* accum,
                                            const bool blendAlpha )
 {
@@ -228,10 +228,10 @@ uint32_t Compositor::assembleFramesSorted( const FrameVector& frames,
             accum->setTotalSteps( subpixel.size );
         }
 
-        FrameVector framesLeft = frames;
+        Frames framesLeft = frames;
         while( !framesLeft.empty( ))
         {
-            FrameVector current = _extractOneSubPixel( framesLeft );
+            Frames current = _extractOneSubPixel( framesLeft );
             const uint32_t subCount = assembleFramesSorted( current, channel,
                                                             accum );
             EQASSERT( subCount < 2 );
@@ -257,7 +257,7 @@ uint32_t Compositor::assembleFramesSorted( const FrameVector& frames,
         count |= assembleFramesCPU( frames, channel, blendAlpha );
     else
     {
-        for( FrameVector::const_iterator i = frames.begin();
+        for( Frames::const_iterator i = frames.begin();
              i != frames.end(); ++i )
         {
             Frame* frame = *i;
@@ -281,12 +281,12 @@ uint32_t Compositor::assembleFramesSorted( const FrameVector& frames,
     return count;
 }
 
-bool Compositor::_isSubPixelDecomposition( const FrameVector& frames )
+bool Compositor::_isSubPixelDecomposition( const Frames& frames )
 {
     if( frames.empty( ))
         return false;
         
-    FrameVector::const_iterator i = frames.begin();
+    Frames::const_iterator i = frames.begin();
     Frame* frame = *i;
     const SubPixel& subpixel = frame->getSubPixel();
     
@@ -300,16 +300,15 @@ bool Compositor::_isSubPixelDecomposition( const FrameVector& frames )
     return false;
 }
 
-const FrameVector Compositor::_extractOneSubPixel( FrameVector& frames )
+const Frames Compositor::_extractOneSubPixel( Frames& frames )
 {
-    FrameVector current;
+    Frames current;
 
     const SubPixel& subpixel = frames.back()->getSubPixel();
     current.push_back( frames.back( ));
     frames.pop_back();
 
-    for( FrameVector::iterator i = frames.begin();
-                i != frames.end(); )
+    for( Frames::iterator i = frames.begin(); i != frames.end(); )
     {
         Frame* frame = *i;
 
@@ -325,7 +324,7 @@ const FrameVector Compositor::_extractOneSubPixel( FrameVector& frames )
     return current;
 }
 
-uint32_t Compositor::assembleFramesUnsorted( const FrameVector& frames,
+uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
                                              Channel* channel, 
                                              util::Accum* accum )
 {
@@ -346,11 +345,11 @@ uint32_t Compositor::assembleFramesUnsorted( const FrameVector& frames,
             accum->setTotalSteps( subpixel.size );
         }
 
-        FrameVector framesLeft = frames;
+        Frames framesLeft = frames;
     	while( !framesLeft.empty( ))
     	{
     	    // get the frames with the same subpixel compound
-    	    FrameVector current = _extractOneSubPixel( framesLeft );
+    	    Frames current = _extractOneSubPixel( framesLeft );
 
             // use assembleFrames to potentially benefit from CPU assembly
     	    const uint32_t subCount = assembleFrames( current, channel, accum );
@@ -374,7 +373,7 @@ uint32_t Compositor::assembleFramesUnsorted( const FrameVector& frames,
 
     // register monitor with all input frames
     Monitor<uint32_t> monitor;
-    for( FrameVector::const_iterator i = frames.begin();
+    for( Frames::const_iterator i = frames.begin();
          i != frames.end(); ++i )
     {
         Frame* frame = *i;
@@ -382,7 +381,7 @@ uint32_t Compositor::assembleFramesUnsorted( const FrameVector& frames,
     }
 
     uint32_t    nUsedFrames  = 0;
-    FrameVector unusedFrames = frames;
+    Frames unusedFrames = frames;
 
     uint32_t count = 0;
     // wait and assemble frames
@@ -393,7 +392,7 @@ uint32_t Compositor::assembleFramesUnsorted( const FrameVector& frames,
             monitor.waitGE( ++nUsedFrames );
         }
 
-        for( FrameVector::iterator i = unusedFrames.begin();
+        for( Frames::iterator i = unusedFrames.begin();
              i != unusedFrames.end(); ++i )
         {
             Frame* frame = *i;
@@ -412,7 +411,7 @@ uint32_t Compositor::assembleFramesUnsorted( const FrameVector& frames,
     }
 
     // de-register the monitor
-    for( FrameVector::const_iterator i = frames.begin(); i != frames.end();
+    for( Frames::const_iterator i = frames.begin(); i != frames.end();
          ++i )
     {
         Frame* frame = *i;
@@ -423,7 +422,7 @@ uint32_t Compositor::assembleFramesUnsorted( const FrameVector& frames,
     return count;
 }
 
-uint32_t Compositor::assembleFramesCPU( const FrameVector& frames,
+uint32_t Compositor::assembleFramesCPU( const Frames& frames,
                                         Channel* channel,
                                         const bool blendAlpha )
 {
@@ -455,7 +454,7 @@ uint32_t Compositor::assembleFramesCPU( const FrameVector& frames,
     return 1;
 }
 
-const Image* Compositor::mergeFramesCPU( const FrameVector& frames,
+const Image* Compositor::mergeFramesCPU( const Frames& frames,
                                          const bool blendAlpha )
 {
     EQVERB << "Sorted CPU assembly" << std::endl;
@@ -509,12 +508,12 @@ const Image* Compositor::mergeFramesCPU( const FrameVector& frames,
     return result;
 }
 
-bool Compositor::_collectOutputData( const FrameVector& frames,
+bool Compositor::_collectOutputData( const Frames& frames,
                                      PixelViewport& destPVP, 
                                      uint32_t& colorFormat, uint32_t& colorType,
                                      uint32_t& depthFormat, uint32_t& depthType)
 {
-    for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
+    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
     {
         Frame* frame = *i;
         frame->waitReady();
@@ -527,9 +526,8 @@ bool Compositor::_collectOutputData( const FrameVector& frames,
         if( frame->getPixel() != Pixel::ALL )
             return false;
 
-        const ImageVector& images = frame->getImages();        
-        for( ImageVector::const_iterator j = images.begin(); 
-             j != images.end(); ++j )
+        const Images& images = frame->getImages();        
+        for( Images::const_iterator j = images.begin(); j != images.end(); ++j )
         {
             const Image* image = *j;
             EQASSERT( image->getStorageType() == Frame::TYPE_MEMORY );
@@ -571,7 +569,7 @@ bool Compositor::_collectOutputData( const FrameVector& frames,
     return true;
 }
 
-bool Compositor::mergeFramesCPU( const FrameVector& frames,
+bool Compositor::mergeFramesCPU( const Frames& frames,
                                  const bool blendAlpha, void* colorBuffer,
                                  const uint32_t colorBufferSize,
                                  void* depthBuffer,
@@ -632,17 +630,16 @@ bool Compositor::mergeFramesCPU( const FrameVector& frames,
     return true;
 }
 
-void Compositor::_mergeFrames( const FrameVector& frames,
+void Compositor::_mergeFrames( const Frames& frames,
                                const bool blendAlpha, 
                                void* colorBuffer, void* depthBuffer,
                                const PixelViewport& destPVP )
 {
-    for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
+    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i)
     {
         const Frame* frame = *i;
-        const ImageVector& images = frame->getImages();        
-        for( ImageVector::const_iterator j = images.begin();
-             j != images.end(); ++j )
+        const Images& images = frame->getImages();        
+        for( Images::const_iterator j = images.begin(); j != images.end(); ++j )
         {
             const Image* image = *j;
 
@@ -960,7 +957,7 @@ bool Compositor::_mergeImage_PC( int operation, void* destColor,
 
 void Compositor::assembleFrame( const Frame* frame, Channel* channel )
 {
-    const ImageVector& images = frame->getImages();
+    const Images& images = frame->getImages();
     if( images.empty( ))
         EQINFO << "No images to assemble" << std::endl;
 
@@ -972,8 +969,7 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
     operation.zoom    = frame->getZoom();
     operation.zoom.apply( frame->getInputZoom( ));
 
-    for( ImageVector::const_iterator i = images.begin(); 
-         i != images.end(); ++i )
+    for( Images::const_iterator i = images.begin(); i != images.end(); ++i )
     {
         const Image* image = *i;
         assembleImage( image, operation );

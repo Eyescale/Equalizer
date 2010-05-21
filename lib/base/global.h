@@ -33,19 +33,17 @@ namespace base
     bool testInitPluginDirectories();
     /** @endcond */
 
-
     /** 
-     * Global parameter handling for the Equalizer client library. 
+     * Global parameter handling for the Equalizer base library. 
      */
     class Global
     {
     public:
-
         /**
           * @return all directories to search for compressor DSOs during
-          *         eq::init().
+          *         eq::base::init().
           */
-        EQ_EXPORT static const StringVector& getPluginDirectories();
+        EQ_EXPORT static const Strings& getPluginDirectories();
 
         /** add a new directory to search for compressor DSOs. */
         EQ_EXPORT static void  addPluginDirectory( const std::string& path );
@@ -60,11 +58,11 @@ namespace base
         EQ_EXPORT friend bool init( const int argc, char** argv );
         EQ_EXPORT friend bool exit();
 
-        static StringVector _initPluginDirectories();
+        static Strings _initPluginDirectories();
         friend bool testInitPluginDirectories();
 
         static PluginRegistry _pluginRegistry;
-        static StringVector _pluginDirectories;
+        static Strings _pluginDirectories;
     };
 }
 }

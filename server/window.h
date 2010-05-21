@@ -195,9 +195,9 @@ namespace server
         bool _swap;
 
         /** The list of master swap barriers for the current frame. */
-        net::BarrierVector _masterSwapBarriers;
+        net::Barriers _masterSwapBarriers;
         /** The list of slave swap barriers for the current frame. */
-        net::BarrierVector _swapBarriers;
+        net::Barriers _swapBarriers;
 
         /** The hardware swap barrier to use. */
         const SwapBarrier* _nvSwapBarrier;

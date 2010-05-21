@@ -55,25 +55,34 @@ typedef base::RefPtr< Connection >            ConnectionPtr;
 typedef base::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
 
 /** A vector of NodePtr's. */
-typedef std::vector< NodePtr >                   NodeVector;
+typedef std::vector< NodePtr >                   Nodes;
 /** A vector of Objects. */
-typedef std::vector< Object* >                   ObjectVector;
+typedef std::vector< Object* >                   Objects;
 /** A vector of Barriers. */
-typedef std::vector< Barrier* >                  BarrierVector;
+typedef std::vector< Barrier* >                  Barriers;
 /** A vector of ConnectionPtr's. */
-typedef std::vector< ConnectionPtr >             ConnectionVector;
+typedef std::vector< ConnectionPtr >             Connections;
 /** A vector of ConnectionDescriptionPtr's. */
-typedef std::vector< ConnectionDescriptionPtr >  ConnectionDescriptionVector;
+typedef std::vector< ConnectionDescriptionPtr >  ConnectionDescriptions;
 
 /** @cond IGNORE */
-typedef std::vector< ObjectVersion > ObjectVersionVector;
-typedef std::vector< Command* > CommandVector;
+typedef std::vector< ObjectVersion > ObjectVersions;
+typedef std::vector< Command* > Commands;
 typedef std::deque< Command* > CommandDeque;
-typedef stde::hash_map< uint32_t, ObjectVector > ObjectVectorHash;
+typedef stde::hash_map< uint32_t, Objects > ObjectsHash;
 typedef std::list< Command* >   CommandList;
 typedef std::deque< ObjectInstanceDataIStream* > InstanceDataDeque;
-typedef std::vector< ObjectInstanceDataIStream* > InstanceDataVector;
+typedef std::vector< ObjectInstanceDataIStream* > InstanceDatas;
 /** @endcond */
+
+#ifdef EQ_USE_DEPRECATED
+typedef Nodes NodeVector;
+typedef Objects ObjectVector;
+typedef Barriers BarrierVector;
+typedef Connections ConnectionVector;
+typedef ConnectionDescriptions ConnectionDescriptionVector;
+typedef ObjectVersions ObjectVersionVector;
+#endif
 }
 }
 

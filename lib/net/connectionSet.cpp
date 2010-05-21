@@ -110,7 +110,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
         else
         {
             // add to existing thread
-            for( ThreadVector::const_iterator i = _threads.begin();
+            for( Threads::const_iterator i = _threads.begin();
                  i != _threads.end(); ++i )
             {
                 Thread* thread = *i;
@@ -145,20 +145,18 @@ bool ConnectionSet::removeConnection( ConnectionPtr connection )
 {
     {
         base::ScopedMutex<> mutex( _mutex );
-        ConnectionVector::iterator i = find( _allConnections.begin(),
-                                             _allConnections.end(), connection);
+        Connections::iterator i = stde::find( _allConnections, connection );
         if( i == _allConnections.end( ))
             return false;
 
         if( _connection == connection )
             _connection = 0;
 
-        ConnectionVector::iterator j = find( _connections.begin(),
-                                             _connections.end(), connection );
+        Connections::iterator j = stde::find( _connections, connection );
         if( j == _connections.end( ))
         {
 #ifdef BIG_CLUSTER_SUPPORT
-            ThreadVector::iterator k = _threads.begin();
+            Threads::iterator k = _threads.begin();
             for( ; k != _threads.end(); ++k )
             {
                 Thread* thread = *k;
@@ -201,7 +199,7 @@ void ConnectionSet::clear()
     _connection = 0;
 
 #ifdef BIG_CLUSTER_SUPPORT
-    for( ThreadVector::iterator i = _threads.begin(); i != _threads.end(); ++i )
+    for( Threads::iterator i = _threads.begin(); i != _threads.end(); ++i )
     {
         Thread* thread = *i;
         thread->set->clear();
@@ -212,7 +210,7 @@ void ConnectionSet::clear()
     _threads.clear();
 #endif
 
-    for( ConnectionVector::iterator i = _connections.begin(); 
+    for( Connections::iterator i = _connections.begin();
          i != _connections.end(); ++i )
     {
         (*i)->removeListener( this );
@@ -434,7 +432,7 @@ bool ConnectionSet::_setupFDSet()
 
     // add regular connections
     _mutex.set();
-    for( ConnectionVector::const_iterator i = _connections.begin();
+    for( Connections::const_iterator i = _connections.begin();
          i != _connections.end(); ++i )
     {
         ConnectionPtr connection = *i;
@@ -455,8 +453,8 @@ bool ConnectionSet::_setupFDSet()
         result.connection = connection.get();;
         _fdSetResult.append( result );
     }
-    for( ThreadVector::const_iterator i = _threads.begin();
-         i != _threads.end(); ++i )
+
+    for( Threads::const_iterator i = _threads.begin(); i != _threads.end(); ++i)
     {
         Thread* thread = *i;
         readHandle = thread->notifier;
@@ -484,7 +482,7 @@ bool ConnectionSet::_setupFDSet()
 
     // add regular connections
     _mutex.set();
-    for( ConnectionVector::const_iterator i = _connections.begin();
+    for( Connections::const_iterator i = _connections.begin();
          i != _connections.end(); ++i )
     {
         ConnectionPtr connection = *i;
@@ -519,12 +517,12 @@ bool ConnectionSet::_setupFDSet()
 EQ_EXPORT std::ostream& operator << ( std::ostream& os,
                                       const ConnectionSet* set)
 {
-    const ConnectionVector& connections = set->getConnections();
+    const Connections& connections = set->getConnections();
 
     os << "connection set " << (void*)set << ", " << connections.size()
        << " connections";
     
-    for( ConnectionVector::const_iterator i = connections.begin(); 
+    for( Connections::const_iterator i = connections.begin(); 
          i != connections.end(); ++i )
     {
         os << std::endl << "    " << (*i).get();

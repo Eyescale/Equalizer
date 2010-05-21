@@ -24,7 +24,7 @@ namespace eqPly
 class ModelAssigner : public eq::ConfigVisitor
 {
 public:
-    ModelAssigner( const ModelDistVector& models ) 
+    ModelAssigner( const ModelDists& models ) 
             : _models( models ), _current( models.begin( )), _layout( 0 ) {}
 
     virtual eq::VisitorResult visit( eq::View* view )
@@ -40,8 +40,8 @@ public:
         }
 
 private:
-    const ModelDistVector&          _models;
-    ModelDistVector::const_iterator _current;
+    const ModelDists&          _models;
+    ModelDists::const_iterator _current;
     
     eq::Layout* _layout;
 };

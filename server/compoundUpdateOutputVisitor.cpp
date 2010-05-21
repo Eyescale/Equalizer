@@ -47,7 +47,7 @@ VisitorResult CompoundUpdateOutputVisitor::visit( Compound* compound )
 
 void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 {
-    const FrameVector& outputFrames = compound->getOutputFrames();
+    const Frames& outputFrames = compound->getOutputFrames();
     const Channel* channel = compound->getChannel();
 
     if( !compound->testInheritTask( fabric::TASK_READBACK ) || !channel )
@@ -59,7 +59,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         return;
     }
 
-    for( FrameVector::const_iterator i = outputFrames.begin(); 
+    for( Frames::const_iterator i = outputFrames.begin(); 
          i != outputFrames.end(); ++i )
     {
         //----- Check uniqueness of output frame name

@@ -301,13 +301,13 @@ bool Connection::send( Packet& packet, const void* data,
     return send( buffer, size );
 }
 
-bool Connection::send( const ConnectionVector& connections,
+bool Connection::send( const Connections& connections,
                        const Packet& packet, const bool isLocked )
 {
     if( connections.empty( ))
         return true;
 
-    for( ConnectionVector::const_iterator i= connections.begin(); 
+    for( Connections::const_iterator i= connections.begin(); 
          i<connections.end(); ++i )
     {        
         ConnectionPtr connection = *i;
@@ -317,7 +317,7 @@ bool Connection::send( const ConnectionVector& connections,
     return true;
 }
 
-bool Connection::send( const ConnectionVector& connections, Packet& packet,
+bool Connection::send( const Connections& connections, Packet& packet,
                        const void* data, const uint64_t dataSize,
                        const bool isLocked )
 {
@@ -339,7 +339,7 @@ bool Connection::send( const ConnectionVector& connections, Packet& packet,
         // OPT: lock the connection and use two send() to avoid big memcpy
         packet.size = size;
 
-        for( ConnectionVector::const_iterator i= connections.begin(); 
+        for( Connections::const_iterator i= connections.begin(); 
              i<connections.end(); ++i )
         {        
             ConnectionPtr connection = *i;
@@ -362,8 +362,8 @@ bool Connection::send( const ConnectionVector& connections, Packet& packet,
 
     ((Packet*)buffer)->size = size;
 
-    for( ConnectionVector::const_iterator i= connections.begin(); 
-         i<connections.end(); ++i )
+    for( Connections::const_iterator i = connections.begin(); 
+         i < connections.end(); ++i )
     {        
         ConnectionPtr connection = *i;
         if( !connection->send( buffer, size, isLocked ))
@@ -373,7 +373,7 @@ bool Connection::send( const ConnectionVector& connections, Packet& packet,
     return true;
 }
 
-bool Connection::send( const ConnectionVector& connections, Packet& packet,
+bool Connection::send( const Connections& connections, Packet& packet,
                        const void* const* items, const uint64_t* itemSizes, 
                        const size_t nItems )
 {
@@ -387,7 +387,7 @@ bool Connection::send( const ConnectionVector& connections, Packet& packet,
         packet.size += itemSizes[ i ] + sizeof( uint64_t );
     }
 
-    for( ConnectionVector::const_iterator i = connections.begin(); 
+    for( Connections::const_iterator i = connections.begin(); 
          i < connections.end(); ++i )
     {        
         ConnectionPtr connection = *i;

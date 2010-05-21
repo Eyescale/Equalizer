@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -31,9 +31,9 @@ int main( int argc, char **argv )
     TEST( eq::base::init( ));
 
     eq::server::Loader loader;
-    eq::base::StringVector candidates = 
+    eq::base::Strings candidates = 
         eq::base::searchDirectory( "../../examples/configs", "*.eqc" );
-    for( eq::base::StringVector::const_iterator i = candidates.begin();
+    for( eq::base::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
     {
         const std::string& filename = "../../examples/configs/" + *i;

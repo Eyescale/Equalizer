@@ -20,7 +20,7 @@
 
 #include <eq/net/connectionType.h>        // enum
 #include <eq/net/packets.h>               // used in inline method
-#include <eq/net/types.h>                 // ConnectionVector type
+#include <eq/net/types.h>                 // Connections type
 
 #include <eq/base/base.h>
 #include <eq/base/refPtr.h>
@@ -314,7 +314,7 @@ namespace net
          * @param isLocked true if the connection is locked externally.
          * @return true if the packet was sent successfully to all connections.
          */
-        static EQ_EXPORT bool send( const ConnectionVector& connections,
+        static EQ_EXPORT bool send( const Connections& connections,
                           const Packet& packet, const bool isLocked = false );
         /** 
          * Sends a packaged message including additional data to multiple
@@ -327,9 +327,10 @@ namespace net
          * @param isLocked true if the connection is locked externally.
          * @return true if the packet was sent successfully to all receivers.
          */
-        static EQ_EXPORT bool send( const ConnectionVector& connections, Packet& packet,
-                          const void* data, const uint64_t size,
-                          const bool isLocked = false );
+        static EQ_EXPORT bool send( const Connections& connections,
+                                    Packet& packet, const void* data,
+                                    const uint64_t size,
+                                    const bool isLocked = false );
         /** 
          * Sends a packaged message including additional, multiple data items to
          * multiple connections.
@@ -346,7 +347,7 @@ namespace net
          * @param nItems the number of data elements.
          * @return true if the packet was sent successfully to all receivers.
          */
-        static bool send( const ConnectionVector& connections, Packet& packet,
+        static bool send( const Connections& connections, Packet& packet,
                           const void* const* items, const uint64_t* itemSizes, 
                           const size_t nItems );
 

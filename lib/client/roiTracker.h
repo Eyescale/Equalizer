@@ -78,8 +78,7 @@ namespace eq
          * @param  pvps    result from ROIFinder
          * @param  ticket  value from useROIFinder
          */
-        void updateDelay( const PixelViewportVector& pvps,
-                          const uint8_t*             ticket );
+        void updateDelay( const PixelViewports& pvps, const uint8_t* ticket );
 
     protected:
 

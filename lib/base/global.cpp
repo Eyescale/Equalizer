@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -35,10 +35,10 @@ namespace base
 {
 
 PluginRegistry Global::_pluginRegistry;
-StringVector Global::_pluginDirectories = _initPluginDirectories();
+Strings Global::_pluginDirectories = _initPluginDirectories();
 
 // initialized by EQ_PLUGIN_PATH:
-EQ_EXPORT const StringVector& Global::getPluginDirectories()
+EQ_EXPORT const Strings& Global::getPluginDirectories()
 {
     return _pluginDirectories;
 }
@@ -51,19 +51,19 @@ void  Global::addPluginDirectory( const std::string& path )
 void  Global::removePluginDirectory( const std::string& path )
 {
 
-    StringVector::iterator i = find( _pluginDirectories.begin(),
-                                     _pluginDirectories.end(), path );
+    Strings::iterator i = find( _pluginDirectories.begin(),
+                                _pluginDirectories.end(), path );
 
     if( i != _pluginDirectories.end( ))
         _pluginDirectories.erase( i );
 }
 
 
-StringVector Global::_initPluginDirectories()
+Strings Global::_initPluginDirectories()
 {
-    StringVector pluginDirectories;
+    Strings pluginDirectories;
 
-    char* env = getenv("EQ_PLUGIN_PATH") ;
+    char* env = getenv( "EQ_PLUGIN_PATH" );
     std::string envString( env ? env : "" );
 
     if( envString.empty( ))

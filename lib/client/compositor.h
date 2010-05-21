@@ -73,7 +73,7 @@ namespace util
          * @return the number of different subpixel steps assembled.
          * @version 1.0
          */
-        static uint32_t assembleFrames( const FrameVector& frames,
+        static uint32_t assembleFrames( const Frames& frames,
                                         Channel* channel, util::Accum* accum );
 
         /** 
@@ -90,7 +90,7 @@ namespace util
          * @return the number of different subpixel steps assembled.
          * @version 1.0
          */
-        static uint32_t assembleFramesSorted( const FrameVector& frames,
+        static uint32_t assembleFramesSorted( const Frames& frames,
                                               Channel* channel, 
                                               util::Accum* accum,
                                               const bool blendAlpha = false );
@@ -105,7 +105,7 @@ namespace util
          * @return the number of different subpixel steps assembled.
          * @version 1.0
          */
-        static uint32_t assembleFramesUnsorted( const FrameVector& frames,
+        static uint32_t assembleFramesUnsorted( const Frames& frames,
                                                 Channel* channel,
                                                 util::Accum* accum );
 
@@ -127,7 +127,7 @@ namespace util
          * @return the number of different subpixel steps assembled (0 or 1).
          * @version 1.0
          */
-        static uint32_t assembleFramesCPU( const FrameVector& frames,
+        static uint32_t assembleFramesCPU( const Frames& frames,
                                            Channel* channel,
                                            const bool blendAlpha = false );
 
@@ -141,7 +141,7 @@ namespace util
          *
          * @version 1.0
          */
-        static const Image* mergeFramesCPU( const FrameVector& frames,
+        static const Image* mergeFramesCPU( const Frames& frames,
                                             const bool blendAlpha = false );
 
         /** 
@@ -160,7 +160,7 @@ namespace util
          *         e.g., a buffer is too small.
          * @version 1.0
          */
-        static bool mergeFramesCPU( const FrameVector& frames,
+        static bool mergeFramesCPU( const Frames& frames,
                                     const bool blendAlpha,
                                     void* colorBuffer,
                                     const uint32_t colorBufferSize,
@@ -236,17 +236,17 @@ namespace util
       private:
         typedef std::pair< const Frame*, const Image* > FrameImage;
 
-        static bool _isSubPixelDecomposition( const FrameVector& frames );
-        static const FrameVector _extractOneSubPixel( FrameVector& frames );
+        static bool _isSubPixelDecomposition( const Frames& frames );
+        static const Frames _extractOneSubPixel( Frames& frames );
 
-        static bool _collectOutputData( const FrameVector& frames,
+        static bool _collectOutputData( const Frames& frames,
                                         PixelViewport& destPVP, 
                                         uint32_t& colorFormat, 
                                         uint32_t& colorType,
                                         uint32_t& depthFormat,
                                         uint32_t& depthType );
                                         
-        static void _mergeFrames( const FrameVector& frames,
+        static void _mergeFrames( const Frames& frames,
                                   const bool blendAlpha, 
                                   void* colorBuffer, void* depthBuffer,
                                   const PixelViewport& destPVP );

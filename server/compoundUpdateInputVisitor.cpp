@@ -37,7 +37,7 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
     if( !compound->isActive( ))
         return TRAVERSE_PRUNE;    
 
-    const FrameVector& inputFrames = compound->getInputFrames();
+    const Frames& inputFrames = compound->getInputFrames();
     const Channel* channel = compound->getChannel();
 
     if( !compound->testInheritTask( fabric::TASK_ASSEMBLE ) || !channel )
@@ -49,7 +49,7 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         return TRAVERSE_CONTINUE;
     }
 
-    for( FrameVector::const_iterator i = inputFrames.begin();
+    for( Frames::const_iterator i = inputFrames.begin();
          i != inputFrames.end(); ++i )
     {
         //----- Find corresponding output frame

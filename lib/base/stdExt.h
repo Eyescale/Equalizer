@@ -161,12 +161,12 @@ EQ_STDEXT_NAMESPACE_OPEN
         c.erase( std::unique( c.begin(), c.end( )), c.end( ));
     }
 
-    /** Find the element in the given container @version 1.0 */
+    /** Find the element in the given vector. @version 1.0 */
     template< typename T > typename std::vector< T >::iterator 
     find( std::vector< T >& container, T& element )
         { return std::find( container.begin(), container.end(), element ); }
 
-    /** Find the element in the given container @version 1.0 */
+    /** Find the element in the given vector. @version 1.0 */
     template< typename T > typename std::vector< T >::const_iterator 
     find( const std::vector< T >& container, const T& element )
         { return std::find( container.begin(), container.end(), element ); }

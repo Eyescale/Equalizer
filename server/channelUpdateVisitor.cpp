@@ -523,11 +523,11 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
     if( !compound->testInheritTask( fabric::TASK_ASSEMBLE ))
         return;
 
-    const FrameVector& inputFrames = compound->getInputFrames();
+    const Frames& inputFrames = compound->getInputFrames();
     EQASSERT( !inputFrames.empty( ));
 
     std::vector< net::ObjectVersion > frameIDs;
-    for( FrameVector::const_iterator iter = inputFrames.begin(); 
+    for( Frames::const_iterator iter = inputFrames.begin(); 
          iter != inputFrames.end(); ++iter )
     {
         Frame* frame = *iter;
@@ -561,9 +561,9 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     const std::vector< Frame* >& outputFrames = compound->getOutputFrames();
     EQASSERT( !outputFrames.empty( ));
 
-    FrameVector frames;
+    Frames frames;
     std::vector< net::ObjectVersion > frameIDs;
-    for( FrameVector::const_iterator i = outputFrames.begin(); 
+    for( Frames::const_iterator i = outputFrames.begin(); 
          i != outputFrames.end(); ++i )
     {
         Frame* frame = *i;
@@ -586,21 +586,21 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     _channel->send<net::ObjectVersion>( packet, frameIDs );
     _updated = true;
     EQLOG( LOG_ASSEMBLY | LOG_TASKS ) 
-        << "TASK readback " << _channel->getName() <<  " " << &packet << std::endl;
+        << "TASK readback " << _channel->getName() <<  " " << &packet
+        << std::endl;
 
     // transmit tasks
     Node* node = _channel->getNode();
     net::NodePtr netNode = node->getNode();
     const net::NodeID&  outputNodeID = netNode->getNodeID();
-    for( FrameVector::const_iterator i = frames.begin(); i != frames.end(); ++i)
+    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
     {
         Frame* outputFrame = *i;
 
-        const FrameVector& inputFrames =
-            outputFrame->getInputFrames( context.eye);
+        const Frames& inputFrames = outputFrame->getInputFrames( context.eye );
 
         std::vector< net::NodeID > nodeIDs;
-        for( FrameVector::const_iterator j = inputFrames.begin();
+        for( Frames::const_iterator j = inputFrames.begin();
              j != inputFrames.end(); ++j )
         {
             const Frame* inputFrame   = *j;

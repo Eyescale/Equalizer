@@ -132,7 +132,7 @@ CommandResult Barrier::_cmdEnter( Command& command )
                          << getVersion() << endl;
 
     const uint32_t version = packet->version;
-    NodeVector&    nodes   = _enteredNodes[ packet->version ];
+    Nodes& nodes = _enteredNodes[ packet->version ];
 
     EQLOG( LOG_BARRIER ) << "enter barrier v" << version 
                          << ", has " << nodes.size() << " of " << _height
@@ -163,7 +163,7 @@ CommandResult Barrier::_cmdEnter( Command& command )
 
     stde::usort( nodes );
 
-    for( NodeVector::iterator i = nodes.begin(); i != nodes.end(); ++i )
+    for( Nodes::iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         RefPtr< Node >& node = *i;
         if( node->isLocal( )) // OPT
@@ -179,7 +179,7 @@ CommandResult Barrier::_cmdEnter( Command& command )
     }
 
     // delete node vector for version
-    map< uint32_t, NodeVector >::iterator it = _enteredNodes.find( version );
+    map< uint32_t, Nodes >::iterator it = _enteredNodes.find( version );
     EQASSERT( it != _enteredNodes.end( ));
     _enteredNodes.erase( it );
 

@@ -153,8 +153,8 @@ ConfigEvent Channel::_createConfigEvent()
 void Channel::_testFormats()
 {
     //----- setup constant data
-    const eq::ImageVector& images = _frame.getImages();
-    eq::Image*             image  = images[ 0 ];
+    const eq::Images& images = _frame.getImages();
+    eq::Image*        image  = images[ 0 ];
     EQASSERT( image );
 
     eq::Config*              config = getConfig();
@@ -222,7 +222,7 @@ void Channel::_testFormats()
 void Channel::_testTiledOperations()
 {
     //----- setup constant data
-    const eq::ImageVector& images = _frame.getImages();
+    const eq::Images& images = _frame.getImages();
     EQASSERT( images[0] );
 
     eq::Config*              config = getConfig();
@@ -338,8 +338,8 @@ void Channel::_testTiledOperations()
 void Channel::_testDepthAssemble()
 {
     //----- setup constant data
-    const eq::ImageVector& images = _frame.getImages();
-    eq::Image*             image  = images[ 0 ];
+    const eq::Images& images = _frame.getImages();
+    eq::Image*        image  = images[ 0 ];
     EQASSERT( image );
 
     eq::Config*              config = getConfig();
@@ -451,7 +451,7 @@ void Channel::_draw( const uint32_t spin )
     glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
     glEnable( GL_DEPTH_TEST );
 
-#ifdef _0
+#if 0
     setNearFar( 0.5f, 5.0f );
     const GLfloat lightPosition[]    = {5.0f, 0.0f, 5.0f, 0.0f};
     const GLfloat lightDiffuse[]     = {0.8f, 0.8f, 0.8f, 1.0f};

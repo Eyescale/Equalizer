@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -54,7 +54,7 @@ bool Config::init()
         return false;
     }
 
-    const eq::CanvasVector& canvases = getCanvases();
+    const eq::Canvases& canvases = getCanvases();
     if( canvases.empty( ))
         _currentCanvas = 0;
     else
@@ -138,8 +138,8 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             
             const eq::View* view = find< eq::View >( viewID );
             const eq::Layout* layout = view->getLayout();
-            const eq::CanvasVector& canvases = getCanvases();
-            for( eq::CanvasVector::const_iterator i = canvases.begin();
+            const eq::Canvases& canvases = getCanvases();
+            for( eq::Canvases::const_iterator i = canvases.begin();
                  i != canvases.end(); ++i )
             {
                 eq::Canvas* canvas = *i;
@@ -242,7 +242,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         case 'c':
         case 'C':
         {
-            const eq::CanvasVector& canvases = getCanvases();
+            const eq::Canvases& canvases = getCanvases();
             if( canvases.empty( ))
                 return true;
 
@@ -254,9 +254,9 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
                 return true;
             }
 
-            eq::CanvasVector::const_iterator i = 
-                    std::find( canvases.begin(), canvases.end(),
-                                                   _currentCanvas );
+            eq::Canvases::const_iterator i = std::find( canvases.begin(),
+                                                        canvases.end(),
+                                                        _currentCanvas );
             EQASSERT( i != canvases.end( ));
 
             ++i;
@@ -270,7 +270,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         case 'v':
         case 'V':
         {
-            const eq::CanvasVector& canvases = getCanvases();
+            const eq::Canvases& canvases = getCanvases();
             if( !_currentCanvas && !canvases.empty( ))
                 _currentCanvas = canvases.front();
 
@@ -284,7 +284,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             const eq::View* current = 
                               find< eq::View >( _frameData.getCurrentViewID( ));
 
-            const eq::ViewVector& views = layout->getViews();
+            const eq::Views& views = layout->getViews();
             EQASSERT( !views.empty( ))
 
             if( !current )
@@ -293,7 +293,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
                 return true;
             }
 
-            eq::ViewVector::const_iterator i = std::find( views.begin(),
+            eq::Views::const_iterator i = std::find( views.begin(),
                                                           views.end(),
                                                           current );
             EQASSERT( i != views.end( ));

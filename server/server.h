@@ -98,7 +98,7 @@ namespace server
         /** The global clock. */
         base::Clock _clock;
 
-        net::NodeVector _admins; //!< connected admin clients
+        net::Nodes _admins; //!< connected admin clients
 
         /** The current state. */
         bool _running;

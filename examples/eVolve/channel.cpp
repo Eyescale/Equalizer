@@ -201,11 +201,10 @@ void Channel::_calcMVandITMV(
 }
 
 
-static void _expandPVP( eq::PixelViewport& pvp, 
-                        const eq::ImageVector& images,
+static void _expandPVP( eq::PixelViewport& pvp, const eq::Images& images,
                         const eq::Vector2i& offset )
 {
-    for( eq::ImageVector::const_iterator i = images.begin();
+    for( eq::Images::const_iterator i = images.begin();
          i != images.end(); ++i )
     {
         const eq::PixelViewport imagePVP = (*i)->getPixelViewport() + offset;
@@ -226,7 +225,7 @@ void Channel::clearViewport( const eq::PixelViewport &pvp )
     glScissor( 0, 0, windowPVP.w, windowPVP.h );
 }
 
-void Channel::_orderFrames( eq::FrameVector& frames )
+void Channel::_orderFrames( eq::Frames& frames )
 {
     eq::Matrix4f        modelviewM;   // modelview matrix
     eq::Matrix3f        modelviewITM; // modelview inversed transposed matrix
@@ -246,13 +245,13 @@ void Channel::frameAssemble( const uint32_t frameID )
 
     _startAssemble();
 
-    const eq::FrameVector& frames = getInputFrames();
+    const eq::Frames& frames = getInputFrames();
     eq::PixelViewport  coveredPVP;
-    eq::FrameVector    dbFrames;
+    eq::Frames    dbFrames;
     eq::Zoom           zoom( eq::Zoom::NONE );
 
     // Make sure all frames are ready and gather some information on them
-    for( eq::FrameVector::const_iterator i = frames.begin();
+    for( eq::Frames::const_iterator i = frames.begin();
          i != frames.end(); ++i )
     {
         eq::Frame* frame = *i;
@@ -326,8 +325,8 @@ void Channel::_startAssemble()
 void Channel::frameReadback( const uint32_t frameID )
 {
     // Drop depth buffer flag from all output frames
-    const eq::FrameVector& frames = getOutputFrames();
-    for( eq::FrameVector::const_iterator i = frames.begin(); 
+    const eq::Frames& frames = getOutputFrames();
+    for( eq::Frames::const_iterator i = frames.begin(); 
          i != frames.end(); ++i )
     {
         (*i)->disableBuffer( eq::Frame::BUFFER_DEPTH );

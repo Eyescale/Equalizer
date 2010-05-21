@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009, Stefan Eilemann <eile@equalizergraphics.com> 
+ *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -39,10 +39,10 @@ namespace base
  * @return all file names matching the given pattern in the given directory.
  * @version 1.0
  */
-inline StringVector searchDirectory( const std::string directory,  
-                                     const std::string pattern )
+inline Strings searchDirectory( const std::string directory,  
+                                const std::string pattern )
 {
-    StringVector files;
+    Strings files;
    
 #ifdef _MSC_VER
 

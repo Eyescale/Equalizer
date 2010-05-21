@@ -102,7 +102,7 @@ namespace util
         EQ_EXPORT bool resize( const int width, const int height );
 
         /** @return the color textures. */
-        const TextureVector& getColorTextures() const { return _colors; }
+        const Textures& getColorTextures() const { return _colors; }
 
         /** @return the depth texture. */
         const Texture& getDepthTexture() const { return _depth; }
@@ -127,7 +127,7 @@ namespace util
     private:
         GLuint _fboID;
 
-        TextureVector _colors; //!< Multiple color textures
+        Textures _colors; //!< Multiple color textures
         Texture _depth;
         Texture _stencil;
 

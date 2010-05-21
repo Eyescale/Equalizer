@@ -194,7 +194,7 @@ namespace server
             ConnectionDescriptionPtr cd );
 
         /** @return the vector of connection descriptions. */
-        const ConnectionDescriptionVector& getConnectionDescriptions()
+        const ConnectionDescriptions& getConnectionDescriptions()
             const { return _connectionDescriptions; }
 
     protected:
@@ -214,7 +214,7 @@ namespace server
         net::NodePtr _node;
 
         /** The list of descriptions on how this node is reachable. */
-        ConnectionDescriptionVector _connectionDescriptions;
+        ConnectionDescriptions _connectionDescriptions;
 
         /** The frame identifiers non-finished frames. */
         std::map< uint32_t, uint32_t > _frameIDs;

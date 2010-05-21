@@ -113,10 +113,10 @@ namespace server
         friend std::ostream& operator << ( std::ostream& os, 
                                          const ViewEqualizer::Listener::Load& );
 
-        typedef std::vector< Listener::Load > LoadVector;
-        typedef std::vector< Listener > ListenerVector;
+        typedef std::vector< Listener::Load > Loads;
+        typedef std::vector< Listener > Listeners;
         /** Per-child listener gathering load data. */
-        ListenerVector _listeners;
+        Listeners _listeners;
 
         /** The total number of available resources. */
         size_t _nPipes;

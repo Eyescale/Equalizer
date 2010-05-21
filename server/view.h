@@ -68,7 +68,7 @@ namespace server
         bool removeChannel( Channel* channel );
         
         /** @return the vector of channels. */
-        const ChannelVector& getChannels() const{ return _channels; }
+        const Channels& getChannels() const{ return _channels; }
         //@}
 
     protected:
@@ -77,9 +77,8 @@ namespace server
                                   const uint64_t dirtyBits );
 
     private:
-
         /** The list of channels. */
-        ChannelVector _channels;
+        Channels _channels;
 
         union // placeholder for binary-compatible changes
         {

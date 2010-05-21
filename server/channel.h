@@ -89,7 +89,7 @@ namespace server
         Pipe* getPipe();
         const Pipe* getPipe() const;
 
-        const CompoundVector& getCompounds() const;
+        const Compounds& getCompounds() const;
 
         net::CommandQueue* getMainThreadQueue();
         net::CommandQueue* getCommandThreadQueue();

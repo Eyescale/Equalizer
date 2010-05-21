@@ -96,9 +96,8 @@ VisitorResult _accept( C* server, V& visitor )
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    const ConfigVector& configs = server->getConfigs();
-    for( ConfigVector::const_iterator i = configs.begin();
-         i != configs.end(); ++i )
+    const Configs& configs = server->getConfigs();
+    for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
         {
@@ -159,7 +158,7 @@ bool Server::run()
     EQASSERT( isListening( ));
     base::Thread::setDebugName( typeid( *this ).name( ));
 
-    const ConfigVector& configs = getConfigs();
+    const Configs& configs = getConfigs();
     if( configs.empty( ))
         EQWARN << "No configurations loaded" << std::endl;
 
@@ -167,19 +166,13 @@ bool Server::run()
            << base::indent << Global::instance() << *this << base::exdent
            << base::enableFlush;
 
-    for( ConfigVector::const_iterator i = configs.begin();
-         i != configs.end(); ++i )
-    {
+    for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
         registerConfig( *i );
-    }
 
     _handleCommands();
 
-    for( ConfigVector::const_iterator i = configs.begin();
-         i != configs.end(); ++i )
-    {
+    for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
         deregisterConfig( *i );
-    }
     return true;
 }
 
@@ -200,7 +193,7 @@ void Server::_addConfig( Config* config )
 
 bool Server::_removeConfig( Config* config )
 {
-    const ConfigVector& configs = getConfigs();
+    const Configs& configs = getConfigs();
     if( stde::find( configs, config ) == configs.end( ))
         return false;
 
@@ -212,7 +205,7 @@ bool Server::_removeConfig( Config* config )
 
 void Server::deleteConfigs()
 {
-    const ConfigVector& configs = getConfigs();
+    const Configs& configs = getConfigs();
     while( !configs.empty( ))
     {
         Config* config = configs.back();
@@ -293,8 +286,8 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
     EQINFO << "Handle choose config " << packet << std::endl;
 
     Config* config = 0;
-    const ConfigVector& configs = getConfigs();
-    for( ConfigVector::const_iterator i = configs.begin();
+    const Configs& configs = getConfigs();
+    for( Configs::const_iterator i = configs.begin();
          i != configs.end() && !config; ++i )
     {
         Config* candidate = *i;
@@ -347,8 +340,8 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
     net::NodePtr node = command.getNode();
 
     Config* config = 0;
-    const ConfigVector& configs = getConfigs();
-    for( ConfigVector::const_iterator i = configs.begin();
+    const Configs& configs = getConfigs();
+    for( Configs::const_iterator i = configs.begin();
          i != configs.end() && !config; ++i )
     {
         Config* candidate = *i;
@@ -410,9 +403,8 @@ net::CommandResult Server::_cmdShutdown( net::Command& command )
         return net::COMMAND_HANDLED;
     }
 
-    const ConfigVector& configs = getConfigs();
-    for( ConfigVector::const_iterator i = configs.begin();
-         i != configs.end(); ++i )
+    const Configs& configs = getConfigs();
+    for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
     {
         Config* candidate = *i;
         if( candidate->isUsed( ))
@@ -444,9 +436,8 @@ net::CommandResult Server::_cmdMap( net::Command& command )
     net::NodePtr node = command.getNode();
     _admins.push_back( node );
 
-    const ConfigVector& configs = getConfigs();
-    for( ConfigVector::const_iterator i = configs.begin();
-         i != configs.end(); ++i )
+    const Configs& configs = getConfigs();
+    for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
     {
         Config* config = *i;
         fabric::ServerCreateConfigPacket createConfigPacket;
@@ -466,14 +457,14 @@ net::CommandResult Server::_cmdMap( net::Command& command )
 net::CommandResult Server::_cmdUnmap( net::Command& command )
 {
     net::NodePtr node = command.getNode();
-    net::NodeVector::iterator i = stde::find( _admins, node );
+    net::Nodes::iterator i = stde::find( _admins, node );
 
     EQASSERT( i != _admins.end( ));
     if( i != _admins.end( ))
     {
         _admins.erase( i );
-        const ConfigVector& configs = getConfigs();
-        for( ConfigVector::const_iterator j = configs.begin();
+        const Configs& configs = getConfigs();
+        for( Configs::const_iterator j = configs.begin();
              j != configs.end(); ++j )
         {
             Config* config = *j;

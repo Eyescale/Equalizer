@@ -71,7 +71,7 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
     if( !_tree )
     {
         EQASSERT( compound == getCompound( ));
-        const CompoundVector& children = compound->getChildren();
+        const Compounds& children = compound->getChildren();
         if( children.empty( )) // leaf compound, can't do anything.
             return;
 
@@ -91,7 +91,7 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
     _computeSplit();
 }
 
-LoadEqualizer::Node* LoadEqualizer::_buildTree( const CompoundVector& compounds)
+LoadEqualizer::Node* LoadEqualizer::_buildTree( const Compounds& compounds)
 {
     Node* node = new Node;
 
@@ -111,11 +111,11 @@ LoadEqualizer::Node* LoadEqualizer::_buildTree( const CompoundVector& compounds)
 
     const size_t middle = size / 2;
 
-    CompoundVector left;
+    Compounds left;
     for( size_t i = 0; i < middle; ++i )
         left.push_back( compounds[i] );
 
-    CompoundVector right;
+    Compounds right;
     for( size_t i = middle; i < size; ++i )
         right.push_back( compounds[i] );
 
@@ -163,8 +163,8 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
             continue;
 
         // Found corresponding historical data set
-        LBDataVector& items = frameData.second;
-        for( LBDataVector::iterator j = items.begin(); j != items.end(); ++j )
+        LBDatas& items = frameData.second;
+        for( LBDatas::iterator j = items.begin(); j != items.end(); ++j )
         {
             Data& data = *j;
             if( data.channel != channel )
@@ -234,10 +234,10 @@ void LoadEqualizer::_checkHistory()
          i != _history.rend() && useFrame == 0; ++i )
     {
         const LBFrameData&  frameData  = *i;
-        const LBDataVector& items      = frameData.second;
+        const LBDatas& items      = frameData.second;
         bool                isComplete = true;
 
-        for( LBDataVector::const_iterator j = items.begin();
+        for( LBDatas::const_iterator j = items.begin();
              j != items.end() && isComplete; ++j )
         {
             const Data& data = *j;
@@ -259,7 +259,7 @@ void LoadEqualizer::_checkHistory()
         _history.resize( 1 );
 
         LBFrameData&  frameData  = _history.front();
-        LBDataVector& items      = frameData.second;
+        LBDatas& items      = frameData.second;
 
         frameData.first = 0; // frameNumber
         items.resize( 1 );
@@ -282,26 +282,26 @@ void LoadEqualizer::_computeSplit()
                     << " using frame " << frameData.first << std::endl;
 
     // sort load items for each of the split directions
-    LBDataVector items( frameData.second );
+    LBDatas items( frameData.second );
     _removeEmpty( items );
 
-    LBDataVector sortedData[3] = { items, items, items };
+    LBDatas sortedData[3] = { items, items, items };
 
     if( _mode == MODE_DB )
     {
-        LBDataVector& rangeData = sortedData[ MODE_DB ];
+        LBDatas& rangeData = sortedData[ MODE_DB ];
         sort( rangeData.begin(), rangeData.end(), _compareRange );
     }
     else
     {
-        LBDataVector& xData = sortedData[ MODE_VERTICAL ];
+        LBDatas& xData = sortedData[ MODE_VERTICAL ];
         sort( xData.begin(), xData.end(), _compareX );
 
-        LBDataVector& yData = sortedData[ MODE_HORIZONTAL ];
+        LBDatas& yData = sortedData[ MODE_HORIZONTAL ];
         sort( yData.begin(), yData.end(), _compareY );
 
 #ifndef NDEBUG
-        for( LBDataVector::const_iterator i = xData.begin(); i != xData.end();
+        for( LBDatas::const_iterator i = xData.begin(); i != xData.end();
              ++i )
         {  
             const Data& data = *i;
@@ -315,15 +315,15 @@ void LoadEqualizer::_computeSplit()
 
     // Compute total rendering time
     int64_t totalTime = 0;
-    for( LBDataVector::const_iterator i = items.begin(); i != items.end(); ++i )
+    for( LBDatas::const_iterator i = items.begin(); i != items.end(); ++i )
     {  
         const Data& data = *i;
         totalTime += data.time;
     }
 
-    const CompoundVector& children = compound->getChildren();
+    const Compounds& children = compound->getChildren();
     float nResources( 0.f );
-    for( CompoundVector::const_iterator i = children.begin(); 
+    for( Compounds::const_iterator i = children.begin(); 
          i != children.end(); ++i )
     {
         nResources += (*i)->getUsage();
@@ -356,8 +356,8 @@ float LoadEqualizer::_assignTargetTimes( Node* node, const float totalTime,
             EQASSERT( _damping <= 1.f );
 
             const LBFrameData&  frameData = _history.front();
-            const LBDataVector& items     = frameData.second;
-            for( LBDataVector::const_iterator i = items.begin(); 
+            const LBDatas& items     = frameData.second;
+            for( LBDatas::const_iterator i = items.begin(); 
                  i != items.end(); ++i )
             {
                 const Data& data = *i;
@@ -482,9 +482,9 @@ void LoadEqualizer::_assignLeftoverTime( Node* node, const float time )
     }
 }
 
-void LoadEqualizer::_removeEmpty( LBDataVector& items )
+void LoadEqualizer::_removeEmpty( LBDatas& items )
 {
-    for( LBDataVector::iterator i = items.begin(); i != items.end(); )
+    for( LBDatas::iterator i = items.begin(); i != items.end(); )
     {  
         Data& data = *i;
 
@@ -495,7 +495,7 @@ void LoadEqualizer::_removeEmpty( LBDataVector& items )
     }
 }
 
-void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
+void LoadEqualizer::_computeSplit( Node* node, LBDatas* sortedData,
                                    const Viewport& vp,
                                    const Range& range )
 {
@@ -532,7 +532,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
             data.time = 0;
 
         LBFrameData&  frameData = _history.back();
-        LBDataVector& items     = frameData.second;
+        LBDatas& items     = frameData.second;
 
         items.push_back( data );
         return;
@@ -549,7 +549,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
             float          timeLeft = node->left->time;
             float          splitPos = vp.x;
             const float    end      = vp.getXEnd();
-            LBDataVector workingSet = sortedData[ MODE_VERTICAL ];
+            LBDatas workingSet = sortedData[ MODE_VERTICAL ];
 
             while( timeLeft > std::numeric_limits< float >::epsilon() &&
                    splitPos < end && !workingSet.empty())
@@ -560,8 +560,8 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                 // remove all irrelevant items from working set
                 //   Is there a more clever way? Erasing invalidates iter, even
                 //   if iter is copied and inc'd beforehand.
-                LBDataVector newSet;
-                for( LBDataVector::const_iterator i = workingSet.begin();
+                LBDatas newSet;
+                for( LBDatas::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
                 {
                     const Data& data = *i;
@@ -573,7 +573,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
 
                 // find next 'discontinouity' in loads
                 float currentPos = 1.0f;
-                for( LBDataVector::const_iterator i = workingSet.begin();
+                for( LBDatas::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
                 {
                     const Data& data = *i;                        
@@ -588,7 +588,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                 EQLOG( LOG_LB2 ) << "Computing load in X " << splitPos << "..."
                                 << currentPos << std::endl;
                 float currentLoad = 0.f;
-                for( LBDataVector::const_iterator i = workingSet.begin();
+                for( LBDatas::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
                 {
                     const Data& data = *i;
@@ -713,7 +713,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
             float        timeLeft = node->left->time;
             float        splitPos = vp.y;
             const float  end      = vp.getYEnd();
-            LBDataVector workingSet = sortedData[ MODE_HORIZONTAL ];
+            LBDatas workingSet = sortedData[ MODE_HORIZONTAL ];
 
             while( timeLeft > std::numeric_limits< float >::epsilon() &&
                    splitPos < end && !workingSet.empty( ))
@@ -724,8 +724,8 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                 // remove all unrelevant items from working set
                 //   Is there a more clever way? Erasing invalidates iter, even
                 //   if iter is copied and inc'd beforehand.
-                LBDataVector newSet;
-                for( LBDataVector::const_iterator i = workingSet.begin();
+                LBDatas newSet;
+                for( LBDatas::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
                 {
                     const Data& data = *i;
@@ -737,7 +737,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
 
                 // find next 'discontinouity' in loads
                 float currentPos = 1.0f;
-                for( LBDataVector::const_iterator i = workingSet.begin();
+                for( LBDatas::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
                 {
                     const Data& data = *i;                        
@@ -752,7 +752,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                 EQLOG( LOG_LB2 ) << "Computing load in Y " << splitPos << "..."
                                 << currentPos << std::endl;
                 float currentLoad = 0.f;
-                for( LBDataVector::const_iterator i = workingSet.begin();
+                for( LBDatas::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
                 {
                     const Data& data = *i;
@@ -868,7 +868,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
             float          timeLeft = node->left->time;
             float          splitPos = range.start;
             const float    end      = range.end;
-            LBDataVector workingSet = sortedData[ MODE_DB ];
+            LBDatas workingSet = sortedData[ MODE_DB ];
 
             while( timeLeft > std::numeric_limits< float >::epsilon() && 
                    splitPos < end && !workingSet.empty( ))
@@ -879,8 +879,8 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                 // remove all irrelevant items from working set
                 //   Is there a more clever way? Erasing invalidates iter, even
                 //   if iter is copied and inc'd beforehand.
-                LBDataVector newSet;
-                for( LBDataVector::const_iterator i = workingSet.begin();
+                LBDatas newSet;
+                for( LBDatas::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
                 {
                     const Data& data = *i;
@@ -892,7 +892,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
 
                 // find next 'discontinouity' in loads
                 float currentPos = 1.0f;
-                for( LBDataVector::const_iterator i = workingSet.begin();
+                for( LBDatas::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
                 {
                     const Data& data = *i;                        
@@ -907,7 +907,7 @@ void LoadEqualizer::_computeSplit( Node* node, LBDataVector* sortedData,
                 EQLOG( LOG_LB2 ) << "Computing load in range " << splitPos
                                 << "..." << currentPos << std::endl;
                 float currentLoad = 0.f;
-                for( LBDataVector::const_iterator i = workingSet.begin();
+                for( LBDatas::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
                 {
                     const Data& data = *i;

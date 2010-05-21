@@ -68,10 +68,10 @@ namespace fabric
     class Config : public net::Session
     {
     public:
-        typedef std::vector< O* >  ObserverVector;
-        typedef std::vector< L* >  LayoutVector;
-        typedef std::vector< CV* > CanvasVector;
-        typedef std::vector< N* >  NodeVector;
+        typedef std::vector< O* >  Observers;
+        typedef std::vector< L* >  Layouts;
+        typedef std::vector< CV* > Canvases;
+        typedef std::vector< N* >  Nodes;
 
         /** Destruct a config. @version 1.0 */
         EQFABRIC_EXPORT virtual ~Config();
@@ -85,16 +85,16 @@ namespace fabric
         EQFABRIC_EXPORT base::RefPtr< const S > getServer() const;
 
         /** @return the vector of observers, app-node only. @version 1.0 */
-        const ObserverVector& getObservers() const { return _observers; }
+        const Observers& getObservers() const { return _observers; }
 
         /** @return the vector of layouts, app-node only. @version 1.0 */
-        const LayoutVector& getLayouts() const { return _layouts; }
+        const Layouts& getLayouts() const { return _layouts; }
 
         /** @return the vector of canvases, app-node only. @version 1.0 */
-        const CanvasVector& getCanvases() const { return _canvases; }
+        const Canvases& getCanvases() const { return _canvases; }
 
         /** @return the vector of nodes. */
-        const NodeVector& getNodes() const { return _nodes; }
+        const Nodes& getNodes() const { return _nodes; }
 
         /** 
          * Traverse this config and all children using a config visitor.
@@ -264,16 +264,16 @@ namespace fabric
         float _fAttributes[FATTR_ALL];
 
         /** The list of observers. */
-        ObserverVector _observers;
+        Observers _observers;
 
         /** The list of layouts. */
-        LayoutVector _layouts;
+        Layouts _layouts;
 
         /** The list of canvases. */
-        CanvasVector _canvases;
+        Canvases _canvases;
 
         /** The list of nodes. */
-        NodeVector _nodes;
+        Nodes _nodes;
 
         /** The node identifier of the node running the application thread. */
         net::NodeID _appNodeID;

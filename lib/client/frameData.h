@@ -77,7 +77,7 @@ namespace server
         uint32_t getPhase() const { return _data.phase; }
 
         /** The images of this frame data holder */
-        const ImageVector& getImages() const { return _images; }
+        const Images& getImages() const { return _images; }
 
         /** The covered area. */
         void setPixelViewport( const PixelViewport& pvp ) { _data.pvp = pvp; }
@@ -216,9 +216,9 @@ namespace server
 
         friend class eq::server::FrameData;
 
-        ImageVector  _images;
-        ImageVector  _imageCache;
-        base::Lock   _imageCacheLock;
+        Images _images;
+        Images _imageCache;
+        base::Lock _imageCacheLock;
 
         ROIFinder* _roiFinder;
 
