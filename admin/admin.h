@@ -25,7 +25,6 @@
 #include <eq/admin/channel.h>
 #include <eq/admin/client.h>
 #include <eq/admin/config.h>
-#include <eq/admin/connectServer.h>
 #include <eq/admin/init.h>
 #include <eq/admin/layout.h>
 #include <eq/admin/node.h>

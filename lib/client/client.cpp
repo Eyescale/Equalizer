@@ -28,6 +28,7 @@
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
 #include <eq/net/connectionDescription.h>
+#include <eq/net/global.h>
 #include <eq/base/dso.h>
 
 namespace eq
@@ -164,6 +165,18 @@ bool Client::disconnectServer( ServerPtr server )
 
     _mainThreadQueue.flush();
     return success;
+}
+
+bool Client::listen()
+{
+    if( getConnectionDescriptions().empty( )) // add default listener
+    {
+        net::ConnectionDescriptionPtr connDesc = new net::ConnectionDescription;
+        connDesc->type = net::CONNECTIONTYPE_TCPIP;
+        connDesc->port = net::Global::getDefaultPort();
+        addConnectionDescription( connDesc );
+    }
+    return Super::listen();
 }
 
 bool Client::clientLoop()

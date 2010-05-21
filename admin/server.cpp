@@ -34,13 +34,13 @@ namespace
 }
 
 typedef net::CommandFunc< Server > CmdFunc;
-typedef fabric::Server< Server, Config, NodeFactory > Super;
+typedef fabric::Server< Client, Server, Config, NodeFactory > Super;
 
 Server::Server()
         : Super( &_nf )
 {}
 
-void Server::setClient( fabric::ClientPtr client )
+void Server::setClient( ClientPtr client )
 {
     Super::setClient( client );
     if( !client )
@@ -101,8 +101,8 @@ net::CommandResult Server::_cmdUnmapReply( net::Command& command )
 }
 }
 #include "../lib/fabric/server.ipp"
-template class eq::fabric::Server< eq::admin::Server, eq::admin::Config,
-                                   eq::admin::NodeFactory >;
+template class eq::fabric::Server< eq::admin::Client, eq::admin::Server,
+                                   eq::admin::Config, eq::admin::NodeFactory >;
 
 /** @cond IGNORE */
 template std::ostream& eq::fabric::operator << ( std::ostream&,

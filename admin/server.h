@@ -34,7 +34,7 @@ namespace admin
      *
      * @sa Client::connectServer
      */
-    class Server : public fabric::Server< Server, Config, NodeFactory >
+    class Server : public fabric::Server< Client, Server, Config, NodeFactory >
     {
     public:
         /** Construct a new server. @version 1.0 */
@@ -49,7 +49,7 @@ namespace admin
         /** Unmap all server data. @internal */
         void unmap();
 
-        virtual void setClient( fabric::ClientPtr client ); //!< @internal
+        virtual void setClient( ClientPtr client ); //!< @internal
         net::CommandQueue* getMainThreadQueue(); //!< @internal
 
     private:

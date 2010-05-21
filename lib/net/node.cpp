@@ -251,16 +251,6 @@ bool Node::initLocal( const int argc, char** argv )
         }
     }
     
-    if( _connectionDescriptions.empty( )) // add default listener
-    {
-        ConnectionDescriptionPtr connDesc = new ConnectionDescription;
-        connDesc->type = CONNECTIONTYPE_TCPIP;
-        connDesc->port = Global::getDefaultPort();
-        addConnectionDescription( connDesc );
-    }
-
-    EQVERB << "Listener data: " << serialize() << std::endl;
-
     if( !listen( ))
     {
         EQWARN << "Can't setup listener(s) on " << *this << std::endl; 
@@ -284,6 +274,7 @@ bool Node::initLocal( const int argc, char** argv )
 
 bool Node::listen()
 {
+    EQVERB << "Listener data: " << serialize() << std::endl;
     if( !isClosed( ))
         return false;
 

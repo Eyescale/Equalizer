@@ -63,47 +63,4 @@ int main( const int argc, char** argv )
 
 void _runMainLoop( eq::admin::ServerPtr server )
 {
-    // Find first pipe...
-    const eq::admin::ConfigVector& configs = server->getConfigs();
-    if( configs.empty( ))
-    {
-        std::cout << "No configs on server, exiting" << std::endl;
-        return;
-    }
-
-    eq::admin::Config* config = configs.front();
-    const eq::admin::NodeVector& nodes = config->getNodes();
-    if( nodes.empty( ))
-    {
-        std::cout << "No nodes in config, exiting" << std::endl;
-        return;
-    }
- 
-    const eq::admin::Node* node = nodes.front();
-    const eq::admin::PipeVector& pipes = node->getPipes();
-    if( pipes.empty( ))
-    {
-        std::cout << "No pipes in node, exiting" << std::endl;
-        return;
-    }
-
-    eq::admin::Pipe* pipe = pipes.front();
-    EQASSERT( pipe );
-    //std::cout << "Using " << *pipe << std::endl;
-
-    // Add window (->channel->segment->canvas->layout->view)
-    eq::admin::Window* window = new eq::admin::Window( pipe );
-    eq::admin::Channel* channel = new eq::admin::Channel( window );
-    eq::admin::Canvas* canvas = new eq::admin::Canvas( config );
-    eq::admin::Segment* segment = new eq::admin::Segment( canvas );
-    eq::admin::Layout* layout = new eq::admin::Layout( config );
-    new eq::admin::View( layout );
-
-    window->setViewport( eq::fabric::Viewport( 0.1f, 0.1f, 0.3f, 0.3f ));
-    window->setName( "Runtime-created window" );
-    
-    segment->setChannel( channel );
-    canvas->addLayout( layout );
-    
-    config->commit();
 }

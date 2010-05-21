@@ -41,7 +41,8 @@ namespace server
     /**
      * The Equalizer server.
      */
-    class Server : public fabric::Server< Server, Config, NodeFactory >
+    class Server : public fabric::Server< net::Node, Server, Config,
+                                          NodeFactory >
     {
     public:
         /** 
@@ -77,6 +78,9 @@ namespace server
 
         void registerConfig( Config* config );
         bool deregisterConfig( Config* config );
+
+        /** @sa net::Node::listen() @internal */
+        virtual bool listen();
 
     protected:
         virtual ~Server();

@@ -44,12 +44,20 @@ Client::~Client()
 
 bool Client::connectServer( ServerPtr server )
 {
-    return eq::admin::connectServer( this, server );
+    if( !Super::connectServer( server.get( )))
+        return false;
+
+    server->setClient( this );
+    server->map();
+    EQINFO << "Connected " << server << std::endl;
+    return true;
 }
 
 bool Client::disconnectServer( ServerPtr server )
 {
-    return eq::admin::disconnectServer( this, server );
+    server->unmap();
+    server->setClient( 0 );
+    return Super::disconnectServer( server.get( ));
 }
 
 net::NodePtr Client::createNode( const uint32_t type )

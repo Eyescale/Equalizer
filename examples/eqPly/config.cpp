@@ -21,6 +21,8 @@
 #include "view.h"
 #include "modelAssigner.h"
 
+#include <admin/addWindow.h>
+
 namespace eqPly
 {
 
@@ -117,8 +119,9 @@ bool Config::exit()
 
     if( _admin.isValid( ))
     {
-        eq::ClientPtr client = getClient();
-        eq::admin::disconnectServer( client.get(), _admin );
+        eq::admin::ClientPtr client = _admin->getClient();
+        client->disconnectServer( _admin );
+        client->exitLocal();
         _admin = 0;
         eq::admin::exit();
     }
@@ -629,9 +632,12 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             return true;
 
         case 'a':
-            //_addWindow();
+        {
+            eq::admin::ServerPtr server = getAdminServer();
+            if( server.isValid( ))
+                eqAdmin::addWindow( server );
             return true;
-
+        }
         case 'A':
             //_removeWindow();
             return true;
@@ -892,16 +898,22 @@ eq::admin::ServerPtr Config::getAdminServer()
         return _admin;
 
     eq::admin::init( 0, 0 );
-    _admin = new eq::admin::Server;
-    eq::ClientPtr client = getClient();
 
-    if( !eq::admin::connectServer( client.get(), _admin ))
+    eq::admin::ClientPtr client = new eq::admin::Client;
+    if( !client->initLocal( 0, 0 ))
     {
-        _setMessage( "Can't open connection to administrate server" );
-        _admin = 0;
+        _setMessage( "Can't init admin client" );
         eq::admin::exit();
     }
 
+    _admin = new eq::admin::Server;
+    if( !client->connectServer( _admin ))
+    {
+        _setMessage( "Can't open connection to administrate server" );
+        client->exitLocal();
+        _admin = 0;
+        eq::admin::exit();
+    }
     return _admin;
 }
 

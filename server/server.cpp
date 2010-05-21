@@ -32,6 +32,7 @@
 #include <eq/client/packets.h>
 #include <eq/net/command.h>
 #include <eq/net/connectionDescription.h>
+#include <eq/net/global.h>
 #include <eq/net/init.h>
 #include <eq/net/node.h>
 #include <eq/base/refPtr.h>
@@ -52,7 +53,7 @@ static NodeFactory _nf;
 }
 
 typedef net::CommandFunc<Server> ServerFunc;
-typedef fabric::Server< Server, Config, NodeFactory > Super;
+typedef fabric::Server< net::Node, Server, Config, NodeFactory > Super;
 
 Server::Server()
         : Super( &_nf )
@@ -139,6 +140,18 @@ VisitorResult Server::accept( ServerVisitor& visitor )
 VisitorResult Server::accept( ServerVisitor& visitor ) const
 {
     return _accept( this, visitor );
+}
+
+bool Server::listen()
+{
+    if( getConnectionDescriptions().empty( )) // add default listener
+    {
+        net::ConnectionDescriptionPtr connDesc = new net::ConnectionDescription;
+        connDesc->type = net::CONNECTIONTYPE_TCPIP;
+        connDesc->port = net::Global::getDefaultPort();
+        addConnectionDescription( connDesc );
+    }
+    return Super::listen();
 }
 
 bool Server::run()
@@ -480,6 +493,7 @@ net::CommandResult Server::_cmdUnmap( net::Command& command )
 }
 }
 #include "../lib/fabric/server.ipp"
-template class eq::fabric::Server< eq::server::Server, eq::server::Config,
+template class eq::fabric::Server< eq::net::Node, eq::server::Server,
+                                   eq::server::Config,
                                    eq::server::NodeFactory >;
 

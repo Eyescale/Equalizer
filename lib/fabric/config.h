@@ -227,7 +227,7 @@ namespace fabric
         void map( const net::ObjectVersion proxy );
         virtual void unmap();
         void sync( const uint32_t version );
-        template< class, class, class > friend class Server; // map/unmap
+        template< class, class, class, class > friend class Server; // map/unmap
 
         void setAppNodeID( const net::NodeID& nodeID );
         const net::NodeID& getAppNodeID() const { return _appNodeID; }

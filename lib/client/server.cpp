@@ -33,7 +33,7 @@ namespace eq
 {
 
 typedef net::CommandFunc< Server > CmdFunc;
-typedef fabric::Server< Server, Config, NodeFactory > Super;
+typedef fabric::Server< Client, Server, Config, NodeFactory > Super;
 
 Server::Server()
         : Super( Global::getNodeFactory( ))
@@ -49,7 +49,7 @@ Server::~Server()
 
 void Server::setClient( ClientPtr client )
 {
-    Super::setClient( client.get( ));
+    Super::setClient( client );
     if( !client )
         return;
 
@@ -60,20 +60,6 @@ void Server::setClient( ClientPtr client )
                      CmdFunc( this, &Server::_cmdReleaseConfigReply ), queue );
     registerCommand( fabric::CMD_SERVER_SHUTDOWN_REPLY, 
                      CmdFunc( this, &Server::_cmdShutdownReply ), queue );
-}
-
-ClientPtr Server::getClient()
-{ 
-    fabric::ClientPtr fClient = Super::getClient(); 
-    ClientPtr client = EQSAFECAST( Client*, fClient.get( ));
-    return client;
-}
-
-ConstClientPtr Server::getClient() const
-{ 
-    fabric::ConstClientPtr fClient = Super::getClient(); 
-    ConstClientPtr client = EQSAFECAST( const Client*, fClient.get( ));
-    return client;
 }
 
 net::CommandQueue* Server::getMainThreadQueue()
@@ -200,5 +186,6 @@ net::CommandResult Server::_cmdShutdownReply( net::Command& command )
 }
 
 #include "../fabric/server.ipp"
-template class eq::fabric::Server< eq::Server, eq::Config, eq::NodeFactory >;
+template class eq::fabric::Server< eq::Client, eq::Server, eq::Config,
+                                   eq::NodeFactory >;
 

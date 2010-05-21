@@ -72,6 +72,9 @@ namespace eq
             { return &_mainThreadQueue; }
 
     protected:
+        /** @sa net::Node::listen() @internal */
+        virtual bool listen();
+
         /**
          * Implements the processing loop for render clients. 
          *
