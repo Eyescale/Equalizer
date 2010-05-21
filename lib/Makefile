@@ -10,6 +10,7 @@ HEADER_SRC = \
 	fabric.h \
 	net.h \
 	util.h \
+	admin.h \
 	base/atomic.h \
 	base/base.h \
 	base/buffer.h \

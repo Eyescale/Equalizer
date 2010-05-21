@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQADMIN_H
-#define EQADMIN_H
+#ifndef EQ_ADMIN_H
+#define EQ_ADMIN_H
 
 #pragma warning(push)
 #pragma warning(disable : 4244) //conversion from .. to ..,possible loss of data
@@ -40,4 +40,4 @@
 #include <eq/net.h>
 
 #pragma warning(pop)
-#endif // EQADMIN_H
+#endif // EQ_ADMIN_H

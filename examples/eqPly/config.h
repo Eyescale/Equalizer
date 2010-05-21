@@ -19,7 +19,7 @@
 #define EQ_PLY_CONFIG_H
 
 #include <eq/eq.h>
-#include <eq/admin/admin.h>
+#include <eq/admin.h>
 
 // members
 #include "localInitData.h"
