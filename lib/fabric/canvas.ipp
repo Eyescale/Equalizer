@@ -78,34 +78,10 @@ void Canvas< CFG, C, S, L >::serialize( net::DataOStream& os,
 
     if( dirtyBits & DIRTY_LAYOUT )
         os << _data.activeLayout;
-
-    if( dirtyBits & DIRTY_CHILDREN )
-    {
-        for( typename SegmentVector::const_iterator i = _segments.begin(); 
-             i != _segments.end(); ++i )
-        {
-            S* segment = *i;
-            EQASSERT( segment->getID() != EQ_ID_INVALID );
-            EQASSERT( segment->isMaster( ));
-            os << segment->getID();
-        }
-        os << EQ_ID_INVALID;
-
-        for( typename LayoutVector::const_iterator i = _layouts.begin(); 
-             i != _layouts.end(); ++i )
-        {
-            L* layout = *i;
-            if( layout )
-            {
-                EQASSERT( layout->getID() != EQ_ID_INVALID );
-                EQASSERT( layout->isMaster( ));
-                os << layout->getID();
-            }
-            else
-                os << EQ_ID_NONE;
-        }
-        os << EQ_ID_INVALID;
-    }
+    if( dirtyBits & DIRTY_SEGMENTS )
+        os.serializeChildren( this, _segments );
+    if( dirtyBits & DIRTY_LAYOUTS )
+        os.serializeChildren( this, _layouts );
     if( dirtyBits & DIRTY_FRUSTUM )
         os << *static_cast< Frustum* >( this );
 }
@@ -124,22 +100,28 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
         _data.activeLayout = index;
     }
 
-    if( dirtyBits & DIRTY_CHILDREN )
+    if( dirtyBits & DIRTY_SEGMENTS )
     {
-        EQASSERT( _segments.empty( ));
-        EQASSERT( _layouts.empty( ));
         EQASSERT( _config );
 
-        uint32_t id;
-        for( is >> id; id != EQ_ID_INVALID; is >> id )
+        SegmentVector result;
+        is.deserializeChildren( this, _segments, result );
+        _segments.swap( result );
+        EQASSERT( _segments.size() == result.size( ));
+    }
+
+    if( dirtyBits & DIRTY_LAYOUTS )
+    {
+        EQASSERT( _config );
+        EQASSERT( _layouts.empty( ));
+
+        net::ObjectVersionVector layouts;
+        is >> layouts;
+        for( net::ObjectVersionVector::const_iterator i = layouts.begin();
+             i != layouts.end(); ++i )
         {
-            S* segment = _config->getServer()->getNodeFactory()->createSegment(
-                static_cast< C* >( this ));
-            _config->mapObject( segment, id );
-        }
-        for( is >> id; id != EQ_ID_INVALID; is >> id )
-        {
-            EQASSERT( _config );
+            const uint32_t id = (*i).identifier;
+
             if( id == EQ_ID_NONE )
                 _layouts.push_back( 0 );
             else
@@ -153,6 +135,27 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
     }
     if( dirtyBits & DIRTY_FRUSTUM )
         is >> *static_cast< Frustum* >( this );
+}
+
+template< class CFG, class C, class S, class L >
+void Canvas< CFG, C, S, L >::setDirty( const uint64_t dirtyBits )
+{
+    Object::setDirty( dirtyBits );
+    if( isMaster( ))
+        _config->setDirty( CFG::DIRTY_CANVASES );
+}
+
+template< class CFG, class C, class S, class L >
+void Canvas< CFG, C, S, L >::create( S** segment )
+{
+    *segment = _config->getServer()->getNodeFactory()->createSegment( 
+        static_cast< C* >( this ));
+}
+
+template< class CFG, class C, class S, class L >
+void Canvas< CFG, C, S, L >::release( S* segment )
+{
+    _config->getServer()->getNodeFactory()->releaseSegment( segment );
 }
 
 template< class CFG, class C, class S, class L >

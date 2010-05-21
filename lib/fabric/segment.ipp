@@ -59,7 +59,7 @@ void Segment< C, S, CH >::serialize( net::DataOStream& os,
 
 template< class C, class S, class CH >
 void Segment< C, S, CH >::deserialize( net::DataIStream& is,
-                                   const uint64_t dirtyBits )
+                                       const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_VIEWPORT )
@@ -77,6 +77,14 @@ void Segment< C, S, CH >::deserialize( net::DataIStream& is,
         if( ov.identifier != EQ_ID_NONE )
             _canvas->getConfig()->find( ov.identifier, &_channel );
     }
+}
+
+template< class C, class S, class CH >
+void Segment< C, S, CH >::setDirty( const uint64_t dirtyBits )
+{
+    Object::setDirty( dirtyBits );
+    if( isMaster( ))
+        _canvas->setDirty( C::DIRTY_SEGMENTS );
 }
 
 template< class C, class S, class CH >

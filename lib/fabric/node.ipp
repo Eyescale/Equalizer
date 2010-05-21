@@ -167,21 +167,26 @@ void Node< C, N, P, V >::serialize( net::DataOStream& os,
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os.write( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
     if( dirtyBits & DIRTY_PIPES )
+    {
+        os << _mapNodeObjects();
         os.serializeChildren( this, _pipes );
+    }
     if( dirtyBits & DIRTY_MEMBER )
         os << _isAppNode;
 }
 
 template< class C, class N, class P, class V >
 void Node< C, N, P, V >::deserialize( net::DataIStream& is,
-                                     const uint64_t dirtyBits )
+                                      const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         is.read( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
     if( dirtyBits & DIRTY_PIPES )
     {
-        if( _mapNodeObjects( ))
+        bool useChildren;
+        is >> useChildren;
+        if( useChildren && _mapNodeObjects( ))
         {
             PipeVector result;
             is.deserializeChildren( this, _pipes, result );
@@ -196,6 +201,14 @@ void Node< C, N, P, V >::deserialize( net::DataIStream& is,
     }
     if( dirtyBits & DIRTY_MEMBER )
         is >> _isAppNode;
+}
+
+template< class C, class N, class P, class V >
+void Node< C, N, P, V >::setDirty( const uint64_t dirtyBits )
+{
+    Object::setDirty( dirtyBits );
+    if( isMaster( ))
+        _config->setDirty( C::DIRTY_NODES );
 }
 
 template< class C, class N, class P, class V >

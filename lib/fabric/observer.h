@@ -110,6 +110,9 @@ namespace fabric
         virtual void deserialize( net::DataIStream& is,
                                   const uint64_t dirtyBits );
 
+        /** @sa Serializable::setDirty() @internal */
+        virtual void setDirty( const uint64_t bits );
+
         enum DirtyBits
         {
             DIRTY_EYE_BASE   = Object::DIRTY_CUSTOM << 0,

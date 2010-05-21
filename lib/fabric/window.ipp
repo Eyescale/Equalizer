@@ -103,7 +103,10 @@ void Window< P, W, C >::serialize( net::DataOStream& os,
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os.write( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
     if( dirtyBits & DIRTY_CHANNELS )
+    {
+        os << _mapNodeObjects();
         os.serializeChildren( this, _channels );
+    }
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _data.vp << _data.pvp << _data.fixedVP;
     if( dirtyBits & DIRTY_DRAWABLECONFIG )
@@ -119,7 +122,9 @@ void Window< P, W, C >::deserialize( net::DataIStream& is,
         is.read( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
     if( dirtyBits & DIRTY_CHANNELS )
     {
-        if( _mapNodeObjects( ))
+        bool useChildren;
+        is >> useChildren;
+        if( useChildren && _mapNodeObjects( ))
         {
             ChannelVector result;
             is.deserializeChildren( this, _channels, result );
@@ -139,6 +144,14 @@ void Window< P, W, C >::deserialize( net::DataIStream& is,
     }
     if( dirtyBits & DIRTY_DRAWABLECONFIG )
         is >> _data.drawableConfig;
+}
+
+template< class P, class W, class C >
+void Window< P, W, C >::setDirty( const uint64_t dirtyBits )
+{
+    Object::setDirty( dirtyBits );
+    if( isMaster( ))
+        _pipe->setDirty( P::DIRTY_WINDOWS );
 }
 
 template< class P, class W, class C >

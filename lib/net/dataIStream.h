@@ -221,6 +221,8 @@ namespace net
             const ObjectVersion& version = *i;
             typename std::vector< C* >::iterator j =
                 stde::find_if( old, ObjectFinder( version.identifier ));
+            const bool isMaster = object->isMaster();
+
             if( j == old.end( )) // previously unknown child
             {
                 C* child = 0;
@@ -229,7 +231,7 @@ namespace net
                 EQASSERT( child );
                 EQASSERT( session );
 
-                if( object->isMaster( ))
+                if( isMaster )
                 {
                     EQASSERT( version.identifier == EQ_ID_INVALID );
                     static_cast< Object* >( child )->applyInstanceData( *this );
@@ -238,7 +240,7 @@ namespace net
                 else
                 {
                     EQASSERT( version.identifier != EQ_ID_INVALID );
-                    session->mapObject( child, version );
+                    EQCHECK( session->mapObject( child, version ));
                 }
                 result.push_back( child );
             }
@@ -246,7 +248,7 @@ namespace net
             {
                 C* child = *j;
                 old.erase( j );
-                child->sync( version.version );
+                child->sync( isMaster ? VERSION_HEAD : version.version );
                 result.push_back( child );
             }
         }

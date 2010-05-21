@@ -88,7 +88,10 @@ void Pipe< N, P, W, V >::serialize( net::DataOStream& os,
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
     if( dirtyBits & DIRTY_WINDOWS )
+    {
+        os << _mapNodeObjects();
         os.serializeChildren( this, _windows );
+    }
     if( dirtyBits & DIRTY_PIXELVIEWPORT )
         os << _data.pvp;
     if( dirtyBits & DIRTY_MEMBER )
@@ -97,14 +100,16 @@ void Pipe< N, P, W, V >::serialize( net::DataOStream& os,
 
 template< class N, class P, class W, class V >
 void Pipe< N, P, W, V >::deserialize( net::DataIStream& is,
-                                   const uint64_t dirtyBits )
+                                      const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
     if( dirtyBits & DIRTY_WINDOWS )
     {
-        if( _mapNodeObjects( ))
+        bool useChildren;
+        is >> useChildren;
+        if( useChildren && _mapNodeObjects( ))
         {
             WindowVector result;
             is.deserializeChildren( this, _windows, result );
@@ -125,6 +130,14 @@ void Pipe< N, P, W, V >::deserialize( net::DataIStream& is,
     }
     if( dirtyBits & DIRTY_MEMBER )
         is >> _port >> _device;
+}
+
+template< class N, class P, class W, class V >
+void Pipe< N, P, W, V >::setDirty( const uint64_t dirtyBits )
+{
+    Object::setDirty( dirtyBits );
+    if( isMaster( ))
+        _node->setDirty( N::DIRTY_PIPES );
 }
 
 template< class N, class P, class W, class V >

@@ -81,6 +81,14 @@ void Observer< C, O >::deserialize( net::DataIStream& is,
 }
 
 template< typename C, typename O >
+void Observer< C, O >::setDirty( const uint64_t dirtyBits )
+{
+    Object::setDirty( dirtyBits );
+    if( isMaster( ))
+        _config->setDirty( C::DIRTY_OBSERVERS );
+}
+
+template< typename C, typename O >
 VisitorResult Observer< C, O >::accept( LeafVisitor< O >& visitor )
 {
     return visitor.visit( static_cast< O* >( this ));

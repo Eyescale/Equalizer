@@ -9,6 +9,7 @@ global
 
 server
 {
+    connection {}
     config
     {
         appNode

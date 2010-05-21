@@ -116,6 +116,9 @@ namespace fabric
 
         virtual void backup(); //!< @internal
         virtual void restore(); //!< @internal
+
+        void create( S** segment ); //!< @internal
+        void release( S* segment ); //!< @internal
         //@}
 
     protected:
@@ -131,6 +134,9 @@ namespace fabric
         /** @sa Frustum::deserialize. @internal */
         EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
+
+        /** @sa Serializable::setDirty() @internal */
+        virtual void setDirty( const uint64_t bits );
 
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
         virtual void activateLayout( const uint32_t index ) { /* NOP */ }
@@ -162,8 +168,9 @@ namespace fabric
         enum DirtyBits
         {
             DIRTY_LAYOUT    = Object::DIRTY_CUSTOM << 0,
-            DIRTY_CHILDREN  = Object::DIRTY_CUSTOM << 1,
-            DIRTY_FRUSTUM   = Object::DIRTY_CUSTOM << 2
+            DIRTY_SEGMENTS  = Object::DIRTY_CUSTOM << 1,
+            DIRTY_LAYOUTS   = Object::DIRTY_CUSTOM << 2,
+            DIRTY_FRUSTUM   = Object::DIRTY_CUSTOM << 3
         };
 
         template< class, class, class > friend class Segment;

@@ -82,6 +82,14 @@ void Layout< C, L, V >::deserialize( net::DataIStream& is,
 }
 
 template< class C, class L, class V >
+void Layout< C, L, V >::setDirty( const uint64_t dirtyBits )
+{
+    Object::setDirty( dirtyBits );
+    if( isMaster( ))
+        _config->setDirty( C::DIRTY_LAYOUTS );
+}
+
+template< class C, class L, class V >
 void Layout< C, L, V >::_unmap()
 {
     C* config = getConfig();

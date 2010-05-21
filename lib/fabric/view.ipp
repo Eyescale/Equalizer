@@ -94,6 +94,14 @@ void View< L, V, O >::deserialize( net::DataIStream& is,
 }
 
 template< class L, class V, class O > 
+void View< L, V, O >::setDirty( const uint64_t dirtyBits )
+{
+    Object::setDirty( dirtyBits );
+    if( isMaster( ))
+        _layout->setDirty( L::DIRTY_VIEWS );
+}
+
+template< class L, class V, class O > 
 void View< L, V, O >::setViewport( const Viewport& viewport )
 {
     _viewport = viewport;

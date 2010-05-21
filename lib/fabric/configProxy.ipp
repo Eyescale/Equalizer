@@ -15,8 +15,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "object.h"
-
 namespace eq
 {
 namespace fabric
@@ -28,17 +26,6 @@ class ConfigProxy : public Object //!< Used for data distribution
 public:
     ConfigProxy( Config< S, C, O, L, CV, N, V >& config );
     virtual ~ConfigProxy() {}
-
-    enum DirtyBits
-    {
-        DIRTY_MEMBER     = Object::DIRTY_CUSTOM << 0,
-        DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 1,
-        DIRTY_OBSERVERS  = Object::DIRTY_CUSTOM << 2,
-        DIRTY_LAYOUTS    = Object::DIRTY_CUSTOM << 3,
-        DIRTY_CANVASES   = Object::DIRTY_CUSTOM << 4,
-        DIRTY_LATENCY    = Object::DIRTY_CUSTOM << 5,
-        DIRTY_NODES      = Object::DIRTY_CUSTOM << 6,
-    };
 
     void create( O** observer ) 
         {
@@ -93,19 +80,19 @@ void ConfigProxy< S, C, O, L, CV, N, V >::serialize( net::DataOStream& os,
 {
     Object::serialize( os, dirtyBits );
 
-    if( dirtyBits & DIRTY_MEMBER )
+    if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_MEMBER )
         os << _config._appNodeID;
-    if( dirtyBits & DIRTY_ATTRIBUTES )
+    if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_ATTRIBUTES )
         os.write( _config._fAttributes, C::FATTR_ALL * sizeof( float ));
-    if( dirtyBits & DIRTY_NODES )
+    if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_NODES )
         os.serializeChildren( this, _config._nodes );
-    if( dirtyBits & DIRTY_OBSERVERS )
+    if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_OBSERVERS )
         os.serializeChildren( this, _config._observers );
-    if( dirtyBits & DIRTY_LAYOUTS )
+    if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_LAYOUTS )
         os.serializeChildren( this, _config._layouts );
-    if( dirtyBits & DIRTY_CANVASES )
+    if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_CANVASES )
         os.serializeChildren( this, _config._canvases );
-    if( dirtyBits & DIRTY_LATENCY )
+    if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_LATENCY )
         os << _config._data.latency;
 }
 
@@ -115,12 +102,12 @@ void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
 {
     Object::deserialize( is, dirtyBits );
 
-    if( dirtyBits & DIRTY_MEMBER )
+    if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_MEMBER )
         is >> _config._appNodeID;
-    if( dirtyBits & DIRTY_ATTRIBUTES )
+    if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_ATTRIBUTES )
         is.read( _config._fAttributes, C::FATTR_ALL * sizeof( float ));
 
-    if( dirtyBits & DIRTY_NODES )
+    if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_NODES )
     {
         if( _config.mapNodeObjects( ))
         {
@@ -138,21 +125,21 @@ void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
 
     if( _config.mapViewObjects( )) // depends on _config._appNodeID !
     {
-        if( dirtyBits & DIRTY_OBSERVERS )
+        if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_OBSERVERS )
         {
             typename C::ObserverVector result;
             is.deserializeChildren( this, _config._observers, result );
             _config._observers.swap( result );
             EQASSERT( _config._observers.size() == result.size( ));
         }
-        if( dirtyBits & DIRTY_LAYOUTS )
+        if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_LAYOUTS )
         {
             typename C::LayoutVector result;
             is.deserializeChildren( this, _config._layouts, result );
             _config._layouts.swap( result );
             EQASSERT( _config._layouts.size() == result.size( ));
         }
-        if( dirtyBits & DIRTY_CANVASES )
+        if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_CANVASES )
         {
             typename C::CanvasVector result;
             is.deserializeChildren( this, _config._canvases, result );
@@ -163,15 +150,15 @@ void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
     else // consume unused ObjectVersions
     {
         net::ObjectVersionVector childIDs;
-        if( dirtyBits & DIRTY_OBSERVERS )
+        if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_OBSERVERS )
             is >> childIDs;
-        if( dirtyBits & DIRTY_LAYOUTS )
+        if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_LAYOUTS )
             is >> childIDs;
-        if( dirtyBits & DIRTY_CANVASES )
+        if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_CANVASES )
             is >> childIDs;
     }
 
-    if( dirtyBits & DIRTY_LATENCY )
+    if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_LATENCY )
     {
         uint32_t latency = 0;
         is >> latency;

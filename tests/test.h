@@ -63,10 +63,10 @@ public:
                       "Watchdog triggered - " << _name <<
                       " did not terminate within " << EQ_TEST_RUNTIME << "s" );
 #else
-            eq::base::sleep( 10000 );
+            eq::base::sleep( 60000 );
             TESTINFO( false, 
                       "Watchdog triggered - " << _name <<
-                      " did not terminate within 10s" );
+                      " did not terminate within 1 minute" );
 #endif
         }
 

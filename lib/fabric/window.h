@@ -172,6 +172,9 @@ namespace fabric
         EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
         
+        /** @sa Serializable::setDirty() @internal */
+        virtual void setDirty( const uint64_t bits );
+
         void _setDrawableConfig( const DrawableConfig& drawableConfig );
 
         virtual ChangeType getChangeType() const { return UNBUFFERED; }

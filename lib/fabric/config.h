@@ -21,6 +21,7 @@
 
 #include <eq/fabric/types.h>         // typedefs
 #include <eq/fabric/visitorResult.h> // enum
+#include <eq/fabric/object.h>        // DIRTY_CUSTOM enum
 
 #include <eq/net/session.h>          // base class
 
@@ -208,6 +209,9 @@ namespace fabric
         /** Restore the last backup. @internal */
         EQFABRIC_EXPORT virtual void restore();
 
+        /** @sa Serializable::setDirty() @internal */
+        void setDirty( const uint64_t bits );
+
         /** Commit a new version. @internal */
         uint32_t commit();
         //@}
@@ -242,6 +246,17 @@ namespace fabric
         //@}
 
     private:
+        enum DirtyBits
+        {
+            DIRTY_MEMBER     = Object::DIRTY_CUSTOM << 0,
+            DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 1,
+            DIRTY_OBSERVERS  = Object::DIRTY_CUSTOM << 2,
+            DIRTY_LAYOUTS    = Object::DIRTY_CUSTOM << 3,
+            DIRTY_CANVASES   = Object::DIRTY_CUSTOM << 4,
+            DIRTY_LATENCY    = Object::DIRTY_CUSTOM << 5,
+            DIRTY_NODES      = Object::DIRTY_CUSTOM << 6,
+        };
+
         /** The parent server. */
         base::RefPtr< S > _server;
         

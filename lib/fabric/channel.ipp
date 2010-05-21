@@ -149,6 +149,14 @@ void Channel< W, C >::deserialize( net::DataIStream& is,
         is >> _color;
 }
 
+template< class W, class C >
+void Channel< W, C >::setDirty(const uint64_t dirtyBits )
+{
+    Object::setDirty( dirtyBits );
+    if( isMaster( ))
+        _window->setDirty( W::DIRTY_CHANNELS );
+}
+
 //----------------------------------------------------------------------
 // viewport
 //----------------------------------------------------------------------

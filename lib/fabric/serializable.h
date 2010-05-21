@@ -108,7 +108,7 @@ namespace fabric
         };
 
         /** Add dirty flags to mark data for distribution. @version 1.0 */
-        void setDirty( const uint64_t bits ) { _dirty |= bits; }
+        virtual void setDirty( const uint64_t bits ) { _dirty |= bits; }
 
         /** @sa eq::net::Object::attachToSession. @internal */
         virtual void attachToSession( const uint32_t id,

@@ -980,7 +980,8 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
         }
         else
         {
-            EQWARN << "Version " << version << " no longer available (oldest "
+            EQWARN << "Version " << version << " of " << typeid(*master).name()
+                   << " " << id << " no longer available (oldest "
                    << master->getOldestVersion() << ")" << std::endl;
             reply.result = false;
         }

@@ -448,7 +448,7 @@ void Config< S, C, O, L, CV, N, V >::setLatency( const uint32_t latency )
         return;
 
     _data.latency = latency;
-    _proxy->setDirty( ConfigProxy< S, C, O, L, CV, N, V >::DIRTY_MEMBER );
+    _proxy->setDirty( DIRTY_MEMBER );
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
@@ -458,7 +458,7 @@ void Config< S, C, O, L, CV, N, V >::setAppNodeID( const net::NodeID& nodeID )
         return;
 
     _appNodeID = nodeID;
-    _proxy->setDirty( ConfigProxy< S, C, O, L, CV, N, V >::DIRTY_MEMBER );
+    _proxy->setDirty( DIRTY_MEMBER );
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
@@ -486,7 +486,7 @@ void Config< S, C, O, L, CV, N, V >::restore()
     }
     else
         _data = _backup;
-    _proxy->setDirty( ConfigProxy< S, C, O, L, CV, N, V >::DIRTY_MEMBER );
+    _proxy->setDirty( DIRTY_MEMBER );
 }
 
 // TODO move visitors for operations on childs here.
@@ -544,6 +544,12 @@ void Config< S, C, O, L, CV, N, V >::unmap()
     }
 
     unmapObject( _proxy );
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+void Config< S, C, O, L, CV, N, V >::setDirty( const uint64_t dirtyBits )
+{
+    return _proxy->setDirty( dirtyBits );
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >

@@ -1,4 +1,5 @@
-Fix Linux build
+Admin API:
+- Various serialization bugfixes
 
 [ ] May break build
 [ ] May break existing applications
