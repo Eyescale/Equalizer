@@ -1,13 +1,9 @@
-Admin API:
-- start using admin API in eqPly
-- add XCode support
-- some include file cleanups [more to follow]
+More include file cleanups
 
-
-[x] May break build
+[ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

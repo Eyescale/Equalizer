@@ -7,6 +7,9 @@ HEADER_SRC = \
 	plugins/compressor.h \
 	client.h \
 	eq.h \
+	fabric.h \
+	net.h \
+	util.h \
 	base/atomic.h \
 	base/base.h \
 	base/buffer.h \
@@ -73,7 +76,6 @@ HEADER_SRC = \
 	net/init.h \
 	net/instanceCache.h \
 	net/log.h \
-	net/net.h \
 	net/node.h \
 	net/nodeType.h \
 	net/object.h \
@@ -96,7 +98,6 @@ HEADER_SRC = \
 	fabric/drawableConfig.h \
 	fabric/elementVisitor.h \
 	fabric/eye.h \
-	fabric/fabric.h \
 	fabric/frustum.h \
 	fabric/global.h \
 	fabric/layout.h \
@@ -180,7 +181,6 @@ HEADER_SRC = \
 	util/objectManager.h \
 	util/texture.h \
 	util/types.h \
-	util/util.h \
 
 CXXFILES = \
 	base/compressor.cpp \

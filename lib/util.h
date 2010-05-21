@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,18 +15,24 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_H
-#define EQNET_H
+#ifndef EQUTIL_H
+#define EQUTIL_H
 
-#include <eq/net/barrier.h>
-#include <eq/net/command.h>
-#include <eq/net/connection.h>
-#include <eq/net/connectionType.h>
-#include <eq/net/dataIStream.h>
-#include <eq/net/dataOStream.h>
-#include <eq/net/global.h>
-#include <eq/net/init.h>
-#include <eq/net/object.h>
+/** 
+ * @namespace eq::util
+ * @brief Equalizer utility classes
+ *
+ * The eq::util namespace groups common utility classes, which mostly facilitate
+ * the usage of OpenGL functions. Most of the classes in this namespace are used
+ * by the core client classes, but are implemented without a depency to the core
+ * classes.
+ */
 
-#endif // EQNET_H
+#include <eq/util/accum.h>
+#include <eq/util/accumBufferObject.h>
+#include <eq/util/bitmapFont.h>
+#include <eq/util/frameBufferObject.h>
+#include <eq/util/objectManager.h>
+
+#endif // EQUTIL_H
 

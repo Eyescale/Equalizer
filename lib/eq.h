@@ -23,9 +23,9 @@
 
 #include <eq/client.h>
 
-#include <eq/util/util.h>
-#include <eq/fabric/fabric.h>
-#include <eq/net/net.h>
+#include <eq/util.h>
+#include <eq/fabric.h>
+#include <eq/net.h>
 #include <eq/base/base.h>
 #include <eq/base/file.h>
 

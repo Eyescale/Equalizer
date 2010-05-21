@@ -35,7 +35,9 @@
 #include <eq/admin/view.h>
 #include <eq/admin/visitorResult.h>
 #include <eq/admin/window.h>
-#include <eq/net/net.h>
+
+#include <eq/fabric.h>
+#include <eq/net.h>
 
 #pragma warning(pop)
 #endif // EQADMIN_H

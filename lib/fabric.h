@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,24 +15,21 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQUTIL_H
-#define EQUTIL_H
-
-#include <eq/util/accum.h>
-#include <eq/util/accumBufferObject.h>
-#include <eq/util/bitmapFont.h>
-#include <eq/util/frameBufferObject.h>
-#include <eq/util/objectManager.h>
+#ifndef EQFABRIC_H
+#define EQFABRIC_H
 
 /** 
- * @namespace eq::util
- * @brief Equalizer utility classes
+ * @namespace eq::fabric
+ * @brief The Equalizer data synchronization fabric.
  *
- * The eq::util namespace groups common utility classes, which mostly facilitate
- * the usage of OpenGL functions. Most of the classes in this namespace are used
- * by the core client classes, but are implemented without a depency to the core
- * classes.
+ * This namespace implements the common data management and transport layer
+ * between the Equalizer applications, the server and the administrative
+ * interface, which use the eq, eq::server and eq::admin namespace,
+ * respectively.
  */
 
-#endif // EQUTIL_H
+#include <eq/fabric/configVisitor.h>
+#include <eq/fabric/drawableConfig.h>
+
+#endif // EQFABRIC_H
 

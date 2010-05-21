@@ -23,14 +23,6 @@
 /** @file fabric/init.h */
 namespace eq
 {
-/** 
- * @brief The Equalizer data synchronization fabric.
- *
- * This namespace implements the common data management and transport layer
- * between the Equalizer applications, the server and the administrative
- * interface, which use the eq, eq::server and eq::admin namespace,
- * respectively.
- */
 namespace fabric
 {
     /**
