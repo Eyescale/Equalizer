@@ -63,8 +63,8 @@ std::string Compound::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_FILL2 )
 };
 
-Compound::Compound()
-        : _config( 0 )
+Compound::Compound( Config* parent )
+        : _config( parent )
         , _parent( 0 )
         , _active( false )
         , _usage( 1.0f )
@@ -72,67 +72,23 @@ Compound::Compound()
         , _frustum( _data.frustumData )
         , _swapBarrier( 0 )
 {
-    EQINFO << "New Compound @" << (void*)this << std::endl;
+    EQASSERT( parent );
+    parent->addCompound( this );
+    EQINFO << "New root compound @" << (void*)this << std::endl;
 }
 
-// copy constructor
-Compound::Compound( const Compound& from, Config* config, Compound* parent )
-        : _name( from._name )
-        , _config( 0 )
-        , _parent( 0 )
+Compound::Compound( Compound* parent )
+        : _config( 0 )
+        , _parent( parent )
         , _active( false )
-        , _usage( from._usage )
-        , _taskID( from._taskID )
-        , _data( from._data )
-        , _frustum( from._frustum, _data.frustumData )
+        , _usage( 1.0f )
+        , _taskID( 0 )
+        , _frustum( _data.frustumData )
         , _swapBarrier( 0 )
 {
-    EQASSERTINFO( (config && !parent) || (!config && parent),
-                  "Either config or parent has to be given" );
-
-    if( config )
-        config->addCompound( this );
-    else
-    {
-        EQASSERT( parent );
-        parent->addChild( this );
-    }
-
-    if( from._data.channel )
-    {
-        const Channel* oldChannel = from._data.channel;
-        const ChannelPath path = oldChannel->getPath();
-
-        _data.channel = getConfig()->getChannel( path );
-        EQASSERT( _data.channel );
-    }
-
-    for( Compounds::const_iterator i = from._children.begin();
-         i != from._children.end(); ++i )
-    {
-        new Compound( **i, 0, this );
-    }
-
-    for( Equalizers::const_iterator i = from._equalizers.begin();
-         i != from._equalizers.end(); ++i )
-    {
-        addEqualizer( (*i)->clone( ));
-    }
-
-    if( from._swapBarrier )
-        _swapBarrier = new SwapBarrier( *from._swapBarrier );
-
-    for( Frames::const_iterator i = from._inputFrames.begin();
-         i != from._inputFrames.end(); ++i )
-    {
-        addInputFrame( new Frame( **i ));
-    }
-
-    for( Frames::const_iterator i = from._outputFrames.begin();
-         i != from._outputFrames.end(); ++i )
-    {
-        addOutputFrame( new Frame( **i ));
-    }
+    EQASSERT( parent );
+    parent->_addChild( this );
+    EQINFO << "New compound child @" << (void*)this << std::endl;
 }
 
 Compound::~Compound()
@@ -159,8 +115,11 @@ Compound::~Compound()
 
     if( _config )
         _config->removeCompound( this );
-
-    _config = 0;
+    else
+    {
+        EQASSERT( _parent );
+        _parent->_removeChild( this );
+    }
 
     for( Frames::const_iterator i = _inputFrames.begin(); 
          i != _inputFrames.end(); ++i )
@@ -181,8 +140,6 @@ Compound::~Compound()
         delete frame;
     }
     _outputFrames.clear();
-
-    _parent = 0;
 }
 
 Compound::InheritData::InheritData()
@@ -202,15 +159,14 @@ Compound::InheritData::InheritData()
             global->getCompoundIAttribute( static_cast< IAttribute >( i ));
 }
 
-void Compound::addChild( Compound* child )
+void Compound::_addChild( Compound* child )
 {
+    EQASSERT( child->_parent == this );
     _children.push_back( child );
-    EQASSERT( !child->_parent );
-    child->_parent = this;
     _fireChildAdded( child );
 }
 
-bool Compound::removeChild( Compound* child )
+bool Compound::_removeChild( Compound* child )
 {
     Compounds::iterator i = stde::find( _children, child );
     if( i == _children.end( ))
@@ -218,7 +174,6 @@ bool Compound::removeChild( Compound* child )
 
     _fireChildRemove( child );
     _children.erase( i );
-    child->_parent = 0;
     return true;
 }
 

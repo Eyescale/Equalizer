@@ -17,6 +17,8 @@
 
 #include <eq/admin/admin.h>
 
+#include <admin/addWindow.h>
+
 void _runMainLoop( eq::admin::ServerPtr server );
 
 int main( const int argc, char** argv )
@@ -63,4 +65,5 @@ int main( const int argc, char** argv )
 
 void _runMainLoop( eq::admin::ServerPtr server )
 {
+    eqAdmin::addWindow( server );
 }

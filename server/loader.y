@@ -801,12 +801,10 @@ segmentField:
 
 compound: EQTOKEN_COMPOUND '{' 
               {
-                  eq::server::Compound* child = new eq::server::Compound();
                   if( eqCompound )
-                      eqCompound->addChild( child );
+                      eqCompound = new eq::server::Compound( eqCompound );
                   else
-                      config->addCompound( child );
-                  eqCompound = child;
+                      eqCompound = new eq::server::Compound( config );
               }
           compoundFields 
           '}' { eqCompound = eqCompound->getParent(); } 

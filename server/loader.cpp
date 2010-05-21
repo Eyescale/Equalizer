@@ -100,15 +100,12 @@ void Loader::addOutputCompounds( ServerPtr server )
         if( channels.empty( ))
             continue;
 
-        Compound* group = new Compound;
-        config->addCompound( group );
+        Compound* group = new Compound( config );
 
         for( Channels::const_iterator j = channels.begin(); 
              j != channels.end(); ++j )
         {
-            Compound* compound = new Compound;
-            group->addChild( compound );
-
+            Compound* compound = new Compound( group );
             Channel* channel = *j;
             compound->setChannel( channel );
         }

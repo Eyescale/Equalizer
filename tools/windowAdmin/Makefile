@@ -6,7 +6,7 @@ PROGRAM = windowAdmin
 CXXFILES = \
 	main.cpp
 
-CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS)
+CXXFLAGS += -I../../examples/include $(WINDOW_SYSTEM_INCS)
 LDFLAGS  += -leqadmin -leq -lpthread $(WINDOW_SYSTEM_LIBS)
 
 ifeq "${ARCH}" "Linux"

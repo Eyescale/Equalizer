@@ -83,7 +83,7 @@ Config::~Config()
          i != _compounds.end(); ++i )
     {
         Compound* compound = *i;
-        compound->_config = 0;
+        removeCompound( compound );
         delete compound;
     }
     _compounds.clear();
@@ -266,18 +266,18 @@ void Config::releaseCanvas( Canvas* canvas )
 
 void Config::addCompound( Compound* compound )
 {
-    compound->_config = this;
+    EQASSERT( compound->_config == this );
     _compounds.push_back( compound );
 }
 
 bool Config::removeCompound( Compound* compound )
 {
+    EQASSERT( compound->_config == this );
     Compounds::iterator i = stde::find( _compounds, compound );
     if( i == _compounds.end( ))
         return false;
 
     _compounds.erase( i );
-    compound->_config = 0;
     return true;
 }
 

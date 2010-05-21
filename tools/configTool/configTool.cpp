@@ -358,9 +358,7 @@ void ConfigTool::_writeCompound( Config* config ) const
 
 void ConfigTool::_write2D( Config* config ) const
 {
-    Compound* compound = new Compound;
-    config->addCompound( compound );
-
+    Compound* compound = new Compound( config );
     Channel* channel = config->find< Channel >( "channel0" );
     compound->setChannel( channel );
     
@@ -375,9 +373,7 @@ void ConfigTool::_write2D( Config* config ) const
     unsigned y = 0;
     for( unsigned i = _useDestination ? 0 : 1; i<_nChannels; ++i )
     {
-        Compound* child = new Compound;
-        compound->addChild( child );
-
+        Compound* child = new Compound( compound );
         std::ostringstream channelName;
         channelName << "channel" << i;
         
@@ -414,15 +410,13 @@ void ConfigTool::_write2D( Config* config ) const
 
 void ConfigTool::_writeDB( Config* config ) const
 {
-    Compound* compound = new Compound;
-    config->addCompound( compound );
-
+    Compound* compound = new Compound( config );
     Channel* channel = config->find< Channel >( "channel0" );
     compound->setChannel( channel );
     compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
 
     if( !_useDestination )
-        compound->setTasks( eq::fabric::TASK_CLEAR | eq::fabric::TASK_ASSEMBLE );
+        compound->setTasks( eq::fabric::TASK_CLEAR|eq::fabric::TASK_ASSEMBLE );
 
     eq::Wall wall;
     wall.bottomLeft  = eq::Vector3f( -.32f, -.2f, -.75f );
@@ -436,9 +430,7 @@ void ConfigTool::_writeDB( Config* config ) const
 
     for( unsigned i = _useDestination ? 0 : 1; i<_nChannels; ++i )
     {
-        Compound* child = new Compound;
-        compound->addChild( child );
-
+        Compound* child = new Compound( compound );
         std::ostringstream channelName;
         channelName << "channel" << i;
         
@@ -473,15 +465,14 @@ void ConfigTool::_writeDB( Config* config ) const
 
 void ConfigTool::_writeDBStream( Config* config ) const
 {
-    Compound* compound = new Compound;
-    config->addCompound( compound );
-
+    Compound* compound = new Compound( config );
     Channel* channel = config->find< Channel >( "channel0" );
+
     compound->setChannel( channel );
     compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
 
     if( !_useDestination )
-        compound->setTasks( eq::fabric::TASK_CLEAR | eq::fabric::TASK_ASSEMBLE );
+        compound->setTasks( eq::fabric::TASK_CLEAR|eq::fabric::TASK_ASSEMBLE );
 
     eq::Wall wall;
     wall.bottomLeft  = eq::Vector3f( -.32f, -.2f, -.75f );
@@ -495,9 +486,7 @@ void ConfigTool::_writeDBStream( Config* config ) const
     unsigned start = 0;
     for( unsigned i = _nChannels; i>stop; --i )
     {
-        Compound* child = new Compound;
-        compound->addChild( child );
-
+        Compound* child = new Compound( compound );
         std::ostringstream channelName;
         channelName << "channel" << i-1;
         
@@ -536,9 +525,7 @@ void ConfigTool::_writeDBStream( Config* config ) const
 
 void ConfigTool::_writeDS( Config* config ) const
 {
-    Compound* compound = new Compound;
-    config->addCompound( compound );
-
+    Compound* compound = new Compound( config );
     Channel* channel = config->find< Channel >( "channel0" );
     compound->setChannel( channel );
     compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
@@ -555,9 +542,7 @@ void ConfigTool::_writeDS( Config* config ) const
     unsigned start = 0;
     for( unsigned i = _useDestination ? 0 : 1; i<_nChannels; ++i )
     {
-        Compound* child = new Compound;
-        compound->addChild( child );
-
+        Compound* child = new Compound( compound );
         std::ostringstream channelName;
         channelName << "channel" << i;
         
@@ -565,9 +550,7 @@ void ConfigTool::_writeDS( Config* config ) const
         child->setChannel( childChannel );
 
         // leaf draw + tile readback compound
-        Compound* drawChild = new Compound;
-        child->addChild( drawChild );
-
+        Compound* drawChild = new Compound( child );
         if( i == _nChannels - 1 ) // last - correct rounding 'error'
         {
             drawChild->setRange(
@@ -727,9 +710,7 @@ void ConfigTool::_writeDSAC( Config* config ) const
 
 void ConfigTool::_writeDPlex( Config* config ) const
 {
-    Compound* compound = new Compound;
-    config->addCompound( compound );
-
+    Compound* compound = new Compound( config );
     Channel* channel = config->find< Channel >( "channel0" );
     compound->setChannel( channel );
     
@@ -745,9 +726,7 @@ void ConfigTool::_writeDPlex( Config* config ) const
     unsigned       phase  = 0;
     for( unsigned i = 1; i<_nChannels; ++i )
     {
-        Compound* child = new Compound;
-        compound->addChild( child );
-
+        Compound* child = new Compound( compound );
         std::ostringstream channelName;
         channelName << "channel" << i;
         

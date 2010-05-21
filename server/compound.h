@@ -51,15 +51,11 @@ namespace server
     class Compound
     {
     public:
-        /** 
-         * Constructs a new Compound.
-         */
-        EQSERVER_EXPORT Compound();
+        /** Construct a new root compound. */
+        EQSERVER_EXPORT Compound( Config* parent );
 
-        /**
-         * Constructs a new, deep copy of the passed compound
-         */
-        Compound( const Compound& from, Config* config, Compound* parent );
+        /** Construct a new compound child. */
+        EQSERVER_EXPORT Compound( Compound* parent );
 
         /** Destruct the compound and all children. */
         virtual ~Compound();
@@ -105,22 +101,6 @@ namespace server
          * @name Data Access
          */
         //@{
-        /** 
-         * Adds a new child to this compound.
-         * 
-         * @param child the child.
-         */
-        EQSERVER_EXPORT void addChild( Compound* child );
-
-        /** 
-         * Removes a child from this compound.
-         * 
-         * @param child the child
-         * @return <code>true</code> if the child was removed, 
-         *         <code>false</code> otherwise.
-         */
-        EQSERVER_EXPORT bool removeChild( Compound* child );
-
         /** @return if the compound is a leaf compound. */
         bool isLeaf() const { return _children.empty(); }
 
@@ -479,13 +459,13 @@ namespace server
         std::string _name;
         
         /** 
-         * The config the compound is attached to, only set on the root 
-         * compound.
+         * The config the compound is attached to, only set on root 
+         * compounds.
          */
         friend class Config;
-        Config* _config;
+        Config* const _config;
 
-        Compound* _parent;
+        Compound* const _parent;
         Compounds _children;
 
         /** Has been activated (by layout) */
@@ -553,6 +533,9 @@ namespace server
         CHECK_THREAD_DECLARE( _serverThread );
 
         //-------------------- Methods --------------------
+        void _addChild( Compound* child );
+        bool _removeChild( Compound* child );
+
         void _updateOverdraw( Wall& wall );
         void _updateInheritPVP();
         void _updateInheritOverdraw();

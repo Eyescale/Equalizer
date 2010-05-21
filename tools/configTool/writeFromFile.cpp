@@ -63,9 +63,7 @@ static void _mode2D(       Config*        config,
     for( unsigned y = 0; y < raws; ++y )
     for( unsigned x = 0; x < columns; ++x )
     {
-        Compound* child = new Compound;
-        compound->addChild( child );
-
+        Compound* child = new Compound( compound );
         std::ostringstream channelName;
         channelName << "channel" << i;
 
@@ -109,9 +107,7 @@ static void _modeDB(       Config*  config,
 
         if( n != 0 ) // don't create separate compound for dst channel
         {
-            childNode = new Compound;
-            compound->addChild( childNode );
-
+            childNode = new Compound( compound );
             std::ostringstream channelName;
             channelName << "channel" << n*nPipes;
 
@@ -122,9 +118,7 @@ static void _modeDB(       Config*  config,
         // for each gpu on the node
         for( unsigned p = 0; p < nPipes; ++p )
         {
-            Compound* childPipe = new Compound;
-            childNode->addChild( childPipe );
-
+            Compound* childPipe = new Compound( childNode );
             childPipe->setRange( eq::Range( ranges[ i ], ranges[ i+1 ] ));
 
             if( i != n*nPipes )
@@ -222,9 +216,7 @@ static void _modeDS(       Config*                config,
 
         if( n != 0 ) // don't create separate compound for dst channel
         {
-            child = new Compound;
-            compound->addChild( child );
-
+            child = new Compound( compound );
             std::ostringstream channelName;
             channelName << "channel" << n*nPipes;
 
@@ -232,15 +224,12 @@ static void _modeDS(       Config*                config,
             child->setChannel( childChannel );
         }
 
-        Compound* childNode = new Compound;
-        child->addChild( childNode );
+        Compound* childNode = new Compound( child );
 
         // for each gpu on the node
         for( unsigned p = 0; p < nPipes; ++p )
         {
-            Compound* childPipe = new Compound;
-            childNode->addChild( childPipe );
-
+            Compound* childPipe = new Compound( childNode );
             childPipe->setRange( eq::Range( ranges[ i ], ranges[ i+1 ] ));
 
             if( i != n*nPipes )
@@ -409,9 +398,7 @@ void ConfigTool::_writeFromDescription( Config* config ) const
         return;
 
 
-    Compound* compound = new Compound;
-    config->addCompound( compound );
-
+    Compound* compound = new Compound( config );
     Channel* channel = config->find< Channel >( "channel0" );
     compound->setChannel( channel );
 
