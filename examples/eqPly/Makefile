@@ -35,7 +35,7 @@ PLYFILES = \
 	 $(SHARE_DIR)/data/screwdriver.ply
 
 CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS)
-LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)
+LDFLAGS  += -leq -leqadmin -lpthread $(WINDOW_SYSTEM_LIBS)
 
 ifeq "${ARCH}" "Linux"
   LDFLAGS += -lrt

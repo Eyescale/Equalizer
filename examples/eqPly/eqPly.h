@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -42,6 +42,7 @@ namespace eqPly
         /** Run an eqPly instance. */
         int run();
 
+        /** @return a string containing an online help description. */
         static const std::string& getHelp();
 
     protected:

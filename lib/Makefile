@@ -5,6 +5,7 @@ MODULE = eq
 
 HEADER_SRC = \
 	plugins/compressor.h \
+	client.h \
 	eq.h \
 	base/atomic.h \
 	base/base.h \

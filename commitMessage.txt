@@ -1,9 +1,13 @@
-Implement glue code to connect an admin::Server to an eq::Client [untested]
+Admin API:
+- start using admin API in eqPly
+- add XCode support
+- some include file cleanups [more to follow]
 
-[ ] May break build
+
+[x] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [x] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

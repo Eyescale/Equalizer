@@ -18,8 +18,8 @@
 #ifndef EQ_PLY_CONFIG_H
 #define EQ_PLY_CONFIG_H
 
-#include <pthread.h> // needed for mtQueue template instantiation
 #include <eq/eq.h>
+#include <eq/admin/admin.h>
 
 // members
 #include "localInitData.h"
@@ -79,6 +79,10 @@ namespace eqPly
     protected:
         virtual ~Config();
 
+        /** @return a pointer to a connected admin server. */
+        eq::admin::ServerPtr getAdminServer();
+
+    private:
         int         _spinX, _spinY;
         int         _advance;
         eq::Canvas* _currentCanvas;
@@ -99,7 +103,9 @@ namespace eqPly
         bool _redraw;
         bool _freeze;
 
-    private:
+        uint32_t _numFramesAA;
+        eq::admin::ServerPtr _admin;
+
         void _loadModels();
         void _loadPath();
         void _deregisterData();
@@ -115,8 +121,6 @@ namespace eqPly
 
         void _setMessage( const std::string& message );
         void _updateData();
-
-        uint32_t _numFramesAA;
     };
 }
 

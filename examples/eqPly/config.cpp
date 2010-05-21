@@ -115,6 +115,14 @@ bool Config::exit()
     const bool ret = eq::Config::exit();
     _deregisterData();
 
+    if( _admin.isValid( ))
+    {
+        eq::ClientPtr client = getClient();
+        eq::admin::disconnectServer( client.get(), _admin );
+        _admin = 0;
+        eq::admin::exit();
+    }
+
     // retain models and distributors for possible other config runs, destructor
     // deletes it
     return ret;
@@ -620,6 +628,14 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             _frameData.toggleRenderMode();
             return true;
 
+        case 'a':
+            //_addWindow();
+            return true;
+
+        case 'A':
+            //_removeWindow();
+            return true;
+
         // Head Tracking Emulation
         case eq::KC_UP:
         {
@@ -868,6 +884,25 @@ void Config::_setMessage( const std::string& message )
 {
     _frameData.setMessage( message );
     _messageTime = getTime();
+}
+
+eq::admin::ServerPtr Config::getAdminServer()
+{
+    if( _admin.isValid() && _admin->isConnected( ))
+        return _admin;
+
+    eq::admin::init( 0, 0 );
+    _admin = new eq::admin::Server;
+    eq::ClientPtr client = getClient();
+
+    if( !eq::admin::connectServer( client.get(), _admin ))
+    {
+        _setMessage( "Can't open connection to administrate server" );
+        _admin = 0;
+        eq::admin::exit();
+    }
+
+    return _admin;
 }
 
 }

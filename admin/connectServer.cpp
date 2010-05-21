@@ -15,27 +15,34 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQADMIN_H
-#define EQADMIN_H
+#include "connectServer.h"
 
-#pragma warning(push)
-#pragma warning(disable : 4244) //conversion from .. to ..,possible loss of data
+#include "server.h"
+#include <eq/fabric/client.h>
 
-#include <eq/admin/canvas.h>
-#include <eq/admin/channel.h>
-#include <eq/admin/client.h>
-#include <eq/admin/config.h>
-#include <eq/admin/connectServer.h>
-#include <eq/admin/init.h>
-#include <eq/admin/layout.h>
-#include <eq/admin/node.h>
-#include <eq/admin/segment.h>
-#include <eq/admin/server.h>
-#include <eq/admin/types.h>
-#include <eq/admin/view.h>
-#include <eq/admin/visitorResult.h>
-#include <eq/admin/window.h>
-#include <eq/net/net.h>
+namespace eq
+{
+namespace admin
+{
 
-#pragma warning(pop)
-#endif // EQADMIN_H
+bool connectServer( eq::fabric::ClientPtr client, ServerPtr server )
+{
+    if( !client->connectServer( server.get( )))
+        return false;
+
+    server->setClient( client );
+    server->map();
+    EQINFO << "Connected " << server << std::endl;
+    return true;
+}
+
+bool disconnectServer( eq::fabric::ClientPtr client, ServerPtr server )
+{
+    server->unmap();
+    server->setClient( 0 );
+    return client->disconnectServer( server.get( ));
+}
+
+}
+}
+
