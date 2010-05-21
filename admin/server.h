@@ -49,7 +49,7 @@ namespace admin
         /** Unmap all server data. @internal */
         void unmap();
 
-        virtual void setClient( ClientPtr client ); //!< @internal
+        virtual void setClient( fabric::ClientPtr client ); //!< @internal
         net::CommandQueue* getMainThreadQueue(); //!< @internal
 
     private:

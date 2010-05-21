@@ -17,6 +17,7 @@
 
 #include "client.h"
 
+#include "connectServer.h"
 #include "server.h"
 #include <eq/net/command.h>
 
@@ -43,20 +44,12 @@ Client::~Client()
 
 bool Client::connectServer( ServerPtr server )
 {
-    if( !Super::connectServer( server.get( )))
-        return false;
-
-    server->setClient( this );
-    server->map();
-    EQINFO << "Connected " << server << std::endl;
-    return true;
+    return eq::admin::connectServer( this, server );
 }
 
 bool Client::disconnectServer( ServerPtr server )
 {
-    server->unmap();
-    server->setClient( 0 );
-    return Super::disconnectServer( server.get( ));
+    return eq::admin::disconnectServer( this, server );
 }
 
 net::NodePtr Client::createNode( const uint32_t type )

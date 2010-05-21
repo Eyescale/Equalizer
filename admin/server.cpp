@@ -40,9 +40,9 @@ Server::Server()
         : Super( &_nf )
 {}
 
-void Server::setClient( ClientPtr client )
+void Server::setClient( fabric::ClientPtr client )
 {
-    Super::setClient( client.get( ));
+    Super::setClient( client );
     if( !client )
         return;
 

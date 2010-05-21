@@ -11,6 +11,7 @@ HEADER_SRC = \
 	channel.h \
 	client.h \
 	config.h \
+	connectServer.h \
 	init.h \
 	layout.h \
 	node.h \
@@ -29,6 +30,7 @@ CXXFILES = \
 	channel.cpp \
 	client.cpp \
 	config.cpp \
+	connectServer.cpp \
 	init.cpp \
 	layout.cpp \
 	node.cpp \
