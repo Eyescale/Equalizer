@@ -120,7 +120,7 @@ namespace fabric
         virtual bool hasMasterUserData() { return getLayout() != 0; }
 
         /** Set number of kept versions to config latency by default. */
-        EQ_EXPORT virtual void notifyAttached();
+        EQFABRIC_EXPORT virtual void notifyAttached();
 
         /** @sa Frustum::serialize() */
         EQFABRIC_EXPORT virtual void serialize( net::DataOStream& os,
