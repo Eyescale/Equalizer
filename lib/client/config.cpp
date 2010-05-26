@@ -146,7 +146,6 @@ bool Config::init( const uint32_t initID )
     ClientPtr client = getClient();
     while( !localNode->isRequestServed( packet.requestID ))
         client->processCommand();
-
     localNode->waitRequest( packet.requestID, _running );
 
     handleEvents();
@@ -234,7 +233,6 @@ uint32_t Config::finishFrame()
 
     ConfigStatistics stat( Statistic::CONFIG_FINISH_FRAME, this );
     stat.event.data.statistic.frameNumber = frameToFinish;
-
     {
         ConfigStatistics waitStat( Statistic::CONFIG_WAIT_FINISH_FRAME, this );
         waitStat.event.data.statistic.frameNumber = frameToFinish;
@@ -244,8 +242,8 @@ uint32_t Config::finishFrame()
             while( _unlockedFrame < _currentFrame )
                 client->processCommand();
 
-        const Nodes& nodes = getNodes();
         // local node finish (frame-latency) sync
+        const Nodes& nodes = getNodes();
         if( !nodes.empty( ))
         {
             EQASSERT( nodes.size() == 1 );
@@ -459,7 +457,7 @@ bool Config::_needsLocalSync() const
 {
     const Nodes& nodes = getNodes();
     if( nodes.empty( ))
-        return false;
+        return true; // server sends unlock command - process it
 
     EQASSERT( nodes.size() == 1 );
     const Node* node = nodes.front();
