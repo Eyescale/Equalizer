@@ -469,6 +469,7 @@ bool Session::mapObjectSync( const uint32_t requestID )
             object->sync( version );
     }
 
+    object->notifyAttached();
     EQLOG( LOG_OBJECTS ) << "Mapped " << typeid( *object ).name() << " to id " 
                          << object->getID() << std::endl;
     return mapped;
@@ -476,12 +477,16 @@ bool Session::mapObjectSync( const uint32_t requestID )
 
 void Session::unmapObject( Object* object )
 {
+    EQASSERT( object );
+
     const uint32_t id = object->getID();
     if( id == EQ_ID_INVALID ) // not registered
         return;
 
     EQLOG( LOG_OBJECTS ) << "Unmap " << typeid( *object ).name() << " from id "
         << object->getID() << std::endl;
+
+    object->notifyDetach();
 
     // send unsubscribe to master, master will send detach packet.
     EQASSERT( !object->isMaster( ));
@@ -533,6 +538,8 @@ bool Session::registerObject( Object* object )
     attachObject( object, id, EQ_ID_INVALID );
 
     _setIDMasterSync( requestID ); // sync, master knows our ID now
+    object->notifyAttached();
+
     EQLOG( LOG_OBJECTS ) << "Registered " << typeid( *object ).name()
                          << " to id " << id << std::endl;
     return true;
@@ -549,6 +556,7 @@ void Session::deregisterObject( Object* object )
                          << " from id " << id << std::endl;
     EQASSERT( object->isMaster( ));
 
+    object->notifyDetach();
     const uint32_t requestID = _unsetIDMasterNB( id );
 
     // unmap slaves

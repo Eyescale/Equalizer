@@ -105,13 +105,12 @@ Compound::~Compound()
     }
     _equalizers.clear();
 
-    for( Compounds::const_iterator i = _children.begin(); 
-         i != _children.end(); ++i )
+    while( !_children.empty( ))
     {
-        Compound* compound = *i;
+        Compound* compound = _children.back();
+        _removeChild( compound );
         delete compound;
     }
-    _children.clear();
 
     if( _config )
         _config->removeCompound( this );

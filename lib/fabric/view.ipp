@@ -185,6 +185,15 @@ void View< L, V, O >::unsetFrustum()
     setDirty( DIRTY_FRUSTUM );
 }
 
+template< class L, class V, class O > 
+void View< L, V, O >::notifyAttached()
+{
+    Object::notifyAttached();
+    net::Object* userData = getUserData();
+    if( userData && userData->isMaster( ))
+        userData->setAutoObsolete( _layout->getConfig()->getLatency( ));
+}
+
 template< class L, class V, class O >
 std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view )
 {

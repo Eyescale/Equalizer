@@ -79,14 +79,12 @@ Config::~Config()
     EQINFO << "Delete config @" << (void*)this << std::endl;
     _appNetNode = 0;
 
-    for( Compounds::const_iterator i = _compounds.begin(); 
-         i != _compounds.end(); ++i )
+    while( !_compounds.empty( ))
     {
-        Compound* compound = *i;
+        Compound* compound = _compounds.back();
         removeCompound( compound );
         delete compound;
     }
-    _compounds.clear();
 }
 
 void Config::notifyMapped( net::NodePtr node )

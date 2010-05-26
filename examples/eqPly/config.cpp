@@ -411,7 +411,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                 return true;
             }
             
-            const eq::View* view = find< eq::View> ( viewID );
+            const eq::View* view = find< eq::View > ( viewID );
             const eq::Layout* layout = view->getLayout();
             const eq::Canvases& canvases = getCanvases();
             for( eq::Canvases::const_iterator i = canvases.begin();

@@ -125,8 +125,16 @@ namespace fabric
         /** Destruct the object. */
         EQ_EXPORT virtual ~Object();
 
+        /**
+         * @return true if this instance shall hold the master instance of the
+         *         user data object, false otherwise.
+         */
+        virtual bool hasMasterUserData() { return false; }
+
         /** Set the tasks this entity might potentially execute. @internal */
         void EQFABRIC_EXPORT setTasks( const uint32_t tasks );
+
+        EQ_EXPORT virtual void notifyDetach();
 
         EQ_EXPORT virtual void serialize( net::DataOStream& os,
                                           const uint64_t dirtyBits );

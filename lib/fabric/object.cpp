@@ -44,15 +44,43 @@ bool Object::isDirty() const
 
 uint32_t Object::commitNB()
 {
-    if( _userData && _userData->isDirty() && 
-        _userData->getID() != EQ_ID_INVALID )
+    if( _userData )
     {
-        _data.userData.identifier = _userData->getID();
-        _data.userData.version = _userData->commit();
-        setDirty( DIRTY_USERDATA );
-        EQASSERT( !_userData->isDirty( ))
+        if( _userData->getID() == EQ_ID_INVALID && hasMasterUserData())
+        {
+            getSession()->registerObject( _userData );
+            _data.userData.identifier = _userData->getID();
+            _data.userData.version = _userData->getVersion();
+            setDirty( DIRTY_USERDATA );
+        }
+
+        if( _userData->isDirty() && _userData->getID() != EQ_ID_INVALID )
+        {
+            _data.userData.identifier = _userData->getID();
+            _data.userData.version = _userData->commit();
+            setDirty( DIRTY_USERDATA );
+            EQASSERT( !_userData->isDirty( ));
+        }
     }
+
     return Serializable::commitNB();
+}
+
+void Object::notifyDetach()
+{
+    Serializable::notifyDetach();
+    if( !_userData )
+        return;
+
+    EQASSERT( _userData->isMaster() == hasMasterUserData( ));
+
+    if( _userData->isMaster( ))
+    {
+        getSession()->deregisterObject( _userData );
+        _data.userData.identifier = EQ_ID_INVALID;
+    }
+    else
+        getSession()->unmapObject( _userData );
 }
 
 void Object::backup()
@@ -90,26 +118,26 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 
         if( _userData )
         {
-            if( _data.userData.identifier == EQ_ID_INVALID )
-            {
-                if( _userData && !_userData->isMaster() && 
-                    _userData->getID() != EQ_ID_INVALID )
-                {
-                    getSession()->unmapObject( _userData );
-                }
-            }
-            else
+            if( _data.userData.identifier <= EQ_ID_MAX )
             {
                 if( _userData->getID() == EQ_ID_INVALID )
+                {
+                    EQASSERT( !hasMasterUserData( ));
                     getSession()->mapObject( _userData,
                                              _data.userData.identifier, 
                                              _data.userData.version );
-                
+                }
+
                 EQASSERT( !_userData->isMaster( ));
                 EQASSERTINFO( _userData->getID() == _data.userData.identifier,
                               _userData->getID() << " != " << 
                               _data.userData.identifier );
                 _userData->sync( _data.userData.version );
+            }
+            else if( _userData->getID() <= EQ_ID_MAX && !_userData->isMaster( ))
+            {
+                EQASSERT( !hasMasterUserData( ));
+                getSession()->unmapObject( _userData );
             }
         }
     }
@@ -132,22 +160,29 @@ void Object::setName( const std::string& name )
 
 void Object::setUserData( net::Object* userData )
 {
-    _userData = userData;
-    if( !userData )
+    EQASSERT( !userData || userData->getID() == EQ_ID_INVALID );
+
+    if( _userData == userData )
         return;
 
-    if( userData->isMaster( ))
+    if( _userData && _userData->getID() <= EQ_ID_MAX )
     {
-        _data.userData.identifier = userData->getID();
-        _data.userData.version = userData->getVersion();
+        EQASSERT( _userData->isMaster() == hasMasterUserData( ));
+        if( _userData->isMaster( ))
+            getSession()->deregisterObject( _userData );
+        else
+            getSession()->unmapObject( _userData );
     }
-    else if( _data.userData.identifier != EQ_ID_INVALID &&
-             _userData->getID() == EQ_ID_INVALID )
+
+    _userData = userData;
+
+    if( hasMasterUserData( ))
+        setDirty( DIRTY_USERDATA );
+    else if( _data.userData.identifier <= EQ_ID_MAX )
     {
         net::Session* session = getSession();
         if( session )
-            session->mapObject( _userData, _data.userData.identifier, 
-                                _data.userData.version );
+            session->mapObject( _userData, _data.userData );
     }
 }
 

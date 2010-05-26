@@ -93,18 +93,18 @@ uint32_t VersionedSlaveCM::commitSync( const uint32_t commitID )
     return version;
 }
 
-uint32_t VersionedSlaveCM::sync( const uint32_t version )
+uint32_t VersionedSlaveCM::sync( const uint32_t v )
 {
-    EQLOG( LOG_OBJECTS ) << "sync to v" << version << ", id " 
-                         << _object->getID() << "." << _object->getInstanceID()
-                         << std::endl;
-    if( _version == version )
+    EQLOG( LOG_OBJECTS ) << "sync to v" << v << ", id " << _object->getID()
+                         << "." << _object->getInstanceID() << std::endl;
+    if( _version == v )
         return _version;
 
     if( !_mutex )
         CHECK_THREAD( _thread );
 
     base::ScopedMutex<> mutex( _mutex );
+    const uint32_t version = (v == VERSION_NEXT) ? _version + 1 : v;
 
     if( version == VERSION_HEAD )
     {

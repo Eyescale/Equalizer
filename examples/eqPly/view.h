@@ -73,8 +73,6 @@ namespace eqPly
             friend class eqPly::View;
         };
 
-        virtual void deserialize( eq::net::DataIStream& is, 
-                                  const uint64_t dirtyBits );
         Proxy _proxy;
         friend class Proxy;
         uint32_t _modelID;

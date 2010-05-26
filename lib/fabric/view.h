@@ -113,6 +113,15 @@ namespace fabric
         /** Destruct this view. @internal */
         EQFABRIC_EXPORT virtual ~View();
 
+        /**
+         * By default, the application view instance holds the user data master.
+         * @sa Object::hasMasterUserData().
+         */
+        virtual bool hasMasterUserData() { return getLayout() != 0; }
+
+        /** Set number of kept versions to config latency by default. */
+        EQ_EXPORT virtual void notifyAttached();
+
         /** @sa Frustum::serialize() */
         EQFABRIC_EXPORT virtual void serialize( net::DataOStream& os,
                                                 const uint64_t dirtyBits );
