@@ -36,6 +36,7 @@ FrameDataStatistics::FrameDataStatistics( const Statistic::Type type,
         : StatisticSampler< FrameData >( type, frameData, frameNumber )
 {
     snprintf( event.data.statistic.resourceName, 32, "node %d", originator );
+    event.data.statistic.resourceName[31] = 0;
 
     const net::Session* session = frameData->getSession();
     EQASSERT( session );

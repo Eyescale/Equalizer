@@ -36,7 +36,7 @@ ConfigStatistics::ConfigStatistics( const Statistic::Type type,
         snprintf( event.data.statistic.resourceName, 32, "config" );
     else
         snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str( ));
-
+    event.data.statistic.resourceName[31] = 0;
     event.data.statistic.startTime = config->getTime();
 }
 

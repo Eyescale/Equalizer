@@ -110,7 +110,8 @@ void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber )
             snprintf( event.data.user.data, 32, "%p", this);
         else
             snprintf( event.data.user.data, 32, "%s", name.c_str( ));
-        event.data.user.data[31] = '\0';
+
+        event.data.user.data[31] = 0;
         event.area.x() = 0;
         event.area.y() = 0;
 
@@ -157,7 +158,7 @@ ConfigEvent Channel::_createConfigEvent()
     else
         snprintf( event.data.user.data, 32, "%s", name.c_str( ));
 
-    event.data.user.data[31] = '\0';
+    event.data.user.data[31] = 0;
     return event;
 }
 
@@ -187,7 +188,7 @@ void Channel::_testFormats()
         // setup
         snprintf( event.formatType, 64, "%s/%s", 
             _enums[i].formatString, _enums[i].typeString );
-        event.formatType[63] = '\0';
+        event.formatType[63] = 0;
         event.data.type = ConfigEvent::READBACK;
         event.area.y() = pvp.h;
 

@@ -47,6 +47,7 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
                   channel->getID( ));
     else
         snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str( ));
+    event.data.statistic.resourceName[31] = 0;
 
     if( hint == NICEST )
         channel->getWindow()->finish();
