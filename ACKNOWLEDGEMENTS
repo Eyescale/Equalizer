@@ -330,3 +330,67 @@ Unpublished-- rights reserved under the copyright laws of the
 United States.  Contractor/manufacturer is Silicon Graphics,
 Inc., 2011 N.  Shoreline Blvd., Mountain View, CA 94039-7311.
 OpenGL(TM) is a trademark of Silicon Graphics, Inc.
+
+===========================================================================
+                       Parts of the eqPly example
+===========================================================================
+
+  Copyright (c) 1994 The Board of Trustees of The Leland Stanford
+  Junior University.  All rights reserved.   
+  
+  Permission to use, copy, modify and distribute this software and its
+  documentation for any purpose is hereby granted without fee, provided
+  that the above copyright notice and this permission notice appear in
+  all copies of this software and that you do not sell the software.
+  
+  THE SOFTWARE IS PROVIDED "AS IS" AND WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY
+  WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+===========================================================================
+                   Parts of the eqNBody CUDA example
+===========================================================================
+                                                                               
+ Copyright 1993-2006 NVIDIA Corporation.  All rights reserved.                 
+                                                                               
+ NOTICE TO USER:                                                               
+                                                                               
+ This source code is subject to NVIDIA ownership rights under U.S. and
+ international Copyright laws.
+                                                                               
+ NVIDIA MAKES NO REPRESENTATION ABOUT THE SUITABILITY OF THIS SOURCE
+ CODE FOR ANY PURPOSE.  IT IS PROVIDED "AS IS" WITHOUT EXPRESS OR
+ IMPLIED WARRANTY OF ANY KIND.  NVIDIA DISCLAIMS ALL WARRANTIES WITH
+ REGARD TO THIS SOURCE CODE, INCLUDING ALL IMPLIED WARRANTIES OF
+ MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE.
+ IN NO EVENT SHALL NVIDIA BE LIABLE FOR ANY SPECIAL, INDIRECT,
+ INCIDENTAL, OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES WHATSOEVER
+ RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
+ CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+ CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOURCE CODE.
+                                                                               
+ U.S. Government End Users.  This source code is a "commercial item" as
+ that term is defined at 48 C.F.R. 2.101 (OCT 1995), consisting of
+ "commercial computer software" and "commercial computer software
+ documentation" as such terms are used in 48 C.F.R. 12.212 (SEPT 1995)
+ and is provided to the U.S. Government only as a commercial end item.
+ Consistent with 48 C.F.R.12.212 and 48 C.F.R. 227.7202-1 through
+ 227.7202-4 (JUNE 1995), all U.S. Government End Users acquire the
+ source code with only those rights set forth herein.
+
+===========================================================================
+                  Parts of the osgScaleViewer example
+===========================================================================
+
+ OpenSceneGraph - Copyright (C) 1998-2003 Robert Osfield 
+
+ This library is open source and may be redistributed and/or modified under  
+ the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or 
+ (at your option) any later version.  The full license is in LICENSE file
+ included with this distribution, and on the openscenegraph.org website.
+ 
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ OpenSceneGraph Public License for more details.

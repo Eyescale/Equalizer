@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2006, Dustin Wueest <wueest@dustin.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under

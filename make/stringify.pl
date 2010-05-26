@@ -18,6 +18,7 @@ print "static const std::string $base = \"";
 foreach my $line (<FILE>)
 {
     chomp( $line );
+    $line =~ s/\"/\\\"/g;
     print "$line\\n ";
 }
 

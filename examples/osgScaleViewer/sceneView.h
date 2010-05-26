@@ -1,3 +1,4 @@
+
 /* -*-c++-*- OpenSceneGraph - Copyright (C) 1998-2003 Robert Osfield 
  *                           2010 Stefan Eilemann <eile@eyescale.ch>
  *
