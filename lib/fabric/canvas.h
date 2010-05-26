@@ -114,8 +114,8 @@ namespace fabric
         /** @return true if the layout has changed. @internal */
         bool hasDirtyLayout() const { return getDirty() & DIRTY_LAYOUT; }
 
-        virtual void backup(); //!< @internal
-        virtual void restore(); //!< @internal
+        EQFABRIC_EXPORT virtual void backup(); //!< @internal
+        EQFABRIC_EXPORT virtual void restore(); //!< @internal
 
         void create( S** segment ); //!< @internal
         void release( S* segment ); //!< @internal
@@ -136,7 +136,7 @@ namespace fabric
                                                   const uint64_t dirtyBits );
 
         /** @sa Serializable::setDirty() @internal */
-        virtual void setDirty( const uint64_t bits );
+        EQFABRIC_EXPORT virtual void setDirty( const uint64_t bits );
 
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
         virtual void activateLayout( const uint32_t index ) { /* NOP */ }

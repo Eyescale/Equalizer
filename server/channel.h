@@ -119,7 +119,7 @@ namespace server
         const View* getView() const { return _view; }
 
         /** @return the channel's layout. */
-        const Layout* getLayout() const;
+        EQSERVER_EXPORT const Layout* getLayout() const;
 
         /** @return the channel's segment. */
         const Segment* getSegment() const { return _segment; }

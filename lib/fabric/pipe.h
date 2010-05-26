@@ -115,7 +115,7 @@ namespace fabric
         };
 
         /** Set a pipe attribute. @internal */
-        void setIAttribute( const IAttribute attr, const int32_t value );
+        EQFABRIC_EXPORT void setIAttribute( const IAttribute attr, const int32_t value );
 
         /** @return the value of a pipe attribute. */
         int32_t  getIAttribute( const IAttribute attr ) const

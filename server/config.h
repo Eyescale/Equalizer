@@ -99,6 +99,9 @@ namespace server
          */
         EQSERVER_EXPORT Channel* findChannel( const Segment* segment,
                                               const View* view );
+
+        /** @return the application node, or 0. */
+        EQSERVER_EXPORT Node* findApplicationNode();
         //@}
 
         /** @sa fabric::Config::changeLatency() */

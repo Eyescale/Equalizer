@@ -154,6 +154,20 @@ Channel* Config::findChannel( const Segment* segment, const View* view )
     return finder.getResult();
 }
 
+Node* Config::findApplicationNode()
+{
+	const Nodes& nodes = getNodes();
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        Node* node = *i;
+        if( node->isActive( ))
+        {
+            if( node->isApplicationNode( ))
+                return node;
+        }
+    }
+}
+
 void Config::activateCanvas( Canvas* canvas )
 {
     EQASSERT( stde::find( getCanvases(), canvas ) != getCanvases().end( ));
