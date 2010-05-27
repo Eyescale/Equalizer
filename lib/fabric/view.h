@@ -74,7 +74,7 @@ namespace fabric
         const Vector2i& getOverdraw() const { return _overdraw; }
 
         /** Set the 2D viewport wrt Layout and Canvas. @internal */
-        void setViewport( const Viewport& viewport );
+        EQFABRIC_EXPORT void setViewport( const Viewport& viewport );
 
         /** Set the entity tracking this view. @internal */
         void setObserver( O* observer );
