@@ -373,6 +373,23 @@ void Compound::_setDefaultFrameName( Frame* frame )
     frame->setName( "frame" );
 }
 
+void Compound::adopt( Compound* child )
+{
+    if( child->_config )
+    {
+        child->_config->removeCompound( child );
+        const_cast< Config*& >( child->_config ) = 0;
+    }
+    else
+    {
+        EQASSERT( child->_parent );
+        child->_parent->_removeChild( child );
+    }
+
+    const_cast< Compound*& >( child->_parent ) = this;
+    _addChild( child );
+}
+
 bool Compound::isDestination() const
 {
     if( !getChannel( ))

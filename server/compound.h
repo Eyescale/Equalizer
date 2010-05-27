@@ -101,6 +101,9 @@ namespace server
          * @name Data Access
          */
         //@{
+        /** Reparent the given child to this compound. */
+        void adopt( Compound* child );
+
         /** @return if the compound is a leaf compound. */
         bool isLeaf() const { return _children.empty(); }
 
