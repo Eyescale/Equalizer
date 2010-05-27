@@ -293,7 +293,9 @@ public:
 
     VisitorResult visit( eq::View* view )
     {
-        view->setAutoObsolete( _latency );
+        net::Object* userData = view->getUserData();
+        if( userData && userData->isMaster( ))
+            userData->setAutoObsolete( _latency );
         return TRAVERSE_CONTINUE;    
     }
 

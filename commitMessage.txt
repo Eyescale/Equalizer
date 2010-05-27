@@ -1,14 +1,9 @@
-Simplify usage of user data objects
-- Introduce:
-  o net::Object::notifyAttached/notifyDetach
-  o fabric::Object::hasMasterUserData
-- Add VERSION_NEXT syncing for slave objects
-- Fix server-side compound destruction
+Fix configs with latency != 1
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
-[x] New Feature
-[x] Cleanup
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
