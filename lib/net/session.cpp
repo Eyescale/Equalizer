@@ -386,12 +386,13 @@ uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
 {
     CHECK_NOT_THREAD( _commandThread );
     EQASSERT( object );
+    EQASSERT( id <= EQ_ID_MAX );
+
     EQLOG( LOG_OBJECTS ) << "Mapping " << typeid( *object ).name() << " to id "
                          << id << " version " << version << std::endl;
 
     EQASSERT( object->getID() == EQ_ID_INVALID );
     EQASSERT( !object->isMaster( ));
-    EQASSERT( id != EQ_ID_INVALID );
     EQASSERT( !_localNode->inCommandThread( ));
         
     // Connect master node, can't do that from the command thread!
@@ -969,7 +970,8 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
     {
         // Check requested version
         const uint32_t version = packet->requestedVersion;
-        if( version == VERSION_OLDEST || version >= master->getOldestVersion( ))
+        if( version == VERSION_OLDEST || version == VERSION_NONE ||
+            version >= master->getOldestVersion( ))
         {
             SessionSubscribeObjectSuccessPacket successPacket( packet );
             successPacket.changeType       = master->getChangeType();
