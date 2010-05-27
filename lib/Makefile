@@ -84,10 +84,8 @@ HEADER_SRC = \
 	net/objectVersion.h \
 	net/packets.h \
 	net/pairConnection.h \
-	net/rspConnection.h \
 	net/session.h \
 	net/types.h \
-	net/udpConnection.h \
 	net/version.h \
 	fabric/canvas.h \
 	fabric/channel.h \
