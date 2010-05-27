@@ -166,6 +166,8 @@ Node* Config::findApplicationNode()
                 return node;
         }
     }
+    EQUNIMPLEMENTED;
+    return 0;
 }
 
 void Config::activateCanvas( Canvas* canvas )
