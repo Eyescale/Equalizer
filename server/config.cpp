@@ -160,13 +160,9 @@ Node* Config::findApplicationNode()
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isActive( ))
-        {
-            if( node->isApplicationNode( ))
-                return node;
-        }
+        if( node->isApplicationNode( ))
+            return node;
     }
-    EQUNIMPLEMENTED;
     return 0;
 }
 
