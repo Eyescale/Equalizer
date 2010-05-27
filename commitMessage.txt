@@ -1,4 +1,4 @@
-Fix configs with latency != 1
+Fix window hiding/minimizing
 
 [ ] May break build
 [ ] May break existing applications

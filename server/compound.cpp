@@ -882,14 +882,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
     }
 
     // Tasks
-    if( frameNumber != 0 &&
-        ( !_inherit.pvp.hasArea() || !_inherit.range.hasData( )) )
-    {
-        // Channels with no PVP or range do not execute tasks (ignored during
-        // init)
-        _inherit.tasks = fabric::TASK_NONE;
-    }
-    else if( _data.tasks == fabric::TASK_DEFAULT )
+    if( _data.tasks == fabric::TASK_DEFAULT )
     {
         if( isLeaf( ))
             _inherit.tasks = fabric::TASK_ALL;
@@ -903,6 +896,14 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         _inherit.tasks |= fabric::TASK_VIEW;
     else
         _inherit.tasks &= ~fabric::TASK_VIEW;        
+
+    if( frameNumber != 0 &&
+        ( !_inherit.pvp.hasArea() || !_inherit.range.hasData( )) )
+    {
+        // Channels with no PVP or range do not execute tasks (ignored during
+        // init)
+        _inherit.tasks = fabric::TASK_NONE;
+    }
 
     // DPlex activation
     _inherit.active = (( frameNumber % _inherit.period ) == _inherit.phase);

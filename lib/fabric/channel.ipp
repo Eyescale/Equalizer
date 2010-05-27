@@ -163,8 +163,8 @@ void Channel< W, C >::setDirty(const uint64_t dirtyBits )
 template< class W, class C >
 void Channel< W, C >::setPixelViewport( const PixelViewport& pvp )
 {
-    EQASSERT( pvp.hasArea( ));
-    if( !pvp.hasArea( ))
+    EQASSERT( pvp.isValid( ));
+    if( !pvp.isValid( ))
         return;
 
     _data.fixedVP = false;

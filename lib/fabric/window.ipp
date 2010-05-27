@@ -280,8 +280,8 @@ VisitorResult Window< P, W, C >::accept( Visitor& visitor  ) const
 template< class P, class W, class C >
 void Window< P, W, C >::setPixelViewport( const PixelViewport& pvp )
 {
-    EQASSERT( pvp.hasArea( ));
-    if( !pvp.hasArea( ))
+    EQASSERT( pvp.isValid( ));
+    if( !pvp.isValid( ))
         return;
 
     _data.fixedVP = false;
@@ -324,18 +324,14 @@ void Window< P, W, C >::notifyViewportChanged()
         _data.pvp = pipePVP;
         _data.pvp.apply( _data.vp );
         if( oldPVP != _data.pvp )
-        {
             setDirty( DIRTY_VIEWPORT );
-        }
     }
     else           // update viewport
     {
         const Viewport oldVP = _data.vp;
         _data.vp = _data.pvp.getSubVP( pipePVP );
         if( oldVP != _data.vp )
-        {
             setDirty( DIRTY_VIEWPORT );
-        }
     }
 
     for( typename Channels::const_iterator i = _channels.begin(); 
