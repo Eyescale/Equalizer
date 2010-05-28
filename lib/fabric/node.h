@@ -136,7 +136,7 @@ namespace fabric
         EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
         
-        virtual void notifyDetach(); //!< @internal
+        EQFABRIC_EXPORT virtual void notifyDetach(); //!< @internal
 
         /** @sa Serializable::setDirty() @internal */
         EQFABRIC_EXPORT virtual void setDirty( const uint64_t bits );
