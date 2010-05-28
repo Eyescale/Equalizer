@@ -1,9 +1,9 @@
-Remove unneeded files from last commit
+Implement backtrace ostream operator on Unix and use it in abort()
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

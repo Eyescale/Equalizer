@@ -48,6 +48,14 @@ EQ_EXPORT void checkHeap();
  */
 EQ_EXPORT std::ostream& sysError( std::ostream& os );
 
+/** 
+ * Print the current call stack.
+ *
+ * May not be implemented on all platforms.
+ * @version 1.0
+ */
+EQ_EXPORT std::ostream& backtrace( std::ostream& os );
+
 }
 }
 

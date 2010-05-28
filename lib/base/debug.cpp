@@ -22,6 +22,8 @@
 #include <errno.h>
 #ifndef WIN32
 #  include <string.h>
+#  include <execinfo.h>
+#  define EQ_BACKTRACE_DEPTH 256
 #endif
 
 namespace eq
@@ -32,6 +34,8 @@ namespace base
 #ifndef NDEBUG
 EQ_EXPORT void abort()
 {
+    EQERROR << "Abort called from: "  << backtrace << std::endl;
+
     // if EQ_ABORT_WAIT is set, spin forever to allow identifying and debugging
     // crashed nodes.
     if( getenv( "EQ_ABORT_WAIT" ))
@@ -53,6 +57,24 @@ EQ_EXPORT void checkHeap()
     }
 #else
 #endif
+}
+
+EQ_EXPORT std::ostream& backtrace( std::ostream& os )
+{
+#ifdef WIN32
+    os << "backtrace not implemented"
+#else
+    void* callstack[ EQ_BACKTRACE_DEPTH ];
+    const int frames = ::backtrace( callstack, EQ_BACKTRACE_DEPTH );
+    char** names = ::backtrace_symbols( callstack, frames );
+    os << disableFlush << disableHeader << indent << std::endl;
+    for( int i = 0; i < frames; ++i )
+        os << names[ i ] << std::endl;
+    os << exdent << enableHeader << enableFlush;
+    ::free( names );
+#endif
+
+    return os;
 }
 
 EQ_EXPORT std::ostream& sysError( std::ostream& os )
