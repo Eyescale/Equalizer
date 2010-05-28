@@ -237,7 +237,7 @@ namespace fabric
 
         /** @internal */
         //@{
-        EQ_EXPORT virtual void notifyMapped( net::NodePtr node );
+        EQFABRIC_EXPORT virtual void notifyMapped( net::NodePtr node );
 
         uint32_t register_();
         void deregister();

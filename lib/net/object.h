@@ -80,7 +80,7 @@ namespace net
          * @return the local node to which this object is mapped, or 0 if the
          *         object is not mapped.
          */
-        NodePtr getLocalNode();
+        EQ_EXPORT NodePtr getLocalNode();
 
         /**
          * @return the session to which this object is mapped, or 0 if the
@@ -274,15 +274,15 @@ namespace net
         /** @name Packet Transmission */
         //@{
         /** Send a packet to peer object instance(s) on another node. */
-        bool send( NodePtr node, ObjectPacket& packet );
+        EQ_EXPORT bool send( NodePtr node, ObjectPacket& packet );
 
         /** Send a packet to peer object instance(s) on another node. */
-        bool send( NodePtr node, ObjectPacket& packet,
-                   const std::string& string );
+        EQ_EXPORT bool send( NodePtr node, ObjectPacket& packet,
+                             const std::string& string );
 
         /** Send a packet to peer object instance(s) on another node. */
-        bool send( NodePtr node, ObjectPacket& packet, 
-                   const void* data, const uint64_t size );
+        EQ_EXPORT bool send( NodePtr node, ObjectPacket& packet, 
+                             const void* data, const uint64_t size );
         //@}
 
         /** @name Notifications */
