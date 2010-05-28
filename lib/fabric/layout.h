@@ -102,7 +102,7 @@ namespace fabric
         /** Destruct this layout. */
         EQFABRIC_EXPORT virtual ~Layout();
 
-        virtual void attachToSession( const uint32_t id,
+        EQFABRIC_EXPORT virtual void attachToSession( const uint32_t id,
                                       const uint32_t instanceID,
                                       net::Session* session ); //!< @internal
 
