@@ -200,17 +200,19 @@ ssize_t Node::syncRunning()
     flushSendBuffer();
 
     if( isActive() && _state != STATE_RUNNING ) // becoming active
+    {
         if( _syncConfigInit() && result >= 0 )
             ++result;
         else
             result = -1;
-
+    }
     if( !isActive( )) // becoming inactive
+    {
         if( _syncConfigExit() && result >= 0 )
             ++result;
         else
             result = -1;
-
+    }
     EQASSERT( isMaster( ));
     commit();
 

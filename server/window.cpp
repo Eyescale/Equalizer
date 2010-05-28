@@ -330,17 +330,19 @@ ssize_t Window::syncRunning()
     }
 
     if( isActive() && _state != STATE_RUNNING ) // becoming active
+    {
         if( _syncConfigInit() && result >= 0 )
             ++result;
         else
             result = -1;
-
+    }
     if( !isActive( )) // becoming inactive
+    {
         if( _syncConfigExit() && result >= 0 )
             ++result;
         else
             result = -1;
-
+    }
     EQASSERT( isMaster( ));
     EQASSERT( _state == STATE_STOPPED || _state == STATE_RUNNING || 
               _state == STATE_INIT_FAILED );

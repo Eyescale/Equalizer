@@ -1,9 +1,9 @@
-Implement backtrace ostream operator on Unix and use it in abort()
+Fix Linux warnings
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
