@@ -545,35 +545,6 @@ void Config< S, C, O, L, CV, N, V >::map( const net::ObjectVersion proxy )
 template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::unmap()
 {
-    typename S::NodeFactory* nodeFactory = getServer()->getNodeFactory();
-
-    const Canvases& canvases = getCanvases();
-    while( !canvases.empty( ))
-    {
-        CV* canvas = canvases.back();
-        canvas->_unmap();
-        _removeCanvas( canvas );
-        nodeFactory->releaseCanvas( canvas );
-    }
-
-    const Layouts& layouts = getLayouts();
-    while( !layouts.empty( ))
-    {
-        L* layout = layouts.back();;
-        layout->_unmap();
-        _removeLayout( layout );
-        nodeFactory->releaseLayout( layout );
-    }
-
-    const Observers& observers = getObservers();
-    while( !observers.empty( ))
-    {
-        O* observer = observers.back();
-        unmapObject( observer );
-        _removeObserver( observer );
-        nodeFactory->releaseObserver( observer );
-    }
-
     unmapObject( _proxy );
 }
 

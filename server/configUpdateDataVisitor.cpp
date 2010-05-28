@@ -36,12 +36,6 @@ ConfigUpdateDataVisitor::ConfigUpdateDataVisitor()
 {}
 
 
-VisitorResult ConfigUpdateDataVisitor::visit( View* view )
-{
-    static_cast< net::Object* >( view )->commit();
-    return TRAVERSE_CONTINUE;
-}
-
 VisitorResult ConfigUpdateDataVisitor::visitPre( Node* node )
 {
     _lastDrawPipe = 0;

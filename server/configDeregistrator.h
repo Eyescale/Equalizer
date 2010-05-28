@@ -30,7 +30,7 @@ class ConfigDeregistrator : public ConfigVisitor
 public:
     virtual ~ConfigDeregistrator(){}
 
-    virtual VisitorResult visitPre( Canvas* canvas )
+    virtual VisitorResult visitPost( Canvas* canvas )
         {
             _deregister( canvas );
             return TRAVERSE_CONTINUE; 
@@ -41,7 +41,7 @@ public:
             return TRAVERSE_CONTINUE; 
         }
 
-    virtual VisitorResult visitPre( Layout* layout )
+    virtual VisitorResult visitPost( Layout* layout )
         { 
             _deregister( layout );
             return TRAVERSE_CONTINUE; 
@@ -58,17 +58,17 @@ public:
             return TRAVERSE_CONTINUE; 
         }
 
-    virtual VisitorResult visitPre( Node* node )
+    virtual VisitorResult visitPost( Node* node )
         { 
             _deregister( node );
             return TRAVERSE_CONTINUE; 
         }
-    virtual VisitorResult visitPre( Pipe* pipe )
+    virtual VisitorResult visitPost( Pipe* pipe )
         { 
             _deregister( pipe );
             return TRAVERSE_CONTINUE; 
         }
-    virtual VisitorResult visitPre( Window* window )
+    virtual VisitorResult visitPost( Window* window )
         { 
             _deregister( window );
             return TRAVERSE_CONTINUE; 

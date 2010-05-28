@@ -912,7 +912,6 @@ eq::admin::ServerPtr Config::getAdminServer()
         return _admin;
 
     eq::admin::init( 0, 0 );
-
     eq::admin::ClientPtr client = new eq::admin::Client;
     if( !client->initLocal( 0, 0 ))
     {

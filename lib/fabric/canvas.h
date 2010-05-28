@@ -136,6 +136,8 @@ namespace fabric
         EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
 
+        virtual void notifyDetach(); //!< @internal
+
         /** @sa Serializable::setDirty() @internal */
         EQFABRIC_EXPORT virtual void setDirty( const uint64_t bits );
 
@@ -177,11 +179,6 @@ namespace fabric
         template< class, class, class > friend class Segment;
         void _addSegment( S* segment );
         bool _removeSegment( S* segment );
-
-        /** Deregister this canvas, and all children, from its net::Session.*/
-        void _unmap();
-        template< class, class, class, class, class, class, class >
-        friend class Config;
 
         typedef net::CommandFunc< Canvas< CFG, C, S, L > > CmdFunc;
         net::CommandResult _cmdNewSegment( net::Command& command );

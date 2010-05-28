@@ -33,7 +33,6 @@ namespace server
         ConfigUpdateDataVisitor();
         virtual ~ConfigUpdateDataVisitor() {}
 
-        virtual VisitorResult visit( View* view );
         virtual VisitorResult visitPre( Node* node );
         virtual VisitorResult visitPost( Node* node );
         virtual VisitorResult visitPre( Pipe* pipe );

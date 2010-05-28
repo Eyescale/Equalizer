@@ -66,6 +66,7 @@ public:
 protected:
     virtual void serialize( net::DataOStream& os, const uint64_t dirtyBits );
     virtual void deserialize( net::DataIStream& is, const uint64_t dirtyBits );
+    virtual void notifyDetach();
 
 private:
     Config< S, C, O, L, CV, N, V >& _config;
@@ -172,6 +173,51 @@ void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
             _config._data.latency = latency;
             _config.changeLatency( latency );
         }
+    }
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+void ConfigProxy< S, C, O, L, CV, N, V >::notifyDetach()
+{
+    if( isMaster( ))
+        return;
+
+    typename S::NodeFactory* nodeFactory =_config.getServer()->getNodeFactory();
+
+    while( !_config._nodes.empty( ))
+    {
+        EQASSERT( _config.mapNodeObjects( ));
+        N* node = _config._nodes.back();;
+        _config.unmapObject( node );
+        _config._removeNode( node );
+        nodeFactory->releaseNode( node );
+    }
+
+    while( !_config._canvases.empty( ))
+    {
+        EQASSERT( _config.mapViewObjects( ));
+        CV* canvas = _config._canvases.back();
+        _config.unmapObject( canvas );
+        _config._removeCanvas( canvas );
+        nodeFactory->releaseCanvas( canvas );
+    }
+
+    while( !_config._layouts.empty( ))
+    {
+        EQASSERT( _config.mapViewObjects( ));
+        L* layout = _config._layouts.back();;
+        _config.unmapObject( layout );
+        _config._removeLayout( layout );
+        nodeFactory->releaseLayout( layout );
+    }
+
+    while( !_config._observers.empty( ))
+    {
+        EQASSERT( _config.mapViewObjects( ));
+        O* observer = _config._observers.back();
+        _config.unmapObject( observer );
+        _config._removeObserver( observer );
+        nodeFactory->releaseObserver( observer );
     }
 }
 

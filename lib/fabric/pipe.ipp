@@ -161,6 +161,28 @@ void Pipe< N, P, W, V >::setDirty( const uint64_t dirtyBits )
 }
 
 template< class N, class P, class W, class V >
+void Pipe< N, P, W, V >::notifyDetach()
+{
+    while( !_windows.empty( ))
+    {
+        W* window = _windows.back();
+        if( window->getID() > EQ_ID_MAX )
+        {
+            EQASSERT( isMaster( ));
+            return;
+        }
+
+        net::Session* session = getSession();
+        EQASSERT( session );
+        EQASSERT( !isMaster( ));
+
+        session->unmapObject( window );
+        _removeWindow( window );
+        _node->getServer()->getNodeFactory()->releaseWindow( window );
+    }
+}
+
+template< class N, class P, class W, class V >
 void Pipe< N, P, W, V >::create( W** window )
 {
     *window = _node->getServer()->getNodeFactory()->createWindow( 

@@ -182,25 +182,24 @@ void Canvas< CFG, C, S, L >::release( S* segment )
 }
 
 template< class CFG, class C, class S, class L >
-void Canvas< CFG, C, S, L >::_unmap()
+void Canvas< CFG, C, S, L >::notifyDetach()
 {
-    EQASSERT( !isMaster( ));
-
-    CFG* config = getConfig();
-    const Segments& segments = getSegments();
-
-    while( !segments.empty( ))
+    while( !_segments.empty( ))
     {
         S* segment = _segments.back();
-        EQASSERT( segment->getID() <= EQ_ID_MAX );
+        if( segment->getID() > EQ_ID_MAX )
+        {
+            EQASSERT( isMaster( ));
+            return;
+        }
+
         EQASSERT( !segment->isMaster( ));
+        EQASSERT( !isMaster( ));
 
-        config->unmapObject( segment );
+        _config->unmapObject( segment );
         _removeSegment( segment );
-        config->getServer()->getNodeFactory()->releaseSegment( segment );
+        _config->getServer()->getNodeFactory()->releaseSegment( segment );
     }
-
-    config->unmapObject( this );
 }
 
 template< class CFG, class C, class S, class L >

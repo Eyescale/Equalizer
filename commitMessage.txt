@@ -1,8 +1,8 @@
-Fix Linux warnings
+Fix admin client exit
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

@@ -420,9 +420,10 @@ void Config::deregister()
     ConfigSyncVisitor syncer;
     accept( syncer );
 
-    Super::deregister();
     ConfigDeregistrator deregistrator;
     accept( deregistrator );
+
+    Super::deregister();
 }
 
 void Config::restore()

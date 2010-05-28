@@ -175,6 +175,28 @@ void Window< P, W, C >::setDirty( const uint64_t dirtyBits )
 }
 
 template< class P, class W, class C >
+void Window< P, W, C >::notifyDetach()
+{
+    while( !_channels.empty( ))
+    {
+        C* channel = _channels.back();
+        if( channel->getID() > EQ_ID_MAX )
+        {
+            EQASSERT( isMaster( ));
+            return;
+        }
+
+        net::Session* session = getSession();
+        EQASSERT( session );
+        EQASSERT( !isMaster( ));
+
+        session->unmapObject( channel );
+        _removeChannel( channel );
+        _pipe->getServer()->getNodeFactory()->releaseChannel( channel );
+    }
+}
+
+template< class P, class W, class C >
 void Window< P, W, C >::create( C** channel )
 {
     *channel = _pipe->getServer()->getNodeFactory()->createChannel( 

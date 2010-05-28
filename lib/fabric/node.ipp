@@ -210,6 +210,25 @@ void Node< C, N, P, V >::setDirty( const uint64_t dirtyBits )
 }
 
 template< class C, class N, class P, class V >
+void Node< C, N, P, V >::notifyDetach()
+{
+    while( !_pipes.empty( ))
+    {
+        P* pipe = _pipes.back();
+        if( pipe->getID() > EQ_ID_MAX )
+        {
+            EQASSERT( isMaster( ));
+            return;
+        }
+
+        EQASSERT( !isMaster( ));
+        _config->unmapObject( pipe );
+        _removePipe( pipe );
+        _config->getServer()->getNodeFactory()->releasePipe( pipe );
+    }
+}
+
+template< class C, class N, class P, class V >
 void Node< C, N, P, V >::create( P** pipe )
 {
     *pipe = _config->getServer()->getNodeFactory()->createPipe( 

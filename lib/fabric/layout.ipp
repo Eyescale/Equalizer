@@ -103,24 +103,22 @@ void Layout< C, L, V >::setDirty( const uint64_t dirtyBits )
 }
 
 template< class C, class L, class V >
-void Layout< C, L, V >::_unmap()
+void Layout< C, L, V >::notifyDetach()
 {
-    C* config = getConfig();
-    EQASSERT( config );
-    EQASSERT( !isMaster( ));
-
-    const Views& views = getViews();
-    while( !views.empty( ))
+    while( !_views.empty( ))
     {
-        V* view = views.back();
-        EQASSERT( view->getID() <= EQ_ID_MAX );
+        V* view = _views.back();
+        if( view->getID() > EQ_ID_MAX )
+        {
+            EQASSERT( isMaster( ));
+            return;
+        }
 
-        config->unmapObject( view );
+        EQASSERT( !isMaster( ));
+        _config->unmapObject( view );
         _removeView( view );
-        config->getServer()->getNodeFactory()->releaseView( view );
+        _config->getServer()->getNodeFactory()->releaseView( view );
     }
-
-    config->unmapObject( this );
 }
 
 template< class C, class L, class V >
