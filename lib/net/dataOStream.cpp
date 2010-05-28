@@ -118,6 +118,7 @@ void DataOStream::enable( NodePtr node, const bool useMulticast )
 void DataOStream::enable()
 {
     EQASSERT( !_enabled );
+    EQASSERT( _save || !_connections.empty( ));
     _bufferType = BUFFER_NONE;
     _bufferStart = 0;
     _dataSent    = false;

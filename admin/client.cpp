@@ -48,7 +48,6 @@ bool Client::connectServer( ServerPtr server )
 
     server->setClient( this );
     server->map();
-    EQINFO << "Connected " << server << std::endl;
     return true;
 }
 

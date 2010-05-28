@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,39 +15,30 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "channel.h"
-#include "window.h"
+#include "client.h"
+
+#include "server.h"
 
 namespace eq
 {
-namespace admin
+namespace server
 {
-typedef fabric::Channel< Window, Channel > Super;
-
-Channel::Channel( Window* parent )
-        : Super( parent )
-{}
-
-Channel::~Channel()
-{}
-
-Config* Channel::getConfig()
+Client::Client( ServerPtr parent )
+        : fabric::Client()
+        , _server( parent )
 {
-    Window* window = getWindow();
-    EQASSERT( window );
-    return ( window ? window->getConfig() : 0 );
+    EQASSERT( parent.isValid( ));
 }
 
-const Config* Channel::getConfig() const
+Client::~Client()
 {
-    const Window* window = getWindow();
-    EQASSERT( window );
-    return ( window ? window->getConfig() : 0 );
+    _server = 0;
+}
+
+net::CommandQueue* Client::getMainThreadQueue()
+{
+    return _server->getMainThreadQueue();
 }
 
 }
 }
-
-#include "../lib/fabric/channel.ipp"
-template class eq::fabric::Channel< eq::admin::Window, eq::admin::Channel >;
-

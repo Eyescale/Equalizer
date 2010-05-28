@@ -17,10 +17,14 @@
  */
 
 #include "config.h"
+
+#include "packets.h"
 #include "paths.h"
 
 #include "configProxy.ipp"
 #include "nameFinder.h"
+
+#include <eq/net/command.h>
 
 namespace eq
 {
@@ -50,6 +54,28 @@ Config< S, C, O, L, CV, N, V >::Config( base::RefPtr< S > server )
 #pragma warning( pop )
 {
     server->_addConfig( static_cast< C* >( this ));
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+void Config< S, C, O, L, CV, N, V >::notifyMapped( net::NodePtr node )
+{
+    net::Session::notifyMapped( node );
+
+    net::CommandQueue* queue = _server->getMainThreadQueue();
+    EQASSERT( queue );
+
+    registerCommand( fabric::CMD_CONFIG_NEW_LAYOUT, 
+                CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewLayout ),
+                     queue );
+    registerCommand( fabric::CMD_CONFIG_NEW_LAYOUT_REPLY, 
+           CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewLayoutReply ),
+                     0);
+    registerCommand( fabric::CMD_CONFIG_NEW_CANVAS, 
+                CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewCanvas ),
+                     queue);
+    registerCommand( fabric::CMD_CONFIG_NEW_CANVAS_REPLY, 
+           CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewCanvasReply ),
+                     0);
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
@@ -385,6 +411,7 @@ void Config< S, C, O, L, CV, N, V >::_addObserver( O* observer )
 {
     EQASSERT( observer->getConfig() == this );
     _observers.push_back( observer );
+    setDirty( DIRTY_OBSERVERS );
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
@@ -397,6 +424,7 @@ bool Config< S, C, O, L, CV, N, V >::_removeObserver( O* observer )
 
     EQASSERT( observer->getConfig() == this );
     _observers.erase( i );
+    setDirty( DIRTY_OBSERVERS );
     return true;
 }
 
@@ -405,6 +433,7 @@ void Config< S, C, O, L, CV, N, V >::_addLayout( L* layout )
 {
     EQASSERT( layout->getConfig() == this );
     _layouts.push_back( layout );
+    setDirty( DIRTY_LAYOUTS );
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
@@ -417,6 +446,7 @@ bool Config< S, C, O, L, CV, N, V >::_removeLayout( L* layout )
 
     EQASSERT( layout->getConfig() == this );
     _layouts.erase( i );
+    setDirty( DIRTY_LAYOUTS );
     return true;
 }
 
@@ -425,6 +455,7 @@ void Config< S, C, O, L, CV, N, V >::_addCanvas( CV* canvas )
 {
     EQASSERT( canvas->getConfig() == this );
     _canvases.push_back( canvas );
+    setDirty( DIRTY_CANVASES );
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
@@ -437,6 +468,7 @@ bool Config< S, C, O, L, CV, N, V >::_removeCanvas( CV* canvas )
 
     EQASSERT( canvas->getConfig() == this );
     _canvases.erase( i );
+    setDirty( DIRTY_CANVASES );
     return true;
 }
 
@@ -500,7 +532,7 @@ uint32_t Config< S, C, O, L, CV, N, V >::register_()
 template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::deregister()
 {
-    EQASSERT( _proxy->getID() != EQ_ID_INVALID );
+    EQASSERT( _proxy->getID() <= EQ_ID_MAX );
     deregisterObject( _proxy );
 }
 
@@ -552,6 +584,12 @@ void Config< S, C, O, L, CV, N, V >::setDirty( const uint64_t dirtyBits )
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
+uint32_t Config< S, C, O, L, CV, N, V >::getVersion() const
+{
+    return _proxy->getVersion();
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
 uint32_t Config< S, C, O, L, CV, N, V >::commit()
 {
     return _proxy->commit();
@@ -594,6 +632,73 @@ N* Config< S, C, O, L, CV, N, V >::_findNode( const uint32_t id )
             return node;
     }
     return 0;
+}
+
+//----------------------------------------------------------------------
+// Command handlers
+//----------------------------------------------------------------------
+template< class S, class C, class O, class L, class CV, class N, class V >
+net::CommandResult Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
+    net::Command& command )
+{
+    const ConfigNewLayoutPacket* packet =
+        command.getPacket< ConfigNewLayoutPacket >();
+    
+    L* layout = 0;
+    _proxy->create( &layout );
+    EQASSERT( layout );
+
+    registerObject( layout );
+    EQASSERT( layout->getID() <= EQ_ID_MAX );
+
+    ConfigNewLayoutReplyPacket reply( packet );
+    reply.layoutID = layout->getID();
+    send( command.getNode(), reply ); 
+
+    return net::COMMAND_HANDLED;
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+net::CommandResult Config< S, C, O, L, CV, N, V >::_cmdNewLayoutReply(
+    net::Command& command )
+{
+    const ConfigNewLayoutReplyPacket* packet =
+        command.getPacket< ConfigNewLayoutReplyPacket >();
+    getLocalNode()->serveRequest( packet->requestID, packet->layoutID );
+
+    return net::COMMAND_HANDLED;
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+net::CommandResult Config< S, C, O, L, CV, N, V >::_cmdNewCanvas(
+    net::Command& command )
+{
+    const ConfigNewCanvasPacket* packet =
+        command.getPacket< ConfigNewCanvasPacket >();
+    
+    CV* canvas = 0;
+    _proxy->create( &canvas );
+    EQASSERT( canvas );
+
+    registerObject( canvas );
+    EQASSERT( canvas->getID() <= EQ_ID_MAX );
+
+    ConfigNewCanvasReplyPacket reply( packet );
+    reply.canvasID = canvas->getID();
+    send( command.getNode(), reply ); 
+
+    return net::COMMAND_HANDLED;
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+net::CommandResult Config< S, C, O, L, CV, N, V >::_cmdNewCanvasReply(
+    net::Command& command )
+{
+    const ConfigNewCanvasReplyPacket* packet =
+        command.getPacket< ConfigNewCanvasReplyPacket >();
+    getLocalNode()->serveRequest( packet->requestID, packet->canvasID );
+
+    return net::COMMAND_HANDLED;
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >

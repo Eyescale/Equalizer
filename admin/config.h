@@ -44,6 +44,14 @@ namespace admin
         /** Commit all pending changes. @version 1.0 */
         EQADMIN_EXPORT uint32_t commit();
 
+        /** @return the local client node. @version 1.0 */
+        EQADMIN_EXPORT ClientPtr getClient();
+
+        /** @return the local client node. @version 1.0 */
+        EQADMIN_EXPORT ConstClientPtr getClient() const;
+
+        EQADMIN_EXPORT net::CommandQueue* getMainThreadQueue(); //!< @internal
+
         /** @internal */
         const Channel* findChannel( const std::string& name ) const
             { return find< Channel >( name ); }

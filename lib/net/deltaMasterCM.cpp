@@ -64,14 +64,17 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
 
     if( packet->requestID != EQ_ID_INVALID )
     {
-        _deltaData.reset();
-        _deltaData.setVersion( _version + 1 );
-        _deltaData.enable( _slaves );
-        _object->pack( _deltaData );
-        _deltaData.disable();
+        if( !_slaves.empty( ))
+        {
+            _deltaData.reset();
+            _deltaData.setVersion( _version + 1 );
+            _deltaData.enable( _slaves );
+            _object->pack( _deltaData );
+            _deltaData.disable();
+        }
 
         NodePtr localNode = _object->getLocalNode();
-        if( _deltaData.hasSentData( ))
+        if( _slaves.empty() || _deltaData.hasSentData( ))
         {
             // save instance data
             InstanceData* instanceData = _newInstanceData();

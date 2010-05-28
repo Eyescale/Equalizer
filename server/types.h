@@ -49,21 +49,21 @@ template< typename T, typename C  > class ElementVisitor;
 namespace server
 {
 
-class Config;
-class Node;
-class Pipe;
-class Window;
-class Channel;
-class Server;
 class Canvas;
+class Channel;
 class Compound;
+class Config;
 class ConnectionDescription;
+class Equalizer;
 class Frame;
 class Layout;
-class Equalizer;
+class Node;
 class Observer;
+class Pipe;
 class Segment;
+class Server;
 class View;
+class Window;
 
 typedef std::vector< Config* >   Configs;
 typedef std::vector< Node* >     Nodes;

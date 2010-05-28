@@ -73,9 +73,6 @@ namespace fabric
         typedef std::vector< CV* > Canvases;
         typedef std::vector< N* >  Nodes;
 
-        /** Destruct a config. @version 1.0 */
-        EQFABRIC_EXPORT virtual ~Config();
-
         /** @name Data Access */
         //@{
         /** @return the local server proxy. @version 1.0 */
@@ -141,6 +138,15 @@ namespace fabric
 
         /** Activate the given canvas after it is complete. @internal */
         virtual void activateCanvas( CV* canvas ) { /* NOP */ }
+
+        /** Activate the given canvas after it is complete. @internal */
+        virtual void deactivateCanvas( CV* canvas ) { /* NOP */ }
+
+        /** Update the given canvas in a running config. @internal */
+        virtual void updateCanvas( CV* canvas ) { /* NOP */ }
+
+        /** Init the given canvas in a running config. @internal */
+        virtual void exitCanvas( CV* canvas ) { /* NOP */ }
 
         /** Set the name of the object. @version 1.0 */
         EQFABRIC_EXPORT void setName( const std::string& name );
@@ -212,21 +218,31 @@ namespace fabric
         /** @sa Serializable::setDirty() @internal */
         void setDirty( const uint64_t bits );
 
+        /** Get the current version. @internal */
+        uint32_t getVersion() const;
+
         /** Commit a new version. @internal */
         uint32_t commit();
+
+        /** Sync to the given version. @internal */
+        void sync( const uint32_t version );
         //@}
 
     protected:
         /** Construct a new config. @version 1.0 */
         EQFABRIC_EXPORT Config( base::RefPtr< S > parent );
 
+        /** Destruct a config. @version 1.0 */
+        EQFABRIC_EXPORT virtual ~Config();
+
         /** @internal */
         //@{
+        EQ_EXPORT virtual void notifyMapped( net::NodePtr node );
+
         uint32_t register_();
         void deregister();
         void map( const net::ObjectVersion proxy );
         virtual void unmap();
-        void sync( const uint32_t version );
         template< class, class, class, class > friend class Server; // map/unmap
 
         void setAppNodeID( const net::NodeID& nodeID );
@@ -312,6 +328,12 @@ namespace fabric
         template< class, class, class, class > friend class Node;
         void _addNode( N* node );
         EQFABRIC_EXPORT bool _removeNode( N* node );
+
+        typedef net::CommandFunc< Config< S, C, O, L, CV, N, V > > CmdFunc;
+        net::CommandResult _cmdNewLayout( net::Command& command );
+        net::CommandResult _cmdNewLayoutReply( net::Command& command );
+        net::CommandResult _cmdNewCanvas( net::Command& command );
+        net::CommandResult _cmdNewCanvasReply( net::Command& command );
     };
 
     template< class S, class C, class O, class L, class CV, class N, class V >

@@ -179,6 +179,7 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.view          = view;
     context.taskID        = compound->getTaskID();
 
+    EQASSERT( view );
     if( view )
     {
         // compute inherit vp (part of view covered by segment)
@@ -192,7 +193,7 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     }
 
     if( _channel != destChannel &&
-        compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) != ON )
+        compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) != fabric::ON )
     {
         const PixelViewport& nativePVP = _channel->getPixelViewport();
         context.pvp.x = nativePVP.x;
@@ -342,8 +343,10 @@ eq::ColorMask ChannelUpdateVisitor::_getDrawBufferMask(const Compound* compound)
     const
 {
     if( compound->getInheritIAttribute( Compound::IATTR_STEREO_MODE ) !=
-        ANAGLYPH )
+        fabric::ANAGLYPH )
+    {
         return ColorMask::ALL;
+    }
 
     switch( _eye )
     {

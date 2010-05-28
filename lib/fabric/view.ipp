@@ -71,7 +71,7 @@ void View< L, V, O >::deserialize( net::DataIStream& is,
         net::ObjectVersion observer;
         is >> observer;
 
-        if( observer.identifier == EQ_ID_INVALID )
+        if( observer.identifier > EQ_ID_MAX )
             _observer = 0;
         else
         {

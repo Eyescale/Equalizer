@@ -80,7 +80,7 @@ Node::~Node()
 void Node::attachToSession( const uint32_t id, const uint32_t instanceID, 
                                net::Session* session )
 {
-    net::Object::attachToSession( id, instanceID, session );
+    Super::attachToSession( id, instanceID, session );
     
     net::CommandQueue* queue = getCommandThreadQueue();
 
@@ -174,41 +174,48 @@ void Node::updateRunning( const uint32_t initID, const uint32_t frameNumber )
     flushSendBuffer();
 }
 
-bool Node::syncRunning()
+ssize_t Node::syncRunning()
 {
     if( !isActive() && _state == STATE_STOPPED ) // inactive
-        return true;
+        return 0;
 
     // Sync state updates
-    bool success = true;
+    ssize_t result = 0;
 
     const Pipes& pipes = getPipes();
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         Pipe* pipe = *i;
-        if( !pipe->syncRunning( ))
+        const ssize_t res = pipe->syncRunning();
+        if( res == -1 )
         {
             setErrorMessage( getErrorMessage() + "pipe " + pipe->getName() +
                              ": '" + pipe->getErrorMessage() + '\'' );
-            success = false;
+            result = -1;
         }
+        else if( result >= 0 )
+            result += res;
     }
 
     flushSendBuffer();
 
-    if( isActive() && _state != STATE_RUNNING && !_syncConfigInit( ))
-        // becoming active
-        success = false;
+    if( isActive() && _state != STATE_RUNNING ) // becoming active
+        if( _syncConfigInit() && result >= 0 )
+            ++result;
+        else
+            result = -1;
 
-    if( !isActive() && !_syncConfigExit( ))
-        // becoming inactive
-        success = false;
+    if( !isActive( )) // becoming inactive
+        if( _syncConfigExit() && result >= 0 )
+            ++result;
+        else
+            result = -1;
 
     EQASSERT( isMaster( ));
     commit();
 
     EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED );
-    return success;
+    return result;
 }
 
 //---------------------------------------------------------------------------
@@ -219,15 +226,9 @@ void Node::_configInit( const uint32_t initID, const uint32_t frameNumber )
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
 
-    EQASSERT( isMaster( ));
-    commit();
-
     _flushedFrame  = 0;
     _finishedFrame = 0;
     _frameIDs.clear();
-
-    EQASSERT( isMaster( ));
-    commit();
 
     EQLOG( LOG_INIT ) << "Create node" << std::endl;
     ConfigCreateNodePacket createNodePacket;
@@ -311,7 +312,7 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     NodeFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
-    startPacket.version     = commit();
+    startPacket.version     = getVersion();
     _send( startPacket );
     EQLOG( LOG_TASKS ) << "TASK node start frame " << &startPacket << std::endl;
 
@@ -340,7 +341,7 @@ uint32_t Node::_getFinishLatency() const
 {
     switch( getIAttribute( Node::IATTR_THREAD_MODEL ))
     {
-        case DRAW_SYNC:
+        case fabric::DRAW_SYNC:
             if( getTasks() & fabric::TASK_DRAW )
             {
                 // More than one frame latency doesn't make sense, since the
@@ -352,13 +353,13 @@ uint32_t Node::_getFinishLatency() const
             }
             break;
 
-        case LOCAL_SYNC:
+        case fabric::LOCAL_SYNC:
             if( getTasks() != fabric::TASK_NONE )
                 // local sync enforces no latency
                 return 0;
             break;
 
-        case ASYNC:
+        case fabric::ASYNC:
             break;
         default:
             EQUNIMPLEMENTED;
@@ -441,6 +442,7 @@ void Node::changeLatency( const uint32_t latency )
         net::Barrier* barrier = *i;
         barrier->setAutoObsolete( latency + 1 );
     }
+    setAutoObsolete( latency + 1 );
 }
 
 void Node::releaseBarrier( net::Barrier* barrier )

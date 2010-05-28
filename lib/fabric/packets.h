@@ -82,6 +82,54 @@ namespace fabric
     //------------------------------------------------------------
     typedef net::SessionPacket ConfigPacket;
 
+    struct ConfigNewLayoutPacket : public ConfigPacket
+    {
+        ConfigNewLayoutPacket()
+            {
+                command = fabric::CMD_CONFIG_NEW_LAYOUT;
+                size    = sizeof( ConfigNewLayoutPacket );
+            }
+
+        uint32_t requestID;
+    };
+
+    struct ConfigNewLayoutReplyPacket : public ConfigPacket
+    {
+        ConfigNewLayoutReplyPacket( const ConfigNewLayoutPacket* request )
+                : requestID( request->requestID )
+            {
+                command = fabric::CMD_CONFIG_NEW_LAYOUT_REPLY;
+                size    = sizeof( ConfigNewLayoutReplyPacket );
+            }
+
+        const uint32_t requestID;
+        uint32_t layoutID;
+    };
+
+    struct ConfigNewCanvasPacket : public ConfigPacket
+    {
+        ConfigNewCanvasPacket()
+            {
+                command = fabric::CMD_CONFIG_NEW_CANVAS;
+                size    = sizeof( ConfigNewCanvasPacket );
+            }
+
+        uint32_t requestID;
+    };
+
+    struct ConfigNewCanvasReplyPacket : public ConfigPacket
+    {
+        ConfigNewCanvasReplyPacket( const ConfigNewCanvasPacket* request )
+                : requestID( request->requestID )
+            {
+                command = fabric::CMD_CONFIG_NEW_CANVAS_REPLY;
+                size    = sizeof( ConfigNewCanvasReplyPacket );
+            }
+
+        const uint32_t requestID;
+        uint32_t canvasID;
+    };
+
     struct ConfigCreateReplyPacket : public ConfigPacket
     {
         ConfigCreateReplyPacket(const ServerCreateConfigPacket* request)
@@ -93,6 +141,114 @@ namespace fabric
         }
 
         uint32_t requestID;
+    };
+
+    //------------------------------------------------------------
+    // Pipe
+    //------------------------------------------------------------
+    struct PipeNewWindowPacket : public net::ObjectPacket
+    {
+        PipeNewWindowPacket()
+            {
+                command = fabric::CMD_PIPE_NEW_WINDOW;
+                size    = sizeof( PipeNewWindowPacket );
+            }
+
+        uint32_t requestID;
+    };
+
+    struct PipeNewWindowReplyPacket : public net::ObjectPacket
+    {
+        PipeNewWindowReplyPacket( const PipeNewWindowPacket* request )
+                : requestID( request->requestID )
+            {
+                command = fabric::CMD_PIPE_NEW_WINDOW_REPLY;
+                size    = sizeof( PipeNewWindowReplyPacket );
+            }
+
+        const uint32_t requestID;
+        uint32_t windowID;
+    };
+
+    //------------------------------------------------------------
+    // Window
+    //------------------------------------------------------------
+    struct WindowNewChannelPacket : public net::ObjectPacket
+    {
+        WindowNewChannelPacket()
+            {
+                command = fabric::CMD_WINDOW_NEW_CHANNEL;
+                size    = sizeof( WindowNewChannelPacket );
+            }
+
+        uint32_t requestID;
+    };
+
+    struct WindowNewChannelReplyPacket : public net::ObjectPacket
+    {
+        WindowNewChannelReplyPacket( const WindowNewChannelPacket* request )
+                : requestID( request->requestID )
+            {
+                command = fabric::CMD_WINDOW_NEW_CHANNEL_REPLY;
+                size    = sizeof( WindowNewChannelReplyPacket );
+            }
+
+        const uint32_t requestID;
+        uint32_t channelID;
+    };
+
+    //------------------------------------------------------------
+    // Canvas
+    //------------------------------------------------------------
+    struct CanvasNewSegmentPacket : public net::ObjectPacket
+    {
+        CanvasNewSegmentPacket()
+            {
+                command = fabric::CMD_CANVAS_NEW_SEGMENT;
+                size    = sizeof( CanvasNewSegmentPacket );
+            }
+
+        uint32_t requestID;
+    };
+
+    struct CanvasNewSegmentReplyPacket : public net::ObjectPacket
+    {
+        CanvasNewSegmentReplyPacket( const CanvasNewSegmentPacket* request )
+                : requestID( request->requestID )
+            {
+                command = fabric::CMD_CANVAS_NEW_SEGMENT_REPLY;
+                size    = sizeof( CanvasNewSegmentReplyPacket );
+            }
+
+        const uint32_t requestID;
+        uint32_t segmentID;
+    };
+
+    //------------------------------------------------------------
+    // Layout
+    //------------------------------------------------------------
+    struct LayoutNewViewPacket : public net::ObjectPacket
+    {
+        LayoutNewViewPacket()
+            {
+                command = fabric::CMD_LAYOUT_NEW_VIEW;
+                size    = sizeof( LayoutNewViewPacket );
+            }
+
+        uint32_t requestID;
+    };
+
+    struct LayoutNewViewReplyPacket : public net::ObjectPacket
+    {
+        LayoutNewViewReplyPacket( const LayoutNewViewPacket* request )
+                : requestID( request->requestID )
+            {
+                command = fabric::CMD_LAYOUT_NEW_VIEW_REPLY;
+                size    = sizeof( LayoutNewViewReplyPacket );
+            }
+
+        const uint32_t requestID;
+        uint32_t viewID;
     };
 
     inline std::ostream& operator << ( std::ostream& os, 

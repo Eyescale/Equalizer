@@ -50,7 +50,7 @@ void Global::_setupDefaults()
 {
     // connection
     for( uint32_t i=0; i<ConnectionDescription::IATTR_ALL; ++i )
-        _connectionIAttributes[i] = eq::UNDEFINED;
+        _connectionIAttributes[i] = fabric::UNDEFINED;
 
     _connectionIAttributes[ ConnectionDescription::IATTR_TYPE ] = 
         net::CONNECTIONTYPE_TCPIP;
@@ -68,7 +68,7 @@ void Global::_setupDefaults()
     for( uint32_t i=0; i < Node::CATTR_ALL; ++i )
         _nodeCAttributes[i] = 0;
     for( uint32_t i=0; i < Node::IATTR_ALL; ++i )
-        _nodeIAttributes[i] = eq::UNDEFINED;
+        _nodeIAttributes[i] = fabric::UNDEFINED;
 
     _nodeIAttributes[Node::IATTR_LAUNCH_TIMEOUT] = 60000; // ms
 #ifdef WIN32
@@ -81,44 +81,44 @@ void Global::_setupDefaults()
 
     // pipe
     for( uint32_t i=0; i<Pipe::IATTR_ALL; ++i )
-        _pipeIAttributes[i] = eq::UNDEFINED;
+        _pipeIAttributes[i] = fabric::UNDEFINED;
 
-    _pipeIAttributes[Pipe::IATTR_HINT_THREAD] = eq::ON;
-    _pipeIAttributes[Pipe::IATTR_HINT_CUDA_GL_INTEROP] = eq::OFF;
+    _pipeIAttributes[Pipe::IATTR_HINT_THREAD] = fabric::ON;
+    _pipeIAttributes[Pipe::IATTR_HINT_CUDA_GL_INTEROP] = fabric::OFF;
 
     // window
     for( uint32_t i=0; i<Window::IATTR_ALL; ++i )
-        _windowIAttributes[i] = eq::UNDEFINED;
+        _windowIAttributes[i] = fabric::UNDEFINED;
 
-    _windowIAttributes[Window::IATTR_HINT_STEREO]       = eq::AUTO;
-    _windowIAttributes[Window::IATTR_HINT_DOUBLEBUFFER] = eq::AUTO;
-    _windowIAttributes[Window::IATTR_HINT_FULLSCREEN]   = eq::OFF;
-    _windowIAttributes[Window::IATTR_HINT_DECORATION]   = eq::ON;
-    _windowIAttributes[Window::IATTR_HINT_DRAWABLE]     = eq::WINDOW;
-    _windowIAttributes[Window::IATTR_HINT_SCREENSAVER]  = eq::AUTO;
-    _windowIAttributes[Window::IATTR_PLANES_COLOR]      = eq::AUTO;
-    _windowIAttributes[Window::IATTR_PLANES_DEPTH]      = eq::AUTO;
-    _windowIAttributes[Window::IATTR_PLANES_STENCIL]    = eq::AUTO;
+    _windowIAttributes[Window::IATTR_HINT_STEREO]       = fabric::AUTO;
+    _windowIAttributes[Window::IATTR_HINT_DOUBLEBUFFER] = fabric::AUTO;
+    _windowIAttributes[Window::IATTR_HINT_FULLSCREEN]   = fabric::OFF;
+    _windowIAttributes[Window::IATTR_HINT_DECORATION]   = fabric::ON;
+    _windowIAttributes[Window::IATTR_HINT_DRAWABLE]     = fabric::WINDOW;
+    _windowIAttributes[Window::IATTR_HINT_SCREENSAVER]  = fabric::AUTO;
+    _windowIAttributes[Window::IATTR_PLANES_COLOR]      = fabric::AUTO;
+    _windowIAttributes[Window::IATTR_PLANES_DEPTH]      = fabric::AUTO;
+    _windowIAttributes[Window::IATTR_PLANES_STENCIL]    = fabric::AUTO;
 #ifdef NDEBUG
-    _windowIAttributes[Window::IATTR_HINT_STATISTICS]   = eq::FASTEST;
+    _windowIAttributes[Window::IATTR_HINT_STATISTICS]   = fabric::FASTEST;
 #else
-    _windowIAttributes[Window::IATTR_HINT_STATISTICS]   = eq::NICEST;
+    _windowIAttributes[Window::IATTR_HINT_STATISTICS]   = fabric::NICEST;
 #endif
     
     // channel
     for( uint32_t i=0; i<Channel::IATTR_ALL; ++i )
-        _channelIAttributes[i] = eq::UNDEFINED;
+        _channelIAttributes[i] = fabric::UNDEFINED;
 
 #ifdef NDEBUG
-    _channelIAttributes[Channel::IATTR_HINT_STATISTICS] = eq::FASTEST;
+    _channelIAttributes[Channel::IATTR_HINT_STATISTICS] = fabric::FASTEST;
 #else
-    _channelIAttributes[Channel::IATTR_HINT_STATISTICS] = eq::NICEST;
+    _channelIAttributes[Channel::IATTR_HINT_STATISTICS] = fabric::NICEST;
 #endif
-    _channelIAttributes[Channel::IATTR_HINT_SENDTOKEN] = eq::OFF;
+    _channelIAttributes[Channel::IATTR_HINT_SENDTOKEN] = fabric::OFF;
 
     // compound
     for( uint32_t i=0; i<Compound::IATTR_ALL; ++i )
-        _compoundIAttributes[i] = eq::UNDEFINED;
+        _compoundIAttributes[i] = fabric::UNDEFINED;
 }
 
 void Global::_readEnvironment()

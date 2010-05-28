@@ -115,7 +115,8 @@ namespace fabric
         };
 
         /** Set a pipe attribute. @internal */
-        EQFABRIC_EXPORT void setIAttribute( const IAttribute attr, const int32_t value );
+        EQFABRIC_EXPORT void setIAttribute( const IAttribute attr,
+                                            const int32_t value );
 
         /** @return the value of a pipe attribute. */
         int32_t  getIAttribute( const IAttribute attr ) const
@@ -143,6 +144,9 @@ namespace fabric
         
         EQFABRIC_EXPORT virtual ~Pipe( );
 
+        virtual void attachToSession( const uint32_t id,
+                                      const uint32_t instanceID,
+                                      net::Session* session ); //!< @internal
         /** @internal */
         EQFABRIC_EXPORT virtual void serialize( net::DataOStream& os,
                                                 const uint64_t dirtyBits );
@@ -198,6 +202,10 @@ namespace fabric
         template< class, class, class > friend class Window;
 
         bool _mapNodeObjects() { return _node->_mapNodeObjects(); }
+
+        typedef net::CommandFunc< Pipe< N, P, W, V > > CmdFunc;
+        net::CommandResult _cmdNewWindow( net::Command& command );
+        net::CommandResult _cmdNewWindowReply( net::Command& command );
     };
 }
 }

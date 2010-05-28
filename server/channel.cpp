@@ -79,7 +79,7 @@ Channel::Channel( const Channel& from )
 void Channel::attachToSession( const uint32_t id, const uint32_t instanceID, 
                                net::Session* session )
 {
-    net::Object::attachToSession( id, instanceID, session );
+    Super::attachToSession( id, instanceID, session );
     
     net::CommandQueue* serverQ  = getMainThreadQueue();
     net::CommandQueue* commandQ = getCommandThreadQueue();
@@ -247,22 +247,26 @@ void Channel::updateRunning( const uint32_t initID )
         _configExit();
 }
 
-bool Channel::syncRunning()
+ssize_t Channel::syncRunning()
 {
-    bool success = true;
-    if( isActive() && _state != STATE_RUNNING  && !_syncConfigInit( ))
-        // becoming active
-        success = false;
+    ssize_t result = 0;
+    if( isActive() && _state != STATE_RUNNING ) // becoming active
+        if( _syncConfigInit( ))
+            ++result;
+        else
+            result = -1;
 
-    if( !isActive() && _state != STATE_STOPPED && !_syncConfigExit( ))
-        // becoming inactive
-        success = false;
+    if( !isActive() && _state != STATE_STOPPED ) // becoming inactive
+        if( _syncConfigExit() && result >= 0)
+            ++result;
+        else
+            result = -1;    
 
     EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED || 
               _state == STATE_INIT_FAILED );
 
     EQASSERT( isMaster( ));
-    return success;
+    return result;
 }
 
 //---------------------------------------------------------------------------
@@ -272,10 +276,6 @@ void Channel::_configInit( const uint32_t initID )
 {
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
-
-    setViewVersion( _view );
-    EQASSERT( isMaster( ));
-    commit();
 
     WindowCreateChannelPacket createChannelPacket;
     createChannelPacket.channelID = getID();
@@ -346,18 +346,17 @@ void Channel::_setupRenderContext( const uint32_t frameID,
     context.pvp           = getPixelViewport();
     context.view          = _view;
     context.vp            = getViewport();
+    EQASSERT( getNativeContext().view == _view );
 }
 
 bool Channel::update( const uint32_t frameID, const uint32_t frameNumber )
 {
-    setViewVersion( _view );
-
     EQASSERT( _state == STATE_RUNNING );
     EQASSERT( _active > 0 );
 
     ChannelFrameStartPacket startPacket;
     startPacket.frameNumber = frameNumber;
-    startPacket.version     = commit();
+    startPacket.version     = getVersion();
     _setupRenderContext( frameID, startPacket.context );
 
     send( startPacket );

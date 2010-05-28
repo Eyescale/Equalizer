@@ -44,9 +44,8 @@ Segment< C, S, CH >::~Segment()
     _channel = 0;
 }
 
-template< class C, class S, class CH >
-void Segment< C, S, CH >::serialize( net::DataOStream& os,
-                                 const uint64_t dirtyBits )
+template< class C, class S, class CH > void 
+Segment< C, S, CH >::serialize( net::DataOStream& os, const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_VIEWPORT )
@@ -54,7 +53,7 @@ void Segment< C, S, CH >::serialize( net::DataOStream& os,
     if( dirtyBits & DIRTY_FRUSTUM )
         os << *static_cast< Frustum* >( this );
     if( dirtyBits & DIRTY_CHANNEL )
-        os << static_cast< const net::Object* >( _channel );
+        os << net::ObjectVersion( _channel );
 }
 
 template< class C, class S, class CH >
@@ -75,7 +74,10 @@ void Segment< C, S, CH >::deserialize( net::DataIStream& is,
 
         _channel = 0;
         if( ov.identifier != EQ_ID_NONE )
+        {
             _canvas->getConfig()->find( ov.identifier, &_channel );
+            EQASSERT( !isMaster() || _channel );
+        }
     }
 }
 
@@ -119,21 +121,26 @@ void Segment< C, S, CH >::setViewport( const Viewport& vp )
 
     _vp = vp; 
     setDirty( DIRTY_VIEWPORT );
+    notifyFrustumChanged();
+}
 
+template< class C, class S, class CH >
+void Segment< C, S, CH >::notifyFrustumChanged()
+{
     if( getCurrentType() != TYPE_NONE )
         return;
 
     // if segment has no frustum...
     Wall wall( _canvas->getWall( ));
-    wall.apply( vp );
+    wall.apply( _vp );
                     
     switch( _canvas->getCurrentType( ))
     {
-        case Frustum::TYPE_WALL:
+        case TYPE_WALL:
             setWall( wall );
             break;
 
-        case Frustum::TYPE_PROJECTION:
+        case TYPE_PROJECTION:
         {
             Projection projection( _canvas->getProjection( )); // keep distance
             projection = wall;
@@ -142,7 +149,7 @@ void Segment< C, S, CH >::setViewport( const Viewport& vp )
         }
         default: 
             EQUNIMPLEMENTED;
-        case Frustum::TYPE_NONE:
+        case TYPE_NONE:
             break; 
     }
 }

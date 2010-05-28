@@ -17,6 +17,7 @@
 
 #include "pipe.h"
 
+#include "client.h"
 #include "config.h"
 #include "node.h"
 #include "nodeFactory.h"
@@ -36,13 +37,43 @@ Pipe::Pipe( Node* parent )
 Pipe::~Pipe()
 {}
 
-
-ServerPtr Pipe::getServer()
+Config* Pipe::getConfig()
 {
     Node* node = getNode();
     EQASSERT( node );
-    return ( node ? node->getServer() : 0 );
+    return ( node ? node->getConfig() : 0);
 }
+
+const Config* Pipe::getConfig() const
+{
+    const Node* node = getNode();
+    EQASSERT( node );
+    return ( node ? node->getConfig() : 0);
+}
+
+
+ServerPtr Pipe::getServer()
+{
+    Config* config = getConfig();
+    EQASSERT( config );
+    return ( config ? config->getServer() : 0 );
+}
+
+ClientPtr Pipe::getClient()
+{
+    ServerPtr server = getServer();
+    EQASSERT( server.isValid( ));
+
+    if( !server )
+        return 0;
+    return server->getClient();
+}
+
+net::CommandQueue* Pipe::getMainThreadQueue()
+{
+    return getServer()->getMainThreadQueue();
+}
+
 
 }
 }

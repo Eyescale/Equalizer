@@ -27,7 +27,7 @@ namespace net
 ObjectVersion NONE;
 
 ObjectVersion::ObjectVersion()
-        : identifier( EQ_ID_INVALID ), version( VERSION_NONE )
+        : identifier( EQ_ID_NONE ), version( VERSION_NONE )
 {}
 
 ObjectVersion::ObjectVersion( const uint32_t id_, const uint32_t version_ )
@@ -35,7 +35,7 @@ ObjectVersion::ObjectVersion( const uint32_t id_, const uint32_t version_ )
 {}
 
 ObjectVersion::ObjectVersion( const Object* object )
-        : identifier( EQ_ID_INVALID ), version( VERSION_NONE )
+        : identifier( EQ_ID_NONE ), version( VERSION_NONE )
 {
     if( object )
     {
@@ -53,7 +53,7 @@ ObjectVersion& ObjectVersion::operator = ( const Object* object )
     }
     else
     {
-        identifier = EQ_ID_INVALID;
+        identifier = EQ_ID_NONE;
         version = VERSION_NONE;
     }
 

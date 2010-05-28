@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,38 +15,32 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQADMIN_WINDOW_H
-#define EQADMIN_WINDOW_H
+#ifndef EQSERVER_CLIENT_H
+#define EQSERVER_CLIENT_H
 
-#include <eq/admin/types.h>         // typedefs
-#include <eq/fabric/window.h>       // base class
+#include "base.h"
+#include "types.h"
+#include <eq/fabric/client.h>            // base class
 
 namespace eq
 {
-namespace admin
+namespace server
 {
-    class Channel;
-    class Pipe;
-
-    class Window : public fabric::Window< Pipe, Window, Channel >
+    class Client : public fabric::Client
     {
     public:
-        /** Construct a new window. @version 1.0 */
-        EQADMIN_EXPORT Window( Pipe* parent );
+        /** Construct a new client. */
+        Client( ServerPtr parent );
 
-        /** Destruct a window. @version 1.0 */
-        EQADMIN_EXPORT virtual ~Window();
+        /** Destruct the client. */
+        virtual ~Client();
 
-        /** @name Data Access. */
-        //@{
-        /** @return the Config of this window. */
-        EQADMIN_EXPORT const Config* getConfig() const;
-
-        /** @return the Config of this window. */
-        EQADMIN_EXPORT Config* getConfig();
-        //@}
+        /** @return the command queue to the main node thread. @internal */
+        virtual net::CommandQueue* getMainThreadQueue();
 
     private:
+        ServerPtr _server; //!< the parent server
+
         union // placeholder for binary-compatible changes
         {
             char dummy[32];
@@ -55,5 +49,4 @@ namespace admin
 }
 }
 
-#endif // EQADMIN_WINDOW_H
-
+#endif // EQSERVER_CLIENT_H

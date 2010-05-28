@@ -56,7 +56,7 @@ namespace fabric
         /** @name Data Access */
         //@{
         typedef ElementVisitor< L, LeafVisitor< V > > Visitor;
-        typedef std::vector< V* > ViewVector;
+        typedef std::vector< V* > Views;
 
         /** @return the current config. */
         C* getConfig() { return _config; }
@@ -65,7 +65,7 @@ namespace fabric
         const C* getConfig() const { return _config; }
 
         /** Get the list of views. */
-        const ViewVector& getViews() const { return _views; }
+        const Views& getViews() const { return _views; }
 
         /** @return the view of the given path. @internal */
         V* getView( const ViewPath& path );
@@ -102,6 +102,10 @@ namespace fabric
         /** Destruct this layout. */
         EQFABRIC_EXPORT virtual ~Layout();
 
+        virtual void attachToSession( const uint32_t id,
+                                      const uint32_t instanceID,
+                                      net::Session* session ); //!< @internal
+
         /** @sa Object::serialize */
         EQFABRIC_EXPORT virtual void serialize( net::DataOStream& os, 
                                                 const uint64_t dirtyBits );
@@ -124,7 +128,7 @@ namespace fabric
         C* const _config;
 
         /** Child views on this layout. */
-        ViewVector _views;
+        Views _views;
 
         union // placeholder for binary-compatible changes
         {
@@ -139,6 +143,10 @@ namespace fabric
         void _unmap();
         template< class, class, class, class, class, class, class >
         friend class Config;
+
+        typedef net::CommandFunc< Layout< C, L, V > > CmdFunc;
+        net::CommandResult _cmdNewView( net::Command& command );
+        net::CommandResult _cmdNewViewReply( net::Command& command );
     };
 
     template< class C, class L, class V >

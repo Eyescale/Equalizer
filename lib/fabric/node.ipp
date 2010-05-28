@@ -159,9 +159,8 @@ void Node< C, N, P, V >::restore()
     Object::restore();
 }
 
-template< class C, class N, class P, class V >
-void Node< C, N, P, V >::serialize( net::DataOStream& os, 
-                                 const uint64_t dirtyBits)
+template< class C, class N, class P, class V > void
+Node< C, N, P, V >::serialize( net::DataOStream& os, const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
@@ -175,9 +174,8 @@ void Node< C, N, P, V >::serialize( net::DataOStream& os,
         os << _isAppNode;
 }
 
-template< class C, class N, class P, class V >
-void Node< C, N, P, V >::deserialize( net::DataIStream& is,
-                                      const uint64_t dirtyBits )
+template< class C, class N, class P, class V > void
+Node< C, N, P, V >::deserialize( net::DataIStream& is, const uint64_t dirtyBits)
 {
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )

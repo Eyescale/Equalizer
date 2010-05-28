@@ -46,8 +46,8 @@ void Layout::deregister()
     EQASSERT( getID() != EQ_ID_INVALID );
     EQASSERT( isMaster( ));
     
-    const ViewVector views = getViews();
-    for( ViewVector::const_iterator i = views.begin(); i != views.end(); ++i )
+    const Views views = getViews();
+    for( Views::const_iterator i = views.begin(); i != views.end(); ++i )
     {
         View* view = *i;
         EQASSERT( view->getID() != EQ_ID_INVALID );

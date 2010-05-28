@@ -111,9 +111,6 @@ namespace fabric
         /** Const-version of accept(). */
         EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor ) const;
 
-        /** @return true if the layout has changed. @internal */
-        bool hasDirtyLayout() const { return getDirty() & DIRTY_LAYOUT; }
-
         EQFABRIC_EXPORT virtual void backup(); //!< @internal
         EQFABRIC_EXPORT virtual void restore(); //!< @internal
 
@@ -127,6 +124,10 @@ namespace fabric
 
         /** Destruct this canvas. @internal */
         EQFABRIC_EXPORT virtual ~Canvas();
+
+        virtual void attachToSession( const uint32_t id,
+                                      const uint32_t instanceID,
+                                      net::Session* session ); //!< @internal
 
         /** @sa Frustum::serialize. @internal */
         EQFABRIC_EXPORT void serialize( net::DataOStream& os, 
@@ -181,6 +182,10 @@ namespace fabric
         void _unmap();
         template< class, class, class, class, class, class, class >
         friend class Config;
+
+        typedef net::CommandFunc< Canvas< CFG, C, S, L > > CmdFunc;
+        net::CommandResult _cmdNewSegment( net::Command& command );
+        net::CommandResult _cmdNewSegmentReply( net::Command& command );
     };
 
     template< class CFG, class C, class S, class L >

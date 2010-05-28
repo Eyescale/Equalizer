@@ -35,6 +35,20 @@ View::View( Layout* parent )
 View::~View()
 {}
 
+Config* View::getConfig()
+{
+    Layout* layout = getLayout();
+    EQASSERT( layout );
+    return layout ? layout->getConfig() : 0;
+}
+
+const Config* View::getConfig() const
+{
+    const Layout* layout = getLayout();
+    EQASSERT( layout );
+    return layout ? layout->getConfig() : 0;
+}
+
 }
 }
 

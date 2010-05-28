@@ -25,6 +25,7 @@
 #include <eq/admin/window.h>
 
 #include <eq/fabric/configVisitor.h> // base class
+#include <eq/fabric/packets.h>
 
 namespace eq
 {
@@ -40,54 +41,90 @@ namespace admin
         ConfigCommitVisitor(){}
         virtual ~ConfigCommitVisitor() {}
 
-        virtual VisitorResult visitPre( Pipe* pipe )
-            {
-                if( pipe->getID() != EQ_ID_INVALID )
-                    pipe->commit();
-                return TRAVERSE_CONTINUE;
-            }
-
         virtual VisitorResult visitPre( Window* window )
             {
-                if( window->getID() != EQ_ID_INVALID )
-                    window->commit();
+                _register< Pipe, Window, fabric::PipeNewWindowPacket >( 
+                    window->getPipe(), window );
                 return TRAVERSE_CONTINUE;
             }
-
         virtual VisitorResult visit( Channel* channel )
             {
-                if( channel->getID() != EQ_ID_INVALID )
-                    channel->commit();
+                _register< Window, Channel, fabric::WindowNewChannelPacket >( 
+                    channel->getWindow(), channel );
+                channel->commit();
+                return TRAVERSE_CONTINUE;
+            }
+        virtual VisitorResult visitPost( Window* window )
+            {
+                window->commit();
+                return TRAVERSE_CONTINUE;
+            }
+        virtual VisitorResult visitPost( Pipe* pipe )
+            {
+                pipe->commit();
                 return TRAVERSE_CONTINUE;
             }
 
         virtual VisitorResult visitPre( Layout* layout )
             {
-                if( layout->getID() != EQ_ID_INVALID )
-                    layout->commit();
+                _register< Config, Layout, fabric::ConfigNewLayoutPacket >( 
+                    layout->getConfig(), layout );
                 return TRAVERSE_CONTINUE;
             }
-
         virtual VisitorResult visit( View* view )
             {
-                if( view->getID() != EQ_ID_INVALID )
-                    view->commit();
+                _register< Layout, View, fabric::LayoutNewViewPacket >( 
+                    view->getLayout(), view );
+                view->commit();
+                return TRAVERSE_CONTINUE;
+            }
+        virtual VisitorResult visitPost( Layout* layout )
+            {
+                layout->commit();
                 return TRAVERSE_CONTINUE;
             }
 
         virtual VisitorResult visitPre( Canvas* canvas )
             {
-                if( canvas->getID() != EQ_ID_INVALID )
-                    canvas->commit();
+                _register< Config, Canvas, fabric::ConfigNewCanvasPacket >( 
+                    canvas->getConfig(), canvas );
+                return TRAVERSE_CONTINUE;
+            }
+        virtual VisitorResult visit( Segment* segment )
+            {
+                _register< Canvas, Segment, fabric::CanvasNewSegmentPacket >( 
+                    segment->getCanvas(), segment );
+                segment->commit();
+                return TRAVERSE_CONTINUE;
+            }
+        virtual VisitorResult visitPost( Canvas* canvas )
+            {
+                canvas->commit();
                 return TRAVERSE_CONTINUE;
             }
 
-        virtual VisitorResult visit( Segment* segment )
+    private:
+        template< class P, class E, class PKG > 
+        void _register( P* parent, E* entity )
             {
-                if( segment->getID() != EQ_ID_INVALID )
-                    segment->commit();
-                return TRAVERSE_CONTINUE;
+                if( entity->getID() <= EQ_ID_MAX )
+                    return;
+
+                admin::Config* config = entity->getConfig();
+                net::NodePtr localNode = config->getLocalNode();
+                PKG packet;
+                packet.requestID = localNode->registerRequest();
+
+                net::NodePtr node = config->getServer().get();
+                parent->send( node, packet );
+
+                uint32_t identifier;
+                localNode->waitRequest( packet.requestID, identifier );
+                EQASSERT( identifier <= EQ_ID_MAX );
+                EQCHECK( config->mapObject( entity, identifier,
+                                            net::VERSION_NONE ));
             }
+
     };
 }
 }

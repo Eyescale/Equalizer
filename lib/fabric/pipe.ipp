@@ -20,8 +20,10 @@
 
 #include "elementVisitor.h"
 #include "leafVisitor.h"
+#include "packets.h"
 #include "task.h"
 
+#include <eq/net/command.h>
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
 
@@ -78,6 +80,24 @@ void Pipe< N, P, W, V >::restore()
     Object::restore();
     notifyPixelViewportChanged();
     setDirty( DIRTY_PIXELVIEWPORT );
+}
+
+template< class N, class P, class W, class V >
+void Pipe< N, P, W, V >::attachToSession( const uint32_t id,
+                                              const uint32_t instanceID,
+                                              net::Session* session )
+{
+    Object::attachToSession( id, instanceID, session );
+
+    net::CommandQueue* queue = _node->getConfig()->getMainThreadQueue();
+    EQASSERT( queue );
+
+    registerCommand( fabric::CMD_PIPE_NEW_WINDOW, 
+                     CmdFunc( this, &Pipe< N, P, W, V >::_cmdNewWindow ),
+                     queue );
+    registerCommand( fabric::CMD_PIPE_NEW_WINDOW_REPLY, 
+                     CmdFunc( this, &Pipe< N, P, W, V >::_cmdNewWindowReply ),
+                     0 );
 }
 
 template< class N, class P, class W, class V >
@@ -316,6 +336,39 @@ void Pipe< N, P, W, V >::notifyPixelViewportChanged()
     }
     setDirty( DIRTY_PIXELVIEWPORT );
     EQINFO << getName() << " pvp update: " << _data.pvp << std::endl;
+}
+
+//----------------------------------------------------------------------
+// Command handlers
+//----------------------------------------------------------------------
+template< class N, class P, class W, class V > net::CommandResult
+Pipe< N, P, W, V >::_cmdNewWindow( net::Command& command )
+{
+    const PipeNewWindowPacket* packet =
+        command.getPacket< PipeNewWindowPacket >();
+    
+    W* window = 0;
+    create( &window );
+    EQASSERT( window );
+
+    _node->getConfig()->registerObject( window );
+    EQASSERT( window->getID() <= EQ_ID_MAX );
+
+    PipeNewWindowReplyPacket reply( packet );
+    reply.windowID = window->getID();
+    send( command.getNode(), reply ); 
+
+    return net::COMMAND_HANDLED;
+}
+
+template< class N, class P, class W, class V > net::CommandResult
+Pipe< N, P, W, V >::_cmdNewWindowReply( net::Command& command )
+{
+    const PipeNewWindowReplyPacket* packet =
+        command.getPacket< PipeNewWindowReplyPacket >();
+    getLocalNode()->serveRequest( packet->requestID, packet->windowID );
+
+    return net::COMMAND_HANDLED;
 }
 
 }

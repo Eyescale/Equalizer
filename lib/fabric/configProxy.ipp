@@ -49,7 +49,11 @@ public:
                 static_cast< C* >( &_config ));
         }
     void release( CV* canvas )
-        { _config.getServer()->getNodeFactory()->releaseCanvas( canvas ); }
+        {
+            if( isMaster( ))
+                _config.deactivateCanvas( canvas );
+            _config.getServer()->getNodeFactory()->releaseCanvas( canvas );
+        }
 
     void create( N** node )
         {
@@ -70,13 +74,14 @@ private:
 };
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-ConfigProxy< S, C, O, L, CV, N, V >::ConfigProxy( Config< S, C, O, L, CV, N, V >& config )
+ConfigProxy< S, C, O, L, CV, N, V >::ConfigProxy( 
+    Config< S, C, O, L, CV, N, V >& config )
         : _config( config )
 {}
 
 template< class S, class C, class O, class L, class CV, class N, class V >
 void ConfigProxy< S, C, O, L, CV, N, V >::serialize( net::DataOStream& os,
-                                               const uint64_t dirtyBits )
+                                                     const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
 

@@ -147,7 +147,8 @@ uint32_t FullMasterCM::addSlave( Command& command )
         stream.setInstanceID( instanceID );
         stream.setVersion( _version );
         stream.setNodeID( node->getNodeID( ));
-        
+        stream.enableSave();
+
         stream.resend( node );
         return VERSION_INVALID;
     }

@@ -76,16 +76,21 @@ Window::~Window()
 void Window::attachToSession( const uint32_t id, const uint32_t instanceID, 
                                net::Session* session )
 {
-    net::Object::attachToSession( id, instanceID, session );
-    
-    net::CommandQueue* commandQueue = getCommandThreadQueue();
+    Super::attachToSession( id, instanceID, session );
+
+    net::CommandQueue* queue = getCommandThreadQueue();
 
     registerCommand( fabric::CMD_WINDOW_CONFIG_INIT_REPLY, 
-                     WindowFunc( this, &Window::_cmdConfigInitReply),
-                     commandQueue );
+                     WindowFunc( this, &Window::_cmdConfigInitReply ), queue );
     registerCommand( fabric::CMD_WINDOW_CONFIG_EXIT_REPLY, 
-                     WindowFunc( this, &Window::_cmdConfigExitReply),
-                     commandQueue );
+                     WindowFunc( this, &Window::_cmdConfigExitReply ), queue );
+}
+
+void Window::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
+{
+    Super::deserialize( is, dirtyBits );
+    EQASSERT( isMaster( ));
+    setDirty( dirtyBits ); // redistribute slave changes
 }
 
 const Node* Window::getNode() const 
@@ -300,39 +305,46 @@ void Window::updateRunning( const uint32_t initID )
         _configExit();
 }
 
-bool Window::syncRunning()
+ssize_t Window::syncRunning()
 {
     if( !isActive() && _state == STATE_STOPPED ) // inactive
-        return true;
+        return 0;
 
     // Sync state updates
-    bool success = true;
+    ssize_t result = 0;
     const Channels& channels = getChannels(); 
     for( Channels::const_iterator i = channels.begin(); 
          i != channels.end(); ++i )
     {
         Channel* channel = *i;
-        if( !channel->syncRunning( ))
+        const ssize_t res = channel->syncRunning();
+        if( res == -1 )
         {
             setErrorMessage( getErrorMessage() + "channel " + 
                              channel->getName() + ": '" + 
                              channel->getErrorMessage() + '\'' );
-            success = false;
+            result = -1;
         }
+        else if( result >= 0 )
+            result += res;
     }
 
-    if( isActive() && _state != STATE_RUNNING && !_syncConfigInit( ))
-        // becoming active
-        success = false;
+    if( isActive() && _state != STATE_RUNNING ) // becoming active
+        if( _syncConfigInit() && result >= 0 )
+            ++result;
+        else
+            result = -1;
 
-    if( !isActive() && !_syncConfigExit( ))
-        // becoming inactive
-        success = false;
+    if( !isActive( )) // becoming inactive
+        if( _syncConfigExit() && result >= 0 )
+            ++result;
+        else
+            result = -1;
 
     EQASSERT( isMaster( ));
     EQASSERT( _state == STATE_STOPPED || _state == STATE_RUNNING || 
               _state == STATE_INIT_FAILED );
-    return success;
+    return result;
 }
 
 //---------------------------------------------------------------------------
@@ -342,9 +354,6 @@ void Window::_configInit( const uint32_t initID )
 {
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
-
-    EQASSERT( isMaster( ));
-    commit();
 
     EQLOG( LOG_INIT ) << "Create Window" << std::endl;
     PipeCreateWindowPacket createWindowPacket;
@@ -423,7 +432,7 @@ void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
     WindowFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
-    startPacket.version     = commit();
+    startPacket.version     = getVersion();
     send( startPacket );
     EQLOG( LOG_TASKS ) << "TASK window start frame  " << &startPacket 
                            << std::endl;
@@ -549,13 +558,6 @@ net::CommandResult Window::_cmdConfigExitReply( net::Command& command )
 
     _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
     return net::COMMAND_HANDLED;
-}
-
-void Window::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
-{
-    Super::deserialize( is, dirtyBits );
-    EQASSERT( isMaster( ));
-    setDirty( dirtyBits ); // redistribute slave changes
 }
 
 std::ostream& operator << ( std::ostream& os, const Window* window )

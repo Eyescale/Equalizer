@@ -36,7 +36,7 @@ Object::~Object()
 
 bool Object::isDirty() const
 {
-    if( !_userData || _userData->getID() == EQ_ID_INVALID )
+    if( !_userData || _userData->getID() >= EQ_ID_MAX )
         return Serializable::isDirty();
 
     return Serializable::isDirty() || _userData->isDirty();
@@ -54,7 +54,7 @@ uint32_t Object::commitNB()
             setDirty( DIRTY_USERDATA );
         }
 
-        if( _userData->isDirty() && _userData->getID() != EQ_ID_INVALID )
+        if( _userData->isDirty() && _userData->getID() <= EQ_ID_MAX )
         {
             _data.userData.identifier = _userData->getID();
             _data.userData.version = _userData->commit();
@@ -123,16 +123,16 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
                 if( _userData->getID() == EQ_ID_INVALID )
                 {
                     EQASSERT( !hasMasterUserData( ));
-                    getSession()->mapObject( _userData,
-                                             _data.userData.identifier, 
-                                             _data.userData.version );
+                    getSession()->mapObject( _userData, _data.userData );
                 }
 
-                EQASSERT( !_userData->isMaster( ));
                 EQASSERTINFO( _userData->getID() == _data.userData.identifier,
                               _userData->getID() << " != " << 
                               _data.userData.identifier );
-                _userData->sync( _data.userData.version );
+                if( _userData->isMaster( ))
+                    _userData->sync();
+                else
+                    _userData->sync( _data.userData.version );
             }
             else if( _userData->getID() <= EQ_ID_MAX && !_userData->isMaster( ))
             {

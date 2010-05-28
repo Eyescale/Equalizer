@@ -97,11 +97,10 @@ Window::~Window()
     _objectManager = 0;
 }
 
-void Window::attachToSession( const uint32_t id, 
-                              const uint32_t instanceID, 
+void Window::attachToSession( const uint32_t id, const uint32_t instanceID, 
                               net::Session* session )
 {
-    net::Object::attachToSession( id, instanceID, session );
+    Super::attachToSession( id, instanceID, session );
 
     net::CommandQueue* queue = getPipe()->getPipeThreadQueue();
 
@@ -205,13 +204,13 @@ const Config* Window::getConfig() const
 {
     const Pipe* pipe = getPipe();
     EQASSERT( pipe );
-    return ( pipe ? pipe->getConfig() : 0);
+    return ( pipe ? pipe->getConfig() : 0 );
 }
 Config* Window::getConfig() 
 {
     Pipe* pipe = getPipe();
     EQASSERT( pipe );
-    return ( pipe ? pipe->getConfig() : 0);
+    return ( pipe ? pipe->getConfig() : 0 );
 }
 
 ClientPtr Window::getClient()

@@ -71,7 +71,7 @@ void InitData::applyInstanceData( eq::net::DataIStream& is )
     is >> _frameDataID >> _windowSystem >> _renderMode >> _useGLSL >> _invFaces
        >> _logo;
 
-    EQASSERT( _frameDataID != EQ_ID_INVALID );
+    EQASSERT( _frameDataID <= EQ_ID_MAX );
     EQINFO << "New InitData instance" << endl;
 }
 }

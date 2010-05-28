@@ -210,24 +210,40 @@ namespace eq
     struct ConfigStartFramePacket : public ConfigPacket
     {
         ConfigStartFramePacket()
-                : requestID( EQ_ID_INVALID )
             {
                 command   = fabric::CMD_CONFIG_START_FRAME;
                 size      = sizeof( ConfigStartFramePacket );
             }
         uint32_t frameID;
-        uint32_t requestID;
+        uint32_t syncID;
+        uint32_t startID;
+    };
+
+    struct ConfigSyncPacket : public ConfigPacket
+    {
+        ConfigSyncPacket( const ConfigStartFramePacket* request,
+                          const uint32_t version_ )
+                : requestID( request->syncID )
+                , version( version_ )
+            {
+                command   = fabric::CMD_CONFIG_SYNC;
+                size      = sizeof( ConfigSyncPacket );
+            }
+        const uint32_t requestID;
+        const uint32_t version;
     };
 
     struct ConfigStartFrameReplyPacket : public ConfigPacket
     {
         ConfigStartFrameReplyPacket( const ConfigStartFramePacket* request )
-                : requestID( request->requestID )
+                : requestID( request->startID )
+                , finish( false )
             {
                 command   = fabric::CMD_CONFIG_START_FRAME_REPLY;
                 size      = sizeof( ConfigStartFrameReplyPacket );
             }
-        uint32_t requestID;
+        const uint32_t requestID;
+        bool finish;
     };
 
     struct ConfigReleaseFrameLocalPacket : public ConfigPacket

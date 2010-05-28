@@ -37,6 +37,15 @@ namespace admin
         /** Destruct a view. @version 1.0 */
         EQADMIN_EXPORT virtual ~View();
 
+        /** @name Data Access. */
+        //@{
+        /** @return the config of this view. */
+        EQADMIN_EXPORT Config* getConfig();
+
+        /** @return the config of this view. */
+        EQADMIN_EXPORT const Config* getConfig() const;
+        //@}
+
     private:
         union // placeholder for binary-compatible changes
         {

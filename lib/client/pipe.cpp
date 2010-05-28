@@ -126,7 +126,7 @@ int64_t Pipe::getFrameTime() const
 void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID, 
                             net::Session* session )
 {
-    net::Object::attachToSession( id, instanceID, session );
+    Super::attachToSession( id, instanceID, session );
     
     net::CommandQueue* queue = getPipeThreadQueue();
 
@@ -276,6 +276,11 @@ net::CommandQueue* Pipe::getPipeThreadQueue()
     return _pipeThreadQueue;
 }
 
+net::CommandQueue* Pipe::getMainThreadQueue()
+{
+    return getServer()->getMainThreadQueue();
+}
+
 Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye )
 {
     Frame* frame = _frames[ frameVersion.identifier ];
@@ -292,7 +297,7 @@ Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye )
     frame->sync( frameVersion.version );
 
     const net::ObjectVersion& data = frame->getDataVersion( eye );
-    EQASSERT( data.identifier != EQ_ID_INVALID );
+    EQASSERT( data.identifier <= EQ_ID_MAX );
     FrameData* frameData = getNode()->getFrameData( data ); 
     EQASSERT( frameData );
 
@@ -325,7 +330,7 @@ const View* Pipe::getView( const net::ObjectVersion& viewVersion ) const
 View* Pipe::getView( const net::ObjectVersion& viewVersion )
 {
     CHECK_THREAD( _pipeThread );
-    if( viewVersion.identifier == EQ_ID_INVALID )
+    if( viewVersion.identifier > EQ_ID_MAX )
         return 0;
 
     View* view = _views[ viewVersion.identifier ];

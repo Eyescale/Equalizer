@@ -43,6 +43,10 @@ namespace fabric
         /** @return true if the serializable has to be committed. @version 1.0*/
         virtual bool isDirty() const { return ( _dirty != DIRTY_NONE ); }
 
+        /** @return true if the given dirty bit is set. @version 1.0 */
+        virtual bool isDirty( const uint64_t dirtyBit ) const
+            { return ( _dirty & dirtyBit ); }
+
         virtual uint32_t commitSync( const uint32_t commitID )
             {
                 const uint32_t result = net::Object::commitSync( commitID );
@@ -109,15 +113,6 @@ namespace fabric
 
         /** Add dirty flags to mark data for distribution. @version 1.0 */
         virtual void setDirty( const uint64_t bits ) { _dirty |= bits; }
-
-        /** @sa eq::net::Object::attachToSession. @internal */
-        virtual void attachToSession( const uint32_t id,
-                                      const uint32_t instanceID, 
-                                      net::Session* session )
-            {
-                net::Object::attachToSession( id, instanceID, session );
-                _dirty = DIRTY_NONE;
-            }
 
     private:
         virtual void getInstanceData( net::DataOStream& os )

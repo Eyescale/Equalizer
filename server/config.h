@@ -154,8 +154,11 @@ namespace server
         /** Return the initID for late initialization  */
         uint32_t getInitID(){ return _initID; }
 
-        /** Activate the given canvas after it is complete (dest channels) */
+        /** Activate the given canvas after it is complete (dest channels). */
         virtual void activateCanvas( Canvas* canvas );
+
+        /** Initialize the given canvas in a running configuration */
+        virtual void updateCanvas( Canvas* canvas );
 
         /** @internal */
         virtual VisitorResult _acceptCompounds( ConfigVisitor& visitor );
@@ -217,7 +220,8 @@ namespace server
         /** common code for all constructors */
         void _construct();
 
-        bool _updateRunning();
+        ssize_t _updateRunning(); //!< @return number of changes or -1 on error
+
         bool _connectNodes();
         bool _connectNode( Node* node );
         bool _syncConnectNode( Node* node, const base::Clock& clock );

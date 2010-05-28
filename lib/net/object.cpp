@@ -78,8 +78,8 @@ typedef CommandFunc<Object> CmdFunc;
 void Object::attachToSession( const uint32_t id, const uint32_t instanceID, 
                               Session* session )
 {
-    EQASSERT( id != EQ_ID_INVALID );
-    EQASSERT( instanceID != EQ_ID_INVALID );
+    EQASSERT( id <= EQ_ID_MAX );
+    EQASSERT( instanceID <= EQ_ID_MAX );
     EQASSERT( session );
 
     _id         = id;
@@ -150,7 +150,7 @@ NodePtr Object::getLocalNode()
 
 bool Object::send( NodePtr node, ObjectPacket& packet )
 {
-    EQASSERT( _session ); EQASSERT( _id != EQ_ID_INVALID );
+    EQASSERT( _session ); EQASSERT( _id <= EQ_ID_MAX );
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return node->send( packet );
@@ -159,7 +159,7 @@ bool Object::send( NodePtr node, ObjectPacket& packet )
 bool Object::send( NodePtr node, ObjectPacket& packet, 
                    const std::string& string )
 {
-    EQASSERT( _session ); EQASSERT( _id != EQ_ID_INVALID );
+    EQASSERT( _session ); EQASSERT( _id <= EQ_ID_MAX );
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return node->send( packet, string );
@@ -168,7 +168,7 @@ bool Object::send( NodePtr node, ObjectPacket& packet,
 bool Object::send( NodePtr node, ObjectPacket& packet, 
                    const void* data, const uint64_t size )
 {
-    EQASSERT( _session ); EQASSERT( _id != EQ_ID_INVALID );
+    EQASSERT( _session ); EQASSERT( _id <= EQ_ID_MAX );
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return node->send( packet, data, size );

@@ -131,6 +131,7 @@ namespace net
         uint64_t  _position;
 
         eq::base::Bufferb _data; //!< decompress buffer
+
         /**
          * Check that the current buffer has data left, get the next buffer is
          * necessary, return false if no data is left. 
@@ -219,9 +220,15 @@ namespace net
              i != versions.end(); ++i )
         {
             const ObjectVersion& version = *i;
+            
+            if( version.identifier == EQ_ID_NONE )
+            {
+                result.push_back( 0 );
+                continue;
+            }
+
             typename std::vector< C* >::iterator j =
                 stde::find_if( old, ObjectFinder( version.identifier ));
-            const bool isMaster = object->isMaster();
 
             if( j == old.end( )) // previously unknown child
             {
@@ -230,25 +237,21 @@ namespace net
                 Session* session = object->getSession();
                 EQASSERT( child );
                 EQASSERT( session );
+                EQASSERT( !object->isMaster( ));
 
-                if( isMaster )
-                {
-                    EQASSERT( version.identifier == EQ_ID_INVALID );
-                    static_cast< Object* >( child )->applyInstanceData( *this );
-                    session->registerObject( child );
-                }
-                else
-                {
-                    EQASSERT( version.identifier != EQ_ID_INVALID );
-                    EQCHECK( session->mapObject( child, version ));
-                }
+                EQASSERT( version.identifier <= EQ_ID_MAX );
+                EQCHECK( session->mapObject( child, version ));
                 result.push_back( child );
             }
             else
             {
                 C* child = *j;
                 old.erase( j );
-                child->sync( isMaster ? VERSION_HEAD : version.version );
+                if( object->isMaster( ))
+                    child->sync( VERSION_HEAD );
+                else
+                    child->sync( version.version );
+
                 result.push_back( child );
             }
         }
@@ -257,6 +260,9 @@ namespace net
         {
             C* child = old.back();
             old.pop_back();
+            if( !child )
+                continue;
+
             Session* session = object->getSession();
             EQASSERT( session );
             

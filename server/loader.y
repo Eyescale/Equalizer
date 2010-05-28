@@ -1167,23 +1167,23 @@ colorMaskBit:
     | EQTOKEN_BLUE  { $$ = eq::server::Compound::COLOR_MASK_BLUE; }
 
 IATTR:
-    EQTOKEN_ON           { $$ = eq::ON; }
-    | EQTOKEN_OFF        { $$ = eq::OFF; }
-    | EQTOKEN_AUTO       { $$ = eq::AUTO; }
-    | EQTOKEN_FASTEST    { $$ = eq::FASTEST; }
-    | EQTOKEN_HORIZONTAL { $$ = eq::HORIZONTAL; }
-    | EQTOKEN_NICEST     { $$ = eq::NICEST; }
-    | EQTOKEN_QUAD       { $$ = eq::QUAD; }
-    | EQTOKEN_ANAGLYPH   { $$ = eq::ANAGLYPH; } 
-    | EQTOKEN_VERTICAL   { $$ = eq::VERTICAL; }
-    | EQTOKEN_WINDOW     { $$ = eq::WINDOW; }
-    | EQTOKEN_FBO        { $$ = eq::FBO; }
-    | EQTOKEN_PBUFFER    { $$ = eq::PBUFFER; }
-    | EQTOKEN_ASYNC      { $$ = eq::ASYNC; }
-    | EQTOKEN_DRAW_SYNC  { $$ = eq::DRAW_SYNC; }
-    | EQTOKEN_LOCAL_SYNC { $$ = eq::LOCAL_SYNC; }
-    | EQTOKEN_RGBA16F    { $$ = eq::RGBA16F; }
-    | EQTOKEN_RGBA32F    { $$ = eq::RGBA32F; }
+    EQTOKEN_ON           { $$ = eq::fabric::ON; }
+    | EQTOKEN_OFF        { $$ = eq::fabric::OFF; }
+    | EQTOKEN_AUTO       { $$ = eq::fabric::AUTO; }
+    | EQTOKEN_FASTEST    { $$ = eq::fabric::FASTEST; }
+    | EQTOKEN_HORIZONTAL { $$ = eq::fabric::HORIZONTAL; }
+    | EQTOKEN_NICEST     { $$ = eq::fabric::NICEST; }
+    | EQTOKEN_QUAD       { $$ = eq::fabric::QUAD; }
+    | EQTOKEN_ANAGLYPH   { $$ = eq::fabric::ANAGLYPH; } 
+    | EQTOKEN_VERTICAL   { $$ = eq::fabric::VERTICAL; }
+    | EQTOKEN_WINDOW     { $$ = eq::fabric::WINDOW; }
+    | EQTOKEN_FBO        { $$ = eq::fabric::FBO; }
+    | EQTOKEN_PBUFFER    { $$ = eq::fabric::PBUFFER; }
+    | EQTOKEN_ASYNC      { $$ = eq::fabric::ASYNC; }
+    | EQTOKEN_DRAW_SYNC  { $$ = eq::fabric::DRAW_SYNC; }
+    | EQTOKEN_LOCAL_SYNC { $$ = eq::fabric::LOCAL_SYNC; }
+    | EQTOKEN_RGBA16F    { $$ = eq::fabric::RGBA16F; }
+    | EQTOKEN_RGBA32F    { $$ = eq::fabric::RGBA32F; }
     | INTEGER            { $$ = $1; }
 
 STRING: EQTOKEN_STRING

@@ -198,15 +198,15 @@ void ConfigTool::writeConfig() const
 {
     Global* global = Global::instance();
     global->setWindowIAttribute( eq::server::Window::IATTR_HINT_FULLSCREEN,
-                                 eq::ON );
+                                 eq::fabric::ON );
     global->setWindowIAttribute( eq::server::Window::IATTR_HINT_DOUBLEBUFFER,
-                                 eq::OFF );
+                                 eq::fabric::OFF );
     global->setWindowIAttribute( eq::server::Window::IATTR_HINT_DRAWABLE,
-                                 eq::PBUFFER );
+                                 eq::fabric::PBUFFER );
 
     if( _mode >= MODE_DB && _mode <= MODE_DB_DS_AC )
         global->setWindowIAttribute( eq::server::Window::IATTR_PLANES_STENCIL,
-                                     eq::ON );
+                                     eq::fabric::ON );
 
     ServerPtr server = new eq::server::Server;
     Config* config = new Config( server );
@@ -285,12 +285,14 @@ void ConfigTool::_writeResources( Config* config ) const
             if( c == 0 ) // destination window
             {
                 if( !_fullScreen )
-                    window->setIAttribute( eq::server::Window::IATTR_HINT_FULLSCREEN, 
-                                           eq::OFF );
+                    window->setIAttribute( 
+                        eq::server::Window::IATTR_HINT_FULLSCREEN,
+                        eq::fabric::OFF );
                 window->setIAttribute( eq::server::Window::IATTR_HINT_DRAWABLE, 
-                                       eq::WINDOW );
-                window->setIAttribute( eq::server::Window::IATTR_HINT_DOUBLEBUFFER, 
-                                       eq::ON );
+                                       eq::fabric::WINDOW );
+                window->setIAttribute(
+                    eq::server::Window::IATTR_HINT_DOUBLEBUFFER, 
+                    eq::fabric::ON );
             }
 
             eq::PixelViewport viewport( 0, 0, _resX, _resY );

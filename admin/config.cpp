@@ -19,6 +19,7 @@
 
 #include "canvas.h"
 #include "channel.h"
+#include "client.h"
 #include "config.h"
 #include "layout.h"
 #include "node.h"
@@ -43,12 +44,26 @@ Config::Config( ServerPtr parent )
 Config::~Config()
 {}
 
+net::CommandQueue* Config::getMainThreadQueue()
+{
+    return getClient()->getMainThreadQueue();
+}
+
+ClientPtr Config::getClient()
+{ 
+    return getServer()->getClient(); 
+}
+
+ConstClientPtr Config::getClient() const
+{ 
+    return getServer()->getClient(); 
+}
+
 uint32_t Config::commit()
 {
-    const uint32_t result = Super::commit();
     ConfigCommitVisitor visitor;
     accept( visitor );
-    return result;
+    return Super::commit();
 }
 
 }

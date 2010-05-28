@@ -71,8 +71,7 @@ namespace eq
         /** @return the local client node. @version 1.0 */
         EQ_EXPORT ConstClientPtr getClient() const;
 
-        /** @internal */
-        EQ_EXPORT net::CommandQueue* getMainThreadQueue();
+        EQ_EXPORT net::CommandQueue* getMainThreadQueue(); //!< @internal
 
         /** @return the frame number of the last frame started. @version 1.0 */
         uint32_t getCurrentFrame()  const { return _currentFrame; }
@@ -367,6 +366,7 @@ namespace eq
         net::CommandResult _cmdSyncClock( net::Command& command );
         net::CommandResult _cmdCreateNode( net::Command& command );
         net::CommandResult _cmdDestroyNode( net::Command& command );
+        net::CommandResult _cmdSync( net::Command& command );
         net::CommandResult _cmdStartFrameReply( net::Command& command );
         net::CommandResult _cmdInitReply( net::Command& command );
         net::CommandResult _cmdExitReply( net::Command& command );

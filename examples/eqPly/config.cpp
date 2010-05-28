@@ -288,7 +288,7 @@ void Config::unmapData()
 
 const Model* Config::getModel( const uint32_t modelID )
 {
-    if( modelID == EQ_ID_INVALID ) // no model loaded by application
+    if( modelID > EQ_ID_MAX )
         return 0;
 
     // Accessed concurrently from pipe threads
@@ -405,7 +405,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
         {
             const uint32_t viewID = event->data.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
-            if( viewID == EQ_ID_INVALID )
+            if( viewID > EQ_ID_MAX )
             {
                 _currentCanvas = 0;
                 return true;
@@ -646,7 +646,10 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         {
             eq::admin::ServerPtr server = getAdminServer();
             if( server.isValid( ))
+            {
                 eqAdmin::addWindow( server );
+//                eqAdmin::addWindow( server );
+            }
             return true;
         }
         case 'A':

@@ -244,18 +244,8 @@ namespace net
         {
             C* child = *i;
             (*this) << static_cast< const Object* >( child );
-            if( child->getID() == EQ_ID_INVALID )
-            {
-                EQASSERTINFO( !object->isMaster(),
-                              "Found unregistered object on master instance" );
-                unmapped.push_back( child );
-            }
-        }
-        for( typename std::vector< C* >::const_iterator i = unmapped.begin();
-             i != unmapped.end(); ++i )
-        {
-            Object* child = *i;
-            child->getInstanceData( *this );
+            EQASSERTINFO( !child || child->getID() <= EQ_ID_MAX,
+                          "Found unmapped object during serialization" );
         }
     }
 /** @endcond */

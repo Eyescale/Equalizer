@@ -104,6 +104,11 @@ namespace fabric
         /** Const-version of accept(). @version 1.0 */
         EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor ) const;
 
+        /**
+         * Notify that a condition affecting the frustum has changed. @internal
+         */
+        void notifyFrustumChanged();
+
         virtual void backup(); //!< @internal
         virtual void restore(); //!< @internal
         //@}

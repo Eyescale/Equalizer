@@ -1,9 +1,29 @@
-Implement Compound::adopt()
+Implement run-time window creation:
+- Allow creation of Windows, Channels, Views, Layouts, Segments and Canvases
+- Compounds and destination Channels are automatically created by the server
+- Use EQ_ID_NONE to allow for '0' objects during serialization
+- Rework Config::startFrame - finish/sync logics is on server
+- Newly created admin entities are created empty on the server,
+  registered to assign an identifier, mapped with VERSION_NONE on the
+  admin client and then committed to initialize the master version
 
-[ ] May break build
+Unrelated cleanups:
+- eqPly: Use config model if no view model is set
+- Denoisify Window/Channel viewport updates
+- Create Wall ctor with default values for convenience
+- Opt: Don't call pack() on commit() if no slaves are listening
+
+Included bugs:
+- admin client exit does not work
+- creating and committing two windows too fast doesn't work
+- Admin entities are not synced and will assert in notifyNewHeadVersion
+  eventually
+- Entity destruction not yet implemented
+
+[x] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [x] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

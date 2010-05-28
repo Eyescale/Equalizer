@@ -100,9 +100,6 @@ uint32_t VersionedSlaveCM::sync( const uint32_t v )
     if( _version == v )
         return _version;
 
-    if( !_mutex )
-        CHECK_THREAD( _thread );
-
     base::ScopedMutex<> mutex( _mutex );
     const uint32_t version = (v == VERSION_NEXT) ? _version + 1 : v;
 

@@ -85,14 +85,14 @@ Server< CL, S, CFG, NF >::_cmdCreateConfig( net::Command& command )
     const ServerCreateConfigPacket* packet = 
         command.getPacket<ServerCreateConfigPacket>();
     EQVERB << "Handle create config " << packet << std::endl;
-    EQASSERT( packet->proxy.identifier != EQ_ID_INVALID );
+    EQASSERT( packet->proxy.identifier <= EQ_ID_MAX );
     
     CFG* config = _nodeFactory->createConfig( static_cast< S* >( this ));
     net::NodePtr localNode = command.getLocalNode();
     localNode->mapSession( command.getNode(), config, packet->configID );
     config->map( packet->proxy );
 
-    if( packet->requestID != EQ_ID_INVALID )
+    if( packet->requestID <= EQ_ID_MAX )
     {
         ConfigCreateReplyPacket reply( packet );
         command.getNode()->send( reply );
@@ -116,7 +116,7 @@ Server< CL, S, CFG, NF >::_cmdDestroyConfig( net::Command& command )
     EQCHECK( localNode->unmapSession( config ));
     _nodeFactory->releaseConfig( config );
 
-    if( packet->requestID != EQ_ID_INVALID )
+    if( packet->requestID <= EQ_ID_MAX )
     {
         ServerDestroyConfigReplyPacket reply( packet );
         command.getNode()->send( reply );

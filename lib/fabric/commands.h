@@ -65,7 +65,11 @@ namespace fabric
 
     enum ConfigCommand
     {
-        CMD_CONFIG_START_INIT                 = net::CMD_SESSION_CUSTOM,
+        CMD_CONFIG_NEW_LAYOUT = net::CMD_SESSION_CUSTOM,
+        CMD_CONFIG_NEW_LAYOUT_REPLY,
+        CMD_CONFIG_NEW_CANVAS,
+        CMD_CONFIG_NEW_CANVAS_REPLY,
+        CMD_CONFIG_START_INIT,
         CMD_CONFIG_START_INIT_REPLY,
         CMD_CONFIG_INIT,
         CMD_CONFIG_INIT_REPLY,
@@ -75,6 +79,7 @@ namespace fabric
         CMD_CONFIG_CREATE_NODE,
         CMD_CONFIG_DESTROY_NODE,
         CMD_CONFIG_START_FRAME,
+        CMD_CONFIG_SYNC,
         CMD_CONFIG_START_FRAME_REPLY,
         CMD_CONFIG_RELEASE_FRAME_LOCAL,
         CMD_CONFIG_FRAME_FINISH,
@@ -113,7 +118,9 @@ namespace fabric
 
     enum PipeCommand
     {
-        CMD_PIPE_CONFIG_INIT = net::CMD_OBJECT_CUSTOM,
+        CMD_PIPE_NEW_WINDOW = net::CMD_OBJECT_CUSTOM,
+        CMD_PIPE_NEW_WINDOW_REPLY,
+        CMD_PIPE_CONFIG_INIT,
         CMD_PIPE_CONFIG_INIT_REPLY,
         CMD_PIPE_CONFIG_EXIT,
         CMD_PIPE_CONFIG_EXIT_REPLY, 
@@ -133,7 +140,9 @@ namespace fabric
 
     enum WindowCommand
     {
-        CMD_WINDOW_CONFIG_INIT = net::CMD_OBJECT_CUSTOM,
+        CMD_WINDOW_NEW_CHANNEL = net::CMD_OBJECT_CUSTOM,
+        CMD_WINDOW_NEW_CHANNEL_REPLY,
+        CMD_WINDOW_CONFIG_INIT,
         CMD_WINDOW_CONFIG_INIT_REPLY,
         CMD_WINDOW_CONFIG_EXIT,
         CMD_WINDOW_CONFIG_EXIT_REPLY,
@@ -178,6 +187,30 @@ namespace fabric
         CMD_CHANNEL_FILL4,
         CMD_CHANNEL_FILL5,
         CMD_CHANNEL_CUSTOM
+    };
+
+    enum CanvasCommand
+    {
+        CMD_CANVAS_NEW_SEGMENT = net::CMD_OBJECT_CUSTOM,
+        CMD_CANVAS_NEW_SEGMENT_REPLY,
+        CMD_CANVAS_FILL1, // some buffer for binary-compatible patches
+        CMD_CANVAS_FILL2,
+        CMD_CANVAS_FILL3,
+        CMD_CANVAS_FILL4,
+        CMD_CANVAS_FILL5,
+        CMD_CANVAS_CUSTOM
+    };
+
+    enum LayoutCommand
+    {
+        CMD_LAYOUT_NEW_VIEW = net::CMD_OBJECT_CUSTOM,
+        CMD_LAYOUT_NEW_VIEW_REPLY,
+        CMD_LAYOUT_FILL1, // some buffer for binary-compatible patches
+        CMD_LAYOUT_FILL2,
+        CMD_LAYOUT_FILL3,
+        CMD_LAYOUT_FILL4,
+        CMD_LAYOUT_FILL5,
+        CMD_LAYOUT_CUSTOM
     };
 
     enum FrameDataCommand

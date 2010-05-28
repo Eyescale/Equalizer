@@ -118,6 +118,9 @@ namespace server
         /** @return the channel's view. */
         const View* getView() const { return _view; }
 
+        /** @return the channel's view. */
+        View* getView() { return _view; }
+
         /** @return the channel's layout. */
         EQSERVER_EXPORT const Layout* getLayout() const;
 
@@ -146,7 +149,7 @@ namespace server
         void updateRunning( const uint32_t initID );
 
         /** Finalize the last updateRunning changes. */
-        bool syncRunning();
+        ssize_t syncRunning();
 
         /** 
          * Starts exiting this node.

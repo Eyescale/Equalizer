@@ -71,7 +71,7 @@ void Node::attachToSession( const uint32_t id,
                             const uint32_t instanceID, 
                             net::Session* session )
 {
-    net::Object::attachToSession( id, instanceID, session );
+    Super::attachToSession( id, instanceID, session );
 
     Config* config = getConfig();
     EQASSERT( config );
@@ -407,7 +407,7 @@ net::CommandResult Node::_cmdCreatePipe( net::Command& command )
     EQLOG( LOG_INIT ) << "Create pipe " << packet << std::endl;
 
     CHECK_THREAD( _nodeThread );
-    EQASSERT( packet->pipeID != EQ_ID_INVALID );
+    EQASSERT( packet->pipeID <= EQ_ID_MAX );
 
     Pipe* pipe = Global::getNodeFactory()->createPipe( this );
 

@@ -16,10 +16,13 @@
  */
 
 #include "layout.h"
+
 #include "elementVisitor.h"
 #include "nameFinder.h"
+#include "packets.h"
 #include "paths.h"
 
+#include <eq/net/command.h>
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
 #include <eq/base/stdExt.h>
@@ -50,16 +53,29 @@ Layout< C, L, V >::~Layout()
 }
 
 template< class C, class L, class V >
+void Layout< C, L, V >::attachToSession( const uint32_t id,
+                                              const uint32_t instanceID,
+                                              net::Session* session )
+{
+    Object::attachToSession( id, instanceID, session );
+
+    net::CommandQueue* queue = _config->getMainThreadQueue();
+    EQASSERT( queue );
+
+    registerCommand( fabric::CMD_LAYOUT_NEW_VIEW,
+                     CmdFunc( this, &Layout< C, L, V >::_cmdNewView ), queue );
+    registerCommand( fabric::CMD_LAYOUT_NEW_VIEW_REPLY, 
+                     CmdFunc( this, &Layout< C, L, V >::_cmdNewViewReply ), 0 );
+}
+
+template< class C, class L, class V >
 void Layout< C, L, V >::serialize( net::DataOStream& os,
                                    const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
 
     if( dirtyBits & DIRTY_VIEWS )
-    {
-        EQASSERT( isMaster( ));
         os.serializeChildren( this, _views );
-    }
 }
 
 template< class C, class L, class V >
@@ -70,14 +86,11 @@ void Layout< C, L, V >::deserialize( net::DataIStream& is,
 
     if( dirtyBits & DIRTY_VIEWS )
     {
-        EQASSERT( !isMaster( ));
-        EQASSERT( _views.empty( ));
         EQASSERT( _config );
 
-        ViewVector result;
+        Views result;
         is.deserializeChildren( this, _views, result );
         _views.swap( result );
-        EQASSERT( _views.size() == result.size( ));
     }
 }
 
@@ -96,11 +109,11 @@ void Layout< C, L, V >::_unmap()
     EQASSERT( config );
     EQASSERT( !isMaster( ));
 
-    const ViewVector& views = getViews();
+    const Views& views = getViews();
     while( !views.empty( ))
     {
         V* view = views.back();
-        EQASSERT( view->getID() != EQ_ID_INVALID );
+        EQASSERT( view->getID() <= EQ_ID_MAX );
 
         config->unmapObject( view );
         _removeView( view );
@@ -132,8 +145,8 @@ VisitorResult _accept( L* layout, V& visitor )
     if( result != TRAVERSE_CONTINUE )
         return result;
 
-    const typename L::ViewVector& views = layout->getViews();
-    for( typename L::ViewVector::const_iterator i = views.begin();
+    const typename L::Views& views = layout->getViews();
+    for( typename L::Views::const_iterator i = views.begin();
          i != views.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
@@ -186,17 +199,19 @@ void Layout< C, L, V >::_addView( V* view )
     EQASSERT( view );
     EQASSERT( view->getLayout() == this );
     _views.push_back( view );
+    setDirty( DIRTY_VIEWS );
 }
 
 template< class C, class L, class V >
 bool Layout< C, L, V >::_removeView( V* view )
 {
-    typename ViewVector::iterator i = stde::find( _views, view );
+    typename Views::iterator i = stde::find( _views, view );
     if( i == _views.end( ))
         return false;
 
     EQASSERT( view->getLayout() == this );
     _views.erase( i );
+    setDirty( DIRTY_VIEWS );
     return true;
 }
 
@@ -233,6 +248,40 @@ V* Layout< C, L, V >::findView( const std::string& name )
     NameFinder< V, Visitor > finder( name );
     accept( finder );
     return finder.getResult();
+}
+
+//----------------------------------------------------------------------
+// Command handlers
+//----------------------------------------------------------------------
+template< class C, class L, class V > net::CommandResult
+Layout< C, L, V >::_cmdNewView( net::Command& command )
+{
+    const LayoutNewViewPacket* packet =
+        command.getPacket< LayoutNewViewPacket >();
+    
+    V* view = 0;
+    create( &view );
+    EQASSERT( view );
+
+    _config->registerObject( view );
+    view->setAutoObsolete( _config->getLatency( ));
+    EQASSERT( view->getID() <= EQ_ID_MAX );
+
+    LayoutNewViewReplyPacket reply( packet );
+    reply.viewID = view->getID();
+    send( command.getNode(), reply ); 
+
+    return net::COMMAND_HANDLED;
+}
+
+template< class C, class L, class V > net::CommandResult
+Layout< C, L, V >::_cmdNewViewReply( net::Command& command )
+{
+    const LayoutNewViewReplyPacket* packet =
+        command.getPacket< LayoutNewViewReplyPacket >();
+    getLocalNode()->serveRequest( packet->requestID, packet->viewID );
+
+    return net::COMMAND_HANDLED;
 }
 
 template< class C, class L, class V >

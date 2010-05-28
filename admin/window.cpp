@@ -37,6 +37,20 @@ Window::Window( Pipe* parent )
 Window::~Window()
 {}
 
+const Config* Window::getConfig() const
+{
+    const Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return ( pipe ? pipe->getConfig() : 0 );
+}
+
+Config* Window::getConfig() 
+{
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return ( pipe ? pipe->getConfig() : 0 );
+}
+
 }
 }
 

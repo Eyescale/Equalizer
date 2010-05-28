@@ -551,7 +551,9 @@ const Model* Channel::_getModel()
     const FrameData& frameData = _getFrameData();
     EQASSERT( !view || dynamic_cast< const View* >( getView( )));
 
-    const uint32_t id = view ? view->getModelID() : frameData.getModelID();
+    uint32_t id = view ? view->getModelID() : frameData.getModelID();
+    if( id > EQ_ID_MAX )
+        id = frameData.getModelID();
     if( id != _modelID )
     {
         _model = config->getModel( id );

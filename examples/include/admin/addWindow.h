@@ -59,7 +59,6 @@ inline bool addWindow( eq::admin::ServerPtr server )
 
     eq::admin::Pipe* pipe = pipes.front();
     EQASSERT( pipe );
-    //std::cout << "Using " << *pipe << std::endl;
 
     // Add window (->channel->segment->canvas->layout->view)
     eq::admin::Window* window = new eq::admin::Window( pipe );
@@ -69,12 +68,14 @@ inline bool addWindow( eq::admin::ServerPtr server )
     eq::admin::Layout* layout = new eq::admin::Layout( config );
     new eq::admin::View( layout );
 
-    window->setViewport( eq::fabric::Viewport( 0.1f, 0.1f, 0.3f, 0.3f ));
+    window->setPixelViewport( eq::fabric::PixelViewport( 100, 100, 400, 300 ));
     window->setName( "Runtime-created window" );
     
     segment->setChannel( channel );
     canvas->addLayout( layout );
-    
+    canvas->setWall( eq::fabric::Wall( eq::fabric::Vector3f(-.4f,-.3f,-1.f ),
+                                       eq::fabric::Vector3f( .4f,-.3f,-1.f ),
+                                       eq::fabric::Vector3f(-.4f, .3f,-1.f )));
     config->commit();
     return true;
 }

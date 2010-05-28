@@ -69,6 +69,9 @@ namespace fabric
         /** @return the parent window. @version 1.0 */
         const W* getWindow() const { return _window; }
 
+        /** Update the native view identifier and version. @internal */
+        void setViewVersion( const net::ObjectVersion& view );
+
         /** Set the channel's pixel viewport wrt its parent window. @internal */
         void setPixelViewport( const PixelViewport& pvp );
 
@@ -290,9 +293,6 @@ namespace fabric
 
         /** @sa Serializable::setDirty() @internal */
         EQFABRIC_EXPORT virtual void setDirty( const uint64_t bits );
-
-        /** Update the native view identifier and version. @internal */
-        void setViewVersion( const net::ObjectVersion& view );
 
         void setDrawable( const uint32_t drawable ); //!< @internal
 

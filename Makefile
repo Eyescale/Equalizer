@@ -62,7 +62,7 @@ ifeq ($(findstring EQ_USE_CUDA, $(DEFFLAGS)),EQ_USE_CUDA)
 	@echo "    CUDA (http://www.nvidia.com/object/cuda_home.html)"
 endif
 ifeq ($(findstring EQ_USE_BOOST, $(DEFFLAGS)),EQ_USE_BOOST)
-	@echo "    Reliable UDP Multicast"
+	@echo "    Reliable UDP multicast for data distribution"
 endif
 	@echo
 ifeq (Darwin,$(ARCH))

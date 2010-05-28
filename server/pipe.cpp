@@ -68,7 +68,7 @@ Pipe::~Pipe()
 void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID, 
                                net::Session* session )
 {
-    net::Object::attachToSession( id, instanceID, session );
+    Super::attachToSession( id, instanceID, session );
     
     net::CommandQueue* queue = getCommandThreadQueue();
 
@@ -202,38 +202,45 @@ void Pipe::updateRunning( const uint32_t initID, const uint32_t frameNumber )
         _configExit();
 }
 
-bool Pipe::syncRunning()
+ssize_t Pipe::syncRunning()
 {
     if( !isActive() && _state == STATE_STOPPED ) // inactive
-        return true;
+        return 0;
 
     // Sync state updates
-    bool success = true;
+    ssize_t result = 0;
     const Windows& windows = getWindows(); 
     for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
     {
         Window* window = *i;
-        if( !window->syncRunning( ))
+        const ssize_t res = window->syncRunning();
+        if( res == -1 )
         {
             setErrorMessage( getErrorMessage() + " window " + 
                              window->getName() + ": '" + 
                              window->getErrorMessage() + '\'' );
-            success = false;
+            result = -1;
         }
+        else if( result >= 0 )
+            result += res;
     }
 
-    if( isActive() && _state != STATE_RUNNING && !_syncConfigInit( ))
-        // becoming active
-        success = false;
+    if( isActive() && _state != STATE_RUNNING ) // becoming active
+        if( _syncConfigInit() && result >= 0 )
+            ++result;
+        else
+            result = -1;
 
-    if( !isActive() && !_syncConfigExit( ))
-        // becoming inactive
-        success = false;
+    if( !isActive( )) // becoming inactive
+        if( _syncConfigExit() && result >= 0 )
+            ++result;
+        else
+            result = -1;
 
     EQASSERT( isMaster( ));
     EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED ||
               _state == STATE_INIT_FAILED );
-    return success;
+    return result;
 }
 
 //---------------------------------------------------------------------------
@@ -243,9 +250,6 @@ void Pipe::_configInit( const uint32_t initID, const uint32_t frameNumber )
 {
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
-
-    EQASSERT( isMaster( ));
-    commit();
 
     EQLOG( LOG_INIT ) << "Create pipe" << std::endl;
     NodeCreatePipePacket createPipePacket;
@@ -326,7 +330,7 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
     PipeFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
-    startPacket.version     = commit();
+    startPacket.version     = getVersion();
     send( startPacket );
     EQLOG( LOG_TASKS ) << "TASK pipe start frame " << &startPacket << std::endl;
 

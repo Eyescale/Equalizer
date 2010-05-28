@@ -20,8 +20,10 @@
 
 #include "channel.h"
 #include "elementVisitor.h"
+#include "packets.h"
 #include "task.h"
 
+#include <eq/net/command.h>
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
 
@@ -75,6 +77,24 @@ Window< P, W, C >::~Window( )
         delete channel;
     }
     _pipe->_removeWindow( static_cast< W* >( this ) );
+}
+
+template< class P, class W, class C >
+void Window< P, W, C >::attachToSession( const uint32_t id,
+                                         const uint32_t instanceID,
+                                         net::Session* session )
+{
+    Object::attachToSession( id, instanceID, session );
+
+    net::CommandQueue* queue = _pipe->getMainThreadQueue();
+    EQASSERT( queue );
+
+    registerCommand( fabric::CMD_WINDOW_NEW_CHANNEL, 
+                     CmdFunc( this, &Window< P, W, C >::_cmdNewChannel ),
+                     queue );
+    registerCommand( fabric::CMD_WINDOW_NEW_CHANNEL_REPLY, 
+                     CmdFunc( this, &Window< P, W, C >::_cmdNewChannelReply ),
+                     0 );
 }
 
 template< class P, class W, class C >
@@ -339,7 +359,7 @@ void Window< P, W, C >::notifyViewportChanged()
     {
         (*i)->notifyViewportChanged();
     }
-    EQINFO << getName() << " viewport update: " << _data.vp << ":" << _data.pvp
+    EQVERB << getName() << " viewport update: " << _data.vp << ":" << _data.pvp
            << std::endl;
 }
 
@@ -348,6 +368,40 @@ void Window< P, W, C >::_setDrawableConfig(const DrawableConfig& drawableConfig)
 { 
     _data.drawableConfig = drawableConfig;
     setDirty( DIRTY_DRAWABLECONFIG );
+}
+
+//----------------------------------------------------------------------
+// Command handlers
+//----------------------------------------------------------------------
+template< class P, class W, class C >
+net::CommandResult Window< P, W, C >::_cmdNewChannel( net::Command& command )
+{
+    const WindowNewChannelPacket* packet =
+        command.getPacket< WindowNewChannelPacket >();
+    
+    C* channel = 0;
+    create( &channel );
+    EQASSERT( channel );
+
+    _pipe->getConfig()->registerObject( channel );
+    EQASSERT( channel->getID() <= EQ_ID_MAX );
+
+    WindowNewChannelReplyPacket reply( packet );
+    reply.channelID = channel->getID();
+    send( command.getNode(), reply ); 
+    EQASSERT( reply.channelID <= EQ_ID_MAX );
+
+    return net::COMMAND_HANDLED;
+}
+
+template< class P, class W, class C > net::CommandResult
+Window< P, W, C >::_cmdNewChannelReply( net::Command& command )
+{
+    const WindowNewChannelReplyPacket* packet =
+        command.getPacket< WindowNewChannelReplyPacket >();
+    getLocalNode()->serveRequest( packet->requestID, packet->channelID );
+
+    return net::COMMAND_HANDLED;
 }
 
 }

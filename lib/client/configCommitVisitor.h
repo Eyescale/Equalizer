@@ -32,7 +32,7 @@ namespace eq
     class ConfigCommitVisitor : public ConfigVisitor
     {
     public:
-        ConfigCommitVisitor() : _needFinish( false ) {}
+        ConfigCommitVisitor() {}
         virtual ~ConfigCommitVisitor() {}
 
         virtual VisitorResult visit( Observer* observer )
@@ -42,9 +42,6 @@ namespace eq
             }
         virtual VisitorResult visitPre( Canvas* canvas )
             {
-                if( canvas->hasDirtyLayout( ))
-                    _needFinish = true;
-
                 static_cast< net::Object*>( canvas )->commit();
                 return TRAVERSE_PRUNE; // no need to visit segments
             }
@@ -53,11 +50,6 @@ namespace eq
                 static_cast< net::Object*>( view )->commit();
                 return TRAVERSE_CONTINUE; 
             }
-        
-        bool needsFinish() const { return _needFinish; }
-
-    private:
-        bool _needFinish;
     };
 }
 

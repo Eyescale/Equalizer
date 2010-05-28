@@ -36,6 +36,15 @@ namespace admin
         /** Destruct a channel. @version 1.0 */
         EQADMIN_EXPORT virtual ~Channel();
 
+        /** @name Data Access */
+        //@{
+        /** @return the parent config. @version 1.0 */
+        EQADMIN_EXPORT Config* getConfig();
+
+        /** @return the parent config. @version 1.0 */
+        EQADMIN_EXPORT const Config* getConfig() const;
+        //@}
+
     private:
         union // placeholder for binary-compatible changes
         {

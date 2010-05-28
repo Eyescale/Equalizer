@@ -89,7 +89,7 @@ Config::~Config()
 
 void Config::notifyMapped( net::NodePtr node )
 {
-    net::Session::notifyMapped( node );
+    Super::notifyMapped( node );
 
     net::CommandQueue* serverQueue  = getMainThreadQueue();
     net::CommandQueue* commandQueue = getCommandThreadQueue();
@@ -156,7 +156,7 @@ Channel* Config::findChannel( const Segment* segment, const View* view )
 
 Node* Config::findApplicationNode()
 {
-	const Nodes& nodes = getNodes();
+    const Nodes& nodes = getNodes();
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
@@ -203,7 +203,7 @@ void Config::activateCanvas( Canvas* canvas )
                     continue;
                 }
                       
-                Channel* segmentChannel = segment->getChannel( );
+                Channel* segmentChannel = segment->getChannel();
                 if (!segmentChannel)
                 {
                     EQWARN << "Segment " << segment->getName()
@@ -211,14 +211,10 @@ void Config::activateCanvas( Canvas* canvas )
                     continue;
                 }
 
-                // try to reuse channel
-                Channel* channel = findChannel( segment, view );
-
-                if( !channel ) // create and add new channel
-                {
-                    channel = new Channel( *segmentChannel );
-                    channel->setOutput( view, segment );
-                }
+                // create and add new channel
+                EQASSERT( !findChannel( segment, view ));
+                Channel* channel = new Channel( *segmentChannel );
+                channel->setOutput( view, segment );
 
                 //----- compute channel viewport:
                 // segment/view intersection in canvas space...
@@ -232,7 +228,10 @@ void Config::activateCanvas( Canvas* canvas )
                 subViewport.apply( contribution );
             
                 channel->setViewport( subViewport );
-            
+                if( channel->getWindow()->getID() <= EQ_ID_MAX )
+                    // parent is already registered - register channel as well
+                    registerObject( channel );
+
                 EQLOG( LOG_VIEW ) 
                     << "View @" << (void*)view << ' ' << view->getViewport()
                     << " intersects " << segment->getName()
@@ -241,6 +240,37 @@ void Config::activateCanvas( Canvas* canvas )
             }
         }
     }
+}
+
+void Config::updateCanvas( Canvas* canvas )
+{
+    activateCanvas( canvas );
+
+    // Create compounds for all new output channels
+    const Segments& segments = canvas->getSegments();
+    Compound* group = new Compound( this );
+
+    for( Segments::const_iterator i=segments.begin(); i != segments.end(); ++i )
+    {
+        const Segment* segment = *i;
+        const Channels& channels = segment->getDestinationChannels();
+
+        if( channels.empty( ))
+            EQWARN << "New segment without destination channels will be ignored"
+                   << std::endl;
+        
+        for( Channels::const_iterator j = channels.begin();
+             j != channels.end(); ++j )
+        {
+            Channel* channel = *j;
+            Compound* compound = new Compound( group );
+            compound->setChannel( channel );
+        }
+    }
+
+    canvas->init();
+    group->init();
+    EQINFO << *this << std::endl;
 }
 
 Observer* Config::createObserver()
@@ -409,10 +439,10 @@ void Config::restore()
 // update running entities (init/exit)
 //---------------------------------------------------------------------------
 
-bool Config::_updateRunning()
+ssize_t Config::_updateRunning()
 {
     if( _state == STATE_STOPPED )
-        return true;
+        return 0;
 
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING ||
               _state == STATE_EXITING );
@@ -420,7 +450,7 @@ bool Config::_updateRunning()
     setErrorMessage( "" );
 
     if( !_connectNodes( ))
-        return false;
+        return -1;
 
     _startNodes();
     const Nodes& nodes = getNodes();
@@ -429,22 +459,24 @@ bool Config::_updateRunning()
         (*i)->updateRunning( _initID, _currentFrame );
 
     // Sync state updates
-    bool success = true;
+    ssize_t result = 0;
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( !node->syncRunning( ))
+        const ssize_t res = node->syncRunning();
+        if( res == -1 )
         {
-            setErrorMessage( getErrorMessage() +
-                             "node " + node->getName() + ": '" + 
-                             node->getErrorMessage() + '\'' );
-            success = false;
+            setErrorMessage( getErrorMessage() + "node " + node->getName() +
+                             ": '" + node->getErrorMessage() + '\'' );
+            result = -1;
         }
+        else if( result >= 0 )
+            result += res;
     }
 
     _stopNodes();
     _syncClock();
-    return success;
+    return result;
 }
 
 //----- connect new nodes
@@ -745,7 +777,7 @@ bool Config::_init( const uint32_t initID )
         compound->init();
     }
 
-    if( !_updateRunning( ))
+    if( _updateRunning() == -1 )
         return false;
 
     _state = STATE_RUNNING;
@@ -779,7 +811,7 @@ bool Config::exit()
         canvas->exit();
     }
 
-    const bool success = _updateRunning();
+    const bool success = ( _updateRunning() > -1 );
 
     ConfigEvent exitEvent;
     exitEvent.data.type = Event::EXIT;
@@ -896,6 +928,9 @@ net::CommandResult Config::_cmdInit( net::Command& command )
         command.getPacket<ConfigInitPacket>();
     EQVERB << "handle config start init " << packet << std::endl;
 
+    ConfigSyncVisitor syncer;
+    accept( syncer );
+
     ConfigInitReplyPacket reply( packet );
     reply.result = _init( packet->initID );
     if( !reply.result )
@@ -937,21 +972,30 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
     ConfigSyncVisitor syncer;
     accept( syncer );
 
-    if( _updateRunning( ))
-        _startFrame( packet->frameID );
-    else
-    {
-        EQWARN << "Start frame failed, exiting config: " 
-               << getErrorMessage() << std::endl;
-        exit();
-        ++_currentFrame;
-    }
+    ConfigSyncPacket syncPacket( packet, getVersion( ));
+    send( command.getNode(), syncPacket );    
     
-    if( packet->requestID != EQ_ID_INVALID ) // unlock app
+    ConfigStartFrameReplyPacket reply( packet );    
+    const ssize_t result = _updateRunning();
+    switch( result )
     {
-        ConfigStartFrameReplyPacket reply( packet );
-        send( command.getNode(), reply );
+        default: // changes in config - flush
+            EQASSERT( result > 0 );
+            reply.finish = true;
+            _flushAllFrames();
+            // no break;
+        case 0:
+            _startFrame( packet->frameID );
+            break;
+
+        case -1:
+            EQWARN << "Start frame failed, exiting config: " 
+                   << getErrorMessage() << std::endl;
+            exit();
+            ++_currentFrame;
+            break;
     }
+    send( command.getNode(), reply );
 
     if( _state == STATE_STOPPED )
     {

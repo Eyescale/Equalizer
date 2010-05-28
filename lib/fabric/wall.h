@@ -41,6 +41,10 @@ namespace fabric
         /** Construct a new wall description. */
         EQ_EXPORT Wall();
 
+        /** Construct a new wall description with default values. */
+        EQ_EXPORT Wall( const Vector3f& bottomLeft, const Vector3f& bottomRight,
+                        const Vector3f& topLeft );
+
         /** 
          * Resize the wall horizontally.
          * 

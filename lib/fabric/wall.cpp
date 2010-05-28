@@ -36,6 +36,15 @@ Wall::Wall()
 {
 }
 
+Wall::Wall( const Vector3f& bl, const Vector3f& br, const Vector3f& tl )
+        : bottomLeft( bl )
+        , bottomRight( br )
+        , topLeft( tl )
+        , type( TYPE_FIXED )
+{
+}
+
+
 void Wall::resizeHorizontal( const float ratio )
 {
     if( ratio == 1.f || ratio < 0.f )

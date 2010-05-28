@@ -16,11 +16,14 @@
  */
 
 #include "canvas.h"
+
 #include "elementVisitor.h"
 #include "nameFinder.h"
+#include "packets.h"
 #include "paths.h"
 #include "segment.h"
 
+#include <eq/net/command.h>
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
 
@@ -71,6 +74,24 @@ void Canvas< CFG, C, S, L >::restore()
 }
 
 template< class CFG, class C, class S, class L >
+void Canvas< CFG, C, S, L >::attachToSession( const uint32_t id,
+                                              const uint32_t instanceID,
+                                              net::Session* session )
+{
+    Object::attachToSession( id, instanceID, session );
+
+    net::CommandQueue* queue = _config->getMainThreadQueue();
+    EQASSERT( queue );
+
+    registerCommand( fabric::CMD_CANVAS_NEW_SEGMENT, 
+                     CmdFunc( this, &Canvas< CFG, C, S, L >::_cmdNewSegment ),
+                     queue );
+    registerCommand( fabric::CMD_CANVAS_NEW_SEGMENT_REPLY, 
+                  CmdFunc( this, &Canvas< CFG, C, S, L >::_cmdNewSegmentReply ),
+                     0 );
+}
+
+template< class CFG, class C, class S, class L >
 void Canvas< CFG, C, S, L >::serialize( net::DataOStream& os,
                                         const uint64_t dirtyBits )
 {
@@ -113,8 +134,8 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
     if( dirtyBits & DIRTY_LAYOUTS )
     {
         EQASSERT( _config );
-        EQASSERT( _layouts.empty( ));
 
+        _layouts.clear();
         net::ObjectVersions layouts;
         is >> layouts;
         for( net::ObjectVersions::const_iterator i = layouts.begin();
@@ -132,6 +153,8 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
                 _layouts.push_back( layout );
             }
         }
+
+        _config->updateCanvas( static_cast< C* >( this ));
     }
     if( dirtyBits & DIRTY_FRUSTUM )
         is >> *static_cast< Frustum* >( this );
@@ -169,7 +192,7 @@ void Canvas< CFG, C, S, L >::_unmap()
     while( !segments.empty( ))
     {
         S* segment = _segments.back();
-        EQASSERT( segment->getID() != EQ_ID_INVALID );
+        EQASSERT( segment->getID() <= EQ_ID_MAX );
         EQASSERT( !segment->isMaster( ));
 
         config->unmapObject( segment );
@@ -186,6 +209,7 @@ void Canvas< CFG, C, S, L >::_addSegment( S* segment )
     EQASSERT( segment );
     EQASSERT( segment->getCanvas() == this );
     _segments.push_back( segment );
+    setDirty( DIRTY_SEGMENTS );
 }
 
 template< class CFG, class C, class S, class L >
@@ -197,6 +221,7 @@ bool Canvas< CFG, C, S, L >::_removeSegment( S* segment )
 
     EQASSERT( segment->getCanvas() == this );
     _segments.erase( i );
+    setDirty( DIRTY_SEGMENTS );
     return true;
 }
 
@@ -215,6 +240,7 @@ void Canvas< CFG, C, S, L >::addLayout( L* layout )
 
     // dest channel creation is done be Config::addCanvas
     _layouts.push_back( layout );
+    setDirty( DIRTY_LAYOUTS );
 }
 
 
@@ -301,6 +327,11 @@ void Canvas< CFG, C, S, L >::setWall( const Wall& wall )
 
     Frustum::setWall( wall );
     setDirty( DIRTY_FRUSTUM );
+    for( typename Segments::const_iterator i = _segments.begin();
+         i != _segments.end(); ++i )
+    {
+        (*i)->notifyFrustumChanged();
+    }
 }
 
 template< class CFG, class C, class S, class L >
@@ -311,6 +342,11 @@ void Canvas< CFG, C, S, L >::setProjection( const Projection& projection )
 
     Frustum::setProjection( projection );
     setDirty( DIRTY_FRUSTUM );
+    for( typename Segments::const_iterator i = _segments.begin();
+         i != _segments.end(); ++i )
+    {
+        (*i)->notifyFrustumChanged();
+    }
 }
 
 template< class CFG, class C, class S, class L >
@@ -321,6 +357,39 @@ void Canvas< CFG, C, S, L >::unsetFrustum()
 
     Frustum::unsetFrustum();
     setDirty( DIRTY_FRUSTUM );
+}
+
+//----------------------------------------------------------------------
+// Command handlers
+//----------------------------------------------------------------------
+template< class CFG, class C, class S, class L > net::CommandResult
+Canvas< CFG, C, S, L >::_cmdNewSegment( net::Command& command )
+{
+    const CanvasNewSegmentPacket* packet =
+        command.getPacket< CanvasNewSegmentPacket >();
+    
+    S* segment = 0;
+    create( &segment );
+    EQASSERT( segment );
+
+    _config->registerObject( segment );
+    EQASSERT( segment->getID() <= EQ_ID_MAX );
+
+    CanvasNewSegmentReplyPacket reply( packet );
+    reply.segmentID = segment->getID();
+    send( command.getNode(), reply ); 
+
+    return net::COMMAND_HANDLED;
+}
+
+template< class CFG, class C, class S, class L > net::CommandResult
+Canvas< CFG, C, S, L >::_cmdNewSegmentReply( net::Command& command )
+{
+    const CanvasNewSegmentReplyPacket* packet =
+        command.getPacket< CanvasNewSegmentReplyPacket >();
+    getLocalNode()->serveRequest( packet->requestID, packet->segmentID );
+
+    return net::COMMAND_HANDLED;
 }
 
 template< class CFG, class C, class S, class L >

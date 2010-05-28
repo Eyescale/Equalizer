@@ -226,7 +226,7 @@ void Channel< W, C >::notifyViewportChanged()
             setDirty( DIRTY_VIEWPORT );
     }
 
-    EQINFO << getName() << " viewport update: " << _data.nativeContext.vp << ":"
+    EQVERB << getName() << " viewport update: " << _data.nativeContext.vp << ":"
            << _data.nativeContext.pvp << std::endl;
 }
 
@@ -267,6 +267,8 @@ void Channel< W, C >::setViewVersion( const net::ObjectVersion& view )
 {
     if( _data.nativeContext.view == view )
         return;
+    EQASSERT( _data.nativeContext.view.version <= view.version );
+
     _data.nativeContext.view = view;
     setDirty( DIRTY_MEMBER );
 }

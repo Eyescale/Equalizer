@@ -66,7 +66,8 @@ namespace eq
 
         /** @name Data Access. */
         //@{
-        EQ_EXPORT net::CommandQueue* getPipeThreadQueue();
+        EQ_EXPORT net::CommandQueue* getPipeThreadQueue(); //!< @internal
+        net::CommandQueue* getMainThreadQueue(); //!< @internal
 
         EQ_EXPORT Config* getConfig();
         EQ_EXPORT const Config* getConfig() const;

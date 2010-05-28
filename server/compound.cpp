@@ -808,17 +808,17 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
             _inherit.buffers = eq::Frame::BUFFER_COLOR;
 
-        if( _inherit.iAttributes[IATTR_STEREO_MODE] == UNDEFINED )
-            _inherit.iAttributes[IATTR_STEREO_MODE] = QUAD;
+        if( _inherit.iAttributes[IATTR_STEREO_MODE] == fabric::UNDEFINED )
+            _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::QUAD;
 
         if( _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] == 
-            UNDEFINED )
+            fabric::UNDEFINED )
         {
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] = 
                 COLOR_MASK_RED;
         }
         if( _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] == 
-            UNDEFINED )
+            fabric::UNDEFINED )
         {   
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] =
                 COLOR_MASK_GREEN | COLOR_MASK_BLUE;
@@ -871,17 +871,23 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         if( _data.buffers != eq::Frame::BUFFER_UNDEFINED )
             _inherit.buffers = _data.buffers;
         
-        if( _data.iAttributes[IATTR_STEREO_MODE] != UNDEFINED )
+        if( _data.iAttributes[IATTR_STEREO_MODE] != fabric::UNDEFINED )
             _inherit.iAttributes[IATTR_STEREO_MODE] =
                 _data.iAttributes[IATTR_STEREO_MODE];
 
-        if( _data.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] != UNDEFINED)
+        if( _data.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] !=
+            fabric::UNDEFINED)
+        {
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] = 
                 _data.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK];
+        }
 
-        if( _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] !=UNDEFINED)
+        if( _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] !=
+            fabric::UNDEFINED )
+        {
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] = 
                 _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK];
+        }
     }
 
     if( _inherit.pvp.isValid( ))

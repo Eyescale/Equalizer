@@ -101,7 +101,6 @@ void Loader::addOutputCompounds( ServerPtr server )
             continue;
 
         Compound* group = new Compound( config );
-
         for( Channels::const_iterator j = channels.begin(); 
              j != channels.end(); ++j )
         {

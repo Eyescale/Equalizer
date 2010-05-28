@@ -82,17 +82,21 @@ Config::~Config()
 
 void Config::notifyMapped( net::NodePtr node )
 {
-    net::Session::notifyMapped( node );
+    Super::notifyMapped( node );
 
     ServerPtr          server = getServer();
     net::CommandQueue* queue  = server->getMainThreadQueue();
+    net::CommandQueue* cmdQueue = server->getCommandThreadQueue();
 
     registerCommand( fabric::CMD_CONFIG_CREATE_NODE,
                      ConfigFunc( this, &Config::_cmdCreateNode ), queue );
     registerCommand( fabric::CMD_CONFIG_DESTROY_NODE,
                      ConfigFunc( this, &Config::_cmdDestroyNode ), queue );
+    registerCommand( fabric::CMD_CONFIG_SYNC,
+                     ConfigFunc( this, &Config::_cmdSync ), cmdQueue );
     registerCommand( fabric::CMD_CONFIG_START_FRAME_REPLY,
-                     ConfigFunc( this, &Config::_cmdStartFrameReply ), queue );
+                     ConfigFunc( this, &Config::_cmdStartFrameReply ),
+                     cmdQueue );
     registerCommand( fabric::CMD_CONFIG_INIT_REPLY, 
                      ConfigFunc( this, &Config::_cmdInitReply ), queue );
     registerCommand( fabric::CMD_CONFIG_EXIT_REPLY, 
@@ -185,26 +189,26 @@ uint32_t Config::startFrame( const uint32_t frameID )
     ConfigCommitVisitor committer;
     accept( committer );
     
-    ConfigStartFramePacket packet;
-    ClientPtr client = getClient();
-
-    if( committer.needsFinish( ))
-    {
-        packet.requestID = client->registerRequest();
-        finishAllFrames();
-    }
-
     // Request new frame
+    ClientPtr client = getClient();
+    ConfigStartFramePacket packet;
     packet.frameID  = frameID;
+    packet.syncID = client->registerRequest();
+    packet.startID = client->registerRequest();
     send( packet );
 
-    if( packet.requestID != EQ_ID_INVALID )
-    {
-        while( !client->isRequestServed( packet.requestID ))
-            client->processCommand();
+    uint32_t version;
+    client->waitRequest( packet.syncID, version );
+    sync( version );
 
-        client->waitRequest( packet.requestID );
+    bool finish;
+    client->waitRequest( packet.startID, finish );
+    if( finish )
+    {
+        while( _finishedFrame < _currentFrame )
+            client->processCommand();
     }
+
     ++_currentFrame;
 
     EQLOG( base::LOG_ANY ) << "---- Started Frame ---- " << _currentFrame
@@ -578,7 +582,7 @@ net::CommandResult Config::_cmdCreateNode( net::Command& command )
     const ConfigCreateNodePacket* packet = 
         command.getPacket<ConfigCreateNodePacket>();
     EQVERB << "Handle create node " << packet << std::endl;
-    EQASSERT( packet->nodeID != EQ_ID_INVALID );
+    EQASSERT( packet->nodeID <= EQ_ID_MAX );
 
     Node* node = Global::getNodeFactory()->createNode( this );
     EQCHECK( mapObject( node, packet->nodeID ));
@@ -602,12 +606,18 @@ net::CommandResult Config::_cmdDestroyNode( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
+net::CommandResult Config::_cmdSync( net::Command& command ) 
+{
+    const ConfigSyncPacket* packet = command.getPacket< ConfigSyncPacket >();
+    getClient()->serveRequest( packet->requestID, packet->version );
+    return net::COMMAND_HANDLED;
+}
+
 net::CommandResult Config::_cmdStartFrameReply( net::Command& command ) 
 {
     const ConfigStartFrameReplyPacket* packet =
         command.getPacket< ConfigStartFrameReplyPacket >();
-
-    getClient()->serveRequest( packet->requestID );
+    getClient()->serveRequest( packet->requestID, packet->finish );
     return net::COMMAND_HANDLED;
 }
 
@@ -702,7 +712,8 @@ FIND_NAME_TEMPLATE1( eq::Observer );
 
 
 #define CONST_FIND_NAME_TEMPLATE2( type )                               \
-    template EQ_EXPORT const type* eq::Super::find< type >( const std::string& ) const;
+    template EQ_EXPORT const type*                                      \
+    eq::Super::find< type >( const std::string& ) const;
 
 CONST_FIND_NAME_TEMPLATE2( eq::Canvas );
 CONST_FIND_NAME_TEMPLATE2( eq::Channel );

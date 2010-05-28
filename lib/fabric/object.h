@@ -107,7 +107,7 @@ namespace fabric
             DIRTY_ERROR      = Serializable::DIRTY_CUSTOM << 2,
             DIRTY_TASKS      = Serializable::DIRTY_CUSTOM << 3,
             // Leave room for binary-compatible patches
-            DIRTY_CUSTOM     = Serializable::DIRTY_CUSTOM << 6
+            DIRTY_CUSTOM     = Serializable::DIRTY_CUSTOM << 6 // 64
         };
 
         EQ_EXPORT virtual uint32_t commitNB(); //!< @internal

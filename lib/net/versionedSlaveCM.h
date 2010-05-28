@@ -114,7 +114,6 @@ namespace net
         CommandResult _cmdDelta( Command& command );
         CommandResult _cmdCommit( Command& command );
 
-        CHECK_THREAD_DECLARE( _thread );
         CHECK_THREAD_DECLARE( _cmdThread );
     };
 }

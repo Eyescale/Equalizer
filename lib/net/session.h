@@ -292,7 +292,6 @@ namespace net
         EQ_EXPORT virtual void notifyMapped( NodePtr node );
         //@}
 
-    protected:
         /** @name Sending session packets */
         //@{
         /** 
@@ -332,7 +331,6 @@ namespace net
                 _server->send( packet, data );
             }
 
-
         /** 
          * Send a packet containing a string to a node.
          * 
@@ -364,6 +362,7 @@ namespace net
             }
         //@}
 
+    protected:
         /** @internal */
         void expireInstanceData( const int64_t age )
             { _instanceCache.expire( age ); }

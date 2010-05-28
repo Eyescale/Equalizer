@@ -165,6 +165,10 @@ namespace fabric
 
         EQFABRIC_EXPORT virtual ~Window( );
 
+        virtual void attachToSession( const uint32_t id,
+                                      const uint32_t instanceID,
+                                      net::Session* session ); //!< @internal
+
         /** @internal */
         EQFABRIC_EXPORT virtual void serialize( net::DataOStream& os,
                                                 const uint64_t dirtyBits );
@@ -231,6 +235,10 @@ namespace fabric
         EQFABRIC_EXPORT bool _removeChannel( C* channel );
 
         bool _mapNodeObjects() { return _pipe->_mapNodeObjects(); }
+
+        typedef net::CommandFunc< Window< P, W, C > > CmdFunc;
+        net::CommandResult _cmdNewChannel( net::Command& command );
+        net::CommandResult _cmdNewChannelReply( net::Command& command );
     };
 }
 }

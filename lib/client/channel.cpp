@@ -66,7 +66,7 @@ void Channel::attachToSession( const uint32_t id,
                                const uint32_t instanceID, 
                                net::Session* session )
 {
-    net::Object::attachToSession( id, instanceID, session );
+    Super::attachToSession( id, instanceID, session );
     net::CommandQueue* queue = getWindow()->getPipeThreadQueue();
 
     registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT, 
@@ -598,7 +598,7 @@ bool Channel::processEvent( const Event& event )
         case Event::CHANNEL_RESIZE:
         {
             const uint32_t viewID = getNativeContext().view.identifier;
-            if( viewID == EQ_ID_INVALID )
+            if( viewID > EQ_ID_MAX )
                 return true;
 
             // transform to view event, which is meaningful for the config 
