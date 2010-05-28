@@ -62,7 +62,7 @@ EQ_EXPORT void checkHeap()
 EQ_EXPORT std::ostream& backtrace( std::ostream& os )
 {
 #ifdef WIN32
-    os << "backtrace not implemented"
+    os << "backtrace not implemented";
 #else
     void* callstack[ EQ_BACKTRACE_DEPTH ];
     const int frames = ::backtrace( callstack, EQ_BACKTRACE_DEPTH );

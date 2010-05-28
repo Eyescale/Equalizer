@@ -102,7 +102,7 @@ namespace server
          */
         //@{
         /** Reparent the given child to this compound. */
-        void adopt( Compound* child );
+        EQSERVER_EXPORT void adopt( Compound* child );
 
         /** @return if the compound is a leaf compound. */
         bool isLeaf() const { return _children.empty(); }
