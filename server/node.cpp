@@ -543,8 +543,10 @@ std::ostream& operator << ( std::ostream& os, const Node& node )
         node.getConnectionDescriptions();
     for( ConnectionDescriptions::const_iterator i = descriptions.begin();
          i != descriptions.end(); ++i )
-
-        os << (*i).get();
+    {
+        ConnectionDescriptionPtr desc = *i;
+        os << *desc;
+    }
 
     bool attrPrinted   = false;
     

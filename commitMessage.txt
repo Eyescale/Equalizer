@@ -1,4 +1,4 @@
-Fix server-side view commit/channel versioning
+Fix node output
 
 [ ] May break build
 [ ] May break existing applications
