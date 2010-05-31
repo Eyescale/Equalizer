@@ -24,16 +24,42 @@ namespace eq
 {
 namespace server
 {
+namespace
+{
+    /** Synchronizes view changes at the beginning of each frame. */
+    class ViewSyncVisitor : public ConfigVisitor
+    {
+    public:
+        virtual ~ViewSyncVisitor() {}
+
+        // Optimize traversal
+        virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
+        virtual VisitorResult visitPre( Canvas* canvas )
+            { return TRAVERSE_PRUNE; }
+        virtual VisitorResult visitPre( Compound* compound )
+            { return TRAVERSE_TERMINATE; }
+
+        virtual VisitorResult visit( View* view )
+            {
+                view->sync();
+                view->commit();
+                return TRAVERSE_CONTINUE;
+            }
+    };
+}
+
     /** Synchronizes changes from the app at the beginning of each frame. */
     class ConfigSyncVisitor : public ConfigVisitor
     {
     public:
-        ConfigSyncVisitor() {}
         virtual ~ConfigSyncVisitor() {}
 
         virtual VisitorResult visitPre( Config* config )
             {
                 config->sync( net::VERSION_HEAD );
+                // Commit views first since they are ref'ed be channels.
+                ViewSyncVisitor viewSyncer;
+                config->accept( viewSyncer );
                 return TRAVERSE_CONTINUE;
             }
         virtual VisitorResult visitPre( Node* node )
@@ -54,10 +80,7 @@ namespace server
         virtual VisitorResult visit( Channel* channel )
             {
                 channel->sync();
-                View* view = channel->getView();
-                if( view )
-                    visit( view );
-                channel->setViewVersion( view );
+                channel->setViewVersion( channel->getView( ));
                 channel->commit();
                 return TRAVERSE_CONTINUE;
             }
@@ -104,19 +127,6 @@ namespace server
         virtual VisitorResult visitPre( Layout* layout )
             {
                 layout->sync();
-                return TRAVERSE_CONTINUE;
-            }
-        virtual VisitorResult visit( View* view )
-            {
-                view->sync();
-
-                // Don't call commit on non-dirty views:
-                //  Commit auto-obsoletes old versions which breaks latency
-                //  saving without this save-guard. We are called here from each
-                //  channel using this view (to have the new version while
-                //  commiting the channel) and during traversal.
-                if( view->isDirty( ))
-                    view->commit();
                 return TRAVERSE_CONTINUE;
             }
         virtual VisitorResult visitPost( Layout* layout )
