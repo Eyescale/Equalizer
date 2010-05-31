@@ -239,7 +239,8 @@ void Node::_frameFinish( const uint32_t frameID, const uint32_t frameNumber )
 
     if( _finishedFrame < frameNumber )
     {
-        EQWARN << "Finished frame was not released, enforcing unlock" << std::endl;
+        EQWARN << "Finished frame was not released, enforcing unlock"
+               << std::endl;
         releaseFrame( frameNumber );
     }
 }

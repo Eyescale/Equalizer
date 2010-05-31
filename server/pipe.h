@@ -107,7 +107,7 @@ namespace server
         void updateRunning( const uint32_t initID, const uint32_t frameNumber );
 
         /** Finalize the last updateRunning changes. */
-        ssize_t syncRunning();
+        bool syncRunning();
 
         /** 
          * Trigger the rendering of a new frame.

@@ -142,7 +142,7 @@ namespace server
         void updateRunning( const uint32_t initID );
 
         /** Finalize the last updateRunning changes. */
-        ssize_t syncRunning();
+        bool syncRunning();
 
         /** 
          * Update one frame.

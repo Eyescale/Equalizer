@@ -72,7 +72,8 @@ void Object::notifyDetach()
     if( !_userData )
         return;
 
-    EQASSERT( _userData->isMaster() == hasMasterUserData( ));
+    EQASSERT( _userData->getID() > EQ_ID_MAX ||
+              _userData->isMaster() == hasMasterUserData( ));
 
     if( _userData->isMaster( ))
     {

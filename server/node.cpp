@@ -174,45 +174,34 @@ void Node::updateRunning( const uint32_t initID, const uint32_t frameNumber )
     flushSendBuffer();
 }
 
-ssize_t Node::syncRunning()
+bool Node::syncRunning()
 {
     if( !isActive() && _state == STATE_STOPPED ) // inactive
         return 0;
 
     // Sync state updates
-    ssize_t result = 0;
+    bool result = true;
 
     const Pipes& pipes = getPipes();
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         Pipe* pipe = *i;
-        const ssize_t res = pipe->syncRunning();
-        if( res == -1 )
+        if( !pipe->syncRunning( ))
         {
             setErrorMessage( getErrorMessage() + "pipe " + pipe->getName() +
                              ": '" + pipe->getErrorMessage() + '\'' );
-            result = -1;
+            result = false;
         }
-        else if( result >= 0 )
-            result += res;
     }
 
     flushSendBuffer();
 
-    if( isActive() && _state != STATE_RUNNING ) // becoming active
-    {
-        if( _syncConfigInit() && result >= 0 )
-            ++result;
-        else
-            result = -1;
-    }
-    if( !isActive( )) // becoming inactive
-    {
-        if( _syncConfigExit() && result >= 0 )
-            ++result;
-        else
-            result = -1;
-    }
+    if( isActive() && _state != STATE_RUNNING && !_syncConfigInit( ))
+        // becoming active
+        result = false;
+    if( !isActive() && !_syncConfigExit( )) // becoming inactive
+        result = false;
+
     EQASSERT( isMaster( ));
     commit();
 

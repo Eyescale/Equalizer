@@ -305,44 +305,33 @@ void Window::updateRunning( const uint32_t initID )
         _configExit();
 }
 
-ssize_t Window::syncRunning()
+bool Window::syncRunning()
 {
     if( !isActive() && _state == STATE_STOPPED ) // inactive
-        return 0;
+        return true;
 
     // Sync state updates
-    ssize_t result = 0;
+    bool result = true;
     const Channels& channels = getChannels(); 
     for( Channels::const_iterator i = channels.begin(); 
          i != channels.end(); ++i )
     {
         Channel* channel = *i;
-        const ssize_t res = channel->syncRunning();
-        if( res == -1 )
+        if( !channel->syncRunning( ))
         {
             setErrorMessage( getErrorMessage() + "channel " + 
                              channel->getName() + ": '" + 
                              channel->getErrorMessage() + '\'' );
-            result = -1;
+            result = false;
         }
-        else if( result >= 0 )
-            result += res;
     }
 
-    if( isActive() && _state != STATE_RUNNING ) // becoming active
-    {
-        if( _syncConfigInit() && result >= 0 )
-            ++result;
-        else
-            result = -1;
-    }
-    if( !isActive( )) // becoming inactive
-    {
-        if( _syncConfigExit() && result >= 0 )
-            ++result;
-        else
-            result = -1;
-    }
+    if( isActive() && _state != STATE_RUNNING && !_syncConfigInit( ))
+        // becoming active
+        result = false;
+    if( !isActive() && !_syncConfigExit( )) // becoming inactive
+        result = false;
+
     EQASSERT( isMaster( ));
     EQASSERT( _state == STATE_STOPPED || _state == STATE_RUNNING || 
               _state == STATE_INIT_FAILED );

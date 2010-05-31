@@ -202,43 +202,32 @@ void Pipe::updateRunning( const uint32_t initID, const uint32_t frameNumber )
         _configExit();
 }
 
-ssize_t Pipe::syncRunning()
+bool Pipe::syncRunning()
 {
     if( !isActive() && _state == STATE_STOPPED ) // inactive
         return 0;
 
     // Sync state updates
-    ssize_t result = 0;
+    bool result = true;
     const Windows& windows = getWindows(); 
     for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
     {
         Window* window = *i;
-        const ssize_t res = window->syncRunning();
-        if( res == -1 )
+        if( !window->syncRunning( ))
         {
             setErrorMessage( getErrorMessage() + " window " + 
                              window->getName() + ": '" + 
                              window->getErrorMessage() + '\'' );
-            result = -1;
+            result = false;
         }
-        else if( result >= 0 )
-            result += res;
     }
 
-    if( isActive() && _state != STATE_RUNNING ) // becoming active
-    {
-        if( _syncConfigInit() && result >= 0 )
-            ++result;
-        else
-            result = -1;
-    }
-    if( !isActive( )) // becoming inactive
-    {
-        if( _syncConfigExit() && result >= 0 )
-            ++result;
-        else
-            result = -1;
-    }
+    if( isActive() && _state != STATE_RUNNING && !_syncConfigInit( ))
+        // becoming active
+        result = false;
+    if( !isActive() && !_syncConfigExit( )) // becoming inactive
+        result = false;
+
     EQASSERT( isMaster( ));
     EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED ||
               _state == STATE_INIT_FAILED );

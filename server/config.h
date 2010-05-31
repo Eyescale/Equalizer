@@ -107,9 +107,6 @@ namespace server
         /** @sa fabric::Config::changeLatency() */
         virtual void changeLatency( const uint32_t latency );
 
-        /** @return the last finished frame. */
-        uint32_t getFinishedFrame() const { return _finishedFrame; }
-
         /** 
          * Set the network node running the application thread.
          * 
@@ -197,7 +194,7 @@ namespace server
         uint32_t _currentFrame;
 
         /** The last finished frame, or 0. */
-        uint32_t _finishedFrame;
+        base::Monitor< uint32_t > _finishedFrame;
 
         enum State
         {
@@ -208,19 +205,18 @@ namespace server
         }
         _state;
 
+        bool _needsFinish; //!< true after runtime changes
+
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
         /**
          * @name Operations
          */
         //@{
-        /** common code for all constructors */
-        void _construct();
-
-        ssize_t _updateRunning(); //!< @return number of changes or -1 on error
+        bool _updateRunning(); //!< @return true on success, false on error
 
         bool _connectNodes();
         bool _connectNode( Node* node );

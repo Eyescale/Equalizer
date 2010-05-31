@@ -53,19 +53,13 @@ typedef net::CommandFunc<Config> ConfigFunc;
 typedef fabric::Config< Server, Config, Observer, Layout, Canvas, Node,
                         ConfigVisitor > Super;
 
-void Config::_construct()
-{
-    _currentFrame  = 0;
-    _finishedFrame = 0;
-    _state         = STATE_STOPPED;
-
-    EQINFO << "New config @" << (void*)this << std::endl;
-}
-
 Config::Config( ServerPtr parent )
         : Super( parent )
+        , _currentFrame( 0 )
+        , _finishedFrame( 0 )
+        , _state( STATE_STOPPED )
+        , _needsFinish( false )
 {
-    _construct();
     const Global* global = Global::instance();    
     for( int i=0; i<FATTR_ALL; ++i )
     {
@@ -91,24 +85,22 @@ void Config::notifyMapped( net::NodePtr node )
 {
     Super::notifyMapped( node );
 
-    net::CommandQueue* serverQueue  = getMainThreadQueue();
-    net::CommandQueue* commandQueue = getCommandThreadQueue();
+    net::CommandQueue* mainQ  = getMainThreadQueue();
+    net::CommandQueue* cmdQ = getCommandThreadQueue();
 
     registerCommand( fabric::CMD_CONFIG_INIT,
-                     ConfigFunc( this, &Config::_cmdInit), serverQueue );
+                     ConfigFunc( this, &Config::_cmdInit), mainQ );
     registerCommand( fabric::CMD_CONFIG_EXIT,
-                     ConfigFunc( this, &Config::_cmdExit ), serverQueue );
+                     ConfigFunc( this, &Config::_cmdExit ), mainQ );
     registerCommand( fabric::CMD_CONFIG_CREATE_REPLY,
-                     ConfigFunc( this, &Config::_cmdCreateReply ),
-                     commandQueue );
+                     ConfigFunc( this, &Config::_cmdCreateReply ), cmdQ );
     registerCommand( fabric::CMD_CONFIG_START_FRAME, 
-                     ConfigFunc( this, &Config::_cmdStartFrame ), serverQueue );
+                     ConfigFunc( this, &Config::_cmdStartFrame ), mainQ );
     registerCommand( fabric::CMD_CONFIG_FINISH_ALL_FRAMES, 
-                     ConfigFunc( this, &Config::_cmdFinishAllFrames ),
-                     serverQueue );
+                     ConfigFunc( this, &Config::_cmdFinishAllFrames ), mainQ );
     registerCommand( fabric::CMD_CONFIG_FREEZE_LOAD_BALANCING, 
-                     ConfigFunc( this, &Config::_cmdFreezeLoadBalancing ), 
-                     serverQueue );
+                     ConfigFunc( this, &Config::_cmdFreezeLoadBalancing ),
+                     mainQ );
 }
 
 namespace
@@ -244,6 +236,7 @@ void Config::activateCanvas( Canvas* canvas )
 
 void Config::updateCanvas( Canvas* canvas )
 {
+    _needsFinish = true;
     activateCanvas( canvas );
 
     // Create compounds for all new output channels
@@ -439,11 +432,10 @@ void Config::restore()
 //---------------------------------------------------------------------------
 // update running entities (init/exit)
 //---------------------------------------------------------------------------
-
-ssize_t Config::_updateRunning()
+bool Config::_updateRunning()
 {
     if( _state == STATE_STOPPED )
-        return 0;
+        return true;
 
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING ||
               _state == STATE_EXITING );
@@ -451,7 +443,7 @@ ssize_t Config::_updateRunning()
     setErrorMessage( "" );
 
     if( !_connectNodes( ))
-        return -1;
+        return false;
 
     _startNodes();
     const Nodes& nodes = getNodes();
@@ -460,19 +452,16 @@ ssize_t Config::_updateRunning()
         (*i)->updateRunning( _initID, _currentFrame );
 
     // Sync state updates
-    ssize_t result = 0;
+    bool result = true;
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        const ssize_t res = node->syncRunning();
-        if( res == -1 )
+        if( !node->syncRunning( ))
         {
             setErrorMessage( getErrorMessage() + "node " + node->getName() +
                              ": '" + node->getErrorMessage() + '\'' );
-            result = -1;
+            result = false;
         }
-        else if( result >= 0 )
-            result += res;
     }
 
     _stopNodes();
@@ -778,7 +767,7 @@ bool Config::_init( const uint32_t initID )
         compound->init();
     }
 
-    if( _updateRunning() == -1 )
+    if( !_updateRunning( ))
         return false;
 
     _state = STATE_RUNNING;
@@ -812,7 +801,7 @@ bool Config::exit()
         canvas->exit();
     }
 
-    const bool success = ( _updateRunning() > -1 );
+    const bool success = _updateRunning();
 
     ConfigEvent exitEvent;
     exitEvent.data.type = Event::EXIT;
@@ -976,25 +965,23 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
     ConfigSyncPacket syncPacket( packet, getVersion( ));
     send( command.getNode(), syncPacket );    
     
-    ConfigStartFrameReplyPacket reply( packet );    
-    const ssize_t result = _updateRunning();
-    switch( result )
+    ConfigStartFrameReplyPacket reply( packet ); 
+    if( _needsFinish )
     {
-        default: // changes in config - flush
-            EQASSERT( result > 0 );
-            reply.finish = true;
-            _flushAllFrames();
-            // no break;
-        case 0:
-            _startFrame( packet->frameID );
-            break;
+        reply.finish = true;
+        _flushAllFrames();
+        _finishedFrame.waitEQ( _currentFrame );
+        _needsFinish = false;
+    }
 
-        case -1:
-            EQWARN << "Start frame failed, exiting config: " 
-                   << getErrorMessage() << std::endl;
-            exit();
-            ++_currentFrame;
-            break;
+    if( _updateRunning( ))
+        _startFrame( packet->frameID );
+    else
+    {
+        EQWARN << "Start frame failed, exiting config: " 
+               << getErrorMessage() << std::endl;
+        exit();
+        ++_currentFrame;
     }
     send( command.getNode(), reply );
 

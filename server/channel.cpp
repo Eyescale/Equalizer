@@ -247,23 +247,16 @@ void Channel::updateRunning( const uint32_t initID )
         _configExit();
 }
 
-ssize_t Channel::syncRunning()
+bool Channel::syncRunning()
 {
-    ssize_t result = 0;
-    if( isActive() && _state != STATE_RUNNING ) // becoming active
-    {
-        if( _syncConfigInit( ))
-            ++result;
-        else
-            result = -1;
-    }
-    if( !isActive() && _state != STATE_STOPPED ) // becoming inactive
-    {
-        if( _syncConfigExit() && result >= 0)
-            ++result;
-        else
-            result = -1;    
-    }
+    bool result = true;
+    if( isActive() && _state != STATE_RUNNING && !_syncConfigInit( ))
+        // becoming active
+        result = false;
+    if( !isActive() && _state != STATE_STOPPED && !_syncConfigExit( ))
+        // becoming inactive
+        result = false;
+
     EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED || 
               _state == STATE_INIT_FAILED );
 

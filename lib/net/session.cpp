@@ -481,6 +481,7 @@ void Session::unmapObject( Object* object )
     EQASSERT( object );
 
     const uint32_t id = object->getID();
+    EQASSERT( id != EQ_ID_INVALID );
     if( id == EQ_ID_INVALID ) // not registered
         return;
 
