@@ -68,7 +68,7 @@ EQ_EXPORT std::ostream& backtrace( std::ostream& os )
     const int frames = ::backtrace( callstack, EQ_BACKTRACE_DEPTH );
     char** names = ::backtrace_symbols( callstack, frames );
     os << disableFlush << disableHeader << indent << std::endl;
-    for( int i = 0; i < frames; ++i )
+    for( int i = 1; i < frames; ++i )
         os << names[ i ] << std::endl;
     os << exdent << enableHeader << enableFlush;
     ::free( names );

@@ -6,7 +6,6 @@ CXXFILES = \
 	channel.cpp \
 	channelUpdateVisitor.cpp \
 	compound.cpp \
-	compoundExitVisitor.cpp \
 	compoundInitVisitor.cpp \
 	compoundUpdateDataVisitor.cpp \
 	compoundUpdateInputVisitor.cpp \

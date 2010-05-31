@@ -394,7 +394,6 @@ namespace server
         /** Non-const version of accept(). */
         EQSERVER_EXPORT VisitorResult accept( CompoundVisitor& visitor );
 
-
         /** Activate the compound tree. */
         void activate();
 
@@ -413,6 +412,9 @@ namespace server
 
         /** Exit this compound. */
         void exit();
+
+        /** Deregister all distributed objects */
+        void deregister();
 
         /** Back up all relevant compound data. */
         void backup() { _backup = _data; }

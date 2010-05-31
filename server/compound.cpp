@@ -20,7 +20,6 @@
 #include "canvas.h"
 #include "channel.h"
 #include "colorMask.h"
-#include "compoundExitVisitor.h"
 #include "compoundInitVisitor.h"
 #include "compoundListener.h"
 #include "compoundUpdateDataVisitor.h"
@@ -48,6 +47,8 @@
 #include <vector>
 
 #include "compoundActivateVisitor.h"
+#include "compoundDeregisterVisitor.h"
+#include "compoundExitVisitor.h"
 
 namespace eq
 {
@@ -752,6 +753,12 @@ void Compound::init()
 void Compound::exit()
 {
     CompoundExitVisitor visitor;
+    accept( visitor );
+}
+
+void Compound::deregister()
+{
+    CompoundDeregisterVisitor visitor;
     accept( visitor );
 }
 

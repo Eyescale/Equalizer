@@ -803,6 +803,13 @@ bool Config::exit()
 
     const bool success = _updateRunning();
 
+    for( Compounds::const_iterator i = _compounds.begin();
+         i != _compounds.end(); ++i )
+    {
+        Compound* compound = *i;
+        compound->deregister();
+    }
+
     ConfigEvent exitEvent;
     exitEvent.data.type = Event::EXIT;
     send( _appNetNode, exitEvent );
@@ -973,6 +980,7 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
         _finishedFrame.waitEQ( _currentFrame );
         _needsFinish = false;
     }
+    send( command.getNode(), reply );
 
     if( _updateRunning( ))
         _startFrame( packet->frameID );
@@ -983,7 +991,6 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
         exit();
         ++_currentFrame;
     }
-    send( command.getNode(), reply );
 
     if( _state == STATE_STOPPED )
     {

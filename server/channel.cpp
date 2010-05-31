@@ -435,7 +435,8 @@ net::CommandResult Channel::_cmdConfigInitReply( net::Command& command )
 {
     const ChannelConfigInitReplyPacket* packet = 
         command.getPacket<ChannelConfigInitReplyPacket>();
-    EQVERB << "handle channel configInit reply " << packet << std::endl;
+    EQLOG( LOG_INIT ) << "handle channel configInit reply " << packet
+                      << std::endl;
 
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
     return net::COMMAND_HANDLED;
@@ -445,7 +446,8 @@ net::CommandResult Channel::_cmdConfigExitReply( net::Command& command )
 {
     const ChannelConfigExitReplyPacket* packet = 
         command.getPacket<ChannelConfigExitReplyPacket>();
-    EQVERB << "handle channel configExit reply " << packet << std::endl;
+    EQLOG( LOG_INIT ) << "handle channel configExit reply " << packet
+                      << std::endl;
 
     _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
     return net::COMMAND_HANDLED;

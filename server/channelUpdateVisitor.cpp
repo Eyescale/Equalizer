@@ -179,7 +179,6 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.view          = view;
     context.taskID        = compound->getTaskID();
 
-    EQASSERT( view );
     if( view )
     {
         // compute inherit vp (part of view covered by segment)

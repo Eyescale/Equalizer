@@ -283,6 +283,7 @@ net::CommandQueue* Pipe::getMainThreadQueue()
 
 Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye )
 {
+    CHECK_THREAD( _pipeThread );
     Frame* frame = _frames[ frameVersion.identifier ];
 
     if( !frame )
@@ -307,6 +308,7 @@ Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye )
 
 void Pipe::flushFrames()
 {
+    CHECK_THREAD( _pipeThread );
     net::Session* session = getSession();
 
     for( FrameHash::const_iterator i = _frames.begin(); i != _frames.end(); ++i)

@@ -56,6 +56,9 @@ uint32_t Object::commitNB()
 
         if( _userData->isDirty() && _userData->getID() <= EQ_ID_MAX )
         {
+            EQASSERT( _data.userData.identifier != _userData->getID() ||
+                      _data.userData.version <= _userData->getVersion( ));
+                      
             _data.userData.identifier = _userData->getID();
             _data.userData.version = _userData->commit();
             setDirty( DIRTY_USERDATA );
@@ -79,6 +82,7 @@ void Object::notifyDetach()
     {
         getSession()->deregisterObject( _userData );
         _data.userData.identifier = EQ_ID_INVALID;
+        _data.userData.version = net::VERSION_NONE;
     }
     else
         getSession()->unmapObject( _userData );
@@ -116,9 +120,11 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_USERDATA )
     {
         is >> _data.userData;
-
         if( _userData )
         {
+            EQASSERT( _data.userData.identifier != _userData->getID() ||
+                      _data.userData.version >= _userData->getVersion( ));
+
             if( _data.userData.identifier <= EQ_ID_MAX )
             {
                 if( _userData->getID() == EQ_ID_INVALID )

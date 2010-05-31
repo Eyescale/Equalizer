@@ -1,4 +1,7 @@
-Fix flush-on-config-change bug
+Fix:
+- run-time pipe initialization
+- exit assertion with unmapped eq::Frames
+- don't print stack frame #0 (backtrace itself)
 
 [ ] May break build
 [ ] May break existing applications
