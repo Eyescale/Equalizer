@@ -82,26 +82,26 @@ typedef fabric::ConfigVisitor< Config, ObserverVisitor, LayoutVisitor,
 
 
 //----- Vectors
-/** A vector of pointers to eq::Config */
-typedef std::vector< Config* >     ConfigVector;
-/** A vector of pointers to eq::Node */
-typedef std::vector< Node* >     NodeVector;
-/** A vector of pointers to eq::Pipe */
-typedef std::vector< Pipe* >     PipeVector;
-/** A vector of pointers to eq::Window */
-typedef std::vector< Window* >   WindowVector;
-/** A vector of pointers to eq::Channel */
-typedef std::vector< Channel* >  ChannelVector;
-/** A vector of pointers to eq::Observer */
-typedef std::vector< Observer* > ObserverVector;
-/** A vector of pointers to eq::Canvas */
-typedef std::vector< Canvas* >   CanvasVector;
-/** A vector of pointers to eq::Layout */
-typedef std::vector< Layout* >   LayoutVector;
-/** A vector of pointers to eq::Segment */
-typedef std::vector< Segment* >  SegmentVector;
-/** A vector of pointers to eq::View */
-typedef std::vector< View* >     ViewVector;
+/** A vector of pointers to eq::admin::Config */
+typedef std::vector< Config* >     Configs;
+/** A vector of pointers to eq::admin::Node */
+typedef std::vector< Node* >     Nodes;
+/** A vector of pointers to eq::admin::Pipe */
+typedef std::vector< Pipe* >     Pipes;
+/** A vector of pointers to eq::admin::Window */
+typedef std::vector< Window* >   Windows;
+/** A vector of pointers to eq::admin::Channel */
+typedef std::vector< Channel* >  Channels;
+/** A vector of pointers to eq::admin::Observer */
+typedef std::vector< Observer* > Observers;
+/** A vector of pointers to eq::admin::Canvas */
+typedef std::vector< Canvas* >   Canvass;
+/** A vector of pointers to eq::admin::Layout */
+typedef std::vector< Layout* >   Layouts;
+/** A vector of pointers to eq::admin::Segment */
+typedef std::vector< Segment* >  Segments;
+/** A vector of pointers to eq::admin::View */
+typedef std::vector< View* >     Views;
 }
 }
 #endif // EQADMIN_TYPES_H

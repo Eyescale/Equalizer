@@ -583,7 +583,7 @@ template< class S, class C, class O, class L, class CV, class N, class V >
 bool Config< S, C, O, L, CV, N, V >::_removeNode( N* node )
 {
     typename Nodes::iterator i = std::find( _nodes.begin(),
-                                                 _nodes.end(), node );
+                                            _nodes.end(), node );
     if( i == _nodes.end( ))
         return false;
 

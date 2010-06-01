@@ -25,49 +25,42 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef EQ_ADMIN_ADD_WINDOW_H
-#define EQ_ADMIN_ADD_WINDOW_H
-
-#include "findPipe.h"
+#ifndef EQ_ADMIN_FIND_PIPE_H
+#define EQ_ADMIN_FIND_PIPE_H
 
 #include <eq/admin.h>
 
 namespace eqAdmin
 {
 
-inline bool addWindow( eq::admin::ServerPtr server )
+inline eq::admin::Pipe* findPipe( eq::admin::ServerPtr server )
 {
     // Find first pipe...
-    eq::admin::Pipe* pipe = findPipe( server );
-    if( !pipe )
-       return false;
+    const eq::admin::Configs& configs = server->getConfigs();
+    if( configs.empty( ))
+    {
+        std::cout << "No configs on server, exiting" << std::endl;
+        return 0;
+    }
 
-    // Add window (->channel->segment->canvas->layout->view)
-    eq::admin::Config* config = pipe->getConfig();
-    eq::admin::Window* window = new eq::admin::Window( pipe );
-    eq::admin::Channel* channel = new eq::admin::Channel( window );
-    eq::admin::Canvas* canvas = new eq::admin::Canvas( config );
-    eq::admin::Segment* segment = new eq::admin::Segment( canvas );
-    eq::admin::Layout* layout = new eq::admin::Layout( config );
-    eq::admin::View* view = new eq::admin::View( layout );
-    eq::admin::Observer* observer = new eq::admin::Observer( config );
+    eq::admin::Config* config = configs.front();
+    const eq::admin::Nodes& nodes = config->getNodes();
+    if( nodes.empty( ))
+    {
+        std::cout << "No nodes in config, exiting" << std::endl;
+        return 0;
+    }
+ 
+    const eq::admin::Node* node = nodes.front();
+    const eq::admin::Pipes& pipes = node->getPipes();
+    if( pipes.empty( ))
+    {
+        std::cout << "No pipes in node, exiting" << std::endl;
+        return 0;
+    }
 
-    window->setPixelViewport( eq::fabric::PixelViewport( 100, 100, 400, 300 ));
-    window->setName( "Runtime-created window" );
-    canvas->setName( "Runtime-created canvas" );
-    layout->setName( "Runtime-created layout" );
-    observer->setName( "Runtime-created observer" );
-
-    view->setObserver( observer );
-    segment->setChannel( channel );
-    canvas->addLayout( layout );
-    canvas->setWall( eq::fabric::Wall( eq::fabric::Vector3f(-.4f,-.3f,-1.f ),
-                                       eq::fabric::Vector3f( .4f,-.3f,-1.f ),
-                                       eq::fabric::Vector3f(-.4f, .3f,-1.f )));
-    config->commit();
-    return true;
+    return pipes.front();
 }
 
 }
-
-#endif // EQ_ADMIN_ADD_WINDOW_H
+#endif // EQ_ADMIN_FIND_PIPE_H

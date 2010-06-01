@@ -1,11 +1,9 @@
-Implement run-time observer creation
-
-Fix run-time pipe initialization, layout switch and window creation (one
-of them was never working :-/ ).
+Template run-time window destruction (not functional)
+Fix admin Vector naming
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [x] New Feature
 [x] Cleanup
 [ ] Optimization

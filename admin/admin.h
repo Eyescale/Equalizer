@@ -29,6 +29,7 @@
 #include <eq/admin/layout.h>
 #include <eq/admin/node.h>
 #include <eq/admin/observer.h>
+#include <eq/admin/pipe.h>
 #include <eq/admin/segment.h>
 #include <eq/admin/server.h>
 #include <eq/admin/types.h>

@@ -33,6 +33,7 @@
 #include "modelAssigner.h"
 
 #include <admin/addWindow.h>
+#include <admin/removeWindow.h>
 
 namespace eqPly
 {
@@ -653,9 +654,12 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             return true;
         }
         case 'A':
-            //_removeWindow();
+        {
+            eq::admin::ServerPtr server = getAdminServer();
+            if( server.isValid( ))
+                eqAdmin::removeWindow( server );
             return true;
-
+        }
         // Head Tracking Emulation
         case eq::KC_UP:
         {
