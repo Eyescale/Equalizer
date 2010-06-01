@@ -77,7 +77,7 @@ namespace fabric
         EQFABRIC_EXPORT void setViewport( const Viewport& viewport );
 
         /** Set the entity tracking this view. @internal */
-        void setObserver( O* observer );
+        EQFABRIC_EXPORT void setObserver( O* observer );
         //@}
 
         /** @name Operations */
