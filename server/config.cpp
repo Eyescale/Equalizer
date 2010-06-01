@@ -236,7 +236,7 @@ void Config::activateCanvas( Canvas* canvas )
 
 void Config::updateCanvas( Canvas* canvas )
 {
-    _needsFinish = true;
+    postNeedsFinish();
     activateCanvas( canvas );
 
     // Create compounds for all new output channels
@@ -770,6 +770,7 @@ bool Config::_init( const uint32_t initID )
     if( !_updateRunning( ))
         return false;
 
+    _needsFinish = false;
     _state = STATE_RUNNING;
     return true;
 }
@@ -814,6 +815,7 @@ bool Config::exit()
     exitEvent.data.type = Event::EXIT;
     send( _appNetNode, exitEvent );
     
+    _needsFinish = false;
     _state = STATE_STOPPED;
     return success;
 }
@@ -969,18 +971,17 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
     ConfigSyncVisitor syncer;
     accept( syncer );
 
+    net::NodePtr node = command.getNode();
     ConfigSyncPacket syncPacket( packet, getVersion( ));
-    send( command.getNode(), syncPacket );    
-    
-    ConfigStartFrameReplyPacket reply( packet ); 
-    if( _needsFinish )
+    send( node, syncPacket );    
+    ConfigStartFrameReplyPacket reply( packet, _needsFinish );
+    send( node, reply );
+
+    if( _needsFinish ) // pre-frame: flush rendering
     {
-        reply.finish = true;
         _flushAllFrames();
         _finishedFrame.waitEQ( _currentFrame );
-        _needsFinish = false;
     }
-    send( command.getNode(), reply );
 
     if( _updateRunning( ))
         _startFrame( packet->frameID );
@@ -992,12 +993,18 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
         ++_currentFrame;
     }
 
+    if( _needsFinish ) // post-frame: flush current frame to unlock app
+    {
+        _flushAllFrames();
+        _needsFinish = false;
+    }
+
     if( _state == STATE_STOPPED )
     {
         // unlock app
         ConfigFrameFinishPacket frameFinishPacket;
         frameFinishPacket.frameNumber = _currentFrame;
-        send( command.getNode(), frameFinishPacket );        
+        send( node, frameFinishPacket );        
     }
 
     return net::COMMAND_HANDLED;

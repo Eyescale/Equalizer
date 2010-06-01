@@ -113,6 +113,7 @@ public:
                     continue;
 
                 compound->activate();
+                compound->getConfig()->postNeedsFinish();
                 break;
             }
 
@@ -144,6 +145,7 @@ public:
                     continue;
 
                 compound->deactivate();
+                compound->getConfig()->postNeedsFinish();
                 break;
             }
 

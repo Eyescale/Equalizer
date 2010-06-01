@@ -82,6 +82,19 @@ namespace fabric
     //------------------------------------------------------------
     typedef net::SessionPacket ConfigPacket;
 
+    struct ConfigCreateReplyPacket : public ConfigPacket
+    {
+        ConfigCreateReplyPacket(const ServerCreateConfigPacket* request)
+        {
+            command   = CMD_CONFIG_CREATE_REPLY;
+            size      = sizeof( ConfigCreateReplyPacket );
+            sessionID = request->configID;
+            requestID = request->requestID;
+        }
+
+        uint32_t requestID;
+    };
+
     struct ConfigNewLayoutPacket : public ConfigPacket
     {
         ConfigNewLayoutPacket()
@@ -91,19 +104,6 @@ namespace fabric
             }
 
         uint32_t requestID;
-    };
-
-    struct ConfigNewLayoutReplyPacket : public ConfigPacket
-    {
-        ConfigNewLayoutReplyPacket( const ConfigNewLayoutPacket* request )
-                : requestID( request->requestID )
-            {
-                command = fabric::CMD_CONFIG_NEW_LAYOUT_REPLY;
-                size    = sizeof( ConfigNewLayoutReplyPacket );
-            }
-
-        const uint32_t requestID;
-        uint32_t layoutID;
     };
 
     struct ConfigNewCanvasPacket : public ConfigPacket
@@ -117,30 +117,33 @@ namespace fabric
         uint32_t requestID;
     };
 
-    struct ConfigNewCanvasReplyPacket : public ConfigPacket
+    struct ConfigNewObserverPacket : public ConfigPacket
     {
-        ConfigNewCanvasReplyPacket( const ConfigNewCanvasPacket* request )
-                : requestID( request->requestID )
+        ConfigNewObserverPacket()
             {
-                command = fabric::CMD_CONFIG_NEW_CANVAS_REPLY;
-                size    = sizeof( ConfigNewCanvasReplyPacket );
+                command = fabric::CMD_CONFIG_NEW_OBSERVER;
+                size    = sizeof( ConfigNewObserverPacket );
+            }
+
+        uint32_t requestID;
+    };
+
+    struct ConfigNewEntityReplyPacket : public ConfigPacket
+    {
+        ConfigNewEntityReplyPacket( const ConfigNewLayoutPacket* request )
+                : requestID( request->requestID ) { init(); }
+        ConfigNewEntityReplyPacket( const ConfigNewCanvasPacket* request )
+                : requestID( request->requestID ) { init(); }
+        ConfigNewEntityReplyPacket( const ConfigNewObserverPacket* request )
+                : requestID( request->requestID ) { init(); }
+        void init()
+            {
+                command = fabric::CMD_CONFIG_NEW_ENTITY_REPLY;
+                size    = sizeof( ConfigNewEntityReplyPacket );
             }
 
         const uint32_t requestID;
-        uint32_t canvasID;
-    };
-
-    struct ConfigCreateReplyPacket : public ConfigPacket
-    {
-        ConfigCreateReplyPacket(const ServerCreateConfigPacket* request)
-        {
-            command   = CMD_CONFIG_CREATE_REPLY;
-            size      = sizeof( ConfigCreateReplyPacket );
-            sessionID = request->configID;
-            requestID = request->requestID;
-        }
-
-        uint32_t requestID;
+        uint32_t entityID;
     };
 
     //------------------------------------------------------------

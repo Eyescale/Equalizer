@@ -381,7 +381,8 @@ void Node::_finish( const uint32_t currentFrame )
 
 void Node::flushFrames( const uint32_t frameNumber )
 {
-    EQVERB << "Flush frames including " << frameNumber << std::endl;
+    EQLOG( base::LOG_ANY ) << "Flush frames including " << frameNumber
+                           << std::endl;
 
     while( _flushedFrame < frameNumber )
     {

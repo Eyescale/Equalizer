@@ -66,11 +66,16 @@ inline bool addWindow( eq::admin::ServerPtr server )
     eq::admin::Canvas* canvas = new eq::admin::Canvas( config );
     eq::admin::Segment* segment = new eq::admin::Segment( canvas );
     eq::admin::Layout* layout = new eq::admin::Layout( config );
-    new eq::admin::View( layout );
+    eq::admin::View* view = new eq::admin::View( layout );
+    eq::admin::Observer* observer = new eq::admin::Observer( config );
 
     window->setPixelViewport( eq::fabric::PixelViewport( 100, 100, 400, 300 ));
     window->setName( "Runtime-created window" );
-    
+    canvas->setName( "Runtime-created canvas" );
+    layout->setName( "Runtime-created layout" );
+    observer->setName( "Runtime-created observer" );
+
+    view->setObserver( observer );
     segment->setChannel( channel );
     canvas->addLayout( layout );
     canvas->setWall( eq::fabric::Wall( eq::fabric::Vector3f(-.4f,-.3f,-1.f ),

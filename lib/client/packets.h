@@ -235,15 +235,16 @@ namespace eq
 
     struct ConfigStartFrameReplyPacket : public ConfigPacket
     {
-        ConfigStartFrameReplyPacket( const ConfigStartFramePacket* request )
+        ConfigStartFrameReplyPacket( const ConfigStartFramePacket* request,
+                                     const bool finish_ )
                 : requestID( request->startID )
-                , finish( false )
+                , finish( finish_ )
             {
                 command   = fabric::CMD_CONFIG_START_FRAME_REPLY;
                 size      = sizeof( ConfigStartFrameReplyPacket );
             }
         const uint32_t requestID;
-        bool finish;
+        const bool finish;
     };
 
     struct ConfigReleaseFrameLocalPacket : public ConfigPacket

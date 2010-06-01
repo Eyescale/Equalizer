@@ -84,7 +84,12 @@ void View< L, V, O >::deserialize( net::DataIStream& is,
                 EQASSERT( _observer->getID() == observer.identifier );
             }
             if( _observer )
-                _observer->sync( observer.version );
+            {
+                if( _observer->isMaster( ))
+                    _observer->sync();
+                else
+                    _observer->sync( observer.version );
+            }
         }
     }
     if( dirtyBits & DIRTY_OVERDRAW )

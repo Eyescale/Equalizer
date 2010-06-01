@@ -203,13 +203,13 @@ uint32_t Config::startFrame( const uint32_t frameID )
 
     bool finish;
     client->waitRequest( packet.startID, finish );
-    if( finish )
+
+    ++_currentFrame;
+    if( finish ) // finish including current frame to process init tasks
     {
         while( _finishedFrame < _currentFrame )
             client->processCommand();
     }
-
-    ++_currentFrame;
 
     EQLOG( base::LOG_ANY ) << "---- Started Frame ---- " << _currentFrame
                            << std::endl;

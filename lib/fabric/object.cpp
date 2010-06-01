@@ -123,7 +123,8 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
         if( _userData )
         {
             EQASSERT( _data.userData.identifier != _userData->getID() ||
-                      _data.userData.version >= _userData->getVersion( ));
+                      _data.userData.version >= _userData->getVersion() ||
+                      _userData->isMaster( ));
 
             if( _data.userData.identifier <= EQ_ID_MAX )
             {

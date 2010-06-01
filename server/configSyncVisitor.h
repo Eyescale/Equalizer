@@ -27,10 +27,10 @@ namespace server
 namespace
 {
     /** Synchronizes view changes at the beginning of each frame. */
-    class ViewSyncVisitor : public ConfigVisitor
+    class PreSyncVisitor : public ConfigVisitor
     {
     public:
-        virtual ~ViewSyncVisitor() {}
+        virtual ~PreSyncVisitor() {}
 
         // Optimize traversal
         virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
@@ -38,6 +38,13 @@ namespace
             { return TRAVERSE_PRUNE; }
         virtual VisitorResult visitPre( Compound* compound )
             { return TRAVERSE_TERMINATE; }
+
+        virtual VisitorResult visit( Observer* observer )
+            {
+                observer->sync();
+                observer->commit();
+                return TRAVERSE_CONTINUE;
+            }
 
         virtual VisitorResult visit( View* view )
             {
@@ -57,9 +64,9 @@ namespace
         virtual VisitorResult visitPre( Config* config )
             {
                 config->sync( net::VERSION_HEAD );
-                // Commit views first since they are ref'ed be channels.
-                ViewSyncVisitor viewSyncer;
-                config->accept( viewSyncer );
+                // Commit observers & views first, they are ref'ed be channels.
+                PreSyncVisitor preSyncer;
+                config->accept( preSyncer );
                 return TRAVERSE_CONTINUE;
             }
         virtual VisitorResult visitPre( Node* node )
@@ -97,13 +104,6 @@ namespace
         virtual VisitorResult visitPost( Node* node )
             {
                 node->commit();
-                return TRAVERSE_CONTINUE;
-            }
-
-        virtual VisitorResult visit( Observer* observer )
-            {
-                observer->sync();
-                observer->commit();
                 return TRAVERSE_CONTINUE;
             }
 

@@ -157,6 +157,9 @@ namespace server
         /** Initialize the given canvas in a running configuration */
         virtual void updateCanvas( Canvas* canvas );
 
+        /** Request a finish of outstanding frames on next frame */
+        void postNeedsFinish() { _needsFinish = true; }
+
         /** @internal */
         virtual VisitorResult _acceptCompounds( ConfigVisitor& visitor );
         /** @internal */

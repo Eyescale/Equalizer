@@ -65,6 +65,14 @@ namespace admin
                 return TRAVERSE_CONTINUE;
             }
 
+        virtual VisitorResult visit( Observer* observer )
+            {
+                _register< Config, Observer, fabric::ConfigNewObserverPacket >( 
+                    observer->getConfig(), observer );
+                observer->commit();
+                return TRAVERSE_CONTINUE;
+            }
+
         virtual VisitorResult visitPre( Layout* layout )
             {
                 _register< Config, Layout, fabric::ConfigNewLayoutPacket >( 

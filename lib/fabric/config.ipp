@@ -57,28 +57,6 @@ Config< S, C, O, L, CV, N, V >::Config( base::RefPtr< S > server )
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::notifyMapped( net::NodePtr node )
-{
-    net::Session::notifyMapped( node );
-
-    net::CommandQueue* queue = _server->getMainThreadQueue();
-    EQASSERT( queue );
-
-    registerCommand( fabric::CMD_CONFIG_NEW_LAYOUT, 
-                CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewLayout ),
-                     queue );
-    registerCommand( fabric::CMD_CONFIG_NEW_LAYOUT_REPLY, 
-           CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewLayoutReply ),
-                     0);
-    registerCommand( fabric::CMD_CONFIG_NEW_CANVAS, 
-                CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewCanvas ),
-                     queue);
-    registerCommand( fabric::CMD_CONFIG_NEW_CANVAS_REPLY, 
-           CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewCanvasReply ),
-                     0);
-}
-
-template< class S, class C, class O, class L, class CV, class N, class V >
 Config< S, C, O, L, CV, N, V >::~Config()
 {
     _appNodeID = net::NodeID::ZERO;
@@ -115,6 +93,28 @@ Config< S, C, O, L, CV, N, V >::~Config()
     _server = 0;
 
     delete _proxy;
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+void Config< S, C, O, L, CV, N, V >::notifyMapped( net::NodePtr node )
+{
+    net::Session::notifyMapped( node );
+
+    net::CommandQueue* queue = _server->getMainThreadQueue();
+    EQASSERT( queue );
+
+    registerCommand( fabric::CMD_CONFIG_NEW_LAYOUT, 
+                CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewLayout ),
+                     queue );
+    registerCommand( fabric::CMD_CONFIG_NEW_CANVAS, 
+                CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewCanvas ),
+                     queue);
+    registerCommand( fabric::CMD_CONFIG_NEW_OBSERVER, 
+              CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewObserver ),
+                     queue);
+    registerCommand( fabric::CMD_CONFIG_NEW_ENTITY_REPLY, 
+           CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply ),
+                     0);
 }
 
 template< class C, class V >
@@ -622,20 +622,9 @@ net::CommandResult Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
     registerObject( layout );
     EQASSERT( layout->getID() <= EQ_ID_MAX );
 
-    ConfigNewLayoutReplyPacket reply( packet );
-    reply.layoutID = layout->getID();
+    ConfigNewEntityReplyPacket reply( packet );
+    reply.entityID = layout->getID();
     send( command.getNode(), reply ); 
-
-    return net::COMMAND_HANDLED;
-}
-
-template< class S, class C, class O, class L, class CV, class N, class V >
-net::CommandResult Config< S, C, O, L, CV, N, V >::_cmdNewLayoutReply(
-    net::Command& command )
-{
-    const ConfigNewLayoutReplyPacket* packet =
-        command.getPacket< ConfigNewLayoutReplyPacket >();
-    getLocalNode()->serveRequest( packet->requestID, packet->layoutID );
 
     return net::COMMAND_HANDLED;
 }
@@ -654,20 +643,41 @@ net::CommandResult Config< S, C, O, L, CV, N, V >::_cmdNewCanvas(
     registerObject( canvas );
     EQASSERT( canvas->getID() <= EQ_ID_MAX );
 
-    ConfigNewCanvasReplyPacket reply( packet );
-    reply.canvasID = canvas->getID();
+    ConfigNewEntityReplyPacket reply( packet );
+    reply.entityID = canvas->getID();
     send( command.getNode(), reply ); 
 
     return net::COMMAND_HANDLED;
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-net::CommandResult Config< S, C, O, L, CV, N, V >::_cmdNewCanvasReply(
+net::CommandResult Config< S, C, O, L, CV, N, V >::_cmdNewObserver(
     net::Command& command )
 {
-    const ConfigNewCanvasReplyPacket* packet =
-        command.getPacket< ConfigNewCanvasReplyPacket >();
-    getLocalNode()->serveRequest( packet->requestID, packet->canvasID );
+    const ConfigNewObserverPacket* packet =
+        command.getPacket< ConfigNewObserverPacket >();
+    
+    O* observer = 0;
+    _proxy->create( &observer );
+    EQASSERT( observer );
+
+    registerObject( observer );
+    EQASSERT( observer->getID() <= EQ_ID_MAX );
+
+    ConfigNewEntityReplyPacket reply( packet );
+    reply.entityID = observer->getID();
+    send( command.getNode(), reply ); 
+
+    return net::COMMAND_HANDLED;
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+net::CommandResult Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply(
+    net::Command& command )
+{
+    const ConfigNewEntityReplyPacket* packet =
+        command.getPacket< ConfigNewEntityReplyPacket >();
+    getLocalNode()->serveRequest( packet->requestID, packet->entityID );
 
     return net::COMMAND_HANDLED;
 }
