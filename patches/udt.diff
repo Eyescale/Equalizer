@@ -740,7 +740,7 @@ Added: svn:eol-style
 
 Index: lib/net/connectionType.h
 ===================================================================
---- lib/net/connectionType.h	(revision 4504)
+--- lib/net/connectionType.h	(revision 4512)
 +++ lib/net/connectionType.h	(working copy)
 @@ -31,6 +31,7 @@
          CONNECTIONTYPE_NONE = 0,
@@ -763,7 +763,7 @@ Index: lib/net/connectionType.h
                  break;
 Index: lib/net/connectionDescription.cpp
 ===================================================================
---- lib/net/connectionDescription.cpp	(revision 4504)
+--- lib/net/connectionDescription.cpp	(revision 4512)
 +++ lib/net/connectionDescription.cpp	(working copy)
 @@ -51,6 +51,8 @@
          return CONNECTIONTYPE_TCPIP;
@@ -784,7 +784,7 @@ Index: lib/net/connectionDescription.cpp
              desc.type == net::CONNECTIONTYPE_IB    ? "IB" :
 Index: lib/net/connection.cpp
 ===================================================================
---- lib/net/connection.cpp	(revision 4504)
+--- lib/net/connection.cpp	(revision 4512)
 +++ lib/net/connection.cpp	(working copy)
 @@ -25,6 +25,7 @@
  #include "pipeConnection.h"
@@ -807,7 +807,7 @@ Index: lib/net/connection.cpp
              break;
 Index: server/loader.y
 ===================================================================
---- server/loader.y	(revision 4504)
+--- server/loader.y	(revision 4512)
 +++ server/loader.y	(working copy)
 @@ -185,6 +185,7 @@
  %token EQTOKEN_TYPE
@@ -827,7 +827,7 @@ Index: server/loader.y
      | EQTOKEN_MCIP { $$ = eq::net::CONNECTIONTYPE_MCIP; }
 Index: server/loader.l
 ===================================================================
---- server/loader.l	(revision 4504)
+--- server/loader.l	(revision 4512)
 +++ server/loader.l	(working copy)
 @@ -183,6 +183,7 @@
  MCIP                            { return EQTOKEN_MCIP; }
@@ -839,7 +839,7 @@ Index: server/loader.l
  fixed                           { return EQTOKEN_FIXED; }
 Index: tests/net/connection.cpp
 ===================================================================
---- tests/net/connection.cpp	(revision 4504)
+--- tests/net/connection.cpp	(revision 4512)
 +++ tests/net/connection.cpp	(working copy)
 @@ -30,6 +30,7 @@
  static eq::net::ConnectionType types[] =
@@ -851,7 +851,7 @@ Index: tests/net/connection.cpp
      eq::net::CONNECTIONTYPE_RSP,
 Index: VS2005/netPerf.vcproj
 ===================================================================
---- VS2005/netPerf.vcproj	(revision 4504)
+--- VS2005/netPerf.vcproj	(revision 4512)
 +++ VS2005/netPerf.vcproj	(working copy)
 @@ -197,6 +197,7 @@
  			/>
@@ -863,35 +863,8 @@ Index: VS2005/netPerf.vcproj
  				Name="VCXMLDataGeneratorTool"
 Index: VS2005/Equalizer.vcproj
 ===================================================================
---- VS2005/Equalizer.vcproj	(revision 4504)
+--- VS2005/Equalizer.vcproj	(revision 4512)
 +++ VS2005/Equalizer.vcproj	(working copy)
-@@ -155,7 +155,7 @@
- 			/>
- 			<Tool
- 				Name="VCLinkerTool"
--				AdditionalDependencies="pthreadVC2.lib rpcrt4.lib ws2_32.lib opengl32.lib mswsock.lib"
-+				AdditionalDependencies="pthreadVC2.lib rpcrt4.lib ws2_32.lib opengl32.lib mswsock.lib udt.lib"
- 				OutputFile="$(OutDir)/Equalizer.dll"
- 				LinkIncremental="2"
- 				AdditionalLibraryDirectories="&quot;$(InputDir)../externals/boost/stage/lib&quot;;&quot;$(OutDir)&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_amd64\amd64&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_amd64\amd64&quot;"
-@@ -239,7 +239,7 @@
- 			/>
- 			<Tool
- 				Name="VCLinkerTool"
--				AdditionalDependencies="pthreadVC2.lib rpcrt4.lib ws2_32.lib opengl32.lib mswsock.lib"
-+				AdditionalDependencies="pthreadVC2.lib rpcrt4.lib ws2_32.lib opengl32.lib mswsock.lib udt.lib"
- 				OutputFile="$(OutDir)/Equalizer.dll"
- 				LinkIncremental="1"
- 				AdditionalLibraryDirectories="&quot;$(InputDir)../externals/boost/stage/lib&quot;;&quot;$(OutDir)&quot;;&quot;$(PROGRAMDIR)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_x86\i386&quot;;&quot;$(PROGRAMW6432)\Mellanox\MLNX_WinOF\SDK\lib\user\objfre_wnet_x86\i386&quot;"
-@@ -335,7 +335,7 @@
- 				OptimizeReferences="2"
- 				EnableCOMDATFolding="2"
- 				ImportLibrary="$(OutDir)/Equalizer.lib"
--				TargetMachine="17"
-+				TargetMachine="0"
- 			/>
- 			<Tool
- 				Name="VCALinkTool"
 @@ -4370,6 +4370,14 @@
  				>
  			</File>
@@ -907,593 +880,106 @@ Index: VS2005/Equalizer.vcproj
  				RelativePath="..\lib\net\unbufferedMasterCM.cpp"
  				>
  			</File>
-@@ -10387,6 +10395,582 @@
- 			</File>
- 		</Filter>
- 		<Filter
-+			Name="udt"
-+			>
-+			<File
-+				RelativePath="..\Windows\udt\api.h"
-+				>
-+				<FileConfiguration
-+					Name="Debug|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Debug|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+			</File>
-+			<File
-+				RelativePath="..\Windows\udt\buffer.h"
-+				>
-+				<FileConfiguration
-+					Name="Debug|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Debug|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+			</File>
-+			<File
-+				RelativePath="..\Windows\udt\cache.h"
-+				>
-+				<FileConfiguration
-+					Name="Debug|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Debug|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+			</File>
-+			<File
-+				RelativePath="..\Windows\udt\ccc.h"
-+				>
-+				<FileConfiguration
-+					Name="Debug|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Debug|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+			</File>
-+			<File
-+				RelativePath="..\Windows\udt\channel.h"
-+				>
-+				<FileConfiguration
-+					Name="Debug|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Debug|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+			</File>
-+			<File
-+				RelativePath="..\Windows\udt\common.h"
-+				>
-+				<FileConfiguration
-+					Name="Debug|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Debug|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+			</File>
-+			<File
-+				RelativePath="..\Windows\udt\core.h"
-+				>
-+				<FileConfiguration
-+					Name="Debug|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Debug|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+			</File>
-+			<File
-+				RelativePath="..\Windows\udt\list.h"
-+				>
-+				<FileConfiguration
-+					Name="Debug|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Debug|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+			</File>
-+			<File
-+				RelativePath="..\Windows\udt\md5.h"
-+				>
-+				<FileConfiguration
-+					Name="Debug|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Debug|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+			</File>
-+			<File
-+				RelativePath="..\Windows\udt\packet.h"
-+				>
-+				<FileConfiguration
-+					Name="Debug|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Debug|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+			</File>
-+			<File
-+				RelativePath="..\Windows\udt\queue.h"
-+				>
-+				<FileConfiguration
-+					Name="Debug|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Debug|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+			</File>
-+			<File
-+				RelativePath="..\Windows\udt\udt.h"
-+				>
-+				<FileConfiguration
-+					Name="Debug|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Debug|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+			</File>
-+			<File
-+				RelativePath="..\Windows\udt\window.h"
-+				>
-+				<FileConfiguration
-+					Name="Debug|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Debug|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|Win32"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="Copying UDT : $(InputFileName)"
-+						CommandLine="If not EXIST &quot;$(TargetDir)Headers/udt&quot;  mkdir &quot;$(TargetDir)Headers/udt&quot;&#x0D;&#x0A;copy &quot;$(InputPath)&quot; &quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)Headers/udt/$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+			</File>
-+		</Filter>
-+		<Filter
- 			Name="util"
+@@ -10755,46 +10763,6 @@
+ 			Filter="dll;lib"
  			>
  			<File
-@@ -10926,6 +11510,974 @@
+-				RelativePath="..\Windows\pthreads\lib64\pthreadVC2.dll"
+-				>
+-				<FileConfiguration
+-					Name="Debug|Win32"
+-					ExcludedFromBuild="true"
+-					>
+-					<Tool
+-						Name="VCCustomBuildTool"
+-					/>
+-				</FileConfiguration>
+-				<FileConfiguration
+-					Name="Debug|x64"
+-					>
+-					<Tool
+-						Name="VCCustomBuildTool"
+-						Description="copying library (x64)"
+-						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputFileName)&quot;&#x0D;&#x0A;"
+-						Outputs="&quot;$(TargetDir)$(InputFileName)&quot;"
+-					/>
+-				</FileConfiguration>
+-				<FileConfiguration
+-					Name="Release|Win32"
+-					ExcludedFromBuild="true"
+-					>
+-					<Tool
+-						Name="VCCustomBuildTool"
+-					/>
+-				</FileConfiguration>
+-				<FileConfiguration
+-					Name="Release|x64"
+-					>
+-					<Tool
+-						Name="VCCustomBuildTool"
+-						Description="copying library (x64)"
+-						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputFileName)&quot;&#x0D;&#x0A;"
+-						Outputs="&quot;$(TargetDir)$(InputFileName)&quot;"
+-					/>
+-				</FileConfiguration>
+-			</File>
+-			<File
+ 				RelativePath="..\Windows\pthreads\lib\pthreadVC2.dll"
+ 				>
+ 				<FileConfiguration
+@@ -10841,7 +10809,7 @@
+ 				</FileConfiguration>
+ 			</File>
+ 			<File
+-				RelativePath="..\Windows\pthreads\lib64\pthreadVC2.lib"
++				RelativePath="..\Windows\pthreads\lib64\pthreadVC2.dll"
+ 				>
+ 				<FileConfiguration
+ 					Name="Debug|Win32"
+@@ -10926,6 +10894,1014 @@
  					/>
  				</FileConfiguration>
  			</File>
++			<File
++				RelativePath="..\Windows\pthreads\lib64\pthreadVC2.lib"
++				>
++				<FileConfiguration
++					Name="Debug|Win32"
++					ExcludedFromBuild="true"
++					>
++					<Tool
++						Name="VCCustomBuildTool"
++					/>
++				</FileConfiguration>
++				<FileConfiguration
++					Name="Debug|x64"
++					>
++					<Tool
++						Name="VCCustomBuildTool"
++						Description="copying library (x64)"
++						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputFileName)&quot;&#x0D;&#x0A;"
++						Outputs="&quot;$(TargetDir)$(InputFileName)&quot;"
++					/>
++				</FileConfiguration>
++				<FileConfiguration
++					Name="Release|Win32"
++					ExcludedFromBuild="true"
++					>
++					<Tool
++						Name="VCCustomBuildTool"
++					/>
++				</FileConfiguration>
++				<FileConfiguration
++					Name="Release|x64"
++					>
++					<Tool
++						Name="VCCustomBuildTool"
++						Description="copying library (x64)"
++						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputFileName)&quot;&#x0D;&#x0A;"
++						Outputs="&quot;$(TargetDir)$(InputFileName)&quot;"
++					/>
++				</FileConfiguration>
++			</File>
 +			<Filter
 +				Name="udt"
 +				>
