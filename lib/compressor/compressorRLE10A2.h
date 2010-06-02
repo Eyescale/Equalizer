@@ -51,7 +51,7 @@ public:
         info->name = EQ_COMPRESSOR_DIFF_RLE_10A2;
         info->capabilities = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D |
                              EQ_COMPRESSOR_IGNORE_MSE;
-        info->tokenType = EQ_COMPRESSOR_DATATYPE_RGB10_A2;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_10A2;
 
         info->quality = 1.0f;
         info->ratio   = .57f;

@@ -5,13 +5,22 @@ MODULE = eq
 
 HEADER_SRC = \
 	plugins/compressor.h \
+	client.h \
 	eq.h \
+	fabric.h \
+	net.h \
+	util.h \
+	admin.h \
 	base/atomic.h \
 	base/base.h \
 	base/buffer.h \
 	base/compressor.h \
+	base/compressorData.h \
+	base/compressorDataCPU.h \
 	base/clock.h \
 	base/compareAndSwap.h \
+	base/compressorData.h \
+	base/compressorDataCPU.h \
 	base/debug.h \
 	base/defines.h \
 	base/defines$(ARCH).h \
@@ -61,7 +70,6 @@ HEADER_SRC = \
 	net/connectionListener.h \
 	net/connectionSet.h \
 	net/connectionType.h \
-	net/dataStream.h \
 	net/dataIStream.h \
 	net/dataOStream.h \
 	net/dispatcher.h \
@@ -69,7 +77,6 @@ HEADER_SRC = \
 	net/init.h \
 	net/instanceCache.h \
 	net/log.h \
-	net/net.h \
 	net/node.h \
 	net/nodeType.h \
 	net/object.h \
@@ -77,30 +84,30 @@ HEADER_SRC = \
 	net/objectVersion.h \
 	net/packets.h \
 	net/pairConnection.h \
-	net/rspConnection.h \
 	net/session.h \
 	net/types.h \
-	net/udpConnection.h \
 	net/version.h \
 	fabric/canvas.h \
 	fabric/channel.h \
 	fabric/colorMask.h \
 	fabric/commands.h \
 	fabric/config.h \
+	fabric/configVisitor.h \
 	fabric/client.h \
 	fabric/drawableConfig.h \
 	fabric/elementVisitor.h \
 	fabric/eye.h \
-	fabric/fabric.h \
 	fabric/frustum.h \
 	fabric/global.h \
 	fabric/layout.h \
+	fabric/iAttribute.h \
 	fabric/init.h \
 	fabric/leafVisitor.h \
 	fabric/node.h \
 	fabric/nodeType.h \
 	fabric/object.h \
 	fabric/observer.h \
+	fabric/packets.h \
 	fabric/packetType.h \
 	fabric/paths.h \
 	fabric/pipe.h \
@@ -132,7 +139,6 @@ HEADER_SRC = \
 	client/configEvent.h \
 	client/configParams.h \
 	client/configStatistics.h \
-	client/configVisitor.h \
 	client/cudaContext.h \
 	client/event.h \
 	client/eventHandler.h \
@@ -169,15 +175,16 @@ HEADER_SRC = \
 	util/accum.h \
 	util/accumBufferObject.h \
 	util/bitmapFont.h \
+	util/compressorDataGPU.h \
 	util/frameBufferObject.h \
 	util/objectManager.h \
 	util/texture.h \
 	util/types.h \
-	util/util.h \
-	admin/packets.h
 
 CXXFILES = \
 	base/compressor.cpp \
+	base/compressorData.cpp \
+	base/compressorDataCPU.cpp \
 	base/debug.cpp \
 	base/dso.cpp \
 	base/global.cpp \
@@ -204,7 +211,6 @@ CXXFILES = \
 	net/connection.cpp \
 	net/connectionDescription.cpp \
 	net/connectionSet.cpp \
-	net/dataStream.cpp \
 	net/dataIStream.cpp \
 	net/dataOStream.cpp \
 	net/deltaMasterCM.cpp \
@@ -239,10 +245,12 @@ CXXFILES = \
 	net/udpConnection.cpp \
 	net/unbufferedMasterCM.cpp \
 	net/versionedSlaveCM.cpp \
+	fabric/client.cpp \
 	fabric/colorMask.cpp \
 	fabric/eye.cpp \
 	fabric/frustum.cpp \
 	fabric/global.cpp \
+	fabric/iAttribute.cpp \
 	fabric/init.cpp \
 	fabric/object.cpp \
 	fabric/pixel.cpp \
@@ -298,21 +306,26 @@ CXXFILES = \
 	util/accum.cpp \
 	util/accumBufferObject.cpp \
 	util/bitmapFont.cpp \
+	util/compressorDataGPU.cpp \
 	util/frameBufferObject.cpp \
 	util/objectManager.cpp \
 	util/texture.cpp \
 	compressor/compressor.cpp \
+	compressor/compressor1To1.cpp \
 	compressor/compressorRLEB.cpp \
 	compressor/compressorRLE4B.cpp \
 	compressor/compressorRLE4BU.cpp \
 	compressor/compressorRLE565.cpp \
 	compressor/compressorRLE10A2.cpp \
-	compressor/compressorRLE4HF.cpp
+	compressor/compressorRLE4HF.cpp \
+	compressor/compressorRLEYUV.cpp \
+	compressor/compressorYUV.cpp
 
 SHADERS = \
 	client/roiFragmentShader_glsl.h \
-	client/roiFragmentShaderRGB_glsl.h
-
+	client/roiFragmentShaderRGB_glsl.h \
+	compressor/yuv420readback_glsl.h \
+	compressor/yuv420unpack_glsl.h
 
 CFILES += \
 	glew/glew.c
@@ -372,7 +385,7 @@ endif
 endif
 
 
-CXXFLAGS += $(WINDOW_SYSTEM_INCS) -DEQUALIZER_EXPORTS
+CXXFLAGS += $(WINDOW_SYSTEM_INCS) -DEQ_EXPORTS
 CFLAGS   += -DGLEW_BUILD -DEQ_DEFINES_H
 LDFLAGS  += $(WINDOW_SYSTEM_LIBS)
 
