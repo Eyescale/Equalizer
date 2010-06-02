@@ -66,37 +66,39 @@ protected:
 
     void _init( const uint64_t  inDims[4],
                       uint64_t  outDims[4] );
-};
 
-class Compressor1TO1Color8 : public Compressor1TO1
-{
-public:
-    Compressor1TO1Color8(): Compressor1TO1( GL_RGBA, GL_UNSIGNED_BYTE, 4 ){}
-    static void* getNewCompressor( ){ 
-                                  return new eq::plugin::Compressor1TO1Color8; }
-    
     static void getInfo( EqCompressorInfo* const info )
     {
         info->version      = EQ_COMPRESSOR_VERSION;
-        info->name         = EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_8;
         info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
-                             EQ_COMPRESSOR_IGNORE_MSE | 
                              EQ_COMPRESSOR_USE_TEXTURE |
                              EQ_COMPRESSOR_USE_FRAMEBUFFER;
-        info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGRA_BYTE;
-
         info->quality      = 1.0f;
         info->ratio        = 1.0f;
         info->speed        = 1.0f;
+    }
+};
 
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGRA_BYTE;
+class Compressor1TO1RGBAUnsignedByte : public Compressor1TO1
+{
+public:
+    Compressor1TO1RGBAUnsignedByte(): Compressor1TO1( GL_RGBA, GL_UNSIGNED_BYTE, 4 ){}
+    static void* getNewCompressor( ){ 
+                                  return new Compressor1TO1RGBAUnsignedByte; }
+    
+    static void getInfo( EqCompressorInfo* const info )
+    {
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_RGBA_UNSIGNED_BYTE;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_BYTE;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_BYTE;
         info->outputTokenSize = 4;
     }
 
     static Functions getFunctions( )
     {
         Functions functions;
-        functions.name           = EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_8;
+        functions.name           = EQ_TRANSFER_1TO1_RGBA_UNSIGNED_BYTE;
         functions.newCompressor  = getNewCompressor;  
         functions.decompress     = 0;
         functions.getInfo        = getInfo;
@@ -111,27 +113,268 @@ public:
 
 };
 
-class Compressor1TO1Color32F : public Compressor1TO1
+class Compressor1TO1RGBAInt8888rev : public Compressor1TO1
 {
 public:
-    Compressor1TO1Color32F(): Compressor1TO1( GL_RGBA, GL_FLOAT,16 ){}
-    static void* getNewCompressor( )
-                              { return new eq::plugin::Compressor1TO1Color32F; }
+    Compressor1TO1RGBAInt8888rev(): Compressor1TO1( GL_RGBA, 
+                                            GL_UNSIGNED_INT_8_8_8_8_REV, 4 ){}
+    static void* getNewCompressor( ){ 
+                              return new Compressor1TO1RGBAInt8888rev; }
     
     static void getInfo( EqCompressorInfo* const info )
     {
-        info->version      = EQ_COMPRESSOR_VERSION;
-        info->name         = EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_32F;
-        info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
-                             EQ_COMPRESSOR_IGNORE_MSE | 
-                             EQ_COMPRESSOR_USE_TEXTURE |
-                             EQ_COMPRESSOR_USE_FRAMEBUFFER;
-        info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGRA_FLOAT;
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_RGBA_UNSIGNED_INT_8_8_8_8_REV;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_8_8_8_8_REV;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_8_8_8_8_REV;
+        info->outputTokenSize = 4;
+    }
 
-        info->quality      = 1.0f;
-        info->ratio        = 1.0f;
-        info->speed        = 1.0f;
-        
+    static Functions getFunctions( )
+    {
+        Functions functions;
+        functions.name          = EQ_TRANSFER_1TO1_RGBA_UNSIGNED_INT_8_8_8_8_REV;
+        functions.newCompressor = getNewCompressor;  
+        functions.decompress    = 0;
+        functions.getInfo       = getInfo;
+        functions.isCompatible = (IsCompatible_t)Compressor1TO1::isCompatible;
+        return functions;
+    }
+
+    virtual void compress( const void* const inData, 
+                           const eq_uint64_t nPixels, 
+                           const bool useAlpha )
+        { EQDONTCALL; }
+
+};
+
+class Compressor1TO1RGBAInt1010102 : public Compressor1TO1
+{
+public:
+    Compressor1TO1RGBAInt1010102(): Compressor1TO1( GL_RGBA, 
+                                               GL_UNSIGNED_INT_10_10_10_2, 4 ){}
+    static void* getNewCompressor( )
+                             { return new eq::plugin::Compressor1TO1RGBAInt1010102; }
+    
+    static void getInfo( EqCompressorInfo* const info )
+    {
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_RGBA_UNSIGNED_INT_10_10_10_2;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_10_10_10_2;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_10_10_10_2;
+        info->outputTokenSize = 4;
+    }
+
+    static Functions getFunctions( )
+    {
+        Functions functions;
+        functions.name          = EQ_TRANSFER_1TO1_RGBA_UNSIGNED_INT_10_10_10_2;
+        functions.newCompressor = getNewCompressor;  
+        functions.decompress    = 0;
+        functions.getInfo       = getInfo;
+        functions.isCompatible = (IsCompatible_t)Compressor1TO1::isCompatible;
+        return functions;
+    }
+
+    virtual void compress( const void* const inData, 
+                           const eq_uint64_t nPixels, 
+                           const bool useAlpha )
+        { EQDONTCALL; }
+
+    bool isCompatible( const GLEWContext* glewContext )
+        { return true; }
+};
+
+class Compressor1TO1RGBAFloat : public Compressor1TO1
+{
+public:
+    Compressor1TO1RGBAFloat(): Compressor1TO1( GL_RGBA, GL_FLOAT, 16 ){}
+    static void* getNewCompressor( )
+                              { return new eq::plugin::Compressor1TO1RGBAFloat; }
+    
+    static void getInfo( EqCompressorInfo* const info )
+    {
+        Compressor1TO1::getInfo( info );
+        info->name            = EQ_TRANSFER_1TO1_RGBA_FLOAT;
+        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA_FLOAT;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGBA_FLOAT;
+        info->outputTokenSize = 16;
+    }
+
+    static Functions getFunctions( )
+    {
+        Functions functions;
+        functions.name          = EQ_TRANSFER_1TO1_RGBA_FLOAT;
+        functions.newCompressor = getNewCompressor;  
+        functions.decompress    = 0;
+        functions.getInfo       = getInfo;
+        functions.isCompatible  = (IsCompatible_t)Compressor1TO1::isCompatible;
+        return functions;
+    }
+
+    virtual void compress( const void* const inData, 
+                           const eq_uint64_t nPixels, 
+                           const bool useAlpha )
+        { EQDONTCALL; }
+
+    bool isCompatible( const GLEWContext* glewContext )
+        { return true; }
+};
+
+class Compressor1TO1RGBAHalfFloat : public Compressor1TO1
+{
+public:
+    Compressor1TO1RGBAHalfFloat(): Compressor1TO1( GL_RGBA, GL_HALF_FLOAT, 8 ){}
+    static void* getNewCompressor( )
+                              { return new eq::plugin::Compressor1TO1RGBAHalfFloat; }
+    
+    static void getInfo( EqCompressorInfo* const info )
+    {
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_RGBA_HALF_FLOAT;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_RGBA_HALF_FLOAT;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGBA_HALF_FLOAT;
+        info->outputTokenSize = 8;
+    }
+
+    static Functions getFunctions( )
+    {
+        Functions functions;
+        functions.name          = EQ_TRANSFER_1TO1_RGBA_HALF_FLOAT;
+        functions.newCompressor = getNewCompressor;  
+        functions.decompress    = 0;
+        functions.getInfo       = getInfo;
+        functions.isCompatible = (IsCompatible_t)Compressor1TO1::isCompatible;
+        return functions;
+    }
+
+    virtual void compress( const void* const inData, 
+                           const eq_uint64_t nPixels, 
+                           const bool useAlpha )
+        { EQDONTCALL; }
+
+    bool isCompatible( const GLEWContext* glewContext )
+        { return true; }
+};
+
+class Compressor1TO1BGRAUnsignedByte : public Compressor1TO1
+{
+public:
+    Compressor1TO1BGRAUnsignedByte(): Compressor1TO1( GL_BGRA, GL_UNSIGNED_BYTE, 4 ){}
+    static void* getNewCompressor( ){ 
+                               return new eq::plugin::Compressor1TO1BGRAUnsignedByte; }
+    
+    static void getInfo( EqCompressorInfo* const info )
+    {
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_BGRA_UNSIGNED_BYTE;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_BYTE;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_BYTE;
+        info->outputTokenSize = 4;
+    }
+
+    static Functions getFunctions( )
+    {
+        Functions functions;
+        functions.name          = EQ_TRANSFER_1TO1_BGRA_UNSIGNED_BYTE;
+        functions.newCompressor = getNewCompressor;  
+        functions.decompress    = 0;
+        functions.getInfo       = getInfo;
+        functions.isCompatible = (IsCompatible_t)Compressor1TO1::isCompatible;
+        return functions;
+    }
+
+    virtual void compress( const void* const inData, 
+                           const eq_uint64_t nPixels, 
+                           const bool useAlpha )
+        { EQDONTCALL; }
+
+};
+
+class Compressor1TO1BGRAInt8888rev : public Compressor1TO1
+{
+public:
+    Compressor1TO1BGRAInt8888rev(): Compressor1TO1( GL_BGRA, 
+                                            GL_UNSIGNED_INT_8_8_8_8_REV, 4 ){}
+    static void* getNewCompressor( ){ 
+                              return new eq::plugin::Compressor1TO1BGRAInt8888rev; }
+    
+    static void getInfo( EqCompressorInfo* const info )
+    {
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_BGRA_UNSIGNED_INT_8_8_8_8_REV;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_INT_8_8_8_8_REV;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_INT_8_8_8_8_REV;
+        info->outputTokenSize = 4;
+    }
+
+    static Functions getFunctions( )
+    {
+        Functions functions;
+        functions.name          = EQ_TRANSFER_1TO1_BGRA_UNSIGNED_INT_8_8_8_8_REV;
+        functions.newCompressor = getNewCompressor;  
+        functions.decompress    = 0;
+        functions.getInfo       = getInfo;
+        functions.isCompatible = (IsCompatible_t)Compressor1TO1::isCompatible;
+        return functions;
+    }
+
+    virtual void compress( const void* const inData, 
+                           const eq_uint64_t nPixels, 
+                           const bool useAlpha )
+        { EQDONTCALL; }
+
+};
+
+class Compressor1TO1BGRAInt1010102 : public Compressor1TO1
+{
+public:
+    Compressor1TO1BGRAInt1010102(): Compressor1TO1( GL_BGRA, 
+                                               GL_UNSIGNED_INT_10_10_10_2, 4 ){}
+    static void* getNewCompressor( )
+                             { return new eq::plugin::Compressor1TO1RGBAInt1010102; }
+    
+    static void getInfo( EqCompressorInfo* const info )
+    {
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_BGRA_UNSIGNED_INT_10_10_10_2;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_INT_10_10_10_2;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_INT_10_10_10_2;
+        info->outputTokenSize = 4;
+    }
+
+    static Functions getFunctions( )
+    {
+        Functions functions;
+        functions.name          = EQ_TRANSFER_1TO1_BGRA_UNSIGNED_INT_10_10_10_2;
+        functions.newCompressor = getNewCompressor;  
+        functions.decompress    = 0;
+        functions.getInfo       = getInfo;
+        functions.isCompatible = (IsCompatible_t)Compressor1TO1::isCompatible;
+        return functions;
+    }
+
+    virtual void compress( const void* const inData, 
+                           const eq_uint64_t nPixels, 
+                           const bool useAlpha )
+        { EQDONTCALL; }
+
+    bool isCompatible( const GLEWContext* glewContext )
+        { return true; }
+};
+
+class Compressor1TO1BGRAFloat : public Compressor1TO1
+{
+public:
+    Compressor1TO1BGRAFloat(): Compressor1TO1( GL_BGRA, GL_FLOAT,16 ){}
+    static void* getNewCompressor( )
+                              { return new eq::plugin::Compressor1TO1RGBAFloat; }
+    
+    static void getInfo( EqCompressorInfo* const info )
+    {
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_BGRA_FLOAT;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGRA_FLOAT;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGRA_FLOAT;
         info->outputTokenSize = 16;
     }
@@ -139,10 +382,10 @@ public:
     static Functions getFunctions( )
     {
         Functions functions;
-        functions.name           = EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_32F;
-        functions.newCompressor  = getNewCompressor;  
-        functions.decompress     = 0;
-        functions.getInfo        = getInfo;
+        functions.name          = EQ_TRANSFER_1TO1_BGRA_FLOAT;
+        functions.newCompressor = getNewCompressor;  
+        functions.decompress    = 0;
+        functions.getInfo       = getInfo;
         functions.isCompatible = (IsCompatible_t)Compressor1TO1::isCompatible;
         return functions;
     }
@@ -156,38 +399,29 @@ public:
         { return true; }
 };
 
-class Compressor1TO1Color16F : public Compressor1TO1
+class Compressor1TO1BGRAHalfFloat : public Compressor1TO1
 {
 public:
-    Compressor1TO1Color16F(): Compressor1TO1( GL_RGBA, GL_HALF_FLOAT, 8 ){}
+    Compressor1TO1BGRAHalfFloat(): Compressor1TO1( GL_BGRA, GL_HALF_FLOAT,8 ){}
     static void* getNewCompressor( )
-                              { return new eq::plugin::Compressor1TO1Color16F; }
+                              { return new eq::plugin::Compressor1TO1BGRAHalfFloat; }
     
     static void getInfo( EqCompressorInfo* const info )
     {
-        info->version      = EQ_COMPRESSOR_VERSION;
-        info->name         = EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_16F;
-        info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
-                             EQ_COMPRESSOR_IGNORE_MSE | 
-                             EQ_COMPRESSOR_USE_TEXTURE |
-                             EQ_COMPRESSOR_USE_FRAMEBUFFER;
-        info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGRA_HALF;
-
-        info->quality      = 1.0f;
-        info->ratio        = 1.0f;
-        info->speed        = 1.0f;
-        
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGRA_HALF;
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_BGRA_HALF_FLOAT;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGRA_HALF_FLOAT;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGRA_HALF_FLOAT;
         info->outputTokenSize = 8;
     }
 
     static Functions getFunctions( )
     {
         Functions functions;
-        functions.name           = EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_16F;
-        functions.newCompressor  = getNewCompressor;  
-        functions.decompress     = 0;
-        functions.getInfo        = getInfo;
+        functions.name          = EQ_TRANSFER_1TO1_BGRA_HALF_FLOAT;
+        functions.newCompressor = getNewCompressor;  
+        functions.decompress    = 0;
+        functions.getInfo       = getInfo;
         functions.isCompatible = (IsCompatible_t)Compressor1TO1::isCompatible;
         return functions;
     }
@@ -201,40 +435,64 @@ public:
         { return true; }
 };
 
-class Compressor1TO1Color10A2 : public Compressor1TO1
+class Compressor1TO1RGBUnsignedByte : public Compressor1TO1
 {
 public:
-    Compressor1TO1Color10A2(): Compressor1TO1( GL_RGBA, 
-                                               GL_UNSIGNED_INT_10_10_10_2, 4 ){}
-    static void* getNewCompressor( )
-                             { return new eq::plugin::Compressor1TO1Color10A2; }
+    Compressor1TO1RGBUnsignedByte(): Compressor1TO1( GL_RGB, GL_UNSIGNED_BYTE, 3 ){}
+    static void* getNewCompressor( ){ 
+                                  return new eq::plugin::Compressor1TO1RGBUnsignedByte; }
     
     static void getInfo( EqCompressorInfo* const info )
     {
-        info->version      = EQ_COMPRESSOR_VERSION;
-        info->name         = EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_10A2;
-        info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
-                             EQ_COMPRESSOR_IGNORE_MSE | 
-                             EQ_COMPRESSOR_USE_TEXTURE |
-                             EQ_COMPRESSOR_USE_FRAMEBUFFER;
-        info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGRA_10A2;
-
-        info->quality      = 1.0f;
-        info->ratio        = 1.0f;
-        info->speed        = 1.0f;
-
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGRA_10A2;
-        info->outputTokenSize = 16;
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_RGB_UNSIGNED_BYTE;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_RGB_UNSIGNED_BYTE;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB_UNSIGNED_BYTE;
+        info->outputTokenSize = 3;
     }
 
     static Functions getFunctions( )
     {
         Functions functions;
-        functions.name           = EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_10A2;
-        functions.newCompressor  = getNewCompressor;  
-        functions.decompress     = 0;
-        functions.getInfo        = getInfo;
-        functions.isCompatible = (IsCompatible_t)Compressor1TO1::isCompatible;
+        functions.name          = EQ_TRANSFER_1TO1_RGB_UNSIGNED_BYTE;
+        functions.newCompressor = getNewCompressor;  
+        functions.decompress    = 0;
+        functions.getInfo       = getInfo;
+        functions.isCompatible  = (IsCompatible_t)Compressor1TO1::isCompatible;
+        return functions;
+    }
+
+    virtual void compress( const void* const inData, 
+                           const eq_uint64_t nPixels, 
+                           const bool useAlpha )
+        { EQDONTCALL; }
+
+};
+
+class Compressor1TO1RGBFloat : public Compressor1TO1
+{
+public:
+    Compressor1TO1RGBFloat(): Compressor1TO1( GL_RGB, GL_FLOAT, 12 ){}
+    static void* getNewCompressor( )
+                              { return new eq::plugin::Compressor1TO1RGBFloat; }
+    
+    static void getInfo( EqCompressorInfo* const info )
+    {
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_RGB_FLOAT;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_RGB_FLOAT;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB_FLOAT;
+        info->outputTokenSize = 12;
+    }
+
+    static Functions getFunctions( )
+    {
+        Functions functions;
+        functions.name          = EQ_TRANSFER_1TO1_RGB_FLOAT;
+        functions.newCompressor = getNewCompressor;  
+        functions.decompress    = 0;
+        functions.getInfo       = getInfo;
+        functions.isCompatible  = (IsCompatible_t)Compressor1TO1::isCompatible;
         return functions;
     }
 
@@ -247,37 +505,205 @@ public:
         { return true; }
 };
 
-class Compressor1TO1Depth8 : public Compressor1TO1
+class Compressor1TO1RGBHalfFloat : public Compressor1TO1
 {
 public:
-    Compressor1TO1Depth8(): Compressor1TO1( GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 4 ){}
+    Compressor1TO1RGBHalfFloat(): Compressor1TO1( GL_RGB, GL_HALF_FLOAT, 6 ){}
     static void* getNewCompressor( )
-                                { return new eq::plugin::Compressor1TO1Depth8; }
+                              { return new eq::plugin::Compressor1TO1RGBHalfFloat; }
     
     static void getInfo( EqCompressorInfo* const info )
     {
-        info->version      = EQ_COMPRESSOR_VERSION;
-        info->name         = EQ_COMPRESSOR_TRANSFER_1TO1_DEPTH_8;
-        info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
-                             EQ_COMPRESSOR_IGNORE_MSE | 
-                             EQ_COMPRESSOR_USE_TEXTURE |
-                             EQ_COMPRESSOR_USE_FRAMEBUFFER;
-        info->tokenType    = EQ_COMPRESSOR_DATATYPE_UNSIGNED;
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_RGB_HALF_FLOAT;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_RGB_HALF_FLOAT;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB_HALF_FLOAT;
+        info->outputTokenSize = 6;
+    }
 
-        info->quality      = 1.0f;
-        info->ratio        = 1.0f;
-        info->speed        = 1.0f;
+    static Functions getFunctions( )
+    {
+        Functions functions;
+        functions.name          = EQ_TRANSFER_1TO1_RGB_HALF_FLOAT;
+        functions.newCompressor = getNewCompressor;  
+        functions.decompress    = 0;
+        functions.getInfo       = getInfo;
+        functions.isCompatible  = (IsCompatible_t)Compressor1TO1::isCompatible;
+        return functions;
+    }
 
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_UNSIGNED;
+    virtual void compress( const void* const inData, 
+                           const eq_uint64_t nPixels, 
+                           const bool useAlpha )
+        { EQDONTCALL; }
+
+    bool isCompatible( const GLEWContext* glewContext )
+        { return true; }
+};
+
+class Compressor1TO1BGRUnsignedByte : public Compressor1TO1
+{
+public:
+    Compressor1TO1BGRUnsignedByte(): Compressor1TO1( GL_BGR, GL_UNSIGNED_BYTE, 3 ){}
+    static void* getNewCompressor( ){ 
+                                  return new eq::plugin::Compressor1TO1BGRUnsignedByte; }
+    
+    static void getInfo( EqCompressorInfo* const info )
+    {
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_BGR_UNSIGNED_BYTE;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGR_UNSIGNED_BYTE;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR_UNSIGNED_BYTE;
+        info->outputTokenSize = 3;
+    }
+
+    static Functions getFunctions( )
+    {
+        Functions functions;
+        functions.name          = EQ_TRANSFER_1TO1_BGR_UNSIGNED_BYTE;
+        functions.newCompressor = getNewCompressor;  
+        functions.decompress    = 0;
+        functions.getInfo       = getInfo;
+        functions.isCompatible  = (IsCompatible_t)Compressor1TO1::isCompatible;
+        return functions;
+    }
+
+    virtual void compress( const void* const inData, 
+                           const eq_uint64_t nPixels, 
+                           const bool useAlpha )
+        { EQDONTCALL; }
+
+};
+
+class Compressor1TO1BGRFloat : public Compressor1TO1
+{
+public:
+    Compressor1TO1BGRFloat(): Compressor1TO1( GL_BGR, GL_FLOAT, 12 ){}
+    static void* getNewCompressor( )
+                              { return new eq::plugin::Compressor1TO1BGRFloat; }
+    
+    static void getInfo( EqCompressorInfo* const info )
+    {
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_BGR_FLOAT;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGR_FLOAT;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR_FLOAT;
+        info->outputTokenSize = 12;
+    }
+
+    static Functions getFunctions( )
+    {
+        Functions functions;
+        functions.name          = EQ_TRANSFER_1TO1_BGR_FLOAT;
+        functions.newCompressor = getNewCompressor;  
+        functions.decompress    = 0;
+        functions.getInfo       = getInfo;
+        functions.isCompatible  = (IsCompatible_t)Compressor1TO1::isCompatible;
+        return functions;
+    }
+
+    virtual void compress( const void* const inData, 
+                           const eq_uint64_t nPixels, 
+                           const bool useAlpha )
+        { EQDONTCALL; }
+
+    bool isCompatible( const GLEWContext* glewContext )
+        { return true; }
+};
+
+class Compressor1TO1BGRHalfFloat : public Compressor1TO1
+{
+public:
+    Compressor1TO1BGRHalfFloat(): Compressor1TO1( GL_BGR, GL_HALF_FLOAT, 6 ){}
+    static void* getNewCompressor( )
+                              { return new eq::plugin::Compressor1TO1BGRHalfFloat; }
+    
+    static void getInfo( EqCompressorInfo* const info )
+    {
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_BGR_HALF_FLOAT;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGR_HALF_FLOAT;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR_HALF_FLOAT;
+        info->outputTokenSize = 6;
+    }
+
+    static Functions getFunctions( )
+    {
+        Functions functions;
+        functions.name          = EQ_TRANSFER_1TO1_BGR_HALF_FLOAT;
+        functions.newCompressor = getNewCompressor;  
+        functions.decompress    = 0;
+        functions.getInfo       = getInfo;
+        functions.isCompatible  = (IsCompatible_t)Compressor1TO1::isCompatible;
+        return functions;
+    }
+
+    virtual void compress( const void* const inData, 
+                           const eq_uint64_t nPixels, 
+                           const bool useAlpha )
+        { EQDONTCALL; }
+
+    bool isCompatible( const GLEWContext* glewContext )
+        { return true; }
+};
+class Compressor1TO1DepthUINT : public Compressor1TO1
+{
+public:
+    Compressor1TO1DepthUINT(): Compressor1TO1( GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 4 ){}
+    static void* getNewCompressor( )
+                                { return new eq::plugin::Compressor1TO1DepthUINT; }
+    
+    static void getInfo( EqCompressorInfo* const info )
+    {
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_DEPTH_UNSIGNED_INT ;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT;
         info->outputTokenSize = 4;
     }
 
     static Functions getFunctions( )
     {
         Functions functions;
-        functions.name            = EQ_COMPRESSOR_TRANSFER_1TO1_DEPTH_8;
-        functions.newCompressor   = getNewCompressor;      
-        functions.getInfo         = getInfo;
+        functions.name          = EQ_TRANSFER_1TO1_DEPTH_UNSIGNED_INT ;
+        functions.newCompressor = getNewCompressor;      
+        functions.getInfo       = getInfo;
+        functions.isCompatible  = (IsCompatible_t)Compressor1TO1::isCompatible;
+        return functions;
+    }
+
+    virtual void compress( const void* const inData, 
+                           const eq_uint64_t nPixels, 
+                           const bool useAlpha )
+        { EQDONTCALL; }
+
+    bool isCompatible( const GLEWContext* glewContext )
+        { return true; }
+    
+};
+
+class Compressor1TO1DepthFLOAT : public Compressor1TO1
+{
+public:
+    Compressor1TO1DepthFLOAT(): Compressor1TO1( GL_DEPTH_COMPONENT, GL_FLOAT, 4 ){}
+    static void* getNewCompressor( )
+                            { return new eq::plugin::Compressor1TO1DepthFLOAT; }
+    
+    static void getInfo( EqCompressorInfo* const info )
+    {
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_DEPTH_FLOAT;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_DEPTH_FLOAT ;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_DEPTH_FLOAT;
+        info->outputTokenSize = 4;
+    }
+
+    static Functions getFunctions( )
+    {
+        Functions functions;
+        functions.name           = EQ_TRANSFER_1TO1_DEPTH_FLOAT;
+        functions.newCompressor  = getNewCompressor;      
+        functions.getInfo        = getInfo;
         functions.isCompatible   = (IsCompatible_t)Compressor1TO1::isCompatible;
         return functions;
     }
@@ -292,6 +718,42 @@ public:
     
 };
 
+class Compressor1TO1DepthStencil248NV : public Compressor1TO1
+{
+public:
+    Compressor1TO1DepthStencil248NV(): Compressor1TO1( GL_DEPTH_STENCIL_NV, 
+                                            GL_UNSIGNED_INT_24_8_NV, 4 ){}
+    static void* getNewCompressor( )
+                        { return new eq::plugin::Compressor1TO1DepthStencil248NV; }
+    
+    static void getInfo( EqCompressorInfo* const info )
+    {
+        Compressor1TO1::getInfo( info );
+        info->name         = EQ_TRANSFER_1TO1_DEPTH_UNSIGNED_INT_24_8_NV;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV;
+        info->outputTokenSize = 4;
+    }
+
+    static Functions getFunctions( )
+    {
+        Functions functions;
+        functions.name          = EQ_TRANSFER_1TO1_DEPTH_UNSIGNED_INT_24_8_NV;
+        functions.newCompressor = getNewCompressor;      
+        functions.getInfo       = getInfo;
+        functions.isCompatible  = (IsCompatible_t)Compressor1TO1::isCompatible;
+        return functions;
+    }
+
+    virtual void compress( const void* const inData, 
+                           const eq_uint64_t nPixels, 
+                           const bool useAlpha )
+        { EQDONTCALL; }
+
+    bool isCompatible( const GLEWContext* glewContext )
+        { return true; }
+    
+};
 }
 }
 #endif

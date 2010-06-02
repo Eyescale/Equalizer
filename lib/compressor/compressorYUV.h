@@ -91,11 +91,11 @@ public:
     static void getInfo( EqCompressorInfo* const info )
     {
         info->version      = EQ_COMPRESSOR_VERSION;
-        info->name         = EQ_COMPRESSOR_TRANSFER_YUV_COLOR_8_50P;
+        info->name         = EQ_TRANSFER_YUV_COLOR_BGRAUBYTE_50P;
         info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
-                             EQ_COMPRESSOR_IGNORE_MSE | 
+                             EQ_COMPRESSOR_USE_TEXTURE | 
                              EQ_COMPRESSOR_USE_FRAMEBUFFER;
-        info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGRA_BYTE;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_BYTE;
 
         info->quality      = 0.5f;
         info->ratio        = 0.5f;
@@ -108,7 +108,7 @@ public:
     static Functions getFunctions( )
     {
         Functions functions;
-        functions.name           = EQ_COMPRESSOR_TRANSFER_YUV_COLOR_8_50P;
+        functions.name           = EQ_TRANSFER_YUV_COLOR_BGRAUBYTE_50P;
         functions.newCompressor  = getNewCompressor;  
         functions.decompress     = 0;
         functions.getInfo        = getInfo;

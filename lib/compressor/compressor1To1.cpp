@@ -93,8 +93,6 @@ void Compressor1TO1::upload( GLEWContext*       glewContext,
                              const uint64_t     outDims[4],  
                              const unsigned     destination )
 {
-    _buffer.resize( inDims[1] * inDims[3] * _depth );
-
     if ( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
         glRasterPos2i( outDims[0], outDims[2] );

@@ -50,7 +50,10 @@ CompressorYUV::~CompressorYUV( )
     _fbo = 0;
 
     if ( _texture )
+    {
+        _texture->flush();
         delete _texture;
+    }
     _texture = 0;
 }
 
@@ -144,10 +147,7 @@ void CompressorYUV::_compress( GLEWContext*   glewContext,
 
 void CompressorYUV::_download( void* datas )
 {
-
-   _fbo->getColorTextures()[0]->download( datas,
-                                          GL_RGBA, 
-                                          GL_UNSIGNED_BYTE );
+   _fbo->getColorTextures()[0]->download( datas, _format, _type );
 }
 
 void CompressorYUV::download( GLEWContext*    glewContext,
@@ -157,6 +157,9 @@ void CompressorYUV::download( GLEWContext*    glewContext,
                               uint64_t        outDims[4],
                               void**          out )
 {
+    glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_TEXTURE_BIT |
+                  GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_LIGHTING_BIT );
+    glColorMask( true, true, true, true );
     outDims[0] = inDims[0];
     outDims[1] = (inDims[1] + 1) / 2;
     outDims[2] = inDims[2];
@@ -198,6 +201,7 @@ void CompressorYUV::download( GLEWContext*    glewContext,
         EQUNIMPLEMENTED;
     }
     out[0] = buffer.getData();
+    glPopAttrib();
 }
 
 void CompressorYUV::_uncompress( GLEWContext*   glewContext,
@@ -261,7 +265,9 @@ void CompressorYUV::upload( GLEWContext*    glewContext,
                             const uint64_t  outDims[4],  
                             const unsigned  destination )
 {
-
+    glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_TEXTURE_BIT |
+                  GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_LIGHTING_BIT );
+    glColorMask( true, true, true, true );
     if ( !_texture )
     {
         _texture = new util::Texture( glewContext );
@@ -297,6 +303,7 @@ void CompressorYUV::upload( GLEWContext*    glewContext,
         _fbo->unbind();
         texture->flushNoDelete();
     }
+    glPopAttrib();
 }
 
 }

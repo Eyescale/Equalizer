@@ -27,6 +27,7 @@
 #include "compressorRLE10A2.h"
 #include "compressorYUV.h"
 #include "compressor1To1.h"
+#include "compressorRLEYUV.h"
 namespace eq
 {
 namespace plugin
@@ -44,12 +45,27 @@ namespace
         eq::plugin::CompressorDiffRLE565::getFunctions(),
         eq::plugin::CompressorRLEB::getFunctions(),
         eq::plugin::CompressorDiffRLE10A2::getFunctions(),
-        eq::plugin::Compressor1TO1Color8::getFunctions(),
-        eq::plugin::Compressor1TO1Color32F::getFunctions(),
-        eq::plugin::Compressor1TO1Color16F::getFunctions(),
-        eq::plugin::Compressor1TO1Color10A2::getFunctions(),
-        eq::plugin::Compressor1TO1Depth8::getFunctions(),
+        eq::plugin::Compressor1TO1RGBAUnsignedByte::getFunctions(),
+        eq::plugin::Compressor1TO1RGBAInt8888rev::getFunctions(),
+        eq::plugin::Compressor1TO1RGBAInt1010102::getFunctions(),
+        eq::plugin::Compressor1TO1RGBAFloat::getFunctions(),
+        eq::plugin::Compressor1TO1RGBAHalfFloat::getFunctions(),
+        eq::plugin::Compressor1TO1BGRAUnsignedByte::getFunctions(),
+        eq::plugin::Compressor1TO1BGRAInt8888rev::getFunctions(),
+        eq::plugin::Compressor1TO1BGRAInt1010102::getFunctions(),
+        eq::plugin::Compressor1TO1BGRAFloat::getFunctions(),
+        eq::plugin::Compressor1TO1BGRAHalfFloat::getFunctions(),
+        eq::plugin::Compressor1TO1DepthUINT::getFunctions(),
+        eq::plugin::Compressor1TO1DepthFLOAT::getFunctions(),
+        eq::plugin::Compressor1TO1DepthStencil248NV::getFunctions(),
+        eq::plugin::Compressor1TO1RGBUnsignedByte::getFunctions(),
+        eq::plugin::Compressor1TO1RGBFloat::getFunctions(),
+        eq::plugin::Compressor1TO1RGBHalfFloat::getFunctions(),
+        eq::plugin::Compressor1TO1BGRUnsignedByte::getFunctions(),
+        eq::plugin::Compressor1TO1BGRFloat::getFunctions(),
+        eq::plugin::Compressor1TO1BGRHalfFloat::getFunctions(),
         eq::plugin::CompressorYUVColor8::getFunctions(),
+        eq::plugin::CompressorDiffRLEYUV::getFunctions(),
 #if 0
         eq::plugin::CompressorRLE3B::getFunctions(),
         eq::plugin::CompressorRLE4F::getFunctions(),
@@ -105,7 +121,7 @@ size_t EqCompressorGetNumCompressors()
            
 void EqCompressorGetInfo( const size_t n, EqCompressorInfo* const info )
 {
-    return eq::plugin::_functions[ n ].getInfo( info );
+    eq::plugin::_functions[ n ].getInfo( info );
 }
 
 void* EqCompressorNewCompressor( const unsigned name )

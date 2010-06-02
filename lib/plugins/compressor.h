@@ -41,23 +41,53 @@
  * Version 3
  *  - Added capabilities for GPU-based compression during upload and download
  *    - Added data types:
- *        - EQ_COMPRESSOR_DATATYPE_BGRA_BYTE
- *        - EQ_COMPRESSOR_DATATYPE_BGRA_HALF
+ *        - EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_BYTE
+ *        - EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_8_8_8_8_REV
+ *        - EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_10_10_10_2
+ *        - EQ_COMPRESSOR_DATATYPE_RGBA_HALF_FLOAT
+ *        - EQ_COMPRESSOR_DATATYPE_RGBA_FLOAT
+ *        - EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_BYTE
+ *        - EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_INT_8_8_8_8_REV
+ *        - EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_INT_10_10_10_2
+ *        - EQ_COMPRESSOR_DATATYPE_BGRA_HALF_FLOAT
  *        - EQ_COMPRESSOR_DATATYPE_BGRA_FLOAT
- *        - EQ_COMPRESSOR_DATATYPE_BGRA_10A2
- *        - EQ_COMPRESSOR_DATATYPE_YUV_50P
+ *        - EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_FLOAT
+ *        - EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT
+ *        - EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV
+ *        - EQ_COMPRESSOR_DATATYPE_RGB_UNSIGNED_BYTE
+ *        - EQ_COMPRESSOR_DATATYPE_RGB_HALF_FLOAT
+ *        - EQ_COMPRESSOR_DATATYPE_RGB_FLOAT
+ *        - EQ_COMPRESSOR_DATATYPE_BGR_UNSIGNED_BYTE
+ *        - EQ_COMPRESSOR_DATATYPE_BGR_HALF_FLOAT
+ *        - EQ_COMPRESSOR_DATATYPE_BGR_FLOAT
  *    - Added flags:
  *        - EQ_COMPRESSOR_CPU
  *        - EQ_COMPRESSOR_TRANSFER
  *        - EQ_COMPRESSOR_USE_TEXTURE
  *        - EQ_COMPRESSOR_USE_FRAMEBUFFER
  *    - Added compressor names:
- *        - EQ_COMPRESSOR_TRANSFER_YUV_COLOR_8_50P
- *        - EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_8
- *        - EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_32F
- *        - EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_16F
- *        - EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_10A2
- *        - EQ_COMPRESSOR_TRANSFER_1TO1_DEPTH_8
+ *        - EQ_TRANSFER_YUV_COLOR_BGRAUBYTE_50P
+ *        - EQ_TRANSFER_1TO1_RGBA_UNSIGNED_BYTE
+ *        - EQ_TRANSFER_1TO1_RGBA_UNSIGNED_INT_8_8_8_8_REV
+ *        - EQ_TRANSFER_1TO1_RGBA_UNSIGNED_INT_10_10_10_2
+ *        - EQ_TRANSFER_1TO1_RGBA_HALF_FLOAT
+ *        - EQ_TRANSFER_1TO1_RGBA_FLOAT
+ *        - EQ_TRANSFER_1TO1_BGRA_UNSIGNED_BYTE
+ *        - EQ_TRANSFER_1TO1_BGRA_UNSIGNED_INT_8_8_8_8_REV
+ *        - EQ_TRANSFER_1TO1_BGRA_UNSIGNED_INT_10_10_10_2
+ *        - EQ_TRANSFER_1TO1_BGRA_HALF_FLOAT
+ *        - EQ_TRANSFER_1TO1_BGRA_FLOAT
+ *        - EQ_TRANSFER_1TO1_DEPTH_UNSIGNED_FLOAT
+ *        - EQ_TRANSFER_1TO1_DEPTH_UNSIGNED_INT
+ *        - EQ_TRANSFER_1TO1_DEPTH_UNSIGNED_INT_24_8_NV
+ *        - EQ_TRANSFER_1TO1_RGB_UNSIGNED_BYTE
+ *        - EQ_TRANSFER_1TO1_RGB_HALF_FLOAT
+ *        - EQ_TRANSFER_1TO1_RGB_FLOAT
+ *        - EQ_TRANSFER_1TO1_BGR_UNSIGNED_BYTE
+ *        - EQ_TRANSFER_1TO1_BGR_HALF_FLOAT
+ *        - EQ_TRANSFER_1TO1_BGR_FLOAT
+ *        - EQ_COMPRESSOR_DIFF_RLE_YUV
+ *        - EQ_COMPRESSOR_RLE_YUV
  *    - Added members in EqCompressorInfo:
  *        - unsigned outputTokenType
  *        - unsigned outputTokenSize
@@ -149,18 +179,50 @@ extern "C"
     #define EQ_COMPRESSOR_DIFF_RLE_10A2    0xcu
     /** RLE Compression of four float16 tokens. */
     #define EQ_COMPRESSOR_DIFF_RLE_4_HALF_FLOAT 0xdu
-    /** 50% YUV Compression of BGRA8 data. */
-    #define EQ_COMPRESSOR_TRANSFER_YUV_COLOR_8_50P  0xfu
-    /** No compression, only a GPU-CPU transfer for RGBA8*/
-    #define EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_8     0x10u
-    /** No compression, only a GPU-CPU transfer for RGBA32F*/
-    #define EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_32F   0x11u
-    /** No compression, only a GPU-CPU transfer for RGBA16F*/
-    #define EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_16F   0x12u
-    /** No compression, only a GPU-CPU transfer for RGB10A2*/
-    #define EQ_COMPRESSOR_TRANSFER_1TO1_COLOR_10A2  0x13u
-    /** No compression, only a GPU-CPU transfer for DEPTH*/
-    #define EQ_COMPRESSOR_TRANSFER_1TO1_DEPTH_8     0x14u
+    /** 50% YUV Compression of usigned byte data. */
+    #define EQ_TRANSFER_YUV_COLOR_BGRAUBYTE_50P  0xeu
+    /** No compression, only a GPU-CPU transfer for RGBA unsigned byte*/
+    #define EQ_TRANSFER_1TO1_RGBA_UNSIGNED_BYTE     0xfu
+    /** No compression, only a GPU-CPU transfer for RGBA int 8888 rev */
+    #define EQ_TRANSFER_1TO1_RGBA_UNSIGNED_INT_8_8_8_8_REV   0x10u
+    /** No compression, only a GPU-CPU transfer for RGBA 10A2*/
+    #define EQ_TRANSFER_1TO1_RGBA_UNSIGNED_INT_10_10_10_2   0x11u
+    /** No compression, only a GPU-CPU transfer for RGBA half float*/
+    #define EQ_TRANSFER_1TO1_RGBA_HALF_FLOAT   0x12u
+    /** No compression, only a GPU-CPU transfer for RGBA float*/
+    #define EQ_TRANSFER_1TO1_RGBA_FLOAT  0x13u
+    /** No compression, only a GPU-CPU transfer for RGBA unsigned byte*/
+    #define EQ_TRANSFER_1TO1_BGRA_UNSIGNED_BYTE     0x14u
+    /** No compression, only a GPU-CPU transfer for BGRA int 8888 rev */
+    #define EQ_TRANSFER_1TO1_BGRA_UNSIGNED_INT_8_8_8_8_REV     0x15u
+    /** No compression, only a GPU-CPU transfer for BGRA 10A2*/
+    #define EQ_TRANSFER_1TO1_BGRA_UNSIGNED_INT_10_10_10_2   0x16u
+    /** No compression, only a GPU-CPU transfer for BGRA half float*/
+    #define EQ_TRANSFER_1TO1_BGRA_HALF_FLOAT   0x17u
+    /** No compression, only a GPU-CPU transfer for BGRA float*/
+    #define EQ_TRANSFER_1TO1_BGRA_FLOAT  0x18u
+    /** No compression, only a GPU-CPU transfer for DEPTH float*/
+    #define EQ_TRANSFER_1TO1_DEPTH_FLOAT 0x19u
+    /** No compression, only a GPU-CPU transfer for DEPTH unsigned int*/
+    #define EQ_TRANSFER_1TO1_DEPTH_UNSIGNED_INT  0x1au
+    /** No compression, only a GPU-CPU transfer for DEPTH 24_8NV*/
+    #define EQ_TRANSFER_1TO1_DEPTH_UNSIGNED_INT_24_8_NV 0x1bu
+    /** No compression, only a GPU-CPU transfer for RGB unsigned byte*/
+    #define EQ_TRANSFER_1TO1_RGB_UNSIGNED_BYTE     0x1cu
+    /** No compression, only a GPU-CPU transfer for RGB half float*/
+    #define EQ_TRANSFER_1TO1_RGB_HALF_FLOAT   0x1du
+    /** No compression, only a GPU-CPU transfer for RGB float*/
+    #define EQ_TRANSFER_1TO1_RGB_FLOAT  0x1eu
+    /** No compression, only a GPU-CPU transfer for BGR unsigned byte*/
+    #define EQ_TRANSFER_1TO1_BGR_UNSIGNED_BYTE     0x1fu
+    /** No compression, only a GPU-CPU transfer for BGR half float*/
+    #define EQ_TRANSFER_1TO1_BGR_HALF_FLOAT   0x20u
+    /** No compression, only a GPU-CPU transfer for BGR float*/
+    #define EQ_TRANSFER_1TO1_BGR_FLOAT  0x21u
+    /** RLE diff Compression of YUV tokens. */
+    #define EQ_COMPRESSOR_DIFF_RLE_YUV 0x22u
+    /** RLE Compression of YUV tokens. */
+    #define EQ_COMPRESSOR_RLE_YUV 0x23u
     /**
      * Private types -FOR DEVELOPMENT ONLY-.
      *
@@ -193,40 +255,123 @@ extern "C"
     #define EQ_COMPRESSOR_DATATYPE_3_BYTE       1024
     /** Data is processed in four interleaved streams of one-byte tokens. */
     #define EQ_COMPRESSOR_DATATYPE_4_BYTE       1025
-    /** Data is processed in four interleaved streams of BGRA color tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_BGRA_BYTE  EQ_COMPRESSOR_DATATYPE_4_BYTE
     /** Data is processed in four interleaved streams of float16 tokens. */
     #define EQ_COMPRESSOR_DATATYPE_3_HALF_FLOAT 1026
     /** Data is processed in four interleaved streams of float16 tokens. */
     #define EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT 1027
-    /**
-     * Data is processed in four interleaved streams of BGRA color of float16
-     * tokens.
-     */
-    #define EQ_COMPRESSOR_DATATYPE_BGRA_HALF EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT
-    /** Data is processed in four interleaved streams of float32 tokens. */
+    /** Data is processed in four interleaved streams of three float32 tokens.*/
     #define EQ_COMPRESSOR_DATATYPE_3_FLOAT      1028
-    /** Data is processed in four interleaved streams of float32 tokens. */
+    /** Data is processed in four interleaved streams of four float32 tokens. */
     #define EQ_COMPRESSOR_DATATYPE_4_FLOAT      1029
-    /** Data is processed in four interleaved streams of BGRA float32 tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_BGRA_FLOAT EQ_COMPRESSOR_DATATYPE_4_FLOAT  
+    /**Data is processed in two interleaved streams, three 10 bit and one 2 bit.*/
+    #define EQ_COMPRESSOR_DATATYPE_10A2         1030
     /**Data is processed in two interleaved streams, one 24 bit and one 8 bit.*/
     #define EQ_COMPRESSOR_DATATYPE_3BYTE_1BYTE  2048
-    /**
-     * Data is processed in four interleaved streams of BGRA color of 10A2
-     * tokens.
-     */
-    #define EQ_COMPRESSOR_DATATYPE_BGRA_10A2 EQ_COMPRESSOR_DATATYPE_3BYTE_1BYTE
-    /** Data is processed in four interleaved streams of YUV components. 
-      * Special image format with reduced color components. 
-      */
-    #define EQ_COMPRESSOR_DATATYPE_YUV_50P     2049
 
     /**
     * Data is processed in three 10-bit color tokens and one 2-bit alpha
     * token.
     */
-    #define EQ_COMPRESSOR_DATATYPE_RGB10_A2     2049
+    #define EQ_COMPRESSOR_DATATYPE_RGB10_A2                       2049
+    /**
+     * Data is processed in four interleaved streams of RGBA color of
+     * unsigned Byte tokens.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_BYTE             2050
+    /**
+     * Data is processed in four interleaved streams of RGBA color of
+     * unsigned fourth 8 Byte tokens.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_8_8_8_8_REV  2051
+    /**
+     * Data is processed in four interleaved streams of RGBA color of
+     * unsigned three 10 Byte tokens and one 2 bits token.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_10_10_10_2   2052
+    /**
+     * Data is processed in four interleaved streams of RGBA color of
+     * four half float tokens.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_RGBA_HALF_FLOAT                2053
+    /**
+     * Data is processed in four interleaved streams of RGBA color of
+     * four float tokens.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_RGBA_FLOAT                     2054
+    /**
+     * Data is processed in four interleaved streams of BGRA color of
+     * unsigned Byte tokens.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_BYTE             2055
+    /**
+     * Data is processed in four interleaved streams of BGRA color of
+     * unsigned four 8 Byte tokens.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_INT_8_8_8_8_REV  2056
+    /**
+     * Data is processed in four interleaved streams of BGRA color of
+     * unsigned three 10 Byte tokens and one 2 bits token.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_INT_10_10_10_2   2057
+    /**
+     * Data is processed in four interleaved streams of BGRA color of
+     * four half float tokens.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_BGRA_HALF_FLOAT                2058
+    /**
+     * Data is processed in four interleaved streams of BGRA color of
+     * four float tokens.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_BGRA_FLOAT                     2059
+    /**
+     * Data is processed in one interleaved streams of depth of
+     * float tokens.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_DEPTH_FLOAT                    2060
+    /**
+     * Data is processed in one interleaved streams of depth of
+     * unsigned int tokens.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT             2061
+    /**
+     * Data is processed in one interleaved streams of depth of
+     * unsigned 24 bits int and one 8 bits tokens.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV     2062
+    /**
+     * Data is processed in four interleaved streams of RGB color of
+     * unsigned Byte tokens.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_RGB_UNSIGNED_BYTE              2063
+    /**
+     * Data is processed in four interleaved streams of RGB color of
+     * three half float tokens.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_RGB_HALF_FLOAT                 2064
+    /**
+     * Data is processed in four interleaved streams of RGB color of
+     * three float tokens.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_RGB_FLOAT                      2065
+    /**
+     * Data is processed in four interleaved streams of BGR color of
+     * unsigned Byte tokens.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_BGR_UNSIGNED_BYTE              2066
+    /**
+     * Data is processed in four interleaved streams of BGR color of
+     * three float tokens.
+     */
+    #define EQ_COMPRESSOR_DATATYPE_BGR_HALF_FLOAT                 2067
+    /**
+     * Data is processed in four interleaved streams of RGBA color of
+     * three float tokens.
+     */    
+    #define EQ_COMPRESSOR_DATATYPE_BGR_FLOAT                      2068
+    /** Data is processed in four interleaved streams of YUV components. 
+      * Special image format with reduced color components. 
+      */
+    #define EQ_COMPRESSOR_DATATYPE_YUV_50P                        2069
 
     /**
      * Private token types -FOR DEVELOPMENT ONLY-.
@@ -565,7 +710,7 @@ extern "C"
      *     buffer and the destination value will be zero.</li>
      * </ul>
      *
-     * @param compressor the compressor instance.
+     * @param decompressor the compressor instance.
      * @param name the type name of the compressor.
      * @param glewContext the initialized GLEW context describing corresponding
      *                    to the current OpenGL context.
