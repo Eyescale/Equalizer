@@ -337,10 +337,13 @@ void Channel::frameReadback( const uint32_t frameID )
 {
     // Drop depth buffer flag from all output frames
     const eq::Frames& frames = getOutputFrames();
+    const FrameData& frameData = _getFrameData();
     for( eq::Frames::const_iterator i = frames.begin(); 
          i != frames.end(); ++i )
     {
-        (*i)->disableBuffer( eq::Frame::BUFFER_DEPTH );
+        eq::Frame* frame = *i;
+        frame->setQuality( eq::Frame::BUFFER_COLOR, frameData.getQuality());
+        frame->disableBuffer( eq::Frame::BUFFER_DEPTH );
     }
 
     eq::Channel::frameReadback( frameID );
