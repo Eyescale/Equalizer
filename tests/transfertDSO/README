@@ -1,0 +1,17 @@
+
+               Readme for Pixel Operation Benchmark Tool
+
+
+  This directory contains a tool to measure the performance of pixel
+  operations. It is an Equalizer application, which renders one frame
+  and uses user events to send the results to the application, where
+  they are printed.
+
+  In addition to measuring the read pixels and draw pixels performance,
+  it does illustrate the creation and usage of application-specific
+  events.
+
+
+
+
+
