@@ -41,7 +41,7 @@ namespace admin
         //@{
         ServerPtr getServer(); //!< @return the server node
         ClientPtr getClient(); //!< @return the local client node
-        Config* getConfig();   //!< @return the parent configuration
+        EQADMIN_EXPORT Config* getConfig();   //!< @return the parent configuration
         const Config* getConfig() const; //!< @return the parent configuration
 
         net::CommandQueue* getMainThreadQueue(); //!< @internal
