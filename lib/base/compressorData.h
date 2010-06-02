@@ -36,9 +36,9 @@ namespace base
                 , _instance( 0 )
                 , _plugin( 0 )
                 , _isCompressor( true ){}
-		
-		/** Destruct the compressor. data */
-		virtual ~CompressorData(){}
+
+        /** Destruct the compressor data */
+        virtual ~CompressorData(){}
         
         /** @return the plugin for the current compressor. */
         base::Compressor* getPlugin(){ return _plugin; }
@@ -53,31 +53,30 @@ namespace base
          *          current compressor name. */
         virtual EQ_EXPORT bool isValid( uint32_t name );
 
-        uint32_t getTypeProcessing() const { return _info.outputTokenType; }
-        
-        uint32_t getSizeTypeProcessing() const { return _info.outputTokenSize; }
-        
         /** Remove all information about the current compressor. */
         EQ_EXPORT void reset();
 
+        /** Get the quality produced by the current compressor instance. */
+        float getQuality()
+            { return _instance ? _info.quality : 1.0f; }
+
     protected:
-        /** the name of the (de)compressor */
+        /** The name of the (de)compressor */
         uint32_t          _name;    
-        
-        /** the instance of the (de)compressor */
+
+        /** The instance of the (de)compressor */
         void*             _instance;
         
         /** Plugin handling the allocation */
         base::Compressor* _plugin;  
         
+        /** Info about the current compressor instance*/
         EqCompressorInfo  _info;
 
         float _quality;
 
-        /** If the insttance is a compressor or downloader Type */
+        /** If the instance is a compressor or downloader Type */
         bool _isCompressor;
-        
-        
 
        /**
          * Find the plugin where located the compressor
@@ -90,7 +89,6 @@ namespace base
          * Initialize the specified compressor or downloader 
          *
          * @param name the name of the compressor
-         * @param isCompressor compressor or decompressor  
          */
         bool _initCompressor( uint32_t name );
 
@@ -98,9 +96,8 @@ namespace base
          * Initialize the specified decompressor or uploader 
          *
          * @param name the name of the compressor
-         * @param isCompressor compressor or decompressor  
          */
-        bool _initDecompressor( uint32_t name );        
+        bool _initDecompressor( uint32_t name );
     };
 }
 }

@@ -117,29 +117,55 @@ namespace base
          * @param ignoreMSE the most-significant element of each token can be
          *                  ignored, typically the alpha channel of an image.
          */
-        EQ_EXPORT uint32_t chooseCompressor( const uint32_t tokenType, 
-                                             const float minQuality = 1.0f,
-                                             const bool ignoreMSE = false )
-            const;
+        static EQ_EXPORT uint32_t chooseCompressor( 
+                                                const uint32_t tokenType,
+                                                const float minQuality = 1.0f,
+                                                const bool ignoreMSE = false );
 
         /**
-         * find and init a loss-less compressor for the specifed data type
+         * Find and init the best compressor in all plugins for the given
+         * parameters.
          *
-         * @param dataType the datatype which will be use compressor
+         * @param tokenType the structure of the data to compress.
+         * @param minQuality minimal quality of the compressed data, with 0 = no
+         *                   quality and 1 = full quality, no loss.
+         * @param ignoreMSE the most-significant element of each token can be
+         *                  ignored, typically the alpha channel of an image.
          */
-        EQ_EXPORT void findAndInitCompressor( uint32_t dataType ); 
-        
+        EQ_EXPORT void initCompressor( const uint32_t dataType, 
+                                       const float quality,
+                                       const bool ignoreMSE = false );
+
+        /**
+         * Init the decompressor with the specified name   
+         *
+         * @param name the name of the decompressor
+         */                               
         bool initCompressor( uint32_t name )
         { 
             _isCompressor = true;
             return _initCompressor( name );
         }
 
+        /**
+         * Init the decompressor with the specified name   
+         *
+         * @param name the name of the decompressor
+         */
         bool initDecompressor( uint32_t name )
         { 
             _isCompressor = false;
             return _initDecompressor( name );
         }
+
+        /**
+         * Get a vector of compressor names compatible with the token type
+         *
+         * @param tokenType the the token type accepted by the compressor
+         */
+        static EQ_EXPORT std::vector< uint32_t >getCompressorNames( 
+                                                      uint32_t tokenType );
+
     };
 }
 }

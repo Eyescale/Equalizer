@@ -15,26 +15,22 @@
  */
 
 #include "compressorDataGPU.h"
-#include "eq/base/compressor.h"
 #include "eq/base/global.h"
 #include "eq/base/pluginRegistry.h"
+#include "GL/glew.h"
 
 namespace eq
 {
 namespace util
 {
 
-bool CompressorDataGPU::isValidDownloader( uint32_t name,
-                                           uint32_t inputToken, 
-                                           uint32_t outputToken,
-                                           float    minQuality )
+bool CompressorDataGPU::isValidDownloader( uint32_t inputToken )
 {
-    return ( _info.quality >= minQuality ) && isValid( name ) && 
-            isValidUploader( outputToken, inputToken  );
+    return isValid( _name ) && _info.tokenType == inputToken ;
 }
 
 bool CompressorDataGPU::isValidUploader( uint32_t inputToken, 
-                                      uint32_t outputToken )
+                                         uint32_t outputToken )
 {
     return ( _info.outputTokenType == inputToken ) &&
            ( _info.tokenType == outputToken );
@@ -68,8 +64,8 @@ void CompressorDataGPU::upload( const void*          buffer,
                      flags, outDims, destination );
 }
 
-void CompressorDataGPU::initUploader( uint32_t gpuTokenType, 
-                                      uint32_t tokenType )
+void CompressorDataGPU::initUploader( uint32_t inTokenType, 
+                                      uint32_t outTokenType )
 {
     base::PluginRegistry& registry = base::Global::getPluginRegistry();
     const base::Compressors& compressors = registry.getCompressors();
@@ -92,10 +88,10 @@ void CompressorDataGPU::initUploader( uint32_t gpuTokenType,
             if(( info.capabilities & EQ_COMPRESSOR_TRANSFER ) == 0 )
                 continue;
 
-            if( info.outputTokenType != gpuTokenType )
+            if( info.outputTokenType != inTokenType )
                 continue;
 
-            if( info.tokenType != tokenType )
+            if( info.tokenType != outTokenType )
                 continue;
             
             if( !compressor->isCompatible( info.name, _glewContext ))
@@ -113,49 +109,28 @@ void CompressorDataGPU::initUploader( uint32_t gpuTokenType,
     if ( name == EQ_COMPRESSOR_NONE )
         reset();
     else if( name != _name )
-        _initCompressor( name );    
+        _initCompressor( name );
 }
 
 void CompressorDataGPU::initDownloader( float minQuality, 
                                         uint32_t tokenType )
 { 
-    base::PluginRegistry& registry = base::Global::getPluginRegistry();
-    const base::Compressors& compressors = registry.getCompressors();
-
     float factor = 1.1f;
     uint32_t name = EQ_COMPRESSOR_NONE;
-
-    for( base::Compressors::const_iterator i = compressors.begin();
-         i != compressors.end(); ++i )
+    
+    base::CompressorInfos infos; 
+    addTransfererInfos( infos, minQuality, tokenType, _glewContext );
+    
+    for( base::CompressorInfos::const_iterator j = infos.begin();
+         j != infos.end(); ++j )
     {
-        const base::Compressor* compressor = *i;
-        const base::CompressorInfos& infos = compressor->getInfos();
-
-        EQINFO << "Searching in DSO " << (void*)compressor << std::endl;
+        const EqCompressorInfo& info = *j;
         
-        for( base::CompressorInfos::const_iterator j = infos.begin();
-             j != infos.end(); ++j )
+        if ( factor > ( info.ratio * info.quality ))
         {
-            const EqCompressorInfo& info = *j;
-
-            if(( info.capabilities & EQ_COMPRESSOR_TRANSFER ) == 0 )
-                continue;
-            
-            if( info.tokenType != tokenType )
-                continue;
-
-            if( info.quality < minQuality )
-                continue;
-
-            if( !compressor->isCompatible( info.name, _glewContext ))
-                continue;
-            
-            if ( factor > ( info.ratio * info.quality ))
-            {
-                factor = ( info.ratio * info.quality );
-                name = info.name;
-                _info = info;
-            }
+            factor = ( info.ratio * info.quality );
+            name = info.name;
+            _info = info;
         }
     }
 
@@ -167,6 +142,163 @@ void CompressorDataGPU::initDownloader( float minQuality,
     }
 }
 
+bool CompressorDataGPU::initDownloader( uint64_t name )
+{
+    EQASSERT( EQ_COMPRESSOR_NONE );
+    if( name != _name )
+    {
+        _initCompressor( name );
+    }
+    return true;
+}
+uint32_t CompressorDataGPU::getPixelSize( uint64_t pixelType )
+{
+    switch( pixelType )
+    {
+        case EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_BYTE:
+        case EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_8_8_8_8_REV:
+        case EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_BYTE:
+        case EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_INT_8_8_8_8_REV:
+        case EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_10_10_10_2:
+        case EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_INT_10_10_10_2:
+            return 4;
+        case EQ_COMPRESSOR_DATATYPE_RGB_UNSIGNED_BYTE:
+        case EQ_COMPRESSOR_DATATYPE_BGR_UNSIGNED_BYTE:
+            return 3;
+        case EQ_COMPRESSOR_DATATYPE_RGBA_FLOAT:
+        case EQ_COMPRESSOR_DATATYPE_BGRA_FLOAT:
+            return 16;
+        case EQ_COMPRESSOR_DATATYPE_RGB_FLOAT:
+        case EQ_COMPRESSOR_DATATYPE_BGR_FLOAT:
+            return 12;
+        case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT:
+        case EQ_COMPRESSOR_DATATYPE_DEPTH_FLOAT:
+        case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV:
+            return 4;
+        case EQ_COMPRESSOR_DATATYPE_RGBA_HALF_FLOAT:
+        case EQ_COMPRESSOR_DATATYPE_BGRA_HALF_FLOAT:
+            return 8;
+        case EQ_COMPRESSOR_DATATYPE_RGB_HALF_FLOAT:
+        case EQ_COMPRESSOR_DATATYPE_BGR_HALF_FLOAT:
+            return 6;
+
+        default:
+            EQERROR << "Unknown image pixel data type" << std::endl;
+            return 0;
+    }
+}
+
+uint32_t CompressorDataGPU::getTokenFormat( uint32_t format,
+                                            uint32_t type )
+{
+    if( format == GL_BGRA )
+    {
+        switch ( type )
+        {
+            case GL_UNSIGNED_INT_8_8_8_8_REV : 
+                return EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_INT_8_8_8_8_REV;
+            case GL_UNSIGNED_BYTE : 
+                return EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_BYTE;
+            case GL_HALF_FLOAT : 
+                return EQ_COMPRESSOR_DATATYPE_BGRA_HALF_FLOAT;
+            case GL_FLOAT : 
+                return EQ_COMPRESSOR_DATATYPE_BGRA_FLOAT;
+            case GL_UNSIGNED_INT_10_10_10_2 : 
+                return EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_INT_10_10_10_2;
+        }
+    }
+    else if( format == GL_RGBA )
+    {
+        switch ( type )
+        {
+            case GL_UNSIGNED_INT_8_8_8_8_REV : 
+                return EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_8_8_8_8_REV;
+            case GL_UNSIGNED_BYTE : 
+                return EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_BYTE;
+            case GL_HALF_FLOAT : 
+                return EQ_COMPRESSOR_DATATYPE_RGBA_HALF_FLOAT;
+            case GL_FLOAT : 
+                return EQ_COMPRESSOR_DATATYPE_RGBA_FLOAT;
+            case GL_UNSIGNED_INT_10_10_10_2 : 
+                return EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_10_10_10_2;
+        }
+    }
+    else if( format == GL_RGB )
+    {
+        switch ( type )
+        {
+            case GL_UNSIGNED_BYTE : 
+                return EQ_COMPRESSOR_DATATYPE_RGB_UNSIGNED_BYTE;
+            case GL_HALF_FLOAT : 
+                return EQ_COMPRESSOR_DATATYPE_RGB_HALF_FLOAT;
+            case GL_FLOAT : 
+                return EQ_COMPRESSOR_DATATYPE_RGB_FLOAT;   
+        }
+    }
+    else if( format == GL_BGR )
+    {
+        switch ( type )
+        {
+            case GL_UNSIGNED_BYTE : 
+                return EQ_COMPRESSOR_DATATYPE_BGR_UNSIGNED_BYTE;
+            case GL_HALF_FLOAT : 
+                return EQ_COMPRESSOR_DATATYPE_BGR_HALF_FLOAT;
+            case GL_FLOAT : 
+                return EQ_COMPRESSOR_DATATYPE_BGR_FLOAT;
+        }
+    }
+    else if ( format == GL_DEPTH_COMPONENT )
+    {
+        switch ( type )
+        {
+            case GL_UNSIGNED_INT : 
+                return EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT;
+            case GL_FLOAT : 
+                return EQ_COMPRESSOR_DATATYPE_DEPTH_FLOAT;
+        }
+    }
+    else if ( format == GL_DEPTH_STENCIL_NV )
+    {
+        return EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV;
+    }
+    EQASSERT( false );
+    return 0;
+}
+
+void CompressorDataGPU::addTransfererInfos( eq::base::CompressorInfos& outInfos,
+                                            float minQuality, 
+                                            uint32_t tokenType,
+                                            GLEWContext* glewContext )
+{
+    const eq::base::PluginRegistry& registry = eq::base::Global::getPluginRegistry();
+    const eq::base::Compressors& plugins = registry.getCompressors();
+
+    for( eq::base::Compressors::const_iterator i = plugins.begin();
+         i != plugins.end(); ++i )
+    {
+        const base::Compressor* compressor = *i;
+        const eq::base::CompressorInfos& infos = (*i)->getInfos();
+        for( eq::base::CompressorInfos::const_iterator j = infos.begin();
+             j != infos.end(); ++j )
+        {
+            const EqCompressorInfo& info = *j;
+            
+            if(( info.capabilities & EQ_COMPRESSOR_TRANSFER ) == 0 )
+                continue;
+            
+            if( info.tokenType != tokenType )
+                continue;
+
+            if( info.quality < minQuality )
+                continue;
+
+            if( !compressor->isCompatible( info.name, glewContext ))
+                continue;
+            
+            outInfos.push_back( info );
+        }
+    }
+}
 
 }
 }

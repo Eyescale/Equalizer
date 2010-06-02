@@ -53,6 +53,9 @@ base::Compressor* CompressorData::_findPlugin( uint32_t name )
 
 bool CompressorData::isValid( uint32_t name )
 {
+    if ( _name == 0 )
+        return false;
+
     return ( _name == name && _plugin && ( !_isCompressor || _instance ) );
 }
 
@@ -60,7 +63,7 @@ bool CompressorData::_initCompressor( uint32_t name )
 {
     reset();
     
-    if ( name <= EQ_COMPRESSOR_NONE )
+    if( name <= EQ_COMPRESSOR_NONE )
     {
         _name = name;
         return true;
@@ -77,7 +80,21 @@ bool CompressorData::_initCompressor( uint32_t name )
     EQASSERT( _instance );
     
     _name = name;
-    return true; 
+
+    const CompressorInfos& infos = _plugin->getInfos();
+
+    for( base::CompressorInfos::const_iterator j = infos.begin();
+         j != infos.end(); ++j )
+    {
+        const EqCompressorInfo& info = *j;
+        
+        if ( info.name != name )
+            continue;
+        
+        _info = info;
+        return true;
+    }
+    return false;
 }
 
 bool CompressorData::_initDecompressor( uint32_t name )

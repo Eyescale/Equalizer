@@ -34,47 +34,51 @@ namespace util
             : CompressorData()
             , _glewContext( glewContext ){}
 
-		/** Set a valid glewContext */
+        /** Set a valid glewContext */
         void setGLEWContext( GLEWContext* glewContext )
             { _glewContext = glewContext; }
 
-		/**
-         * determine if the downloader is valid
+        /**
+         * Determine if the downloader is valid
          *
-         * @param inputToken the input token type.
-         * @param outputToken the output token produced 
+         * @param inputToken the input token type
          */
-        bool isValidDownloader( uint32_t name,
-                                uint32_t inputToken, 
-                                uint32_t outputToken,
-                                float    minQuality );
+        bool isValidDownloader( uint32_t inputToken );
 
-		/**
-         * determine if the uploader is valid
+        /**
+         * Determine if the uploader is valid
          *
          * @param inputToken the input token type.
          * @param outputToken the output token produced 
          */
         bool isValidUploader( uint32_t inputToken, uint32_t outputToken );
 
-		/**
-         * found and init a downloader for the given quality 
-		 * and tokentype
-         *
-         * @param minQuality the minimum quality.
-         * @param tokenType the token type of the data 
-         */
+        /**
+         * Found and init a downloader for the given quality 
+         * and tokentype.
+         * If the uploader found is the same that the current uploader,
+         * no change will be make. 
+         * If no uploader found, a reset of the instance data will be 
+         * perform.
+         **/
         void initDownloader( float minQuality, uint32_t tokenType );
 
-		/**
-         * Find and init an uploader for the given quality and token type.
+        bool initDownloader( uint64_t name );
+        /**
+         * Find and init an uploader which wil be compatible with the
+         * specified input and output token type. 
          *
-         * @param minQuality the minimum quality.
-         * @param tokenType the token type of the data 
-         */		
+         * If the uploader found is the same that the current uploader,
+         * no change will be make. 
+         * If no uploader found, a reset of the instance data will be 
+         * perform.
+         *
+         * @param inTokenType  the input token type of the data.
+         * @param outTokenType the output token type of the data.  
+         **/
         void initUploader( uint32_t gpuTokenType, uint32_t tokenType );
 
-		/**
+        /**
          * Download data from the frame buffer or texture to cpu
          *
          * @param pvpIn the dimensions of the input data
@@ -104,6 +108,52 @@ namespace util
                      const fabric::PixelViewport& pvpOut,  
                      const unsigned  destination = 0 );
 
+        /**
+         * Get the token type produced by a donwloader or 
+         * accepted by the uploader.
+         **/
+        uint32_t getTokenType() const { return _info.outputTokenType; }
+
+        /**
+         * Get the token size produced by a donwloader or 
+         * accepted by the uploader.
+         **/
+        uint32_t getTokenSize() const { return _info.outputTokenSize; }
+
+        /**
+         * Get the downloader/uploader internal format corresponding to 
+         * an opengl token type
+         *
+         * @param format the GL format 
+         * @param type the GL typedata source
+         */
+        static EQ_EXPORT uint32_t getTokenFormat( uint32_t format, uint32_t type  );
+
+        /**
+         * Get the size of one pixel
+         *
+         * @param type the GL typedata source
+         */
+        static EQ_EXPORT uint32_t getPixelSize( uint64_t pixelFormat );
+
+        /* get if the actual compressor is able to ignore alpha */
+        bool ignoreAlpha(){ return _info.capabilities & 
+                            EQ_COMPRESSOR_IGNORE_MSE; }
+
+        /**
+         * add info to the outInfos vector about transerers which are compatible
+         * with the qualita, tokentype and glewCotext
+         *
+         * @param outInfos the info vector where the info are put
+         * @param minQuality the minimum quality require.
+         * @param tokenType the input token type 
+         * @param GLEWContext a valid glewContext 
+         */
+        static EQ_EXPORT void addTransfererInfos(
+                               eq::base::CompressorInfos& outInfos,
+                               float minQuality, 
+                               uint32_t tokenType, 
+                               GLEWContext* glewContext );
     private:
         /** the initialized GLEW context describing corresponding
             to the current OpenGL context. */

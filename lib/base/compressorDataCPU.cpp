@@ -17,6 +17,7 @@
 
 #include "compressorDataCPU.h"
 #include "compressor.h"
+#include "debug.h"
 #include "global.h"
 #include "pluginRegistry.h"
 
@@ -77,14 +78,23 @@ void CompressorDataCPU::decompress( const void* const* in,
                          numInputs, out, outDim, EQ_COMPRESSOR_DATA_1D );
 }
 
-void CompressorDataCPU::findAndInitCompressor( uint32_t dataType )
+void CompressorDataCPU::initCompressor( const uint32_t dataType, 
+                                        const float quality,
+                                        const bool noAlpha )
 {
-    initCompressor( chooseCompressor( dataType ) );
+    initCompressor( chooseCompressor( dataType, quality, noAlpha ) );
 }
+
+//void CompressorDataCPU::initDecompressor( const uint32_t dataType, 
+//                                          const float quality,
+//                                          const bool noAlpha )
+//{
+//    initDecompressor( chooseCompressor( dataType, quality, noAlpha ) );
+//}
 
 uint32_t CompressorDataCPU::chooseCompressor( const uint32_t tokenType, 
                                               const float minQuality,
-                                              const bool ignoreMSE ) const
+                                              const bool ignoreMSE )
 {
     uint32_t name = EQ_COMPRESSOR_NONE;
     float ratio = 1.0f;
@@ -111,14 +121,15 @@ uint32_t CompressorDataCPU::chooseCompressor( const uint32_t tokenType,
                 switch( tokenType )
                 {
                     default:
-                        EQUNIMPLEMENTED; // no break;
+                        infoRatio *= 1.0f; 
+                        break;
                     case EQ_COMPRESSOR_DATATYPE_4_BYTE:
                     case EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT:
                     case EQ_COMPRESSOR_DATATYPE_4_FLOAT:
                         infoRatio *= .75f;
                         break;
 
-                    case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
+                    case EQ_COMPRESSOR_DATATYPE_10A2:
                         infoRatio *= .9375f; // 30/32
                         break;
                 }
@@ -138,5 +149,25 @@ uint32_t CompressorDataCPU::chooseCompressor( const uint32_t tokenType,
     return name;
 }
 
+std::vector< uint32_t > CompressorDataCPU::getCompressorNames( uint32_t tokenType )
+{
+    const eq::base::PluginRegistry& registry = eq::base::Global::getPluginRegistry();
+    const eq::base::Compressors& plugins = registry.getCompressors();
+
+    std::vector< uint32_t > names;
+    for( eq::base::Compressors::const_iterator i = plugins.begin();
+         i != plugins.end(); ++i )
+    {
+        const eq::base::CompressorInfos& infos = (*i)->getInfos();
+        for( eq::base::CompressorInfos::const_iterator j = infos.begin();
+             j != infos.end(); ++j )
+        {
+            if ( (*j).tokenType == EQ_COMPRESSOR_DATATYPE_BYTE )
+                names.push_back( (*j).name );
+        }
+    }
+    
+    return names;
+}
 }
 }

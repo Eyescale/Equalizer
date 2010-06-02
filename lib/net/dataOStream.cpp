@@ -56,7 +56,7 @@ DataOStream::DataOStream()
         , _dataSent( false )
         , _save( false )
 {
-    compressor.findAndInitCompressor( EQ_COMPRESSOR_DATATYPE_BYTE );
+    compressor.initCompressor( EQ_COMPRESSOR_DATATYPE_BYTE );
 }
 
 DataOStream::DataOStream( const DataOStream& from )
