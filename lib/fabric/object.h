@@ -103,7 +103,6 @@ namespace fabric
         /** Restore the last backup. @internal */
         EQFABRIC_EXPORT virtual void restore();
 
-    protected:
         /**
          * The changed parts of the object since the last pack().
          *
@@ -119,6 +118,7 @@ namespace fabric
             DIRTY_CUSTOM     = Serializable::DIRTY_CUSTOM << 6 // 64
         };
 
+    protected:
         /** Construct a new Object. */
         EQ_EXPORT Object();
         
