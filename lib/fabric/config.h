@@ -136,13 +136,7 @@ namespace fabric
         template< typename T > void find( const std::string& name,
                                           const T** result ) const;
 
-        /** Activate the given canvas after it is complete. @internal */
-        virtual void activateCanvas( CV* canvas ) { /* NOP */ }
-
-        /** Activate the given canvas after it is complete. @internal */
-        virtual void deactivateCanvas( CV* canvas ) { /* NOP */ }
-
-        /** Update the given canvas in a running config. @internal */
+        /** Update or init the given canvas in a running config. @internal */
         virtual void updateCanvas( CV* canvas ) { /* NOP */ }
 
         /** Init the given canvas in a running config. @internal */

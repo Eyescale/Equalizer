@@ -114,10 +114,12 @@ void Layout< C, L, V >::notifyDetach()
             return;
         }
 
-        EQASSERT( !isMaster( ));
-        _config->unmapObject( view );
-        _removeView( view );
-        _config->getServer()->getNodeFactory()->releaseView( view );
+        _config->releaseObject( view );
+        if( !isMaster( ))
+        {
+            _removeView( view );
+            _config->getServer()->getNodeFactory()->releaseView( view );
+        }
     }
 }
 

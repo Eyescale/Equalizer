@@ -41,6 +41,7 @@ typedef fabric::Canvas< Config, Canvas, Segment, Layout > Super;
 
 Canvas::Canvas( Config* parent )
         : Super( parent )
+        , _state( STATE_STOPPED )
 {}
 
 Canvas::~Canvas()
@@ -76,19 +77,23 @@ CanvasPath Canvas::getPath() const
 
 void Canvas::activateLayout( const uint32_t index )
 {
-    const Config* config = getConfig();
-    if( config && config->isRunning( ))
+    if( _state == STATE_RUNNING )
         _switchLayout( getActiveLayoutIndex(), index );
 }
 
 void Canvas::init()
 {
+    EQASSERT( _state == STATE_STOPPED );
     _switchLayout( EQ_ID_NONE, getActiveLayoutIndex( ));
+    _state = STATE_RUNNING;
 }
 
 void Canvas::exit()
 {
+   EQASSERT( _state == STATE_RUNNING || _state == STATE_DELETE );
     _switchLayout( getActiveLayoutIndex(), EQ_ID_NONE );
+    if( _state == STATE_RUNNING )
+        _state = STATE_STOPPED;
 }
 
 namespace
@@ -160,7 +165,6 @@ private:
 void Canvas::_switchLayout( const uint32_t oldIndex, const uint32_t newIndex )
 {
     Config* config = getConfig();
-    EQASSERT( config );
     if( oldIndex == newIndex )
         return;
 
@@ -233,6 +237,11 @@ void Canvas::deregister()
     session->deregisterObject( this );
 }
 
+void Canvas::postDelete()
+{
+    _state = STATE_DELETE;
+    getConfig()->postNeedsFinish();
+}
 
 }
 }

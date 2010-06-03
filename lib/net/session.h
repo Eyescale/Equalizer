@@ -276,6 +276,9 @@ namespace net
          * @param object the attached object.
          */
         EQ_EXPORT void detachObject( Object* object );
+
+        /** Convenience method to deregister or unmap an object. */
+        EQ_EXPORT void releaseObject( Object* object );
         //@}
 
 

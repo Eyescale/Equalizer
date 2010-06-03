@@ -109,18 +109,16 @@ namespace
 
         virtual VisitorResult visitPre( Canvas* canvas )
             {
-                canvas->sync();
-                return TRAVERSE_CONTINUE;
+                return _sync( canvas );
             }
         virtual VisitorResult visit( Segment* segment )
             {
-                segment->sync();
-                segment->commit();
-                return TRAVERSE_CONTINUE;
+                return _update( segment );
             }
         virtual VisitorResult visitPost( Canvas* canvas )
             {
-                canvas->commit();
+                if( canvas->getID() <= EQ_ID_MAX )
+                    canvas->commit();
                 return TRAVERSE_CONTINUE;
             }
 
@@ -143,6 +141,28 @@ namespace
         virtual VisitorResult visitPost( Config* config )
             {
                 config->commit();
+                return TRAVERSE_CONTINUE;
+            }
+
+    private:
+        template< class T > VisitorResult _sync( T* entity )
+            {
+                if( entity->getID() <= EQ_ID_MAX )
+                    entity->sync();
+                else
+                {
+                    EQASSERT( entity->needsDelete( ));
+                }
+                return TRAVERSE_CONTINUE;
+            }
+
+        template< class T > VisitorResult _update( T* entity )
+            {
+                if( entity->getID() <= EQ_ID_MAX )
+                {
+                    entity->sync();
+                    entity->commit();
+                }
                 return TRAVERSE_CONTINUE;
             }
     };

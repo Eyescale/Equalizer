@@ -32,7 +32,11 @@ Object::Object()
 {}
 
 Object::~Object()
-{}
+{
+    net::Session* session = getSession();
+    if( session )
+        session->releaseObject( this );
+}
 
 bool Object::isDirty() const
 {

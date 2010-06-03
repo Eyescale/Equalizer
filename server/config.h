@@ -221,12 +221,15 @@ namespace server
         //@{
         bool _updateRunning(); //!< @return true on success, false on error
 
+        void _updateCanvases();
         bool _connectNodes();
         bool _connectNode( Node* node );
         bool _syncConnectNode( Node* node, const base::Clock& clock );
         void _startNodes();
         uint32_t _createConfig( Node* node );
+        bool _updateNodes();
         void _stopNodes();
+        void _deleteEntities();
         void _syncClock();
 
         bool _init( const uint32_t initID );

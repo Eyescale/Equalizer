@@ -47,7 +47,7 @@ Canvas< CFG, C, S, L >::~Canvas()
     {
         S* segment = _segments.back();
         _removeSegment( segment );
-        delete segment;
+        release( segment );
     }
 
     _data.activeLayout = 0;
@@ -193,12 +193,12 @@ void Canvas< CFG, C, S, L >::notifyDetach()
             return;
         }
 
-        EQASSERT( !segment->isMaster( ));
-        EQASSERT( !isMaster( ));
-
-        _config->unmapObject( segment );
-        _removeSegment( segment );
-        _config->getServer()->getNodeFactory()->releaseSegment( segment );
+        _config->releaseObject( segment );
+        if( !isMaster( ))
+        {
+            _removeSegment( segment );
+            _config->getServer()->getNodeFactory()->releaseSegment( segment );
+        }
     }
 }
 

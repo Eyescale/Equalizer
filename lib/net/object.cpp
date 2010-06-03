@@ -67,7 +67,8 @@ Object::~Object()
     EQASSERTINFO( !_session,
                   "Object " << _id << " is still registered in session " <<
                   _session->getID() << " in destructor" );
-
+    if( _session )
+        _session->releaseObject( this );
     if( _cm != ObjectCM::ZERO )
         delete _cm;
     _cm = 0;

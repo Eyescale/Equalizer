@@ -1,5 +1,10 @@
-Template run-time window destruction (not functional)
-Fix admin Vector naming
+First small step towards run-time window destruction:
+- Destroy canvas (deactivates channel & compound)
+  o create proper state machine for canvas
+  o mark canvas for deletion on deserialize, exit and delete on next frame
+  o refactor Config::_updateRunning
+- Create convenience method Session::releaseObject
+
 
 [ ] May break build
 [ ] May break existing applications

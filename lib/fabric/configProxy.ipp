@@ -50,8 +50,6 @@ public:
         }
     void release( CV* canvas )
         {
-            if( isMaster( ))
-                _config.deactivateCanvas( canvas );
             _config.getServer()->getNodeFactory()->releaseCanvas( canvas );
         }
 
@@ -149,8 +147,11 @@ void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
         {
             typename C::Canvases result;
             is.deserializeChildren( this, _config._canvases, result );
-            _config._canvases.swap( result );
-            EQASSERT( _config._canvases.size() == result.size( ));
+            if( !isMaster( ))
+            {
+                _config._canvases.swap( result );
+                EQASSERT( _config._canvases.size() == result.size( ));
+            }
         }
     }
     else // consume unused ObjectVersions

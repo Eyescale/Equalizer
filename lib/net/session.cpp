@@ -587,6 +587,19 @@ void Session::deregisterObject( Object* object )
     freeIDs( id, 1 );
 }
 
+void Session::releaseObject( Object* object )
+{
+    EQASSERT( object );
+
+    if( !object || object->getID() > EQ_ID_MAX )
+        return;
+
+    if( object->isMaster( ))
+        deregisterObject( object );
+    else
+        unmapObject( object );
+}
+
 template< class P > void Session::_ackRequest( Command& command )
 {
     NodePtr node = command.getNode();

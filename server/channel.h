@@ -205,7 +205,7 @@ namespace server
         /** The segment used by this channel. */
         Segment* _segment;
 
-        Vector4i    _overdraw;
+        Vector4i _overdraw;
 
         /** The current state for state change synchronization. */
         base::Monitor< State > _state;

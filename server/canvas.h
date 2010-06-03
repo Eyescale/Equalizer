@@ -51,6 +51,12 @@ namespace server
 
         /** @return the index path to this canvas. @internal */
         CanvasPath getPath() const;
+
+        /** @return true if this canvas is initialized. */
+        bool isRunning() const { return _state == STATE_RUNNING; }
+
+        /** @return true if this canvas should be deleted. */
+        bool needsDelete() const { return _state == STATE_DELETE; }
         //@}
 
         /**
@@ -62,12 +68,23 @@ namespace server
 
         /** Unmap this canvas and all its children. */
         void deregister();
+
+        /** Schedule deletion of this canvas */
+        void postDelete();
         //@}
         
     protected:
         virtual void activateLayout( const uint32_t index );
 
     private:
+        enum State
+        {
+            STATE_STOPPED = 0,  // next: RUNNING
+            STATE_RUNNING,      // next: STOPPED or DELETE
+            STATE_DELETE,       // next: destructor
+        }
+            _state;
+
         union // placeholder for binary-compatible changes
         {
             char dummy[32];

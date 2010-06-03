@@ -266,11 +266,7 @@ namespace net
             Session* session = object->getSession();
             EQASSERT( session );
             
-            if( object->isMaster( ))
-                session->deregisterObject( child );
-            else
-                session->unmapObject( child );
-            
+            session->releaseObject( child );
             object->release( child );
         }
     }

@@ -53,7 +53,14 @@ void NodeFactory::releaseView( View* view ) { delete view; }
 
 Canvas* NodeFactory::createCanvas( Config* parent )
 { return new Canvas( parent ); }
-void NodeFactory::releaseCanvas( Canvas* canvas ) { delete canvas; }
+void NodeFactory::releaseCanvas( Canvas* canvas )
+{
+    EQASSERT( canvas->isRunning( ));
+    if( canvas->isRunning( ))
+        canvas->postDelete();
+    else
+        delete canvas;
+}
 
 Segment* NodeFactory::createSegment( Canvas* parent )
 { return new Segment(parent); }

@@ -430,7 +430,7 @@ void Config::restore()
 }
 
 //---------------------------------------------------------------------------
-// update running entities (init/exit)
+// update running entities (init/exit/runtime change)
 //---------------------------------------------------------------------------
 bool Config::_updateRunning()
 {
@@ -446,27 +446,52 @@ bool Config::_updateRunning()
         return false;
 
     _startNodes();
-    const Nodes& nodes = getNodes();
-    // Let all running nodes update their running state (incl. children)
-    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
-        (*i)->updateRunning( _initID, _currentFrame );
+    _updateCanvases();
+    const bool result = _updateNodes();
+    _stopNodes();
+    _deleteEntities();
+    _syncClock();
+    return result;
+}
 
-    // Sync state updates
-    bool result = true;
+void Config::_updateCanvases()
+{
+    const Canvases& canvases = getCanvases();
+    for( Canvases::const_iterator i = canvases.begin(); i != canvases.end();++i)
+    {
+        Canvas* canvas = *i;
+        EQASSERT( canvas->isRunning() || canvas->needsDelete( ));
+        if( canvas->needsDelete( ))
+            canvas->exit();
+    }
+}
+
+void Config::_startNodes()
+{
+    // start up newly running nodes
+    std::vector< uint32_t > requests;
+    Nodes startingNodes;
+    const Nodes& nodes = getNodes();
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( !node->syncRunning( ))
+        const Node::State state = node->getState();
+
+        if( node->isActive() && state != Node::STATE_RUNNING )
         {
-            setErrorMessage( getErrorMessage() + "node " + node->getName() +
-                             ": '" + node->getErrorMessage() + '\'' );
-            result = false;
+            EQASSERT( state == Node::STATE_STOPPED );
+            startingNodes.push_back( node );
+            if( !node->isApplicationNode( ))
+                requests.push_back( _createConfig( node ));
         }
     }
 
-    _stopNodes();
-    _syncClock();
-    return result;
+    // sync create config requests on starting nodes
+    for( std::vector< uint32_t >::const_iterator i = requests.begin();
+         i != requests.end(); ++i )
+    {
+        getLocalNode()->waitRequest( *i );
+    }
 }
 
 //----- connect new nodes
@@ -598,34 +623,6 @@ bool Config::_syncConnectNode( Node* node, const base::Clock& clock )
     return true;
 }
 
-void Config::_startNodes()
-{
-    // start up newly running nodes
-    std::vector< uint32_t > requests;
-    Nodes startingNodes;
-    const Nodes& nodes = getNodes();
-    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
-    {
-        Node* node = *i;
-        const Node::State state = node->getState();
-
-        if( node->isActive() && state != Node::STATE_RUNNING )
-        {
-            EQASSERT( state == Node::STATE_STOPPED );
-            startingNodes.push_back( node );
-            if( !node->isApplicationNode( ))
-                requests.push_back( _createConfig( node ));
-        }
-    }
-
-    // sync create config requests on starting nodes
-    for( std::vector< uint32_t >::const_iterator i = requests.begin();
-         i != requests.end(); ++i )
-    {
-        getLocalNode()->waitRequest( *i );
-    }
-}
-
 void Config::_stopNodes()
 {
     // wait for the nodes to stop, destroy entities, disconnect
@@ -692,6 +689,46 @@ void Config::_stopNodes()
         EQLOG( LOG_INIT ) << "Disconnected node" << std::endl;
     }
 }
+
+bool Config::_updateNodes()
+{
+    // Let all running nodes update their running state (incl. children)
+    const Nodes& nodes = getNodes();
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+        (*i)->updateRunning( _initID, _currentFrame );
+
+    // Sync state updates
+    bool result = true;
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        Node* node = *i;
+        if( !node->syncRunning( ))
+        {
+            setErrorMessage( getErrorMessage() + "node " + node->getName() +
+                             ": '" + node->getErrorMessage() + '\'' );
+            result = false;
+        }
+    }
+    return result;
+}
+
+void Config::_deleteEntities()
+{
+    const Canvases& canvases = getCanvases();
+    for( size_t i = 0; i < canvases.size(); ) // don't use iterator! (delete)
+    {
+        Canvas* canvas = canvases[ i ];
+        EQASSERT( canvas->isRunning() || canvas->needsDelete( ));
+        if( canvas->needsDelete( ))
+        {
+            EQINFO << "Delete " << canvas << std::endl;
+            delete canvas;
+        }
+        else
+            ++i;
+    }
+}
+
 
 uint32_t Config::_createConfig( Node* node )
 {
@@ -778,7 +815,6 @@ bool Config::_init( const uint32_t initID )
 //---------------------------------------------------------------------------
 // exit
 //---------------------------------------------------------------------------
-
 bool Config::exit()
 {
     if( _state != STATE_RUNNING )
@@ -820,6 +856,9 @@ bool Config::exit()
     return success;
 }
 
+//---------------------------------------------------------------------------
+// frame
+//---------------------------------------------------------------------------
 void Config::_startFrame( const uint32_t frameID )
 {
     EQASSERT( _state == STATE_RUNNING );

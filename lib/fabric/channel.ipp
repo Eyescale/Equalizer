@@ -267,7 +267,9 @@ void Channel< W, C >::setViewVersion( const net::ObjectVersion& view )
 {
     if( _data.nativeContext.view == view )
         return;
-    EQASSERT( _data.nativeContext.view.version <= view.version );
+    EQASSERTINFO( view.identifier > EQ_ID_MAX ||
+                  _data.nativeContext.view.version <= view.version,
+                  _data.nativeContext.view << " ! " << view );
 
     _data.nativeContext.view = view;
     setDirty( DIRTY_MEMBER );
