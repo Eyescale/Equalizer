@@ -1,0 +1,186 @@
+#Equalizer 1.0 ascii
+# eqPly -m RockerArm.ply -- --eq-listen node1 --eq-listen node1:RSP --eq-config hactar.2D.RSP.eqc
+# six-to-one sort-first config for cluster at unizh
+global
+{
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+}
+
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe 
+            {
+                connection { hostname "node1" }
+                connection { hostname "node1" type RSP }
+                window
+                {
+                    viewport [ 640 512 1280 800 ]
+                    attributes { hint_fullscreen OFF }
+                    channel { name "channel1" }
+                }
+            }
+        }
+        node
+        {
+            connection { hostname "node2" }
+            connection { hostname "node2" type RSP }
+            pipe { window { channel { name "channel2" }}}
+        }
+        node
+        {
+            connection { hostname "node3" }
+            connection { hostname "node3" type RSP }
+            pipe { window { channel { name "channel3" }}}
+        }
+        node
+        {
+            connection { hostname "node4" }
+            connection { hostname "node4" type RSP }
+            pipe { window { channel { name "channel4" }}}
+        }
+        node
+        {
+            connection { hostname "node5" }
+            connection { hostname "node5" type RSP }
+            pipe { window { channel { name "channel5" }}}
+        }
+        node
+        {
+            connection { hostname "node6" }
+            connection { hostname "node6" type RSP }
+            pipe { window { channel { name "channel6" }}}
+        }
+        node
+        {
+            connection { hostname "node7" }
+            connection { hostname "node7" type RSP}
+            pipe { window { channel { name "channel7" }}}
+        }
+        node
+        {
+            connection { hostname "node8" }
+            connection { hostname "node8" type RSP }
+            pipe { window { channel { name "channel8" }}}
+        }
+        node
+        {
+            connection { hostname "node9" }
+            connection { hostname "node9" type RSP }
+            pipe { window { channel { name "channel9" }}}
+        }
+        node
+        {
+            connection { hostname "node10" }
+            connection { hostname "node10" type RSP }
+            pipe { window { channel { name "channel10" }}}
+        }
+        node
+        {
+            connection { hostname "node11" }
+            connection { hostname "node11" type RSP }
+            pipe { window { channel { name "channel11" }}}
+        }
+        node
+        {
+            connection { hostname "node12" }
+            connection { hostname "node12" type RSP }
+            pipe { window { channel { name "channel12" }}}
+        }
+        compound
+        {
+            channel "channel1"
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.5 ]
+                bottom_right [  .32 -.20 -.5 ]
+                top_left     [ -.32  .20 -.5 ]
+            }
+
+            compound
+            {
+                viewport [ 0 0 .25 .333 ]
+            }
+            compound
+            {
+                channel "channel2"
+                viewport [ .25 0 .25 .333 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel3"
+                viewport [ .5 0 .25 .334 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel4"
+                viewport [  .75 0 .25 .333 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel5"
+                viewport [ 0 .333 .25 .333 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel6"
+                viewport [ .25 .333 .25 .333 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel7"
+                viewport [ .5 .333 .25 .333 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel8"
+                viewport [ .75 .333 .25 .333 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel9"
+                viewport [ 0 .666 .25 .334 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel10"
+                viewport [ .25 .666 .25 .334 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel11"
+                viewport [ .5 .666 .25 .334 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel12"
+                viewport [ .75 .666 .25 .334 ]
+                outputframe {}
+            }
+            inputframe { name "frame.channel2" }
+            inputframe { name "frame.channel3" }
+            inputframe { name "frame.channel4" }
+            inputframe { name "frame.channel5" }
+            inputframe { name "frame.channel6" }
+            inputframe { name "frame.channel7" }
+            inputframe { name "frame.channel8" }
+            inputframe { name "frame.channel9" }
+            inputframe { name "frame.channel10" }
+            inputframe { name "frame.channel11" }
+            inputframe { name "frame.channel12" }
+        }
+    }    
+}
