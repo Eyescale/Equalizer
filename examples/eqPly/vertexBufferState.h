@@ -186,6 +186,7 @@ namespace eqPly
             { return _objectManager->newShader( key, type ); }
 
         virtual void deleteAll() { _objectManager->deleteAll(); }
+        bool isShared() const { return _objectManager->isShared(); }
         
     private:
         eq::Window::ObjectManager* _objectManager;

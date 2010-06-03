@@ -66,8 +66,8 @@ namespace util
 
         EQ_EXPORT virtual ~ObjectManager();
 
-        /** @return the number of object managers currently sharing the data. */
-        int getSharedUsage() const { return _data->getRefCount(); }
+        /** @return true if more than one OM is using the same data. */
+        bool isShared() const { return _data->getRefCount() > 1; }
 
         EQ_EXPORT void deleteAll();
 

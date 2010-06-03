@@ -399,11 +399,12 @@ void Window::_setupObjectManager()
 
 void Window::_releaseObjectManager()
 {
-    if( _objectManager && _objectManager->getSharedUsage() == 1 )
+    if( _objectManager )
     {
         _objectManager->deleteEqBitmapFont( _smallFontKey );
         _objectManager->deleteEqBitmapFont( _mediumFontKey );
-        _objectManager->deleteAll();
+        if( !_objectManager->isShared( ))
+            _objectManager->deleteAll();
     }
 
     delete _objectManager;
@@ -422,9 +423,7 @@ const Window::Font* Window::getSmallFont()
         font = _objectManager->newEqBitmapFont( _smallFontKey );
         font->init( getPipe()->getWindowSystem(), "" );
     }
-
-    EQASSERT( _objectManager->getEqBitmapFont( _smallFontKey ));
-    return _objectManager->getEqBitmapFont( _smallFontKey );
+    return font;
 }
 
 const Window::Font* Window::getMediumFont()
@@ -439,7 +438,7 @@ const Window::Font* Window::getMediumFont()
         font = _objectManager->newEqBitmapFont( _mediumFontKey );
         font->init( getPipe()->getWindowSystem(), "", 20 );
     }
-    return _objectManager->getEqBitmapFont( _mediumFontKey );
+    return font;
 }
 
 bool Window::configInitGL( const uint32_t initID )

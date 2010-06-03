@@ -1,10 +1,9 @@
-Implement Layout and Observer run-time destruction
-Add convenience method Object::isMapped()
+Fix GL object release on window exit
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
-[x] New Feature
-[x] Cleanup
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

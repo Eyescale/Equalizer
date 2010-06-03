@@ -100,7 +100,7 @@ bool Window::configInitGL( const uint32_t initID )
 
 bool Window::configExitGL()
 {
-    if( _state )
+    if( _state && !_state->isShared( ))
         _state->deleteAll();
 
     delete _state;

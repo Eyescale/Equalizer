@@ -114,7 +114,7 @@ ObjectManager<T>::SharedData::~SharedData()
 template< typename T >
 void ObjectManager<T>::deleteAll()
 {
-   for( typename ObjectHash::const_iterator i = _data->lists.begin(); 
+    for( typename ObjectHash::const_iterator i = _data->lists.begin(); 
          i != _data->lists.end(); ++i )
     {
         const Object& object = i->second;
