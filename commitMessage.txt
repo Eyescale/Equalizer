@@ -1,5 +1,4 @@
 Simplify Canvas::_switchLayout()
-Fix exit assertions
 
 [ ] May break build
 [ ] May break existing applications

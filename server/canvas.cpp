@@ -110,29 +110,24 @@ public:
             if( !channel )
                 return TRAVERSE_CONTINUE;
             
-            for( Channels::iterator i = _channels.begin();
-                 i != _channels.end(); ++i )
+            Channels::const_iterator i = stde::find( _channels, channel );
+            if( i != _channels.end( ))
             {
-                Channel* destChannel = *i;
-                if( destChannel != channel ) 
-                    continue;
-
                 compound->activate();
                 compound->getConfig()->postNeedsFinish();
-                break;
+                return TRAVERSE_PRUNE;
             }
-
-            return TRAVERSE_PRUNE;
+            return TRAVERSE_CONTINUE;
         }
 
 private:
-    Channels _channels;
+    const Channels& _channels;
 };
 
 class DeactivateVisitor : public ConfigVisitor
 {
 public:
-    DeactivateVisitor( Channels& channels )
+    DeactivateVisitor( const Channels& channels )
             : _channels( channels ) {}
     virtual ~DeactivateVisitor() {}
 
@@ -142,23 +137,18 @@ public:
             if( !channel )
                 return TRAVERSE_CONTINUE;
             
-            for( Channels::iterator i = _channels.begin();
-                 i != _channels.end(); ++i )
+            Channels::const_iterator i = stde::find( _channels, channel );
+            if( i != _channels.end( ))
             {
-                Channel* destChannel = *i;
-                if( destChannel != channel ) 
-                    continue;
-
                 compound->deactivate();
                 compound->getConfig()->postNeedsFinish();
-                break;
+                return TRAVERSE_PRUNE;
             }
-
-            return TRAVERSE_PRUNE;
+            return TRAVERSE_CONTINUE;
         }
 
 private:
-    Channels& _channels;
+    const Channels& _channels;
 };
 }
 
