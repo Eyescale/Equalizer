@@ -173,46 +173,24 @@ void Canvas::_switchLayout( const uint32_t oldIndex, const uint32_t newIndex )
     const Layout* oldLayout = (oldIndex >= nLayouts) ? 0 : layouts[oldIndex];
     const Layout* newLayout = (newIndex >= nLayouts) ? 0 : layouts[newIndex];
 
-    const Segments& segments = getSegments();
-    for( Segments::const_iterator i = segments.begin();
-         i != segments.end(); ++i )
+    if( newLayout )
     {
-        const Segment* segment = *i;        
-        const Channels& destChannels = segment->getDestinationChannels();
-
-        if( newLayout )
-        {
-            // activate channels used by new layout
-            Channels usedChannels;
-            for( Channels::const_iterator j = destChannels.begin();
-                 j != destChannels.end(); ++j )
-            {
-                Channel*       channel       = *j;
-                const Layout*  channelLayout = channel->getLayout();
-                if( channelLayout == newLayout )
-                    usedChannels.push_back( channel );
-            }
+        // activate channels used by new layout
+        Channels usedChannels;
+        findDestinationChannels( newLayout, usedChannels );
             
-            ActivateVisitor activator( usedChannels );
-            config->accept( activator );
-        }
+        ActivateVisitor activator( usedChannels );
+        config->accept( activator );
+    }
 
-        if( oldLayout )
-        {
-            // de-activate channels used by old layout
-            Channels usedChannels;
+    if( oldLayout )
+    {
+        // de-activate channels used by old layout
+        Channels usedChannels;
+        findDestinationChannels( oldLayout, usedChannels );
 
-            for( Channels::const_iterator j = destChannels.begin();
-                 j != destChannels.end(); ++j )
-            {
-                Channel*       channel       = *j;
-                const Layout*  channelLayout = channel->getLayout();
-                if( channelLayout == oldLayout )
-                    usedChannels.push_back( channel );
-            }
-            DeactivateVisitor deactivator( usedChannels );
-            config->accept( deactivator );
-        }
+        DeactivateVisitor deactivator( usedChannels );
+        config->accept( deactivator );
     }
 }
 
@@ -241,6 +219,17 @@ void Canvas::postDelete()
 {
     _state = STATE_DELETE;
     getConfig()->postNeedsFinish();
+}
+
+void Canvas::findDestinationChannels( const Layout* layout,
+                                      Channels& result ) const
+{
+    const Segments& segments = getSegments();
+    for( Segments::const_iterator i=segments.begin(); i != segments.end(); ++i )
+    {
+        const Segment* segment = *i;        
+        segment->findDestinationChannels( layout, result );
+    }
 }
 
 }

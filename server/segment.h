@@ -62,6 +62,10 @@ namespace server
          *          intersection. */
         const Channels& getDestinationChannels() const 
             { return _destinationChannels; }
+
+        /** @return the vector of destination channels for the given layout. */
+        void findDestinationChannels( const Layout* layout,
+                                      Channels& result ) const;
         //@}
 
     private:

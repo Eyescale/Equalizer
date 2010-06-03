@@ -97,6 +97,18 @@ bool Segment::removeDestinationChannel( Channel* channel )
     return true;
 }
 
+void Segment::findDestinationChannels( const Layout* layout,
+                                       Channels& result ) const
+{
+    for( Channels::const_iterator i = _destinationChannels.begin();
+         i != _destinationChannels.end(); ++i )
+    {
+        Channel* channel = *i;
+        if( channel->getLayout() == layout )
+            result.push_back( channel );
+    }
+}
+
 SegmentPath Segment::getPath() const
 {
     const Canvas* canvas = getCanvas();

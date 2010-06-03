@@ -71,6 +71,10 @@ namespace server
 
         /** Schedule deletion of this canvas */
         void postDelete();
+
+        /** @return the vector of destination channels for the given layout. */
+        void findDestinationChannels( const Layout* layout,
+                                      Channels& result ) const;
         //@}
         
     protected:

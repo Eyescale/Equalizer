@@ -460,7 +460,6 @@ void Config::_updateCanvases()
     for( Canvases::const_iterator i = canvases.begin(); i != canvases.end();++i)
     {
         Canvas* canvas = *i;
-        EQASSERT( canvas->isRunning() || canvas->needsDelete( ));
         if( canvas->needsDelete( ))
             canvas->exit();
     }
@@ -718,7 +717,6 @@ void Config::_deleteEntities()
     for( size_t i = 0; i < canvases.size(); ) // don't use iterator! (delete)
     {
         Canvas* canvas = canvases[ i ];
-        EQASSERT( canvas->isRunning() || canvas->needsDelete( ));
         if( canvas->needsDelete( ))
         {
             EQINFO << "Delete " << canvas << std::endl;
