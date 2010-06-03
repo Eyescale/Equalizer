@@ -1,9 +1,10 @@
-Simplify Canvas::_switchLayout()
+Fix exit after run-time canvas deletion by deleting the canvas' destination
+compounds in the canvas dtor.
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[ ] New Feature
+[x] Bugfix
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

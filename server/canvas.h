@@ -71,10 +71,6 @@ namespace server
 
         /** Schedule deletion of this canvas */
         void postDelete();
-
-        /** @return the vector of destination channels for the given layout. */
-        void findDestinationChannels( const Layout* layout,
-                                      Channels& result ) const;
         //@}
         
     protected:
@@ -96,6 +92,17 @@ namespace server
 
         /** Run-time layout switch */
         void _switchLayout( const uint32_t oldIndex, const uint32_t newIndex );
+
+        /** @return the destination channels for the given layout. */
+        void _findDestinationChannels( const Layout* layout,
+                                      Channels& result ) const;
+
+        /** @return the destination compounds for the given channels.*/
+        void _findDestinationCompounds( const Channels& channels,
+                                        Compounds& result ) const;
+
+        /** @return all destination compounds.*/
+        void _findDestinationCompounds( Compounds& result ) const;
     };
 
 }
