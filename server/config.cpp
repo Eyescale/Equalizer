@@ -449,7 +449,9 @@ bool Config::_updateRunning()
     _updateCanvases();
     const bool result = _updateNodes();
     _stopNodes();
-    _deleteEntities();
+    _deleteEntities( getCanvases( ));
+    _deleteEntities( getLayouts( ));
+    _deleteEntities( getObservers( ));
     _syncClock();
     return result;
 }
@@ -711,16 +713,17 @@ bool Config::_updateNodes()
     return result;
 }
 
-void Config::_deleteEntities()
+template< class T >
+void Config::_deleteEntities( const std::vector< T* >& entities )
 {
-    const Canvases& canvases = getCanvases();
-    for( size_t i = 0; i < canvases.size(); ) // don't use iterator! (delete)
+    for( size_t i = 0; i < entities.size(); ) // don't use iterator! (delete)
     {
-        Canvas* canvas = canvases[ i ];
-        if( canvas->needsDelete( ))
+        T* entity = entities[ i ];
+        if( entity->needsDelete( ))
         {
-            EQINFO << "Delete " << canvas << std::endl;
-            delete canvas;
+            EQINFO << "Delete " << *entity << std::endl;
+            deregisterObject( entity );
+            delete entity;
         }
         else
             ++i;

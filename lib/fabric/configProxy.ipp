@@ -133,15 +133,21 @@ void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
         {
             typename C::Observers result;
             is.deserializeChildren( this, _config._observers, result );
-            _config._observers.swap( result );
-            EQASSERT( _config._observers.size() == result.size( ));
+            if( !isMaster( ))
+            {
+                _config._observers.swap( result );
+                EQASSERT( _config._observers.size() == result.size( ));
+            }
         }
         if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_LAYOUTS )
         {
             typename C::Layouts result;
             is.deserializeChildren( this, _config._layouts, result );
-            _config._layouts.swap( result );
-            EQASSERT( _config._layouts.size() == result.size( ));
+            if( !isMaster( ))
+            {
+                _config._layouts.swap( result );
+                EQASSERT( _config._layouts.size() == result.size( ));
+            }
         }
         if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_CANVASES )
         {

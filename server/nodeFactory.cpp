@@ -32,6 +32,19 @@ namespace eq
 {
 namespace server
 {
+namespace
+{
+template< class T > static void _release( T* entity )
+{
+    Config* config = entity->getConfig();
+    EQASSERT( config->isRunning( ));
+    if( config->isRunning( ))
+        entity->postDelete();
+    else
+        delete entity;
+}
+}
+
 Config* NodeFactory::createConfig( ServerPtr parent )
 { return new Config( parent );}
 void NodeFactory::releaseConfig( Config* config ) { delete config; }
@@ -42,11 +55,13 @@ void NodeFactory::releaseNode( Node* node ) { delete node; }
 
 Observer* NodeFactory::createObserver( Config* parent )
 { return new Observer(parent); }
-void NodeFactory::releaseObserver( Observer* observer ) { delete observer; }
+void NodeFactory::releaseObserver( Observer* observer )
+{ _release( observer ); }
 
 Layout* NodeFactory::createLayout( Config* parent )
 { return new Layout( parent ); }
-void NodeFactory::releaseLayout( Layout* layout ) { delete layout; }
+void NodeFactory::releaseLayout( Layout* layout )
+{ _release( layout ); }
 
 View* NodeFactory::createView( Layout* parent ) { return new View( parent ); }
 void NodeFactory::releaseView( View* view ) { delete view; }
@@ -54,13 +69,7 @@ void NodeFactory::releaseView( View* view ) { delete view; }
 Canvas* NodeFactory::createCanvas( Config* parent )
 { return new Canvas( parent ); }
 void NodeFactory::releaseCanvas( Canvas* canvas )
-{
-    EQASSERT( canvas->isRunning( ));
-    if( canvas->isRunning( ))
-        canvas->postDelete();
-    else
-        delete canvas;
-}
+{ _release( canvas ); }
 
 Segment* NodeFactory::createSegment( Canvas* parent )
 { return new Segment(parent); }

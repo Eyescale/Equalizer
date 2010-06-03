@@ -76,6 +76,9 @@ namespace net
         /** @return true if the object has been made threadsafe, false if not.*/
         bool isThreadSafe() const      { return _threadSafe; }
 
+        /** @return true if the object is attached, mapped or registered. */
+        bool isAttached() const { return getID() <= EQ_ID_MAX; }
+
         /**
          * @return the local node to which this object is mapped, or 0 if the
          *         object is not mapped.

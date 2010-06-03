@@ -42,10 +42,23 @@ namespace server
          /** Destruct this layout. */
         virtual ~Layout();
 
+        /** @return true if this layout should be deleted. */
+        bool needsDelete() const { return _state == STATE_DELETE; }
+
         /** Unmap this layout and all its children. */
         void deregister();
+
+        /** Schedule deletion of this layout. */
+        void postDelete();
         
     private:
+        enum State
+        {
+            STATE_ACTIVE = 0,  // next: DELETE
+            STATE_DELETE,      // next: destructor
+        }
+            _state;
+
         union // placeholder for binary-compatible changes
         {
             char dummy[32];

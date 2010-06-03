@@ -189,9 +189,9 @@ inline bool removeWindow( eq::admin::ServerPtr server )
                 for( eq::admin::Observers::const_iterator l = observers.begin();
                      l != observers.end(); ++l )
                 {
-                    //delete *l;
+                    delete *l;
                 }
-                //delete layout;
+                delete layout;
             }
             delete canvas;
         }

@@ -69,7 +69,7 @@ namespace server
         /** Unmap this canvas and all its children. */
         void deregister();
 
-        /** Schedule deletion of this canvas */
+        /** Schedule deletion of this canvas. */
         void postDelete();
         //@}
         

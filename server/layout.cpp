@@ -58,6 +58,12 @@ void Layout::deregister()
     session->deregisterObject( this );
 }
 
+void Layout::postDelete()
+{
+    _state = STATE_DELETE;
+    getConfig()->postNeedsFinish();
+}
+
 }
 }
 

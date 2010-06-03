@@ -229,7 +229,8 @@ namespace server
         uint32_t _createConfig( Node* node );
         bool _updateNodes();
         void _stopNodes();
-        void _deleteEntities();
+        template< class T >
+        void _deleteEntities( const std::vector< T* >& entities );
         void _syncClock();
 
         bool _init( const uint32_t initID );

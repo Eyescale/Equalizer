@@ -26,6 +26,16 @@ namespace server
 {
 namespace
 {
+    template< class T > static VisitorResult _update( T* entity )
+    {
+        if( entity->getID() <= EQ_ID_MAX )
+        {
+            entity->sync();
+            entity->commit();
+        }
+        return TRAVERSE_PRUNE;
+    }
+
     /** Synchronizes view changes at the beginning of each frame. */
     class PreSyncVisitor : public ConfigVisitor
     {
@@ -40,18 +50,10 @@ namespace
             { return TRAVERSE_TERMINATE; }
 
         virtual VisitorResult visit( Observer* observer )
-            {
-                observer->sync();
-                observer->commit();
-                return TRAVERSE_CONTINUE;
-            }
+            { return _update( observer ); }
 
         virtual VisitorResult visit( View* view )
-            {
-                view->sync();
-                view->commit();
-                return TRAVERSE_CONTINUE;
-            }
+            { return _update( view ); }
     };
 }
 
@@ -108,30 +110,14 @@ namespace
             }
 
         virtual VisitorResult visitPre( Canvas* canvas )
-            {
-                return _sync( canvas );
-            }
+            { return _sync( canvas ); }
         virtual VisitorResult visit( Segment* segment )
-            {
-                return _update( segment );
-            }
+            { return _update( segment ); }
         virtual VisitorResult visitPost( Canvas* canvas )
-            {
-                if( canvas->getID() <= EQ_ID_MAX )
-                    canvas->commit();
-                return TRAVERSE_CONTINUE;
-            }
+            { return _commit( canvas ); }
 
         virtual VisitorResult visitPre( Layout* layout )
-            {
-                layout->sync();
-                return TRAVERSE_CONTINUE;
-            }
-        virtual VisitorResult visitPost( Layout* layout )
-            {
-                layout->commit();
-                return TRAVERSE_CONTINUE;
-            }
+            { return _update( layout ); }
 
         virtual VisitorResult visitPre( Compound* compound )
             {
@@ -156,12 +142,13 @@ namespace
                 return TRAVERSE_CONTINUE;
             }
 
-        template< class T > VisitorResult _update( T* entity )
+        template< class T > VisitorResult _commit( T* entity )
             {
                 if( entity->getID() <= EQ_ID_MAX )
-                {
-                    entity->sync();
                     entity->commit();
+                else
+                {
+                    EQASSERT( entity->needsDelete( ));
                 }
                 return TRAVERSE_CONTINUE;
             }

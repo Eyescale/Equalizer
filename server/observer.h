@@ -49,6 +49,9 @@ namespace server
         /** @return the inverse of the current head matrix. */
         const fabric::Matrix4f& getInverseHeadMatrix() const
             { return _inverseHeadMatrix; }
+
+        /** @return true if this observer should be deleted. */
+        bool needsDelete() const { return _state == STATE_DELETE; }
         //@}
 
         /**
@@ -60,6 +63,9 @@ namespace server
 
         /** Unmap this observer and all its children. */
         void unmap();
+
+        /** Schedule deletion of this observer. */
+        void postDelete();
         //@}
         
     protected:
@@ -73,6 +79,13 @@ namespace server
 
         /** The eye positions in world space. */ 
         fabric::Vector3f _eyes[ fabric::EYE_ALL ];
+
+        enum State
+        {
+            STATE_ACTIVE = 0,  // next: DELETE
+            STATE_DELETE,      // next: destructor
+        }
+            _state;
 
         union // placeholder for binary-compatible changes
         {

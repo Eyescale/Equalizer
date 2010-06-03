@@ -263,10 +263,12 @@ namespace net
             if( !child )
                 continue;
 
-            Session* session = object->getSession();
-            EQASSERT( session );
-            
-            session->releaseObject( child );
+            if( !child->isMaster( ))
+            {
+                Session* session = object->getSession();
+                EQASSERT( session );
+                session->unmapObject( child );
+            }
             object->release( child );
         }
     }

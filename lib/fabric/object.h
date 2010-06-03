@@ -95,11 +95,20 @@ namespace fabric
         /** @return true if the view has data to commit. @version 1.0 */
         EQ_EXPORT virtual bool isDirty() const;
 
+        EQ_EXPORT virtual uint32_t commitNB(); //!< @internal
+
+        /** Back up app-specific data, excluding child data. @internal */
+        EQFABRIC_EXPORT virtual void backup();
+
+        /** Restore the last backup. @internal */
+        EQFABRIC_EXPORT virtual void restore();
+
+    protected:
         /**
-        * The changed parts of the object since the last pack().
-        *
-        * Subclasses should define their own bits, starting at DIRTY_CUSTOM.
-        */
+         * The changed parts of the object since the last pack().
+         *
+         * Subclasses should define their own bits, starting at DIRTY_CUSTOM.
+         */
         enum DirtyBits
         {
             DIRTY_NAME       = Serializable::DIRTY_CUSTOM << 0,
@@ -110,15 +119,6 @@ namespace fabric
             DIRTY_CUSTOM     = Serializable::DIRTY_CUSTOM << 6 // 64
         };
 
-        EQ_EXPORT virtual uint32_t commitNB(); //!< @internal
-
-        /** Back up app-specific data, excluding child data. @internal */
-        EQFABRIC_EXPORT virtual void backup();
-
-        /** Restore the last backup. @internal */
-        EQFABRIC_EXPORT virtual void restore();
-
-    protected:
         /** Construct a new Object. */
         EQ_EXPORT Object();
         

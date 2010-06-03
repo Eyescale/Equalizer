@@ -46,7 +46,7 @@ Layout< C, L, V >::~Layout()
     {
         V* view = _views.back();
         EQCHECK( _removeView( view ));
-        delete view;
+        release( view );
     }
 
     _config->_removeLayout( static_cast< L* >( this ));
@@ -54,8 +54,8 @@ Layout< C, L, V >::~Layout()
 
 template< class C, class L, class V >
 void Layout< C, L, V >::attachToSession( const uint32_t id,
-                                              const uint32_t instanceID,
-                                              net::Session* session )
+                                         const uint32_t instanceID,
+                                         net::Session* session )
 {
     Object::attachToSession( id, instanceID, session );
 

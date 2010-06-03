@@ -97,6 +97,12 @@ void Observer::_updateEyes()
     EQVERB << "Eye position: " << _eyes[ eq:: EYE_CYCLOP ] << std::endl;
 }
 
+void Observer::postDelete()
+{
+    _state = STATE_DELETE;
+    getConfig()->postNeedsFinish();
+}
+
 }
 }
 #include "../lib/fabric/observer.ipp"

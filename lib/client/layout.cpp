@@ -33,7 +33,6 @@ Layout::Layout( Config* parent )
 
 Layout::~Layout()
 {
-    EQASSERT( getViews().empty( ));
 }
 
 }

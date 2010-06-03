@@ -1,5 +1,5 @@
-Fix exit after run-time canvas deletion by deleting the canvas' destination
-compounds in the canvas dtor.
+Implement Layout and Observer run-time destruction
+Add convenience method Object::isMapped()
 
 [ ] May break build
 [ ] May break existing applications

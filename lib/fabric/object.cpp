@@ -33,6 +33,8 @@ Object::Object()
 
 Object::~Object()
 {
+    EQASSERTINFO( !_userData,
+                  "Unset user data before destructor to allow clean release" )
     net::Session* session = getSession();
     if( session )
         session->releaseObject( this );
@@ -177,13 +179,11 @@ void Object::setUserData( net::Object* userData )
     if( _userData == userData )
         return;
 
-    if( _userData && _userData->getID() <= EQ_ID_MAX )
+    if( _userData && _userData->isAttached( ))
     {
+        net::Session* session = _userData->getSession();
         EQASSERT( _userData->isMaster() == hasMasterUserData( ));
-        if( _userData->isMaster( ))
-            getSession()->deregisterObject( _userData );
-        else
-            getSession()->unmapObject( _userData );
+        session->releaseObject( _userData );
     }
 
     _userData = userData;
