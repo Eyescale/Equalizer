@@ -24,8 +24,6 @@
 
 namespace eq
 {
-
-
 GLXWindow::GLXWindow( Window* parent )
     : GLXWindowIF( parent )
     , _xDrawable ( 0 )
@@ -60,6 +58,11 @@ bool GLXWindow::configInit( )
 
     GLXContext context = createGLXContext( visualInfo );
     setGLXContext( context );
+
+    // Early glxew init to have function pointers for init code
+    Display* display = getXDisplay();
+    glXMakeCurrent( display, None, 0 );
+    glxewInit();
 
     if( !context )
         return false;
@@ -429,7 +432,6 @@ XID GLXWindow::_createGLXWindow( XVisualInfo* visualInfo ,
 
     return drawable;
 }
-
 
 bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
 {
