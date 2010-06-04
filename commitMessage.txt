@@ -1,4 +1,4 @@
-Fix GL object release on window exit
+Fix config files
 
 [ ] May break build
 [ ] May break existing applications

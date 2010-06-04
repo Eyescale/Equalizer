@@ -12,10 +12,10 @@ server
     {
         appNode
         {
+            connection { hostname "node1" }
+            connection { hostname "node1" type RSP }
             pipe 
             {
-                connection { hostname "node1" }
-                connection { hostname "node1" type RSP }
                 window
                 {
                     viewport [ 640 512 1280 800 ]

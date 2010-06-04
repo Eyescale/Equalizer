@@ -15,11 +15,11 @@ server
     {
         appNode
         {
+            connection { hostname "node1" }
+            connection { hostname "node1" type RSP }
             pipe
             {
                 name "NODE 1"
-                connection { hostname "node1" }
-                connection { hostname "node1" type RSP }
                 window
                 {
                     name     "window1"
@@ -30,11 +30,11 @@ server
         }
         node
         {
+            connection { hostname "node2" }
+            connection { hostname "node2" type RSP }
             pipe
             {
                 name "NODE 2"
-                connection { hostname "node2" }
-                connection { hostname "node2" type RSP }
                 window
                 {
                     name     "window2"
@@ -45,11 +45,11 @@ server
         }
         node
         {
+            connection { hostname "node3" }
+            connection { hostname "node3" type RSP }
             pipe
             {
                 name "NODE 3"
-                connection { hostname "node3" }
-                connection { hostname "node3" type RSP }
                 window
                 {
                     name     "window3"
@@ -60,11 +60,11 @@ server
         }
         node
         {
+            connection { hostname "node4" }
+            connection { hostname "node4" type RSP }
             pipe
             {
                 name "NODE 4"
-                connection { hostname "node4" }
-                connection { hostname "node4" type RSP }
                 window
                 {
                     name     "window4"
