@@ -1,4 +1,4 @@
-Fix some gcc 4.3 warnings
+Fix remaining gcc 4.3 warnings
 
 [ ] May break build
 [ ] May break existing applications

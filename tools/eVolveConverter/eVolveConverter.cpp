@@ -48,7 +48,7 @@ using hlpFuncs::hFile;
 #define EQWARN  cout
 
 
-static int lFailed( char* msg, int result=1 ) 
+static int lFailed( const char* msg, int result=1 ) 
 { EQERROR << msg << endl; return result; }
 
 

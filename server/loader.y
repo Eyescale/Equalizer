@@ -80,7 +80,7 @@
     int eqLoader_lex();
 
     #define yylineno eqLoader_lineno
-    void yyerror( char *errmsg );
+    void yyerror( const char *errmsg );
     extern char* yytext;
     extern FILE*       yyin;
     extern const char* yyinString;

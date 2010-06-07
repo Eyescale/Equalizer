@@ -35,8 +35,8 @@
 int yylineno = 0;
 const char* yyinString = 0;
 
-void yyerror( char *errmsg );
-void yyerror( char *errmsg )
+void yyerror( const char *errmsg );
+void yyerror( const char *errmsg )
 {
     EQERROR << "Parse error: '" << errmsg << "', line " << yylineno+1
             << " at '" << yytext << "'" << std::endl;

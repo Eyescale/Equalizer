@@ -67,7 +67,7 @@
 
 #define ERRORMSG() errormsg(__FILE__,__LINE__)
 
-inline void errormsg(char *file,int line)
+inline void errormsg(const char *file,int line)
    {
    fprintf(stderr,"fatal error in <%s> at line %d!\n",file,line);
    exit(EXIT_FAILURE);
@@ -203,7 +203,7 @@ inline double getclockticks()
 
 #ifdef WIN32_VC
 
-inline char *strdup(char *str)
+inline char *strdup(const char *str)
    {
    int len;
    char *dup;
@@ -212,9 +212,9 @@ inline char *strdup(char *str)
    return(dup);
    }
 
-inline int strcasecmp(char *str1,char *str2)
+inline int strcasecmp(const char *str1,const char *str2)
    {
-   char *ptr1,*ptr2;
+   const char *ptr1,*ptr2;
    for (ptr1=str1,ptr2=str2; tolower(*ptr1)==tolower(*ptr2) && *ptr1!='\0' && *ptr2!='\0'; ptr1++,ptr2++);
    return(*ptr2-*ptr1);
    }
