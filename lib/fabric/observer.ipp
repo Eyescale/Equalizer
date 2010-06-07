@@ -33,6 +33,7 @@ Observer< C, O >::Observer( C* config )
 {
     EQASSERT( config );
     config->_addObserver( static_cast< O* >( this ));
+    _data.eyeBase = config->getFAttribute( C::FATTR_EYE_BASE );
 }
 
 template< typename C, typename O >
