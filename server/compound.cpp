@@ -432,8 +432,8 @@ void Compound::updateFrustum()
     if( !channel )
         return;
 
-    const Segment* segment = channel->getSegment();
-    const View*    view    = channel->getView();
+    Segment* segment = channel->getSegment();
+    const View* view = channel->getView();
     if( !segment || !view )
         return;
 
@@ -472,46 +472,49 @@ void Compound::updateFrustum()
                 EQUNIMPLEMENTED;
         }
     }
+    // else frustum from segment
 
-    if( segment->getCurrentType() != Frustum::TYPE_NONE ) //frustum from segment
+    if( segment->getCurrentType() == Frustum::TYPE_NONE )
     {
-        // set compound frustum =
-        //         segment frustum X channel/segment coverage
-        const Channel* outputChannel = segment->getChannel();
-        EQASSERT( outputChannel );
+        EQASSERT( segment->getCanvas()->getCurrentType() != Frustum::TYPE_NONE );
+        segment->notifyFrustumChanged();
+    }
 
-        const Viewport& outputVP  = outputChannel->getViewport();
-        const Viewport& channelVP = channel->getViewport();
-        const Viewport  coverage  = outputVP.getCoverage( channelVP );
+    // set compound frustum =
+    //         segment frustum X channel/segment coverage
+    const Channel* outputChannel = segment->getChannel();
+    EQASSERT( outputChannel );
 
-        Wall wall( segment->getWall( ));
+    const Viewport& outputVP  = outputChannel->getViewport();
+    const Viewport& channelVP = channel->getViewport();
+    const Viewport  coverage  = outputVP.getCoverage( channelVP );
 
-        wall.apply( coverage );
-        _updateOverdraw( wall );
+    Wall wall( segment->getWall( ));
+    wall.apply( coverage );
+    _updateOverdraw( wall );
 
-        switch( segment->getCurrentType( ))
+    switch( segment->getCurrentType( ))
+    {
+        case Frustum::TYPE_WALL:
         {
-            case Frustum::TYPE_WALL:
-            {
-                setWall( wall );
-                EQLOG( LOG_VIEW ) << "Segment wall for " << channel->getName()
-                                  << ": " << wall << std::endl;
-                return;
-            }
-
-            case Frustum::TYPE_PROJECTION:
-            {
-                Projection projection( segment->getProjection( ));
-                projection = wall;
-                setProjection( projection );
-                EQLOG( LOG_VIEW ) << "Segment projection for " 
-                                  << channel->getName() << ": " << projection
-                                  << std::endl;
-                return;
-            }
-            default: 
-                EQUNIMPLEMENTED;
+            setWall( wall );
+            EQLOG( LOG_VIEW ) << "Segment wall for " << channel->getName()
+                              << ": " << wall << std::endl;
+            return;
         }
+
+        case Frustum::TYPE_PROJECTION:
+        {
+            Projection projection( segment->getProjection( ));
+            projection = wall;
+            setProjection( projection );
+            EQLOG( LOG_VIEW ) << "Segment projection for " 
+                              << channel->getName() << ": " << projection
+                              << std::endl;
+            return;
+        }
+        default: 
+            EQUNIMPLEMENTED;
     }
 }
 

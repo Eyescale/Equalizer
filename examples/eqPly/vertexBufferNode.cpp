@@ -54,11 +54,11 @@ void VertexBufferNode::setupTree( VertexData& data, const Index start,
                                   const size_t depth,
                                   VertexBufferData& globalData )
 {
-    #ifndef NDEBUG
-    MESHINFO << "Entering VertexBufferNode::setupTree"
+#ifndef NDEBUG
+    MESHINFO << "setupTree"
              << "( " << start << ", " << length << ", " << axis << ", " 
              << depth << " )." << endl;
-    #endif
+#endif
 
     data.sort( start, length, axis );
     const Index median = start + ( length / 2 );
@@ -121,8 +121,7 @@ const BoundingSphere& VertexBufferNode::updateBoundingSphere()
     _boundingSphere.w() = Vertex( outer1 - outer2 ).length() * 0.5f;
     
 #ifndef NDEBUG
-    MESHINFO << "Exiting VertexBufferNode::updateBoundingSphere" 
-             << "( " << _boundingSphere << " )." 
+    MESHINFO << "updateBoundingSphere" << "( " << _boundingSphere << " )." 
              << endl;
 #endif
     
@@ -142,8 +141,8 @@ void VertexBufferNode::updateRange()
     _range[1] = max( _left->getRange()[1], _right->getRange()[1] );
     
     #ifndef NDEBUG
-    MESHINFO << "Exiting VertexBufferNode::updateRange" 
-             << "( " << _range[0] << ", " << _range[1] << " )." << endl;
+    MESHINFO << "updateRange" << "( " << _range[0] << ", " << _range[1]
+             << " )." << endl;
     #endif
 }
 

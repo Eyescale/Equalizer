@@ -37,15 +37,10 @@ namespace server
         virtual ~Frustum(){}
         
         /** Set the frustum using a wall description. */
-        void setWall( const fabric::Wall& wall );
+        virtual void setWall( const fabric::Wall& wall );
         
         /** Set the frustum using a projection description. */
-        void setProjection( const fabric::Projection& projection );
-
-        /** Set the eye separation. */
-        void setEyeBase( const float eyeBase );
-
-    protected:
+        virtual void setProjection( const fabric::Projection& projection );
 
     private:
         FrustumData& _data;

@@ -1,32 +1,56 @@
 #Equalizer 1.0 ascii
+# two-pipe demo configuration for dual-GPU machines
 
-# 'Hello, World!' config: one window rendering from the application process.
 server
 {
-    connection { hostname "127.0.0.1" }
     config
     {
         appNode
         {
-            pipe
+            pipe 
             {
+                name "GPU 0"
+                device 0
+
                 window
                 {
-                    viewport [ 0.25 0.25 0.5 0.5 ]
-                    
+                    viewport [ .25 .25 .5 .5 ]
                     channel { name "channel" }
                 }
             }
+            pipe 
+            {
+                name "GPU 1"
+                device 1
+
+                window
+                {
+                    attributes { hint_fullscreen ON hint_decoration OFF }
+                    channel { name "buffer" }
+                }
+            }
         }
-        compound
-        { 
-            channel "channel"
+
+        layout { name "2D" view {} }
+        layout { name "DB" view {} }
+        canvas
+        {
+            layout "2D"
+
             wall
             {
                 bottom_left  [ -.32 -.20 -.75 ]
                 bottom_right [  .32 -.20 -.75 ]
                 top_left     [ -.32  .20 -.75 ]
+
             }
+
+            segment { channel "channel" }
+        }
+
+        compound
+        {
+            channel ( layout "2D" segment 0 view 0 ) 
         }
     }    
 }

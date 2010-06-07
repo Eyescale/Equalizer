@@ -47,12 +47,6 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
                                   const size_t depth,
                                   VertexBufferData& globalData )
 {
-    #ifndef NDEBUG
-    MESHINFO << "Entering VertexBufferLeaf::setupTree"
-             << "( " << start << ", " << length << ", " << axis << ", " 
-             << depth << " )." << endl;
-    #endif
-    
     data.sort( start, length, axis );
     _vertexStart = globalData.vertices.size();
     _vertexLength = 0;
@@ -84,14 +78,11 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
         }
     }
     
-    #ifndef NDEBUG
-    MESHINFO << "Exiting VertexBufferLeaf::setupTree"
-             << "( " << _indexStart << ", " << _indexLength << "; " 
-             << _vertexStart << ", " << _vertexLength << " )." << endl;
-    #else
-    MESHINFO << "Leaf " << this << " contains " << _vertexLength << " vertices"
-             << " and " << _indexLength / 3 << " triangles." << endl;
-    #endif
+#ifndef NDEBUG
+    MESHINFO << "VertexBufferLeaf::setupTree"
+             << "( " << _indexStart << ", " << _indexLength << "; start " 
+             << _vertexStart << ", " << _vertexLength << " vertices)." << endl;
+#endif
 }
 
 
@@ -193,8 +184,8 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
     _boundingSphere.w() = radius;
 
 #ifndef NDEBUG
-    MESHINFO << "Exiting VertexBufferLeaf::updateBoundingSphere" 
-             << "( " << _boundingSphere << " )." << endl;
+    MESHINFO << "updateBoundingSphere" << "( " << _boundingSphere << " )."
+             << endl;
 #endif
     
     return _boundingSphere;
@@ -207,10 +198,10 @@ void VertexBufferLeaf::updateRange()
     _range[0] = 1.0f * _indexStart / _globalData.indices.size();
     _range[1] = _range[0] + 1.0f * _indexLength / _globalData.indices.size();
     
-    #ifndef NDEBUG
-    MESHINFO << "Exiting VertexBufferLeaf::updateRange" 
-             << "( " << _range[0] << ", " << _range[1] << " )." << endl;
-    #endif
+#ifndef NDEBUG
+    MESHINFO << "updateRange" << "( " << _range[0] << ", " << _range[1]
+             << " )." << endl;
+#endif
 }
 
 #define glewGetContext state.glewGetContext

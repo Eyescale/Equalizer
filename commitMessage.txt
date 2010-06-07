@@ -1,9 +1,11 @@
-Fix remaining gcc 4.3 warnings
+Fix frustum update from canvas->segment->compound if the latter two
+don't have a frustum
+Clean up eqPly kd-tree info messages
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
