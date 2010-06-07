@@ -216,9 +216,12 @@ void Config::activateCanvas( Canvas* canvas )
             
                 // segment output area
                 Viewport subViewport = segmentChannel->getViewport();
-                // ...our part of it    
+                if( !subViewport.isValid( ))
+                    subViewport = eq::fabric::Viewport::FULL;
+
+                // ...our part of it
                 subViewport.apply( contribution );
-            
+
                 channel->setViewport( subViewport );
                 if( channel->getWindow()->getID() <= EQ_ID_MAX )
                     // parent is already registered - register channel as well

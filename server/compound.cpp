@@ -1042,12 +1042,12 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
                         if( !canvasName.empty() && 
                             config->find< Canvas >( canvasName ) == canvas )
                         {
-                            os << "canvas \"" << canvasName << "\" ";
+                            os << "canvas \"" << canvasName << "\"  ";
                         }
                         else
                             os << canvas->getPath() << ' ';
 
-                        os << "segment \"" << segmentName << "\" ";
+                        os << "segment \"" << segmentName << "\"   ";
                     }
                     else
                         os << segment->getPath() << ' ';
@@ -1061,7 +1061,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
                         if( !layoutName.empty() && 
                             config->find< Layout >( layoutName ) == layout )
                         {
-                            os << "layout \"" << layoutName << "\" ";
+                            os << "layout \"" << layoutName << "\"  ";
                         }
                         else
                             os << layout->getPath() << ' ';
