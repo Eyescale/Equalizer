@@ -1,134 +1,120 @@
-Index: lib/net/udtConnection.h
+Index: lib/net/cc.h
 ===================================================================
---- lib/net/udtConnection.h	(revision 0)
-+++ lib/net/udtConnection.h	(revision 0)
-@@ -0,0 +1,115 @@
+--- lib/net/cc.h	(revision 0)
++++ lib/net/cc.h	(revision 0)
+@@ -0,0 +1,101 @@
++#include "udt/udt.h"
++#include "udt/ccc.h"
 +
-+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
-+ *
-+ * This library is free software; you can redistribute it and/or modify it under
-+ * the terms of the GNU Lesser General Public License version 2.1 as published
-+ * by the Free Software Foundation.
-+ *  
-+ * This library is distributed in the hope that it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-+ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-+ * details.
-+ * 
-+ * You should have received a copy of the GNU Lesser General Public License
-+ * along with this library; if not, write to the Free Software Foundation, Inc.,
-+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-+ */
-+
-+#ifndef EQNET_UDTConnection_H
-+#define EQNET_UDTConnection_H
-+
-+#include <eq/net/connectionType.h> // enum
-+#include <eq/base/base.h>
-+#include <eq/base/buffer.h> // member
-+#include <eq/base/lock.h> // member
-+#include <eq/net/connection.h>
-+#include <udt/udt.h>
-+#include "cc.h"
-+#include "eventConnection.h" // member
-+
-+namespace eq
++class CTCP: public CCC
 +{
-+namespace net
++public:
++   void init() 
++   {
++      m_bSlowStart = true;
++      m_issthresh = 83333;
++
++      m_dPktSndPeriod = 0.0;
++      m_dCWndSize = 2.0;
++
++      setACKInterval(2);
++      setRTO(1000000);
++   }
++
++   virtual void onACK(const int& ack)
++   {
++      if (ack == m_iLastACK)
++      {
++         if (3 == ++ m_iDupACKCount)
++            DupACKAction();
++         else if (m_iDupACKCount > 3)
++            m_dCWndSize += 1.0;
++         else
++            ACKAction();
++      }
++      else
++      {
++         if (m_iDupACKCount >= 3)
++            m_dCWndSize = m_issthresh;
++
++         m_iLastACK = ack;
++         m_iDupACKCount = 1;
++
++         ACKAction();
++      }
++   }
++
++   virtual void onTimeout()
++   {
++      m_issthresh = getPerfInfo()->pktFlightSize / 2;
++      if (m_issthresh < 2)
++         m_issthresh = 2;
++
++      m_bSlowStart = true;
++      m_dCWndSize = 2.0;
++   }
++
++protected:
++   virtual void ACKAction()
++   {
++      if (m_bSlowStart)
++      {
++         m_dCWndSize += 1.0;
++
++         if (m_dCWndSize >= m_issthresh)
++            m_bSlowStart = false;
++      }
++      else
++         m_dCWndSize += 1.0/m_dCWndSize;
++   }
++
++   virtual void DupACKAction()
++   {
++      m_bSlowStart = false;
++
++      m_issthresh = getPerfInfo()->pktFlightSize / 2;
++      if (m_issthresh < 2)
++         m_issthresh = 2;
++
++      m_dCWndSize = m_issthresh + 3;
++   }
++
++protected:
++   int m_issthresh;
++   bool m_bSlowStart;
++
++   int m_iDupACKCount;
++   int m_iLastACK;
++};
++
++
++class CUDPBlast: public CCC
 +{
-+    /** A socket connection (TCPIP or SDP). */
-+    class UDTConnection : public Connection
-+    {
-+    public:
-+        /** 
-+         * Create a new socket-based connection
-+         * 
-+         * @param type the connection type, can be CONNECTIONTYPE_UDT.
-+         */
-+        UDTConnection( const ConnectionType type = CONNECTIONTYPE_UDT );
 +
-+        virtual bool connect();            
-+        virtual bool listen();             
-+        virtual void acceptNB();           
-+        virtual ConnectionPtr acceptSync();
-+        virtual void close();              
++public:
++   CUDPBlast()
++   {
++      m_dPktSndPeriod = 1000000; 
++      m_dCWndSize = 83333.0; 
++   }
 +
-+        /** @sa Connection::getNotifier */
-+        virtual Notifier getNotifier() const { return threadAccept->_hEvent; }
-+        typedef base::RefPtr< EventConnection > EventConnectionPtr;
-+
-+        bool hasData() const;
-+
-+        /* manages UDT protocol */ 
-+        class ThreadAccept : public base::Thread
-+        {
-+        public:
-+            HANDLE _hEvent;
-+            HANDLE  _hEventSynchro;
-+            ThreadAccept( UDTConnection* connection, bool isServer )
-+                : _connection( connection )
-+                , isServer( isServer )
-+            {
-+            }
-+            virtual ~ThreadAccept(){ _connection = 0; }
-+        protected:
-+            virtual void run( );
-+            virtual bool init( );
-+        private:
-+            UDTConnection* _connection;
-+            timeval tv;
-+            UDT::UDSET readfds;
-+            bool isServer;
-+            
-+        };
-+        ThreadAccept* threadAccept;
-+
-+        
-+    protected:
-+        virtual ~UDTConnection();
-+
-+        virtual void readNB( void* buffer, const uint64_t bytes );
-+        virtual int64_t readSync( void* buffer, const uint64_t bytes );
-+        virtual int64_t write( const void* buffer, const uint64_t bytes );
-+
-+        typedef UDTSOCKET Socket;
-+    private:
-+        void _initAIOAccept();
-+        void _exitAIOAccept();
-+        void _initAIORead();
-+        void _exitAIORead();
-+        bool _createSocket();
-+        void _tuneSocket( const Socket fd );
-+        bool _parseAddress( sockaddr_in& address );
-+        uint16_t _getPort() const;
-+        CUDPBlast* cchandle;
-+        union
-+        {
-+            Socket _readFD;
-+            Socket _writeFD;
-+        };
-+        base::Lock       _mutexEvent;
-+
-+        UDTSOCKET     _overlappedSocket;
-+        uint64_t sizeReceive;
-+
-+        CHECK_THREAD_DECLARE( _recvThread );
-+    };
-+}
-+}
-+
-+#endif //EQNET_UDTConnection_H
++public:
++   void setRate(double mbps)
++   {
++      m_dPktSndPeriod = (m_iMSS * 8.0) / mbps;
++   }
++};
 
-Property changes on: lib\net\udtConnection.h
+Property changes on: lib\net\cc.h
 ___________________________________________________________________
 Added: svn:eol-style
-   + LF
+   + native
 
 Index: lib/net/udtConnection.cpp
 ===================================================================
 --- lib/net/udtConnection.cpp	(revision 0)
 +++ lib/net/udtConnection.cpp	(revision 0)
-@@ -0,0 +1,492 @@
+@@ -0,0 +1,493 @@
 +
 +/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
 + *
@@ -168,18 +154,18 @@ Index: lib/net/udtConnection.cpp
 +// use this function to initialize the UDT library
 +int start = UDT::startup();
 +
++//#define EQ_CONTROLCONGETION true
++
 +namespace eq
 +{
 +namespace net
 +{
-+UDTConnection::UDTConnection( const ConnectionType type )
-+        : _overlappedSocket( INVALID_SOCKET )
-+        , threadAccept( 0 )
++UDTConnection::UDTConnection( )
++        : _thread( 0 )
 +        , cchandle ( 0 )
 +{
 +    _description->type = CONNECTIONTYPE_UDT;
-+    _description->bandwidth = (type == CONNECTIONTYPE_UDT) ?
-+                                  102400 : 819200; // 100MB : 800 MB
++    _description->bandwidth = 102400;
 +
 +    EQVERB << "New UDTConnection @" << (void*)this << std::endl;
 +}
@@ -233,19 +219,23 @@ Index: lib/net/udtConnection.cpp
 +        close();
 +        return false;
 +    }
-+    //UDT::setsockopt(_readFD, 0, UDT_CC, new CCCFactory<CUDPBlast>, sizeof(CCCFactory<CUDPBlast>));
++
++#ifdef EQ_CONTROLCONGETION
++    UDT::setsockopt( _readFD, 0, UDT_CC, new CCCFactory<CTCP>, 
++                     sizeof(CCCFactory<CTCP>));
 +    cchandle = 0;
 +    int temp;
 +    UDT::getsockopt(_readFD, 0, UDT_CC, &cchandle, &temp);
 +    if (NULL != cchandle)
-+       cchandle->setRate(5000);   
++       cchandle->init( );
++#endif
 +
 +    _initAIORead();
 +    _state = STATE_CONNECTED;
 +    _fireStateChanged();
 +
-+    threadAccept = new ThreadAccept( this, false );
-+    threadAccept->start( );
++    _thread = new Thread( this );
++    _thread->start( );
 +    EQINFO << "Connected " << _description->toString() << std::endl;
 +    return true;
 +}
@@ -267,8 +257,8 @@ Index: lib/net/udtConnection.cpp
 +    if( !closed )
 +        EQWARN << "Could not close socket: " << base::sysError << std::endl;
 +
-+    _readFD  = INVALID_SOCKET;
-+    _writeFD = INVALID_SOCKET;
++    _readFD = 0;
++    _writeFD = 0;
 +    _fireStateChanged();
 +}
 +
@@ -277,6 +267,10 @@ Index: lib/net/udtConnection.cpp
 +//----------------------------------------------------------------------
 +void UDTConnection::_initAIORead()
 +{
++	    // Start accept
++    EQASSERT ( !_thread )
++    _thread = new Thread( this );
++    _thread->start( );
 +}
 +
 +void UDTConnection::_initAIOAccept()
@@ -291,7 +285,7 @@ Index: lib/net/udtConnection.cpp
 +void UDTConnection::_exitAIORead()
 +{
 +}
-+bool UDTConnection::ThreadAccept::init() 
++bool UDTConnection::Thread::init() 
 +{ 
 +    tv.tv_sec = INFINITE;
 +    tv.tv_usec = 0;
@@ -301,9 +295,8 @@ Index: lib/net/udtConnection.cpp
 +    _hEventSynchro = CreateEvent( 0, FALSE, FALSE, 0 );
 +    return true;
 +}
-+void UDTConnection::ThreadAccept::run()
++void UDTConnection::Thread::run()
 +{
-+
 +    while( true )
 +    {
 +        int res = UDT::select(0, &readfds, 0, 0, &tv);
@@ -313,13 +306,14 @@ Index: lib/net/udtConnection.cpp
 +            return;
 +        
 +        if (( res != -1 ) && 
-+            (UD_ISSET(_connection->_readFD, &readfds )))
++            ( UD_ISSET( _connection->_readFD, &readfds )))
 +        {        
 +            SetEvent( _hEvent );
 +            WaitForSingleObject( _hEventSynchro, INFINITE );
 +        }
 +        else
 +        {
++			EQWARN << "Select Event invalid" << std::endl;
 +            return;
 +        }
 +    }
@@ -334,14 +328,6 @@ Index: lib/net/udtConnection.cpp
 +void UDTConnection::acceptNB()
 +{
 +    EQASSERT( _state == STATE_LISTENING );
-+
-+    // Start accept
-+    if ( !threadAccept )
-+    {
-+        threadAccept = new ThreadAccept( this, true );
-+        threadAccept->start( );
-+    }
-+      
 +}
 +    
 +ConnectionPtr UDTConnection::acceptSync()
@@ -350,24 +336,27 @@ Index: lib/net/udtConnection.cpp
 +    if( _state != STATE_LISTENING )
 +        return 0;
 +
-+    UDTConnection* newConnection = new UDTConnection(_description->type );
++    UDTConnection* newConnection = new UDTConnection( );
 +    ConnectionPtr connection( newConnection ); // to keep ref-counting correct
 +    EventConnectionPtr _event;
 +    sockaddr_in remote;
 +    int addrlen = sizeof(remote);
-+    _overlappedSocket = UDT::accept(_readFD, 
-+                       (sockaddr*)&remote, &addrlen);
-+    //UDT::setsockopt(_overlappedSocket, 0, UDT_CC, new CCCFactory<CUDPBlast>, sizeof(CCCFactory<CUDPBlast>));
++    Socket overlappedSocket = UDT::accept( _readFD, 
++                                           (sockaddr*)&remote, &addrlen);
++
++#ifdef EQ_CONTROLCONGETION
++    UDT::setsockopt( overlappedSocket, 0, UDT_CC, new CCCFactory<CTCP>, 
++                     sizeof(CCCFactory<CTCP>));
 +    cchandle = 0;
 +    int temp;
-+    UDT::getsockopt(_readFD, 0, UDT_CC, &cchandle, &temp);
++    UDT::getsockopt( overlappedSocket, 0, UDT_CC, &cchandle, &temp);
 +    if (NULL != cchandle)
-+       cchandle->setRate(5000);       
-+    newConnection->_readFD  = _overlappedSocket;
-+    newConnection->_writeFD = _overlappedSocket;
-+    newConnection->_initAIORead();
++       cchandle->init( );
++#endif
 +
-+    _overlappedSocket       = INVALID_SOCKET;
++    newConnection->_readFD  = overlappedSocket;
++    newConnection->_writeFD = overlappedSocket;
++    newConnection->_initAIORead();
 +
 +    newConnection->_state                  = STATE_CONNECTED;
 +    newConnection->_description->bandwidth = _description->bandwidth;
@@ -378,8 +367,8 @@ Index: lib/net/udtConnection.cpp
 +    EQINFO << "accepted connection from " << inet_ntoa( remote.sin_addr ) 
 +           << ":" << ntohs( remote.sin_port ) << std::endl;
 +
-+    ResetEvent( threadAccept->_hEvent );
-+    SetEvent( threadAccept->_hEventSynchro );
++    ResetEvent( _thread->_hEvent );
++    SetEvent( _thread->_hEventSynchro );
 +
 +    return connection;
 +}
@@ -392,18 +381,27 @@ Index: lib/net/udtConnection.cpp
 +    if( _state == STATE_CLOSED )
 +        return;
 +
-+    if ( !threadAccept )
++	sizeReceive = 0;
++    if( !hasData( 0 ))
 +    {
-+        threadAccept = new ThreadAccept( this, false );
-+        threadAccept->start( );
-+        return;
++        ResetEvent( _thread->_hEvent );
++        SetEvent( _thread->_hEventSynchro );
++		return;
 +    }
-+
++    char* bufchar = reinterpret_cast< char* >( buffer );
++	if ( -1 == ( sizeReceive = 
++		  UDT::recv( _readFD, bufchar, bytes, 0)))
++	{
++		EQWARN << "recv:" << UDT::getlasterror().getErrorMessage() << std::endl;
++        close();
++		return;
++	}
++	SetEvent( _thread->_hEvent );
 +}
 +
 +int64_t UDTConnection::readSync( void* buffer, const uint64_t bytes )
 +{
-+   // EQWARN << "start reads:" << bytes << std::endl;
++    //EQWARN << "start reads:" << bytes << std::endl;
 +    CHECK_THREAD( _recvThread );
 +    base::ScopedMutex<> mutex( _mutexEvent );
 +    if( _readFD == INVALID_SOCKET )
@@ -411,32 +409,30 @@ Index: lib/net/udtConnection.cpp
 +        EQERROR << "Invalid read handle" << std::endl;
 +        return -1;
 +    }
-+    
-+    bool test = true;
++
++	if ( sizeReceive > 0 )
++		return sizeReceive;
++
 +    int64_t rs = 0;
 +    int64_t rsize = 0;
 +    char* bufchar = reinterpret_cast< char* >( buffer );
 +    while (rsize < bytes)
 +    {    
-+        int64_t read = EQ_MIN( bytes - rsize, 100000);
++		hasData( INFINITE );
++        int64_t read = EQ_MIN( bytes - rsize, 10000000);
 +        if ( -1 == (rs = UDT::recv( _readFD, bufchar + rsize , read, 0)))
 +        {
 +            EQWARN << "recv:" << UDT::getlasterror().getErrorMessage() << std::endl;
-+            return bytes;
++            close();
++			return -1;
 +        }
 +        rsize += rs;
 +
-+		if (rsize < bytes)
-+			hasData();
-+	}
++        if (rsize < bytes)
++            hasData( 0 );
++    }
 +
-+	if(!hasData())
-+	{
-+		ResetEvent( threadAccept->_hEvent );
-+		SetEvent( threadAccept->_hEventSynchro );
-+	}
 +    return rsize;
-+
 +}
 +
 +int64_t UDTConnection::write( const void* buffer, const uint64_t bytes)
@@ -445,21 +441,15 @@ Index: lib/net/udtConnection.cpp
 +        return -1;
 +
 +    int64_t ss = 0;
-+    int64_t ssize = 0;
 +    char* bufchar = const_cast<char*>( static_cast< const char* >( buffer )) ;
-+    while (ssize < bytes)
++    int64_t read = EQ_MIN( bytes, 10000000 );
++    if (0 == (ss = UDT::send( _writeFD, bufchar, read, 0)))
 +    {
-+		int64_t read = EQ_MIN( bytes - ssize, 100000 );
-+		if (0 == (ss = UDT::send( _writeFD, bufchar + ssize, read, 0)))
-+		{
-+			EQWARN << "send:" << UDT::getlasterror().getErrorMessage() << std::endl;
-+			close();
-+			return 0;
-+		}
-+		ssize += ss;
-+	}
-+
-+    return ssize;
++        EQWARN << "send:" << UDT::getlasterror().getErrorMessage() << std::endl;
++        close();
++        return 0;
++    }
++    return ss;
 +
 +}
 +
@@ -476,7 +466,7 @@ Index: lib/net/udtConnection.cpp
 +    _tuneSocket( fd );
 +
 +    _readFD  = fd;
-+    _writeFD = fd; // TCP/IP sockets are bidirectional
++    _writeFD = fd; // UDT sockets are bidirectional
 +    return true;
 +}
 +
@@ -485,13 +475,12 @@ Index: lib/net/udtConnection.cpp
 +    const bool off         = false;
 +    const bool on          = true;
 +    UDT::setsockopt( fd, 0, UDT_RCVSYN, 
-+                reinterpret_cast<const char*>( &on), sizeof( on ));
-+    UDT::setsockopt(fd, 0, UDT_MSS, new int(1052), sizeof(int));
++                reinterpret_cast<const char*>( &off), sizeof( on ));
++	UDT::setsockopt(fd, 0, UDT_MSS, new int(1052), sizeof(int));
 +    UDT::setsockopt(fd, 0, UDT_SNDBUF, new int(10000000), sizeof(int));
 +    UDT::setsockopt(fd, 0, UDP_SNDBUF, new int(10000000), sizeof(int));
 +    UDT::setsockopt(fd, 0, UDT_RCVBUF, new int(10000000), sizeof(int));
 +    UDT::setsockopt(fd, 0, UDP_RCVBUF, new int(10000000), sizeof(int));
-+   
 +}
 +
 +bool UDTConnection::_parseAddress( sockaddr_in& address )
@@ -606,17 +595,15 @@ Index: lib/net/udtConnection.cpp
 +    return ntohs(address.sin_port);
 +}
 +
-+bool UDTConnection::hasData() const
++bool UDTConnection::hasData( int timeout ) const
 +{
 +    timeval tv;
 +    UDT::UDSET readfds;
-+    tv.tv_sec = 0;
++    tv.tv_sec = timeout;
 +    tv.tv_usec = 0;
 +    UD_ZERO(&readfds);
-+    UD_SET(_readFD, &readfds);        
-+
-+    const int res = UDT::select(0, &readfds, 0, 0, &tv);
-+        
++    UD_SET(_readFD, &readfds);
++    const int res = UDT::select(0, &readfds, 0, 0, &tv);        
 +    return  (( res != -1 ) && (UD_ISSET( _readFD, &readfds )));
 +}
 +}
@@ -625,166 +612,159 @@ Index: lib/net/udtConnection.cpp
 Property changes on: lib\net\udtConnection.cpp
 ___________________________________________________________________
 Added: svn:eol-style
-   + LF
+   + native
 
-Index: lib/net/cc.h
+Index: lib/net/udtConnection.h
 ===================================================================
---- lib/net/cc.h	(revision 0)
-+++ lib/net/cc.h	(revision 0)
-@@ -0,0 +1,100 @@
-+#include "udt/udt.h"
-+#include "udt/ccc.h"
+--- lib/net/udtConnection.h	(revision 0)
++++ lib/net/udtConnection.h	(revision 0)
+@@ -0,0 +1,106 @@
 +
-+class CTCP: public CCC
++/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
++ *
++ * This library is free software; you can redistribute it and/or modify it under
++ * the terms of the GNU Lesser General Public License version 2.1 as published
++ * by the Free Software Foundation.
++ *  
++ * This library is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
++ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
++ * details.
++ * 
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this library; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
++ */
++
++#ifndef EQNET_UDTConnection_H
++#define EQNET_UDTConnection_H
++
++#include <eq/net/connectionType.h> // enum
++#include <eq/base/base.h>
++#include <eq/base/buffer.h> // member
++#include <eq/base/lock.h> // member
++#include <eq/net/connection.h>
++#include <udt/udt.h>
++#include "cc.h"
++#include "eventConnection.h" // member
++
++namespace eq
 +{
-+public:
-+   void init()
-+   {
-+      m_bSlowStart = true;
-+      m_issthresh = 83333;
-+
-+      m_dPktSndPeriod = 0.0;
-+      m_dCWndSize = 2.0;
-+
-+      setACKInterval(2);
-+      setRTO(1000000);
-+   }
-+
-+   virtual void onACK(const int& ack)
-+   {
-+      if (ack == m_iLastACK)
-+      {
-+         if (3 == ++ m_iDupACKCount)
-+            DupACKAction();
-+         else if (m_iDupACKCount > 3)
-+            m_dCWndSize += 1.0;
-+         else
-+            ACKAction();
-+      }
-+      else
-+      {
-+         if (m_iDupACKCount >= 3)
-+            m_dCWndSize = m_issthresh;
-+
-+         m_iLastACK = ack;
-+         m_iDupACKCount = 1;
-+
-+         ACKAction();
-+      }
-+   }
-+
-+   virtual void onTimeout()
-+   {
-+      m_issthresh = getPerfInfo()->pktFlightSize / 2;
-+      if (m_issthresh < 2)
-+         m_issthresh = 2;
-+
-+      m_bSlowStart = true;
-+      m_dCWndSize = 2.0;
-+   }
-+
-+protected:
-+   virtual void ACKAction()
-+   {
-+      if (m_bSlowStart)
-+      {
-+         m_dCWndSize += 1.0;
-+
-+         if (m_dCWndSize >= m_issthresh)
-+            m_bSlowStart = false;
-+      }
-+      else
-+         m_dCWndSize += 1.0/m_dCWndSize;
-+   }
-+
-+   virtual void DupACKAction()
-+   {
-+      m_bSlowStart = false;
-+
-+      m_issthresh = getPerfInfo()->pktFlightSize / 2;
-+      if (m_issthresh < 2)
-+         m_issthresh = 2;
-+
-+      m_dCWndSize = m_issthresh + 3;
-+   }
-+
-+protected:
-+   int m_issthresh;
-+   bool m_bSlowStart;
-+
-+   int m_iDupACKCount;
-+   int m_iLastACK;
-+};
-+
-+
-+class CUDPBlast: public CCC
++namespace net
 +{
-+public:
-+   CUDPBlast()
-+   {
-+      m_dPktSndPeriod = 1000000; 
-+      m_dCWndSize = 83333.0; 
-+   }
++    /** A socket connection (TCPIP or SDP). */
++    class UDTConnection : public Connection
++    {
++    public:
++        /** 
++         * Create a new socket-based connection
++         */
++        UDTConnection( );
 +
-+public:
-+   void setRate(double mbps)
-+   {
-+      m_dPktSndPeriod = (m_iMSS * 8.0) / mbps;
-+   }
-+};
++        virtual bool connect();
++        virtual bool listen();
++        virtual void acceptNB();
++        virtual ConnectionPtr acceptSync();
++        virtual void close();
++
++        /** @sa Connection::getNotifier */
++        virtual Notifier getNotifier() const { return _thread->_hEvent; }
++        typedef base::RefPtr< EventConnection > EventConnectionPtr;
++
++        bool hasData( int timeout ) const;
++      
++    protected:
++        virtual ~UDTConnection();
++
++        virtual void readNB( void* buffer, const uint64_t bytes );
++        virtual int64_t readSync( void* buffer, const uint64_t bytes );
++        virtual int64_t write( const void* buffer, const uint64_t bytes );
++
++        typedef UDTSOCKET Socket;
++    private:
++        void _initAIOAccept();
++        void _exitAIOAccept();
++        void _initAIORead();
++        void _exitAIORead();
++        bool _createSocket();
++        void _tuneSocket( const Socket fd );
++        bool _parseAddress( sockaddr_in& address );
++        uint16_t _getPort() const;
++        CTCP* cchandle;
++        union
++        {
++            Socket _readFD;
++            Socket _writeFD;
++        };
++        base::Lock       _mutexEvent;
++
++                /* manages UDT protocol */ 
++        class Thread : public base::Thread
++        {
++        public:
++            HANDLE _hEvent;
++            HANDLE  _hEventSynchro;
++            Thread( UDTConnection* connection )
++                : _connection( connection ){}
++            virtual ~Thread(){ _connection = 0; }
++        protected:
++            virtual void run( );
++            virtual bool init( );
++        private:
++            UDTConnection* _connection;
++            timeval tv;
++            UDT::UDSET readfds;
++        };
++        Thread* _thread;
++        
++        uint64_t sizeReceive;
++
++        CHECK_THREAD_DECLARE( _recvThread );
++    };
++}
++}
++
++#endif //EQNET_UDTConnection_H
 
-Property changes on: lib\net\cc.h
+Property changes on: lib\net\udtConnection.h
 ___________________________________________________________________
 Added: svn:eol-style
-   + LF
+   + native
 
-Index: lib/net/connectionType.h
+Index: examples/eqPly/channel.cpp
 ===================================================================
---- lib/net/connectionType.h	(revision 4512)
-+++ lib/net/connectionType.h	(working copy)
-@@ -31,6 +31,7 @@
-         CONNECTIONTYPE_NONE = 0,
-         CONNECTIONTYPE_TCPIP,     //!< TCP/IP sockets
-         CONNECTIONTYPE_SDP,       //!< SDP sockets (InfiniBand)
-+        CONNECTIONTYPE_UDT,
-         CONNECTIONTYPE_PIPE,      //!< pipe() based uni-directional connection
-         CONNECTIONTYPE_NAMEDPIPE, //!< Named pipe based bidirectional connection
-         CONNECTIONTYPE_IB,        //!< Infiniband based RDMA
-@@ -49,7 +50,9 @@
-             case CONNECTIONTYPE_TCPIP:
-                 os << "TCPIP";
-                 break;
--
-+            case CONNECTIONTYPE_UDT:
-+                os << "UDT";
-+                break;
-             case CONNECTIONTYPE_SDP:
-                 os << "SDP";
-                 break;
-Index: lib/net/connectionDescription.cpp
-===================================================================
---- lib/net/connectionDescription.cpp	(revision 4512)
-+++ lib/net/connectionDescription.cpp	(working copy)
-@@ -51,6 +51,8 @@
-         return CONNECTIONTYPE_TCPIP;
-     if( string == "TCP" )
-         return CONNECTIONTYPE_TCPIP;
-+    if( string == "UDT" )
-+        return CONNECTIONTYPE_UDT;
-     if( string == "SDP" )
-         return CONNECTIONTYPE_SDP;
-     if( string == "ANON_PIPE" )
-@@ -241,6 +243,7 @@
-     os << "type          " 
-        << ( desc.type == net::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
-             desc.type == net::CONNECTIONTYPE_SDP   ? "SDP" : 
-+            desc.type == net::CONNECTIONTYPE_UDT   ? "UDT" : 
-             desc.type == net::CONNECTIONTYPE_PIPE  ? "ANON_PIPE" :
-             desc.type == net::CONNECTIONTYPE_NAMEDPIPE ? "PIPE" :
-             desc.type == net::CONNECTIONTYPE_IB    ? "IB" :
+--- examples/eqPly/channel.cpp	(revision 4541)
++++ examples/eqPly/channel.cpp	(working copy)
+@@ -37,6 +37,8 @@
+ #include "window.h"
+ #include "vertexBufferState.h"
+ 
++#include <eq/base/clock.h>
++
+ // light parameters
+ static GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
+ static GLfloat lightAmbient[]  = {0.1f, 0.1f, 0.1f, 1.0f};
+@@ -546,6 +548,8 @@
+ 
+ const Model* Channel::_getModel()
+ {
++	eq::base::Clock clock;
++
+     Config*     config = static_cast< Config* >( getConfig( ));
+     const View* view   = static_cast< const View* >( getView( ));
+     const FrameData& frameData = _getFrameData();
+@@ -558,6 +562,8 @@
+     {
+         _model = config->getModel( id );
+         _modelID = id;
++		EQINFO << "Time to get Model : " << clock.getTimef() 
++			<< " ms" << std::endl;
+     }
+ 
+     return _model;
 Index: lib/net/connection.cpp
 ===================================================================
---- lib/net/connection.cpp	(revision 4512)
+--- lib/net/connection.cpp	(revision 4541)
 +++ lib/net/connection.cpp	(working copy)
 @@ -25,6 +25,7 @@
  #include "pipeConnection.h"
@@ -805,9 +785,65 @@ Index: lib/net/connection.cpp
          case CONNECTIONTYPE_PIPE:
              connection = new PipeConnection;
              break;
+Index: lib/net/connectionDescription.cpp
+===================================================================
+--- lib/net/connectionDescription.cpp	(revision 4541)
++++ lib/net/connectionDescription.cpp	(working copy)
+@@ -51,6 +51,8 @@
+         return CONNECTIONTYPE_TCPIP;
+     if( string == "TCP" )
+         return CONNECTIONTYPE_TCPIP;
++    if( string == "UDT" )
++        return CONNECTIONTYPE_UDT;
+     if( string == "SDP" )
+         return CONNECTIONTYPE_SDP;
+     if( string == "ANON_PIPE" )
+@@ -241,6 +243,7 @@
+     os << "type          " 
+        << ( desc.type == net::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
+             desc.type == net::CONNECTIONTYPE_SDP   ? "SDP" : 
++            desc.type == net::CONNECTIONTYPE_UDT   ? "UDT" : 
+             desc.type == net::CONNECTIONTYPE_PIPE  ? "ANON_PIPE" :
+             desc.type == net::CONNECTIONTYPE_NAMEDPIPE ? "PIPE" :
+             desc.type == net::CONNECTIONTYPE_IB    ? "IB" :
+Index: lib/net/connectionType.h
+===================================================================
+--- lib/net/connectionType.h	(revision 4541)
++++ lib/net/connectionType.h	(working copy)
+@@ -31,6 +31,7 @@
+         CONNECTIONTYPE_NONE = 0,
+         CONNECTIONTYPE_TCPIP,     //!< TCP/IP sockets
+         CONNECTIONTYPE_SDP,       //!< SDP sockets (InfiniBand)
++        CONNECTIONTYPE_UDT,
+         CONNECTIONTYPE_PIPE,      //!< pipe() based uni-directional connection
+         CONNECTIONTYPE_NAMEDPIPE, //!< Named pipe based bidirectional connection
+         CONNECTIONTYPE_IB,        //!< Infiniband based RDMA
+@@ -49,7 +50,9 @@
+             case CONNECTIONTYPE_TCPIP:
+                 os << "TCPIP";
+                 break;
+-
++            case CONNECTIONTYPE_UDT:
++                os << "UDT";
++                break;
+             case CONNECTIONTYPE_SDP:
+                 os << "SDP";
+                 break;
+Index: server/loader.l
+===================================================================
+--- server/loader.l	(revision 4541)
++++ server/loader.l	(working copy)
+@@ -183,6 +183,7 @@
+ MCIP                            { return EQTOKEN_MCIP; }
+ PGM                             { return EQTOKEN_PGM; }
+ RSP                             { return EQTOKEN_RSP; }
++UDT                             { return EQTOKEN_UDT; }
+ texture                         { return EQTOKEN_TEXTURE; } 
+ memory                          { return EQTOKEN_MEMORY; }
+ fixed                           { return EQTOKEN_FIXED; }
 Index: server/loader.y
 ===================================================================
---- server/loader.y	(revision 4512)
+--- server/loader.y	(revision 4541)
 +++ server/loader.y	(working copy)
 @@ -185,6 +185,7 @@
  %token EQTOKEN_TYPE
@@ -825,21 +861,9 @@ Index: server/loader.y
      | EQTOKEN_IB   { $$ = eq::net::CONNECTIONTYPE_IB; }
      | EQTOKEN_PIPE { $$ = eq::net::CONNECTIONTYPE_NAMEDPIPE; }
      | EQTOKEN_MCIP { $$ = eq::net::CONNECTIONTYPE_MCIP; }
-Index: server/loader.l
-===================================================================
---- server/loader.l	(revision 4512)
-+++ server/loader.l	(working copy)
-@@ -183,6 +183,7 @@
- MCIP                            { return EQTOKEN_MCIP; }
- PGM                             { return EQTOKEN_PGM; }
- RSP                             { return EQTOKEN_RSP; }
-+UDT                             { return EQTOKEN_UDT; }
- texture                         { return EQTOKEN_TEXTURE; } 
- memory                          { return EQTOKEN_MEMORY; }
- fixed                           { return EQTOKEN_FIXED; }
 Index: tests/net/connection.cpp
 ===================================================================
---- tests/net/connection.cpp	(revision 4512)
+--- tests/net/connection.cpp	(revision 4541)
 +++ tests/net/connection.cpp	(working copy)
 @@ -30,6 +30,7 @@
  static eq::net::ConnectionType types[] =
@@ -849,23 +873,22 @@ Index: tests/net/connection.cpp
      eq::net::CONNECTIONTYPE_PIPE,
  #ifdef EQ_USE_BOOST
      eq::net::CONNECTIONTYPE_RSP,
-Index: VS2005/netPerf.vcproj
-===================================================================
---- VS2005/netPerf.vcproj	(revision 4512)
-+++ VS2005/netPerf.vcproj	(working copy)
-@@ -197,6 +197,7 @@
- 			/>
- 			<Tool
- 				Name="VCCustomBuildTool"
-+				CommandLine=""
- 			/>
- 			<Tool
- 				Name="VCXMLDataGeneratorTool"
 Index: VS2005/Equalizer.vcproj
 ===================================================================
---- VS2005/Equalizer.vcproj	(revision 4512)
+--- VS2005/Equalizer.vcproj	(revision 4541)
 +++ VS2005/Equalizer.vcproj	(working copy)
-@@ -4370,6 +4370,14 @@
+@@ -2838,6 +2838,10 @@
+ 				</FileConfiguration>
+ 			</File>
+ 			<File
++				RelativePath="..\lib\net\cc.h"
++				>
++			</File>
++			<File
+ 				RelativePath="..\lib\net\command.cpp"
+ 				>
+ 			</File>
+@@ -4378,6 +4382,14 @@
  				>
  			</File>
  			<File
@@ -880,106 +903,10 @@ Index: VS2005/Equalizer.vcproj
  				RelativePath="..\lib\net\unbufferedMasterCM.cpp"
  				>
  			</File>
-@@ -10755,46 +10763,6 @@
- 			Filter="dll;lib"
- 			>
- 			<File
--				RelativePath="..\Windows\pthreads\lib64\pthreadVC2.dll"
--				>
--				<FileConfiguration
--					Name="Debug|Win32"
--					ExcludedFromBuild="true"
--					>
--					<Tool
--						Name="VCCustomBuildTool"
--					/>
--				</FileConfiguration>
--				<FileConfiguration
--					Name="Debug|x64"
--					>
--					<Tool
--						Name="VCCustomBuildTool"
--						Description="copying library (x64)"
--						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputFileName)&quot;&#x0D;&#x0A;"
--						Outputs="&quot;$(TargetDir)$(InputFileName)&quot;"
--					/>
--				</FileConfiguration>
--				<FileConfiguration
--					Name="Release|Win32"
--					ExcludedFromBuild="true"
--					>
--					<Tool
--						Name="VCCustomBuildTool"
--					/>
--				</FileConfiguration>
--				<FileConfiguration
--					Name="Release|x64"
--					>
--					<Tool
--						Name="VCCustomBuildTool"
--						Description="copying library (x64)"
--						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputFileName)&quot;&#x0D;&#x0A;"
--						Outputs="&quot;$(TargetDir)$(InputFileName)&quot;"
--					/>
--				</FileConfiguration>
--			</File>
--			<File
- 				RelativePath="..\Windows\pthreads\lib\pthreadVC2.dll"
- 				>
- 				<FileConfiguration
-@@ -10841,7 +10809,7 @@
- 				</FileConfiguration>
- 			</File>
- 			<File
--				RelativePath="..\Windows\pthreads\lib64\pthreadVC2.lib"
-+				RelativePath="..\Windows\pthreads\lib64\pthreadVC2.dll"
- 				>
- 				<FileConfiguration
- 					Name="Debug|Win32"
-@@ -10926,6 +10894,1014 @@
+@@ -10934,6 +10946,974 @@
  					/>
  				</FileConfiguration>
  			</File>
-+			<File
-+				RelativePath="..\Windows\pthreads\lib64\pthreadVC2.lib"
-+				>
-+				<FileConfiguration
-+					Name="Debug|Win32"
-+					ExcludedFromBuild="true"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Debug|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="copying library (x64)"
-+						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|Win32"
-+					ExcludedFromBuild="true"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+					/>
-+				</FileConfiguration>
-+				<FileConfiguration
-+					Name="Release|x64"
-+					>
-+					<Tool
-+						Name="VCCustomBuildTool"
-+						Description="copying library (x64)"
-+						CommandLine="copy &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputFileName)&quot;&#x0D;&#x0A;"
-+						Outputs="&quot;$(TargetDir)$(InputFileName)&quot;"
-+					/>
-+				</FileConfiguration>
-+			</File>
 +			<Filter
 +				Name="udt"
 +				>
