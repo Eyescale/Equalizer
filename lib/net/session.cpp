@@ -651,9 +651,6 @@ bool Session::_dispatchObjectCommand( Command& command )
         // when we have an object of the given ID (multicast)
         return ( objPacket->instanceID == EQ_ID_NONE ? true : false );
 
-    EQASSERTINFO( i != _objects->end(), "No objects to dispatch command " <<
-                  objPacket << " in " << typeid( *this ).name( ));
-
     const Objects& objects = i->second;
     EQASSERTINFO( !objects.empty(), objPacket );
 
