@@ -81,9 +81,6 @@ namespace server
         net::CommandQueue* getMainThreadQueue();
         net::CommandQueue* getCommandThreadQueue();
 
-        /** @return the state of this window. */
-        State getState() const { return _state.get(); }
-
         /** Increase window activition count. */
         void activate();
 
@@ -185,15 +182,6 @@ namespace server
         /** The maximum frame rate allowed for this window. */
         float _maxFPS;
 
-        /** The flag if the window has to execute a finish */
-        bool _swapFinish;
-
-        /** 
-         * The flag if the window has to swap, i.e, something was done during
-         * the last update.
-         */
-        bool _swap;
-
         /** The list of master swap barriers for the current frame. */
         net::Barriers _masterSwapBarriers;
         /** The list of slave swap barriers for the current frame. */
@@ -207,6 +195,15 @@ namespace server
 
         /** The last draw channel for this entity */
         const Channel* _lastDrawChannel;
+
+        /** The flag if the window has to execute a finish */
+        bool _swapFinish;
+
+        /** 
+         * The flag if the window has to swap, i.e, something was done during
+         * the last update.
+         */
+        bool _swap;
 
         union // placeholder for binary-compatible changes
         {

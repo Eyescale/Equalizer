@@ -466,7 +466,6 @@ net::CommandResult Channel::_cmdFrameFinishReply( net::Command& command )
     }
 
     _fireLoadData(packet->frameNumber, packet->nStatistics, packet->statistics);
-
     return net::COMMAND_HANDLED;
 }
 
@@ -582,4 +581,3 @@ std::ostream& operator << ( std::ostream& os, const Channel& channel)
 
 #include "../lib/fabric/channel.ipp"
 template class eq::fabric::Channel< eq::server::Window, eq::server::Channel >;
-

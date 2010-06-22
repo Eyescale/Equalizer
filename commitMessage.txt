@@ -4,7 +4,7 @@ Clean up eqPly kd-tree info messages
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

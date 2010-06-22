@@ -61,11 +61,14 @@ namespace base
                 : _lock( &lockable.lock ) { _lock->set(); }
 
         /** Destruct the scoped mutex and unset the mutex. @version 1.0 */
-        ~ScopedMutex() { if( _lock ) _lock->unset(); }
+        ~ScopedMutex() { leave(); }
+
+        /** Leave and unlock the mutex immediately. @version 1.0 */
+        void leave() { if( _lock ) _lock->unset(); _lock = 0; }
 
     private:
         ScopedMutex() : _lock( 0 ) {}
-        L* const _lock;
+        L* _lock;
     };
 }
 }

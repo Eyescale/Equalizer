@@ -452,6 +452,8 @@ bool Config::_updateRunning()
     _updateCanvases();
     const bool result = _updateNodes();
     _stopNodes();
+
+    // Don't use visitor, it would get confused with modified child vectors
     _deleteEntities( getCanvases( ));
     _deleteEntities( getLayouts( ));
     _deleteEntities( getObservers( ));
@@ -724,7 +726,7 @@ void Config::_deleteEntities( const std::vector< T* >& entities )
         T* entity = entities[ i ];
         if( entity->needsDelete( ))
         {
-            EQINFO << "Delete " << *entity << std::endl;
+            EQINFO << "Deleting " << *entity << std::endl;
             deregisterObject( entity );
             delete entity;
         }

@@ -695,7 +695,7 @@ namespace net
     inline std::ostream& operator << ( std::ostream& os, 
                                        const SessionPacket* packet )
     {
-        os << (NodePacket*)packet << " session id " << packet->sessionID;
+        os << (NodePacket*)packet << " session " << packet->sessionID;
         return os;
     }
 
@@ -751,7 +751,7 @@ namespace net
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ObjectPacket* packet )
     {
-        os << (SessionPacket*)packet << " objectID " << packet->objectID
+        os << (SessionPacket*)packet << " object " << packet->objectID
            << "." << packet->instanceID;
         return os;
     }

@@ -685,29 +685,25 @@ CommandResult Session::_invokeObjectCommand( Command& command )
     const bool ignoreInstance = ( objPacket->instanceID == EQ_ID_ANY ||
                                   objPacket->instanceID == EQ_ID_NONE );
 
-    _objects.lock.set();
+    base::ScopedMutex< base::SpinLock > mutex( _objects );
+    ObjectsHash::const_iterator i = _objects->find( id );
 
     // When the instance ID is set to none, we only care about the packet when
     // we have an object of the given ID (multicast)
-    if( _objects->find( id ) == _objects->end() &&
-        objPacket->instanceID == EQ_ID_NONE )
-    {
-        _objects.lock.unset();
+    if( i == _objects->end() && objPacket->instanceID == EQ_ID_NONE )
         return COMMAND_HANDLED;
-    }
 
-    EQASSERTINFO( _objects->find( id ) != _objects->end(), 
-                  "No objects to handle command " << objPacket );
+    EQASSERTINFO( i != _objects->end(), "No objects to handle command " <<
+                  objPacket << " in " << typeid( *this ).name( ));
 
     // create copy of objects vector for thread-safety
-    const Objects objects = _objects.data[id];
+    const Objects objects = i->second;
     EQASSERTINFO( !objects.empty(), objPacket );
+    mutex.leave();
 
-    _objects.lock.unset();
-
-    for( Objects::const_iterator i = objects.begin(); i != objects.end(); ++i )
+    for( Objects::const_iterator j = objects.begin(); j != objects.end(); ++j )
     {
-        Object* object = *i;
+        Object* object = *j;
         const bool isInstance = objPacket->instanceID ==object->getInstanceID();
         if( ignoreInstance || isInstance )
         {

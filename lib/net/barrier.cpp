@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,6 +32,8 @@ namespace eq
 {
 namespace net
 {
+typedef CommandFunc<Barrier> CmdFunc;
+
 Barrier::Barrier( NodePtr master, const uint32_t height )
         : _masterID( master->getNodeID( ))
         , _height( height )
@@ -81,12 +83,10 @@ void Barrier::attachToSession( const uint32_t id, const uint32_t instanceID,
 
     CommandQueue* queue = session->getCommandThreadQueue();
 
-    registerCommand( CMD_BARRIER_ENTER, 
-                     CommandFunc<Barrier>( this, &Barrier::_cmdEnter ),
-                     queue );
+    registerCommand( CMD_BARRIER_ENTER,
+                     CmdFunc( this, &Barrier::_cmdEnter ), queue );
     registerCommand( CMD_BARRIER_ENTER_REPLY, 
-                     CommandFunc<Barrier>( this, &Barrier::_cmdEnterReply ),
-                     queue );
+                     CmdFunc( this, &Barrier::_cmdEnterReply ), queue );
 }
 
 void Barrier::enter()
