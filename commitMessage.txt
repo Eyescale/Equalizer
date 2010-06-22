@@ -1,9 +1,9 @@
-Doxygen updates
+Implement launching of window-less configs
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

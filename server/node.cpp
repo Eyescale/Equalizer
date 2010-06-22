@@ -332,6 +332,7 @@ uint32_t Node::_getFinishLatency() const
 {
     switch( getIAttribute( Node::IATTR_THREAD_MODEL ))
     {
+        case fabric::UNDEFINED:
         case fabric::DRAW_SYNC:
             if( getTasks() & fabric::TASK_DRAW )
             {
