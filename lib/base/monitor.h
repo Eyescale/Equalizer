@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -81,6 +81,9 @@ namespace base
                 return *this;
             }
 
+        /** Perform an or operation on the value. @version 1.0 */
+        EQ_PT_EXPORT Monitor& operator |= ( const T& value );
+
         /** Set a new value. @version 1.0 */
         EQ_PT_EXPORT void set( const T& value );
         //@}
@@ -100,6 +103,13 @@ namespace base
          * @version 1.0
          */
         EQ_PT_EXPORT const T& waitNE( const T& value ) const;
+
+        /**
+         * Block until the monitor has none of the given values.
+         * @return the value when reaching the condition.
+         * @version 1.0
+         */
+        EQ_PT_EXPORT const T& waitNE( const T& v1, const T& v2 ) const;
 
         /**
          * Block until the monitor has a value greater or equal to the given
@@ -151,6 +161,14 @@ namespace base
 
         /** @return the current plus the given value. @version 1.0 */
         T operator + ( const T& value ) const { return _value + value; }
+
+        /** @return the current or'ed with the given value. @version 1.0 */
+        T operator | ( const T& value ) const
+            { return static_cast< T >( _value | value ); }
+
+        /** @return the current and the given value. @version 1.0 */
+        T operator & ( const T& value ) const
+            { return static_cast< T >( _value & value ); }
         //@}
 
     private:
@@ -273,6 +291,16 @@ inline void Monitor<T>::set( const T& value )
 }
 
 template< typename T > 
+inline Monitor<T>& Monitor<T>::operator |= ( const T& value )
+{
+    pthread_mutex_lock( &_data->mutex );
+    _value |= value;
+    pthread_cond_broadcast( &_data->cond );
+    pthread_mutex_unlock( &_data->mutex );
+    return *this;
+}
+
+template< typename T > 
 inline const T& Monitor<T>::waitEQ( const T& value ) const
 {
     pthread_mutex_lock( &_data->mutex );
@@ -287,6 +315,17 @@ inline const T& Monitor<T>::waitNE( const T& value ) const
 {
     pthread_mutex_lock( &_data->mutex );
     while( _value == value )
+        pthread_cond_wait( &_data->cond, &_data->mutex);
+    const T& newValue = _value;
+    pthread_mutex_unlock( &_data->mutex );
+    return newValue;
+}
+
+template< typename T > 
+inline const T& Monitor<T>::waitNE( const T& v1, const T& v2 ) const
+{
+    pthread_mutex_lock( &_data->mutex );
+    while( _value == v1 || _value == v2 )
         pthread_cond_wait( &_data->cond, &_data->mutex);
     const T& newValue = _value;
     pthread_mutex_unlock( &_data->mutex );
