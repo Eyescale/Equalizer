@@ -417,7 +417,9 @@ namespace net
 
         template< class P > void _ackRequest( Command& command );
 
+        bool _dispatchObjectCommand( Command& command );
         CommandResult _invokeObjectCommand( Command& packet );
+
         void _attachObject( Object* object, const uint32_t id, 
                             const uint32_t instanceID );
         void _detachObject( Object* object );

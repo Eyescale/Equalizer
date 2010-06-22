@@ -630,30 +630,38 @@ bool Session::dispatchCommand( Command& command )
             return true;
 
         case PACKETTYPE_EQNET_OBJECT:
-        {
-            EQASSERT( command.isValid( ));
-            const ObjectPacket* objPacket = command.getPacket<ObjectPacket>();
-            const uint32_t      id        = objPacket->objectID;
-
-            if( _objects->find( id ) == _objects->end( ))
-                // When the instance ID is set to none, we only care about the
-                // packet when we have an object of the given ID (multicast)
-                return ( objPacket->instanceID == EQ_ID_NONE ? true : false );
-
-            EQASSERTINFO( !_objects.data[id].empty(), id );
-
-            Object* object = _objects.data[id].front();
-            EQASSERT( object );
-
-            EQCHECK( object->dispatchCommand( command ));
-            return true;
-        }
+            return _dispatchObjectCommand( command );
 
         default:
             EQABORT( "Unknown packet type " << command->type << " for "
                      << command );
             return true;
     }
+}
+
+bool Session::_dispatchObjectCommand( Command& command )
+{
+    const ObjectPacket* objPacket = command.getPacket<ObjectPacket>();
+    const uint32_t      id        = objPacket->objectID;
+
+    ObjectsHash::const_iterator i = _objects->find( id );
+
+    if( i == _objects->end( ))
+        // When the instance ID is set to none, we only care about the packet
+        // when we have an object of the given ID (multicast)
+        return ( objPacket->instanceID == EQ_ID_NONE ? true : false );
+
+    EQASSERTINFO( i != _objects->end(), "No objects to dispatch command " <<
+                  objPacket << " in " << typeid( *this ).name( ));
+
+    const Objects& objects = i->second;
+    EQASSERTINFO( !objects.empty(), objPacket );
+
+    Object* object = objects.front();
+    EQASSERT( object );
+
+    EQCHECK( object->dispatchCommand( command ));
+    return true;
 }
 
 CommandResult Session::invokeCommand( Command& command )
@@ -693,7 +701,7 @@ CommandResult Session::_invokeObjectCommand( Command& command )
     if( i == _objects->end() && objPacket->instanceID == EQ_ID_NONE )
         return COMMAND_HANDLED;
 
-    EQASSERTINFO( i != _objects->end(), "No objects to handle command " <<
+    EQASSERTINFO( i != _objects->end(), "No objects to invoke command " <<
                   objPacket << " in " << typeid( *this ).name( ));
 
     // create copy of objects vector for thread-safety
