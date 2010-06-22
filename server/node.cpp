@@ -177,7 +177,7 @@ void Node::updateRunning( const uint32_t initID, const uint32_t frameNumber )
 bool Node::syncRunning()
 {
     if( !isActive() && _state == STATE_STOPPED ) // inactive
-        return 0;
+        return true;
 
     // Sync state updates
     bool result = true;

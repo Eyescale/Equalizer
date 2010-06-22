@@ -83,7 +83,7 @@ void Config::notifyMapped( net::NodePtr node )
 {
     Super::notifyMapped( node );
 
-    net::CommandQueue* mainQ  = getMainThreadQueue();
+    net::CommandQueue* mainQ = getMainThreadQueue();
     net::CommandQueue* cmdQ = getCommandThreadQueue();
 
     registerCommand( fabric::CMD_CONFIG_INIT,
