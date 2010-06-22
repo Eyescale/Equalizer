@@ -32,15 +32,7 @@ namespace fabric
     template< class, class, class > class Window;
     template< typename T > class LeafVisitor;
 
-    /**
-     * A channel represents a two-dimensional viewport within a Window.
-     *
-     * The channel is the basic rendering entity. It represents a 2D rendering
-     * area within a Window. It executes all rendering-relevant tasks, such as
-     * clear, draw, assemble and readback. Each rendering task is using its own
-     * RenderContext, which is computed by the server based on the rendering
-     * description of the current configuration.
-     */
+    /** A channel represents a two-dimensional viewport within a Window. */
     template< class W, class C > class Channel : public Object
     {
     public: 
@@ -123,7 +115,7 @@ namespace fabric
         /** Const-version of accept(). @version 1.0 */
         EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor ) const;
 
-        /** @warning  Undocumented - may not be supported in the future */
+        /** @warning Undocumented - may not be supported in the future */
         EQFABRIC_EXPORT void setMaxSize( const Vector2i& size );
 
         void setOverdraw( const Vector4i& overdraw ); //!< @internal
@@ -243,16 +235,14 @@ namespace fabric
         /** @return the currently rendered eye pass. @version 1.0 */
         Eye getEye() const { return _context->eye; }
 
-        /** @internal  Undocumented - may not be supported in the future */
+        /** @warning Undocumented - may not be supported in the future */
         const Vector4i& getOverdraw() const { return _context->overdraw; }
 
-        /** @internal  Undocumented - may not be supported in the future */
+        /** @warning Undocumented - may not be supported in the future */
         uint32_t getTaskID() const { return _context->taskID; }
         //@}
 
-        /**
-         * @name Attributes
-         */
+        /** @name Attributes */
         //@{
         // Note: also update string array initialization in channel.cpp
         /** Integer attributes for a channel. @version 1.0 */
@@ -312,13 +302,11 @@ namespace fabric
             { return _data.nativeContext; }
         //@}
 
-        /** @name Attributes */
-        //@{
         /** @internal */
         void setIAttribute( const IAttribute attr, const int32_t value )
             { _iAttributes[attr] = value; setDirty( DIRTY_ATTRIBUTES ); }
-        //@}
 
+        /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:

@@ -35,6 +35,9 @@ namespace admin
                                           Canvas, Node, ConfigVisitor >
     {
     public:
+        typedef fabric::Config< Server, Config, Observer, Layout, Canvas, Node,
+                                ConfigVisitor > Super;
+
         /** Construct a new config. @version 1.0 */
         EQADMIN_EXPORT Config( ServerPtr parent );
 

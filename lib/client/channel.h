@@ -33,10 +33,6 @@ namespace util
 {
     class FrameBufferObject;
 }
-namespace fabric
-{
-    template< class P, class W, class C > class Window ;
-}
     /**
      * A channel represents a two-dimensional viewport within a Window.
      *
@@ -45,6 +41,8 @@ namespace fabric
      * clear, draw, assemble and readback. Each rendering task is using its own
      * RenderContext, which is computed by the server based on the rendering
      * description of the current configuration.
+     *
+     * @sa fabric::Channel for public methods
      */
     class Channel : public fabric::Channel< Window, Channel >
     {
@@ -291,7 +289,6 @@ namespace fabric
         EQ_EXPORT void attachToSession( const uint32_t id, 
                                         const uint32_t instanceID, 
                                         net::Session* session );
-
         /** @name Actions */
         //@{
         /** 

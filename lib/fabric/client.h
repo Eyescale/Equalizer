@@ -25,12 +25,7 @@ namespace eq
 {
 namespace fabric
 {
-    /** 
-     * The client represents a network node of the application in the cluster.
-     *
-     * The methods initLocal() and exitLocal() should be used to set up and exit
-     * the listening node instance for each application process.
-     */
+    /** A client represents a network node of the application in the cluster. */
     class Client : public net::Node
     {
     public:

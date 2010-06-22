@@ -44,10 +44,12 @@ namespace eq
      * segments which have no frustum specified. This is useful for planar
      * projection systems.
      *
-     * A canvas has one ore more layouts, of which one Layout
-     * is the active layout, defining the set of logical views currently used to
-     * render on the canvas. The layout can be switched at runtime. A canvas
-     * with a NULL layout does not render anything, i.e., it is not active.
+     * A canvas has one ore more layouts, of which one Layout is the active
+     * layout, defining the set of logical views currently used to render on the
+     * canvas. The layout can be switched at runtime. A canvas with a
+     * <code>0</code> layout does not render anything, i.e., it is not active.
+     *
+     * @sa fabric::Canvas for public methods
      */
     class Canvas : public fabric::Canvas< Config, Canvas, Segment, Layout >
     {

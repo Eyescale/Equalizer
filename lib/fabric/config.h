@@ -44,34 +44,15 @@ namespace fabric
     template< class, class, class, class, class, class, class >
     class ConfigProxy;
 
-    /**
-     * A configuration is a visualization session driven by an application.
-     *
-     * The application Client can choose a configuration from a Server. The
-     * Config will be instantiated though the NodeFactory. The Config groups all
-     * processes of the application in a single net::Session.
-     *
-     * A configuration has a number of nodes, which represent the processes
-     * involved in it. While the Server drives all nodes, a Config instance in a
-     * given process only has its Node instantiated, that is, any given Config
-     * has at most one Node.
-     *
-     * The Config in the application process has access to all Canvas, Segment,
-     * Layout, View and Observer instances. Only the active Layout of the each
-     * Canvas, the Frustum of each View and the Observer parameters are
-     * writable. Views can be sub-classed to attach application-specific data.
-     *
-     * The render client processes have only access to the current View for each
-     * of their channels.
-     */
+    /** A configuration is a visualization session driven by an application. */
     template< class S, class C, class O, class L, class CV, class N, class V >
     class Config : public net::Session
     {
     public:
-        typedef std::vector< O* >  Observers;
-        typedef std::vector< L* >  Layouts;
-        typedef std::vector< CV* > Canvases;
-        typedef std::vector< N* >  Nodes;
+        typedef std::vector< O* >  Observers; //!< A vector of observers
+        typedef std::vector< L* >  Layouts;   //!< A vector of layouts
+        typedef std::vector< CV* > Canvases;  //!< A vector of canvases
+        typedef std::vector< N* >  Nodes;     //!< A vector of nodes
 
         /** @name Data Access */
         //@{
@@ -90,7 +71,10 @@ namespace fabric
         /** @return the vector of canvases, app-node only. @version 1.0 */
         const Canvases& getCanvases() const { return _canvases; }
 
-        /** @return the vector of nodes. */
+        /**
+         * @return the vector of nodes instantiated in this process.
+         * @version 1.0
+         */
         const Nodes& getNodes() const { return _nodes; }
 
         /** 
@@ -109,8 +93,8 @@ namespace fabric
         template< typename T > EQFABRIC_EXPORT T* find( const uint32_t id );
 
         /** @return the entity of the given identifier, or 0. @version 1.0 */
-        template< typename T > EQFABRIC_EXPORT const T* find( const uint32_t id)
-            const;
+        template< typename T > 
+        EQFABRIC_EXPORT const T* find( const uint32_t id ) const;
 
         /** @return the first entity of the given name, or 0. @version 1.0 */
         template< typename T >
@@ -120,13 +104,13 @@ namespace fabric
         template< typename T >
         EQFABRIC_EXPORT const T* find( const std::string& name ) const;
 
-        /** @return the observer at the given path. @internal */
+        /** @internal @return the observer at the given path. */
         O* getObserver( const ObserverPath& path );
 
-        /** @return the layout at the given path. @internal */
+        /** @internal @return the layout at the given path. */
         L* getLayout( const LayoutPath& path );
 
-        /** @return the canvas at the given path. @internal */
+        /** @internal @return the canvas at the given path. */
         CV* getCanvas( const CanvasPath& path );
 
         /** @internal */
@@ -136,10 +120,10 @@ namespace fabric
         template< typename T > void find( const std::string& name,
                                           const T** result ) const;
 
-        /** Update or init the given canvas in a running config. @internal */
+        /** @internal Update or init the given canvas in a running config. */
         virtual void updateCanvas( CV* canvas ) { /* NOP */ }
 
-        /** Init the given canvas in a running config. @internal */
+        /** @internal Init the given canvas in a running config. */
         virtual void exitCanvas( CV* canvas ) { /* NOP */ }
 
         /** Set the name of the object. @version 1.0 */
@@ -168,18 +152,22 @@ namespace fabric
         // Note: also update string array initialization in config.ipp
         enum FAttribute
         {
-            FATTR_EYE_BASE,
-            FATTR_VERSION,
+            FATTR_EYE_BASE, //!< The default interocular distance in meters
+            FATTR_VERSION,  //!< The version of the file loaded
             FATTR_FILL1,
             FATTR_FILL2,
             FATTR_ALL
         };
         
+        /** @internal */
         void setFAttribute( const FAttribute attr, const float value )
             { _fAttributes[attr] = value; }
+
+        /** @return the given floating-point attribute. */
         float getFAttribute( const FAttribute attr ) const
             { return _fAttributes[attr]; }
-        static const std::string&  getFAttributeString( const FAttribute attr );
+        /** @internal */
+        static const std::string& getFAttributeString( const FAttribute attr );
         //@}
  
 
@@ -190,7 +178,7 @@ namespace fabric
          * 
          * The latency is defined as the maximum number of frames between the
          * start of a frame and the finish of the last rendering task for that
-         * frame. Setting the latency of a running config flushes all pending
+         * frame. Setting the latency of a running config finishes all pending
          * frames.
          *
          * @param latency the latency.
@@ -203,56 +191,60 @@ namespace fabric
 
         EQFABRIC_EXPORT uint32_t getProxyID() const; //!< @internal
 
-        /** Back up app-specific data, excluding child data. @internal */
+        /** @internal Back up app-specific data, excluding child data. */
         EQFABRIC_EXPORT virtual void backup();
 
-        /** Restore the last backup. @internal */
+        /** @internal Restore the last backup. */
         EQFABRIC_EXPORT virtual void restore();
 
-        /** @sa Serializable::setDirty() @internal */
+        /** @internal @sa Serializable::setDirty() */
         void setDirty( const uint64_t bits );
 
-        /** Get the current version. @internal */
+        /** @internal Get the current version. */
         uint32_t getVersion() const;
 
-        /** Commit a new version. @internal */
+        /** @internal Commit a new version. */
         uint32_t commit();
 
-        /** Sync to the given version. @internal */
+        /** @internal Sync to the given version. */
         void sync( const uint32_t version );
         //@}
 
     protected:
-        /** Construct a new config. @version 1.0 */
+        /** @internal Construct a new config. */
         EQFABRIC_EXPORT Config( base::RefPtr< S > parent );
 
-        /** Destruct a config. @version 1.0 */
+        /** @internal Destruct a config. */
         EQFABRIC_EXPORT virtual ~Config();
 
         /** @internal */
-        //@{
         EQFABRIC_EXPORT virtual void notifyMapped( net::NodePtr node );
 
-        uint32_t register_();
-        void deregister();
-        void map( const net::ObjectVersion proxy );
-        virtual void unmap();
+        uint32_t register_(); //!< @internal
+        void deregister(); //!< @internal
+        void map( const net::ObjectVersion proxy ); //!< @internal
+        virtual void unmap(); //!< @internal
         template< class, class, class, class > friend class Server; // map/unmap
 
-        void setAppNodeID( const net::NodeID& nodeID );
+        void setAppNodeID( const net::NodeID& nodeID ); //!< @internal
+        /** @internal */
         const net::NodeID& getAppNodeID() const { return _appNodeID; }
-        virtual void changeLatency( const uint32_t latency ) { /* NOP */ }
-        virtual bool mapViewObjects() const { return false; }
-        virtual bool mapNodeObjects() const { return false; }
 
+        /** @internal */
+        virtual void changeLatency( const uint32_t latency ) { /* NOP */ }
+        virtual bool mapViewObjects() const { return false; } //!< @internal
+        virtual bool mapNodeObjects() const { return false; } //!< @internal
+
+        /** @internal */
         virtual VisitorResult _acceptCompounds( V& visitor )
             { return TRAVERSE_CONTINUE; }
+        /** @internal */
         virtual VisitorResult _acceptCompounds( V& visitor ) const
             { return TRAVERSE_CONTINUE; }
-        template< class C2, class V2 > 
+        template< class C2, class V2 >
         friend VisitorResult _acceptImpl( C2*, V2& );
 
-        N* _findNode( const uint32_t id );
+        N* _findNode( const uint32_t id ); //!< @internal
         //@}
 
     private:

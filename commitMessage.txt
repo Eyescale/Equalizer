@@ -1,4 +1,4 @@
-Make log clock non-wrapping
+Doxygen updates
 
 [ ] May break build
 [ ] May break existing applications
@@ -6,4 +6,4 @@ Make log clock non-wrapping
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

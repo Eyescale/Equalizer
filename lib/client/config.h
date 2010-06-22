@@ -52,11 +52,16 @@ namespace eq
      *
      * The render client processes have only access to the current View for each
      * of their channels.
+     *
+     * @sa fabric::Config for public methods
      */
     class Config : public fabric::Config< Server, Config, Observer, Layout,
                                           Canvas, Node, ConfigVisitor >
     {
     public:
+        typedef fabric::Config< Server, Config, Observer, Layout, Canvas, Node,
+                                ConfigVisitor > Super; //!< base class
+
         /** Construct a new config. @version 1.0 */
         EQ_EXPORT Config( ServerPtr parent );
 
@@ -79,7 +84,7 @@ namespace eq
         /** @return the frame number of the last frame finished. @version 1.0 */
         uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
 
-        /** Get all received statistics. @internal */
+        /** @internal Get all received statistics. */
         EQ_EXPORT void getStatistics( std::vector< FrameStatistics >& stats );
 
         /**
@@ -95,10 +100,10 @@ namespace eq
         /**
          * Get the current time in milliseconds.
          *
-         * The clock in all processes of the Config is synchronized to the
+         * The clock in all processes of the config is synchronized to the
          * Server clock. The precision of this synchronization is typically
-         * about 1 ms. The clock of the last instantiated Config is used as the
-         * Log clock.
+         * about 1 ms. The clock of the last instantiated config is used as the
+         * base::Log clock.
          *
          * @return the global time in ms.
          * @version 1.0
@@ -294,26 +299,19 @@ namespace eq
         EQ_EXPORT virtual bool handleEvent( const ConfigEvent* event );
         //@}
         
-        /** @internal */
-        //@{
         /** 
+         * @internal
          * Set up the config's message pump for the given pipe.
          * Used by non-threaded and AGL pipes.
-         * @internal
          */
         void setupMessagePump( Pipe* pipe );
-        //@}
 
     protected:
+        EQ_EXPORT virtual void notifyMapped( net::NodePtr node ); //!< @internal
         /** @internal */
-        //@{
-        EQ_EXPORT virtual void notifyMapped( net::NodePtr node );
         EQ_EXPORT virtual void changeLatency( const uint32_t latency );
         EQ_EXPORT virtual void unmap(); //!< @internal
-        template< class, class, class, class > friend class fabric::Server;
         EQ_EXPORT virtual bool mapViewObjects() const; //!< @internal
-        template< class, class, class > friend class fabric::Segment;
-        //@}
 
     private:
         /** The node running the application thread. */

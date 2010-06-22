@@ -225,6 +225,12 @@ bool Canvas< CFG, C, S, L >::_removeSegment( S* segment )
 }
 
 template< class CFG, class C, class S, class L >
+bool Canvas< CFG, C, S, L >::_mapViewObjects()
+{
+    return static_cast< typename CFG::Super* >( _config )->mapViewObjects();
+}
+
+template< class CFG, class C, class S, class L >
 S* Canvas< CFG, C, S, L >::findSegment( const std::string& name )
 {
     NameFinder< S, Visitor > finder( name );

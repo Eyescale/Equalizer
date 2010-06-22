@@ -67,7 +67,7 @@ void Segment< C, S, CH >::deserialize( net::DataIStream& is,
         is >> *static_cast< Frustum* >( this );
     if( dirtyBits & DIRTY_CHANNEL )
     {
-        EQASSERT( _canvas->getConfig()->mapViewObjects( ))
+        EQASSERT( _canvas->_mapViewObjects( ))
 
         net::ObjectVersion ov;
         is >> ov;

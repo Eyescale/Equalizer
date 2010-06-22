@@ -50,8 +50,6 @@ namespace eq
 namespace server
 {
 typedef net::CommandFunc<Config> ConfigFunc;
-typedef fabric::Config< Server, Config, Observer, Layout, Canvas, Node,
-                        ConfigVisitor > Super;
 
 Config::Config( ServerPtr parent )
         : Super( parent )
@@ -1146,12 +1144,13 @@ template class eq::fabric::Config< eq::server::Server, eq::server::Config,
                                    eq::server::ConfigVisitor >;
 
 /** @cond IGNORE */
-template std::ostream& eq::fabric::operator << ( std::ostream&,
-                                                 const eq::server::Super& );
+template std::ostream& eq::fabric::operator << \
+    ( std::ostream&, const eq::server::Config::Super& );
 /** @endcond */
 
 #define FIND_ID_TEMPLATE1( type )                                       \
-    template void eq::server::Super::find< type >( const uint32_t, type** );
+    template void eq::server::Config::Super::find< type >( const uint32_t, \
+                                                           type** );
 
 FIND_ID_TEMPLATE1( eq::server::Canvas );
 FIND_ID_TEMPLATE1( eq::server::Channel );
@@ -1164,7 +1163,7 @@ FIND_ID_TEMPLATE1( eq::server::View );
 FIND_ID_TEMPLATE1( eq::server::Window );
 
 #define FIND_ID_TEMPLATE2( type )                                       \
-    template type* eq::server::Super::find< type >( const uint32_t );
+    template type* eq::server::Config::Super::find< type >( const uint32_t );
 
 FIND_ID_TEMPLATE2( eq::server::Canvas );
 FIND_ID_TEMPLATE2( eq::server::Channel );
@@ -1178,8 +1177,8 @@ FIND_ID_TEMPLATE2( eq::server::Window );
 
 
 #define FIND_NAME_TEMPLATE1( type )\
-    template void eq::server::Super::find< type >( const std::string&,  \
-                                                   const type** ) const;
+    template void eq::server::Config::Super::find< type >( const std::string&, \
+                                                           const type** ) const;
 FIND_NAME_TEMPLATE1( eq::server::Canvas );
 FIND_NAME_TEMPLATE1( eq::server::Channel );
 FIND_NAME_TEMPLATE1( eq::server::Layout );
@@ -1191,7 +1190,8 @@ FIND_NAME_TEMPLATE1( eq::server::View );
 FIND_NAME_TEMPLATE1( eq::server::Window );
 
 #define FIND_NAME_TEMPLATE2( type )                                     \
-    template type* eq::server::Super::find< type >( const std::string& );
+    template type*                                                      \
+    eq::server::Config::Super::find< type >( const std::string& );
 
 FIND_NAME_TEMPLATE2( eq::server::Canvas );
 FIND_NAME_TEMPLATE2( eq::server::Channel );
@@ -1204,8 +1204,8 @@ FIND_NAME_TEMPLATE2( eq::server::View );
 FIND_NAME_TEMPLATE2( eq::server::Window );
 
 #define CONST_FIND_NAME_TEMPLATE2( type )                               \
-    template const type* eq::server::Super::find< type >( const std::string& ) \
-        const;
+    template const type*                                                \
+    eq::server::Config::Super::find< type >( const std::string& ) const;
 
 CONST_FIND_NAME_TEMPLATE2( eq::server::Canvas );
 CONST_FIND_NAME_TEMPLATE2( eq::server::Channel );

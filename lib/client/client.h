@@ -31,6 +31,8 @@ namespace eq
      *
      * The methods initLocal() and exitLocal() should be used to set up and exit
      * the listening node instance for each application process.
+     *
+     * @sa fabric::Client for public methods
      */
     class Client : public fabric::Client
     {

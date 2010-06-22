@@ -112,7 +112,7 @@ Server< CL, S, CFG, NF >::_cmdDestroyConfig( net::Command& command )
     net::Session* session    = localNode->getSession( packet->configID );
 
     CFG* config = EQSAFECAST( CFG*, session );
-    config->unmap();
+    static_cast< typename CFG::Super* >( config )->unmap();
     EQCHECK( localNode->unmapSession( config ));
     _nodeFactory->releaseConfig( config );
 

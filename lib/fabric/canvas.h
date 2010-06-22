@@ -31,33 +31,15 @@ namespace fabric
 {
     struct CanvasPath;
 
-    /**
-     * A canvas represents a logical 2D projection surface.
-     *
-     * A canvas consists of one or more Segment, which represent the physical
-     * output channels. Segments have a viewport, which defines which part of
-     * the logical 2D projection surface they occupy. Segments overlap each
-     * other when edge-blending is used, and have gaps for display
-     * walls. Passive stereo systems use one segment for each eye pass, so that
-     * two segments have the same viewport. Application windows typically use
-     * one canvas per Window.
-     *
-     * A canvas has a Frustum, which is used to compute a sub-frustum for
-     * segments which have no frustum specified. This is useful for planar
-     * projection systems.
-     *
-     * A canvas has one ore more layouts, of which one Layout
-     * is the active layout, defining the set of logical views currently used to
-     * render on the canvas. The layout can be switched at runtime. A canvas
-     * with a NULL layout does not render anything, i.e., it is not active.
-     */
+    /** A canvas represents a logical 2D projection surface. */
     template< class CFG, class C, class S, class L >
     class Canvas : public Object, public Frustum
     {
     public:
-        typedef std::vector< S* > Segments;
-        typedef std::vector< L* > Layouts;
-        typedef ElementVisitor< C, LeafVisitor< S > > Visitor;
+        typedef std::vector< S* > Segments; //!< A vector of segments
+        typedef std::vector< L* > Layouts; //!< A vector of layouts
+        /** A Canvas visitor */
+        typedef ElementVisitor< C, LeafVisitor< S > > Visitor; 
         
         /** @name Data Access */
         //@{
@@ -108,7 +90,7 @@ namespace fabric
          */
         EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor );
 
-        /** Const-version of accept(). */
+        /** Const-version of accept(). @version 1.0 */
         EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor ) const;
 
         EQFABRIC_EXPORT virtual void backup(); //!< @internal
@@ -141,7 +123,9 @@ namespace fabric
         /** @sa Serializable::setDirty() @internal */
         EQFABRIC_EXPORT virtual void setDirty( const uint64_t bits );
 
+        /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
+        /** @internal */
         virtual void activateLayout( const uint32_t index ) { /* NOP */ }
 
     private:
@@ -179,6 +163,7 @@ namespace fabric
         template< class, class, class > friend class Segment;
         void _addSegment( S* segment );
         bool _removeSegment( S* segment );
+        bool _mapViewObjects();
 
         typedef net::CommandFunc< Canvas< CFG, C, S, L > > CmdFunc;
         net::CommandResult _cmdNewSegment( net::Command& command );

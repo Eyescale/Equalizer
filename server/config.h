@@ -44,6 +44,9 @@ namespace server
                                           Canvas, Node, ConfigVisitor >
     {
     public:
+        typedef fabric::Config< Server, Config, Observer, Layout, Canvas, Node,
+                                ConfigVisitor > Super;
+
         /** Construct a new config. */
         EQSERVER_EXPORT Config( ServerPtr parent );
         virtual ~Config();

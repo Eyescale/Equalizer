@@ -34,9 +34,6 @@ namespace eq
 {
 namespace admin
 {
-typedef fabric::Config< Server, Config, Observer, Layout, Canvas, Node, 
-                        ConfigVisitor > Super;
-
 Config::Config( ServerPtr parent )
         : Super( parent )
 {}
@@ -77,32 +74,34 @@ template class eq::fabric::Config< eq::admin::Server, eq::admin::Config,
 
 /** @cond IGNORE */
 template std::ostream& eq::fabric::operator << ( std::ostream&,
-                                                 const eq::admin::Super& );
+                                              const eq::admin::Config::Super& );
 /** @endcond */
 
 #define FIND_ID_TEMPLATE1( type )                                       \
-    template void eq::admin::Super::find< type >( const uint32_t, type** );
+    template void eq::admin::Config::Super::find< type >( const uint32_t, \
+                                                          type** );
 
 FIND_ID_TEMPLATE1( eq::admin::Channel );
 FIND_ID_TEMPLATE1( eq::admin::Layout );
 FIND_ID_TEMPLATE1( eq::admin::Observer );
 
 #define FIND_ID_TEMPLATE2( type )                                       \
-    template type* eq::admin::Super::find< type >( const uint32_t );
+    template type* eq::admin::Config::Super::find< type >( const uint32_t );
 
 FIND_ID_TEMPLATE2( eq::admin::Observer );
 FIND_ID_TEMPLATE2( eq::admin::Layout );
 FIND_ID_TEMPLATE2( eq::admin::View );
 
 #define FIND_NAME_TEMPLATE1( type )\
-    template void eq::admin::Super::find< type >(const std::string&,   \
-                                          const type** ) const;
+    template void eq::admin::Config::Super::find< type >(const std::string&, \
+                                                         const type** ) const;
 FIND_NAME_TEMPLATE1( eq::admin::Observer );
 FIND_NAME_TEMPLATE1( eq::admin::Layout );
 
 
 #define CONST_FIND_NAME_TEMPLATE2( type )                               \
-    template const type* eq::admin::Super::find< type >( const std::string& ) const;
+    template const type*                                                \
+    eq::admin::Config::Super::find< type >( const std::string& ) const;
 
 CONST_FIND_NAME_TEMPLATE2( eq::admin::Canvas );
 CONST_FIND_NAME_TEMPLATE2( eq::admin::Channel );
