@@ -103,6 +103,9 @@ namespace server
         /** @return if this channel is actively used for rendering. */
         bool isActive() const { return (_active != 0); }
 
+        /** Schedule deletion of this channel. */
+        void postDelete();
+
         /**
          * Add additional tasks this channel, and all its parents, might
          * potentially execute.
@@ -245,6 +248,8 @@ namespace server
         net::CommandResult _cmdConfigInitReply( net::Command& command );
         net::CommandResult _cmdConfigExitReply( net::Command& command );
         net::CommandResult _cmdFrameFinishReply( net::Command& command );
+        net::CommandResult _cmdNop( net::Command& command )
+            { return net::COMMAND_HANDLED; }
 
         // For access to _fixedPVP
         friend std::ostream& operator << ( std::ostream&, const Channel& );

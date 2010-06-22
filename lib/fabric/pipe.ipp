@@ -133,8 +133,11 @@ void Pipe< N, P, W, V >::deserialize( net::DataIStream& is,
         {
             Windows result;
             is.deserializeChildren( this, _windows, result );
-            _windows.swap( result );
-            EQASSERT( _windows.size() == result.size( ));
+            if( !isMaster( ))
+            {
+                _windows.swap( result );
+                EQASSERT( _windows.size() == result.size( ));
+            }
         }
         else // consume unused ObjectVersions
         {
@@ -298,6 +301,7 @@ void Pipe< N, P, W, V >::_addWindow( W* window )
 {
     EQASSERT( window->getPipe() == this );
     _windows.push_back( window );
+    setDirty( DIRTY_WINDOWS );
 }
 
 template< class N, class P, class W, class V >
@@ -310,6 +314,7 @@ bool Pipe< N, P, W, V >::_removeWindow( W* window )
         return false;
 
     _windows.erase( i );
+    setDirty( DIRTY_WINDOWS );
     return true;
 }
 

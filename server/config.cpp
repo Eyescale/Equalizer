@@ -457,6 +457,17 @@ bool Config::_updateRunning()
     _deleteEntities( getCanvases( ));
     _deleteEntities( getLayouts( ));
     _deleteEntities( getObservers( ));
+    const Nodes& nodes = getNodes();
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        const Pipes& pipes = (*i)->getPipes();
+        for( Pipes::const_iterator j = pipes.begin(); j != pipes.end(); ++j )
+        {
+            const Windows& windows = (*j)->getWindows();
+            _deleteEntities( windows );
+        }
+    }
+
     _syncClock();
     return result;
 }

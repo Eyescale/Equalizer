@@ -60,16 +60,14 @@ void NodeFactory::releaseObserver( Observer* observer )
 
 Layout* NodeFactory::createLayout( Config* parent )
 { return new Layout( parent ); }
-void NodeFactory::releaseLayout( Layout* layout )
-{ _release( layout ); }
+void NodeFactory::releaseLayout( Layout* layout ) { _release( layout ); }
 
 View* NodeFactory::createView( Layout* parent ) { return new View( parent ); }
 void NodeFactory::releaseView( View* view ) { delete view; }
 
 Canvas* NodeFactory::createCanvas( Config* parent )
 { return new Canvas( parent ); }
-void NodeFactory::releaseCanvas( Canvas* canvas )
-{ _release( canvas ); }
+void NodeFactory::releaseCanvas( Canvas* canvas ) { _release( canvas ); }
 
 Segment* NodeFactory::createSegment( Canvas* parent )
 { return new Segment(parent); }
@@ -80,11 +78,11 @@ void NodeFactory::releasePipe( Pipe* pipe ) { delete pipe; }
 
 Window* NodeFactory::createWindow( Pipe* parent )
 { return new Window( parent ); }
-void NodeFactory::releaseWindow( Window* window ) { delete window; }
+void NodeFactory::releaseWindow( Window* window ) { _release( window ); }
 
 Channel* NodeFactory::createChannel( Window* parent )
 { return new Channel(parent); }
-void NodeFactory::releaseChannel( Channel* channel ) { delete channel; }
+void NodeFactory::releaseChannel( Channel* channel ) { _release( channel ); }
 
 }
 }

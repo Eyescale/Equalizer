@@ -148,8 +148,11 @@ void Window< P, W, C >::deserialize( net::DataIStream& is,
         {
             Channels result;
             is.deserializeChildren( this, _channels, result );
-            _channels.swap( result );
-            EQASSERT( _channels.size() == result.size( ));
+            if( !isMaster( ))
+            {
+                _channels.swap( result );
+                EQASSERT( _channels.size() == result.size( ));
+            }
         }
         else // consume unused ObjectVersions
         {
@@ -188,11 +191,13 @@ void Window< P, W, C >::notifyDetach()
 
         net::Session* session = getSession();
         EQASSERT( session );
-        EQASSERT( !isMaster( ));
 
-        session->unmapObject( channel );
-        _removeChannel( channel );
-        _pipe->getServer()->getNodeFactory()->releaseChannel( channel );
+        session->releaseObject( channel );
+        if( !isMaster( ))
+        {
+            _removeChannel( channel );
+            _pipe->getServer()->getNodeFactory()->releaseChannel( channel );
+        }
     }
 }
 
@@ -214,6 +219,7 @@ void Window< P, W, C >::_addChannel( C* channel )
 {
     EQASSERT( channel->getWindow() == this );
     _channels.push_back( channel );
+    setDirty( DIRTY_CHANNELS );
 }
 
 template< class P, class W, class C >
@@ -224,6 +230,7 @@ bool Window< P, W, C >::_removeChannel( C* channel )
         return false;
 
     _channels.erase( i );
+    setDirty( DIRTY_CHANNELS );
     return true;
 }
 

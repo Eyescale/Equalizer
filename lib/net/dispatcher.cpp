@@ -125,6 +125,7 @@ CommandResult Dispatcher::_cmdUnknown( Command& command )
 {
     EQERROR << "Unknown " << command << " for " << typeid(*this).name()
             << " @" << static_cast< void* >( this ) << endl;
+    EQUNREACHABLE;
     return COMMAND_ERROR;
 }
 

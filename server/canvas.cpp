@@ -20,7 +20,7 @@
 #include "channel.h"
 #include "compound.h"
 #include "config.h"
-#include "configVisitor.h"
+#include "configDestCompoundVisitor.h"
 #include "layout.h"
 #include "log.h"
 #include "node.h"
@@ -46,14 +46,6 @@ Canvas::Canvas( Config* parent )
 
 Canvas::~Canvas()
 {
-   EQASSERT( _state == STATE_STOPPED || _state == STATE_DELETE );
-   Compounds compounds;
-   _findDestinationCompounds( compounds );
-   for( Compounds::const_iterator i = compounds.begin();
-        i != compounds.end(); ++i )
-   {
-       delete *i;
-   }
 }
 
 Segment* Canvas::getSegment( const SegmentPath& path )
@@ -176,33 +168,6 @@ void Canvas::postDelete()
     getConfig()->postNeedsFinish();
 }
 
-namespace
-{
-class DestCompoundVisitor : public ConfigVisitor
-{
-public:
-    DestCompoundVisitor( const Channels& channels, Compounds& result )
-            : _channels( channels ), _compounds( result ) {}
-    virtual ~DestCompoundVisitor() {}
-
-    virtual VisitorResult visit( Compound* compound )
-        {
-            Channel* channel = compound->getChannel();
-            if( !channel )
-                return TRAVERSE_CONTINUE;
-            
-            Channels::const_iterator i = stde::find( _channels, channel );
-            if( i != _channels.end( ))
-                _compounds.push_back( compound );
-            return TRAVERSE_PRUNE;
-        }
-
-private:
-    const Channels& _channels;
-    Compounds& _compounds;
-};
-}
-
 void Canvas::_findDestinationChannels( const Layout* layout,
                                        Channels& result ) const
 {
@@ -217,18 +182,8 @@ void Canvas::_findDestinationChannels( const Layout* layout,
 void Canvas::_findDestinationCompounds( const Channels& channels,
                                         Compounds& result ) const
 {
-    DestCompoundVisitor visitor( channels, result );
+    ConfigDestCompoundVisitor visitor( channels, result );
     getConfig()->accept( visitor );
-}
-
-void Canvas::_findDestinationCompounds( Compounds& result ) const
-{
-    const Segments& segments = getSegments();
-    for( Segments::const_iterator i=segments.begin(); i != segments.end(); ++i )
-    {
-        Segment* segment = *i;
-        _findDestinationCompounds( segment->getDestinationChannels(), result );
-    }
 }
 
 }

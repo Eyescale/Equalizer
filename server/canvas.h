@@ -100,9 +100,6 @@ namespace server
         /** @return the destination compounds for the given channels.*/
         void _findDestinationCompounds( const Channels& channels,
                                         Compounds& result ) const;
-
-        /** @return all destination compounds.*/
-        void _findDestinationCompounds( Compounds& result ) const;
     };
 
 }

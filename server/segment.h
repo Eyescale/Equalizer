@@ -79,6 +79,9 @@ namespace server
 
         /** Update the view (wall/projection). */
         void _updateView();
+
+        /** @return all destination compounds.*/
+        void _findDestinationCompounds( Compounds& result ) const;
     };
 }
 }

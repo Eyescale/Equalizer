@@ -19,13 +19,6 @@
 #ifndef EQSERVER_WINDOW_H
 #define EQSERVER_WINDOW_H
 
-#ifdef EQSERVER_EXPORTS
-   // We need to instantiate a Monitor< State > when compiling the library,
-   // but we don't want to have <pthread.h> for a normal build, hence this hack
-#  include <pthread.h>
-#endif
-#include <eq/base/monitor.h>
-
 #include "types.h"
 #include "visitorResult.h"  // enum
 
@@ -49,14 +42,15 @@ namespace server
     public:
         enum State
         {
-            STATE_STOPPED = 0,  // next: INITIALIZING
-            STATE_INITIALIZING, // next: INIT_FAILED or INIT_SUCCESS
-            STATE_INIT_SUCCESS, // next: RUNNING
-            STATE_INIT_FAILED,  // next: EXITING
-            STATE_RUNNING,      // next: EXITING
-            STATE_EXITING,      // next: EXIT_FAILED or EXIT_SUCCESS
-            STATE_EXIT_SUCCESS, // next: STOPPED
-            STATE_EXIT_FAILED,  // next: STOPPED
+            STATE_STOPPED = EQ_BIT1,      // next: INITIALIZING
+            STATE_INITIALIZING = EQ_BIT2, // next: INIT_FAILED or INIT_SUCCESS
+            STATE_INIT_SUCCESS = EQ_BIT3, // next: RUNNING
+            STATE_INIT_FAILED = EQ_BIT4,  // next: EXITING
+            STATE_RUNNING = EQ_BIT5,      // next: EXITING
+            STATE_EXITING = EQ_BIT6,      // next: EXIT_FAILED or EXIT_SUCCESS
+            STATE_EXIT_SUCCESS = EQ_BIT7, // next: STOPPED
+            STATE_EXIT_FAILED = EQ_BIT8,  // next: STOPPED
+            STATE_DELETE = EQ_BIT16       // additional modifier
         };
 
         /** 
@@ -89,6 +83,18 @@ namespace server
 
         /** @return if this window is actively used for rendering. */
         bool isActive() const { return (_active != 0); }
+
+        /** @return true if this window is stopped. */
+        bool isStopped() const { return _state & STATE_STOPPED; }
+
+        /** @return true if this window is running. */
+        bool isRunning() const { return _state & STATE_RUNNING; }
+
+        /** @return true if this window should be deleted. */
+        bool needsDelete() const { return _state & STATE_DELETE; }
+
+        /** Schedule deletion of this window. */
+        void postDelete();
 
         /**
          * Add additional tasks this window, and all its parents, might
@@ -177,7 +183,7 @@ namespace server
         uint32_t _active;
 
         /** The current state for state change synchronization. */
-        base::Monitor< State > _state;
+        base::Monitor< uint32_t > _state;
         
         /** The maximum frame rate allowed for this window. */
         float _maxFPS;
@@ -209,9 +215,6 @@ namespace server
         {
             char dummy[32];
         };
-
-        /** common code for all constructors */
-        void _construct();
 
         /** Clears all swap barriers of the window. */
         void _resetSwapBarriers();

@@ -1,11 +1,9 @@
-Fix frustum update from canvas->segment->compound if the latter two
-don't have a frustum
-Clean up eqPly kd-tree info messages
+Implement run-time window deletion
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

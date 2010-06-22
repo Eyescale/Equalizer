@@ -43,23 +43,17 @@ namespace server
 typedef fabric::Window< Pipe, Window, Channel > Super;
 typedef net::CommandFunc<Window> WindowFunc;
 
-void Window::_construct()
-{
-    _active          = 0;
-    _lastDrawChannel = 0;
-    _maxFPS          = std::numeric_limits< float >::max();
-    _swapFinish      = false;
-    _swap            = false;
-    _nvSwapBarrier   = 0;
-    _nvNetBarrier    = 0;
-    EQINFO << "New window @" << (void*)this << std::endl;
-}
-
 Window::Window( Pipe* parent ) 
         : Super( parent )
+        , _active( 0 )
+        , _state( STATE_STOPPED )
+        , _maxFPS( std::numeric_limits< float >::max( ))
+        , _nvSwapBarrier( 0 )
+        , _nvNetBarrier( 0 )
+        , _lastDrawChannel( 0 )
+        , _swapFinish( false )
+        , _swap( false )
 {
-    _construct();
-    
     const Global* global = Global::instance();
     for( unsigned i = 0; i < IATTR_ALL; ++i )
     {
@@ -91,6 +85,12 @@ void Window::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     Super::deserialize( is, dirtyBits );
     EQASSERT( isMaster( ));
     setDirty( dirtyBits ); // redistribute slave changes
+}
+
+void Window::postDelete()
+{
+    _state |= STATE_DELETE;
+    getConfig()->postNeedsFinish();
 }
 
 const Node* Window::getNode() const 
@@ -287,10 +287,11 @@ void Window::send( net::ObjectPacket& packet )
 
 void Window::updateRunning( const uint32_t initID )
 {
-    if( !isActive() && _state == STATE_STOPPED ) // inactive
+    if( !isActive() && isStopped( )) // inactive
         return;
 
-    if( isActive() && _state != STATE_RUNNING ) // becoming active
+    EQASSERT( !isActive() || !needsDelete( ));
+    if( isActive() && !isRunning( )) // becoming active
         _configInit( initID );
 
     // Let all running channels update their running state (incl. children)
@@ -307,7 +308,7 @@ void Window::updateRunning( const uint32_t initID )
 
 bool Window::syncRunning()
 {
-    if( !isActive() && _state == STATE_STOPPED ) // inactive
+    if( !isActive() && isStopped( )) // inactive
         return true;
 
     // Sync state updates
@@ -326,15 +327,14 @@ bool Window::syncRunning()
         }
     }
 
-    if( isActive() && _state != STATE_RUNNING && !_syncConfigInit( ))
-        // becoming active
+    if( isActive() && !isRunning() && !_syncConfigInit( )) // becoming active
         result = false;
     if( !isActive() && !_syncConfigExit( )) // becoming inactive
         result = false;
 
     EQASSERT( isMaster( ));
-    EQASSERT( _state == STATE_STOPPED || _state == STATE_RUNNING || 
-              _state == STATE_INIT_FAILED );
+    EQASSERTINFO( isStopped() || isRunning() || ( _state & STATE_INIT_FAILED ),
+                  _state );
     return result;
 }
 
@@ -343,6 +343,7 @@ bool Window::syncRunning()
 //---------------------------------------------------------------------------
 void Window::_configInit( const uint32_t initID )
 {
+    EQASSERT( !needsDelete( ));
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
 
@@ -361,6 +362,7 @@ void Window::_configInit( const uint32_t initID )
 
 bool Window::_syncConfigInit()
 {
+    EQASSERT( !needsDelete( ));
     EQASSERT( _state == STATE_INITIALIZING || _state == STATE_INIT_SUCCESS ||
               _state == STATE_INIT_FAILED );
 
@@ -381,8 +383,8 @@ bool Window::_syncConfigInit()
 //---------------------------------------------------------------------------
 void Window::_configExit()
 {
-    EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
-    _state = STATE_EXITING;
+    EQASSERT( isRunning() || _state == STATE_INIT_FAILED );
+    _state = needsDelete() ? STATE_EXITING | STATE_DELETE : STATE_EXITING;
 
     EQLOG( LOG_INIT ) << "Exit Window" << std::endl;
     WindowConfigExitPacket packet;
@@ -396,14 +398,12 @@ void Window::_configExit()
 
 bool Window::_syncConfigExit()
 {
-    EQASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
-              _state == STATE_EXIT_FAILED );
-    
-    _state.waitNE( STATE_EXITING );
-    const bool success = ( _state == STATE_EXIT_SUCCESS );
-    EQASSERT( success || _state == STATE_EXIT_FAILED );
+    _state.waitNE( STATE_EXITING, STATE_EXITING | STATE_DELETE );
+    const bool success = ( _state & STATE_EXIT_SUCCESS );
+    EQASSERT( success || _state & STATE_EXIT_FAILED );
 
-    _state = STATE_STOPPED; // EXIT_FAILED -> STOPPED transition
+    // EXIT_FAILED -> STOPPED transition
+    _state = needsDelete() ? STATE_STOPPED | STATE_DELETE : STATE_STOPPED;
     _nvSwapBarrier = 0;
     setTasks( fabric::TASK_NONE );
     sync();
@@ -415,8 +415,8 @@ bool Window::_syncConfigExit()
 //---------------------------------------------------------------------------
 void Window::updateDraw( const uint32_t frameID, const uint32_t frameNumber )
 {
-    EQASSERT( _state == STATE_RUNNING );
-    EQASSERT( _active > 0 );
+    EQASSERT( isRunning( ));
+    EQASSERT( isActive( ));
 
     _swap = false;
 
@@ -537,6 +537,7 @@ net::CommandResult Window::_cmdConfigInitReply( net::Command& command )
         command.getPacket<WindowConfigInitReplyPacket>();
     EQVERB << "handle window configInit reply " << packet << std::endl;
 
+    EQASSERT( !needsDelete( ));
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
     return net::COMMAND_HANDLED;
 }
@@ -547,7 +548,13 @@ net::CommandResult Window::_cmdConfigExitReply( net::Command& command )
         command.getPacket<WindowConfigExitReplyPacket>();
     EQVERB << "handle window configExit reply " << packet << std::endl;
 
-    _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
+    if( packet->result )
+        _state = needsDelete() ? 
+            STATE_EXIT_SUCCESS | STATE_DELETE : STATE_EXIT_SUCCESS;
+    else
+        _state = needsDelete() ? 
+            STATE_EXIT_FAILED | STATE_DELETE : STATE_EXIT_FAILED;
+
     return net::COMMAND_HANDLED;
 }
 

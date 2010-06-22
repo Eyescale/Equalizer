@@ -104,6 +104,17 @@ void Channel::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     setDirty( dirtyBits ); // redistribute slave changes
 }
 
+void Channel::postDelete()
+{
+    //_state |= STATE_DELETE;
+    //getConfig()->postNeedsFinish();
+
+    // Deregister server-queue command handler to avoid assertion in
+    // Session::invokeCommand after channel deletion
+    registerCommand( fabric::CMD_CHANNEL_FRAME_FINISH_REPLY,
+                     CmdFunc( this, &Channel::_cmdNop ), 0 );    
+}
+
 Config* Channel::getConfig()
 {
     Window* window = getWindow();

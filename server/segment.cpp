@@ -19,6 +19,8 @@
 
 #include "canvas.h"
 #include "channel.h"
+#include "configDestCompoundVisitor.h"
+#include "compound.h"
 #include "config.h"
 #include "view.h"
 
@@ -40,7 +42,13 @@ Segment::Segment( Canvas* parent )
 
 Segment::~Segment()
 {
-    EQINFO << "Delete segment @" << (void*)this << std::endl;
+    Compounds compounds;
+    _findDestinationCompounds( compounds );
+    for( Compounds::const_iterator i = compounds.begin();
+         i != compounds.end(); ++i )
+    {
+        delete *i;
+    }
 
     // Use copy - Channel::unsetOutput modifies vector
     Channels destinationChannels = _destinationChannels;
@@ -121,6 +129,12 @@ SegmentPath Segment::getPath() const
     EQASSERT( i != segments.end( ));
     path.segmentIndex = std::distance( segments.begin(), i );
     return path;
+}
+
+void Segment::_findDestinationCompounds( Compounds& result ) const
+{
+    ConfigDestCompoundVisitor visitor( _destinationChannels, result );
+    getConfig()->accept( visitor );
 }
 
 }
