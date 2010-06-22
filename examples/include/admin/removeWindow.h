@@ -197,7 +197,7 @@ inline bool removeWindow( eq::admin::ServerPtr server )
         }
     }
 
-    //delete window;
+    delete window;
     config->commit();
     return true;
 }
