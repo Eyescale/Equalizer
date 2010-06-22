@@ -692,6 +692,7 @@ template class eq::fabric::Config< eq::Server, eq::Config, eq::Observer,
     template EQ_EXPORT void eq::Config::Super::find< type >( const uint32_t, \
                                                              type** );
 
+FIND_ID_TEMPLATE1( eq::Window );
 FIND_ID_TEMPLATE1( eq::Channel );
 FIND_ID_TEMPLATE1( eq::Layout );
 FIND_ID_TEMPLATE1( eq::Observer );
@@ -699,6 +700,7 @@ FIND_ID_TEMPLATE1( eq::Observer );
 #define FIND_ID_TEMPLATE2( type )                                       \
     template EQ_EXPORT type* eq::Config::Super::find< type >( const uint32_t );
 
+FIND_ID_TEMPLATE2( eq::Window );
 FIND_ID_TEMPLATE2( eq::Observer );
 FIND_ID_TEMPLATE2( eq::Layout );
 FIND_ID_TEMPLATE2( eq::View );
@@ -706,6 +708,7 @@ FIND_ID_TEMPLATE2( eq::View );
 #define FIND_NAME_TEMPLATE1( type )                                     \
     template EQ_EXPORT void \
     eq::Config::Super::find< type >(const std::string&, const type** ) const;
+FIND_NAME_TEMPLATE1( eq::Window );
 FIND_NAME_TEMPLATE1( eq::Layout );
 FIND_NAME_TEMPLATE1( eq::Observer );
 
@@ -714,6 +717,7 @@ FIND_NAME_TEMPLATE1( eq::Observer );
     template EQ_EXPORT const type*                                      \
     eq::Config::Super::find< type >( const std::string& ) const;
 
+CONST_FIND_NAME_TEMPLATE2( eq::Window );
 CONST_FIND_NAME_TEMPLATE2( eq::Canvas );
 CONST_FIND_NAME_TEMPLATE2( eq::Channel );
 CONST_FIND_NAME_TEMPLATE2( eq::Layout );
@@ -724,6 +728,7 @@ CONST_FIND_NAME_TEMPLATE2( eq::View );
     template EQ_EXPORT type*                                      \
     eq::Config::Super::find< type >( const std::string& );
 
+FIND_NAME_TEMPLATE2( eq::Window );
 FIND_NAME_TEMPLATE2( eq::Canvas );
 FIND_NAME_TEMPLATE2( eq::Channel );
 FIND_NAME_TEMPLATE2( eq::Layout );
