@@ -1,9 +1,9 @@
-Implement run-time window deletion
+Make log clock non-wrapping
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

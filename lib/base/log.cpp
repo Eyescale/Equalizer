@@ -167,16 +167,10 @@ LogBuffer::int_type LogBuffer::overflow( LogBuffer::int_type c )
     {
         if( !_noHeader )
         {
-            _stringStream << getpid()  << " " 
+            _stringStream << getpid()  << " "
                           << eq::base::Thread::getSelfThreadID()
-                          << " " << _file << ":" << _line << " ";
-
-            const int prec = _stringStream.precision();
-
-            _stringStream.precision( 5 );
-            _stringStream << std::setw(5) << (_clock->getTime64() % 100000)
-                          << " ";
-            _stringStream.precision( prec );
+                          << " " << _file << ":" << _line << " "
+                          << _clock->getTime64() << " ";
         }
 
         for( int i=0; i<_indent; ++i )
