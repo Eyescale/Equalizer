@@ -118,10 +118,10 @@ namespace server
          *
          * @warning experimental - may not be supported in the future.
          */
-        void setInputZoom( const Zoom& zoom );
+        EQ_EXPORT void setInputZoom( const Zoom& zoom );
 
         /** @return the input zoom. @warning experimental */
-        const Zoom& getInputZoom() const;
+        EQ_EXPORT const Zoom& getInputZoom() const;
 
         /** The images of this frame */
         EQ_EXPORT const Images& getImages() const;
