@@ -705,6 +705,14 @@ FIND_ID_TEMPLATE2( eq::Observer );
 FIND_ID_TEMPLATE2( eq::Layout );
 FIND_ID_TEMPLATE2( eq::View );
 
+#define CONST_FIND_ID_TEMPLATE2( type )                                       \
+    template EQ_EXPORT const type* eq::Config::Super::find< type >( const uint32_t ) const;
+
+CONST_FIND_ID_TEMPLATE2( eq::Window );
+CONST_FIND_ID_TEMPLATE2( eq::Observer );
+CONST_FIND_ID_TEMPLATE2( eq::Layout );
+CONST_FIND_ID_TEMPLATE2( eq::View );
+
 #define FIND_NAME_TEMPLATE1( type )                                     \
     template EQ_EXPORT void \
     eq::Config::Super::find< type >(const std::string&, const type** ) const;
