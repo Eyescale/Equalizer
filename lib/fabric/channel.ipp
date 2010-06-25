@@ -136,9 +136,15 @@ void Channel< W, C >::deserialize( net::DataIStream& is,
         is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
     if( dirtyBits & DIRTY_VIEWPORT )
     {
-        is >> _data.nativeContext.vp >> _data.nativeContext.pvp
-           >> _data.fixedVP >> _maxSize;
-        notifyViewportChanged();
+        // Ignore data from master (server) if we have local changes
+        if( !Serializable::isDirty( DIRTY_VIEWPORT ) || isMaster( ))
+        {
+            is >> _data.nativeContext.vp >> _data.nativeContext.pvp
+           	   >> _data.fixedVP >> _maxSize;
+            notifyViewportChanged();
+        }
+        else // consume unused data
+            is.advanceBuffer( sizeof( _data.nativeContext.vp ) + sizeof( _data.nativeContext.pvp ) + sizeof( _data.fixedVP ) + sizeof( _maxSize ));
     }
     if( dirtyBits & DIRTY_MEMBER )
         is >> _drawable >> _color >> _data.nativeContext.view
@@ -150,7 +156,7 @@ void Channel< W, C >::deserialize( net::DataIStream& is,
 }
 
 template< class W, class C >
-void Channel< W, C >::setDirty(const uint64_t dirtyBits )
+void Channel< W, C >::setDirty( const uint64_t dirtyBits )
 {
     Object::setDirty( dirtyBits );
     if( isMaster( ))

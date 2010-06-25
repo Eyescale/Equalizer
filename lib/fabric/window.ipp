@@ -162,9 +162,16 @@ void Window< P, W, C >::deserialize( net::DataIStream& is,
     }
     if( dirtyBits & DIRTY_VIEWPORT )
     {
-        is >> _data.vp >> _data.pvp >> _data.fixedVP;
-        notifyViewportChanged();
+        // Ignore data from master (server) if we have local changes
+        if( !Serializable::isDirty( DIRTY_VIEWPORT ) || isMaster( ))
+        {
+            is >> _data.vp >> _data.pvp >> _data.fixedVP;
+            notifyViewportChanged();
+        }
+        else // consume unused data
+            is.advanceBuffer( sizeof( _data.vp ) + sizeof( _data.pvp ) + sizeof( _data.fixedVP ));
     }
+
     if( dirtyBits & DIRTY_DRAWABLECONFIG )
         is >> _data.drawableConfig;
 }
