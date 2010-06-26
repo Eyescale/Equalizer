@@ -39,6 +39,8 @@ int DDS_bufsize,DDS_bitcnt;
 
 unsigned short int DDS_INTEL=1;
 
+unsigned int checksum(unsigned char *data,unsigned int bytes);
+
 inline unsigned int DDS_shiftl(const unsigned int value,const int bits)
    {return((bits>=32)?0:value<<bits);}
 
@@ -761,7 +763,7 @@ unsigned char *readPVMvolume(const char *filename,
    }
 
 // simple checksum algorithm
-unsigned int checksum(unsigned char *data,unsigned int bytes)
+unsigned int checksum(unsigned char *data, unsigned int bytes)
    {
    const unsigned int prime=271;
 
