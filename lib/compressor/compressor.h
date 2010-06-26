@@ -40,7 +40,7 @@ namespace plugin
     {
     public:
         typedef void  (*CompressorGetInfo_t)( EqCompressorInfo* const );
-        typedef void* (*NewCompressor_t)();
+        typedef void* (*NewCompressor_t)( const EqCompressorInfo* );
         typedef void (*Decompress_t)( const void* const*, const 
                                       eq_uint64_t* const,
                                       const unsigned, void* const, 
@@ -53,11 +53,10 @@ namespace plugin
                                     const eq_uint64_t*,
                                     const eq_uint64_t, const eq_uint64_t*,
                                     const unsigned );
+
         struct Functions
         {
             Functions();
-            
-            unsigned             name;
             CompressorGetInfo_t  getInfo;
             NewCompressor_t      newCompressor;
             Decompress_t         decompress;
@@ -67,7 +66,7 @@ namespace plugin
         };
 
         /** Construct a new compressor. */
-        Compressor();
+        Compressor( const EqCompressorInfo* info );
 
         virtual ~Compressor();
 
@@ -81,7 +80,6 @@ namespace plugin
         virtual void compress( const void* const inData,
                                const eq_uint64_t nPixels, 
                                const bool useAlpha ) { EQDONTCALL; };
-
 
         typedef eq::base::Bufferb Result;
         typedef std::vector< Result* > ResultVector;
@@ -128,10 +126,10 @@ namespace plugin
                              const eq_uint64_t  outDims[4],  
                              const unsigned     destination ) { EQDONTCALL; }
 
-    protected: 
+    protected:
         ResultVector _results;  //!< The compressed data
         unsigned _nResults;     //!< Number of elements used in _results
-    }; 
+    };
 }
 }
 

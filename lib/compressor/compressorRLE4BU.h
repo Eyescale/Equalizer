@@ -29,7 +29,7 @@ namespace plugin
 class CompressorRLE4BU : public Compressor
 {
 public:
-    CompressorRLE4BU() {}
+    CompressorRLE4BU( const EqCompressorInfo* info ): Compressor( info ) {}
     virtual ~CompressorRLE4BU() {}
 
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
@@ -40,7 +40,9 @@ public:
                             const unsigned nInputs, void* const outData, 
                             const eq_uint64_t nPixels, const bool useAlpha );
 
-    static void* getNewCompressor( ){ return new eq::plugin::CompressorRLE4BU; }
+    static void* getNewCompressor( const EqCompressorInfo* info )
+        { return new eq::plugin::Compressor( info ); }
+
     static void* getNewDecompressor( ){ return 0; }
 
     static void getInfo( EqCompressorInfo* const info )
@@ -50,14 +52,13 @@ public:
         info->capabilities  = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D;
         info->tokenType     = EQ_COMPRESSOR_DATATYPE_4_BYTE;
         info->quality       = 1.f;
-        info->ratio         =  .89f;
+        info->ratio         = .89f;
         info->speed         = 2.11f;
     }
 
     static Functions getFunctions()
     {
         Functions functions;
-        functions.name          = EQ_COMPRESSOR_RLE_4_BYTE_UNSIGNED;
         functions.getInfo       = getInfo;
         functions.newCompressor = getNewCompressor;
         functions.decompress    = decompress;

@@ -22,11 +22,10 @@
 #include "compressorRLEB.h"
 #include "compressorRLE4HF.h"
 #include "compressorRLE4BU.h"
-#include "compressorRLEU.h"
 #include "compressorRLE565.h"
 #include "compressorRLE10A2.h"
 #include "compressorYUV.h"
-#include "compressor1To1.h"
+#include "compressorReadDrawPixels.h"
 #include "compressorRLEYUV.h"
 namespace eq
 {
@@ -36,36 +35,72 @@ namespace
 {
     Compressor::Functions _functions[] =
     {   
-        eq::plugin::CompressorRLE4B::getFunctions(),
-        eq::plugin::CompressorDiffRLE4B::getFunctions(),
-        eq::plugin::CompressorRLE4HF::getFunctions(),
-        eq::plugin::CompressorDiffRLE4HF::getFunctions(),
+        eq::plugin::CompressorRLE4B::getFunctions( 0 ),
+        eq::plugin::CompressorRLE4B::getFunctions( 1 ),
+        eq::plugin::CompressorRLE4B::getFunctions( 2 ),
+        eq::plugin::CompressorRLE4B::getFunctions( 3 ),
+        eq::plugin::CompressorRLE4B::getFunctions( 4 ),
+        eq::plugin::CompressorRLE4B::getFunctions( 5 ),
+        eq::plugin::CompressorRLE4B::getFunctions( 6 ),
+        eq::plugin::CompressorRLE4B::getFunctions( 7 ),
+        eq::plugin::CompressorRLE4B::getFunctions( 8 ),
+        eq::plugin::CompressorDiffRLE4B::getFunctions( 0 ),
+        eq::plugin::CompressorDiffRLE4B::getFunctions( 1 ),
+        eq::plugin::CompressorDiffRLE4B::getFunctions( 2 ),
+        eq::plugin::CompressorDiffRLE4B::getFunctions( 3 ),
+        eq::plugin::CompressorDiffRLE4B::getFunctions( 4 ),
+        eq::plugin::CompressorDiffRLE4B::getFunctions( 5 ),
+        eq::plugin::CompressorDiffRLE4B::getFunctions( 6 ),
+        eq::plugin::CompressorDiffRLE4B::getFunctions( 7 ),
+        eq::plugin::CompressorDiffRLE4B::getFunctions( 8 ),
+        eq::plugin::CompressorRLE4HF::getFunctions( 0 ),
+        eq::plugin::CompressorRLE4HF::getFunctions( 1 ),
+        eq::plugin::CompressorRLE4HF::getFunctions( 2 ),
+        eq::plugin::CompressorDiffRLE4HF::getFunctions( 0 ),
+        eq::plugin::CompressorDiffRLE4HF::getFunctions( 1 ),
+        eq::plugin::CompressorDiffRLE4HF::getFunctions( 2 ),
         eq::plugin::CompressorRLE4BU::getFunctions(),
-        eq::plugin::CompressorRLEU::getFunctions(),
-        eq::plugin::CompressorDiffRLE565::getFunctions(),
-        eq::plugin::CompressorRLEB::getFunctions(),
+        eq::plugin::CompressorDiffRLE565::getFunctions( 0 ),
+        eq::plugin::CompressorDiffRLE565::getFunctions( 1 ),
+        eq::plugin::CompressorDiffRLE565::getFunctions( 2 ),
+        eq::plugin::CompressorDiffRLE565::getFunctions( 3 ),
+        eq::plugin::CompressorDiffRLE565::getFunctions( 4 ),
+        eq::plugin::CompressorDiffRLE565::getFunctions( 5 ),
+        eq::plugin::CompressorDiffRLE565::getFunctions( 6 ),
+        eq::plugin::CompressorRLEB::getFunctions( ),
         eq::plugin::CompressorDiffRLE10A2::getFunctions(),
-        eq::plugin::Compressor1TO1RGBAUnsignedByte::getFunctions(),
-        eq::plugin::Compressor1TO1RGBAInt8888rev::getFunctions(),
-        eq::plugin::Compressor1TO1RGBAInt1010102::getFunctions(),
-        eq::plugin::Compressor1TO1RGBAFloat::getFunctions(),
-        eq::plugin::Compressor1TO1RGBAHalfFloat::getFunctions(),
-        eq::plugin::Compressor1TO1BGRAUnsignedByte::getFunctions(),
-        eq::plugin::Compressor1TO1BGRAInt8888rev::getFunctions(),
-        eq::plugin::Compressor1TO1BGRAInt1010102::getFunctions(),
-        eq::plugin::Compressor1TO1BGRAFloat::getFunctions(),
-        eq::plugin::Compressor1TO1BGRAHalfFloat::getFunctions(),
-        eq::plugin::Compressor1TO1DepthUINT::getFunctions(),
-        eq::plugin::Compressor1TO1DepthFLOAT::getFunctions(),
-        eq::plugin::Compressor1TO1DepthStencil248NV::getFunctions(),
-        eq::plugin::Compressor1TO1RGBUnsignedByte::getFunctions(),
-        eq::plugin::Compressor1TO1RGBFloat::getFunctions(),
-        eq::plugin::Compressor1TO1RGBHalfFloat::getFunctions(),
-        eq::plugin::Compressor1TO1BGRUnsignedByte::getFunctions(),
-        eq::plugin::Compressor1TO1BGRFloat::getFunctions(),
-        eq::plugin::Compressor1TO1BGRHalfFloat::getFunctions(),
-        eq::plugin::CompressorYUVColor8::getFunctions(),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 0 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 1 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 2 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 3 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 4 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 5 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 6 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 7 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 8 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 9 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 10 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 11 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 12 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 13 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 14 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 15 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 16 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 17 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 18 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 19 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 20 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 21 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 22 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 23 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 24 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 25 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 26 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 27 ),
+        eq::plugin::CompressorReadDrawPixels::getFunctions( 28 ),
+        eq::plugin::CompressorYUV::getFunctions(),
         eq::plugin::CompressorDiffRLEYUV::getFunctions(),
+
 #if 0
         eq::plugin::CompressorRLE3B::getFunctions(),
         eq::plugin::CompressorRLE4F::getFunctions(),
@@ -77,10 +112,12 @@ namespace
     {
         for( size_t i = 0; true; ++i )
         {
-            if( _functions[i].name == name )
+            EqCompressorInfo info;
+            _functions[i].getInfo( &info );
+            if( info.name == name )
                 return _functions[i];
 
-            if( _functions[i].name == 0 )
+            if( info.name == 0 )
             {
                 assert( 0 ); // UNREACHABLE
                 return _functions[i];
@@ -92,7 +129,7 @@ namespace
     }
 }
 
-Compressor::Compressor()
+Compressor::Compressor( const EqCompressorInfo* info )
 {}
 
 Compressor::~Compressor()
@@ -104,8 +141,7 @@ Compressor::~Compressor()
 }
 
 Compressor::Functions::Functions()
-        : name( 0 )
-        , getInfo( 0 )
+        : getInfo( 0 )
         , newCompressor( 0 )
         , decompress( 0 )
 {}
@@ -128,7 +164,10 @@ void* EqCompressorNewCompressor( const unsigned name )
 {
     const eq::plugin::Compressor::Functions& functions = 
         eq::plugin::_findFunctions( name );
-    return functions.newCompressor( );
+    
+    EqCompressorInfo info;
+    functions.getInfo( &info );
+    return functions.newCompressor( &info );
 }
 
 void EqCompressorDeleteCompressor( void* const compressor )

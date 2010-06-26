@@ -29,7 +29,7 @@ namespace plugin
 class CompressorDiffRLE565 : public Compressor
 {
 public:
-    CompressorDiffRLE565() {}
+    CompressorDiffRLE565( const EqCompressorInfo* info ): Compressor( info ) {}
     virtual ~CompressorDiffRLE565() {}
 
     /** @name getNewCompressor */
@@ -38,8 +38,8 @@ public:
      * get a new instance of compressor RLE 565 with loss and swizzle data.
      *
      */         
-    static void* getNewCompressor( )
-                                 { return new eq::plugin::CompressorDiffRLE565; }
+    static void* getNewCompressor( const EqCompressorInfo* info )
+                    { return new eq::plugin::CompressorDiffRLE565( info ); }
     
     /** @name getNewDecompressor */
     /*@{*/
@@ -49,35 +49,32 @@ public:
      */
     static void* getNewDecompressor( ){ return 0; }
 
-    /** @name getInfo */
-    /*@{*/
-    /**
-     * get information about this compressor.
-     *
-     * @param info about this compressor.
-     */
-    static void getInfo( EqCompressorInfo* const info )
-    {
-        info->version = EQ_COMPRESSOR_VERSION;
-        info->name = EQ_COMPRESSOR_DIFF_RLE_565;
-        info->capabilities = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D |
-                             EQ_COMPRESSOR_IGNORE_MSE;
-        info->tokenType = EQ_COMPRESSOR_DATATYPE_4_BYTE;
-
-        info->quality = 0.7f;
-        info->ratio = 0.06f;
-        info->speed = 1.1f;
-    }
+    
     
     /** @name getFunctions */
     /*@{*/
     /** @return the function pointer list for this compressor. */
-    static Functions getFunctions()
+    static Functions getFunctions( uint32_t index )
     {
         Functions functions;
-        functions.name               = EQ_COMPRESSOR_DIFF_RLE_565;
-        functions.getInfo            = getInfo;
-        functions.newCompressor      = getNewCompressor;       
+        switch ( index )
+        {
+        case 0: functions.getInfo = getInfo0;
+                break;
+        case 1: functions.getInfo = getInfo1;
+                break;
+        case 2: functions.getInfo = getInfo2;
+                break;
+        case 3: functions.getInfo = getInfo3;
+                break;
+        case 4: functions.getInfo = getInfo4;
+                break;
+        case 5: functions.getInfo = getInfo5;
+                break;
+        case 6: functions.getInfo = getInfo6;
+                break;
+        }
+        functions.newCompressor      = getNewCompressor;
         functions.decompress         = decompress;
         return functions;
     }
@@ -89,7 +86,69 @@ public:
                             const eq_uint64_t* const inSizes, 
                             const unsigned nInputs, void* const outData, 
                             const eq_uint64_t nPixels, const bool useAlpha );
-};    
+    private:
+    /** @name getInfo */
+    /*@{*/
+    /**
+     * get information about this compressor.
+     *
+     * @param info about this compressor.
+     */
+    static void getInfo0( EqCompressorInfo* const info )
+    {
+        info->version = EQ_COMPRESSOR_VERSION;
+        info->name = EQ_COMPRESSOR_DIFF_RLE_565;
+        info->capabilities = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D |
+                             EQ_COMPRESSOR_IGNORE_MSE;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_4_BYTE;
+
+        info->quality = 0.7f;
+        info->ratio = 0.06f;
+        info->speed = 1.1f;
+    }
+
+    static void getInfo1( EqCompressorInfo* const info )
+    {
+        CompressorDiffRLE565::getInfo0( info );
+        info->name = EQ_COMPRESSOR_RLE_RGBA;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_RGBA;
+    }
+
+    static void getInfo2( EqCompressorInfo* const info )
+    {
+        CompressorDiffRLE565::getInfo0( info );
+        info->name = EQ_COMPRESSOR_DIFF_RLE_565_BGRA;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_BGRA;
+    }
+            
+    static void getInfo3( EqCompressorInfo* const info )
+    {
+        CompressorDiffRLE565::getInfo0( info );
+        info->name = EQ_COMPRESSOR_DIFF_RLE_565_RGBA_UINT_8_8_8_8_REV;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV;
+    }
+    
+    static void getInfo4( EqCompressorInfo* const info )
+    {
+        CompressorDiffRLE565::getInfo0( info );
+        info->name = EQ_COMPRESSOR_DIFF_RLE_565_BGRA_UINT_8_8_8_8_REV;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV;
+    }
+
+    static void getInfo5( EqCompressorInfo* const info )
+    {
+        CompressorDiffRLE565::getInfo0( info );
+        info->name = EQ_COMPRESSOR_DIFF_RLE_565_RGB10_A2;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_RGB10_A2;
+    }
+
+    static void getInfo6( EqCompressorInfo* const info )
+    {
+        CompressorDiffRLE565::getInfo0( info );
+        info->name = EQ_COMPRESSOR_DIFF_RLE_565_BGR10_A2;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_BGR10_A2;
+    }
+};
 }
 }
 #endif // EQ_PLUGIN_COMPRESSOR_DIFF_RLE_565

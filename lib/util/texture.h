@@ -88,8 +88,24 @@ namespace util
         /** @return the target of the texture. @version 1.0 */
         GLenum getTarget() const { return _target; }
 
-        /** Set the internal pixel format of the texture, e.g., GL_RGBA16F. */
-        EQ_EXPORT void setInternalFormat( const GLuint format );
+        /**
+         * Set the internal pixel format of the texture, e.g., GL_RGBA16F.
+         *
+         * Automatically sets the external format and type to the one matching
+         * the internal format.
+         * 
+         * @param internalFormat the OpenGL intenalFormat.
+         */
+        EQ_EXPORT void setInternalFormat( const GLuint internalFormat );
+
+        /** 
+         * Set the external data format and type.
+         *
+         * @param format the OpenGL format.
+         * @param type the OpenGl Type.
+         */
+        void setExternalFormat( const uint32_t format,
+                                const uint32_t type );
 
         /** @return the pixel format of the texture. */
         GLuint getInternalFormat() const { return _internalFormat; }

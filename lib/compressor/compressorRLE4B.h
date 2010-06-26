@@ -29,7 +29,7 @@ namespace plugin
 class CompressorRLE4B : public Compressor
 {
 public:
-    CompressorRLE4B() {}
+    CompressorRLE4B( const EqCompressorInfo* info ) : Compressor( info ) {}
     virtual ~CompressorRLE4B() {}
 
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
@@ -42,10 +42,11 @@ public:
                             const eq_uint64_t nPixels, const bool useAlpha );
     
 
-    static void* getNewCompressor( ){ return new eq::plugin::CompressorRLE4B; }
+    static void* getNewCompressor( const EqCompressorInfo* info )
+                           { return new eq::plugin::CompressorRLE4B( info ); }
     static void* getNewDecompressor( ){ return 0; }
     
-    static void getInfo( EqCompressorInfo* const info )
+    static void getInfo0( EqCompressorInfo* const info )
     {
         info->version = EQ_COMPRESSOR_VERSION;
         info->name = EQ_COMPRESSOR_RLE_4_BYTE;
@@ -57,14 +58,88 @@ public:
         info->ratio   = .59f;
         info->speed   = 1.0f;
     }
+    static void getInfo1( EqCompressorInfo* const info )
+    {
+        CompressorRLE4B::getInfo0( info );
+        info->name = EQ_COMPRESSOR_RLE_RGBA;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_RGBA;
+    }
 
-    static Functions getFunctions()
+    static void getInfo2( EqCompressorInfo* const info )
+    {
+        CompressorRLE4B::getInfo0( info );
+        info->name = EQ_COMPRESSOR_RLE_BGRA;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_BGRA;
+    }
+            
+    static void getInfo3( EqCompressorInfo* const info )
+    {
+        CompressorRLE4B::getInfo0( info );
+        info->name = EQ_COMPRESSOR_RLE_RGBA_UINT_8_8_8_8_REV;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV;
+    }
+    
+    static void getInfo4( EqCompressorInfo* const info )
+    {
+        CompressorRLE4B::getInfo0( info );
+        info->name = EQ_COMPRESSOR_RLE_BGRA_UINT_8_8_8_8_REV;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV;
+    }
+
+    static void getInfo5( EqCompressorInfo* const info )
+    {
+        CompressorRLE4B::getInfo0( info );
+        info->name = EQ_COMPRESSOR_RLE_RGB10_A2;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_RGB10_A2;
+    }
+    
+    static void getInfo6( EqCompressorInfo* const info )
+    {
+        CompressorRLE4B::getInfo0( info );
+        info->name = EQ_COMPRESSOR_RLE_BGR10_A2;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_BGR10_A2;
+    }
+
+    static void getInfo7( EqCompressorInfo* const info )
+    {
+        info->version      = EQ_COMPRESSOR_VERSION;
+        info->name         = EQ_COMPRESSOR_RLE_UNSIGNED;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_UNSIGNED;
+    }
+    
+    static void getInfo8( EqCompressorInfo* const info )
+    {
+        info->version      = EQ_COMPRESSOR_VERSION;
+        info->name         = EQ_COMPRESSOR_RLE_DEPTH_UNSIGNED_INT;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT;
+    }
+    
+    static Functions getFunctions( uint32_t index )
     {
         Functions functions;
-        functions.name               = EQ_COMPRESSOR_RLE_4_BYTE;
-        functions.getInfo            = getInfo;
-        functions.newCompressor      = getNewCompressor;       
-        functions.decompress         = decompress;
+        switch ( index )
+        {
+        case 0: functions.getInfo = getInfo0;
+                break;
+        case 1: functions.getInfo = getInfo1;
+                break;
+        case 2: functions.getInfo = getInfo2;
+                break;
+        case 3: functions.getInfo = getInfo3;
+                break;
+        case 4: functions.getInfo = getInfo4;
+                break;
+        case 5: functions.getInfo = getInfo5;
+                break;
+        case 6: functions.getInfo = getInfo6;
+                break;
+        case 7: functions.getInfo = getInfo7;
+                break;
+        case 8: functions.getInfo = getInfo8;
+                break;
+        }
+        functions.newCompressor   = getNewCompressor;       
+        functions.decompress      = decompress;
         return functions;
     }
 
@@ -78,7 +153,8 @@ protected:
 class CompressorDiffRLE4B : public CompressorRLE4B
 {
 public:
-    CompressorDiffRLE4B() {}
+    CompressorDiffRLE4B( const EqCompressorInfo* info ) 
+        : CompressorRLE4B( info ) {}
     virtual ~CompressorDiffRLE4B() {}
 
     /** @name getNewCompressor */
@@ -87,8 +163,8 @@ public:
      * get a new instance of compressor RLE 4 bytes and swizzle data.
      *
      */         
-    static void* getNewCompressor( )
-                                 { return new eq::plugin::CompressorDiffRLE4B; }
+    static void* getNewCompressor( const EqCompressorInfo* info )
+                     { return new eq::plugin::CompressorDiffRLE4B( info ); }
     
     /** @name getNewDecompressor */
     /*@{*/
@@ -105,22 +181,94 @@ public:
      *
      * @param info about this compressor.
      */
-    static void getInfo( EqCompressorInfo* const info )
+    static void getInfo0( EqCompressorInfo* const info )
     {
-        CompressorRLE4B::getInfo( info );
+        CompressorRLE4B::getInfo0( info );
         info->name = EQ_COMPRESSOR_DIFF_RLE_4_BYTE;
         info->ratio = 0.50f;
         info->speed = 1.1f;
     }
+    static void getInfo1( EqCompressorInfo* const info )
+    {
+        CompressorDiffRLE4B::getInfo0( info );
+        info->name = EQ_COMPRESSOR_DIFF_RLE_RGBA;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_RGBA;
+    }
+    static void getInfo2( EqCompressorInfo* const info )
+    {
+        CompressorDiffRLE4B::getInfo0( info );
+        info->name = EQ_COMPRESSOR_DIFF_RLE_BGRA;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_BGRA;
+    }
+            
+    static void getInfo3( EqCompressorInfo* const info )
+    {
+        CompressorDiffRLE4B::getInfo0( info );
+        info->name = EQ_COMPRESSOR_DIFF_RLE_RGBA_UINT_8_8_8_8_REV;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV;
+    }
     
+    static void getInfo4( EqCompressorInfo* const info )
+    {
+        CompressorDiffRLE4B::getInfo0( info );
+        info->name = EQ_COMPRESSOR_DIFF_RLE_BGRA_UINT_8_8_8_8_REV;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV;
+    }
+
+    static void getInfo5( EqCompressorInfo* const info )
+    {
+        CompressorDiffRLE4B::getInfo0( info );
+        info->name = EQ_COMPRESSOR_DIFF_RLE_RGB10_A2;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_RGB10_A2;
+    }
+    
+    static void getInfo6( EqCompressorInfo* const info )
+    {
+        CompressorDiffRLE4B::getInfo0( info );
+        info->name = EQ_COMPRESSOR_DIFF_RLE_BGR10_A2;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_BGR10_A2;
+    }
+
+    static void getInfo7( EqCompressorInfo* const info )
+    {
+        CompressorDiffRLE4B::getInfo0( info );
+        info->name         = EQ_COMPRESSOR_DIFF_RLE_UNSIGNED;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_UNSIGNED;
+    }
+    
+    static void getInfo8( EqCompressorInfo* const info )
+    {
+        CompressorDiffRLE4B::getInfo0( info );
+        info->name         = EQ_COMPRESSOR_DIFF_RLE_DEPTH_UNSIGNED_INT;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT;
+    }
     /** @name getFunctions */
     /*@{*/
     /** @return the function pointer list for this compressor. */
-    static Functions getFunctions()
+    static Functions getFunctions( uint32_t index )
     {
         Functions functions;
-        functions.name               = EQ_COMPRESSOR_DIFF_RLE_4_BYTE;
-        functions.getInfo            = getInfo;
+        switch ( index )
+        {
+        case 0: functions.getInfo = CompressorDiffRLE4B::getInfo0;
+                break;
+        case 1: functions.getInfo = CompressorDiffRLE4B::getInfo1;
+                break;
+        case 2: functions.getInfo = CompressorDiffRLE4B::getInfo2;
+                break;
+        case 3: functions.getInfo = CompressorDiffRLE4B::getInfo3;
+                break;
+        case 4: functions.getInfo = CompressorDiffRLE4B::getInfo4;
+                break;
+        case 5: functions.getInfo = CompressorDiffRLE4B::getInfo5;
+                break;
+        case 6: functions.getInfo = CompressorDiffRLE4B::getInfo6;
+                break;
+        case 7: functions.getInfo = CompressorDiffRLE4B::getInfo7;
+                break;
+        case 8: functions.getInfo = CompressorDiffRLE4B::getInfo8;
+                break;
+        }
         functions.newCompressor      = getNewCompressor;       
         functions.decompress         = decompress;
         return functions;

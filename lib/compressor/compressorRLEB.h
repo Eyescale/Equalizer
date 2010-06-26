@@ -28,7 +28,7 @@ namespace plugin
 class CompressorRLEB : public Compressor
 {
 public:
-    CompressorRLEB() {}
+    CompressorRLEB( const EqCompressorInfo* info ): Compressor( info ) {}
     virtual ~CompressorRLEB() {}
 
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
@@ -41,25 +41,24 @@ public:
                             const eq_uint64_t nPixels, const bool useAlpha );
     
 
-    static void* getNewCompressor( ){ return new eq::plugin::CompressorRLEB; }
+    static void* getNewCompressor( const EqCompressorInfo* info  )
+        { return new eq::plugin::CompressorRLEB( info ); }
     static void* getNewDecompressor( ){ return 0; }
     
     static void getInfo( EqCompressorInfo* const info )
     {
-        info->version = EQ_COMPRESSOR_VERSION;
-        info->name = EQ_COMPRESSOR_RLE_BYTE;
-        info->capabilities = EQ_COMPRESSOR_DATA_1D;
-        info->tokenType = EQ_COMPRESSOR_DATATYPE_BYTE;
-
-        info->quality = 1.0f;
-        info->ratio   = .7f;
-        info->speed   = 1.0f;
+        info->version       = EQ_COMPRESSOR_VERSION;
+        info->name          = EQ_COMPRESSOR_RLE_BYTE;
+        info->capabilities  = EQ_COMPRESSOR_DATA_1D;
+        info->tokenType     = EQ_COMPRESSOR_DATATYPE_BYTE;
+        info->quality       = 1.0f;
+        info->ratio         = .7f;
+        info->speed         = 1.0f;
     }
 
-    static Functions getFunctions()
+    static Functions getFunctions( )
     {
         Functions functions;
-        functions.name               = EQ_COMPRESSOR_RLE_BYTE;
         functions.getInfo            = getInfo;
         functions.newCompressor      = getNewCompressor;
         functions.decompress         = decompress;

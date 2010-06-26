@@ -32,8 +32,11 @@ namespace plugin
 class CompressorYUV : public Compressor
 {
 public:
-    CompressorYUV( uint32_t format, uint32_t type, uint32_t depth );
+    CompressorYUV( const EqCompressorInfo* info );
     virtual ~CompressorYUV();
+
+    static void* getNewCompressor( const EqCompressorInfo* info  ){ 
+                     return new CompressorYUV( info ); }
 
     virtual void compress( const void* const inData, 
                            const uint64_t    nPixels, 
@@ -56,10 +59,33 @@ public:
                          const uint64_t  outDims[4],  
                          const unsigned  destination );
 
+    static void getInfo( EqCompressorInfo* const info )
+    {
+        info->version      = EQ_COMPRESSOR_VERSION;
+        info->name         = EQ_COMPRESSOR_TRANSFER_RGBA_TO_YUV_50P;
+        info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
+                             EQ_COMPRESSOR_USE_TEXTURE | 
+                             EQ_COMPRESSOR_USE_FRAMEBUFFER;
+        info->tokenType    = EQ_COMPRESSOR_DATATYPE_RGBA;
+
+        info->quality      = 0.5f;
+        info->ratio        = 0.5f;
+        info->speed        = 0.9f;
+        
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_YUV;
+        info->outputTokenSize = 4;
+    }
+
+    static Functions getFunctions( )
+    {
+        Functions functions;
+        functions.newCompressor  = getNewCompressor;  
+        functions.decompress     = 0;
+        functions.getInfo        = getInfo;
+        functions.isCompatible = (IsCompatible_t)CompressorYUV::isCompatible;
+        return functions;
+    }
 protected:
-    const uint32_t _format;         //!< the GL format
-    const uint32_t _type;           //!< the GL type 
-    const uint32_t _depth;          //!< the depth of one output token
     GLuint   _program;
     eq::base::Bufferb buffer;
 
@@ -77,52 +103,6 @@ private:
     util::FrameBufferObject* _fbo;
     util::Texture* _texture;
 
-};
-
-class CompressorYUVColor8 : public CompressorYUV
-{
-public:
-    CompressorYUVColor8()
-        : CompressorYUV( GL_RGBA , GL_UNSIGNED_BYTE, 4 ){}
-
-    static void* getNewCompressor( ){ 
-                                   return new eq::plugin::CompressorYUVColor8; }
-    
-    static void getInfo( EqCompressorInfo* const info )
-    {
-        info->version      = EQ_COMPRESSOR_VERSION;
-        info->name         = EQ_TRANSFER_YUV_COLOR_BGRAUBYTE_50P;
-        info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
-                             EQ_COMPRESSOR_USE_TEXTURE | 
-                             EQ_COMPRESSOR_USE_FRAMEBUFFER;
-        info->tokenType    = EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_BYTE;
-
-        info->quality      = 0.5f;
-        info->ratio        = 0.5f;
-        info->speed        = 0.9f;
-        
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_YUV_50P;
-        info->outputTokenSize = 4;
-    }
-
-    static Functions getFunctions( )
-    {
-        Functions functions;
-        functions.name           = EQ_TRANSFER_YUV_COLOR_BGRAUBYTE_50P;
-        functions.newCompressor  = getNewCompressor;  
-        functions.decompress     = 0;
-        functions.getInfo        = getInfo;
-        functions.isCompatible = (IsCompatible_t)CompressorYUV::isCompatible;
-        return functions;
-    }
-
-    virtual void compress( const void* const inData, 
-                           const eq_uint64_t nPixels, 
-                           const bool useAlpha )
-        { EQDONTCALL; }
-
-    bool isCompatible( const GLEWContext* glewContext )
-        { return true; }
 };
 
 }

@@ -31,11 +31,8 @@ namespace plugin
 {
 
 /** Construct a new compressor Yuv */
-CompressorYUV::CompressorYUV( uint32_t format, uint32_t type, uint32_t depth )
-        : Compressor()
-        , _format( format )
-        , _type( type )
-        , _depth( depth )
+CompressorYUV::CompressorYUV( const EqCompressorInfo* info )
+        : Compressor( info )
         , _program( 0 )
         , _fbo( 0 )
         , _texture( 0 )
@@ -147,7 +144,7 @@ void CompressorYUV::_compress( GLEWContext*   glewContext,
 
 void CompressorYUV::_download( void* datas )
 {
-   _fbo->getColorTextures()[0]->download( datas, _format, _type );
+   _fbo->getColorTextures()[0]->download( datas, GL_RGBA, GL_UNSIGNED_BYTE );
 }
 
 void CompressorYUV::download( GLEWContext*    glewContext,
@@ -169,7 +166,7 @@ void CompressorYUV::download( GLEWContext*    glewContext,
     if ( !_texture )
     {
         _texture = new util::Texture( glewContext );
-        _texture->setInternalFormat( _format );   
+        _texture->setInternalFormat( GL_RGBA );   
     }
     // the data location are in the frame buffer
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
@@ -267,11 +264,11 @@ void CompressorYUV::upload( GLEWContext*    glewContext,
 {
     glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_TEXTURE_BIT |
                   GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_LIGHTING_BIT );
-    glColorMask( true, true, true, true );
+    //glColorMask( true, true, true, true );
     if ( !_texture )
     {
         _texture = new util::Texture( glewContext );
-        _texture->setInternalFormat( _format );   
+        _texture->setInternalFormat( GL_RGBA );
     }
     
     if ( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
@@ -285,7 +282,7 @@ void CompressorYUV::upload( GLEWContext*    glewContext,
         if ( !_fbo )
         {
             _fbo = new util::FrameBufferObject( glewContext );
-            _fbo->setColorFormat( _format );
+            _fbo->setColorFormat( GL_RGBA );
         }
 
         util::Texture* texture = _fbo->getColorTextures().front();

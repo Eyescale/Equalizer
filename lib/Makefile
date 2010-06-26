@@ -311,7 +311,7 @@ CXXFILES = \
 	util/objectManager.cpp \
 	util/texture.cpp \
 	compressor/compressor.cpp \
-	compressor/compressor1To1.cpp \
+	compressor/compressorReadDrawPixels.cpp \
 	compressor/compressorRLEB.cpp \
 	compressor/compressorRLE4B.cpp \
 	compressor/compressorRLE4BU.cpp \

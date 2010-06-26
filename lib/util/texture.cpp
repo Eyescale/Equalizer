@@ -125,6 +125,13 @@ void Texture::setInternalFormat( const GLuint format )
     }
 }
 
+void Texture::setExternalFormat( const uint32_t format,
+                                 const uint32_t type )
+{
+     _format = format;
+     _type   = type;    
+}
+
 void Texture::_generate()
 {
     CHECK_THREAD( _thread );

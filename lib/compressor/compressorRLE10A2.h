@@ -28,7 +28,7 @@ namespace plugin
 class CompressorDiffRLE10A2 : public Compressor
 {
 public:
-    CompressorDiffRLE10A2() {}
+    CompressorDiffRLE10A2( const EqCompressorInfo* info ) : Compressor( info ) {}
     virtual ~CompressorDiffRLE10A2() {}
 
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
@@ -41,30 +41,28 @@ public:
                             const eq_uint64_t nPixels, const bool useAlpha );
     
 
-    static void* getNewCompressor( ){ 
-                                 return new eq::plugin::CompressorDiffRLE10A2; }
+    static void* getNewCompressor( const EqCompressorInfo* info ){ 
+                        return new eq::plugin::CompressorDiffRLE10A2( info ); }
     static void* getNewDecompressor( ){ return 0; }
     
     static void getInfo( EqCompressorInfo* const info )
     {
-        info->version = EQ_COMPRESSOR_VERSION;
-        info->name = EQ_COMPRESSOR_DIFF_RLE_10A2;
-        info->capabilities = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D |
-                             EQ_COMPRESSOR_IGNORE_MSE;
-        info->tokenType = EQ_COMPRESSOR_DATATYPE_10A2;
-
-        info->quality = 1.0f;
-        info->ratio   = .57f;
-        info->speed   = 1.0f;
+        info->version       = EQ_COMPRESSOR_VERSION;
+        info->name          = EQ_COMPRESSOR_DIFF_RLE_10A2;
+        info->capabilities  = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D |
+                              EQ_COMPRESSOR_IGNORE_MSE;
+        info->tokenType     = EQ_COMPRESSOR_DATATYPE_10A2;
+        info->quality       = 1.0f;
+        info->ratio         = .57f;
+        info->speed         = 1.0f;
     }
 
     static Functions getFunctions()
     {
         Functions functions;
-        functions.name               = EQ_COMPRESSOR_DIFF_RLE_10A2;
-        functions.getInfo            = getInfo;
-        functions.newCompressor      = getNewCompressor;       
-        functions.decompress         = decompress;
+        functions.getInfo       = getInfo;
+        functions.newCompressor = getNewCompressor;       
+        functions.decompress    = decompress;
         return functions;
     }
 

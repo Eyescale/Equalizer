@@ -28,7 +28,7 @@ namespace plugin
 class CompressorRLEYUV : public Compressor
 {
 public:
-    CompressorRLEYUV() {}
+    CompressorRLEYUV( const EqCompressorInfo* info ): Compressor( info ) {}
     virtual ~CompressorRLEYUV() {}
 
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
@@ -40,8 +40,9 @@ public:
                             const unsigned nInputs, void* const outData, 
                             const eq_uint64_t nPixels, const bool useAlpha );
     
+    static void* getNewCompressor( const EqCompressorInfo* info )
+        { return new eq::plugin::CompressorRLEYUV( info ); }
 
-    static void* getNewCompressor( ){ return new eq::plugin::CompressorRLEYUV; }
     static void* getNewDecompressor( ){ return 0; }
     
     static void getInfo( EqCompressorInfo* const info )
@@ -50,7 +51,7 @@ public:
         info->name = EQ_COMPRESSOR_RLE_YUV;
         info->capabilities = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D |
                              EQ_COMPRESSOR_IGNORE_MSE;
-        info->tokenType = EQ_COMPRESSOR_DATATYPE_YUV_50P;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_YUV;
 
         info->quality = 1.0f;
         info->ratio   = .59f;
@@ -60,7 +61,6 @@ public:
     static Functions getFunctions()
     {
         Functions functions;
-        functions.name               = EQ_COMPRESSOR_RLE_YUV;
         functions.getInfo            = getInfo;
         functions.newCompressor      = getNewCompressor;       
         functions.decompress         = decompress;
@@ -72,12 +72,11 @@ protected:
                    const bool useAlpha, const bool swizzle );
 };
 
-
-
 class CompressorDiffRLEYUV : public CompressorRLEYUV
 {
 public:
-    CompressorDiffRLEYUV() {}
+    CompressorDiffRLEYUV( const EqCompressorInfo* info )
+        : CompressorRLEYUV( info ) {}
     virtual ~CompressorDiffRLEYUV() {}
 
     /** @name getNewCompressor */
@@ -86,8 +85,8 @@ public:
      * get a new instance of compressor RLE 4 bytes and swizzle data.
      *
      */         
-    static void* getNewCompressor( )
-                                 { return new eq::plugin::CompressorDiffRLEYUV; }
+    static void* getNewCompressor( const EqCompressorInfo* info  )
+              { return new eq::plugin::CompressorDiffRLEYUV( info ); }
     
     /** @name getNewDecompressor */
     /*@{*/
@@ -118,7 +117,6 @@ public:
     static Functions getFunctions()
     {
         Functions functions;
-        functions.name               = EQ_COMPRESSOR_DIFF_RLE_YUV;
         functions.getInfo            = getInfo;
         functions.newCompressor      = getNewCompressor;       
         functions.decompress         = decompress;

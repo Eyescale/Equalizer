@@ -113,13 +113,14 @@ void CompressorDataGPU::initUploader( uint32_t inTokenType,
 }
 
 void CompressorDataGPU::initDownloader( float minQuality, 
-                                        uint32_t tokenType )
+                                        uint32_t internalFormat )
 { 
     float factor = 1.1f;
     uint32_t name = EQ_COMPRESSOR_NONE;
     
     base::CompressorInfos infos; 
-    addTransfererInfos( infos, minQuality, tokenType, _glewContext );
+    addTransfererInfos( infos, minQuality, 
+                        internalFormat, 0, _glewContext );
     
     for( base::CompressorInfos::const_iterator j = infos.begin();
          j != infos.end(); ++j )
@@ -137,74 +138,70 @@ void CompressorDataGPU::initDownloader( float minQuality,
     if ( name == EQ_COMPRESSOR_NONE )
         reset();
     else if( name != _name )
-    {
         _initCompressor( name );
-    }
 }
 
 bool CompressorDataGPU::initDownloader( uint64_t name )
 {
     EQASSERT( EQ_COMPRESSOR_NONE );
+    
     if( name != _name )
-    {
         _initCompressor( name );
-    }
+    
     return true;
 }
-uint32_t CompressorDataGPU::getPixelSize( uint64_t pixelType )
+uint32_t CompressorDataGPU::getPixelSize( uint64_t dataType )
 {
-    switch( pixelType )
+    switch( dataType )
     {
-        case EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_BYTE:
-        case EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_8_8_8_8_REV:
-        case EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_BYTE:
-        case EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_INT_8_8_8_8_REV:
-        case EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_10_10_10_2:
-        case EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_INT_10_10_10_2:
+        case EQ_COMPRESSOR_DATATYPE_RGBA:
+        case EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV:
+        case EQ_COMPRESSOR_DATATYPE_BGRA:
+        case EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV:
+        case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
+        case EQ_COMPRESSOR_DATATYPE_BGR10_A2:
             return 4;
-        case EQ_COMPRESSOR_DATATYPE_RGB_UNSIGNED_BYTE:
-        case EQ_COMPRESSOR_DATATYPE_BGR_UNSIGNED_BYTE:
+        case EQ_COMPRESSOR_DATATYPE_RGB:
+        case EQ_COMPRESSOR_DATATYPE_BGR:
             return 3;
-        case EQ_COMPRESSOR_DATATYPE_RGBA_FLOAT:
-        case EQ_COMPRESSOR_DATATYPE_BGRA_FLOAT:
+        case EQ_COMPRESSOR_DATATYPE_RGBA32F:
+        case EQ_COMPRESSOR_DATATYPE_BGRA32F:
             return 16;
-        case EQ_COMPRESSOR_DATATYPE_RGB_FLOAT:
-        case EQ_COMPRESSOR_DATATYPE_BGR_FLOAT:
+        case EQ_COMPRESSOR_DATATYPE_RGB32F:
+        case EQ_COMPRESSOR_DATATYPE_BGR32F:
             return 12;
         case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT:
         case EQ_COMPRESSOR_DATATYPE_DEPTH_FLOAT:
         case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV:
             return 4;
-        case EQ_COMPRESSOR_DATATYPE_RGBA_HALF_FLOAT:
-        case EQ_COMPRESSOR_DATATYPE_BGRA_HALF_FLOAT:
+        case EQ_COMPRESSOR_DATATYPE_RGBA16F:
+        case EQ_COMPRESSOR_DATATYPE_BGRA16F:
             return 8;
-        case EQ_COMPRESSOR_DATATYPE_RGB_HALF_FLOAT:
-        case EQ_COMPRESSOR_DATATYPE_BGR_HALF_FLOAT:
+        case EQ_COMPRESSOR_DATATYPE_RGB16F:
+        case EQ_COMPRESSOR_DATATYPE_BGR16F:
             return 6;
-
         default:
-            EQERROR << "Unknown image pixel data type" << std::endl;
             return 0;
     }
 }
 
-uint32_t CompressorDataGPU::getTokenFormat( uint32_t format,
-                                            uint32_t type )
+uint32_t CompressorDataGPU::getExternalFormat( uint32_t format,
+                                               uint32_t type )
 {
     if( format == GL_BGRA )
     {
         switch ( type )
         {
             case GL_UNSIGNED_INT_8_8_8_8_REV : 
-                return EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_INT_8_8_8_8_REV;
+                return EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV;
             case GL_UNSIGNED_BYTE : 
-                return EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_BYTE;
+                return EQ_COMPRESSOR_DATATYPE_BGRA;
             case GL_HALF_FLOAT : 
-                return EQ_COMPRESSOR_DATATYPE_BGRA_HALF_FLOAT;
+                return EQ_COMPRESSOR_DATATYPE_BGRA16F;
             case GL_FLOAT : 
-                return EQ_COMPRESSOR_DATATYPE_BGRA_FLOAT;
+                return EQ_COMPRESSOR_DATATYPE_BGRA32F;
             case GL_UNSIGNED_INT_10_10_10_2 : 
-                return EQ_COMPRESSOR_DATATYPE_BGRA_UNSIGNED_INT_10_10_10_2;
+                return EQ_COMPRESSOR_DATATYPE_BGR10_A2;
         }
     }
     else if( format == GL_RGBA )
@@ -212,15 +209,15 @@ uint32_t CompressorDataGPU::getTokenFormat( uint32_t format,
         switch ( type )
         {
             case GL_UNSIGNED_INT_8_8_8_8_REV : 
-                return EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_8_8_8_8_REV;
+                return EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV;
             case GL_UNSIGNED_BYTE : 
-                return EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_BYTE;
+                return EQ_COMPRESSOR_DATATYPE_RGBA;
             case GL_HALF_FLOAT : 
-                return EQ_COMPRESSOR_DATATYPE_RGBA_HALF_FLOAT;
+                return EQ_COMPRESSOR_DATATYPE_RGBA16F;
             case GL_FLOAT : 
-                return EQ_COMPRESSOR_DATATYPE_RGBA_FLOAT;
+                return EQ_COMPRESSOR_DATATYPE_RGBA32F;
             case GL_UNSIGNED_INT_10_10_10_2 : 
-                return EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_10_10_10_2;
+                return EQ_COMPRESSOR_DATATYPE_BGR10_A2;
         }
     }
     else if( format == GL_RGB )
@@ -228,11 +225,11 @@ uint32_t CompressorDataGPU::getTokenFormat( uint32_t format,
         switch ( type )
         {
             case GL_UNSIGNED_BYTE : 
-                return EQ_COMPRESSOR_DATATYPE_RGB_UNSIGNED_BYTE;
+                return EQ_COMPRESSOR_DATATYPE_RGB;
             case GL_HALF_FLOAT : 
-                return EQ_COMPRESSOR_DATATYPE_RGB_HALF_FLOAT;
+                return EQ_COMPRESSOR_DATATYPE_RGB16F;
             case GL_FLOAT : 
-                return EQ_COMPRESSOR_DATATYPE_RGB_FLOAT;   
+                return EQ_COMPRESSOR_DATATYPE_RGB32F;   
         }
     }
     else if( format == GL_BGR )
@@ -240,11 +237,11 @@ uint32_t CompressorDataGPU::getTokenFormat( uint32_t format,
         switch ( type )
         {
             case GL_UNSIGNED_BYTE : 
-                return EQ_COMPRESSOR_DATATYPE_BGR_UNSIGNED_BYTE;
+                return EQ_COMPRESSOR_DATATYPE_BGR;
             case GL_HALF_FLOAT : 
-                return EQ_COMPRESSOR_DATATYPE_BGR_HALF_FLOAT;
+                return EQ_COMPRESSOR_DATATYPE_BGR16F;
             case GL_FLOAT : 
-                return EQ_COMPRESSOR_DATATYPE_BGR_FLOAT;
+                return EQ_COMPRESSOR_DATATYPE_BGR32F;
         }
     }
     else if ( format == GL_DEPTH_COMPONENT )
@@ -267,7 +264,8 @@ uint32_t CompressorDataGPU::getTokenFormat( uint32_t format,
 
 void CompressorDataGPU::addTransfererInfos( eq::base::CompressorInfos& outInfos,
                                             float minQuality, 
-                                            uint32_t tokenType,
+                                            uint32_t internalFormat,
+                                            uint32_t externalFormat,
                                             GLEWContext* glewContext )
 {
     const eq::base::PluginRegistry& registry = eq::base::Global::getPluginRegistry();
@@ -286,11 +284,21 @@ void CompressorDataGPU::addTransfererInfos( eq::base::CompressorInfos& outInfos,
             if(( info.capabilities & EQ_COMPRESSOR_TRANSFER ) == 0 )
                 continue;
             
-            if( info.tokenType != tokenType )
-                continue;
+            if ( internalFormat != 0 )
+            {
+                if( info.tokenType != internalFormat )
+                    continue;
+            }
+
+            if ( externalFormat != 0 )
+            {
+                if( info.outputTokenType != externalFormat )
+                    continue;
+            }
 
             if( info.quality < minQuality )
                 continue;
+            
 
             if( !compressor->isCompatible( info.name, glewContext ))
                 continue;
@@ -300,5 +308,68 @@ void CompressorDataGPU::addTransfererInfos( eq::base::CompressorInfos& outInfos,
     }
 }
 
+uint32_t CompressorDataGPU::getGLFormat( const uint32_t externalFormat )
+{
+    switch ( externalFormat )
+    {
+        case EQ_COMPRESSOR_DATATYPE_RGBA :
+        case EQ_COMPRESSOR_DATATYPE_RGB10_A2 : 
+        case EQ_COMPRESSOR_DATATYPE_RGBA16F : 
+        case EQ_COMPRESSOR_DATATYPE_RGBA32F :
+        case EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV:
+            return GL_RGBA;
+        case EQ_COMPRESSOR_DATATYPE_BGRA :
+        case EQ_COMPRESSOR_DATATYPE_BGR10_A2 : 
+        case EQ_COMPRESSOR_DATATYPE_BGRA16F : 
+        case EQ_COMPRESSOR_DATATYPE_BGRA32F : 
+        case EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV:        
+            return GL_BGRA;
+        case EQ_COMPRESSOR_DATATYPE_RGB :
+        case EQ_COMPRESSOR_DATATYPE_RGB16F : 
+        case EQ_COMPRESSOR_DATATYPE_RGB32F : 
+            return GL_RGB;
+        case EQ_COMPRESSOR_DATATYPE_BGR :
+        case EQ_COMPRESSOR_DATATYPE_BGR16F : 
+        case EQ_COMPRESSOR_DATATYPE_BGR32F : 
+            return GL_BGR;
+        case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT : 
+            return GL_DEPTH_COMPONENT;
+        default:
+            EQASSERT( false );
+            return 0;
+    }
+}
+
+uint32_t CompressorDataGPU::getGLType( const uint32_t externalFormat )
+{
+    switch ( externalFormat )
+    {
+        case EQ_COMPRESSOR_DATATYPE_RGBA :
+        case EQ_COMPRESSOR_DATATYPE_BGRA :
+        case EQ_COMPRESSOR_DATATYPE_RGB :
+        case EQ_COMPRESSOR_DATATYPE_BGR :
+            return GL_UNSIGNED_BYTE;
+        case EQ_COMPRESSOR_DATATYPE_RGB10_A2 : 
+        case EQ_COMPRESSOR_DATATYPE_BGR10_A2 :
+            return GL_UNSIGNED_INT_10_10_10_2;
+        case EQ_COMPRESSOR_DATATYPE_RGBA16F :
+        case EQ_COMPRESSOR_DATATYPE_BGRA16F :  
+        case EQ_COMPRESSOR_DATATYPE_RGB16F :
+        case EQ_COMPRESSOR_DATATYPE_BGR16F :  
+            return GL_HALF_FLOAT;
+        case EQ_COMPRESSOR_DATATYPE_RGBA32F : 
+        case EQ_COMPRESSOR_DATATYPE_BGRA32F : 
+        case EQ_COMPRESSOR_DATATYPE_RGB32F : 
+        case EQ_COMPRESSOR_DATATYPE_BGR32F :
+            return GL_FLOAT;
+        case EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV:
+        case EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV:
+            return GL_UNSIGNED_INT_8_8_8_8_REV;
+        case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT : 
+            return GL_UNSIGNED_INT;
+        default:
+            return 0;
+    }
+}
 }
 }

@@ -60,10 +60,19 @@ namespace util
          * no change will be make. 
          * If no uploader found, a reset of the instance data will be 
          * perform.
+         *
+         * @param minQuality the minimum quality.
+         * @param tokenType the token produced
          **/
         void initDownloader( float minQuality, uint32_t tokenType );
 
+        /**
+         * init a downloader by its name.
+         *
+         * @param name downloader name
+         **/
         bool initDownloader( uint64_t name );
+
         /**
          * Find and init an uploader which wil be compatible with the
          * specified input and output token type. 
@@ -73,8 +82,8 @@ namespace util
          * If no uploader found, a reset of the instance data will be 
          * perform.
          *
-         * @param inTokenType  the input token type of the data.
-         * @param outTokenType the output token type of the data.  
+         * @param gpuTokenType  the input token type of the data.
+         * @param tokenType the output token type of the data.  
          **/
         void initUploader( uint32_t gpuTokenType, uint32_t tokenType );
 
@@ -112,7 +121,13 @@ namespace util
          * Get the token type produced by a donwloader or 
          * accepted by the uploader.
          **/
-        uint32_t getTokenType() const { return _info.outputTokenType; }
+        uint32_t getExternalFormat() const { return _info.outputTokenType; }
+
+        /**
+         * Get the token type accepted by a donwloader or 
+         * produced by the uploader.
+         **/
+        uint32_t getInternalFormat() const { return _info.tokenType; }
 
         /**
          * Get the token size produced by a donwloader or 
@@ -127,14 +142,14 @@ namespace util
          * @param format the GL format 
          * @param type the GL typedata source
          */
-        static EQ_EXPORT uint32_t getTokenFormat( uint32_t format, uint32_t type  );
+        static EQ_EXPORT uint32_t getExternalFormat( uint32_t format, uint32_t type  );
 
         /**
          * Get the size of one pixel
          *
-         * @param type the GL typedata source
+         * @param dataType the compressor image data type
          */
-        static EQ_EXPORT uint32_t getPixelSize( uint64_t pixelFormat );
+        static EQ_EXPORT uint32_t getPixelSize( uint64_t dataType );
 
         /* get if the actual compressor is able to ignore alpha */
         bool ignoreAlpha(){ return _info.capabilities & 
@@ -142,18 +157,45 @@ namespace util
 
         /**
          * add info to the outInfos vector about transerers which are compatible
-         * with the qualita, tokentype and glewCotext
+         * with the quality, internalFormat, externalFormat and glewContext
          *
          * @param outInfos the info vector where the info are put
          * @param minQuality the minimum quality require.
-         * @param tokenType the input token type 
-         * @param GLEWContext a valid glewContext 
+         * @param internalFormat if the internal format is 0, the choice don't 
+         *                       use this property for the selection of the
+         *                       transferer.
+         * @param externalFormat if the external format is 0, the choice don't 
+         *                       use this property for the selection of the
+         *                       transferer.
+         * @param glewContext a valid glewContext. 
          */
         static EQ_EXPORT void addTransfererInfos(
                                eq::base::CompressorInfos& outInfos,
                                float minQuality, 
-                               uint32_t tokenType, 
+                               uint32_t internalFormat,
+                               uint32_t externalFormat,
                                GLEWContext* glewContext );
+        /**
+         * Get the opengl internal format corresponding to compressor data type
+         *
+         * @param internalFormat the compressor internalFormat
+         */
+        static EQ_EXPORT uint32_t getGLInternalFormat( 
+                                               const uint32_t internalFormat );
+ 
+        /**
+         * Get the opengl external format corresponding to compressor data type
+         *
+         * @param externalFormat the compressor externalFormat
+         */
+        static EQ_EXPORT uint32_t getGLFormat( const uint32_t externalFormat );
+
+        /**
+         * Get the opengl external type corresponding to compressor data type
+         *
+         * @param externalFormat the compressor externalFormat
+         */
+        static EQ_EXPORT uint32_t getGLType( const uint32_t externalFormat );
     private:
         /** the initialized GLEW context describing corresponding
             to the current OpenGL context. */
