@@ -63,6 +63,7 @@ Window< P, W, C >::Window( P* parent )
     EQASSERT( parent );
     parent->_addWindow( static_cast< W* >( this ) );
     notifyViewportChanged();
+    unsetDirty( DIRTY_VIEWPORT );
 }
 
 template< class P, class W, class C >

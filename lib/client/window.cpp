@@ -136,7 +136,7 @@ void Window::_updateFPS()
     const float curTime      = static_cast< float >( getConfig()->getTime( ));
     const float curInterval  = curTime - _lastTime;
 
-    const bool   isFirstFrame = _lastTime == 0.0f;
+    const bool isFirstFrame = _lastTime == 0.0f;
     _lastTime = curTime;
 
     if( isFirstFrame || curInterval < 1e-3f )

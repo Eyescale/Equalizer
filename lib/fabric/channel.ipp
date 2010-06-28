@@ -47,6 +47,7 @@ Channel< W, C >::Channel( W* parent )
 {
     parent->_addChannel( static_cast< C* >( this ));
     notifyViewportChanged();
+    unsetDirty( DIRTY_VIEWPORT );
 
     uint32_t value = (reinterpret_cast< size_t >( this ) & 0xffffffffu);
     for( unsigned i=0; i<8; ++i )

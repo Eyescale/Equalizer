@@ -114,6 +114,9 @@ namespace fabric
         /** Add dirty flags to mark data for distribution. @version 1.0 */
         virtual void setDirty( const uint64_t bits ) { _dirty |= bits; }
 
+        /** Remove dirty flags to clear data from distribution. @version 1.0 */
+        virtual void unsetDirty( const uint64_t bits ) { _dirty &= ~bits; }
+
     private:
         virtual void getInstanceData( net::DataOStream& os )
             {

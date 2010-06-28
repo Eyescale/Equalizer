@@ -47,7 +47,7 @@ namespace fabric
         PixelViewport  pvp;            //<! pixel viewport of channel wrt window
         Pixel          pixel;          //<! pixel decomposition wrt to dest
         Vector4i       overdraw;       //<! @internal for pw pp filters
-        Viewport       vp;             //<! fractional viewport wrt dest channel
+        Viewport       vp;             //<! fractional viewport wrt dest view
 
         Vector2i       offset;         //<! absolute position wrt dest channel
         net::ObjectVersion view;       //<! destination view id and version
