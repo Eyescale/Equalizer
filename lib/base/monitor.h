@@ -300,6 +300,14 @@ inline Monitor<T>& Monitor<T>::operator |= ( const T& value )
     return *this;
 }
 
+template<> 
+inline Monitor< bool >& Monitor< bool >::operator |= ( const bool& value )
+{
+    if( value )
+        _value = value;
+    return *this;
+}
+
 template< typename T > 
 inline const T& Monitor<T>::waitEQ( const T& value ) const
 {
