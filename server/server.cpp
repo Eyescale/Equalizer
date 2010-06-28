@@ -153,7 +153,7 @@ bool Server::listen()
     return Super::listen();
 }
 
-bool Server::run()
+void Server::init()
 {
     EQASSERT( isListening( ));
     base::Thread::setDebugName( typeid( *this ).name( ));
@@ -163,17 +163,28 @@ bool Server::run()
         EQWARN << "No configurations loaded" << std::endl;
 
     EQINFO << base::disableFlush << "Running server: " << std::endl
-           << base::indent << Global::instance() << *this << base::exdent
-           << base::enableFlush;
+        << base::indent << Global::instance() << *this << base::exdent
+        << base::enableFlush;
 
     for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
         registerConfig( *i );
+}
 
-    _handleCommands();
+void Server::exit()
+{
+    const Configs& configs = getConfigs();
+    if( configs.empty( ))
+        EQWARN << "No configurations loaded" << std::endl;
 
     for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
         deregisterConfig( *i );
-    return true;
+}
+
+void Server::run()
+{
+    init();
+    handleCommands();
+    exit();
 }
 
 void Server::_addConfig( Config* config )
@@ -253,7 +264,7 @@ net::CommandResult Server::invokeCommand( net::Command& command )
     }
 }
 
-void Server::_handleCommands()
+void Server::handleCommands()
 {
     _running = true;
     while( _running ) // set to false in _cmdShutdown()

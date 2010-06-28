@@ -64,12 +64,7 @@ int main( const int argc, char** argv )
         return EXIT_FAILURE;
     }
 
-    if( !server->run( ))
-    {
-        EQERROR << "Server did not run correctly, please consult log" 
-                << std::endl;
-        return EXIT_FAILURE;
-    }
+    server->run();
 
     server->exitLocal();
     server->deleteConfigs();

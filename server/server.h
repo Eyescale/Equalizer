@@ -51,12 +51,24 @@ namespace server
         EQSERVER_EXPORT Server();
 
         /** 
-         * Runs the server.
-         * 
-         * @return <code>true</code> if the server did run successfully,
-         *         <code>false</code> if not.
+         * Initialize the server.
          */
-        EQSERVER_EXPORT bool run();
+        EQSERVER_EXPORT void init();
+
+        /** 
+         * Exit the server.
+         */
+        EQSERVER_EXPORT void exit();
+
+        /** 
+         * The actual main loop of server.
+         */
+        EQSERVER_EXPORT void handleCommands(); 
+
+        /** 
+         * Runs the server. Convenience function for init(), handleCommands() and exit().
+         */
+        EQSERVER_EXPORT void run();
 
         /** Delete all configs of this server (exit). */
         EQSERVER_EXPORT void deleteConfigs();
@@ -118,9 +130,7 @@ namespace server
         void _addConfig( Config* config );
 
         /** Remove a config from this server. */
-        bool _removeConfig( Config* config );
-
-        void        _handleCommands(); 
+        bool _removeConfig( Config* config );        
 
         /** The command functions. */
         net::CommandResult _cmdChooseConfig( net::Command& command );

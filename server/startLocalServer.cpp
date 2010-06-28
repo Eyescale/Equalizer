@@ -48,7 +48,7 @@ protected:
 
     virtual void run()
         {
-            EQCHECK( _server->run( ));
+            _server->run();
 
             _server->close();
             _server->deleteConfigs();
