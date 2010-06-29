@@ -389,32 +389,32 @@ extern "C"
      */
     /*@{*/
     /** Data is processed in one-byte tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_BYTE       1
+    #define EQ_COMPRESSOR_DATATYPE_BYTE       0x1
     /** Data is processed in four-byte tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_UNSIGNED   2
+    #define EQ_COMPRESSOR_DATATYPE_UNSIGNED   0x2
     /** Data is processed in float16 tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_HALF_FLOAT 3
+    #define EQ_COMPRESSOR_DATATYPE_HALF_FLOAT 0x3
     /** Data is processed in float32 tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_FLOAT      4
+    #define EQ_COMPRESSOR_DATATYPE_FLOAT      0x4
 
 
     /** Data is processed in three interleaved streams of one-byte tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_3_BYTE       1024
+    #define EQ_COMPRESSOR_DATATYPE_3_BYTE       0x400
     /** Data is processed in four interleaved streams of one-byte tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_4_BYTE       1025
+    #define EQ_COMPRESSOR_DATATYPE_4_BYTE       0x401
     /** Data is processed in four interleaved streams of float16 tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_3_HALF_FLOAT 1026
+    #define EQ_COMPRESSOR_DATATYPE_3_HALF_FLOAT 0x402
     /** Data is processed in four interleaved streams of float16 tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT 1027
+    #define EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT 0x403
     /** Data is processed in four interleaved streams of three float32 tokens.*/
-    #define EQ_COMPRESSOR_DATATYPE_3_FLOAT      1028
+    #define EQ_COMPRESSOR_DATATYPE_3_FLOAT      0x404
     /** Data is processed in four interleaved streams of four float32 tokens. */
-    #define EQ_COMPRESSOR_DATATYPE_4_FLOAT      1029
+    #define EQ_COMPRESSOR_DATATYPE_4_FLOAT      0x405
     /**Data is processed in two interleaved streams, three 10 bit and one 2 bit.*/
-    #define EQ_COMPRESSOR_DATATYPE_10A2         1030
-    /**Data is processed in two interleaved streams, one 24 bit and one 8 bit.*/
-    #define EQ_COMPRESSOR_DATATYPE_3BYTE_1BYTE  2048
+    #define EQ_COMPRESSOR_DATATYPE_10A2         0x406
 
+    /**Data is processed in two interleaved streams, one 24 bit and one 8 bit.*/
+    #define EQ_COMPRESSOR_DATATYPE_3BYTE_1BYTE  0x800
     /**
     * Data is processed in three 10-bit color tokens and one 2-bit alpha
     * token.
@@ -430,7 +430,7 @@ extern "C"
      * Data is processed in four interleaved streams of RGBA color of
      * unsigned fourth 8 Byte tokens.
      */
-    #define EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV          2051
+    #define EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_8_8_8_8_REV  0x801
     /**
      * Data is processed in four interleaved streams of RGBA color of
      * four half float tokens. To simplify future implementation, we use
@@ -447,43 +447,43 @@ extern "C"
      * Data is processed in four interleaved streams of BGRA color of
      * unsigned Byte tokens.
      */
-    #define EQ_COMPRESSOR_DATATYPE_BGRA                           2055
+    #define EQ_COMPRESSOR_DATATYPE_BGRA                           0x802
     /**
      * Data is processed in four interleaved streams of BGRA color of
      * unsigned four 8 Byte tokens.
      */
-    #define EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV          2056
+    #define EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV          0x803
     /**
      * Data is processed in four interleaved streams of BGRA color of
      * unsigned three 10 Byte tokens and one 2 bits token.
      */
-    #define EQ_COMPRESSOR_DATATYPE_BGR10_A2                       2057
+    #define EQ_COMPRESSOR_DATATYPE_BGR10_A2                       0x804
     /**
      * Data is processed in four interleaved streams of BGRA color of
      * four half float tokens.
      */
-    #define EQ_COMPRESSOR_DATATYPE_BGRA16F                        2058
+    #define EQ_COMPRESSOR_DATATYPE_BGRA16F                        0x805
     /**
      * Data is processed in four interleaved streams of BGRA color of
      * four float tokens.
      */
-    #define EQ_COMPRESSOR_DATATYPE_BGRA32F                        2059
+    #define EQ_COMPRESSOR_DATATYPE_BGRA32F                        0x806
     /**
      * Data is processed in one interleaved streams of depth of
      * float tokens.
      */
-    #define EQ_COMPRESSOR_DATATYPE_DEPTH_FLOAT                    2060
+    #define EQ_COMPRESSOR_DATATYPE_DEPTH_FLOAT                    0x807
     /**
      * Data is processed in one interleaved streams of depth of
      * unsigned int tokens. To simplify future implementation, we use
      * the same token value that OpenGL
      */
-    #define EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT             0x1902
+    #define EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT             0x808
     /**
      * Data is processed in one interleaved streams of depth of
      * unsigned 24 bits int and one 8 bits tokens.
      */
-    #define EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV     2062
+    #define EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV     0x809
     /**
      * Data is processed in four interleaved streams of RGB color of
      * unsigned Byte tokens. To simplify future implementation, we use
@@ -505,22 +505,22 @@ extern "C"
      * Data is processed in four interleaved streams of BGR color of
      * unsigned Byte tokens.
      */
-    #define EQ_COMPRESSOR_DATATYPE_BGR                            2066
+    #define EQ_COMPRESSOR_DATATYPE_BGR                            0x80a
     /**
      * Data is processed in four interleaved streams of BGR color of
      * three float tokens.
      */
-    #define EQ_COMPRESSOR_DATATYPE_BGR16F                         2067
+    #define EQ_COMPRESSOR_DATATYPE_BGR16F                         0x80b
     /**
      * Data is processed in four interleaved streams of RGBA color of
      * three float tokens.
      */    
-    #define EQ_COMPRESSOR_DATATYPE_BGR32F                         2068
+    #define EQ_COMPRESSOR_DATATYPE_BGR32F                         0x80c
+
     /** Data is processed in four interleaved streams of YUV components. 
       * Special image format with reduced color components. 
       */
-    #define EQ_COMPRESSOR_DATATYPE_YUV                            2069
-
+    #define EQ_COMPRESSOR_DATATYPE_YUV                            0x80d
     
     /**
      * Private token types -FOR DEVELOPMENT ONLY-.
@@ -544,24 +544,24 @@ extern "C"
      * The compressor can (query time) or should (compress) write the compressed
      * data in the same place as the uncompressed data.
      */
-    #define EQ_COMPRESSOR_INPLACE    1
+    #define EQ_COMPRESSOR_INPLACE    0x1
     /**
      * The compressor can handle linear data (query time), or the input data is
      * linear (compress, decompress). Typically used for binary data.
      */
-    #define EQ_COMPRESSOR_DATA_1D    2
+    #define EQ_COMPRESSOR_DATA_1D    0x2
     /**
      * The compressor can handle two-dimensional data (query time), or the input
      * data is two-dimensional (compress, decompress). Typically used for image
      * data.
      */
-    #define EQ_COMPRESSOR_DATA_2D    4
+    #define EQ_COMPRESSOR_DATA_2D    0x4
     /** 
      * The compressor can (query time) or should (compress) ignore the
      * most-significant element of the input data. Typically used for image data
      * when the alpha-channel is present in the input data, but unneeded.
      */
-    #define EQ_COMPRESSOR_IGNORE_MSE 8
+    #define EQ_COMPRESSOR_IGNORE_MSE 0x8
 
     /** 
      * The compressor is a CPU compressor, that is, it implements compress and
@@ -573,18 +573,18 @@ extern "C"
      * The compressor is a transfer compressor, that is, it implements download
      * and upload.
      */
-    #define EQ_COMPRESSOR_TRANSFER 16 
+    #define EQ_COMPRESSOR_TRANSFER 0x10
 
     /** 
      * The transfer engine can (query time) or should (compress) use a texture
      * as source or destination for its operations.
      */
-    #define EQ_COMPRESSOR_USE_TEXTURE 32
+    #define EQ_COMPRESSOR_USE_TEXTURE 0x20
     /** 
      * The transfer engine can (query time) or should (compress) use the frame
      * buffer as source or destination for its operations.
      */
-    #define EQ_COMPRESSOR_USE_FRAMEBUFFER 64
+    #define EQ_COMPRESSOR_USE_FRAMEBUFFER 0x40
 
     /*@}*/
 
