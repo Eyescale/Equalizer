@@ -266,8 +266,10 @@ int main( int argc, char **argv )
                 destImage.setPixelData( buffer, compressedPixels );
                 const float decompressTime = clock.getTimef();
 
-                std::cout  << std::setw(2) << name << ", " << std::setw(40)
-                           << filename << ", " << std::setw(10) << size << ", "
+                std::cout  << "0x" << std::setw(2) << std::setfill( '0' )
+                           << std::hex << name << std::dec << std::setfill(' ')
+                           << ", " << std::setw(38) << filename
+                           << ", " << std::setw(10) << size << ", "
                            << !image.ignoreAlpha() << ", " << std::setw(10) 
                            << compressedSize << ", " << std::setw(10)
                            << compressTime << ", " << std::setw(10)
@@ -319,8 +321,9 @@ int main( int argc, char **argv )
             }
 
             if( totalSize > 0 )
-                std::cout  << std::setw(2) << name 
-                           << ",                           "
+                std::cout  << "0x" << std::setw(2) << std::setfill( '0' )
+                           << std::hex << name << std::dec << std::setfill(' ')
+                           << ",                         "
                            << "         Total, " << std::setw(10) << totalSize
                            << ", " << !image.ignoreAlpha() << ", " 
                            << std::setw(10) << totalCompressedSize << ", " 
