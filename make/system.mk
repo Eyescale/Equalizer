@@ -89,7 +89,7 @@ endif # icc
 
 # GCC settings
 ifeq ($(findstring g++, $(CXX)),g++)
-    CXXFLAGS += -Wall \
+    CXXFLAGS += -Wall  -Winvalid-pch \
                 -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self \
                 -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings
 ifdef USE_OPENMP
@@ -150,6 +150,9 @@ INCLUDE_BASE    = include/$(MODULE)
 INCLUDE_DIR     = $(BUILD_DIR)/$(INCLUDE_BASE)
 HEADERS         = $(HEADER_SRC:%=$(INCLUDE_DIR)/%)
 
+LOCAL_HEADERS   = $(wildcard *.h)
+# PCHEADERS       = $(LOCAL_HEADERS:%=%.gch)
+
 # share files
 SHARE_DIR       = $(BUILD_DIR)/share/Equalizer
 
@@ -160,8 +163,7 @@ OBJECT_SUFFIX   = $(ARCH)
 
 OBJECTS         = $(CXXFILES:%.cpp=$(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o) \
 		  $(CFILES:%.c=$(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o)
-DEPENDENCIES    = $(OBJECTS:%=%.d) $(SIMPLE_PROGRAMS:%=%.d)
-#  PCHEADERS     = $(HEADER_SRC:%=$(OBJECT_DIR)/%.gch)
+DEPENDENCIES    = $(OBJECTS:%=%.d) $(SIMPLE_PROGRAMS:%=%.d) $(PCHEADERS:%=%.d)
 
 # library variables
 LIBRARY           = $(DYNAMIC_LIB)

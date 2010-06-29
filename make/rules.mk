@@ -55,6 +55,12 @@ $(INCLUDE_DIR)/%: %
 	@cp $< $@
 
 # libraries
+#  'functions'
+define compile
+  @$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MM -MF $@.d -c $< -MT $@
+  $(CXX) $(INCLUDEDIRS) $(ARCHFLAGS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
+endef
+
 $(DYNAMIC_LIB): $(PCHEADERS) $(OBJECTS)
 	@mkdir -p $(@D)
 	$(LD) $(LINKDIRS) $(ARCHFLAGS) $(DSO_LDFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
@@ -64,14 +70,13 @@ $(STATIC_LIB): $(PCHEADERS) $(OBJECTS)
 	@rm -f $@
 	$(AR) $(LINKDIRS) $(ARCHFLAGS) $(ARFLAGS) $(OBJECTS) $(LDFLAGS) -o $@
 
-$(OBJECT_DIR)/%.h.gch: %.h
-	@mkdir -p $(@D)
-	$(CXX) -x c++-header $(INCLUDEDIRS) $(ARCHFLAGS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
+%.h.gch: %.h
+	@echo Precompiling $<
+	@$(compile)
 
 $(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o: %.cpp
 	@mkdir -p $(@D)
-	@$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MM -MF $@.d -c $< -MT $@
-	$(CXX) $(INCLUDEDIRS) $(ARCHFLAGS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
+	$(compile)
 
 $(OBJECT_DIR)/%.$(OBJECT_SUFFIX).o: %.c
 	@mkdir -p $(@D)
@@ -108,7 +113,7 @@ endif # PROGRAM
 
 # cleaning targets
 clean:
-	rm -rf *~ .*~ $(CLEAN_EXTRA) $(TARGETS) $(DEPENDENCIES) $(OBJECTS)
+	rm -rf *~ .*~ $(CLEAN_EXTRA) $(TARGETS) $(DEPENDENCIES) $(OBJECTS) $(PCHEADERS)
 ifdef SUBDIRS
 	@for dir in $(SUBDIRS); do \
 		echo "$(DEPTH) $$dir clean"; \
