@@ -82,6 +82,7 @@ namespace base
 #endif
                 return *this;
             }
+        uint64_t getLow() const { return _low; }
 
         /** @return true if the UUIDs are equal, false if not. @version 1.0 */
         bool operator == ( const UUID& rhs ) const
@@ -132,7 +133,6 @@ namespace base
 #ifdef _MSC_VER
         friend size_t stde::hash_compare< eq::base::UUID >::operator() 
             ( const eq::base::UUID& key ) const;
-        friend size_t stde::hash_value( const eq::base::UUID& key );
 #else
         friend struct stde::hash< eq::base::UUID >;
 #endif
@@ -159,7 +159,7 @@ template<> inline size_t stde::hash_compare< eq::base::UUID >::operator()
 
 template<> inline size_t stde::hash_value( const eq::base::UUID& key )
 {
-    return key._low;
+    return key.getLow();
 }
 
 #else
