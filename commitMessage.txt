@@ -1,9 +1,9 @@
-Implement launching of window-less configs
+Fix build
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
+[x] Bugfix
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -430,7 +430,7 @@ extern "C"
      * Data is processed in four interleaved streams of RGBA color of
      * unsigned fourth 8 Byte tokens.
      */
-    #define EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_8_8_8_8_REV  0x801
+    #define EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV  0x801
     /**
      * Data is processed in four interleaved streams of RGBA color of
      * four half float tokens. To simplify future implementation, we use
