@@ -306,7 +306,6 @@ void Image::uploadToTexture( const Frame::Buffer buffer,
     if ( !uploader->isValidUploader( inputToken, outputToken ) )
         uploader->initUploader( inputToken, outputToken );
 
-    const uint32_t flags = EQ_COMPRESSOR_USE_TEXTURE;
     uploader->upload( pixelData.pixels,
                       pixelData.pvp,
                       EQ_COMPRESSOR_USE_TEXTURE, 
@@ -326,11 +325,10 @@ void Image::uploadToTexture( const Frame::Buffer buffer,
     if ( !uploader.isValidUploader( inputToken, outputToken ) )
         uploader.initUploader( inputToken, outputToken );
 
-    const uint32_t flags = EQ_COMPRESSOR_USE_TEXTURE;
     uploader.upload( pixelData.pixels,
-                      pixelData.pvp,
-                      EQ_COMPRESSOR_USE_TEXTURE, 
-                      getPixelViewport(), texture );
+                     pixelData.pvp,
+                     EQ_COMPRESSOR_USE_TEXTURE, 
+                     getPixelViewport(), texture );
 }
 
 void Image::upload( const Frame::Buffer buffer, 
