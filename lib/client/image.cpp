@@ -322,7 +322,7 @@ void Image::uploadToTexture( const Frame::Buffer buffer,
     const uint32_t inputToken = pixelData.externalFormat;
     const uint32_t outputToken = pixelData.internalFormat;
 
-    if ( !uploader.isValidUploader( inputToken, outputToken ) )
+    if( !uploader.isValidUploader( inputToken, outputToken ))
         uploader.initUploader( inputToken, outputToken );
 
     uploader.upload( pixelData.pixels,
@@ -1126,6 +1126,8 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
             }
             setExternalFormat( Frame::BUFFER_DEPTH,
                                EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT );
+            setInternalFormat( Frame::BUFFER_DEPTH,
+                               EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT );
             break;
 
         default:
@@ -1139,24 +1141,35 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
                         EQASSERT( nChannels==4 );
                         setExternalFormat( Frame::BUFFER_COLOR,
                                            EQ_COMPRESSOR_DATATYPE_BGR10_A2 );
+                        setInternalFormat( Frame::BUFFER_COLOR,
+                                           EQ_COMPRESSOR_DATATYPE_RGB10_A2 );
                     }
                     else
                     {
                         setExternalFormat( Frame::BUFFER_COLOR,
                             nChannels==4 ? EQ_COMPRESSOR_DATATYPE_BGRA : 
                                            EQ_COMPRESSOR_DATATYPE_BGR );
+                        setInternalFormat( Frame::BUFFER_COLOR,
+                                           EQ_COMPRESSOR_DATATYPE_RGBA );
                     }
                     break;
+
                 case 2:
-                        setExternalFormat( Frame::BUFFER_COLOR,
-                            nChannels==4 ?  EQ_COMPRESSOR_DATATYPE_BGRA16F :
-                                            EQ_COMPRESSOR_DATATYPE_BGR16F );
+                    setExternalFormat( Frame::BUFFER_COLOR,
+                                 nChannels==4 ? EQ_COMPRESSOR_DATATYPE_BGRA16F :
+                                                EQ_COMPRESSOR_DATATYPE_BGR16F );
+                    setInternalFormat( Frame::BUFFER_COLOR,
+                                       EQ_COMPRESSOR_DATATYPE_RGBA16F );
                     break;
+
                 case 4:
-                        setExternalFormat( Frame::BUFFER_COLOR,
-                            nChannels==4 ? EQ_COMPRESSOR_DATATYPE_BGRA32F : 
-                                           EQ_COMPRESSOR_DATATYPE_BGR32F  );
+                    setExternalFormat( Frame::BUFFER_COLOR,
+                                nChannels==4 ? EQ_COMPRESSOR_DATATYPE_BGRA32F : 
+                                               EQ_COMPRESSOR_DATATYPE_BGR32F  );
+                    setInternalFormat( Frame::BUFFER_COLOR,
+                                       EQ_COMPRESSOR_DATATYPE_RGBA32F );
                     break;
+
                 default:
                     EQERROR << "Unsupported channel depth " 
                             << static_cast< int >( header.bytesPerChannel )

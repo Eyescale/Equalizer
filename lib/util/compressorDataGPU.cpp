@@ -58,6 +58,8 @@ void CompressorDataGPU::upload( const void*          buffer,
                                 const fabric::PixelViewport& pvpOut,  
                                 const unsigned       destination )
 {
+    EQASSERT( _plugin );
+
     const uint64_t inDims[4] = { pvpIn.x, pvpIn.w, pvpIn.y, pvpIn.h }; 
     uint64_t outDims[4] = { pvpOut.x, pvpOut.w, pvpOut.y, pvpOut.h };
     _plugin->upload( _instance, _name, _glewContext, buffer, inDims,
@@ -78,8 +80,6 @@ void CompressorDataGPU::initUploader( uint32_t inTokenType,
         const base::Compressor* compressor = *i;
         const base::CompressorInfos& infos = compressor->getInfos();
 
-        EQINFO << "Searching in DSO " << (void*)compressor << std::endl;
-        
         for( base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {

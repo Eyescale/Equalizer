@@ -1,7 +1,4 @@
-Refactor towards fixing entity creation and deletion:
-- Get rid of commit visitors and let fabric entities handle that in
-  pre-commit hook
-- Remove 'using namespace's from eqPly
+Fix segfault in image upload
 
 [ ] May break build
 [ ] May break existing applications

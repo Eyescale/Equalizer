@@ -139,9 +139,9 @@ void Window::_loadLogo()
     _logoSize.x() = pvp.w;
     _logoSize.y() = pvp.h;
 
-    image.uploadToTexture( eq::Frame::BUFFER_COLOR,
-                           _logoTexture, 
-                           glewGetContext());
+    image.uploadToTexture( eq::Frame::BUFFER_COLOR, _logoTexture, 
+                           glewGetContext( ));
+
     EQVERB << "Created logo texture of size " << _logoSize << std::endl;
 }
 
