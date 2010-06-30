@@ -1140,15 +1140,15 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
                     {
                         EQASSERT( nChannels==4 );
                         setExternalFormat( Frame::BUFFER_COLOR,
-                                           EQ_COMPRESSOR_DATATYPE_BGR10_A2 );
+                                           EQ_COMPRESSOR_DATATYPE_RGB10_A2 );
                         setInternalFormat( Frame::BUFFER_COLOR,
                                            EQ_COMPRESSOR_DATATYPE_RGB10_A2 );
                     }
                     else
                     {
                         setExternalFormat( Frame::BUFFER_COLOR,
-                            nChannels==4 ? EQ_COMPRESSOR_DATATYPE_BGRA : 
-                                           EQ_COMPRESSOR_DATATYPE_BGR );
+                            nChannels==4 ? EQ_COMPRESSOR_DATATYPE_RGBA : 
+                                           EQ_COMPRESSOR_DATATYPE_RGB );
                         setInternalFormat( Frame::BUFFER_COLOR,
                                            EQ_COMPRESSOR_DATATYPE_RGBA );
                     }
@@ -1156,16 +1156,16 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
 
                 case 2:
                     setExternalFormat( Frame::BUFFER_COLOR,
-                                 nChannels==4 ? EQ_COMPRESSOR_DATATYPE_BGRA16F :
-                                                EQ_COMPRESSOR_DATATYPE_BGR16F );
+                                 nChannels==4 ? EQ_COMPRESSOR_DATATYPE_RGBA16F :
+                                                EQ_COMPRESSOR_DATATYPE_RGB16F );
                     setInternalFormat( Frame::BUFFER_COLOR,
                                        EQ_COMPRESSOR_DATATYPE_RGBA16F );
                     break;
 
                 case 4:
                     setExternalFormat( Frame::BUFFER_COLOR,
-                                nChannels==4 ? EQ_COMPRESSOR_DATATYPE_BGRA32F : 
-                                               EQ_COMPRESSOR_DATATYPE_BGR32F  );
+                                nChannels==4 ? EQ_COMPRESSOR_DATATYPE_RGBA32F : 
+                                               EQ_COMPRESSOR_DATATYPE_RGB32F  );
                     setInternalFormat( Frame::BUFFER_COLOR,
                                        EQ_COMPRESSOR_DATATYPE_RGBA32F );
                     break;

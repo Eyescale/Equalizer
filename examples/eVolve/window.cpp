@@ -105,7 +105,13 @@ void Window::_loadLogo()
 
     eq::Image image;
     if( !image.readImage( "logo.rgb", eq::Frame::BUFFER_COLOR ) &&
-        !image.readImage( "examples/eVolve/logo.rgb", eq::Frame::BUFFER_COLOR ))
+#ifdef _MSC_VER
+        !image.readImage( "../examples/eqVolve/logo.rgb", 
+                          eq::Frame::BUFFER_COLOR ) )
+#else
+        !image.readImage( "./examples/eqVolve/logo.rgb", 
+                          eq::Frame::BUFFER_COLOR ) )
+#endif
     {
         EQWARN << "Can't load overlay logo 'logo.rgb'" << endl;
         return;
@@ -117,10 +123,16 @@ void Window::_loadLogo()
     const eq::PixelViewport& pvp = image.getPixelViewport();
     _logoSize.x() = pvp.w;
     _logoSize.y() = pvp.h;
+    const uint32_t externalFormat = 
+        image.getExternalFormat( eq::Frame::BUFFER_COLOR );
 
-    image.uploadToTexture( eq::Frame::BUFFER_COLOR,
-                           _logoTexture, 
-                           glewGetContext());
+    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _logoTexture );
+    glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
+                  image.getInternalFormat( eq::Frame::BUFFER_COLOR ),
+                  _logoSize.x(), _logoSize.y(), 0,
+                  eq::util::CompressorDataGPU::getGLFormat( externalFormat ), 
+                  eq::util::CompressorDataGPU::getGLType( externalFormat ),
+                  image.getPixelPointer( eq::Frame::BUFFER_COLOR ));
 
     EQINFO << "Created logo texture of size " << _logoSize << endl;
 }

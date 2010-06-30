@@ -111,6 +111,7 @@ static const char* _logoTextureName = "eqPly_logo";
 
 void Window::_loadLogo()
 {
+    return;
     if( _state->getTexture( _logoTextureName ) != VertexBufferState::INVALID )
     {
         // Already loaded by first window
@@ -125,8 +126,13 @@ void Window::_loadLogo()
 
     eq::Image image;
     if( !image.readImage( "logo.rgb", eq::Frame::BUFFER_COLOR ) &&
+#ifdef _MSC_VER
+        !image.readImage( "../examples/eqPly/logo.rgb", 
+                          eq::Frame::BUFFER_COLOR ) )
+#else
         !image.readImage( "./examples/eqPly/logo.rgb", 
                           eq::Frame::BUFFER_COLOR ) )
+#endif
     {
         EQWARN << "Can't load overlay logo 'logo.rgb'" << std::endl;
         return;
@@ -139,8 +145,16 @@ void Window::_loadLogo()
     _logoSize.x() = pvp.w;
     _logoSize.y() = pvp.h;
 
-    image.uploadToTexture( eq::Frame::BUFFER_COLOR, _logoTexture, 
-                           glewGetContext( ));
+    const uint32_t externalFormat = 
+        image.getExternalFormat( eq::Frame::BUFFER_COLOR );
+
+    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _logoTexture );
+    glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
+                  image.getInternalFormat( eq::Frame::BUFFER_COLOR ),
+                  _logoSize.x(), _logoSize.y(), 0,
+                  eq::util::CompressorDataGPU::getGLFormat( externalFormat ), 
+                  eq::util::CompressorDataGPU::getGLType( externalFormat ),
+                  image.getPixelPointer( eq::Frame::BUFFER_COLOR ));
 
     EQVERB << "Created logo texture of size " << _logoSize << std::endl;
 }
