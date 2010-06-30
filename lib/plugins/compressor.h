@@ -478,12 +478,12 @@ extern "C"
      * unsigned int tokens. To simplify future implementation, we use
      * the same token value that OpenGL
      */
-    #define EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT             0x808
+    #define EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT             0x1902
     /**
      * Data is processed in one interleaved streams of depth of
      * unsigned 24 bits int and one 8 bits tokens.
      */
-    #define EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV     0x809
+    #define EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV     0x808
     /**
      * Data is processed in four interleaved streams of RGB color of
      * unsigned Byte tokens. To simplify future implementation, we use
