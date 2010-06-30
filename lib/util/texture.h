@@ -68,6 +68,7 @@ namespace util
          * @sa setTarget(), setInternalFormat()
          */
         void setGLData( const GLuint id, const int width, const int height );
+
         /** 
          * Init an OpenGL texture.
          *
@@ -148,6 +149,10 @@ namespace util
         EQ_EXPORT void download( void* buffer, const uint32_t format, 
                                  const uint32_t type ) const;
 
+        /** set a downloader for use during transfer operation  */
+        void setDownloader( const uint32_t downloaderName )
+            {   _downloaderName = downloaderName;   }
+
         /**
          * Copy the texture data to the given memory address, using the internal
          * format and type.
@@ -191,6 +196,9 @@ namespace util
 
         /** texture data type */
         GLuint _type;
+        
+        /** name of the default downloader */
+        uint32_t _downloaderName;
 
         /** The maximum width of the texture. */
         int32_t _width;

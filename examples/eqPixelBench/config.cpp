@@ -36,6 +36,7 @@ namespace eqPixelBench
 Config::Config( eq::base::RefPtr< eq::Server > parent )
         : eq::Config( parent )
         , _clock(0)
+        , _modeTest( false )
 {
 }
 
@@ -58,8 +59,9 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 {
     switch( event->data.type )
     {
+        case ConfigEvent::DESCRIPTION:
+        case ConfigEvent::COMPLET_OPERATION:
         case ConfigEvent::READBACK:
-        case ConfigEvent::READBACK_PBO:
         case ConfigEvent::ASSEMBLE:
         case ConfigEvent::START_LATENCY:
             cout << static_cast< const ConfigEvent* >( event ) << endl;

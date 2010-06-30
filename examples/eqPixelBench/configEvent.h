@@ -39,19 +39,27 @@ public:
     enum Type
     {
         READBACK = eq::Event::USER,
-        READBACK_PBO,
         ASSEMBLE,
-        START_LATENCY
+        MEASURE_READBACK,
+        MAESURE_ASSEMBLE,
+        START_LATENCY,
+        COMPLET_OPERATION,
+        DESCRIPTION,
+
     };
 
     ConfigEvent()
-        {
-            size = sizeof( ConfigEvent );
-        }
+        : testCompress( false )
+    {
+        size = sizeof( ConfigEvent );
+    }
 
     // channel name is in user event data
     char           formatType[64];
-    eq::Vector2i area;
+    bool           testCompress;
+    eq::Vector2i   area;
+    uint64_t       dataSizeGPU;
+    uint64_t       dataSizeCPU;
     float          msec;
 };
 

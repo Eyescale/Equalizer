@@ -42,6 +42,21 @@ using eq::net::CommandFunc;
 
 namespace eq
 {
+
+namespace
+{
+struct ImageHeader
+{
+    uint32_t                internalFormat;
+    uint32_t                externalFormat;
+    uint32_t                pixelSize;
+    fabric::PixelViewport   pvp;
+    uint32_t                compressorName;
+    uint32_t                nChunks;
+};
+
+}
+
 FrameData::FrameData() 
         : _useAlpha( true )
         , _useSendToken( false )
@@ -180,27 +195,26 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
     image->setStorageType( type );
     image->setQuality( Frame::BUFFER_COLOR, _colorQuality );
     image->setQuality( Frame::BUFFER_DEPTH, _depthQuality ); 
-    image->setFormat( Frame::BUFFER_DEPTH, GL_DEPTH_COMPONENT );
-    image->setType( Frame::BUFFER_DEPTH, GL_UNSIGNED_INT );
-
-    if( type == Frame::TYPE_TEXTURE )
-        image->setFormat( Frame::BUFFER_COLOR, GL_RGBA );
-    else
-        image->setFormat( Frame::BUFFER_COLOR, GL_BGRA );
+    image->setInternalFormat( Frame::BUFFER_DEPTH, 
+                              EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT );
 
     switch( config.colorBits )
     {
         case 16:  
-            image->setType( Frame::BUFFER_COLOR, GL_HALF_FLOAT );
+            image->setInternalFormat( Frame::BUFFER_COLOR, 
+                                      EQ_COMPRESSOR_DATATYPE_RGBA16F );
             break;
         case 32:  
-            image->setType( Frame::BUFFER_COLOR, GL_FLOAT );
+            image->setInternalFormat( Frame::BUFFER_COLOR, 
+                                      EQ_COMPRESSOR_DATATYPE_RGBA32F );
             break;
         case 10:
-            image->setType( Frame::BUFFER_COLOR, GL_UNSIGNED_INT_10_10_10_2 );
+            image->setInternalFormat( Frame::BUFFER_COLOR, 
+                                      EQ_COMPRESSOR_DATATYPE_RGB10_A2 );
             break;
         default:
-            image->setType( Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+            image->setInternalFormat( Frame::BUFFER_COLOR, 
+                                      EQ_COMPRESSOR_DATATYPE_RGBA );
     }
 
     return image;
@@ -338,10 +352,10 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
         Image* image = *i;
         vector< const Image::PixelData* > pixelDatas;
 
-        packet.size    = packetSize;
-        packet.buffers = Frame::BUFFER_NONE;
-        packet.pvp     = image->getPixelViewport();
-        packet.ignoreAlpha = image->ignoreAlpha();
+        packet.size           = packetSize;
+        packet.buffers        = Frame::BUFFER_NONE;
+        packet.pvp            = image->getPixelViewport();
+        packet.ignoreAlpha    = image->ignoreAlpha();
 
         EQASSERT( packet.pvp.isValid( ));
 
@@ -363,7 +377,7 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
                 if( image->hasPixelData( buffer ))
                 {
                     // format, type, nChunks, compressor name
-                    packet.size += 4 * sizeof( uint32_t ); 
+                    packet.size += sizeof( ImageHeader ); 
 
                     const Image::PixelData& data = useCompression ?
                         image->compressPixelData( buffer ) : 
@@ -382,7 +396,7 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
                     else
                     {
                         packet.size += sizeof( uint64_t );
-                        packet.size += data.pixels.getSize();
+                        packet.size += image->getPixelDataSize( buffer );
                     }
 
                     packet.buffers |= buffer;
@@ -412,16 +426,19 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
         for( uint32_t j=0; j < pixelDatas.size(); ++j )
         {
 #ifndef NDEBUG
-            sentBytes += 4 * sizeof( uint32_t );
+            sentBytes += sizeof( ImageHeader );
 #endif
             const Image::PixelData* data = pixelDatas[j];
-            const uint32_t imageHeader[4] =
-                  { data->format,
-                    data->type, 
+            const ImageHeader imageHeader =
+                  { data->internalFormat,
+                    data->externalFormat,
+                    data->pixelSize,
+                    data->pvp,
                     data->compressorName,
                     data->isCompressed ? data->compressedSize.size() : 1 };
 
-            connection->send( imageHeader, 4 * sizeof( uint32_t ), true );
+            connection->send( &imageHeader, 
+                              sizeof( ImageHeader ), true );
             
             if( data->isCompressed )
             {
@@ -439,9 +456,10 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
             }
             else
             {
-                const uint64_t dataSize = data->pixels.getSize();
+                const uint64_t dataSize = data->pvp.getArea() * 
+                                          data->pixelSize;
                 connection->send( &dataSize, sizeof( dataSize ), true );
-                connection->send( data->pixels.getData(), dataSize, true );
+                connection->send( data->pixels, dataSize, true );
 #ifndef NDEBUG
                 sentBytes += sizeof( dataSize ) + dataSize;
 #endif
@@ -529,15 +547,18 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
         if( packet->buffers & buffer )
         {
             Image::PixelData pixelData;
-            const uint32_t*  u32Data   = reinterpret_cast< uint32_t* >( data );
-            
-            pixelData.format         = u32Data[0];
-            pixelData.type           = u32Data[1];
-            pixelData.compressorName = u32Data[2];
-            const uint32_t nChunks   = u32Data[3];
-            
-            data += 4 * sizeof( uint32_t );
-            
+            const ImageHeader* imageHeader = 
+                              reinterpret_cast< ImageHeader* >( data );
+
+            pixelData.internalFormat = imageHeader->internalFormat;
+            pixelData.externalFormat = imageHeader->externalFormat;
+            pixelData.pixelSize      = imageHeader->pixelSize;
+            pixelData.pvp            = imageHeader->pvp;
+            pixelData.compressorName = imageHeader->compressorName;
+            const uint32_t nChunks   = imageHeader->nChunks;
+
+            data += sizeof( ImageHeader );
+
             if( pixelData.compressorName > EQ_COMPRESSOR_NONE )
             {
                 pixelData.compressedSize.resize( nChunks );
@@ -552,22 +573,13 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
                     pixelData.compressedData[j] = data;
                     data += size;
                 }
-
-                image->setPixelData( buffer, pixelData );
             }
             else
             {
-                const uint64_t size = *reinterpret_cast< uint64_t* >( data );
-                data += sizeof( uint64_t );
-
-                image->setFormat( buffer, pixelData.format );
-                image->setType( buffer, pixelData.type );
-                EQASSERT( size == image->getPixelDataSize( buffer ));
-
-                image->setPixelData( buffer, data );
-                data += size;
+                pixelData.pixels = data;
+                data += pixelData.pvp.getArea() * pixelData.pixelSize;
             }
-
+            image->setPixelData( buffer, pixelData );
             // Prevent ~PixelData from freeing pointers
             pixelData.compressedSize.clear();
             pixelData.compressedData.clear();

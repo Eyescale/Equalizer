@@ -18,8 +18,9 @@
 #ifndef EQ_COMPOSITOR_H
 #define EQ_COMPOSITOR_H
 
-#include <eq/client/frame.h>          // nested type Frame::Buffer 
-#include <eq/client/types.h>          // type definitions
+#include "frame.h"          // nested type Frame::Buffer
+#include "image.h"          // nested type PixelData 
+#include "types.h"          // type definitions
 
 #include <eq/fabric/pixel.h>          // member
 
@@ -32,7 +33,6 @@ namespace util
     class Accum;
 }
     class Channel;
-    class Image;
 
     /** 
      * A set of functions performing compositing for a set of input frames.
@@ -239,34 +239,42 @@ namespace util
         static bool _isSubPixelDecomposition( const Frames& frames );
         static const Frames _extractOneSubPixel( Frames& frames );
 
-        static bool _collectOutputData( const Frames& frames,
-                                        PixelViewport& destPVP, 
-                                        uint32_t& colorFormat, 
-                                        uint32_t& colorType,
-                                        uint32_t& depthFormat,
-                                        uint32_t& depthType );
-                                        
+        static bool _collectOutputData( 
+                             const Frames& frames, 
+                             PixelViewport& destPVP, 
+                             uint32_t& colorInternalFormat, 
+                             uint32_t& colorPixelSize,
+                             uint32_t& colorExternalFormat,
+                             uint32_t& depthInternalFormat,
+                             uint32_t& depthPixelSize,
+                             uint32_t& depthExternalFormat );
+                              
+        static void _collectOutputData( const Image::PixelData& pixelData, 
+                                        uint32_t& internalFormat, 
+                                        uint32_t& pixelSize, 
+                                        uint32_t& externalFormat );
+
         static void _mergeFrames( const Frames& frames,
                                   const bool blendAlpha, 
                                   void* colorBuffer, void* depthBuffer,
                                   const PixelViewport& destPVP );
                                   
-        static void   _mergeDBImage( void* destColor, void* destDepth,
-                                     const PixelViewport& destPVP, 
-                                     const Image* image, 
-                                     const Vector2i& offset );
+        static void _mergeDBImage( void* destColor, void* destDepth,
+                                   const PixelViewport& destPVP, 
+                                   const Image* image, 
+                                   const Vector2i& offset );
                                      
-        static void   _merge2DImage( void* destColor, void* destDepth,
-                                     const PixelViewport& destPVP,
-                                     const Image* input,
-                                     const Vector2i& offset );
+        static void _merge2DImage( void* destColor, void* destDepth,
+                                   const PixelViewport& destPVP,
+                                   const Image* input,
+                                   const Vector2i& offset );
                                      
-        static void   _mergeBlendImage( void* dest, 
-                                        const PixelViewport& destPVP, 
-                                        const Image* input,
-                                        const Vector2i& offset );
-        static bool     _mergeImage_PC( int operation, void* destColor, 
-                                        void* destDepth, const Image* source );
+        static void _mergeBlendImage( void* dest, 
+                                      const PixelViewport& destPVP, 
+                                      const Image* input,
+                                      const Vector2i& offset );
+        static bool _mergeImage_PC( int operation, void* destColor, 
+                                    void* destDepth, const Image* source );
         /** 
          * draw an image to the frame buffer using a texture quad or drawPixels.
          */

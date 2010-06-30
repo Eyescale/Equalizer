@@ -64,8 +64,8 @@ void ROIFinder::_dumpDebug( const uint32_t stage )
     _tmpImg.reset();
     _tmpImg.setPixelViewport( PixelViewport( 0, 0, _wb, _hb ));
 
-    _tmpImg.setFormat( Frame::BUFFER_COLOR, GL_RGB  );
-    _tmpImg.setType(   Frame::BUFFER_COLOR, GL_UNSIGNED_BYTE );
+    _tmpImg.allocDownloader( Frame::BUFFER_COLOR, 
+                             EQ_COMPRESSOR_TRANSFER_RGB_TO_BGR, glewGetContext() );
 
     _tmpImg.validatePixelData( Frame::BUFFER_COLOR );
 

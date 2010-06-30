@@ -53,6 +53,7 @@ int main( int argc, char** argv )
         EQERROR << "Equalizer init failed" << endl;
         return EXIT_FAILURE;
     }
+    
 
     RefPtr<eq::Client> client = new eq::Client;
     if( !client->initLocal( argc, argv ))
@@ -76,6 +77,14 @@ int main( int argc, char** argv )
     eq::ConfigParams configParams;
     eqPixelBench::Config* config = static_cast<eqPixelBench::Config*>(
         server->chooseConfig( configParams ));
+    
+    if (argc>=2)
+	{
+		if (strcmp(argv[1],"-t")==0)
+		{
+			config->setModeTest();
+		}
+    }
 
     if( !config )
     {

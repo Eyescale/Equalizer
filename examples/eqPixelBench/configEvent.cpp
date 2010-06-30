@@ -40,33 +40,48 @@ std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
             os  << "readback";
             break;
 
-        case ConfigEvent::READBACK_PBO:
-            os  << "read PBO";
-            break;
-
         case ConfigEvent::ASSEMBLE:
             os  << "assemble";
             break;
-
+        case ConfigEvent::COMPLET_OPERATION:
+            os  << "complete Operation";
+            break;
         case ConfigEvent::START_LATENCY:
+        case ConfigEvent::DESCRIPTION:
             os  << "        ";
             break;
-
         default:
             os << static_cast< const eq::ConfigEvent* >( event );
             return os;
     }
-
-    os << " \"" << event->data.user.data << "\" " << event->formatType
-       << string( 50-strlen( event->formatType ), ' ' ) << event->area << ": ";
-
-    if( event->msec < 0.0f )
-        os << "error 0x" << hex << static_cast< int >( -event->msec ) << dec;
+    
+    if ( event->data.type == ConfigEvent::READBACK && event->testCompress )
+    {
+        os << event->area << "( size GPU : " << event->dataSizeGPU << " bytes ";
+        os << "/ size CPU : " << event->dataSizeCPU << " bytes ";
+        os << "/ time : " <<  event->msec << "ms )";
+    }
+    else if ( event->data.type == ConfigEvent::ASSEMBLE && event->testCompress )
+    {
+        os << event->area << "( size CPU : " << event->dataSizeCPU << " bytes ";
+        os << "/ time : " <<  event->msec << "ms )";
+    }
+    else if ( event->data.type == ConfigEvent::DESCRIPTION )
+    {
+        os << event->formatType;
+    }
     else
-        os << static_cast< uint32_t >( event->area.x() * event->area.y() / 
-                                       event->msec  / 1048.576f )
-           << "MPix/sec (" << event->msec << "ms, " << 1000.0f / event->msec
-           << "FPS)";
+    {   os << " \"" << event->data.user.data << "\" " << event->formatType
+           << string( 50-strlen( event->formatType ), ' ' ) << event->area << ": ";
+    
+        if( event->msec < 0.0f )
+            os << "error 0x" << hex << static_cast< int >( -event->msec ) << dec;
+        else
+            os << static_cast< uint32_t >( event->area.x() * event->area.y() / 
+                                           event->msec  / 1048.576f )
+               << "MPix/sec (" << event->msec << "ms, " << 1000.0f / event->msec
+               << "FPS)";
+    }
     return os;
 }
 }

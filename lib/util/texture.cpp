@@ -57,6 +57,7 @@ void Texture::flush()
     CHECK_THREAD( _thread );
     glDeleteTextures( 1, &_id );
     _id = 0;
+    _downloaderName = 0;
     _defined = false;
 }
 
@@ -65,63 +66,72 @@ void Texture::setTarget( const GLenum target )
     _target = target;
 }
 
-void Texture::setInternalFormat( const GLuint format )
+void Texture::setInternalFormat( const GLuint internalFormat )
 {
-    if( _internalFormat == format )
+    if( _internalFormat == internalFormat )
         return;
 
     _defined = false;
-    _internalFormat = format;
+    _internalFormat = internalFormat;
 
-    switch( format )
+    switch( internalFormat )
     {
         // depth format
         case GL_DEPTH_COMPONENT:
-            _format = GL_DEPTH_COMPONENT;
-            _type   = GL_UNSIGNED_INT;
+            setExternalFormat( GL_DEPTH_COMPONENT, GL_UNSIGNED_INT );
+            setDownloader( EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT );
             break;
-
-        // color formats
-        case GL_RGBA16:
-            _format = GL_BGRA;
-            _type   = GL_UNSIGNED_SHORT;
+        case GL_RGB10_A2:
+            setExternalFormat( GL_RGBA, GL_UNSIGNED_INT_10_10_10_2 );
+            setDownloader( EQ_COMPRESSOR_TRANSFER_RGB10A2_TO_BGR10A2 );
             break;
-
+        case GL_RGBA:
         case GL_RGBA8:
-        case GL_BGRA:
-            _format = GL_BGRA;
-            _type   = GL_UNSIGNED_BYTE;
+            setExternalFormat( GL_RGBA, GL_UNSIGNED_BYTE );
+            setDownloader( EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA );
             break;
-
         case GL_RGBA16F:
-            _format = GL_RGBA;
-            _type   = GL_HALF_FLOAT;
+            setExternalFormat( GL_RGBA, GL_HALF_FLOAT );
+            setDownloader( EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGRA16F );
             break;
-
         case GL_RGBA32F:
-            _format = GL_RGBA;
-            _type   = GL_FLOAT;
+            setExternalFormat( GL_RGBA, GL_FLOAT );
+            setDownloader( EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGRA32F );
             break;
-
+        case GL_RGB:
+        case GL_RGB8:
+            setExternalFormat( GL_RGB, GL_UNSIGNED_BYTE );
+            setDownloader( EQ_COMPRESSOR_TRANSFER_RGB_TO_BGR );
+            break;
+        case GL_RGB16F:
+            setExternalFormat( GL_RGB, GL_HALF_FLOAT );
+            setDownloader( EQ_COMPRESSOR_TRANSFER_RGB16F_TO_BGR16F );
+            break;
+        case GL_RGB32F:
+            setExternalFormat( GL_RGB, GL_FLOAT );
+            setDownloader( EQ_COMPRESSOR_TRANSFER_RGB32F_TO_BGR32F );
+            break;
         case GL_ALPHA32F_ARB:
-            _format = GL_ALPHA;
-            _type   = GL_FLOAT;
+            setExternalFormat( GL_ALPHA, GL_FLOAT );
+            //setDownloader( !!! );
             break;
-
+        case GL_DEPTH24_STENCIL8:
+            setExternalFormat( GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8_EXT );
+            setDownloader( EQ_COMPRESSOR_TRANSFER_DEPTH_STENCIL_TO_UNSIGNED_INT_24_8 );
+            break;
         case GL_RGBA32UI:
             EQASSERT( _glewContext );
             if( GLEW_EXT_texture_integer )
             {
-                _format = GL_RGBA_INTEGER_EXT;
-                _type   = GL_UNSIGNED_INT;
+                setExternalFormat( GL_RGBA_INTEGER_EXT, GL_UNSIGNED_INT );
             }
             else
                 EQUNIMPLEMENTED;
             break;
 
         default:
-            _format = _internalFormat;
-            _type   = GL_UNSIGNED_BYTE;
+            EQUNIMPLEMENTED;
+            setExternalFormat( _internalFormat, GL_UNSIGNED_BYTE );
     }
 }
 
@@ -164,6 +174,7 @@ void Texture::setGLData( const GLuint id, const int width, const int height )
     _id = id;
     _width = width;
     _height = height;
+    _defined = true;
 }
 
 namespace
@@ -225,14 +236,10 @@ void Texture::upload( const Image* image, const Frame::Buffer which )
 {
     CHECK_THREAD( _thread );
 
-    setInternalFormat( image->getInternalTextureFormat( which ));
+    setInternalFormat( image->getInternalFormat( which ));
     EQASSERT( _internalFormat != 0 );
 
-    _format = image->getFormat( which );
-    _type = image->getType( which );
-
-    const eq::PixelViewport& pvp = image->getPixelViewport();
-    upload( pvp.w, pvp.h, ( void* )image->getPixelPointer( which ));
+    image->uploadToTexture( which, _id, _glewContext );
 }
 
 void Texture::upload( const int width, const int height, const void* ptr )
@@ -254,7 +261,14 @@ void Texture::download( void* buffer, const uint32_t format,
     CHECK_THREAD( _thread );
     EQASSERT( _defined );
     EQ_GL_CALL( glBindTexture( _target, _id ));
-    EQ_GL_CALL( glGetTexImage( _target, 0, format, type, buffer ));
+    if ( format == 0 || type == 0 )
+    {
+        EQ_GL_CALL( glGetTexImage( _target, 0, _format, _type, buffer ));
+    }
+    else
+    {
+        EQ_GL_CALL( glGetTexImage( _target, 0, format, type, buffer ));
+    }
 }
 
 void Texture::download( void* buffer ) const
@@ -318,14 +332,8 @@ void Texture::writeRGB( const std::string& filename,
 {
     eq::Image image;
 
-    image.setFormat( buffer, _format );
-    image.setType( buffer, _type );
-
-    image.setPixelViewport( pvp );
-    image.validatePixelData( buffer );
-
-    download( image.getPixelPointer( buffer ));
-
+    image.allocDownloader( buffer, _downloaderName, _glewContext );
+    image.readbackFromTexture( buffer, pvp, _id, _glewContext );
     image.writeImage( filename + ".rgb", buffer );
 }
 

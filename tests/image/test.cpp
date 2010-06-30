@@ -59,9 +59,9 @@ static std::vector< uint32_t > _getCompressorNames()
         for( eq::base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
-			const EqCompressorInfo& info = *j;
-			if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
-				continue;
+            const EqCompressorInfo& info = *j;
+            if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
+                continue;
             names.push_back( info.name );
         }
     }
@@ -172,7 +172,7 @@ int main( int argc, char **argv )
             uint64_t totalCompressedSize( 0 );
             float totalCompressTime( 0.f );
             float totalDecompressTime( 0.f );
-    
+
             // For each image
             for( eq::Strings::const_iterator j = images.begin();
                  j != images.end(); ++j )
@@ -277,7 +277,7 @@ int main( int argc, char **argv )
 
                 totalSize += size;
                 totalCompressedSize += compressedSize;
-                totalCompressTime += compressTime;
+                totalCompressTime   += compressTime;
                 totalDecompressTime += decompressTime;
 
 #ifdef WRITE_DECOMPRESSED
@@ -291,8 +291,33 @@ int main( int argc, char **argv )
                 const uint8_t* data = image.getPixelPointer( buffer );
                 const uint8_t* destData = destImage.getPixelPointer( buffer );
                 const float quality = _getCompressorQuality( name );
-
-                const uint8_t channelSize = image.getChannelSize( buffer );
+                uint8_t channelSize = 0;
+                switch( image.getExternalFormat( buffer ))
+                {      
+                    case EQ_COMPRESSOR_DATATYPE_RGBA:
+                    case EQ_COMPRESSOR_DATATYPE_BGRA:
+                    case EQ_COMPRESSOR_DATATYPE_RGB:
+                    case EQ_COMPRESSOR_DATATYPE_BGR:
+                    case EQ_COMPRESSOR_DATATYPE_RGB10_A2 :
+                    case EQ_COMPRESSOR_DATATYPE_BGR10_A2 :
+                        channelSize = 1;
+                        break;
+                    case EQ_COMPRESSOR_DATATYPE_BGRA32F:
+                    case EQ_COMPRESSOR_DATATYPE_BGR32F:
+                    case EQ_COMPRESSOR_DATATYPE_RGBA32F:
+                    case EQ_COMPRESSOR_DATATYPE_RGB32F:
+                        channelSize = 4;
+                        break;
+                    case EQ_COMPRESSOR_DATATYPE_RGB16F:
+                    case EQ_COMPRESSOR_DATATYPE_RGBA16F:
+                    case EQ_COMPRESSOR_DATATYPE_BGR16F:
+                    case EQ_COMPRESSOR_DATATYPE_BGRA16F:
+                        channelSize = 2;
+                        break;
+                    default:
+                        EQERROR << "Unknown image pixel data type" << std::endl;
+                        return 0;
+                }
                 const int64_t nElem = size / channelSize;
                 
                 switch( channelSize )
@@ -315,8 +340,8 @@ int main( int argc, char **argv )
                                        quality );
                     break;
                 default:
-		    break;
-		}
+                    break;
+                }
 #endif
             }
 

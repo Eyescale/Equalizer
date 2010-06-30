@@ -50,12 +50,11 @@ protected:
 
 private:
     void _draw( const uint32_t spin );
-    void _testFormats();
+    void _testFormats( float applyZoom );
     void _testTiledOperations();
     void _testDepthAssemble();
     void _saveImage( const eq::Image* image,
-                     const char*      type   = "",
-                     const char*      format = "",
+                     const char*      externalformat = "",
                      const char*      info   = "" );
 
 private:

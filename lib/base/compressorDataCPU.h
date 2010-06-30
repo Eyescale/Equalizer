@@ -41,7 +41,7 @@ namespace base
          * Compress two-dimensional data.
          *
          * @param in the pointer to the input data. 
-         * @param pvp the dimensions of the input data
+         * @param pvpIn the dimensions of the input data
          * @param flags capability flags for the compression
          */
         void compress( void* const in, 
@@ -126,8 +126,8 @@ namespace base
          * Find and init the best compressor in all plugins for the given
          * parameters.
          *
-         * @param tokenType the structure of the data to compress.
-         * @param minQuality minimal quality of the compressed data, with 0 = no
+         * @param dataType the structure of the data to compress.
+         * @param quality minimal quality of the compressed data, with 0 = no
          *                   quality and 1 = full quality, no loss.
          * @param ignoreMSE the most-significant element of each token can be
          *                  ignored, typically the alpha channel of an image.

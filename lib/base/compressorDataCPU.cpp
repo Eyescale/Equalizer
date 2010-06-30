@@ -115,6 +115,9 @@ uint32_t CompressorDataCPU::chooseCompressor( const uint32_t tokenType,
             if( info.tokenType != tokenType )
                 continue;
 
+            if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
+                continue;
+
             float infoRatio = info.ratio;
             if( ignoreMSE && ( info.capabilities & EQ_COMPRESSOR_IGNORE_MSE ))
             {

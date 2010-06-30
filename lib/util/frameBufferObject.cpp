@@ -42,7 +42,7 @@ FrameBufferObject::FrameBufferObject( GLEWContext* glewContext )
 
     _colors[0]->setInternalFormat( GL_RGBA );
     _depth.setInternalFormat( GL_DEPTH_COMPONENT );
-    _stencil.setInternalFormat( GL_STENCIL_INDEX );
+    _stencil.setInternalFormat( GL_DEPTH24_STENCIL8 );
 }
 
 FrameBufferObject::~FrameBufferObject()

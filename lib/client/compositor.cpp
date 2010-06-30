@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,14 +23,16 @@
 #include "channelStatistics.h"
 #include "client.h"
 #include "compositor.h"
-#include "image.h"
 #include "log.h"
 #include "server.h"
 #include "windowSystem.h"
 
 #include <eq/util/accum.h>
+#include <eq/util/frameBufferObject.h>
+#include <eq/util/compressorDataGPU.h>
 
 #include <eq/base/debug.h>
+#include <eq/base/global.h>
 #include <eq/base/executionListener.h>
 #include <eq/base/monitor.h>
 
@@ -38,7 +41,7 @@
 #endif
 
 #ifdef WIN32
-#  define bzero( ptr, size ) memset( ptr, 0, size );
+#  define bzero( ptr, size ) { memset( ptr, 0, size ); }
 #endif
 
 using eq::base::Monitor;
@@ -55,9 +58,6 @@ static const char seed = 42;
 static const char* shaderDBKey = &seed;
 static const char* colorDBKey  = shaderDBKey + 1;
 static const char* depthDBKey  = shaderDBKey + 2;
-static const char* colorKey    = shaderDBKey + 3;
-static const char* depthKey    = shaderDBKey + 4;
-
 class ResultImage : public Image
 {
 public:
@@ -105,12 +105,13 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
     // correct, that there are enough images to make a CPU-based assembly
     // worthwhile and all other preconditions for our CPU-based assembly code
     // are true.
-    size_t   nImages     = 0;
-    uint32_t colorFormat = 0;
-    uint32_t colorType   = 0;
-    uint32_t depthFormat = 0;
-    uint32_t depthType   = 0;
+    size_t   nImages        = 0;
+    uint32_t colorInternalFormat = 0;
+    uint32_t colorExternalFormat = 0;
+    uint32_t depthInternalFormat = 0;
+    uint32_t depthExternalFormat = 0;
 
+    // TODO test that external formats are known by the CPU compression algo
     for( Frames::const_iterator i = frames.begin();
          i != frames.end(); ++i )
     {
@@ -135,32 +136,37 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
             if(( blendAlpha && hasColor && image->hasAlpha( )) ||
                ( hasColor && hasDepth ))
             {
-                if( colorFormat == 0 )
+                if( colorInternalFormat == 0 && colorExternalFormat == 0 )
                 {
-                    colorFormat = image->getFormat( Frame::BUFFER_COLOR );
-                    colorType   = image->getType(   Frame::BUFFER_COLOR );
+                    colorInternalFormat = image->getInternalFormat( Frame::BUFFER_COLOR );
+                    colorExternalFormat = image->getExternalFormat( Frame::BUFFER_COLOR );
+                    const uint32_t colorType   = util::CompressorDataGPU::getGLType( colorExternalFormat );
 
                     if (( colorType == GL_HALF_FLOAT ) || 
                         ( colorType == GL_FLOAT ))
                         return false;
+                    
+                    // if it's not a knowing type we cannot assemble on the cpu
+                    if ( !eq::util::CompressorDataGPU::getPixelSize( colorExternalFormat ) )
+                        return false;
                 }
-
-                if( colorFormat != image->getFormat( Frame::BUFFER_COLOR ) ||
-                    colorType   != image->getType(   Frame::BUFFER_COLOR ))
-
+                else if( colorInternalFormat != image->getInternalFormat( Frame::BUFFER_COLOR ) ||
+                         colorExternalFormat != image->getExternalFormat( Frame::BUFFER_COLOR ))
                     return false;
 
                 if( image->hasPixelData( Frame::BUFFER_DEPTH ))
                 {
-                    if( depthFormat == 0 )
+                    if( depthInternalFormat == 0 && depthExternalFormat == 0 )
                     {
-                        depthFormat = image->getFormat( Frame::BUFFER_DEPTH );
-                        depthType   = image->getType(   Frame::BUFFER_DEPTH );
+                        depthInternalFormat = image->getInternalFormat( Frame::BUFFER_DEPTH );
+                        depthExternalFormat = image->getExternalFormat( Frame::BUFFER_DEPTH );
+
+                        // if it's not a knowing type we cannot assemble on the cpu
+                        if ( !eq::util::CompressorDataGPU::getPixelSize( depthExternalFormat ) )
+                            return false;
                     }
-
-                    if( depthFormat != image->getFormat(Frame::BUFFER_DEPTH ) ||
-                        depthType   != image->getType(  Frame::BUFFER_DEPTH ))
-
+                    else if( depthInternalFormat != image->getInternalFormat(Frame::BUFFER_DEPTH ) ||
+                        depthExternalFormat != image->getExternalFormat(  Frame::BUFFER_DEPTH ))
                         return false;
                 }
 
@@ -399,11 +405,11 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
             if( !frame->isReady( ))
                 continue;
 
-			if( !frame->getImages().empty( ))
-			{
-			    count = 1;
-	            assembleFrame( frame, channel );
-			}
+            if( !frame->getImages().empty( ))
+            {
+                count = 1;
+                assembleFrame( frame, channel );
+            }
     
             unusedFrames.erase( i );
             break;
@@ -461,13 +467,20 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
 
     // Collect input image information and check preconditions
     PixelViewport destPVP;
-    uint32_t colorFormat = GL_NONE;
-    uint32_t colorType   = GL_NONE;
-    uint32_t depthFormat = GL_NONE;
-    uint32_t depthType   = GL_NONE;
+    uint32_t colorInternalFormat    = 0;
+    uint32_t colorExternalFormat    = 0;
+    uint32_t colorPixelSize         = 0;
+    uint32_t depthInternalFormat    = 0;
+    uint32_t depthExternalFormat    = 0;
+    uint32_t depthPixelSize         = 0;
 
     if( !_collectOutputData( frames, destPVP, 
-                             colorFormat, colorType, depthFormat, depthType ))
+                             colorInternalFormat,
+                             colorPixelSize,
+                             colorExternalFormat,
+                             depthInternalFormat,
+                             depthPixelSize,
+                             depthExternalFormat ))
     {
         return 0;
     }
@@ -481,22 +494,28 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
     }
 
     // pre-condition check for current _merge implementations
-    EQASSERT( colorFormat != GL_NONE );
-    EQASSERT( colorType   != GL_NONE );
+    EQASSERT( colorInternalFormat != 0 );
 
-    result->setFormat( Frame::BUFFER_COLOR, colorFormat );
-    result->setType( Frame::BUFFER_COLOR, colorType );
     result->setPixelViewport( destPVP );
+
+    Image::PixelData colorPixelData;
+    colorPixelData.internalFormat = colorInternalFormat;
+    colorPixelData.externalFormat = colorExternalFormat;
+    colorPixelData.pixelSize      = colorPixelSize;
+    colorPixelData.pvp            = destPVP;
+    result->setPixelData( Frame::BUFFER_COLOR, colorPixelData );
     result->clearPixelData( Frame::BUFFER_COLOR );
 
     void* destDepth = 0;
-    if( depthFormat != GL_NONE ) // at least one depth assembly
+    if( depthInternalFormat != 0 ) // at least one depth assembly
     {
-        EQASSERT( depthFormat == GL_DEPTH_COMPONENT );
-        EQASSERT( depthType   == GL_UNSIGNED_INT );
-
-        result->setFormat( Frame::BUFFER_DEPTH, depthFormat );
-        result->setType(   Frame::BUFFER_DEPTH, depthType );
+        EQASSERT( depthInternalFormat == EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT );
+        Image::PixelData depthPixelData;
+        depthPixelData.internalFormat = depthInternalFormat;
+        depthPixelData.externalFormat = depthExternalFormat;
+        depthPixelData.pixelSize      = depthPixelSize;
+        depthPixelData.pvp            = destPVP;
+        result->setPixelData( Frame::BUFFER_DEPTH, depthPixelData );
         result->clearPixelData( Frame::BUFFER_DEPTH );
         destDepth = result->getPixelPointer( Frame::BUFFER_DEPTH );
     }
@@ -508,10 +527,14 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
     return result;
 }
 
-bool Compositor::_collectOutputData( const Frames& frames,
-                                     PixelViewport& destPVP, 
-                                     uint32_t& colorFormat, uint32_t& colorType,
-                                     uint32_t& depthFormat, uint32_t& depthType)
+bool Compositor::_collectOutputData( 
+         const Frames& frames, PixelViewport& destPVP, 
+         uint32_t& colorInternalFormat, 
+         uint32_t& colorPixelSize,
+         uint32_t& colorExternalFormat,
+         uint32_t& depthInternalFormat, 
+         uint32_t& depthPixelSize,
+         uint32_t& depthExternalFormat )
 {
     for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
     {
@@ -539,23 +562,15 @@ bool Compositor::_collectOutputData( const Frames& frames,
 
             destPVP.merge( image->getPixelViewport() + frame->getOffset( ));
 
-            EQASSERT( colorFormat == GL_NONE ||
-                      colorFormat == image->getFormat( Frame::BUFFER_COLOR ));
-            EQASSERT( colorType == GL_NONE ||
-                      colorType == image->getType( Frame::BUFFER_COLOR ));
-
-            colorFormat = image->getFormat( Frame::BUFFER_COLOR );
-            colorType   = image->getType( Frame::BUFFER_COLOR );
-
+            _collectOutputData( image->getPixelData( Frame::BUFFER_COLOR ), 
+                                colorInternalFormat, colorPixelSize, 
+                                colorExternalFormat );
+            
             if( image->hasPixelData( Frame::BUFFER_DEPTH ))
             {
-                EQASSERT( depthFormat == GL_NONE ||
-                          depthFormat == image->getFormat(Frame::BUFFER_DEPTH));
-                EQASSERT( depthType == GL_NONE ||
-                          depthType == image->getType( Frame::BUFFER_DEPTH ));
-
-                depthFormat = image->getFormat( Frame::BUFFER_DEPTH );
-                depthType   = image->getType( Frame::BUFFER_DEPTH );
+                _collectOutputData( image->getPixelData( Frame::BUFFER_DEPTH ), 
+                                    depthInternalFormat, 
+                                    depthPixelSize, depthExternalFormat );
             }
         }
     }
@@ -569,6 +584,19 @@ bool Compositor::_collectOutputData( const Frames& frames,
     return true;
 }
 
+void Compositor::_collectOutputData( const Image::PixelData& pixelData, 
+                                     uint32_t& internalFormat, 
+                                     uint32_t& pixelSize, 
+                                     uint32_t& externalFormat )
+{
+    EQASSERT( internalFormat == GL_NONE || internalFormat == pixelData.internalFormat );
+    EQASSERT( externalFormat == GL_NONE || externalFormat == pixelData.externalFormat );
+    EQASSERT( pixelSize == GL_NONE || pixelSize == pixelData.pixelSize );
+    internalFormat    = pixelData.internalFormat;
+    pixelSize         = pixelData.pixelSize;
+    externalFormat    = pixelData.externalFormat;
+}
+
 bool Compositor::mergeFramesCPU( const Frames& frames,
                                  const bool blendAlpha, void* colorBuffer,
                                  const uint32_t colorBufferSize,
@@ -580,37 +608,54 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
     EQVERB << "Sorted CPU assembly" << std::endl;
     
     // Collect input image information and check preconditions
-    uint32_t colorFormat = GL_NONE;
-    uint32_t colorType   = GL_NONE;
-    uint32_t depthFormat = GL_NONE;
-    uint32_t depthType   = GL_NONE;
+    uint32_t colorInternalFormat    = 0;
+    uint32_t colorExternalFormat    = 0;
+    uint32_t colorPixelSize         = 0;
+    uint32_t depthInternalFormat    = 0;
+    uint32_t depthExternalFormat    = 0;
+    uint32_t depthPixelSize         = 0;
     outPVP.invalidate();
 
-    if( !_collectOutputData( frames, outPVP, 
-                             colorFormat, colorType, depthFormat, depthType ))
-    {
+    if( !_collectOutputData( frames, outPVP, colorInternalFormat,
+                             colorPixelSize, colorExternalFormat,
+                             depthInternalFormat,
+                             depthPixelSize, depthExternalFormat ))
         return false;
-    }
 
     // pre-condition check for current _merge implementations
-    EQASSERT( colorFormat != GL_NONE );
-    EQASSERT( colorType   != GL_NONE );
+    EQASSERT( colorInternalFormat != 0 );
 
     // check output buffers
     const uint32_t area = outPVP.getArea();
-    const uint32_t colorPixelDepth = (colorFormat == GL_RGB) ? 3 : 4;
+    uint32_t nChannel = 0;
+    
+    switch ( colorInternalFormat )
+    {
+    case EQ_COMPRESSOR_DATATYPE_RGBA:
+    case EQ_COMPRESSOR_DATATYPE_RGBA16F:
+    case EQ_COMPRESSOR_DATATYPE_RGBA32F:
+    case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
+        nChannel = 4;
+        break;
+    case EQ_COMPRESSOR_DATATYPE_RGB:
+    case EQ_COMPRESSOR_DATATYPE_RGB16F:
+    case EQ_COMPRESSOR_DATATYPE_RGB32F:
+        nChannel = 3;
+        break;
+    default:
+        EQASSERT( false );
+    }
 
-    if( colorBufferSize < area * colorPixelDepth )
+    if( colorBufferSize < area * nChannel )
     {
         EQWARN << "Color output buffer to small" << std::endl;
         return false;
     }
 
-    if( depthFormat != GL_NONE ) // at least one depth assembly
+    if( depthInternalFormat != 0 ) // at least one depth assembly
     {
         EQASSERT( depthBuffer );
-        EQASSERT( depthFormat == GL_DEPTH_COMPONENT );
-        EQASSERT( depthType   == GL_UNSIGNED_INT );
+        EQASSERT( depthInternalFormat == GL_DEPTH_COMPONENT );
 
         if( !depthBuffer )
         {
@@ -658,7 +703,6 @@ void Compositor::_mergeFrames( const Frames& frames,
         }
     }
 }
-
 
 void Compositor::_mergeDBImage( void* destColor, void* destDepth,
                                 const PixelViewport& destPVP,
@@ -738,7 +782,7 @@ void Compositor::_merge2DImage( void* destColor, void* destDepth,
     EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
 
     const uint8_t*   color = image->getPixelPointer( Frame::BUFFER_COLOR );
-    const size_t pixelSize = image->getDepth( Frame::BUFFER_COLOR );
+    const size_t pixelSize = image->getPixelSize( Frame::BUFFER_COLOR );
     const size_t rowLength = pvp.w * pixelSize;
 
 #ifdef EQ_USE_OPENMP
@@ -748,8 +792,11 @@ void Compositor::_merge2DImage( void* destColor, void* destDepth,
     {
         const size_t skip = ( (destY + y) * destPVP.w + destX ) * pixelSize;
         memcpy( destC + skip, color + y * pvp.w * pixelSize, rowLength);
-        if( destD ) // clear depth, for depth-assembly into existing FB
+        // clear depth, for depth-assembly into existing FB
+        if( destD ) 
+        {
             bzero( destD + skip, rowLength );
+        }
     }
 }
 
@@ -766,7 +813,7 @@ void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
     const int32_t         destX  = offset.x() + pvp.x - destPVP.x;
     const int32_t         destY  = offset.y() + pvp.y - destPVP.y;
 
-    EQASSERT( image->getDepth( Frame::BUFFER_COLOR ) == 4 );
+    EQASSERT( image->getPixelSize( Frame::BUFFER_COLOR ) == 4 );
     EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
     EQASSERT( image->hasAlpha( ));
     
@@ -1157,29 +1204,24 @@ void Compositor::_drawPixels( const Image* image,
     const PixelViewport& pvp = image->getPixelViewport();
     EQLOG( LOG_ASSEMBLY ) << "_drawPixels " << pvp << " offset " << op.offset
                           << std::endl;
-    
     if ( image->getStorageType() == Frame::TYPE_MEMORY )
     {
-        EQASSERT( image->hasPixelData( which ));
-
-        if( op.zoom == eq::Zoom::NONE )
-        {
-            glRasterPos2i( op.offset.x() + pvp.x, op.offset.y() + pvp.y );
-            glDrawPixels( pvp.w, pvp.h, 
-                          image->getFormat( which ), 
-                          image->getType( which ), 
-                          image->getPixelPointer( which ));
-            return;
-        }
-        // else use texture with filtering to zoom
-
         Channel* channel = op.channel; // needed for glewGetContext
         Window::ObjectManager* objects = channel->getObjectManager();
 
+        if( op.zoom == Zoom::NONE && op.pixel == Pixel::ALL )
+        {
+            image->upload( which, op.offset, objects );
+            return;
+        }
         util::Texture* texture = objects->obtainEqTexture(
-            which == Frame::BUFFER_COLOR ? colorKey : depthKey );
+            which == Frame::BUFFER_COLOR ? colorDBKey : depthDBKey );
+        
+        const uint32_t colorInternalFormat = image->getInternalFormat( which ); 
+        texture->init( colorInternalFormat, pvp.w, pvp.h );
+        image->uploadToTexture( which, texture->getID(), objects );
+        texture->bind();
 
-        texture->upload( image, which );
     }
     else // texture image
     {
@@ -1314,6 +1356,23 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
 
     Channel*               channel = op.channel; // needed for glewGetContext
     Window::ObjectManager* objects = channel->getObjectManager();
+    const bool useImageTexture = image->getStorageType() == Frame::TYPE_TEXTURE;
+      
+    util::Texture* textureColor = 0;
+    util::Texture* textureDepth = 0;
+    if ( !useImageTexture )
+    {
+        textureColor = objects->obtainEqTexture( colorDBKey );
+        textureColor->init( image->getInternalFormat( Frame::BUFFER_COLOR ), 
+                       pvp.w, pvp.h );
+        image->uploadToTexture( Frame::BUFFER_COLOR, textureColor->getID(), 
+                                objects );
+        textureDepth = objects->obtainEqTexture( depthDBKey );
+        textureDepth->init( image->getInternalFormat( Frame::BUFFER_DEPTH ), 
+                            pvp.w, pvp.h );
+        image->uploadToTexture( Frame::BUFFER_DEPTH, textureDepth->getID(), 
+                               objects);
+    }
 
     GLuint program = objects->getProgram( shaderDBKey );
 
@@ -1380,15 +1439,11 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, 
                      GL_NEAREST );
 
-    const bool useImageTexture = image->getStorageType() == Frame::TYPE_TEXTURE;
     if( useImageTexture )
         image->getTexture( Frame::BUFFER_COLOR ).bind();
     else
-    {
-        util::Texture* texture = objects->obtainEqTexture( colorDBKey );
-        texture->upload( image, Frame::BUFFER_COLOR );
-    }
-
+        textureColor->bind();
+    
     EQ_GL_CALL( glActiveTexture( GL_TEXTURE0 ));
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
                      GL_NEAREST );
@@ -1398,10 +1453,8 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     if( useImageTexture )
         image->getTexture( Frame::BUFFER_DEPTH ).bind();
     else
-    {
-        util::Texture* texture = objects->obtainEqTexture( depthDBKey );
-        texture->upload( image, Frame::BUFFER_DEPTH );
-    }
+        textureDepth->bind();
+    
 
     // Draw a quad using shader & textures in the right place
     glEnable( GL_DEPTH_TEST );
@@ -1447,6 +1500,5 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         glPixelZoom( static_cast< float >( op.pixel.w ),
                      static_cast< float >( op.pixel.h ));
 }
-
 
 }

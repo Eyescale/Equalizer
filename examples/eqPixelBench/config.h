@@ -48,11 +48,14 @@ public:
     /** @return the clock started by startFrame, or 0 on render clients. */
     const eq::base::Clock* getClock() const { return _clock; }
 
+    void setModeTest(){ _modeTest = true; }
+    bool getModeTest(){ return _modeTest; }
 protected:
     virtual ~Config();
 
 private:
     eq::base::Clock* _clock;
+    bool _modeTest;
 };
 }
 

@@ -28,7 +28,7 @@
 
 #include "window.h"
 #include "pipe.h"
-
+#include <eq/util/compressorDataGPU.h>
 using namespace std;
 
 namespace eVolve
@@ -118,13 +118,9 @@ void Window::_loadLogo()
     _logoSize.x() = pvp.w;
     _logoSize.y() = pvp.h;
 
-    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _logoTexture );
-    glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
-                  image.getFormat( eq::Frame::BUFFER_COLOR ),
-                  _logoSize.x(), _logoSize.y(), 0,
-                  image.getFormat( eq::Frame::BUFFER_COLOR ), 
-                  image.getType( eq::Frame::BUFFER_COLOR ),
-                  image.getPixelPointer( eq::Frame::BUFFER_COLOR ));
+    image.uploadToTexture( eq::Frame::BUFFER_COLOR,
+                           _logoTexture, 
+                           glewGetContext());
 
     EQINFO << "Created logo texture of size " << _logoSize << endl;
 }
