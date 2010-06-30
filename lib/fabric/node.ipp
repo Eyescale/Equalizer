@@ -71,80 +71,6 @@ Node< C, N, P, V >::~Node()
     _config->_removeNode( static_cast< N* >( this ) );
 }
 
-namespace
-{
-template< class N, class V >
-VisitorResult _accept( N* node, V& visitor )
-{
-    VisitorResult result = visitor.visitPre( node );
-    if( result != TRAVERSE_CONTINUE )
-        return result;
-
-    const typename N::Pipes& pipes = node->getPipes();
-    for( typename N::Pipes::const_iterator i = pipes.begin(); 
-         i != pipes.end(); ++i )
-    {
-        switch( (*i)->accept( visitor ))
-        {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-                
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    switch( visitor.visitPost( node ))
-    {
-        case TRAVERSE_TERMINATE:
-            return TRAVERSE_TERMINATE;
-
-        case TRAVERSE_PRUNE:
-            return TRAVERSE_PRUNE;
-                
-        case TRAVERSE_CONTINUE:
-        default:
-            break;
-    }
-
-    return result;
-}
-}
-
-template< class C, class N, class P, class V >
-VisitorResult Node< C, N, P, V >::accept( V& visitor )
-{
-    return _accept( static_cast< N* >( this ), visitor );
-}
-
-template< class C, class N, class P, class V >
-VisitorResult Node< C, N, P, V >::accept( V& visitor ) const
-{
-    return _accept( static_cast< const N* >( this ), visitor );
-}
-
-template< class C, class N, class P, class V >
-NodePath Node< C, N, P, V >::getPath() const
-{
-    const C* config = static_cast< const N* >( this )->getConfig( );
-    EQASSERT( config );
-    
-    const typename std::vector< N* >& nodes = config->getNodes();
-    typename std::vector< N* >::const_iterator i = std::find( nodes.begin(),
-                                                              nodes.end(),
-                                                              this );
-    EQASSERT( i != nodes.end( ));
-
-    NodePath path;
-    path.nodeIndex = std::distance( nodes.begin(), i );
-    return path;
-}
-
 template< class C, class N, class P, class V >
 void Node< C, N, P, V >::backup()
 {
@@ -157,6 +83,14 @@ void Node< C, N, P, V >::restore()
 {
     _data = _backup;
     Object::restore();
+}
+
+template< class C, class N, class P, class V >
+uint32_t Node< C, N, P, V >::commitNB()
+{
+    if( Serializable::isDirty( DIRTY_PIPES ))
+        commitChildren( _pipes );
+    return Object::commitNB();
 }
 
 template< class C, class N, class P, class V > void
@@ -239,6 +173,80 @@ template< class C, class N, class P, class V >
 void Node< C, N, P, V >::release( P* pipe )
 {
     _config->getServer()->getNodeFactory()->releasePipe( pipe );
+}
+
+namespace
+{
+template< class N, class V >
+VisitorResult _accept( N* node, V& visitor )
+{
+    VisitorResult result = visitor.visitPre( node );
+    if( result != TRAVERSE_CONTINUE )
+        return result;
+
+    const typename N::Pipes& pipes = node->getPipes();
+    for( typename N::Pipes::const_iterator i = pipes.begin(); 
+         i != pipes.end(); ++i )
+    {
+        switch( (*i)->accept( visitor ))
+        {
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
+
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
+                break;
+                
+            case TRAVERSE_CONTINUE:
+            default:
+                break;
+        }
+    }
+
+    switch( visitor.visitPost( node ))
+    {
+        case TRAVERSE_TERMINATE:
+            return TRAVERSE_TERMINATE;
+
+        case TRAVERSE_PRUNE:
+            return TRAVERSE_PRUNE;
+                
+        case TRAVERSE_CONTINUE:
+        default:
+            break;
+    }
+
+    return result;
+}
+}
+
+template< class C, class N, class P, class V >
+VisitorResult Node< C, N, P, V >::accept( V& visitor )
+{
+    return _accept( static_cast< N* >( this ), visitor );
+}
+
+template< class C, class N, class P, class V >
+VisitorResult Node< C, N, P, V >::accept( V& visitor ) const
+{
+    return _accept( static_cast< const N* >( this ), visitor );
+}
+
+template< class C, class N, class P, class V >
+NodePath Node< C, N, P, V >::getPath() const
+{
+    const C* config = static_cast< const N* >( this )->getConfig( );
+    EQASSERT( config );
+    
+    const typename std::vector< N* >& nodes = config->getNodes();
+    typename std::vector< N* >::const_iterator i = std::find( nodes.begin(),
+                                                              nodes.end(),
+                                                              this );
+    EQASSERT( i != nodes.end( ));
+
+    NodePath path;
+    path.nodeIndex = std::distance( nodes.begin(), i );
+    return path;
 }
 
 template< class C, class N, class P, class V >

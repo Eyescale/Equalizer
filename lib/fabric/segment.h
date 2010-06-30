@@ -153,6 +153,8 @@ namespace fabric
         {
             char dummy[32];
         };
+
+        virtual uint32_t commitNB(); //!< @internal
     };
 
     template< class C, class S, class CH >

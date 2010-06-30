@@ -289,7 +289,6 @@ namespace net
         //@}
 
         /** @name Notifications */
-        //@{
         /**
          * Notify that this object has been registered or mapped.
          *

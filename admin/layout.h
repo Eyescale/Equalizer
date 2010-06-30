@@ -37,6 +37,12 @@ namespace admin
         /** Destruct a layout. @version 1.0 */
         EQADMIN_EXPORT virtual ~Layout();
 
+        /** @name Data Access */
+        //@{
+        /** @return the Server of this layout. @version 1.0 */
+        EQADMIN_EXPORT ServerPtr getServer();
+        //@}
+
     private:
         union // placeholder for binary-compatible changes
         {

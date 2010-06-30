@@ -1,6 +1,6 @@
 
 /* 
- * Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,9 +33,6 @@
 #include "config.h"
 #include <eq/eq.h>
 
-using namespace eq::base;
-using namespace std;
-
 namespace eqPly
 {
 eq::WindowSystem Pipe::selectWindowSystem() const
@@ -49,7 +46,7 @@ eq::WindowSystem Pipe::selectWindowSystem() const
     if( !supportsWindowSystem( ws ))
     {
         EQWARN << "Window system " << ws 
-               << " not supported, using default window system" << endl;
+               << " not supported, using default window system" << std::endl;
         return eq::Pipe::selectWindowSystem();
     }
 

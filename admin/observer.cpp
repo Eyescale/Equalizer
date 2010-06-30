@@ -20,6 +20,7 @@
 #include "config.h"
 #include "layout.h"
 #include "segment.h"
+#include "server.h"
 
 namespace eq
 {
@@ -29,10 +30,19 @@ typedef fabric::Observer< Config, Observer > Super;
 
 Observer::Observer( Config* parent )
         : Super( parent )
-{}
+{
+}
 
 Observer::~Observer()
-{}
+{
+}
+
+ServerPtr Observer::getServer() 
+{
+    Config* config = getConfig();
+    EQASSERT( config );
+    return ( config ? config->getServer() : 0 );
+}
 
 }
 }

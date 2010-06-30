@@ -91,10 +91,8 @@ namespace DataStreamTest
         /**
          * Serialize child objects.
          *
-         * The DataIStream has a deserialize counterpart to this method. The
-         * master instance has to register all child objects beforehand. Slave
-         * instance can commit unmapped children, which will be serialized
-         * in-line.
+         * The DataIStream has a deserialize counterpart to this method. All
+         * child objects have to be registered or mapped beforehand.
          */
         template< typename O, typename C >
         void serializeChildren( O* object, const std::vector< C* >& children );
@@ -216,6 +214,7 @@ namespace net
     template<> inline DataOStream& 
     DataOStream::operator << ( const Object* const& object )
     {
+        EQASSERT( !object || object->isAttached( ));
         (*this) << ObjectVersion( object );
         return *this;
     }
@@ -227,7 +226,7 @@ namespace net
     {
         const uint64_t nElems = value.size();
         (*this) << nElems;
-        for( uint64_t i =0; i < nElems; ++i )
+        for( uint64_t i = 0; i < nElems; ++i )
             (*this) << value[i];
         return *this;
     }
@@ -238,12 +237,11 @@ namespace net
         const uint64_t nElems = children.size();
         (*this) << nElems;
 
-        std::vector< C* > unmapped;
         for( typename std::vector< C* >::const_iterator i = children.begin();
              i != children.end(); ++i )
         {
             C* child = *i;
-            (*this) << static_cast< const Object* >( child );
+            (*this) << ObjectVersion( child );
             EQASSERTINFO( !child || child->getID() <= EQ_ID_MAX,
                           "Found unmapped object during serialization" );
         }

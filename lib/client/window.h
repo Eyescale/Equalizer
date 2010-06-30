@@ -76,10 +76,10 @@ namespace fabric
         /** Fonts used for overlays. */
         typedef util::BitmapFont< const void* > Font;
 
-        /** Construct a new window. */
+        /** Construct a new window. @version 1.0 */
         EQ_EXPORT Window( Pipe* parent );
 
-        /** Destruct the window. */
+        /** Destruct the window. @version 1.0 */
         EQ_EXPORT virtual ~Window();
 
         /** @name Data Access */
@@ -88,11 +88,13 @@ namespace fabric
 
         /** @return the Node of this window. */
         EQ_EXPORT const Node* getNode() const; 
+
         /** @return the Node of this window. */
         EQ_EXPORT Node*       getNode();
 
         /** @return the Config of this window. */
         EQ_EXPORT const Config* getConfig() const;
+
         /** @return the Config of this window. */
         EQ_EXPORT Config*       getConfig();
 

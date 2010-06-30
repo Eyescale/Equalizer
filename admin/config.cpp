@@ -20,15 +20,12 @@
 #include "canvas.h"
 #include "channel.h"
 #include "client.h"
-#include "config.h"
 #include "layout.h"
 #include "node.h"
 #include "nodeFactory.h"
 #include "observer.h"
 #include "server.h"
 #include "view.h"
-
-#include "configCommitVisitor.h"
 
 namespace eq
 {
@@ -54,13 +51,6 @@ ClientPtr Config::getClient()
 ConstClientPtr Config::getClient() const
 { 
     return getServer()->getClient(); 
-}
-
-uint32_t Config::commit()
-{
-    ConfigCommitVisitor visitor;
-    accept( visitor );
-    return Super::commit();
 }
 
 }

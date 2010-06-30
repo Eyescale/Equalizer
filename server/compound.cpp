@@ -859,7 +859,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
 
         _inherit.maxFPS = _data.maxFPS;
 
-        if ( _inherit.pvp.isValid( ))
+        if( _inherit.pvp.isValid( ))
         {
             EQASSERT( _data.vp.isValid( ));
             _inherit.pvp.apply( _data.vp );

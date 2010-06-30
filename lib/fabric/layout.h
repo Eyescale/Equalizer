@@ -141,6 +141,8 @@ namespace fabric
         void _addView( V* view );
         bool _removeView( V* view );
 
+        virtual uint32_t commitNB(); //!< @internal
+
         typedef net::CommandFunc< Layout< C, L, V > > CmdFunc;
         net::CommandResult _cmdNewView( net::Command& command );
         net::CommandResult _cmdNewViewReply( net::Command& command );

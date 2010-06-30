@@ -117,6 +117,14 @@ void Window< P, W, C >::restore()
 }
 
 template< class P, class W, class C >
+uint32_t Window< P, W, C >::commitNB()
+{
+    if( Serializable::isDirty( DIRTY_CHANNELS ))
+        commitChildren< C, WindowNewChannelPacket >( _channels );
+    return Object::commitNB();
+}
+
+template< class P, class W, class C >
 void Window< P, W, C >::serialize( net::DataOStream& os,
                                    const uint64_t dirtyBits )
 {

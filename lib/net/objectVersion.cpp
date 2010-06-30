@@ -39,6 +39,7 @@ ObjectVersion::ObjectVersion( const Object* object )
 {
     if( object )
     {
+        EQASSERT( object->isAttached( ));
         identifier = object->getID();
         version = object->getVersion(); 
     }

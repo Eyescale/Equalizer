@@ -20,7 +20,7 @@
 #include "config.h"
 #include "layout.h"
 #include "observer.h"
-#include "view.h"
+#include "server.h"
 
 namespace eq
 {
@@ -47,6 +47,13 @@ const Config* View::getConfig() const
     const Layout* layout = getLayout();
     EQASSERT( layout );
     return layout ? layout->getConfig() : 0;
+}
+
+ServerPtr View::getServer() 
+{
+    Config* config = getConfig();
+    EQASSERT( config );
+    return ( config ? config->getServer() : 0 );
 }
 
 }

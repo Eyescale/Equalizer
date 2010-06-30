@@ -18,7 +18,6 @@
 #include "canvas.h"
 
 #include "config.h"
-#include "global.h"
 #include "layout.h"
 #include "nodeFactory.h"
 #include "segment.h"
@@ -39,6 +38,13 @@ Canvas::Canvas( Config* parent )
 
 Canvas::~Canvas()
 {
+}
+
+ServerPtr Canvas::getServer() 
+{
+    Config* config = getConfig();
+    EQASSERT( config );
+    return ( config ? config->getServer() : 0 );
 }
 
 }

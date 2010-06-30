@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,8 +37,6 @@
 #  define MIN EQ_MIN
 #endif
 #include <tclap/CmdLine.h>
-
-using namespace std;
 
 namespace eqPly
 {
@@ -81,7 +79,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
 {
     try
     {
-        string wsHelp = "Window System API ( one of: ";
+        std::string wsHelp = "Window System API ( one of: ";
 #ifdef AGL
         wsHelp += "AGL ";
 #endif
@@ -96,12 +94,13 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         const std::string& desc = EqPly::getHelp();
 
         TCLAP::CmdLine command( desc );
-        TCLAP::MultiArg<string> modelArg( "m", "model", 
-                                          "ply model file name or directory", 
-                                          false, "string", command );
-        TCLAP::ValueArg<string> portArg( "p", "port", "tracking device port",
-                                         false, "/dev/ttyS0", "string",
-                                         command );
+        TCLAP::MultiArg<std::string> modelArg( "m", "model", 
+                                             "ply model file name or directory",
+                                               false, "string", command );
+        TCLAP::ValueArg<std::string> portArg( "p", "port",
+                                              "tracking device port",
+                                              false, "/dev/ttyS0", "string",
+                                              command );
         TCLAP::SwitchArg colorArg( "b", "blackAndWhite", 
                                    "Don't use colors from ply file", 
                                    command, false );
@@ -112,22 +111,23 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                                            "Maximum number of rendered frames", 
                                              false, 0xffffffffu, "unsigned",
                                              command );
-        TCLAP::ValueArg<string> wsArg( "w", "windowSystem", wsHelp,
+        TCLAP::ValueArg<std::string> wsArg( "w", "windowSystem", wsHelp,
                                        false, "auto", "string", command );
-        TCLAP::ValueArg<string> modeArg( "c", "renderMode", 
+        TCLAP::ValueArg<std::string> modeArg( "c", "renderMode", 
                                  "Rendering Mode (immediate, displayList, VBO)",
-                                       false, "auto", "string", command );
+                                              false, "auto", "string",
+                                              command );
         TCLAP::SwitchArg glslArg( "g", "glsl", "Enable GLSL shaders", 
                                     command, false );
         TCLAP::SwitchArg invFacesArg( "i", "invertFaces",
-                            "Invert faces (valid during binary file creation)", 
+                             "Invert faces (valid during binary file creation)",
                                     command, false );
-        TCLAP::ValueArg<string> logArg( "l", "log", "output log file",
-                                        false, "eqPly.log", "string",
-                                        command );
-        TCLAP::ValueArg<string> pathArg( "a", "cameraPath",
+        TCLAP::ValueArg<std::string> logArg( "l", "log", "output log file",
+                                             false, "eqPly.log", "string",
+                                             command );
+        TCLAP::ValueArg<std::string> pathArg( "a", "cameraPath",
                                         "File containing camera path animation",
-                                         false, "", "string", command );
+                                              false, "", "string", command );
         TCLAP::SwitchArg overlayArg( "o", "noOverlay", "Disable overlay logo", 
                                      command, false );
 
@@ -142,7 +142,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             _trackerPort = portArg.getValue();
         if( wsArg.isSet( ))
         {
-            string windowSystem = wsArg.getValue();
+            std::string windowSystem = wsArg.getValue();
             transform( windowSystem.begin(), windowSystem.end(),
                        windowSystem.begin(), (int(*)(int))std::tolower );
 
@@ -164,7 +164,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
 
         if( modeArg.isSet() )
         {
-            string mode = modeArg.getValue();
+            std::string mode = modeArg.getValue();
             transform( mode.begin(), mode.end(), mode.begin(),
                        (int(*)(int))std::tolower );
             
@@ -192,7 +192,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
     catch( TCLAP::ArgException& exception )
     {
         EQERROR << "Command line parse error: " << exception.error() 
-                << " for argument " << exception.argId() << endl;
+                << " for argument " << exception.argId() << std::endl;
     }
 }
 }

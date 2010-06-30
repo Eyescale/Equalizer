@@ -31,10 +31,19 @@ typedef fabric::Canvas< Config, Canvas, Segment, Layout > Super;
 
 Canvas::Canvas( Config* parent )
         : Super( parent )
-{}
+{
+}
 
 Canvas::~Canvas()
-{}
+{
+}
+
+ServerPtr Canvas::getServer() 
+{
+    Config* config = getConfig();
+    EQASSERT( config );
+    return ( config ? config->getServer() : 0 );
+}
 
 }
 }

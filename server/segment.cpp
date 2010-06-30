@@ -19,10 +19,12 @@
 
 #include "canvas.h"
 #include "channel.h"
-#include "configDestCompoundVisitor.h"
 #include "compound.h"
 #include "config.h"
+#include "configDestCompoundVisitor.h"
+#include "pipe.h"
 #include "view.h"
+#include "window.h"
 
 #include <eq/fabric/paths.h>
 #include <eq/net/dataOStream.h>
@@ -77,6 +79,13 @@ const Config* Segment::getConfig() const
     const Canvas* canvas = getCanvas();
     EQASSERT( canvas );
     return canvas ? canvas->getConfig() : 0;
+}
+
+ServerPtr Segment::getServer() 
+{
+    Canvas* canvas = getCanvas();
+    EQASSERT( canvas );
+    return ( canvas ? canvas->getServer() : 0 );
 }
 
 void Segment::addDestinationChannel( Channel* channel )

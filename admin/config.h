@@ -44,9 +44,6 @@ namespace admin
         /** Destruct a config. @version 1.0 */
         EQADMIN_EXPORT virtual ~Config();
 
-        /** Commit all pending changes. @version 1.0 */
-        EQADMIN_EXPORT uint32_t commit();
-
         /** @return the local client node. @version 1.0 */
         EQADMIN_EXPORT ClientPtr getClient();
 

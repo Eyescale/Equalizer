@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2006, Dustin Wueest <wueest@dustin.ch> 
- * Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,8 +40,6 @@
 #define COMMAND_POS_ANG "Y"
 #define COMMAND_POINT "B"
 
-using namespace std;
-
 namespace eqPly
 {
 Tracker::Tracker()
@@ -58,14 +56,14 @@ bool Tracker::init( const std::string& port )
 #else
    if( _running )
    {
-      EQERROR << "Duplicate tracker initialisation" << endl;
+      EQERROR << "Duplicate tracker initialisation" << std::endl;
       return false;
    }
  
    _fd = open( port.c_str(), O_RDWR | O_EXCL );
    if( _fd < 0 )
    {
-      EQERROR << "Failed to open " << port << ": " << strerror( errno ) << endl;
+      EQERROR << "Failed to open " << port << ": " << strerror( errno ) << std::endl;
       return false;
    }
 
@@ -73,7 +71,7 @@ bool Tracker::init( const std::string& port )
    struct termios termio;
    if( tcgetattr( _fd, &termio ) != 0 )
    {
-      EQERROR << "tcgetattr failed: " << strerror( errno ) << endl;
+      EQERROR << "tcgetattr failed: " << strerror( errno ) << std::endl;
       close( _fd );
       return false;
    }
@@ -104,7 +102,7 @@ bool Tracker::init( const std::string& port )
 
    if( tcsetattr( _fd, TCSANOW, &termio ) != 0)
    {
-      EQERROR << "tcsetattr failed: " << strerror( errno ) << endl;
+      EQERROR << "tcsetattr failed: " << strerror( errno ) << std::endl;
       close( _fd );
       return false;
    }
@@ -112,7 +110,7 @@ bool Tracker::init( const std::string& port )
    // tell the tracker what kind of data to prepare
    int k = write( _fd, COMMAND_POS_ANG, 1 ); //take data
    if( k==-1 )
-      EQERROR << "Write error: " << strerror( errno ) << endl;
+      EQERROR << "Write error: " << strerror( errno ) << std::endl;
 
    usleep( 10000 ); //give enough time for initializing
    
@@ -127,7 +125,7 @@ bool Tracker::update()
 {
    if( !_running )
    {
-      EQERROR << "Update error, tracker not running" << endl;
+      EQERROR << "Update error, tracker not running" << std::endl;
       return false;
    }
    else
@@ -145,14 +143,14 @@ bool Tracker::_update()
     const ssize_t wrote = write( _fd, COMMAND_POINT, 1 ); // send data
    if( wrote==-1 )
    {
-      EQERROR << "Write error: " << strerror( errno ) << endl;
+      EQERROR << "Write error: " << strerror( errno ) << std::endl;
       return false;
    }
 
    unsigned char buffer[12];
    if( !_read( buffer, 12, 500000 ))
    {
-       EQERROR << "Read error" << endl;
+       EQERROR << "Read error" << std::endl;
        return false;
    }
 
@@ -226,12 +224,12 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
       const int errCode = select( _fd+1, &readfds, 0, 0, &tv );
       if( errCode == 0 )
       {
-         EQERROR << "Error: no data from tracker" << endl;
+         EQERROR << "Error: no data from tracker" << std::endl;
          return false;
       }
       if( errCode == -1 )
       {
-         EQERROR << "Select error: " << strerror( errno ) << endl;
+         EQERROR << "Select error: " << strerror( errno ) << std::endl;
          return false;
       }
 
@@ -239,7 +237,7 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
       const ssize_t received = read( _fd, &buffer[size-remaining], remaining );
       if( received == -1 )
       {
-         EQERROR << "Read error: " << strerror( errno ) << endl;
+         EQERROR << "Read error: " << strerror( errno ) << std::endl;
          return false;
       }
 

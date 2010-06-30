@@ -89,10 +89,8 @@ private:
             net::Session* session = object->getSession();
             EQASSERT( session );
 
-            if( object->isMaster( ))
-                session->deregisterObject( object );
-            else
-                session->unmapObject( object );
+            EQASSERT( object->isMaster( ));
+            session->releaseObject( object );
         }
 
 };

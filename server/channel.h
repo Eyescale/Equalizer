@@ -89,6 +89,9 @@ namespace server
         Pipe* getPipe();
         const Pipe* getPipe() const;
 
+        /** @return the parent server. @version 1.0 */
+        ServerPtr getServer();
+
         const Compounds& getCompounds() const;
 
         net::CommandQueue* getMainThreadQueue();
@@ -154,9 +157,7 @@ namespace server
         /** Finalize the last updateRunning changes. */
         bool syncRunning();
 
-        /** 
-         * Starts exiting this node.
-         */
+        /** Start exiting this node. */
         void startConfigExit();
 
         /** 

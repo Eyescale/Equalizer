@@ -92,6 +92,14 @@ void Canvas< CFG, C, S, L >::attachToSession( const uint32_t id,
 }
 
 template< class CFG, class C, class S, class L >
+uint32_t Canvas< CFG, C, S, L >::commitNB()
+{
+    if( Serializable::isDirty( DIRTY_SEGMENTS ))
+        commitChildren< S, CanvasNewSegmentPacket >( _segments );
+    return Object::commitNB();
+}
+
+template< class CFG, class C, class S, class L >
 void Canvas< CFG, C, S, L >::serialize( net::DataOStream& os,
                                         const uint64_t dirtyBits )
 {

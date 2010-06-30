@@ -69,6 +69,9 @@ namespace server
 
         Config* getConfig();
         const Config* getConfig() const;
+
+        /** @return the Server of this window. */
+        ServerPtr getServer();
         
         Channel* getChannel( const ChannelPath& path );
 

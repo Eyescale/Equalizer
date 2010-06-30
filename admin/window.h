@@ -25,22 +25,22 @@ namespace eq
 {
 namespace admin
 {
-    class Channel;
-    class Pipe;
-
     class Window : public fabric::Window< Pipe, Window, Channel >
     {
     public:
         /** Construct a new window. @version 1.0 */
         EQADMIN_EXPORT Window( Pipe* parent );
 
-        /** Destruct a window. @version 1.0 */
+        /** Destruct this window. @version 1.0 */
         EQADMIN_EXPORT virtual ~Window();
 
-        /** @name Data Access. */
+        /** @name Data Access */
         //@{
         /** @return the Config of this window. */
         EQADMIN_EXPORT const Config* getConfig() const;
+
+        /** @return the Server of this window. */
+        EQADMIN_EXPORT ServerPtr getServer();
 
         /** @return the Config of this window. */
         EQADMIN_EXPORT Config* getConfig();

@@ -19,11 +19,7 @@
 #define EQ_CANVAS_H
 
 #include <eq/client/types.h>
-#include <eq/client/visitorResult.h>  // enum
-#include <eq/fabric/canvas.h>         // base class
-
-#include <eq/net/object.h>
-#include <string>
+#include <eq/fabric/canvas.h> // base class
 
 namespace eq
 {
@@ -54,11 +50,17 @@ namespace eq
     class Canvas : public fabric::Canvas< Config, Canvas, Segment, Layout >
     {
     public:
-        /** Construct a new Canvas. @version 1.0 */
+        /** Construct a new canvas. @version 1.0 */
         EQ_EXPORT Canvas( Config* parent );
 
         /** Destruct this canvas. @version 1.0 */
         EQ_EXPORT virtual ~Canvas();
+
+        /** @name Data Access */
+        //@{
+        /** @return the Server of this canvas. @version 1.0 */
+        EQ_EXPORT ServerPtr getServer();
+        //@}
 
     private:
         union // placeholder for binary-compatible changes

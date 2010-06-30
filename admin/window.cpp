@@ -51,6 +51,13 @@ Config* Window::getConfig()
     return ( pipe ? pipe->getConfig() : 0 );
 }
 
+ServerPtr Window::getServer() 
+{
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return ( pipe ? pipe->getServer() : 0 );
+}
+
 }
 }
 

@@ -219,13 +219,13 @@ ClientPtr Window::getClient()
     EQASSERT( pipe );
     return ( pipe ? pipe->getClient() : 0 );
 }
+
 ServerPtr Window::getServer() 
 {
     Pipe* pipe = getPipe();
     EQASSERT( pipe );
     return ( pipe ? pipe->getServer() : 0 );
 }
-
 
 //======================================================================
 // pipe-thread methods

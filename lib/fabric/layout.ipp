@@ -69,6 +69,14 @@ void Layout< C, L, V >::attachToSession( const uint32_t id,
 }
 
 template< class C, class L, class V >
+uint32_t Layout< C, L, V >::commitNB()
+{
+    if( Serializable::isDirty( DIRTY_VIEWS ))
+        commitChildren< V, LayoutNewViewPacket >( _views );
+    return Object::commitNB();
+}
+
+template< class C, class L, class V >
 void Layout< C, L, V >::serialize( net::DataOStream& os,
                                    const uint64_t dirtyBits )
 {

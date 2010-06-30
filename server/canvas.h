@@ -46,11 +46,17 @@ namespace server
          * @name Data Access
          */
         //@{
+        /** @return the Server of this canvas. @version 1.0 */
+        ServerPtr getServer();
+
         /** @return the segment of the given path. */
         Segment* getSegment( const SegmentPath& path );
 
         /** @return the index path to this canvas. @internal */
         CanvasPath getPath() const;
+
+        /** @return true if this canvas is initialized. */
+        bool isStopped() const { return _state == STATE_STOPPED; }
 
         /** @return true if this canvas is initialized. */
         bool isRunning() const { return _state == STATE_RUNNING; }

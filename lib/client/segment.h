@@ -34,19 +34,22 @@ namespace eq
     class Segment : public fabric::Segment< Canvas, Segment, Channel >
     {
     public:
-        /** Construct a new Segment. */
+        /** Construct a new segment. @version 1.0 */
         EQ_EXPORT Segment( Canvas* parent );
 
-        /** Destruct this segment. */
+        /** Destruct a segment. @version 1.0 */
         EQ_EXPORT virtual ~Segment();
 
         /** @name Data Access */
         //@{
-        /** @return the config of this view. */
+        /** @return the config of this segment. */
         EQ_EXPORT Config* getConfig();
 
-        /** @return the config of this view. */
+        /** @return the config of this segment. */
         EQ_EXPORT const Config* getConfig() const;
+
+        /** @return the Server of this segment. */
+        EQ_EXPORT ServerPtr getServer();
         //@}
 
     private:

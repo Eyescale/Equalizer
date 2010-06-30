@@ -236,6 +236,7 @@ namespace fabric
         /** Remove a channel from this window. */
         EQFABRIC_EXPORT bool _removeChannel( C* channel );
 
+        virtual uint32_t commitNB(); //!< @internal
         bool _mapNodeObjects() { return _pipe->_mapNodeObjects(); }
 
         typedef net::CommandFunc< Window< P, W, C > > CmdFunc;

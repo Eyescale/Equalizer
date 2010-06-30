@@ -22,6 +22,7 @@
 #include "pipe.h"
 #include "layout.h"
 #include "observer.h"
+#include "server.h"
 
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
@@ -65,6 +66,13 @@ const Config* View::getConfig() const
         return layout->getConfig();
 
     return EQSAFECAST( const Config*, getSession( )) ;
+}
+
+ServerPtr View::getServer() 
+{
+    Config* config = getConfig();
+    EQASSERT( config );
+    return ( config ? config->getServer() : 0 );
 }
 
 bool View::handleEvent( const Event& event )

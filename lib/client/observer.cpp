@@ -18,17 +18,26 @@
 #include "observer.h"
 
 #include "config.h"
+#include "server.h"
 
 namespace eq
 {
+typedef fabric::Observer< Config, Observer > Super;
 
 Observer::Observer( Config* parent )
-        : fabric::Observer< Config, Observer >( parent )
+        : Super( parent )
 {
 }
 
 Observer::~Observer()
 {
+}
+
+ServerPtr Observer::getServer() 
+{
+    Config* config = getConfig();
+    EQASSERT( config );
+    return ( config ? config->getServer() : 0 );
 }
 
 }

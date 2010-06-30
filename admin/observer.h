@@ -33,8 +33,14 @@ namespace admin
         /** Construct a new observer. @version 1.0 */
         EQADMIN_EXPORT Observer( Config* parent );
 
-        /** Destruct a observer. @version 1.0 */
+        /** Destruct this observer. @version 1.0 */
         EQADMIN_EXPORT virtual ~Observer();
+
+        /** @name Data Access */
+        //@{
+        /** @return the Server of this observer. @version 1.0 */
+        EQADMIN_EXPORT ServerPtr getServer();
+        //@}
 
     private:
         union // placeholder for binary-compatible changes

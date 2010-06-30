@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -36,9 +36,6 @@
 
 #include "initData.h"
 
-using namespace eq::base;
-using namespace std;
-
 namespace eqPly
 {
 
@@ -72,6 +69,6 @@ void InitData::applyInstanceData( eq::net::DataIStream& is )
        >> _logo;
 
     EQASSERT( _frameDataID <= EQ_ID_MAX );
-    EQINFO << "New InitData instance" << endl;
+    EQINFO << "New InitData instance" << std::endl;
 }
 }

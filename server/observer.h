@@ -42,6 +42,9 @@ namespace server
 
         /** @name Data Access */
         //@{
+        /** @return the Server of this observer. @version 1.0 */
+        ServerPtr getServer();
+
         /** @return the position of an eye in world-space coordinates. */
         const fabric::Vector3f& getEyePosition( const fabric::Eye eye ) const
             { return _eyes[ eye ]; }
@@ -60,9 +63,6 @@ namespace server
         //@{
         /** Initialize the observer parameters. */
         void init();
-
-        /** Unmap this observer and all its children. */
-        void unmap();
 
         /** Schedule deletion of this observer. */
         void postDelete();

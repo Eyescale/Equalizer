@@ -87,6 +87,12 @@ bool Config::init()
     _initData.setFrameDataID( _frameData.getID( ));
     registerObject( &_initData );
 
+#if 0
+    eq::admin::ServerPtr server = getAdminServer();
+    if( server.isValid( ))
+        eqAdmin::addWindow( server );
+#endif
+
     // init config
     if( !eq::Config::init( _initData.getID( )))
     {

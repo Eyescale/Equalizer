@@ -48,6 +48,9 @@ namespace server
         /** @return the config of this view. */
         const Config* getConfig() const;
 
+        /** @return the Server of this view. @version 1.0 */
+        ServerPtr getServer();
+
         /** @return the index path to this view. */
         ViewPath getPath() const;
 
@@ -67,7 +70,7 @@ namespace server
          */
         bool removeChannel( Channel* channel );
         
-        /** @return the vector of channels. */
+        /** @return the vector of destination channels. */
         const Channels& getChannels() const{ return _channels; }
         //@}
 

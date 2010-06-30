@@ -56,13 +56,11 @@ void Observer::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
         getHeadMatrix().inverse( _inverseHeadMatrix );
 }
 
-void Observer::unmap()
+ServerPtr Observer::getServer() 
 {
-    net::Session* session = getSession();
-    EQASSERT( session );
-    EQASSERT( getID() != EQ_ID_INVALID );
-
-    session->unmapObject( this );
+    Config* config = getConfig();
+    EQASSERT( config );
+    return ( config ? config->getServer() : 0 );
 }
 
 void Observer::init()

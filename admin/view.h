@@ -25,25 +25,25 @@ namespace eq
 {
 namespace admin
 {
-    class Layout;
-    class Observer;
-
     class View : public fabric::View< Layout, View, Observer >
     {
     public:
         /** Construct a new view. @version 1.0 */
         EQADMIN_EXPORT View( Layout* parent );
 
-        /** Destruct a view. @version 1.0 */
+        /** Destruct this view. @version 1.0 */
         EQADMIN_EXPORT virtual ~View();
 
         /** @name Data Access. */
         //@{
-        /** @return the config of this view. */
+        /** @return the config of this view. @version 1.0 */
         EQADMIN_EXPORT Config* getConfig();
 
-        /** @return the config of this view. */
+        /** @return the config of this view. @version 1.0 */
         EQADMIN_EXPORT const Config* getConfig() const;
+
+        /** @return the Server of this view. @version 1.0 */
+        EQADMIN_EXPORT ServerPtr getServer();
         //@}
 
     private:

@@ -163,6 +163,8 @@ namespace fabric
         template< class, class, class > friend class Segment;
         void _addSegment( S* segment );
         bool _removeSegment( S* segment );
+
+        virtual uint32_t commitNB(); //!< @internal
         bool _mapViewObjects();
 
         typedef net::CommandFunc< Canvas< CFG, C, S, L > > CmdFunc;

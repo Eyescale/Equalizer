@@ -38,11 +38,14 @@ namespace admin
 
         /** @name Data Access */
         //@{
-        /** @return the config of this view. */
+        /** @return the config of this segment. */
         EQADMIN_EXPORT Config* getConfig();
 
-        /** @return the config of this view. */
+        /** @return the config of this segment. */
         EQADMIN_EXPORT const Config* getConfig() const;
+
+        /** @return the Server of this segment. */
+        EQADMIN_EXPORT ServerPtr getServer();
         //@}
 
     private:

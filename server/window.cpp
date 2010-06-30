@@ -113,11 +113,19 @@ const Config* Window::getConfig() const
     EQASSERT( pipe );
     return ( pipe ? pipe->getConfig() : 0);
 }
+
 Config* Window::getConfig() 
 {
     Pipe* pipe = getPipe();
     EQASSERT( pipe );
     return ( pipe ? pipe->getConfig() : 0);
+}
+
+ServerPtr Window::getServer() 
+{
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return ( pipe ? pipe->getServer() : 0 );
 }
 
 net::CommandQueue* Window::getMainThreadQueue()

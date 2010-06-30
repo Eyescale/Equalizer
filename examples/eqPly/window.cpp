@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
    Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,6 @@
     
 #include <fstream>
 #include <sstream>
-
-using namespace std;
 
 namespace eqPly
 {
@@ -130,7 +128,7 @@ void Window::_loadLogo()
         !image.readImage( "./examples/eqPly/logo.rgb", 
                           eq::Frame::BUFFER_COLOR ) )
     {
-        EQWARN << "Can't load overlay logo 'logo.rgb'" << endl;
+        EQWARN << "Can't load overlay logo 'logo.rgb'" << std::endl;
         return;
     }
 
@@ -144,8 +142,7 @@ void Window::_loadLogo()
     image.uploadToTexture( eq::Frame::BUFFER_COLOR,
                            _logoTexture, 
                            glewGetContext());
-    
-    EQVERB << "Created logo texture of size " << _logoSize << endl;
+    EQVERB << "Created logo texture of size " << _logoSize << std::endl;
 }
 
 void Window::_loadShaders()
@@ -160,7 +157,7 @@ void Window::_loadShaders()
     if( !GLEW_VERSION_2_0 )
     {
         EQWARN << "Shader function pointers missing, using fixed function "
-               << "pipeline" << endl;
+               << "pipeline" << std::endl;
         return;
     }
 
@@ -175,7 +172,7 @@ void Window::_loadShaders()
     glGetShaderiv( vShader, GL_COMPILE_STATUS, &status );
     if( !status )
     {
-        EQWARN << "Failed to compile vertex shader" << endl;
+        EQWARN << "Failed to compile vertex shader" << std::endl;
         return;
     }
     
@@ -188,7 +185,7 @@ void Window::_loadShaders()
     glGetShaderiv( fShader, GL_COMPILE_STATUS, &status );
     if( !status )
     {
-        EQWARN << "Failed to compile fragment shader" << endl;
+        EQWARN << "Failed to compile fragment shader" << std::endl;
         return;
     }
     
@@ -200,14 +197,14 @@ void Window::_loadShaders()
     glGetProgramiv( program, GL_LINK_STATUS, &status );
     if( !status )
     {
-        EQWARN << "Failed to link shader program" << endl;
+        EQWARN << "Failed to link shader program" << std::endl;
         return;
     }
     
     // turn off OpenGL lighting if we are using our own shaders
     glDisable( GL_LIGHTING );
 
-    EQINFO << "Shaders loaded successfully" << endl;
+    EQINFO << "Shaders loaded successfully" << std::endl;
 }
 
 void Window::frameStart( const uint32_t frameID, const uint32_t frameNumber )

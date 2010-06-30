@@ -21,7 +21,7 @@ namespace fabric
 {
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-class ConfigProxy : public Object //!< Used for data distribution 
+class ConfigProxy : public Object //!< @internal Used for data distribution 
 {
 public:
     ConfigProxy( Config< S, C, O, L, CV, N, V >& config );
@@ -70,6 +70,8 @@ private:
     Config< S, C, O, L, CV, N, V >& _config;
     template< class, class, class, class, class, class, class >
     friend class Config;
+
+    virtual uint32_t commitNB(); //!< @internal
 };
 
 template< class S, class C, class O, class L, class CV, class N, class V >
@@ -77,6 +79,32 @@ ConfigProxy< S, C, O, L, CV, N, V >::ConfigProxy(
     Config< S, C, O, L, CV, N, V >& config )
         : _config( config )
 {}
+
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+uint32_t ConfigProxy< S, C, O, L, CV, N, V >::commitNB()
+{
+    if( Serializable::isDirty( Config< S, C, O, L, CV, N, V >::DIRTY_NODES ))
+    {
+        for( typename C::Nodes::const_iterator i = _config._nodes.begin();
+             i != _config._nodes.end(); ++i )
+        {
+            N* node = *i;
+            EQASSERT( node->getID() <= EQ_ID_MAX );
+            node->commit();
+        }
+    }
+    if( Serializable::isDirty( Config< S, C, O, L, CV, N, V>::DIRTY_OBSERVERS ))
+        commitChildren< O, ConfigNewObserverPacket, C >(
+            _config._observers, static_cast< C* >( &_config ));
+    if( Serializable::isDirty( Config< S, C, O, L, CV, N, V >::DIRTY_LAYOUTS ))
+        commitChildren< L, ConfigNewLayoutPacket, C >(
+            _config._layouts, static_cast< C* >( &_config ));
+    if( Serializable::isDirty( Config< S, C, O, L, CV, N, V >::DIRTY_CANVASES ))
+        commitChildren< CV, ConfigNewCanvasPacket, C >(
+            _config._canvases, static_cast< C* >( &_config ));
+    return Object::commitNB();
+}
 
 template< class S, class C, class O, class L, class CV, class N, class V >
 void ConfigProxy< S, C, O, L, CV, N, V >::serialize( net::DataOStream& os,

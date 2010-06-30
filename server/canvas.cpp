@@ -60,6 +60,13 @@ Segment* Canvas::getSegment( const SegmentPath& path )
     return segments[ path.segmentIndex ];
 }
 
+ServerPtr Canvas::getServer() 
+{
+    Config* config = getConfig();
+    EQASSERT( config );
+    return ( config ? config->getServer() : 0 );
+}
+
 CanvasPath Canvas::getPath() const
 {
     const Config* config = getConfig();

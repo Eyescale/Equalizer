@@ -18,15 +18,13 @@
 #ifndef EQADMIN_CANVAS_H
 #define EQADMIN_CANVAS_H
 
-#include <eq/admin/types.h>         // typedefs
-#include <eq/fabric/canvas.h>       // base class
+#include <eq/admin/types.h>   // typedefs
+#include <eq/fabric/canvas.h> // base class
 
 namespace eq
 {
 namespace admin
 {
-    class Config;
-    class Layout;
     class Segment;
 
     class Canvas : public fabric::Canvas< Config, Canvas, Segment, Layout >
@@ -35,8 +33,14 @@ namespace admin
         /** Construct a new canvas. @version 1.0 */
         EQADMIN_EXPORT Canvas( Config* parent );
 
-        /** Destruct a canvas. @version 1.0 */
+        /** Destruct this canvas. @version 1.0 */
         EQADMIN_EXPORT virtual ~Canvas();
+
+        /** @name Data Access */
+        //@{
+        /** @return the Server of this canvas. @version 1.0 */
+        EQADMIN_EXPORT ServerPtr getServer();
+        //@}
 
     private:
         union // placeholder for binary-compatible changes

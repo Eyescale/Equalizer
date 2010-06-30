@@ -565,7 +565,7 @@ const Model* Channel::_getModel()
 
 void Channel::_drawModel( const Model* model )
 {
-    Window*            window    = static_cast<Window*>( getWindow() );
+    Window*            window    = static_cast< Window* >( getWindow( ));
     VertexBufferState& state     = window->getState();
     const FrameData&   frameData = _getFrameData();
     const eq::Range&   range     = getRange();

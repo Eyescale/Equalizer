@@ -181,6 +181,7 @@ namespace fabric
         void _addPipe( P* pipe );
         bool _removePipe( P* pipe );
 
+        virtual uint32_t commitNB(); //!< @internal
         bool _mapNodeObjects() { return _config->mapNodeObjects(); }
     };
 }

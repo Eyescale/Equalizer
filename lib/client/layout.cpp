@@ -35,6 +35,13 @@ Layout::~Layout()
 {
 }
 
+ServerPtr Layout::getServer() 
+{
+    Config* config = getConfig();
+    EQASSERT( config );
+    return ( config ? config->getServer() : 0 );
+}
+
 }
 
 #include "server.h"

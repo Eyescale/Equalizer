@@ -49,6 +49,9 @@ namespace server
         /** @return the config of this segment. */
         const Config* getConfig() const;
 
+        /** @return the Server of this segment. */
+        ServerPtr getServer();
+
         /** @return the index path to this segment. */
         SegmentPath getPath() const;
 

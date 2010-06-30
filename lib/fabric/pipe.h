@@ -203,6 +203,7 @@ namespace fabric
         EQFABRIC_EXPORT bool _removeWindow( W* window );
         template< class, class, class > friend class Window;
 
+        virtual uint32_t commitNB(); //!< @internal
         bool _mapNodeObjects() { return _node->_mapNodeObjects(); }
 
         typedef net::CommandFunc< Pipe< N, P, W, V > > CmdFunc;

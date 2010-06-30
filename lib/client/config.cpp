@@ -37,11 +37,10 @@
 #include "server.h"
 #include "view.h"
 
+#include <eq/fabric/configVisitor.h>
 #include <eq/fabric/task.h>
 #include <eq/net/command.h>
 #include <eq/net/global.h>
-
-#include "configCommitVisitor.h"
 
 namespace eq
 {
@@ -183,9 +182,7 @@ bool Config::exit()
 uint32_t Config::startFrame( const uint32_t frameID )
 {
     ConfigStatistics stat( Statistic::CONFIG_START_FRAME, this );
-
-    ConfigCommitVisitor committer;
-    accept( committer );
+    commit();
     
     // Request new frame
     ClientPtr client = getClient();

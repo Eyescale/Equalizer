@@ -20,6 +20,10 @@
 
 #include "compoundVisitor.h" // base class
 
+#include "compound.h" // used in inline method
+#include "config.h"   // used in inline method
+#include "frame.h"    // used in inline method
+
 namespace eq
 {
 namespace server

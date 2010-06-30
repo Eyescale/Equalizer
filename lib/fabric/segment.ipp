@@ -19,6 +19,7 @@
 
 #include "leafVisitor.h"
 #include "paths.h"
+#include "packets.h"
 
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
@@ -42,6 +43,15 @@ Segment< C, S, CH >::~Segment()
 {
     _canvas->_removeSegment( static_cast< S* >( this ));
     _channel = 0;
+}
+
+template< class C, class S, class CH >
+uint32_t Segment< C, S, CH >::commitNB()
+{
+    if( Serializable::isDirty( DIRTY_CHANNEL ) && _channel )
+        commitChild< typename CH::Parent, PipeNewWindowPacket, Object >
+            ( _channel->getWindow(), _channel->getPipe( ));
+    return Object::commitNB();
 }
 
 template< class C, class S, class CH > void 

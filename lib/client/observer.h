@@ -34,11 +34,17 @@ namespace eq
     class Observer : public fabric::Observer< Config, Observer >
     {
     public:
-        /** Construct a new Observer. */
+        /** Construct a new observer. @version 1.0 */
         EQ_EXPORT Observer( Config* parent );
 
-        /** Destruct this observer. */
+        /** Destruct this observer. @version 1.0 */
         EQ_EXPORT virtual ~Observer();
+
+        /** @name Data Access */
+        //@{
+        /** @return the Server of this observer. @version 1.0 */
+        EQ_EXPORT ServerPtr getServer();
+        //@}
 
     private:
         union // placeholder for binary-compatible changes

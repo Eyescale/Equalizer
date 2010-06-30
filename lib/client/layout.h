@@ -44,11 +44,17 @@ namespace eq
     class Layout : public fabric::Layout< Config, Layout, View >
     {
     public:
-        /** Construct a new layout. */
+        /** Construct a new layout. @version 1.0 */
         EQ_EXPORT Layout( Config* parent );
 
-        /** Destruct this layout. */
+        /** Destruct a layout. @version 1.0 */
         EQ_EXPORT virtual ~Layout();
+
+        /** @name Data Access */
+        //@{
+        /** @return the Server of this layout. @version 1.0 */
+        EQ_EXPORT ServerPtr getServer();
+        //@}
 
     private:
         union // placeholder for binary-compatible changes

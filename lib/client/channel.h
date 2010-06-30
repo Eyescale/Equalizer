@@ -53,9 +53,7 @@ namespace util
         /** Destruct the channel. @version 1.0 */
         EQ_EXPORT virtual ~Channel();
 
-        /**
-         * @name Data Access
-         */
+        /** @name Data Access */
         //@{
         /** @return the parent pipe. @version 1.0 */
         EQ_EXPORT Pipe* getPipe();

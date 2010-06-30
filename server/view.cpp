@@ -115,6 +115,13 @@ const Config* View::getConfig() const
     return layout ? layout->getConfig() : 0;
 }
 
+ServerPtr View::getServer() 
+{
+    Config* config = getConfig();
+    EQASSERT( config );
+    return ( config ? config->getServer() : 0 );
+}
+
 void View::addChannel( Channel* channel )
 {
     _channels.push_back( channel );

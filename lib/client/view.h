@@ -26,10 +26,6 @@
 
 namespace eq
 {
-    class Config;
-    class Layout;
-    class Observer;
-    class Pipe;
     struct Event;
 
     /**
@@ -44,16 +40,22 @@ namespace eq
     class View : public fabric::View< Layout, View, Observer >
     {
     public:
+        /** Construct a new view. @version 1.0 */
         EQ_EXPORT View( Layout* parent );
+
+        /** Destruct this view. @version 1.0 */
         EQ_EXPORT virtual ~View();
 
         /** @name Data Access. */
         //@{
-        /** @return the config of this view. */
+        /** @return the config of this view. @version 1.0 */
         EQ_EXPORT Config* getConfig();
 
-        /** @return the config of this view. */
+        /** @return the config of this view. @version 1.0 */
         EQ_EXPORT const Config* getConfig() const;
+
+        /** @return the Server of this view. @version 1.0 */
+        EQ_EXPORT ServerPtr getServer();
         //@}
 
         /** @name Operations */

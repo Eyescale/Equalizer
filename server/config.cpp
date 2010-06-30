@@ -158,6 +158,7 @@ Node* Config::findApplicationNode()
 
 void Config::activateCanvas( Canvas* canvas )
 {
+    EQASSERT( canvas->isStopped( ));
     EQASSERT( stde::find( getCanvases(), canvas ) != getCanvases().end( ));
 
     const Layouts& layouts = canvas->getLayouts();
@@ -257,6 +258,8 @@ void Config::updateCanvas( Canvas* canvas )
              j != channels.end(); ++j )
         {
             Channel* channel = *j;
+            EQASSERT( !channel->isActive( ));
+
             Compound* compound = new Compound( group );
             compound->setChannel( channel );
         }

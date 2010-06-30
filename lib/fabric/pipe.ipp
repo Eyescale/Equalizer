@@ -101,6 +101,14 @@ void Pipe< N, P, W, V >::attachToSession( const uint32_t id,
 }
 
 template< class N, class P, class W, class V >
+uint32_t Pipe< N, P, W, V >::commitNB()
+{
+    if( Serializable::isDirty( DIRTY_WINDOWS ))
+        commitChildren< W, PipeNewWindowPacket >( _windows );
+    return Object::commitNB();
+}
+
+template< class N, class P, class W, class V >
 void Pipe< N, P, W, V >::serialize( net::DataOStream& os,
                                     const uint64_t dirtyBits )
 {

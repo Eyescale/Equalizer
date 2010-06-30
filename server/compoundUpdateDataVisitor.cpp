@@ -45,12 +45,11 @@ VisitorResult CompoundUpdateDataVisitor::visit(
 
 void CompoundUpdateDataVisitor::_updateDrawFinish( Compound* compound )
 {
-    if( !compound->testInheritTask( fabric::TASK_DRAW ) ||
-        !compound->isActive( ))
-        return;
-
-    Channel* channel = compound->getChannel();
-    channel->setLastDrawCompound( compound );
+    if( compound->testInheritTask( fabric::TASK_DRAW ) && compound->isActive( ))
+    {
+        Channel* channel = compound->getChannel();
+        channel->setLastDrawCompound( compound );
+    }
 }
 
 }

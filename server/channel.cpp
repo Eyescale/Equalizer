@@ -157,6 +157,13 @@ const Pipe* Channel::getPipe() const
     return window ? window->getPipe() : 0;
 }
 
+ServerPtr Channel::getServer()
+{
+    Window* window = getWindow();
+    EQASSERT( window );
+    return ( window ? window->getServer() : 0 );
+}
+
 const Compounds& Channel::getCompounds() const
 { 
     return getConfig()->getCompounds();

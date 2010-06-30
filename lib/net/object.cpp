@@ -151,7 +151,8 @@ NodePtr Object::getLocalNode()
 
 bool Object::send( NodePtr node, ObjectPacket& packet )
 {
-    EQASSERT( _session ); EQASSERT( _id <= EQ_ID_MAX );
+    EQASSERT( _session );
+    EQASSERT( isAttached( ));
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return node->send( packet );

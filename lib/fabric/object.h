@@ -26,12 +26,12 @@ namespace eq
 namespace fabric
 {
     /**
-     * Base class for all distributed, inheritable Equalizer objects.
+     * Internal base class for all distributed, inheritable Equalizer objects.
      *
      * This class provides common data storage used by all Equalizer resource
-     * entities.
+     * entities. Do not subclass directly.
      */
-    class Object : public fabric::Serializable
+    class Object : public Serializable
     {
     public:
         /** @name Data Access. */
@@ -142,6 +142,23 @@ namespace fabric
         EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
                                             const uint64_t dirtyBits );
 
+        /** @internal commit, register child slave instance with the server. */
+        template< class C, class PKG, class S >
+        void commitChild( C* child, S* sender );
+
+        /** @internal commit, register child slave instances with the server. */
+        template< class C, class PKG, class S >
+        void commitChildren( const std::vector< C* >& children, S* sender );
+
+        /** @internal commit, register child slave instances with the server. */
+        template< class C, class PKG >
+        void commitChildren( const std::vector< C* >& children )
+            { commitChildren< C, PKG, Object >( children, this ); }
+
+        /** @internal commit all children. */
+        template< class C >
+        void commitChildren( const std::vector< C* >& children );
+
     private:
         struct BackupData
         {
@@ -167,6 +184,54 @@ namespace fabric
             char dummy[8];
         };
     };
+
+    // Template Implementation
+    template< class C, class PKG, class S > inline void
+    Object::commitChild( C* child, S* sender )
+    {
+        if( !child->isAttached( ))
+        {
+            EQASSERT( !isMaster( ));
+            net::NodePtr localNode = child->getConfig()->getLocalNode();
+            PKG packet;
+            packet.requestID = localNode->registerRequest();
+
+            net::NodePtr node = child->getServer().get();
+            sender->send( node, packet );
+
+            uint32_t identifier;
+            localNode->waitRequest( packet.requestID, identifier );
+            EQASSERT( identifier <= EQ_ID_MAX );
+            EQCHECK( child->getConfig()->mapObject( child, identifier,
+                                                    net::VERSION_NONE ));
+        }
+        child->commit();
+    }
+
+    template< class C, class PKG, class S > inline void
+    Object::commitChildren( const std::vector< C* >& children, S* sender )
+    {
+        // TODO Opt: async register and commit
+        for( typename std::vector< C* >::const_iterator i = children.begin();
+             i != children.end(); ++i )
+        {
+            C* child = *i;
+            commitChild< C, PKG, S >( child, sender );
+        }
+    }
+
+    template< class C >
+    inline void Object::commitChildren( const std::vector< C* >& children )
+    {
+        // TODO Opt: async commit
+        for( typename std::vector< C* >::const_iterator i = children.begin();
+             i != children.end(); ++i )
+        {
+            C* child = *i;
+            EQASSERT( child->isAttached( ));
+            child->commit();
+        }
+    }
 }
 }
 #endif // EQFABRIC_OBJECT_H

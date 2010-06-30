@@ -42,6 +42,12 @@ namespace server
          /** Destruct this layout. */
         virtual ~Layout();
 
+        /** @name Data Access */
+        //@{
+        /** @return the Server of this layout. @version 1.0 */
+        ServerPtr getServer();
+        //@}
+
         /** @return true if this layout should be deleted. */
         bool needsDelete() const { return _state == STATE_DELETE; }
 

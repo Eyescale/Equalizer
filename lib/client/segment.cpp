@@ -20,6 +20,8 @@
 #include "canvas.h"
 #include "channel.h"
 #include "config.h"
+#include "pipe.h"
+#include "server.h"
 
 namespace eq
 {
@@ -45,6 +47,13 @@ const Config* Segment::getConfig() const
 {
     EQASSERT( getCanvas() );
     return getCanvas() ? getCanvas()->getConfig() : 0;
+}
+
+ServerPtr Segment::getServer() 
+{
+    Canvas* canvas = getCanvas();
+    EQASSERT( canvas );
+    return ( canvas ? canvas->getServer() : 0 );
 }
 
 }

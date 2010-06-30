@@ -36,8 +36,9 @@ namespace fabric
     template< class W, class C > class Channel : public Object
     {
     public: 
-        typedef LeafVisitor< C > Visitor;
-   
+        typedef LeafVisitor< C > Visitor; //!< The channel visitor type
+        typedef W Parent; //!< The parent window type
+
         /** 
          * The drawable format defines the components used as an alternate
          * drawable for this cannel. If an alternate drawable is configured, the
@@ -286,18 +287,18 @@ namespace fabric
 
         void setDrawable( const uint32_t drawable ); //!< @internal
 
-        /** @name Render context access @internal */
+        /** @name Render context access */
         //@{
-        /** Override the channel's native render context. @internal */
+        /** @internal Override the channel's native render context. */
         void overrideContext( RenderContext& context ) { _context = &context; }
 
-        /** Re-set the channel's native render context. @internal */
+        /** @internal Re-set the channel's native render context. */
         void resetContext() { _context = &_data.nativeContext; }
 
-        /** @return the current render context. @internal */
+        /** @internal @return the current render context. */
         const RenderContext& getContext() const { return *_context; }
 
-        /** @return the native render context. @internal */
+        /** @internal @return the native render context. */
         const RenderContext& getNativeContext() const
             { return _data.nativeContext; }
         //@}
@@ -310,6 +311,14 @@ namespace fabric
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:
+        enum DirtyBits
+        {
+            DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 0,
+            DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 1,
+            DIRTY_MEMBER     = Object::DIRTY_CUSTOM << 2,
+            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 3,
+        };
+
         /** The parent window. */
         W* const _window;
 
@@ -343,14 +352,6 @@ namespace fabric
         union // placeholder for binary-compatible changes
         {
             char dummy[32];
-        };
-
-        enum DirtyBits
-        {
-            DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 0,
-            DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 1,
-            DIRTY_MEMBER     = Object::DIRTY_CUSTOM << 2,
-            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 3,
         };
     };
 }

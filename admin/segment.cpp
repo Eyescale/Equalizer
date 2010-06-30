@@ -21,7 +21,9 @@
 #include "channel.h"
 #include "config.h"
 #include "layout.h"
-#include "segment.h"
+#include "pipe.h"
+#include "server.h"
+#include "window.h"
 
 namespace eq
 {
@@ -31,10 +33,12 @@ typedef fabric::Segment< Canvas, Segment, Channel > Super;
 
 Segment::Segment( Canvas* parent )
         : Super( parent )
-{}
+{
+}
 
 Segment::~Segment()
-{}
+{
+}
 
 Config* Segment::getConfig()
 {
@@ -46,6 +50,13 @@ const Config* Segment::getConfig() const
 {
     EQASSERT( getCanvas() );
     return getCanvas() ? getCanvas()->getConfig() : 0;
+}
+
+ServerPtr Segment::getServer() 
+{
+    Canvas* canvas = getCanvas();
+    EQASSERT( canvas );
+    return ( canvas ? canvas->getServer() : 0 );
 }
 
 }

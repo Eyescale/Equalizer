@@ -38,11 +38,20 @@ namespace admin
 
         /** @name Data Access */
         //@{
+        /** @return the parent pipe. @version 1.0 */
+        EQADMIN_EXPORT Pipe* getPipe();
+
+        /** @return the parent pipe. @version 1.0 */
+        EQADMIN_EXPORT const Pipe* getPipe() const;
+
         /** @return the parent config. @version 1.0 */
         EQADMIN_EXPORT Config* getConfig();
 
         /** @return the parent config. @version 1.0 */
         EQADMIN_EXPORT const Config* getConfig() const;
+
+        /** @return the parent server. @version 1.0 */
+        EQADMIN_EXPORT ServerPtr getServer();
         //@}
 
     private:
