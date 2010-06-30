@@ -306,6 +306,7 @@ int main( int argc, char **argv )
                     case EQ_COMPRESSOR_DATATYPE_BGR32F:
                     case EQ_COMPRESSOR_DATATYPE_RGBA32F:
                     case EQ_COMPRESSOR_DATATYPE_RGB32F:
+		    case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT:
                         channelSize = 4;
                         break;
                     case EQ_COMPRESSOR_DATATYPE_RGB16F:
