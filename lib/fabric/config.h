@@ -204,7 +204,7 @@ namespace fabric
         uint32_t getVersion() const;
 
         /** @internal Commit a new version. */
-        uint32_t commit();
+        EQFABRIC_EXPORT uint32_t commit();
 
         /** @internal Sync to the given version. */
         void sync( const uint32_t version );
