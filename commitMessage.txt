@@ -1,4 +1,5 @@
-Fix build
+Implement keyboard events for AGL fullscreen context. Mouse events are
+still missing.
 
 [ ] May break build
 [ ] May break existing applications

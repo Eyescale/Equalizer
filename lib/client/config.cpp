@@ -532,12 +532,10 @@ void Config::setupMessagePump( Pipe* pipe )
     static base::Lock _lock;
     base::ScopedMutex<> mutex( _lock );
 
-    if( _eventQueue.getMessagePump( ))
-        // Already done
+    if( _eventQueue.getMessagePump( )) // Already done
         return;
 
     MessagePump* pump = pipe->createMessagePump();
-
     _eventQueue.setMessagePump( pump );
 
     ClientPtr client = getClient();

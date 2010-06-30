@@ -185,8 +185,7 @@ void Pipe::_setupCommandQueue()
     Config* config = getConfig();
     config->setupMessagePump( this );
 
-    // Non-threaded pipes have no pipe thread message pump
-    if( !_thread )
+    if( !_thread ) // Non-threaded pipes have no pipe thread message pump
         return;
     
     EQASSERT( _pipeThreadQueue );

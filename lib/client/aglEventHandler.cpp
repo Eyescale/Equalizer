@@ -33,9 +33,6 @@
 #  include <3DconnexionClient/ConnexionClientAPI.h>
 #endif
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 AGLEventHandler::AGLEventHandler( AGLWindowIF* window )
@@ -45,18 +42,21 @@ AGLEventHandler::AGLEventHandler( AGLWindowIF* window )
         , _lastDX( 0 )
         , _lastDY( 0 )
 {
+    const bool fullscreen = 
+        window->getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON;
     const WindowRef carbonWindow = window->getCarbonWindow();
-    if( !carbonWindow )
+
+    if( !carbonWindow && !fullscreen )
     {
-        EQWARN << "Can't add window without native Carbon window to AGL event "
-               << "handler" << endl;
+        EQWARN << "Can't install event handler without native Carbon window"
+               << std::endl;
         return;
     }
     
     Global::enterCarbon();
     EventHandlerUPP eventHandler = NewEventHandlerUPP( 
         eq::AGLEventHandler::_handleEventUPP );
-    EventTypeSpec   eventType[]    = {
+    EventTypeSpec   events[]    = {
         { kEventClassWindow,   kEventWindowBoundsChanged },
         { kEventClassWindow,   kEventWindowZoomed },
         { kEventClassWindow,   kEventWindowUpdate },
@@ -76,9 +76,15 @@ AGLEventHandler::AGLEventHandler( AGLWindowIF* window )
         { kEventClassKeyboard, kEventRawKeyRepeat }
     };
 
-    InstallWindowEventHandler( carbonWindow, eventHandler, 
-                               sizeof( eventType ) / sizeof( EventTypeSpec ),
-                               eventType, this, &_eventHandler );
+    const size_t nEvents = sizeof( events ) / sizeof( EventTypeSpec );
+
+    if( _window->getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
+        InstallApplicationEventHandler( eventHandler, nEvents, events,
+                                        this, &_eventHandler );
+    else
+        InstallWindowEventHandler( carbonWindow, eventHandler, nEvents, events,
+                                   this, &_eventHandler );
+
 
     const Pipe* pipe = window->getPipe();
     if( pipe->isThreaded( ))
@@ -90,17 +96,26 @@ AGLEventHandler::AGLEventHandler( AGLWindowIF* window )
             eq::AGLEventHandler::_dispatchEventUPP );
         EventQueueRef target = GetCurrentEventQueue();
 
-        InstallWindowEventHandler( carbonWindow, eventDispatcher, 
-                                   sizeof( eventType ) / sizeof( EventTypeSpec),
-                                   eventType, target, &_eventDispatcher );
+        if( _window->getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
+        {
+            InstallApplicationEventHandler( eventDispatcher, nEvents,
+                                            events, target, &_eventDispatcher );
+        }
+        else
+            InstallWindowEventHandler( carbonWindow, eventDispatcher, nEvents,
+                                       events, target, &_eventDispatcher );
     }
     else
         _eventDispatcher = 0;
 
     Global::leaveCarbon();
 
-    EQINFO << "Installed event handlers for carbon window " << carbonWindow
-           << endl;
+    if( fullscreen )
+        EQINFO << "Installed event handlers for carbon window " << carbonWindow
+               << std::endl;
+    else
+        EQINFO << "Installed event handlers for fullscreen carbon context"
+               << std::endl;
 }
 
 AGLEventHandler::~AGLEventHandler()
@@ -168,7 +183,7 @@ bool AGLEventHandler::_handleEvent( EventRef event )
         case kEventClassKeyboard:
             return _handleKeyEvent( event );
         default:
-            EQINFO << "Unknown event class " << GetEventClass( event ) << endl;
+            EQINFO << "Unknown event class " << GetEventClass( event ) << std::endl;
             return false;
     }
 }
@@ -223,13 +238,14 @@ bool AGLEventHandler::_handleWindowEvent( EventRef event )
             break;
 
         default:
-            EQINFO << "Unhandled window event " << GetEventKind( event ) <<endl;
+            EQINFO << "Unhandled window event " << GetEventKind( event )
+                   << std::endl;
             windowEvent.type = Event::UNKNOWN;
             break;
     }
     windowEvent.originator = window->getID();
 
-    EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << endl;
+    EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << std::endl;
     return _window->processEvent( windowEvent );
 }
 
@@ -392,13 +408,13 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event )
             break;
         }
         default:
-            EQINFO << "Unhandled mouse event " << GetEventKind( event ) << endl;
+            EQINFO << "Unhandled mouse event " << GetEventKind( event ) << std::endl;
             windowEvent.type = Event::UNKNOWN;
             break;
     }
     windowEvent.originator = window->getID();
 
-    EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << endl;
+    EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << std::endl;
     return _window->processEvent( windowEvent );
 }
 
@@ -424,13 +440,13 @@ bool AGLEventHandler::_handleKeyEvent( EventRef event )
 
         default:
             EQINFO << "Unhandled keyboard event " << GetEventKind( event )
-                   << endl;
+                   << std::endl;
             windowEvent.type = Event::UNKNOWN;
             break;
     }
     windowEvent.originator = window->getID();
 
-    EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << endl;
+    EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << std::endl;
     return _window->processEvent( windowEvent );
 }
 
@@ -526,7 +542,7 @@ uint32_t AGLEventHandler::_getKey( EventRef event )
 
                 return key;
 
-            EQWARN << "Unrecognized key " << key << endl;
+            EQWARN << "Unrecognized key " << key << std::endl;
             return KC_VOID;
     }
 }

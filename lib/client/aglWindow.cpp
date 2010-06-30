@@ -60,11 +60,15 @@ void AGLWindow::configExit( )
     
     AGLContext context = getAGLContext();
 
-    if( window )
+    if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
+    {
+        EQASSERT( !window );
+        exitEventHandler();
+    }
+    else if( window )
     {
         Global::enterCarbon();
-        if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) != ON )
-            aglSetWindowRef( context, 0 );
+        aglSetWindowRef( context, 0 );
         DisposeWindow( window );
         Global::leaveCarbon();
     }
@@ -147,10 +151,8 @@ AGLPixelFormat AGLWindow::chooseAGLPixelFormat()
     Pipe*    pipe    = getPipe();
     EQASSERT( pipe );
     EQASSERT( pipe->getOSPipe( ));
-    EQASSERT( dynamic_cast< const AGLPipe* >( pipe->getOSPipe( )));
 
-    const AGLPipe* osPipe = static_cast< const AGLPipe* >( pipe->getOSPipe( ));
-
+    const AGLPipe* osPipe = EQSAFECAST( const AGLPipe*, pipe->getOSPipe( ));
     CGDirectDisplayID displayID = osPipe->getCGDisplayID();
 
     Global::enterCarbon();
@@ -168,8 +170,9 @@ AGLPixelFormat AGLWindow::chooseAGLPixelFormat()
 
     if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON && 
         getIAttribute( Window::IATTR_HINT_DRAWABLE )   == WINDOW )
-
+    {
         attributes.push_back( AGL_FULLSCREEN );
+    }
 
     attributes.push_back( AGL_DISPLAY_MASK );
     attributes.push_back( glDisplayMask );
@@ -410,27 +413,21 @@ bool AGLWindow::configInitAGLFullscreen()
     }
 
     Global::enterCarbon();
-
     aglEnable( context, AGL_FS_CAPTURE_SINGLE );
 
     const Pipe* pipe = getPipe();
-    EQASSERT( pipe );
-
     const PixelViewport& pipePVP   = pipe->getPixelViewport();
     const PixelViewport& windowPVP = _window->getPixelViewport();
     const PixelViewport& pvp       = pipePVP.isValid() ? pipePVP : windowPVP;
 
-#if 1
     if( !aglSetFullScreen( context, pvp.w, pvp.h, 0, 0 ))
         EQWARN << "aglSetFullScreen to " << pvp << " failed: " << aglGetError()
                << std::endl;
-#else
-    if( !aglSetFullScreen( context, 0, 0, 0, 0 ))
-        EQWARN << "aglSetFullScreen failed: " << aglGetError() << std::endl;
-#endif
 
     Global::leaveCarbon();
+
     _window->setPixelViewport( pvp );
+    initEventHandler();
     return true;
 }
 
