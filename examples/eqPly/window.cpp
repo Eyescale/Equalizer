@@ -111,7 +111,6 @@ static const char* _logoTextureName = "eqPly_logo";
 
 void Window::_loadLogo()
 {
-    return;
     if( _state->getTexture( _logoTextureName ) != VertexBufferState::INVALID )
     {
         // Already loaded by first window
