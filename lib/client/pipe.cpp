@@ -364,7 +364,7 @@ void Pipe::_releaseViews()
             if( view->getVersion() + 20 > view->getHeadVersion( ))
                 continue;
 
-            // release view to avoid memory leaks due to deltas piling up.
+            // release unused view to avoid memory leaks due to deltas piling up
             net::Session* session = getSession();
             session->unmapObject( view );
             

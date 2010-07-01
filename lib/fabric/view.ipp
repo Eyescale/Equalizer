@@ -102,7 +102,7 @@ template< class L, class V, class O >
 void View< L, V, O >::setDirty( const uint64_t dirtyBits )
 {
     Object::setDirty( dirtyBits );
-    if( isMaster( ))
+    if( _layout )
         _layout->setDirty( L::DIRTY_VIEWS );
 }
 

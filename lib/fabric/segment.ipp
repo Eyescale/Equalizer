@@ -95,8 +95,7 @@ template< class C, class S, class CH >
 void Segment< C, S, CH >::setDirty( const uint64_t dirtyBits )
 {
     Object::setDirty( dirtyBits );
-    if( isMaster( ))
-        _canvas->setDirty( C::DIRTY_SEGMENTS );
+    _canvas->setDirty( C::DIRTY_SEGMENTS );
 }
 
 template< class C, class S, class CH >

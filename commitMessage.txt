@@ -1,12 +1,9 @@
-Fix layout change:
-- proper dirty propagation
-- commit new child versions from master only
-- breaks admin API
+Simplify example logo loading code
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

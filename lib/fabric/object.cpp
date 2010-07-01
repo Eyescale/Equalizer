@@ -42,10 +42,11 @@ Object::~Object()
 
 bool Object::isDirty() const
 {
-    if( !_userData || _userData->getID() >= EQ_ID_MAX )
-        return Serializable::isDirty();
+    if( _userData && _userData->isAttached( ))
+        return Serializable::isDirty() || _userData->isDirty();
 
-    return Serializable::isDirty() || _userData->isDirty();
+    // else
+    return Serializable::isDirty();
 }
 
 uint32_t Object::commitNB()

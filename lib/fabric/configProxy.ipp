@@ -89,9 +89,9 @@ uint32_t ConfigProxy< S, C, O, L, CV, N, V >::commitNB()
     if( Serializable::isDirty( Config< S, C, O, L, CV, N, V>::DIRTY_OBSERVERS ))
         commitChildren< O, ConfigNewObserverPacket, C >(
             _config._observers, static_cast< C* >( &_config ));
-    if( Serializable::isDirty( Config< S, C, O, L, CV, N, V >::DIRTY_LAYOUTS ))
-        commitChildren< L, ConfigNewLayoutPacket, C >(
-            _config._layouts, static_cast< C* >( &_config ));
+    // Always traverse layouts: view proxy objects may be dirty
+    commitChildren< L, ConfigNewLayoutPacket, C >( _config._layouts,
+                                                   static_cast<C*>( &_config ));
     if( Serializable::isDirty( Config< S, C, O, L, CV, N, V >::DIRTY_CANVASES ))
         commitChildren< CV, ConfigNewCanvasPacket, C >(
             _config._canvases, static_cast< C* >( &_config ));

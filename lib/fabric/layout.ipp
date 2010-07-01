@@ -71,8 +71,8 @@ void Layout< C, L, V >::attachToSession( const uint32_t id,
 template< class C, class L, class V >
 uint32_t Layout< C, L, V >::commitNB()
 {
-    if( Serializable::isDirty( DIRTY_VIEWS ))
-        commitChildren< V, LayoutNewViewPacket >( _views );
+    // Always traverse views: view proxy objects may be dirty
+    commitChildren< V, LayoutNewViewPacket >( _views );
     return Object::commitNB();
 }
 
