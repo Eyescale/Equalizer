@@ -137,7 +137,8 @@ std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
     const
 {
     const uint32_t tokenType = getExternalFormat( buffer );
-    EQINFO << "Searching compressors for token type " << tokenType << std::endl;
+    EQINFO << "Searching compressors for token type 0x" << std::hex << tokenType
+           << std::dec << std::endl;
 
     const base::PluginRegistry& registry = base::Global::getPluginRegistry();
     const base::Compressors& compressors = registry.getCompressors();

@@ -34,6 +34,8 @@ server: lib admin
 tools: server
 auxilary: lib
 admin: lib
+dev: examples server
+	@echo "Development essentials compiled successfully"
 
 postcompile: subdirs
 	@echo

@@ -107,7 +107,7 @@ void Canvas< CFG, C, S, L >::serialize( net::DataOStream& os,
 
     if( dirtyBits & DIRTY_LAYOUT )
         os << _data.activeLayout;
-    if( dirtyBits & DIRTY_SEGMENTS )
+    if( dirtyBits & DIRTY_SEGMENTS && isMaster( ))
         os.serializeChildren( this, _segments );
     if( dirtyBits & DIRTY_LAYOUTS )
         os.serializeChildren( this, _layouts );
@@ -129,10 +129,8 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
         _data.activeLayout = index;
     }
 
-    if( dirtyBits & DIRTY_SEGMENTS )
+    if( dirtyBits & DIRTY_SEGMENTS && !isMaster( ))
     {
-        EQASSERT( _config );
-
         Segments result;
         is.deserializeChildren( this, _segments, result );
         _segments.swap( result );
@@ -141,8 +139,6 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
 
     if( dirtyBits & DIRTY_LAYOUTS )
     {
-        EQASSERT( _config );
-
         _layouts.clear();
         net::ObjectVersions layouts;
         is >> layouts;
@@ -157,7 +153,8 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
             {
                 L* layout = 0;
                 _config->find( id, &layout );
-                EQASSERT( layout );
+                EQASSERTINFO( layout,
+                              "Layout " << id << " not in " << *_config );
                 _layouts.push_back( layout );
             }
         }
@@ -172,8 +169,7 @@ template< class CFG, class C, class S, class L >
 void Canvas< CFG, C, S, L >::setDirty( const uint64_t dirtyBits )
 {
     Object::setDirty( dirtyBits );
-    if( isMaster( ))
-        _config->setDirty( CFG::DIRTY_CANVASES );
+    _config->setDirty( CFG::DIRTY_CANVASES );
 }
 
 template< class CFG, class C, class S, class L >

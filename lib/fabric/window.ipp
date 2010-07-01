@@ -131,7 +131,7 @@ void Window< P, W, C >::serialize( net::DataOStream& os,
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os.write( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
-    if( dirtyBits & DIRTY_CHANNELS )
+    if( dirtyBits & DIRTY_CHANNELS && isMaster( ))
     {
         os << _mapNodeObjects();
         os.serializeChildren( this, _channels );
@@ -149,7 +149,7 @@ void Window< P, W, C >::deserialize( net::DataIStream& is,
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         is.read( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
-    if( dirtyBits & DIRTY_CHANNELS )
+    if( dirtyBits & DIRTY_CHANNELS && !isMaster( ))
     {
         bool useChildren;
         is >> useChildren;
@@ -189,8 +189,7 @@ template< class P, class W, class C >
 void Window< P, W, C >::setDirty( const uint64_t dirtyBits )
 {
     Object::setDirty( dirtyBits );
-    if( isMaster( ))
-        _pipe->setDirty( P::DIRTY_WINDOWS );
+    _pipe->setDirty( P::DIRTY_WINDOWS );
 }
 
 template< class P, class W, class C >

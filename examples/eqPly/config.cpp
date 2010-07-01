@@ -863,12 +863,12 @@ void Config::_switchLayout( int32_t increment )
 
     int32_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();
-    EQASSERT( !layouts.empty( ))
+    EQASSERT( !layouts.empty( ));
 
-        if( index >= static_cast<int32_t>(layouts.size( )) )
-            index = 0;
-        else if ( index < 0 )
-            index = layouts.size( ) - 1;
+    if( index >= static_cast<int32_t>(layouts.size( )) )
+        index = 0;
+    else if ( index < 0 )
+        index = layouts.size( ) - 1;
 
     _currentCanvas->useLayout( index );
 

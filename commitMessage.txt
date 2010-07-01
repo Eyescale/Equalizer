@@ -1,12 +1,12 @@
-Code cleanups:
-- Tweak MMap error prints
-- make Image::setExternalFormat private and more robust
-- add names of magic numbers in compressor handling
+Fix layout change:
+- proper dirty propagation
+- commit new child versions from master only
+- breaks admin API
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

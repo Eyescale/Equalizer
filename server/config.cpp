@@ -1147,7 +1147,7 @@ template class eq::fabric::Config< eq::server::Server, eq::server::Config,
                                    eq::server::ConfigVisitor >;
 
 /** @cond IGNORE */
-template std::ostream& eq::fabric::operator << \
+template std::ostream& eq::fabric::operator <<
     ( std::ostream&, const eq::server::Config::Super& );
 /** @endcond */
 

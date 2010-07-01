@@ -115,7 +115,7 @@ void Pipe< N, P, W, V >::serialize( net::DataOStream& os,
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
-    if( dirtyBits & DIRTY_WINDOWS )
+    if( dirtyBits & DIRTY_WINDOWS && isMaster( ))
     {
         os << _mapNodeObjects();
         os.serializeChildren( this, _windows );
@@ -133,7 +133,7 @@ void Pipe< N, P, W, V >::deserialize( net::DataIStream& is,
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
-    if( dirtyBits & DIRTY_WINDOWS )
+    if( dirtyBits & DIRTY_WINDOWS && !isMaster( ))
     {
         bool useChildren;
         is >> useChildren;
@@ -167,8 +167,7 @@ template< class N, class P, class W, class V >
 void Pipe< N, P, W, V >::setDirty( const uint64_t dirtyBits )
 {
     Object::setDirty( dirtyBits );
-    if( isMaster( ))
-        _node->setDirty( N::DIRTY_PIPES );
+    _node->setDirty( N::DIRTY_PIPES );
 }
 
 template< class N, class P, class W, class V >

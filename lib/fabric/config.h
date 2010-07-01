@@ -210,6 +210,8 @@ namespace fabric
         void sync( const uint32_t version );
         //@}
 
+        void output( std::ostream& os ) const {} //!< @internal
+
     protected:
         /** @internal Construct a new config. */
         EQFABRIC_EXPORT Config( base::RefPtr< S > parent );

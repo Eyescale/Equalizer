@@ -85,8 +85,7 @@ template< typename C, typename O >
 void Observer< C, O >::setDirty( const uint64_t dirtyBits )
 {
     Object::setDirty( dirtyBits );
-    if( isMaster( ))
-        _config->setDirty( C::DIRTY_OBSERVERS );
+    _config->setDirty( C::DIRTY_OBSERVERS );
 }
 
 template< typename C, typename O >

@@ -75,6 +75,7 @@ Channel< W, C >::Channel( const Channel& from )
         _iAttributes[i] = from._iAttributes[i];
 
     notifyViewportChanged();
+    unsetDirty( DIRTY_VIEWPORT );
 }
 
 template< class W, class C >
@@ -146,7 +147,9 @@ void Channel< W, C >::deserialize( net::DataIStream& is,
             notifyViewportChanged();
         }
         else // consume unused data
-            is.advanceBuffer( sizeof( _data.nativeContext.vp ) + sizeof( _data.nativeContext.pvp ) + sizeof( _data.fixedVP ) + sizeof( _maxSize ));
+            is.advanceBuffer( sizeof( _data.nativeContext.vp ) + 
+                              sizeof( _data.nativeContext.pvp ) + 
+                              sizeof( _data.fixedVP ) + sizeof( _maxSize ));
     }
     if( dirtyBits & DIRTY_MEMBER )
         is >> _drawable >> _color >> _data.nativeContext.view
@@ -161,8 +164,7 @@ template< class W, class C >
 void Channel< W, C >::setDirty( const uint64_t dirtyBits )
 {
     Object::setDirty( dirtyBits );
-    if( isMaster( ))
-        _window->setDirty( W::DIRTY_CHANNELS );
+    _window->setDirty( W::DIRTY_CHANNELS );
 }
 
 //----------------------------------------------------------------------

@@ -82,7 +82,7 @@ void Layout< C, L, V >::serialize( net::DataOStream& os,
 {
     Object::serialize( os, dirtyBits );
 
-    if( dirtyBits & DIRTY_VIEWS )
+    if( dirtyBits & DIRTY_VIEWS && isMaster( ))
         os.serializeChildren( this, _views );
 }
 
@@ -92,10 +92,8 @@ void Layout< C, L, V >::deserialize( net::DataIStream& is,
 {
     Object::deserialize( is, dirtyBits );
 
-    if( dirtyBits & DIRTY_VIEWS )
+    if( dirtyBits & DIRTY_VIEWS && !isMaster( ))
     {
-        EQASSERT( _config );
-
         Views result;
         is.deserializeChildren( this, _views, result );
         _views.swap( result );
@@ -106,8 +104,7 @@ template< class C, class L, class V >
 void Layout< C, L, V >::setDirty( const uint64_t dirtyBits )
 {
     Object::setDirty( dirtyBits );
-    if( isMaster( ))
-        _config->setDirty( C::DIRTY_LAYOUTS );
+    _config->setDirty( C::DIRTY_LAYOUTS );
 }
 
 template< class C, class L, class V >
