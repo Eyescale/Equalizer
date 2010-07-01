@@ -51,35 +51,36 @@ namespace eq
             void flush();
 
             /**
-             * The type of data stored in FrameBuffer or texture.
+             * The type of data stored in FrameBuffer or texture on the GPU.
              * @sa the input token types in plugins/compressor.h
              */
             uint32_t internalFormat;
 
             /**
-             * The type of data stored in pixels.
+             * The type of data stored in pixels in main memory.
              * @sa the output token types in plugins/compressor.h
              */
             uint32_t externalFormat;
 
             /**
-             * The size of one pixel data stored in pixels.
+             * The size of one pixel, in bytes, stored in pixels.
              * @sa the output token types in plugins/compressor.h
              */
             uint32_t pixelSize;
 
             /**
-             * The size of the pixel data.
+             * The dimensions of the pixel data in pixels.
              *
              * Note that this pvp might differ from the image pvp since the
              * data is downloaded from the GPU using a plugin, which might
              * compress the data. If unmodified pixel data is required, the
              * correct download plugin has to be used.
+             *
              * @sa setDownloadName()
              */
             PixelViewport pvp;
 
-            void* pixels;  //!< The pixel data (pvp.getArea() * pixelSize)
+            void* pixels;  //!< The pixel data, pvp.getArea() * pixelSize bytes
 
             uint32_t compressorName; //!< The compressor used
             bool isCompressed;       //!< The compressed pixel data is valid
@@ -90,29 +91,14 @@ namespace eq
             std::vector< void* >    compressedData;
         };
 
-        /** @name Data Access */
-        //@{
-
         /** @name Image parameters */
         //@{
-        /**
-         * Set the type of the pixel in pixel data
-         *
-         * This is used to validate the pixel data. Invalidates the pixel
-         * data.
-         *
-         * @param buffer the buffer type.
-         * @param externalFormat the type of the pixel.
-         */
-        EQ_EXPORT void setExternalFormat( const Frame::Buffer buffer,
-                                          const uint32_t externalFormat );
-
-        /** @return the type of one token in the pixel data. */
+        /** @return the type of the pixel data. */
         uint32_t getExternalFormat( const Frame::Buffer buffer ) const
             {  return _getMemory( buffer ).externalFormat; }
         
         /**
-         * Get the size, in bytes, of one pixel in pixel data
+         * Get the size, in bytes, of one pixel in pixel data.
          *
          * @param buffer the buffer type.
          */
@@ -120,8 +106,7 @@ namespace eq
             { return _getMemory( buffer ).pixelSize; }
 
         /**
-         * Set the internalformat of the pixel data for a buffer.
-         * Invalidates the pixel data.
+         * Set the internal GPU format of the pixel data for the given buffer.
          *
          * @param buffer the buffer type.
          * @param internalFormat the internal format.
@@ -129,22 +114,18 @@ namespace eq
         EQ_EXPORT void setInternalFormat( const Frame::Buffer buffer, 
                                           const uint32_t internalFormat );
 
-        /**
-         * get the internal format
-         *
-         * @param buffer the buffer type.
-         * @return the internalformat of the pixel data. 
-         */
-        EQ_EXPORT uint32_t getInternalFormat( const Frame::Buffer buffer ) const;
+        /** @return the internal GPU format of the pixel data. */
+        EQ_EXPORT uint32_t getInternalFormat( const Frame::Buffer buffer )const;
 
-        /** @return true if the image has a color buffer with alpha. */
+        /** @return true if the image has a color buffer with alpha values. */
         EQ_EXPORT bool hasAlpha() const;
 
         /** 
          * Set the frame pixel storage type. 
          *
          * Images of storage type TYPE_MEMORY read back frame buffer data into
-         * main memory. The data can be accessed through the PixelData.
+         * main memory using a transfer plugin. The data can be accessed through
+         * the PixelData.
          *
          * Image of storage type TYPE_TEXTURE read frame buffer data into a
          * texture, which can be accessed using getTexture().
@@ -362,7 +343,8 @@ namespace eq
             Memory() : state( INVALID ) {}
 
             void resize( const uint32_t size );
-            void flush();
+            void flush();            
+            void useLocalBuffer();
 
             enum State
             {
@@ -370,17 +352,11 @@ namespace eq
                 VALID
             };
 
-            State     state;   //!< The current state of the memory
+            State state;   //!< The current state of the memory
 
             /** During the call of setPixelData or writeImage, we have to 
                 manage an internal buffer to copy the data */
             eq::base::Bufferb localBuffer;
-            
-            void useLocalBuffer()
-            {
-                localBuffer.resize( pvp.getArea() * pixelSize );
-                pixels = localBuffer.getData();
-            }
         };
 
         /** @return an appropriate compressor name for the buffer data type.*/
@@ -442,6 +418,19 @@ namespace eq
 
         /** @return a unique key for the frame buffer attachment. */
         const void* _getCompressorKey( const Frame::Buffer buffer ) const;
+
+        /**
+         * Set the type of the pixel data in main memory for the given buffer.
+         *
+         * Invalidates the pixel data.
+         *
+         * @param buffer the buffer type.
+         * @param externalFormat the type of the pixel.
+         * @param pixelSize the size of one pixels in bytes
+         */
+        void _setExternalFormat( const Frame::Buffer buffer,
+                                const uint32_t externalFormat,
+                                const uint32_t pixelSize );
 
         bool _canIgnoreAlpha( const Frame::Buffer buffer ) const;
 

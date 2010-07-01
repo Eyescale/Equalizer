@@ -521,7 +521,7 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
 
     EQASSERT( packet->pvp.isValid( ));
 
-    // Ugly way to get our local eq::Node object identifier
+    // Very ugly way to get our local eq::Node object identifier
     uint32_t originator = getID();
     Config* config = EQSAFECAST( Config*, getSession( ));
     if( config )

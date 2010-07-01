@@ -191,6 +191,8 @@ extern "C"
      * <info@equalizergraphics.com>. New types can be requested free of charge.
      */
     /*@{*/
+    /** Invalid Compressor */
+    #define EQ_COMPRESSOR_INVALID               0x0u
     /** No Compressor */
     #define EQ_COMPRESSOR_NONE                  0x1u
     /** RLE Compression of 4-byte tokens. */
@@ -388,6 +390,8 @@ extern "C"
      * Equalizer to select candidates for compression.
      */
     /*@{*/
+    /** Invalid data. */
+    #define EQ_COMPRESSOR_DATATYPE_NONE       0x0
     /** Data is processed in one-byte tokens. */
     #define EQ_COMPRESSOR_DATATYPE_BYTE       0x1
     /** Data is processed in four-byte tokens. */

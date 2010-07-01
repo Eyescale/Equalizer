@@ -113,6 +113,7 @@ void Texture::setInternalFormat( const GLuint internalFormat )
             break;
         case GL_ALPHA32F_ARB:
             setExternalFormat( GL_ALPHA, GL_FLOAT );
+            EQUNIMPLEMENTED;
             //setDownloader( !!! );
             break;
         case GL_DEPTH24_STENCIL8:

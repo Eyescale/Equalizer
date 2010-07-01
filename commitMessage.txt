@@ -1,9 +1,12 @@
-Fix segfault in image upload
+Code cleanups:
+- Tweak MMap error prints
+- make Image::setExternalFormat private and more robust
+- add names of magic numbers in compressor handling
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

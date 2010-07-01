@@ -86,16 +86,16 @@ uint32_t Image::getPixelDataSize( const Frame::Buffer buffer ) const
 }
 
 
-void Image::setExternalFormat( const Frame::Buffer buffer,
-                               const uint32_t externalFormat )
+void Image::_setExternalFormat( const Frame::Buffer buffer,
+                                const uint32_t externalFormat,
+                                const uint32_t pixelSize )
 {
     Memory& memory = _getMemory( buffer );
     if( memory.externalFormat == externalFormat )
         return;
 
     memory.externalFormat = externalFormat;
-    memory.pixelSize = 0;
-
+    memory.pixelSize = pixelSize;
     memory.state = Memory::INVALID;
 }
 
@@ -107,9 +107,7 @@ void Image::setInternalFormat( const Frame::Buffer buffer,
         return;
 
     memory.internalFormat = internalFormat;
-    memory.state = Memory::INVALID;
-    allocCompressor( buffer, 0 );
-
+    allocCompressor( buffer, EQ_COMPRESSOR_INVALID );
     if ( internalFormat == 0 )
         return;
 
@@ -177,8 +175,9 @@ uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
     const uint32_t tokenType = getExternalFormat( buffer );
     const bool noAlpha = _canIgnoreAlpha( buffer );
 
-    return base::CompressorDataCPU::chooseCompressor( 
-                              tokenType, attachment.quality, noAlpha );
+    return base::CompressorDataCPU::chooseCompressor( tokenType,
+                                                      attachment.quality,
+                                                      noAlpha );
 }
 
 bool Image::hasAlpha() const
@@ -551,8 +550,8 @@ void Image::_download( const Frame::Buffer buffer,
         attachment.transfer->initDownloader( attachment.quality, inputToken );
             
         // get the pixel type produced by the downloader
-        setExternalFormat( buffer, attachment.transfer->getExternalFormat() );
-        memory.pixelSize = attachment.transfer->getTokenSize();
+        _setExternalFormat( buffer, attachment.transfer->getExternalFormat(),
+                            attachment.transfer->getTokenSize( ));
         const bool noAlpha = _canIgnoreAlpha( buffer );
 
         // init a compressor which is compatible with the downloader 
@@ -560,14 +559,14 @@ void Image::_download( const Frame::Buffer buffer,
         float qualityComp = attachment.quality / 
                             attachment.lossyTransfer.getQuality();
         attachment.compressor->initCompressor( memory.externalFormat, 
-                                               qualityComp, 
-                                               noAlpha );
+                                               qualityComp, noAlpha );
     }
+
     attachment.transfer->download( _pvp, texture, flags, 
                                    memory.pvp, &memory.pixels );
     // get the pixel type produced ba the downloader
-    setExternalFormat( buffer, attachment.transfer->getExternalFormat());
-    attachment.memory.pixelSize = attachment.transfer->getTokenSize();
+    _setExternalFormat( buffer, attachment.transfer->getExternalFormat(),
+                        attachment.transfer->getTokenSize( ));
     memory.state = Memory::VALID;
 }
 
@@ -710,17 +709,17 @@ bool Image::allocCompressor( const Frame::Buffer buffer,
     Attachment& attachment = _getAttachment( buffer );
     if( name <= EQ_COMPRESSOR_NONE )
     {
-        attachment.compressor->initCompressor( name );
         attachment.memory.isCompressed = false;
+        attachment.compressor->initCompressor( name );
         return true;
     }
 
     if( !attachment.compressor->isValid( name ) )
     {
         attachment.memory.isCompressed = false;
-
         if( !attachment.compressor->initCompressor( name ) )
             return false;
+
         EQINFO << "Instantiated compressor of type " << name << std::endl;
     }
     return true;
@@ -737,7 +736,7 @@ bool Image::allocDownloader( const Frame::Buffer buffer,
     if( name <= EQ_COMPRESSOR_NONE )
     {
         attachment.transfer->initDownloader( name );
-        setExternalFormat( buffer, 0 );
+        _setExternalFormat( buffer, EQ_COMPRESSOR_DATATYPE_NONE, 0 );
         return false;
     }
 
@@ -746,9 +745,10 @@ bool Image::allocDownloader( const Frame::Buffer buffer,
         attachment.transfer->setGLEWContext( glewContext );
         if( !attachment.transfer->initDownloader( name ) )
             return false;
-        attachment.memory.internalFormat = attachment.transfer->getInternalFormat();
-        setExternalFormat( buffer, attachment.transfer->getExternalFormat());
-        attachment.memory.pixelSize = attachment.transfer->getTokenSize();
+        attachment.memory.internalFormat = 
+            attachment.transfer->getInternalFormat();
+        _setExternalFormat( buffer, attachment.transfer->getExternalFormat(),
+                            attachment.transfer->getTokenSize( ));
         EQINFO << "Instantiated compressor of type " << name << std::endl;
     }
     return true;
@@ -771,6 +771,17 @@ void Image::Memory::flush()
     isCompressed = false;
     PixelData::flush();
     localBuffer.clear();
+}
+
+void Image::Memory::useLocalBuffer()
+{
+    EQASSERT( internalFormat != 0 );
+    EQASSERT( externalFormat != 0 );
+    EQASSERT( pixelSize > 0 );
+    EQASSERT( pvp.hasArea( ));
+
+    localBuffer.resize( pvp.getArea() * pixelSize );
+    pixels = localBuffer.getData();
 }
 
 Image::PixelData::PixelData()
@@ -828,8 +839,8 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     if( _canIgnoreAlpha( buffer ))
         flags |= EQ_COMPRESSOR_IGNORE_MSE;
 
-    const uint64_t inDims[4]  = { memory.pvp.x, memory.pvp.w,
-                                  memory.pvp.y, memory.pvp.h }; 
+    const uint64_t inDims[4] = { memory.pvp.x, memory.pvp.w,
+                                 memory.pvp.y, memory.pvp.h }; 
     attachment.compressor->compress( memory.pixels, inDims, flags );
 
     const size_t numResults = attachment.compressor->getNumResults();
@@ -838,10 +849,8 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     memory.compressedData.resize( numResults );
 
     for( size_t i = 0; i < numResults ; ++i )
-    {
         attachment.compressor->getResult( i, &memory.compressedData[i], 
                                           &memory.compressedSize[i] );
-    }
 
     memory.isCompressed = true;
     return memory;
@@ -849,7 +858,7 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
 
 
 //---------------------------------------------------------------------------
-// IO
+// File IO
 //---------------------------------------------------------------------------
 
 void Image::writeImages( const std::string& filenameTemplate ) const
@@ -1165,8 +1174,8 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
                         << std::endl;
                 return false;
             }
-            setExternalFormat( Frame::BUFFER_DEPTH,
-                               EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT );
+            _setExternalFormat( Frame::BUFFER_DEPTH,
+                                EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT, 4 );
             setInternalFormat( Frame::BUFFER_DEPTH,
                                EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT );
             break;
@@ -1180,33 +1189,36 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
                     if( header.maxValue == 1023 )
                     {
                         EQASSERT( nChannels==4 );
-                        setExternalFormat( Frame::BUFFER_COLOR,
-                                           EQ_COMPRESSOR_DATATYPE_RGB10_A2 );
+                        _setExternalFormat( Frame::BUFFER_COLOR,
+                                            EQ_COMPRESSOR_DATATYPE_RGB10_A2, 4);
                         setInternalFormat( Frame::BUFFER_COLOR,
                                            EQ_COMPRESSOR_DATATYPE_RGB10_A2 );
                     }
                     else
                     {
-                        setExternalFormat( Frame::BUFFER_COLOR,
-                            nChannels==4 ? EQ_COMPRESSOR_DATATYPE_RGBA : 
-                                           EQ_COMPRESSOR_DATATYPE_RGB );
+                        _setExternalFormat( Frame::BUFFER_COLOR,
+                                    nChannels==4 ? EQ_COMPRESSOR_DATATYPE_RGBA :
+                                                   EQ_COMPRESSOR_DATATYPE_RGB,
+                                            nChannels );
                         setInternalFormat( Frame::BUFFER_COLOR,
                                            EQ_COMPRESSOR_DATATYPE_RGBA );
                     }
                     break;
 
                 case 2:
-                    setExternalFormat( Frame::BUFFER_COLOR,
+                    _setExternalFormat( Frame::BUFFER_COLOR,
                                  nChannels==4 ? EQ_COMPRESSOR_DATATYPE_RGBA16F :
-                                                EQ_COMPRESSOR_DATATYPE_RGB16F );
+                                                EQ_COMPRESSOR_DATATYPE_RGB16F,
+                                        nChannels * 2 );
                     setInternalFormat( Frame::BUFFER_COLOR,
                                        EQ_COMPRESSOR_DATATYPE_RGBA16F );
                     break;
 
                 case 4:
-                    setExternalFormat( Frame::BUFFER_COLOR,
-                                nChannels==4 ? EQ_COMPRESSOR_DATATYPE_RGBA32F : 
-                                               EQ_COMPRESSOR_DATATYPE_RGB32F  );
+                    _setExternalFormat( Frame::BUFFER_COLOR,
+                                 nChannels==4 ? EQ_COMPRESSOR_DATATYPE_RGBA32F :
+                                                EQ_COMPRESSOR_DATATYPE_RGB32F,
+                                        nChannels * 4 );
                     setInternalFormat( Frame::BUFFER_COLOR,
                                        EQ_COMPRESSOR_DATATYPE_RGBA32F );
                     break;
@@ -1220,7 +1232,6 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
             break;
     }
 	Memory& memory = _getMemory( buffer );
-	memory.pixelSize = depth;
     const PixelViewport pvp( 0, 0, header.width, header.height );
     if( pvp != _pvp )
     {

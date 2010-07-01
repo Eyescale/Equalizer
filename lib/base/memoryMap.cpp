@@ -60,8 +60,8 @@ const void* MemoryMap::map( const std::string& filename )
                               0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0 );
     if( file == INVALID_HANDLE_VALUE )
     {
-        EQWARN << "Can't open " << filename << std::endl
-               << "ERROR " << base::sysError << std::endl;
+        EQWARN << "Can't open " << filename << ": " << base::sysError
+               << std::endl;
         return 0;
     }
 
@@ -69,8 +69,7 @@ const void* MemoryMap::map( const std::string& filename )
     _map = CreateFileMapping( file, 0, PAGE_READONLY, 0, 0, filename.c_str( ));
     if( !_map )
     {
-        EQWARN << "File mapping failed." << std::endl
-               << "ERROR " << base::sysError << std::endl;
+        EQWARN << "File mapping failed: " << base::sysError << std::endl;
         return 0;
     }
     
