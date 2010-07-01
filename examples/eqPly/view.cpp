@@ -76,12 +76,18 @@ void View::Proxy::deserialize( eq::net::DataIStream& is,
 
 void View::setModelID( const uint32_t id )
 {
+    if( _modelID == id )
+        return;
+
     _modelID = id;
     _proxy.setDirty( Proxy::DIRTY_MODEL );
 }
 
 void View::setIdleSteps( const uint32_t steps )
 {
+    if( _idleSteps == steps )
+        return;
+
     _idleSteps = steps;
     _proxy.setDirty( Proxy::DIRTY_IDLE );
 }

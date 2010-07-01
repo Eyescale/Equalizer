@@ -105,13 +105,10 @@ void Window::_loadLogo()
 
     eq::Image image;
     if( !image.readImage( "logo.rgb", eq::Frame::BUFFER_COLOR ) &&
-#ifdef _MSC_VER
-        !image.readImage( "../examples/eqVolve/logo.rgb", 
-                          eq::Frame::BUFFER_COLOR ) )
-#else
+        !image.readImage( "../examples/eqVolve/logo.rgb",
+                          eq::Frame::BUFFER_COLOR ) &&
         !image.readImage( "./examples/eqVolve/logo.rgb", 
-                          eq::Frame::BUFFER_COLOR ) )
-#endif
+                          eq::Frame::BUFFER_COLOR ))
     {
         EQWARN << "Can't load overlay logo 'logo.rgb'" << endl;
         return;
@@ -127,7 +124,7 @@ void Window::_loadLogo()
         image.getExternalFormat( eq::Frame::BUFFER_COLOR );
 
     glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _logoTexture );
-    glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 
+    glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0,
                   image.getInternalFormat( eq::Frame::BUFFER_COLOR ),
                   _logoSize.x(), _logoSize.y(), 0,
                   eq::util::CompressorDataGPU::getGLFormat( externalFormat ), 
