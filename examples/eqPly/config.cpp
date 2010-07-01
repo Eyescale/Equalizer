@@ -653,10 +653,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         {
             eq::admin::ServerPtr server = getAdminServer();
             if( server.isValid( ))
-            {
                 eqAdmin::addWindow( server );
-//                eqAdmin::addWindow( server );
-            }
             return true;
         }
         case 'A':

@@ -92,11 +92,16 @@ void Layout< C, L, V >::deserialize( net::DataIStream& is,
 {
     Object::deserialize( is, dirtyBits );
 
-    if( dirtyBits & DIRTY_VIEWS && !isMaster( ))
+    if( dirtyBits & DIRTY_VIEWS )
     {
-        Views result;
-        is.deserializeChildren( this, _views, result );
-        _views.swap( result );
+        if( isMaster( ))
+            syncChildren( _views );
+        else
+        {
+            Views result;
+            is.deserializeChildren( this, _views, result );
+            _views.swap( result );
+        }
     }
 }
 

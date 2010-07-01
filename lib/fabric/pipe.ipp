@@ -133,24 +133,26 @@ void Pipe< N, P, W, V >::deserialize( net::DataIStream& is,
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
-    if( dirtyBits & DIRTY_WINDOWS && !isMaster( ))
+    if( dirtyBits & DIRTY_WINDOWS )
     {
-        bool useChildren;
-        is >> useChildren;
-        if( useChildren && _mapNodeObjects( ))
+        if( isMaster( ))
+            syncChildren( _windows );
+        else
         {
-            Windows result;
-            is.deserializeChildren( this, _windows, result );
-            if( !isMaster( ))
+            bool useChildren;
+            is >> useChildren;
+            if( useChildren && _mapNodeObjects( ))
             {
+                Windows result;
+                is.deserializeChildren( this, _windows, result );
                 _windows.swap( result );
                 EQASSERT( _windows.size() == result.size( ));
             }
-        }
-        else // consume unused ObjectVersions
-        {
-            net::ObjectVersions childIDs;
-            is >> childIDs;
+            else // consume unused ObjectVersions
+            {
+                net::ObjectVersions childIDs;
+                is >> childIDs;
+            }
         }
     }
     if( dirtyBits & DIRTY_PIXELVIEWPORT )

@@ -159,6 +159,10 @@ namespace fabric
         template< class C >
         void commitChildren( const std::vector< C* >& children );
 
+        /** @internal sync all children to head version. */
+        template< class C >
+        void syncChildren( const std::vector< C* >& children );
+
     private:
         struct BackupData
         {
@@ -230,6 +234,18 @@ namespace fabric
             C* child = *i;
             EQASSERT( child->isAttached( ));
             child->commit();
+        }
+    }
+
+    template< class C >
+    inline void Object::syncChildren( const std::vector< C* >& children )
+    {
+        for( typename std::vector< C* >::const_iterator i = children.begin();
+             i != children.end(); ++i )
+        {
+            C* child = *i;
+            EQASSERT( child->isMaster( )); // slaves are synced using version
+            child->sync();
         }
     }
 }

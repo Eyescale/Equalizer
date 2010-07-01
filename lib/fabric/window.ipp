@@ -149,24 +149,26 @@ void Window< P, W, C >::deserialize( net::DataIStream& is,
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         is.read( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
-    if( dirtyBits & DIRTY_CHANNELS && !isMaster( ))
+    if( dirtyBits & DIRTY_CHANNELS )
     {
-        bool useChildren;
-        is >> useChildren;
-        if( useChildren && _mapNodeObjects( ))
+        if( isMaster( ))
+            syncChildren( _channels );
+        else
         {
-            Channels result;
-            is.deserializeChildren( this, _channels, result );
-            if( !isMaster( ))
+            bool useChildren;
+            is >> useChildren;
+            if( useChildren && _mapNodeObjects( ))
             {
+                Channels result;
+                is.deserializeChildren( this, _channels, result );
                 _channels.swap( result );
                 EQASSERT( _channels.size() == result.size( ));
             }
-        }
-        else // consume unused ObjectVersions
-        {
-            net::ObjectVersions childIDs;
-            is >> childIDs;
+            else // consume unused ObjectVersions
+            {
+                net::ObjectVersions childIDs;
+                is >> childIDs;
+            }
         }
     }
     if( dirtyBits & DIRTY_VIEWPORT )

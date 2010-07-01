@@ -129,12 +129,17 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
         _data.activeLayout = index;
     }
 
-    if( dirtyBits & DIRTY_SEGMENTS && !isMaster( ))
+    if( dirtyBits & DIRTY_SEGMENTS )
     {
-        Segments result;
-        is.deserializeChildren( this, _segments, result );
-        _segments.swap( result );
-        EQASSERT( _segments.size() == result.size( ));
+        if( isMaster( ))
+            syncChildren( _segments );
+        else
+        {
+            Segments result;
+            is.deserializeChildren( this, _segments, result );
+            _segments.swap( result );
+            EQASSERT( _segments.size() == result.size( ));
+        }
     }
 
     if( dirtyBits & DIRTY_LAYOUTS )

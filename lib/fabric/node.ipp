@@ -114,21 +114,26 @@ Node< C, N, P, V >::deserialize( net::DataIStream& is, const uint64_t dirtyBits)
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         is.read( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
-    if( dirtyBits & DIRTY_PIPES && !isMaster( ))
+    if( dirtyBits & DIRTY_PIPES )
     {
-        bool useChildren;
-        is >> useChildren;
-        if( useChildren && _mapNodeObjects( ))
+        if( isMaster( ))
+            syncChildren( _pipes );
+        else
         {
-            Pipes result;
-            is.deserializeChildren( this, _pipes, result );
-            _pipes.swap( result );
-            EQASSERT( _pipes.size() == result.size( ));
-        }
-        else // consume unused ObjectVersions
-        {
-            net::ObjectVersions childIDs;
-            is >> childIDs;
+            bool useChildren;
+            is >> useChildren;
+            if( useChildren && _mapNodeObjects( ))
+            {
+                Pipes result;
+                is.deserializeChildren( this, _pipes, result );
+                _pipes.swap( result );
+                EQASSERT( _pipes.size() == result.size( ));
+            }
+            else // consume unused ObjectVersions
+            {
+                net::ObjectVersions childIDs;
+                is >> childIDs;
+            }
         }
     }
     if( dirtyBits & DIRTY_MEMBER )

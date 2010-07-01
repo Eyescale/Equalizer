@@ -134,7 +134,18 @@ void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
     if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_ATTRIBUTES )
         is.read( _config._fAttributes, C::FATTR_ALL * sizeof( float ));
 
-    if( !isMaster( ))
+    if( isMaster( ))
+    {
+        if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_NODES )
+            syncChildren( _config._nodes );
+        if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_OBSERVERS )
+            syncChildren( _config._observers );
+        if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_LAYOUTS )
+            syncChildren( _config._layouts );
+        if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_CANVASES )
+            syncChildren( _config._canvases );
+    }
+    else
     {
         if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_NODES )
         {
