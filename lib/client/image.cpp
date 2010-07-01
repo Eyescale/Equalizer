@@ -942,29 +942,37 @@ void Image::writeImage( const std::string& filename,
     switch( getExternalFormat( buffer ))
     {      
         case EQ_COMPRESSOR_DATATYPE_BGR10_A2:
+        case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
             header.maxValue = 1023;
         case EQ_COMPRESSOR_DATATYPE_BGRA :
-        case EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV :
+        case EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV :        
+        case EQ_COMPRESSOR_DATATYPE_RGBA :
+        case EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV :
             header.bytesPerChannel = 1;
             header.depth = 4;
             break;
         case EQ_COMPRESSOR_DATATYPE_BGR :
+        case EQ_COMPRESSOR_DATATYPE_RGB :
             header.bytesPerChannel = 1;
             header.depth = 3;
             break;
         case EQ_COMPRESSOR_DATATYPE_BGRA32F:
+        case EQ_COMPRESSOR_DATATYPE_RGBA32F:
             header.bytesPerChannel = 4;
             header.depth = 4;
             break;
         case EQ_COMPRESSOR_DATATYPE_BGR32F:
+        case EQ_COMPRESSOR_DATATYPE_RGB32F:
             header.bytesPerChannel = 4;
             header.depth = 3;
             break;
         case EQ_COMPRESSOR_DATATYPE_BGRA16F:
+        case EQ_COMPRESSOR_DATATYPE_RGBA16F:
             header.bytesPerChannel = 2;
             header.depth = 4;
             break;
         case EQ_COMPRESSOR_DATATYPE_BGR16F:
+        case EQ_COMPRESSOR_DATATYPE_RGB16F:
             header.bytesPerChannel = 2;
             header.depth = 3;
             break;
@@ -976,6 +984,22 @@ void Image::writeImage( const std::string& filename,
         default:
             EQERROR << "Unknown image pixel data type" << std::endl;
             return;
+    }
+
+    // if the data picture has a RGB format, we can easy translate it in 
+    // a BGR format
+    bool invertChannel = false;
+    switch( getExternalFormat( buffer ))
+    {      
+        case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
+        case EQ_COMPRESSOR_DATATYPE_RGBA :
+        case EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV :
+        case EQ_COMPRESSOR_DATATYPE_RGB :
+        case EQ_COMPRESSOR_DATATYPE_RGBA32F:
+        case EQ_COMPRESSOR_DATATYPE_RGB32F:
+        case EQ_COMPRESSOR_DATATYPE_RGBA16F:
+        case EQ_COMPRESSOR_DATATYPE_RGB16F:
+            invertChannel = true;
     }
 
     if( header.depth == 1 ) // depth
@@ -1002,41 +1026,58 @@ void Image::writeImage( const std::string& filename,
     const size_t nBytes = nPixels * depth;
     const char* data = reinterpret_cast<const char*>( getPixelPointer( buffer));
 
-    if ( header.depth == 3 )
+    if ( header.depth == 3 || header.depth == 4 )
     {
-        for( size_t j = 2 * bpc; j < nBytes; j += depth )
-            image.write( &data[j], bpc );
-        for( size_t j = 1 * bpc; j < nBytes; j += depth )
-            image.write( &data[j], bpc );
-        for( size_t j = 0; j < nBytes; j += depth )
-            image.write( &data[j], bpc );
-    }
-    else if ( header.depth == 4 )
-    {
-        for( size_t j = 2 * bpc; j < nBytes; j += depth )
-            image.write( &data[j], bpc );
-        for( size_t j = 1 * bpc; j < nBytes; j += depth )
-            image.write( &data[j], bpc );
-        for( size_t j = 0; j < nBytes; j += depth )
-            image.write( &data[j], bpc );
-        // invert alpha
-        for( size_t j = 3 * bpc; j < nBytes; j += depth )
+        // channel one is R or B
+        if ( invertChannel )
         {
-            if( bpc == 1 )
+            for( size_t j = 0; j < nBytes; j += depth )
+                image.write( &data[j], bpc );
+        }
+        else
+        {
+            for( size_t j = 2 * bpc; j < nBytes; j += depth )
+                image.write( &data[j], bpc );
+        }
+
+        // channel two is G
+        for( size_t j = 1 * bpc; j < nBytes; j += depth )
+            image.write( &data[j], bpc );
+
+        // channel three is B or G
+        if ( invertChannel )
+        {
+            for( size_t j = 2 * bpc; j < nBytes; j += depth )
+                image.write( &data[j], bpc );
+        }
+        else
+        {
+            for( size_t j = 0; j < nBytes; j += depth )
+                image.write( &data[j], bpc );
+        }
+
+        // channel four is Alpha
+        if ( header.depth == 4 )
+        {
+            // invert alpha
+            for( size_t j = 3 * bpc; j < nBytes; j += depth )
             {
-                const uint8_t val = 255 - 
-                    *reinterpret_cast< const uint8_t* >( &data[j] );
-                image.write( reinterpret_cast<const char*>( &val ), 1 );
+                if( bpc == 1 )
+                {
+                    const uint8_t val = 255 - 
+                        *reinterpret_cast< const uint8_t* >( &data[j] );
+                    image.write( reinterpret_cast<const char*>( &val ), 1 );
+                }
+                else
+                    image.write(&data[j], bpc );
             }
-            else
-                image.write(&data[j], bpc );
         }
     }
     else
     {
-            for( size_t i = 0; i < nChannels; i += bpc )
-                for( size_t j = i * bpc; j < nBytes; j += depth )
-                    image.write(&data[j], bpc );
+        for( size_t i = 0; i < nChannels; i += bpc )
+           for( size_t j = i * bpc; j < nBytes; j += depth )
+              image.write(&data[j], bpc );
     }
 
     image.close();
