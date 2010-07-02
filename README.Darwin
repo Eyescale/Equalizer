@@ -1,9 +1,11 @@
 
                          Darwin-Specific Notes
 
- Equalizer is developed on the latest OS X version, at the time of
- writing 10.6.2. Other versions may work, but are not tested. The
- minimum version is gcc 4.2, version 4.0.1 is no longer supported.
+ Equalizer is developed on the new OS X versions, please refer to the
+ latest release notes for specifics.. Other versions will likely work,
+ but are not tested heavily. OS X 10.4 or earlier are no longer
+ supported. The minimum gcc version is 4.2, version 4.0.1 is no longer
+ supported.
 
 Prerequisites:
 
@@ -21,8 +23,8 @@ Universal Binary Notes
  AGL/Carbon does not support 64 bit. When compiling with WINDOW_SYSTEM
  AGL, the targets ppc64 and x86_64 are disabled.
 
- X11 supports all Leopard binary formats (ppc, i386, ppc64, x86_64).
- When using WINDOW_SYSTEM=GLX all these targets are enabled by default.
+ X11 supports all binary formats (ppc, i386, ppc64, x86_64). When using
+ WINDOW_SYSTEM=GLX all these targets are enabled by default.
 
  At least x86_64 support is buggy in 10.5.0. Resizing a window causes a
  crash. Installing the latest X11.app from

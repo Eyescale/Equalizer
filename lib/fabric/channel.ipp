@@ -47,8 +47,6 @@ Channel< W, C >::Channel( W* parent )
         , _maxSize( Vector2i::ZERO )
 {
     parent->_addChannel( static_cast< C* >( this ));
-    notifyViewportChanged();
-    unsetDirty( DIRTY_VIEWPORT );
 
     uint32_t value = (reinterpret_cast< size_t >( this ) & 0xffffffffu);
     for( unsigned i=0; i<8; ++i )
@@ -73,7 +71,11 @@ Channel< W, C >::Channel( const Channel& from )
 
     for( int i = 0; i < IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
+}
 
+template< class W, class C >
+void Channel< W, C >::init()
+{
     notifyViewportChanged();
     unsetDirty( DIRTY_VIEWPORT );
 }

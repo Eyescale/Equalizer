@@ -62,6 +62,11 @@ Window< P, W, C >::Window( P* parent )
 {
     EQASSERT( parent );
     parent->_addWindow( static_cast< W* >( this ) );
+}
+
+template< class P, class W, class C >
+void Window< P, W, C >::init()
+{
     notifyViewportChanged();
     unsetDirty( DIRTY_VIEWPORT );
 }
@@ -180,7 +185,8 @@ void Window< P, W, C >::deserialize( net::DataIStream& is,
             notifyViewportChanged();
         }
         else // consume unused data
-            is.advanceBuffer( sizeof( _data.vp ) + sizeof( _data.pvp ) + sizeof( _data.fixedVP ));
+            is.advanceBuffer( sizeof( _data.vp ) + sizeof( _data.pvp ) +
+                              sizeof( _data.fixedVP ));
     }
 
     if( dirtyBits & DIRTY_DRAWABLECONFIG )
@@ -223,6 +229,7 @@ void Window< P, W, C >::create( C** channel )
 {
     *channel = _pipe->getServer()->getNodeFactory()->createChannel( 
         static_cast< W* >( this ));
+    (*channel)->init(); // not in ctor, virtual method
 }
 
 template< class P, class W, class C >

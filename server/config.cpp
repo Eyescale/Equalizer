@@ -205,6 +205,7 @@ void Config::activateCanvas( Canvas* canvas )
                 // create and add new channel
                 EQASSERT( !findChannel( segment, view ));
                 Channel* channel = new Channel( *segmentChannel );
+                channel->init(); // not in ctor, virtual method
                 channel->setOutput( view, segment );
 
                 //----- compute channel viewport:

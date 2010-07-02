@@ -1,9 +1,9 @@
-Fix run-time window creation and multi-window creation (deletion still missing)
+Move window/channel viewport init out of ctor to call proper virtual methods
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

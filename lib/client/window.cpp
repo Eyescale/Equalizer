@@ -607,6 +607,8 @@ net::CommandResult Window::_cmdCreateChannel( net::Command& command )
     EQLOG( LOG_INIT ) << "Create channel " << packet << std::endl;
 
     Channel* channel = Global::getNodeFactory()->createChannel( this );
+    channel->init(); // not in ctor, virtual method
+
     Config* config = getConfig();
     EQCHECK( config->mapObject( channel, packet->channelID ));
 

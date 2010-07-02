@@ -199,6 +199,7 @@ void Pipe< N, P, W, V >::create( W** window )
 {
     *window = _node->getServer()->getNodeFactory()->createWindow( 
         static_cast< P* >( this ));
+    (*window)->init(); // not in ctor, virtual method
 }
 
 template< class N, class P, class W, class V >

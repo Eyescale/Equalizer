@@ -56,6 +56,9 @@ namespace fabric
         
         /** @name Data Access */
         //@{
+        /** @internal Initialize this channel (calls virtual methods) */
+        void init();
+
         /** @return the parent window. @version 1.0 */
         W* getWindow() { return _window; }
 

@@ -49,6 +49,9 @@ namespace fabric
 
         /** @name Data Access */
         //@{
+        /** @internal Initialize this window (calls virtual methods) */
+        void init();
+
         /** @return the Pipe of this window. */
         const P* getPipe() const { return _pipe; }
         /** @return the Pipe of this window. */

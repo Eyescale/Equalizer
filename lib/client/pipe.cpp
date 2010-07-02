@@ -667,6 +667,7 @@ net::CommandResult Pipe::_cmdCreateWindow(  net::Command& command  )
     EQLOG( LOG_INIT ) << "Create window " << packet << std::endl;
 
     Window* window = Global::getNodeFactory()->createWindow( this );
+    window->init(); // not in ctor, virtual method
 
     Config* config = getConfig();
     EQCHECK( config->mapObject( window, packet->windowID ));

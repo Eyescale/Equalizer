@@ -613,6 +613,7 @@ pipeAttribute:
 window: EQTOKEN_WINDOW '{' 
             {
                 window = new eq::server::Window( eqPipe );
+                window->init(); // not in ctor, virtual method
             }
         windowFields
         '}' { window = 0; }
@@ -663,7 +664,10 @@ windowAttribute:
         { window->setIAttribute( eq::server::Window::IATTR_PLANES_SAMPLES, $2 ); }
                      
 channel: EQTOKEN_CHANNEL '{' 
-            { channel = new eq::server::Channel( window ); }
+            {
+                channel = new eq::server::Channel( window );
+                channel->init(); // not in ctor, virtual method
+            }
          channelFields
         '}' { channel = 0; }
 channelFields: /*null*/ | channelFields channelField
