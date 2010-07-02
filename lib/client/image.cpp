@@ -641,7 +641,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
 
     validatePixelData( buffer ); // alloc memory for pixels
     // if no data in pixels, it will be only a memory setup parametre
-    if ( pixels.pixels == 0 )
+    if ( pixels.pixels == 0 && !pixels.isCompressed )
         return;
 
     if( pixels.compressorName <= EQ_COMPRESSOR_NONE )
