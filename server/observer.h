@@ -35,7 +35,7 @@ namespace server
         /** 
          * Constructs a new Observer.
          */
-        Observer( Config* parent );
+        EQSERVER_EXPORT Observer( Config* parent );
 
         /** Destruct this observer. */
         virtual ~Observer();
