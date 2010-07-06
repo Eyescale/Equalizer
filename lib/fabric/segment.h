@@ -88,6 +88,27 @@ namespace fabric
 
         /** @sa Frustum::unsetFrustum() */
         EQFABRIC_EXPORT virtual void unsetFrustum();
+
+        /** @return the bitwise OR of the eye values. */
+        uint32_t getEyes() const { return _eyes; }
+
+         /** 
+         * Set the eyes to be used by the segument.
+         * 
+         * Previously set eyes are overwritten.
+         *
+         * @param eyes the segment eyes.
+         */
+        void setEyes( const uint32_t eyes ) { _eyes = eyes; }
+
+        /** 
+         * Add eyes to be used by the segument.
+         *
+         * Previously set eyes are preserved.
+         * 
+         * @param eyes the segument eyes.
+         */
+        void enableEye( const uint32_t eyes ) { _eyes |= eyes; }
         //@}
         
         /** @name Operations */
@@ -148,6 +169,8 @@ namespace fabric
 
         /** The output channel of this segment. */
         CH* _channel;
+
+        uint32_t _eyes;
 
         union // placeholder for binary-compatible changes
         {

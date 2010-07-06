@@ -34,6 +34,17 @@ namespace fabric
         EYE_ALL   // must be last
     };
 
+    /**
+     * Eye pass bit mask for which is enabled.
+     */
+    enum EyeMask
+    {
+        EYE_UNDEFINED  = 0,             //!< use inherited eye(s)
+        EYE_CYCLOP_BIT = 1<<EYE_CYCLOP, //!<  monoscopic 'middle' eye
+        EYE_LEFT_BIT   = 1<<EYE_LEFT,   //!< left eye
+        EYE_RIGHT_BIT  = 1<<EYE_RIGHT   //!< right eye
+    };
+
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Eye& eye );
 }
 }

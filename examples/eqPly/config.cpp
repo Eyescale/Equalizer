@@ -648,7 +648,10 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         case 'R':
             _frameData.toggleRenderMode();
             return true;
-
+        case 'g':
+        case 'G':
+            _switchViewMode();
+            return true;
         case 'a':
         {
             eq::admin::ServerPtr server = getAdminServer();
@@ -810,6 +813,17 @@ void Config::_switchView()
         _frameData.setCurrentViewID( EQ_ID_INVALID );
     else
         _frameData.setCurrentViewID( (*i)->getID( ));
+}
+
+void Config::_switchViewMode()
+{
+    eq::View* current = find< eq::View >( _frameData.getCurrentViewID( ));
+    const eq::View::modeType mode = current->getMode( );
+
+    if( mode == eq::View::VIEW_MONO )
+        current->changeMode( eq::View::VIEW_STEREO );
+    else
+        current->changeMode( eq::View::VIEW_MONO );
 }
 
 void Config::_switchModel()

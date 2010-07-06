@@ -259,6 +259,8 @@ boundary                        { return EQTOKEN_BOUNDARY; }
 2D                              { return EQTOKEN_2D; }
 DB                              { return EQTOKEN_DB; }
 zoom                            { return EQTOKEN_ZOOM; }
+MONO                            { return EQTOKEN_MONO; }
+STEREO                          { return EQTOKEN_STEREO; }
 
 [+-]?[0-9]+[\.][0-9]*           { return EQTOKEN_FLOAT; }
 [+-]?[0-9]*[\.][0-9]+           { return EQTOKEN_FLOAT; }

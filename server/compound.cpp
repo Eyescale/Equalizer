@@ -146,7 +146,7 @@ Compound::InheritData::InheritData()
         : channel( 0 )
         , overdraw( Vector4i::ZERO )
         , buffers( eq::Frame::BUFFER_UNDEFINED )
-        , eyes( EYE_UNDEFINED )
+        , eyes( fabric::EYE_UNDEFINED )
         , tasks( fabric::TASK_DEFAULT )
         , period( EQ_UNDEFINED_UINT32 )
         , phase( EQ_UNDEFINED_UINT32 )
@@ -803,8 +803,8 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         _inherit = _data;
         _inherit.zoom = Zoom::NONE; // will be reapplied below
 
-        if( _inherit.eyes == EYE_UNDEFINED )
-            _inherit.eyes = EYE_CYCLOP_BIT;
+        if( _inherit.eyes == fabric::EYE_UNDEFINED )
+            _inherit.eyes = fabric::EYE_CYCLOP_BIT;
 
         if( _inherit.period == EQ_UNDEFINED_UINT32 )
             _inherit.period = 1;
@@ -848,7 +848,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         _inherit.pixel.apply( _data.pixel );
         _inherit.subpixel.apply( _data.subpixel );
 
-        if( _data.eyes != EYE_UNDEFINED )
+        if( _data.eyes != fabric::EYE_UNDEFINED )
             _inherit.eyes = _data.eyes;
         
         if( _data.period != EQ_UNDEFINED_UINT32 )
@@ -1126,11 +1126,11 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
     if( eye )
     {
         os << "eye      [ ";
-        if( eye & Compound::EYE_CYCLOP_BIT )
+        if( eye & fabric::EYE_CYCLOP_BIT )
             os << "CYCLOP ";
-        if( eye & Compound::EYE_LEFT_BIT )
+        if( eye & fabric::EYE_LEFT_BIT )
             os << "LEFT ";
-        if( eye & Compound::EYE_RIGHT_BIT )
+        if( eye & fabric::EYE_RIGHT_BIT )
             os << "RIGHT ";
         os << "]" << std::endl;
     }

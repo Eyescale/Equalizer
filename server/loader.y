@@ -258,6 +258,8 @@
 %token EQTOKEN_DB
 %token EQTOKEN_BOUNDARY
 %token EQTOKEN_ZOOM
+%token EQTOKEN_MONO
+%token EQTOKEN_STEREO
 %token EQTOKEN_STRING
 %token EQTOKEN_CHARACTER
 %token EQTOKEN_FLOAT
@@ -714,6 +716,8 @@ view: EQTOKEN_VIEW '{' { view = new eq::server::View( layout ); }
 viewFields: /*null*/ | viewFields viewField
 viewField:
     EQTOKEN_NAME STRING { view->setName( $2 ); }
+    | EQTOKEN_MODE { view->changeMode( eq::server::View::VIEW_MONO ); }
+        viewMode
     | EQTOKEN_VIEWPORT viewport
         { view->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] ));}
     | wall       { view->setWall( wall ); }
@@ -743,7 +747,10 @@ viewField:
               view->setObserver( observer ); 
       }
 
-
+viewMode:
+    EQTOKEN_MONO  { view->changeMode( eq::server::View::VIEW_MONO ); }
+    | EQTOKEN_STEREO  { view->changeMode( eq::server::View::VIEW_STEREO ); }
+    
 canvas: EQTOKEN_CANVAS '{' { canvas = new eq::server::Canvas( config ); }
             canvasFields '}' { config->activateCanvas( canvas ); canvas = 0; }
 canvasFields: /*null*/ | canvasFields canvasField
@@ -797,12 +804,19 @@ segmentField:
             else
                 segment->setChannel( channel );
         }
+    | EQTOKEN_EYE  '['   { segment->setEyes( eq::fabric::EYE_UNDEFINED );}
+        segumentEyes  ']'
     | EQTOKEN_VIEWPORT viewport
         { segment->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] ));}
     | wall       { segment->setWall( wall ); }
     | projection { segment->setProjection( projection ); }
 
-
+segumentEyes: /*null*/ | segumentEyes segumentEye
+segumentEye:
+    EQTOKEN_CYCLOP  { segment->enableEye( eq::fabric::EYE_CYCLOP_BIT ); }
+    | EQTOKEN_LEFT  { segment->enableEye( eq::fabric::EYE_LEFT_BIT ); }
+    | EQTOKEN_RIGHT { segment->enableEye( eq::fabric::EYE_RIGHT_BIT ); }
+    
 compound: EQTOKEN_COMPOUND '{' 
               {
                   if( eqCompound )
@@ -856,7 +870,7 @@ compoundField:
       }
     | EQTOKEN_TASK '['   { eqCompound->setTasks( eq::fabric::TASK_NONE ); }
         compoundTasks ']'
-    | EQTOKEN_EYE  '['   { eqCompound->setEyes( eq::server::Compound::EYE_UNDEFINED );}
+    | EQTOKEN_EYE  '['   { eqCompound->setEyes( eq::fabric::EYE_UNDEFINED );}
         compoundEyes  ']'
     | EQTOKEN_BUFFER '[' { flags = eq::Frame::BUFFER_NONE; }
         buffers ']' { eqCompound->setBuffers( flags ); flags = 0; }
@@ -938,9 +952,9 @@ compoundTask:
 
 compoundEyes: /*null*/ | compoundEyes compoundEye
 compoundEye:
-    EQTOKEN_CYCLOP  { eqCompound->enableEye( eq::server::Compound::EYE_CYCLOP_BIT ); }
-    | EQTOKEN_LEFT  { eqCompound->enableEye( eq::server::Compound::EYE_LEFT_BIT ); }
-    | EQTOKEN_RIGHT { eqCompound->enableEye( eq::server::Compound::EYE_RIGHT_BIT ); }
+    EQTOKEN_CYCLOP  { eqCompound->enableEye( eq::fabric::EYE_CYCLOP_BIT ); }
+    | EQTOKEN_LEFT  { eqCompound->enableEye( eq::fabric::EYE_LEFT_BIT ); }
+    | EQTOKEN_RIGHT { eqCompound->enableEye( eq::fabric::EYE_RIGHT_BIT ); }
 
 buffers: /*null*/ | buffers buffer
 buffer:

@@ -124,6 +124,7 @@ namespace eqPly
 
         void _switchCanvas();
         void _switchView();
+        void _switchViewMode();
         void _switchModel();
         void _switchLayout( int32_t increment );
 
