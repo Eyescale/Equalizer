@@ -1,8 +1,8 @@
-Move window/channel viewport init out of ctor to call proper virtual methods
+Cleanups on revision 4602
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

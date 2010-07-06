@@ -38,11 +38,11 @@ namespace fabric
     class View : public Object, public Frustum
     {
     public:
-
-        enum modeType
+        /** The current rendering mode. */
+        enum Mode
         {
-            VIEW_MONO,
-            VIEW_STEREO 
+            MODE_MONO,   //!< Render in mono (cyclop eye)
+            MODE_STEREO  //!< Render in stereo (left & right eye)
         };
 
         /** @name Data Access. */
@@ -86,11 +86,11 @@ namespace fabric
         /** Set the entity tracking this view. @internal */
         EQFABRIC_EXPORT void setObserver( O* observer );
         
-		/** Get the mode of this view. @internal */
-		EQFABRIC_EXPORT modeType getMode( ){ return _mode; }
+        /** Get the mode of this view. @internal */
+        EQFABRIC_EXPORT Mode getMode( ){ return _mode; }
         
-		/** Set the mode of this view. @internal */
-		EQFABRIC_EXPORT void changeMode( modeType _mode ){}
+        /** Set the mode of this view. @internal */
+        EQFABRIC_EXPORT void changeMode( Mode mode ) {}
         //@}
 
         /** @name Operations */
@@ -159,7 +159,7 @@ namespace fabric
         /** Enlarge size of all dest channels and adjust frustum accordingly. */
         Vector2i _overdraw;
 
-		modeType _mode;
+        Mode _mode;
 
         union // placeholder for binary-compatible changes
         {

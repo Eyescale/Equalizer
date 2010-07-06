@@ -716,7 +716,7 @@ view: EQTOKEN_VIEW '{' { view = new eq::server::View( layout ); }
 viewFields: /*null*/ | viewFields viewField
 viewField:
     EQTOKEN_NAME STRING { view->setName( $2 ); }
-    | EQTOKEN_MODE { view->changeMode( eq::server::View::VIEW_MONO ); }
+    | EQTOKEN_MODE { view->changeMode( eq::server::View::MODE_MONO ); }
         viewMode
     | EQTOKEN_VIEWPORT viewport
         { view->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] ));}
@@ -748,8 +748,8 @@ viewField:
       }
 
 viewMode:
-    EQTOKEN_MONO  { view->changeMode( eq::server::View::VIEW_MONO ); }
-    | EQTOKEN_STEREO  { view->changeMode( eq::server::View::VIEW_STEREO ); }
+    EQTOKEN_MONO  { view->changeMode( eq::server::View::MODE_MONO ); }
+    | EQTOKEN_STEREO  { view->changeMode( eq::server::View::MODE_STEREO ); }
     
 canvas: EQTOKEN_CANVAS '{' { canvas = new eq::server::Canvas( config ); }
             canvasFields '}' { config->activateCanvas( canvas ); canvas = 0; }

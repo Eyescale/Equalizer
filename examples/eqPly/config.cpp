@@ -818,12 +818,12 @@ void Config::_switchView()
 void Config::_switchViewMode()
 {
     eq::View* current = find< eq::View >( _frameData.getCurrentViewID( ));
-    const eq::View::modeType mode = current->getMode( );
+    const eq::View::Mode mode = current->getMode( );
 
-    if( mode == eq::View::VIEW_MONO )
-        current->changeMode( eq::View::VIEW_STEREO );
+    if( mode == eq::View::MODE_MONO )
+        current->changeMode( eq::View::MODE_STEREO );
     else
-        current->changeMode( eq::View::VIEW_MONO );
+        current->changeMode( eq::View::MODE_MONO );
 }
 
 void Config::_switchModel()
