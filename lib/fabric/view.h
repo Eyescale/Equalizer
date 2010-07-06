@@ -87,7 +87,7 @@ namespace fabric
         EQFABRIC_EXPORT void setObserver( O* observer );
         
         /** Get the mode of this view. @internal */
-        EQFABRIC_EXPORT Mode getMode( ){ return _mode; }
+        EQFABRIC_EXPORT Mode getMode( ) const { return _mode; }
         
         /** Set the mode of this view. @internal */
         EQFABRIC_EXPORT void changeMode( Mode mode ) {}

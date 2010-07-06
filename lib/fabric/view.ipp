@@ -31,6 +31,7 @@ View< L, V, O >::View( L* layout )
         : _layout( layout )
         , _observer( 0 )
         , _overdraw( Vector2i::ZERO )
+        , _mode( MODE_MONO )
 {
     // Note: Views are an exception to the strong structuring, since render
     // client views are multi-buffered (once per pipe) and do not have a parent
@@ -212,6 +213,18 @@ std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view )
     const eq::Viewport& vp  = view.getViewport();
     if( vp.isValid( ) && vp != eq::Viewport::FULL )
         os << "viewport " << vp << std::endl;
+
+    switch( view.getMode( ))
+    {
+        case View< L, V, O >::MODE_MONO:
+            os << "mode MONO" << std::endl;
+            break;
+        case View< L, V, O >::MODE_STEREO:
+            os << "mode STEREO" << std::endl;
+            break;
+        default: 
+            break;
+    }
 
     const O* observer = static_cast< const O* >( view.getObserver( ));
     if( observer )
