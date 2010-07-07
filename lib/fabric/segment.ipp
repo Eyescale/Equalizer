@@ -215,7 +215,19 @@ std::ostream& operator << ( std::ostream& os, const Segment< C, S, CH >& s )
         else
             os << "channel  " << segment.getChannel()->getPath() << std::endl;
     }
-
+    
+    const uint32_t eye = segment.getEyes();
+    if( eye )
+    {
+        os << "eye      [ ";
+        if( eye & fabric::EYE_CYCLOP_BIT )
+            os << "CYCLOP ";
+        if( eye & fabric::EYE_LEFT_BIT )
+            os << "LEFT ";
+        if( eye & fabric::EYE_RIGHT_BIT )
+            os << "RIGHT ";
+        os << "]" << std::endl;
+    }
     const Viewport& vp  = segment.getViewport();
     if( vp.isValid( ) && vp != Viewport::FULL )
         os << "viewport " << vp << std::endl;
