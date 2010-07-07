@@ -237,7 +237,7 @@ namespace server
         friend std::ostream& operator << ( std::ostream&, const Window*);
     };
 
-    std::ostream& operator << ( std::ostream& os, const Window* window );
+    std::ostream& operator << ( std::ostream& os, const Window& window );
 }
 }
 

@@ -56,20 +56,21 @@ uint32_t Object::commitNB()
         if( _userData->getID() == EQ_ID_INVALID && hasMasterUserData())
         {
             getSession()->registerObject( _userData );
-            _data.userData.identifier = _userData->getID();
-            _data.userData.version = _userData->getVersion();
+            _data.userData = _userData;
             setDirty( DIRTY_USERDATA );
         }
 
-        if( _userData->isDirty() && _userData->getID() <= EQ_ID_MAX )
+        if( _userData->isDirty() && _userData->isAttached( ))
         {
+            const uint32_t version = _userData->commit();
+
+            EQASSERT( !_userData->isDirty( ));
             EQASSERT( _data.userData.identifier != _userData->getID() ||
-                      _data.userData.version <= _userData->getVersion( ));
+                      _data.userData.version <= version );
                       
             _data.userData.identifier = _userData->getID();
-            _data.userData.version = _userData->commit();
+            _data.userData.version = version;
             setDirty( DIRTY_USERDATA );
-            EQASSERT( !_userData->isDirty( ));
         }
     }
 
@@ -126,12 +127,20 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
         is >> _data.name;
     if( dirtyBits & DIRTY_USERDATA )
     {
+        EQASSERTINFO( !_userData || !_userData->isAttached() ||
+                      ( _data.userData.identifier == _userData->getID() &&
+                        _data.userData.version >= _userData->getVersion( )),
+                      "Mismatched user data before sync: " << _data.userData <<
+                      " != " << net::ObjectVersion( _userData ));
+
         is >> _data.userData;
         if( _userData )
         {
-            EQASSERT( _data.userData.identifier != _userData->getID() ||
-                      _data.userData.version >= _userData->getVersion() ||
-                      _userData->isMaster( ));
+            EQASSERTINFO( _data.userData.identifier != _userData->getID() ||
+                          _data.userData.version >= _userData->getVersion() ||
+                          _userData->isMaster(),
+                          "Incompatible version, new " << _data.userData <<
+                          " old " << net::ObjectVersion( _userData ));
 
             if( _data.userData.identifier <= EQ_ID_MAX )
             {

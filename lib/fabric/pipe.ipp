@@ -319,7 +319,6 @@ bool Pipe< N, P, W, V >::_removeWindow( W* window )
 {
     typename Windows::iterator i = find( _windows.begin(), _windows.end(),
                                          window );
-    
     if ( i == _windows.end( ) )
         return false;
 

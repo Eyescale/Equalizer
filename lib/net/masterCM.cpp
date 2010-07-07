@@ -81,9 +81,11 @@ uint32_t MasterCM::commitSync( const uint32_t commitID )
 uint32_t MasterCM::sync( const uint32_t version )
 {
     EQASSERT( version == VERSION_NEXT || version == VERSION_HEAD );
+#if 0
     EQLOG( LOG_OBJECTS ) << "sync to v" << version << ", id " 
                          << _object->getID() << "." << _object->getInstanceID()
                          << std::endl;
+#endif
 
     if( version == VERSION_NEXT )
     {
@@ -151,23 +153,29 @@ CommandResult MasterCM::_cmdSlaveDelta( Command& command )
 
         _queuedDeltas.push( istream );
         _object->notifyNewVersion();
+#if 0
         EQLOG( LOG_OBJECTS )
             << "Queued slave commit " << packet->commit << " object "
             << _object->getID() << " " << typeid( *_object ).name()
             << std::endl;
+#endif
     }
     else if( i == _pendingDeltas.end( ))
     {
         _pendingDeltas.push_back( PendingStream( packet->commit, istream ));
+#if 0
         EQLOG( LOG_OBJECTS )
             << "New incomplete slave commit " << packet->commit << " object "
             << _object->getID() << " " << typeid( *_object ).name() <<std::endl;
+#endif
     }
+#if 0
     else
         EQLOG( LOG_OBJECTS )
             << "Got data for incomplete slave commit " << packet->commit
             << " object " << _object->getID() << " "
             << typeid( *_object ).name() << std::endl;
+#endif
 
     return COMMAND_HANDLED;
 }

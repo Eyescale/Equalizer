@@ -67,10 +67,11 @@ uint32_t UnbufferedMasterCM::addSlave( Command& command )
     _slaves.push_back( node );
     stde::usort( _slaves );
 
+#if 0
     EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
                          << ", instantiate on " << node->getNodeID()
                          << std::endl;
-
+#endif
     const bool useCache = packet->masterInstanceID == _object->getInstanceID();
 
     if( useCache && 
@@ -139,9 +140,10 @@ CommandResult UnbufferedMasterCM::_cmdCommit( Command& command )
     CHECK_THREAD( _cmdThread );
     NodePtr localNode = _object->getLocalNode();
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
+#if 0
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command
                          << std::endl;
-
+#endif
     if( _slaves.empty( ))
     {
         localNode->serveRequest( packet->requestID, _version );
@@ -159,8 +161,10 @@ CommandResult UnbufferedMasterCM::_cmdCommit( Command& command )
     {
         ++_version;
         EQASSERT( _version );
+#if 0
         EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
                              << _object->getID() << std::endl;
+#endif
     }
 
     localNode->serveRequest( packet->requestID, _version );

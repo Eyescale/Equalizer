@@ -99,9 +99,11 @@ void DataOStream::enable( const Nodes& receivers )
         _connections.push_back( connection );
     }
 
+#if 0
     EQLOG( LOG_OBJECTS )
         << "Enabled " << typeid( *this ).name() << " with " << mcSet.size()
         << "/" << _connections.size() << " multicast connections" << std::endl;
+#endif
     enable();
 }
 

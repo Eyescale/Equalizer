@@ -97,10 +97,10 @@ namespace fabric
 
         EQ_EXPORT virtual uint32_t commitNB(); //!< @internal
 
-        /** Back up app-specific data, excluding child data. @internal */
+        /** @internal Back up app-specific data, excluding child data. */
         EQFABRIC_EXPORT virtual void backup();
 
-        /** Restore the last backup. @internal */
+        /** @internal Restore the last backup. */
         EQFABRIC_EXPORT virtual void restore();
 
         /**
@@ -131,8 +131,8 @@ namespace fabric
          */
         virtual bool hasMasterUserData() { return false; }
 
-        /** Set the tasks this entity might potentially execute. @internal */
-        void EQFABRIC_EXPORT setTasks( const uint32_t tasks );
+        /** @internal Set the tasks this entity might potentially execute. */
+        EQFABRIC_EXPORT void setTasks( const uint32_t tasks );
 
         EQ_EXPORT virtual void notifyDetach();
 

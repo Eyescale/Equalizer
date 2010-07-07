@@ -203,21 +203,25 @@ void Window< P, W, C >::setDirty( const uint64_t dirtyBits )
 template< class P, class W, class C >
 void Window< P, W, C >::notifyDetach()
 {
-    while( !_channels.empty( ))
+    net::Session* session = getSession();
+    EQASSERT( session );
+
+    if( isMaster( ))
     {
-        C* channel = _channels.back();
-        if( channel->getID() > EQ_ID_MAX )
+        for( typename Channels::const_iterator i = _channels.begin();
+             i != _channels.end(); ++i )
         {
-            EQASSERT( isMaster( ));
-            return;
+            session->releaseObject( *i );
         }
-
-        net::Session* session = getSession();
-        EQASSERT( session );
-
-        session->releaseObject( channel );
-        if( !isMaster( ))
+    }
+    else
+    {
+        while( !_channels.empty( ))
         {
+            C* channel = _channels.back();
+            EQASSERT( channel->isAttached( ));
+
+            session->releaseObject( channel );
             _removeChannel( channel );
             _pipe->getServer()->getNodeFactory()->releaseChannel( channel );
         }

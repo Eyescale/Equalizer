@@ -566,21 +566,18 @@ net::CommandResult Window::_cmdConfigExitReply( net::Command& command )
     return net::COMMAND_HANDLED;
 }
 
-std::ostream& operator << ( std::ostream& os, const Window* window )
+std::ostream& operator << ( std::ostream& os, const Window& window )
 {
-    if( !window )
-        return os;
-    
     os << base::disableFlush << base::disableHeader << "window" << std::endl;
     os << "{" << std::endl << base::indent;
 
-    const std::string& name = window->getName();
+    const std::string& name = window.getName();
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << std::endl;
 
-    const Viewport& vp = window->getViewport();
-    const PixelViewport& pvp = window->getPixelViewport();
-    if( vp.isValid( ) && window->hasFixedViewport( ))
+    const Viewport& vp = window.getViewport();
+    const PixelViewport& pvp = window.getPixelViewport();
+    if( vp.isValid( ) && window.hasFixedViewport( ))
     {
         if( pvp.hasArea( ))
             os << "viewport " << pvp << std::endl;
@@ -599,7 +596,7 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
          i < Window::IATTR_ALL; 
          i = static_cast<Window::IAttribute>( static_cast<uint32_t>( i )+1))
     {
-        const int value = window->getIAttribute( i );
+        const int value = window.getIAttribute( i );
         if( value == Global::instance()->getWindowIAttribute( i ))
             continue;
 
@@ -646,7 +643,7 @@ std::ostream& operator << ( std::ostream& os, const Window* window )
     if( attrPrinted )
         os << base::exdent << "}" << std::endl << std::endl;
 
-    const Channels& channels = window->getChannels();
+    const Channels& channels = window.getChannels();
     for( Channels::const_iterator i = channels.begin(); 
          i != channels.end(); ++i )
     {

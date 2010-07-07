@@ -101,11 +101,12 @@ void FullMasterCM::_obsolete()
             _bytesBuffered -= data->os.getSaveBuffer().getSize();
             EQINFO << _bytesBuffered << " bytes used" << std::endl;
 #endif
+#if 0
             EQLOG( LOG_OBJECTS )
                 << "Remove v" << data->os.getVersion() << " c"
                 << data->commitCount << "[" << _commitCount << "] from "
                 << ObjectVersion( _object ) << std::endl;
-
+#endif
             _instanceDataCache.push_back( data );
             _instanceDatas.pop_front();
         }
@@ -179,6 +180,7 @@ uint32_t FullMasterCM::addSlave( Command& command )
         // TODO else cached block in the middle, send head and tail elements
     }
 
+#if 0
     EQLOG( LOG_OBJECTS ) << "Object " << _object->_id << " (" 
                          << typeid( *_object).name() << ") v" << _version
                          << ", instantiate on " << node->getNodeID() 
@@ -188,7 +190,7 @@ uint32_t FullMasterCM::addSlave( Command& command )
                          << end << " have " << _version - _nVersions << ".."
                          << _version << " " << _instanceDatas.size()
                          << std::endl;
-
+#endif
     EQASSERT( start >= oldest );
 
     // send all instance datas from start..end
@@ -300,9 +302,10 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
 {
     CHECK_THREAD( _cmdThread );
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
+#if 0
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;
-
+#endif
     EQASSERT( _version != VERSION_NONE );
 
     ++_commitCount;
@@ -321,8 +324,10 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
         {
             ++_version;
             EQASSERT( _version );
+#if 0
             EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
                                  << _object->getID() << std::endl;
+#endif
         }
         _addInstanceData( instanceData );
         _object->getLocalNode()->serveRequest( packet->requestID, _version );

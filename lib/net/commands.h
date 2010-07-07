@@ -84,12 +84,7 @@ namespace net
         CMD_OBJECT_DELTA,
         CMD_OBJECT_SLAVE_DELTA,
         CMD_OBJECT_COMMIT,
-        CMD_OBJECT_FILL1, // some buffer for binary-compatible patches
-        CMD_OBJECT_FILL2,
-        CMD_OBJECT_FILL3,
-        CMD_OBJECT_FILL4,
-        CMD_OBJECT_FILL5,
-        CMD_OBJECT_CUSTOM // must be last
+        CMD_OBJECT_CUSTOM = 10 // some buffer for binary-compatible patches
     };
 
     enum BarrierCommand

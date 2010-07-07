@@ -47,10 +47,10 @@ void ObjectDeltaDataOStream::_sendPacket( ObjectDeltaPacket& packet,
     packet.sessionID = _object->getSession()->getID();
     packet.objectID  = _object->getID();
 
-    EQLOG( LOG_OBJECTS ) << "send " << &packet << " to " 
-                         << _connections.size()
+#if 0
+    EQLOG( LOG_OBJECTS ) << "send " << &packet << " to " << _connections.size()
                          << " receivers " << std::endl;
-
+#endif
 
     if( sizeUncompressed > 0 )
         Connection::send( _connections, packet, chunks, chunkSizes, 

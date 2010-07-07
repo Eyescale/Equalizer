@@ -1059,6 +1059,12 @@ namespace eq
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
+                                   const ChannelFrameFinishReplyPacket* packet )
+    {
+        os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
                                     const ChannelFrameDrawFinishPacket* packet )
     {
         os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber

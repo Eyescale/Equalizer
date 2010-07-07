@@ -558,7 +558,8 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
             const uint32_t nChunks   = imageHeader->nChunks;
 
             data += sizeof( ImageHeader );
-			pixelData.isCompressed = pixelData.compressorName > EQ_COMPRESSOR_NONE;
+            pixelData.isCompressed = 
+                pixelData.compressorName > EQ_COMPRESSOR_NONE;
             if( pixelData.isCompressed )
             {
                 pixelData.compressedSize.resize( nChunks );

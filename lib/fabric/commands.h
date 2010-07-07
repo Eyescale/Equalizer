@@ -166,7 +166,7 @@ namespace fabric
 
     enum ChannelCommand
     {
-        CMD_CHANNEL_CONFIG_INIT = net::CMD_OBJECT_CUSTOM,
+        CMD_CHANNEL_CONFIG_INIT = net::CMD_OBJECT_CUSTOM, // 10
         CMD_CHANNEL_CONFIG_INIT_REPLY,
         CMD_CHANNEL_CONFIG_EXIT,
         CMD_CHANNEL_CONFIG_EXIT_REPLY,
@@ -181,12 +181,7 @@ namespace fabric
         CMD_CHANNEL_FRAME_TRANSMIT,
         CMD_CHANNEL_FRAME_VIEW_START,
         CMD_CHANNEL_FRAME_VIEW_FINISH,
-        CMD_CHANNEL_FILL1, // some buffer for binary-compatible patches
-        CMD_CHANNEL_FILL2,
-        CMD_CHANNEL_FILL3,
-        CMD_CHANNEL_FILL4,
-        CMD_CHANNEL_FILL5,
-        CMD_CHANNEL_CUSTOM
+        CMD_CHANNEL_CUSTOM = 30 // some buffer for binary-compatible patches
     };
 
     enum CanvasCommand

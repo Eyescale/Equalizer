@@ -640,21 +640,23 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
         return;
 
     validatePixelData( buffer ); // alloc memory for pixels
-    // if no data in pixels, it will be only a memory setup parametre
-    if ( pixels.pixels == 0 && !pixels.isCompressed )
-        return;
 
     if( pixels.compressorName <= EQ_COMPRESSOR_NONE )
     {
-        memcpy( memory.pixels, pixels.pixels, size );
-        memory.state = Memory::VALID;
+        // if no data in pixels, it is only a memory setup parameter
+        if( pixels.pixels )
+        {
+            memcpy( memory.pixels, pixels.pixels, size );
+            memory.state = Memory::VALID;
+        }
         return;
     }
 
+    EQASSERT( !pixels.compressedData.empty( ));
     Attachment& attachment = _getAttachment( buffer );
     if( !_allocDecompressor( attachment, pixels.compressorName ))
     {
-        EQASSERTINFO( 0,
+        EQASSERTINFO( false,
                       "Can't allocate decompressor " << pixels.compressorName <<
                       ", mismatched compressor installation?" );
         return;

@@ -55,8 +55,10 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
 {
     CHECK_THREAD( _cmdThread );
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
+#if 0
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;
+#endif
 
     EQASSERT( _version != VERSION_NONE );
 
@@ -90,8 +92,10 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
 
             _addInstanceData( instanceData );
 
+#if 0
             EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
                                  << _object->getID() << std::endl;
+#endif
         }
         localNode->serveRequest( packet->requestID, _version );
     }

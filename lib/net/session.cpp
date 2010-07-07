@@ -591,7 +591,7 @@ void Session::releaseObject( Object* object )
 {
     EQASSERT( object );
 
-    if( !object || object->getID() > EQ_ID_MAX )
+    if( !object || !object->isAttached( ))
         return;
 
     if( object->isMaster( ))

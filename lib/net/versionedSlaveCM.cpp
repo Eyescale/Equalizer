@@ -95,8 +95,10 @@ uint32_t VersionedSlaveCM::commitSync( const uint32_t commitID )
 
 uint32_t VersionedSlaveCM::sync( const uint32_t v )
 {
+#if 0
     EQLOG( LOG_OBJECTS ) << "sync to v" << v << ", id " << _object->getID()
                          << "." << _object->getInstanceID() << std::endl;
+#endif
     if( _version == v )
         return _version;
 
@@ -180,9 +182,11 @@ void VersionedSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
     _version = is->getVersion();
     EQASSERT( _version != VERSION_INVALID );
     EQASSERT( _version != VERSION_NONE );
+#if 0
     EQLOG( LOG_OBJECTS ) << "applied v" << _version << ", id "
                          << _object->getID() << "." << _object->getInstanceID()
                          << std::endl;
+#endif
 
     EQASSERTINFO( is->getRemainingBufferSize()==0 && is->nRemainingBuffers()==0,
                   "Object " << typeid( *_object ).name() <<
@@ -206,16 +210,20 @@ void VersionedSlaveCM::applyMapData()
                   " did not unpack all data" );
 
     delete is;
+#if 0
     EQLOG( LOG_OBJECTS ) << "Mapped initial data for " << _object->getID()
                          << "." << _object->getInstanceID() << " v" << _version
                          << " ready" << std::endl;
+#endif
 }
 
 void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache, 
                                          const uint32_t startVersion )
 {
     CHECK_THREAD( _cmdThread );
+#if 0
     EQLOG( LOG_OBJECTS ) << base::disableFlush << "Adding data front ";
+#endif
 
     uint32_t oldest = VERSION_NONE;
     uint32_t newest = 0;
@@ -256,16 +264,22 @@ void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache,
     {
         const ObjectInstanceDataIStream* stream = *i;
         _queuedVersions.pushFront( new ObjectInstanceDataIStream( *stream ));
+#if 0
         EQLOG( LOG_OBJECTS ) << stream->getVersion() << ' ';
+#endif
     }
 
+#if 0
     EQLOG( LOG_OBJECTS ) << " back ";
+#endif
     for( InstanceDatas::const_iterator i = tail.begin();
          i != tail.end(); ++i )
     {
         const ObjectInstanceDataIStream* stream = *i;
         _queuedVersions.push( new ObjectInstanceDataIStream( *stream ));
+#if 0
         EQLOG( LOG_OBJECTS ) << stream->getVersion() << ' ';
+#endif
     }
 
 #ifndef NDEBUG // consistency check
@@ -280,7 +294,9 @@ void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache,
     }
 #endif
 
+#if 0
     EQLOG( LOG_OBJECTS ) << std::endl << base::enableFlush;
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -324,10 +340,11 @@ CommandResult VersionedSlaveCM::_cmdInstance( Command& command )
     if( _currentIStream->isReady( ))
     {
         const uint32_t version = _currentIStream->getVersion();
+#if 0
         EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID()
                              << "." << _object->getInstanceID() << " ready"
                              << std::endl;
-
+#endif
         _queuedVersions.push( _currentIStream );
         _object->notifyNewHeadVersion( version );
         _currentIStream = 0;
@@ -350,10 +367,11 @@ CommandResult VersionedSlaveCM::_cmdDelta( Command& command )
     if( _currentIStream->isReady( ))
     {
         const uint32_t version = _currentIStream->getVersion();
+#if 0
         EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID()
                              << "." << _object->getInstanceID() << " ready"
                              << std::endl;
-
+#endif
         _queuedVersions.push( _currentIStream );
         _object->notifyNewHeadVersion( version );
         _currentIStream = 0;
@@ -365,9 +383,10 @@ CommandResult VersionedSlaveCM::_cmdCommit( Command& command )
 {
     CHECK_THREAD( _cmdThread );
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
+#if 0
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;
-
+#endif
     NodePtr localNode = _object->getLocalNode();
     if( !_master || !_master->isConnected( ))
     {

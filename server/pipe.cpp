@@ -436,7 +436,7 @@ std::ostream& operator << ( std::ostream& os, const Pipe* pipe )
 
     const Windows& windows = pipe->getWindows();
     for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
-        os << *i;
+        os << **i;
 
     os << base::exdent << "}" << std::endl << base::enableHeader
        << base::enableFlush;
