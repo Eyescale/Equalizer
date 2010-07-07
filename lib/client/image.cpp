@@ -1253,16 +1253,53 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     EQASSERTINFO( nBytes <= sizeData, 
                   nBytes << " > " << sizeData );
     // Each channel is saved separately
-    for( size_t i = 0; i < depth; i += bpc )
-        for( size_t j = i * bpc; j < nBytes; j += depth )
-        {
-            EQASSERT( addr + bpc - ( const uint8_t* )( image.getAddress( )) <= 
-                      static_cast< ssize_t >( size ));
+    switch( bpc )
+    {
+        case 1:
+            for( size_t i = 0; i < nChannels; ++i )
+            {
+                for( size_t j = i; j < nPixels; j += nChannels )
+                {
+                    data[j] = *addr;
+                    addr += bpc;
+                }
+            }
+            break;
 
-            memcpy( &data[j], addr, bpc );
-            addr += bpc;
-        }
+        case 2:
+            for( size_t i = 0; i < nChannels; ++i )
+            {
+                for( size_t j = i; j < nPixels; j += nChannels )
+                {
+                    reinterpret_cast< uint16_t* >( data )[ j ] = 
+                        *reinterpret_cast< const uint16_t* >( addr );
+                    addr += bpc;
+                }
+            }
+            break;
 
+        case 4:
+            for( size_t i = 0; i < nChannels; ++i )
+            {
+                for( size_t j = i; j < nPixels; j += nChannels )
+                {
+                    reinterpret_cast< uint32_t* >( data )[ j ] = 
+                        *reinterpret_cast< const uint32_t* >( addr );
+                    addr += bpc;
+                }
+            }
+            break;
+
+        default:
+            for( size_t i = 0; i < depth; i += bpc )
+            {
+                for( size_t j = i * bpc; j < nBytes; j += depth )
+                {
+                    memcpy( &data[j], addr, bpc );
+                    addr += bpc;
+                }
+            }
+    }
     return true;
 }
 

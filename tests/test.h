@@ -57,6 +57,7 @@ public:
 
     virtual void run()
         {
+            eq::base::Thread::setDebugName( "Test Watchdog" );
 #ifdef EQ_TEST_RUNTIME
             eq::base::sleep( EQ_TEST_RUNTIME * 1000 );
             TESTINFO( false, 

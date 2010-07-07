@@ -104,6 +104,7 @@ void* Thread::runChild( void* arg )
 
 void Thread::_runChild()
 {
+    setDebugName( typeid( *this ).name( ));
     pinCurrentThread();
     _data->threadID = pthread_self(); // XXX remove, set during create already?
 

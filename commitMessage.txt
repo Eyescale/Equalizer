@@ -1,9 +1,10 @@
-Code cleanups
+Improve image compression unit test runtime by 3x
+Set thread default debug names
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation

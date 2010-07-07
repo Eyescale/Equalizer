@@ -93,7 +93,7 @@ void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     if( dirtyBits & ( DIRTY_FRUSTUM | DIRTY_OVERDRAW ))
     {
         const Channels& channels = getChannels();
-        Config*              config   = getConfig();
+        Config* config = getConfig();
         EQASSERT( config );
 
         ViewUpdater updater( channels );
