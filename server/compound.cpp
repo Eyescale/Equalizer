@@ -787,8 +787,17 @@ void Compound::update( const uint32_t frameNumber )
              swapBarriers.begin(); i != swapBarriers.end(); ++i )
     {
         net::Barrier* barrier = i->second;
-        if( barrier->getHeight() > 1 )
-            barrier->commit();
+        if( barrier->isAttached( ))
+        {
+            if( barrier->getHeight() > 1 )
+                barrier->commit();
+        }
+        else
+        {
+            Config* config = getConfig();
+            config->registerObject( barrier );
+            barrier->setAutoObsolete( config->getLatency() + 1 );
+        }
     }
 }
 

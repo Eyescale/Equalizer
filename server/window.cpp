@@ -196,8 +196,9 @@ void Window::_resetSwapBarriers()
 
     for( std::vector< net::Barrier* >::iterator i = _masterSwapBarriers.begin();
          i != _masterSwapBarriers.end(); ++i )
-            
+    {
         node->releaseBarrier( *i );
+    }
 
     _nvNetBarrier = 0;
     _masterSwapBarriers.clear();
@@ -236,8 +237,7 @@ net::Barrier* Window::joinSwapBarrier( net::Barrier* barrier )
         }
 
         net::Barriers& barriers = window->_swapBarriers;
-        net::Barriers::iterator j =
-            std::find( barriers.begin(), barriers.end(), barrier );
+        net::Barriers::iterator j = stde::find( barriers, barrier );
         if( j == barriers.end( ))
             continue;
 

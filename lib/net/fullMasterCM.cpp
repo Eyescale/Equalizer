@@ -90,26 +90,24 @@ void FullMasterCM::increaseCommitCount()
 
 void FullMasterCM::_obsolete()
 {
-    if( _instanceDatas.size() > 1 )
+    while( _instanceDatas.size() > 1 && _commitCount > _nVersions )
     {
-        InstanceData* data = _instanceDatas[1];
-        
-        if( data->commitCount < (_commitCount - _nVersions))
-        {
-            data = _instanceDatas.front();
+        InstanceData* data = _instanceDatas.front();
+        if( data->commitCount >= (_commitCount - _nVersions))
+            break;
+
 #ifdef EQ_INSTRUMENT
-            _bytesBuffered -= data->os.getSaveBuffer().getSize();
-            EQINFO << _bytesBuffered << " bytes used" << std::endl;
+        _bytesBuffered -= data->os.getSaveBuffer().getSize();
+        EQINFO << _bytesBuffered << " bytes used" << std::endl;
 #endif
 #if 0
-            EQLOG( LOG_OBJECTS )
-                << "Remove v" << data->os.getVersion() << " c"
-                << data->commitCount << "[" << _commitCount << "] from "
-                << ObjectVersion( _object ) << std::endl;
+        EQLOG( LOG_OBJECTS )
+            << "Remove v" << data->os.getVersion() << " c" << data->commitCount
+            << "@" << _commitCount << "/" << _nVersions << " from "
+            << ObjectVersion( _object ) << std::endl;
 #endif
-            _instanceDataCache.push_back( data );
-            _instanceDatas.pop_front();
-        }
+        _instanceDataCache.push_back( data );
+        _instanceDatas.pop_front();
     }
     _checkConsistency();
 }

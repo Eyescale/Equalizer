@@ -414,12 +414,8 @@ void Node::_sendFrameFinish( const uint32_t frameNumber )
 net::Barrier* Node::getBarrier()
 {
     if( _barriers.empty() )
-    {
-        net::Barrier* barrier = new net::Barrier( _node );
-        getConfig()->registerObject( barrier );
-        barrier->setAutoObsolete( getConfig()->getLatency() + 1 );
-        return barrier;
-    }
+        return new net::Barrier( _node );
+    // else
 
     net::Barrier* barrier = _barriers.back();
     _barriers.pop_back();
@@ -429,7 +425,7 @@ net::Barrier* Node::getBarrier()
 
 void Node::changeLatency( const uint32_t latency )
 {
-    for( std::vector< net::Barrier* >::const_iterator i =_barriers.begin(); 
+    for( net::Barriers::const_iterator i = _barriers.begin(); 
          i != _barriers.end(); ++ i )
     {
         net::Barrier* barrier = *i;

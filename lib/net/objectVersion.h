@@ -70,7 +70,7 @@ namespace net
 
     inline std::ostream& operator << (std::ostream& os, const ObjectVersion& ov)
     {
-        os << " id " << ov.identifier << " v" << ov.version;
+        os << "id " << ov.identifier << " v" << ov.version;
         return os;
     }
 

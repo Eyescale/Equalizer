@@ -116,22 +116,22 @@ net::CommandQueue* Node::getMainThreadQueue()
 
 net::Barrier* Node::getBarrier( const net::ObjectVersion barrier )
 {
-    _barriersMutex.set();
+    base::ScopedMutex<> mutex( _barriersMutex );
     net::Barrier* netBarrier = _barriers[ barrier.identifier ];
 
-    if( !netBarrier )
+    if( netBarrier )
+        netBarrier->sync( barrier.version );
+    else
     {
         net::Session* session = getSession();
 
         netBarrier = new net::Barrier;
         netBarrier->makeThreadSafe();
-        EQCHECK( session->mapObject( netBarrier, barrier.identifier ));
+        EQCHECK( session->mapObject( netBarrier, barrier ));
 
         _barriers[ barrier.identifier ] = netBarrier;
     }
-    _barriersMutex.unset();
 
-    netBarrier->sync( barrier.version );
     return netBarrier;
 }
 
