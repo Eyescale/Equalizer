@@ -100,9 +100,10 @@ void Client::processCommand()
     switch( invokeCommand( *command ))
     {
         case net::COMMAND_HANDLED:
-        case net::COMMAND_DISCARD:
             break;
-            
+        
+        default:
+            EQUNIMPLEMENTED;
         case net::COMMAND_ERROR:
             EQABORT( "Error handling command packet" );
             break;

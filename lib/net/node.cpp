@@ -1540,7 +1540,6 @@ void Node::_runCommandThread()
                 break;
 
             case COMMAND_HANDLED:
-            case COMMAND_DISCARD:
                 break;
 
             default:

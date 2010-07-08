@@ -127,7 +127,11 @@ CommandResult Barrier::_cmdEnter( Command& command )
     EQASSERTINFO( !_master || _master == getSession()->getLocalNode(),
                   _master );
 
-    const BarrierEnterPacket* packet = command.getPacket<BarrierEnterPacket>();
+    BarrierEnterPacket* packet = command.getPacket< BarrierEnterPacket >();
+    if( packet->handled )
+        return COMMAND_HANDLED;
+    packet->handled = true;
+
     EQLOG( LOG_BARRIER ) << "handle barrier enter " << packet << " barrier v"
                          << getVersion() << endl;
 
@@ -147,12 +151,12 @@ CommandResult Barrier::_cmdEnter( Command& command )
     // the later version, in which case deadlocks might happen because the later
     // version never leaves the barrier. We simply assume this is not the case.
     if( version > getVersion( ))
-        return COMMAND_DISCARD;
+        return COMMAND_HANDLED;
     
     EQASSERT( version == getVersion( ));
 
     if( nodes.size() < _height )
-        return COMMAND_DISCARD;
+        return COMMAND_HANDLED;
 
     EQASSERT( nodes.size() == _height );
     EQLOG( LOG_BARRIER ) << "Barrier reached" << endl;
@@ -183,7 +187,7 @@ CommandResult Barrier::_cmdEnter( Command& command )
     EQASSERT( it != _enteredNodes.end( ));
     _enteredNodes.erase( it );
 
-    return COMMAND_DISCARD;
+    return COMMAND_HANDLED;
 }
 
 CommandResult Barrier::_cmdEnterReply( Command& command )

@@ -1,6 +1,6 @@
 
 /* 
- * Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,14 +28,12 @@ namespace net
     enum CommandResult
     {
         COMMAND_HANDLED,     //!< The command was handled
-        COMMAND_DISCARD,     //!< Discard command, used by Objects
         COMMAND_ERROR        //!< An unrecoverable error occured
     };
     inline std::ostream& operator << ( std::ostream& os, 
                                        const CommandResult& result )
     {
         os << ( result == COMMAND_HANDLED ? "handled" :
-                result == COMMAND_DISCARD ? "discard" :
                 result == COMMAND_ERROR   ? "error" : "UNKNOWN" );
         return os;
     }

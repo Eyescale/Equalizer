@@ -249,7 +249,6 @@ void Pipe::_runThread()
         switch( config->invokeCommand( *command ))
         {
             case net::COMMAND_HANDLED:
-            case net::COMMAND_DISCARD:
                 break;
 
             case net::COMMAND_ERROR:

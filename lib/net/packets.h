@@ -614,11 +614,13 @@ namespace net
     struct BarrierEnterPacket : public ObjectPacket
     {
         BarrierEnterPacket()
+                : handled( false )
             {
                 command = CMD_BARRIER_ENTER;
                 size    = sizeof( BarrierEnterPacket );
             }
         uint32_t version;
+        bool handled;
     };
 
     struct BarrierEnterReplyPacket : public ObjectPacket

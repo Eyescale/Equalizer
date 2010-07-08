@@ -274,7 +274,6 @@ void Server::handleCommands()
         switch( invokeCommand( *command ))
         {
             case net::COMMAND_HANDLED:
-            case net::COMMAND_DISCARD:
                 break;
 
             case net::COMMAND_ERROR:

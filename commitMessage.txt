@@ -1,10 +1,10 @@
-Improve image compression unit test runtime by 3x
-Set thread default debug names
+Retire COMMAND_DISCARD packet handling result
+TODO: transform command handlers to return bool.
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation

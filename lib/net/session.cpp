@@ -719,9 +719,6 @@ CommandResult Session::_invokeObjectCommand( Command& command )
             const CommandResult result = object->invokeCommand( command );
             switch( result )
             {
-                case COMMAND_DISCARD:
-                    return COMMAND_DISCARD;
-
                 case COMMAND_ERROR:
                     EQERROR << "Error handling command " << objPacket
                             << " for object of type " << typeid(*object).name()
