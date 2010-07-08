@@ -864,10 +864,10 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
 // File IO
 //---------------------------------------------------------------------------
 
-void Image::writeImages( const std::string& filenameTemplate ) const
+bool Image::writeImages( const std::string& filenameTemplate ) const
 {
-    writeImage( filenameTemplate + "_color.rgb", Frame::BUFFER_COLOR );
-    writeImage( filenameTemplate + "_depth.rgb", Frame::BUFFER_DEPTH );
+    return( writeImage( filenameTemplate + "_color.rgb", Frame::BUFFER_COLOR) &&
+            writeImage( filenameTemplate + "_depth.rgb", Frame::BUFFER_DEPTH ));
 }
 
 #define SWAP_SHORT(v) ( v = (v&0xff) << 8 | (v&0xff00) >> 8 )
@@ -928,7 +928,7 @@ struct RGBHeader
 #endif
 ;
 
-void Image::writeImage( const std::string& filename,
+bool Image::writeImage( const std::string& filename,
                         const Frame::Buffer buffer ) const
 {
     const Memory& memory = _getMemory( buffer );
@@ -937,13 +937,13 @@ void Image::writeImage( const std::string& filename,
     const size_t  nPixels = pvp.w * pvp.h;
 
     if( nPixels == 0 || memory.state != Memory::VALID )
-        return;
+        return false;
 
     std::ofstream image( filename.c_str(), std::ios::out | std::ios::binary );
     if( !image.is_open( ))
     {
         EQERROR << "Can't open " << filename << " for writing" << std::endl;
-        return;
+        return false;
     }
 
     RGBHeader    header;
@@ -995,7 +995,7 @@ void Image::writeImage( const std::string& filename,
 
         default:
             EQERROR << "Unknown image pixel data type" << std::endl;
-            return;
+            return false;
     }
 
     // if the data picture has a RGB format, we can easy translate it in 
@@ -1038,12 +1038,12 @@ void Image::writeImage( const std::string& filename,
     const size_t nBytes = nPixels * depth;
     const char* data = reinterpret_cast<const char*>( getPixelPointer( buffer));
 
-    if ( header.depth == 3 || header.depth == 4 )
+    if( nChannels == 3 || nChannels == 4 )
     {
         // channel one is R or B
         if ( invertChannel )
         {
-            for( size_t j = 0; j < nBytes; j += depth )
+            for( size_t j = 0 * bpc; j < nBytes; j += depth )
                 image.write( &data[j], bpc );
         }
         else
@@ -1069,19 +1069,19 @@ void Image::writeImage( const std::string& filename,
         }
 
         // channel four is Alpha
-        if ( header.depth == 4 )
+        if( nChannels == 4 )
         {
             // invert alpha
             for( size_t j = 3 * bpc; j < nBytes; j += depth )
             {
-                if( bpc == 1 )
+                if( bpc == 1 && header.maxValue == 255 )
                 {
                     const uint8_t val = 255 - 
                         *reinterpret_cast< const uint8_t* >( &data[j] );
                     image.write( reinterpret_cast<const char*>( &val ), 1 );
                 }
                 else
-                    image.write(&data[j], bpc );
+                    image.write( &data[j], bpc );
             }
         }
     }
@@ -1093,6 +1093,7 @@ void Image::writeImage( const std::string& filename,
     }
 
     image.close();
+    return true;
 }
 
 bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
@@ -1158,7 +1159,8 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     const uint8_t bpc     = header.bytesPerChannel;
     const size_t  depth   = nChannels * bpc;
     const size_t  nPixels = header.width * header.height;
-    const size_t  nBytes  = nPixels * depth;
+    const size_t  nComponents = nPixels * nChannels;
+    const size_t  nBytes  = nComponents * bpc;
 
     if( size < sizeof( RGBHeader ) + nBytes )
     {
@@ -1258,10 +1260,10 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         case 1:
             for( size_t i = 0; i < nChannels; ++i )
             {
-                for( size_t j = i; j < nPixels; j += nChannels )
+                for( size_t j = i; j < nComponents; j += nChannels )
                 {
                     data[j] = *addr;
-                    addr += bpc;
+                    ++addr;
                 }
             }
             break;
@@ -1269,7 +1271,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         case 2:
             for( size_t i = 0; i < nChannels; ++i )
             {
-                for( size_t j = i; j < nPixels; j += nChannels )
+                for( size_t j = i; j < nComponents; j += nChannels )
                 {
                     reinterpret_cast< uint16_t* >( data )[ j ] = 
                         *reinterpret_cast< const uint16_t* >( addr );
@@ -1281,7 +1283,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         case 4:
             for( size_t i = 0; i < nChannels; ++i )
             {
-                for( size_t j = i; j < nPixels; j += nChannels )
+                for( size_t j = i; j < nComponents; j += nChannels )
                 {
                     reinterpret_cast< uint32_t* >( data )[ j ] = 
                         *reinterpret_cast< const uint32_t* >( addr );

@@ -132,7 +132,7 @@ int main( int argc, char **argv )
         i != candidates.end(); ++i )
     {
         const std::string& filename = *i;
-        const size_t decompPos = filename.find( "decomp_" );
+        const size_t decompPos = filename.find( "out_" );
         if( decompPos == std::string::npos )
             images.push_back( "images/" + filename );
     }
@@ -142,7 +142,7 @@ int main( int argc, char **argv )
         i != candidates.end(); ++i )
     {
         const std::string& filename = *i;
-        const size_t decompPos = filename.find( "decomp_" );
+        const size_t decompPos = filename.find( "out_" );
         if( decompPos == std::string::npos )
             images.push_back( "../compositor/" + filename );
     }
@@ -281,8 +281,8 @@ int main( int argc, char **argv )
                 totalDecompressTime += decompressTime;
 
 #ifdef WRITE_DECOMPRESSED
-                destImage.writeImage( eq::base::getDirname( filename ) + "/" + 
-                                      "decomp_" + 
+                destImage.writeImage( eq::base::getDirname( filename ) +
+                                      "/out_" + 
                                       eq::base::getFilename( filename ),
                                       buffer );
 #endif

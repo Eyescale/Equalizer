@@ -285,11 +285,11 @@ namespace eq
                                util::ObjectManager< const void* >* glObjects ) const;
 
         /** Writes the pixel data as rgb image files. */
-        EQ_EXPORT void writeImage( const std::string& filename,
+        EQ_EXPORT bool writeImage( const std::string& filename,
                                    const Frame::Buffer buffer ) const;
 
         /** Writes all valid pixel data as separate images. */
-        EQ_EXPORT void writeImages( const std::string& filenameTemplate ) const;
+        EQ_EXPORT bool writeImages( const std::string& filenameTemplate ) const;
 
         /** Read pixel data from an uncompressed rgb image file. */
         EQ_EXPORT bool readImage( const std::string& filename, 
