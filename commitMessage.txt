@@ -1,5 +1,4 @@
-Retire COMMAND_DISCARD packet handling result
-TODO: transform command handlers to return bool.
+eqPly: don't switch view mode if no view is active
 
 [ ] May break build
 [ ] May break existing applications

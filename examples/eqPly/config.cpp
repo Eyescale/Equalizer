@@ -818,12 +818,9 @@ void Config::_switchView()
 void Config::_switchViewMode()
 {
     eq::View* current = find< eq::View >( _frameData.getCurrentViewID( ));
-
     if( !current )
-    {
-        _switchView();
-        current = find< eq::View >( _frameData.getCurrentViewID( ));
-    }
+        return;
+
     const eq::View::Mode mode = current->getMode( );
 
     if( mode == eq::View::MODE_MONO )
