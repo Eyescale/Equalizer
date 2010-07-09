@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -206,7 +207,7 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
 void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
 {
     // Test if this is not the last eye pass of this compound
-    if( compound->getInheritEyes() + 1 > static_cast< uint32_t >( 1<<( _eye+1 ))
+    if( compound->getInheritEyes() >= static_cast< uint32_t >( _eye ) << 1
         // or we don't actually draw this eye
         || !compound->testInheritEye( _eye ))
     {

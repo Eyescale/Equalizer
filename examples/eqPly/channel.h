@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -114,7 +115,7 @@ namespace eqPly
             uint32_t stepsDone;
             bool transfer;
         }
-            _accum[ eq::EYE_ALL ];
+        _accum[ eq::NUM_EYES ];
 
         eq::PixelViewport _currentPVP;
     };

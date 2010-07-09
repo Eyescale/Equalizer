@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -813,7 +814,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         _inherit.zoom = Zoom::NONE; // will be reapplied below
 
         if( _inherit.eyes == fabric::EYE_UNDEFINED )
-            _inherit.eyes = fabric::EYE_CYCLOP_BIT;
+            _inherit.eyes = fabric::EYE_CYCLOP;
 
         if( _inherit.period == EQ_UNDEFINED_UINT32 )
             _inherit.period = 1;
@@ -1135,11 +1136,11 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
     if( eye )
     {
         os << "eye      [ ";
-        if( eye & fabric::EYE_CYCLOP_BIT )
+        if( eye & fabric::EYE_CYCLOP )
             os << "CYCLOP ";
-        if( eye & fabric::EYE_LEFT_BIT )
+        if( eye & fabric::EYE_LEFT )
             os << "LEFT ";
-        if( eye & fabric::EYE_RIGHT_BIT )
+        if( eye & fabric::EYE_RIGHT )
             os << "RIGHT ";
         os << "]" << std::endl;
     }

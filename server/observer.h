@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,8 +21,10 @@
 
 #include "types.h"
 
-#include <eq/fabric/observer.h> // base class
-#include <eq/fabric/eye.h>      // enum
+#include <eq/fabric/observer.h>   // base class
+#include <eq/fabric/eye.h>        // enum
+#include <eq/base/bitOperation.h> // function getIndexOfLastBit
+
 #include <string>
 
 namespace eq
@@ -47,7 +50,7 @@ namespace server
 
         /** @return the position of an eye in world-space coordinates. */
         const fabric::Vector3f& getEyePosition( const fabric::Eye eye ) const
-            { return _eyes[ eye ]; }
+        { return _eyes[ eq::base::getIndexOfLastBit( eye ) ]; }
 
         /** @return the inverse of the current head matrix. */
         const fabric::Matrix4f& getInverseHeadMatrix() const
@@ -78,7 +81,7 @@ namespace server
         fabric::Matrix4f _inverseHeadMatrix;
 
         /** The eye positions in world space. */ 
-        fabric::Vector3f _eyes[ fabric::EYE_ALL ];
+        fabric::Vector3f _eyes[ eq::fabric::NUM_EYES ];
 
         enum State
         {

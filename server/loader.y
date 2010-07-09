@@ -813,9 +813,9 @@ segmentField:
 
 segumentEyes: /*null*/ | segumentEyes segumentEye
 segumentEye:
-    EQTOKEN_CYCLOP  { segment->enableEye( eq::fabric::EYE_CYCLOP_BIT ); }
-    | EQTOKEN_LEFT  { segment->enableEye( eq::fabric::EYE_LEFT_BIT ); }
-    | EQTOKEN_RIGHT { segment->enableEye( eq::fabric::EYE_RIGHT_BIT ); }
+    EQTOKEN_CYCLOP  { segment->enableEye( eq::fabric::EYE_CYCLOP ); }
+    | EQTOKEN_LEFT  { segment->enableEye( eq::fabric::EYE_LEFT ); }
+    | EQTOKEN_RIGHT { segment->enableEye( eq::fabric::EYE_RIGHT ); }
     
 compound: EQTOKEN_COMPOUND '{' 
               {
@@ -952,9 +952,9 @@ compoundTask:
 
 compoundEyes: /*null*/ | compoundEyes compoundEye
 compoundEye:
-    EQTOKEN_CYCLOP  { eqCompound->enableEye( eq::fabric::EYE_CYCLOP_BIT ); }
-    | EQTOKEN_LEFT  { eqCompound->enableEye( eq::fabric::EYE_LEFT_BIT ); }
-    | EQTOKEN_RIGHT { eqCompound->enableEye( eq::fabric::EYE_RIGHT_BIT ); }
+    EQTOKEN_CYCLOP  { eqCompound->enableEye( eq::fabric::EYE_CYCLOP ); }
+    | EQTOKEN_LEFT  { eqCompound->enableEye( eq::fabric::EYE_LEFT ); }
+    | EQTOKEN_RIGHT { eqCompound->enableEye( eq::fabric::EYE_RIGHT ); }
 
 buffers: /*null*/ | buffers buffer
 buffer:

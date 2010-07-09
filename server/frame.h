@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,6 +23,7 @@
 
 #include <eq/client/frame.h>
 #include <eq/client/packets.h>
+#include <eq/base/bitOperation.h> // function getIndexOfLastBit
 
 namespace eq
 {
@@ -57,7 +59,7 @@ namespace server
 
         FrameData* getMasterData() const { return _masterFrameData; }
         bool       hasData( const eq::Eye eye ) const
-            { return ( _frameData[eye] != 0 ); }
+        { return ( _frameData[ base::getIndexOfLastBit( eye ) ] != 0 ); }
 
         /** 
          * Set the frame's viewport wrt the compound (output frames) or wrt the
@@ -135,7 +137,7 @@ namespace server
         void addInputFrame( Frame* frame, const uint32_t eyes );
         /** @return the vector of current input frames. */
         const Frames& getInputFrames( const eq::Eye eye ) const
-            { return _inputFrames[eye]; }
+            { return _inputFrames[ eq::base::getIndexOfLastBit( eye ) ]; }
 
         /** Unset the frame data. */
         void unsetData();
@@ -208,10 +210,10 @@ namespace server
         
         /** Current frame data. */
         FrameData* _masterFrameData;
-        FrameData* _frameData[eq::EYE_ALL];
+        FrameData* _frameData[ eq::NUM_EYES ];
 
         /** Vector of current input frames. */
-        Frames _inputFrames[eq::EYE_ALL];
+        Frames _inputFrames[ eq::NUM_EYES ];
     };
 
     std::ostream& operator << ( std::ostream& os, const Frame* frame );

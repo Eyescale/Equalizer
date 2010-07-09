@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,24 +26,16 @@ namespace eq
 {
 namespace fabric
 {
-    /** Defines an eye pass. @version 1.0 */
-    enum Eye
-    {
-        EYE_CYCLOP = 0,
-        EYE_LEFT,
-        EYE_RIGHT,
-        EYE_ALL   // must be last
-    };
-
     /**
      * Eye pass bit mask for which is enabled.
      */
-    enum EyeMask
+    enum Eye
     {
-        EYE_UNDEFINED  = 0,             //!< use inherited eye(s)
-        EYE_CYCLOP_BIT = 1<<EYE_CYCLOP, //!<  monoscopic 'middle' eye
-        EYE_LEFT_BIT   = 1<<EYE_LEFT,   //!< left eye
-        EYE_RIGHT_BIT  = 1<<EYE_RIGHT   //!< right eye
+        EYE_UNDEFINED  = 0,
+        EYE_CYCLOP     = 1, //!<  monoscopic 'middle' eye
+        EYE_LEFT       = 2, //!< left eye
+        EYE_RIGHT      = 4, //!< right eye
+        NUM_EYES       = 3  //!< @internal increase with each new enum 
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Eye& eye );

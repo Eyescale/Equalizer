@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -311,7 +312,7 @@ namespace server
 
         /** @return true if the eye pass is used, false if not. */
         bool testInheritEye( const Eye eye ) const
-            { return ( _inherit.eyes & (1<<eye) ); }
+            { return _inherit.eyes & eye; }
         //@}
 
         /**
@@ -464,6 +465,9 @@ namespace server
 
         /** Has been activated (by layout) */
         bool _active;
+        
+        // compound activation per eye
+        //uint32_t _active[ fabric::NUM_EYES ];
 
         /** String representation of integer attributes. */
         static std::string _iAttributeStrings[IATTR_ALL];

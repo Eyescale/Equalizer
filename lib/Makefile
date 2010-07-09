@@ -13,6 +13,7 @@ HEADER_SRC = \
 	admin.h \
 	base/atomic.h \
 	base/base.h \
+	base/bitOperation.h \
 	base/buffer.h \
 	base/compressor.h \
 	base/compressorData.h \

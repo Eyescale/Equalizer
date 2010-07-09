@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -39,7 +40,7 @@ Frame::Frame()
         , _masterFrameData( 0 )
 {
     _data.zoom.invalidate(); // to inherit zoom from compound unless set
-    for( unsigned i = 0; i<eq::EYE_ALL; ++i )
+    for( unsigned i = 0; i < NUM_EYES; ++i )
         _frameData[i] = 0;
 }
 
@@ -53,7 +54,7 @@ Frame::Frame( const Frame& from )
         , _type( from._type )
         , _masterFrameData( 0 )
 {
-    for( unsigned i = 0; i<eq::EYE_ALL; ++i )
+    for( unsigned i = 0; i < NUM_EYES; ++i )
         _frameData[i] = 0;
 }
 
@@ -90,7 +91,7 @@ void Frame::flush()
 
 void Frame::unsetData()
 {
-    for( unsigned i = 0; i<eq::EYE_ALL; ++i )
+    for( unsigned i = 0; i < NUM_EYES; ++i )
     {
         _frameData[i] = 0;
         _inputFrames[i].clear();
@@ -102,7 +103,7 @@ void Frame::commitData()
     if( !_masterFrameData ) // not used
         return;
 
-    for( unsigned i = 0; i<eq::EYE_ALL; ++i )
+    for( unsigned i = 0; i< NUM_EYES; ++i )
     {
         if( _frameData[i] )
         {
@@ -116,7 +117,7 @@ void Frame::commitData()
 
 uint32_t Frame::commit()
 {
-    for( unsigned i = 0; i<eq::EYE_ALL; ++i )
+    for( unsigned i = 0; i < NUM_EYES; ++i )
     {
         if( _frameData[i] )
         {
@@ -133,7 +134,7 @@ uint32_t Frame::commit()
 void Frame::cycleData( const uint32_t frameNumber, const uint32_t eyes )
 {
     _masterFrameData = 0;
-    for( unsigned i = 0; i<eq::EYE_ALL; ++i )
+    for( unsigned i = 0; i < NUM_EYES; ++i )
     {
         _inputFrames[i].clear();
 
@@ -173,7 +174,7 @@ void Frame::cycleData( const uint32_t frameNumber, const uint32_t eyes )
 
 void Frame::addInputFrame( Frame* frame, const uint32_t eyes )
 {
-    for( unsigned i = 0; i<eq::EYE_ALL; ++i )
+    for( unsigned i = 0; i < NUM_EYES; ++i )
     {
         if( !(eyes & (1<<i)) ||  // eye pass not used
             !_frameData[i] )     // no output frame for eye pass

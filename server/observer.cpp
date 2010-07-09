@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -76,23 +77,26 @@ void Observer::_updateEyes()
 
     // eye_world = (+-eye_base/2., 0, 0 ) x head_matrix
     // OPT: don't use vector operator* due to possible simplification
+    const uint32_t cyclop = eq::base::getIndexOfLastBit( eq::EYE_CYCLOP );
+    const uint32_t right  = eq::base::getIndexOfLastBit( eq::EYE_RIGHT );
+    const uint32_t left   = eq::base::getIndexOfLastBit( eq::EYE_LEFT );
 
-    _eyes[eq::EYE_CYCLOP].x() = head.at( 0, 3 );
-    _eyes[eq::EYE_CYCLOP].y() = head.at( 1, 3 );
-    _eyes[eq::EYE_CYCLOP].z() = head.at( 2, 3 );
-    _eyes[eq::EYE_CYCLOP]    /= head.at( 3, 3 );
+    _eyes[ cyclop ].x() = head.at( 0, 3 );
+    _eyes[ cyclop ].y() = head.at( 1, 3 );
+    _eyes[ cyclop ].z() = head.at( 2, 3 );
+    _eyes[ cyclop ]    /= head.at( 3, 3 );
 
-    _eyes[eq::EYE_LEFT].x() = ( -eyeBase_2 * head.at( 0, 0 ) + head.at( 0, 3 ));
-    _eyes[eq::EYE_LEFT].y() = ( -eyeBase_2 * head.at( 1, 0 ) + head.at( 1, 3 ));
-    _eyes[eq::EYE_LEFT].z() = ( -eyeBase_2 * head.at( 2, 0 ) + head.at( 2, 3 ));
-    _eyes[eq::EYE_LEFT]    /= ( -eyeBase_2 * head.at( 3, 0 ) + head.at( 3, 3 ));
+    _eyes[ left ].x() = ( -eyeBase_2 * head.at( 0, 0 ) + head.at( 0, 3 ));
+    _eyes[ left ].y() = ( -eyeBase_2 * head.at( 1, 0 ) + head.at( 1, 3 ));
+    _eyes[ left ].z() = ( -eyeBase_2 * head.at( 2, 0 ) + head.at( 2, 3 ));
+    _eyes[ left ]    /= ( -eyeBase_2 * head.at( 3, 0 ) + head.at( 3, 3 ));
 
-    _eyes[eq::EYE_RIGHT].x() = ( eyeBase_2 * head.at( 0, 0 ) + head.at( 0, 3 ));
-    _eyes[eq::EYE_RIGHT].y() = ( eyeBase_2 * head.at( 1, 0 ) + head.at( 1, 3 ));
-    _eyes[eq::EYE_RIGHT].z() = ( eyeBase_2 * head.at( 2, 0 ) + head.at( 2, 3 ));
-    _eyes[eq::EYE_RIGHT]    /= ( eyeBase_2 * head.at( 3, 0 ) + head.at( 3, 3 ));
+    _eyes[ right ].x() = ( eyeBase_2 * head.at( 0, 0 ) + head.at( 0, 3 ));
+    _eyes[ right ].y() = ( eyeBase_2 * head.at( 1, 0 ) + head.at( 1, 3 ));
+    _eyes[ right ].z() = ( eyeBase_2 * head.at( 2, 0 ) + head.at( 2, 3 ));
+    _eyes[ right ]    /= ( eyeBase_2 * head.at( 3, 0 ) + head.at( 3, 3 ));
 
-    EQVERB << "Eye position: " << _eyes[ eq:: EYE_CYCLOP ] << std::endl;
+    EQVERB << "Eye position: " << _eyes[ cyclop ] << std::endl;
 }
 
 void Observer::postDelete()

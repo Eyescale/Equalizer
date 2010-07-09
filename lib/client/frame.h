@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,6 +26,7 @@
 #include <eq/net/object.h>
 #include <eq/net/objectVersion.h>
 #include <eq/net/types.h>
+#include <eq/base/bitOperation.h> // function getIndexOfLastBit
 #include <eq/base/monitor.h>
 
 namespace eq
@@ -134,7 +136,7 @@ namespace server
         EQ_EXPORT void setPixelViewport( const PixelViewport& pvp );
 
         const net::ObjectVersion& getDataVersion( const Eye eye ) const
-            { return _data.frameData[ eye ]; }
+        { return _data.frameData[ base::getIndexOfLastBit( eye ) ]; }
         //@}
 
         /**
@@ -245,7 +247,7 @@ namespace server
 
             Vector2i offset;
             Zoom zoom;
-            net::ObjectVersion frameData[EYE_ALL];
+            net::ObjectVersion frameData[ NUM_EYES ];
         }
         _data;
 

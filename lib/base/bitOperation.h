@@ -1,6 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,22 +15,26 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_EYE_H
-#define EQ_EYE_H
+#ifndef EQBASE_BITOPERATION_H
+#define EQBASE_BITOPERATION_H
 
-#include <eq/fabric/eye.h> // 'base' class
+#include <eq/base/types.h>
 
 namespace eq
 {
-    /** Defines an eye pass. */
-    typedef fabric::Eye Eye;
-
-    /** @cond IGNORE */
-    using fabric::EYE_CYCLOP;
-    using fabric::EYE_LEFT;
-    using fabric::EYE_RIGHT;
-    using fabric::NUM_EYES;
-    /** @endcond */
+namespace base
+{
+    /** @return the position of the last set bit, or -1. */
+    inline ssize_t getIndexOfLastBit( uint32_t value )
+    {
+        ssize_t count = -1;
+        while( value ) 
+        {
+          ++count;
+          value >>= 1;
+        }
+        return count;
+    }
 }
-
-#endif // EQ_EYE_H
+}
+#endif //EQBASE_BITOPERATION_H

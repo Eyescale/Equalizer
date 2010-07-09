@@ -1,6 +1,7 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
-   Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ * Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -36,6 +37,7 @@
 #include "view.h"
 #include "window.h"
 #include "vertexBufferState.h"
+#include <eq/base/bitOperation.h> // function getIndexOfLastBit
 
 // light parameters
 static GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
@@ -76,7 +78,7 @@ bool Channel::configInit( const uint32_t initID )
 
 bool Channel::configExit()
 {
-    for( size_t i = 0; i < eq::EYE_ALL; ++i )
+    for( size_t i = 0; i < eq::NUM_EYES; ++i )
     {
         delete _accum[ i ].buffer;
         _accum[ i ].buffer = 0;
@@ -89,7 +91,8 @@ void Channel::frameClear( const uint32_t frameID )
 {
     _initJitter();
     const FrameData& frameData = _getFrameData();
-    if( _isDone() && !_accum[ getEye() ].transfer )
+    const uint32_t eyeIndex = eq::base::getIndexOfLastBit( getEye() );
+    if( _isDone() && !_accum[ eyeIndex ].transfer )
         return;
 
     applyBuffer();
@@ -169,7 +172,7 @@ void Channel::frameDraw( const uint32_t frameID )
         glEnd();
     }
 
-    Accum& accum = _accum[ getEye() ];
+    Accum& accum = _accum[ eq::base::getIndexOfLastBit( getEye()) ];
     accum.stepsDone = EQ_MAX( accum.stepsDone, 
                               getSubPixel().size * getPeriod( ));
     accum.transfer = true;
@@ -180,7 +183,7 @@ void Channel::frameAssemble( const uint32_t frameID )
     if( _isDone( ))
         return;
 
-    Accum& accum = _accum[ getEye() ];
+    Accum& accum = _accum[ eq::base::getIndexOfLastBit( getEye()) ];
 
     if( getPixelViewport() != _currentPVP )
     {
@@ -248,7 +251,7 @@ void Channel::frameReadback( const uint32_t frameID )
 
 void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber )
 {
-    for( size_t i = 0; i < eq::EYE_ALL; ++i )
+    for( size_t i = 0; i < eq::NUM_EYES; ++i )
         _accum[ i ].stepsDone = 0;
 
     eq::Channel::frameStart( frameID, frameNumber );
@@ -264,7 +267,7 @@ void Channel::frameViewStart( const uint32_t frameID )
 void Channel::frameFinish( const uint32_t frameID,
                            const uint32_t frameNumber )
 {
-    for( size_t i = 0; i < eq::EYE_ALL; ++i )
+    for( size_t i = 0; i < eq::NUM_EYES; ++i )
     {
         Accum& accum = _accum[ i ];
         if( accum.step > 0 )
@@ -284,7 +287,7 @@ void Channel::frameViewFinish( const uint32_t frameID )
     applyBuffer();
 
     const FrameData& frameData = _getFrameData();
-    Accum& accum = _accum[ getEye() ];
+    Accum& accum = _accum[ eq::base::getIndexOfLastBit( getEye()) ];
 
     if( accum.buffer )
     {
@@ -326,7 +329,7 @@ void Channel::frameViewFinish( const uint32_t frameID )
     if( isIdle )
     {
         int32_t maxSteps = 0;
-        for( size_t i = 0; i < eq::EYE_ALL; ++i )
+        for( size_t i = 0; i < eq::NUM_EYES; ++i )
             maxSteps = EQ_MAX( maxSteps, _accum[i].step );
 
         event.steps = maxSteps;
@@ -384,7 +387,7 @@ bool Channel::_isDone() const
         return false;
 
     const eq::SubPixel& subpixel = getSubPixel();
-    const Accum& accum = _accum[ getEye() ];
+    const Accum& accum = _accum[ eq::base::getIndexOfLastBit( getEye()) ];
     return static_cast< int32_t >( subpixel.index ) >= accum.step;
 }
 
@@ -404,7 +407,7 @@ void Channel::_initJitter()
         return;
 
     // ready for the next FSAA
-    Accum& accum = _accum[ getEye() ];
+    Accum& accum = _accum[ eq::base::getIndexOfLastBit( getEye()) ];
 
     if( accum.buffer )
         accum.buffer->clear();
@@ -418,7 +421,7 @@ bool Channel::_initAccum()
         return true;
 
     const eq::Eye eye = getEye();
-    Accum& accum = _accum[ eye ];
+    Accum& accum = _accum[ eq::base::getIndexOfLastBit( eye ) ];
 
     if( accum.buffer ) // already done
         return true;
@@ -429,14 +432,14 @@ bool Channel::_initAccum()
     // Check unsupported cases
     if( !eq::util::Accum::usesFBO( glewGetContext( )))
     {
-        for( size_t i = 0; i < eq::EYE_ALL; ++i )
+        for( size_t i = 0; i < eq::NUM_EYES; ++i )
         {
             if( _accum[ i ].buffer )
             {
                 EQWARN << "glAccum-based accumulation does not support "
                        << "stereo, disabling idle anti-aliasing."
                        << std::endl;
-                for( size_t j = 0; j < eq::EYE_ALL; ++j )
+                for( size_t j = 0; j < eq::NUM_EYES; ++j )
                 {
                     delete _accum[ j ].buffer;
                     _accum[ j ].buffer = 0;
@@ -478,7 +481,7 @@ bool Channel::_initAccum()
 eq::Vector2f Channel::_getJitter() const
 {
     const FrameData& frameData = _getFrameData();
-    const Accum& accum = _accum[ getEye() ];
+    const Accum& accum = _accum[ eq::base::getIndexOfLastBit( getEye()) ];
 
     if( !frameData.isIdle() || accum.step <= 0 )
         return eq::Channel::getJitter();
@@ -531,7 +534,7 @@ eq::Vector2i Channel::_getJitterStep() const
     if( totalSteps != 256 )
         return eq::Vector2i::ZERO;
 
-    const Accum& accum = _accum[ getEye() ];
+    const Accum& accum = _accum[ eq::base::getIndexOfLastBit( getEye()) ];
     const uint32_t subset = totalSteps / getSubPixel().size;
     const uint32_t idx = 
         ( accum.step * primeNumberTable[ channelID ] ) % subset +
