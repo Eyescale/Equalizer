@@ -61,18 +61,7 @@ namespace net
         void release() 
             {
                 EQASSERT( _refCount != 0 );
-#ifdef NDEBUG
                 --_refCount;
-#else
-                if( --_refCount == 0 )
-                {
-                    // Unref nodes in command to keep node ref counts easier for
-                    // debugging.  Release builds will unref the nodes at
-                    // receiver thread exit.
-                    _node = 0;
-                    _localNode = 0;
-                }
-#endif
             }
         //@}
 

@@ -1,8 +1,8 @@
-eqPly: don't switch view mode if no view is active
+Fix race condition in debug mode command cache, code cleanups
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

@@ -44,7 +44,8 @@ namespace net
         EQ_EXPORT ~CommandCache();
 
         /** @return a new command. */
-        EQ_EXPORT Command& alloc( NodePtr node, NodePtr localNode, const uint64_t size );
+        EQ_EXPORT Command& alloc( NodePtr node, NodePtr localNode,
+                                  const uint64_t size );
 
         /** Flush all allocated commands. */
         void flush();

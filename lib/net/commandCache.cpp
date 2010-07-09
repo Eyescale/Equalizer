@@ -93,7 +93,6 @@ Command& CommandCache::alloc( NodePtr node, NodePtr localNode,
     if( cache.size() > highWater && (i%10) == 0 )
     {
         int64_t keepFree( 30 * 1024 * 1024 );
-        keepFree = EQ_MAX( keepFree, 10 );
 #  ifdef PROFILE
         size_t freed( 0 );
 #  endif
