@@ -1,4 +1,5 @@
-Fix race condition in debug mode command cache, code cleanups
+Make eq::server::Window::postDelete recursive
+clean up Window and View output
 
 [ ] May break build
 [ ] May break existing applications

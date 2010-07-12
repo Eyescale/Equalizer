@@ -30,6 +30,7 @@ namespace net
     struct Packet;
 
     /**
+     * @internal
      * A class managing command packets.
      *
      * A RefPtr<Packet> can't be used, since Packets are plain C structs send
