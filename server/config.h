@@ -249,6 +249,12 @@ namespace server
         virtual Canvas* createCanvas();
         virtual void releaseCanvas( Canvas* canvas );
 
+        /** @internal Execute the slave remove request. */
+        virtual void _removeChild( const uint32_t id );
+
+        /** @internal Post deletion for the given child, returns true if found*/
+        template< class T > bool _postDelete( const uint32_t id );
+
         /** The command functions. */
         net::CommandResult _cmdInit( net::Command& command );
         net::CommandResult _cmdExit( net::Command& command );

@@ -259,6 +259,8 @@ bool Window< P, W, C >::_removeChannel( C* channel )
 
     _channels.erase( i );
     setDirty( DIRTY_CHANNELS );
+    if( !isMaster( ))
+        postRemove( channel );
     return true;
 }
 

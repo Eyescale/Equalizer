@@ -119,6 +119,13 @@ void Object::serialize( net::DataOStream& os, const uint64_t dirtyBits )
         os << _tasks;
     if( dirtyBits & DIRTY_ERROR )
         os << _error;
+    if( dirtyBits & DIRTY_REMOVED )
+    {
+        EQASSERT( !isMaster() || 
+                  ( _removedChildren.empty() && dirtyBits == DIRTY_ALL ))
+        os << _removedChildren;
+        _removedChildren.clear();
+    }
 }
 
 void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
@@ -169,6 +176,20 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
         is >> _tasks;
     if( dirtyBits & DIRTY_ERROR )
         is >> _error;
+    if( dirtyBits & DIRTY_REMOVED )
+    {
+        std::vector< uint32_t > removed;
+        is >> removed;
+        if( !removed.empty( ))
+        {
+            EQASSERT( isMaster( ));
+            for( std::vector< uint32_t >::const_iterator i = removed.begin();
+                 i != removed.end(); ++i )
+            {
+                removeChild( *i );
+            }
+        }
+    }
 
     if( isMaster( )) // redistribute changes
         setDirty( dirtyBits & ( DIRTY_NAME | DIRTY_USERDATA | DIRTY_ERROR ));
@@ -227,6 +248,19 @@ void Object::setErrorMessage( const std::string& message )
         return;
     _error = message;
     setDirty( DIRTY_ERROR );
+}
+
+void Object::postRemove( const Object* child )
+{
+    EQASSERT( child );
+    if( !child->isAttached( ))
+        return;
+
+    EQASSERT( !child->isMaster( ));
+    EQASSERT( !isMaster( ));
+
+    _removedChildren.push_back( child->getID( ));
+    setDirty( DIRTY_REMOVED );
 }
 
 }

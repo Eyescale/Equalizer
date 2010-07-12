@@ -129,6 +129,9 @@ namespace server
                                       net::Session* session );
         virtual void deserialize( eq::net::DataIStream&, const uint64_t );
 
+        /** @internal Execute the slave remove request. */
+        virtual void removeChild( const uint32_t id );
+
     private:
         /** Number of activations for this pipe. */
         uint32_t _active;

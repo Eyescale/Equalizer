@@ -301,6 +301,27 @@ void Config::releaseCanvas( Canvas* canvas )
     delete canvas;
 }
 
+template< class T > bool Config::_postDelete( const uint32_t id )
+{
+    T* child = find< T >( id );
+    if( !child )
+        return false;
+
+    child->postDelete();
+    return true;
+}
+
+void Config::_removeChild( const uint32_t id )
+{
+    EQASSERT( isRunning( ));
+
+    if( _postDelete< Observer >( id ) || _postDelete< Layout >( id ) ||
+        _postDelete< Canvas >( id ))
+    {
+        return;
+    }
+    EQUNIMPLEMENTED;
+}
 
 void Config::addCompound( Compound* compound )
 {

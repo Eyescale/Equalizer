@@ -84,7 +84,17 @@ void Window::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
     Super::deserialize( is, dirtyBits );
     EQASSERT( isMaster( ));
-    setDirty( dirtyBits ); // redistribute slave changes
+    setDirty( dirtyBits & ~DIRTY_REMOVED ); // redistribute slave changes
+}
+
+void Window::removeChild( const uint32_t id )
+{
+    EQASSERT( getConfig()->isRunning( ));
+
+    Channel* channel = _findChannel( id );
+    EQASSERT( channel );
+    if( channel )
+        channel->postDelete();
 }
 
 void Window::postDelete()

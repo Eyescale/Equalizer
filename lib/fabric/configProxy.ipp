@@ -65,6 +65,7 @@ protected:
     virtual void serialize( net::DataOStream& os, const uint64_t dirtyBits );
     virtual void deserialize( net::DataIStream& is, const uint64_t dirtyBits );
     virtual void notifyDetach();
+    virtual void removeChild( const uint32_t id ) { _config._removeChild( id );}
 
 private:
     Config< S, C, O, L, CV, N, V >& _config;

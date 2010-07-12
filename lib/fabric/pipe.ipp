@@ -324,6 +324,8 @@ bool Pipe< N, P, W, V >::_removeWindow( W* window )
 
     _windows.erase( i );
     setDirty( DIRTY_WINDOWS );
+    if( !isMaster( ))
+        postRemove( window );
     return true;
 }
 

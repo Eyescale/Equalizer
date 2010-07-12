@@ -222,6 +222,8 @@ bool Layout< C, L, V >::_removeView( V* view )
     EQASSERT( view->getLayout() == this );
     _views.erase( i );
     setDirty( DIRTY_VIEWS );
+    if( !isMaster( ))
+        postRemove( view );
     return true;
 }
 

@@ -114,6 +114,7 @@ namespace fabric
             DIRTY_USERDATA   = Serializable::DIRTY_CUSTOM << 1,
             DIRTY_ERROR      = Serializable::DIRTY_CUSTOM << 2,
             DIRTY_TASKS      = Serializable::DIRTY_CUSTOM << 3,
+            DIRTY_REMOVED    = Serializable::DIRTY_CUSTOM << 4,
             // Leave room for binary-compatible patches
             DIRTY_CUSTOM     = Serializable::DIRTY_CUSTOM << 6 // 64
         };
@@ -141,6 +142,16 @@ namespace fabric
 
         EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
                                             const uint64_t dirtyBits );
+
+        /**
+         * @internal
+         * Remove the given child on the master during the next commit.
+         * @sa removeChild
+         */
+        void postRemove( const Object* child );
+
+        /** @internal Execute the slave remove request. @sa postRemove */
+        virtual void removeChild( const uint32_t id ) { EQUNIMPLEMENTED; }
 
         /** @internal commit, register child slave instance with the server. */
         template< class C, class PKG, class S >
@@ -182,6 +193,9 @@ namespace fabric
 
         /** The reason for the last error. */
         std::string _error;
+
+        /** The identifiers of removed children since the last slave commit. */
+        std::vector< uint32_t > _removedChildren;
 
         union // placeholder for binary-compatible changes
         {

@@ -214,7 +214,7 @@ std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view )
     if( vp.isValid( ) && vp != eq::Viewport::FULL )
         os << "viewport " << vp << std::endl;
 
-    if( view.getMode() == View< L, V, O >::MODE_STEREO:
+    if( view.getMode() == View< L, V, O >::MODE_STEREO )
         os << "mode     STEREO" << std::endl; // MONO is default
 
     const O* observer = static_cast< const O* >( view.getObserver( ));

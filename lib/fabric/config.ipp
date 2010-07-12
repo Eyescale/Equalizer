@@ -425,6 +425,8 @@ bool Config< S, C, O, L, CV, N, V >::_removeObserver( O* observer )
     EQASSERT( observer->getConfig() == this );
     _observers.erase( i );
     setDirty( DIRTY_OBSERVERS );
+    if( !_proxy->isMaster( ))
+        _proxy->postRemove( observer );
     return true;
 }
 
@@ -447,6 +449,8 @@ bool Config< S, C, O, L, CV, N, V >::_removeLayout( L* layout )
     EQASSERT( layout->getConfig() == this );
     _layouts.erase( i );
     setDirty( DIRTY_LAYOUTS );
+    if( !_proxy->isMaster( ))
+        _proxy->postRemove( layout );
     return true;
 }
 
@@ -469,6 +473,8 @@ bool Config< S, C, O, L, CV, N, V >::_removeCanvas( CV* canvas )
     EQASSERT( canvas->getConfig() == this );
     _canvases.erase( i );
     setDirty( DIRTY_CANVASES );
+    if( !_proxy->isMaster( ))
+        _proxy->postRemove( canvas );
     return true;
 }
 

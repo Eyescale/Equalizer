@@ -230,6 +230,8 @@ bool Canvas< CFG, C, S, L >::_removeSegment( S* segment )
     EQASSERT( segment->getCanvas() == this );
     _segments.erase( i );
     setDirty( DIRTY_SEGMENTS );
+    if( !isMaster( ))
+        postRemove( segment );
     return true;
 }
 

@@ -420,7 +420,7 @@ void Channel::send( net::ObjectPacket& packet )
 //---------------------------------------------------------------------------
 void Channel::addListener( ChannelListener* listener )
 {
-    CHECK_THREAD_SCOPED( _serverThread );
+    CHECK_THREAD( _serverThread );
     EQASSERT( std::find( _listeners.begin(), _listeners.end(), listener ) ==
               _listeners.end( ));
 
@@ -439,7 +439,7 @@ void Channel::_fireLoadData( const uint32_t frameNumber,
                              const uint32_t nStatistics,
                              const Statistic* statistics )
 {
-    CHECK_THREAD_SCOPED( _serverThread );
+    CHECK_THREAD( _serverThread );
 
     for( ChannelListeners::const_iterator i = _listeners.begin(); 
          i != _listeners.end(); ++i )

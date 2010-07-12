@@ -381,7 +381,17 @@ void Pipe::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
     Super::deserialize( is, dirtyBits );
     EQASSERT( isMaster( ));
-    setDirty( dirtyBits ); // redistribute slave changes
+    setDirty( dirtyBits & ~DIRTY_REMOVED ); // redistribute slave changes
+}
+
+void Pipe::removeChild( const uint32_t id )
+{
+    EQASSERT( getConfig()->isRunning( ));
+
+    Window* window = _findWindow( id );
+    EQASSERT( window );
+    if( window )
+        window->postDelete();
 }
 
 std::ostream& operator << ( std::ostream& os, const Pipe* pipe )
