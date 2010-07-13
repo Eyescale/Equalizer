@@ -25,9 +25,9 @@ namespace eq
 namespace base
 {
     /** @return the position of the last set bit, or -1. */
-    inline ssize_t getIndexOfLastBit( uint32_t value )
+    inline int64_t getIndexOfLastBit( uint32_t value )
     {
-        ssize_t count = -1;
+        int64_t count = -1;
         while( value ) 
         {
           ++count;
