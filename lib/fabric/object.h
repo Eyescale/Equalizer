@@ -148,7 +148,7 @@ namespace fabric
          * Remove the given child on the master during the next commit.
          * @sa removeChild
          */
-        void postRemove( const Object* child );
+        EQ_EXPORT void postRemove( const Object* child );
 
         /** @internal Execute the slave remove request. @sa postRemove */
         virtual void removeChild( const uint32_t id ) { EQUNIMPLEMENTED; }
