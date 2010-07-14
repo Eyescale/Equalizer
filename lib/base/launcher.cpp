@@ -1,5 +1,5 @@
  
-/* Copyright (c) 2005-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,14 +16,14 @@
  */
 
 #include "launcher.h"
+
+#include "debug.h"
 #include "log.h"
 
 #include <errno.h>
 #include <string.h>
 #include <signal.h>
 #include <sstream>
-
-using namespace std;
 
 #ifndef WIN32
 #  include <sys/wait.h>
@@ -61,8 +61,8 @@ bool Launcher::run( const std::string& command )
     STARTUPINFO         startupInfo = {0};
     PROCESS_INFORMATION procInfo    = {0};
     const char*         cmdLine     = command.c_str();
-    
-    startupInfo.cb = sizeof(STARTUPINFO );
+
+    startupInfo.cb = sizeof( STARTUPINFO );
     const bool success = 
         CreateProcess( 0, LPSTR( cmdLine ), // program, command line
                        0, 0,                // process, thread attributes
@@ -75,7 +75,7 @@ bool Launcher::run( const std::string& command )
 
     if( !success )
     {
-        EQERROR << "CreateProcess failed: " << GetLastError() << endl;
+        EQERROR << "CreateProcess failed: " << sysError << std::endl;
         return false;
     }
 
@@ -95,8 +95,7 @@ bool Launcher::run( const std::string& command )
             break;
 
         case -1: // error
-            EQWARN << "Could not fork child process:" << strerror( errno )
-                   << endl;
+            EQWARN << "Could not fork child process:" << sysError << std::endl;
             return false;
 
         default: // parent
@@ -116,14 +115,14 @@ bool Launcher::run( const std::string& command )
 
     argv[argc] = 0;
 
-    EQINFO << "Executing: " << stringStream.str() << endl;
+    EQINFO << "Executing: " << stringStream.str() << std::endl;
     //::exit( EXIT_SUCCESS );
     int nTries = 10;
     while( nTries-- )
     {
         execvp( argv[0], argv );
-        EQWARN << "Error executing '" << argv[0] << "': " << strerror(errno)
-               << endl;
+        EQWARN << "Error executing '" << argv[0] << "': " << sysError
+               << std::endl;
         if( errno != ETXTBSY )
             break;
     }

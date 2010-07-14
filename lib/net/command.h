@@ -69,7 +69,7 @@ namespace net
         bool isFree() const
             { CHECK_THREAD( _writeThread ); return ( _refCount==0 ); }
         void retain();
-        void release();
+        EQ_EXPORT void release();
         //@}
 
     private:

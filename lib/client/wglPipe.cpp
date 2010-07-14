@@ -90,7 +90,7 @@ bool WGLPipe::configInit()
     }
 
     _pipe->setPixelViewport( pvp );
-    EQINFO << "Pipe pixel viewport " << pvp << endl;
+    EQINFO << "Pipe pixel viewport " << pvp << std::endl;
     return true;
 }
 
@@ -164,13 +164,13 @@ bool WGLPipe::_getGPUHandle( HGPUNV& handle )
     if( !WGLEW_NV_gpu_affinity )
     {
         EQWARN <<"WGL_NV_gpu_affinity unsupported, ignoring pipe device setting"
-               << endl;
+               << std::endl;
         return true;
     }
 
     if( !wglEnumGpusNV( device, &handle ))
     {
-        stringstream error;
+        std::ostringstream error;
         error << "Can't enumerate GPU #" << device;
         setErrorMessage( error.str( ));
         return false;
@@ -185,9 +185,9 @@ void WGLPipe::_configInitWGLEW()
     //----- Create and make current a temporary GL context to initialize WGLEW
 
     // window class
-    ostringstream className;
+    std::ostringstream className;
     className << "TMP" << (void*)this;
-    const string& classStr = className.str();
+    const std::string& classStr = className.str();
                                   
     HINSTANCE instance = GetModuleHandle( 0 );
     WNDCLASS  wc       = { 0 };
@@ -200,7 +200,7 @@ void WGLPipe::_configInitWGLEW()
     if( !RegisterClass( &wc ))
     {
         EQWARN << "Can't register temporary window class: " 
-               << base::sysError << endl;
+               << base::sysError << std::endl;
         return;
     }
 
@@ -217,7 +217,7 @@ void WGLPipe::_configInitWGLEW()
     if( !hWnd )
     {
         EQWARN << "Can't create temporary window: "
-               << base::sysError << endl;
+               << base::sysError << std::endl;
         UnregisterClass( classStr.c_str(),  instance );
         return;
     }
@@ -233,7 +233,7 @@ void WGLPipe::_configInitWGLEW()
     if( pf == 0 )
     {
         EQWARN << "Can't find temporary pixel format: "
-               << base::sysError << endl;
+               << base::sysError << std::endl;
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
         return;
@@ -242,7 +242,7 @@ void WGLPipe::_configInitWGLEW()
     if( !SetPixelFormat( dc, pf, &pfd ))
     {
         EQWARN << "Can't set pixel format: " 
-               << base::sysError << endl;
+               << base::sysError << std::endl;
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
@@ -254,7 +254,7 @@ void WGLPipe::_configInitWGLEW()
     if( !context )
     {
          EQWARN << "Can't create temporary OpenGL context: " 
-                << base::sysError << endl;
+                << base::sysError << std::endl;
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
@@ -269,9 +269,9 @@ void WGLPipe::_configInitWGLEW()
     const GLenum result = wglewInit();
     if( result != GLEW_OK )
         EQWARN << "Pipe WGLEW initialization failed with error " << result 
-               << endl;
+               << std::endl;
     else
-        EQINFO << "Pipe WGLEW initialization successful" << endl;
+        EQINFO << "Pipe WGLEW initialization successful" << std::endl;
 
     wglDeleteContext( context );
     ReleaseDC( hWnd, dc );
