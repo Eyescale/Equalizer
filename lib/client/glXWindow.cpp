@@ -279,8 +279,7 @@ GLXContext GLXWindow::createGLXContext( XVisualInfo* visualInfo )
         shareCtx = shareGLXWindow->getGLXContext();
     }
 
-    GLXContext  context = glXCreateContext(display, visualInfo, shareCtx, True);
-
+    GLXContext context = glXCreateContext( display, visualInfo, shareCtx, True);
     if ( !context )
     {
         _window->setErrorMessage( "Could not create OpenGL context" );

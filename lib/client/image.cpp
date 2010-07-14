@@ -342,7 +342,7 @@ void Image::upload( const Frame::Buffer buffer,
     const uint32_t inputToken = pixelData.externalFormat;
     const uint32_t outputToken = pixelData.internalFormat;
 
-    if ( !uploader->isValidUploader( inputToken, outputToken ) )
+    if( !uploader->isValidUploader( inputToken, outputToken ))
         uploader->initUploader( inputToken, outputToken );
     
     PixelViewport pvp = getPixelViewport();

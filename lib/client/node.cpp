@@ -137,7 +137,7 @@ net::Barrier* Node::getBarrier( const net::ObjectVersion barrier )
 
 FrameData* Node::getFrameData( const net::ObjectVersion& dataVersion )
 {
-    _frameDatasMutex.set();
+    base::ScopedMutex<> mutex( _frameDatasMutex);
     FrameData* frameData = _frameDatas[ dataVersion.identifier ];
 
     if( !frameData )
@@ -146,11 +146,14 @@ FrameData* Node::getFrameData( const net::ObjectVersion& dataVersion )
         
         frameData = new FrameData;
         frameData->makeThreadSafe();
-        EQCHECK( session->mapObject( frameData, dataVersion.identifier ));
+
+        EQCHECK( session->mapObject( frameData, dataVersion ));
+        frameData->update( dataVersion.version );
 
         _frameDatas[ dataVersion.identifier ] = frameData;
+        return frameData;
     }
-    _frameDatasMutex.unset();
+    mutex.leave();
 
     if( frameData->getVersion() < dataVersion.version )
     {
