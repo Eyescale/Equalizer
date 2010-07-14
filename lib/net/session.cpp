@@ -28,12 +28,6 @@
 #include "packets.h"
 #include "session.h"
 
-#ifndef WIN32
-#  include <alloca.h>
-#endif
-
-#include <limits>
-
 namespace eq
 {
 namespace net
@@ -355,7 +349,7 @@ void Session::_detachObject( Object* object )
         return;
 
     EQASSERT( _objects->find( id ) != _objects->end( ));
-    EQLOG( LOG_OBJECTS ) << "Detach " << typeid( *object ).name() 
+    EQLOG( LOG_OBJECTS ) << "Detach " << base::className( object )
                          << " from id " << id << std::endl;
 
     Objects& objects = _objects.data[ id ];
@@ -388,7 +382,7 @@ uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
     EQASSERT( object );
     EQASSERT( id <= EQ_ID_MAX );
 
-    EQLOG( LOG_OBJECTS ) << "Mapping " << typeid( *object ).name() << " to id "
+    EQLOG( LOG_OBJECTS ) << "Mapping " << base::className( object ) << " to id "
                          << id << " version " << version << std::endl;
 
     EQASSERT( object->getID() == EQ_ID_INVALID );
@@ -471,7 +465,7 @@ bool Session::mapObjectSync( const uint32_t requestID )
     }
 
     object->notifyAttached();
-    EQLOG( LOG_OBJECTS ) << "Mapped " << typeid( *object ).name() << " to id " 
+    EQLOG( LOG_OBJECTS ) << "Mapped " << base::className( object ) << " to id " 
                          << object->getID() << std::endl;
     return mapped;
 }
@@ -484,7 +478,7 @@ void Session::unmapObject( Object* object )
     if( id == EQ_ID_INVALID ) // not registered
         return;
 
-    EQLOG( LOG_OBJECTS ) << "Unmap " << typeid( *object ).name() << " from id "
+    EQLOG( LOG_OBJECTS ) << "Unmap " << base::className( object ) << " from id "
         << object->getID() << std::endl;
 
     object->notifyDetach();
@@ -541,7 +535,7 @@ bool Session::registerObject( Object* object )
     _setIDMasterSync( requestID ); // sync, master knows our ID now
     object->notifyAttached();
 
-    EQLOG( LOG_OBJECTS ) << "Registered " << typeid( *object ).name()
+    EQLOG( LOG_OBJECTS ) << "Registered " << base::className( object )
                          << " to id " << id << std::endl;
     return true;
 }
@@ -553,7 +547,7 @@ void Session::deregisterObject( Object* object )
     if( id == EQ_ID_INVALID ) // not registered
         return;
 
-    EQLOG( LOG_OBJECTS ) << "Deregister " << typeid( *object ).name() 
+    EQLOG( LOG_OBJECTS ) << "Deregister " << base::className( object ) 
                          << " from id " << id << std::endl;
     EQASSERT( object->isMaster( ));
 
@@ -566,7 +560,7 @@ void Session::deregisterObject( Object* object )
     {
         EQWARN << slaves->size() 
                << " slave nodes subscribed during deregisterObject of "
-               << typeid( *object ).name() << " id " << object->getID()
+               << base::className( object ) << " id " << object->getID()
                << std::endl;
 
         SessionUnmapObjectPacket packet;
@@ -750,7 +744,8 @@ Object* Session::_findObject( Command& command )
     if( i == _objects->end( ))
     {
         EQASSERTINFO( false, "no objects to handle command " << packet <<
-                      " in " << typeid( *this ).name( ));
+                      " for instance " << instanceID << " in " <<
+                      typeid( *this ).name( ));
         return 0;
     }
 

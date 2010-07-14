@@ -1,9 +1,9 @@
-Minor code cleanups
+Add ostream function to print demangled object names from pointers
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

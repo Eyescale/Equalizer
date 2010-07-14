@@ -21,6 +21,10 @@
 #include <eq/base/defines.h>
 #include <eq/base/log.h>
 
+#ifndef WIN32
+#  include <cxxabi.h>
+#endif
+
 // assertions
 // #define EQ_RELEASE_ASSERT
 
@@ -55,6 +59,24 @@ EQ_EXPORT std::ostream& sysError( std::ostream& os );
  * @version 1.0
  */
 EQ_EXPORT std::ostream& backtrace( std::ostream& os );
+
+/** Print the RTTI name of the given class. @version 1.0 */
+template< class T > inline std::string className( T* object)
+{
+#ifdef WIN32
+    return std::string( typeid( *object ).name( ));
+#else
+    int status;
+    const char* mangled = typeid( *object ).name();
+    char* name = abi::__cxa_demangle( mangled, 0, 0, &status );
+    std::string result = name;
+    if( status != 0 )
+        result = mangled;
+    if( name )
+        free( name );
+    return result;
+#endif
+}
 
 }
 }
