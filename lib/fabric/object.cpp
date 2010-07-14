@@ -53,7 +53,7 @@ uint32_t Object::commitNB()
 {
     if( _userData )
     {
-        if( _userData->getID() == EQ_ID_INVALID && hasMasterUserData())
+        if( !_userData->isAttached() && hasMasterUserData( ))
         {
             getSession()->registerObject( _userData );
             _data.userData = _userData;

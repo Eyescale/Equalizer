@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -36,8 +36,9 @@ CommandCache::CommandCache()
 {
     for( size_t i = 0; i < CACHE_ALL; ++i )
     {
-        _caches[ i ].push_back( new Command );
-        _positions[ i ] = 0;
+        _cache[ i ].push_back( new Command );
+        _size[ i ] = 0;
+        _position[ i ] = 0;
     }
 }
 
@@ -47,9 +48,12 @@ CommandCache::~CommandCache()
 
     for( size_t i = 0; i < CACHE_ALL; ++i )
     {
-        EQASSERT( _caches[i].size() == 1 );
-        delete _caches[i].front();
-        _caches[i].clear();
+        EQASSERT( _cache[i].size() == 1 );
+        EQASSERT( _cache[i].front()->isFree( ));
+
+        delete _cache[i].front();
+        _cache[i].clear();
+        _size[i] = 0;
     }
 }
 
@@ -57,13 +61,18 @@ void CommandCache::flush()
 {
     for( size_t i = 0; i < CACHE_ALL; ++i )
     {
-        Commands& cache = _caches[ i ];
+        Commands& cache = _cache[ i ];
         for( Commands::const_iterator j = cache.begin(); j != cache.end(); ++j )
         {
-            delete *j;
+            Command* command = *j;
+            _size[ i ] -= command->getAllocationSize();
+            delete command;
         }
         cache.clear();
-        _positions[ i ] = 0;
+
+        EQASSERT( _size[ i ] == 0 );
+        _size[ i ] = 0;
+        _position[ i ] = 0;
         cache.push_back( new Command );
     }
 }
@@ -74,55 +83,51 @@ namespace
 static base::a_int32_t _hits;
 static base::a_int32_t _misses;
 static base::a_int32_t _lookups;
+static base::a_int32_t _allocs;
+static base::a_int32_t _frees;
 }
 #endif
 
-Command& CommandCache::alloc( NodePtr node, NodePtr localNode, 
-                              const uint64_t size )
+void CommandCache::_compact( const Cache which )
+{
+#ifdef COMPACT
+    CHECK_THREAD( _thread );
+
+    size_t& size = _size[ which ];
+    if( size < EQ_64MB || ( _position[ which ] & 0xf ) != 0 )
+        return;
+
+    Commands& cache = _cache[ which ];
+    for( Commands::iterator i = cache.begin(); i != cache.end(); )
+    {
+        const Command* cmd = *i;
+        if( cmd->isFree( ))
+        {            
+            const size_t cmdSize = cmd->getAllocationSize();
+            size -= cmdSize;
+            i = cache.erase( i );
+            delete cmd;
+#  ifdef PROFILE
+            ++_frees;
+#  endif
+            if( size <= EQ_48MB )
+                break;
+        }
+        else
+            ++i;
+    }
+#endif // COMPACT
+}
+
+Command& CommandCache::_newCommand( const Cache which )
 {
     CHECK_THREAD( _thread );
 
-    const Cache which = (size > Packet::minSize) ? CACHE_BIG : CACHE_SMALL;
-    Commands& cache = _caches[ which ];
-    size_t& i = _positions[ which ];
-
-    EQASSERT( !cache.empty( ));
-
-#ifdef COMPACT
-    const unsigned highWater = (which == CACHE_BIG) ? 10 : 1000;
-    if( cache.size() > highWater && (i%10) == 0 )
-    {
-        int64_t keepFree( 30 * 1024 * 1024 );
-#  ifdef PROFILE
-        size_t freed( 0 );
-#  endif
-
-        for( i = 0; i < cache.size(); ++i )
-        {
-            const Command* cmd = cache[i];
-            if( !cmd->isFree( ))
-                continue;
-            
-            if( keepFree > 0 )
-            {
-                keepFree -= cmd->getAllocationSize();
-                continue;
-            }
-
-            cache.erase( cache.begin() + i );
-            delete cmd;
-#  ifdef PROFILE
-            ++freed;
-#  endif
-        }
-#  ifdef PROFILE
-        EQINFO << "Freed " << freed << " packets, remaining " << cache.size()
-               << std::endl;
-#  endif
-    }
-#endif
-
+    Commands& cache = _cache[ which ];
     const size_t cacheSize = cache.size();        
+    EQASSERT( cacheSize > 0 );
+
+    size_t& i = _position[ which ];
     i = i % cacheSize;
 
     const size_t end = i + cacheSize;
@@ -140,32 +145,21 @@ Command& CommandCache::alloc( NodePtr node, NodePtr localNode,
             const long hits = ++_hits;
             if( (hits%1000) == 0 )
             {
-                size_t mem( 0 );
-                size_t free( 0 );
-                size_t packets( 0 );
+                size_t mem = 0;
+                size_t packets = 0;
 
                 for( size_t j = 0; j < CACHE_ALL; ++j )
-                {
-                    Commands& cache1 = _caches[ j ];
-                    packets += cache1.size();
-
-                    for( Commands::const_iterator k = cache1.begin(); 
-                         k != cache1.end(); ++k )
-                    {
-                        const Command* cmd = *k;
-                        mem += cmd->_packetAllocSize;
-                        if( cmd->isFree( ))
-                            ++free;
-                    }
+                {                    
+                    packets += _cache[ j ].size();
+                    mem += _size[ j ];
                 }
                 
                 EQINFO << _hits << " hits, " << _misses << " misses, "
                        << _lookups << " lookups, " << mem << "b allocated in "
-                       << packets << " packets (" << free << " free)"
-                       << std::endl;
+                       << packets << " packets, " << _allocs << " allocated, " 
+                       << _frees << " freed" << std::endl;
             }
 #endif
-            command->alloc( node, localNode, size );
             return *command;
         }
     }
@@ -177,10 +171,37 @@ Command& CommandCache::alloc( NodePtr node, NodePtr localNode,
     const size_t add = (cacheSize >> 3) + 1;
     for( size_t j = 0; j < add; ++j )
         cache.push_back( new Command );
+#ifdef PROFILE
+    _allocs += add;
+#endif
 
-    Command* command = cache.back();
-    command->alloc( node, localNode, size );
-    return *command;
+    return *( cache.back( ));
+}
+
+Command& CommandCache::alloc( NodePtr node, NodePtr localNode, 
+                              const uint64_t size )
+{
+    CHECK_THREAD( _thread );
+
+    const Cache which = (size > Packet::minSize) ? CACHE_BIG : CACHE_SMALL;
+
+    _compact( which );
+    Command& command = _newCommand( which );
+    
+    _size[ which ] += command._alloc( node, localNode, size );
+    return command;
+}
+
+Command& CommandCache::clone( Command& from )
+{
+    CHECK_THREAD( _thread );
+
+    const Cache which = (from->size > Packet::minSize) ? CACHE_BIG :
+                                                         CACHE_SMALL;
+    Command& command = _newCommand( which );
+    
+    command._clone( from );
+    return command;
 }
 
 }

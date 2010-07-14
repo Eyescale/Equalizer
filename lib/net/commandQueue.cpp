@@ -54,6 +54,8 @@ void CommandQueue::flush()
 void CommandQueue::push( Command& command )
 {
     EQASSERT( command.isValid( ));
+    EQASSERT( command->type != PACKETTYPE_EQNET_OBJECT ||
+              command.getDispatchID() <= EQ_ID_MAX );
     
     command.retain();
     _commands.push( &command );
@@ -62,6 +64,8 @@ void CommandQueue::push( Command& command )
 void CommandQueue::pushFront( Command& command )
 {
     EQASSERT( command.isValid( ));
+    EQASSERT( command->type != PACKETTYPE_EQNET_OBJECT ||
+              command.getDispatchID() <= EQ_ID_MAX );
     
     command.retain();
     _commands.pushFront( &command );

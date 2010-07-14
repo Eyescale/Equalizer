@@ -1,6 +1,6 @@
 #Equalizer 1.0 ascii
 
-# two-to-one sort-first config for cluster at unizh
+# two-to-one sort-first config, for cluster change hostnames
 global
 {
     EQ_WINDOW_IATTR_HINT_DRAWABLE pbuffer

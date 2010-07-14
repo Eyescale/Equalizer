@@ -641,23 +641,51 @@ bool Session::dispatchCommand( Command& command )
 
 bool Session::_dispatchObjectCommand( Command& command )
 {
-    const ObjectPacket* objPacket = command.getPacket<ObjectPacket>();
-    const uint32_t      id        = objPacket->objectID;
+    CHECK_THREAD( _receiverThread );
+    const ObjectPacket* packet = command.getPacket< ObjectPacket >();
+    const uint32_t id = packet->objectID;
+    const uint32_t instanceID = packet->instanceID;
 
     ObjectsHash::const_iterator i = _objects->find( id );
 
     if( i == _objects->end( ))
         // When the instance ID is set to none, we only care about the packet
         // when we have an object of the given ID (multicast)
-        return ( objPacket->instanceID == EQ_ID_NONE ? true : false );
+        return ( instanceID == EQ_ID_NONE );
 
     const Objects& objects = i->second;
-    EQASSERTINFO( !objects.empty(), objPacket );
+    EQASSERTINFO( !objects.empty(), packet );
 
-    Object* object = objects.front();
-    EQASSERT( object );
+    if( instanceID <= EQ_ID_MAX )
+    {
+        for( Objects::const_iterator j = objects.begin(); j!=objects.end(); ++j)
+        {
+            Object* object = *j;
+            if( instanceID == object->getInstanceID( ))
+            {
+                EQCHECK( object->dispatchCommand( command ));
+                return true;
+            }
+        }
+        EQUNREACHABLE;
+        return false;
+    }
 
+    Objects::const_iterator j = objects.begin();
+    Object* object = *j;
     EQCHECK( object->dispatchCommand( command ));
+    EQASSERTINFO( command.getDispatchID() <= EQ_ID_MAX, command );
+
+    for( ++j; j != objects.end(); ++j )
+    {
+        object = *j;
+        Command& clone = _localNode->cloneCommand( command );
+
+        EQCHECK( object->dispatchCommand( clone ));
+        EQASSERTINFO( clone.getDispatchID() <= EQ_ID_MAX, clone );
+        EQASSERTINFO( clone.getDispatchID() != command.getDispatchID(),
+                      command );
+    }
     return true;
 }
 
@@ -685,62 +713,60 @@ CommandResult Session::_invokeObjectCommand( Command& command )
     EQASSERT( command.isValid( ));
     EQASSERT( command->type == PACKETTYPE_EQNET_OBJECT );
 
-    const ObjectPacket* objPacket = command.getPacket<ObjectPacket>();
-    const uint32_t      id        = objPacket->objectID;
-    const uint32_t     instanceID = objPacket->instanceID;
-    const bool ignoreInstance = ( instanceID == EQ_ID_ANY ||
-                                  instanceID == EQ_ID_NONE );
+    Object* object = _findObject( command );
+    if( !object )
+        return COMMAND_ERROR;
+    
+    const CommandResult result = object->invokeCommand( command );
+    switch( result )
+    {
+        case COMMAND_ERROR:
+            EQERROR << "Error handling " << command << " for object of type "
+                    << typeid(*object).name() << std::endl;
+            return COMMAND_ERROR;
+
+        case COMMAND_HANDLED:
+            return COMMAND_HANDLED;
+
+        default:
+            EQUNREACHABLE;
+    }
+    return COMMAND_ERROR;
+}
+
+Object* Session::_findObject( Command& command )
+{
+    EQASSERT( command.isValid( ));
+    EQASSERT( command->type == PACKETTYPE_EQNET_OBJECT );
+
+    const ObjectPacket* packet = command.getPacket< ObjectPacket >();
+    const uint32_t id = packet->objectID;
+    const uint32_t instanceID = command.getDispatchID();
+    EQASSERTINFO( instanceID <= EQ_ID_MAX, command );
 
     base::ScopedMutex< base::SpinLock > mutex( _objects );
     ObjectsHash::const_iterator i = _objects->find( id );
 
     if( i == _objects->end( ))
     {
-        // When the instance ID is set to none, we only care about the packet
-        // when we have an object of the given ID (multicast)
-        EQASSERTINFO( instanceID == EQ_ID_NONE, "No objects to invoke command "
-                      << objPacket << " in " << typeid( *this ).name( ));
-        return COMMAND_HANDLED;
+        EQASSERTINFO( false, "no objects to handle command " << packet <<
+                      " in " << typeid( *this ).name( ));
+        return 0;
     }
 
-    // create copy of objects vector for thread-safety
-    const Objects objects = i->second;
-    EQASSERTINFO( !objects.empty(), objPacket );
-    mutex.leave();
+    const Objects& objects = i->second;
+    EQASSERTINFO( !objects.empty(), packet );
 
     for( Objects::const_iterator j = objects.begin(); j != objects.end(); ++j )
     {
         Object* object = *j;
-        const bool isInstance = instanceID == object->getInstanceID();
-        if( ignoreInstance || isInstance )
-        {
-            EQASSERT( command.isValid( ))
-
-            const CommandResult result = object->invokeCommand( command );
-            switch( result )
-            {
-                case COMMAND_ERROR:
-                    EQERROR << "Error handling command " << objPacket
-                            << " for object of type " << typeid(*object).name()
-                            << std::endl;
-                    return COMMAND_ERROR;
-
-                case COMMAND_HANDLED:
-                    if( isInstance )
-                        return result;
-                    break;
-
-                default:
-                    EQUNREACHABLE;
-            }
-        }
+        if( instanceID == object->getInstanceID( ))
+            return object;
     }
-    if( ignoreInstance )
-        return COMMAND_HANDLED;
 
-    EQUNREACHABLE;
-    EQWARN << "instance not found for " << objPacket << std::endl;
-    return COMMAND_ERROR;
+    EQASSERTINFO( false, "object instance " << instanceID << " not found for "<<
+                  packet );
+    return 0;
 }
 
 CommandResult Session::_cmdAckRequest( Command& command )
@@ -864,8 +890,8 @@ CommandResult Session::_cmdAttachObject( Command& command )
         command.getPacket<SessionAttachObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd attach object " << packet << std::endl;
 
-    Object* object =  static_cast<Object*>( _localNode->getRequestData( 
-                                                packet->requestID ));
+    Object* object = static_cast< Object* >( _localNode->getRequestData( 
+                                                 packet->requestID ));
     _attachObject( object, packet->objectID, packet->objectInstanceID );
     _localNode->serveRequest( packet->requestID );
     return COMMAND_HANDLED;
@@ -1169,7 +1195,7 @@ CommandResult Session::_cmdUnmapObject( Command& command )
 CommandResult Session::_cmdInstance( Command& command )
 {
     ObjectInstancePacket* packet = command.getPacket< ObjectInstancePacket >();
-    EQLOG( LOG_OBJECTS ) << "Cmd instance  " << packet << std::endl;
+    EQLOG( LOG_OBJECTS ) << "Cmd instance " << packet << std::endl;
 
     CHECK_THREAD( _commandThread );
     EQASSERT( _localNode.isValid( ));
@@ -1182,7 +1208,10 @@ CommandResult Session::_cmdInstance( Command& command )
 
     if( packet->nodeID == _localNode->getNodeID( ))
     {
+        EQASSERT( packet->instanceID <= EQ_ID_MAX );
+
         usage = 1; // TODO correct usage count
+        command.setDispatchID( packet->instanceID );
         result = _invokeObjectCommand( command );
     }
 

@@ -70,7 +70,10 @@ namespace net
          * certain operations, e.g., sync(), are not-threadsafe.
          */
         EQ_EXPORT virtual void makeThreadSafe();  
-        
+
+        /** @sa Dispatcher::dispatchCommand(). */
+        EQ_EXPORT virtual bool dispatchCommand( Command& command );
+
         /** @name Data Access */
         //@{
         /** @return true if the object has been made threadsafe, false if not.*/

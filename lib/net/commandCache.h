@@ -47,6 +47,9 @@ namespace net
         EQ_EXPORT Command& alloc( NodePtr node, NodePtr localNode,
                                   const uint64_t size );
 
+        /** @return a clone of a command. */
+        EQ_EXPORT Command& clone( Command& from );
+
         /** Flush all allocated commands. */
         void flush();
 
@@ -59,9 +62,16 @@ namespace net
         };
 
         /** The caches. */
-        Commands _caches[ CACHE_ALL ];
+        Commands _cache[ CACHE_ALL ];
+
+        /** The total size of each cache */
+        size_t _size[ CACHE_ALL ];
+
         /** Last lookup position in each cache. */
-        size_t _positions[ CACHE_ALL ];
+        size_t _position[ CACHE_ALL ];
+
+        void _compact( const Cache which );
+        Command& _newCommand( const Cache which );
 
         CHECK_THREAD_DECLARE( _thread );
     };

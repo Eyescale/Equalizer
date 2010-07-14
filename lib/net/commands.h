@@ -70,12 +70,7 @@ namespace net
         CMD_SESSION_SUBSCRIBE_OBJECT_REPLY,
         CMD_SESSION_UNSUBSCRIBE_OBJECT,
         CMD_SESSION_INSTANCE,
-        CMD_SESSION_FILL1, // some buffer for binary-compatible patches
-        CMD_SESSION_FILL2,
-        CMD_SESSION_FILL3,
-        CMD_SESSION_FILL4,
-        CMD_SESSION_FILL5,
-        CMD_SESSION_CUSTOM // must be last
+        CMD_SESSION_CUSTOM = 30  // some buffer for binary-compatible patches
     };
 
     enum ObjectCommand

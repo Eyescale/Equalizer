@@ -39,6 +39,8 @@ namespace net
     class Command 
     {
     public:
+        /** @name Data access. */
+        //@{
         Packet*       getPacket()              { return _packet; }
         const Packet* getPacket() const        { return _packet; }
 
@@ -55,24 +57,38 @@ namespace net
         Packet*       operator->()       { EQASSERT(_packet); return _packet; }
         const Packet* operator->() const { EQASSERT(_packet); return _packet; }
 
-        /** @name Usage tracking. */
-        //@{
-        bool isFree() const { return ( _refCount==0 ); }
-        void retain()  { ++_refCount; }
-        void release() 
-            {
-                EQASSERT( _refCount != 0 );
-                --_refCount;
-            }
+        bool isValid() const { return ( _packet!=0 ); }
+        uint64_t getAllocationSize() const { return _dataSize; }
+
+        void setDispatchID( const uint32_t id ) { _dispatchID = id; }
+        uint32_t getDispatchID() const { return _dispatchID; }
         //@}
 
-        bool isValid() const { return ( _packet!=0 ); }
-        uint64_t getAllocationSize() const { return _packetAllocSize; }
+        /** @name Usage tracking. */
+        //@{
+        bool isFree() const
+            { CHECK_THREAD( _writeThread ); return ( _refCount==0 ); }
+        void retain();
+        void release();
+        //@}
 
     private:
         Command();
         ~Command();
-        void alloc( NodePtr node, NodePtr localNode, const uint64_t size );
+
+        /** @return the number of newly allocated bytes. */
+        size_t _alloc( NodePtr node, NodePtr localNode, const uint64_t size );
+
+        /** 
+         * Clone the from command into this command.
+         * 
+         * The command will share all data but the dispatch id. The command's
+         * allocation size will be 0 and it will never delete the shared
+         * data. The command will (de)reference the from command on each
+         * retain/release.
+         */
+        void _clone( Command& from );
+
         friend class CommandCache;
 
         Command& operator = ( Command& rhs ); // disable assignment
@@ -80,11 +96,18 @@ namespace net
 
         void _free();
 
-        NodePtr  _node;
-        NodePtr  _localNode;
-        Packet*  _packet;
+        NodePtr  _node; //!< The node sending the packet
+        NodePtr  _localNode; //!< The node receiving the packet
+        Packet*  _packet; //!< The packet (this or master _data)
+
+        Packet* _data; //!< Our allocated data
+        uint64_t _dataSize; //!< The size of the allocation
+
+        base::a_int32_t* _refCountMaster;
         base::a_int32_t _refCount;
-        uint64_t _packetAllocSize;
+
+        uint32_t _dispatchID;
+        CHECK_THREAD_DECLARE( _writeThread );
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& );

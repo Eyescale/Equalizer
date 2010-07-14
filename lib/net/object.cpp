@@ -110,6 +110,13 @@ void Object::detachFromSession()
     _session    = 0;
 }
 
+bool Object::dispatchCommand( Command& command )
+{
+    EQASSERT( isAttached( ));
+    command.setDispatchID( _instanceID );
+    return Dispatcher::dispatchCommand( command );
+}
+
 void Object::_setChangeManager( ObjectCM* cm )
 {
     if( _cm != ObjectCM::ZERO )

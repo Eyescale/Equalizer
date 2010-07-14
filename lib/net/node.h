@@ -428,6 +428,10 @@ namespace net
          */
         void flushCommands() { _incoming.interrupt(); }
 
+        /** @internal Clone the given command. */
+        Command& cloneCommand( Command& command )
+            { return _commandCache.clone( command ); }
+
         void acquireSendToken( NodePtr toNode );
         void releaseSendToken( NodePtr toNode );
         //@}
@@ -571,8 +575,10 @@ namespace net
             STATE_LISTENING  //!< local node, listening
         };
 
-        friend EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Node& node );
-        friend EQ_EXPORT std::ostream& operator << ( std::ostream&, const State );
+        friend EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+                                                     const Node& node );
+        friend EQ_EXPORT std::ostream& operator << ( std::ostream&,
+                                                     const State );
 
         /** Globally unique node identifier. */
         NodeID _id;

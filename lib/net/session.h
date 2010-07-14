@@ -419,6 +419,7 @@ namespace net
 
         bool _dispatchObjectCommand( Command& command );
         CommandResult _invokeObjectCommand( Command& packet );
+        Object* _findObject( Command& command );
 
         void _attachObject( Object* object, const uint32_t id, 
                             const uint32_t instanceID );

@@ -21,8 +21,8 @@
 
 #include <errno.h>
 #ifndef WIN32
-#  include <string.h>
 #  include <execinfo.h>
+#  include <string.h>
 #  define EQ_BACKTRACE_DEPTH 256
 #endif
 

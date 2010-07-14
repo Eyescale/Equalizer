@@ -103,6 +103,8 @@ typedef SSIZE_T    ssize_t;
 #define EQ_100MB (104857600)
 
 #define EQ_64KB  (65536)
+#define EQ_48MB  (50331648)
+#define EQ_64MB  (67108864)
 
 namespace eq
 {

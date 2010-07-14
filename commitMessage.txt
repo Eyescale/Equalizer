@@ -1,9 +1,16 @@
-Fix run-time window deletion
+Refactor object packet dispatch to behave as expected:
+- The receiver thread dispatches the command to the correct instance(s)
+- The worker thread dispatches a command to exactly one instance
+
+-> Clone commands as needed
+-> Add a new command dispatch id to identify target instance
+-> Refactor command cache to track its size simpler
+-> Refactor session object dispatch as described
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
-[x] New Feature
-[ ] Cleanup
-[ ] Optimization
+[ ] New Feature
+[x] Cleanup
+[x] Optimization
 [ ] Documentation

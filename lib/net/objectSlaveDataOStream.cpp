@@ -49,8 +49,10 @@ void ObjectSlaveDataOStream::_sendPacket( ObjectSlaveDeltaPacket& packet,
     packet.objectID  = _object->getID();
     packet.instanceID = _object->getMasterInstanceID();
 
+#if 0
     EQLOG( LOG_OBJECTS ) << "send " << &packet << " to " << _connections.size()
                          << " receivers " << std::endl;
+#endif
 
     Connection::send( _connections, packet, chunks, chunkSizes, packet.nChunks);
 }

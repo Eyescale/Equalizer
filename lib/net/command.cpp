@@ -26,10 +26,12 @@ namespace net
 {
 
 Command::Command() 
-  : _packet( 0 )
-  , _packetAllocSize( 0 )
-{
-}
+        : _packet( 0 )
+        , _data( 0 )
+        , _dataSize( 0 )
+        , _refCountMaster( 0 )
+        , _dispatchID( EQ_ID_INVALID )
+{}
 
 Command::~Command() 
 {
@@ -37,34 +39,87 @@ Command::~Command()
     _free(); 
 }
 
-void Command::alloc( NodePtr node, NodePtr localNode, const uint64_t size )
+void Command::retain()
 {
-    if( !_packet )
+    ++_refCount; 
+    if( _refCountMaster )
     {
-        _packetAllocSize = EQ_MAX( Packet::minSize, size );
-        _packet = static_cast<Packet*>( malloc( _packetAllocSize ));
+        ++( *_refCountMaster );
+        EQASSERT( *_refCountMaster >= _refCount );
     }
-    else if( size > _packetAllocSize )
+}
+
+void Command::release() 
+{
+    if( _refCountMaster ) // do it before self - otherwise race!
     {
-        _packetAllocSize = EQ_MAX( Packet::minSize, size );
-        free( _packet );
-        _packet = static_cast<Packet*>( malloc( _packetAllocSize ));
+        EQASSERT( *_refCountMaster != 0 );
+        EQASSERT( *_refCountMaster >= _refCount );
+        --( *_refCountMaster );
     }
 
-    _node         = node;
-    _localNode    = localNode;
+    EQASSERT( _refCount != 0 );
+    --_refCount;
+}
+
+size_t Command::_alloc( NodePtr node, NodePtr localNode, const uint64_t size )
+{
+    CHECK_THREAD( _writeThread );
+    EQASSERT( _refCount == 0 );
+
+    size_t allocated = 0;
+    if( !_data )
+    {
+        _dataSize = EQ_MAX( Packet::minSize, size );
+        _data = static_cast< Packet* >( malloc( _dataSize ));
+        allocated = _dataSize;
+    }
+    else if( size > _dataSize )
+    {
+        allocated =  size - _dataSize;
+        _dataSize = EQ_MAX( Packet::minSize, size );
+        free( _data );
+        _data = static_cast< Packet* >( malloc( _dataSize ));
+    }
+
+    _node = node;
+    _localNode = localNode;
+    _refCountMaster = 0;
+    _dispatchID = EQ_ID_INVALID;
+    _packet = _data;
     _packet->size = size;
+
+    return allocated;
+}
+
+void Command::_clone( Command& from )
+{
+    CHECK_THREAD( _writeThread );
+    EQASSERT( _refCount == 0 );
+
+    _node = from._node;
+    _localNode = from._localNode;
+    _packet = from._packet;
+
+    _refCountMaster = &from._refCount;
+    _dispatchID = EQ_ID_INVALID;
 }
 
 void Command::_free()
 {
-    if( _packet )
-        free( _packet );
+    CHECK_THREAD( _writeThread );
+    EQASSERT( _refCount == 0 );
 
-    _packet    = 0;
-    _node      = 0;
+    if( _data )
+        free( _data );
+
+    _data = 0;
+    _dataSize = 0;
+    _packet = 0;
+    _node = 0;
     _localNode = 0;
-    _packetAllocSize = 0;
+    _refCountMaster = 0;
+    _dispatchID = EQ_ID_INVALID;
 }        
 
 EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& command )

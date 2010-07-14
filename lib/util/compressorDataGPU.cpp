@@ -26,14 +26,14 @@ namespace util
 
 bool CompressorDataGPU::isValidDownloader( uint32_t inputToken )
 {
-    return isValid( _name ) && _info.tokenType == inputToken ;
+    return _plugin && isValid( _name ) && _info.tokenType == inputToken ;
 }
 
 bool CompressorDataGPU::isValidUploader( uint32_t inputToken, 
                                          uint32_t outputToken )
 {
-    return ( _info.outputTokenType == inputToken ) &&
-           ( _info.tokenType == outputToken );
+    return _plugin && _info.outputTokenType == inputToken &&
+           _info.tokenType == outputToken;
 }
 
 void CompressorDataGPU::download( const fabric::PixelViewport& pvpIn,
@@ -42,6 +42,8 @@ void CompressorDataGPU::download( const fabric::PixelViewport& pvpIn,
                                   fabric::PixelViewport&       pvpOut,
                                   void**             out )
 {
+    EQASSERT( _plugin );
+
     const uint64_t inDims[4] = { pvpIn.x, pvpIn.w, pvpIn.y, pvpIn.h }; 
     uint64_t outDims[4] = { 0, 0, 0, 0 };
     _plugin->download( _instance, _name, _glewContext,
