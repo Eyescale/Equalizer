@@ -3,9 +3,11 @@
 .SECONDARY: $(OBJECT_DIR)/%.o %.o %.d $(OBJECT_DIR)/%.d $(DEPENDENCIES)
 
 debug: CXXFLAGS += -g -Werror
+debug: BUILD_MODE = Debug
 debug: all
 
 release: CXXFLAGS += -O2 -Werror -Wuninitialized -DNDEBUG
+release: BUILD_MODE = Release
 release: all
 
 all: $(TARGETS)

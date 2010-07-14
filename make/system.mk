@@ -121,11 +121,7 @@ endif
 endif # top-level
 
 #build mode
-ifeq ($(findstring -g, $(CXXFLAGS)),-g)
-    BUILD_MODE     = Debug
-else
-    BUILD_MODE     = Release
-endif # -g
+BUILD_MODE ?= Debug
 
 # defines
 CXX_DEFINES_TMP   = $(sort $(filter -D%,$(CXXFLAGS))) \
