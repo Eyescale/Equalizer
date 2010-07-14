@@ -2,6 +2,12 @@
 .PHONY: subdirs clean $(SUBDIRS) install
 .SECONDARY: $(OBJECT_DIR)/%.o %.o %.d $(OBJECT_DIR)/%.d $(DEPENDENCIES)
 
+debug: CXXFLAGS += -g -Werror
+debug: all
+
+release: CXXFLAGS += -O2 -Werror -Wuninitialized -DNDEBUG
+release: all
+
 all: $(TARGETS)
 
 # top level precompile command(s)

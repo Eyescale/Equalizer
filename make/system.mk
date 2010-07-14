@@ -58,17 +58,6 @@ ifeq (0,${MAKELEVEL}) # top-level invocation - one-time declarations below
 LD        = $(CXX) # use c++ compiler for linking
 LD_PATH   = $(PWD)/$(LIBRARY_DIR)
 
-ifeq ($(findstring -O, $(CXXFLAGS)),-O) # assume release build...
-ifeq ($(findstring -g, $(CXXFLAGS)),-g) # ... unless -g was specified
-    CXXFLAGS       += -Werror
-else
-    CXXFLAGS       += -Werror -Wuninitialized
-    DEFFLAGS       += -DNDEBUG
-endif # -g
-else  # debug build
-    CXXFLAGS       += -g -Werror
-endif # -O
-
 ifndef CFLAGS
   CFLAGS         := $(CXXFLAGS)
 endif
