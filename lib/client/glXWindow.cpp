@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
-                          , Maxim Makhinya
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,7 +32,7 @@ GLXWindow::GLXWindow( Window* parent )
     , _glxewContext( new GLXEWContext )
     , _glxewInitialized( false )
 {
-    
+
 }
 
 GLXWindow::~GLXWindow( )
@@ -705,7 +705,7 @@ void GLXWindow::leaveNVSwapBarrier()
 void GLXWindow::initGLXEW()
 {
     if( _glxewInitialized )
-      return;
+        return;
 
     const GLenum result = glxewInit();
     if( result != GLEW_OK )

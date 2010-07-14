@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
-                     , Maxim Makhinya
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -34,10 +34,7 @@ WGLPipe::WGLPipe( Pipe* parent )
 WGLPipe::~WGLPipe( )
 {
     delete _wglewContext;
-    _wglewContext = 0;
 }
-
-using namespace std;
 
 //---------------------------------------------------------------------------
 // WGL init

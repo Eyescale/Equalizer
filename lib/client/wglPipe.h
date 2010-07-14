@@ -80,7 +80,7 @@ namespace eq
         bool _getGPUHandle( HGPUNV& handle );
 
         /** Extended WGL function entries. */
-        WGLEWContext* _wglewContext;
+        WGLEWContext* const _wglewContext;
 
         union // placeholder for binary-compatible changes
         {
