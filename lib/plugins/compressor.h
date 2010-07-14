@@ -25,7 +25,7 @@
  *  - Create a new shared library named EqualizerCompressorNAME.dll (Win32),
  *    libeqCompressorNAME.dylib (Mac OS X) or libeqCompressorNAME.so
  *    (Linux).
- *  - Define EQ_PLUGIN_API and then include eq/plugins/compressor.h (this
+ *  - Define EQ_PLUGIN_BUILD and then include eq/plugins/compressor.h (this
  *    header file).
  *  - Implement all C functions from this header file. You can use the
  *    default Equalizer compressors in src/lib/compressor as a template.
@@ -372,6 +372,10 @@ extern "C"
     #define EQ_COMPRESSOR_RLE_DEPTH_UNSIGNED_INT                        0x4au
     /** RLE Compression of unsigned tokens. */
     #define EQ_COMPRESSOR_DIFF_RLE_UNSIGNED                             0x4bu
+
+    /** lossless rtt.ag jpeg compressor */
+    #define EQ_COMPRESSOR_AG_RTT_JPEG_HQ   0x100000u
+
     /**
      * Private types -FOR DEVELOPMENT ONLY-.
      *
