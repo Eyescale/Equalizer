@@ -118,7 +118,7 @@ void Layout< C, L, V >::notifyDetach()
     while( !_views.empty( ))
     {
         V* view = _views.back();
-        if( view->getID() > EQ_ID_MAX )
+        if( !view->isAttached( ))
         {
             EQASSERT( isMaster( ));
             return;

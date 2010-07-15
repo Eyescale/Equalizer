@@ -83,17 +83,16 @@ void Object::notifyDetach()
     if( !_userData )
         return;
 
-    EQASSERT( _userData->getID() > EQ_ID_MAX ||
+    EQASSERT( !_userData->isAttached() ||
               _userData->isMaster() == hasMasterUserData( ));
 
     if( _userData->isMaster( ))
     {
-        getSession()->deregisterObject( _userData );
         _data.userData.identifier = EQ_ID_INVALID;
         _data.userData.version = net::VERSION_NONE;
     }
-    else
-        getSession()->unmapObject( _userData );
+
+    getSession()->releaseObject( _userData );
 }
 
 void Object::backup()

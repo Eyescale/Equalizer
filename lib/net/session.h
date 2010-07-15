@@ -171,7 +171,7 @@ namespace net
          * @return the master node, or Node::ZERO if no master node is
          *         set for the identifier.
          */
-        EQ_EXPORT const NodeID& getIDMaster( const uint32_t id );
+        EQ_EXPORT const NodeID getIDMaster( const uint32_t id );
         //@}
 
 
@@ -395,15 +395,14 @@ namespace net
 
         typedef stde::hash_map< uint32_t, NodeID > NodeIDHash;
         /** The id->master mapping table. */
-        NodeIDHash _idMasters;
-        base::Lock _idMasterMutex;
+        base::Lockable< NodeIDHash, base::SpinLock > _idMasters;
         
         /** All registered and mapped objects. */
         base::Lockable< ObjectsHash, base::SpinLock > _objects;
 
         InstanceCache _instanceCache; //!< cached object mapping data
 
-        const NodeID& _pollIDMaster( const uint32_t id ) const;
+        const NodeID _pollIDMaster( const uint32_t id ) const;
         NodePtr _pollIDMasterNode( const uint32_t id ) const;
 
         void _registerThreadObject( Object* object, const uint32_t id );

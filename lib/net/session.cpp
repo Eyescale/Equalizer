@@ -218,11 +218,14 @@ uint32_t Session::_unsetIDMasterNB( const uint32_t identifier )
     SessionUnsetIDMasterPacket packet;
     packet.identifier = identifier;
 
-    if( !_isMaster )
-        _sendLocal( packet ); // set on our slave instance (fire&forget)
+    if( !_isMaster ) // unset on our slave instance
+    {
+        base::ScopedMutex< base::SpinLock > mutex( _idMasters );
+        _idMasters->erase( identifier );
+    }
     
     packet.requestID = _localNode->registerRequest();
-    send( packet );       // set on master instance (need to wait for ack)
+    send( packet );       // unset on master instance (need to wait for ack)
     return packet.requestID;
 }
 
@@ -231,20 +234,19 @@ void Session::_unsetIDMasterSync( const uint32_t requestID )
     _localNode->waitRequest( requestID );
 }
 
-const NodeID& Session::_pollIDMaster( const uint32_t id ) const 
+const NodeID Session::_pollIDMaster( const uint32_t id ) const 
 {
-    NodeIDHash::const_iterator i = _idMasters.find( id );
-    if( i == _idMasters.end( ))
+    base::ScopedMutex< base::SpinLock > mutex( _idMasters );
+    NodeIDHash::const_iterator i = _idMasters->find( id );
+    if( i == _idMasters->end( ))
         return NodeID::ZERO;
 
     return i->second;
 }
 
-const NodeID& Session::getIDMaster( const uint32_t identifier )
+const NodeID Session::getIDMaster( const uint32_t identifier )
 {
-    _idMasterMutex.set();
-    const NodeID& master = _pollIDMaster( identifier );
-    _idMasterMutex.unset();
+    const NodeID master = _pollIDMaster( identifier );
         
     if( master != NodeID::ZERO || _isMaster )
         return master;
@@ -257,7 +259,6 @@ const NodeID& Session::getIDMaster( const uint32_t identifier )
     send( packet );
     _localNode->waitRequest( packet.requestID );
 
-    base::ScopedMutex<> mutex( _idMasterMutex );
     EQLOG( LOG_OBJECTS ) << "Master node for id " << identifier << ": " 
         << _pollIDMaster( identifier ) << std::endl;
     return _pollIDMaster( identifier );
@@ -390,12 +391,8 @@ uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
     EQASSERT( !_localNode->inCommandThread( ));
         
     // Connect master node, can't do that from the command thread!
-    NodeID masterNodeID;
+    NodeID masterNodeID = _pollIDMaster( id );;
     NodePtr master;
-    {
-        base::ScopedMutex<> mutex( _idMasterMutex );
-        masterNodeID = _pollIDMaster( id );
-    }
 
     if( masterNodeID != NodeID::ZERO )
     {
@@ -490,10 +487,7 @@ void Session::unmapObject( Object* object )
     const uint32_t masterInstanceID = object->getMasterInstanceID();
     if( masterInstanceID != EQ_ID_INVALID )
     {
-        _idMasterMutex.set();
-        const NodeID& masterNodeID = _pollIDMaster( id );
-        _idMasterMutex.unset();
-
+        const NodeID masterNodeID = _pollIDMaster( id );
         NodePtr localNode = _localNode;
         NodePtr master    = localNode.isValid() ? 
                                 localNode->getNode( masterNodeID ) : 0;
@@ -817,8 +811,8 @@ CommandResult Session::_cmdSetIDMaster( Command& command )
     const NodeID& nodeID = packet->masterID;
     EQASSERT( nodeID != NodeID::ZERO );
 
-    base::ScopedMutex<> mutex( _idMasterMutex );
-    _idMasters[ packet->identifier ] = nodeID;
+    base::ScopedMutex< base::SpinLock > mutex( _idMasters );
+    _idMasters.data[ packet->identifier ] = nodeID;
 
     if( packet->requestID != EQ_ID_INVALID ) // need to ack set operation
         _ackRequest< SessionSetIDMasterPacket >( command );
@@ -833,10 +827,8 @@ CommandResult Session::_cmdUnsetIDMaster( Command& command )
     EQLOG( LOG_OBJECTS ) << "Cmd unset ID master: " << packet << std::endl;
 
     {
-        base::ScopedMutex<> mutex( _idMasterMutex );
-        NodeIDHash::iterator i = _idMasters.find( packet->identifier );
-        if( i != _idMasters.end( ))
-            _idMasters.erase( i );
+        base::ScopedMutex< base::SpinLock > mutex( _idMasters );
+        _idMasters->erase( packet->identifier );
     }
 
     if( packet->requestID != EQ_ID_INVALID )
@@ -869,8 +861,8 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
 
     if( nodeID != NodeID::ZERO )
     {
-        base::ScopedMutex<> mutex( _idMasterMutex );
-        _idMasters[ packet->identifier ] = nodeID;
+        base::ScopedMutex< base::SpinLock > mutex( _idMasters );
+        _idMasters.data[ packet->identifier ] = nodeID;
     }
     // else not found
 
