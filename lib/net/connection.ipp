@@ -1,8 +1,8 @@
 
-/* Copyright (c) 2006-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved. */
 
-#define ASSEMBLE_THRESHOLD (4096)
+#define EQ_ASSEMBLE_THRESHOLD (4096)
 
 template< typename T >
 bool Connection::send( Packet &packet, const std::vector<T>& data )
@@ -26,7 +26,7 @@ bool Connection::send( Packet &packet, const std::vector<T>& data )
 
     const uint64_t headerSize  = packet.size - packetStorage;
     const uint64_t size        = headerSize + dataSize;
-    if( size > ASSEMBLE_THRESHOLD )
+    if( size > EQ_ASSEMBLE_THRESHOLD )
     {
         // OPT: lock the connection and use two send() to avoid big memcpy
         packet.size = size;

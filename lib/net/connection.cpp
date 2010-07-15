@@ -279,7 +279,7 @@ bool Connection::send( Packet& packet, const void* data,
 
     const uint64_t headerSize  = packet.size - 8;
     const uint64_t size        = headerSize + dataSize;
-    if( size > ASSEMBLE_THRESHOLD )
+    if( size > EQ_ASSEMBLE_THRESHOLD )
     {
         // OPT: lock the connection and use two send() to avoid big memcpy
         packet.size = size;
@@ -334,7 +334,7 @@ bool Connection::send( const Connections& connections, Packet& packet,
     const uint64_t headerSize  = packet.size - 8;
     const uint64_t size        = headerSize + dataSize;
 
-    if( size > ASSEMBLE_THRESHOLD )
+    if( size > EQ_ASSEMBLE_THRESHOLD )
     {
         // OPT: lock the connection and use two send() to avoid big memcpy
         packet.size = size;
