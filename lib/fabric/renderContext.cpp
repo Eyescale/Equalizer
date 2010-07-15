@@ -37,7 +37,7 @@ RenderContext::RenderContext()
 {
 }
 
-EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+std::ostream& operator << ( std::ostream& os, 
                                       const RenderContext& ctx )
 {
     os << "ID " << ctx.frameID << " pvp " << ctx.pvp << " vp " << ctx.vp << " "

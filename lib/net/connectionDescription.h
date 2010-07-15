@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,7 +40,7 @@ namespace net
                 : type( CONNECTIONTYPE_TCPIP )
                 , bandwidth( 0 )
                 , port( 0 )
-				, _filename( "default" )
+                , _filename( "default" )
             {}
 
         /** The network protocol for the connection. */

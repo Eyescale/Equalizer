@@ -19,7 +19,7 @@
 #include <eq/base/spinLock.h>
 #include <iostream>
 
-#define MAXTHREADS 256
+#define MAXTHREADS 128
 #define NOPS       100000
 
 volatile size_t nThreads;

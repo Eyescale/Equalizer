@@ -12,6 +12,11 @@ CXXFLAGS           += -Wno-deprecated
 CUDA_INCLUDE_PATH  ?= /usr/local/cuda/include
 BOOST_INCLUDE_PATH ?= /usr/include
 
+# enable internal compiler error WAR
+ifndef BUILD_MODE
+release: GCCWAR = 1
+endif
+
 # SUBARCH-specific settings
 include $(TOP)/make/$(ARCH).$(SUBARCH).mk
 

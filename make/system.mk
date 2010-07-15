@@ -23,6 +23,8 @@ CUDA_INCLUDE_PATH ?= /usr/local/cuda/include
 # What to pass down to sub-makes
 export CFLAGS
 export CXXFLAGS
+export GCCWAR
+export BUILD_MODE
 export LDFLAGS
 export LD
 export LD_PATH
@@ -41,6 +43,7 @@ DEPTH     := $(subst .,-->,$(DEPTH))
 # general variables, targets, etc.
 BUILD_DIR_BASE  = build/$(ARCH)
 BUILD_DIR       = $(TOP)/$(BUILD_DIR_BASE)
+BUILD_MODE_FILE = $(BUILD_DIR)/._$(BUILD_MODE)
 LIBRARY_DIR     = $(BUILD_DIR)/lib
 INCLUDEDIRS     = -I$(BUILD_DIR)/include
 LINKDIRS        = -L$(LIBRARY_DIR)
@@ -119,9 +122,6 @@ endif
 endif
 
 endif # top-level
-
-#build mode
-BUILD_MODE ?= Debug
 
 # defines
 CXX_DEFINES_TMP   = $(sort $(filter -D%,$(CXXFLAGS))) \

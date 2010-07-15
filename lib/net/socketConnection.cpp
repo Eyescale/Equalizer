@@ -92,7 +92,7 @@ bool SocketConnection::connect()
     _fireStateChanged();
 
     if( _description->getHostname().empty( ))
-        _description->setHostname( "localhost" );
+        _description->setHostname( "127.0.0.1" );
 
     sockaddr_in address;
     if( !_parseAddress( address ))

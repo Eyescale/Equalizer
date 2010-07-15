@@ -526,9 +526,11 @@ void Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
     uint32_t id;
     if ( buffer == Frame::BUFFER_COLOR )
         id = fbo->getColorTextures()[0]->getID();
-    else if ( buffer == Frame::BUFFER_DEPTH )
+    else
+    {
+        EQASSERT( buffer == Frame::BUFFER_DEPTH );
         id = fbo->getDepthTexture().getID();
-
+    }
     _download( buffer, EQ_COMPRESSOR_DATA_2D | EQ_COMPRESSOR_USE_TEXTURE, 
                id, glewGetContext( ));
 
@@ -1251,9 +1253,8 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     validatePixelData( buffer );
 
     uint8_t* data = reinterpret_cast< uint8_t* >( memory.pixels );
-    uint64_t sizeData = getPixelDataSize( buffer );
-    EQASSERTINFO( nBytes <= sizeData, 
-                  nBytes << " > " << sizeData );
+    EQASSERTINFO( nBytes <= getPixelDataSize( buffer ),
+                  nBytes << " > " << getPixelDataSize( buffer ));
     // Each channel is saved separately
     switch( bpc )
     {

@@ -1061,7 +1061,7 @@ std::string Node::_createLaunchCommand( NodePtr node,
             {
                 const std::string& hostname = description->getHostname();
                 if( hostname.empty( ))
-                    replacement << "localhost";
+                    replacement << "127.0.0.1";
                 else
                     replacement << hostname;
                 break;

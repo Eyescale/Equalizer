@@ -2,6 +2,7 @@
 .PHONY: subdirs clean $(SUBDIRS) install
 .SECONDARY: $(OBJECT_DIR)/%.o %.o %.d $(OBJECT_DIR)/%.d $(DEPENDENCIES)
 
+ifndef BUILD_MODE
 debug: CXXFLAGS += -g -Werror
 debug: BUILD_MODE = Debug
 debug: all
@@ -9,11 +10,12 @@ debug: all
 release: CXXFLAGS += -O2 -Werror -Wuninitialized -DNDEBUG
 release: BUILD_MODE = Release
 release: all
+endif
 
-all: $(TARGETS)
+all:  $(BUILD_MODE_FILE) $(TARGETS)
 
 # top level precompile command(s)
-precompile: $(CXX_DEFINES_FILE) $(BUILD_MODE)
+precompile: $(CXX_DEFINES_FILE)
 
 $(CXX_DEFINES_FILE)::
 	@echo "#ifndef EQBASE_DEFINES_$(ARCH)_H" >> $@.tmp
@@ -27,12 +29,13 @@ $(CXX_DEFINES_FILE)::
 	@cmp -s $@ $@.tmp || cp $@.tmp $@
 	@rm $@.tmp
 
-$(BUILD_MODE)::
-	@if [ ! -f $(BUILD_DIR)/._$(BUILD_MODE) ]; then \
-		rm -rf $(BIN_DIR) $(LIBRARY_DIR); rm -f $(BUILD_DIR)/._*; \
-		mkdir -p $(BUILD_DIR); touch $(BUILD_DIR)/._$(BUILD_MODE); fi;
+$(BUILD_MODE_FILE):
+	@rm -rf $(BIN_DIR) $(LIBRARY_DIR) $(BUILD_DIR)/._Debug $(BUILD_DIR)/._Release
+	@mkdir -p $(BUILD_DIR)
+	@touch $@
+	@echo "Switched to $(BUILD_MODE) build"
 
-$(SIMPLE_PROGRAMS) : $(BUILD_DIR)/._$(BUILD_MODE)
+$(TARGETS): $(BUILD_MODE_FILE)
 
 # recursive subdir rules
 subdirs: $(SUBDIRS) 
@@ -64,10 +67,18 @@ $(INCLUDE_DIR)/%: %
 
 # libraries
 #  'functions'
+ifdef GCCWAR
+define compile
+  @$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MM -MF $@.d -c $< -MT $@
+  $(CXX) $(INCLUDEDIRS) $(ARCHFLAGS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@ || \
+  $(CXX) $(INCLUDEDIRS) $(ARCHFLAGS) $(CXXFLAGS) -O1 -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
+endef
+else
 define compile
   @$(CXX) $(INCLUDEDIRS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -MM -MF $@.d -c $< -MT $@
   $(CXX) $(INCLUDEDIRS) $(ARCHFLAGS) $(CXXFLAGS) -DSUBDIR=\"$(SUBDIR)\" -c $< -o $@
 endef
+endif
 
 $(DYNAMIC_LIB): $(PCHEADERS) $(OBJECTS)
 	@mkdir -p $(@D)

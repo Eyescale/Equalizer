@@ -1,4 +1,7 @@
-Fix Posix build
+Linux:
+- implement WAR for gcc internal compiler errors
+- Fix Debug/Release building
+- Fix Release warnings
 
 [ ] May break build
 [ ] May break existing applications
