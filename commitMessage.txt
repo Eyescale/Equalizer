@@ -1,9 +1,9 @@
-Add ostream function to print demangled object names from pointers
+Fix Posix build
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
+[x] Bugfix
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

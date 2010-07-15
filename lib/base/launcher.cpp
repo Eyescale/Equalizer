@@ -105,7 +105,7 @@ bool Launcher::run( const std::string& command )
     // child
     const size_t  argc         = commandLine.size();
     char*         argv[argc+1];
-    ostringstream stringStream;
+    std::ostringstream stringStream;
 
     for( size_t i=0; i<argc; i++ )
     {
