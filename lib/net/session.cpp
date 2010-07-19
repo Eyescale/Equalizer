@@ -677,7 +677,7 @@ bool Session::_dispatchObjectCommand( Command& command )
     return true;
 }
 
-CommandResult Session::invokeCommand( Command& command )
+bool Session::invokeCommand( Command& command )
 {
     EQVERB << "invoke " << command << std::endl;
     EQASSERT( command.isValid( ));
@@ -692,34 +692,26 @@ CommandResult Session::invokeCommand( Command& command )
 
         default:
             EQWARN << "Unhandled command " << command << std::endl;
-            return COMMAND_ERROR;
+            return false;
     }
 }
 
-CommandResult Session::_invokeObjectCommand( Command& command )
+bool Session::_invokeObjectCommand( Command& command )
 {
     EQASSERT( command.isValid( ));
     EQASSERT( command->type == PACKETTYPE_EQNET_OBJECT );
 
     Object* object = _findObject( command );
     if( !object )
-        return COMMAND_ERROR;
+        return false;
     
-    const CommandResult result = object->invokeCommand( command );
-    switch( result )
+    if( !object->invokeCommand( command ))
     {
-        case COMMAND_ERROR:
-            EQERROR << "Error handling " << command << " for object of type "
+        EQERROR << "Error handling " << command << " for object of type "
                     << typeid(*object).name() << std::endl;
-            return COMMAND_ERROR;
-
-        case COMMAND_HANDLED:
-            return COMMAND_HANDLED;
-
-        default:
-            EQUNREACHABLE;
+        return false;
     }
-    return COMMAND_ERROR;
+    return true;
 }
 
 Object* Session::_findObject( Command& command )
@@ -758,18 +750,18 @@ Object* Session::_findObject( Command& command )
     return 0;
 }
 
-CommandResult Session::_cmdAckRequest( Command& command )
+bool Session::_cmdAckRequest( Command& command )
 {
     const SessionAckRequestPacket* packet = 
         command.getPacket<SessionAckRequestPacket>();
     EQASSERT( packet->requestID != EQ_ID_INVALID );
 
     _localNode->serveRequest( packet->requestID );
-    return COMMAND_HANDLED;
+    return true;
 }
 
 
-CommandResult Session::_cmdGenIDs( Command& command )
+bool Session::_cmdGenIDs( Command& command )
 {
     CHECK_THREAD( _commandThread );
     const SessionGenIDsPacket* packet =command.getPacket<SessionGenIDsPacket>();
@@ -781,10 +773,10 @@ CommandResult Session::_cmdGenIDs( Command& command )
     reply.firstID = _idPool.genIDs( range );
     reply.allocated = range;
     send( command.getNode(), reply );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Session::_cmdGenIDsReply( Command& command )
+bool Session::_cmdGenIDsReply( Command& command )
 {
     CHECK_THREAD( _commandThread );
     const SessionGenIDsReplyPacket* packet =
@@ -798,10 +790,10 @@ CommandResult Session::_cmdGenIDsReply( Command& command )
         // Merge additional identifiers into local pool
         _idPool.freeIDs( packet->firstID + packet->requested, additional );
 
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Session::_cmdSetIDMaster( Command& command )
+bool Session::_cmdSetIDMaster( Command& command )
 {
     CHECK_THREAD( _commandThread );
     const SessionSetIDMasterPacket* packet = 
@@ -816,10 +808,10 @@ CommandResult Session::_cmdSetIDMaster( Command& command )
 
     if( packet->requestID != EQ_ID_INVALID ) // need to ack set operation
         _ackRequest< SessionSetIDMasterPacket >( command );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Session::_cmdUnsetIDMaster( Command& command )
+bool Session::_cmdUnsetIDMaster( Command& command )
 {
     CHECK_THREAD( _commandThread );
     const SessionUnsetIDMasterPacket* packet = 
@@ -833,10 +825,10 @@ CommandResult Session::_cmdUnsetIDMaster( Command& command )
 
     if( packet->requestID != EQ_ID_INVALID )
         _ackRequest< SessionUnsetIDMasterPacket >( command );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Session::_cmdGetIDMaster( Command& command )
+bool Session::_cmdGetIDMaster( Command& command )
 {
     CHECK_THREAD( _commandThread );
     const SessionGetIDMasterPacket* packet =
@@ -847,10 +839,10 @@ CommandResult Session::_cmdGetIDMaster( Command& command )
     reply.masterID = _pollIDMaster( packet->identifier );
     send( command.getNode(), reply );
 
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Session::_cmdGetIDMasterReply( Command& command )
+bool Session::_cmdGetIDMasterReply( Command& command )
 {
     CHECK_THREAD( _commandThread );
     const SessionGetIDMasterReplyPacket* packet = 
@@ -867,10 +859,10 @@ CommandResult Session::_cmdGetIDMasterReply( Command& command )
     // else not found
 
     _localNode->serveRequest( packet->requestID );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Session::_cmdAttachObject( Command& command )
+bool Session::_cmdAttachObject( Command& command )
 {
     CHECK_THREAD( _receiverThread );
     const SessionAttachObjectPacket* packet = 
@@ -881,10 +873,10 @@ CommandResult Session::_cmdAttachObject( Command& command )
                                                  packet->requestID ));
     _attachObject( object, packet->objectID, packet->objectInstanceID );
     _localNode->serveRequest( packet->requestID );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Session::_cmdDetachObject( Command& command )
+bool Session::_cmdDetachObject( Command& command )
 {
     CHECK_THREAD( _receiverThread );
     const SessionDetachObjectPacket* packet = 
@@ -911,10 +903,10 @@ CommandResult Session::_cmdDetachObject( Command& command )
 
     EQASSERT( packet->requestID != EQ_ID_INVALID );
     _localNode->serveRequest( packet->requestID );    
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Session::_cmdMapObject( Command& command )
+bool Session::_cmdMapObject( Command& command )
 {
     CHECK_THREAD( _commandThread );
     const SessionMapObjectPacket* packet = 
@@ -955,10 +947,10 @@ CommandResult Session::_cmdMapObject( Command& command )
     }
 
     send( master, subscribePacket );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Session::_cmdSubscribeObject( Command& command )
+bool Session::_cmdSubscribeObject( Command& command )
 {
     CHECK_THREAD( _commandThread );
     SessionSubscribeObjectPacket* packet =
@@ -1030,10 +1022,10 @@ CommandResult Session::_cmdSubscribeObject( Command& command )
 
     if( !node->multicast( reply ))
         node->send( reply );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
+bool Session::_cmdSubscribeObjectSuccess( Command& command )
 {
     CHECK_THREAD( _receiverThread );
     const SessionSubscribeObjectSuccessPacket* packet = 
@@ -1043,7 +1035,7 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
     // verify that we are the intended receiver
     const NodeID& nodeID = packet->nodeID;
     if( nodeID != _localNode->getNodeID( ))
-        return COMMAND_HANDLED;
+        return true;
 
     EQLOG( LOG_OBJECTS ) << "Cmd subscribe object success " << packet
                          << std::endl;
@@ -1059,10 +1051,10 @@ CommandResult Session::_cmdSubscribeObjectSuccess( Command& command )
         packet->masterInstanceID );
 
     _attachObject( object, packet->objectID, packet->instanceID );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Session::_cmdSubscribeObjectReply( Command& command )
+bool Session::_cmdSubscribeObjectReply( Command& command )
 {
     CHECK_THREAD( _commandThread );
     const SessionSubscribeObjectReplyPacket* packet = 
@@ -1074,7 +1066,7 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
     // verify that we are the intended receiver
     const NodeID& nodeID = packet->nodeID;
     if( nodeID != _localNode->getNodeID( ))
-        return COMMAND_HANDLED;
+        return true;
 
     EQASSERT( _localNode->getRequestData( packet->requestID ));
 
@@ -1111,10 +1103,10 @@ CommandResult Session::_cmdSubscribeObjectReply( Command& command )
                << std::endl;
 
     _localNode->serveRequest( packet->requestID, packet->version );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Session::_cmdUnsubscribeObject( Command& command )
+bool Session::_cmdUnsubscribeObject( Command& command )
 {
     CHECK_THREAD( _commandThread );
     SessionUnsubscribeObjectPacket* packet =
@@ -1147,10 +1139,10 @@ CommandResult Session::_cmdUnsubscribeObject( Command& command )
 
     SessionDetachObjectPacket detachPacket( packet );
     send( node, detachPacket );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Session::_cmdUnmapObject( Command& command )
+bool Session::_cmdUnmapObject( Command& command )
 {
     CHECK_THREAD( _receiverThread );
     const SessionUnmapObjectPacket* packet = 
@@ -1162,7 +1154,7 @@ CommandResult Session::_cmdUnmapObject( Command& command )
 
     ObjectsHash::iterator i = _objects->find( packet->objectID );
     if( i == _objects->end( )) // nothing to do
-        return COMMAND_HANDLED;
+        return true;
 
     const Objects objects = i->second;
     {
@@ -1176,10 +1168,10 @@ CommandResult Session::_cmdUnmapObject( Command& command )
         object->detachFromSession();
     }
 
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Session::_cmdInstance( Command& command )
+bool Session::_cmdInstance( Command& command )
 {
     ObjectInstancePacket* packet = command.getPacket< ObjectInstancePacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd instance " << packet << std::endl;
@@ -1191,7 +1183,7 @@ CommandResult Session::_cmdInstance( Command& command )
     packet->command = CMD_OBJECT_INSTANCE;
 
     uint32_t usage = 0;
-    CommandResult result = COMMAND_HANDLED;
+    bool result = true;
 
     if( packet->nodeID == _localNode->getNodeID( ))
     {

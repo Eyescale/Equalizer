@@ -975,7 +975,7 @@ void Channel::outlineViewport()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-net::CommandResult Channel::_cmdConfigInit( net::Command& command )
+bool Channel::_cmdConfigInit( net::Command& command )
 {
     const ChannelConfigInitPacket* packet = 
         command.getPacket<ChannelConfigInitPacket>();
@@ -1009,10 +1009,10 @@ net::CommandResult Channel::_cmdConfigInit( net::Command& command )
     EQLOG( LOG_INIT ) << "TASK channel config init reply " << &reply
                       << std::endl;
     send( command.getNode(), reply );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Channel::_cmdConfigExit( net::Command& command )
+bool Channel::_cmdConfigExit( net::Command& command )
 {
     const ChannelConfigExitPacket* packet =
         command.getPacket<ChannelConfigExitPacket>();
@@ -1026,10 +1026,10 @@ net::CommandResult Channel::_cmdConfigExit( net::Command& command )
 
     send( command.getNode(), reply );
     _state = STATE_STOPPED;
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Channel::_cmdFrameStart( net::Command& command )
+bool Channel::_cmdFrameStart( net::Command& command )
 {
     ChannelFrameStartPacket* packet = 
         command.getPacket<ChannelFrameStartPacket>();
@@ -1043,11 +1043,10 @@ net::CommandResult Channel::_cmdFrameStart( net::Command& command )
     bindFrameBuffer();
     frameStart( packet->context.frameID, packet->frameNumber );
     resetContext();
-
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Channel::_cmdFrameFinish( net::Command& command )
+bool Channel::_cmdFrameFinish( net::Command& command )
 {
     ChannelFrameFinishPacket* packet =
         command.getPacket<ChannelFrameFinishPacket>();
@@ -1065,10 +1064,10 @@ net::CommandResult Channel::_cmdFrameFinish( net::Command& command )
     command.getNode()->send( reply, _statistics );
 
     _statistics.clear();
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Channel::_cmdFrameClear( net::Command& command )
+bool Channel::_cmdFrameClear( net::Command& command )
 {
     ChannelFrameClearPacket* packet = 
         command.getPacket<ChannelFrameClearPacket>();
@@ -1080,10 +1079,10 @@ net::CommandResult Channel::_cmdFrameClear( net::Command& command )
     frameClear( packet->context.frameID );
     resetContext();
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Channel::_cmdFrameDraw( net::Command& command )
+bool Channel::_cmdFrameDraw( net::Command& command )
 {
     ChannelFrameDrawPacket* packet = 
         command.getPacket<ChannelFrameDrawPacket>();
@@ -1095,10 +1094,10 @@ net::CommandResult Channel::_cmdFrameDraw( net::Command& command )
     frameDraw( packet->context.frameID );
     resetContext();
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Channel::_cmdFrameDrawFinish( net::Command& command )
+bool Channel::_cmdFrameDrawFinish( net::Command& command )
 {
     ChannelFrameDrawFinishPacket* packet = 
         command.getPacket< ChannelFrameDrawFinishPacket >();
@@ -1108,10 +1107,10 @@ net::CommandResult Channel::_cmdFrameDrawFinish( net::Command& command )
     ChannelStatistics event( Statistic::CHANNEL_DRAW_FINISH, this );
     frameDrawFinish( packet->frameID, packet->frameNumber );
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Channel::_cmdFrameAssemble( net::Command& command )
+bool Channel::_cmdFrameAssemble( net::Command& command )
 {
     ChannelFrameAssemblePacket* packet = 
         command.getPacket<ChannelFrameAssemblePacket>();
@@ -1140,10 +1139,10 @@ net::CommandResult Channel::_cmdFrameAssemble( net::Command& command )
     _inputFrames.clear();
     resetContext();
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Channel::_cmdFrameReadback( net::Command& command )
+bool Channel::_cmdFrameReadback( net::Command& command )
 {
     ChannelFrameReadbackPacket* packet = 
         command.getPacket<ChannelFrameReadbackPacket>();
@@ -1171,10 +1170,10 @@ net::CommandResult Channel::_cmdFrameReadback( net::Command& command )
 
     _outputFrames.clear();
     resetContext();
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Channel::_cmdFrameTransmit( net::Command& command )
+bool Channel::_cmdFrameTransmit( net::Command& command )
 {
     const ChannelFrameTransmitPacket* packet = 
         command.getPacket<ChannelFrameTransmitPacket>();
@@ -1201,10 +1200,10 @@ net::CommandResult Channel::_cmdFrameTransmit( net::Command& command )
                                      getPipe()->getCurrentFrame( ));
     }
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Channel::_cmdFrameViewStart( net::Command& command )
+bool Channel::_cmdFrameViewStart( net::Command& command )
 {
     ChannelFrameViewStartPacket* packet = 
         command.getPacket<ChannelFrameViewStartPacket>();
@@ -1215,10 +1214,10 @@ net::CommandResult Channel::_cmdFrameViewStart( net::Command& command )
     frameViewStart( packet->context.frameID );
     resetContext();
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Channel::_cmdFrameViewFinish( net::Command& command )
+bool Channel::_cmdFrameViewFinish( net::Command& command )
 {
     ChannelFrameViewFinishPacket* packet = 
         command.getPacket<ChannelFrameViewFinishPacket>();
@@ -1230,7 +1229,7 @@ net::CommandResult Channel::_cmdFrameViewFinish( net::Command& command )
     frameViewFinish( packet->context.frameID );
     resetContext();
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 }

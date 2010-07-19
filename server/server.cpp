@@ -252,7 +252,7 @@ bool Server::dispatchCommand( net::Command& command )
     }
 }
 
-net::CommandResult Server::invokeCommand( net::Command& command )
+bool Server::invokeCommand( net::Command& command )
 {
     switch( command->type )
     {
@@ -271,17 +271,9 @@ void Server::handleCommands()
     {
         net::Command* command = _mainThreadQueue.pop();
 
-        switch( invokeCommand( *command ))
+        if( !invokeCommand( *command ))
         {
-            case net::COMMAND_HANDLED:
-                break;
-
-            case net::COMMAND_ERROR:
-                EQABORT( "Error handling command " << command );
-                break;
-            default:
-                EQABORT( "Unknown command result" );
-                break;
+            EQABORT( "Error handling command " << command );
         }
 
         command->release();
@@ -289,7 +281,7 @@ void Server::handleCommands()
     _mainThreadQueue.flush();
 }
 
-net::CommandResult Server::_cmdChooseConfig( net::Command& command ) 
+bool Server::_cmdChooseConfig( net::Command& command ) 
 {
     const ServerChooseConfigPacket* packet = 
         command.getPacket<ServerChooseConfigPacket>();
@@ -312,7 +304,7 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
     {
         reply.configID = net::SessionID::ZERO;
         node->send( reply );
-        return net::COMMAND_HANDLED;
+        return true;
     }
 
     ConfigBackupVisitor backup;
@@ -337,10 +329,10 @@ net::CommandResult Server::_cmdChooseConfig( net::Command& command )
     node->send( createConfigPacket );
     node->send( reply );
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
+bool Server::_cmdReleaseConfig( net::Command& command )
 {
     const ServerReleaseConfigPacket* packet = 
         command.getPacket<ServerReleaseConfigPacket>();
@@ -363,7 +355,7 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
     {
         EQWARN << "Release request for unknown config" << std::endl;
         node->send( reply );
-        return net::COMMAND_HANDLED;
+        return true;
     }
 
     if( config->isRunning( ))
@@ -384,19 +376,19 @@ net::CommandResult Server::_cmdReleaseConfig( net::Command& command )
 
     node->send( reply );
     EQLOG( base::LOG_ANY ) << "----- Released Config -----" << std::endl;
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Server::_cmdDestroyConfigReply( net::Command& command ) 
+bool Server::_cmdDestroyConfigReply( net::Command& command ) 
 {
     const fabric::ServerDestroyConfigReplyPacket* packet = 
         command.getPacket< fabric::ServerDestroyConfigReplyPacket >();
 
     serveRequest( packet->requestID );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Server::_cmdShutdown( net::Command& command )
+bool Server::_cmdShutdown( net::Command& command )
 {
     const ServerShutdownPacket* packet = 
         command.getPacket< ServerShutdownPacket >();
@@ -410,7 +402,7 @@ net::CommandResult Server::_cmdShutdown( net::Command& command )
                << " admin clients connected" << std::endl;
 
         node->send( reply );
-        return net::COMMAND_HANDLED;
+        return true;
     }
 
     const Configs& configs = getConfigs();
@@ -423,7 +415,7 @@ net::CommandResult Server::_cmdShutdown( net::Command& command )
                    << std::endl;
 
             node->send( reply );
-            return net::COMMAND_HANDLED;
+            return true;
         }
     }
 
@@ -438,10 +430,10 @@ net::CommandResult Server::_cmdShutdown( net::Command& command )
     base::sleep( 100 );
 #endif
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Server::_cmdMap( net::Command& command )
+bool Server::_cmdMap( net::Command& command )
 {
     net::NodePtr node = command.getNode();
     _admins.push_back( node );
@@ -461,10 +453,10 @@ net::CommandResult Server::_cmdMap( net::Command& command )
         command.getPacket< admin::ServerMapPacket >();
     admin::ServerMapReplyPacket reply( packet );
     node->send( reply );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Server::_cmdUnmap( net::Command& command )
+bool Server::_cmdUnmap( net::Command& command )
 {
     net::NodePtr node = command.getNode();
     net::Nodes::iterator i = stde::find( _admins, node );
@@ -488,7 +480,7 @@ net::CommandResult Server::_cmdUnmap( net::Command& command )
         command.getPacket< admin::ServerUnmapPacket >();
     admin::ServerUnmapReplyPacket reply( packet );
     node->send( reply );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 }

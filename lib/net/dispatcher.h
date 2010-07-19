@@ -31,7 +31,6 @@ namespace net
     class Connection;
     class Command;
     class CommandQueue;
-    enum  CommandResult;
 
     /** 
      * A helper class providing command packet dispatch functionality to
@@ -67,7 +66,7 @@ namespace net
          * @return the result of the operation.
          * @sa registerCommand
          */
-        EQ_EXPORT virtual CommandResult invokeCommand( Command& command );
+        EQ_EXPORT virtual bool invokeCommand( Command& command );
  
     protected:
         /** 
@@ -93,7 +92,7 @@ namespace net
          * @param command the command
          * @return the result of the operation.
          */
-        CommandResult _cmdUnknown( Command& command );
+        bool _cmdUnknown( Command& command );
 
     private:
         EQ_EXPORT void _registerCommand( const uint32_t command, 

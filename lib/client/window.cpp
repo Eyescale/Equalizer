@@ -600,7 +600,7 @@ bool Window::processEvent( const Event& event )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-net::CommandResult Window::_cmdCreateChannel( net::Command& command )
+bool Window::_cmdCreateChannel( net::Command& command )
 {
     const WindowCreateChannelPacket* packet = 
         command.getPacket<WindowCreateChannelPacket>();
@@ -612,10 +612,10 @@ net::CommandResult Window::_cmdCreateChannel( net::Command& command )
     Config* config = getConfig();
     EQCHECK( config->mapObject( channel, packet->channelID ));
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Window::_cmdDestroyChannel( net::Command& command ) 
+bool Window::_cmdDestroyChannel( net::Command& command ) 
 {
     const WindowDestroyChannelPacket* packet =
         command.getPacket<WindowDestroyChannelPacket>();
@@ -628,10 +628,10 @@ net::CommandResult Window::_cmdDestroyChannel( net::Command& command )
     config->unmapObject( channel );
     Global::getNodeFactory()->releaseChannel( channel );
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Window::_cmdConfigInit( net::Command& command )
+bool Window::_cmdConfigInit( net::Command& command )
 {
     const WindowConfigInitPacket* packet = 
         command.getPacket<WindowConfigInitPacket>();
@@ -654,17 +654,17 @@ net::CommandResult Window::_cmdConfigInit( net::Command& command )
     if( !reply.result )
     {
         send( node, reply );
-        return net::COMMAND_HANDLED;
+        return true;
     }
 
     commit();
     send( node, reply );
 
     _state = STATE_RUNNING;
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Window::_cmdConfigExit( net::Command& command )
+bool Window::_cmdConfigExit( net::Command& command )
 {
     const WindowConfigExitPacket* packet =
         command.getPacket<WindowConfigExitPacket>();
@@ -688,10 +688,10 @@ net::CommandResult Window::_cmdConfigExit( net::Command& command )
 
     _state = STATE_STOPPED;
     send( command.getNode(), reply );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Window::_cmdFrameStart( net::Command& command )
+bool Window::_cmdFrameStart( net::Command& command )
 {
     CHECK_THREAD( _pipeThread );
 
@@ -712,10 +712,10 @@ net::CommandResult Window::_cmdFrameStart( net::Command& command )
     makeCurrent();
 
     frameStart( packet->frameID, packet->frameNumber );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Window::_cmdFrameFinish( net::Command& command )
+bool Window::_cmdFrameFinish( net::Command& command )
 {
     const WindowFrameFinishPacket* packet =
         command.getPacket<WindowFrameFinishPacket>();
@@ -724,20 +724,20 @@ net::CommandResult Window::_cmdFrameFinish( net::Command& command )
     makeCurrent();
     frameFinish( packet->frameID, packet->frameNumber );
     commit();
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Window::_cmdFinish(net::Command& command ) 
+bool Window::_cmdFinish(net::Command& command ) 
 {
     makeCurrent();
 
     WindowStatistics stat( Statistic::WINDOW_FINISH, this );
     finish();
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult  Window::_cmdThrottleFramerate( net::Command& command )
+bool  Window::_cmdThrottleFramerate( net::Command& command )
 {
     WindowThrottleFramerate* packet = 
         command.getPacket< WindowThrottleFramerate >();
@@ -755,10 +755,10 @@ net::CommandResult  Window::_cmdThrottleFramerate( net::Command& command )
     }
 
     _lastSwapTime = getConfig()->getTime();
-    return net::COMMAND_HANDLED;
+    return true;
 }
         
-net::CommandResult Window::_cmdBarrier( net::Command& command )
+bool Window::_cmdBarrier( net::Command& command )
 {
     const WindowBarrierPacket* packet = 
         command.getPacket<WindowBarrierPacket>();
@@ -766,10 +766,10 @@ net::CommandResult Window::_cmdBarrier( net::Command& command )
     EQLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << std::endl;
     
     _enterBarrier( packet->barrier );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Window::_cmdNVBarrier( net::Command& command )
+bool Window::_cmdNVBarrier( net::Command& command )
 {
     const WindowNVBarrierPacket* packet = 
         command.getPacket<WindowNVBarrierPacket>();
@@ -779,10 +779,10 @@ net::CommandResult Window::_cmdNVBarrier( net::Command& command )
     _osWindow->joinNVSwapBarrier( packet->group, packet->barrier );
 
     _enterBarrier( packet->netBarrier );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Window::_cmdSwap( net::Command& command ) 
+bool Window::_cmdSwap( net::Command& command ) 
 {
     WindowSwapPacket* packet = command.getPacket< WindowSwapPacket >();
     EQLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << packet
@@ -795,10 +795,10 @@ net::CommandResult Window::_cmdSwap( net::Command& command )
         makeCurrent();
         swapBuffers();
     }
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Window::_cmdFrameDrawFinish( net::Command& command )
+bool Window::_cmdFrameDrawFinish( net::Command& command )
 {
     WindowFrameDrawFinishPacket* packet = 
         command.getPacket< WindowFrameDrawFinishPacket >();
@@ -806,7 +806,7 @@ net::CommandResult Window::_cmdFrameDrawFinish( net::Command& command )
                        << std::endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 }

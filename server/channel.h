@@ -246,11 +246,11 @@ namespace server
                             const eq::Statistic* statistics );
 
         /* command handler functions. */
-        net::CommandResult _cmdConfigInitReply( net::Command& command );
-        net::CommandResult _cmdConfigExitReply( net::Command& command );
-        net::CommandResult _cmdFrameFinishReply( net::Command& command );
-        net::CommandResult _cmdNop( net::Command& command )
-            { return net::COMMAND_HANDLED; }
+        bool _cmdConfigInitReply( net::Command& command );
+        bool _cmdConfigExitReply( net::Command& command );
+        bool _cmdFrameFinishReply( net::Command& command );
+        bool _cmdNop( net::Command& command )
+            { return true; }
 
         // For access to _fixedPVP
         friend std::ostream& operator << ( std::ostream&, const Channel& );

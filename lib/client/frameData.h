@@ -264,9 +264,9 @@ namespace server
         void _setReady( const uint32_t version );
 
         /* The command handlers. */
-        net::CommandResult _cmdTransmit( net::Command& command );
-        net::CommandResult _cmdReady( net::Command& command );
-        net::CommandResult _cmdUpdate( net::Command& command );
+        bool _cmdTransmit( net::Command& command );
+        bool _cmdReady( net::Command& command );
+        bool _cmdUpdate( net::Command& command );
 
         CHECK_THREAD_DECLARE( _commandThread );
     };

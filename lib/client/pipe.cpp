@@ -246,18 +246,9 @@ void Pipe::_runThread()
         net::Command* command = _pipeThreadQueue->pop();
         _waitTime += ( config->getTime() - startWait );
 
-        switch( config->invokeCommand( *command ))
+        if( !config->invokeCommand( *command ))
         {
-            case net::COMMAND_HANDLED:
-                break;
-
-            case net::COMMAND_ERROR:
-                EQABORT( "Error handling command packet" );
-                break;
-
-            default:
-                EQABORT( "Unknown command result" );
-                break;
+            EQABORT( "Error handling command packet" );
         }
         command->release();
     }
@@ -658,7 +649,7 @@ void Pipe::releaseFrameLocal( const uint32_t frameNumber )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-net::CommandResult Pipe::_cmdCreateWindow(  net::Command& command  )
+bool Pipe::_cmdCreateWindow(  net::Command& command  )
 {
     const PipeCreateWindowPacket* packet = 
         command.getPacket<PipeCreateWindowPacket>();
@@ -670,10 +661,10 @@ net::CommandResult Pipe::_cmdCreateWindow(  net::Command& command  )
     Config* config = getConfig();
     EQCHECK( config->mapObject( window, packet->windowID ));
     
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Pipe::_cmdDestroyWindow(  net::Command& command  )
+bool Pipe::_cmdDestroyWindow(  net::Command& command  )
 {
     const PipeDestroyWindowPacket* packet =
         command.getPacket<PipeDestroyWindowPacket>();
@@ -710,10 +701,10 @@ net::CommandResult Pipe::_cmdDestroyWindow(  net::Command& command  )
     config->unmapObject( window );
     Global::getNodeFactory()->releaseWindow( window );
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
+bool Pipe::_cmdConfigInit( net::Command& command )
 {
     CHECK_THREAD( _pipeThread );
     const PipeConfigInitPacket* packet = 
@@ -752,16 +743,16 @@ net::CommandResult Pipe::_cmdConfigInit( net::Command& command )
     if( !_osPipe || !reply.result )
     {
         send( nodePtr, reply );
-        return net::COMMAND_HANDLED;
+        return true;
     }
     commit();
     _state = STATE_RUNNING;
 
     send( nodePtr, reply );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Pipe::_cmdConfigExit( net::Command& command )
+bool Pipe::_cmdConfigExit( net::Command& command )
 {
     CHECK_THREAD( _pipeThread );
     const PipeConfigExitPacket* packet = 
@@ -789,20 +780,19 @@ net::CommandResult Pipe::_cmdConfigExit( net::Command& command )
         _thread->exit();
         EQUNREACHABLE;
     }
-
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Pipe::_cmdFrameStartClock( net::Command& command )
+bool Pipe::_cmdFrameStartClock( net::Command& command )
 {
     EQVERB << "start frame clock" << std::endl;
     _frameTimeMutex.set();
     _frameTimes.push_back( getConfig()->getTime( ));
     _frameTimeMutex.unset();
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Pipe::_cmdFrameStart( net::Command& command )
+bool Pipe::_cmdFrameStart( net::Command& command )
 {
     CHECK_THREAD( _pipeThread );
     const PipeFrameStartPacket* packet = 
@@ -832,10 +822,10 @@ net::CommandResult Pipe::_cmdFrameStart( net::Command& command )
                   "current " << _currentFrame << " start " << frameNumber );
 
     frameStart( packet->frameID, frameNumber );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Pipe::_cmdFrameFinish( net::Command& command )
+bool Pipe::_cmdFrameFinish( net::Command& command )
 {
     CHECK_THREAD( _pipeThread );
     const PipeFrameFinishPacket* packet =
@@ -868,10 +858,10 @@ net::CommandResult Pipe::_cmdFrameFinish( net::Command& command )
 
     _releaseViews();
     commit();
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Pipe::_cmdFrameDrawFinish( net::Command& command )
+bool Pipe::_cmdFrameDrawFinish( net::Command& command )
 {
     CHECK_THREAD( _pipeThread );
     PipeFrameDrawFinishPacket* packet = 
@@ -880,7 +870,7 @@ net::CommandResult Pipe::_cmdFrameDrawFinish( net::Command& command )
                        << std::endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 }

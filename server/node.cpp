@@ -478,7 +478,7 @@ void Node::flushSendBuffer()
 //===========================================================================
 // command handling
 //===========================================================================
-net::CommandResult Node::_cmdConfigInitReply( net::Command& command )
+bool Node::_cmdConfigInitReply( net::Command& command )
 {
     const NodeConfigInitReplyPacket* packet = 
         command.getPacket<NodeConfigInitReplyPacket>();
@@ -486,10 +486,10 @@ net::CommandResult Node::_cmdConfigInitReply( net::Command& command )
     EQASSERT( _state == STATE_INITIALIZING );
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Node::_cmdConfigExitReply( net::Command& command )
+bool Node::_cmdConfigExitReply( net::Command& command )
 {
     const NodeConfigExitReplyPacket* packet =
         command.getPacket<NodeConfigExitReplyPacket>();
@@ -497,10 +497,10 @@ net::CommandResult Node::_cmdConfigExitReply( net::Command& command )
     EQASSERT( _state == STATE_EXITING );
 
     _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Node::_cmdFrameFinishReply( net::Command& command )
+bool Node::_cmdFrameFinishReply( net::Command& command )
 {
     const NodeFrameFinishReplyPacket* packet = 
         command.getPacket<NodeFrameFinishReplyPacket>();
@@ -509,7 +509,7 @@ net::CommandResult Node::_cmdFrameFinishReply( net::Command& command )
     _finishedFrame = packet->frameNumber;
     getConfig()->notifyNodeFrameFinished( packet->frameNumber );
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 std::ostream& operator << ( std::ostream& os, const Node& node )

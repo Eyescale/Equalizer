@@ -18,8 +18,8 @@
 #ifndef EQNET_VERSIONEDSLAVECM_H
 #define EQNET_VERSIONEDSLAVECM_H
 
-#include <eq/net/objectCM.h>     // base class
-#include <eq/net/version.h>      // enum
+#include "objectCM.h"            // base class
+#include "version.h"             // enum
 #include <eq/base/idPool.h>      // for EQ_ID_INVALID
 
 #include "objectSlaveDataOStream.h" // member
@@ -110,9 +110,9 @@ namespace net
         bool _ignoreCommand( const Command& command ) const;
 
         /* The command handlers. */
-        CommandResult _cmdInstance( Command& command );
-        CommandResult _cmdDelta( Command& command );
-        CommandResult _cmdCommit( Command& command );
+        bool _cmdInstance( Command& command );
+        bool _cmdDelta( Command& command );
+        bool _cmdCommit( Command& command );
 
         CHECK_THREAD_DECLARE( _cmdThread );
     };

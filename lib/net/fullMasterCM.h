@@ -87,7 +87,7 @@ namespace net
         InstanceDatas _instanceDataCache;
 
         /* The command handlers. */
-        CommandResult _cmdCommit( Command& command );
+        bool _cmdCommit( Command& command );
     };
 }
 }

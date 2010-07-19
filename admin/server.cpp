@@ -80,22 +80,22 @@ net::CommandQueue* Server::getMainThreadQueue()
     return getClient()->getMainThreadQueue();
 }
 
-net::CommandResult Server::_cmdMapReply( net::Command& command )
+bool Server::_cmdMapReply( net::Command& command )
 {
     const ServerMapReplyPacket* packet = 
         command.getPacket< ServerMapReplyPacket >();
 
     serveRequest( packet->requestID );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Server::_cmdUnmapReply( net::Command& command )
+bool Server::_cmdUnmapReply( net::Command& command )
 {
     const ServerUnmapReplyPacket* packet = 
         command.getPacket< ServerUnmapReplyPacket >();
 
     serveRequest( packet->requestID );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 }

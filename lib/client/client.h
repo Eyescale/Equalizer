@@ -108,7 +108,7 @@ namespace eq
         EQ_EXPORT virtual net::NodePtr createNode( const uint32_t type );
 
         /** The command functions. */
-        net::CommandResult _cmdExit( net::Command& command );
+        bool _cmdExit( net::Command& command );
     };
 }
 

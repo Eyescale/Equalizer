@@ -374,7 +374,7 @@ namespace net
         const Nodes* _getSlaveNodes() const;
 
         /* The command handlers. */
-        CommandResult _cmdForward( Command& command );
+        bool _cmdForward( Command& command );
 
         CHECK_THREAD_DECLARE( _thread );
     };

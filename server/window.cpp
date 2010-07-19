@@ -555,7 +555,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
 //===========================================================================
 // command handling
 //===========================================================================
-net::CommandResult Window::_cmdConfigInitReply( net::Command& command )
+bool Window::_cmdConfigInitReply( net::Command& command )
 {
     const WindowConfigInitReplyPacket* packet =
         command.getPacket<WindowConfigInitReplyPacket>();
@@ -563,10 +563,10 @@ net::CommandResult Window::_cmdConfigInitReply( net::Command& command )
 
     EQASSERT( !needsDelete( ));
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Window::_cmdConfigExitReply( net::Command& command )
+bool Window::_cmdConfigExitReply( net::Command& command )
 {
     const WindowConfigExitReplyPacket* packet =
         command.getPacket<WindowConfigExitReplyPacket>();
@@ -579,7 +579,7 @@ net::CommandResult Window::_cmdConfigExitReply( net::Command& command )
         _state = needsDelete() ? 
             STATE_EXIT_FAILED | STATE_DELETE : STATE_EXIT_FAILED;
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 std::ostream& operator << ( std::ostream& os, const Window& window )

@@ -220,12 +220,12 @@ net::NodePtr Client::createNode( const uint32_t type )
     }
 }
 
-net::CommandResult Client::_cmdExit( net::Command& command )
+bool Client::_cmdExit( net::Command& command )
 {
     _running = false;
     // Close connection here, this is the last packet we'll get on it
     command.getLocalNode()->close( command.getNode( ));
-    return net::COMMAND_HANDLED;
+    return true;
 }
 }
 

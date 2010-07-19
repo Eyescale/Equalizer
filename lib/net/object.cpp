@@ -294,7 +294,7 @@ uint32_t Object::getMasterInstanceID() const
     return _cm->getMasterInstanceID();
 }
 
-CommandResult Object::_cmdForward( Command& command )
+bool Object::_cmdForward( Command& command )
 {
     return _cm->invokeCommand( command );
 }

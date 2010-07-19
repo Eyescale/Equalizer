@@ -144,8 +144,8 @@ namespace fabric
         EQFABRIC_EXPORT virtual uint32_t commitNB(); //!< @internal
 
         typedef net::CommandFunc< Layout< C, L, V > > CmdFunc;
-        net::CommandResult _cmdNewView( net::Command& command );
-        net::CommandResult _cmdNewViewReply( net::Command& command );
+        bool _cmdNewView( net::Command& command );
+        bool _cmdNewViewReply( net::Command& command );
     };
 
     template< class C, class L, class V >

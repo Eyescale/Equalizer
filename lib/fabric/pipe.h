@@ -207,8 +207,8 @@ namespace fabric
         bool _mapNodeObjects() { return _node->_mapNodeObjects(); }
 
         typedef net::CommandFunc< Pipe< N, P, W, V > > CmdFunc;
-        net::CommandResult _cmdNewWindow( net::Command& command );
-        net::CommandResult _cmdNewWindowReply( net::Command& command );
+        bool _cmdNewWindow( net::Command& command );
+        bool _cmdNewWindowReply( net::Command& command );
     };
 }
 }

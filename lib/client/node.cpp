@@ -404,7 +404,7 @@ void Node::TransmitThread::run()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-net::CommandResult Node::_cmdCreatePipe( net::Command& command )
+bool Node::_cmdCreatePipe( net::Command& command )
 {
     const NodeCreatePipePacket* packet = 
         command.getPacket<NodeCreatePipePacket>();
@@ -422,10 +422,10 @@ net::CommandResult Node::_cmdCreatePipe( net::Command& command )
     EQCHECK( config->mapObject( pipe, packet->pipeID ));
     pipe->notifyMapped();
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Node::_cmdDestroyPipe( net::Command& command )
+bool Node::_cmdDestroyPipe( net::Command& command )
 {
     const NodeDestroyPipePacket* packet = 
         command.getPacket<NodeDestroyPipePacket>();
@@ -440,10 +440,10 @@ net::CommandResult Node::_cmdDestroyPipe( net::Command& command )
     config->unmapObject( pipe );
     Global::getNodeFactory()->releasePipe( pipe );
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Node::_cmdConfigInit( net::Command& command )
+bool Node::_cmdConfigInit( net::Command& command )
 {
     CHECK_THREAD( _nodeThread );
 
@@ -469,10 +469,10 @@ net::CommandResult Node::_cmdConfigInit( net::Command& command )
     _state = reply.result ? STATE_RUNNING : STATE_INIT_FAILED;
 
     send( command.getNode(), reply );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Node::_cmdConfigExit( net::Command& command )
+bool Node::_cmdConfigExit( net::Command& command )
 {
     const NodeConfigExitPacket* packet = 
         command.getPacket<NodeConfigExitPacket>();
@@ -496,10 +496,10 @@ net::CommandResult Node::_cmdConfigExit( net::Command& command )
     _flushObjects();
 
     send( command.getNode(), reply );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Node::_cmdFrameStart( net::Command& command )
+bool Node::_cmdFrameStart( net::Command& command )
 {
     CHECK_THREAD( _nodeThread );
     const NodeFrameStartPacket* packet = 
@@ -519,10 +519,10 @@ net::CommandResult Node::_cmdFrameStart( net::Command& command )
     EQASSERTINFO( _currentFrame >= frameNumber, 
                   "Node::frameStart() did not start frame " << frameNumber );
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Node::_cmdFrameFinish( net::Command& command )
+bool Node::_cmdFrameFinish( net::Command& command )
 {
     CHECK_THREAD( _nodeThread );
     const NodeFrameFinishPacket* packet = 
@@ -535,10 +535,10 @@ net::CommandResult Node::_cmdFrameFinish( net::Command& command )
     _finishFrame( frameNumber );
     _frameFinish( packet->frameID, frameNumber );
     commit();
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Node::_cmdFrameDrawFinish( net::Command& command )
+bool Node::_cmdFrameDrawFinish( net::Command& command )
 {
     NodeFrameDrawFinishPacket* packet = 
         command.getPacket< NodeFrameDrawFinishPacket >();
@@ -546,10 +546,10 @@ net::CommandResult Node::_cmdFrameDrawFinish( net::Command& command )
                        << std::endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Node::_cmdFrameTasksFinish( net::Command& command )
+bool Node::_cmdFrameTasksFinish( net::Command& command )
 {
     NodeFrameTasksFinishPacket* packet = 
         command.getPacket< NodeFrameTasksFinishPacket >();
@@ -557,7 +557,7 @@ net::CommandResult Node::_cmdFrameTasksFinish( net::Command& command )
                        << std::endl;
 
     frameTasksFinish( packet->frameID, packet->frameNumber );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 }
 

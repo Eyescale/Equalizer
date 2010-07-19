@@ -99,13 +99,13 @@ bool Dispatcher::dispatchCommand( Command& command )
 #ifdef NDEBUG
     _vTable[which]( command );
 #else
-    const CommandResult result = _vTable[which]( command );
-    EQASSERTINFO( result == COMMAND_HANDLED, result );
+    const bool result = _vTable[which]( command );
+    EQASSERTINFO( result, result );
 #endif
     return true;
 }
 
-CommandResult Dispatcher::invokeCommand( Command& command )
+bool Dispatcher::invokeCommand( Command& command )
 {
     const uint32_t which = command->command;
 #ifndef NDEBUG
@@ -115,18 +115,18 @@ CommandResult Dispatcher::invokeCommand( Command& command )
                 << " higher than number of registered command handlers ("
                 << _vTable.size() << ") for object of type "
                 << typeid(*this).name() << endl;
-        return COMMAND_ERROR;
+        return false;
     }
 #endif
     return _vTable[which]( command );
 }
 
-CommandResult Dispatcher::_cmdUnknown( Command& command )
+bool Dispatcher::_cmdUnknown( Command& command )
 {
     EQERROR << "Unknown " << command << " for " << typeid(*this).name()
             << " @" << static_cast< void* >( this ) << endl;
     EQUNREACHABLE;
-    return COMMAND_ERROR;
+    return false;
 }
 
 }

@@ -101,7 +101,7 @@ namespace server
         virtual bool dispatchCommand( net::Command& command );
 
         /** @sa net::Node::invokeCommand */
-        virtual net::CommandResult invokeCommand( net::Command& command );
+        virtual bool invokeCommand( net::Command& command );
         
     private:
         /** The receiver->main command queue. */
@@ -133,12 +133,12 @@ namespace server
         bool _removeConfig( Config* config );        
 
         /** The command functions. */
-        net::CommandResult _cmdChooseConfig( net::Command& command );
-        net::CommandResult _cmdReleaseConfig( net::Command& command );
-        net::CommandResult _cmdDestroyConfigReply( net::Command& command );
-        net::CommandResult _cmdShutdown( net::Command& command );
-        net::CommandResult _cmdMap( net::Command& command );
-        net::CommandResult _cmdUnmap( net::Command& command );
+        bool _cmdChooseConfig( net::Command& command );
+        bool _cmdReleaseConfig( net::Command& command );
+        bool _cmdDestroyConfigReply( net::Command& command );
+        bool _cmdShutdown( net::Command& command );
+        bool _cmdMap( net::Command& command );
+        bool _cmdUnmap( net::Command& command );
     };
 }
 }

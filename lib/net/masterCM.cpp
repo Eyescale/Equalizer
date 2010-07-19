@@ -117,7 +117,7 @@ uint32_t MasterCM::sync( const uint32_t version )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-CommandResult MasterCM::_cmdSlaveDelta( Command& command )
+bool MasterCM::_cmdSlaveDelta( Command& command )
 {
     CHECK_THREAD( _cmdThread );
     const ObjectSlaveDeltaPacket* packet = 
@@ -177,7 +177,7 @@ CommandResult MasterCM::_cmdSlaveDelta( Command& command )
             << typeid( *_object ).name() << std::endl;
 #endif
 
-    return COMMAND_HANDLED;
+    return true;
 }
 
 }

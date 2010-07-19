@@ -79,7 +79,7 @@ bool Server< CL, S, CFG, NF >::_removeConfig( CFG* config )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-template< class CL, class S, class CFG, class NF > net::CommandResult
+template< class CL, class S, class CFG, class NF > bool
 Server< CL, S, CFG, NF >::_cmdCreateConfig( net::Command& command )
 {
     const ServerCreateConfigPacket* packet = 
@@ -98,10 +98,10 @@ Server< CL, S, CFG, NF >::_cmdCreateConfig( net::Command& command )
         command.getNode()->send( reply );
     }
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-template< class CL, class S, class CFG, class NF > net::CommandResult
+template< class CL, class S, class CFG, class NF > bool
 Server< CL, S, CFG, NF >::_cmdDestroyConfig( net::Command& command )
 {
     const ServerDestroyConfigPacket* packet = 
@@ -121,7 +121,7 @@ Server< CL, S, CFG, NF >::_cmdDestroyConfig( net::Command& command )
         ServerDestroyConfigReplyPacket reply( packet );
         command.getNode()->send( reply );
     }
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 template< class CL, class S, class CFG, class NF >

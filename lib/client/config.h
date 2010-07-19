@@ -361,15 +361,15 @@ namespace eq
         void _exitMessagePump();
 
         /** The command functions. */
-        net::CommandResult _cmdSyncClock( net::Command& command );
-        net::CommandResult _cmdCreateNode( net::Command& command );
-        net::CommandResult _cmdDestroyNode( net::Command& command );
-        net::CommandResult _cmdSync( net::Command& command );
-        net::CommandResult _cmdStartFrameReply( net::Command& command );
-        net::CommandResult _cmdInitReply( net::Command& command );
-        net::CommandResult _cmdExitReply( net::Command& command );
-        net::CommandResult _cmdReleaseFrameLocal( net::Command& command );
-        net::CommandResult _cmdFrameFinish( net::Command& command );
+        bool _cmdSyncClock( net::Command& command );
+        bool _cmdCreateNode( net::Command& command );
+        bool _cmdDestroyNode( net::Command& command );
+        bool _cmdSync( net::Command& command );
+        bool _cmdStartFrameReply( net::Command& command );
+        bool _cmdInitReply( net::Command& command );
+        bool _cmdExitReply( net::Command& command );
+        bool _cmdReleaseFrameLocal( net::Command& command );
+        bool _cmdFrameFinish( net::Command& command );
     };
 }
 

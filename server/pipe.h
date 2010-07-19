@@ -161,8 +161,8 @@ namespace server
         bool _syncConfigExit();
 
         /* command handler functions. */
-        net::CommandResult _cmdConfigInitReply( net::Command& command );
-        net::CommandResult _cmdConfigExitReply( net::Command& command );
+        bool _cmdConfigInitReply( net::Command& command );
+        bool _cmdConfigExitReply( net::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Pipe* pipe );

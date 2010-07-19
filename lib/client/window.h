@@ -433,18 +433,18 @@ namespace fabric
         void _enterBarrier( net::ObjectVersion barrier );
 
         /* The command functions. */
-        net::CommandResult _cmdCreateChannel( net::Command& command );
-        net::CommandResult _cmdDestroyChannel(net::Command& command );
-        net::CommandResult _cmdConfigInit( net::Command& command );
-        net::CommandResult _cmdConfigExit( net::Command& command );
-        net::CommandResult _cmdFrameStart( net::Command& command );
-        net::CommandResult _cmdFrameFinish( net::Command& command );
-        net::CommandResult _cmdThrottleFramerate( net::Command& command );
-        net::CommandResult _cmdFinish( net::Command& command );
-        net::CommandResult _cmdBarrier( net::Command& command );
-        net::CommandResult _cmdNVBarrier( net::Command& command );
-        net::CommandResult _cmdSwap( net::Command& command );
-        net::CommandResult _cmdFrameDrawFinish( net::Command& command );
+        bool _cmdCreateChannel( net::Command& command );
+        bool _cmdDestroyChannel(net::Command& command );
+        bool _cmdConfigInit( net::Command& command );
+        bool _cmdConfigExit( net::Command& command );
+        bool _cmdFrameStart( net::Command& command );
+        bool _cmdFrameFinish( net::Command& command );
+        bool _cmdThrottleFramerate( net::Command& command );
+        bool _cmdFinish( net::Command& command );
+        bool _cmdBarrier( net::Command& command );
+        bool _cmdNVBarrier( net::Command& command );
+        bool _cmdSwap( net::Command& command );
+        bool _cmdFrameDrawFinish( net::Command& command );
 
         CHECK_THREAD_DECLARE( _pipeThread );
     };

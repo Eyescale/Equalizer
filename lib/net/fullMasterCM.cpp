@@ -296,7 +296,7 @@ void FullMasterCM::_addInstanceData( InstanceData* data )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-CommandResult FullMasterCM::_cmdCommit( Command& command )
+bool FullMasterCM::_cmdCommit( Command& command )
 {
     CHECK_THREAD( _cmdThread );
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
@@ -332,7 +332,7 @@ CommandResult FullMasterCM::_cmdCommit( Command& command )
     }
 
     _obsolete();
-    return COMMAND_HANDLED;
+    return true;
 }
 
 }

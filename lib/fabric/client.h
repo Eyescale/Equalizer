@@ -70,7 +70,7 @@ namespace fabric
         EQFABRIC_EXPORT virtual bool dispatchCommand( net::Command& command );
 
         /** @sa net::Node::invokeCommand. @internal */
-        EQFABRIC_EXPORT virtual net::CommandResult invokeCommand(net::Command&);
+        EQFABRIC_EXPORT virtual bool invokeCommand(net::Command&);
 
     private:
         union // placeholder for binary-compatible changes

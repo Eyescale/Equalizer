@@ -108,8 +108,8 @@ namespace net
         base::Monitor<uint32_t> _leaveNotify;
 
         /* The command handlers. */
-        CommandResult _cmdEnter( Command& command );
-        CommandResult _cmdEnterReply( Command& command );
+        bool _cmdEnter( Command& command );
+        bool _cmdEnterReply( Command& command );
 
         CHECK_THREAD_DECLARE( _thread );
     };

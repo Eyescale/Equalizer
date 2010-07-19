@@ -84,8 +84,8 @@ namespace net
         base::MTQueue< ObjectDataIStream* > _queuedDeltas;
 
         /* The command handlers. */
-        CommandResult _cmdSlaveDelta( Command& command );
-        CommandResult _cmdDiscard( Command& command ) {return COMMAND_HANDLED;}
+        bool _cmdSlaveDelta( Command& command );
+        bool _cmdDiscard( Command& command ) { return true; }
 
         CHECK_THREAD_DECLARE( _cmdThread );
     };

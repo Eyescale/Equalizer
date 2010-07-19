@@ -355,7 +355,7 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
 //===========================================================================
 // command handling
 //===========================================================================
-net::CommandResult Pipe::_cmdConfigInitReply( net::Command& command ) 
+bool Pipe::_cmdConfigInitReply( net::Command& command ) 
 {
     const PipeConfigInitReplyPacket* packet = 
         command.getPacket<PipeConfigInitReplyPacket>();
@@ -363,10 +363,10 @@ net::CommandResult Pipe::_cmdConfigInitReply( net::Command& command )
 
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Pipe::_cmdConfigExitReply( net::Command& command ) 
+bool Pipe::_cmdConfigExitReply( net::Command& command ) 
 {
     const PipeConfigExitReplyPacket* packet = 
         command.getPacket<PipeConfigExitReplyPacket>();
@@ -374,7 +374,7 @@ net::CommandResult Pipe::_cmdConfigExitReply( net::Command& command )
 
     _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 void Pipe::deserialize( net::DataIStream& is, const uint64_t dirtyBits )

@@ -49,7 +49,7 @@ StaticSlaveCM::~StaticSlaveCM()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-CommandResult StaticSlaveCM::_cmdInstance( Command& command )
+bool StaticSlaveCM::_cmdInstance( Command& command )
 {
     EQASSERT( _currentIStream );
     _currentIStream->addDataPacket( command );
@@ -59,7 +59,7 @@ CommandResult StaticSlaveCM::_cmdInstance( Command& command )
                              << _object->getInstanceID() << " ready" 
                              << std::endl;
 
-    return eq::net::COMMAND_HANDLED;
+    return true;
 }
 
 void StaticSlaveCM::applyMapData()

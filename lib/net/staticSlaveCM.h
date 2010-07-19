@@ -83,7 +83,7 @@ namespace net
 
     private:
         /* The command handlers. */
-        CommandResult _cmdInstance( Command& command );
+        bool _cmdInstance( Command& command );
     };
 }
 }

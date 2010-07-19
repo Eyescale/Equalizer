@@ -88,9 +88,9 @@ namespace eq
         };
 
         /* The command handler functions. */
-        net::CommandResult _cmdChooseConfigReply( net::Command& command );
-        net::CommandResult _cmdReleaseConfigReply( net::Command& command );
-        net::CommandResult _cmdShutdownReply( net::Command& command );
+        bool _cmdChooseConfigReply( net::Command& command );
+        bool _cmdReleaseConfigReply( net::Command& command );
+        bool _cmdShutdownReply( net::Command& command );
     };
 }
 

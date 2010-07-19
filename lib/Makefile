@@ -63,7 +63,6 @@ HEADER_SRC = \
 	net/commandCache.h \
 	net/commandFunc.h \
 	net/commandQueue.h \
-	net/commandResult.h \
 	net/commands.h \
 	net/connection.h \
 	net/connection.ipp \

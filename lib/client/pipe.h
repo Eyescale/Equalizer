@@ -412,14 +412,14 @@ namespace eq
         void _flushViews();
 
         /* The command functions. */
-        net::CommandResult _cmdCreateWindow( net::Command& command );
-        net::CommandResult _cmdDestroyWindow( net::Command& command );
-        net::CommandResult _cmdConfigInit( net::Command& command );
-        net::CommandResult _cmdConfigExit( net::Command& command );
-        net::CommandResult _cmdFrameStartClock( net::Command& command );
-        net::CommandResult _cmdFrameStart( net::Command& command );
-        net::CommandResult _cmdFrameFinish( net::Command& command );
-        net::CommandResult _cmdFrameDrawFinish( net::Command& command );
+        bool _cmdCreateWindow( net::Command& command );
+        bool _cmdDestroyWindow( net::Command& command );
+        bool _cmdConfigInit( net::Command& command );
+        bool _cmdConfigExit( net::Command& command );
+        bool _cmdFrameStartClock( net::Command& command );
+        bool _cmdFrameStart( net::Command& command );
+        bool _cmdFrameFinish( net::Command& command );
+        bool _cmdFrameDrawFinish( net::Command& command );
 
         CHECK_THREAD_DECLARE( _pipeThread );
     };

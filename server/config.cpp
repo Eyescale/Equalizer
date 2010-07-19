@@ -408,7 +408,7 @@ static VisitorResult _accept( C* config, ConfigVisitor& visitor )
             default:
                 break;
         }
-    }                                                           
+    }
     return result;
 }
 }
@@ -1000,7 +1000,7 @@ void Config::changeLatency( const uint32_t latency )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-net::CommandResult Config::_cmdInit( net::Command& command )
+bool Config::_cmdInit( net::Command& command )
 {
     const ConfigInitPacket* packet =
         command.getPacket<ConfigInitPacket>();
@@ -1021,10 +1021,10 @@ net::CommandResult Config::_cmdInit( net::Command& command )
     reply.version = commit();
     send( command.getNode(), reply );
     setErrorMessage( "" );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Config::_cmdExit( net::Command& command ) 
+bool Config::_cmdExit( net::Command& command ) 
 {
     const ConfigExitPacket* packet = 
         command.getPacket<ConfigExitPacket>();
@@ -1038,10 +1038,10 @@ net::CommandResult Config::_cmdExit( net::Command& command )
 
     EQINFO << "config exit result: " << reply.result << std::endl;
     send( command.getNode(), reply );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Config::_cmdStartFrame( net::Command& command ) 
+bool Config::_cmdStartFrame( net::Command& command ) 
 {
     const ConfigStartFramePacket* packet = 
         command.getPacket<ConfigStartFramePacket>();
@@ -1086,26 +1086,26 @@ net::CommandResult Config::_cmdStartFrame( net::Command& command )
         send( node, frameFinishPacket );        
     }
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Config::_cmdFinishAllFrames( net::Command& command ) 
+bool Config::_cmdFinishAllFrames( net::Command& command ) 
 {
     const ConfigFinishAllFramesPacket* packet = 
         command.getPacket<ConfigFinishAllFramesPacket>();
     EQVERB << "handle config all frames finish " << packet << std::endl;
 
     _flushAllFrames();
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Config::_cmdCreateReply( net::Command& command ) 
+bool Config::_cmdCreateReply( net::Command& command ) 
 {
     const fabric::ConfigCreateReplyPacket* packet = 
         command.getPacket< fabric::ConfigCreateReplyPacket >();
 
     getLocalNode()->serveRequest( packet->requestID );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 namespace
@@ -1134,7 +1134,7 @@ private:
 };
 }
 
-net::CommandResult Config::_cmdFreezeLoadBalancing( net::Command& command ) 
+bool Config::_cmdFreezeLoadBalancing( net::Command& command ) 
 {
     const ConfigFreezeLoadBalancingPacket* packet = 
         command.getPacket<ConfigFreezeLoadBalancingPacket>();
@@ -1142,7 +1142,7 @@ net::CommandResult Config::_cmdFreezeLoadBalancing( net::Command& command )
     FreezeVisitor visitor( packet->freeze );
     accept( visitor );
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 void Config::output( std::ostream& os ) const

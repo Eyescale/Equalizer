@@ -615,7 +615,7 @@ N* Config< S, C, O, L, CV, N, V >::_findNode( const uint32_t id )
 // Command handlers
 //----------------------------------------------------------------------
 template< class S, class C, class O, class L, class CV, class N, class V >
-net::CommandResult Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
+bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
     net::Command& command )
 {
     const ConfigNewLayoutPacket* packet =
@@ -632,11 +632,11 @@ net::CommandResult Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
     reply.entityID = layout->getID();
     send( command.getNode(), reply ); 
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-net::CommandResult Config< S, C, O, L, CV, N, V >::_cmdNewCanvas(
+bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas(
     net::Command& command )
 {
     const ConfigNewCanvasPacket* packet =
@@ -653,11 +653,11 @@ net::CommandResult Config< S, C, O, L, CV, N, V >::_cmdNewCanvas(
     reply.entityID = canvas->getID();
     send( command.getNode(), reply ); 
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-net::CommandResult Config< S, C, O, L, CV, N, V >::_cmdNewObserver(
+bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver(
     net::Command& command )
 {
     const ConfigNewObserverPacket* packet =
@@ -674,18 +674,18 @@ net::CommandResult Config< S, C, O, L, CV, N, V >::_cmdNewObserver(
     reply.entityID = observer->getID();
     send( command.getNode(), reply ); 
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-net::CommandResult Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply(
+bool Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply(
     net::Command& command )
 {
     const ConfigNewEntityReplyPacket* packet =
         command.getPacket< ConfigNewEntityReplyPacket >();
     getLocalNode()->serveRequest( packet->requestID, packet->entityID );
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >

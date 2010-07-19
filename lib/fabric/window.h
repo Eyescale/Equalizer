@@ -243,8 +243,8 @@ namespace fabric
         bool _mapNodeObjects() { return _pipe->_mapNodeObjects(); }
 
         typedef net::CommandFunc< Window< P, W, C > > CmdFunc;
-        net::CommandResult _cmdNewChannel( net::Command& command );
-        net::CommandResult _cmdNewChannelReply( net::Command& command );
+        bool _cmdNewChannel( net::Command& command );
+        bool _cmdNewChannelReply( net::Command& command );
     };
 }
 }

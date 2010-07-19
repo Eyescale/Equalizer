@@ -1532,20 +1532,10 @@ void Node::_runCommandThread()
         Command* command = _commandThreadQueue.pop();
         EQASSERT( command->isValid( ));
 
-        const CommandResult result  = invokeCommand( *command );
-        switch( result )
+        if( !invokeCommand( *command ))
         {
-            case COMMAND_ERROR:
-                EQABORT( "Error handling " << *command );
-                break;
-
-            case COMMAND_HANDLED:
-                break;
-
-            default:
-                EQUNIMPLEMENTED;
+            EQABORT( "Error handling " << *command );
         }
-
         command->release();
     }
  
@@ -1554,7 +1544,7 @@ void Node::_runCommandThread()
            << std::endl;
 }
 
-CommandResult Node::invokeCommand( Command& command )
+bool Node::invokeCommand( Command& command )
 {
     EQVERB << "dispatch " << command << " by " << _id << std::endl;
     EQASSERT( command.isValid( ));
@@ -1581,18 +1571,18 @@ CommandResult Node::invokeCommand( Command& command )
                 session = i->second;
             } 
             if( !session )
-                return COMMAND_ERROR;
+                return false;
 
             return session->invokeCommand( command );
         }
 
         default:
             EQABORT( "Unknown packet type " << type << " for " << command );
-            return COMMAND_ERROR;
+            return false;
     }
 }
 
-CommandResult Node::_cmdStop( Command& command )
+bool Node::_cmdStop( Command& command )
 {
     EQINFO << "Cmd stop " << this << std::endl;
     EQASSERT( _state == STATE_LISTENING );
@@ -1600,10 +1590,10 @@ CommandResult Node::_cmdStop( Command& command )
     _state = STATE_CLOSED;
     _incoming.interrupt();
 
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Node::_cmdRegisterSession( Command& command )
+bool Node::_cmdRegisterSession( Command& command )
 {
     CHECK_THREAD( _recvThread );
     EQASSERT( _state == STATE_LISTENING );
@@ -1620,11 +1610,11 @@ CommandResult Node::_cmdRegisterSession( Command& command )
 
     _addSession( session, this, session->getID( ));
     serveRequest( packet->requestID );
-    return COMMAND_HANDLED;
+    return true;
 }
 
 
-CommandResult Node::_cmdMapSession( Command& command )
+bool Node::_cmdMapSession( Command& command )
 {
     CHECK_THREAD( _cmdThread );
     EQASSERT( _state == STATE_LISTENING );
@@ -1653,10 +1643,10 @@ CommandResult Node::_cmdMapSession( Command& command )
     }
 
     node->send( reply );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Node::_cmdMapSessionReply( Command& command)
+bool Node::_cmdMapSessionReply( Command& command)
 {
     CHECK_THREAD( _recvThread );
     const NodeMapSessionReplyPacket* packet = 
@@ -1676,10 +1666,10 @@ CommandResult Node::_cmdMapSessionReply( Command& command)
     }
 
     serveRequest( requestID );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Node::_cmdUnmapSession( Command& command )
+bool Node::_cmdUnmapSession( Command& command )
 {
     CHECK_THREAD( _cmdThread );
     const NodeUnmapSessionPacket* packet =
@@ -1700,10 +1690,10 @@ CommandResult Node::_cmdUnmapSession( Command& command )
 #endif
 
     command.getNode()->send( reply );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Node::_cmdUnmapSessionReply( Command& command)
+bool Node::_cmdUnmapSessionReply( Command& command)
 {
     CHECK_THREAD( _recvThread );
     const NodeUnmapSessionReplyPacket* packet = 
@@ -1724,10 +1714,10 @@ CommandResult Node::_cmdUnmapSessionReply( Command& command)
         serveRequest( requestID, false );
 
     // packet->result is false if server-side session was already unmapped
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Node::_cmdConnect( Command& command )
+bool Node::_cmdConnect( Command& command )
 {
     EQASSERT( !command.getNode().isValid( ));
     EQASSERT( inReceiverThread( ));
@@ -1762,7 +1752,7 @@ CommandResult Node::_cmdConnect( Command& command )
             // NOTE: There is no close() here. The reply packet above has to be
             // received by the peer first, before closing the connection.
             _removeConnection( connection );
-            return COMMAND_HANDLED;
+            return true;
         }
     }
 
@@ -1811,10 +1801,10 @@ CommandResult Node::_cmdConnect( Command& command )
     if( packet->launchID != EQ_ID_INVALID )
         serveRequest( packet->launchID );
     
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Node::_cmdConnectReply( Command& command )
+bool Node::_cmdConnectReply( Command& command )
 {
     EQASSERT( !command.getNode( ));
     EQASSERT( inReceiverThread( ));
@@ -1845,7 +1835,7 @@ CommandResult Node::_cmdConnectReply( Command& command )
         if( packet->requestID != EQ_ID_INVALID )
             serveRequest( packet->requestID, false );
         
-        return COMMAND_HANDLED;
+        return true;
     }
 
     // create and add node
@@ -1889,10 +1879,10 @@ CommandResult Node::_cmdConnectReply( Command& command )
     remoteNode->send( ack );
 
     _connectMulticast( remoteNode );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Node::_cmdConnectAck( Command& command )
+bool Node::_cmdConnectAck( Command& command )
 {
     NodePtr node = command.getNode();
     EQASSERT( node.isValid( ));
@@ -1900,10 +1890,10 @@ CommandResult Node::_cmdConnectAck( Command& command )
     EQVERB << "handle connect ack" << std::endl;
     
     _connectMulticast( node );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Node::_cmdID( Command& command )
+bool Node::_cmdID( Command& command )
 {
     EQASSERT( inReceiverThread( ));
 
@@ -1914,7 +1904,7 @@ CommandResult Node::_cmdID( Command& command )
     {
         EQASSERT( nodeID == command.getNode()->getNodeID( ));
         EQASSERT( command.getNode()->_outMulticast->isValid( ));
-        return COMMAND_HANDLED;
+        return true;
     }
 
     EQINFO << "handle ID " << packet << " node " << nodeID << std::endl;
@@ -1993,10 +1983,10 @@ CommandResult Node::_cmdID( Command& command )
 
     EQINFO << "Added multicast connection " << connection << " from " << nodeID
            << " to " << _id<< std::endl;
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Node::_cmdDisconnect( Command& command )
+bool Node::_cmdDisconnect( Command& command )
 {
     EQASSERT( inReceiverThread( ));
 
@@ -2028,10 +2018,10 @@ CommandResult Node::_cmdDisconnect( Command& command )
 
     EQASSERT( node->_state == STATE_CLOSED );
     serveRequest( packet->requestID );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Node::_cmdGetNodeData( Command& command)
+bool Node::_cmdGetNodeData( Command& command)
 {
     const NodeGetNodeDataPacket* packet = 
         command.getPacket<NodeGetNodeDataPacket>();
@@ -2056,10 +2046,10 @@ CommandResult Node::_cmdGetNodeData( Command& command)
     NodePtr toNode = command.getNode();
     toNode->send( reply, nodeData );
     EQINFO << "Sent node data " << nodeData << " to " << toNode << std::endl;
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Node::_cmdGetNodeDataReply( Command& command )
+bool Node::_cmdGetNodeDataReply( Command& command )
 {
     EQASSERT( inReceiverThread( ));
 
@@ -2079,13 +2069,13 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
         
         node.ref();
         serveRequest( requestID, node.get( ));
-        return COMMAND_HANDLED;
+        return true;
     }
 
     if( packet->nodeType == NODETYPE_EQNET_INVALID )
     {
         serveRequest( requestID, (void*)0 );
-        return COMMAND_HANDLED;
+        return true;
     }
 
     // new node: create and add unconnected node        
@@ -2106,17 +2096,17 @@ CommandResult Node::_cmdGetNodeDataReply( Command& command )
     node->setAutoLaunch( false );
     node.ref();
     serveRequest( requestID, node.get( ));
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Node::_cmdAcquireSendToken( Command& command )
+bool Node::_cmdAcquireSendToken( Command& command )
 {
     EQASSERT( inCommandThread( ));
     if( !_hasSendToken ) // no token available
     {
         command.retain();
         _sendTokenQueue.push_back( &command );
-        return COMMAND_HANDLED;
+        return true;
     }
 
     _hasSendToken = false;
@@ -2125,19 +2115,19 @@ CommandResult Node::_cmdAcquireSendToken( Command& command )
         command.getPacket<NodeAcquireSendTokenPacket>();
     NodeAcquireSendTokenReplyPacket reply( packet );
     command.getNode()->send( reply );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Node::_cmdAcquireSendTokenReply( Command& command )
+bool Node::_cmdAcquireSendTokenReply( Command& command )
 {
     NodeAcquireSendTokenReplyPacket* packet = 
         command.getPacket<NodeAcquireSendTokenReplyPacket>();
 
     serveRequest( packet->requestID );
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Node::_cmdReleaseSendToken( Command& command )
+bool Node::_cmdReleaseSendToken( Command& command )
 {
     EQASSERT( inCommandThread( ));
     EQASSERT( !_hasSendToken );
@@ -2145,7 +2135,7 @@ CommandResult Node::_cmdReleaseSendToken( Command& command )
     if( _sendTokenQueue.empty( ))
     {
         _hasSendToken = true;
-        return COMMAND_HANDLED;
+        return true;
     }
 
     Command* request = _sendTokenQueue.front();
@@ -2157,7 +2147,7 @@ CommandResult Node::_cmdReleaseSendToken( Command& command )
 
     request->getNode()->send( reply );
     request->release();
-    return COMMAND_HANDLED;
+    return true;
 }
 
 std::ostream& operator << ( std::ostream& os, const Node& node )

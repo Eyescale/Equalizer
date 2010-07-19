@@ -378,7 +378,7 @@ void Canvas< CFG, C, S, L >::unsetFrustum()
 //----------------------------------------------------------------------
 // Command handlers
 //----------------------------------------------------------------------
-template< class CFG, class C, class S, class L > net::CommandResult
+template< class CFG, class C, class S, class L > bool
 Canvas< CFG, C, S, L >::_cmdNewSegment( net::Command& command )
 {
     const CanvasNewSegmentPacket* packet =
@@ -395,17 +395,17 @@ Canvas< CFG, C, S, L >::_cmdNewSegment( net::Command& command )
     reply.segmentID = segment->getID();
     send( command.getNode(), reply ); 
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-template< class CFG, class C, class S, class L > net::CommandResult
+template< class CFG, class C, class S, class L > bool
 Canvas< CFG, C, S, L >::_cmdNewSegmentReply( net::Command& command )
 {
     const CanvasNewSegmentReplyPacket* packet =
         command.getPacket< CanvasNewSegmentReplyPacket >();
     getLocalNode()->serveRequest( packet->requestID, packet->segmentID );
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 template< class CFG, class C, class S, class L >

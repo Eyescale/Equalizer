@@ -143,7 +143,7 @@ bool Server::shutdown()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-net::CommandResult Server::_cmdChooseConfigReply( net::Command& command )
+bool Server::_cmdChooseConfigReply( net::Command& command )
 {
     const ServerChooseConfigReplyPacket* packet = 
         command.getPacket<ServerChooseConfigReplyPacket>();
@@ -152,7 +152,7 @@ net::CommandResult Server::_cmdChooseConfigReply( net::Command& command )
     if( packet->configID == net::SessionID::ZERO )
     {
         serveRequest( packet->requestID, (void*)0 );
-        return net::COMMAND_HANDLED;
+        return true;
     }
 
     net::NodePtr  localNode = command.getLocalNode();
@@ -162,26 +162,26 @@ net::CommandResult Server::_cmdChooseConfigReply( net::Command& command )
                   "Session id " << packet->configID << " @" << (void*)session );
 
     serveRequest( packet->requestID, config );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Server::_cmdReleaseConfigReply( net::Command& command )
+bool Server::_cmdReleaseConfigReply( net::Command& command )
 {
     const ServerReleaseConfigReplyPacket* packet = 
         command.getPacket<ServerReleaseConfigReplyPacket>();
 
     serveRequest( packet->requestID );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Server::_cmdShutdownReply( net::Command& command )
+bool Server::_cmdShutdownReply( net::Command& command )
 {
     const ServerShutdownReplyPacket* packet = 
         command.getPacket<ServerShutdownReplyPacket>();
     EQINFO << "Handle shutdown reply " << packet << std::endl;
 
     serveRequest( packet->requestID, packet->result );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 }
 

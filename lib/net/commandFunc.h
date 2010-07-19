@@ -18,8 +18,6 @@
 #ifndef EQNET_COMMANDFUNC_H
 #define EQNET_COMMANDFUNC_H
 
-#include <eq/net/commandResult.h>
-
 namespace eq
 {
 namespace net
@@ -36,16 +34,16 @@ namespace net
     {
     public:
         CommandFunc( T* object, 
-                     CommandResult (T::*func)( Command& ))
+                     bool (T::*func)( Command& ))
             : _object( object ), _func( func ) {}
 
         template< typename O > CommandFunc( const O& from )
                 : _object( from._object ),
                   _func(
-                      static_cast<CommandResult (T::*)( Command& )>(from._func))
+                      static_cast<bool (T::*)( Command& )>(from._func))
             {}
 
-        CommandResult operator()( Command& command )
+        bool operator()( Command& command )
         {
             return (_object->*_func)( command );
         }
@@ -55,7 +53,7 @@ namespace net
         // template classes.
         //private:
         T* _object;
-        CommandResult (T::*_func)( Command& );
+        bool (T::*_func)( Command& );
     };
 }
 }

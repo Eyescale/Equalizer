@@ -322,10 +322,10 @@ namespace fabric
         EQFABRIC_EXPORT bool _removeNode( N* node );
 
         typedef net::CommandFunc< Config< S, C, O, L, CV, N, V > > CmdFunc;
-        net::CommandResult _cmdNewLayout( net::Command& command );
-        net::CommandResult _cmdNewCanvas( net::Command& command );
-        net::CommandResult _cmdNewObserver( net::Command& command );
-        net::CommandResult _cmdNewEntityReply( net::Command& command );
+        bool _cmdNewLayout( net::Command& command );
+        bool _cmdNewCanvas( net::Command& command );
+        bool _cmdNewObserver( net::Command& command );
+        bool _cmdNewEntityReply( net::Command& command );
     };
 
     template< class S, class C, class O, class L, class CV, class N, class V >

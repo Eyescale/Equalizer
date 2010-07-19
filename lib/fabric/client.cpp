@@ -97,16 +97,9 @@ void Client::processCommand()
     if( !command ) // just a wakeup()
         return;
 
-    switch( invokeCommand( *command ))
+    if( !invokeCommand( *command ))
     {
-        case net::COMMAND_HANDLED:
-            break;
-        
-        default:
-            EQUNIMPLEMENTED;
-        case net::COMMAND_ERROR:
-            EQABORT( "Error handling command packet" );
-            break;
+        EQABORT( "Error handling command packet" );
     }
     command->release();
 }
@@ -131,7 +124,7 @@ bool Client::dispatchCommand( net::Command& command )
     }
 }
 
-net::CommandResult Client::invokeCommand( net::Command& command )
+bool Client::invokeCommand( net::Command& command )
 {
     EQVERB << "invokeCommand " << command << std::endl;
 

@@ -513,18 +513,18 @@ namespace util
         void _initDrawableConfig();
 
         /* The command handler functions. */
-        net::CommandResult _cmdConfigInit( net::Command& command );
-        net::CommandResult _cmdConfigExit( net::Command& command );
-        net::CommandResult _cmdFrameStart( net::Command& command );
-        net::CommandResult _cmdFrameFinish( net::Command& command );
-        net::CommandResult _cmdFrameClear( net::Command& command );
-        net::CommandResult _cmdFrameDraw( net::Command& command );
-        net::CommandResult _cmdFrameDrawFinish( net::Command& command );
-        net::CommandResult _cmdFrameAssemble( net::Command& command );
-        net::CommandResult _cmdFrameReadback( net::Command& command );
-        net::CommandResult _cmdFrameTransmit( net::Command& command );
-        net::CommandResult _cmdFrameViewStart( net::Command& command );
-        net::CommandResult _cmdFrameViewFinish( net::Command& command );
+        bool _cmdConfigInit( net::Command& command );
+        bool _cmdConfigExit( net::Command& command );
+        bool _cmdFrameStart( net::Command& command );
+        bool _cmdFrameFinish( net::Command& command );
+        bool _cmdFrameClear( net::Command& command );
+        bool _cmdFrameDraw( net::Command& command );
+        bool _cmdFrameDrawFinish( net::Command& command );
+        bool _cmdFrameAssemble( net::Command& command );
+        bool _cmdFrameReadback( net::Command& command );
+        bool _cmdFrameTransmit( net::Command& command );
+        bool _cmdFrameViewStart( net::Command& command );
+        bool _cmdFrameViewFinish( net::Command& command );
     };
 }
 

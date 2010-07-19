@@ -19,12 +19,12 @@
 #ifndef EQNET_NODE_H
 #define EQNET_NODE_H
 
-#include <eq/net/dispatcher.h>               // base class
-#include <eq/net/commandCache.h>             // member
-#include <eq/net/commandQueue.h>             // member
-#include <eq/net/connectionSet.h>            // member
-#include <eq/net/nodeType.h>                 // for NODETYPE_EQNET_NODE enum
-#include <eq/net/types.h>
+#include "dispatcher.h"               // base class
+#include "commandCache.h"             // member
+#include "commandQueue.h"             // member
+#include "connectionSet.h"            // member
+#include "nodeType.h"                 // for NODETYPE_EQNET_NODE enum
+#include "types.h"
 
 #include <eq/base/base.h>
 #include <eq/base/lockable.h>
@@ -541,10 +541,10 @@ namespace net
          * Invokes the command handler method for the packet.
          * 
          * @param command the command.
-         * @return the result of the operation.
+         * @return true if the result of the operation is handled.
          * @sa Dispatcher::invokeCommand
          */
-        EQ_EXPORT virtual CommandResult invokeCommand( Command& command );
+        EQ_EXPORT virtual bool invokeCommand( Command& command );
 
         /** 
          * The main loop for auto-launched clients. 
@@ -774,23 +774,23 @@ namespace net
         void   _redispatchCommands();
 
         /** The command functions. */
-        CommandResult _cmdStop( Command& command );
-        CommandResult _cmdRegisterSession( Command& command );
-        CommandResult _cmdRegisterSessionReply( Command& command );
-        CommandResult _cmdMapSession( Command& command );
-        CommandResult _cmdMapSessionReply( Command& command );
-        CommandResult _cmdUnmapSession( Command& command );
-        CommandResult _cmdUnmapSessionReply( Command& command );
-        CommandResult _cmdConnect( Command& command );
-        CommandResult _cmdConnectReply( Command& command );
-        CommandResult _cmdConnectAck( Command& command );
-        CommandResult _cmdID( Command& command );
-        CommandResult _cmdDisconnect( Command& command );
-        CommandResult _cmdGetNodeData( Command& command );
-        CommandResult _cmdGetNodeDataReply( Command& command );
-        CommandResult _cmdAcquireSendToken( Command& command );
-        CommandResult _cmdAcquireSendTokenReply( Command& command );
-        CommandResult _cmdReleaseSendToken( Command& command );
+        bool _cmdStop( Command& command );
+        bool _cmdRegisterSession( Command& command );
+        bool _cmdRegisterSessionReply( Command& command );
+        bool _cmdMapSession( Command& command );
+        bool _cmdMapSessionReply( Command& command );
+        bool _cmdUnmapSession( Command& command );
+        bool _cmdUnmapSessionReply( Command& command );
+        bool _cmdConnect( Command& command );
+        bool _cmdConnectReply( Command& command );
+        bool _cmdConnectAck( Command& command );
+        bool _cmdID( Command& command );
+        bool _cmdDisconnect( Command& command );
+        bool _cmdGetNodeData( Command& command );
+        bool _cmdGetNodeDataReply( Command& command );
+        bool _cmdAcquireSendToken( Command& command );
+        bool _cmdAcquireSendTokenReply( Command& command );
+        bool _cmdReleaseSendToken( Command& command );
 
         CHECK_THREAD_DECLARE( _cmdThread );
         CHECK_THREAD_DECLARE( _recvThread );

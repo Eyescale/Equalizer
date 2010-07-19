@@ -58,8 +58,8 @@ namespace admin
             char dummy[32];
         };
 
-        net::CommandResult _cmdMapReply( net::Command& command );
-        net::CommandResult _cmdUnmapReply( net::Command& command );
+        bool _cmdMapReply( net::Command& command );
+        bool _cmdUnmapReply( net::Command& command );
     };
 }
 }

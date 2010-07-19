@@ -121,7 +121,7 @@ void Barrier::enter()
                          << ", height " << _height << endl;
 }
 
-CommandResult Barrier::_cmdEnter( Command& command )
+bool Barrier::_cmdEnter( Command& command )
 {
     CHECK_THREAD( _thread );
     EQASSERTINFO( !_master || _master == getSession()->getLocalNode(),
@@ -129,7 +129,7 @@ CommandResult Barrier::_cmdEnter( Command& command )
 
     BarrierEnterPacket* packet = command.getPacket< BarrierEnterPacket >();
     if( packet->handled )
-        return COMMAND_HANDLED;
+        return true;
     packet->handled = true;
 
     EQLOG( LOG_BARRIER ) << "handle barrier enter " << packet << " barrier v"
@@ -151,12 +151,12 @@ CommandResult Barrier::_cmdEnter( Command& command )
     // the later version, in which case deadlocks might happen because the later
     // version never leaves the barrier. We simply assume this is not the case.
     if( version > getVersion( ))
-        return COMMAND_HANDLED;
+        return true;
     
     EQASSERT( version == getVersion( ));
 
     if( nodes.size() < _height )
-        return COMMAND_HANDLED;
+        return true;
 
     EQASSERT( nodes.size() == _height );
     EQLOG( LOG_BARRIER ) << "Barrier reached" << endl;
@@ -187,15 +187,15 @@ CommandResult Barrier::_cmdEnter( Command& command )
     EQASSERT( it != _enteredNodes.end( ));
     _enteredNodes.erase( it );
 
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult Barrier::_cmdEnterReply( Command& command )
+bool Barrier::_cmdEnterReply( Command& command )
 {
     CHECK_THREAD( _thread );
     EQLOG( LOG_BARRIER ) << "Got ok, unlock local user(s)" << endl;
     ++_leaveNotify;
-    return COMMAND_HANDLED;
+    return true;
 }
 }
 }

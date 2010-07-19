@@ -41,7 +41,7 @@ namespace net
 
     private:
         /* The command handlers. */
-        CommandResult _cmdCommit( Command& pkg );
+        bool _cmdCommit( Command& pkg );
 
         DeltaData _deltaData;        
     };

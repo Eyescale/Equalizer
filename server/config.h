@@ -256,12 +256,12 @@ namespace server
         template< class T > bool _postDelete( const uint32_t id );
 
         /** The command functions. */
-        net::CommandResult _cmdInit( net::Command& command );
-        net::CommandResult _cmdExit( net::Command& command );
-        net::CommandResult _cmdStartFrame( net::Command& command );
-        net::CommandResult _cmdFinishAllFrames( net::Command& command ); 
-        net::CommandResult _cmdCreateReply( net::Command& command );
-        net::CommandResult _cmdFreezeLoadBalancing( net::Command& command );
+        bool _cmdInit( net::Command& command );
+        bool _cmdExit( net::Command& command );
+        bool _cmdStartFrame( net::Command& command );
+        bool _cmdFinishAllFrames( net::Command& command ); 
+        bool _cmdCreateReply( net::Command& command );
+        bool _cmdFreezeLoadBalancing( net::Command& command );
     };
 }
 }

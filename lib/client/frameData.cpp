@@ -509,7 +509,7 @@ void FrameData::removeListener( base::Monitor<uint32_t>& listener )
 
 //----- Command handlers
 
-net::CommandResult FrameData::_cmdTransmit( net::Command& command )
+bool FrameData::_cmdTransmit( net::Command& command )
 {
     CHECK_THREAD( _commandThread );
     const FrameDataTransmitPacket* packet =
@@ -600,10 +600,10 @@ net::CommandResult FrameData::_cmdTransmit( net::Command& command )
         _pendingImages.push_back( ImageVersion( image, packet->version ));
     }
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult FrameData::_cmdReady( net::Command& command )
+bool FrameData::_cmdReady( net::Command& command )
 {
     CHECK_THREAD( _commandThread );
     const FrameDataReadyPacket* packet =
@@ -622,10 +622,10 @@ net::CommandResult FrameData::_cmdReady( net::Command& command )
     }
 
     EQLOG( LOG_ASSEMBLY ) << this << " received v" << packet->version << endl;
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult FrameData::_cmdUpdate( net::Command& command )
+bool FrameData::_cmdUpdate( net::Command& command )
 {
     CHECK_THREAD( _commandThread );
     const FrameDataUpdatePacket* packet =
@@ -650,7 +650,7 @@ net::CommandResult FrameData::_cmdUpdate( net::Command& command )
         break;        
     }
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 void FrameData::_applyVersion( const uint32_t version )

@@ -92,8 +92,8 @@ namespace fabric
         friend class Config;
 
         /* The command handler functions. */
-        net::CommandResult _cmdCreateConfig( net::Command& command );
-        net::CommandResult _cmdDestroyConfig( net::Command& command );
+        bool _cmdCreateConfig( net::Command& command );
+        bool _cmdDestroyConfig( net::Command& command );
     };
 
     template< class CL, class S, class CFG, class NF > EQFABRIC_EXPORT

@@ -102,7 +102,7 @@ namespace net
          * @return the result of the operation.
          * @sa Dispatcher::invokeCommand
          */
-        EQ_EXPORT virtual CommandResult invokeCommand( Command& packet );
+        EQ_EXPORT virtual bool invokeCommand( Command& packet );
         //@}
 
 
@@ -417,7 +417,7 @@ namespace net
         template< class P > void _ackRequest( Command& command );
 
         bool _dispatchObjectCommand( Command& command );
-        CommandResult _invokeObjectCommand( Command& packet );
+        bool _invokeObjectCommand( Command& packet );
         Object* _findObject( Command& command );
 
         void _attachObject( Object* object, const uint32_t id, 
@@ -431,22 +431,22 @@ namespace net
 
 
         /** The command handler functions. */
-        CommandResult _cmdAckRequest( Command& packet );
-        CommandResult _cmdGenIDs( Command& packet );
-        CommandResult _cmdGenIDsReply( Command& packet );
-        CommandResult _cmdSetIDMaster( Command& packet );
-        CommandResult _cmdUnsetIDMaster( Command& packet );
-        CommandResult _cmdGetIDMaster( Command& packet );
-        CommandResult _cmdGetIDMasterReply( Command& packet );
-        CommandResult _cmdAttachObject( Command& command );
-        CommandResult _cmdDetachObject( Command& command );
-        CommandResult _cmdMapObject( Command& command );
-        CommandResult _cmdUnmapObject( Command& command );
-        CommandResult _cmdSubscribeObject( Command& command );
-        CommandResult _cmdSubscribeObjectSuccess( Command& command );
-        CommandResult _cmdSubscribeObjectReply( Command& command );
-        CommandResult _cmdUnsubscribeObject( Command& command );
-        CommandResult _cmdInstance( Command& command );
+        bool _cmdAckRequest( Command& packet );
+        bool _cmdGenIDs( Command& packet );
+        bool _cmdGenIDsReply( Command& packet );
+        bool _cmdSetIDMaster( Command& packet );
+        bool _cmdUnsetIDMaster( Command& packet );
+        bool _cmdGetIDMaster( Command& packet );
+        bool _cmdGetIDMasterReply( Command& packet );
+        bool _cmdAttachObject( Command& command );
+        bool _cmdDetachObject( Command& command );
+        bool _cmdMapObject( Command& command );
+        bool _cmdUnmapObject( Command& command );
+        bool _cmdSubscribeObject( Command& command );
+        bool _cmdSubscribeObjectSuccess( Command& command );
+        bool _cmdSubscribeObjectReply( Command& command );
+        bool _cmdUnsubscribeObject( Command& command );
+        bool _cmdInstance( Command& command );
 
         CHECK_THREAD_DECLARE( _receiverThread );
         CHECK_THREAD_DECLARE( _commandThread );

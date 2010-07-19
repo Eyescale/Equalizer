@@ -135,7 +135,7 @@ void UnbufferedMasterCM::removeSlave( NodePtr node )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-CommandResult UnbufferedMasterCM::_cmdCommit( Command& command )
+bool UnbufferedMasterCM::_cmdCommit( Command& command )
 {
     CHECK_THREAD( _cmdThread );
     NodePtr localNode = _object->getLocalNode();
@@ -147,7 +147,7 @@ CommandResult UnbufferedMasterCM::_cmdCommit( Command& command )
     if( _slaves.empty( ))
     {
         localNode->serveRequest( packet->requestID, _version );
-        return COMMAND_HANDLED;
+        return true;
     }
 
     ObjectDeltaDataOStream os( _object );
@@ -168,7 +168,7 @@ CommandResult UnbufferedMasterCM::_cmdCommit( Command& command )
     }
 
     localNode->serveRequest( packet->requestID, _version );
-    return COMMAND_HANDLED;
+    return true;
 }
 
 }

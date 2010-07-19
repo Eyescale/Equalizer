@@ -233,8 +233,8 @@ namespace server
         void _updateSwap( const uint32_t frameNumber );
 
         /* command handler functions. */
-        net::CommandResult _cmdConfigInitReply( net::Command& command ); 
-        net::CommandResult _cmdConfigExitReply( net::Command& command ); 
+        bool _cmdConfigInitReply( net::Command& command ); 
+        bool _cmdConfigExitReply( net::Command& command ); 
 
         // For access to _fixedPVP
         friend std::ostream& operator << ( std::ostream&, const Window*);

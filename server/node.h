@@ -265,9 +265,9 @@ namespace server
         void _sendFrameFinish( const uint32_t frameNumber );
 
         /* Command handler functions. */
-        net::CommandResult _cmdConfigInitReply( net::Command& command );
-        net::CommandResult _cmdConfigExitReply( net::Command& command );
-        net::CommandResult _cmdFrameFinishReply( net::Command& command );
+        bool _cmdConfigInitReply( net::Command& command );
+        bool _cmdConfigExitReply( net::Command& command );
+        bool _cmdFrameFinishReply( net::Command& command );
     };
 
     std::ostream& operator << ( std::ostream& os, const Node& node );

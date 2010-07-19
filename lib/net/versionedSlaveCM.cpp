@@ -324,13 +324,13 @@ bool VersionedSlaveCM::_ignoreCommand( const Command& command ) const
     return true;
 }
 
-CommandResult VersionedSlaveCM::_cmdInstance( Command& command )
+bool VersionedSlaveCM::_cmdInstance( Command& command )
 {
     CHECK_THREAD( _cmdThread );
     EQASSERT( command.getNode().isValid( ));
 
     if( _ignoreCommand( command ))
-        return COMMAND_HANDLED;
+        return true;
 
     if( !_currentIStream )
         _currentIStream = new ObjectInstanceDataIStream;
@@ -349,15 +349,15 @@ CommandResult VersionedSlaveCM::_cmdInstance( Command& command )
         _object->notifyNewHeadVersion( version );
         _currentIStream = 0;
     }
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult VersionedSlaveCM::_cmdDelta( Command& command )
+bool VersionedSlaveCM::_cmdDelta( Command& command )
 {
     CHECK_THREAD( _cmdThread );
 
     if( _ignoreCommand( command ))
-        return COMMAND_HANDLED;
+        return true;
 
     if( !_currentIStream )
         _currentIStream = new ObjectDeltaDataIStream;
@@ -376,10 +376,10 @@ CommandResult VersionedSlaveCM::_cmdDelta( Command& command )
         _object->notifyNewHeadVersion( version );
         _currentIStream = 0;
     }
-    return COMMAND_HANDLED;
+    return true;
 }
 
-CommandResult VersionedSlaveCM::_cmdCommit( Command& command )
+bool VersionedSlaveCM::_cmdCommit( Command& command )
 {
     CHECK_THREAD( _cmdThread );
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
@@ -393,7 +393,7 @@ CommandResult VersionedSlaveCM::_cmdCommit( Command& command )
         EQASSERTINFO( false, "Master node not connected" );
         localNode->serveRequest( packet->requestID,
                                  static_cast< uint32_t >( VERSION_NONE ));
-        return COMMAND_HANDLED;
+        return true;
     }
 
     _ostream.enable( _master, false );
@@ -401,7 +401,7 @@ CommandResult VersionedSlaveCM::_cmdCommit( Command& command )
     _ostream.disable();
 
     localNode->serveRequest( packet->requestID, _object->getVersion( ));
-    return COMMAND_HANDLED;
+    return true;
 }
 
 }

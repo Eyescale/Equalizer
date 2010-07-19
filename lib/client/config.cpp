@@ -570,7 +570,7 @@ void Config::freezeLoadBalancing( const bool onOff )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-net::CommandResult Config::_cmdCreateNode( net::Command& command )
+bool Config::_cmdCreateNode( net::Command& command )
 {
     const ConfigCreateNodePacket* packet = 
         command.getPacket<ConfigCreateNodePacket>();
@@ -580,10 +580,10 @@ net::CommandResult Config::_cmdCreateNode( net::Command& command )
     Node* node = Global::getNodeFactory()->createNode( this );
     EQCHECK( mapObject( node, packet->nodeID ));
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Config::_cmdDestroyNode( net::Command& command ) 
+bool Config::_cmdDestroyNode( net::Command& command ) 
 {
     const ConfigDestroyNodePacket* packet =
         command.getPacket<ConfigDestroyNodePacket>();
@@ -591,30 +591,30 @@ net::CommandResult Config::_cmdDestroyNode( net::Command& command )
 
     Node* node = _findNode( packet->nodeID );
     if( !node )
-        return net::COMMAND_HANDLED;
+        return true;
 
     unmapObject( node );
     Global::getNodeFactory()->releaseNode( node );
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Config::_cmdSync( net::Command& command ) 
+bool Config::_cmdSync( net::Command& command ) 
 {
     const ConfigSyncPacket* packet = command.getPacket< ConfigSyncPacket >();
     getClient()->serveRequest( packet->requestID, packet->version );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Config::_cmdStartFrameReply( net::Command& command ) 
+bool Config::_cmdStartFrameReply( net::Command& command ) 
 {
     const ConfigStartFrameReplyPacket* packet =
         command.getPacket< ConfigStartFrameReplyPacket >();
     getClient()->serveRequest( packet->requestID, packet->finish );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Config::_cmdInitReply( net::Command& command )
+bool Config::_cmdInitReply( net::Command& command )
 {
     const ConfigInitReplyPacket* packet = 
         command.getPacket<ConfigInitReplyPacket>();
@@ -622,10 +622,10 @@ net::CommandResult Config::_cmdInitReply( net::Command& command )
 
     sync( packet->version );
     getLocalNode()->serveRequest( packet->requestID, (void*)(packet->result) );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Config::_cmdExitReply( net::Command& command )
+bool Config::_cmdExitReply( net::Command& command )
 {
     const ConfigExitReplyPacket* packet = 
         command.getPacket<ConfigExitReplyPacket>();
@@ -633,20 +633,20 @@ net::CommandResult Config::_cmdExitReply( net::Command& command )
 
     _exitMessagePump();
     getLocalNode()->serveRequest( packet->requestID, (void*)(packet->result) );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Config::_cmdReleaseFrameLocal( net::Command& command )
+bool Config::_cmdReleaseFrameLocal( net::Command& command )
 {
     const ConfigReleaseFrameLocalPacket* packet =
         command.getPacket< ConfigReleaseFrameLocalPacket >();
 
     _frameStart(); // never happened from node
     releaseFrameLocal( packet->frameNumber );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Config::_cmdFrameFinish( net::Command& command )
+bool Config::_cmdFrameFinish( net::Command& command )
 {
     const ConfigFrameFinishPacket* packet = 
         command.getPacket<ConfigFrameFinishPacket>();
@@ -662,10 +662,10 @@ net::CommandResult Config::_cmdFrameFinish( net::Command& command )
     }
 
     getMainThreadQueue()->wakeup();
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Config::_cmdSyncClock( net::Command& command )
+bool Config::_cmdSyncClock( net::Command& command )
 {
     const ConfigSyncClockPacket* packet = 
         command.getPacket< ConfigSyncClockPacket >();
@@ -674,7 +674,7 @@ net::CommandResult Config::_cmdSyncClock( net::Command& command )
            << packet->time - _clock.getTime64() << std::endl;
 
     _clock.set( packet->time );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 }

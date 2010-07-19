@@ -379,7 +379,7 @@ void Pipe< N, P, W, V >::notifyPixelViewportChanged()
 //----------------------------------------------------------------------
 // Command handlers
 //----------------------------------------------------------------------
-template< class N, class P, class W, class V > net::CommandResult
+template< class N, class P, class W, class V > bool
 Pipe< N, P, W, V >::_cmdNewWindow( net::Command& command )
 {
     const PipeNewWindowPacket* packet =
@@ -396,17 +396,17 @@ Pipe< N, P, W, V >::_cmdNewWindow( net::Command& command )
     reply.windowID = window->getID();
     send( command.getNode(), reply ); 
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-template< class N, class P, class W, class V > net::CommandResult
+template< class N, class P, class W, class V > bool
 Pipe< N, P, W, V >::_cmdNewWindowReply( net::Command& command )
 {
     const PipeNewWindowReplyPacket* packet =
         command.getPacket< PipeNewWindowReplyPacket >();
     getLocalNode()->serveRequest( packet->requestID, packet->windowID );
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 }

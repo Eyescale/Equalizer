@@ -265,7 +265,7 @@ V* Layout< C, L, V >::findView( const std::string& name )
 //----------------------------------------------------------------------
 // Command handlers
 //----------------------------------------------------------------------
-template< class C, class L, class V > net::CommandResult
+template< class C, class L, class V > bool
 Layout< C, L, V >::_cmdNewView( net::Command& command )
 {
     const LayoutNewViewPacket* packet =
@@ -283,17 +283,17 @@ Layout< C, L, V >::_cmdNewView( net::Command& command )
     reply.viewID = view->getID();
     send( command.getNode(), reply ); 
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-template< class C, class L, class V > net::CommandResult
+template< class C, class L, class V > bool
 Layout< C, L, V >::_cmdNewViewReply( net::Command& command )
 {
     const LayoutNewViewReplyPacket* packet =
         command.getPacket< LayoutNewViewReplyPacket >();
     getLocalNode()->serveRequest( packet->requestID, packet->viewID );
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 template< class C, class L, class V >

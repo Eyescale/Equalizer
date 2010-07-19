@@ -433,7 +433,7 @@ void Window< P, W, C >::_setDrawableConfig(const DrawableConfig& drawableConfig)
 // Command handlers
 //----------------------------------------------------------------------
 template< class P, class W, class C >
-net::CommandResult Window< P, W, C >::_cmdNewChannel( net::Command& command )
+bool Window< P, W, C >::_cmdNewChannel( net::Command& command )
 {
     const WindowNewChannelPacket* packet =
         command.getPacket< WindowNewChannelPacket >();
@@ -450,17 +450,17 @@ net::CommandResult Window< P, W, C >::_cmdNewChannel( net::Command& command )
     send( command.getNode(), reply ); 
     EQASSERT( reply.channelID <= EQ_ID_MAX );
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-template< class P, class W, class C > net::CommandResult
+template< class P, class W, class C > bool
 Window< P, W, C >::_cmdNewChannelReply( net::Command& command )
 {
     const WindowNewChannelReplyPacket* packet =
         command.getPacket< WindowNewChannelReplyPacket >();
     getLocalNode()->serveRequest( packet->requestID, packet->channelID );
 
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 }

@@ -112,7 +112,7 @@ void Channel::postDelete()
     // Deregister server-queue command handler to avoid assertion in
     // Session::invokeCommand after channel deletion
     registerCommand( fabric::CMD_CHANNEL_FRAME_FINISH_REPLY,
-                     CmdFunc( this, &Channel::_cmdNop ), 0 );    
+                     CmdFunc( this, &Channel::_cmdNop ), 0 );
 }
 
 Config* Channel::getConfig()
@@ -451,7 +451,7 @@ void Channel::_fireLoadData( const uint32_t frameNumber,
 //===========================================================================
 // command handling
 //===========================================================================
-net::CommandResult Channel::_cmdConfigInitReply( net::Command& command ) 
+bool Channel::_cmdConfigInitReply( net::Command& command ) 
 {
     const ChannelConfigInitReplyPacket* packet = 
         command.getPacket<ChannelConfigInitReplyPacket>();
@@ -459,10 +459,10 @@ net::CommandResult Channel::_cmdConfigInitReply( net::Command& command )
                       << std::endl;
 
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Channel::_cmdConfigExitReply( net::Command& command ) 
+bool Channel::_cmdConfigExitReply( net::Command& command ) 
 {
     const ChannelConfigExitReplyPacket* packet = 
         command.getPacket<ChannelConfigExitReplyPacket>();
@@ -470,17 +470,17 @@ net::CommandResult Channel::_cmdConfigExitReply( net::Command& command )
                       << std::endl;
 
     _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
-net::CommandResult Channel::_cmdFrameFinishReply( net::Command& command )
+bool Channel::_cmdFrameFinishReply( net::Command& command )
 {
     const ChannelFrameFinishReplyPacket* packet = 
         command.getPacket<ChannelFrameFinishReplyPacket>();
 
     _fireLoadData( packet->frameNumber, packet->nStatistics,
                    packet->statistics );
-    return net::COMMAND_HANDLED;
+    return true;
 }
 
 std::ostream& operator << ( std::ostream& os, const Channel& channel)

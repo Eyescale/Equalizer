@@ -51,7 +51,7 @@ DeltaMasterCM::~DeltaMasterCM()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-CommandResult DeltaMasterCM::_cmdCommit( Command& command )
+bool DeltaMasterCM::_cmdCommit( Command& command )
 {
     CHECK_THREAD( _cmdThread );
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
@@ -101,7 +101,7 @@ CommandResult DeltaMasterCM::_cmdCommit( Command& command )
     }
 
     _obsolete();
-    return COMMAND_HANDLED;
+    return true;
 }
 
 }
