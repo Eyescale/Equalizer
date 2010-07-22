@@ -93,6 +93,8 @@ namespace eq
      *   <li>--eq-config &lt;filename&gt; to specify the configuration file if
      *         an application-specific server is used (cf.
      *         Global::setConfigFile())</li>
+     *   <li>--eq-logfile &lt;filename&gt; to specify an output file for debug
+     *         logging.</li>
      * </ul>
      *
      * Please note that further command line parameters are recognized by

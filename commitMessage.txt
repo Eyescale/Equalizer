@@ -1,4 +1,4 @@
-Minor code cleanup
+Minor doxygen addition
 
 [ ] May break build
 [ ] May break existing applications
