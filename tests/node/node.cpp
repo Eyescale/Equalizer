@@ -67,7 +67,7 @@ public:
         }
 
 protected:
-    eq::net::CommandResult command( eq::net::Command& cmd )
+    bool command( eq::net::Command& cmd )
         {
             TEST( cmd->command == eq::net::CMD_NODE_CUSTOM );
             TEST( _messagesLeft > 0 );
@@ -79,7 +79,7 @@ protected:
             if( !_messagesLeft )
                 lock.unset();
 
-            return eq::net::COMMAND_HANDLED;
+            return true;
         }
 
 private:
