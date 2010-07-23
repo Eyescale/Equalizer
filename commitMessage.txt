@@ -1,22 +1,8 @@
-Fix longstanding, rare Win32 network bug. The bug was caused by two
-interdependent issues:
-
-Issue 1: WaitForMultipleObjects in ConnectionSet::select occasionally
-signals data on an empty socket, causing SocketConnection::readSync to
-deadlock.
-Fix: Do a non-blocking read on the *first byte* of each packet. Reset
-ConnectionSet if socket was empty
-
-Issue 2: WSAGetOverlappedResult returns occasionally WSASYSCALLFAILURE,
-causing out-of-sync on the TCP stream.
-Fix: Retry WSAGetOverlappedResult *after* a small sleep period.
-
-
-Remove unused UDPConnection
+Remove obsolete patch
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
