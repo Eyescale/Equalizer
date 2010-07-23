@@ -1393,7 +1393,7 @@ bool Node::_handleData()
 
     void* sizePtr( 0 );
     uint64_t bytes( 0 );
-    const bool gotSize = connection->recvSync( &sizePtr, &bytes );
+    const bool gotSize = connection->recvSync( &sizePtr, &bytes, false );
 
     if( !gotSize ) // Some systems signal data on dead connections.
     {
@@ -1403,8 +1403,16 @@ bool Node::_handleData()
 
     EQASSERT( sizePtr );
     const uint64_t size = *reinterpret_cast< uint64_t* >( sizePtr );
+    if( bytes == 0 ) // fluke signal
+    {
+        EQWARN << "Erronous network event on " << connection->getDescription()
+               << std::endl;
+        _incoming.setDirty();
+        return false;
+    }
+
     EQASSERT( size );
-    EQASSERT( bytes == sizeof( uint64_t ));
+    EQASSERTINFO( bytes == sizeof( uint64_t ), bytes );
     EQASSERT( size > sizeof( size ));
 
     Command& command = _commandCache.alloc( node, this, size );

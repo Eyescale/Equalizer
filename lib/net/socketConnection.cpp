@@ -35,7 +35,6 @@
 #    define WSA_FLAG_SDP 0x40
 #  endif
 #  define EQ_RECV_TIMEOUT 250 /*ms*/
-#  define EQ_HARD_TIMEOUT true
 #else
 #  include <arpa/inet.h>
 #  include <netdb.h>
@@ -381,14 +380,15 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
     }
 }
 
-int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes )
+int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
+                                    const bool block )
 {
     CHECK_THREAD( _recvThread );
 
     if( _readFD == INVALID_SOCKET )
     {
         EQERROR << "Invalid read handle" << std::endl;
-        return -1;
+        return STATUS_ERROR;
     }
 
     if( _overlappedDone > 0 )
@@ -400,75 +400,43 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes )
 
     while( true )
     {
-        const bool wait = !EQ_HARD_TIMEOUT;
-        if( WSAGetOverlappedResult(_readFD, &_overlapped, &got, wait, &flags ))
+        if( WSAGetOverlappedResult(_readFD, &_overlapped, &got, block, &flags ))
             return got;
 
         const int err = WSAGetLastError();
         if( err == ERROR_SUCCESS || got > 0 )
         {
-            EQWARN << "Got " << base::sysError << " with " << got << " bytes"
-                   << std::endl;
+            EQWARN << "Got " << base::sysError << " with " << got
+                   << " bytes on " << _description << std::endl;
             return got;
         }
 
         if( startTime == 0 )
             startTime = GetTickCount();
+
         switch( err )
         {
-            case WSASYSCALLFAILURE:  // happens sometimes!?
-                return got;
+            case WSA_IO_INCOMPLETE:
+                return STATUS_TIMEOUT;
 
+            case WSASYSCALLFAILURE:  // happens sometimes!?
             case WSA_IO_PENDING:
                 if( GetTickCount() - startTime > EQ_RECV_TIMEOUT ) // timeout   
                 {
-                    EQWARN << "got timeout " << std::endl;
-                    return -1;
+                    EQWARN << "Error timeout " << std::endl;
+                    return STATUS_ERROR;
                 }
 
-                EQWARN << "WSAGetOverlappedResult loop WSA_IO_PENDING"
+                EQWARN << "WSAGetOverlappedResult error loop"
                        << std::endl;
                 base::sleep( 1 ); // one millisecond to recover
                 break;
 
-            case ERROR_INVALID_HANDLE:
+            default:
                 EQWARN << "Got " << base::sysError << ", closing connection"
                        << std::endl;
                 close();
-                return -1;
-
-            case WSA_IO_INCOMPLETE:
-                EQASSERT( EQ_HARD_TIMEOUT );
-                if( EQ_HARD_TIMEOUT )
-                {
-                    if( GetTickCount() - startTime > EQ_RECV_TIMEOUT )
-                    {
-                        EQWARN << "got timeout " << std::endl;
-                        return 0;
-                    }
-
-                    switch( WaitForSingleObject( _overlapped.hEvent,
-                                                 EQ_RECV_TIMEOUT ))
-                    {
-                        case WAIT_TIMEOUT: // try again, will timeout if no data
-                        case WAIT_OBJECT_0: // data ready
-                            break;
-
-                        case WAIT_FAILED:
-                        default:
-                            EQWARN << "Got " << base::sysError
-                                   << ", closing connection" << std::endl;
-                            close();
-                            return -1;
-                    }
-                    break;
-                }
-                // no break
-
-            default:
-                EQWARN << "unknown error " << base::sysError << std::endl;
-                close();
-                return -1;
+                return STATUS_ERROR;
         }
     }
 }
@@ -493,7 +461,8 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes)
         // error
         if( GetLastError( ) != WSAEWOULDBLOCK )
         {
-            EQWARN << "Error during write: " << base::sysError << std::endl;
+            EQWARN << "Error during write: " << base::sysError << " on "
+                   << _description << std::endl;
             return -1;
         }
 

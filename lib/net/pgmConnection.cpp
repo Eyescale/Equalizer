@@ -443,7 +443,8 @@ void PGMConnection::readNB( void* buffer, const uint64_t bytes )
     }
 }
 
-int64_t PGMConnection::readSync( void* buffer, const uint64_t bytes )
+int64_t PGMConnection::readSync( void* buffer, const uint64_t bytes,
+                                 const bool ignored )
 {
     CHECK_THREAD( _recvThread );
 
@@ -515,7 +516,7 @@ int64_t PGMConnection::write( const void* buffer, const uint64_t bytes)
 
         // Buffer full - try again
 #if 1
-        // Wait for writable PGM
+        // Wait for writable socket
         fd_set set;
         FD_ZERO( &set );
         FD_SET( _writeFD, &set );

@@ -306,7 +306,8 @@ ConnectionPtr RSPConnection::acceptSync()
     return connection;
 }
 
-int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes )
+int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes,
+                                 const bool ignored )
 {
     EQASSERT( bytes > 0 );
     if( _state != STATE_CONNECTED )

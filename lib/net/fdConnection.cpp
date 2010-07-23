@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -41,7 +41,8 @@ FDConnection::FDConnection()
 //----------------------------------------------------------------------
 void FDConnection::readNB( void* buffer, const uint64_t bytes ) { /* NOP */ }
 
-int64_t FDConnection::readSync( void* buffer, const uint64_t bytes )
+int64_t FDConnection::readSync( void* buffer, const uint64_t bytes,
+                                const bool ignored )
 {
     if( _readFD < 1 )
         return -1;

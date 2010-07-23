@@ -160,8 +160,10 @@ void Connection::recvNB( void* buffer, const uint64_t bytes )
     readNB( buffer, bytes );
 }
 
-bool Connection::recvSync( void** outBuffer, uint64_t* outBytes )
+bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
+                           const bool block )
 {
+    // set up async IO data
     EQASSERT( _aioBuffer );
     EQASSERT( _aioBytes );
 
@@ -178,13 +180,29 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes )
     if( _state != STATE_CONNECTED || !buffer || !bytes )
         return false;
 
+    // 'Iterator' data for receive loop
     uint8_t* ptr = static_cast< uint8_t* >( buffer );
     uint64_t bytesLeft = bytes;
 
-    while( bytesLeft )
+    // WAR: On Win32, we get occasionally a data notification and then deadlock
+    // when reading from the connection. The callee (Node::handleData) will flag
+    // the first read, the underlying SocketConnection will not block and we
+    // will restore the AIO operation if no data was present.
+    int64_t got = readSync( ptr, bytesLeft, block );
+    if( got == STATUS_TIMEOUT ) // fluke notification
     {
-        const int64_t got = readSync( ptr, bytesLeft );
+        EQASSERTINFO( bytesLeft == bytes, bytesLeft << " != " << bytes );
+        if( outBytes )
+            *outBytes = 0;
 
+        _aioBuffer = buffer;
+        _aioBytes  = bytes;
+        return true;
+    }
+
+    // From here on, blocking receive loop until all data read or error
+    while( true )
+    {
         if( got < 0 ) // error
         {
             if( outBytes )
@@ -193,7 +211,7 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes )
                 EQINFO << "Read on dead connection" << endl;
             else
                 EQERROR << "Error during read after " << bytes - bytesLeft
-                        << " bytes on " << typeid(*this).name() << endl;
+                        << " bytes on " << _description << endl;
             return false;
         }
         else if( got == 0 )
@@ -215,11 +233,13 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes )
             bytesLeft -= got;
 
             readNB( ptr, bytesLeft );
+            got = readSync( ptr, bytesLeft, true );
         }
         else
         {
-            EQASSERT( static_cast< uint64_t >( got ) == bytesLeft );
-            bytesLeft = 0;
+            EQASSERTINFO( static_cast< uint64_t >( got ) == bytesLeft,
+                          got << " != " << bytesLeft );
+            return true;
         }
     }
 

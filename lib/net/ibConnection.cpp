@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -374,7 +374,8 @@ void IBConnection::incWriteInterface()
 //----------------------------------------------------------------------
 void IBConnection::readNB( void* buffer, const uint64_t bytes ){ /* NOB */ }
 
-int64_t IBConnection::readSync( void* buffer, const uint64_t bytes )
+int64_t IBConnection::readSync( void* buffer, const uint64_t bytes,
+                                const bool ignored )
 {
     CHECK_THREAD( _recvThread );
     int64_t result = _interfaces[ numRead ]->readSync( buffer, bytes );

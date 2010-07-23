@@ -96,6 +96,9 @@ namespace net
          */
         EQ_EXPORT void interrupt();
 
+        /** @internal Trigger rebuilding of internal caches. */
+        void setDirty();
+
         int           getError()     { return _error; }
         ConnectionPtr getConnection(){ return _connection; }
 
@@ -170,7 +173,6 @@ namespace net
         /** FD sets need rebuild. */
         bool _dirty;
 
-        void _dirtyFDSet();
         bool _setupFDSet();
         bool _buildFDSet();
         virtual void notifyStateChanged( Connection* ) { _dirty = true; }

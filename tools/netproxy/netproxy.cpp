@@ -100,7 +100,8 @@ int main( int argc, char **argv )
                 connection = connections.getConnection();
                 const bool isInput = (connection == input);
                 uint8_t* buffer = isInput ? inputBuffer : outputBuffer;
-                const int64_t read = connection->readSync( buffer, BUFFERSIZE );
+                const int64_t read = connection->readSync( buffer, BUFFERSIZE,
+                                                           true );
                 if( read < 0 ) // error
                 {
                     EQINFO << "Socket disconnected" << std::endl;

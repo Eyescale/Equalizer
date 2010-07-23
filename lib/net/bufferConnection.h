@@ -41,7 +41,8 @@ namespace net
     protected:
         virtual void readNB( void* buffer, const uint64_t bytes )
             { EQDONTCALL; }
-        virtual int64_t readSync( void* buffer, const uint64_t bytes )
+        virtual int64_t readSync( void* buffer, const uint64_t bytes,
+                                  const bool ignored )
             { EQDONTCALL; return -1; }
         EQ_EXPORT virtual int64_t write( const void* buffer,
                                          const uint64_t bytes );

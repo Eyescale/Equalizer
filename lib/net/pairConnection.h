@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -47,8 +47,9 @@ namespace net
 
         virtual void readNB( void* buffer, const uint64_t bytes )
             { _readConnection->readNB( buffer, bytes ); }
-        virtual int64_t readSync( void* buffer, const uint64_t bytes )
-            { return _readConnection->readSync( buffer, bytes ); }
+        virtual int64_t readSync( void* buffer, const uint64_t bytes,
+                                  const bool block )
+            { return _readConnection->readSync( buffer, bytes, block ); }
         virtual int64_t write( const void* buffer, const uint64_t bytes )
             { return _writeConnection->write( buffer, bytes ); }
 

@@ -30,7 +30,6 @@
 #include <eq/net/connectionSet.h> // member
 #include <eq/net/types.h>
 #include "eventConnection.h" // member
-#include "udpConnection.h"   // member
 
 #include <eq/base/base.h>
 #include <eq/base/buffer.h>  // member
@@ -45,12 +44,12 @@ namespace net
 {
     class ConnectionDescription;
     class RSPConnection;
-    /** A rsp connection (Attn: only multicast usage implemented). */
+    /** A RSP connection (Attn: only multicast usage implemented). */
     class RSPConnection : public Connection
     {
 
     public:
-        /** Create a new rsp-based connection. */
+        /** Create a new RSP-based connection. */
         RSPConnection();
         virtual ~RSPConnection();
 
@@ -61,9 +60,10 @@ namespace net
         virtual void acceptNB(){ EQASSERT( _state == STATE_LISTENING ); }
 
         virtual ConnectionPtr acceptSync();
-        void readNB( void* buffer, const uint64_t bytes ){/* NOP */}
-        int64_t readSync( void* buffer, const uint64_t bytes );
-        int64_t write( const void* buffer, const uint64_t bytes );
+        virtual void readNB( void* buffer, const uint64_t bytes ){/* NOP */}
+        virtual int64_t readSync( void* buffer, const uint64_t bytes,
+                                  const bool ignored );
+        virtual int64_t write( const void* buffer, const uint64_t bytes );
 
         int64_t getSendRate() const { return _sendRate; }
         uint32_t getID() const { return _id; }

@@ -47,7 +47,8 @@ namespace net
     protected:
         virtual void readNB( void* event, const uint64_t bytes )
             { EQDONTCALL; }
-        virtual int64_t readSync( void* event, const uint64_t bytes )
+        virtual int64_t readSync( void* event, const uint64_t bytes,
+                                  const bool ignored )
             { EQDONTCALL; return -1; }
         EQ_EXPORT virtual int64_t write( const void*, const uint64_t )
             { EQDONTCALL; return -1; }

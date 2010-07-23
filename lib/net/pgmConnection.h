@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -50,7 +50,8 @@ namespace net
         virtual ~PGMConnection();
 
         virtual void readNB( void* buffer, const uint64_t bytes );
-        virtual int64_t readSync( void* buffer, const uint64_t bytes );
+        virtual int64_t readSync( void* buffer, const uint64_t bytes,
+                                  const bool ignored );
         virtual int64_t write( const void* buffer, const uint64_t bytes );
 
     private:

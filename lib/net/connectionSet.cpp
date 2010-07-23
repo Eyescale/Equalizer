@@ -77,7 +77,7 @@ ConnectionSet::~ConnectionSet()
 }
 
 
-void ConnectionSet::_dirtyFDSet()
+void ConnectionSet::setDirty()
 {
     if( _dirty )
         return;
@@ -138,7 +138,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
 #endif
     }
 
-    _dirtyFDSet();
+    setDirty();
 }
 
 bool ConnectionSet::removeConnection( ConnectionPtr connection )
@@ -190,7 +190,7 @@ bool ConnectionSet::removeConnection( ConnectionPtr connection )
         _allConnections.erase( i );
     }
 
-    _dirtyFDSet();
+    setDirty();
     return true;
 }
 
@@ -218,7 +218,7 @@ void ConnectionSet::clear()
 
     _allConnections.clear();
     _connections.clear();
-    _dirtyFDSet();
+    setDirty();
     _fdSet.clear();
     _fdSetResult.clear();
 }

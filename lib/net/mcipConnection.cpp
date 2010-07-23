@@ -135,11 +135,12 @@ void MCIPConnection::readNB( void* buffer, const uint64_t bytes )
         _impl->readNB( buffer, bytes );
 }
 
-int64_t MCIPConnection::readSync( void* buffer, const uint64_t bytes )
+int64_t MCIPConnection::readSync( void* buffer, const uint64_t bytes,
+                                  const bool ignored )
 {
     EQASSERT( _impl.isValid( ));
     if( _impl.isValid( ))
-        return _impl->readSync( buffer, bytes );
+        return _impl->readSync( buffer, bytes, ignored );
     // else
     return -1;
 }
