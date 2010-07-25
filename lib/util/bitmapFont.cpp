@@ -94,7 +94,7 @@ bool BitmapFont< OMT >::_initGLX( const std::string& name, const uint32_t size )
     EQASSERT( display );
     if( !display )
     {
-        EQWARN << "No current X11 display, see eq::XSetCurrentDisplay()"
+        EQWARN << "No current X11 display, use eq::XSetCurrentDisplay()"
                << std::endl;
         return false;
     }

@@ -43,11 +43,11 @@ namespace fabric
     struct Event;
 
     /**
-     * A Window represents an on-screen or off-screen drawable, and manages an
-     * OpenGL context.
+     * A Window represents an on-screen or off-screen drawable.
      *
-     * A window uses an OSWindow implementation to manage the operating system
-     * specific handling of window and context creation.
+     * A drawable is a 2D rendering surface, typically attached to an OpenGL
+     * context. A window uses an OSWindow implementation to manage the operating
+     * system specific handling of window and context creation.
      *
      * A Window is a child of a Pipe. The task methods for all windows of a pipe
      * are executed in the same pipe thread. All window and subsequent channel
@@ -66,14 +66,16 @@ namespace fabric
      * buffer, thus glFlush is needed to synchronize the state of OpenGL objects
      * between windows. Therefore, Equalizer calls flush() at the end of each
      * frame for each window.
+     *
+     * @sa fabric::Window
      */
     class Window : public fabric::Window< Pipe, Window, Channel >
     {
     public:
-        /** The per-window object manager. */
+        /** The per-window object manager. @version 1.0 */
         typedef util::ObjectManager< const void* > ObjectManager;
 
-        /** Fonts used for overlays. */
+        /** Fonts used for overlays. @version 1.0 */
         typedef util::BitmapFont< const void* > Font;
 
         /** Construct a new window. @version 1.0 */

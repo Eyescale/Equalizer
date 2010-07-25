@@ -37,17 +37,26 @@ namespace util
     class Texture;
 
     /**
-     * A facility class to managed OpenGL objects across shared contexts
+     * A facility class to manage OpenGL objects across shared contexts.
      *
-     * See also:
-     * http://www.equalizergraphics.com/documents/design/objectManager.html
-     * 
-     * The semantics for each of the functions is:
+     * The object manager implements object sharing in the same way as
+     * OpenGL. During creation, a shared object manager may be given, causing
+     * the two (or more) object managers to allocate objects from the same
+     * namespace. The last object manager will delete all data allocated on the
+     * host. OpenGL objects have to be explictly deleted using deleteAll() to
+     * ensure an OpenGL context is still current during destruction.
      *
-     * get - lookup existing object,
-     * new - allocate new object,
-     * obtain - get or new,
-     * delete - delete.
+     * For each type of OpenGL object supported the following methods are
+     * available: 
+     * - supportsObject: Check if the necessary OpenGL version or extension
+     *   is present
+     * - getObject: Lookup an existing object, may return 0
+     * - newObject: Allocate new object, returns false if key exists
+     * - obtainObject: Lookup or allocate an object for the given key
+     * - deleteObject: Delete the object of the given key and all associated
+     *   OpenGL data
+     *
+     * @sa http://www.equalizergraphics.com/documents/design/objectManager.html
      */
     template< typename T > class ObjectManager : public base::NonCopyable
     {

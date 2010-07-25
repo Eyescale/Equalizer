@@ -41,7 +41,7 @@ namespace util
         EQ_EXPORT BitmapFont( ObjectManager< OMT >& gl, const OMT& key );
         EQ_EXPORT ~BitmapFont();
 
-        // needs current context or XGetCurrentDisplay()
+        // needs current context (AGL, WGL) or eq::XGetCurrentDisplay() 
         EQ_EXPORT bool init( const WindowSystem ws, const std::string& name,
                              const uint32_t size = 12 );
         EQ_EXPORT void exit();

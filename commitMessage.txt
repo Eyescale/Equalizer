@@ -1,4 +1,4 @@
-Remove obsolete patch
+Doxygen improvements
 
 [ ] May break build
 [ ] May break existing applications
@@ -6,4 +6,4 @@ Remove obsolete patch
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

@@ -34,15 +34,16 @@ namespace util
      * Depending on the OpenGL version, an FBO or glAccum() is used.
      *
      * Remark: MacOS systems seem to have a buggy implementation of glAccum(),
-     * and use a workaround which needs setTotalSteps().
+     * and use a workaround which needs setTotalSteps() to set up the total
+     * number of accumulations done.
      */
     class Accum
     {
     public: 
-        /** Construct a new accumulation buffer */
+        /** Construct a new accumulation buffer. @version 1.0 */
         EQ_EXPORT Accum( GLEWContext* const glewContext );
 
-        /** Destruct the accumulation buffer */
+        /** Destruct the accumulation buffer. @version 1.0 */
         EQ_EXPORT ~Accum();
 
         /**
