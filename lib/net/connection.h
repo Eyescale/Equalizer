@@ -393,8 +393,8 @@ namespace net
 
         enum ReadStatus
         {
-            STATUS_TIMEOUT = -2,
-            STATUS_ERROR   = -1
+            READ_TIMEOUT = -2,
+            READ_ERROR   = -1
             // >= 0: nBytes read
         };
 

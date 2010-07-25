@@ -388,7 +388,7 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
     if( _readFD == INVALID_SOCKET )
     {
         EQERROR << "Invalid read handle" << std::endl;
-        return STATUS_ERROR;
+        return READ_ERROR;
     }
 
     if( _overlappedDone > 0 )
@@ -417,14 +417,14 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
         switch( err )
         {
             case WSA_IO_INCOMPLETE:
-                return STATUS_TIMEOUT;
+                return READ_TIMEOUT;
 
             case WSASYSCALLFAILURE:  // happens sometimes!?
             case WSA_IO_PENDING:
                 if( GetTickCount() - startTime > EQ_RECV_TIMEOUT ) // timeout   
                 {
                     EQWARN << "Error timeout " << std::endl;
-                    return STATUS_ERROR;
+                    return READ_ERROR;
                 }
 
                 EQWARN << "WSAGetOverlappedResult error loop"
@@ -436,7 +436,7 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
                 EQWARN << "Got " << base::sysError << ", closing connection"
                        << std::endl;
                 close();
-                return STATUS_ERROR;
+                return READ_ERROR;
         }
     }
 }

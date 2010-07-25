@@ -189,7 +189,7 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
     // the first read, the underlying SocketConnection will not block and we
     // will restore the AIO operation if no data was present.
     int64_t got = readSync( ptr, bytesLeft, block );
-    if( got == STATUS_TIMEOUT ) // fluke notification
+    if( got == READ_TIMEOUT ) // fluke notification
     {
         EQASSERTINFO( bytesLeft == bytes, bytesLeft << " != " << bytes );
         if( outBytes )
