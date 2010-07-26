@@ -28,7 +28,7 @@
 #ifdef __linux
 #  include "definesLinux.h"
 #endif
-#ifdef _MSC_VER
+#ifdef _WIN32 //_MSC_VER
 #  include "definesWin32.h"
 #endif
 

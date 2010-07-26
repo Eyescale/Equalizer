@@ -1,0 +1,452 @@
+# Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+
+set(PLUGIN_HEADERS
+  plugins/compressor.h
+  )
+
+set(BASE_HEADERS
+  base/atomic.h
+  base/base.h
+  base/bitOperation.h
+  base/buffer.h
+  base/compressor.h
+  base/compressorData.h
+  base/compressorDataCPU.h
+  base/clock.h
+  base/compareAndSwap.h
+  base/compressorData.h
+  base/compressorDataCPU.h
+  base/debug.h
+  base/defines.h
+  base/dso.h
+  base/executionListener.h
+  base/file.h
+  base/global.h
+  base/hash.h
+  base/idPool.h
+  base/init.h
+  base/launcher.h
+  base/lfQueue.h
+  base/lock.h
+  base/lockable.h
+  base/log.h
+  base/memoryMap.h
+  base/monitor.h
+  base/mtQueue.h
+  base/nonCopyable.h
+  base/omp.h
+  base/perThread.h
+  base/perThreadRef.h
+  base/pluginRegistry.h
+  base/refPtr.h
+  base/referenced.h
+  base/requestHandler.h
+  base/rng.h
+  base/scopedMutex.h
+  base/sleep.h
+  base/spinLock.h
+  base/stdExt.h
+  base/thread.h
+  base/timedLock.h
+  base/types.h
+  base/uuid.h
+  )
+
+set(NET_HEADERS
+  net/barrier.h
+  net/bufferConnection.h
+  net/command.h
+  net/commandCache.h
+  net/commandFunc.h
+  net/commandQueue.h
+  net/commands.h
+  net/connection.h
+  net/connection.ipp
+  net/connectionDescription.h
+  net/connectionListener.h
+  net/connectionSet.h
+  net/connectionType.h
+  net/dataIStream.h
+  net/dataOStream.h
+  net/dispatcher.h
+  net/global.h
+  net/init.h
+  net/instanceCache.h
+  net/log.h
+  net/node.h
+  net/nodeType.h
+  net/object.h
+  net/objectCM.h
+  net/objectVersion.h
+  net/packets.h
+  net/pairConnection.h
+  net/session.h
+  net/types.h
+  net/version.h
+  )
+
+set(FABRIC_HEADERS
+  fabric/canvas.h
+  fabric/channel.h
+  fabric/colorMask.h
+  fabric/commands.h
+  fabric/config.h
+  fabric/configVisitor.h
+  fabric/client.h
+  fabric/drawableConfig.h
+  fabric/elementVisitor.h
+  fabric/eye.h
+  fabric/frustum.h
+  fabric/global.h
+  fabric/layout.h
+  fabric/iAttribute.h
+  fabric/init.h
+  fabric/leafVisitor.h
+  fabric/node.h
+  fabric/nodeType.h
+  fabric/object.h
+  fabric/observer.h
+  fabric/packets.h
+  fabric/packetType.h
+  fabric/paths.h
+  fabric/pipe.h
+  fabric/pixel.h
+  fabric/pixelViewport.h
+  fabric/projection.h
+  fabric/range.h
+  fabric/renderContext.h
+  fabric/segment.h
+  fabric/serializable.h
+  fabric/server.h
+  fabric/subPixel.h
+  fabric/task.h
+  fabric/types.h
+  fabric/viewport.h
+  fabric/view.h
+  fabric/visitorResult.h
+  fabric/wall.h
+  fabric/window.h
+  fabric/zoom.h
+  )
+
+set(CLIENT_HEADERS
+  client/canvas.h
+  client/channel.h
+  client/channelStatistics.h
+  client/client.h
+  client/commandQueue.h
+  client/compositor.h
+  client/computeContext.h
+  client/config.h
+  client/configEvent.h
+  client/configParams.h
+  client/configStatistics.h
+  client/cudaContext.h
+  client/event.h
+  client/eventHandler.h
+  client/eye.h
+  client/frame.h
+  client/frameData.h
+  client/global.h
+  client/glWindow.h
+  client/image.h
+  client/init.h
+  client/layout.h
+  client/log.h
+  client/messagePump.h
+  client/node.h
+  client/nodeFactory.h
+  client/object.h
+  client/observer.h
+  client/os.h
+  client/osPipe.h
+  client/osWindow.h
+  client/packets.h
+  client/pipe.h
+  client/segment.h
+  client/server.h
+  client/statistic.h
+  client/statisticSampler.h
+  client/types.h
+  client/version.h
+  client/view.h
+  client/visitorResult.h
+  client/window.h
+  client/windowStatistics.h
+  client/windowSystem.h
+  )
+
+set(UTIL_HEADERS
+  util/accum.h
+  util/accumBufferObject.h
+  util/bitmapFont.h
+  util/compressorDataGPU.h
+  util/frameBufferObject.h
+  util/objectManager.h
+  util/texture.h
+  util/types.h
+  )
+
+set(BASE_SOURCES
+  base/compressor.cpp
+  base/compressorData.cpp
+  base/compressorDataCPU.cpp
+  base/debug.cpp
+  base/dso.cpp
+  base/global.cpp
+  base/idPool.cpp
+  base/init.cpp
+  base/launcher.cpp
+  base/lock.cpp
+  base/log.cpp
+  base/memoryMap.cpp
+  base/monitor.cpp
+  base/omp.cpp
+  base/pluginRegistry.cpp
+  base/referenced.cpp
+  base/requestHandler.cpp
+  base/rng.cpp
+  base/thread.cpp
+  base/timedLock.cpp
+  base/uuid.cpp
+  )
+
+set(NET_SOURCES
+  net/barrier.cpp
+  net/bufferConnection.cpp
+  net/command.cpp
+  net/commandCache.cpp
+  net/commandQueue.cpp
+  net/connection.cpp
+  net/connectionDescription.cpp
+  net/connectionSet.cpp
+  net/dataIStream.cpp
+  net/dataOStream.cpp
+  net/deltaMasterCM.cpp
+  net/dispatcher.cpp
+  net/eventConnection.cpp
+  net/fdConnection.cpp
+  net/fullMasterCM.cpp
+  net/global.cpp
+  net/init.cpp
+  net/instanceCache.cpp
+  net/masterCM.cpp
+  net/mcipConnection.cpp
+  net/namedPipeConnection.cpp
+  net/node.cpp
+  net/object.cpp
+  net/objectCM.cpp
+  net/objectDataIStream.cpp
+  net/objectDeltaDataIStream.cpp
+  net/objectDeltaDataOStream.cpp
+  net/objectInstanceDataIStream.cpp
+  net/objectInstanceDataOStream.cpp
+  net/objectSlaveDataOStream.cpp
+  net/objectVersion.cpp
+  net/packets.cpp
+  net/pairConnection.cpp
+  net/pipeConnection.cpp
+  net/rspConnection.cpp
+  net/session.cpp
+  net/socketConnection.cpp
+  net/staticMasterCM.cpp
+  net/staticSlaveCM.cpp
+  net/unbufferedMasterCM.cpp
+  net/versionedSlaveCM.cpp
+  )
+
+set(FABRIC_SOURCES
+  fabric/client.cpp
+  fabric/colorMask.cpp
+  fabric/eye.cpp
+  fabric/frustum.cpp
+  fabric/global.cpp
+  fabric/iAttribute.cpp
+  fabric/init.cpp
+  fabric/object.cpp
+  fabric/pixel.cpp
+  fabric/projection.cpp
+  fabric/range.cpp
+  fabric/renderContext.cpp
+  fabric/subPixel.cpp
+  fabric/viewport.cpp
+  fabric/wall.cpp
+  fabric/zoom.cpp
+  )
+
+set(CLIENT_SOURCES
+  client/canvas.cpp
+  client/channel.cpp
+  client/channelStatistics.cpp
+  client/client.cpp
+  client/commandQueue.cpp
+  client/compositor.cpp
+  client/computeContext.cpp
+  client/config.cpp
+  client/configEvent.cpp
+  client/configParams.cpp
+  client/configStatistics.cpp
+  client/cudaContext.cpp
+  client/event.cpp
+  client/eventHandler.cpp
+  client/frame.cpp
+  client/frameData.cpp
+  client/global.cpp
+  client/glWindow.cpp
+  client/image.cpp
+  client/init.cpp
+  client/jitter.cpp
+  client/layout.cpp
+  client/node.cpp
+  client/nodeFactory.cpp
+  client/frameDataStatistics.cpp
+  client/observer.cpp
+  client/os.cpp
+  client/osPipe.cpp
+  client/osWindow.cpp
+  client/pipe.cpp
+  client/pipeStatistics.cpp
+  client/roiFinder.cpp
+  client/roiTracker.cpp
+  client/roiEmptySpaceFinder.cpp
+  client/segment.cpp
+  client/server.cpp
+  client/statistic.cpp
+  client/version.cpp
+  client/view.cpp
+  client/window.cpp
+  client/windowStatistics.cpp
+  client/windowSystem.cpp
+  )
+
+set(UTIL_SOURCES
+  util/accum.cpp
+  util/accumBufferObject.cpp
+  util/bitmapFont.cpp
+  util/compressorDataGPU.cpp
+  util/frameBufferObject.cpp
+  util/objectManager.cpp
+  util/texture.cpp
+  )
+
+set(COMPRESSOR_SOURCES
+  compressor/compressor.cpp
+  compressor/compressorReadDrawPixels.cpp
+  compressor/compressorRLEB.cpp
+  compressor/compressorRLE4B.cpp
+  compressor/compressorRLE4BU.cpp
+  compressor/compressorRLE565.cpp
+  compressor/compressorRLE10A2.cpp
+  compressor/compressorRLE4HF.cpp
+  compressor/compressorRLEYUV.cpp
+  compressor/compressorYUV.cpp
+  )
+
+
+if(WIN32)
+  set(BASE_HEADERS ${BASE_HEADERS}
+    base/definesWin32.h
+	)
+
+  set(CLIENT_HEADERS ${CLIENT_HEADERS}
+    client/wglEventHandler.h
+    client/wglMessagePump.h
+    client/wglWindow.h
+    client/wglWindowEvent.h
+    client/wglPipe.h
+	)
+
+  set(CLIENT_SOURCES ${CLIENT_SOURCES}
+    client/wglEventHandler.cpp
+    client/wglMessagePump.cpp
+    client/wglWindow.cpp
+    client/wglPipe.cpp
+	)
+
+  set(NET_HEADERS ${NET_HEADERS}
+	net/pgmConnection.h
+    )
+
+  set(NET_SOURCES ${NET_SOURCES}
+	net/pgmConnection.cpp
+    )
+endif(WIN32)
+
+if(NOT WIN32) # LINUX
+  set(BASE_HEADERS ${BASE_HEADERS}
+    base/definesLinux.h
+	)
+
+  set(CLIENT_HEADERS ${CLIENT_HEADERS}
+    client/glXEventHandler.h
+    client/glXMessagePump.h
+    client/glXWindow.h
+    client/glXWindowEvent.h
+    client/glXPipe.h
+    )
+
+  set(CLIENT_SOURCES ${CLIENT_SOURCES}
+    client/glXEventHandler.cpp
+    client/glXMessagePump.cpp
+    client/glXWindow.cpp
+    client/glXPipe.cpp
+    )
+endif(NOT WIN32)
+
+set(HEADERS
+  ${BASE_HEADERS}
+  ${CLIENT_HEADERS}
+  ${FABRIC_HEADERS}
+  ${NET_HEADERS}
+  ${PLUGIN_HEADERS}
+  ${UTIL_HEADERS}
+  client.h
+  eq.h
+  fabric.h
+  net.h
+  util.h
+  admin.h
+  )
+
+set(SOURCES
+  ${BASE_SOURCES}
+  ${CLIENT_SOURCES}
+  ${FABRIC_SOURCES}
+  ${NET_SOURCES}
+  ${UTIL_SOURCES}
+  ${COMPRESSOR_SOURCES}
+  )
+
+if(MSVC)
+  source_group(base\\headers FILES ${BASE_HEADERS})
+  source_group(base\\sources FILES ${BASE_SOURCES})
+  source_group(client\\headers FILES ${CLIENT_HEADERS})
+  source_group(client\\sources FILES ${CLIENT_SOURCES})
+  source_group(fabric\\headers FILES ${FABRIC_HEADERS})
+  source_group(fabric\\sources FILES ${FABRIC_SOURCES})
+  source_group(net\\headers FILES ${NET_HEADERS})
+  source_group(net\\sources FILES ${NET_SOURCES})
+  source_group(plugin\\headers FILES ${PLUGIN_HEADERS})
+  source_group(util\\headers FILES ${UTIL_HEADERS})
+  source_group(util\\sources FILES ${UTIL_SOURCES})
+  source_group(compressor\\sources FILES ${COMPRESSOR_SOURCES})
+  set(SOURCES ${SOURCES} ${HEADERS})
+endif(MSVC)
+
+copy_headers(eq ${HEADERS})
+
+add_definitions(-DEQ_EXPORTS -DEQ_PLUGIN_BUILD -DGLEW_STATIC)
+
+add_library(Equalizer SHARED ${SOURCES})
+target_link_libraries(Equalizer
+  ${PTHREAD_LIBRARIES}
+  ${Boost_LIBRARIES}
+  ${OPENGL_LIBRARIES}
+  ${GLEW_LIBRARY}
+  )
+
+install(TARGETS Equalizer
+  ARCHIVE DESTINATION lib COMPONENT dev
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+  )

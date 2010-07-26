@@ -29,7 +29,7 @@
 #include <sys/types.h>
 
 #ifdef WIN32
-#  include <Mswsock.h>
+#  include <mswsock.h>
 
 #  ifndef WSA_FLAG_SDP
 #    define WSA_FLAG_SDP 0x40

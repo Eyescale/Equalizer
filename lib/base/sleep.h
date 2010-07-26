@@ -27,7 +27,7 @@ namespace base
     /** Sleep the current thread for a number of milliseconds. @version 1.0 */
     inline void sleep( const uint32_t milliSeconds )
     {
-#ifdef _MSC_VER
+#ifdef _WIN32 //_MSC_VER
         ::Sleep( milliSeconds );
 #else
         ::usleep( milliSeconds * 1000 );

@@ -38,9 +38,11 @@
 #    endif
 #  endif
 #  define WIN32_LEAN_AND_MEAN
-#  define NOMINMAX
-#  include <Winsock2.h>
-#  include <Windows.h>
+#  ifndef NOMINMAX
+#    define NOMINMAX
+#  endif
+#  include <winsock2.h>
+#  include <windows.h>
 #  include <windef.h>
 #endif
 

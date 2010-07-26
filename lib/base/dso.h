@@ -59,7 +59,7 @@ namespace base
         EQ_EXPORT void* getFunctionPointer( const std::string& functionName );
 
     private:
-#ifdef _MSC_VER
+#ifdef _WIN32 //_MSC_VER
         HMODULE _dso;
 #else
         void* _dso;

@@ -20,6 +20,7 @@
 
 #include <eq/base/defines.h>
 #include <eq/base/log.h>
+#include <typeinfo>
 
 #ifndef WIN32
 #  include <cxxabi.h>

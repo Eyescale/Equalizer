@@ -33,7 +33,7 @@
 #  include "IBConnection.h"
 #endif
 #ifdef EQ_PGM
-#  include "PGMConnection.h"
+#  include "pgmConnection.h"
 #endif
 
 #include <errno.h>

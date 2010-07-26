@@ -15,7 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "PGMConnection.h"
+#include "pgmConnection.h"
 
 #ifdef EQ_PGM
 
@@ -30,7 +30,7 @@
 #include <sys/types.h>
 
 #ifdef WIN32
-#  include <Mswsock.h>
+#  include <mswsock.h>
 #  include <wsrm.h>
 #else
 #  include <arpa/inet.h>
