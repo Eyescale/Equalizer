@@ -62,7 +62,7 @@ public:
     static void getInfo( EqCompressorInfo* const info )
     {
         info->version      = EQ_COMPRESSOR_VERSION;
-        info->name         = EQ_COMPRESSOR_TRANSFER_RGBA_TO_YUV_50P;
+        info->name         = EQ_COMPRESSOR_TRANSFER_RGBA_TO_YUVA_50P;
         info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
                              EQ_COMPRESSOR_USE_TEXTURE | 
                              EQ_COMPRESSOR_USE_FRAMEBUFFER;
@@ -72,7 +72,7 @@ public:
         info->ratio        = 0.5f;
         info->speed        = 0.9f;
         
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_YUV;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_YUVA_50P;
         info->outputTokenSize = 4;
     }
 

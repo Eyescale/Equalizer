@@ -48,10 +48,10 @@ public:
     static void getInfo( EqCompressorInfo* const info )
     {
         info->version = EQ_COMPRESSOR_VERSION;
-        info->name = EQ_COMPRESSOR_RLE_YUV;
+        info->name = EQ_COMPRESSOR_RLE_YUVA_50P;
         info->capabilities = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D |
                              EQ_COMPRESSOR_IGNORE_MSE;
-        info->tokenType = EQ_COMPRESSOR_DATATYPE_YUV;
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_YUVA_50P;
 
         info->quality = 1.0f;
         info->ratio   = .59f;
@@ -106,7 +106,7 @@ public:
     static void getInfo( EqCompressorInfo* const info )
     {
         CompressorRLEYUV::getInfo( info );
-        info->name = EQ_COMPRESSOR_DIFF_RLE_YUV;
+        info->name = EQ_COMPRESSOR_DIFF_RLE_YUVA_50P;
         info->ratio = 0.50f;
         info->speed = 1.1f;
     }

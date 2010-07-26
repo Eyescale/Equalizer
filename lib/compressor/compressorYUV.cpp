@@ -119,7 +119,8 @@ void CompressorYUV::_compress( GLEWContext*   glewContext,
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, 
                      GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER,
+                     GL_NEAREST);
 
     _init( glewContext, yuv420readback_glsl.c_str() );
 

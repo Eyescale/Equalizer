@@ -5,6 +5,8 @@ MODULE = eq
 
 HEADER_SRC = \
 	plugins/compressor.h \
+	plugins/compressorTokens.h \
+	plugins/compressorTypes.h \
 	client.h \
 	eq.h \
 	fabric.h \

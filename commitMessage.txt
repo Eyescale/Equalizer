@@ -1,4 +1,4 @@
-Doxygen improvements
+Clean up compression plugin headers
 
 [ ] May break build
 [ ] May break existing applications
