@@ -818,6 +818,15 @@ void Channel::drawStatistics()
                         z = 0.1f; 
                         break;
 
+                    case Statistic::CHANNEL_READBACK:
+                    {
+                        glColor3f( 0.f, 0.f, 0.f );
+                        std::stringstream text;
+                        text << static_cast< unsigned >( 100.f * stat.ratio ) 
+                             << '%';
+                        glRasterPos3f( x1+1, y2, 0.99f );
+                        font->draw( text.str( ));
+                    } // no break;
                     default:
                         z = 0.0f; 
                         break;
@@ -1161,12 +1170,37 @@ bool Channel::_cmdFrameReadback( net::Command& command )
 
     frameReadback( packet->context.frameID );
 
+    size_t in = 0;
+    size_t out = 0;
+    const DrawableConfig& dc = getDrawableConfig();
+    const size_t colorBytes = ( 3 * dc.colorBits + dc.alphaBits ) / 8;
     for( Frames::const_iterator i = _outputFrames.begin(); 
          i != _outputFrames.end(); ++i)
     {
         Frame* frame = *i;
         frame->setReady();
+
+        const Images& images = frame->getImages();
+        for( Images::const_iterator j = images.begin(); j != images.end(); ++j )
+        {
+            const Image* image = *j;
+            if( image->hasPixelData( Frame::BUFFER_COLOR ))
+            {
+                in += colorBytes * image->getPixelViewport().getArea();
+                out += image->getPixelDataSize( Frame::BUFFER_COLOR );
+            }
+            if( image->hasPixelData( Frame::BUFFER_DEPTH ))
+            {
+                in += 4 * image->getPixelViewport().getArea();
+                out += image->getPixelDataSize( Frame::BUFFER_DEPTH );
+            }
+        }
     }
+
+    if( out > 0 )
+        event.event.data.statistic.ratio = float( out ) / float( in );
+    else
+        event.event.data.statistic.ratio = 1.0f;
 
     _outputFrames.clear();
     resetContext();

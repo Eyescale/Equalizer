@@ -1,9 +1,9 @@
-Clean up compression plugin headers
+Add compression ratio to download statistic
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation
