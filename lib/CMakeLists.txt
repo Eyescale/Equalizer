@@ -2,6 +2,8 @@
 
 set(PLUGIN_HEADERS
   plugins/compressor.h
+  plugins/compressorTokens.h
+  plugins/compressorTypes.h
   )
 
 set(BASE_HEADERS
