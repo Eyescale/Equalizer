@@ -69,6 +69,7 @@ int32_t     Global::_iAttributes[IATTR_ALL] =
     1470,  // UDP_MTU
     128,   // UDP_PACKET_RATE
 #endif
+    524288, // UDP_BUFFER_SIZE
 };
 
 

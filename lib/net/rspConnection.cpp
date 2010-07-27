@@ -227,6 +227,10 @@ bool RSPConnection::listen()
 
         _read->set_option( ip::udp::socket::reuse_address( true ));
         _write->set_option( ip::udp::socket::reuse_address( true ));
+        _read->set_option( ip::udp::socket::receive_buffer_size( 
+                       Global::getIAttribute( Global::IATTR_UDP_BUFFER_SIZE )));
+        _write->set_option( ip::udp::socket::send_buffer_size( 
+                       Global::getIAttribute( Global::IATTR_UDP_BUFFER_SIZE )));
 
         _read->bind( readEndpoint );
 

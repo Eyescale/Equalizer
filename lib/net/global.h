@@ -96,6 +96,7 @@ namespace net
             IATTR_RSP_NUM_BUFFERS,       //!< @internal data buffers
             IATTR_UDP_MTU,               //!< @internal max send size on UDP
             IATTR_UDP_PACKET_RATE,       //!< @internal ack frequency
+            IATTR_UDP_BUFFER_SIZE,       //!< @internal send/receiver buffer
             IATTR_ALL
         };
 
