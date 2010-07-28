@@ -70,7 +70,6 @@ public:
 // Image used for CPU-based assembly
 static base::PerThread< ResultImage > _resultImage;
 
-
 static bool _useCPUAssembly( const Frames& frames, Channel* channel, 
                              const bool blendAlpha = false )
 {
@@ -82,10 +81,11 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
     // alpha-blended assembly is used with multiple RGBA buffers. We assume then
     // that we will have at least one image per frame so most likely it's worth
     // to wait for the images and to do a CPU-based assembly.
+    // Also test early for unsupport decomposition modes
     const uint32_t desiredBuffers = blendAlpha ? Frame::BUFFER_COLOR :
                                     Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH;
     size_t nFrames = 0;
-    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i)
+    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
     {
         const Frame* frame = *i;
         if( frame->getPixel() != Pixel::ALL ||
@@ -111,7 +111,6 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
     uint32_t depthInternalFormat = 0;
     uint32_t depthExternalFormat = 0;
 
-    // TODO test that external formats are known by the CPU compression algo
     for( Frames::const_iterator i = frames.begin();
          i != frames.end(); ++i )
     {
@@ -133,45 +132,62 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
             const bool hasColor = image->hasPixelData( Frame::BUFFER_COLOR );
             const bool hasDepth = image->hasPixelData( Frame::BUFFER_DEPTH );
             
-            if(( blendAlpha && hasColor && image->hasAlpha( )) ||
-               ( hasColor && hasDepth ))
+            if( // Not an alpha-blending compositing
+                ( !blendAlpha || !hasColor || !image->hasAlpha( )) &&
+                // and not a depth-sorting compositing
+                ( !hasColor || !hasDepth ))
             {
-                if( colorInternalFormat == 0 && colorExternalFormat == 0 )
-                {
-                    colorInternalFormat = image->getInternalFormat( Frame::BUFFER_COLOR );
-                    colorExternalFormat = image->getExternalFormat( Frame::BUFFER_COLOR );
-                    const uint32_t colorType   = util::CompressorDataGPU::getGLType( colorExternalFormat );
-
-                    if (( colorType == GL_HALF_FLOAT ) || 
-                        ( colorType == GL_FLOAT ))
-                        return false;
-                    
-                    // if it's not a knowing type we cannot assemble on the cpu
-                    if ( !eq::util::CompressorDataGPU::getPixelSize( colorExternalFormat ) )
-                        return false;
-                }
-                else if( colorInternalFormat != image->getInternalFormat( Frame::BUFFER_COLOR ) ||
-                         colorExternalFormat != image->getExternalFormat( Frame::BUFFER_COLOR ))
-                    return false;
-
-                if( image->hasPixelData( Frame::BUFFER_DEPTH ))
-                {
-                    if( depthInternalFormat == 0 && depthExternalFormat == 0 )
-                    {
-                        depthInternalFormat = image->getInternalFormat( Frame::BUFFER_DEPTH );
-                        depthExternalFormat = image->getExternalFormat( Frame::BUFFER_DEPTH );
-
-                        // if it's not a knowing type we cannot assemble on the cpu
-                        if ( !eq::util::CompressorDataGPU::getPixelSize( depthExternalFormat ) )
-                            return false;
-                    }
-                    else if( depthInternalFormat != image->getInternalFormat(Frame::BUFFER_DEPTH ) ||
-                        depthExternalFormat != image->getExternalFormat(  Frame::BUFFER_DEPTH ))
-                        return false;
-                }
-
-                ++nImages;
+                return false;
             }
+
+            if( colorInternalFormat == 0 && colorExternalFormat == 0 )
+            {
+                colorInternalFormat =
+                    image->getInternalFormat( Frame::BUFFER_COLOR );
+                colorExternalFormat =
+                    image->getExternalFormat( Frame::BUFFER_COLOR );
+                const uint32_t type =
+                    util::CompressorDataGPU::getGLType( colorExternalFormat );
+
+                if( type != GL_UNSIGNED_BYTE &&
+                    type != GL_UNSIGNED_INT_10_10_10_2 )
+                {
+                    return false;
+                }
+                if( !hasDepth && type == GL_UNSIGNED_INT_10_10_10_2 )
+                    // blending of RGB10A2 not implemented
+                    return false;
+            }
+            else if( colorInternalFormat != 
+                     image->getInternalFormat( Frame::BUFFER_COLOR ) ||
+                     colorExternalFormat != 
+                     image->getExternalFormat( Frame::BUFFER_COLOR ))
+            {
+                return false;
+            }
+            if( hasDepth )
+            {
+                if( depthInternalFormat == 0 && depthExternalFormat == 0 )
+                {
+                    depthInternalFormat = 
+                        image->getInternalFormat( Frame::BUFFER_DEPTH );
+                    depthExternalFormat =
+                        image->getExternalFormat( Frame::BUFFER_DEPTH );
+                    const uint32_t type =
+                        util::CompressorDataGPU::getGLType(depthExternalFormat);
+
+                    if( type != GL_UNSIGNED_INT )
+                        return false;
+                }
+                else if( depthInternalFormat !=
+                         image->getInternalFormat(Frame::BUFFER_DEPTH ) ||
+                         depthExternalFormat !=
+                         image->getExternalFormat(  Frame::BUFFER_DEPTH ))
+                {
+                    return false;
+                }
+            }
+            ++nImages;
         }
     }
 
@@ -822,7 +838,8 @@ void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
     { 
         // Use Paracomp to composite
         if( !_mergeImage_PC( PC_COMP_ALPHA_SORT2_HP, dest, 0, image ))
-            EQWARN << "Paracomp compositing failed, using fallback" << std::endl;
+            EQWARN << "Paracomp compositing failed, using fallback"
+                   << std::endl;
         else
             return; // Go to next input image
     }

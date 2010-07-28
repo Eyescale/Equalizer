@@ -1,9 +1,15 @@
-Add compression ratio to download statistic
+Compression plugin updates:
+- New: allow CPU compressors to have a different output from input
+(untested)
+- New: version tagging for plugin interface
+- Fix: Doxygen comments in various headers
+- Fix: header includes
+- Fix: remove unused type names from plugin interface
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [x] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,11 +16,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQUTIL_COMPRSSORDATA_H
-#define EQUTIL_COMPRSSORDATA_H
+#ifndef EQUTIL_COMPRESSORDATA_H
+#define EQUTIL_COMPRESSORDATA_H
 
-#include "buffer.h"
-#include "compressor.h"
+#include <eq/base/buffer.h>
+#include <eq/base/compressor.h>
 
 namespace eq
 {
@@ -56,9 +57,13 @@ namespace base
         /** Remove all information about the current compressor. */
         EQ_EXPORT void reset();
 
-        /** Get the quality produced by the current compressor instance. */
-        float getQuality()
+        /** @return the quality produced by the current compressor instance. */
+        float getQuality() const
             { return _instance ? _info.quality : 1.0f; }
+
+        /** @return the information about the current compressor instance. */
+        const EqCompressorInfo& getInfo() const
+            { EQASSERT( _instance ); return _info; }
 
     protected:
         /** The name of the (de)compressor */
@@ -101,4 +106,4 @@ namespace base
     };
 }
 }
-#endif  // EQUTIL_COMPRSSORDATA_H
+#endif  // EQUTIL_COMPRESSORDATA_H

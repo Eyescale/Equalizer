@@ -593,11 +593,19 @@ void Image::clearPixelData( const Frame::Buffer buffer )
     validatePixelData( buffer );
 
     if( buffer == Frame::BUFFER_DEPTH )
+    {
+        EQASSERT( util::CompressorDataGPU::getGLType( memory.externalFormat ) ==
+                  GL_UNSIGNED_INT );
         memset( memory.pixels, 0xFF, size );
+    }
     else
     {
         if( getPixelSize( Frame::BUFFER_COLOR ) == 4 )
         {
+            EQASSERT( 
+                util::CompressorDataGPU::getGLType( memory.externalFormat ) ==
+                  GL_UNSIGNED_BYTE );
+
             uint8_t* data = reinterpret_cast< uint8_t* >( memory.pixels );
 #ifdef Darwin
             const unsigned char pixel[4] = { 0, 0, 0, 255 };
@@ -641,11 +649,12 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     if( size == 0 )
         return;
 
-    validatePixelData( buffer ); // alloc memory for pixels
-
     if( pixels.compressorName <= EQ_COMPRESSOR_NONE )
     {
+        validatePixelData( buffer ); // alloc memory for pixels
+
         // if no data in pixels, it is only a memory setup parameter
+        EQASSERT( pixels.pixels ); // eile: what does comment mean ???
         if( pixels.pixels )
         {
             memcpy( memory.pixels, pixels.pixels, size );
@@ -664,9 +673,17 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
         return;
     }
 
-    uint64_t outDims[4] = { memory.pvp.x,  memory.pvp.w,  
-                           memory.pvp.y,  memory.pvp.h }; 
-    const uint64_t nBlocks  = pixels.compressedSize.size();
+    const EqCompressorInfo& info = attachment.compressor->getInfo();
+    if( memory.externalFormat != info.outputTokenType )
+    {   // decompressor output differs from compressor input
+        memory.externalFormat = info.outputTokenType;
+        memory.pixelSize = info.outputTokenSize;
+    }
+    validatePixelData( buffer ); // alloc memory for pixels
+
+    uint64_t outDims[4] = { memory.pvp.x, memory.pvp.w,  
+                            memory.pvp.y, memory.pvp.h }; 
+    const uint64_t nBlocks = pixels.compressedSize.size();
     uint64_t flags = EQ_COMPRESSOR_DATA_2D;
     if( _canIgnoreAlpha( buffer ))
         flags |= EQ_COMPRESSOR_IGNORE_MSE;

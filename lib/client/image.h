@@ -429,8 +429,8 @@ namespace eq
          * @param pixelSize the size of one pixels in bytes
          */
         void _setExternalFormat( const Frame::Buffer buffer,
-                                const uint32_t externalFormat,
-                                const uint32_t pixelSize );
+                                 const uint32_t externalFormat,
+                                 const uint32_t pixelSize );
 
         bool _canIgnoreAlpha( const Frame::Buffer buffer ) const;
 

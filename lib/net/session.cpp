@@ -79,6 +79,7 @@ Session::~Session()
             }
         }
     }
+    //EQASSERT( _objects->empty( ))
 #endif
     _objects->clear();
 }

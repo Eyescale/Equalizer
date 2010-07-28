@@ -264,30 +264,57 @@ extern "C"
          * Set on input to the API version used in Equalizer. Has to be set to
          * EQ_COMPRESSOR_VERSION on output to declare the API version used to
          * compile the DSO.
+         * @version 1
          */
         unsigned version;
 
-        /** The type name of the compressor (output). */
+        /** The type name of the compressor. @version 1 */
         unsigned name;
-        /** The token type supported by the compressor (output). */
+
+        /**
+         * The input token type supported by the compressor.
+         *
+         * The input token type describes the format of the input data for a
+         * compressor or downloader and the format of the output data for the
+         * decompressor or uploader of the same compressor.
+         * @version 1
+         */
         unsigned tokenType;
-        /** Capabilities supported by the compressor (output). */
+
+        /** Capabilities supported by the compressor. @version 1 */
         eq_uint64_t capabilities;
-        /** Compression quality (output, 1.0f: loss-less, <1.0f: lossy). */
+
+        /** Compression quality (1.0f: loss-less, <1.0f: lossy). @version 1 */
         float quality;
-        /** Approximate compression ratio (output, sizeCompressed/sizeIn). */
+
+        /** Approximate compression ratio (sizeCompressed/sizeIn). @version 1 */
         float ratio;
-        /** Approximate compression speed relative to BYTE_RLE (output). */
+
+        /** Approximate compression speed relative to BYTE_RLE. @version 1 */
         float speed;
-        /** The type of the data produced by the transfer plugin. @version 3 */
+
+        /**
+         * The output token type of a transfer plugin.
+         *
+         * The output token type describes the format of the data produced by a
+         * downloader and consumed by the uploader of the same compressor.
+         *
+         * A CPU compressor might set the output token type if its decompressor
+         * produces an output different from the input.
+         *
+         * If this parameter is set, outputTokenSize has to be set as well.
+         * @version 3
+         */
         unsigned outputTokenType;
+
         /** The size of one output token in bytes. @version 3 */
         unsigned outputTokenSize;
     };
     
-    /** @return the number of compressors implemented in the DSO. */
+    /** @return the number of compressors implemented in the DSO. @version 1 */
     EQ_PLUGIN_API size_t EqCompressorGetNumCompressors();
-    /** Query information of the nth compressor in the DSO. */
+
+    /** Query information of the nth compressor in the DSO. @version 1 */
     EQ_PLUGIN_API void EqCompressorGetInfo( const size_t n,
                                             EqCompressorInfo* const info );
     /*@}*/
@@ -307,6 +334,7 @@ extern "C"
      *
      * @param name the type name of the compressor.
      * @return an opaque pointer to the compressor instance.
+     * @version 1
      */
     EQ_PLUGIN_API void* EqCompressorNewCompressor( const unsigned name );
 
@@ -314,6 +342,7 @@ extern "C"
      * Release a compressor or downloader instance.
      *
      * @param compressor the compressor instance to free.
+     * @version 1
      */
     EQ_PLUGIN_API void EqCompressorDeleteCompressor( void* const compressor );
 
@@ -328,12 +357,14 @@ extern "C"
      * @param name the type name of the decompressor.
      * @return an opaque pointer to the decompressor instance, or 0 if no
      *         instance is needed by the implementation.
+     * @version 1
      */
     EQ_PLUGIN_API void* EqCompressorNewDecompressor( const unsigned name );
     /**
      * Release a decompressor instance.
      *
      * @param decompressor the decompressor instance to free.
+     * @version 1
      */
     EQ_PLUGIN_API void EqCompressorDeleteDecompressor(void* const decompressor);
     /*@}*/
@@ -361,6 +392,7 @@ extern "C"
      * @param in the pointer to the input data.
      * @param inDims the dimensions of the input data.
      * @param flags capability flags for the compression.
+     * @version 1
      */
     EQ_PLUGIN_API void EqCompressorCompress( void* const compressor, 
                                              const unsigned name,
@@ -377,6 +409,7 @@ extern "C"
      * @param compressor the compressor instance.
      * @param name the type name of the compressor.
      * @return the number of output results.
+     * @version 1
      */
     EQ_PLUGIN_API unsigned EqCompressorGetNumResults( void* const compressor,
                                                       const unsigned name );
@@ -389,6 +422,7 @@ extern "C"
      * @param i the result index to return.
      * @param out the return value to store the result pointer.
      * @param outSize the return value to store the result size in bytes.
+     * @version 1
      */
     EQ_PLUGIN_API void EqCompressorGetResult( void* const compressor, 
                                               const unsigned name,
@@ -413,6 +447,8 @@ extern "C"
      * @param outDims the dimensions of the output data.
      * @param flags capability flags for the decompression.
      * @sa EqCompressorCompress
+     * @version 1
+     * @note outDims should be const, which was an oversight
      */
     EQ_PLUGIN_API void EqCompressorDecompress( void* const decompressor, 
                                                const unsigned name,
@@ -438,6 +474,7 @@ extern "C"
      * @param glewContext the initialized GLEW context describing corresponding
      *                    to the current OpenGL context.
      * @return true if the compressor is compatible with the environment.
+     * @version 3
      */
     EQ_PLUGIN_API bool EqCompressorIsCompatible( const unsigned name,
                                                  GLEWContext* glewContext );
@@ -485,6 +522,7 @@ extern "C"
      * @param flags capability flags for the compression (see description).
      * @param outDims the dimensions of the output data (see description).
      * @param out the pointer to the output data.
+     * @version 3
      */
     EQ_PLUGIN_API void EqCompressorDownload( void* const        compressor,
                                              const unsigned     name,
@@ -531,6 +569,7 @@ extern "C"
      * @param outDims the result data size in the frame buffer.
      * @param destination the destination texture name if
      *                    EQ_COMPRESSOR_USE_TEXTURE is set.
+     * @version 3
      */
     EQ_PLUGIN_API void EqCompressorUpload( void* const        decompressor,
                                            const unsigned     name,

@@ -130,30 +130,24 @@ namespace util
         uint32_t getInternalFormat() const { return _info.tokenType; }
 
         /**
-         * Get the token size produced by a donwloader or 
-         * accepted by the uploader.
-         **/
+         * Get the token size produced by a downloader or consumed by an
+         * uploader.
+         */
         uint32_t getTokenSize() const { return _info.outputTokenSize; }
 
         /**
          * Get the downloader/uploader internal format corresponding to 
-         * an opengl token type
+         * an OpenGL token type
          *
          * @param format the GL format 
          * @param type the GL typedata source
          */
-        static EQ_EXPORT uint32_t getExternalFormat( uint32_t format, uint32_t type  );
+        static EQ_EXPORT uint32_t getExternalFormat( uint32_t format,
+                                                     uint32_t type );
 
-        /**
-         * Get the size of one pixel
-         *
-         * @param dataType the compressor image data type
-         */
-        static EQ_EXPORT uint32_t getPixelSize( uint64_t dataType );
-
-        /* get if the actual compressor is able to ignore alpha */
-        bool ignoreAlpha(){ return _info.capabilities & 
-                            EQ_COMPRESSOR_IGNORE_MSE; }
+        /** @return true if the actual compressor is able to ignore alpha */
+        bool ignoreAlpha() const
+            { return _info.capabilities & EQ_COMPRESSOR_IGNORE_MSE; }
 
         /**
          * add info to the outInfos vector about transerers which are compatible

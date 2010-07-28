@@ -69,23 +69,44 @@ bool Compressor::init( const std::string& libraryName )
     
     const bool foundBase = newDecompressor && newCompressor &&
         deleteCompressor && deleteDecompressor && getInfo && getNumCompressors;
+    const bool foundCPU = getResult && getNumResults && decompress && compress;
+    const bool foundGPU = isCompatible && download && upload;
 
-    if(( foundBase && getResult && getNumResults && decompress && compress ) ||
-       ( foundBase && isCompatible && download && upload ))
+    if( !foundBase || ( !foundCPU && !foundGPU ))
     {
-        const size_t nCompressors = getNumCompressors();
-        EQASSERT( nCompressors > 0 );
-        _infos.resize( nCompressors );
-
-        for( size_t i = 0; i < nCompressors; ++i )
-            getInfo( i, &_infos[i] );
-    
-        return true;
+        EQWARN << "Initializing compression DSO " << libraryName 
+           << " failed, at least one entry point missing" << std::endl;
+        return false;
     }
 
-    EQWARN << "Initializing compression DSO " << libraryName 
-           << " failed, at least one entry point missing" << std::endl;
-    return false;
+    const size_t nCompressors = getNumCompressors();
+    EQASSERT( nCompressors > 0 );
+    _infos.resize( nCompressors );
+
+    for( size_t i = 0; i < nCompressors; ++i )
+    {
+        EqCompressorInfo& info = _infos[ i ];
+
+        info.outputTokenType = EQ_COMPRESSOR_DATATYPE_NONE;
+        info.outputTokenSize = 0;
+        getInfo( i, &info );
+
+        if( !( info.capabilities & EQ_COMPRESSOR_TRANSFER ))
+        {
+            if( info.outputTokenType == EQ_COMPRESSOR_DATATYPE_NONE )
+            {
+                // Set up CPU compressor output to be input type
+                info.outputTokenType = info.tokenType;
+                EQASSERT( info.outputTokenSize == 0 );
+            }
+            else
+            {
+                EQASSERT( info.outputTokenSize != 0 );
+            }
+        }
+    }
+
+    return true;
 }
 
 bool Compressor::implementsType( const uint32_t name )

@@ -152,40 +152,6 @@ bool CompressorDataGPU::initDownloader( uint64_t name )
     
     return true;
 }
-uint32_t CompressorDataGPU::getPixelSize( uint64_t dataType )
-{
-    switch( dataType )
-    {
-        case EQ_COMPRESSOR_DATATYPE_RGBA:
-        case EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV:
-        case EQ_COMPRESSOR_DATATYPE_BGRA:
-        case EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV:
-        case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
-        case EQ_COMPRESSOR_DATATYPE_BGR10_A2:
-            return 4;
-        case EQ_COMPRESSOR_DATATYPE_RGB:
-        case EQ_COMPRESSOR_DATATYPE_BGR:
-            return 3;
-        case EQ_COMPRESSOR_DATATYPE_RGBA32F:
-        case EQ_COMPRESSOR_DATATYPE_BGRA32F:
-            return 16;
-        case EQ_COMPRESSOR_DATATYPE_RGB32F:
-        case EQ_COMPRESSOR_DATATYPE_BGR32F:
-            return 12;
-        case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT:
-        case EQ_COMPRESSOR_DATATYPE_DEPTH_FLOAT:
-        case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV:
-            return 4;
-        case EQ_COMPRESSOR_DATATYPE_RGBA16F:
-        case EQ_COMPRESSOR_DATATYPE_BGRA16F:
-            return 8;
-        case EQ_COMPRESSOR_DATATYPE_RGB16F:
-        case EQ_COMPRESSOR_DATATYPE_BGR16F:
-            return 6;
-        default:
-            return 0;
-    }
-}
 
 uint32_t CompressorDataGPU::getExternalFormat( uint32_t format,
                                                uint32_t type )

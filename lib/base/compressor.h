@@ -20,8 +20,8 @@
 #define EQBASE_COMPRESSOR_H
 
 #include <eq/plugins/compressor.h> // member
-#include "base.h"
-#include "dso.h"           // member
+#include <eq/base/base.h>
+#include <eq/base/dso.h>           // member
 
 /**
  * @file base/compressor.h
@@ -37,10 +37,6 @@ namespace base
      * A class holding all functions and information for one compressor DSO.
      * @internal
      */
-    class Compressor;
-    typedef std::vector< EqCompressorInfo > CompressorInfos;
-    typedef std::vector< Compressor* > Compressors;
-
     class Compressor
     {
     public:
@@ -76,43 +72,46 @@ namespace base
 
         Compressor(){}
 
-        /** init and link a plugin compressor */
+        /** Init and link a compressor plugin. */
         bool init( const std::string& libraryName );
       
-        /** unlink and free all memory pointer */
+        /** Unload a compressor plugin. */
         void exit();
 
-        /** Get a new compressor instance  */
-        NewCompressor_t newCompressor;
-        
-        /** Get a new decompressor instance  */
-        NewDecompressor_t    newDecompressor;
-       
-        /** delete the compressor instance parametre  */     
-        DeleteCompressor_t   deleteCompressor;
-        
-        /** delete the decompressor instance parametre  */ 
-        DeleteDecompressor_t deleteDecompressor;
-      
-        /** compress data */
-        Compress_t       compress;
-
-        /** decompress data */
-        Decompress_t     decompress;
-      
-        /** get the number array that found the results of compressing  */
-        GetNumResults_t  getNumResults;
-
-        /** get the number compressor found in the plugin  */
+        /** Get the number of compressor found in the plugin. */
         GetNumCompressors_t  getNumCompressors;
 
-        /** get the number compressor found in the plugin  */
+        /** Get a new compressor instance.  */
+        NewCompressor_t newCompressor;
+        
+        /** Get a new decompressor instance.  */
+        NewDecompressor_t    newDecompressor;
+       
+        /** Delete the compressor instance.  */     
+        DeleteCompressor_t   deleteCompressor;
+        
+        /** Delete the decompressor instance.  */ 
+        DeleteDecompressor_t deleteDecompressor;
+      
+        /** Compress data. */
+        Compress_t       compress;
+
+        /** Decompress data. */
+        Decompress_t     decompress;
+      
+        /** Get the number of results from the last compression.  */
+        GetNumResults_t  getNumResults;
+
+        /** Get the nth result from the last compression.  */
         GetResult_t   getResult;
 
+        /** Check if the transfer plugin can be used. */
         IsCompatible_t isCompatible;
 
+        /** Download pixel data. */
         Download_t  download;
-        
+
+        /** Upload pixel data. */
         Upload_t  upload;
 
         /** @return true if name is found in the DSO compressor */
