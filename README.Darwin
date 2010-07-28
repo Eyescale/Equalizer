@@ -14,8 +14,7 @@ Prerequisites:
 
  boost (optional, not yet needed): RSP, the protocol used for multicast data
    distribution, requires boost::asio. The preferred way is to install
-   MaxPorts[1], add '+universal' to /opt/local/etc/macports/variants.conf
-   and to 'sudo port install boost'.
+   MaxPorts[1] and to 'sudo port install boost +universal+debug'.
 
 
 Universal Binary Notes

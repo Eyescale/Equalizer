@@ -99,12 +99,20 @@ ifeq ($(findstring -DEQ_USE_CUDA, $(DEFFLAGS)), -DEQ_USE_CUDA)
 endif
 
 # BOOST settings
-# Check presence of BOOST
-ifeq ($(wildcard $(BOOST_INCLUDE_PATH)/boost/asio.hpp), $(BOOST_INCLUDE_PATH)/boost/asio.hpp)
+BOOST_LIBS = $(wildcard $(BOOST_LIBRARY_PATH)/*boost_system-mt*)
+ifeq ($(findstring boost_system-mt, $(BOOST_LIBS)), boost_system-mt)
     DEFFLAGS += -DEQ_USE_BOOST
 
     CXXFLAGS += -isystem $(BOOST_INCLUDE_PATH)
-    LDFLAGS  += -L$(BOOST_LIBRARY_PATH) -lboost_system
+  ifeq ($(findstring Release, $(BUILD_MODE)),Release)
+    LDFLAGS  += -L$(BOOST_LIBRARY_PATH) -lboost_system-mt
+  else
+    ifeq ($(findstring boost_system-mt-d, $(BOOST_LIBS)), boost_system-mt-d)
+      LDFLAGS  += -L$(BOOST_LIBRARY_PATH) -lboost_system-mt-d
+    else
+      LDFLAGS  += -L$(BOOST_LIBRARY_PATH) -lboost_system-mt
+    endif
+  endif
   ifneq ($(BOOST_LIBRARY_PATH), /opt/local/lib)
     LD_PATH  := $(LD_PATH):$(BOOST_LIBRARY_PATH)
   endif
@@ -112,13 +120,13 @@ endif
 
 # Paracomp settings
 ifeq ($(findstring x86_64, $(SUBARCH)), x86_64)
-ifeq ($(wildcard $(PC_LIBRARY_PATH)), $(PC_LIBRARY_PATH))
+  ifeq ($(wildcard $(PC_LIBRARY_PATH)), $(PC_LIBRARY_PATH))
     DEFFLAGS += -DEQ_USE_PARACOMP
     DEFFLAGS += -DEQ_USE_PARACOMP_BLEND
 #    DEFFLAGS += -DEQ_USE_PARACOMP_DEPTH
     CXXFLAGS += -I$(PC_LIBRARY_PATH)/../include
     LDFLAGS  += -L$(PC_LIBRARY_PATH) -lpcstub
-endif
+  endif
 endif
 
 endif # top-level
