@@ -16,6 +16,7 @@
  */
 
 #include <pthread.h> // first!
+#include <cstring>   // for memset
 #include "threadID.h"
 
 #include "log.h"
