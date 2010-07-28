@@ -76,7 +76,7 @@ typedef fabric::Viewport Viewport;
 typedef fabric::Wall Wall;
 typedef fabric::Zoom Zoom;
 
-/** A visitor to traverse segments. @sa  Segment ::accept() */
+/** A visitor to traverse segments. @sa  Segment::accept() */
 typedef fabric::LeafVisitor< Segment > SegmentVisitor;
 
 /** A visitor to traverse views. @sa View::accept() */

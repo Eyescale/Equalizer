@@ -49,7 +49,7 @@ typedef base::RefPtr< Client > ClientPtr;
 typedef base::RefPtr< const Client > ConstClientPtr;
 typedef base::RefPtr< Server > ServerPtr;
 
-/** A visitor to traverse segments. @sa  Segment ::accept() */
+/** A visitor to traverse segments. @sa  Segment::accept() */
 typedef fabric::LeafVisitor< Segment > SegmentVisitor;
 
 /** A visitor to traverse views. @sa View::accept() */
