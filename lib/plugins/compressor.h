@@ -21,8 +21,11 @@
  * 
  * The API to create runtime-loadable compression plugins.
  *
- * Equalizer uses two types of plugins: CPU compressors and transfer
- * engines. The chain of operations for an image transfer is:
+ * The image compositing pipeline in Equalizer uses two types of plugins:
+ * transfer engines and CPU compressors. A transfer engine downloads and uploads
+ * the data from the GPU to main memory. A CPU compressor compresses and
+ * decompresses the data produced by a transfer engine. The chain of operations
+ * for an image transfer is:
  *  -# Select and instantiate transfer compressor for image to download
  *  -# Run the download operation from the render thread
  *  -# Select and instantiate a CPU compressor based on the transfer output
@@ -40,6 +43,8 @@
  * of the download operation if no matching CPU compressor is found. Plugin
  * instances are cached and reused for subsequent operations from the same
  * thread.
+ *
+ * <img src="http://www.equalizergraphics.com/documents/design/images/imageCompression.png">
  *
  * To implement a compression plugin, the following steps are to be taken:
  *  - Create a new shared library named EqualizerCompressorNAME.dll (Win32),

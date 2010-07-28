@@ -1,11 +1,9 @@
-Compression plugin:
-- clean up naming
-- Fix YUV compressor
+Minor doxygen update
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation
