@@ -124,7 +124,8 @@ $(BIN_DIR)/%: %.mm
 endif # PROGRAM
 
 %.testOK: %
-	env EQ_LOG_LEVEL=WARN \
+	@echo "Running $<"
+	@env EQ_LOG_LEVEL=WARN \
 		LD_LIBRARY_PATH="$(LD_PATH):$(LD_LIBRARY_PATH)" \
 		DYLD_LIBRARY_PATH="$(LD_PATH):$(DYLD_LIBRARY_PATH)" \
 		PATH="$(PATH):$(BUILD_DIR)/$(subst .,,$(suffix $<))/lib" \
