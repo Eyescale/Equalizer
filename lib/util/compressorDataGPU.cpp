@@ -115,21 +115,20 @@ void CompressorDataGPU::initUploader( const uint32_t externalFormat,
 void CompressorDataGPU::initDownloader( const float minQuality, 
                                         const uint32_t internalFormat )
 { 
-    float factor = 1.1f;
+    float ratio = std::numeric_limits< float >::max();
     uint32_t name = EQ_COMPRESSOR_NONE;
     
     base::CompressorInfos infos; 
-    addTransfererInfos( infos, minQuality, 
-                        internalFormat, 0, _glewContext );
+    findTransferers( infos, minQuality, internalFormat, 0, _glewContext );
     
     for( base::CompressorInfos::const_iterator j = infos.begin();
          j != infos.end(); ++j )
     {
         const EqCompressorInfo& info = *j;
-        
-        if ( factor > ( info.ratio * info.quality ))
+
+        if( ratio > info.ratio )
         {
-            factor = ( info.ratio * info.quality );
+            ratio = info.ratio;
             name = info.name;
             _info = &info;
         }
@@ -154,85 +153,85 @@ bool CompressorDataGPU::initDownloader( const uint32_t name )
 uint32_t CompressorDataGPU::getExternalFormat( const uint32_t format,
                                                const uint32_t type )
 {
-    if( format == GL_BGRA )
+    switch( format )
     {
-        switch ( type )
-        {
-            case GL_UNSIGNED_INT_8_8_8_8_REV : 
-                return EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV;
-            case GL_UNSIGNED_BYTE : 
-                return EQ_COMPRESSOR_DATATYPE_BGRA;
-            case GL_HALF_FLOAT : 
-                return EQ_COMPRESSOR_DATATYPE_BGRA16F;
-            case GL_FLOAT : 
-                return EQ_COMPRESSOR_DATATYPE_BGRA32F;
-            case GL_UNSIGNED_INT_10_10_10_2 : 
-                return EQ_COMPRESSOR_DATATYPE_BGR10_A2;
-        }
+        case GL_BGRA:
+            switch ( type )
+            {
+                case GL_UNSIGNED_INT_8_8_8_8_REV : 
+                    return EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV;
+                case GL_UNSIGNED_BYTE : 
+                    return EQ_COMPRESSOR_DATATYPE_BGRA;
+                case GL_HALF_FLOAT : 
+                    return EQ_COMPRESSOR_DATATYPE_BGRA16F;
+                case GL_FLOAT : 
+                    return EQ_COMPRESSOR_DATATYPE_BGRA32F;
+                case GL_UNSIGNED_INT_10_10_10_2 : 
+                    return EQ_COMPRESSOR_DATATYPE_BGR10_A2;
+            }
+            break;
+
+        case GL_RGBA:
+            switch ( type )
+            {
+                case GL_UNSIGNED_INT_8_8_8_8_REV : 
+                    return EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV;
+                case GL_UNSIGNED_BYTE : 
+                    return EQ_COMPRESSOR_DATATYPE_RGBA;
+                case GL_HALF_FLOAT : 
+                    return EQ_COMPRESSOR_DATATYPE_RGBA16F;
+                case GL_FLOAT : 
+                    return EQ_COMPRESSOR_DATATYPE_RGBA32F;
+                case GL_UNSIGNED_INT_10_10_10_2 : 
+                    return EQ_COMPRESSOR_DATATYPE_BGR10_A2;
+            }
+            break;
+    
+        case GL_RGB:
+            switch ( type )
+            {
+                case GL_UNSIGNED_BYTE : 
+                    return EQ_COMPRESSOR_DATATYPE_RGB;
+                case GL_HALF_FLOAT : 
+                    return EQ_COMPRESSOR_DATATYPE_RGB16F;
+                case GL_FLOAT :
+                    return EQ_COMPRESSOR_DATATYPE_RGB32F;   
+            }
+            break;
+
+        case GL_BGR:
+            switch ( type )
+            {
+                case GL_UNSIGNED_BYTE : 
+                    return EQ_COMPRESSOR_DATATYPE_BGR;
+                case GL_HALF_FLOAT : 
+                    return EQ_COMPRESSOR_DATATYPE_BGR16F;
+                case GL_FLOAT : 
+                    return EQ_COMPRESSOR_DATATYPE_BGR32F;
+            }
+
+        case GL_DEPTH_COMPONENT:
+            switch ( type )
+            {
+                case GL_UNSIGNED_INT : 
+                    return EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT;
+                case GL_FLOAT : 
+                    return EQ_COMPRESSOR_DATATYPE_DEPTH_FLOAT;
+            }
+
+        case GL_DEPTH_STENCIL_NV:
+            return EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV;
     }
-    else if( format == GL_RGBA )
-    {
-        switch ( type )
-        {
-            case GL_UNSIGNED_INT_8_8_8_8_REV : 
-                return EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV;
-            case GL_UNSIGNED_BYTE : 
-                return EQ_COMPRESSOR_DATATYPE_RGBA;
-            case GL_HALF_FLOAT : 
-                return EQ_COMPRESSOR_DATATYPE_RGBA16F;
-            case GL_FLOAT : 
-                return EQ_COMPRESSOR_DATATYPE_RGBA32F;
-            case GL_UNSIGNED_INT_10_10_10_2 : 
-                return EQ_COMPRESSOR_DATATYPE_BGR10_A2;
-        }
-    }
-    else if( format == GL_RGB )
-    {
-        switch ( type )
-        {
-            case GL_UNSIGNED_BYTE : 
-                return EQ_COMPRESSOR_DATATYPE_RGB;
-            case GL_HALF_FLOAT : 
-                return EQ_COMPRESSOR_DATATYPE_RGB16F;
-            case GL_FLOAT : 
-                return EQ_COMPRESSOR_DATATYPE_RGB32F;   
-        }
-    }
-    else if( format == GL_BGR )
-    {
-        switch ( type )
-        {
-            case GL_UNSIGNED_BYTE : 
-                return EQ_COMPRESSOR_DATATYPE_BGR;
-            case GL_HALF_FLOAT : 
-                return EQ_COMPRESSOR_DATATYPE_BGR16F;
-            case GL_FLOAT : 
-                return EQ_COMPRESSOR_DATATYPE_BGR32F;
-        }
-    }
-    else if ( format == GL_DEPTH_COMPONENT )
-    {
-        switch ( type )
-        {
-            case GL_UNSIGNED_INT : 
-                return EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT;
-            case GL_FLOAT : 
-                return EQ_COMPRESSOR_DATATYPE_DEPTH_FLOAT;
-        }
-    }
-    else if ( format == GL_DEPTH_STENCIL_NV )
-    {
-        return EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV;
-    }
-    EQASSERT( false );
+
+    EQASSERTINFO( false, "Not implemented" );
     return 0;
 }
 
-void CompressorDataGPU::addTransfererInfos( base::CompressorInfos& outInfos,
-                                            const float minQuality, 
-                                            const uint32_t internalFormat,
-                                            const uint32_t externalFormat,
-                                            const GLEWContext* glewContext )
+void CompressorDataGPU::findTransferers( base::CompressorInfos& result,
+                                         const float minQuality, 
+                                         const uint32_t internalFormat,
+                                         const uint32_t externalFormat,
+                                         const GLEWContext* glewContext )
 {
     const base::PluginRegistry& registry = base::Global::getPluginRegistry();
     const base::Compressors& plugins = registry.getCompressors();
@@ -247,29 +246,16 @@ void CompressorDataGPU::addTransfererInfos( base::CompressorInfos& outInfos,
         {
             const EqCompressorInfo& info = *j;
             
-            if(( info.capabilities & EQ_COMPRESSOR_TRANSFER ) == 0 )
-                continue;
-            
-            if ( internalFormat != 0 )
+            if( ( info.capabilities & EQ_COMPRESSOR_TRANSFER )      &&
+                ( internalFormat == EQ_COMPRESSOR_DATATYPE_NONE ||
+                  info.tokenType == internalFormat )                &&
+                ( externalFormat == EQ_COMPRESSOR_DATATYPE_NONE ||
+                  info.outputTokenType == externalFormat )          &&
+                info.quality >= minQuality                          &&
+                compressor->isCompatible( info.name, glewContext ))
             {
-                if( info.tokenType != internalFormat )
-                    continue;
+                result.push_back( info );
             }
-
-            if ( externalFormat != 0 )
-            {
-                if( info.outputTokenType != externalFormat )
-                    continue;
-            }
-
-            if( info.quality < minQuality )
-                continue;
-            
-
-            if( !compressor->isCompatible( info.name, glewContext ))
-                continue;
-            
-            outInfos.push_back( info );
         }
     }
 }

@@ -104,7 +104,7 @@ typedef fabric::ObserverPath ObserverPath;
 typedef fabric::LayoutPath LayoutPath;
 typedef fabric::ViewPath ViewPath;
 
-/** A visitor to traverse segments. @sa  Segment ::accept() */
+/** A visitor to traverse segments. @sa Segment::accept() */
 typedef fabric::LeafVisitor< Segment > SegmentVisitor;
 
 /** A visitor to traverse views. @sa View::accept() */

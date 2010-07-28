@@ -325,9 +325,6 @@ void GLXEventHandler::_processEvent( GLXWindowEvent& event, Pipe* pipe )
     }
 
     event.originator = window->getID();
-
-    EQLOG( LOG_EVENTS ) << "received event: " << event << endl;
-    
     glXWindow->processEvent( event );
 }
 

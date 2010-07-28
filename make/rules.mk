@@ -124,7 +124,7 @@ $(BIN_DIR)/%: %.mm
 endif # PROGRAM
 
 %.testOK: %
-	@echo "Running $<"
+	@echo "Running $(SUBDIR)/$<"
 	@env EQ_LOG_LEVEL=WARN \
 		LD_LIBRARY_PATH="$(LD_PATH):$(LD_LIBRARY_PATH)" \
 		DYLD_LIBRARY_PATH="$(LD_PATH):$(DYLD_LIBRARY_PATH)" \

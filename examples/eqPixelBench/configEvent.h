@@ -49,7 +49,7 @@ public:
     }
 
     // channel name is in user event data
-    char           formatType[64];
+    char           formatType[32];
     eq::Vector2i   area;
     uint64_t       dataSizeGPU;
     uint64_t       dataSizeCPU;

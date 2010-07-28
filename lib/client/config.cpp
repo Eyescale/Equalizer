@@ -336,7 +336,6 @@ void Config::sendEvent( ConfigEvent& event )
     EQASSERT( _appNode );
 
     event.sessionID = getID();
-    EQLOG( LOG_EVENTS ) << "send event " << &event << std::endl;
     _appNode->send( event );
 }
 

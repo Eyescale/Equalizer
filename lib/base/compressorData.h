@@ -74,7 +74,7 @@ namespace base
         /** true if the instance is a compressor, false if downloader */
         bool _isCompressor;
 
-       /**
+        /**
          * Find the plugin where located the compressor
          *
          * @param name the name of the compressor 

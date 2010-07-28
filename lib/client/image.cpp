@@ -137,8 +137,8 @@ std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
     const
 {
     const uint32_t tokenType = getExternalFormat( buffer );
-    EQINFO << "Searching compressors for token type 0x" << std::hex << tokenType
-           << std::dec << std::endl;
+    EQLOG( LOG_PLUGIN ) << "Searching compressors for token type 0x"
+                        << std::hex << tokenType << std::dec << std::endl;
 
     const base::PluginRegistry& registry = base::Global::getPluginRegistry();
     const base::Compressors& compressors = registry.getCompressors();
@@ -150,7 +150,8 @@ std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
         const base::Compressor* compressor = *i;
         const base::CompressorInfos& infos = compressor->getInfos();
 
-        EQINFO << "Searching in DSO " << (void*)compressor << std::endl;
+        EQLOG( LOG_PLUGIN ) << "Searching in DSO " << (void*)compressor
+                            << std::endl;
         for( base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
@@ -741,7 +742,8 @@ bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
         if( !attachment.compressor->initCompressor( name ) )
             return false;
 
-        EQINFO << "Instantiated compressor of type " << name << std::endl;
+        EQLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex
+                            << name << std::dec << std::endl;
     }
     return true;
 }
@@ -770,7 +772,8 @@ bool Image::allocDownloader( const Frame::Buffer buffer,
             attachment.transfer->getInternalFormat();
         _setExternalFormat( buffer, attachment.transfer->getExternalFormat(),
                             attachment.transfer->getTokenSize( ));
-        EQINFO << "Instantiated compressor of type " << name << std::endl;
+        EQLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex
+                            << name << std::dec << std::endl;
     }
     return true;
 }

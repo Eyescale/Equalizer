@@ -50,17 +50,17 @@ struct EnumMap
 #pragma warning(default: 411)
 
 #define ENUM_MAP_ITEM( internalFormat, pixelSize )  \
-    { #internalFormat, internalFormat, pixelSize }
+    { #internalFormat, EQ_COMPRESSOR_DATATYPE_ ## internalFormat, pixelSize }
 
 static EnumMap _enums[] = {
-    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGBA, 4 ), // initial buffer resize
-    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGBA, 4 ),
-    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGB, 3 ),
-    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGB10_A2, 4 ),
-    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGBA16F, 8 ),
-    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGB16F, 6 ),
-    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGBA32F, 16 ),
-    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGB32F, 12 ),
+    ENUM_MAP_ITEM( RGBA, 4 ), // initial buffer resize
+    ENUM_MAP_ITEM( RGBA, 4 ),
+    ENUM_MAP_ITEM( RGB, 3 ),
+    ENUM_MAP_ITEM( RGB10_A2, 4 ),
+    ENUM_MAP_ITEM( RGBA16F, 8 ),
+    ENUM_MAP_ITEM( RGB16F, 6 ),
+    ENUM_MAP_ITEM( RGBA32F, 16 ),
+    ENUM_MAP_ITEM( RGB32F, 12 ),
     { 0, 0, 0 }};
 #define NUM_IMAGES 8
 }
@@ -95,7 +95,7 @@ void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber )
         event.area.x() = 0;
         event.area.y() = 0;
 
-        snprintf( event.formatType, 64, "Latency between app and render start");
+        snprintf( event.formatType, 32, "app->pipe thread latency");
         event.data.type = ConfigEvent::START_LATENCY;
 
         config->sendEvent( event );
@@ -166,35 +166,39 @@ void Channel::_testFormats( float applyZoom )
     {
         const uint32_t internalFormat = _enums[i].internalFormat;
         eq::base::CompressorInfos infos;
-        eq::util::CompressorDataGPU::addTransfererInfos( infos, 0.f, 
-                               internalFormat, 0, glObjects->glewGetContext() );
+        const GLEWContext* glewContext = glewGetContext();
+        eq::util::CompressorDataGPU::findTransferers( infos, 0.f,
+                                                      internalFormat, 0,
+                                                      glewContext );
 
-        for( uint32_t j=0; j < infos.size(); ++j )
+        for( eq::base::CompressorInfos::const_iterator j = infos.begin();
+             j != infos.end(); ++j )
         {
+            const EqCompressorInfo& info = *j;
             _draw( 0 );
 
             // setup
-            const uint32_t outputToken = infos[j].outputTokenType;
-            snprintf( event.formatType, 64, "%s/%d/%d", 
-                _enums[i].internalFormatString, outputToken, infos[j].name );
+            const uint32_t outputToken = info.outputTokenType;
+            snprintf( event.formatType, 32, "%s/%x/%x", 
+                _enums[i].internalFormatString, outputToken, info.name );
 
-            event.formatType[63] = '\0';
+            event.formatType[31] = '\0';
             event.data.type = ConfigEvent::READBACK;
 
-            image->allocDownloader( eq::Frame::BUFFER_COLOR, infos[j].name, 
-                                              glObjects->glewGetContext() );
+            image->allocDownloader( eq::Frame::BUFFER_COLOR, info.name, 
+                                    glewContext );
             image->setPixelViewport( pvp );
 
             // read
+            clock.reset();
+            image->readback( eq::Frame::BUFFER_COLOR, pvp, zoom, glObjects );
+            event.msec = clock.getTimef();
+
             const eq::Image::PixelData& pixel = 
                 image->getPixelData( eq::Frame::BUFFER_COLOR );
             event.area.x() = pixel.pvp.w;             
             event.area.y() = pixel.pvp.h;
             event.dataSizeGPU = pixel.pvp.h * pixel.pvp.w * _enums[i].pixelSize;
-
-            clock.reset();
-            image->readback( eq::Frame::BUFFER_COLOR, pvp, zoom, glObjects );
-            event.msec = clock.getTimef();
             event.dataSizeCPU = 
                 image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
 
@@ -248,6 +252,7 @@ void Channel::_testTiledOperations()
 
     eq::base::Clock clock;
     eq::Window::ObjectManager* glObjects = getObjectManager();
+    const GLEWContext* glewContext = glewGetContext();
 
     //----- test tiled assembly algorithms
     eq::PixelViewport subPVP = pvp;
@@ -267,16 +272,16 @@ void Channel::_testTiledOperations()
 
         //---- readback of 'tiles' depth images
         event.data.type = ConfigEvent::READBACK;
-        snprintf( event.formatType, 64, "%d depth tiles", tiles+1 ); 
+        snprintf( event.formatType, 32, "%d depth tiles", tiles+1 ); 
 
         event.msec = 0;
         for( unsigned j = 0; j <= tiles; ++j )
         {
             subPVP.y = pvp.y + j * subPVP.h;
             eq::Image* image = images[ j ];
-            EQASSERT( image->allocDownloader( eq::Frame::BUFFER_DEPTH, 
-                                              EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT, 
-                                              glObjects->glewGetContext() ) );
+            EQCHECK( image->allocDownloader( eq::Frame::BUFFER_DEPTH, 
+                             EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
+                                             glewContext ));
             image->clearPixelData( eq::Frame::BUFFER_DEPTH );
 
             clock.reset();
@@ -291,11 +296,12 @@ void Channel::_testTiledOperations()
         if( tiles == NUM_IMAGES-1 )
             for( unsigned j = 0; j <= tiles; ++j )
                 _saveImage( images[j],
-                            "EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT","tiles" );
+                            "EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT",
+                            "tiles" );
 
         //---- readback of 'tiles' color images
         event.data.type = ConfigEvent::READBACK;
-        snprintf( event.formatType, 64, "%d color tiles", tiles+1 );
+        snprintf( event.formatType, 32, "%d color tiles", tiles+1 );
 
         event.msec = 0;
         for( unsigned j = 0; j <= tiles; ++j )
@@ -303,9 +309,9 @@ void Channel::_testTiledOperations()
             subPVP.y = pvp.y + j * subPVP.h;
             eq::Image* image = images[ j ];
 
-            EQASSERT( image->allocDownloader( eq::Frame::BUFFER_COLOR, 
-                                              EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA, 
-                                              glObjects->glewGetContext() ) );
+            EQCHECK( image->allocDownloader( eq::Frame::BUFFER_COLOR, 
+                                            EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA,
+                                              glewContext ));
             image->clearPixelData( eq::Frame::BUFFER_COLOR );
 
             clock.reset();
@@ -329,8 +335,7 @@ void Channel::_testTiledOperations()
 
         // fixed-function
         event.data.type = ConfigEvent::ASSEMBLE;
-        snprintf( event.formatType, 64, 
-                  "Tiled assembly (GL1.1) of %d images", tiles+1 ); 
+        snprintf( event.formatType, 32, "tiles, GL1.1, %d images", tiles+1 ); 
 
         clock.reset();
         for( unsigned j = 0; j <= tiles; ++j )
@@ -340,8 +345,7 @@ void Channel::_testTiledOperations()
         config->sendEvent( event );
 
         // CPU
-        snprintf( event.formatType, 64,
-                  "Tiled assembly (CPU)   of %d images", tiles+1 ); 
+        snprintf( event.formatType, 32, "tiles, CPU,   %d images", tiles+1 ); 
 
         std::vector< eq::Frame* > frames;
         frames.push_back( &_frame );
@@ -369,6 +373,7 @@ void Channel::_testDepthAssemble()
 
     eq::base::Clock clock;
     eq::Window::ObjectManager* glObjects = getObjectManager();
+    const GLEWContext* glewContext = glewGetContext();
 
     //----- test depth-based assembly algorithms
     for( unsigned i = 0; i < NUM_IMAGES; ++i )
@@ -387,13 +392,13 @@ void Channel::_testDepthAssemble()
         // fill depth & color image
         image = images[ i ];
 
-        EQASSERT( image->allocDownloader( eq::Frame::BUFFER_COLOR, 
-                                          EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA, 
-                                          glObjects->glewGetContext() ) );
+        EQCHECK( image->allocDownloader( eq::Frame::BUFFER_COLOR, 
+                                         EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA, 
+                                         glewContext ));
 
-        EQASSERT( image->allocDownloader( eq::Frame::BUFFER_DEPTH, 
-                                          EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT, 
-                                          glObjects->glewGetContext() ) );
+        EQCHECK( image->allocDownloader( eq::Frame::BUFFER_DEPTH, 
+                             EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
+                                         glewContext ));
 
         image->clearPixelData( eq::Frame::BUFFER_COLOR );
         image->clearPixelData( eq::Frame::BUFFER_DEPTH );
@@ -413,8 +418,7 @@ void Channel::_testDepthAssemble()
 
         // fixed-function
         event.data.type = ConfigEvent::ASSEMBLE;
-        snprintf( event.formatType, 64, 
-                  "Depth-based assembly (GL1.1) of %d images", i+1 ); 
+        snprintf( event.formatType, 32, "depth, GL1.1, %d images", i+1 ); 
 
         clock.reset();
         for( unsigned j = 0; j <= i; ++j )
@@ -426,8 +430,7 @@ void Channel::_testDepthAssemble()
         // GLSL
         if( GLEW_VERSION_2_0 )
         {
-            snprintf( event.formatType, 64,
-                      "Depth-based assembly (GLSL)  of %d images", i+1 ); 
+            snprintf( event.formatType, 32, "depth, GLSL,  %d images", i+1 ); 
 
             clock.reset();
             for( unsigned j = 0; j <= i; ++j )
@@ -437,8 +440,7 @@ void Channel::_testDepthAssemble()
         }
 
         // CPU
-        snprintf( event.formatType, 64, 
-                  "Depth-based assembly (CPU)   of %d images", i+1 ); 
+        snprintf( event.formatType, 32, "depth, CPU,   %d images", i+1 ); 
 
         std::vector< eq::Frame* > frames;
         frames.push_back( &_frame );

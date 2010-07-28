@@ -51,8 +51,8 @@ std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
     
 
     os << " \"" << event->data.user.data << "\" " << event->formatType
-       << std::string( 50-strlen( event->formatType ), ' ' ) << event->area
-       << ": ";
+       << std::string( 32-strlen( event->formatType ), ' ' ) << event->area.x()
+       << "x" << event->area.y() << ": ";
 
     if( event->msec < 0.0f )
         os << "error 0x" << std::hex << static_cast< int >( -event->msec )
@@ -60,8 +60,8 @@ std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
     else
         os << static_cast< uint32_t >( event->area.x() * event->area.y() / 
                                        event->msec  / 1048.576f )
-           << "MPix/sec (" << event->msec << "ms, " << 1000.0f / event->msec
-           << "FPS)";
+           << "MPix/sec (" << event->msec << "ms, " << 
+            unsigned(1000.0f / event->msec) << "FPS)";
 
 #if 0
     if ( event->data.type == ConfigEvent::READBACK )

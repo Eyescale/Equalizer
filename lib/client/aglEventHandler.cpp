@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -243,9 +243,8 @@ bool AGLEventHandler::_handleWindowEvent( EventRef event )
             windowEvent.type = Event::UNKNOWN;
             break;
     }
-    windowEvent.originator = window->getID();
 
-    EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << std::endl;
+    windowEvent.originator = window->getID();
     return _window->processEvent( windowEvent );
 }
 
@@ -412,9 +411,8 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event )
             windowEvent.type = Event::UNKNOWN;
             break;
     }
-    windowEvent.originator = window->getID();
 
-    EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << std::endl;
+    windowEvent.originator = window->getID();
     return _window->processEvent( windowEvent );
 }
 
@@ -444,9 +442,8 @@ bool AGLEventHandler::_handleKeyEvent( EventRef event )
             windowEvent.type = Event::UNKNOWN;
             break;
     }
-    windowEvent.originator = window->getID();
 
-    EQLOG( LOG_EVENTS ) << "received event: " << windowEvent << std::endl;
+    windowEvent.originator = window->getID();
     return _window->processEvent( windowEvent );
 }
 

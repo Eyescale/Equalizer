@@ -1,9 +1,12 @@
-Minor doxygen update
+compression plugin:
+- Clean up CompressorDataGPU, eqPixelBench
+- Create plugin-specific log topic
+- Simplify transfer plugin selection
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

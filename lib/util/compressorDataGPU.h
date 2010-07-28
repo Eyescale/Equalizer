@@ -151,25 +151,23 @@ namespace util
             { return _info->capabilities & EQ_COMPRESSOR_IGNORE_MSE; }
 
         /**
-         * add info to the outInfos vector about transerers which are compatible
-         * with the quality, internalFormat, externalFormat and glewContext
+         * Find all transfer plugins which comply with to the given parameters.
          *
-         * @param outInfos the info vector where the info are put
-         * @param minQuality the minimum quality require.
-         * @param internalFormat if the internal format is 0, the choice don't 
-         *                       use this property for the selection of the
-         *                       transferer.
-         * @param externalFormat if the external format is 0, the choice don't 
-         *                       use this property for the selection of the
-         *                       transferer.
+         * @param result the output result vector.
+         * @param minQuality the minimum required quality.
+         * @param internalFormat consider only plugins with this tokenType, if
+         *                       set to EQ_COMPRESSOR_DATATYPE_NONE consider
+         *                       all.
+         * @param externalFormat consider only plugins with this outpuTokentype,
+                                 if set to EQ_COMPRESSOR_DATATYPE_NONE consider
+         *                       all.
          * @param glewContext a valid glewContext. 
          */
-        static EQ_EXPORT void addTransfererInfos(
-                               base::CompressorInfos& outInfos,
-                               const float minQuality, 
-                               const uint32_t internalFormat,
-                               const uint32_t externalFormat,
-                               const GLEWContext* glewContext );
+        static EQ_EXPORT void findTransferers( base::CompressorInfos& result,
+                                               const float minQuality, 
+                                               const uint32_t internalFormat,
+                                               const uint32_t externalFormat,
+                                               const GLEWContext* glewContext );
         /**
          * Get the opengl internal format corresponding to compressor data type
          *
