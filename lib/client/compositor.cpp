@@ -524,7 +524,8 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
     void* destDepth = 0;
     if( depthInternalFormat != 0 ) // at least one depth assembly
     {
-        EQASSERT( depthInternalFormat == EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT );
+        EQASSERT( depthInternalFormat ==
+                  EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT );
         Image::PixelData depthPixelData;
         depthPixelData.internalFormat = depthInternalFormat;
         depthPixelData.externalFormat = depthExternalFormat;

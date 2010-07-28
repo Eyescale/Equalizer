@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-#ifndef EQ_PLUGIN_TRANSFERINTERNALTOEXTERAL
-#define EQ_PLUGIN_TRANSFERINTERNALTOEXTERAL
+#ifndef EQ_PLUGIN_COMPRESSORREADDRAWPIXELS
+#define EQ_PLUGIN_COMPRESSORREADDRAWPIXELS
 #include "compressor.h"
 
 #include <GL/glew.h>
@@ -32,10 +33,10 @@ class CompressorReadDrawPixels : public Compressor
 {
 public:
     CompressorReadDrawPixels( const EqCompressorInfo* info );
+    virtual ~CompressorReadDrawPixels();
     
     static void* getNewCompressor( const EqCompressorInfo* info )
         { return new CompressorReadDrawPixels( info ); }
-    virtual ~CompressorReadDrawPixels();
 
     virtual void compress( const void* const inData, 
                            const eq_uint64_t nPixels, 
@@ -44,20 +45,21 @@ public:
     
     static bool isCompatible( const GLEWContext* glewContext );
     
-    void download( GLEWContext*       glewContext,
+    void download( const GLEWContext* glewContext,
                    const uint64_t     inDims[4],
                    const unsigned     source,
                    const uint64_t     flags,
                    uint64_t           outDims[4],
                    void**             out );
 
-    void upload( GLEWContext*       glewContext, 
+    void upload( const GLEWContext* glewContext, 
                  const void*        buffer,
                  const uint64_t     inDims[4],
                  const uint64_t     flags,
                  const uint64_t     outDims[4],  
                  const unsigned     destination );
-static void getInfo0( EqCompressorInfo* const info )
+
+    static void getInfo0( EqCompressorInfo* const info )
     {
         CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
         info->name            = EQ_COMPRESSOR_TRANSFER_RGBA_TO_RGBA;
@@ -349,4 +351,4 @@ protected:
 
 }
 }
-#endif
+#endif // EQ_PLUGIN_COMPRESSORREADDRAWPIXELS

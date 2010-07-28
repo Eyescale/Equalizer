@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@equalizergraphics.com>
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -62,7 +63,7 @@ namespace eq
 namespace plugin
 {
 
-CompressorReadDrawPixels::CompressorReadDrawPixels( const EqCompressorInfo* info ) 
+CompressorReadDrawPixels::CompressorReadDrawPixels(const EqCompressorInfo* info)
         : Compressor( info )
         , _texture( 0 )
         , _internalFormat( 0 )
@@ -133,7 +134,7 @@ CompressorReadDrawPixels::CompressorReadDrawPixels( const EqCompressorInfo* info
             break;
         default: EQASSERT( false );
     }
-    _internalFormat = info->tokenType;
+
     switch( info->tokenType )
     {
         case EQ_COMPRESSOR_DATATYPE_RGBA:              
@@ -164,14 +165,19 @@ CompressorReadDrawPixels::CompressorReadDrawPixels( const EqCompressorInfo* info
     }
 }
 
+CompressorReadDrawPixels::~CompressorReadDrawPixels( )
+{
+    delete _texture;
+    _texture = 0;
+}
+
 Compressor::Functions CompressorReadDrawPixels::getFunctions( uint32_t index )
 {
     Functions functions;
     functions.newCompressor  = getNewCompressor;  
     functions.decompress     = 0;
     functions.getInfo        = _getInfos[ index ];
-    functions.isCompatible   = (IsCompatible_t)
-                                   CompressorReadDrawPixels::isCompatible;
+    functions.isCompatible   = isCompatible;
     return functions;
 }    
 
@@ -180,28 +186,30 @@ bool CompressorReadDrawPixels::isCompatible( const GLEWContext* glewContext )
     return true;
 }
 
-CompressorReadDrawPixels::~CompressorReadDrawPixels( )
-{ 
-    delete _texture;
-    _texture = 0;
-}
-
-void CompressorReadDrawPixels::_init( const uint64_t  inDims[4],
-                                              uint64_t  outDims[4] )
+void CompressorReadDrawPixels::_init( const uint64_t inDims[4],
+                                      uint64_t outDims[4] )
 {
     outDims[0] = inDims[0];
     outDims[1] = inDims[1];
     outDims[2] = inDims[2];
     outDims[3] = inDims[3];
-    _buffer.resize( inDims[1] * inDims[3] * _depth );
+
+    const size_t size = inDims[1] * inDims[3] * _depth;
+#if 1
+    _buffer.reserve( size );
+    _buffer.setSize( size );
+#else
+    // eile: This code path using realloc creates visual artefacts on my MacBook
+    _buffer.resize( size );
+#endif
 }
 
-void CompressorReadDrawPixels::download( GLEWContext*    glewContext,
-                                           const uint64_t  inDims[4],
-                                           const unsigned  source,
-                                           const uint64_t  flags,
-                                           uint64_t        outDims[4],
-                                           void**          out )
+void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
+                                         const uint64_t  inDims[4],
+                                         const unsigned  source,
+                                         const uint64_t  flags,
+                                         uint64_t        outDims[4],
+                                         void**          out )
 {
     _init( inDims, outDims );
 
@@ -226,15 +234,15 @@ void CompressorReadDrawPixels::download( GLEWContext*    glewContext,
     {
         EQUNREACHABLE;
     }
-    out[0] = _buffer.getData();
+    *out = _buffer.getData();
 }
 
-void CompressorReadDrawPixels::upload( GLEWContext*       glewContext, 
-                                         const void*        buffer,
-                                         const uint64_t     inDims[4],
-                                         const uint64_t     flags,
-                                         const uint64_t     outDims[4],  
-                                         const unsigned     destination )
+void CompressorReadDrawPixels::upload( const GLEWContext* glewContext, 
+                                       const void*        buffer,
+                                       const uint64_t     inDims[4],
+                                       const uint64_t     flags,
+                                       const uint64_t     outDims[4],  
+                                       const unsigned     destination )
 {
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {

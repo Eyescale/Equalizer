@@ -45,11 +45,11 @@ namespace plugin
                                       eq_uint64_t* const,
                                       const unsigned, void* const, 
                                       const eq_uint64_t, const bool );
-        typedef bool ( *IsCompatible_t ) ( GLEWContext* );
-        typedef void ( *Download_t )( GLEWContext*, const eq_uint64_t*,
+        typedef bool ( *IsCompatible_t ) ( const GLEWContext* );
+        typedef void ( *Download_t )( const GLEWContext*, const eq_uint64_t*,
                                       const unsigned, const eq_uint64_t,
                                       eq_uint64_t*, void** );
-        typedef void ( *Upload_t )( GLEWContext*, const void*,
+        typedef void ( *Upload_t )( const GLEWContext*, const void*,
                                     const eq_uint64_t*,
                                     const eq_uint64_t, const eq_uint64_t*,
                                     const unsigned );
@@ -101,12 +101,12 @@ namespace plugin
          * @param outDims the dimensions of the output data (see description).
          * @param out the pointer to the output data.
          */        
-        virtual void download( GLEWContext*       glewContext,
+        virtual void download( const GLEWContext* glewContext,
                                const eq_uint64_t  inDims[4],
                                const unsigned     source,
                                const eq_uint64_t  flags,
                                eq_uint64_t        outDims[4],
-                               void**             out ){ EQDONTCALL; }
+                               void**             out ) { EQDONTCALL; }
 
         /**
          * Transfer data from main memory into GPU memory.
@@ -119,7 +119,7 @@ namespace plugin
          * @param outDims the result data size
          * @param destination the destination texture name.
          */
-        virtual void upload( GLEWContext*       glewContext, 
+        virtual void upload( const GLEWContext* glewContext, 
                              const void*        buffer,
                              const eq_uint64_t  inDims[4],
                              const eq_uint64_t  flags,

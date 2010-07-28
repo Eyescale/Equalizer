@@ -86,11 +86,7 @@ namespace base
                     return;
                 
                 const uint64_t nBytes = newSize * sizeof( T );
-                if( _data )
-                    _data = static_cast< T* >( realloc( _data, nBytes ));
-                else
-                    _data = static_cast< T* >( malloc( nBytes ));
-                
+                _data = static_cast< T* >( realloc( _data, nBytes ));
                 _maxSize = newSize;
             }
 

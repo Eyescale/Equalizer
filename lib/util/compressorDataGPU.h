@@ -30,12 +30,12 @@ namespace util
     {
     public:
         /** Construct a new compressorData */
-        CompressorDataGPU( GLEWContext* glewContext = 0 )
+        CompressorDataGPU( const GLEWContext* glewContext = 0 )
             : CompressorData()
             , _glewContext( glewContext ){}
 
         /** Set a valid glewContext */
-        void setGLEWContext( GLEWContext* glewContext )
+        void setGLEWContext( const GLEWContext* glewContext )
             { _glewContext = glewContext; }
 
         /**
@@ -169,7 +169,7 @@ namespace util
                                const float minQuality, 
                                const uint32_t internalFormat,
                                const uint32_t externalFormat,
-                               GLEWContext* glewContext );
+                               const GLEWContext* glewContext );
         /**
          * Get the opengl internal format corresponding to compressor data type
          *
@@ -195,7 +195,7 @@ namespace util
     private:
         /** the initialized GLEW context describing corresponding
             to the current OpenGL context. */
-        GLEWContext* _glewContext;
+        const GLEWContext* _glewContext;
 
     };
 }

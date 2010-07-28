@@ -1,8 +1,6 @@
 Compression plugin:
-- Cleanup up instantiation code
+- 'Fix' artefacts on my machine
 - const-correctness fixes
-- CPU-compositing assertion fix
-- Correct de-initialization in correct context of FrameData
 
 [ ] May break build
 [ ] May break existing applications

@@ -24,7 +24,7 @@ namespace eq
 {
 namespace util
 {
-Texture::Texture( GLEWContext* const glewContext )
+Texture::Texture( const GLEWContext* const glewContext )
         : _id( 0 )
         , _target( GL_TEXTURE_RECTANGLE_ARB )
         , _internalFormat( 0 )

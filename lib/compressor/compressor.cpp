@@ -238,7 +238,7 @@ void EqCompressorDecompress( void* const decompressor, const unsigned name,
 }
 
 bool EqCompressorIsCompatible( const unsigned     name,
-                               GLEWContext*       glewContext )
+                               const GLEWContext* glewContext )
 {
     eq::plugin::Compressor::Functions& functions = 
         eq::plugin::_findFunctions( name );
@@ -254,7 +254,7 @@ bool EqCompressorIsCompatible( const unsigned     name,
 
 void EqCompressorDownload( void* const        ptr,
                            const unsigned     name,
-                           GLEWContext*       glewContext,
+                           const GLEWContext* glewContext,
                            const eq_uint64_t  inDims[4],
                            const unsigned     source,
                            const eq_uint64_t  flags,
@@ -269,7 +269,7 @@ void EqCompressorDownload( void* const        ptr,
 
 void EqCompressorUpload( void* const        ptr,
                          const unsigned     name,
-                         GLEWContext*       glewContext, 
+                         const GLEWContext* glewContext, 
                          const void*        buffer,
                          const eq_uint64_t  inDims[4],
                          const eq_uint64_t  flags,
@@ -278,7 +278,7 @@ void EqCompressorUpload( void* const        ptr,
 {
     eq::plugin::Compressor* compressor = 
         reinterpret_cast< eq::plugin::Compressor* >( ptr );
-    compressor->upload( glewContext, buffer, inDims,
-                      flags, outDims, destination );
+    compressor->upload( glewContext, buffer, inDims, flags, outDims,
+                        destination );
 }
 

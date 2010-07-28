@@ -59,13 +59,13 @@ namespace base
                                            const unsigned, void* const, 
                                            uint64_t* const, 
                                            const uint64_t );
-        typedef bool ( *IsCompatible_t ) ( const unsigned, GLEWContext* );
+        typedef bool ( *IsCompatible_t ) ( const unsigned, const GLEWContext* );
         typedef void ( *Download_t )( void* const, const unsigned, 
-                                      GLEWContext*, const uint64_t*,
+                                      const GLEWContext*, const uint64_t*,
                                       const unsigned, const uint64_t,
                                       uint64_t*, void** );
         typedef void ( *Upload_t )( void* const, const unsigned, 
-                                    GLEWContext*, const void*,
+                                    const GLEWContext*, const void*,
                                     const uint64_t*,
                                     const uint64_t, const uint64_t*,
                                     const unsigned  );

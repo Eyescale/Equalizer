@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -41,7 +41,7 @@ namespace util
     {
     public:
         /** Construct a new Texture. @version 1.0 */
-        EQ_EXPORT Texture( GLEWContext* const glewContext = 0 );
+        EQ_EXPORT Texture( const GLEWContext* const glewContext = 0 );
 
         /** Destruct the texture. @version 1.0 */
         EQ_EXPORT virtual ~Texture();
@@ -177,9 +177,9 @@ namespace util
                                  const eq::Frame::Buffer buffer,
                                  const PixelViewport& pvp ) const;
 
-        GLEWContext* glewGetContext() { return _glewContext; }
         const GLEWContext* glewGetContext() const { return _glewContext; }
-        void setGLEWContext( GLEWContext* context ) { _glewContext = context; }
+        void setGLEWContext( const GLEWContext* context )
+            { _glewContext = context; }
 
     private:
         /** The GL texture name. */
@@ -209,7 +209,7 @@ namespace util
         /** false if the texture needs to be defined, true if not. */
         bool _defined;
 
-        GLEWContext* _glewContext;
+        const GLEWContext* _glewContext;
 
         union // placeholder for binary-compatible changes
         {

@@ -477,7 +477,7 @@ extern "C"
      * @version 3
      */
     EQ_PLUGIN_API bool EqCompressorIsCompatible( const unsigned name,
-                                                 GLEWContext* glewContext );
+                                               const GLEWContext* glewContext );
 
     /**
      * Transfer frame buffer data into main memory.
@@ -526,7 +526,7 @@ extern "C"
      */
     EQ_PLUGIN_API void EqCompressorDownload( void* const        compressor,
                                              const unsigned     name,
-                                             GLEWContext*       glewContext,
+                                             const GLEWContext* glewContext,
                                              const eq_uint64_t  inDims[4],
                                              const unsigned     source,
                                              const eq_uint64_t  flags,
@@ -573,7 +573,7 @@ extern "C"
      */
     EQ_PLUGIN_API void EqCompressorUpload( void* const        decompressor,
                                            const unsigned     name,
-                                           GLEWContext*       glewContext, 
+                                           const GLEWContext* glewContext, 
                                            const void*        buffer,
                                            const eq_uint64_t  inDims[4],
                                            const eq_uint64_t  flags,

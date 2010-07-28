@@ -271,19 +271,22 @@ namespace eq
         void readbackFromTexture( const Frame::Buffer buffer, 
                                   const PixelViewport& pvp,
                                   uint32_t texture,
-                                  GLEWContext* glewContext );
+                                  const GLEWContext* glewContext );
 
         EQ_EXPORT void uploadToTexture( const Frame::Buffer buffer, 
                                         uint32_t texture,
-                                        util::ObjectManager< const void* >* glObjects ) const;
+                                 util::ObjectManager< const void* >* glObjects )
+            const;
 
         EQ_EXPORT void uploadToTexture( const Frame::Buffer buffer, 
                                         uint32_t texture,
-                                        GLEWContext* const glewContext ) const;
+                                        const GLEWContext* const glewContext )
+            const;
 
         EQ_EXPORT void upload( const Frame::Buffer buffer, 
                                const Vector2i offset,
-                               util::ObjectManager< const void* >* glObjects ) const;
+                               util::ObjectManager< const void* >* glObjects )
+            const;
 
         /** Writes the pixel data as rgb image files. */
         EQ_EXPORT bool writeImage( const std::string& filename,
@@ -323,7 +326,7 @@ namespace eq
          */
         EQ_EXPORT bool allocDownloader( const Frame::Buffer buffer, 
                                         const uint32_t name,
-                                        GLEWContext* glewContext );
+                                        const GLEWContext* glewContext );
 
     private:
         /** All distributed data. */
@@ -442,10 +445,8 @@ namespace eq
         void _readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
                             util::ObjectManager< const void* >* glObjects );
 
-        void _download( const Frame::Buffer buffer, 
-                        uint32_t            flags,
-                        uint32_t            texture,
-                        GLEWContext*        glewContext );
+        void _download( const Frame::Buffer buffer, const uint32_t flags,
+                        const uint32_t texture, const GLEWContext* glewContext);
 
         friend std::ostream& operator << ( std::ostream& os, const Image* );
     };

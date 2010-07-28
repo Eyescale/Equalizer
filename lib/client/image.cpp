@@ -282,13 +282,12 @@ const Image::PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
     return _getAttachment( buffer ).memory;
 }
 
-void Image::readbackFromTexture(  const Frame::Buffer buffer, 
-                                  const PixelViewport& pvp,
-                                  uint32_t texture,
-                                  GLEWContext* glewContext )
+void Image::readbackFromTexture( const Frame::Buffer buffer, 
+                                 const PixelViewport& pvp,
+                                 const uint32_t texture,
+                                 const GLEWContext* glewContext )
 {
-    _download( buffer,  
-               EQ_COMPRESSOR_DATA_2D | EQ_COMPRESSOR_USE_TEXTURE,
+    _download( buffer, EQ_COMPRESSOR_DATA_2D | EQ_COMPRESSOR_USE_TEXTURE,
                texture, glewContext );
 }
 
@@ -314,7 +313,7 @@ void Image::uploadToTexture( const Frame::Buffer buffer,
 
 void Image::uploadToTexture( const Frame::Buffer buffer, 
                              uint32_t texture,
-                             GLEWContext* const glewContext ) const
+                             const GLEWContext* const glewContext ) const
 {
     util::CompressorDataGPU uploader = util::CompressorDataGPU( glewContext );
 
@@ -422,9 +421,8 @@ void Image::_readback( const Frame::Buffer buffer, const Zoom& zoom,
         _readbackTexture( buffer, glObjects );
     }
     else if( zoom == Zoom::NONE ) // normal glReadPixels
-        _download( buffer, 
-               EQ_COMPRESSOR_DATA_2D | EQ_COMPRESSOR_USE_FRAMEBUFFER, 
-               0, glewGetContext() );
+        _download( buffer, EQ_COMPRESSOR_DATA_2D|EQ_COMPRESSOR_USE_FRAMEBUFFER, 
+                   0, glewGetContext( ));
     else // copy to texture, draw zoomed quad into FBO, (read FBO texture)
         _readbackZoom( buffer, zoom, glObjects );
 }
@@ -538,10 +536,8 @@ void Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
                           << getPixelDataSize( buffer ) << std::endl;
 }
 
-void Image::_download( const Frame::Buffer buffer, 
-                       uint32_t flags,
-                       uint32_t texture,
-                       GLEWContext* glewContext )
+void Image::_download( const Frame::Buffer buffer, const uint32_t flags,
+                       const uint32_t texture, const GLEWContext* glewContext )
 {
     Attachment& attachment = _getAttachment( buffer );
     Memory& memory = attachment.memory;    
@@ -728,9 +724,9 @@ const Image::Attachment& Image::_getAttachment( const Frame::Buffer buffer )
 }
 
 /** Find and activate a compression engine */
-bool Image::allocCompressor( const Frame::Buffer buffer, 
-                             const uint32_t name )
+bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
 {
+
     Attachment& attachment = _getAttachment( buffer );
     if( name <= EQ_COMPRESSOR_NONE )
     {
@@ -753,7 +749,7 @@ bool Image::allocCompressor( const Frame::Buffer buffer,
 /** Find and activate a compression engine */
 bool Image::allocDownloader( const Frame::Buffer buffer, 
                              const uint32_t name,
-                             GLEWContext* glewContext )
+                             const GLEWContext* glewContext )
 {
 
     Attachment& attachment = _getAttachment( buffer );    

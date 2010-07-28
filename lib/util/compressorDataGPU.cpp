@@ -1,4 +1,6 @@
-/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+
+/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -230,7 +232,7 @@ void CompressorDataGPU::addTransfererInfos( base::CompressorInfos& outInfos,
                                             const float minQuality, 
                                             const uint32_t internalFormat,
                                             const uint32_t externalFormat,
-                                            GLEWContext* glewContext )
+                                            const GLEWContext* glewContext )
 {
     const base::PluginRegistry& registry = base::Global::getPluginRegistry();
     const base::Compressors& plugins = registry.getCompressors();
