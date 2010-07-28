@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,8 +28,6 @@
 
 #include "configEvent.h"
 
-using namespace std;
-
 namespace eqPixelBench
 {
 std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
@@ -43,11 +41,7 @@ std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
         case ConfigEvent::ASSEMBLE:
             os  << "assemble";
             break;
-        case ConfigEvent::COMPLET_OPERATION:
-            os  << "complete Operation";
-            break;
         case ConfigEvent::START_LATENCY:
-        case ConfigEvent::DESCRIPTION:
             os  << "        ";
             break;
         default:
@@ -55,33 +49,33 @@ std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
             return os;
     }
     
-    if ( event->data.type == ConfigEvent::READBACK && event->testCompress )
+
+    os << " \"" << event->data.user.data << "\" " << event->formatType
+       << std::string( 50-strlen( event->formatType ), ' ' ) << event->area
+       << ": ";
+
+    if( event->msec < 0.0f )
+        os << "error 0x" << std::hex << static_cast< int >( -event->msec )
+           << std::dec;
+    else
+        os << static_cast< uint32_t >( event->area.x() * event->area.y() / 
+                                       event->msec  / 1048.576f )
+           << "MPix/sec (" << event->msec << "ms, " << 1000.0f / event->msec
+           << "FPS)";
+
+#if 0
+    if ( event->data.type == ConfigEvent::READBACK )
     {
         os << event->area << "( size GPU : " << event->dataSizeGPU << " bytes ";
         os << "/ size CPU : " << event->dataSizeCPU << " bytes ";
         os << "/ time : " <<  event->msec << "ms )";
     }
-    else if ( event->data.type == ConfigEvent::ASSEMBLE && event->testCompress )
+    else if ( event->data.type == ConfigEvent::ASSEMBLE )
     {
         os << event->area << "( size CPU : " << event->dataSizeCPU << " bytes ";
         os << "/ time : " <<  event->msec << "ms )";
     }
-    else if ( event->data.type == ConfigEvent::DESCRIPTION )
-    {
-        os << event->formatType;
-    }
-    else
-    {   os << " \"" << event->data.user.data << "\" " << event->formatType
-           << string( 50-strlen( event->formatType ), ' ' ) << event->area << ": ";
-    
-        if( event->msec < 0.0f )
-            os << "error 0x" << hex << static_cast< int >( -event->msec ) << dec;
-        else
-            os << static_cast< uint32_t >( event->area.x() * event->area.y() / 
-                                           event->msec  / 1048.576f )
-               << "MPix/sec (" << event->msec << "ms, " << 1000.0f / event->msec
-               << "FPS)";
-    }
+#endif
     return os;
 }
 }

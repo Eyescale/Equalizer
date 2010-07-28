@@ -31,9 +31,6 @@
 #include "config.h"
 #include "configEvent.h"
 
-using namespace std;
-using namespace eq::base;
-
 #ifdef WIN32_API
 #  define snprintf _snprintf
 #endif
@@ -47,23 +44,24 @@ struct EnumMap
 {
     const char*    internalFormatString;
     const uint32_t internalFormat;
+    const size_t   pixelSize;
 };
 
 #pragma warning(default: 411)
 
-#define ENUM_MAP_ITEM( internalFormat )          \
-    { #internalFormat, internalFormat }
+#define ENUM_MAP_ITEM( internalFormat, pixelSize )  \
+    { #internalFormat, internalFormat, pixelSize }
 
 static EnumMap _enums[] = {
-    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGBA ), // initial buffer resize
-    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGBA ),
-    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGB ),
-    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGB10_A2 ),
-    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGBA16F ),
-    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGB16F ),
-    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGBA32F ),
-    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGB32F ),
-    { 0, false }};
+    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGBA, 4 ), // initial buffer resize
+    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGBA, 4 ),
+    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGB, 3 ),
+    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGB10_A2, 4 ),
+    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGBA16F, 8 ),
+    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGB16F, 6 ),
+    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGBA32F, 16 ),
+    ENUM_MAP_ITEM( EQ_COMPRESSOR_DATATYPE_RGB32F, 12 ),
+    { 0, 0, 0 }};
 #define NUM_IMAGES 8
 }
 
@@ -79,15 +77,15 @@ Channel::Channel( eq::Window* parent )
 
 void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber ) 
 {
-    Config*      config = static_cast< Config* >( getConfig( ));
-    const Clock* clock  = config->getClock();
+    Config* config = static_cast< Config* >( getConfig( ));
+    const eq::base::Clock* clock  = config->getClock();
 
     if( clock )
     {
         ConfigEvent   event;
         event.msec = clock->getTimef();
 
-        const string& name  = getName();
+        const std::string& name  = getName();
         if( name.empty( ))    
             snprintf( event.data.user.data, 32, "%p", this);
         else
@@ -122,19 +120,12 @@ void Channel::frameDraw( const uint32_t frameID )
     applyHeadTransform();
 
     setupAssemblyState();
-    Config*      config = static_cast< Config* >( getConfig( ));
+
     _testFormats( 1.0f );
-    if ( config->getModeTest() )
-    {
-        
-        _testFormats( 0.5f );
-        _testFormats( 2.0f );
-    }
-    else
-    {
-        _testTiledOperations();
-        _testDepthAssemble();
-    }
+    _testFormats( 0.5f );
+    _testFormats( 2.0f );
+    _testTiledOperations();
+    _testDepthAssemble();
     
     resetAssemblyState();
 }
@@ -142,7 +133,7 @@ void Channel::frameDraw( const uint32_t frameID )
 ConfigEvent Channel::_createConfigEvent()
 {
     ConfigEvent   event;
-    const string& name = getName();
+    const std::string& name = getName();
 
     if( name.empty( ))    
         snprintf( event.data.user.data, 32, "%p", this );
@@ -160,23 +151,16 @@ void Channel::_testFormats( float applyZoom )
     eq::Image*        image  = images[ 0 ];
     EQASSERT( image );
 
-    Config*      config = static_cast< Config* >( getConfig( ));
-    const eq::PixelViewport& pvp    = getPixelViewport();
-    const eq::Vector2i       offset( pvp.x, pvp.y );
+    Config* config = static_cast< Config* >( getConfig( ));
+    const eq::PixelViewport& pvp = getPixelViewport();
+    const eq::Vector2i offset( pvp.x, pvp.y );
+    const eq::Zoom zoom( applyZoom, applyZoom );
 
-    ConfigEvent event1 = _createConfigEvent();
-    event1.data.type = ConfigEvent::DESCRIPTION;
-    snprintf( event1.formatType, 64, "TEST FORMAT ZOOM %f", applyZoom );
-    event1.formatType[63] = '\0';
-    config->sendEvent( event1 );
-    
-    ConfigEvent event = _createConfigEvent();
-    
-    Clock                      clock;
-    Clock                      clockOP;
+    eq::base::Clock clock;
     eq::Window::ObjectManager* glObjects = getObjectManager();
 
     //----- test all default format/type combinations
+    ConfigEvent event = _createConfigEvent();
     glGetError();
     for( uint32_t i=0; _enums[i].internalFormatString; ++i )
     {
@@ -195,70 +179,56 @@ void Channel::_testFormats( float applyZoom )
                 _enums[i].internalFormatString, outputToken, infos[j].name );
 
             event.formatType[63] = '\0';
-            event.data.type = ConfigEvent::COMPLET_OPERATION;
+            event.data.type = ConfigEvent::READBACK;
 
-            ConfigEvent eventRB = _createConfigEvent();
-            eventRB.data.type = ConfigEvent::MEASURE_READBACK;
             image->allocDownloader( eq::Frame::BUFFER_COLOR, infos[j].name, 
                                               glObjects->glewGetContext() );
             image->setPixelViewport( pvp );
-            image->clearPixelData( eq::Frame::BUFFER_COLOR );
-            eq::Zoom zoom;
-            if ( applyZoom < 1.0f )
-            {
-                zoom.x() = applyZoom;
-                zoom.y() = applyZoom;
-            }
+
             // read
-            clock.reset();            
-            const eq::Image::PixelData& pixel = image->getPixelData( eq::Frame::BUFFER_COLOR );
-            eventRB.area.y() = pixel.pvp.h;
-            eventRB.area.x() = pixel.pvp.w;             
-            eventRB.dataSizeGPU = pixel.pvp.h * pixel.pvp.w * 
-                    eq::util::CompressorDataGPU::getPixelSize( internalFormat );
-            clockOP.reset();
+            const eq::Image::PixelData& pixel = 
+                image->getPixelData( eq::Frame::BUFFER_COLOR );
+            event.area.x() = pixel.pvp.w;             
+            event.area.y() = pixel.pvp.h;
+            event.dataSizeGPU = pixel.pvp.h * pixel.pvp.w * _enums[i].pixelSize;
+
+            clock.reset();
             image->readback( eq::Frame::BUFFER_COLOR, pvp, zoom, glObjects );
-            eventRB.msec = clockOP.getTimef();
-            eventRB.dataSizeCPU = image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
+            event.msec = clock.getTimef();
+            event.dataSizeCPU = 
+                image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
 
             GLenum error = glGetError();
             if( error != GL_NO_ERROR )
-                event.msec = - static_cast<float>( error );
+                event.msec = -static_cast<float>( error );
+            config->sendEvent( event );
 
             eq::Compositor::ImageOp op;
             op.channel = this;
             op.buffers = eq::Frame::BUFFER_COLOR;
-            op.offset  = offset;
-            if ( applyZoom > 1.0f )
-            {
-                op.zoom.x() = applyZoom;
-                op.zoom.y() = applyZoom;
-            }
-            ConfigEvent eventA = _createConfigEvent();
-            eventA.data.type = ConfigEvent::ASSEMBLE;
-            eventA.dataSizeCPU = image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
+            op.offset = offset;
+            op.zoom = zoom;
 
-            clockOP.reset();
+            event.data.type = ConfigEvent::ASSEMBLE;
+            event.dataSizeCPU = 
+                image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
+
+            clock.reset();
             eq::Compositor::assembleImage( image, op );
-            eventA.msec = clock.getTimef();
-            const eq::Image::PixelData& pixelA = image->getPixelData( eq::Frame::BUFFER_COLOR );
+            event.msec = clock.getTimef();
 
-            eventA.area.y() = pixelA.pvp.h;
-            eventA.area.x() = pixelA.pvp.w; 
-            eventA.dataSizeGPU = image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
-            event.msec = clockOP.getTimef();
+            const eq::Image::PixelData& pixelA =
+                image->getPixelData( eq::Frame::BUFFER_COLOR );
+            event.area.x() = pixelA.pvp.w; 
+            event.area.y() = pixelA.pvp.h;
+            event.dataSizeGPU =
+                image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
 
             error = glGetError();
             
             if( error != GL_NO_ERROR )
-                event.msec = - static_cast<float>( error );
-            event.testCompress   = config->getModeTest();
-            eventRB.testCompress = config->getModeTest();
-            eventA.testCompress  = config->getModeTest();
+                event.msec = -static_cast<float>( error );
             config->sendEvent( event );
-            config->sendEvent( eventRB );
-            config->sendEvent( eventA );
-
         }
     }
 }
@@ -269,14 +239,14 @@ void Channel::_testTiledOperations()
     const eq::Images& images = _frame.getImages();
     EQASSERT( images[0] );
 
-    eq::Config*              config = getConfig();
+    eq::Config* config = getConfig();
     const eq::PixelViewport& pvp    = getPixelViewport();
     const eq::Vector2i     offset( pvp.x, pvp.y );
 
     ConfigEvent event = _createConfigEvent();
     event.area.x() = pvp.w;
 
-    Clock                      clock;
+    eq::base::Clock clock;
     eq::Window::ObjectManager* glObjects = getObjectManager();
 
     //----- test tiled assembly algorithms
@@ -387,17 +357,17 @@ void Channel::_testDepthAssemble()
 {
     //----- setup constant data
     const eq::Images& images = _frame.getImages();
-    eq::Image*        image  = images[ 0 ];
+    eq::Image* image  = images[ 0 ];
     EQASSERT( image );
 
-    eq::Config*              config = getConfig();
+    eq::Config* config = getConfig();
     const eq::PixelViewport& pvp    = getPixelViewport();
-    const eq::Vector2i     offset( pvp.x, pvp.y );
+    const eq::Vector2i offset( pvp.x, pvp.y );
 
     ConfigEvent event = _createConfigEvent();
     event.area.x() = pvp.w;
 
-    Clock                      clock;
+    eq::base::Clock clock;
     eq::Window::ObjectManager* glObjects = getObjectManager();
 
     //----- test depth-based assembly algorithms
@@ -487,9 +457,9 @@ void Channel::_saveImage( const eq::Image* image,
     return;
 
     static uint32_t counter = 0;
-    ostringstream stringstream;
-    stringstream << "Image_" << ++counter << "_"
-                 << externalformat << "_" << info;
+    std::ostringstream stringstream;
+    stringstream << "Image_" << ++counter << "_" << externalformat << "_"
+                 << info;
     image->writeImages( stringstream.str( ));
 }
 

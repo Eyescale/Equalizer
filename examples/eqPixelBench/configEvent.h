@@ -40,23 +40,16 @@ public:
     {
         READBACK = eq::Event::USER,
         ASSEMBLE,
-        MEASURE_READBACK,
-        MAESURE_ASSEMBLE,
         START_LATENCY,
-        COMPLET_OPERATION,
-        DESCRIPTION,
-
     };
 
     ConfigEvent()
-        : testCompress( false )
     {
         size = sizeof( ConfigEvent );
     }
 
     // channel name is in user event data
     char           formatType[64];
-    bool           testCompress;
     eq::Vector2i   area;
     uint64_t       dataSizeGPU;
     uint64_t       dataSizeCPU;

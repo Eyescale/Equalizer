@@ -59,8 +59,6 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 {
     switch( event->data.type )
     {
-        case ConfigEvent::DESCRIPTION:
-        case ConfigEvent::COMPLET_OPERATION:
         case ConfigEvent::READBACK:
         case ConfigEvent::ASSEMBLE:
         case ConfigEvent::START_LATENCY:

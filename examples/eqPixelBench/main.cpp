@@ -78,14 +78,6 @@ int main( int argc, char** argv )
     eqPixelBench::Config* config = static_cast<eqPixelBench::Config*>(
         server->chooseConfig( configParams ));
     
-    if (argc>=2)
-	{
-		if (strcmp(argv[1],"-t")==0)
-		{
-			config->setModeTest();
-		}
-    }
-
     if( !config )
     {
         EQERROR << "No matching config on server" << endl;
