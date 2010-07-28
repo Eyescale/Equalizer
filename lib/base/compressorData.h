@@ -32,10 +32,10 @@ namespace base
     public:
 
         /** Construct a new compressor data. */
-        CompressorData();
+        EQ_EXPORT CompressorData();
 
         /** Destruct the compressor data */
-        virtual ~CompressorData();
+        EQ_EXPORT virtual ~CompressorData();
 
         /** @return the plugin for the current compressor. */
         base::Compressor* getPlugin(){ return _plugin; }
