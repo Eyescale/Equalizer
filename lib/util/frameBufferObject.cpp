@@ -76,7 +76,7 @@ bool FrameBufferObject::addColorTexture( )
     return true;
 }
 
-bool FrameBufferObject::init( const int width    , const int height,
+bool FrameBufferObject::init( const int width , const int height,
                               const int depthSize, const int stencilSize )
 {
     CHECK_THREAD( _thread );

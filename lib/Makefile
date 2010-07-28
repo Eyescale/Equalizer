@@ -56,6 +56,7 @@ HEADER_SRC = \
 	base/spinLock.h \
 	base/stdExt.h \
 	base/thread.h \
+	base/threadID.h \
 	base/timedLock.h \
 	base/types.h \
 	base/uuid.h \
@@ -203,6 +204,7 @@ CXXFILES = \
 	base/requestHandler.cpp \
 	base/rng.cpp \
 	base/thread.cpp \
+	base/threadID.cpp \
 	base/timedLock.cpp \
 	base/uuid.cpp \
 	net/barrier.cpp \

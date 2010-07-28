@@ -76,23 +76,13 @@ pthread_key_t _createCleanupKey()
     return _cleanupKey;
 }
 
-class ThreadPrivate
-{
-public:
-    pthread_t threadID;
-};
-
 Thread::Thread()
-        : _data( new ThreadPrivate )
-        , _state( STATE_STOPPED )
+        : _state( STATE_STOPPED )
 {
-    memset( &_data->threadID, 0, sizeof( pthread_t ));
 }
 
 Thread::~Thread()
 {
-    delete _data;
-    _data = 0;
 }
 
 void* Thread::runChild( void* arg )
@@ -106,7 +96,7 @@ void Thread::_runChild()
 {
     setDebugName( typeid( *this ).name( ));
     pinCurrentThread();
-    _data->threadID = pthread_self(); // XXX remove, set during create already?
+    _id._data->pthread = pthread_self();
 
     if( !init( ))
     {
@@ -182,7 +172,7 @@ bool Thread::start()
     int nTries = 10;
     while( nTries-- )
     {
-        const int error = pthread_create( &_data->threadID, &attributes,
+        const int error = pthread_create( &_id._data->pthread, &attributes,
                                           runChild, this );
 
         if( error == 0 ) // succeeded
@@ -220,7 +210,7 @@ void Thread::cancel()
     EQINFO << "Cancelling thread" << std::endl;
     _state = STATE_STOPPING;
 
-    pthread_cancel( _data->threadID );
+    pthread_cancel( _id._data->pthread );
     EQUNREACHABLE;
 }
 
@@ -241,16 +231,14 @@ bool Thread::join()
 
 bool Thread::isCurrent() const
 {
-    return pthread_equal( pthread_self(), _data->threadID );
+    return pthread_equal( pthread_self(), _id._data->pthread );
 }
 
-size_t Thread::getSelfThreadID()
+ThreadID Thread::getSelfThreadID()
 {
-#ifdef PTW32_VERSION
-    return reinterpret_cast< size_t >( pthread_self().p );
-#else
-    return ( size_t )( pthread_self( ));
-#endif
+    ThreadID threadID;
+    threadID._data->pthread = pthread_self();
+    return threadID;
 }
 
 void Thread::addListener( ExecutionListener* listener )
@@ -401,12 +389,7 @@ void Thread::setDebugName( const std::string& name )
 
 std::ostream& operator << ( std::ostream& os, const Thread* thread )
 {
-#ifdef PTW32_VERSION
-    os << "Thread " << thread->_data->threadID.p;
-#else
-    os << "Thread " << thread->_data->threadID;
-#endif
-    os << " state " 
+    os << "Thread " << thread->_id << " state " 
        << ( thread->_state == Thread::STATE_STOPPED  ? "stopped"  :
             thread->_state == Thread::STATE_STARTING ? "starting" :
             thread->_state == Thread::STATE_RUNNING  ? "running"  :

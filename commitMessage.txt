@@ -1,15 +1,9 @@
-Compression plugin updates:
-- New: allow CPU compressors to have a different output from input
-(untested)
-- New: version tagging for plugin interface
-- Fix: Doxygen comments in various headers
-- Fix: header includes
-- Fix: remove unused type names from plugin interface
+Create pthread_t wrapper to avoid false thread-safety checks.
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [x] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
