@@ -115,10 +115,13 @@ namespace base
         Upload_t  upload;
 
         /** @return true if name is found in the DSO compressor */
-        bool implementsType( const uint32_t name );
+        bool implementsType( const uint32_t name ) const;
 
         /** @return the information for all compressors contained in the DSO. */
         const CompressorInfos& getInfos() const { return _infos; }
+
+        /** @return the information for the given compressor, or 0. */
+        const EqCompressorInfo* findInfo( const uint32_t name ) const;
 
     private:
         CompressorInfos _infos;

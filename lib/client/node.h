@@ -52,20 +52,20 @@ namespace eq
         EQ_EXPORT net::CommandQueue* getMainThreadQueue();
 
         /** 
+         * @internal
          * Get a network barrier. 
          * 
          * @param barrier the barrier identifier and version.
          * @return the barrier.
-         * @internal
          */
         net::Barrier* getBarrier( const net::ObjectVersion barrier );
 
         /** 
+         * @internal
          * Get a frame data instance.
          * 
          * @param dataVersion the frame data identifier and version.
          * @return the frame.
-         * @internal
          */
         FrameData* getFrameData( const net::ObjectVersion& dataVersion );
 
@@ -253,9 +253,9 @@ namespace eq
         base::Lock  _barriersMutex;
 
         typedef stde::hash_map< uint32_t, FrameData* > FrameDataHash;
+
         /** All frame datas used by the node during rendering. */
-        FrameDataHash _frameDatas;
-        base::Lock    _frameDatasMutex;
+        base::Lockable< FrameDataHash > _frameDatas;
 
         union // placeholder for binary-compatible changes
         {

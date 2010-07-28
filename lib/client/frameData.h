@@ -235,12 +235,13 @@ namespace server
         typedef std::deque< net::Command* > Commands;
         Commands _readyVersions;
 
+        typedef base::Monitor< uint32_t > Monitor;
         /** Data ready monitor synchronization primitive. */
-        base::Monitor<uint32_t> _readyVersion;
+        Monitor _readyVersion;
 
+        typedef std::vector< Monitor* > Monitors;
         /** External monitors for readiness synchronization. */
-        std::vector< base::Monitor<uint32_t>* > _listeners;
-        base::Lock                              _listenersMutex;
+        base::Lockable< Monitors, base::SpinLock > _listeners;
 
         bool _useAlpha;
         bool _useSendToken;

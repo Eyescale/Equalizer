@@ -43,9 +43,10 @@
 namespace eq
 {
     class CommandQueue;
+    class ComputeContext;
+    class FrameData;
     class MessagePump;
     class OSPipe;
-    class ComputeContext;
 
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
@@ -98,15 +99,16 @@ namespace eq
          */
         //@{
         /** 
+         * @internal
          * Get an assembly frame.
          * 
          * @param frameVersion the frame's identifier and version.
          * @param eye the current eye pass.
+         * @param output true if an output frame, false if input frame
          * @return the frame.
-         * @internal
          */
         Frame* getFrame( const net::ObjectVersion& frameVersion, 
-                         const Eye eye );
+                         const Eye eye, const bool output );
 
         /** @internal Clear the frame cache and delete all frames. */
         void flushFrames();
@@ -362,8 +364,13 @@ namespace eq
         int64_t _waitTime;
 
         typedef stde::hash_map< uint32_t, Frame* > FrameHash;
+        typedef stde::hash_map< uint32_t, FrameData* > FrameDataHash;
+
         /** All assembly frames used by the pipe during rendering. */
         FrameHash _frames;
+
+        /** All output frame datas used by the pipe during rendering. */
+        FrameDataHash _outputFrameDatas;
 
         typedef stde::hash_map< uint32_t, View* > ViewHash;
         /** All views used by the pipe's channels during rendering. */

@@ -24,16 +24,16 @@ namespace eq
 namespace util
 {
 
-bool CompressorDataGPU::isValidDownloader( uint32_t inputToken )
+bool CompressorDataGPU::isValidDownloader( const uint32_t inputToken ) const
 {
-    return _plugin && isValid( _name ) && _info.tokenType == inputToken ;
+    return _plugin && isValid( _name ) && _info->tokenType == inputToken ;
 }
 
-bool CompressorDataGPU::isValidUploader( uint32_t inputToken, 
-                                         uint32_t outputToken )
+bool CompressorDataGPU::isValidUploader( const uint32_t inputToken, 
+                                         const uint32_t outputToken ) const
 {
-    return _plugin && _info.outputTokenType == inputToken &&
-           _info.tokenType == outputToken;
+    return _plugin && _info->outputTokenType == inputToken &&
+           _info->tokenType == outputToken;
 }
 
 void CompressorDataGPU::download( const fabric::PixelViewport& pvpIn,
@@ -68,8 +68,8 @@ void CompressorDataGPU::upload( const void*          buffer,
                      flags, outDims, destination );
 }
 
-void CompressorDataGPU::initUploader( uint32_t inTokenType, 
-                                      uint32_t outTokenType )
+void CompressorDataGPU::initUploader( const uint32_t inTokenType, 
+                                      const uint32_t outTokenType )
 {
     base::PluginRegistry& registry = base::Global::getPluginRegistry();
     const base::Compressors& compressors = registry.getCompressors();
@@ -87,23 +87,19 @@ void CompressorDataGPU::initUploader( uint32_t inTokenType,
         {
             const EqCompressorInfo& info = *j;
             
-            if(( info.capabilities & EQ_COMPRESSOR_TRANSFER ) == 0 )
+            if( !( info.capabilities & EQ_COMPRESSOR_TRANSFER ) ||
+                info.outputTokenType != inTokenType ||
+                info.tokenType != outTokenType ||
+                !compressor->isCompatible( info.name, _glewContext ))
+            {
                 continue;
+            }
 
-            if( info.outputTokenType != inTokenType )
-                continue;
-
-            if( info.tokenType != outTokenType )
-                continue;
-            
-            if( !compressor->isCompatible( info.name, _glewContext ))
-                continue;
-            
-            if ( speed < info.speed )
+            if( speed < info.speed )
             {
                 speed = info.speed;
                 name = info.name;
-                _info = info;
+                _info = &info;
             }
         }
     }
@@ -114,8 +110,8 @@ void CompressorDataGPU::initUploader( uint32_t inTokenType,
         _initCompressor( name );
 }
 
-void CompressorDataGPU::initDownloader( float minQuality, 
-                                        uint32_t internalFormat )
+void CompressorDataGPU::initDownloader( const float minQuality, 
+                                        const uint32_t internalFormat )
 { 
     float factor = 1.1f;
     uint32_t name = EQ_COMPRESSOR_NONE;
@@ -133,7 +129,7 @@ void CompressorDataGPU::initDownloader( float minQuality,
         {
             factor = ( info.ratio * info.quality );
             name = info.name;
-            _info = info;
+            _info = &info;
         }
     }
 
@@ -143,18 +139,18 @@ void CompressorDataGPU::initDownloader( float minQuality,
         _initCompressor( name );
 }
 
-bool CompressorDataGPU::initDownloader( uint64_t name )
+bool CompressorDataGPU::initDownloader( const uint32_t name )
 {
-    EQASSERT( EQ_COMPRESSOR_NONE );
+    EQASSERT( name > EQ_COMPRESSOR_NONE );
     
     if( name != _name )
         _initCompressor( name );
-    
+
     return true;
 }
 
-uint32_t CompressorDataGPU::getExternalFormat( uint32_t format,
-                                               uint32_t type )
+uint32_t CompressorDataGPU::getExternalFormat( const uint32_t format,
+                                               const uint32_t type )
 {
     if( format == GL_BGRA )
     {
@@ -230,21 +226,21 @@ uint32_t CompressorDataGPU::getExternalFormat( uint32_t format,
     return 0;
 }
 
-void CompressorDataGPU::addTransfererInfos( eq::base::CompressorInfos& outInfos,
-                                            float minQuality, 
-                                            uint32_t internalFormat,
-                                            uint32_t externalFormat,
+void CompressorDataGPU::addTransfererInfos( base::CompressorInfos& outInfos,
+                                            const float minQuality, 
+                                            const uint32_t internalFormat,
+                                            const uint32_t externalFormat,
                                             GLEWContext* glewContext )
 {
-    const eq::base::PluginRegistry& registry = eq::base::Global::getPluginRegistry();
-    const eq::base::Compressors& plugins = registry.getCompressors();
+    const base::PluginRegistry& registry = base::Global::getPluginRegistry();
+    const base::Compressors& plugins = registry.getCompressors();
 
-    for( eq::base::Compressors::const_iterator i = plugins.begin();
+    for( base::Compressors::const_iterator i = plugins.begin();
          i != plugins.end(); ++i )
     {
         const base::Compressor* compressor = *i;
-        const eq::base::CompressorInfos& infos = (*i)->getInfos();
-        for( eq::base::CompressorInfos::const_iterator j = infos.begin();
+        const base::CompressorInfos& infos = (*i)->getInfos();
+        for( base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
             const EqCompressorInfo& info = *j;

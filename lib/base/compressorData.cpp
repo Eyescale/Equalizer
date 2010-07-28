@@ -24,6 +24,19 @@ namespace eq
 namespace base
 {
 
+CompressorData::CompressorData()
+        : _name( EQ_COMPRESSOR_INVALID )
+        , _plugin( 0 )
+        , _instance( 0 )
+        , _info( 0 )
+        , _isCompressor( true )
+{}
+
+CompressorData::~CompressorData()
+{
+    reset();
+}
+
 void CompressorData::reset()
 {
     if ( _instance )
@@ -34,15 +47,11 @@ void CompressorData::reset()
            _plugin->deleteDecompressor( _instance );
     }
 
+    _name = EQ_COMPRESSOR_INVALID;
     _plugin = 0;
-    _name = 0;
     _instance = 0;
-}
-
-void CompressorData::setName( uint32_t name )
-{
-    reset();
-    _name = name;
+    _info = 0;
+    _isCompressor = true;
 }
 
 base::Compressor* CompressorData::_findPlugin( uint32_t name )
@@ -51,10 +60,12 @@ base::Compressor* CompressorData::_findPlugin( uint32_t name )
     return registry.findCompressor( name );
 }
 
-bool CompressorData::isValid( uint32_t name )
+bool CompressorData::isValid( uint32_t name ) const
 {
-    if ( _name == 0 )
+    if( _name == EQ_COMPRESSOR_INVALID )
         return false;
+    if( _name == EQ_COMPRESSOR_NONE )
+        return true;
 
     return ( _name == name && _plugin && ( !_isCompressor || _instance ) );
 }
@@ -80,27 +91,15 @@ bool CompressorData::_initCompressor( uint32_t name )
     EQASSERT( _instance );
     
     _name = name;
-
-    const CompressorInfos& infos = _plugin->getInfos();
-
-    for( base::CompressorInfos::const_iterator j = infos.begin();
-         j != infos.end(); ++j )
-    {
-        const EqCompressorInfo& info = *j;
-        
-        if ( info.name != name )
-            continue;
-        
-        _info = info;
-        return true;
-    }
+    _info = _plugin->findInfo( name );
+    EQASSERT( _info );
     return false;
 }
 
 bool CompressorData::_initDecompressor( uint32_t name )
 {
     reset();
-    if ( name <= EQ_COMPRESSOR_NONE )
+    if( name <= EQ_COMPRESSOR_NONE )
     {
         _name = name;
         return true;
@@ -116,6 +115,8 @@ bool CompressorData::_initDecompressor( uint32_t name )
     _instance = _plugin->newDecompressor( name );
     
     _name = name;
+    _info = _plugin->findInfo( name );
+    EQASSERT( _info );
     return true; 
 }
 

@@ -78,7 +78,7 @@ namespace util
 
         /** 
          * Get the GLEW context for this channel.
-         * 
+         *
          * The GLEW context is initialized during window initialization, and
          * provides access to OpenGL extensions. This function does not follow
          * the Equalizer naming conventions, since GLEW uses a function of this

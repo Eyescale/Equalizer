@@ -43,7 +43,7 @@ namespace util
          *
          * @param inputToken the input token type
          */
-        bool isValidDownloader( uint32_t inputToken );
+        bool isValidDownloader( const uint32_t inputToken ) const;
 
         /**
          * Determine if the uploader is valid
@@ -51,27 +51,27 @@ namespace util
          * @param inputToken the input token type.
          * @param outputToken the output token produced 
          */
-        bool isValidUploader( uint32_t inputToken, uint32_t outputToken );
+        bool isValidUploader( const uint32_t inputToken,
+                              const uint32_t outputToken ) const;
 
         /**
-         * Found and init a downloader for the given quality 
-         * and tokentype.
-         * If the uploader found is the same that the current uploader,
-         * no change will be make. 
-         * If no uploader found, a reset of the instance data will be 
-         * perform.
+         * Find and init a downloader for the given quality and token.
+         *
+         * If the uploader found is the same as the current uploader, no change
+         * will be made.  If no uploader is found, the current uploader instance
+         * (if any) is freed.
          *
          * @param minQuality the minimum quality.
          * @param tokenType the token produced
          **/
-        void initDownloader( float minQuality, uint32_t tokenType );
+        void initDownloader( const float minQuality, const uint32_t tokenType );
 
         /**
-         * init a downloader by its name.
+         * Init a named downloader.
          *
          * @param name downloader name
          **/
-        bool initDownloader( uint64_t name );
+        bool initDownloader( const uint32_t name );
 
         /**
          * Find and init an uploader which wil be compatible with the
@@ -85,7 +85,8 @@ namespace util
          * @param gpuTokenType  the input token type of the data.
          * @param tokenType the output token type of the data.  
          **/
-        void initUploader( uint32_t gpuTokenType, uint32_t tokenType );
+        void initUploader( const uint32_t gpuTokenType,
+                           const uint32_t tokenType );
 
         /**
          * Download data from the frame buffer or texture to cpu
@@ -118,22 +119,22 @@ namespace util
                      const unsigned  destination = 0 );
 
         /**
-         * Get the token type produced by a donwloader or 
-         * accepted by the uploader.
+         * Get the token type produced by a donwloader or accepted by the
+         * uploader.
          **/
-        uint32_t getExternalFormat() const { return _info.outputTokenType; }
+        uint32_t getExternalFormat() const { return _info->outputTokenType; }
 
         /**
          * Get the token type accepted by a donwloader or 
          * produced by the uploader.
          **/
-        uint32_t getInternalFormat() const { return _info.tokenType; }
+        uint32_t getInternalFormat() const { return _info->tokenType; }
 
         /**
          * Get the token size produced by a downloader or consumed by an
          * uploader.
          */
-        uint32_t getTokenSize() const { return _info.outputTokenSize; }
+        uint32_t getTokenSize() const { return _info->outputTokenSize; }
 
         /**
          * Get the downloader/uploader internal format corresponding to 
@@ -142,12 +143,12 @@ namespace util
          * @param format the GL format 
          * @param type the GL typedata source
          */
-        static EQ_EXPORT uint32_t getExternalFormat( uint32_t format,
-                                                     uint32_t type );
+        static EQ_EXPORT uint32_t getExternalFormat( const uint32_t format,
+                                                     const uint32_t type );
 
         /** @return true if the actual compressor is able to ignore alpha */
         bool ignoreAlpha() const
-            { return _info.capabilities & EQ_COMPRESSOR_IGNORE_MSE; }
+            { return _info->capabilities & EQ_COMPRESSOR_IGNORE_MSE; }
 
         /**
          * add info to the outInfos vector about transerers which are compatible
@@ -164,10 +165,10 @@ namespace util
          * @param glewContext a valid glewContext. 
          */
         static EQ_EXPORT void addTransfererInfos(
-                               eq::base::CompressorInfos& outInfos,
-                               float minQuality, 
-                               uint32_t internalFormat,
-                               uint32_t externalFormat,
+                               base::CompressorInfos& outInfos,
+                               const float minQuality, 
+                               const uint32_t internalFormat,
+                               const uint32_t externalFormat,
                                GLEWContext* glewContext );
         /**
          * Get the opengl internal format corresponding to compressor data type
@@ -190,6 +191,7 @@ namespace util
          * @param externalFormat the compressor externalFormat
          */
         static EQ_EXPORT uint32_t getGLType( const uint32_t externalFormat );
+
     private:
         /** the initialized GLEW context describing corresponding
             to the current OpenGL context. */

@@ -653,13 +653,15 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     {
         validatePixelData( buffer ); // alloc memory for pixels
 
-        // if no data in pixels, it is only a memory setup parameter
-        EQASSERT( pixels.pixels ); // eile: what does comment mean ???
         if( pixels.pixels )
         {
             memcpy( memory.pixels, pixels.pixels, size );
             memory.state = Memory::VALID;
         }
+        else
+            // no data in pixels, clear image buffer
+            clearPixelData( buffer );
+
         return;
     }
 
@@ -673,11 +675,12 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
         return;
     }
 
-    const EqCompressorInfo& info = attachment.compressor->getInfo();
-    if( memory.externalFormat != info.outputTokenType )
-    {   // decompressor output differs from compressor input
-        memory.externalFormat = info.outputTokenType;
-        memory.pixelSize = info.outputTokenSize;
+    const EqCompressorInfo* info = attachment.compressor->getInfo();
+    if( memory.externalFormat != info->outputTokenType )
+    {
+        // decompressor output differs from compressor input
+        memory.externalFormat = info->outputTokenType;
+        memory.pixelSize = info->outputTokenSize;
     }
     validatePixelData( buffer ); // alloc memory for pixels
 
@@ -779,10 +782,10 @@ bool Image::allocDownloader( const Frame::Buffer buffer,
 /** Find and activate a decompression engine */
 bool Image::_allocDecompressor( Attachment& attachment, uint32_t name )
 {
-    if( !attachment.compressor->isValid( name ) )
+    if( !attachment.compressor->isValid( name ) &&
+        !attachment.compressor->initDecompressor( name ))
     {
-        if( !attachment.compressor->initDecompressor( name ) )
-            return false;
+        return false;
     }
     return true;
 }

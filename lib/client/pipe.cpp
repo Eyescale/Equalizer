@@ -21,6 +21,7 @@
 #include "client.h"
 #include "config.h"
 #include "frame.h"
+#include "frameData.h"
 #include "global.h"
 #include "log.h"
 #include "node.h"
@@ -269,7 +270,8 @@ net::CommandQueue* Pipe::getMainThreadQueue()
     return getServer()->getMainThreadQueue();
 }
 
-Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye )
+Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye,
+                       const bool output )
 {
     CHECK_THREAD( _pipeThread );
     Frame* frame = _frames[ frameVersion.identifier ];
@@ -291,6 +293,8 @@ Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye )
     EQASSERT( frameData );
 
     frame->setData( frameData );
+    if( output )
+        _outputFrameDatas[ data.identifier ] = frameData;
     return frame;
 }
 
@@ -303,11 +307,20 @@ void Pipe::flushFrames()
     {
         Frame* frame = i->second;
 
+        frame->setData( 0 ); // 'output' datas cleared below and from node
         frame->flush();
         session->unmapObject( frame );
         delete frame;
     }
     _frames.clear();
+
+    for( FrameDataHash::const_iterator i = _outputFrameDatas.begin();
+         i != _outputFrameDatas.end(); ++i)
+    {
+        FrameData* data = i->second;
+        data->flush();
+    }
+    _outputFrameDatas.clear();
 }
 
 const View* Pipe::getView( const net::ObjectVersion& viewVersion ) const

@@ -1132,7 +1132,7 @@ bool Channel::_cmdFrameAssemble( net::Command& command )
     for( uint32_t i=0; i<packet->nFrames; ++i )
     {
         Pipe*  pipe  = getPipe();
-        Frame* frame = pipe->getFrame( packet->frames[i], getEye( ));
+        Frame* frame = pipe->getFrame( packet->frames[i], getEye(), false );
         _inputFrames.push_back( frame );
     }
 
@@ -1164,7 +1164,7 @@ bool Channel::_cmdFrameReadback( net::Command& command )
     for( uint32_t i=0; i<packet->nFrames; ++i )
     {
         Pipe*  pipe  = getPipe();
-        Frame* frame = pipe->getFrame( packet->frames[i], getEye( ));
+        Frame* frame = pipe->getFrame( packet->frames[i], getEye(), true );
         _outputFrames.push_back( frame );
     }
 
@@ -1214,12 +1214,11 @@ bool Channel::_cmdFrameTransmit( net::Command& command )
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK transmit " << getName() <<  " " 
                                       << packet << std::endl;
 
-    net::Session* session   = getSession();
-    net::NodePtr  localNode = session->getLocalNode();
-    net::NodePtr  server    = session->getServer();
-    Pipe*         pipe      = getPipe();
-    Frame*        frame     = pipe->getFrame( packet->frame,
-                                              packet->context.eye );
+    net::Session* session = getSession();
+    net::NodePtr localNode = session->getLocalNode();
+    net::NodePtr server = session->getServer();
+    Pipe* pipe = getPipe();
+    Frame* frame = pipe->getFrame( packet->frame, packet->context.eye, false );
 
     for( uint32_t i=0; i<packet->nNodes; ++i )
     {

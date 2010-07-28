@@ -520,7 +520,6 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
     colorPixelData.pixelSize      = colorPixelSize;
     colorPixelData.pvp            = destPVP;
     result->setPixelData( Frame::BUFFER_COLOR, colorPixelData );
-    result->clearPixelData( Frame::BUFFER_COLOR );
 
     void* destDepth = 0;
     if( depthInternalFormat != 0 ) // at least one depth assembly
@@ -532,7 +531,6 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
         depthPixelData.pixelSize      = depthPixelSize;
         depthPixelData.pvp            = destPVP;
         result->setPixelData( Frame::BUFFER_DEPTH, depthPixelData );
-        result->clearPixelData( Frame::BUFFER_DEPTH );
         destDepth = result->getPixelPointer( Frame::BUFFER_DEPTH );
     }
 

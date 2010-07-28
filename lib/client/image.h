@@ -197,8 +197,9 @@ namespace eq
         /**
          * Set the pixel data of one of the image buffers.
          *
-         * Previous data for the buffer is overwritten. The pixel data is
-         * validated and decompressed, if needed.
+         * Previous data for the buffer is overwritten. Validates the
+         * buffer. Depending on the given PixelData parameters, the pixel data
+         * is copied, decompressed or cleared.
          *
          * @param buffer the image buffer to set.
          * @param data the pixel data.

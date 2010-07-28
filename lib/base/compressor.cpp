@@ -109,18 +109,6 @@ bool Compressor::init( const std::string& libraryName )
     return true;
 }
 
-bool Compressor::implementsType( const uint32_t name )
-{
-    for( std::vector<EqCompressorInfo>::const_iterator i = _infos.begin(); 
-         i != _infos.end(); ++i )
-    {
-        if ( i->name == name )
-            return true;
-    }
-
-    return false;
-}
-
 void Compressor::exit()
 {
     _dso.close();
@@ -137,6 +125,31 @@ void Compressor::exit()
     getResult = 0;
 
 }
+
+bool Compressor::implementsType( const uint32_t name ) const
+{
+    for( std::vector<EqCompressorInfo>::const_iterator i = _infos.begin(); 
+         i != _infos.end(); ++i )
+    {
+        if ( i->name == name )
+            return true;
+    }
+
+    return false;
+}
+
+const EqCompressorInfo* Compressor::findInfo( const uint32_t name ) const
+{
+    for( CompressorInfos::const_iterator i = _infos.begin(); 
+         i != _infos.end(); ++i )
+    {
+        if ( i->name == name )
+            return &(*i);
+    }
+
+    return 0;
+}
+
 
 std::ostream& operator << ( std::ostream& os, const EqCompressorInfo& info )
 {

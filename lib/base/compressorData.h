@@ -32,55 +32,46 @@ namespace base
     public:
 
         /** Construct a new compressor data. */
-        CompressorData( )
-                : _name( 0 )
-                , _instance( 0 )
-                , _plugin( 0 )
-                , _isCompressor( true ){}
+        CompressorData();
 
         /** Destruct the compressor data */
-        virtual ~CompressorData(){}
-        
+        virtual ~CompressorData();
+
         /** @return the plugin for the current compressor. */
         base::Compressor* getPlugin(){ return _plugin; }
         
         /** @return the name of the compressor. */
         uint32_t getName() const { return _name; }
 
-        /** Set the name of the compressor. */
-        void setName( uint32_t name );
-
         /** @return true if the compressor is ready for the 
          *          current compressor name. */
-        virtual EQ_EXPORT bool isValid( uint32_t name );
+        virtual EQ_EXPORT bool isValid( uint32_t name ) const;
 
         /** Remove all information about the current compressor. */
         EQ_EXPORT void reset();
 
         /** @return the quality produced by the current compressor instance. */
         float getQuality() const
-            { return _instance ? _info.quality : 1.0f; }
+            { return _info ? _info->quality : 1.0f; }
 
         /** @return the information about the current compressor instance. */
-        const EqCompressorInfo& getInfo() const
-            { EQASSERT( _instance ); return _info; }
+        const EqCompressorInfo* getInfo() const
+            { EQASSERT( _info ); return _info; }
 
     protected:
         /** The name of the (de)compressor */
-        uint32_t          _name;    
+        uint32_t _name;    
 
-        /** The instance of the (de)compressor */
-        void*             _instance;
-        
         /** Plugin handling the allocation */
         base::Compressor* _plugin;  
         
-        /** Info about the current compressor instance*/
-        EqCompressorInfo  _info;
+        /** The instance of the (de)compressor, can be 0 for decompressor */
+        void* _instance;
 
-        float _quality;
+        /** Info about the current compressor instance */
+        const EqCompressorInfo* _info;
 
-        /** If the instance is a compressor or downloader Type */
+        /** true if the instance is a compressor, false if downloader */
         bool _isCompressor;
 
        /**

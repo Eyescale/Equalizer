@@ -240,7 +240,7 @@ namespace base
         {                                                               \
             EQERROR << "Threadsafety check for " << #NAME               \
                     << " failed on object of type "                     \
-                    << typeid(*this).name() << std::endl;               \
+                    << eq::base::className( this ) << std::endl;        \
             EQABORT( "Non-threadsave code called from two threads" );   \
         }                                                               \
     }
@@ -253,7 +253,7 @@ namespace base
             {                                                           \
                 EQERROR << "Threadsafety check for not " << #NAME       \
                         << " failed on object of type "                 \
-                        << typeid(*this).name() << std::endl;           \
+                        << eq::base::className( this ) << std::endl;    \
                 EQABORT( "Code called from wrong thread" );             \
             }                                                           \
         }                                                               \

@@ -1,9 +1,13 @@
-Create pthread_t wrapper to avoid false thread-safety checks.
+Compression plugin:
+- Cleanup up instantiation code
+- const-correctness fixes
+- CPU-compositing assertion fix
+- Correct de-initialization in correct context of FrameData
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
-[x] New Feature
-[ ] Cleanup
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

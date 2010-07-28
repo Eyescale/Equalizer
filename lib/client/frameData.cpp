@@ -36,10 +36,6 @@
 #include <eq/base/monitor.h>
 #include <algorithm>
 
-using namespace eq::base;
-using namespace std;
-using eq::net::CommandFunc;
-
 namespace eq
 {
 
@@ -57,6 +53,8 @@ struct ImageHeader
 
 }
 
+typedef net::CommandFunc<FrameData> CmdFunc;
+
 FrameData::FrameData() 
         : _useAlpha( true )
         , _useSendToken( false )
@@ -64,18 +62,18 @@ FrameData::FrameData()
         , _depthQuality( 1.f )
 {
     _roiFinder = new ROIFinder();
-    EQINFO << "New FrameData @" << (void*)this << endl;
+    EQINFO << "New FrameData @" << (void*)this << std::endl;
 }
 
 FrameData::~FrameData()
 {
     clear();
 
-    for( vector<Image*>::const_iterator i = _imageCache.begin();
+    for( Images::const_iterator i = _imageCache.begin();
          i != _imageCache.end(); ++i )
     {
         Image* image = *i;
-        EQWARN << "Unflushed image in FrameData destructor" << endl;
+        EQWARN << "Unflushed image in FrameData destructor" << std::endl;
         delete image;
     }
     _imageCache.clear();
@@ -106,7 +104,7 @@ void FrameData::applyInstanceData( net::DataIStream& is )
 {
     clear();
     is >> _data;
-    EQLOG( LOG_ASSEMBLY ) << "applied " << this << endl;
+    EQLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
 }
 
 void FrameData::update( const uint32_t version )
@@ -126,19 +124,16 @@ void FrameData::attachToSession( const uint32_t id, const uint32_t instanceID,
     net::CommandQueue* queue = session->getCommandThreadQueue();
 
     registerCommand( fabric::CMD_FRAMEDATA_TRANSMIT,
-                     CommandFunc<FrameData>( this, &FrameData::_cmdTransmit ),
-                     queue );
+                     CmdFunc( this, &FrameData::_cmdTransmit ), queue );
     registerCommand( fabric::CMD_FRAMEDATA_READY,
-                     CommandFunc<FrameData>( this, &FrameData::_cmdReady ),
-                     queue );
+                     CmdFunc( this, &FrameData::_cmdReady ), queue );
     registerCommand( fabric::CMD_FRAMEDATA_UPDATE,
-                     CommandFunc<FrameData>( this, &FrameData::_cmdUpdate ),
-                     queue );
+                     CmdFunc( this, &FrameData::_cmdUpdate ), queue );
 }
 
 void FrameData::clear()
 {
-    EQASSERT( _listeners.empty( ));
+    EQASSERT( _listeners->empty( ));
 
     _imageCacheLock.set();
     _imageCache.insert( _imageCache.end(), _images.begin(), _images.end( ));
@@ -151,7 +146,7 @@ void FrameData::flush()
 {
     clear();
 
-    for( vector<Image*>::const_iterator i = _imageCache.begin();
+    for( Images::const_iterator i = _imageCache.begin();
          i != _imageCache.end(); ++i )
     {
         Image* image = *i;
@@ -236,7 +231,7 @@ void FrameData::readback( const Frame& frame,
 
     if( !zoom.isValid( ))
     {
-        EQWARN << "Invalid zoom factor, skipping frame" << endl;
+        EQWARN << "Invalid zoom factor, skipping frame" << std::endl;
         return;
     }
 
@@ -262,9 +257,10 @@ void FrameData::readback( const Frame& frame,
         if( getenv( "EQ_DUMP_IMAGES" ))
         {
             static base::a_int32_t counter;
-            ostringstream stringstream;
+            std::ostringstream stringstream;
 
-            stringstream << "Image_" << setfill( '0' ) << setw(5) << ++counter;
+            stringstream << "Image_" << std::setfill( '0' ) << std::setw(5)
+                         << ++counter;
             image->writeImages( stringstream.str( ));
         }
 #endif
@@ -283,9 +279,9 @@ void FrameData::_setReady( const uint32_t version )
                   "v" << getVersion() << " ready " << _readyVersion << " new "
                       << version );
 
-    base::ScopedMutex<> mutex( _listenersMutex );
+    base::ScopedMutex< base::SpinLock > mutex( _listeners );
 #ifndef NDEBUG
-    for( list<ImageVersion>::iterator i = _pendingImages.begin();
+    for( std::list< ImageVersion >::iterator i = _pendingImages.begin();
          i != _pendingImages.end(); ++i )
     {
         const ImageVersion& imageVersion = *i;
@@ -298,13 +294,12 @@ void FrameData::_setReady( const uint32_t version )
         return;
 
     _readyVersion = version;
-    EQLOG( LOG_ASSEMBLY ) << "set ready " << this << ", " << _listeners.size()
-                          << " monitoring" << endl;
+    EQLOG( LOG_ASSEMBLY ) << "set ready " << this << ", " << _listeners->size()
+                          << " monitoring" << std::endl;
 
-    for( vector< Monitor<uint32_t>* >::iterator i = _listeners.begin();
-         i != _listeners.end(); ++i )
+    for( Monitors::iterator i=_listeners->begin(); i != _listeners->end(); ++i )
     {
-        Monitor<uint32_t>* monitor = *i;
+        Monitor* monitor = *i;
         ++(*monitor);
     }
 }
@@ -318,13 +313,13 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
 
     if( _data.buffers == 0 )
     {
-        EQWARN << "No buffers for frame data" << endl;
+        EQWARN << "No buffers for frame data" << std::endl;
         return;
     }
 
     if ( _data.frameType == Frame::TYPE_TEXTURE )
     {
-        EQWARN << "Can't transmit image of type TEXTURE" << endl;
+        EQWARN << "Can't transmit image of type TEXTURE" << std::endl;
         EQUNIMPLEMENTED;
         return;
     }
@@ -346,11 +341,10 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
     packet.frameNumber  = frameNumber;
 
     // send all images
-    for( vector<Image*>::const_iterator i = _images.begin(); 
-         i != _images.end(); ++i )
+    for( Images::const_iterator i = _images.begin(); i != _images.end(); ++i )
     {
         Image* image = *i;
-        vector< const Image::PixelData* > pixelDatas;
+        std::vector< const Image::PixelData* > pixelDatas;
 
         packet.size           = packetSize;
         packet.buffers        = Frame::BUFFER_NONE;
@@ -485,26 +479,21 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
 
 void FrameData::addListener( base::Monitor<uint32_t>& listener )
 {
-    _listenersMutex.set();
+    base::ScopedMutex< base::SpinLock > mutex( _listeners );
 
-    _listeners.push_back( &listener );
+    _listeners->push_back( &listener );
     if( _readyVersion >= getVersion( ))
         ++listener;
-
-    _listenersMutex.unset();
 }
 
 void FrameData::removeListener( base::Monitor<uint32_t>& listener )
 {
-    _listenersMutex.set();
+    base::ScopedMutex< base::SpinLock > mutex( _listeners );
 
-    vector< Monitor<uint32_t>* >::iterator i = find( _listeners.begin(),
-                                                     _listeners.end(),
-                                                     &listener );
-    EQASSERT( i != _listeners.end( ));
-    _listeners.erase( i );
-
-    _listenersMutex.unset();
+    Monitors::iterator i = std::find( _listeners->begin(), _listeners->end(),
+                                      &listener );
+    EQASSERT( i != _listeners->end( ));
+    _listeners->erase( i );
 }
 
 //----- Command handlers
@@ -517,7 +506,7 @@ bool FrameData::_cmdTransmit( net::Command& command )
 
     EQLOG( LOG_ASSEMBLY )
         << this << " received image, buffers " << packet->buffers << " pvp "
-        << packet->pvp << " v" << packet->version << endl;
+        << packet->pvp << " v" << packet->version << std::endl;
 
     EQASSERT( packet->pvp.isValid( ));
 
@@ -621,7 +610,7 @@ bool FrameData::_cmdReady( net::Command& command )
         _readyVersions.push_back( &command );
     }
 
-    EQLOG( LOG_ASSEMBLY ) << this << " received v" << packet->version << endl;
+    EQLOG( LOG_ASSEMBLY ) << this << " received v" << packet->version << std::endl;
     return true;
 }
 
@@ -656,7 +645,7 @@ bool FrameData::_cmdUpdate( net::Command& command )
 void FrameData::_applyVersion( const uint32_t version )
 {
     CHECK_THREAD( _commandThread );
-    EQLOG( LOG_ASSEMBLY ) << this << " apply v" << version << endl;
+    EQLOG( LOG_ASSEMBLY ) << this << " apply v" << version << std::endl;
 
     // Input images sync() to the new version, then send an update packet and
     // immediately continue. If they read back and setReady faster than we
@@ -665,7 +654,7 @@ void FrameData::_applyVersion( const uint32_t version )
     if( _readyVersion == version )
     {
 #ifndef NDEBUG
-        for( list<ImageVersion>::iterator i = _pendingImages.begin();
+        for( std::list< ImageVersion >::iterator i = _pendingImages.begin();
              i != _pendingImages.end(); ++i )
         {
             const ImageVersion& imageVersion = *i;
@@ -680,7 +669,7 @@ void FrameData::_applyVersion( const uint32_t version )
 
     // Even if _readyVersion jumped to version in between, there are no pending
     // images for it, so this loop doesn't do anything.
-    for( list<ImageVersion>::iterator i = _pendingImages.begin();
+    for( std::list< ImageVersion >::iterator i = _pendingImages.begin();
          i != _pendingImages.end(); )
     {
         const ImageVersion& imageVersion = *i;
@@ -689,9 +678,7 @@ void FrameData::_applyVersion( const uint32_t version )
         if( imageVersion.version == version )
         {
             _images.push_back( imageVersion.image );
-            list<ImageVersion>::iterator eraseIter = i;
-            ++i;
-            _pendingImages.erase( eraseIter );
+            i = _pendingImages.erase( i );
 
             EQASSERT( _readyVersion < version );
         }
@@ -699,7 +686,7 @@ void FrameData::_applyVersion( const uint32_t version )
             ++i;
     }
 
-    EQLOG( LOG_ASSEMBLY ) << this << " applied v" << version << endl;
+    EQLOG( LOG_ASSEMBLY ) << this << " applied v" << version << std::endl;
 }
 
 std::ostream& operator << ( std::ostream& os, const FrameData* data )

@@ -137,8 +137,8 @@ net::Barrier* Node::getBarrier( const net::ObjectVersion barrier )
 
 FrameData* Node::getFrameData( const net::ObjectVersion& dataVersion )
 {
-    base::ScopedMutex<> mutex( _frameDatasMutex);
-    FrameData* frameData = _frameDatas[ dataVersion.identifier ];
+    base::ScopedMutex<> mutex( _frameDatas );
+    FrameData* frameData = _frameDatas.data[ dataVersion.identifier ];
 
     if( !frameData )
     {
@@ -150,10 +150,9 @@ FrameData* Node::getFrameData( const net::ObjectVersion& dataVersion )
         EQCHECK( session->mapObject( frameData, dataVersion ));
         frameData->update( dataVersion.version );
 
-        _frameDatas[ dataVersion.identifier ] = frameData;
+        _frameDatas.data[ dataVersion.identifier ] = frameData;
         return frameData;
     }
-    mutex.leave();
 
     if( frameData->getVersion() < dataVersion.version )
     {
@@ -368,16 +367,15 @@ void Node::_flushObjects()
     _barriers.clear();
     _barriersMutex.unset();
 
-    _frameDatasMutex.set();
-    for( FrameDataHash::const_iterator i = _frameDatas.begin(); 
-         i != _frameDatas.end(); ++ i )
+    base::ScopedMutex<> mutex( _frameDatas );
+    for( FrameDataHash::const_iterator i = _frameDatas->begin(); 
+         i != _frameDatas->end(); ++ i )
     {
         FrameData* frameData = i->second;
         session->unmapObject( frameData );
         delete frameData;
     }
-    _frameDatas.clear();
-    _frameDatasMutex.unset();
+    _frameDatas->clear();
 }
 
 void Node::TransmitThread::send( FrameData* data, net::NodePtr node, 
