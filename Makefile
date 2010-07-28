@@ -12,7 +12,6 @@ SUBDIRS = \
 	admin \
 	tools \
 	examples \
-	contrib \
 	tests \
 	$(OPTIONAL)
 
