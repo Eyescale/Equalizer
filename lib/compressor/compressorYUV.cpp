@@ -1,5 +1,7 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2009, Maxim Makhinya
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -61,7 +63,7 @@ bool CompressorYUV::isCompatible( const GLEWContext* glewContext )
              GLEW_EXT_framebuffer_object );
 }
 
-void CompressorYUV::_init( GLEWContext* glewContext, 
+void CompressorYUV::_init( const GLEWContext* glewContext,
                            const char* fShaderPtr )
 {
     if ( _program )
@@ -96,9 +98,8 @@ void CompressorYUV::_init( GLEWContext* glewContext,
 }
 
 
-void CompressorYUV::_compress( GLEWContext*   glewContext,
-                               const uint64_t inDims[4],
-                               uint64_t       outDims[4] )
+void CompressorYUV::_compress( const GLEWContext* glewContext,
+                               const uint64_t inDims[4], uint64_t outDims[4] )
 {
 
     if ( _fbo )
@@ -148,7 +149,7 @@ void CompressorYUV::_download( void* datas )
    _fbo->getColorTextures()[0]->download( datas, GL_RGBA, GL_UNSIGNED_BYTE );
 }
 
-void CompressorYUV::download( GLEWContext*    glewContext,
+void CompressorYUV::download( const GLEWContext* glewContext,
                               const uint64_t  inDims[4],
                               const unsigned  source,
                               const uint64_t  flags,
@@ -202,7 +203,7 @@ void CompressorYUV::download( GLEWContext*    glewContext,
     glPopAttrib();
 }
 
-void CompressorYUV::_uncompress( GLEWContext*   glewContext,
+void CompressorYUV::_decompress( const GLEWContext* glewContext,
                                  const uint64_t inDims[4],
                                  const uint64_t outDims[4] )
 {
@@ -256,7 +257,7 @@ void CompressorYUV::_uncompress( GLEWContext*   glewContext,
     glDepthMask( true );
 }
 
-void CompressorYUV::upload( GLEWContext*    glewContext, 
+void CompressorYUV::upload( const GLEWContext* glewContext, 
                             const void*     datas,
                             const uint64_t  inDims[4],
                             const uint64_t  flags,
@@ -275,7 +276,7 @@ void CompressorYUV::upload( GLEWContext*    glewContext,
     if ( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {    
         _texture->upload( inDims[1], inDims[3], const_cast<void*>( datas ) );
-        _uncompress( glewContext, outDims, inDims );
+        _decompress( glewContext, outDims, inDims );
     }
     else if( flags & EQ_COMPRESSOR_USE_TEXTURE  )
     {
@@ -297,7 +298,7 @@ void CompressorYUV::upload( GLEWContext*    glewContext,
             _fbo->init( outDims[1], outDims[3], 0, 0 );
 
         _texture->upload( inDims[1], inDims[3], datas );
-        _uncompress( glewContext, outDims, inDims );
+        _decompress( glewContext, outDims, inDims );
         _fbo->unbind();
         texture->flushNoDelete();
     }

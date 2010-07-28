@@ -26,16 +26,16 @@ namespace eq
 namespace util
 {
 
-bool CompressorDataGPU::isValidDownloader( const uint32_t inputToken ) const
+bool CompressorDataGPU::isValidDownloader( const uint32_t internalFormat ) const
 {
-    return _plugin && isValid( _name ) && _info->tokenType == inputToken ;
+    return _plugin && isValid( _name ) && _info->tokenType == internalFormat ;
 }
 
-bool CompressorDataGPU::isValidUploader( const uint32_t inputToken, 
-                                         const uint32_t outputToken ) const
+bool CompressorDataGPU::isValidUploader( const uint32_t externalFormat, 
+                                         const uint32_t internalFormat ) const
 {
-    return _plugin && _info->outputTokenType == inputToken &&
-           _info->tokenType == outputToken;
+    return _plugin && _info->outputTokenType == externalFormat &&
+           _info->tokenType == internalFormat;
 }
 
 void CompressorDataGPU::download( const fabric::PixelViewport& pvpIn,
@@ -70,8 +70,8 @@ void CompressorDataGPU::upload( const void*          buffer,
                      flags, outDims, destination );
 }
 
-void CompressorDataGPU::initUploader( const uint32_t inTokenType, 
-                                      const uint32_t outTokenType )
+void CompressorDataGPU::initUploader( const uint32_t externalFormat,
+                                      const uint32_t internalFormat )
 {
     base::PluginRegistry& registry = base::Global::getPluginRegistry();
     const base::Compressors& compressors = registry.getCompressors();
@@ -90,8 +90,8 @@ void CompressorDataGPU::initUploader( const uint32_t inTokenType,
             const EqCompressorInfo& info = *j;
             
             if( !( info.capabilities & EQ_COMPRESSOR_TRANSFER ) ||
-                info.outputTokenType != inTokenType ||
-                info.tokenType != outTokenType ||
+                info.outputTokenType != externalFormat ||
+                info.tokenType != internalFormat ||
                 !compressor->isCompatible( info.name, _glewContext ))
             {
                 continue;

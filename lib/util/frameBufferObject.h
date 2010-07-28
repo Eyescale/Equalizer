@@ -35,7 +35,7 @@ namespace util
     {
     public: 
         /** Construct a new Frame Buffer Object */
-        EQ_EXPORT FrameBufferObject( GLEWContext* const glewContext );
+        EQ_EXPORT FrameBufferObject( const GLEWContext* const glewContext );
 
         /** Destruct the Frame Buffer Object */
         EQ_EXPORT ~FrameBufferObject();
@@ -116,7 +116,6 @@ namespace util
         /** @return the size of this framebuffer object. */
         EQ_EXPORT PixelViewport getPixelViewport() const;
 
-        GLEWContext* glewGetContext() { return _glewContext; }
         const GLEWContext* glewGetContext() const { return _glewContext; }
 
         /**
@@ -131,7 +130,7 @@ namespace util
         Texture _depth;
         Texture _stencil;
 
-        GLEWContext* const _glewContext;
+        const GLEWContext* const _glewContext;
 
         /** The reason for the last error. */
         std::string _error;

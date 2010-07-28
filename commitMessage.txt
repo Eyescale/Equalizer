@@ -1,6 +1,6 @@
 Compression plugin:
-- 'Fix' artefacts on my machine
-- const-correctness fixes
+- clean up naming
+- Fix YUV compressor
 
 [ ] May break build
 [ ] May break existing applications

@@ -29,7 +29,7 @@ namespace eq
 namespace util
 {
 
-FrameBufferObject::FrameBufferObject( GLEWContext* glewContext )
+FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext )
     : _fboID( 0 )
     , _depth( glewContext )
     , _stencil( glewContext )

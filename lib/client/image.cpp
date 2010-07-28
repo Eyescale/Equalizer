@@ -299,11 +299,11 @@ void Image::uploadToTexture( const Frame::Buffer buffer,
                                             _getCompressorKey( buffer ));
 
     const Image::PixelData& pixelData = getPixelData( buffer );
-    const uint32_t inputToken = pixelData.externalFormat;
-    const uint32_t outputToken = pixelData.internalFormat;
+    const uint32_t externalFormat = pixelData.externalFormat;
+    const uint32_t internalFormat = pixelData.internalFormat;
 
-    if ( !uploader->isValidUploader( inputToken, outputToken ) )
-        uploader->initUploader( inputToken, outputToken );
+    if ( !uploader->isValidUploader( externalFormat, internalFormat ) )
+        uploader->initUploader( externalFormat, internalFormat );
 
     uploader->upload( pixelData.pixels,
                       pixelData.pvp,

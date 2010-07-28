@@ -45,14 +45,14 @@ public:
 
     static bool isCompatible( const GLEWContext* glewContext );
     
-    virtual void download( GLEWContext*    glewContext,
+    virtual void download( const GLEWContext* glewContext,
                            const uint64_t  inDims[4],
                            const unsigned  source,
                            const uint64_t  flags,
                            uint64_t        outDims[4],
                            void**          out );
 
-    virtual void upload( GLEWContext*    glewContext, 
+    virtual void upload( const GLEWContext* glewContext, 
                          const void*     datas,
                          const uint64_t  inDims[4],
                          const uint64_t  flags,
@@ -90,13 +90,13 @@ protected:
     eq::base::Bufferb buffer;
 
 private:
-    void _init( GLEWContext* glewContext, const char* fShaderPtr );
-    void _compress( GLEWContext*   glewContext,
+    void _init( const GLEWContext* glewContext, const char* fShaderPtr );
+    void _compress( const GLEWContext* glewContext,
                     const uint64_t inDims[4],
                     uint64_t       outDims[4] );
     void _download( void* datas );
 
-    void _uncompress( GLEWContext* glewContext,
+    void _decompress( const GLEWContext* glewContext,
                       const uint64_t  inDims[4],
                       const uint64_t  outDims[4]);
     

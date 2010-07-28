@@ -39,20 +39,20 @@ namespace util
             { _glewContext = glewContext; }
 
         /**
-         * Determine if the downloader is valid
+         * Determine if the downloader is valid.
          *
-         * @param inputToken the input token type
+         * @param internalFormat the input token type to the downloader.
          */
-        bool isValidDownloader( const uint32_t inputToken ) const;
+        bool isValidDownloader( const uint32_t internalFormat ) const;
 
         /**
          * Determine if the uploader is valid
          *
-         * @param inputToken the input token type.
-         * @param outputToken the output token produced 
+         * @param externalFormat the input to the uploader.
+         * @param internalFormat the output of the uploader. 
          */
-        bool isValidUploader( const uint32_t inputToken,
-                              const uint32_t outputToken ) const;
+        bool isValidUploader( const uint32_t externalFormat,
+                              const uint32_t internalFormat ) const;
 
         /**
          * Find and init a downloader for the given quality and token.
@@ -82,11 +82,11 @@ namespace util
          * If no uploader found, a reset of the instance data will be 
          * perform.
          *
-         * @param gpuTokenType  the input token type of the data.
-         * @param tokenType the output token type of the data.  
+         * @param externalFormat the input to the uploader.
+         * @param internalFormat the output of the uploader. 
          **/
-        void initUploader( const uint32_t gpuTokenType,
-                           const uint32_t tokenType );
+        void initUploader( const uint32_t externalFormat,
+                           const uint32_t internalFormat );
 
         /**
          * Download data from the frame buffer or texture to cpu
