@@ -5,8 +5,8 @@ include_directories(include)
 install(DIRECTORY configs DESTINATION shared/Equalizer COMPONENT data)
 
 add_subdirectory(eqHello)
-#add_subdirectory(eqNBody) #hasn't been tried to compile for a while i guess
+add_subdirectory(eqNBody)
 add_subdirectory(eqPixelBench)
 add_subdirectory(eqPly)
 add_subdirectory(eVolve)
-#add_subdirectory(osgScaleViewer) #version conflict?
+add_subdirectory(osgScaleViewer)

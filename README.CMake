@@ -6,12 +6,12 @@ What works (tested):
  * building and installing on Ubuntu and Windows
  * creating binary package for Ubuntu
  * creating binary installer for Windows (with selectable components!)
+ * tests are run by CTest (some fail however)
 
 What does not yet:
  * examples/eqNBody         failes to compile (SharedData not found)
  * examples/osgScaleViewer  failes to compile (SharedData not found)
  * tools/eVolveConverter    is not portable
- * tests/*                  should be converted to a unit testing framework for CI
 
 
 Ubuntu 32bit + 64bit, gcc 4.4.3
@@ -52,5 +52,5 @@ $ cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw32.cmake ..
 $ make
 
 Known Problems:
-  * Two files faile to compile
+  * Two files fail to compile
      -> Someone knowledgeable about the source will need to have a look

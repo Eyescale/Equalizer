@@ -3,6 +3,8 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
 
+enable_testing()
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CToolBox)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -67,7 +69,7 @@ add_subdirectory(examples)
 #add_subdirectory(externals)
 add_subdirectory(lib)
 add_subdirectory(server)
-#add_subdirectory(tests)
+add_subdirectory(tests)
 add_subdirectory(tools)
 
 add_executable(eqServer server/eqServer.cpp)
