@@ -63,7 +63,7 @@ bool CompressorYUV::isCompatible( const GLEWContext* glewContext )
              GLEW_EXT_framebuffer_object );
 }
 
-void CompressorYUV::_init( const GLEWContext* glewContext,
+void CompressorYUV::_initShader( const GLEWContext* glewContext,
                            const char* fShaderPtr )
 {
     if ( _program )
@@ -118,12 +118,16 @@ void CompressorYUV::_compress( const GLEWContext* glewContext,
 
     glDisable( GL_LIGHTING );
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, 
-                     GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
+                     GL_NEAREST);
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER,
                      GL_NEAREST);
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S,
+                     GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T,
+                     GL_CLAMP_TO_EDGE );
 
-    _init( glewContext, yuv420readback_glsl.c_str() );
+    _initShader( glewContext, yuv420readback_glsl.c_str() );
 
     const GLint colorParam = glGetUniformLocation( _program, "color" );
     EQ_GL_CALL( glUniform1i( colorParam, 0 ));
@@ -170,18 +174,26 @@ void CompressorYUV::download( const GLEWContext* glewContext,
         _texture = new util::Texture( glewContext );
         _texture->setInternalFormat( GL_RGBA );   
     }
-    // the data location are in the frame buffer
+    // the data is in the frame buffer
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
         // read data in frame Buffer
         // compress data 
-        _texture->copyFromFrameBuffer( inDims );
+        EQ_GL_CALL( glViewport( 0, 0, inDims[0] + inDims[1] + 1,
+                                      inDims[2] + inDims[3] + 1 ));
+        EQ_GL_CALL( glScissor(  0, 0, inDims[0] + inDims[1] + 1,
+                                      inDims[2] + inDims[3] + 1 ));
+
+        outDims[1] *= 2;
+        _texture->copyFromFrameBuffer( outDims );
+        outDims[1] /= 2;
+
         _compress( glewContext, inDims, outDims );
         buffer.resize( outDims[1] * outDims[3] * 4 );
         _download( buffer.getData() );
     }
-    // the data location are in the texture id define by
-    // the field source
+    // the data is in the texture id define by
+    // the field "source"
     else if( flags & EQ_COMPRESSOR_USE_TEXTURE )
     {
         // assign texture id to the local texture class
@@ -204,11 +216,10 @@ void CompressorYUV::download( const GLEWContext* glewContext,
 }
 
 void CompressorYUV::_decompress( const GLEWContext* glewContext,
-                                 const uint64_t inDims[4],
-                                 const uint64_t outDims[4] )
+                                 const uint64_t inDims[4] )
 {
     glDepthMask( false );
-    _init( glewContext, yuv420unpack_glsl.c_str() );
+    _initShader( glewContext, yuv420unpack_glsl.c_str() );
 
     const GLint colorParam = glGetUniformLocation( _program, "color" );
     glUniform1i( colorParam, 0 );
@@ -238,18 +249,10 @@ void CompressorYUV::_decompress( const GLEWContext* glewContext,
     glUniform1f( shiftY, startY );
 
     glBegin( GL_QUADS );
-        glTexCoord2f( 0.0f, 0.0f );
         glVertex3f( startX, startY, 0.0f );
-
-        glTexCoord2f( static_cast< float >( inDims[1] ), 0.0f );
-        glVertex3f( endX, startY, 0.0f );
-
-        glTexCoord2f( static_cast<float>( inDims[1] ), 
-                      static_cast<float>( inDims[3] ));
-        glVertex3f( endX, endY, 0.0f );
-        
-        glTexCoord2f( 0.0f, static_cast< float >( inDims[3] ));
-        glVertex3f( startX, endY, 0.0f );
+        glVertex3f(   endX, startY, 0.0f );
+        glVertex3f(   endX,   endY, 0.0f );
+        glVertex3f( startX,   endY, 0.0f );
     glEnd();
 
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
@@ -276,7 +279,7 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
     if ( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {    
         _texture->upload( inDims[1], inDims[3], const_cast<void*>( datas ) );
-        _decompress( glewContext, outDims, inDims );
+        _decompress( glewContext, outDims );
     }
     else if( flags & EQ_COMPRESSOR_USE_TEXTURE  )
     {
@@ -298,7 +301,7 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
             _fbo->init( outDims[1], outDims[3], 0, 0 );
 
         _texture->upload( inDims[1], inDims[3], datas );
-        _decompress( glewContext, outDims, inDims );
+        _decompress( glewContext, outDims );
         _fbo->unbind();
         texture->flushNoDelete();
     }

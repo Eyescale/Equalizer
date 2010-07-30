@@ -90,15 +90,14 @@ protected:
     eq::base::Bufferb buffer;
 
 private:
-    void _init( const GLEWContext* glewContext, const char* fShaderPtr );
+    void _initShader( const GLEWContext* glewContext, const char* fShaderPtr );
     void _compress( const GLEWContext* glewContext,
                     const uint64_t inDims[4],
                     uint64_t       outDims[4] );
     void _download( void* datas );
 
     void _decompress( const GLEWContext* glewContext,
-                      const uint64_t  inDims[4],
-                      const uint64_t  outDims[4]);
+                      const uint64_t  inDims[4] );
     
     util::FrameBufferObject* _fbo;
     util::Texture* _texture;
