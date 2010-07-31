@@ -1,7 +1,4 @@
-compression plugin:
-- Clean up CompressorDataGPU, eqPixelBench
-- Create plugin-specific log topic
-- Simplify transfer plugin selection
+Fix Win32 build, improve Darwin CMake files.
 
 [ ] May break build
 [ ] May break existing applications

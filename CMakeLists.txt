@@ -1,4 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#               2010 Stefan Eilemann <eile@eyescale.ch>
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
@@ -63,6 +64,15 @@ else(WIN32)
   add_definitions(-fPIC) # 64bit Linux wants this
 endif(WIN32)
 
+if(APPLE)
+  link_directories(/usr/X11R6/include)
+  include_directories(/usr/X11R6/lib)
+
+  if(XCODE_VERSION)
+  else(XCODE_VERSION)
+    add_definitions(-DDarwin)
+  endif(XCODE_VERSION)
+endif(APPLE)
 
 add_subdirectory(admin)
 add_subdirectory(examples)
@@ -83,7 +93,7 @@ install(DIRECTORY ${EQ_INCLUDE_DIR}/eq DESTINATION include COMPONENT dev)
 
 set(CPACK_PACKAGE_NAME "Equalizer")
 set(CPACK_PACKAGE_VENDOR "http://www.equalizergraphics.com/")
-set(CPACK_PACKAGE_CONTACT "Stefan Eilemann <eile@equalizergraphics.com>")
+set(CPACK_PACKAGE_CONTACT "Stefan Eilemann <eile@eyescale.ch>")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Parallel Rendering Framework")
 set(CPACK_PACKAGE_VERSION_MAJOR "0")
 set(CPACK_PACKAGE_VERSION_MINOR "9")
@@ -103,7 +113,7 @@ set(CPACK_COMPONENT_TOOLS_DESCRIPTION
 
 set(CPACK_COMPONENT_DATA_DISPLAY_NAME "Data files")
 set(CPACK_COMPONENT_DATA_DESCRIPTION
-  "many config file examples and some polygon models")
+  "Example configuration files and data sets")
 
 
 include(InstallRequiredSystemLibraries)

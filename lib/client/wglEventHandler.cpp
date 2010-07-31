@@ -437,8 +437,6 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
     event.originator = window->getID();
 
-    EQLOG( LOG_EVENTS ) << "received event: " << event << std::endl;
-
     if( _window->processEvent( event ))
         return result;
 

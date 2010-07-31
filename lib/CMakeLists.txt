@@ -376,11 +376,7 @@ if(WIN32)
     )
 endif(WIN32)
 
-if(NOT WIN32) # LINUX
-  set(BASE_HEADERS ${BASE_HEADERS}
-    base/definesLinux.h
-	)
-
+if(NOT WIN32) # POSIX
   set(CLIENT_HEADERS ${CLIENT_HEADERS}
     client/glXEventHandler.h
     client/glXMessagePump.h
@@ -396,6 +392,21 @@ if(NOT WIN32) # LINUX
     client/glXPipe.cpp
     )
 endif(NOT WIN32)
+
+if(LINUX)
+  set(BASE_HEADERS ${BASE_HEADERS}
+    base/definesLinux.h
+	)
+endif(LINUX)
+
+if(APPLE)
+  if(XCODE_VERSION)
+    set(BASE_HEADERS ${BASE_HEADERS} base/definesXCode.h )
+  else(XCODE_VERSION)
+    set(BASE_HEADERS ${BASE_HEADERS} base/definesDarwin.h )
+  endif(XCODE_VERSION)
+endif(APPLE)
+
 
 set(HEADERS
   ${BASE_HEADERS}
