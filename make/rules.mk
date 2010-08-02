@@ -35,7 +35,7 @@ $(BUILD_MODE_FILE):
 	@touch $@
 	@echo "Switched to $(BUILD_MODE) build"
 
-$(TARGETS): $(BUILD_MODE_FILE)
+$(TARGETS) : | $(BUILD_MODE_FILE)
 
 # recursive subdir rules
 subdirs: $(SUBDIRS) 
