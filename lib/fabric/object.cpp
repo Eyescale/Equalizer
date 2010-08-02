@@ -63,13 +63,16 @@ uint32_t Object::commitNB()
         if( _userData->isDirty() && _userData->isAttached( ))
         {
             const uint32_t version = _userData->commit();
+            //EQINFO << "Committed " << version << " of "
+            //       << base::className( _userData ) << " @" << (void*)_userData
+            //       << base::backtrace << std::endl;
 
             EQASSERT( !_userData->isDirty( ));
             EQASSERT( _data.userData.identifier != _userData->getID() ||
                       _data.userData.version <= version );
-                      
-            _data.userData.identifier = _userData->getID();
-            _data.userData.version = version;
+
+            if( _userData->isMaster( ))
+                _data.userData = _userData;
             setDirty( DIRTY_USERDATA );
         }
     }
@@ -133,43 +136,8 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
         is >> _data.name;
     if( dirtyBits & DIRTY_USERDATA )
     {
-        EQASSERTINFO( !_userData || !_userData->isAttached() ||
-                      ( _data.userData.identifier == _userData->getID() &&
-                        _data.userData.version >= _userData->getVersion( )),
-                      "Mismatched user data before sync: " << _data.userData <<
-                      " != " << net::ObjectVersion( _userData ));
-
         is >> _data.userData;
-        if( _userData )
-        {
-            EQASSERTINFO( _data.userData.identifier != _userData->getID() ||
-                          _data.userData.version >= _userData->getVersion() ||
-                          _userData->isMaster(),
-                          "Incompatible version, new " << _data.userData <<
-                          " old " << net::ObjectVersion( _userData ));
-
-            if( _data.userData.identifier <= EQ_ID_MAX )
-            {
-                if( _userData->getID() == EQ_ID_INVALID )
-                {
-                    EQASSERT( !hasMasterUserData( ));
-                    getSession()->mapObject( _userData, _data.userData );
-                }
-
-                EQASSERTINFO( _userData->getID() == _data.userData.identifier,
-                              _userData->getID() << " != " << 
-                              _data.userData.identifier );
-                if( _userData->isMaster( ))
-                    _userData->sync();
-                else
-                    _userData->sync( _data.userData.version );
-            }
-            else if( _userData->getID() <= EQ_ID_MAX && !_userData->isMaster( ))
-            {
-                EQASSERT( !hasMasterUserData( ));
-                getSession()->unmapObject( _userData );
-            }
-        }
+        // map&sync below to allow early exits
     }
     if( dirtyBits & DIRTY_TASKS )
         is >> _tasks;
@@ -192,6 +160,52 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 
     if( isMaster( )) // redistribute changes
         setDirty( dirtyBits & ( DIRTY_NAME | DIRTY_USERDATA | DIRTY_ERROR ));
+
+    // Update user data state
+    if( !(dirtyBits & DIRTY_USERDATA) ||!_userData )
+        return;
+
+    EQASSERTINFO( _data.userData.identifier != _userData->getID() ||
+                  _data.userData.version >= _userData->getVersion() ||
+                  _userData->isMaster(),
+                  "Incompatible version, new " << _data.userData << " old " <<
+                  net::ObjectVersion( _userData ));
+
+    if( _data.userData.identifier > EQ_ID_MAX )
+    {
+        if( _userData->isAttached() && !_userData->isMaster( ))
+        {
+            EQASSERT( !hasMasterUserData( ));
+            getSession()->unmapObject( _userData );
+        }
+        return;
+    }
+
+    if( !_userData->isAttached( ))
+    {
+        EQASSERT( !hasMasterUserData( ));
+        //EQINFO << "Map " << _data.userData << base::backtrace << std::endl;
+        if( !getSession()->mapObject( _userData, _data.userData ))
+        {
+            EQWARN << "Mapping of " << base::className( _userData )
+                   << " user data failed" << std::endl;
+            return;
+        }
+    }
+    EQASSERTINFO( _userData->getID() == _data.userData.identifier,
+                  _userData->getID() << " != " << _data.userData.identifier );
+
+    if( _userData->isMaster( ))
+        _userData->sync();
+    else
+    {
+#if 0
+        if( _userData->getVersion() < _data.userData.version )
+            EQINFO << "Sync " << _data.userData << base::backtrace
+                   << std::endl;
+#endif
+        _userData->sync( _data.userData.version );
+    }
 }
 
 void Object::setName( const std::string& name )

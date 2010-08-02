@@ -1,9 +1,12 @@
-Rename thread-safety check macros to have them 'namespaced'
+- Improve base::Buffer API (return new ptr on reserve & resize)
+- Make debug outputs easier to read
+- Fix fabric::Object userdata serialization
+- Force GL_BGRA compressor by misusing compressor info, proper algorithm tbd
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

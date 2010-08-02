@@ -294,7 +294,7 @@ public:
     {
         net::Object* userData = view->getUserData();
         if( userData && userData->isMaster( ))
-            userData->setAutoObsolete( _latency );
+            userData->setAutoObsolete( _latency + 1 );
         return TRAVERSE_CONTINUE;    
     }
 

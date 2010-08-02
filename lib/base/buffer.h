@@ -77,17 +77,19 @@ namespace base
          * Ensure that the buffer contains at least newSize elements.
          *
          * Existing data is retained. The size is set.
+         * @return the new pointer to the first element.
          * @version 1.0
          */
-        void resize( const uint64_t newSize )
+        T* resize( const uint64_t newSize )
             { 
                 _size = newSize;
                 if( newSize <= _maxSize )
-                    return;
+                    return _data;
                 
                 const uint64_t nBytes = newSize * sizeof( T );
                 _data = static_cast< T* >( realloc( _data, nBytes ));
                 _maxSize = newSize;
+                return _data;
             }
 
         /** 
@@ -106,18 +108,20 @@ namespace base
          * Ensure that the buffer contains at least newSize elements.
          *
          * Existing data may be deleted.
+         * @return the new pointer to the first element.
          * @version 1.0
          */
-        void reserve( const uint64_t newSize )
+        T* reserve( const uint64_t newSize )
             { 
                 if( newSize <= _maxSize )
-                    return;
+                    return _data;
 
                 if( _data )
                     free( _data );
                 
                 _data = static_cast< T* >( malloc( newSize * sizeof( T )));
                 _maxSize = newSize;
+                return _data;
             }
 
         /** Append elements to the buffer, increasing the size. @version 1.0 */

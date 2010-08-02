@@ -1034,7 +1034,7 @@ bool Node::_launch( NodePtr node,
 }
 
 std::string Node::_createLaunchCommand( NodePtr node,
-                                   ConnectionDescriptionPtr description )
+                                        ConnectionDescriptionPtr description )
 {
     const std::string& launchCommand = node->getLaunchCommand();
     const size_t  launchCommandLen   = launchCommand.size();

@@ -85,6 +85,7 @@ void View::setModelID( const uint32_t id )
 
 void View::setIdleSteps( const uint32_t steps )
 {
+    //EQINFO << eq::base::backtrace << std::endl;
     if( _idleSteps == steps )
         return;
 

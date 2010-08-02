@@ -65,8 +65,8 @@ REGISTER_TRANSFER( RGBA, RGBA, 4, 1., 1., 1., false );
 REGISTER_TRANSFER( RGBA, BGRA, 4, 1., 1., 2., false );
 REGISTER_TRANSFER( RGBA, RGBA_UINT_8_8_8_8_REV, 4, 1., 1., 1., false );
 REGISTER_TRANSFER( RGBA, BGRA_UINT_8_8_8_8_REV, 4, 1., 1., 2., false );
-REGISTER_TRANSFER( RGBA, RGB, 3, 1., .75, .7, true );
-REGISTER_TRANSFER( RGBA, BGR, 3, 1., .75, .7, true );
+REGISTER_TRANSFER( RGBA, RGB, 3, 1., 1., .7, true );
+REGISTER_TRANSFER( RGBA, BGR, 3, 1., 1., .7, true );
 
 REGISTER_TRANSFER( RGB10_A2, BGR10_A2, 4, 1., 1., 1., false );
 
@@ -208,6 +208,10 @@ void CompressorReadDrawPixels::_init( const uint64_t inDims[4],
     outDims[3] = inDims[3];
 
     const size_t size = inDims[1] * inDims[3] * _depth;
+
+    // eile: The code path using realloc creates visual artefacts on my MacBook
+    //       The other crashes occasionally with KERN_BAD_ADDRESS
+    //       Seems to be only with GL_RGB. Radar #8261726.
 #if 1
     _buffer.reserve( size );
     _buffer.setSize( size );

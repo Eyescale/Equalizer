@@ -123,8 +123,8 @@ template< class T > inline std::string className( T* object)
     {                                                                   \
         if( !(x) )                                                      \
         {                                                               \
-            EQERROR << "Assert: " << #x << std::endl << eq::base::forceFlush; \
-            eq::base::abort();                                     \
+            EQERROR << "Assert: " << #x << " ";                         \
+            eq::base::abort();                                          \
         }                                                               \
         eq::base::checkHeap();                                          \
     } 
@@ -132,29 +132,26 @@ template< class T > inline std::string className( T* object)
     {                                                                   \
         if( !(x) )                                                      \
         {                                                               \
-            EQERROR << "Assert: " << #x << " [" << info << "]" << std::endl \
-                    << eq::base::forceFlush;                            \
+            EQERROR << "Assert: " << #x << " [" << info << "] ";        \
             eq::base::abort();                                          \
         }                                                               \
         eq::base::checkHeap();                                          \
     }
 
 #  define EQUNIMPLEMENTED                                               \
-    { EQERROR << "Unimplemented code in " << typeid(*this).name()       \
-              << std::endl << eq::base::forceFlush;                     \
+    { EQERROR << "Unimplemented code in " << typeid(*this).name() << " "; \
         eq::base::abort(); }
-#  define EQUNREACHABLE                                          \
-    { EQERROR << "Unreachable code in " << typeid(*this).name()  \
-              << std::endl << eq::base::forceFlush;              \
+#  define EQUNREACHABLE                                                 \
+    { EQERROR << "Unreachable code in " << typeid(*this).name() << " "; \
         eq::base::abort(); }
 #  define EQDONTCALL                                                    \
     { EQERROR << "Code is not supposed to be called in this context, type " \
-              << typeid(*this).name() << std::endl << eq::base::forceFlush; \
+              << typeid(*this).name() << " " ;                          \
         eq::base::abort(); }
 
 #  define EQCHECK(x) { const bool eqOk = x; EQASSERTINFO( eqOk, #x ) }
 #  define EQABORT( info ) {                                             \
-        EQERROR << "Abort: " << info << std::endl << eq::base::forceFlush; \
+        EQERROR << "Abort: " << " ";                                    \
         eq::base::abort(); }
 
 #endif // NDEBUG
