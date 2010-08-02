@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -44,8 +44,7 @@ public:
     static void* getNewCompressor( const EqCompressorInfo* info )
         { return new eq::plugin::CompressorRLE4HF( info ); }
 
-    static void* getNewDecompressor( )
-        { return 0; }
+    static void* getNewDecompressor( const EqCompressorInfo* info ){ return 0; }
     
     static void getInfo0( EqCompressorInfo* const info )
     {
@@ -83,8 +82,9 @@ public:
         case 2: functions.getInfo = CompressorRLE4HF::getInfo2;
                 break;
         }
-        functions.newCompressor      = getNewCompressor;       
-        functions.decompress         = decompress;
+        functions.newCompressor = getNewCompressor;       
+        functions.newDecompressor = getNewDecompressor;       
+        functions.decompress = decompress;
         return functions;
     }
 
@@ -113,8 +113,6 @@ public:
     static void* getNewCompressor( const EqCompressorInfo* info )
         { return new eq::plugin::CompressorDiffRLE4HF( info ); }
 
-    static void* getNewDecompressor( ){ return 0; }
-        
     static void getInfo0( EqCompressorInfo* const info )
     {
         info->version = EQ_COMPRESSOR_VERSION;
@@ -153,8 +151,9 @@ public:
             case 2: functions.getInfo = CompressorDiffRLE4HF::getInfo2;
                     break;
             }
-            functions.newCompressor      = getNewCompressor;       
-            functions.decompress         = decompress;
+            functions.newCompressor = getNewCompressor;       
+            functions.newDecompressor = getNewDecompressor;       
+            functions.decompress = decompress;
             return functions;
         }
         

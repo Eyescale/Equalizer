@@ -38,6 +38,9 @@ public:
     static void* getNewCompressor( const EqCompressorInfo* info )
         { return new CompressorReadDrawPixels( info ); }
 
+    static void* getNewDecompressor( const EqCompressorInfo* info )
+        { return new CompressorReadDrawPixels( info ); }
+
     virtual void compress( const void* const inData, 
                            const eq_uint64_t nPixels, 
                            const bool        useAlpha )

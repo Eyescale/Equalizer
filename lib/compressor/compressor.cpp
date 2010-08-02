@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -143,7 +143,9 @@ Compressor::~Compressor()
 Compressor::Functions::Functions()
         : getInfo( 0 )
         , newCompressor( 0 )
+        , newDecompressor( 0 )
         , decompress( 0 )
+        , isCompatible( 0 )
 {}
     
 }
@@ -177,19 +179,24 @@ void EqCompressorDeleteCompressor( void* const compressor )
 
 void* EqCompressorNewDecompressor( const unsigned name ) 
 {
-    return 0;
+    const eq::plugin::Compressor::Functions& functions = 
+        eq::plugin::_findFunctions( name );
+    
+    EqCompressorInfo info;
+    functions.getInfo( &info );
+    return functions.newDecompressor( &info );
 }
 
 void EqCompressorDeleteDecompressor( void* const decompressor ) 
 {
-    assert( decompressor == 0 );
-    /* nop */
+    delete reinterpret_cast< eq::plugin::Compressor* >( decompressor );
 }
 
 void EqCompressorCompress( void* const ptr, const unsigned name,
                            void* const in, const eq_uint64_t* inDims,
                            const eq_uint64_t flags )
 {
+    assert( ptr );
     const bool useAlpha = !(flags & EQ_COMPRESSOR_IGNORE_MSE);
     const eq_uint64_t nPixels = (flags & EQ_COMPRESSOR_DATA_1D) ?
                                   inDims[1]: inDims[1] * inDims[3];
@@ -202,6 +209,7 @@ void EqCompressorCompress( void* const ptr, const unsigned name,
 unsigned EqCompressorGetNumResults( void* const ptr,
                                     const unsigned name )
 {
+    assert( ptr );
     eq::plugin::Compressor* compressor = 
         reinterpret_cast< eq::plugin::Compressor* >( ptr );
     return compressor->getNResults();
@@ -211,6 +219,7 @@ void EqCompressorGetResult( void* const ptr, const unsigned name,
                             const unsigned i, void** const out, 
                             eq_uint64_t* const outSize )
 {
+    assert( ptr );
     eq::plugin::Compressor* compressor = 
         reinterpret_cast< eq::plugin::Compressor* >( ptr );
     eq::plugin::Compressor::Result* result = compressor->getResults()[ i ];
@@ -228,6 +237,7 @@ void EqCompressorDecompress( void* const decompressor, const unsigned name,
                              void* const out, eq_uint64_t* const outDims,
                              const eq_uint64_t flags )
 {
+    assert( !decompressor );
     const bool useAlpha = !(flags & EQ_COMPRESSOR_IGNORE_MSE);
     const eq_uint64_t nPixels = ( flags & EQ_COMPRESSOR_DATA_1D) ?
                            outDims[1] : outDims[1] * outDims[3];
@@ -261,6 +271,7 @@ void EqCompressorDownload( void* const        ptr,
                            eq_uint64_t        outDims[4],
                            void**             out )
 {
+    assert( ptr );
     eq::plugin::Compressor* compressor = 
         reinterpret_cast< eq::plugin::Compressor* >( ptr );
     compressor->download( glewContext, inDims, source, flags, outDims, out );
@@ -276,6 +287,7 @@ void EqCompressorUpload( void* const        ptr,
                          const eq_uint64_t  outDims[4],  
                          const unsigned     destination )
 {
+    assert( ptr );
     eq::plugin::Compressor* compressor = 
         reinterpret_cast< eq::plugin::Compressor* >( ptr );
     compressor->upload( glewContext, buffer, inDims, flags, outDims,

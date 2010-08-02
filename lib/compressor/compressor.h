@@ -46,23 +46,15 @@ namespace plugin
                                       const unsigned, void* const, 
                                       const eq_uint64_t, const bool );
         typedef bool ( *IsCompatible_t ) ( const GLEWContext* );
-        typedef void ( *Download_t )( const GLEWContext*, const eq_uint64_t*,
-                                      const unsigned, const eq_uint64_t,
-                                      eq_uint64_t*, void** );
-        typedef void ( *Upload_t )( const GLEWContext*, const void*,
-                                    const eq_uint64_t*,
-                                    const eq_uint64_t, const eq_uint64_t*,
-                                    const unsigned );
 
         struct Functions
         {
             Functions();
             CompressorGetInfo_t  getInfo;
             NewCompressor_t      newCompressor;
+            NewCompressor_t      newDecompressor;
             Decompress_t         decompress;
             IsCompatible_t       isCompatible;
-            Download_t           download;
-            Upload_t             upload;
         };
 
         /** Construct a new compressor. */

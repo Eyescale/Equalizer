@@ -35,8 +35,10 @@ public:
     CompressorYUV( const EqCompressorInfo* info );
     virtual ~CompressorYUV();
 
-    static void* getNewCompressor( const EqCompressorInfo* info  ){ 
-                     return new CompressorYUV( info ); }
+    static void* getNewCompressor( const EqCompressorInfo* info  )
+        { return new CompressorYUV( info ); }
+    static void* getNewDecompressor( const EqCompressorInfo* info  )
+        { return new CompressorYUV( info ); }
 
     virtual void compress( const void* const inData, 
                            const uint64_t    nPixels, 
@@ -79,10 +81,10 @@ public:
     static Functions getFunctions( )
     {
         Functions functions;
-        functions.newCompressor  = getNewCompressor;  
-        functions.decompress     = 0;
-        functions.getInfo        = getInfo;
-        functions.isCompatible = (IsCompatible_t)CompressorYUV::isCompatible;
+        functions.getInfo = getInfo;
+        functions.newCompressor = getNewCompressor;  
+        functions.newDecompressor = getNewDecompressor;  
+        functions.isCompatible = isCompatible;
         return functions;
     }
 protected:

@@ -109,7 +109,7 @@ void CompressorDataGPU::initUploader( const uint32_t externalFormat,
     if ( name == EQ_COMPRESSOR_NONE )
         reset();
     else if( name != _name )
-        _initCompressor( name );
+        _initDecompressor( name );
 }
 
 void CompressorDataGPU::initDownloader( const float minQuality, 

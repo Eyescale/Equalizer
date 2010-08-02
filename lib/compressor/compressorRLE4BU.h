@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *               2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -43,7 +43,7 @@ public:
     static void* getNewCompressor( const EqCompressorInfo* info )
         { return new eq::plugin::Compressor( info ); }
 
-    static void* getNewDecompressor( ){ return 0; }
+    static void* getNewDecompressor( const EqCompressorInfo* info ){ return 0; }
 
     static void getInfo( EqCompressorInfo* const info )
     {
@@ -59,9 +59,10 @@ public:
     static Functions getFunctions()
     {
         Functions functions;
-        functions.getInfo       = getInfo;
+        functions.getInfo = getInfo;
         functions.newCompressor = getNewCompressor;
-        functions.decompress    = decompress;
+        functions.newDecompressor = getNewDecompressor;
+        functions.decompress = decompress;
         return functions;
     }
 };

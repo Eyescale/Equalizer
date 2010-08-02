@@ -41,9 +41,9 @@ public:
                             const eq_uint64_t nPixels, const bool useAlpha );
     
 
-    static void* getNewCompressor( const EqCompressorInfo* info ){ 
-                        return new eq::plugin::CompressorDiffRLE10A2( info ); }
-    static void* getNewDecompressor( ){ return 0; }
+    static void* getNewCompressor( const EqCompressorInfo* info )
+        { return new eq::plugin::CompressorDiffRLE10A2( info ); }
+    static void* getNewDecompressor( const EqCompressorInfo* info ){ return 0; }
     
     static void getInfo( EqCompressorInfo* const info )
     {
@@ -60,9 +60,10 @@ public:
     static Functions getFunctions()
     {
         Functions functions;
-        functions.getInfo       = getInfo;
+        functions.getInfo = getInfo;
         functions.newCompressor = getNewCompressor;       
-        functions.decompress    = decompress;
+        functions.newDecompressor = getNewDecompressor;       
+        functions.decompress = decompress;
         return functions;
     }
 

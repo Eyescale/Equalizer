@@ -174,10 +174,10 @@ CompressorReadDrawPixels::~CompressorReadDrawPixels( )
 Compressor::Functions CompressorReadDrawPixels::getFunctions( uint32_t index )
 {
     Functions functions;
-    functions.newCompressor  = getNewCompressor;  
-    functions.decompress     = 0;
-    functions.getInfo        = _getInfos[ index ];
-    functions.isCompatible   = isCompatible;
+    functions.getInfo = _getInfos[ index ];
+    functions.newCompressor = getNewCompressor;  
+    functions.newDecompressor = getNewDecompressor;  
+    functions.isCompatible = isCompatible;
     return functions;
 }    
 

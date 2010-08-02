@@ -44,7 +44,7 @@ public:
 
     static void* getNewCompressor( const EqCompressorInfo* info )
                            { return new eq::plugin::CompressorRLE4B( info ); }
-    static void* getNewDecompressor( ){ return 0; }
+    static void* getNewDecompressor( const EqCompressorInfo* info ){ return 0; }
     
     static void getInfo0( EqCompressorInfo* const info )
     {
@@ -102,14 +102,14 @@ public:
 
     static void getInfo7( EqCompressorInfo* const info )
     {
-        info->version      = EQ_COMPRESSOR_VERSION;
+        CompressorRLE4B::getInfo0( info );
         info->name         = EQ_COMPRESSOR_RLE_UNSIGNED;
         info->tokenType    = EQ_COMPRESSOR_DATATYPE_UNSIGNED;
     }
     
     static void getInfo8( EqCompressorInfo* const info )
     {
-        info->version      = EQ_COMPRESSOR_VERSION;
+        CompressorRLE4B::getInfo0( info );
         info->name         = EQ_COMPRESSOR_RLE_DEPTH_UNSIGNED_INT;
         info->tokenType    = EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT;
     }
@@ -139,6 +139,7 @@ public:
                 break;
         }
         functions.newCompressor   = getNewCompressor;       
+        functions.newDecompressor = getNewDecompressor;       
         functions.decompress      = decompress;
         return functions;
     }
@@ -166,14 +167,6 @@ public:
     static void* getNewCompressor( const EqCompressorInfo* info )
                      { return new eq::plugin::CompressorDiffRLE4B( info ); }
     
-    /** @name getNewDecompressor */
-    /*@{*/
-    /**
-     * NOT IMPLEMENTED.
-     *
-     */
-    static void* getNewDecompressor( ){ return 0; }
-
     /** @name getInfo */
     /*@{*/
     /**
@@ -269,8 +262,9 @@ public:
         case 8: functions.getInfo = CompressorDiffRLE4B::getInfo8;
                 break;
         }
-        functions.newCompressor      = getNewCompressor;       
-        functions.decompress         = decompress;
+        functions.newCompressor = getNewCompressor;
+        functions.newDecompressor = getNewDecompressor;       
+        functions.decompress = decompress;
         return functions;
     }
 

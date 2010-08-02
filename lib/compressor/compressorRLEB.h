@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -43,7 +44,7 @@ public:
 
     static void* getNewCompressor( const EqCompressorInfo* info  )
         { return new eq::plugin::CompressorRLEB( info ); }
-    static void* getNewDecompressor( ){ return 0; }
+    static void* getNewDecompressor( const EqCompressorInfo* info ){ return 0; }
     
     static void getInfo( EqCompressorInfo* const info )
     {
@@ -59,9 +60,10 @@ public:
     static Functions getFunctions( )
     {
         Functions functions;
-        functions.getInfo            = getInfo;
-        functions.newCompressor      = getNewCompressor;
-        functions.decompress         = decompress;
+        functions.getInfo = getInfo;
+        functions.newCompressor = getNewCompressor;
+        functions.newDecompressor = getNewDecompressor;
+        functions.decompress = decompress;
         return functions;
     }
 

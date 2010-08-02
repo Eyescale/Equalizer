@@ -93,6 +93,8 @@ bool CompressorData::_initCompressor( uint32_t name )
     _name = name;
     _info = _plugin->findInfo( name );
     EQASSERT( _info );
+    EQLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex
+                        << name << std::dec << std::endl;
     return false;
 }
 
@@ -117,6 +119,9 @@ bool CompressorData::_initDecompressor( uint32_t name )
     _name = name;
     _info = _plugin->findInfo( name );
     EQASSERT( _info );
+    EQLOG( LOG_PLUGIN ) << "Instantiated " << ( _instance ? "" : "empty " )
+                        << "decompressor of type 0x" << std::hex << name
+                        << std::dec << std::endl;
     return true; 
 }
 

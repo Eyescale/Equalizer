@@ -43,7 +43,7 @@ public:
     static void* getNewCompressor( const EqCompressorInfo* info )
         { return new eq::plugin::CompressorRLEYUV( info ); }
 
-    static void* getNewDecompressor( ){ return 0; }
+    static void* getNewDecompressor( const EqCompressorInfo* info ){ return 0; }
     
     static void getInfo( EqCompressorInfo* const info )
     {
@@ -61,9 +61,10 @@ public:
     static Functions getFunctions()
     {
         Functions functions;
-        functions.getInfo            = getInfo;
-        functions.newCompressor      = getNewCompressor;       
-        functions.decompress         = decompress;
+        functions.getInfo = getInfo;
+        functions.newCompressor = getNewCompressor;       
+        functions.newDecompressor = getNewDecompressor;       
+        functions.decompress = decompress;
         return functions;
     }
 
@@ -79,30 +80,9 @@ public:
         : CompressorRLEYUV( info ) {}
     virtual ~CompressorDiffRLEYUV() {}
 
-    /** @name getNewCompressor */
-    /*@{*/
-    /**
-     * get a new instance of compressor RLE 4 bytes and swizzle data.
-     *
-     */         
     static void* getNewCompressor( const EqCompressorInfo* info  )
-              { return new eq::plugin::CompressorDiffRLEYUV( info ); }
+        { return new eq::plugin::CompressorDiffRLEYUV( info ); }
     
-    /** @name getNewDecompressor */
-    /*@{*/
-    /**
-     * NOT IMPLEMENTED.
-     *
-     */
-    static void* getNewDecompressor( ){ return 0; }
-
-    /** @name getInfo */
-    /*@{*/
-    /**
-     * get information about this compressor.
-     *
-     * @param info about this compressor.
-     */
     static void getInfo( EqCompressorInfo* const info )
     {
         CompressorRLEYUV::getInfo( info );
@@ -111,15 +91,14 @@ public:
         info->speed = 1.1f;
     }
     
-    /** @name getFunctions */
-    /*@{*/
     /** @return the function pointer list for this compressor. */
     static Functions getFunctions()
     {
         Functions functions;
-        functions.getInfo            = getInfo;
-        functions.newCompressor      = getNewCompressor;       
-        functions.decompress         = decompress;
+        functions.getInfo = getInfo;
+        functions.newCompressor = getNewCompressor;       
+        functions.newDecompressor = getNewDecompressor;       
+        functions.decompress = decompress;
         return functions;
     }
 

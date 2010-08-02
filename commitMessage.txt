@@ -1,6 +1,8 @@
 compression plugin:
 - Improve logging
-- Clean up download & upload code
+- Allocate uploader correctly
+- Fix usage of decompression/upload instance
+- Various code cleanups
 
 [ ] May break build
 [ ] May break existing applications
