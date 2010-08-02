@@ -1220,6 +1220,7 @@ void Compositor::_drawPixels( const Image* image,
     const PixelViewport& pvp = image->getPixelViewport();
     EQLOG( LOG_ASSEMBLY ) << "_drawPixels " << pvp << " offset " << op.offset
                           << std::endl;
+
     if ( image->getStorageType() == Frame::TYPE_MEMORY )
     {
         Channel* channel = op.channel; // needed for glewGetContext
@@ -1233,11 +1234,8 @@ void Compositor::_drawPixels( const Image* image,
         util::Texture* texture = objects->obtainEqTexture(
             which == Frame::BUFFER_COLOR ? colorDBKey : depthDBKey );
         
-        const uint32_t colorInternalFormat = image->getInternalFormat( which ); 
-        texture->init( colorInternalFormat, pvp.w, pvp.h );
-        image->uploadToTexture( which, texture->getID(), objects );
+        texture->upload( image, which, objects );
         texture->bind();
-
     }
     else // texture image
     {
@@ -1379,15 +1377,10 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     if ( !useImageTexture )
     {
         textureColor = objects->obtainEqTexture( colorDBKey );
-        textureColor->init( image->getInternalFormat( Frame::BUFFER_COLOR ), 
-                       pvp.w, pvp.h );
-        image->uploadToTexture( Frame::BUFFER_COLOR, textureColor->getID(), 
-                                objects );
+        textureColor->upload( image, Frame::BUFFER_COLOR, objects );
+
         textureDepth = objects->obtainEqTexture( depthDBKey );
-        textureDepth->init( image->getInternalFormat( Frame::BUFFER_DEPTH ), 
-                            pvp.w, pvp.h );
-        image->uploadToTexture( Frame::BUFFER_DEPTH, textureDepth->getID(), 
-                               objects);
+        textureDepth->upload( image, Frame::BUFFER_DEPTH, objects );
     }
 
     GLuint program = objects->getProgram( shaderDBKey );

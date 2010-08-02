@@ -138,8 +138,11 @@ namespace util
          */
         EQ_EXPORT void copyFromFrameBuffer( const uint64_t inDims[4] );
 
-        /** Copy the specified image buffer to the texture at 0,0. */
-        EQ_EXPORT void upload( const Image* image, const Frame::Buffer which );
+        /**
+         * Copy the specified image buffer to the texture at 0,0.
+         */
+        EQ_EXPORT void upload( const Image* image, const Frame::Buffer which,
+                               ObjectManager< const void* >* glObjects );
 
         /** Copy the specified buffer to the texture at 0,0. */
         EQ_EXPORT void upload( const int width, const int height,

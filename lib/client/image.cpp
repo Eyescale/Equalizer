@@ -283,19 +283,32 @@ const Image::PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
     return _getAttachment( buffer ).memory;
 }
 
-void Image::readbackFromTexture( const Frame::Buffer buffer, 
-                                 const PixelViewport& pvp,
-                                 const uint32_t texture,
-                                 const GLEWContext* glewContext )
+void Image::upload( const Frame::Buffer buffer, const Vector2i& position,
+                    util::ObjectManager< const void* >* glObjects ) const
 {
-    _download( buffer, EQ_COMPRESSOR_DATA_2D | EQ_COMPRESSOR_USE_TEXTURE,
-               texture, glewContext );
+    util::CompressorDataGPU* uploader = glObjects->obtainEqUploader(
+                                            _getCompressorKey( buffer ));
+
+    const Image::PixelData& pixelData = getPixelData( buffer );
+    const uint32_t externalFormat = pixelData.externalFormat;
+    const uint32_t internalFormat = pixelData.internalFormat;
+
+    if( !uploader->isValidUploader( externalFormat, internalFormat ))
+        uploader->initUploader( externalFormat, internalFormat );
+
+    PixelViewport pvp = getPixelViewport();
+    pvp.x = position.x() + pvp.x; 
+    pvp.y = position.y() + pvp.y;
+    uploader->upload( pixelData.pixels, pixelData.pvp, 
+                      EQ_COMPRESSOR_USE_FRAMEBUFFER, pvp, 0 );
 }
 
-void Image::uploadToTexture( const Frame::Buffer buffer, 
-                             uint32_t texture,
-                             util::ObjectManager< const void* >* glObjects ) const
+void Image::upload( const Frame::Buffer buffer, const uint32_t texture,
+                    util::ObjectManager< const void* >* glObjects )
+    const
 {
+    EQASSERT( texture );
+    EQASSERT( glObjects );
     util::CompressorDataGPU* uploader = glObjects->obtainEqUploader(
                                             _getCompressorKey( buffer ));
 
@@ -306,54 +319,12 @@ void Image::uploadToTexture( const Frame::Buffer buffer,
     if ( !uploader->isValidUploader( externalFormat, internalFormat ) )
         uploader->initUploader( externalFormat, internalFormat );
 
-    uploader->upload( pixelData.pixels,
-                      pixelData.pvp,
-                      EQ_COMPRESSOR_USE_TEXTURE, 
-                      getPixelViewport(), texture );
-}
-
-void Image::uploadToTexture( const Frame::Buffer buffer, 
-                             uint32_t texture,
-                             const GLEWContext* const glewContext ) const
-{
-    util::CompressorDataGPU uploader = util::CompressorDataGPU( glewContext );
-
-    const Image::PixelData& pixelData = getPixelData( buffer );
-    const uint32_t inputToken = pixelData.externalFormat;
-    const uint32_t outputToken = pixelData.internalFormat;
-
-    if( !uploader.isValidUploader( inputToken, outputToken ))
-        uploader.initUploader( inputToken, outputToken );
-
-    uploader.upload( pixelData.pixels,
-                     pixelData.pvp,
-                     EQ_COMPRESSOR_USE_TEXTURE, 
-                     getPixelViewport(), texture );
-}
-
-void Image::upload( const Frame::Buffer buffer, 
-                    const Vector2i offset,
-                    util::ObjectManager< const void* >* glObjects ) const
-{
-    util::CompressorDataGPU* uploader = glObjects->obtainEqUploader(
-                                            _getCompressorKey( buffer ));
-
-    const Image::PixelData& pixelData = getPixelData( buffer );
-    const uint32_t inputToken = pixelData.externalFormat;
-    const uint32_t outputToken = pixelData.internalFormat;
-
-    if( !uploader->isValidUploader( inputToken, outputToken ))
-        uploader->initUploader( inputToken, outputToken );
-    
-    PixelViewport pvp = getPixelViewport();
-    pvp.x = offset.x() + pvp.x; 
-    pvp.y = offset.y() + pvp.y;
-    uploader->upload( pixelData.pixels, pixelData.pvp, 
-                      EQ_COMPRESSOR_USE_FRAMEBUFFER, pvp, 0 );
+    uploader->upload( pixelData.pixels, pixelData.pvp,
+                      EQ_COMPRESSOR_USE_TEXTURE, getPixelViewport(), texture );
 }
 
 void Image::readback( const uint32_t buffers, const PixelViewport& pvp,
-                      const Zoom& zoom, 
+                      const Zoom& zoom,
                       util::ObjectManager< const void* >* glObjects )
 {
     EQASSERT( glObjects );
@@ -409,6 +380,7 @@ const void* Image::_getCompressorKey( const Frame::Buffer buffer ) const
             return ( reinterpret_cast< const char* >( this ) + 0 );
     }
 }
+
 void Image::_readback( const Frame::Buffer buffer, const Zoom& zoom,
                        util::ObjectManager< const void* >* glObjects )
 {
@@ -422,8 +394,7 @@ void Image::_readback( const Frame::Buffer buffer, const Zoom& zoom,
         _readbackTexture( buffer, glObjects );
     }
     else if( zoom == Zoom::NONE ) // normal glReadPixels
-        _download( buffer, EQ_COMPRESSOR_DATA_2D|EQ_COMPRESSOR_USE_FRAMEBUFFER, 
-                   0, glewGetContext( ));
+        readback( buffer, 0, glewGetContext( ));
     else // copy to texture, draw zoomed quad into FBO, (read FBO texture)
         _readbackZoom( buffer, zoom, glObjects );
 }
@@ -530,23 +501,24 @@ void Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
         EQASSERT( buffer == Frame::BUFFER_DEPTH );
         id = fbo->getDepthTexture().getID();
     }
-    _download( buffer, EQ_COMPRESSOR_DATA_2D | EQ_COMPRESSOR_USE_TEXTURE, 
-               id, glewGetContext( ));
+    readback( buffer, id, glewGetContext( ));
 
     EQLOG( LOG_ASSEMBLY ) << "Read texture " 
                           << getPixelDataSize( buffer ) << std::endl;
 }
 
-void Image::_download( const Frame::Buffer buffer, const uint32_t flags,
-                       const uint32_t texture, const GLEWContext* glewContext )
+void Image::readback( const Frame::Buffer buffer, const uint32_t texture,
+                      const GLEWContext* glewContext )
 {
     Attachment& attachment = _getAttachment( buffer );
     Memory& memory = attachment.memory;    
     const uint32_t inputToken = memory.internalFormat;
+    const uint32_t flags = EQ_COMPRESSOR_DATA_2D | 
+        ( texture ? EQ_COMPRESSOR_USE_TEXTURE : EQ_COMPRESSOR_USE_FRAMEBUFFER );
+               
     attachment.transfer->setGLEWContext( glewContext );
     if( !attachment.transfer->isValidDownloader( inputToken ))
     {
-        
         attachment.transfer->initDownloader( attachment.quality, inputToken );
             
         // get the pixel type produced by the downloader
@@ -556,10 +528,10 @@ void Image::_download( const Frame::Buffer buffer, const uint32_t flags,
 
         // init a compressor which is compatible with the downloader 
         // output token
-        float qualityComp = attachment.quality / 
-                            attachment.lossyTransfer.getQuality();
+        const float quality = attachment.quality / 
+                              attachment.lossyTransfer.getQuality();
         attachment.compressor->initCompressor( memory.externalFormat, 
-                                               qualityComp, noAlpha );
+                                               quality, noAlpha );
     }
 
     attachment.transfer->download( _pvp, texture, flags, 
@@ -772,7 +744,7 @@ bool Image::allocDownloader( const Frame::Buffer buffer,
             attachment.transfer->getInternalFormat();
         _setExternalFormat( buffer, attachment.transfer->getExternalFormat(),
                             attachment.transfer->getTokenSize( ));
-        EQLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex
+        EQLOG( LOG_PLUGIN ) << "Instantiated downloader of type 0x" << std::hex
                             << name << std::dec << std::endl;
     }
     return true;

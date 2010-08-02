@@ -47,20 +47,20 @@ namespace util
         EQ_EXPORT ~Accum();
 
         /**
-         * Inits the accumulation object.
+         * Init the accumulation object.
          *
          * @param pvp the pixel viewport.
          * @param textureFormat the texture format.
+         * @return true if initialized successfully.
+         * @version 1.0
          */
         EQ_EXPORT bool init( const PixelViewport& pvp, GLuint textureFormat );
 
-        /**
-         * Exits the accum object.
-         */
+        /** Exit the accum object. @version 1.0 */
         EQ_EXPORT void exit();
 
         /**
-         * Resizes the accumulation object.
+         * Resize the accumulation object.
          *
          * @param width the new width.
          * @param height the new height.

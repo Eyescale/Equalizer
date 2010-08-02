@@ -1,4 +1,6 @@
-Fix Win32 build, improve Darwin CMake files.
+compression plugin:
+- Improve logging
+- Clean up download & upload code
 
 [ ] May break build
 [ ] May break existing applications

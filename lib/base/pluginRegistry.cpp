@@ -46,7 +46,8 @@ void PluginRegistry::init()
          i != directories.end(); ++i )
     {
         const std::string& directory = *i;
-        EQINFO << "Searching compressors in " << directory << std::endl;
+        EQLOG( LOG_PLUGIN ) << "Searching compressors in " << directory
+                            << std::endl;
 
         // search the number of files in the director
 #ifdef WIN32
@@ -92,9 +93,9 @@ void PluginRegistry::_initCompressor( const std::string& filename )
     if( add )
     {
         _compressors.push_back( compressor );
-        EQINFO << "Found compressor '" << filename << "' @" << (void*)compressor
-               << " providing " << compressor->getInfos().size() << " engines"
-               << std::endl;
+        EQLOG( LOG_PLUGIN ) << "Found compressor '" << filename
+                            << "' providing " << compressor->getInfos().size()
+                            << " engines" << std::endl;
     }
     else
         delete compressor;
@@ -140,8 +141,9 @@ uint32_t PluginRegistry::chooseCompressor( const uint32_t tokenType,
     float ratio = 1.0f;
     float minDiffQuality = 1.0f;
 
-    EQINFO << "Searching compressor for token type " << tokenType << " quality "
-           << minQuality << std::endl;
+    EQLOG( LOG_PLUGIN ) << "Searching compressor for token type 0x" << std::hex
+                        << tokenType << std::dec << " quality " << minQuality
+                        << std::endl;
 
     for( Compressors::const_iterator i = _compressors.begin();
          i != _compressors.end(); ++i )
@@ -149,8 +151,6 @@ uint32_t PluginRegistry::chooseCompressor( const uint32_t tokenType,
         const Compressor* compressor = *i;
         const CompressorInfos& infos = compressor->getInfos();
 
-        EQINFO << "Searching in DSO " << (void*)compressor << std::endl;
-        
         for( CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
@@ -188,7 +188,8 @@ uint32_t PluginRegistry::chooseCompressor( const uint32_t tokenType,
         }
     }
 
-    EQINFO << "Selected compressor " << name << std::endl;
+    EQLOG( LOG_PLUGIN ) << "Selected compressor 0x" << std::hex << name
+                        << std::dec << std::endl;
     return name;
 }
 

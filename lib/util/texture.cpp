@@ -136,8 +136,7 @@ void Texture::setInternalFormat( const GLuint internalFormat )
     }
 }
 
-void Texture::setExternalFormat( const uint32_t format,
-                                 const uint32_t type )
+void Texture::setExternalFormat( const uint32_t format, const uint32_t type )
 {
      _format = format;
      _type   = type;    
@@ -233,14 +232,16 @@ void Texture::_copyFromFrameBuffer( uint32_t x, uint32_t w,
     EQ_GL_ERROR( "after Texture::copyFromFrameBuffer" );
 }
 
-void Texture::upload( const Image* image, const Frame::Buffer which )
+void Texture::upload( const Image* image, const Frame::Buffer which,
+                      ObjectManager< const void* >* glObjects )
 {
     CHECK_THREAD( _thread );
 
-    setInternalFormat( image->getInternalFormat( which ));
+    const PixelViewport& pvp = image->getPixelViewport();
+    init( image->getInternalFormat( which ), pvp.w, pvp.h );
     EQASSERT( _internalFormat != 0 );
 
-    image->uploadToTexture( which, _id, _glewContext );
+    image->upload( which, _id, glObjects );
 }
 
 void Texture::upload( const int width, const int height, const void* ptr )
@@ -333,8 +334,9 @@ void Texture::writeRGB( const std::string& filename,
 {
     eq::Image image;
 
+    image.setPixelViewport( pvp );
     image.allocDownloader( buffer, _downloaderName, _glewContext );
-    image.readbackFromTexture( buffer, pvp, _id, _glewContext );
+    image.readback( buffer, _id, _glewContext );
     image.writeImage( filename + ".rgb", buffer );
 }
 

@@ -325,7 +325,7 @@ public:
 protected:
     eq::base::Bufferb _buffer;
     util::Texture*    _texture;
-    uint32_t    _internalFormat;         //!< the GL format
+    uint32_t    _internalFormat; //!< the GL format
     uint32_t    _format;         //!< the GL format
     uint32_t    _type;           //!< the GL type 
     uint32_t    _depth;          //!< the size of one output token

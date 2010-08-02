@@ -895,7 +895,7 @@ DOCSET_PUBLISHER_ID    = ch.eyescale.Equalizer.documentation
 
 # The GENERATE_PUBLISHER_NAME tag identifies the documentation publisher.
 
-DOCSET_PUBLISHER_NAME  = Eyescale Software GmbH
+DOCSET_PUBLISHER_NAME  = Eyescale
 
 # If the GENERATE_HTMLHELP tag is set to YES, additional index files
 # will be generated that can be used as input for tools like the

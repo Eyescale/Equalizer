@@ -246,45 +246,53 @@ namespace eq
          */
         //@{
         /**
-         * reading back an image from the frame buffer.
+         * Read back an image from the frame buffer.
          *
-         * @param buffers bit-wise combination of the frame buffer components.
+         * @param buffers bit-wise combination of the Frame::Buffer components.
          * @param pvp the area of the frame buffer wrt the drawable.
          * @param zoom the scale factor to apply during readback.
          * @param glObjects the GL object manager for the current GL context.
          * @sa setStorageType()
          */
-        EQ_EXPORT void readback( const uint32_t buffers, 
-                                 const PixelViewport& pvp,
-                                 const Zoom& zoom,
-                                 util::ObjectManager< const void* >* glObjects );
+        EQ_EXPORT void readback( const uint32_t buffers,
+                                 const PixelViewport& pvp, const Zoom& zoom,
+                                 util::ObjectManager< const void* >* glObjects);
 
         /**
-         * Start reading back an image from a texture.
+         * Read back an image from a given texture.
          *
-         * @param buffer bit-wise combination of the frame buffer components.
-         * @param pvp the area of the frame buffer wrt the drawable.
-         * @param texture the texture id to use for readback.
-         * @param glewContext the current GL context.
+         * @param buffer the buffer type.
+         * @param texture the OpenGL texture name.
+         * @param glewContext function table for the current GL context.
          * @sa setStorageType()
          */
-        void readbackFromTexture( const Frame::Buffer buffer, 
-                                  const PixelViewport& pvp,
-                                  uint32_t texture,
-                                  const GLEWContext* glewContext );
+        void readback( const Frame::Buffer buffer, const uint32_t texture,
+                       const GLEWContext* glewContext );
 
-        EQ_EXPORT void uploadToTexture( const Frame::Buffer buffer, 
-                                        uint32_t texture,
-                                 util::ObjectManager< const void* >* glObjects )
+        /**
+         * Upload this image to the frame buffer.
+         *
+         * @param buffer the buffer type.
+         * @param position the destination offset wrt current GL viewport.
+         * @param glObjects the OpenGL object manager for the current context.
+         */
+        EQ_EXPORT void upload( const Frame::Buffer buffer,
+                               const Vector2i& position,
+                               util::ObjectManager< const void* >* glObjects )
             const;
 
-        EQ_EXPORT void uploadToTexture( const Frame::Buffer buffer, 
-                                        uint32_t texture,
-                                        const GLEWContext* const glewContext )
-            const;
-
-        EQ_EXPORT void upload( const Frame::Buffer buffer, 
-                               const Vector2i offset,
+        /** 
+         * Upload this image to a texture.
+         *
+         * The texture has to be pre-defined with the correct parameters
+         * corresponding to the requested buffer.
+         *
+         * @param buffer the buffer type.
+         * @param texture the initialized GL texture.
+         * @param glObjects the OpenGL object manager for the current context.
+         */
+        EQ_EXPORT void upload( const Frame::Buffer buffer,
+                               const uint32_t texture,
                                util::ObjectManager< const void* >* glObjects )
             const;
 
@@ -308,22 +316,17 @@ namespace eq
         //@}
 
         /** 
-         * @return the list of possible compressors for the given buffer.
          * @internal
+         * @return the list of possible compressors for the given buffer.
          */
         EQ_EXPORT std::vector< uint32_t > 
         findCompressors( const Frame::Buffer buffer ) const;
 
-        /**
-         * Re-allocate, if needed, a compressor instance.
-         * @internal
-         */
+        /** @internal Re-allocate, if needed, a compressor instance. */
         EQ_EXPORT bool allocCompressor( const Frame::Buffer buffer, 
                                         const uint32_t name );
-        /**
-         * Re-allocate, if needed, a Downloader instance.
-         * @internal
-         */
+
+        /** @internal Re-allocate, if needed, a downloader instance. */
         EQ_EXPORT bool allocDownloader( const Frame::Buffer buffer, 
                                         const uint32_t name,
                                         const GLEWContext* glewContext );
@@ -444,9 +447,6 @@ namespace eq
                                util::ObjectManager< const void* >* glObjects );
         void _readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
                             util::ObjectManager< const void* >* glObjects );
-
-        void _download( const Frame::Buffer buffer, const uint32_t flags,
-                        const uint32_t texture, const GLEWContext* glewContext);
 
         friend std::ostream& operator << ( std::ostream& os, const Image* );
     };
