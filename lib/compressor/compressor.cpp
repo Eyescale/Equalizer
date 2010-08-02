@@ -34,12 +34,12 @@ namespace plugin
 namespace
 {
     typedef std::vector< Compressor::Functions > Compressors;
-    static Compressors _functions;
+    static Compressors* _functions;
 
     const Compressor::Functions& _findFunctions( const unsigned name )
     {
-        for( Compressors::const_iterator i = _functions.begin();
-             i != _functions.end(); ++i )
+        for( Compressors::const_iterator i = _functions->begin();
+             i != _functions->end(); ++i )
         {
             const Compressor::Functions& functions = *i;
             EqCompressorInfo info;
@@ -49,7 +49,7 @@ namespace
         }
 
         assert( 0 ); // UNREACHABLE
-        return _functions.front();
+        return _functions->front();
     }
 }
 
@@ -78,7 +78,9 @@ Compressor::Functions::Functions( CompressorGetInfo_t getInfo_,
 
 void Compressor::registerEngine( const Compressor::Functions& functions )
 {
-    _functions.push_back( functions );
+    if( !_functions ) // resolve 'static initialization order fiasco'
+        _functions = new Compressors;
+    _functions->push_back( functions );
 }
 
 }
@@ -86,13 +88,13 @@ void Compressor::registerEngine( const Compressor::Functions& functions )
 
 size_t EqCompressorGetNumCompressors()
 {
-    return eq::plugin::_functions.size();
+    return eq::plugin::_functions->size();
 }
            
 void EqCompressorGetInfo( const size_t n, EqCompressorInfo* const info )
 {
-    assert( eq::plugin::_functions.size() > n );
-    eq::plugin::_functions[ n ].getInfo( info );
+    assert( eq::plugin::_functions->size() > n );
+    (*eq::plugin::_functions)[ n ].getInfo( info );
 }
 
 void* EqCompressorNewCompressor( const unsigned name )
