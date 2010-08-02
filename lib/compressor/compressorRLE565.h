@@ -87,7 +87,7 @@ public:
     static void getInfo1( EqCompressorInfo* const info )
     {
         CompressorDiffRLE565::getInfo( info );
-        info->name = EQ_COMPRESSOR_RLE_RGBA;
+        info->name = EQ_COMPRESSOR_DIFF_RLE_565_RGBA;
         info->tokenType = EQ_COMPRESSOR_DATATYPE_RGBA;
     }
 

@@ -104,6 +104,15 @@ bool Compressor::init( const std::string& libraryName )
                 EQASSERT( info.outputTokenSize != 0 );
             }
         }
+#ifndef NDEBUG // Check that each compressor exist once
+        for( size_t j = 0; j < i; ++j )
+        {
+            EQASSERTINFO( info.name != _infos[j].name,
+                          "Compressors " << i << " and " << j << " in '" <<
+                          libraryName << "' use the same name" );
+        }
+#endif
+
     }
 
     return true;
