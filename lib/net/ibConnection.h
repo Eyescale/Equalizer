@@ -98,7 +98,7 @@ private:
     // init my connection IB
     bool _preRegister();
 
-    CHECK_THREAD_DECLARE( _recvThread );
+    EQ_TS_THREAD_DECLARE( _recvThread );
 };
 }
 }

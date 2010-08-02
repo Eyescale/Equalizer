@@ -285,7 +285,7 @@ void NamedPipeConnection::acceptNB()
 
 ConnectionPtr NamedPipeConnection::acceptSync()
 {
-    CHECK_THREAD( _recvThread );
+    EQ_TS_THREAD( _recvThread );
     if( _state != STATE_LISTENING )
         return 0;
 
@@ -348,7 +348,7 @@ void NamedPipeConnection::readNB( void* buffer, const uint64_t bytes )
 int64_t NamedPipeConnection::readSync( void* buffer, const uint64_t bytes,
                                        const bool ignored )
 {
-    CHECK_THREAD( _recvThread );
+    EQ_TS_THREAD( _recvThread );
 
     if( _fd == INVALID_HANDLE_VALUE )
     {

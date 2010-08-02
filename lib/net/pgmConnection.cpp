@@ -327,7 +327,7 @@ void PGMConnection::acceptNB()
     
 ConnectionPtr PGMConnection::acceptSync()
 {
-    CHECK_THREAD( _recvThread );
+    EQ_TS_THREAD( _recvThread );
     if( _state != STATE_LISTENING )
         return 0;
 
@@ -446,7 +446,7 @@ void PGMConnection::readNB( void* buffer, const uint64_t bytes )
 int64_t PGMConnection::readSync( void* buffer, const uint64_t bytes,
                                  const bool ignored )
 {
-    CHECK_THREAD( _recvThread );
+    EQ_TS_THREAD( _recvThread );
 
     if( _readFD == INVALID_SOCKET )
     {

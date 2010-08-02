@@ -90,7 +90,7 @@ namespace net
         DWORD      _readDone;
         OVERLAPPED _write;
 
-        CHECK_THREAD_DECLARE( _recvThread );
+        EQ_TS_VAR( _recvThread );
 
         std::string _getFilename() const;
 #endif

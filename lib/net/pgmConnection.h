@@ -93,7 +93,7 @@ namespace net
         void*      _overlappedAcceptData;
         SOCKET     _overlappedSocket;
 
-        CHECK_THREAD_DECLARE( _recvThread );
+        EQ_TS_VAR( _recvThread );
     };
 }
 }

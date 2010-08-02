@@ -37,8 +37,7 @@ RenderContext::RenderContext()
 {
 }
 
-std::ostream& operator << ( std::ostream& os, 
-                                      const RenderContext& ctx )
+std::ostream& operator << ( std::ostream& os, const RenderContext& ctx )
 {
     os << "ID " << ctx.frameID << " pvp " << ctx.pvp << " vp " << ctx.vp << " "
        << ctx.range << " " << ctx.eye;
