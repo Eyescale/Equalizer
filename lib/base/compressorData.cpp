@@ -95,7 +95,7 @@ bool CompressorData::_initCompressor( uint32_t name )
     EQASSERT( _info );
     EQLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex
                         << name << std::dec << std::endl;
-    return false;
+    return true;
 }
 
 bool CompressorData::_initDecompressor( uint32_t name )

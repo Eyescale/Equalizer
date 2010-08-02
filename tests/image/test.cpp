@@ -227,6 +227,7 @@ int main( int argc, char **argv )
                     image.compressPixelData( buffer );
                 const float compressTime = clock.getTimef();
 
+                TEST( compressedPixels.compressorName == name );
                 TEST( compressedPixels.compressedSize.size() ==
                       compressedPixels.compressedData.size( ));
                 TESTINFO( name == compressedPixels.compressorName,

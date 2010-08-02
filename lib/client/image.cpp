@@ -136,22 +136,17 @@ bool Image::_canIgnoreAlpha( const Frame::Buffer buffer ) const
 std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
     const
 {
-    const uint32_t tokenType = getExternalFormat( buffer );
-    EQLOG( LOG_PLUGIN ) << "Searching compressors for token type 0x"
-                        << std::hex << tokenType << std::dec << std::endl;
-
     const base::PluginRegistry& registry = base::Global::getPluginRegistry();
     const base::Compressors& compressors = registry.getCompressors();
-    std::vector< uint32_t > names;
+    const uint32_t tokenType = getExternalFormat( buffer );
 
+    std::vector< uint32_t > names;
     for( base::Compressors::const_iterator i = compressors.begin();
          i != compressors.end(); ++i )
     {
         const base::Compressor* compressor = *i;
         const base::CompressorInfos& infos = compressor->getInfos();
 
-        EQLOG( LOG_PLUGIN ) << "Searching in DSO " << (void*)compressor
-                            << std::endl;
         for( base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
@@ -165,20 +160,25 @@ std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
         }
     }
 
+    EQLOG( LOG_PLUGIN )
+        << "Found " << names.size() << " compressors for token type 0x"
+        << std::hex << tokenType << std::dec << std::endl;
     return names;
 }
 
-uint32_t Image::_getCompressorName( const Frame::Buffer buffer ) const
+uint32_t Image::_chooseCompressor( const Frame::Buffer buffer ) const
 {
-    const Attachment& attachment = _getAttachment( buffer );
-    if( !attachment.memory.externalFormat )
+    const uint32_t tokenType = getExternalFormat( buffer );
+    EQASSERT( tokenType != EQ_COMPRESSOR_DATATYPE_NONE );
+    if( tokenType == EQ_COMPRESSOR_DATATYPE_NONE )
         return EQ_COMPRESSOR_NONE;
 
-    const uint32_t tokenType = getExternalFormat( buffer );
+    const Attachment& attachment = _getAttachment( buffer );
     const bool noAlpha = _canIgnoreAlpha( buffer );
+    const float quality = attachment.quality /
+                          attachment.lossyTransfer.getQuality();
 
-    return base::CompressorDataCPU::chooseCompressor( tokenType,
-                                                      attachment.quality,
+    return base::CompressorDataCPU::chooseCompressor( tokenType, quality,
                                                       noAlpha );
 }
 
@@ -524,14 +524,6 @@ void Image::readback( const Frame::Buffer buffer, const uint32_t texture,
         // get the pixel type produced by the downloader
         _setExternalFormat( buffer, attachment.transfer->getExternalFormat(),
                             attachment.transfer->getTokenSize( ));
-        const bool noAlpha = _canIgnoreAlpha( buffer );
-
-        // init a compressor which is compatible with the downloader 
-        // output token
-        const float quality = attachment.quality / 
-                              attachment.lossyTransfer.getQuality();
-        attachment.compressor->initCompressor( memory.externalFormat, 
-                                               quality, noAlpha );
     }
 
     attachment.transfer->download( _pvp, texture, flags, 
@@ -819,12 +811,13 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
         memory.compressorName = attachment.compressor->getName();
     else
     {
-        memory.compressorName = _getCompressorName( buffer );
+        memory.compressorName = _chooseCompressor( buffer );
         if( !allocCompressor( buffer, memory.compressorName ) || 
             memory.compressorName == EQ_COMPRESSOR_NONE )
         {
-            EQWARN << "No compressor found for token type " 
-                   << getExternalFormat( buffer ) << std::endl;
+            EQWARN << "No compressor found for token type 0x" << std::hex 
+                   << getExternalFormat( buffer ) << std::dec << std::endl;
+            memory.compressorName = EQ_COMPRESSOR_NONE;
             return memory;
         }
     }

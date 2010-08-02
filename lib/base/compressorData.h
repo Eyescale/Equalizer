@@ -51,8 +51,7 @@ namespace base
         EQ_EXPORT void reset();
 
         /** @return the quality produced by the current compressor instance. */
-        float getQuality() const
-            { return _info ? _info->quality : 1.0f; }
+        float getQuality() const { return _info ? _info->quality : 1.0f; }
 
         /** @return the information about the current compressor instance. */
         const EqCompressorInfo* getInfo() const

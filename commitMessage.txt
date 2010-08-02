@@ -1,8 +1,9 @@
 compression plugin:
+- Fix CPU compressor allocation
+  o Correct quality
+  o Correct first-time allocation
+  o Don't alloc if not needed (postpone to compression)
 - Improve logging
-- Allocate uploader correctly
-- Fix usage of decompression/upload instance
-- Various code cleanups
 
 [ ] May break build
 [ ] May break existing applications

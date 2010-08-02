@@ -730,9 +730,9 @@ Object* Session::_findObject( Command& command )
 
     if( i == _objects->end( ))
     {
-        EQASSERTINFO( false, "no objects to handle command " << packet <<
-                      " for instance " << instanceID << " in " <<
-                      typeid( *this ).name( ));
+        EQASSERTINFO( false,
+                      "no objects to handle command " << packet << " instance "
+                      << instanceID << " in " << base::className( this ));
         return 0;
     }
 

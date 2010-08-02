@@ -366,8 +366,8 @@ namespace eq
             eq::base::Bufferb localBuffer;
         };
 
-        /** @return an appropriate compressor name for the buffer data type.*/
-        uint32_t _getCompressorName( const Frame::Buffer buffer ) const;
+        /** @return an appropriate compressor name for the given buffer.*/
+        uint32_t _chooseCompressor( const Frame::Buffer buffer ) const;
 
         /** The storage type for the pixel data. */
         Frame::Type _type;
