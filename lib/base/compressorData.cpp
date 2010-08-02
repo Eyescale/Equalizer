@@ -41,6 +41,7 @@ void CompressorData::reset()
 {
     if ( _instance )
     {
+        EQ_TS_THREAD( _thread );
         if ( _isCompressor )
            _plugin->deleteCompressor( _instance );
         else
@@ -62,6 +63,7 @@ base::Compressor* CompressorData::_findPlugin( uint32_t name )
 
 bool CompressorData::isValid( uint32_t name ) const
 {
+    EQ_TS_THREAD( _thread );
     if( _name == EQ_COMPRESSOR_INVALID )
         return false;
     if( _name == EQ_COMPRESSOR_NONE )
@@ -72,6 +74,7 @@ bool CompressorData::isValid( uint32_t name ) const
 
 bool CompressorData::_initCompressor( uint32_t name )
 {
+    EQ_TS_THREAD( _thread );
     reset();
     
     if( name <= EQ_COMPRESSOR_NONE )
@@ -100,6 +103,7 @@ bool CompressorData::_initCompressor( uint32_t name )
 
 bool CompressorData::_initDecompressor( uint32_t name )
 {
+    EQ_TS_THREAD( _thread );
     reset();
     if( name <= EQ_COMPRESSOR_NONE )
     {

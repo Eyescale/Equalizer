@@ -69,7 +69,32 @@ EQ_EXPORT std::ostream& backtrace( std::ostream& os )
     char** names = ::backtrace_symbols( callstack, frames );
     os << disableFlush << disableHeader << indent << std::endl;
     for( int i = 1; i < frames; ++i )
-        os << names[ i ] << std::endl;
+    {
+        std::string name = names[ i ];
+        const size_t symbolPos = name.find( " _" );
+        if( symbolPos != std::string::npos )
+            name = name.substr( symbolPos+1, name.length( ));
+
+        const size_t spacePos = name.find( ' ' );
+        if( spacePos != std::string::npos )
+            name = name.substr( 0, spacePos );
+
+        int status;
+        char* demangled = abi::__cxa_demangle( name.c_str(), 0, 0, &status);
+
+        if( symbolPos == std::string::npos || spacePos == std::string::npos )
+            os << names[ i ] << std::endl;
+        else
+        {
+            if( demangled )
+            {
+                os << demangled << std::endl;
+                free( demangled );
+            }
+            else
+                os << name << std::endl;
+        }
+    }
     os << exdent << enableHeader << enableFlush;
     ::free( names );
 #endif

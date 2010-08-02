@@ -19,13 +19,15 @@
 #ifndef EQUTIL_COMPRESSORDATA_H
 #define EQUTIL_COMPRESSORDATA_H
 
-#include <eq/base/buffer.h>
-#include <eq/base/compressor.h>
+#include <eq/base/thread.h>       // thread-safety macros
+#include <eq/plugins/compressor.h> // EqCompressorInfo
 
 namespace eq
 {
 namespace base
 {
+    class Compressor;
+
     /** A C++ class to abstract a compressor instance. */
     class CompressorData
     {
@@ -93,6 +95,8 @@ namespace base
          * @param name the name of the compressor
          */
         bool _initDecompressor( uint32_t name );
+
+        EQ_TS_VAR( _thread );
     };
 }
 }
