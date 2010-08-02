@@ -1,14 +1,9 @@
-Compression plugin:
-- Fix alpha handling by using downloader-provided flags [untested]
-- Fix allocation of downloader for 'needs-alpha' images
-- Fix decompression flags by transmitting them
-- Improve doxygen for the above
-- Remove dead code
+Fix depth downloader
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

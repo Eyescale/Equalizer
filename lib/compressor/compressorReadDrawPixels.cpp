@@ -139,25 +139,16 @@ CompressorReadDrawPixels::CompressorReadDrawPixels(const EqCompressorInfo* info)
         case EQ_COMPRESSOR_DATATYPE_RGBA:              
             _internalFormat = GL_RGBA;
             break;
-        case EQ_COMPRESSOR_DATATYPE_RGB:
-            _internalFormat = GL_RGB;
-            break;
         case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
             _internalFormat = GL_RGB10_A2;
             break;
         case EQ_COMPRESSOR_DATATYPE_RGBA32F:
             _internalFormat = GL_RGBA32F;
             break;
-        case EQ_COMPRESSOR_DATATYPE_RGB32F:
-            _internalFormat = GL_RGB32F;
-            break;        
         case EQ_COMPRESSOR_DATATYPE_RGBA16F:
             _internalFormat = GL_RGBA16F;
             break;
-        case EQ_COMPRESSOR_DATATYPE_RGB16F:
-            _internalFormat = GL_RGB16F;
-            break;
-        case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT:
+        case EQ_COMPRESSOR_DATATYPE_DEPTH:
             _internalFormat = GL_DEPTH_COMPONENT;
             break;
         default: EQASSERT( false );
