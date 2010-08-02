@@ -31,6 +31,34 @@ namespace eq
 {
 namespace plugin
 {
+namespace
+{
+static void _getInfo( EqCompressorInfo* const info )
+{
+    info->version         = EQ_COMPRESSOR_VERSION;
+    info->name            = EQ_COMPRESSOR_TRANSFER_RGBA_TO_YUVA_50P;
+    info->capabilities    = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
+                            EQ_COMPRESSOR_USE_TEXTURE |
+                            EQ_COMPRESSOR_USE_FRAMEBUFFER;
+    info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA;
+    info->outputTokenType = EQ_COMPRESSOR_DATATYPE_YUVA_50P;
+    info->outputTokenSize = 4;
+    info->quality         = 0.8f;
+    info->ratio           = 0.5f;
+    info->speed           = 0.5f;
+}
+
+static bool _register()
+{
+    Compressor::registerEngine(
+        Compressor::Functions( _getInfo, CompressorYUV::getNewCompressor,
+                               CompressorYUV::getNewDecompressor, 0,
+                               CompressorYUV::isCompatible ));
+    return true;
+}
+
+static bool _initialized = _register();
+}
 
 /** Construct a new compressor Yuv */
 CompressorYUV::CompressorYUV( const EqCompressorInfo* info )

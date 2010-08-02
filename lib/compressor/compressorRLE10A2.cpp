@@ -28,9 +28,10 @@ namespace eq
 {
 namespace plugin
 {
-
 namespace
 {
+REGISTER_ENGINE( CompressorRLE10A2, DIFF_BGR10_A2, BGR10_A2, \
+                 1., 0.57, 1., true );
 
 class SwizzleUInt32
 {
@@ -89,7 +90,7 @@ public:
 
 }
 
-void CompressorDiffRLE10A2::compress( const void* const inData, 
+void CompressorRLE10A2::compress( const void* const inData, 
                                 const eq_uint64_t nPixels, const bool useAlpha,
                                 const bool swizzle )
 {
@@ -98,7 +99,7 @@ void CompressorDiffRLE10A2::compress( const void* const inData,
 
 }
 
-void CompressorDiffRLE10A2::decompress( const void* const* inData, 
+void CompressorRLE10A2::decompress( const void* const* inData, 
                                       const eq_uint64_t* const inSizes, 
                                       const unsigned numInputs,
                                       void* const outData,

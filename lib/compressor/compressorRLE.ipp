@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Template functions used by all compression routines
  * 
@@ -34,6 +34,33 @@ class NoAlpha
 public:
     static inline bool use() { return false; }
 };
+
+#define REGISTER_ENGINE( cls, name_, type, quality_, ratio_, speed_, alpha ) \
+    static void _getInfo ## cls ## type( EqCompressorInfo* const info ) \
+    {                                                                   \
+        info->version = EQ_COMPRESSOR_VERSION;                          \
+        info->capabilities = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D; \
+        if( alpha )                                                     \
+            info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;           \
+        info->quality = quality_ ## f;                                  \
+        info->ratio   = ratio_ ## f;                                    \
+        info->speed   = speed_ ## f;                                    \
+        info->name = EQ_COMPRESSOR_RLE_ ## name_;                       \
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_ ## type;              \
+    }                                                                   \
+                                                                        \
+    static bool _register ## cls ## type()                              \
+    {                                                                   \
+        Compressor::registerEngine(                                     \
+            Compressor::Functions( _getInfo ## cls ## type,             \
+                                   cls::getNewCompressor,               \
+                                   cls::getNewDecompressor,             \
+                                   cls::decompress, 0 ));               \
+        return true;                                                    \
+    }                                                                   \
+                                                                        \
+    static bool _initialized ## cls ## type = _register ## cls ## type();
+
 
 #define WRITE_OUTPUT( name )                                            \
     {                                                                   \

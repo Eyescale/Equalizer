@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,9 +30,15 @@ namespace eq
 {
 namespace plugin
 {
-
 namespace
 {
+REGISTER_ENGINE( CompressorRLE4HF, RGBA16F, RGBA16F, 1., 0.7, 1., true );
+REGISTER_ENGINE( CompressorRLE4HF, BGRA16F, BGRA16F, 1., 0.7, 1., true );
+REGISTER_ENGINE( CompressorDiffRLE4HF, DIFF_RGBA16F,    \
+                 RGBA16F, 1., 0.9, 1., true );
+REGISTER_ENGINE( CompressorDiffRLE4HF, DIFF_BGRA16F,    \
+                 BGRA16F, 1., 0.9, 1., true );
+        
 class NoSwizzle
 {
 public:

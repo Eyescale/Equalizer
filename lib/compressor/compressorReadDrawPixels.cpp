@@ -17,50 +17,83 @@
  */
 
 #include "compressorReadDrawPixels.h"
+
 #include <eq/util/texture.h>
 #include <eq/base/buffer.h>
 
 #define glewGetContext() glewContext
     
-namespace
-{
-    eq::plugin::Compressor::CompressorGetInfo_t _getInfos[] =
-    {
-        eq::plugin::CompressorReadDrawPixels::getInfo0,
-        eq::plugin::CompressorReadDrawPixels::getInfo1,
-        eq::plugin::CompressorReadDrawPixels::getInfo2,
-        eq::plugin::CompressorReadDrawPixels::getInfo3,
-        eq::plugin::CompressorReadDrawPixels::getInfo4,
-        eq::plugin::CompressorReadDrawPixels::getInfo5,
-        eq::plugin::CompressorReadDrawPixels::getInfo6,
-        eq::plugin::CompressorReadDrawPixels::getInfo7,
-        eq::plugin::CompressorReadDrawPixels::getInfo8,
-        eq::plugin::CompressorReadDrawPixels::getInfo9,
-        eq::plugin::CompressorReadDrawPixels::getInfo10,
-        eq::plugin::CompressorReadDrawPixels::getInfo11,
-        eq::plugin::CompressorReadDrawPixels::getInfo12,
-        eq::plugin::CompressorReadDrawPixels::getInfo13,
-        eq::plugin::CompressorReadDrawPixels::getInfo14,
-        eq::plugin::CompressorReadDrawPixels::getInfo15,
-        eq::plugin::CompressorReadDrawPixels::getInfo16,
-        eq::plugin::CompressorReadDrawPixels::getInfo17,
-        eq::plugin::CompressorReadDrawPixels::getInfo18,
-        eq::plugin::CompressorReadDrawPixels::getInfo19,
-        eq::plugin::CompressorReadDrawPixels::getInfo20,
-        eq::plugin::CompressorReadDrawPixels::getInfo21,
-        eq::plugin::CompressorReadDrawPixels::getInfo22,
-        eq::plugin::CompressorReadDrawPixels::getInfo23,
-        eq::plugin::CompressorReadDrawPixels::getInfo24,
-        eq::plugin::CompressorReadDrawPixels::getInfo25,
-        eq::plugin::CompressorReadDrawPixels::getInfo26,
-        eq::plugin::CompressorReadDrawPixels::getInfo27
-    };
-}
-// used to address one shader and program per shared context set
 namespace eq
 {
 namespace plugin
 {
+
+namespace
+{
+#define REGISTER_TRANSFER( in, out, size, quality_, ratio_, speed_, alpha ) \
+    static void _getInfo ## in ## out( EqCompressorInfo* const info )   \
+    {                                                                   \
+        info->version = EQ_COMPRESSOR_VERSION;                          \
+        info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D | \
+            EQ_COMPRESSOR_USE_TEXTURE | EQ_COMPRESSOR_USE_FRAMEBUFFER;  \
+        if( alpha )                                                     \
+            info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;           \
+        info->quality = quality_ ## f;                                  \
+        info->ratio   = ratio_ ## f;                                    \
+        info->speed   = speed_ ## f;                                    \
+        info->name = EQ_COMPRESSOR_TRANSFER_ ## in ## _TO_ ## out;      \
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_ ## in;                \
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_ ## out;         \
+        info->outputTokenSize = size;                                   \
+    }                                                                   \
+                                                                        \
+    static bool _register ## in ## out()                                \
+    {                                                                   \
+        Compressor::registerEngine(                                     \
+            Compressor::Functions(                                      \
+                _getInfo ## in ## out,                                  \
+                CompressorReadDrawPixels::getNewCompressor,             \
+                CompressorReadDrawPixels::getNewDecompressor,           \
+                0,                                                      \
+                CompressorReadDrawPixels::isCompatible ));              \
+        return true;                                                    \
+    }                                                                   \
+                                                                        \
+    static bool _initialized ## in ## out = _register ## in ## out();
+
+REGISTER_TRANSFER( RGBA, RGBA, 4, 1., 1., 1., false );
+REGISTER_TRANSFER( RGBA, BGRA, 4, 1., 1., 2., false );
+REGISTER_TRANSFER( RGBA, RGBA_UINT_8_8_8_8_REV, 4, 1., 1., 1., false );
+REGISTER_TRANSFER( RGBA, BGRA_UINT_8_8_8_8_REV, 4, 1., 1., 2., false );
+REGISTER_TRANSFER( RGBA, RGB, 3, 1., .75, .7, true );
+REGISTER_TRANSFER( RGBA, BGR, 3, 1., .75, .7, true );
+
+REGISTER_TRANSFER( RGB10_A2, BGR10_A2, 4, 1., 1., 1., false );
+
+REGISTER_TRANSFER( RGBA16F, RGBA16F, 8, 1., 1., 1., false );
+REGISTER_TRANSFER( RGBA16F, BGRA16F, 8, 1., 1., 1.1, false );
+REGISTER_TRANSFER( RGBA16F, RGB16F, 6, 1., .75, 1., true );
+REGISTER_TRANSFER( RGBA16F, BGR16F, 6, 1., .75, 1.1, true );
+REGISTER_TRANSFER( RGBA16F, RGBA, 4, 1., .5, 1., false );
+REGISTER_TRANSFER( RGBA16F, BGRA, 4, 1., .5, 1.1, false );
+REGISTER_TRANSFER( RGBA16F, RGB, 3, 1., .375, 1., true );
+REGISTER_TRANSFER( RGBA16F, BGR, 3, 1., .375, 1.1, true );
+
+REGISTER_TRANSFER( RGBA32F, RGBA32F, 16, 1., 1., 1., false );
+REGISTER_TRANSFER( RGBA32F, BGRA32F, 16, 1., 1., 1.1, false );
+REGISTER_TRANSFER( RGBA32F, RGB32F, 12, 1., .75, 1., true );
+REGISTER_TRANSFER( RGBA32F, BGR32F, 12, 1., .75, 1.1, true );
+REGISTER_TRANSFER( RGBA32F, RGBA16F, 8, 1., .5, 1., false );
+REGISTER_TRANSFER( RGBA32F, BGRA16F, 8, 1., .5, 1.1, false );
+REGISTER_TRANSFER( RGBA32F, RGB16F, 6, 1., .375, 1., true );
+REGISTER_TRANSFER( RGBA32F, BGR16F, 6, 1., .375, 1.1, true );
+REGISTER_TRANSFER( RGBA32F, RGBA, 4, 1., .25, 1., false );
+REGISTER_TRANSFER( RGBA32F, BGRA, 4, 1., .25, 1.1, false );
+REGISTER_TRANSFER( RGBA32F, RGB, 3, 1., .1875, 1., true );
+REGISTER_TRANSFER( RGBA32F, BGR, 3, 1., .1875, 1.1, true );
+
+REGISTER_TRANSFER( DEPTH, DEPTH_UNSIGNED_INT, 4, 1., 1., 1., false );
+}
 
 CompressorReadDrawPixels::CompressorReadDrawPixels(const EqCompressorInfo* info)
         : Compressor( info )
@@ -160,16 +193,6 @@ CompressorReadDrawPixels::~CompressorReadDrawPixels( )
     delete _texture;
     _texture = 0;
 }
-
-Compressor::Functions CompressorReadDrawPixels::getFunctions( uint32_t index )
-{
-    Functions functions;
-    functions.getInfo = _getInfos[ index ];
-    functions.newCompressor = getNewCompressor;  
-    functions.newDecompressor = getNewDecompressor;  
-    functions.isCompatible = isCompatible;
-    return functions;
-}    
 
 bool CompressorReadDrawPixels::isCompatible( const GLEWContext* glewContext )
 {

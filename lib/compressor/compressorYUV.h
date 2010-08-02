@@ -61,32 +61,6 @@ public:
                          const uint64_t  outDims[4],  
                          const unsigned  destination );
 
-    static void getInfo( EqCompressorInfo* const info )
-    {
-        info->version      = EQ_COMPRESSOR_VERSION;
-        info->name         = EQ_COMPRESSOR_TRANSFER_RGBA_TO_YUVA_50P;
-        info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
-                             EQ_COMPRESSOR_USE_TEXTURE | 
-                             EQ_COMPRESSOR_USE_FRAMEBUFFER;
-        info->tokenType    = EQ_COMPRESSOR_DATATYPE_RGBA;
-
-        info->quality      = 0.8f;
-        info->ratio        = 0.5f;
-        info->speed        = 0.5f;
-        
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_YUVA_50P;
-        info->outputTokenSize = 4;
-    }
-
-    static Functions getFunctions( )
-    {
-        Functions functions;
-        functions.getInfo = getInfo;
-        functions.newCompressor = getNewCompressor;  
-        functions.newDecompressor = getNewDecompressor;  
-        functions.isCompatible = isCompatible;
-        return functions;
-    }
 protected:
     GLuint   _program;
     eq::base::Bufferb buffer;

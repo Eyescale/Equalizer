@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,9 +29,12 @@ namespace eq
 {
 namespace plugin
 {
-
 namespace
 {
+REGISTER_ENGINE( CompressorRLEYUV, YUVA_50P, YUVA_50P, 1., 0.59, 1., true );
+REGISTER_ENGINE( CompressorDiffRLEYUV, DIFF_YUVA_50P,   \
+                 YUVA_50P, 1., 0.5, 1.1, true );
+
 class NoSwizzle
 {
 public:

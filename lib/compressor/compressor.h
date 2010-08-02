@@ -49,7 +49,11 @@ namespace plugin
 
         struct Functions
         {
-            Functions();
+            Functions( CompressorGetInfo_t getInfo,
+                       NewCompressor_t newCompressor,
+                       NewCompressor_t newDecompressor,
+                       Decompress_t decompress, IsCompatible_t isCompatible );
+
             CompressorGetInfo_t  getInfo;
             NewCompressor_t      newCompressor;
             NewCompressor_t      newDecompressor;
@@ -117,6 +121,9 @@ namespace plugin
                              const eq_uint64_t  flags,
                              const eq_uint64_t  outDims[4],  
                              const unsigned     destination ) { EQDONTCALL; }
+
+        /** @internal Register a new plugin engine. */
+        static void registerEngine( const Functions& functions );
 
     protected:
         ResultVector _results;  //!< The compressed data

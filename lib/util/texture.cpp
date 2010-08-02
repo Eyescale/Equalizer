@@ -83,7 +83,7 @@ void Texture::setInternalFormat( const GLuint internalFormat )
             break;
         case GL_RGB10_A2:
             setExternalFormat( GL_RGBA, GL_UNSIGNED_INT_10_10_10_2 );
-            setDownloader( EQ_COMPRESSOR_TRANSFER_RGB10A2_TO_BGR10A2 );
+            setDownloader( EQ_COMPRESSOR_TRANSFER_RGB10_A2_TO_BGR10_A2 );
             break;
         case GL_RGBA:
         case GL_RGBA8:

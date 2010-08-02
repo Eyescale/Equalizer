@@ -1,9 +1,11 @@
-Fix depth downloader
+Compression plugin:
+- Simplify engine registration
+- const-correctness fixes
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

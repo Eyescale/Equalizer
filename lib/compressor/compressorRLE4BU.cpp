@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *               2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -30,6 +30,9 @@ namespace eq
 {
 namespace plugin
 {
+namespace
+{
+REGISTER_ENGINE( CompressorRLE4BU, 4_BYTE_UNSIGNED, BGRA, 1., 0.89, 2.1, true );
 
 #define WRITE_SINGLE_OUTPUT                                             \
     {                                                                   \
@@ -62,7 +65,6 @@ namespace plugin
                       "Overwrite array bounds during image compress" ); \
     }
 
-
 static uint64_t _compress( const uint64_t* data, const uint64_t nWords, 
                                  uint64_t* out )
 {
@@ -88,6 +90,8 @@ static uint64_t _compress( const uint64_t* data, const uint64_t nWords,
 
     WRITE_SINGLE_OUTPUT;
     return (outPos<<3);
+}
+
 }
 
 void CompressorRLE4BU::compress( const void* const inData,

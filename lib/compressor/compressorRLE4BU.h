@@ -44,27 +44,6 @@ public:
         { return new eq::plugin::Compressor( info ); }
 
     static void* getNewDecompressor( const EqCompressorInfo* info ){ return 0; }
-
-    static void getInfo( EqCompressorInfo* const info )
-    {
-        info->version       = EQ_COMPRESSOR_VERSION;
-        info->name          = EQ_COMPRESSOR_RLE_4_BYTE_UNSIGNED;
-        info->capabilities  = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D;
-        info->tokenType     = EQ_COMPRESSOR_DATATYPE_BGRA;
-        info->quality       = 1.f;
-        info->ratio         = .89f;
-        info->speed         = 2.11f;
-    }
-
-    static Functions getFunctions()
-    {
-        Functions functions;
-        functions.getInfo = getInfo;
-        functions.newCompressor = getNewCompressor;
-        functions.newDecompressor = getNewDecompressor;
-        functions.decompress = decompress;
-        return functions;
-    }
 };
 
 }

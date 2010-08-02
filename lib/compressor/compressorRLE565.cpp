@@ -29,9 +29,15 @@ namespace eq
 {
 namespace plugin
 {
-
 namespace
 {
+REGISTER_ENGINE( CompressorRLE565, DIFF_565_RGBA, RGBA, .7, .1, 1.1, true );
+REGISTER_ENGINE( CompressorRLE565, DIFF_565_BGRA, BGRA, .7, .1, 1.1, true );
+REGISTER_ENGINE( CompressorRLE565, DIFF_565_RGBA_UINT_8_8_8_8_REV,  \
+                 RGBA_UINT_8_8_8_8_REV, .7, .1, 1.1, true );
+REGISTER_ENGINE( CompressorRLE565, DIFF_565_BGRA_UINT_8_8_8_8_REV,  \
+                 BGRA_UINT_8_8_8_8_REV, .7, .1, 1.1, true );
+
 class NoSwizzle
 {
 public:
@@ -135,8 +141,9 @@ public:
 
 }
 
-void CompressorDiffRLE565::compress( const void* const inData, 
-                                const eq_uint64_t nPixels, const bool useAlpha )
+void CompressorRLE565::compress( const void* const inData,
+                                 const eq_uint64_t nPixels,
+                                 const bool useAlpha )
 {
     if( useAlpha )
         _nResults = _compress< uint32_t, uint8_t, SwizzleUInt32, UseAlpha >(
@@ -146,12 +153,12 @@ void CompressorDiffRLE565::compress( const void* const inData,
                         inData, nPixels, _results );
 }
 
-void CompressorDiffRLE565::decompress( const void* const* inData, 
-                                      const eq_uint64_t* const inSizes, 
-                                      const unsigned numInputs,
-                                      void* const outData,
-                                      const eq_uint64_t nPixels,
-                                      const bool useAlpha )
+void CompressorRLE565::decompress( const void* const* inData, 
+                                   const eq_uint64_t* const inSizes, 
+                                   const unsigned numInputs,
+                                   void* const outData,
+                                   const eq_uint64_t nPixels,
+                                   const bool useAlpha )
 {
     if( useAlpha )
         _decompress< uint32_t, uint8_t, SwizzleUInt32, UseAlpha >(

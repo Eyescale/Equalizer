@@ -33,86 +33,23 @@ namespace plugin
 {
 namespace
 {
-    Compressor::Functions _functions[] =
-    {   
-        eq::plugin::CompressorRLE4B::getFunctions( 0 ),
-        eq::plugin::CompressorRLE4B::getFunctions( 1 ),
-        eq::plugin::CompressorRLE4B::getFunctions( 2 ),
-        eq::plugin::CompressorRLE4B::getFunctions( 3 ),
-        eq::plugin::CompressorRLE4B::getFunctions( 4 ),
-        eq::plugin::CompressorRLE4B::getFunctions( 5 ),
-        eq::plugin::CompressorRLE4B::getFunctions( 6 ),
-        eq::plugin::CompressorDiffRLE4B::getFunctions( 0 ),
-        eq::plugin::CompressorDiffRLE4B::getFunctions( 1 ),
-        eq::plugin::CompressorDiffRLE4B::getFunctions( 2 ),
-        eq::plugin::CompressorDiffRLE4B::getFunctions( 3 ),
-        eq::plugin::CompressorRLE4HF::getFunctions( 0 ),
-        eq::plugin::CompressorRLE4HF::getFunctions( 1 ),
-        eq::plugin::CompressorDiffRLE4HF::getFunctions( 0 ),
-        eq::plugin::CompressorDiffRLE4HF::getFunctions( 1 ),
-        eq::plugin::CompressorRLE4BU::getFunctions(),
-        eq::plugin::CompressorDiffRLE565::getFunctions( 0 ),
-        eq::plugin::CompressorDiffRLE565::getFunctions( 1 ),
-        eq::plugin::CompressorDiffRLE565::getFunctions( 2 ),
-        eq::plugin::CompressorDiffRLE565::getFunctions( 3 ),
-        eq::plugin::CompressorRLEB::getFunctions( ),
-        eq::plugin::CompressorDiffRLE10A2::getFunctions(),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 0 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 1 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 2 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 3 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 4 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 5 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 6 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 7 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 8 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 9 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 10 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 11 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 12 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 13 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 14 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 15 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 16 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 17 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 18 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 19 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 20 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 21 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 22 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 23 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 24 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 25 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 26 ),
-        eq::plugin::CompressorReadDrawPixels::getFunctions( 27 ),
-        eq::plugin::CompressorYUV::getFunctions(),
-        eq::plugin::CompressorDiffRLEYUV::getFunctions(),
+    typedef std::vector< Compressor::Functions > Compressors;
+    static Compressors _functions;
 
-#if 0
-        eq::plugin::CompressorRLE3B::getFunctions(),
-        eq::plugin::CompressorRLE4F::getFunctions(),
-#endif
-        Compressor::Functions()
-    };
-
-    Compressor::Functions& _findFunctions( const unsigned name )
+    const Compressor::Functions& _findFunctions( const unsigned name )
     {
-        for( size_t i = 0; true; ++i )
+        for( Compressors::const_iterator i = _functions.begin();
+             i != _functions.end(); ++i )
         {
+            const Compressor::Functions& functions = *i;
             EqCompressorInfo info;
-            _functions[i].getInfo( &info );
+            functions.getInfo( &info );
             if( info.name == name )
-                return _functions[i];
-
-            if( info.name == 0 )
-            {
-                assert( 0 ); // UNREACHABLE
-                return _functions[i];
-            }
+                return functions;
         }
 
         assert( 0 ); // UNREACHABLE
-        return _functions[0];
+        return _functions.front();
     }
 }
 
@@ -127,25 +64,34 @@ Compressor::~Compressor()
     _results.clear();
 }
 
-Compressor::Functions::Functions()
-        : getInfo( 0 )
-        , newCompressor( 0 )
-        , newDecompressor( 0 )
-        , decompress( 0 )
-        , isCompatible( 0 )
+Compressor::Functions::Functions( CompressorGetInfo_t getInfo_,
+                                  NewCompressor_t newCompressor_,
+                                  NewCompressor_t newDecompressor_,
+                                  Decompress_t decompress_,
+                                  IsCompatible_t isCompatible_ )
+        : getInfo( getInfo_ )
+        , newCompressor( newCompressor_ )
+        , newDecompressor( newDecompressor_ )
+        , decompress( decompress_ )
+        , isCompatible( isCompatible_ )
 {}
-    
+
+void Compressor::registerEngine( const Compressor::Functions& functions )
+{
+    _functions.push_back( functions );
+}
+
 }
 }
 
 size_t EqCompressorGetNumCompressors()
 {
-    return sizeof( eq::plugin::_functions ) /
-           sizeof( eq::plugin::Compressor::Functions ) - 1;
+    return eq::plugin::_functions.size();
 }
            
 void EqCompressorGetInfo( const size_t n, EqCompressorInfo* const info )
 {
+    assert( eq::plugin::_functions.size() > n );
     eq::plugin::_functions[ n ].getInfo( info );
 }
 
@@ -229,7 +175,7 @@ void EqCompressorDecompress( void* const decompressor, const unsigned name,
     const eq_uint64_t nPixels = ( flags & EQ_COMPRESSOR_DATA_1D) ?
                            outDims[1] : outDims[1] * outDims[3];
 
-    eq::plugin::Compressor::Functions& functions = 
+    const eq::plugin::Compressor::Functions& functions = 
         eq::plugin::_findFunctions( name );
     functions.decompress( in, inSizes, nInputs, out, nPixels, useAlpha );
 }
@@ -237,7 +183,7 @@ void EqCompressorDecompress( void* const decompressor, const unsigned name,
 bool EqCompressorIsCompatible( const unsigned     name,
                                const GLEWContext* glewContext )
 {
-    eq::plugin::Compressor::Functions& functions = 
+    const eq::plugin::Compressor::Functions& functions = 
         eq::plugin::_findFunctions( name );
     
     if ( functions.isCompatible == 0 )

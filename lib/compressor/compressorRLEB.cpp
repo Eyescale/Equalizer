@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,6 +29,10 @@ namespace eq
 {
 namespace plugin
 {
+namespace
+{
+REGISTER_ENGINE( CompressorRLEB, BYTE, BYTE, 1., 0.7, 1., false );
+}
 
 static inline void _compress( const void* const input, const uint64_t nPixels,
                               eq::plugin::Compressor::Result** results )
