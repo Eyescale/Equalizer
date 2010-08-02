@@ -87,7 +87,7 @@ void CompressorDataCPU::initCompressor( const uint32_t dataType,
 
 uint32_t CompressorDataCPU::chooseCompressor( const uint32_t tokenType, 
                                               const float minQuality,
-                                              const bool ignoreMSE )
+                                              const bool ignoreALPHA )
 {
     uint32_t name = EQ_COMPRESSOR_NONE;
     float ratio = 1.0f;
@@ -112,7 +112,7 @@ uint32_t CompressorDataCPU::chooseCompressor( const uint32_t tokenType,
                 continue;
 
             float infoRatio = info.ratio;
-            if( ignoreMSE && ( info.capabilities & EQ_COMPRESSOR_IGNORE_MSE ))
+            if( ignoreALPHA && ( info.capabilities&EQ_COMPRESSOR_IGNORE_ALPHA ))
             {
                 switch( tokenType )
                 {

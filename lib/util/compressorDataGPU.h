@@ -42,8 +42,10 @@ namespace util
          * Determine if the downloader is valid.
          *
          * @param internalFormat the input token type to the downloader.
+         * @param ignoreAlpha true if the downloader may drop the alpha channel.
          */
-        bool isValidDownloader( const uint32_t internalFormat ) const;
+        bool isValidDownloader( const uint32_t internalFormat,
+                                const bool ignoreAlpha ) const;
 
         /**
          * Determine if the uploader is valid
@@ -61,16 +63,18 @@ namespace util
          * will be made.  If no uploader is found, the current uploader instance
          * (if any) is freed.
          *
+         * @param internalFormat the input token type to the downloader.
          * @param minQuality the minimum quality.
-         * @param tokenType the token produced
-         **/
-        void initDownloader( const float minQuality, const uint32_t tokenType );
+         * @param ignoreAlpha true if the downloader may drop the alpha channel.
+         */
+        void initDownloader( const uint32_t internalFormat,
+                             const float minQuality, const bool ignoreAlpha );
 
         /**
          * Init a named downloader.
          *
          * @param name downloader name
-         **/
+         */
         bool initDownloader( const uint32_t name );
 
         /**
@@ -84,7 +88,7 @@ namespace util
          *
          * @param externalFormat the input to the uploader.
          * @param internalFormat the output of the uploader. 
-         **/
+         */
         void initUploader( const uint32_t externalFormat,
                            const uint32_t internalFormat );
 
@@ -146,28 +150,30 @@ namespace util
         static EQ_EXPORT uint32_t getExternalFormat( const uint32_t format,
                                                      const uint32_t type );
 
-        /** @return true if the actual compressor is able to ignore alpha */
-        bool ignoreAlpha() const
-            { return _info->capabilities & EQ_COMPRESSOR_IGNORE_MSE; }
+        /** @return true if the current downloader does not drop alpha. */
+        bool hasAlpha() const
+            { return (_info->capabilities & EQ_COMPRESSOR_IGNORE_ALPHA) == 0; }
 
         /**
          * Find all transfer plugins which comply with to the given parameters.
          *
-         * @param result the output result vector.
-         * @param minQuality the minimum required quality.
          * @param internalFormat consider only plugins with this tokenType, if
          *                       set to EQ_COMPRESSOR_DATATYPE_NONE consider
          *                       all.
          * @param externalFormat consider only plugins with this outpuTokentype,
                                  if set to EQ_COMPRESSOR_DATATYPE_NONE consider
          *                       all.
+         * @param minQuality the minimum required quality.
+         * @param ignoreAlpha true if the downloader may drop the alpha channel.
          * @param glewContext a valid glewContext. 
+         * @param result the output result vector.
          */
-        static EQ_EXPORT void findTransferers( base::CompressorInfos& result,
-                                               const float minQuality, 
-                                               const uint32_t internalFormat,
+        static EQ_EXPORT void findTransferers( const uint32_t internalFormat,
                                                const uint32_t externalFormat,
-                                               const GLEWContext* glewContext );
+                                               const float minQuality,
+                                               const bool ignoreAlpha,
+                                               const GLEWContext* glewContext,
+                                               base::CompressorInfos& result );
         /**
          * Get the opengl internal format corresponding to compressor data type
          *

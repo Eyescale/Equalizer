@@ -105,6 +105,7 @@ public:
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB;
         info->outputTokenSize = 3;
+        info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;
     }
     
     static void getInfo5( EqCompressorInfo* const info )
@@ -114,6 +115,7 @@ public:
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR;
         info->outputTokenSize = 3;
+        info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;
     }
 
     static void getInfo6( EqCompressorInfo* const info )
@@ -150,6 +152,7 @@ public:
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA32F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB32F;
         info->outputTokenSize = 12;
+        info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;
     }
 
     static void getInfo10( EqCompressorInfo* const info )
@@ -159,6 +162,7 @@ public:
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA32F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR32F;
         info->outputTokenSize = 12;
+        info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;
     }
 
     static void getInfo11( EqCompressorInfo* const info )
@@ -186,6 +190,7 @@ public:
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA16F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB16F;
         info->outputTokenSize = 6;
+        info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;
     }
 
     static void getInfo14( EqCompressorInfo* const info )
@@ -195,6 +200,7 @@ public:
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA16F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR16F;
         info->outputTokenSize = 6;
+        info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;
     }
 
     static void getInfo15( EqCompressorInfo* const info )
@@ -267,6 +273,7 @@ public:
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA32F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR;
         info->outputTokenSize = 3;
+        info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;
     }
 
     static void getInfo23( EqCompressorInfo* const info )
@@ -276,6 +283,7 @@ public:
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA32F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB;
         info->outputTokenSize = 3;
+        info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;
     }
 
     static void getInfo24( EqCompressorInfo* const info )
@@ -294,6 +302,7 @@ public:
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA32F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR16F;
         info->outputTokenSize = 6;
+        info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;
     }
 
     static void getInfo26( EqCompressorInfo* const info )
@@ -303,6 +312,7 @@ public:
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA16F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR;
         info->outputTokenSize = 3;
+        info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;
     }
 
     static void getInfo27( EqCompressorInfo* const info )
@@ -312,6 +322,7 @@ public:
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA16F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB;
         info->outputTokenSize = 3;
+        info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;
     }
 
     static Functions getFunctions( uint32_t index );

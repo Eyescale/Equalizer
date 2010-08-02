@@ -42,23 +42,6 @@ namespace base
         /** @return the plugin containing the given compressor, or 0. */
         EQ_EXPORT Compressor* findCompressor( const uint32_t name );
 
-        /**
-         * Find the best compressor in all plugins for the given parameters.
-         *
-         * This convenience method searches all compressors in all plugins to
-         * find the compressor which matches best the given parameters.
-         *
-         * @param tokenType the structure of the data to compress.
-         * @param minQuality minimal quality of the compressed data, with 0 = no
-         *                   quality and 1 = full quality, no loss.
-         * @param ignoreMSE the most-significant element of each token can be
-         *                  ignored, typically the alpha channel of an image.
-         */
-        EQ_EXPORT uint32_t chooseCompressor( const uint32_t tokenType, 
-                                             const float minQuality = 1.0f,
-                                             const bool ignoreMSE = false )
-            const;
-
     private:
         Compressors _compressors;
 

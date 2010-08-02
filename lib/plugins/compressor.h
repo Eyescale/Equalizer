@@ -74,7 +74,12 @@
  *
  * <h2>Changes</h2>
  * Version 3
- *  - Added capabilities for GPU-based compression during upload and download:
+ *  - Added GPU-based compression during upload and download:
+ *    - Added functions: EqCompressorIsCompatible, EqCompressorDownload,
+ *      EqCompressorUpload
+ *    - Added members in EqCompressorInfo: outputTokenType, outputTokenSize
+ *    - Added flags: EQ_COMPRESSOR_CPU, EQ_COMPRESSOR_TRANSFER,
+ *      EQ_COMPRESSOR_USE_TEXTURE, EQ_COMPRESSOR_USE_FRAMEBUFFER
  *    - Added data types: EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_BYTE,
  *      EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_8_8_8_8_REV,
  *      EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_10_10_10_2,
@@ -92,8 +97,6 @@
  *      EQ_COMPRESSOR_DATATYPE_RGB_HALF_FLOAT, EQ_COMPRESSOR_DATATYPE_RGB_FLOAT,
  *      EQ_COMPRESSOR_DATATYPE_BGR_UNSIGNED_BYTE,
  *      EQ_COMPRESSOR_DATATYPE_BGR_HALF_FLOAT, EQ_COMPRESSOR_DATATYPE_BGR_FLOAT
- *    - Added flags: EQ_COMPRESSOR_CPU, EQ_COMPRESSOR_TRANSFER,
- *      EQ_COMPRESSOR_USE_TEXTURE, EQ_COMPRESSOR_USE_FRAMEBUFFER
  *    - Added compressor type names: EQ_COMPRESSOR_DIFF_RLE_YUVA_50P,
  *      EQ_COMPRESSOR_RLE_YUVA_50P, EQ_COMPRESSOR_TRANSFER_RGBA_TO_RGBA,
  *      EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA,
@@ -143,9 +146,6 @@
  *      EQ_COMPRESSOR_RLE_BGR10_A2, EQ_COMPRESSOR_RLE_RGB,
  *      EQ_COMPRESSOR_RLE_BGR, EQ_COMPRESSOR_RLE_DEPTH_UNSIGNED_INT,
  *      EQ_COMPRESSOR_AG_RTT_JPEG_HQ
- *    - Added members in EqCompressorInfo: outputTokenType, outputTokenSize
- *    - Added functions: EqCompressorIsCompatible, EqCompressorDownload,
- *      EqCompressorUpload
  *
  * Version 2
  *  - Added EQ_COMPRESSOR_DIFF_RLE_565 to type name registry
@@ -194,8 +194,7 @@ typedef unsigned long long eq_uint64_t;
 #include <eq/plugins/compressorTypes.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
     /**
      * @name Compressor capability flags
@@ -221,12 +220,25 @@ extern "C"
      * data.
      */
     #define EQ_COMPRESSOR_DATA_2D    0x4
-    /** 
-     * The compressor can (query time) or should (compress) ignore the
-     * most-significant element of the input data. Typically used for image data
-     * when the alpha-channel is present in the input data, but unneeded.
+    /**
+     * The compressor can, does or should drop the alpha channel.
+     *
+     * The plugin sets this flag during information time to indicate that it
+     * will drop the alpha channel (transfer plugins) or can drop the alpha
+     * channel (compressor plugins).
+     *
+     * During download, the flag will always be set if it was set at query
+     * time. During compression, it will be set only if the alpha channel should
+     * be dropped. It will never be set for plugins which did not indicate this
+     * capability.
+     *
+     * For compression plugins it is assumed that setting this flag improves the
+     * compression ratio by 25 percent. For transfer plugins, it is assumed that
+     * the ratio already includes the alpha reduction.
      */
-    #define EQ_COMPRESSOR_IGNORE_MSE 0x8
+    #define EQ_COMPRESSOR_IGNORE_ALPHA 0x8
+    /** Deprecated */
+    #define EQ_COMPRESSOR_IGNORE_MSE EQ_COMPRESSOR_IGNORE_ALPHA
 
     /** 
      * The compressor is a CPU compressor.

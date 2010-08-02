@@ -165,9 +165,9 @@ void Channel::_testFormats( float applyZoom )
         const uint32_t internalFormat = _enums[i].internalFormat;
         eq::base::CompressorInfos infos;
         const GLEWContext* glewContext = glewGetContext();
-        eq::util::CompressorDataGPU::findTransferers( infos, 0.f,
-                                                      internalFormat, 0,
-                                                      glewContext );
+        eq::util::CompressorDataGPU::findTransferers( internalFormat, 0,
+                                                      0.f, true, glewContext,
+                                                      infos );
 
         for( eq::base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )

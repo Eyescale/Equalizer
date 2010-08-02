@@ -80,15 +80,18 @@ namespace eq
              */
             PixelViewport pvp;
 
-            void* pixels;  //!< The pixel data, pvp.getArea() * pixelSize bytes
+            void* pixels;  //!< uncompressed pixel data, pvp * pixelSize bytes
 
-            uint32_t compressorName; //!< The compressor used
-            bool isCompressed;       //!< The compressed pixel data is valid
-
-            /** Sizes of the compressed pixel data blocks. */
-            std::vector< uint64_t > compressedSize;
             /** The compressed pixel data blocks. */
             std::vector< void* >    compressedData;
+
+            /** Sizes of each compressed pixel data block. */
+            std::vector< uint64_t > compressedSize;
+
+            uint32_t compressorName;  //!< The compressor used
+            uint32_t compressorFlags; //!< Flags used for compression
+            bool isCompressed;        //!< The compressed pixel data is valid
+            bool hasAlpha;            //!< The uncompressed data has alpha
         };
 
         /** @name Image parameters */
@@ -433,13 +436,13 @@ namespace eq
          *
          * @param buffer the buffer type.
          * @param externalFormat the type of the pixel.
-         * @param pixelSize the size of one pixels in bytes
+         * @param pixelSize the size of one pixel in bytes.
+         * @param hasAlpha true if the pixel data contains an alpha channel.
          */
         void _setExternalFormat( const Frame::Buffer buffer,
                                  const uint32_t externalFormat,
-                                 const uint32_t pixelSize );
-
-        bool _canIgnoreAlpha( const Frame::Buffer buffer ) const;
+                                 const uint32_t pixelSize,
+                                 const bool hasAlpha );
 
         void _readback( const Frame::Buffer buffer, const Zoom& zoom,
                         util::ObjectManager< const void* >* glObjects );

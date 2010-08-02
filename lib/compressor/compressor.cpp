@@ -184,7 +184,7 @@ void EqCompressorCompress( void* const ptr, const unsigned name,
                            const eq_uint64_t flags )
 {
     assert( ptr );
-    const bool useAlpha = !(flags & EQ_COMPRESSOR_IGNORE_MSE);
+    const bool useAlpha = !(flags & EQ_COMPRESSOR_IGNORE_ALPHA);
     const eq_uint64_t nPixels = (flags & EQ_COMPRESSOR_DATA_1D) ?
                                   inDims[1]: inDims[1] * inDims[3];
 
@@ -225,7 +225,7 @@ void EqCompressorDecompress( void* const decompressor, const unsigned name,
                              const eq_uint64_t flags )
 {
     assert( !decompressor );
-    const bool useAlpha = !(flags & EQ_COMPRESSOR_IGNORE_MSE);
+    const bool useAlpha = !(flags & EQ_COMPRESSOR_IGNORE_ALPHA);
     const eq_uint64_t nPixels = ( flags & EQ_COMPRESSOR_DATA_1D) ?
                            outDims[1] : outDims[1] * outDims[3];
 

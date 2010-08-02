@@ -48,7 +48,10 @@ struct ImageHeader
     uint32_t                pixelSize;
     fabric::PixelViewport   pvp;
     uint32_t                compressorName;
+    uint32_t                compressorFlags;
     uint32_t                nChunks;
+    bool                    hasAlpha;
+    bool                    fill[7];
 };
 
 }
@@ -424,15 +427,13 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
 #endif
             const Image::PixelData* data = pixelDatas[j];
             const ImageHeader imageHeader =
-                  { data->internalFormat,
-                    data->externalFormat,
-                    data->pixelSize,
-                    data->pvp,
-                    data->compressorName,
-                    data->isCompressed ? data->compressedSize.size() : 1 };
+                  { data->internalFormat, data->externalFormat,
+                    data->pixelSize, data->pvp,
+                    data->compressorName, data->compressorFlags,
+                    data->isCompressed ? data->compressedSize.size() : 1,
+                    data->hasAlpha, { false }};
 
-            connection->send( &imageHeader, 
-                              sizeof( ImageHeader ), true );
+            connection->send( &imageHeader, sizeof( ImageHeader ), true );
             
             if( data->isCompressed )
             {
@@ -539,16 +540,19 @@ bool FrameData::_cmdTransmit( net::Command& command )
             const ImageHeader* imageHeader = 
                               reinterpret_cast< ImageHeader* >( data );
 
-            pixelData.internalFormat = imageHeader->internalFormat;
-            pixelData.externalFormat = imageHeader->externalFormat;
-            pixelData.pixelSize      = imageHeader->pixelSize;
-            pixelData.pvp            = imageHeader->pvp;
-            pixelData.compressorName = imageHeader->compressorName;
-            const uint32_t nChunks   = imageHeader->nChunks;
-
-            data += sizeof( ImageHeader );
+            pixelData.internalFormat  = imageHeader->internalFormat;
+            pixelData.externalFormat  = imageHeader->externalFormat;
+            pixelData.pixelSize       = imageHeader->pixelSize;
+            pixelData.pvp             = imageHeader->pvp;
+            pixelData.compressorName  = imageHeader->compressorName;
+            pixelData.compressorFlags = imageHeader->compressorFlags;
+            pixelData.hasAlpha        = imageHeader->hasAlpha;
             pixelData.isCompressed = 
                 pixelData.compressorName > EQ_COMPRESSOR_NONE;
+
+            const uint32_t nChunks    = imageHeader->nChunks;
+            data += sizeof( ImageHeader );
+
             if( pixelData.isCompressed )
             {
                 pixelData.compressedSize.resize( nChunks );

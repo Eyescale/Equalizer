@@ -78,7 +78,7 @@ public:
     {
         info->version = EQ_COMPRESSOR_VERSION;
         info->capabilities = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D |
-                             EQ_COMPRESSOR_IGNORE_MSE;
+                             EQ_COMPRESSOR_IGNORE_ALPHA;
         info->quality = 0.7f;
         info->ratio = 0.06f;
         info->speed = 1.1f;

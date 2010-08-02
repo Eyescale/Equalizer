@@ -50,7 +50,7 @@ public:
     {
         info->version = EQ_COMPRESSOR_VERSION;
         info->capabilities = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D | 
-                             EQ_COMPRESSOR_IGNORE_MSE;
+                             EQ_COMPRESSOR_IGNORE_ALPHA;
         info->quality = 1.f;
         info->ratio = .45f;
         info->speed = 1.f;
@@ -112,7 +112,7 @@ public:
     {
         info->version = EQ_COMPRESSOR_VERSION;
         info->capabilities = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D | 
-                             EQ_COMPRESSOR_IGNORE_MSE;
+                             EQ_COMPRESSOR_IGNORE_ALPHA;
         info->quality = 1.f;
         info->ratio = .95f;
         info->speed = 1.f;

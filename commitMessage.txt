@@ -1,16 +1,14 @@
 Compression plugin:
-- Fix internal format usage (color buffer always with alpha)
-- Re-add depth test to pixel bench
-- map V1-style names to default (BGR-order) compressor names
-- add sensible speeds for RGBA downloaders - 10_2, 16f and 32f to test
-- reorder naming to be easier to correlate to formats
-
-Open Issue: currently select BGR downloader due to data reduction
+- Fix alpha handling by using downloader-provided flags [untested]
+- Fix allocation of downloader for 'needs-alpha' images
+- Fix decompression flags by transmitting them
+- Improve doxygen for the above
+- Remove dead code
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
-[x] Optimization
+[x] Cleanup
+[ ] Optimization
 [ ] Documentation
