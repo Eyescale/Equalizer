@@ -53,8 +53,7 @@ namespace
         eq::plugin::CompressorReadDrawPixels::getInfo24,
         eq::plugin::CompressorReadDrawPixels::getInfo25,
         eq::plugin::CompressorReadDrawPixels::getInfo26,
-        eq::plugin::CompressorReadDrawPixels::getInfo27,
-        eq::plugin::CompressorReadDrawPixels::getInfo28
+        eq::plugin::CompressorReadDrawPixels::getInfo27
     };
 }
 // used to address one shader and program per shared context set

@@ -182,8 +182,6 @@ uint32_t CompressorDataGPU::getExternalFormat( const uint32_t format,
                     return EQ_COMPRESSOR_DATATYPE_RGBA16F;
                 case GL_FLOAT : 
                     return EQ_COMPRESSOR_DATATYPE_RGBA32F;
-                case GL_UNSIGNED_INT_10_10_10_2 : 
-                    return EQ_COMPRESSOR_DATATYPE_BGR10_A2;
             }
             break;
     

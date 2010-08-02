@@ -154,7 +154,7 @@ namespace util
 
         /** set a downloader for use during transfer operation  */
         void setDownloader( const uint32_t downloaderName )
-            {   _downloaderName = downloaderName;   }
+            { _downloaderName = downloaderName; }
 
         /**
          * Copy the texture data to the given memory address, using the internal

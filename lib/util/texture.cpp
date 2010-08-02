@@ -101,15 +101,15 @@ void Texture::setInternalFormat( const GLuint internalFormat )
         case GL_RGB:
         case GL_RGB8:
             setExternalFormat( GL_RGB, GL_UNSIGNED_BYTE );
-            setDownloader( EQ_COMPRESSOR_TRANSFER_RGB_TO_BGR );
+            setDownloader( EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGR );
             break;
         case GL_RGB16F:
             setExternalFormat( GL_RGB, GL_HALF_FLOAT );
-            setDownloader( EQ_COMPRESSOR_TRANSFER_RGB16F_TO_BGR16F );
+            setDownloader( EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGR16F );
             break;
         case GL_RGB32F:
             setExternalFormat( GL_RGB, GL_FLOAT );
-            setDownloader( EQ_COMPRESSOR_TRANSFER_RGB32F_TO_BGR32F );
+            setDownloader( EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGR32F );
             break;
         case GL_ALPHA32F_ARB:
             setExternalFormat( GL_ALPHA, GL_FLOAT );
@@ -118,7 +118,8 @@ void Texture::setInternalFormat( const GLuint internalFormat )
             break;
         case GL_DEPTH24_STENCIL8:
             setExternalFormat( GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8_EXT );
-            setDownloader( EQ_COMPRESSOR_TRANSFER_DEPTH_STENCIL_TO_UNSIGNED_INT_24_8 );
+            setDownloader( 
+                EQ_COMPRESSOR_TRANSFER_DEPTH_STENCIL_TO_UNSIGNED_INT_24_8 );
             break;
         case GL_RGBA32UI:
             EQASSERT( _glewContext );

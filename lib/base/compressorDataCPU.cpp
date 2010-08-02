@@ -85,13 +85,6 @@ void CompressorDataCPU::initCompressor( const uint32_t dataType,
     initCompressor( chooseCompressor( dataType, quality, noAlpha ) );
 }
 
-//void CompressorDataCPU::initDecompressor( const uint32_t dataType, 
-//                                          const float quality,
-//                                          const bool noAlpha )
-//{
-//    initDecompressor( chooseCompressor( dataType, quality, noAlpha ) );
-//}
-
 uint32_t CompressorDataCPU::chooseCompressor( const uint32_t tokenType, 
                                               const float minQuality,
                                               const bool ignoreMSE )
@@ -132,7 +125,7 @@ uint32_t CompressorDataCPU::chooseCompressor( const uint32_t tokenType,
                         infoRatio *= .75f;
                         break;
 
-                    case EQ_COMPRESSOR_DATATYPE_10A2:
+                    case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
                         infoRatio *= .9375f; // 30/32
                         break;
                 }

@@ -64,7 +64,7 @@ public:
 
     static void getInfo0( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
+        CompressorReadDrawPixels::getInfo( info, 1.f, 1.f, 1.f );
         info->name            = EQ_COMPRESSOR_TRANSFER_RGBA_TO_RGBA;
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGBA;
@@ -73,7 +73,7 @@ public:
 
     static void getInfo1( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
+        CompressorReadDrawPixels::getInfo( info, 1.f, 1.f, 2.f );
         info->name            = EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA;
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGRA;
@@ -82,149 +82,140 @@ public:
 
     static void getInfo2( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
-        info->name            = EQ_COMPRESSOR_TRANSFER_RGB_TO_RGB;
-        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGB;
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB;
-        info->outputTokenSize = 3;
-    }
-    
-    static void getInfo3( EqCompressorInfo* const info )
-    {
-        CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
-        info->name            = EQ_COMPRESSOR_TRANSFER_RGB_TO_BGR;
-        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGB;
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR;
-        info->outputTokenSize = 3;
-    }
-
-    static void getInfo4( EqCompressorInfo* const info )
-    {
-        CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
+        CompressorReadDrawPixels::getInfo( info, 1.f, 1.f, 1.f );
         info->name            = EQ_COMPRESSOR_TRANSFER_RGBA_TO_RGBA_UINT_8_8_8_8_REV;
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV;
         info->outputTokenSize = 4;
     }
     
-    static void getInfo5( EqCompressorInfo* const info )
+    static void getInfo3( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
+        CompressorReadDrawPixels::getInfo( info, 1.f, 1.f, 2.f );
         info->name            = EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA_UINT_8_8_8_8_REV;
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV;
         info->outputTokenSize = 4;
     }
 
-    static void getInfo6( EqCompressorInfo* const info )
+    static void getInfo4( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
-        info->name            = EQ_COMPRESSOR_TRANSFER_RGB10A2_TO_RGB10A2;
-        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGB10_A2;
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB10_A2;
-        info->outputTokenSize = 4;
+        CompressorReadDrawPixels::getInfo( info, 1.f, .75f, .7f );
+        info->name            = EQ_COMPRESSOR_TRANSFER_RGBA_TO_RGB;
+        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB;
+        info->outputTokenSize = 3;
+    }
+    
+    static void getInfo5( EqCompressorInfo* const info )
+    {
+        CompressorReadDrawPixels::getInfo( info, 1.f, .75f, .7f );
+        info->name            = EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGR;
+        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR;
+        info->outputTokenSize = 3;
     }
 
-    static void getInfo7( EqCompressorInfo* const info )
+    static void getInfo6( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
+        CompressorReadDrawPixels::getInfo( info, 1.f, 1.f, 1.1f );
         info->name            = EQ_COMPRESSOR_TRANSFER_RGB10A2_TO_BGR10A2;
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGB10_A2;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR10_A2;
         info->outputTokenSize = 4;
     }
     
-    static void getInfo8( EqCompressorInfo* const info )
+    static void getInfo7( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
+        CompressorReadDrawPixels::getInfo( info, 1.f, 1.f, 1.f );
         info->name            = EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGBA32F;
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA32F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGBA32F;
         info->outputTokenSize = 16;
     }
 
-    static void getInfo9( EqCompressorInfo* const info )
+    static void getInfo8( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
+        CompressorReadDrawPixels::getInfo( info, 1.f, 1.f, 1.1f );
         info->name            = EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGRA32F;
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA32F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGRA32F;
         info->outputTokenSize = 16;
     }
 
+    static void getInfo9( EqCompressorInfo* const info )
+    {
+        CompressorReadDrawPixels::getInfo( info, 1.f, 1.f, 1.f );
+        info->name            = EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGB32F;
+        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA32F;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB32F;
+        info->outputTokenSize = 12;
+    }
+
     static void getInfo10( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
-        info->name            = EQ_COMPRESSOR_TRANSFER_RGB32F_TO_RGB32F;
-        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGB32F;
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB32F;
+        CompressorReadDrawPixels::getInfo( info, 1.f, 1.f, 1.f );
+        info->name            = EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGR32F;
+        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA32F;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR32F;
         info->outputTokenSize = 12;
     }
 
     static void getInfo11( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
-        info->name            = EQ_COMPRESSOR_TRANSFER_RGB32F_TO_BGR32F;
-        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGB32F;
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR32F;
-        info->outputTokenSize = 12;
-    }
-
-    static void getInfo12( EqCompressorInfo* const info )
-    {
-        CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
+        CompressorReadDrawPixels::getInfo( info, 1.f, 1.f, 1.f );
         info->name            = EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_RGBA16F;
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA16F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGBA16F;
         info->outputTokenSize = 8;
     }
 
-    static void getInfo13( EqCompressorInfo* const info )
+    static void getInfo12( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
+        CompressorReadDrawPixels::getInfo( info, 1.f, 1.f, 1.1f );
         info->name            = EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGRA16F;
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA16F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGRA16F;
         info->outputTokenSize = 8;
     }
 
+    static void getInfo13( EqCompressorInfo* const info )
+    {
+        CompressorReadDrawPixels::getInfo( info, 1.f, 1.f, 1.f );
+        info->name            = EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_RGB16F;
+        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA16F;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB16F;
+        info->outputTokenSize = 6;
+    }
+
     static void getInfo14( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
-        info->name            = EQ_COMPRESSOR_TRANSFER_RGB16F_TO_RGB16F;
-        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGB16F;
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB16F;
+        CompressorReadDrawPixels::getInfo( info, 1.f, 1.f, 1.f );
+        info->name            = EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGR16F;
+        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA16F;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR16F;
         info->outputTokenSize = 6;
     }
 
     static void getInfo15( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
-        info->name            = EQ_COMPRESSOR_TRANSFER_RGB16F_TO_BGR16F;
-        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGB16F;
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR16F;
-        info->outputTokenSize = 6;
-    }
-
-    static void getInfo16( EqCompressorInfo* const info )
-    {
-        CompressorReadDrawPixels::getInfo( info, 1.0, 1.0, 1.0 );
-        info->name            = EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT;
-        info->tokenType       = EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT;
+        CompressorReadDrawPixels::getInfo( info, 1.f, 1.f, 1.f );
+        info->name = EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT;
+        info->tokenType       = EQ_COMPRESSOR_DATATYPE_DEPTH;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT;
         info->outputTokenSize = 4;
     }
 
-    static void getInfo17( EqCompressorInfo* const info )
+    static void getInfo16( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 0.25, 0.25, 1.0 );
+        CompressorReadDrawPixels::getInfo( info, 0.25, 0.25, 1.f );
         info->name            = EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGRA_25P;
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA32F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGRA;
         info->outputTokenSize = 4;
     }
 
-    static void getInfo18( EqCompressorInfo* const info )
+    static void getInfo17( EqCompressorInfo* const info )
     {
         CompressorReadDrawPixels::getInfo( info,  0.25f, 0.25f, 0.9f );
         info->name            = EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGBA_25P;
@@ -233,7 +224,7 @@ public:
         info->outputTokenSize = 4;
     }
 
-    static void getInfo19( EqCompressorInfo* const info )
+    static void getInfo18( EqCompressorInfo* const info )
     {
         CompressorReadDrawPixels::getInfo( info,  0.5f, 0.5f, 0.9f );
         info->name            = EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGBA16F_50P;
@@ -242,25 +233,25 @@ public:
         info->outputTokenSize = 8;
     }
 
-    static void getInfo20( EqCompressorInfo* const info )
+    static void getInfo19( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info,  0.5f, 0.5f, 1.0f );
+        CompressorReadDrawPixels::getInfo( info,  0.5f, 0.5f, 1.f );
         info->name            = EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGRA16F_50P;
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA32F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGRA16F;
         info->outputTokenSize = 8;
     }
 
-    static void getInfo21( EqCompressorInfo* const info )
+    static void getInfo20( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 0.5f, 0.5f, 1.0f );
+        CompressorReadDrawPixels::getInfo( info, 0.5f, 0.5f, 1.f );
         info->name            = EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGRA_50P;
         info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA16F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGRA;
         info->outputTokenSize = 4;
     }
 
-    static void getInfo22( EqCompressorInfo* const info )
+    static void getInfo21( EqCompressorInfo* const info )
     {
         CompressorReadDrawPixels::getInfo( info, 0.5f, 0.5f, 0.9f );
         info->name            = EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_RGBA_50P;
@@ -269,56 +260,56 @@ public:
         info->outputTokenSize = 4;
     }
 
+    static void getInfo22( EqCompressorInfo* const info )
+    {
+        CompressorReadDrawPixels::getInfo( info, 0.25f, 0.25f, 1.f );
+        info->name            = EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGR_25P;
+        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA32F;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR;
+        info->outputTokenSize = 3;
+    }
+
     static void getInfo23( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 0.25f, 0.25f, 1.0f );
-        info->name            = EQ_COMPRESSOR_TRANSFER_RGB32F_TO_BGR_25P;
-        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGB32F;
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR;
+        CompressorReadDrawPixels::getInfo( info, 0.25f, 0.25f, 0.9f );
+        info->name            = EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGB_25P;
+        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA32F;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB;
         info->outputTokenSize = 3;
     }
 
     static void getInfo24( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 0.25f, 0.25f, 0.9f );
-        info->name            = EQ_COMPRESSOR_TRANSFER_RGB32F_TO_RGB_25P;
-        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGB32F;
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB;
-        info->outputTokenSize = 3;
+        CompressorReadDrawPixels::getInfo( info, 0.5f, 0.5f, 0.9f );
+        info->name            = EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGB16F_50P;
+        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA32F;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB16F;
+        info->outputTokenSize = 6;
     }
 
     static void getInfo25( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 0.5f, 0.5f, 0.9f );
-        info->name            = EQ_COMPRESSOR_TRANSFER_RGB32F_TO_RGB16F_50P;
-        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGB32F;
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB16F;
+        CompressorReadDrawPixels::getInfo( info, 0.5f, 0.5f, 1.f );
+        info->name            = EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGR16F_50P;
+        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA32F;
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR16F;
         info->outputTokenSize = 6;
     }
 
     static void getInfo26( EqCompressorInfo* const info )
     {
-        CompressorReadDrawPixels::getInfo( info, 0.5f, 0.5f, 1.0f );
-        info->name            = EQ_COMPRESSOR_TRANSFER_RGB32F_TO_BGR16F_50P;
-        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGB32F;
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR16F;
-        info->outputTokenSize = 6;
-    }
-
-    static void getInfo27( EqCompressorInfo* const info )
-    {
-        CompressorReadDrawPixels::getInfo( info, 0.5f, 0.5f, 1.0f );
-        info->name            = EQ_COMPRESSOR_TRANSFER_RGB16F_TO_BGR_50P;
-        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGB16F;
+        CompressorReadDrawPixels::getInfo( info, 0.5f, 0.5f, 1.f );
+        info->name            = EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGR_50P;
+        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA16F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_BGR;
         info->outputTokenSize = 3;
     }
 
-    static void getInfo28( EqCompressorInfo* const info )
+    static void getInfo27( EqCompressorInfo* const info )
     {
         CompressorReadDrawPixels::getInfo( info, 0.5f, 0.5f, 0.9f );
-        info->name            = EQ_COMPRESSOR_TRANSFER_RGB16F_TO_RGB_50P;
-        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGB16F;
+        info->name            = EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_RGB_50P;
+        info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA16F;
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_RGB;
         info->outputTokenSize = 3;
     }

@@ -58,14 +58,13 @@
 #define EQ_COMPRESSOR_DATATYPE_3_FLOAT      0x404
 /** Data is processed in four interleaved streams of four float32 tokens. */
 #define EQ_COMPRESSOR_DATATYPE_4_FLOAT      0x405
-/** Data is processed in three 10 bit and one 2 bit interleaved streams. */
-#define EQ_COMPRESSOR_DATATYPE_10A2         0x406
 
 /**Data is processed in one 24 bit and one 8 bit interleaved streams. */
 #define EQ_COMPRESSOR_DATATYPE_3BYTE_1BYTE  0x800
 
 /** Data is processed in three 10-bit color tokens and one 2-bit alpha token. */
-#define EQ_COMPRESSOR_DATATYPE_RGB10_A2                       0x8059
+#define EQ_COMPRESSOR_DATATYPE_BGR10_A2     0x801
+
 /**
  * Data is processed in four interleaved streams of RGBA color of unsigned Byte
  * tokens.
@@ -75,7 +74,7 @@
  * Data is processed in four interleaved streams of RGBA color of unsigned byte
  * tokens.
  */
-#define EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV          0x801
+#define EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV          0x1000
 /**
  * Data is processed in four interleaved streams of RGBA color of half float
  * tokens.
@@ -89,32 +88,34 @@
  * Data is processed in four interleaved streams of BGRA color of unsigned byte
  * tokens.
  */
-#define EQ_COMPRESSOR_DATATYPE_BGRA                           0x802
+#define EQ_COMPRESSOR_DATATYPE_BGRA    EQ_COMPRESSOR_DATATYPE_4_BYTE
 /**
  * Data is processed in four interleaved streams of BGRA color of unsigned byte
  * tokens.
  */
-#define EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV          0x803
-/** Data is processed in three 10-bit and one 2-bit interleaved tokens. */
-#define EQ_COMPRESSOR_DATATYPE_BGR10_A2                       0x804
+#define EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV          0x1001
 /**
  * Data is processed in four interleaved streams of BGRA color of half float
  * tokens.
  */
-#define EQ_COMPRESSOR_DATATYPE_BGRA16F                        0x805
+#define EQ_COMPRESSOR_DATATYPE_BGRA16F EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT
 /**
  * Data is processed in four interleaved streams of BGRA color of float tokens.
  */
-#define EQ_COMPRESSOR_DATATYPE_BGRA32F                        0x806
+#define EQ_COMPRESSOR_DATATYPE_BGRA32F EQ_COMPRESSOR_DATATYPE_4_FLOAT
+
+/** Data is a (source) depth buffer. */
+#define EQ_COMPRESSOR_DATATYPE_DEPTH                          0x1902
 /** Data is processed in one stream of depth of float tokens. */
-#define EQ_COMPRESSOR_DATATYPE_DEPTH_FLOAT                    0x807
+#define EQ_COMPRESSOR_DATATYPE_DEPTH_FLOAT                    0x1003
 /** Data is processed in one stream of unsigned int depth tokens. */
-#define EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT             0x1902
+#define EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT EQ_COMPRESSOR_DATATYPE_UNSIGNED
 /**
  * Data is processed in interleaved streams of one unsigned 24-bit depth and one
  * 8-bit stencil token.
  */
-#define EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV     0x808
+#define EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV EQ_COMPRESSOR_DATATYPE_3BYTE_1BYTE
+
 /**
  * Data is processed in three interleaved streams of RGB unsigned byte color
  * tokens.
@@ -131,21 +132,25 @@
  * Data is processed in three interleaved streams of BGR unsigned byte color
  * tokens.
  */
-#define EQ_COMPRESSOR_DATATYPE_BGR                            0x80a
+#define EQ_COMPRESSOR_DATATYPE_BGR EQ_COMPRESSOR_DATATYPE_3_BYTE
 /**
  * Data is processed in three interleaved streams of BGR half float color
  * tokens.
  */
-#define EQ_COMPRESSOR_DATATYPE_BGR16F                         0x80b
+#define EQ_COMPRESSOR_DATATYPE_BGR16F EQ_COMPRESSOR_DATATYPE_3_HALF_FLOAT
 /** Data is processed in three interleaved streams of BGR float color tokens. */
-#define EQ_COMPRESSOR_DATATYPE_BGR32F                         0x80c
+#define EQ_COMPRESSOR_DATATYPE_BGR32F EQ_COMPRESSOR_DATATYPE_3_FLOAT
 
 /**
  * Data is processed in four interleaved streams of YUVA components. 
  * Special image format reducing color sampling.
  */
-#define EQ_COMPRESSOR_DATATYPE_YUVA_50P                        0x80d
-    
+#define EQ_COMPRESSOR_DATATYPE_YUVA_50P                       0x1004
+
+/** Data is processed in three 10-bit color tokens and one 2-bit alpha token. */
+#define EQ_COMPRESSOR_DATATYPE_RGB10_A2     0x8059
+
+
 /**
  * Private token types -FOR DEVELOPMENT ONLY-.
  *

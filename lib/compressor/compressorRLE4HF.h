@@ -46,26 +46,24 @@ public:
 
     static void* getNewDecompressor( const EqCompressorInfo* info ){ return 0; }
     
-    static void getInfo0( EqCompressorInfo* const info )
+    static void getInfo( EqCompressorInfo* const info )
     {
         info->version = EQ_COMPRESSOR_VERSION;
-        info->name = EQ_COMPRESSOR_RLE_4_HALF_FLOAT;
         info->capabilities = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D | 
                              EQ_COMPRESSOR_IGNORE_MSE;
-        info->tokenType = EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT;
         info->quality = 1.f;
         info->ratio = .45f;
         info->speed = 1.f;
     }
     static void getInfo1( EqCompressorInfo* const info )
     {
-        CompressorRLE4HF::getInfo0( info );
+        CompressorRLE4HF::getInfo( info );
         info->name = EQ_COMPRESSOR_RLE_RGBA16F;
         info->tokenType = EQ_COMPRESSOR_DATATYPE_RGBA16F;
     }
     static void getInfo2( EqCompressorInfo* const info )
     {
-        CompressorRLE4HF::getInfo0( info );
+        CompressorRLE4HF::getInfo( info );
         info->name = EQ_COMPRESSOR_RLE_BGRA16F;
         info->tokenType = EQ_COMPRESSOR_DATATYPE_BGRA16F;
     }
@@ -75,12 +73,9 @@ public:
         Functions functions;
         switch ( index )
         {
-        case 0: functions.getInfo = CompressorRLE4HF::getInfo0;
-                break;
-        case 1: functions.getInfo = CompressorRLE4HF::getInfo1;
-                break;
-        case 2: functions.getInfo = CompressorRLE4HF::getInfo2;
-                break;
+            default: assert( false );
+            case 0: functions.getInfo = CompressorRLE4HF::getInfo1; break;
+            case 1: functions.getInfo = CompressorRLE4HF::getInfo2; break;
         }
         functions.newCompressor = getNewCompressor;       
         functions.newDecompressor = getNewDecompressor;       
@@ -113,13 +108,11 @@ public:
     static void* getNewCompressor( const EqCompressorInfo* info )
         { return new eq::plugin::CompressorDiffRLE4HF( info ); }
 
-    static void getInfo0( EqCompressorInfo* const info )
+    static void getInfo( EqCompressorInfo* const info )
     {
         info->version = EQ_COMPRESSOR_VERSION;
-        info->name = EQ_COMPRESSOR_DIFF_RLE_4_HALF_FLOAT;
         info->capabilities = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D | 
-        EQ_COMPRESSOR_IGNORE_MSE;
-        info->tokenType = EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT;
+                             EQ_COMPRESSOR_IGNORE_MSE;
         info->quality = 1.f;
         info->ratio = .95f;
         info->speed = 1.f;
@@ -127,14 +120,14 @@ public:
     
     static void getInfo1( EqCompressorInfo* const info )
     {
-        CompressorDiffRLE4HF::getInfo0( info );
+        CompressorDiffRLE4HF::getInfo( info );
         info->name = EQ_COMPRESSOR_DIFF_RLE_RGBA16F;
         info->tokenType = EQ_COMPRESSOR_DATATYPE_RGBA16F;
     }
     
     static void getInfo2( EqCompressorInfo* const info )
     {
-        CompressorDiffRLE4HF::getInfo0( info );
+        CompressorDiffRLE4HF::getInfo( info );
         info->name = EQ_COMPRESSOR_DIFF_RLE_BGRA16F;
         info->tokenType = EQ_COMPRESSOR_DATATYPE_BGRA16F;
     }
@@ -144,12 +137,9 @@ public:
             Functions functions;
             switch ( index )
             {
-            case 0: functions.getInfo = CompressorDiffRLE4HF::getInfo0;
-                    break;
-            case 1: functions.getInfo = CompressorDiffRLE4HF::getInfo1;
-                    break;
-            case 2: functions.getInfo = CompressorDiffRLE4HF::getInfo2;
-                    break;
+                default: assert( false );
+                case 0: functions.getInfo=CompressorDiffRLE4HF::getInfo1; break;
+                case 1: functions.getInfo=CompressorDiffRLE4HF::getInfo2; break;
             }
             functions.newCompressor = getNewCompressor;       
             functions.newDecompressor = getNewDecompressor;       

@@ -188,7 +188,6 @@ bool Image::hasAlpha() const
     switch( getExternalFormat( Frame::BUFFER_COLOR ))
     {
         case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
-        case EQ_COMPRESSOR_DATATYPE_BGR10_A2:
         case EQ_COMPRESSOR_DATATYPE_RGBA16F:
         case EQ_COMPRESSOR_DATATYPE_RGBA32F:
         case EQ_COMPRESSOR_DATATYPE_BGRA16F:
@@ -939,7 +938,6 @@ bool Image::writeImage( const std::string& filename,
 
     switch( getExternalFormat( buffer ))
     {      
-        case EQ_COMPRESSOR_DATATYPE_BGR10_A2:
         case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
             header.maxValue = 1023;
         case EQ_COMPRESSOR_DATATYPE_BGRA :
@@ -1168,11 +1166,9 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
             _setExternalFormat( Frame::BUFFER_DEPTH,
                                 EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT, 4 );
             setInternalFormat( Frame::BUFFER_DEPTH,
-                               EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT );
+                               EQ_COMPRESSOR_DATATYPE_DEPTH );
             break;
 
-        default:
-            EQUNREACHABLE;
         case Frame::BUFFER_COLOR:
             switch( header.bytesPerChannel )
             {
@@ -1221,6 +1217,9 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
                     return false;
             }
             break;
+
+        default:
+            EQUNREACHABLE;
     }
 	Memory& memory = _getMemory( buffer );
     const PixelViewport pvp( 0, 0, header.width, header.height );

@@ -50,7 +50,7 @@ public:
         info->version       = EQ_COMPRESSOR_VERSION;
         info->name          = EQ_COMPRESSOR_RLE_4_BYTE_UNSIGNED;
         info->capabilities  = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D;
-        info->tokenType     = EQ_COMPRESSOR_DATATYPE_4_BYTE;
+        info->tokenType     = EQ_COMPRESSOR_DATATYPE_BGRA;
         info->quality       = 1.f;
         info->ratio         = .89f;
         info->speed         = 2.11f;

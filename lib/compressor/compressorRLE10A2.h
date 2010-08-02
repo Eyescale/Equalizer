@@ -48,10 +48,10 @@ public:
     static void getInfo( EqCompressorInfo* const info )
     {
         info->version       = EQ_COMPRESSOR_VERSION;
-        info->name          = EQ_COMPRESSOR_DIFF_RLE_10A2;
+        info->name          = EQ_COMPRESSOR_DIFF_RLE_BGR10_A2;
         info->capabilities  = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D |
                               EQ_COMPRESSOR_IGNORE_MSE;
-        info->tokenType     = EQ_COMPRESSOR_DATATYPE_10A2;
+        info->tokenType     = EQ_COMPRESSOR_DATATYPE_BGR10_A2;
         info->quality       = 1.0f;
         info->ratio         = .57f;
         info->speed         = 1.0f;

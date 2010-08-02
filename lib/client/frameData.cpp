@@ -190,8 +190,8 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
     image->setStorageType( type );
     image->setQuality( Frame::BUFFER_COLOR, _colorQuality );
     image->setQuality( Frame::BUFFER_DEPTH, _depthQuality ); 
-    image->setInternalFormat( Frame::BUFFER_DEPTH, 
-                              EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT );
+    image->setInternalFormat( Frame::BUFFER_DEPTH,
+                              EQ_COMPRESSOR_DATATYPE_DEPTH );
 
     switch( config.colorBits )
     {

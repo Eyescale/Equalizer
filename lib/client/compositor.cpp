@@ -490,12 +490,10 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
     uint32_t depthExternalFormat    = 0;
     uint32_t depthPixelSize         = 0;
 
-    if( !_collectOutputData( frames, destPVP, 
-                             colorInternalFormat,
-                             colorPixelSize,
+    if( !_collectOutputData( frames, destPVP,
+                             colorInternalFormat, colorPixelSize,
                              colorExternalFormat,
-                             depthInternalFormat,
-                             depthPixelSize,
+                             depthInternalFormat, depthPixelSize,
                              depthExternalFormat ))
     {
         return 0;
@@ -524,7 +522,7 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
     void* destDepth = 0;
     if( depthInternalFormat != 0 ) // at least one depth assembly
     {
-        EQASSERT( depthInternalFormat ==
+        EQASSERT( depthExternalFormat ==
                   EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT );
         Image::PixelData depthPixelData;
         depthPixelData.internalFormat = depthInternalFormat;
@@ -544,11 +542,9 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
 
 bool Compositor::_collectOutputData( 
          const Frames& frames, PixelViewport& destPVP, 
-         uint32_t& colorInternalFormat, 
-         uint32_t& colorPixelSize,
+         uint32_t& colorInternalFormat, uint32_t& colorPixelSize,
          uint32_t& colorExternalFormat,
-         uint32_t& depthInternalFormat, 
-         uint32_t& depthPixelSize,
+         uint32_t& depthInternalFormat, uint32_t& depthPixelSize,
          uint32_t& depthExternalFormat )
 {
     for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
@@ -601,11 +597,13 @@ bool Compositor::_collectOutputData(
 
 void Compositor::_collectOutputData( const Image::PixelData& pixelData, 
                                      uint32_t& internalFormat, 
-                                     uint32_t& pixelSize, 
+                                     uint32_t& pixelSize,
                                      uint32_t& externalFormat )
 {
-    EQASSERT( internalFormat == GL_NONE || internalFormat == pixelData.internalFormat );
-    EQASSERT( externalFormat == GL_NONE || externalFormat == pixelData.externalFormat );
+    EQASSERT( internalFormat == GL_NONE ||
+              internalFormat == pixelData.internalFormat );
+    EQASSERT( externalFormat == GL_NONE ||
+              externalFormat == pixelData.externalFormat );
     EQASSERT( pixelSize == GL_NONE || pixelSize == pixelData.pixelSize );
     internalFormat    = pixelData.internalFormat;
     pixelSize         = pixelData.pixelSize;
@@ -642,26 +640,26 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
 
     // check output buffers
     const uint32_t area = outPVP.getArea();
-    uint32_t nChannel = 0;
+    uint32_t nChannels = 0;
     
     switch ( colorInternalFormat )
     {
-    case EQ_COMPRESSOR_DATATYPE_RGBA:
-    case EQ_COMPRESSOR_DATATYPE_RGBA16F:
-    case EQ_COMPRESSOR_DATATYPE_RGBA32F:
-    case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
-        nChannel = 4;
-        break;
-    case EQ_COMPRESSOR_DATATYPE_RGB:
-    case EQ_COMPRESSOR_DATATYPE_RGB16F:
-    case EQ_COMPRESSOR_DATATYPE_RGB32F:
-        nChannel = 3;
-        break;
-    default:
-        EQASSERT( false );
+        case EQ_COMPRESSOR_DATATYPE_RGBA:
+        case EQ_COMPRESSOR_DATATYPE_RGBA16F:
+        case EQ_COMPRESSOR_DATATYPE_RGBA32F:
+        case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
+            nChannels = 4;
+            break;
+        case EQ_COMPRESSOR_DATATYPE_RGB:
+        case EQ_COMPRESSOR_DATATYPE_RGB16F:
+        case EQ_COMPRESSOR_DATATYPE_RGB32F:
+            nChannels = 3;
+            break;
+        default:
+            EQASSERT( false );
     }
 
-    if( colorBufferSize < area * nChannel )
+    if( colorBufferSize < area * nChannels )
     {
         EQWARN << "Color output buffer to small" << std::endl;
         return false;
@@ -671,6 +669,8 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
     {
         EQASSERT( depthBuffer );
         EQASSERT( depthInternalFormat == GL_DEPTH_COMPONENT );
+        EQASSERT( depthExternalFormat == 
+                  EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT );
 
         if( !depthBuffer )
         {
@@ -690,8 +690,7 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
     return true;
 }
 
-void Compositor::_mergeFrames( const Frames& frames,
-                               const bool blendAlpha, 
+void Compositor::_mergeFrames( const Frames& frames, const bool blendAlpha, 
                                void* colorBuffer, void* depthBuffer,
                                const PixelViewport& destPVP )
 {

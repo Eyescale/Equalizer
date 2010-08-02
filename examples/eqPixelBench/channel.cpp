@@ -53,14 +53,12 @@ struct EnumMap
     { #internalFormat, EQ_COMPRESSOR_DATATYPE_ ## internalFormat, pixelSize }
 
 static EnumMap _enums[] = {
-    ENUM_MAP_ITEM( RGBA, 4 ), // initial buffer resize
+    ENUM_MAP_ITEM( RGBA32F, 16 ), // initial buffer resize
     ENUM_MAP_ITEM( RGBA, 4 ),
-    ENUM_MAP_ITEM( RGB, 3 ),
     ENUM_MAP_ITEM( RGB10_A2, 4 ),
     ENUM_MAP_ITEM( RGBA16F, 8 ),
-    ENUM_MAP_ITEM( RGB16F, 6 ),
     ENUM_MAP_ITEM( RGBA32F, 16 ),
-    ENUM_MAP_ITEM( RGB32F, 12 ),
+    ENUM_MAP_ITEM( DEPTH, 4 ),
     { 0, 0, 0 }};
 #define NUM_IMAGES 8
 }
@@ -126,7 +124,7 @@ void Channel::frameDraw( const uint32_t frameID )
     _testFormats( 2.0f );
     _testTiledOperations();
     _testDepthAssemble();
-    
+
     resetAssemblyState();
 }
 

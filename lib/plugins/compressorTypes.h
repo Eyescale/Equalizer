@@ -61,7 +61,7 @@
 /** Lossy Differential RLE Compression. */
 #define EQ_COMPRESSOR_DIFF_RLE_565          0xbu
 /** RLE Compression of three token of 10-bits and one toke of 2-bits */
-#define EQ_COMPRESSOR_DIFF_RLE_10A2         0xcu
+#define EQ_COMPRESSOR_DIFF_RLE_BGR10_A2     0xcu
 /** RLE Compression of four float16 tokens. */
 #define EQ_COMPRESSOR_DIFF_RLE_4_HALF_FLOAT 0xdu
 /** Differential RLE Compression of YUV tokens. */
@@ -77,10 +77,6 @@
 #define EQ_COMPRESSOR_DIFF_RLE_RGBA_UINT_8_8_8_8_REV                0x12u
 /** Differential RLE Compression of BGRA  UINT_8_8_8_8_REV tokens. */
 #define EQ_COMPRESSOR_DIFF_RLE_BGRA_UINT_8_8_8_8_REV                0x13u
-/** Differential RLE Compression of RGBA 10_10_10_2 tokens. */
-#define EQ_COMPRESSOR_DIFF_RLE_RGB10_A2                             0x14u
-/** Differential RLE Compression of BGRA 10_10_10_2 tokens. */
-#define EQ_COMPRESSOR_DIFF_RLE_BGR10_A2                             0x15u
 /** Differential RLE Compression of DEPTH UNSIGNED INT tokens. */
 #define EQ_COMPRESSOR_DIFF_RLE_DEPTH_UNSIGNED_INT                   0x16u
 /** RLE Compression of RGBA half float tokens. */
@@ -99,10 +95,6 @@
 #define EQ_COMPRESSOR_DIFF_RLE_565_RGBA_UINT_8_8_8_8_REV            0x1du
 /** Lossy Differential RLE Compression of BGRA UINT_8_8_8_8_REV tokens. */
 #define EQ_COMPRESSOR_DIFF_RLE_565_BGRA_UINT_8_8_8_8_REV            0x1eu
-/** Lossy Differential RLE Compression of RGBA 10_10_10_2 tokens. */
-#define EQ_COMPRESSOR_DIFF_RLE_565_RGB10_A2                         0x1fu
-/** Lossy Differential RLE Compression of BGRA 10_10_10_2 tokens. */
-#define EQ_COMPRESSOR_DIFF_RLE_565_BGR10_A2                         0x20u
 /** RLE Compression of RGBA bytes tokens. */
 #define EQ_COMPRESSOR_RLE_RGBA                                      0x21u
 /** RLE Compression of BGRA bytes tokens. */
@@ -133,82 +125,84 @@
 /* Transfer data from internal RGBA to external BGRA format with a data type
    UNSIGNED_INT_8_8_8_8_REV */
 #define EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA_UINT_8_8_8_8_REV        0x103u
-/* Transfer data from internal RGB10A_2 to external RGB10A_2 format */
-#define EQ_COMPRESSOR_TRANSFER_RGB10A2_TO_RGB10A2                   0x104u
+/* Transfer data from internal RGBA to external RGB format with a data type
+   UNSIGNED_BYTE */
+#define EQ_COMPRESSOR_TRANSFER_RGBA_TO_RGB                          0x104u
+/* Transfer data from internal RGBA to external BGR format with a data type
+   UNSIGNED_BYTE */
+#define EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGR                          0x105u
+/* Transfer data from internal RGBA32F to external YUVA format */
+#define EQ_COMPRESSOR_TRANSFER_RGBA_TO_YUVA_50P                     0x106u
+
 /* Transfer data from internal RGB10A_2 to external BGR10A2 format */
-#define EQ_COMPRESSOR_TRANSFER_RGB10A2_TO_BGR10A2                   0x105u
+#define EQ_COMPRESSOR_TRANSFER_RGB10A2_TO_BGR10A2                   0x200u
+
 /* Transfer data from internal RGBA16F to external RGBA format with a data type
    half float */
-#define EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_RGBA16F                   0x106u
+#define EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_RGBA16F                   0x300u
 /* Transfer data from internal RGBA16F to external BGRA format with a data type
    half float */
-#define EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGRA16F                   0x107u
+#define EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGRA16F                   0x301u
+/* Transfer data from internal RGBA16F to external RGB format with a data type
+   half float */
+#define EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_RGB16F                    0x302u
+/* Transfer data from internal RGBA16F to external BGR format with a data type
+   half float */
+#define EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGR16F                    0x303u
+/* Transfer data from internal RGBA to external RGB format with a data type
+   UNSIGNED_BYTE */
+#define EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_RGB_50P                   0x304u
+/* Transfer data from internal RGBA to external BGR format with a data type
+   UNSIGNED_BYTE */
+#define EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGR_50P                   0x305u
+/* Transfer data from internal RGBA to external RGB format with a data type
+   UNSIGNED_BYTE */
+#define EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_RGBA_50P                  0x306u
+/* Transfer data from internal RGBA to external BGR format with a data type
+   UNSIGNED_BYTE */
+#define EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGRA_50P                  0x307u
+
 /* Transfer data from internal RGBA32F to external RGBA format with a data type
    float */
-#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGBA32F                   0x108u
+#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGBA32F                   0x400u
 /* Transfer data from internal RGBA32F to external BGRA format with a data type
    float */
-#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGRA32F                   0x109u
+#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGRA32F                   0x401u
 /* Transfer data from internal RGBA32F to external BGRA format with a data type
    UNSIGNED_BYTE */
-#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGRA_25P                  0x10au
+#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGRA_25P                  0x402u
 /* Transfer data from internal RGBA32F to external RGBA format with a data type
    UNSIGNED_BYTE */
-#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGBA_25P                  0x10bu
+#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGBA_25P                  0x403u
 /* Transfer data from internal RGBA32F to external BGRA format with a data type
    half float */
-#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGRA16F_50P               0x10cu
+#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGRA16F_50P               0x404u
 /* Transfer data from internal RGBA32F to external RGBA format with a data type
    half float */
-#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGBA16F_50P               0x10du
-/* Transfer data from internal RGBA32F to external YUVA format */
-#define EQ_COMPRESSOR_TRANSFER_RGBA_TO_YUVA_50P                     0x10eu
-/* Transfer data from internal RGB to external RGB format with a data type
-   UNSIGNED_BYTE */
-#define EQ_COMPRESSOR_TRANSFER_RGB_TO_RGB                           0x10fu
-/* Transfer data from internal RGB to external BGR format with a data type
-   UNSIGNED_BYTE */
-#define EQ_COMPRESSOR_TRANSFER_RGB_TO_BGR                           0x110u
-/* Transfer data from internal RGB16F to external RGB format with a data type
-   half float */
-#define EQ_COMPRESSOR_TRANSFER_RGB16F_TO_RGB16F                     0x111u
-/* Transfer data from internal RGB16F to external BGR format with a data type
-   half float */
-#define EQ_COMPRESSOR_TRANSFER_RGB16F_TO_BGR16F                     0x112u
-/* Transfer data from internal RGB32F to external RGB format with a data type
+#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGBA16F_50P               0x405u
+/* Transfer data from internal RGBA32F to external RGB format with a data type
    float */
-#define EQ_COMPRESSOR_TRANSFER_RGB32F_TO_RGB32F                     0x113u
-/* Transfer data from internal RGB32F to external BGR format with a data type
+#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGB32F                    0x406u
+/* Transfer data from internal RGBA32F to external BGR format with a data type
    float */
-#define EQ_COMPRESSOR_TRANSFER_RGB32F_TO_BGR32F                     0x114u
-/* Transfer data from internal RGB32F to external RGB format with a data type
+#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGR32F                    0x407u
+/* Transfer data from internal RGBA32F to external RGB format with a data type
    UNSIGNED_BYTE */
-#define EQ_COMPRESSOR_TRANSFER_RGB32F_TO_RGB_25P                    0x115u
-/* Transfer data from internal RGB32F to external BGR format with a data type
+#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGB_25P                   0x408u
+/* Transfer data from internal RGBA32F to external BGR format with a data type
    UNSIGNED_BYTE */
-#define EQ_COMPRESSOR_TRANSFER_RGB32F_TO_BGR_25P                    0x116u
-/* Transfer data from internal RGB32F to external BGR format with a data type
+#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGR_25P                   0x409u
+/* Transfer data from internal RGBA32F to external BGR format with a data type
    half float */
-#define EQ_COMPRESSOR_TRANSFER_RGB32F_TO_BGR16F_50P                 0x117u
-/* Transfer data from internal RGB32F to external RGB format with a data type
+#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGR16F_50P                0x40au
+/* Transfer data from internal RGBA32F to external RGB format with a data type
    half float */
-#define EQ_COMPRESSOR_TRANSFER_RGB32F_TO_RGB16F_50P                 0x118u
-/* Transfer data from internal RGB to external RGB format with a data type
-   UNSIGNED_BYTE */
-#define EQ_COMPRESSOR_TRANSFER_RGB16F_TO_RGB_50P                    0x119u
-/* Transfer data from internal RGB to external BGR format with a data type
-   UNSIGNED_BYTE */
-#define EQ_COMPRESSOR_TRANSFER_RGB16F_TO_BGR_50P                    0x11au
-/* Transfer data from internal RGB to external RGB format with a data type
-   UNSIGNED_BYTE */
-#define EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_RGBA_50P                  0x11bu
-/* Transfer data from internal RGB to external BGR format with a data type
-   UNSIGNED_BYTE */
-#define EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGRA_50P                  0x11cu
+#define EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGB16F_50P                0x40bu
+
 /* Transfer data from internal DEPTH to external DEPTH_STENCIL */
-#define EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT          0x11du
+#define EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT          0x501u
 /* Transfer data from internal DEPTH_STENCIL to external DEPTH_STENCIL */
-#define EQ_COMPRESSOR_TRANSFER_DEPTH_STENCIL_TO_UNSIGNED_INT_24_8   0x11eu
+#define EQ_COMPRESSOR_TRANSFER_DEPTH_STENCIL_TO_UNSIGNED_INT_24_8   0x502u
 
 // Third-party plugins
 /** Lossless CPU jpeg compressor from rtt.ag */

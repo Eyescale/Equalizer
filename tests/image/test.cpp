@@ -267,9 +267,9 @@ int main( int argc, char **argv )
                 destImage.setPixelData( buffer, compressedPixels );
                 const float decompressTime = clock.getTimef();
 
-                std::cout  << "0x" << std::setw(2) << std::setfill( '0' )
+                std::cout  << "0x" << std::setw(3) << std::setfill( '0' )
                            << std::hex << name << std::dec << std::setfill(' ')
-                           << ", " << std::setw(38) << filename
+                           << ", " << std::setw(37) << filename
                            << ", " << std::setw(10) << size << ", "
                            << !image.ignoreAlpha() << ", " << std::setw(10) 
                            << compressedSize << ", " << std::setw(10)
@@ -307,7 +307,7 @@ int main( int argc, char **argv )
                     case EQ_COMPRESSOR_DATATYPE_BGR32F:
                     case EQ_COMPRESSOR_DATATYPE_RGBA32F:
                     case EQ_COMPRESSOR_DATATYPE_RGB32F:
-		    case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT:
+                    case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT:
                         channelSize = 4;
                         break;
                     case EQ_COMPRESSOR_DATATYPE_RGB16F:
@@ -318,44 +318,45 @@ int main( int argc, char **argv )
                         break;
                     default:
                         EQERROR << "Unknown image pixel data type" << std::endl;
-                        return 0;
+                        channelSize = 0;
                 }
                 const int64_t nElem = size / channelSize;
                 
                 switch( channelSize )
                 {
-                case 1:
-                    _compare< uint8_t >( data, destData, buffer,
-                                         image.ignoreAlpha(), nElem,
-                                         quality );
-                    break;
-                case 2:
-                    EQASSERTINFO( quality == 1.f,
-                                  "Half float test not implemented" );
-                    _compare< uint16_t >( data, destData, buffer,
-                                          image.ignoreAlpha(), nElem,
-                                          quality );
-                    break;
-                case 4:
-                    _compare< float >( data, destData, buffer,
-                                       image.ignoreAlpha(), nElem,
-                                       quality );
-                    break;
-                default:
-                    break;
+                    case 1:
+                        _compare< uint8_t >( data, destData, buffer,
+                                             image.ignoreAlpha(), nElem,
+                                             quality );
+                        break;
+                    case 2:
+                        EQASSERTINFO( quality == 1.f,
+                                      "Half float test not implemented" );
+                        _compare< uint16_t >( data, destData, buffer,
+                                              image.ignoreAlpha(), nElem,
+                                              quality );
+                        break;
+                    case 4:
+                        _compare< float >( data, destData, buffer,
+                                           image.ignoreAlpha(), nElem,
+                                           quality );
+                        break;
+                    default:
+                        break;
                 }
 #endif
             }
 
             if( totalSize > 0 )
-                std::cout  << "0x" << std::setw(2) << std::setfill( '0' )
-                           << std::hex << name << std::dec << std::setfill(' ')
-                           << ",                         "
-                           << "         Total, " << std::setw(10) << totalSize
-                           << ", " << !image.ignoreAlpha() << ", " 
-                           << std::setw(10) << totalCompressedSize << ", " 
-                           << std::setw(10) << totalCompressTime << ", " 
-                           << std::setw(10) << totalDecompressTime << std::endl;
+                std::cout
+                    << "0x" << std::setw(3) << std::setfill( '0' ) << std::hex
+                    << name << std::dec << std::setfill(' ')
+                    << ",                                 Total, "
+                    << std::setw(10) << totalSize << ", "
+                    << !image.ignoreAlpha() << ", " << std::setw(10)
+                    << totalCompressedSize << ", " << std::setw(10)
+                    << totalCompressTime << ", " << std::setw(10)
+                    << totalDecompressTime << std::endl << std::endl;
             
             if( alpha )
             {

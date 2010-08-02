@@ -70,9 +70,9 @@ public:
                              EQ_COMPRESSOR_USE_FRAMEBUFFER;
         info->tokenType    = EQ_COMPRESSOR_DATATYPE_RGBA;
 
-        info->quality      = 0.5f;
+        info->quality      = 0.8f;
         info->ratio        = 0.5f;
-        info->speed        = 0.9f;
+        info->speed        = 0.5f;
         
         info->outputTokenType = EQ_COMPRESSOR_DATATYPE_YUVA_50P;
         info->outputTokenSize = 4;
