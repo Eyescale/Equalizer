@@ -269,7 +269,7 @@ namespace server
         bool _cmdReady( net::Command& command );
         bool _cmdUpdate( net::Command& command );
 
-        CHECK_THREAD_DECLARE( _commandThread );
+        EQ_TS_VAR( _commandThread );
     };
     std::ostream& operator << ( std::ostream& os, const FrameData* data );
 }

@@ -114,7 +114,7 @@ namespace net
         bool _cmdDelta( Command& command );
         bool _cmdCommit( Command& command );
 
-        CHECK_THREAD_DECLARE( _cmdThread );
+        EQ_TS_VAR( _cmdThread );
     };
 }
 }

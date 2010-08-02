@@ -376,7 +376,7 @@ namespace net
         /* The command handlers. */
         bool _cmdForward( Command& command );
 
-        CHECK_THREAD_DECLARE( _thread );
+        EQ_TS_VAR( _thread );
     };
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const Object& );
 }

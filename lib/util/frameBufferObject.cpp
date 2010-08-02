@@ -79,7 +79,7 @@ bool FrameBufferObject::addColorTexture( )
 bool FrameBufferObject::init( const int width , const int height,
                               const int depthSize, const int stencilSize )
 {
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
 
     if( _fboID )
     {
@@ -113,7 +113,7 @@ bool FrameBufferObject::init( const int width , const int height,
 
 void FrameBufferObject::exit()
 {
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
     if( _fboID )
     {
         glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
@@ -172,7 +172,7 @@ bool FrameBufferObject::_checkStatus()
 
 void FrameBufferObject::bind()
 {
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
     EQASSERT( _fboID );
     EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID ));
 }
@@ -184,7 +184,7 @@ void FrameBufferObject::unbind()
 
 bool FrameBufferObject::resize( const int width, const int height )
 {
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
     EQASSERT( width > 0 && height > 0 );
 
     EQASSERT( !_colors.empty( ));

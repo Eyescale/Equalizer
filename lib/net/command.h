@@ -67,7 +67,7 @@ namespace net
         /** @name Usage tracking. */
         //@{
         bool isFree() const
-            { CHECK_THREAD( _writeThread ); return ( _refCount==0 ); }
+            { EQ_TS_THREAD( _writeThread ); return ( _refCount==0 ); }
         void retain();
         EQ_EXPORT void release();
         //@}
@@ -107,7 +107,7 @@ namespace net
         base::a_int32_t _refCount;
 
         uint32_t _dispatchID;
-        CHECK_THREAD_DECLARE( _writeThread );
+        EQ_TS_VAR( _writeThread );
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& );

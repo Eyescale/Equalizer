@@ -87,7 +87,7 @@ namespace net
         bool _cmdSlaveDelta( Command& command );
         bool _cmdDiscard( Command& command ) { return true; }
 
-        CHECK_THREAD_DECLARE( _cmdThread );
+        EQ_TS_VAR( _cmdThread );
     };
 }
 }

@@ -448,8 +448,8 @@ namespace net
         bool _cmdUnsubscribeObject( Command& command );
         bool _cmdInstance( Command& command );
 
-        CHECK_THREAD_DECLARE( _receiverThread );
-        CHECK_THREAD_DECLARE( _commandThread );
+        EQ_TS_VAR( _receiverThread );
+        EQ_TS_VAR( _commandThread );
     };
 
     std::ostream& operator << ( std::ostream& os, Session* session );

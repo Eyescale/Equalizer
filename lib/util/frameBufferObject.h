@@ -142,7 +142,7 @@ namespace util
             char dummy[32];
         };
 
-        CHECK_THREAD_DECLARE( _thread );
+        EQ_TS_VAR( _thread );
 
         /** Check the result after changes to an FBO and set the _valid flag. */
         bool _checkStatus();

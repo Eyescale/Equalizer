@@ -107,7 +107,7 @@ namespace net
         SOCKET     _overlappedSocket;
         DWORD      _overlappedDone;
 
-        CHECK_THREAD_DECLARE( _recvThread );
+        EQ_TS_VAR( _recvThread );
 #endif
     };
 }

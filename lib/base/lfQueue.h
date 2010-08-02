@@ -59,7 +59,7 @@ namespace base
         /** Reset (empty) the queue. @version 1.0 */
         void clear()
             {
-                CHECK_THREAD_SCOPED( _reader );
+                EQ_TS_SCOPED( _reader );
                 _readPos = 0;
                 _writePos = 0;
             }
@@ -88,7 +88,7 @@ namespace base
          */
         bool pop( T& result )
             {
-                CHECK_THREAD_SCOPED( _reader );
+                EQ_TS_SCOPED( _reader );
                 if( _readPos == _writePos )
                     return false;
                 
@@ -107,7 +107,7 @@ namespace base
          */
         bool getFront( T& result )
             {
-                CHECK_THREAD_SCOPED( _reader );
+                EQ_TS_SCOPED( _reader );
                 if( _readPos == _writePos )
                     return false;
                 
@@ -124,7 +124,7 @@ namespace base
          */
         bool push( const T& element )
             {
-                CHECK_THREAD_SCOPED( _writer );
+                EQ_TS_SCOPED( _writer );
                 int32_t nextPos = (_writePos + 1) % _data.size();
                 if( nextPos == _readPos )
                     return false;
@@ -139,8 +139,8 @@ namespace base
         a_int32_t _readPos;
         a_int32_t _writePos;
 
-        CHECK_THREAD_DECLARE( _reader );
-        CHECK_THREAD_DECLARE( _writer );
+        EQ_TS_VAR( _reader );
+        EQ_TS_VAR( _writer );
     };
 
 }

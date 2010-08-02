@@ -236,14 +236,14 @@ ServerPtr Window::getServer()
 //----------------------------------------------------------------------
 void Window::_addRenderContext( const RenderContext& context )
 {
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
     _renderContexts[BACK].push_back( context );
 }
 
 bool Window::getRenderContext( const int32_t x, const int32_t y,
                                RenderContext& context ) const
 {
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
     if( !_osWindow )
         return false;
 
@@ -693,7 +693,7 @@ bool Window::_cmdConfigExit( net::Command& command )
 
 bool Window::_cmdFrameStart( net::Command& command )
 {
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
 
     const WindowFrameStartPacket* packet = 
         command.getPacket<WindowFrameStartPacket>();

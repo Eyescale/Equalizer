@@ -123,7 +123,7 @@ void Barrier::enter()
 
 bool Barrier::_cmdEnter( Command& command )
 {
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
     EQASSERTINFO( !_master || _master == getSession()->getLocalNode(),
                   _master );
 
@@ -192,7 +192,7 @@ bool Barrier::_cmdEnter( Command& command )
 
 bool Barrier::_cmdEnterReply( Command& command )
 {
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
     EQLOG( LOG_BARRIER ) << "Got ok, unlock local user(s)" << endl;
     ++_leaveNotify;
     return true;

@@ -220,7 +220,7 @@ namespace server
         typedef std::vector< ChannelListener* > ChannelListeners;
         ChannelListeners _listeners;
 
-        CHECK_THREAD_DECLARE( _serverThread );
+        EQ_TS_VAR( _serverThread );
 
         union // placeholder for binary-compatible changes
         {

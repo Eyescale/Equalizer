@@ -278,13 +278,13 @@ bool Compound::isActive() const
 //---------------------------------------------------------------------------
 void Compound::addListener( CompoundListener* listener )
 {
-    CHECK_THREAD_SCOPED( _serverThread );
+    EQ_TS_SCOPED( _serverThread );
     _listeners.push_back( listener );
 }
 
 void Compound::removeListener(  CompoundListener* listener )
 {
-    CHECK_THREAD_SCOPED( _serverThread );
+    EQ_TS_SCOPED( _serverThread );
     CompoundListeners::iterator i = find( _listeners.begin(), _listeners.end(),
                                           listener );
     if( i != _listeners.end( ))
@@ -293,7 +293,7 @@ void Compound::removeListener(  CompoundListener* listener )
 
 void Compound::fireUpdatePre( const uint32_t frameNumber )
 {
-    CHECK_THREAD_SCOPED( _serverThread );
+    EQ_TS_SCOPED( _serverThread );
 
     for( CompoundListeners::const_iterator i = _listeners.begin(); 
          i != _listeners.end(); ++i )
@@ -303,7 +303,7 @@ void Compound::fireUpdatePre( const uint32_t frameNumber )
 
 void Compound::_fireChildAdded( Compound* child )
 {
-    CHECK_THREAD_SCOPED( _serverThread );
+    EQ_TS_SCOPED( _serverThread );
 
     for( CompoundListeners::const_iterator i = _listeners.begin(); 
          i != _listeners.end(); ++i )
@@ -313,7 +313,7 @@ void Compound::_fireChildAdded( Compound* child )
 
 void Compound::_fireChildRemove( Compound* child )
 {
-    CHECK_THREAD_SCOPED( _serverThread );
+    EQ_TS_SCOPED( _serverThread );
 
     for( CompoundListeners::const_iterator i = _listeners.begin(); 
          i != _listeners.end(); ++i )

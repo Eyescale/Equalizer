@@ -77,7 +77,7 @@ namespace net
 
         void _setReady() { _version = getPendingVersion(); }
 
-        CHECK_THREAD_DECLARE( _thread );
+        EQ_TS_VAR( _thread );
     };
 }
 }

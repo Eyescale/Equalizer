@@ -178,7 +178,7 @@ namespace net
         virtual void notifyStateChanged( Connection* ) { _dirty = true; }
 
         Event _getSelectResult( const uint32_t index );
-        CHECK_THREAD_DECLARE( _selectThread );
+        EQ_TS_VAR( _selectThread );
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 

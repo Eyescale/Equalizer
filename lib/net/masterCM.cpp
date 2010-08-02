@@ -119,7 +119,7 @@ uint32_t MasterCM::sync( const uint32_t version )
 //---------------------------------------------------------------------------
 bool MasterCM::_cmdSlaveDelta( Command& command )
 {
-    CHECK_THREAD( _cmdThread );
+    EQ_TS_THREAD( _cmdThread );
     const ObjectSlaveDeltaPacket* packet = 
         command.getPacket< ObjectSlaveDeltaPacket >();
 

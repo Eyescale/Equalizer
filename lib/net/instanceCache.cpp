@@ -292,7 +292,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
     if( _size <= _maxSize )
         return;
 
-    CHECK_THREAD_SCOPED( _thread );
+    EQ_TS_SCOPED( _thread );
 
     std::vector< uint32_t > keys;
     const long target = static_cast< long >(

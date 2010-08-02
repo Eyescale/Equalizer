@@ -501,7 +501,7 @@ void FrameData::removeListener( base::Monitor<uint32_t>& listener )
 
 bool FrameData::_cmdTransmit( net::Command& command )
 {
-    CHECK_THREAD( _commandThread );
+    EQ_TS_THREAD( _commandThread );
     const FrameDataTransmitPacket* packet =
         command.getPacket<FrameDataTransmitPacket>();
 
@@ -598,7 +598,7 @@ bool FrameData::_cmdTransmit( net::Command& command )
 
 bool FrameData::_cmdReady( net::Command& command )
 {
-    CHECK_THREAD( _commandThread );
+    EQ_TS_THREAD( _commandThread );
     const FrameDataReadyPacket* packet =
         command.getPacket<FrameDataReadyPacket>();
 
@@ -620,7 +620,7 @@ bool FrameData::_cmdReady( net::Command& command )
 
 bool FrameData::_cmdUpdate( net::Command& command )
 {
-    CHECK_THREAD( _commandThread );
+    EQ_TS_THREAD( _commandThread );
     const FrameDataUpdatePacket* packet =
         command.getPacket<FrameDataUpdatePacket>();
 
@@ -648,7 +648,7 @@ bool FrameData::_cmdUpdate( net::Command& command )
 
 void FrameData::_applyVersion( const uint32_t version )
 {
-    CHECK_THREAD( _commandThread );
+    EQ_TS_THREAD( _commandThread );
     EQLOG( LOG_ASSEMBLY ) << this << " apply v" << version << std::endl;
 
     // Input images sync() to the new version, then send an update packet and

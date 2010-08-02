@@ -64,7 +64,7 @@ void Command::release()
 
 size_t Command::_alloc( NodePtr node, NodePtr localNode, const uint64_t size )
 {
-    CHECK_THREAD( _writeThread );
+    EQ_TS_THREAD( _writeThread );
     EQASSERT( _refCount == 0 );
 
     size_t allocated = 0;
@@ -94,7 +94,7 @@ size_t Command::_alloc( NodePtr node, NodePtr localNode, const uint64_t size )
 
 void Command::_clone( Command& from )
 {
-    CHECK_THREAD( _writeThread );
+    EQ_TS_THREAD( _writeThread );
     EQASSERT( _refCount == 0 );
 
     _node = from._node;
@@ -107,7 +107,7 @@ void Command::_clone( Command& from )
 
 void Command::_free()
 {
-    CHECK_THREAD( _writeThread );
+    EQ_TS_THREAD( _writeThread );
     EQASSERT( _refCount == 0 );
 
     if( _data )

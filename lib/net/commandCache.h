@@ -73,7 +73,7 @@ namespace net
         void _compact( const Cache which );
         Command& _newCommand( const Cache which );
 
-        CHECK_THREAD_DECLARE( _thread );
+        EQ_TS_VAR( _thread );
     };
 }
 }

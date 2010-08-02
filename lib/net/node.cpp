@@ -569,7 +569,7 @@ bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
 void Node::_addSession( Session* session, NodePtr server,
                         const SessionID& sessionID )
 {
-    CHECK_THREAD( _recvThread );
+    EQ_TS_THREAD( _recvThread );
 
     session->_server    = server;
     session->_id        = sessionID;
@@ -592,7 +592,7 @@ void Node::_addSession( Session* session, NodePtr server,
 
 void Node::_removeSession( Session* session )
 {
-    CHECK_THREAD( _recvThread );
+    EQ_TS_THREAD( _recvThread );
     {
         base::ScopedMutex< base::SpinLock > mutex( _sessions );
         EQASSERT( _sessions->find( session->getID( )) != _sessions->end( ));
@@ -1603,7 +1603,7 @@ bool Node::_cmdStop( Command& command )
 
 bool Node::_cmdRegisterSession( Command& command )
 {
-    CHECK_THREAD( _recvThread );
+    EQ_TS_THREAD( _recvThread );
     EQASSERT( _state == STATE_LISTENING );
     EQASSERTINFO( command.getNode() == this, 
                   command.getNode() << " != " << this );
@@ -1624,7 +1624,7 @@ bool Node::_cmdRegisterSession( Command& command )
 
 bool Node::_cmdMapSession( Command& command )
 {
-    CHECK_THREAD( _cmdThread );
+    EQ_TS_THREAD( _cmdThread );
     EQASSERT( _state == STATE_LISTENING );
 
     const NodeMapSessionPacket* packet = 
@@ -1656,7 +1656,7 @@ bool Node::_cmdMapSession( Command& command )
 
 bool Node::_cmdMapSessionReply( Command& command)
 {
-    CHECK_THREAD( _recvThread );
+    EQ_TS_THREAD( _recvThread );
     const NodeMapSessionReplyPacket* packet = 
         command.getPacket<NodeMapSessionReplyPacket>();
     EQVERB << "Cmd map session reply: " << packet << std::endl;
@@ -1679,7 +1679,7 @@ bool Node::_cmdMapSessionReply( Command& command)
 
 bool Node::_cmdUnmapSession( Command& command )
 {
-    CHECK_THREAD( _cmdThread );
+    EQ_TS_THREAD( _cmdThread );
     const NodeUnmapSessionPacket* packet =
         command.getPacket<NodeUnmapSessionPacket>();
     EQVERB << "Cmd unmap session: " << packet << std::endl;
@@ -1703,7 +1703,7 @@ bool Node::_cmdUnmapSession( Command& command )
 
 bool Node::_cmdUnmapSessionReply( Command& command)
 {
-    CHECK_THREAD( _recvThread );
+    EQ_TS_THREAD( _recvThread );
     const NodeUnmapSessionReplyPacket* packet = 
         command.getPacket<NodeUnmapSessionReplyPacket>();
     EQVERB << "Cmd unmap session reply: " << packet << std::endl;

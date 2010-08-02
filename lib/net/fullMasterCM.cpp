@@ -122,7 +122,7 @@ uint32_t FullMasterCM::getOldestVersion() const
 
 uint32_t FullMasterCM::addSlave( Command& command )
 {
-    CHECK_THREAD( _cmdThread );
+    EQ_TS_THREAD( _cmdThread );
     EQASSERT( command->type == PACKETTYPE_EQNET_SESSION );
     EQASSERT( command->command == CMD_SESSION_SUBSCRIBE_OBJECT );
 
@@ -219,7 +219,7 @@ uint32_t FullMasterCM::addSlave( Command& command )
 
 void FullMasterCM::removeSlave( NodePtr node )
 {
-    CHECK_THREAD( _cmdThread );
+    EQ_TS_THREAD( _cmdThread );
     _checkConsistency();
 
     // remove from subscribers
@@ -298,7 +298,7 @@ void FullMasterCM::_addInstanceData( InstanceData* data )
 //---------------------------------------------------------------------------
 bool FullMasterCM::_cmdCommit( Command& command )
 {
-    CHECK_THREAD( _cmdThread );
+    EQ_TS_THREAD( _cmdThread );
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
 #if 0
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 

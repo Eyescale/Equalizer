@@ -73,13 +73,13 @@ void CommandQueue::pushFront( Command& command )
 
 Command* CommandQueue::pop()
 {
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
     return _commands.pop();
 }
 
 Command* CommandQueue::tryPop()
 {
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
     Command* command = 0;
     _commands.tryPop( command );
     return command;

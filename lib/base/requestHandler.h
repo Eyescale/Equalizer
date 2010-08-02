@@ -173,7 +173,7 @@ namespace base
         bool _waitRequest( const uint32_t requestID, Request::Result& result,
                            const uint32_t timeout );
 
-        CHECK_THREAD_DECLARE( _thread );
+        EQ_TS_VAR( _thread );
     };
 
     std::ostream& operator << ( std::ostream&, const RequestHandler& );

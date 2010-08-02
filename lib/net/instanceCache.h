@@ -133,7 +133,7 @@ namespace net
         void _releaseStreams( InstanceCache::Item& item );
         void _releaseFirstStream( InstanceCache::Item& item );
 
-        CHECK_THREAD_DECLARE( _thread );
+        EQ_TS_VAR( _thread );
     };
 
     std::ostream& operator << ( std::ostream&, const InstanceCache& );

@@ -220,7 +220,7 @@ void VersionedSlaveCM::applyMapData()
 void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache, 
                                          const uint32_t startVersion )
 {
-    CHECK_THREAD( _cmdThread );
+    EQ_TS_THREAD( _cmdThread );
 #if 0
     EQLOG( LOG_OBJECTS ) << base::disableFlush << "Adding data front ";
 #endif
@@ -326,7 +326,7 @@ bool VersionedSlaveCM::_ignoreCommand( const Command& command ) const
 
 bool VersionedSlaveCM::_cmdInstance( Command& command )
 {
-    CHECK_THREAD( _cmdThread );
+    EQ_TS_THREAD( _cmdThread );
     EQASSERT( command.getNode().isValid( ));
 
     if( _ignoreCommand( command ))
@@ -354,7 +354,7 @@ bool VersionedSlaveCM::_cmdInstance( Command& command )
 
 bool VersionedSlaveCM::_cmdDelta( Command& command )
 {
-    CHECK_THREAD( _cmdThread );
+    EQ_TS_THREAD( _cmdThread );
 
     if( _ignoreCommand( command ))
         return true;
@@ -381,7 +381,7 @@ bool VersionedSlaveCM::_cmdDelta( Command& command )
 
 bool VersionedSlaveCM::_cmdCommit( Command& command )
 {
-    CHECK_THREAD( _cmdThread );
+    EQ_TS_THREAD( _cmdThread );
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
 #if 0
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 

@@ -49,7 +49,7 @@ UnbufferedMasterCM::~UnbufferedMasterCM()
 
 uint32_t UnbufferedMasterCM::addSlave( Command& command )
 {
-    CHECK_THREAD( _cmdThread );
+    EQ_TS_THREAD( _cmdThread );
     EQASSERT( command->type == PACKETTYPE_EQNET_SESSION );
     EQASSERT( command->command == CMD_SESSION_SUBSCRIBE_OBJECT );
 
@@ -117,7 +117,7 @@ uint32_t UnbufferedMasterCM::addSlave( Command& command )
 
 void UnbufferedMasterCM::removeSlave( NodePtr node )
 {
-    CHECK_THREAD( _cmdThread );
+    EQ_TS_THREAD( _cmdThread );
     // remove from subscribers
     const NodeID& nodeID = node->getNodeID();
     EQASSERT( _slavesCount[ nodeID ] != 0 );
@@ -137,7 +137,7 @@ void UnbufferedMasterCM::removeSlave( NodePtr node )
 //---------------------------------------------------------------------------
 bool UnbufferedMasterCM::_cmdCommit( Command& command )
 {
-    CHECK_THREAD( _cmdThread );
+    EQ_TS_THREAD( _cmdThread );
     NodePtr localNode = _object->getLocalNode();
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
 #if 0

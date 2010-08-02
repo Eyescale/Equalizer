@@ -277,7 +277,7 @@ namespace eq
         bool _cmdFrameDrawFinish( net::Command& command );
         bool _cmdFrameTasksFinish( net::Command& command );
 
-        CHECK_THREAD_DECLARE( _nodeThread );
+        EQ_TS_VAR( _nodeThread );
     };
 }
 

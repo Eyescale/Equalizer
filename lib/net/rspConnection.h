@@ -326,7 +326,7 @@ namespace net
         /* look if each connection have the same mtu */
         bool isFinishedMtuExchange();
 
-        CHECK_THREAD_DECLARE( _recvThread );
+        EQ_TS_VAR( _recvThread );
  
     };
 

@@ -284,7 +284,7 @@ bool RSPConnection::listen()
 
 ConnectionPtr RSPConnection::acceptSync()
 {
-    CHECK_THREAD( _recvThread );
+    EQ_TS_THREAD( _recvThread );
     if( _state != STATE_LISTENING )
         return 0;
         

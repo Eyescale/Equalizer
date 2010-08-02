@@ -214,7 +214,7 @@ namespace base
 #endif
 
 /** Declare a thread id variable to be used for thread-safety checks. */
-#define CHECK_THREAD_DECLARE( NAME )                        \
+#define EQ_TS_VAR( NAME )                        \
     struct NAME ## Struct                                   \
     {                                                       \
         NAME ## Struct ()                                   \
@@ -226,9 +226,7 @@ namespace base
     } NAME;                                                 \
 
 #ifdef EQ_CHECK_THREADSAFETY
-#  define CHECK_THREAD_RESET( NAME ) NAME.id = 0;
-
-#  define CHECK_THREAD( NAME )                                          \
+#  define EQ_TS_THREAD( NAME )                                          \
     {                                                                   \
         if( NAME.id == eq::base::ThreadID::ZERO )                       \
         {                                                               \
@@ -245,7 +243,7 @@ namespace base
         }                                                               \
     }
 
-#  define CHECK_NOT_THREAD( NAME )                                      \
+#  define EQ_TS_NOT_THREAD( NAME )                                      \
     {                                                                   \
         if( !NAME.extMutex && NAME.id != eq::base::ThreadID::ZERO )     \
         {                                                               \
@@ -280,14 +278,13 @@ namespace base
         T& _data;
     };
 
-# define CHECK_THREAD_SCOPED( NAME ) \
+# define EQ_TS_SCOPED( NAME ) \
     eq::base::ScopedThreadCheck< NAME ## Struct > scoped ## NAME ## Check(NAME);
 
 #else
-#  define CHECK_THREAD_RESET( NAME ) {}
-#  define CHECK_THREAD( NAME ) {}
-#  define CHECK_NOT_THREAD( NAME ) {}
-#  define CHECK_THREAD_SCOPED( NAME ) {}
+#  define EQ_TS_THREAD( NAME ) {}
+#  define EQ_TS_NOT_THREAD( NAME ) {}
+#  define EQ_TS_SCOPED( NAME ) {}
 #endif
 
 }

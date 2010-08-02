@@ -181,14 +181,14 @@ void Session::freeIDs( const uint32_t start, const uint32_t range )
 //---------------------------------------------------------------------------
 void Session::setIDMaster( const uint32_t id, const NodeID& master )
 {
-    CHECK_NOT_THREAD( _commandThread );
+    EQ_TS_NOT_THREAD( _commandThread );
     _setIDMasterSync( _setIDMasterNB( id, master ));
 }
 
 uint32_t Session::_setIDMasterNB( const uint32_t identifier,
                                   const NodeID& master )
 {
-    CHECK_NOT_THREAD( _commandThread );
+    EQ_TS_NOT_THREAD( _commandThread );
 
     SessionSetIDMasterPacket packet;
     packet.identifier = identifier;
@@ -215,7 +215,7 @@ void Session::unsetIDMaster( const uint32_t identifier )
 
 uint32_t Session::_unsetIDMasterNB( const uint32_t identifier )
 {
-    CHECK_NOT_THREAD( _commandThread );
+    EQ_TS_NOT_THREAD( _commandThread );
     SessionUnsetIDMasterPacket packet;
     packet.identifier = identifier;
 
@@ -272,7 +272,7 @@ void Session::attachObject( Object* object, const uint32_t id,
                             const uint32_t instanceID )
 {
     EQASSERT( object );
-    CHECK_NOT_THREAD( _receiverThread );
+    EQ_TS_NOT_THREAD( _receiverThread );
 
     SessionAttachObjectPacket packet;
     packet.objectID = id;
@@ -304,7 +304,7 @@ void Session::_attachObject( Object* object, const uint32_t id,
                              const uint32_t inInstanceID )
 {
     EQASSERT( object );
-    CHECK_THREAD( _receiverThread );
+    EQ_TS_THREAD( _receiverThread );
 
     uint32_t instanceID = inInstanceID;
     if( inInstanceID == EQ_ID_INVALID )
@@ -329,7 +329,7 @@ void Session::_attachObject( Object* object, const uint32_t id,
 void Session::detachObject( Object* object )
 {
     EQASSERT( object );
-    CHECK_NOT_THREAD( _receiverThread );
+    EQ_TS_NOT_THREAD( _receiverThread );
 
     SessionDetachObjectPacket packet;
     packet.requestID = _localNode->registerRequest();
@@ -344,7 +344,7 @@ void Session::_detachObject( Object* object )
 {
     // check also _cmdUnmapObject when modifying!
     EQASSERT( object );
-    CHECK_THREAD( _receiverThread );
+    EQ_TS_THREAD( _receiverThread );
 
     const uint32_t id = object->getID();
     if( id == EQ_ID_INVALID )
@@ -380,7 +380,7 @@ bool Session::mapObject( Object* object, const uint32_t id,
 uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
                                const uint32_t version )
 {
-    CHECK_NOT_THREAD( _commandThread );
+    EQ_TS_NOT_THREAD( _commandThread );
     EQASSERT( object );
     EQASSERT( id <= EQ_ID_MAX );
 
@@ -483,7 +483,7 @@ void Session::unmapObject( Object* object )
 
     // send unsubscribe to master, master will send detach packet.
     EQASSERT( !object->isMaster( ));
-    CHECK_NOT_THREAD( _commandThread );
+    EQ_TS_NOT_THREAD( _commandThread );
     
     const uint32_t masterInstanceID = object->getMasterInstanceID();
     if( masterInstanceID != EQ_ID_INVALID )
@@ -610,7 +610,7 @@ bool Session::dispatchCommand( Command& command )
 {
     EQVERB << "dispatch " << command << std::endl;
     EQASSERT( command.isValid( ));
-    CHECK_THREAD( _receiverThread );
+    EQ_TS_THREAD( _receiverThread );
 
     switch( command->type )
     {
@@ -630,7 +630,7 @@ bool Session::dispatchCommand( Command& command )
 
 bool Session::_dispatchObjectCommand( Command& command )
 {
-    CHECK_THREAD( _receiverThread );
+    EQ_TS_THREAD( _receiverThread );
     const ObjectPacket* packet = command.getPacket< ObjectPacket >();
     const uint32_t id = packet->objectID;
     const uint32_t instanceID = packet->instanceID;
@@ -764,7 +764,7 @@ bool Session::_cmdAckRequest( Command& command )
 
 bool Session::_cmdGenIDs( Command& command )
 {
-    CHECK_THREAD( _commandThread );
+    EQ_TS_THREAD( _commandThread );
     const SessionGenIDsPacket* packet =command.getPacket<SessionGenIDsPacket>();
     EQVERB << "Cmd gen IDs: " << packet << std::endl;
 
@@ -779,7 +779,7 @@ bool Session::_cmdGenIDs( Command& command )
 
 bool Session::_cmdGenIDsReply( Command& command )
 {
-    CHECK_THREAD( _commandThread );
+    EQ_TS_THREAD( _commandThread );
     const SessionGenIDsReplyPacket* packet =
         command.getPacket<SessionGenIDsReplyPacket>();
     EQVERB << "Cmd gen IDs reply: " << packet << std::endl;
@@ -796,7 +796,7 @@ bool Session::_cmdGenIDsReply( Command& command )
 
 bool Session::_cmdSetIDMaster( Command& command )
 {
-    CHECK_THREAD( _commandThread );
+    EQ_TS_THREAD( _commandThread );
     const SessionSetIDMasterPacket* packet = 
         command.getPacket<SessionSetIDMasterPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd set ID master: " << packet << std::endl;
@@ -814,7 +814,7 @@ bool Session::_cmdSetIDMaster( Command& command )
 
 bool Session::_cmdUnsetIDMaster( Command& command )
 {
-    CHECK_THREAD( _commandThread );
+    EQ_TS_THREAD( _commandThread );
     const SessionUnsetIDMasterPacket* packet = 
         command.getPacket<SessionUnsetIDMasterPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd unset ID master: " << packet << std::endl;
@@ -831,7 +831,7 @@ bool Session::_cmdUnsetIDMaster( Command& command )
 
 bool Session::_cmdGetIDMaster( Command& command )
 {
-    CHECK_THREAD( _commandThread );
+    EQ_TS_THREAD( _commandThread );
     const SessionGetIDMasterPacket* packet =
         command.getPacket<SessionGetIDMasterPacket>();
     EQLOG( LOG_OBJECTS ) << "handle get idMaster " << packet << std::endl;
@@ -845,7 +845,7 @@ bool Session::_cmdGetIDMaster( Command& command )
 
 bool Session::_cmdGetIDMasterReply( Command& command )
 {
-    CHECK_THREAD( _commandThread );
+    EQ_TS_THREAD( _commandThread );
     const SessionGetIDMasterReplyPacket* packet = 
         command.getPacket<SessionGetIDMasterReplyPacket>();
     EQLOG( LOG_OBJECTS ) << "handle get idMaster reply " << packet << std::endl;
@@ -865,7 +865,7 @@ bool Session::_cmdGetIDMasterReply( Command& command )
 
 bool Session::_cmdAttachObject( Command& command )
 {
-    CHECK_THREAD( _receiverThread );
+    EQ_TS_THREAD( _receiverThread );
     const SessionAttachObjectPacket* packet = 
         command.getPacket<SessionAttachObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd attach object " << packet << std::endl;
@@ -879,7 +879,7 @@ bool Session::_cmdAttachObject( Command& command )
 
 bool Session::_cmdDetachObject( Command& command )
 {
-    CHECK_THREAD( _receiverThread );
+    EQ_TS_THREAD( _receiverThread );
     const SessionDetachObjectPacket* packet = 
         command.getPacket<SessionDetachObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd detach object " << packet << std::endl;
@@ -909,7 +909,7 @@ bool Session::_cmdDetachObject( Command& command )
 
 bool Session::_cmdMapObject( Command& command )
 {
-    CHECK_THREAD( _commandThread );
+    EQ_TS_THREAD( _commandThread );
     const SessionMapObjectPacket* packet = 
         command.getPacket< SessionMapObjectPacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd map object " << packet << std::endl;
@@ -953,7 +953,7 @@ bool Session::_cmdMapObject( Command& command )
 
 bool Session::_cmdSubscribeObject( Command& command )
 {
-    CHECK_THREAD( _commandThread );
+    EQ_TS_THREAD( _commandThread );
     SessionSubscribeObjectPacket* packet =
         command.getPacket<SessionSubscribeObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd subscribe object " << packet << std::endl;
@@ -1028,7 +1028,7 @@ bool Session::_cmdSubscribeObject( Command& command )
 
 bool Session::_cmdSubscribeObjectSuccess( Command& command )
 {
-    CHECK_THREAD( _receiverThread );
+    EQ_TS_THREAD( _receiverThread );
     const SessionSubscribeObjectSuccessPacket* packet = 
         command.getPacket<SessionSubscribeObjectSuccessPacket>();
 
@@ -1057,7 +1057,7 @@ bool Session::_cmdSubscribeObjectSuccess( Command& command )
 
 bool Session::_cmdSubscribeObjectReply( Command& command )
 {
-    CHECK_THREAD( _commandThread );
+    EQ_TS_THREAD( _commandThread );
     const SessionSubscribeObjectReplyPacket* packet = 
         command.getPacket<SessionSubscribeObjectReplyPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd subscribe object reply " << packet
@@ -1109,7 +1109,7 @@ bool Session::_cmdSubscribeObjectReply( Command& command )
 
 bool Session::_cmdUnsubscribeObject( Command& command )
 {
-    CHECK_THREAD( _commandThread );
+    EQ_TS_THREAD( _commandThread );
     SessionUnsubscribeObjectPacket* packet =
         command.getPacket<SessionUnsubscribeObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd unsubscribe object  " << packet << std::endl;
@@ -1145,7 +1145,7 @@ bool Session::_cmdUnsubscribeObject( Command& command )
 
 bool Session::_cmdUnmapObject( Command& command )
 {
-    CHECK_THREAD( _receiverThread );
+    EQ_TS_THREAD( _receiverThread );
     const SessionUnmapObjectPacket* packet = 
         command.getPacket< SessionUnmapObjectPacket >();
 
@@ -1177,7 +1177,7 @@ bool Session::_cmdInstance( Command& command )
     ObjectInstancePacket* packet = command.getPacket< ObjectInstancePacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd instance " << packet << std::endl;
 
-    CHECK_THREAD( _commandThread );
+    EQ_TS_THREAD( _commandThread );
     EQASSERT( _localNode.isValid( ));
 
     packet->type = PACKETTYPE_EQNET_OBJECT;

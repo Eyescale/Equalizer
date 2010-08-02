@@ -232,7 +232,7 @@ namespace util
         void _copyFromFrameBuffer( uint32_t x, uint32_t w, 
                                    uint32_t y, uint32_t h );
 
-        CHECK_THREAD_DECLARE( _thread );
+        EQ_TS_VAR( _thread );
     };
 }
 }

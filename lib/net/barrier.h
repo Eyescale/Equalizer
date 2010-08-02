@@ -111,7 +111,7 @@ namespace net
         bool _cmdEnter( Command& command );
         bool _cmdEnterReply( Command& command );
 
-        CHECK_THREAD_DECLARE( _thread );
+        EQ_TS_VAR( _thread );
     };
 }
 }

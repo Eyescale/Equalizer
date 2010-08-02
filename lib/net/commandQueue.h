@@ -81,7 +81,7 @@ namespace net
         /** @return the size of the queue. */
         size_t getSize() const { return _commands.getSize(); }
 
-        CHECK_THREAD_DECLARE( _thread );
+        EQ_TS_VAR( _thread );
     private:
         /** Thread-safe command queue. */
         base::MTQueue< Command* >  _commands;

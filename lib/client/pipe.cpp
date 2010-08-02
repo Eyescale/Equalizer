@@ -235,7 +235,7 @@ MessagePump* Pipe::createMessagePump()
 void Pipe::_runThread()
 {
     EQINFO << "Entered pipe thread" << std::endl;
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
 
     Config* config = getConfig();
     EQASSERT( config );
@@ -273,7 +273,7 @@ net::CommandQueue* Pipe::getMainThreadQueue()
 Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye,
                        const bool output )
 {
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
     Frame* frame = _frames[ frameVersion.identifier ];
 
     if( !frame )
@@ -300,7 +300,7 @@ Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye,
 
 void Pipe::flushFrames()
 {
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
     net::Session* session = getSession();
 
     for( FrameHash::const_iterator i = _frames.begin(); i != _frames.end(); ++i)
@@ -332,7 +332,7 @@ const View* Pipe::getView( const net::ObjectVersion& viewVersion ) const
 
 View* Pipe::getView( const net::ObjectVersion& viewVersion )
 {
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
     if( viewVersion.identifier > EQ_ID_MAX )
         return 0;
 
@@ -355,7 +355,7 @@ View* Pipe::getView( const net::ObjectVersion& viewVersion )
 
 void Pipe::_releaseViews()
 {
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
     for( bool changed = true; changed; )
     {
         changed = false;
@@ -383,7 +383,7 @@ void Pipe::_releaseViews()
 
 void Pipe::_flushViews()
 {
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
     NodeFactory*  nodeFactory = Global::getNodeFactory();
     net::Session* session     = getSession();
 
@@ -470,7 +470,7 @@ uint32_t Pipe::getFinishedFrame() const
 //---------------------------------------------------------------------------
 bool Pipe::configInit( const uint32_t initID )
 {
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
 
     EQASSERT( !_osPipe );
 
@@ -544,7 +544,7 @@ bool Pipe::configInit( const uint32_t initID )
 
 bool Pipe::configExit()
 {
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
 
     if( _computeContext )
     {
@@ -571,7 +571,7 @@ bool Pipe::configExit()
 
 void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber ) 
 {
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
 
     const Node* node = getNode();
     switch( node->getIAttribute( Node::IATTR_THREAD_MODEL ))
@@ -637,21 +637,21 @@ void Pipe::frameFinish( const uint32_t frameID, const uint32_t frameNumber )
 
 void Pipe::startFrame( const uint32_t frameNumber )
 { 
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
     _currentFrame = frameNumber; 
     EQLOG( LOG_TASKS ) << "---- Started Frame ---- "<< frameNumber << std::endl;
 }
 
 void Pipe::releaseFrame( const uint32_t frameNumber )
 { 
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
     _finishedFrame = frameNumber; 
     EQLOG( LOG_TASKS ) << "---- Finished Frame --- "<< frameNumber << std::endl;
 }
 
 void Pipe::releaseFrameLocal( const uint32_t frameNumber )
 { 
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
     EQASSERT( _unlockedFrame + 1 == frameNumber );
 
     _unlockedFrame = frameNumber;
@@ -719,7 +719,7 @@ bool Pipe::_cmdDestroyWindow(  net::Command& command  )
 
 bool Pipe::_cmdConfigInit( net::Command& command )
 {
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
     const PipeConfigInitPacket* packet = 
         command.getPacket<PipeConfigInitPacket>();
     EQLOG( LOG_INIT ) << "Init pipe " << packet << std::endl;
@@ -767,7 +767,7 @@ bool Pipe::_cmdConfigInit( net::Command& command )
 
 bool Pipe::_cmdConfigExit( net::Command& command )
 {
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
     const PipeConfigExitPacket* packet = 
         command.getPacket<PipeConfigExitPacket>();
     EQLOG( LOG_INIT ) << "TASK pipe config exit " << packet << std::endl;
@@ -807,7 +807,7 @@ bool Pipe::_cmdFrameStartClock( net::Command& command )
 
 bool Pipe::_cmdFrameStart( net::Command& command )
 {
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
     const PipeFrameStartPacket* packet = 
         command.getPacket<PipeFrameStartPacket>();
     EQVERB << "handle pipe frame start " << packet << std::endl;
@@ -840,7 +840,7 @@ bool Pipe::_cmdFrameStart( net::Command& command )
 
 bool Pipe::_cmdFrameFinish( net::Command& command )
 {
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
     const PipeFrameFinishPacket* packet =
         command.getPacket<PipeFrameFinishPacket>();
     EQLOG( LOG_TASKS ) << "---- TASK finish frame --- " << packet << std::endl;
@@ -876,7 +876,7 @@ bool Pipe::_cmdFrameFinish( net::Command& command )
 
 bool Pipe::_cmdFrameDrawFinish( net::Command& command )
 {
-    CHECK_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipeThread );
     PipeFrameDrawFinishPacket* packet = 
         command.getPacket< PipeFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet

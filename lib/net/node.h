@@ -792,8 +792,8 @@ namespace net
         bool _cmdAcquireSendTokenReply( Command& command );
         bool _cmdReleaseSendToken( Command& command );
 
-        CHECK_THREAD_DECLARE( _cmdThread );
-        CHECK_THREAD_DECLARE( _recvThread );
+        EQ_TS_VAR( _cmdThread );
+        EQ_TS_VAR( _recvThread );
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Node& node );

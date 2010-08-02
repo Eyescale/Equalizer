@@ -408,7 +408,7 @@ bool Node::_cmdCreatePipe( net::Command& command )
         command.getPacket<NodeCreatePipePacket>();
     EQLOG( LOG_INIT ) << "Create pipe " << packet << std::endl;
 
-    CHECK_THREAD( _nodeThread );
+    EQ_TS_THREAD( _nodeThread );
     EQASSERT( packet->pipeID <= EQ_ID_MAX );
 
     Pipe* pipe = Global::getNodeFactory()->createPipe( this );
@@ -429,7 +429,7 @@ bool Node::_cmdDestroyPipe( net::Command& command )
         command.getPacket<NodeDestroyPipePacket>();
     EQLOG( LOG_INIT ) << "Destroy pipe " << packet << std::endl;
 
-    CHECK_THREAD( _nodeThread );
+    EQ_TS_THREAD( _nodeThread );
     Pipe* pipe = findPipe( packet->pipeID );
     EQASSERT( pipe );
     pipe->joinThread();
@@ -443,7 +443,7 @@ bool Node::_cmdDestroyPipe( net::Command& command )
 
 bool Node::_cmdConfigInit( net::Command& command )
 {
-    CHECK_THREAD( _nodeThread );
+    EQ_TS_THREAD( _nodeThread );
 
     const NodeConfigInitPacket* packet = 
         command.getPacket<NodeConfigInitPacket>();
@@ -476,7 +476,7 @@ bool Node::_cmdConfigExit( net::Command& command )
         command.getPacket<NodeConfigExitPacket>();
     EQLOG( LOG_INIT ) << "Node exit " << packet << std::endl;
 
-    CHECK_THREAD( _nodeThread );
+    EQ_TS_THREAD( _nodeThread );
     const Pipes& pipes = getPipes();
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
@@ -499,7 +499,7 @@ bool Node::_cmdConfigExit( net::Command& command )
 
 bool Node::_cmdFrameStart( net::Command& command )
 {
-    CHECK_THREAD( _nodeThread );
+    EQ_TS_THREAD( _nodeThread );
     const NodeFrameStartPacket* packet = 
         command.getPacket<NodeFrameStartPacket>();
     EQVERB << "handle node frame start " << packet << std::endl;
@@ -522,7 +522,7 @@ bool Node::_cmdFrameStart( net::Command& command )
 
 bool Node::_cmdFrameFinish( net::Command& command )
 {
-    CHECK_THREAD( _nodeThread );
+    EQ_TS_THREAD( _nodeThread );
     const NodeFrameFinishPacket* packet = 
         command.getPacket<NodeFrameFinishPacket>();
     EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet

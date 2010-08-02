@@ -528,7 +528,7 @@ namespace server
             char dummy[64];
         };
 
-        CHECK_THREAD_DECLARE( _serverThread );
+        EQ_TS_VAR( _serverThread );
 
         //-------------------- Methods --------------------
         void _addChild( Compound* child );

@@ -54,7 +54,7 @@ void Texture::flush()
     if( _id == 0 )
         return;
 
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
     glDeleteTextures( 1, &_id );
     _id = 0;
     _downloaderName = 0;
@@ -145,7 +145,7 @@ void Texture::setExternalFormat( const uint32_t format, const uint32_t type )
 
 void Texture::_generate()
 {
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
     if( _id != 0 )
         return;
 
@@ -158,7 +158,7 @@ void Texture::flushNoDelete()
     if( _id == 0 )
         return;
 
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
     _id = 0;
     _defined = false;
 }
@@ -218,7 +218,7 @@ void Texture::_copyFromFrameBuffer( uint32_t x, uint32_t w,
                                     uint32_t y, uint32_t h )
 {
     EQ_GL_ERROR( "before Texture::copyFromFrameBuffer" );
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
     EQASSERT( _internalFormat != 0 );
 
     _generate();
@@ -236,7 +236,7 @@ void Texture::_copyFromFrameBuffer( uint32_t x, uint32_t w,
 void Texture::upload( const Image* image, const Frame::Buffer which,
                       ObjectManager< const void* >* glObjects )
 {
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
 
     const PixelViewport& pvp = image->getPixelViewport();
     init( image->getInternalFormat( which ), pvp.w, pvp.h );
@@ -261,7 +261,7 @@ void Texture::upload( const int width, const int height, const void* ptr )
 void Texture::download( void* buffer, const uint32_t format,
                         const uint32_t type ) const
 {
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
     EQASSERT( _defined );
     EQ_GL_CALL( glBindTexture( _target, _id ));
     if ( format == 0 || type == 0 )
@@ -288,7 +288,7 @@ void Texture::bind() const
 void Texture::bindToFBO( const GLenum target, const int width, 
                          const int height )
 {
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
     EQASSERT( _internalFormat );
     EQASSERT( _glewContext );
 
@@ -306,7 +306,7 @@ void Texture::bindToFBO( const GLenum target, const int width,
 
 void Texture::resize( const int width, const int height )
 {
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
     EQASSERT( _id );
     EQASSERT( _internalFormat );
     EQASSERT( width > 0 && height > 0 );

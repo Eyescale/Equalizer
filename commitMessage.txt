@@ -1,10 +1,8 @@
-Compression plugin:
-- Simplify engine registration
-- const-correctness fixes
+Rename thread-safety check macros to have them 'namespaced'
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

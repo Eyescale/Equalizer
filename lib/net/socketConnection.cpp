@@ -251,7 +251,7 @@ void SocketConnection::acceptNB()
     
 ConnectionPtr SocketConnection::acceptSync()
 {
-    CHECK_THREAD( _recvThread );
+    EQ_TS_THREAD( _recvThread );
     if( _state != STATE_LISTENING )
         return 0;
 
@@ -383,7 +383,7 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
 int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
                                     const bool block )
 {
-    CHECK_THREAD( _recvThread );
+    EQ_TS_THREAD( _recvThread );
 
     if( _readFD == INVALID_SOCKET )
     {

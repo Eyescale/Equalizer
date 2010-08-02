@@ -91,7 +91,7 @@ static base::a_int32_t _frees;
 void CommandCache::_compact( const Cache which )
 {
 #ifdef COMPACT
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
 
     size_t& size = _size[ which ];
     if( size < EQ_64MB || ( _position[ which ] & 0xf ) != 0 )
@@ -121,7 +121,7 @@ void CommandCache::_compact( const Cache which )
 
 Command& CommandCache::_newCommand( const Cache which )
 {
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
 
     Commands& cache = _cache[ which ];
     const size_t cacheSize = cache.size();        
@@ -181,7 +181,7 @@ Command& CommandCache::_newCommand( const Cache which )
 Command& CommandCache::alloc( NodePtr node, NodePtr localNode, 
                               const uint64_t size )
 {
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
 
     const Cache which = (size > Packet::minSize) ? CACHE_BIG : CACHE_SMALL;
 
@@ -194,7 +194,7 @@ Command& CommandCache::alloc( NodePtr node, NodePtr localNode,
 
 Command& CommandCache::clone( Command& from )
 {
-    CHECK_THREAD( _thread );
+    EQ_TS_THREAD( _thread );
 
     const Cache which = (from->size > Packet::minSize) ? CACHE_BIG :
                                                          CACHE_SMALL;
