@@ -39,8 +39,10 @@ std::string _fAttributeStrings[] =
 {
     MAKE_ATTR_STRING( FATTR_EYE_BASE ),
     MAKE_ATTR_STRING( FATTR_VERSION ),
-    MAKE_ATTR_STRING( FATTR_FILL1 ),
-    MAKE_ATTR_STRING( FATTR_FILL2 )
+};
+std::string _iAttributeStrings[] = 
+{
+    MAKE_ATTR_STRING( IATTR_ROBUSTNESS ),
 };
 }
 
@@ -383,6 +385,13 @@ const std::string& Config< S, C, O, L, CV, N, V >::getFAttributeString(
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
+const std::string& Config< S, C, O, L, CV, N, V >::getIAttributeString(
+    const IAttribute attr )
+{
+    return _iAttributeStrings[ attr ];
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
 L* Config< S, C, O, L, CV, N, V >::getLayout( const LayoutPath& path )
 {
     EQASSERTINFO( _layouts.size() > path.layoutIndex,
@@ -704,6 +713,7 @@ std::ostream& operator << ( std::ostream& os,
 
     os << "attributes" << std::endl << "{" << std::endl << base::indent
        << "eye_base     " << config.getFAttribute( C::FATTR_EYE_BASE )
+       << "robustness   " << config.getIAttribute( C::IATTR_ROBUSTNESS )
        << std::endl
        << base::exdent << "}" << std::endl;
 

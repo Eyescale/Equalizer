@@ -256,9 +256,8 @@ namespace fabric
             IATTR_HINT_STATISTICS,
             /** Use a send token for output frames (OFF, ON) */
             IATTR_HINT_SENDTOKEN,
-            IATTR_FILL1,
-            IATTR_FILL2,
-            IATTR_ALL
+            IATTR_LAST,
+            IATTR_ALL = IATTR_LAST + 5
         };
         
         /** @return the value of an integer attribute. @version 1.0 */

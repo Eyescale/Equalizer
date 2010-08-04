@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2008-2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2008-2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -43,9 +43,8 @@ namespace server
         /** De-allocate the global instance. */
         static void clear();
 
-        /**
-         * @name Connection (Description) Attributes.
-         */
+        /** @name Connection (Description) Attributes. */
+        //@{
         void setConnectionSAttribute( const ConnectionDescription::SAttribute 
                                       attr, const std::string& value )
             { _connectionSAttributes[attr] = value; }
@@ -59,19 +58,25 @@ namespace server
         int32_t getConnectionIAttribute( 
             const ConnectionDescription::IAttribute attr ) const
             { return _connectionIAttributes[attr]; }
+        //@}
             
-        /**
-         * @name Config Attributes.
-         */  
+        /** @name Config Attributes. */  
+        //@{
         void setConfigFAttribute( const Config::FAttribute attr,
-                                    const float value )
+                                  const float value )
             { _configFAttributes[attr] = value; }
         float getConfigFAttribute( const Config::FAttribute attr ) const
             { return _configFAttributes[attr]; }
 
-        /**
-         * @name Node Attributes.
-         */  
+        void setConfigIAttribute( const Config::IAttribute attr,
+                                  const int32_t value )
+            { _configIAttributes[attr] = value; }
+        int32_t getConfigIAttribute( const Config::IAttribute attr ) const
+            { return _configIAttributes[attr]; }
+        //@}
+
+        /** @name Node Attributes. */  
+        //@{
         void setNodeSAttribute( const Node::SAttribute attr,
                                 const std::string& value )
             { _nodeSAttributes[attr] = value; }
@@ -88,42 +93,43 @@ namespace server
             { _nodeIAttributes[attr] = value; }
         int32_t getNodeIAttribute( const Node::IAttribute attr ) const
             { return _nodeIAttributes[attr]; }
+        //@}
 
-        /**
-         * @name Pipe Attributes.
-         */
+        /** @name Pipe Attributes. */
+        //@{
         void setPipeIAttribute( const Pipe::IAttribute attr,
                                   const int32_t value )
             { _pipeIAttributes[attr] = value; }
         int32_t getPipeIAttribute( const Pipe::IAttribute attr ) const
             { return _pipeIAttributes[attr]; }
+        //@}
 
-        /**
-         * @name Window Attributes.
-         */
+        /** @name Window Attributes. */
+        //@{
         void setWindowIAttribute( const Window::IAttribute attr,
                                   const int32_t value )
             { _windowIAttributes[attr] = value; }
         int32_t getWindowIAttribute( const Window::IAttribute attr ) const
             { return _windowIAttributes[attr]; }
+        //@}
 
-        /**
-         * @name Channel Attributes.
-         */
+        /** @name Channel Attributes. */
+        //@{
         void setChannelIAttribute( const Channel::IAttribute attr,
                                    const int32_t value )
             { _channelIAttributes[attr] = value; }
         int32_t getChannelIAttribute( const Channel::IAttribute attr ) const
             { return _channelIAttributes[attr]; }
+        //@}
 
-        /**
-         * @name Compound Attributes.
-         */  
+        /** @name Compound Attributes. */  
+        //@{
         void setCompoundIAttribute( const Compound::IAttribute attr,
                                     const int32_t value )
             { _compoundIAttributes[attr] = value; }
         int32_t getCompoundIAttribute( const Compound::IAttribute attr ) const
             { return _compoundIAttributes[attr]; }
+        //@}
 
     private:
         Global();
@@ -132,6 +138,7 @@ namespace server
         int32_t     _connectionIAttributes[ConnectionDescription::IATTR_ALL];
         
         float       _configFAttributes[Config::FATTR_ALL];
+        int32_t     _configIAttributes[Config::IATTR_ALL];
 
         std::string _nodeSAttributes[Node::SATTR_ALL];
         char        _nodeCAttributes[Node::CATTR_ALL];

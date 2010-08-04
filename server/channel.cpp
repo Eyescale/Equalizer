@@ -560,7 +560,7 @@ std::ostream& operator << ( std::ostream& os, const Channel& channel)
     bool attrPrinted   = false;
     
     for( Channel::IAttribute i = static_cast<Channel::IAttribute>( 0 );
-         i < Channel::IATTR_ALL; 
+         i < Channel::IATTR_LAST;
          i = static_cast<Channel::IAttribute>( static_cast<uint32_t>(i)+1 ))
     {
         const int value = channel.getIAttribute( i );

@@ -96,6 +96,7 @@
 %token EQTOKEN_CONNECTION_SATTR_FILENAME
 %token EQTOKEN_CONNECTION_IATTR_BANDWIDTH
 %token EQTOKEN_CONFIG_FATTR_EYE_BASE
+%token EQTOKEN_CONFIG_IATTR_ROBUSTNESS
 %token EQTOKEN_NODE_SATTR_LAUNCH_COMMAND
 %token EQTOKEN_NODE_CATTR_LAUNCH_COMMAND_QUOTE
 %token EQTOKEN_NODE_IATTR_THREAD_MODEL
@@ -203,6 +204,7 @@
 %token EQTOKEN_TASK
 %token EQTOKEN_EYE
 %token EQTOKEN_EYE_BASE
+%token EQTOKEN_ROBUSTNESS
 %token EQTOKEN_THREAD_MODEL
 %token EQTOKEN_ASYNC
 %token EQTOKEN_DRAW_SYNC
@@ -332,6 +334,11 @@ global:
      {
          eq::server::Global::instance()->setConfigFAttribute(
              eq::server::Config::FATTR_EYE_BASE, $2 );
+     }
+     | EQTOKEN_CONFIG_IATTR_ROBUSTNESS IATTR
+     {
+         eq::server::Global::instance()->setConfigIAttribute(
+             eq::server::Config::IATTR_ROBUSTNESS, $2 );
      }
      | EQTOKEN_NODE_SATTR_LAUNCH_COMMAND STRING
      {
@@ -526,6 +533,8 @@ configAttributes: /*null*/ | configAttributes configAttribute
 configAttribute:
     EQTOKEN_EYE_BASE FLOAT { config->setFAttribute( 
                              eq::server::Config::FATTR_EYE_BASE, $2 ); }
+    | EQTOKEN_ROBUSTNESS IATTR { config->setIAttribute( 
+                                 eq::server::Config::IATTR_ROBUSTNESS, $2 ); }
 
 node: appNode | renderNode
 renderNode: EQTOKEN_NODE '{' {

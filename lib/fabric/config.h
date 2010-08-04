@@ -150,24 +150,43 @@ namespace fabric
         /** @name Attributes */
         //@{
         // Note: also update string array initialization in config.ipp
+
+        /** Floating-point attributes */
         enum FAttribute
         {
             FATTR_EYE_BASE, //!< The default interocular distance in meters
             FATTR_VERSION,  //!< The version of the file loaded
-            FATTR_FILL1,
-            FATTR_FILL2,
-            FATTR_ALL
+            FATTR_LAST,
+            FATTR_ALL = FATTR_LAST + 5
+        };
+
+        /** Integer attributes. */
+        enum IAttribute
+        {
+            IATTR_ROBUSTNESS, //!< Tolerate resource failures
+            IATTR_LAST,
+            IATTR_ALL = IATTR_LAST + 5
         };
         
         /** @internal */
         void setFAttribute( const FAttribute attr, const float value )
             { _fAttributes[attr] = value; }
+        /** @internal */
+        void setIAttribute( const IAttribute attr, const int32_t value )
+            { _iAttributes[attr] = value; }
 
         /** @return the given floating-point attribute. */
         float getFAttribute( const FAttribute attr ) const
             { return _fAttributes[attr]; }
+
+        /** @return the given integer attribute. */
+        float getIAttribute( const IAttribute attr ) const
+            { return _iAttributes[attr]; }
+
         /** @internal */
         static const std::string& getFAttributeString( const FAttribute attr );
+        /** @internal */
+        static const std::string& getIAttributeString( const IAttribute attr );
         //@}
  
 
@@ -268,8 +287,11 @@ namespace fabric
         /** The parent server. */
         base::RefPtr< S > _server;
         
-        /** float attributes. */
+        /** Float attributes. */
         float _fAttributes[FATTR_ALL];
+
+        /** Integer attributes. */
+        float _iAttributes[IATTR_ALL];
 
         /** The list of observers. */
         Observers _observers;

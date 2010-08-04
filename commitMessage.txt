@@ -1,12 +1,9 @@
-- Improve base::Buffer API (return new ptr on reserve & resize)
-- Make debug outputs easier to read
-- Fix fabric::Object userdata serialization
-- Force GL_BGRA compressor by misusing compressor info, proper algorithm tbd
+Implement config robustness attribute API & loader support
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [x] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

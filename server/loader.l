@@ -88,6 +88,7 @@ EQ_CONNECTION_SATTR_PIPE_FILENAME { return EQTOKEN_CONNECTION_SATTR_FILENAME; }
 EQ_CONNECTION_SATTR_FILENAME     { return EQTOKEN_CONNECTION_SATTR_FILENAME; }
 EQ_CONNECTION_IATTR_BANDWIDTH    { return EQTOKEN_CONNECTION_IATTR_BANDWIDTH; }
 EQ_CONFIG_FATTR_EYE_BASE         { return EQTOKEN_CONFIG_FATTR_EYE_BASE; }
+EQ_CONFIG_IATTR_ROBUSTNESS       { return EQTOKEN_CONFIG_IATTR_ROBUSTNESS; }
 EQ_NODE_SATTR_LAUNCH_COMMAND     { return EQTOKEN_NODE_SATTR_LAUNCH_COMMAND; }
 EQ_NODE_CATTR_LAUNCH_COMMAND_QUOTE { return EQTOKEN_NODE_CATTR_LAUNCH_COMMAND_QUOTE; }
 EQ_NODE_IATTR_THREAD_MODEL       { return EQTOKEN_NODE_IATTR_THREAD_MODEL; }
@@ -201,6 +202,7 @@ filename                        { return EQTOKEN_FILENAME; }
 task                            { return EQTOKEN_TASK; }
 eye                             { return EQTOKEN_EYE; }
 eyeBase                         { return EQTOKEN_EYE_BASE; }
+robustness                      { return EQTOKEN_ROBUSTNESS; }
 buffer                          { return EQTOKEN_BUFFER; }
 CLEAR                           { return EQTOKEN_CLEAR; }
 DRAW                            { return EQTOKEN_DRAW; }

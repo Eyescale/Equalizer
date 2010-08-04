@@ -69,7 +69,7 @@ namespace eq
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
     };
 }

@@ -64,6 +64,11 @@ Config::Config( ServerPtr parent )
         const FAttribute attr = static_cast< FAttribute >( i );
         setFAttribute( attr, global->getConfigFAttribute( attr ));
     }
+    for( int i=0; i<IATTR_ALL; ++i )
+    {
+        const IAttribute attr = static_cast< IAttribute >( i );
+        setIAttribute( attr, global->getConfigIAttribute( attr ));
+    }
 }
 
 Config::~Config()

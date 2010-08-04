@@ -108,7 +108,10 @@ void ConfigProxy< S, C, O, L, CV, N, V >::serialize( net::DataOStream& os,
     if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_MEMBER )
         os << _config._appNodeID;
     if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_ATTRIBUTES )
+    {
         os.write( _config._fAttributes, C::FATTR_ALL * sizeof( float ));
+        os.write( _config._iAttributes, C::IATTR_ALL * sizeof( int32_t ));
+    }
     if( isMaster( ))
     {
         if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_NODES )
@@ -133,8 +136,10 @@ void ConfigProxy< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
     if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_MEMBER )
         is >> _config._appNodeID;
     if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_ATTRIBUTES )
+    {
         is.read( _config._fAttributes, C::FATTR_ALL * sizeof( float ));
-
+        is.read( _config._iAttributes, C::IATTR_ALL * sizeof( int32_t ));
+    }
     if( isMaster( ))
     {
         if( dirtyBits & Config< S, C, O, L, CV, N, V >::DIRTY_NODES )

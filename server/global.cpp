@@ -61,8 +61,11 @@ void Global::_setupDefaults()
     // config
     for( uint32_t i=0; i<Config::FATTR_ALL; ++i )
         _configFAttributes[i] = 0.f;
+    for( uint32_t i=0; i<Config::IATTR_ALL; ++i )
+        _configIAttributes[i] = fabric::UNDEFINED;
 
     _configFAttributes[Config::FATTR_EYE_BASE]         = 0.05f;
+    _configIAttributes[Config::IATTR_ROBUSTNESS]       = fabric::ON;
 
     // node
     for( uint32_t i=0; i < Node::CATTR_ALL; ++i )
@@ -141,14 +144,24 @@ void Global::_readEnvironment()
         if( envValue )
             _connectionIAttributes[i] = atol( envValue );
     }
-    for( uint32_t i=0; i<Config::FATTR_ALL; ++i )
+
+    for( uint32_t i=0; i < Config::FATTR_LAST; ++i )
     {
-        const std::string& name     = Config::getFAttributeString(
+        const std::string& name = Config::getFAttributeString(
             (Config::FAttribute)i);
         const char*   envValue = getenv( name.c_str( ));
         
         if( envValue )
             _configFAttributes[i] = atof( envValue );
+    }
+    for( uint32_t i=0; i < Config::IATTR_LAST; ++i )
+    {
+        const std::string& name = Config::getIAttributeString(
+            (Config::IAttribute)i);
+        const char*   envValue = getenv( name.c_str( ));
+        
+        if( envValue )
+            _configIAttributes[i] = atol( envValue );
     }
 
     for( uint32_t i=0; i<Node::SATTR_ALL; ++i )
@@ -187,7 +200,7 @@ void Global::_readEnvironment()
         if( envValue )
             _pipeIAttributes[i] = atol( envValue );
     }
-    for( uint32_t i=0; i<Window::IATTR_ALL; ++i )
+    for( uint32_t i=0; i < Window::IATTR_LAST; ++i )
     {
         const std::string& name     = Window::getIAttributeString(
             (Window::IAttribute)i);
@@ -196,7 +209,7 @@ void Global::_readEnvironment()
         if( envValue )
             _windowIAttributes[i] = atol( envValue );
     }
-    for( uint32_t i=0; i<Channel::IATTR_ALL; ++i )
+    for( uint32_t i=0; i < Channel::IATTR_LAST; ++i )
     {
         const std::string& name = Channel::getIAttributeString(
             (Channel::IAttribute)i);
@@ -275,6 +288,18 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
             static_cast<Config::FAttribute>( i ));
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << value << std::endl;
+    }
+
+    for( uint32_t i=0; i<Config::IATTR_ALL; ++i )
+    {
+        const int32_t value = global->_configIAttributes[i];
+        if( value == reference._configIAttributes[i] )
+            continue;
+
+        const std::string& name = Config::getIAttributeString( 
+            static_cast<Config::IAttribute>( i ));
+        os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
+           << static_cast< fabric::IAttribute >( value ) << std::endl;
     }
 
     for( uint32_t i=0; i<Node::SATTR_ALL; ++i )

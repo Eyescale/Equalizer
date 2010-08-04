@@ -609,7 +609,7 @@ std::ostream& operator << ( std::ostream& os, const Window& window )
     bool attrPrinted   = false;
     
     for( Window::IAttribute i = static_cast<Window::IAttribute>( 0 );
-         i < Window::IATTR_FILL1; 
+         i < Window::IATTR_LAST; 
          i = static_cast<Window::IAttribute>( static_cast<uint32_t>( i )+1))
     {
         const int value = window.getIAttribute( i );

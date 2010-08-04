@@ -85,15 +85,16 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
     }
 
     ServerChooseConfigPacket packet;
-    const std::string& workDir = parameters.getWorkDir();
+    packet.requestID = registerRequest();
 
-    packet.requestID         = registerRequest();
+    const std::string& workDir = parameters.getWorkDir();
     std::string rendererInfo = workDir + '#' + renderClient;
 #ifdef WIN32 // replace dir delimiters since '\' is often used as escape char
     for( size_t i=0; i<rendererInfo.length(); ++i )
         if( rendererInfo[i] == '\\' )
             rendererInfo[i] = '/';
 #endif
+
     send( packet, rendererInfo );
 
     while( !isRequestServed( packet.requestID ))

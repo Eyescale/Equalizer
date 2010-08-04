@@ -134,9 +134,8 @@ namespace fabric
             IATTR_PLANES_ACCUM,          //!< No of accumulation buffer planes
             IATTR_PLANES_ACCUM_ALPHA,    //!< No of alpha accum buffer planes
             IATTR_PLANES_SAMPLES,        //!< No of multisample (AA) planes
-            IATTR_FILL1,                 //!< Reserved for future extensions
-            IATTR_FILL2,                 //!< Reserved for future extensions
-            IATTR_ALL
+            IATTR_LAST,
+            IATTR_ALL = IATTR_LAST + 5
         };
 
         /** Set a window attribute. */

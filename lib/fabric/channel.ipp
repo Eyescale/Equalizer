@@ -33,8 +33,6 @@ namespace
 static std::string _iAttributeStrings[] = {
     MAKE_ATTR_STRING( IATTR_HINT_STATISTICS ),
     MAKE_ATTR_STRING( IATTR_HINT_SENDTOKEN ),
-    MAKE_ATTR_STRING( IATTR_FILL1 ),
-    MAKE_ATTR_STRING( IATTR_FILL2 )
 };
 }
 
