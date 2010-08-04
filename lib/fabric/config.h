@@ -180,7 +180,7 @@ namespace fabric
             { return _fAttributes[attr]; }
 
         /** @return the given integer attribute. */
-        float getIAttribute( const IAttribute attr ) const
+        int32_t getIAttribute( const IAttribute attr ) const
             { return _iAttributes[attr]; }
 
         /** @internal */
@@ -291,7 +291,7 @@ namespace fabric
         float _fAttributes[FATTR_ALL];
 
         /** Integer attributes. */
-        float _iAttributes[IATTR_ALL];
+        int32_t _iAttributes[IATTR_ALL];
 
         /** The list of observers. */
         Observers _observers;
