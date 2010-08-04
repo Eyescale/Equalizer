@@ -462,10 +462,10 @@ bool Node::_cmdConfigInit( net::Command& command )
 
     if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
         setIAttribute( IATTR_THREAD_MODEL, eq::DRAW_SYNC );
-    commit();
 
     _state = reply.result ? STATE_RUNNING : STATE_INIT_FAILED;
 
+    commit();
     send( command.getNode(), reply );
     return true;
 }

@@ -20,6 +20,8 @@
 #define EQSERVER_WINDOW_H
 
 #include "types.h"
+
+#include "state.h"          // enum
 #include "visitorResult.h"  // enum
 
 #include <eq/net/barrier.h>
@@ -40,19 +42,6 @@ namespace server
     class Window : public fabric::Window< Pipe, Window, Channel >
     {
     public:
-        enum State
-        {
-            STATE_STOPPED = EQ_BIT1,      // next: INITIALIZING
-            STATE_INITIALIZING = EQ_BIT2, // next: INIT_FAILED or INIT_SUCCESS
-            STATE_INIT_SUCCESS = EQ_BIT3, // next: RUNNING
-            STATE_INIT_FAILED = EQ_BIT4,  // next: EXITING
-            STATE_RUNNING = EQ_BIT5,      // next: EXITING
-            STATE_EXITING = EQ_BIT6,      // next: EXIT_FAILED or EXIT_SUCCESS
-            STATE_EXIT_SUCCESS = EQ_BIT7, // next: STOPPED
-            STATE_EXIT_FAILED = EQ_BIT8,  // next: STOPPED
-            STATE_DELETE = EQ_BIT16       // additional modifier
-        };
-
         /** 
          * Constructs a new Window.
          */
@@ -83,6 +72,12 @@ namespace server
 
         /** Decrease window activition count. */
         void deactivate();
+
+        /** @return the state of this window. */
+        State getState() const { return _state.get(); }
+
+        /** @internal */
+        void setState( const State state ) { _state = state; }
 
         /** @return if this window is actively used for rendering. */
         bool isActive() const { return (_active != 0); }
@@ -144,11 +139,17 @@ namespace server
          * @name Operations
          */
         //@{
-        /** Update (init and exit) this window and its children as needed. */
-        void updateRunning( const uint32_t initID );
+        /** Start initializing this entity. */
+        void configInit( const uint32_t initID, const uint32_t frameNumber );
 
-        /** Finalize the last updateRunning changes. */
-        bool syncRunning();
+        /** Sync initialization of this entity. */
+        bool syncConfigInit();
+
+        /** Start exiting this entity. */
+        void configExit();
+
+        /** Sync exit of this entity. */
+        bool syncConfigExit();
 
         /** 
          * Update one frame.
@@ -189,7 +190,7 @@ namespace server
         uint32_t _active;
 
         /** The current state for state change synchronization. */
-        base::Monitor< uint32_t > _state;
+        base::Monitor< State > _state;
         
         /** The maximum frame rate allowed for this window. */
         float _maxFPS;
@@ -224,11 +225,6 @@ namespace server
 
         /** Clears all swap barriers of the window. */
         void _resetSwapBarriers();
-
-        void _configInit( const uint32_t initID );
-        bool _syncConfigInit();
-        void _configExit();
-        bool _syncConfigExit();
 
         void _updateSwap( const uint32_t frameNumber );
 

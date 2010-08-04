@@ -1,9 +1,17 @@
-Remove nop compound activation flag (was I thinking?)
+First init failure robustness implementation:
+- Use config attribute to keep config running
+- Exit directly after init failure
+- Unify server entity state handling
+- Introduce failed entity state
+- Don't update failed entities
+- Refactor server update/syncRunning code into visitors
+- Improve client error reporting ('parent not running')
+- Improve debug macros (demangling)
 
-[ ] May break build
+[x] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

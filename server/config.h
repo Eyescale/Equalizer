@@ -22,6 +22,7 @@
 #include "base.h"
 #include "types.h"
 #include "server.h"        // used in inline method
+#include "state.h"         // enum
 #include "visitorResult.h" // enum
 
 #include <eq/fabric/config.h> // base class
@@ -202,14 +203,7 @@ namespace server
         /** The last finished frame, or 0. */
         base::Monitor< uint32_t > _finishedFrame;
 
-        enum State
-        {
-            STATE_STOPPED = 0,  // next: INITIALIZING
-            STATE_INITIALIZING, // next: RUNNING
-            STATE_RUNNING,      // next: EXITING
-            STATE_EXITING,      // next: STOPPED
-        }
-        _state;
+        State _state;
 
         bool _needsFinish; //!< true after runtime changes
 

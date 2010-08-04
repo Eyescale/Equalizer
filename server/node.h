@@ -21,6 +21,8 @@
 
 #include "config.h"                // used in inline method
 #include "connectionDescription.h" // used in inline method
+#include "state.h"                 // enum
+#include "types.h"
 
 #include <eq/fabric/node.h> // base class
 
@@ -34,26 +36,10 @@ namespace eq
 {
 namespace server
 {
-    class Config;
-    class Node;
-    class Pipe;
-
     /** The node. */
     class Node : public fabric::Node< Config, Node, Pipe, NodeVisitor >
     {
     public:
-        enum State
-        {
-            STATE_STOPPED = 0,  // next: INITIALIZING
-            STATE_INITIALIZING, // next: INIT_FAILED or INIT_SUCCESS
-            STATE_INIT_SUCCESS, // next: RUNNING
-            STATE_INIT_FAILED,  // next: EXITING
-            STATE_RUNNING,      // next: EXITING
-            STATE_EXITING,      // next: EXIT_FAILED or EXIT_SUCCESS
-            STATE_EXIT_SUCCESS, // next: STOPPED
-            STATE_EXIT_FAILED,  // next: STOPPED
-        };
-
         /** 
          * Constructs a new Node.
          */
@@ -74,6 +60,9 @@ namespace server
         /** @return the state of this node. */
         State getState()    const { return _state.get(); }
 
+        /** @internal */
+        void setState( const State state ) { _state = state; }
+
         net::CommandQueue* getMainThreadQueue();
         net::CommandQueue* getCommandThreadQueue();
 
@@ -85,6 +74,9 @@ namespace server
 
         /** @return if this pipe is actively used for rendering. */
         bool isActive() const { return ( _active != 0 ); }
+
+        /** @return if this node is running. */
+        bool isRunning() const { return _state == STATE_RUNNING; }
 
         /**
          * Add additional tasks this pipe, and all its parents, might
@@ -105,11 +97,17 @@ namespace server
          * @name Operations
          */
         //@{
-        /** Update (init and exit) this node and its children as needed. */
-        void updateRunning( const uint32_t initID, const uint32_t frameNumber );
+        /** Start initializing this entity. */
+        void configInit( const uint32_t initID, const uint32_t frameNumber );
 
-        /** Finalize the last updateRunning changes. */
-        bool syncRunning();
+        /** Sync initialization of this entity. */
+        bool syncConfigInit();
+
+        /** Start exiting this entity. */
+        void configExit();
+
+        /** Sync exit of this entity. */
+        bool syncConfigExit();
 
         /** 
          * Trigger the rendering of a new frame for this node.
@@ -241,14 +239,6 @@ namespace server
         {
             char dummy[32];
         };
-
-        /** common code for all constructors */
-        void _construct();
-
-        void _configInit( const uint32_t initID, const uint32_t frameNumber );
-        bool _syncConfigInit();
-        void _configExit();
-        bool _syncConfigExit();
 
         uint32_t _getFinishLatency() const;
         void _finish( const uint32_t currentFrame );

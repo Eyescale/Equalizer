@@ -40,18 +40,13 @@ namespace server
 typedef fabric::Pipe< Node, Pipe, Window, PipeVisitor > Super;
 typedef net::CommandFunc<Pipe> PipeFunc;
 
-void Pipe::_construct()
-{
-    _active         = 0;
-    _lastDrawWindow = 0;
-    EQINFO << "New pipe @" << (void*)this << std::endl;
-}
 
 Pipe::Pipe( Node* parent )
         : Super( parent )
+        , _active( 0 )
+        , _state( STATE_STOPPED )
+        , _lastDrawWindow( 0 )
 {
-    _construct();
-
     const Global* global = Global::instance();
     for( unsigned i = 0; i < IATTR_ALL; ++i )
     {
@@ -76,6 +71,23 @@ void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID,
                      PipeFunc( this, &Pipe::_cmdConfigInitReply ), queue );
     registerCommand( fabric::CMD_PIPE_CONFIG_EXIT_REPLY, 
                      PipeFunc( this, &Pipe::_cmdConfigExitReply ), queue );
+}
+
+void Pipe::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
+{
+    Super::deserialize( is, dirtyBits );
+    EQASSERT( isMaster( ));
+    setDirty( dirtyBits & ~DIRTY_REMOVED ); // redistribute slave changes
+}
+
+void Pipe::removeChild( const uint32_t id )
+{
+    EQASSERT( getConfig()->isRunning( ));
+
+    Window* window = _findWindow( id );
+    EQASSERT( window );
+    if( window )
+        window->postDelete();
 }
 
 ServerPtr Pipe::getServer()
@@ -178,64 +190,9 @@ void Pipe::send( net::ObjectPacket& packet )
 //===========================================================================
 
 //---------------------------------------------------------------------------
-// update running entities (init/exit)
-//---------------------------------------------------------------------------
-
-void Pipe::updateRunning( const uint32_t initID, const uint32_t frameNumber )
-{
-    if( !isActive() && _state == STATE_STOPPED ) // inactive
-        return;
-
-    setErrorMessage( std::string( ));
-
-    if( isActive() && _state != STATE_RUNNING ) // becoming active
-        _configInit( initID, frameNumber );
-
-    // Let all running windows update their running state (incl. children)
-    const Windows& windows = getWindows(); 
-    for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
-        (*i)->updateRunning( initID );
-
-    if( !isActive( )) // becoming inactive
-        _configExit();
-}
-
-bool Pipe::syncRunning()
-{
-    if( !isActive() && _state == STATE_STOPPED ) // inactive
-        return true;
-
-    // Sync state updates
-    bool result = true;
-    const Windows& windows = getWindows(); 
-    for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
-    {
-        Window* window = *i;
-        if( !window->syncRunning( ))
-        {
-            setErrorMessage( getErrorMessage() + " window " + 
-                             window->getName() + ": '" + 
-                             window->getErrorMessage() + '\'' );
-            result = false;
-        }
-    }
-
-    if( isActive() && _state != STATE_RUNNING && !_syncConfigInit( ))
-        // becoming active
-        result = false;
-    if( !isActive() && !_syncConfigExit( )) // becoming inactive
-        result = false;
-
-    EQASSERT( isMaster( ));
-    EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED ||
-              _state == STATE_INIT_FAILED );
-    return result;
-}
-
-//---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-void Pipe::_configInit( const uint32_t initID, const uint32_t frameNumber )
+void Pipe::configInit( const uint32_t initID, const uint32_t frameNumber )
 {
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
@@ -254,28 +211,32 @@ void Pipe::_configInit( const uint32_t initID, const uint32_t frameNumber )
     send( packet );
 }
 
-bool Pipe::_syncConfigInit()
+bool Pipe::syncConfigInit()
 {
     EQASSERT( _state == STATE_INITIALIZING || _state == STATE_INIT_SUCCESS ||
               _state == STATE_INIT_FAILED );
 
     _state.waitNE( STATE_INITIALIZING );
 
-    const bool success = ( _state == STATE_INIT_SUCCESS );
-    if( success )
+    if( _state == STATE_INIT_SUCCESS )
+    {
         _state = STATE_RUNNING;
-    else
-        EQWARN << "Pipe initialization failed: " << getErrorMessage()
-               << std::endl;
+        return true;
+    }
 
-    return success;
+    EQWARN << "Pipe initialization failed: " << getErrorMessage() << std::endl;
+    configExit();
+    return false;
 }
 
 //---------------------------------------------------------------------------
 // exit
 //---------------------------------------------------------------------------
-void Pipe::_configExit()
+void Pipe::configExit()
 {
+    if( _state == STATE_EXITING )
+        return;
+
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_EXITING;
 
@@ -290,7 +251,7 @@ void Pipe::_configExit()
     getNode()->send( destroyPipePacket );
 }
 
-bool Pipe::_syncConfigExit()
+bool Pipe::syncConfigExit()
 {
     EQASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
               _state == STATE_EXIT_FAILED );
@@ -299,9 +260,8 @@ bool Pipe::_syncConfigExit()
     const bool success = ( _state == STATE_EXIT_SUCCESS );
     EQASSERT( success || _state == STATE_EXIT_FAILED );
 
-    _state = STATE_STOPPED; // EXIT_FAILED -> STOPPED transition
+    _state = isActive() ? STATE_FAILED : STATE_STOPPED;
     setTasks( fabric::TASK_NONE );
-    sync();
     return success;
 }
 
@@ -327,14 +287,14 @@ void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
     for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
     {
         Window* window = *i;
-        if( window->isActive( ))
+        if( window->isActive() && window->isRunning( ))
             window->updateDraw( frameID, frameNumber );
     }
  
     for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
     {
         Window* window = *i;
-        if( window->isActive( ))
+        if( window->isActive() && window->isRunning( ))
             window->updatePost( frameID, frameNumber );
     }
 
@@ -360,7 +320,6 @@ bool Pipe::_cmdConfigInitReply( net::Command& command )
     EQVERB << "handle pipe configInit reply " << packet << std::endl;
 
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
-
     return true;
 }
 
@@ -371,25 +330,7 @@ bool Pipe::_cmdConfigExitReply( net::Command& command )
     EQVERB << "handle pipe configExit reply " << packet << std::endl;
 
     _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
-
     return true;
-}
-
-void Pipe::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
-{
-    Super::deserialize( is, dirtyBits );
-    EQASSERT( isMaster( ));
-    setDirty( dirtyBits & ~DIRTY_REMOVED ); // redistribute slave changes
-}
-
-void Pipe::removeChild( const uint32_t id )
-{
-    EQASSERT( getConfig()->isRunning( ));
-
-    Window* window = _findWindow( id );
-    EQASSERT( window );
-    if( window )
-        window->postDelete();
 }
 
 std::ostream& operator << ( std::ostream& os, const Pipe* pipe )

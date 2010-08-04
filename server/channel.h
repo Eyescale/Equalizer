@@ -28,6 +28,7 @@
 #include <eq/fabric/channel.h>
 
 #include "base.h"
+#include "state.h"  // enum
 #include "types.h"
 
 #include <eq/fabric/pixelViewport.h> // member
@@ -50,18 +51,6 @@ namespace server
     class Channel : public fabric::Channel< Window, Channel >
     {
     public:
-        enum State
-        {
-            STATE_STOPPED = 0,  // next: INITIALIZING
-            STATE_INITIALIZING, // next: INIT_FAILED or INIT_SUCCESS
-            STATE_INIT_SUCCESS, // next: RUNNING
-            STATE_INIT_FAILED,  // next: EXITING
-            STATE_RUNNING,      // next: EXITING
-            STATE_EXITING,      // next: EXIT_FAILED or EXIT_SUCCESS
-            STATE_EXIT_SUCCESS, // next: STOPPED
-            STATE_EXIT_FAILED,  // next: STOPPED
-        };
-
         /** Construct a new channel. */
         EQSERVER_EXPORT Channel( Window* parent );
 
@@ -71,10 +60,11 @@ namespace server
         /** Destruct this channel. */
         virtual ~Channel();
 
-        /** 
-         * @return the state of this channel.
-         */
+        /** @return the state of this channel. */
         State getState()    const { return _state.get(); }
+
+        /** @internal */
+        void setState( const State state ) { _state = state; }
 
         /**
          * @name Data Access
@@ -105,6 +95,9 @@ namespace server
 
         /** @return if this channel is actively used for rendering. */
         bool isActive() const { return (_active != 0); }
+
+        /** @return if this window is running. */
+        bool isRunning() const { return _state == STATE_RUNNING; }
 
         /** Schedule deletion of this channel. */
         void postDelete();
@@ -151,21 +144,16 @@ namespace server
          * @name Operations
          */
         //@{
-        /** Update (init and exit) this channel as needed. */
-        void updateRunning( const uint32_t initID );
+        /** Start initializing this entity. */
+        void configInit( const uint32_t initID, const uint32_t frameNumber );
 
-        /** Finalize the last updateRunning changes. */
-        bool syncRunning();
+        /** Sync initialization of this entity. */
+        bool syncConfigInit();
 
-        /** Start exiting this node. */
-        void startConfigExit();
+        /** Start exiting this entity. */
+        void configExit();
 
-        /** 
-         * Synchronize the exit of the node.
-         * 
-         * @return <code>true</code> if the node exited cleanly,
-         *         <code>false</code> if not.
-         */
+        /** Sync exit of this entity. */
         bool syncConfigExit();
 
         /** 
@@ -228,15 +216,7 @@ namespace server
         };
 
         //-------------------- Methods --------------------
-        /** common code for all constructors */
-        void _construct();
-
         Vector3ub _getUniqueColor() const;
-
-        void _configInit( const uint32_t initID );
-        bool _syncConfigInit();
-        void _configExit();
-        bool _syncConfigExit();
 
         void _setupRenderContext( const uint32_t frameID,
                                   RenderContext& context );

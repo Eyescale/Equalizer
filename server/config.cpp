@@ -44,12 +44,15 @@
 #include "configDeregistrator.h"
 #include "configRegistrator.h"
 #include "configSyncVisitor.h"
+#include "configUpdateVisitor.h"
+#include "configUpdateSyncVisitor.h"
 
 namespace eq
 {
 namespace server
 {
 typedef net::CommandFunc<Config> ConfigFunc;
+using fabric::ON;
 
 Config::Config( ServerPtr parent )
         : Super( parent )
@@ -468,17 +471,20 @@ bool Config::_updateRunning()
     if( _state == STATE_STOPPED )
         return true;
 
+    const bool failValue =
+        (getIAttribute( IATTR_ROBUSTNESS ) == ON) ? true : false;
+
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING ||
               _state == STATE_EXITING );
 
     setErrorMessage( "" );
 
     if( !_connectNodes( ))
-        return false;
+        return failValue;
 
     _startNodes();
     _updateCanvases();
-    const bool result = _updateNodes();
+    const bool result = _updateNodes() ? true : failValue;
     _stopNodes();
 
     // Don't use visitor, it would get confused with modified child vectors
@@ -520,11 +526,11 @@ void Config::_startNodes()
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        const Node::State state = node->getState();
+        const State state = node->getState();
 
-        if( node->isActive() && state != Node::STATE_RUNNING )
+        if( node->isActive() && state != STATE_RUNNING )
         {
-            EQASSERT( state == Node::STATE_STOPPED );
+            EQASSERTINFO( state == STATE_STOPPED, state );
             startingNodes.push_back( node );
             if( !node->isApplicationNode( ))
                 requests.push_back( _createConfig( node ));
@@ -676,7 +682,7 @@ void Config::_stopNodes()
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->getState() != Node::STATE_STOPPED )
+        if( node->getState() != STATE_STOPPED )
             continue;
 
         if( node->isApplicationNode( ))
@@ -737,23 +743,25 @@ void Config::_stopNodes()
 
 bool Config::_updateNodes()
 {
-    // Let all running nodes update their running state (incl. children)
-    const Nodes& nodes = getNodes();
-    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
-        (*i)->updateRunning( _initID, _currentFrame );
+    ConfigUpdateVisitor update( _initID, _currentFrame );
+    accept( update );
+    
+    ConfigUpdateSyncVisitor syncUpdate;
+    accept( syncUpdate );
+    const bool result = syncUpdate.getResult();
 
-    // Sync state updates
-    bool result = true;
-    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    if( !result )
+        setErrorMessage( getErrorMessage() + syncUpdate.getErrorMessage( ));
+
+    if( syncUpdate.needsSync( )) // init failure, call again (exit pending)
     {
-        Node* node = *i;
-        if( !node->syncRunning( ))
-        {
-            setErrorMessage( getErrorMessage() + "node " + node->getName() +
-                             ": '" + node->getErrorMessage() + '\'' );
-            result = false;
-        }
+        EQASSERT( !result );
+        accept( syncUpdate );
+        if( !syncUpdate.getResult( ))
+            setErrorMessage( getErrorMessage() + syncUpdate.getErrorMessage( ));
+        EQASSERT( !syncUpdate.needsSync( ));
     }
+
     return result;
 }
 
@@ -805,7 +813,7 @@ void Config::_syncClock()
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isActive( ))
+        if( node->isActive() && node->isRunning( ))
         {
             net::NodePtr netNode = node->getNode();
             EQASSERT( netNode->isConnected( ));
@@ -927,7 +935,7 @@ void Config::_startFrame( const uint32_t frameID )
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isActive( ))
+        if( node->isActive() && node->isRunning( ))
         {
             node->update( frameID, _currentFrame );
             if( node->isApplicationNode( ))
@@ -955,8 +963,11 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         const Node* node = *i;
-        if( node->isActive() && node->getFinishedFrame() < frameNumber )
+        if( node->isActive() && node->isRunning() &&
+            node->getFinishedFrame() < frameNumber )
+        {
             return;
+        }
     }
 
     _finishedFrame = frameNumber;
@@ -982,7 +993,7 @@ void Config::_flushAllFrames()
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isActive( ))
+        if( node->isActive() && node->isRunning( ))
             node->flushFrames( _currentFrame );
     }
 
@@ -1020,7 +1031,7 @@ bool Config::_cmdInit( net::Command& command )
         exit();
 
     sync( net::VERSION_HEAD );
-    EQINFO << "Config init " << (reply.result ? "successful": "failed: ") 
+    EQINFO << "Config init " << (reply.result ? "successful: ": "failed: ") 
            << getErrorMessage() << std::endl;
 
     reply.version = commit();
@@ -1067,7 +1078,7 @@ bool Config::_cmdStartFrame( net::Command& command )
         _finishedFrame.waitEQ( _currentFrame );
     }
 
-    if( _updateRunning( ))
+    if( _updateRunning() || getIAttribute( IATTR_ROBUSTNESS ))
         _startFrame( packet->frameID );
     else
     {

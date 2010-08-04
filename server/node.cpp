@@ -41,19 +41,14 @@ namespace server
 typedef fabric::Node< Config, Node, Pipe, NodeVisitor > Super;
 typedef net::CommandFunc<Node> NodeFunc;
 
-void Node::_construct()
-{
-    _active         = 0;
-    _lastDrawPipe   = 0;
-    _flushedFrame   = 0;
-    _finishedFrame  = 0;
-    EQINFO << "New node @" << (void*)this << std::endl;
-}
-
 Node::Node( Config* parent )
     : Super( parent ) 
+    , _active( 0 )
+    , _finishedFrame( 0 )
+    , _flushedFrame( 0 )
+    , _state( STATE_STOPPED )
+    , _lastDrawPipe( 0 )
 {
-    _construct();
     const Global* global = Global::instance();    
     for( int i=0; i < Node::SATTR_ALL; ++i )
     {
@@ -146,73 +141,9 @@ void Node::deactivate()
 //===========================================================================
 
 //---------------------------------------------------------------------------
-// update running entities (init/exit)
-//---------------------------------------------------------------------------
-
-void Node::updateRunning( const uint32_t initID, const uint32_t frameNumber )
-{
-    if( !isActive() && _state == STATE_STOPPED ) // inactive
-        return;
-
-    if( isActive() && _state != STATE_RUNNING ) // becoming active
-    {
-        EQASSERT( _state == STATE_STOPPED );
-        _configInit( initID, frameNumber );
-    }
-
-    // Let all running pipes update their running state (incl. children)
-    const Pipes& pipes = getPipes();
-    for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
-        (*i)->updateRunning( initID, frameNumber );
-
-    if( !isActive( )) // becoming inactive
-    {
-        EQASSERT( _state == STATE_RUNNING );
-        _configExit();
-    }
-
-    flushSendBuffer();
-}
-
-bool Node::syncRunning()
-{
-    if( !isActive() && _state == STATE_STOPPED ) // inactive
-        return true;
-
-    // Sync state updates
-    bool result = true;
-
-    const Pipes& pipes = getPipes();
-    for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
-    {
-        Pipe* pipe = *i;
-        if( !pipe->syncRunning( ))
-        {
-            setErrorMessage( getErrorMessage() + "pipe " + pipe->getName() +
-                             ": '" + pipe->getErrorMessage() + '\'' );
-            result = false;
-        }
-    }
-
-    flushSendBuffer();
-
-    if( isActive() && _state != STATE_RUNNING && !_syncConfigInit( ))
-        // becoming active
-        result = false;
-    if( !isActive() && !_syncConfigExit( )) // becoming inactive
-        result = false;
-
-    EQASSERT( isMaster( ));
-    commit();
-
-    EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED );
-    return result;
-}
-
-//---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-void Node::_configInit( const uint32_t initID, const uint32_t frameNumber )
+void Node::configInit( const uint32_t initID, const uint32_t frameNumber )
 {
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
@@ -235,28 +166,32 @@ void Node::_configInit( const uint32_t initID, const uint32_t frameNumber )
     _send( packet );
 }
 
-bool Node::_syncConfigInit()
+bool Node::syncConfigInit()
 {
     EQASSERT( _state == STATE_INITIALIZING || _state == STATE_INIT_SUCCESS ||
               _state == STATE_INIT_FAILED );
 
     _state.waitNE( STATE_INITIALIZING );
 
-    const bool success = ( _state == STATE_INIT_SUCCESS );
-    if( success )
+    if( _state == STATE_INIT_SUCCESS )
+    {
         _state = STATE_RUNNING;
-    else
-        EQWARN << "Node initialization failed: " << getErrorMessage()
-               << std::endl;
+        return true;
+    }
 
-    return success;
+    EQWARN << "Node initialization failed: " << getErrorMessage() << std::endl;
+    configExit();
+    return false;
 }
 
 //---------------------------------------------------------------------------
 // exit
 //---------------------------------------------------------------------------
-void Node::_configExit()
+void Node::configExit()
 {
+    if( _state == STATE_EXITING )
+        return;
+
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_EXITING;
 
@@ -272,7 +207,7 @@ void Node::_configExit()
     _node->send( destroyNodePacket );
 }
 
-bool Node::_syncConfigExit()
+bool Node::syncConfigExit()
 {
     EQASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
               _state == STATE_EXIT_FAILED );
@@ -281,11 +216,10 @@ bool Node::_syncConfigExit()
     const bool success = ( _state == STATE_EXIT_SUCCESS );
     EQASSERT( success || _state == STATE_EXIT_FAILED );
 
-    _state = STATE_STOPPED; // EXIT_FAILED -> STOPPED transition
+    _state = isActive() ? STATE_FAILED : STATE_STOPPED;
     setTasks( fabric::TASK_NONE );
     _frameIDs.clear();
     _flushBarriers();
-    sync();
     return success;
 }
 
@@ -311,7 +245,7 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         Pipe* pipe = *i;
-        if( pipe->isActive( ))
+        if( pipe->isActive() && pipe->isRunning( ))
             pipe->update( frameID, frameNumber );
     }
 

@@ -644,23 +644,20 @@ bool Window::_cmdConfigInit( net::Command& command )
     {
         _state = STATE_INITIALIZING;
         reply.result = configInit( packet->initID );
+        if( reply.result )
+            _state = STATE_RUNNING;
     }
     else
+    {
+        setErrorMessage( "pipe not running" );
         reply.result = false;
-
+    }
     EQLOG( LOG_INIT ) << "TASK window config init reply " << &reply <<std::endl;
 
     net::NodePtr node = command.getNode();
-    if( !reply.result )
-    {
-        send( node, reply );
-        return true;
-    }
 
     commit();
     send( node, reply );
-
-    _state = STATE_RUNNING;
     return true;
 }
 

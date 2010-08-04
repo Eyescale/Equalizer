@@ -139,14 +139,16 @@ template< class T > inline std::string className( T* object)
     }
 
 #  define EQUNIMPLEMENTED                                               \
-    { EQERROR << "Unimplemented code in " << typeid(*this).name() << " "; \
+    { EQERROR << "Unimplemented code in " << eq::base::className( this ) \
+              << " ";                                                   \
         eq::base::abort(); }
 #  define EQUNREACHABLE                                                 \
-    { EQERROR << "Unreachable code in " << typeid(*this).name() << " "; \
+    { EQERROR << "Unreachable code in " << eq::base::className( this )  \
+              << " ";                                                   \
         eq::base::abort(); }
 #  define EQDONTCALL                                                    \
     { EQERROR << "Code is not supposed to be called in this context, type " \
-              << typeid(*this).name() << " " ;                          \
+              << base::className( this ) << " " ;                       \
         eq::base::abort(); }
 
 #  define EQCHECK(x) { const bool eqOk = x; EQASSERTINFO( eqOk, #x ) }

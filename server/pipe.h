@@ -20,6 +20,7 @@
 #define EQSERVER_PIPE_H
 
 #include "types.h"
+#include "state.h"         // enum
 #include "visitorResult.h" // enum
 
 #include <eq/fabric/iAttribute.h>       // eq::OFF enum
@@ -41,21 +42,7 @@ namespace server
     class Pipe : public fabric::Pipe< Node, Pipe, Window, PipeVisitor >
     {
     public:
-        enum State
-        {
-            STATE_STOPPED = 0,  // next: INITIALIZING
-            STATE_INITIALIZING, // next: INIT_FAILED or INIT_SUCCESS
-            STATE_INIT_SUCCESS, // next: RUNNING
-            STATE_INIT_FAILED,  // next: EXITING
-            STATE_RUNNING,      // next: EXITING
-            STATE_EXITING,      // next: EXIT_FAILED or EXIT_SUCCESS
-            STATE_EXIT_SUCCESS, // next: STOPPED
-            STATE_EXIT_FAILED,  // next: STOPPED
-        };
-
-        /** 
-         * Constructs a new Pipe.
-         */
+        /** Construct a new Pipe. */
         EQSERVER_EXPORT Pipe(  Node* parent );
 
         virtual ~Pipe();
@@ -74,6 +61,9 @@ namespace server
         /** @return the state of this pipe. */
         State getState()    const { return _state.get(); }
 
+        /** @internal */
+        void setState( const State state ) { _state = state; }
+
         /** Increase pipe activition count. */
         void activate();
 
@@ -82,6 +72,9 @@ namespace server
 
         /** @return if this pipe is actively used for rendering. */
         bool isActive() const { return (_active != 0); }
+
+        /** @return if this pipe is running. */
+        bool isRunning() const { return _state == STATE_RUNNING; }
 
         /**
          * Add additional tasks this pipe, and all its parents, might
@@ -103,11 +96,17 @@ namespace server
          * @name Operations
          */
         //@{
-        /** Update (init and exit) this pipe and its children as needed. */
-        void updateRunning( const uint32_t initID, const uint32_t frameNumber );
+        /** Start initializing this entity. */
+        void configInit( const uint32_t initID, const uint32_t frameNumber );
 
-        /** Finalize the last updateRunning changes. */
-        bool syncRunning();
+        /** Sync initialization of this entity. */
+        bool syncConfigInit();
+
+        /** Start exiting this entity. */
+        void configExit();
+
+        /** Sync exit of this entity. */
+        bool syncConfigExit();
 
         /** 
          * Trigger the rendering of a new frame.
@@ -151,14 +150,6 @@ namespace server
         {
             char dummy[32];
         };
-
-        /** common code for all constructors */
-        void _construct();
-
-        void _configInit( const uint32_t initID, const uint32_t frameNumber );
-        bool _syncConfigInit();
-        void _configExit();
-        bool _syncConfigExit();
 
         /* command handler functions. */
         bool _cmdConfigInitReply( net::Command& command );

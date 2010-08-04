@@ -745,22 +745,20 @@ bool Pipe::_cmdConfigInit( net::Command& command )
         _setupCommandQueue();
 
         reply.result  = configInit( packet->initID );
+        if( reply.result )
+            _state = STATE_RUNNING;
     }
     else
+    {
+        setErrorMessage( "node not running" );
         reply.result = false;
+    }
 
     EQLOG( LOG_INIT ) << "TASK pipe config init reply " << &reply << std::endl;
 
     net::NodePtr nodePtr = command.getNode();
 
-    if( !_osPipe || !reply.result )
-    {
-        send( nodePtr, reply );
-        return true;
-    }
     commit();
-    _state = STATE_RUNNING;
-
     send( nodePtr, reply );
     return true;
 }

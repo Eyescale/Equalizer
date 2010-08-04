@@ -46,21 +46,14 @@ namespace server
 typedef net::CommandFunc<Channel> CmdFunc;
 typedef fabric::Channel< Window, Channel > Super;
 
-void Channel::_construct()
-{
-    _active           = 0;
-    _view             = 0;
-    _segment          = 0;
-    _lastDrawCompound = 0;
-
-    EQINFO << "New channel @" << (void*)this << std::endl;
-}
-
 Channel::Channel( Window* parent )
         : Super( parent )
+        , _active( 0 )
+        , _view( 0 )
+        , _segment( 0 )
+        , _state( STATE_STOPPED )
+        , _lastDrawCompound( 0 )
 {
-    _construct();
-
     const Global* global = Global::instance();
     for( unsigned i = 0; i < IATTR_ALL; ++i )
     {
@@ -71,8 +64,12 @@ Channel::Channel( Window* parent )
 
 Channel::Channel( const Channel& from )
         : Super( from )
+        , _active( 0 )
+        , _view( 0 )
+        , _segment( 0 )
+        , _state( STATE_STOPPED )
+        , _lastDrawCompound( 0 )
 {
-    _construct();
     // Don't copy view and segment. Will be re-set by segment copy ctor
 }
 
@@ -250,42 +247,9 @@ void Channel::addTasks( const uint32_t tasks )
 //===========================================================================
 
 //---------------------------------------------------------------------------
-// update running entities (init/exit)
-//---------------------------------------------------------------------------
-
-void Channel::updateRunning( const uint32_t initID )
-{
-    if( !isActive() && _state == STATE_STOPPED ) // inactive
-        return;
-
-    if( isActive() && _state != STATE_RUNNING ) // becoming active
-        _configInit( initID );
-
-    if( !isActive( )) // becoming inactive
-        _configExit();
-}
-
-bool Channel::syncRunning()
-{
-    bool result = true;
-    if( isActive() && _state != STATE_RUNNING && !_syncConfigInit( ))
-        // becoming active
-        result = false;
-    if( !isActive() && _state != STATE_STOPPED && !_syncConfigExit( ))
-        // becoming inactive
-        result = false;
-
-    EQASSERT( _state == STATE_RUNNING || _state == STATE_STOPPED || 
-              _state == STATE_INIT_FAILED );
-
-    EQASSERT( isMaster( ));
-    return result;
-}
-
-//---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-void Channel::_configInit( const uint32_t initID )
+void Channel::configInit( const uint32_t initID, const uint32_t frameNumber )
 {
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
@@ -301,26 +265,29 @@ void Channel::_configInit( const uint32_t initID )
     send( packet );
 }
 
-bool Channel::_syncConfigInit()
+bool Channel::syncConfigInit()
 {
     EQASSERT( _state == STATE_INITIALIZING || _state == STATE_INIT_SUCCESS ||
               _state == STATE_INIT_FAILED );
 
     _state.waitNE( STATE_INITIALIZING );
 
-    const bool success = ( _state == STATE_INIT_SUCCESS );
-    if( success )
+    if( _state == STATE_INIT_SUCCESS )
+    {
         _state = STATE_RUNNING;
-    else
-        EQWARN << "Channel initialization failed: " << getErrorMessage() << std::endl;
+        return true;
+    }
 
-    return success;
+    EQWARN << "Channel initialization failed: " << getErrorMessage()
+           << std::endl;
+    configExit();
+    return false;
 }
 
 //---------------------------------------------------------------------------
 // exit
 //---------------------------------------------------------------------------
-void Channel::_configExit()
+void Channel::configExit()
 {
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_EXITING;
@@ -334,7 +301,7 @@ void Channel::_configExit()
     getWindow()->send( destroyChannelPacket );
 }
 
-bool Channel::_syncConfigExit()
+bool Channel::syncConfigExit()
 {
     EQASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
               _state == STATE_EXIT_FAILED );
@@ -343,9 +310,7 @@ bool Channel::_syncConfigExit()
     const bool success = ( _state == STATE_EXIT_SUCCESS );
     EQASSERT( success || _state == STATE_EXIT_FAILED );
 
-    _state = STATE_STOPPED;
-    setTasks( fabric::TASK_NONE );
-    sync();
+    _state = isActive() ? STATE_FAILED : STATE_STOPPED;
     return success;
 }
 

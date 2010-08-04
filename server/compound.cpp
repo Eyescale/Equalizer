@@ -933,7 +933,8 @@ void Compound::updateInheritData( const uint32_t frameNumber )
     else
         _inherit.tasks = _data.tasks;
 
-    if( isDestination() && getChannel()->getView( ))
+    const Channel* channel = getChannel();
+    if( isDestination() && channel->getView( ))
         _inherit.tasks |= fabric::TASK_VIEW;
     else
         _inherit.tasks &= ~fabric::TASK_VIEW;        
@@ -948,6 +949,10 @@ void Compound::updateInheritData( const uint32_t frameNumber )
 
     // DPlex activation
     _inherit.active = (( frameNumber % _inherit.period ) == _inherit.phase);
+
+    // Runtime failure deactivation
+    if( channel && !channel->isRunning( ))
+        _inherit.active = false;
 }
 
 void Compound::_updateInheritPVP()

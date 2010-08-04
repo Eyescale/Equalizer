@@ -1007,16 +1007,19 @@ bool Channel::_cmdConfigInit( net::Command& command )
 
         if( reply.result )
         {
-            commit();
             _initDrawableConfig();
             _state = STATE_RUNNING;
         }
     }
     else
+    {
+        setErrorMessage( "window not running" );
         reply.result = false;
+    }
 
     EQLOG( LOG_INIT ) << "TASK channel config init reply " << &reply
                       << std::endl;
+    commit();
     send( command.getNode(), reply );
     return true;
 }
