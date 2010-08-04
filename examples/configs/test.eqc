@@ -1,37 +1,58 @@
 #Equalizer 1.0 ascii
 
-# 'Hello, World!' config: one window rendering from the application process.
 server
 {
-    connection{}
     config
     {
         appNode
         {
-            pipe
+            pipe 
             {
+                device 0
                 window
                 {
-                    viewport [ 0.25 0.25 0.5 0.5 ]
-                    
-                    channel { name "channel" }
+                    viewport [ .25 .25 .5 .5 ]
+                    channel { name "channel1" }
+                }
+            }
+            pipe 
+            {
+                device 2
+                window
+                {
+                    viewport [ .25 .25 .5 .5 ]
+                    channel { name "channel2" }
                 }
             }
         }
+
         layout { view { }}
-        layout { view { viewport [ 0 0 .5 1 ] } view { viewport [ .5 0 .5 1 ] }}
         canvas
         {
             layout 0
-            layout 1
-
             wall
             {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
+                bottom_left  [ -.64 -.20 -.75 ]
+                bottom_right [  .64 -.20 -.75 ]
+                top_left     [ -.64  .20 -.75 ]
             }
-            segment { channel "channel" }
+
+            segment { viewport [ 0  0 .5 1 ] channel "channel1" }
+            segment { viewport [ .5 0 .5 1 ] channel "channel2" }
+        }
+
+        compound
+        {
+            compound 
+            {
+                channel ( view 0 segment 0 )
+                swapbarrier {}
+            }
+            compound 
+            {
+                channel ( view 0 segment 1 )
+                swapbarrier {}
+            }
         }
     }    
 }

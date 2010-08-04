@@ -36,8 +36,6 @@ namespace server
         /** Visit all compounds. */
         virtual VisitorResult visit( Compound* compound )
             {
-                compound->setActive( _activate );
-                
                 Channel* channel = compound->getChannel();
                 if( channel )
                 {

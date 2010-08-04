@@ -1,9 +1,9 @@
-Implement config robustness attribute API & loader support
+Remove nop compound activation flag (was I thinking?)
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

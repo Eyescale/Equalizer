@@ -390,10 +390,6 @@ namespace server
         /** Deactivate the compound tree. */
         void deactivate();
 
-        /** Set the active state of this compound only. */
-        void setActive( const bool active ) 
-            { EQASSERT( _active != active ); _active = active; }
-
         /** @return if the compound is activated and current (DPlex). */
         bool isActive() const;
 
@@ -462,12 +458,6 @@ namespace server
 
         Compound* const _parent;
         Compounds _children;
-
-        /** Has been activated (by layout) */
-        bool _active;
-        
-        // compound activation per eye
-        //uint32_t _active[ fabric::NUM_EYES ];
 
         /** String representation of integer attributes. */
         static std::string _iAttributeStrings[IATTR_ALL];

@@ -194,9 +194,7 @@ void Pipe::updateRunning( const uint32_t initID, const uint32_t frameNumber )
     // Let all running windows update their running state (incl. children)
     const Windows& windows = getWindows(); 
     for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
-    {
         (*i)->updateRunning( initID );
-    }
 
     if( !isActive( )) // becoming inactive
         _configExit();
