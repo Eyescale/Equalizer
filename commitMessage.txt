@@ -1,17 +1,9 @@
-First init failure robustness implementation:
-- Use config attribute to keep config running
-- Exit directly after init failure
-- Unify server entity state handling
-- Introduce failed entity state
-- Don't update failed entities
-- Refactor server update/syncRunning code into visitors
-- Improve client error reporting ('parent not running')
-- Improve debug macros (demangling)
+Missing file
 
-[x] May break build
+[ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
-[x] Cleanup
+[x] Bugfix
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation
