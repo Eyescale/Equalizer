@@ -1,6 +1,7 @@
 
 /*
  * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,7 +32,7 @@
 #define EQNBODY_PIPE_H
 
 #include <eq/eq.h>
-#include "SharedData.h"
+#include "sharedData.h"
 
 namespace eqNbody
 {	

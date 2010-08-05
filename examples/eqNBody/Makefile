@@ -1,7 +1,7 @@
 
 include $(TOP)/make/system.mk
 
-NVCC = nvcc
+NVCC ?= $(CUDA_BIN_PATH)/nvcc
 CUFLAGS = --compile
 
 PROGRAM = eqNBody

@@ -40,7 +40,7 @@ namespace eqNbody
 	{
 		Pipe* pipe = static_cast<Pipe*>( getPipe() );
 		const SharedData& sharedData = pipe->getSharedData();
-		const eq::ChannelVector& channels = getChannels();
+		const eq::Channels& channels = getChannels();
 		
 		if( sharedData.useStatistics() && !channels.empty( ))
 			EQ_GL_CALL( channels.back()->drawStatistics( ));

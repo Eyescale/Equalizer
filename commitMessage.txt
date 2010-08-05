@@ -1,13 +1,11 @@
-Init failure robustness implementation:
-- Temporarly add 'fail' capability to eqPly
-- Introduce Compound::isRunning (active + non-failed channel)
-- Fix update visitors and Equalizers to use isRunning (testing pending)
-- Fix Compound active inheritance
+CUDA-enabled builds:
+- build eqNBody, fix eqNBody build
+- Unify/clean up cuda build detection
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

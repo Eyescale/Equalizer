@@ -17,8 +17,10 @@ FLEX            ?= flex
 BISON           ?= bison
 PC_LIBRARY_PATH ?= /opt/paracomp/lib64
 
-CUDA_LIBRARY_PATH ?= /usr/local/cuda/lib
-CUDA_INCLUDE_PATH ?= /usr/local/cuda/include
+CUDA_PATH         ?= /usr/local/cuda
+CUDA_LIBRARY_PATH ?= $(CUDA_PATH)/lib
+CUDA_INCLUDE_PATH ?= $(CUDA_PATH)/include
+CUDA_BIN_PATH     ?= $(CUDA_PATH)/bin
 
 # What to pass down to sub-makes
 export CFLAGS
@@ -29,8 +31,10 @@ export LDFLAGS
 export LD
 export LD_PATH
 export PC_LIBRARY_PATH
+export CUDA
 export CUDA_LIBRARY_PATH
 export CUDA_INCLUDE_PATH
+export CUDA_BIN_PATH
 export BOOST_LIBRARY_PATH
 export BOOST_INCLUDE_PATH
 
@@ -92,7 +96,12 @@ endif
 endif # g++
 
 # CUDA settings
-ifeq ($(findstring -DEQ_USE_CUDA, $(DEFFLAGS)), -DEQ_USE_CUDA)
+CUDA_LIBS = $(wildcard $(CUDA_LIBRARY_PATH)/*cuda*)
+ifeq ($(findstring cuda, $(CUDA_LIBS)), cuda)
+    DEFFLAGS += -DEQ_USE_CUDA
+    CUDA      = 1
+endif
+ifdef CUDA
     CXXFLAGS += -I$(CUDA_INCLUDE_PATH)
     LDFLAGS  += -L$(CUDA_LIBRARY_PATH) -lcuda -lcudart	
     LD_PATH  := $(LD_PATH):$(CUDA_LIBRARY_PATH)

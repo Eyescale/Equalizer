@@ -14,8 +14,6 @@ ARFLAGS          = -static
 PC_LIBRARY_PATH   ?= /opt/paracomp/lib
 BOOST_LIBRARY_PATH ?= /opt/local/lib
 BOOST_INCLUDE_PATH ?= /opt/local/include
-CUDA_LIBRARY_PATH ?= /usr/local/cuda/lib
-CUDA_INCLUDE_PATH ?= /usr/local/cuda/include
 
 ifeq ($(findstring 10., $(RELARCH)),10.) # 10.6
   DARWIN_RELEASE = 10.6
@@ -26,12 +24,6 @@ ifeq ($(findstring 9., $(RELARCH)),9.) # 10.5
 endif # LEOPARD
 
 include $(TOP)/make/$(ARCH).$(DARWIN_RELEASE).mk
-
-# Check presence of CUDA
-ifeq ($(wildcard $(CUDA_LIBRARY_PATH)/libcuda.dylib), $(CUDA_LIBRARY_PATH)/libcuda.dylib)
-    DEFFLAGS += -DEQ_USE_CUDA
-    CUDA      = 1
-endif
 
 ifeq (0,${MAKELEVEL})
   CXXFLAGS        += -Wextra

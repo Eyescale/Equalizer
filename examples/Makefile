@@ -9,6 +9,10 @@ SUBDIRS = \
 	eqPixelBench \
 	osgScaleViewer
 
+ifdef CUDA
+SUBDIRS += eqNBody
+endif
+
 TARGETS = subdirs
 
 include $(TOP)/make/rules.mk
