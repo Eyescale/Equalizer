@@ -1,11 +1,9 @@
-CUDA-enabled builds:
-- build eqNBody, fix eqNBody build
-- Unify/clean up cuda build detection
+Fix missing namespace in debug.h
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

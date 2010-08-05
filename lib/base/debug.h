@@ -148,7 +148,7 @@ template< class T > inline std::string className( T* object)
         eq::base::abort(); }
 #  define EQDONTCALL                                                    \
     { EQERROR << "Code is not supposed to be called in this context, type " \
-              << base::className( this ) << " " ;                       \
+              << eq::base::className( this ) << " " ;                   \
         eq::base::abort(); }
 
 #  define EQCHECK(x) { const bool eqOk = x; EQASSERTINFO( eqOk, #x ) }
