@@ -76,7 +76,7 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
 {
     EQASSERT( compound == getCompound( ));
 
-    if( isFrozen() || !compound->isActive( ))
+    if( isFrozen() || !compound->isRunning( ))
     {
         compound->setZoom( Zoom::NONE );  
         return;    

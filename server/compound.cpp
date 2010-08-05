@@ -271,6 +271,17 @@ bool Compound::isActive() const
     return _inherit.active;
 }
 
+bool Compound::isRunning() const
+{
+    if( !isActive( ))
+        return false;
+
+    const Channel* channel = getChannel();
+    if( !channel )
+        return true;
+    return channel->isRunning();
+}
+
 //---------------------------------------------------------------------------
 // Listener interface
 //---------------------------------------------------------------------------
@@ -841,6 +852,9 @@ void Compound::updateInheritData( const uint32_t frameNumber )
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] =
                 COLOR_MASK_GREEN | COLOR_MASK_BLUE;
         }
+
+        // DPlex activation
+        _inherit.active = (( frameNumber % _inherit.period ) == _inherit.phase);
     }
     else
     {
@@ -906,6 +920,13 @@ void Compound::updateInheritData( const uint32_t frameNumber )
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] = 
                 _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK];
         }
+
+        if( _inherit.active && 
+            (( frameNumber % _inherit.period ) != _inherit.phase ))
+        {
+            // DPlex deactivation
+            _inherit.active = false;
+        }
     }
 
     if( _inherit.pvp.isValid( ))
@@ -946,9 +967,6 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         // init)
         _inherit.tasks = fabric::TASK_NONE;
     }
-
-    // DPlex activation
-    _inherit.active = (( frameNumber % _inherit.period ) == _inherit.phase);
 
     // Runtime failure deactivation
     if( channel && !channel->isRunning( ))

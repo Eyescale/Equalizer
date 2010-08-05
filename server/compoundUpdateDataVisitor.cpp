@@ -25,6 +25,8 @@ namespace eq
 {
 namespace server
 {
+using fabric::TASK_DRAW;
+
 CompoundUpdateDataVisitor::CompoundUpdateDataVisitor(
     const uint32_t frameNumber )
         : _frameNumber( frameNumber )
@@ -45,7 +47,7 @@ VisitorResult CompoundUpdateDataVisitor::visit(
 
 void CompoundUpdateDataVisitor::_updateDrawFinish( Compound* compound )
 {
-    if( compound->testInheritTask( fabric::TASK_DRAW ) && compound->isActive( ))
+    if( compound->testInheritTask( TASK_DRAW ) && compound->isRunning( ))
     {
         Channel* channel = compound->getChannel();
         channel->setLastDrawCompound( compound );

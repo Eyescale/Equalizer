@@ -36,7 +36,7 @@ CompoundUpdateOutputVisitor::CompoundUpdateOutputVisitor(
 
 VisitorResult CompoundUpdateOutputVisitor::visit( Compound* compound )
 {
-    if( !compound->isActive( ))
+    if( !compound->isRunning( ))
         return TRAVERSE_PRUNE;    
 
     _updateOutput( compound );

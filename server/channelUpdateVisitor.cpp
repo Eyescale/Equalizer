@@ -70,7 +70,7 @@ bool ChannelUpdateVisitor::_skipCompound( const Compound* compound )
 
 VisitorResult ChannelUpdateVisitor::visitPre( const Compound* compound )
 {
-    if( !compound->isActive( ))
+    if( !compound->isRunning( ))
         return TRAVERSE_PRUNE;    
 
     _updateDrawFinish( compound );

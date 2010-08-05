@@ -78,6 +78,9 @@ namespace server
         /** @return if this node is running. */
         bool isRunning() const { return _state == STATE_RUNNING; }
 
+        /** @return if this node is stopped. */
+        bool isStopped() const { return _state == STATE_STOPPED; }
+
         /**
          * Add additional tasks this pipe, and all its parents, might
          * potentially execute.

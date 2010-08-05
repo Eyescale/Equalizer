@@ -34,7 +34,7 @@ CompoundUpdateInputVisitor::CompoundUpdateInputVisitor(
 
 VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
 {
-    if( !compound->isActive( ))
+    if( !compound->isRunning( ))
         return TRAVERSE_PRUNE;    
 
     const Frames& inputFrames = compound->getInputFrames();

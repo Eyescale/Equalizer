@@ -526,11 +526,10 @@ void Config::_startNodes()
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        const State state = node->getState();
 
-        if( node->isActive() && state != STATE_RUNNING )
+        if( node->isActive() && !node->isRunning( ))
         {
-            EQASSERTINFO( state == STATE_STOPPED, state );
+            EQASSERT( node->isStopped( ));
             startingNodes.push_back( node );
             if( !node->isApplicationNode( ))
                 requests.push_back( _createConfig( node ));
@@ -813,8 +812,9 @@ void Config::_syncClock()
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isActive() && node->isRunning( ))
+        if( node->isRunning( ))
         {
+            EQASSERT( node->isActive( ));
             net::NodePtr netNode = node->getNode();
             EQASSERT( netNode->isConnected( ));
 
@@ -935,8 +935,9 @@ void Config::_startFrame( const uint32_t frameID )
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isActive() && node->isRunning( ))
+        if( node->isRunning( ))
         {
+            EQASSERT( node->isActive( ));
             node->update( frameID, _currentFrame );
             if( node->isApplicationNode( ))
                 appNodeRunning = true;
@@ -963,9 +964,9 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         const Node* node = *i;
-        if( node->isActive() && node->isRunning() &&
-            node->getFinishedFrame() < frameNumber )
+        if( node->isRunning() && node->getFinishedFrame() < frameNumber )
         {
+            EQASSERT( node->isActive( ));
             return;
         }
     }
@@ -993,8 +994,11 @@ void Config::_flushAllFrames()
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isActive() && node->isRunning( ))
+        if( node->isRunning( ))
+        {
+            EQASSERT( node->isActive( ));
             node->flushFrames( _currentFrame );
+        }
     }
 
     EQLOG( base::LOG_ANY ) << "--- Flush All Frames -- " << std::endl;

@@ -1,9 +1,13 @@
-Missing file
+Init failure robustness implementation:
+- Temporarly add 'fail' capability to eqPly
+- Introduce Compound::isRunning (active + non-failed channel)
+- Fix update visitors and Equalizers to use isRunning (testing pending)
+- Fix Compound active inheritance
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

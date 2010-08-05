@@ -70,6 +70,9 @@ bool Channel::configInit( const uint32_t initID )
     if( !eq::Channel::configInit( initID ))
         return false;
 
+    if( getName().find( "fail" ) != std::string::npos )
+        return false;
+
     setNearFar( 0.1f, 10.0f );
     _model = 0;
     _modelID = EQ_ID_INVALID;

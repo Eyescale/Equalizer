@@ -61,13 +61,10 @@ ViewEqualizer::Listener::~Listener()
 
 void ViewEqualizer::attach( Compound* compound )
 {
-    for( Listeners::iterator i = _listeners.begin();
-         i != _listeners.end(); ++i )
-    {
+    for( Listeners::iterator i =_listeners.begin(); i != _listeners.end(); ++i )
         (*i).clear();
-    }
-    _listeners.clear();
 
+    _listeners.clear();
     Equalizer::attach( compound );
 }
 
@@ -93,6 +90,9 @@ public:
     
     virtual VisitorResult visitLeaf( Compound* compound )
         {
+            if( !compound->isRunning( ))
+                return TRAVERSE_CONTINUE;
+
             Pipe* pipe = compound->getPipe();
             EQASSERT( pipe );
 
@@ -164,6 +164,9 @@ public:
     
     virtual VisitorResult visitLeaf( Compound* compound )
         {
+            if( !compound->isRunning( ))
+                return TRAVERSE_CONTINUE;
+
             Pipe* pipe = compound->getPipe();
             EQASSERT( pipe );
             
@@ -221,6 +224,9 @@ public:
     
     virtual VisitorResult visitLeaf( Compound* compound )
         {
+            if( !compound->isRunning( ))
+                return TRAVERSE_CONTINUE;
+
             if( !_fallback )
                 _fallback = compound;
 
@@ -296,8 +302,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
     Loads loads;
     int64_t totalTime( 0 );
 
-    for( Listeners::iterator i = _listeners.begin();
-         i != _listeners.end(); ++i )
+    for( Listeners::iterator i =_listeners.begin(); i != _listeners.end(); ++i )
     {
         Listener& listener = *i;
 #if 0
@@ -319,7 +324,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
 
     const Compound* compound = getCompound();
 
-    if( isFrozen() || !compound->isActive() || _nPipes == 0 )
+    if( isFrozen() || !compound->isRunning() || _nPipes == 0 )
         // always execute code above to not leak memory
         return;
 
@@ -344,7 +349,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
         EQASSERT( load.missing == 0 );
 
         Compound* child = children[ i ];
-        if( !child->isActive( ))
+        if( !child->isRunning( ))
             continue;
 
         float segmentResources( load.time / resourceTime );
@@ -364,7 +369,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
     {
         Listener::Load& load = loads[ i ];
         Compound* child = children[ i ];
-        if( !child->isActive( ))
+        if( !child->isRunning( ))
             continue;
 
         float& leftOver = leftOvers[i];
@@ -388,7 +393,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
         Listener::Load& load = loads[ i ];
         Compound* child = children[ i ];
 
-        if( !child->isActive( ))
+        if( !child->isRunning( ))
             continue;
 
         if( leftOver > MIN_USAGE || load.missing == 0 )
@@ -468,11 +473,11 @@ class PipeCounter : public CompoundVisitor
 {
 public:
     virtual VisitorResult visitPre( const Compound* compound )
-        { return compound->isActive() ? TRAVERSE_CONTINUE : TRAVERSE_PRUNE; }
+        { return compound->isRunning() ? TRAVERSE_CONTINUE : TRAVERSE_PRUNE; }
 
     virtual VisitorResult visitLeaf( const Compound* compound )
         {
-            if( !compound->isActive( ))
+            if( !compound->isRunning( ))
                 return TRAVERSE_PRUNE;
 
             const Pipe* pipe = compound->getPipe();

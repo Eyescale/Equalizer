@@ -64,6 +64,10 @@ bool Pipe::configInit( const uint32_t initID )
 
     const bool mapped = config->mapObject( &_frameData, frameDataID );
     EQASSERT( mapped );
+
+    if( getName().find( "fail" ) != std::string::npos )
+        return false;
+
     return mapped;
 }
 

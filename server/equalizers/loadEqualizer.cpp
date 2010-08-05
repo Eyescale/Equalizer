@@ -78,10 +78,11 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
         _tree = _buildTree( children );
         EQLOG( LOG_LB2 ) << "LB tree: " << _tree;
     }
+
     _checkHistory();
 
     // execute code above to not leak memory
-    if( isFrozen() || !compound->isActive( ))
+    if( isFrozen() || !compound->isRunning( ))
         return;
 
     // compute new data
@@ -326,7 +327,9 @@ void LoadEqualizer::_computeSplit()
     for( Compounds::const_iterator i = children.begin(); 
          i != children.end(); ++i )
     {
-        nResources += (*i)->getUsage();
+        const Compound* child = *i;
+        if( child->isRunning( ))
+            nResources += child->getUsage();
     }
 
     const float timeLeft = static_cast< float >( totalTime ) /
@@ -347,7 +350,7 @@ float LoadEqualizer::_assignTargetTimes( Node* node, const float totalTime,
     const Compound* compound = node->compound;
     if( compound )
     {
-        const float usage = compound->getUsage();
+        const float usage = compound->isRunning() ? compound->getUsage() : 0.f;
         float time = resourceTime * usage;
 
         if( usage > 0.0f )
@@ -448,8 +451,7 @@ void LoadEqualizer::_assignLeftoverTime( Node* node, const float time )
             EQASSERTINFO( time < 0.0001f, time );
         }
         EQLOG( LOG_LB2 ) << compound->getChannel()->getName() << " usage " 
-                        << compound->getUsage() << " target " << node->time
-                        << std::endl;
+                        << node->usage << " target " << node->time << std::endl;
     }
     else
     {

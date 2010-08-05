@@ -93,6 +93,9 @@ bool Window::configInitGL( const uint32_t initID )
     if( initData.useGLSL() )
         _loadShaders();
 
+    if( getName().find( "fail" ) != std::string::npos )
+        return false;
+
     return true;
 }
 

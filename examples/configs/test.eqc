@@ -1,57 +1,173 @@
 #Equalizer 1.0 ascii
 
+# 8-to-2 wall load-balancing example configuration
+global
+{
+    EQ_WINDOW_IATTR_HINT_SWAPSYNC OFF
+    EQ_WINDOW_IATTR_HINT_STATISTICS OFF
+}
+
 server
 {
     config
     {
         appNode
         {
-            pipe 
+            pipe
             {
-                device 0
+                name "GPU 1"
                 window
                 {
-                    viewport [ .25 .25 .5 .5 ]
-                    channel { name "channel1" }
+                    name "left"
+                    viewport [ 0.2 0.05 0.3 0.3 ]
+                    attributes { hint_swapsync ON }
+
+                    channel { name "left-src" }
+                    channel { name "left-dst" }
                 }
             }
-            pipe 
+            pipe
             {
-                device 2
+                name "GPU 2"
                 window
                 {
-                    viewport [ .25 .25 .5 .5 ]
-                    channel { name "channel2" }
+                    name "right"
+                    viewport [ 0.5 0.05 0.3 0.3 ]
+                    attributes { hint_swapsync ON }
+                    
+                    channel { name "right-src" }
+                    channel { name "right-dst" }
+                }
+            }
+            pipe
+            {
+                name "GPU 3"
+                window
+                {
+                    name "source1"
+                    viewport [ 0.025 0.4 0.3 0.3 ]
+                    channel { name "source1" }
+                }
+            }
+            pipe
+            {
+                name "GPU 4"
+                window
+                {
+                    name "source2"
+                    viewport [ 0.35 0.4 0.3 0.3 ]
+                    channel { name "source2" }
+                }
+            }
+            pipe
+            {
+                name "GPU 5"
+                window
+                {
+                    name "failesource3"
+                    viewport [ 0.675 0.4 0.3 0.3 ]
+                    channel { name "source3" }
+                }
+            }
+            pipe
+            {
+                name "GPU 6"
+                window
+                {
+                    name "source4"
+                    viewport [ 0.025 0.7 0.3 0.3 ]
+                    channel { name "source4" }
+                }
+            }
+            pipe
+            {
+                name "GPU 7"
+                window
+                {
+                    name "source5"
+                    viewport [ 0.35 0.7 0.3 0.3 ]
+                    channel { name "source5" }
+                }
+            }
+            pipe
+            {
+                name "GPU 8"
+                window
+                {
+                    name "source6"
+                    viewport [ 0.675 0.7 0.3 0.3 ]
+                    channel { name "source6" }
                 }
             }
         }
 
-        layout { view { }}
+        layout
+        {
+            name "1x1"
+            view {}
+        }
+
         canvas
         {
-            layout 0
+            layout "1x1"
+
             wall
             {
-                bottom_left  [ -.64 -.20 -.75 ]
-                bottom_right [  .64 -.20 -.75 ]
-                top_left     [ -.64  .20 -.75 ]
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
             }
 
-            segment { viewport [ 0  0 .5 1 ] channel "channel1" }
-            segment { viewport [ .5 0 .5 1 ] channel "channel2" }
+            segment { channel "left-dst" viewport [ 0  0 .5 1 ] }
+            segment { channel "right-dst" viewport [ .5 0 .5 1 ] }
         }
-
+        
         compound
         {
-            compound 
+            view_equalizer {}
+            compound
             {
-                channel ( view 0 segment 0 )
-                swapbarrier {}
+                channel ( segment 0 view 0 )
+                load_equalizer { mode 2D }
+                swapbarrier{}
+
+                compound {}
+                compound { channel "source1" outputframe{ name "ls1" }}
+                compound { channel "source2" outputframe{ name "ls2"  }}
+                compound { channel "source3" outputframe{ name "ls3"  }}
+                compound { channel "source4" outputframe{ name "ls4"  }}
+                compound { channel "source5" outputframe{ name "ls5"  }}
+                compound { channel "source6" outputframe{ name "ls6"  }}
+                compound { channel "right-src" outputframe{ name "lrs"  }}
+                inputframe{ name "ls1" }
+                inputframe{ name "ls2" }
+                inputframe{ name "ls3" }
+                inputframe{ name "ls4" }
+                inputframe{ name "ls5" }
+                inputframe{ name "ls6" }
+                inputframe{ name "lrs" }
             }
-            compound 
+            compound
             {
-                channel ( view 0 segment 1 )
-                swapbarrier {}
+                channel ( segment 1 view 0 )
+                load_equalizer { mode 2D }
+                swapbarrier{}
+
+                compound {}
+                compound { channel "source1" outputframe{ name "rs1" }}
+                compound { channel "source2" outputframe{ name "rs2" }}
+                compound { channel "source3" outputframe{ name "rs3" }}
+                compound { channel "source4" outputframe{ name "rs4" }}
+                compound { channel "source5" outputframe{ name "rs5" }}
+                compound { channel "source6" outputframe{ name "rs6" }}
+                compound { channel "left-src" outputframe{ name "rls" }}
+                inputframe{ name "rs1" }
+                inputframe{ name "rs2" }
+                inputframe{ name "rs3" }
+                inputframe{ name "rs4" }
+                inputframe{ name "rs5" }
+                inputframe{ name "rs6" }
+                inputframe{ name "rls" }
             }
         }
     }    

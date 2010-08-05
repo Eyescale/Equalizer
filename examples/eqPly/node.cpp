@@ -43,6 +43,10 @@ bool Node::configInit( const uint32_t initID )
 
     Config* config = static_cast< Config* >( getConfig( ));
     config->mapData( initID );
+
+    if( getName().find( "fail" ) != std::string::npos )
+        return false;
+
     return true;
 }
 

@@ -393,6 +393,12 @@ namespace server
         /** @return if the compound is activated and current (DPlex). */
         bool isActive() const;
 
+        /**
+         * @return true if the compound is active and the compound's channel is
+         *         running.
+         */
+        bool isRunning() const;
+
         /** Initialize this compound. */
         void init();
 
