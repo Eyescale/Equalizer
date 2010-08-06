@@ -49,7 +49,8 @@ uint32_t StaticMasterCM::addSlave( Command& command )
     SessionSubscribeObjectPacket* packet =
         command.getPacket<SessionSubscribeObjectPacket>();
     const uint32_t instanceID = packet->instanceID;
-    EQASSERT( packet->requestedVersion == VERSION_OLDEST );
+    EQASSERT( packet->requestedVersion == VERSION_OLDEST ||
+              packet->requestedVersion == VERSION_NONE );
 
     const bool useCache = packet->masterInstanceID == _object->getInstanceID();
 
