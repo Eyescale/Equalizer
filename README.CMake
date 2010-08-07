@@ -19,10 +19,6 @@ $ cd build
 $ cmake ..
 $ make
 
-Known Problems:
- * CMake does not check for VMMLib yet.
-    -> install it or copy into build/include
-
 
 Windows XP 32bit using Visual C++ 2008 Express
 ==============================================
@@ -35,7 +31,7 @@ Use CMake GUI
 Known Problems:
  * Bison in Windows/bin does not work for whatever reason (probably outdated)
      1. Download Bison and Flex and install them in a directory that does not contain spaces
-        NOTE: The default setting "C:Program Files/..." will NOT work!!
+        NOTE: The default setting "C:\Program Files\GnuWin32\" will NOT work!!
      2. add the bin directory to the PATH environment variable (otherwise bison fails to launch m4)
      3. Configure the path of bison and flex in the CMake GUI
 

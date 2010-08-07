@@ -1,9 +1,9 @@
-eqNBody works with CMake
+CMake: forwarding headers are created instead of copies
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
 [ ] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation

@@ -2,7 +2,7 @@
 
 include_directories(include)
 
-install(DIRECTORY configs DESTINATION shared/Equalizer COMPONENT data)
+install(DIRECTORY configs DESTINATION share/Equalizer COMPONENT data)
 
 add_subdirectory(eqHello)
 add_subdirectory(eqNBody)

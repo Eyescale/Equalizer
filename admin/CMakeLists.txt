@@ -41,7 +41,7 @@ if(MSVC)
   set(SOURCES ${SOURCES} ${HEADERS})
 endif(MSVC)
 
-copy_headers(eq/admin ${HEADERS})
+forward_headers(eq/admin ${HEADERS})
 
 add_definitions(-DEQADMIN_EXPORTS)
 
@@ -53,3 +53,5 @@ install(TARGETS EqualizerAdmin
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
   )
+
+install(FILES ${HEADERS} DESTINATION include/eq/admin COMPONENT dev)

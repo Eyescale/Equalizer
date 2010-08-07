@@ -17,13 +17,19 @@ set(EQ_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
 file(MAKE_DIRECTORY ${EQ_INCLUDE_DIR})
 include_directories(BEFORE ${EQ_INCLUDE_DIR})
 
-# copy files while preserving directory structure
-function(COPY_HEADERS DIR)
+# create forwarding headers
+macro(FORWARD_HEADERS DIR)
   foreach(FILE ${ARGN})
-    get_filename_component(PATH ${FILE} PATH)
-    file(COPY ${FILE} DESTINATION ${EQ_INCLUDE_DIR}/${DIR}/${PATH})
+    get_filename_component(ABSOLUTE ${FILE} ABSOLUTE)
+    file(RELATIVE_PATH RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${ABSOLUTE})
+    set(FWDFILE ${EQ_INCLUDE_DIR}/${DIR}/${RELATIVE})
+	if(NOT EXISTS ${FWDFILE})
+      get_filename_component(PATH ${RELATIVE} PATH)
+      file(RELATIVE_PATH INCLUDE ${EQ_INCLUDE_DIR}/${DIR}/${PATH} ${ABSOLUTE})
+	  file(WRITE ${FWDFILE} "#include \"${INCLUDE}\"\n")
+	endif(NOT EXISTS ${FWDFILE})
   endforeach(FILE ${ARGN})
-endfunction(COPY_HEADERS DIR)
+endmacro(FORWARD_HEADERS DIR)
 
 if(WIN32)
   set(Boost_USE_STATIC_LIBS   ON)
@@ -45,15 +51,7 @@ add_definitions(${OpenMP_CXX_FLAGS})
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
 
 if(MSVC)
-  add_definitions(
-    /W3     # warning level
-    /WX     # warnings as errors
-    /D_CRT_SECURE_NO_WARNINGS
-    /wd4244 # conversion from 'wide' to 'narrow', possible loss of data
-    /wd4800 # forcing value to bool 'true' or 'false' (performance warning)
-    /wd4018 # signed/unsigned mismatch
-    /wd4065 # switch statement contains 'default' but no 'case' labels
-    )
+  add_definitions(/D_CRT_SECURE_NO_WARNINGS)
 endif(MSVC)
 
 if(WIN32)
@@ -80,7 +78,7 @@ endif(APPLE)
 
 add_subdirectory(admin)
 add_subdirectory(examples)
-#add_subdirectory(externals)
+add_subdirectory(externals)
 add_subdirectory(lib)
 add_subdirectory(server)
 add_subdirectory(tests)
@@ -90,8 +88,6 @@ add_executable(eqServer server/eqServer.cpp)
 target_link_libraries(eqServer EqualizerServer)
 install(TARGETS eqServer DESTINATION bin)
 
-
-install(DIRECTORY ${EQ_INCLUDE_DIR}/eq DESTINATION include COMPONENT dev)
 
 #info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
@@ -105,7 +101,7 @@ set(CPACK_PACKAGE_VERSION_PATCH "2")
 
 set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/LICENSE)
 
-set(CPACK_COMPONENTS_ALL Unspecified dev tools data)
+set(CPACK_COMPONENTS_ALL Unspecified dev tools data vmmlib)
 
 set(CPACK_COMPONENT_DEV_DISPLAY_NAME "Headers and Libraries")
 set(CPACK_COMPONENT_DEV_DESCRIPTION
@@ -118,6 +114,10 @@ set(CPACK_COMPONENT_TOOLS_DESCRIPTION
 set(CPACK_COMPONENT_DATA_DISPLAY_NAME "Data files")
 set(CPACK_COMPONENT_DATA_DESCRIPTION
   "Example configuration files and data sets")
+
+set(CPACK_COMPONENT_VMMLIB_DISPLAY_NAME "VMMLib header files")
+set(CPACK_COMPONENT_VMMLIB_DESCRIPTION
+  "vmmlib is a vector and matrix math library implemented using C++ templates, thus making it very easy to integrate into other libraries and programs.")
 
 
 include(InstallRequiredSystemLibraries)

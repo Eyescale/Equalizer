@@ -466,7 +466,7 @@ if(MSVC)
   set(SOURCES ${SOURCES} ${HEADERS})
 endif(MSVC)
 
-copy_headers(eq ${HEADERS})
+forward_headers(eq ${HEADERS})
 
 add_definitions(-DEQ_EXPORTS -DEQ_PLUGIN_BUILD -DGLEW_STATIC)
 
@@ -483,3 +483,8 @@ install(TARGETS Equalizer
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
   )
+
+foreach(HEADER ${HEADERS})
+  string(REGEX MATCH "(.*)[/\\]" DIR ${HEADER})
+  install(FILES ${HEADER} DESTINATION include/eq/${DIR} COMPONENT dev)
+endforeach(HEADER ${HEADERS})

@@ -37,7 +37,7 @@
 
 
 // defined elsewhere
-class PlyFile;
+struct PlyFile;
 
 namespace mesh 
 {

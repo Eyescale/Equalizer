@@ -15,7 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define GLEW_MX
+#ifndef GLEW_MX
+# define GLEW_MX
+#endif
+
 #include <GL/glew.h>
 #include <GL/wglew.h>
 #include <iostream>

@@ -23,4 +23,4 @@ target_link_libraries(eVolve Equalizer)
 install(TARGETS eVolve DESTINATION bin)
 
 install(FILES Bucky32x32x32_d.raw Bucky32x32x32_d.raw.vhf
-  DESTINATION shared/Equalizer/data COMPONENT data)
+  DESTINATION share/Equalizer/data COMPONENT data)
