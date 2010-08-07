@@ -10,7 +10,7 @@ else(NOT CUDA_FOUND)
 
   include_directories(${CUDA_INCLUDE_DIRS})
 
-  cuda_compile(NBODY_FILES nbody_kernel.cu nbody.cu)
+  cuda_compile(NBODY_FILES nbody.cu)
 
   add_executable(eqNBody
     ${NBODY_FILES}

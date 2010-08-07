@@ -1,4 +1,4 @@
-Fix missing namespace in debug.h
+eqNBody works with CMake
 
 [ ] May break build
 [ ] May break existing applications

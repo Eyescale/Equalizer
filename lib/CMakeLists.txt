@@ -394,9 +394,27 @@ if(NOT WIN32) # POSIX
 endif(NOT WIN32)
 
 if(LINUX)
-  set(BASE_HEADERS ${BASE_HEADERS}
-    base/definesLinux.h
-	)
+  set(DEFINES_LINUX EQ_USE_OPENMP GLEW_MX GLX Linux)
+  set(DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/definesLinux.h.in)
+
+  file(WRITE ${DEFINES_FILE}
+    "#ifndef EQBASE_DEFINES_Linux_H\n"
+    "#define EQBASE_DEFINES_Linux_H\n\n"
+    )
+
+  foreach(DEF ${DEFINES_LINUX})
+    file(APPEND ${DEFINES_FILE}
+      "#ifndef ${DEF}\n"
+      "#  define ${DEF}\n"
+      "#endif\n\n"
+      )
+  endforeach(DEF ${DEFINES_LINUX})
+
+  file(APPEND ${DEFINES_FILE}
+    "#endif /* EQBASE_DEFINES_Linux_H */\n"
+    )
+
+  configure_file(${DEFINES_FILE} ${EQ_INCLUDE_DIR}/eq/base/definesLinux.h COPYONLY)
 endif(LINUX)
 
 if(APPLE)

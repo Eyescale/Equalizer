@@ -8,10 +8,8 @@ What works (tested):
  * creating binary installer for Windows (with selectable components!)
  * tests are run by CTest (some fail however)
 
-What does not yet:
- * examples/eqNBody         failes to compile (SharedData not found)
- * examples/osgScaleViewer  failes to compile (SharedData not found)
- * tools/eVolveConverter    is not portable
+Not tested (maybe works):
+ * examples/osgScaleViewer fails to compile (I tested with an outdated v2.8.1)
 
 
 Ubuntu 32bit + 64bit, gcc 4.4.3
@@ -24,8 +22,6 @@ $ make
 Known Problems:
  * CMake does not check for VMMLib yet.
     -> install it or copy into build/include
- * CMake does not generate eq/base/definesLinux.h
-    -> run make in top level dir first
 
 
 Windows XP 32bit using Visual C++ 2008 Express

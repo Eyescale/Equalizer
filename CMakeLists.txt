@@ -6,6 +6,10 @@ project(Equalizer)
 
 enable_testing()
 
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+  set(LINUX TRUE)
+endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CToolBox)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
