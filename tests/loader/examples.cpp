@@ -28,7 +28,7 @@
 
 int main( int argc, char **argv )
 {
-    TEST( eq::base::init( ));
+    TEST( eq::base::init( argc, argv ));
 
     eq::server::Loader loader;
     eq::base::Strings candidates = 

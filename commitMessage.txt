@@ -1,9 +1,9 @@
-Doxygen and code cleanups in lib/util
+Fix unit tests
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

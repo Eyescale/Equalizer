@@ -47,7 +47,7 @@ public:
 
 int main( int argc, char **argv )
 {
-    TEST( eq::base::init( ));
+    TEST( eq::base::init( argc, argv ));
 
     // basic tests
     eq::base::UUID id1( true );

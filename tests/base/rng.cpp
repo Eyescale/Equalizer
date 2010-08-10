@@ -48,7 +48,7 @@ using namespace eq::base;
 
 int main( int argc, char **argv )
 {
-    TEST( eq::base::init( ));
+    TEST( eq::base::init( argc, argv ));
 
     RNG rng;
 
