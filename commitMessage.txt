@@ -1,9 +1,9 @@
-Fix unit tests
+Minor doxygen improvements
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

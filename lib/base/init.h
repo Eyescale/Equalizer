@@ -23,7 +23,7 @@
 namespace eq
 {
 /**
- * @brief Equalizer utility layer.
+ * @brief Equalizer base abstraction layer.
  *
  * The eq::base namespace provides C++ classes to abstract the underlying
  * operating system and implements common helper functionality. Classes with
@@ -34,7 +34,7 @@ namespace base
     /** 
      * Initialize the Equalizer base classes.
      *
-     * If the command line parameter '--eq-logfile <filename>' is present,
+     * If the command line parameter '--eq-logfile &lt;filename&gt;' is present,
      * all log output is redirected to the given file.
      *
      * @return <code>true</code> if the library was successfully initialised,

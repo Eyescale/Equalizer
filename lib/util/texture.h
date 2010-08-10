@@ -32,7 +32,7 @@ namespace eq
 namespace util
 {
     /** 
-     * A wrapper around GL textures.
+     * A wrapper around OpenGL textures.
      * 
      * So far used by the Image and Compositor. The target is assumed to be
      * GL_TEXTURE_RECTANGLE_ARB or GL_TEXTURE_2D.
@@ -46,43 +46,8 @@ namespace util
         /** Destruct the texture. @version 1.0 */
         EQ_EXPORT virtual ~Texture();
 
-        /** Clear the texture, including the GL texture name. @version 1.0 */
-        EQ_EXPORT void flush();
-
-        /**
-         * Flush the texture without deleting the GL texture name.
-         * @version 1.0
-         */
-        void flushNoDelete();
-
-        /** 
-         * Use an OpenGL texture created externally.
-         *
-         * The previous GL texture, if any, is deallocated using flush(). The
-         * new texture has to be of the correct target, size and internal
-         * format. The texture is validated by this method.
-         *
-         * @param id The OpenGL texture name.
-         * @param width the width of the texture.
-         * @param height the height of the texture.
-         * @sa setTarget(), setInternalFormat()
-         */
-        void setGLData( const GLuint id, const int width, const int height );
-
-        /** 
-         * Init an OpenGL texture.
-         *
-         * The previous GL texture, if any, is deallocated using flush(). The
-         * new texture has to be of the correct target, size and internal
-         * format. The texture is validated by this method.
-         *
-         * @param format The OpenGL texture internal format.
-         * @param width the width of the texture.
-         * @param height the height of the texture.
-         * @sa setTarget(), setInternalFormat()
-         */
-        void init( const GLuint format, const int width, const int height );
-
+        /** @name Data Access. */
+        //@{
         /** Set the target of the texture. @version 1.0 */
         EQ_EXPORT void setTarget( const GLenum target );
 
@@ -125,6 +90,27 @@ namespace util
 
         /** @return the current height */
         int32_t getHeight() const { return _height; }
+
+        /** @return true if the texture can be bound. */
+        EQ_EXPORT bool isValid() const;
+        //@}
+
+        /** @name Operations. */
+        //@{
+        /** 
+         * Initialize an OpenGL texture.
+         *
+         * @param format the OpenGL texture internal format.
+         * @param width the width of the texture.
+         * @param height the height of the texture.
+         * @sa setTarget(), setInternalFormat()
+         * @version 1.0
+         */
+        void init( const GLuint format, const int width, const int height );
+
+        /** Clear the texture, including the GL texture name. @version 1.0 */
+        EQ_EXPORT void flush();
+
 
         /** 
          * Copy the specified area from the current read buffer to the
@@ -172,17 +158,40 @@ namespace util
         /** Resize the texture. */
         EQ_EXPORT void resize( const int width, const int height );
 
-        /** @return true if the texture can be bound. */
-        EQ_EXPORT bool isValid() const;
-
         /** Writes the texture data as a rgb image file. */
         EQ_EXPORT void writeRGB( const std::string& filename,
                                  const eq::Frame::Buffer buffer,
                                  const PixelViewport& pvp ) const;
+        //@}
 
         const GLEWContext* glewGetContext() const { return _glewContext; }
         void setGLEWContext( const GLEWContext* context )
             { _glewContext = context; }
+
+        /** @name Wrap existing GL textures */
+        //@{
+        /**
+         * Flush the texture without deleting the GL texture name.
+         * @version 1.0
+         */
+        EQ_EXPORT void flushNoDelete();
+
+        /** 
+         * Use an OpenGL texture created externally.
+         *
+         * The previous GL texture, if any, is deallocated using flush(). The
+         * new texture has to be of the correct target, size and internal
+         * format. The texture is validated by this method.
+         *
+         * @param id The OpenGL texture name.
+         * @param width the width of the texture.
+         * @param height the height of the texture.
+         * @sa setTarget(), setInternalFormat()
+         * @version 1.0
+         */
+        EQ_EXPORT void setGLData( const GLuint id, const int width,
+                                  const int height );
+        //@}
 
     private:
         /** The GL texture name. */
