@@ -39,7 +39,8 @@ public:
     virtual VisitorResult visitPost( Node* node )
         {
             const VisitorResult result = _updateUp( node );
-            node->flushSendBuffer();
+            if( result == TRAVERSE_CONTINUE )
+                node->flushSendBuffer();
             return result;
         }
 
@@ -80,9 +81,11 @@ private:
                     return TRAVERSE_PRUNE;
 
                 case STATE_RUNNING:
-                case STATE_FAILED:
                     return TRAVERSE_CONTINUE;
-
+                case STATE_FAILED:
+                    if( entity->isActive( ))
+                        return TRAVERSE_PRUNE;
+                    return TRAVERSE_CONTINUE;
             }
             EQUNREACHABLE;
             return TRAVERSE_PRUNE;
@@ -104,8 +107,12 @@ private:
                     return TRAVERSE_CONTINUE;
 
                 case STATE_FAILED:
+                    EQASSERT( !entity->isActive( ));
                     if( !entity->isActive( ))
+                    {
                         entity->setState( STATE_STOPPED );
+                        return TRAVERSE_PRUNE;
+                    }
                     return TRAVERSE_CONTINUE;
             }
             EQASSERTINFO( false, State( state ));

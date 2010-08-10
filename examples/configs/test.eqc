@@ -5,6 +5,7 @@ global
 {
     EQ_WINDOW_IATTR_HINT_SWAPSYNC OFF
     EQ_WINDOW_IATTR_HINT_STATISTICS OFF
+    EQ_NODE_IATTR_LAUNCH_TIMEOUT 100
 }
 
 server
@@ -89,6 +90,12 @@ server
                     channel { name "source5" }
                 }
             }
+        }
+
+        node
+        {
+            name "foo"
+            connection { hostname "foo" }
             pipe
             {
                 name "GPU 8"

@@ -479,8 +479,8 @@ bool Config::_updateRunning()
 
     setErrorMessage( "" );
 
-    if( !_connectNodes( ))
-        return failValue;
+    if( !_connectNodes() && !failValue )
+        return false;
 
     _startNodes();
     _updateCanvases();
@@ -521,18 +521,20 @@ void Config::_startNodes()
 {
     // start up newly running nodes
     std::vector< uint32_t > requests;
-    Nodes startingNodes;
     const Nodes& nodes = getNodes();
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
 
-        if( node->isActive() && !node->isRunning( ))
+        if( node->isActive() && node->isStopped( ))
         {
-            EQASSERT( node->isStopped( ));
-            startingNodes.push_back( node );
             if( !node->isApplicationNode( ))
                 requests.push_back( _createConfig( node ));
+        }
+        else
+        {
+            EQASSERT( !node->isActive() || node->getState() == STATE_FAILED ||
+                      node->getState() == STATE_RUNNING );
         }
     }
 
@@ -606,6 +608,12 @@ bool Config::_connectNode( Node* node )
     if( netNode.isValid( ))
         return netNode->isConnected();
 
+    if( !node->isStopped( ))
+    {
+        EQASSERT( node->getState() == STATE_FAILED );
+        return true;
+    }
+
     net::NodePtr localNode = getLocalNode();
     EQASSERT( localNode.isValid( ));
     
@@ -628,6 +636,7 @@ bool Config::_connectNode( Node* node )
         setErrorMessage( getErrorMessage() + nodeString.str( ));
         EQERROR << "Connection to " << netNode->getNodeID() << " failed." 
                 << std::endl;
+        node->setState( STATE_FAILED );
         return false;
     }
 
@@ -667,6 +676,7 @@ bool Config::_syncConnectNode( Node* node, const base::Clock& clock )
         EQERROR << getErrorMessage() << std::endl;
 
         node->setNode( 0 );
+        node->setState( STATE_FAILED );
         EQASSERT( netNode->getRefCount() == 1 );
         return false;
     }
@@ -681,9 +691,15 @@ void Config::_stopNodes()
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->getState() != STATE_STOPPED )
+        const State state = node->getState();
+
+        if( !node->isActive() && state == STATE_FAILED )
+            node->setState( STATE_STOPPED );
+
+        if( state != STATE_STOPPED )
             continue;
 
+        EQASSERT( !node->isActive( ));
         if( node->isApplicationNode( ))
         {
             node->setNode( 0 );

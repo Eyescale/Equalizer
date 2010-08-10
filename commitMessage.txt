@@ -1,9 +1,9 @@
-Init failure tolerance: Fix failure of view equalizer destination channel
+Init failure tolerance: Implement init-with-unexisting-node
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
