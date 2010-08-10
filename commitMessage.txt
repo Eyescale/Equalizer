@@ -1,4 +1,4 @@
-Minor Makefile simplification
+Init failure tolerance: Fix failure of view equalizer destination channel
 
 [ ] May break build
 [ ] May break existing applications

@@ -431,11 +431,18 @@ uint32_t ViewEqualizer::_findInputFrameNumber() const
     EQASSERT( !_listeners.empty( ));
 
     uint32_t frame = std::numeric_limits< uint32_t >::max();
+    const Compound* compound = getCompound();
+    const Compounds& children = compound->getChildren();
+    const size_t nChildren = children.size();
+    EQASSERT( nChildren == _listeners.size( ));
 
-    for( Listeners::const_iterator i = _listeners.begin();
-         i != _listeners.end(); ++i )
+    for( size_t i = 0; i < nChildren; ++i )
     {
-        const Listener& listener = *i;
+        const Compound* child = children[ i ];
+        if( !child->isRunning( ))
+            continue;
+
+        const Listener& listener = _listeners[ i ];
         const uint32_t youngest = listener.findYoungestLoad();
         frame = EQ_MIN( frame, youngest );
     }

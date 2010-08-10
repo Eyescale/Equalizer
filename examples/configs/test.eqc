@@ -15,7 +15,7 @@ server
         {
             pipe
             {
-                name "GPU 1"
+                name "failGPU 1"
                 window
                 {
                     name "left"
@@ -64,7 +64,7 @@ server
                 name "GPU 5"
                 window
                 {
-                    name "failesource3"
+                    name "source3"
                     viewport [ 0.675 0.4 0.3 0.3 ]
                     channel { name "source3" }
                 }
