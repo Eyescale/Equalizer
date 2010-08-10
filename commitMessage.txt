@@ -1,9 +1,9 @@
-Init failure tolerance: Implement init-with-unexisting-node
+Doxygen and code cleanups in lib/util
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

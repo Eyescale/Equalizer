@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,18 +25,12 @@
 
 #include "bitmapFont.h"
 
-#include <eq/client/pipe.h>
-#include <eq/client/window.h>
+#include "objectManager.h"
 
-#ifdef WGL
-#  include <eq/client/wglWindow.h>
-#endif
-#ifdef AGL
-#  include <eq/client/aglWindow.h>
-#endif
-#ifdef GLX
-#  include <eq/client/glXPipe.h>
-#endif
+#include <eq/base/debug.h>
+#include <eq/base/lock.h>
+#include <eq/base/log.h>
+#include <eq/base/scopedMutex.h>
 
 namespace eq
 {
@@ -56,7 +50,7 @@ template< typename OMT >
 BitmapFont< OMT >::~BitmapFont()
 {
     const GLuint lists = _gl.getList( _key );
-    if( lists != Window::ObjectManager::INVALID )
+    if( lists != ObjectManager< OMT >::INVALID )
         EQWARN << "OpenGL BitmapFont was not freed" << std::endl;
 }
 
@@ -76,7 +70,7 @@ bool BitmapFont< OMT >::init( const WindowSystem ws, const std::string& name,
             return false;
     }
 
-    EQASSERTINFO( _gl.getList( _key ) != Window::ObjectManager::INVALID, 
+    EQASSERTINFO( _gl.getList( _key ) != ObjectManager< OMT >::INVALID, 
                   "Font initialization failed" );
 }
 
@@ -244,15 +238,15 @@ template< typename OMT >
 GLuint BitmapFont< OMT >::_setupLists( const GLsizei num )
 {
     GLuint lists = _gl.getList( _key );
-    if( lists != Window::ObjectManager::INVALID )
+    if( lists != ObjectManager< OMT >::INVALID )
         _gl.deleteList( _key );
 
     if( num == 0 )
-        lists = Window::ObjectManager::INVALID;
+        lists = ObjectManager< OMT >::INVALID;
     else
     {
         lists = _gl.newList( _key, num );
-        EQASSERT( lists != Window::ObjectManager::INVALID );
+        EQASSERT( lists != ObjectManager< OMT >::INVALID );
     }
     return lists;
 }
@@ -261,10 +255,10 @@ template< typename OMT >
 void BitmapFont< OMT >::draw( const std::string& text ) const
 {
     const GLuint lists = _gl.getList( _key );
-    EQASSERTINFO( lists != Window::ObjectManager::INVALID, 
+    EQASSERTINFO( lists != ObjectManager< OMT >::INVALID, 
                   "Font not initialized" );
 
-    if( lists != Window::ObjectManager::INVALID )
+    if( lists != ObjectManager< OMT >::INVALID )
     {
         glListBase( lists );
         glCallLists( text.size(), GL_UNSIGNED_BYTE, text.c_str( ));

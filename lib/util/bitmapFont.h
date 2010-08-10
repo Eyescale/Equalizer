@@ -37,7 +37,12 @@ namespace util
     template< typename OMT > class BitmapFont
     {
     public:
-        /** Construct a new bitmap font. */
+        /**
+         * Construct a new bitmap font.
+         *
+         * @param gl An ObjectManager to allocate display lists for the fonts
+         * @param key 
+         */
         EQ_EXPORT BitmapFont( ObjectManager< OMT >& gl, const OMT& key );
         EQ_EXPORT ~BitmapFont();
 

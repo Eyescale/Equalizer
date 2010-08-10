@@ -31,59 +31,67 @@ namespace util
 
     /** 
      * A class to emulate an OpenGL accumulation buffer using an FBO. 
-     * @sa glAccum()
+     * @sa glAccum(), eq::util::Accum
      */
     class AccumBufferObject : public FrameBufferObject
     {
     public: 
-        /** Construct a new Accumulation Buffer Object */
+        /** Construct a new Accumulation Buffer Object. @version 1.0 */
         EQ_EXPORT AccumBufferObject( GLEWContext* const glewContext );
 
-        /** Destruct the Accumulation Buffer Object */
+        /** Destruct the Accumulation Buffer Object. @version 1.0 */
         EQ_EXPORT ~AccumBufferObject();
 
         /**
          * Initialize the Accumulation Buffer Object.
          *
-         * The ABO uses a 32-bit float texture.
+         * The ABO uses a 32-bit float texture for the accumulation.
          * 
          * @param pvp the initial pixel viewport of the rendering buffer.
          * @param format the texture format corresponding to the source color
          *               read buffer.
          * @return true on success, false otherwise
          * @sa Window::getColorFormat(), glReadBuffer()
+         * @version 1.0
          */
         EQ_EXPORT bool init( const PixelViewport& pvp, const GLuint format );
 
-        /** De-initialize the Accumulation Buffer Object. */
+        /** De-initialize the Accumulation Buffer Object. @version 1.0 */
         EQ_EXPORT void exit();
 
         /**
          * Load the current read buffer into the accumulation buffer.
-         * The values of the current read buffer are multiplied with value and
-         * copied into the accumulation buffer.
+         *
+         * The color values of the current read buffer are multiplied with value
+         * and copied into the accumulation buffer.
          *
          * @param value a floating-point value multiplying the source values
          *              during the load operation.
+         * @version 1.0
          */
         EQ_EXPORT void load( const GLfloat value );
 
         /**
          * Accumulate the current read buffer into the accumulation buffer.
-         * The read buffer is multiplied by value and added to the accumulation
-         * buffer.
+         *
+         * The color values of the current read buffer are multiplied by value
+         * and added to the accumulation buffer.
          *
          * @param value a floating-point value multiplying the source values
          *              during the accum operation.
+         * @version 1.0
          */
         EQ_EXPORT void accum( const GLfloat value );
 
         /**
-         * Transfers accumulation buffer values to the write buffer.
-         * Each accumulation buffer is multiplied by value during the transfer.
+         * Transfer accumulation buffer values to the draw buffer.
+         *
+         * The accumulation buffer color values are multiplied by value, and
+         * copied into the current draw buffer.
          *
          * @param value a floating-point value multiplying the accumulation
          *              values during the operation.
+         * @version 1.0
          */
         EQ_EXPORT void display( const GLfloat value );
 
