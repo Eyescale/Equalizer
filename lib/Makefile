@@ -131,6 +131,11 @@ HEADER_SRC = \
 	fabric/wall.h \
 	fabric/window.h \
 	fabric/zoom.h \
+	client/aglEventHandler.h \
+	client/aglMessagePump.h \
+	client/aglPipe.h \
+	client/aglWindow.h \
+	client/aglWindowEvent.h \
 	client/canvas.h \
 	client/channel.h \
 	client/channelStatistics.h \
@@ -148,8 +153,13 @@ HEADER_SRC = \
 	client/eye.h \
 	client/frame.h \
 	client/frameData.h \
-	client/global.h \
 	client/glWindow.h \
+	client/glXEventHandler.h \
+	client/glXMessagePump.h \
+	client/glXPipe.h \
+	client/glXWindow.h \
+	client/glXWindowEvent.h \
+	client/global.h \
 	client/image.h \
 	client/init.h \
 	client/layout.h \
@@ -172,6 +182,11 @@ HEADER_SRC = \
 	client/version.h \
 	client/view.h \
 	client/visitorResult.h \
+	client/wglEventHandler.h \
+	client/wglMessagePump.h \
+	client/wglPipe.h \
+	client/wglWindow.h \
+	client/wglWindowEvent.h \
 	client/window.h \
 	client/windowStatistics.h \
 	client/windowSystem.h \
@@ -334,13 +349,6 @@ CFILES += \
 	glew/glew.c
 
 ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
-  HEADER_SRC += \
-	client/glXEventHandler.h \
-	client/glXMessagePump.h \
-	client/glXWindow.h \
-	client/glXWindowEvent.h \
-	client/glXPipe.h
-
   CXXFILES += \
 	client/glXEventHandler.cpp \
 	client/glXMessagePump.cpp \
@@ -349,13 +357,6 @@ ifeq ($(findstring GLX, $(WINDOW_SYSTEM)),GLX)
 endif
 
 ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
-  HEADER_SRC += \
-	client/aglEventHandler.h \
-	client/aglMessagePump.h \
-	client/aglWindow.h \
-	client/aglWindowEvent.h \
-	client/aglPipe.h
-
   CXXFILES += \
 	client/aglEventHandler.cpp \
 	client/aglMessagePump.cpp \
@@ -364,13 +365,6 @@ ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
 endif
 
 ifeq ($(findstring WGL, $(WINDOW_SYSTEM)),WGL)
-  HEADER_SRC += \
-	client/wglEventHandler.h \
-	client/wglMessagePump.h \
-	client/wglWindow.h \
-	client/wglWindowEvent.h \
-	client/wglPipe.h
-
   CXXFILES += \
 	client/wglEventHandler.cpp \
 	client/wglMessagePump.cpp \

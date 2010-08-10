@@ -1,9 +1,9 @@
-CMake: forwarding headers are created instead of copies
+Minor Makefile simplification
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
-[x] Optimization
+[x] Cleanup
+[ ] Optimization
 [ ] Documentation
