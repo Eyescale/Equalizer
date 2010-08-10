@@ -24,13 +24,43 @@
 #include "rng.h"
 #include "thread.h"
 
+#include <fstream>
+
 namespace eq
 {
 namespace base
 {
 
-EQ_EXPORT bool init()
+namespace
 {
+    static std::ofstream* _logFile = 0;
+}
+
+EQ_EXPORT bool init( const int argc, char** argv )
+{
+    for( int i=1; i<argc; ++i )
+    {
+        if( strcmp( "--eq-logfile", argv[i] ) == 0 )
+        {
+            ++i;
+            if( i<argc )
+            {
+                EQASSERT( !_logFile );
+                _logFile = new std::ofstream( argv[i] );
+                if( _logFile->is_open( ))
+                    Log::setOutput( *_logFile );
+                else
+                {
+                    EQWARN << "Can't open log file " << argv[i] << ": "
+                           << base::sysError << std::endl;
+                    delete _logFile;
+                    _logFile = 0;
+                    return false;
+                }
+            }
+        }
+    }
+
     if( !RNG::_init( ))
     {
         EQERROR << "Failed to initialize random number generator" << std::endl;
@@ -52,7 +82,19 @@ EQ_EXPORT bool exit()
     eq::base::Thread::removeAllListeners();
     eq::base::Log::exit();
 
-    return RNG::_exit();
+    const bool ret = RNG::_exit();
+    if( _logFile )
+    {
+#ifdef NDEBUG
+        Log::setOutput( std::cout );
+#else
+        Log::setOutput( std::cerr );
+#endif
+        _logFile->close();
+        delete _logFile;
+        _logFile = 0;
+    }
+    return ret;
 }
 
 }

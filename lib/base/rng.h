@@ -100,7 +100,7 @@ namespace base
 #endif
         static bool _init();
         static bool _exit();
-        friend EQ_EXPORT bool init();
+        friend EQ_EXPORT bool init( const int argc, char** argv );
         friend EQ_EXPORT bool exit();
     };
 

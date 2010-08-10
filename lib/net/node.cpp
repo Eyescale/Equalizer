@@ -1073,6 +1073,7 @@ std::string Node::_createLaunchCommand( NodePtr node,
             default:
                 EQWARN << "Unknown token " << launchCommand[percentPos+1] 
                        << std::endl;
+                replacement << '%' << launchCommand[percentPos+1];
         }
 
         result += launchCommand.substr( lastPos, percentPos-lastPos );
