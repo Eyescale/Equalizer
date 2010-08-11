@@ -48,8 +48,7 @@ EQ_EXPORT void debugGLError( const std::string& when, const GLenum error,
     }
     
     EQWARN << ' ' << when << " in " << file << ':' << line << std::endl
-           << "    Set breakpoint in " << __FILE__ << ':' << __LINE__ + 2
-           << " to debug" << std::endl << base::enableFlush;
+           << base::backtrace << std::endl << base::enableFlush;
 }                                 
 
 #ifdef GLX

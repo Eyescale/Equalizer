@@ -134,7 +134,6 @@ void Accum::display()
 {
     EQASSERT( _numSteps <= _totalSteps );
 
-
     if( _abo )
     {
         const float factor = 1.0f / _numSteps;

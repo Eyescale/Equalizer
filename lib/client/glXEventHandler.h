@@ -27,8 +27,9 @@
 namespace eq
 {
     class GLXPipe;
-    class Window;
     class GLXWindowEvent;
+    class GLXWindowIF;
+    class Window;
 
     /**
      * The event handler for glX.
@@ -63,19 +64,32 @@ namespace eq
         /** Destructs the glX event handler. */
         virtual ~GLXEventHandler();
 
+        /** Register a window for event handling. */
+        void registerWindow( GLXWindowIF* window );
+
+        /** Deregister a window from event handling. */
+        void deregisterWindow( GLXWindowIF* window );
+
     private:
         /** The corresponding glX pipe. */
         GLXPipe* const _pipe;
+
+        typedef stde::hash_map< XID, GLXWindowIF* > WindowMap;
+
+        /** Registered windows. */
+        WindowMap _windows;
 
         static void _handleEvents( X11ConnectionPtr connection );
 
         /** @return true if something was handled, false on timeout */
         static bool _dispatch( const int timeout );
 
-        void _processEvent( GLXWindowEvent& event, Pipe* pipe );
+        void _processEvent( GLXWindowEvent& event );
         uint32_t  _getButtonState( XEvent& event );
         uint32_t  _getButtonAction( XEvent& event );
         uint32_t  _getKey( XEvent& event );
+
+        EQ_TS_VAR( _thread );
     };
 
     /** @cond IGNORE */

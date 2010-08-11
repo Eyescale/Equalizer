@@ -77,10 +77,22 @@ namespace eq
         /**  @return  the X11 drawable ID. */
         virtual XID getXDrawable() const { return _xDrawable; }
 
-        /** @return GLX display */
+        /** @return the X11 display */
         virtual Display* getXDisplay();
         virtual Display* getXDisplay() const;
         GLXEWContext* glxewGetContext() { return _glxewContext; }
+        
+        /**
+         * Register with the OSPipe's GLXEventHandler, called by setXDrawable().
+         * @version 1.0
+         */
+        EQ_EXPORT virtual void initEventHandler();
+
+        /**
+         * Deregister with the GLXEventHandler, called by setXDrawable().
+         * @version 1.0
+         */
+        EQ_EXPORT virtual void exitEventHandler();
         //@}
 
     protected:

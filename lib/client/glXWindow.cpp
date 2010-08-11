@@ -19,6 +19,7 @@
 #include "glXWindow.h"
 
 #include "global.h"
+#include "glXEventHandler.h"
 #include "glXPipe.h"
 #include "pipe.h"
 
@@ -91,14 +92,12 @@ bool GLXWindow::configInit( )
 Display* GLXWindow::getXDisplay()
 {
     Pipe* pipe = getPipe();
+    GLXPipe* osPipe = dynamic_cast< GLXPipe* >( pipe->getOSPipe( ));
+    if( osPipe )
+        return osPipe->getXDisplay();
 
-    EQASSERT( pipe );
-    EQASSERT( pipe->getOSPipe( ));
-    EQASSERT( dynamic_cast< GLXPipe* >( pipe->getOSPipe( )));
-
-    GLXPipe* osPipe = static_cast< GLXPipe* >( pipe->getOSPipe( ));
-
-    return osPipe->getXDisplay();
+    EQUNIMPLEMENTED;    
+    return 0;
 }
 
 Display* GLXWindow::getXDisplay() const
@@ -518,10 +517,15 @@ void GLXWindow::setXDrawable( XID drawable )
     if( _xDrawable == drawable )
         return;
 
+    if( _xDrawable )
+        exitEventHandler();
+
     _xDrawable = drawable;
 
     if( !drawable )
         return;
+
+    initEventHandler();
 
     // query pixel viewport of window
     Display* display = getXDisplay();
@@ -712,6 +716,32 @@ void GLXWindow::initGLXEW()
         _window->setErrorMessage( "GLXEW initialization failed: " + result );
     else
         _glxewInitialized = true;
+}
+
+void GLXWindow::initEventHandler()
+{
+    Pipe* pipe = getPipe();
+    GLXPipe* osPipe = dynamic_cast< GLXPipe* >( pipe->getOSPipe( ));
+    if( !osPipe )
+        return;
+
+    GLXEventHandler* eventHandler = osPipe->getGLXEventHandler();
+    EQASSERT( eventHandler );
+    if( eventHandler )
+        eventHandler->registerWindow( this );
+}
+
+void GLXWindow::exitEventHandler()
+{
+    Pipe* pipe = getPipe();
+    GLXPipe* osPipe = dynamic_cast< GLXPipe* >( pipe->getOSPipe( ));
+    if( !osPipe )
+        return;
+
+    GLXEventHandler* eventHandler = osPipe->getGLXEventHandler();
+    EQASSERT( eventHandler );
+    if( eventHandler )
+        eventHandler->deregisterWindow( this );
 }
 
 }

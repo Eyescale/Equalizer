@@ -45,9 +45,7 @@ GLXEventHandler::GLXEventHandler( GLXPipe* pipe )
         : _pipe( pipe )
 {
     if( !_pipeConnections )
-    {
         _pipeConnections = new GLXEventHandler::EventSet;
-    }
     
     _pipeConnections->addConnection( new X11Connection( pipe ));
 }
@@ -55,6 +53,7 @@ GLXEventHandler::GLXEventHandler( GLXPipe* pipe )
 GLXEventHandler::~GLXEventHandler()
 {
     EQASSERT( _pipeConnections.isValid( ));
+    EQASSERT( _windows.empty( ));
 
     const net::Connections& connections = _pipeConnections->getConnections();
 
@@ -157,11 +156,44 @@ void GLXEventHandler::dispatchAll()
         ;
 }
 
+void GLXEventHandler::registerWindow( GLXWindowIF* window )
+{
+    EQ_TS_THREAD( _thread );
+    const XID xid = window->getXDrawable();
+    EQASSERT( _windows.find( xid ) == _windows.end( ));
+
+    _windows[ xid ] = window;
+}
+
+void GLXEventHandler::deregisterWindow( GLXWindowIF* window )
+{
+    EQ_TS_THREAD( _thread );
+    const XID xid = window->getXDrawable();
+    EQASSERT( xid );
+    
+    if( xid )
+    {
+        WindowMap::iterator i = _windows.find( xid );
+        EQASSERT( i != _windows.end( ));
+        if( i != _windows.end( ))
+            _windows.erase( i );
+        return;
+    }
+
+    for( WindowMap::iterator i = _windows.begin(); i != _windows.end(); ++i)
+    {
+        if( i->second == window )
+        {
+            _windows.erase( i );
+            return;
+        }
+    }
+}
+
 void GLXEventHandler::_handleEvents( X11ConnectionPtr connection )
 {
     GLXPipe*         glXPipe = connection->pipe;
     Display*         display = glXPipe->getXDisplay();
-    Pipe*            pipe    = glXPipe->getPipe();
     GLXEventHandler* handler = glXPipe->getGLXEventHandler();
     EQASSERT( handler );
 
@@ -171,22 +203,12 @@ void GLXEventHandler::_handleEvents( X11ConnectionPtr connection )
         XEvent&        xEvent = event.xEvent;
         XNextEvent( display, &xEvent );
         
-        handler->_processEvent( event, pipe );
+        handler->_processEvent( event );
     }
 }
 
 namespace
 {
-static GLXWindowIF* _getGLXWindow( Window* window )
-{
-    OSWindow* osWindow = window->getOSWindow();
-    if( !osWindow )
-        return 0;
-
-    EQASSERT( dynamic_cast< GLXWindowIF* >( osWindow ));
-    return static_cast< GLXWindowIF* >( osWindow );
-}
-
 void _getWindowSize( Display* display, XID drawable, ResizeEvent& event )
 {
     // Get window coordinates from X11, the event data is relative to window
@@ -205,29 +227,20 @@ void _getWindowSize( Display* display, XID drawable, ResizeEvent& event )
 }
 }
 
-void GLXEventHandler::_processEvent( GLXWindowEvent& event, Pipe* pipe )
+void GLXEventHandler::_processEvent( GLXWindowEvent& event )
 {
+    EQ_TS_THREAD( _thread );
+
     XEvent& xEvent = event.xEvent;
     XID drawable = xEvent.xany.window;
-    const Windows& windows = pipe->getWindows();
-    GLXWindowIF* glXWindow = 0;
 
-    Window* window   = 0;
-    for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
-    {
-        Window* const candidate = *i;
-        glXWindow = _getGLXWindow( candidate );
-
-        if( glXWindow && glXWindow->getXDrawable() == drawable )
-        {
-            window = candidate;
-            break;
-        }
-    }
+    WindowMap::const_iterator i = _windows.find( drawable );
+    GLXWindowIF* const glXWindow = (i == _windows.end()) ? 0 : i->second;
+    Window* const window = glXWindow ? glXWindow->getWindow() : 0;
 
     if( !window )
     {
-        EQWARN << "Can't match window to received X event" << endl;
+        EQINFO << "Can't match window to received X event" << endl;
         return;
     }
     EQASSERT( glXWindow );
