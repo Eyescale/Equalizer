@@ -767,7 +767,7 @@ void Channel::drawStatistics()
                         nextY += (HEIGHT + SPACE);
                         data.name = stat.resourceName;
                     }
-                    
+
                     data.idle += (stat.idleTime * 100ll / stat.totalTime);
                     ++data.nIdle;
                     continue;

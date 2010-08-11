@@ -55,6 +55,8 @@ namespace eq
         Type     type;
         uint32_t frameNumber;
         uint32_t task;
+        float ratio; // compression ratio
+
         union
         {
             int64_t  startTime;
@@ -65,7 +67,7 @@ namespace eq
             int64_t  endTime;
             int64_t  totalTime;
         };
-        float ratio; // compression ratio
+
         char resourceName[32];
 
         static const std::string& getName( const Type type );

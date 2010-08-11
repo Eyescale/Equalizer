@@ -1,10 +1,9 @@
-Fix basic Windows/Linux interop (RenderContext alignment)
-Minor code cleanups
+Potential Windows/Linux interop fix (Statistics)
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
