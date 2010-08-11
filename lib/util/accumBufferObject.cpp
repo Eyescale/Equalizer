@@ -38,7 +38,7 @@ AccumBufferObject::~AccumBufferObject()
 bool AccumBufferObject::init( const PixelViewport& pvp,
                               const GLuint textureFormat )
 {
-    _texture = new Texture( glewGetContext( ));
+    _texture = new Texture( GL_TEXTURE_RECTANGLE_ARB, glewGetContext( ));
     _texture->setInternalFormat( textureFormat );
     _pvp = pvp;
 
@@ -70,7 +70,9 @@ void AccumBufferObject::load( const GLfloat value )
     _texture->copyFromFrameBuffer( _pvp );
 
     bind();
-    _drawQuadWithTexture( _texture, getPixelViewport(), value );
+    _drawQuadWithTexture( _texture, 
+                          fabric::PixelViewport( 0, 0, getWidth(), getHeight()),
+                          value );
     unbind();
     EQ_GL_ERROR( "after AccumBufferObject::load" );
 }
@@ -83,7 +85,9 @@ void AccumBufferObject::accum( const GLfloat value )
     glEnable( GL_BLEND );
     glBlendFunc( GL_ONE, GL_ONE );
 
-    _drawQuadWithTexture( _texture, getPixelViewport(), value );
+    _drawQuadWithTexture( _texture,
+                          fabric::PixelViewport( 0, 0, getWidth(), getHeight()),
+                          value );
 
     glBlendFunc( GL_ONE, GL_ZERO );
     glDisable( GL_BLEND );

@@ -552,7 +552,8 @@ void ROIFinder::_readbackInfo( )
 
     // copy frame buffer to texture
     const void* bufferKey = _getInfoKey( );
-    util::Texture*    texture   = _glObjects->obtainEqTexture( bufferKey );
+    util::Texture* texture =
+        _glObjects->obtainEqTexture( bufferKey, GL_TEXTURE_RECTANGLE_ARB );
 
 #ifdef EQ_ROI_USE_DEPTH_TEXTURE
     texture->setInternalFormat( GL_DEPTH_COMPONENT );

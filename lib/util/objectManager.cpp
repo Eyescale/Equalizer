@@ -623,7 +623,7 @@ Texture* ObjectManager<T>::getEqTexture( const T& key ) const
 }
 
 template< typename T >
-Texture* ObjectManager<T>::newEqTexture( const T& key )
+Texture* ObjectManager<T>::newEqTexture( const T& key, const GLenum target )
 {
     if( _data->eqTextures.find( key ) != _data->eqTextures.end( ))
     {
@@ -631,18 +631,18 @@ Texture* ObjectManager<T>::newEqTexture( const T& key )
         return 0;
     }
 
-    Texture* texture = new Texture( _glewContext );
+    Texture* texture = new Texture( target, _glewContext );
     _data->eqTextures[ key ] = texture;
     return texture;
 }
 
 template< typename T >
-Texture* ObjectManager<T>::obtainEqTexture( const T& key )
+Texture* ObjectManager<T>::obtainEqTexture( const T& key, const GLenum target )
 {
     Texture* texture = getEqTexture( key );
     if( texture )
         return texture;
-    return newEqTexture( key );
+    return newEqTexture( key, target );
 }
 
 template< typename T >

@@ -395,7 +395,8 @@ void Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
 
     // copy frame buffer to texture
     const void* bufferKey = _getBufferKey( buffer );
-    util::Texture* texture = glObjects->obtainEqTexture( bufferKey );
+    util::Texture* texture =
+        glObjects->obtainEqTexture( bufferKey, GL_TEXTURE_RECTANGLE_ARB );
 
     texture->setInternalFormat( getInternalFormat( buffer ) );
     texture->copyFromFrameBuffer( _pvp );

@@ -1,9 +1,9 @@
-Windows/Linux interop fix (Compressor assertion)
+Doxygen improvements and related cleanups
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

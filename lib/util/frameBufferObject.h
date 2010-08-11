@@ -34,29 +34,33 @@ namespace util
     class FrameBufferObject 
     {
     public: 
-        /** Construct a new Frame Buffer Object */
+        /** Construct a new Frame Buffer Object. @version 1.0 */
         EQ_EXPORT FrameBufferObject( const GLEWContext* const glewContext );
 
-        /** Destruct the Frame Buffer Object */
+        /** Destruct the Frame Buffer Object. @version 1.0 */
         EQ_EXPORT ~FrameBufferObject();
 
         /**
-         * Set format for all color textures, if desired format differs from the
-         * default format GL_RGBA. This function should be called before init().
+         * Set the format for all color textures.
          *
-         * @param format new format of color texture
+         * The default format is GL_RGBA. This method has to be called on an
+         * uninitialized FBO.
+         *
+         * @param format new (OpenGL) format of color texture.
+         * @version 1.0
          */
         EQ_EXPORT void setColorFormat( const GLuint format );
 
         /**
          * Add one color texture to the FBO.
          * 
-         * One color texture is automatically created in the constructor. The
-         * maximum number of textures per FBO is 16. Added color textures will
-         * have the same format as the existing texture(s). This function has to
-         * be called on an uninitialized FBO.
+         * The first color texture is automatically created in the
+         * constructor. The maximum number of textures per FBO is 16. Added
+         * color textures will have the same format as the existing
+         * texture(s). This method has to be called on an uninitialized FBO.
          *
-         * @return false if color texture can't be added, otherwise true
+         * @return false if color texture can't be added, otherwise true.
+         * @version 1.0
          */
         EQ_EXPORT bool addColorTexture();
 
@@ -67,27 +71,33 @@ namespace util
          * 
          * @param width the initial width of the rendering buffer.
          * @param height the initial height of the rendering buffer.
-         * @param depthSize The bit depth of the depth attachment
+         * @param depthSize The bit depth of the depth attachment.
          * @param stencilSize The bit depth of the stencil attachment.
          * @return true on success, false otherwise
          * @sa resize(), getErrorMessage()
+         * @version 1.0
          */
-        EQ_EXPORT bool init( const int width, const int height, 
-                             const int depthSize, const int stencilSize );
+        EQ_EXPORT bool init( const int32_t width, const int32_t height, 
+                             const int32_t depthSize,
+                             const int32_t stencilSize );
 
-        /** De-initialize the Frame Buffer Object. */
+        /** De-initialize the Frame Buffer Object. @version 1.0 */
         EQ_EXPORT void exit();
 
         /**
-         * Bind to the Frame Buffer Object as the read and draw buffer of the
-         * current context.
+         * Bind to the Frame Buffer Object.
+         *
+         * The FBO becomes the read and draw buffer of the current context.
+         *
          * @sa getErrorMessage()
+         * @version 1.0
          */
         EQ_EXPORT void bind();
 
         /**
          * Unbind any Frame Buffer Object and use the default drawable for the
          * current context.
+         * @version 1.0
          */
         EQ_EXPORT void unbind();
 
@@ -96,35 +106,41 @@ namespace util
          * 
          * The FBO has to be initialized and bound. It is not changed if the
          * size does not change.
+         *
          * @return true on success, false on error.
          * @sa getErrorMessage()
+         * @version 1.0
          */
-        EQ_EXPORT bool resize( const int width, const int height );
+        EQ_EXPORT bool resize( const int32_t width, const int32_t height );
 
-        /** @return the color textures. */
+        /** @return the current width. @version 1.0 */
+        int32_t getWidth() const
+            { EQASSERT( !_colors.empty( )); return _colors.front()->getWidth();}
+
+        /** @return the current height. @version 1.0 */
+        int32_t getHeight() const
+            { EQASSERT( !_colors.empty()); return _colors.front()->getHeight();}
+
+        /** @return the vector of color textures. @version 1.0 */
         const Textures& getColorTextures() const { return _colors; }
 
-        /** @return the depth texture. */
+        /** @return the depth texture. @version 1.0 */
         const Texture& getDepthTexture() const { return _depth; }
 
-        /** @return the stencil texture. */
+        /** @return the stencil texture. @version 1.0 */
         const Texture& getStencilTexture() const { return _stencil; }
 
-        /** @return the reason for the last failed operation. */
+        /** @return the reason for the last failed operation. @version 1.0 */
         const std::string& getErrorMessage() { return _error; }
 
-        /** @return the size of this framebuffer object. */
-        EQ_EXPORT PixelViewport getPixelViewport() const;
-
+        /** @return the GLEW context. @version 1.0 */
         const GLEWContext* glewGetContext() const { return _glewContext; }
 
-        /**
-         * @return true if the fbo is valid.
-         */
+        /** @return true if the fbo is valid. @version 1.0 */
         const bool isValid() const { return _valid; }
 
     private:
-        GLuint _fboID;
+        GLuint _fboID; //!< the FBO GL name
 
         Textures _colors; //!< Multiple color textures
         Texture _depth;

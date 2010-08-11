@@ -1231,7 +1231,8 @@ void Compositor::_drawPixels( const Image* image,
             return;
         }
         util::Texture* texture = objects->obtainEqTexture(
-            which == Frame::BUFFER_COLOR ? colorDBKey : depthDBKey );
+            which == Frame::BUFFER_COLOR ? colorDBKey : depthDBKey,
+            GL_TEXTURE_RECTANGLE_ARB );
         
         texture->upload( image, which, objects );
         texture->bind();
@@ -1375,10 +1376,12 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     util::Texture* textureDepth = 0;
     if ( !useImageTexture )
     {
-        textureColor = objects->obtainEqTexture( colorDBKey );
+        textureColor = objects->obtainEqTexture( colorDBKey,
+                                                 GL_TEXTURE_RECTANGLE_ARB );
         textureColor->upload( image, Frame::BUFFER_COLOR, objects );
 
-        textureDepth = objects->obtainEqTexture( depthDBKey );
+        textureDepth = objects->obtainEqTexture( depthDBKey,
+                                                 GL_TEXTURE_RECTANGLE_ARB );
         textureDepth->upload( image, Frame::BUFFER_DEPTH, objects );
     }
 

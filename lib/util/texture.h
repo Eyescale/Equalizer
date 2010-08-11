@@ -41,16 +41,14 @@ namespace util
     {
     public:
         /** Construct a new Texture. @version 1.0 */
-        EQ_EXPORT Texture( const GLEWContext* const glewContext = 0 );
+        EQ_EXPORT Texture( const GLenum target,
+                           const GLEWContext* const glewContext = 0 );
 
         /** Destruct the texture. @version 1.0 */
         EQ_EXPORT virtual ~Texture();
 
         /** @name Data Access. */
         //@{
-        /** Set the target of the texture. @version 1.0 */
-        EQ_EXPORT void setTarget( const GLenum target );
-
         /** @return the target of the texture. @version 1.0 */
         GLenum getTarget() const { return _target; }
 
@@ -103,7 +101,6 @@ namespace util
          * @param format the OpenGL texture internal format.
          * @param width the width of the texture.
          * @param height the height of the texture.
-         * @sa setTarget(), setInternalFormat()
          * @version 1.0
          */
         void init( const GLuint format, const int width, const int height );
@@ -131,7 +128,7 @@ namespace util
                                ObjectManager< const void* >* glObjects );
 
         /** Copy the specified buffer to the texture at 0,0. */
-        EQ_EXPORT void upload( const int width, const int height,
+        EQ_EXPORT void upload( const int32_t width, const int32_t height,
                                const void* ptr );
 
         /** Copy the texture data to the given memory address. */
@@ -152,11 +149,11 @@ namespace util
         EQ_EXPORT void bind() const;
 
         /** Create and bind a texture to the current FBO. */
-        EQ_EXPORT void bindToFBO( const GLenum target, const int width,
-                                  const int height );
+        EQ_EXPORT void bindToFBO( const GLenum target, const int32_t width,
+                                  const int32_t height );
         
         /** Resize the texture. */
-        EQ_EXPORT void resize( const int width, const int height );
+        EQ_EXPORT void resize( const int32_t width, const int32_t height );
 
         /** Writes the texture data as a rgb image file. */
         EQ_EXPORT void writeRGB( const std::string& filename,
@@ -186,11 +183,10 @@ namespace util
          * @param id The OpenGL texture name.
          * @param width the width of the texture.
          * @param height the height of the texture.
-         * @sa setTarget(), setInternalFormat()
          * @version 1.0
          */
-        EQ_EXPORT void setGLData( const GLuint id, const int width,
-                                  const int height );
+        EQ_EXPORT void setGLData( const GLuint id, const int32_t width,
+                                  const int32_t height );
         //@}
 
     private:
@@ -198,7 +194,7 @@ namespace util
         GLuint _id;
 
         /** the target of the texture. */
-        GLenum _target;
+        const GLenum _target;
 
         /** The GL pixel format (format+type). */
         GLuint _internalFormat;

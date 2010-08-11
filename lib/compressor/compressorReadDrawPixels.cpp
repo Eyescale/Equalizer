@@ -239,7 +239,7 @@ void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
     {
         if ( !_texture )
         {
-            _texture = new util::Texture( glewContext );
+            _texture = new util::Texture(GL_TEXTURE_RECTANGLE_ARB, glewContext);
             _texture->setInternalFormat( _internalFormat );
         }
         
@@ -270,7 +270,7 @@ void CompressorReadDrawPixels::upload( const GLEWContext* glewContext,
     {
         if( !_texture )
         {
-            _texture = new util::Texture( glewContext );
+            _texture = new util::Texture(GL_TEXTURE_RECTANGLE_ARB, glewContext);
             _texture->setInternalFormat( _internalFormat );
         }
         _texture->setExternalFormat( _format, _type );

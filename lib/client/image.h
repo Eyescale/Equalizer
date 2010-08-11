@@ -382,6 +382,7 @@ namespace eq
             Attachment() : compressor( &fullCompressor )
                          , transfer ( &fullTransfer )
                          , quality( 1.f )
+                         , texture( GL_TEXTURE_RECTANGLE_ARB )
                          {}
             void flush();
             base::CompressorDataCPU* compressor;

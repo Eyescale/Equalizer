@@ -24,16 +24,17 @@ namespace eq
 {
 namespace util
 {
-Texture::Texture( const GLEWContext* const glewContext )
+Texture::Texture( const GLenum target, const GLEWContext* const glewContext )
         : _id( 0 )
-        , _target( GL_TEXTURE_RECTANGLE_ARB )
+        , _target( target )
         , _internalFormat( 0 )
         , _format( 0 )
         , _type( 0 )
         , _width( 0 )
         , _height( 0 )
         , _defined( false ) 
-        , _glewContext( glewContext ){}
+        , _glewContext( glewContext )
+{}
 
 Texture::~Texture()
 {
@@ -59,11 +60,6 @@ void Texture::flush()
     _id = 0;
     _downloaderName = 0;
     _defined = false;
-}
-
-void Texture::setTarget( const GLenum target )
-{               
-    _target = target;
 }
 
 void Texture::setInternalFormat( const GLuint internalFormat )
@@ -133,7 +129,7 @@ void Texture::setInternalFormat( const GLuint internalFormat )
 
         default:
             EQUNIMPLEMENTED;
-            setExternalFormat( _internalFormat, GL_UNSIGNED_BYTE );
+            setExternalFormat( internalFormat, GL_UNSIGNED_BYTE );
     }
 }
 
@@ -170,7 +166,8 @@ void Texture::init( const GLuint format, const int width, const int height )
     resize( width, height );
 }
 
-void Texture::setGLData( const GLuint id, const int width, const int height )
+void Texture::setGLData( const GLuint id, const int32_t width,
+                         const int32_t height )
 {
     _id = id;
     _width = width;
@@ -245,7 +242,7 @@ void Texture::upload( const Image* image, const Frame::Buffer which,
     image->upload( which, _id, glObjects );
 }
 
-void Texture::upload( const int width, const int height, const void* ptr )
+void Texture::upload( const int32_t width, const int32_t height, const void* ptr )
 {
     _generate();
     _grow( width, height );
@@ -285,8 +282,8 @@ void Texture::bind() const
     glBindTexture( _target, _id );
 }
 
-void Texture::bindToFBO( const GLenum target, const int width, 
-                         const int height )
+void Texture::bindToFBO( const GLenum target, const int32_t width, 
+                         const int32_t height )
 {
     EQ_TS_THREAD( _thread );
     EQASSERT( _internalFormat );
@@ -304,7 +301,7 @@ void Texture::bindToFBO( const GLenum target, const int width,
     _defined = true;
 }
 
-void Texture::resize( const int width, const int height )
+void Texture::resize( const int32_t width, const int32_t height )
 {
     EQ_TS_THREAD( _thread );
     EQASSERT( _id );

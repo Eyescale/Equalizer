@@ -31,14 +31,14 @@ namespace util
 
 FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext )
     : _fboID( 0 )
-    , _depth( glewContext )
-    , _stencil( glewContext )
+    , _depth( GL_TEXTURE_RECTANGLE_ARB, glewContext )
+    , _stencil( GL_TEXTURE_RECTANGLE_ARB, glewContext )
     , _glewContext( glewContext )
     , _valid( false )
 {
     EQASSERT( GLEW_EXT_framebuffer_object );
 
-    _colors.push_back( new Texture( glewContext ));
+    _colors.push_back( new Texture( GL_TEXTURE_RECTANGLE_ARB, glewContext ));
 
     _colors[0]->setInternalFormat( GL_RGBA );
     _depth.setInternalFormat( GL_DEPTH_COMPONENT );
@@ -69,15 +69,16 @@ bool FrameBufferObject::addColorTexture( )
         return false;
     }
 
-    _colors.push_back( new Texture( _glewContext ));
+    _colors.push_back( new Texture( GL_TEXTURE_RECTANGLE_ARB, _glewContext ));
     _colors.back()->setInternalFormat( _colors.front()->getInternalFormat( ));
 
     _valid = false;
     return true;
 }
 
-bool FrameBufferObject::init( const int width , const int height,
-                              const int depthSize, const int stencilSize )
+bool FrameBufferObject::init( const int32_t width , const int32_t height,
+                              const int32_t depthSize,
+                              const int32_t stencilSize )
 {
     EQ_TS_THREAD( _thread );
 
@@ -182,7 +183,7 @@ void FrameBufferObject::unbind()
     EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 ));
 }
 
-bool FrameBufferObject::resize( const int width, const int height )
+bool FrameBufferObject::resize( const int32_t width, const int32_t height )
 {
     EQ_TS_THREAD( _thread );
     EQASSERT( width > 0 && height > 0 );
@@ -203,13 +204,6 @@ bool FrameBufferObject::resize( const int width, const int height )
         _stencil.resize( width, height );
 
     return _checkStatus();
-}
-
-PixelViewport FrameBufferObject::getPixelViewport() const
-{
-    EQASSERT( !_colors.empty( ));
-    Texture* color = _colors.front();
-    return PixelViewport( 0, 0, color->getWidth(), color->getHeight( ));
 }
 
 }

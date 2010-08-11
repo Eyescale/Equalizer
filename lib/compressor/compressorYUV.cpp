@@ -199,7 +199,7 @@ void CompressorYUV::download( const GLEWContext* glewContext,
     // first time we instanciate the working texture
     if ( !_texture )
     {
-        _texture = new util::Texture( glewContext );
+        _texture = new util::Texture( GL_TEXTURE_RECTANGLE_ARB, glewContext );
         _texture->setInternalFormat( GL_RGBA );   
     }
     // the data is in the frame buffer
@@ -300,7 +300,7 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
     //glColorMask( true, true, true, true );
     if ( !_texture )
     {
-        _texture = new util::Texture( glewContext );
+        _texture = new util::Texture( GL_TEXTURE_RECTANGLE_ARB, glewContext );
         _texture->setInternalFormat( GL_RGBA );
     }
     
@@ -320,10 +320,11 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
 
         util::Texture* texture = _fbo->getColorTextures().front();
         texture->setGLData( destination, outDims[1], outDims[3] );
-        if ( _fbo->isValid() )
+
+        if( _fbo->isValid() )
         {
             _fbo->bind();
-            texture->bindToFBO( GL_COLOR_ATTACHMENT0 , outDims[1], outDims[3] );
+            texture->bindToFBO( GL_COLOR_ATTACHMENT0, outDims[1], outDims[3] );
         }
         else
             _fbo->init( outDims[1], outDims[3], 0, 0 );

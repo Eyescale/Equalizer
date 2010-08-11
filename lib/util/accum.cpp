@@ -82,8 +82,7 @@ bool Accum::resize( const int width, const int height )
 {
     if( usesFBO( ))
     {
-        const PixelViewport& pvp = _abo->getPixelViewport();
-        if( pvp.w == width && pvp.h == height )
+        if( _abo->getWidth() == width && _abo->getHeight() == height )
             return false;
 
         return _abo->resize( width, height );

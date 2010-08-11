@@ -120,8 +120,8 @@ namespace util
 
         EQ_EXPORT bool     supportsEqTexture() const;
         EQ_EXPORT Texture* getEqTexture( const T& key ) const;
-        EQ_EXPORT Texture* newEqTexture( const T& key );
-        EQ_EXPORT Texture* obtainEqTexture( const T& key );
+        EQ_EXPORT Texture* newEqTexture( const T& key, const GLenum target );
+        EQ_EXPORT Texture* obtainEqTexture( const T& key, const GLenum target );
         EQ_EXPORT void     deleteEqTexture( const T& key );
 
         EQ_EXPORT bool               supportsEqFrameBufferObject() const;
