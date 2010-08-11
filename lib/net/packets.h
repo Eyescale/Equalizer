@@ -128,8 +128,8 @@ namespace net
                 sessionID = SessionID::ZERO;
             }
 
-        uint32_t requestID;
         SessionID sessionID;
+        uint32_t requestID;
     };
 
     struct NodeUnmapSessionReplyPacket : public NodePacket

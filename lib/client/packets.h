@@ -642,9 +642,9 @@ namespace eq
                 size    = sizeof( WindowNVBarrierPacket );
             }
 
+        net::ObjectVersion netBarrier;
         uint32_t group;
         uint32_t barrier;
-        net::ObjectVersion netBarrier;
     };
 
     struct WindowSwapPacket : public net::ObjectPacket

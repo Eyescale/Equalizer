@@ -1,10 +1,9 @@
-Re-implement wire-level packet logging
 Some potential win/linux interop fixes
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
+[x] Bugfix
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
