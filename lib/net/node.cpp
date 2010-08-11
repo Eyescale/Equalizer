@@ -1610,7 +1610,7 @@ bool Node::_cmdRegisterSession( Command& command )
                   command.getNode() << " != " << this );
 
     const NodeRegisterSessionPacket* packet = 
-        command.getPacket<NodeRegisterSessionPacket>();
+        command.getPacket< NodeRegisterSessionPacket >();
     EQVERB << "Cmd register session: " << packet << std::endl;
     
     Session* session = static_cast< Session* >( 

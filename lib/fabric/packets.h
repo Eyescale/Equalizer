@@ -47,8 +47,8 @@ namespace fabric
             }
 
         net::SessionID configID;
-        uint32_t requestID;
         net::ObjectVersion proxy;
+        uint32_t requestID;
     };
 
     struct ServerDestroyConfigPacket : public ServerPacket

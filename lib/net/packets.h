@@ -101,8 +101,8 @@ namespace net
                 size      = sizeof(NodeMapSessionPacket);
             }
 
-        uint32_t requestID;
         SessionID sessionID;
+        uint32_t requestID;
     };
 
     struct NodeMapSessionReplyPacket : public NodePacket
@@ -115,8 +115,8 @@ namespace net
                 sessionID = requestPacket->sessionID;
             }
             
-        uint32_t requestID;
         SessionID sessionID;
+        uint32_t requestID;
     };
 
     struct NodeUnmapSessionPacket : public NodePacket

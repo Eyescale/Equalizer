@@ -1,9 +1,10 @@
-Minor doxygen improvements
+Re-implement wire-level packet logging
+Some potential win/linux interop fixes
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

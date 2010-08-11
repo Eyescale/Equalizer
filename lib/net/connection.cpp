@@ -239,10 +239,31 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
         {
             EQASSERTINFO( static_cast< uint64_t >( got ) == bytesLeft,
                           got << " != " << bytesLeft );
+
+#ifndef NDEBUG
+            if( bytes <= 1024 && ( base::Log::topics & LOG_PACKETS ))
+            {
+                ptr = static_cast< uint8_t* >( buffer );
+                EQINFO << "recv:" << std::hex << base::disableFlush
+                       << base::disableHeader;
+                for( size_t i = 0; i < bytes; ++i )
+                {
+                    if( (i % 16) == 0 )
+                        EQINFO << std::endl;
+                    if( (i % 4) == 0 )
+                        EQINFO << " 0x";
+                    EQINFO << std::setfill( '0' ) << std::setw(2)
+                           << static_cast< unsigned >( ptr[ i ] );
+                }
+                EQINFO << std::dec << base::enableFlush
+                       << std::endl << base::enableHeader;
+            }
+#endif
             return true;
         }
     }
 
+    EQUNREACHABLE;
     return true;
 }
 
@@ -256,6 +277,8 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
     if( bytes == 0 )
         return true;
 
+    const uint8_t* ptr = static_cast< const uint8_t* >( buffer );
+
     // possible OPT: We need to lock here to guarantee an atomic transmission of
     // the buffer. Possible improvements are:
     // 1) Disassemble buffer into 'small enough' pieces and use a header to
@@ -263,7 +286,25 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
     // 2) Introduce a send thread with a thread-safe task queue
     ScopedMutex<> mutex( isLocked ? 0 : &_sendLock );
 
-    const uint8_t* ptr = static_cast< const uint8_t* >( buffer );
+#ifndef NDEBUG
+    if( bytes <= 1024 && ( base::Log::topics & LOG_PACKETS ))
+    {
+        EQINFO << "send:" << std::hex << base::disableFlush
+               << base::disableHeader << std::endl;
+        for( size_t i = 0; i < bytes; ++i )
+        {
+            if( (i % 16) == 0 )
+                EQINFO << std::endl;
+            if( (i % 4) == 0 )
+                EQINFO << " 0x";
+            EQINFO << std::setfill( '0' ) << std::setw(2)
+                   << static_cast< unsigned >( ptr[ i ] );
+        }
+        EQINFO << std::dec << base::enableFlush
+               << std::endl << base::enableHeader;
+    }
+#endif
+
     uint64_t bytesLeft = bytes;
     while( bytesLeft )
     {
