@@ -94,13 +94,13 @@ void* Thread::runChild( void* arg )
 
 void Thread::_runChild()
 {
-    setDebugName( typeid( *this ).name( ));
+    setDebugName( className( this ));
     pinCurrentThread();
     _id._data->pthread = pthread_self();
 
     if( !init( ))
     {
-        EQWARN << "Thread " << typeid( *this ).name() << " failed to initialize"
+        EQWARN << "Thread " << className( this ) << " failed to initialize"
                << std::endl;
         _state = STATE_STOPPED;
         pthread_exit( 0 );
@@ -108,13 +108,13 @@ void Thread::_runChild()
     }
 
     _state = STATE_RUNNING;
-    EQINFO << "Thread " << typeid( *this ).name() << " successfully initialized"
+    EQINFO << "Thread " << className( this ) << " successfully initialized"
            << std::endl;
     pthread_setspecific( _cleanupKey, this ); // install cleanup handler
     _notifyStarted();
 
     run();
-    EQINFO << "Thread " << typeid( *this ).name() << " finished" << std::endl;
+    EQINFO << "Thread " << className( this ) << " finished" << std::endl;
     this->exit();
 
     EQUNREACHABLE;
@@ -268,9 +268,9 @@ void Thread::removeAllListeners()
     EQINFO << _listeners().size() << " thread listeners active" << std::endl;
     for( ExecutionListenerVector::const_iterator i = _listeners().begin();
          i != _listeners().end(); ++i )
-
-        EQINFO << "    " << typeid( **i ).name() << std::endl;
-
+    {
+        EQINFO << "    " << className( *i ) << std::endl;
+    }
     _listenerLock().unset();
     
     _notifyStopping();

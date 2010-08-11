@@ -66,7 +66,7 @@ namespace fabric
         Frustumf       ortho;          //<! ortho frustum for projection matrix
 
         ColorMask      bufferMask;     //<! color mask for anaglyph stereo
-        bool           alignDummy[29]; //<! @internal padding
+        bool           alignDummy[28]; //<! @internal padding
     };
 
     EQ_EXPORT std::ostream& operator << ( std::ostream& os, 

@@ -463,8 +463,8 @@ bool Session::mapObjectSync( const uint32_t requestID )
     }
 
     object->notifyAttached();
-    EQLOG( LOG_OBJECTS ) << "Mapped " << base::className( object ) << " to id " 
-                         << object->getID() << std::endl;
+    EQLOG( LOG_OBJECTS ) << "Mapped " << base::className( object ) << " to " 
+                         << ObjectVersion( object ) << std::endl;
     return mapped;
 }
 

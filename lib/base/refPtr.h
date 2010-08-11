@@ -181,6 +181,9 @@ namespace base
 
         return os;
     }
+
+    template< class T > inline std::string className( const RefPtr<T>& rp )
+    { return className( rp.get( )); }
 }
 
 }

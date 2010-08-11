@@ -312,7 +312,7 @@ bool Node::listen()
 
     _state = STATE_LISTENING;
 
-    EQVERB << typeid(*this).name() << " starting command and receiver thread "
+    EQVERB << base::className( this ) << " start command and receiver thread "
            << std::endl;
     _receiverThread->start();
 
@@ -1234,10 +1234,9 @@ bool Node::runClient( const std::string& clientArgs )
 //----------------------------------------------------------------------
 void Node::_runReceiverThread()
 {
-    EQINFO << "Entered receiver thread of " << typeid( *this ).name()
+    EQINFO << "Entered receiver thread of " << base::className( this )
            << std::endl;
-    base::Thread::setDebugName( std::string( "Rcv " ) +
-                                typeid( *this ).name( ));
+    base::Thread::setDebugName( std::string( "Rcv " ) + base::className(this));
 
     int nErrors = 0;
     while( _state == STATE_LISTENING )
@@ -1311,7 +1310,7 @@ void Node::_runReceiverThread()
     _pendingCommands.clear();
     _commandCache.flush();
 
-    EQINFO << "Leaving receiver thread of " << typeid( *this ).name() 
+    EQINFO << "Leaving receiver thread of " << base::className( this )
            << std::endl;
 }
 
@@ -1388,7 +1387,7 @@ bool Node::_handleData()
     EQASSERTINFO( !node || // unconnected node
                   node->_outgoing == connection || // correct UC conn for node
                   connection->getDescription()->type>=CONNECTIONTYPE_MULTICAST,
-                  typeid( *node.get( )).name( ));
+                  base::className( node ));
 
     EQVERB << "Handle data from " << node << std::endl;
 
@@ -1531,10 +1530,9 @@ void Node::_redispatchCommands()
 //----------------------------------------------------------------------
 void Node::_runCommandThread()
 {
-    EQINFO << "Entered command thread of " << typeid( *this ).name() 
+    EQINFO << "Entered command thread of " << base::className( this )
            << std::endl;
-    base::Thread::setDebugName( std::string( "Cmd " ) +
-                                typeid( *this ).name( ));
+    base::Thread::setDebugName( std::string( "Cmd " ) + base::className(this));
 
     while( _state == STATE_LISTENING )
     {
@@ -1549,7 +1547,7 @@ void Node::_runCommandThread()
     }
  
     _commandThreadQueue.flush();
-    EQINFO << "Leaving command thread of " << typeid( *this ).name()
+    EQINFO << "Leaving command thread of " << base::className( this )
            << std::endl;
 }
 

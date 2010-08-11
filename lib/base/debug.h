@@ -62,7 +62,7 @@ EQ_EXPORT std::ostream& sysError( std::ostream& os );
 EQ_EXPORT std::ostream& backtrace( std::ostream& os );
 
 /** Print the RTTI name of the given class. @version 1.0 */
-template< class T > inline std::string className( T* object)
+template< class T > inline std::string className( T* object )
 {
 #ifdef WIN32
     return std::string( typeid( *object ).name( ));
