@@ -74,7 +74,7 @@ Session::~Session()
                  j != objects.end(); ++j )
             {
                 const Object* object = *j;
-                EQINFO << "    object type " << typeid(*object).name() 
+                EQINFO << "    object type " << base::className( object )
                        << std::endl;
             }
         }
@@ -320,9 +320,9 @@ void Session::_attachObject( Object* object, const uint32_t id,
 
     getLocalNode()->flushCommands(); // redispatch pending commands
 
-    EQLOG( LOG_OBJECTS ) << "attached " << typeid( *object ).name() << " id "
+    EQLOG( LOG_OBJECTS ) << "attached " << base::className( object ) << " id "
                          << object->getID() << '.' << object->getInstanceID()
-                         << " cm " << typeid( *(object->_cm)).name() << " @" 
+                         << " cm " << base::className( object->_cm ) << " @" 
                          << static_cast< void* >( object ) << std::endl;
 }
 
@@ -709,7 +709,7 @@ bool Session::_invokeObjectCommand( Command& command )
     if( !object->invokeCommand( command ))
     {
         EQERROR << "Error handling " << command << " for object of type "
-                    << typeid(*object).name() << std::endl;
+                << base::className( object ) << std::endl;
         return false;
     }
     return true;
@@ -1008,10 +1008,11 @@ bool Session::_cmdSubscribeObject( Command& command )
         }
         else
         {
-            EQWARN << "Version " << version << " of " << typeid(*master).name()
-                   << " " << id << " no longer available (have v"
-                   << master->getOldestVersion() << ".." << master->getVersion()
-                   << ")" << std::endl;
+            EQWARN
+                << "Version " << version << " of " << base::className( master )
+                << " " << id << " no longer available (have v"
+                << master->getOldestVersion() << ".." << master->getVersion()
+                << ")" << std::endl;
             reply.result = false;
         }
     }

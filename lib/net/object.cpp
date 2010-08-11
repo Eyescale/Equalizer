@@ -35,9 +35,6 @@
 #include <eq/base/scopedMutex.h>
 #include <iostream>
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 namespace net
@@ -99,7 +96,7 @@ void Object::attachToSession( const uint32_t id, const uint32_t instanceID,
                      CmdFunc( this, &Object::_cmdForward ), queue );
 
     EQLOG( LOG_OBJECTS ) << _id << '.' << _instanceID << ": " 
-                         << typeid( *this ).name()
+                         << base::className( this )
                          << (isMaster() ? " master" : " slave") << std::endl;
 }
 
@@ -121,10 +118,10 @@ void Object::_setChangeManager( ObjectCM* cm )
 {
     if( _cm != ObjectCM::ZERO )
     {
-        EQVERB << "Overriding existing object change manager, obj "
-               << typeid( *this ).name() << ", old cm " 
-               << typeid( *_cm ).name() << ", new cm "
-               << typeid( *cm ).name() << endl;
+        EQVERB
+            << "Overriding existing object change manager, obj "
+            << base::className( this ) << ", old cm " << base::className( _cm )
+            << ", new cm " << base::className( cm ) << std::endl;
         delete _cm;
     }
 
@@ -132,8 +129,8 @@ void Object::_setChangeManager( ObjectCM* cm )
         cm->makeThreadSafe();
 
     _cm = cm;
-    EQLOG( LOG_OBJECTS ) << "set new change manager " << typeid( *cm ).name()
-                         << " for " << typeid( *this ).name() << endl;
+    EQLOG( LOG_OBJECTS ) << "set new change manager " << base::className( cm )
+                         << " for " << base::className( this ) << std::endl;
 }
 
 const Nodes* Object::_getSlaveNodes() const
@@ -301,7 +298,7 @@ bool Object::_cmdForward( Command& command )
 
 std::ostream& operator << ( std::ostream& os, const Object& object )
 {
-    os << typeid( object ).name() << " " << object.getID() << "."
+    os << base::className( &object ) << " " << object.getID() << "."
        << object.getInstanceID() << " v" << object.getVersion();
     return os;
 }
