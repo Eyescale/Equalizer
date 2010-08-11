@@ -1648,7 +1648,11 @@ bool Node::_cmdMapSession( Command& command )
         SessionHash::const_iterator i = _sessions->find( sessionID );
         
         if( i == _sessions->end( ))
+        {
+            EQWARN << "Can't find session " << sessionID << " to map"
+                   << std::endl;
             reply.sessionID = SessionID::ZERO;
+        }
     }
 
     node->send( reply );
