@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -25,7 +25,6 @@ namespace eq
 {
 namespace net
 {
-    typedef ObjectDeltaDataOStream DeltaData;
     class Node;
 
     /** 
@@ -38,6 +37,8 @@ namespace net
     public:
         DeltaMasterCM( Object* object );
         virtual ~DeltaMasterCM();
+
+        typedef ObjectDeltaDataOStream DeltaData;
 
     private:
         /* The command handlers. */
