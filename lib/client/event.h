@@ -236,7 +236,6 @@ namespace eq
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const ResizeEvent& );
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const PointerEvent& );
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const KeyEvent& );
-    EQ_EXPORT std::ostream& operator << ( std::ostream&, const Statistic& );
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const MagellanEvent& );
 }
 

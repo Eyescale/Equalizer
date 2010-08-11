@@ -1,4 +1,5 @@
-/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -39,9 +40,8 @@ CompressorData::~CompressorData()
 
 void CompressorData::reset()
 {
-    if ( _instance )
+    if( _instance )
     {
-        EQ_TS_THREAD( _thread );
         if ( _isCompressor )
            _plugin->deleteCompressor( _instance );
         else
@@ -74,7 +74,6 @@ bool CompressorData::isValid( uint32_t name ) const
 
 bool CompressorData::_initCompressor( uint32_t name )
 {
-    EQ_TS_THREAD( _thread );
     reset();
     
     if( name <= EQ_COMPRESSOR_NONE )
@@ -83,6 +82,7 @@ bool CompressorData::_initCompressor( uint32_t name )
         return true;
     }
 
+    EQ_TS_THREAD( _thread );
     _plugin = _findPlugin( name );
 
     EQASSERT( _plugin );
@@ -103,7 +103,6 @@ bool CompressorData::_initCompressor( uint32_t name )
 
 bool CompressorData::_initDecompressor( uint32_t name )
 {
-    EQ_TS_THREAD( _thread );
     reset();
     if( name <= EQ_COMPRESSOR_NONE )
     {
@@ -111,6 +110,7 @@ bool CompressorData::_initDecompressor( uint32_t name )
         return true;
     }
 
+    EQ_TS_THREAD( _thread );
     _plugin = _findPlugin( name );
 
     EQASSERT( _plugin );

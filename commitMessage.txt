@@ -1,4 +1,4 @@
-Potential Windows/Linux interop fix (Statistics)
+Windows/Linux interop fix (Compressor assertion)
 
 [ ] May break build
 [ ] May break existing applications
