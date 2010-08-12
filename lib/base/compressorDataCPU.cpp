@@ -45,7 +45,7 @@ void CompressorDataCPU::compress( void* const in, const uint64_t inDims[2] )
     _plugin->compress( _instance, _name, in, inDims, EQ_COMPRESSOR_DATA_1D );
 }
 
-const unsigned CompressorDataCPU::getNumResults( ) const 
+unsigned CompressorDataCPU::getNumResults( ) const 
 {
     return _plugin->getNumResults( _instance, _name );
 }

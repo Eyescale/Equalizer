@@ -151,24 +151,6 @@ public:
             , _packetSize( packetSize )
             , _useThreads( useThreads ) {}
 
-    void removeAllReceiver()
-    {
-        for( size_t i = 0; i < _receivers.size(); )
-        {
-            const RecvConn& candidate = _receivers[0];
-            Receiver* receiver = candidate.first;
-            const ConnectionPtr connection = receiver->getConnection();
-            _connectionSet.removeConnection( connection );
-            _receivers.erase( _receivers.begin() );
-            if( _useThreads )
-            {
-                receiver->stop();
-                receiver->join();
-            }
-            delete receiver;
-        }
-    }
-    
     virtual bool init()
         {
             TEST( _connection->listen( ));

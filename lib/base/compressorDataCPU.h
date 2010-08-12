@@ -57,7 +57,7 @@ namespace base
         void compress( void* const in, const uint64_t inDims[2] );
 
         /** get the number of compressed chunks. */
-        const unsigned getNumResults() const;
+        unsigned getNumResults() const;
 
         /**
          * get the compressed Data for the specified chunk 
