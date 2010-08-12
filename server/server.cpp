@@ -492,7 +492,7 @@ template class eq::fabric::Server< eq::net::Node, eq::server::Server,
 
 /** @cond IGNORE */
 template std::ostream& eq::fabric::operator <<
-( std::ostream&, const fabric::Server< eq::net::Node, eq::server::eqServer,
+( std::ostream&, const fabric::Server< eq::net::Node, eq::server::Server,
                                        eq::server::Config,
                                        eq::server::NodeFactory >& );
 /** @endcond */
