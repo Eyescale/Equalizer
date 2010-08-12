@@ -395,8 +395,8 @@ endif(NOT WIN32)
 
 if(LINUX)
   set(DEFINES_LINUX EQ_USE_OPENMP GLEW_MX GLX Linux)
-  set(DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/definesLinux.h)
-  set(DEFINES_FILE_IN ${DEFINES_FILE}.in)
+  set(DEFINES_FILE ${EQ_INCLUDE_DIR}/eq/base/definesLinux.h)
+  set(DEFINES_FILE_IN ${CMAKE_CURRENT_BINARY_DIR}/definesLinux.h.in)
 
   file(WRITE ${DEFINES_FILE_IN}
     "#ifndef EQBASE_DEFINES_Linux_H\n"
