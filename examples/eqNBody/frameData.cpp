@@ -32,7 +32,7 @@
 
 #include <cuda.h>
 
-#ifdef CUDART_VERSION >= 2020
+#if CUDART_VERSION >= 2020
 # define ENABLE_HOSTALLOC
 #endif
 

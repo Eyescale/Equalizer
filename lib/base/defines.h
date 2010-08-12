@@ -20,16 +20,16 @@
 
 #ifdef __APPLE__
 #  ifdef Darwin
-#    include "definesDarwin.h"
+#    include <eq/base/definesDarwin.h>
 #  else // must be XCode build
-#    include "definesXCode.h"
+#    include <eq/base/definesXCode.h>
 #  endif
 #endif
 #ifdef __linux
-#  include "definesLinux.h"
+#  include <eq/base/definesLinux.h>
 #endif
 #ifdef _WIN32 //_MSC_VER
-#  include "definesWin32.h"
+#  include <eq/base/definesWin32.h>
 #endif
 
 #endif // EQBASE_DEFINES_H

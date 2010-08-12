@@ -395,26 +395,28 @@ endif(NOT WIN32)
 
 if(LINUX)
   set(DEFINES_LINUX EQ_USE_OPENMP GLEW_MX GLX Linux)
-  set(DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/definesLinux.h.in)
+  set(DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/definesLinux.h)
+  set(DEFINES_FILE_IN ${DEFINES_FILE}.in)
 
-  file(WRITE ${DEFINES_FILE}
+  file(WRITE ${DEFINES_FILE_IN}
     "#ifndef EQBASE_DEFINES_Linux_H\n"
     "#define EQBASE_DEFINES_Linux_H\n\n"
     )
 
   foreach(DEF ${DEFINES_LINUX})
-    file(APPEND ${DEFINES_FILE}
+    file(APPEND ${DEFINES_FILE_IN}
       "#ifndef ${DEF}\n"
       "#  define ${DEF}\n"
       "#endif\n\n"
       )
   endforeach(DEF ${DEFINES_LINUX})
 
-  file(APPEND ${DEFINES_FILE}
+  file(APPEND ${DEFINES_FILE_IN}
     "#endif /* EQBASE_DEFINES_Linux_H */\n"
     )
 
-  configure_file(${DEFINES_FILE} ${EQ_INCLUDE_DIR}/eq/base/definesLinux.h COPYONLY)
+  configure_file(${DEFINES_FILE_IN} ${DEFINES_FILE} COPYONLY)
+  install(FILES ${DEFINES_FILE} DESTINATION include/eq/base/ COMPONENT dev)
 endif(LINUX)
 
 if(APPLE)
