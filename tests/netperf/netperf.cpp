@@ -127,8 +127,6 @@ public:
             }
         }
         
-    ConnectionPtr getConnection() const{ return _connection;}
-
 private:
     eq::base::Clock _clock;
     eq::base::RNG _rng;

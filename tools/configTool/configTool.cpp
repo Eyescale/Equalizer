@@ -28,6 +28,11 @@
 #include <server/view.h>
 #include <server/window.h>
 
+#include <eq/client/init.h>
+#include <eq/client/nodeFactory.h>
+
+#include "../../lib/fabric/server.ipp"
+
 #ifndef WIN32
 #  include <sys/param.h>
 #endif
@@ -52,7 +57,15 @@ int main( int argc, char** argv )
     ConfigTool configTool;
 
     if( configTool.parseArguments( argc, argv ))
+    {
+        eq::NodeFactory nodeFactory;
+        if( !eq::init( 0, 0, &nodeFactory ))
+        {
+            EQERROR << "Equalizer init failed" << endl;
+            return EXIT_FAILURE;
+        }
         configTool.writeConfig();
+    }
 }
 
 ConfigTool::ConfigTool()
