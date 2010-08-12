@@ -31,8 +31,6 @@
 #include <eq/client/init.h>
 #include <eq/client/nodeFactory.h>
 
-#include "../../lib/fabric/server.ipp"
-
 #ifndef WIN32
 #  include <sys/param.h>
 #endif
