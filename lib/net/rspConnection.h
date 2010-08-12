@@ -129,10 +129,17 @@ namespace net
             uint16_t sequenceID;
         };
         
+        struct Nack
+        {
+            uint16_t startID;
+            uint16_t endID;
+        };
+
+#       define EQ_RSP_MAX_NACKS 300 // fits in a single IP frame
         struct DatagramNack
         {
             void set( uint16_t rID, uint16_t wID, 
-                      uint16_t sID, uint16_t n )
+                      uint16_t sID, uint32_t n )
             {
                 type       = NACK;
                 readerID   = rID; 
@@ -145,7 +152,9 @@ namespace net
             uint16_t       readerID;    // ID of the connection reader
             uint16_t       writerID;    // ID of the connection writer
             uint16_t       sequenceID;  // last datagram in write sequence
-            uint16_t       count;       // number of NACK requests
+
+            uint32_t       count;       // number of NACK requests
+            Nack           nacks[ EQ_RSP_MAX_NACKS ];
         };
 
         struct DatagramAck
@@ -164,26 +173,6 @@ namespace net
             uint16_t    sequenceID;
         };
 
-        struct RepeatRequest
-        {
-            enum Type
-            {
-                DONE,
-                ACKREQ,
-                NACK
-            };
-
-            RepeatRequest() : type( NACK ), start( 0 ), end( 0 ) {}
-            RepeatRequest( const uint32_t s, const uint32_t e ) 
-                  : type( NACK ), start( s ), end( e ) {}
-            RepeatRequest( const Type& t ) 
-                : type( t ), start( 0 ), end( 0 ) {}
-
-            Type type;
-            uint32_t start;
-            uint32_t end;
-        };
-        
         typedef std::vector< RSPConnectionPtr > RSPConnectionVector;
         // a link for all connection in the multicast network 
         RSPConnectionVector _children;
@@ -197,14 +186,7 @@ namespace net
         int32_t  _ackFreq;
         uint64_t _maxBucketSize;
         uint32_t _payloadSize;
-        int32_t  _maxNAck;
         int32_t  _timeouts;
-
-        // Buffer to send one NACK packet.
-        eq::base::Bufferb _nackBuffer;
-
-        // The buffer used by the write function in udp socket
-        eq::base::Bufferb _sendBuffer;
 
         typedef base::RefPtr< EventConnection > EventConnectionPtr;
         EventConnectionPtr _event;
@@ -247,7 +229,7 @@ namespace net
         // write property part
         uint16_t _sequenceID; //!< the next usable (write) or expected (read)
         base::Buffer< Buffer* > _writeBuffers;    //!< Write buffers in flight
-        std::deque< RepeatRequest > _repeatQueue; //!< nacks to repeat
+        std::deque< Nack > _repeatQueue; //!< nacks to repeat
 
         void _close();
         uint16_t _buildNewID();
@@ -296,7 +278,7 @@ namespace net
         void _sendDatagramCountNode();
 
         void _handleRepeat();
-        void _addRepeat( const uint16_t* repeatIDs, uint16_t size );
+        void _addRepeat( const Nack* nacks, const uint32_t size );
 
         /** format and send an simple request which use only type and id field*/
         void _sendSimpleDatagram( DatagramType type, uint16_t id );
@@ -309,7 +291,7 @@ namespace net
         
         /** format and send a negative ack*/ 
         void _sendNack( const uint16_t toWriterID, const uint16_t sequenceID,
-                        const uint16_t countNack,  const uint16_t* nacks );
+                        const Nack* nacks, const uint32_t num );
         
         void _checkNewID( const uint16_t id );
 

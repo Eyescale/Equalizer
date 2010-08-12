@@ -1,4 +1,4 @@
-Minor code cleanup
+RSP: Simplify nack sending and repeat queue
 
 [ ] May break build
 [ ] May break existing applications
