@@ -1,4 +1,5 @@
-RSP: minor bugfix
+RSP: minor bugfix, improve error rate calculation in case of multiple
+similar nack packets (ignore merges)
 
 [ ] May break build
 [ ] May break existing applications

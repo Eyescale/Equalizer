@@ -633,8 +633,8 @@ void RSPConnection::_handleRepeat()
 
         if( distance <= _writeBuffers.size( )) // not already acked
         {
-            EQLOG( LOG_RSP ) << "Repeat " << request.start << ", " << _sendRate
-                             << "KB/s"<< std::endl;
+//          EQLOG( LOG_RSP ) << "Repeat " << request.start << ", " << _sendRate
+//                           << "KB/s"<< std::endl;
 
             const size_t i = _writeBuffers.size() - distance;
             Buffer* buffer = _writeBuffers[i];
@@ -652,8 +652,8 @@ void RSPConnection::_handleRepeat()
             if( _sendRate < _description->bandwidth )
             {
                 _sendRate *= 1.005f;
-                EQLOG( LOG_RSP ) << "speeding up to " << _sendRate << " KB/s"
-                                 << std::endl;
+//                EQLOG( LOG_RSP ) << "speeding up to " << _sendRate << " KB/s"
+//                                 << std::endl;
             }
         }
 
@@ -730,9 +730,11 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
     if( !readBuffers.empty( ))
     {
         base::ScopedMutex<> mutex( connection->_mutexEvent );
-        EQLOG( LOG_RSP ) << "post " << readBuffers.size()
-                         << " buffers starting with sequence "
-                         << connection->_sequence << std::endl;
+#if 0
+        EQLOG( LOG_RSP ) 
+            << "post " << readBuffers.size() << " buffers starting at "
+            << connection->_sequence << std::endl;
+#endif
 
         connection->_appBuffers.push( readBuffers );
         connection->_sequence += readBuffers.size();
@@ -933,13 +935,6 @@ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
     EQASSERT( connection->_id == writerID );
 
     const uint16_t sequence = datagram->sequence;
-    if( connection->_sequence > sequence ||
-        connection->_sequence - sequence <= _numBuffers )
-    {
-        // ignore it if it's a repetition for another reader
-        return true;
-    }
-
 //  EQLOG( LOG_RSP ) << "rcvd " << sequence << " from " << writerID <<std::endl;
 
     if( connection->_sequence == sequence ) // in-order packet
@@ -970,6 +965,14 @@ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
         connection->_event->set();
         return true;
     }
+    
+    if( connection->_sequence > sequence ||
+        connection->_sequence - sequence <= _numBuffers )
+    {
+        // ignore it if it's a repetition for another reader
+        return true;
+    }
+
     // else out of order
 
     const uint16_t size = sequence - connection->_sequence;
@@ -1145,7 +1148,6 @@ void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
     for( size_t i = 0; i < num; ++i )
     {
         const Nack& nack = nacks[ i ];
-        lost += uint16_t( nack.end - nack.start ) + 1;
         EQLOG( LOG_RSP ) << nack.start << ".." << nack.end << " ";
 
         bool merged = false;
@@ -1155,6 +1157,8 @@ void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
             Nack& old = *j;
             if( old.start <= nack.end && old.end >= nack.start )
             {
+                lost += uint16_t( old.start - nack.start ) +
+                        uint16_t( nack.end - old.end );
                 old.start = EQ_MIN( old.start, nack.start );
                 old.end   = EQ_MAX( old.end, nack.end );
                 merged      = true;
@@ -1162,16 +1166,21 @@ void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
         }
 
         if( !merged )
+        {
+            lost += uint16_t( nack.end - nack.start ) + 1;
             _repeatQueue.push_back( nack );
+        }
     }
-    EQLOG( LOG_RSP ) << std::endl << base::enableFlush;
 
     if( _sendRate > _description->bandwidth/50 )
     {
         _sendRate *= ( 1.f - float( lost >> 3 ) / float( _numBuffers ));
-        EQLOG( LOG_RSP ) << "Lost " << lost << " slowing down to " << _sendRate
-                         << " KB/s" << std::endl;
+        EQLOG( LOG_RSP ) 
+            << ", lost " << lost << " slowing down to " << _sendRate << " KB/s"
+            << std::endl << base::enableFlush;
     }
+    else
+        EQLOG( LOG_RSP ) << std::endl << base::enableFlush;
 }
 
 bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
