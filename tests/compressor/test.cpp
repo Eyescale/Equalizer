@@ -43,8 +43,6 @@ void testCompressorFile(  std::ofstream* logFile );
 
 bool compare( const char *dst, const char *src, uint32_t nbytes );
 
-std::string getCompressorName( const uint32_t name );
-
 std::vector< std::string > getFiles( std::string path, 
                                     std::vector< std::string >& files, 
                                     const std::string& ext );
@@ -182,11 +180,11 @@ void testCompressorFile(  std::ofstream* logFile )
         {
             *logFile << "<TR>";
             *logFile << "<TH> " << *i  <<"</TH>";
-            *logFile << "<TD> " << getCompressorName( *j ) <<"</TD>";
+            *logFile << "<TD> " << *j  <<"</TD>";
             *logFile << "<TD> " << datas->getSize() <<"</TD>";
 
             std::cout  << std::setw(2) << *i << ", " << std::setw( 5 )
-                       << getCompressorName( *j ) << ", " << std::setw(5) 
+                       << *j  << ", " << std::setw(5) 
                        << datas->getSize() << ", ";
             testCompressByte( *j, reinterpret_cast<char*>(datas->getData()), 
                               datas->getSize(), logFile );
@@ -211,45 +209,6 @@ bool compare( const char *dst, const char *src, uint32_t nbytes )
 		src++;
     }
     return true;
-}
-
-std::string getCompressorName( const uint32_t name )
-{
-    switch ( name )
-    {
-    case  EQ_COMPRESSOR_RLE_UNSIGNED:
-        return "RLE_UNSIGNED";
-    case  EQ_COMPRESSOR_RLE_BYTE:
-        return "RLE_BYTE";
-    case  EQ_COMPRESSOR_RLE_3_BYTE:
-        return "RLE_3_BYTE";
-    case  EQ_COMPRESSOR_RLE_4_BYTE:
-        return "RLE_4_BYTE";
-    case  EQ_COMPRESSOR_RLE_4_FLOAT:
-        return "RLE_4_FLOAT";
-    case  EQ_COMPRESSOR_RLE_4_HALF_FLOAT:
-        return "RLE_4_HALF_FLOAT";
-    case  EQ_COMPRESSOR_DIFF_RLE_3_BYTE:
-        return "RLE_3_BYTE";
-    case  EQ_COMPRESSOR_DIFF_RLE_4_BYTE:
-        return "RLE_4_BYTE";
-    case  EQ_COMPRESSOR_RLE_4_BYTE_UNSIGNED:
-        return "RLE_4_BYTE_UNSIGNED";
-    case  0xf0000004u:
-        return "WKDM";
-    case  0xf0000005u:
-        return "QLZ14";
-    case  0xf0000001u:
-        return "QLZ15A";
-    case  0xf0000002u:
-        return "QLZ15B";
-    case  0xf0000003u:
-        return "QLZ15C";
-    case EQ_COMPRESSOR_DIFF_RLE_10A2:
-        return "DIFF_RLE_10A2";
-    default:
-        return "COMPRESSOR_NONE";
-    }
 }
 
 std::vector< std::string > getFiles( std::string path, 

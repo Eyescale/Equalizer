@@ -199,8 +199,8 @@ bool CompressorReadDrawPixels::isCompatible( const GLEWContext* glewContext )
     return true;
 }
 
-void CompressorReadDrawPixels::_init( const uint64_t inDims[4],
-                                      uint64_t outDims[4] )
+void CompressorReadDrawPixels::_init( const eq_uint64_t inDims[4],
+                                            eq_uint64_t outDims[4] )
 {
     outDims[0] = inDims[0];
     outDims[1] = inDims[1];
@@ -222,11 +222,11 @@ void CompressorReadDrawPixels::_init( const uint64_t inDims[4],
 }
 
 void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
-                                         const uint64_t  inDims[4],
-                                         const unsigned  source,
-                                         const uint64_t  flags,
-                                         uint64_t        outDims[4],
-                                         void**          out )
+                                         const eq_uint64_t  inDims[4],
+                                         const unsigned     source,
+                                         const eq_uint64_t  flags,
+                                               eq_uint64_t  outDims[4],
+                                         void**             out )
 {
     _init( inDims, outDims );
 
@@ -253,9 +253,9 @@ void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
 
 void CompressorReadDrawPixels::upload( const GLEWContext* glewContext, 
                                        const void*        buffer,
-                                       const uint64_t     inDims[4],
-                                       const uint64_t     flags,
-                                       const uint64_t     outDims[4],  
+                                       const eq_uint64_t  inDims[4],
+                                       const eq_uint64_t  flags,
+                                       const eq_uint64_t  outDims[4],  
                                        const unsigned     destination )
 {
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )

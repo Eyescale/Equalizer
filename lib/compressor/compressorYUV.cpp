@@ -129,7 +129,8 @@ void CompressorYUV::_initShader( const GLEWContext* glewContext,
 
 
 void CompressorYUV::_compress( const GLEWContext* glewContext,
-                               const uint64_t inDims[4], uint64_t outDims[4] )
+                               const eq_uint64_t inDims[4], 
+                                     eq_uint64_t outDims[4] )
 {
 
     if ( _fbo )
@@ -183,11 +184,11 @@ void CompressorYUV::_download( void* datas )
 }
 
 void CompressorYUV::download( const GLEWContext* glewContext,
-                              const uint64_t  inDims[4],
-                              const unsigned  source,
-                              const uint64_t  flags,
-                              uint64_t        outDims[4],
-                              void**          out )
+                              const eq_uint64_t  inDims[4],
+                              const unsigned     source,
+                              const eq_uint64_t  flags,
+                                    eq_uint64_t  outDims[4],
+                              void**             out )
 {
     glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_TEXTURE_BIT |
                   GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_LIGHTING_BIT );
@@ -244,7 +245,7 @@ void CompressorYUV::download( const GLEWContext* glewContext,
 }
 
 void CompressorYUV::_decompress( const GLEWContext* glewContext,
-                                 const uint64_t inDims[4] )
+                                 const eq_uint64_t inDims[4] )
 {
     glDepthMask( false );
     _initShader( glewContext, yuv420unpack_glsl.c_str() );
@@ -289,11 +290,11 @@ void CompressorYUV::_decompress( const GLEWContext* glewContext,
 }
 
 void CompressorYUV::upload( const GLEWContext* glewContext, 
-                            const void*     datas,
-                            const uint64_t  inDims[4],
-                            const uint64_t  flags,
-                            const uint64_t  outDims[4],  
-                            const unsigned  destination )
+                            const void*        datas,
+                            const eq_uint64_t  inDims[4],
+                            const eq_uint64_t  flags,
+                            const eq_uint64_t  outDims[4],  
+                            const unsigned     destination )
 {
     glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_TEXTURE_BIT |
                   GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_LIGHTING_BIT );

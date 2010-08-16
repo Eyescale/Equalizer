@@ -49,19 +49,19 @@ public:
     
     static bool isCompatible( const GLEWContext* glewContext );
     
-    void download( const GLEWContext* glewContext,
-                   const uint64_t     inDims[4],
-                   const unsigned     source,
-                   const uint64_t     flags,
-                   uint64_t           outDims[4],
-                   void**             out );
+    virtual void download( const GLEWContext* glewContext,
+                           const eq_uint64_t  inDims[4],
+                           const unsigned     source,
+                           const eq_uint64_t  flags,
+                                 eq_uint64_t  outDims[4],
+                           void**             out );
 
-    void upload( const GLEWContext* glewContext, 
-                 const void*        buffer,
-                 const uint64_t     inDims[4],
-                 const uint64_t     flags,
-                 const uint64_t     outDims[4],  
-                 const unsigned     destination );
+    virtual void upload( const GLEWContext* glewContext, 
+                         const void*        buffer,
+                         const eq_uint64_t  inDims[4],
+                         const eq_uint64_t  flags,
+                         const eq_uint64_t  outDims[4],
+                         const unsigned     destination );
 
 protected:
     eq::base::Bufferb _buffer;
@@ -71,7 +71,7 @@ protected:
     uint32_t    _type;           //!< the GL type 
     uint32_t    _depth;          //!< the size of one output token
 
-    void _init( const uint64_t  inDims[4], uint64_t  outDims[4] );
+    void _init( const eq_uint64_t  inDims[4], eq_uint64_t  outDims[4] );
 };
 
 }
