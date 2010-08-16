@@ -41,17 +41,6 @@ namespace util
         EQ_EXPORT ~FrameBufferObject();
 
         /**
-         * Set the format for all color textures.
-         *
-         * The default format is GL_RGBA. This method has to be called on an
-         * uninitialized FBO.
-         *
-         * @param format new (OpenGL) format of color texture.
-         * @version 1.0
-         */
-        EQ_EXPORT void setColorFormat( const GLuint format );
-
-        /**
          * Add one color texture to the FBO.
          * 
          * The first color texture is automatically created in the
@@ -71,6 +60,7 @@ namespace util
          * 
          * @param width the initial width of the rendering buffer.
          * @param height the initial height of the rendering buffer.
+         * @param colorFormat The internal color texture format, e.g., GL_RGBA.
          * @param depthSize The bit depth of the depth attachment.
          * @param stencilSize The bit depth of the stencil attachment.
          * @return true on success, false otherwise
@@ -78,6 +68,7 @@ namespace util
          * @version 1.0
          */
         EQ_EXPORT bool init( const int32_t width, const int32_t height, 
+                             const GLuint colorFormat,
                              const int32_t depthSize,
                              const int32_t stencilSize );
 

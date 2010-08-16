@@ -111,8 +111,6 @@ void Image::setInternalFormat( const Frame::Buffer buffer,
     allocCompressor( buffer, EQ_COMPRESSOR_INVALID );
     if ( internalFormat == 0 )
         return;
-
-    _getAttachment( buffer ).texture.setInternalFormat( internalFormat );
 }
 
 uint32_t Image::getInternalFormat( const Frame::Buffer buffer ) const
@@ -376,8 +374,9 @@ void Image::_readbackTexture( const Frame::Buffer buffer,
                               util::ObjectManager< const void* >* glObjects )
 {
     util::Texture& texture = _getAttachment( buffer ).texture;
+
     texture.setGLEWContext( glewGetContext( ));
-    texture.copyFromFrameBuffer( _pvp );
+    texture.copyFromFrameBuffer( getInternalFormat( buffer ), _pvp );
     texture.setGLEWContext( 0 );
 }
 
@@ -398,12 +397,11 @@ void Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
     util::Texture* texture =
         glObjects->obtainEqTexture( bufferKey, GL_TEXTURE_RECTANGLE_ARB );
 
-    texture->setInternalFormat( getInternalFormat( buffer ) );
-    texture->copyFromFrameBuffer( _pvp );
+    texture->copyFromFrameBuffer( getInternalFormat( buffer ), _pvp );
 
     // draw zoomed quad into FBO
     //  uses the same FBO for color and depth, with masking.
-    const void*     fboKey = _getBufferKey( Frame::BUFFER_COLOR );
+    const void* fboKey = _getBufferKey( Frame::BUFFER_COLOR );
     util::FrameBufferObject* fbo = glObjects->getEqFrameBufferObject( fboKey );
 
     if( fbo )
@@ -413,8 +411,7 @@ void Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
     else
     {
         fbo = glObjects->newEqFrameBufferObject( fboKey );
-        fbo->setColorFormat( getInternalFormat( buffer ) );
-        fbo->init( pvp.w, pvp.h, 24, 0 );
+        EQCHECK( fbo->init( pvp.w, pvp.h, getInternalFormat( buffer ), 24, 0 ));
     }
     fbo->bind();
     texture->bind();

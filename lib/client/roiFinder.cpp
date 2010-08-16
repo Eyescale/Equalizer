@@ -556,12 +556,10 @@ void ROIFinder::_readbackInfo( )
         _glObjects->obtainEqTexture( bufferKey, GL_TEXTURE_RECTANGLE_ARB );
 
 #ifdef EQ_ROI_USE_DEPTH_TEXTURE
-    texture->setInternalFormat( GL_DEPTH_COMPONENT );
+    texture->copyFromFrameBuffer( GL_DEPTH_COMPONENT, pvp );
 #else
-    texture->setInternalFormat( GL_RGBA );
+    texture->copyFromFrameBuffer( GL_RGBA, pvp );
 #endif
-
-    texture->copyFromFrameBuffer( pvp );
 
     // draw zoomed quad into FBO
     const void*     fboKey = _getInfoKey( );
@@ -574,8 +572,7 @@ void ROIFinder::_readbackInfo( )
     else
     {
         fbo = _glObjects->newEqFrameBufferObject( fboKey );
-        fbo->setColorFormat( GL_RGBA32F );
-        EQCHECK( fbo->init( _pvp.w, _pvp.h, 0, 0 ));
+        EQCHECK( fbo->init( _pvp.w, _pvp.h, GL_RGBA32F, 0, 0 ));
     }
     fbo->bind();
 

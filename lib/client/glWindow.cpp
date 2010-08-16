@@ -80,10 +80,10 @@ bool GLWindow::configInitFBO()
     
     // needs glew initialized (see above)
     _fbo = new util::FrameBufferObject( _glewContext );
-    _fbo->setColorFormat( _window->getColorFormat( ));
     
     const PixelViewport& pvp = _window->getPixelViewport();
-    
+    const GLuint colorFormat = _window->getColorFormat();
+
     int depthSize = getIAttribute( Window::IATTR_PLANES_DEPTH );
     if( depthSize == AUTO )
          depthSize = 24;
@@ -92,11 +92,12 @@ bool GLWindow::configInitFBO()
     if( stencilSize == AUTO )
         stencilSize = 1;
 
-    if( _fbo->init( pvp.w, pvp.h, depthSize, stencilSize ) )
+    if( _fbo->init( pvp.w, pvp.h, colorFormat, depthSize, stencilSize ))
+    {
         return true;
-    
+    }
     if( getIAttribute( Window::IATTR_PLANES_STENCIL ) == AUTO &&
-        _fbo->init( pvp.w, pvp.h, depthSize, 0 ))
+        _fbo->init( pvp.w, pvp.h, colorFormat, depthSize, 0 ))
     {
         return true;
     }

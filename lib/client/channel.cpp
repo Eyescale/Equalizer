@@ -198,30 +198,25 @@ bool Channel::_configInitFBO()
         
     // needs glew initialized (see above)
     _fbo = new util::FrameBufferObject( glewGetContext( ));
-    _fbo->setColorFormat( window->getColorFormat( ));
-        
+
     int depthSize = 0;
     if( drawable & FBO_DEPTH )
-    {
         depthSize = window->getIAttribute( Window::IATTR_PLANES_DEPTH );
-
-        if( depthSize < 1 )
-            depthSize = 24;
-    }
+    if( depthSize < 1 )
+        depthSize = 24;
 
     int stencilSize = 0;
     if( drawable & FBO_STENCIL )
-    {
         stencilSize = window->getIAttribute( Window::IATTR_PLANES_STENCIL );
-
-        if( stencilSize < 1 )
-            stencilSize = 1;
-    }
+    if( stencilSize < 1 )
+        stencilSize = 1;
 
     const PixelViewport& pvp = getNativePixelViewport();
-
-    if( _fbo->init( pvp.w, pvp.h, depthSize, stencilSize ))
+    if( _fbo->init( pvp.w, pvp.h, 
+                    window->getColorFormat(), depthSize, stencilSize ))
+    {
         return true;
+    }
     // else
 
     setErrorMessage( "FBO initialization failed: " + _fbo->getErrorMessage( ));

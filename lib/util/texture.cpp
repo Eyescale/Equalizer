@@ -62,7 +62,7 @@ void Texture::flush()
     _defined = false;
 }
 
-void Texture::setInternalFormat( const GLuint internalFormat )
+void Texture::_setInternalFormat( const GLuint internalFormat )
 {
     if( _internalFormat == internalFormat )
         return;
@@ -159,16 +159,19 @@ void Texture::flushNoDelete()
     _defined = false;
 }
 
-void Texture::init( const GLuint format, const int width, const int height )
+void Texture::init( const GLuint format, const int32_t width,
+                    const int32_t height )
 {
-    setInternalFormat( format );
     _generate();
+    _setInternalFormat( format );
     resize( width, height );
 }
 
-void Texture::setGLData( const GLuint id, const int32_t width,
-                         const int32_t height )
+void Texture::setGLData( const GLuint id, const GLuint internalFormat,
+                         const int32_t width, const int32_t height )
 {
+    flush();
+    _setInternalFormat( internalFormat );
     _id = id;
     _width = width;
     _height = height;
@@ -201,32 +204,22 @@ void Texture::_grow( const int32_t width, const int32_t height )
     }
 }
 
-void Texture::copyFromFrameBuffer( const uint64_t  inDims[4] )
-{
-    _copyFromFrameBuffer( inDims[0], inDims[1], inDims[2], inDims[3] );
-}
-
-void Texture::copyFromFrameBuffer( const PixelViewport& pvp )
-{
-    _copyFromFrameBuffer( pvp.x, pvp.w, pvp.y, pvp.h );
-}
-
-void Texture::_copyFromFrameBuffer( uint32_t x, uint32_t w, 
-                                    uint32_t y, uint32_t h )
+void Texture::copyFromFrameBuffer( const GLuint internalFormat,
+                                   const fabric::PixelViewport& pvp )
 {
     EQ_GL_ERROR( "before Texture::copyFromFrameBuffer" );
     EQ_TS_THREAD( _thread );
-    EQASSERT( _internalFormat != 0 );
 
     _generate();
-    _grow( w, h );
+    _setInternalFormat( internalFormat );
+    _grow( pvp.w, pvp.h );
 
     if( _defined )
         glBindTexture( _target, _id );
     else
         resize( _width, _height );
 
-    EQ_GL_CALL( glCopyTexSubImage2D( _target, 0, 0, 0, x, y, w, h ));
+    glCopyTexSubImage2D( _target, 0, 0, 0, pvp.x, pvp.y, pvp.w, pvp.h );
     EQ_GL_ERROR( "after Texture::copyFromFrameBuffer" );
 }
 
@@ -242,7 +235,8 @@ void Texture::upload( const Image* image, const Frame::Buffer which,
     image->upload( which, _id, glObjects );
 }
 
-void Texture::upload( const int32_t width, const int32_t height, const void* ptr )
+void Texture::upload( const int32_t width, const int32_t height,
+                      const void* ptr )
 {
     _generate();
     _grow( width, height );
@@ -319,8 +313,7 @@ void Texture::resize( const int32_t width, const int32_t height )
 
     glBindTexture( _target, _id );
     EQ_GL_CALL( glTexImage2D( _target, 0, _internalFormat, width, height, 0,
-                  _format, _type, 0 ));
-
+                              _format, _type, 0 ));
     _width  = width;
     _height = height;
     _defined = true;

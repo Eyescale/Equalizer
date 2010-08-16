@@ -238,12 +238,9 @@ void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
     else if( flags & EQ_COMPRESSOR_USE_TEXTURE )
     {
         if ( !_texture )
-        {
             _texture = new util::Texture(GL_TEXTURE_RECTANGLE_ARB, glewContext);
-            _texture->setInternalFormat( _internalFormat );
-        }
         
-        _texture->setGLData( source, inDims[1], inDims[3] );
+        _texture->setGLData( source, _internalFormat, inDims[1], inDims[3] );
         _texture->download( _buffer.getData(), _format, _type );
         _texture->flushNoDelete();
     }
@@ -269,12 +266,11 @@ void CompressorReadDrawPixels::upload( const GLEWContext* glewContext,
     else if( flags & EQ_COMPRESSOR_USE_TEXTURE )
     {
         if( !_texture )
-        {
             _texture = new util::Texture(GL_TEXTURE_RECTANGLE_ARB, glewContext);
-            _texture->setInternalFormat( _internalFormat );
-        }
+
+        _texture->setGLData( destination, _internalFormat,
+                             outDims[1], outDims[3] );
         _texture->setExternalFormat( _format, _type );
-        _texture->setGLData( destination, outDims[1], outDims[3] );
         _texture->upload( outDims[1] , outDims[3], buffer );
         _texture->flushNoDelete();
     }

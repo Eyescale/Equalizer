@@ -39,10 +39,6 @@ FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext )
     EQASSERT( GLEW_EXT_framebuffer_object );
 
     _colors.push_back( new Texture( GL_TEXTURE_RECTANGLE_ARB, glewContext ));
-
-    _colors[0]->setInternalFormat( GL_RGBA );
-    _depth.setInternalFormat( GL_DEPTH_COMPONENT );
-    _stencil.setInternalFormat( GL_DEPTH24_STENCIL8 );
 }
 
 FrameBufferObject::~FrameBufferObject()
@@ -55,13 +51,7 @@ FrameBufferObject::~FrameBufferObject()
     }
 }
 
-void FrameBufferObject::setColorFormat( const GLuint format )
-{
-    for( size_t i = 0; i < _colors.size(); ++i )
-        _colors[ i ]->setInternalFormat( format );
-}
-
-bool FrameBufferObject::addColorTexture( )
+bool FrameBufferObject::addColorTexture()
 {
     if( _colors.size() >= 16 )
     {
@@ -70,13 +60,12 @@ bool FrameBufferObject::addColorTexture( )
     }
 
     _colors.push_back( new Texture( GL_TEXTURE_RECTANGLE_ARB, _glewContext ));
-    _colors.back()->setInternalFormat( _colors.front()->getInternalFormat( ));
-
     _valid = false;
     return true;
 }
 
-bool FrameBufferObject::init( const int32_t width , const int32_t height,
+bool FrameBufferObject::init( const int32_t width, const int32_t height,
+                              const GLuint colorFormat,
                               const int32_t depthSize,
                               const int32_t stencilSize )
 {
@@ -95,14 +84,21 @@ bool FrameBufferObject::init( const int32_t width , const int32_t height,
 
     // create and bind textures
     for( size_t i = 0; i < _colors.size(); ++i )
+    {
+        _colors[i]->init( colorFormat, width, height );
         _colors[i]->bindToFBO( GL_COLOR_ATTACHMENT0 + i, width, height );
-
-    if ( depthSize > 0 )
+    }
+    if( stencilSize > 0 )
+    {
+        EQASSERTINFO( false, "Untested" );
+        _depth.init( GL_DEPTH24_STENCIL8, width, height );
+        _depth.bindToFBO( GL_STENCIL_ATTACHMENT, width, height );
+    }
+    else if( depthSize > 0 )
+    {
+        _depth.init( GL_DEPTH_COMPONENT, width, height );
         _depth.bindToFBO( GL_DEPTH_ATTACHMENT, width, height );
-
-    if ( stencilSize > 0 )
-        // Note: stencil FBO textures often don't work
-        _stencil.bindToFBO( GL_STENCIL_ATTACHMENT, width, height );
+    }
 
     if( _checkStatus( ))
         return true;

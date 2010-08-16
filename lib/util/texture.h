@@ -40,7 +40,14 @@ namespace util
     class Texture : public base::NonCopyable
     {
     public:
-        /** Construct a new Texture. @version 1.0 */
+        /**
+         * Construct a new Texture.
+         *
+         * A GLEWContext might be provided later using setGLEWContext(). It is
+         * needed for operations using OpenGL extensions or version 1.2 or later
+         * functions.
+         * @version 1.0
+         */
         EQ_EXPORT Texture( const GLenum target,
                            const GLEWContext* const glewContext = 0 );
 
@@ -51,16 +58,6 @@ namespace util
         //@{
         /** @return the target of the texture. @version 1.0 */
         GLenum getTarget() const { return _target; }
-
-        /**
-         * Set the internal pixel format of the texture, e.g., GL_RGBA16F.
-         *
-         * Automatically sets the external format and type to the one matching
-         * the internal format.
-         * 
-         * @param internalFormat the OpenGL intenalFormat.
-         */
-        EQ_EXPORT void setInternalFormat( const GLuint internalFormat );
 
         /** 
          * Set the external data format and type.
@@ -98,28 +95,23 @@ namespace util
         /** 
          * Initialize an OpenGL texture.
          *
-         * @param format the OpenGL texture internal format.
+         * @param internalFormat the OpenGL texture internal format.
          * @param width the width of the texture.
          * @param height the height of the texture.
          * @version 1.0
          */
-        void init( const GLuint format, const int width, const int height );
+        void init( const GLuint internalFormat, const int32_t width,
+                   const int32_t height );
 
         /** Clear the texture, including the GL texture name. @version 1.0 */
         EQ_EXPORT void flush();
 
-
-        /** 
+        /**
          * Copy the specified area from the current read buffer to the
          * texture at 0,0.
          */
-        EQ_EXPORT void copyFromFrameBuffer( const PixelViewport& pvp );
-        
-        /** 
-         * Copy the specified area from the current read buffer to the
-         * texture at 0,0.
-         */
-        EQ_EXPORT void copyFromFrameBuffer( const uint64_t inDims[4] );
+        EQ_EXPORT void copyFromFrameBuffer( const GLuint internalFormat,
+                                            const fabric::PixelViewport& pvp );
 
         /**
          * Copy the specified image buffer to the texture at 0,0.
@@ -181,12 +173,13 @@ namespace util
          * format. The texture is validated by this method.
          *
          * @param id The OpenGL texture name.
+         * @param internalFormat the OpenGL texture internal format.
          * @param width the width of the texture.
          * @param height the height of the texture.
          * @version 1.0
          */
-        EQ_EXPORT void setGLData( const GLuint id, const int32_t width,
-                                  const int32_t height );
+        EQ_EXPORT void setGLData( const GLuint id, const GLuint internalFormat,
+                                  const int32_t width, const int32_t height );
         //@}
 
     private:
@@ -224,18 +217,21 @@ namespace util
             char dummy[32];
         };
 
+        /**
+         * Set the internal pixel format of the texture, e.g., GL_RGBA16F.
+         *
+         * Automatically sets the external format and type to one matching
+         * the internal format.
+         * 
+         * @param internalFormat the OpenGL internal texture format.
+         */
+        void _setInternalFormat( const GLuint internalFormat );
+
         /** Generate, if needed, a GL texture name. */
         void _generate();
         
         /** Set the size of the texture, updating the _defined flag. */
         void _grow( const int32_t width, const int32_t height );
-
-        /** 
-         * Copy the specified area from the current read buffer to the
-         * texture at 0,0.
-         */
-        void _copyFromFrameBuffer( uint32_t x, uint32_t w, 
-                                   uint32_t y, uint32_t h );
 
         EQ_TS_VAR( _thread );
     };

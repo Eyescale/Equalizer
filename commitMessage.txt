@@ -1,9 +1,9 @@
-RSP: Simplify nack sending and repeat queue
+Clean up util::Texture API and doxygen comments
 
 [ ] May break build
-[ ] May break existing applications
+[x] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

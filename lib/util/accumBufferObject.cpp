@@ -38,12 +38,12 @@ AccumBufferObject::~AccumBufferObject()
 bool AccumBufferObject::init( const PixelViewport& pvp,
                               const GLuint textureFormat )
 {
-    _texture = new Texture( GL_TEXTURE_RECTANGLE_ARB, glewGetContext( ));
-    _texture->setInternalFormat( textureFormat );
     _pvp = pvp;
 
-    setColorFormat( GL_RGBA32F );
-    if( FrameBufferObject::init( pvp.w, pvp.h, 0, 0 ))
+    _texture = new Texture( GL_TEXTURE_RECTANGLE_ARB, glewGetContext( ));
+    _texture->init( textureFormat, pvp.w, pvp.h );
+
+    if( FrameBufferObject::init( pvp.w, pvp.h, GL_RGBA32F, 0, 0 ))
     {
         unbind();
         return true;
@@ -67,7 +67,7 @@ void AccumBufferObject::exit()
 void AccumBufferObject::load( const GLfloat value )
 {
     EQ_GL_ERROR( "before AccumBufferObject::load" );
-    _texture->copyFromFrameBuffer( _pvp );
+    _texture->copyFromFrameBuffer( _texture->getInternalFormat(), _pvp );
 
     bind();
     _drawQuadWithTexture( _texture, 
@@ -79,7 +79,7 @@ void AccumBufferObject::load( const GLfloat value )
 
 void AccumBufferObject::accum( const GLfloat value )
 {
-    _texture->copyFromFrameBuffer( _pvp );
+    _texture->copyFromFrameBuffer( _texture->getInternalFormat(), _pvp );
 
     bind();
     glEnable( GL_BLEND );

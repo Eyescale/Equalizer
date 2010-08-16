@@ -18,7 +18,9 @@
  */
 
 #include "compressorYUV.h"
+
 #include <eq/util/frameBufferObject.h>
+#include <eq/fabric/pixelViewport.h>
 
 #include <GL/glew.h>
 
@@ -137,8 +139,7 @@ void CompressorYUV::_compress( const GLEWContext* glewContext,
     else
     {
         _fbo = new util::FrameBufferObject( glewContext );
-        _fbo->setColorFormat( GL_RGBA );
-        _fbo->init( outDims[1], outDims[3], 0, 0 );
+        EQCHECK( _fbo->init( outDims[1], outDims[3], GL_RGBA, 0, 0 ));
     }
 
     _fbo->bind();
@@ -196,12 +197,11 @@ void CompressorYUV::download( const GLEWContext* glewContext,
     outDims[2] = inDims[2];
     outDims[3] = (inDims[3] + 1) / 2;
     outDims[3] *= 2;
+
     // first time we instanciate the working texture
     if ( !_texture )
-    {
         _texture = new util::Texture( GL_TEXTURE_RECTANGLE_ARB, glewContext );
-        _texture->setInternalFormat( GL_RGBA );   
-    }
+
     // the data is in the frame buffer
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
@@ -212,9 +212,9 @@ void CompressorYUV::download( const GLEWContext* glewContext,
         EQ_GL_CALL( glScissor(  0, 0, inDims[0] + inDims[1] + 1,
                                       inDims[2] + inDims[3] + 1 ));
 
-        outDims[1] *= 2;
-        _texture->copyFromFrameBuffer( outDims );
-        outDims[1] /= 2;
+        const eq::fabric::PixelViewport pvp( outDims[0], outDims[2],
+                                             outDims[1]*2, outDims[3] );
+        _texture->copyFromFrameBuffer( GL_RGBA, pvp );
 
         _compress( glewContext, inDims, outDims );
         buffer.resize( outDims[1] * outDims[3] * 4 );
@@ -228,7 +228,7 @@ void CompressorYUV::download( const GLEWContext* glewContext,
         // compress Data
         // allow buffer memory on cpu
         // transfer data from gpu to cpu
-        _texture->setGLData( source, inDims[1], inDims[3] );
+        _texture->setGLData( source, GL_RGBA, inDims[1], inDims[3] );
         _compress( glewContext, inDims, outDims );
         buffer.resize( outDims[1] * outDims[3] * 4 );
         _download( buffer.getData() );
@@ -301,9 +301,9 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
     if ( !_texture )
     {
         _texture = new util::Texture( GL_TEXTURE_RECTANGLE_ARB, glewContext );
-        _texture->setInternalFormat( GL_RGBA );
+        _texture->init( GL_RGBA, outDims[1], outDims[3] );
     }
-    
+
     if ( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {    
         _texture->upload( inDims[1], inDims[3], const_cast<void*>( datas ) );
@@ -313,13 +313,10 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
     {
   
         if ( !_fbo )
-        {
             _fbo = new util::FrameBufferObject( glewContext );
-            _fbo->setColorFormat( GL_RGBA );
-        }
 
         util::Texture* texture = _fbo->getColorTextures().front();
-        texture->setGLData( destination, outDims[1], outDims[3] );
+        texture->setGLData( destination, GL_RGBA, outDims[1], outDims[3] );
 
         if( _fbo->isValid() )
         {
@@ -327,7 +324,7 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
             texture->bindToFBO( GL_COLOR_ATTACHMENT0, outDims[1], outDims[3] );
         }
         else
-            _fbo->init( outDims[1], outDims[3], 0, 0 );
+            _fbo->init( outDims[1], outDims[3], GL_RGBA, 0, 0 );
 
         _texture->upload( inDims[1], inDims[3], datas );
         _decompress( glewContext, outDims );
