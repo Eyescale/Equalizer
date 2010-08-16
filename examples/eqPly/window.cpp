@@ -162,9 +162,10 @@ void Window::_loadShaders()
 {
     if( _state->getShader( vertexShader_glsl.c_str( )) !=
         VertexBufferState::INVALID )
-
+    {
         // already loaded
         return;
+    }
 
     // Check if functions are available
     if( !GLEW_VERSION_2_0 )

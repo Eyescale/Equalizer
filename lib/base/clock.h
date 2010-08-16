@@ -121,7 +121,7 @@ namespace base
          *         and atomically reset the clock.
          * @version 1.0
          */
-        float getResetTimef()
+        float resetTimef()
             {
 #ifdef Darwin
                 const uint64_t now = mach_absolute_time();

@@ -52,22 +52,21 @@ uint16_t    Global::_defaultPort = 0;
 uint32_t    Global::_objectBufferSize = _getObjectBufferSize();
 int32_t     Global::_iAttributes[IATTR_ALL] =
 {
-    100,  // INSTANCE_CACHE_SIZE
-    5,    // RSP_TIMEOUT
-    2000, // RSP_MAX_TIMEOUTS
-    1,    // RSP_NACK_DELAY
-    5,    // RSP_ERROR_BASE_RATE
-    5,    // RSP_ERROR_DOWNSCALE
-    3,    // RSP_ERROR_UPSCALE
-    20,   // RSP_ERROR_MAX
+    100,   // INSTANCE_CACHE_SIZE
+    5,     // RSP_TIMEOUT
+    2000,  // RSP_MAX_TIMEOUTS
+    5,     // RSP_ERROR_BASE_RATE
+    5,     // RSP_ERROR_DOWNSCALE
+    3,     // RSP_ERROR_UPSCALE
+    20,    // RSP_ERROR_MAX
 #ifdef BIG_SEND
-    64,    // RSP_NUM_BUFFERS (4 * UDP_PACKET_RATE)
+    64,    // RSP_NUM_BUFFERS
+    5,     // RSP_ACK_FREQUENCY
     65000, // UDP_MTU
-    16,    // UDP_PACKET_RATE
 #else
-    512,   // RSP_NUM_BUFFERS (4 * UDP_PACKET_RATE)
+    1024,  // RSP_NUM_BUFFERS
+    17,    // RSP_ACK_FREQUENCY
     1470,  // UDP_MTU
-    128,   // UDP_PACKET_RATE
 #endif
     524288, // UDP_BUFFER_SIZE
 };

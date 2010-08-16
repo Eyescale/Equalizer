@@ -66,7 +66,7 @@ namespace net
         virtual int64_t write( const void* buffer, const uint64_t bytes );
 
         int64_t getSendRate() const { return _sendRate; }
-        uint32_t getID() const { return _id; }
+        uint16_t getID() const { return _id; }
         
         /** @sa Connection::getNotifier */
         virtual Notifier getNotifier() const { return _event->getNotifier(); }
@@ -108,13 +108,6 @@ namespace net
             uint16_t connectionID;
         };
 
-        struct DatagramProperty
-        {
-            uint16_t type;
-            uint16_t clientID;
-            uint16_t sequenceID;
-        };
-
         struct DatagramCount
         {
             uint16_t type;
@@ -126,34 +119,30 @@ namespace net
         {
             uint16_t type;
             uint16_t writerID;
-            uint16_t sequenceID;
+            uint16_t sequence;
         };
         
         struct Nack
         {
-            uint16_t startID;
-            uint16_t endID;
+            uint16_t start;
+            uint16_t end;
         };
 
 #       define EQ_RSP_MAX_NACKS 300 // fits in a single IP frame
         struct DatagramNack
         {
-            void set( uint16_t rID, uint16_t wID, 
-                      uint16_t sID, uint32_t n )
+            void set( uint16_t rID, uint16_t wID, uint16_t n )
             {
                 type       = NACK;
                 readerID   = rID; 
                 writerID   = wID;   
-                sequenceID = sID; 
                 count      = n;
             }
 
             uint16_t       type;
             uint16_t       readerID;    // ID of the connection reader
             uint16_t       writerID;    // ID of the connection writer
-            uint16_t       sequenceID;  // last datagram in write sequence
-
-            uint32_t       count;       // number of NACK requests
+            uint16_t       count;       // number of NACK requests
             Nack           nacks[ EQ_RSP_MAX_NACKS ];
         };
 
@@ -162,7 +151,7 @@ namespace net
             uint16_t        type;
             uint16_t        readerID;
             uint16_t        writerID;
-            uint16_t        sequenceID;
+            uint16_t        sequence;
         };
 
         struct DatagramData
@@ -170,21 +159,21 @@ namespace net
             uint16_t    type;
             uint16_t    size;
             uint16_t    writerID;
-            uint16_t    sequenceID;
+            uint16_t    sequence;
         };
 
-        typedef std::vector< RSPConnectionPtr > RSPConnectionVector;
-        // a link for all connection in the multicast network 
-        RSPConnectionVector _children;
+        typedef std::vector< RSPConnectionPtr > RSPConnections;
+
+        RSPConnectionPtr _parent;
+        RSPConnections _children;
 
         // a link for all connection in the connecting state 
-        RSPConnectionVector _childrenConnecting;
+        RSPConnections _childrenConnecting;
 
         uint16_t _id; //!< The identifier used to demultiplex multipe writers
         bool     _idAccepted;
-        int32_t  _mtu;     
+        int32_t  _mtu;
         int32_t  _ackFreq;
-        uint64_t _maxBucketSize;
         uint32_t _payloadSize;
         int32_t  _timeouts;
 
@@ -199,22 +188,19 @@ namespace net
         boost::asio::deadline_timer    _wakeup;
         
         eq::base::Clock _clock;
-        size_t          _allowedData;
+        uint64_t        _maxBucketSize;
+        size_t          _bucketSize;
         int64_t         _sendRate;
 
-        uint32_t         _numWriteAcks;
         Thread*          _thread;
         base::Lock       _mutexConnection;
         base::Lock       _mutexEvent;
-        RSPConnectionPtr _parent;
-        int32_t          _ackReceived;  // sequence ID of last received/send ack
-        int32_t          _lastAck;      // sequence ID of last confirmed ack
-        bool             _ackSend;      // ack exchange in progress
+        uint16_t         _acked;        // sequence ID of last confirmed ack
 
         typedef base::Bufferb Buffer;
-        typedef std::vector< Buffer* > BufferVector;
+        typedef std::vector< Buffer* > Buffers;
 
-        BufferVector _buffers;                   //!< Data buffers
+        Buffers _buffers;                   //!< Data buffers
         /** Empty read buffers (connected) or write buffers (listening) */
         base::LFQueue< Buffer* > _threadBuffers;
         /** Ready data buffers (connected) or empty write buffers (listening) */
@@ -226,16 +212,17 @@ namespace net
         Buffer* _readBuffer;                     //!< Read (app) buffer
         uint64_t _readBufferPos;                 //!< Current read index
 
-        // write property part
-        uint16_t _sequenceID; //!< the next usable (write) or expected (read)
-        base::Buffer< Buffer* > _writeBuffers;    //!< Write buffers in flight
-        std::deque< Nack > _repeatQueue; //!< nacks to repeat
+        uint16_t _sequence; //!< the next usable (write) or expected (read)
+        std::deque< Buffer* > _writeBuffers;    //!< Written buffers, not acked
+
+        typedef std::deque< Nack > RepeatQueue;
+        RepeatQueue _repeatQueue; //!< nacks to repeat
 
         void _close();
         uint16_t _buildNewID();
         
         int32_t _handleWrite(); //!< @return time to call again
-        void _finishWriteQueue();
+        void _finishWriteQueue( const uint16_t sequence );
 
         bool _handleDataDatagram( Buffer& buffer );
         bool _handleAck( const DatagramAck* ack );
@@ -246,6 +233,7 @@ namespace net
         bool _handleCountNode();
 
         Buffer* _newDataBuffer( Buffer& inBuffer );
+        void _pushDataBuffer( Buffer* buffer );
 
         /* Run the reader thread */
         void _runThread();
@@ -278,20 +266,20 @@ namespace net
         void _sendDatagramCountNode();
 
         void _handleRepeat();
-        void _addRepeat( const Nack* nacks, const uint32_t size );
+        void _addRepeat( const Nack* nacks, const uint16_t num );
 
         /** format and send an simple request which use only type and id field*/
         void _sendSimpleDatagram( DatagramType type, uint16_t id );
         
         /** format and send an ack request*/
-        void _sendAckRequest( const uint16_t sequenceID );
+        void _sendAckRequest( const uint16_t sequence );
 
         /** format and send a positive ack */
-        void _sendAck( const uint16_t writerID, const uint16_t sequenceID );
+        void _sendAck( const uint16_t writerID, const uint16_t sequence );
         
-        /** format and send a negative ack*/ 
-        void _sendNack( const uint16_t toWriterID, const uint16_t sequenceID,
-                        const Nack* nacks, const uint32_t num );
+        /** format and send a negative ack */ 
+        void _sendNack( const uint16_t toWriterID, const Nack* nacks,
+                        const uint16_t num );
         
         void _checkNewID( const uint16_t id );
 
@@ -303,13 +291,9 @@ namespace net
         void _postWakeup();
         void _asyncReceiveFrom();
         bool _isWriting()
-            { return !_threadBuffers.isEmpty() || !_writeBuffers.isEmpty( ); }
+            { return !_threadBuffers.isEmpty() || !_writeBuffers.empty( ); }
 
-        /* look if each connection have the same mtu */
-        bool isFinishedMtuExchange();
-
-        EQ_TS_VAR( _recvThread );
- 
+        EQ_TS_VAR( _recvThread ); 
     };
 
     std::ostream& operator << ( std::ostream&, const RSPConnection& );
