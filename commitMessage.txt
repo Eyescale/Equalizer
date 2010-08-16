@@ -1,25 +1,9 @@
-RSP: Implement sliding ack window with early acks
-Attn: Not working, check in to enable cross-machine debugging
-
-This optimization removes the implicit ackreq/ack barrier every n
-packets by a sliding send window. RSP receivers proactively send acks
-every RSP_ACK_FREQUENCY fully packets received. RSP senders check if all
-acks have been received when handling an ack, and finish the write queue
-up to this sequence. RSP senders only send an ack request if there is no
-more data to send or repeat. Sequence IDs are no longer manually reset,
-they will automatically wrap when 64k is reached. This facilitates the
-'distance' computations for sequences.
-
-Congestion control algorithm is still hard-coded and will be finalized
-later when tuning on real hardware.
-
-Get rid of a few unneeded variables.
-
+Fix Linux build
 
 [ ] May break build
-[x] May break existing applications
-[ ] Bugfix
-[x] New Feature
-[x] Cleanup
-[x] Optimization
+[ ] May break existing applications
+[x] Bugfix
+[ ] New Feature
+[ ] Cleanup
+[ ] Optimization
 [ ] Documentation
