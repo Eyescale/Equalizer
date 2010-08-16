@@ -1,4 +1,4 @@
-Fix Linux build
+RSP: minor bugfix
 
 [ ] May break build
 [ ] May break existing applications

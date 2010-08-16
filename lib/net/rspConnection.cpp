@@ -933,7 +933,7 @@ bool RSPConnection::_handleDataDatagram( Buffer& buffer )
     EQASSERT( connection->_id == writerID );
 
     const uint16_t sequence = datagram->sequence;
-    if( connection->_sequence > sequence &&
+    if( connection->_sequence > sequence ||
         connection->_sequence - sequence <= _numBuffers )
     {
         // ignore it if it's a repetition for another reader
