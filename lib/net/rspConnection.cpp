@@ -45,11 +45,10 @@ namespace
 base::a_int32_t nReadData;
 base::a_int32_t nBytesRead;
 base::a_int32_t nBytesWritten;
-base::a_int32_t nDataPackets;
-base::a_int32_t nTotalDatagrams;
+base::a_int32_t nDatagrams;
+base::a_int32_t nRepeated;
 base::a_int32_t nMergedDatagrams;
 base::a_int32_t nAckRequests;
-base::a_int32_t nTotalAckRequests;
 base::a_int32_t nAcksSend;
 base::a_int32_t nAcksSendTotal;
 base::a_int32_t nAcksRead;
@@ -57,7 +56,6 @@ base::a_int32_t nAcksAccepted;
 base::a_int32_t nNAcksSend;
 base::a_int32_t nNAcksRead;
 base::a_int32_t nNAcksResend;
-base::a_int32_t nTimeOuts;
 #endif
 
 static uint16_t _numBuffers = 0;
@@ -440,7 +438,7 @@ void RSPConnection::_handleConnectedTimeout( )
         return;
     }
 
-    const int32_t timeout = _handleWrite();
+    const int32_t timeout = _processOutgoing();
     //EQLOG( LOG_RSP ) << "new timeout " << timeout << std::endl;
     _resetTimeout( timeout );
 
@@ -501,86 +499,16 @@ void RSPConnection::_postWakeup()
                                      placeholders::error ));
 }
 
-int32_t RSPConnection::_handleWrite()
+int32_t RSPConnection::_processOutgoing()
 {
     if( !_repeatQueue.empty( ))
     {
         _timeouts = 0;
-        _handleRepeat();
+        _repeatData();
         return 0;
     }
 
-    Buffer* buffer = 0;
-    if( _threadBuffers.pop( buffer )) // something to write
-    {
-        _timeouts = 0;
-        EQASSERT( buffer );
-
-        // write buffer
-        DatagramData* header = 
-            reinterpret_cast<DatagramData*>( buffer->getData( ));
-        header->sequence = _sequence++;
-#ifdef EQ_RSP_MERGE_WRITES
-        if( header->size < _payloadSize && !_threadBuffers.isEmpty( ))
-        {
-            std::vector< Buffer* > appBuffers;
-            while( header->size < _payloadSize && !_threadBuffers.isEmpty( ))
-            {
-                Buffer* buffer2 = 0;
-                EQCHECK( _threadBuffers.getFront( buffer2 ));
-                EQASSERT( buffer2 );
-                DatagramData* header2 = 
-                    reinterpret_cast<DatagramData*>( buffer2->getData( ));
-            
-                if( header->size + header2->size > _payloadSize )
-                    break;
-
-                memcpy( reinterpret_cast<uint8_t*>( header + 1 ) + header->size,
-                        header2 + 1, header2->size );
-                header->size += header2->size;
-                EQCHECK( _threadBuffers.pop( buffer2 ));
-                appBuffers.push_back( buffer2 );
-#ifdef EQ_INSTRUMENT_RSP
-                ++nMergedDatagrams;
-#endif
-            }
-
-            if( !appBuffers.empty( ))
-                _appBuffers.push( appBuffers );
-        }
-#endif
-        const uint32_t size = header->size + sizeof( DatagramData );
-
-        // send data
-        //  Note 1: We could optimize the send away if we're all alone, but this
-        //          is not a use case for RSP, so we don't care.
-        //  Note 2: Data to myself will be 'written' in _finishWriteQueue once
-        //          we've got all acks for the packet
-        _waitWritable( size ); // OPT: process incoming in between
-        _write->send( boost::asio::buffer( header, size ));
-
-        if( _sendRate < _description->bandwidth )
-        {
-            _sendRate *= 1.005f;
-            EQLOG( LOG_RSP ) << "speeding up to " << _sendRate << " KB/s"
-                             << std::endl;
-        }
-
-#ifdef EQ_INSTRUMENT_RSP
-        ++nTotalDatagrams;
-        ++nDataPackets;
-        nBytesWritten += header->size;
-#endif
-
-        // save datagram for repeats (and self)
-        _writeBuffers.push_back( buffer );
-
-        if( _children.size() == 1 ) // We're all alone
-        {
-            EQASSERT( _children.front()->_id == _id );
-            _finishWriteQueue( _sequence - 1 );
-        }
-    }
+    _writeData();
 
     if( _threadBuffers.isEmpty( )) // no more data to write
     {
@@ -590,21 +518,88 @@ int32_t RSPConnection::_handleWrite()
             return -1;
         }
 
-        // request pending acks
-#ifdef EQ_INSTRUMENT_RSP
-        ++nTimeOuts;
-#endif
-        ++_timeouts;
-                
         // (repeat) ack request
-#ifdef EQ_INSTRUMENT_RSP
-        ++nAckRequests;
-#endif
+        ++_timeouts;
         _sendAckRequest( _sequence - 1 );
         return Global::getIAttribute( Global::IATTR_RSP_ACK_TIMEOUT );
     }
 
     return 0; // call again
+}
+
+void RSPConnection::_writeData()
+{
+    Buffer* buffer = 0;
+    if( !_threadBuffers.pop( buffer )) // nothing to write
+        return;
+
+    _timeouts = 0;
+    EQASSERT( buffer );
+
+    // write buffer
+    DatagramData* header = reinterpret_cast<DatagramData*>( buffer->getData( ));
+    header->sequence = _sequence++;
+
+#ifdef EQ_RSP_MERGE_WRITES
+    if( header->size < _payloadSize && !_threadBuffers.isEmpty( ))
+    {
+        std::vector< Buffer* > appBuffers;
+        while( header->size < _payloadSize && !_threadBuffers.isEmpty( ))
+        {
+            Buffer* buffer2 = 0;
+            EQCHECK( _threadBuffers.getFront( buffer2 ));
+            EQASSERT( buffer2 );
+            DatagramData* header2 = 
+                reinterpret_cast<DatagramData*>( buffer2->getData( ));
+
+            if( header->size + header2->size > _payloadSize )
+                break;
+
+            memcpy( reinterpret_cast<uint8_t*>( header + 1 ) + header->size,
+                    header2 + 1, header2->size );
+            header->size += header2->size;
+            EQCHECK( _threadBuffers.pop( buffer2 ));
+            appBuffers.push_back( buffer2 );
+#ifdef EQ_INSTRUMENT_RSP
+            ++nMergedDatagrams;
+#endif
+        }
+
+        if( !appBuffers.empty( ))
+            _appBuffers.push( appBuffers );
+    }
+#endif
+
+    // send data
+    //  Note 1: We could optimize the send away if we're all alone, but this is
+    //          not a use case for RSP, so we don't care.
+    //  Note 2: Data to myself will be 'written' in _finishWriteQueue once we
+    //          got all acks for the packet
+    const uint32_t size = header->size + sizeof( DatagramData );
+
+    _waitWritable( size ); // OPT: process incoming in between
+    _write->send( boost::asio::buffer( header, size ));
+
+    if( _sendRate < _description->bandwidth )
+    {
+        _sendRate *= 1.001f;
+        EQLOG( LOG_RSP ) << "speeding up to " << _sendRate << " KB/s"
+                         << std::endl;
+    }
+
+#ifdef EQ_INSTRUMENT_RSP
+    ++nDatagrams;
+    nBytesWritten += header->size;
+#endif
+
+    // save datagram for repeats (and self)
+    _writeBuffers.push_back( buffer );
+
+    if( _children.size() == 1 ) // We're all alone
+    {
+        EQASSERT( _children.front()->_id == _id );
+        _finishWriteQueue( _sequence - 1 );
+    }
 }
 
 void RSPConnection::_waitWritable( const uint64_t bytes )
@@ -623,7 +618,7 @@ void RSPConnection::_waitWritable( const uint64_t bytes )
     _bucketSize -= size;
 }
 
-void RSPConnection::_handleRepeat()
+void RSPConnection::_repeatData()
 {
     while( !_repeatQueue.empty( ))
     {
@@ -647,11 +642,11 @@ void RSPConnection::_handleRepeat()
             _waitWritable( size ); // OPT: process incoming in between
             _write->send( boost::asio::buffer( header, size ) );
 #ifdef EQ_INSTRUMENT_RSP
-            ++nTotalDatagrams;
+            ++nRepeated;
 #endif
             if( _sendRate < _description->bandwidth )
             {
-                _sendRate *= 1.005f;
+                _sendRate *= 1.001f;
 //                EQLOG( LOG_RSP ) << "speeding up to " << _sendRate << " KB/s"
 //                                 << std::endl;
             }
@@ -762,7 +757,7 @@ void RSPConnection::_handleData( const boost::system::error_code& error,
         _handleConnectedData( _recvBuffer.getData() );
 
         if( _state == STATE_LISTENING )
-            timeout = _handleWrite();
+            timeout = _processOutgoing();
         else
         {
             _ioService.stop();
@@ -1114,7 +1109,7 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
 bool RSPConnection::_handleNack( const DatagramNack* nack )
 {
 #ifdef EQ_INSTRUMENT_RSP
-    nNAcksRead += nack->count;
+    ++nNAcksRead;
 #endif
 
     EQLOG( LOG_RSP )
@@ -1174,7 +1169,9 @@ void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
 
     if( _sendRate > _description->bandwidth/50 )
     {
-        _sendRate *= ( 1.f - float( lost >> 3 ) / float( _numBuffers ));
+        float downScale = ( 1.f - float( lost ) / 1000.f );
+        downScale = EQ_MAX( downScale, .5f );
+        _sendRate *= downScale;
         EQLOG( LOG_RSP ) 
             << ", lost " << lost << " slowing down to " << _sendRate << " KB/s"
             << std::endl << base::enableFlush;
@@ -1212,9 +1209,6 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
         (gotID > reqID && gotID - reqID <= _numBuffers) ||
         (gotID < reqID && distance > _numBuffers) )
     {
-#ifdef EQ_INSTRUMENT_RSP
-        ++nAcksSend;
-#endif
         _sendAck( connection->_id, gotID );
         return true;
     }
@@ -1422,33 +1416,6 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
     return bytes;
 }
 
-void RSPConnection::_adaptSendRate( const size_t nPackets, const size_t nErrors)
-{
-    EQASSERT( nPackets > 0 );
-    const float error = ( static_cast< float >( nErrors ) /
-                          static_cast< float >( nPackets ) * 100.f ) - 
-        Global::getIAttribute( Global::IATTR_RSP_ERROR_BASE_RATE );
-
-    int32_t delta = 0;
-    if ( error < 0.f )
-        delta = static_cast< int32_t >( error *
-                      Global::getIAttribute( Global::IATTR_RSP_ERROR_UPSCALE ));
-    else
-        delta = static_cast< int32_t >( error /
-                    Global::getIAttribute( Global::IATTR_RSP_ERROR_DOWNSCALE ));        
-    
-    delta = EQ_MIN( Global::getIAttribute( Global::IATTR_RSP_ERROR_MAX ),
-                        delta );
-    EQLOG( LOG_RSP ) << nErrors << "/" << nPackets
-                         << " errors, change send rate by " << -delta << "%"
-                         << std::endl;
-    
-    _sendRate += _sendRate * (-delta) / 100;
-    _sendRate = EQ_MAX( _description->bandwidth/50, _sendRate );
-    _sendRate = EQ_MIN( _sendRate, _description->bandwidth );
-    EQLOG( LOG_RSP ) << "new send rate " << _sendRate << std::endl;
-}
-
 void RSPConnection::_sendDatagramCountNode()
 {
     if ( !_findConnection( _id ) )
@@ -1469,10 +1436,10 @@ void RSPConnection::_sendAck( const uint16_t writerID,
                               const uint16_t sequence )
 {
     EQASSERT( _id != writerID );
-
 #ifdef EQ_INSTRUMENT_RSP
-    ++nAcksSendTotal;
+    ++nAcksSend;
 #endif
+
     EQLOG( LOG_RSP ) << "send ack " << sequence << std::endl;
     const DatagramAck ack = { ACK, _id, writerID, sequence };
     _write->send( buffer( &ack, sizeof( ack )) );
@@ -1506,7 +1473,7 @@ void RSPConnection::_sendNack( const uint16_t writerID, const Nack* nacks,
 void RSPConnection::_sendAckRequest( const uint16_t sequence )
 {
 #ifdef EQ_INSTRUMENT_RSP
-    ++nTotalAckRequests;
+    ++nAckRequests;
 #endif
     EQLOG( LOG_RSP ) << "send ack request for " << sequence << std::endl;
     const DatagramAckRequest ackRequest = { ACKREQ, _id, sequence };
@@ -1521,36 +1488,29 @@ std::ostream& operator << ( std::ostream& os,
 
 #ifdef EQ_INSTRUMENT_RSP
     os << ": read " << nBytesRead << " bytes, wrote " 
-       << nBytesWritten << " bytes using " << nDataPackets << " dgrams "
-       << nMergedDatagrams << " merged " << nTotalDatagrams - nDataPackets
-       << " repeated, " << nTimeOuts << " write timeouts, "
+       << nBytesWritten << " bytes using " << nDatagrams << " dgrams "
+       << nRepeated << " repeated " << nMergedDatagrams << " merged"
        << std::endl
-       << nAckRequests << " ack requests " 
-       << nTotalAckRequests - nAckRequests << " repeated, "
-       << nAcksAccepted << "/" << nAcksRead << " acks read, "
-       << nNAcksResend << "/" << nNAcksRead << " nacks answered, "
+       << "sender: " << nAckRequests << " ack requests " << nAcksAccepted << "/"
+       << nAcksRead << " acks " << nNAcksRead << " nacks"
        << std::endl
-       << nAcksSend << " acks " << nAcksSendTotal - nAcksSend << " repeated, "
-       << nNAcksSend << " negative acks ";
+       << "receiver: " << nAcksSend << " acks " << nNAcksSend
+       << " negative acks";
 
     nReadData = 0;
     nBytesRead = 0;
     nBytesWritten = 0;
-    nDataPackets = 0;
-    nTotalDatagrams = 0;
+    nDatagrams = 0;
+    nRepeated = 0;
     nMergedDatagrams = 0;
     nAckRequests = 0;
-    nTotalAckRequests = 0;
     nAcksSend = 0;
-    nAcksSendTotal = 0;
     nAcksRead = 0;
     nAcksAccepted = 0;
     nNAcksSend = 0;
     nNAcksRead = 0;
-    nNAcksResend = 0;
-    nTimeOuts = 0;
 #endif
-    os << base::enableHeader << base::enableFlush;
+    os << std::endl << base::enableHeader << base::enableFlush;
 
     return os;
 }

@@ -221,7 +221,9 @@ namespace net
         void _close();
         uint16_t _buildNewID();
         
-        int32_t _handleWrite(); //!< @return time to call again
+        int32_t _processOutgoing(); //!< @return time to call again
+        void _writeData();
+        void _repeatData();
         void _finishWriteQueue( const uint16_t sequence );
 
         bool _handleDataDatagram( Buffer& buffer );
@@ -258,14 +260,12 @@ namespace net
         /** find the connection corresponding to the identifier */
         RSPConnectionPtr _findConnection( const uint16_t id );
         
-        /** Analyze the current error and adapt the send rate */
-        void _adaptSendRate( const size_t nPackets, const size_t errors );
+        /** Sleep until allowed to send according to send rate */
         void _waitWritable( const uint64_t bytes );
 
         /** format and send a datagram count node */
         void _sendDatagramCountNode();
 
-        void _handleRepeat();
         void _addRepeat( const Nack* nacks, const uint16_t num );
 
         /** format and send an simple request which use only type and id field*/

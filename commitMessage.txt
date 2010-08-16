@@ -1,5 +1,4 @@
-RSP: minor bugfix, improve error rate calculation in case of multiple
-similar nack packets (ignore merges)
+RSP: Refactor send rate computation, sending and instrumentation
 
 [ ] May break build
 [ ] May break existing applications
