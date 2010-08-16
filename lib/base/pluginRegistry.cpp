@@ -93,9 +93,13 @@ void PluginRegistry::_initCompressor( const std::string& filename )
     if( add )
     {
         _compressors.push_back( compressor );
-        EQLOG( LOG_PLUGIN ) << "Found compressor '" << filename
-                            << "' providing " << compressor->getInfos().size()
-                            << " engines" << std::endl;
+        if( filename.empty( ))
+            EQLOG( LOG_PLUGIN ) << "Found " << compressor->getInfos().size()
+                                << " built-in compression engines" << std::endl;
+        else
+            EQLOG( LOG_PLUGIN )
+                << "Found " << compressor->getInfos().size()
+                << " compression engines in " << filename << std::endl;
     }
     else
         delete compressor;

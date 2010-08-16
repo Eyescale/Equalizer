@@ -134,6 +134,12 @@ namespace base
                 return true;
             }
 
+        /**
+         * @return the maximum number of elements held by the queue.
+         * @version 1.0
+         */
+        size_t getCapacity() const { return _data.size() - 1; }
+
     private:
         std::vector< T > _data;
         a_int32_t _readPos;
