@@ -59,6 +59,7 @@ base::a_int32_t nNAcksRead;
 base::a_int32_t nNAcksResend;
 
 float writeWaitTime = 0.f;
+base::Clock instrumentClock;
 #endif
 
 static uint16_t _numBuffers = 0;
@@ -504,6 +505,14 @@ void RSPConnection::_postWakeup()
 
 int32_t RSPConnection::_processOutgoing()
 {
+#ifdef EQ_INSTRUMENT_RSP
+    if( instrumentClock.getTime64() > 1000 )
+    {
+        EQWARN << *this << std::endl;
+        instrumentClock.reset();
+    }
+#endif
+
     if( !_repeatQueue.empty( ))
     {
         _timeouts = 0;
@@ -585,7 +594,7 @@ void RSPConnection::_writeData()
 
     if( _sendRate < _description->bandwidth )
     {
-        _sendRate *= 1.0001f;
+        _sendRate = int64_t( _sendRate * 1.0005f );
         ++_sendRate;
         EQLOG( LOG_RSP ) << "speeding up to " << _sendRate << " KB/s"
                          << std::endl;
@@ -667,7 +676,7 @@ void RSPConnection::_repeatData()
 #endif
             if( _sendRate < _description->bandwidth )
             {
-                _sendRate *= 1.0001f;
+                _sendRate = int64_t( _sendRate * 1.0005f );
                 ++_sendRate;
 //                EQLOG( LOG_RSP ) << "speeding up to " << _sendRate << " KB/s"
 //                                 << std::endl;
@@ -762,11 +771,6 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
     EQASSERT( connection->_acked == sequence );
 
     _timeouts = 0;
-
-#ifdef EQ_INSTRUMENT_RSP
-    if( nBytesWritten > 10000000 )
-        EQWARN << *this << std::endl;
-#endif
 }
 
 void RSPConnection::_handlePacket( const boost::system::error_code& error,
@@ -1193,7 +1197,7 @@ void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
     {
         float downScale = ( 1.f - float( lost ) / 1000.f );
         downScale = EQ_MAX( downScale, .5f );
-        _sendRate *= downScale;
+        _sendRate = int64_t( _sendRate * downScale );
         EQLOG( LOG_RSP ) 
             << ", lost " << lost << " slowing down to " << _sendRate << " KB/s"
             << std::endl << base::enableFlush;
