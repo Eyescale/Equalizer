@@ -54,7 +54,6 @@ int32_t     Global::_iAttributes[IATTR_ALL] =
 {
     100,   // INSTANCE_CACHE_SIZE
     10,    // RSP_TIMEOUT
-    2000,  // RSP_MAX_TIMEOUTS
     5,     // RSP_ERROR_BASE_RATE
     5,     // RSP_ERROR_DOWNSCALE
     3,     // RSP_ERROR_UPSCALE

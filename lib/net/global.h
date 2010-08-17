@@ -87,7 +87,6 @@ namespace net
         {
             IATTR_INSTANCE_CACHE_SIZE,   //!< @internal max size in MB 
             IATTR_RSP_ACK_TIMEOUT,       //!< @internal time out for ack req
-            IATTR_RSP_MAX_TIMEOUTS,      //!< @internal timeouts before close
             IATTR_RSP_ERROR_BASE_RATE,   //!< @internal normal error percentage
             IATTR_RSP_ERROR_DOWNSCALE,   //!< @internal send rate down scale (/)
             IATTR_RSP_ERROR_UPSCALE,     //!< @internal send rate up scale (*)

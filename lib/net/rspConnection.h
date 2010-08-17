@@ -226,7 +226,7 @@ namespace net
         void _repeatData();
         void _finishWriteQueue( const uint16_t sequence );
 
-        bool _handleDataDatagram( Buffer& buffer );
+        bool _handleData( Buffer& buffer );
         bool _handleAck( const DatagramAck* ack );
         bool _handleNack( const DatagramNack* nack );
         bool _handleAckRequest( const DatagramAckRequest* ackRequest );
@@ -245,8 +245,8 @@ namespace net
         /* Make all buffers available for reading */
         void initBuffers();
         /* handle data about the comunication state */ 
-        void _handleData( const boost::system::error_code& error,
-                              const size_t bytes );
+        void _handlePacket( const boost::system::error_code& error,
+                            const size_t bytes );
         void _handleConnectedData( const void* data );
         void _handleInitData( const void* data );
         void _handleAcceptIDData( const void* data );
@@ -287,7 +287,7 @@ namespace net
         bool _addNewConnection( const uint16_t id );
         void _removeConnection( const uint16_t id );
 
-        void _resetTimeout( int32_t timeOut );
+        void _resetTimeout( const int32_t timeOut );
         void _postWakeup();
         void _asyncReceiveFrom();
         bool _isWriting()

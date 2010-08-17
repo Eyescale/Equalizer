@@ -31,6 +31,7 @@
 
 //#define EQ_INSTRUMENT_RSP
 #define EQ_RSP_MERGE_WRITES
+#define EQ_RSP_MAX_TIMEOUTS 2000
 
 using namespace boost::asio;
 
@@ -56,6 +57,8 @@ base::a_int32_t nAcksAccepted;
 base::a_int32_t nNAcksSend;
 base::a_int32_t nNAcksRead;
 base::a_int32_t nNAcksResend;
+
+float writeWaitTime = 0.f;
 #endif
 
 static uint16_t _numBuffers = 0;
@@ -442,7 +445,7 @@ void RSPConnection::_handleConnectedTimeout( )
     //EQLOG( LOG_RSP ) << "new timeout " << timeout << std::endl;
     _resetTimeout( timeout );
 
-    if( _timeouts >= Global::getIAttribute( Global::IATTR_RSP_MAX_TIMEOUTS ))
+    if( _timeouts >= EQ_RSP_MAX_TIMEOUTS )
     {
         EQERROR << "Too many timeouts during send: " << _timeouts << std::endl;
         _sendSimpleDatagram( ID_EXIT, _id );
@@ -480,7 +483,7 @@ void RSPConnection::_runThread()
     _ioService.run();
 }
 
-void RSPConnection::_resetTimeout( int32_t timeOut )
+void RSPConnection::_resetTimeout( const int32_t timeOut )
 {
     if( timeOut >= 0 )
     {
@@ -582,7 +585,8 @@ void RSPConnection::_writeData()
 
     if( _sendRate < _description->bandwidth )
     {
-        _sendRate *= 1.001f;
+        _sendRate *= 1.0001f;
+        ++_sendRate;
         EQLOG( LOG_RSP ) << "speeding up to " << _sendRate << " KB/s"
                          << std::endl;
     }
@@ -604,6 +608,10 @@ void RSPConnection::_writeData()
 
 void RSPConnection::_waitWritable( const uint64_t bytes )
 {
+#ifdef EQ_INSTRUMENT_RSP
+    base::Clock clock;
+#endif
+
     _bucketSize += static_cast< uint64_t >( _clock.resetTimef() * _sendRate );
                                                      // opt omit: * 1024 / 1000;
     _bucketSize = EQ_MIN( _bucketSize, _maxBucketSize );
@@ -611,11 +619,24 @@ void RSPConnection::_waitWritable( const uint64_t bytes )
     const uint64_t size = EQ_MIN( bytes, static_cast< uint64_t >( _mtu ));
     while( _bucketSize < size )
     {
-        eq::base::sleep( 1 );
-        _bucketSize += static_cast< int64_t >( _clock.resetTimef() *_sendRate );
+        //base::sleep( 1 );
+        base::Thread::yield();
+        float time = _clock.resetTimef();
+
+        while( time == 0.f )
+        {
+            base::Thread::yield();
+            time = _clock.resetTimef();
+        }
+
+        _bucketSize += static_cast< int64_t >( time * _sendRate );
         _bucketSize = EQ_MIN( _bucketSize, _maxBucketSize );
     }
     _bucketSize -= size;
+
+#ifdef EQ_INSTRUMENT_RSP
+    writeWaitTime += clock.getTimef();
+#endif
 }
 
 void RSPConnection::_repeatData()
@@ -646,7 +667,8 @@ void RSPConnection::_repeatData()
 #endif
             if( _sendRate < _description->bandwidth )
             {
-                _sendRate *= 1.001f;
+                _sendRate *= 1.0001f;
+                ++_sendRate;
 //                EQLOG( LOG_RSP ) << "speeding up to " << _sendRate << " KB/s"
 //                                 << std::endl;
             }
@@ -747,8 +769,8 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
 #endif
 }
 
-void RSPConnection::_handleData( const boost::system::error_code& error,
-                                 const size_t bytes )
+void RSPConnection::_handlePacket( const boost::system::error_code& error,
+                                   const size_t bytes )
 {
     int32_t timeout = 10;
 
@@ -769,7 +791,7 @@ void RSPConnection::_handleData( const boost::system::error_code& error,
     else
         _handleAcceptIDData( _recvBuffer.getData() );
 
-    //EQLOG( LOG_RSP ) << "_handleData timeout " << timeout << std::endl;
+    //EQLOG( LOG_RSP ) << "_handlePacket timeout " << timeout << std::endl;
     _asyncReceiveFrom();
     _resetTimeout( timeout );
 }
@@ -840,7 +862,7 @@ void RSPConnection::_handleConnectedData( const void* data )
     switch( type )
     {
         case DATA:
-            EQCHECK( _handleDataDatagram( _recvBuffer ));
+            EQCHECK( _handleData( _recvBuffer ));
             break;
 
         case ACK:
@@ -898,12 +920,12 @@ void RSPConnection::_asyncReceiveFrom()
 {
     _read->async_receive_from(
         buffer( _recvBuffer.getData(), _mtu ), _readAddr,
-        boost::bind( &RSPConnection::_handleData, this,
+        boost::bind( &RSPConnection::_handlePacket, this,
                      placeholders::error,
                      placeholders::bytes_transferred ));
 }
 
-bool RSPConnection::_handleDataDatagram( Buffer& buffer )
+bool RSPConnection::_handleData( Buffer& buffer )
 {
 #ifdef EQ_INSTRUMENT_RSP
     ++nReadData;
@@ -1492,7 +1514,8 @@ std::ostream& operator << ( std::ostream& os,
        << nRepeated << " repeated " << nMergedDatagrams << " merged"
        << std::endl
        << "sender: " << nAckRequests << " ack requests " << nAcksAccepted << "/"
-       << nAcksRead << " acks " << nNAcksRead << " nacks"
+       << nAcksRead << " acks " << nNAcksRead << " nacks, throttle "
+       << writeWaitTime << " ms"
        << std::endl
        << "receiver: " << nAcksSend << " acks " << nNAcksSend
        << " negative acks";
@@ -1509,6 +1532,7 @@ std::ostream& operator << ( std::ostream& os,
     nAcksAccepted = 0;
     nNAcksSend = 0;
     nNAcksRead = 0;
+    writeWaitTime = 0.f;
 #endif
     os << std::endl << base::enableHeader << base::enableFlush;
 
