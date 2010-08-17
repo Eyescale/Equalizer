@@ -1,4 +1,4 @@
-Fix config slave node syncing (arg!)
+Fix release warning
 
 [ ] May break build
 [ ] May break existing applications

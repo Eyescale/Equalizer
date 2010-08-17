@@ -82,7 +82,8 @@ uint32_t Object::commitNB()
                               _data.userData << " >= " <<
                               net::ObjectVersion( _userData ));
 
-                _data.userData = _userData;
+                _data.userData.identifier = _userData->getID();
+                _data.userData.version = version;
                 setDirty( DIRTY_USERDATA );
             }
         }
