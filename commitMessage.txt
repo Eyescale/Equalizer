@@ -1,9 +1,11 @@
-RSP: rename some methods, optimizations, improve instrumentation
+RSP:
+- Fix early packet handling
+- Fix nack calculation on ack request
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation

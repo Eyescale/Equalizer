@@ -988,7 +988,7 @@ bool RSPConnection::_handleData( Buffer& buffer )
     }
     
     if( connection->_sequence > sequence ||
-        connection->_sequence - sequence <= _numBuffers )
+        uint16_t( connection->_sequence - sequence ) <= _numBuffers )
     {
         // ignore it if it's a repetition for another reader
         return true;
@@ -1001,12 +1001,10 @@ bool RSPConnection::_handleData( Buffer& buffer )
     EQASSERTINFO( size <= _numBuffers, size << " > " << _numBuffers );
 
     ssize_t i = ssize_t( size ) - 1;
-
-    if( connection->_recvBuffers.size() >= size && 
-        connection->_recvBuffers[ i ] ) // repetition
-    {
+    const bool gotPacket = ( connection->_recvBuffers.size() >= size && 
+                             connection->_recvBuffers[ i ] );
+    if( gotPacket )
         return true;
-    }
 
     Buffer* newBuffer = connection->_newDataBuffer( buffer );
     if( !newBuffer ) // no more data buffers, drop packet
@@ -1276,6 +1274,14 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
         EQLOG( LOG_RSP ) << nacks[i].end;
         ++i;
     }
+    else if( uint16_t( reqID - nacks[i-1].end ) < _numBuffers )
+    {
+        nacks[i].start = nacks[i-1].end + 1;
+        nacks[i].end = reqID;
+        EQLOG( LOG_RSP ) << nacks[i].start << ".." << nacks[i].end;
+        ++i;
+    }
+
     EQLOG( LOG_RSP ) << std::endl << base::enableFlush << "send " << i
                      << " nacks to " << connection->_id << std::endl;
 
@@ -1289,7 +1295,7 @@ bool RSPConnection::_handleCountNode()
     const DatagramCount* countConn = 
     reinterpret_cast< const DatagramCount* >( _recvBuffer.getData( ));
 
-    EQLOG( LOG_RSP ) << "Got " << countConn->numConnections << " from " 
+    EQLOG( LOG_RSP ) << "Got " << countConn->numConnections << " nodes from " 
                      << countConn->clientID << std::endl;
     // we know all connections
     if( _children.size() == countConn->numConnections ) 
