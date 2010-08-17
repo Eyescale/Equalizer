@@ -414,7 +414,7 @@ void RSPConnection::_handleAcceptIDTimeout( )
         // connections
         _sendDatagramCountNode();
     }
-    _resetTimeout( 10 );
+    _setTimeout( 10 );
 }
 
 void RSPConnection::_handleInitTimeout( )
@@ -430,7 +430,7 @@ void RSPConnection::_handleInitTimeout( )
         if( _children.empty() )
             _ioService.stop();
     } 
-    _resetTimeout( 10 );
+    _setTimeout( 10 );
 }
 
 void RSPConnection::_handleConnectedTimeout( )
@@ -441,9 +441,25 @@ void RSPConnection::_handleConnectedTimeout( )
         return;
     }
 
-    const int32_t timeout = _processOutgoing();
-    //EQLOG( LOG_RSP ) << "new timeout " << timeout << std::endl;
-    _resetTimeout( timeout );
+    _processOutgoing();
+    
+    if( _threadBuffers.isEmpty() && _repeatQueue.empty( ))
+    {
+        // no more data to write
+        if( _writeBuffers.empty( )) // got all acks
+        {
+            _timeouts = 0;
+            _timeout.cancel();
+            return;
+        }
+
+        // (repeat) ack request
+        ++_timeouts;
+        _sendAckRequest();
+        _setTimeout( Global::getIAttribute( Global::IATTR_RSP_ACK_TIMEOUT ));
+    }
+    else
+        _setTimeout( 0 ); // call again to send remaining
 
     if( _timeouts >= EQ_RSP_MAX_TIMEOUTS )
     {
@@ -469,7 +485,7 @@ bool RSPConnection::_initThread()
    // send a first datagram for announce me and discover other connection 
     EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
     _sendSimpleDatagram( ID_HELLO, _id );
-    _resetTimeout( 10 ); 
+    _setTimeout( 10 ); 
     _asyncReceiveFrom();
     _ioService.run();
     return  _state == STATE_LISTENING;
@@ -483,16 +499,12 @@ void RSPConnection::_runThread()
     _ioService.run();
 }
 
-void RSPConnection::_resetTimeout( const int32_t timeOut )
+void RSPConnection::_setTimeout( const int32_t timeOut )
 {
-    if( timeOut >= 0 )
-    {
-        _timeout.expires_from_now( boost::posix_time::milliseconds( timeOut ));
-        _timeout.async_wait( boost::bind( &RSPConnection::_handleTimeout, this,
-                                          placeholders::error ));
-    }
-    else
-        _timeout.cancel();
+    EQASSERT( timeOut >= 0 );
+    _timeout.expires_from_now( boost::posix_time::milliseconds( timeOut ));
+    _timeout.async_wait( boost::bind( &RSPConnection::_handleTimeout, this,
+                                      placeholders::error ));
 }
 
 void RSPConnection::_postWakeup()
@@ -502,7 +514,7 @@ void RSPConnection::_postWakeup()
                                      placeholders::error ));
 }
 
-int32_t RSPConnection::_processOutgoing()
+void RSPConnection::_processOutgoing()
 {
 #ifdef EQ_INSTRUMENT_RSP
     if( instrumentClock.getTime64() > 1000 )
@@ -516,26 +528,9 @@ int32_t RSPConnection::_processOutgoing()
     {
         _timeouts = 0;
         _repeatData();
-        return 0;
     }
-
-    _writeData();
-
-    if( _threadBuffers.isEmpty( )) // no more data to write
-    {
-        if( _writeBuffers.empty( )) // nothing pending
-        {
-            EQASSERT( _repeatQueue.empty( ));
-            return -1;
-        }
-
-        // (repeat) ack request
-        ++_timeouts;
-        _sendAckRequest( _sequence - 1 );
-        return Global::getIAttribute( Global::IATTR_RSP_ACK_TIMEOUT );
-    }
-
-    return 0; // call again
+    else
+        _writeData();
 }
 
 void RSPConnection::_writeData()
@@ -775,14 +770,16 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
 void RSPConnection::_handlePacket( const boost::system::error_code& error,
                                    const size_t bytes )
 {
-    int32_t timeout = 10;
-
     if( _state == STATE_LISTENING )
     {
         _handleConnectedData( _recvBuffer.getData() );
 
         if( _state == STATE_LISTENING )
-            timeout = _processOutgoing();
+        {
+            _processOutgoing();
+            if( !_threadBuffers.isEmpty() || !_repeatQueue.empty( ))
+                _setTimeout( 0 ); // call again (in _handleTimeout)
+        }
         else
         {
             _ioService.stop();
@@ -796,7 +793,6 @@ void RSPConnection::_handlePacket( const boost::system::error_code& error,
 
     //EQLOG( LOG_RSP ) << "_handlePacket timeout " << timeout << std::endl;
     _asyncReceiveFrom();
-    _resetTimeout( timeout );
 }
 
 void RSPConnection::_handleAcceptIDData( const void* data )
@@ -1501,13 +1497,14 @@ void RSPConnection::_sendNack( const uint16_t writerID, const Nack* nacks,
     _write->send( buffer( &packet, size ));
 }
 
-void RSPConnection::_sendAckRequest( const uint16_t sequence )
+void RSPConnection::_sendAckRequest()
 {
 #ifdef EQ_INSTRUMENT_RSP
     ++nAckRequests;
 #endif
-    EQLOG( LOG_RSP ) << "send ack request for " << sequence << std::endl;
-    const DatagramAckRequest ackRequest = { ACKREQ, _id, sequence };
+    EQLOG( LOG_RSP ) << "send ack request for " << uint16_t( _sequence -1 )
+                     << std::endl;
+    const DatagramAckRequest ackRequest = { ACKREQ, _id, _sequence - 1 };
     _write->send( buffer( &ackRequest, sizeof( DatagramAckRequest )) );
 }
 

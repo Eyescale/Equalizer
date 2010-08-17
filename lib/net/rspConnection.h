@@ -221,7 +221,7 @@ namespace net
         void _close();
         uint16_t _buildNewID();
         
-        int32_t _processOutgoing(); //!< @return time to call again
+        void _processOutgoing();
         void _writeData();
         void _repeatData();
         void _finishWriteQueue( const uint16_t sequence );
@@ -271,8 +271,8 @@ namespace net
         /** format and send an simple request which use only type and id field*/
         void _sendSimpleDatagram( DatagramType type, uint16_t id );
         
-        /** format and send an ack request*/
-        void _sendAckRequest( const uint16_t sequence );
+        /** format and send an ack request for the current sequence */
+        void _sendAckRequest();
 
         /** format and send a positive ack */
         void _sendAck( const uint16_t writerID, const uint16_t sequence );
@@ -287,7 +287,7 @@ namespace net
         bool _addNewConnection( const uint16_t id );
         void _removeConnection( const uint16_t id );
 
-        void _resetTimeout( const int32_t timeOut );
+        void _setTimeout( const int32_t timeOut );
         void _postWakeup();
         void _asyncReceiveFrom();
         bool _isWriting()
