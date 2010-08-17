@@ -43,7 +43,11 @@ Object::~Object()
 bool Object::isDirty() const
 {
     if( _userData && _userData->isAttached( ))
+    {
+        if( _userData->isMaster( ))
+            _userData->sync(); // apply slave object commits
         return Serializable::isDirty() || _userData->isDirty();
+    }
 
     // else
     return Serializable::isDirty();
@@ -63,17 +67,24 @@ uint32_t Object::commitNB()
         if( _userData->isDirty() && _userData->isAttached( ))
         {
             const uint32_t version = _userData->commit();
-            //EQINFO << "Committed " << version << " of "
-            //       << base::className( _userData ) << " @" << (void*)_userData
-            //       << base::backtrace << std::endl;
+//            EQINFO << "Committed " << _userData->getID() << " v" << version
+//                   << " of " << base::className( _userData ) << " @"
+//                   << (void*)_userData << base::backtrace << std::endl;
 
             EQASSERT( !_userData->isDirty( ));
             EQASSERT( _data.userData.identifier != _userData->getID() ||
                       _data.userData.version <= version );
 
-            if( _userData->isMaster( ))
+            if( _userData->isMaster() && _data.userData != _userData )
+            {
+                EQASSERTINFO( _data.userData.identifier != _userData->getID() ||
+                              _data.userData.version < _userData->getVersion(),
+                              _data.userData << " >= " <<
+                              net::ObjectVersion( _userData ));
+
                 _data.userData = _userData;
-            setDirty( DIRTY_USERDATA );
+                setDirty( DIRTY_USERDATA );
+            }
         }
     }
 
@@ -195,9 +206,7 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     EQASSERTINFO( _userData->getID() == _data.userData.identifier,
                   _userData->getID() << " != " << _data.userData.identifier );
 
-    if( _userData->isMaster( ))
-        _userData->sync();
-    else
+    if( !_userData->isMaster( ))
     {
 #if 0
         if( _userData->getVersion() < _data.userData.version )

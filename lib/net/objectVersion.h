@@ -49,6 +49,12 @@ namespace net
                          version == value.version );
             }
         
+        bool operator != ( const ObjectVersion& value ) const
+            {
+                return ( identifier != value.identifier ||
+                         version != value.version );
+            }
+        
         bool operator < ( const ObjectVersion& rhs ) const
             { 
                 return identifier < rhs.identifier ||

@@ -85,7 +85,8 @@ endif # icc
 
 # GCC settings
 ifeq ($(findstring g++, $(CXX)),g++)
-    CXXFLAGS += -Wall  -Winvalid-pch \
+#    CXXFLAGS += -fno-implicit-templates
+    CXXFLAGS += -Wall -Winvalid-pch \
                 -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self \
                 -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings
 ifdef USE_OPENMP

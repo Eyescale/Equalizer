@@ -377,6 +377,7 @@ namespace eq
         uint32_t frameID;
         uint32_t frameNumber;
         uint32_t version;
+        uint32_t configVersion;
     };
 
     struct NodeFrameFinishPacket : public net::ObjectPacket

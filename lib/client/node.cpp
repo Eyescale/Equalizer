@@ -510,13 +510,16 @@ bool Node::_cmdFrameStart( net::Command& command )
     EQLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber
                        << std::endl;
 
-    sync( packet->version );
     Config* config = getConfig();
+    
+    config->sync( packet->configVersion );
+    sync( packet->version );
+
     config->_frameStart();
     frameStart( packet->frameID, frameNumber );
+
     EQASSERTINFO( _currentFrame >= frameNumber, 
                   "Node::frameStart() did not start frame " << frameNumber );
-
     return true;
 }
 

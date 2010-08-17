@@ -337,7 +337,6 @@ View* Pipe::getView( const net::ObjectVersion& viewVersion )
         return 0;
 
     View* view = _views[ viewVersion.identifier ];
-
     if( !view )
     {
         NodeFactory* nodeFactory = Global::getNodeFactory();
