@@ -512,7 +512,8 @@ bool Node::_cmdFrameStart( net::Command& command )
 
     Config* config = getConfig();
     
-    config->sync( packet->configVersion );
+    if( packet->configVersion != net::VERSION_NONE )
+        config->sync( packet->configVersion );
     sync( packet->version );
 
     config->_frameStart();

@@ -369,6 +369,7 @@ namespace eq
     struct NodeFrameStartPacket : public net::ObjectPacket
     {
         NodeFrameStartPacket()
+                : configVersion( net::VERSION_INVALID )
             {
                 command        = fabric::CMD_NODE_FRAME_START;
                 size           = sizeof( NodeFrameStartPacket );

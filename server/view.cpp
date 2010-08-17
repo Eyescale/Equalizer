@@ -86,6 +86,7 @@ private:
 
 void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
+    //EQINFO << getVersion() << base::backtrace << std::endl;
     EQASSERT( isMaster( ));
     Super::deserialize( is, dirtyBits );
     setDirty( dirtyBits ); // redistribute slave changes

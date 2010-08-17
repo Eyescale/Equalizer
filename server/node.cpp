@@ -238,7 +238,8 @@ void Node::update( const uint32_t frameID, const uint32_t frameNumber )
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
     startPacket.version     = getVersion();
-    startPacket.configVersion = getConfig()->getVersion();
+    if( !isApplicationNode( )) // synced in Config::_cmdFrameStart
+        startPacket.configVersion = getConfig()->getVersion();
 
     _send( startPacket );
     EQLOG( LOG_TASKS ) << "TASK node start frame " << &startPacket << std::endl;
