@@ -102,14 +102,13 @@ RSPConnection::RSPConnection()
     }
 
     EQASSERT( sizeof( DatagramNack ) <= size_t( _mtu ));
-    EQLOG( LOG_RSP ) << "New RSP connection, " << _buffers.size() 
-                     << " packet buffers of size " << _mtu << std::endl;
+    EQLOG( LOG_RSP ) << "New RSP connection, " << _buffers.size()
+                     << " buffers of " << _mtu << " bytes" << std::endl;
 }
 
 RSPConnection::~RSPConnection()
 {
     close();
-
     while( !_buffers.empty( ))
     {
         delete _buffers.back();
