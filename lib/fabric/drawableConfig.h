@@ -42,17 +42,17 @@ namespace fabric
                                        const DrawableConfig& config )
     {
         os << "GL" << config.glVersion;
-        if( config.stereo )
-            os << "|ST";
-        if( config.doublebuffered )
-            os << "|DB";
-        if( config.stencilBits )
-            os << "|st" << config.stencilBits;
         os << "|rgb" << config.colorBits;
         if( config.alphaBits )
             os << "a" << config.alphaBits;
+        if( config.stencilBits )
+            os << "|st" << config.stencilBits;
         if( config.accumBits )
             os << "|acc" << config.accumBits;
+        if( config.doublebuffered )
+            os << "|DB";
+        if( config.stereo )
+            os << "|ST";
         return os;
     }
 

@@ -1,4 +1,4 @@
-Fix config slave node syncing
+Fix config slave node syncing (arg!)
 
 [ ] May break build
 [ ] May break existing applications
