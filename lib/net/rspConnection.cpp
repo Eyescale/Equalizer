@@ -644,7 +644,7 @@ void RSPConnection::_waitWritable( const uint64_t bytes )
 
     if( _sendRate < _description->bandwidth )
     {
-        _sendRate += 1 + int64_t(
+        _sendRate += int64_t(
             float( Global::getIAttribute( Global::IATTR_RSP_ERROR_UPSCALE )) *
             float( _description->bandwidth ) * .001f );
         EQLOG( LOG_RSP ) << "speeding up to " << _sendRate << " KB/s"

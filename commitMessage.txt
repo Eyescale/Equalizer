@@ -1,4 +1,4 @@
-RSP: Tune congestion control algorithm
+RSP: minor optimization
 
 [ ] May break build
 [ ] May break existing applications
