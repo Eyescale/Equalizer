@@ -100,8 +100,8 @@ namespace util
          * @param height the height of the texture.
          * @version 1.0
          */
-        void init( const GLuint internalFormat, const int32_t width,
-                   const int32_t height );
+        EQ_EXPORT void init( const GLuint internalFormat, const int32_t width,
+                             const int32_t height );
 
         /** Clear the texture, including the GL texture name. @version 1.0 */
         EQ_EXPORT void flush();

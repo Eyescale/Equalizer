@@ -713,6 +713,7 @@ std::ostream& operator << ( std::ostream& os,
 
     os << "attributes" << std::endl << "{" << std::endl << base::indent
        << "eye_base     " << config.getFAttribute( C::FATTR_EYE_BASE )
+       << std::endl
        << "robustness   " << config.getIAttribute( C::IATTR_ROBUSTNESS )
        << std::endl
        << base::exdent << "}" << std::endl;
