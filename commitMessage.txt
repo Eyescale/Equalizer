@@ -1,9 +1,9 @@
-RSP: re-enable CC external parameters
+RSP: Improve documentation
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

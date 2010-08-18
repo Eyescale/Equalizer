@@ -43,18 +43,24 @@ namespace eq
 namespace net
 {
     class ConnectionDescription;
-    class RSPConnection;
-    /** A RSP connection (Attn: only multicast usage implemented). */
+
+    /**
+     * A reliable multicast connection.
+     *
+     * This connection implements a reliable stream protocol (RSP) over IP V4
+     * UDP multicast. The <a href="http://www.equalizergraphics.com/documents/design/multicast.html#RSP">RSP
+     * design document</a> describes the high-level protocol.
+     */
     class RSPConnection : public Connection
     {
-
     public:
         /** Create a new RSP-based connection. */
         RSPConnection();
-        virtual ~RSPConnection();
-
+        
         virtual bool listen();
         void close();
+
+        /** Identical to listen() for multicast connections. */
         bool connect(){ return listen(); }
 
         virtual void acceptNB(){ EQASSERT( _state == STATE_LISTENING ); }
@@ -65,16 +71,25 @@ namespace net
                                   const bool ignored );
         virtual int64_t write( const void* buffer, const uint64_t bytes );
 
+        /** @internal @return current send speed in kilobyte per second. */
         int64_t getSendRate() const { return _sendRate; }
+
+        /**
+         * @internal
+         * @return the unique identifier of this connection within the multicast
+         *         group.
+         */
         uint16_t getID() const { return _id; }
         
-        /** @sa Connection::getNotifier */
         virtual Notifier getNotifier() const { return _event->getNotifier(); }
+
+    protected:
+        virtual ~RSPConnection();
     
     private:
         typedef base::RefPtr< RSPConnection > RSPConnectionPtr;
 
-        /* manages RSP protocol directly using the udp connection */
+        /** Thread managing network IO and RSP protocol. */
         class Thread : public base::Thread
         {
         public: 
@@ -89,25 +104,28 @@ namespace net
             RSPConnectionPtr _connection;
         };
 
-        enum DatagramType 
+        /** The type of each UDP packet */
+        enum DatagramType
         { 
-            DATA,      // the datagram contains data
-            ACKREQ,    // ask for ack from all readers
-            NACK,      // negative ack, request missing packets
-            ACK,       // positive ack all data
-            ID_HELLO,  // announce a new id
-            ID_DENY,   // deny the id, already used
-            ID_CONFIRM,// a new node is connected
-            ID_EXIT,   // a node is disconnected
-            COUNTNODE  // send to other the number of nodes which I have found
+            DATA,      //!< the datagram contains data
+            ACKREQ,    //!< ask for ack from all readers
+            NACK,      //!< negative ack, request missing packets
+            ACK,       //!< positive ack all data
+            ID_HELLO,  //!< announce a new id
+            ID_DENY,   //!< deny the id, already used
+            ID_CONFIRM,//!< a new node is connected
+            ID_EXIT,   //!< a node is disconnected
+            COUNTNODE  //!< send to other the number of nodes which I have found
         };
         
+        /** ID_HELLO, ID_DENY, ID_CONFIRM or ID_EXIT packet */
         struct DatagramNode
         {
             uint16_t type;
             uint16_t connectionID;
         };
 
+        /** Announce number of known connections */
         struct DatagramCount
         {
             uint16_t type;
@@ -115,6 +133,7 @@ namespace net
             uint16_t numConnections;
         };
 
+        /** Request receive confirmation of all packets up to sequence. */
         struct DatagramAckRequest
         {
             uint16_t type;
@@ -122,6 +141,7 @@ namespace net
             uint16_t sequence;
         };
         
+        /** Missing packets from start..end sequence */
         struct Nack
         {
             uint16_t start;
@@ -129,6 +149,7 @@ namespace net
         };
 
 #       define EQ_RSP_MAX_NACKS 300 // fits in a single IP frame
+        /** Request resend of lost packets */
         struct DatagramNack
         {
             void set( uint16_t rID, uint16_t wID, uint16_t n )
@@ -140,12 +161,13 @@ namespace net
             }
 
             uint16_t       type;
-            uint16_t       readerID;    // ID of the connection reader
-            uint16_t       writerID;    // ID of the connection writer
-            uint16_t       count;       // number of NACK requests
+            uint16_t       readerID;
+            uint16_t       writerID;
+            uint16_t       count;       //!< number of NACK requests used
             Nack           nacks[ EQ_RSP_MAX_NACKS ];
         };
 
+        /** Acknowledge reception of all packets including sequence .*/
         struct DatagramAck
         {
             uint16_t        type;
@@ -154,6 +176,7 @@ namespace net
             uint16_t        sequence;
         };
 
+        /** Data packet */
         struct DatagramData
         {
             uint16_t    type;

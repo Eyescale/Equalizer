@@ -1301,7 +1301,6 @@ bool RSPConnection::_handleCountNode()
         return true;
 
     _addNewConnection( countConn->clientID );
-
     return false;
 }
 

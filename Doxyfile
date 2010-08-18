@@ -1377,7 +1377,10 @@ PREDEFINED             = EQ_GCC_4_1_OR_LATER= \
                          EQSERVER_EXPORT= \
                          GLX= \
                          AGL= \
-                         WGL=
+                         WGL= \
+                         EQ_USE_BOOST= \
+                         EQ_USE_CUDA= \
+                         EQ_USE_OPENMP= \
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then
 # this tag can be used to specify a list of macro names that should be expanded.
