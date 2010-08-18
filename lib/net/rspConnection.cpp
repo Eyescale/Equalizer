@@ -646,7 +646,7 @@ void RSPConnection::_waitWritable( const uint64_t bytes )
     {
         _sendRate += 1 + int64_t(
             float( Global::getIAttribute( Global::IATTR_RSP_ERROR_UPSCALE )) *
-            float( _sendRate ) * .001f );
+            float( _description->bandwidth ) * .001f );
         EQLOG( LOG_RSP ) << "speeding up to " << _sendRate << " KB/s"
                          << std::endl;
     }
@@ -1203,7 +1203,9 @@ void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
         }
     }
 
-    if( _sendRate > _description->bandwidth/50 )
+    if( _sendRate >
+        ( _description->bandwidth >> 
+          Global::getIAttribute( Global::IATTR_RSP_MIN_SENDRATE_SHIFT )))
     {
         const float delta = float( lost ) * .001f *
                      Global::getIAttribute( Global::IATTR_RSP_ERROR_DOWNSCALE );

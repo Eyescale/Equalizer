@@ -57,6 +57,7 @@ int32_t     Global::_iAttributes[IATTR_ALL] =
     1,     // RSP_ERROR_DOWNSCALE
     5,     // RSP_ERROR_UPSCALE
     20,    // RSP_ERROR_MAXSCALE
+    3,     // RSP_MIN_SENDRATE_SHIFT
 #ifdef BIG_SEND
     64,    // RSP_NUM_BUFFERS
     5,     // RSP_ACK_FREQUENCY

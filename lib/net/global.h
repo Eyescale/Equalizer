@@ -90,6 +90,7 @@ namespace net
             IATTR_RSP_ERROR_DOWNSCALE,   //!< @internal permille per lost packet
             IATTR_RSP_ERROR_UPSCALE,     //!< @internal permille per sent packet
             IATTR_RSP_ERROR_MAXSCALE,    //!< @internal max percent change
+            IATTR_RSP_MIN_SENDRATE_SHIFT, //!< @internal minBW = sendRate >> val
             IATTR_RSP_NUM_BUFFERS,       //!< @internal data buffers
             IATTR_RSP_ACK_FREQUENCY,     //!< @internal reader ack interval
             IATTR_UDP_MTU,               //!< @internal max send size on UDP
