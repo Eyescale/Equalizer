@@ -1035,6 +1035,11 @@ bool RSPConnection::_handleData( Buffer& buffer )
     EQLOG( LOG_RSP ) << "send early nack " << nack.start << ".." << nack.end
                      << " current " << connection->_sequence << " ooo "
                      << connection->_recvBuffers.size() << std::endl;
+
+    if( nack.end < nack.start )
+        // OPT: don't drop nack 0..nack.end, but it doesn't happen often
+        nack.end = std::numeric_limits< uint16_t >::max();
+
     _sendNack( writerID, &nack, 1 );
     return true;
 }
@@ -1163,6 +1168,8 @@ void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
     for( size_t i = 0; i < num; ++i )
     {
         const Nack& nack = nacks[ i ];
+        EQASSERT( nack.start <= nack.end );
+
         EQLOG( LOG_RSP ) << nack.start << ".." << nack.end << " ";
 
         bool merged = false;
@@ -1172,17 +1179,26 @@ void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
             Nack& old = *j;
             if( old.start <= nack.end && old.end >= nack.start )
             {
-                lost += uint16_t( old.start - nack.start ) +
-                        uint16_t( nack.end - old.end );
-                old.start = EQ_MIN( old.start, nack.start );
-                old.end   = EQ_MAX( old.end, nack.end );
-                merged      = true;
+                if( old.start > nack.start )
+                {
+                    lost += old.start - nack.start;
+                    old.start = nack.start;
+                    merged = true;
+                }
+                if( old.end < nack.end )
+                {
+                    lost += nack.end - old.end;
+                    old.end = nack.end;
+                    merged = true;
+                }
+                EQASSERT( lost < _numBuffers );
             }
         }
 
         if( !merged )
         {
             lost += uint16_t( nack.end - nack.start ) + 1;
+            EQASSERT( lost < _numBuffers );
             _repeatQueue.push_back( nack );
         }
     }
@@ -1237,7 +1253,7 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
     }
     // else find all missing datagrams
 
-    const uint16_t max = EQ_RSP_MAX_NACKS - 1;
+    const uint16_t max = EQ_RSP_MAX_NACKS - 2;
     Nack nacks[ EQ_RSP_MAX_NACKS ];
     uint16_t i = 0;
 
@@ -1253,6 +1269,14 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
         {
             nacks[ i ].end = connection->_sequence + std::distance( first, j);
             EQLOG( LOG_RSP ) << nacks[i].end << ", ";
+            if( nacks[ i ].end < nacks[ i ].start )
+            {
+                EQASSERT( nacks[ i ].end < _numBuffers );
+                nacks[ i + 1 ].start = 0;
+                nacks[ i + 1 ].end = nacks[ i ].end;
+                nacks[ i ].end = std::numeric_limits< uint16_t >::max();
+                ++i;
+            }
             ++i;
 
             // find next hole
@@ -1278,6 +1302,14 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
         nacks[i].start = nacks[i-1].end + 1;
         nacks[i].end = reqID;
         EQLOG( LOG_RSP ) << nacks[i].start << ".." << nacks[i].end;
+        ++i;
+    }
+    if( nacks[ i -1 ].end < nacks[ i - 1 ].start )
+    {
+        EQASSERT( nacks[ i - 1 ].end < _numBuffers );
+        nacks[ i ].start = 0;
+        nacks[ i ].end = nacks[ i - 1 ].end;
+        nacks[ i - 1 ].end = std::numeric_limits< uint16_t >::max();
         ++i;
     }
 
@@ -1526,15 +1558,16 @@ std::ostream& operator << ( std::ostream& os,
        <<  " MB/s r/w using " << nDatagrams << " dgrams " << nRepeated
        << " repeats " << nMergedDatagrams
        << " merged"
-       << std::endl
-       << "sender: " << nAckRequests << " ack requests " << nAcksAccepted << "/"
+       << std::endl;
+
+    os.precision( prec );
+    os << "sender: " << nAckRequests << " ack requests " << nAcksAccepted << "/"
        << nAcksRead << " acks " << nNAcksRead << " nacks, throttle "
        << writeWaitTime << " ms"
        << std::endl
-       << "receiver: " << nAcksSend << " acks " << nNAcksSend
-       << " negative acks" << base::exdent;
+       << "receiver: " << nAcksSend << " acks " << nNAcksSend << " nacks"
+       << base::exdent;
 
-    os.precision( prec );
     nReadData = 0;
     nBytesRead = 0;
     nBytesWritten = 0;

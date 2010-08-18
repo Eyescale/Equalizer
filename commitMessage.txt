@@ -1,9 +1,9 @@
-RSP: Improve documentation
+RSP: Fix lost packet calculation on sequence overflow (untested)
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [ ] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation
