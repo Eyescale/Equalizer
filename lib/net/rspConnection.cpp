@@ -1520,17 +1520,25 @@ std::ostream& operator << ( std::ostream& os,
        << connection.getID() << " send rate " << connection.getSendRate();
 
 #ifdef EQ_INSTRUMENT_RSP
-    os << ": read " << nBytesRead << " bytes, wrote " 
-       << nBytesWritten << " bytes using " << nDatagrams << " dgrams "
-       << nRepeated << " repeated " << nMergedDatagrams << " merged"
+    const int prec = os.precision();
+    os.precision( 3 );
+
+    const float time = instrumentClock.getTimef();
+    const float mbps = 1048.576f * time;
+    os << ": " << base::indent << std::endl
+       << float( nBytesRead ) / mbps << " / " << float( nBytesWritten ) / mbps
+       <<  " MB/s r/w using " << nDatagrams << " dgrams " << nRepeated
+       << " repeats " << nMergedDatagrams
+       << " merged"
        << std::endl
        << "sender: " << nAckRequests << " ack requests " << nAcksAccepted << "/"
        << nAcksRead << " acks " << nNAcksRead << " nacks, throttle "
        << writeWaitTime << " ms"
        << std::endl
        << "receiver: " << nAcksSend << " acks " << nNAcksSend
-       << " negative acks";
+       << " negative acks" << base::exdent;
 
+    os.precision( prec );
     nReadData = 0;
     nBytesRead = 0;
     nBytesWritten = 0;
