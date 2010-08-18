@@ -87,10 +87,9 @@ namespace net
         {
             IATTR_INSTANCE_CACHE_SIZE,   //!< @internal max size in MB 
             IATTR_RSP_ACK_TIMEOUT,       //!< @internal time out for ack req
-            IATTR_RSP_ERROR_BASE_RATE,   //!< @internal normal error percentage
-            IATTR_RSP_ERROR_DOWNSCALE,   //!< @internal send rate down scale (/)
-            IATTR_RSP_ERROR_UPSCALE,     //!< @internal send rate up scale (*)
-            IATTR_RSP_ERROR_MAX,         //!< @internal max delta for send rate
+            IATTR_RSP_ERROR_DOWNSCALE,   //!< @internal permille per lost packet
+            IATTR_RSP_ERROR_UPSCALE,     //!< @internal permille per sent packet
+            IATTR_RSP_ERROR_MAXSCALE,    //!< @internal max percent change
             IATTR_RSP_NUM_BUFFERS,       //!< @internal data buffers
             IATTR_RSP_ACK_FREQUENCY,     //!< @internal reader ack interval
             IATTR_UDP_MTU,               //!< @internal max send size on UDP

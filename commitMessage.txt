@@ -1,9 +1,9 @@
-RSP: add image for documentation
+RSP: re-enable CC external parameters
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

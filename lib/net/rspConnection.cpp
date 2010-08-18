@@ -595,14 +595,6 @@ void RSPConnection::_writeData()
     _waitWritable( size ); // OPT: process incoming in between
     _write->send( boost::asio::buffer( header, size ));
 
-    if( _sendRate < _description->bandwidth )
-    {
-        _sendRate = int64_t( _sendRate * 1.0005f );
-        ++_sendRate;
-        EQLOG( LOG_RSP ) << "speeding up to " << _sendRate << " KB/s"
-                         << std::endl;
-    }
-
 #ifdef EQ_INSTRUMENT_RSP
     ++nDatagrams;
     nBytesWritten += header->size;
@@ -649,6 +641,15 @@ void RSPConnection::_waitWritable( const uint64_t bytes )
 #ifdef EQ_INSTRUMENT_RSP
     writeWaitTime += clock.getTimef();
 #endif
+
+    if( _sendRate < _description->bandwidth )
+    {
+        _sendRate += 1 + int64_t(
+            float( Global::getIAttribute( Global::IATTR_RSP_ERROR_UPSCALE )) *
+            float( _sendRate ) * .001f );
+        EQLOG( LOG_RSP ) << "speeding up to " << _sendRate << " KB/s"
+                         << std::endl;
+    }
 }
 
 void RSPConnection::_repeatData()
@@ -679,13 +680,6 @@ void RSPConnection::_repeatData()
 #ifdef EQ_INSTRUMENT_RSP
             ++nRepeated;
 #endif
-            if( _sendRate < _description->bandwidth )
-            {
-                _sendRate = int64_t( _sendRate * 1.0005f );
-                ++_sendRate;
-//                EQLOG( LOG_RSP ) << "speeding up to " << _sendRate << " KB/s"
-//                                 << std::endl;
-            }
         }
 
         if( request.start == request.end )
@@ -1195,12 +1189,15 @@ void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
 
     if( _sendRate > _description->bandwidth/50 )
     {
-        float downScale = ( 1.f - float( lost ) / 1000.f );
-        downScale = EQ_MAX( downScale, .5f );
-        _sendRate = int64_t( _sendRate * downScale );
+        const float delta = float( lost ) * .001f *
+                     Global::getIAttribute( Global::IATTR_RSP_ERROR_DOWNSCALE );
+        const float maxDelta = .01f *
+            float( Global::getIAttribute( Global::IATTR_RSP_ERROR_MAXSCALE ));
+        const float downScale = EQ_MIN( delta, maxDelta );
+        _sendRate -= 1 + int64_t( _sendRate * downScale );
         EQLOG( LOG_RSP ) 
-            << ", lost " << lost << " slowing down to " << _sendRate << " KB/s"
-            << std::endl << base::enableFlush;
+            << ", lost " << lost << " slowing down " << downScale * 100.f
+            << "% to " << _sendRate << " KB/s" << std::endl <<base::enableFlush;
     }
     else
         EQLOG( LOG_RSP ) << std::endl << base::enableFlush;
