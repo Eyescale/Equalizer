@@ -442,24 +442,6 @@ void RSPConnection::_handleConnectedTimeout( )
     }
 
     _processOutgoing();
-    
-    if( _threadBuffers.isEmpty() && _repeatQueue.empty( ))
-    {
-        // no more data to write
-        if( _writeBuffers.empty( )) // got all acks
-        {
-            _timeouts = 0;
-            _timeout.cancel();
-            return;
-        }
-
-        // (repeat) ack request
-        ++_timeouts;
-        _sendAckRequest();
-        _setTimeout( Global::getIAttribute( Global::IATTR_RSP_ACK_TIMEOUT ));
-    }
-    else
-        _setTimeout( 0 ); // call again to send remaining
 
     if( _timeouts >= EQ_RSP_MAX_TIMEOUTS )
     {
@@ -525,12 +507,39 @@ void RSPConnection::_processOutgoing()
 #endif
 
     if( !_repeatQueue.empty( ))
-    {
-        _timeouts = 0;
         _repeatData();
-    }
     else
         _writeData();
+
+    if( !_threadBuffers.isEmpty() || !_repeatQueue.empty( ))
+    {
+        _setTimeout( 0 ); // call again to send remaining
+        return;
+    }
+    // no more data to write, check/send ack request, reset timeout
+
+    if( _writeBuffers.empty( )) // got all acks
+    {
+        _timeouts = 0;
+        _timeout.cancel();
+        return;
+    }
+
+    const int64_t timeout =
+        Global::getIAttribute( Global::IATTR_RSP_ACK_TIMEOUT );
+    const int64_t left = timeout - _clock.getTime64();
+
+    if( left > 0 )
+    {
+        _setTimeout( left );
+        return;
+    }
+
+    // (repeat) ack request
+    _clock.reset();
+    ++_timeouts;
+    _sendAckRequest();
+    _setTimeout( timeout );
 }
 
 void RSPConnection::_writeData()
@@ -644,6 +653,8 @@ void RSPConnection::_waitWritable( const uint64_t bytes )
 
 void RSPConnection::_repeatData()
 {
+    _timeouts = 0;
+
     while( !_repeatQueue.empty( ))
     {
         Nack& request = _repeatQueue.front(); 
@@ -775,11 +786,7 @@ void RSPConnection::_handlePacket( const boost::system::error_code& error,
         _handleConnectedData( _recvBuffer.getData() );
 
         if( _state == STATE_LISTENING )
-        {
             _processOutgoing();
-            if( !_threadBuffers.isEmpty() || !_repeatQueue.empty( ))
-                _setTimeout( 0 ); // call again (in _handleTimeout)
-        }
         else
         {
             _ioService.stop();
@@ -1412,12 +1419,10 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
         size_t packetSize = end - data;
         packetSize = EQ_MIN( packetSize, _payloadSize );
 
-        if( (i % _ackFreq) == static_cast< uint32_t >( _ackFreq >> 1 ) ||
-            _appBuffers.isEmpty( ))
-        {
+        if( _appBuffers.isEmpty( ))
             // trigger processing
             _postWakeup();
-        }
+
         Buffer* buffer = _appBuffers.pop();
         if( !buffer )
         {

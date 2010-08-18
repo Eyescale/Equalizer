@@ -1,9 +1,9 @@
-Fix release warning
+RSP: further reduce number of ack requests/acks exchanged
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [ ] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation
