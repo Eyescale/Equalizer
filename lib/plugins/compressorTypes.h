@@ -207,6 +207,10 @@
 // Third-party plugins
 /** Lossless CPU jpeg compressor from rtt.ag */
 #define EQ_COMPRESSOR_AG_RTT_JPEG_HQ   0x100000u
+/** Lossless CPU jpeg compressor from rtt.ag */
+#define EQ_COMPRESSOR_AG_RTT_JPEG_MQ   0x100001u
+/** Lossless CPU jpeg compressor from rtt.ag */
+#define EQ_COMPRESSOR_AG_RTT_JPEG_LQ   0x100002u
 
 /**
  * Private types -FOR DEVELOPMENT ONLY-.
