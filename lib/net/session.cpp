@@ -1196,12 +1196,8 @@ bool Session::_cmdInstance( Command& command )
         result = _invokeObjectCommand( command );
     }
 
-    if( packet->dataSize > 0 )
-    {
-        const ObjectVersion rev( packet->objectID, packet->version ); 
-        _instanceCache.add( rev, packet->masterInstanceID, command, usage );
-    }
-
+    const ObjectVersion rev( packet->objectID, packet->version ); 
+    _instanceCache.add( rev, packet->masterInstanceID, command, usage );
     return result;
 }
 

@@ -52,6 +52,9 @@ namespace
         virtual VisitorResult visit( Observer* observer )
             { return _update( observer ); }
 
+        virtual VisitorResult visitPre( Layout* layout )
+            { layout->sync(); return TRAVERSE_CONTINUE; }
+
         virtual VisitorResult visit( View* view )
             { return _update( view ); }
     };
@@ -66,7 +69,7 @@ namespace
         virtual VisitorResult visitPre( Config* config )
             {
                 config->sync( net::VERSION_HEAD );
-                // Commit observers & views first, they are ref'ed be channels.
+                // Commit observers & views first, they are ref'ed by channels.
                 PreSyncVisitor preSyncer;
                 config->accept( preSyncer );
                 return TRAVERSE_CONTINUE;
@@ -109,15 +112,15 @@ namespace
                 return TRAVERSE_CONTINUE;
             }
 
+        virtual VisitorResult visitPost( Layout* layout )
+            { return _commit( layout ); }
+
         virtual VisitorResult visitPre( Canvas* canvas )
             { return _sync( canvas ); }
         virtual VisitorResult visit( Segment* segment )
             { return _update( segment ); }
         virtual VisitorResult visitPost( Canvas* canvas )
             { return _commit( canvas ); }
-
-        virtual VisitorResult visitPre( Layout* layout )
-            { return _update( layout ); }
 
         virtual VisitorResult visitPre( Compound* compound )
             {

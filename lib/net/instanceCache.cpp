@@ -150,10 +150,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
     stream->addDataPacket( command );
     
     if( stream->isReady( ))
-    {
-        EQASSERT( stream->getDataSize() > 0 );
         _size += stream->getDataSize();
-    }
 
     _releaseItems( 1 );
     _releaseItems( 0 );
