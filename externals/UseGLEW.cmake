@@ -8,8 +8,9 @@ find_path(GLEW_INCLUDE_DIRS GL/glew.h
 
 find_library(GLEW_LIBRARY
   NAMES
-    glew
+    GLEWmx
     GLEW
+    glew
     glew32
   PATHS
     /usr/lib

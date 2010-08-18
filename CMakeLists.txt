@@ -44,6 +44,7 @@ include_directories(AFTER ${Boost_INCLUDE_DIRS})
 
 find_package(OpenGL REQUIRED)
 include(${CMAKE_SOURCE_DIR}/externals/UseGLEW.cmake)
+include(${CMAKE_SOURCE_DIR}/externals/UseVMMLib.cmake)
 
 
 find_package(OpenMP)
@@ -78,7 +79,6 @@ endif(APPLE)
 
 add_subdirectory(admin)
 add_subdirectory(examples)
-add_subdirectory(externals)
 add_subdirectory(lib)
 add_subdirectory(server)
 add_subdirectory(tests)
