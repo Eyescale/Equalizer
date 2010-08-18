@@ -1101,7 +1101,7 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
         return false;
     }
 
-    if( connection->_acked > ack->sequence &&
+    if( connection->_acked >= ack->sequence &&
         connection->_acked - ack->sequence <= _numBuffers )
     {
         // I have received a later ack previously from the reader
