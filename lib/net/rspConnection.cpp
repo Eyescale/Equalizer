@@ -277,7 +277,6 @@ bool RSPConnection::listen()
 
 ConnectionPtr RSPConnection::acceptSync()
 {
-    EQ_TS_THREAD( _recvThread );
     if( _state != STATE_LISTENING )
         return 0;
         
@@ -669,6 +668,8 @@ void RSPConnection::_repeatData()
 
             const size_t i = _writeBuffers.size() - distance;
             Buffer* buffer = _writeBuffers[i];
+            EQASSERT( buffer );
+
             DatagramData* header = 
                 reinterpret_cast<DatagramData*>( buffer->getData( ));
             const uint32_t size = header->size + sizeof( DatagramData );

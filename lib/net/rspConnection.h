@@ -315,8 +315,6 @@ namespace net
         void _asyncReceiveFrom();
         bool _isWriting()
             { return !_threadBuffers.isEmpty() || !_writeBuffers.empty( ); }
-
-        EQ_TS_VAR( _recvThread ); 
     };
 
     std::ostream& operator << ( std::ostream&, const RSPConnection& );

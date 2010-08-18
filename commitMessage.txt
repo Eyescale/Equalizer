@@ -1,4 +1,4 @@
-RSP: minor optimization
+RSP: Enable big sends on Linux
 
 [ ] May break build
 [ ] May break existing applications

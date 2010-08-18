@@ -42,7 +42,7 @@ static uint32_t _getObjectBufferSize()
 }
 
 
-#ifdef WIN32
+#ifndef Darwin
 #  define BIG_SEND
 #endif
 
