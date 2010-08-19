@@ -137,7 +137,7 @@ void Window< P, W, C >::serialize( net::DataOStream& os,
     if( dirtyBits & DIRTY_CHANNELS && isMaster( ))
     {
         os << _mapNodeObjects();
-        os.serializeChildren( this, _channels );
+        os.serializeChildren( _channels );
     }
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _data.vp << _data.pvp << _data.fixedVP;

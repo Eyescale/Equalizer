@@ -210,12 +210,12 @@ void DataOStream::write( const void* data, uint64_t size )
     nBytes += size;
 #endif    
 
+    if( _buffer.getSize() - _bufferStart > Global::getObjectBufferSize( ))
+        _flush();
+
     EQASSERT( _enabled );
     _bufferType = BUFFER_NONE;
     _buffer.append( static_cast< const uint8_t* >( data ), size );
-
-    if( _buffer.getSize() - _bufferStart > Global::getObjectBufferSize( ))
-        _flush();
 }
 
 void DataOStream::_flush()
@@ -365,9 +365,9 @@ uint64_t DataOStream::_getCompressedData( void** chunks, uint64_t* chunkSizes )
 std::ostream& operator << ( std::ostream& os,
                             const DataOStream& dataOStream )
 {
-    os << base::disableFlush << base::disableHeader << "DataOStream ";
+    os << base::disableFlush << base::disableHeader << "DataOStream "
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-    os << ": write data " << nBytes << " bytes was treated. " 
+       << ": write data " << nBytes << " bytes was treated. " 
        << nBytesTryToCompress << " was tried to compress but only "
        << nBytesUncompressed << " bytes has been compressed for a size of "  
        << nBytesCompressed  << " bytes after compression and the time compression was "
@@ -380,10 +380,13 @@ std::ostream& operator << ( std::ostream& os,
     nBytesCompressedSend = 0;
     timeToCompress = 0;
     nBytesCompressedSend = 0;
+#else
+       << "@" << (void*)&dataOStream;
 #endif
     os << base::enableHeader << base::enableFlush;
 
     return os;
 }
+
 }
 }

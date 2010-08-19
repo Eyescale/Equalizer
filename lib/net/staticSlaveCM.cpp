@@ -82,7 +82,7 @@ void StaticSlaveCM::applyMapData()
 }
 
 void StaticSlaveCM::addInstanceDatas( const InstanceDataDeque& cache, 
-                                      const uint32_t startVersion )
+                                      const uint32_t /* startVersion */ )
 {
     EQASSERT( _currentIStream );
     EQASSERT( _currentIStream->getDataSize() == 0 );

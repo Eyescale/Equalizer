@@ -93,7 +93,7 @@ uint32_t MasterCM::sync( const uint32_t version )
         _object->unpack( *is );
         EQASSERTINFO( is->getRemainingBufferSize() == 0 && 
                       is->nRemainingBuffers()==0,
-                      "Object " << typeid( *_object ).name() <<
+                      "Object " << base::className( _object ) <<
                       " did not unpack all data" );
         delete is;
         return _version;
@@ -107,7 +107,7 @@ uint32_t MasterCM::sync( const uint32_t version )
         _object->unpack( *is );
         EQASSERTINFO( is->getRemainingBufferSize() == 0 && 
                       is->nRemainingBuffers()==0,
-                      "Object " << typeid( *_object ).name() <<
+                      "Object " << base::className( _object ) <<
                       " did not unpack all data" );
         delete is;
     }
@@ -156,7 +156,7 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
 #if 0
         EQLOG( LOG_OBJECTS )
             << "Queued slave commit " << packet->commit << " object "
-            << _object->getID() << " " << typeid( *_object ).name()
+            << _object->getID() << " " << base::className( _object )
             << std::endl;
 #endif
     }
@@ -166,7 +166,8 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
 #if 0
         EQLOG( LOG_OBJECTS )
             << "New incomplete slave commit " << packet->commit << " object "
-            << _object->getID() << " " << typeid( *_object ).name() <<std::endl;
+            << _object->getID() << " " << base::className( _object )
+            << std::endl;
 #endif
     }
 #if 0
@@ -174,7 +175,7 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
         EQLOG( LOG_OBJECTS )
             << "Got data for incomplete slave commit " << packet->commit
             << " object " << _object->getID() << " "
-            << typeid( *_object ).name() << std::endl;
+            << base::className( _object ) << std::endl;
 #endif
 
     return true;

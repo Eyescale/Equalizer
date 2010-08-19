@@ -66,9 +66,9 @@ VersionedSlaveCM::~VersionedSlaveCM()
     _master = 0;
 }
 
-void VersionedSlaveCM::makeThreadSafe()
+void VersionedSlaveCM::init( const bool threadSafe )
 {
-    if( _mutex ) 
+    if( !threadSafe || _mutex ) 
         return;
 
     _mutex = new base::Lock;

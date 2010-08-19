@@ -125,10 +125,8 @@ void Object::_setChangeManager( ObjectCM* cm )
         delete _cm;
     }
 
-    if( _threadSafe )
-        cm->makeThreadSafe();
-
     _cm = cm;
+    cm->init( _threadSafe );
     EQLOG( LOG_OBJECTS ) << "set new change manager " << base::className( cm )
                          << " for " << base::className( this ) << std::endl;
 }
@@ -141,11 +139,8 @@ const Nodes* Object::_getSlaveNodes() const
 void Object::makeThreadSafe()
 {
     EQASSERT( _id == EQ_ID_INVALID );
-    if( _threadSafe )
-        return;
-
+    EQASSERT( _cm == ObjectCM::ZERO );
     _threadSafe = true;
-    _cm->makeThreadSafe();
 }
 
 NodePtr Object::getLocalNode()

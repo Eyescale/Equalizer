@@ -62,7 +62,7 @@ namespace fabric
          * Construct an unmapped, unregistered copy of an serializable.
          * @version 1.0
          */
-        Serializable( const Serializable& from )
+        Serializable( const Serializable& )
                 : net::Object(), _dirty ( DIRTY_NONE ) {}
         
         /** Destruct the serializable. @version 1.0 */
@@ -80,8 +80,7 @@ namespace fabric
          * need to be transmitted by the overriding method.
          * @version 1.0
          */
-        virtual void serialize( net::DataOStream& os,
-                                const uint64_t dirtyBits ){};
+        virtual void serialize( net::DataOStream&, const uint64_t ){};
 
         /** 
          * Worker for unpack() and applyInstanceData().
@@ -93,8 +92,7 @@ namespace fabric
          * @sa serialize()
          * @version 1.0
          */
-        virtual void deserialize( net::DataIStream& is, 
-                                  const uint64_t dirtyBits ){};
+        virtual void deserialize( net::DataIStream&, const uint64_t ){};
 
         virtual ChangeType getChangeType() const { return DELTA; }
 

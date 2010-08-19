@@ -168,15 +168,18 @@ bool Accum::usesFBO() const
 
 #define glewGetContext() glewContext
 
+#ifdef Darwin
+bool Accum::usesFBO( const GLEWContext* )
+{
+    return false;
+}
+#else
 bool Accum::usesFBO( const GLEWContext* glewContext )
 {
-#ifdef Darwin
-    return false;
-#else
     return ( GLEW_EXT_framebuffer_object &&
            ( GLEW_VERSION_3_0 || GLEW_ARB_texture_float ));
-#endif
 }
+#endif
 
 #undef glewGetContext
 

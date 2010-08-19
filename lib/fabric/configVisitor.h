@@ -45,11 +45,11 @@ namespace fabric
             { return visitPost( static_cast< const C* >( config )); }
 
         /** Visit a config on the down traversal. @version 1.0 */
-        virtual VisitorResult visitPre( const C* config )
+        virtual VisitorResult visitPre( const C* )
             { return TRAVERSE_CONTINUE; }
 
         /** Visit a config on the up traversal. @version 1.0 */
-        virtual VisitorResult visitPost( const C* config )
+        virtual VisitorResult visitPost( const C* )
             { return TRAVERSE_CONTINUE; }
     };
 }

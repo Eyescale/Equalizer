@@ -1589,7 +1589,7 @@ bool Node::invokeCommand( Command& command )
     }
 }
 
-bool Node::_cmdStop( Command& command )
+bool Node::_cmdStop( Command& )
 {
     EQINFO << "Cmd stop " << this << std::endl;
     EQASSERT( _state == STATE_LISTENING );
@@ -2138,7 +2138,7 @@ bool Node::_cmdAcquireSendTokenReply( Command& command )
     return true;
 }
 
-bool Node::_cmdReleaseSendToken( Command& command )
+bool Node::_cmdReleaseSendToken( Command& )
 {
     EQASSERT( inCommandThread( ));
     EQASSERT( !_hasSendToken );

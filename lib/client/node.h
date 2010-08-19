@@ -190,9 +190,8 @@ namespace eq
          * @param frameNumber the frame to finish.
          * @sa endFrame(), Config::finishFrame()
          */
-        virtual void frameFinish( const uint32_t frameID, 
-                                  const uint32_t frameNumber ) 
-            { releaseFrame( frameNumber ); }
+        EQ_EXPORT virtual void frameFinish( const uint32_t frameID, 
+                                            const uint32_t frameNumber );
 
         /** 
          * Finish drawing.

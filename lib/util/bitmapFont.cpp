@@ -80,10 +80,10 @@ void BitmapFont< OMT >::exit()
     _setupLists( 0 );
 }
 
+#ifdef GLX
 template< typename OMT >
 bool BitmapFont< OMT >::_initGLX( const std::string& name, const uint32_t size )
 {
-#ifdef GLX
     Display* display = XGetCurrentDisplay();
     EQASSERT( display );
     if( !display )
@@ -123,15 +123,19 @@ bool BitmapFont< OMT >::_initGLX( const std::string& name, const uint32_t size )
 
     XFreeFont( display, fontStruct );
     return true;
-#else
-    return false;
-#endif
 }
+#else
+template< typename OMT >
+bool BitmapFont< OMT >::_initGLX( const std::string&, const uint32_t )
+{
+    return false;
+}
+#endif
 
+#ifdef WGL
 template< typename OMT >
 bool BitmapFont< OMT >::_initWGL( const std::string& name, const uint32_t size )
 {
-#ifdef WGL
     HDC dc = wglGetCurrentDC();
     if( !dc )
     {
@@ -179,15 +183,19 @@ bool BitmapFont< OMT >::_initWGL( const std::string& name, const uint32_t size )
         _setupLists( 0 );
 
     return ret;
-#else
-    return false;
-#endif
 }
+#else
+template< typename OMT >
+bool BitmapFont< OMT >::_initWGL( const std::string&, const uint32_t )
+{
+    return false;
+}
+#endif
 
+#ifdef AGL
 template< typename OMT >
 bool BitmapFont< OMT >::_initAGL( const std::string& name, const uint32_t size )
 {
-#ifdef AGL
     AGLContext context = aglGetCurrentContext();
     EQASSERT( context );
     if( !context )
@@ -229,10 +237,14 @@ bool BitmapFont< OMT >::_initAGL( const std::string& name, const uint32_t size )
     }
     
     return true;
-#else
-    return false;
-#endif
 }
+#else
+template< typename OMT >
+bool BitmapFont< OMT >::_initAGL( const std::string&, const uint32_t )
+{
+    return false;
+}
+#endif
 
 template< typename OMT >
 GLuint BitmapFont< OMT >::_setupLists( const GLsizei num )

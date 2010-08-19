@@ -83,7 +83,7 @@ void Layout< C, L, V >::serialize( net::DataOStream& os,
     Object::serialize( os, dirtyBits );
 
     if( dirtyBits & DIRTY_VIEWS && isMaster( ))
-        os.serializeChildren( this, _views );
+        os.serializeChildren( _views );
 }
 
 template< class C, class L, class V >

@@ -88,7 +88,9 @@ ifeq ($(findstring g++, $(CXX)),g++)
 #    CXXFLAGS += -fno-implicit-templates
     CXXFLAGS += -Wall -Winvalid-pch \
                 -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self \
-                -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings
+                -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings \
+		#-Wunused
+
 ifdef USE_OPENMP
     DEFFLAGS += -DEQ_USE_OPENMP
     CXXFLAGS += -fopenmp

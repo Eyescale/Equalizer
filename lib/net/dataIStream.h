@@ -41,7 +41,7 @@ namespace net
               , _inputSize( 0 )
               , _position( 0 ){}
 
-        DataIStream( const DataIStream& from )
+        DataIStream( const DataIStream& )
               : _input( 0 )
               , _inputSize( 0 )
               , _position( 0 ){}

@@ -67,7 +67,7 @@ namespace plugin
         virtual ~Compressor();
 
         /**
-         * compress Data.
+         * Compress data.
          *
          * @param inData data to compress.
          * @param nPixels number data to compress.

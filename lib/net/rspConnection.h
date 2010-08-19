@@ -66,7 +66,7 @@ namespace net
         virtual void acceptNB(){ EQASSERT( _state == STATE_LISTENING ); }
 
         virtual ConnectionPtr acceptSync();
-        virtual void readNB( void* buffer, const uint64_t bytes ){/* NOP */}
+        virtual void readNB( void*, const uint64_t ) {/* NOP */}
         virtual int64_t readSync( void* buffer, const uint64_t bytes,
                                   const bool ignored );
         virtual int64_t write( const void* buffer, const uint64_t bytes );

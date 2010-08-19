@@ -110,11 +110,11 @@ namespace fabric
          */
         enum DirtyBits
         {
-            DIRTY_NAME       = Serializable::DIRTY_CUSTOM << 0,
-            DIRTY_USERDATA   = Serializable::DIRTY_CUSTOM << 1,
-            DIRTY_ERROR      = Serializable::DIRTY_CUSTOM << 2,
-            DIRTY_TASKS      = Serializable::DIRTY_CUSTOM << 3,
-            DIRTY_REMOVED    = Serializable::DIRTY_CUSTOM << 4,
+            DIRTY_NAME       = Serializable::DIRTY_CUSTOM << 0, // 1
+            DIRTY_USERDATA   = Serializable::DIRTY_CUSTOM << 1, // 2
+            DIRTY_ERROR      = Serializable::DIRTY_CUSTOM << 2, // 4
+            DIRTY_TASKS      = Serializable::DIRTY_CUSTOM << 3, // 8
+            DIRTY_REMOVED    = Serializable::DIRTY_CUSTOM << 4, // 16
             // Leave room for binary-compatible patches
             DIRTY_CUSTOM     = Serializable::DIRTY_CUSTOM << 6 // 64
         };
@@ -151,7 +151,7 @@ namespace fabric
         EQ_EXPORT void postRemove( const Object* child );
 
         /** @internal Execute the slave remove request. @sa postRemove */
-        virtual void removeChild( const uint32_t id ) { EQUNIMPLEMENTED; }
+        virtual void removeChild( const uint32_t ) { EQUNIMPLEMENTED; }
 
         /** @internal commit, register child slave instance with the server. */
         template< class C, class PKG, class S >

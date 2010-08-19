@@ -94,15 +94,12 @@ namespace DataStreamTest
          * The DataIStream has a deserialize counterpart to this method. All
          * child objects have to be registered or mapped beforehand.
          */
-        template< typename O, typename C >
-        void serializeChildren( O* object, const std::vector< C* >& children );
+        template< typename C >
+        void serializeChildren( const std::vector< C* >& children );
         //@}
 
  
     protected:
-
-        base::CompressorDataCPU compressor;
-
         /** Flush remaining data in the buffer. */
         void _flush();
 
@@ -130,8 +127,9 @@ namespace DataStreamTest
         Connections _connections;
         friend class DataStreamTest::Sender;
 
-    private:
-        
+        base::CompressorDataCPU compressor;
+
+    private:        
         enum BufferType
         {
             BUFFER_NONE = 0,
@@ -231,8 +229,8 @@ namespace net
         return *this;
     }
  
-    template< typename O, typename C > inline void
-    DataOStream::serializeChildren( O* object, const std::vector<C*>& children )
+    template< typename C > inline void
+    DataOStream::serializeChildren( const std::vector<C*>& children )
     {
         const uint64_t nElems = children.size();
         (*this) << nElems;

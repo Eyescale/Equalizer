@@ -333,9 +333,9 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
     }
 }
      
+#ifdef WIN32
 ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
 {
-#ifdef WIN32
     const uint32_t i = index - WAIT_OBJECT_0;
     EQASSERT( i < MAXIMUM_WAIT_OBJECTS );
 
@@ -362,7 +362,10 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
     EQASSERT( _fdSet[i] == _connection->getNotifier( ));
 
     return EVENT_DATA;
-#else
+}
+#else // WIN32
+ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t )
+{
     for( size_t i = 0; i < _fdSet.getSize(); ++i )
     {
         const pollfd& pollFD = _fdSet[i];
@@ -401,8 +404,8 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
         ::abort();
     }
     return EVENT_NONE;
-#endif
 }
+#endif // else not WIN32
 
 bool ConnectionSet::_setupFDSet()
 {

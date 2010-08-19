@@ -384,6 +384,10 @@ void Thread::setDebugName( const std::string& name )
 #  endif
 #elif __MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
     pthread_setname_np( name.c_str( ));
+#else
+    // Not implemented
+    EQVERB << "Thread::setDebugName( " << name << " ) not implemented" 
+           << std::endl;
 #endif
 }
 

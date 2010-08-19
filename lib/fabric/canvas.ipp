@@ -108,9 +108,9 @@ void Canvas< CFG, C, S, L >::serialize( net::DataOStream& os,
     if( dirtyBits & DIRTY_LAYOUT )
         os << _data.activeLayout;
     if( dirtyBits & DIRTY_SEGMENTS && isMaster( ))
-        os.serializeChildren( this, _segments );
+        os.serializeChildren( _segments );
     if( dirtyBits & DIRTY_LAYOUTS )
-        os.serializeChildren( this, _layouts );
+        os.serializeChildren( _layouts );
     if( dirtyBits & DIRTY_FRUSTUM )
         os << *static_cast< Frustum* >( this );
 }

@@ -174,7 +174,7 @@ bool Node::isRunning() const
     return (_state == STATE_RUNNING);
 }
 
-bool Node::configInit( const uint32_t initID )
+bool Node::configInit( const uint32_t )
 {
 #ifdef EQ_USE_MAGELLAN
 #  ifdef AGL
@@ -210,6 +210,11 @@ void Node::waitFrameStarted( const uint32_t frameNumber ) const
 void Node::startFrame( const uint32_t frameNumber ) 
 {
     _currentFrame = frameNumber;
+}
+
+void Node::frameFinish( const uint32_t, const uint32_t frameNumber ) 
+{
+    releaseFrame( frameNumber );
 }
 
 void Node::_finishFrame( const uint32_t frameNumber ) const
@@ -279,7 +284,7 @@ void Node::releaseFrameLocal( const uint32_t frameNumber )
                        << std::endl;
 }
 
-void Node::frameStart( const uint32_t frameID, const uint32_t frameNumber )
+void Node::frameStart( const uint32_t, const uint32_t frameNumber )
 {
     startFrame( frameNumber ); // unlock pipe threads
     
@@ -299,7 +304,7 @@ void Node::frameStart( const uint32_t frameID, const uint32_t frameNumber )
     }
 }
 
-void Node::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
+void Node::frameDrawFinish( const uint32_t, const uint32_t frameNumber )
 {
     switch( getIAttribute( IATTR_THREAD_MODEL ))
     {
@@ -326,7 +331,7 @@ void Node::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
     }
 }
 
-void Node::frameTasksFinish( const uint32_t frameID, const uint32_t frameNumber)
+void Node::frameTasksFinish( const uint32_t, const uint32_t frameNumber )
 {
     switch( getIAttribute( IATTR_THREAD_MODEL ))
     {

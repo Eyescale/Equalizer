@@ -34,7 +34,7 @@ namespace net
 Dispatcher::Dispatcher()
 {}
 
-Dispatcher::Dispatcher( const Dispatcher& from )
+Dispatcher::Dispatcher( const Dispatcher& )
 {}
 
 Dispatcher::~Dispatcher()

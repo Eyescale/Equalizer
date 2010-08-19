@@ -61,12 +61,10 @@ namespace eq
         GLXPipe* const pipe;
 
     protected:
-        virtual void readNB( void* buffer, const uint64_t bytes )
-            { EQDONTCALL; }
-        virtual int64_t readSync( void* buffer, const uint64_t bytes, 
-                                  const bool ignored )
+        virtual void readNB( void*, const uint64_t ) { EQDONTCALL; }
+        virtual int64_t readSync( void*, const uint64_t, const bool )
             { EQDONTCALL; return -1; }
-        virtual int64_t write( const void* buffer, const uint64_t bytes )
+        virtual int64_t write( const void*, const uint64_t )
             { EQDONTCALL; return -1; }
 
     private:

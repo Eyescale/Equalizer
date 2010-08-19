@@ -302,8 +302,7 @@ ConnectionPtr RSPConnection::acceptSync()
     return connection;
 }
 
-int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes,
-                                 const bool ignored )
+int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes, const bool)
 {
     EQASSERT( bytes > 0 );
     if( _state != STATE_CONNECTED )
@@ -773,8 +772,8 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
     _timeouts = 0;
 }
 
-void RSPConnection::_handlePacket( const boost::system::error_code& error,
-                                   const size_t bytes )
+void RSPConnection::_handlePacket( const boost::system::error_code& /* error */,
+                                   const size_t /* bytes */ )
 {
     if( _state == STATE_LISTENING )
     {

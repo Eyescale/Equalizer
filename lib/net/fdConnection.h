@@ -42,7 +42,7 @@ namespace net
         FDConnection();
         virtual ~FDConnection() {}
 
-        virtual void readNB( void* buffer, const uint64_t bytes );
+        virtual void readNB( void*, const uint64_t ) { /* NOP */ }
         virtual int64_t readSync( void* buffer, const uint64_t bytes,
                                   const bool ignored );
         virtual int64_t write( const void* buffer, const uint64_t bytes );

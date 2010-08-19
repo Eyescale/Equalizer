@@ -30,7 +30,7 @@ namespace net
     public:
         virtual ~ConnectionListener() {}
 
-        virtual void notifyStateChanged( Connection* connection ){}
+        virtual void notifyStateChanged( Connection* ){}
     };
 }
 }

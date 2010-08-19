@@ -45,10 +45,9 @@ namespace net
         EQ_EXPORT virtual Notifier getNotifier() const;
 
     protected:
-        virtual void readNB( void* event, const uint64_t bytes )
+        virtual void readNB( void*, const uint64_t )
             { EQDONTCALL; }
-        virtual int64_t readSync( void* event, const uint64_t bytes,
-                                  const bool ignored )
+        virtual int64_t readSync( void*, const uint64_t, const bool )
             { EQDONTCALL; return -1; }
         EQ_EXPORT virtual int64_t write( const void*, const uint64_t )
             { EQDONTCALL; return -1; }

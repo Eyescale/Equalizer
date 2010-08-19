@@ -39,10 +39,7 @@ FDConnection::FDConnection()
 //----------------------------------------------------------------------
 // read
 //----------------------------------------------------------------------
-void FDConnection::readNB( void* buffer, const uint64_t bytes ) { /* NOP */ }
-
-int64_t FDConnection::readSync( void* buffer, const uint64_t bytes,
-                                const bool ignored )
+int64_t FDConnection::readSync( void* buffer, const uint64_t bytes, const bool )
 {
     if( _readFD < 1 )
         return -1;

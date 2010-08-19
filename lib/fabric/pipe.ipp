@@ -118,7 +118,7 @@ void Pipe< N, P, W, V >::serialize( net::DataOStream& os,
     if( dirtyBits & DIRTY_WINDOWS && isMaster( ))
     {
         os << _mapNodeObjects();
-        os.serializeChildren( this, _windows );
+        os.serializeChildren( _windows );
     }
     if( dirtyBits & DIRTY_PIXELVIEWPORT )
         os << _data.pvp;

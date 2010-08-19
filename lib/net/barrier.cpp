@@ -190,7 +190,7 @@ bool Barrier::_cmdEnter( Command& command )
     return true;
 }
 
-bool Barrier::_cmdEnterReply( Command& command )
+bool Barrier::_cmdEnterReply( Command& )
 {
     EQ_TS_THREAD( _thread );
     EQLOG( LOG_BARRIER ) << "Got ok, unlock local user(s)" << endl;

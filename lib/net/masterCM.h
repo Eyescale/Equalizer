@@ -19,7 +19,7 @@
 #define EQNET_MASTERCM_H
 
 #include <eq/net/objectCM.h> // base class
-#include <eq/net/types.h>       // for Nodes
+#include <eq/net/types.h>
 #include <eq/base/idPool.h>  // ID_ enum
 #include <eq/base/mtQueue.h> // member
 #include <eq/base/thread.h>  // thread-safety check
@@ -40,7 +40,7 @@ namespace net
         MasterCM( Object* object );
         virtual ~MasterCM();
 
-        virtual void makeThreadSafe(){}
+        virtual void init( const bool ){}
 
         /**
          * @name Versioning
@@ -85,7 +85,7 @@ namespace net
 
         /* The command handlers. */
         bool _cmdSlaveDelta( Command& command );
-        bool _cmdDiscard( Command& command ) { return true; }
+        bool _cmdDiscard( Command& ) { return true; }
 
         EQ_TS_VAR( _cmdThread );
     };

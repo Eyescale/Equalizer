@@ -277,21 +277,21 @@ namespace fabric
          * 
          * @param frameNumber the frame to start.
          */
-        void startFrame( const uint32_t frameNumber ) { /* currently nop */ }
+        EQ_EXPORT void startFrame( const uint32_t frameNumber );
 
         /** 
          * Signal the completion of a frame to the parent.
          * 
          * @param frameNumber the frame to end.
          */
-        void releaseFrame( const uint32_t frameNumber ) { /* currently nop */ }
+        EQ_EXPORT void releaseFrame( const uint32_t frameNumber );
 
         /** 
          * Signal the release of the local synchronization to the parent.
          * 
          * @param frameNumber the frame to release.
          */
-        void releaseFrameLocal( const uint32_t frameNumber ) { /* nop */ }
+        EQ_EXPORT void releaseFrameLocal( const uint32_t frameNumber );
         //@}
 
         /**
@@ -344,9 +344,8 @@ namespace fabric
          * @param frameNumber the frame to start.
          * @sa Config::beginFrame()
          */
-        virtual void frameStart( const uint32_t frameID, 
-                                 const uint32_t frameNumber ) 
-            { startFrame( frameNumber ); }
+        EQ_EXPORT virtual void frameStart( const uint32_t frameID, 
+                                           const uint32_t frameNumber );
 
         /**
          * Finish rendering a frame.
@@ -372,9 +371,8 @@ namespace fabric
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to finished with draw.
          */
-        virtual void frameDrawFinish( const uint32_t frameID, 
-                                      const uint32_t frameNumber )
-            { releaseFrameLocal( frameNumber ); }
+        EQ_EXPORT virtual void frameDrawFinish( const uint32_t frameID,
+                                                const uint32_t frameNumber );
         //@}
 
     private:

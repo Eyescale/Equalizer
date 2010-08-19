@@ -48,15 +48,12 @@ namespace net
         ObjectCM() {}
         virtual ~ObjectCM() {}
 
-        /** 
-         * Make this object thread safe.
-         * 
-         * The caller has to ensure that no other thread is using this object
-         * when this function is called. It is primarily used by the session
-         * during object instantiation.
-         * @sa Session::getObject().
+        /**
+         * Initialize the change manager.
+         *
+         * @param threadSafe true if methods are called from multiple threads.
          */
-        virtual void makeThreadSafe() = 0;
+        virtual void init( const bool threadSafe ) = 0;
 
         /**
          * @name Versioning
@@ -125,7 +122,7 @@ namespace net
         virtual uint32_t getMasterInstanceID() const = 0;
 
         /** Set the master node. */
-        virtual void setMasterNode( NodePtr node ) { /* nop */ }
+        virtual void setMasterNode( NodePtr ) { /* nop */ }
 
         /** 
          * Add a subscribed slave to the managed object.
@@ -149,8 +146,7 @@ namespace net
         virtual void applyMapData() = 0;
 
         /** Add existing instance data to the object (from session cache) */
-        virtual void addInstanceDatas( const InstanceDataDeque& cache, 
-                                       const uint32_t startVersion )
+        virtual void addInstanceDatas( const InstanceDataDeque&, const uint32_t)
             { EQDONTCALL; }
 
         /** The default CM for unattached objects. */

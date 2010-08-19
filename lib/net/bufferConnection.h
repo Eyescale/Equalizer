@@ -39,10 +39,9 @@ namespace net
         EQ_EXPORT uint64_t getSize() const { return _buffer.getSize(); }
 
     protected:
-        virtual void readNB( void* buffer, const uint64_t bytes )
+        virtual void readNB( void*, const uint64_t )
             { EQDONTCALL; }
-        virtual int64_t readSync( void* buffer, const uint64_t bytes,
-                                  const bool ignored )
+        virtual int64_t readSync( void*, const uint64_t, const bool )
             { EQDONTCALL; return -1; }
         EQ_EXPORT virtual int64_t write( const void* buffer,
                                          const uint64_t bytes );

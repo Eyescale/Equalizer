@@ -315,10 +315,10 @@ namespace fabric
     private:
         enum DirtyBits
         {
-            DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 0,
-            DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 1,
-            DIRTY_MEMBER     = Object::DIRTY_CUSTOM << 2,
-            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 3,
+            DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 0, // 64
+            DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 1, // 128
+            DIRTY_MEMBER     = Object::DIRTY_CUSTOM << 2, // 256
+            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 3, // 512
         };
 
         /** The parent window. */

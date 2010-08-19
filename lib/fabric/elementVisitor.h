@@ -44,11 +44,11 @@ namespace fabric
             { return visitPost( static_cast< const T* >( element )); }
 
         /** Visit an element on a const down traversal. */
-        virtual VisitorResult visitPre( const T* element )
+        virtual VisitorResult visitPre( const T* )
             { return TRAVERSE_CONTINUE; }
 
         /** Visit an element on a const up traversal. */
-        virtual VisitorResult visitPost( const T* element )
+        virtual VisitorResult visitPost( const T* )
             { return TRAVERSE_CONTINUE; }
     };
 }

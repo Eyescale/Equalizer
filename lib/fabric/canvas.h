@@ -126,7 +126,7 @@ namespace fabric
         /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
         /** @internal */
-        virtual void activateLayout( const uint32_t index ) { /* NOP */ }
+        virtual void activateLayout( const uint32_t ) { /* NOP */ }
 
     private:
         /** The parent config. */

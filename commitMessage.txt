@@ -1,9 +1,14 @@
-RSP: Enable big sends on Linux
+Move object change manager initialization out of constructor (fixes
+isMaster() in serializers)
+
+Optimize serialization if object only serializes one big blob
+
+Plenty of fixes and cleanups found while trying -Wunused
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [x] Optimization
 [ ] Documentation

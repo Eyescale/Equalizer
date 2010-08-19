@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -38,23 +38,23 @@ namespace net
         NullCM() {}
         virtual ~NullCM() {}
 
-        virtual void makeThreadSafe() {}
+        virtual void init( const bool ) {}
 
         /**
          * @name Versioning
          */
         //@{
         virtual uint32_t commitNB() { EQDONTCALL; return EQ_ID_INVALID; }
-        virtual uint32_t commitSync( const uint32_t commitID )
+        virtual uint32_t commitSync( const uint32_t )
             { EQDONTCALL; return VERSION_NONE; }
 
-        virtual void obsolete( const uint32_t version ) { EQDONTCALL; }
+        virtual void obsolete( const uint32_t ) { EQDONTCALL; }
 
-        virtual void setAutoObsolete( const uint32_t count ) { EQDONTCALL; }
+        virtual void setAutoObsolete( const uint32_t ) { EQDONTCALL; }
         virtual uint32_t getAutoObsoleteCount() const
             { EQDONTCALL; return 0; }
 
-        virtual uint32_t sync( const uint32_t version )
+        virtual uint32_t sync( const uint32_t )
             { EQDONTCALL; return VERSION_NONE; }
 
         virtual uint32_t getHeadVersion() const   { return VERSION_NONE; }
@@ -66,9 +66,9 @@ namespace net
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_ID_INVALID; }
 
-        virtual uint32_t addSlave( Command& command )
+        virtual uint32_t addSlave( Command& )
             { EQDONTCALL; return VERSION_INVALID; }
-        virtual void removeSlave( NodePtr node ) { EQDONTCALL; }
+        virtual void removeSlave( NodePtr ) { EQDONTCALL; }
 
         virtual void applyMapData() { EQDONTCALL; }
 

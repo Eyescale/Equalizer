@@ -80,17 +80,17 @@ namespace fabric
         /** @warning  Undocumented - may not be supported in the future */
         const Vector2i& getOverdraw() const { return _overdraw; }
 
-        /** Set the 2D viewport wrt Layout and Canvas. @internal */
+        /** @internal Set the 2D viewport wrt Layout and Canvas. */
         EQFABRIC_EXPORT void setViewport( const Viewport& viewport );
 
-        /** Set the entity tracking this view. @internal */
+        /** @internal Set the entity tracking this view. */
         EQFABRIC_EXPORT void setObserver( O* observer );
         
-        /** Get the mode of this view. @internal */
+        /** @internal Get the mode of this view. */
         EQFABRIC_EXPORT Mode getMode( ) const { return _mode; }
         
-        /** Set the mode of this view. @internal */
-        EQFABRIC_EXPORT void changeMode( Mode mode ) {}
+        /** @internal Set the mode of this view. */
+        EQFABRIC_EXPORT void changeMode( Mode ) {}
         //@}
 
         /** @name Operations */
@@ -120,10 +120,10 @@ namespace fabric
             DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 3
         };
 
-        /** Construct a new view. @internal */
+        /** @internal Construct a new view. */
         EQFABRIC_EXPORT View( L* layout );
 
-        /** Destruct this view. @internal */
+        /** @internal Destruct this view. */
         EQFABRIC_EXPORT virtual ~View();
 
         /**
@@ -143,7 +143,7 @@ namespace fabric
         EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
 
-        /** @sa Serializable::setDirty() @internal */
+        /** @internal @sa Serializable::setDirty() */
         EQFABRIC_EXPORT virtual void setDirty( const uint64_t bits );
 
     private:

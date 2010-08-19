@@ -42,8 +42,8 @@ namespace net
          * @name Versioning
          */
         //@{
-        virtual void obsolete( const uint32_t version ) { EQUNIMPLEMENTED; }
-        virtual void setAutoObsolete( const uint32_t count ) { EQDONTCALL; } 
+        virtual void obsolete( const uint32_t ) { EQUNIMPLEMENTED; }
+        virtual void setAutoObsolete( const uint32_t ) { EQDONTCALL; } 
         virtual uint32_t getAutoObsoleteCount() const { return 0; }
         virtual uint32_t getOldestVersion() const { return _version; }
         //@}

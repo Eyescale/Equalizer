@@ -309,12 +309,26 @@ OSPipe* Window::getOSPipe()
     return pipe->getOSPipe();
 }
 
-void Window::frameFinish( const uint32_t frameID, const uint32_t frameNumber )
+void Window::frameStart( const uint32_t, const uint32_t frameNumber ) 
+{
+    startFrame( frameNumber );
+}
+
+void Window::frameDrawFinish( const uint32_t, const uint32_t frameNumber )
+{
+    releaseFrameLocal( frameNumber );
+}
+
+void Window::frameFinish( const uint32_t, const uint32_t frameNumber )
 {
     releaseFrame( frameNumber );
     flush();
     _updateFPS();
 }
+
+void Window::startFrame( const uint32_t ) { /* currently nop */ }
+void Window::releaseFrame( const uint32_t ) { /* currently nop */ }
+void Window::releaseFrameLocal( const uint32_t ) { /* nop */ }
 
 //----------------------------------------------------------------------
 // configInit
@@ -335,7 +349,7 @@ bool Window::configInit( const uint32_t initID )
     return true;
 }
 
-bool Window::configInitOSWindow( const uint32_t initID )
+bool Window::configInitOSWindow( const uint32_t )
 {
     const Pipe* pipe     = getPipe();
     OSWindow*   osWindow = 0;
@@ -441,7 +455,7 @@ const Window::Font* Window::getMediumFont()
     return font;
 }
 
-bool Window::configInitGL( const uint32_t initID )
+bool Window::configInitGL( const uint32_t )
 {
     glEnable( GL_SCISSOR_TEST ); // needed to constrain channel viewport
     glEnable( GL_DEPTH_TEST );
@@ -724,11 +738,10 @@ bool Window::_cmdFrameFinish( net::Command& command )
     return true;
 }
 
-bool Window::_cmdFinish(net::Command& command ) 
+bool Window::_cmdFinish( net::Command& ) 
 {
-    makeCurrent();
-
     WindowStatistics stat( Statistic::WINDOW_FINISH, this );
+    makeCurrent();
     finish();
 
     return true;

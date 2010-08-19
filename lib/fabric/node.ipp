@@ -102,7 +102,7 @@ Node< C, N, P, V >::serialize( net::DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_PIPES && isMaster( ))
     {
         os << _mapNodeObjects();
-        os.serializeChildren( this, _pipes );
+        os.serializeChildren( _pipes );
     }
     if( dirtyBits & DIRTY_MEMBER )
         os << _isAppNode;

@@ -915,10 +915,10 @@ static unsigned glToPCFormat( const unsigned glFormat, const unsigned glType )
 }
 #endif
 
+#ifdef EQ_USE_PARACOMP
 bool Compositor::_mergeImage_PC( int operation, void* destColor, 
                                  void* destDepth, const Image* source )
 {
-#ifdef EQ_USE_PARACOMP
     const unsigned colorFormat = 
         glToPCFormat( source->getFormat( Frame::BUFFER_COLOR ),
                       source->getType(   Frame::BUFFER_COLOR ));
@@ -1012,10 +1012,13 @@ bool Compositor::_mergeImage_PC( int operation, void* destColor,
 
     EQINFO << "Paracomp compositing successful" << std::endl;
     return true;
-#else
-    return false;
-#endif
 }
+#else // EQ_USE_PARACOMP
+bool Compositor::_mergeImage_PC( int, void*, void*, const Image* )
+{
+    return false;
+}
+#endif // else not EQ_USE_PARACOMP
 
 void Compositor::assembleFrame( const Frame* frame, Channel* channel )
 {

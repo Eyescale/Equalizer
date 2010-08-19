@@ -41,9 +41,11 @@ namespace net
         FullMasterCM( Object* object );
         virtual ~FullMasterCM();
 
+        virtual void init( const bool threadSafe );
+
         /** @name Versioning */
         //@{
-        virtual void obsolete( const uint32_t version ) { EQUNIMPLEMENTED; }
+        virtual void obsolete( const uint32_t ) { EQUNIMPLEMENTED; }
 
         virtual void setAutoObsolete( const uint32_t count )
             { _nVersions = count; }

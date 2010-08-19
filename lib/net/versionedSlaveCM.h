@@ -41,7 +41,7 @@ namespace net
         VersionedSlaveCM( Object* object, uint32_t masterInstanceID );
         virtual ~VersionedSlaveCM();
 
-        virtual void makeThreadSafe();
+        virtual void init( const bool threadSafe );
 
         /**
          * @name Versioning
@@ -50,9 +50,9 @@ namespace net
         virtual uint32_t commitNB();
         virtual uint32_t commitSync( const uint32_t commitID );
 
-        virtual void obsolete( const uint32_t version ) { EQDONTCALL; }
+        virtual void obsolete( const uint32_t ) { EQDONTCALL; }
 
-        virtual void setAutoObsolete( const uint32_t count ) { EQDONTCALL; }
+        virtual void setAutoObsolete( const uint32_t ) { EQDONTCALL; }
         virtual uint32_t getAutoObsoleteCount() const
             { EQDONTCALL; return 0; }
 
@@ -67,11 +67,10 @@ namespace net
         virtual uint32_t getMasterInstanceID() const {return _masterInstanceID;}
         virtual void setMasterNode( NodePtr node ) { _master = node; }
 
-        virtual uint32_t addSlave( Command& command )
+        virtual uint32_t addSlave( Command& )
             { EQDONTCALL; return VERSION_INVALID; }
-        virtual void removeSlave( NodePtr node ) { EQDONTCALL; }
-        virtual void addOldMaster( NodePtr node, const uint32_t instanceID )
-            { EQDONTCALL }
+        virtual void removeSlave( NodePtr ) { EQDONTCALL; }
+        virtual void addOldMaster( NodePtr, const uint32_t ) { EQDONTCALL }
 
         virtual void applyMapData();
         virtual void addInstanceDatas( const InstanceDataDeque& cache, 

@@ -467,7 +467,7 @@ uint32_t Pipe::getFinishedFrame() const
 //---------------------------------------------------------------------------
 // pipe-thread methods
 //---------------------------------------------------------------------------
-bool Pipe::configInit( const uint32_t initID )
+bool Pipe::configInit( const uint32_t )
 {
     EQ_TS_THREAD( _pipeThread );
 
@@ -568,7 +568,7 @@ bool Pipe::configExit()
 }
 
 
-void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber ) 
+void Pipe::frameStart( const uint32_t, const uint32_t frameNumber ) 
 {
     EQ_TS_THREAD( _pipeThread );
 
@@ -591,7 +591,7 @@ void Pipe::frameStart( const uint32_t frameID, const uint32_t frameNumber )
     startFrame( frameNumber );
 }
 
-void Pipe::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
+void Pipe::frameDrawFinish( const uint32_t, const uint32_t frameNumber )
 {
     const Node* node = getNode();
     switch( node->getIAttribute( Node::IATTR_THREAD_MODEL ))
@@ -611,7 +611,7 @@ void Pipe::frameDrawFinish( const uint32_t frameID, const uint32_t frameNumber )
     }
 }
 
-void Pipe::frameFinish( const uint32_t frameID, const uint32_t frameNumber )
+void Pipe::frameFinish( const uint32_t, const uint32_t frameNumber )
 {
     const Node* node = getNode();
     switch( node->getIAttribute( Node::IATTR_THREAD_MODEL ))
@@ -793,7 +793,7 @@ bool Pipe::_cmdConfigExit( net::Command& command )
     return true;
 }
 
-bool Pipe::_cmdFrameStartClock( net::Command& command )
+bool Pipe::_cmdFrameStartClock( net::Command& )
 {
     EQVERB << "start frame clock" << std::endl;
     _frameTimeMutex.set();

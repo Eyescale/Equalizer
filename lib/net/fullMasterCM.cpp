@@ -46,17 +46,6 @@ FullMasterCM::FullMasterCM( Object* object )
           _commitCount( 0 ),
           _nVersions( 0 )
 {
-    InstanceData* data = _newInstanceData();
-    data->os.setVersion( 1 );
-
-    data->os.enable();
-    _object->getInstanceData( data->os );
-    data->os.disable();
-        
-    _instanceDatas.push_back( data );
-    ++_version;
-    ++_commitCount;
-
     registerCommand( CMD_OBJECT_COMMIT, 
                      CmdFunc( this, &FullMasterCM::_cmdCommit ), 0 );
 }
@@ -76,6 +65,24 @@ FullMasterCM::~FullMasterCM()
         delete *i;
     }
     _instanceDataCache.clear();
+}
+
+void FullMasterCM::init( const bool threadSafe )
+{
+    EQASSERT( _commitCount == 0 );
+
+    MasterCM::init( threadSafe );
+
+    InstanceData* data = _newInstanceData();
+    data->os.setVersion( 1 );
+
+    data->os.enable();
+    _object->getInstanceData( data->os );
+    data->os.disable();
+        
+    _instanceDatas.push_back( data );
+    ++_version;
+    ++_commitCount;
 }
 
 void FullMasterCM::increaseCommitCount()

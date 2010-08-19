@@ -157,15 +157,6 @@ namespace base
             _isCompressor = false;
             return _initDecompressor( name );
         }
-
-        /**
-         * Get a vector of compressor names compatible with the token type
-         *
-         * @param tokenType the the token type accepted by the compressor
-         */
-        static EQ_EXPORT std::vector< uint32_t >getCompressorNames( 
-                                                      uint32_t tokenType );
-
     };
 }
 }

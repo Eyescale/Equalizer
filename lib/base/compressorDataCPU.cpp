@@ -145,25 +145,6 @@ uint32_t CompressorDataCPU::chooseCompressor( const uint32_t tokenType,
     return name;
 }
 
-std::vector< uint32_t > CompressorDataCPU::getCompressorNames( uint32_t tokenType )
-{
-    const eq::base::PluginRegistry& registry = eq::base::Global::getPluginRegistry();
-    const eq::base::Compressors& plugins = registry.getCompressors();
 
-    std::vector< uint32_t > names;
-    for( eq::base::Compressors::const_iterator i = plugins.begin();
-         i != plugins.end(); ++i )
-    {
-        const eq::base::CompressorInfos& infos = (*i)->getInfos();
-        for( eq::base::CompressorInfos::const_iterator j = infos.begin();
-             j != infos.end(); ++j )
-        {
-            if ( (*j).tokenType == EQ_COMPRESSOR_DATATYPE_BYTE )
-                names.push_back( (*j).name );
-        }
-    }
-    
-    return names;
-}
 }
 }

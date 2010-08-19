@@ -39,7 +39,7 @@ namespace fabric
             { return visit( static_cast< const T* >( leaf )); }
 
         /** Visit a leaf node during a const traversal. @version 1.0 */
-        virtual VisitorResult visit( const T* leaf )
+        virtual VisitorResult visit( const T* )
             { return TRAVERSE_CONTINUE; }
     };
 }
