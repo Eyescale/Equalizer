@@ -66,12 +66,7 @@ namespace eqNbody
 		const InitData& id = static_cast<Config*>( getConfig() )->getInitData();
 		SharedData& sd = static_cast<Pipe*>( getPipe() )->getSharedData();
 
-#ifdef NDEBUG
-		_controller->init(id, sd.getPos(), true);
-#else
-		bool sysready = _controller->init(id, sd.getPos(), true);
-		EQASSERT( sysready );		
-#endif		
+		EQCHECK( _controller->init(id, sd.getPos(), true ));
 		return true;
 	}
 		
