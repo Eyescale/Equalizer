@@ -80,8 +80,12 @@ namespace eqNbody
 				readMem->init( _frameData.getPos(), _frameData.getVel(), _frameData.getCol() );
 				_proxies.push_back( readMem );
 				
+#ifdef NDEBUG
+				_cfg->mapObject( readMem, pid );
+#else
 				const bool mapped = _cfg->mapObject( readMem, pid );
 				EQASSERT( mapped );
+#endif
 			}
 		}			
 	}
