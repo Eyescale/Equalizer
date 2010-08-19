@@ -1199,7 +1199,7 @@ void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
         if( !merged )
         {
             lost += uint16_t( nack.end - nack.start ) + 1;
-            EQASSERT( lost < _numBuffers );
+            EQASSERT( lost <= _numBuffers );
             _repeatQueue.push_back( nack );
         }
     }
