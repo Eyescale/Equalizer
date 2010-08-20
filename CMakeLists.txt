@@ -10,7 +10,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CToolBox)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(EQ_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
@@ -43,13 +42,22 @@ include_directories(AFTER ${Boost_INCLUDE_DIRS})
 
 
 find_package(OpenGL REQUIRED)
+include_directories(${OPENGL_INCLUDE_DIR})
+
 include(${CMAKE_SOURCE_DIR}/externals/UseGLEW.cmake)
 include(${CMAKE_SOURCE_DIR}/externals/UseVMMLib.cmake)
 
+find_package(X11)
+if(X11_FOUND)
+  include_directories(${X11_INCLUDE_DIR})
+endif(X11_FOUND)
 
 find_package(OpenMP)
-add_definitions(${OpenMP_CXX_FLAGS})
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
+if(OPENMP_FOUND)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif(OPENMP_FOUND)
 
 if(MSVC)
   add_definitions(/D_CRT_SECURE_NO_WARNINGS)
