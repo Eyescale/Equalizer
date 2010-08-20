@@ -45,7 +45,7 @@
 
 namespace eqNbody
 {
-	void _checkGLErrors(char *s)
+	void _checkGLErrors(char const* s)
 	{
 		GLenum error;
 		while ((error = glGetError()) != GL_NO_ERROR) {
