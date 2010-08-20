@@ -330,9 +330,8 @@ int main( int argc, char **argv )
                                              quality );
                         break;
                     case 2:
-                        EQASSERTINFO( quality == 1.f,
-                                      "Half float test not implemented" );
-                        _compare< uint16_t >( data, destData, buffer,
+                        if( quality == 1.f )
+                            _compare< uint16_t >( data, destData, buffer,
                                               image.ignoreAlpha(), nElem,
                                               quality );
                         break;
@@ -374,6 +373,7 @@ int main( int argc, char **argv )
     }
 
     image.flush();
+    destImage.flush();
     eq::exit();
 
     return EXIT_SUCCESS;
