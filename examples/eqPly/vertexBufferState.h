@@ -80,10 +80,10 @@ namespace mesh
         
         virtual void deleteAll() = 0;
 
-        GLEWContext* glewGetContext() { return _glewContext; }
+        const GLEWContext* glewGetContext() const { return _glewContext; }
         
     protected:
-        VertexBufferState( GLEWContext* glewContext ) 
+        VertexBufferState( const GLEWContext* glewContext ) 
             : _glewContext( glewContext ), _useColors( false ), 
               _renderMode( RENDER_MODE_DISPLAY_LIST ) 
         {
@@ -92,7 +92,7 @@ namespace mesh
         
         virtual ~VertexBufferState() {}
         
-        GLEWContext*  _glewContext;
+        const GLEWContext* const _glewContext;
         bool          _useColors;
         RenderMode    _renderMode;
         
@@ -104,7 +104,7 @@ namespace mesh
     class VertexBufferStateSimple : public VertexBufferState 
     {
     public:
-        VertexBufferStateSimple( GLEWContext* glewContext )
+        VertexBufferStateSimple( const GLEWContext* glewContext )
             : VertexBufferState( glewContext ) {}
         
         virtual GLuint getDisplayList( const void* key )

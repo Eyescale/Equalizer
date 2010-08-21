@@ -36,37 +36,41 @@ namespace server
 }
 namespace fabric
 {
-    template< class T, class W > class Channel;
-    template< class T, class C  > class ElementVisitor;
-    template< class T > class LeafVisitor;
-
+    /** Base data transport class for windows. @sa eq::Window */
     template< class P, class W, class C > class Window : public Object
     {
     public:
-        /** A vector of pointers to channels */
+        /** A vector of pointers to channels. @version 1.0 */
         typedef std::vector< C* >  Channels; 
+        /** The Window visitor type. @version 1.0 */
         typedef ElementVisitor< W, LeafVisitor< C > > Visitor;
 
         /** @name Data Access */
         //@{
-        /** @internal Initialize this window (calls virtual methods) */
+        /** @internal Initialize this window (calls virtual methods). */
         void init();
 
-        /** @return the Pipe of this window. */
+        /** @return the parent Pipe of this window. @version 1.0 */
         const P* getPipe() const { return _pipe; }
-        /** @return the Pipe of this window. */
-        P*       getPipe()       { return _pipe; }
+        /** @return the parent Pipe of this window. @version 1.0 */
+        P* getPipe() { return _pipe; }
 
-        /**  @return a vector of all channels of this window.  */
+        /** @return a vector of all child channels of this window.  */
         const Channels& getChannels() const { return _channels; }
 
+        /** @return the window's drawable configuration. @version 1.0 */
         const DrawableConfig& getDrawableConfig() const
             { return _data.drawableConfig; }
 
-        /** @return the window's pixel viewport */
+        /**
+         * @return the window's pixel viewport wrt the parent pipe.
+         * @version 1.0 */
         const PixelViewport& getPixelViewport() const { return _data.pvp; }
 
-        /** @return the window's fractional viewport. */
+        /**
+         * @return the window's fractional viewport wrt the parent pipe.
+         * @version 1.0
+         */
         const Viewport& getViewport() const { return _data.vp; }
 
         /** 
@@ -76,49 +80,56 @@ namespace fabric
          * accordingly.
          * 
          * @param pvp the viewport in pixels.
+         * @version 1.0
          */
         EQFABRIC_EXPORT virtual void setPixelViewport(const PixelViewport& pvp);
 
         /** 
          * Set the window's viewport wrt its parent pipe.
          * 
+         * Updates the fractional pixel viewport of the window and its channels
+         * accordingly.
+         *
          * @param vp the fractional viewport.
+         * @version 1.0
          */
         EQFABRIC_EXPORT void setViewport( const eq::fabric::Viewport& vp );
 
-        /** Notify this window that the viewport has changed. */
-        void notifyViewportChanged();
-
         /** @return true if a viewport was specified last. @version 1.0 */
         bool hasFixedViewport( ) const { return _data.fixedVP; }
+
+        /** @internal Notify this window that the viewport has changed. */
+        void notifyViewportChanged();
+
         /** 
          * Traverse this window and all children using a window visitor.
          * 
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
+         * @version 1.0
          */
         EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor );
 
-        /** Const-version of accept(). */
+        /** Const-version of accept(). @version 1.0 */
         EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor ) const;
 
         //@}
 
-        /**
-         * @name Attributes
-         */
+        /** @name Attributes */
         //@{
-        // Note: also update string array initialization in window.cpp
         /** 
          * Window attributes.
          *
          * Most of these attributes are used by the OSWindow implementation to
          * configure the window during configInit(). An OSWindow implementation
          * might not respect all attributes, e.g., IATTR_HINT_SWAPSYNC is not
-         * implemented by the GLXWindow.
+         * implemented by the GLXWindow. Please refer to the Programming Guide
+         * for details.
+         * @version 1.0
          */
         enum IAttribute
         {
+            // Note: also update string array initialization in window.ipp
             IATTR_HINT_STEREO,           //!< Active stereo
             IATTR_HINT_DOUBLEBUFFER,     //!< Front and back buffer
             IATTR_HINT_FULLSCREEN,       //!< Fullscreen drawable
@@ -138,21 +149,21 @@ namespace fabric
             IATTR_ALL = IATTR_LAST + 5
         };
 
-        /** Set a window attribute. */
+        /** Set a window attribute. @version 1.0 */
         EQFABRIC_EXPORT void setIAttribute( const IAttribute attr,
                                       const int32_t value )
             { _data.iAttributes[attr] = value; }
 
-        /** @return the value of a window attribute. */
+        /** @return the value of a window attribute. @version 1.0 */
         EQFABRIC_EXPORT int32_t  getIAttribute( const IAttribute attr ) const
             { return _data.iAttributes[attr]; }
 
-        /** @return the name of a window attribute. */
+        /** @internal @return the name of a window attribute. */
         EQFABRIC_EXPORT static const std::string& getIAttributeString(
                                                       const IAttribute attr );
         //@}
 
-        /** @return the index path to this window. @internal */
+        /** @internal @return the index path to this window. */
         EQFABRIC_EXPORT WindowPath getPath() const;
 
         EQFABRIC_EXPORT virtual void backup(); //!< @internal
@@ -162,10 +173,10 @@ namespace fabric
         //@}
 
     protected: 
-        /** Construct a new window. */
+        /** @internal Construct a new window. */
         Window( P* parent );
 
-        EQFABRIC_EXPORT virtual ~Window( );
+        EQFABRIC_EXPORT virtual ~Window( ); //!< @internal
 
         virtual void attachToSession( const uint32_t id,
                                       const uint32_t instanceID,
@@ -183,8 +194,10 @@ namespace fabric
         /** @sa Serializable::setDirty() @internal */
         EQFABRIC_EXPORT virtual void setDirty( const uint64_t bits );
 
+        /** @internal */
         void _setDrawableConfig( const DrawableConfig& drawableConfig );
 
+        /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
         C* _findChannel( const uint32_t id ); //!< @internal

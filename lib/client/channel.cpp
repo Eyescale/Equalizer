@@ -158,12 +158,6 @@ const DrawableConfig& Channel::getDrawableConfig() const
     return window->getDrawableConfig();
 }
 
-GLEWContext* Channel::glewGetContext()
-{
-    Window* window = getWindow();
-    EQASSERT( window );
-    return window->glewGetContext();
-}
 const GLEWContext* Channel::glewGetContext() const
 {
     const Window* window = getWindow();

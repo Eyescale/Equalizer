@@ -67,10 +67,10 @@ namespace util
         };
 
         /** Construct a new object manager. */
-        EQ_EXPORT ObjectManager( GLEWContext* const glewContext );
+        EQ_EXPORT ObjectManager( const GLEWContext* const glewContext );
 
         /** Construct a new object manager sharing data with another manager. */
-        EQ_EXPORT ObjectManager( GLEWContext* const glewContext,
+        EQ_EXPORT ObjectManager( const GLEWContext* const glewContext,
                                  ObjectManager* shared );
 
         EQ_EXPORT virtual ~ObjectManager();
@@ -136,10 +136,9 @@ namespace util
         EQ_EXPORT void                   deleteEqBitmapFont( const T& key );
 
         const GLEWContext* glewGetContext() const { return _glewContext; }
-        GLEWContext* glewGetContext()             { return _glewContext; }
 
     private:
-        GLEWContext* const _glewContext;
+        const GLEWContext* const _glewContext;
 
         struct Object
         {

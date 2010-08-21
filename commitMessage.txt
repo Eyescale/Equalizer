@@ -1,7 +1,9 @@
-Finalize texture interface for 1.0, related doxygen and code cleanups.
+Finalize window API for 1.0, related doxygen and code cleanups:
+- Make GLEWContext const
+- mark eq and fabric window methods in doxygen
 
-[ ] May break build
-[ ] May break existing applications
+[x] May break build
+[x] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup

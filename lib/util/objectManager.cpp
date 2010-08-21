@@ -36,7 +36,7 @@ namespace eq
 namespace util
 {
 template< typename T >
-ObjectManager< T >::ObjectManager( GLEWContext* const glewContext )
+ObjectManager< T >::ObjectManager( const GLEWContext* const glewContext )
         : _glewContext( glewContext )
         , _data( new SharedData )
 {
@@ -44,7 +44,7 @@ ObjectManager< T >::ObjectManager( GLEWContext* const glewContext )
 }
 
 template< typename T >
-ObjectManager< T >::ObjectManager( GLEWContext* const glewContext, 
+ObjectManager< T >::ObjectManager( const GLEWContext* const glewContext, 
                                    ObjectManager* shared )
         : _glewContext( glewContext )
         , _data( shared->_data )

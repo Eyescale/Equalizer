@@ -29,7 +29,6 @@
 #include "window.h"
 #include "pipe.h"
 #include <eq/util/compressorDataGPU.h>
-using namespace std;
 
 namespace eVolve
 {
@@ -110,7 +109,7 @@ void Window::_loadLogo()
         !image.readImage( "./examples/eqVolve/logo.rgb", 
                           eq::Frame::BUFFER_COLOR ))
     {
-        EQWARN << "Can't load overlay logo 'logo.rgb'" << endl;
+        EQWARN << "Can't load overlay logo 'logo.rgb'" << std::endl;
         return;
     }
 
@@ -131,7 +130,7 @@ void Window::_loadLogo()
                   eq::util::CompressorDataGPU::getGLType( externalFormat ),
                   image.getPixelPointer( eq::Frame::BUFFER_COLOR ));
 
-    EQINFO << "Created logo texture of size " << _logoSize << endl;
+    EQINFO << "Created logo texture of size " << _logoSize << std::endl;
 }
 
 

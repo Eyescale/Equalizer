@@ -169,7 +169,7 @@ void Window::_updateFPS()
 void Window::drawFPS()
 {
     std::ostringstream fpsText;
-    fpsText << std::setprecision(3) << getFPS() << " FPS";
+    fpsText << std::setprecision(3) << _getFPS() << " FPS";
 
     const Font* font = getSmallFont();
     const PixelViewport& pvp = getPixelViewport();
@@ -523,11 +523,6 @@ void Window::swapBuffers()
 {
     _osWindow->swapBuffers();
     EQVERB << "----- SWAP -----" << std::endl;
-}
-
-GLEWContext* Window::glewGetContext()
-{ 
-    return _osWindow->glewGetContext();
 }
 
 const GLEWContext* Window::glewGetContext() const

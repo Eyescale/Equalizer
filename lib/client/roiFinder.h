@@ -60,7 +60,8 @@ namespace eq
                                     Window::ObjectManager* glObjects );
 
         /** @return the GL function table, valid during readback. */
-        GLEWContext* glewGetContext() { return _glObjects->glewGetContext(); }
+        const GLEWContext* glewGetContext() const
+            { return _glObjects->glewGetContext(); }
 
     protected:
 

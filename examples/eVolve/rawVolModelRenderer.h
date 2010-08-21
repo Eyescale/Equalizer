@@ -53,7 +53,7 @@ namespace eVolve
             return _rawModel.getVolumeScaling();
         }
 
-        void glewSetContext( GLEWContext* context )
+        void glewSetContext( const GLEWContext* context )
         {
             _glewContext = context;
             _rawModel.glewSetContext( context );
@@ -68,7 +68,7 @@ namespace eVolve
         void setPrecision( const uint32_t precision ){ _precision = precision; }
         void setOrtho( const uint32_t ortho )        { _ortho = ortho; }
 
-        GLEWContext* glewGetContext() { return _glewContext; }
+        const GLEWContext* glewGetContext() { return _glewContext; }
         bool loadShaders();
 
     private:
@@ -81,7 +81,7 @@ namespace eVolve
         uint32_t        _precision;     //!< multiplyer for number of slices
         GLSLShaders     _shaders;       //!< GLSL shaders
 
-        GLEWContext*    _glewContext;   //!< OpenGL rendering context
+        const GLEWContext*    _glewContext;   //!< OpenGL function table
 
         bool            _ortho;         //!< ortogonal/perspective projection
 

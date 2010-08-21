@@ -41,13 +41,13 @@ namespace util
     {
     public: 
         /** Construct a new accumulation buffer. @version 1.0 */
-        EQ_EXPORT Accum( GLEWContext* const glewContext );
+        EQ_EXPORT Accum( const GLEWContext* const glewContext );
 
         /** Destruct the accumulation buffer. @version 1.0 */
         EQ_EXPORT ~Accum();
 
         /**
-         * Init the accumulation object.
+         * Initialize the accumulation buffer.
          *
          * @param pvp the pixel viewport.
          * @param textureFormat the texture format.
@@ -56,58 +56,63 @@ namespace util
          */
         EQ_EXPORT bool init( const PixelViewport& pvp, GLuint textureFormat );
 
-        /** Exit the accum object. @version 1.0 */
+        /** Exit the accum buffer. @version 1.0 */
         EQ_EXPORT void exit();
 
         /**
-         * Resize the accumulation object.
+         * Resize the accumulation buffer.
          *
          * @param width the new width.
          * @param height the new height.
-         * @return true if the accumulation object is correctly resized.
+         * @return true if the accumulation buffer is correctly resized.
+         * @version 1.0
          */
         EQ_EXPORT bool resize( const int width, const int height );
 
-        /**
-         * Clears the accumulation object.
-         */
+        /** Clear the accumulation buffer. @version 1.0 */
         EQ_EXPORT void clear();
 
         /**
-         * Accumulates a frame into the accumulation object.
+         * Accumulate a frame from the read buffer into the accumulation buffer.
+         * @version 1.0
          */
         EQ_EXPORT void accum();
 
         /**
-         * Displays the result of the accumulation object.
+         * Copy the result of the accumulation to the current draw buffer.
+         * @version 1.0
          */
         EQ_EXPORT void display();
 
         /**
-         * Get the number of maximum steps possible to do during the
-         * accumulation operation.
+         * Get the maximum number of accumulation steps possible.
          *
          * @return the maximum number of steps.
+         * @version 1.0
          */
         EQ_EXPORT uint32_t getMaxSteps() const;
 
         /**
-         * Get the current number of accumulations done.
+         * Get the current number of accumulation steps done.
          *
          * @return the number of steps done.
+         * @version 1.0
          */
         EQ_EXPORT uint32_t getNumSteps() const { return _numSteps; }
 
         /**
-         * Set the total steps that will be used.
+         * Set the total number of accumulation steps that will be done.
          *
-         * This is needed only for Darwin systems because of the specific
-         * glAccum() workaround.
+         * This is used only for Darwin systems due to a specific glAccum()
+         * workaround.
          *
          * @param totalSteps the total number of steps to do.
+         * @version 1.0
          */
         EQ_EXPORT void setTotalSteps( uint32_t totalSteps )
             { _totalSteps = totalSteps; }
+
+        /** @return the total number of accumulations. @version 1.0 */
         EQ_EXPORT uint32_t getTotalSteps() { return _totalSteps; }
 
         /**
@@ -119,6 +124,7 @@ namespace util
         EQ_EXPORT bool usesFBO() const;
 
         /**
+         * @internal
          * Test if the accumulation would use the FBO implementation.
          *
          * @return true if the accumulation uses an FBO, false if it uses
@@ -126,11 +132,10 @@ namespace util
          */
         EQ_EXPORT static bool usesFBO( const GLEWContext* glewContext );
 
-        GLEWContext* glewGetContext() { return _glewContext; }
         const GLEWContext* glewGetContext() const { return _glewContext; }
 
     private:
-        GLEWContext* const _glewContext;
+        const GLEWContext* const _glewContext;
 
         int _width;
         int _height;
@@ -142,4 +147,4 @@ namespace util
 }
 }
 
-#endif //EQUTIL_ACCUMULATION_H
+#endif // EQUTIL_ACCUM_H

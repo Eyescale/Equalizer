@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2007,       Maxim Makhinya
-   Copyright (c) 2008,       Stefan Eilemann <eile@equalizergraphics.com> 
+   Copyright (c) 2008-2010,  Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,21 +37,22 @@ namespace eVolve
     class GLSLShaders
     {
     public:
-        GLSLShaders(): _program( 0 ), _shadersLoaded( false ), _glewCtx( 0 ) {}
+        GLSLShaders(): _program( 0 ), _shadersLoaded( false ), _glewContext( 0 )
+            {}
 
         bool loadShaders( const std::string &vShader,
                           const std::string &fShader,
-                                GLEWContext* glewCtx );
+                          const GLEWContext* glewContext );
 
         void unloadShaders();
 
         GLhandleARB  getProgram() const { return _program; }
-        GLEWContext* glewGetContext()   { return _glewCtx; }
+        const GLEWContext* glewGetContext() const { return _glewContext; }
 
     private:
         GLhandleARB     _program;       //!< GLSL vertex and fragment shaders
         bool            _shadersLoaded; //!< flag of loaded shaders
-        GLEWContext*    _glewCtx;       //!< OpenGL rendering context
+        const GLEWContext* _glewContext;   //!< OpenGL function table
 
         GLhandleARB _loadShader( const std::string &shader, GLenum shaderType );
         void _printLog( GLhandleARB shader, const std::string &type );

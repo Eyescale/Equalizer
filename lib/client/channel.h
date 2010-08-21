@@ -23,7 +23,7 @@
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
 #include <eq/client/window.h>         // nested Window::ObjectManager class
-#include <eq/client/windowSystem.h>   // GLEWContext
+#include <eq/client/os.h>             // GLEWContext
 
 #include <eq/fabric/channel.h>        // base class
 
@@ -90,9 +90,6 @@ namespace util
          *         context.
          * @version 1.0
          */
-        EQ_EXPORT GLEWContext* glewGetContext();
-
-        /** Const-version of glewGetContext() @version 1.0 */
         EQ_EXPORT const GLEWContext* glewGetContext() const;
 
         /** @return the window's object manager instance. @version 1.0 */

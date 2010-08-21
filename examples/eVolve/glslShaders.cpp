@@ -74,13 +74,13 @@ GLhandleARB GLSLShaders::_loadShader( const std::string &shader,
 
 bool GLSLShaders::loadShaders( const std::string &vShader,
                                const std::string &fShader,
-                                     GLEWContext* glewCtx )
+                               const GLEWContext* glewContext )
 {
     if( _shadersLoaded )
         return true;
 
-    EQASSERT( glewCtx );
-    _glewCtx = glewCtx;
+    EQASSERT( glewContext );
+    _glewContext = glewContext;
 
     _program = glCreateProgramObjectARB();
 
@@ -117,7 +117,7 @@ void GLSLShaders::unloadShaders()
     if( !_shadersLoaded )
         return;
 
-    EQASSERT( _glewCtx );
+    EQASSERT( _glewContext );
     EQASSERT( _program );
 
     glDeleteObjectARB( _program );

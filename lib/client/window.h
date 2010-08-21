@@ -88,25 +88,28 @@ namespace fabric
         //@{
         EQ_EXPORT net::CommandQueue* getPipeThreadQueue(); //!< @internal
 
-        /** @return the Node of this window. */
+        /** @return the Node of this window. @version 1.0 */
         EQ_EXPORT const Node* getNode() const; 
 
-        /** @return the Node of this window. */
+        /** @return the Node of this window. @version 1.0 */
         EQ_EXPORT Node*       getNode();
 
-        /** @return the Config of this window. */
+        /** @return the Config of this window. @version 1.0 */
         EQ_EXPORT const Config* getConfig() const;
 
-        /** @return the Config of this window. */
+        /** @return the Config of this window. @version 1.0 */
         EQ_EXPORT Config*       getConfig();
 
-        /** @return the Client of this window. */
+        /** @return the Client of this window. @version 1.0 */
         EQ_EXPORT ClientPtr getClient();
 
-        /** @return the Server of this window. */
+        /** @return the Server of this window. @version 1.0 */
         EQ_EXPORT ServerPtr getServer();
 
-        /** @return true if this window is running, false otherwise. */
+        /**
+         * @return true if this window is running, false otherwise.
+         * @version 1.0 
+         */
         bool isRunning() const { return (_state == STATE_RUNNING); }
 
         /** 
@@ -116,12 +119,10 @@ namespace fabric
          * returned and context is not modified.
          *
          * @return true if a render context was found, false otherwise.
+         * @warning experimental - may not be supported in the future.         
          */
         EQ_EXPORT bool getRenderContext( const int32_t x, const int32_t y,
                                          RenderContext& context ) const;
-
-        /** @return the window's average framerate */
-        float getFPS() const { return _avgFPS; }
         //@}
 
         /** @name OpenGL context handling and sharing */
@@ -131,49 +132,61 @@ namespace fabric
          * 
          * By default it is set to the first window of the pipe in the
          * window's constructor. The shared context window is used during
-         * initialization to setup the OpenGL context and ObjectManager.
+         * initialization to setup the OpenGL context and util::ObjectManager.
+         * @version 1.0
          */
         void setSharedContextWindow( Window* sharedContextWindow )
             { _sharedContextWindow = sharedContextWindow; }
 
-        /** @return the window with which this window shares the GL context */
+        /**
+         * @return the window with which this window shares the GL context.
+         * @version 1.0
+         */
         const Window* getSharedContextWindow() const
             { return _sharedContextWindow; }
 
-        /** @return the window with which this window shares the GL context */
+        /**
+         * @return the window with which this window shares the GL context.
+         * @version 1.0
+         */
         Window* getSharedContextWindow() { return _sharedContextWindow; }
 
-        /** @return the window's object manager instance. */
+        /** @return the window's object manager instance. @version 1.0 */
         ObjectManager* getObjectManager() { return _objectManager; }
 
-        /** @return the window's object manager instance. */
+        /** @return the window's object manager instance. @version 1.0 */
         const ObjectManager* getObjectManager() const { return _objectManager; }
 
-        /** @return the small bitmap font used for overlays. */
+        /**
+         * @return a small bitmap font used for overlays.
+         * @warning experimental - may not be supported in the future.         
+         */
         EQ_EXPORT const Font* getSmallFont();
 
-        /** @return the medium bitmap font used for overlays. */
+        /**
+         * @return a medium bitmap font used for overlays.
+         * @warning experimental - may not be supported in the future.         
+         */
         EQ_EXPORT const Font* getMediumFont();
 
         /** 
          * Get the GLEW context for this window.
          * 
-         * The glew context is initialized during window initialization, and
+         * The glew context is provided and initialized by the OSWindow, and
          * provides access to OpenGL extensions. This function does not follow
          * the Equalizer naming conventions, since GLEW uses a function of this
          * name to automatically resolve OpenGL function entry
-         * points. Therefore, any supported GL function can be called directly
-         * from an initialized Window.
+         * points. Therefore, any OpenGL function support by the driver can be
+         * directly called from any method of an initialized window.
          * 
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
+         * @version 1.0
          */
-        EQ_EXPORT GLEWContext* glewGetContext();
-
-        /** Const version of glewGetContext(). */
         EQ_EXPORT const GLEWContext* glewGetContext() const;
 
         /**
+         * @internal
          * @return the OpenGL texture format corresponding to the window's color
          *         drawable configuration
          */
@@ -187,6 +200,7 @@ namespace fabric
          *
          * Called at the end of each frame from frameFinish() to ensure timely
          * execution of pending rendering requests.
+         * @version 1.0
          */
         virtual void flush() const { glFlush(); }
 
@@ -195,27 +209,29 @@ namespace fabric
          *
          * Called before a software swap barrier to ensure that the window will
          * swap directly after the barrier is left.
+         * @version 1.0
          */
         virtual void finish() const { glFinish(); }
 
-        /** 
+        /** Swap the front and back buffer of the window. @version 1.0 */
+        EQ_EXPORT virtual void swapBuffers();
+
+        /** Render the current framerate as on overlay. @version 1.0 */
+        EQ_EXPORT virtual void drawFPS();
+
+        /**
+         * @internal
          * Make the window's drawable and context current.
          *
          * GL drivers tend to be behave sub-optimally if two many makeCurrent
          * calls happen in a multi-threaded program. When caching is enabled,
          * this method will only call OSWindow::makeCurrent if it has not been
-         * done before for this window.
+         * done before for this window on this pipe.
          */
         EQ_EXPORT virtual void makeCurrent( const bool cache = true ) const;
 
-        /** Bind the window's FBO, if it uses one. */
+        /** @internal Bind the window's FBO, if it uses one. */
         EQ_EXPORT virtual void bindFrameBuffer() const;
-
-        /** Swap the front and back buffer of the window. */
-        EQ_EXPORT virtual void swapBuffers();
-
-        /** Render the current framerate as on overlay on the window. */
-        EQ_EXPORT virtual void drawFPS();
         //@}
 
         /**  @name OSWindow interface */
@@ -227,18 +243,21 @@ namespace fabric
          * drawable creation. This window forwards certain calls, e.g.,
          * swapBuffers(), to the OSWindow. The os-specific window has to be
          * initialized.
+         * @version 1.0
          */
         EQ_EXPORT void setOSWindow( OSWindow* window );
 
-        /** @return the OS-specific window implementation. */
+        /** @return the OS-specific window implementation. @version 1.0 */
         const OSWindow* getOSWindow() const { return _osWindow; }
-        /** @return the OS-specific window implementation. */
-        OSWindow*       getOSWindow()       { return _osWindow; }
 
-        /** @return the OS-specific pipe implementation. */
+        /** @return the OS-specific window implementation. @version 1.0 */
+        OSWindow* getOSWindow() { return _osWindow; }
+
+        /** @return the OS-specific pipe implementation. @version 1.0 */
         const OSPipe* getOSPipe() const;
-        /** @return the OS-specific pipe implementation. */
-        OSPipe*       getOSPipe(); 
+
+        /** @return the OS-specific pipe implementation. @version 1.0 */
+        OSPipe* getOSPipe(); 
         //@}
 
         /**
@@ -248,16 +267,16 @@ namespace fabric
          * various actions.
          */
         //@{
-
         /** 
          * Process a received event.
          *
-         * The task of this method is to update the window as necessary, and 
-         * transform the event into an config event to be send to the 
+         * The task of this method is to update the window as necessary, and
+         * transform the event into an config event to be send to the
          * application using Config::sendEvent().
          * 
          * @param event the received window system event.
          * @return true when the event was handled, false if not.
+         * @version 1.0
          */
         EQ_EXPORT virtual bool processEvent( const Event& event );
         //@}
@@ -269,13 +288,13 @@ namespace fabric
         EQ_EXPORT virtual void attachToSession( const uint32_t id, 
                                                 const uint32_t instanceID, 
                                                 net::Session* session );
-
         /** @name Actions */
         //@{
         /** 
          * Start a frame by unlocking all child resources.
          * 
          * @param frameNumber the frame to start.
+         * @version 1.0
          */
         EQ_EXPORT void startFrame( const uint32_t frameNumber );
 
@@ -283,6 +302,7 @@ namespace fabric
          * Signal the completion of a frame to the parent.
          * 
          * @param frameNumber the frame to end.
+         * @version 1.0
          */
         EQ_EXPORT void releaseFrame( const uint32_t frameNumber );
 
@@ -290,6 +310,7 @@ namespace fabric
          * Signal the release of the local synchronization to the parent.
          * 
          * @param frameNumber the frame to release.
+         * @version 1.0
          */
         EQ_EXPORT void releaseFrameLocal( const uint32_t frameNumber );
         //@}
@@ -301,11 +322,11 @@ namespace fabric
          * various actions.
          */
         //@{
-
         /** 
          * Initialize this window.
-         * 
+         *
          * @param initID the init identifier.
+         * @version 1.0
          */
         EQ_EXPORT virtual bool configInit( const uint32_t initID );
 
@@ -313,6 +334,7 @@ namespace fabric
          * Initialize the OS-specific window.
          *
          * @sa setOSWindow()
+         * @version 1.0
          */
         EQ_EXPORT virtual bool configInitOSWindow( const uint32_t initID );
 
@@ -322,16 +344,17 @@ namespace fabric
          * @param initID the init identifier.
          * @return <code>true</code> if the initialization was successful,
          *         <code>false</code> if not.
+         * @version 1.0
          */
         EQ_EXPORT virtual bool configInitGL( const uint32_t initID );
 
-        /** Exit this window. */
+        /** Exit this window. @version 1.0 */
         EQ_EXPORT virtual bool configExit();
 
-        /** De-initialize the OS-specific window. */
+        /** De-initialize the OS-specific window. @version 1.0 */
         EQ_EXPORT virtual bool configExitOSWindow();
 
-        /** De-initialize the OpenGL state for this window. */
+        /** De-initialize the OpenGL state for this window. @version 1.0 */
         virtual bool configExitGL() { return true; }
 
         /**
@@ -342,7 +365,7 @@ namespace fabric
          *
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to start.
-         * @sa Config::beginFrame()
+         * @version 1.0
          */
         EQ_EXPORT virtual void frameStart( const uint32_t frameID, 
                                            const uint32_t frameNumber );
@@ -358,6 +381,7 @@ namespace fabric
          *
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to finish.
+         * @version 1.0
          */
         EQ_EXPORT virtual void frameFinish( const uint32_t frameID, 
                                             const uint32_t frameNumber );
@@ -370,24 +394,26 @@ namespace fabric
          *
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to finished with draw.
+         * @version 1.0
          */
         EQ_EXPORT virtual void frameDrawFinish( const uint32_t frameID,
                                                 const uint32_t frameNumber );
         //@}
 
     private:
-        /** The window sharing the OpenGL context. */
-        Window* _sharedContextWindow;
-
-        /** Window-system specific functions class */
-        OSWindow* _osWindow;
-
         enum State
         {
             STATE_STOPPED,
             STATE_INITIALIZING,
             STATE_RUNNING
         };
+
+        /** The window sharing the OpenGL context. */
+        Window* _sharedContextWindow;
+
+        /** Window-system specific functions class */
+        OSWindow* _osWindow;
+
         /** The configInit/configExit state. */
         State _state;
 
@@ -416,11 +442,10 @@ namespace fabric
             char dummy[32];
         };
 
-        friend class Channel;
-        
         /** Add a channel's rendering context to the current frame's list */
         void _addRenderContext( const RenderContext& context );
-
+        friend class Channel;
+        
         /** Set up object manager during initialization. */
         void _setupObjectManager();
         /** Release object manager. */
@@ -431,6 +456,9 @@ namespace fabric
 
         /** Enter the given barrier. */
         void _enterBarrier( net::ObjectVersion barrier );
+
+        /** @return the window's average framerate */
+        float _getFPS() const { return _avgFPS; }
 
         /* The command functions. */
         bool _cmdCreateChannel( net::Command& command );

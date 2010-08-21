@@ -44,6 +44,7 @@ typedef vmml::vector< 3, unsigned char > Vector3ub;
 typedef vmml::frustum< float >  Frustumf; //!< A frustum definition
 
 class Client;
+template< class, class > class Channel;
 template< class, class > class Observer;
 template< class, class, class > class Layout;
 template< class, class, class > class Segment;
@@ -53,6 +54,8 @@ template< class, class, class, class > class Node;
 template< class, class, class, class > class Pipe;
 template< class, class, class, class > class Server;
 template< class, class, class, class, class, class, class > class Config;
+template< class, class > class ElementVisitor;
+template< class > class LeafVisitor;
 
 typedef base::RefPtr< Client > ClientPtr;
 typedef base::RefPtr< const Client > ConstClientPtr;

@@ -23,7 +23,7 @@ namespace eq
 namespace util
 {
 
-AccumBufferObject::AccumBufferObject( GLEWContext* glewContext )
+AccumBufferObject::AccumBufferObject( const GLEWContext* glewContext )
     : FrameBufferObject( glewContext )
     , _texture( 0 )
     , _pvp( 0, 0, 0, 0 )

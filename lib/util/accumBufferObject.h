@@ -37,7 +37,7 @@ namespace util
     {
     public: 
         /** Construct a new Accumulation Buffer Object. @version 1.0 */
-        EQ_EXPORT AccumBufferObject( GLEWContext* const glewContext );
+        EQ_EXPORT AccumBufferObject( const GLEWContext* const glewContext );
 
         /** Destruct the Accumulation Buffer Object. @version 1.0 */
         EQ_EXPORT ~AccumBufferObject();

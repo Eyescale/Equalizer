@@ -91,14 +91,14 @@ namespace eVolve
               uint32_t       getResolution()    const { return _resolution;  };
         const VolumeScaling& getVolumeScaling() const { return _volScaling;  };
 
-        void glewSetContext( GLEWContext* context ) { _glewContext = context; }
+        void glewSetContext( const GLEWContext* context )
+            { _glewContext = context; }
 
-        GLEWContext* glewGetContext() { return _glewContext; }
+        const GLEWContext* glewGetContext() const { return _glewContext; }
 
     protected:
 
-        bool _createVolumeTexture(
-                                      GLuint&                  volume,
+        bool _createVolumeTexture(    GLuint&                  volume,
                                       DataInTextureDimensions& TD,
                                 const eq::Range&               range );
 
@@ -128,7 +128,7 @@ namespace eVolve
 
         std::vector< uint8_t >  _TF;    //!< Transfer function
 
-        GLEWContext*   _glewContext;    //!< OpenGL rendering context
+        const GLEWContext*   _glewContext;    //!< OpenGL function table
     };
 
 }

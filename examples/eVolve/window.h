@@ -47,9 +47,6 @@ namespace eVolve
         void getLogoTexture( GLuint& id, eq::Vector2i& size ) const
             { id = _logoTexture; size = _logoSize; }
 
-        GLEWContext* glewGetContext()
-                                { return getObjectManager()->glewGetContext(); }
-
     protected:
         virtual ~Window() {}
         virtual bool configInit( const uint32_t initID );
@@ -57,7 +54,7 @@ namespace eVolve
         virtual void swapBuffers();
 
     private:
-        GLuint         _logoTexture;
+        GLuint _logoTexture;
         eq::Vector2i _logoSize;
 
         void _loadLogo();

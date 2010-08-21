@@ -29,10 +29,7 @@ namespace eq
 {
 namespace fabric
 {
-    template< class, class, class > class Window;
-    template< typename T > class LeafVisitor;
-
-    /** A channel represents a two-dimensional viewport within a Window. */
+    /** Base data transport class for channels. @sa eq::Channel */
     template< class W, class C > class Channel : public Object
     {
     public: 

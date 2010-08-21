@@ -58,12 +58,12 @@ void GLWindow::initGLEW()
         _glewInitialized = true;
 }
     
-GLEWContext* GLWindow::glewGetContext()
+const GLEWContext* GLWindow::glewGetContext() const
 {
     return _glewContext;
 }
 
-const GLEWContext* GLWindow::glewGetContext() const
+GLEWContext* GLWindow::glewGetContext()
 {
     return _glewContext;
 }

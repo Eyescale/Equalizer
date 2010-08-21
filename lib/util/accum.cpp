@@ -24,7 +24,7 @@ namespace eq
 namespace util
 {
 
-Accum::Accum( GLEWContext* const glewContext )
+Accum::Accum( const GLEWContext* const glewContext )
     : _glewContext( glewContext )
     , _width( 0 )
     , _height( 0 )

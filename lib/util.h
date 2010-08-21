@@ -24,7 +24,7 @@
  *
  * The eq::util namespace groups common utility classes, mostly facilitating the
  * usage of OpenGL functions. Most classes in this namespace are used by the
- * eq::client classes, but are usable independently from Equalizer.
+ * Equalizer client library, but are usable independently from Equalizer.
  */
 
 #include <eq/util/accum.h>
