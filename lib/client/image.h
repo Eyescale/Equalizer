@@ -287,15 +287,15 @@ namespace eq
         /** 
          * Upload this image to a texture.
          *
-         * The texture has to be pre-defined with the correct parameters
-         * corresponding to the requested buffer.
+         * The texture will be initialized using the parameters corresponding to
+         * the requested buffer.
          *
          * @param buffer the buffer type.
-         * @param texture the initialized GL texture.
+         * @param texture the target texture.
          * @param glObjects the OpenGL object manager for the current context.
          */
         EQ_EXPORT void upload( const Frame::Buffer buffer,
-                               const uint32_t texture,
+                               util::Texture* texture,
                                util::ObjectManager< const void* >* glObjects )
             const;
 

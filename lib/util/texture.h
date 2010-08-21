@@ -59,34 +59,44 @@ namespace util
         /** @return the target of the texture. @version 1.0 */
         GLenum getTarget() const { return _target; }
 
+        /**
+         * @return the internal (GPU) pixel format of the texture.
+         * @sa init()
+         * @version 1.0 
+         */
+        GLuint getInternalFormat() const { return _internalFormat; }
+
         /** 
          * Set the external data format and type.
          *
          * @param format the OpenGL format.
-         * @param type the OpenGl Type.
+         * @param type the OpenGL Type.
+         * @version 1.0
          */
-        void setExternalFormat( const uint32_t format,
-                                const uint32_t type );
+        void setExternalFormat( const uint32_t format, const uint32_t type );
 
-        /** @return the pixel format of the texture. */
-        GLuint getInternalFormat() const { return _internalFormat; }
-
-        /** @return the data format of the texture, e.g., GL_RGBA. */
+        /**
+         * @return the external data format of the texture, e.g., GL_RGBA.
+         * @version 1.0
+         */
         GLuint getFormat() const { return _format; }
 
-        /** @return the data type of the texture, e.g., GL_HALF_FLOAT. */
+        /**
+         * @return the external data type of the texture, e.g., GL_HALF_FLOAT.
+         * @version 1.0
+         */
         GLuint getType() const { return _type; }
 
-        /** @return the texture ID, */
+        /** @return the OpenGL texture name. @version 1.0 */
         GLuint getID() const { return _id; }
 
-        /** @return the current width */
+        /** @return the current width. @version 1.0 */
         int32_t getWidth() const { return _width; }
 
-        /** @return the current height */
+        /** @return the current height. @version 1.0 */
         int32_t getHeight() const { return _height; }
 
-        /** @return true if the texture can be bound. */
+        /** @return true if the texture can be bound. @version 1.0 */
         EQ_EXPORT bool isValid() const;
         //@}
 
@@ -103,54 +113,42 @@ namespace util
         EQ_EXPORT void init( const GLuint internalFormat, const int32_t width,
                              const int32_t height );
 
-        /** Clear the texture, including the GL texture name. @version 1.0 */
+        /**
+         * Clear the texture, including deleting the GL texture name.
+         * @version 1.0
+         */
         EQ_EXPORT void flush();
 
         /**
          * Copy the specified area from the current read buffer to the
          * texture at 0,0.
+         * @version 1.0
          */
         EQ_EXPORT void copyFromFrameBuffer( const GLuint internalFormat,
                                             const fabric::PixelViewport& pvp );
 
-        /**
-         * Copy the specified image buffer to the texture at 0,0.
-         */
-        EQ_EXPORT void upload( const Image* image, const Frame::Buffer which,
-                               ObjectManager< const void* >* glObjects );
-
-        /** Copy the specified buffer to the texture at 0,0. */
+        /** Copy the specified buffer to the texture at 0,0. @version 1.0 */
         EQ_EXPORT void upload( const int32_t width, const int32_t height,
                                const void* ptr );
 
-        /** Copy the texture data to the given memory address. */
-        EQ_EXPORT void download( void* buffer, const uint32_t format, 
-                                 const uint32_t type ) const;
-
-        /** set a downloader for use during transfer operation  */
-        void setDownloader( const uint32_t downloaderName )
-            { _downloaderName = downloaderName; }
-
         /**
-         * Copy the texture data to the given memory address, using the internal
-         * format and type.
+         * Copy the texture data from the GPU to the given memory address.
+         * @version 1.0
          */
         EQ_EXPORT void download( void* buffer ) const;
 
-        /** Bind the texture. */
+        /** Bind the texture. @version 1.0 */
         EQ_EXPORT void bind() const;
 
-        /** Create and bind a texture to the current FBO. */
+        /** Create and bind a texture to the current FBO. @version 1.0 */
         EQ_EXPORT void bindToFBO( const GLenum target, const int32_t width,
                                   const int32_t height );
         
-        /** Resize the texture. */
+        /** Resize the texture. @version 1.0 */
         EQ_EXPORT void resize( const int32_t width, const int32_t height );
 
-        /** Writes the texture data as a rgb image file. */
-        EQ_EXPORT void writeRGB( const std::string& filename,
-                                 const eq::Frame::Buffer buffer,
-                                 const PixelViewport& pvp ) const;
+        /** Write the texture data as an rgb image file. @version 1.0 */
+        EQ_EXPORT void writeRGB( const std::string& filename ) const;
         //@}
 
         const GLEWContext* glewGetContext() const { return _glewContext; }
@@ -198,9 +196,6 @@ namespace util
         /** texture data type */
         GLuint _type;
         
-        /** name of the default downloader */
-        uint32_t _downloaderName;
-
         /** The maximum width of the texture. */
         int32_t _width;
 

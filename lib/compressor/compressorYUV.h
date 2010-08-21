@@ -55,7 +55,7 @@ public:
                                  void**       out );
 
     virtual void upload( const GLEWContext* glewContext, 
-                         const void*        datas,
+                         const void*        data,
                          const eq_uint64_t  inDims[4],
                          const eq_uint64_t  flags,
                          const eq_uint64_t  outDims[4],  
@@ -70,7 +70,7 @@ private:
     void _compress( const GLEWContext* glewContext,
                     const eq_uint64_t inDims[4],
                     eq_uint64_t       outDims[4] );
-    void _download( void* datas );
+    void _download( void* data );
 
     void _decompress( const GLEWContext* glewContext,
                       const eq_uint64_t  inDims[4] );

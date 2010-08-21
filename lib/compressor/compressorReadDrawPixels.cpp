@@ -241,7 +241,8 @@ void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
             _texture = new util::Texture(GL_TEXTURE_RECTANGLE_ARB, glewContext);
         
         _texture->setGLData( source, _internalFormat, inDims[1], inDims[3] );
-        _texture->download( _buffer.getData(), _format, _type );
+        _texture->setExternalFormat( _format, _type );
+        _texture->download( _buffer.getData( ));
         _texture->flushNoDelete();
     }
     else

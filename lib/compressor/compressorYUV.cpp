@@ -178,9 +178,12 @@ void CompressorYUV::_compress( const GLEWContext* glewContext,
     _fbo->unbind();
 }
 
-void CompressorYUV::_download( void* datas )
+void CompressorYUV::_download( void* data )
 {
-   _fbo->getColorTextures()[0]->download( datas, GL_RGBA, GL_UNSIGNED_BYTE );
+    util::Texture* texture = _fbo->getColorTextures()[0];
+    EQASSERT( texture->getFormat() == GL_RGBA );
+    EQASSERT( texture->getType() == GL_UNSIGNED_BYTE );
+    texture->download( data );
 }
 
 void CompressorYUV::download( const GLEWContext* glewContext,
@@ -219,10 +222,9 @@ void CompressorYUV::download( const GLEWContext* glewContext,
 
         _compress( glewContext, inDims, outDims );
         buffer.resize( outDims[1] * outDims[3] * 4 );
-        _download( buffer.getData() );
+        _download( buffer.getData( ));
     }
-    // the data is in the texture id define by
-    // the field "source"
+    // the data is in the texture id define by the field "source"
     else if( flags & EQ_COMPRESSOR_USE_TEXTURE )
     {
         // assign texture id to the local texture class
@@ -232,10 +234,9 @@ void CompressorYUV::download( const GLEWContext* glewContext,
         _texture->setGLData( source, GL_RGBA, inDims[1], inDims[3] );
         _compress( glewContext, inDims, outDims );
         buffer.resize( outDims[1] * outDims[3] * 4 );
-        _download( buffer.getData() );
+        _download( buffer.getData( ));
         _texture->flushNoDelete();
     }
-    // no data to transfert, it's only an allocation buffer
     else
     {
         EQUNIMPLEMENTED;
@@ -290,7 +291,7 @@ void CompressorYUV::_decompress( const GLEWContext* glewContext,
 }
 
 void CompressorYUV::upload( const GLEWContext* glewContext, 
-                            const void*        datas,
+                            const void*        data,
                             const eq_uint64_t  inDims[4],
                             const eq_uint64_t  flags,
                             const eq_uint64_t  outDims[4],  
@@ -307,7 +308,7 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
 
     if ( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {    
-        _texture->upload( inDims[1], inDims[3], const_cast<void*>( datas ) );
+        _texture->upload( inDims[1], inDims[3], data );
         _decompress( glewContext, outDims );
     }
     else if( flags & EQ_COMPRESSOR_USE_TEXTURE  )
@@ -327,7 +328,7 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
         else
             _fbo->init( outDims[1], outDims[3], GL_RGBA, 0, 0 );
 
-        _texture->upload( inDims[1], inDims[3], datas );
+        _texture->upload( inDims[1], inDims[3], data );
         _decompress( glewContext, outDims );
         _fbo->unbind();
         texture->flushNoDelete();

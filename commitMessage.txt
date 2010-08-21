@@ -1,9 +1,9 @@
-Minor cleanup on eqNBody
+Finalize texture interface for 1.0, related doxygen and code cleanups.
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[x] Optimization
-[ ] Documentation
+[ ] Optimization
+[x] Documentation

@@ -274,24 +274,25 @@ void Image::upload( const Frame::Buffer buffer, const Vector2i& position,
                       EQ_COMPRESSOR_USE_FRAMEBUFFER, pvp, 0 );
 }
 
-void Image::upload( const Frame::Buffer buffer, const uint32_t texture,
-                    util::ObjectManager< const void* >* glObjects )
-    const
+void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
+                    util::ObjectManager< const void* >* glObjects ) const
 {
     EQASSERT( texture );
     EQASSERT( glObjects );
+
     util::CompressorDataGPU* uploader = glObjects->obtainEqUploader(
                                             _getCompressorKey( buffer ));
-
     const Image::PixelData& pixelData = getPixelData( buffer );
     const uint32_t externalFormat = pixelData.externalFormat;
     const uint32_t internalFormat = pixelData.internalFormat;
 
-    if ( !uploader->isValidUploader( externalFormat, internalFormat ) )
+    if( !uploader->isValidUploader( externalFormat, internalFormat ) )
         uploader->initUploader( externalFormat, internalFormat );
 
+    texture->init( internalFormat, _pvp.w, _pvp.h );
     uploader->upload( pixelData.pixels, pixelData.pvp,
-                      EQ_COMPRESSOR_USE_TEXTURE, getPixelViewport(), texture );
+                      EQ_COMPRESSOR_USE_TEXTURE, getPixelViewport(),
+                      texture->getID( ));
 }
 
 void Image::readback( const uint32_t buffers, const PixelViewport& pvp,

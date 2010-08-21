@@ -58,7 +58,13 @@ void Texture::flush()
     EQ_TS_THREAD( _thread );
     glDeleteTextures( 1, &_id );
     _id = 0;
-    _downloaderName = 0;
+    _defined = false;
+}
+
+void Texture::flushNoDelete()
+{
+    EQ_TS_THREAD( _thread );
+    _id = 0;
     _defined = false;
 }
 
@@ -75,54 +81,40 @@ void Texture::_setInternalFormat( const GLuint internalFormat )
         // depth format
         case GL_DEPTH_COMPONENT:
             setExternalFormat( GL_DEPTH_COMPONENT, GL_UNSIGNED_INT );
-            setDownloader( EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT );
             break;
         case GL_RGB10_A2:
             setExternalFormat( GL_RGBA, GL_UNSIGNED_INT_10_10_10_2 );
-            setDownloader( EQ_COMPRESSOR_TRANSFER_RGB10_A2_TO_BGR10_A2 );
             break;
         case GL_RGBA:
         case GL_RGBA8:
             setExternalFormat( GL_RGBA, GL_UNSIGNED_BYTE );
-            setDownloader( EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA );
             break;
         case GL_RGBA16F:
             setExternalFormat( GL_RGBA, GL_HALF_FLOAT );
-            setDownloader( EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGRA16F );
             break;
         case GL_RGBA32F:
             setExternalFormat( GL_RGBA, GL_FLOAT );
-            setDownloader( EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGRA32F );
             break;
         case GL_RGB:
         case GL_RGB8:
             setExternalFormat( GL_RGB, GL_UNSIGNED_BYTE );
-            setDownloader( EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGR );
             break;
         case GL_RGB16F:
             setExternalFormat( GL_RGB, GL_HALF_FLOAT );
-            setDownloader( EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGR16F );
             break;
         case GL_RGB32F:
             setExternalFormat( GL_RGB, GL_FLOAT );
-            setDownloader( EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGR32F );
             break;
         case GL_ALPHA32F_ARB:
             setExternalFormat( GL_ALPHA, GL_FLOAT );
-            EQUNIMPLEMENTED;
-            //setDownloader( !!! );
             break;
         case GL_DEPTH24_STENCIL8:
             setExternalFormat( GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8_EXT );
-            setDownloader( 
-                EQ_COMPRESSOR_TRANSFER_DEPTH_STENCIL_TO_UNSIGNED_INT_24_8 );
             break;
         case GL_RGBA32UI:
             EQASSERT( _glewContext );
             if( GLEW_EXT_texture_integer )
-            {
                 setExternalFormat( GL_RGBA_INTEGER_EXT, GL_UNSIGNED_INT );
-            }
             else
                 EQUNIMPLEMENTED;
             break;
@@ -147,16 +139,6 @@ void Texture::_generate()
 
     _defined = false;
     glGenTextures( 1, &_id );
-}
-
-void Texture::flushNoDelete()
-{
-    if( _id == 0 )
-        return;
-
-    EQ_TS_THREAD( _thread );
-    _id = 0;
-    _defined = false;
 }
 
 void Texture::init( const GLuint format, const int32_t width,
@@ -223,18 +205,6 @@ void Texture::copyFromFrameBuffer( const GLuint internalFormat,
     EQ_GL_ERROR( "after Texture::copyFromFrameBuffer" );
 }
 
-void Texture::upload( const Image* image, const Frame::Buffer which,
-                      ObjectManager< const void* >* glObjects )
-{
-    EQ_TS_THREAD( _thread );
-
-    const PixelViewport& pvp = image->getPixelViewport();
-    init( image->getInternalFormat( which ), pvp.w, pvp.h );
-    EQASSERT( _internalFormat != 0 );
-
-    image->upload( which, _id, glObjects );
-}
-
 void Texture::upload( const int32_t width, const int32_t height,
                       const void* ptr )
 {
@@ -249,25 +219,12 @@ void Texture::upload( const int32_t width, const int32_t height,
     glTexSubImage2D( _target, 0, 0, 0, width, height, _format, _type, ptr );
 }
 
-void Texture::download( void* buffer, const uint32_t format,
-                        const uint32_t type ) const
+void Texture::download( void* buffer ) const
 {
     EQ_TS_THREAD( _thread );
     EQASSERT( _defined );
     EQ_GL_CALL( glBindTexture( _target, _id ));
-    if ( format == 0 || type == 0 )
-    {
-        EQ_GL_CALL( glGetTexImage( _target, 0, _format, _type, buffer ));
-    }
-    else
-    {
-        EQ_GL_CALL( glGetTexImage( _target, 0, format, type, buffer ));
-    }
-}
-
-void Texture::download( void* buffer ) const
-{
-    download( buffer, _format, _type );
+    EQ_GL_CALL( glGetTexImage( _target, 0, _format, _type, buffer ));
 }
 
 void Texture::bind() const
@@ -319,16 +276,72 @@ void Texture::resize( const int32_t width, const int32_t height )
     _defined = true;
 }
 
-void Texture::writeRGB( const std::string& filename, 
-                        const Frame::Buffer buffer,
-                        const PixelViewport& pvp ) const
+void Texture::writeRGB( const std::string& filename ) const
 {
+    EQASSERT( _defined );
+    if( !_defined )
+        return;
+
     eq::Image image;
 
-    image.setPixelViewport( pvp );
-    image.allocDownloader( buffer, _downloaderName, _glewContext );
-    image.readback( buffer, _id, _glewContext );
-    image.writeImage( filename + ".rgb", buffer );
+    switch( _internalFormat )
+    {
+        case GL_DEPTH_COMPONENT:
+            image.allocDownloader( Frame::BUFFER_COLOR,
+                             EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
+                                   _glewContext );
+            break;
+        case GL_RGB10_A2:
+            image.allocDownloader( Frame::BUFFER_COLOR,
+                                   EQ_COMPRESSOR_TRANSFER_RGB10_A2_TO_BGR10_A2,
+                                   _glewContext );
+            break;
+        case GL_RGBA:
+        case GL_RGBA8:
+            image.allocDownloader( Frame::BUFFER_COLOR,
+                                   EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA,
+                                   _glewContext );
+            break;
+        case GL_RGBA16F:
+            image.allocDownloader( Frame::BUFFER_COLOR,
+                                   EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGRA16F,
+                                   _glewContext );
+            break;
+        case GL_RGBA32F:
+            image.allocDownloader( Frame::BUFFER_COLOR,
+                                   EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGRA32F,
+                                   _glewContext );
+            break;
+        case GL_RGB:
+        case GL_RGB8:
+            image.allocDownloader( Frame::BUFFER_COLOR,
+                                   EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGR,
+                                   _glewContext );
+            break;
+        case GL_RGB16F:
+            image.allocDownloader( Frame::BUFFER_COLOR,
+                                   EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGR16F,
+                                   _glewContext );
+            break;
+        case GL_RGB32F:
+            image.allocDownloader( Frame::BUFFER_COLOR,
+                                   EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGR32F,
+                                   _glewContext );
+            break;
+        case GL_DEPTH24_STENCIL8:
+            image.allocDownloader( Frame::BUFFER_COLOR, 
+                      EQ_COMPRESSOR_TRANSFER_DEPTH_STENCIL_TO_UNSIGNED_INT_24_8,
+                                   _glewContext );
+            break;
+
+        default:
+            EQUNIMPLEMENTED;
+            return;
+    }
+
+    image.setPixelViewport( eq::PixelViewport( 0, 0, _width, _height ));
+    image.readback( Frame::BUFFER_COLOR, _id, _glewContext );
+    image.writeImage( filename + ".rgb", Frame::BUFFER_COLOR );
 }
 
 }

@@ -660,7 +660,9 @@ void ROIFinder::_readbackInfo( )
     EQASSERT( static_cast<int32_t>(_perBlockInfo.size()) >= _pvp.w*_pvp.h*4 );
 
     texture = fbo->getColorTextures()[0];
-    texture->download( &_perBlockInfo[0], GL_RGBA, GL_FLOAT );
+    EQASSERT( texture->getFormat() == GL_RGBA );
+    EQASSERT( texture->getType() == GL_FLOAT );
+    texture->download( &_perBlockInfo[0] );
 }
 
 
