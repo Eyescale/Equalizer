@@ -40,24 +40,24 @@ Features
 --------
 
 Applications written using the
-`Equalizer framework <http://www.equalizergraphics.com/api.html>` benefit from
+`Equalizer framework <http://www.equalizergraphics.com/api.html>`_ benefit from
 the following features:
 
-* **`Flexibility <http://www.equalizergraphics.com/configuration.html>`_:**
+* `Flexibility <http://www.equalizergraphics.com/configuration.html>`_:
   An Equalizer application is configured at run-time, allowing the same
   executable to run optimally on any configuration -- from laptops to large
   scale visualization clusters, driving a single window or a six-sided CAVE
   while using one or multiple graphics cards to render each view.
 
-* **`Large Data Visualization
-  <http://www.equalizergraphics.com/scalability.html>`_:**
+* `Large Data Visualization
+  <http://www.equalizergraphics.com/scalability.html>`_:
   An Equalizer application can aggregate the power of multiple processors,
   graphics cards and computers to scale the rendering performance, visual
   quality and display size. This allows virtually any data set to be rendered at
   any resolution at interactive framerates, given sufficient hardware resources.
 
-* **`Support for Virtual Reality
-  <http://www.equalizergraphics.com/documents/design/immersive.html>`_:**
+* `Support for Virtual Reality
+  <http://www.equalizergraphics.com/documents/design/immersive.html>`_:
   Equalizer applications can run seamlessly in Virtual Reality installations
   using active and passive stereo rendering, as well as head tracking for one or
   multiple observers.

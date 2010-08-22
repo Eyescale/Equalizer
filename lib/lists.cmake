@@ -357,26 +357,33 @@ set(COMPRESSOR_SOURCES
   compressor/compressorYUV.cpp
   )
 
-if(WIN32)
-
+if(APPLE AND OPENGL_GLU_FOUND)
   set(CLIENT_SOURCES ${CLIENT_SOURCES}
     client/wglEventHandler.cpp
     client/wglMessagePump.cpp
     client/wglWindow.cpp
     client/wglPipe.cpp
-	)
-
-  set(NET_SOURCES ${NET_SOURCES}
-	net/pgmConnection.cpp
     )
+endif(APPLE AND OPENGL_GLU_FOUND)
 
-else(WIN32)
+if(WIN32)
+  set(CLIENT_SOURCES ${CLIENT_SOURCES}
+    client/wglEventHandler.cpp
+    client/wglMessagePump.cpp
+    client/wglWindow.cpp
+    client/wglPipe.cpp
+    )
+  set(NET_SOURCES ${NET_SOURCES}
+    net/pgmConnection.cpp
+    )
+endif(WIN32)
 
+if(X11_FOUND)
   set(CLIENT_SOURCES ${CLIENT_SOURCES}
     client/glXEventHandler.cpp
     client/glXMessagePump.cpp
     client/glXWindow.cpp
     client/glXPipe.cpp
     )
+endif(X11_FOUND)
 
-endif(WIN32)

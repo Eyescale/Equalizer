@@ -50,6 +50,12 @@ include(${CMAKE_SOURCE_DIR}/externals/UseVMMLib.cmake)
 find_package(X11)
 if(X11_FOUND)
   include_directories(${X11_INCLUDE_DIR})
+  if(APPLE)
+    # this is a hack, is there a better way?
+    include_directories(/usr/X11R6/include)
+  endif(APPLE)
+#endif(APPLE AND X11_FOUND)
+
 endif(X11_FOUND)
 
 find_package(OpenMP)
