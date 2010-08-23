@@ -1,9 +1,9 @@
-Auto-generate README.rst
+Netperf: Fix standalone RSP exit (listener close event before exit)
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
-[x] New Feature
+[x] Bugfix
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

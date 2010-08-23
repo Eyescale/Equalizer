@@ -46,6 +46,7 @@ namespace
 ConnectionSet       _connectionSet;
 eq::base::a_int32_t _nClients;
 eq::base::Lock      _mutexPrint;
+
 class Receiver : public eq::base::Thread
 {
 public:
@@ -153,7 +154,6 @@ public:
         {
             TEST( _connection->listen( ));
             _connection->acceptNB();
-
             _connectionSet.addConnection( _connection );
 
             // Get first client
@@ -207,6 +207,14 @@ public:
                     case ConnectionSet::EVENT_DATA:  // new data
                     {
                         resultConn = _connectionSet.getConnection();
+                        if( resultConn == _connection )
+                        {
+                            // really a close event of the listener
+                            TEST( resultConn->isClosed( ));
+                            _connectionSet.removeConnection( resultConn );
+                            std::cerr << "listener closed" << std::endl;
+                            break;
+                        }
 
                         Receiver* receiver = 0;
                         std::vector< RecvConn >::iterator i;
@@ -270,7 +278,7 @@ public:
                 }
             }
             TESTINFO( _receivers.empty(), _receivers.size() );
-            TESTINFO( _connectionSet.getSize() == 1, _connectionSet.getSize( ));
+            TESTINFO( _connectionSet.getSize() <= 1, _connectionSet.getSize( ));
             _connectionSet.clear();
         }
 
