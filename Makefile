@@ -17,7 +17,7 @@ SUBDIRS = \
 
 .PHONY: docs
 
-TARGETS     = precompile subdirs postcompile RELNOTES # docs
+TARGETS     = precompile subdirs RELNOTES README.rst postcompile # docs
 CLEAN_EXTRA = obj build $(INSTALL_FILES)
 
 include make/rules.mk
@@ -36,7 +36,7 @@ admin: lib
 dev: examples server
 	@echo "Development essentials compiled successfully"
 
-postcompile: subdirs
+postcompile: subdirs RELNOTES README.rst
 	@echo
 	@echo "----- Compilation successful -----"
 ifeq ($(findstring NDEBUG, $(DEFFLAGS)),NDEBUG)
@@ -79,3 +79,6 @@ endif
 
 RELNOTES: lib/RelNotes.dox
 	-links -dump $< > $@.tmp && mv $@.tmp $@
+
+README.rst: lib/RelNotes.dox
+	-$(PYTHON) make/html2rst.py $< > $@

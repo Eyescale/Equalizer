@@ -1,11 +1,9 @@
-Finalize window API for 1.0, related doxygen and code cleanups:
-- Make GLEWContext const
-- mark eq and fabric window methods in doxygen
+Auto-generate README.rst
 
-[x] May break build
-[x] May break existing applications
+[ ] May break build
+[ ] May break existing applications
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

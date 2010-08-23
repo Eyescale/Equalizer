@@ -15,6 +15,7 @@ include $(TOP)/make/$(ARCH).mk
 DOXYGEN         ?= doxygen
 FLEX            ?= flex
 BISON           ?= bison
+PYTHON          ?= python
 PC_LIBRARY_PATH ?= /opt/paracomp/lib64
 
 CUDA_PATH         ?= /usr/local/cuda
