@@ -1,9 +1,9 @@
-Netperf: Fix standalone RSP exit (listener close event before exit)
+Update Linux Readme
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

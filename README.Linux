@@ -4,7 +4,7 @@ Prerequisites:
  boost (optional, not yet needed): RSP, the protocol used for multicast data
    distribution, requires boost::asio. The preferred way on Ubuntu Linux 
    is to install
-   "sudo apt-get install libboost_system libboost_regex libboost_date_time".
+   "sudo apt-get install libboost-system-dev libboost-regex-dev libboost-date-time-dev".
 
 
 Q:  The file 'parser.hpp' is missing!?
