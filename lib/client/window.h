@@ -219,6 +219,9 @@ namespace fabric
         /** Render the current framerate as on overlay. @version 1.0 */
         EQ_EXPORT virtual void drawFPS();
 
+        /** @return the window's average framerate. @version 1.0 */
+        float getFPS() const { return _avgFPS; }
+
         /**
          * @internal
          * Make the window's drawable and context current.
@@ -456,9 +459,6 @@ namespace fabric
 
         /** Enter the given barrier. */
         void _enterBarrier( net::ObjectVersion barrier );
-
-        /** @return the window's average framerate */
-        float _getFPS() const { return _avgFPS; }
 
         /* The command functions. */
         bool _cmdCreateChannel( net::Command& command );

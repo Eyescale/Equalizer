@@ -169,7 +169,7 @@ void Window::_updateFPS()
 void Window::drawFPS()
 {
     std::ostringstream fpsText;
-    fpsText << std::setprecision(3) << _getFPS() << " FPS";
+    fpsText << std::setprecision(3) << getFPS() << " FPS";
 
     const Font* font = getSmallFont();
     const PixelViewport& pvp = getPixelViewport();
