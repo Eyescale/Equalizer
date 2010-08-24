@@ -27,6 +27,7 @@ namespace eq
 {
 namespace net
 {
+//#define EQ_INSTRUMENT_CACHE
 #ifdef EQ_INSTRUMENT_CACHE
 namespace
 {
@@ -34,6 +35,9 @@ base::a_int32_t nRead;
 base::a_int32_t nReadHit;
 base::a_int32_t nWrite;
 base::a_int32_t nWriteHit;
+base::a_int32_t nWriteMiss;
+base::a_int32_t nWriteReady;
+base::a_int32_t nWriteOld;
 base::a_int32_t nUsedRelease;
 base::a_int32_t nUnusedRelease;
 }
@@ -113,7 +117,12 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
     else if( item.data.versions.back()->getPendingVersion() == rev.version )
     {
         if( item.data.versions.back()->isReady( ))
+        {
+#ifdef EQ_INSTRUMENT_CACHE
+            ++nWriteReady;
+#endif
             return false; // Already have stream
+        }
         // else append data to stream
     }
     else
@@ -124,8 +133,12 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
         const uint32_t previousVersion = previous->getPendingVersion();
 
         if( previousVersion > rev.version )
+        {
+#ifdef EQ_INSTRUMENT_CACHE
+            ++nWriteOld;
+#endif
             return false;
-
+        }
         if( previousVersion + 1 != rev.version ) // hole
         {
             EQASSERT( previousVersion < rev.version );
@@ -158,6 +171,8 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
 #ifdef EQ_INSTRUMENT_CACHE
     if( _items->find( rev.identifier ) != _items->end( ))
         ++nWriteHit;
+    else
+        ++nWriteMiss;
 #endif
     return true;
 }
@@ -360,11 +375,12 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
 std::ostream& operator << ( std::ostream& os,
                             const InstanceCache& instanceCache )
 {
-    os << "InstanceCache " << instanceCache.getSize() / 1048576 << " / " 
+    os << "InstanceCache " << instanceCache.getSize() / 1048576 << "/" 
        << instanceCache.getMaxSize() / 1048576 << " MB"
 #ifdef EQ_INSTRUMENT_CACHE
-       << ", " << nReadHit << " / " << nRead << " reads, " << nWriteHit
-       << " / " << nWrite << " writes, " << nUsedRelease << " used / " 
+       << ", " << nReadHit << "/" << nRead << " reads, " << nWriteHit
+       << "/" << nWrite << " writes (" << nWriteMiss << " misses, " << nWriteOld
+       << " old, " << nWriteReady << " dups, " << nUsedRelease << " used, "
        << nUnusedRelease << " unused releases"
 #endif
         ;
