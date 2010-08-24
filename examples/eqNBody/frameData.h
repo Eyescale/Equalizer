@@ -43,7 +43,7 @@ namespace eqNbody
 		NBODY_NUM_CONFIGS
 	};
 	
-    class FrameData : public eq::Object
+    class FrameData : public eq::fabric::Serializable
     {
     public:
 
@@ -91,9 +91,9 @@ namespace eqNbody
 
         enum DirtyBits
         {
-            DIRTY_DATA		= eq::Object::DIRTY_CUSTOM << 0,
-            DIRTY_PROXYDATA	= eq::Object::DIRTY_CUSTOM << 1,
-            DIRTY_FLAGS		= eq::Object::DIRTY_CUSTOM << 2
+            DIRTY_DATA		= eq::fabric::Serializable::DIRTY_CUSTOM << 0,
+            DIRTY_PROXYDATA	= eq::fabric::Serializable::DIRTY_CUSTOM << 1,
+            DIRTY_FLAGS		= eq::fabric::Serializable::DIRTY_CUSTOM << 2
         };
 		
     private:        		

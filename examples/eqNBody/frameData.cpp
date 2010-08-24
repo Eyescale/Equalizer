@@ -87,7 +87,7 @@ namespace eqNbody
 	
 	void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
 	{		
-		eq::Object::serialize( os, dirtyBits );
+		eq::fabric::Serializable::serialize( os, dirtyBits );
 		
 		if( dirtyBits & DIRTY_DATA ) {
 			if(_hPos && _hVel && _hCol) {
@@ -110,7 +110,7 @@ namespace eqNbody
 	
 	void FrameData::deserialize( eq::net::DataIStream& is, const uint64_t dirtyBits )
 	{
-		eq::Object::deserialize( is, dirtyBits );
+		eq::fabric::Serializable::deserialize( is, dirtyBits );
 		
 		if( dirtyBits & DIRTY_DATA ) {
 			if(_hPos && _hVel && _hCol) {
@@ -157,7 +157,7 @@ namespace eqNbody
 	
 	uint32_t FrameData::commit()
 	{
-		bool ret = eq::Object::commit();
+		bool ret = eq::fabric::Serializable::commit();
 		EQASSERT(ret);
 		
 		for(unsigned int i=0; i< _numDataProxies; i++) {

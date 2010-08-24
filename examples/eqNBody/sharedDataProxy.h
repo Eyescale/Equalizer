@@ -34,7 +34,7 @@
 
 namespace eqNbody
 {
-    class SharedDataProxy : public eq::Object
+    class SharedDataProxy : public eq::fabric::Serializable
     {
     public:
 
@@ -58,7 +58,7 @@ namespace eqNbody
 
         enum DirtyBits
         {
-            DIRTY_DATA   = eq::Object::DIRTY_CUSTOM << 0
+            DIRTY_DATA   = eq::fabric::Serializable::DIRTY_CUSTOM << 0
         };
 		
     private:        		

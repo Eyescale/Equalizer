@@ -42,7 +42,7 @@ namespace eqNbody
 		
 	void SharedDataProxy::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
 	{
-		eq::Object::serialize( os, dirtyBits );
+		eq::fabric::Serializable::serialize( os, dirtyBits );
 		
 		if( dirtyBits & DIRTY_DATA ) {
 			os << _offset << _numBytes;
@@ -58,7 +58,7 @@ namespace eqNbody
 	
 	void SharedDataProxy::deserialize( eq::net::DataIStream& is, const uint64_t dirtyBits )
 	{
-		eq::Object::deserialize( is, dirtyBits );
+		eq::fabric::Serializable::deserialize( is, dirtyBits );
 
 		if( dirtyBits & DIRTY_DATA ) {
 			is >> _offset >> _numBytes;
