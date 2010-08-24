@@ -117,7 +117,6 @@ uint32_t CompressorDataCPU::chooseCompressor( const uint32_t tokenType,
                 switch( tokenType )
                 {
                     default:
-                        infoRatio *= 1.0f; 
                         break;
                     case EQ_COMPRESSOR_DATATYPE_4_BYTE:
                     case EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT:
