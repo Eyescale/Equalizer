@@ -1,4 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#               2010 Stefan Eilemann <eile@eyescale.ch>
 
 set(PLUGIN_HEADERS
   plugins/compressor.h
@@ -359,10 +360,10 @@ set(COMPRESSOR_SOURCES
 
 if(APPLE AND OPENGL_GLU_FOUND)
   set(CLIENT_SOURCES ${CLIENT_SOURCES}
-    client/wglEventHandler.cpp
-    client/wglMessagePump.cpp
-    client/wglWindow.cpp
-    client/wglPipe.cpp
+    client/aglEventHandler.cpp
+    client/aglMessagePump.cpp
+    client/aglWindow.cpp
+    client/aglPipe.cpp
     )
 endif(APPLE AND OPENGL_GLU_FOUND)
 

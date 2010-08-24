@@ -80,7 +80,8 @@
  *    - Added members in EqCompressorInfo: outputTokenType, outputTokenSize
  *    - Added flags: EQ_COMPRESSOR_CPU, EQ_COMPRESSOR_TRANSFER,
  *      EQ_COMPRESSOR_USE_TEXTURE, EQ_COMPRESSOR_USE_FRAMEBUFFER
- *    - Added data types: EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_BYTE,
+ *    - Added data types: EQ_COMPRESSOR_DATATYPE_INVALID,
+ *      EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_BYTE,
  *      EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_8_8_8_8_REV,
  *      EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_10_10_10_2,
  *      EQ_COMPRESSOR_DATATYPE_RGBA_HALF_FLOAT,
@@ -333,7 +334,19 @@ extern "C" {
     /** @return the number of compressors implemented in the DSO. @version 1 */
     EQ_PLUGIN_API size_t EqCompressorGetNumCompressors();
 
-    /** Query information of the nth compressor in the DSO. @version 1 */
+    /**
+     * Query information of the nth compressor in the DSO.
+     *
+     * Plugins aiming to be backward-compatible, i.e., usable in older version
+     * than the one compiled against, have to carefully check the provided
+     * runtime version in info. If they implement features incompatible with
+     * older Equalizer versions, e.g., a CPU compressor with an outputTokenType
+     * different from tokenType, they either have to implement a compatibility
+     * code path or to disable the compressor by setting the tokenType to
+     * EQ_COMPRESSOR_DATATYPE_INVALID.
+     *
+     * @version 1
+     */
     EQ_PLUGIN_API void EqCompressorGetInfo( const size_t n,
                                             EqCompressorInfo* const info );
     /*@}*/

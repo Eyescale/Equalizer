@@ -150,6 +150,12 @@
 /** Data is processed in three 10-bit color tokens and one 2-bit alpha token. */
 #define EQ_COMPRESSOR_DATATYPE_RGB10_A2     0x8059
 
+/**
+ * Invalid data type.
+ * Used by a plugin to disable incompatible engines at runtime in
+ * EqCompressorGetInfo().
+ */
+#define EQ_COMPRESSOR_DATATYPE_INVALID      0xeffffffeu
 
 /**
  * Private token types -FOR DEVELOPMENT ONLY-.

@@ -52,8 +52,8 @@ View::~View()
     _idleSteps = 0;
 }
 
-void View::Proxy::serialize( eq::net::DataOStream& os, const
-                               uint64_t dirtyBits )
+void View::Proxy::serialize( eq::net::DataOStream& os,
+                             const uint64_t dirtyBits )
 {
     if( dirtyBits & DIRTY_MODEL )
         os << _view->_modelID;

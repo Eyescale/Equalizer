@@ -124,7 +124,6 @@ namespace net
             ConnectionSet* const _parent;
         };
 
-
         typedef std::vector< Thread* > Threads;
         /** Threads used to handle more than MAXIMUM_WAIT_OBJECTS connections */
         Threads _threads;

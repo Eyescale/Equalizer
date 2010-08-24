@@ -1,4 +1,4 @@
-Deprecate eq::Object (replaced by fabric::Serializable)
+Improve plugin documentation, code cleanups
 
 [ ] May break build
 [ ] May break existing applications
