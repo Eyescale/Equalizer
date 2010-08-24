@@ -18,6 +18,10 @@ BISON           ?= bison
 PYTHON          ?= python
 PC_LIBRARY_PATH ?= /opt/paracomp/lib64
 
+BOOST_PATH ?= /usr
+BOOST_LIBRARY_PATH ?= $(BOOST_PATH)/lib
+BOOST_INCLUDE_PATH ?= $(BOOST_PATH)/include
+
 CUDA_PATH         ?= /usr/local/cuda
 CUDA_LIBRARY_PATH ?= $(CUDA_PATH)/lib
 CUDA_INCLUDE_PATH ?= $(CUDA_PATH)/include

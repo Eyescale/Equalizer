@@ -11,9 +11,8 @@ DSO_LDFLAGS     += -dynamiclib
 AR               = libtool
 ARFLAGS          = -static
 
-PC_LIBRARY_PATH   ?= /opt/paracomp/lib
-BOOST_LIBRARY_PATH ?= /opt/local/lib
-BOOST_INCLUDE_PATH ?= /opt/local/include
+BOOST_PATH ?= /opt/local
+PC_LIBRARY_PATH ?= /opt/paracomp/lib
 
 ifeq ($(findstring 10., $(RELARCH)),10.) # 10.6
   DARWIN_RELEASE = 10.6

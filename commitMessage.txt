@@ -1,4 +1,4 @@
-Improve plugin documentation, code cleanups
+Simplify boost makefile integration
 
 [ ] May break build
 [ ] May break existing applications
@@ -6,4 +6,4 @@ Improve plugin documentation, code cleanups
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation
