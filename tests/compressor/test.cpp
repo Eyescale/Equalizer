@@ -40,7 +40,7 @@ void testCompressByte( uint32_t nameCompressor,
                        std::ofstream* logFile );
 
 void testCompressorFile(  std::ofstream* logFile );
-
+std::vector< uint32_t > getCompressorNames( uint32_t tokenType );
 bool compare( const char *dst, const char *src, uint32_t nbytes );
 
 std::vector< std::string > getFiles( std::string path, 
@@ -66,6 +66,27 @@ int main( int argc, char **argv )
     logFile->close();
     
     eq::exit();
+}
+
+std::vector< uint32_t > getCompressorNames( uint32_t tokenType )
+{
+    const eq::base::PluginRegistry& registry = eq::base::Global::getPluginRegistry();
+    const eq::base::Compressors& plugins = registry.getCompressors();
+
+    std::vector< uint32_t > names;
+    for( eq::base::Compressors::const_iterator i = plugins.begin();
+         i != plugins.end(); ++i )
+    {
+        const eq::base::CompressorInfos& infos = (*i)->getInfos();
+        for( eq::base::CompressorInfos::const_iterator j = infos.begin();
+             j != infos.end(); ++j )
+        {
+            if ( (*j).tokenType == EQ_COMPRESSOR_DATATYPE_BYTE )
+                names.push_back( (*j).name );
+        }
+    }
+    
+    return names;
 }
 
 void testCompressByte( uint32_t nameCompressor,
@@ -143,8 +164,7 @@ void testCompressByte( uint32_t nameCompressor,
 void testCompressorFile(  std::ofstream* logFile )
 {
     std::vector< uint32_t >compressorNames = 
-        eq::base::CompressorDataCPU::getCompressorNames( 
-                                        EQ_COMPRESSOR_DATATYPE_BYTE );
+		getCompressorNames( EQ_COMPRESSOR_DATATYPE_BYTE );
 
     std::vector< std::string > files;
     

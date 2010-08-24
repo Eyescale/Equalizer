@@ -219,6 +219,43 @@
  * and testing. As soon as the Compressor DSO is distributed, request public
  * types free of charge from info@equalizergraphics.com.
  */
-#define EQ_COMPRESSOR_PRIVATE         0xefffffffu
+#define EQ_COMPRESSOR_PRIVATE           0xefffffffu
+#define EQ_COMPRESSOR_PRIVATE_1         0xf0000000u
+#define EQ_COMPRESSOR_PRIVATE_2         0xf0000001u
+#define EQ_COMPRESSOR_PRIVATE_3         0xf0000002u
+#define EQ_COMPRESSOR_PRIVATE_4         0xf0000003u
+#define EQ_COMPRESSOR_PRIVATE_5         0xf0000004u
+#define EQ_COMPRESSOR_PRIVATE_6         0xf0000005u
+#define EQ_COMPRESSOR_PRIVATE_7         0xf0000006u
+#define EQ_COMPRESSOR_PRIVATE_8         0xf0000007u
+#define EQ_COMPRESSOR_PRIVATE_9         0xf0000008u
+#define EQ_COMPRESSOR_PRIVATE_10        0xf0000009u
+#define EQ_COMPRESSOR_PRIVATE_11        0xf000000au
+#define EQ_COMPRESSOR_PRIVATE_12        0xf000000bu
+#define EQ_COMPRESSOR_PRIVATE_13        0xf000000cu
+#define EQ_COMPRESSOR_PRIVATE_14        0xf000000du
+#define EQ_COMPRESSOR_PRIVATE_15        0xf000000eu
+#define EQ_COMPRESSOR_PRIVATE_16        0xf000000fu
+#define EQ_COMPRESSOR_PRIVATE_17        0xf0000010u
+#define EQ_COMPRESSOR_PRIVATE_18        0xf0000011u
+#define EQ_COMPRESSOR_PRIVATE_19        0xf0000012u
+#define EQ_COMPRESSOR_PRIVATE_20        0xf0000013u
+#define EQ_COMPRESSOR_PRIVATE_21        0xf0000014u
+#define EQ_COMPRESSOR_PRIVATE_22        0xf0000015u
+#define EQ_COMPRESSOR_PRIVATE_23        0xf0000016u
+#define EQ_COMPRESSOR_PRIVATE_24        0xf0000017u
+#define EQ_COMPRESSOR_PRIVATE_25        0xf0000018u
+#define EQ_COMPRESSOR_PRIVATE_26        0xf0000019u
+#define EQ_COMPRESSOR_PRIVATE_27        0xf000001au
+#define EQ_COMPRESSOR_PRIVATE_28        0xf000001bu
+#define EQ_COMPRESSOR_PRIVATE_29        0xf000001cu
+#define EQ_COMPRESSOR_PRIVATE_30        0xf000001du
+#define EQ_COMPRESSOR_PRIVATE_31        0xf000001eu
+#define EQ_COMPRESSOR_PRIVATE_32        0xf000001fu
+#define EQ_COMPRESSOR_PRIVATE_33        0xf0000020u
+#define EQ_COMPRESSOR_PRIVATE_34        0xf0000021u
+#define EQ_COMPRESSOR_PRIVATE_35        0xf0000022u
+#define EQ_COMPRESSOR_PRIVATE_36        0xf0000023u
+#define EQ_COMPRESSOR_PRIVATE_37        0xf0000024u
 /*@}*/
 #endif // EQ_PLUGINS_COMPRESSOR_TYPES
