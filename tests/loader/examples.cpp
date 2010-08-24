@@ -46,7 +46,7 @@ int main( int argc, char **argv )
 
         TESTINFO( server.isValid(), "Load of " << filename << " failed" );
         TESTINFO( global->getConfigFAttribute( attr ) == 1.f,
-                  global->getConfigFAttribute( attr ));
+                  global->getConfigFAttribute( attr ) << " file " << filename);
     }
 
     TEST( eq::base::exit( ));

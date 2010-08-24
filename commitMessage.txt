@@ -1,4 +1,4 @@
-Simplify boost makefile integration
+Minor Linux fixes.
 
 [ ] May break build
 [ ] May break existing applications
