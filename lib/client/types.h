@@ -200,6 +200,7 @@ typedef Viewports ViewportVector;
 typedef PixelViewports PixelViewportVector;
 typedef Statistics StatisticVector;
 typedef Strings StringVector
+typedef fabric::Serializable Object;
 #endif
 }
 #endif // EQ_TYPES_H

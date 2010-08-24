@@ -50,7 +50,7 @@ FrameData::FrameData()
 
 void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
 {
-    eq::Object::serialize( os, dirtyBits );
+    eq::fabric::Serializable::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_CAMERA )
         os << _translation << _rotation << _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
@@ -65,7 +65,7 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
 void FrameData::deserialize( eq::net::DataIStream& is,
                              const uint64_t dirtyBits )
 {
-    eq::Object::deserialize( is, dirtyBits );
+    eq::fabric::Serializable::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_CAMERA )
         is >> _translation >> _rotation >> _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )

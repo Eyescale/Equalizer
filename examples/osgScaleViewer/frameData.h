@@ -42,7 +42,7 @@
 
 namespace osgScaleViewer
 {
-    class FrameData : public eq::Object
+    class FrameData : public eq::fabric::Serializable
     {
     public:
         FrameData();
@@ -102,8 +102,8 @@ namespace osgScaleViewer
         /** The changed parts of the data since the last pack(). */
         enum DirtyBits
         {
-            DIRTY_CAMERA  = eq::Object::DIRTY_CUSTOM << 0,
-            DIRTY_FLAGS   = eq::Object::DIRTY_CUSTOM << 1
+            DIRTY_CAMERA  = eq::fabric::Serializable::DIRTY_CUSTOM << 0,
+            DIRTY_FLAGS   = eq::fabric::Serializable::DIRTY_CUSTOM << 1
         };
 
         /** Reimplemented */

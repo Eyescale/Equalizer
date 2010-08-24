@@ -167,7 +167,6 @@ HEADER_SRC = \
 	client/messagePump.h \
 	client/node.h \
 	client/nodeFactory.h \
-	client/object.h \
 	client/observer.h \
 	client/os.h \
 	client/osPipe.h \

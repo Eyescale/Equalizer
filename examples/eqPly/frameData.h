@@ -33,9 +33,6 @@
 
 namespace eqPly
 {
-    class View;
-    typedef std::vector< View* > ViewVector;
-
     /**
      * Frame-specific data.
      *
@@ -44,7 +41,7 @@ namespace eqPly
      * keeps its own instance synchronized with the frame currently being
      * rendered. The data is managed by the Config, which modifies it directly.
      */
-    class FrameData : public eq::Object
+    class FrameData : public eq::fabric::Serializable
     {
     public:
         FrameData();
@@ -127,10 +124,10 @@ namespace eqPly
         /** The changed parts of the data since the last pack(). */
         enum DirtyBits
         {
-            DIRTY_CAMERA  = eq::Object::DIRTY_CUSTOM << 0,
-            DIRTY_FLAGS   = eq::Object::DIRTY_CUSTOM << 1,
-            DIRTY_VIEW    = eq::Object::DIRTY_CUSTOM << 2,
-            DIRTY_MESSAGE = eq::Object::DIRTY_CUSTOM << 3,
+            DIRTY_CAMERA  = eq::fabric::Serializable::DIRTY_CUSTOM << 0,
+            DIRTY_FLAGS   = eq::fabric::Serializable::DIRTY_CUSTOM << 1,
+            DIRTY_VIEW    = eq::fabric::Serializable::DIRTY_CUSTOM << 2,
+            DIRTY_MESSAGE = eq::fabric::Serializable::DIRTY_CUSTOM << 3,
         };
 
     private:

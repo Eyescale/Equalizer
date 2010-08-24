@@ -1,9 +1,9 @@
-Update Linux Readme
+Deprecate eq::Object (replaced by fabric::Serializable)
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [x] Documentation
