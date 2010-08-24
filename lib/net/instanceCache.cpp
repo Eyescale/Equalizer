@@ -360,10 +360,11 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
 std::ostream& operator << ( std::ostream& os,
                             const InstanceCache& instanceCache )
 {
-    os << "InstanceCache " << instanceCache.getSize() << " bytes"
+    os << "InstanceCache " << instanceCache.getSize() / 1048576 << " / " 
+       << instanceCache.getMaxSize() / 1048576 << " MB"
 #ifdef EQ_INSTRUMENT_CACHE
-       << ", " << nReadHit << " of " << nRead << " reads, " << nWriteHit
-       << " of " << nWrite << " writes, " << nUsedRelease << " used and " 
+       << ", " << nReadHit << " / " << nRead << " reads, " << nWriteHit
+       << " / " << nWrite << " writes, " << nUsedRelease << " used / " 
        << nUnusedRelease << " unused releases"
 #endif
         ;

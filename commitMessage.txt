@@ -1,4 +1,4 @@
-Minor Linux fixes.
+Simplify revision 4800, tweak instance cache output
 
 [ ] May break build
 [ ] May break existing applications

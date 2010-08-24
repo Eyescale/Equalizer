@@ -39,8 +39,7 @@ dev: examples server
 postcompile: subdirs RELNOTES README.rst
 	@echo
 	@echo "----- Compilation successful -----"
-	@echo $(if $(findstring NDEBUG,$(CXXFLAGS)),Release,Debug) \
-		build of Equalizer with support for:
+	@echo $(BUILD_MODE) build of Equalizer with support for:
 
 ifeq ($(findstring AGL, $(WINDOW_SYSTEM)),AGL)
 	@echo "    AGL/Carbon windowing"
