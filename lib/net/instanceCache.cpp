@@ -380,7 +380,7 @@ std::ostream& operator << ( std::ostream& os,
 #ifdef EQ_INSTRUMENT_CACHE
        << ", " << nReadHit << "/" << nRead << " reads, " << nWriteHit
        << "/" << nWrite << " writes (" << nWriteMiss << " misses, " << nWriteOld
-       << " old, " << nWriteReady << " dups, " << nUsedRelease << " used, "
+       << " old, " << nWriteReady << " dups) " << nUsedRelease << " used, "
        << nUnusedRelease << " unused releases"
 #endif
         ;
