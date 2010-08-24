@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,29 +15,21 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_H
-#define EQ_H
+#ifndef EQBASE_H
+#define EQBASE_H
 
-#pragma warning(push)
-#pragma warning(disable : 4244) //conversion from .. to ..,possible loss of data
+/**
+ * @namespace eq::base
+ * @brief Equalizer base abstraction layer.
+ *
+ * The eq::base namespace provides C++ classes to abstract the underlying
+ * operating system and implements common helper functionality. Classes with
+ * non-virtual destructors are not intended to be subclassed.
+ */
 
-#include <eq/client.h>
+#include <eq/base/base.h>
+#include <eq/base/file.h>
+#include <eq/base/sleep.h>
 
-#include <eq/util.h>
-#include <eq/fabric.h>
-#include <eq/net.h>
-#include <eq/base.h>
+#endif // EQBASE_H
 
-#include <vmmlib/vmmlib.hpp>
-
-#ifdef EQ_USE_DEPRECATED
-namespace eqBase = ::eq::base;
-namespace eqNet  = ::eq::net;
-#endif
-
-/** \mainpage Equalizer API Documentation
-    \htmlinclude "RelNotes.dox"
-*/
-
-#pragma warning(pop)
-#endif // EQ_H

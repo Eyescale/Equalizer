@@ -10,6 +10,7 @@ set(HEADERS
   ${NET_HEADERS}
   ${PLUGIN_HEADERS}
   ${UTIL_HEADERS}
+  base.h
   client.h
   eq.h
   fabric.h

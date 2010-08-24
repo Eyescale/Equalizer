@@ -7,6 +7,7 @@ HEADER_SRC = \
 	plugins/compressor.h \
 	plugins/compressorTokens.h \
 	plugins/compressorTypes.h \
+	base.h \
 	client.h \
 	eq.h \
 	fabric.h \
