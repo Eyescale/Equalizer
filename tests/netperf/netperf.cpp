@@ -182,6 +182,9 @@ public:
         {
             ConnectionPtr resultConn;
             ConnectionPtr newConn;
+            const bool multicast = _connection->getDescription()->type >=
+                                   CONNECTIONTYPE_MULTICAST;
+
             while( _nClients > 0 )
             {
                 switch( _connectionSet.select( )) // ...get next request
@@ -240,6 +243,9 @@ public:
                             _connectionSet.removeConnection( resultConn );
                             delete receiver;
                             _receivers.erase( i );
+
+                            if( multicast )
+                                _connection->close();
                             std::cerr << --_nClients << " clients" << std::endl;
                         }
                         break;
@@ -267,6 +273,8 @@ public:
                             }
                         }
 
+                        if( multicast )
+                            _connection->close();
                         std::cerr << --_nClients << " clients" << std::endl;
                         break;
 

@@ -45,8 +45,6 @@
 #define EQ_COMPRESSOR_DATATYPE_HALF_FLOAT 0x3
 /** Data is processed in float32 tokens. */
 #define EQ_COMPRESSOR_DATATYPE_FLOAT      0x4
-/** Data is processed in two-byte tokens. */
-#define EQ_COMPRESSOR_DATATYPE_SHORTINT   0x5
 
 /** Data is processed in three interleaved streams of one-byte tokens. */
 #define EQ_COMPRESSOR_DATATYPE_3_BYTE       0x400

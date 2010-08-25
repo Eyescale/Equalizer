@@ -21,7 +21,7 @@
 #include <eq/net/dispatcher.h>   // base class
 #include <eq/net/types.h>
 
-#define EQ_INSTRUMENT_MULTICAST
+//#define EQ_INSTRUMENT_MULTICAST
 #ifdef EQ_INSTRUMENT_MULTICAST
 #  include <eq/base/atomic.h>
 #endif

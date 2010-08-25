@@ -242,7 +242,7 @@ bool RSPConnection::listen()
     }
     catch( boost::system::system_error& error )
     {
-        EQWARN << "can't setup underlying UDP connection " << error.what()
+        EQWARN << "can't setup underlying UDP connection: " << error.what()
                << std::endl;
         delete _read;
         delete _write;

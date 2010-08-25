@@ -1,4 +1,5 @@
-Refactor base headers
+Netperf: exit readers on writer exit
+code cleanups
 
 [ ] May break build
 [ ] May break existing applications
