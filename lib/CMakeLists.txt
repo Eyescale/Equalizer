@@ -48,12 +48,17 @@ forward_headers(eq ${HEADERS})
 
 add_definitions(-DEQ_EXPORTS -DEQ_PLUGIN_BUILD -DGLEW_STATIC)
 
+if(APPLE)
+  find_library(CARBON_LIBRARY Carbon)
+endif(APPLE)
+
 add_library(Equalizer SHARED ${SOURCES})
 target_link_libraries(Equalizer
   ${PTHREAD_LIBRARIES}
   ${Boost_LIBRARIES}
   ${OPENGL_LIBRARIES}
   ${GLEW_LIBRARY}
+  ${CARBON_LIBRARY}
   )
 
 install(TARGETS Equalizer

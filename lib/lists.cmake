@@ -134,6 +134,11 @@ set(FABRIC_HEADERS
   )
 
 set(CLIENT_HEADERS
+  client/aglEventHandler.h
+  client/aglMessagePump.h
+  client/aglPipe.h
+  client/aglWindow.h
+  client/aglWindowEvent.h
   client/canvas.h
   client/channel.h
   client/channelStatistics.h
@@ -378,12 +383,13 @@ if(WIN32)
     )
 endif(WIN32)
 
-if(X11_FOUND)
+# TODO: get this to work on APPLE
+if(X11_FOUND AND NOT APPLE)
   set(CLIENT_SOURCES ${CLIENT_SOURCES}
     client/glXEventHandler.cpp
     client/glXMessagePump.cpp
     client/glXWindow.cpp
     client/glXPipe.cpp
     )
-endif(X11_FOUND)
+endif(X11_FOUND AND NOT APPLE)
 
