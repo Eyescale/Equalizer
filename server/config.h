@@ -60,6 +60,7 @@ namespace server
         Segment* getSegment( const SegmentPath& path );
         View* getView( const ViewPath& path );
 
+        bool isStopped() const { return ( _state == STATE_STOPPED ); }
         bool isRunning() const { return ( _state == STATE_RUNNING ); }
         bool isUsed() const { return _appNetNode.isValid(); }
 

@@ -30,6 +30,7 @@
 #include "base.h"
 #include "state.h"  // enum
 #include "types.h"
+#include "segment.h"
 
 #include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/viewport.h>      // member
@@ -116,6 +117,9 @@ namespace server
 
         /** @return the channel's view. */
         const View* getView() const { return _view; }
+
+        /** @return the channel's canvas. */
+        const Canvas* getCanvas() const { return _segment->getCanvas(); }
 
         /** @return the channel's view. */
         View* getView() { return _view; }

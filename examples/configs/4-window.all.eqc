@@ -545,38 +545,33 @@ server
         compound
         {
             channel ( segment 0 layout "Eye" view 0 )
-
-            compound { task [ CLEAR ] channel "channel2" }
-            compound { task [ CLEAR ] channel "channel3" }
+            eye [ LEFT RIGHT ]
 
             compound
             {
-                eye [ LEFT RIGHT ]
-
-                compound
-                {
-                    eye [ LEFT ]
-                    channel "channel2"
-                    outputframe {}
-                }
-                compound
-                {
-                    eye [ RIGHT ]
-                    channel "channel3"
-                    outputframe {}
-                }
-                compound
-                {
-                    task [ CLEAR ASSEMBLE ]
-                    eye [ LEFT ]
-                    inputframe { name "frame.channel2" }
-                }
-                compound
-                {
-                    task [ CLEAR ASSEMBLE ]
-                    eye [ RIGHT ]
-                    inputframe { name "frame.channel3" }
-                }
+                eye [ LEFT ]
+                channel "channel2"
+                outputframe {}
+            }
+            compound { eye [ RIGHT ] task [ CLEAR ] channel "channel2" }
+            compound
+            {
+                eye [ RIGHT ]
+                channel "channel3"
+                outputframe {}
+            }
+            compound { eye [ LEFT ] task [ CLEAR ] channel "channel3" }
+            compound
+            {
+                task [ CLEAR ASSEMBLE ]
+                eye [ LEFT ]
+                inputframe { name "frame.channel2" }
+            }
+            compound
+            {
+                task [ CLEAR ASSEMBLE ]
+                eye [ RIGHT ]
+                inputframe { name "frame.channel3" }
             }
         }
 

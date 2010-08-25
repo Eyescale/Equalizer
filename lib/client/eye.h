@@ -27,9 +27,12 @@ namespace eq
     typedef fabric::Eye Eye;
 
     /** @cond IGNORE */
+    using fabric::EYE_UNDEFINED;
     using fabric::EYE_CYCLOP;
     using fabric::EYE_LEFT;
     using fabric::EYE_RIGHT;
+    using fabric::EYES_STEREO;
+    using fabric::EYES_ALL;
     using fabric::NUM_EYES;
     /** @endcond */
 }
