@@ -8,8 +8,11 @@ use Cwd;
 use Env;
 use File::Basename;
 
-my $localnode = pop;
-$localnode or die "Usage: $0 <localIP>";
+my $localnode = $ARGV[0];
+$localnode or die "Usage: $0 <localIP> [<numPackets>]";
+
+my $num = $ARGV[1];
+$num or $num = 10;
 
 open FILE, "< nodes.txt" or die "Can't open nodes.txt: $!";
 my @nodes = <FILE>;
@@ -42,8 +45,9 @@ foreach my $node (@nodes)
     push( @pids, launchNetperf( $node ));
 }
 
-print "$netperf -n 5 -c RSP#102400#239.255.42.43#$localnode#4242#default#\n";
-my @result = `$netperf -n 5 -c RSP#102400#239.255.42.43#$localnode#4242#default#`;
+sleep( 1 ); # give clients some time to start
+#print "$netperf -n $num -c RSP#102400#239.255.42.43#$localnode#4242#default#\n";
+system( "$netperf -n $num -c RSP#102400#239.255.42.43#$localnode#4242#default# 2>&1" );
 
 foreach my $pid (@pids)
 {
@@ -60,9 +64,15 @@ sub launchNetperf
         my $cmdLine = "ssh $node env LD_LIBRARY_PATH=" .
             $ENV{"LD_LIBRARY_PATH"} . " DYLD_LIBRARY_PATH=" .
             $ENV{"DYLD_LIBRARY_PATH"} .
-            " $netperf -s RSP#102400#239.255.42.43#$node#4242#default#";
-        #my @result = `$cmdLine`;
+            " $netperf -s RSP\\\\#102400\\\\#239.255.42.43\\\\#$node\\\\#4242\\\\#default\\\\# 2>&1";
         print "$cmdLine\n";
+        my @result = `$cmdLine`;
+        open FILE, "> $node.log" or die "Can't open $node.log: $!";
+        foreach my $line (@result)
+	{
+	    print FILE "$node: $line";
+	}
+        close( FILE );
         exit(0);
     }
     else

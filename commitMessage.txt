@@ -1,5 +1,4 @@
-Netperf: exit readers on writer exit
-code cleanups
+Make RSP-netperf launch script usable
 
 [ ] May break build
 [ ] May break existing applications
