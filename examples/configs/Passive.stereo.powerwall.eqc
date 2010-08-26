@@ -1,0 +1,104 @@
+#Equalizer 1.1 ascii
+
+#Passive stereo powerwall
+
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    viewport [ 1.25 .25 .5 .5 ]
+                    attributes{ hint_drawable window }
+                    channel 
+                    {
+                        name "channel-left" 
+                    }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    attributes{ hint_drawable pbuffer}
+                    channel 
+                    {
+                        name "right-PBuffer" 
+                    }
+                }
+                window
+                {
+                    viewport [ 0.25 .25 .5 .5 ]
+                    channel 
+                    {
+                        name "channel-right" 
+                    }
+                }
+            }
+        }
+        layout 
+        { 
+            name "Simple"
+            view { }
+        }  
+        canvas 
+        { 
+            layout "Simple"
+            wall {}
+            segment
+            {
+                eye [ LEFT CYCLOP ] 
+                channel "channel-left" 
+            }
+            segment 
+            {
+                eye [ RIGHT ] 
+                channel "channel-right" 
+            }
+        }
+
+        compound 
+        { 
+           name "2D" 
+           channel ( view 0 segment 0 ) 
+           eye [ CYCLOP ] 
+           load_equalizer{} 
+           compound {} 
+           compound 
+           {
+               channel "right-PBuffer" 
+               outputframe{} 
+           } 
+           inputframe{ name "frame.right" } 
+        } 
+
+        compound 
+        {
+            name "Stereo"
+            wall
+            {
+                bottom_left  [ -1 -1 -1 ]
+                bottom_right [  1 -1 -1 ]
+                top_left     [ -1  1 -1 ]
+            }
+            compound
+            {
+                name "Stereo-Left" 
+                channel ( view 0 segment 0 ) 
+                eye [ LEFT ]
+                swapbarrier{}
+            }
+            compound
+            {
+                name "Stereo-Right" 
+                channel ( view 0 segment 1 ) 
+                eye [ RIGHT ]
+                swapbarrier{}
+            }
+        }
+    }    
+}
