@@ -1,4 +1,4 @@
-Make RSP-netperf launch script usable
+Minor code cleanup
 
 [ ] May break build
 [ ] May break existing applications
