@@ -1,14 +1,9 @@
-Cleanups:
-- Rename base::Compressor -> base::Plugin
-- Use eq::util::Texture for example overlays
-- Make plugin class headers private
+Q&D Posix build fix
 
-Rename util::Texture::getID to getName for consistence reasons
-
-[x] May break build
-[x] May break existing applications
-[ ] Bugfix
+[ ] May break build
+[ ] May break existing applications
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

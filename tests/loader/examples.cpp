@@ -45,7 +45,8 @@ int main( int argc, char **argv )
         eq::server::ServerPtr server = loader.loadFile( filename );
 
         TESTINFO( server.isValid(), "Load of " << filename << " failed" );
-        TESTINFO( global->getConfigFAttribute( attr ) == 1.f,
+        TESTINFO( global->getConfigFAttribute( attr ) == 1.f ||
+                  global->getConfigFAttribute( attr ) == 1.1f,
                   global->getConfigFAttribute( attr ) << " file " << filename);
     }
 
