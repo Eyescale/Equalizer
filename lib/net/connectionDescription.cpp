@@ -186,7 +186,7 @@ bool ConnectionDescription::fromString( std::string& data )
             goto error;
 
         _filename = data.substr( 0, nextPos );
-        data = data.substr( nextPos + 1 );;
+        data = data.substr( nextPos + 1 );
     }
     return true;
 

@@ -392,7 +392,7 @@ uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
     EQASSERT( !_localNode->inCommandThread( ));
         
     // Connect master node, can't do that from the command thread!
-    NodeID masterNodeID = _pollIDMaster( id );;
+    NodeID masterNodeID = _pollIDMaster( id );
     NodePtr master;
 
     if( masterNodeID != NodeID::ZERO )

@@ -81,7 +81,7 @@ namespace server
          * @return <code>true</code> if the compound was removed,
          *         <code>false</code> otherwise.
          */
-       EQSERVER_EXPORT bool removeCompound( Compound* compound );
+        EQSERVER_EXPORT bool removeCompound( Compound* compound );
 
         /** @return the vecotr of compounds. */
         const Compounds& getCompounds() const { return _compounds; }

@@ -453,7 +453,7 @@ bool ConnectionSet::_setupFDSet()
         _fdSet.append( readHandle );
 
         Result result;
-        result.connection = connection.get();;
+        result.connection = connection.get();
         _fdSetResult.append( result );
     }
 

@@ -229,7 +229,7 @@ void ConfigProxy< S, C, O, L, CV, N, V >::notifyDetach()
     while( !_config._nodes.empty( ))
     {
         EQASSERT( _config.mapNodeObjects( ));
-        N* node = _config._nodes.back();;
+        N* node = _config._nodes.back();
         _config.unmapObject( node );
         _config._removeNode( node );
         nodeFactory->releaseNode( node );
@@ -247,7 +247,7 @@ void ConfigProxy< S, C, O, L, CV, N, V >::notifyDetach()
     while( !_config._layouts.empty( ))
     {
         EQASSERT( _config.mapViewObjects( ));
-        L* layout = _config._layouts.back();;
+        L* layout = _config._layouts.back();
         _config.unmapObject( layout );
         _config._removeLayout( layout );
         nodeFactory->releaseLayout( layout );
