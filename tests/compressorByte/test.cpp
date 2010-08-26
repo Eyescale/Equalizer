@@ -14,17 +14,16 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+#define EQ_TEST_RUNTIME 120 // seconds
+#include <test.h>
 
-#include <eq/client/init.h>
-#include <eq/client/nodeFactory.h>
 #include <eq/plugins/compressor.h>
 
 #include <eq/client/init.h>
 #include <eq/client/nodeFactory.h>
+
 #include <eq/base/buffer.h>
 #include <eq/base/clock.h>
-#include <eq/base/compressor.h>
-#include <eq/base/compressorDataCPU.h>
 #include <eq/base/file.h>
 #include <eq/base/global.h>
 #include <eq/base/pluginRegistry.h>
@@ -34,7 +33,7 @@
 #include <numeric>
 #include <fstream>
 
-#include "base/plugin.h" // internal header
+#include "base/plugin.h" // private header
 
 void testCompressByte( const uint32_t nameCompressor,
                        char* data, uint64_t size,
@@ -67,6 +66,7 @@ int main( int argc, char **argv )
     logFile->close();
     
     eq::exit();
+    return EXIT_SUCCESS;	
 }
 
 std::vector< uint32_t > getCompressorNames( const uint32_t tokenType )

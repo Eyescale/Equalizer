@@ -7,6 +7,7 @@ SUBDIRS = \
 	base \
 	client \
 	compositor \
+	compressorByte \
 	connection \
 	fabric \
 	loader \
