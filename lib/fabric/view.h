@@ -92,7 +92,6 @@ namespace fabric
         EQFABRIC_EXPORT Mode getMode( ) const { return _mode; }
         
         /**
-         * @external
          * Set the mode of this view.
          *
          * @param mode the new rendering mode 

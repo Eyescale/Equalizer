@@ -86,7 +86,7 @@ namespace server
          * (de-)activating a compound tree for each eyes.
          * 
          * @param compound the destination compound to start the tree travel
-         * @param activated true if active or false to unactive
+         * @param activate true if active or false to unactive
          * @param eyes the eyes to activate
          * 
          **/
