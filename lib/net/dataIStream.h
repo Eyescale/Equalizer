@@ -37,9 +37,9 @@ namespace net
     public:
         /** @name Internal */
         //@{ 
-        DataIStream();
+        EQ_EXPORT DataIStream();
         DataIStream( const DataIStream& );
-        virtual ~DataIStream();
+        EQ_EXPORT virtual ~DataIStream();
 
         /** Get the number of remaining buffers. */
         virtual size_t nRemainingBuffers() const = 0;

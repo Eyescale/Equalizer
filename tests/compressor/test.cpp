@@ -34,6 +34,7 @@
 #include <numeric>
 #include <fstream>
 
+#include "base/plugin.h" // internal header
 
 void testCompressByte( const uint32_t nameCompressor,
                        char* data, uint64_t size,
@@ -71,10 +72,10 @@ int main( int argc, char **argv )
 std::vector< uint32_t > getCompressorNames( const uint32_t tokenType )
 {
     const eq::base::PluginRegistry& registry = eq::base::Global::getPluginRegistry();
-    const eq::base::Compressors& plugins = registry.getCompressors();
+    const eq::base::Plugins& plugins = registry.getPlugins();
 
     std::vector< uint32_t > names;
-    for( eq::base::Compressors::const_iterator i = plugins.begin();
+    for( eq::base::Plugins::const_iterator i = plugins.begin();
          i != plugins.end(); ++i )
     {
         const eq::base::CompressorInfos& infos = (*i)->getInfos();
@@ -98,19 +99,19 @@ void testCompressByte( const uint32_t nameCompressor,
 
     // find compressor in the corresponding plugin
     eq::base::PluginRegistry& registry = eq::base::Global::getPluginRegistry();
-    eq::base::Compressor* compressor = registry.findCompressor( nameCompressor );
-    void* instanceComp = compressor->newCompressor( nameCompressor );
-    void* instanceUncomp = compressor->newDecompressor( nameCompressor );
+    eq::base::Plugin* plugin = registry.findPlugin( nameCompressor );
+    void* instanceComp = plugin->newCompressor( nameCompressor );
+    void* instanceUncomp = plugin->newDecompressor( nameCompressor );
     
     const uint64_t flags = EQ_COMPRESSOR_DATA_1D;
     const char* dataorigine = reinterpret_cast<const char*>( data );
     uint64_t inDims[2]  = { 0, size }; 
     clock.reset();
-    compressor->compress( instanceComp, nameCompressor, 
+    plugin->compress( instanceComp, nameCompressor, 
                           data, inDims, flags );
 
     uint64_t time = clock.getTime64();
-    const size_t numResults = compressor->getNumResults( 
+    const size_t numResults = plugin->getNumResults( 
                                                 instanceComp, nameCompressor );
 
     uint64_t totalSize = 0;
@@ -121,7 +122,7 @@ void testCompressByte( const uint32_t nameCompressor,
     vectorSize.resize(numResults);
     for( size_t i = 0; i < numResults ; i++ )
     {
-        compressor->getResult( instanceComp, nameCompressor,
+        plugin->getResult( instanceComp, nameCompressor,
                                i, 
                                &vectorVoid[i], 
                                &vectorSize[i] );
@@ -138,7 +139,7 @@ void testCompressByte( const uint32_t nameCompressor,
     void* outData = reinterpret_cast< uint8_t* >( result.getData() );
     clock.reset();
     
-    compressor->decompress( instanceUncomp,
+    plugin->decompress( instanceUncomp,
                             nameCompressor,
                             &vectorVoid.front(),
                             &totalSize,
