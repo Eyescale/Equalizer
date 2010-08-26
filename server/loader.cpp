@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -109,6 +110,86 @@ void Loader::addOutputCompounds( ServerPtr server )
             compound->setChannel( channel );
         }
     }
+}
+
+namespace
+{
+static VisitorResult updateEyes( Compound* compound )
+{
+    if( !compound->isDestination() )
+        return TRAVERSE_CONTINUE;
+
+    Channel* channel = compound->getChannel();
+    Segment* segment = channel->getSegment();
+    View* view = channel->getView();
+
+    EQASSERT( view );
+    EQASSERT( segment );
+
+    if( segment == 0 || view == 0 )
+        return TRAVERSE_PRUNE;
+
+    uint32_t compoundEyes = compound->getEyes();
+    const uint32_t segmentEyes = segment->getEyes();
+    Compound* parent = compound->getParent();
+
+    if( compoundEyes != fabric::EYE_UNDEFINED &&
+       ( compoundEyes & fabric::EYE_CYCLOP ) == 0 )
+    {
+        view->changeMode( View::MODE_STEREO );
+        compound->enableEye( fabric::EYE_CYCLOP );
+    }
+    while( compoundEyes == fabric::EYE_UNDEFINED && parent )
+    {
+        const uint32_t parentEyes = parent->getEyes();
+        if( parentEyes == fabric::EYE_UNDEFINED )
+        {
+            parent = parent->getParent();
+            continue;
+        }
+        compoundEyes = parentEyes;
+        if( ( parentEyes & fabric::EYE_CYCLOP ) == 0 )
+        {
+            view->changeMode( View::MODE_STEREO );
+            parent->enableEye( fabric::EYE_CYCLOP );
+        }
+        parent = parent->getParent();
+    }
+
+    if( compoundEyes == fabric::EYE_UNDEFINED )
+        compoundEyes = fabric::EYES_ALL;
+
+    segment->setEyes( compoundEyes | segmentEyes | fabric::EYE_CYCLOP );
+    return TRAVERSE_PRUNE;
+}
+
+class ConvertTo11Visitor : public ServerVisitor
+{
+
+    virtual VisitorResult visitPre( Config* config )
+    {
+        const float version = config->getFAttribute( Config::FATTR_VERSION );
+        if (  version >= 1.1f )
+            return TRAVERSE_PRUNE;
+        return TRAVERSE_CONTINUE;
+    }
+    virtual VisitorResult visitPost( Config* config )
+    {
+        config->setFAttribute( Config::FATTR_VERSION, 1.1f );
+        return TRAVERSE_CONTINUE;
+    }
+
+    virtual VisitorResult visit( Compound* compound )
+    {
+        return updateEyes( compound );
+    }
+};
+}
+
+void Loader::convertTo11( ServerPtr server )
+{
+    ConvertTo11Visitor visitor;
+    server->accept( visitor );
 }
 
 namespace
@@ -232,7 +313,7 @@ class AddObserverVisitor : public ServerVisitor
                 return TRAVERSE_PRUNE;
 
             new Observer( config );
-            return TRAVERSE_CONTINUE;            
+            return TRAVERSE_CONTINUE;
         }
 
     virtual VisitorResult visit( View* view )

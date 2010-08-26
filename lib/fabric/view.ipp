@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -58,6 +59,8 @@ void View< L, V, O >::serialize( net::DataOStream& os, const uint64_t dirtyBits)
         os << _overdraw;
     if( dirtyBits & DIRTY_FRUSTUM )
         os << *static_cast< Frustum* >( this );
+    if( dirtyBits & DIRTY_MODE )
+        os << _mode;
 }
 
 template< class L, class V, class O > 
@@ -97,6 +100,12 @@ void View< L, V, O >::deserialize( net::DataIStream& is,
         is >> _overdraw;
     if( dirtyBits & DIRTY_FRUSTUM )
         is >> *static_cast< Frustum* >( this );
+    if( dirtyBits & DIRTY_MODE )
+    {
+        Mode mode;
+        is >> mode;
+        activateMode( mode );
+    }
 }
 
 template< class L, class V, class O > 
@@ -105,6 +114,16 @@ void View< L, V, O >::setDirty( const uint64_t dirtyBits )
     Object::setDirty( dirtyBits );
     if( _layout )
         _layout->setDirty( L::DIRTY_VIEWS );
+}
+
+template< class L, class V, class O > 
+void View< L, V, O >::changeMode( const Mode mode ) 
+{
+    if ( _mode == mode )
+        return;
+
+    _mode = mode;
+    setDirty( DIRTY_MODE );
 }
 
 template< class L, class V, class O > 

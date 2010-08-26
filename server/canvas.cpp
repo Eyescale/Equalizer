@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,6 +27,7 @@
 #include "node.h"
 #include "pipe.h"
 #include "segment.h"
+#include "view.h"
 #include "window.h"
 
 #include <eq/fabric/paths.h>
@@ -114,36 +116,33 @@ void Canvas::_switchLayout( const uint32_t oldIndex, const uint32_t newIndex )
     const Layout* oldLayout = (oldIndex >= nLayouts) ? 0 : layouts[oldIndex];
     const Layout* newLayout = (newIndex >= nLayouts) ? 0 : layouts[newIndex];
 
-    if( newLayout )
+    // activateMode( MODE_NONE ) on old layout views
+    if( oldLayout )
     {
-        // activate channels used by new layout
-        Channels channels;
-        _findDestinationChannels( newLayout, channels );
-
-        Compounds compounds;
-        _findDestinationCompounds( channels, compounds );
-        for( Compounds::const_iterator i = compounds.begin();
-             i != compounds.end(); ++i )
+        const Views& views = oldLayout->getViews();
+        for( Views::const_iterator i = views.begin(); i != views.end(); ++i )
         {
-            Compound* compound = *i;
-            compound->activate();
+            View* view = *i;
+            view->activateMode( View::MODE_NONE );
             config->postNeedsFinish();
         }
     }
 
-    if( oldLayout )
-    {
-        // de-activate channels used by old layout
-        Channels channels;
-        _findDestinationChannels( oldLayout, channels );
+    // if exit application
+    if( newIndex == EQ_ID_NONE )
+        return;
 
-        Compounds compounds;
-        _findDestinationCompounds( channels, compounds );
-        for( Compounds::const_iterator i = compounds.begin();
-             i != compounds.end(); ++i )
+    // set new layout
+    useLayout( newIndex );
+
+    // activateMode( getMode( )) on new layout views
+    if( newLayout )
+    {
+        const Views& views = newLayout->getViews();
+        for( Views::const_iterator i = views.begin(); i != views.end(); ++i )
         {
-            Compound* compound = *i;
-            compound->deactivate();
+            View* view = *i;
+            view->activateMode( view->getMode() );
             config->postNeedsFinish();
         }
     }
@@ -173,24 +172,6 @@ void Canvas::postDelete()
 {
     _state = STATE_DELETE;
     getConfig()->postNeedsFinish();
-}
-
-void Canvas::_findDestinationChannels( const Layout* layout,
-                                       Channels& result ) const
-{
-    const Segments& segments = getSegments();
-    for( Segments::const_iterator i=segments.begin(); i != segments.end(); ++i )
-    {
-        const Segment* segment = *i;        
-        segment->findDestinationChannels( layout, result );
-    }
-}
-
-void Canvas::_findDestinationCompounds( const Channels& channels,
-                                        Compounds& result ) const
-{
-    ConfigDestCompoundVisitor visitor( channels, result );
-    getConfig()->accept( visitor );
 }
 
 }

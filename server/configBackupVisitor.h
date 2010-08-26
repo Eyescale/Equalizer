@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+ * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -39,7 +40,11 @@ namespace
     public:
         ConfigBackupVisitor() {}
         virtual ~ConfigBackupVisitor() {}
-
+        virtual VisitorResult visitPre( Compound* compound )
+            {
+                compound->backup();
+                return TRAVERSE_CONTINUE;
+            }
         virtual VisitorResult visitPre( Config* config )
             {
                 config->backup();

@@ -404,6 +404,7 @@ void Channel::_initJitter()
         return;
 
     const View* view = static_cast< const View* >( getView( ));
+    EQASSERT( view );
     const uint32_t totalSteps = view->getIdleSteps();
 
     if( totalSteps == 0 )

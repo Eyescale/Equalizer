@@ -59,7 +59,7 @@ ChannelUpdateVisitor::ChannelUpdateVisitor( Channel* channel,
 bool ChannelUpdateVisitor::_skipCompound( const Compound* compound )
 {
     if( compound->getChannel() != _channel ||
-        !compound->testInheritEye( _eye ) ||
+        !compound->isActive( _eye ) ||
         compound->getInheritTasks() == fabric::TASK_NONE )
     {
         return true;
@@ -99,8 +99,8 @@ VisitorResult ChannelUpdateVisitor::visitPre( const Compound* compound )
 
 VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
 {
-    if( !compound->isActive( ))
-        return TRAVERSE_PRUNE;    
+    if( !compound->isActive( _eye ))
+        return TRAVERSE_CONTINUE;    
 
     if( _skipCompound( compound ))
     {
@@ -141,9 +141,6 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
 
 VisitorResult ChannelUpdateVisitor::visitPost( const Compound* compound )
 {
-    if( !compound->isActive( ))
-        return TRAVERSE_PRUNE;    
-
     if( _skipCompound( compound ))
         return TRAVERSE_CONTINUE;
 
@@ -207,9 +204,8 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
 void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
 {
     // Test if this is not the last eye pass of this compound
-    if( compound->getInheritEyes() >= static_cast< uint32_t >( _eye ) << 1
-        // or we don't actually draw this eye
-        || !compound->testInheritEye( _eye ))
+    if( ( _eye < fabric::EYE_LAST && 
+           compound->isActive( static_cast< fabric::Eye >( _eye << 1 ) )))
     {
         return;
     }

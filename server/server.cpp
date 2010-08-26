@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -293,7 +294,9 @@ bool Server::_cmdChooseConfig( net::Command& command )
          i != configs.end() && !config; ++i )
     {
         Config* candidate = *i;
-        if( !candidate->isUsed( ))
+        const float version = candidate->getFAttribute(Config::FATTR_VERSION);
+        EQASSERT( version == 1.1f );
+        if( !candidate->isUsed() && version == 1.1f)
             config = candidate;
     }
     

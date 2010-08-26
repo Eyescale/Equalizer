@@ -341,6 +341,7 @@ View* Pipe::getView( const net::ObjectVersion& viewVersion )
     {
         NodeFactory* nodeFactory = Global::getNodeFactory();
         view = nodeFactory->createView( 0 );
+        EQASSERT( view );
 
         net::Session* session = const_cast< net::Session* >( getSession( ));
         EQCHECK( session->mapObject( view, viewVersion ));

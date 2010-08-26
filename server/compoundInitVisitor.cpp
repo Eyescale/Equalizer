@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -33,15 +34,16 @@ namespace eq
 {
 namespace server
 {
-CompoundInitVisitor::CompoundInitVisitor()
+CompoundInitVisitor::CompoundInitVisitor( )
         : _taskID( 0 )
 {}
 
 VisitorResult CompoundInitVisitor::visit( Compound* compound )
 {
-    compound->backup();
     compound->setTaskID( ++_taskID );
 
+    // TO-DO may be no need to activate compound here since the activation is
+    //           made by canvas
     Channel* channel = compound->getChannel();
     if( compound->isDestination() && !channel->getSegment( ))
     {
@@ -49,7 +51,7 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
         
         // old-school (non-Layout) destination channel, activate compound
         //  layout destination channel compounds are activated by canvas
-        compound->activate();
+        View::activateCompound( compound, true, compound->getEyes( ) );
     }
     
     Config*        config  = compound->getConfig();

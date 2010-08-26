@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -35,23 +36,25 @@ namespace server
     class CompoundExitVisitor : public CompoundVisitor
     {
     public:
-        virtual ~CompoundExitVisitor() {}
+        CompoundExitVisitor( ) {}
+        virtual ~CompoundExitVisitor( ) {}
 
         /** Visit all compounds. */
         virtual VisitorResult visit( Compound* compound )
             {
+                // TO-DO may be no need to deactivate compound here since the activation
+                //       is made by canvas
                 Channel* channel = compound->getChannel();
                 if( compound->isDestination() && !channel->getSegment( ))
                 {
                     EQASSERT( !channel->getView( ));
-        
+                    
                     // old-school (non-Layout) destination channel, deactivate
                     //  compound layout destination channel compounds are
-                    //  deactivated by canvas
-                    compound->deactivate();
+                    //  deactivated by view
+                    View::activateCompound( compound, false, 
+                                            compound->getEyes( ) );
                 }
-
-                compound->restore();
                 return TRAVERSE_CONTINUE;    
             }
     };

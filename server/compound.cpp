@@ -150,12 +150,13 @@ Compound::InheritData::InheritData()
         , period( EQ_UNDEFINED_UINT32 )
         , phase( EQ_UNDEFINED_UINT32 )
         , maxFPS( std::numeric_limits< float >::max( ))
-        , active( true )
 {
     const Global* global = Global::instance();
     for( int i=0; i<IATTR_ALL; ++i )
         iAttributes[i] =
             global->getCompoundIAttribute( static_cast< IAttribute >( i ));
+    for( size_t i = 0; i < eq::NUM_EYES; ++i )
+        active[ i ] = 0;
 }
 
 void Compound::_addChild( Compound* child )
@@ -262,18 +263,20 @@ void Compound::addEqualizer( Equalizer* equalizer )
     _equalizers.push_back( equalizer );
 }
 
-bool Compound::isActive() const 
+bool Compound::isActive( const Eye eye ) const
 {
-    const Channel* channel = getChannel();
-    if( channel )
-        return _inherit.active && channel->isActive(); 
-
-    return _inherit.active;
+    const uint32_t index = base::getIndexOfLastBit( eye );
+    EQASSERT( index < NUM_EYES );
+    return _inherit.active[ index ];
 }
 
 bool Compound::isRunning() const
 {
-    if( !isActive( ))
+    bool active = false;
+    for( size_t i = 0; i < NUM_EYES; ++i )
+        active = active || _inherit.active[ i ];
+
+    if( !active )
         return false;
 
     const Channel* channel = getChannel();
@@ -741,20 +744,17 @@ VisitorResult Compound::accept( CompoundVisitor& visitor ) const
 // Operations
 //---------------------------------------------------------------------------
 
-void Compound::activate()
+void Compound::activate( const fabric::Eye eye )
 {
-    EQASSERT( isDestination( ));
-
-    CompoundActivateVisitor activator( true );
-    accept( activator );
+    const uint32_t index = eq::base::getIndexOfLastBit( eye );
+    ++_data.active[ index ];
 }
 
-void Compound::deactivate()
+void Compound::deactivate( const fabric::Eye eye )
 {
-    EQASSERT( isDestination( ));
-
-    CompoundActivateVisitor deactivator( false );
-    accept( deactivator );
+    const uint32_t index = eq::base::getIndexOfLastBit( eye );
+    EQASSERT( _data.active[ index ] );
+    --_data.active[ index ];
 }
 
 void Compound::init()
@@ -823,7 +823,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         _inherit.zoom = Zoom::NONE; // will be reapplied below
 
         if( _inherit.eyes == fabric::EYE_UNDEFINED )
-            _inherit.eyes = fabric::EYE_CYCLOP;
+            _inherit.eyes = fabric::EYES_ALL;
 
         if( _inherit.period == EQ_UNDEFINED_UINT32 )
             _inherit.period = 1;
@@ -838,7 +838,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
             _inherit.buffers = eq::Frame::BUFFER_COLOR;
 
         if( _inherit.iAttributes[IATTR_STEREO_MODE] == fabric::UNDEFINED )
-            _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::QUAD;
+            _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::AUTO;
 
         if( _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] == 
             fabric::UNDEFINED )
@@ -852,9 +852,6 @@ void Compound::updateInheritData( const uint32_t frameNumber )
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] =
                 COLOR_MASK_GREEN | COLOR_MASK_BLUE;
         }
-
-        // DPlex activation
-        _inherit.active = (( frameNumber % _inherit.period ) == _inherit.phase);
     }
     else
     {
@@ -920,13 +917,50 @@ void Compound::updateInheritData( const uint32_t frameNumber )
             _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] = 
                 _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK];
         }
+    }
 
-        if( _inherit.active && 
-            (( frameNumber % _inherit.period ) != _inherit.phase ))
+    if( _inherit.channel )
+    {
+        if( _data.iAttributes[IATTR_STEREO_MODE] == fabric::AUTO )
         {
-            // DPlex deactivation
-            _inherit.active = false;
+            _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::ANAGLYPH;
+            const Window* window = _inherit.channel->getWindow();
+            
+            const bool usesFBO =  window && 
+                (( window->getIAttribute( Window::IATTR_HINT_DRAWABLE ) == 
+                            fabric::FBO) || 
+                 _inherit.channel->getDrawable() != Channel::FB_WINDOW );
+            
+            if( !usesFBO )
+            {
+                const DrawableConfig& drawable = window->getDrawableConfig();
+                const Segment* segment = _inherit.channel->getSegment(); 
+                if( drawable.stereo || 
+                    ( (segment->getEyes() & fabric::EYES_STEREO ) != fabric::EYES_STEREO ))
+                {
+                    _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::QUAD;
+                }
+            }
         }
+
+        for( size_t i = 0; i < fabric::NUM_EYES; ++i )
+        {
+            const uint32_t eye = 1 << i;
+            const bool parentActive = _parent ?  _inherit.active[i] : true;
+            const bool eyeActive = _inherit.eyes & eye;
+            const bool phaseActive =  (( frameNumber % _inherit.period ) == _inherit.phase );
+            const bool channelActive = _inherit.channel->isRunning(); // run-time failure detection
+
+            if( parentActive && eyeActive && phaseActive && channelActive )
+                _inherit.active[i] = _data.active[i]; // #of view activations
+            else
+                _inherit.active[i] = 0;
+        }
+    }
+    else // always activate non-channel root compounds
+    {
+        for( uint32_t i = 0; i < eq::fabric::NUM_EYES; i++ )
+            _inherit.active[i] = 1;
     }
 
     if( _inherit.pvp.isValid( ))
@@ -958,7 +992,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
     if( isDestination() && channel->getView( ))
         _inherit.tasks |= fabric::TASK_VIEW;
     else
-        _inherit.tasks &= ~fabric::TASK_VIEW;        
+        _inherit.tasks &= ~fabric::TASK_VIEW;
 
     if( frameNumber != 0 &&
         ( !_inherit.pvp.hasArea() || !_inherit.range.hasData( )) )
@@ -967,10 +1001,6 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         // init)
         _inherit.tasks = fabric::TASK_NONE;
     }
-
-    // Runtime failure deactivation
-    if( channel && !channel->isRunning( ))
-        _inherit.active = false;
 }
 
 void Compound::_updateInheritPVP()

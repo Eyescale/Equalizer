@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -99,13 +100,6 @@ namespace server
         /** Run-time layout switch */
         void _switchLayout( const uint32_t oldIndex, const uint32_t newIndex );
 
-        /** @return the destination channels for the given layout. */
-        void _findDestinationChannels( const Layout* layout,
-                                      Channels& result ) const;
-
-        /** @return the destination compounds for the given channels.*/
-        void _findDestinationCompounds( const Channels& channels,
-                                        Compounds& result ) const;
     };
 
 }

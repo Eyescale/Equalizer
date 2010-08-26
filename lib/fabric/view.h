@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -41,6 +42,7 @@ namespace fabric
         /** The current rendering mode. */
         enum Mode
         {
+            MODE_NONE,   //!< Render EYE unactivation
             MODE_MONO,   //!< Render in mono (cyclop eye)
             MODE_STEREO  //!< Render in stereo (left & right eye)
         };
@@ -89,8 +91,21 @@ namespace fabric
         /** @internal Get the mode of this view. */
         EQFABRIC_EXPORT Mode getMode( ) const { return _mode; }
         
-        /** @internal Set the mode of this view. */
-        EQFABRIC_EXPORT void changeMode( Mode ) {}
+        /**
+         * @external
+         * Set the mode of this view.
+         *
+         * @param mode the new rendering mode 
+         */
+        EQFABRIC_EXPORT virtual void changeMode( const Mode mode );
+        
+        /**
+         * @internal
+         * Activate the given mode on this view.
+         *
+         * @param mode the new rendering mode 
+         */
+        virtual void activateMode( const Mode mode ){} 
         //@}
 
         /** @name Operations */
@@ -117,7 +132,8 @@ namespace fabric
             DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 0,
             DIRTY_OBSERVER   = Object::DIRTY_CUSTOM << 1,
             DIRTY_OVERDRAW   = Object::DIRTY_CUSTOM << 2,
-            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 3
+            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 3,
+            DIRTY_MODE       = Object::DIRTY_CUSTOM << 4
         };
 
         /** @internal Construct a new view. */

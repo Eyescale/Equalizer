@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -71,6 +72,8 @@ namespace server
          *
          * This function creates a compound for each output channel which is not
          * used as a destination channel yet.
+         *
+         * @param server the server.
          */
         static void addOutputCompounds( ServerPtr server );
 
@@ -79,14 +82,31 @@ namespace server
          *
          * This function creates the appropriate views and segments for
          * destination channels, and reassigns the compound channel.
+         *
+         * @param server the server.
          */
         static void addDestinationViews( ServerPtr server );
+
+        /**
+         * Convert config to version 1.1
+         *
+         * This function converts a 1.0 to a 1.1 configuration.
+         * Most notably, the stereo setting is migrated from compounds to
+         * views and segments (see
+         * <a href="http://www.equalizergraphics.com/documents/design/stereoSwitch.html">Runtime
+         * stereo switch doc</a>).
+         *
+         * @param server the server.
+         */
+        static void convertTo11( ServerPtr server );
 
         /**
          * Add one observer for observer-less configurations.
          *
          * If a configuration has no observers, one is created and assigned to
          * all views, which retains the behaviour of legacy configurations.
+         *
+         * @param server the server.
          */
         static void addDefaultObserver( ServerPtr server );
 

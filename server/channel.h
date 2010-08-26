@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,7 +31,6 @@
 #include "base.h"
 #include "state.h"  // enum
 #include "types.h"
-#include "segment.h"
 
 #include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/viewport.h>      // member
@@ -119,7 +119,7 @@ namespace server
         const View* getView() const { return _view; }
 
         /** @return the channel's canvas. */
-        const Canvas* getCanvas() const { return _segment->getCanvas(); }
+        const Canvas* getCanvas() const;
 
         /** @return the channel's view. */
         View* getView() { return _view; }

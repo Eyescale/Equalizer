@@ -161,6 +161,13 @@ ServerPtr Channel::getServer()
     return ( window ? window->getServer() : 0 );
 }
 
+const Canvas* Channel::getCanvas() const 
+{ 
+    if( !_segment )
+        return 0;
+    return _segment->getCanvas(); 
+}
+
 const Compounds& Channel::getCompounds() const
 { 
     return getConfig()->getCompounds();

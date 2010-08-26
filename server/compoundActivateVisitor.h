@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,12 +31,19 @@ namespace server
     class CompoundActivateVisitor : public CompoundVisitor
     {
     public:
-        CompoundActivateVisitor( const bool activate ) : _activate( activate ){}
+        CompoundActivateVisitor( const bool activate, const eq::Eye eye ) 
+            : _activate( activate )
+            , _eye( eye ) {}
         virtual ~CompoundActivateVisitor() {}
 
         /** Visit all compounds. */
         virtual VisitorResult visit( Compound* compound )
             {
+                if( _activate )
+                    compound->activate( _eye );
+                else
+                    compound->deactivate( _eye );
+                
                 Channel* channel = compound->getChannel();
                 if( channel )
                 {
@@ -48,7 +56,8 @@ namespace server
             }
 
     private:
-            const bool _activate;
+        const bool _activate;
+        const eq::Eye _eye;
     };
 }
 }

@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -71,7 +72,27 @@ namespace server
         bool removeChannel( Channel* channel );
         
         /** @return the vector of destination channels. */
-        const Channels& getChannels() const{ return _channels; }
+        const Channels& getChannels() const{ return _channels; } 
+
+        /**
+         * @internal
+         * Activate the given mode on this view.
+         *
+         * @param mode the new rendering mode 
+         */
+        virtual void activateMode( const Mode mode );
+
+        /**
+         * (de-)activating a compound tree for each eyes.
+         * 
+         * @param compound the destination compound to start the tree travel
+         * @param activated true if active or false to unactive
+         * @param eyes the eyes to activate
+         * 
+         **/
+        static void activateCompound( Compound* compound, 
+                                      const bool activate, 
+                                      const uint32_t eyes );
         //@}
 
     protected:
@@ -82,6 +103,9 @@ namespace server
     private:
         /** The list of channels. */
         Channels _channels;
+
+        /** The current activated rendering mode */
+        Mode _currentMode;
 
         union // placeholder for binary-compatible changes
         {

@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,12 +18,16 @@
 
 #include "view.h"
 
+#include "canvas.h"
 #include "channel.h"
 #include "compound.h"
+#include "compoundActivateVisitor.h"
 #include "config.h"
 #include "configVisitor.h"
+#include "findEyeDestCompoundVisitor.h"
 #include "layout.h"
 #include "observer.h"
+#include "segment.h"
 
 #include <eq/fabric/paths.h>
 #include <eq/net/dataIStream.h>
@@ -36,6 +41,7 @@ typedef  fabric::View< Layout, View, Observer > Super;
 
 View::View( Layout* parent )
         : Super( parent )
+        , _currentMode( MODE_NONE )
 {
 }
 
@@ -77,7 +83,7 @@ public:
                 compound->updateFrustum();
             }
 
-            return TRAVERSE_PRUNE;            
+            return TRAVERSE_PRUNE;
         }
 private:
     const Channels& _channels;
@@ -116,7 +122,7 @@ const Config* View::getConfig() const
     return layout ? layout->getConfig() : 0;
 }
 
-ServerPtr View::getServer() 
+ServerPtr View::getServer()
 {
     Config* config = getConfig();
     EQASSERT( config );
@@ -151,6 +157,94 @@ ViewPath View::getPath() const
     EQASSERT( i != views.end( ));
     path.viewIndex = std::distance( views.begin(), i );
     return path;
+}
+
+void View::activateMode( const Mode mode )
+{
+    if( _currentMode == mode )
+        return;
+
+    const Config* config = getConfig();
+    if( config->isStopped( ))
+        return;
+
+    // possible OPT: skip loop if mode == MODE_NONE
+    // Activate destination compounds for new eye(s)
+    for( Channels::const_iterator i = _channels.begin(); 
+         i != _channels.end(); ++i )
+    {
+        if ( mode == MODE_NONE )
+            continue;
+
+        const Channel* channel = *i;
+        const Segment* segment = channel->getSegment();
+        const uint32_t segmentEyes = segment->getEyes();
+        const uint32_t eyes = ( mode == MODE_MONO ) ?
+                        EYE_CYCLOP & segmentEyes : EYES_STEREO & segmentEyes;
+        
+        if( eyes == 0 )
+            continue;
+
+        Compounds compounds;  
+        ConfigDestCompoundVisitor visitor( channel, compounds );
+        config->accept( visitor );     
+        for( Compounds::const_iterator j = compounds.begin(); 
+                 j != compounds.end(); ++j )
+        {       
+            Compound* compound = *j;
+            activateCompound( compound, true, eyes );
+        }
+    }
+
+    // if the new mode is NONE no compounds have to be activated
+    if( _currentMode == MODE_NONE )
+    {
+        _currentMode = mode;
+        return;
+    }
+
+    // Deactivate destination compounds for old eye(s)
+    for( Channels::const_iterator i = _channels.begin(); 
+         i != _channels.end(); ++i )
+    {
+        const Channel* channel = *i;
+        const Segment* segment = channel->getSegment();
+        const uint32_t segmentEyes = segment->getEyes();
+        uint32_t eyes = ( _currentMode == MODE_MONO ) ?
+                        EYE_CYCLOP & segmentEyes : EYES_STEREO & segmentEyes;
+        
+        if( eyes == 0 )
+            continue;
+
+        Compounds compounds;
+        ConfigDestCompoundVisitor visitor( channel, compounds );
+        config->accept( visitor );
+
+        for( Compounds::const_iterator j = compounds.begin(); 
+                 j != compounds.end(); ++j )
+        {    
+            Compound* compound = *j;   
+            activateCompound( compound, false, eyes );
+        }
+    }
+    _currentMode = mode;
+}
+
+void View::activateCompound( Compound* compound, const bool activate, 
+                             const uint32_t eyes )
+{
+    for( size_t i = 0; i < NUM_EYES; ++i )
+    {
+        const uint32_t eye = 1 << i;
+        if( ( eyes & eye ) == 0 )
+            continue;
+            
+        EQASSERT( compound->isDestination( ));
+
+        CompoundActivateVisitor activator(  activate, 
+                                     static_cast<eq::fabric::Eye>( eye ) );
+        compound->accept( activator );
+    }
 }
 
 }

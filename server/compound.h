@@ -310,9 +310,8 @@ namespace server
         void unsetInheritTask( const fabric::Task task )
             { _inherit.tasks &= ~task; }
 
-        /** @return true if the eye pass is used, false if not. */
-        bool testInheritEye( const Eye eye ) const
-            { return _inherit.eyes & eye; }
+        /** @return true if the eye pass is actived, false if not. */
+        bool isActivedEye( const Eye eye ) const;
         //@}
 
         /**
@@ -385,13 +384,37 @@ namespace server
         EQSERVER_EXPORT VisitorResult accept( CompoundVisitor& visitor );
 
         /** Activate the compound tree. */
-        void activate();
+                
+        /**
+         * Activate the eye for the the compound tree. @internal
+         *
+         * @param eye eye which will be activate. 
+         */
+        void activate( const fabric::Eye eye);
+        
+        /**
+         * Deactivate the eye for the the compound tree. @internal
+         *
+         * @param eye eye which will be deactivate. 
+         */
+        void deactivate( const fabric::Eye eye );
 
-        /** Deactivate the compound tree. */
-        void deactivate();
+        /**
+         * Set the activation state of the eye for this compound only
+         *
+         * @param active the activation state. 
+         * @param eye eye which will be deactivate. 
+         */
+        void setActive( const bool active, const fabric::Eye eye );
 
-        /** @return if the compound is activated and current (DPlex). */
-        bool isActive() const;
+
+        /**
+         * @return if the compound is activated for selected eye 
+                    and current (DPlex).
+         *
+         * @param eye eye which will be tested. 
+         */
+        bool isActive( const Eye eye ) const;
 
         /**
          * @return true if the compound is active and the compound's channel is
@@ -494,7 +517,9 @@ namespace server
             uint32_t          phase;
             int32_t           iAttributes[IATTR_ALL];
             float             maxFPS;
-            bool              active;
+
+            // compound activation per eye and Has been activated (by view) */
+            uint32_t active[ fabric::NUM_EYES ];
 
             union // placeholder for binary-compatible changes
             {
