@@ -35,8 +35,8 @@
 #include <eq/base/pluginRegistry.h>
 
 #include "../base/plugin.h"
-#include "../base/compressorDataCPU.h"
-#include "../util/compressorDataGPU.h"
+#include "../base/cpuCompressor.h"
+#include "../util/gpuCompressor.h"
 
 #include <fstream>
 
@@ -72,10 +72,10 @@ void Image::flush()
 }
 
 Image::Attachment::Attachment()
-        : fullCompressor( new base::CompressorDataCPU )
-        , lossyCompressor( new base::CompressorDataCPU )
-        , fullTransfer( new util::CompressorDataGPU )
-        , lossyTransfer( new util::CompressorDataGPU )
+        : fullCompressor( new base::CPUCompressor )
+        , lossyCompressor( new base::CPUCompressor )
+        , fullTransfer( new util::GPUCompressor )
+        , lossyTransfer( new util::GPUCompressor )
         , compressor( fullCompressor )
         , transfer ( fullTransfer )
         , quality( 1.f )
@@ -245,7 +245,7 @@ void Image::findTransferers( const Frame::Buffer buffer,
                              const GLEWContext* glewContext,
                              base::CompressorInfos& result )
 {
-    return util::CompressorDataGPU::findTransferers(
+    return util::GPUCompressor::findTransferers(
         getInternalFormat( buffer ), 0, getQuality( buffer ), _ignoreAlpha,
         glewContext, result );
 }
@@ -261,8 +261,8 @@ uint32_t Image::_chooseCompressor( const Frame::Buffer buffer ) const
     const float quality = attachment.quality /
                           attachment.lossyTransfer->getQuality();
 
-    return base::CompressorDataCPU::chooseCompressor( tokenType, quality,
-                                                      _ignoreAlpha );
+    return base::CPUCompressor::chooseCompressor( tokenType, quality,
+                                                  _ignoreAlpha );
 }
 
 bool Image::hasAlpha() const
@@ -359,9 +359,8 @@ const Image::PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
 void Image::upload( const Frame::Buffer buffer, const Vector2i& position,
                     util::ObjectManager< const void* >* glObjects ) const
 {
-    util::CompressorDataGPU* uploader = glObjects->obtainEqUploader(
-                                            _getCompressorKey( buffer ));
-
+    util::GPUCompressor* uploader = glObjects->obtainEqUploader(
+                                        _getCompressorKey( buffer ));
     const Image::PixelData& pixelData = getPixelData( buffer );
     const uint32_t externalFormat = pixelData.externalFormat;
     const uint32_t internalFormat = pixelData.internalFormat;
@@ -382,8 +381,8 @@ void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
     EQASSERT( texture );
     EQASSERT( glObjects );
 
-    util::CompressorDataGPU* uploader = glObjects->obtainEqUploader(
-                                            _getCompressorKey( buffer ));
+    util::GPUCompressor* uploader = glObjects->obtainEqUploader(
+                                        _getCompressorKey( buffer ));
     const Image::PixelData& pixelData = getPixelData( buffer );
     const uint32_t externalFormat = pixelData.externalFormat;
     const uint32_t internalFormat = pixelData.internalFormat;
@@ -586,24 +585,24 @@ void Image::readback( const Frame::Buffer buffer, const uint32_t texture,
 {
     Attachment& attachment = _getAttachment( buffer );
     Memory& memory = attachment.memory;    
-    util::CompressorDataGPU* transfer = attachment.transfer;
+    util::GPUCompressor* downloader = attachment.transfer;
     const uint32_t inputToken = memory.internalFormat;
-    const bool ignoreAlpha_ = _ignoreAlpha && buffer == Frame::BUFFER_COLOR;
+    const bool alpha = _ignoreAlpha && buffer == Frame::BUFFER_COLOR;
 
-    transfer->setGLEWContext( glewContext );
-    if( !transfer->isValidDownloader( inputToken, ignoreAlpha_ ))
-        transfer->initDownloader( inputToken, attachment.quality, ignoreAlpha_);
+    downloader->setGLEWContext( glewContext );
+    if( !downloader->isValidDownloader( inputToken, alpha ))
+        downloader->initDownloader( inputToken, attachment.quality, alpha );
             
     // get the pixel type produced by the downloader
-    _setExternalFormat( buffer, transfer->getExternalFormat(),
-                        transfer->getTokenSize(), transfer->hasAlpha( ));
+    _setExternalFormat( buffer, downloader->getExternalFormat(),
+                        downloader->getTokenSize(), downloader->hasAlpha( ));
 
     const uint32_t flags = EQ_COMPRESSOR_DATA_2D | 
         ( texture ? EQ_COMPRESSOR_USE_TEXTURE: EQ_COMPRESSOR_USE_FRAMEBUFFER )|
         ( memory.hasAlpha ? 0: EQ_COMPRESSOR_IGNORE_ALPHA );
 
-    transfer->download( _pvp, texture, flags, memory.pvp, &memory.pixels );
-    transfer->setGLEWContext( 0 );
+    downloader->download( _pvp, texture, flags, memory.pvp, &memory.pixels );
+    downloader->setGLEWContext( 0 );
     memory.state = Memory::VALID;
 }
 
@@ -791,24 +790,24 @@ bool Image::allocDownloader( const Frame::Buffer buffer,
     EQASSERT( glewContext );
 
     Attachment& attachment = _getAttachment( buffer );
-    util::CompressorDataGPU* transfer = attachment.transfer;
+    util::GPUCompressor* downloader = attachment.transfer;
 
     if( name <= EQ_COMPRESSOR_NONE )
     {
-        transfer->initDownloader( name );
+        downloader->initDownloader( name );
         _setExternalFormat( buffer, EQ_COMPRESSOR_DATATYPE_NONE, 0, true );
         return false;
     }
 
-    if( !transfer->isValid( name ) )
+    if( !downloader->isValid( name ) )
     {
-        transfer->setGLEWContext( glewContext );
-        if( !transfer->initDownloader( name ) )
+        downloader->setGLEWContext( glewContext );
+        if( !downloader->initDownloader( name ) )
             return false;
 
-        attachment.memory.internalFormat = transfer->getInternalFormat();
-        _setExternalFormat( buffer, transfer->getExternalFormat(),
-                            transfer->getTokenSize(), transfer->hasAlpha( ));
+        attachment.memory.internalFormat = downloader->getInternalFormat();
+        _setExternalFormat( buffer, downloader->getExternalFormat(),
+                            downloader->getTokenSize(), downloader->hasAlpha());
 
         EQLOG( LOG_PLUGIN ) << "Instantiated downloader of type 0x" << std::hex
                             << name << std::dec << std::endl;

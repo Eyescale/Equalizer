@@ -108,7 +108,7 @@ namespace net
         //@}
  
     protected:
-        base::CompressorDataCPU* const decompressor;
+        base::CPUCompressor* const decompressor;
         virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size ) =0;
 
         void _decompress( const uint8_t* src, const uint8_t** dst, 

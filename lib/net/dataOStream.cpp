@@ -24,7 +24,7 @@
 #include "node.h"
 #include "types.h"
 
-#include "../base/compressorDataCPU.h"
+#include "../base/cpuCompressor.h" // internal header
 #include <eq/base/global.h>
 
 //#define EQ_INSTRUMENT_DATAOSTREAM
@@ -50,7 +50,7 @@ base::a_int32_t nBytesCompressedSend;
 }
 
 DataOStream::DataOStream()
-        : compressor( new base::CompressorDataCPU )
+        : compressor( new base::CPUCompressor )
         , _bufferType( BUFFER_NONE )
         , _bufferStart( 0 )
         , _enabled( false )

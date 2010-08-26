@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
@@ -15,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "compressorData.h"
+#include "compressor.h"
 #include "global.h"
 #include "plugin.h"
 #include "pluginRegistry.h"
@@ -25,7 +26,7 @@ namespace eq
 namespace base
 {
 
-CompressorData::CompressorData()
+Compressor::Compressor()
         : _name( EQ_COMPRESSOR_INVALID )
         , _plugin( 0 )
         , _instance( 0 )
@@ -33,12 +34,12 @@ CompressorData::CompressorData()
         , _isCompressor( true )
 {}
 
-CompressorData::~CompressorData()
+Compressor::~Compressor()
 {
     reset();
 }
 
-void CompressorData::reset()
+void Compressor::reset()
 {
     if( _instance )
     {
@@ -55,13 +56,13 @@ void CompressorData::reset()
     _isCompressor = true;
 }
 
-Plugin* CompressorData::_findPlugin( uint32_t name )
+Plugin* Compressor::_findPlugin( uint32_t name )
 {
     base::PluginRegistry& registry = base::Global::getPluginRegistry();
     return registry.findPlugin( name );
 }
 
-bool CompressorData::isValid( uint32_t name ) const
+bool Compressor::isValid( uint32_t name ) const
 {
     EQ_TS_THREAD( _thread );
     if( _name == EQ_COMPRESSOR_INVALID )
@@ -72,7 +73,7 @@ bool CompressorData::isValid( uint32_t name ) const
     return ( _name == name && _plugin && ( !_isCompressor || _instance ) );
 }
 
-bool CompressorData::_initCompressor( uint32_t name )
+bool Compressor::_initCompressor( uint32_t name )
 {
     reset();
     
@@ -101,7 +102,7 @@ bool CompressorData::_initCompressor( uint32_t name )
     return true;
 }
 
-bool CompressorData::_initDecompressor( uint32_t name )
+bool Compressor::_initDecompressor( uint32_t name )
 {
     reset();
     if( name <= EQ_COMPRESSOR_NONE )

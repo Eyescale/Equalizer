@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQUTIL_COMPRESSORDATA_H
-#define EQUTIL_COMPRESSORDATA_H
+#ifndef EQBASE_COMPRESSOR_H
+#define EQBASE_COMPRESSOR_H
 
 #include <eq/base/thread.h>        // thread-safety macros
 #include <eq/plugins/compressor.h>  // used inline
@@ -26,16 +26,16 @@ namespace eq
 {
 namespace base
 {
-    /** A C++ class to abstract a compressor instance. */
-    class CompressorData
+    /** @internal A C++ class to handle one (de)compressor instance. */
+    class Compressor
     {
     public:
 
-        /** Construct a new compressor data. */
-        EQ_EXPORT CompressorData();
+        /** Construct a new compressor. */
+        EQ_EXPORT Compressor();
 
-        /** Destruct the compressor data */
-        EQ_EXPORT virtual ~CompressorData();
+        /** Destruct the compressor. */
+        EQ_EXPORT virtual ~Compressor();
 
         /** @return the plugin for the current compressor. */
         Plugin* getPlugin() { return _plugin; }
@@ -98,4 +98,4 @@ namespace base
     };
 }
 }
-#endif  // EQUTIL_COMPRESSORDATA_H
+#endif  // EQBASE_COMPRESSOR_H

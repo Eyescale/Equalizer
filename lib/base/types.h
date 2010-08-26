@@ -119,8 +119,8 @@ typedef std::vector< std::string >   Strings;
 typedef Strings StringVector
 #endif
 
-class CompressorDataCPU; //!< @internal
-class Plugin;            //!< @internal
+class CPUCompressor; //!< @internal
+class Plugin;        //!< @internal
 
 /** @internal A vector of compressor information structures. */
 typedef std::vector< EqCompressorInfo > CompressorInfos;

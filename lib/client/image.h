@@ -409,14 +409,14 @@ namespace eq
             ~Attachment();
 
             void flush();
-            base::CompressorDataCPU* const fullCompressor;
-            base::CompressorDataCPU* const lossyCompressor;
+            base::CPUCompressor* const fullCompressor;
+            base::CPUCompressor* const lossyCompressor;
 
-            util::CompressorDataGPU* const fullTransfer;
-            util::CompressorDataGPU* const lossyTransfer;
+            util::GPUCompressor* const fullTransfer;
+            util::GPUCompressor* const lossyTransfer;
 
-            base::CompressorDataCPU* compressor; //!< current CPU (de)compressor
-            util::CompressorDataGPU* transfer;   //!< current up/download engine
+            base::CPUCompressor* compressor; //!< current CPU (de)compressor
+            util::GPUCompressor* transfer;   //!< current up/download engine
 
             float quality; //!< the minimum quality
 

@@ -20,8 +20,8 @@
 
 #include "accum.h"
 #include "bitmapFont.h"
-#include "compressorDataGPU.h"
 #include "frameBufferObject.h"
+#include "gpuCompressor.h"
 #include "texture.h"
 
 #include <string.h>
@@ -35,7 +35,7 @@ namespace eq
 {
 namespace util
 {
-template< typename T >
+template< class T >
 ObjectManager< T >::ObjectManager( const GLEWContext* const glewContext )
         : _glewContext( glewContext )
         , _data( new SharedData )
@@ -43,7 +43,7 @@ ObjectManager< T >::ObjectManager( const GLEWContext* const glewContext )
     EQASSERT( glewContext );
 }
 
-template< typename T >
+template< class T >
 ObjectManager< T >::ObjectManager( const GLEWContext* const glewContext, 
                                    ObjectManager* shared )
         : _glewContext( glewContext )
@@ -53,13 +53,13 @@ ObjectManager< T >::ObjectManager( const GLEWContext* const glewContext,
     EQASSERT( glewContext );
 }
 
-template< typename T >
+template< class T >
 ObjectManager<T>::~ObjectManager()
 {
     _data = 0;
 }
 
-template< typename T >
+template< class T >
 ObjectManager<T>::SharedData::~SharedData()
 {
     // Do not delete GL objects, we may no longer have a GL context.
@@ -111,7 +111,7 @@ ObjectManager<T>::SharedData::~SharedData()
     eqFrameBufferObjects.clear();
 }
 
-template< typename T >
+template< class T >
 void ObjectManager<T>::deleteAll()
 {
     for( typename ObjectHash::const_iterator i = _data->lists.begin(); 
@@ -196,7 +196,7 @@ void ObjectManager<T>::deleteAll()
 
 // display list functions
 
-template< typename T >
+template< class T >
 GLuint ObjectManager<T>::getList( const T& key ) const
 {
     typename ObjectHash::const_iterator i = _data->lists.find( key );
@@ -207,7 +207,7 @@ GLuint ObjectManager<T>::getList( const T& key ) const
     return object.id;
 }
 
-template< typename T >
+template< class T >
 GLuint ObjectManager<T>::newList( const T& key, const GLsizei num )
 {
     if( _data->lists.find( key ) != _data->lists.end( ))
@@ -230,7 +230,7 @@ GLuint ObjectManager<T>::newList( const T& key, const GLsizei num )
     return id;
 }
 
-template< typename T >
+template< class T >
 GLuint ObjectManager<T>::obtainList( const T& key, const GLsizei num )
 {
     const GLuint id = getList( key );
@@ -239,7 +239,7 @@ GLuint ObjectManager<T>::obtainList( const T& key, const GLsizei num )
     return newList( key, num );
 }
 
-template< typename T >
+template< class T >
 void   ObjectManager<T>::deleteList( const T& key )
 {
     typename ObjectHash::iterator i = _data->lists.find( key );
@@ -253,7 +253,7 @@ void   ObjectManager<T>::deleteList( const T& key )
 
 // texture object functions
 
-template< typename T >
+template< class T >
 GLuint ObjectManager<T>::getTexture( const T& key ) const
 {
     typename ObjectHash::const_iterator i = _data->textures.find( key );
@@ -264,7 +264,7 @@ GLuint ObjectManager<T>::getTexture( const T& key ) const
     return object.id;
 }
 
-template< typename T >
+template< class T >
 GLuint ObjectManager<T>::newTexture( const T& key )
 {
     if( _data->textures.find( key ) != _data->textures.end( ))
@@ -286,7 +286,7 @@ GLuint ObjectManager<T>::newTexture( const T& key )
     return id;
 }
 
-template< typename T >
+template< class T >
 GLuint ObjectManager<T>::obtainTexture( const T& key )
 {
     const GLuint id = getTexture( key );
@@ -295,7 +295,7 @@ GLuint ObjectManager<T>::obtainTexture( const T& key )
     return newTexture( key );
 }
 
-template< typename T >
+template< class T >
 void   ObjectManager<T>::deleteTexture( const T& key )
 {
     typename ObjectHash::iterator i = _data->textures.find( key );
@@ -309,13 +309,13 @@ void   ObjectManager<T>::deleteTexture( const T& key )
 
 // buffer object functions
 
-template< typename T >
+template< class T >
 bool ObjectManager<T>::supportsBuffers() const
 {
     return ( GLEW_VERSION_1_5 );
 }
 
-template< typename T >
+template< class T >
 GLuint ObjectManager<T>::getBuffer( const T& key ) const
 {
     typename ObjectHash::const_iterator i = _data->buffers.find( key );
@@ -326,7 +326,7 @@ GLuint ObjectManager<T>::getBuffer( const T& key ) const
     return object.id;
 }
 
-template< typename T >
+template< class T >
 GLuint ObjectManager<T>::newBuffer( const T& key )
 {
     if( !GLEW_VERSION_1_5 )
@@ -355,7 +355,7 @@ GLuint ObjectManager<T>::newBuffer( const T& key )
     return id;
 }
 
-template< typename T >
+template< class T >
 GLuint ObjectManager<T>::obtainBuffer( const T& key )
 {
     const GLuint id = getBuffer( key );
@@ -364,7 +364,7 @@ GLuint ObjectManager<T>::obtainBuffer( const T& key )
     return newBuffer( key );
 }
 
-template< typename T >
+template< class T >
 void ObjectManager<T>::deleteBuffer( const T& key )
 {
     typename ObjectHash::iterator i = _data->buffers.find( key );
@@ -378,13 +378,13 @@ void ObjectManager<T>::deleteBuffer( const T& key )
 
 // program object functions
 
-template< typename T >
+template< class T >
 bool ObjectManager<T>::supportsPrograms() const
 {
     return ( GLEW_VERSION_2_0 );
 }
 
-template< typename T >
+template< class T >
 GLuint ObjectManager<T>::getProgram( const T& key ) const
 {
     typename ObjectHash::const_iterator i = _data->programs.find( key );
@@ -395,7 +395,7 @@ GLuint ObjectManager<T>::getProgram( const T& key ) const
     return object.id;
 }
 
-template< typename T >
+template< class T >
 GLuint ObjectManager<T>::newProgram( const T& key )
 {
     if( !GLEW_VERSION_2_0 )
@@ -422,7 +422,7 @@ GLuint ObjectManager<T>::newProgram( const T& key )
     return id;
 }
 
-template< typename T >
+template< class T >
 GLuint ObjectManager<T>::obtainProgram( const T& key )
 {
     const GLuint id = getProgram( key );
@@ -431,7 +431,7 @@ GLuint ObjectManager<T>::obtainProgram( const T& key )
     return newProgram( key );
 }
 
-template< typename T >
+template< class T >
 void ObjectManager<T>::deleteProgram( const T& key )
 {
     typename ObjectHash::iterator i = _data->programs.find( key );
@@ -445,13 +445,13 @@ void ObjectManager<T>::deleteProgram( const T& key )
 
 // shader object functions
 
-template< typename T >
+template< class T >
 bool ObjectManager<T>::supportsShaders() const
 {
     return ( GLEW_VERSION_2_0 );
 }
 
-template< typename T >
+template< class T >
 GLuint ObjectManager<T>::getShader( const T& key ) const
 {
     typename ObjectHash::const_iterator i = _data->shaders.find( key );
@@ -462,7 +462,7 @@ GLuint ObjectManager<T>::getShader( const T& key ) const
     return object.id;
 }
 
-template< typename T >
+template< class T >
 GLuint ObjectManager<T>::newShader( const T& key, const GLenum type )
 {
     if( !GLEW_VERSION_2_0 )
@@ -490,7 +490,7 @@ GLuint ObjectManager<T>::newShader( const T& key, const GLenum type )
     return id;
 }
 
-template< typename T >
+template< class T >
 GLuint ObjectManager<T>::obtainShader( const T& key, const GLenum type )
 {
     const GLuint id = getShader( key );
@@ -499,7 +499,7 @@ GLuint ObjectManager<T>::obtainShader( const T& key, const GLenum type )
     return newShader( key, type );
 }
 
-template< typename T >
+template< class T >
 void ObjectManager<T>::deleteShader( const T& key )
 {
     typename ObjectHash::iterator i = _data->shaders.find( key );
@@ -511,7 +511,7 @@ void ObjectManager<T>::deleteShader( const T& key )
     _data->shaders.erase( i );
 }
 
-template< typename T >
+template< class T >
 Accum* ObjectManager<T>::getEqAccum( const T& key ) const
 {
     typename AccumHash::const_iterator i = _data->accums.find( key );
@@ -521,7 +521,7 @@ Accum* ObjectManager<T>::getEqAccum( const T& key ) const
     return i->second;
 }
 
-template< typename T >
+template< class T >
 Accum* ObjectManager<T>::newEqAccum( const T& key )
 {
     if( _data->accums.find( key ) != _data->accums.end( ))
@@ -535,7 +535,7 @@ Accum* ObjectManager<T>::newEqAccum( const T& key )
     return accum;
 }
 
-template< typename T >
+template< class T >
 Accum* ObjectManager<T>::obtainEqAccum( const T& key )
 {
     Accum* accum = getEqAccum( key );
@@ -544,7 +544,7 @@ Accum* ObjectManager<T>::obtainEqAccum( const T& key )
     return newEqAccum( key );
 }
 
-template< typename T >
+template< class T >
 void ObjectManager<T>::deleteEqAccum( const T& key )
 {
     typename AccumHash::iterator i = _data->accums.find( key );
@@ -559,8 +559,8 @@ void ObjectManager<T>::deleteEqAccum( const T& key )
 }
 
 // eq::CompressorData object functions
-template< typename T >
-CompressorDataGPU* ObjectManager<T>::getEqUploader( const T& key ) const
+template< class T >
+GPUCompressor* ObjectManager<T>::getEqUploader( const T& key ) const
 {
     typename UploaderHash::const_iterator i = _data->eqUploaders.find( key );
     if( i == _data->eqUploaders.end( ))
@@ -569,8 +569,8 @@ CompressorDataGPU* ObjectManager<T>::getEqUploader( const T& key ) const
     return i->second;
 }
 
-template< typename T >
-CompressorDataGPU* ObjectManager<T>::newEqUploader( const T& key )
+template< class T >
+GPUCompressor* ObjectManager<T>::newEqUploader( const T& key )
 {
     if( _data->eqUploaders.find( key ) != _data->eqUploaders.end( ))
     {
@@ -578,41 +578,41 @@ CompressorDataGPU* ObjectManager<T>::newEqUploader( const T& key )
         return 0;
     }
 
-    CompressorDataGPU* compressorData = new CompressorDataGPU( _glewContext );
+    GPUCompressor* compressorData = new GPUCompressor( _glewContext );
     _data->eqUploaders[ key ] = compressorData;
     return compressorData;
 }
 
-template< typename T >
-CompressorDataGPU* ObjectManager<T>::obtainEqUploader( const T& key )
+template< class T >
+GPUCompressor* ObjectManager<T>::obtainEqUploader( const T& key )
 {
-    CompressorDataGPU* compressorData = getEqUploader( key );
+    GPUCompressor* compressorData = getEqUploader( key );
     if( compressorData )
         return compressorData;
     return newEqUploader( key );
 }
 
-template< typename T >
+template< class T >
 void ObjectManager<T>::deleteEqUploader( const T& key )
 {
     typename UploaderHash::iterator i = _data->eqUploaders.find( key );
     if( i == _data->eqUploaders.end( ))
         return;
 
-    CompressorDataGPU* compressorData = i->second;
+    GPUCompressor* compressorData = i->second;
     _data->eqUploaders.erase( i );
 
     delete compressorData;
 }
 
 // eq::Texture object functions
-template< typename T >
+template< class T >
 bool ObjectManager<T>::supportsEqTexture() const
 {
     return (GLEW_ARB_texture_rectangle);
 }
 
-template< typename T >
+template< class T >
 Texture* ObjectManager<T>::getEqTexture( const T& key ) const
 {
     typename TextureHash::const_iterator i = _data->eqTextures.find( key );
@@ -622,7 +622,7 @@ Texture* ObjectManager<T>::getEqTexture( const T& key ) const
     return i->second;
 }
 
-template< typename T >
+template< class T >
 Texture* ObjectManager<T>::newEqTexture( const T& key, const GLenum target )
 {
     if( _data->eqTextures.find( key ) != _data->eqTextures.end( ))
@@ -636,7 +636,7 @@ Texture* ObjectManager<T>::newEqTexture( const T& key, const GLenum target )
     return texture;
 }
 
-template< typename T >
+template< class T >
 Texture* ObjectManager<T>::obtainEqTexture( const T& key, const GLenum target )
 {
     Texture* texture = getEqTexture( key );
@@ -645,7 +645,7 @@ Texture* ObjectManager<T>::obtainEqTexture( const T& key, const GLenum target )
     return newEqTexture( key, target );
 }
 
-template< typename T >
+template< class T >
 void   ObjectManager<T>::deleteEqTexture( const T& key )
 {
     typename TextureHash::iterator i = _data->eqTextures.find( key );
@@ -660,7 +660,7 @@ void   ObjectManager<T>::deleteEqTexture( const T& key )
 }
 
 // eq::util::BitmapFont object functions
-template< typename T >
+template< class T >
 util::BitmapFont< T >* ObjectManager<T>::getEqBitmapFont( const T& key ) const
 {
     typename FontHash::const_iterator i = _data->eqFonts.find( key );
@@ -670,7 +670,7 @@ util::BitmapFont< T >* ObjectManager<T>::getEqBitmapFont( const T& key ) const
     return i->second;
 }
 
-template< typename T >
+template< class T >
 util::BitmapFont< T >* ObjectManager<T>::newEqBitmapFont( const T& key )
 {
     if( _data->eqFonts.find( key ) != _data->eqFonts.end( ))
@@ -684,7 +684,7 @@ util::BitmapFont< T >* ObjectManager<T>::newEqBitmapFont( const T& key )
     return font;
 }
 
-template< typename T >
+template< class T >
 util::BitmapFont< T >* ObjectManager<T>::obtainEqBitmapFont( const T& key )
 {
     util::BitmapFont< T >* font = getEqBitmapFont( key );
@@ -693,7 +693,7 @@ util::BitmapFont< T >* ObjectManager<T>::obtainEqBitmapFont( const T& key )
     return newEqBitmapFont( key );
 }
 
-template< typename T >
+template< class T >
 void ObjectManager<T>::deleteEqBitmapFont( const T& key )
 {
     typename FontHash::iterator i = _data->eqFonts.find( key );
@@ -708,13 +708,13 @@ void ObjectManager<T>::deleteEqBitmapFont( const T& key )
 }
 
 // eq::FrameBufferObject object functions
-template< typename T >
+template< class T >
 bool ObjectManager<T>::supportsEqFrameBufferObject() const
 {
     return (GLEW_EXT_framebuffer_object);
 }
 
-template< typename T >
+template< class T >
 FrameBufferObject* ObjectManager<T>::getEqFrameBufferObject( const T& key )
     const
 {
@@ -725,7 +725,7 @@ FrameBufferObject* ObjectManager<T>::getEqFrameBufferObject( const T& key )
     return i->second;
 }
 
-template< typename T >
+template< class T >
 FrameBufferObject* ObjectManager<T>::newEqFrameBufferObject( const T& key )
 {
     if( _data->eqFrameBufferObjects.find( key ) !=
@@ -741,7 +741,7 @@ FrameBufferObject* ObjectManager<T>::newEqFrameBufferObject( const T& key )
     return frameBufferObject;
 }
 
-template< typename T >
+template< class T >
 FrameBufferObject* ObjectManager<T>::obtainEqFrameBufferObject( const T& key )
 {
     FrameBufferObject* frameBufferObject = getEqFrameBufferObject( key );
@@ -750,7 +750,7 @@ FrameBufferObject* ObjectManager<T>::obtainEqFrameBufferObject( const T& key )
     return newEqFrameBufferObject( key );
 }
 
-template< typename T >
+template< class T >
 void ObjectManager<T>::deleteEqFrameBufferObject( const T& key )
 {
     typename FBOHash::iterator i = _data->eqFrameBufferObjects.find(key);

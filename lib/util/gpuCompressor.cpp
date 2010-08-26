@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "compressorDataGPU.h"
+#include "gpuCompressor.h"
 
 #include <eq/fabric/pixelViewport.h>
 #include <eq/base/global.h>
@@ -31,21 +31,21 @@ namespace eq
 namespace util
 {
 
-bool CompressorDataGPU::isValidDownloader( const uint32_t internalFormat,
+bool GPUCompressor::isValidDownloader( const uint32_t internalFormat,
                                            const bool ignoreAlpha ) const
 {
     return (_plugin && isValid( _name ) && _info->tokenType == internalFormat &&
             ( ignoreAlpha || hasAlpha( )));
 }
 
-bool CompressorDataGPU::isValidUploader( const uint32_t externalFormat, 
+bool GPUCompressor::isValidUploader( const uint32_t externalFormat, 
                                          const uint32_t internalFormat ) const
 {
     return _plugin && _info->outputTokenType == externalFormat &&
            _info->tokenType == internalFormat;
 }
 
-void CompressorDataGPU::initDownloader( const uint32_t internalFormat,
+void GPUCompressor::initDownloader( const uint32_t internalFormat,
                                         const float minQuality,
                                         const bool ignoreAlpha )
 {
@@ -76,7 +76,7 @@ void CompressorDataGPU::initDownloader( const uint32_t internalFormat,
         _initCompressor( name );
 }
 
-bool CompressorDataGPU::initDownloader( const uint32_t name )
+bool GPUCompressor::initDownloader( const uint32_t name )
 {
     EQASSERT( name > EQ_COMPRESSOR_NONE );
     
@@ -86,7 +86,7 @@ bool CompressorDataGPU::initDownloader( const uint32_t name )
     return true;
 }
 
-void CompressorDataGPU::initUploader( const uint32_t externalFormat,
+void GPUCompressor::initUploader( const uint32_t externalFormat,
                                       const uint32_t internalFormat )
 {
     base::PluginRegistry& registry = base::Global::getPluginRegistry();
@@ -128,11 +128,10 @@ void CompressorDataGPU::initUploader( const uint32_t externalFormat,
         _initDecompressor( name );
 }
 
-void CompressorDataGPU::download( const fabric::PixelViewport& pvpIn,
-                                  const unsigned     source,
-                                  const eq_uint64_t  flags,
-                                  fabric::PixelViewport&       pvpOut,
-                                  void**             out )
+void GPUCompressor::download( const fabric::PixelViewport& pvpIn,
+                                  const unsigned source, const uint64_t flags,
+                                  fabric::PixelViewport& pvpOut,
+                                  void** out )
 {
     EQASSERT( _plugin );
 
@@ -146,11 +145,11 @@ void CompressorDataGPU::download( const fabric::PixelViewport& pvpIn,
     pvpOut.h = outDims[3];
 }
 
-void CompressorDataGPU::upload( const void*          buffer,
-                                const fabric::PixelViewport& pvpIn,
-                                const eq_uint64_t    flags,
-                                const fabric::PixelViewport& pvpOut,  
-                                const unsigned       destination )
+void GPUCompressor::upload( const void* buffer,
+                            const fabric::PixelViewport& pvpIn,
+                            const uint64_t flags,
+                            const fabric::PixelViewport& pvpOut,  
+                            const unsigned destination )
 {
     EQASSERT( _plugin );
 
@@ -160,8 +159,8 @@ void CompressorDataGPU::upload( const void*          buffer,
                      flags, outDims, destination );
 }
 
-uint32_t CompressorDataGPU::getExternalFormat( const uint32_t format,
-                                               const uint32_t type )
+uint32_t GPUCompressor::getExternalFormat( const uint32_t format,
+                                           const uint32_t type )
 {
     switch( format )
     {
@@ -235,12 +234,12 @@ uint32_t CompressorDataGPU::getExternalFormat( const uint32_t format,
     return 0;
 }
 
-void CompressorDataGPU::findTransferers( const uint32_t internalFormat,
-                                         const uint32_t externalFormat,
-                                         const float minQuality,
-                                         const bool ignoreAlpha,
-                                         const GLEWContext* glewContext,
-                                         base::CompressorInfos& result )
+void GPUCompressor::findTransferers( const uint32_t internalFormat,
+                                     const uint32_t externalFormat,
+                                     const float minQuality,
+                                     const bool ignoreAlpha,
+                                     const GLEWContext* glewContext,
+                                     base::CompressorInfos& result )
 {
     EQASSERT( glewContext );
 

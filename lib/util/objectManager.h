@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,8 +18,9 @@
 #ifndef EQUTIL_OBJECTMANAGER_H
 #define EQUTIL_OBJECTMANAGER_H
 
-#include <eq/client/os.h>             // OpenGL/GLEW types
+#include <eq/util/types.h>
 
+#include <eq/client/os.h>             // OpenGL/GLEW types
 #include <eq/base/base.h>             // EQ_EXPORT definition
 #include <eq/base/debug.h>            // EQASSERT definition
 #include <eq/base/hash.h>             // member
@@ -30,12 +31,6 @@ namespace eq
 {
 namespace util
 {
-    template< typename T > class BitmapFont;
-    class Accum;
-    class CompressorDataGPU;
-    class FrameBufferObject;
-    class Texture;
-
     /**
      * A facility class to manage OpenGL objects across shared contexts.
      *
@@ -58,7 +53,7 @@ namespace util
      *
      * @sa http://www.equalizergraphics.com/documents/design/objectManager.html
      */
-    template< typename T > class ObjectManager : public base::NonCopyable
+    template< class T > class ObjectManager : public base::NonCopyable
     {
     public:
         enum
@@ -113,9 +108,9 @@ namespace util
         EQ_EXPORT Accum* obtainEqAccum( const T& key );
         EQ_EXPORT void   deleteEqAccum( const T& key );
 
-        EQ_EXPORT CompressorDataGPU* getEqUploader( const T& key ) const;
-        EQ_EXPORT CompressorDataGPU* newEqUploader( const T& key );
-        EQ_EXPORT CompressorDataGPU* obtainEqUploader( const T& key );
+        EQ_EXPORT GPUCompressor* getEqUploader( const T& key ) const;
+        EQ_EXPORT GPUCompressor* newEqUploader( const T& key );
+        EQ_EXPORT GPUCompressor* obtainEqUploader( const T& key );
         EQ_EXPORT void   deleteEqUploader( const T& key );
 
         EQ_EXPORT bool     supportsEqTexture() const;
@@ -151,7 +146,7 @@ namespace util
         typedef stde::hash_map< T, FrameBufferObject* > FBOHash;
         typedef stde::hash_map< T, util::BitmapFont< T >* > FontHash;
         typedef stde::hash_map< T, Accum* > AccumHash;
-        typedef stde::hash_map< T, CompressorDataGPU* > UploaderHash;
+        typedef stde::hash_map< T, GPUCompressor* > UploaderHash;
 
         struct SharedData : public base::Referenced
         {

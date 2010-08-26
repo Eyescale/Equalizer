@@ -21,7 +21,7 @@
 #include "log.h"
 #include "node.h"
 
-#include "../base/compressorDataCPU.h"
+#include "../base/cpuCompressor.h" // internal header
 #include <eq/base/debug.h>
 #include <eq/plugins/compressor.h>
 
@@ -33,14 +33,14 @@ namespace net
 {
 
 DataIStream::DataIStream()
-        : decompressor( new base::CompressorDataCPU )
+        : decompressor( new base::CPUCompressor )
         , _input( 0 )
         , _inputSize( 0 )
         , _position( 0 )
 {}
 
 DataIStream::DataIStream( const DataIStream& )
-        : decompressor( new base::CompressorDataCPU )
+        : decompressor( new base::CPUCompressor )
         , _input( 0 )
         , _inputSize( 0 )
         , _position( 0 )

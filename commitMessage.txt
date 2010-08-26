@@ -1,9 +1,13 @@
-Q&D Posix build fix
+Rename:
 
-[ ] May break build
+base::CompressorData -> base::Compressor
+base::CompressorDataCPU -> base::CPUCompressor
+util::CompressorDataGPU -> util::GPUCompressor
+
+[x] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

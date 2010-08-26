@@ -200,8 +200,8 @@ set(UTIL_HEADERS
   )
 
 set(BASE_SOURCES
-  base/compressorData.cpp
-  base/compressorDataCPU.cpp
+  base/compressorData
+  base/cpuCompressor.cpp
   base/debug.cpp
   base/dso.cpp
   base/global.cpp
@@ -337,7 +337,7 @@ set(UTIL_SOURCES
   util/accum.cpp
   util/accumBufferObject.cpp
   util/bitmapFont.cpp
-  util/compressorDataGPU.cpp
+  util/gpuCompressor.cpp
   util/frameBufferObject.cpp
   util/objectManager.cpp
   util/texture.cpp

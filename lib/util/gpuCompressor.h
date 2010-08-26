@@ -15,10 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQUTIL_COMPRESSORDATAGPU_H
-#define EQUTIL_COMPRESSORDATAGPU_H
+#ifndef EQUTIL_GPUCOMPRESSOR_H
+#define EQUTIL_GPUCOMPRESSOR_H
 
-#include "../base/compressorData.h" // base class
+#include "../base/compressor.h" // base class
 #include <eq/fabric/types.h>
 
 namespace eq
@@ -26,13 +26,12 @@ namespace eq
 namespace util
 {
     /** A C++ class to abstract a GPU compressor instance. */
-    class CompressorDataGPU : public base::CompressorData
+    class GPUCompressor : public base::Compressor
     {
     public:
         /** Construct a new compressorData */
-        CompressorDataGPU( const GLEWContext* glewContext = 0 )
-            : CompressorData()
-            , _glewContext( glewContext ){}
+        GPUCompressor( const GLEWContext* glewContext = 0 )
+            : Compressor(), _glewContext( glewContext ){}
 
         /** Set a valid glewContext */
         void setGLEWContext( const GLEWContext* glewContext )
@@ -103,7 +102,7 @@ namespace util
          */
         void download( const fabric::PixelViewport& pvpIn,
                        const unsigned     source,
-                       const eq_uint64_t  flags,
+                       const uint64_t  flags,
                        fabric::PixelViewport& pvpOut,
                        void**             out );
 
@@ -118,7 +117,7 @@ namespace util
          */
         void upload( const void*          buffer,
                      const fabric::PixelViewport& pvpIn,
-                     const eq_uint64_t    flags,
+                     const uint64_t    flags,
                      const fabric::PixelViewport& pvpOut,  
                      const unsigned  destination = 0 );
 
@@ -183,4 +182,4 @@ namespace util
     };
 }
 }
-#endif  // EQUTIL_COMPRESSORDATACPU_H
+#endif  // EQUTIL_GPUCOMPRESSOR_H

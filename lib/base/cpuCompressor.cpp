@@ -15,7 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "compressorDataCPU.h"
+#include "cpuCompressor.h"
 #include "debug.h"
 #include "global.h"
 #include "plugin.h"
@@ -28,36 +28,36 @@ namespace eq
 namespace base
 {
 
-bool CompressorDataCPU::isValid()
+bool CPUCompressor::isValid() const
 {
     return ( _name != EQ_COMPRESSOR_NONE && _plugin && 
            ( !_isCompressor || _instance ) );
 }
-void CompressorDataCPU::compress( void* const in, 
+void CPUCompressor::compress( void* const in, 
                                   const uint64_t pvpIn[4],
                                   const eq_uint64_t flags )
 {
     _plugin->compress( _instance, _name, in, pvpIn, flags );
 }
 
-void CompressorDataCPU::compress( void* const in, const uint64_t inDims[2] )
+void CPUCompressor::compress( void* const in, const uint64_t inDims[2] )
 {
     _plugin->compress( _instance, _name, in, inDims, EQ_COMPRESSOR_DATA_1D );
 }
 
-unsigned CompressorDataCPU::getNumResults( ) const 
+unsigned CPUCompressor::getNumResults( ) const 
 {
     return _plugin->getNumResults( _instance, _name );
 }
 
-void CompressorDataCPU::getResult( const unsigned i, 
+void CPUCompressor::getResult( const unsigned i, 
                                    void** const out, 
                                    uint64_t* const outSize ) const
 {
     return _plugin->getResult( _instance, _name, i, out, outSize ); 
 }
 
-void CompressorDataCPU::decompress( const void* const* in, 
+void CPUCompressor::decompress( const void* const* in, 
                                     const uint64_t* const inSizes,
                                     const unsigned numInputs,
                                     void* const out,
@@ -68,7 +68,7 @@ void CompressorDataCPU::decompress( const void* const* in,
                          numInputs, out, pvpOut, flags );
 }
 
-void CompressorDataCPU::decompress( const void* const* in, 
+void CPUCompressor::decompress( const void* const* in, 
                                     const uint64_t* const inSizes,
                                     const unsigned numInputs,
                                     void* const out,
@@ -78,14 +78,14 @@ void CompressorDataCPU::decompress( const void* const* in,
                          numInputs, out, outDim, EQ_COMPRESSOR_DATA_1D );
 }
 
-void CompressorDataCPU::initCompressor( const uint32_t dataType, 
+void CPUCompressor::initCompressor( const uint32_t dataType, 
                                         const float quality,
                                         const bool noAlpha )
 {
     initCompressor( chooseCompressor( dataType, quality, noAlpha ) );
 }
 
-uint32_t CompressorDataCPU::chooseCompressor( const uint32_t tokenType, 
+uint32_t CPUCompressor::chooseCompressor( const uint32_t tokenType, 
                                               const float minQuality,
                                               const bool ignoreALPHA )
 {

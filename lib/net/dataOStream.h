@@ -124,7 +124,7 @@ namespace DataStreamTest
         Connections _connections;
         friend class DataStreamTest::Sender;
 
-        base::CompressorDataCPU* const compressor;
+        base::CPUCompressor* const compressor;
 
     private:        
         enum BufferType

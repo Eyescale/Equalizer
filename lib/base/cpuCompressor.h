@@ -15,27 +15,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQUTIL_COMPRESSORDATACPU_H
-#define EQUTIL_COMPRESSORDATACPU_H
+#ifndef EQBASE_CPUCOMPRESSOR_H
+#define EQBASE_CPUCOMPRESSOR_H
 
-#include "compressorData.h"
+#include "compressor.h"
 
 namespace eq
 {
 namespace base
 {
-    /** A C++ class to abstract a compressor instance for CPU compression. */
-    class CompressorDataCPU : public CompressorData
+    /** @internal A C++ class to handle one CPU (de)compressor instance. */
+    class CPUCompressor : public Compressor
     {
     public:
-        /** Construct a new compressorData */
-        CompressorDataCPU( ){}
+        /** Construct a new CPU-based compressor */
+        CPUCompressor( ){}
 
-        bool isValid();
-        virtual bool isValid( uint32_t name )
-        {
-           return CompressorData::isValid( name );
-        }
+        bool isValid() const;
+        virtual bool isValid( uint32_t name ) const
+            { return Compressor::isValid( name ); }
 
         /**
          * Compress two-dimensional data.
@@ -160,4 +158,4 @@ namespace base
     };
 }
 }
-#endif  // EQUTIL_COMPRESSORDATACPU_H
+#endif  // EQBASE_CPUCOMPRESSOR_H

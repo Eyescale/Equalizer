@@ -18,23 +18,20 @@
 #ifndef EQUTIL_BITMAPFONT_H
 #define EQUTIL_BITMAPFONT_H
 
-#include <eq/base/base.h>
+#include <eq/util/types.h>
 #include <eq/client/os.h>           // GL prototypes
 #include <eq/client/windowSystem.h> // enum used
+#include <eq/base/base.h>
 
 #include <string>
-
-/** @file util/bitmapFont.h */
 
 namespace eq
 {
     class Window;
 namespace util
 {
-    template< typename T > class ObjectManager;
-
     /** A wrapper around AGL, WGL and GLX bitmap fonts. */
-    template< typename OMT > class BitmapFont
+    template< class OMT > class BitmapFont
     {
     public:
         /**

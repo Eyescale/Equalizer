@@ -37,7 +37,7 @@ namespace eq
 namespace util
 {
 
-template< typename OMT >
+template< class OMT >
 BitmapFont< OMT >::BitmapFont( ObjectManager< OMT >& gl, const OMT& key )
         // We create a new shared object manager. Typically we are exited by
         // the last user, at which point the given OM may have been deleted
@@ -46,7 +46,7 @@ BitmapFont< OMT >::BitmapFont( ObjectManager< OMT >& gl, const OMT& key )
 {
 }
 
-template< typename OMT >
+template< class OMT >
 BitmapFont< OMT >::~BitmapFont()
 {
     const GLuint lists = _gl.getList( _key );
@@ -54,7 +54,7 @@ BitmapFont< OMT >::~BitmapFont()
         EQWARN << "OpenGL BitmapFont was not freed" << std::endl;
 }
 
-template< typename OMT >
+template< class OMT >
 bool BitmapFont< OMT >::init( const WindowSystem ws, const std::string& name,
                               const uint32_t size )
 {
@@ -74,14 +74,14 @@ bool BitmapFont< OMT >::init( const WindowSystem ws, const std::string& name,
                   "Font initialization failed" );
 }
 
-template< typename OMT >
+template< class OMT >
 void BitmapFont< OMT >::exit()
 {
     _setupLists( 0 );
 }
 
 #ifdef GLX
-template< typename OMT >
+template< class OMT >
 bool BitmapFont< OMT >::_initGLX( const std::string& name, const uint32_t size )
 {
     Display* display = XGetCurrentDisplay();
@@ -125,7 +125,7 @@ bool BitmapFont< OMT >::_initGLX( const std::string& name, const uint32_t size )
     return true;
 }
 #else
-template< typename OMT >
+template< class OMT >
 bool BitmapFont< OMT >::_initGLX( const std::string&, const uint32_t )
 {
     return false;
@@ -133,7 +133,7 @@ bool BitmapFont< OMT >::_initGLX( const std::string&, const uint32_t )
 #endif
 
 #ifdef WGL
-template< typename OMT >
+template< class OMT >
 bool BitmapFont< OMT >::_initWGL( const std::string& name, const uint32_t size )
 {
     HDC dc = wglGetCurrentDC();
@@ -185,7 +185,7 @@ bool BitmapFont< OMT >::_initWGL( const std::string& name, const uint32_t size )
     return ret;
 }
 #else
-template< typename OMT >
+template< class OMT >
 bool BitmapFont< OMT >::_initWGL( const std::string&, const uint32_t )
 {
     return false;
@@ -193,7 +193,7 @@ bool BitmapFont< OMT >::_initWGL( const std::string&, const uint32_t )
 #endif
 
 #ifdef AGL
-template< typename OMT >
+template< class OMT >
 bool BitmapFont< OMT >::_initAGL( const std::string& name, const uint32_t size )
 {
     AGLContext context = aglGetCurrentContext();
@@ -239,14 +239,14 @@ bool BitmapFont< OMT >::_initAGL( const std::string& name, const uint32_t size )
     return true;
 }
 #else
-template< typename OMT >
+template< class OMT >
 bool BitmapFont< OMT >::_initAGL( const std::string&, const uint32_t )
 {
     return false;
 }
 #endif
 
-template< typename OMT >
+template< class OMT >
 GLuint BitmapFont< OMT >::_setupLists( const GLsizei num )
 {
     GLuint lists = _gl.getList( _key );
@@ -263,7 +263,7 @@ GLuint BitmapFont< OMT >::_setupLists( const GLsizei num )
     return lists;
 }
 
-template< typename OMT >
+template< class OMT >
 void BitmapFont< OMT >::draw( const std::string& text ) const
 {
     const GLuint lists = _gl.getList( _key );

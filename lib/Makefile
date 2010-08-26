@@ -194,8 +194,8 @@ HEADER_SRC = \
 	util/types.h \
 
 CXXFILES = \
-	base/compressorData.cpp \
-	base/compressorDataCPU.cpp \
+	base/compressor.cpp \
+	base/cpuCompressor.cpp \
 	base/debug.cpp \
 	base/dso.cpp \
 	base/global.cpp \
@@ -318,7 +318,7 @@ CXXFILES = \
 	util/accum.cpp \
 	util/accumBufferObject.cpp \
 	util/bitmapFont.cpp \
-	util/compressorDataGPU.cpp \
+	util/gpuCompressor.cpp \
 	util/frameBufferObject.cpp \
 	util/objectManager.cpp \
 	util/texture.cpp \
