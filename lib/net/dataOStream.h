@@ -19,11 +19,9 @@
 #ifndef EQNET_DATAOSTREAM_H
 #define EQNET_DATAOSTREAM_H
 
-
-#include <eq/net/types.h>   // Connections member
-
 #include <eq/base/buffer.h> // member
-#include <eq/base/compressorDataCPU.h>
+#include <eq/net/types.h>
+
 #include <iostream>
 #include <vector>
 
@@ -42,13 +40,12 @@ namespace DataStreamTest
      *
      * Derived classes send the data using the appropriate command packets.
      */
-    class DataOStream
+    class DataOStream : public base::NonCopyable
     {
     public:
         /** @name Internal */
         //@{
         EQ_EXPORT DataOStream();
-        DataOStream( const DataOStream& from );
         virtual EQ_EXPORT ~DataOStream();
 
         /** Enable output, locks the connections to the receivers */ 
@@ -127,7 +124,7 @@ namespace DataStreamTest
         Connections _connections;
         friend class DataStreamTest::Sender;
 
-        base::CompressorDataCPU compressor;
+        base::CompressorDataCPU* const compressor;
 
     private:        
         enum BufferType

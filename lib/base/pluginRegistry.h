@@ -19,8 +19,8 @@
 #ifndef EQBASE_PLUGINREGISTRY_H
 #define EQBASE_PLUGINREGISTRY_H
 
-#include "base.h"
-#include "compressor.h"
+#include <eq/base/base.h>
+
 namespace eq 
 {
 namespace base
@@ -37,16 +37,16 @@ namespace base
         void exit();
         
         /** @return all registered compressor plugins */
-        EQ_EXPORT const Compressors& getCompressors() const;
+        EQ_EXPORT const Plugins& getPlugins() const;
 
         /** @return the plugin containing the given compressor, or 0. */
-        EQ_EXPORT Compressor* findCompressor( const uint32_t name );
+        EQ_EXPORT Plugin* findPlugin( const uint32_t name );
 
     private:
-        Compressors _compressors;
+        Plugins _plugins;
 
         /** Initialize a single DSO .*/
-        void _initCompressor( const std::string& filename );
+        void _initPlugin( const std::string& filename );
     };
 }
 }

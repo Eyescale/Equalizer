@@ -114,17 +114,10 @@ static const char* _logoTextureName = "eqPly_logo";
 
 void Window::_loadLogo()
 {
-    if( _state->getTexture( _logoTextureName ) != VertexBufferState::INVALID )
-    {
-        // Already loaded by first window
-        const eq::Pipe* pipe        = getPipe();
-        const Window*   firstWindow = static_cast< Window* >
-                                          ( pipe->getWindows()[0] );
-        
-        _logoTexture = firstWindow->_logoTexture;
-        _logoSize    = firstWindow->_logoSize;
+    eq::Window::ObjectManager* om = getObjectManager();
+    _logoTexture = om->getEqTexture( _logoTextureName );
+    if( _logoTexture )
         return;
-    }
 
     eq::Image image;
     if( !image.readImage( "logo.rgb", eq::Frame::BUFFER_COLOR ) &&
@@ -137,25 +130,12 @@ void Window::_loadLogo()
         return;
     }
 
-    _logoTexture = _state->newTexture( _logoTextureName );
-    EQASSERT( _logoTexture != VertexBufferState::INVALID );    
+    _logoTexture = om->newEqTexture(_logoTextureName, GL_TEXTURE_RECTANGLE_ARB);
+    EQASSERT( _logoTexture );
     
-    const eq::PixelViewport& pvp = image.getPixelViewport();
-    _logoSize.x() = pvp.w;
-    _logoSize.y() = pvp.h;
-
-    const uint32_t externalFormat = 
-        image.getExternalFormat( eq::Frame::BUFFER_COLOR );
-
-    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _logoTexture );
-    glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0,
-                  image.getInternalFormat( eq::Frame::BUFFER_COLOR ),
-                  _logoSize.x(), _logoSize.y(), 0,
-                  eq::util::CompressorDataGPU::getGLFormat( externalFormat ),
-                  eq::util::CompressorDataGPU::getGLType( externalFormat ),
-                  image.getPixelPointer( eq::Frame::BUFFER_COLOR ));
-
-    EQVERB << "Created logo texture of size " << _logoSize << std::endl;
+    image.upload( eq::Frame::BUFFER_COLOR, _logoTexture, om );
+    EQVERB << "Created logo texture of size " << _logoTexture->getWidth() << "x"
+           << _logoTexture->getHeight() << std::endl;
 }
 
 void Window::_loadShaders()

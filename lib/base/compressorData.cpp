@@ -16,9 +16,9 @@
  */
 
 #include "compressorData.h"
-#include "eq/base/compressor.h"
-#include "eq/base/global.h"
-#include "eq/base/pluginRegistry.h"
+#include "global.h"
+#include "plugin.h"
+#include "pluginRegistry.h"
 
 namespace eq
 {
@@ -55,10 +55,10 @@ void CompressorData::reset()
     _isCompressor = true;
 }
 
-base::Compressor* CompressorData::_findPlugin( uint32_t name )
+Plugin* CompressorData::_findPlugin( uint32_t name )
 {
     base::PluginRegistry& registry = base::Global::getPluginRegistry();
-    return registry.findCompressor( name );
+    return registry.findPlugin( name );
 }
 
 bool CompressorData::isValid( uint32_t name ) const

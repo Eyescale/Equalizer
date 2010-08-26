@@ -1,7 +1,12 @@
-Minor code cleanup
+Cleanups:
+- Rename base::Compressor -> base::Plugin
+- Use eq::util::Texture for example overlays
+- Make plugin class headers private
 
-[ ] May break build
-[ ] May break existing applications
+Rename util::Texture::getID to getName for consistence reasons
+
+[x] May break build
+[x] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup

@@ -19,13 +19,14 @@
 #include "texture.h"
 
 #include <eq/client/image.h>
+#include <eq/plugins/compressor.h>
 
 namespace eq
 {
 namespace util
 {
 Texture::Texture( const GLenum target, const GLEWContext* const glewContext )
-        : _id( 0 )
+        : _name( 0 )
         , _target( target )
         , _internalFormat( 0 )
         , _format( 0 )
@@ -38,33 +39,33 @@ Texture::Texture( const GLenum target, const GLEWContext* const glewContext )
 
 Texture::~Texture()
 {
-    if( _id != 0 )
-        EQWARN << "OpenGL texture " << _id << " was not freed" << std::endl;
+    if( _name != 0 )
+        EQWARN << "OpenGL texture " << _name << " was not freed" << std::endl;
 
-    _id      = 0;
+    _name      = 0;
     _defined = false;
 }
 
 bool Texture::isValid() const
 { 
-    return ( _id != 0 && _defined );
+    return ( _name != 0 && _defined );
 }
 
 void Texture::flush()
 {
-    if( _id == 0 )
+    if( _name == 0 )
         return;
 
     EQ_TS_THREAD( _thread );
-    glDeleteTextures( 1, &_id );
-    _id = 0;
+    glDeleteTextures( 1, &_name );
+    _name = 0;
     _defined = false;
 }
 
 void Texture::flushNoDelete()
 {
     EQ_TS_THREAD( _thread );
-    _id = 0;
+    _name = 0;
     _defined = false;
 }
 
@@ -134,11 +135,11 @@ void Texture::setExternalFormat( const uint32_t format, const uint32_t type )
 void Texture::_generate()
 {
     EQ_TS_THREAD( _thread );
-    if( _id != 0 )
+    if( _name != 0 )
         return;
 
     _defined = false;
-    glGenTextures( 1, &_id );
+    glGenTextures( 1, &_name );
 }
 
 void Texture::init( const GLuint format, const int32_t width,
@@ -154,7 +155,7 @@ void Texture::setGLData( const GLuint id, const GLuint internalFormat,
 {
     flush();
     _setInternalFormat( internalFormat );
-    _id = id;
+    _name = id;
     _width = width;
     _height = height;
     _defined = true;
@@ -197,7 +198,7 @@ void Texture::copyFromFrameBuffer( const GLuint internalFormat,
     _grow( pvp.w, pvp.h );
 
     if( _defined )
-        glBindTexture( _target, _id );
+        glBindTexture( _target, _name );
     else
         resize( _width, _height );
 
@@ -212,7 +213,7 @@ void Texture::upload( const int32_t width, const int32_t height,
     _grow( width, height );
 
     if( _defined )
-        glBindTexture( _target, _id );
+        glBindTexture( _target, _name );
     else
         resize( _width, _height );
 
@@ -223,14 +224,14 @@ void Texture::download( void* buffer ) const
 {
     EQ_TS_THREAD( _thread );
     EQASSERT( _defined );
-    EQ_GL_CALL( glBindTexture( _target, _id ));
+    EQ_GL_CALL( glBindTexture( _target, _name ));
     EQ_GL_CALL( glGetTexImage( _target, 0, _format, _type, buffer ));
 }
 
 void Texture::bind() const
 {
-    EQASSERT( _id );
-    glBindTexture( _target, _id );
+    EQASSERT( _name );
+    glBindTexture( _target, _name );
 }
 
 void Texture::bindToFBO( const GLenum target, const int32_t width, 
@@ -242,10 +243,10 @@ void Texture::bindToFBO( const GLenum target, const int32_t width,
 
     _generate();
 
-    glBindTexture( _target, _id );
+    glBindTexture( _target, _name );
     glTexImage2D( _target, 0, _internalFormat, width, height, 0,
                   _format, _type, 0 );
-    glFramebufferTexture2DEXT( GL_FRAMEBUFFER, target, _target, _id, 0 );
+    glFramebufferTexture2DEXT( GL_FRAMEBUFFER, target, _target, _name, 0 );
 
     _width = width;
     _height = height;
@@ -255,7 +256,7 @@ void Texture::bindToFBO( const GLenum target, const int32_t width,
 void Texture::resize( const int32_t width, const int32_t height )
 {
     EQ_TS_THREAD( _thread );
-    EQASSERT( _id );
+    EQASSERT( _name );
     EQASSERT( _internalFormat );
     EQASSERT( width > 0 && height > 0 );
 
@@ -268,7 +269,7 @@ void Texture::resize( const int32_t width, const int32_t height )
         EQASSERT( GLEW_ARB_texture_non_power_of_two );
     }
 
-    glBindTexture( _target, _id );
+    glBindTexture( _target, _name );
     EQ_GL_CALL( glTexImage2D( _target, 0, _internalFormat, width, height, 0,
                               _format, _type, 0 ));
     _width  = width;
@@ -340,7 +341,7 @@ void Texture::writeRGB( const std::string& filename ) const
     }
 
     image.setPixelViewport( eq::PixelViewport( 0, 0, _width, _height ));
-    image.readback( Frame::BUFFER_COLOR, _id, _glewContext );
+    image.readback( Frame::BUFFER_COLOR, _name, _glewContext );
     image.writeImage( filename + ".rgb", Frame::BUFFER_COLOR );
 }
 

@@ -29,12 +29,13 @@
 
 #include <eq/util/accum.h>
 #include <eq/util/frameBufferObject.h>
-#include <eq/util/compressorDataGPU.h>
 
 #include <eq/base/debug.h>
 #include <eq/base/global.h>
 #include <eq/base/executionListener.h>
 #include <eq/base/monitor.h>
+
+#include <eq/plugins/compressor.h>
 
 #ifdef EQ_USE_PARACOMP
 #  include <pcapi.h>
@@ -146,17 +147,24 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
                     image->getInternalFormat( Frame::BUFFER_COLOR );
                 colorExternalFormat =
                     image->getExternalFormat( Frame::BUFFER_COLOR );
-                const uint32_t type =
-                    util::CompressorDataGPU::getGLType( colorExternalFormat );
 
-                if( type != GL_UNSIGNED_BYTE &&
-                    type != GL_UNSIGNED_INT_10_10_10_2 )
+                switch( colorExternalFormat )
                 {
-                    return false;
+                    case EQ_COMPRESSOR_DATATYPE_RGB10_A2: 
+                    case EQ_COMPRESSOR_DATATYPE_BGR10_A2:
+                        if( !hasDepth )
+                            // blending of RGB10A2 not implemented
+                            return false;
+                        break;
+
+                    case EQ_COMPRESSOR_DATATYPE_RGBA:
+                    case EQ_COMPRESSOR_DATATYPE_BGRA:
+                        break;
+
+                    default:
+                        return false;
                 }
-                if( !hasDepth && type == GL_UNSIGNED_INT_10_10_10_2 )
-                    // blending of RGB10A2 not implemented
-                    return false;
+
             }
             else if( colorInternalFormat != 
                      image->getInternalFormat( Frame::BUFFER_COLOR ) ||
@@ -173,11 +181,12 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
                         image->getInternalFormat( Frame::BUFFER_DEPTH );
                     depthExternalFormat =
                         image->getExternalFormat( Frame::BUFFER_DEPTH );
-                    const uint32_t type =
-                        util::CompressorDataGPU::getGLType(depthExternalFormat);
 
-                    if( type != GL_UNSIGNED_INT )
+                    if( depthExternalFormat !=
+                        EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT )
+                    {
                         return false;
+                    }
                 }
                 else if( depthInternalFormat !=
                          image->getInternalFormat(Frame::BUFFER_DEPTH ) ||

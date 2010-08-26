@@ -16,11 +16,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "pluginRegistry.h"
+
+#include "debug.h"
 #include "dso.h"
 #include "file.h"
 #include "global.h"
-#include "debug.h"
-#include "pluginRegistry.h"
+#include "plugin.h"
 
 #include <vector>
 #include <typeinfo>
@@ -32,13 +34,13 @@ namespace base
 
 void PluginRegistry::init()
 {
-    EQASSERT( _compressors.empty( ));
+    EQASSERT( _plugins.empty( ));
 
     // add self
-    _initCompressor( "" );
-    EQASSERT( _compressors.size() == 1 );
+    _initPlugin( "" );
+    EQASSERT( _plugins.size() == 1 );
 
-    // search all plugin directories for compressor DSOs
+    // search all plugin directories for plugin DSOs
     const Strings& directories = Global::getPluginDirectories();
 
     // for each directory
@@ -46,7 +48,7 @@ void PluginRegistry::init()
          i != directories.end(); ++i )
     {
         const std::string& directory = *i;
-        EQLOG( LOG_PLUGIN ) << "Searching compressors in " << directory
+        EQLOG( LOG_PLUGIN ) << "Searching plugins in " << directory
                             << std::endl;
 
         // search the number of files in the director
@@ -67,22 +69,22 @@ void PluginRegistry::init()
             // build path + name of library
             const std::string libraryName = 
                 directory.empty() ? *j : directory + DIRSEP + *j;
-            _initCompressor( libraryName );
+            _initPlugin( libraryName );
         }
     }
 }
 
-void PluginRegistry::_initCompressor( const std::string& filename )
+void PluginRegistry::_initPlugin( const std::string& filename )
 {
-    Compressor* compressor = new Compressor(); 
-    bool add = compressor->init( filename );
+    Plugin* plugin = new Plugin(); 
+    bool add = plugin->init( filename );
 
-    const CompressorInfos& infos = compressor->getInfos();
+    const CompressorInfos& infos = plugin->getInfos();
     if( infos.empty( ))
         add = false;
             
-    for( Compressors::const_iterator i = _compressors.begin();
-         add && i != _compressors.end(); ++i )
+    for( Plugins::const_iterator i = _plugins.begin();
+         add && i != _plugins.end(); ++i )
     {
         const CompressorInfos& infos2 = (*i)->getInfos();
         // Simple test to avoid using the same dll twice
@@ -92,49 +94,47 @@ void PluginRegistry::_initCompressor( const std::string& filename )
 
     if( add )
     {
-        _compressors.push_back( compressor );
+        _plugins.push_back( plugin );
         if( filename.empty( ))
-            EQLOG( LOG_PLUGIN ) << "Found " << compressor->getInfos().size()
+            EQLOG( LOG_PLUGIN ) << "Found " << plugin->getInfos().size()
                                 << " built-in compression engines" << std::endl;
         else
             EQLOG( LOG_PLUGIN )
-                << "Found " << compressor->getInfos().size()
+                << "Found " << plugin->getInfos().size()
                 << " compression engines in " << filename << std::endl;
     }
     else
-        delete compressor;
+        delete plugin;
 }
 
 void PluginRegistry::exit()
 {
-    for( Compressors::const_iterator i = _compressors.begin(); 
-         i != _compressors.end(); ++i )
+    for( Plugins::const_iterator i = _plugins.begin(); i != _plugins.end(); ++i)
     {
-        Compressor* compressor = *i;
-        compressor->exit();
-        delete compressor;
+        Plugin* plugin = *i;
+        plugin->exit();
+        delete plugin;
     }
 
-    _compressors.clear();
+    _plugins.clear();
 }
 
-Compressor* PluginRegistry::findCompressor( const uint32_t name )
+Plugin* PluginRegistry::findPlugin( const uint32_t name )
 {
 
-    for( Compressors::const_iterator i = _compressors.begin(); 
-         i != _compressors.end(); ++i )
+    for( Plugins::const_iterator i = _plugins.begin(); i != _plugins.end(); ++i)
     {
-        Compressor* compressor = *i;
-        if ( compressor->implementsType( name ))
-            return compressor;
+        Plugin* plugin = *i;
+        if ( plugin->implementsType( name ))
+            return plugin;
     }
 
     return 0;
 }
 
-const Compressors& PluginRegistry::getCompressors() const
+const Plugins& PluginRegistry::getPlugins() const
 {
-    return _compressors;
+    return _plugins;
 }
 
 }

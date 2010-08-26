@@ -18,13 +18,8 @@ HEADER_SRC = \
 	base/base.h \
 	base/bitOperation.h \
 	base/buffer.h \
-	base/compressor.h \
-	base/compressorData.h \
-	base/compressorDataCPU.h \
 	base/clock.h \
 	base/compareAndSwap.h \
-	base/compressorData.h \
-	base/compressorDataCPU.h \
 	base/debug.h \
 	base/defines.h \
 	base/defines$(ARCH).h \
@@ -193,14 +188,12 @@ HEADER_SRC = \
 	util/accum.h \
 	util/accumBufferObject.h \
 	util/bitmapFont.h \
-	util/compressorDataGPU.h \
 	util/frameBufferObject.h \
 	util/objectManager.h \
 	util/texture.h \
 	util/types.h \
 
 CXXFILES = \
-	base/compressor.cpp \
 	base/compressorData.cpp \
 	base/compressorDataCPU.cpp \
 	base/debug.cpp \
@@ -214,6 +207,7 @@ CXXFILES = \
 	base/memoryMap.cpp \
 	base/monitor.cpp \
 	base/omp.cpp \
+	base/plugin.cpp \
 	base/pluginRegistry.cpp \
 	base/referenced.cpp \
 	base/requestHandler.cpp \

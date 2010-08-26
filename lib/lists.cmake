@@ -12,13 +12,8 @@ set(BASE_HEADERS
   base/base.h
   base/bitOperation.h
   base/buffer.h
-  base/compressor.h
-  base/compressorData.h
-  base/compressorDataCPU.h
   base/clock.h
   base/compareAndSwap.h
-  base/compressorData.h
-  base/compressorDataCPU.h
   base/debug.h
   base/defines.h
   base/dso.h
@@ -198,7 +193,6 @@ set(UTIL_HEADERS
   util/accum.h
   util/accumBufferObject.h
   util/bitmapFont.h
-  util/compressorDataGPU.h
   util/frameBufferObject.h
   util/objectManager.h
   util/texture.h
@@ -206,7 +200,6 @@ set(UTIL_HEADERS
   )
 
 set(BASE_SOURCES
-  base/compressor.cpp
   base/compressorData.cpp
   base/compressorDataCPU.cpp
   base/debug.cpp
@@ -220,6 +213,7 @@ set(BASE_SOURCES
   base/memoryMap.cpp
   base/monitor.cpp
   base/omp.cpp
+  base/plugin.cpp
   base/pluginRegistry.cpp
   base/referenced.cpp
   base/requestHandler.cpp

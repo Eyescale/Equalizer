@@ -28,7 +28,6 @@
 
 #include "window.h"
 #include "pipe.h"
-#include <eq/util/compressorDataGPU.h>
 
 namespace eVolve
 {
@@ -87,50 +86,28 @@ static const char* _logoTextureName = "eVolve_logo";
 
 void Window::_loadLogo()
 {
-    eq::Window::ObjectManager* objects = getObjectManager();
-
-    if( objects->getTexture( _logoTextureName ) != 
-        eq::Window::ObjectManager::INVALID )
-    {
-        // Already loaded by first window
-        const eq::Pipe* pipe        = getPipe();
-        const Window*   firstWindow = static_cast< Window* >
-                                          ( pipe->getWindows()[0] );
-        
-        _logoTexture = firstWindow->_logoTexture;
-        _logoSize    = firstWindow->_logoSize;
+    eq::Window::ObjectManager* om = getObjectManager();
+    _logoTexture = om->getEqTexture( _logoTextureName );
+    if( _logoTexture )
         return;
-    }
 
     eq::Image image;
     if( !image.readImage( "logo.rgb", eq::Frame::BUFFER_COLOR ) &&
-        !image.readImage( "../examples/eqVolve/logo.rgb",
+        !image.readImage( "../examples/eVolve/logo.rgb",
                           eq::Frame::BUFFER_COLOR ) &&
-        !image.readImage( "./examples/eqVolve/logo.rgb", 
+        !image.readImage( "./examples/eVolve/logo.rgb", 
                           eq::Frame::BUFFER_COLOR ))
     {
         EQWARN << "Can't load overlay logo 'logo.rgb'" << std::endl;
         return;
     }
 
-    _logoTexture = objects->newTexture( _logoTextureName );
-    EQASSERT( _logoTexture != eq::Window::ObjectManager::INVALID );
-
-    const eq::PixelViewport& pvp = image.getPixelViewport();
-    _logoSize.x() = pvp.w;
-    _logoSize.y() = pvp.h;
-    const uint32_t externalFormat = 
-        image.getExternalFormat( eq::Frame::BUFFER_COLOR );
-
-    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, _logoTexture );
-    glTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0,
-                  image.getInternalFormat( eq::Frame::BUFFER_COLOR ),
-                  _logoSize.x(), _logoSize.y(), 0,
-                  eq::util::CompressorDataGPU::getGLFormat( externalFormat ), 
-                  eq::util::CompressorDataGPU::getGLType( externalFormat ),
-                  image.getPixelPointer( eq::Frame::BUFFER_COLOR ));
-
-    EQINFO << "Created logo texture of size " << _logoSize << std::endl;
+    _logoTexture = om->newEqTexture(_logoTextureName, GL_TEXTURE_RECTANGLE_ARB);
+    EQASSERT( _logoTexture );
+    
+    image.upload( eq::Frame::BUFFER_COLOR, _logoTexture, om );
+    EQVERB << "Created logo texture of size " << _logoTexture->getWidth() << "x"
+           << _logoTexture->getHeight() << std::endl;
 }
 
 

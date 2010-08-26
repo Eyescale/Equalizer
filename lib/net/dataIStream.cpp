@@ -21,7 +21,9 @@
 #include "log.h"
 #include "node.h"
 
+#include "../base/compressorDataCPU.h"
 #include <eq/base/debug.h>
+#include <eq/plugins/compressor.h>
 
 #include <string.h>
 
@@ -29,6 +31,26 @@ namespace eq
 {
 namespace net
 {
+
+DataIStream::DataIStream()
+        : decompressor( new base::CompressorDataCPU )
+        , _input( 0 )
+        , _inputSize( 0 )
+        , _position( 0 )
+{}
+
+DataIStream::DataIStream( const DataIStream& )
+        : decompressor( new base::CompressorDataCPU )
+        , _input( 0 )
+        , _inputSize( 0 )
+        , _position( 0 )
+{}
+
+DataIStream::~DataIStream()
+{
+    reset();
+    delete decompressor;
+}
 
 void DataIStream::reset()
 {
@@ -104,8 +126,8 @@ void DataIStream::_decompress( const uint8_t* src, const uint8_t** dst,
         
     EQASSERT( name > EQ_COMPRESSOR_NONE );
 
-    if ( !decompressor.isValid( name ) )
-        decompressor.initDecompressor( name );
+    if ( !decompressor->isValid( name ) )
+        decompressor->initDecompressor( name );
 
     uint64_t outDim[2] = { 0, dataSize };
     uint64_t* chunkSizes = static_cast< uint64_t* >( 
@@ -124,7 +146,7 @@ void DataIStream::_decompress( const uint8_t* src, const uint8_t** dst,
         src += size;
     }
 
-    decompressor.decompress( chunks, chunkSizes, nChunks, 
+    decompressor->decompress( chunks, chunkSizes, nChunks, 
                             _data.getData(), outDim );
 
 }

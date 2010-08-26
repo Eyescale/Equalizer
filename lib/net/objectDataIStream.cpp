@@ -20,6 +20,8 @@
 #include "command.h"
 #include "commands.h"
 
+#include <eq/plugins/compressor.h>
+
 namespace eq
 {
 namespace net

@@ -19,9 +19,10 @@
 #ifndef EQNET_DATAISTREAM_H
 #define EQNET_DATAISTREAM_H
 
-#include <eq/net/types.h>
 #include <eq/base/buffer.h> // member
-#include <eq/base/compressorDataCPU.h>
+#include <eq/net/types.h>
+#include <eq/base/types.h>
+
 #include <iostream>
 #include <vector>
 
@@ -36,17 +37,9 @@ namespace net
     public:
         /** @name Internal */
         //@{ 
-        DataIStream()
-              : _input( 0 )
-              , _inputSize( 0 )
-              , _position( 0 ){}
-
-        DataIStream( const DataIStream& )
-              : _input( 0 )
-              , _inputSize( 0 )
-              , _position( 0 ){}
-
-        virtual ~DataIStream(){ reset(); }
+        DataIStream();
+        DataIStream( const DataIStream& );
+        virtual ~DataIStream();
 
         /** Get the number of remaining buffers. */
         virtual size_t nRemainingBuffers() const = 0;
@@ -115,7 +108,7 @@ namespace net
         //@}
  
     protected:
-        base::CompressorDataCPU decompressor;
+        base::CompressorDataCPU* const decompressor;
         virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size ) =0;
 
         void _decompress( const uint8_t* src, const uint8_t** dst, 

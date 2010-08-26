@@ -16,28 +16,22 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_COMPRESSOR_H
-#define EQBASE_COMPRESSOR_H
+#ifndef EQBASE_PLUGIN_H
+#define EQBASE_PLUGIN_H
 
 #include <eq/plugins/compressor.h> // member
 #include <eq/base/base.h>
 #include <eq/base/dso.h>           // member
 
-/**
- * @file base/compressor.h
- * 
- * Helper class for storing the function pointers of one compressor plugin DSO.
- * @internal
- */
 namespace eq
 {
 namespace base
 {
     /**
-     * A class holding all functions and information for one compressor DSO.
      * @internal
+     * A class holding all functions and information for one compressor plugin.
      */
-    class Compressor
+    class Plugin
     {
     public:
         typedef size_t ( *GetNumCompressors_t ) ();
@@ -70,7 +64,7 @@ namespace base
                                     const uint64_t, const uint64_t*,
                                     const unsigned  );
 
-        Compressor(){}
+        Plugin(){}
 
         /** Init and link a compressor plugin. */
         bool init( const std::string& libraryName );
@@ -78,7 +72,7 @@ namespace base
         /** Unload a compressor plugin. */
         void exit();
 
-        /** Get the number of compressor found in the plugin. */
+        /** Get the number of engines found in the plugin. */
         GetNumCompressors_t  getNumCompressors;
 
         /** Get a new compressor instance.  */
@@ -114,7 +108,7 @@ namespace base
         /** Upload pixel data. */
         Upload_t  upload;
 
-        /** @return true if name is found in the DSO compressor */
+        /** @return true if name is found in the plugin. */
         bool implementsType( const uint32_t name ) const;
 
         /** @return the information for all compressors contained in the DSO. */
@@ -133,4 +127,4 @@ namespace base
 }
 }
 
-#endif //EQ_COMPRESSOR_H
+#endif //EQ_PLUGIN_H

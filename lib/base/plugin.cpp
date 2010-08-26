@@ -16,14 +16,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "compressor.h"
+#include "plugin.h"
 #include "debug.h"
 
 namespace eq
 {
 namespace base
 {
-bool Compressor::init( const std::string& libraryName )
+bool Plugin::init( const std::string& libraryName )
 {
     if( !_dso.open( libraryName ))
         return false;        
@@ -118,7 +118,7 @@ bool Compressor::init( const std::string& libraryName )
     return true;
 }
 
-void Compressor::exit()
+void Plugin::exit()
 {
     _dso.close();
     _infos.clear();
@@ -135,7 +135,7 @@ void Compressor::exit()
 
 }
 
-bool Compressor::implementsType( const uint32_t name ) const
+bool Plugin::implementsType( const uint32_t name ) const
 {
     for( std::vector<EqCompressorInfo>::const_iterator i = _infos.begin(); 
          i != _infos.end(); ++i )
@@ -147,7 +147,7 @@ bool Compressor::implementsType( const uint32_t name ) const
     return false;
 }
 
-const EqCompressorInfo* Compressor::findInfo( const uint32_t name ) const
+const EqCompressorInfo* Plugin::findInfo( const uint32_t name ) const
 {
     for( CompressorInfos::const_iterator i = _infos.begin(); 
          i != _infos.end(); ++i )

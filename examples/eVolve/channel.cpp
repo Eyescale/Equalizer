@@ -40,9 +40,9 @@
 namespace eVolve
 {
 Channel::Channel( eq::Window* parent )
-    : eq::Channel( parent )
-    , _bgColor( eq::Vector3f::ZERO )
-    , _drawRange( eq::Range::ALL )
+        : eq::Channel( parent )
+        , _bgColor( eq::Vector3f::ZERO )
+        , _drawRange( eq::Range::ALL )
 {
     eq::FrameData* frameData = new eq::FrameData;
     frameData->setBuffers( eq::Frame::BUFFER_COLOR );
@@ -61,9 +61,7 @@ bool Channel::configInit( const uint32_t initID )
 {
     if( !eq::Channel::configInit( initID ))
         return false;
-    EQINFO << "Init channel initID " << initID << " ptr " << this << std::endl;
 
-    // chose projection type
     setNearFar( 0.001f, 10.0f );
 
     if( getenv( "EQ_TAINT_CHANNELS" ))
@@ -358,14 +356,11 @@ void Channel::frameViewFinish( const uint32_t frameID )
 void Channel::_drawLogo( )
 {
     // Draw the overlay logo
-    const Window*  window      = static_cast<Window*>( getWindow( ));
-    GLuint         texture;
-    eq::Vector2i size;
-
-    window->getLogoTexture( texture, size );
+    const Window* window = static_cast<Window*>( getWindow( ));
+    const eq::util::Texture* texture = window->getLogoTexture();
     if( !texture )
         return;
-    
+
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
     applyScreenFrustum();
@@ -377,26 +372,29 @@ void Channel::_drawLogo( )
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
+    glColor3f( 1.0f, 1.0f, 1.0f );
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
-    glBindTexture( GL_TEXTURE_RECTANGLE_ARB, texture );
+    texture->bind();
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
                      GL_LINEAR );
     glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, 
                      GL_LINEAR );
 
-    glColor3f( 1.0f, 1.0f, 1.0f );
+    const float tWidth = float( texture->getWidth( ));
+   const float tHeight = float( texture->getHeight( ));
+
     glBegin( GL_TRIANGLE_STRIP ); {
         glTexCoord2f( 0.0f, 0.0f );
         glVertex3f( 5.0f, 5.0f, 0.0f );
 
-        glTexCoord2f( size.x(), 0.0f );
-        glVertex3f( size.x() + 5.0f, 5.0f, 0.0f );
+        glTexCoord2f( tWidth, 0.0f );
+        glVertex3f( tWidth + 5.0f, 5.0f, 0.0f );
 
-        glTexCoord2f( 0.0f, size.y() );
-        glVertex3f( 5.0f, size.y() + 5.0f, 0.0f );
+        glTexCoord2f( 0.0f, tHeight );
+        glVertex3f( 5.0f, tHeight + 5.0f, 0.0f );
 
-        glTexCoord2f( size.x(), size.y() );
-        glVertex3f( size.x() + 5.0f, size.y() + 5.0f, 0.0f );
+        glTexCoord2f( tWidth, tHeight );
+        glVertex3f( tWidth + 5.0f, tHeight + 5.0f, 0.0f );
     } glEnd();
 
     glDisable( GL_TEXTURE_RECTANGLE_ARB );

@@ -33,8 +33,8 @@
 #include "log.h"
 
 #include <eq/util/frameBufferObject.h>
-
 #include <eq/base/base.h>
+#include <eq/plugins/compressor.h>
 
 
 namespace eq

@@ -32,8 +32,9 @@
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
 #include <eq/net/session.h>
-#include <eq/base/compressor.h>
 #include <eq/base/monitor.h>
+
+#include <eq/plugins/compressor.h>
 #include <algorithm>
 
 namespace eq

@@ -28,6 +28,8 @@ class Texture;
 /** A vector of pointers to eq::util::Texture */
 typedef std::vector< Texture* >  Textures;
 
+class CompressorDataGPU; //!< @internal
+
 #ifdef EQ_USE_DEPRECATED
 typedef Textures TextureVector
 #endif

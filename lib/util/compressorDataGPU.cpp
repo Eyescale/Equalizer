@@ -17,9 +17,14 @@
  */
 
 #include "compressorDataGPU.h"
-#include "eq/base/global.h"
-#include "eq/base/pluginRegistry.h"
-#include "GL/glew.h"
+
+#include <eq/fabric/pixelViewport.h>
+#include <eq/base/global.h>
+#include <eq/base/pluginRegistry.h>
+
+#include <GL/glew.h>
+
+#include "../base/plugin.h"
 
 namespace eq
 {
@@ -85,15 +90,15 @@ void CompressorDataGPU::initUploader( const uint32_t externalFormat,
                                       const uint32_t internalFormat )
 {
     base::PluginRegistry& registry = base::Global::getPluginRegistry();
-    const base::Compressors& compressors = registry.getCompressors();
+    const base::Plugins& plugins = registry.getPlugins();
 
     uint32_t name = EQ_COMPRESSOR_NONE;
     float speed = 0.0f;
-    for( base::Compressors::const_iterator i = compressors.begin();
-         i != compressors.end(); ++i )
+    for( base::Plugins::const_iterator i = plugins.begin();
+         i != plugins.end(); ++i )
     {
-        const base::Compressor* compressor = *i;
-        const base::CompressorInfos& infos = compressor->getInfos();
+        const base::Plugin* plugin = *i;
+        const base::CompressorInfos& infos = plugin->getInfos();
 
         for( base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
@@ -103,7 +108,7 @@ void CompressorDataGPU::initUploader( const uint32_t externalFormat,
             if( !( info.capabilities & EQ_COMPRESSOR_TRANSFER ) ||
                 info.outputTokenType != externalFormat ||
                 info.tokenType != internalFormat ||
-                !compressor->isCompatible( info.name, _glewContext ))
+                !plugin->isCompatible( info.name, _glewContext ))
             {
                 continue;
             }
@@ -240,13 +245,13 @@ void CompressorDataGPU::findTransferers( const uint32_t internalFormat,
     EQASSERT( glewContext );
 
     const base::PluginRegistry& registry = base::Global::getPluginRegistry();
-    const base::Compressors& plugins = registry.getCompressors();
+    const base::Plugins& plugins = registry.getPlugins();
 
-    for( base::Compressors::const_iterator i = plugins.begin();
+    for( base::Plugins::const_iterator i = plugins.begin();
          i != plugins.end(); ++i )
     {
-        const base::Compressor* compressor = *i;
-        const base::CompressorInfos& infos = (*i)->getInfos();
+        const base::Plugin* plugin = *i;
+        const base::CompressorInfos& infos = plugin->getInfos();
         for( base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
@@ -260,7 +265,7 @@ void CompressorDataGPU::findTransferers( const uint32_t internalFormat,
                ( info.quality >= minQuality )                          &&
                ( ignoreAlpha ||
                  !(info.capabilities & EQ_COMPRESSOR_IGNORE_ALPHA ))   &&
-               ( compressor->isCompatible( info.name, glewContext )))
+               ( plugin->isCompatible( info.name, glewContext )))
             {
                 result.push_back( info );
             }
@@ -268,68 +273,5 @@ void CompressorDataGPU::findTransferers( const uint32_t internalFormat,
     }
 }
 
-uint32_t CompressorDataGPU::getGLFormat( const uint32_t externalFormat )
-{
-    switch ( externalFormat )
-    {
-        case EQ_COMPRESSOR_DATATYPE_RGBA :
-        case EQ_COMPRESSOR_DATATYPE_RGB10_A2 : 
-        case EQ_COMPRESSOR_DATATYPE_RGBA16F : 
-        case EQ_COMPRESSOR_DATATYPE_RGBA32F :
-        case EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV:
-            return GL_RGBA;
-        case EQ_COMPRESSOR_DATATYPE_BGRA :
-        case EQ_COMPRESSOR_DATATYPE_BGR10_A2 : 
-        case EQ_COMPRESSOR_DATATYPE_BGRA16F : 
-        case EQ_COMPRESSOR_DATATYPE_BGRA32F : 
-        case EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV:        
-            return GL_BGRA;
-        case EQ_COMPRESSOR_DATATYPE_RGB :
-        case EQ_COMPRESSOR_DATATYPE_RGB16F : 
-        case EQ_COMPRESSOR_DATATYPE_RGB32F : 
-            return GL_RGB;
-        case EQ_COMPRESSOR_DATATYPE_BGR :
-        case EQ_COMPRESSOR_DATATYPE_BGR16F : 
-        case EQ_COMPRESSOR_DATATYPE_BGR32F : 
-            return GL_BGR;
-        case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT : 
-            return GL_DEPTH_COMPONENT;
-        default:
-            EQASSERT( false );
-            return 0;
-    }
-}
-
-uint32_t CompressorDataGPU::getGLType( const uint32_t externalFormat )
-{
-    switch ( externalFormat )
-    {
-        case EQ_COMPRESSOR_DATATYPE_RGBA :
-        case EQ_COMPRESSOR_DATATYPE_BGRA :
-        case EQ_COMPRESSOR_DATATYPE_RGB :
-        case EQ_COMPRESSOR_DATATYPE_BGR :
-            return GL_UNSIGNED_BYTE;
-        case EQ_COMPRESSOR_DATATYPE_RGB10_A2 : 
-        case EQ_COMPRESSOR_DATATYPE_BGR10_A2 :
-            return GL_UNSIGNED_INT_10_10_10_2;
-        case EQ_COMPRESSOR_DATATYPE_RGBA16F :
-        case EQ_COMPRESSOR_DATATYPE_BGRA16F :  
-        case EQ_COMPRESSOR_DATATYPE_RGB16F :
-        case EQ_COMPRESSOR_DATATYPE_BGR16F :  
-            return GL_HALF_FLOAT;
-        case EQ_COMPRESSOR_DATATYPE_RGBA32F : 
-        case EQ_COMPRESSOR_DATATYPE_BGRA32F : 
-        case EQ_COMPRESSOR_DATATYPE_RGB32F : 
-        case EQ_COMPRESSOR_DATATYPE_BGR32F :
-            return GL_FLOAT;
-        case EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV:
-        case EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV:
-            return GL_UNSIGNED_INT_8_8_8_8_REV;
-        case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT : 
-            return GL_UNSIGNED_INT;
-        default:
-            return 0;
-    }
-}
 }
 }

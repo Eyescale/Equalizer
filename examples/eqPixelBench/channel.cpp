@@ -31,6 +31,8 @@
 #include "config.h"
 #include "configEvent.h"
 
+#include <eq/plugins/compressor.h>
+
 #ifdef WIN32_API
 #  define snprintf _snprintf
 #endif
@@ -163,11 +165,13 @@ void Channel::_testFormats( float applyZoom )
     for( uint32_t i=0; _enums[i].internalFormatString; ++i )
     {
         const uint32_t internalFormat = _enums[i].internalFormat;
-        eq::base::CompressorInfos infos;
+        image->setInternalFormat( eq::Frame::BUFFER_COLOR, internalFormat );
+        image->setQuality( eq::Frame::BUFFER_COLOR, 0.f );
+        image->disableAlphaUsage();
+
         const GLEWContext* glewContext = glewGetContext();
-        eq::util::CompressorDataGPU::findTransferers( internalFormat, 0,
-                                                      0.f, true, glewContext,
-                                                      infos );
+        eq::base::CompressorInfos infos;
+        image->findTransferers( eq::Frame::BUFFER_COLOR, glewContext, infos );
 
         for( eq::base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )

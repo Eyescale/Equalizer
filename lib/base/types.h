@@ -119,13 +119,14 @@ typedef std::vector< std::string >   Strings;
 typedef Strings StringVector
 #endif
 
-class Compressor;
+class CompressorDataCPU; //!< @internal
+class Plugin;            //!< @internal
 
-/** A vector of compressor information structures. */
+/** @internal A vector of compressor information structures. */
 typedef std::vector< EqCompressorInfo > CompressorInfos;
 
-/** A vector of compression DSO interfaces. */
-typedef std::vector< Compressor* > Compressors;
+/** @internal A vector of compression DSO interfaces. */
+typedef std::vector< Plugin* > Plugins;
 
 }
 }

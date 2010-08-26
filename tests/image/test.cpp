@@ -24,7 +24,6 @@
 #include <eq/client/init.h>
 #include <eq/client/nodeFactory.h>
 #include <eq/base/clock.h>
-#include <eq/base/compressor.h>
 #include <eq/base/file.h>
 #include <eq/base/global.h>
 #include <eq/base/pluginRegistry.h>
@@ -33,6 +32,8 @@
 
 #include <numeric>
 #include <fstream>
+
+#include "base/plugin.h" // private header
 
 
 // Tests the functionality and speed of the image compression.
@@ -49,10 +50,10 @@ static std::vector< uint32_t > _getCompressorNames()
 {
     const eq::base::PluginRegistry& registry = 
         eq::base::Global::getPluginRegistry();
-    const eq::base::Compressors& plugins = registry.getCompressors();
+    const eq::base::Plugins& plugins = registry.getPlugins();
 
     std::vector< uint32_t > names;
-    for( eq::base::Compressors::const_iterator i = plugins.begin();
+    for( eq::base::Plugins::const_iterator i = plugins.begin();
          i != plugins.end(); ++i )
     {
         const eq::base::CompressorInfos& infos = (*i)->getInfos();
@@ -74,10 +75,10 @@ static float _getCompressorQuality( const uint32_t name )
 {
     const eq::base::PluginRegistry& registry = 
         eq::base::Global::getPluginRegistry();
-    const eq::base::Compressors& plugins = registry.getCompressors();
+    const eq::base::Plugins& plugins = registry.getPlugins();
 
     float quality = 1.0f;
-    for( eq::base::Compressors::const_iterator i = plugins.begin();
+    for( eq::base::Plugins::const_iterator i = plugins.begin();
          i != plugins.end(); ++i )
     {
         const eq::base::CompressorInfos& infos = (*i)->getInfos();

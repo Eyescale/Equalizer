@@ -18,8 +18,8 @@
 #ifndef EQUTIL_COMPRESSORDATAGPU_H
 #define EQUTIL_COMPRESSORDATAGPU_H
 
-#include <eq/base/compressorData.h>
-#include <eq/fabric/pixelViewport.h>
+#include "../base/compressorData.h" // base class
+#include <eq/fabric/types.h>
 
 namespace eq
 {
@@ -174,27 +174,6 @@ namespace util
                                                const bool ignoreAlpha,
                                                const GLEWContext* glewContext,
                                                base::CompressorInfos& result );
-        /**
-         * Get the opengl internal format corresponding to compressor data type
-         *
-         * @param internalFormat the compressor internalFormat
-         */
-        static EQ_EXPORT uint32_t getGLInternalFormat( 
-                                               const uint32_t internalFormat );
- 
-        /**
-         * Get the opengl external format corresponding to compressor data type
-         *
-         * @param externalFormat the compressor externalFormat
-         */
-        static EQ_EXPORT uint32_t getGLFormat( const uint32_t externalFormat );
-
-        /**
-         * Get the opengl external type corresponding to compressor data type
-         *
-         * @param externalFormat the compressor externalFormat
-         */
-        static EQ_EXPORT uint32_t getGLType( const uint32_t externalFormat );
 
     private:
         /** the initialized GLEW context describing corresponding

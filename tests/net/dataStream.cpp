@@ -28,6 +28,8 @@
 #include <eq/net/init.h>
 #include <eq/net/packets.h>
 
+#include "base/compressorDataCPU.h" // private header
+
 // Tests the functionality of the DataOStream and DataIStream
 
 #define CONTAINER_SIZE 4096
@@ -68,7 +70,8 @@ class DataOStream : public eq::net::DataOStream
 {
 public:
     DataOStream()
-        { compressor.reset(); }
+        { compressor->reset(); }
+
 protected:
     virtual void sendData( const uint32_t name, const uint32_t nChunks,
                            const void* const* buffer, const uint64_t* size,

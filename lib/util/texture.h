@@ -88,7 +88,7 @@ namespace util
         GLuint getType() const { return _type; }
 
         /** @return the OpenGL texture name. @version 1.0 */
-        GLuint getID() const { return _id; }
+        GLuint getName() const { return _name; }
 
         /** @return the current width. @version 1.0 */
         int32_t getWidth() const { return _width; }
@@ -182,7 +182,7 @@ namespace util
 
     private:
         /** The GL texture name. */
-        GLuint _id;
+        GLuint _name;
 
         /** the target of the texture. */
         const GLenum _target;

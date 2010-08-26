@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -44,8 +44,7 @@ namespace eVolve
         GLuint newDisplayList( const void* key )
             { return getObjectManager()->newList( key ); }
 
-        void getLogoTexture( GLuint& id, eq::Vector2i& size ) const
-            { id = _logoTexture; size = _logoSize; }
+        const eq::util::Texture* getLogoTexture() const { return _logoTexture; }
 
     protected:
         virtual ~Window() {}
@@ -54,8 +53,7 @@ namespace eVolve
         virtual void swapBuffers();
 
     private:
-        GLuint _logoTexture;
-        eq::Vector2i _logoSize;
+        eq::util::Texture* _logoTexture;
 
         void _loadLogo();
     };

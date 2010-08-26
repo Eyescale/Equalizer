@@ -19,15 +19,13 @@
 #ifndef EQUTIL_COMPRESSORDATA_H
 #define EQUTIL_COMPRESSORDATA_H
 
-#include <eq/base/thread.h>       // thread-safety macros
-#include <eq/plugins/compressor.h> // EqCompressorInfo
+#include <eq/base/thread.h>        // thread-safety macros
+#include <eq/plugins/compressor.h>  // used inline
 
 namespace eq
 {
 namespace base
 {
-    class Compressor;
-
     /** A C++ class to abstract a compressor instance. */
     class CompressorData
     {
@@ -40,7 +38,7 @@ namespace base
         EQ_EXPORT virtual ~CompressorData();
 
         /** @return the plugin for the current compressor. */
-        base::Compressor* getPlugin(){ return _plugin; }
+        Plugin* getPlugin() { return _plugin; }
         
         /** @return the name of the compressor. */
         uint32_t getName() const { return _name; }
@@ -64,7 +62,7 @@ namespace base
         uint32_t _name;    
 
         /** Plugin handling the allocation */
-        base::Compressor* _plugin;  
+        Plugin* _plugin;  
         
         /** The instance of the (de)compressor, can be 0 for decompressor */
         void* _instance;
@@ -80,7 +78,7 @@ namespace base
          *
          * @param name the name of the compressor 
          */
-        base::Compressor* _findPlugin( uint32_t name );
+        Plugin* _findPlugin( uint32_t name );
 
         /**
          * Initialize the specified compressor or downloader 

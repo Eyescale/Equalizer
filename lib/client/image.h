@@ -24,11 +24,9 @@
 
 #include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/viewport.h>      // member
-#include <eq/base/compressorDataCPU.h>  //member
-#include <eq/util/compressorDataGPU.h>
 #include <eq/util/texture.h>         // member
-#include <eq/base/compressor.h>
-#include <eq/base/buffer.h>
+#include <eq/util/types.h>
+#include <eq/base/buffer.h>          // member
 
 namespace eq
 {
@@ -96,10 +94,24 @@ namespace eq
 
         /** @name Image parameters */
         //@{
-        /** @return the type of the pixel data. */
+        /** @return the format and type of the pixel data. */
         uint32_t getExternalFormat( const Frame::Buffer buffer ) const
             {  return _getMemory( buffer ).externalFormat; }
         
+#if 0
+        /**
+         * @return the external OpenGL format of the pixel data, or 0 for
+         *          external formats which are unknown to OpenGL.
+         */
+        uint32_t getGLFormat( const Frame::Buffer buffer ) const;
+        
+        /**
+         * @return the external OpenGL type of the pixel data, or 0 for
+         *          external formats which are unknown to OpenGL.
+         */
+        uint32_t getGLType( const Frame::Buffer buffer ) const;
+#endif
+
         /**
          * Get the size, in bytes, of one pixel in pixel data.
          *
@@ -110,6 +122,9 @@ namespace eq
 
         /**
          * Set the internal GPU format of the pixel data for the given buffer.
+         *
+         * All internal formats need to have a corresponding OpenGL format with
+         * the same value.
          *
          * @param buffer the buffer type.
          * @param internalFormat the internal format.
@@ -216,9 +231,12 @@ namespace eq
         /** Disable compression and transport of alpha data. */
         EQ_EXPORT void disableAlphaUsage();
 
-        /** Set the compressor quality. */
+        /** Set the minimum quality after a full download-compression path. */
         EQ_EXPORT void setQuality( const Frame::Buffer buffer,
                                    const float quality );
+
+        /** @return the minimum quality. */
+        EQ_EXPORT float getQuality( const Frame::Buffer buffer ) const;
 
         /** @return true if alpha data can be ignored. */
         bool ignoreAlpha() const { return _ignoreAlpha; }
@@ -325,6 +343,14 @@ namespace eq
         EQ_EXPORT std::vector< uint32_t > 
         findCompressors( const Frame::Buffer buffer ) const;
 
+        /** 
+         * @internal
+         * Assemble a list of possible up/downloaders for the given buffer.
+         */
+        EQ_EXPORT void findTransferers( const Frame::Buffer buffer,
+                                        const GLEWContext* glewContext,
+                                        base::CompressorInfos& result );
+
         /** @internal Re-allocate, if needed, a compressor instance. */
         EQ_EXPORT bool allocCompressor( const Frame::Buffer buffer, 
                                         const uint32_t name );
@@ -379,21 +405,20 @@ namespace eq
         class Attachment
         {
         public:
-            Attachment() : compressor( &fullCompressor )
-                         , transfer ( &fullTransfer )
-                         , quality( 1.f )
-                         , texture( GL_TEXTURE_RECTANGLE_ARB )
-                         {}
+            Attachment();
+            ~Attachment();
+
             void flush();
-            base::CompressorDataCPU* compressor;
-            util::CompressorDataGPU* transfer;
+            base::CompressorDataCPU* const fullCompressor;
+            base::CompressorDataCPU* const lossyCompressor;
+
+            util::CompressorDataGPU* const fullTransfer;
+            util::CompressorDataGPU* const lossyTransfer;
+
+            base::CompressorDataCPU* compressor; //!< current CPU (de)compressor
+            util::CompressorDataGPU* transfer;   //!< current up/download engine
+
             float quality; //!< the minimum quality
-
-            base::CompressorDataCPU fullCompressor;
-            base::CompressorDataCPU lossyCompressor;
-
-            util::CompressorDataGPU fullTransfer;
-            util::CompressorDataGPU lossyTransfer;
 
             /** The texture name for this image component (texture images). */
             util::Texture texture;

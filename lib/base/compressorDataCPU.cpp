@@ -16,9 +16,9 @@
  */
 
 #include "compressorDataCPU.h"
-#include "compressor.h"
 #include "debug.h"
 #include "global.h"
+#include "plugin.h"
 #include "pluginRegistry.h"
 
 #include <typeinfo>
@@ -93,15 +93,14 @@ uint32_t CompressorDataCPU::chooseCompressor( const uint32_t tokenType,
     float ratio = 1.0f;
     float minDiffQuality = 1.0f;
 
-    base::PluginRegistry& registry = base::Global::getPluginRegistry();
-    const base::Compressors& compressors = registry.getCompressors();
-    for( base::Compressors::const_iterator i = compressors.begin();
-         i != compressors.end(); ++i )
+    PluginRegistry& registry = Global::getPluginRegistry();
+    const Plugins& plugins = registry.getPlugins();
+    for( Plugins::const_iterator i = plugins.begin(); i != plugins.end(); ++i )
     {
-        const base::Compressor* compressor = *i;
-        const base::CompressorInfos& infos = compressor->getInfos();
+        const Plugin* plugin = *i;
+        const CompressorInfos& infos = plugin->getInfos();
         
-        for( base::CompressorInfos::const_iterator j = infos.begin();
+        for( CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
             const EqCompressorInfo& info = *j;
