@@ -35,7 +35,7 @@ if(WIN32)
 endif(WIN32)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_ADDITIONAL_VERSIONS "1.42" "1.43")
-find_package(Boost  REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system)
 add_definitions(-DBOOST_ALL_NO_LIB)
 link_directories(${Boost_LIBRARY_DIRS})
 include_directories(AFTER ${Boost_INCLUDE_DIRS})
@@ -44,19 +44,14 @@ include_directories(AFTER ${Boost_INCLUDE_DIRS})
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 
-include(${CMAKE_SOURCE_DIR}/externals/UseGLEW.cmake)
-include(${CMAKE_SOURCE_DIR}/externals/UseVMMLib.cmake)
-
 find_package(X11)
 if(X11_FOUND)
   include_directories(${X11_INCLUDE_DIR})
-  if(APPLE)
-    # this is a hack, is there a better way?
-    include_directories(/usr/X11R6/include)
-  endif(APPLE)
-#endif(APPLE AND X11_FOUND)
-
 endif(X11_FOUND)
+
+include(${CMAKE_SOURCE_DIR}/externals/UseGLEW.cmake)
+include(${CMAKE_SOURCE_DIR}/externals/UseVMMLib.cmake)
+
 
 find_package(OpenMP)
 if(OPENMP_FOUND)
@@ -82,8 +77,8 @@ else(WIN32)
 endif(WIN32)
 
 if(APPLE)
-  link_directories(/usr/X11R6/include)
-  include_directories(/usr/X11R6/lib)
+  link_directories(/usr/X11R6/lib)
+  include_directories(/usr/X11R6/include)
 
   if(XCODE_VERSION)
   else(XCODE_VERSION)

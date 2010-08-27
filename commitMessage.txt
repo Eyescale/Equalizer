@@ -1,9 +1,9 @@
-CMake: Fix Darwin build
+CMake: Mac GLX improvements
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
+[ ] Bugfix
+[x] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

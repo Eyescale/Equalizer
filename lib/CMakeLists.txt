@@ -1,4 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#               2010 Stefan Eilemann <eile@eyescale.ch>
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/config.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/lists.cmake)
@@ -50,6 +51,9 @@ add_definitions(-DEQ_EXPORTS -DEQ_PLUGIN_BUILD -DGLEW_STATIC)
 
 if(APPLE)
   find_library(CARBON_LIBRARY Carbon)
+if(X11_FOUND)
+  set(GLX_LIBRARY GL)
+endif(X11_FOUND)
 endif(APPLE)
 
 add_library(Equalizer SHARED ${SOURCES})
@@ -59,6 +63,8 @@ target_link_libraries(Equalizer
   ${OPENGL_LIBRARIES}
   ${GLEW_LIBRARY}
   ${CARBON_LIBRARY}
+  ${X11_LIBRARIES}
+  ${GLX_LIBRARY}
   )
 
 install(TARGETS Equalizer

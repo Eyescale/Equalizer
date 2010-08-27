@@ -377,13 +377,12 @@ if(WIN32)
     )
 endif(WIN32)
 
-# TODO: get this to work on APPLE
-if(X11_FOUND AND NOT APPLE)
+if(X11_FOUND)
   set(CLIENT_SOURCES ${CLIENT_SOURCES}
     client/glXEventHandler.cpp
     client/glXMessagePump.cpp
     client/glXWindow.cpp
     client/glXPipe.cpp
     )
-endif(X11_FOUND AND NOT APPLE)
+endif(X11_FOUND)
 
