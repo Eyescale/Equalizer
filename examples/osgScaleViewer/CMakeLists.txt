@@ -1,18 +1,11 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 
-find_package(OpenSceneGraph)
+find_package(OpenSceneGraph 2.9.8 COMPONENTS osgDB osgUtil)
 
 if(NOT OPENSCENEGRAPH_FOUND)
   message(WARNING "OSG not found: Example 'osgScaleViewer' will be skipped!")
   return()
 endif(NOT OPENSCENEGRAPH_FOUND)
-
-# Ubuntu 10.04 comes with OSG version 2.8.1
-# this version does not compile
-if(${OPENSCENEGRAPH_VERSION} MATCHES "2.8.1")
-  message(WARNING "OSG v2.8.1 found: Example 'osgScaleViewer' will be skipped!")
-  return()
-endif(${OPENSCENEGRAPH_VERSION} MATCHES "2.8.1")
 
 include_directories(${OPENSCENEGRAPH_INCLUDE_DIRS})
 

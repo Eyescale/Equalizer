@@ -200,7 +200,7 @@ set(UTIL_HEADERS
   )
 
 set(BASE_SOURCES
-  base/compressorData
+  base/compressor.cpp
   base/cpuCompressor.cpp
   base/debug.cpp
   base/dso.cpp
