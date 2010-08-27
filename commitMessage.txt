@@ -1,10 +1,9 @@
-Implement channel pointer event dispatch for destination channels
-Minor CMake fix.
+CMake: Fix Darwin build
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
-[x] New Feature
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
