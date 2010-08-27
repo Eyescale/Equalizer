@@ -125,19 +125,22 @@ namespace util
          * Get the token type produced by a donwloader or accepted by the
          * uploader.
          **/
-        uint32_t getExternalFormat() const { return _info->outputTokenType; }
+        uint32_t getExternalFormat() const;
 
         /**
          * Get the token type accepted by a donwloader or 
          * produced by the uploader.
          **/
-        uint32_t getInternalFormat() const { return _info->tokenType; }
+        uint32_t getInternalFormat() const;
 
         /**
          * Get the token size produced by a downloader or consumed by an
          * uploader.
          */
-        uint32_t getTokenSize() const { return _info->outputTokenSize; }
+        uint32_t getTokenSize() const;
+
+        /** @return true if the current downloader does not drop alpha. */
+        bool hasAlpha() const;
 
         /**
          * Get the downloader/uploader internal format corresponding to 
@@ -148,10 +151,6 @@ namespace util
          */
         static EQ_EXPORT uint32_t getExternalFormat( const uint32_t format,
                                                      const uint32_t type );
-
-        /** @return true if the current downloader does not drop alpha. */
-        bool hasAlpha() const
-            { return (_info->capabilities & EQ_COMPRESSOR_IGNORE_ALPHA) == 0; }
 
         /**
          * Find all transfer plugins which comply with to the given parameters.
@@ -172,7 +171,7 @@ namespace util
                                                const float minQuality,
                                                const bool ignoreAlpha,
                                                const GLEWContext* glewContext,
-                                               base::CompressorInfos& result );
+                                               EqCompressorInfos& result );
 
     private:
         /** the initialized GLEW context describing corresponding

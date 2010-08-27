@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,12 +17,12 @@
  */
 
 #include "cpuCompressor.h"
+
+#include "compressorInfo.h"
 #include "debug.h"
 #include "global.h"
 #include "plugin.h"
 #include "pluginRegistry.h"
-
-#include <typeinfo>
 
 namespace eq
 {
@@ -103,7 +104,7 @@ uint32_t CPUCompressor::chooseCompressor( const uint32_t tokenType,
         for( CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
-            const EqCompressorInfo& info = *j;
+            const CompressorInfo& info = *j;
             if( info.tokenType != tokenType )
                 continue;
 

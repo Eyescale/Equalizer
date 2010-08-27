@@ -18,6 +18,7 @@
 
 #include "pluginRegistry.h"
 
+#include "compressorInfo.h"
 #include "debug.h"
 #include "dso.h"
 #include "file.h"

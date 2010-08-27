@@ -51,11 +51,11 @@ namespace base
         EQ_EXPORT void reset();
 
         /** @return the quality produced by the current compressor instance. */
-        float getQuality() const { return _info ? _info->quality : 1.0f; }
+        float getQuality() const;
 
         /** @return the information about the current compressor instance. */
-        const EqCompressorInfo* getInfo() const
-            { EQASSERT( _info ); return _info; }
+        const CompressorInfo& getInfo() const
+            { EQASSERT( _info ); return *_info; }
 
     protected:
         /** The name of the (de)compressor */
@@ -68,7 +68,7 @@ namespace base
         void* _instance;
 
         /** Info about the current compressor instance */
-        const EqCompressorInfo* _info;
+        const CompressorInfo* _info;
 
         /** true if the instance is a compressor, false if downloader */
         bool _isCompressor;

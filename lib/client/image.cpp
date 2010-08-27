@@ -34,7 +34,9 @@
 #include <eq/base/omp.h>
 #include <eq/base/pluginRegistry.h>
 
+// Internal headers
 #include "../base/plugin.h"
+#include "../base/compressorInfo.h"
 #include "../base/cpuCompressor.h"
 #include "../util/gpuCompressor.h"
 
@@ -225,7 +227,7 @@ std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
         for( base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
-            const EqCompressorInfo& info = *j;
+            const base::CompressorInfo& info = *j;
 
             if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
                 continue;
@@ -243,7 +245,7 @@ std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
 
 void Image::findTransferers( const Frame::Buffer buffer,
                              const GLEWContext* glewContext,
-                             base::CompressorInfos& result )
+                             EqCompressorInfos& result )
 {
     return util::GPUCompressor::findTransferers(
         getInternalFormat( buffer ), 0, getQuality( buffer ), _ignoreAlpha,
@@ -708,12 +710,12 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
         return;
     }
 
-    const EqCompressorInfo* info = attachment.compressor->getInfo();
-    if( memory.externalFormat != info->outputTokenType )
+    const base::CompressorInfo& info = attachment.compressor->getInfo();
+    if( memory.externalFormat != info.outputTokenType )
     {
         // decompressor output differs from compressor input
-        memory.externalFormat = info->outputTokenType;
-        memory.pixelSize = info->outputTokenSize;
+        memory.externalFormat = info.outputTokenType;
+        memory.pixelSize = info.outputTokenSize;
     }
     validatePixelData( buffer ); // alloc memory for pixels
 

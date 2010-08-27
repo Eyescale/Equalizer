@@ -17,6 +17,8 @@
  */
 
 #include "compressor.h"
+
+#include "compressorInfo.h"
 #include "global.h"
 #include "plugin.h"
 #include "pluginRegistry.h"
@@ -56,6 +58,11 @@ void Compressor::reset()
     _isCompressor = true;
 }
 
+float Compressor::getQuality() const
+{
+    return _info ? _info->quality : 1.0f;
+}
+
 Plugin* Compressor::_findPlugin( uint32_t name )
 {
     base::PluginRegistry& registry = base::Global::getPluginRegistry();
@@ -76,7 +83,7 @@ bool Compressor::isValid( uint32_t name ) const
 bool Compressor::_initCompressor( uint32_t name )
 {
     reset();
-    
+
     if( name <= EQ_COMPRESSOR_NONE )
     {
         _name = name;
@@ -95,8 +102,8 @@ bool Compressor::_initCompressor( uint32_t name )
     EQASSERT( _instance );
     
     _name = name;
-    _info = _plugin->findInfo( name );
-    EQASSERT( _info );
+    _info = &_plugin->findInfo( name );
+
     EQLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex
                         << name << std::dec << std::endl;
     return true;
@@ -122,8 +129,7 @@ bool Compressor::_initDecompressor( uint32_t name )
     _instance = _plugin->newDecompressor( name );
     
     _name = name;
-    _info = _plugin->findInfo( name );
-    EQASSERT( _info );
+    _info = &_plugin->findInfo( name );
     EQLOG( LOG_PLUGIN ) << "Instantiated " << ( _instance ? "" : "empty " )
                         << "decompressor of type 0x" << std::hex << name
                         << std::dec << std::endl;

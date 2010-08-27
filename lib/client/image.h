@@ -28,6 +28,8 @@
 #include <eq/util/types.h>
 #include <eq/base/buffer.h>          // member
 
+#include <eq/plugins/compressor.h> // EqCompressorInfos typedef
+
 namespace eq
 {
     /**
@@ -349,7 +351,7 @@ namespace eq
          */
         EQ_EXPORT void findTransferers( const Frame::Buffer buffer,
                                         const GLEWContext* glewContext,
-                                        base::CompressorInfos& result );
+                                        EqCompressorInfos& result );
 
         /** @internal Re-allocate, if needed, a compressor instance. */
         EQ_EXPORT bool allocCompressor( const Frame::Buffer buffer, 

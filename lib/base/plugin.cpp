@@ -17,6 +17,8 @@
  */
 
 #include "plugin.h"
+
+#include "compressorInfo.h"
 #include "debug.h"
 
 namespace eq
@@ -85,7 +87,7 @@ bool Plugin::init( const std::string& libraryName )
 
     for( size_t i = 0; i < nCompressors; ++i )
     {
-        EqCompressorInfo& info = _infos[ i ];
+        CompressorInfo& info = _infos[ i ];
 
         info.outputTokenType = EQ_COMPRESSOR_DATATYPE_NONE;
         info.outputTokenSize = 0;
@@ -137,7 +139,7 @@ void Plugin::exit()
 
 bool Plugin::implementsType( const uint32_t name ) const
 {
-    for( std::vector<EqCompressorInfo>::const_iterator i = _infos.begin(); 
+    for( CompressorInfos::const_iterator i = _infos.begin(); 
          i != _infos.end(); ++i )
     {
         if ( i->name == name )
@@ -147,16 +149,17 @@ bool Plugin::implementsType( const uint32_t name ) const
     return false;
 }
 
-const EqCompressorInfo* Plugin::findInfo( const uint32_t name ) const
+const CompressorInfo& Plugin::findInfo( const uint32_t name ) const
 {
-    for( CompressorInfos::const_iterator i = _infos.begin(); 
+    for( CompressorInfos::const_iterator i = _infos.begin();
          i != _infos.end(); ++i )
     {
-        if ( i->name == name )
-            return &(*i);
+        if( i->name == name )
+            return (*i);
     }
 
-    return 0;
+    EQUNREACHABLE;
+    return _infos.front();
 }
 
 

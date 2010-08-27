@@ -1,8 +1,5 @@
-Rename:
-
-base::CompressorData -> base::Compressor
-base::CompressorDataCPU -> base::CPUCompressor
-util::CompressorDataGPU -> util::GPUCompressor
+Introduce subclassed base::CompressorInfo to establish CPU->GPU engine
+linkage during initialization (in future change)
 
 [x] May break build
 [ ] May break existing applications

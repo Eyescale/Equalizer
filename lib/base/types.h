@@ -106,8 +106,6 @@ typedef SSIZE_T    ssize_t;
 #define EQ_48MB  (50331648)
 #define EQ_64MB  (67108864)
 
-struct EqCompressorInfo;
-
 namespace eq
 {
 namespace base
@@ -121,9 +119,10 @@ typedef Strings StringVector
 
 class CPUCompressor; //!< @internal
 class Plugin;        //!< @internal
+struct CompressorInfo; //!< @internal
 
 /** @internal A vector of compressor information structures. */
-typedef std::vector< EqCompressorInfo > CompressorInfos;
+typedef std::vector< CompressorInfo > CompressorInfos;
 
 /** @internal A vector of compression DSO interfaces. */
 typedef std::vector< Plugin* > Plugins;

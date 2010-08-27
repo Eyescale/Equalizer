@@ -170,10 +170,10 @@ void Channel::_testFormats( float applyZoom )
         image->disableAlphaUsage();
 
         const GLEWContext* glewContext = glewGetContext();
-        eq::base::CompressorInfos infos;
+        EqCompressorInfos infos;
         image->findTransferers( eq::Frame::BUFFER_COLOR, glewContext, infos );
 
-        for( eq::base::CompressorInfos::const_iterator j = infos.begin();
+        for( EqCompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
             const EqCompressorInfo& info = *j;

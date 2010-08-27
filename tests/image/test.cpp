@@ -33,6 +33,7 @@
 #include <numeric>
 #include <fstream>
 
+#include "base/compressorInfo.h" // private header
 #include "base/plugin.h" // private header
 
 

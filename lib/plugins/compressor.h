@@ -197,6 +197,8 @@ typedef unsigned long long eq_uint64_t;
 #include <eq/plugins/compressorTypes.h>
 
 #ifdef __cplusplus
+#  include <vector>
+
 extern "C" {
 #endif
     /**
@@ -330,7 +332,12 @@ extern "C" {
         /** The size of one output token in bytes. @version 3 */
         unsigned outputTokenSize;
     };
-    
+
+#ifdef __cplusplus
+    /** A vector of EqCompressorInfo structures */
+    typedef std::vector< EqCompressorInfo > EqCompressorInfos;
+#endif
+
     /** @return the number of compressors implemented in the DSO. @version 1 */
     EQ_PLUGIN_API size_t EqCompressorGetNumCompressors();
 

@@ -115,15 +115,12 @@ namespace base
         const CompressorInfos& getInfos() const { return _infos; }
 
         /** @return the information for the given compressor, or 0. */
-        const EqCompressorInfo* findInfo( const uint32_t name ) const;
+        const CompressorInfo& findInfo( const uint32_t name ) const;
 
     private:
         CompressorInfos _infos;
         base::DSO _dso;   
     };
-
-    EQ_EXPORT std::ostream& operator << ( std::ostream&, 
-                                          const EqCompressorInfo& );
 }
 }
 
