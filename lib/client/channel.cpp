@@ -600,6 +600,9 @@ bool Channel::processEvent( const Event& event )
 
     switch( event.type )
     {
+        case Event::POINTER_MOTION:
+        case Event::POINTER_BUTTON_PRESS:
+        case Event::POINTER_BUTTON_RELEASE:
         case Event::STATISTIC:
             break;
 

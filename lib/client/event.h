@@ -108,7 +108,7 @@ namespace eq
     struct PointerEvent
     {
         int32_t x;             //!< X position relative to entity
-        int32_t y;             //!< Y position relative to entity
+        int32_t y;             //!< Y position relative to entity (0 is on top)
         int32_t dx;            //!< X position change since last event
         int32_t dy;            //!< Y position change since last event
         uint32_t buttons;      //!< current state of all buttons

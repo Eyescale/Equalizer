@@ -566,12 +566,41 @@ bool Window::processEvent( const Event& event )
             // else fall through
         case Event::WINDOW_EXPOSE:
         case Event::WINDOW_CLOSE:
-        case Event::POINTER_MOTION:
-        case Event::POINTER_BUTTON_PRESS:
-        case Event::POINTER_BUTTON_RELEASE:
         case Event::POINTER_WHEEL:
         case Event::STATISTIC:
             break;
+
+        case Event::POINTER_MOTION:
+        case Event::POINTER_BUTTON_PRESS:
+        case Event::POINTER_BUTTON_RELEASE:
+        {
+            // dispatch pointer events to destination channel, if any
+            const Channels& channels = getChannels();
+            for( Channels::const_iterator i = channels.begin();
+                 i != channels.end(); ++i )
+            {
+                Channel* channel = *i;
+                if( !channel->getNativeView( ))
+                    continue;
+
+                const PixelViewport& pvp = getPixelViewport();
+                const PixelViewport& channelPVP =
+                    channel->getNativePixelViewport();
+                
+                // convert y to GL notation (Channel PVP uses GL coordinates)
+                const int32_t y = pvp.h - event.pointer.y;
+                if( !channelPVP.isInside( event.pointer.x, y ))
+                    continue;
+
+                Event channelEvent = event;
+                channelEvent.originator = channel->getID();
+                channelEvent.pointer.x -= channelPVP.x;
+                channelEvent.pointer.y = channelPVP.h - y + channelPVP.y;
+                EQINFO << channelEvent << std::endl;
+                return channel->processEvent( channelEvent );
+            }
+            break;
+        }
 
         case Event::WINDOW_SCREENSAVER:
             switch( getIAttribute( IATTR_HINT_SCREENSAVER ))
