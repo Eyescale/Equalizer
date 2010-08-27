@@ -72,6 +72,9 @@ namespace base
         /** Unload a compressor plugin. */
         void exit();
 
+        /** Initialize the child list for each compressor. */
+        void initChildren();
+
         /** Get the number of engines found in the plugin. */
         GetNumCompressors_t  getNumCompressors;
 

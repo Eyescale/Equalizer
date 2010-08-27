@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009, Stefan Eilemann <eile@equalizergraphics.com> 
+ *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,6 +20,8 @@
 
 #include "compressorInfo.h"
 #include "debug.h"
+#include "global.h"
+#include "pluginRegistry.h"
 
 namespace eq
 {
@@ -137,9 +139,75 @@ void Plugin::exit()
 
 }
 
+void Plugin::initChildren()
+{
+    PluginRegistry& registry = Global::getPluginRegistry();
+    const Plugins& plugins = registry.getPlugins();
+
+    for( CompressorInfos::iterator i = _infos.begin(); i != _infos.end(); ++i )
+    {
+        CompressorInfo& info = *i;
+        EQLOG( LOG_PLUGIN ) << disableFlush << "Engine 0x" << std::hex
+                            << info.name;
+
+        if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
+        {
+            EQLOG( LOG_PLUGIN ) << " compressors:";
+            // Find compressors for downloader
+            for( Plugins::const_iterator j = plugins.begin();
+                 j != plugins.end(); ++j )
+            {
+                const Plugin* plugin = *j;
+                const CompressorInfos& infos = plugin->getInfos();
+        
+                for( CompressorInfos::const_iterator k = infos.begin();
+                     k != infos.end(); ++k )
+                {
+                    const CompressorInfo& child = *k;
+                    if( child.capabilities & EQ_COMPRESSOR_TRANSFER ||
+                        child.tokenType != info.outputTokenType )
+                    {
+                        continue;
+                    }
+
+                    info.compressors.push_back( &child );
+                    EQLOG( LOG_PLUGIN ) << " 0x" << child.name;
+                }
+            }
+        }
+        else
+        {
+            EQLOG( LOG_PLUGIN ) << " uploaders:";
+            // Find uploaders for decompressor
+            for( Plugins::const_iterator j = plugins.begin();
+                 j != plugins.end(); ++j )
+            {
+                const Plugin* plugin = *j;
+                const CompressorInfos& infos = plugin->getInfos();
+        
+                for( CompressorInfos::const_iterator k = infos.begin();
+                     k != infos.end(); ++k )
+                {
+                    const CompressorInfo& child = *k;
+                    if( !(child.capabilities & EQ_COMPRESSOR_TRANSFER) ||
+                        child.tokenType != info.outputTokenType )
+                    {
+                        continue;
+                    }
+
+                    info.uploaders.push_back( &child );
+                    EQLOG( LOG_PLUGIN ) << " 0x" << child.name;
+                }
+            }
+        }
+        EQLOG( LOG_PLUGIN ) << std::endl << std::dec << enableFlush;
+    }
+}
+
+
 bool Plugin::implementsType( const uint32_t name ) const
 {
-    for( CompressorInfos::const_iterator i = _infos.begin(); 
+    for( CompressorInfos::const_iterator i = _infos.begin();
          i != _infos.end(); ++i )
     {
         if ( i->name == name )

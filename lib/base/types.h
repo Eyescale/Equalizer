@@ -124,6 +124,9 @@ struct CompressorInfo; //!< @internal
 /** @internal A vector of compressor information structures. */
 typedef std::vector< CompressorInfo > CompressorInfos;
 
+/** @internal A vector of pointers to compressor information. */
+typedef std::vector< const CompressorInfo* > CompressorInfoPtrs;
+
 /** @internal A vector of compression DSO interfaces. */
 typedef std::vector< Plugin* > Plugins;
 

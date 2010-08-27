@@ -49,7 +49,7 @@ namespace server
         /** @return the config of this view. */
         const Config* getConfig() const;
 
-        /** @return the Server of this view. @version 1.0 */
+        /** @return the Server of this view. */
         ServerPtr getServer();
 
         /** @return the index path to this view. */
@@ -83,15 +83,14 @@ namespace server
         virtual void activateMode( const Mode mode );
 
         /**
-         * (de-)activating a compound tree for each eyes.
+         * Activate/deactivate a compound tree for the given eyes.
          * 
-         * @param compound the destination compound to start the tree travel
-         * @param activate true if active or false to unactive
-         * @param eyes the eyes to activate
+         * @param compound the destination compound.
+         * @param activate true to activate, false to deactivate.
+         * @param eyes the eyes to activate.
          * 
          **/
-        static void activateCompound( Compound* compound, 
-                                      const bool activate, 
+        static void activateCompound( Compound* compound, const bool activate, 
                                       const uint32_t eyes );
         //@}
 

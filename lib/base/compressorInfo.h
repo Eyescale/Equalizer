@@ -29,7 +29,8 @@ namespace base
 /** @internal Augment the plugin information with additional data. */
 struct CompressorInfo : public EqCompressorInfo
 {
-    CompressorInfos children;
+    CompressorInfoPtrs compressors; //!< potential compressors of a downloader
+    CompressorInfoPtrs uploaders;   //!< potential uploaders of a decompressor
 };
 
 

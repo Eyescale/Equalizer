@@ -87,8 +87,8 @@ void CPUCompressor::initCompressor( const uint32_t dataType,
 }
 
 uint32_t CPUCompressor::chooseCompressor( const uint32_t tokenType, 
-                                              const float minQuality,
-                                              const bool ignoreALPHA )
+                                          const float minQuality,
+                                          const bool ignoreALPHA )
 {
     uint32_t name = EQ_COMPRESSOR_NONE;
     float ratio = 1.0f;

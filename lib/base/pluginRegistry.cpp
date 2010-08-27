@@ -73,6 +73,12 @@ void PluginRegistry::init()
             _initPlugin( libraryName );
         }
     }
+
+    for( Plugins::const_iterator i = _plugins.begin(); i != _plugins.end(); ++i)
+    {
+        Plugin* plugin = *i;
+        plugin->initChildren();
+    }
 }
 
 void PluginRegistry::_initPlugin( const std::string& filename )
