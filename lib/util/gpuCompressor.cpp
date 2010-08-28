@@ -52,6 +52,7 @@ void GPUCompressor::initDownloader( const uint32_t internalFormat,
 {
     EQASSERT( _glewContext );
     float ratio = std::numeric_limits< float >::max();
+    float speed = 0;
     uint32_t name = EQ_COMPRESSOR_NONE;
     
     EqCompressorInfos infos; 
@@ -63,9 +64,11 @@ void GPUCompressor::initDownloader( const uint32_t internalFormat,
     {
         const EqCompressorInfo& info = *j;
 
-        if( ratio > info.ratio )
+        if( ratio > info.ratio || 
+            ( ratio = info.ratio && speed < info.speed))
         {
             ratio = info.ratio;
+            speed = info.speed;
             name = info.name;
         }
     }

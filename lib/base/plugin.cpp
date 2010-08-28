@@ -90,7 +90,7 @@ bool Plugin::init( const std::string& libraryName )
     for( size_t i = 0; i < nCompressors; ++i )
     {
         CompressorInfo& info = _infos[ i ];
-
+        info.version = EQ_COMPRESSOR_VERSION;
         info.outputTokenType = EQ_COMPRESSOR_DATATYPE_NONE;
         info.outputTokenSize = 0;
         getInfo( i, &info );

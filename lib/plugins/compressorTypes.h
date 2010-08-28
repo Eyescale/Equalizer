@@ -206,11 +206,19 @@
 
 // Third-party plugins
 /** Lossless CPU jpeg compressor from rtt.ag */
-#define EQ_COMPRESSOR_AG_RTT_JPEG_HQ   0x100000u
+#define EQ_COMPRESSOR_AG_RTT_JPEG_HQ_BGRA_V1   0x100000u
 /** Lossless CPU jpeg compressor from rtt.ag */
-#define EQ_COMPRESSOR_AG_RTT_JPEG_MQ   0x100001u
+#define EQ_COMPRESSOR_AG_RTT_JPEG_HQ_BGRA_V2   0x100001u
 /** Lossless CPU jpeg compressor from rtt.ag */
-#define EQ_COMPRESSOR_AG_RTT_JPEG_LQ   0x100002u
+#define EQ_COMPRESSOR_AG_RTT_JPEG_MQ_BGRA_V2   0x100002u
+/** Lossless CPU jpeg compressor from rtt.ag */
+#define EQ_COMPRESSOR_AG_RTT_JPEG_LQ_BGRA_V2   0x100003u
+/** Lossless CPU jpeg compressor from rtt.ag */
+#define EQ_COMPRESSOR_AG_RTT_JPEG_HQ_BGRA_V3   0x100004u
+/** Lossless CPU jpeg compressor from rtt.ag */
+#define EQ_COMPRESSOR_AG_RTT_JPEG_MQ_BGRA_V3   0x100005u
+/** Lossless CPU jpeg compressor from rtt.ag */
+#define EQ_COMPRESSOR_AG_RTT_JPEG_LQ_BGRA_V3   0x100006u
 
 /**
  * Private types -FOR DEVELOPMENT ONLY-.
