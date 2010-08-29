@@ -109,6 +109,12 @@ ObjectManager<T>::SharedData::~SharedData()
                << " eq::FrameBufferObject's still allocated in ObjectManager "
                << "destructor" << endl;
     eqFrameBufferObjects.clear();
+
+    if( !eqUploaders.empty( ))
+        EQWARN << eqUploaders.size() 
+               << " eq::GPUCompressor's still allocated in ObjectManager "
+               << "destructor" << endl;
+    eqUploaders.clear();
 }
 
 template< class T >
@@ -192,6 +198,17 @@ void ObjectManager<T>::deleteAll()
         delete frameBufferObject;
     }
     _data->eqFrameBufferObjects.clear();
+
+	for( typename UploaderHash::const_iterator i =
+             _data->eqUploaders.begin();
+         i != _data->eqUploaders.end(); ++i )
+    {
+        GPUCompressor* uploader = i->second;
+        EQVERB << "Delete eq::GPUCompressor " << i->first << " @" 
+               << (void*)uploader << endl;
+        delete uploader;
+    }
+    _data->eqUploaders.clear();
 }
 
 // display list functions

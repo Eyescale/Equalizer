@@ -158,7 +158,7 @@ namespace util
             ObjectHash programs;
             ObjectHash shaders;
             ObjectHash uploaderDatas;
-            AccumHash accums;
+            AccumHash  accums;
             TextureHash eqTextures;
             FBOHash eqFrameBufferObjects;
             FontHash eqFonts;

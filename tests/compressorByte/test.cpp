@@ -33,6 +33,7 @@
 #include <numeric>
 #include <fstream>
 
+#include "base/compressorInfo.h" // private header
 #include "base/plugin.h" // private header
 
 void testCompressByte( const uint32_t nameCompressor,
@@ -82,7 +83,7 @@ std::vector< uint32_t > getCompressorNames( const uint32_t tokenType )
         for( eq::base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
-            if ( (*j).tokenType == tokenType )
+			if ( (*j).tokenType == tokenType )
                 names.push_back( (*j).name );
         }
     }
