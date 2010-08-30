@@ -106,7 +106,7 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
 
 #endif
 #ifdef EQ_USE_BOOST
-		case CONNECTIONTYPE_RSP:
+        case CONNECTIONTYPE_RSP:
             connection = new RSPConnection;
             break;
 #endif
@@ -496,7 +496,7 @@ std::ostream& operator << ( std::ostream& os, const Connection& connection )
             "UNKNOWN" );
     if( desc.isValid( ))
         os << " description " << desc->toString();
-    
+
     return os;
 }
 }

@@ -50,7 +50,7 @@ namespace eq
             char dummy[64];
         };
 
-    };		
+    };
 }
 
 #endif // EQ_CUDA_COMPUTE_CONTEXT_H

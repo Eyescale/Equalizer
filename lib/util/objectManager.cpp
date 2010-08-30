@@ -199,7 +199,7 @@ void ObjectManager<T>::deleteAll()
     }
     _data->eqFrameBufferObjects.clear();
 
-	for( typename UploaderHash::const_iterator i =
+    for( typename UploaderHash::const_iterator i =
              _data->eqUploaders.begin();
          i != _data->eqUploaders.end(); ++i )
     {

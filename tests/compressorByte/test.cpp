@@ -67,7 +67,7 @@ int main( int argc, char **argv )
     logFile->close();
     
     eq::exit();
-    return EXIT_SUCCESS;	
+    return EXIT_SUCCESS;
 }
 
 std::vector< uint32_t > getCompressorNames( const uint32_t tokenType )
@@ -83,7 +83,7 @@ std::vector< uint32_t > getCompressorNames( const uint32_t tokenType )
         for( eq::base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
-			if ( (*j).tokenType == tokenType )
+            if ( (*j).tokenType == tokenType )
                 names.push_back( (*j).name );
         }
     }
@@ -165,7 +165,7 @@ void testCompressByte( const uint32_t nameCompressor,
 void testCompressorFile(  std::ofstream* logFile )
 {
     std::vector< uint32_t >compressorNames = 
-		getCompressorNames( EQ_COMPRESSOR_DATATYPE_BYTE );
+        getCompressorNames( EQ_COMPRESSOR_DATATYPE_BYTE );
 
     std::vector< std::string > files;
     
@@ -226,8 +226,8 @@ bool compare( const char *dst, const char *src, const uint32_t nbytes )
             std::cerr << "error data in: " << i <<std::endl;
             return false;
         }
-		dst++;
-		src++;
+        dst++;
+        src++;
     }
     return true;
 }

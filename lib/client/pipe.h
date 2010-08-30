@@ -183,7 +183,7 @@ namespace eq
             { return _computeContext; }
 
         /** @return the compute context. */
-        ComputeContext* getComputeContext() { return _computeContext; }		
+        ComputeContext* getComputeContext() { return _computeContext; }	
         //@}
 
         /** @name Configuration. */

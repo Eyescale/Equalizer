@@ -611,7 +611,7 @@ template< class S, class C, class O, class L, class CV, class N, class V >
 N* Config< S, C, O, L, CV, N, V >::_findNode( const uint32_t id )
 {
     for( typename Nodes::const_iterator i = _nodes.begin(); 
-		 i != _nodes.end(); ++i )
+         i != _nodes.end(); ++i )
     {
         N* node = *i;
         if( node->getID() == id )

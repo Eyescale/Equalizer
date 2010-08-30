@@ -1325,7 +1325,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         default:
             EQUNREACHABLE;
     }
-	Memory& memory = _getMemory( buffer );
+    Memory& memory = _getMemory( buffer );
     const PixelViewport pvp( 0, 0, header.width, header.height );
     if( pvp != _pvp )
     {

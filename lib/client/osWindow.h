@@ -125,9 +125,9 @@ namespace util
 
         EQ_EXPORT int32_t getIAttribute( const Window::IAttribute attr ) const;
         //@}
-		
-		/** Set up _drawableConfig by querying the current context. */
-		EQ_EXPORT virtual void queryDrawableConfig( 
+
+        /** Set up _drawableConfig by querying the current context. */
+        EQ_EXPORT virtual void queryDrawableConfig( 
             DrawableConfig& drawableConfig ) = 0;
 
         /**

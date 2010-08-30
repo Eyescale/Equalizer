@@ -377,20 +377,20 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
         }
 
         Frames framesLeft = frames;
-    	while( !framesLeft.empty( ))
-    	{
-    	    // get the frames with the same subpixel compound
-    	    Frames current = _extractOneSubPixel( framesLeft );
+        while( !framesLeft.empty( ))
+        {
+            // get the frames with the same subpixel compound
+            Frames current = _extractOneSubPixel( framesLeft );
 
             // use assembleFrames to potentially benefit from CPU assembly
-    	    const uint32_t subCount = assembleFrames( current, channel, accum );
+            const uint32_t subCount = assembleFrames( current, channel, accum );
             EQASSERT( subCount < 2 )
-    	    if( subCount > 0 )
-    	        accum->accum();
+            if( subCount > 0 )
+                accum->accum();
             count += subCount;
         }
-    	if( count > 1 )
-    	    accum->display();
+        if( count > 1 )
+            accum->display();
         return count;
     }
 

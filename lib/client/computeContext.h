@@ -92,7 +92,7 @@ namespace eq
             char dummy[64];
         };
 
-    };		
+    };
 }
 
 #endif // EQ_COMPUTE_CONTEXT_H

@@ -48,7 +48,7 @@ void IBAdapter::close()
 bool IBAdapter::open( )
 {
     
-    ib_api_status_t	ibStatus;
+    ib_api_status_t ibStatus;
 
     // opens an instance of the access layer
     ibStatus = ib_open_al( &_accessLayer );

@@ -143,7 +143,7 @@ void Channel< W, C >::deserialize( net::DataIStream& is,
         if( !Serializable::isDirty( DIRTY_VIEWPORT ) || isMaster( ))
         {
             is >> _data.nativeContext.vp >> _data.nativeContext.pvp
-           	   >> _data.fixedVP >> _maxSize;
+               >> _data.fixedVP >> _maxSize;
             notifyViewportChanged();
         }
         else // consume unused data

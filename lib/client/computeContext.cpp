@@ -32,5 +32,5 @@ ComputeContext::ComputeContext( Pipe* parent )
 ComputeContext::~ComputeContext()
 {
 }
-	
+
 }

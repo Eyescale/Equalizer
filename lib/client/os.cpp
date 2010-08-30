@@ -71,10 +71,10 @@ void XSetCurrentDisplay( Display* display )
     if( !display )
     {
         DisplayPtr* ptr = _currentDisplay.get();
-	_currentDisplay = 0;
-	delete ptr;
+        _currentDisplay = 0;
+        delete ptr;
 
-	return;
+        return;
     }
 
     if( !_currentDisplay )

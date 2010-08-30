@@ -49,7 +49,7 @@ namespace eq
 #ifdef EQ_USE_CUDA
         cudaDeviceProp props;
         uint32_t device = getPipe()->getDevice();
-				
+			
         // Setup the CUDA device
         if( device == EQ_UNDEFINED_UINT32 )
         {
@@ -57,7 +57,7 @@ namespace eq
             EQWARN << "No CUDA device, using the fastest device: " << device
                    << std::endl;
         }
-		
+
         int device_count = 0;
         cudaGetDeviceCount( &device_count );
         EQINFO << "CUDA devices found: " << device_count << std::endl;
@@ -74,7 +74,7 @@ namespace eq
         // We assume GL interop here, otherwise use cudaSetDevice( device );
         // Attention: this call requires a valid GL context!
         cudaGLSetGLDevice( device );
-		
+
         int usedDevice = static_cast< int >( device );
 #ifdef WIN32
         // retrieve the CUDA device associated to the handle returned by 
@@ -85,13 +85,13 @@ namespace eq
 #endif
         EQASSERT( device == static_cast< uint32_t >( device ));
         cudaGetDeviceProperties( &props, usedDevice );
-		
+
         cudaError_t err = cudaGetLastError();
         if( cudaSuccess != err) 
         {
             std::ostringstream msg;
             msg << "CUDA initialization error: " << cudaGetErrorString( err );
-            setErrorMessage( msg.str( ));				
+            setErrorMessage( msg.str( ));
             return false;
         }                         
 
@@ -120,17 +120,17 @@ namespace eq
     // CUDA exit
     //--------------------------------------------------------------------------
     int CUDAContext::_getFastestDeviceID()
-    {		
+    {
 #ifdef EQ_USE_CUDA
 # if __DEVICE_EMULATION__
         return 0;
-# else		
+# else
         int device_count = 0;
         cudaGetDeviceCount( &device_count );
         
         cudaDeviceProp device_properties;
         int max_gflops_device = 0;
-		
+
         int current_device = 0;
         cudaGetDeviceProperties( &device_properties, current_device );
         int max_gflops = device_properties.multiProcessorCount * 

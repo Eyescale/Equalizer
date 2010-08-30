@@ -111,7 +111,7 @@ public:
                                 uint8_t& two, uint8_t& three ) 
     {
         NoSwizzle::swizzle(
-	       ((( input & ( EQ_BIT6  | EQ_BIT5  | EQ_BIT4 )) >> 3 )           |
+           ((( input & ( EQ_BIT6  | EQ_BIT5  | EQ_BIT4 )) >> 3 )           |
                 (( input & ( EQ_BIT13 | EQ_BIT12 | EQ_BIT11 )) >> 7 )          |
                 (( input & ( EQ_BIT8  | EQ_BIT7 )) << 5 )                      |
                 (( input & ( EQ_BIT24 | EQ_BIT23 | EQ_BIT22 |
