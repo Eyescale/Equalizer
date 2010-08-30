@@ -49,7 +49,7 @@ namespace eq
 #ifdef EQ_USE_CUDA
         cudaDeviceProp props;
         uint32_t device = getPipe()->getDevice();
-			
+
         // Setup the CUDA device
         if( device == EQ_UNDEFINED_UINT32 )
         {
