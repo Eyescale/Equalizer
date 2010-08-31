@@ -69,7 +69,7 @@ namespace fabric
         void setPixelViewport( const PixelViewport& pvp );
 
         /** Set the channel's viewport wrt its parent window. @internal */
-        void setViewport( const Viewport& vp );
+        EQFABRIC_EXPORT void setViewport( const Viewport& vp );
 
         /** Notification that the vp/pvp has changed. @internal */
         virtual void notifyViewportChanged();
