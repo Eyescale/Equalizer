@@ -1,9 +1,10 @@
-Minor code cleanups
+Compressor bugfix: Never call EqCompressorGetInfo except during plugin
+init, the info structure will not be initialized properly.
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

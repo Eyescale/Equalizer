@@ -42,9 +42,7 @@ namespace
              i != _functions->end(); ++i )
         {
             const Compressor::Functions& functions = *i;
-            EqCompressorInfo info;
-            functions.getInfo( &info );
-            if( info.name == name )
+            if( functions.name == name )
                 return functions;
         }
 
@@ -64,12 +62,14 @@ Compressor::~Compressor()
     _results.clear();
 }
 
-Compressor::Functions::Functions( CompressorGetInfo_t getInfo_,
+Compressor::Functions::Functions( const unsigned name_,
+                                  CompressorGetInfo_t getInfo_,
                                   NewCompressor_t newCompressor_,
                                   NewCompressor_t newDecompressor_,
                                   Decompress_t decompress_,
                                   IsCompatible_t isCompatible_ )
-        : getInfo( getInfo_ )
+        : name( name_ )
+        , getInfo( getInfo_ )
         , newCompressor( newCompressor_ )
         , newDecompressor( newDecompressor_ )
         , decompress( decompress_ )

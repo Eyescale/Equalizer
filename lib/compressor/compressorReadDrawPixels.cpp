@@ -51,6 +51,7 @@ namespace
     {                                                                   \
         Compressor::registerEngine(                                     \
             Compressor::Functions(                                      \
+                EQ_COMPRESSOR_TRANSFER_ ## in ## _TO_ ## out,           \
                 _getInfo ## in ## out,                                  \
                 CompressorReadDrawPixels::getNewCompressor,             \
                 CompressorReadDrawPixels::getNewDecompressor,           \

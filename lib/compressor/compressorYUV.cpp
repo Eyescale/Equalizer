@@ -53,7 +53,8 @@ static void _getInfo( EqCompressorInfo* const info )
 static bool _register()
 {
     Compressor::registerEngine(
-        Compressor::Functions( _getInfo, CompressorYUV::getNewCompressor,
+        Compressor::Functions( EQ_COMPRESSOR_TRANSFER_RGBA_TO_YUVA_50P,
+                               _getInfo, CompressorYUV::getNewCompressor,
                                CompressorYUV::getNewDecompressor, 0,
                                CompressorYUV::isCompatible ));
     return true;

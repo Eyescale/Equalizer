@@ -49,11 +49,12 @@ namespace plugin
 
         struct Functions
         {
-            Functions( CompressorGetInfo_t getInfo,
+            Functions( const unsigned name, CompressorGetInfo_t getInfo,
                        NewCompressor_t newCompressor,
                        NewCompressor_t newDecompressor,
                        Decompress_t decompress, IsCompatible_t isCompatible );
 
+            unsigned             name;
             CompressorGetInfo_t  getInfo;
             NewCompressor_t      newCompressor;
             NewCompressor_t      newDecompressor;

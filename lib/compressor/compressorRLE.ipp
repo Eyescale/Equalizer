@@ -52,7 +52,8 @@ public:
     static bool _register ## cls ## type()                              \
     {                                                                   \
         Compressor::registerEngine(                                     \
-            Compressor::Functions( _getInfo ## cls ## type,             \
+            Compressor::Functions( EQ_COMPRESSOR_RLE_ ## name_,         \
+                                   _getInfo ## cls ## type,             \
                                    cls::getNewCompressor,               \
                                    cls::getNewDecompressor,             \
                                    cls::decompress, 0 ));               \
