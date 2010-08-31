@@ -62,16 +62,19 @@ inline bool addWindow( eq::admin::ServerPtr server )
     segment->setEyes( EYE_CYCLOP ); // Mono
     
     // Passive stereo
+    eq::admin::Channel* channelLeft = new eq::admin::Channel( window );
+    eq::admin::Channel* channelRight = new eq::admin::Channel( window );
+
     eq::admin::Segment* segmentLeft = new eq::admin::Segment( canvas );
     eq::admin::Segment* segmentRight = new eq::admin::Segment( canvas );
     
-    segmentLeft->setViewport( leftHalf );
+    channelLeft->setViewport( leftHalf );
     segmentLeft->setEyes( EYE_LEFT );
-    segmentLeft->setChannel( channel );
+    segmentLeft->setChannel( channelLeft );
 
-    segmentRight->setViewport( rightHalf );
+    channelRight->setViewport( rightHalf );
     segmentRight->setEyes( EYE_RIGHT );
-    segmentRight->setChannel( channel );
+    segmentRight->setChannel( channelRight );
 #endif
 
     view->setObserver( observer );

@@ -1,9 +1,9 @@
-CMake: Mac GLX improvements
+Minor code cleanups
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
