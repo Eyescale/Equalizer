@@ -37,6 +37,7 @@
 
 #include <eq/client/configEvent.h>
 #include <eq/fabric/paths.h>
+#include <eq/fabric/iAttribute.h>
 #include <eq/net/command.h>
 #include <eq/net/global.h>
 #include <eq/base/sleep.h>
@@ -271,6 +272,7 @@ void Config::updateCanvas( Canvas* canvas )
 
             Compound* compound = new Compound( group );
             compound->setChannel( channel );
+            compound->setIAttribute( Compound::IATTR_STEREO_MODE, eq::fabric::AUTO );
         }
     }
 

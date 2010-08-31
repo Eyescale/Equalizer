@@ -99,7 +99,7 @@ namespace fabric
          *
          * @param eyes the segment eyes.
          */
-        void setEyes( const uint32_t eyes ) { _eyes = eyes; }
+        EQFABRIC_EXPORT void setEyes( const uint32_t eyes );
 
         /** 
          * Add eyes to be used by the segument.
@@ -158,7 +158,8 @@ namespace fabric
         {
             DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 0,
             DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 1,
-            DIRTY_CHANNEL    = Object::DIRTY_CUSTOM << 2
+            DIRTY_CHANNEL    = Object::DIRTY_CUSTOM << 2,
+            DIRTY_EYES       = Object::DIRTY_CUSTOM << 3
         };
 
         /** The parent canvas. */

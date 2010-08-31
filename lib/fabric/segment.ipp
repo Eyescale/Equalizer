@@ -34,6 +34,7 @@ template< class C, class S, class CH >
 Segment< C, S, CH >::Segment( C* canvas )
         : _canvas( canvas )
         , _channel( 0 )
+        , _eyes( 0 )
 {
     EQASSERT( canvas );
     canvas->_addSegment( static_cast< S* >( this ));
@@ -55,6 +56,15 @@ uint32_t Segment< C, S, CH >::commitNB()
     return Object::commitNB();
 }
 
+template< class C, class S, class CH >
+void Segment< C, S, CH >::setEyes( const uint32_t eyes ) 
+{ 
+    if( _eyes == eyes )
+        return;
+    setDirty( DIRTY_EYES );
+    _eyes = eyes; 
+}
+        
 template< class C, class S, class CH > void 
 Segment< C, S, CH >::serialize( net::DataOStream& os, const uint64_t dirtyBits )
 {
@@ -65,6 +75,8 @@ Segment< C, S, CH >::serialize( net::DataOStream& os, const uint64_t dirtyBits )
         os << *static_cast< Frustum* >( this );
     if( dirtyBits & DIRTY_CHANNEL )
         os << net::ObjectVersion( _channel );
+    if( dirtyBits & DIRTY_EYES )
+        os << getEyes();
 }
 
 template< class C, class S, class CH >
@@ -90,6 +102,8 @@ void Segment< C, S, CH >::deserialize( net::DataIStream& is,
             EQASSERT( !isMaster() || _channel );
         }
     }
+    if( dirtyBits & DIRTY_EYES )
+        is >> _eyes; 
 }
 
 template< class C, class S, class CH >
