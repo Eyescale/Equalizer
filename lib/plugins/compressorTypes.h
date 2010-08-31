@@ -205,20 +205,18 @@
 #define EQ_COMPRESSOR_TRANSFER_DEPTH_STENCIL_TO_UNSIGNED_INT_24_8   0x502u
 
 // Third-party plugins
-/** Lossless CPU jpeg compressor from rtt.ag */
-#define EQ_COMPRESSOR_AG_RTT_JPEG_HQ_BGRA_V1   0x100000u
-/** Lossless CPU jpeg compressor from rtt.ag */
-#define EQ_COMPRESSOR_AG_RTT_JPEG_HQ_BGRA_V2   0x100001u
-/** Lossless CPU jpeg compressor from rtt.ag */
-#define EQ_COMPRESSOR_AG_RTT_JPEG_MQ_BGRA_V2   0x100002u
-/** Lossless CPU jpeg compressor from rtt.ag */
-#define EQ_COMPRESSOR_AG_RTT_JPEG_LQ_BGRA_V2   0x100003u
-/** Lossless CPU jpeg compressor from rtt.ag */
-#define EQ_COMPRESSOR_AG_RTT_JPEG_HQ_BGRA_V3   0x100004u
-/** Lossless CPU jpeg compressor from rtt.ag */
-#define EQ_COMPRESSOR_AG_RTT_JPEG_MQ_BGRA_V3   0x100005u
-/** Lossless CPU jpeg compressor from rtt.ag */
-#define EQ_COMPRESSOR_AG_RTT_JPEG_LQ_BGRA_V3   0x100006u
+/** Quasi-lossless CPU jpeg compressor from rtt.ag */
+#define EQ_COMPRESSOR_AG_RTT_JPEG_HQ   0x100000u
+/** Medium quality CPU jpeg compressor from rtt.ag */
+#define EQ_COMPRESSOR_AG_RTT_JPEG_MQ   0x100001u
+/** Low quality CPU jpeg compressor from rtt.ag */
+#define EQ_COMPRESSOR_AG_RTT_JPEG_LQ   0x100002u
+/** Quasi-lossless CPU jpeg compressor from rtt.ag retaining alpha */
+#define EQ_COMPRESSOR_AG_RTT_JPEG_HQ_A   0x100003u
+/** Medium quality CPU jpeg compressor from rtt.ag retaining alpha */
+#define EQ_COMPRESSOR_AG_RTT_JPEG_MQ_A   0x100004u
+/** Low quality CPU jpeg compressor from rtt.ag retaining alpha */
+#define EQ_COMPRESSOR_AG_RTT_JPEG_LQ_A   0x100005u
 
 /**
  * Private types -FOR DEVELOPMENT ONLY-.
