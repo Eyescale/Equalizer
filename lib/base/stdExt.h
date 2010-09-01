@@ -84,11 +84,13 @@ EQ_STDEXT_NAMESPACE_OPEN
 
 //----- Our extensions of the STL 
 #ifdef EQ_STDEXT_TR1
+#   ifndef EQ_HAVE_HASH_MAP
     template<class K, class T, class H = hash< K >, 
              class P = std::equal_to< K >, class A = std::allocator< K > >
     class hash_map : public unordered_map< K, T, H, P, A >
     {
     };
+#  endif // EQ_HAVE_HASH_MAP
 #endif
 
 #ifdef EQ_STDEXT_EXT
