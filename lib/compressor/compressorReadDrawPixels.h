@@ -33,14 +33,14 @@ namespace plugin
 class CompressorReadDrawPixels : public Compressor
 {
 public:
-    CompressorReadDrawPixels( const EqCompressorInfo* info );
+    CompressorReadDrawPixels( const unsigned name );
     virtual ~CompressorReadDrawPixels();
     
-    static void* getNewCompressor( const EqCompressorInfo* info )
-        { return new CompressorReadDrawPixels( info ); }
+    static void* getNewCompressor( const unsigned name )
+        { return new CompressorReadDrawPixels( name ); }
 
-    static void* getNewDecompressor( const EqCompressorInfo* info )
-        { return new CompressorReadDrawPixels( info ); }
+    static void* getNewDecompressor( const unsigned name )
+        { return new CompressorReadDrawPixels( name ); }
 
     virtual void compress( const void* const inData, 
                            const eq_uint64_t nPixels, 
@@ -69,7 +69,7 @@ protected:
     uint32_t    _internalFormat; //!< the GL format
     uint32_t    _format;         //!< the GL format
     uint32_t    _type;           //!< the GL type 
-    uint32_t    _depth;          //!< the size of one output token
+    const uint32_t _depth;       //!< the size of one output token
 
     void _init( const eq_uint64_t  inDims[4], eq_uint64_t  outDims[4] );
 };

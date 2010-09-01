@@ -1,5 +1,4 @@
-Compressor bugfix: Never call EqCompressorGetInfo except during plugin
-init, the info structure will not be initialized properly.
+Compressor bugfix: Remove remaining EqCompressorGetInfo calls
 
 [ ] May break build
 [ ] May break existing applications

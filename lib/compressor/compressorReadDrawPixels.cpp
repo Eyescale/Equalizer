@@ -30,6 +30,8 @@ namespace plugin
 
 namespace
 {
+static stde::hash_map< unsigned, uint32_t > _depths;
+
 #define REGISTER_TRANSFER( in, out, size, quality_, ratio_, speed_, alpha ) \
     static void _getInfo ## in ## out( EqCompressorInfo* const info )   \
     {                                                                   \
@@ -49,14 +51,16 @@ namespace
                                                                         \
     static bool _register ## in ## out()                                \
     {                                                                   \
+        const unsigned name = EQ_COMPRESSOR_TRANSFER_ ## in ## _TO_ ## out; \
         Compressor::registerEngine(                                     \
             Compressor::Functions(                                      \
-                EQ_COMPRESSOR_TRANSFER_ ## in ## _TO_ ## out,           \
+                name,                                                   \
                 _getInfo ## in ## out,                                  \
                 CompressorReadDrawPixels::getNewCompressor,             \
                 CompressorReadDrawPixels::getNewDecompressor,           \
                 0,                                                      \
                 CompressorReadDrawPixels::isCompatible ));              \
+        _depths[ name ] = size;                                         \
         return true;                                                    \
     }                                                                   \
                                                                         \
@@ -96,93 +100,165 @@ REGISTER_TRANSFER( RGBA32F, BGR, 3, 1., .1875, 1.1, true );
 REGISTER_TRANSFER( DEPTH, DEPTH_UNSIGNED_INT, 4, 1., 1., 1., false );
 }
 
-CompressorReadDrawPixels::CompressorReadDrawPixels(const EqCompressorInfo* info)
-        : Compressor( info )
+CompressorReadDrawPixels::CompressorReadDrawPixels( const unsigned name )
+        : Compressor()
         , _texture( 0 )
         , _internalFormat( 0 )
         , _format( 0 )
         , _type( 0 )
-        , _depth( info->outputTokenSize )
-{ 
-    switch( info->outputTokenType )
+        , _depth( _depths[ name ] )
+{
+    EQASSERT( _depth > 0 );
+    switch( name )
     {
-        case EQ_COMPRESSOR_DATATYPE_RGBA:
-        case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
-        case EQ_COMPRESSOR_DATATYPE_RGBA32F:
-        case EQ_COMPRESSOR_DATATYPE_RGBA16F:
-        case EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV:
+        case EQ_COMPRESSOR_TRANSFER_RGBA_TO_RGBA:
             _format = GL_RGBA;
-            break;
-        case EQ_COMPRESSOR_DATATYPE_BGRA:
-        case EQ_COMPRESSOR_DATATYPE_BGR10_A2:
-        case EQ_COMPRESSOR_DATATYPE_BGRA32F:
-        case EQ_COMPRESSOR_DATATYPE_BGRA16F:
-        case EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV:
-            _format = GL_BGRA;
-            break;
-        case EQ_COMPRESSOR_DATATYPE_RGB:
-        case EQ_COMPRESSOR_DATATYPE_RGB32F:
-        case EQ_COMPRESSOR_DATATYPE_RGB16F:
-            _format = GL_RGB;
-            break;
-        case EQ_COMPRESSOR_DATATYPE_BGR:
-        case EQ_COMPRESSOR_DATATYPE_BGR32F:
-        case EQ_COMPRESSOR_DATATYPE_BGR16F:
-            _format = GL_BGR;
-            break;
-        case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT:
-            _format = GL_DEPTH_COMPONENT;
-            break;
-        default: EQASSERT( false );
-    }
-
-    switch( info->outputTokenType )
-    {
-        case EQ_COMPRESSOR_DATATYPE_RGBA:        
-        case EQ_COMPRESSOR_DATATYPE_BGRA:
-        case EQ_COMPRESSOR_DATATYPE_RGB:
-        case EQ_COMPRESSOR_DATATYPE_BGR:
-        case EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV:
-        case EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV:
             _type = GL_UNSIGNED_BYTE;
-            break;
-        case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
-        case EQ_COMPRESSOR_DATATYPE_BGR10_A2:
-            _type = GL_UNSIGNED_INT_10_10_10_2;
-            break;
-        case EQ_COMPRESSOR_DATATYPE_RGBA32F:
-        case EQ_COMPRESSOR_DATATYPE_BGRA32F:
-        case EQ_COMPRESSOR_DATATYPE_RGB32F:
-        case EQ_COMPRESSOR_DATATYPE_BGR32F:
-            _type = GL_FLOAT;
-            break;        
-        case EQ_COMPRESSOR_DATATYPE_RGBA16F:
-        case EQ_COMPRESSOR_DATATYPE_BGRA16F:
-        case EQ_COMPRESSOR_DATATYPE_RGB16F:
-        case EQ_COMPRESSOR_DATATYPE_BGR16F:
-            _type = GL_HALF_FLOAT;
-            break;
-        case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT:
-            _type = GL_UNSIGNED_INT;
-            break;
-        default: EQASSERT( false );
-    }
-
-    switch( info->tokenType )
-    {
-        case EQ_COMPRESSOR_DATATYPE_RGBA:              
             _internalFormat = GL_RGBA;
             break;
-        case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
-            _internalFormat = GL_RGB10_A2;
+        case EQ_COMPRESSOR_TRANSFER_RGBA_TO_RGBA_UINT_8_8_8_8_REV:
+            _format = GL_RGBA;
+            _type = GL_UNSIGNED_BYTE;
+            _internalFormat = GL_RGBA;
             break;
-        case EQ_COMPRESSOR_DATATYPE_RGBA32F:
-            _internalFormat = GL_RGBA32F;
-            break;
-        case EQ_COMPRESSOR_DATATYPE_RGBA16F:
+        case EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_RGBA:
+            _format = GL_RGBA;
+            _type = GL_UNSIGNED_BYTE;
             _internalFormat = GL_RGBA16F;
             break;
-        case EQ_COMPRESSOR_DATATYPE_DEPTH:
+        case EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_RGBA16F:
+            _format = GL_RGBA;
+            _type = GL_HALF_FLOAT;
+            _internalFormat = GL_RGBA16F;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGBA:
+            _format = GL_RGBA;
+            _type = GL_UNSIGNED_BYTE;
+            _internalFormat = GL_RGBA32F;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGBA16F:
+            _format = GL_RGBA;
+            _type = GL_HALF_FLOAT;
+            _internalFormat = GL_RGBA32F;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGBA32F:
+            _format = GL_RGBA;
+            _type = GL_FLOAT;
+            _internalFormat = GL_RGBA32F;
+            break;
+
+        case EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA:
+            _format = GL_BGRA;
+            _type = GL_UNSIGNED_BYTE;
+            _internalFormat = GL_RGBA;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA_UINT_8_8_8_8_REV:
+            _format = GL_BGRA;
+            _type = GL_UNSIGNED_BYTE;
+            _internalFormat = GL_RGBA;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGB10_A2_TO_BGR10_A2:
+            _format = GL_BGRA;
+            _type = GL_UNSIGNED_INT_10_10_10_2;
+            _internalFormat = GL_RGB10_A2;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGRA:
+            _format = GL_BGRA;
+            _type = GL_UNSIGNED_BYTE;
+            _internalFormat = GL_RGBA16F;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGRA16F:
+            _format = GL_BGRA;
+            _type = GL_HALF_FLOAT;
+            _internalFormat = GL_RGBA16F;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGRA:
+            _format = GL_BGRA;
+            _type = GL_UNSIGNED_BYTE;
+            _internalFormat = GL_RGBA32F;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGRA16F:
+            _format = GL_BGRA;
+            _type = GL_HALF_FLOAT;
+            _internalFormat = GL_RGBA32F;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGRA32F:
+            _format = GL_BGRA;
+            _type = GL_FLOAT;
+            _internalFormat = GL_RGBA32F;
+            break;
+
+        case EQ_COMPRESSOR_TRANSFER_RGBA_TO_RGB:
+            _format = GL_RGB;
+            _type = GL_UNSIGNED_BYTE;
+            _internalFormat = GL_RGBA;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_RGB:
+            _format = GL_RGB;
+            _type = GL_UNSIGNED_BYTE;
+            _internalFormat = GL_RGBA16F;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_RGB16F:
+            _format = GL_RGB;
+            _type = GL_HALF_FLOAT;
+            _internalFormat = GL_RGBA16F;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGB:
+            _format = GL_RGB;
+            _type = GL_UNSIGNED_BYTE;
+            _internalFormat = GL_RGBA32F;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGB32F:
+            _format = GL_RGB;
+            _type = GL_FLOAT;
+            _internalFormat = GL_RGBA32F;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_RGB16F:
+            _format = GL_RGB;
+            _type = GL_HALF_FLOAT;
+            _internalFormat = GL_RGBA32F;
+            break;
+
+        case EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGR:
+            _format = GL_BGR;
+            _type = GL_UNSIGNED_BYTE;
+            _internalFormat = GL_RGBA;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGR:
+            _format = GL_BGR;
+            _type = GL_UNSIGNED_BYTE;
+            _internalFormat = GL_RGBA16F;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGR16F:
+            _format = GL_BGR;
+            _type = GL_HALF_FLOAT;
+            _internalFormat = GL_RGBA16F;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGR:
+            _format = GL_BGR;
+            _type = GL_UNSIGNED_BYTE;
+            _internalFormat = GL_RGBA32F;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGR32F:
+            _format = GL_BGR;
+            _type = GL_FLOAT;
+            _internalFormat = GL_RGBA32F;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGR16F:
+            _format = GL_BGR;
+            _type = GL_HALF_FLOAT;
+            _internalFormat = GL_RGBA32F;
+            break;
+
+        case EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT:
+            _format = GL_DEPTH_COMPONENT;
+            _type = GL_UNSIGNED_INT;
+            _internalFormat = GL_DEPTH_COMPONENT;
+            break;
+
+        case EQ_COMPRESSOR_TRANSFER_DEPTH_STENCIL_TO_UNSIGNED_INT_24_8:
+            _format = GL_DEPTH_STENCIL_NV;
+            _type = GL_UNSIGNED_INT_24_8_NV;
             _internalFormat = GL_DEPTH_COMPONENT;
             break;
         default: EQASSERT( false );

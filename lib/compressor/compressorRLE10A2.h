@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,8 +29,7 @@ namespace plugin
 class CompressorRLE10A2 : public Compressor
 {
 public:
-    CompressorRLE10A2( const EqCompressorInfo* info ) : Compressor( info )
-        {}
+    CompressorRLE10A2() : Compressor() {}
     virtual ~CompressorRLE10A2() {}
 
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
@@ -42,9 +42,9 @@ public:
                             const eq_uint64_t nPixels, const bool useAlpha );
     
 
-    static void* getNewCompressor( const EqCompressorInfo* info )
-        { return new eq::plugin::CompressorRLE10A2( info ); }
-    static void* getNewDecompressor( const EqCompressorInfo* info ){ return 0; }
+    static void* getNewCompressor( const unsigned name )
+        { return new eq::plugin::CompressorRLE10A2; }
+    static void* getNewDecompressor( const unsigned name ){ return 0; }
 
 protected:
     void compress( const void* const inData, const eq_uint64_t nPixels, 

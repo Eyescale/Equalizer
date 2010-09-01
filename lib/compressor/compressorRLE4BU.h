@@ -29,7 +29,7 @@ namespace plugin
 class CompressorRLE4BU : public Compressor
 {
 public:
-    CompressorRLE4BU( const EqCompressorInfo* info ): Compressor( info ) {}
+    CompressorRLE4BU(): Compressor() {}
     virtual ~CompressorRLE4BU() {}
 
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
@@ -40,10 +40,10 @@ public:
                             const unsigned nInputs, void* const outData, 
                             const eq_uint64_t nPixels, const bool useAlpha );
 
-    static void* getNewCompressor( const EqCompressorInfo* info )
-        { return new eq::plugin::Compressor( info ); }
+    static void* getNewCompressor( const unsigned name )
+        { return new eq::plugin::CompressorRLE4BU; }
 
-    static void* getNewDecompressor( const EqCompressorInfo* info ){ return 0; }
+    static void* getNewDecompressor( const unsigned name ){ return 0; }
 };
 
 }

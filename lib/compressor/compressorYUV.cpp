@@ -64,8 +64,8 @@ static bool _initialized = _register();
 }
 
 /** Construct a new compressor Yuv */
-CompressorYUV::CompressorYUV( const EqCompressorInfo* info )
-        : Compressor( info )
+CompressorYUV::CompressorYUV()
+        : Compressor()
         , _program( 0 )
         , _fbo( 0 )
         , _texture( 0 )

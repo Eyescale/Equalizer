@@ -29,7 +29,7 @@ namespace plugin
 class CompressorRLE4B : public Compressor
 {
 public:
-    CompressorRLE4B( const EqCompressorInfo* info ) : Compressor( info ) {}
+    CompressorRLE4B() : Compressor() {}
     virtual ~CompressorRLE4B() {}
 
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
@@ -42,9 +42,9 @@ public:
                             const eq_uint64_t nPixels, const bool useAlpha );
     
 
-    static void* getNewCompressor( const EqCompressorInfo* info )
-                           { return new eq::plugin::CompressorRLE4B( info ); }
-    static void* getNewDecompressor( const EqCompressorInfo* info ){ return 0; }
+    static void* getNewCompressor( const unsigned name )
+                           { return new eq::plugin::CompressorRLE4B; }
+    static void* getNewDecompressor( const unsigned name ){ return 0; }
 
 protected:
     void compress( const void* const inData, const eq_uint64_t nPixels, 
@@ -56,13 +56,12 @@ protected:
 class CompressorDiffRLE4B : public CompressorRLE4B
 {
 public:
-    CompressorDiffRLE4B( const EqCompressorInfo* info ) 
-        : CompressorRLE4B( info ) {}
+    CompressorDiffRLE4B() : CompressorRLE4B() {}
     virtual ~CompressorDiffRLE4B() {}
 
     /** get a new instance of compressor RLE 4 bytes and swizzle data. */
-    static void* getNewCompressor( const EqCompressorInfo* info )
-        { return new eq::plugin::CompressorDiffRLE4B( info ); }
+    static void* getNewCompressor( const unsigned name )
+        { return new eq::plugin::CompressorDiffRLE4B; }
     
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
                            const bool useAlpha )

@@ -32,13 +32,13 @@ namespace plugin
 class CompressorYUV : public Compressor
 {
 public:
-    CompressorYUV( const EqCompressorInfo* info );
+    CompressorYUV();
     virtual ~CompressorYUV();
 
-    static void* getNewCompressor( const EqCompressorInfo* info  )
-        { return new CompressorYUV( info ); }
-    static void* getNewDecompressor( const EqCompressorInfo* info  )
-        { return new CompressorYUV( info ); }
+    static void* getNewCompressor( const unsigned name  )
+        { return new CompressorYUV(); }
+    static void* getNewDecompressor( const unsigned name  )
+        { return new CompressorYUV(); }
 
     virtual void compress( const void* const inData, 
                            const uint64_t    nPixels, 

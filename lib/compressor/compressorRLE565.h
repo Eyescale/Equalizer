@@ -29,15 +29,15 @@ namespace plugin
 class CompressorRLE565 : public Compressor
 {
 public:
-    CompressorRLE565( const EqCompressorInfo* info ): Compressor( info ) {}
+    CompressorRLE565(): Compressor() {}
     virtual ~CompressorRLE565() {}
 
     /** Get a new instance of this compressor */
-    static void* getNewCompressor( const EqCompressorInfo* info )
-        { return new eq::plugin::CompressorRLE565( info ); }
+    static void* getNewCompressor( const unsigned name )
+        { return new eq::plugin::CompressorRLE565; }
     
     /** Not used. */
-    static void* getNewDecompressor( const EqCompressorInfo* info ){ return 0; }
+    static void* getNewDecompressor( const unsigned name ){ return 0; }
     
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
                            const bool useAlpha );

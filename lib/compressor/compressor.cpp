@@ -51,7 +51,7 @@ namespace
     }
 }
 
-Compressor::Compressor( const EqCompressorInfo* info )
+Compressor::Compressor()
 {}
 
 Compressor::~Compressor()
@@ -102,9 +102,7 @@ void* EqCompressorNewCompressor( const unsigned name )
     const eq::plugin::Compressor::Functions& functions = 
         eq::plugin::_findFunctions( name );
     
-    EqCompressorInfo info;
-    functions.getInfo( &info );
-    return functions.newCompressor( &info );
+    return functions.newCompressor( name );
 }
 
 void EqCompressorDeleteCompressor( void* const compressor )
@@ -117,9 +115,7 @@ void* EqCompressorNewDecompressor( const unsigned name )
     const eq::plugin::Compressor::Functions& functions = 
         eq::plugin::_findFunctions( name );
     
-    EqCompressorInfo info;
-    functions.getInfo( &info );
-    return functions.newDecompressor( &info );
+    return functions.newDecompressor( name );
 }
 
 void EqCompressorDeleteDecompressor( void* const decompressor ) 

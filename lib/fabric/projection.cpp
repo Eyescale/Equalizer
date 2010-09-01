@@ -64,9 +64,9 @@ Projection& Projection::operator = ( const Wall& wall )
     Vector3f w;
     w.cross( u, v );
 
-    const Vector3f center((wall.bottomRight[0] + wall.topLeft[0]) * 0.5f,
-                                (wall.bottomRight[1] + wall.topLeft[1]) * 0.5f,
-                                (wall.bottomRight[2] + wall.topLeft[2]) * 0.5f);
+    const Vector3f center( (wall.bottomRight[0] + wall.topLeft[0]) * 0.5f,
+                           (wall.bottomRight[1] + wall.topLeft[1]) * 0.5f,
+                           (wall.bottomRight[2] + wall.topLeft[2]) * 0.5f );
     
     if ( distance <= std::numeric_limits< float >::epsilon( ))
         distance = center.length(); 

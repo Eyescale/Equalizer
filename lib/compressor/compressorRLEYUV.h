@@ -29,7 +29,7 @@ namespace plugin
 class CompressorRLEYUV : public Compressor
 {
 public:
-    CompressorRLEYUV( const EqCompressorInfo* info ): Compressor( info ) {}
+    CompressorRLEYUV(): Compressor() {}
     virtual ~CompressorRLEYUV() {}
 
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
@@ -41,10 +41,10 @@ public:
                             const unsigned nInputs, void* const outData, 
                             const eq_uint64_t nPixels, const bool useAlpha );
     
-    static void* getNewCompressor( const EqCompressorInfo* info )
-        { return new eq::plugin::CompressorRLEYUV( info ); }
+    static void* getNewCompressor( const unsigned name )
+        { return new eq::plugin::CompressorRLEYUV; }
 
-    static void* getNewDecompressor( const EqCompressorInfo* info ){ return 0; }
+    static void* getNewDecompressor( const unsigned name ){ return 0; }
     
 protected:
     void compress( const void* const inData, const eq_uint64_t nPixels, 
@@ -54,12 +54,11 @@ protected:
 class CompressorDiffRLEYUV : public CompressorRLEYUV
 {
 public:
-    CompressorDiffRLEYUV( const EqCompressorInfo* info )
-        : CompressorRLEYUV( info ) {}
+    CompressorDiffRLEYUV() : CompressorRLEYUV() {}
     virtual ~CompressorDiffRLEYUV() {}
 
-    static void* getNewCompressor( const EqCompressorInfo* info  )
-        { return new eq::plugin::CompressorDiffRLEYUV( info ); }
+    static void* getNewCompressor( const unsigned name  )
+        { return new eq::plugin::CompressorDiffRLEYUV; }
     
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
                            const bool useAlpha )

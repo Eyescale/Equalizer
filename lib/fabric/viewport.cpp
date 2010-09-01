@@ -27,7 +27,7 @@ namespace fabric
 void Viewport::applyView( const Viewport& segmentVP, const Viewport& viewVP,
                           const PixelViewport& pvp, const Vector4i& overdraw )
 {
-    // part of view covered by segment
+    // part of view covered by segment/view channel
     Viewport contribution( segmentVP );
     contribution.intersect( viewVP );
     contribution.transform( viewVP );

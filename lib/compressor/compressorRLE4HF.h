@@ -29,7 +29,7 @@ namespace plugin
 class CompressorRLE4HF : public Compressor
 {
 public:
-    CompressorRLE4HF( const EqCompressorInfo* info ): Compressor( info ) {}
+    CompressorRLE4HF(): Compressor() {}
     virtual ~CompressorRLE4HF() {}
 
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
@@ -41,10 +41,10 @@ public:
                             const unsigned nInputs, void* const outData, 
                             const eq_uint64_t nPixels, const bool useAlpha );
     
-    static void* getNewCompressor( const EqCompressorInfo* info )
-        { return new eq::plugin::CompressorRLE4HF( info ); }
+    static void* getNewCompressor( const unsigned name )
+        { return new eq::plugin::CompressorRLE4HF; }
 
-    static void* getNewDecompressor( const EqCompressorInfo* info ){ return 0; }
+    static void* getNewDecompressor( const unsigned name ){ return 0; }
     
 protected:
     void compress( const void* const inData, const eq_uint64_t nPixels, 
@@ -54,8 +54,7 @@ protected:
 class CompressorDiffRLE4HF : public CompressorRLE4HF
 {
 public:
-    CompressorDiffRLE4HF( const EqCompressorInfo* info )
-        : CompressorRLE4HF( info ){}
+    CompressorDiffRLE4HF() : CompressorRLE4HF() {}
     virtual ~CompressorDiffRLE4HF() {}
             
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
@@ -67,8 +66,8 @@ public:
                             const unsigned nInputs, void* const outData, 
                             const eq_uint64_t nPixels, const bool useAlpha );
 
-    static void* getNewCompressor( const EqCompressorInfo* info )
-        { return new eq::plugin::CompressorDiffRLE4HF( info ); }
+    static void* getNewCompressor( const unsigned name )
+        { return new eq::plugin::CompressorDiffRLE4HF; }
 
 };
 

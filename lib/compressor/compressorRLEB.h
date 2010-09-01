@@ -29,7 +29,7 @@ namespace plugin
 class CompressorRLEB : public Compressor
 {
 public:
-    CompressorRLEB( const EqCompressorInfo* info ): Compressor( info ) {}
+    CompressorRLEB(): Compressor() {}
     virtual ~CompressorRLEB() {}
 
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
@@ -42,9 +42,9 @@ public:
                             const eq_uint64_t nPixels, const bool useAlpha );
     
 
-    static void* getNewCompressor( const EqCompressorInfo* info  )
-        { return new eq::plugin::CompressorRLEB( info ); }
-    static void* getNewDecompressor( const EqCompressorInfo* info ){ return 0; }
+    static void* getNewCompressor( const unsigned name )
+        { return new eq::plugin::CompressorRLEB; }
+    static void* getNewDecompressor( const unsigned name ){ return 0; }
     
 protected:
     void compress( const void* const inData, const eq_uint64_t nPixels, 

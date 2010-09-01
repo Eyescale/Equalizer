@@ -40,7 +40,7 @@ namespace plugin
     {
     public:
         typedef void  (*CompressorGetInfo_t)( EqCompressorInfo* const );
-        typedef void* (*NewCompressor_t)( const EqCompressorInfo* );
+        typedef void* (*NewCompressor_t)( const unsigned );
         typedef void (*Decompress_t)( const void* const*, const 
                                       eq_uint64_t* const,
                                       const unsigned, void* const, 
@@ -63,8 +63,7 @@ namespace plugin
         };
 
         /** Construct a new compressor. */
-        Compressor( const EqCompressorInfo* info );
-
+        Compressor();
         virtual ~Compressor();
 
         /**

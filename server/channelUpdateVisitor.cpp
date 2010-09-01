@@ -179,7 +179,7 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
 
     if( view )
     {
-        // compute inherit vp (part of view covered by segment)
+        // compute inherit vp (part of view covered by segment/view channel)
         const Segment* segment = destChannel->getSegment();
         EQASSERT( segment );
 
@@ -645,7 +645,7 @@ void ChannelUpdateVisitor::_updateViewStart( const Compound* compound,
     
     // view start task
     ChannelFrameViewStartPacket packet;
-    packet.context   = context;
+    packet.context = context;
 
     EQLOG( LOG_TASKS ) << "TASK view start " << _channel->getName() <<  " "
                            << &packet << std::endl;
