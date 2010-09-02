@@ -57,15 +57,18 @@ static const std::string _help(
     std::string( "\t\tw:                         Toggle wireframe mode\n" ) +
     std::string( "\t\td:                         Toggle color demo mode\n" ) +
     std::string( "\t\tq, Q:                      Adjust non-idle image quality\n" ) +
-    std::string( "\t\tp:                         Toggle navigation mode (trackball,\
+    std::string( "\t\tn:                         Toggle navigation mode (trackball,\
                                                                 walk)\n" ) +
     std::string( "\t\tr:                         Switch rendering mode (display\
                                                     list, VBO, immediate)\n" ) +
     std::string( "\t\tc:                         Switch active canvas\n" ) +
     std::string( "\t\tv:                         Switch active view\n" ) +
     std::string( "\t\tm:                         Switch model for active view\n" ) +
-    std::string( "\t\tl:                         Switch layout for active canvas\n"
-                                                                            ));
+    std::string( "\t\tl:                         Switch layout for active canvas\n" ) +
+    std::string( "\t\ta:                         Add active stereo window\n" ) +
+    std::string( "\t\tp:                         Add passive stereo window\n" ) +
+    std::string( "\t\tx:                         Remove window\n" )
+                               );
 }
 
 const std::string& EqPly::getHelp()

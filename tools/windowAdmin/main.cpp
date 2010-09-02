@@ -65,5 +65,5 @@ int main( const int argc, char** argv )
 
 void _runMainLoop( eq::admin::ServerPtr server )
 {
-    eqAdmin::addWindow( server );
+    eqAdmin::addWindow( server, false /* active stereo */ );
 }

@@ -34,7 +34,7 @@ template< class C, class S, class CH >
 Segment< C, S, CH >::Segment( C* canvas )
         : _canvas( canvas )
         , _channel( 0 )
-        , _eyes( 0 )
+        , _eyes( EYES_ALL )
 {
     EQASSERT( canvas );
     canvas->_addSegment( static_cast< S* >( this ));
@@ -76,7 +76,7 @@ Segment< C, S, CH >::serialize( net::DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_CHANNEL )
         os << net::ObjectVersion( _channel );
     if( dirtyBits & DIRTY_EYES )
-        os << getEyes();
+        os << _eyes;
 }
 
 template< class C, class S, class CH >
@@ -231,15 +231,15 @@ std::ostream& operator << ( std::ostream& os, const Segment< C, S, CH >& s )
             os << "channel  " << segment.getChannel()->getPath() << std::endl;
     }
     
-    const uint32_t eye = segment.getEyes();
-    if( eye )
+    const uint32_t eyes = segment.getEyes();
+    if( eyes != EYES_ALL )
     {
         os << "eye      [ ";
-        if( eye & fabric::EYE_CYCLOP )
+        if( eyes & fabric::EYE_CYCLOP )
             os << "CYCLOP ";
-        if( eye & fabric::EYE_LEFT )
+        if( eyes & fabric::EYE_LEFT )
             os << "LEFT ";
-        if( eye & fabric::EYE_RIGHT )
+        if( eyes & fabric::EYE_RIGHT )
             os << "RIGHT ";
         os << "]" << std::endl;
     }

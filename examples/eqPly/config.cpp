@@ -544,8 +544,8 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 {
     switch( event.key )
     {
-        case 'p':
-        case 'P':
+        case 'n':
+        case 'N':
             _frameData.togglePilotMode();
             return true;
         case ' ':
@@ -656,10 +656,17 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         {
             eq::admin::ServerPtr server = getAdminServer();
             if( server.isValid( ))
-                eqAdmin::addWindow( server );
+                eqAdmin::addWindow( server, false /* active stereo */ );
             return true;
         }
-        case 'A':
+        case 'p':
+        {
+            eq::admin::ServerPtr server = getAdminServer();
+            if( server.isValid( ))
+                eqAdmin::addWindow( server, true /* passive stereo */ );
+            return true;
+        }
+        case 'x':
         {
             eq::admin::ServerPtr server = getAdminServer();
             if( server.isValid( ))

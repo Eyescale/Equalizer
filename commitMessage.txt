@@ -1,9 +1,12 @@
-Compressor bugfix: Remove remaining EqCompressorGetInfo calls
+Stereo switching:
+- make passive stereo a flag for runtime window creation
+- fix default segment eyes as specified
+- fix compound stereo auto mode interpretation [to be tested]
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

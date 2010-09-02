@@ -53,6 +53,9 @@
 
 namespace eq
 {
+
+using fabric::EYES_STEREO;
+
 namespace server
 {
 #define MAKE_ATTR_STRING( attr ) ( std::string("EQ_COMPOUND_") + #attr )
@@ -921,26 +924,22 @@ void Compound::updateInheritData( const uint32_t frameNumber )
 
     if( _inherit.channel )
     {
-        if( _data.iAttributes[IATTR_STEREO_MODE] == fabric::AUTO )
+        if( _inherit.iAttributes[IATTR_STEREO_MODE] == fabric::AUTO )
         {
-            _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::ANAGLYPH;
+            _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::QUAD;
             const Window* window = _inherit.channel->getWindow();
             
             const bool usesFBO =  window && 
                 (( window->getIAttribute( Window::IATTR_HINT_DRAWABLE ) == 
                             fabric::FBO) || 
                  _inherit.channel->getDrawable() != Channel::FB_WINDOW );
-            
-            if( !usesFBO )
-            {
-                const DrawableConfig& drawable = window->getDrawableConfig();
-                const Segment* segment = _inherit.channel->getSegment(); 
-                if( drawable.stereo || 
-                    ( (segment->getEyes() & fabric::EYES_STEREO ) != fabric::EYES_STEREO ))
-                {
-                    _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::QUAD;
-                }
-            }
+            const bool stereoWindow = window->getDrawableConfig().stereo;
+            const Segment* segment = _inherit.channel->getSegment(); 
+            const bool stereoEyes =
+                (segment->getEyes() & EYES_STEREO ) == EYES_STEREO;
+
+            if(( usesFBO || !stereoWindow ) && stereoEyes )
+                _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::ANAGLYPH;
         }
 
         for( size_t i = 0; i < fabric::NUM_EYES; ++i )

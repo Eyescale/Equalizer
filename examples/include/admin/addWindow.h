@@ -35,7 +35,7 @@
 namespace eqAdmin
 {
 
-inline bool addWindow( eq::admin::ServerPtr server )
+inline bool addWindow( eq::admin::ServerPtr server, const bool passiveStereo )
 {
     // Find first pipe...
     eq::admin::Pipe* pipe = findPipe( server );
@@ -54,26 +54,35 @@ inline bool addWindow( eq::admin::ServerPtr server )
 
     window->setPixelViewport( eq::fabric::PixelViewport( 100, 100, 400, 300 ));
     window->setName( "Runtime-created window" );
+    channel->setName( "Runtime-created channel" );
     canvas->setName( "Runtime-created canvas" );
     layout->setName( "Runtime-created layout" );
     observer->setName( "Runtime-created observer" );
 
-    segment->setEyes( eq::fabric::EYE_CYCLOP ); // Mono
+    if( passiveStereo )
+    {
+        window->setPixelViewport( 
+            eq::fabric::PixelViewport( 500, 100, 400, 300 ));
+        segment->setEyes( eq::fabric::EYE_CYCLOP ); // Mono
 
-    // Passive stereo
-    eq::admin::Channel* channelLeft = new eq::admin::Channel( window );
-    eq::admin::Channel* channelRight = new eq::admin::Channel( window );
+        // Passive stereo
+        eq::admin::Channel* channelLeft = new eq::admin::Channel( window );
+        eq::admin::Channel* channelRight = new eq::admin::Channel( window );
 
-    eq::admin::Segment* segmentLeft = new eq::admin::Segment( canvas );
-    eq::admin::Segment* segmentRight = new eq::admin::Segment( canvas );
+        eq::admin::Segment* segmentLeft = new eq::admin::Segment( canvas );
+        eq::admin::Segment* segmentRight = new eq::admin::Segment( canvas );
 
-    channelLeft->setViewport( eq::fabric::Viewport( .0f, .0f, 0.5f, 1.0f ) );
-    segmentLeft->setEyes( eq::fabric::EYE_LEFT );
-    segmentLeft->setChannel( channelLeft );
+        channelLeft->setViewport( eq::fabric::Viewport( .0f, 0.f, .5f, 1.f ));
+        segmentLeft->setEyes( eq::fabric::EYE_LEFT );
+        segmentLeft->setChannel( channelLeft );
 
-    channelRight->setViewport( eq::fabric::Viewport( .5f, .0f, 0.5f, 1.0f ) );
-    segmentRight->setEyes( eq::fabric::EYE_RIGHT );
-    segmentRight->setChannel( channelRight );
+        channelRight->setViewport( eq::fabric::Viewport( .5f, 0.f, .5f, 1.f ));
+        segmentRight->setEyes( eq::fabric::EYE_RIGHT );
+        segmentRight->setChannel( channelRight );
+
+        channelLeft->setName( "Runtime-created left eye channel" );
+        channelRight->setName( "Runtime-created right eye channel" );
+    }
 
     view->setObserver( observer );
     segment->setChannel( channel );

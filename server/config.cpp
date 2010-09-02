@@ -272,7 +272,6 @@ void Config::updateCanvas( Canvas* canvas )
 
             Compound* compound = new Compound( group );
             compound->setChannel( channel );
-            compound->setIAttribute( Compound::IATTR_STEREO_MODE, eq::fabric::AUTO );
         }
     }
 
