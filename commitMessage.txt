@@ -1,12 +1,9 @@
-Stereo switching:
-- make passive stereo a flag for runtime window creation
-- fix default segment eyes as specified
-- fix compound stereo auto mode interpretation [to be tested]
+eqPly: activate first view after canvas switch
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [x] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

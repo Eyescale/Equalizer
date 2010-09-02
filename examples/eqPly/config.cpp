@@ -786,6 +786,7 @@ void Config::_switchCanvas()
         _currentCanvas = canvases.front();
     else
         _currentCanvas = *i;
+    _switchView(); // activate first view on canvas
 }
 
 void Config::_switchView()
