@@ -459,7 +459,7 @@ bool Config< S, C, O, L, CV, N, V >::_removeLayout( L* layout )
     for( typename Canvases::const_iterator j = _canvases.begin();
          j != _canvases.end(); ++j )
     {
-        canvas->removeLayout( layout );
+        (*j)->removeLayout( layout );
     }
 
     EQASSERT( layout->getConfig() == this );
