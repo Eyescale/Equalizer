@@ -51,12 +51,23 @@ namespace server
         /** @return true if this layout should be deleted. */
         bool needsDelete() const { return _state == STATE_DELETE; }
 
+        /** @name Operations */
+        //@{
+        /** 
+         * Trigger a layout (de)activation
+         *
+         * @param canvas The canvas triggering the (de)activation.
+         * @param active true to activate, false to deactivate.
+         */
+        void trigger( const Canvas* canvas, const bool active );
+
         /** Unmap this layout and all its children. */
         void deregister();
 
         /** Schedule deletion of this layout. */
         void postDelete();
-        
+        //@}
+
     private:
         enum State
         {

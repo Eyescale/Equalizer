@@ -63,8 +63,11 @@ namespace fabric
         /** @return the vector of possible layouts. @version 1.0 */
         const Layouts& getLayouts() const { return _layouts; }        
 
-        /** Add a new allowed layout to this canvas, can be 0. @internal */
+        /** @internal Add a new allowed layout to this canvas, can be 0. */
         EQFABRIC_EXPORT void addLayout( L* layout );
+
+        /** @internal Remove a layout from this canvas, can be the 0 layout. */
+        EQFABRIC_EXPORT bool removeLayout( L* layout );
 
         /** @sa Frustum::setWall() */
         EQFABRIC_EXPORT virtual void setWall( const Wall& wall );
@@ -126,7 +129,8 @@ namespace fabric
         /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
         /** @internal */
-        virtual void activateLayout( const uint32_t ) { /* NOP */ }
+        virtual void activateLayout( const uint32_t index )
+            { _data.activeLayout = index; }
 
     private:
         /** The parent config. */

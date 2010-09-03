@@ -48,7 +48,6 @@
 #include <vector>
 
 #include "compoundActivateVisitor.h"
-#include "compoundDeregisterVisitor.h"
 #include "compoundExitVisitor.h"
 
 namespace eq
@@ -769,12 +768,6 @@ void Compound::init()
 void Compound::exit()
 {
     CompoundExitVisitor visitor;
-    accept( visitor );
-}
-
-void Compound::deregister()
-{
-    CompoundDeregisterVisitor visitor;
     accept( visitor );
 }
 

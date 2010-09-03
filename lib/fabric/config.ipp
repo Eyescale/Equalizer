@@ -451,9 +451,16 @@ template< class S, class C, class O, class L, class CV, class N, class V >
 bool Config< S, C, O, L, CV, N, V >::_removeLayout( L* layout )
 {
     typename Layouts::iterator i = std::find( _layouts.begin(),
-                                                   _layouts.end(), layout );
+                                              _layouts.end(), layout );
     if( i == _layouts.end( ))
         return false;
+
+    // remove from canvases
+    for( typename Canvases::const_iterator j = _canvases.begin();
+         j != _canvases.end(); ++j )
+    {
+        canvas->removeLayout( layout );
+    }
 
     EQASSERT( layout->getConfig() == this );
     _layouts.erase( i );

@@ -74,24 +74,23 @@ namespace server
         /** @return the vector of destination channels. */
         const Channels& getChannels() const{ return _channels; } 
 
+        /** @name Operations */
+        //@{
+        /** 
+         * Trigger a view (de)activation.
+         * 
+         * @param canvas The canvas to activate, or 0 to activate for all
+         *               canvases using this view's layout.
+         * @param active true to activate, false to deactivate.
+         */
+        void trigger( const Canvas* canvas, const bool active );
+
         /**
-         * @internal
          * Activate the given mode on this view.
          *
          * @param mode the new rendering mode 
          */
         virtual void activateMode( const Mode mode );
-
-        /**
-         * Activate/deactivate a compound tree for the given eyes.
-         * 
-         * @param compound the destination compound.
-         * @param activate true to activate, false to deactivate.
-         * @param eyes the eyes to activate.
-         * 
-         **/
-        static void activateCompound( Compound* compound, const bool activate, 
-                                      const uint32_t eyes );
         //@}
 
     protected:
@@ -103,13 +102,21 @@ namespace server
         /** The list of channels. */
         Channels _channels;
 
-        /** The current activated rendering mode */
-        Mode _currentMode;
-
         union // placeholder for binary-compatible changes
         {
             char dummy[32];
         };
+
+        /**
+         * Activate/deactivate a compound tree for the given eyes.
+         * 
+         * @param compound the destination compound.
+         * @param activate true to activate, false to deactivate.
+         * @param eyes the eyes to activate.
+         * 
+         **/
+        static void _updateCompound( Compound* compound, const bool activate, 
+                                     const uint32_t eyes );
     };
 }
 }

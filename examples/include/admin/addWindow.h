@@ -37,6 +37,9 @@ namespace eqAdmin
 
 inline bool addWindow( eq::admin::ServerPtr server, const bool passiveStereo )
 {
+    if( !server )
+       return false;
+
     // Find first pipe...
     eq::admin::Pipe* pipe = findPipe( server );
     if( !pipe )
@@ -58,12 +61,14 @@ inline bool addWindow( eq::admin::ServerPtr server, const bool passiveStereo )
     canvas->setName( "Runtime-created canvas" );
     layout->setName( "Runtime-created layout" );
     observer->setName( "Runtime-created observer" );
+    view->changeMode( eq::admin::View::MODE_STEREO );
 
     if( passiveStereo )
     {
         window->setPixelViewport( 
             eq::fabric::PixelViewport( 500, 100, 400, 300 ));
         segment->setEyes( eq::fabric::EYE_CYCLOP ); // Mono
+        view->changeMode( eq::admin::View::MODE_MONO );
 
         // Passive stereo
         eq::admin::Channel* channelLeft = new eq::admin::Channel( window );

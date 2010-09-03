@@ -42,9 +42,8 @@ namespace fabric
         /** The current rendering mode. */
         enum Mode
         {
-            MODE_NONE,   //!< Render EYE unactivation
-            MODE_MONO,   //!< Render in mono (cyclop eye)
-            MODE_STEREO  //!< Render in stereo (left & right eye)
+            MODE_MONO = 1,   //!< Render in mono (cyclop eye)
+            MODE_STEREO      //!< Render in stereo (left & right eye)
         };
 
         /** @name Data Access. */
@@ -104,7 +103,7 @@ namespace fabric
          *
          * @param mode the new rendering mode 
          */
-        virtual void activateMode( const Mode mode ){} 
+        virtual void activateMode( const Mode mode ){ _mode = mode; }
         //@}
 
         /** @name Operations */

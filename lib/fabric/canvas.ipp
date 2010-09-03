@@ -126,7 +126,6 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
         uint32_t index;
         is >> index;
         activateLayout( index );
-        _data.activeLayout = index;
     }
 
     if( dirtyBits & DIRTY_SEGMENTS )
@@ -230,7 +229,7 @@ bool Canvas< CFG, C, S, L >::_removeSegment( S* segment )
     EQASSERT( segment->getCanvas() == this );
     _segments.erase( i );
     setDirty( DIRTY_SEGMENTS );
-    if( !isMaster( ))
+    if( isAttached() && !isMaster( ))
         postRemove( segment );
     return true;
 }
@@ -259,6 +258,23 @@ void Canvas< CFG, C, S, L >::addLayout( L* layout )
     setDirty( DIRTY_LAYOUTS );
 }
 
+template< class CFG, class C, class S, class L >
+bool Canvas< CFG, C, S, L >::removeLayout( L* layout )
+{
+    typename Layouts::iterator i = stde::find( _layouts, layout );
+    if( i == _layouts.end( ))
+        return false;
+
+    if( getActiveLayout() == layout )
+    {
+        _data.activeLayout = 0;
+        setDirty( DIRTY_LAYOUT );
+    }
+
+    _layouts.erase( i );
+    setDirty( DIRTY_LAYOUTS );
+    return true;
+}
 
 template< class CFG, class C, class S, class L >
 const L* Canvas< CFG, C, S, L >::getActiveLayout() const

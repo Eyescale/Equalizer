@@ -140,6 +140,9 @@ private:
 
 inline bool removeWindow( eq::admin::ServerPtr server )
 {
+    if( !server )
+       return false;
+
     // Find first pipe...
     eq::admin::Pipe* pipe = findPipe( server );
     if( !pipe )

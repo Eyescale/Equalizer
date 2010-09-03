@@ -71,6 +71,18 @@ void Layout::postDelete()
     getConfig()->postNeedsFinish();
 }
 
+void Layout::trigger( const Canvas* canvas, const bool active )
+{
+    EQASSERT( canvas );
+    const Views& views = getViews();
+    for( Views::const_iterator i = views.begin(); i != views.end(); ++i )
+    {
+        View* view = *i;
+        view->trigger( canvas, active );
+        getConfig()->postNeedsFinish();
+    }
+}
+
 }
 }
 

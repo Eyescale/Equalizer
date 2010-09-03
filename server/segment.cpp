@@ -49,7 +49,16 @@ Segment::~Segment()
     for( Compounds::const_iterator i = compounds.begin();
          i != compounds.end(); ++i )
     {
-        delete *i;
+        Compound* compound = *i;
+        while( compound )
+        {
+            Compound* parent = compound->getParent();
+            delete compound;
+            if( parent && parent->isLeaf( )) // empty parent now
+                compound = parent;
+            else
+                compound = 0;
+        }
     }
 
     // Use copy - Channel::unsetOutput modifies vector

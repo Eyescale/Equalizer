@@ -1,6 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,39 +20,41 @@
 
 #include "compoundVisitor.h" // base class
 
-#include "channel.h"  // used in inline method
 #include "compound.h" // used in inline method
+#include "config.h"   // used in inline method
+#include "frame.h"    // used in inline method
 
 namespace eq
 {
 namespace server
 {
-    class Channel;
-    
-    /**
-     * The compound visitor exitializing a compound tree.
-     */
+    /** The compound visitor exiting a compound tree. */
     class CompoundExitVisitor : public CompoundVisitor
     {
     public:
-        CompoundExitVisitor( ) {}
-        virtual ~CompoundExitVisitor( ) {}
+        virtual ~CompoundExitVisitor() {}
 
         /** Visit all compounds. */
         virtual VisitorResult visit( Compound* compound )
             {
-                // TO-DO may be no need to deactivate compound here since the activation
-                //       is made by canvas
-                Channel* channel = compound->getChannel();
-                if( compound->isDestination() && !channel->getSegment( ))
+                Config* config = compound->getConfig();
+                EQASSERT( config );
+
+                const Frames& outputFrames = compound->getOutputFrames();
+                for( Frames::const_iterator i = outputFrames.begin(); 
+                     i != outputFrames.end(); ++i )
                 {
-                    EQASSERT( !channel->getView( ));
-                    
-                    // old-school (non-Layout) destination channel, deactivate
-                    //  compound layout destination channel compounds are
-                    //  deactivated by view
-                    View::activateCompound( compound, false, 
-                                            compound->getEyes( ) );
+                    Frame* frame = *i;
+                    frame->flush();
+                    config->deregisterObject( frame );
+                }
+
+                const Frames& inputFrames = compound->getInputFrames();
+                for( Frames::const_iterator i = inputFrames.begin(); 
+                     i != inputFrames.end(); ++i )
+                {
+                    Frame* frame = *i;
+                    config->deregisterObject( frame );
                 }
                 return TRAVERSE_CONTINUE;    
             }

@@ -102,6 +102,7 @@ HEADER_SRC = \
 	fabric/iAttribute.h \
 	fabric/init.h \
 	fabric/leafVisitor.h \
+	fabric/log.h \
 	fabric/node.h \
 	fabric/nodeType.h \
 	fabric/object.h \

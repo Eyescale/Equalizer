@@ -1,9 +1,15 @@
-eqPly: activate first view after canvas switch
+admin API:
+- Rework view activation to be canvas-aware (using same layout on two canvases)
+- Fix admin-set stereo mode
+- Remove pre-0.9 destination compounds (w/out view/segment)
+- Extended eqPly 'k'ill feature to admin API
+
+Admin changes are still in beta w/ bugs.
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
 [x] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

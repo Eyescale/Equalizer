@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -42,18 +42,6 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
 {
     compound->setTaskID( ++_taskID );
 
-    // TO-DO may be no need to activate compound here since the activation is
-    //           made by canvas
-    Channel* channel = compound->getChannel();
-    if( compound->isDestination() && !channel->getSegment( ))
-    {
-        EQASSERT( !channel->getView( ));
-        
-        // old-school (non-Layout) destination channel, activate compound
-        //  layout destination channel compounds are activated by canvas
-        View::activateCompound( compound, true, compound->getEyes( ) );
-    }
-    
     Config*        config  = compound->getConfig();
     const uint32_t latency = config->getLatency();
     EQASSERT( config );
@@ -83,8 +71,13 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
     compound->updateFrustum();
     compound->updateInheritData( 0 ); // set up initial values
 
+    Channel* channel = compound->getChannel();
     if( channel )
         channel->addTasks( compound->getInheritTasks( ));
+
+    EQASSERTINFO( !compound->isDestination() || channel->getSegment( ),
+                  "Destination compound referencing a non-segment channel, " <<
+                  "fix configuration or use Loader::addDestinationViews" );
 
     return TRAVERSE_CONTINUE;    
 }

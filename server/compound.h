@@ -428,9 +428,6 @@ namespace server
         /** Exit this compound. */
         void exit();
 
-        /** Deregister all distributed objects */
-        void deregister();
-
         /** Back up all relevant compound data. */
         void backup() { _backup = _data; }
 

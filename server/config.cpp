@@ -789,7 +789,6 @@ void Config::_deleteEntities( const std::vector< T* >& entities )
         T* entity = entities[ i ];
         if( entity->needsDelete( ))
         {
-            EQINFO << "Deleting " << *entity << std::endl;
             deregisterObject( entity );
             delete entity;
         }
@@ -893,13 +892,6 @@ bool Config::exit()
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING );
     _state = STATE_EXITING;
 
-    for( Compounds::const_iterator i = _compounds.begin();
-         i != _compounds.end(); ++i )
-    {
-        Compound* compound = *i;
-        compound->exit();
-    }
-
     const Canvases& canvases = getCanvases();
     for( Canvases::const_iterator i = canvases.begin();
          i != canvases.end(); ++i )
@@ -914,7 +906,7 @@ bool Config::exit()
          i != _compounds.end(); ++i )
     {
         Compound* compound = *i;
-        compound->deregister();
+        compound->exit();
     }
 
     ConfigEvent exitEvent;

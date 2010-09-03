@@ -107,45 +107,21 @@ void Canvas::exit()
 
 void Canvas::_switchLayout( const uint32_t oldIndex, const uint32_t newIndex )
 {
-    Config* config = getConfig();
     if( oldIndex == newIndex )
         return;
 
     const Layouts& layouts = getLayouts();
     const size_t nLayouts = layouts.size();
-    const Layout* oldLayout = (oldIndex >= nLayouts) ? 0 : layouts[oldIndex];
-    const Layout* newLayout = (newIndex >= nLayouts) ? 0 : layouts[newIndex];
+    Layout* oldLayout = (oldIndex >= nLayouts) ? 0 : layouts[oldIndex];
+    Layout* newLayout = (newIndex >= nLayouts) ? 0 : layouts[newIndex];
 
-    // activateMode( MODE_NONE ) on old layout views
     if( oldLayout )
-    {
-        const Views& views = oldLayout->getViews();
-        for( Views::const_iterator i = views.begin(); i != views.end(); ++i )
-        {
-            View* view = *i;
-            view->activateMode( View::MODE_NONE );
-            config->postNeedsFinish();
-        }
-    }
+        oldLayout->trigger( this, false );
 
-    // if exit application
-    if( newIndex == EQ_ID_NONE )
-        return;
+    Super::activateLayout( newIndex );
 
-    // set new layout
-    useLayout( newIndex );
-
-    // activateMode( getMode( )) on new layout views
-    if( newLayout )
-    {
-        const Views& views = newLayout->getViews();
-        for( Views::const_iterator i = views.begin(); i != views.end(); ++i )
-        {
-            View* view = *i;
-            view->activateMode( view->getMode() );
-            config->postNeedsFinish();
-        }
-    }
+    if( newLayout && newIndex != EQ_ID_NONE )
+        newLayout->trigger( this, true );
 }
 
 void Canvas::deregister()

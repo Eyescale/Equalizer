@@ -579,6 +579,12 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
                 _switchLayout( 1 );
             if( rng.get< bool >( ))
                 _switchModel();
+            if( rng.get< bool >( ))
+                eqAdmin::addWindow( getAdminServer(), rng.get< bool >( ));
+            if( rng.get< bool >( ))
+                eqAdmin::removeWindow( getAdminServer( ));
+            if( rng.get< bool >( ))
+                _switchViewMode();
             return true;
         }
 
@@ -653,26 +659,14 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             _switchViewMode();
             return true;
         case 'a':
-        {
-            eq::admin::ServerPtr server = getAdminServer();
-            if( server.isValid( ))
-                eqAdmin::addWindow( server, false /* active stereo */ );
+            eqAdmin::addWindow( getAdminServer(), false /* active stereo */ );
             return true;
-        }
         case 'p':
-        {
-            eq::admin::ServerPtr server = getAdminServer();
-            if( server.isValid( ))
-                eqAdmin::addWindow( server, true /* passive stereo */ );
+            eqAdmin::addWindow( getAdminServer(), true /* passive stereo */ );
             return true;
-        }
         case 'x':
-        {
-            eq::admin::ServerPtr server = getAdminServer();
-            if( server.isValid( ))
-                eqAdmin::removeWindow( server );
+            eqAdmin::removeWindow( getAdminServer( ));
             return true;
-        }
         // Head Tracking Emulation
         case eq::KC_UP:
         {
@@ -814,9 +808,8 @@ void Config::_switchView()
 
     eq::Views::const_iterator i = std::find( views.begin(), views.end(),
                                              current );
-    EQASSERT( i != views.end( ));
-
-    ++i;
+    if( i != views.end( ))
+        ++i;
     if( i == views.end( ))
         _frameData.setCurrentViewID( EQ_ID_INVALID );
     else

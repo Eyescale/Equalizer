@@ -100,6 +100,7 @@ set(FABRIC_HEADERS
   fabric/iAttribute.h
   fabric/init.h
   fabric/leafVisitor.h
+  fabric/log.h
   fabric/node.h
   fabric/nodeType.h
   fabric/object.h
