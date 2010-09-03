@@ -15,7 +15,6 @@ set(BASE_HEADERS
   base/clock.h
   base/compareAndSwap.h
   base/debug.h
-  base/defines.h
   base/dso.h
   base/executionListener.h
   base/file.h

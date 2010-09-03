@@ -33,4 +33,4 @@ target_link_libraries(eqPly Equalizer EqualizerAdmin)
 install(TARGETS eqPly DESTINATION bin)
 
 install(FILES rockerArm.ply screwdriver.ply
-  DESTINATION shared/Equalizer/data COMPONENT data)
+  DESTINATION share/Equalizer/data COMPONENT data)
