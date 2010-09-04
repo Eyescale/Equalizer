@@ -2,10 +2,13 @@
 .cproject
 *.mode1v3
 *.orig
+*.rej
 *.pbxuser
 *.ply.*.bin
 *.vcproj.*.user
 Result_*.rgb*
+___*
+tests/image/images/out_*
 TAGS
 VS2005/Equalizer.suo
 auxilary
