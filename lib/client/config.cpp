@@ -308,7 +308,7 @@ void Config::setLatency( const uint32_t latency )
     if( getLatency() == latency )
         return;
 
-    setLatency( latency );
+    Super::setLatency( latency );
     changeLatency( latency );
 }
 
