@@ -25,7 +25,6 @@ namespace eq
 namespace net
 {
     class Node;
-    class ObjectDeltaDataOStream;
 
     /** 
      * An object change manager handling versioned objects without any
