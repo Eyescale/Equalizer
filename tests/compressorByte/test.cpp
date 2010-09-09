@@ -254,14 +254,19 @@ eq::base::Bufferb* readDataFile( const std::string& filename )
 {
     eq::base::Bufferb* datas = new eq::base::Bufferb();
     std::ifstream file( filename.c_str(),  std::ios::in | std::ios::binary );
-    char temp;
-    
-    while( !file.eof() )
-    {
-        file.read ((char *)&temp, sizeof(char));
-        datas->append( temp );
-    }
 
+    // get size
+    TESTINFO( file.seekg( 0, std::ios::end ).good(),
+                                "Problems with reading file " << filename );
+    size_t size = file.tellg();
+    TESTINFO( file.seekg( 0, std::ios::beg ).good(),
+                                "Problems with reading file " << filename );
+    size -= file.tellg();
+
+    // read the file
+    datas->resize( size );
+    file.read( (char*)(datas->getData()), size );
     file.close();
+
     return datas;
 }
