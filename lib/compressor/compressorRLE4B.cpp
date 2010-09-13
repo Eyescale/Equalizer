@@ -41,7 +41,7 @@ REGISTER_ENGINE( CompressorRLE4B, BGRA_UINT_8_8_8_8_REV,    \
 REGISTER_ENGINE( CompressorRLE4B, RGB10_A2, RGB10_A2, 1., 0.59, 1., true );
 REGISTER_ENGINE( CompressorRLE4B, BGR10_A2, BGR10_A2, 1., 0.59, 1., true );
 REGISTER_ENGINE( CompressorRLE4B, DEPTH_UNSIGNED_INT, \
-                 DEPTH_UNSIGNED_INT, 1., 0.59, 1., true );
+                 DEPTH_UNSIGNED_INT, 1., 0.59, 1., false );
 
 REGISTER_ENGINE( CompressorDiffRLE4B, DIFF_RGBA, RGBA, 1., .5, 1.1, true );
 REGISTER_ENGINE( CompressorDiffRLE4B, DIFF_BGRA, BGRA, 1., .5, 1.1, true );

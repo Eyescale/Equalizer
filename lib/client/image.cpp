@@ -906,7 +906,7 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
         return memory;
 
     memory.compressorFlags = EQ_COMPRESSOR_DATA_2D;
-    if( _ignoreAlpha && memory.hasAlpha )
+    if( _ignoreAlpha && memory.hasAlpha && buffer == Frame::BUFFER_COLOR )
         memory.compressorFlags |= EQ_COMPRESSOR_IGNORE_ALPHA;
 
     const uint64_t inDims[4] = { memory.pvp.x, memory.pvp.w,
