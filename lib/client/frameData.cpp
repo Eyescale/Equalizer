@@ -571,6 +571,8 @@ bool FrameData::_cmdTransmit( net::Command& command )
             }
             else
             {
+                const uint64_t size = *reinterpret_cast< uint64_t*>( data );
+                data += sizeof( uint64_t );
                 pixelData.pixels = data;
                 data += pixelData.pvp.getArea() * pixelData.pixelSize;
             }
