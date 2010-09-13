@@ -902,6 +902,9 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
 
     EQASSERT( memory.compressorName != 0 );
 
+    if( memory.compressorName == EQ_COMPRESSOR_NONE )
+        return memory;
+
     memory.compressorFlags = EQ_COMPRESSOR_DATA_2D;
     if( _ignoreAlpha && memory.hasAlpha )
         memory.compressorFlags |= EQ_COMPRESSOR_IGNORE_ALPHA;
