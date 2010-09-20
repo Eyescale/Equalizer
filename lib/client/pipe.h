@@ -52,17 +52,17 @@ namespace eq
      * A Pipe represents a graphics card (GPU) on a Node.
      *
      * All Pipe, Window and Channel task methods are executed in a separate
-     * eq::base::Thread, in parallel with all other pipes in the system, unless
-     * the pipe is non-threaded, in which case the tasks are executed on the
-     * Node's main thread.
+     * eq::base::Thread, in parallel with all other pipes in the system. An
+     * exception are non-threaded pipes, which execute their tasks on the Node's
+     * main thread.
      */
     class Pipe : public fabric::Pipe< Node, Pipe, eq::Window, PipeVisitor >
     {
     public:
-        /** Constructs a new pipe. */
+        /** Construct a new pipe. @version 1.0 */
         EQ_EXPORT Pipe( Node* parent );
 
-        /** Destructs the pipe. */
+        /** Destruct the pipe. @version 1.0 */
         EQ_EXPORT virtual ~Pipe();
 
         /** @name Data Access. */
@@ -70,28 +70,38 @@ namespace eq
         EQ_EXPORT net::CommandQueue* getPipeThreadQueue(); //!< @internal
         net::CommandQueue* getMainThreadQueue(); //!< @internal
 
+        /** @return the parent configuration. @version 1.0 */
         EQ_EXPORT Config* getConfig();
+        /** @return the parent configuration. @version 1.0 */
         EQ_EXPORT const Config* getConfig() const;
 
+        /** @return the parent client node. @version 1.0 */
         EQ_EXPORT ClientPtr getClient();
+
+        /** @return the parent server node. @version 1.0 */
         EQ_EXPORT ServerPtr getServer();
 
+        /**
+         * Return the current frame number.
+         *
+         * To be called only from the pipe thread. Updated by startFrame().
+         * @return the current frame number.
+         * @version 1.0
+         */ 
         uint32_t getCurrentFrame()  const { return _currentFrame; }
-        EQ_EXPORT uint32_t getFinishedFrame() const;
+        EQ_EXPORT uint32_t getFinishedFrame() const; //!< @internal
 
         /**
-         * Return the window system used by this pipe. 
+         * Return the window system used by this pipe.
          * 
          * The return value is quaranteed to be constant for an initialized
          * pipe, that is, the window system is determined using
-         * selectWindowSystem() before the pipe init method is executed.
+         * selectWindowSystem() before configInit() is executed.
          * 
          * @return the window system used by this pipe.
+         * @version 1.0
          */
         WindowSystem getWindowSystem() const { return _windowSystem; }
-
-        /** @return the time in ms elapsed since the frame started. */
-        EQ_EXPORT int64_t getFrameTime() const;
         //@}
 
         /**
@@ -113,10 +123,14 @@ namespace eq
         /** @internal Clear the frame cache and delete all frames. */
         void flushFrames();
 
-        /** @return if the window is made current */
+        /** @internal @return if the window is made current */
         bool isCurrent( const Window* window ) const;
 
-        /** Set the window as current window. */
+        /**
+         * @internal
+         * Set the window as current window.
+         * @sa Window::makeCurrent()
+         */
         void setCurrent( const Window* window ) const;
 
         /** @internal @return the view for the given identifier and version. */
@@ -126,12 +140,12 @@ namespace eq
         View* getView( const net::ObjectVersion& viewVersion );
         //@}
 
-        /** Wait for the pipe to be exited. @internal */
-        void waitExited() const;
+        void waitExited() const; //!<  @internal Wait for the pipe to be exited
         bool isRunning() const; //!< @internal
         void notifyMapped(); //!< @internal
         
-        /** 
+        /**
+         * @internal
          * Wait for a frame to be finished.
          * 
          * @param frameNumber the frame number.
@@ -139,7 +153,8 @@ namespace eq
          */
         EQ_EXPORT void waitFrameFinished( const uint32_t frameNumber ) const;
 
-        /** 
+        /**
+         * @internal
          * Wait for a frame to be released locally.
          * 
          * @param frameNumber the frame number.
@@ -147,10 +162,10 @@ namespace eq
          */
         EQ_EXPORT void waitFrameLocal( const uint32_t frameNumber ) const;
 
-        /** Start the pipe thread. @internal */
+        /** @internal Start the pipe thread. */
         void startThread();
 
-        /** Wait for the pipe thread to exit. @internal */
+        /** @internal Wait for the pipe thread to exit. */
         void joinThread();
 
         /** 
@@ -163,16 +178,20 @@ namespace eq
          * 
          * The OS-specific pipe implements the window-system-dependent part.
          * The os-specific pipe has to be initialized.
+         * @version 1.0
          */
         void setOSPipe( OSPipe* pipe )  { _osPipe = pipe; }
 
-        const OSPipe* getOSPipe() const { return _osPipe; }
-              OSPipe* getOSPipe()       { return _osPipe; }
+        /** @return the OS-specific pipe implementation. @version 1.0 */
+        OSPipe* getOSPipe() { return _osPipe; }
 
+        /** @return the OS-specific pipe implementation. @version 1.0 */
+        const OSPipe* getOSPipe() const { return _osPipe; }
         //@}
 
-        /** 
+        /**
          * @name Interface to and from the ComputeContext
+         * @warning experimental - may not be supported in the future.         
          */
         //@{
         /** Set the compute-specific context. */
@@ -192,24 +211,25 @@ namespace eq
          * Create a new MessagePump for this pipe.
          *
          * At most one message pump per execution thread is created. Each pipe
-         * render thread creates one message pump for its window system, and the
-         * process main thread creates a message pump for AGL pipes or if
-         * non-threaded pipes are used. Applications which do their own message
-         * pumping outside of Equalizer should return 0 here.
+         * render thread creates one message pump for its window system. The
+         * process main thread creates a message pump for AGL pipes and
+         * non-threaded pipes. Applications which do their own message pumping
+         * outside of Equalizer should return 0 here.
          *
          * @return the message pump, or 0.
+         * @version 1.0
          */
         EQ_EXPORT virtual MessagePump* createMessagePump();
         //@}
 
     protected:
-        friend class Node;
-        /** @name Actions */
+        /** @name Operations */
         //@{
         /** 
          * Start a frame by unlocking all child resources.
          * 
          * @param frameNumber the frame to start.
+         * @version 1.0
          */
         EQ_EXPORT void startFrame( const uint32_t frameNumber );
 
@@ -217,19 +237,15 @@ namespace eq
          * Signal the completion of a frame to the parent.
          * 
          * @param frameNumber the frame to end.
+         * @version 1.0
          */
         EQ_EXPORT void releaseFrame( const uint32_t frameNumber );
 
         /** 
          * Release the local synchronization of the parent for a frame.
          * 
-         * The synchronization is released only for this frame, not for
-         * previous, possible yet unreleased frames.
-         * 
-         * The synchronization is released only for this frame, not for
-         * previous, possible yet unreleased frames.
-         * 
          * @param frameNumber the frame to release.
+         * @version 1.0
          */
         EQ_EXPORT void releaseFrameLocal( const uint32_t frameNumber );
         //@}
@@ -246,19 +262,20 @@ namespace eq
          * and all its windows.
          * 
          * @param system the window system to test.
-         * @return <code>true</code> if the window system is supported,
-         *         <code>false</code> if not.
+         * @return true if the window system is supported, false if not.
+         * @version 1.0
          */
         EQ_EXPORT virtual bool supportsWindowSystem( const WindowSystem system )
                                    const;
 
         /** 
-         * Return the window system to be used by this pipe.
+         * Choose the window system to be used by this pipe.
          * 
          * This function determines which of the supported windowing systems is
          * used by this pipe instance. 
          * 
          * @return the window system currently used by this pipe.
+         * @version 1.0
          */
         EQ_EXPORT virtual WindowSystem selectWindowSystem() const;
 
@@ -266,11 +283,13 @@ namespace eq
          * Initialize this pipe.
          * 
          * @param initID the init identifier.
+         * @version 1.0
          */
         EQ_EXPORT virtual bool configInit( const uint32_t initID );
 
         /** 
-         * Exit this pipe.
+         * De-initialize this pipe.
+         * @version 1.0
          */
         EQ_EXPORT virtual bool configExit();
 
@@ -287,8 +306,9 @@ namespace eq
          *
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to start.
-         * @sa Config::beginFrame(), Node::startFrame(), 
+         * @sa Config::startFrame(), Node::startFrame(),
          *     Node::waitFrameStarted()
+         * @version 1.0
          */
         EQ_EXPORT virtual void frameStart( const uint32_t frameID, 
                                            const uint32_t frameNumber );
@@ -305,6 +325,7 @@ namespace eq
          *
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to finish.
+         * @version 1.0
          */
         EQ_EXPORT virtual void frameFinish( const uint32_t frameID, 
                                             const uint32_t frameNumber );
@@ -317,11 +338,12 @@ namespace eq
          *
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to finished with draw.
+         * @version 1.0
          */
         EQ_EXPORT virtual void frameDrawFinish( const uint32_t frameID, 
                                                 const uint32_t frameNumber );
 
-        /** @sa net::Object::attachToSession. */
+        /** @internal @sa net::Object::attachToSession. */
         EQ_EXPORT virtual void attachToSession( const uint32_t id, 
                                                 const uint32_t instanceID, 
                                                 net::Session* session );
@@ -329,7 +351,7 @@ namespace eq
     private:
         //-------------------- Members --------------------
         /** Window-system specific functions class */
-        OSPipe *_osPipe;
+        OSPipe* _osPipe;
 
         /** The current window system. */
         WindowSystem _windowSystem;
@@ -402,7 +424,7 @@ namespace eq
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
         //-------------------- Methods --------------------

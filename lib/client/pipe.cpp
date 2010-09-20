@@ -118,12 +118,6 @@ ServerPtr Pipe::getServer()
     return ( node ? node->getServer() : 0);
 }
 
-int64_t Pipe::getFrameTime() const
-{
-    return getConfig()->getTime() - _frameTime;
-}
-
-
 void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID, 
                             net::Session* session )
 {

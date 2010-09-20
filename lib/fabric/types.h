@@ -61,6 +61,8 @@ template< class > class LeafVisitor;
 
 typedef base::RefPtr< Client > ClientPtr;
 typedef base::RefPtr< const Client > ConstClientPtr;
+
+struct PipePath;
 }
 }
 #endif // EQFABRIC_TYPES_H

@@ -358,7 +358,6 @@ void Pipe< N, P, W, V >::setPixelViewport( const PixelViewport& pvp )
         return;
 
     _data.pvp = pvp;
-
     notifyPixelViewportChanged();    
     EQINFO << "Pipe pvp set: " << _data.pvp << std::endl;
 }

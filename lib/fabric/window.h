@@ -176,7 +176,7 @@ namespace fabric
         /** @internal Construct a new window. */
         Window( P* parent );
 
-        EQFABRIC_EXPORT virtual ~Window( ); //!< @internal
+        EQFABRIC_EXPORT virtual ~Window(); //!< @internal
 
         virtual void attachToSession( const uint32_t id,
                                       const uint32_t instanceID,

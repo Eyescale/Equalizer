@@ -28,29 +28,32 @@ namespace eq
 {
 namespace fabric
 {
-    struct PipePath;
-
+    /** Base data transport class for pipes. @sa eq::Pipe */
     template< class N, class P, class W, class V > class Pipe : public Object
     {
     public:
-        /** A vector of pointers to windows */
+        /** A vector of pointers to windows. @version 1.0 */
         typedef std::vector< W* >  Windows; 
         
+        /** @return the parent node of this pipe. @version 1.0 */
         N*       getNode()       { return _node; }
+        /** @return the parent node of this pipe. @version 1.0 */
         const N* getNode() const { return _node; }
 
-        /** @return the vector of windows. */
+        /** @return the vector of child windows. @version 1.0 */
         const Windows& getWindows() const { return _windows; }
 
          /**
-         * Returns the port number of this pipe.
-         * 
-         * The port number identifies the X server for systems using the
-         * X11/GLX window system. It currently has no meaning on other systems.
-         *
-         * @return the port number of this pipe, or
-         *         <code>EQ_UNDEFINED_UINT32</code>.
-         */
+          * Returns the port number of this pipe.
+          *
+          * The port number identifies the X server for systems using the
+          * X11/GLX window system, i.e., the
+          * :<strong>&lt;port&gt;</strong>.&lt;screen&gt; of the DISPLAY
+          * name. It currently has no meaning on all other systems.
+          *
+          * @return the port number of this pipe, or EQ_UNDEFINED_UINT32.
+          * @version 1.0
+          */
         uint32_t getPort() const { return _port; }
         
         EQFABRIC_EXPORT void setPort( const uint32_t port ); //!< @internal
@@ -63,28 +66,31 @@ namespace fabric
          * AGL window system. On Windows systems it identifies the graphics
          * adapter. Normally the device identifies a GPU.
          *
-         * @return the device number of this pipe, or 
-         *         <code>EQ_UNDEFINED_UINT32</code>.
+         * @return the device number of this pipe, or EQ_UNDEFINED_UINT32.
+         * @version 1.0
          */
         uint32_t getDevice() const { return _device; }
 
         EQFABRIC_EXPORT void setDevice( const uint32_t device ); //!< @internal
 
-        /** @return the pixel viewport. */
+        /** @return the pixel viewport. @version 1.0 */
         const PixelViewport& getPixelViewport() const { return _data.pvp; }
 
         /**
-         * Set the pipes's pixel viewport.
+         * Set the pipe's pixel viewport.
          *
-         *  Used from _osPipe calls
+         * If invalid, the OSPipe has to set it to the device viewport during
+         * configInit().
          *
          * @param pvp the viewport in pixels.
+         * @version 1.0
          */
         EQFABRIC_EXPORT void setPixelViewport( const PixelViewport& pvp );
 
+        /** @internal Notify this pipe that the viewport has changed. */
         void notifyPixelViewportChanged();
 
-        /** @return the index path to this pipe. @internal */
+        /** @internal @return the index path to this pipe. */
         EQFABRIC_EXPORT PipePath getPath() const;
 
         /** 
@@ -96,37 +102,35 @@ namespace fabric
          */
         EQFABRIC_EXPORT VisitorResult accept( V& visitor );
 
-        /** Const-version of accept(). */
+        /** Const-version of accept(). @version 1.0 */
         EQFABRIC_EXPORT VisitorResult accept( V& visitor ) const;
         //@}
 
-        /**
-         * @name Attributes
-         */
+        /** @name Attributes */
         //@{
-        // Note: also update string array initialization in pipe.cpp
+        /** Pipe attributes. @version 1.0 */
         enum IAttribute
         {
-            IATTR_HINT_THREAD,
-            IATTR_HINT_CUDA_GL_INTEROP,
-            IATTR_FILL1,
-            IATTR_FILL2,
-            IATTR_ALL
+            // Note: also update string array initialization in pipe.cpp
+            IATTR_HINT_THREAD,   //!< Execute tasks in separate thread (default)
+            IATTR_HINT_CUDA_GL_INTEROP, //!< Configure CUDA context
+            IATTR_LAST,
+            IATTR_ALL = IATTR_LAST + 5
         };
 
-        /** Set a pipe attribute. @internal */
+        /** @internal Set a pipe attribute. */
         EQFABRIC_EXPORT void setIAttribute( const IAttribute attr,
                                             const int32_t value );
 
-        /** @return the value of a pipe attribute. */
-        int32_t  getIAttribute( const IAttribute attr ) const
+        /** @return the value of a pipe attribute. @version 1.0 */
+        int32_t getIAttribute( const IAttribute attr ) const
             { return _iAttributes[attr]; }
 
-        /** @return true if commands are executed in a separate thread. */
+        /** @internal @return true if tasks are executed in a separate thread.*/
         bool isThreaded() const
             { return (getIAttribute( IATTR_HINT_THREAD ) == 1 ); }
         
-        /** @return the name of a window attribute. */
+        /** @internal @return the name of a pipe attribute. */
         EQFABRIC_EXPORT static const std::string& getIAttributeString(
                                                       const IAttribute attr );
         //@}
@@ -139,10 +143,9 @@ namespace fabric
     protected:
         //-------------------- Members --------------------
 
-        /** Constructs a new pipe. */
-        Pipe( N* parent );       
-        
-        EQFABRIC_EXPORT virtual ~Pipe( );
+        /** @internal Construct a new pipe. */
+        Pipe( N* parent );
+        EQFABRIC_EXPORT virtual ~Pipe( ); //!< @internal
 
         virtual void attachToSession( const uint32_t id,
                                       const uint32_t instanceID,
@@ -156,9 +159,10 @@ namespace fabric
 
         EQFABRIC_EXPORT virtual void notifyDetach(); //!< @internal
 
-        /** @sa Serializable::setDirty() @internal */
+        /** @internal @sa Serializable::setDirty() */
         EQFABRIC_EXPORT virtual void setDirty( const uint64_t bits );
 
+        /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
         W* _findWindow( const uint32_t id ); //!< @internal
