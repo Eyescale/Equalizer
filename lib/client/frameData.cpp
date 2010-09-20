@@ -574,7 +574,8 @@ bool FrameData::_cmdTransmit( net::Command& command )
                 const uint64_t size = *reinterpret_cast< uint64_t*>( data );
                 data += sizeof( uint64_t );
                 pixelData.pixels = data;
-                data += pixelData.pvp.getArea() * pixelData.pixelSize;
+                data += size;
+                EQASSERT( size == pixelData.pvp.getArea()*pixelData.pixelSize );
             }
             image->setPixelData( buffer, pixelData );
             // Prevent ~PixelData from freeing pointers
