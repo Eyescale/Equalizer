@@ -1,9 +1,9 @@
-Add missing file, tweak .gitignore
+Add 2-node.eqc
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[ ] New Feature
+[ ] Bugfix
+[x] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

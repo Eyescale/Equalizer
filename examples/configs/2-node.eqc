@@ -1,0 +1,68 @@
+#Equalizer 1.0 ascii
+
+# two-node software-framelocked config
+global
+{
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+}
+
+server
+{
+    config
+    {
+        appNode
+        {
+            pipe 
+            {
+#                device 0
+                window
+                {
+                    viewport [ .25 .25 .5 .5 ]
+                    channel { name "channel1" }
+                }
+            }
+        }
+        node
+        {
+            connection { hostname "127.0.0.1" }
+            pipe 
+            {
+#                device 0
+                window
+                {
+                    viewport [ .25 .25 .5 .5 ]
+                    channel { name "channel2" }
+                }
+            }
+        }
+
+        layout { view { }}
+        canvas
+        {
+            layout 0
+            wall
+            {
+                bottom_left  [ -.64 -.20 -.75 ]
+                bottom_right [  .64 -.20 -.75 ]
+                top_left     [ -.64  .20 -.75 ]
+            }
+
+            segment { viewport [ 0  0 .5 1 ] channel "channel1" }
+            segment { viewport [ .5 0 .5 1 ] channel "channel2" }
+        }
+
+        compound
+        {
+            compound 
+            {
+                channel ( view 0 segment 0 )
+                swapbarrier {}
+            }
+            compound 
+            {
+                channel ( view 0 segment 1 )
+                swapbarrier {}
+            }
+        }
+    }    
+}
