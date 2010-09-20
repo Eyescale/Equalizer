@@ -429,11 +429,14 @@ uint32_t GLXEventHandler::_getKey( XEvent& event )
             
         default: 
             // 'Useful' Latin1 characters
+            if( (event.xkey.state & ShiftMask) && key >= 'a' && key <= 'z' )
+                return key + 'A' - 'a'; // capitalize letter
+
             if( (key >= XK_space && key <= XK_asciitilde ) ||
                 (key >= XK_nobreakspace && key <= XK_ydiaeresis))
-
+            {
                 return key;
-
+            }
             EQWARN << "Unrecognized X11 key code " << key << endl;
             return KC_VOID;
     }
