@@ -195,15 +195,19 @@ bool Channel::_configInitFBO()
 
     int depthSize = 0;
     if( drawable & FBO_DEPTH )
+    {
         depthSize = window->getIAttribute( Window::IATTR_PLANES_DEPTH );
-    if( depthSize < 1 )
-        depthSize = 24;
+        if( depthSize < 1 )
+            depthSize = 24;
+    }
 
     int stencilSize = 0;
     if( drawable & FBO_STENCIL )
+    {
         stencilSize = window->getIAttribute( Window::IATTR_PLANES_STENCIL );
-    if( stencilSize < 1 )
-        stencilSize = 1;
+        if( stencilSize < 1 )
+            stencilSize = 1;
+    }
 
     const PixelViewport& pvp = getNativePixelViewport();
     if( _fbo->init( pvp.w, pvp.h, 

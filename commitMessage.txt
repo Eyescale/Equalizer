@@ -1,4 +1,4 @@
-Fix 3071764: GLX: No distinction between lowercase and uppercase keys
+Fix Channel FBO drawable initialization
 
 [ ] May break build
 [ ] May break existing applications
