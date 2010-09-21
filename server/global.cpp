@@ -191,7 +191,7 @@ void Global::_readEnvironment()
         if( envValue )
             _nodeIAttributes[i] = atol( envValue );
     }
-    for( uint32_t i=0; i<Pipe::IATTR_ALL; ++i )
+    for( uint32_t i=0; i<Pipe::IATTR_LAST; ++i )
     {
         const std::string& name     = Pipe::getIAttributeString(
             (Pipe::IAttribute)i);
