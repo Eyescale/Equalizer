@@ -42,9 +42,9 @@ namespace base
          * @param pvpIn the dimensions of the input data
          * @param flags capability flags for the compression
          */
-        void compress( void* const in, 
-                       const uint64_t  pvpIn[4],
-                       const eq_uint64_t flags );
+        EQ_EXPORT void compress( void* const in, 
+                                 const uint64_t  pvpIn[4],
+                                 const eq_uint64_t flags );
 
         /**
          * Compress one-dimensional data.
@@ -52,10 +52,10 @@ namespace base
          * @param in the pointer to the input data. 
          * @param inDims the dimensions of the input data
          */
-        void compress( void* const in, const uint64_t inDims[2] );
+        EQ_EXPORT void compress( void* const in, const uint64_t inDims[2] );
 
         /** get the number of compressed chunks. */
-        unsigned getNumResults() const;
+        EQ_EXPORT unsigned getNumResults() const;
 
         /**
          * get the compressed Data for the specified chunk 
@@ -64,9 +64,9 @@ namespace base
          * @param out the return value to store the result pointer
          * @param outSize the return value to store the result size in bytes
          */
-        void getResult( const unsigned i, 
-                        void** const out, 
-                        uint64_t* const outSize ) const ;
+        EQ_EXPORT void getResult( const unsigned i, 
+                                  void** const out, 
+                                  uint64_t* const outSize ) const ;
 
         /**
          * Decompress two-dimensional data.
@@ -79,12 +79,12 @@ namespace base
          * @param pvpOut the dimensions of the output data.
          * @param flags capability flags for the decompression.
          */
-        void decompress( const void* const* in, 
-                         const uint64_t* const inSizes,
-                         const unsigned numInputs,
-                         void* const out,
-                         uint64_t pvpOut[4],
-                         const uint64_t flags );
+        EQ_EXPORT void decompress( const void* const* in, 
+                                   const uint64_t* const inSizes,
+                                   const unsigned numInputs,
+                                   void* const out,
+                                   uint64_t pvpOut[4],
+                                   const uint64_t flags );
 
         /**
          * Decompress one-dimensional data.
@@ -96,11 +96,11 @@ namespace base
          *            uncompressed output result.
          * @param outDim the dimensions of the output data.
          */
-        void decompress( const void* const* in, 
-                         const uint64_t* const inSizes,
-                         const unsigned numInputs,
-                         void* const out,
-                         uint64_t outDim[2]);
+        EQ_EXPORT void decompress( const void* const* in, 
+                                   const uint64_t* const inSizes,
+                                   const unsigned numInputs,
+                                   void* const out,
+                                   uint64_t outDim[2]);
 
         
         /**
@@ -135,7 +135,7 @@ namespace base
                                        const bool ignoreMSE = false );
 
         /**
-         * Init the decompressor with the specified name   
+         * Init the compressor with the specified name   
          *
          * @param name the name of the decompressor
          */                               

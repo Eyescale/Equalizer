@@ -17,30 +17,34 @@
 #define EQ_TEST_RUNTIME 120 // seconds
 #include <test.h>
 
-#include <eq/plugins/compressor.h>
-
 #include <eq/client/init.h>
 #include <eq/client/nodeFactory.h>
 
 #include <eq/base/buffer.h>
 #include <eq/base/clock.h>
+#include "base/cpuCompressor.h"
 #include <eq/base/file.h>
 #include <eq/base/global.h>
+#include <eq/base/memoryMap.h>
 #include <eq/base/pluginRegistry.h>
 #include <eq/base/types.h>
 
 #include <iostream>  // for std::cerr
 #include <numeric>
 #include <fstream>
+#include <sstream>
+#include <string>
 
 #include "base/compressorInfo.h" // private header
 #include "base/plugin.h" // private header
 
 void testCompressByte( const uint32_t nameCompressor,
-                       char* data, uint64_t size,
-                       std::ofstream* logFile );
+                       char* data, const uint64_t size,
+                       uint64_t& compressedSize,
+                       float& timeCompress, 
+                       float& timeDecompress );
 
-void testCompressorFile(  std::ofstream* logFile );
+void testCompressorFile( );
 std::vector< uint32_t > getCompressorNames( const uint32_t tokenType );
 bool compare( const char *dst, const char *src, const uint32_t nbytes );
 
@@ -50,29 +54,29 @@ std::vector< std::string > getFiles( const std::string path,
 
 eq::base::Bufferb* readDataFile( const std::string& filename );
 
+int nbTest = 1;
+
 int main( int argc, char **argv )
 {
     eq::NodeFactory nodeFactory;
     eq::init( argc, argv, &nodeFactory );
-    
-    std::ofstream* logFile = new std::ofstream( "result.html" );
-    *logFile << "<html><head><title>Result of Compression TEST</title>" 
-             << "</head><center><H1>Result of Compression TEST<H1></center>"
-             << "<body>";
-    
-    testCompressorFile( logFile );
+    if (argc>=2)
+    {
+        if (strcmp(argv[1],"-t")==0)
+        {
+            std::istringstream stream( argv[2] );
+            stream >> nbTest;
+        }
+    }    
+    testCompressorFile( );
 
-    *logFile << "</TABLE>";
-    *logFile << "</body></html>";
-    logFile->close();
-    
     eq::exit();
     return EXIT_SUCCESS;
 }
 
 std::vector< uint32_t > getCompressorNames( const uint32_t tokenType )
 {
-    const eq::base::PluginRegistry& registry = eq::base::Global::getPluginRegistry();
+    eq::base::PluginRegistry& registry = eq::base::Global::getPluginRegistry();
     const eq::base::Plugins& plugins = registry.getPlugins();
 
     std::vector< uint32_t > names;
@@ -92,77 +96,74 @@ std::vector< uint32_t > getCompressorNames( const uint32_t tokenType )
 }
 
 void testCompressByte( const uint32_t nameCompressor,
-                       char* data, uint64_t size,
-                       std::ofstream* logFile )
+                       char* data, const uint64_t size,
+                       uint64_t& _compressedSize,
+                       float& _timeCompress, 
+                       float& _timeDecompress )
 {
-    eq::base::Clock clock;
-    eq::base::Bufferb destfile;
+    eq::base::CPUCompressor compressor;
+    eq::base::CPUCompressor decompressor;
+    compressor.initCompressor( nameCompressor );
+    decompressor.initDecompressor( nameCompressor );
 
-    // find compressor in the corresponding plugin
-    eq::base::PluginRegistry& registry = eq::base::Global::getPluginRegistry();
-    eq::base::Plugin* plugin = registry.findPlugin( nameCompressor );
-    void* instanceComp = plugin->newCompressor( nameCompressor );
-    void* instanceUncomp = plugin->newDecompressor( nameCompressor );
-    
     const uint64_t flags = EQ_COMPRESSOR_DATA_1D;
     const char* dataorigine = reinterpret_cast<const char*>( data );
-    uint64_t inDims[2]  = { 0, size }; 
-    clock.reset();
-    plugin->compress( instanceComp, nameCompressor, 
-                          data, inDims, flags );
-
-    uint64_t time = clock.getTime64();
-    const size_t numResults = plugin->getNumResults( 
-                                                instanceComp, nameCompressor );
-
-    uint64_t totalSize = 0;
-
-    std::vector< void * > vectorVoid;
-    vectorVoid.resize(numResults);
-    std::vector< uint64_t > vectorSize;
-    vectorSize.resize(numResults);
-    for( size_t i = 0; i < numResults ; i++ )
+    
+    uint64_t inDims[2]  = { 0, size };
+    
+    float timeCompress = 0;
+    float timeDecompress = 0;
+    bool compareResult = true;
+    eq::base::Clock clock;
+    uint64_t compressedSize = 0;
+    for( size_t j = 0; j < nbTest ; j++ )
     {
-        plugin->getResult( instanceComp, nameCompressor,
-                               i, 
-                               &vectorVoid[i], 
-                               &vectorSize[i] );
-        totalSize += vectorSize[i];
-    }
-    
-    std::cout   << totalSize << ", " << std::setw(10)
-                << time << ", " << std::setw(10);
+        clock.reset();
+        compressor.compress( data, inDims, flags );
 
-    *logFile << "<TD> " << totalSize <<"</TD>";
-    *logFile << "<TD> " << time <<"</TD>";
-    eq::base::Bufferb result;
-    result.resize( size );
-    void* outData = reinterpret_cast< uint8_t* >( result.getData() );
-    clock.reset();
-    
-    plugin->decompress( instanceUncomp,
-                            nameCompressor,
-                            &vectorVoid.front(),
-                            &totalSize,
-                            numResults, 
-                            outData, 
-                            inDims, 
-                            flags );
-    
-    time = clock.getTime64();
-    std::cout  << time << std::endl;
-    *logFile << "<TD> " << time <<"</TD>";
-    char* outData8 = reinterpret_cast< char* >( outData );
+        timeCompress += clock.getTimef();
+        const size_t numResults = compressor.getNumResults( );
 
-    if ( compare( outData8, dataorigine, size ) )
-        *logFile << "<TD> " << "OK" <<"</TD>";
-    else
-        *logFile << "<TD> " << "KO" <<"</TD>";
+        uint64_t totalSize = 0;
+        std::vector< void * > vectorVoid;
+
+        vectorVoid.resize(numResults);
+        std::vector< uint64_t > vectorSize;
+        vectorSize.resize(numResults);
         
+        for( size_t i = 0; i < numResults ; i++ )
+        {
+            compressor.getResult( i, &vectorVoid[i], &vectorSize[i] );
+            totalSize += vectorSize[i];
+        }
+        
+        compressedSize += totalSize;
+        eq::base::Bufferb result;
+        result.resize( size );
+        void* outData = reinterpret_cast< uint8_t* >( result.getData() );
+        clock.reset();
+        
+        decompressor.decompress( &vectorVoid.front(), &totalSize,
+                                 numResults, outData, inDims, flags );
+        
+        timeDecompress += clock.getTimef();
+        
+        char* outData8 = reinterpret_cast< char* >( outData );
+        compareResult = compare( outData8, dataorigine, size );
+    }
 
+    std::cout << std::setw(10) << compressedSize / nbTest << ", " 
+              << std::setw(7) << timeCompress / nbTest << ", " << std::setw(7);
+    std::cout << timeDecompress / nbTest << std::endl;
+    
+    _compressedSize += compressedSize / nbTest;
+    _timeCompress += timeCompress / nbTest;
+    _timeDecompress += timeDecompress / nbTest;   
+    
+    TEST( compareResult );
 }
 
-void testCompressorFile(  std::ofstream* logFile )
+void testCompressorFile( )
 {
     std::vector< uint32_t >compressorNames = 
         getCompressorNames( EQ_COMPRESSOR_DATATYPE_BYTE );
@@ -170,50 +171,55 @@ void testCompressorFile(  std::ofstream* logFile )
     std::vector< std::string > files;
     
     getFiles( "", files, "*.dll" );
-    getFiles( "text", files, "*.txt" );
     getFiles( "", files, "*.exe" );
     getFiles( "", files, "*.so" );
     getFiles( "text", files, "*.a" );
     getFiles( "text", files, "*.dylib" );
     
- 
-    *logFile << "<TABLE BORDER=""1"">";
-    *logFile << "<CAPTION> Statistic for compressor bytes </CAPTION>";
-    *logFile << "<TR>";
-    *logFile << "<TH> File </TH>";
-    *logFile << "<TH> Name </TH>";
-    *logFile << "<TH> Size </TH>";
-    *logFile << "<TH> Compressed size </TH>";
-    *logFile << "<TH> T compress [mS]</TH>";
-    *logFile << "<TH> T uncompress [mS]</TH>";
-    *logFile << "<TH> State</TH>";
-    *logFile << "</TR>";
     std::cout.setf( std::ios::right, std::ios::adjustfield );
     std::cout.precision( 5 );
-    std::cout << "File,              IMAGE,    SIZE, "
-              << " COMPRESSED,     t_comp,   t_decomp" << std::endl;
-    for ( std::vector< std::string >::const_iterator i = files.begin();
-          i != files.end(); i++ )
+    std::cout << "               File,          Compressor,       SIZE, "
+              << "    Compressd, t_comp,    t_decomp" << std::endl;
+    
+    for ( std::vector< uint32_t >::const_iterator j = 
+               compressorNames.begin(); j != compressorNames.end(); j++ )
     {
-        eq::base::Bufferb* datas = readDataFile( *i );
-        for ( std::vector< uint32_t >::const_iterator j = compressorNames.begin();
-          j != compressorNames.end(); j++ )
+        
+        uint64_t compressedSize = 0;
+        float timeCompress = 0; 
+        float timeDecompress = 0;
+        uint64_t uncompressedSize = 0;
+        for ( std::vector< std::string >::const_iterator i = files.begin();
+              i != files.end(); i++ )
         {
-            *logFile << "<TR>";
-            *logFile << "<TH> " << *i  <<"</TH>";
-            *logFile << "<TD> " << *j  <<"</TD>";
-            *logFile << "<TD> " << datas->getSize() <<"</TD>";
-
-            std::cout  << std::setw(2) << *i << ", " << std::setw( 5 )
-                       << *j  << ", " << std::setw(5) 
-                       << datas->getSize() << ", ";
+            eq::base::Bufferb* datas = readDataFile( *i );
+            const std::string name = eq::base::getFilename(*i);
+            
+            if( datas == 0 )
+                continue;
+            
+            uncompressedSize += datas->getSize() * nbTest;
+            std::cout  << std::setw(30) << name << ", 0x" 
+                       << std::setw(8) << std::setfill( '0' )
+                       << std::hex << *j << std::dec << std::setfill(' ')
+                       << ", " << std::setw(10) 
+                       << datas->getSize() * nbTest  << ", ";
+            
             testCompressByte( *j, reinterpret_cast<char*>(datas->getData()), 
-                              datas->getSize(), logFile );
-            *logFile << "</TR>";
+                              datas->getSize(), compressedSize, timeCompress, 
+                              timeDecompress );
             
         }
+        std::cout  << std::setw(30) << "Total : "<< ", 0x" 
+                   << std::setw(8) << std::setfill( '0' )
+                   << std::hex << *j << std::dec << std::setfill(' ')
+                   << ", " << std::setw(10) 
+                   << uncompressedSize  << ", ";
+
+        std::cout << std::setw(10) << compressedSize << ", " 
+                  << std::setw(7) << timeCompress << ", " << std::setw(7);
+        std::cout << timeDecompress << std::endl << std::endl;
     }
-    *logFile << "</TABLE>";
 }
 
 
@@ -239,12 +245,13 @@ std::vector< std::string > getFiles( const std::string path,
     const eq::base::Strings& paths = eq::base::Global::getPluginDirectories();
     for ( uint64_t j = 0; j < paths.size(); j++)
     {
-        eq::base::Strings candidats = eq::base::searchDirectory( paths[j], ext.c_str() );
+        eq::base::Strings candidats = 
+            eq::base::searchDirectory( paths[j], ext.c_str() );
         for( eq::base::Strings::const_iterator i = candidats.begin();
                 i != candidats.end(); ++i )
         {
             const std::string& filename = *i;
-            files.push_back( paths[j] + "/" + filename );
+            files.push_back( paths[j] + '\\' + filename );
         }    
     }
     return files;
@@ -252,21 +259,21 @@ std::vector< std::string > getFiles( const std::string path,
 
 eq::base::Bufferb* readDataFile( const std::string& filename )
 {
-    eq::base::Bufferb* datas = new eq::base::Bufferb();
-    std::ifstream file( filename.c_str(),  std::ios::in | std::ios::binary );
+    eq::base::MemoryMap file;
+    const uint8_t* addr = static_cast< const uint8_t* >( file.map( filename ));
 
-    // get size
-    TESTINFO( file.seekg( 0, std::ios::end ).good(),
-                                "Problems with reading file " << filename );
-    size_t size = file.tellg();
-    TESTINFO( file.seekg( 0, std::ios::beg ).good(),
-                                "Problems with reading file " << filename );
-    size -= file.tellg();
+    if( !addr )
+    {
+        EQERROR << "Can't open " << filename << " for reading" << std::endl;
+        return 0;
+    }
+
+    const size_t size = file.getSize();    
+    eq::base::Bufferb* datas = new eq::base::Bufferb();
 
     // read the file
     datas->resize( size );
-    file.read( (char*)(datas->getData()), size );
-    file.close();
+    memcpy( datas->getData(), addr, size);
 
     return datas;
 }

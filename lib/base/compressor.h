@@ -85,14 +85,14 @@ namespace base
          *
          * @param name the name of the compressor
          */
-        bool _initCompressor( uint32_t name );
+        EQ_EXPORT bool _initCompressor( uint32_t name );
 
         /**
          * Initialize the specified decompressor or uploader 
          *
          * @param name the name of the compressor
          */
-        bool _initDecompressor( uint32_t name );
+        EQ_EXPORT bool _initDecompressor( uint32_t name );
 
         EQ_TS_VAR( _thread );
     };
