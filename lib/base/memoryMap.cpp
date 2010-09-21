@@ -66,7 +66,7 @@ const void* MemoryMap::map( const std::string& filename )
     }
 
     // create a file mapping
-    _map = CreateFileMapping( file, 0, PAGE_READONLY, 0, 0, filename.c_str( ));
+    _map = CreateFileMapping( file, 0, PAGE_READONLY, 0, 0, 0 );
     if( !_map )
     {
         EQWARN << "File mapping failed: " << base::sysError << std::endl;

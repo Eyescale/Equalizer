@@ -35,13 +35,17 @@ namespace base
  * For implementation reasons, only signed atomic variables are supported, of
  * which only int32_t is implemented right now.
  */
-template <typename T>
-class Atomic: public NonCopyable
+template <typename T> class Atomic
 {
 public:
     /** Construct a new atomic variable with an initial value. @version 1.0 */
-    explicit Atomic( T v = 0 )
+    explicit Atomic( const T v = 0 )
             : _value(v)
+    {}
+
+    /** Construct a copy of an atomic variable. Not thread-safe! @version 1.0 */
+    explicit Atomic( const Atomic< T >& v )
+            : _value( v._value )
     {}
 
     /** @return the current value @version 1.0 */
@@ -51,9 +55,16 @@ public:
     }
 
     /** Assign a new value @version 1.0 */
-    void operator =(T v)
+    void operator = ( const T v )
     {
         _value = v;
+        __sync_synchronize();
+    }
+
+    /** Assign a new value. Not thread-safe! @version 1.0 */
+    void operator = ( const Atomic< T >& v)
+    {
+        _value = v._value;
         __sync_synchronize();
     }
 
@@ -99,23 +110,19 @@ private:
 
 #elif defined(__GLIBCPP__) || defined(__GLIBCXX__)
 
-template <typename T>
-class Atomic: public NonCopyable
+template <typename T> class Atomic
 {
 public:
-    explicit Atomic(T v = 0)
-        : _value(v)
-    {}
+    explicit Atomic( T v = 0 ) : _value(v) {}
+    explicit Atomic( const Atomic< T >& v ) : _value( v._value ) {}
 
     operator T(void) const
     {
         return __gnu_cxx::__exchange_and_add(&_value, 0);
     }
 
-    void operator =(T v)
-    {
-        _value = v;
-    }
+    void operator = ( const T v ) { _value = v; }
+    void operator = ( const Atomic< T >& v ) { _value = v._value; }
 
     T operator +=(T v)
     {
@@ -157,24 +164,27 @@ private:
 
 #elif defined (EQ_HAS_COMPARE_AND_SWAP) /* emulate via compareAndSwap */
 
-template <typename T>
-class Atomic: public NonCopyable
+template <typename T> class Atomic
 {
 public:
-    explicit Atomic(T v = 0)
-    {
-        *this = v;
-    }
-
+    explicit Atomic( const T v = 0 ) { *this = v; }
+    explicit Atomic( const Atomic< T >& v = 0 ) { *this = v; }
+    
     operator T(void) const
     {
         memoryBarrier();
         return _value;
     }
 
-    void operator =(T v)
+    void operator = ( const T v )
     {
         _value = v;
+        memoryBarrier();
+    }
+
+    void operator = ( const Atomic< T >& v )
+    {
+        _value = v._value;
         memoryBarrier();
     }
 
