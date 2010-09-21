@@ -248,9 +248,6 @@ uint32_t GPUCompressor::getExternalFormat( const uint32_t format,
                 case GL_FLOAT : 
                     return EQ_COMPRESSOR_DATATYPE_DEPTH_FLOAT;
             }
-
-        case GL_DEPTH_STENCIL_NV:
-            return EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV;
     }
 
     EQASSERTINFO( false, "Not implemented" );

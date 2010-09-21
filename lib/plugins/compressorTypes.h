@@ -201,8 +201,6 @@
 
 /* Transfer data from internal DEPTH to external DEPTH_STENCIL */
 #define EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT          0x501u
-/* Transfer data from internal DEPTH_STENCIL to external DEPTH_STENCIL */
-#define EQ_COMPRESSOR_TRANSFER_DEPTH_STENCIL_TO_UNSIGNED_INT_24_8   0x502u
 
 // Third-party plugins
 /** Quasi-lossless CPU jpeg compressor from rtt.ag */

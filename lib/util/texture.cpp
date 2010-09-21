@@ -110,7 +110,7 @@ void Texture::_setInternalFormat( const GLuint internalFormat )
             setExternalFormat( GL_ALPHA, GL_FLOAT );
             break;
         case GL_DEPTH24_STENCIL8:
-            setExternalFormat( GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8_EXT );
+            setExternalFormat( GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8 );
             break;
         case GL_RGBA32UI:
             EQASSERT( _glewContext );
@@ -331,7 +331,7 @@ void Texture::writeRGB( const std::string& filename ) const
             break;
         case GL_DEPTH24_STENCIL8:
             image.allocDownloader( Frame::BUFFER_COLOR, 
-                      EQ_COMPRESSOR_TRANSFER_DEPTH_STENCIL_TO_UNSIGNED_INT_24_8,
+                      EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
                                    _glewContext );
             break;
 

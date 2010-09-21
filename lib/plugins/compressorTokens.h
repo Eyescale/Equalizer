@@ -110,11 +110,6 @@
 #define EQ_COMPRESSOR_DATATYPE_DEPTH_FLOAT                    0x1003
 /** Data is processed in one stream of unsigned int depth tokens. */
 #define EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT EQ_COMPRESSOR_DATATYPE_UNSIGNED
-/**
- * Data is processed in interleaved streams of one unsigned 24-bit depth and one
- * 8-bit stencil token.
- */
-#define EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT_24_8_NV EQ_COMPRESSOR_DATATYPE_3BYTE_1BYTE
 
 /**
  * Data is processed in three interleaved streams of RGB unsigned byte color

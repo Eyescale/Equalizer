@@ -32,7 +32,6 @@ namespace util
 FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext )
     : _fboID( 0 )
     , _depth( GL_TEXTURE_RECTANGLE_ARB, glewContext )
-    , _stencil( GL_TEXTURE_RECTANGLE_ARB, glewContext )
     , _glewContext( glewContext )
     , _valid( false )
 {
@@ -88,11 +87,10 @@ bool FrameBufferObject::init( const int32_t width, const int32_t height,
         _colors[i]->init( colorFormat, width, height );
         _colors[i]->bindToFBO( GL_COLOR_ATTACHMENT0 + i, width, height );
     }
-    if( stencilSize > 0 )
+    if( stencilSize > 0 && GLEW_EXT_packed_depth_stencil )
     {
-        EQASSERTINFO( false, "Untested" );
         _depth.init( GL_DEPTH24_STENCIL8, width, height );
-        _depth.bindToFBO( GL_STENCIL_ATTACHMENT, width, height );
+        _depth.bindToFBO( GL_DEPTH_STENCIL_ATTACHMENT, width, height ); 
     }
     else if( depthSize > 0 )
     {
@@ -121,7 +119,6 @@ void FrameBufferObject::exit()
     for( size_t i = 0; i < _colors.size(); ++i )
         _colors[i]->flush();
     _depth.flush();
-    _stencil.flush();
 
     _valid = false;
 }
@@ -195,9 +192,6 @@ bool FrameBufferObject::resize( const int32_t width, const int32_t height )
 
     if ( _depth.isValid( ))
         _depth.resize( width, height );
-    
-    if ( _stencil.isValid( ))
-        _stencil.resize( width, height );
 
     return _checkStatus();
 }

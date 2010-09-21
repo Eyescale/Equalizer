@@ -118,9 +118,6 @@ namespace util
         /** @return the depth texture. @version 1.0 */
         const Texture& getDepthTexture() const { return _depth; }
 
-        /** @return the stencil texture. @version 1.0 */
-        const Texture& getStencilTexture() const { return _stencil; }
-
         /** @return the reason for the last failed operation. @version 1.0 */
         const std::string& getErrorMessage() { return _error; }
 
@@ -135,7 +132,6 @@ namespace util
 
         Textures _colors; //!< Multiple color textures
         Texture _depth;
-        Texture _stencil;
 
         const GLEWContext* const _glewContext;
 
