@@ -119,76 +119,9 @@ void Image::_setExternalFormat( const Frame::Buffer buffer,
 
     memory.externalFormat = externalFormat;
     memory.pixelSize = pixelSize;
-    memory.hasAlpha = hasAlpha_;
+    memory.hasAlpha = buffer == Frame::BUFFER_DEPTH ? false : hasAlpha_;
     memory.state = Memory::INVALID;
 }
-
-#if 0
-uint32_t Image::getGLFormat( const Frame::Buffer buffer ) const
-{
-    switch( getExternalFormat( buffer ))
-    {
-        case EQ_COMPRESSOR_DATATYPE_RGBA:
-        case EQ_COMPRESSOR_DATATYPE_RGB10_A2: 
-        case EQ_COMPRESSOR_DATATYPE_RGBA16F: 
-        case EQ_COMPRESSOR_DATATYPE_RGBA32F:
-        case EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV:
-            return GL_RGBA;
-        case EQ_COMPRESSOR_DATATYPE_BGRA:
-        case EQ_COMPRESSOR_DATATYPE_BGR10_A2: 
-        case EQ_COMPRESSOR_DATATYPE_BGRA16F: 
-        case EQ_COMPRESSOR_DATATYPE_BGRA32F: 
-        case EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV:        
-            return GL_BGRA;
-        case EQ_COMPRESSOR_DATATYPE_RGB:
-        case EQ_COMPRESSOR_DATATYPE_RGB16F: 
-        case EQ_COMPRESSOR_DATATYPE_RGB32F: 
-            return GL_RGB;
-        case EQ_COMPRESSOR_DATATYPE_BGR:
-        case EQ_COMPRESSOR_DATATYPE_BGR16F: 
-        case EQ_COMPRESSOR_DATATYPE_BGR32F: 
-            return GL_BGR;
-        case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT: 
-            return GL_DEPTH_COMPONENT;
-        default:
-            EQUNIMPLEMENTED;
-            return 0;
-    }
-}
-        
-uint32_t Image::getGLType( const Frame::Buffer buffer ) const
-{
-    switch( getExternalFormat( buffer ))
-    {
-        case EQ_COMPRESSOR_DATATYPE_RGBA:
-        case EQ_COMPRESSOR_DATATYPE_BGRA:
-        case EQ_COMPRESSOR_DATATYPE_RGB:
-        case EQ_COMPRESSOR_DATATYPE_BGR:
-            return GL_UNSIGNED_BYTE;
-        case EQ_COMPRESSOR_DATATYPE_RGB10_A2: 
-        case EQ_COMPRESSOR_DATATYPE_BGR10_A2:
-            return GL_UNSIGNED_INT_10_10_10_2;
-        case EQ_COMPRESSOR_DATATYPE_RGBA16F:
-        case EQ_COMPRESSOR_DATATYPE_BGRA16F:  
-        case EQ_COMPRESSOR_DATATYPE_RGB16F:
-        case EQ_COMPRESSOR_DATATYPE_BGR16F:  
-            return GL_HALF_FLOAT;
-        case EQ_COMPRESSOR_DATATYPE_RGBA32F: 
-        case EQ_COMPRESSOR_DATATYPE_BGRA32F: 
-        case EQ_COMPRESSOR_DATATYPE_RGB32F: 
-        case EQ_COMPRESSOR_DATATYPE_BGR32F:
-            return GL_FLOAT;
-        case EQ_COMPRESSOR_DATATYPE_RGBA_UINT_8_8_8_8_REV:
-        case EQ_COMPRESSOR_DATATYPE_BGRA_UINT_8_8_8_8_REV:
-            return GL_UNSIGNED_INT_8_8_8_8_REV;
-        case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT: 
-            return GL_UNSIGNED_INT;
-        default:
-            EQUNIMPLEMENTED;
-            return 0;
-    }
-}
-#endif
 
 void Image::setInternalFormat( const Frame::Buffer buffer,
                                const uint32_t internalFormat ) 
@@ -905,8 +838,11 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     if( memory.compressorName == EQ_COMPRESSOR_NONE )
         return memory;
 
+    EQASSERT( buffer == Frame::BUFFER_COLOR || 
+              buffer == Frame::BUFFER_DEPTH && !memory.hasAlpha );
+
     memory.compressorFlags = EQ_COMPRESSOR_DATA_2D;
-    if( _ignoreAlpha && memory.hasAlpha && buffer == Frame::BUFFER_COLOR )
+    if( _ignoreAlpha && memory.hasAlpha )
         memory.compressorFlags |= EQ_COMPRESSOR_IGNORE_ALPHA;
 
     const uint64_t inDims[4] = { memory.pvp.x, memory.pvp.w,
