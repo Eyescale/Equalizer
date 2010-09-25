@@ -66,10 +66,15 @@ endif(MSVC)
 
 if(WIN32)
   include_directories(SYSTEM ${CMAKE_SOURCE_DIR}/Windows/pthreads/include)
-  set(PTHREAD_LIBRARIES ${CMAKE_SOURCE_DIR}/Windows/pthreads/lib/pthreadVC2.lib)
-  file(COPY ${CMAKE_SOURCE_DIR}/Windows/pthreads/lib/pthreadVC2.dll
+  if(CMAKE_SIZE_VOID_P EQUAL 8)
+    set(PTHREAD_BIN_DIR ${CMAKE_SOURCE_DIR}/Windows/pthreads/lib64)
+  else(CMAKE_SIZE_VOID_P EQUAL 8)
+    set(PTHREAD_BIN_DIR ${CMAKE_SOURCE_DIR}/Windows/pthreads/lib)
+  endif(CMAKE_SIZE_VOID_P EQUAL 8)
+  set(PTHREAD_LIBRARIES ${PTHREAD_BIN_DIR}/pthreadVC2.lib)
+  file(COPY ${PTHREAD_BIN_DIR}/pthreadVC2.dll
     DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-  install(FILES ${CMAKE_SOURCE_DIR}/Windows/pthreads/lib/pthreadVC2.dll
+  install(FILES ${PTHREAD_BIN_DIR}/pthreadVC2.dll
     DESTINATION bin)
 else(WIN32)
   set(PTHREAD_LIBRARIES pthread)

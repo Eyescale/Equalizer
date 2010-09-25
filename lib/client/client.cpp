@@ -101,11 +101,11 @@ net::ConnectionPtr _startLocalServer()
 #ifdef _MSC_VER
          "EqualizerServer.dll"
 #elif defined (WIN32)
-        "libeqserver.dll"
+        "libEqualizerServer.dll"
 #elif defined (Darwin)
-        "libeqserver.dylib"
+        "libEqualizerServer.dylib"
 #else
-        "libeqserver.so"
+        "libEqualizerServer.so"
 #endif
                            ))
     {
