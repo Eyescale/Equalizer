@@ -46,8 +46,8 @@ namespace eq
 
         struct PixelData : public base::NonCopyable
         {
-            PixelData();
-            ~PixelData();
+            EQ_EXPORT PixelData();
+            EQ_EXPORT ~PixelData();
             void flush();
 
             /**

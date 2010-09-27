@@ -601,7 +601,7 @@ bool SocketConnection::listen()
     else if( address.sin_port == 0 )
         EQINFO << "Bound to port " << _getPort() << std::endl;
 
-    const bool listening = (::listen( _readFD, 10 ) == 0);
+    const bool listening = (::listen( _readFD, SOMAXCONN ) == 0);
         
     if( !listening )
     {
