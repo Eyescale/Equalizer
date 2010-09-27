@@ -416,7 +416,6 @@ void Pipe::startThread()
 
 void Pipe::joinThread()
 {
-    EQASSERT( _thread );
     if( !_thread )
         return;
 
