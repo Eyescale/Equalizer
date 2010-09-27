@@ -8,7 +8,7 @@ CXXFILES = \
 	writeFromFile.cpp
 
 CXXFLAGS += -I../../examples/include -I../.. $(WINDOW_SYSTEM_INCS) 
-LDFLAGS  += $(WINDOW_SYSTEM_LIBS) -leq -leqserver
+LDFLAGS  += $(WINDOW_SYSTEM_LIBS) -lEqualizer -lEqualizerServer
 
 ifeq "${ARCH}" "Linux"
   LDFLAGS += -lrt

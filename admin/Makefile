@@ -3,6 +3,7 @@
 include $(TOP)/make/system.mk
 
 MODULE = eq/admin
+LIB_NAME = EqualizerAdmin
 
 HEADER_SRC = \
 	admin.h \
@@ -41,7 +42,7 @@ CXXFILES = \
 	window.cpp \
 
 CXXFLAGS += -DEQADMIN_EXPORTS
-LDFLAGS += -leq
+LDFLAGS += -lEqualizer
 
 TARGETS = $(HEADERS) $(DYNAMIC_LIB)
 

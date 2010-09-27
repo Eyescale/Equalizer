@@ -54,11 +54,12 @@ else
   CXXFILES += lexer.cpp
 endif
 
-MODULE  = eqserver
+MODULE  = eq/server
+LIB_NAME = EqualizerServer
 
 CXXFLAGS    += $(WINDOW_SYSTEM_INCS) -DEQSERVER_EXPORTS
-LDFLAGS     += -leq
-SA_LDFLAGS  += -leqserver
+LDFLAGS     += -lEqualizer
+SA_LDFLAGS  += -lEqualizerServer
 
 ifeq "${ARCH}" "Linux"
   SA_LDFLAGS += -lrt

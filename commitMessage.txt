@@ -1,11 +1,9 @@
-Admin API:
-- Remove dead code (server::Canvas/Layout::deregister)
-- Refactor fabric::notifyDetach code in template method
+Fix Posix build (Equalizer dso name changes)
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

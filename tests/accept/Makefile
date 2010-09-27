@@ -2,7 +2,7 @@
 include $(TOP)/make/system.mk
 
 CXXFLAGS += -I.. -I$(TOP)/examples/include
-LDFLAGS  += -leq -lpthread
+LDFLAGS  += -lEqualizer -lpthread
 
 ifeq "${ARCH}" "Linux"
 LDFLAGS += -lrt

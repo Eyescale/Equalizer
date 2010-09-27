@@ -23,7 +23,8 @@ CXXFILES = \
 	window.cpp
 
 CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS) -I/usr/local/cuda/include
-LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS)  nbody.o -L/usr/local/cuda/lib -lcuda -lcudart #-deviceemu
+LDFLAGS  += -lEqualizer -lpthread $(WINDOW_SYSTEM_LIBS)  nbody.o \
+	    -L/usr/local/cuda/lib -lcuda -lcudart
 
 ifeq "${ARCH}" "Linux"
   LDFLAGS += -lrt

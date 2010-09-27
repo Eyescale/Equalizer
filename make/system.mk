@@ -178,9 +178,9 @@ DEPENDENCIES    = $(OBJECTS:%=%.d) $(SIMPLE_PROGRAMS:%=%.d) $(PCHEADERS:%=%.d)
 # library variables
 LIBRARY           = $(DYNAMIC_LIB)
 
-LIB_MODULE = $(subst /,,$(MODULE))
-STATIC_LIB  = $(LIBRARY_DIR)/lib$(LIB_MODULE).a)
-DYNAMIC_LIB = $(LIBRARY_DIR)/lib$(LIB_MODULE).$(DSO_SUFFIX)
+LIB_NAME ?= $(subst /,,$(MODULE))
+STATIC_LIB  = $(LIBRARY_DIR)/lib$(LIB_NAME).a)
+DYNAMIC_LIB = $(LIBRARY_DIR)/lib$(LIB_NAME).$(DSO_SUFFIX)
 
 # executable target
 PROGRAMS    ?= $(PROGRAM_EXE)

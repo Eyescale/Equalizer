@@ -2,6 +2,7 @@
 include $(TOP)/make/system.mk
 
 MODULE = eq
+LIB_NAME = Equalizer
 
 HEADER_SRC = \
 	plugins/compressor.h \

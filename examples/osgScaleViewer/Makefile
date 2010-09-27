@@ -23,7 +23,7 @@ CXXFILES = \
 	main.cpp
 
 CXXFLAGS += -I../include $(WINDOW_SYSTEM_INCS) -isystem /usr/local/include
-LDFLAGS  += -leq -lpthread $(WINDOW_SYSTEM_LIBS) -L/usr/local/lib \
+LDFLAGS  += -lEqualizer -lpthread $(WINDOW_SYSTEM_LIBS) -L/usr/local/lib \
             -losg -losgViewer -lOpenThreads -losgDB -losgUtil -losgGA
 
 ifeq "${ARCH}" "Linux"

@@ -2,7 +2,7 @@
 include $(TOP)/make/system.mk
 
 CXXFLAGS += -I.. $(WINDOW_SYSTEM_INCS) -I$(TOP)/lib
-LDFLAGS  += -lpthread -leq
+LDFLAGS  += -lpthread -lEqualizer
 BIN_DIR   = $(ARCH)
 
 ifeq "${ARCH}" "Linux"
