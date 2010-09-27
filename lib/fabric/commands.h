@@ -119,6 +119,7 @@ namespace fabric
         CMD_PIPE_FRAME_FINISH,
         CMD_PIPE_FRAME_DRAW_FINISH,
         CMD_PIPE_FRAME_START_CLOCK,
+        CMD_PIPE_EXIT_THREAD,
         CMD_PIPE_CUSTOM = 30 // some buffer for binary-compatible patches
     };
 

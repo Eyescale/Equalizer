@@ -1,9 +1,9 @@
-Fix POSIX build
+Fix client-side pipe/node exit (from rev -2).
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

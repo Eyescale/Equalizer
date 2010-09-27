@@ -435,11 +435,12 @@ bool Node::_cmdCreatePipe( net::Command& command )
 
 bool Node::_cmdDestroyPipe( net::Command& command )
 {
+    EQ_TS_THREAD( _nodeThread );
+
     const NodeDestroyPipePacket* packet = 
-        command.getPacket<NodeDestroyPipePacket>();
+        command.getPacket< NodeDestroyPipePacket >();
     EQLOG( LOG_INIT ) << "Destroy pipe " << packet << std::endl;
 
-    EQ_TS_THREAD( _nodeThread );
     Pipe* pipe = findPipe( packet->pipeID );
     EQASSERT( pipe );
     pipe->joinThread();

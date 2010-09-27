@@ -538,6 +538,15 @@ namespace eq
         uint32_t frameNumber;
     };
 
+    struct PipeExitThreadPacket : public net::ObjectPacket
+    {
+        PipeExitThreadPacket()
+            {
+                command = fabric::CMD_PIPE_EXIT_THREAD;
+                size    = sizeof( PipeExitThreadPacket );
+            }
+    };
+
     //------------------------------------------------------------
     // Window
     //------------------------------------------------------------

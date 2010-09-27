@@ -89,6 +89,7 @@ Pipe::~Pipe()
     EQASSERT( getWindows().empty( ));
     delete _thread;
     _thread = 0;
+    EQINFO << " Delete eq::Pipe @" << (void*)this << std::endl;
 }
 
 Config* Pipe::getConfig()
@@ -141,6 +142,8 @@ void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID,
                      PipeFunc( this, &Pipe::_cmdFrameDrawFinish ), queue );
     registerCommand( fabric::CMD_PIPE_FRAME_START_CLOCK,
                      PipeFunc( this, &Pipe::_cmdFrameStartClock ), 0 );
+    registerCommand( fabric::CMD_PIPE_EXIT_THREAD,
+                     PipeFunc( this, &Pipe::_cmdExitThread ), queue );
 }
 
 bool Pipe::supportsWindowSystem( const WindowSystem windowSystem ) const
@@ -228,8 +231,8 @@ MessagePump* Pipe::createMessagePump()
 
 void Pipe::_runThread()
 {
-    EQINFO << "Entered pipe thread" << std::endl;
     EQ_TS_THREAD( _pipeThread );
+    EQINFO << "Entered pipe thread" << std::endl;
 
     Config* config = getConfig();
     EQASSERT( config );
@@ -241,10 +244,7 @@ void Pipe::_runThread()
         net::Command* command = _pipeThreadQueue->pop();
         _waitTime += ( config->getTime() - startWait );
 
-        if( !config->invokeCommand( *command ))
-        {
-            EQABORT( "Error handling command packet" );
-        }
+        EQCHECK( config->invokeCommand( *command ));
         command->release();
     }
 
@@ -253,10 +253,10 @@ void Pipe::_runThread()
 
 net::CommandQueue* Pipe::getPipeThreadQueue()
 {
-    if( !_thread )
-        return getNode()->getMainThreadQueue();
+    if( _thread )
+        return _pipeThreadQueue;
 
-    return _pipeThreadQueue;
+    return getNode()->getMainThreadQueue();
 }
 
 net::CommandQueue* Pipe::getMainThreadQueue()
@@ -416,8 +416,12 @@ void Pipe::startThread()
 
 void Pipe::joinThread()
 {
+    EQASSERT( _thread );
     if( !_thread )
         return;
+
+    PipeExitThreadPacket packet;
+    send( getLocalNode(), packet );
 
     _thread->join();
     delete _thread;
@@ -772,25 +776,27 @@ bool Pipe::_cmdConfigExit( net::Command& command )
         command.getPacket<PipeConfigExitPacket>();
     EQLOG( LOG_INIT ) << "TASK pipe config exit " << packet << std::endl;
 
-    _state = configExit() ? STATE_STOPPED : STATE_FAILED;
-    _flushViews();
-
+    // send before node gets a chance to send its destroy packet
     NodeDestroyPipePacket destroyPacket( getID( ));
     getNode()->send( getLocalNode(), destroyPacket );
 
-    if( isThreaded( ))
-    {
-        EQASSERT( _thread );
+    _state = configExit() ? STATE_STOPPED : STATE_FAILED;
+    _flushViews();
+    return true;
+}
 
-        // cleanup
-        command.release();
-        _pipeThreadQueue->flush();
-        _exitCommandQueue();
+bool Pipe::_cmdExitThread( net::Command& command )
+{
+    EQASSERT( _thread );
 
-        EQINFO << "Leaving pipe thread" << std::endl;
-        _thread->exit();
-        EQUNREACHABLE;
-    }
+    // cleanup
+    command.release();
+    _pipeThreadQueue->flush();
+    _exitCommandQueue();
+
+    EQINFO << "Leaving pipe thread" << std::endl;
+    _thread->exit();
+    EQUNREACHABLE;
     return true;
 }
 
