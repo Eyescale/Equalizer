@@ -54,23 +54,18 @@ std::vector< std::string > getFiles( const std::string path,
 
 eq::base::Bufferb* readDataFile( const std::string& filename );
 
-int nbTest = 1;
+static size_t numTests = 1;
 
 int main( int argc, char **argv )
 {
+    if( argc >= 3 && strcmp( argv[1], "-t" ) == 0 )
+        numTests = atoi( argv[2] );
+
     eq::NodeFactory nodeFactory;
     eq::init( argc, argv, &nodeFactory );
-    if (argc>=2)
-    {
-        if (strcmp(argv[1],"-t")==0)
-        {
-            std::istringstream stream( argv[2] );
-            stream >> nbTest;
-        }
-    }    
     testCompressorFile( );
-
     eq::exit();
+
     return EXIT_SUCCESS;
 }
 
@@ -116,7 +111,7 @@ void testCompressByte( const uint32_t nameCompressor,
     bool compareResult = true;
     eq::base::Clock clock;
     uint64_t compressedSize = 0;
-    for( size_t j = 0; j < nbTest ; j++ )
+    for( size_t j = 0; j < numTests ; j++ )
     {
         clock.reset();
         compressor.compress( data, inDims, flags );
@@ -152,13 +147,13 @@ void testCompressByte( const uint32_t nameCompressor,
         compareResult = compare( outData8, dataorigine, size );
     }
 
-    std::cout << std::setw(10) << compressedSize / nbTest << ", " 
-              << std::setw(7) << timeCompress / nbTest << ", " << std::setw(7);
-    std::cout << timeDecompress / nbTest << std::endl;
+    std::cout << std::setw(10) << compressedSize / numTests << ", " 
+              << std::setw(7) << timeCompress / numTests << ", "
+              << std::setw(7) << timeDecompress / numTests << std::endl;
     
-    _compressedSize += compressedSize / nbTest;
-    _timeCompress += timeCompress / nbTest;
-    _timeDecompress += timeDecompress / nbTest;   
+    _compressedSize += compressedSize / numTests;
+    _timeCompress += timeCompress / numTests;
+    _timeDecompress += timeDecompress / numTests;   
     
     TEST( compareResult );
 }
@@ -198,12 +193,12 @@ void testCompressorFile( )
             if( datas == 0 )
                 continue;
             
-            uncompressedSize += datas->getSize() * nbTest;
+            uncompressedSize += datas->getSize() * numTests;
             std::cout  << std::setw(30) << name << ", 0x" 
                        << std::setw(8) << std::setfill( '0' )
                        << std::hex << *j << std::dec << std::setfill(' ')
                        << ", " << std::setw(10) 
-                       << datas->getSize() * nbTest  << ", ";
+                       << datas->getSize() * numTests  << ", ";
             
             testCompressByte( *j, reinterpret_cast<char*>(datas->getData()), 
                               datas->getSize(), compressedSize, timeCompress, 
