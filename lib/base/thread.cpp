@@ -196,7 +196,7 @@ void Thread::exit()
 {
     EQASSERTINFO( isCurrent(), "Thread::exit not called from child thread" );
 
-    EQINFO << "Exiting thread" << std::endl;
+    EQINFO << "Exiting thread " << base::className( this ) << std::endl;
 
     _state = STATE_STOPPING;
     pthread_exit( 0 );
@@ -207,7 +207,7 @@ void Thread::cancel()
 {
     EQASSERTINFO( !isCurrent(), "Thread::cancel called from child thread" );
 
-    EQINFO << "Cancelling thread" << std::endl;
+    EQINFO << "Cancelling thread " << base::className( this ) << std::endl;
     _state = STATE_STOPPING;
 
     pthread_cancel( _id._data->pthread );
@@ -221,11 +221,10 @@ bool Thread::join()
     if( isCurrent( )) // can't join self
         return false;
 
-    EQVERB << "Joining thread" << std::endl;
-
     _state.waitNE( STATE_RUNNING );
     _state = STATE_STOPPED;
 
+    EQINFO << "Joined thread " << className( this ) << std::endl;
     return true;
 }
 
