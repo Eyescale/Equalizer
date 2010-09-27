@@ -73,9 +73,6 @@ namespace server
         void init();
         void exit();
 
-        /** Unmap this canvas and all its children. */
-        void deregister();
-
         /** Schedule deletion of this canvas. */
         void postDelete();
         //@}

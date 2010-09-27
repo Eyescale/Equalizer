@@ -1,8 +1,10 @@
-Fix client-side pipe/node exit (from rev -2).
+Admin API:
+- Remove dead code (server::Canvas/Layout::deregister)
+- Refactor fabric::notifyDetach code in template method
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

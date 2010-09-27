@@ -37,14 +37,14 @@ View< L, V, O >::View( L* layout )
     // Note: Views are an exception to the strong structuring, since render
     // client views are multi-buffered (once per pipe) and do not have a parent
     if( layout )
-        layout->_addView( static_cast< V* >( this ));
+        layout->_addChild( static_cast< V* >( this ));
 }
 
 template< class L, class V, class O > 
 View< L, V, O >::~View()
 {
     if( _layout )
-        _layout->_removeView( static_cast< V* >( this ));
+        _layout->_removeChild( static_cast< V* >( this ));
 }
 
 template< class L, class V, class O > 

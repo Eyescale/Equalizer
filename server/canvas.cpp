@@ -124,26 +124,6 @@ void Canvas::_switchLayout( const uint32_t oldIndex, const uint32_t newIndex )
         newLayout->trigger( this, true );
 }
 
-void Canvas::deregister()
-{
-    net::Session* session = getSession();
-    EQASSERT( session );
-
-    const Segments& segments = getSegments();
-    for( Segments::const_iterator i=segments.begin(); i != segments.end(); ++i )
-    {
-        Segment* segment = *i;
-        EQASSERT( segment->getID() != EQ_ID_INVALID );
-        EQASSERT( segment->isMaster( ));
-        
-        session->deregisterObject( segment );
-    }
-
-    EQASSERT( getID() != EQ_ID_INVALID );
-    EQASSERT( isMaster( ));
-    session->deregisterObject( this );
-}
-
 void Canvas::postDelete()
 {
     _state = STATE_DELETE;

@@ -37,13 +37,13 @@ Segment< C, S, CH >::Segment( C* canvas )
         , _eyes( EYES_ALL )
 {
     EQASSERT( canvas );
-    canvas->_addSegment( static_cast< S* >( this ));
+    canvas->_addChild( static_cast< S* >( this ));
 }
 
 template< class C, class S, class CH >
 Segment< C, S, CH >::~Segment()
 {
-    _canvas->_removeSegment( static_cast< S* >( this ));
+    _canvas->_removeChild( static_cast< S* >( this ));
     _channel = 0;
 }
 

@@ -61,9 +61,6 @@ namespace server
          */
         void trigger( const Canvas* canvas, const bool active );
 
-        /** Unmap this layout and all its children. */
-        void deregister();
-
         /** Schedule deletion of this layout. */
         void postDelete();
         //@}

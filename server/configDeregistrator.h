@@ -82,8 +82,8 @@ public:
 private:
     void _deregister( net::Object* object )
         {
-            EQASSERT( object->getID() != EQ_ID_INVALID );
-            if( object->getID() == EQ_ID_INVALID )
+            EQASSERT( object->isAttached( ));
+            if( !object->isAttached( ))
                 return;
 
             net::Session* session = object->getSession();

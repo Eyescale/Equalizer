@@ -291,26 +291,6 @@ namespace net
                              const void* data, const uint64_t size );
         //@}
 
-        /** @name Notifications */
-        /**
-         * Notify that this object has been registered or mapped.
-         *
-         * The method is called from the thread initiating the registration or
-         * mapping, after the operation has been completed successfully.
-         * @sa isMaster()
-         */
-        virtual void notifyAttached() {};
-
-        /**
-         * Notify that this object will be deregistered or unmapped.
-         *
-         * The method is called from the thread initiating the deregistration or
-         * unmapping, before the operation is executed.
-         * @sa isMaster()
-         */
-        virtual void notifyDetach() {};
-        //@}
-
     protected:
         /** Copy constructor. */
         EQ_EXPORT Object( const Object& );
@@ -344,6 +324,26 @@ namespace net
          * thread. @internal
          */
         EQ_EXPORT virtual void detachFromSession();
+
+        /** @name Notifications */
+        /**
+         * Notify that this object has been registered or mapped.
+         *
+         * The method is called from the thread initiating the registration or
+         * mapping, after the operation has been completed successfully.
+         * @sa isMaster()
+         */
+        virtual void notifyAttached() {};
+
+        /**
+         * Notify that this object will be deregistered or unmapped.
+         *
+         * The method is called from the thread initiating the deregistration or
+         * unmapping, before the operation is executed.
+         * @sa isMaster()
+         */
+        virtual void notifyDetach() {};
+        //@}
 
     private:
         /** Indicates if this instance is the copy on the server node. */

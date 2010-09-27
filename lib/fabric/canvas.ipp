@@ -46,7 +46,7 @@ Canvas< CFG, C, S, L >::~Canvas()
     while( !_segments.empty( ))
     {
         S* segment = _segments.back();
-        _removeSegment( segment );
+        _removeChild( segment );
         release( segment );
     }
 
@@ -192,26 +192,11 @@ void Canvas< CFG, C, S, L >::release( S* segment )
 template< class CFG, class C, class S, class L >
 void Canvas< CFG, C, S, L >::notifyDetach()
 {
-    while( !_segments.empty( ))
-    {
-        S* segment = _segments.back();
-        if( segment->getID() > EQ_ID_MAX )
-        {
-            EQASSERT( isMaster( ));
-            return;
-        }
-
-        _config->releaseObject( segment );
-        if( !isMaster( ))
-        {
-            _removeSegment( segment );
-            _config->getServer()->getNodeFactory()->releaseSegment( segment );
-        }
-    }
+    releaseChildren< C, S >( _segments );
 }
 
 template< class CFG, class C, class S, class L >
-void Canvas< CFG, C, S, L >::_addSegment( S* segment )
+void Canvas< CFG, C, S, L >::_addChild( S* segment )
 {
     EQASSERT( segment );
     EQASSERT( segment->getCanvas() == this );
@@ -220,7 +205,7 @@ void Canvas< CFG, C, S, L >::_addSegment( S* segment )
 }
 
 template< class CFG, class C, class S, class L >
-bool Canvas< CFG, C, S, L >::_removeSegment( S* segment )
+bool Canvas< CFG, C, S, L >::_removeChild( S* segment )
 {
     typename Segments::iterator i = stde::find( _segments, segment );
     if( i == _segments.end( ))

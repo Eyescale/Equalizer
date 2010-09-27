@@ -174,6 +174,10 @@ namespace fabric
         template< class C >
         void syncChildren( const std::vector< C* >& children );
 
+        /** @internal unmap/deregister all children. */
+        template< class P, class C >
+        inline void releaseChildren( const std::vector< C* >& children );
+
     private:
         struct BackupData
         {
@@ -260,6 +264,27 @@ namespace fabric
             C* child = *i;
             EQASSERT( child->isMaster( )); // slaves are synced using version
             child->sync();
+        }
+    }
+ 
+    template< class P, class C >
+    inline void Object::releaseChildren( const std::vector< C* >& children )
+    {
+        while( !children.empty( ))
+        {
+            C* child = children.back();
+            if( !child->isAttached( ))
+            {
+                EQASSERT( isMaster( ));
+                return;
+            }
+
+            getSession()->releaseObject( child );
+            if( !isMaster( ))
+            {
+                static_cast< P* >( this )->_removeChild( child );
+                static_cast< P* >( this )->release( child );
+            }
         }
     }
 }

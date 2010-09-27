@@ -46,7 +46,7 @@ Layout< C, L, V >::~Layout()
     while( !_views.empty( ))
     {
         V* view = _views.back();
-        EQCHECK( _removeView( view ));
+        EQCHECK( _removeChild( view ));
         release( view );
     }
 
@@ -116,22 +116,7 @@ void Layout< C, L, V >::setDirty( const uint64_t dirtyBits )
 template< class C, class L, class V >
 void Layout< C, L, V >::notifyDetach()
 {
-    while( !_views.empty( ))
-    {
-        V* view = _views.back();
-        if( !view->isAttached( ))
-        {
-            EQASSERT( isMaster( ));
-            return;
-        }
-
-        _config->releaseObject( view );
-        if( !isMaster( ))
-        {
-            _removeView( view );
-            _config->getServer()->getNodeFactory()->releaseView( view );
-        }
-    }
+    releaseChildren< L, V >( _views );
 }
 
 template< class C, class L, class V >
@@ -205,7 +190,7 @@ VisitorResult Layout< C, L, V >::accept( Visitor& visitor ) const
 }
 
 template< class C, class L, class V >
-void Layout< C, L, V >::_addView( V* view )
+void Layout< C, L, V >::_addChild( V* view )
 {
     EQASSERT( view );
     EQASSERT( view->getLayout() == this );
@@ -214,7 +199,7 @@ void Layout< C, L, V >::_addView( V* view )
 }
 
 template< class C, class L, class V >
-bool Layout< C, L, V >::_removeView( V* view )
+bool Layout< C, L, V >::_removeChild( V* view )
 {
     typename Views::iterator i = stde::find( _views, view );
     if( i == _views.end( ))

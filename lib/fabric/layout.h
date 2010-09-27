@@ -138,8 +138,9 @@ namespace fabric
         };
 
         template< class, class, class > friend class View;
-        void _addView( V* view );
-        bool _removeView( V* view );
+        friend class Object;
+        void _addChild( V* view );
+        bool _removeChild( V* view );
 
         EQFABRIC_EXPORT virtual uint32_t commitNB(); //!< @internal
 

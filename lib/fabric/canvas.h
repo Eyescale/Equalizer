@@ -165,8 +165,9 @@ namespace fabric
         };
 
         template< class, class, class > friend class Segment;
-        void _addSegment( S* segment );
-        bool _removeSegment( S* segment );
+        friend class Object;
+        void _addChild( S* segment ); //!< @internal
+        bool _removeChild( S* segment ); //!< @internal
 
         EQFABRIC_EXPORT virtual uint32_t commitNB(); //!< @internal
         bool _mapViewObjects();

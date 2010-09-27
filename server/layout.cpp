@@ -46,25 +46,6 @@ ServerPtr Layout::getServer()
     return ( config ? config->getServer() : 0 );
 }
 
-void Layout::deregister()
-{
-    net::Session* session = getSession();
-    EQASSERT( session );
-    EQASSERT( getID() != EQ_ID_INVALID );
-    EQASSERT( isMaster( ));
-    
-    const Views views = getViews();
-    for( Views::const_iterator i = views.begin(); i != views.end(); ++i )
-    {
-        View* view = *i;
-        EQASSERT( view->getID() != EQ_ID_INVALID );
-        EQASSERT( view->isMaster( ));
-
-        session->deregisterObject( view );
-    }
-    session->deregisterObject( this );
-}
-
 void Layout::postDelete()
 {
     _state = STATE_DELETE;
