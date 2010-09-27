@@ -836,12 +836,12 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     if( memory.compressorName == EQ_COMPRESSOR_NONE )
         return memory;
 
-    EQASSERT( buffer == Frame::BUFFER_COLOR || 
-              buffer == Frame::BUFFER_DEPTH && !memory.hasAlpha );
-
     memory.compressorFlags = EQ_COMPRESSOR_DATA_2D;
     if( _ignoreAlpha && memory.hasAlpha )
+    {
+        EQASSERT( buffer == Frame::BUFFER_COLOR );
         memory.compressorFlags |= EQ_COMPRESSOR_IGNORE_ALPHA;
+    }
 
     const uint64_t inDims[4] = { memory.pvp.x, memory.pvp.w,
                                  memory.pvp.y, memory.pvp.h }; 

@@ -1,4 +1,4 @@
-Fix Posix build (Equalizer dso name changes)
+Fix Linux build
 
 [ ] May break build
 [ ] May break existing applications
