@@ -589,16 +589,16 @@ void Session::releaseObject( Object* object )
         unmapObject( object );
 }
 
-template< class P > void Session::_ackRequest( Command& command )
+void Session::ackRequest( NodePtr node, const uint32_t requestID )
 {
-    NodePtr node = command.getNode();
-    const P* packet = command.getPacket< const P >();
+    if( requestID == EQ_ID_INVALID ) // no need to ack operation
+        return;
 
     if( node == _localNode ) // OPT
-        _localNode->serveRequest( packet->requestID );
+        _localNode->serveRequest( requestID );
     else
     {
-        SessionAckRequestPacket reply( packet->requestID );
+        SessionAckRequestPacket reply( requestID );
         send( node, reply );
     }
 }
@@ -807,8 +807,7 @@ bool Session::_cmdSetIDMaster( Command& command )
     base::ScopedMutex< base::SpinLock > mutex( _idMasters );
     _idMasters.data[ packet->identifier ] = nodeID;
 
-    if( packet->requestID != EQ_ID_INVALID ) // need to ack set operation
-        _ackRequest< SessionSetIDMasterPacket >( command );
+    ackRequest( command.getNode(), packet->requestID );
     return true;
 }
 
@@ -824,8 +823,7 @@ bool Session::_cmdUnsetIDMaster( Command& command )
         _idMasters->erase( packet->identifier );
     }
 
-    if( packet->requestID != EQ_ID_INVALID )
-        _ackRequest< SessionUnsetIDMasterPacket >( command );
+    ackRequest( command.getNode(), packet->requestID );
     return true;
 }
 

@@ -71,7 +71,18 @@ namespace eq
 
         /** Wait for the node to be initialized. */
         EQ_EXPORT void waitInitialized() const;
+
+        /**
+         * @return true if this node is running, false otherwise.
+         * @version 1.0 
+         */
         EQ_EXPORT bool isRunning() const;
+
+        /**
+         * @return true if this node is stopped, false otherwise.
+         * @version 1.0 
+         */
+        EQ_EXPORT bool isStopped() const;
         
         /** 
          * Wait for a frame to be started.
@@ -232,7 +243,8 @@ namespace eq
             STATE_STOPPED,
             STATE_INITIALIZING,
             STATE_INIT_FAILED,
-            STATE_RUNNING
+            STATE_RUNNING,
+            STATE_FAILED
         };
         /** The configInit/configExit state. */
         base::Monitor< State > _state;

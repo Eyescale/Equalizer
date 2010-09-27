@@ -55,6 +55,12 @@ namespace util
 
         /** @name Data Access */
         //@{
+        /**
+         * @return true if this channel is stopped, false otherwise.
+         * @version 1.0 
+         */
+        bool isStopped() const { return (_state == STATE_STOPPED); }
+
         /** @return the parent pipe. @version 1.0 */
         EQ_EXPORT Pipe* getPipe();
 
@@ -470,7 +476,8 @@ namespace util
         {
             STATE_STOPPED,
             STATE_INITIALIZING,
-            STATE_RUNNING
+            STATE_RUNNING,
+            STATE_FAILED
         };
 
         /** The configInit/configExit state. */

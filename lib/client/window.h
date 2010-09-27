@@ -112,6 +112,12 @@ namespace fabric
          */
         bool isRunning() const { return (_state == STATE_RUNNING); }
 
+        /**
+         * @return true if this window is stopped, false otherwise.
+         * @version 1.0 
+         */
+        bool isStopped() const { return (_state == STATE_STOPPED); }
+
         /** 
          * Get the last rendering context at the x, y position.
          *
@@ -408,7 +414,8 @@ namespace fabric
         {
             STATE_STOPPED,
             STATE_INITIALIZING,
-            STATE_RUNNING
+            STATE_RUNNING,
+            STATE_FAILED
         };
 
         /** The window sharing the OpenGL context. */

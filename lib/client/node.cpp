@@ -174,6 +174,11 @@ bool Node::isRunning() const
     return (_state == STATE_RUNNING);
 }
 
+bool Node::isStopped() const
+{
+    return (_state == STATE_STOPPED);
+}
+
 bool Node::configInit( const uint32_t )
 {
 #ifdef EQ_USE_MAGELLAN
@@ -439,10 +444,13 @@ bool Node::_cmdDestroyPipe( net::Command& command )
     EQASSERT( pipe );
     pipe->joinThread();
 
+    PipeConfigExitReplyPacket reply( packet->pipeID, pipe->isStopped( ));
+
     Config* config = getConfig();
     config->unmapObject( pipe );
     Global::getNodeFactory()->releasePipe( pipe );
 
+    config->send( getServer(), reply ); // do not use Object::send()
     return true;
 }
 
@@ -489,16 +497,13 @@ bool Node::_cmdConfigExit( net::Command& command )
         pipe->waitExited();
     }
     
-    NodeConfigExitReplyPacket reply;
-    reply.result = configExit();
-
+    _state = configExit() ? STATE_STOPPED : STATE_FAILED;
     transmitter.send( 0, 0, 0 );
     transmitter.join();
-
-    _state = STATE_STOPPED;
     _flushObjects();
 
-    send( command.getNode(), reply );
+    ConfigDestroyNodePacket destroyPacket( getID( ));
+    getConfig()->send( getLocalNode(), destroyPacket );
     return true;
 }
 

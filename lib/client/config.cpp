@@ -89,8 +89,6 @@ void Config::notifyMapped( net::NodePtr node )
                      ConfigFunc( this, &Config::_cmdCreateNode ), queue );
     registerCommand( fabric::CMD_CONFIG_DESTROY_NODE,
                      ConfigFunc( this, &Config::_cmdDestroyNode ), queue );
-    registerCommand( fabric::CMD_CONFIG_SYNC,
-                     ConfigFunc( this, &Config::_cmdSync ), cmdQueue );
     registerCommand( fabric::CMD_CONFIG_START_FRAME_REPLY,
                      ConfigFunc( this, &Config::_cmdStartFrameReply ),
                      cmdQueue );
@@ -196,12 +194,13 @@ uint32_t Config::startFrame( const uint32_t frameID )
     client->waitRequest( packet.syncID, version );
     sync( version );
 
-    bool finish;
-    client->waitRequest( packet.startID, finish );
+    uint32_t finishID = EQ_ID_INVALID;
+    client->waitRequest( packet.startID, finishID );
 
     ++_currentFrame;
-    if( finish ) // finish including current frame to process init tasks
+    if( finishID != EQ_ID_INVALID ) // finish to process init tasks
     {
+        ackRequest( getServer(), finishID );
         while( _finishedFrame < _currentFrame )
             client->processCommand();
     }
@@ -589,19 +588,16 @@ bool Config::_cmdDestroyNode( net::Command& command )
     EQVERB << "Handle destroy node " << packet << std::endl;
 
     Node* node = _findNode( packet->nodeID );
+    EQASSERT( node );
     if( !node )
         return true;
+
+    NodeConfigExitReplyPacket reply( packet->nodeID, node->isStopped( ));
 
     unmapObject( node );
     Global::getNodeFactory()->releaseNode( node );
 
-    return true;
-}
-
-bool Config::_cmdSync( net::Command& command ) 
-{
-    const ConfigSyncPacket* packet = command.getPacket< ConfigSyncPacket >();
-    getClient()->serveRequest( packet->requestID, packet->version );
+    send( getServer(), reply );
     return true;
 }
 
@@ -609,7 +605,8 @@ bool Config::_cmdStartFrameReply( net::Command& command )
 {
     const ConfigStartFrameReplyPacket* packet =
         command.getPacket< ConfigStartFrameReplyPacket >();
-    getClient()->serveRequest( packet->requestID, packet->finish );
+    getClient()->serveRequest( packet->syncID, packet->version );
+    getClient()->serveRequest( packet->startID, packet->finishID );
     return true;
 }
 

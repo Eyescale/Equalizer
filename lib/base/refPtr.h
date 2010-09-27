@@ -50,7 +50,7 @@ namespace base
          * Construct a copy of a reference pointer of a different type.
          * @version 1.0
          */
-        template< class O > RefPtr( const RefPtr< O >& from )
+        template< class O > RefPtr( RefPtr< O > from )
                 : _ptr( from.get( )) { ref(); }
 
         /** Destruct this reference pointer. @version 1.0 */

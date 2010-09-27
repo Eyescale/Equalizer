@@ -243,12 +243,6 @@ void Pipe::configExit()
     EQLOG( LOG_INIT ) << "Exit pipe" << std::endl;
     PipeConfigExitPacket packet;
     send( packet );
-
-    EQLOG( LOG_INIT ) << "Destroy pipe" << std::endl;
-    NodeDestroyPipePacket destroyPipePacket;
-    destroyPipePacket.objectID = getNode()->getID();
-    destroyPipePacket.pipeID   = getID();
-    getNode()->send( destroyPipePacket );
 }
 
 bool Pipe::syncConfigExit()

@@ -73,7 +73,7 @@ namespace net
 
         /** @return the server hosting this session, or 0 if the session is not
          *          mapped.. */
-        NodePtr getServer(){ return _server; }
+        NodePtr getServer() { return _server; }
         //@}
 
 
@@ -370,6 +370,9 @@ namespace net
         void expireInstanceData( const int64_t age )
             { _instanceCache.expire( age ); }
 
+        /** @internal ack an operation to the sender. */
+        void ackRequest( NodePtr node, const uint32_t requestID );
+
     private:
         /** Set the local node to which this session is mapped */
         void _setLocalNode( NodePtr node );
@@ -413,8 +416,6 @@ namespace net
                 packet.sessionID = _id;
                 _localNode->send( packet );
             }
-
-        template< class P > void _ackRequest( Command& command );
 
         bool _dispatchObjectCommand( Command& command );
         bool _invokeObjectCommand( Command& packet );

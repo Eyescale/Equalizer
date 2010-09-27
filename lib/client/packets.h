@@ -149,13 +149,14 @@ namespace eq
 
     struct ConfigDestroyNodePacket : public ConfigPacket
     {
-        ConfigDestroyNodePacket()
+        ConfigDestroyNodePacket( const uint32_t id )
+                : nodeID( id )
             {
                 command = fabric::CMD_CONFIG_DESTROY_NODE;
                 size    = sizeof( ConfigDestroyNodePacket );
             }
 
-        uint32_t nodeID;
+        const uint32_t nodeID;
     };
 
     struct ConfigInitPacket : public ConfigPacket
@@ -219,32 +220,23 @@ namespace eq
         uint32_t startID;
     };
 
-    struct ConfigSyncPacket : public ConfigPacket
-    {
-        ConfigSyncPacket( const ConfigStartFramePacket* request,
-                          const uint32_t version_ )
-                : requestID( request->syncID )
-                , version( version_ )
-            {
-                command   = fabric::CMD_CONFIG_SYNC;
-                size      = sizeof( ConfigSyncPacket );
-            }
-        const uint32_t requestID;
-        const uint32_t version;
-    };
-
     struct ConfigStartFrameReplyPacket : public ConfigPacket
     {
         ConfigStartFrameReplyPacket( const ConfigStartFramePacket* request,
-                                     const bool finish_ )
-                : requestID( request->startID )
-                , finish( finish_ )
+                                     const uint32_t version_,
+                                     const uint32_t finishID_ )
+                : syncID( request->syncID )
+                , startID( request->startID )
+                , version( version_ )
+                , finishID( finishID_ )
             {
                 command   = fabric::CMD_CONFIG_START_FRAME_REPLY;
                 size      = sizeof( ConfigStartFrameReplyPacket );
             }
-        const uint32_t requestID;
-        const bool finish;
+        const uint32_t syncID;
+        const uint32_t startID;
+        const uint32_t version;
+        const uint32_t finishID;
     };
 
     struct ConfigReleaseFrameLocalPacket : public ConfigPacket
@@ -334,13 +326,15 @@ namespace eq
 
     struct NodeConfigExitReplyPacket : public net::ObjectPacket
     {
-        NodeConfigExitReplyPacket()
+        NodeConfigExitReplyPacket( const uint32_t nodeID, const bool res )
+                : result( res )
             {
                 command   = fabric::CMD_NODE_CONFIG_EXIT_REPLY;
                 size      = sizeof( NodeConfigExitReplyPacket );
+                objectID  = nodeID;
             }
 
-        bool     result;
+        const bool result;
     };
 
     struct NodeCreatePipePacket : public net::ObjectPacket
@@ -357,13 +351,14 @@ namespace eq
 
     struct NodeDestroyPipePacket : public net::ObjectPacket
     {
-        NodeDestroyPipePacket()
+        NodeDestroyPipePacket( const uint32_t id )
+                : pipeID( id )
             {
                 command = fabric::CMD_NODE_DESTROY_PIPE;
                 size    = sizeof( NodeDestroyPipePacket );
             }
 
-        uint32_t pipeID;
+        const uint32_t pipeID;
     };
     
     struct NodeFrameStartPacket : public net::ObjectPacket
@@ -443,13 +438,14 @@ namespace eq
 
     struct PipeDestroyWindowPacket : public net::ObjectPacket
     {
-        PipeDestroyWindowPacket()
+        PipeDestroyWindowPacket( const uint32_t id )
+                : windowID( id )
             {
                 command = fabric::CMD_PIPE_DESTROY_WINDOW;
                 size    = sizeof( PipeDestroyWindowPacket );
             }
 
-        uint32_t windowID;
+        const uint32_t windowID;
     };
 
     struct PipeConfigInitPacket : public net::ObjectPacket
@@ -486,13 +482,15 @@ namespace eq
 
     struct PipeConfigExitReplyPacket : public net::ObjectPacket
     {
-        PipeConfigExitReplyPacket()
+        PipeConfigExitReplyPacket( const uint32_t pipeID, const bool res )
+                : result( res )
             {
                 command   = fabric::CMD_PIPE_CONFIG_EXIT_REPLY;
                 size      = sizeof( PipeConfigExitReplyPacket );
+                objectID  = pipeID;
             }
 
-        bool     result;
+        const bool result;
     };
 
     struct PipeFrameStartClockPacket : public net::ObjectPacket
@@ -576,13 +574,15 @@ namespace eq
 
     struct WindowConfigExitReplyPacket : public net::ObjectPacket
     {
-        WindowConfigExitReplyPacket()
+        WindowConfigExitReplyPacket( const uint32_t windowID, const bool res )
+                : result( res )
             {
                 command   = fabric::CMD_WINDOW_CONFIG_EXIT_REPLY;
                 size      = sizeof( WindowConfigExitReplyPacket );
+                objectID  = windowID;
             }
 
-        bool     result;
+        const bool result;
     };
 
     struct WindowCreateChannelPacket : public net::ObjectPacket
@@ -598,13 +598,14 @@ namespace eq
 
     struct WindowDestroyChannelPacket : public net::ObjectPacket
     {
-        WindowDestroyChannelPacket()
+        WindowDestroyChannelPacket( const uint32_t channelID_ )
+                : channelID( channelID_ )
             {
                 command = fabric::CMD_WINDOW_DESTROY_CHANNEL;
                 size    = sizeof( WindowDestroyChannelPacket );
             }
 
-        uint32_t channelID;
+        const uint32_t channelID;
     };
 
     struct WindowFinishPacket : public net::ObjectPacket
@@ -730,13 +731,15 @@ namespace eq
 
     struct ChannelConfigExitReplyPacket : public net::ObjectPacket
     {
-        ChannelConfigExitReplyPacket()
+        ChannelConfigExitReplyPacket( const uint32_t channelID, const bool res )
+                : result( res )
             {
                 command   = fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY;
                 size      = sizeof( ChannelConfigExitReplyPacket );
+                objectID  = channelID;
             }
 
-        bool     result;
+        const bool result;
     };
 
     struct ChannelTaskPacket : public net::ObjectPacket

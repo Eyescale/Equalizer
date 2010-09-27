@@ -1,4 +1,9 @@
-Fix Linux segfault during Globals init
+Admin fixes & cleanups:
+- merge sync & finish replies for Config::startFrame
+- sync client config sync with server
+- sync entity deletion with server by delaying exit replies
+- remove dangling View::_observer ptrs in Config::_removeObserver
+- fix fabric::LOG_INIT enum
 
 [ ] May break build
 [ ] May break existing applications

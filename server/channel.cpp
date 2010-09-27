@@ -193,8 +193,7 @@ void Channel::activate()
     EQASSERT( window );
 
     ++_active;
-    if( window ) 
-        window->activate();
+    window->activate();
 
     EQLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
 }
@@ -206,8 +205,7 @@ void Channel::deactivate()
     EQASSERT( window );
 
     --_active; 
-    if( window ) 
-        window->deactivate(); 
+    window->deactivate(); 
 
     EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 }
@@ -302,10 +300,6 @@ void Channel::configExit()
     EQLOG( LOG_INIT ) << "Exit channel" << std::endl;
     ChannelConfigExitPacket packet;
     send( packet );
-
-    WindowDestroyChannelPacket destroyChannelPacket;
-    destroyChannelPacket.channelID = getID();
-    getWindow()->send( destroyChannelPacket );
 }
 
 bool Channel::syncConfigExit()
@@ -337,8 +331,9 @@ void Channel::_setupRenderContext( const uint32_t frameID,
 
 bool Channel::update( const uint32_t frameID, const uint32_t frameNumber )
 {
+    EQASSERT( isActive( ));
+    EQASSERT( getWindow()->isActive( ));
     EQASSERT( _state == STATE_RUNNING );
-    EQASSERT( _active > 0 );
 
     ChannelFrameStartPacket startPacket;
     startPacket.frameNumber = frameNumber;

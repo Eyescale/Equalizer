@@ -26,6 +26,8 @@
 
 #include <eq/net/command.h>
 
+#include "layout.ipp" // Layout::_removeObserver template impl
+
 namespace eq
 {
 namespace fabric
@@ -430,6 +432,13 @@ bool Config< S, C, O, L, CV, N, V >::_removeObserver( O* observer )
                                                 _observers.end(), observer );
     if( i == _observers.end( ))
         return false;
+
+    // remove from views
+    for( typename Layouts::const_iterator j = _layouts.begin();
+         j != _layouts.end(); ++j )
+    {
+        (*j)->_removeObserver( observer );
+    }
 
     EQASSERT( observer->getConfig() == this );
     _observers.erase( i );

@@ -1080,15 +1080,16 @@ bool Config::_cmdStartFrame( net::Command& command )
     accept( syncer );
 
     net::NodePtr node = command.getNode();
-    ConfigSyncPacket syncPacket( packet, getVersion( ));
-    send( node, syncPacket );    
-    ConfigStartFrameReplyPacket reply( packet, _needsFinish );
+    net::NodePtr localNode = getLocalNode();
+    ConfigStartFrameReplyPacket reply( packet, getVersion(),
+                  _needsFinish ? localNode->registerRequest() : EQ_ID_INVALID );
     send( node, reply );
 
     if( _needsFinish ) // pre-frame: flush rendering
     {
         _flushAllFrames();
-        _finishedFrame.waitEQ( _currentFrame );
+        _finishedFrame.waitEQ( _currentFrame ); // wait for render clients idle
+        localNode->waitRequest( reply.finishID ); // wait for app config sync
     }
 
     if( _updateRunning() || getIAttribute( IATTR_ROBUSTNESS ))
@@ -1105,6 +1106,7 @@ bool Config::_cmdStartFrame( net::Command& command )
     {
         _flushAllFrames();
         _needsFinish = false;
+        //EQINFO << *this << std::endl;
     }
 
     if( _state == STATE_STOPPED )

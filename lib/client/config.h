@@ -364,7 +364,6 @@ namespace eq
         bool _cmdSyncClock( net::Command& command );
         bool _cmdCreateNode( net::Command& command );
         bool _cmdDestroyNode( net::Command& command );
-        bool _cmdSync( net::Command& command );
         bool _cmdStartFrameReply( net::Command& command );
         bool _cmdInitReply( net::Command& command );
         bool _cmdExitReply( net::Command& command );

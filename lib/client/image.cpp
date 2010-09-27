@@ -132,7 +132,7 @@ void Image::setInternalFormat( const Frame::Buffer buffer,
 
     memory.internalFormat = internalFormat;
     allocCompressor( buffer, EQ_COMPRESSOR_INVALID );
-    if ( internalFormat == 0 )
+    if( internalFormat == 0 )
         return;
 }
 
@@ -829,12 +829,10 @@ const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
             EQWARN << "No compressor found for token type 0x" << std::hex 
                    << getExternalFormat( buffer ) << std::dec << std::endl;
             memory.compressorName = EQ_COMPRESSOR_NONE;
-            return memory;
         }
     }
 
     EQASSERT( memory.compressorName != 0 );
-
     if( memory.compressorName == EQ_COMPRESSOR_NONE )
         return memory;
 

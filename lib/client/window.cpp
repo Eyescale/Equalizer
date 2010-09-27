@@ -661,10 +661,13 @@ bool Window::_cmdDestroyChannel( net::Command& command )
     Channel* channel = _findChannel( packet->channelID );
     EQASSERT( channel );
 
-    Config*  config  = getConfig();
+    ChannelConfigExitReplyPacket reply( packet->channelID,
+                                        channel->isStopped( ));
+    Config* config = getConfig();
     config->unmapObject( channel );
     Global::getNodeFactory()->releaseChannel( channel );
 
+    config->send( getServer(), reply ); // do not use Object::send()
     return true;
 }
 
@@ -700,15 +703,11 @@ bool Window::_cmdConfigInit( net::Command& command )
 
 bool Window::_cmdConfigExit( net::Command& command )
 {
-    const WindowConfigExitPacket* packet =
+    WindowConfigExitPacket* packet =
         command.getPacket<WindowConfigExitPacket>();
     EQLOG( LOG_INIT ) << "TASK window config exit " << packet << std::endl;
 
-    WindowConfigExitReplyPacket reply;
-    
-    if( _state == STATE_STOPPED )
-        reply.result = true;
-    else
+    if( _state != STATE_STOPPED )
     {
         if( getPipe()->isRunning( ) && _osWindow )
         {
@@ -717,11 +716,11 @@ bool Window::_cmdConfigExit( net::Command& command )
         }
         // else emergency exit, no context available.
 
-        reply.result = configExit();
+        _state = configExit() ? STATE_STOPPED : STATE_FAILED;
     }
 
-    _state = STATE_STOPPED;
-    send( command.getNode(), reply );
+    PipeDestroyWindowPacket destroyPacket( getID( ));
+    getPipe()->send( getLocalNode(), destroyPacket );
     return true;
 }
 

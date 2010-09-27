@@ -429,12 +429,17 @@ void Pipe::joinThread()
 
 void Pipe::waitExited() const
 {
-    _state.waitEQ( STATE_STOPPED );
+    _state.waitNE( STATE_INITIALIZING, STATE_RUNNING );
 }
 
 bool Pipe::isRunning() const
 {
     return (_state == STATE_RUNNING);
+}
+
+bool Pipe::isStopped() const
+{
+    return (_state == STATE_STOPPED);
 }
 
 void Pipe::notifyMapped()
@@ -704,10 +709,13 @@ bool Pipe::_cmdDestroyWindow(  net::Command& command  )
         EQASSERT( candidate->getSharedContextWindow() != window );
     }
 
+    WindowConfigExitReplyPacket reply( packet->windowID, window->isStopped( ));
+
     Config* config = getConfig();
     config->unmapObject( window );
     Global::getNodeFactory()->releaseWindow( window );
 
+    config->send( getServer(), reply ); // do not use Object::send()
     return true;
 }
 
@@ -738,7 +746,7 @@ bool Pipe::_cmdConfigInit( net::Command& command )
         _windowSystem = selectWindowSystem();
         _setupCommandQueue();
 
-        reply.result  = configInit( packet->initID );
+        reply.result = configInit( packet->initID );
         if( reply.result )
             _state = STATE_RUNNING;
     }
@@ -764,13 +772,11 @@ bool Pipe::_cmdConfigExit( net::Command& command )
         command.getPacket<PipeConfigExitPacket>();
     EQLOG( LOG_INIT ) << "TASK pipe config exit " << packet << std::endl;
 
-    PipeConfigExitReplyPacket reply;
-    reply.result = configExit();
+    _state = configExit() ? STATE_STOPPED : STATE_FAILED;
     _flushViews();
 
-    _state = STATE_STOPPED;
-
-    send( command.getNode(), reply );
+    NodeDestroyPipePacket destroyPacket( getID( ));
+    getNode()->send( getLocalNode(), destroyPacket );
 
     if( isThreaded( ))
     {

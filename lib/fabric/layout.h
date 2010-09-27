@@ -143,6 +143,10 @@ namespace fabric
 
         EQFABRIC_EXPORT virtual uint32_t commitNB(); //!< @internal
 
+        template< class O > void _removeObserver( const O* observer );
+        template< class, class, class, class, class, class,
+                  class > friend class Config;
+
         typedef net::CommandFunc< Layout< C, L, V > > CmdFunc;
         bool _cmdNewView( net::Command& command );
         bool _cmdNewViewReply( net::Command& command );

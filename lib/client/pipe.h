@@ -82,6 +82,18 @@ namespace eq
         EQ_EXPORT ServerPtr getServer();
 
         /**
+         * @return true if this pipe is running, false otherwise.
+         * @version 1.0 
+         */
+        bool isRunning() const;
+
+        /**
+         * @return true if this pipe is stopped, false otherwise.
+         * @version 1.0 
+         */
+        EQ_EXPORT bool isStopped() const;
+
+        /**
          * Return the current frame number.
          *
          * To be called only from the pipe thread. Updated by startFrame().
@@ -141,7 +153,6 @@ namespace eq
         //@}
 
         void waitExited() const; //!<  @internal Wait for the pipe to be exited
-        bool isRunning() const; //!< @internal
         void notifyMapped(); //!< @internal
         
         /**
@@ -361,7 +372,8 @@ namespace eq
             STATE_STOPPED,
             STATE_MAPPED,
             STATE_INITIALIZING,
-            STATE_RUNNING
+            STATE_RUNNING,
+            STATE_FAILED
         };
         /** The configInit/configExit state. */
         base::Monitor< State > _state;

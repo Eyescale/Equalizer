@@ -199,12 +199,6 @@ void Node::configExit()
     NodeConfigExitPacket packet;
     _send( packet );
     flushSendBuffer();
-
-    EQLOG( LOG_INIT ) << "Destroy node" << std::endl;
-    ConfigDestroyNodePacket destroyNodePacket;
-    destroyNodePacket.nodeID = getID();
-    destroyNodePacket.sessionID = getConfig()->getID();
-    _node->send( destroyNodePacket );
 }
 
 bool Node::syncConfigExit()

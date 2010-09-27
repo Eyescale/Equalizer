@@ -1045,14 +1045,11 @@ bool Channel::_cmdConfigExit( net::Command& command )
         command.getPacket<ChannelConfigExitPacket>();
     EQLOG( LOG_INIT ) << "Exit channel " << packet << std::endl;
 
-    ChannelConfigExitReplyPacket reply;
-    if( _state == STATE_STOPPED )
-        reply.result = true;
-    else
-        reply.result = configExit();
+    if( _state != STATE_STOPPED )
+        _state = configExit() ? STATE_STOPPED : STATE_FAILED;
 
-    send( command.getNode(), reply );
-    _state = STATE_STOPPED;
+    WindowDestroyChannelPacket destroyPacket( getID( ));
+    getWindow()->send( getLocalNode(), destroyPacket );
     return true;
 }
 
@@ -1096,6 +1093,7 @@ bool Channel::_cmdFrameFinish( net::Command& command )
 
 bool Channel::_cmdFrameClear( net::Command& command )
 {
+    EQASSERT( _state == STATE_RUNNING );
     ChannelFrameClearPacket* packet = 
         command.getPacket<ChannelFrameClearPacket>();
     EQLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet

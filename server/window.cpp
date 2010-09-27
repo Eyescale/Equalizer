@@ -175,8 +175,7 @@ void Window::activate()
     EQASSERT( pipe );
 
     ++_active;
-    if( pipe ) 
-        pipe->activate();
+    pipe->activate();
 
     EQLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
 }
@@ -188,8 +187,7 @@ void Window::deactivate()
     EQASSERT( pipe );
 
     --_active; 
-    if( pipe ) 
-        pipe->deactivate(); 
+    pipe->deactivate(); 
 
     EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 };
@@ -360,11 +358,6 @@ void Window::configExit()
     EQLOG( LOG_INIT ) << "Exit Window" << std::endl;
     WindowConfigExitPacket packet;
     send( packet );
-
-    EQLOG( LOG_INIT ) << "Destroy Window" << std::endl;
-    PipeDestroyWindowPacket destroyWindowPacket;
-    destroyWindowPacket.windowID = getID();
-    getPipe()->send( destroyWindowPacket );
 }
 
 bool Window::syncConfigExit()

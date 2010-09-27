@@ -65,7 +65,7 @@ namespace fabric
 
     enum ConfigCommand
     {
-        CMD_CONFIG_NEW_LAYOUT = net::CMD_SESSION_CUSTOM,
+        CMD_CONFIG_NEW_LAYOUT = net::CMD_SESSION_CUSTOM, // 10
         CMD_CONFIG_NEW_CANVAS,
         CMD_CONFIG_NEW_OBSERVER,
         CMD_CONFIG_NEW_ENTITY_REPLY,
@@ -79,7 +79,6 @@ namespace fabric
         CMD_CONFIG_CREATE_NODE,
         CMD_CONFIG_DESTROY_NODE,
         CMD_CONFIG_START_FRAME,
-        CMD_CONFIG_SYNC,
         CMD_CONFIG_START_FRAME_REPLY,
         CMD_CONFIG_RELEASE_FRAME_LOCAL,
         CMD_CONFIG_FRAME_FINISH,
@@ -87,17 +86,12 @@ namespace fabric
         CMD_CONFIG_EVENT,
         CMD_CONFIG_FREEZE_LOAD_BALANCING,
         CMD_CONFIG_SYNC_CLOCK,
-        CMD_CONFIG_FILL1, // some buffer for binary-compatible patches
-        CMD_CONFIG_FILL2,
-        CMD_CONFIG_FILL3,
-        CMD_CONFIG_FILL4,
-        CMD_CONFIG_FILL5,
-        CMD_CONFIG_CUSTOM
+        CMD_CONFIG_CUSTOM = 40 // some buffer for binary-compatible patches
     };
 
     enum NodeCommand
     {
-        CMD_NODE_CONFIG_INIT = net::CMD_OBJECT_CUSTOM,
+        CMD_NODE_CONFIG_INIT = net::CMD_OBJECT_CUSTOM, // 10
         CMD_NODE_CONFIG_INIT_REPLY,
         CMD_NODE_CONFIG_EXIT,
         CMD_NODE_CONFIG_EXIT_REPLY,
@@ -108,17 +102,12 @@ namespace fabric
         CMD_NODE_FRAME_FINISH_REPLY,
         CMD_NODE_FRAME_DRAW_FINISH,
         CMD_NODE_FRAME_TASKS_FINISH,
-        CMD_NODE_FILL1, // some buffer for binary-compatible patches
-        CMD_NODE_FILL2,
-        CMD_NODE_FILL3,
-        CMD_NODE_FILL4,
-        CMD_NODE_FILL5,
-        CMD_NODE_CUSTOM
+        CMD_NODE_CUSTOM = 30  // some buffer for binary-compatible patches
     };
 
     enum PipeCommand
     {
-        CMD_PIPE_NEW_WINDOW = net::CMD_OBJECT_CUSTOM,
+        CMD_PIPE_NEW_WINDOW = net::CMD_OBJECT_CUSTOM, // 10
         CMD_PIPE_NEW_WINDOW_REPLY,
         CMD_PIPE_CONFIG_INIT,
         CMD_PIPE_CONFIG_INIT_REPLY,
@@ -130,17 +119,12 @@ namespace fabric
         CMD_PIPE_FRAME_FINISH,
         CMD_PIPE_FRAME_DRAW_FINISH,
         CMD_PIPE_FRAME_START_CLOCK,
-        CMD_PIPE_FILL1, // some buffer for binary-compatible patches
-        CMD_PIPE_FILL2,
-        CMD_PIPE_FILL3,
-        CMD_PIPE_FILL4,
-        CMD_PIPE_FILL5,
-        CMD_PIPE_CUSTOM
+        CMD_PIPE_CUSTOM = 30 // some buffer for binary-compatible patches
     };
 
     enum WindowCommand
     {
-        CMD_WINDOW_NEW_CHANNEL = net::CMD_OBJECT_CUSTOM,
+        CMD_WINDOW_NEW_CHANNEL = net::CMD_OBJECT_CUSTOM, // 10
         CMD_WINDOW_NEW_CHANNEL_REPLY,
         CMD_WINDOW_CONFIG_INIT,
         CMD_WINDOW_CONFIG_INIT_REPLY,
@@ -156,12 +140,7 @@ namespace fabric
         CMD_WINDOW_NV_BARRIER,
         CMD_WINDOW_SWAP,
         CMD_WINDOW_FRAME_DRAW_FINISH,
-        CMD_WINDOW_FILL1, // some buffer for binary-compatible patches
-        CMD_WINDOW_FILL2,
-        CMD_WINDOW_FILL3,
-        CMD_WINDOW_FILL4,
-        CMD_WINDOW_FILL5,
-        CMD_WINDOW_CUSTOM
+        CMD_WINDOW_CUSTOM = 30 // some buffer for binary-compatible patches
     };
 
     enum ChannelCommand
@@ -186,39 +165,24 @@ namespace fabric
 
     enum CanvasCommand
     {
-        CMD_CANVAS_NEW_SEGMENT = net::CMD_OBJECT_CUSTOM,
+        CMD_CANVAS_NEW_SEGMENT = net::CMD_OBJECT_CUSTOM, // 10 
         CMD_CANVAS_NEW_SEGMENT_REPLY,
-        CMD_CANVAS_FILL1, // some buffer for binary-compatible patches
-        CMD_CANVAS_FILL2,
-        CMD_CANVAS_FILL3,
-        CMD_CANVAS_FILL4,
-        CMD_CANVAS_FILL5,
-        CMD_CANVAS_CUSTOM
+        CMD_CANVAS_CUSTOM = 20 // some buffer for binary-compatible patches
     };
 
     enum LayoutCommand
     {
-        CMD_LAYOUT_NEW_VIEW = net::CMD_OBJECT_CUSTOM,
+        CMD_LAYOUT_NEW_VIEW = net::CMD_OBJECT_CUSTOM, // 10 
         CMD_LAYOUT_NEW_VIEW_REPLY,
-        CMD_LAYOUT_FILL1, // some buffer for binary-compatible patches
-        CMD_LAYOUT_FILL2,
-        CMD_LAYOUT_FILL3,
-        CMD_LAYOUT_FILL4,
-        CMD_LAYOUT_FILL5,
-        CMD_LAYOUT_CUSTOM
+        CMD_LAYOUT_CUSTOM = 20 // some buffer for binary-compatible patches
     };
 
     enum FrameDataCommand
     {
-        CMD_FRAMEDATA_TRANSMIT = net::CMD_OBJECT_CUSTOM,
+        CMD_FRAMEDATA_TRANSMIT = net::CMD_OBJECT_CUSTOM, // 10
         CMD_FRAMEDATA_READY,
         CMD_FRAMEDATA_UPDATE,
-        CMD_FRAMEDATA_FILL1, // some buffer for binary-compatible patches
-        CMD_FRAMEDATA_FILL2,
-        CMD_FRAMEDATA_FILL3,
-        CMD_FRAMEDATA_FILL4,
-        CMD_FRAMEDATA_FILL5,
-        CMD_FRAMEDATA_CUSTOM
+        CMD_FRAMEDATA_CUSTOM = 20 // some buffer for binary-compatible patches
     };
 /** @endcond */
 }

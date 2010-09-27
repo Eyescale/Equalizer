@@ -19,6 +19,7 @@
 
 #include "elementVisitor.h"
 #include "nameFinder.h"
+#include "observer.h"
 #include "packets.h"
 #include "paths.h"
 
@@ -225,6 +226,22 @@ bool Layout< C, L, V >::_removeView( V* view )
     if( !isMaster( ))
         postRemove( view );
     return true;
+}
+
+template< class C, class L, class V >
+template< class O > void Layout< C, L, V >::_removeObserver( const O* observer )
+{
+    for( typename Views::const_iterator i = _views.begin();
+         i != _views.end(); ++i )
+    {
+        V* view = *i;
+        if( view->getObserver() == observer )
+        {
+            EQINFO << "Removing " << base::disableHeader << *observer
+                   << " used by " << *view << std::endl << base::enableHeader;
+            view->setObserver( 0 );
+        }
+    }
 }
 
 template< class C, class L, class V >
