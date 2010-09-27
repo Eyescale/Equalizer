@@ -116,6 +116,7 @@ public:
                     config->accept(*this) == eq::admin::TRAVERSE_CONTINUE )
                 {
                     _observers.push_back( _observer );
+                    view->setObserver( 0 ); // observer will be deleted
                 }
                 _observer = 0;
                 return eq::admin::TRAVERSE_TERMINATE;
@@ -187,8 +188,9 @@ inline bool removeWindow( eq::admin::ServerPtr server )
                 eq::admin::Layout* layout = *k;
                 FindLayoutObservers layoutObservers( layout );
                 config->accept( layoutObservers );
-                const eq::admin::Observers& observers = 
-                    layoutObservers.getResult();
+                eq::admin::Observers observers = layoutObservers.getResult();
+                stde::usort( observers );
+
                 for( eq::admin::Observers::const_iterator l = observers.begin();
                      l != observers.end(); ++l )
                 {
