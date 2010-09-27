@@ -112,6 +112,7 @@
 %token EQTOKEN_WINDOW_IATTR_HINT_DRAWABLE
 %token EQTOKEN_WINDOW_IATTR_HINT_STATISTICS
 %token EQTOKEN_WINDOW_IATTR_HINT_SCREENSAVER
+%token EQTOKEN_WINDOW_IATTR_HINT_AFFINITY
 %token EQTOKEN_WINDOW_IATTR_PLANES_COLOR
 %token EQTOKEN_WINDOW_IATTR_PLANES_ALPHA
 %token EQTOKEN_WINDOW_IATTR_PLANES_DEPTH
@@ -144,6 +145,7 @@
 %token EQTOKEN_HINT_THREAD
 %token EQTOKEN_HINT_CUDA_GL_INTEROP
 %token EQTOKEN_HINT_SCREENSAVER
+%token EQTOKEN_HINT_AFFINITY
 %token EQTOKEN_PLANES_COLOR
 %token EQTOKEN_PLANES_ALPHA
 %token EQTOKEN_PLANES_DEPTH
@@ -154,6 +156,7 @@
 %token EQTOKEN_ON
 %token EQTOKEN_OFF
 %token EQTOKEN_AUTO
+%token EQTOKEN_EXTERN
 %token EQTOKEN_FASTEST
 %token EQTOKEN_NICEST
 %token EQTOKEN_QUAD
@@ -415,6 +418,11 @@ global:
          eq::server::Global::instance()->setWindowIAttribute(
              eq::server::Window::IATTR_HINT_SCREENSAVER, $2 );
      }
+     | EQTOKEN_WINDOW_IATTR_HINT_AFFINITY IATTR
+     {
+         eq::server::Global::instance()->setWindowIAttribute(
+             eq::server::Window::IATTR_HINT_AFFINITY, $2 );
+     }
      | EQTOKEN_WINDOW_IATTR_PLANES_COLOR IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
@@ -659,6 +667,8 @@ windowAttribute:
         { window->setIAttribute( eq::server::Window::IATTR_HINT_STATISTICS, $2 ); }
     | EQTOKEN_HINT_SCREENSAVER IATTR
         { window->setIAttribute( eq::server::Window::IATTR_HINT_SCREENSAVER, $2 ); }
+    | EQTOKEN_HINT_AFFINITY IATTR
+        { window->setIAttribute( eq::server::Window::IATTR_HINT_AFFINITY, $2 ); }
     | EQTOKEN_PLANES_COLOR IATTR
         { window->setIAttribute( eq::server::Window::IATTR_PLANES_COLOR, $2 ); }
     | EQTOKEN_PLANES_ALPHA IATTR
@@ -1211,6 +1221,7 @@ IATTR:
     | EQTOKEN_LOCAL_SYNC { $$ = eq::fabric::LOCAL_SYNC; }
     | EQTOKEN_RGBA16F    { $$ = eq::fabric::RGBA16F; }
     | EQTOKEN_RGBA32F    { $$ = eq::fabric::RGBA32F; }
+    | EQTOKEN_EXTERN     { $$ = eq::fabric::EXTERN; }
     | INTEGER            { $$ = $1; }
 
 STRING: EQTOKEN_STRING

@@ -32,12 +32,18 @@ namespace eq
 
 WGLEWContext* WGLWindowIF::wglewGetContext()
 {
-    EQASSERT( _window );
-    OSPipe* pipe = _window->getOSPipe();
-    EQASSERT( dynamic_cast< WGLPipe* >( pipe ));
-    return static_cast< WGLPipe* >( pipe )->wglewGetContext();
+    return _getWGLPipe()->wglewGetContext();
 }
 
+WGLPipe* WGLWindowIF::_getWGLPipe()
+{
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    EQASSERT( pipe->getOSPipe( ));
+    EQASSERT( dynamic_cast< WGLPipe* >( pipe->getOSPipe( )));
+
+    return static_cast< WGLPipe* >( pipe->getOSPipe( ) );
+}
 
 WGLWindow::WGLWindow( Window* parent )
     : WGLWindowIF( parent )
@@ -311,14 +317,14 @@ bool WGLWindow::configInitWGLDrawable( int pixelFormat )
 
 bool WGLWindow::configInitWGLFBO( int pixelFormat )
 {
-    if( _wglAffinityDC )
+    if( _useAffinity() && _wglAffinityDC )
     {
         // move affinity DC to be our main DC
         // deletion is now taken care of by setWGLDC( 0 )
         setWGLDC( _wglAffinityDC, WGL_DC_AFFINITY );
         _wglAffinityDC = 0;
     }
-    else // no affinity, use DC of nth device
+    else // no affinity, use window DC
     {
         const PixelViewport pvp( 0, 0, 1, 1 );
         _wglWindow = _createWGLWindow( pixelFormat, pvp );
@@ -363,7 +369,7 @@ bool WGLWindow::configInitWGLWindow( int pixelFormat )
     pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
     pfd.nVersion     = 1;
 
-    DescribePixelFormat( _wglAffinityDC ? _wglAffinityDC : windowDC, 
+    DescribePixelFormat( _useAffinity() ? _wglAffinityDC : windowDC, 
                          pixelFormat, sizeof(pfd), &pfd );
     if( !SetPixelFormat( windowDC, pixelFormat, &pfd ))
     {
@@ -485,7 +491,7 @@ bool WGLWindow::configInitWGLPBuffer( int pixelFormat )
     if( !displayDC )
         return false;
 
-    const HDC dc           = _wglAffinityDC ? _wglAffinityDC : displayDC;
+    const HDC dc           = _useAffinity() ? _wglAffinityDC : displayDC;
     const int attributes[] = { WGL_PBUFFER_LARGEST_ARB, TRUE, 0 };
 
     HPBUFFERARB pBuffer = wglCreatePbufferARB( dc, pixelFormat, pvp.w, pvp.h,
@@ -514,17 +520,13 @@ void WGLWindow::exitWGLAffinityDC()
 
 bool WGLWindow::initWGLAffinityDC()
 {
+    if( getIAttribute( Window::IATTR_HINT_AFFINITY ) == OFF )
+        return true;
+
     // We need to create one DC per window, since the window DC pixel format and
     // the affinity RC pixel format have to match, and each window has
     // potentially a different pixel format.
-    Pipe* pipe    = getPipe();
-    EQASSERT( pipe );
-    EQASSERT( pipe->getOSPipe( ));
-    EQASSERT( dynamic_cast< WGLPipe* >( pipe->getOSPipe( )));
-
-    WGLPipe* osPipe = static_cast< WGLPipe* >( pipe->getOSPipe( ));
-
-    return osPipe->createWGLAffinityDC( _wglAffinityDC );
+    return _getWGLPipe()->createWGLAffinityDC( _wglAffinityDC );
 }
 
 HDC WGLWindow::getWGLAffinityDC()
@@ -538,20 +540,29 @@ HDC WGLWindow::getWGLAffinityDC()
 
 HDC WGLWindow::createWGLDisplayDC()
 {
-    Pipe* pipe    = getPipe();
-    EQASSERT( pipe );
-    EQASSERT( pipe->getOSPipe( ));
-    EQASSERT( dynamic_cast< WGLPipe* >( pipe->getOSPipe( )));
+    return _getWGLPipe()->createWGLDisplayDC();
+}
 
-    WGLPipe* osPipe = static_cast< WGLPipe* >( pipe->getOSPipe( ));
+bool WGLWindow::_useAffinity()
+{
+    if( getIAttribute( Window::IATTR_HINT_AFFINITY ) == EXTERN )
+        return false;
 
-    return osPipe->createWGLDisplayDC();
+    if( getIAttribute( Window::IATTR_HINT_AFFINITY ) == AUTO &&
+        getIAttribute( Window::IATTR_HINT_DRAWABLE ) != FBO )
+    {
+        WGLPipe* wglPipe = _getWGLPipe();
+        if( wglPipe->getDriverVersion() > 200.f ) // NV driver WAR
+            return false;
+    }
+
+    return _wglAffinityDC != 0;
 }
 
 int WGLWindow::chooseWGLPixelFormat()
 {
-    HDC screenDC    = GetDC( 0 );
-    HDC pfDC        = _wglAffinityDC ? _wglAffinityDC : screenDC;
+    HDC screenDC = GetDC( 0 );
+    HDC pfDC = _useAffinity() ? _wglAffinityDC : screenDC;
 
     int pixelFormat = (WGLEW_ARB_pixel_format) ? 
         _chooseWGLPixelFormatARB( pfDC ) : _chooseWGLPixelFormat( pfDC );
@@ -817,7 +828,7 @@ HGLRC WGLWindow::createWGLContext()
     EQASSERT( _wglDC );
 
     // create context
-    HGLRC context = wglCreateContext(_wglAffinityDC ? _wglAffinityDC : _wglDC );
+    HGLRC context = wglCreateContext( _useAffinity() ? _wglAffinityDC :_wglDC );
     if( !context )
     {
         std::ostringstream error;

@@ -73,19 +73,24 @@ namespace eq
         /** @return the generic WGL function table for the pipe. */
         WGLEWContext* wglewGetContext() { return _wglewContext; }
 
+        /** @internal @return the NVidia driver version, or 0. */
+        float getDriverVersion() const { return _driverVersion; }
+
     private:
-
         void _configInitWGLEW();
-
         bool _getGPUHandle( HGPUNV& handle );
 
         /** Extended WGL function entries. */
         WGLEWContext* const _wglewContext;
 
+        float _driverVersion;
+
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
+
+        void _configInitDriverVersion();
     };
 }
 

@@ -24,6 +24,7 @@
 namespace eq
 {
     class WGLEventHandler;
+    class WGLPipe;
 
     /** The interface defining the minimum functionality for a WGL window. */
     class WGLWindowIF : public GLWindow
@@ -53,6 +54,9 @@ namespace eq
         /** Process an event received from WGL. */
         EQ_EXPORT virtual bool processEvent( const WGLWindowEvent& event )
             { return _window->processEvent( event ); }
+
+        /** @return the WGL OS parent pipe. */
+        WGLPipe* _getWGLPipe();
     };
 
     /** Equalizer default implementation of a WGL window */
@@ -266,6 +270,9 @@ namespace eq
 
         /** Use ChoosePixelFormat */
         int _chooseWGLPixelFormat( HDC pfDC );
+
+        /** @return true if an affinity DC is used. */
+        bool _useAffinity();
     };
 }
 

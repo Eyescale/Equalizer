@@ -104,6 +104,7 @@ EQ_WINDOW_IATTR_HINT_SWAPSYNC    { return EQTOKEN_WINDOW_IATTR_HINT_SWAPSYNC; }
 EQ_WINDOW_IATTR_HINT_DRAWABLE    { return EQTOKEN_WINDOW_IATTR_HINT_DRAWABLE; }
 EQ_WINDOW_IATTR_HINT_STATISTICS { return EQTOKEN_WINDOW_IATTR_HINT_STATISTICS; }
 EQ_WINDOW_IATTR_HINT_SCREENSAVER {return EQTOKEN_WINDOW_IATTR_HINT_SCREENSAVER;}
+EQ_WINDOW_IATTR_HINT_AFFINITY    { return EQTOKEN_WINDOW_IATTR_HINT_AFFINITY; }
 EQ_WINDOW_IATTR_PLANES_COLOR     { return EQTOKEN_WINDOW_IATTR_PLANES_COLOR; }
 EQ_WINDOW_IATTR_PLANES_ALPHA     { return EQTOKEN_WINDOW_IATTR_PLANES_ALPHA; }
 EQ_WINDOW_IATTR_PLANES_DEPTH     { return EQTOKEN_WINDOW_IATTR_PLANES_DEPTH; }
@@ -136,6 +137,7 @@ hint_drawable                   { return EQTOKEN_HINT_DRAWABLE; }
 hint_thread                     { return EQTOKEN_HINT_THREAD; }
 hint_cuda_GL_interop            { return EQTOKEN_HINT_CUDA_GL_INTEROP; }
 hint_screensaver                { return EQTOKEN_HINT_SCREENSAVER; }
+hint_affinity                   { return EQTOKEN_HINT_AFFINITY; }
 planes_alpha                    { return EQTOKEN_PLANES_ALPHA; }
 planes_color                    { return EQTOKEN_PLANES_COLOR; }
 planes_depth                    { return EQTOKEN_PLANES_DEPTH; }
@@ -146,6 +148,7 @@ planes_samples                  { return EQTOKEN_PLANES_SAMPLES; }
 ON                              { return EQTOKEN_ON; }
 OFF                             { return EQTOKEN_OFF; }
 AUTO                            { return EQTOKEN_AUTO; }
+EXTERN                          { return EQTOKEN_EXTERN; }
 FASTEST                         { return EQTOKEN_FASTEST; }
 NICEST                          { return EQTOKEN_NICEST; }
 QUAD                            { return EQTOKEN_QUAD; }
