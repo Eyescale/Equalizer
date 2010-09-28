@@ -155,13 +155,6 @@ void Frame::readback( util::ObjectManager< const void* >* glObjects,
     _frameData->readback( *this, glObjects, config );
 }
 
-void Frame::transmit( net::NodePtr toNode, const uint32_t frameNumber,
-                      const uint32_t originator )
-{
-    EQASSERT( _frameData );
-    _frameData->transmit( toNode, frameNumber, originator );
-}
-
 void Frame::setReady()
 {
     EQASSERT( _frameData );

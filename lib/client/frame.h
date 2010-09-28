@@ -160,19 +160,6 @@ namespace server
          */
         EQ_EXPORT void readback( util::ObjectManager< const void* >* glObjects,
                                  const DrawableConfig& config );
-        
-        /** 
-         * Transmit the frame data to the specified node.
-         *
-         * Used internally after readback to push the image data to the input
-         * frame nodes. Do not use directly.
-         * 
-         * @param toNode the receiving node.
-         * @param frameNumber the current frame number
-         * @param originator the sender object id for statistics
-         */        
-        void transmit( net::NodePtr toNode, const uint32_t frameNumber,
-                       const uint32_t originator );
 
         /** 
          * Set the frame ready.
