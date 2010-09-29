@@ -834,7 +834,7 @@ bool Node::initConnect( NodePtr node )
 
         ConnectionPtr connection = Connection::create( description );
 
-        if( !connection->connect( ))
+        if( !connection || !connection->connect( ))
             continue;
 
         return _connect( node, connection );
