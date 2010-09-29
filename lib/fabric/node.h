@@ -25,36 +25,35 @@
 
 namespace eq
 {
-    class Node;
-    namespace server { class Node; }
-
 namespace fabric
 {
-    struct NodePath;
-
+    /** Base data transport class for nodes. @sa eq::Node */
     template< class C, class N, class P, class V > class Node : public Object
     {
     public:
+        /** A vector of pointers to pipes. @version 1.0 */
         typedef std::vector< P* > Pipes;
 
         /** @name Data Access */
         //@{
-        /** @return the config of this node. */
+        /** @return the config of this node. @version 1.0 */
         C*       getConfig()       { return _config; }
+
+        /** @return the config of this node. @version 1.0 */
         const C* getConfig() const { return _config; }
 
-        /** @return vector of pipes */
+        /** @return the vector of child pipes. @version 1.0 */
         const Pipes& getPipes() const { return _pipes; }
 
         /**
+         * @internal
          * @return true if all render tasks for this node are executed by the
          *         application process, false otherwise.
-         * @internal
          */
         bool isApplicationNode() const { return _isAppNode; }
         void setApplicationNode( const bool isAppNode ); //!< @internal
 
-        /** @return the index path to this node. @internal */
+        /** @internal @return the index path to this node. */
         EQFABRIC_EXPORT NodePath getPath() const;
         P* findPipe( const uint32_t id ); //!< @internal
 
@@ -67,13 +66,11 @@ namespace fabric
          */
         EQFABRIC_EXPORT VisitorResult accept( V& visitor );
 
-        /** Const-version of accept(). */
+        /** Const-version of accept(). @version 1.0 */
         EQFABRIC_EXPORT VisitorResult accept( V& visitor ) const;
         //@}
 
-        /**
-         * @name Attributes
-         */
+        /** @name Attributes */
         //@{
         // Note: also update string array initialization in node.ipp
         /** Integer attributes. */
@@ -81,43 +78,20 @@ namespace fabric
         {
             /** <a href="http://www.equalizergraphics.com/documents/design/threads.html#sync">Threading model</a> */
             IATTR_THREAD_MODEL,
-            IATTR_LAUNCH_TIMEOUT,         //!< Launch timeout
-            IATTR_FILL1,
-            IATTR_FILL2,
-            IATTR_ALL
+            IATTR_LAUNCH_TIMEOUT, //!< timeout when auto-launching the node
+            IATTR_LAST,
+            IATTR_ALL = IATTR_LAST + 5
         };
 
-        /** String attributes. */
-        enum SAttribute
-        {
-            SATTR_LAUNCH_COMMAND,
-            SATTR_FILL1,
-            SATTR_FILL2,
-            SATTR_ALL
-        };
-
-        /** Character attributes. */
-        enum CAttribute
-        {
-            CATTR_LAUNCH_COMMAND_QUOTE,
-            CATTR_FILL1,
-            CATTR_FILL2,
-            CATTR_ALL
-        };
-
+        /** @internal Set a node integer attribute. */
         EQFABRIC_EXPORT void setIAttribute( const IAttribute attr,
                                             const int32_t value );
+
+        /** @return the value of a node integer attribute. @version 1.0 */
         EQFABRIC_EXPORT int32_t getIAttribute( const IAttribute attr ) const;
 
-        void setSAttribute( const SAttribute attr, const std::string& value );
-        const std::string& getSAttribute( const SAttribute attr ) const;
-
-        void setCAttribute( const CAttribute attr, const char value );
-        char getCAttribute( const CAttribute attr ) const;
-
+        /** @internal @return the name of a node integer attribute. */
         static const std::string& getIAttributeString( const IAttribute attr );
-        static const std::string& getSAttributeString( const SAttribute attr );
-        static const std::string& getCAttributeString( const CAttribute attr );
         //@}
 
         EQFABRIC_EXPORT virtual void backup(); //!< @internal
@@ -126,7 +100,9 @@ namespace fabric
         void release( P* pipe ); //!< @internal
 
     protected:
+        /** @internal Construct a new node. */
         Node( C* parent );
+        /** @internal Destruct the node. */
         EQFABRIC_EXPORT virtual ~Node();
 
         /** @internal */
@@ -141,6 +117,7 @@ namespace fabric
         /** @sa Serializable::setDirty() @internal */
         EQFABRIC_EXPORT virtual void setDirty( const uint64_t bits );
 
+        /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:
@@ -161,12 +138,6 @@ namespace fabric
         {
             /** Integer attributes. */
             int32_t iAttributes[IATTR_ALL];
-
-            /** String attributes. */
-            std::string sAttributes[SATTR_ALL];
-
-            /** Character attributes. */
-            char cAttributes[CATTR_ALL];
         }
             _data, _backup;
 

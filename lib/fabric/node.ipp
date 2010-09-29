@@ -32,19 +32,7 @@ namespace
 
 std::string _iAttributeStrings[] = {
     MAKE_ATTR_STRING( IATTR_THREAD_MODEL ),
-    MAKE_ATTR_STRING( IATTR_LAUNCH_TIMEOUT ),
-    MAKE_ATTR_STRING( IATTR_FILL1 ),
-    MAKE_ATTR_STRING( IATTR_FILL2 )
-};
-std::string _sAttributeStrings[] = {
-    MAKE_ATTR_STRING( SATTR_LAUNCH_COMMAND ),
-    MAKE_ATTR_STRING( SATTR_FILL1 ),
-    MAKE_ATTR_STRING( SATTR_FILL2 )
-};
-std::string _cAttributeStrings[] = {
-    MAKE_ATTR_STRING( CATTR_LAUNCH_COMMAND_QUOTE ),
-    MAKE_ATTR_STRING( CATTR_FILL1 ),
-    MAKE_ATTR_STRING( CATTR_FILL2 )
+    MAKE_ATTR_STRING( IATTR_LAUNCH_TIMEOUT )
 };
 
 }
@@ -282,50 +270,6 @@ Node< C, N, P, V >::getIAttributeString( const IAttribute attr )
 {
     return _iAttributeStrings[attr];
 }
-
-template< class C, class N, class P, class V > void
-Node< C, N, P, V >::setSAttribute( const SAttribute attr,
-                                   const std::string& value )
-{
-    if( _data.sAttributes[attr] == value )
-        return;
-    _data.sAttributes[attr] = value;
-    setDirty( DIRTY_ATTRIBUTES );
-}
-
-template< class C, class N, class P, class V > const std::string&
-Node< C, N, P, V >::getSAttribute( const SAttribute attr ) const
-{
-    return _data.sAttributes[attr];
-}
-
-template< class C, class N, class P, class V > const std::string&
-Node< C, N, P, V >::getSAttributeString( const SAttribute attr )
-{
-    return _sAttributeStrings[attr];
-}
-
-template< class C, class N, class P, class V > void
-Node< C, N, P, V >::setCAttribute( const CAttribute attr, const char value )
-{
-    if( _data.cAttributes[attr] == value )
-        return;
-    _data.cAttributes[attr] = value;
-    setDirty( DIRTY_ATTRIBUTES );
-}
-
-template< class C, class N, class P, class V >
-char Node< C, N, P, V >::getCAttribute( const CAttribute attr ) const
-{
-    return _data.cAttributes[attr];
-}
-
-template< class C, class N, class P, class V > const std::string&
-Node< C, N, P, V >::getCAttributeString( const CAttribute attr )
-{
-    return _cAttributeStrings[attr];
-}
-
 
 template< class C, class N, class P, class V >
 void Node< C, N, P, V >::_addPipe( P* pipe )

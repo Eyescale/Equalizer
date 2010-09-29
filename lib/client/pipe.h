@@ -55,6 +55,8 @@ namespace eq
      * eq::base::Thread, in parallel with all other pipes in the system. An
      * exception are non-threaded pipes, which execute their tasks on the Node's
      * main thread.
+     *
+     * @sa fabric::Pipe
      */
     class Pipe : public fabric::Pipe< Node, Pipe, eq::Window, PipeVisitor >
     {

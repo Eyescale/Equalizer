@@ -62,6 +62,7 @@ template< class > class LeafVisitor;
 typedef base::RefPtr< Client > ClientPtr;
 typedef base::RefPtr< const Client > ConstClientPtr;
 
+struct NodePath;
 struct PipePath;
 }
 }

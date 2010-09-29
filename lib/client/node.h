@@ -35,21 +35,34 @@ namespace eq
     /**
      * A Node represents a single computer in the cluster.
      *
-     * Each node is executed in a seperate process.
+     * Each node is executed in a separate process. Each process has only its
+     * local node instantiated, that is, it has at most instance of a Node and
+     * does not see other node instances. The application process may not have a
+     * node, which is the case when it does not contribute to the rendering.
+     *
+     * The eq::Node is not to be confused with the eq::net::Node which
+     * represents the process in the underlying peer-to-peer network layer. The
+     * eq::Client and eq::Server are eq::net::Nodes representing the local
+     * client and Equalizer server, respectively.
+     *
+     * @sa fabric::Node
      */
     class Node : public fabric::Node< Config, Node, Pipe, NodeVisitor >
     {
     public:
-        /** Constructs a new node. */
+        /** Construct a new node. @version 1.0 */
         EQ_EXPORT Node( Config* parent );
 
-        /** Destructs the node. */
+        /** Destruct the node. @version 1.0 */
         EQ_EXPORT virtual ~Node();
 
+        /** @return the parent client node. @version 1.0 */
         EQ_EXPORT ClientPtr getClient();
+
+        /** @return the parent server node. @version 1.0 */
         EQ_EXPORT ServerPtr getServer();
 
-        EQ_EXPORT net::CommandQueue* getMainThreadQueue();
+        EQ_EXPORT net::CommandQueue* getMainThreadQueue(); //!< @internal
 
         /** 
          * @internal
@@ -69,7 +82,7 @@ namespace eq
          */
         FrameData* getFrameData( const net::ObjectVersion& dataVersion );
 
-        /** Wait for the node to be initialized. */
+        /** @internal Wait for the node to be initialized. */
         EQ_EXPORT void waitInitialized() const;
 
         /**
@@ -86,15 +99,20 @@ namespace eq
         
         /** 
          * Wait for a frame to be started.
-         * 
+         *
+         * Use by the pipe task methods to implement the current thread
+         * synchronization model.
+         *
          * @param frameNumber the frame number.
          * @sa releaseFrame()
+         * @version 1.0
          */
         EQ_EXPORT void waitFrameStarted( const uint32_t frameNumber ) const;
 
-        /** @return the number of the last finished frame. @internal */
+        /** @internal @return the number of the last finished frame. */
         uint32_t getFinishedFrame() const { return _finishedFrame; }
 
+        /** @internal */
         class TransmitThread : public base::Thread
         {
         public:
@@ -120,23 +138,20 @@ namespace eq
 
             base::MTQueue< Task > _tasks;
             Node* const           _node;
-        };
-
-        TransmitThread transmitter;
+        } transmitter;
 
     protected:
-        friend class Config;
-
+        /** @internal */
         EQ_EXPORT virtual void attachToSession( const uint32_t id, 
                                                 const uint32_t instanceID, 
                                                 net::Session* session );
-
         /** @name Actions */
         //@{
         /** 
          * Start a frame by unlocking all child resources.
          * 
          * @param frameNumber the frame to start.
+         * @version 1.0
          */
         EQ_EXPORT void startFrame( const uint32_t frameNumber );
 
@@ -144,6 +159,7 @@ namespace eq
          * Signal the completion of a frame to the parent.
          * 
          * @param frameNumber the frame to end.
+         * @version 1.0
          */
         EQ_EXPORT void releaseFrame( const uint32_t frameNumber );
 
@@ -151,6 +167,7 @@ namespace eq
          * Release the local synchronization of the parent for a frame.
          * 
          * @param frameNumber the frame to release.
+         * @version 1.0
          */
         EQ_EXPORT void releaseFrameLocal( const uint32_t frameNumber );
         //@}
@@ -164,15 +181,14 @@ namespace eq
         //@{
 
         /** 
-         * Initialises this node.
+         * Initialize this node.
          * 
          * @param initID the init identifier.
+         * @version 1.0
          */
         EQ_EXPORT virtual bool configInit( const uint32_t initID );
 
-        /** 
-         * Exit this node.
-         */
+        /** Exit this node. @version 1.0 */
         EQ_EXPORT virtual bool configExit();
 
         /**
@@ -186,6 +202,7 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to start.
          * @sa startFrame(), Config::beginFrame()
+         * @version 1.0
          */
         EQ_EXPORT virtual void frameStart( const uint32_t frameID, 
                                            const uint32_t frameNumber );
@@ -200,6 +217,7 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame to finish.
          * @sa endFrame(), Config::finishFrame()
+         * @version 1.0
          */
         EQ_EXPORT virtual void frameFinish( const uint32_t frameID, 
                                             const uint32_t frameNumber );
@@ -214,6 +232,7 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame finished with draw.
          * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
+         * @version 1.0
          */
         EQ_EXPORT virtual void frameDrawFinish( const uint32_t frameID, 
                                                 const uint32_t frameNumber );
@@ -231,13 +250,13 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @param frameNumber the frame finished with draw.
          * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
+         * @version 1.0
          */
         EQ_EXPORT virtual void frameTasksFinish( const uint32_t frameID, 
                                                  const uint32_t frameNumber );
         //@}
 
     private:
-
         enum State
         {
             STATE_STOPPED,

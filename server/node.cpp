@@ -40,6 +40,16 @@ namespace server
 {
 typedef fabric::Node< Config, Node, Pipe, NodeVisitor > Super;
 typedef net::CommandFunc<Node> NodeFunc;
+namespace
+{
+#define S_MAKE_ATTR_STRING( attr ) ( std::string("EQ_NODE_") + #attr )
+std::string _sAttributeStrings[] = {
+    S_MAKE_ATTR_STRING( SATTR_LAUNCH_COMMAND )
+};
+std::string _cAttributeStrings[] = {
+    S_MAKE_ATTR_STRING( CATTR_LAUNCH_COMMAND_QUOTE )
+};
+}
 
 Node::Node( Config* parent )
     : Super( parent ) 
@@ -135,6 +145,41 @@ void Node::deactivate()
     --_active; 
     EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 };
+
+void Node::setSAttribute( const SAttribute attr,
+                                   const std::string& value )
+{
+    if( _sAttributes[attr] == value )
+        return;
+    _sAttributes[attr] = value;
+}
+
+const std::string& Node::getSAttribute( const SAttribute attr ) const
+{
+    return _sAttributes[attr];
+}
+
+const std::string& Node::getSAttributeString( const SAttribute attr )
+{
+    return _sAttributeStrings[attr];
+}
+
+void Node::setCAttribute( const CAttribute attr, const char value )
+{
+    if( _cAttributes[attr] == value )
+        return;
+    _cAttributes[attr] = value;
+}
+
+char Node::getCAttribute( const CAttribute attr ) const
+{
+    return _cAttributes[attr];
+}
+
+const std::string& Node::getCAttributeString( const CAttribute attr )
+{
+    return _cAttributeStrings[attr];
+}
 
 //===========================================================================
 // Operations
@@ -468,7 +513,7 @@ std::ostream& operator << ( std::ostream& os, const Node& node )
     bool attrPrinted   = false;
     
     for( Node::SAttribute i = static_cast<Node::SAttribute>( 0 );
-         i<Node::SATTR_ALL; 
+         i < Node::SATTR_LAST;
          i = static_cast<Node::SAttribute>( static_cast<uint32_t>( i )+1))
     {
         const std::string& value = node.getSAttribute( i );
@@ -488,7 +533,7 @@ std::ostream& operator << ( std::ostream& os, const Node& node )
     }
     
     for( Node::CAttribute i = static_cast<Node::CAttribute>( 0 );
-         i<Node::CATTR_ALL; 
+         i < Node::CATTR_LAST; 
          i = static_cast<Node::CAttribute>( static_cast<uint32_t>( i )+1))
     {
         const char value = node.getCAttribute( i );
@@ -508,7 +553,7 @@ std::ostream& operator << ( std::ostream& os, const Node& node )
     }
     
     for( Node::IAttribute i = static_cast< Node::IAttribute>( 0 );
-         i< Node::IATTR_ALL; 
+         i < Node::IATTR_LAST;
          i = static_cast< Node::IAttribute >( static_cast<uint32_t>( i )+1))
     {
         const int value = node.getIAttribute( i );

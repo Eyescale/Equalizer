@@ -198,6 +198,43 @@ namespace server
         const ConnectionDescriptions& getConnectionDescriptions()
             const { return _connectionDescriptions; }
 
+
+        /** @name Attributes */
+        //@{
+        /** String attributes. */
+        enum SAttribute
+        {
+            SATTR_LAUNCH_COMMAND, //!< the command to launch the node
+            SATTR_LAST,
+            SATTR_ALL = SATTR_LAST + 5
+        };
+
+        /** Character attributes. */
+        enum CAttribute
+        {
+            CATTR_LAUNCH_COMMAND_QUOTE, //!< The character to quote arguments
+            CATTR_LAST,
+            CATTR_ALL = CATTR_LAST + 5
+        };
+
+        /** @internal Set a string integer attribute. */
+        void setSAttribute( const SAttribute attr, const std::string& value );
+
+        /** @internal Set a character integer attribute. */
+        void setCAttribute( const CAttribute attr, const char value );
+
+        /** @return the value of a node string attribute. @version 1.0 */
+        const std::string& getSAttribute( const SAttribute attr ) const;
+
+        /** @return the value of a node string attribute. @version 1.0 */
+        char getCAttribute( const CAttribute attr ) const;
+
+        /** @internal @return the name of a node string attribute. */
+        static const std::string& getSAttributeString( const SAttribute attr );
+        /** @internal @return the name of a node character attribute. */
+        static const std::string& getCAttributeString( const CAttribute attr );
+        //@}
+
     protected:
 
         /** @sa net::Object::attachToSession. */
@@ -208,6 +245,12 @@ namespace server
         void deserialize( net::DataIStream& is, const uint64_t dirtyBits );
     
     private:
+        /** String attributes. */
+        std::string _sAttributes[SATTR_ALL];
+
+        /** Character attributes. */
+        char _cAttributes[CATTR_ALL];
+
         /** Number of activations for this node. */
         uint32_t _active;
 

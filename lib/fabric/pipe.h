@@ -122,7 +122,7 @@ namespace fabric
         EQFABRIC_EXPORT void setIAttribute( const IAttribute attr,
                                             const int32_t value );
 
-        /** @return the value of a pipe attribute. @version 1.0 */
+        /** @return the value of a pipe integer attribute. @version 1.0 */
         int32_t getIAttribute( const IAttribute attr ) const
             { return _iAttributes[attr]; }
 

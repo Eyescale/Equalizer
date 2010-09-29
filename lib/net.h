@@ -27,6 +27,8 @@
  * functionality such as Node, Session and Object.
  */
 
+// amalgam
+
 #include <eq/net/barrier.h>
 #include <eq/net/command.h>
 #include <eq/net/connection.h>

@@ -1,17 +1,11 @@
-Stability fixes:
-- Re-introduce non-view destination compounds
-- Fix dangling _currentCanvas ptr in eqPly::Config
-- Activate channels only if compounds has eye pass active
-- Clean up compound IO frame registration
-- Fix caching of Compound frustum calculation
-- Uninitialized Layout::_state
-
-Known bug: Layouts are not deleted on app and re-added on next admin operation
+Node:
+- move non-transported attrs back to server
+- 1.0 API definition
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

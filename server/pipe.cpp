@@ -351,7 +351,7 @@ std::ostream& operator << ( std::ostream& os, const Pipe* pipe )
 
     bool attrPrinted   = false;
     for( Pipe::IAttribute i = static_cast<Pipe::IAttribute>( 0 ); 
-         i < Pipe::IATTR_ALL; 
+         i < Pipe::IATTR_LAST; 
          i = static_cast<Pipe::IAttribute>( static_cast<uint32_t>( i )+1))
     {
         const int value = pipe->getIAttribute( i );
