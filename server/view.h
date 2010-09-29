@@ -106,17 +106,6 @@ namespace server
         {
             char dummy[32];
         };
-
-        /**
-         * Activate/deactivate a compound tree for the given eyes.
-         * 
-         * @param compound the destination compound.
-         * @param activate true to activate, false to deactivate.
-         * @param eyes the eyes to activate.
-         * 
-         **/
-        static void _updateCompound( Compound* compound, const bool activate, 
-                                     const uint32_t eyes );
     };
 }
 }

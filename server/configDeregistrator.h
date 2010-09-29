@@ -24,79 +24,84 @@ namespace eq
 {
 namespace server
 {
-/** Unmaps all mapped config children. */
-class ConfigDeregistrator : public ConfigVisitor
-{
-public:
-    virtual ~ConfigDeregistrator(){}
+    /** Unmaps all mapped config children. */
+    class ConfigDeregistrator : public ConfigVisitor
+    {
+    public:
+        virtual ~ConfigDeregistrator(){}
 
-    virtual VisitorResult visitPost( Canvas* canvas )
-        {
-            _deregister( canvas );
-            return TRAVERSE_CONTINUE; 
-        }
-    virtual VisitorResult visit( Segment* segment )
-        { 
-            _deregister( segment );
-            return TRAVERSE_CONTINUE; 
-        }
+        virtual VisitorResult visitPost( Canvas* canvas )
+            {
+                _deregister( canvas );
+                return TRAVERSE_CONTINUE; 
+            }
+        virtual VisitorResult visit( Segment* segment )
+            { 
+                _deregister( segment );
+                return TRAVERSE_CONTINUE; 
+            }
 
-    virtual VisitorResult visitPost( Layout* layout )
-        { 
-            _deregister( layout );
-            return TRAVERSE_CONTINUE; 
-        }
-    virtual VisitorResult visit( View* view )
-        { 
-            _deregister( view );
-            return TRAVERSE_CONTINUE; 
-        }
+        virtual VisitorResult visitPost( Layout* layout )
+            { 
+                _deregister( layout );
+                return TRAVERSE_CONTINUE; 
+            }
+        virtual VisitorResult visit( View* view )
+            { 
+                _deregister( view );
+                return TRAVERSE_CONTINUE; 
+            }
 
-    virtual VisitorResult visit( Observer* observer )
-        { 
-            _deregister( observer );
-            return TRAVERSE_CONTINUE; 
-        }
+        virtual VisitorResult visit( Observer* observer )
+            { 
+                _deregister( observer );
+                return TRAVERSE_CONTINUE; 
+            }
 
-    virtual VisitorResult visitPost( Node* node )
-        { 
-            _deregister( node );
-            return TRAVERSE_CONTINUE; 
-        }
-    virtual VisitorResult visitPost( Pipe* pipe )
-        { 
-            _deregister( pipe );
-            return TRAVERSE_CONTINUE; 
-        }
-    virtual VisitorResult visitPost( Window* window )
-        { 
-            _deregister( window );
-            return TRAVERSE_CONTINUE; 
-        }
-    virtual VisitorResult visit( Channel* channel )
-        { 
-            _deregister( channel );
-            return TRAVERSE_CONTINUE; 
-        }
+        virtual VisitorResult visitPost( Node* node )
+            { 
+                _deregister( node );
+                return TRAVERSE_CONTINUE; 
+            }
+        virtual VisitorResult visitPost( Pipe* pipe )
+            { 
+                _deregister( pipe );
+                return TRAVERSE_CONTINUE; 
+            }
+        virtual VisitorResult visitPost( Window* window )
+            { 
+                _deregister( window );
+                return TRAVERSE_CONTINUE; 
+            }
+        virtual VisitorResult visit( Channel* channel )
+            { 
+                _deregister( channel );
+                return TRAVERSE_CONTINUE; 
+            }
 
-private:
-    void _deregister( net::Object* object )
-        {
-            EQASSERT( object->isAttached( ));
-            if( !object->isAttached( ))
-                return;
+        virtual VisitorResult visit( Compound* compound )
+            {
+                compound->deregister();
+                return TRAVERSE_CONTINUE; 
+            }
 
-            net::Session* session = object->getSession();
-            EQASSERT( session );
-            EQASSERT( object->isMaster( ));
+    private:
+        void _deregister( net::Object* object )
+            {
+                EQASSERT( object->isAttached( ));
+                if( !object->isAttached( ))
+                    return;
 
-            if( object->isMaster( ))
-                session->deregisterObject( object );
-            else
-                session->unmapObject( object );
-        }
+                net::Session* session = object->getSession();
+                EQASSERT( session );
+                EQASSERT( object->isMaster( ));
 
-};
+                if( object->isMaster( ))
+                    session->deregisterObject( object );
+                else
+                    session->unmapObject( object );
+            }
+    };
 }
 
 }

@@ -41,43 +41,27 @@ CompoundInitVisitor::CompoundInitVisitor( )
 VisitorResult CompoundInitVisitor::visit( Compound* compound )
 {
     compound->setTaskID( ++_taskID );
-
-    Config*        config  = compound->getConfig();
-    const uint32_t latency = config->getLatency();
-    EQASSERT( config );
-    
-    const std::vector< Frame* >& outputFrames = compound->getOutputFrames();
-    for( vector<Frame*>::const_iterator i = outputFrames.begin(); 
-         i != outputFrames.end(); ++i )
-    {
-        Frame* frame = *i;
-        config->registerObject( frame );
-        frame->setAutoObsolete( latency );
-        EQLOG( eq::LOG_ASSEMBLY ) << "Output frame \"" << frame->getName() 
-                                  << "\" id " << frame->getID() << endl;
-    }
-
-    const std::vector< Frame* >& inputFrames = compound->getInputFrames();
-    for( vector<Frame*>::const_iterator i = inputFrames.begin(); 
-         i != inputFrames.end(); ++i )
-    {
-        Frame* frame = *i;
-        config->registerObject( frame );
-        frame->setAutoObsolete( latency );
-        EQLOG( eq::LOG_ASSEMBLY ) << "Input frame \"" << frame->getName() 
-                                  << "\" id " << frame->getID() << endl;
-    }
-
     compound->updateFrustum();
     compound->updateInheritData( 0 ); // set up initial values
 
     Channel* channel = compound->getChannel();
+    if( !channel || // non-channel root compounds
+        ( compound->isDestination() && !channel->getSegment( )))
+    {
+        // Note: The second case are non-view destination compounds. One use
+        // case are swap-syncing all output channels using task-less compounds.
+
+        EQASSERT( !channel || !channel->getView( ));
+        uint32_t eyes = compound->getEyes();
+        if( eyes == fabric::EYE_UNDEFINED )
+            eyes = fabric::EYES_ALL;
+
+        compound->activate( eyes );
+        compound->updateInheritData( 0 ); // re-calculate activation
+    }
+
     if( channel )
         channel->addTasks( compound->getInheritTasks( ));
-
-    EQASSERTINFO( !compound->isDestination() || channel->getSegment( ),
-                  "Destination compound referencing a non-segment channel, " <<
-                  "fix configuration or use Loader::addDestinationViews" );
 
     return TRAVERSE_CONTINUE;    
 }

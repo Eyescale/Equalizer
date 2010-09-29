@@ -28,6 +28,11 @@
 #include "packets.h"
 #include "session.h"
 
+//#define DEBUG_DISPATCH
+#ifdef DEBUG_DISPATCH
+#  include <set>
+#endif
+
 namespace eq
 {
 namespace net
@@ -664,12 +669,24 @@ bool Session::_dispatchObjectCommand( Command& command )
     Object* object = *j;
     EQCHECK( object->dispatchCommand( command ));
     EQASSERTINFO( command.getDispatchID() <= EQ_ID_MAX, command );
+    EQASSERTINFO( command.getDispatchID() == object->getInstanceID(),
+                  command.getDispatchID() << " != " << object->getInstanceID());
+
+#ifdef DEBUG_DISPATCH
+    std::set< uint32_t > instances;
+    instances.insert( object->getInstanceID( ));
+#endif
 
     for( ++j; j != objects.end(); ++j )
     {
         object = *j;
         Command& clone = _localNode->cloneCommand( command );
 
+#ifdef DEBUG_DISPATCH
+        const uint32_t instance = object->getInstanceID();
+        EQASSERT( instances.find( instance ) == instances.end( ));
+        instances.insert( instance );
+#endif
         EQCHECK( object->dispatchCommand( clone ));
         EQASSERTINFO( clone.getDispatchID() <= EQ_ID_MAX, clone );
         EQASSERTINFO( clone.getDispatchID() != command.getDispatchID(),

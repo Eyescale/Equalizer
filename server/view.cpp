@@ -21,7 +21,6 @@
 #include "canvas.h"
 #include "channel.h"
 #include "compound.h"
-#include "compoundActivateVisitor.h"
 #include "config.h"
 #include "configVisitor.h"
 #include "findEyeDestCompoundVisitor.h"
@@ -190,7 +189,10 @@ void View::trigger( const Canvas* canvas, const bool active )
              j != compounds.end(); ++j )
         {       
             Compound* compound = *j;
-            _updateCompound( compound, active, eyes );
+            if( active )
+                compound->activate( eyes );
+            else
+                compound->deactivate( eyes );
         }
     }
 }
@@ -207,23 +209,6 @@ void View::activateMode( const Mode mode )
     trigger( 0, false );
     Super::activateMode( mode );
     trigger( 0, true );
-}
-
-void View::_updateCompound( Compound* compound, const bool activate, 
-                            const uint32_t eyes )
-{
-    for( size_t i = 0; i < NUM_EYES; ++i )
-    {
-        const uint32_t eye = 1 << i;
-        if( ( eyes & eye ) == 0 )
-            continue;
-            
-        EQASSERT( compound->isDestination( ));
-
-        CompoundActivateVisitor activator(  activate, 
-                                     static_cast<eq::fabric::Eye>( eye ) );
-        compound->accept( activator );
-    }
 }
 
 }

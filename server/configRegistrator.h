@@ -86,6 +86,12 @@ namespace
                 return TRAVERSE_CONTINUE; 
             }
 
+        virtual VisitorResult visit( Compound* compound )
+            {
+                compound->register_();
+                return TRAVERSE_CONTINUE; 
+            }
+
     private:
         Config* const _config;
 

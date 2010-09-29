@@ -582,7 +582,10 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             if( rng.get< bool >( ))
                 eqAdmin::addWindow( getAdminServer(), rng.get< bool >( ));
             if( rng.get< bool >( ))
+            {
                 eqAdmin::removeWindow( getAdminServer( ));
+                _currentCanvas = 0;
+            }
             if( rng.get< bool >( ))
                 _switchViewMode();
             return true;
@@ -666,6 +669,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             return true;
         case 'x':
             eqAdmin::removeWindow( getAdminServer( ));
+            _currentCanvas = 0;
             return true;
         // Head Tracking Emulation
         case eq::KC_UP:

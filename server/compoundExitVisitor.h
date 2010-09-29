@@ -20,9 +20,7 @@
 
 #include "compoundVisitor.h" // base class
 
-#include "compound.h" // used in inline method
-#include "config.h"   // used in inline method
-#include "frame.h"    // used in inline method
+#include <eq/fabric/eye.h>
 
 namespace eq
 {
@@ -37,25 +35,19 @@ namespace server
         /** Visit all compounds. */
         virtual VisitorResult visit( Compound* compound )
             {
-                Config* config = compound->getConfig();
-                EQASSERT( config );
-
-                const Frames& outputFrames = compound->getOutputFrames();
-                for( Frames::const_iterator i = outputFrames.begin(); 
-                     i != outputFrames.end(); ++i )
+                Channel* channel = compound->getChannel();
+                if( !channel || // non-channel root compounds
+                    // old-school (non-Layout) destination channel
+                    ( compound->isDestination() && !channel->getSegment( )))
                 {
-                    Frame* frame = *i;
-                    frame->flush();
-                    config->deregisterObject( frame );
+                    EQASSERT( !channel || !channel->getView( ));
+                    uint32_t eyes = compound->getEyes();
+                    if( eyes == fabric::EYE_UNDEFINED )
+                        eyes = fabric::EYES_ALL;
+
+                    compound->deactivate( eyes );
                 }
 
-                const Frames& inputFrames = compound->getInputFrames();
-                for( Frames::const_iterator i = inputFrames.begin(); 
-                     i != inputFrames.end(); ++i )
-                {
-                    Frame* frame = *i;
-                    config->deregisterObject( frame );
-                }
                 return TRAVERSE_CONTINUE;    
             }
     };

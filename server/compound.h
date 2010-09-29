@@ -311,7 +311,8 @@ namespace server
             { _inherit.tasks &= ~task; }
 
         /** @return true if the eye pass is actived, false if not. */
-        bool isActivedEye( const Eye eye ) const;
+        bool testInheritEye( const Eye eye ) const
+            { return (_inherit.eyes & eye); }
         //@}
 
         /**
@@ -383,30 +384,11 @@ namespace server
         /** Non-const version of accept(). */
         EQSERVER_EXPORT VisitorResult accept( CompoundVisitor& visitor );
 
-        /** Activate the compound tree. */
-                
-        /**
-         * Activate the eye for the the compound tree. @internal
-         *
-         * @param eye eye which will be activate. 
-         */
-        void activate( const fabric::Eye eye);
+        /** @internal Activate the given eyes for the the compound tree. */
+        void activate( const uint32_t eyes );
         
-        /**
-         * Deactivate the eye for the the compound tree. @internal
-         *
-         * @param eye eye which will be deactivate. 
-         */
-        void deactivate( const fabric::Eye eye );
-
-        /**
-         * Set the activation state of the eye for this compound only
-         *
-         * @param active the activation state. 
-         * @param eye eye which will be deactivate. 
-         */
-        void setActive( const bool active, const fabric::Eye eye );
-
+        /** @internal Deactivate the given eyes for the the compound tree. */
+        void deactivate( const uint32_t eyes );
 
         /**
          * @return if the compound is activated for selected eye 
@@ -427,6 +409,12 @@ namespace server
 
         /** Exit this compound. */
         void exit();
+
+        /** Register all distributed objects (frames) */
+        void register_();
+
+        /** Deregister all distributed objects (frames) */
+        void deregister();
 
         /** Back up all relevant compound data. */
         void backup() { _backup = _data; }
@@ -553,7 +541,7 @@ namespace server
         bool _removeChild( Compound* child );
 
         void _updateOverdraw( Wall& wall );
-        void _updateInheritPVP();
+        void _updateInheritPVP( const PixelViewport& oldPVP );
         void _updateInheritOverdraw();
 
         void _setDefaultFrameName( Frame* frame );

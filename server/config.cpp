@@ -275,8 +275,8 @@ void Config::updateCanvas( Canvas* canvas )
         }
     }
 
-    canvas->init();
     group->init();
+    canvas->init();
     EQINFO << *this << std::endl;
 }
 
@@ -850,6 +850,13 @@ bool Config::_init( const uint32_t initID )
     _finishedFrame = 0;
     _initID = initID;
 
+    for( Compounds::const_iterator i = _compounds.begin();
+         i != _compounds.end(); ++i )
+    {
+        Compound* compound = *i;
+        compound->init();
+    }
+
     const Observers& observers = getObservers();
     for( Observers::const_iterator i = observers.begin();
          i != observers.end(); ++i )
@@ -864,13 +871,6 @@ bool Config::_init( const uint32_t initID )
     {
         Canvas* canvas = *i;
         canvas->init();
-    }
-
-    for( Compounds::const_iterator i = _compounds.begin();
-         i != _compounds.end(); ++i )
-    {
-        Compound* compound = *i;
-        compound->init();
     }
 
     if( !_updateRunning( ))
@@ -900,14 +900,14 @@ bool Config::exit()
         canvas->exit();
     }
 
-    const bool success = _updateRunning();
-
     for( Compounds::const_iterator i = _compounds.begin();
          i != _compounds.end(); ++i )
     {
         Compound* compound = *i;
         compound->exit();
     }
+
+    const bool success = _updateRunning();
 
     ConfigEvent exitEvent;
     exitEvent.data.type = Event::EXIT;

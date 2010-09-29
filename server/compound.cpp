@@ -276,7 +276,7 @@ bool Compound::isRunning() const
 {
     bool active = false;
     for( size_t i = 0; i < NUM_EYES; ++i )
-        active = active || _inherit.active[ i ];
+        active |= _inherit.active[ i ];
 
     if( !active )
         return false;
@@ -746,17 +746,39 @@ VisitorResult Compound::accept( CompoundVisitor& visitor ) const
 // Operations
 //---------------------------------------------------------------------------
 
-void Compound::activate( const fabric::Eye eye )
+void Compound::activate( const uint32_t eyes )
 {
-    const uint32_t index = eq::base::getIndexOfLastBit( eye );
-    ++_data.active[ index ];
+    for( size_t i = 0; i < NUM_EYES; ++i )
+    {
+        const fabric::Eye eye = static_cast< Eye >( 1 << i );
+        if( !(eyes & eye) )
+            continue;
+
+        ++_data.active[ i ];
+        if( !getChannel( )) // non-dest root compound
+            continue;
+
+        CompoundActivateVisitor channelActivate( true, eye );
+        accept( channelActivate );
+    }
 }
 
-void Compound::deactivate( const fabric::Eye eye )
+void Compound::deactivate( const uint32_t eyes )
 {
-    const uint32_t index = eq::base::getIndexOfLastBit( eye );
-    EQASSERT( _data.active[ index ] );
-    --_data.active[ index ];
+    for( size_t i = 0; i < NUM_EYES; ++i )
+    {
+        const fabric::Eye eye = static_cast< Eye >( 1 << i );
+        if( !(eyes & eye) )
+            continue;
+
+        EQASSERT( _data.active[ i ] );
+        --_data.active[ i ];
+        if( !getChannel( )) // non-dest root compound
+            continue;
+
+        CompoundActivateVisitor channelDeactivate( false, eye );
+        accept( channelDeactivate );
+    }
 }
 
 void Compound::init()
@@ -769,6 +791,52 @@ void Compound::exit()
 {
     CompoundExitVisitor visitor;
     accept( visitor );
+}
+
+void Compound::register_()
+{
+    Config* config = getConfig();
+    const uint32_t latency = config->getLatency();
+
+    for( Frames::const_iterator i = _outputFrames.begin(); 
+         i != _outputFrames.end(); ++i )
+    {
+        Frame* frame = *i;
+        config->registerObject( frame );
+        frame->setAutoObsolete( latency );
+        EQLOG( eq::LOG_ASSEMBLY ) << "Output frame \"" << frame->getName() 
+                                  << "\" id " << frame->getID() << std::endl;
+    }
+
+    for( Frames::const_iterator i = _inputFrames.begin(); 
+         i != _inputFrames.end(); ++i )
+    {
+        Frame* frame = *i;
+        config->registerObject( frame );
+        frame->setAutoObsolete( latency );
+        EQLOG( eq::LOG_ASSEMBLY ) << "Input frame \"" << frame->getName() 
+                                  << "\" id " << frame->getID() << std::endl;
+    }
+}
+
+void Compound::deregister()
+{
+    Config* config = getConfig();
+
+    for( Frames::const_iterator i = _outputFrames.begin(); 
+         i != _outputFrames.end(); ++i )
+    {
+        Frame* frame = *i;
+        frame->flush();
+        config->deregisterObject( frame );
+    }
+
+    for( Frames::const_iterator i = _inputFrames.begin(); 
+         i != _inputFrames.end(); ++i )
+    {
+        Frame* frame = *i;
+        config->deregisterObject( frame );
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -812,11 +880,13 @@ void Compound::updateInheritData( const uint32_t frameNumber )
     _data.pixel.validate();
     _data.subpixel.validate();
     _data.zoom.validate();
+    const PixelViewport oldPVP( _inherit.pvp );
 
     if( !_parent )
     {
         _inherit = _data;
         _inherit.zoom = Zoom::NONE; // will be reapplied below
+        _updateInheritPVP( oldPVP );
 
         if( _inherit.eyes == fabric::EYE_UNDEFINED )
             _inherit.eyes = fabric::EYES_ALL;
@@ -826,9 +896,6 @@ void Compound::updateInheritData( const uint32_t frameNumber )
 
         if( _inherit.phase == EQ_UNDEFINED_UINT32 )
             _inherit.phase = 0;
-
-        if( _inherit.channel )
-            _updateInheritPVP();
 
         if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
             _inherit.buffers = eq::Frame::BUFFER_COLOR;
@@ -854,7 +921,24 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         _inherit = _parent->_inherit;
 
         if( !_inherit.channel )
-            _inherit.channel = _data.channel;
+        {
+            _updateInheritPVP( oldPVP );
+            _inherit.vp.apply( _data.vp );
+        }
+        else
+        {
+            EQASSERT( _inherit.pvp.isValid( ));
+            EQASSERT( _data.vp.isValid( ));
+            _inherit.pvp.apply( _data.vp );
+
+            // Compute the inherit viewport to be pixel-correct with the
+            // integer-rounded pvp. This is needed to calculate the frustum
+            // correctly.
+            const Viewport vp = _inherit.pvp.getSubVP( _parent->_inherit.pvp );
+            _inherit.vp.apply( vp );
+            
+            _updateInheritOverdraw();
+        }
 
         if( _data.frustumData.isValid( ))
             _inherit.frustumData = _data.frustumData;
@@ -873,25 +957,6 @@ void Compound::updateInheritData( const uint32_t frameNumber )
             _inherit.phase = _data.phase;
 
         _inherit.maxFPS = _data.maxFPS;
-
-        if( _inherit.pvp.isValid( ))
-        {
-            EQASSERT( _data.vp.isValid( ));
-            _inherit.pvp.apply( _data.vp );
-
-            // Compute the inherit viewport to be pixel-correct with the
-            // integer-rounded pvp. This is needed to calculate the frustum
-            // correctly.
-            const Viewport vp = _inherit.pvp.getSubVP( _parent->_inherit.pvp );
-            _inherit.vp.apply( vp );
-            
-            _updateInheritOverdraw();
-        }
-        else if( _inherit.channel )
-        {
-            _updateInheritPVP();
-            _inherit.vp.apply( _data.vp );
-        }
 
         if( _data.buffers != eq::Frame::BUFFER_UNDEFINED )
             _inherit.buffers = _data.buffers;
@@ -938,21 +1003,19 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         for( size_t i = 0; i < fabric::NUM_EYES; ++i )
         {
             const uint32_t eye = 1 << i;
-            const bool parentActive = _parent ?  _inherit.active[i] : true;
+            const bool destActive =
+                isDestination() ? _data.active[i] : _inherit.active[i];
             const bool eyeActive = _inherit.eyes & eye;
-            const bool phaseActive =  (( frameNumber % _inherit.period ) == _inherit.phase );
-            const bool channelActive = _inherit.channel->isRunning(); // run-time failure detection
+            const bool phaseActive = 
+                (( frameNumber % _inherit.period ) == _inherit.phase );
+            const bool channelActive =
+                _inherit.channel->isRunning(); // run-time failure detection
 
-            if( parentActive && eyeActive && phaseActive && channelActive )
-                _inherit.active[i] = _data.active[i]; // #of view activations
+            if( destActive && eyeActive && phaseActive && channelActive )
+                _inherit.active[i] = 1;
             else
-                _inherit.active[i] = 0;
+                _inherit.active[i] = 0; // deactivate
         }
-    }
-    else // always activate non-channel root compounds
-    {
-        for( uint32_t i = 0; i < eq::fabric::NUM_EYES; i++ )
-            _inherit.active[i] = 1;
     }
 
     if( _inherit.pvp.isValid( ))
@@ -995,15 +1058,16 @@ void Compound::updateInheritData( const uint32_t frameNumber )
     }
 }
 
-void Compound::_updateInheritPVP()
+void Compound::_updateInheritPVP( const PixelViewport& oldPVP )
 {
-    const PixelViewport oldPVP( _inherit.pvp );
+    Channel* channel = _data.channel;
+    if( !channel )
+        return;
 
-    const Channel* channel = _inherit.channel;
-    const View* view = channel->getView();
-
+    _inherit.channel = channel;
     _inherit.pvp = channel->getPixelViewport( );
 
+    const View* view = channel->getView();
     if( !view || !_inherit.pvp.isValid( ))
     {
         EQASSERT( channel->getOverdraw() == Vector4i::ZERO );

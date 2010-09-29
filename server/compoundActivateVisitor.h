@@ -21,13 +21,11 @@
 
 #include "compoundVisitor.h" // base class
 
-#include "compound.h" // used in inline method
-
 namespace eq
 {
 namespace server
 {
-    /** The compound visitor (de-)activating a compound tree. */
+    /** The compound visitor (de-)activating channels of a compound tree. */
     class CompoundActivateVisitor : public CompoundVisitor
     {
     public:
@@ -39,13 +37,8 @@ namespace server
         /** Visit all compounds. */
         virtual VisitorResult visit( Compound* compound )
             {
-                if( _activate )
-                    compound->activate( _eye );
-                else
-                    compound->deactivate( _eye );
-                
                 Channel* channel = compound->getChannel();
-                if( channel )
+                if( channel && compound->testInheritEye( _eye ))
                 {
                     if( _activate )
                         channel->activate();
@@ -61,4 +54,4 @@ namespace server
     };
 }
 }
-#endif // EQSERVER_CONSTCOMPOUNDVISITOR_H
+#endif // EQSERVER_COMPOUNDACTIVATEVISITOR_H

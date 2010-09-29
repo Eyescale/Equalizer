@@ -32,6 +32,7 @@ typedef fabric::Layout< Config, Layout, View > Super;
 
 Layout::Layout( Config* parent )
         : Super( parent )
+        , _state( STATE_ACTIVE )
 {
 }
 
