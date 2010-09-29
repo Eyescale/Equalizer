@@ -61,6 +61,17 @@ bool GLXPipe::configInit( )
         return false;
     }
 
+    int major, event, error;
+    if( !XQueryExtension( xDisplay, "GLX", &major, &event, &error ))
+    {
+        ostringstream msg;
+        msg << "Display " << XDisplayName( displayName.c_str( ))
+            << " does not support GLX";
+        setErrorMessage( msg.str( ));
+        XCloseDisplay( xDisplay );
+        return false;
+    }
+
     _setXDisplay( xDisplay );
     EQINFO << "Opened X display " << xDisplay << ", device "
            << _pipe->getDevice() << endl;
