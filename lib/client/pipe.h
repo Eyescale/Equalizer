@@ -44,10 +44,7 @@ namespace eq
 {
     class CommandQueue;
     class ComputeContext;
-    class FrameData;
-    class MessagePump;
-    class OSPipe;
-
+ 
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
      *
@@ -182,24 +179,24 @@ namespace eq
         void joinThread();
 
         /** 
-         * @name Interface to and from the OSPipe, the window-system specific 
-         *       pieces for a pipe.
+         * @name Interface to and from the SystemPipe, the window-system
+         *       specific pieces for a pipe.
          */
         //@{
         /**
-         * Set the OS-specific pipe.
+         * Set the system-specific pipe implementation.
          * 
-         * The OS-specific pipe implements the window-system-dependent part.
+         * The system-specific pipe implements the window-system-dependent part.
          * The os-specific pipe has to be initialized.
          * @version 1.0
          */
-        void setOSPipe( OSPipe* pipe )  { _osPipe = pipe; }
+        void setSystemPipe( SystemPipe* pipe )  { _systemPipe = pipe; }
 
         /** @return the OS-specific pipe implementation. @version 1.0 */
-        OSPipe* getOSPipe() { return _osPipe; }
+        SystemPipe* getSystemPipe() { return _systemPipe; }
 
         /** @return the OS-specific pipe implementation. @version 1.0 */
-        const OSPipe* getOSPipe() const { return _osPipe; }
+        const SystemPipe* getSystemPipe() const { return _systemPipe; }
         //@}
 
         /**
@@ -364,7 +361,7 @@ namespace eq
     private:
         //-------------------- Members --------------------
         /** Window-system specific functions class */
-        OSPipe* _osPipe;
+        SystemPipe* _systemPipe;
 
         /** The current window system. */
         WindowSystem _windowSystem;

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
-                          , Maxim Makhinya
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+                      2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,14 +25,11 @@
 
 #include <sstream>
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 
 GLXPipe::GLXPipe( Pipe* parent )
-        : OSPipe( parent )
+        : SystemPipe( parent )
         , _xDisplay( 0 )
         , _eventHandler( 0 )
 {
@@ -74,7 +71,7 @@ bool GLXPipe::configInit( )
 
     _setXDisplay( xDisplay );
     EQINFO << "Opened X display " << xDisplay << ", device "
-           << _pipe->getDevice() << endl;
+           << _pipe->getDevice() << std::endl;
     return true;
 #else
     setErrorMessage( "Client library compiled without GLX support" );
@@ -92,7 +89,7 @@ void GLXPipe::configExit()
 
     _setXDisplay( 0 );
     XCloseDisplay( xDisplay );
-    EQINFO << "Closed X display " << xDisplay << endl;
+    EQINFO << "Closed X display " << xDisplay << std::endl;
 #endif
 }
 
@@ -151,14 +148,14 @@ void GLXPipe::_setXDisplay( Display* display )
             if( port != EQ_UNDEFINED_UINT32 && displayNumber != port )
                 EQWARN << "Display mismatch: provided display connection uses"
                    << " display " << displayNumber
-                   << ", but pipe has port " << port << endl;
+                   << ", but pipe has port " << port << std::endl;
 
             if( device != EQ_UNDEFINED_UINT32 &&
                 DefaultScreen( display ) != (int)device )
                 
                 EQWARN << "Screen mismatch: provided display connection uses"
                        << " default screen " << DefaultScreen( display ) 
-                       << ", but pipe has screen " << device << endl;
+                       << ", but pipe has screen " << device << std::endl;
             
             //port = displayNumber;
             //device  = DefaultScreen( display );
@@ -193,25 +190,25 @@ int GLXPipe::XErrorHandler( Display* display, XErrorEvent* event )
     char buffer[256];
     XGetErrorText( display, event->error_code, buffer, 256);
 
-    EQERROR << buffer << endl;
-    EQERROR << "Major opcode: " << (int)event->request_code << endl;
-    EQERROR << "Minor opcode: " << (int)event->minor_code << endl;
-    EQERROR << "Error code: " << (int)event->error_code << endl;
-    EQERROR << "Request serial: " << event->serial << endl;
-    EQERROR << "Current serial: " << NextRequest( display ) - 1 << endl;
+    EQERROR << buffer << std::endl;
+    EQERROR << "Major opcode: " << (int)event->request_code << std::endl;
+    EQERROR << "Minor opcode: " << (int)event->minor_code << std::endl;
+    EQERROR << "Error code: " << (int)event->error_code << std::endl;
+    EQERROR << "Request serial: " << event->serial << std::endl;
+    EQERROR << "Current serial: " << NextRequest( display ) - 1 << std::endl;
 
     switch( event->error_code )
     {
         case BadValue:
-            EQERROR << "  Value: " << event->resourceid << endl;
+            EQERROR << "  Value: " << event->resourceid << std::endl;
             break;
 
         case BadAtom:
-            EQERROR << "  AtomID: " << event->resourceid << endl;
+            EQERROR << "  AtomID: " << event->resourceid << std::endl;
             break;
 
         default:
-            EQERROR << "  ResourceID: " << event->resourceid << endl;
+            EQERROR << "  ResourceID: " << event->resourceid << std::endl;
             break;
     }
     EQERROR << enableFlush << exdent << enableHeader;
@@ -220,7 +217,7 @@ int GLXPipe::XErrorHandler( Display* display, XErrorEvent* event )
     if( getenv( "EQ_ABORT_WAIT" ))
     {
         EQERROR << "Caught X Error, entering infinite loop for debugging" 
-                << endl;
+                << std::endl;
         while( true ) ;
     }
 #endif

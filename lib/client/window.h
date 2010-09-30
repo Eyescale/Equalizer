@@ -255,10 +255,10 @@ namespace eq
         SystemWindow* getSystemWindow() { return _systemWindow; }
 
         /** @return the OS-specific pipe implementation. @version 1.0 */
-        const OSPipe* getOSPipe() const;
+        const SystemPipe* getSystemPipe() const;
 
         /** @return the OS-specific pipe implementation. @version 1.0 */
-        OSPipe* getOSPipe(); 
+        SystemPipe* getSystemPipe(); 
         //@}
 
         /**

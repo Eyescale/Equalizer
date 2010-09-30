@@ -26,7 +26,7 @@ namespace eq
 {
 
 WGLPipe::WGLPipe( Pipe* parent )
-    : OSPipe( parent )
+    : SystemPipe( parent )
     , _wglewContext( new WGLEWContext )
 {
 }

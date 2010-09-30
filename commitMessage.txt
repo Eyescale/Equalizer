@@ -1,5 +1,5 @@
-Rename OSWindow -> SystemWindow and related methods. OSPipe rename and
-documentation updates are pending.
+Rename OSPipe -> SystemPipe and related methods. Documentation updates
+are pending.
 
 [x] May break build
 [x] May break existing applications

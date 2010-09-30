@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
                           , Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -150,10 +150,10 @@ AGLPixelFormat AGLWindow::chooseAGLPixelFormat()
 {
     Pipe*    pipe    = getPipe();
     EQASSERT( pipe );
-    EQASSERT( pipe->getOSPipe( ));
+    EQASSERT( pipe->getSystemPipe( ));
 
-    const AGLPipe* osPipe = EQSAFECAST( const AGLPipe*, pipe->getOSPipe( ));
-    CGDirectDisplayID displayID = osPipe->getCGDisplayID();
+    const AGLPipe* aglPipe = EQSAFECAST( const AGLPipe*, pipe->getSystemPipe());
+    CGDirectDisplayID displayID = aglPipe->getCGDisplayID();
 
     Global::enterCarbon();
 

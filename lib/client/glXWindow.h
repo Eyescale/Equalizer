@@ -83,7 +83,7 @@ namespace eq
         GLXEWContext* glxewGetContext() { return _glxewContext; }
         
         /**
-         * Register with the OSPipe's GLXEventHandler, called by setXDrawable().
+         * Register with the pipe's GLXEventHandler, called by setXDrawable().
          * @version 1.0
          */
         EQ_EXPORT virtual void initEventHandler();

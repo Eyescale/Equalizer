@@ -39,10 +39,10 @@ WGLPipe* WGLWindowIF::_getWGLPipe()
 {
     Pipe* pipe = getPipe();
     EQASSERT( pipe );
-    EQASSERT( pipe->getOSPipe( ));
-    EQASSERT( dynamic_cast< WGLPipe* >( pipe->getOSPipe( )));
+    EQASSERT( pipe->getSystemPipe( ));
+    EQASSERT( dynamic_cast< WGLPipe* >( pipe->getSystemPipe( )));
 
-    return static_cast< WGLPipe* >( pipe->getOSPipe( ) );
+    return static_cast< WGLPipe* >( pipe->getSystemPipe( ) );
 }
 
 WGLWindow::WGLWindow( Window* parent )

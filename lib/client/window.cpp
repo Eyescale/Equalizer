@@ -295,18 +295,18 @@ void Window::setSystemWindow( SystemWindow* window )
     _setupObjectManager();
 }
 
-const OSPipe* Window::getOSPipe() const
+const SystemPipe* Window::getSystemPipe() const
 {
     const Pipe* pipe = getPipe();
     EQASSERT( pipe );
-    return pipe->getOSPipe();
+    return pipe->getSystemPipe();
 }
 
-OSPipe* Window::getOSPipe()
+SystemPipe* Window::getSystemPipe()
 {
     Pipe* pipe = getPipe();
     EQASSERT( pipe );
-    return pipe->getOSPipe();
+    return pipe->getSystemPipe();
 }
 
 void Window::frameStart( const uint32_t, const uint32_t frameNumber ) 

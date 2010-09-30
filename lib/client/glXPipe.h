@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
-                     , Maxim Makhinya
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+                      2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,10 +16,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_OS_PIPE_GLX_H
-#define EQ_OS_PIPE_GLX_H
+#ifndef EQ_GLX_PIPE_H
+#define EQ_GLX_PIPE_H
 
-#include <eq/client/osPipe.h> // base class
+#include <eq/client/systemPipe.h> // base class
 #include <eq/client/os.h>     // X11 types
 
 namespace eq
@@ -27,7 +27,7 @@ namespace eq
     class GLXEventHandler;
 
     /** Equalizer default implementation of a GLX window */
-    class EQ_EXPORT GLXPipe : public OSPipe
+    class EQ_EXPORT GLXPipe : public SystemPipe
     {
     public:
         GLXPipe( Pipe* parent );
@@ -90,9 +90,9 @@ namespace eq
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
     };
 }
 
-#endif // EQ_OS_PIPE_GLX_H
+#endif // EQ_GLX_PIPE_H

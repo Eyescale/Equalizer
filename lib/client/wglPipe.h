@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
- *                   , Maxim Makhinya
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,16 +16,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_OS_PIPE_WGL_H
-#define EQ_OS_PIPE_WGL_H
+#ifndef EQ_WGL_PIPE_H
+#define EQ_WGL_PIPE_H
 
-#include <eq/client/osPipe.h> // base class
+#include <eq/client/systemPipe.h> // base class
 #include <eq/client/os.h>     // GLEW
 
 namespace eq
 {
     /** Equalizer default implementation of a WGL window */
-    class EQ_EXPORT WGLPipe : public OSPipe
+    class EQ_EXPORT WGLPipe : public SystemPipe
     {
     public:
         WGLPipe( Pipe* parent );
@@ -94,4 +94,4 @@ namespace eq
     };
 }
 
-#endif // EQ_OS_PIPE_WGL_H
+#endif // EQ_WGL_PIPE_H

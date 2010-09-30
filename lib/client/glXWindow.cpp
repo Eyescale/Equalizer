@@ -92,9 +92,9 @@ bool GLXWindow::configInit( )
 Display* GLXWindow::getXDisplay()
 {
     Pipe* pipe = getPipe();
-    GLXPipe* osPipe = dynamic_cast< GLXPipe* >( pipe->getOSPipe( ));
-    if( osPipe )
-        return osPipe->getXDisplay();
+    GLXPipe* glxPipe = dynamic_cast< GLXPipe* >( pipe->getSystemPipe( ));
+    if( glxPipe )
+        return glxPipe->getXDisplay();
 
     EQUNIMPLEMENTED;    
     return 0;
@@ -105,12 +105,12 @@ Display* GLXWindow::getXDisplay() const
     const Pipe* pipe = getPipe();
 
     EQASSERT( pipe );
-    EQASSERT( pipe->getOSPipe( ));
-    EQASSERT( dynamic_cast< const GLXPipe* >( pipe->getOSPipe( )));
+    EQASSERT( pipe->getSystemPipe( ));
+    EQASSERT( dynamic_cast< const GLXPipe* >( pipe->getSystemPipe( )));
 
-    const GLXPipe* osPipe = static_cast< const GLXPipe* >( pipe->getOSPipe( ));
-
-    return osPipe->getXDisplay();
+    const GLXPipe* glxPipe =
+        static_cast< const GLXPipe* >( pipe->getSystemPipe( ));
+    return glxPipe->getXDisplay();
 }
 
 
@@ -722,11 +722,11 @@ void GLXWindow::initGLXEW()
 void GLXWindow::initEventHandler()
 {
     Pipe* pipe = getPipe();
-    GLXPipe* osPipe = dynamic_cast< GLXPipe* >( pipe->getOSPipe( ));
-    if( !osPipe )
+    GLXPipe* glxPipe = dynamic_cast< GLXPipe* >( pipe->getSystemPipe( ));
+    if( !glxPipe )
         return;
 
-    GLXEventHandler* eventHandler = osPipe->getGLXEventHandler();
+    GLXEventHandler* eventHandler = glxPipe->getGLXEventHandler();
     EQASSERT( eventHandler );
     if( eventHandler )
         eventHandler->registerWindow( this );
@@ -735,11 +735,11 @@ void GLXWindow::initEventHandler()
 void GLXWindow::exitEventHandler()
 {
     Pipe* pipe = getPipe();
-    GLXPipe* osPipe = dynamic_cast< GLXPipe* >( pipe->getOSPipe( ));
-    if( !osPipe )
+    GLXPipe* glxPipe = dynamic_cast< GLXPipe* >( pipe->getSystemPipe( ));
+    if( !glxPipe )
         return;
 
-    GLXEventHandler* eventHandler = osPipe->getGLXEventHandler();
+    GLXEventHandler* eventHandler = glxPipe->getGLXEventHandler();
     EQASSERT( eventHandler );
     if( eventHandler )
         eventHandler->deregisterWindow( this );

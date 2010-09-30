@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
-                     , Maxim Makhinya
+/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+                      2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -29,7 +29,7 @@ namespace eq
 {
 
 AGLPipe::AGLPipe( Pipe* parent )
-    : OSPipe( parent )
+    : SystemPipe( parent )
     , _cgDisplayID( 0 )
 {
 }

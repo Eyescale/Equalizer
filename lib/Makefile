@@ -167,13 +167,13 @@ HEADER_SRC = \
 	client/nodeFactory.h \
 	client/observer.h \
 	client/os.h \
-	client/osPipe.h \
 	client/packets.h \
 	client/pipe.h \
 	client/segment.h \
 	client/server.h \
 	client/statistic.h \
 	client/statisticSampler.h \
+	client/systemPipe.h \
 	client/systemWindow.h \
 	client/types.h \
 	client/version.h \
@@ -302,7 +302,6 @@ CXXFILES = \
 	client/nodeFactory.cpp \
 	client/observer.cpp \
 	client/os.cpp \
-	client/osPipe.cpp \
 	client/pipe.cpp \
 	client/pipeStatistics.cpp \
 	client/roiEmptySpaceFinder.cpp \
@@ -311,6 +310,7 @@ CXXFILES = \
 	client/segment.cpp \
 	client/server.cpp \
 	client/statistic.cpp \
+	client/systemPipe.cpp \
 	client/systemWindow.cpp \
 	client/version.cpp \
 	client/view.cpp \

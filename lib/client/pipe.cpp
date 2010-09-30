@@ -70,7 +70,7 @@ typedef net::CommandFunc<Pipe> PipeFunc;
 
 Pipe::Pipe( Node* parent )
         : Super( parent )
-        , _osPipe( 0 )
+        , _systemPipe( 0 )
         , _windowSystem( WINDOW_SYSTEM_NONE )
         , _state( STATE_STOPPED )
         , _currentFrame( 0 )
@@ -474,30 +474,30 @@ bool Pipe::configInit( const uint32_t )
 {
     EQ_TS_THREAD( _pipeThread );
 
-    EQASSERT( !_osPipe );
+    EQASSERT( !_systemPipe );
 
-    OSPipe* osPipe = 0;
+    SystemPipe* systemPipe = 0;
 
     switch( _windowSystem )
     {
 #ifdef GLX
         case WINDOW_SYSTEM_GLX:
             EQINFO << "Using GLXPipe" << std::endl;
-            osPipe = new GLXPipe( this );
+            systemPipe = new GLXPipe( this );
             break;
 #endif
 
 #ifdef AGL
         case WINDOW_SYSTEM_AGL:
             EQINFO << "Using AGLPipe" << std::endl;
-            osPipe = new AGLPipe( this );
+            systemPipe = new AGLPipe( this );
             break;
 #endif
 
 #ifdef WGL
         case WINDOW_SYSTEM_WGL:
             EQINFO << "Using WGLPipe" << std::endl;
-            osPipe = new WGLPipe( this );
+            systemPipe = new WGLPipe( this );
             break;
 #endif
 
@@ -507,17 +507,17 @@ bool Pipe::configInit( const uint32_t )
             return false;
     }
 
-    EQASSERT( osPipe );
-    if( !osPipe->configInit( ))
+    EQASSERT( systemPipe );
+    if( !systemPipe->configInit( ))
     {
         setErrorMessage( "OS Pipe initialization failed: " + 
-                         osPipe->getErrorMessage( ));
+                         systemPipe->getErrorMessage( ));
         EQERROR << getErrorMessage() << std::endl;
-        delete osPipe;
+        delete systemPipe;
         return false;
     }
 
-    setOSPipe( osPipe );
+    setSystemPipe( systemPipe );
 
     // -------------------------------------------------------------------------
     EQASSERT(!_computeContext);
@@ -555,12 +555,12 @@ bool Pipe::configExit()
         _computeContext = 0;
     }
 
-    if( _osPipe )
+    if( _systemPipe )
     {
-        _osPipe->configExit( );
+        _systemPipe->configExit( );
 
-        delete _osPipe;
-        _osPipe = 0;
+        delete _systemPipe;
+        _systemPipe = 0;
         return true;
     }
     //else

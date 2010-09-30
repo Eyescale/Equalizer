@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
-                          , Maxim Makhinya
+                      2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,10 +16,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_OS_PIPE_AGL_H
-#define EQ_OS_PIPE_AGL_H
+#ifndef EQ_AGL_PIPE_H
+#define EQ_AGL_PIPE_H
 
-#include <eq/client/osPipe.h> // base class
+#include <eq/client/systemPipe.h> // base class
 #include <eq/client/os.h>     // CG types
 
 namespace eq
@@ -28,9 +28,9 @@ namespace eq
      * Equalizer default implementation to handle an AGL GPU.
      *
      * When using AGLWindow as a system window for any window of a Pipe, the
-     * pipe needs to have an AGLPipe as its OSPipe.
+     * pipe needs to have an AGLPipe as its SystemPipe.
      */
-    class EQ_EXPORT AGLPipe : public OSPipe
+    class EQ_EXPORT AGLPipe : public SystemPipe
     {
     public:
         /** Create a new AGL pipe for the given eq::Pipe. @version 1.0 */
@@ -81,9 +81,9 @@ namespace eq
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
     };
 }
 
-#endif // EQ_OS_PIPE_AGL_H
+#endif // EQ_AGL_PIPE_H
