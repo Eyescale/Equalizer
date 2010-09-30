@@ -44,7 +44,7 @@ namespace fabric
     template< class, class, class, class, class, class, class >
     class ConfigProxy;
 
-    /** A configuration is a visualization session driven by an application. */
+    /** Base data class for a configuration. @sa eq::Config */
     template< class S, class C, class O, class L, class CV, class N, class V >
     class Config : public net::Session
     {

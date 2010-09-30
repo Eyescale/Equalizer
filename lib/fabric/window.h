@@ -120,12 +120,11 @@ namespace fabric
         /** 
          * Window attributes.
          *
-         * Most of these attributes are used by the OSWindow implementation to
-         * configure the window during configInit(). An OSWindow implementation
-         * might not respect all attributes, e.g., IATTR_HINT_SWAPSYNC is not
-         * implemented by the GLXWindow. Please refer to the Programming Guide
-         * for details.
-         * @version 1.0
+         * Most of these attributes are used by the SystemWindow implementation
+         * to configure the window during configInit(). An SystemWindow
+         * implementation might not respect all attributes, e.g.,
+         * IATTR_HINT_SWAPSYNC is not implemented by the GLXWindow. Please refer
+         * to the Programming Guide for details.  @version 1.0
          */
         enum IAttribute
         {

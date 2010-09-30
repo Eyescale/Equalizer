@@ -839,12 +839,13 @@ HGLRC WGLWindow::createWGLContext()
 
     // share context
     const Window* shareWindow = _window->getSharedContextWindow();
-    const OSWindow* shareOSWindow = shareWindow ? shareWindow->getOSWindow() :0;
-    if( shareOSWindow )
+    const SystemWindow* sysWindow =
+        shareWindow ? shareWindow->getSystemWindow() :0;
+    if( sysWindow )
     {
-        EQASSERT( dynamic_cast< const WGLWindowIF* >( shareOSWindow ));
+        EQASSERT( dynamic_cast< const WGLWindowIF* >( sysWindow ));
         const WGLWindowIF* shareWGLWindow = static_cast< const WGLWindow* >(
-                                                shareOSWindow );
+                                                sysWindow );
         HGLRC shareCtx = shareWGLWindow->getWGLContext();
 
         if( shareCtx && !wglShareLists( shareCtx, context ))

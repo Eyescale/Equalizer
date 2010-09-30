@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "osWindow.h"
+#include "systemWindow.h"
 
 #include "global.h"
 #include "pipe.h"
@@ -24,50 +24,50 @@
 namespace eq
 {
 
-OSWindow::OSWindow( Window* parent )
+SystemWindow::SystemWindow( Window* parent )
     : _window( parent )
 {
     EQASSERT( _window ); 
 }
 
-OSWindow::~OSWindow()
+SystemWindow::~SystemWindow()
 {
 }
 
-const Pipe* OSWindow::getPipe() const
+const Pipe* SystemWindow::getPipe() const
 {
     EQASSERT( _window );
     return _window->getPipe();
 }
-Pipe* OSWindow::getPipe()
+Pipe* SystemWindow::getPipe()
 {
     EQASSERT( _window );
     return _window->getPipe();
 }
 
-const Node* OSWindow::getNode() const
+const Node* SystemWindow::getNode() const
 {
     EQASSERT( _window );
     return _window->getNode();
 }
-Node* OSWindow::getNode()
+Node* SystemWindow::getNode()
 {
     EQASSERT( _window );
     return _window->getNode();
 }
 
-const Config* OSWindow::getConfig() const
+const Config* SystemWindow::getConfig() const
 {
     EQASSERT( _window );
     return _window->getConfig();
 }
-Config* OSWindow::getConfig()
+Config* SystemWindow::getConfig()
 {
     EQASSERT( _window );
     return _window->getConfig();
 }
 
-int32_t OSWindow::getIAttribute( const Window::IAttribute attr ) const
+int32_t SystemWindow::getIAttribute( const Window::IAttribute attr ) const
 {
     EQASSERT( _window );
     return _window->getIAttribute( attr );

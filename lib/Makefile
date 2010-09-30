@@ -168,13 +168,13 @@ HEADER_SRC = \
 	client/observer.h \
 	client/os.h \
 	client/osPipe.h \
-	client/osWindow.h \
 	client/packets.h \
 	client/pipe.h \
 	client/segment.h \
 	client/server.h \
 	client/statistic.h \
 	client/statisticSampler.h \
+	client/systemWindow.h \
 	client/types.h \
 	client/version.h \
 	client/view.h \
@@ -291,27 +291,27 @@ CXXFILES = \
 	client/eventHandler.cpp \
 	client/frame.cpp \
 	client/frameData.cpp \
-	client/global.cpp \
+	client/frameDataStatistics.cpp \
 	client/glWindow.cpp \
+	client/global.cpp \
 	client/image.cpp \
 	client/init.cpp \
 	client/jitter.cpp \
 	client/layout.cpp \
 	client/node.cpp \
 	client/nodeFactory.cpp \
-	client/frameDataStatistics.cpp \
 	client/observer.cpp \
 	client/os.cpp \
 	client/osPipe.cpp \
-	client/osWindow.cpp \
 	client/pipe.cpp \
 	client/pipeStatistics.cpp \
+	client/roiEmptySpaceFinder.cpp \
 	client/roiFinder.cpp \
 	client/roiTracker.cpp \
-	client/roiEmptySpaceFinder.cpp \
 	client/segment.cpp \
 	client/server.cpp \
 	client/statistic.cpp \
+	client/systemWindow.cpp \
 	client/version.cpp \
 	client/view.cpp \
 	client/window.cpp \

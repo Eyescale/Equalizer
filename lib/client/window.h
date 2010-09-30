@@ -34,20 +34,12 @@
 
 namespace eq
 {
-namespace fabric
-{
-    template< typename T, typename W > class Channel;
-}
-    class OSPipe;
-    class OSWindow;
-    struct Event;
-
     /**
      * A Window represents an on-screen or off-screen drawable.
      *
      * A drawable is a 2D rendering surface, typically attached to an OpenGL
-     * context. A window uses an OSWindow implementation to manage the operating
-     * system specific handling of window and context creation.
+     * context. A window uses an SystemWindow implementation to manage the
+     * operating system specific handling of window and context creation.
      *
      * A Window is a child of a Pipe. The task methods for all windows of a pipe
      * are executed in the same pipe thread. All window and subsequent channel
@@ -178,7 +170,7 @@ namespace fabric
         /** 
          * Get the GLEW context for this window.
          * 
-         * The glew context is provided and initialized by the OSWindow, and
+         * The glew context is provided and initialized by the SystemWindow, and
          * provides access to OpenGL extensions. This function does not follow
          * the Equalizer naming conventions, since GLEW uses a function of this
          * name to automatically resolve OpenGL function entry
@@ -234,8 +226,8 @@ namespace fabric
          *
          * GL drivers tend to be behave sub-optimally if two many makeCurrent
          * calls happen in a multi-threaded program. When caching is enabled,
-         * this method will only call OSWindow::makeCurrent if it has not been
-         * done before for this window on this pipe.
+         * this method will only call SystemWindow::makeCurrent if it has not
+         * been done before for this window on this pipe.
          */
         EQ_EXPORT virtual void makeCurrent( const bool cache = true ) const;
 
@@ -243,24 +235,24 @@ namespace fabric
         EQ_EXPORT virtual void bindFrameBuffer() const;
         //@}
 
-        /**  @name OSWindow interface */
+        /**  @name SystemWindow interface */
         //@{
         /**
          * Set the OS-specific window.
          * 
-         * The OSWindow implements the window-system-dependent part, e.g., the
+         * The SystemWindow implements the window-system-dependent part, e.g., the
          * drawable creation. This window forwards certain calls, e.g.,
-         * swapBuffers(), to the OSWindow. The os-specific window has to be
+         * swapBuffers(), to the SystemWindow. The os-specific window has to be
          * initialized.
          * @version 1.0
          */
-        EQ_EXPORT void setOSWindow( OSWindow* window );
+        EQ_EXPORT void setSystemWindow( SystemWindow* window );
 
         /** @return the OS-specific window implementation. @version 1.0 */
-        const OSWindow* getOSWindow() const { return _osWindow; }
+        const SystemWindow* getSystemWindow() const { return _systemWindow; }
 
         /** @return the OS-specific window implementation. @version 1.0 */
-        OSWindow* getOSWindow() { return _osWindow; }
+        SystemWindow* getSystemWindow() { return _systemWindow; }
 
         /** @return the OS-specific pipe implementation. @version 1.0 */
         const OSPipe* getOSPipe() const;
@@ -342,10 +334,10 @@ namespace fabric
         /** 
          * Initialize the OS-specific window.
          *
-         * @sa setOSWindow()
+         * @sa setSystemWindow()
          * @version 1.0
          */
-        EQ_EXPORT virtual bool configInitOSWindow( const uint32_t initID );
+        EQ_EXPORT virtual bool configInitSystemWindow( const uint32_t initID );
 
         /** 
          * Initialize the OpenGL state for this window.
@@ -361,7 +353,7 @@ namespace fabric
         EQ_EXPORT virtual bool configExit();
 
         /** De-initialize the OS-specific window. @version 1.0 */
-        EQ_EXPORT virtual bool configExitOSWindow();
+        EQ_EXPORT virtual bool configExitSystemWindow();
 
         /** De-initialize the OpenGL state for this window. @version 1.0 */
         virtual bool configExitGL() { return true; }
@@ -422,7 +414,7 @@ namespace fabric
         Window* _sharedContextWindow;
 
         /** Window-system specific functions class */
-        OSWindow* _osWindow;
+        SystemWindow* _systemWindow;
 
         /** The configInit/configExit state. */
         State _state;

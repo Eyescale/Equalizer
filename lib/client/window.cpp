@@ -28,7 +28,7 @@
 #include "node.h"
 #include "nodeFactory.h"
 #include "pipe.h"
-#include "osWindow.h"
+#include "systemWindow.h"
 #include "packets.h"
 #include "server.h"
 #include "windowStatistics.h"
@@ -67,7 +67,7 @@ const char* _mediumFontKey = "eq_medium_font";
 Window::Window( Pipe* parent )
         : Super( parent )
         , _sharedContextWindow( 0 ) // default set below
-        , _osWindow( 0 )
+        , _systemWindow( 0 )
         , _state( STATE_STOPPED )
         , _objectManager( 0 )
         , _lastTime ( 0.0 )
@@ -244,7 +244,7 @@ bool Window::getRenderContext( const int32_t x, const int32_t y,
                                RenderContext& context ) const
 {
     EQ_TS_THREAD( _pipeThread );
-    if( !_osWindow )
+    if( !_systemWindow )
         return false;
 
     const DrawableConfig& drawableConfig = getDrawableConfig();
@@ -280,9 +280,9 @@ uint32_t Window::getColorFormat() const
     }
 }
 
-void Window::setOSWindow( OSWindow* window )
+void Window::setSystemWindow( SystemWindow* window )
 {
-    _osWindow = window;
+    _systemWindow = window;
 
     if( !window )
         return;
@@ -290,7 +290,7 @@ void Window::setOSWindow( OSWindow* window )
     // Initialize context-specific data
     makeCurrent();
     DrawableConfig config;
-    _osWindow->queryDrawableConfig( config );
+    _systemWindow->queryDrawableConfig( config );
     _setDrawableConfig( config );
     _setupObjectManager();
 }
@@ -341,39 +341,39 @@ bool Window::configInit( const uint32_t initID )
         return false;
     }
 
-    EQASSERT( !_osWindow );
+    EQASSERT( !_systemWindow );
 
-    if( !configInitOSWindow( initID )) return false;
+    if( !configInitSystemWindow( initID )) return false;
     if( !configInitGL( initID ))       return false;
 
     return true;
 }
 
-bool Window::configInitOSWindow( const uint32_t )
+bool Window::configInitSystemWindow( const uint32_t )
 {
-    const Pipe* pipe     = getPipe();
-    OSWindow*   osWindow = 0;
+    const Pipe* pipe = getPipe();
+    SystemWindow* systemWindow = 0;
 
     switch( pipe->getWindowSystem( ))
     {
 #ifdef GLX
         case WINDOW_SYSTEM_GLX:
             EQINFO << "Using GLXWindow" << std::endl;
-            osWindow = new GLXWindow( this );
+            systemWindow = new GLXWindow( this );
             break;
 #endif
 
 #ifdef AGL
         case WINDOW_SYSTEM_AGL:
             EQINFO << "Using AGLWindow" << std::endl;
-            osWindow = new AGLWindow( this );
+            systemWindow = new AGLWindow( this );
             break;
 #endif
 
 #ifdef WGL
         case WINDOW_SYSTEM_WGL:
             EQINFO << "Using WGLWindow" << std::endl;
-            osWindow = new WGLWindow( this );
+            systemWindow = new WGLWindow( this );
             break;
 #endif
 
@@ -383,15 +383,16 @@ bool Window::configInitOSWindow( const uint32_t )
             return false;
     }
 
-    EQASSERT( osWindow );
-    if( !osWindow->configInit( ))
+    EQASSERT( systemWindow );
+    if( !systemWindow->configInit( ))
     {
-        EQWARN << "OS Window initialization failed: " << getErrorMessage() << std::endl;
-        delete osWindow;
+        EQWARN << "System Window initialization failed: " << getErrorMessage()
+               << std::endl;
+        delete systemWindow;
         return false;
     }
 
-    setOSWindow( osWindow );
+    setSystemWindow( systemWindow );
     return true;
 }
 
@@ -483,19 +484,19 @@ bool Window::configInitGL( const uint32_t )
 bool Window::configExit()
 {
     const bool ret = configExitGL();
-    return configExitOSWindow() && ret;
+    return configExitSystemWindow() && ret;
 }
 
-bool Window::configExitOSWindow()
+bool Window::configExitSystemWindow()
 {
     _releaseObjectManager();
 
-    if( _osWindow )
+    if( _systemWindow )
     {
-        _osWindow->configExit( );
+        _systemWindow->configExit( );
 
-        delete _osWindow;
-        _osWindow = 0;
+        delete _systemWindow;
+        _systemWindow = 0;
     }
     
     Pipe* pipe = getPipe();
@@ -510,24 +511,24 @@ void Window::makeCurrent( const bool useCache ) const
     if( useCache && getPipe()->isCurrent( this ))
         return;
 
-    _osWindow->makeCurrent();
-    // _pipe->setCurrent done by OSWindow::makeCurrent
+    _systemWindow->makeCurrent();
+    // _pipe->setCurrent done by SystemWindow::makeCurrent
 }
 
 void Window::bindFrameBuffer() const
 {
-    _osWindow->bindFrameBuffer( );
+    _systemWindow->bindFrameBuffer( );
 }
 
 void Window::swapBuffers()
 {
-    _osWindow->swapBuffers();
+    _systemWindow->swapBuffers();
     EQVERB << "----- SWAP -----" << std::endl;
 }
 
 const GLEWContext* Window::glewGetContext() const
 { 
-    return _osWindow->glewGetContext();
+    return _systemWindow->glewGetContext();
 }
 
 void Window::_enterBarrier( net::ObjectVersion barrier )
@@ -709,7 +710,7 @@ bool Window::_cmdConfigExit( net::Command& command )
 
     if( _state != STATE_STOPPED )
     {
-        if( getPipe()->isRunning( ) && _osWindow )
+        if( getPipe()->isRunning( ) && _systemWindow )
         {
             makeCurrent();
             getPipe()->flushFrames();
@@ -736,7 +737,7 @@ bool Window::_cmdFrameStart( net::Command& command )
     //_grabFrame( packet->frameNumber ); single-threaded
     sync( packet->version );
 
-    EQASSERT( _osWindow );
+    EQASSERT( _systemWindow );
     const DrawableConfig& drawableConfig = getDrawableConfig();
     if( drawableConfig.doublebuffered )
         _renderContexts[FRONT].swap( _renderContexts[BACK] );
@@ -807,8 +808,8 @@ bool Window::_cmdNVBarrier( net::Command& command )
         command.getPacket<WindowNVBarrierPacket>();
     EQLOG( LOG_TASKS ) << "TASK join NV_swap_group" << std::endl;
     
-    EQASSERT( _osWindow );
-    _osWindow->joinNVSwapBarrier( packet->group, packet->barrier );
+    EQASSERT( _systemWindow );
+    _systemWindow->joinNVSwapBarrier( packet->group, packet->barrier );
 
     _enterBarrier( packet->netBarrier );
     return true;

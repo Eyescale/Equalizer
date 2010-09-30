@@ -1,11 +1,10 @@
-Node:
-- move non-transported attrs back to server
-- 1.0 API definition
+Rename OSWindow -> SystemWindow and related methods. OSPipe rename and
+documentation updates are pending.
 
-[ ] May break build
-[ ] May break existing applications
+[x] May break build
+[x] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

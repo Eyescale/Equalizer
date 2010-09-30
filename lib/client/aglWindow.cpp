@@ -309,12 +309,13 @@ AGLContext AGLWindow::createAGLContext( AGLPixelFormat pixelFormat )
 
     AGLContext    shareCtx    = 0;
     const Window* shareWindow = _window->getSharedContextWindow();
-    const OSWindow* shareOSWindow = shareWindow ? shareWindow->getOSWindow() :0;
-    if( shareOSWindow )
+    const SystemWindow* sysWindow =
+        shareWindow ? shareWindow->getSystemWindow() :0;
+    if( sysWindow )
     {
-        EQASSERT( dynamic_cast< const AGLWindowIF* >( shareOSWindow ));
+        EQASSERT( dynamic_cast< const AGLWindowIF* >( sysWindow ));
         const AGLWindowIF* shareAGLWindow = static_cast< const AGLWindow* >(
-                                                shareOSWindow );
+                                                sysWindow );
         shareCtx = shareAGLWindow->getAGLContext();
     }
  

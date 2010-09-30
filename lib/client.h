@@ -44,10 +44,12 @@
  * may be used to traverse the corresponding entity and to execute methods for
  * each child of the hierarchy.
  *
- * The OSWindow is used by the Window and abstracts window-system specific
- * functionality. The interface GLXWindowIF, AGLWindowIF and WGLWindowIF extend
- * the OSWindow interface by GLX, AGL and WGL-specific functionality. The
- * GLXWindow, AGLWindow and WGLWindow implement the aforementioned interfaces.
+ * The SystemWindow is used by the Window and abstracts window-system specific
+ * functionality. The GLWindow implements generic OpenGL functionality, and is
+ * in turn sub-classed by the interfaces GLXWindowIF, AGLWindowIF and
+ * WGLWindowIF, which extend the GLWindow by GLX, AGL and WGL-specific
+ * functionality. The GLXWindow, AGLWindow and WGLWindow implement the
+ * aforementioned interfaces.
  *
  * The OSPipe, GLXPipe, AGLPipe and WGLPipe hierarchy implements a similar
  * abstraction for GPU-specific functionality.
@@ -57,11 +59,11 @@
  * AGLEventHandler and WGLEventHandler receive these events and transform them
  * into a AGLWindowEvent, GLXWindowEvent or WGLWindowEvent, respectively.
  *
- * The window events are dispatched to the corresponding OSWindow, which can
- * execute window system specific tasks. The OSWindow implementations forward
- * the generic Event to the window. The window will handle the necessary events
- * locally, and will transform the WindowEvent into a ConfigEvent, which is sent
- * to the application node using Config::sendEvent.
+ * The window events are dispatched to the corresponding SystemWindow, which can
+ * execute window system specific tasks. The SystemWindow implementations
+ * forward the generic Event to the window. The window will handle the necessary
+ * events locally, and will transform the WindowEvent into a ConfigEvent, which
+ * is sent to the application node using Config::sendEvent.
  *
  * The Event is a union of the possible concrete PointerEvent, KeyEvent,
  * ResizeEvent, MagellanEvent, Statistic or UserEvent and may contain a valid

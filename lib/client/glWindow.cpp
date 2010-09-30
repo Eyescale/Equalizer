@@ -27,7 +27,7 @@ namespace eq
 {
 
 GLWindow::GLWindow( Window* parent )
-    : OSWindow( parent )
+    : SystemWindow( parent )
     , _glewInitialized( false )
     , _glewContext( new GLEWContext )
     , _fbo( 0 )

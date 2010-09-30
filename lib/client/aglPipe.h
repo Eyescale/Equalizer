@@ -27,8 +27,8 @@ namespace eq
     /**
      * Equalizer default implementation to handle an AGL GPU.
      *
-     * When using AGLWindow as an OSWindow for any window of a Pipe, the pipe
-     * needs to have an AGLPipe as its OSPipe.
+     * When using AGLWindow as a system window for any window of a Pipe, the
+     * pipe needs to have an AGLPipe as its OSPipe.
      */
     class EQ_EXPORT AGLPipe : public OSPipe
     {

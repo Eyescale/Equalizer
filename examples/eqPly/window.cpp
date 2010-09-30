@@ -40,10 +40,10 @@
 namespace eqPly
 {
 
-bool Window::configInitOSWindow( const uint32_t initID )
+bool Window::configInitSystemWindow( const uint32_t initID )
 {
 #ifndef Darwin
-    if( !eq::Window::configInitOSWindow( initID ))
+    if( !eq::Window::configInitSystemWindow( initID ))
         return false;
 
     // OpenGL version is less than 2.0.
@@ -52,18 +52,18 @@ bool Window::configInitOSWindow( const uint32_t initID )
         if( getDrawableConfig().accumBits )
             return true;
 
-        configExitOSWindow();
+        configExitSystemWindow();
 #endif
 
         // try with 64bits accum buffer
         setIAttribute( IATTR_PLANES_ACCUM, 16 );
-        if( eq::Window::configInitOSWindow( initID ))
+        if( eq::Window::configInitSystemWindow( initID ))
             return true;
 
         // no anti-aliasing possible
         setIAttribute( IATTR_PLANES_ACCUM, eq::AUTO );
 
-        return eq::Window::configInitOSWindow( initID );
+        return eq::Window::configInitSystemWindow( initID );
 
 #ifndef Darwin
     }

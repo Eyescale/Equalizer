@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_OS_WINDOW_AGL_H
-#define EQ_OS_WINDOW_AGL_H
+#ifndef EQ_AGL_WINDOW_H
+#define EQ_AGL_WINDOW_H
 
 #include <eq/client/glWindow.h>       // base class
 
@@ -248,5 +248,5 @@ namespace eq
     };
 }
 
-#endif // EQ_OS_WINDOW_AGL_H
+#endif // EQ_AGL_WINDOW_H
 

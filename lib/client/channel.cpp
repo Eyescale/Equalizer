@@ -28,10 +28,10 @@
 #include "log.h"
 #include "node.h"
 #include "nodeFactory.h"
-#include "osWindow.h"
 #include "packets.h"
 #include "pipe.h"
 #include "server.h"
+#include "systemWindow.h"
 #include "view.h"
 
 #include <eq/util/accum.h>
@@ -183,7 +183,7 @@ bool Channel::_configInitFBO()
         return true;
     
     const Window* window = getWindow();
-    if( !window->getOSWindow()  ||
+    if( !window->getSystemWindow()  ||
         !GLEW_ARB_texture_non_power_of_two || !GLEW_EXT_framebuffer_object )
     {
         setErrorMessage( "Can't use FBO due to missing GL extensions" );
@@ -450,7 +450,7 @@ void Channel::applyFrameBufferObject()
 void Channel::applyBuffer()
 {
     const Window* window = getWindow();
-    if( !_fbo && window->getOSWindow()->getFrameBufferObject() == 0 )
+    if( !_fbo && window->getSystemWindow()->getFrameBufferObject() == 0 )
     {
         EQ_GL_CALL( glReadBuffer( getReadBuffer( )));
         EQ_GL_CALL( glDrawBuffer( getDrawBuffer( )));
@@ -462,7 +462,7 @@ void Channel::applyBuffer()
 void Channel::bindFrameBuffer()
 {
     const Window* window = getWindow();
-    if( !window->getOSWindow() )
+    if( !window->getSystemWindow( ))
        return;
         
    if( _fbo )

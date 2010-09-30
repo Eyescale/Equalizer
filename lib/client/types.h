@@ -60,8 +60,11 @@ class Segment;
 class Server;
 class View;
 class Window;
+class OSPipe;
+class SystemWindow;
 class X11Connection;
 struct Statistic;
+struct Event;
 
 typedef fabric::ColorMask ColorMask;
 typedef fabric::DrawableConfig DrawableConfig;

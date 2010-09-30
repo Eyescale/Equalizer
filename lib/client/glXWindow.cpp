@@ -269,12 +269,13 @@ GLXContext GLXWindow::createGLXContext( XVisualInfo* visualInfo )
 
     GLXContext    shareCtx    = 0;
     const Window* shareWindow = _window->getSharedContextWindow();
-    const OSWindow* shareOSWindow = shareWindow ? shareWindow->getOSWindow() :0;
-    if( shareOSWindow )
+    const SystemWindow* sysWindow = 
+        shareWindow ? shareWindow->getSystemWindow() :0;
+    if( sysWindow )
     {
-        EQASSERT( dynamic_cast< const GLXWindowIF* >( shareOSWindow ));
+        EQASSERT( dynamic_cast< const GLXWindowIF* >( sysWindow ));
         const GLXWindowIF* shareGLXWindow = static_cast< const GLXWindow* >(
-                                                shareOSWindow );
+                                                sysWindow );
         shareCtx = shareGLXWindow->getGLXContext();
     }
 

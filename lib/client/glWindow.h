@@ -19,19 +19,18 @@
 #ifndef EQ_GL_WINDOW_H
 #define EQ_GL_WINDOW_H
 
-#include <eq/client/osWindow.h>         // Window::IAttribute enum
+#include <eq/client/systemWindow.h>         // base class
 
 namespace eq
 {
-
     /**
-     * The interface definition for OS-specific windowing code.
+     * A system window for OpenGL rendering.
      *
-     * The OSWindow abstracts all window system specific code and facilitates
-     * porting to new windowing systems. Each Windows uses one OSWindow, which
-     * is initialized in Window::configInitOSWindow.
+     * The GLWindow implements all generic OpenGL functionality for a
+     * SystemWindow. It is subclassed by OS-specific implementations which
+     * provide the the glue to the actual window system.
      */
-    class GLWindow : public OSWindow
+    class GLWindow : public SystemWindow
     {
     public:
         EQ_EXPORT GLWindow( Window* parent );
@@ -69,7 +68,7 @@ namespace eq
          * the Equalizer naming conventions, since GLEW uses a function of this
          * name to automatically resolve OpenGL function entry
          * points. Therefore, any supported GL function can be called directly
-         * from an initialized OSWindow.
+         * from an initialized GLWindow.
          *
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.

@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_OS_WINDOW_H
-#define EQ_OS_WINDOW_H
+#ifndef EQ_SYSTEM_WINDOW_H
+#define EQ_SYSTEM_WINDOW_H
 
 #include <eq/client/types.h>
 #include <eq/client/window.h>         // Window::IAttribute enum
@@ -31,25 +31,26 @@ namespace util
 }
 
     /**
-     * The interface definition for OS-specific windowing code.
+     * The interface definition for system-specific windowing code.
      *
-     * The OSWindow abstracts all window system specific code and facilitates
-     * porting to new windowing systems. Each Windows uses one OSWindow, which
-     * is created and initialized in Window::configInitOSWindow.
+     * The system window abstracts all window system specific code and
+     * facilitates porting to new windowing systems. Each eq::Window uses one
+     * eq::SystemWindow, which is created and initialized in
+     * Window::configInitSystemWindow().
      */
-    class OSWindow
+    class SystemWindow
     {
     public:
-        /** Create a new OSWindow for the given eq::Window. */
-        EQ_EXPORT OSWindow( Window* parent );
+        /** Create a new SystemWindow for the given eq::Window. */
+        EQ_EXPORT SystemWindow( Window* parent );
 
-        /** Destroy the OSWindow. */
-        EQ_EXPORT virtual ~OSWindow();
+        /** Destroy the SystemWindow. */
+        EQ_EXPORT virtual ~SystemWindow();
         
         /** @name Methods forwarded from eq::Window */
         //@{
         /** 
-         * Initialize this OS window.
+         * Initialize this system window.
          * 
          * This method should take into account all attributes of the parent
          * Window.
@@ -60,16 +61,16 @@ namespace util
         EQ_EXPORT virtual bool configInit( ) = 0;
 
         /** 
-         * De-initialize this OS window.
+         * De-initialize this system window.
          * 
-         * This function might be called on partially or uninitialized OS
+         * This function might be called on partially or uninitialized system
          * windows, and the implemenation has therefore be tolerant enough to
          * handle this case.
          */
         EQ_EXPORT virtual void configExit( ) = 0;
 
         /** 
-         * Make the OS window's rendering context and drawable current.
+         * Make the system window rendering context and drawable current.
          *
          * This function invalidates the pipe's make current cache. If this
          * function is not called, Pipe::setCurrent() has to be called
@@ -138,7 +139,7 @@ namespace util
          * the Equalizer naming conventions, since GLEW uses a function of this
          * name to automatically resolve OpenGL function entry
          * points. Therefore, any supported GL function can be called directly
-         * from an initialized OSWindow.
+         * from an initialized SystemWindow.
          *
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
@@ -158,5 +159,5 @@ namespace util
 }
 
 
-#endif // EQ_OS_WINDOW_H
+#endif // EQ_SYSTEM_WINDOW_H
 

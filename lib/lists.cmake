@@ -151,8 +151,13 @@ set(CLIENT_HEADERS
   client/eye.h
   client/frame.h
   client/frameData.h
-  client/global.h
   client/glWindow.h
+  client/glXEventHandler.h
+  client/glXMessagePump.h
+  client/glXPipe.h
+  client/glXWindow.h
+  client/glXWindowEvent.h
+  client/global.h
   client/image.h
   client/init.h
   client/layout.h
@@ -163,30 +168,25 @@ set(CLIENT_HEADERS
   client/observer.h
   client/os.h
   client/osPipe.h
-  client/osWindow.h
   client/packets.h
   client/pipe.h
   client/segment.h
   client/server.h
   client/statistic.h
   client/statisticSampler.h
+  client/systemWindow.h
   client/types.h
   client/version.h
   client/view.h
   client/visitorResult.h
+  client/wglEventHandler.h
+  client/wglMessagePump.h
+  client/wglPipe.h
+  client/wglWindow.h
+  client/wglWindowEvent.h
   client/window.h
   client/windowStatistics.h
   client/windowSystem.h
-  client/wglEventHandler.h
-  client/wglMessagePump.h
-  client/wglWindow.h
-  client/wglWindowEvent.h
-  client/wglPipe.h
-  client/glXEventHandler.h
-  client/glXMessagePump.h
-  client/glXWindow.h
-  client/glXWindowEvent.h
-  client/glXPipe.h
   )
 
 set(UTIL_HEADERS
@@ -305,27 +305,27 @@ set(CLIENT_SOURCES
   client/eventHandler.cpp
   client/frame.cpp
   client/frameData.cpp
-  client/global.cpp
+  client/frameDataStatistics.cpp
   client/glWindow.cpp
+  client/global.cpp
   client/image.cpp
   client/init.cpp
   client/jitter.cpp
   client/layout.cpp
   client/node.cpp
   client/nodeFactory.cpp
-  client/frameDataStatistics.cpp
   client/observer.cpp
   client/os.cpp
   client/osPipe.cpp
-  client/osWindow.cpp
   client/pipe.cpp
   client/pipeStatistics.cpp
+  client/roiEmptySpaceFinder.cpp
   client/roiFinder.cpp
   client/roiTracker.cpp
-  client/roiEmptySpaceFinder.cpp
   client/segment.cpp
   client/server.cpp
   client/statistic.cpp
+  client/systemWindow.cpp
   client/version.cpp
   client/view.cpp
   client/window.cpp
