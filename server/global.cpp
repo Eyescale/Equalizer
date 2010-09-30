@@ -165,7 +165,7 @@ void Global::_readEnvironment()
             _configIAttributes[i] = atol( envValue );
     }
 
-    for( uint32_t i=0; i<Node::SATTR_ALL; ++i )
+    for( uint32_t i=0; i < Node::SATTR_LAST; ++i )
     {
         const std::string& name = Node::getSAttributeString(
             (Node::SAttribute)i);
@@ -174,7 +174,7 @@ void Global::_readEnvironment()
         if( envValue )
             _nodeSAttributes[i] = envValue;
     }
-    for( uint32_t i=0; i<Node::CATTR_ALL; ++i )
+    for( uint32_t i=0; i < Node::CATTR_LAST; ++i )
     {
         const std::string& name = Node::getCAttributeString(
             (Node::CAttribute)i);
@@ -183,7 +183,7 @@ void Global::_readEnvironment()
         if( envValue )
             _nodeCAttributes[i] = envValue[0];
     }
-    for( uint32_t i=0; i<Node::IATTR_ALL; ++i )
+    for( uint32_t i=0; i < Node::IATTR_LAST; ++i )
     {
         const std::string& name     = Node::getIAttributeString(
             (Node::IAttribute)i);
