@@ -1,10 +1,9 @@
-Rename OSPipe -> SystemPipe and related methods. Documentation updates
-are pending.
+Add missing files
 
-[x] May break build
-[x] May break existing applications
-[ ] Bugfix
+[ ] May break build
+[ ] May break existing applications
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
