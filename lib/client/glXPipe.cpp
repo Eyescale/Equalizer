@@ -24,6 +24,7 @@
 #include "pipe.h"
 
 #include <sstream>
+#include <string>
 
 namespace eq
 {
@@ -52,7 +53,7 @@ bool GLXPipe::configInit( )
             
     if( !xDisplay )
     {
-        ostringstream msg;
+        std::ostringstream msg;
         msg << "Can't open display: " << XDisplayName( displayName.c_str( ));
         setErrorMessage( msg.str( ));
         return false;
@@ -61,7 +62,7 @@ bool GLXPipe::configInit( )
     int major, event, error;
     if( !XQueryExtension( xDisplay, "GLX", &major, &event, &error ))
     {
-        ostringstream msg;
+        std::ostringstream msg;
         msg << "Display " << XDisplayName( displayName.c_str( ))
             << " does not support GLX";
         setErrorMessage( msg.str( ));
@@ -96,7 +97,7 @@ void GLXPipe::configExit()
 
 std::string GLXPipe::_getXDisplayString()
 {
-    ostringstream  stringStream;
+    std::ostringstream  stringStream;
     
     const uint32_t port   = _pipe->getPort();
     const uint32_t device = _pipe->getDevice();
@@ -136,11 +137,11 @@ void GLXPipe::_setXDisplay( Display* display )
         XSetErrorHandler( eq::GLXPipe::XErrorHandler );
 #endif
 
-        string       displayString = DisplayString( display );
+        std::string       displayString = DisplayString( display );
         const size_t colonPos      = displayString.find( ':' );
-        if( colonPos != string::npos )
+        if( colonPos != std::string::npos )
         {
-            const string displayNumberString = displayString.substr(colonPos+1);
+            const std::string displayNumberString = displayString.substr(colonPos+1);
             const uint32_t displayNumber = atoi( displayNumberString.c_str( ));
             const uint32_t port          = _pipe->getPort();
             const uint32_t device        = _pipe->getDevice();
@@ -184,8 +185,8 @@ void GLXPipe::_setXDisplay( Display* display )
 int GLXPipe::XErrorHandler( Display* display, XErrorEvent* event )
 {
 #ifdef GLX
-    EQERROR << disableFlush;
-    EQERROR << "X Error occured: " << disableHeader << indent;
+    EQERROR << base::disableFlush;
+    EQERROR << "X Error occured: " << base::disableHeader << base::indent;
 
     char buffer[256];
     XGetErrorText( display, event->error_code, buffer, 256);
@@ -211,7 +212,7 @@ int GLXPipe::XErrorHandler( Display* display, XErrorEvent* event )
             EQERROR << "  ResourceID: " << event->resourceid << std::endl;
             break;
     }
-    EQERROR << enableFlush << exdent << enableHeader;
+    EQERROR << base::enableFlush << base::exdent << base::enableHeader;
 
 #ifndef NDEBUG
     if( getenv( "EQ_ABORT_WAIT" ))
