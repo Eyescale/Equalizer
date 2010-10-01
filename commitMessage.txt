@@ -1,15 +1,9 @@
-Init Reliability:
-- Create automatic test program to test various init failures based on
-  different .eqc configurations
-- Add first two simple tests (node & pipe failure)
-- Fix pipe failure exit
-
-Order images in compressor test for a predictable order
+Update Programming Guide with SystemPipe and SystemWindow renaming.
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
-[x] New Feature
-[x] Cleanup
+[ ] Bugfix
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation
