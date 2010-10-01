@@ -1213,7 +1213,7 @@ bool Channel::_cmdFrameReadback( net::Command& command )
         }
     }
 
-    if( out > 0 )
+    if( in > 0 )
         event.event.data.statistic.ratio = float( out ) / float( in );
     else
         event.event.data.statistic.ratio = 1.0f;

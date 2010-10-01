@@ -316,7 +316,6 @@ set(CLIENT_SOURCES
   client/nodeFactory.cpp
   client/observer.cpp
   client/os.cpp
-  client/osPipe.cpp
   client/pipe.cpp
   client/pipeStatistics.cpp
   client/roiEmptySpaceFinder.cpp
@@ -325,6 +324,7 @@ set(CLIENT_SOURCES
   client/segment.cpp
   client/server.cpp
   client/statistic.cpp
+  client/systemPipe.cpp
   client/systemWindow.cpp
   client/version.cpp
   client/view.cpp

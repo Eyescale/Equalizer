@@ -1,9 +1,9 @@
-Update Programming Guide with SystemPipe and SystemWindow renaming.
+Fix CMake build before Daniel makes it to Neuch ;)
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [ ] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

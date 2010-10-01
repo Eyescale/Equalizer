@@ -1,6 +1,6 @@
 
-Equalizer now can be built using CMake. A few glitches still remain, but I hope we can deprecate
-all other build systems ASAP.
+Equalizer now can be built using CMake. A few glitches still remain, but
+I hope we can deprecate all other build systems ASAP.
 
 What works (tested):
  * building and installing on Ubuntu and Windows
