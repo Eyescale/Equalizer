@@ -20,6 +20,7 @@
 
 #include "config.h"
 #include "frameDataStatistics.h"
+#include "channelStatistics.h"
 #include "image.h"
 #include "log.h"
 #include "node.h"
@@ -310,10 +311,12 @@ void FrameData::_setReady( const uint32_t version )
 
 
 void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
-                          const uint32_t originator )
+                          Channel* channel, const uint32_t taskID,
+                          const uint32_t statisticsIndex )
 {
-    FrameDataStatistics event( Statistic::FRAME_TRANSMIT, this, frameNumber,
-                               originator );
+    ChannelStatistics transmitStat( Statistic::CHANNEL_FRAME_TRANSMIT, channel );
+    transmitStat.event.data.statistic.task = taskID;
+    transmitStat.statisticsIndex = statisticsIndex;
 
     if( _data.buffers == 0 )
     {
@@ -359,8 +362,9 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
 
         {
             uint64_t rawSize( 0 );
-            FrameDataStatistics compressEvent( Statistic::FRAME_COMPRESS, this, 
-                                               frameNumber, originator );
+            ChannelStatistics compressEvent( Statistic::CHANNEL_FRAME_COMPRESS, 
+                                             channel );
+            compressEvent.statisticsIndex = statisticsIndex;
             compressEvent.event.data.statistic.ratio = 1.0f;
             if( !useCompression ) // don't send event
                 compressEvent.event.data.statistic.frameNumber = 0;

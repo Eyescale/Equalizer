@@ -40,6 +40,8 @@ namespace eq
          * @version 1.0
          */
         virtual EQ_EXPORT ~ChannelStatistics();
+
+        uint32_t statisticsIndex; //!< @internal frame index
     };
 }
 

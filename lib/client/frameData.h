@@ -135,10 +135,13 @@ namespace server
          * 
          * @param toNode the receiving node.
          * @param frameNumber the current frame number
-         * @param originator the sender object id for statistics
+         * @param Channel the sender channel for statistics
+         * @param taskID per-channel task counter
+         * @param statisticsIndex the index where statistique will be added
          */        
         void transmit( net::NodePtr toNode, const uint32_t frameNumber,
-                       const uint32_t originator );
+                       Channel* channel, const uint32_t taskID, 
+                       const uint32_t statisticsIndex );
 
         /** 
          * Set the frame data ready.
@@ -192,7 +195,7 @@ namespace server
         /** @sa net::Object::attachToSession */
         virtual void attachToSession( const uint32_t id, 
                                       const uint32_t instanceID, 
-                                      net::Session* session );
+                                      net::Session*  session );
 
     private:
         struct Data

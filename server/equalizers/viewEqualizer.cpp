@@ -596,7 +596,7 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
     int64_t startTime = std::numeric_limits< int64_t >::max();
     int64_t endTime   = 0;
     bool  loadSet   = false;
-    
+    int64_t timeTransmit = 0;
     for( uint32_t i = 0; i < nStatistics && !loadSet; ++i )
     {
         const eq::Statistic& data = statistics[i];
@@ -611,7 +611,9 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
                 startTime = EQ_MIN( startTime, data.startTime );
                 endTime   = EQ_MAX( endTime, data.endTime );
                 break;
-                
+            case Statistic::CHANNEL_FRAME_TRANSMIT:
+                timeTransmit += data.startTime - data.endTime;
+                break;
             // assemble blocks on input frames, stop using subsequent data
             case eq::Statistic::CHANNEL_ASSEMBLE:
                 loadSet = true;
@@ -627,7 +629,7 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
     
     EQASSERTINFO( load.missing > 0, load );
 
-    const int64_t time = endTime - startTime;
+    const int64_t time = EQ_MAX(endTime - startTime, timeTransmit );
     load.time += time;
     --load.missing;
 

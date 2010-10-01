@@ -29,10 +29,6 @@
 
 namespace eq
 {
-namespace util
-{
-    class FrameBufferObject;
-}
     /**
      * A channel represents a two-dimensional viewport within a Window.
      *
@@ -104,6 +100,8 @@ namespace util
         /** @return the channel's drawable config. @version 1.0 */
         EQ_EXPORT const DrawableConfig& getDrawableConfig() const;
 
+        /** return the index of the current statistics @version 1.0 */
+        EQ_EXPORT uint32_t getStatisticsIndex() const { return _statsIndex; }
         /**
          * Get the channel's native view.
          *
@@ -124,7 +122,8 @@ namespace util
         EQ_EXPORT util::FrameBufferObject* getFrameBufferObject();
 
         /** Add a new statistics event for the current frame. @internal */
-        EQ_EXPORT void addStatistic( Event& event );
+        EQ_EXPORT void addStatistic( Event& statEvent, 
+                                     const uint32_t statsIndex );
         //@}
 
         /**
@@ -284,6 +283,31 @@ namespace util
 
         /** Outline the current pixel viewport. @version 1.0 */
         EQ_EXPORT virtual void outlineViewport();
+ 
+        /**
+         * @internal
+         * Transmit frame data to the node.
+         *
+         * Transmit frame data to the node and if the statistic is ready,
+         * we send it.
+         * 
+         * @param toNode the receiving node.
+         * @param frameNumber the current frame number.
+         * @param frameData the frameData which make the send operation.
+         * @param index the vector statistic index.
+         * @param taskID per-channel task counter
+         */
+        void transmit( net::NodePtr toNode, const uint32_t frameNumber,
+                       FrameData* frameData, const uint32_t index, 
+                       const uint32_t taskID );
+
+        /**
+          * @internal
+          * Change the latency.
+          *
+          * @param latency the new latency.
+          */
+        void changeLatency( const uint32_t latency );
 
     protected:
         /** @internal */
@@ -491,9 +515,21 @@ namespace util
 
         /** Used as an alternate drawable. */       
         util::FrameBufferObject* _fbo; 
+
+        typedef std::vector< Statistic > Statistics;
+        struct ChannelStatisticsRB
+        {
+            Statistics data;
+            base::a_int32_t used;
+        };
+
+        typedef std::vector< ChannelStatisticsRB > StatisticsRB;
         
         /** The statistics events gathered during the current frame. */
-        std::vector< Statistic > _statistics;
+        StatisticsRB _statistics;
+        
+        /* Index of current vector StatisticsRB */ 
+        uint32_t _statsIndex;
 
         /** The initial channel size, used for view resize events. */
         Vector2i _initialSize;
@@ -512,6 +548,10 @@ namespace util
 
         /** Initialize the channel's drawable config. */
         void _initDrawableConfig();
+
+        /** Send statistics to the node thread. */
+        void _sendStats( const uint32_t frameNumber,
+                         const uint32_t index );
 
         /* The command handler functions. */
         bool _cmdConfigInit( net::Command& command );

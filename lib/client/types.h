@@ -49,6 +49,7 @@ template< class T > class LeafVisitor;
 class Canvas;
 class Channel;
 class Client;
+class CommandQueue;
 class Config;
 class Frame;
 class FrameData;

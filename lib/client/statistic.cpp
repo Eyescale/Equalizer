@@ -39,14 +39,14 @@ static std::string _statisticNames[Statistic::ALL] =
     "assemble",
     "wait frame",
     "readback",
+    "transmit",
+    "compress",
     "view finish",
     "finish",
     "throttle",
     "barrier",
     "swap",
     "pipe idle",
-    "transmit",
-    "compress",
     "receive",
     "start frame",
     "finish frame",
@@ -61,15 +61,15 @@ static Vector3f _statisticColors[Statistic::ALL] =
     Vector3f( 0.f, .5f, 0.f ), // draw finish
     Vector3f( 1.0f, 1.0f, 0.f ),  // assemble
     Vector3f( 1.0f, 0.f, 0.f ), // wait frame
-    Vector3f( 1.0f, .5f, .5f ), // readback
-    Vector3f( 0.f, 0.f, 1.0f ), // view finish
+    Vector3f( 1.0f, .5f, .5f ), // readback    
+    Vector3f( 0.f, 0.f, 1.0f ), // transmit
+    Vector3f( 0.f, 1.f, 1.f ), // compress
+    Vector3f( 1.f, 0.f, 1.0f ), // view finish
     Vector3f( 1.0f, 1.0f, 0.f ), // finish
     Vector3f( 1.0f, 0.f, 1.f ), // throttle
     Vector3f( 1.0f, 0.f, 0.f ), // swap barrier
     Vector3f( 1.f, 1.f, 1.f ), // swap
     Vector3f( 1.f, 1.f, 1.f ), // pipe idle
-    Vector3f( 0.f, 0.f, 1.0f ), // transmit
-    Vector3f( .7f, .7f, 1.f ), // compress
     Vector3f( .7f, 1.f, .7f ), // decompress
     Vector3f( .5f, 1.0f, .5f ), // start frame
     Vector3f( .5f, .5f, .5f ), // finish frame

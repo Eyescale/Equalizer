@@ -21,6 +21,7 @@
 #include "node.h"
 
 #include "client.h"
+#include "channel.h"
 #include "config.h"
 #include "frameData.h"
 #include "global.h"
@@ -389,10 +390,23 @@ void Node::_flushObjects()
     _frameDatas->clear();
 }
 
-void Node::TransmitThread::send( FrameData* data, net::NodePtr node, 
-                                 const uint32_t frameNumber )
+Node::TransmitThread::Task::Task( FrameData* d, net::NodePtr n,
+                                  const uint32_t f, const uint32_t i,
+                                  const uint32_t t, Channel* c )
+    : data( d )
+    , node( n )
+    , frameNumber( f )
+    , index( i )
+    , renderTaskID( t )
+    , channel( c ){}
+
+void Node::TransmitThread::send( FrameData* data, net::NodePtr node,
+                                 const uint32_t frameNumber, 
+                                 const uint32_t index,
+                                 const uint32_t renderTaskID,
+                                 Channel* channel )
 {
-    _tasks.push( Task( data, node, frameNumber ));
+    _tasks.push( Task( data, node, frameNumber, index, renderTaskID, channel ));
 }
 
 void Node::TransmitThread::run()
@@ -406,7 +420,8 @@ void Node::TransmitThread::run()
         
         EQLOG( LOG_ASSEMBLY ) << "node transmit " << task.data->getID()
                               << " to " << task.node->getNodeID() << std::endl;
-        task.data->transmit( task.node, task.frameNumber, _node->getID( ));
+        task.channel->transmit( task.node, task.frameNumber, 
+                                task.data, task.index, task.renderTaskID );
     }
 }
 
@@ -500,7 +515,7 @@ bool Node::_cmdConfigExit( net::Command& command )
     }
     
     _state = configExit() ? STATE_STOPPED : STATE_FAILED;
-    transmitter.send( 0, 0, 0 );
+    transmitter.send( 0, 0, 0, 0, 0, 0 );
     transmitter.join();
     _flushObjects();
 

@@ -781,13 +781,10 @@ namespace eq
 
     struct ChannelFrameFinishReplyPacket : public net::ObjectPacket
     {
-        ChannelFrameFinishReplyPacket( const ChannelFrameFinishPacket* request )
+        ChannelFrameFinishReplyPacket( )
             {
                 command     = fabric::CMD_CHANNEL_FRAME_FINISH_REPLY;
                 size        = sizeof( ChannelFrameFinishReplyPacket );
-                sessionID   = request->sessionID;
-                objectID    = request->objectID;
-                frameNumber = request->frameNumber;
             }
 
         uint32_t frameNumber;

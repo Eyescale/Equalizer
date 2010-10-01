@@ -276,7 +276,7 @@ bool Compound::isRunning() const
 {
     bool active = false;
     for( size_t i = 0; i < NUM_EYES; ++i )
-        active |= _inherit.active[ i ];
+        active = active || _inherit.active[ i ];
 
     if( !active )
         return false;

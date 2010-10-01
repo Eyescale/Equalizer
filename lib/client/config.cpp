@@ -297,6 +297,12 @@ public:
         return TRAVERSE_CONTINUE;    
     }
 
+    VisitorResult visit( eq::Channel* channel )
+    {
+        channel->changeLatency( _latency );
+        return TRAVERSE_CONTINUE;
+    }
+
 private:
     const uint32_t _latency; 
 };

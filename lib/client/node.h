@@ -29,9 +29,6 @@
 
 namespace eq
 {
-    class CommandQueue;
-    class FrameData;
-
     /**
      * A Node represents a single computer in the cluster.
      *
@@ -119,8 +116,11 @@ namespace eq
             TransmitThread( Node* parent ) : _node( parent ) {}
             virtual ~TransmitThread() {}
 
-            void send( FrameData* data, net::NodePtr node, 
-                       const uint32_t frameNumber );
+            void send( FrameData* data, net::NodePtr node,
+                       const uint32_t frameNumber,
+                       const uint32_t index,
+                       const uint32_t renderTaskid,
+                       Channel* channel );
             
         protected:
             virtual void run();
@@ -128,12 +128,16 @@ namespace eq
         private:
             struct Task
             {
-                Task( FrameData* d, net::NodePtr n, const uint32_t f ) 
-                        : data( d ), node( n ), frameNumber( f ) {}
+                Task( FrameData* d, net::NodePtr n, 
+                      const uint32_t f, const uint32_t i,
+                      const uint32_t t, Channel* c );
 
                 FrameData*   data;
                 net::NodePtr node;
-                uint32_t     frameNumber;
+                const uint32_t     frameNumber;
+                const uint32_t     index;
+                const uint32_t     renderTaskID;
+                Channel*           channel;
             };
 
             base::MTQueue< Task > _tasks;
