@@ -594,6 +594,7 @@ bool Config::_cmdDestroyNode( net::Command& command )
 
     NodeConfigExitReplyPacket reply( packet->nodeID, node->isStopped( ));
 
+    EQASSERT( node->getPipes().empty( ));
     unmapObject( node );
     Global::getNodeFactory()->releaseNode( node );
 

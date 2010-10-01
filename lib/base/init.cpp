@@ -38,6 +38,9 @@ namespace
 
 EQ_EXPORT bool init( const int argc, char** argv )
 {
+    EQINFO << "Log level " << base::Log::getLogLevelString() << " topics " 
+           << base::Log::topics << std::endl;
+
     for( int i=1; i<argc; ++i )
     {
         if( strcmp( "--eq-logfile", argv[i] ) == 0 )

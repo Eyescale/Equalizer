@@ -1,9 +1,15 @@
-Add missing files
+Init Reliability:
+- Create automatic test program to test various init failures based on
+  different .eqc configurations
+- Add first two simple tests (node & pipe failure)
+- Fix pipe failure exit
+
+Order images in compressor test for a predictable order
 
 [ ] May break build
 [ ] May break existing applications
 [x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

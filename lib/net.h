@@ -32,6 +32,7 @@
 #include <eq/net/barrier.h>
 #include <eq/net/command.h>
 #include <eq/net/connection.h>
+#include <eq/net/connectionDescription.h>
 #include <eq/net/connectionType.h>
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>

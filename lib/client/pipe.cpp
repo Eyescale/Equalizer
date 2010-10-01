@@ -432,7 +432,7 @@ void Pipe::joinThread()
 
 void Pipe::waitExited() const
 {
-    _state.waitNE( STATE_INITIALIZING, STATE_RUNNING );
+    _state.waitGE( STATE_STOPPED );
 }
 
 bool Pipe::isRunning() const
@@ -558,16 +558,10 @@ bool Pipe::configExit()
     if( _systemPipe )
     {
         _systemPipe->configExit( );
-
         delete _systemPipe;
         _systemPipe = 0;
-        return true;
     }
-    //else
-
-    EQWARN << "Window system "<< _windowSystem << " not initialized" 
-           << std::endl;
-    return false;
+    return true;
 }
 
 
@@ -654,7 +648,8 @@ void Pipe::releaseFrame( const uint32_t frameNumber )
 void Pipe::releaseFrameLocal( const uint32_t frameNumber )
 { 
     EQ_TS_THREAD( _pipeThread );
-    EQASSERT( _unlockedFrame + 1 == frameNumber );
+    EQASSERTINFO( _unlockedFrame + 1 == frameNumber,
+                  _unlockedFrame << ", " << frameNumber );
 
     _unlockedFrame = frameNumber;
     EQLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame.get()

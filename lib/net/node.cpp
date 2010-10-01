@@ -220,7 +220,7 @@ bool Node::initLocal( const int argc, char** argv )
         {
             if( i<argc && argv[i+1][0] != '-' )
             {
-                std::string                        data = argv[++i];
+                std::string data = argv[++i];
                 ConnectionDescriptionPtr desc = new ConnectionDescription;
                 desc->port = Global::getDefaultPort();
 

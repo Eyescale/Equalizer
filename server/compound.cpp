@@ -925,9 +925,8 @@ void Compound::updateInheritData( const uint32_t frameNumber )
             _updateInheritPVP( oldPVP );
             _inherit.vp.apply( _data.vp );
         }
-        else
+        else if( _inherit.pvp.isValid( ))
         {
-            EQASSERT( _inherit.pvp.isValid( ));
             EQASSERT( _data.vp.isValid( ));
             _inherit.pvp.apply( _data.vp );
 
@@ -938,6 +937,10 @@ void Compound::updateInheritData( const uint32_t frameNumber )
             _inherit.vp.apply( vp );
             
             _updateInheritOverdraw();
+        }
+        else
+        {
+            EQASSERT( !_inherit.channel->isRunning( ));
         }
 
         if( _data.frustumData.isValid( ))

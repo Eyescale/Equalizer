@@ -31,8 +31,6 @@
 #  endif
 #endif
 
-using namespace std;
-
 namespace eq
 {
 namespace net
@@ -43,16 +41,13 @@ EQ_EXPORT bool init( const int argc, char** argv )
     if( !base::init( argc, argv ))
         return false;
 
-    EQINFO << "Log level " << base::Log::getLogLevelString() << " topics " 
-           << base::Log::topics << endl;
-
 #ifdef WIN32
     WORD    wsVersion = MAKEWORD( 2, 0 );
     WSADATA wsData;
     if( WSAStartup( wsVersion, &wsData ) != 0 )
     {
         EQERROR << "Initialization of Windows Sockets failed" 
-                << base::sysError << endl;
+                << base::sysError << std::endl;
         return false;
     }
 #endif
@@ -68,11 +63,11 @@ EQ_EXPORT bool init( const int argc, char** argv )
             }
         }
     }
-    const string programName = Global::getProgramName();
+    const std::string& programName = Global::getProgramName();
     if( programName.empty() && argc > 0 )
         Global::setProgramName( argv[0] );
 
-    const string workDir = Global::getWorkDir();
+    const std::string& workDir = Global::getWorkDir();
     if( workDir.empty( ))
     {
         char cwd[MAXPATHLEN];
@@ -87,7 +82,7 @@ EQ_EXPORT bool exit()
     if( WSACleanup() != 0 )
     {
         EQERROR << "Cleanup of Windows Sockets failed" 
-                << base::sysError << endl;
+                << base::sysError << std::endl;
         return false;
     }
 #endif

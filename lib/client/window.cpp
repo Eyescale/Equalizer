@@ -85,6 +85,7 @@ Window::Window( Pipe* parent )
 
 Window::~Window()
 {
+    EQINFO << " Delete eq::Window @" << (void*)this << std::endl;
     EQASSERT( getChannels().empty( ));
 
     Pipe* pipe = getPipe();

@@ -368,10 +368,10 @@ namespace eq
 
         enum State
         {
-            STATE_STOPPED,
             STATE_MAPPED,
             STATE_INITIALIZING,
             STATE_RUNNING,
+            STATE_STOPPED, // must come after running
             STATE_FAILED
         };
         /** The configInit/configExit state. */

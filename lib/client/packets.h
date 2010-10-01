@@ -989,7 +989,7 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeConfigInitPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " init id "
+        os << (net::ObjectPacket*)packet << " init id " << packet->initID
            << " frame " << packet->frameNumber;
         return os;
     }

@@ -130,6 +130,7 @@ int main( int argc, char **argv )
 
     eq::Strings images;
     eq::Strings candidates = eq::base::searchDirectory( "images", "*.rgb");
+    stde::usort( candidates ); // have a predictable order
     for( eq::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
     {
@@ -140,6 +141,7 @@ int main( int argc, char **argv )
     }
 
     candidates = eq::base::searchDirectory( "../compositor", "Result*.rgb" );
+    stde::usort( candidates ); // have a predictable order
     for( eq::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
     {

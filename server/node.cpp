@@ -343,7 +343,7 @@ void Node::_finish( const uint32_t currentFrame )
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         const Pipe* pipe = *i;
-        if( pipe->getIAttribute( Pipe::IATTR_HINT_THREAD ))
+        if( pipe->getIAttribute( Pipe::IATTR_HINT_THREAD ) && pipe->isRunning())
         {
             const uint32_t latency = _getFinishLatency();
             if( currentFrame > latency )

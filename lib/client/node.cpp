@@ -64,6 +64,7 @@ Node::Node( Config* parent )
 
 Node::~Node()
 {
+    EQASSERT( getPipes().empty( ));
     EQINFO << " Delete eq::Node @" << (void*)this << std::endl;
 }
 

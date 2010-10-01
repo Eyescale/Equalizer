@@ -2,20 +2,21 @@
 include $(TOP)/make/system.mk
 
 SUBDIRS = \
+	compositor \
 	image \
 	accept \
 	base \
 	client \
-	compositor \
 	compressorByte \
 	connection \
 	fabric \
+	frustum \
+	initReliability \
 	loader \
 	net \
 	netperf \
 	node \
 	openmp \
-	frustum
 
 TARGETS = subdirs
 

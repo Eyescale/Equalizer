@@ -283,6 +283,7 @@ bool Channel::syncConfigInit()
         return true;
     }
 
+    sync();
     EQWARN << "Channel initialization failed: " << getErrorMessage()
            << std::endl;
     configExit();

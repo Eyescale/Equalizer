@@ -51,7 +51,7 @@
  * functionality. The GLXWindow, AGLWindow and WGLWindow implement the
  * aforementioned interfaces.
  *
- * The OSPipe, GLXPipe, AGLPipe and WGLPipe hierarchy implements a similar
+ * The SystemPipe, GLXPipe, AGLPipe and WGLPipe hierarchy implements a similar
  * abstraction for GPU-specific functionality.
  *
  * The GLXMessagePump, AGLMessagePump and WGLMessagePump are used by the node
