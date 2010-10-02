@@ -28,6 +28,7 @@ namespace eq
 WGLPipe::WGLPipe( Pipe* parent )
     : SystemPipe( parent )
     , _wglewContext( new WGLEWContext )
+    , _driverVersion( 0.f )
 {
 }
 
@@ -273,6 +274,7 @@ void WGLPipe::_configInitWGLEW()
     else
         EQINFO << "Pipe WGLEW initialization successful" << std::endl;
 
+    _configInitDriverVersion();
     wglDeleteContext( context );
     ReleaseDC( hWnd, dc );
     DestroyWindow( hWnd );
@@ -281,6 +283,67 @@ void WGLPipe::_configInitWGLEW()
     wglMakeCurrent( oldDC, oldContext );
 }
 
+void WGLPipe::_configInitDriverVersion()
+{
+    // Query driver version of NVidia driver, used to implement affinity WAR
+    const std::string glVendor = (const char*)glGetString( GL_VENDOR );
+    if( glVendor.empty( )) // most likely no context - fail
+    {
+        EQWARN << "glGetString(GL_VENDOR) returned 0" << std::endl;
+        return;
+    }
+    
+    size_t nextPos = glVendor.find( "NVIDIA" );
+    if( nextPos == std::string::npos ) // not NVidia, unused/unsupported
+        return;
+    HKEY key;
+ 
+	unsigned char tempStr[512];
+	unsigned long size = sizeof(tempStr);
+    
+    const std::string regPath("SOFTWARE\\NVIDIA Corporation\\Installer");
+    const std::string regKey("Version");
+
+    // try to Read registre on x64 OS
+    if( RegOpenKeyEx( HKEY_LOCAL_MACHINE, regPath.c_str(), 0, 
+        KEY_READ | KEY_WOW64_64KEY, &key )!=ERROR_SUCCESS )
+    {
+        EQWARN << "RegOpenKeyEx(" << regPath << ") returned error" 
+               << std::endl;
+        return;
+    }
+
+    if( RegQueryValueEx(key,regKey.c_str(),0, 0,tempStr,&size)!=ERROR_SUCCESS )
+    {
+        // try to Read registre on 32 bits OS
+        RegCloseKey(key);
+        if( RegOpenKeyEx( HKEY_LOCAL_MACHINE, regPath.c_str(), 0, 
+            KEY_READ , &key )!=ERROR_SUCCESS )
+        {
+            EQWARN << "RegOpenKeyEx(" << regPath << ") returned error" 
+                   << std::endl;
+            return;
+        }
+        if( RegQueryValueEx(key, regKey.c_str(), 0, 
+                            0, tempStr,&size)!= ERROR_SUCCESS )
+        {
+            EQWARN << "RegQueryValueEx(" << regKey << ") returned error" 
+                   << std::endl;
+            RegCloseKey(key);
+            return;
+        }
+    } 
+
+    RegCloseKey(key);
+    
+    std::string version;
+    version.assign( tempStr, tempStr + size);
+    nextPos = version.find_last_of( "." );
+
+    version = version.substr( nextPos - 1 );
+    
+    _driverVersion = static_cast<float>( atof( version.c_str() ))* 100.f;
+}
 
 } //namespace eq
 
