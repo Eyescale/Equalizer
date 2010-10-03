@@ -77,3 +77,6 @@ foreach(HEADER ${HEADERS})
   string(REGEX MATCH "(.*)[/\\]" DIR ${HEADER})
   install(FILES ${HEADER} DESTINATION include/eq/${DIR} COMPONENT dev)
 endforeach(HEADER ${HEADERS})
+
+configure_file(Equalizer.pc.in Equalizer.pc @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Equalizer.pc DESTINATION lib/pkgconfig COMPONENT dev)

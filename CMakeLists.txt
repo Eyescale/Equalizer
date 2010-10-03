@@ -4,6 +4,8 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
 
+set(VERSION 0.9.2)
+
 enable_testing()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")

@@ -1,4 +1,10 @@
-Fix CMake build before Daniel makes it to Neuch ;)
+[M. Lambers]: Installs a pkg-config .pc file for libEqualizer.so. This
+makes it easier for applications to find it and to make sure that the
+right version is available.
+
+Introduces a new CMake variable VERSION that is substituted in the .pc
+file; maybe you prefer a different way of doing this.
+
 
 [ ] May break build
 [ ] May break existing applications
