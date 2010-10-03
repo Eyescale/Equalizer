@@ -10,5 +10,5 @@ Description: Middleware to create and deploy parallel OpenGL-based applications
 Version: @VERSION@
 Requires:
 Conflicts:
-Libs: -L${libdir}
+Libs: -L${libdir} -lEqualizer
 Cflags: -I${includedir}
