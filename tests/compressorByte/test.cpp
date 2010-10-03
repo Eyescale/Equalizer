@@ -246,7 +246,7 @@ std::vector< std::string > getFiles( const std::string path,
                 i != candidats.end(); ++i )
         {
             const std::string& filename = *i;
-            files.push_back( paths[j] + '\\' + filename );
+            files.push_back( paths[j] + '/' + filename );
         }    
     }
     return files;
