@@ -317,8 +317,9 @@ bool WGLWindow::configInitWGLDrawable( int pixelFormat )
 
 bool WGLWindow::configInitWGLFBO( int pixelFormat )
 {
-    if( _useAffinity() && _wglAffinityDC )
+    if( _useAffinity() )
     {
+        EQASSERT( _wglAffinityDC );
         // move affinity DC to be our main DC
         // deletion is now taken care of by setWGLDC( 0 )
         setWGLDC( _wglAffinityDC, WGL_DC_AFFINITY );
