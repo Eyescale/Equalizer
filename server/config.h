@@ -253,6 +253,7 @@ namespace server
         /** The command functions. */
         bool _cmdInit( net::Command& command );
         bool _cmdExit( net::Command& command );
+        bool _cmdUpdate( net::Command& command );
         bool _cmdStartFrame( net::Command& command );
         bool _cmdFinishAllFrames( net::Command& command ); 
         bool _cmdCreateReply( net::Command& command );

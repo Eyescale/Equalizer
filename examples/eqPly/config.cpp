@@ -580,10 +580,10 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             if( rng.get< bool >( ))
                 _switchModel();
             if( rng.get< bool >( ))
-                eqAdmin::addWindow( getAdminServer(), rng.get< bool >( ));
+                eqAdmin::addWindow( _getAdminServer(), rng.get< bool >( ));
             if( rng.get< bool >( ))
             {
-                eqAdmin::removeWindow( getAdminServer( ));
+                eqAdmin::removeWindow( _getAdminServer( ));
                 _currentCanvas = 0;
             }
             if( rng.get< bool >( ))
@@ -662,14 +662,17 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             _switchViewMode();
             return true;
         case 'a':
-            eqAdmin::addWindow( getAdminServer(), false /* active stereo */ );
+            eqAdmin::addWindow( _getAdminServer(), false /* active stereo */ );
+            EQASSERT( update() );
             return true;
         case 'p':
-            eqAdmin::addWindow( getAdminServer(), true /* passive stereo */ );
+            eqAdmin::addWindow( _getAdminServer(), true /* passive stereo */ );
+            EQASSERT( update() );
             return true;
         case 'x':
-            eqAdmin::removeWindow( getAdminServer( ));
+            eqAdmin::removeWindow( _getAdminServer( ));
             _currentCanvas = 0;
+            EQASSERT( update() );
             return true;
         // Head Tracking Emulation
         case eq::KC_UP:
@@ -935,7 +938,7 @@ void Config::_setMessage( const std::string& message )
     _messageTime = getTime();
 }
 
-eq::admin::ServerPtr Config::getAdminServer()
+eq::admin::ServerPtr Config::_getAdminServer()
 {
     if( _admin.isValid() && _admin->isConnected( ))
         return _admin;

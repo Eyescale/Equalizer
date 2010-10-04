@@ -160,6 +160,28 @@ namespace eq
          */
         EQ_EXPORT virtual bool exit();
 
+        /** 
+         * Update the configuration.
+         *
+         * This method is to be called only on the application node on an
+         * initialized configuration. Dirty objects on the config are committed,
+         * i.e., the View, Canvas and Observer, and any changes on the
+         * configuration are effected. Changes may be caused by the eq::admin
+         * API or by the application, e.g., through a layout change on a
+         * Canvas. Any change causes an implicit finish of all outstanding
+         * frames.
+         *
+         * This function always returns false when a resource failed to
+         * initialize or exit. When robustness is not activated, the config is
+         * exited by the update upon failure. When robustness is activated, the
+         * config keeps running and may be used with reduced functionality.
+         *
+         * @return true if the configuration update was successful, false if a
+         *         resource failed to initialize or exit.
+         * @version 1.0
+         */
+        EQ_EXPORT bool update();
+        
         /** @warning Experimental - may not be supported in the future */
         EQ_EXPORT void freezeLoadBalancing( const bool onOff );
 
@@ -173,12 +195,7 @@ namespace eq
          * Request a new frame of rendering.
          *
          * This method is to be called only on the application node on an
-         * initialized configuration.
-         *
-         * Dirty objects on the config are committed, i.e., the View, Canvas and
-         * Observer. If the active Layout of a Canvas has been changed since the
-         * last frame start, all outstanding rendering is completed using
-         * finishAllFrames().
+         * initialized configuration. It implicitely calls update().
          *
          * The server will sync to the new data, and generate all render tasks,
          * which are queued on the render clients for execution.
@@ -397,6 +414,8 @@ namespace eq
         bool _cmdStartFrameReply( net::Command& command );
         bool _cmdInitReply( net::Command& command );
         bool _cmdExitReply( net::Command& command );
+        bool _cmdUpdateReply( net::Command& command );
+        bool _cmdFinish( net::Command& command );
         bool _cmdReleaseFrameLocal( net::Command& command );
         bool _cmdFrameFinish( net::Command& command );
         bool _cmdSwapObject( net::Command& command );

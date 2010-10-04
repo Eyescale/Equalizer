@@ -190,6 +190,53 @@ namespace eq
         bool     result;
     };
 
+    struct ConfigUpdatePacket : public ConfigPacket
+    {
+        ConfigUpdatePacket()
+            {
+                command   = fabric::CMD_CONFIG_UPDATE;
+                size      = sizeof( ConfigUpdatePacket );
+            }
+       
+        uint32_t versionID;
+        uint32_t syncID;
+        uint32_t finishID;
+    };
+
+    struct ConfigUpdateReplyPacket : public ConfigPacket
+    {
+        ConfigUpdateReplyPacket( const ConfigUpdatePacket* request,
+                                 const uint32_t version_, const bool sync_ )
+                : versionID( request->versionID )
+                , syncID( request->syncID )
+                , version( version_ )
+                , sync( sync_ )
+            {
+                command   = fabric::CMD_CONFIG_UPDATE_REPLY;
+                size      = sizeof( ConfigUpdateReplyPacket );
+                sessionID = request->sessionID;
+            }
+
+        const uint32_t versionID;
+        const uint32_t syncID;
+        const uint32_t version;
+        const bool     sync;
+    };
+
+    struct ConfigFinishPacket : public ConfigPacket
+    { 
+        ConfigFinishPacket( const ConfigUpdatePacket* request, const bool finish )
+                : finishID( request->finishID )
+                , finish( finish )
+            {
+                command   = fabric::CMD_CONFIG_FINISH;
+                size      = sizeof( ConfigFinishPacket );
+                sessionID = request->sessionID;
+            }
+        const uint32_t finishID;
+        const bool     finish;
+    };
+
     struct ConfigExitPacket : public ConfigPacket
     {
         ConfigExitPacket()

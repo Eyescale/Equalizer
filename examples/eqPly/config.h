@@ -90,8 +90,6 @@ namespace eqPly
     protected:
         virtual ~Config();
 
-        /** @return a pointer to a connected admin server. */
-        eq::admin::ServerPtr getAdminServer();
 
     private:
         int         _spinX, _spinY;
@@ -131,6 +129,8 @@ namespace eqPly
         void _setHeadMatrix( const eq::Matrix4f& matrix );
         const eq::Matrix4f& _getHeadMatrix() const;
 
+        /** @return a pointer to a connected admin server. */
+        eq::admin::ServerPtr _getAdminServer();
         void _setMessage( const std::string& message );
         void _updateData();
     };

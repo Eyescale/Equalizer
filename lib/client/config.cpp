@@ -98,6 +98,10 @@ void Config::notifyMapped( net::NodePtr node )
                      ConfigFunc( this, &Config::_cmdInitReply ), queue );
     registerCommand( fabric::CMD_CONFIG_EXIT_REPLY, 
                      ConfigFunc( this, &Config::_cmdExitReply ), queue );
+    registerCommand( fabric::CMD_CONFIG_UPDATE_REPLY,
+                     ConfigFunc( this, &Config::_cmdUpdateReply ), cmdQueue );
+    registerCommand( fabric::CMD_CONFIG_FINISH,
+                     ConfigFunc( this, &Config::_cmdFinish ), queue );
     registerCommand( fabric::CMD_CONFIG_RELEASE_FRAME_LOCAL, 
                      ConfigFunc( this, &Config::_cmdReleaseFrameLocal ), queue);
     registerCommand( fabric::CMD_CONFIG_FRAME_FINISH, 
@@ -190,6 +194,42 @@ bool Config::exit()
     _running = false;
     _appNode   = 0;
     return ret;
+}
+
+bool Config::update( )
+{
+    commit();
+
+    // send update req to server
+    ClientPtr client = getClient();
+
+    ConfigUpdatePacket packet;    
+    packet.versionID = client->registerRequest();
+    packet.syncID = client->registerRequest();
+    packet.finishID = client->registerRequest();
+    send( packet );
+
+    // wait for new version
+    uint32_t version = net::VERSION_INVALID;
+    client->waitRequest( packet.versionID, version );
+    sync( version );
+
+    // wait for synchonization
+    bool sync;
+    client->waitRequest( packet.syncID, sync );
+
+    if( !sync )
+    {
+        client->unregisterRequest( packet.finishID );
+        return true;
+    }
+
+    while( !client->isRequestServed( packet.finishID ))
+        client->processCommand();
+
+    bool finish = false;
+    client->waitRequest( packet.finishID, finish );
+    return finish;
 }
 
 uint32_t Config::startFrame( const uint32_t frameID )
@@ -697,6 +737,26 @@ bool Config::_cmdExitReply( net::Command& command )
 
     _exitMessagePump();
     getLocalNode()->serveRequest( packet->requestID, (void*)(packet->result) );    
+    return true;
+}
+
+bool Config::_cmdUpdateReply( net::Command& command )
+{
+    const ConfigUpdateReplyPacket* packet = 
+        command.getPacket<ConfigUpdateReplyPacket>();
+    EQVERB << "handle init reply " << packet << std::endl;
+
+    getClient()->serveRequest( packet->versionID, packet->version );
+    getClient()->serveRequest( packet->syncID, packet->sync );
+    return true;
+}
+
+bool Config::_cmdFinish( net::Command& command )
+{
+    const ConfigFinishPacket* packet = 
+        command.getPacket< ConfigFinishPacket >();
+    EQVERB << "handle init finish reply " << packet << std::endl;
+    getClient()->serveRequest( packet->finishID, packet->finish );
     return true;
 }
 

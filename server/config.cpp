@@ -99,6 +99,8 @@ void Config::notifyMapped( net::NodePtr node )
                      ConfigFunc( this, &Config::_cmdInit), mainQ );
     registerCommand( fabric::CMD_CONFIG_EXIT,
                      ConfigFunc( this, &Config::_cmdExit ), mainQ );
+    registerCommand( fabric::CMD_CONFIG_UPDATE,
+                     ConfigFunc( this, &Config::_cmdUpdate ), mainQ );
     registerCommand( fabric::CMD_CONFIG_CREATE_REPLY,
                      ConfigFunc( this, &Config::_cmdCreateReply ), cmdQ );
     registerCommand( fabric::CMD_CONFIG_START_FRAME, 
@@ -1067,6 +1069,35 @@ bool Config::_cmdExit( net::Command& command )
 
     EQINFO << "config exit result: " << reply.result << std::endl;
     send( command.getNode(), reply );
+    return true;
+}
+
+bool Config::_cmdUpdate( net::Command& command )
+{
+    const ConfigUpdatePacket* packet = 
+        command.getPacket<ConfigUpdatePacket>();
+
+    EQVERB << "handle config update " << packet << std::endl;
+
+    ConfigSyncVisitor syncer;
+    accept( syncer );
+
+    net::NodePtr node = command.getNode();
+    ConfigUpdateReplyPacket reply( packet, getVersion(), _needsFinish );
+    send( command.getNode(), reply );
+    
+    if( !_needsFinish )
+        return true;
+
+    ConfigFinishPacket replyFinish( packet, _updateRunning( ));
+    if( !replyFinish.finish && !getIAttribute( IATTR_ROBUSTNESS ))
+    {
+        EQWARN << "Config update failed, exiting config: " 
+               << getErrorMessage() << std::endl;
+        exit();
+    }
+
+    send( command.getNode(), replyFinish );
     return true;
 }
 
