@@ -1,11 +1,9 @@
-CMake:
-- Fix creation of defines file to be system-specific
-- Fix OS X 10.6 build (AGL/GLX, 32/64 bit, Cuda)
+Minor cleanup
 
-[x] May break build
+[ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
