@@ -1,0 +1,37 @@
+#Equalizer 1.0 ascii
+
+global
+{
+    EQ_NODE_IATTR_LAUNCH_TIMEOUT 10000 #ms
+    EQ_WINDOW_IATTR_HINT_DRAWABLE pbuffer
+}
+
+server
+{
+    connection { hostname "127.0.0.1" port 37489 }
+    config
+    {
+        node
+        {
+            name "foo"
+            connection { hostname "unlaunchable node" }
+            pipe
+            {
+                window
+                {
+                    channel { name "channel" }
+                }
+            }
+        }
+        compound
+        { 
+            channel "channel"
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+        }
+    }    
+}
