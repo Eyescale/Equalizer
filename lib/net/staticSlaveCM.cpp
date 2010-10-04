@@ -46,22 +46,6 @@ StaticSlaveCM::~StaticSlaveCM()
     _currentIStream = 0;
 }
 
-//---------------------------------------------------------------------------
-// command handlers
-//---------------------------------------------------------------------------
-bool StaticSlaveCM::_cmdInstance( Command& command )
-{
-    EQASSERT( _currentIStream );
-    _currentIStream->addDataPacket( command );
-
-    if( _currentIStream->isReady( ))
-        EQLOG( LOG_OBJECTS ) << "id " << _object->getID() << "." 
-                             << _object->getInstanceID() << " ready" 
-                             << std::endl;
-
-    return true;
-}
-
 void StaticSlaveCM::applyMapData()
 {
     EQASSERT( _currentIStream );
@@ -101,6 +85,22 @@ void StaticSlaveCM::addInstanceDatas( const InstanceDataDeque& cache,
     EQLOG( LOG_OBJECTS ) << "Adding cached instance data" << std::endl;
     delete _currentIStream;
     _currentIStream = new ObjectInstanceDataIStream( *stream );
+}
+
+//---------------------------------------------------------------------------
+// command handlers
+//---------------------------------------------------------------------------
+bool StaticSlaveCM::_cmdInstance( Command& command )
+{
+    EQASSERT( _currentIStream );
+    _currentIStream->addDataPacket( command );
+
+    if( _currentIStream->isReady( ))
+        EQLOG( LOG_OBJECTS ) << "id " << _object->getID() << "." 
+                             << _object->getInstanceID() << " ready" 
+                             << std::endl;
+
+    return true;
 }
 
 }

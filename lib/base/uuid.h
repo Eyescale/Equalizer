@@ -82,7 +82,6 @@ namespace base
 #endif
                 return *this;
             }
-        uint64_t getLow() const { return _low; }
 
         /** @return true if the UUIDs are equal, false if not. @version 1.0 */
         bool operator == ( const UUID& rhs ) const
@@ -120,6 +119,9 @@ namespace base
                     return false;
                 return _low > rhs._low; 
             }
+
+        /** @internal @return the lower 64 bits of this UUID. */
+        uint64_t getLow() const { return _low; }
 
         /** The NULL UUID. @version 1.0 */
         static const UUID ZERO;
