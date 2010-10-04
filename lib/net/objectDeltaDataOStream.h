@@ -34,7 +34,7 @@ namespace net
     class ObjectDeltaDataOStream : public ObjectDataOStream
     {
     public:
-        ObjectDeltaDataOStream( const Object* object );
+        ObjectDeltaDataOStream( const ObjectCM* cm );
         virtual ~ObjectDeltaDataOStream();
 
     protected:

@@ -33,7 +33,7 @@ namespace net
     class ObjectSlaveDataOStream : public ObjectDataOStream
     {
     public:
-        ObjectSlaveDataOStream( const Object* object );
+        ObjectSlaveDataOStream( const ObjectCM* cm );
         virtual ~ObjectSlaveDataOStream();
 
     protected:

@@ -34,7 +34,7 @@ namespace net
 {
 StaticMasterCM::StaticMasterCM( Object* object ) 
         : _object( object )
-        , _os( object )
+        , _os( this )
 {}
 
 StaticMasterCM::~StaticMasterCM()

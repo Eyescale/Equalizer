@@ -298,6 +298,14 @@ namespace net
         /** NOP assignment operator. */
         EQ_EXPORT const Object& operator = ( const Object& ) { return *this; }
 
+        /**
+         * Swap the session.
+         *
+         * @param session the new session to use.
+         *
+         * @internal
+         */
+        EQ_EXPORT void swapSession( Session* session ) { _session = session; }
         /** 
          * Setup the change manager.
          * 

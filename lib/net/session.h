@@ -198,7 +198,7 @@ namespace net
          *
          * @param object the object instance.
          */
-        EQ_EXPORT void deregisterObject( Object* object );
+        EQ_EXPORT virtual void deregisterObject( Object* object );
 
         /** 
          * Map a distributed object.
@@ -373,6 +373,10 @@ namespace net
         /** @internal ack an operation to the sender. */
         void ackRequest( NodePtr node, const uint32_t requestID );
 
+        /** @internal swap the existing object by a new object and keep
+                      the cm, id and instanceID. */
+        void swapObject( Object* oldObject, Object* newObject );
+
     private:
         /** Set the local node to which this session is mapped */
         void _setLocalNode( NodePtr node );
@@ -429,7 +433,6 @@ namespace net
         void _setIDMasterSync( const uint32_t requestID );
         uint32_t _unsetIDMasterNB( const uint32_t id );
         void _unsetIDMasterSync( const uint32_t requestID );
-
 
         /** The command handler functions. */
         bool _cmdAckRequest( Command& packet );

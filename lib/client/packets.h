@@ -31,6 +31,10 @@ namespace eq
 {
     class Pipe;
     class Window;
+    namespace net
+    {
+        class Object;
+    }
 
 /** @cond IGNORE */
     //------------------------------------------------------------
@@ -288,7 +292,18 @@ namespace eq
 
         int64_t time;
     };
-
+    
+    struct ConfigSwapObjectPacket : public ConfigPacket
+    {
+        ConfigSwapObjectPacket()
+        {
+            command   = fabric::CMD_CONFIG_SWAP_OBJECT;
+            size      = sizeof( ConfigSwapObjectPacket ); 
+            requestID = EQ_ID_INVALID;
+        }
+        uint32_t         requestID;
+        net::Object*     object;
+    };
     //------------------------------------------------------------
     // Node
     //------------------------------------------------------------

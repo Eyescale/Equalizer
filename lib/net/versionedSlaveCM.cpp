@@ -41,7 +41,7 @@ VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
         , _mutex( 0 )
         , _currentIStream( 0 )
         , _masterInstanceID( masterInstanceID )
-        , _ostream( object )
+        , _ostream( this )
 {
     registerCommand( CMD_OBJECT_INSTANCE,
                      CmdFunc( this, &VersionedSlaveCM::_cmdInstance ), 0 );

@@ -57,6 +57,8 @@ namespace net
 
         virtual uint32_t addSlave( Command& command );
         virtual void removeSlave( NodePtr node );
+        virtual void setObject( Object* object ) { _object = object; }
+        virtual const Object* getObject( ) const { return _object; }
 
     protected:
         /** The number of commits, needed for auto-obsoletion. */
@@ -64,8 +66,8 @@ namespace net
 
         struct InstanceData
         {
-            InstanceData( const Object* object ) 
-                    : os( object ), commitCount(0) {}
+            InstanceData( const MasterCM* cm ) 
+                    : os( cm ), commitCount(0) {}
 
             ObjectInstanceDataOStream os;
             uint32_t commitCount;

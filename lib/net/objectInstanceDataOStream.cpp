@@ -19,6 +19,7 @@
 #include "objectInstanceDataOStream.h"
 
 #include "log.h"
+#include "masterCM.h"
 #include "object.h"
 #include "packets.h"
 #include "session.h"
@@ -27,8 +28,8 @@ namespace eq
 {
 namespace net
 {
-ObjectInstanceDataOStream::ObjectInstanceDataOStream( const Object* object )
-        : ObjectDataOStream( object )
+ObjectInstanceDataOStream::ObjectInstanceDataOStream( const ObjectCM* cm )
+        : ObjectDataOStream( cm )
         , _instanceID( EQ_ID_ANY )
 {}
 
@@ -43,10 +44,12 @@ void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
     packet.version    = _version;
     packet.sequence   = _sequence++;
     packet.dataSize   = sizeUncompressed;
-    packet.sessionID  = _object->getSession()->getID();
-    packet.objectID   = _object->getID();
-    packet.instanceID = _instanceID;
-    packet.masterInstanceID = _object->getInstanceID();
+
+    const Object* object = _cm->getObject();
+    packet.sessionID        = object->getSession()->getID();
+    packet.objectID         = object->getID();
+    packet.instanceID       = _instanceID;
+    packet.masterInstanceID = object->getInstanceID();
 
     if( _nodeID == NodeID::ZERO )
     {

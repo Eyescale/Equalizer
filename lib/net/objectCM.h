@@ -149,6 +149,12 @@ namespace net
         virtual void addInstanceDatas( const InstanceDataDeque&, const uint32_t)
             { EQDONTCALL; }
 
+        /** @return the object associate. @internal*/
+        virtual const Object* getObject( ) const { EQDONTCALL; return 0; }
+
+        /** swap the object associate. @internal*/
+        virtual void setObject( Object* object ){ EQDONTCALL; }
+
         /** The default CM for unattached objects. */
         static ObjectCM* ZERO;
 

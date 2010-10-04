@@ -19,6 +19,7 @@
 #include "objectSlaveDataOStream.h"
 
 #include "log.h"
+#include "masterCM.h"
 #include "object.h"
 #include "packets.h"
 #include "session.h"
@@ -29,8 +30,8 @@ namespace eq
 {
 namespace net
 {
-ObjectSlaveDataOStream::ObjectSlaveDataOStream( const Object* object )
-        : ObjectDataOStream( object )
+ObjectSlaveDataOStream::ObjectSlaveDataOStream( const ObjectCM* cm )
+        : ObjectDataOStream( cm )
         , _commit( true )
 {}
 
@@ -42,12 +43,14 @@ void ObjectSlaveDataOStream::_sendPacket( ObjectSlaveDeltaPacket& packet,
                                           const uint64_t* chunkSizes,
                                           const uint64_t sizeUncompressed )
 {
-    packet.version   = _object->getVersion();
-    packet.sequence  = _sequence++;
-    packet.dataSize  = sizeUncompressed;
-    packet.sessionID = _object->getSession()->getID();
-    packet.objectID  = _object->getID();
-    packet.instanceID = _object->getMasterInstanceID();
+    const Object* object = _cm->getObject();   
+     
+    packet.version    = object->getVersion();
+    packet.sequence   = _sequence++;
+    packet.dataSize   = sizeUncompressed;
+    packet.sessionID  = object->getSession()->getID();
+    packet.objectID   = object->getID();
+    packet.instanceID = object->getMasterInstanceID();
 
 #if 0
     EQLOG( LOG_OBJECTS ) << "send " << &packet << " to " << _connections.size()

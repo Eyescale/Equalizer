@@ -20,17 +20,17 @@
 
 #include "log.h"
 #include "object.h"
+#include "objectCM.h"
 #include "packets.h"
 #include "session.h"
-
 #include <eq/base/idPool.h>
 
 namespace eq
 {
 namespace net
 {
-ObjectDeltaDataOStream::ObjectDeltaDataOStream( const Object* object)
-        : ObjectDataOStream( object )
+ObjectDeltaDataOStream::ObjectDeltaDataOStream( const ObjectCM* cm )
+        : ObjectDataOStream( cm )
 {}
 
 ObjectDeltaDataOStream::~ObjectDeltaDataOStream()
@@ -44,8 +44,10 @@ void ObjectDeltaDataOStream::_sendPacket( ObjectDeltaPacket& packet,
     packet.version   = _version;
     packet.sequence  = _sequence++;
     packet.dataSize  = sizeUncompressed;
-    packet.sessionID = _object->getSession()->getID();
-    packet.objectID  = _object->getID();
+
+    const Object* object = _cm->getObject();
+    packet.sessionID = object->getSession()->getID();
+    packet.objectID  = object->getID();
 
 #if 0
     EQLOG( LOG_OBJECTS ) << "send " << &packet << " to " << _connections.size()

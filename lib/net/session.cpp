@@ -345,6 +345,44 @@ void Session::detachObject( Object* object )
     _localNode->waitRequest( packet.requestID );
 }
 
+void Session::swapObject( Object* oldObject, Object* newObject )
+{
+    EQASSERT( newObject );
+    EQASSERT( oldObject );
+    EQASSERT( oldObject->isMaster() );
+    EQ_TS_THREAD( _receiverThread );
+    base::ScopedMutex< base::SpinLock > mutex( _objects );
+    const uint32_t id = oldObject->getID();
+    if( id == EQ_ID_INVALID )
+        return;
+
+    EQLOG( LOG_OBJECTS ) << "Swap " << base::className( oldObject ) << std::endl;
+
+    ObjectsHash::iterator i = _objects->find( id );
+    EQASSERT( i != _objects->end( ));
+    if( i == _objects->end( ))
+        return;
+
+    Objects& objects = i->second;
+    Objects::iterator j = find( objects.begin(),objects.end(), oldObject );
+    EQASSERT( j != objects.end( ));
+    if( j == objects.end( ))
+        return;
+
+    newObject->_id           = id;
+    newObject->_instanceID   = oldObject->getInstanceID();
+    newObject->_cm           = oldObject->_cm; 
+    newObject->_session      = oldObject->_session;
+    newObject->_cm->setObject( newObject );
+
+    oldObject->_cm = ObjectCM::ZERO;
+    oldObject->_session = 0;
+    oldObject->_id = EQ_ID_INVALID;
+    oldObject->_instanceID = EQ_ID_INVALID;
+
+    *j = newObject;
+}
+
 void Session::_detachObject( Object* object )
 {
     // check also _cmdUnmapObject when modifying!
@@ -918,7 +956,7 @@ bool Session::_cmdDetachObject( Command& command )
     }
 
     EQASSERT( packet->requestID != EQ_ID_INVALID );
-    _localNode->serveRequest( packet->requestID );    
+    _localNode->serveRequest( packet->requestID );
     return true;
 }
 
@@ -1004,8 +1042,9 @@ bool Session::_cmdSubscribeObject( Command& command )
     {
         // Check requested version
         const uint32_t version = packet->requestedVersion;
+        const uint32_t oldestVersion = master->getOldestVersion();
         if( version == VERSION_OLDEST || version == VERSION_NONE ||
-            version >= master->getOldestVersion( ))
+            version >= oldestVersion)
         {
             SessionSubscribeObjectSuccessPacket successPacket( packet );
             successPacket.changeType       = master->getChangeType();

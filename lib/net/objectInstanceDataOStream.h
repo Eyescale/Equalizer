@@ -34,7 +34,7 @@ namespace net
     class ObjectInstanceDataOStream : public ObjectDataOStream
     {
     public:
-        ObjectInstanceDataOStream( const Object* object );
+        ObjectInstanceDataOStream( const ObjectCM* cm );
         virtual ~ObjectInstanceDataOStream();
  
         void setInstanceID( const uint32_t instanceID )

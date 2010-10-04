@@ -86,6 +86,7 @@ namespace fabric
         CMD_CONFIG_EVENT,
         CMD_CONFIG_FREEZE_LOAD_BALANCING,
         CMD_CONFIG_SYNC_CLOCK,
+        CMD_CONFIG_SWAP_OBJECT,
         CMD_CONFIG_CUSTOM = 40 // some buffer for binary-compatible patches
     };
 

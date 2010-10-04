@@ -86,7 +86,7 @@ uint32_t UnbufferedMasterCM::addSlave( Command& command )
     }
 
     // send instance data
-    ObjectInstanceDataOStream os( _object );
+    ObjectInstanceDataOStream os( this );
     os.setVersion( _version );
     os.setInstanceID( instanceID );
     os.setNodeID( node->getNodeID( ));
@@ -150,7 +150,7 @@ bool UnbufferedMasterCM::_cmdCommit( Command& command )
         return true;
     }
 
-    ObjectDeltaDataOStream os( _object );
+    ObjectDeltaDataOStream os( this );
 
     os.setVersion( _version + 1 );
     os.enable( _slaves );

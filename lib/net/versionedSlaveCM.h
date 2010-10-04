@@ -75,6 +75,7 @@ namespace net
         virtual void addInstanceDatas( const InstanceDataDeque& cache, 
                                        const uint32_t startVersion );
 
+        virtual const Object* getObject( ) const { return _object; }
     private:
         /** The managed object. */
         Object* const _object;

@@ -61,9 +61,11 @@ namespace net
         virtual void applyMapData() { EQDONTCALL; }
         virtual const Nodes* getSlaveNodes() const { return &_slaves; }
 
+        virtual const Object* getObject( ) const { return _object; }
+
     protected:
         /** The managed object. */
-        Object* const _object;
+        Object* _object;
 
         /** The list of subsribed slave nodes. */
         Nodes _slaves;

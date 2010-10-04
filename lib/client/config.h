@@ -306,6 +306,13 @@ namespace eq
          */
         void setupMessagePump( Pipe* pipe );
 
+        /** 
+         * Deregister a distributed object.
+         *
+         * @param object the object instance.
+         */
+        EQ_EXPORT virtual void deregisterObject( net::Object* object );
+
     protected:
         EQ_EXPORT virtual void notifyMapped( net::NodePtr node ); //!< @internal
         /** @internal */
@@ -342,6 +349,29 @@ namespace eq
         /** true while the config is initialized and no window has exited. */
         bool _running;
 
+        /** a light object for the latency deregister */
+        class LatencyObject : public net::Object
+        {
+        public:
+            LatencyObject( const ChangeType type ) : _changeType( type ) {}
+            uint32_t frameNumber;
+            void swapSession( net::Session* session )
+                { net::Object::swapSession( session ); }
+
+        protected:
+            virtual ChangeType getChangeType() const { return _changeType; }
+            virtual void getInstanceData( net::DataOStream& os ){ EQDONTCALL }
+            virtual void applyInstanceData( net::DataIStream& is ){ EQDONTCALL }
+        private:
+            const ChangeType _changeType;
+        };
+        
+        /** list of the current latency object */
+        typedef std::vector< LatencyObject* > LatencyObjects;
+
+        /** protected list of the current latency object */
+        base::Lockable< LatencyObjects, base::SpinLock > _latencyObjects;
+
         union // placeholder for binary-compatible changes
         {
             char dummy[32];
@@ -369,6 +399,7 @@ namespace eq
         bool _cmdExitReply( net::Command& command );
         bool _cmdReleaseFrameLocal( net::Command& command );
         bool _cmdFrameFinish( net::Command& command );
+        bool _cmdSwapObject( net::Command& command );
     };
 }
 

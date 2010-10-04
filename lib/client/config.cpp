@@ -39,6 +39,7 @@
 
 #include <eq/fabric/configVisitor.h>
 #include <eq/fabric/task.h>
+#include <eq/net/object.h>
 #include <eq/net/command.h>
 #include <eq/net/global.h>
 
@@ -67,7 +68,8 @@ Config::~Config()
     EQASSERT( getLayouts().empty( ));
     EQASSERT( getCanvases().empty( ));
     EQASSERT( getNodes().empty( ));
-    
+    EQASSERT( _latencyObjects->empty() );
+
     while( tryNextEvent( )) /* flush all pending events */ ;
     if( _lastEvent )
         _lastEvent->release();
@@ -104,6 +106,8 @@ void Config::notifyMapped( net::NodePtr node )
                      ConfigFunc( this, &Config::_cmdUnknown ), &_eventQueue );
     registerCommand( fabric::CMD_CONFIG_SYNC_CLOCK, 
                      ConfigFunc( this, &Config::_cmdSyncClock ), 0 );
+    registerCommand( fabric::CMD_CONFIG_SWAP_OBJECT,
+                     ConfigFunc( this, &Config::_cmdSwapObject ), 0 );
 }
 
 net::CommandQueue* Config::getMainThreadQueue()
@@ -123,6 +127,17 @@ ConstClientPtr Config::getClient() const
 
 void Config::unmap()
 {
+     {
+        base::ScopedMutex< base::SpinLock > mutex( _latencyObjects );
+        while( !_latencyObjects->empty() )
+        {
+            LatencyObject* latencyObject = _latencyObjects->back();
+            _latencyObjects->pop_back();
+            Session::deregisterObject( latencyObject );
+            delete latencyObject;
+            latencyObject = 0;
+        }
+    }
     _exitMessagePump();
     Super::unmap();
 }
@@ -181,7 +196,7 @@ uint32_t Config::startFrame( const uint32_t frameID )
 {
     ConfigStatistics stat( Statistic::CONFIG_START_FRAME, this );
     commit();
-    
+
     // Request new frame
     ClientPtr client = getClient();
     ConfigStartFramePacket packet;
@@ -208,6 +223,21 @@ uint32_t Config::startFrame( const uint32_t frameID )
     EQLOG( base::LOG_ANY ) << "---- Started Frame ---- " << _currentFrame
                            << std::endl;
     stat.event.data.statistic.frameNumber = _currentFrame;
+    
+    base::ScopedMutex< base::SpinLock > mutex( _latencyObjects );
+    while( !_latencyObjects->empty() )
+    {
+        LatencyObject* latencyObject = _latencyObjects->front();
+
+        if ( latencyObject->frameNumber >= _currentFrame )
+            break;
+
+        Session::deregisterObject( latencyObject );
+        _latencyObjects->erase( _latencyObjects->begin() );
+
+        delete latencyObject;
+    }
+    
     return _currentFrame;
 }
 
@@ -571,6 +601,37 @@ void Config::freezeLoadBalancing( const bool onOff )
     send( packet );
 }
 
+void Config::deregisterObject( net::Object* object )
+{
+    EQASSERT( object )
+    EQASSERT( object->isMaster( ));
+
+    const uint32_t latency = getLatency();
+
+    if( latency == 0 || !_running || 
+        object->getChangeType() == net::Object::STATIC || 
+        object->getChangeType() == net::Object::UNBUFFERED ) // OPT
+    {
+        Session::deregisterObject( object );
+        return;
+    }
+
+    const uint32_t id = object->getID();
+    if( id >= EQ_ID_MAX ) // not registered
+        return;
+
+    // Keep a distributed object latency frames.
+    // Replaces the object with a dummy proxy object using the
+    // existing master change manager.
+    ConfigSwapObjectPacket packet;
+    packet.sessionID         = getID();
+    packet.requestID         = getLocalNode()->registerRequest();
+    packet.object            = object;
+
+    getLocalNode()->send( packet );
+    getLocalNode()->waitRequest( packet.requestID );
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -635,7 +696,7 @@ bool Config::_cmdExitReply( net::Command& command )
     EQVERB << "handle exit reply " << packet << std::endl;
 
     _exitMessagePump();
-    getLocalNode()->serveRequest( packet->requestID, (void*)(packet->result) );
+    getLocalNode()->serveRequest( packet->requestID, (void*)(packet->result) );    
     return true;
 }
 
@@ -680,6 +741,26 @@ bool Config::_cmdSyncClock( net::Command& command )
     return true;
 }
 
+bool Config::_cmdSwapObject( net::Command& command )
+{
+    const ConfigSwapObjectPacket* packet = 
+        command.getPacket<ConfigSwapObjectPacket>();
+    EQVERB << "Cmd swap object " << packet << std::endl;
+
+    net::Object* object = packet->object;
+
+    LatencyObject* latencyObject = new LatencyObject( object->getChangeType( ));
+    latencyObject->frameNumber   = _currentFrame + getLatency() + 1;
+
+    swapObject( object, latencyObject  );
+    
+    base::ScopedMutex< base::SpinLock > mutex( _latencyObjects );
+    _latencyObjects->push_back( latencyObject );
+
+    EQASSERT( packet->requestID != EQ_ID_INVALID );
+    getLocalNode()->serveRequest( packet->requestID );
+    return true;
+}
 }
 
 #include "../fabric/config.ipp"

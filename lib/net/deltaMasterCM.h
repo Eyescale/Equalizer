@@ -44,7 +44,7 @@ namespace net
         /* The command handlers. */
         bool _cmdCommit( Command& pkg );
 
-        DeltaData _deltaData;        
+        DeltaData _deltaData;
     };
 }
 }

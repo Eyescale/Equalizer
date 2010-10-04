@@ -35,7 +35,7 @@ typedef CommandFunc<DeltaMasterCM> CmdFunc;
         
 DeltaMasterCM::DeltaMasterCM( Object* object )
         : FullMasterCM( object )
-        , _deltaData( object )
+        , _deltaData( this )
 {
     registerCommand( CMD_OBJECT_COMMIT, 
                      CmdFunc( this, &DeltaMasterCM::_cmdCommit ), 0 );

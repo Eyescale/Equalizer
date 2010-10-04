@@ -149,7 +149,7 @@ uint32_t FullMasterCM::addSlave( Command& command )
 
     if( requested == VERSION_NONE ) // no data to send
     {
-        ObjectInstanceDataOStream stream( _object );
+        ObjectInstanceDataOStream stream( this );
         stream.setInstanceID( instanceID );
         stream.setVersion( _version );
         stream.setNodeID( node->getNodeID( ));
@@ -278,7 +278,7 @@ FullMasterCM::InstanceData* FullMasterCM::_newInstanceData()
     InstanceData* instanceData;
 
     if( _instanceDataCache.empty( ))
-        instanceData = new InstanceData( _object );
+        instanceData = new InstanceData( this );
     else
     {
         instanceData = _instanceDataCache.back();

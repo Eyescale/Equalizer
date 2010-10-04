@@ -73,7 +73,7 @@ namespace net
         virtual void applyMapData();
         virtual void addInstanceDatas( const InstanceDataDeque& cache, 
                                        const uint32_t startVersion );
-
+        virtual const Object* getObject( ) const { return _object; }
     protected:
         /** The managed object. */
         Object* _object;

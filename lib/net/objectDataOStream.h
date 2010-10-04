@@ -33,8 +33,8 @@ namespace net
     class ObjectDataOStream : public DataOStream
     {
     public:
-        ObjectDataOStream( const Object* object )
-                : _object( object ), _version( VERSION_NONE )
+        ObjectDataOStream( const ObjectCM* cm )
+                : _cm( cm ), _version( VERSION_NONE )
                 , _sequence( 0 ) {}
 
         virtual ~ObjectDataOStream(){}
@@ -44,7 +44,7 @@ namespace net
         virtual void reset() { DataOStream::reset(); _sequence = 0; }
 
     protected:
-        const Object* const _object;
+        const ObjectCM* _cm;
         uint32_t _version;
         uint32_t _sequence;
     };
