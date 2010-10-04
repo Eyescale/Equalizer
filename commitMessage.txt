@@ -1,9 +1,11 @@
-affinity WAR documentation update
+CMake:
+- Fix creation of defines file to be system-specific
+- Fix OS X 10.6 build (AGL/GLX, 32/64 bit, Cuda)
 
-[ ] May break build
+[x] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [ ] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

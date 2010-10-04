@@ -51,9 +51,9 @@ add_definitions(-DEQ_EXPORTS -DEQ_PLUGIN_BUILD -DGLEW_STATIC)
 
 if(APPLE)
   find_library(CARBON_LIBRARY Carbon)
-if(X11_FOUND)
-  set(GLX_LIBRARY GL)
-endif(X11_FOUND)
+  if(X11_FOUND)
+    set(GLX_LIBRARY GL)
+  endif(X11_FOUND)
 endif(APPLE)
 
 add_library(Equalizer SHARED ${SOURCES})

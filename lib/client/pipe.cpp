@@ -201,7 +201,6 @@ void Pipe::_exitCommandQueue()
     EQASSERT( _pipeThreadQueue );
 
     MessagePump* pump = _pipeThreadQueue->getMessagePump();
-
     _pipeThreadQueue->setMessagePump( 0 );
     delete pump;
 }

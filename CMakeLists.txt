@@ -2,8 +2,8 @@
 #               2010 Stefan Eilemann <eile@eyescale.ch>
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-project(Equalizer)
 
+project(Equalizer)
 set(VERSION 0.9.2)
 
 enable_testing()
@@ -32,9 +32,11 @@ macro(FORWARD_HEADERS DIR)
   endforeach(FILE ${ARGN})
 endmacro(FORWARD_HEADERS DIR)
 
+
 if(WIN32)
-  set(Boost_USE_STATIC_LIBS   ON)
+  set(Boost_USE_STATIC_LIBS ON)
 endif(WIN32)
+
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_ADDITIONAL_VERSIONS "1.42" "1.43" "1.44")
 find_package(Boost REQUIRED COMPONENTS system)
@@ -50,9 +52,6 @@ find_package(X11)
 if(X11_FOUND)
   include_directories(${X11_INCLUDE_DIR})
 endif(X11_FOUND)
-
-include(${CMAKE_SOURCE_DIR}/externals/UseGLEW.cmake)
-include(${CMAKE_SOURCE_DIR}/externals/UseVMMLib.cmake)
 
 
 find_package(OpenMP)
@@ -85,6 +84,12 @@ else(WIN32)
   add_definitions(-fPIC) # 64bit Linux wants this
 endif(WIN32)
 
+
+if(X11_FOUND AND NOT(APPLE AND OPENGL_GLU_FOUND AND EXISTS /Developer/SDKs/MacOSX10.6.sdk))
+  set(GLX_USED 1)
+endif(X11_FOUND AND NOT(APPLE AND OPENGL_GLU_FOUND AND EXISTS /Developer/SDKs/MacOSX10.6.sdk))
+
+
 if(APPLE)
   link_directories(/usr/X11R6/lib)
   include_directories(/usr/X11R6/include)
@@ -93,7 +98,18 @@ if(APPLE)
   else(XCODE_VERSION)
     add_definitions(-DDarwin)
   endif(XCODE_VERSION)
+  if(GLX_USED)
+    set (CMAKE_OSX_ARCHITECTURES "x86_64")
+    set (CUDA_64_BIT_DEVICE_CODE ON) 
+  else(GLX_USED)
+    set (CMAKE_OSX_ARCHITECTURES "i386")
+    set (CUDA_64_BIT_DEVICE_CODE OFF) 
+  endif(GLX_USED)
 endif(APPLE)
+
+
+include(${CMAKE_SOURCE_DIR}/externals/UseGLEW.cmake)
+include(${CMAKE_SOURCE_DIR}/externals/UseVMMLib.cmake)
 
 add_subdirectory(admin)
 add_subdirectory(examples)

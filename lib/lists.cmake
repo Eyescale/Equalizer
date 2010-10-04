@@ -15,6 +15,7 @@ set(BASE_HEADERS
   base/clock.h
   base/compareAndSwap.h
   base/debug.h
+  base/defines.h
   base/dso.h
   base/executionListener.h
   base/file.h
@@ -377,12 +378,12 @@ if(WIN32)
     )
 endif(WIN32)
 
-if(X11_FOUND)
+if(GLX_USED)
   set(CLIENT_SOURCES ${CLIENT_SOURCES}
     client/glXEventHandler.cpp
     client/glXMessagePump.cpp
     client/glXWindow.cpp
     client/glXPipe.cpp
     )
-endif(X11_FOUND)
+endif(GLX_USED)
 

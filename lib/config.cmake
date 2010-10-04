@@ -1,4 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#               2010 Stefan Eilemann <eile@eyescale.ch>
 
 set(EQUALIZER_DEFINES)
 
@@ -33,6 +34,7 @@ if(WIN32)
     EQ_PGM
     #EQ_INFINIBAND #Enable for IB builds (needs WinOF 2.0 installed)
     )
+  set(DEFINES_FILE_IN base/definesWin32.h)
 endif(WIN32)
 
 # on APPLE glu is inside the AGL library.
@@ -41,29 +43,30 @@ if(APPLE AND OPENGL_GLU_FOUND)
   list(APPEND EQUALIZER_DEFINES AGL)
 endif(APPLE AND OPENGL_GLU_FOUND)
 
-if(X11_FOUND)
+if(GLX_USED)
   list(APPEND EQUALIZER_DEFINES GLX)
-endif(X11_FOUND)
+endif(GLX_USED)
 
 if(APPLE)
   list(APPEND EQUALIZER_DEFINES Darwin)
+  if(CMAKE_GENERATOR MATCHES "Xcode")
+    list(APPEND EQUALIZER_DEFINES XCODE)
+    set(DEFINES_FILE_IN base/definesXcode.h)
+  else(CMAKE_GENERATOR MATCHES "Xcode")
+    set(DEFINES_FILE_IN base/definesDarwin.h)
+endif(CMAKE_GENERATOR MATCHES "Xcode")
 endif(APPLE)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   list(APPEND EQUALIZER_DEFINES Linux)
+  set(DEFINES_FILE_IN base/definesLinux.h)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
-if(CMAKE_GENERATOR MATCHES "Xcode")
-  list(APPEND EQUALIZER_DEFINES XCODE)
-endif(CMAKE_GENERATOR MATCHES "Xcode")
-
-
-set(DEFINES_FILE ${EQ_INCLUDE_DIR}/eq/base/defines.h)
-set(DEFINES_FILE_IN ${CMAKE_CURRENT_BINARY_DIR}/defines.h.in)
+set(DEFINES_FILE ${EQ_INCLUDE_DIR}/eq/${DEFINES_FILE_IN})
 
 file(WRITE ${DEFINES_FILE_IN}
-  "#ifndef EQBASE_DEFINES_H\n"
-  "#define EQBASE_DEFINES_H\n\n"
+  "#ifndef EQBASE_DEFINES_SYSTEM_H\n"
+  "#define EQBASE_DEFINES_SYSTEM_H\n\n"
   )
 
 foreach(DEF ${EQUALIZER_DEFINES})
@@ -75,7 +78,7 @@ foreach(DEF ${EQUALIZER_DEFINES})
 endforeach(DEF ${EQUALIZER_DEFINES})
 
 file(APPEND ${DEFINES_FILE_IN}
-  "#endif /* EQBASE_DEFINES_H */\n"
+  "#endif /* EQBASE_DEFINES_SYSTEM_H */\n"
   )
 
 configure_file(${DEFINES_FILE_IN} ${DEFINES_FILE} COPYONLY)
