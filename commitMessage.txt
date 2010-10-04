@@ -1,10 +1,9 @@
-Reliability: extend unit test to check number of channel tasks executed,
-add 'source failure' config.
+affinity WAR documentation update
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation
