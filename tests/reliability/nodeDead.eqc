@@ -11,6 +11,7 @@ server
     connection { hostname "127.0.0.1" port 37489 }
     config
     {
+        name "Unlaunchable node-0d0r0a"
         node
         {
             name "foo"

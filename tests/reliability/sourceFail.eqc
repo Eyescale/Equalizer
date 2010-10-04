@@ -11,17 +11,29 @@ server
     connection { hostname "127.0.0.1" port 37489 }
     config
     {
-        name "Failed pipe-0d0r0a"
+        name "Source pipe failure-6d3r3a"
         appNode
         {
+            pipe
+            {
+                window
+                {
+                    channel { name "channel" }
+                }
+            }
+            pipe
+            {
+                window
+                {
+                    channel { name "source1" }
+                }
+            }
             pipe
             {
                 name "fail"
                 window
                 {
-                    viewport [ 0.25 0.25 0.5 0.5 ]
-                    
-                    channel { name "channel" }
+                    channel { name "source2" }
                 }
             }
         }
@@ -34,6 +46,12 @@ server
                 bottom_right [  .32 -.20 -.75 ]
                 top_left     [ -.32  .20 -.75 ]
             }
+            load_equalizer {}
+            compound {}
+            compound { channel "source1" outputframe{ }}
+            compound { channel "source2" outputframe{ }}
+            inputframe{ name "frame.source1" }
+            inputframe{ name "frame.source2" }
         }
     }    
 }

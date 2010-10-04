@@ -18,6 +18,10 @@
 #include <test.h>
 #include <eq/eq.h>
 
+eq::base::a_int32_t drawCalls;
+eq::base::a_int32_t readbackCalls;
+eq::base::a_int32_t assembleCalls;
+
 class Node : public eq::Node
 {
 public:
@@ -48,6 +52,20 @@ protected:
         }
 };
 
+class Channel : public eq::Channel
+{
+public:
+    Channel( eq::Window* parent ) : eq::Channel( parent ) {}
+
+protected:
+    virtual void frameDraw( const uint32_t frameID )
+        { eq::Channel::frameDraw( frameID ); ++drawCalls; }
+    virtual void frameReadback( const uint32_t frameID )
+        { eq::Channel::frameReadback( frameID ); ++readbackCalls; }
+    virtual void frameAssemble( const uint32_t frameID )
+        { eq::Channel::frameAssemble( frameID ); ++assembleCalls; }
+};
+
 class NodeFactory : public eq::NodeFactory
 {
 public:
@@ -55,6 +73,8 @@ public:
         { return new Node( parent ); }
     virtual eq::Pipe* createPipe( eq::Node* parent )
         { return new Pipe( parent ); }
+    virtual eq::Channel* createChannel( eq::Window* parent )
+        { return new Channel( parent ); }
 };
 
 void _testConfig( eq::ClientPtr client, const std::string& filename );
@@ -105,6 +125,26 @@ void _testConfig( eq::ClientPtr client, const std::string& filename )
     eq::Config* config = server->chooseConfig( configParams );
     TEST( config );
 
+    // get number of operations expected
+    std::string name = config->getName();
+    size_t index = name.find( '-' );
+    TESTINFO( index != std::string::npos,
+              "Config name has to be '<name>-<int>d<int>r<int>a'" );
+    name = name.substr( index + 1 );
+    const int nDraw = atoi( name.c_str( ));
+
+    index = name.find( 'd' );
+    TESTINFO( index != std::string::npos,
+              "Config name has to be '<name>-<int>d<int>r<int>a'" );
+    name = name.substr( index + 1 );
+    const int nReadback = atoi( name.c_str( ));
+
+    index = name.find( 'r' );
+    TESTINFO( index != std::string::npos,
+              "Config name has to be '<name>-<int>d<int>r<int>a'" );
+    name = name.substr( index + 1 );
+    const int nAssemble = atoi( name.c_str( ));
+
     // 3. init config
     TEST( config->init( 0 ));
 
@@ -114,7 +154,14 @@ void _testConfig( eq::ClientPtr client, const std::string& filename )
     config->startFrame( 0 );
     config->finishFrame();
     config->startFrame( 0 );
-    config->finishFrame();
+    config->finishAllFrames();
+
+    TESTINFO( nDraw == drawCalls, nDraw << " != " << drawCalls );
+    TESTINFO( nReadback == readbackCalls, nReadback << " != " << readbackCalls);
+    TESTINFO( nAssemble == assembleCalls, nAssemble << " != " << assembleCalls);
+    drawCalls = 0;
+    readbackCalls = 0;
+    assembleCalls = 0;
 
     // 5. exit config
     TEST( config->exit( ));
