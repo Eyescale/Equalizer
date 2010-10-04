@@ -11,12 +11,12 @@ SUBDIRS = \
 	connection \
 	fabric \
 	frustum \
-	initReliability \
 	loader \
 	net \
 	netperf \
 	node \
 	openmp \
+	reliability \
 
 TARGETS = subdirs
 
