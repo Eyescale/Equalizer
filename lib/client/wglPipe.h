@@ -76,6 +76,10 @@ namespace eq
         /** @internal @return the NVidia driver version, or 0. */
         float getDriverVersion() const { return _driverVersion; }
 
+    protected:
+        /** Initialize this pipe for OpenGL. */
+        virtual void configInitGL();
+
     private:
         void _configInitWGLEW();
         bool _getGPUHandle( HGPUNV& handle );

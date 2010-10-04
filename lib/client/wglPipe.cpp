@@ -154,6 +154,11 @@ HDC WGLPipe::createWGLDisplayDC()
     return displayDC;
 }
 
+void WGLPipe::configInitGL()
+{
+    _configInitDriverVersion();
+}
+
 bool WGLPipe::_getGPUHandle( HGPUNV& handle )
 {
     handle = 0;
@@ -274,7 +279,7 @@ void WGLPipe::_configInitWGLEW()
     else
         EQINFO << "Pipe WGLEW initialization successful" << std::endl;
 
-    _configInitDriverVersion();
+    configInitGL();
     wglDeleteContext( context );
     ReleaseDC( hWnd, dc );
     DestroyWindow( hWnd );

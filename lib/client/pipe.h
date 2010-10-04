@@ -297,6 +297,14 @@ namespace eq
          */
         EQ_EXPORT virtual bool configInit( const uint32_t initID );
 
+       /** 
+         * Initialize the OS-specific pipe.
+         *
+         * @sa setSystemPipe()
+         * @version 1.0
+         */
+        EQ_EXPORT virtual bool configInitSystemPipe( const uint32_t initID );
+
         /** 
          * De-initialize this pipe.
          * @version 1.0

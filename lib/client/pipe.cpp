@@ -470,12 +470,42 @@ uint32_t Pipe::getFinishedFrame() const
 //---------------------------------------------------------------------------
 // pipe-thread methods
 //---------------------------------------------------------------------------
-bool Pipe::configInit( const uint32_t )
+bool Pipe::configInit( const uint32_t initID )
 {
     EQ_TS_THREAD( _pipeThread );
 
     EQASSERT( !_systemPipe );
 
+    if ( !configInitSystemPipe( initID ))
+        return false;   
+
+    // -------------------------------------------------------------------------
+    EQASSERT(!_computeContext);
+
+    // for now we only support CUDA
+#ifdef EQ_USE_CUDA
+    if( getIAttribute( IATTR_HINT_CUDA_GL_INTEROP ) == eq::ON )
+    {
+        EQINFO << "Initializing CUDAContext" << std::endl;
+        ComputeContext* computeCtx = new CUDAContext( this );
+
+        if( !computeCtx->configInit() )
+        {
+            setErrorMessage( "GPU Computing context initialization failed: " + 
+                computeCtx->getErrorMessage( ));
+            EQERROR << getErrorMessage() << std::endl;
+            delete computeCtx;
+            return false;
+        }
+        setComputeContext( computeCtx );
+    }
+#endif
+
+    return true;
+}
+
+bool Pipe::configInitSystemPipe( const uint32_t )
+{
     SystemPipe* systemPipe = 0;
 
     switch( _windowSystem )
@@ -510,37 +540,14 @@ bool Pipe::configInit( const uint32_t )
     EQASSERT( systemPipe );
     if( !systemPipe->configInit( ))
     {
-        setErrorMessage( "OS Pipe initialization failed: " + 
-                         systemPipe->getErrorMessage( ));
+        setErrorMessage( "System Pipe initialization failed: " + 
+            systemPipe->getErrorMessage( ));
         EQERROR << getErrorMessage() << std::endl;
         delete systemPipe;
         return false;
     }
 
     setSystemPipe( systemPipe );
-
-    // -------------------------------------------------------------------------
-    EQASSERT(!_computeContext);
-
-    // for now we only support CUDA
-#ifdef EQ_USE_CUDA
-    if( getIAttribute( IATTR_HINT_CUDA_GL_INTEROP ) == eq::ON )
-    {
-        EQINFO << "Initializing CUDAContext" << std::endl;
-        ComputeContext* computeCtx = new CUDAContext( this );
-
-        if( !computeCtx->configInit() )
-        {
-            setErrorMessage( "GPU Computing context initialization failed: " + 
-                computeCtx->getErrorMessage( ));
-            EQERROR << getErrorMessage() << std::endl;
-            delete computeCtx;
-            return false;
-        }
-        setComputeContext( computeCtx );
-    }
-#endif
-
     return true;
 }
 
