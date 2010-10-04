@@ -135,7 +135,7 @@ namespace server
          * 
          * @param toNode the receiving node.
          * @param frameNumber the current frame number
-         * @param Channel the sender channel for statistics
+         * @param channel the sender channel for statistics
          * @param taskID per-channel task counter
          * @param statisticsIndex the index where statistique will be added
          */        

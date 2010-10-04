@@ -314,9 +314,10 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
                           Channel* channel, const uint32_t taskID,
                           const uint32_t statisticsIndex )
 {
-    ChannelStatistics transmitStat( Statistic::CHANNEL_FRAME_TRANSMIT, channel );
-    transmitStat.event.data.statistic.task = taskID;
-    transmitStat.statisticsIndex = statisticsIndex;
+    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT,
+                                     channel );
+    transmitEvent.event.data.statistic.task = taskID;
+    transmitEvent.statisticsIndex = statisticsIndex;
 
     if( _data.buffers == 0 )
     {
@@ -365,6 +366,7 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
             ChannelStatistics compressEvent( Statistic::CHANNEL_FRAME_COMPRESS, 
                                              channel );
             compressEvent.statisticsIndex = statisticsIndex;
+            compressEvent.event.data.statistic.task = taskID;
             compressEvent.event.data.statistic.ratio = 1.0f;
             if( !useCompression ) // don't send event
                 compressEvent.event.data.statistic.frameNumber = 0;

@@ -1,9 +1,9 @@
-Reliability: add new test config.
+Cleanups on revision 4902
 
 [ ] May break build
 [ ] May break existing applications
 [ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

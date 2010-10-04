@@ -32,9 +32,9 @@ namespace eq
 
 ChannelStatistics::ChannelStatistics( const Statistic::Type type, 
                                       Channel* channel )
-    : StatisticSampler< Channel >( type, channel, 
-                                   channel->getPipe()->getCurrentFrame( ))
-    , statisticsIndex( channel->getStatisticsIndex( ))
+        : StatisticSampler< Channel >( type, channel, 
+                                       channel->getPipe()->getCurrentFrame( ))
+        , statisticsIndex( channel->_statisticsIndex )
 {
     const int32_t hint = channel->getIAttribute(Channel::IATTR_HINT_STATISTICS);
     if( hint == OFF )

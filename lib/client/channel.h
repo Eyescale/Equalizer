@@ -100,8 +100,6 @@ namespace eq
         /** @return the channel's drawable config. @version 1.0 */
         EQ_EXPORT const DrawableConfig& getDrawableConfig() const;
 
-        /** return the index of the current statistics @version 1.0 */
-        EQ_EXPORT uint32_t getStatisticsIndex() const { return _statsIndex; }
         /**
          * Get the channel's native view.
          *
@@ -121,9 +119,8 @@ namespace eq
         /** @return the FBO used as an alternate frame buffer. @version 1.0*/
         EQ_EXPORT util::FrameBufferObject* getFrameBufferObject();
 
-        /** Add a new statistics event for the current frame. @internal */
-        EQ_EXPORT void addStatistic( Event& statEvent, 
-                                     const uint32_t statsIndex );
+        /** @internal Add a new statistics event for the current frame. */
+        EQ_EXPORT void addStatistic( Event& event, const uint32_t index );
         //@}
 
         /**
@@ -286,7 +283,7 @@ namespace eq
  
         /**
          * @internal
-         * Transmit frame data to the node.
+         * Transmit (pixel) frame data to a node.
          *
          * Transmit frame data to the node and if the statistic is ready,
          * we send it.
@@ -517,19 +514,20 @@ namespace eq
         util::FrameBufferObject* _fbo; 
 
         typedef std::vector< Statistic > Statistics;
-        struct ChannelStatisticsRB
+        struct FrameStatistics
         {
-            Statistics data;
-            base::a_int32_t used;
+            Statistics data; //!< all events for one frame
+            base::a_int32_t used; //!< reference count by pipe and xmit thread
         };
 
-        typedef std::vector< ChannelStatisticsRB > StatisticsRB;
-        
+        typedef std::vector< FrameStatistics > StatisticsRB;
+
         /** The statistics events gathered during the current frame. */
         StatisticsRB _statistics;
         
         /* Index of current vector StatisticsRB */ 
-        uint32_t _statsIndex;
+        uint32_t _statisticsIndex;
+        friend class ChannelStatistics;
 
         /** The initial channel size, used for view resize events. */
         Vector2i _initialSize;
@@ -549,9 +547,8 @@ namespace eq
         /** Initialize the channel's drawable config. */
         void _initDrawableConfig();
 
-        /** Send statistics to the node thread. */
-        void _sendStats( const uint32_t frameNumber,
-                         const uint32_t index );
+        /** Check for and send frame finish reply. */
+        void _unrefFrame( const uint32_t frameNumber, const uint32_t index );
 
         /* The command handler functions. */
         bool _cmdConfigInit( net::Command& command );

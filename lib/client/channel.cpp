@@ -49,7 +49,7 @@ Channel::Channel( Window* parent )
         : Super( parent )
         , _state( STATE_STOPPED )
         , _fbo( 0 )
-        , _statsIndex( 0 )
+        , _statisticsIndex( 0 )
         , _initialSize( Vector2i::ZERO )
 {
     EQINFO << " New eq::Channel @" << (void*)this << std::endl;
@@ -278,11 +278,14 @@ void Channel::notifyViewportChanged()
     processEvent( event );
 }
 
-void Channel::addStatistic( Event& statEvent, const uint32_t statsIndex )
+void Channel::addStatistic( Event& event, const uint32_t index )
 {
-    Statistics& statistics = _statistics[ statsIndex ].data;
-    statistics.push_back( statEvent.statistic );
-    processEvent( statEvent );
+    EQASSERT( index < _statistics.size( ));
+    EQASSERT( _statistics[ index ].used > 0 );
+    Statistics& statistics = _statistics[ index ].data;
+
+    statistics.push_back( event.statistic );
+    processEvent( event );
 }
 
 //---------------------------------------------------------------------------
@@ -445,7 +448,7 @@ void Channel::changeLatency( const uint32_t latency )
     }
 #endif //NDEBUG
     _statistics.resize( latency + 1 );
-    _statsIndex = 0;
+    _statisticsIndex = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -686,7 +689,7 @@ void Channel::drawStatistics()
     Config* config = getConfig();
     EQASSERT( config );
 
-    std::vector< FrameStatistics > statistics;
+    std::vector< eq::FrameStatistics > statistics;
     config->getStatistics( statistics );
 
     if( statistics.empty( )) 
@@ -713,10 +716,10 @@ void Channel::drawStatistics()
     int64_t                 xMax      = 0;
     int64_t                 xMin      = std::numeric_limits< int64_t >::max();
 
-    for( std::vector< FrameStatistics >::const_iterator i = statistics.begin();
+    for( std::vector<eq::FrameStatistics>::const_iterator i =statistics.begin();
          i != statistics.end(); ++i )
     {
-        const FrameStatistics&  frameStats  = *i;
+        const eq::FrameStatistics& frameStats  = *i;
         const SortedStatistics& configStats = frameStats.second;
 
         for( SortedStatistics::const_iterator j = configStats.begin();
@@ -752,10 +755,10 @@ void Channel::drawStatistics()
     std::map< uint32_t, IdleData >   idles;
     bool doubleLineUsed = false;
     float dim = 0.0f;
-    for( std::vector< FrameStatistics >::reverse_iterator i=statistics.rbegin();
-         i != statistics.rend(); ++i )
+    for( std::vector< eq::FrameStatistics >::reverse_iterator 
+             i = statistics.rbegin(); i != statistics.rend(); ++i )
     {
-        const FrameStatistics&  frameStats  = *i;
+        const eq::FrameStatistics& frameStats  = *i;
         const SortedStatistics& configStats = frameStats.second;
 
         int64_t     frameMin = xMax;
@@ -1030,13 +1033,13 @@ void Channel::transmit( net::NodePtr toNode, const uint32_t frameNumber,
                         const uint32_t taskID )
 {
     frameData->transmit( toNode, frameNumber, this, taskID, index );
-    _sendStats( frameNumber, index );
+    _unrefFrame( frameNumber, index );
 }
 
-void Channel::_sendStats( const uint32_t frameNumber, const uint32_t index )
+void Channel::_unrefFrame( const uint32_t frameNumber, const uint32_t index )
 {
-    ChannelStatisticsRB& stats = _statistics[ index ];
-    if( --stats.used != 0 ) // still in use
+    Channel::FrameStatistics& stats = _statistics[ index ];
+    if( --stats.used != 0 ) // Frame still in use
         return;
 
     ChannelFrameFinishReplyPacket reply;
@@ -1122,10 +1125,10 @@ bool Channel::_cmdFrameStart( net::Command& command )
     bindFrameBuffer();
     frameStart( packet->context.frameID, packet->frameNumber );
 
-    _statsIndex = ( _statsIndex + 1 ) % _statistics.size();
-    EQASSERT( _statistics[ _statsIndex ].data.empty( ));
-    EQASSERT( _statistics[ _statsIndex ].used == 0 );
-    _statistics[ _statsIndex ].used = 1;
+    _statisticsIndex = ( _statisticsIndex + 1 ) % _statistics.size();
+    EQASSERT( _statistics[ _statisticsIndex ].data.empty( ));
+    EQASSERT( _statistics[ _statisticsIndex ].used == 0 );
+    _statistics[ _statisticsIndex ].used = 1;
     resetContext();
     return true;
 }
@@ -1142,7 +1145,7 @@ bool Channel::_cmdFrameFinish( net::Command& command )
     resetContext();
     commit();
 
-    _sendStats( packet->frameNumber, _statsIndex );
+    _unrefFrame( packet->frameNumber, _statisticsIndex );
     return true;
 }
 
@@ -1268,7 +1271,7 @@ bool Channel::_cmdFrameReadback( net::Command& command )
         }
     }
 
-    if( in > 0 )
+    if( in > 0 && out > 0 )
         event.event.data.statistic.ratio = float( out ) / float( in );
     else
         event.event.data.statistic.ratio = 1.0f;
@@ -1300,10 +1303,11 @@ bool Channel::_cmdFrameTransmit( net::Command& command )
                               << frame << " to " << nodeID << std::endl;
 
         frame->useSendToken( getIAttribute( IATTR_HINT_SENDTOKEN ) == ON );
-        ++_statistics[ _statsIndex ].used;
+        ++_statistics[ _statisticsIndex ].used;
         getNode()->transmitter.send( frame->getData(), toNode,
                                      getPipe()->getCurrentFrame(), 
-                                     _statsIndex, packet->context.taskID, this );
+                                     _statisticsIndex, packet->context.taskID,
+                                     this );
     }
 
     return true;
