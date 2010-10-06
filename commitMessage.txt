@@ -1,10 +1,7 @@
-Refactor launch code from net::Node to server::Node and eq::Client
-- start CHANGES.txt file
-- removes hacky Node _launchID, identifies launched node by NodeID
-- Add 'cmake' rule to Makefile
+CMake: file renaming for consistency
 
-[x] May break build
-[x] May break existing applications
+[ ] May break build
+[ ] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
