@@ -8,6 +8,7 @@ if(NOT CUDA_FOUND)
 endif(NOT CUDA_FOUND)
 
 include_directories(${CUDA_INCLUDE_DIRS})
+set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 
 cuda_compile(NBODY_FILES nbody.cu)
 

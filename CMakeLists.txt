@@ -2,11 +2,12 @@
 #               2010 Stefan Eilemann <eile@eyescale.ch>
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-
 project(Equalizer)
-set(VERSION 0.9.2)
-
 enable_testing()
+
+IF(NOT CMAKE_BUILD_TYPE)
+   SET(CMAKE_BUILD_TYPE Debug)
+ENDIF(NOT CMAKE_BUILD_TYPE)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
@@ -42,7 +43,7 @@ set(Boost_ADDITIONAL_VERSIONS "1.42" "1.43" "1.44")
 find_package(Boost REQUIRED COMPONENTS system)
 add_definitions(-DBOOST_ALL_NO_LIB)
 link_directories(${Boost_LIBRARY_DIRS})
-include_directories(AFTER ${Boost_INCLUDE_DIRS})
+include_directories(AFTER SYSTEM ${Boost_INCLUDE_DIRS})
 
 
 find_package(OpenGL REQUIRED)
@@ -64,6 +65,11 @@ endif(OPENMP_FOUND)
 if(MSVC)
   add_definitions(/D_CRT_SECURE_NO_WARNINGS)
 endif(MSVC)
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings -Werror")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
+endif(CMAKE_COMPILER_IS_GNUCXX)
 
 if(WIN32)
   include_directories(SYSTEM ${CMAKE_SOURCE_DIR}/Windows/pthreads/include)
@@ -132,6 +138,7 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Parallel Rendering Framework")
 set(CPACK_PACKAGE_VERSION_MAJOR "0")
 set(CPACK_PACKAGE_VERSION_MINOR "9")
 set(CPACK_PACKAGE_VERSION_PATCH "2")
+set(VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
 
 set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/LICENSE)
 
