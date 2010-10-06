@@ -215,10 +215,10 @@ bool Config::update( )
     sync( version );
 
     // wait for synchonization
-    bool sync;
-    client->waitRequest( packet.syncID, sync );
+    bool synced;
+    client->waitRequest( packet.syncID, synced );
 
-    if( !sync )
+    if( !synced )
     {
         client->unregisterRequest( packet.finishID );
         return true;

@@ -225,9 +225,9 @@ namespace eq
 
     struct ConfigFinishPacket : public ConfigPacket
     { 
-        ConfigFinishPacket( const ConfigUpdatePacket* request, const bool finish )
+        ConfigFinishPacket( const ConfigUpdatePacket* request, const bool finish_ )
                 : finishID( request->finishID )
-                , finish( finish )
+                , finish( finish_ )
             {
                 command   = fabric::CMD_CONFIG_FINISH;
                 size      = sizeof( ConfigFinishPacket );
