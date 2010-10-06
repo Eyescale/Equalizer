@@ -78,10 +78,10 @@ namespace eq
 
     protected:
         /** Initialize this pipe for OpenGL. */
-        virtual void configInitGL();
+        virtual bool configInitGL();
 
     private:
-        void _configInitWGLEW();
+        bool _configInitWGLEW();
         bool _getGPUHandle( HGPUNV& handle );
 
         /** Extended WGL function entries. */

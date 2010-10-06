@@ -747,10 +747,10 @@ bool Pipe::_cmdConfigInit( net::Command& command )
         
         _state = STATE_INITIALIZING;
 
-        _windowSystem = selectWindowSystem();
-        _setupCommandQueue();
+        _windowSystem = selectWindowSystem();        
 
         reply.result = configInit( packet->initID );
+        _setupCommandQueue();
         if( reply.result )
             _state = STATE_RUNNING;
     }

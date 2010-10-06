@@ -42,7 +42,8 @@ WGLPipe::~WGLPipe( )
 //---------------------------------------------------------------------------
 bool WGLPipe::configInit()
 {
-    _configInitWGLEW();
+    if ( !_configInitWGLEW() )
+        return false;
 
     PixelViewport pvp = _pipe->getPixelViewport();
     if( pvp.isValid( ))
@@ -154,9 +155,10 @@ HDC WGLPipe::createWGLDisplayDC()
     return displayDC;
 }
 
-void WGLPipe::configInitGL()
+bool WGLPipe::configInitGL()
 {
     _configInitDriverVersion();
+    return true;
 }
 
 bool WGLPipe::_getGPUHandle( HGPUNV& handle )
@@ -186,7 +188,7 @@ bool WGLPipe::_getGPUHandle( HGPUNV& handle )
 }
 
 
-void WGLPipe::_configInitWGLEW()
+bool WGLPipe::_configInitWGLEW()
 {
     //----- Create and make current a temporary GL context to initialize WGLEW
 
@@ -207,7 +209,7 @@ void WGLPipe::_configInitWGLEW()
     {
         EQWARN << "Can't register temporary window class: " 
                << base::sysError << std::endl;
-        return;
+        return false;
     }
 
     // window
@@ -225,7 +227,7 @@ void WGLPipe::_configInitWGLEW()
         EQWARN << "Can't create temporary window: "
                << base::sysError << std::endl;
         UnregisterClass( classStr.c_str(),  instance );
-        return;
+        return false;
     }
 
     HDC                   dc  = GetDC( hWnd );
@@ -242,7 +244,7 @@ void WGLPipe::_configInitWGLEW()
                << base::sysError << std::endl;
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
-        return;
+        return false;
     }
  
     if( !SetPixelFormat( dc, pf, &pfd ))
@@ -252,7 +254,7 @@ void WGLPipe::_configInitWGLEW()
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
-        return;
+        return false;
     }
 
     // context
@@ -264,7 +266,7 @@ void WGLPipe::_configInitWGLEW()
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
-        return;
+        return false;
     }
 
     HDC   oldDC      = wglGetCurrentDC();
@@ -279,13 +281,15 @@ void WGLPipe::_configInitWGLEW()
     else
         EQINFO << "Pipe WGLEW initialization successful" << std::endl;
 
-    configInitGL();
+    const bool success = configInitGL();
     wglDeleteContext( context );
     ReleaseDC( hWnd, dc );
     DestroyWindow( hWnd );
     UnregisterClass( classStr.c_str(),  instance );
 
     wglMakeCurrent( oldDC, oldContext );
+
+    return success;
 }
 
 void WGLPipe::_configInitDriverVersion()
