@@ -29,15 +29,17 @@ namespace eq
 namespace util
 {
 
-FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext )
+FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext, 
+                                      const GLenum targetTextures )
     : _fboID( 0 )
-    , _depth( GL_TEXTURE_RECTANGLE_ARB, glewContext )
+    , _depth( targetTextures, glewContext )
     , _glewContext( glewContext )
+    , _targetTextures( targetTextures )
     , _valid( false )
 {
     EQASSERT( GLEW_EXT_framebuffer_object );
 
-    _colors.push_back( new Texture( GL_TEXTURE_RECTANGLE_ARB, glewContext ));
+    _colors.push_back( new Texture( _targetTextures, glewContext ));
 }
 
 FrameBufferObject::~FrameBufferObject()
@@ -58,7 +60,7 @@ bool FrameBufferObject::addColorTexture()
         return false;
     }
 
-    _colors.push_back( new Texture( GL_TEXTURE_RECTANGLE_ARB, _glewContext ));
+    _colors.push_back( new Texture( _targetTextures, _glewContext ));
     _valid = false;
     return true;
 }

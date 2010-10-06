@@ -59,6 +59,12 @@ namespace util
         /** @return the target of the texture. @version 1.0 */
         GLenum getTarget() const { return _target; }
 
+        /** 
+         * @return the comressor target corresponding to the texture target. 
+         * @version 1.0 
+         */
+        uint32_t getCompressorTarget( ) const;
+
         /**
          * @return the internal (GPU) pixel format of the texture.
          * @sa init()

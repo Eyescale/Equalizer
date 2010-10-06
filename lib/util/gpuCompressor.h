@@ -42,18 +42,22 @@ namespace util
          *
          * @param internalFormat the input token type to the downloader.
          * @param ignoreAlpha true if the downloader may drop the alpha channel.
+         * @param capabilities the capabilities required by the downloader.
          */
         bool isValidDownloader( const uint32_t internalFormat,
-                                const bool ignoreAlpha ) const;
+                                const bool     ignoreAlpha,
+                                const uint64_t capabilities ) const;
 
         /**
          * Determine if the uploader is valid
          *
          * @param externalFormat the input to the uploader.
          * @param internalFormat the output of the uploader. 
+         * @param capabilities the capabilities required by the downloader.
          */
         bool isValidUploader( const uint32_t externalFormat,
-                              const uint32_t internalFormat ) const;
+                              const uint32_t internalFormat,
+                              const uint64_t capabilities ) const;
 
         /**
          * Find and init a downloader for the given quality and token.
@@ -65,9 +69,11 @@ namespace util
          * @param internalFormat the input token type to the downloader.
          * @param minQuality the minimum quality.
          * @param ignoreAlpha true if the downloader may drop the alpha channel.
+         * @param capabilities the capabilities required by the downloader.
          */
         void initDownloader( const uint32_t internalFormat,
-                             const float minQuality, const bool ignoreAlpha );
+                             const float minQuality, const bool ignoreAlpha,
+                             const uint64_t capabilities );
 
         /**
          * Init a named downloader.
@@ -86,10 +92,12 @@ namespace util
          * perform.
          *
          * @param externalFormat the input to the uploader.
-         * @param internalFormat the output of the uploader. 
+         * @param internalFormat the output of the uploader.
+         * @param capabilities the capabilities required by the uploader.
          */
         void initUploader( const uint32_t externalFormat,
-                           const uint32_t internalFormat );
+                           const uint32_t internalFormat,
+                           const uint64_t capabilities );
 
         /**
          * Download data from the frame buffer or texture to cpu
@@ -101,10 +109,10 @@ namespace util
          * @param out the pointer to the output data
          */
         void download( const fabric::PixelViewport& pvpIn,
-                       const unsigned     source,
-                       const uint64_t  flags,
-                       fabric::PixelViewport& pvpOut,
-                       void**             out );
+                       const unsigned               source,
+                       const uint64_t               flags,
+                       fabric::PixelViewport&       pvpOut,
+                       void**                       out );
 
         /**
          * Upload data from cpu to the frame buffer or texture 
@@ -115,11 +123,11 @@ namespace util
          * @param pvpOut the dimensions of the output data
          * @param destination the destination texture name.
          */
-        void upload( const void*          buffer,
+        void upload( const void*                  buffer,
                      const fabric::PixelViewport& pvpIn,
-                     const uint64_t    flags,
+                     const uint64_t               flags,
                      const fabric::PixelViewport& pvpOut,  
-                     const unsigned  destination = 0 );
+                     const unsigned               destination = 0 );
 
         /**
          * Get the token type produced by a donwloader or accepted by the
@@ -161,13 +169,16 @@ namespace util
          * @param externalFormat consider only plugins with this outpuTokentype,
                                  if set to EQ_COMPRESSOR_DATATYPE_NONE consider
          *                       all.
+         * @param capabilities the capabilities required by the transferer.
          * @param minQuality the minimum required quality.
          * @param ignoreAlpha true if the downloader may drop the alpha channel.
-         * @param glewContext a valid glewContext. 
+         * @param glewContext a valid glewContext.
+         ( _info->capabilities & capabilities == capabilities ) &&
          * @param result the output result vector.
          */
         static EQ_EXPORT void findTransferers( const uint32_t internalFormat,
                                                const uint32_t externalFormat,
+                                               const uint64_t capabilities,
                                                const float minQuality,
                                                const bool ignoreAlpha,
                                                const GLEWContext* glewContext,

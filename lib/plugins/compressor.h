@@ -79,7 +79,8 @@
  *      EqCompressorUpload
  *    - Added members in EqCompressorInfo: outputTokenType, outputTokenSize
  *    - Added flags: EQ_COMPRESSOR_CPU, EQ_COMPRESSOR_TRANSFER,
- *      EQ_COMPRESSOR_USE_TEXTURE, EQ_COMPRESSOR_USE_FRAMEBUFFER
+ *      EQ_COMPRESSOR_USE_TEXTURE_2D, EQ_COMPRESSOR_USE_TEXTURE_RECT,
+ *      EQ_COMPRESSOR_USE_FRAMEBUFFER
  *    - Added data types: EQ_COMPRESSOR_DATATYPE_INVALID,
  *      EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_BYTE,
  *      EQ_COMPRESSOR_DATATYPE_RGBA_UNSIGNED_INT_8_8_8_8_REV,
@@ -261,11 +262,19 @@ extern "C" {
     #define EQ_COMPRESSOR_TRANSFER 0x10
 
     /**
-     * Capability to use texture data as source or destination.
+     * Capability to use texture rectangle data as source or destination.
      * If set, the transfer engine can (query time) or shall (compress time) use
      * a texture as the source or destination for its operations.
      */
-    #define EQ_COMPRESSOR_USE_TEXTURE 0x20
+    #define EQ_COMPRESSOR_USE_TEXTURE_RECT 0x20
+
+    /**
+     * Capability to use texture 2D data as source or destination.
+     * If set, the transfer engine can (query time) or shall (compress time) use
+     * a texture as the source or destination for its operations.
+     */
+    #define EQ_COMPRESSOR_USE_TEXTURE_2D 0x80
+
     /** 
      * Capability to use the frame buffer as source or destination.
      * If set, the transfer engine can (query time) or shall (compress time) use
@@ -548,7 +557,8 @@ extern "C" {
      * Flags will always contain EQ_COMPRESSOR_DATA_2D, and may contain:
      *  - EQ_COMPRESSOR_IGNORE_MSE if the alpha value of a color buffer may
      *    be dropped during download
-     *  - EQ_COMPRESSOR_USE_TEXTURE if the source is a 2D texture ID
+     *  - EQ_COMPRESSOR_USE_TEXTURE_2D if the source is a 2D texture ID
+     *  - EQ_COMPRESSOR_USE_TEXTURE_RECT if the source is a rectangle texture ID
      *  - EQ_COMPRESSOR_USE_FRAMEBUFFER if the source is an OpenGL frame buffer
      *
      * @param compressor the compressor instance.
@@ -556,7 +566,8 @@ extern "C" {
      * @param glewContext the initialized GLEW context describing corresponding
      *                    to the current OpenGL context.
      * @param inDims the dimensions of the input data (x, w, y, h).
-     * @param source texture name to if EQ_COMPRESSOR_USE_TEXTURE is set.
+     * @param source texture name to if EQ_COMPRESSOR_USE_TEXTURE_2D or
+     *               EQ_COMPRESSOR_USE_TEXTURE_RECT is set.
      * @param flags capability flags for the compression (see description).
      * @param outDims the dimensions of the output data (see description).
      * @param out the pointer to the output data.
@@ -593,7 +604,9 @@ extern "C" {
      * Flags will always contain EQ_COMPRESSOR_DATA_2D, and may contain:
      *  - EQ_COMPRESSOR_IGNORE_MSE if the alpha value of a color buffer may
      *     be dropped during upload
-     *  - EQ_COMPRESSOR_USE_TEXTURE if the destination is a 2D texture ID
+     *  - EQ_COMPRESSOR_USE_TEXTURE_2D if the destination is a 2D texture ID
+     *  - EQ_COMPRESSOR_USE_TEXTURE_RECT if the destination is a rectancle
+     *    texture ID
      *  - EQ_COMPRESSOR_USE_FRAMEBUFFER if the destination is an OpenGL frame
      *     buffer
      *
@@ -606,7 +619,8 @@ extern "C" {
      * @param flags capability flags for the compression.
      * @param outDims the result data size in the frame buffer.
      * @param destination the destination texture name if
-     *                    EQ_COMPRESSOR_USE_TEXTURE is set.
+     *                    EQ_COMPRESSOR_USE_TEXTURE_2D or
+     *                    EQ_COMPRESSOR_USE_TEXTURE_RECT is set.
      * @version 3
      */
     EQ_PLUGIN_API void EqCompressorUpload( void* const        decompressor,

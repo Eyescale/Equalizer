@@ -40,7 +40,7 @@ static void _getInfo( EqCompressorInfo* const info )
     info->version         = EQ_COMPRESSOR_VERSION;
     info->name            = EQ_COMPRESSOR_TRANSFER_RGBA_TO_YUVA_50P;
     info->capabilities    = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
-                            EQ_COMPRESSOR_USE_TEXTURE |
+                            EQ_COMPRESSOR_USE_TEXTURE_RECT |
                             EQ_COMPRESSOR_USE_FRAMEBUFFER;
     info->tokenType       = EQ_COMPRESSOR_DATATYPE_RGBA;
     info->outputTokenType = EQ_COMPRESSOR_DATATYPE_YUVA_50P;
@@ -226,7 +226,7 @@ void CompressorYUV::download( const GLEWContext* glewContext,
         _download( buffer.getData( ));
     }
     // the data is in the texture id define by the field "source"
-    else if( flags & EQ_COMPRESSOR_USE_TEXTURE )
+    else if( flags & EQ_COMPRESSOR_USE_TEXTURE_RECT )
     {
         // assign texture id to the local texture class
         // compress Data
@@ -312,9 +312,8 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
         _texture->upload( inDims[1], inDims[3], data );
         _decompress( glewContext, outDims );
     }
-    else if( flags & EQ_COMPRESSOR_USE_TEXTURE  )
+    else if( flags & EQ_COMPRESSOR_USE_TEXTURE_RECT  )
     {
-  
         if ( !_fbo )
             _fbo = new util::FrameBufferObject( glewContext );
 
@@ -333,6 +332,10 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
         _decompress( glewContext, outDims );
         _fbo->unbind();
         texture->flushNoDelete();
+    }
+    else
+    {
+        EQASSERT( 0 );
     }
     glPopAttrib();
 }

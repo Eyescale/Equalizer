@@ -286,11 +286,12 @@ namespace eq
          *
          * @param buffer the buffer type.
          * @param texture the OpenGL texture name.
+         * @param targetFlags the target to use in downloader
          * @param glewContext function table for the current GL context.
          * @sa setStorageType()
          */
-        void readback( const Frame::Buffer buffer, const uint32_t texture,
-                       const GLEWContext* glewContext );
+        void readback( const Frame::Buffer buffer, const uint32_t texture, 
+                       const uint32_t targetFlags, const GLEWContext* glewContext );
 
         /**
          * Upload this image to the frame buffer.

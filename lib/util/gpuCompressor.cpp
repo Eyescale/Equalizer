@@ -33,22 +33,27 @@ namespace util
 {
 
 bool GPUCompressor::isValidDownloader( const uint32_t internalFormat,
-                                           const bool ignoreAlpha ) const
+                                       const bool ignoreAlpha,
+                                       const uint64_t capabilities ) const
 {
     return (_plugin && isValid( _name ) && _info->tokenType == internalFormat &&
+             (( _info->capabilities & capabilities ) == capabilities ) &&
             ( ignoreAlpha || hasAlpha( )));
 }
 
 bool GPUCompressor::isValidUploader( const uint32_t externalFormat, 
-                                         const uint32_t internalFormat ) const
+                                     const uint32_t internalFormat,
+                                     const uint64_t capabilities ) const
 {
     return _plugin && _info->outputTokenType == externalFormat &&
+           (( _info->capabilities & capabilities ) == capabilities ) &&
            _info->tokenType == internalFormat;
 }
 
 void GPUCompressor::initDownloader( const uint32_t internalFormat,
-                                        const float minQuality,
-                                        const bool ignoreAlpha )
+                                    const float    minQuality,
+                                    const bool     ignoreAlpha, 
+                                    const uint64_t capabilities )
 {
     EQASSERT( _glewContext );
     float ratio = std::numeric_limits< float >::max();
@@ -56,8 +61,8 @@ void GPUCompressor::initDownloader( const uint32_t internalFormat,
     uint32_t name = EQ_COMPRESSOR_NONE;
     
     EqCompressorInfos infos; 
-    findTransferers( internalFormat, 0, minQuality, ignoreAlpha, _glewContext,
-                     infos );
+    findTransferers( internalFormat, 0, capabilities, minQuality, 
+                     ignoreAlpha, _glewContext, infos );
     
     for( EqCompressorInfos::const_iterator j = infos.begin();
          j != infos.end(); ++j )
@@ -90,7 +95,8 @@ bool GPUCompressor::initDownloader( const uint32_t name )
 }
 
 void GPUCompressor::initUploader( const uint32_t externalFormat,
-                                      const uint32_t internalFormat )
+                                  const uint32_t internalFormat,
+                                  const uint64_t capabilities )
 {
     base::PluginRegistry& registry = base::Global::getPluginRegistry();
     const base::Plugins& plugins = registry.getPlugins();
@@ -108,7 +114,7 @@ void GPUCompressor::initUploader( const uint32_t externalFormat,
         {
             const base::CompressorInfo& info = *j;
             
-            if( !( info.capabilities & EQ_COMPRESSOR_TRANSFER ) ||
+            if((( info.capabilities & capabilities ) != capabilities ) ||
                 info.outputTokenType != externalFormat ||
                 info.tokenType != internalFormat ||
                 !plugin->isCompatible( info.name, _glewContext ))
@@ -132,9 +138,9 @@ void GPUCompressor::initUploader( const uint32_t externalFormat,
 }
 
 void GPUCompressor::download( const fabric::PixelViewport& pvpIn,
-                                  const unsigned source, const uint64_t flags,
-                                  fabric::PixelViewport& pvpOut,
-                                  void** out )
+                              const unsigned source, const uint64_t flags,
+                              fabric::PixelViewport& pvpOut,
+                              void** out )
 {
     EQASSERT( _plugin );
 
@@ -148,11 +154,11 @@ void GPUCompressor::download( const fabric::PixelViewport& pvpIn,
     pvpOut.h = outDims[3];
 }
 
-void GPUCompressor::upload( const void* buffer,
+void GPUCompressor::upload( const void*                  buffer,
                             const fabric::PixelViewport& pvpIn,
-                            const uint64_t flags,
+                            const uint64_t               flags,
                             const fabric::PixelViewport& pvpOut,  
-                            const unsigned destination )
+                            const unsigned               destination )
 {
     EQASSERT( _plugin );
 
@@ -256,8 +262,9 @@ uint32_t GPUCompressor::getExternalFormat( const uint32_t format,
 
 void GPUCompressor::findTransferers( const uint32_t internalFormat,
                                      const uint32_t externalFormat,
-                                     const float minQuality,
-                                     const bool ignoreAlpha,
+                                     const uint64_t capabilities,
+                                     const float    minQuality,
+                                     const bool     ignoreAlpha,
                                      const GLEWContext* glewContext,
                                      EqCompressorInfos& result )
 {
@@ -275,8 +282,7 @@ void GPUCompressor::findTransferers( const uint32_t internalFormat,
              j != infos.end(); ++j )
         {
             const base::CompressorInfo& info = *j;
-            
-            if(( info.capabilities & EQ_COMPRESSOR_TRANSFER )          &&
+            if(( (info.capabilities & capabilities) == capabilities )  &&
                ( internalFormat == EQ_COMPRESSOR_DATATYPE_NONE ||
                  info.tokenType == internalFormat )                    &&
                ( externalFormat == EQ_COMPRESSOR_DATATYPE_NONE ||

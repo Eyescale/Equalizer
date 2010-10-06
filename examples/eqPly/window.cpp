@@ -130,7 +130,7 @@ void Window::_loadLogo()
         return;
     }
 
-    _logoTexture = om->newEqTexture(_logoTextureName, GL_TEXTURE_RECTANGLE_ARB);
+    _logoTexture = om->newEqTexture( _logoTextureName, GL_TEXTURE_2D );
     EQASSERT( _logoTexture );
     
     image.upload( eq::Frame::BUFFER_COLOR, _logoTexture, om );

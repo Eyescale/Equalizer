@@ -36,8 +36,11 @@ static stde::hash_map< unsigned, uint32_t > _depths;
     static void _getInfo ## in ## out( EqCompressorInfo* const info )   \
     {                                                                   \
         info->version = EQ_COMPRESSOR_VERSION;                          \
-        info->capabilities = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D | \
-            EQ_COMPRESSOR_USE_TEXTURE | EQ_COMPRESSOR_USE_FRAMEBUFFER;  \
+        info->capabilities = EQ_COMPRESSOR_TRANSFER |                   \
+                             EQ_COMPRESSOR_DATA_2D |                    \
+                             EQ_COMPRESSOR_USE_TEXTURE_RECT |           \
+                             EQ_COMPRESSOR_USE_TEXTURE_2D |             \
+                             EQ_COMPRESSOR_USE_FRAMEBUFFER;             \
         if( alpha )                                                     \
             info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;           \
         info->quality = quality_ ## f;                                  \
@@ -293,6 +296,27 @@ void CompressorReadDrawPixels::_init( const eq_uint64_t inDims[4],
 #endif
 }
 
+void CompressorReadDrawPixels::_initTexture( const GLEWContext* glewContext,
+                                             const eq_uint64_t flags )
+{
+    GLenum target = 0;
+    if( flags & EQ_COMPRESSOR_USE_TEXTURE_2D )
+        target = GL_TEXTURE_2D;
+    else if( flags & EQ_COMPRESSOR_USE_TEXTURE_RECT )
+        target = GL_TEXTURE_RECTANGLE_ARB;
+    else
+    {
+        EQUNREACHABLE;
+    }
+
+    if ( !_texture || _texture->getTarget( ) != target )
+    {
+        if( _texture )
+            delete _texture;
+        _texture = new util::Texture( target, glewContext );
+    }
+}
+
 void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
                                          const eq_uint64_t  inDims[4],
                                          const unsigned     source,
@@ -307,20 +331,15 @@ void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
         glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3], _format,
                       _type, _buffer.getData() );
     }
-    else if( flags & EQ_COMPRESSOR_USE_TEXTURE )
+    else 
     {
-        if ( !_texture )
-            _texture = new util::Texture(GL_TEXTURE_RECTANGLE_ARB, glewContext);
-        
+        _initTexture( glewContext, flags );
         _texture->setGLData( source, _internalFormat, inDims[1], inDims[3] );
         _texture->setExternalFormat( _format, _type );
         _texture->download( _buffer.getData( ));
         _texture->flushNoDelete();
     }
-    else
-    {
-        EQUNREACHABLE;
-    }
+
     *out = _buffer.getData();
 }
 
@@ -336,11 +355,9 @@ void CompressorReadDrawPixels::upload( const GLEWContext* glewContext,
         glRasterPos2i( outDims[0], outDims[2] );
         glDrawPixels( outDims[1], outDims[3], _format, _type, buffer );
     }
-    else if( flags & EQ_COMPRESSOR_USE_TEXTURE )
+    else
     {
-        if( !_texture )
-            _texture = new util::Texture(GL_TEXTURE_RECTANGLE_ARB, glewContext);
-
+        _initTexture( glewContext, flags );
         _texture->setGLData( destination, _internalFormat,
                              outDims[1], outDims[3] );
         _texture->setExternalFormat( _format, _type );

@@ -70,7 +70,7 @@ protected:
     uint32_t    _format;         //!< the GL format
     uint32_t    _type;           //!< the GL type 
     const uint32_t _depth;       //!< the size of one output token
-
+    void _initTexture( const GLEWContext* glewContext, const eq_uint64_t flags );
     void _init( const eq_uint64_t  inDims[4], eq_uint64_t  outDims[4] );
 };
 

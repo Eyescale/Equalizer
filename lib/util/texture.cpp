@@ -69,6 +69,17 @@ void Texture::flushNoDelete()
     _defined = false;
 }
 
+uint32_t Texture::getCompressorTarget( ) const
+{
+    if ( _target == GL_TEXTURE_RECTANGLE_ARB )
+        return EQ_COMPRESSOR_USE_TEXTURE_RECT;
+    else if ( _target == GL_TEXTURE_2D )
+        return EQ_COMPRESSOR_USE_TEXTURE_2D;
+    
+    EQUNIMPLEMENTED;
+    return 0;
+}
+
 void Texture::_setInternalFormat( const GLuint internalFormat )
 {
     if( _internalFormat == internalFormat )
@@ -341,7 +352,7 @@ void Texture::writeRGB( const std::string& filename ) const
     }
 
     image.setPixelViewport( eq::PixelViewport( 0, 0, _width, _height ));
-    image.readback( Frame::BUFFER_COLOR, _name, _glewContext );
+    image.readback( Frame::BUFFER_COLOR, _name, _target, _glewContext );
     image.writeImage( filename + ".rgb", Frame::BUFFER_COLOR );
 }
 
