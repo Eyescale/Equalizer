@@ -9,7 +9,7 @@ endif(NOT OPENSCENEGRAPH_FOUND)
 
 include_directories(${OPENSCENEGRAPH_INCLUDE_DIRS})
 
-add_executable(osgScaleViewer
+add_executable(osgScaleViewer MACOSX_BUNDLE
   main.cpp
   osgScaleViewer.cpp
   channel.cpp

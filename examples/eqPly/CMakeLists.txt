@@ -4,7 +4,7 @@ if(MSVC)
   add_definitions(/wd4996)
 endif(MSVC)
 
-add_executable(eqPly
+add_executable(eqPly MACOSX_BUNDLE
   cameraAnimation.cpp
   channel.cpp
   config.cpp

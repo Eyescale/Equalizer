@@ -1,6 +1,6 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 
-add_executable(eVolve
+add_executable(eVolve MACOSX_BUNDLE
   channel.cpp
   config.cpp
   eVolve.cpp

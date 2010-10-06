@@ -12,7 +12,7 @@ set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 
 cuda_compile(NBODY_FILES nbody.cu)
 
-add_executable(eqNBody
+add_executable(eqNBody MACOSX_BUNDLE
   ${NBODY_FILES}
   channel.cpp
   client.cpp
