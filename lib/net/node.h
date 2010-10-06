@@ -83,7 +83,7 @@ namespace net
          * @param id the node identifier.
          * @return the node.
          */
-        NodePtr getNode( const NodeID& id ) const;
+        EQ_EXPORT NodePtr getNode( const NodeID& id ) const;
         //@}
 
         /**

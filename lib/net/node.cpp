@@ -33,11 +33,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#ifdef WIN32_API
-#  include <direct.h>  // for chdir
-#  define chdir _chdir
-#endif
-
 namespace eq
 {
 namespace net

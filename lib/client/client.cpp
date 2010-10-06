@@ -31,6 +31,11 @@
 #include <eq/net/global.h>
 #include <eq/base/dso.h>
 
+#ifdef WIN32_API
+#  include <direct.h>  // for chdir
+#  define chdir _chdir
+#endif
+
 namespace eq
 {
 /** @cond IGNORE */
