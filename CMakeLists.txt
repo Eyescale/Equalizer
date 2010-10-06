@@ -37,7 +37,6 @@ endmacro(FORWARD_HEADERS DIR)
 if(WIN32)
   set(Boost_USE_STATIC_LIBS ON)
 endif(WIN32)
-
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_ADDITIONAL_VERSIONS "1.42" "1.43" "1.44")
 find_package(Boost REQUIRED COMPONENTS system)
@@ -46,21 +45,27 @@ link_directories(${Boost_LIBRARY_DIRS})
 include_directories(AFTER SYSTEM ${Boost_INCLUDE_DIRS})
 
 
+find_package(OpenMP)
+if(OPENMP_FOUND)
+  if(CMAKE_COMPILER_IS_GNUCXX AND _boost_COMPILER_VERSION LESS 43)
+    message(STATUS "  Disabling OpenMP due to compiler bug in gcc ${_boost_COMPILER_VERSION}")
+  else(CMAKE_COMPILER_IS_GNUCXX AND _boost_COMPILER_VERSION LESS 43)
+    set(OPENMP_USED 1)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
+  endif(CMAKE_COMPILER_IS_GNUCXX AND _boost_COMPILER_VERSION LESS 43)
+endif(OPENMP_FOUND)
+
+
 find_package(OpenGL REQUIRED)
-include_directories(${OPENGL_INCLUDE_DIR})
+include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
 
 find_package(X11)
 if(X11_FOUND)
-  include_directories(${X11_INCLUDE_DIR})
+  include_directories(SYSTEM ${X11_INCLUDE_DIR})
 endif(X11_FOUND)
 
-
-find_package(OpenMP)
-if(OPENMP_FOUND)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif(OPENMP_FOUND)
 
 if(MSVC)
   add_definitions(/D_CRT_SECURE_NO_WARNINGS)
@@ -98,7 +103,7 @@ endif(X11_FOUND AND NOT(APPLE AND OPENGL_GLU_FOUND AND EXISTS /Developer/SDKs/Ma
 
 if(APPLE)
   link_directories(/usr/X11R6/lib)
-  include_directories(/usr/X11R6/include)
+  include_directories(SYSTEM /usr/X11R6/include)
 
   if(XCODE_VERSION)
   else(XCODE_VERSION)
