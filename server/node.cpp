@@ -33,6 +33,8 @@
 #include <eq/fabric/paths.h>
 #include <eq/net/barrier.h>
 #include <eq/net/command.h>
+#include <eq/base/launcher.h>
+#include <eq/base/sleep.h>
 
 namespace eq
 {
@@ -184,6 +186,254 @@ const std::string& Node::getCAttributeString( const CAttribute attr )
 //===========================================================================
 // Operations
 //===========================================================================
+
+//---------------------------------------------------------------------------
+// launch and connect
+//---------------------------------------------------------------------------
+
+namespace
+{
+static net::NodePtr _createNetNode( Node* node )
+{
+    net::NodePtr netNode = new net::Node;
+    const ConnectionDescriptions& descriptions = 
+        node->getConnectionDescriptions();
+    for( ConnectionDescriptions::const_iterator i = descriptions.begin();
+         i != descriptions.end(); ++i )
+    {
+        const net::ConnectionDescription* desc = (*i).get();
+        netNode->addConnectionDescription( 
+            new net::ConnectionDescription( *desc ));
+    }
+
+    return netNode;
+}
+}
+
+bool Node::connect()
+{
+    EQASSERT( isActive( ));
+
+    if( _node.isValid( ))
+        return _node->isConnected();
+
+    if( !isStopped( ))
+    {
+        EQASSERT( _state == STATE_FAILED );
+        return true;
+    }
+
+    net::NodePtr localNode = getLocalNode();
+    EQASSERT( localNode.isValid( ));
+    
+    if( isApplicationNode( ))
+        _node = getConfig()->getApplicationNetNode();
+    else
+        _node = _createNetNode( this );
+
+    EQLOG( LOG_INIT ) << "Connecting node" << std::endl;
+    if( !localNode->connect( _node ) && !launch( ))
+    {
+        std::stringstream nodeString;
+        nodeString << "Connection to node failed, node does not run and launch "
+                   << "command failed: " << *this;
+        
+        setErrorMessage( getErrorMessage() + nodeString.str( ));
+        EQERROR << "Connection to " << _node->getNodeID() << " failed"
+                << std::endl;
+        _state = STATE_FAILED;
+        _node = 0;
+        return false;
+    }
+
+    return true;
+}
+
+bool Node::launch()
+{
+    EQINFO << "Attempting to launch node." << std::endl;
+    for( ConnectionDescriptions::const_iterator i = 
+             _connectionDescriptions.begin();
+         i != _connectionDescriptions.end(); ++i )
+    {
+        ConnectionDescriptionPtr description = *i;
+        const std::string launchCommand = _createLaunchCommand( description );
+        if( base::Launcher::run( launchCommand ))
+            return true;
+
+        EQWARN << "Could not launch node using '" << launchCommand << "'" 
+               << std::endl;
+    }
+
+    return false;
+}
+
+bool Node::syncLaunch( const base::Clock& clock )
+{
+    EQASSERT( isActive( ));
+
+    if( !_node )
+        return false;
+
+    if( _node->isConnected( ))
+        return true;
+
+    EQASSERT( !isApplicationNode( ));
+    net::NodePtr localNode = getLocalNode();
+    EQASSERT( localNode.isValid( ));
+
+    const int32_t timeOut = getIAttribute( IATTR_LAUNCH_TIMEOUT );
+
+    while( true )
+    {
+        net::NodePtr node = localNode->getNode( _node->getNodeID( ));
+        EQINFO << "Polled " << _node->getNodeID() << " " << node.isValid()
+               << " " << (node.isValid() ? node->isConnected() : false )
+               << std::endl;
+
+        if( node.isValid() && node->isConnected( ))
+        {
+            EQASSERT( _node->getRefCount() == 1 );
+            _node = node; // Use net::Node already connected
+            return true;
+        }
+        
+        base::sleep( 100 /*ms*/ );
+        if( clock.getTime64() > timeOut )
+        {
+            EQASSERT( _node->getRefCount() == 1 );
+            _node = 0;
+            std::ostringstream data;
+
+            for( ConnectionDescriptions::const_iterator i =
+                     _connectionDescriptions.begin();
+                 i != _connectionDescriptions.end(); ++i )
+            {
+                ConnectionDescriptionPtr desc = *i;
+                data << desc->getHostname() << ' ';
+            }
+            setErrorMessage( getErrorMessage() + 
+                             "Connection failed, node did not start ( " +
+                             data.str() + ") " );
+            EQERROR << getErrorMessage() << std::endl;
+
+            _state = STATE_FAILED;
+            return false;
+        }
+    }
+}
+
+std::string Node::_createLaunchCommand( ConnectionDescriptionPtr description )
+{
+    const std::string& command = getSAttribute( SATTR_LAUNCH_COMMAND );
+    const size_t commandLen = command.size();
+
+    bool commandFound = false;
+    size_t lastPos = 0;
+    std::string result;
+
+    for( size_t percentPos = command.find( '%' );
+         percentPos != std::string::npos; 
+         percentPos = command.find( '%', percentPos+1 ))
+    {
+        std::ostringstream replacement;
+        switch( command[percentPos+1] )
+        {
+            case 'c':
+            {
+                replacement << _createRemoteCommand();
+                commandFound = true;
+                break;
+            }
+            case 'h':
+            {
+                const std::string& hostname = description->getHostname();
+                if( hostname.empty( ))
+                    replacement << "127.0.0.1";
+                else
+                    replacement << hostname;
+                break;
+            }
+            case 'n':
+                replacement << _node->getNodeID();
+                break;
+
+            default:
+                EQWARN << "Unknown token " << command[percentPos+1] 
+                       << std::endl;
+                replacement << '%' << command[percentPos+1];
+        }
+
+        result += command.substr( lastPos, percentPos-lastPos );
+        if( !replacement.str().empty( ))
+            result += replacement.str();
+
+        lastPos  = percentPos+2;
+    }
+
+    result += command.substr( lastPos, commandLen-lastPos );
+
+    if( !commandFound )
+        result += " " + _createRemoteCommand();
+
+    EQVERB << "Launch command: " << result << std::endl;
+    return result;
+}
+
+std::string Node::_createRemoteCommand()
+{
+    std::ostringstream stringStream;
+
+    //----- environment
+#ifndef WIN32
+#  ifdef Darwin
+    const char libPath[] = "DYLD_LIBRARY_PATH";
+#  else
+    const char libPath[] = "LD_LIBRARY_PATH";
+#  endif
+
+    stringStream << "env "; // XXX
+    char* env = getenv( libPath );
+    if( env )
+        stringStream << libPath << "=" << env << " ";
+
+    for( int i=0; environ[i] != 0; i++ )
+        if( strlen( environ[i] ) > 2 && strncmp( environ[i], "EQ_", 3 ) == 0 )
+            stringStream << environ[i] << " ";
+
+    stringStream << "EQ_LOG_LEVEL=" << base::Log::getLogLevelString() << " ";
+    if( eq::base::Log::topics != 0 )
+        stringStream << "EQ_LOG_TOPICS=" << base::Log::topics << " ";
+#endif // WIN32
+
+    //----- program + args
+    const Config* config = getConfig();
+    std::string program = config->getRenderClient();
+    const std::string& workDir = config->getWorkDir();
+#ifdef WIN32
+    EQASSERT( program.length() > 2 );
+    if( !( program[1] == ':' && (program[2] == '/' || program[2] == '\\' )) &&
+        // !( drive letter and full path present )
+        !( program[0] == '/' || program[0] == '\\' ))
+        // !full path without drive letter
+    {
+        program = workDir + '/' + program; // add workDir to relative path
+    }
+#else
+    if( program[0] != '/' )
+        program = workDir + '/' + program;
+#endif
+
+    const char quote = getCAttribute( CATTR_LAUNCH_COMMAND_QUOTE );
+    const std::string ownData = getServer()->serialize();
+    const std::string remoteData = _node->serialize();
+
+    stringStream
+        << quote << program << quote << " -- --eq-client " << quote
+        << remoteData << workDir << EQNET_SEPARATOR << ownData << quote;
+
+    return stringStream.str();
+}
 
 //---------------------------------------------------------------------------
 // init

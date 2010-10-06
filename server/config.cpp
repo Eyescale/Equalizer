@@ -558,133 +558,26 @@ bool Config::_connectNodes()
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isActive() && !_connectNode( node ))
+        if( node->isActive( ))
         {
-            success = false;
-            break;
+            if( !node->connect() && !node->launch( ))
+            {
+                success = false;
+                break;
+            }
         }
     }
 
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isActive() && !_syncConnectNode( node, clock ))
+        if( node->isActive() && !node->syncLaunch( clock ))
             success = false;
     }
 
     return success;
 }
 
-
-namespace
-{
-static net::NodePtr _createNetNode( Node* node )
-{
-    net::NodePtr netNode = new net::Node;
-
-    const ConnectionDescriptions& descriptions = 
-        node->getConnectionDescriptions();
-    for( ConnectionDescriptions::const_iterator i = descriptions.begin();
-         i != descriptions.end(); ++i )
-    {
-        const net::ConnectionDescription* desc = (*i).get();
-        netNode->addConnectionDescription( 
-            new net::ConnectionDescription( *desc ));
-    }
-
-    netNode->setLaunchTimeout( 
-        node->getIAttribute( Node::IATTR_LAUNCH_TIMEOUT ));
-    netNode->setLaunchCommand( 
-        node->getSAttribute( Node::SATTR_LAUNCH_COMMAND ));
-    netNode->setLaunchCommandQuote( 
-        node->getCAttribute( Node::CATTR_LAUNCH_COMMAND_QUOTE ));
-    netNode->setAutoLaunch( true );
-    return netNode;
-}
-}
-
-bool Config::_connectNode( Node* node )
-{
-    EQASSERT( node->isActive( ));
-
-    net::NodePtr netNode = node->getNode();
-    if( netNode.isValid( ))
-        return netNode->isConnected();
-
-    if( !node->isStopped( ))
-    {
-        EQASSERT( node->getState() == STATE_FAILED );
-        return true;
-    }
-
-    net::NodePtr localNode = getLocalNode();
-    EQASSERT( localNode.isValid( ));
-    
-    if( node->isApplicationNode( ))
-        netNode = _appNetNode;
-    else
-    {
-        netNode = _createNetNode( node );
-        netNode->setProgramName( _renderClient );
-        netNode->setWorkDir( _workDir );
-    }
-
-    EQLOG( LOG_INIT ) << "Connecting node" << std::endl;
-    if( !localNode->initConnect( netNode ))
-    {
-        std::stringstream nodeString;
-        nodeString << "Connection to node failed, node does not run and launch "
-                   << "command failed: " << node;
-        
-        setErrorMessage( getErrorMessage() + nodeString.str( ));
-        EQERROR << "Connection to " << netNode->getNodeID() << " failed." 
-                << std::endl;
-        node->setState( STATE_FAILED );
-        return false;
-    }
-
-    node->setNode( netNode );
-    return true;
-}
-
-bool Config::_syncConnectNode( Node* node, const base::Clock& clock )
-{
-    EQASSERT( node->isActive( ));
-
-    net::NodePtr netNode = node->getNode();
-    if( !netNode )
-        return false;
-
-    net::NodePtr localNode = getLocalNode();
-    EQASSERT( localNode.isValid( ));
-
-    const int64_t timeLeft = netNode->getLaunchTimeout() - clock.getTime64();
-    const uint32_t timeOut = EQ_MAX( timeLeft, 0 );
-
-    if( !localNode->syncConnect( netNode, timeOut ))
-    {
-        std::ostringstream data;
-        const net::ConnectionDescriptions& descs = 
-            netNode->getConnectionDescriptions();
-
-        for( net::ConnectionDescriptions::const_iterator i = descs.begin();
-             i != descs.end(); ++i )
-        {
-            net::ConnectionDescriptionPtr desc = *i;
-            data << desc->getHostname() << ' ';
-        }
-        setErrorMessage( getErrorMessage() + 
-                         "Connection of node failed, node did not start ( " +
-                         data.str() + ") " );
-        EQERROR << getErrorMessage() << std::endl;
-
-        node->setNode( 0 );
-        node->setState( STATE_FAILED );
-        EQASSERT( netNode->getRefCount() == 1 );
-        return false;
-    }
-    return true;
-}
 
 void Config::_stopNodes()
 {
@@ -734,7 +627,6 @@ void Config::_stopNodes()
     {
         Node*        node    = *i;
         net::NodePtr netNode = node->getNode();
-
         node->setNode( 0 );
 
         if( nSleeps )

@@ -86,64 +86,6 @@ namespace net
         NodePtr getNode( const NodeID& id ) const;
         //@}
 
-        /** @ Auto-launch parameters. */
-        //@{
-        /** 
-         * Set the command to spawn the process for this node.
-         *
-         * The default is '"ssh -n %h %c >& %h.%n.log"', with:
-         * 
-         * %h - hostname
-         * %c - command (work dir + program name)
-         * %n - unique node identifier
-         */
-        EQ_EXPORT void setLaunchCommand( const std::string& launchCommand );
-
-        /** @return the command to spawn the process for this node. */
-        EQ_EXPORT const std::string& getLaunchCommand() const;
-
-        /** Set the launch timeout in milliseconds. */
-        void setLaunchTimeout( const uint32_t time ) { _launchTimeout = time; }
-
-        /** @return the current launch timeout in milliseconds. */
-        uint32_t getLaunchTimeout() const { return _launchTimeout; }
-
-        /** Set the quote charactor for the launch command arguments */
-        void setLaunchCommandQuote( const char quote )
-            { _launchCommandQuote = quote; }
-
-        /* @return the quote charactor for the launch command arguments */
-        char getLaunchCommandQuote() const { return _launchCommandQuote; }
-
-        /**
-         * Set the program name to start this node.
-         * 
-         * @param name the program name to start this node.
-         */
-        EQ_EXPORT void setProgramName( const std::string& name );
-
-        /** @return the program name to start the node. */
-        const std::string& getProgramName() const { return _programName; }
-
-        /** 
-         * Set the working directory to start this node.
-         * 
-         * @param name the working directory to start this node.
-         */
-        EQ_EXPORT void setWorkDir( const std::string& name );
-
-        /** @return the working directory to start the node. */
-        const std::string& getWorkDir() const { return _workDir; }
-
-        /** 
-         * Set if this node should be launched automatically.
-         *
-         * This determines if the launch command is used to start the node when
-         * it can not be reached using its connections. The default is false.
-         */
-        void setAutoLaunch( const bool autoLaunch ) { _autoLaunch = autoLaunch;}
-        //@}
-
         /**
          * @name State Changes
          *
@@ -154,16 +96,11 @@ namespace net
         /** 
          * Initialize a local, listening node.
          *
-         * The following command line options are recognized by this method:
-         * <ul>
-         *   <li>--eq-client to launch a client. This is used for remote nodes
-         *         which have  been auto-launched by another node, e.g., remote
-         *         render clients. This method does not return when this command
-         *         line option is present.</li>
-         *   <li>'--eq-listen &lt;connection description&gt;' to add listening
-         *         connections to this node. This parameter might be used
-         *         multiple times (cf. ConnectionDescription::fromString).</li>
-         * </ul>
+         * The '--eq-listen &lt;connection description&gt;' command line options
+         * is recognized by this method to add listening connections to this
+         * node. This parameter might be used multiple
+         * times. ConnectionDescription::fromString() is used to parse the
+         * provided description.
          *
          * Please note that further command line parameters are recognized by
          * eq::init().
@@ -177,9 +114,6 @@ namespace net
 
         /** Exit a local, listening node. */
         virtual bool exitLocal() { return close(); }
-
-        /** Exit a client node. */
-        virtual bool exitClient() { return exitLocal(); }
 
         /** 
          * Open all connections and put this node into the listening state.
@@ -210,11 +144,8 @@ namespace net
          * Connect a proxy node to this listening node.
          *
          * The connection descriptions of the node are used to connect the
-         * node. If this fails, and auto launch is true, the node is started
-         * using the launch command.
-         *
-         * On success, the node is in the connected state, otherwise its state
-         * is unchanged.
+         * node. On success, the node is in the connected state, otherwise its
+         * state is unchanged.
          *
          * This method is one-sided, that is, the node to be connected should
          * not initiate a connection to this node at the same time.
@@ -224,38 +155,6 @@ namespace net
          * @sa initConnect, syncConnect
          */
         EQ_EXPORT bool connect( NodePtr node );
-
-        /** 
-         * Start connecting a node using the available connection descriptions.
-         *
-         * The connection descriptions of the node are used to connect the
-         * node. If this fails, and auto launch is true, the node is started
-         * using the launch command.
-         *
-         * On success, the node is in the launched or connected state, otherwise
-         * its state is unchanged.
-         *
-         * @param node the remote node.
-         * @return <code>true</code> if this node is connecting,
-         *         <code>false</code> otherwise.
-         * @sa syncConnect
-         */
-        EQ_EXPORT bool initConnect( NodePtr node );
-
-        /** 
-         * Synchronize the connection initiated by initConnect().
-         *
-         * On success, the node is in the connected state, otherwise its state
-         * is unchanged.
-         *
-         * @param node the remote node.
-         * @param timeout the timeout, in milliseconds, before the launch
-         *                process is considered to have failed.
-         * @return <code>true</code> if this node is connected,
-         *         <code>false</code> otherwise.
-         * @sa initConnect
-         */
-        EQ_EXPORT bool syncConnect( NodePtr node, const uint32_t timeout );
 
         /** 
          * Create and connect a node given by an identifier.
@@ -280,7 +179,6 @@ namespace net
         EQ_EXPORT bool close( NodePtr node );
         //@}
 
-
         /**
          * @name Connectivity information. 
          */
@@ -304,11 +202,7 @@ namespace net
          */
         EQ_EXPORT bool removeConnectionDescription(ConnectionDescriptionPtr cd);
 
-        /** 
-         * Returns the number of stored connection descriptions. 
-         * 
-         * @return the number of stored connection descriptions. 
-         */
+        /** @return the number of stored connection descriptions. */
         EQ_EXPORT const ConnectionDescriptions& getConnectionDescriptions()
                             const;
 
@@ -319,9 +213,7 @@ namespace net
         ConnectionPtr getMulticast();
         //@}
 
-        /**
-         * @name Messaging API
-         */
+        /** @name Messaging API */
         //@{
         /** 
          * Sends a packet to this node.
@@ -483,14 +375,6 @@ namespace net
         bool hasSessions() const { return !_sessions->empty(); }
         //@}
 
-        /** 
-         * Runs this node as a client to a server.
-         * 
-         * @param clientArgs the client arguments as specified by the server.
-         * @return the success value of the run.
-         */
-        EQ_EXPORT virtual bool runClient( const std::string& clientArgs );
-
         /** Return the command queue to the command thread. */
         CommandQueue* getCommandThreadQueue() 
             { EQASSERT( isLocal( )); return &_commandThreadQueue; }
@@ -546,13 +430,6 @@ namespace net
          */
         EQ_EXPORT virtual bool invokeCommand( Command& command );
 
-        /** 
-         * The main loop for auto-launched clients. 
-         *
-         * @sa runClient()
-         */
-        virtual bool clientLoop() { return true; }
-
         /** @return the type of the node, used during connect(). */
         virtual uint32_t getType() const { return NODETYPE_EQNET_NODE; }
 
@@ -570,7 +447,6 @@ namespace net
         enum State
         {
             STATE_CLOSED,    //!< initial state
-            STATE_LAUNCHED,  //!< proxy for a remote node, launched
             STATE_CONNECTED, //!< proxy for a remote node, connected  
             STATE_LISTENING  //!< local node, listening
         };
@@ -631,23 +507,8 @@ namespace net
         /** Needed for thread-safety during nodeID-based connect() */
         base::Lock _connectMutex;
 
-        /** Determines if the node should be launched automatically. */
-        bool _autoLaunch;
-
         /** The request id for the async launch operation. */
         uint32_t _launchID;
-
-        /** 
-         * The amount of time in milliseconds to wait before a node is
-         * considered unreachable during start.
-         */
-        int32_t _launchTimeout;
-
-        /** The character to quote the launch command arguments */
-        char _launchCommandQuote;
-
-        /** Command to launch node process. */
-        std::string _launchCommand; 
 
         /** Commands re-scheduled for dispatch. */
         CommandList  _pendingCommands;
@@ -657,11 +518,6 @@ namespace net
 
         /** The list of descriptions on how this node is reachable. */
         ConnectionDescriptions _connectionDescriptions;
-
-        /** The name of the program to autolaunch. */
-        std::string _programName;
-        /** The directory of the program to autolaunch. */
-        std::string _workDir;
 
         /** The receiver thread. */
         class ReceiverThread : public base::Thread
@@ -705,29 +561,6 @@ namespace net
         void _cleanup();
 
         void _dispatchCommand( Command& command );
-
-        /** 
-        * Launch a node using the parameters from the connection
-        * description.
-        * 
-        * @param description the connection description.
-        * @return <code>true</code> if the node was launched,
-        *         <code>false</code> otherwise.
-        */
-        bool _launch( NodePtr node, ConnectionDescriptionPtr description );
-
-        /** 
-        * Composes the launch command by expanding the variables in the
-        * description's launch command string.
-        * 
-        * @param description the connection description.
-        * @param requestID the request identifier to be used by the launched
-        *                  node when connecting to this node.
-        * @return the expanded launch command.
-        */
-        std::string _createLaunchCommand( NodePtr node,
-                                          ConnectionDescriptionPtr description);
-        std::string   _createRemoteCommand( NodePtr node, const char quote );
 
         /** 
          * Find a connected node using a connection description

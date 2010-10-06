@@ -166,18 +166,13 @@ int EqPly::run()
     return EXIT_SUCCESS;
 }
 
-bool EqPly::clientLoop()
+void EqPly::clientLoop()
 {
-    if( !_initData.isResident( )) // execute only one config run
-        return eq::Client::clientLoop();
-
-    // else execute client loops 'forever'
-    while( true ) // TODO: implement SIGHUP handler to exit?
+    do
     {
-        if( !eq::Client::clientLoop( ))
-            return false;
-        EQINFO << "One configuration run successfully executed" << std::endl;
+         eq::Client::clientLoop();
+         EQINFO << "Configuration run successfully executed" << std::endl;
     }
-    return true;
+    while( _initData.isResident( )); // execute at lease one config run
 }
 }

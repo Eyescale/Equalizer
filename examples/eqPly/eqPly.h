@@ -58,7 +58,7 @@ namespace eqPly
 
     protected:
         /** @sa eq::Client::clientLoop. */
-        virtual bool clientLoop();
+        virtual void clientLoop();
         
     private:
         const LocalInitData& _initData;

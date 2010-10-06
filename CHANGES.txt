@@ -1,0 +1,9 @@
+
+This file lists all changes in the public Equalizer API, latest on top:
+
+06/Oct/2010
+  void eq::Client::clientLoop
+  void eq::Client::exitClient
+    replaces
+  bool eq::net::Node::clientLoop
+  bool eq::net::Node::exitClient

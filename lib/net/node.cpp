@@ -26,7 +26,6 @@
 #include "socketConnection.h"
 
 #include <eq/base/base.h>
-#include <eq/base/launcher.h>
 #include <eq/base/rng.h>
 
 #include <errno.h>
@@ -48,47 +47,10 @@ typedef CommandFunc<Node> NodeFunc;
 Node::Node()
         : _id( true )
         , _state( STATE_CLOSED )
-        , _autoLaunch( false )
-        , _launchID( EQ_ID_INVALID )
-        , _launchTimeout( 60000 ) // ms
-        , _launchCommandQuote( '\'' )
-        , _programName( Global::getProgramName( ))
-        , _workDir( Global::getWorkDir( ))
         , _hasSendToken( true )
 {
     _receiverThread = new ReceiverThread( this );
     _commandThread  = new CommandThread( this );
-
-    CommandQueue* queue = &_commandThreadQueue;
-    registerCommand( CMD_NODE_STOP, NodeFunc( this, &Node::_cmdStop ), queue );
-    registerCommand( CMD_NODE_REGISTER_SESSION,
-                     NodeFunc( this, &Node::_cmdRegisterSession ), 0 );
-    registerCommand( CMD_NODE_MAP_SESSION,
-                     NodeFunc( this, &Node::_cmdMapSession ), queue );
-    registerCommand( CMD_NODE_MAP_SESSION_REPLY,
-                     NodeFunc( this, &Node::_cmdMapSessionReply ), 0 );
-    registerCommand( CMD_NODE_UNMAP_SESSION, 
-                     NodeFunc( this, &Node::_cmdUnmapSession ), queue );
-    registerCommand( CMD_NODE_UNMAP_SESSION_REPLY,
-                     NodeFunc( this, &Node::_cmdUnmapSessionReply ), 0 );
-    registerCommand( CMD_NODE_CONNECT, NodeFunc( this, &Node::_cmdConnect ), 0);
-    registerCommand( CMD_NODE_CONNECT_REPLY,
-                     NodeFunc( this, &Node::_cmdConnectReply ), 0 );
-    registerCommand( CMD_NODE_CONNECT_ACK, 
-                     NodeFunc( this, &Node::_cmdConnectAck ), 0 );
-    registerCommand( CMD_NODE_ID, NodeFunc( this, &Node::_cmdID ), 0 );
-    registerCommand( CMD_NODE_DISCONNECT,
-                     NodeFunc( this, &Node::_cmdDisconnect ), 0 );
-    registerCommand( CMD_NODE_GET_NODE_DATA,
-                     NodeFunc( this, &Node::_cmdGetNodeData), queue );
-    registerCommand( CMD_NODE_GET_NODE_DATA_REPLY,
-                     NodeFunc( this, &Node::_cmdGetNodeDataReply ), 0 );
-    registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN,
-                     NodeFunc( this, &Node::_cmdAcquireSendToken ), queue );
-    registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY,
-                     NodeFunc( this, &Node::_cmdAcquireSendTokenReply ) , 0 );
-    registerCommand( CMD_NODE_RELEASE_SEND_TOKEN,
-                     NodeFunc( this, &Node::_cmdReleaseSendToken ), queue );
 
     EQINFO << "New Node @" << (void*)this << " " << _id << std::endl;
 }
@@ -139,16 +101,6 @@ bool Node::operator == ( const Node* node ) const
     return ( this == node );
 }
 
-void Node::setProgramName( const std::string& name )
-{
-    _programName = name;
-}
-
-void Node::setWorkDir( const std::string& name )
-{
-    _workDir = name;
-}
-
 const ConnectionDescriptions& Node::getConnectionDescriptions() const 
 {
     return _connectionDescriptions;
@@ -186,16 +138,6 @@ ConnectionPtr Node::getMulticast()
     return data.connection;
 }
 
-void Node::setLaunchCommand( const std::string& launchCommand )
-{
-    _launchCommand = launchCommand;
-}
-
-const std::string& Node::getLaunchCommand() const
-{
-    return _launchCommand;
-}
-
 bool Node::initLocal( const int argc, char** argv )
 {
 #ifndef NDEBUG
@@ -210,10 +152,6 @@ bool Node::initLocal( const int argc, char** argv )
     // - reordering of arguments
     // - different behaviour of GNU and BSD implementations
     // - incomplete man pages
-    bool   isClient   = false;
-    bool   isResident = false;
-    std::string clientOpts;
-
     for( int i=1; i<argc; ++i )
     {
         if( std::string( "--eq-listen" ) == argv[i] )
@@ -234,21 +172,6 @@ bool Node::initLocal( const int argc, char** argv )
                            << std::endl;
             }
         }
-        else if( std::string( "--eq-client" ) == argv[i] )
-        {
-            isClient = true;
-            if( i < argc-1 && argv[i+1][0] != '-' ) // server-started client
-            {
-                clientOpts = argv[++i];
-
-                if( !deserialize( clientOpts ))
-                    EQWARN << "Failed to parse client listen port parameters"
-                           << std::endl;
-                EQASSERT( !clientOpts.empty( ));
-            }
-            else // resident render client
-                isResident = true;
-        }
     }
     
     if( !listen( ))
@@ -257,28 +180,13 @@ bool Node::initLocal( const int argc, char** argv )
         return false;
     }
     
-    if( isClient )
-    {
-        EQVERB << "Client node started from command line with option " 
-               << clientOpts << std::endl;
-
-        bool ret = (isResident ? clientLoop() : runClient( clientOpts ));
-
-        EQINFO << "Exit node process " << getRefCount() << std::endl;
-        ret &= exitClient();
-        ::exit( ret ? EXIT_SUCCESS : EXIT_FAILURE );
-    }
-
     return true;
 }
 
 bool Node::listen()
 {
     EQVERB << "Listener data: " << serialize() << std::endl;
-    if( !isClosed( ))
-        return false;
-
-    if( !_connectSelf( ))
+    if( !isClosed() || !_connectSelf( ))
         return false;
 
     for( ConnectionDescriptions::const_iterator i =
@@ -311,6 +219,37 @@ bool Node::listen()
     }
 
     _state = STATE_LISTENING;
+
+    CommandQueue* queue = &_commandThreadQueue;
+    registerCommand( CMD_NODE_STOP, NodeFunc( this, &Node::_cmdStop ), queue );
+    registerCommand( CMD_NODE_REGISTER_SESSION,
+                     NodeFunc( this, &Node::_cmdRegisterSession ), 0 );
+    registerCommand( CMD_NODE_MAP_SESSION,
+                     NodeFunc( this, &Node::_cmdMapSession ), queue );
+    registerCommand( CMD_NODE_MAP_SESSION_REPLY,
+                     NodeFunc( this, &Node::_cmdMapSessionReply ), 0 );
+    registerCommand( CMD_NODE_UNMAP_SESSION, 
+                     NodeFunc( this, &Node::_cmdUnmapSession ), queue );
+    registerCommand( CMD_NODE_UNMAP_SESSION_REPLY,
+                     NodeFunc( this, &Node::_cmdUnmapSessionReply ), 0 );
+    registerCommand( CMD_NODE_CONNECT, NodeFunc( this, &Node::_cmdConnect ), 0);
+    registerCommand( CMD_NODE_CONNECT_REPLY,
+                     NodeFunc( this, &Node::_cmdConnectReply ), 0 );
+    registerCommand( CMD_NODE_CONNECT_ACK, 
+                     NodeFunc( this, &Node::_cmdConnectAck ), 0 );
+    registerCommand( CMD_NODE_ID, NodeFunc( this, &Node::_cmdID ), 0 );
+    registerCommand( CMD_NODE_DISCONNECT,
+                     NodeFunc( this, &Node::_cmdDisconnect ), 0 );
+    registerCommand( CMD_NODE_GET_NODE_DATA,
+                     NodeFunc( this, &Node::_cmdGetNodeData), queue );
+    registerCommand( CMD_NODE_GET_NODE_DATA_REPLY,
+                     NodeFunc( this, &Node::_cmdGetNodeDataReply ), 0 );
+    registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN,
+                     NodeFunc( this, &Node::_cmdAcquireSendToken ), queue );
+    registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY,
+                     NodeFunc( this, &Node::_cmdAcquireSendTokenReply ) , 0 );
+    registerCommand( CMD_NODE_RELEASE_SEND_TOKEN,
+                     NodeFunc( this, &Node::_cmdReleaseSendToken ), queue );
 
     EQVERB << base::className( this ) << " start command and receiver thread "
            << std::endl;
@@ -664,15 +603,11 @@ Session* Node::getSession( const SessionID& id )
     return i->second;
 }
 
-#define SEPARATOR '#'
-
 std::string Node::serialize() const
 {
     std::ostringstream data;
-    data << _id << SEPARATOR << _launchCommand << SEPARATOR
-         << static_cast<int>( _launchCommandQuote ) << SEPARATOR
-         << _launchTimeout << SEPARATOR << _connectionDescriptions.size()
-         << SEPARATOR;
+    data << _id << EQNET_SEPARATOR << _connectionDescriptions.size()
+         << EQNET_SEPARATOR;
 
     for( ConnectionDescriptions::const_iterator i =
              _connectionDescriptions.begin();
@@ -687,14 +622,14 @@ std::string Node::serialize() const
  
 bool Node::deserialize( std::string& data )
 {
-    EQASSERT( _state == STATE_CLOSED || _state == STATE_LAUNCHED );
+    EQASSERT( _state == STATE_CLOSED );
 
     EQVERB << "Node data: " << data << std::endl;
     if( !_connectionDescriptions.empty( ))
         EQWARN << "Node already holds data while deserializing it" << std::endl;
 
     // node id
-    size_t nextPos = data.find( SEPARATOR );
+    size_t nextPos = data.find( EQNET_SEPARATOR );
     if( nextPos == std::string::npos || nextPos == 0 )
     {
         EQERROR << "Could not parse node data" << std::endl;
@@ -704,39 +639,8 @@ bool Node::deserialize( std::string& data )
     _id = data.substr( 0, nextPos );
     data = data.substr( nextPos + 1 );
 
-    // launch command
-    nextPos = data.find( SEPARATOR );
-    if( nextPos == std::string::npos )
-    {
-        EQERROR << "Could not parse node data launch command" << std::endl;
-        return false;
-    }
-
-    if( nextPos == 0 ) // empty launch command
-        _launchCommand.clear();
-    else
-        _launchCommand = data.substr( 0, nextPos );
-    data = data.substr( nextPos + 1 );
-
-    // launch command quote
-    nextPos = data.find( SEPARATOR );
-    if( nextPos == std::string::npos )
-        return false;
-    const std::string quoteStr = data.substr( 0, nextPos );
-    _launchCommandQuote = static_cast< char >( atoi( quoteStr.c_str( )));
-    data               = data.substr( nextPos + 1 );
-
-    // launch timeout
-    nextPos = data.find( SEPARATOR );
-    if( nextPos == std::string::npos )
-        return false;
-    
-    const std::string launchTimeoutStr = data.substr( 0, nextPos );
-    data                          = data.substr( nextPos + 1 );
-    _launchTimeout = atoi( launchTimeoutStr.c_str( ));
-
     // num connection descriptions
-    nextPos = data.find( SEPARATOR );
+    nextPos = data.find( EQNET_SEPARATOR );
     if( nextPos == std::string::npos || nextPos == 0 )
     {
         EQERROR << "Could not parse node data" << std::endl;
@@ -774,7 +678,6 @@ NodePtr Node::createNode( const uint32_t type )
     return new Node();
 }
 
-
 void Node::acquireSendToken( NodePtr node )
 {
     EQASSERT( !inCommandThread( ));
@@ -795,24 +698,9 @@ void Node::releaseSendToken( NodePtr node )
 }
 
 //----------------------------------------------------------------------
-// Connecting and launching a node
+// Connecting a node
 //----------------------------------------------------------------------
 bool Node::connect( NodePtr node )
-{
-    if( node->_state == STATE_CONNECTED || node->_state == STATE_LISTENING )
-        return true;
-
-    if( !initConnect( node ))
-    {
-        EQERROR << "Connection initialization to " << node << " failed." 
-                << std::endl;
-        return false;
-    }
-
-    return syncConnect( node, node->_launchTimeout );
-}
-
-bool Node::initConnect( NodePtr node )
 {
     EQASSERTINFO( _state == STATE_LISTENING, _state );
     if( node->_state == STATE_CONNECTED || node->_state == STATE_LISTENING )
@@ -839,21 +727,6 @@ bool Node::initConnect( NodePtr node )
 
         return _connect( node, connection );
     }
-
-    EQINFO << "Node could not be connected." << std::endl;
-    if( !node->_autoLaunch )
-        return false;
-    
-    EQINFO << "Attempting to launch node." << std::endl;
-    for( ConnectionDescriptions::const_iterator i = cds.begin();
-         i != cds.end(); ++i )
-    {
-        ConnectionDescriptionPtr description = *i;
-
-        if( _launch( node, description ))
-            return true;
-    }
-
     return false;
 }
 
@@ -874,8 +747,6 @@ bool Node::_connect( NodePtr node, ConnectionPtr connection )
     packet.requestID = registerRequest( node.get( ));
     packet.nodeID    = _id;
     packet.nodeType  = getType();
-    packet.launchID  = node->_launchID;
-    node->_launchID  = EQ_ID_INVALID;
     connection->send( packet, serialize( ));
 
     bool connected = false;
@@ -887,25 +758,6 @@ bool Node::_connect( NodePtr node, ConnectionPtr connection )
     EQASSERTINFO( node->_id != _id, _id );
     EQINFO << node << " connected to " << *this << std::endl;
     return true;
-}
-
-bool Node::syncConnect( NodePtr node, const uint32_t timeout )
-{
-    if( node->_launchID == EQ_ID_INVALID )
-        return ( node->_state == STATE_CONNECTED );
-
-    void* ret;
-    if( waitRequest( node->_launchID, ret, timeout ))
-    {
-        EQASSERT( node->_state == STATE_CONNECTED );
-        node->_launchID = EQ_ID_INVALID;
-        return true;
-    }
-
-    node->_state = STATE_CLOSED;
-    unregisterRequest( node->_launchID );
-    node->_launchID = EQ_ID_INVALID;
-    return false;
 }
 
 NodePtr Node::connect( const NodeID& nodeID )
@@ -1008,225 +860,6 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
 
     connect( node );
     return node->isConnected() ? node : 0;
-}
-
-bool Node::_launch( NodePtr node,
-                    ConnectionDescriptionPtr description )
-{
-    EQASSERT( node->_autoLaunch );
-    EQASSERT( node->_state == STATE_CLOSED );
-
-    node->_launchID = registerRequest( node.get() );
-
-    const std::string launchCommand = _createLaunchCommand( node, description );
-
-    if( !base::Launcher::run( launchCommand ))
-    {
-        EQWARN << "Could not launch node using '" << launchCommand << "'" 
-               << std::endl;
-        unregisterRequest( node->_launchID );
-        node->_launchID = EQ_ID_INVALID;
-        return false;
-    }
-    
-    node->_state = STATE_LAUNCHED;
-    return true;
-}
-
-std::string Node::_createLaunchCommand( NodePtr node,
-                                        ConnectionDescriptionPtr description )
-{
-    const std::string& launchCommand = node->getLaunchCommand();
-    const size_t  launchCommandLen   = launchCommand.size();
-    const char    quote              = node->getLaunchCommandQuote();
-
-    bool          commandFound = false;
-    size_t        lastPos      = 0;
-    std::string   result;
-
-    for( size_t percentPos = launchCommand.find( '%' );
-         percentPos != std::string::npos; 
-         percentPos = launchCommand.find( '%', percentPos+1 ))
-    {
-        std::ostringstream replacement;
-        switch( launchCommand[percentPos+1] )
-        {
-            case 'c':
-            {
-                replacement << _createRemoteCommand( node, quote );
-                commandFound = true;
-                break;
-            }
-            case 'h':
-            {
-                const std::string& hostname = description->getHostname();
-                if( hostname.empty( ))
-                    replacement << "127.0.0.1";
-                else
-                    replacement << hostname;
-                break;
-            }
-            case 'n':
-                replacement << node->getNodeID();
-                break;
-
-            default:
-                EQWARN << "Unknown token " << launchCommand[percentPos+1] 
-                       << std::endl;
-                replacement << '%' << launchCommand[percentPos+1];
-        }
-
-        result += launchCommand.substr( lastPos, percentPos-lastPos );
-        if( !replacement.str().empty( ))
-            result += replacement.str();
-
-        lastPos  = percentPos+2;
-    }
-
-    result += launchCommand.substr( lastPos, launchCommandLen-lastPos );
-
-    if( !commandFound )
-        result += " " + _createRemoteCommand( node, quote );
-
-    EQVERB << "Launch command: " << result << std::endl;
-    return result;
-}
-
-std::string Node::_createRemoteCommand( NodePtr node, const char quote )
-{
-    if( _state != STATE_LISTENING )
-    {
-        EQERROR << "Node is not listening, can't launch " << this << std::endl;
-        return "";
-    }
-
-    std::ostringstream stringStream;
-
-    //----- environment
-#ifndef WIN32
-#  ifdef Darwin
-    const char libPath[] = "DYLD_LIBRARY_PATH";
-#  else
-    const char libPath[] = "LD_LIBRARY_PATH";
-#  endif
-
-    stringStream << "env "; // XXX
-    char* env = getenv( libPath );
-    if( env )
-        stringStream << libPath << "=" << env << " ";
-
-    for( int i=0; environ[i] != 0; i++ )
-        if( strlen( environ[i] ) > 2 && strncmp( environ[i], "EQ_", 3 ) == 0 )
-            stringStream << environ[i] << " ";
-
-    stringStream << "EQ_LOG_LEVEL=" << base::Log::getLogLevelString() << " ";
-    if( eq::base::Log::topics != 0 )
-        stringStream << "EQ_LOG_TOPICS=" << base::Log::topics << " ";
-#endif // WIN32
-
-    //----- program + args
-    std::string program = node->_programName;
-#ifdef WIN32
-    EQASSERT( program.length() > 2 );
-    if( !( program[1] == ':' && (program[2] == '/' || program[2] == '\\' )) &&
-        // !( drive letter and full path present )
-        !( program[0] == '/' || program[0] == '\\' ))
-        // !full path without drive letter
-
-        program = node->_workDir + '/' + program; // add _workDir to rel. path
-#else
-    if( program[0] != '/' )
-        program = node->_workDir + '/' + program;
-#endif
-
-    const std::string ownData    = serialize();
-    const std::string remoteData = node->serialize();
-
-    stringStream
-        << quote << program << quote << " -- --eq-client " << quote
-        << remoteData << node->_launchID << SEPARATOR << node->_workDir 
-        << SEPARATOR << node->_id << SEPARATOR << getType() << SEPARATOR
-        << ownData << quote;
-
-    return stringStream.str();
-}
-
-bool Node::runClient( const std::string& clientArgs )
-{
-    EQASSERT( _state == STATE_LISTENING );
-
-    size_t nextPos = clientArgs.find( SEPARATOR );
-    if( nextPos == std::string::npos )
-    {
-        EQERROR << "Could not parse request identifier: " << clientArgs 
-                << std::endl;
-        return false;
-    }
-
-    const std::string   request     = clientArgs.substr( 0, nextPos );
-    std::string         description = clientArgs.substr( nextPos + 1 );
-    const uint32_t launchID    = strtoul( request.c_str(), 0, 10 );
-
-    nextPos = description.find( SEPARATOR );
-    if( nextPos == std::string::npos )
-    {
-        EQERROR << "Could not parse working directory: " << description 
-                << " is left from " << clientArgs << std::endl;
-        return false;
-    }
-
-    const std::string workDir = description.substr( 0, nextPos );
-    description          = description.substr( nextPos + 1 );
-
-    Global::setWorkDir( workDir );
-    if( !workDir.empty() && chdir( workDir.c_str( )) == -1 )
-        EQWARN << "Can't change working directory to " << workDir << ": "
-               << strerror( errno ) << std::endl;
-    
-    EQVERB << "Launching node with launch ID=" << launchID << ", cwd="
-           << workDir << std::endl;
-
-    nextPos = description.find( SEPARATOR );
-    if( nextPos == std::string::npos )
-    {
-        EQERROR << "Could not parse node identifier: " << description
-                << " is left from " << clientArgs << std::endl;
-        return false;
-    }
-    _id         = description.substr( 0, nextPos );
-    description = description.substr( nextPos + 1 );
-
-    nextPos = description.find( SEPARATOR );
-    if( nextPos == std::string::npos )
-    {
-        EQERROR << "Could not parse server node type: " << description
-                << " is left from " << clientArgs << std::endl;
-        return false;
-    }
-    const std::string nodeType = description.substr( 0, nextPos );
-    description = description.substr( nextPos + 1 );
-    const uint32_t type = atoi( nodeType.c_str( ));
-
-    NodePtr node = createNode( type );
-    if( !node )
-    {
-        EQERROR << "Can't create server node" << std::endl;
-        return false;
-    }
-    
-    node->setAutoLaunch( false );
-    node->_launchID = launchID;
-
-    if( !node->deserialize( description ))
-        EQWARN << "Can't parse node data" << std::endl;
-
-    if( !connect( node ))
-    {
-        EQERROR << "Can't connect node" << std::endl;
-        return false;
-    }
-
-    return clientLoop();
 }
 
 //----------------------------------------------------------------------
@@ -1752,7 +1385,6 @@ bool Node::_cmdConnect( Command& command )
         if( remoteNode->isConnected( ))
         {
             // Node exists, probably simultaneous connect from peer
-            EQASSERT( packet->launchID == EQ_ID_INVALID );
             EQINFO << "Already got node " << nodeID << ", refusing connect"
                    << std::endl;
 
@@ -1767,28 +1399,16 @@ bool Node::_cmdConnect( Command& command )
         }
     }
 
+    // create and add connected node
     if( !remoteNode )
-    {
-        // create and add connected node
-        if( packet->launchID != EQ_ID_INVALID )
-        {
-            void* ptr = getRequestData( packet->launchID );
-            EQASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));
-            remoteNode = static_cast< Node* >( ptr );
-        }
-        else
-            remoteNode = createNode( packet->nodeType );
-    }
+        remoteNode = createNode( packet->nodeType );
     else
-    {
-        EQASSERT( packet->launchID == EQ_ID_INVALID );
-    }
-    remoteNode->_connectionDescriptions.clear(); // use data from peer
+        remoteNode->_connectionDescriptions.clear(); // use data from peer
 
     std::string data = packet->nodeData;
     if( !remoteNode->deserialize( data ))
         EQWARN << "Error during node initialization" << std::endl;
-    EQASSERTINFO( data.empty(), data);
+    EQASSERTINFO( data.empty(), data );
     EQASSERTINFO( remoteNode->_id == nodeID,
                   remoteNode->_id << "!=" << nodeID );
 
@@ -1800,18 +1420,14 @@ bool Node::_cmdConnect( Command& command )
         base::ScopedMutex<> mutex( _nodes );
         _nodes.data[ remoteNode->_id ] = remoteNode;
     }
-    EQVERB << "Added node " << nodeID << " using " << connection << std::endl;
+    EQVERB << "Added node " << nodeID << std::endl;
 
     // send our information as reply
     NodeConnectReplyPacket reply( packet );
     reply.nodeID    = _id;
     reply.nodeType  = getType();
 
-    connection->send( reply, serialize( ));
-
-    if( packet->launchID != EQ_ID_INVALID )
-        serveRequest( packet->launchID );
-    
+    connection->send( reply, serialize( ));    
     return true;
 }
 
@@ -1881,7 +1497,7 @@ bool Node::_cmdConnectReply( Command& command )
         base::ScopedMutex<> mutex( _nodes );
         _nodes.data[ remoteNode->_id ] = remoteNode;
     }
-    EQVERB << "Added node " << nodeID << " using " << connection << std::endl;
+    EQVERB << "Added node " << nodeID << std::endl;
 
     if( packet->requestID != EQ_ID_INVALID )
         serveRequest( packet->requestID, true );
@@ -1991,7 +1607,6 @@ bool Node::_cmdID( Command& command )
     }
 
     _connectionNodes[ connection ] = node;
-
     EQINFO << "Added multicast connection " << connection << " from " << nodeID
            << " to " << _id<< std::endl;
     return true;
@@ -2046,7 +1661,7 @@ bool Node::_cmdGetNodeData( Command& command)
     if( node.isValid( ))
     {
         reply.nodeType = node->getType();
-        nodeData   = node->serialize();
+        nodeData = node->serialize();
     }
     else
     {
@@ -2104,7 +1719,6 @@ bool Node::_cmdGetNodeDataReply( Command& command )
     }
     EQVERB << "Added node " << nodeID << " without connection" << std::endl;
 
-    node->setAutoLaunch( false );
     node.ref();
     serveRequest( requestID, node.get( ));
     return true;
@@ -2183,7 +1797,6 @@ std::ostream& operator << ( std::ostream& os, const Node& node )
 std::ostream& operator << ( std::ostream& os, const Node::State state)
 {
     os << ( state == Node::STATE_CLOSED ? "closed" :
-            state == Node::STATE_LAUNCHED ? "launched" :
             state == Node::STATE_CONNECTED ? "connected" :
             state == Node::STATE_LISTENING ? "listening" : "ERROR" );
     return os;

@@ -97,17 +97,26 @@ base::DSO _libeqserver;
 
 net::ConnectionPtr _startLocalServer()
 {
-    if( !_libeqserver.open(
+    Strings serverLibraryNames;
 #ifdef _MSC_VER
-         "EqualizerServer.dll"
+    serverLibraryNames.push_back( "EqualizerServer.dll" );
 #elif defined (WIN32)
-        "libEqualizerServer.dll"
+    serverLibraryNames.push_back( "libEqualizerServer.dll" );
 #elif defined (Darwin)
-        "libEqualizerServer.dylib"
+    serverLibraryNames.push_back( "libEqualizerServer.dylib" );
+    serverLibraryNames.push_back( "cbuild/server/libEqualizerServer.dylib" );
 #else
-        "libEqualizerServer.so"
+    serverLibraryNames.push_back( "libEqualizerServer.so" );
+    serverLibraryNames.push_back( "../../server/libEqualizerServer.so" );
 #endif
-                           ))
+
+    while( !_libeqserver.isOpen() && !serverLibraryNames.empty( ))
+    {
+        _libeqserver.open( serverLibraryNames.back( ));
+        serverLibraryNames.pop_back();
+    }
+
+    if( !_libeqserver.isOpen( ))
     {
         EQWARN << "Can't open Equalizer server library" << std::endl;
         return 0;
@@ -167,6 +176,45 @@ bool Client::disconnectServer( ServerPtr server )
     return success;
 }
 
+bool Client::initLocal( const int argc, char** argv )
+{
+    bool isClient = false;
+    std::string clientOpts;
+
+    for( int i=1; i<argc; ++i )
+    {
+        if( std::string( "--eq-client" ) == argv[i] )
+        {
+            isClient = true;
+            if( i < argc-1 && argv[i+1][0] != '-' ) // server-started client
+            {
+                clientOpts = argv[++i];
+
+                if( !deserialize( clientOpts ))
+                    EQWARN << "Failed to parse client listen port parameters"
+                           << std::endl;
+                EQASSERT( !clientOpts.empty( ));
+            }
+        }
+    }
+    EQINFO << "Launching " << getNodeID() << std::endl;
+
+    if( !Super::initLocal( argc, argv ))
+        return false;
+
+    if( isClient )
+    {
+        EQVERB << "Client node started from command line with option " 
+               << clientOpts << std::endl;
+
+        EQCHECK( _setupClient( clientOpts ));
+        clientLoop();
+        exitClient();
+    }
+
+    return true;
+}
+
 bool Client::listen()
 {
     if( getConnectionDescriptions().empty( )) // add default listener
@@ -179,7 +227,51 @@ bool Client::listen()
     return Super::listen();
 }
 
-bool Client::clientLoop()
+bool Client::_setupClient( const std::string& clientArgs )
+{
+    EQASSERT( isListening( ));
+    if( clientArgs.empty( ))
+        return true;
+
+    size_t nextPos = clientArgs.find( EQNET_SEPARATOR );
+    if( nextPos == std::string::npos )
+    {
+        EQERROR << "Could not parse working directory: " << clientArgs
+                << std::endl;
+        return false;
+    }
+
+    const std::string workDir = clientArgs.substr( 0, nextPos );
+    std::string description = clientArgs.substr( nextPos + 1 );
+
+    net::Global::setWorkDir( workDir );
+    if( !workDir.empty() && chdir( workDir.c_str( )) == -1 )
+        EQWARN << "Can't change working directory to " << workDir << ": "
+               << strerror( errno ) << std::endl;
+    
+    nextPos = description.find( EQNET_SEPARATOR );
+    if( nextPos == std::string::npos )
+    {
+        EQERROR << "Could not parse server node type: " << description
+                << " is left from " << clientArgs << std::endl;
+        return false;
+    }
+
+    net::NodePtr server = createNode( fabric::NODETYPE_EQ_SERVER );
+    if( !server->deserialize( description ))
+        EQWARN << "Can't parse server data" << std::endl;
+
+    EQASSERTINFO( description.empty(), description );
+    if( !connect( server ))
+    {
+        EQERROR << "Can't connect server node" << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+void Client::clientLoop()
 {
     EQINFO << "Entered client loop" << std::endl;
 
@@ -190,13 +282,17 @@ bool Client::clientLoop()
     // cleanup
     _mainThreadQueue.flush();
     EQASSERT( !hasSessions( ));
-
-    return true;
 }
 
-bool Client::exitClient()
+void Client::exitClient()
 {
-    return (net::Node::exitClient() & eq::exit( ));
+    bool ret = exitLocal();
+    if( !eq::exit( ))
+        ret = false;
+
+    EQINFO << "Exit " << base::className( this ) << " process used "
+           << getRefCount() << std::endl;
+    ::exit( ret ? EXIT_SUCCESS : EXIT_FAILURE );
 }
 
 bool Client::hasCommands()

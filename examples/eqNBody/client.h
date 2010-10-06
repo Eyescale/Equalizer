@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,14 +32,14 @@
 
 #include <eq/eq.h>
 
-#define NUM_BODIES	16384
-#define MAX_NGPUS	32
+#define NUM_BODIES  16384
+#define MAX_NGPUS   32
 
 namespace eqNbody
 {
     class InitData;
-	class Config;
-	
+    class Config;
+    
     class Client : public eq::Client
     {
     public:
@@ -46,17 +47,16 @@ namespace eqNbody
 
         int init();
         int exit();
-		
+        
         void run();
 
     protected:
         virtual ~Client() {}
-        virtual bool clientLoop();
         
     private:
-        const InitData&	_initData;
-		Config*			_config;
-		eq::ServerPtr	_server;
+        const InitData& _initData;
+        Config*         _config;
+        eq::ServerPtr   _server;
     };
 }
 

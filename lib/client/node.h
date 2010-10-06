@@ -97,7 +97,7 @@ namespace eq
         /** 
          * Wait for a frame to be started.
          *
-         * Use by the pipe task methods to implement the current thread
+         * Used by the pipe task methods to implement the current thread
          * synchronization model.
          *
          * @param frameNumber the frame number.

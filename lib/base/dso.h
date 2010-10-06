@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c)      2009, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published 
@@ -57,6 +57,9 @@ namespace base
          * @version 1.0
          */
         EQ_EXPORT void* getFunctionPointer( const std::string& functionName );
+
+        /** @return true if the DSO is loaded. @version 1.0 */
+        bool isOpen() const { return _dso != 0; }
 
     private:
 #ifdef _WIN32 //_MSC_VER

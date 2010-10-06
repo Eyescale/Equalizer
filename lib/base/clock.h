@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -126,24 +126,21 @@ namespace base
 #ifdef Darwin
                 const uint64_t now = mach_absolute_time();
                 const int64_t elapsed = now - _start;
-                _start = now;
-                return ( elapsed * _timebaseInfo.numer / _timebaseInfo.denom /
-                         1000000.f );
+                const float time = elapsed * _timebaseInfo.numer /
+                                  _timebaseInfo.denom / 1000000.f;
 #elif defined (WIN32)
                 LARGE_INTEGER now;
                 QueryPerformanceCounter( &now );
                 const float time = 1000.0f * (now.QuadPart - _start.QuadPart) / 
                                    _frequency.QuadPart;
-                _start = now;
-                return time;
 #else
                 struct timespec now;
                 clock_gettime( CLOCK_REALTIME, &now );
                 const float time = ( 1000.0f * (now.tv_sec - _start.tv_sec) +
                                     0.000001f * (now.tv_nsec - _start.tv_nsec));
+#endif
                 _start = now;
                 return time;
-#endif
             }
 
         /** 
@@ -154,13 +151,13 @@ namespace base
             {
 #ifdef Darwin
                 const int64_t elapsed = mach_absolute_time() - _start;
-                return ( elapsed * _timebaseInfo.numer / _timebaseInfo.denom /
-                         1000000 );
+                return elapsed * _timebaseInfo.numer / _timebaseInfo.denom /
+                       1000000;
 #elif defined (WIN32)
                 LARGE_INTEGER now;
                 QueryPerformanceCounter( &now );
                 return 1000 * (now.QuadPart - _start.QuadPart) /
-                    _frequency.QuadPart;
+                       _frequency.QuadPart;
 #else
                 struct timespec now;
                 clock_gettime( CLOCK_REALTIME, &now );

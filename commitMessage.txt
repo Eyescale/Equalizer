@@ -1,7 +1,10 @@
-Minor cleanup
+Refactor launch code from net::Node to server::Node and eq::Client
+- start CHANGES.txt file
+- removes hacky Node _launchID, identifies launched node by NodeID
+- Add 'cmake' rule to Makefile
 
-[ ] May break build
-[ ] May break existing applications
+[x] May break build
+[x] May break existing applications
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup

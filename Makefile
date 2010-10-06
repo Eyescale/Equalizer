@@ -1,4 +1,5 @@
 #!gmake
+.PHONY: cmake
 
 include make/system.mk
 
@@ -21,6 +22,11 @@ TARGETS     = precompile subdirs RELNOTES README.rst postcompile # docs
 CLEAN_EXTRA = obj build $(INSTALL_FILES)
 
 include make/rules.mk
+
+cmake:
+	@mkdir -p cbuild
+	@cd cbuild; cmake ..
+	@$(MAKE) -C cbuild
 
 docs:
 	@$(DOXYGEN) Doxyfile

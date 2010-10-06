@@ -63,13 +63,29 @@ namespace eq
          */
         EQ_EXPORT bool disconnectServer( ServerPtr server );
 
+        /** 
+         * Initialize a local, listening node.
+         *
+         * The <code>--eq-client</code> command line option is recognized by
+         * this method. It is used for remote nodes which have been
+         * auto-launched by another node, e.g., remote render clients. This
+         * method does not return when this command line option is present.
+         *
+         * @param argc the command line argument count.
+         * @param argv the command line argument values.
+         * @return <code>true</code> if the client was successfully initialized,
+         *         <code>false</code> otherwise.
+         * @version 1.0
+         */
+        EQ_EXPORT virtual bool initLocal( const int argc, char** argv );
+
         /**
          * @return true if the client has commands pending, false otherwise.
          * @version 1.0 
          */
         EQ_EXPORT bool hasCommands();
 
-        /** @return the command queue to the main node thread. @internal */
+        /** @internal @return the command queue to the main node thread. */
         virtual net::CommandQueue* getMainThreadQueue()
             { return &_mainThreadQueue; }
 
@@ -85,13 +101,13 @@ namespace eq
          * using processCommand() and triggers the message pump between
          * commands.
          *
-         * @sa net::Node::clientLoop(), Pipe::createMessagePump()
+         * @sa Pipe::createMessagePump()
          * @version 1.0 
          */
-        EQ_EXPORT virtual bool clientLoop();
+        EQ_EXPORT virtual void clientLoop();
 
-        /** Reimplemented to also call eq::exit() on render clients. @internal*/
-        EQ_EXPORT virtual bool exitClient();
+        /** Exit the process cleanly on render clients. @version 1.0 */
+        EQ_EXPORT virtual void exitClient();
 
     private:
         /** The command->node command queue. */
@@ -106,6 +122,8 @@ namespace eq
 
         /** @sa net::Node::createNode */
         EQ_EXPORT virtual net::NodePtr createNode( const uint32_t type );
+
+        bool _setupClient( const std::string& clientArgs );
 
         /** The command functions. */
         bool _cmdExit( net::Command& command );

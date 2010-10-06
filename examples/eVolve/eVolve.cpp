@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -129,18 +129,13 @@ int EVolve::run()
     return EXIT_SUCCESS;
 }
 
-bool EVolve::clientLoop()
+void EVolve::clientLoop()
 {
-    if( !_initData.isResident( )) // execute only one config run
-        return eq::Client::clientLoop();
-
-    // else execute client loops 'forever'
-    while( true ) // TODO: implement SIGHUP handler to exit?
+    do
     {
-        if( !eq::Client::clientLoop( ))
-            return false;
-        EQINFO << "One configuration run successfully executed" << endl;
+         eq::Client::clientLoop();
+         EQINFO << "Configuration run successfully executed" << std::endl;
     }
-    return true;
+    while( _initData.isResident( )); // execute at lease one config run
 }
 }

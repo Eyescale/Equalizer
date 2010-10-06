@@ -51,8 +51,11 @@ namespace base
                 }
             }
 
-        /** Create a copy of a universally unique identifier. @version 1.0 */
+        /** Create a copy of an universally unique identifier. @version 1.0 */
         UUID( const UUID& from ) : _high( from._high ), _low( from._low ) {}
+
+        /** Create an UUID from a string. @version 1.0 */
+        UUID( const std::string& from ) { *this = from; }
 
         /** Assign another universally unique identifier. @version 1.0 */
         UUID& operator = ( const UUID& from )

@@ -100,6 +100,15 @@ namespace server
          * @name Operations
          */
         //@{
+        /** Connect the render slave node process. */
+        bool connect();
+
+        /** Launch the render slave node process. */
+        bool launch();
+
+        /** Synchronize the connection of a render slave launch. */
+        bool syncLaunch( const base::Clock& time );
+
         /** Start initializing this entity. */
         void configInit( const uint32_t initID, const uint32_t frameNumber );
 
@@ -285,6 +294,16 @@ namespace server
         {
             char dummy[32];
         };
+
+        /** 
+         * Compose the launch command by expanding the variables in the
+         * launch command string.
+         *
+         * @param description the connection description.
+         * @return the expanded launch command.
+         */
+        std::string _createLaunchCommand( ConnectionDescriptionPtr description);
+        std::string   _createRemoteCommand();
 
         uint32_t _getFinishLatency() const;
         void _finish( const uint32_t currentFrame );

@@ -149,7 +149,6 @@ namespace net
     {
         NodeConnectPacket()
                 : requestID( EQ_ID_INVALID )
-                , launchID( EQ_ID_INVALID )
                 , fill( 0 )
             {
                 command     = CMD_NODE_CONNECT;
@@ -160,7 +159,6 @@ namespace net
         NodeID   nodeID;
         uint32_t requestID;
         uint32_t nodeType;
-        uint32_t launchID;
         uint32_t fill;
         EQ_ALIGN8( char nodeData[8] );
     };
@@ -667,8 +665,7 @@ namespace net
                                        const NodeConnectPacket* packet )
     {
         os << (NodePacket*)packet << " req " << packet->requestID << " type "
-           << packet->nodeType << " launchID " << packet->launchID << " data "
-           << packet->nodeData;
+           << packet->nodeType << " data " << packet->nodeData;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

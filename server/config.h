@@ -112,12 +112,15 @@ namespace server
         /** @sa fabric::Config::changeLatency() */
         virtual void changeLatency( const uint32_t latency );
 
-        /** 
+        /**
          * Set the network node running the application thread.
          * 
          * @param node the application node.
          */
         void setApplicationNetNode( net::NodePtr node );
+
+        /** @return network node running the application thread. */
+        net::NodePtr getApplicationNetNode() { return _appNetNode; }
 
         /** 
          * Set the name of the render client executable. 
@@ -126,12 +129,18 @@ namespace server
          */
         void setRenderClient( const std::string& rc ){ _renderClient = rc; }
 
+        /** @return the name of the render client executable. */
+        const std::string& getRenderClient() const { return _renderClient; }
+
         /** 
          * Set the working directory for render client.
          * 
          * @param workDir the working directory for the  render client.
          */
         void setWorkDir( const std::string& workDir ){ _workDir = workDir; }
+
+        /** @return the working directory for the  render client. */
+        const std::string& getWorkDir() const { return _workDir; }
 
         /** Notify that a node of this config has finished a frame. */
         void notifyNodeFrameFinished( const uint32_t frameNumber );

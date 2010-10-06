@@ -31,6 +31,8 @@ namespace eq
 namespace net
 {
 
+#define EQNET_SEPARATOR '#'
+
 class Node;
 class Session;
 class Object;

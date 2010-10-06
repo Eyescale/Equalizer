@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -54,7 +54,7 @@ namespace eVolve
 
     protected:
         /** @sa eq::Client::clientLoop. */
-        virtual bool clientLoop();
+        virtual void clientLoop();
         
     private:
         const LocalInitData& _initData;
