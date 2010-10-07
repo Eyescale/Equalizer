@@ -40,7 +40,7 @@ namespace net
         MasterCM( Object* object );
         virtual ~MasterCM();
 
-        virtual void init( const bool ){}
+        virtual void init(){}
 
         /**
          * @name Versioning

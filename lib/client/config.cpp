@@ -192,7 +192,7 @@ bool Config::exit()
     _eventQueue.flush();
     _lastEvent = 0;
     _running = false;
-    _appNode   = 0;
+    _appNode = 0;
     return ret;
 }
 

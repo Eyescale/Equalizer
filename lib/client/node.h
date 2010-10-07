@@ -283,11 +283,9 @@ namespace eq
 
         typedef stde::hash_map< uint32_t, net::Barrier* > BarrierHash;
         /** All barriers mapped by the node. */
-        BarrierHash _barriers;
-        base::Lock  _barriersMutex;
+        base::Lockable< BarrierHash > _barriers;
 
         typedef stde::hash_map< uint32_t, FrameData* > FrameDataHash;
-
         /** All frame datas used by the node during rendering. */
         base::Lockable< FrameDataHash > _frameDatas;
 

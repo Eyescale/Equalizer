@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,7 +40,7 @@ namespace net
         StaticSlaveCM( Object* object );
         virtual ~StaticSlaveCM();
 
-        virtual void init( const bool ){}
+        virtual void init(){}
 
         /**
          * @name Versioning
@@ -50,10 +50,8 @@ namespace net
         virtual uint32_t commitSync( const uint32_t )
             { EQDONTCALL; return VERSION_NONE; }
 
-        virtual void obsolete( const uint32_t ) { EQDONTCALL; }
         virtual void setAutoObsolete( const uint32_t ) { EQDONTCALL; }
-        virtual uint32_t getAutoObsoleteCount() const
-            { EQDONTCALL; return 0; }
+        virtual uint32_t getAutoObsolete() const { EQDONTCALL; return 0; }
 
         virtual uint32_t sync( const uint32_t )
             { EQDONTCALL; return VERSION_NONE; }

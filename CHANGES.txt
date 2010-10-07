@@ -1,6 +1,11 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+07/Oct/2010
+  removed eq::net::Object::makeThreadSafe and isThreadSafe
+    application has to lock sync(), if needed
+  eq::net::Object::getAutoObsolete replaces getAutoObsoleteCount
+  
 06/Oct/2010
   void eq::Client::clientLoop
   void eq::Client::exitClient

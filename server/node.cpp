@@ -287,10 +287,6 @@ bool Node::syncLaunch( const base::Clock& clock )
     while( true )
     {
         net::NodePtr node = localNode->getNode( _node->getNodeID( ));
-        EQINFO << "Polled " << _node->getNodeID() << " " << node.isValid()
-               << " " << (node.isValid() ? node->isConnected() : false )
-               << std::endl;
-
         if( node.isValid() && node->isConnected( ))
         {
             EQASSERT( _node->getRefCount() == 1 );

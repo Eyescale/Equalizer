@@ -44,7 +44,6 @@ Object::Object()
         , _id               ( EQ_ID_INVALID )
         , _instanceID       ( EQ_ID_INVALID )
         , _cm               ( ObjectCM::ZERO )
-        , _threadSafe       ( false )
 {
 }
 
@@ -54,7 +53,6 @@ Object::Object( const Object& object )
         , _id               ( EQ_ID_INVALID )
         , _instanceID       ( EQ_ID_INVALID )
         , _cm               ( ObjectCM::ZERO )
-        , _threadSafe       ( object._threadSafe )
 {
 }
 
@@ -126,7 +124,7 @@ void Object::_setChangeManager( ObjectCM* cm )
     }
 
     _cm = cm;
-    cm->init( _threadSafe );
+    cm->init();
     EQLOG( LOG_OBJECTS ) << "set new change manager " << base::className( cm )
                          << " for " << base::className( this ) << std::endl;
 }
@@ -134,13 +132,6 @@ void Object::_setChangeManager( ObjectCM* cm )
 const Nodes* Object::_getSlaveNodes() const
 {
     return _cm->getSlaveNodes();
-}
-
-void Object::makeThreadSafe()
-{
-    EQASSERT( _id == EQ_ID_INVALID );
-    EQASSERT( _cm == ObjectCM::ZERO );
-    _threadSafe = true;
 }
 
 NodePtr Object::getLocalNode()
@@ -246,19 +237,14 @@ uint32_t Object::commitSync( const uint32_t commitID )
     return _cm->commitSync( commitID );
 }
 
-void Object::obsolete( const uint32_t version )
-{
-    _cm->obsolete( version );
-}
-
 void Object::setAutoObsolete( const uint32_t count )
 {
     _cm->setAutoObsolete( count );
 }
 
-uint32_t Object::getAutoObsoleteCount() const 
+uint32_t Object::getAutoObsolete() const 
 {
-    return _cm->getAutoObsoleteCount();
+    return _cm->getAutoObsolete();
 }
 
 uint32_t Object::sync( const uint32_t version )

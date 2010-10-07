@@ -48,12 +48,8 @@ namespace net
         ObjectCM() {}
         virtual ~ObjectCM() {}
 
-        /**
-         * Initialize the change manager.
-         *
-         * @param threadSafe true if methods are called from multiple threads.
-         */
-        virtual void init( const bool threadSafe ) = 0;
+        /** Initialize the change manager. */
+        virtual void init() = 0;
 
         /**
          * @name Versioning
@@ -79,13 +75,6 @@ namespace net
         virtual void increaseCommitCount() { /* NOP */ }
 
         /** 
-         * Explicitily obsolete versions.
-         * 
-         * @param version the version to obsolete
-         */
-        virtual void obsolete( const uint32_t version ) = 0;
-
-        /** 
          * Automatically obsolete old versions.
          * 
          * @param count the number of versions to retain, excluding the head
@@ -94,7 +83,7 @@ namespace net
         virtual void setAutoObsolete( const uint32_t count ) = 0;
  
         /** @return get the number of versions this object retains. */
-        virtual uint32_t getAutoObsoleteCount() const = 0;
+        virtual uint32_t getAutoObsolete() const = 0;
 
         /** 
          * Sync to a given version.

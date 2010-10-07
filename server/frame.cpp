@@ -146,7 +146,7 @@ void Frame::cycleData( const uint32_t frameNumber, const uint32_t eyes )
 
         // reuse unused frame data
         FrameData*     data    = _datas.empty() ? 0 : _datas.back();
-        const uint32_t latency = getAutoObsoleteCount();
+        const uint32_t latency = getAutoObsolete();
         const uint32_t dataAge = data ? data->getFrameNumber() : 0;
 
         if( data && dataAge < frameNumber-latency && frameNumber > latency )

@@ -118,8 +118,8 @@ net::CommandQueue* Node::getMainThreadQueue()
 
 net::Barrier* Node::getBarrier( const net::ObjectVersion barrier )
 {
-    base::ScopedMutex<> mutex( _barriersMutex );
-    net::Barrier* netBarrier = _barriers[ barrier.identifier ];
+    base::ScopedMutex<> mutex( _barriers );
+    net::Barrier* netBarrier = _barriers.data[ barrier.identifier ];
 
     if( netBarrier )
         netBarrier->sync( barrier.version );
@@ -128,10 +128,9 @@ net::Barrier* Node::getBarrier( const net::ObjectVersion barrier )
         net::Session* session = getSession();
 
         netBarrier = new net::Barrier;
-        netBarrier->makeThreadSafe();
         EQCHECK( session->mapObject( netBarrier, barrier ));
 
-        _barriers[ barrier.identifier ] = netBarrier;
+        _barriers.data[ barrier.identifier ] = netBarrier;
     }
 
     return netBarrier;
@@ -147,8 +146,6 @@ FrameData* Node::getFrameData( const net::ObjectVersion& dataVersion )
         net::Session* session = getSession();
         
         frameData = new FrameData;
-        frameData->makeThreadSafe();
-
         EQCHECK( session->mapObject( frameData, dataVersion ));
         frameData->update( dataVersion.version );
 
@@ -367,17 +364,17 @@ void Node::frameTasksFinish( const uint32_t, const uint32_t frameNumber )
 void Node::_flushObjects()
 {
     net::Session* session = getSession();
-
-    _barriersMutex.set();
-    for( BarrierHash::const_iterator i =_barriers.begin();
-         i != _barriers.end(); ++ i )
     {
-        net::Barrier* barrier = i->second;
-        session->unmapObject( barrier );
-        delete barrier;
+        base::ScopedMutex<> mutex( _barriers );
+        for( BarrierHash::const_iterator i =_barriers->begin();
+             i != _barriers->end(); ++ i )
+        {
+            net::Barrier* barrier = i->second;
+            session->unmapObject( barrier );
+            delete barrier;
+        }
+        _barriers->clear();
     }
-    _barriers.clear();
-    _barriersMutex.unset();
 
     base::ScopedMutex<> mutex( _frameDatas );
     for( FrameDataHash::const_iterator i = _frameDatas->begin(); 

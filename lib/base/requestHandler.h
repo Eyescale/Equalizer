@@ -145,10 +145,7 @@ namespace base
         //! @cond IGNORE
         struct Request
         {
-            Request()
-                {
-                    lock.set();
-                }
+            Request() { lock.set(); }
             ~Request(){}
             
             TimedLock lock;

@@ -25,9 +25,6 @@
 #include "object.h"
 #include "packets.h"
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 namespace net

@@ -38,7 +38,6 @@ typedef CommandFunc<VersionedSlaveCM> CmdFunc;
 VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
         : _object( object )
         , _version( VERSION_NONE )
-        , _mutex( 0 )
         , _currentIStream( 0 )
         , _masterInstanceID( masterInstanceID )
         , _ostream( this )
@@ -53,9 +52,6 @@ VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
 
 VersionedSlaveCM::~VersionedSlaveCM()
 {
-    delete _mutex;
-    _mutex = 0;
-
     while( !_queuedVersions.isEmpty( ))
         delete _queuedVersions.pop();
 
@@ -64,14 +60,6 @@ VersionedSlaveCM::~VersionedSlaveCM()
 
     _version = VERSION_NONE;
     _master = 0;
-}
-
-void VersionedSlaveCM::init( const bool threadSafe )
-{
-    if( !threadSafe || _mutex ) 
-        return;
-
-    _mutex = new base::Lock;
 }
 
 uint32_t VersionedSlaveCM::commitNB()
@@ -102,7 +90,6 @@ uint32_t VersionedSlaveCM::sync( const uint32_t v )
     if( _version == v )
         return _version;
 
-    base::ScopedMutex<> mutex( _mutex );
     const uint32_t version = (v == VERSION_NEXT) ? _version + 1 : v;
 
     if( version == VERSION_HEAD )

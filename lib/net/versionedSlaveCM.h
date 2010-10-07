@@ -41,7 +41,7 @@ namespace net
         VersionedSlaveCM( Object* object, uint32_t masterInstanceID );
         virtual ~VersionedSlaveCM();
 
-        virtual void init( const bool threadSafe );
+        virtual void init() {}
 
         /**
          * @name Versioning
@@ -50,11 +50,8 @@ namespace net
         virtual uint32_t commitNB();
         virtual uint32_t commitSync( const uint32_t commitID );
 
-        virtual void obsolete( const uint32_t ) { EQDONTCALL; }
-
         virtual void setAutoObsolete( const uint32_t ) { EQDONTCALL; }
-        virtual uint32_t getAutoObsoleteCount() const
-            { EQDONTCALL; return 0; }
+        virtual uint32_t getAutoObsolete() const { EQDONTCALL; return 0; }
 
         virtual uint32_t sync( const uint32_t version );
 
@@ -82,9 +79,6 @@ namespace net
 
         /** The current version. */
         uint32_t _version;
-
-        /** The mutex, if thread safety is enabled. */
-        base::Lock* _mutex;
 
         /** istream for receiving the current version */
         ObjectDataIStream* _currentIStream;

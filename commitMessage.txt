@@ -1,9 +1,13 @@
-[Daniel P.] CMake: fix defines generation
+Simplify net::Object:
+- remove unused thread-safety: app can do that as well, if needed.
+- remove unimplemented obsolete
+- rename getAutoObsoleteCount to getAutoObsolete for consistency
+
 
 [ ] May break build
-[ ] May break existing applications
-[x] Bugfix
+[x] May break existing applications (see CHANGES.txt)
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -62,23 +62,11 @@ namespace net
         /** Destruct the distributed object. */
         EQ_EXPORT virtual ~Object();
 
-        /** 
-         * Make this object thread safe.
-         *
-         * Only to be called on an unregistered and unmapped object. If you
-         * don't call this function, certain operations, e.g., sync(), will not
-         * be not-threadsafe.
-         */
-        EQ_EXPORT virtual void makeThreadSafe();  
-
-        /** @sa Dispatcher::dispatchCommand(). */
+        /** @internal @sa Dispatcher::dispatchCommand(). */
         EQ_EXPORT virtual bool dispatchCommand( Command& command );
 
         /** @name Data Access */
         //@{
-        /** @return true if the object has been made threadsafe, false if not.*/
-        bool isThreadSafe() const      { return _threadSafe; }
-
         /** @return true if the object is attached, mapped or registered. */
         bool isAttached() const { return getID() <= EQ_ID_MAX; }
 
@@ -146,7 +134,7 @@ namespace net
          * details.
          *
          * @return the new head version.
-         * @sa commitNB, commitSync
+         * @sa commitNB(), commitSync()
          */
         EQ_EXPORT uint32_t commit();
 
@@ -162,7 +150,7 @@ namespace net
         EQ_EXPORT virtual uint32_t commitNB();
         
         /** 
-         * Finalizes a commit transaction.
+         * Finalize a commit transaction.
          * 
          * @param commitID the commit identifier returned from commitNB
          * @return the new head version.
@@ -170,20 +158,11 @@ namespace net
         EQ_EXPORT virtual uint32_t commitSync( const uint32_t commitID );
 
         /** 
-         * Explicitly obsoletes all versions including version.
-         * 
-         * The head version can not be obsoleted.
-         * 
-         * @param version the version to obsolete
-         */
-        EQ_EXPORT void obsolete( const uint32_t version );
-
-        /** 
          * Automatically obsolete old versions.
          *
-         * The versions for the last count commits are retained. Note that the
-         * number of versions may be less since a commit may not generate a new
-         * version.
+         * The versions for the last count commits are retained. The actual
+         * number of versions retained may be less since a commit does not
+         * always generate a new version.
          * 
          * @param count the number of versions to retain, excluding the head
          *              version.
@@ -191,7 +170,7 @@ namespace net
         EQ_EXPORT void setAutoObsolete( const uint32_t count );
 
         /** @return get the number of versions this object retains. */
-        EQ_EXPORT uint32_t getAutoObsoleteCount() const;
+        EQ_EXPORT uint32_t getAutoObsolete() const;
 
         /** 
          * Sync to a given version.
@@ -203,6 +182,10 @@ namespace net
          * Objects using the change type STATIC can not be synced. Master
          * objects can only be synced to VERSION_HEAD or VERSION_NEXT, since
          * slave objects commit do not generate a new version.
+         *
+         * This function is not thread safe, that is, calling sync()
+         * simultaneously from multiple threads has to be protected by the
+         * caller using a mutex.
          * 
          * @param version the version to synchronize, must be bigger than the
          *                current version.
@@ -367,16 +350,13 @@ namespace net
         friend class VersionedSlaveCM;
 
         /** The session-unique object identifier. */
-        uint32_t     _id;
+        uint32_t _id;
 
-        /** A node-unique identifier of the concrete instance. */
-        uint32_t     _instanceID;
+        /** A session-unique identifier of the concrete instance. */
+        uint32_t _instanceID;
 
         /** The object's change manager. */
         ObjectCM* _cm;
-
-        /** Make synchronization thread safe. */
-        bool _threadSafe;
 
         void _setChangeManager( ObjectCM* cm );
         const Nodes* _getSlaveNodes() const;

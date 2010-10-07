@@ -42,7 +42,7 @@ namespace net
         StaticMasterCM( Object* object );
         virtual ~StaticMasterCM();
 
-        virtual void init( const bool ){}
+        virtual void init(){}
 
         /**
          * @name Versioning
@@ -52,12 +52,8 @@ namespace net
         virtual uint32_t commitSync( const uint32_t )
             { EQDONTCALL; return VERSION_NONE; }
 
-        virtual void obsolete( const uint32_t ) { EQDONTCALL; }
-
         virtual void setAutoObsolete( const uint32_t ) { EQDONTCALL; }
-        
-        virtual uint32_t getAutoObsoleteCount() const
-            { EQDONTCALL; return 0; }
+        virtual uint32_t getAutoObsolete() const { EQDONTCALL; return 0; }
 
         virtual uint32_t sync( const uint32_t )
             { EQDONTCALL; return VERSION_NONE; }

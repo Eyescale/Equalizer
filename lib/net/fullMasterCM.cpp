@@ -67,11 +67,10 @@ FullMasterCM::~FullMasterCM()
     _instanceDataCache.clear();
 }
 
-void FullMasterCM::init( const bool threadSafe )
+void FullMasterCM::init()
 {
     EQASSERT( _commitCount == 0 );
-
-    MasterCM::init( threadSafe );
+    MasterCM::init();
 
     InstanceData* data = _newInstanceData();
     data->os.setVersion( 1 );
