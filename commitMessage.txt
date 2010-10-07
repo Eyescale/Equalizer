@@ -1,9 +1,9 @@
-CMake: re-rename files for consistency
+[Daniel P.] CMake: fix defines generation
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

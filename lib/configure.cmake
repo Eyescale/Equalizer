@@ -34,7 +34,7 @@ if(WIN32)
     EQ_PGM
     #EQ_INFINIBAND #Enable for IB builds (needs WinOF 2.0 installed)
     )
-  set(DEFINES_FILE_IN base/definesWin32.h)
+  set(ARCH Win32)
 endif(WIN32)
 
 # on APPLE glu is inside the AGL library.
@@ -51,22 +51,23 @@ if(APPLE)
   list(APPEND EQUALIZER_DEFINES Darwin)
   if(CMAKE_GENERATOR MATCHES "Xcode")
     list(APPEND EQUALIZER_DEFINES XCODE)
-    set(DEFINES_FILE_IN base/definesXcode.h)
+    set(ARCH Xcode)
   else(CMAKE_GENERATOR MATCHES "Xcode")
-    set(DEFINES_FILE_IN base/definesDarwin.h)
-endif(CMAKE_GENERATOR MATCHES "Xcode")
+    set(ARCH Darwin)
+  endif(CMAKE_GENERATOR MATCHES "Xcode")
 endif(APPLE)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   list(APPEND EQUALIZER_DEFINES Linux)
-  set(DEFINES_FILE_IN base/definesLinux.h)
+  set(ARCH Linux)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
-set(DEFINES_FILE ${EQ_INCLUDE_DIR}/eq/${DEFINES_FILE_IN})
+set(DEFINES_FILE ${EQ_INCLUDE_DIR}/eq/base/defines${ARCH}.h)
+set(DEFINES_FILE_IN ${CMAKE_CURRENT_BINARY_DIR}/defines.h.in)
 
 file(WRITE ${DEFINES_FILE_IN}
-  "#ifndef EQBASE_DEFINES_SYSTEM_H\n"
-  "#define EQBASE_DEFINES_SYSTEM_H\n\n"
+  "#ifndef EQBASE_DEFINES_${ARCH}_H\n"
+  "#define EQBASE_DEFINES_${ARCH}_H\n\n"
   )
 
 foreach(DEF ${EQUALIZER_DEFINES})
@@ -78,7 +79,7 @@ foreach(DEF ${EQUALIZER_DEFINES})
 endforeach(DEF ${EQUALIZER_DEFINES})
 
 file(APPEND ${DEFINES_FILE_IN}
-  "#endif /* EQBASE_DEFINES_SYSTEM_H */\n"
+  "#endif /* EQBASE_DEFINES_${ARCH}_H */\n"
   )
 
 configure_file(${DEFINES_FILE_IN} ${DEFINES_FILE} COPYONLY)

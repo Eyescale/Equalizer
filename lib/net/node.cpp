@@ -1772,13 +1772,6 @@ bool Node::_cmdReleaseSendToken( Command& )
 
 std::ostream& operator << ( std::ostream& os, const Node& node )
 {
-    if( !&node )
-    {
-        os << "NULL node";
-        return os;
-    }
-    // else
-    
     os << "node " << node.getNodeID() << " " << node._state;
     const ConnectionDescriptions& descs = node.getConnectionDescriptions();
     for( ConnectionDescriptions::const_iterator i = descs.begin();
