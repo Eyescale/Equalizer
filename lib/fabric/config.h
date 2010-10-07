@@ -126,7 +126,7 @@ namespace fabric
         /** @internal Init the given canvas in a running config. */
         virtual void exitCanvas( CV* ) { /* NOP */ }
 
-        /** Set the name of the object. @version 1.0 */
+        /** Set the name of the config. @version 1.0 */
         EQFABRIC_EXPORT void setName( const std::string& name );
 
         /** @return the name of the object. @version 1.0 */

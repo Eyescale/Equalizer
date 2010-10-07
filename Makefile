@@ -24,9 +24,14 @@ CLEAN_EXTRA = obj build $(INSTALL_FILES)
 include make/rules.mk
 
 cmake:
-	@mkdir -p cbuild
-	@cd cbuild; cmake ..
-	@$(MAKE) -C cbuild
+	@mkdir -p debug
+	@cd debug; cmake ..
+	@$(MAKE) -C debug
+
+cmakeRelease:
+	@mkdir -p release
+	@cd release; cmake .. -DCMAKE_BUILD_TYPE=Release
+	@$(MAKE) -C release
 
 docs:
 	@$(DOXYGEN) Doxyfile

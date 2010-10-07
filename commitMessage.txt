@@ -1,13 +1,9 @@
-Simplify net::Object:
-- remove unused thread-safety: app can do that as well, if needed.
-- remove unimplemented obsolete
-- rename getAutoObsoleteCount to getAutoObsolete for consistency
-
+Fix frameDrawFinish task generation -- needs further testing
 
 [ ] May break build
-[x] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[ ] May break existing applications (see CHANGES.txt)
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

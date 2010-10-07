@@ -59,7 +59,7 @@ ChannelUpdateVisitor::ChannelUpdateVisitor( Channel* channel,
 bool ChannelUpdateVisitor::_skipCompound( const Compound* compound )
 {
     if( compound->getChannel() != _channel ||
-        !compound->isActive( _eye ) ||
+        !compound->isInheritActive( _eye ) ||
         compound->getInheritTasks() == fabric::TASK_NONE )
     {
         return true;
@@ -70,7 +70,7 @@ bool ChannelUpdateVisitor::_skipCompound( const Compound* compound )
 
 VisitorResult ChannelUpdateVisitor::visitPre( const Compound* compound )
 {
-    if( !compound->isRunning( ))
+    if( !compound->isInheritActive( _eye ))
         return TRAVERSE_PRUNE;    
 
     _updateDrawFinish( compound );
@@ -99,7 +99,7 @@ VisitorResult ChannelUpdateVisitor::visitPre( const Compound* compound )
 
 VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
 {
-    if( !compound->isActive( _eye ))
+    if( !compound->isInheritActive( _eye ))
         return TRAVERSE_CONTINUE;    
 
     if( _skipCompound( compound ))
@@ -203,16 +203,16 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
 
 void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
 {
-    // Test if this is not the last eye pass of this compound
-    if( ( _eye < fabric::EYE_LAST && 
-           compound->isActive( static_cast< fabric::Eye >( _eye << 1 ) )))
-    {
-        return;
-    }
-
     const Compound* lastDrawCompound = _channel->getLastDrawCompound();
     if( lastDrawCompound && lastDrawCompound != compound )
         return;
+
+    // Test if this is not the last eye pass of this compound
+    if( !compound->isLastInheritEye( _eye ))
+        return;
+
+    if( !lastDrawCompound )
+        _channel->setLastDrawCompound( compound );
 
     // Channel::frameDrawFinish
     Node* node = _channel->getNode();
@@ -225,9 +225,6 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     node->send( channelPacket );
     EQLOG( LOG_TASKS ) << "TASK channel draw finish " << _channel->getName()
                        <<  " " << &channelPacket << std::endl;
-
-    if( !lastDrawCompound )
-        _channel->setLastDrawCompound( compound );
 
     // Window::frameDrawFinish
     Window* window = _channel->getWindow();

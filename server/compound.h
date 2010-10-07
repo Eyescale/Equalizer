@@ -396,7 +396,10 @@ namespace server
          *
          * @param eye eye which will be tested. 
          */
-        bool isActive( const Eye eye ) const;
+        bool isInheritActive( const Eye eye ) const;
+
+        /** @return true if the compound is activated for any later eye pass. */
+        bool isLastInheritEye( const Eye eye ) const;
 
         /**
          * @return true if the compound is active and the compound's channel is

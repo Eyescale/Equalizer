@@ -109,7 +109,7 @@ net::ConnectionPtr _startLocalServer()
     serverLibraryNames.push_back( "libEqualizerServer.dll" );
 #elif defined (Darwin)
     serverLibraryNames.push_back( "libEqualizerServer.dylib" );
-    serverLibraryNames.push_back( "cbuild/server/libEqualizerServer.dylib" );
+    serverLibraryNames.push_back( "debug/server/libEqualizerServer.dylib" );
 #else
     serverLibraryNames.push_back( "libEqualizerServer.so" );
     serverLibraryNames.push_back( "../../server/libEqualizerServer.so" );
