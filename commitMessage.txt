@@ -1,9 +1,8 @@
-Code cleanups in Image & Texture
-Fix zoom readback
+CMake: re-rename files for consistency
 
 [ ] May break build
 [ ] May break existing applications
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

@@ -1,8 +1,8 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010 Stefan Eilemann <eile@eyescale.ch>
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeConfig.txt)
-include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeFiles.txt)
+include(${CMAKE_CURRENT_SOURCE_DIR}/configure.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/files.cmake)
 
 set(HEADERS
   ${BASE_HEADERS}
