@@ -1,8 +1,9 @@
-CMake: file renaming for consistency
+Code cleanups in Image & Texture
+Fix zoom readback
 
 [ ] May break build
 [ ] May break existing applications
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

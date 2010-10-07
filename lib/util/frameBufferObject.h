@@ -36,7 +36,7 @@ namespace util
     public: 
         /** Construct a new Frame Buffer Object. @version 1.0 */
         EQ_EXPORT FrameBufferObject( const GLEWContext* const glewContext, 
-                  const GLenum targetTextures = GL_TEXTURE_RECTANGLE_ARB );
+                  const GLenum textureTarget = GL_TEXTURE_RECTANGLE_ARB );
 
         /** Destruct the Frame Buffer Object. @version 1.0 */
         EQ_EXPORT ~FrameBufferObject();
@@ -135,9 +135,6 @@ namespace util
         Texture _depth;
 
         const GLEWContext* const _glewContext;
-
-        /** The target to use in the textures. */
-        GLenum _targetTextures;
 
         /** The reason for the last error. */
         std::string _error;

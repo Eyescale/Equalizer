@@ -53,7 +53,7 @@ namespace util
          *
          * @param externalFormat the input to the uploader.
          * @param internalFormat the output of the uploader. 
-         * @param capabilities the capabilities required by the downloader.
+         * @param capabilities the capabilities required by the uploader.
          */
         bool isValidUploader( const uint32_t externalFormat,
                               const uint32_t internalFormat,
@@ -173,7 +173,6 @@ namespace util
          * @param minQuality the minimum required quality.
          * @param ignoreAlpha true if the downloader may drop the alpha channel.
          * @param glewContext a valid glewContext.
-         ( _info->capabilities & capabilities == capabilities ) &&
          * @param result the output result vector.
          */
         static EQ_EXPORT void findTransferers( const uint32_t internalFormat,

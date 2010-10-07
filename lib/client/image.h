@@ -284,14 +284,17 @@ namespace eq
         /**
          * Read back an image from a given texture.
          *
+         * If no texture is provided, the readback is performed from the
+         * framebuffer.
+         *
          * @param buffer the buffer type.
          * @param texture the OpenGL texture name.
          * @param targetFlags the target to use in downloader
          * @param glewContext function table for the current GL context.
          * @sa setStorageType()
          */
-        void readback( const Frame::Buffer buffer, const uint32_t texture, 
-                       const uint32_t targetFlags, const GLEWContext* glewContext );
+        void readback( const Frame::Buffer buffer, const util::Texture* texture,
+                       const GLEWContext* glewContext );
 
         /**
          * Upload this image to the frame buffer.
@@ -475,8 +478,6 @@ namespace eq
 
         void _readback( const Frame::Buffer buffer, const Zoom& zoom,
                         util::ObjectManager< const void* >* glObjects );
-        void _readbackTexture( const Frame::Buffer buffer,
-                               util::ObjectManager< const void* >* glObjects );
         void _readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
                             util::ObjectManager< const void* >* glObjects );
 

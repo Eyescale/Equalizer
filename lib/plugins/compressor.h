@@ -262,16 +262,17 @@ extern "C" {
     #define EQ_COMPRESSOR_TRANSFER 0x10
 
     /**
-     * Capability to use texture rectangle data as source or destination.
-     * If set, the transfer engine can (query time) or shall (compress time) use
-     * a texture as the source or destination for its operations.
+     * Capability to use a GL_TEXTURE_RECTANGLE_ARB texture as source or
+     * destination. If set, the transfer engine can (query time) or shall
+     * (compress time) use a rectangular texture as the source or destination
+     * for its operations.
      */
     #define EQ_COMPRESSOR_USE_TEXTURE_RECT 0x20
 
     /**
-     * Capability to use texture 2D data as source or destination.
+     * Capability to use a GL_TEXTURE_2D texture as source or destination.
      * If set, the transfer engine can (query time) or shall (compress time) use
-     * a texture as the source or destination for its operations.
+     * a 2D texture as the source or destination for its operations.
      */
     #define EQ_COMPRESSOR_USE_TEXTURE_2D 0x80
 

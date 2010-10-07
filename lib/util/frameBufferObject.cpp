@@ -30,16 +30,14 @@ namespace util
 {
 
 FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext, 
-                                      const GLenum targetTextures )
+                                      const GLenum textureTarget )
     : _fboID( 0 )
-    , _depth( targetTextures, glewContext )
+    , _depth( textureTarget, glewContext )
     , _glewContext( glewContext )
-    , _targetTextures( targetTextures )
     , _valid( false )
 {
     EQASSERT( GLEW_EXT_framebuffer_object );
-
-    _colors.push_back( new Texture( _targetTextures, glewContext ));
+    _colors.push_back( new Texture( textureTarget, glewContext ));
 }
 
 FrameBufferObject::~FrameBufferObject()
@@ -60,7 +58,8 @@ bool FrameBufferObject::addColorTexture()
         return false;
     }
 
-    _colors.push_back( new Texture( _targetTextures, _glewContext ));
+    _colors.push_back( new Texture( _colors.front()->getTarget(),
+                                    _glewContext ));
     _valid = false;
     return true;
 }

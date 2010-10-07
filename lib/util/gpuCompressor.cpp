@@ -143,6 +143,7 @@ void GPUCompressor::download( const fabric::PixelViewport& pvpIn,
                               void** out )
 {
     EQASSERT( _plugin );
+    EQASSERT( _glewContext );
 
     const uint64_t inDims[4] = { pvpIn.x, pvpIn.w, pvpIn.y, pvpIn.h }; 
     uint64_t outDims[4] = { 0, 0, 0, 0 };
@@ -161,6 +162,7 @@ void GPUCompressor::upload( const void*                  buffer,
                             const unsigned               destination )
 {
     EQASSERT( _plugin );
+    EQASSERT( _glewContext );
 
     const uint64_t inDims[4] = { pvpIn.x, pvpIn.w, pvpIn.y, pvpIn.h }; 
     uint64_t outDims[4] = { pvpOut.x, pvpOut.w, pvpOut.y, pvpOut.h };
