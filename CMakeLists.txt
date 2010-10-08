@@ -124,6 +124,7 @@ endif(APPLE)
 
 include(${CMAKE_SOURCE_DIR}/externals/UseGLEW.cmake)
 include(${CMAKE_SOURCE_DIR}/externals/UseVMMLib.cmake)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DEQ_BUILD_DIR=\\\"${CMAKE_BINARY_DIR}\\\"")
 
 add_subdirectory(admin)
 add_subdirectory(examples)

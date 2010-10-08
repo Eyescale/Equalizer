@@ -1,4 +1,4 @@
-Fix frameDrawFinish task generation -- needs further testing
+CMake: Fix dlopen of server library
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

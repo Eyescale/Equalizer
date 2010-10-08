@@ -94,7 +94,7 @@ namespace net
         /** @return the node-wide unique object instance identifier. */
         uint32_t getInstanceID() const { return _instanceID; }
 
-        /** @return the master object instance identifier. @internal */
+        /** @internal @return the master object instance identifier. */
         EQ_EXPORT uint32_t getMasterInstanceID() const;
 
         /** 

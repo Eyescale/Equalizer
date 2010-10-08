@@ -102,23 +102,24 @@ base::DSO _libeqserver;
 
 net::ConnectionPtr _startLocalServer()
 {
-    Strings serverLibraryNames;
+    Strings dirNames;
+    dirNames.push_back( "" );
+    dirNames.push_back( EQ_BUILD_DIR );
+
 #ifdef _MSC_VER
-    serverLibraryNames.push_back( "EqualizerServer.dll" );
+    const std::string libName = "EqualizerServer.dll";
 #elif defined (WIN32)
-    serverLibraryNames.push_back( "libEqualizerServer.dll" );
+    const std::string libName = "libEqualizerServer.dll";
 #elif defined (Darwin)
-    serverLibraryNames.push_back( "libEqualizerServer.dylib" );
-    serverLibraryNames.push_back( "debug/server/libEqualizerServer.dylib" );
+    const std::string libName = "libEqualizerServer.dylib";
 #else
-    serverLibraryNames.push_back( "libEqualizerServer.so" );
-    serverLibraryNames.push_back( "../../server/libEqualizerServer.so" );
+    const std::string libName = "libEqualizerServer.so";
 #endif
 
-    while( !_libeqserver.isOpen() && !serverLibraryNames.empty( ))
+    while( !_libeqserver.isOpen() && !dirNames.empty( ))
     {
-        _libeqserver.open( serverLibraryNames.back( ));
-        serverLibraryNames.pop_back();
+        _libeqserver.open( dirNames.back() + libName );
+        dirNames.pop_back();
     }
 
     if( !_libeqserver.isOpen( ))
