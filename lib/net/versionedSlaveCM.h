@@ -69,7 +69,7 @@ namespace net
         virtual void removeSlave( NodePtr ) { EQDONTCALL; }
 
         virtual void applyMapData();
-        virtual void addInstanceDatas( const InstanceDataDeque& cache, 
+        virtual void addInstanceDatas( const ObjectInstanceDataIStreamDeque&, 
                                        const uint32_t startVersion );
 
         virtual const Object* getObject( ) const { return _object; }

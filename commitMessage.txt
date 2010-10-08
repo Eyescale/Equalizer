@@ -1,9 +1,10 @@
-[M Lambers] Fix compile warning
+Fix versioning on 'empty' commits for INSTANCE objects
+typedef naming cleanup
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

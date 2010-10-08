@@ -73,6 +73,7 @@ namespace net
         
         InstanceData* _newInstanceData();
         void _addInstanceData( InstanceData* data );
+        void _releaseInstanceData( InstanceData* data );
 
         void _obsolete();
         void _checkConsistency() const;

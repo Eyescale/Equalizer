@@ -68,13 +68,13 @@ typedef std::vector< ConnectionPtr >             Connections;
 typedef std::vector< ConnectionDescriptionPtr >  ConnectionDescriptions;
 
 /** @cond IGNORE */
-typedef std::vector< ObjectVersion > ObjectVersions;
 typedef std::vector< Command* > Commands;
 typedef std::deque< Command* > CommandDeque;
+typedef std::list< Command* > CommandList;
 typedef stde::hash_map< uint32_t, Objects > ObjectsHash;
-typedef std::list< Command* >   CommandList;
-typedef std::deque< ObjectInstanceDataIStream* > InstanceDataDeque;
-typedef std::vector< ObjectInstanceDataIStream* > InstanceDatas;
+typedef std::vector< ObjectVersion > ObjectVersions;
+typedef std::deque< ObjectInstanceDataIStream* > ObjectInstanceDataIStreamDeque;
+typedef std::vector< ObjectInstanceDataIStream* > ObjectInstanceDataIStreams;
 /** @endcond */
 
 #ifdef EQ_USE_DEPRECATED

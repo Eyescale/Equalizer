@@ -87,10 +87,15 @@ bool DeltaMasterCM::_cmdCommit( Command& command )
             _object->getInstanceData( instanceData->os );
             instanceData->os.disable();
 
-            ++_version;
-            EQASSERT( _version );
+            if( _deltaData.hasSentData() || instanceData->os.hasSentData( ))
+            {
+                ++_version;
+                EQASSERT( _version );
 
-            _addInstanceData( instanceData );
+                _addInstanceData( instanceData );
+            }
+            else
+                _releaseInstanceData( instanceData );
 
 #if 0
             EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 

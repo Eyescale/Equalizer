@@ -124,7 +124,6 @@ int EqPly::run()
     while( config->isRunning( ) && maxFrames-- )
     {
         config->startFrame();
-        // config->renderData(...);
         config->finishFrame();
 
         while( !config->needsRedraw( )) // wait for an event requiring redraw

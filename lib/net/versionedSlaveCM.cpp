@@ -204,8 +204,8 @@ void VersionedSlaveCM::applyMapData()
 #endif
 }
 
-void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache, 
-                                         const uint32_t startVersion )
+void VersionedSlaveCM::addInstanceDatas(
+    const ObjectInstanceDataIStreamDeque& cache, const uint32_t startVersion )
 {
     EQ_TS_THREAD( _cmdThread );
 #if 0
@@ -225,10 +225,10 @@ void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache,
         newest = is->getVersion();
     }
 
-    InstanceDataDeque  head;
-    InstanceDatas tail;
+    ObjectInstanceDataIStreamDeque head;
+    ObjectInstanceDataIStreams tail;
 
-    for( InstanceDataDeque::const_iterator i = cache.begin();
+    for( ObjectInstanceDataIStreamDeque::const_iterator i = cache.begin();
          i != cache.end(); ++i )
     {
         ObjectInstanceDataIStream* stream = *i;
@@ -246,7 +246,7 @@ void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache,
             tail.push_back( stream );
     }
 
-    for( InstanceDataDeque::const_iterator i = head.begin();
+    for( ObjectInstanceDataIStreamDeque::const_iterator i = head.begin();
          i != head.end(); ++i )
     {
         const ObjectInstanceDataIStream* stream = *i;
@@ -259,7 +259,7 @@ void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache,
 #if 0
     EQLOG( LOG_OBJECTS ) << " back ";
 #endif
-    for( InstanceDatas::const_iterator i = tail.begin();
+    for( ObjectInstanceDataIStreams::const_iterator i = tail.begin();
          i != tail.end(); ++i )
     {
         const ObjectInstanceDataIStream* stream = *i;
@@ -271,7 +271,7 @@ void VersionedSlaveCM::addInstanceDatas( const InstanceDataDeque& cache,
 
 #ifndef NDEBUG // consistency check
     uint32_t version = std::numeric_limits< uint32_t >::max();
-    for( InstanceDatas::const_iterator i = tail.begin();
+    for( ObjectInstanceDataIStreams::const_iterator i = tail.begin();
          i != tail.end(); ++i )
     {
         const ObjectInstanceDataIStream* stream = *i;

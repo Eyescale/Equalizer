@@ -30,9 +30,9 @@ server
             channel "channel"
             wall
             {
-                bottom_left  [ -.5 -.5 -1 ]
-                bottom_right [  .5 -.5 -1 ]
-                top_left     [ -.5  .5 -1 ]
+                bottom_left  [ -.32 -.2 -1 ]
+                bottom_right [  .32 -.2 -1 ]
+                top_left     [ -.32  .2 -1 ]
             }
         }
     }    

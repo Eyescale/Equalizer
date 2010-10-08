@@ -22,7 +22,6 @@
 
 #include <eq/base/buffer.h>
 #include <eq/base/clock.h>
-#include "base/cpuCompressor.h"
 #include <eq/base/file.h>
 #include <eq/base/global.h>
 #include <eq/base/memoryMap.h>
@@ -36,6 +35,7 @@
 #include <string>
 
 #include "base/compressorInfo.h" // private header
+#include "base/cpuCompressor.h" // private header
 #include "base/plugin.h" // private header
 
 void testCompressByte( const uint32_t nameCompressor,

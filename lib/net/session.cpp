@@ -356,7 +356,8 @@ void Session::swapObject( Object* oldObject, Object* newObject )
     if( id == EQ_ID_INVALID )
         return;
 
-    EQLOG( LOG_OBJECTS ) << "Swap " << base::className( oldObject ) << std::endl;
+    EQLOG( LOG_OBJECTS ) << "Swap " << base::className( oldObject )
+                         << std::endl;
 
     ObjectsHash::iterator i = _objects->find( id );
     EQASSERT( i != _objects->end( ));
@@ -989,7 +990,7 @@ bool Session::_cmdMapObject( Command& command )
     const InstanceCache::Data& cached = _instanceCache[ id ];
     if( cached != InstanceCache::Data::NONE )
     {
-        const InstanceDataDeque& versions = cached.versions;
+        const ObjectInstanceDataIStreamDeque& versions = cached.versions;
         EQASSERT( !cached.versions.empty( ));
         subscribePacket.useCache = true;
         subscribePacket.masterInstanceID = cached.masterInstanceID;

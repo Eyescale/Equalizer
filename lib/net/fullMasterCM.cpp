@@ -107,7 +107,7 @@ void FullMasterCM::_obsolete()
         EQINFO << _bytesBuffered << " bytes used" << std::endl;
 #endif
 #if 0
-        EQLOG( LOG_OBJECTS )
+        EQINFO
             << "Remove v" << data->os.getVersion() << " c" << data->commitCount
             << "@" << _commitCount << "/" << _nVersions << " from "
             << ObjectVersion( _object ) << std::endl;
@@ -120,6 +120,7 @@ void FullMasterCM::_obsolete()
 
 uint32_t FullMasterCM::getOldestVersion() const
 {
+    EQ_TS_THREAD( _cmdThread );
     if( _version == VERSION_NONE )
         return VERSION_NONE;
 
@@ -292,11 +293,18 @@ FullMasterCM::InstanceData* FullMasterCM::_newInstanceData()
 
 void FullMasterCM::_addInstanceData( InstanceData* data )
 {
+    EQ_TS_THREAD( _cmdThread );
     _instanceDatas.push_back( data );
 #ifdef EQ_INSTRUMENT
     _bytesBuffered += data->os.getSaveBuffer().getSize();
     EQINFO << _bytesBuffered << " bytes used" << std::endl;
 #endif
+}
+
+void FullMasterCM::_releaseInstanceData( InstanceData* data )
+{
+    EQ_TS_THREAD( _cmdThread );
+    _instanceDataCache.push_back( data );
 }
 
 //---------------------------------------------------------------------------
@@ -329,11 +337,14 @@ bool FullMasterCM::_cmdCommit( Command& command )
             ++_version;
             EQASSERT( _version );
 #if 0
-            EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
-                                 << _object->getID() << std::endl;
+            EQINFO << "Committed v" << _version << "@" << _commitCount
+                   << ", id " << _object->getID() << std::endl;
 #endif
+            _addInstanceData( instanceData );
         }
-        _addInstanceData( instanceData );
+        else
+            _instanceDataCache.push_back( instanceData );
+
         _object->getLocalNode()->serveRequest( packet->requestID, _version );
     }
 

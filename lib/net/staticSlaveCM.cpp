@@ -65,8 +65,8 @@ void StaticSlaveCM::applyMapData()
                          << std::endl;
 }
 
-void StaticSlaveCM::addInstanceDatas( const InstanceDataDeque& cache, 
-                                      const uint32_t /* startVersion */ )
+void StaticSlaveCM::addInstanceDatas(
+    const ObjectInstanceDataIStreamDeque& cache, const uint32_t /* start */ )
 {
     EQASSERT( _currentIStream );
     EQASSERT( _currentIStream->getDataSize() == 0 );
