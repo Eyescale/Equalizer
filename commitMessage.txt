@@ -1,4 +1,4 @@
-CMake: Fix dlopen of server library
+[M Lambers] Fix compile warning
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
