@@ -70,7 +70,7 @@ void GPUCompressor::initDownloader( const uint32_t internalFormat,
         const EqCompressorInfo& info = *j;
 
         if( ratio > info.ratio || 
-            ( ratio = info.ratio && speed < info.speed))
+            ( ratio == info.ratio && speed < info.speed))
         {
             ratio = info.ratio;
             speed = info.speed;
