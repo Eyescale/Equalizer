@@ -30,7 +30,7 @@ namespace plugin
 
 namespace
 {
-static stde::hash_map< unsigned, uint32_t > _depths;
+static stde::hash_map< unsigned, eq_uint32_t > _depths;
 
 #define REGISTER_TRANSFER( in, out, size, quality_, ratio_, speed_, alpha ) \
     static void _getInfo ## in ## out( EqCompressorInfo* const info )   \
@@ -190,7 +190,6 @@ CompressorReadDrawPixels::CompressorReadDrawPixels( const unsigned name )
             _type = GL_FLOAT;
             _internalFormat = GL_RGBA32F;
             break;
-
         case EQ_COMPRESSOR_TRANSFER_RGBA_TO_RGB:
             _format = GL_RGB;
             _type = GL_UNSIGNED_BYTE;
@@ -221,7 +220,6 @@ CompressorReadDrawPixels::CompressorReadDrawPixels( const unsigned name )
             _type = GL_HALF_FLOAT;
             _internalFormat = GL_RGBA32F;
             break;
-
         case EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGR:
             _format = GL_BGR;
             _type = GL_UNSIGNED_BYTE;
@@ -252,7 +250,6 @@ CompressorReadDrawPixels::CompressorReadDrawPixels( const unsigned name )
             _type = GL_HALF_FLOAT;
             _internalFormat = GL_RGBA32F;
             break;
-
         case EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT:
             _format = GL_DEPTH_COMPONENT;
             _type = GL_UNSIGNED_INT;

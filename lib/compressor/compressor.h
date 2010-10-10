@@ -26,6 +26,8 @@
 #include <typeinfo>
 #include <vector>
 
+typedef unsigned long eq_uint32_t;
+
 /**
  * @file compressor/compressor.h
  * 
