@@ -124,6 +124,8 @@ namespace base
         CompressorInfos _infos;
         base::DSO _dso;   
     };
+	
+	std::ostream& operator << ( std::ostream& os, const EqCompressorInfo& info );	
 }
 }
 

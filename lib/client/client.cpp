@@ -104,7 +104,10 @@ net::ConnectionPtr _startLocalServer()
 {
     Strings dirNames;
     dirNames.push_back( "" );
+
+#ifdef EQ_BUILD_DIR
     dirNames.push_back( EQ_BUILD_DIR );
+#endif
 
 #ifdef _MSC_VER
     const std::string libName = "EqualizerServer.dll";
