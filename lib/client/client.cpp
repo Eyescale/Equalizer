@@ -106,7 +106,7 @@ net::ConnectionPtr _startLocalServer()
     dirNames.push_back( "" );
 
 #ifdef EQ_BUILD_DIR
-    dirNames.push_back( EQ_BUILD_DIR );
+    dirNames.push_back( std::string( EQ_BUILD_DIR ) + "server/" );
 #endif
 
 #ifdef _MSC_VER
