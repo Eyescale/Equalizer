@@ -664,9 +664,9 @@ void Config::deregisterObject( net::Object* object )
     // Replaces the object with a dummy proxy object using the
     // existing master change manager.
     ConfigSwapObjectPacket packet;
-    packet.sessionID = getID();
-    packet.requestID = getLocalNode()->registerRequest();
-    packet.object    = object;
+    packet.sessionID         = getID();
+    packet.requestID         = getLocalNode()->registerRequest();
+    packet.object            = object;
 
     getLocalNode()->send( packet );
     getLocalNode()->waitRequest( packet.requestID );

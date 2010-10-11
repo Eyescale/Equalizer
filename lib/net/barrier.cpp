@@ -197,5 +197,6 @@ bool Barrier::_cmdEnterReply( Command& )
     ++_leaveNotify;
     return true;
 }
+
 }
 }

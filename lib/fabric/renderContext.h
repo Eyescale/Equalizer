@@ -42,6 +42,9 @@ namespace fabric
     public: 
         EQ_EXPORT RenderContext();
 
+        Frustumf       frustum;        //<! frustum for projection matrix
+        Frustumf       ortho;          //<! ortho frustum for projection matrix
+
         Matrix4f       headTransform;  //<! frustum transform for modelview
 
         PixelViewport  pvp;            //<! pixel viewport of channel wrt window
@@ -61,9 +64,6 @@ namespace fabric
         uint32_t       period;         //<! DPlex period
         uint32_t       phase;          //<! DPlex phase
         Eye            eye;            //<! current eye pass
-
-        Frustumf       frustum;        //<! frustum for projection matrix
-        Frustumf       ortho;          //<! ortho frustum for projection matrix
 
         ColorMask      bufferMask;     //<! color mask for anaglyph stereo
         bool           alignDummy[28]; //<! @internal padding

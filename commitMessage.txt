@@ -1,9 +1,8 @@
-Fix versioning on 'empty' commits for INSTANCE objects
-typedef naming cleanup
+Minor code cleanups
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
