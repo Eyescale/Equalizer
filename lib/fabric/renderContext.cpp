@@ -23,7 +23,9 @@ namespace fabric
 {
 
 RenderContext::RenderContext()
-        : headTransform( Matrix4f::IDENTITY )
+        : frustum( Frustumf::DEFAULT )
+        , ortho( Frustumf::DEFAULT )
+        , headTransform( Matrix4f::IDENTITY )
         , overdraw( Vector4i::ZERO )
         , offset( Vector2i::ZERO )
         , frameID( 0 )
@@ -32,8 +34,6 @@ RenderContext::RenderContext()
         , period( 1 )
         , phase( 0 )
         , eye( EYE_CYCLOP )
-        , frustum( Frustumf::DEFAULT )
-        , ortho( Frustumf::DEFAULT )
 {
 }
 

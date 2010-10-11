@@ -30,7 +30,7 @@ namespace plugin
 
 namespace
 {
-static stde::hash_map< unsigned, eq_uint32_t > _depths;
+static stde::hash_map< unsigned, unsigned > _depths;
 
 #define REGISTER_TRANSFER( in, out, size, quality_, ratio_, speed_, alpha ) \
     static void _getInfo ## in ## out( EqCompressorInfo* const info )   \
