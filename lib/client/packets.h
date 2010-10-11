@@ -199,42 +199,44 @@ namespace eq
             }
        
         uint32_t versionID;
-        uint32_t syncID;
         uint32_t finishID;
+        uint32_t requestID;
+    };
+
+    struct ConfigUpdateVersionPacket : public ConfigPacket
+    {
+        ConfigUpdateVersionPacket( const ConfigUpdatePacket* request,
+                                   const uint32_t version_, const uint32_t req )
+                : versionID( request->versionID )
+                , finishID( request->finishID )
+                , version( version_ )
+                , requestID( req )
+            {
+                command   = fabric::CMD_CONFIG_UPDATE_VERSION;
+                size      = sizeof( ConfigUpdateVersionPacket );
+                sessionID = request->sessionID;
+            }
+
+        const uint32_t versionID;
+        const uint32_t finishID;
+        const uint32_t version;
+        const uint32_t requestID;
     };
 
     struct ConfigUpdateReplyPacket : public ConfigPacket
     {
         ConfigUpdateReplyPacket( const ConfigUpdatePacket* request,
-                                 const uint32_t version_, const bool sync_ )
-                : versionID( request->versionID )
-                , syncID( request->syncID )
-                , version( version_ )
-                , sync( sync_ )
+                                 const bool result_ )
+                : requestID( request->requestID )
+                , result( result_ )
             {
                 command   = fabric::CMD_CONFIG_UPDATE_REPLY;
                 size      = sizeof( ConfigUpdateReplyPacket );
                 sessionID = request->sessionID;
             }
 
-        const uint32_t versionID;
-        const uint32_t syncID;
-        const uint32_t version;
-        const bool     sync;
-    };
-
-    struct ConfigFinishPacket : public ConfigPacket
-    { 
-        ConfigFinishPacket( const ConfigUpdatePacket* request, const bool finish_ )
-                : finishID( request->finishID )
-                , finish( finish_ )
-            {
-                command   = fabric::CMD_CONFIG_FINISH;
-                size      = sizeof( ConfigFinishPacket );
-                sessionID = request->sessionID;
-            }
-        const uint32_t finishID;
-        const bool     finish;
+        const uint32_t requestID;
+        const bool result;
     };
 
     struct ConfigExitPacket : public ConfigPacket
@@ -261,33 +263,13 @@ namespace eq
 
     struct ConfigStartFramePacket : public ConfigPacket
     {
-        ConfigStartFramePacket()
+        ConfigStartFramePacket( const uint32_t frameID_ )
+                : frameID( frameID_ )
             {
                 command   = fabric::CMD_CONFIG_START_FRAME;
                 size      = sizeof( ConfigStartFramePacket );
             }
-        uint32_t frameID;
-        uint32_t syncID;
-        uint32_t startID;
-    };
-
-    struct ConfigStartFrameReplyPacket : public ConfigPacket
-    {
-        ConfigStartFrameReplyPacket( const ConfigStartFramePacket* request,
-                                     const uint32_t version_,
-                                     const uint32_t finishID_ )
-                : syncID( request->syncID )
-                , startID( request->startID )
-                , version( version_ )
-                , finishID( finishID_ )
-            {
-                command   = fabric::CMD_CONFIG_START_FRAME_REPLY;
-                size      = sizeof( ConfigStartFrameReplyPacket );
-            }
-        const uint32_t syncID;
-        const uint32_t startID;
-        const uint32_t version;
-        const uint32_t finishID;
+        const uint32_t frameID;
     };
 
     struct ConfigReleaseFrameLocalPacket : public ConfigPacket

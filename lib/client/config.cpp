@@ -85,23 +85,19 @@ void Config::notifyMapped( net::NodePtr node )
 
     ServerPtr          server = getServer();
     net::CommandQueue* queue  = server->getMainThreadQueue();
-    net::CommandQueue* cmdQueue = server->getCommandThreadQueue();
 
     registerCommand( fabric::CMD_CONFIG_CREATE_NODE,
                      ConfigFunc( this, &Config::_cmdCreateNode ), queue );
     registerCommand( fabric::CMD_CONFIG_DESTROY_NODE,
                      ConfigFunc( this, &Config::_cmdDestroyNode ), queue );
-    registerCommand( fabric::CMD_CONFIG_START_FRAME_REPLY,
-                     ConfigFunc( this, &Config::_cmdStartFrameReply ),
-                     cmdQueue );
     registerCommand( fabric::CMD_CONFIG_INIT_REPLY, 
                      ConfigFunc( this, &Config::_cmdInitReply ), queue );
     registerCommand( fabric::CMD_CONFIG_EXIT_REPLY, 
                      ConfigFunc( this, &Config::_cmdExitReply ), queue );
+    registerCommand( fabric::CMD_CONFIG_UPDATE_VERSION,
+                     ConfigFunc( this, &Config::_cmdUpdateVersion ), 0 );
     registerCommand( fabric::CMD_CONFIG_UPDATE_REPLY,
-                     ConfigFunc( this, &Config::_cmdUpdateReply ), cmdQueue );
-    registerCommand( fabric::CMD_CONFIG_FINISH,
-                     ConfigFunc( this, &Config::_cmdFinish ), queue );
+                     ConfigFunc( this, &Config::_cmdUpdateReply ), queue );
     registerCommand( fabric::CMD_CONFIG_RELEASE_FRAME_LOCAL, 
                      ConfigFunc( this, &Config::_cmdReleaseFrameLocal ), queue);
     registerCommand( fabric::CMD_CONFIG_FRAME_FINISH, 
@@ -205,79 +201,50 @@ bool Config::update( )
 
     ConfigUpdatePacket packet;    
     packet.versionID = client->registerRequest();
-    packet.syncID = client->registerRequest();
     packet.finishID = client->registerRequest();
+    packet.requestID = client->registerRequest();
     send( packet );
 
     // wait for new version
     uint32_t version = net::VERSION_INVALID;
     client->waitRequest( packet.versionID, version );
-    sync( version );
+    uint32_t finishID = 0;
+    client->waitRequest( packet.finishID, finishID );
 
-    // wait for synchonization
-    bool synced;
-    client->waitRequest( packet.syncID, synced );
-
-    if( !synced )
+    if( version == net::VERSION_NONE )
     {
-        client->unregisterRequest( packet.finishID );
+        client->unregisterRequest( packet.requestID );
         return true;
     }
 
-    while( !client->isRequestServed( packet.finishID ))
+    while( _finishedFrame < _currentFrame )
         client->processCommand();
 
-    bool finish = false;
-    client->waitRequest( packet.finishID, finish );
-    return finish;
+    sync( version );
+    ackRequest( getServer(), finishID );
+
+    while( !client->isRequestServed( packet.requestID ))
+        client->processCommand();
+
+    bool result = false;
+    client->waitRequest( packet.requestID, result );
+    return result;
 }
 
 uint32_t Config::startFrame( const uint32_t frameID )
 {
     ConfigStatistics stat( Statistic::CONFIG_START_FRAME, this );
-    commit();
+    update();
 
     // Request new frame
     ClientPtr client = getClient();
-    ConfigStartFramePacket packet;
-    packet.frameID  = frameID;
-    packet.syncID = client->registerRequest();
-    packet.startID = client->registerRequest();
+    ConfigStartFramePacket packet( frameID );
     send( packet );
 
-    uint32_t version;
-    client->waitRequest( packet.syncID, version );
-    sync( version );
-
-    uint32_t finishID = EQ_ID_INVALID;
-    client->waitRequest( packet.startID, finishID );
-
     ++_currentFrame;
-    if( finishID != EQ_ID_INVALID ) // finish to process init tasks
-    {
-        ackRequest( getServer(), finishID );
-        while( _finishedFrame < _currentFrame )
-            client->processCommand();
-    }
-
     EQLOG( base::LOG_ANY ) << "---- Started Frame ---- " << _currentFrame
                            << std::endl;
     stat.event.data.statistic.frameNumber = _currentFrame;
-    
-    base::ScopedMutex< base::SpinLock > mutex( _latencyObjects );
-    while( !_latencyObjects->empty() )
-    {
-        LatencyObject* latencyObject = _latencyObjects->front();
-
-        if ( latencyObject->frameNumber >= _currentFrame )
-            break;
-
-        Session::deregisterObject( latencyObject );
-        _latencyObjects->erase( _latencyObjects->begin() );
-
-        delete latencyObject;
-    }
-    
     return _currentFrame;
 }
 
@@ -327,6 +294,7 @@ uint32_t Config::finishFrame()
 
     handleEvents();
     _updateStatistics( frameToFinish );
+    _releaseObjects();
 
     EQLOG( base::LOG_ANY ) << "---- Finished Frame --- " << frameToFinish
                            << " (" << _currentFrame << ')' << std::endl;
@@ -347,6 +315,8 @@ uint32_t Config::finishAllFrames()
         client->processCommand();
 
     handleEvents();
+    _updateStatistics( _currentFrame );
+    _releaseObjects();
     EQLOG( base::LOG_ANY ) << "-- Finished All Frames --" << std::endl;
     return _currentFrame;
 }
@@ -672,6 +642,23 @@ void Config::deregisterObject( net::Object* object )
     getLocalNode()->waitRequest( packet.requestID );
 }
 
+void Config::_releaseObjects()
+{
+    base::ScopedMutex< base::SpinLock > mutex( _latencyObjects );
+    while( !_latencyObjects->empty() )
+    {
+        LatencyObject* latencyObject = _latencyObjects->front();
+
+        if ( latencyObject->frameNumber > _currentFrame )
+            break;
+
+        Session::deregisterObject( latencyObject );
+        _latencyObjects->erase( _latencyObjects->begin() );
+
+        delete latencyObject;
+    }
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -709,15 +696,6 @@ bool Config::_cmdDestroyNode( net::Command& command )
     return true;
 }
 
-bool Config::_cmdStartFrameReply( net::Command& command ) 
-{
-    const ConfigStartFrameReplyPacket* packet =
-        command.getPacket< ConfigStartFrameReplyPacket >();
-    getClient()->serveRequest( packet->syncID, packet->version );
-    getClient()->serveRequest( packet->startID, packet->finishID );
-    return true;
-}
-
 bool Config::_cmdInitReply( net::Command& command )
 {
     const ConfigInitReplyPacket* packet = 
@@ -740,23 +718,22 @@ bool Config::_cmdExitReply( net::Command& command )
     return true;
 }
 
+bool Config::_cmdUpdateVersion( net::Command& command )
+{
+    const ConfigUpdateVersionPacket* packet = 
+        command.getPacket<ConfigUpdateVersionPacket>();
+
+    getClient()->serveRequest( packet->versionID, packet->version );
+    getClient()->serveRequest( packet->finishID, packet->requestID );
+    return true;
+}
+
 bool Config::_cmdUpdateReply( net::Command& command )
 {
     const ConfigUpdateReplyPacket* packet = 
         command.getPacket<ConfigUpdateReplyPacket>();
-    EQVERB << "handle init reply " << packet << std::endl;
 
-    getClient()->serveRequest( packet->versionID, packet->version );
-    getClient()->serveRequest( packet->syncID, packet->sync );
-    return true;
-}
-
-bool Config::_cmdFinish( net::Command& command )
-{
-    const ConfigFinishPacket* packet = 
-        command.getPacket< ConfigFinishPacket >();
-    EQVERB << "handle init finish reply " << packet << std::endl;
-    getClient()->serveRequest( packet->finishID, packet->finish );
+    getClient()->serveRequest( packet->requestID, packet->result );
     return true;
 }
 

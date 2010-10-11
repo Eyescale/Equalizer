@@ -1,4 +1,5 @@
-Minor code cleanups
+Merge Config::startFrame update and Config::update, move delayed object
+deregistration to finish of frame
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

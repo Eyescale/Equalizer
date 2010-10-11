@@ -975,21 +975,33 @@ bool Config::_cmdUpdate( net::Command& command )
     accept( syncer );
 
     net::NodePtr node = command.getNode();
-    ConfigUpdateReplyPacket reply( packet, getVersion(), _needsFinish );
-    send( command.getNode(), reply );
-    
     if( !_needsFinish )
+    {
+        ConfigUpdateVersionPacket reply( packet, net::VERSION_NONE,
+                                         EQ_ID_INVALID );
+        send( node, reply );
         return true;
+    }
 
-    ConfigFinishPacket replyFinish( packet, _updateRunning( ));
-    if( !replyFinish.finish && !getIAttribute( IATTR_ROBUSTNESS ))
+    net::NodePtr localNode = getLocalNode();
+    ConfigUpdateVersionPacket replyVersion( packet, getVersion(),
+                                            localNode->registerRequest( ));
+    send( node, replyVersion );
+    
+    _flushAllFrames();
+    _finishedFrame.waitEQ( _currentFrame ); // wait for render clients idle
+    localNode->waitRequest( replyVersion.requestID ); // wait for app sync
+    _needsFinish = false;
+
+    ConfigUpdateReplyPacket replyResult( packet, _updateRunning( ));
+    if( !replyResult.result && !getIAttribute( IATTR_ROBUSTNESS ))
     {
         EQWARN << "Config update failed, exiting config: " 
                << getErrorMessage() << std::endl;
         exit();
     }
 
-    send( command.getNode(), replyFinish );
+    send( command.getNode(), replyResult );
     return true;
 }
 
@@ -999,45 +1011,14 @@ bool Config::_cmdStartFrame( net::Command& command )
         command.getPacket<ConfigStartFramePacket>();
     EQVERB << "handle config frame start " << packet << std::endl;
 
-    ConfigSyncVisitor syncer;
-    accept( syncer );
-
-    net::NodePtr node = command.getNode();
-    net::NodePtr localNode = getLocalNode();
-    ConfigStartFrameReplyPacket reply( packet, getVersion(),
-                  _needsFinish ? localNode->registerRequest() : EQ_ID_INVALID );
-    send( node, reply );
-
-    if( _needsFinish ) // pre-frame: flush rendering
-    {
-        _flushAllFrames();
-        _finishedFrame.waitEQ( _currentFrame ); // wait for render clients idle
-        localNode->waitRequest( reply.finishID ); // wait for app config sync
-    }
-
-    if( _updateRunning() || getIAttribute( IATTR_ROBUSTNESS ))
-        _startFrame( packet->frameID );
-    else
-    {
-        EQWARN << "Start frame failed, exiting config: " 
-               << getErrorMessage() << std::endl;
-        exit();
-        ++_currentFrame;
-    }
-
-    if( _needsFinish ) // post-frame: flush current frame to unlock app
-    {
-        _flushAllFrames();
-        _needsFinish = false;
-        //EQINFO << *this << std::endl;
-    }
+    _startFrame( packet->frameID );
 
     if( _state == STATE_STOPPED )
     {
         // unlock app
         ConfigFrameFinishPacket frameFinishPacket;
         frameFinishPacket.frameNumber = _currentFrame;
-        send( node, frameFinishPacket );        
+        send( command.getNode(), frameFinishPacket );        
     }
 
     return true;

@@ -404,6 +404,10 @@ namespace eq
          */
         void _updateStatistics( const uint32_t finishedFrame );
 
+        /** Release all deregisterd buffered objects after their latency is
+            done. */
+        void _releaseObjects();
+
         /** Exit the current message pump */
         void _exitMessagePump();
 
@@ -411,11 +415,10 @@ namespace eq
         bool _cmdSyncClock( net::Command& command );
         bool _cmdCreateNode( net::Command& command );
         bool _cmdDestroyNode( net::Command& command );
-        bool _cmdStartFrameReply( net::Command& command );
         bool _cmdInitReply( net::Command& command );
         bool _cmdExitReply( net::Command& command );
+        bool _cmdUpdateVersion( net::Command& command );
         bool _cmdUpdateReply( net::Command& command );
-        bool _cmdFinish( net::Command& command );
         bool _cmdReleaseFrameLocal( net::Command& command );
         bool _cmdFrameFinish( net::Command& command );
         bool _cmdSwapObject( net::Command& command );

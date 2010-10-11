@@ -34,10 +34,8 @@ namespace eq
 {
 namespace fabric
 {
-    /**
-     * The context applied by the server during rendering operations.
-     */
-    class RenderContext 
+    /** The context applied to a channel during rendering operations. */
+    class RenderContext
     {
     public: 
         EQ_EXPORT RenderContext();
