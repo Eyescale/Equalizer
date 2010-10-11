@@ -22,9 +22,10 @@
 #include "log.h"
 #include "node.h"
 #include "object.h"
+#include "objectPackets.h"
 #include "objectSlaveDataIStream.h"
-#include "packets.h"
 #include "session.h"
+#include "sessionPackets.h"
 
 //#define EQ_INSTRUMENT
 

@@ -24,6 +24,7 @@
 #include "object.h"
 #include "objectDeltaDataIStream.h"
 #include "objectInstanceDataIStream.h"
+#include "objectPackets.h"
 #include "session.h"
 
 #include <eq/base/scopedMutex.h>

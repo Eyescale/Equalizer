@@ -25,8 +25,9 @@
 #include "log.h"
 #include "objectCM.h"
 #include "objectInstanceDataIStream.h"
-#include "packets.h"
+#include "objectPackets.h"
 #include "session.h"
+#include "sessionPackets.h"
 
 //#define DEBUG_DISPATCH
 #ifdef DEBUG_DISPATCH

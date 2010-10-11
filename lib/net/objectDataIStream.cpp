@@ -19,6 +19,7 @@
 
 #include "command.h"
 #include "commands.h"
+#include "objectPackets.h"
 
 #include <eq/plugins/compressor.h>
 

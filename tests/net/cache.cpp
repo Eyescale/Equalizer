@@ -25,6 +25,8 @@
 #include <eq/base/rng.h>
 #include <eq/base/thread.h>
 
+#include "net/objectPackets.h" // private header
+
 // Tests the functionality of the network packet cache
 
 #define N_READER 1

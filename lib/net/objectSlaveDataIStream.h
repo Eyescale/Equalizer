@@ -24,7 +24,7 @@ namespace eq
 {
 namespace net
 {
-    class Command;
+    struct ObjectSlaveDeltaPacket;
 
     /**
      * The DataIStream for object slave delta data.

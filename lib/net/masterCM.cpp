@@ -21,6 +21,7 @@
 #include "commands.h"
 #include "log.h"
 #include "object.h"
+#include "objectPackets.h"
 #include "objectSlaveDataIStream.h"
 #include "packets.h"
 

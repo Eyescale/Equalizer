@@ -1,5 +1,5 @@
-Merge Config::startFrame update and Config::update, move delayed object
-deregistration to finish of frame
+Refactor internal eq::et packet declarations into private headers to
+reduce include dependencies
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

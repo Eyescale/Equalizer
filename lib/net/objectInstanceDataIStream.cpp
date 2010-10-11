@@ -20,6 +20,7 @@
 
 #include "command.h"
 #include "commands.h"
+#include "objectPackets.h"
 
 namespace eq
 {

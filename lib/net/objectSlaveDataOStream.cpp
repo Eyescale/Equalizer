@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>.
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>.
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>.
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -21,6 +21,7 @@
 #include "log.h"
 #include "masterCM.h"
 #include "object.h"
+#include "objectPackets.h"
 #include "packets.h"
 #include "session.h"
 

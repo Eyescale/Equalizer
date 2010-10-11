@@ -22,7 +22,7 @@
 #include "dataIStream.h"
 #include "dataOStream.h"
 #include "log.h"
-#include "packets.h"
+#include "barrierPackets.h"
 #include "session.h"
 
 using namespace eq::base;

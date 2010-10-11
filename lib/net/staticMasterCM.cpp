@@ -23,7 +23,7 @@
 #include "log.h"
 #include "node.h"
 #include "object.h"
-#include "packets.h"
+#include "sessionPackets.h"
 
 namespace eq
 {

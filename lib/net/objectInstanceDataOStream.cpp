@@ -21,6 +21,7 @@
 #include "log.h"
 #include "masterCM.h"
 #include "object.h"
+#include "objectPackets.h"
 #include "packets.h"
 #include "session.h"
 

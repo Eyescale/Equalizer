@@ -24,8 +24,9 @@
 #include "object.h"
 #include "objectDeltaDataOStream.h"
 #include "objectInstanceDataOStream.h"
-#include "packets.h"
+#include "objectPackets.h"
 #include "session.h"
+#include "sessionPackets.h"
 
 namespace eq
 {

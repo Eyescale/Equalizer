@@ -21,6 +21,7 @@
 #include "connectionDescription.h"
 #include "connectionSet.h"
 #include "global.h"
+#include "nodePackets.h"
 #include "pipeConnection.h"
 #include "session.h"
 #include "socketConnection.h"

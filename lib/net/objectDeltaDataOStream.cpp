@@ -21,8 +21,10 @@
 #include "log.h"
 #include "object.h"
 #include "objectCM.h"
+#include "objectPackets.h"
 #include "packets.h"
 #include "session.h"
+
 #include <eq/base/idPool.h>
 
 namespace eq
