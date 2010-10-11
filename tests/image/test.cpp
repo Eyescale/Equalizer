@@ -117,7 +117,7 @@ static void _compare( const void* data, const void* destData,
         }
 
         const float max = ( 1.f - quality ) * std::numeric_limits< T >::max();
-        TESTINFO( abs( value[k] - destValue[k] ) <= max,
+        TESTINFO( fabs( value[k] - destValue[k] ) <= max,
                   "Comparison of initial data and decompressed data failed" );
     }
 }

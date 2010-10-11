@@ -34,6 +34,7 @@
 #    define EQ_STDEXT_TR1
 #  else
 #    define EQ_STDEXT_EXT
+#    define EQ_HAVE_LONG_HASH
 #  endif
 #else
 #  ifdef WIN32
@@ -106,6 +107,7 @@ EQ_STDEXT_NAMESPACE_OPEN
 #  endif // EQ_HAVE_STRING_HASH
 
 #  if !defined __INTEL_COMPILER
+#    ifndef EQ_HAVE_LONG_HASH
     /** uint64_t hash function. @version 1.0 */
     template<> struct hash< uint64_t >
     {
@@ -116,6 +118,7 @@ EQ_STDEXT_NAMESPACE_OPEN
             return static_cast< size_t >( val );
         }
     };
+#    endif
 #  endif // !__INTEL_COMPILER
 
 #  ifndef EQ_HAVE_VOID_PTR_HASH
