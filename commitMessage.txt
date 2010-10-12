@@ -1,13 +1,8 @@
-- Use FBO's instead of PBuffers to allow reliability tests to run on
-  XQuartz with GLX 1.2
-- Fix GLX window FBO handling (event handler, window size)
-- Fix load equalizer boundary and max size calculation with inactive nodes
-- Improve reliability test logging
-
+Code cleanups on the latest changes.
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

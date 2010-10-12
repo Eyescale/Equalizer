@@ -516,8 +516,7 @@ namespace eq
         /** Used as an alternate drawable. */
         util::FrameBufferObject* _fbo; 
 
-        /** A unique color for differentiate the render part.
-            initialized in the constructor. */
+        /** A random, unique color for this channel. */
         Vector3ub _color;
 
         typedef std::vector< Statistic > Statistics;

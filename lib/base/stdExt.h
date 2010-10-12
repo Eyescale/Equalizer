@@ -34,7 +34,9 @@
 #    define EQ_STDEXT_TR1
 #  else
 #    define EQ_STDEXT_EXT
-#    define EQ_HAVE_LONG_HASH
+#    ifndef EQ_HAVE_LONG_HASH
+#      define EQ_HAVE_LONG_HASH
+#    endif
 #  endif
 #else
 #  ifdef WIN32

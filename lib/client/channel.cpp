@@ -52,13 +52,11 @@ Channel::Channel( Window* parent )
         , _statisticsIndex( 0 )
         , _initialSize( Vector2i::ZERO )
 {
-    static base::RNG rng;
-    for( unsigned i=0; i<8; ++i )
-    {
-        _color.r() = rng.get< uint8_t >();
-        _color.g() = rng.get< uint8_t >();
-        _color.b() = rng.get< uint8_t >();
-    }
+    base::RNG rng;
+    _color.r() = rng.get< uint8_t >();
+    _color.g() = rng.get< uint8_t >();
+    _color.b() = rng.get< uint8_t >();
+
     EQINFO << " New eq::Channel @" << (void*)this << std::endl;
 }
 
