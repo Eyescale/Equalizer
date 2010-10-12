@@ -130,6 +130,10 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                                               false, "", "string", command );
         TCLAP::SwitchArg overlayArg( "o", "noOverlay", "Disable overlay logo", 
                                      command, false );
+        TCLAP::VariableSwitchArg ignoreEqArgs( "eq",
+                                               "Ignored Equalizer options",
+                                               command );
+        TCLAP::IgnoreUnlabeledArg ignoreArgs( command );
 
         command.parse( argc, argv );
 
@@ -193,6 +197,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
     {
         EQERROR << "Command line parse error: " << exception.error() 
                 << " for argument " << exception.argId() << std::endl;
+        ::exit( EXIT_FAILURE );
     }
 }
 }

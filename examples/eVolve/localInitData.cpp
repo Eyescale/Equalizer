@@ -106,6 +106,10 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                                    command, false );
         TCLAP::ValueArg<string> wsArg( "w", "windowSystem", wsHelp,
                                        false, "auto", "string", command );
+        TCLAP::VariableSwitchArg ignoreEqArgs( "eq",
+                                               "Ignored Equalizer options",
+                                               command );
+        TCLAP::IgnoreUnlabeledArg ignoreArgs( command );
 
         command.parse( argc, argv );
 
@@ -142,6 +146,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
     {
         EQERROR << "Command line parse error: " << exception.error() 
                 << " for argument " << exception.argId() << endl;
+        ::exit( EXIT_FAILURE );
     }
 }
 }

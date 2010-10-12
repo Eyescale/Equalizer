@@ -25,8 +25,10 @@
 
 #include <tclap/SwitchArg.h>
 #include <tclap/MultiSwitchArg.h>
+#include <tclap/VariableSwitchArg.h>
 #include <tclap/UnlabeledValueArg.h>
 #include <tclap/UnlabeledMultiArg.h>
+#include <tclap/IgnoreUnlabeledArg.h>
 
 #include <tclap/XorHandler.h>
 #include <tclap/HelpVisitor.h>
