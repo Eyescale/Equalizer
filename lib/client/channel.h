@@ -306,6 +306,9 @@ namespace eq
           */
         void changeLatency( const uint32_t latency );
 
+        /** @return a fixed unique color for this channel. @version 1.0 */
+        EQ_EXPORT const Vector3ub& getUniqueColor() const { return _color; }
+
     protected:
         /** @internal */
         EQ_EXPORT void attachToSession( const uint32_t id, 
@@ -510,8 +513,12 @@ namespace eq
         /** server-supplied vector of input frames for current task. */
         Frames _inputFrames;
 
-        /** Used as an alternate drawable. */       
+        /** Used as an alternate drawable. */
         util::FrameBufferObject* _fbo; 
+
+        /** A unique color for differentiate the render part.
+            initialized in the constructor. */
+        Vector3ub _color;
 
         typedef std::vector< Statistic > Statistics;
         struct FrameStatistics

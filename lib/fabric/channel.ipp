@@ -40,19 +40,11 @@ template< class W, class C >
 Channel< W, C >::Channel( W* parent )
         : _window( parent )
         , _context( &_data.nativeContext )
-        , _color( Vector3ub::ZERO )
         , _drawable( FB_WINDOW )
         , _maxSize( Vector2i::ZERO )
 {
     parent->_addChannel( static_cast< C* >( this ));
 
-    uint32_t value = (reinterpret_cast< size_t >( this ) & 0xffffffffu);
-    for( unsigned i=0; i<8; ++i )
-    {
-        _color.r() |= ( value&1 << (7-i) ); value >>= 1;
-        _color.g() |= ( value&1 << (7-i) ); value >>= 1;
-        _color.b() |= ( value&1 << (7-i) ); value >>= 1;
-    }
 }
 
 template< class W, class C >
@@ -61,7 +53,6 @@ Channel< W, C >::Channel( const Channel& from )
         , _window( from._window )
         , _data( from._data )
         , _context( &_data.nativeContext )
-        , _color( from._color )
         , _drawable( from._drawable )
         , _maxSize( from._maxSize )
 {
@@ -122,12 +113,10 @@ void Channel< W, C >::serialize( net::DataOStream& os, const uint64_t dirtyBits)
         os << _data.nativeContext.vp << _data.nativeContext.pvp 
            << _data.fixedVP << _maxSize;
     if( dirtyBits & DIRTY_MEMBER )
-        os << _drawable << _color << _data.nativeContext.view
+        os << _drawable << _data.nativeContext.view
            << _data.nativeContext.overdraw;
     if( dirtyBits & DIRTY_FRUSTUM )
         os << _data.nativeContext.frustum;
-    if( dirtyBits == DIRTY_ALL )
-        os << _color;
 }
 
 template< class W, class C >
@@ -152,12 +141,10 @@ void Channel< W, C >::deserialize( net::DataIStream& is,
                               sizeof( _data.fixedVP ) + sizeof( _maxSize ));
     }
     if( dirtyBits & DIRTY_MEMBER )
-        is >> _drawable >> _color >> _data.nativeContext.view
+        is >> _drawable >> _data.nativeContext.view
            >> _data.nativeContext.overdraw;
     if( dirtyBits & DIRTY_FRUSTUM )
         is >> _data.nativeContext.frustum;
-    if( dirtyBits == DIRTY_ALL )
-        is >> _color;
 }
 
 template< class W, class C >
@@ -307,7 +294,7 @@ ChannelPath Channel< W, C >::getPath() const
     const W* window = getWindow();
     EQASSERT( window );
     ChannelPath path( window->getPath( ));
-    
+
     const typename W::Channels& channels = window->getChannels();
     typename W::Channels::const_iterator i = std::find( channels.begin(),
                                                         channels.end(), this );

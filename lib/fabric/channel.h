@@ -95,9 +95,6 @@ namespace fabric
         EQFABRIC_EXPORT void setNearFar( const float nearPlane, 
                                          const float farPlane);
 
-        /** @return a fixed unique color for this channel. @version 1.0 */
-        const Vector3ub& getUniqueColor() const { return _color; }
-
         /**
          * @return the channel's framebuffer attachment configuration.
          * @version 1.0
@@ -335,9 +332,6 @@ namespace fabric
 
         /** The current rendering context. */
         RenderContext* _context;
-
-        /** A unique color assigned by the server during config init. */
-        Vector3ub _color;
 
         /** Integer attributes. */
         int32_t _iAttributes[IATTR_ALL];
