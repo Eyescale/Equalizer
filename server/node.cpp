@@ -251,7 +251,6 @@ bool Node::connect()
 
 bool Node::launch()
 {
-    EQINFO << "Attempting to launch node." << std::endl;
     for( ConnectionDescriptions::const_iterator i = 
              _connectionDescriptions.begin();
          i != _connectionDescriptions.end(); ++i )
@@ -676,7 +675,7 @@ void Node::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
     Super::deserialize( is, dirtyBits );
     EQASSERT( isMaster( ));
-    setDirty( dirtyBits ); // redistribute slave changes
+    setDirty( dirtyBits & DIRTY_NODE_BITS ); // redistribute slave changes
 }
 
 bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )

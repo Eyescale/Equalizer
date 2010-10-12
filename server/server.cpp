@@ -324,8 +324,8 @@ bool Server::_cmdChooseConfig( net::Command& command )
 
     fabric::ServerCreateConfigPacket createConfigPacket;
     createConfigPacket.configID = config->getID();
-    createConfigPacket.proxy.identifier = config->getProxyID();
-    createConfigPacket.proxy.version    = config->commit();
+    createConfigPacket.proxy = config->getProxyVersion();
+    createConfigPacket.proxy.version = config->commit();
 
     reply.configID = config->getID();
 
@@ -447,8 +447,7 @@ bool Server::_cmdMap( net::Command& command )
         Config* config = *i;
         fabric::ServerCreateConfigPacket createConfigPacket;
         createConfigPacket.configID = config->getID();
-        createConfigPacket.proxy.identifier = config->getProxyID();
-        createConfigPacket.proxy.version    = config->commit();
+        createConfigPacket.proxy = config->getProxyVersion();
         node->send( createConfigPacket );
     }
 

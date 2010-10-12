@@ -88,12 +88,29 @@ private:
 };
 }
 
+void View::setDirty( const uint64_t bits )
+{
+    if( bits == 0 )
+        return;
+
+    net::ObjectVersion version( this );
+    ++version.version;
+        
+    for( Channels::const_iterator i = _channels.begin();
+         i != _channels.end(); ++i )
+    {
+        Channel* channel = *i;
+        channel->setViewVersion( version );
+    }
+    Super::setDirty( bits );
+}
+
 void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
     //EQINFO << getVersion() << base::backtrace << std::endl;
     EQASSERT( isMaster( ));
     Super::deserialize( is, dirtyBits );
-    setDirty( dirtyBits ); // redistribute slave changes
+    setDirty( dirtyBits & DIRTY_VIEW_BITS ); // redistribute slave changes
 
     if( dirtyBits & ( DIRTY_FRUSTUM | DIRTY_OVERDRAW ))
     {

@@ -77,7 +77,7 @@ void Pipe::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
     Super::deserialize( is, dirtyBits );
     EQASSERT( isMaster( ));
-    setDirty( dirtyBits & ~DIRTY_REMOVED ); // redistribute slave changes
+    setDirty( dirtyBits & DIRTY_PIPE_BITS ); // redistribute slave changes
 }
 
 void Pipe::removeChild( const uint32_t id )

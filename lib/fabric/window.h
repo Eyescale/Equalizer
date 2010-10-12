@@ -202,15 +202,17 @@ namespace fabric
 
         C* _findChannel( const uint32_t id ); //!< @internal
 
-    private:
         enum DirtyBits
         {
             DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
             DIRTY_CHANNELS        = Object::DIRTY_CUSTOM << 1,
             DIRTY_VIEWPORT        = Object::DIRTY_CUSTOM << 2,
             DIRTY_DRAWABLECONFIG  = Object::DIRTY_CUSTOM << 3,
+            DIRTY_WINDOW_BITS = DIRTY_ATTRIBUTES | DIRTY_CHANNELS |
+                                DIRTY_VIEWPORT | DIRTY_DRAWABLECONFIG
         };
 
+    private:
         /** The parent pipe. */
         P* const _pipe;
 

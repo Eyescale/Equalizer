@@ -44,7 +44,6 @@
 
 #include "configDeregistrator.h"
 #include "configRegistrator.h"
-#include "configSyncVisitor.h"
 #include "configUpdateVisitor.h"
 #include "configUpdateSyncVisitor.h"
 
@@ -447,8 +446,7 @@ uint32_t Config::register_()
 
 void Config::deregister()
 {
-    ConfigSyncVisitor syncer;
-    accept( syncer );
+    sync();
 
     ConfigDeregistrator deregistrator;
     accept( deregistrator );
@@ -691,7 +689,6 @@ void Config::_deleteEntities( const std::vector< T* >& entities )
     }
 }
 
-
 uint32_t Config::_createConfig( Node* node )
 {
     EQASSERT( !node->isApplicationNode( ));
@@ -702,8 +699,7 @@ uint32_t Config::_createConfig( Node* node )
     fabric::ServerCreateConfigPacket createConfigPacket;
     createConfigPacket.configID = getID();
     createConfigPacket.requestID = getLocalNode()->registerRequest();
-    createConfigPacket.proxy.identifier = getProxyID();
-    createConfigPacket.proxy.version    = commit();
+    createConfigPacket.proxy = getProxyVersion();
 
     net::NodePtr netNode = node->getNode();
     netNode->send( createConfigPacket );
@@ -929,8 +925,8 @@ bool Config::_cmdInit( net::Command& command )
         command.getPacket<ConfigInitPacket>();
     EQVERB << "handle config start init " << packet << std::endl;
 
-    ConfigSyncVisitor syncer;
-    accept( syncer );
+    sync();
+    commit();
 
     ConfigInitReplyPacket reply( packet );
     reply.result = _init( packet->initID );
@@ -971,8 +967,8 @@ bool Config::_cmdUpdate( net::Command& command )
 
     EQVERB << "handle config update " << packet << std::endl;
 
-    ConfigSyncVisitor syncer;
-    accept( syncer );
+    sync();
+    commit();
 
     net::NodePtr node = command.getNode();
     if( !_needsFinish )

@@ -120,14 +120,15 @@ namespace fabric
         /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
-    private:
         enum DirtyBits
         {
             DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
             DIRTY_PIPES           = Object::DIRTY_CUSTOM << 1,
             DIRTY_MEMBER          = Object::DIRTY_CUSTOM << 2,
+            DIRTY_NODE_BITS = DIRTY_ATTRIBUTES | DIRTY_PIPES | DIRTY_MEMBER
         };
 
+    private:
         /** Pipe children. */
         Pipes _pipes;
 

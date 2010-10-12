@@ -164,6 +164,9 @@ const Viewport& View< L, V, O >::getViewport() const
 template< class L, class V, class O > 
 void View< L, V, O >::setOverdraw( const Vector2i& pixels )
 {
+    if( _overdraw == pixels )
+        return;
+
     _overdraw = pixels;
     setDirty( DIRTY_OVERDRAW );
 }

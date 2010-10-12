@@ -1068,7 +1068,7 @@ bool Session::_cmdSubscribeObject( Command& command )
                 << "Version " << version << " of " << base::className( master )
                 << " " << id << " no longer available (have v"
                 << master->getOldestVersion() << ".." << master->getVersion()
-                << ")" << std::endl;
+                << " [" << master->getAutoObsolete() << "])" << std::endl;
             reply.result = false;
         }
     }

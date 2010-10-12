@@ -1,9 +1,11 @@
-Code cleanups on the latest changes.
+Fix server-side view/channel dirty marking and commit:
+- remove superfluous commits
+- auto-obsoletion works correctly [view version asserts]
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

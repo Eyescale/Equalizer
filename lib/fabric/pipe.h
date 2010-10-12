@@ -167,15 +167,17 @@ namespace fabric
 
         W* _findWindow( const uint32_t id ); //!< @internal
 
-    private:
         enum DirtyBits
         {
             DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
             DIRTY_WINDOWS         = Object::DIRTY_CUSTOM << 1,
             DIRTY_PIXELVIEWPORT   = Object::DIRTY_CUSTOM << 2,
             DIRTY_MEMBER          = Object::DIRTY_CUSTOM << 3,
+            DIRTY_PIPE_BITS = DIRTY_ATTRIBUTES | DIRTY_WINDOWS |
+                              DIRTY_PIXELVIEWPORT | DIRTY_MEMBER
         };
 
+    private:
         /** The parent node. */
         N* const _node;
         

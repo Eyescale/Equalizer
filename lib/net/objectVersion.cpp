@@ -37,9 +37,8 @@ ObjectVersion::ObjectVersion( const uint32_t id_, const uint32_t version_ )
 ObjectVersion::ObjectVersion( const Object* object )
         : identifier( EQ_ID_NONE ), version( VERSION_NONE )
 {
-    if( object )
+    if( object && object->isAttached( ))
     {
-        EQASSERT( object->isAttached( ));
         identifier = object->getID();
         version = object->getVersion(); 
     }

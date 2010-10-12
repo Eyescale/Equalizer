@@ -306,15 +306,17 @@ namespace fabric
         /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
-    private:
         enum DirtyBits
         {
             DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 0, // 64
             DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 1, // 128
             DIRTY_MEMBER     = Object::DIRTY_CUSTOM << 2, // 256
             DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 3, // 512
+            DIRTY_CHANNEL_BITS = 
+               DIRTY_ATTRIBUTES | DIRTY_VIEWPORT | DIRTY_MEMBER | DIRTY_FRUSTUM
         };
 
+    private:
         /** The parent window. */
         W* const _window;
 

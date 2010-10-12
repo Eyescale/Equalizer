@@ -98,7 +98,7 @@ void Channel::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
     Super::deserialize( is, dirtyBits );
     EQASSERT( isMaster( ));
-    setDirty( dirtyBits ); // redistribute slave changes
+    setDirty( dirtyBits & DIRTY_CHANNEL_BITS ); // redistribute slave changes
 }
 
 void Channel::postDelete()
@@ -220,6 +220,12 @@ void Channel::setOutput( View* view, Segment* segment )
 
     view->addChannel( this );
     segment->addDestinationChannel( this );
+
+    net::ObjectVersion viewVersion( view );
+    if( view && view->isDirty( ))
+        ++viewVersion.version;
+
+    setViewVersion( viewVersion );
 }
 
 void Channel::unsetOutput()

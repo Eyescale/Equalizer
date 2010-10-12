@@ -97,6 +97,7 @@ namespace server
         /** @sa eq::View::deserialize() */
         virtual void deserialize( net::DataIStream& is, 
                                   const uint64_t dirtyBits );
+        virtual void setDirty( const uint64_t bits );
 
     private:
         /** The list of channels. */

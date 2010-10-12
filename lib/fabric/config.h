@@ -208,7 +208,8 @@ namespace fabric
         /** @return the latency of this config. @version 1.0 */
         uint32_t getLatency() const { return _data.latency; }
 
-        EQFABRIC_EXPORT uint32_t getProxyID() const; //!< @internal
+        /** @internal */
+        EQFABRIC_EXPORT net::ObjectVersion getProxyVersion() const;
 
         /** @internal Back up app-specific data, excluding child data. */
         EQFABRIC_EXPORT virtual void backup();
@@ -226,7 +227,7 @@ namespace fabric
         EQFABRIC_EXPORT uint32_t commit();
 
         /** @internal Sync to the given version. */
-        void sync( const uint32_t version );
+        void sync( const uint32_t version = net::VERSION_HEAD );
         //@}
 
         void output( std::ostream& ) const {} //!< @internal

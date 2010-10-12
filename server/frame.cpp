@@ -115,7 +115,7 @@ void Frame::commitData()
     }
 }
 
-uint32_t Frame::commit()
+uint32_t Frame::commitNB()
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
     {
@@ -128,7 +128,7 @@ uint32_t Frame::commit()
             _inherit.frameData[i].identifier = EQ_ID_INVALID;
     }
 
-    return net::Object::commit();
+    return net::Object::commitNB();
 }
 
 void Frame::cycleData( const uint32_t frameNumber, const uint32_t eyes )

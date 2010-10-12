@@ -524,10 +524,10 @@ void Config< S, C, O, L, CV, N, V >::setAppNodeID( const net::NodeID& nodeID )
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-uint32_t Config< S, C, O, L, CV, N, V >::getProxyID() const
+net::ObjectVersion Config< S, C, O, L, CV, N, V >::getProxyVersion() const
 {
     EQASSERT( _proxy->isMaster( ));
-    return _proxy->getID();
+    return _proxy;
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >

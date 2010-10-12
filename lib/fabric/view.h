@@ -125,15 +125,6 @@ namespace fabric
         //@}
 
     protected:
-        enum DirtyBits
-        {
-            DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 0,
-            DIRTY_OBSERVER   = Object::DIRTY_CUSTOM << 1,
-            DIRTY_OVERDRAW   = Object::DIRTY_CUSTOM << 2,
-            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 3,
-            DIRTY_MODE       = Object::DIRTY_CUSTOM << 4
-        };
-
         /** @internal Construct a new view. */
         EQFABRIC_EXPORT View( L* layout );
 
@@ -159,6 +150,17 @@ namespace fabric
 
         /** @internal @sa Serializable::setDirty() */
         EQFABRIC_EXPORT virtual void setDirty( const uint64_t bits );
+
+        enum DirtyBits
+        {
+            DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 0,
+            DIRTY_OBSERVER   = Object::DIRTY_CUSTOM << 1,
+            DIRTY_OVERDRAW   = Object::DIRTY_CUSTOM << 2,
+            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 3,
+            DIRTY_MODE       = Object::DIRTY_CUSTOM << 4,
+            DIRTY_VIEW_BITS = DIRTY_VIEWPORT | DIRTY_OBSERVER | DIRTY_OVERDRAW |
+                              DIRTY_FRUSTUM | DIRTY_MODE
+        };
 
     private:
         /** Parent layout (application-side). */
