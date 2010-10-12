@@ -299,7 +299,7 @@ bool GLXWindow::configInitGLXDrawable( XVisualInfo* visualInfo )
         case FBO:
         {
             const PixelViewport pvp( 0, 0, 1, 1 );
-            _xDrawable = _createGLXWindow( visualInfo, pvp );
+            setXDrawable( _createGLXWindow( visualInfo, pvp ));
             return (_xDrawable != 0 );
         }
 
@@ -532,44 +532,44 @@ void GLXWindow::setXDrawable( XID drawable )
     Display* display = getXDisplay();
     EQASSERT( display );
 
-    PixelViewport pvp;
-    if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == PBUFFER )
+    switch( getIAttribute( Window::IATTR_HINT_DRAWABLE ))
     {
-        pvp.x = 0;
-        pvp.y = 0;
-        
-        unsigned value = 0;
-        glXQueryDrawable( display, drawable, GLX_WIDTH,  &value );
-        pvp.w = static_cast< int32_t >( value );
+        case PBUFFER:
+        {
+            unsigned width = 0;
+            unsigned height = 0;
+            glXQueryDrawable( display, drawable, GLX_WIDTH,  &width );
+            glXQueryDrawable( display, drawable, GLX_HEIGHT, &height );
 
-        value = 0;
-        glXQueryDrawable( display, drawable, GLX_HEIGHT, &value );
-        pvp.h = static_cast< int32_t >( value );
-    }
-    else
-    {
-        XWindowAttributes wa;
-        XGetWindowAttributes( display, drawable, &wa );
+            _window->setPixelViewport( 
+                PixelViewport( 0, 0, int32_t( width ), int32_t( height )));
+        }
+        case WINDOW:
+        {
+            XWindowAttributes wa;
+            XGetWindowAttributes( display, drawable, &wa );
     
-        // Window position is relative to parent: translate to absolute coords
-        ::Window root, parent, *children;
-        unsigned nChildren;
+            // position is relative to parent: translate to absolute coords
+            ::Window root, parent, *children;
+            unsigned nChildren;
     
-        XQueryTree( display, drawable, &root, &parent, &children, &nChildren );
-        if( children != 0 ) XFree( children );
+            XQueryTree(display, drawable, &root, &parent, &children, &nChildren);
+            if( children != 0 )
+                XFree( children );
 
-        int x,y;
-        ::Window childReturn;
-        XTranslateCoordinates( display, parent, root, wa.x, wa.y, &x, &y,
-                               &childReturn );
+            int x,y;
+            ::Window childReturn;
+            XTranslateCoordinates( display, parent, root, wa.x, wa.y, &x, &y,
+                                   &childReturn );
 
-        pvp.x = x;
-        pvp.y = y;
-        pvp.w = wa.width;
-        pvp.h = wa.height;
+            _window->setPixelViewport( PixelViewport( x, y,
+                                                      wa.width, wa.height ));
+        }
+        default:
+            EQUNIMPLEMENTED;
+        case FBO:
+            EQASSERT( _window->getPixelViewport().hasArea( ));
     }
-
-    _window->setPixelViewport( pvp );
 }
 
 

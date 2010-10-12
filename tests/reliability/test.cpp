@@ -129,24 +129,24 @@ void _testConfig( eq::ClientPtr client, const std::string& filename )
     std::string name = config->getName();
     size_t index = name.find( '-' );
     TESTINFO( index != std::string::npos,
-              "Config name has to be '<name>-<int>d<int>r<int>a'" );
+              "Config name has to be '<name>-<int>d<int>r<int>a': " << filename);
     name = name.substr( index + 1 );
     const int nDraw = atoi( name.c_str( ));
 
     index = name.find( 'd' );
     TESTINFO( index != std::string::npos,
-              "Config name has to be '<name>-<int>d<int>r<int>a'" );
+              "Config name has to be '<name>-<int>d<int>r<int>a': " << filename);
     name = name.substr( index + 1 );
     const int nReadback = atoi( name.c_str( ));
 
     index = name.find( 'r' );
     TESTINFO( index != std::string::npos,
-              "Config name has to be '<name>-<int>d<int>r<int>a'" );
+              "Config name has to be '<name>-<int>d<int>r<int>a': " << filename);
     name = name.substr( index + 1 );
     const int nAssemble = atoi( name.c_str( ));
 
     // 3. init config
-    TEST( config->init( 0 ));
+    TESTINFO( config->init( 0 ), filename );
 
     // 4. run main loop
     config->startFrame( 0 );
@@ -156,15 +156,18 @@ void _testConfig( eq::ClientPtr client, const std::string& filename )
     config->startFrame( 0 );
     config->finishAllFrames();
 
-    TESTINFO( nDraw == drawCalls, nDraw << " != " << drawCalls );
-    TESTINFO( nReadback == readbackCalls, nReadback << " != " << readbackCalls);
-    TESTINFO( nAssemble == assembleCalls, nAssemble << " != " << assembleCalls);
+    TESTINFO( nDraw == drawCalls,
+              filename << ": " << nDraw << " != " << drawCalls );
+    TESTINFO( nReadback == readbackCalls,
+              filename << ": " << nReadback << " != " << readbackCalls);
+    TESTINFO( nAssemble == assembleCalls,
+              filename << ": " << nAssemble << " != " << assembleCalls);
     drawCalls = 0;
     readbackCalls = 0;
     assembleCalls = 0;
 
     // 5. exit config
-    TEST( config->exit( ));
+    TESTINFO( config->exit(), filename );
 
     // 6. release config
     server->releaseConfig( config );

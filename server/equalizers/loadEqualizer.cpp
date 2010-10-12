@@ -378,12 +378,14 @@ float LoadEqualizer::_assignTargetTimes( Node* node, const float totalTime,
             }
         }
         const Channel* channel = compound->getChannel();
-        node->maxSize.x() = channel->getPixelViewport().w; 
-        node->maxSize.y() = channel->getPixelViewport().h; 
+        const PixelViewport& pvp = channel->getPixelViewport();
+        node->maxSize.x() = pvp.w; 
+        node->maxSize.y() = pvp.h; 
         node->boundaryf = _boundaryf;
         node->boundary2i = _boundary2i;
         node->time  = EQ_MIN( time, totalTime );
         node->usage = usage;
+
         EQLOG( LOG_LB2 ) << compound->getChannel()->getName() << " usage " 
                          << compound->getUsage() << " target " << node->time
                          << ", left " << totalTime - node->time << " max "
@@ -400,41 +402,56 @@ float LoadEqualizer::_assignTargetTimes( Node* node, const float totalTime,
     node->time  = node->left->time + node->right->time;
     node->usage = node->left->usage + node->right->usage;
     
-    switch( node->splitMode )
+    if( node->left->usage == 0.f )
     {
-        case MODE_VERTICAL:
-            node->maxSize.x() = node->left->maxSize.x() +
-                                node->right->maxSize.x();  
-            node->maxSize.y() = EQ_MIN( node->left->maxSize.y(), 
-                                        node->right->maxSize.y() ); 
-            node->boundary2i.x() = node->left->boundary2i.x() +
-                                   node->right->boundary2i.x();
-            node->boundary2i.y() = EQ_MAX( node->left->boundary2i.y(), 
-                                           node->right->boundary2i.y() );
-            node->boundaryf = EQ_MAX( node->left->boundaryf,
-                                      node->right->boundaryf );
-            break;
-        case MODE_HORIZONTAL:
-            node->maxSize.x() = EQ_MIN( node->left->maxSize.x(), 
-                                       node->right->maxSize.x() );  
-            node->maxSize.y() = node->left->maxSize.y() +
-                                node->right->maxSize.y(); 
-            node->boundary2i.x() = EQ_MAX( node->left->boundary2i.x(), 
-                                           node->right->boundary2i.x() );
-            node->boundary2i.y() = node->left->boundary2i.y() +
-                                   node->right->boundary2i.y();
-            node->boundaryf = EQ_MAX( node->left->boundaryf,
-                                      node->right->boundaryf );
-            break;
-        case MODE_DB:
-            node->boundary2i.x() = EQ_MAX( node->left->boundary2i.x(), 
-                                           node->right->boundary2i.x() );
-            node->boundary2i.y() = EQ_MAX( node->left->boundary2i.y(), 
-                                           node->right->boundary2i.y() );
-            node->boundaryf = node->left->boundaryf + node->right->boundaryf;
-            break;
-        default:
-            EQUNIMPLEMENTED;
+        node->maxSize = node->right->maxSize;
+        node->boundary2i = node->right->boundary2i;
+        node->boundaryf = node->right->boundaryf;
+    }
+    else if( node->right->usage == 0.f )
+    {
+        node->maxSize = node->left->maxSize;
+        node->boundary2i = node->left->boundary2i;
+        node->boundaryf = node->left->boundaryf;
+    }
+    else
+    {
+        switch( node->splitMode )
+        {
+            case MODE_VERTICAL:
+                node->maxSize.x() = node->left->maxSize.x() +
+                                    node->right->maxSize.x();  
+                node->maxSize.y() = EQ_MIN( node->left->maxSize.y(), 
+                                            node->right->maxSize.y() ); 
+                node->boundary2i.x() = node->left->boundary2i.x() +
+                                       node->right->boundary2i.x();
+                node->boundary2i.y() = EQ_MAX( node->left->boundary2i.y(), 
+                                               node->right->boundary2i.y() );
+                node->boundaryf = EQ_MAX( node->left->boundaryf,
+                                          node->right->boundaryf );
+                break;
+            case MODE_HORIZONTAL:
+                node->maxSize.x() = EQ_MIN( node->left->maxSize.x(), 
+                                            node->right->maxSize.x() );  
+                node->maxSize.y() = node->left->maxSize.y() +
+                                    node->right->maxSize.y(); 
+                node->boundary2i.x() = EQ_MAX( node->left->boundary2i.x(), 
+                                               node->right->boundary2i.x() );
+                node->boundary2i.y() = node->left->boundary2i.y() +
+                                       node->right->boundary2i.y();
+                node->boundaryf = EQ_MAX( node->left->boundaryf,
+                                          node->right->boundaryf );
+                break;
+            case MODE_DB:
+                node->boundary2i.x() = EQ_MAX( node->left->boundary2i.x(), 
+                                               node->right->boundary2i.x() );
+                node->boundary2i.y() = EQ_MAX( node->left->boundary2i.y(), 
+                                               node->right->boundary2i.y() );
+                node->boundaryf = node->left->boundaryf + node->right->boundaryf;
+                break;
+            default:
+                EQUNIMPLEMENTED;
+        }
     }
 
     EQLOG( LOG_LB2 ) << "Node time " << node->time << ", left " << timeLeft

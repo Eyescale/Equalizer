@@ -153,7 +153,7 @@ void Texture::_generate()
         return;
 
     _defined = false;
-    glGenTextures( 1, &_name );
+    EQ_GL_CALL( glGenTextures( 1, &_name ));
 }
 
 void Texture::init( const GLuint format, const int32_t width,
@@ -283,7 +283,7 @@ void Texture::resize( const int32_t width, const int32_t height )
         EQASSERT( GLEW_ARB_texture_non_power_of_two );
     }
 
-    glBindTexture( _target, _name );
+    EQ_GL_CALL( glBindTexture( _target, _name ));
     EQ_GL_CALL( glTexImage2D( _target, 0, _internalFormat, width, height, 0,
                               _format, _type, 0 ));
     _width  = width;

@@ -3,7 +3,7 @@
 global
 {
     EQ_NODE_IATTR_LAUNCH_TIMEOUT 10000 #ms
-    EQ_WINDOW_IATTR_HINT_DRAWABLE pbuffer
+    EQ_WINDOW_IATTR_HINT_DRAWABLE FBO
 }
 
 server
@@ -46,7 +46,7 @@ server
                 bottom_right [  .32 -.20 -.75 ]
                 top_left     [ -.32  .20 -.75 ]
             }
-            load_equalizer {}
+            load_equalizer { boundary [ 8 4 ] }
             compound {}
             compound { channel "source1" outputframe{ }}
             compound { channel "source2" outputframe{ }}

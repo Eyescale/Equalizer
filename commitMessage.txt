@@ -1,9 +1,13 @@
-Refactor internal eq::et packet declarations into private headers to
-reduce include dependencies
+- Use FBO's instead of PBuffers to allow reliability tests to run on
+  XQuartz with GLX 1.2
+- Fix GLX window FBO handling (event handler, window size)
+- Fix load equalizer boundary and max size calculation with inactive nodes
+- Improve reliability test logging
+
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
