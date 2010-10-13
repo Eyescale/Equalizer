@@ -43,8 +43,8 @@ Channel< W, C >::Channel( W* parent )
         , _drawable( FB_WINDOW )
         , _maxSize( Vector2i::ZERO )
 {
+    memset( _iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
     parent->_addChannel( static_cast< C* >( this ));
-
 }
 
 template< class W, class C >

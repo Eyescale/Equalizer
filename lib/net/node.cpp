@@ -521,8 +521,8 @@ void Node::_addSession( Session* session, NodePtr server,
     _sessions.data[ sessionID ] = session;
 
     EQINFO << (session->_isMaster ? "master" : "client") << " session, id "
-           << sessionID << ", served by " << server.get() << ", mapped on "
-           << this << std::endl;
+           << sessionID << ", served by " << *server << ", mapped on "
+           << *this << std::endl;
 }
 
 void Node::_removeSession( Session* session )

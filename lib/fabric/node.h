@@ -137,6 +137,7 @@ namespace fabric
 
         struct BackupData
         {
+            BackupData();
             /** Integer attributes. */
             int32_t iAttributes[IATTR_ALL];
         }

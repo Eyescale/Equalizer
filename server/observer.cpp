@@ -36,6 +36,7 @@ typedef fabric::Observer< Config, Observer > Super;
 Observer::Observer( Config* parent )
         : Super( parent )
         , _inverseHeadMatrix( Matrix4f::IDENTITY )
+        , _state( STATE_ACTIVE )
 {
 #ifdef EQ_USE_DEPRECATED
     setEyeBase(Global::instance()->getConfigFAttribute(Config::FATTR_EYE_BASE));

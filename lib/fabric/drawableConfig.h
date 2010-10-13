@@ -29,6 +29,10 @@ namespace fabric
     /** Stores the characteristics of a window's frame buffer configuration. */
     struct DrawableConfig
     {
+        DrawableConfig()
+                : stencilBits( 0 ), colorBits( 0 ), alphaBits( 0 ), accumBits( 0 )
+                , glVersion( 0.f ), stereo( false ), doublebuffered( false ) {}
+
         int32_t stencilBits;    //!< Number of stencil bits
         int32_t colorBits;      //!< Number of bits per color component
         int32_t alphaBits;      //!< Number of alpha bits

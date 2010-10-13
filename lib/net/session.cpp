@@ -281,9 +281,9 @@ void Session::attachObject( Object* object, const uint32_t id,
     EQ_TS_NOT_THREAD( _receiverThread );
 
     SessionAttachObjectPacket packet;
+    packet.requestID = _localNode->registerRequest( object );
     packet.objectID = id;
     packet.objectInstanceID = instanceID;
-    packet.requestID = _localNode->registerRequest( object );
 
     _sendLocal( packet );
     _localNode->waitRequest( packet.requestID );

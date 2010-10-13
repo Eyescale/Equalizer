@@ -48,7 +48,7 @@ Pipe::Pipe( Node* parent )
         , _lastDrawWindow( 0 )
 {
     const Global* global = Global::instance();
-    for( unsigned i = 0; i < IATTR_ALL; ++i )
+    for( unsigned i = 0; i < IATTR_LAST; ++i )
     {
         const IAttribute attr = static_cast< IAttribute >( i );
         setIAttribute( attr, global->getPipeIAttribute( attr ));

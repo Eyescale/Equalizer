@@ -60,6 +60,12 @@ Node< C, N, P, V >::~Node()
 }
 
 template< class C, class N, class P, class V >
+Node< C, N, P, V >::BackupData::BackupData()
+{
+    memset( iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
+}
+
+template< class C, class N, class P, class V >
 void Node< C, N, P, V >::backup()
 {
     Object::backup();

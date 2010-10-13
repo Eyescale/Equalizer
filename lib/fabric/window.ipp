@@ -67,12 +67,10 @@ Window< P, W, C >::Window( P* parent )
 }
 
 template< class P, class W, class C >
-void Window< P, W, C >::init()
+Window< P, W, C >::BackupData::BackupData()
+        : fixedVP( true )
 {
-    EQLOG( LOG_INIT ) << "Delete " << base::className( static_cast<W*>( this ))
-                      << std::endl;
-    notifyViewportChanged();
-    unsetDirty( DIRTY_VIEWPORT );
+    memset( iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
 }
 
 template< class P, class W, class C >
@@ -87,6 +85,15 @@ Window< P, W, C >::~Window( )
         delete channel;
     }
     _pipe->_removeWindow( static_cast< W* >( this ) );
+}
+
+template< class P, class W, class C >
+void Window< P, W, C >::init()
+{
+    EQLOG( LOG_INIT ) << "Delete " << base::className( static_cast<W*>( this ))
+                      << std::endl;
+    notifyViewportChanged();
+    unsetDirty( DIRTY_VIEWPORT );
 }
 
 template< class P, class W, class C >

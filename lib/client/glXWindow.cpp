@@ -543,6 +543,7 @@ void GLXWindow::setXDrawable( XID drawable )
 
             _window->setPixelViewport( 
                 PixelViewport( 0, 0, int32_t( width ), int32_t( height )));
+            break;
         }
         case WINDOW:
         {
@@ -564,6 +565,7 @@ void GLXWindow::setXDrawable( XID drawable )
 
             _window->setPixelViewport( PixelViewport( x, y,
                                                       wa.width, wa.height ));
+            break;
         }
         default:
             EQUNIMPLEMENTED;

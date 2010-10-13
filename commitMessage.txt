@@ -1,10 +1,9 @@
-Fix server-side view/channel dirty marking and commit:
-- remove superfluous commits
-- auto-obsoletion works correctly [view version asserts]
+Fix uninitialized variables found with valgrind
+Fix missing break;s in GLXWindow::setXDrawable
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [ ] Cleanup
 [ ] Optimization

@@ -221,7 +221,7 @@ namespace fabric
 
         struct BackupData
         {
-            BackupData() : fixedVP( true ) {}
+            BackupData();
 
             /** Integer attributes. */
             int32_t iAttributes[ IATTR_ALL ];

@@ -62,17 +62,17 @@ Node::Node( Config* parent )
     , _lastDrawPipe( 0 )
 {
     const Global* global = Global::instance();    
-    for( int i=0; i < Node::SATTR_ALL; ++i )
+    for( int i=0; i < Node::SATTR_LAST; ++i )
     {
         const SAttribute attr = static_cast< SAttribute >( i );
         setSAttribute( attr, global->getNodeSAttribute( attr ));
     }
-    for( int i=0; i < Node::CATTR_ALL; ++i )
+    for( int i=0; i < Node::CATTR_LAST; ++i )
     {
         const CAttribute attr = static_cast< CAttribute >( i );
         setCAttribute( attr, global->getNodeCAttribute( attr ));
     }
-    for( int i = 0; i < IATTR_ALL; ++i )
+    for( int i = 0; i < IATTR_LAST; ++i )
     {
         const IAttribute attr = static_cast< IAttribute >( i );
         setIAttribute( attr, global->getNodeIAttribute( attr ));
@@ -148,11 +148,8 @@ void Node::deactivate()
     EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 };
 
-void Node::setSAttribute( const SAttribute attr,
-                                   const std::string& value )
+void Node::setSAttribute( const SAttribute attr, const std::string& value )
 {
-    if( _sAttributes[attr] == value )
-        return;
     _sAttributes[attr] = value;
 }
 
@@ -168,8 +165,6 @@ const std::string& Node::getSAttributeString( const SAttribute attr )
 
 void Node::setCAttribute( const CAttribute attr, const char value )
 {
-    if( _cAttributes[attr] == value )
-        return;
     _cAttributes[attr] = value;
 }
 

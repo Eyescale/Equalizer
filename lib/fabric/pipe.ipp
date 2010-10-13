@@ -48,6 +48,7 @@ Pipe< N, P, W, V >::Pipe( N* parent )
         , _port( EQ_UNDEFINED_UINT32 )
         , _device( EQ_UNDEFINED_UINT32 )
 {
+    memset( _iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
     parent->_addPipe( static_cast< P* >( this ) );
 }
 
