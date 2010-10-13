@@ -39,7 +39,6 @@ typedef fabric::Segment< Canvas, Segment, Channel > Super;
 Segment::Segment( Canvas* parent )
         : Super( parent )
 {
-    EQINFO << "New segment @" << (void*)this << std::endl;
 }
 
 Segment::~Segment()

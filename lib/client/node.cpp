@@ -60,13 +60,11 @@ Node::Node( Config* parent )
         , _finishedFrame( 0 )
         , _unlockedFrame( 0 )
 {
-    EQINFO << " New eq::Node @" << (void*)this << std::endl;
 }
 
 Node::~Node()
 {
     EQASSERT( getPipes().empty( ));
-    EQINFO << " Delete eq::Node @" << (void*)this << std::endl;
 }
 
 void Node::attachToSession( const uint32_t id, 

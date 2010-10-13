@@ -57,7 +57,6 @@ Pipe::Pipe( Node* parent )
 
 Pipe::~Pipe()
 {
-    EQINFO << "Delete pipe @" << (void*)this << std::endl;
 }
 
 void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID, 

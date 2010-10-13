@@ -38,11 +38,13 @@ Segment< C, S, CH >::Segment( C* canvas )
 {
     EQASSERT( canvas );
     canvas->_addChild( static_cast< S* >( this ));
+    EQINFO << "New " << base::className( this ) << std::endl;
 }
 
 template< class C, class S, class CH >
 Segment< C, S, CH >::~Segment()
 {
+    EQINFO << "Delete " << base::className( this ) << std::endl;
     _canvas->_removeChild( static_cast< S* >( this ));
     _channel = 0;
 }

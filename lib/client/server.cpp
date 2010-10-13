@@ -39,12 +39,10 @@ Server::Server()
         : Super( Global::getNodeFactory( ))
         , _localServer( false )
 {
-    EQINFO << "New server at " << (void*)this << std::endl;
 }
 
 Server::~Server()
 {
-    EQINFO << "Delete server at " << (void*)this << std::endl;
 }
 
 void Server::setClient( ClientPtr client )

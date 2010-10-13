@@ -62,8 +62,7 @@ Window< P, W, C >::Window( P* parent )
 {
     EQASSERT( parent );
     parent->_addWindow( static_cast< W* >( this ) );
-    EQLOG( LOG_INIT ) << "New " << base::className( static_cast< W* >( this ))
-                      << std::endl;
+    EQINFO << "New " << base::className( this ) << std::endl;
 }
 
 template< class P, class W, class C >
@@ -76,6 +75,7 @@ Window< P, W, C >::BackupData::BackupData()
 template< class P, class W, class C >
 Window< P, W, C >::~Window( )
 {    
+    EQINFO << "Delete " << base::className( this ) << std::endl;
     while( !_channels.empty( ))
     {
         C* channel = _channels.back();

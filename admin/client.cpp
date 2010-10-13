@@ -32,12 +32,10 @@ typedef fabric::Client Super;
 Client::Client()
         : Super()
 {
-    EQINFO << "New client at " << (void*)this << std::endl;
 }
 
 Client::~Client()
 {
-    EQINFO << "Delete client at " << (void*)this << std::endl;
     close();
 }
 

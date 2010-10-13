@@ -64,7 +64,6 @@ Window::Window( Pipe* parent )
 
 Window::~Window()
 {
-    EQINFO << "Delete window @" << (void*)this << std::endl;
 }
 
 void Window::attachToSession( const uint32_t id, const uint32_t instanceID, 

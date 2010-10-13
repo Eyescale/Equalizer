@@ -81,7 +81,6 @@ Node::Node( Config* parent )
 
 Node::~Node()
 {
-    EQINFO << "Delete node @" << (void*)this << std::endl;
 }
 
 void Node::attachToSession( const uint32_t id, const uint32_t instanceID, 

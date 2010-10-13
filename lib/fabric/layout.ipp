@@ -38,11 +38,13 @@ Layout< C, L, V >::Layout( C* config )
 {
     EQASSERT( config );
     static_cast< L* >( this )->_config->_addLayout( static_cast< L* >( this ));
+    EQINFO << "New " << base::className( this ) << std::endl;
 }
 
 template< class C, class L, class V >
 Layout< C, L, V >::~Layout()
 {
+    EQINFO << "Delete " << base::className( this ) << std::endl;
     while( !_views.empty( ))
     {
         V* view = _views.back();

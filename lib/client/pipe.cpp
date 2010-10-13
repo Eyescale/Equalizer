@@ -81,7 +81,6 @@ Pipe::Pipe( Node* parent )
         , _currentWindow( 0 )
         , _computeContext( 0 )
 {
-    EQINFO << " New eq::Pipe @" << (void*)this << std::endl;
 }
 
 Pipe::~Pipe()
@@ -89,7 +88,6 @@ Pipe::~Pipe()
     EQASSERT( getWindows().empty( ));
     delete _thread;
     _thread = 0;
-    EQINFO << " Delete eq::Pipe @" << (void*)this << std::endl;
 }
 
 Config* Pipe::getConfig()

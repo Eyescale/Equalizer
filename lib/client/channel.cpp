@@ -56,13 +56,10 @@ Channel::Channel( Window* parent )
     _color.r() = rng.get< uint8_t >();
     _color.g() = rng.get< uint8_t >();
     _color.b() = rng.get< uint8_t >();
-
-    EQINFO << " New eq::Channel @" << (void*)this << std::endl;
 }
 
 Channel::~Channel()
 {  
-    EQINFO << " Delete eq::Channel @" << (void*)this << std::endl;
     _statistics.clear();
 }
 

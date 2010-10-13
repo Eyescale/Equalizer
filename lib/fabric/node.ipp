@@ -43,11 +43,13 @@ Node< C, N, P, V >::Node( C* parent )
         , _isAppNode( false )
 {
     parent->_addNode( static_cast< N* >( this ) );
+    EQINFO << "New " << base::className( this ) << std::endl;
 }
 
 template< class C, class N, class P, class V >
 Node< C, N, P, V >::~Node()
 {
+    EQINFO << "Delete " << base::className( this ) << std::endl;
     while( !_pipes.empty() )
     {
         P* pipe = _pipes.back();

@@ -76,7 +76,6 @@ Config::Config( ServerPtr parent )
 
 Config::~Config()
 {
-    EQINFO << "Delete config @" << (void*)this << std::endl;
     _appNetNode = 0;
 
     while( !_compounds.empty( ))
@@ -994,6 +993,7 @@ bool Config::_cmdUpdate( net::Command& command )
                << getErrorMessage() << std::endl;
         exit();
     }
+    EQINFO << *this << std::endl;
 
     send( command.getNode(), replyResult );
     return true;

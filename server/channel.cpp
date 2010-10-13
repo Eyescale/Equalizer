@@ -91,7 +91,6 @@ void Channel::attachToSession( const uint32_t id, const uint32_t instanceID,
 
 Channel::~Channel()
 {
-    EQINFO << "Delete channel @" << (void*)this << std::endl;
 }
 
 void Channel::deserialize( net::DataIStream& is, const uint64_t dirtyBits )

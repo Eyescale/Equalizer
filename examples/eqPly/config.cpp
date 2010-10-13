@@ -663,17 +663,16 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             return true;
         case 'a':
             eqAdmin::addWindow( _getAdminServer(), false /* active stereo */ );
-            EQASSERT( update() );
             return true;
         case 'p':
             eqAdmin::addWindow( _getAdminServer(), true /* passive stereo */ );
-            EQASSERT( update() );
             return true;
         case 'x':
             eqAdmin::removeWindow( _getAdminServer( ));
             _currentCanvas = 0;
             EQASSERT( update() );
-            return true;
+            return false;
+
         // Head Tracking Emulation
         case eq::KC_UP:
         {

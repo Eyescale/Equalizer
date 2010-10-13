@@ -78,7 +78,6 @@ Server::Server()
     registerCommand( fabric::CMD_SERVER_UNMAP,
                      ServerFunc( this, &Server::_cmdUnmap ),
                      &_mainThreadQueue );
-    EQINFO << "New server @" << (void*)this << std::endl;
 }
 
 Server::~Server()

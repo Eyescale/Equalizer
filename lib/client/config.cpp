@@ -58,12 +58,10 @@ Config::Config( ServerPtr server )
         , _running( false )
 {
     base::Log::setClock( &_clock );
-    EQINFO << "New config @" << (void*)this << std::endl;
 }
 
 Config::~Config()
 {
-    EQINFO << "Delete config @" << (void*)this << std::endl;
     EQASSERT( getObservers().empty( ));
     EQASSERT( getLayouts().empty( ));
     EQASSERT( getCanvases().empty( ));

@@ -38,11 +38,13 @@ Canvas< CFG, C, S, L >::Canvas( CFG* config )
 {
     EQASSERT( config );
     config->_addCanvas( static_cast< C* >( this ));
+    EQINFO << "New " << base::className( this ) << std::endl;
 }
 
 template< class CFG, class C, class S, class L >
 Canvas< CFG, C, S, L >::~Canvas()
 {
+    EQINFO << "Delete " << base::className( this ) << std::endl;
     while( !_segments.empty( ))
     {
         S* segment = _segments.back();

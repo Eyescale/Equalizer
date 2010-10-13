@@ -79,13 +79,10 @@ Window::Window( Pipe* parent )
         setSharedContextWindow( this );
     else
         setSharedContextWindow( windows.front( ));
-
-    EQINFO << " New eq::Window @" << (void*)this << std::endl;
 }
 
 Window::~Window()
 {
-    EQINFO << " Delete eq::Window @" << (void*)this << std::endl;
     EQASSERT( getChannels().empty( ));
 
     Pipe* pipe = getPipe();

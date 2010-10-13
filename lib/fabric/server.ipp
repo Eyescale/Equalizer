@@ -34,11 +34,13 @@ Server< CL, S, CFG, NF >::Server( NF* nodeFactory )
         : _nodeFactory( nodeFactory )
 {
     EQASSERT( nodeFactory );
+    EQINFO << "New " << base::className( this ) << std::endl;
 }
 
 template< class CL, class S, class CFG, class NF >
 Server< CL, S, CFG, NF >::~Server()
 {
+    EQINFO << "Delete " << base::className( this ) << std::endl;
     _client = 0;
     EQASSERT( _configs.empty( ));
 }
