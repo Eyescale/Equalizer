@@ -1237,7 +1237,7 @@ void Compositor::_drawPixels( const Image* image,
         Channel* channel = op.channel; // needed for glewGetContext
         Window::ObjectManager* objects = channel->getObjectManager();
 
-        if( op.zoom == Zoom::NONE && op.pixel != Pixel::ALL )
+        if( op.zoom == Zoom::NONE )
         {
             image->upload( which, op.offset, objects );
             return;
