@@ -90,8 +90,6 @@ Window< P, W, C >::~Window( )
 template< class P, class W, class C >
 void Window< P, W, C >::init()
 {
-    EQLOG( LOG_INIT ) << "Delete " << base::className( static_cast<W*>( this ))
-                      << std::endl;
     notifyViewportChanged();
     unsetDirty( DIRTY_VIEWPORT );
 }
