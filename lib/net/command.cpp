@@ -142,7 +142,8 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& command )
                 os << packet;
         }
 
-        os << ", " << command.getNode() << " >" << base::enableFlush;
+        os << ", " << command.getNode() << " >:" << command.getDispatchID()
+           << base::enableFlush;
     }
     else
         os << "command< empty >";

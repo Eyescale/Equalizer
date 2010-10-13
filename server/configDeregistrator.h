@@ -96,10 +96,8 @@ namespace server
                 EQASSERT( session );
                 EQASSERT( object->isMaster( ));
 
-                if( object->isMaster( ))
-                    session->deregisterObject( object );
-                else
-                    session->unmapObject( object );
+                object->sync();
+                session->releaseObject( object );
             }
     };
 }

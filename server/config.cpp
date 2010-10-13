@@ -447,10 +447,8 @@ uint32_t Config::register_()
 void Config::deregister()
 {
     sync();
-
     ConfigDeregistrator deregistrator;
     accept( deregistrator );
-
     Super::deregister();
 }
 

@@ -333,7 +333,8 @@ void Channel::_setupRenderContext( const uint32_t frameID,
     context.view          = _view;
     context.vp            = getViewport();
     EQASSERTINFO( getNativeContext().view == context.view, 
-                  getNativeContext().view << " != " << context.view );
+                  getNativeContext().view << " != " << context.view << " " <<
+                  getName( ));
 }
 
 bool Channel::update( const uint32_t frameID, const uint32_t frameNumber )
