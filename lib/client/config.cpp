@@ -731,6 +731,7 @@ bool Config::_cmdUpdateReply( net::Command& command )
     const ConfigUpdateReplyPacket* packet = 
         command.getPacket<ConfigUpdateReplyPacket>();
 
+    sync( packet->version );
     getClient()->serveRequest( packet->requestID, packet->result );
     return true;
 }

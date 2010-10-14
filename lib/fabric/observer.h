@@ -119,8 +119,6 @@ namespace fabric
             DIRTY_HEAD       = Object::DIRTY_CUSTOM << 1
         };
 
-        virtual ChangeType getChangeType() const { return UNBUFFERED; }
-
     private:
         /** The parent Config. */
         C* const _config;

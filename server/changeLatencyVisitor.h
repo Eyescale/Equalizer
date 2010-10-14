@@ -22,7 +22,10 @@
 #include "compound.h"
 #include "configVisitor.h"
 #include "frame.h"
+#include "layout.h"
 #include "node.h"
+#include "observer.h"
+#include "segment.h"
 #include "view.h"
 
 namespace eq
@@ -57,16 +60,36 @@ public:
         return TRAVERSE_CONTINUE; 
     }
 
-    virtual VisitorResult visit( Node* node )
+    virtual VisitorResult visitPre( Node* node )
     {
-        // change latency in barrier
         node->changeLatency( _latency );
         return TRAVERSE_CONTINUE; 
     }
 
+    virtual VisitorResult visit( Observer* observer )
+        { return _visit( observer ); }
+
+    virtual VisitorResult visitPre( Layout* layout )
+        { return _visit( layout ); }
+    virtual VisitorResult visit( View* view )
+        { return _visit( view ); }
+
+    virtual VisitorResult visitPre( Segment* segment )
+        { return _visit( segment ); }
+    virtual VisitorResult visit( Segment* segment )
+        { return _visit( segment ); }
+
 private:
     const uint32_t _latency;
+
+    VisitorResult _visit( net::Object* object )
+        {
+            // double commit on update/delete
+            object->setAutoObsolete( _latency + 1 );
+            return TRAVERSE_CONTINUE;
+        }
 };
+
 }
 }
 #endif // EQSERVER_CHANGELATENCYVISITOR

@@ -127,8 +127,6 @@ namespace fabric
         EQFABRIC_EXPORT virtual void setDirty( const uint64_t bits );
 
         /** @internal */
-        virtual ChangeType getChangeType() const { return UNBUFFERED; }
-        /** @internal */
         virtual void activateLayout( const uint32_t index )
             { _data.activeLayout = index; }
 

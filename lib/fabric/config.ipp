@@ -653,6 +653,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
     EQASSERT( layout );
 
     registerObject( layout );
+    layout->setAutoObsolete( _data.latency + 1 );
     EQASSERT( layout->getID() <= EQ_ID_MAX );
 
     ConfigNewEntityReplyPacket reply( packet );
@@ -674,6 +675,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas(
     EQASSERT( canvas );
 
     registerObject( canvas );
+    canvas->setAutoObsolete( _data.latency + 1 );
     EQASSERT( canvas->getID() <= EQ_ID_MAX );
 
     ConfigNewEntityReplyPacket reply( packet );
@@ -695,6 +697,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver(
     EQASSERT( observer );
 
     registerObject( observer );
+    observer->setAutoObsolete( _data.latency + 1 );
     EQASSERT( observer->getID() <= EQ_ID_MAX );
 
     ConfigNewEntityReplyPacket reply( packet );

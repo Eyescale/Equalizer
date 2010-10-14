@@ -256,7 +256,7 @@ namespace net
             if( !child )
                 continue;
 
-            if( !child->isMaster( ))
+            if( child->isAttached() && !child->isMaster( ))
             {
                 Session* session = object->getSession();
                 EQASSERT( session );

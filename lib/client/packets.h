@@ -225,10 +225,8 @@ namespace eq
 
     struct ConfigUpdateReplyPacket : public ConfigPacket
     {
-        ConfigUpdateReplyPacket( const ConfigUpdatePacket* request,
-                                 const bool result_ )
+        ConfigUpdateReplyPacket( const ConfigUpdatePacket* request )
                 : requestID( request->requestID )
-                , result( result_ )
             {
                 command   = fabric::CMD_CONFIG_UPDATE_REPLY;
                 size      = sizeof( ConfigUpdateReplyPacket );
@@ -236,7 +234,8 @@ namespace eq
             }
 
         const uint32_t requestID;
-        const bool result;
+        uint32_t version;
+        bool result;
     };
 
     struct ConfigExitPacket : public ConfigPacket

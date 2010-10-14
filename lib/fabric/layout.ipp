@@ -280,7 +280,7 @@ Layout< C, L, V >::_cmdNewView( net::Command& command )
     EQASSERT( view );
 
     _config->registerObject( view );
-    view->setAutoObsolete( _config->getLatency( ));
+    view->setAutoObsolete( _config->getLatency() + 1 );
     EQASSERT( view->getID() <= EQ_ID_MAX );
 
     LayoutNewViewReplyPacket reply( packet );

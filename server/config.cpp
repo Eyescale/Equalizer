@@ -986,16 +986,18 @@ bool Config::_cmdUpdate( net::Command& command )
     localNode->waitRequest( replyVersion.requestID ); // wait for app sync
     _needsFinish = false;
 
-    ConfigUpdateReplyPacket replyResult( packet, _updateRunning( ));
-    if( !replyResult.result && !getIAttribute( IATTR_ROBUSTNESS ))
+    ConfigUpdateReplyPacket reply( packet );
+    reply.result = _updateRunning();
+    if( !reply.result && !getIAttribute( IATTR_ROBUSTNESS ))
     {
         EQWARN << "Config update failed, exiting config: " 
                << getErrorMessage() << std::endl;
         exit();
     }
-    EQINFO << *this << std::endl;
+    EQINFO << "Updated " << *this << std::endl;
 
-    send( command.getNode(), replyResult );
+    reply.version = commit();
+    send( command.getNode(), reply );
     return true;
 }
 

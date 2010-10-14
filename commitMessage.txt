@@ -1,4 +1,7 @@
-Denoisify CMake
+admin API fixes:
+- correctly buffer view objects for latency
+- add additional sync-on-delete during Config::update()
+
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

@@ -645,7 +645,6 @@ void Node::changeLatency( const uint32_t latency )
         net::Barrier* barrier = *i;
         barrier->setAutoObsolete( latency + 1 );
     }
-    setAutoObsolete( latency + 1 );
 }
 
 void Node::releaseBarrier( net::Barrier* barrier )

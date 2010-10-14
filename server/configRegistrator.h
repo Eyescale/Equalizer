@@ -19,7 +19,6 @@
 #define EQSERVER_CONFIGREGISTRATOR_H
 
 #include "configVisitor.h"        // base class
-#include "types.h"
 
 namespace eq
 {
@@ -36,54 +35,49 @@ namespace
 
         virtual VisitorResult visit( Observer* observer )
             { 
-                _register( observer );
-                return TRAVERSE_CONTINUE; 
+                // double commit on update/delete
+                return _register( observer, _config->getLatency() + 1 );
             }
 
         virtual VisitorResult visit( Segment* segment )
             { 
-                _register( segment );
-                return TRAVERSE_CONTINUE; 
+                // double commit on update/delete
+                return _register( segment, _config->getLatency() + 1 );
             }
 
         virtual VisitorResult visitPost( Canvas* canvas )
             { 
-                _register( canvas );
-                return TRAVERSE_CONTINUE; 
+                // double commit on update/delete
+                return _register( canvas, _config->getLatency() + 1 );
             }
 
         virtual VisitorResult visit( View* view )
             {
-                _register( view );
-                view->setAutoObsolete( _config->getLatency( ));
-                return TRAVERSE_CONTINUE; 
+                // double commit on update/delete
+                return _register( view, _config->getLatency() + 1 );
             }
 
         virtual VisitorResult visitPost( Layout* layout )
             { 
-                _register( layout );
-                return TRAVERSE_CONTINUE; 
+                // double commit on update/delete
+                return _register( layout, _config->getLatency() + 1 );
             }
 
         virtual VisitorResult visit( Channel* channel )
             {
-                _register( channel );
-                return TRAVERSE_CONTINUE; 
+                return _register( channel, 0 );
             }
         virtual VisitorResult visitPost( Window* window )
             {
-                _register( window );
-                return TRAVERSE_CONTINUE; 
+                return _register( window, 0 );
             }
         virtual VisitorResult visitPost( Pipe* pipe )
             {
-                _register( pipe );
-                return TRAVERSE_CONTINUE; 
+                return _register( pipe, 0 );
             }
         virtual VisitorResult visitPost( Node* node )
             {
-                _register( node );
-                return TRAVERSE_CONTINUE; 
+                return _register( node, 0 );
             }
 
         virtual VisitorResult visit( Compound* compound )
@@ -95,10 +89,13 @@ namespace
     private:
         Config* const _config;
 
-        void _register( net::Object* object )
+        VisitorResult _register( net::Object* object, const uint32_t nBuffers )
             {
                 EQASSERT( object->getID() == EQ_ID_INVALID );
                 _config->registerObject( object );
+                if( nBuffers > 0 )
+                    object->setAutoObsolete( nBuffers );
+                return TRAVERSE_CONTINUE; 
             }
     };
 }
