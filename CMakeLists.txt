@@ -72,6 +72,7 @@ endif(X11_FOUND)
 
 if(MSVC)
   add_definitions(/D_CRT_SECURE_NO_WARNINGS)
+  add_definitions(/W2)
 endif(MSVC)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
