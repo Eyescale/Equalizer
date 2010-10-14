@@ -1,5 +1,4 @@
-Cleanup up new/delete entity info messages
-Fix eqPly event handler return values.
+Denoisify CMake
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
