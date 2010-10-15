@@ -18,8 +18,11 @@
 
 #include "compound.h"
 #include "equalizers/loadEqualizer.h"
-#include "parser.hpp"
-
+#ifdef WIN32_API
+ #include "parser.cpp.h"
+#else
+ #include "parser.hpp"
+#endif
 #include <eq/base/base.h>
 #include <stdlib.h>
 

@@ -1,10 +1,15 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 
 find_package(BISON REQUIRED)
-find_package(FLEX  REQUIRED)
-
-bison_target(PARSER loader.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
-  COMPILE_FLAGS "--no-lines --name-prefix=eqLoader_")
+find_package(FLEX  REQUIRED) 
+ 
+if(MSVC) 
+  bison_target(PARSER loader.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp 
+     COMPILE_FLAGS "-l -p eqLoader_")
+else(MSVC)
+  bison_target(PARSER loader.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
+     COMPILE_FLAGS "--no-lines --name-prefix=eqLoader_")  
+endif(MSVC)
 
 flex_target(LEXER loader.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
 add_flex_bison_dependency(LEXER PARSER)

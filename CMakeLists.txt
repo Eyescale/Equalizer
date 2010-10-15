@@ -35,11 +35,16 @@ endmacro(FORWARD_HEADERS DIR)
 
 
 if(WIN32)
+  # Must be contain libboost_system-vcXX-mt-gd-XXX.X.lib, 
+  #  libboost_system-vcXX-mt-XXX.X.lib, libboost_regex-vcXX-mt-gd-XXX.X.lib 
+  #  libboost_regex-vcXX-mt-XXX.X.lib, libboost_date_time-vcXX-mt-gd-XXX.X.lib  
+  #  libboost_date_time-vcXX-mt-XXX.X.lib.
+  # Use Boost pro to install boost compiled library  
   set(Boost_USE_STATIC_LIBS ON)
 endif(WIN32)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_ADDITIONAL_VERSIONS "1.42" "1.43" "1.44")
-find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system regex date_time)
 add_definitions(-DBOOST_ALL_NO_LIB)
 link_directories(${Boost_LIBRARY_DIRS})
 include_directories(AFTER SYSTEM ${Boost_INCLUDE_DIRS})
@@ -59,7 +64,6 @@ if(OPENMP_FOUND)
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
   endif(CMAKE_COMPILER_IS_GNUCXX AND GCC_COMPILER_VERSION LESS 43)
 endif(OPENMP_FOUND)
-
 
 find_package(OpenGL REQUIRED)
 include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
@@ -98,7 +102,7 @@ if(WIN32)
 
   set(PTHREAD_LIBRARIES ${PTHREAD_BIN_DIR}/pthreadVC2.lib)
   file(COPY ${PTHREAD_BIN_DIR}/pthreadVC2.dll
-    DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/debug/)
   install(FILES ${PTHREAD_BIN_DIR}/pthreadVC2.dll
     DESTINATION bin)
 else(WIN32)
