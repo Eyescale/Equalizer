@@ -1,12 +1,9 @@
-admin API fixes:
-- correctly buffer view objects for latency
-- add additional sync-on-delete during Config::update()
-
+XCode-related CMake fixes
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

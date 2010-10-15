@@ -33,6 +33,11 @@ cmakeRelease:
 	@cd release; cmake .. -DCMAKE_BUILD_TYPE=Release
 	@$(MAKE) -C release
 
+cmakeXCode:
+	@mkdir -p cXCode
+	@cd cXCode; cmake -G Xcode ..
+	open cXCode/Equalizer.xcodeproj
+
 docs:
 	@$(DOXYGEN) Doxyfile
 

@@ -80,7 +80,10 @@ if(MSVC)
 endif(MSVC)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings -Werror")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings")
+  if(NOT XCODE_VERSION) # XCode doesn't know -isystem...
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+  endif(NOT XCODE_VERSION)
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
@@ -107,7 +110,9 @@ if(WIN32)
     DESTINATION bin)
 else(WIN32)
   set(PTHREAD_LIBRARIES pthread)
-  add_definitions(-fPIC) # 64bit Linux wants this
+  if(LINUX)
+    add_definitions(-fPIC) # 64bit Linux wants this
+  endif(LINUX)
 endif(WIN32)
 
 
@@ -120,10 +125,9 @@ if(APPLE)
   link_directories(/usr/X11R6/lib)
   include_directories(SYSTEM /usr/X11R6/include)
 
-  if(XCODE_VERSION)
-  else(XCODE_VERSION)
+  if(NOT XCODE_VERSION)
     add_definitions(-DDarwin)
-  endif(XCODE_VERSION)
+  endif(NOT XCODE_VERSION)
   if(GLX_USED)
     set (CMAKE_OSX_ARCHITECTURES "x86_64")
     set (CUDA_64_BIT_DEVICE_CODE ON) 
@@ -136,7 +140,7 @@ endif(APPLE)
 
 include(${CMAKE_SOURCE_DIR}/externals/UseGLEW.cmake)
 include(${CMAKE_SOURCE_DIR}/externals/UseVMMLib.cmake)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DEQ_BUILD_DIR=\\\"${CMAKE_BINARY_DIR}/\\\"")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DEQ_BUILD_DIR=${CMAKE_BINARY_DIR}/")
 
 add_subdirectory(admin)
 add_subdirectory(examples)

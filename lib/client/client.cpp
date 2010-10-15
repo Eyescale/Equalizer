@@ -100,13 +100,16 @@ namespace
 base::DSO _libeqserver;
 }
 
+#define QUOTE( string ) STRINGIFY( string )
+#define STRINGIFY( foo ) #foo
+
 net::ConnectionPtr _startLocalServer()
 {
     Strings dirNames;
     dirNames.push_back( "" );
 
 #ifdef EQ_BUILD_DIR
-    dirNames.push_back( std::string( EQ_BUILD_DIR ) + "server/" );
+    dirNames.push_back( std::string( QUOTE( EQ_BUILD_DIR )) + "server/" );
 #endif
 
 #ifdef _MSC_VER
