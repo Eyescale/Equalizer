@@ -1,4 +1,4 @@
-XCode-related CMake fixes
+VS-related CMake fixes
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
