@@ -227,7 +227,7 @@ int main( int argc, char **argv )
 
                 // Compress
                 clock.reset();
-                const eq::Image::PixelData& compressedPixels =
+                const eq::PixelData& compressedPixels =
                     image.compressPixelData( buffer );
                 const float compressTime = clock.getTimef();
 

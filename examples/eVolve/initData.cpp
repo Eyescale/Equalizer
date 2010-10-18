@@ -49,7 +49,11 @@ InitData::InitData()
         , _brightness( 1.0f )
         , _alpha( 1.0f )
 #ifdef _MSC_VER
+# ifdef EQ_BUILD_DIR
+        , _filename( "../../../../examples/eqPly" )
+# else
         , _filename( "../examples/eVolve/Bucky32x32x32_d.raw" )
+# endif
 #else
         , _filename( "../share/data/Bucky32x32x32_d.raw" )
 #endif

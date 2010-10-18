@@ -42,10 +42,10 @@ namespace net
     {
     public:
         /** Construct a new instance cache. */
-        InstanceCache( const long maxSize = EQ_100MB );
+        EQ_EXPORT InstanceCache( const long maxSize = EQ_100MB );
 
         /** Destruct this instance cache. */
-        ~InstanceCache();
+        EQ_EXPORT ~InstanceCache();
 
         /** 
          * Add a new command to the instance cache.
@@ -56,19 +56,19 @@ namespace net
          * @param usage pre-set usage count.
          * @return true if the command was entered, false if not.
          */
-        bool add( const ObjectVersion& rev, const uint32_t instanceID, 
+        EQ_EXPORT bool add( const ObjectVersion& rev, const uint32_t instanceID, 
                   Command& command, const uint32_t usage = 0 );
 
         /** One cache entry */
         struct Data
         {
             Data();
-            bool operator != ( const Data& rhs ) const;
-            bool operator == ( const Data& rhs ) const;
+            EQ_EXPORT bool operator != ( const Data& rhs ) const;
+            EQ_EXPORT bool operator == ( const Data& rhs ) const;
 
             uint32_t masterInstanceID; //!< The instance ID of the master object
             ObjectInstanceDataIStreamDeque versions; //!< all cached data
-            static const Data NONE; //!< '0' return value 
+            EQ_EXPORT static const Data NONE; //!< '0' return value 
         };
 
         /**
@@ -82,7 +82,7 @@ namespace net
          * @return the list of cached instance datas, or Data::NONE if no data
          *         is cached for this object.
          */
-        const Data& operator[]( const uint32_t id );
+        EQ_EXPORT const Data& operator[]( const uint32_t id );
 
         /** 
          * Release the retrieved instance data of the given object.
@@ -92,7 +92,7 @@ namespace net
          * @return true if the element was unpinned, false if it is not in the
          *         instance cache.
          */
-        bool release( const uint32_t id, const uint32_t count = 1 );
+        EQ_EXPORT bool release( const uint32_t id, const uint32_t count = 1 );
 
         /** 
          * Erase all the data for the given object.
@@ -102,7 +102,7 @@ namespace net
          *
          * @return true if the element was erased, false otherwise.
          */
-        bool erase( const uint32_t id );
+        EQ_EXPORT bool erase( const uint32_t id );
 
         /** @return the number of bytes used by the instance cache. */
         long getSize() const { return _size; }
@@ -139,7 +139,7 @@ namespace net
         EQ_TS_VAR( _thread );
     };
 
-    std::ostream& operator << ( std::ostream&, const InstanceCache& );
+    EQ_EXPORT std::ostream& operator << ( std::ostream&, const InstanceCache& );
 }
 }
 #endif //EQNET_INSTANCECACHE_H

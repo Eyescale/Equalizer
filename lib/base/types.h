@@ -50,6 +50,7 @@ typedef INT32      int32_t;
 typedef UINT16     uint16_t;
 typedef INT16      int16_t;
 typedef UINT8      uint8_t;
+typedef INT8       int8_t;
 #    ifndef HAVE_SSIZE_T
 typedef SSIZE_T    ssize_t;
 #    endif

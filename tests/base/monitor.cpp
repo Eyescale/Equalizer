@@ -15,7 +15,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <test.h>
+# include <pthread.h> // must come first!
+
+#include "test.h"
 #include <eq/base/clock.h>
 #include <eq/base/monitor.h>
 #include <eq/base/thread.h>
