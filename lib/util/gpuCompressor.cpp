@@ -60,14 +60,14 @@ void GPUCompressor::initDownloader( const uint32_t internalFormat,
     float speed = 0;
     uint32_t name = EQ_COMPRESSOR_NONE;
     
-    EqCompressorInfos infos; 
+    base::CompressorInfos infos;
     findTransferers( internalFormat, 0, capabilities, minQuality, 
                      ignoreAlpha, _glewContext, infos );
     
-    for( EqCompressorInfos::const_iterator j = infos.begin();
-         j != infos.end(); ++j )
+    for( base::CompressorInfos::const_iterator i = infos.begin();
+         i != infos.end(); ++i )
     {
-        const EqCompressorInfo& info = *j;
+        const base::CompressorInfo& info = *i;
 
         if( ratio > info.ratio || 
             ( ratio == info.ratio && speed < info.speed))
@@ -268,12 +268,11 @@ void GPUCompressor::findTransferers( const uint32_t internalFormat,
                                      const float    minQuality,
                                      const bool     ignoreAlpha,
                                      const GLEWContext* glewContext,
-                                     EqCompressorInfos& result )
+                                     base::CompressorInfos& result )
 {
-    EQASSERT( glewContext );
-
     const base::PluginRegistry& registry = base::Global::getPluginRegistry();
     const base::Plugins& plugins = registry.getPlugins();
+    const uint64_t caps = capabilities | EQ_COMPRESSOR_TRANSFER;
 
     for( base::Plugins::const_iterator i = plugins.begin();
          i != plugins.end(); ++i )
@@ -284,7 +283,7 @@ void GPUCompressor::findTransferers( const uint32_t internalFormat,
              j != infos.end(); ++j )
         {
             const base::CompressorInfo& info = *j;
-            if(( (info.capabilities & capabilities) == capabilities )  &&
+            if(( (info.capabilities & caps) == caps )  &&
                ( internalFormat == EQ_COMPRESSOR_DATATYPE_NONE ||
                  info.tokenType == internalFormat )                    &&
                ( externalFormat == EQ_COMPRESSOR_DATATYPE_NONE ||
@@ -292,7 +291,7 @@ void GPUCompressor::findTransferers( const uint32_t internalFormat,
                ( info.quality >= minQuality )                          &&
                ( ignoreAlpha ||
                  !(info.capabilities & EQ_COMPRESSOR_IGNORE_ALPHA ))   &&
-               ( plugin->isCompatible( info.name, glewContext )))
+               ( !glewContext || plugin->isCompatible( info.name, glewContext)))
             {
                 result.push_back( info );
             }

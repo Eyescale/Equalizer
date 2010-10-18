@@ -230,14 +230,5 @@ const CompressorInfo& Plugin::findInfo( const uint32_t name ) const
     return _infos.front();
 }
 
-
-std::ostream& operator << ( std::ostream& os, const EqCompressorInfo& info )
-{
-    os << "v" << info.version << " name " << info.name << " token "
-       << info.tokenType << " cap " << info.capabilities << " quality "
-       << info.quality << " ratio " << info.ratio << " speed " << info.speed;
-    return os;
-}
-
 }
 }

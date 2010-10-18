@@ -59,6 +59,7 @@ class MessagePump;
 class Node;
 class Observer;
 class Pipe;
+class PixelData;
 class Segment;
 class Server;
 class View;
@@ -116,35 +117,35 @@ typedef fabric::ConfigVisitor< Config, ObserverVisitor, LayoutVisitor,
 
 //----- Vectors
 /** A vector of pointers to eq::Config */
-typedef std::vector< Config* >     Configs;
+typedef std::vector< Config* > Configs;
 /** A vector of pointers to eq::Node */
-typedef std::vector< Node* >     Nodes;
+typedef std::vector< Node* > Nodes;
 /** A vector of pointers to eq::Pipe */
-typedef std::vector< Pipe* >     Pipes;
+typedef std::vector< Pipe* > Pipes;
 /** A vector of pointers to eq::Window */
-typedef std::vector< Window* >   Windows;
+typedef std::vector< Window* > Windows;
 /** A vector of pointers to eq::Channel */
-typedef std::vector< Channel* >  Channels;
+typedef std::vector< Channel* > Channels;
 /** A vector of pointers to eq::Frame */
-typedef std::vector< Frame* >    Frames;
+typedef std::vector< Frame* > Frames;
 /** A vector of pointers to eq::Image */
-typedef std::vector< Image* >    Images;
+typedef std::vector< Image* > Images;
 /** A vector of pointers to eq::Observer */
 typedef std::vector< Observer* > Observers;
 /** A vector of pointers to eq::Canvas */
-typedef std::vector< Canvas* >   Canvases;
+typedef std::vector< Canvas* > Canvases;
 /** A vector of pointers to eq::Layout */
-typedef std::vector< Layout* >   Layouts;
+typedef std::vector< Layout* > Layouts;
 /** A vector of pointers to eq::Segment */
-typedef std::vector< Segment* >  Segments;
+typedef std::vector< Segment* > Segments;
 /** A vector of pointers to eq::View */
-typedef std::vector< View* >     Views;
+typedef std::vector< View* > Views;
 /** A vector of eq::Viewport */
-typedef std::vector< Viewport >      Viewports;
+typedef std::vector< Viewport > Viewports;
 /** A vector of eq::PixelViewport */
 typedef std::vector< PixelViewport > PixelViewports;
 /** A vector of eq::Statistic events */
-typedef std::vector< Statistic >         Statistics;
+typedef std::vector< Statistic > Statistics;
 
 /** A reference-counted pointer to an eq::Client */
 typedef base::RefPtr< Client >        ClientPtr;

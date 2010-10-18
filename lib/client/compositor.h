@@ -18,9 +18,8 @@
 #ifndef EQ_COMPOSITOR_H
 #define EQ_COMPOSITOR_H
 
-#include "frame.h"          // nested type Frame::Buffer
-#include "image.h"          // nested type PixelData 
-#include "types.h"          // type definitions
+#include <eq/client/frame.h>          // nested type Frame::Buffer
+#include <eq/client/types.h>          // type definitions
 
 #include <eq/fabric/pixel.h>          // member
 
@@ -249,7 +248,7 @@ namespace util
                              uint32_t& depthPixelSize,
                              uint32_t& depthExternalFormat );
                               
-        static void _collectOutputData( const Image::PixelData& pixelData, 
+        static void _collectOutputData( const PixelData& pixelData, 
                                         uint32_t& internalFormat, 
                                         uint32_t& pixelSize, 
                                         uint32_t& externalFormat );

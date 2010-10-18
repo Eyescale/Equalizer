@@ -178,12 +178,24 @@ std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
 
 void Image::findTransferers( const Frame::Buffer buffer,
                              const GLEWContext* glewContext,
-                             EqCompressorInfos& result )
+                             std::vector< uint32_t >& names )
 { 
-    return util::GPUCompressor::findTransferers(
-        getInternalFormat( buffer ), 0, EQ_COMPRESSOR_TRANSFER, 
-        getQuality( buffer ), _ignoreAlpha,
-        glewContext, result );
+    base::CompressorInfos infos;
+    _findTransferers( buffer, glewContext, infos );
+    for( base::CompressorInfos::const_iterator i = infos.begin();
+         i != infos.end(); ++i )
+    {
+        names.push_back( i->name );
+    }
+}
+
+void Image::_findTransferers( const Frame::Buffer buffer,
+                             const GLEWContext* glewContext,
+                             base::CompressorInfos& result )
+{ 
+    util::GPUCompressor::findTransferers(
+        getInternalFormat( buffer ), getExternalFormat( buffer ),
+        0 /*caps*/, getQuality( buffer ), _ignoreAlpha, glewContext, result );
 }
 
 uint32_t Image::_chooseCompressor( const Frame::Buffer buffer ) const
@@ -203,7 +215,7 @@ uint32_t Image::_chooseCompressor( const Frame::Buffer buffer ) const
 
 bool Image::hasAlpha() const
 {
-    return hasPixelData(  Frame::BUFFER_COLOR ) &&
+    return hasPixelData( Frame::BUFFER_COLOR ) &&
            _getMemory( Frame::BUFFER_COLOR ).hasAlpha;
 }
 
@@ -286,7 +298,7 @@ uint8_t* Image::getPixelPointer( const Frame::Buffer buffer )
           ( _getAttachment( buffer ).memory.pixels );
 }
 
-const Image::PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
+const PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
 {
     EQASSERT(hasPixelData(buffer));
     return _getAttachment( buffer ).memory;
@@ -297,7 +309,7 @@ void Image::upload( const Frame::Buffer buffer, const Vector2i& position,
 {
     util::GPUCompressor* uploader = glObjects->obtainEqUploader(
                                         _getCompressorKey( buffer ));
-    const Image::PixelData& pixelData = getPixelData( buffer );
+    const PixelData& pixelData = getPixelData( buffer );
     const uint32_t externalFormat = pixelData.externalFormat;
     const uint32_t internalFormat = pixelData.internalFormat;
     const uint64_t flags = EQ_COMPRESSOR_TRANSFER |
@@ -321,7 +333,7 @@ void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
 
     util::GPUCompressor* uploader = glObjects->obtainEqUploader(
                                         _getCompressorKey( buffer ));
-    const Image::PixelData& pixelData = getPixelData( buffer );
+    const PixelData& pixelData = getPixelData( buffer );
     const uint32_t externalFormat = pixelData.externalFormat;
     const uint32_t internalFormat = pixelData.internalFormat;
     const uint64_t flags = EQ_COMPRESSOR_TRANSFER |
@@ -616,7 +628,28 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     memory.pvp       = pixels.pvp;
     memory.state     = Memory::INVALID;
     memory.isCompressed = false;
-    memory.hasAlpha = pixels.hasAlpha;
+    memory.hasAlpha = false;
+
+    base::CompressorInfos transferrers;
+    _findTransferers( buffer, 0 /*GLEW context*/, transferrers );
+
+    if( transferrers.empty( ))
+        EQWARN << "No upload engines found for given pixel data" << std::endl;
+    else
+    {
+        memory.hasAlpha =
+            transferrers.front().capabilities & EQ_COMPRESSOR_IGNORE_ALPHA;
+#ifndef NDEBUG
+        for( base::CompressorInfos::const_iterator i = transferrers.begin();
+             i != transferrers.end(); ++i )
+        {
+            EQASSERTINFO( memory.hasAlpha == 
+                          bool( i->capabilities & EQ_COMPRESSOR_IGNORE_ALPHA ),
+                          "Uploaders don't agree on alpha state of external " <<
+                          "format: " << transferrers.front() << " != " << *i );
+        }
+#endif
+    }
 
     const uint32_t size = getPixelDataSize( buffer );
     EQASSERT( size > 0 );
@@ -773,9 +806,10 @@ bool Image::_allocDecompressor( Attachment& attachment, uint32_t name )
 
 void Image::Memory::flush()
 {
+    PixelData::reset();
     state = INVALID;
-    PixelData::flush();
     localBuffer.clear();
+    hasAlpha = true;
 }
 
 void Image::Memory::useLocalBuffer()
@@ -789,37 +823,7 @@ void Image::Memory::useLocalBuffer()
     pixels = localBuffer.getData();
 }
 
-Image::PixelData::PixelData()
-       : internalFormat( 0 )
-        , externalFormat( 0 )
-        , pixelSize( 0 )
-        , pixels( 0 )
-        , compressorName( 0 )
-        , compressorFlags( 0 )
-        , isCompressed( false )
-        , hasAlpha( true )
-{}
-
-void Image::PixelData::flush()
-{
-    pixels = 0;
-    internalFormat = 0;
-    externalFormat = 0;
-    pixelSize = 0;
-    compressorName = 0;
-    compressorFlags = 0;
-    isCompressed = false;
-    hasAlpha = true;
-    compressedSize.clear();
-    compressedData.clear();
-}
-
-Image::PixelData::~PixelData()
-{
-    flush();
-}
-
-const Image::PixelData& Image::compressPixelData( const Frame::Buffer buffer )
+const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
 {
     EQASSERT( getPixelDataSize( buffer ) > 0 );
 

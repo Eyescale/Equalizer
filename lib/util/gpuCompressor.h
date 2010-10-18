@@ -172,7 +172,8 @@ namespace util
          * @param capabilities the capabilities required by the transferer.
          * @param minQuality the minimum required quality.
          * @param ignoreAlpha true if the downloader may drop the alpha channel.
-         * @param glewContext a valid glewContext.
+         * @param glewContext a valid glewContext, or 0 if the check for OpenGL
+         *                       context compatibility should be omitted.
          * @param result the output result vector.
          */
         static EQ_EXPORT void findTransferers( const uint32_t internalFormat,
@@ -181,7 +182,7 @@ namespace util
                                                const float minQuality,
                                                const bool ignoreAlpha,
                                                const GLEWContext* glewContext,
-                                               EqCompressorInfos& result );
+                                               base::CompressorInfos& result );
 
     private:
         /** the initialized GLEW context describing corresponding

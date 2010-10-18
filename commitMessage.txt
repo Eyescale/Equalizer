@@ -1,9 +1,14 @@
-VS-related CMake fixes
+Refactor PixelData from Image
+Fix includes in compositor.h
+Transmit image quality to remote node
+Remove transmission of alpha state (contained in external format)
+Set alpha state in Image::setPixelData (queried from uploader)
+Remove C++-ism from plugins/compressor.h
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -23,6 +23,7 @@
 #include "channelStatistics.h"
 #include "client.h"
 #include "compositor.h"
+#include "image.h"
 #include "log.h"
 #include "server.h"
 #include "windowSystem.h"
@@ -521,24 +522,24 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
 
     result->setPixelViewport( destPVP );
 
-    Image::PixelData colorPixelData;
-    colorPixelData.internalFormat = colorInternalFormat;
-    colorPixelData.externalFormat = colorExternalFormat;
-    colorPixelData.pixelSize      = colorPixelSize;
-    colorPixelData.pvp            = destPVP;
-    result->setPixelData( Frame::BUFFER_COLOR, colorPixelData );
+    PixelData colorPixels;
+    colorPixels.internalFormat = colorInternalFormat;
+    colorPixels.externalFormat = colorExternalFormat;
+    colorPixels.pixelSize      = colorPixelSize;
+    colorPixels.pvp            = destPVP;
+    result->setPixelData( Frame::BUFFER_COLOR, colorPixels );
 
     void* destDepth = 0;
     if( depthInternalFormat != 0 ) // at least one depth assembly
     {
         EQASSERT( depthExternalFormat ==
                   EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT );
-        Image::PixelData depthPixelData;
-        depthPixelData.internalFormat = depthInternalFormat;
-        depthPixelData.externalFormat = depthExternalFormat;
-        depthPixelData.pixelSize      = depthPixelSize;
-        depthPixelData.pvp            = destPVP;
-        result->setPixelData( Frame::BUFFER_DEPTH, depthPixelData );
+        PixelData depthPixels;
+        depthPixels.internalFormat = depthInternalFormat;
+        depthPixels.externalFormat = depthExternalFormat;
+        depthPixels.pixelSize      = depthPixelSize;
+        depthPixels.pvp            = destPVP;
+        result->setPixelData( Frame::BUFFER_DEPTH, depthPixels );
         destDepth = result->getPixelPointer( Frame::BUFFER_DEPTH );
     }
 
@@ -604,7 +605,7 @@ bool Compositor::_collectOutputData(
     return true;
 }
 
-void Compositor::_collectOutputData( const Image::PixelData& pixelData, 
+void Compositor::_collectOutputData( const PixelData& pixelData, 
                                      uint32_t& internalFormat, 
                                      uint32_t& pixelSize,
                                      uint32_t& externalFormat )

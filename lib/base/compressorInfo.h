@@ -21,6 +21,8 @@
 #include <eq/base/types.h>
 #include <eq/plugins/compressor.h> // base struct
 
+#include <iostream>
+
 namespace eq
 {
 namespace base
@@ -34,7 +36,14 @@ struct CompressorInfo : public EqCompressorInfo
 };
 
 
-//EQ_EXPORT std::ostream& operator << ( std::ostream&, const CompressorInfo& );
+inline std::ostream& operator << ( std::ostream& os, const CompressorInfo& info)
+{
+    os << "v" << info.version << std::hex << " name 0x" << info.name
+       << " in 0x" << info.tokenType << " out 0x" << info.outputTokenType
+       << " cap 0x" << info.capabilities << std::dec << " quality "
+       << info.quality << " ratio " << info.ratio << " speed " << info.speed;
+    return os;
+}
 
 }
 }

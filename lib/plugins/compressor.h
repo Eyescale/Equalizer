@@ -342,11 +342,6 @@ extern "C" {
         unsigned outputTokenSize;
     };
 
-#ifdef __cplusplus
-    /** A vector of EqCompressorInfo structures */
-    typedef std::vector< EqCompressorInfo > EqCompressorInfos;
-#endif
-
     /** @return the number of compressors implemented in the DSO. @version 1 */
     EQ_PLUGIN_API size_t EqCompressorGetNumCompressors();
 

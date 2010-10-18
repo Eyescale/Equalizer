@@ -52,8 +52,7 @@ struct ImageHeader
     uint32_t                compressorName;
     uint32_t                compressorFlags;
     uint32_t                nChunks;
-    bool                    hasAlpha;
-    bool                    fill[7];
+    float                   quality;
 };
 
 }
@@ -352,13 +351,13 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
     for( Images::const_iterator i = _images.begin(); i != _images.end(); ++i )
     {
         Image* image = *i;
-        std::vector< const Image::PixelData* > pixelDatas;
+        std::vector< const PixelData* > pixelDatas;
+        std::vector< float > qualities;
 
         packet.size           = packetSize;
         packet.buffers        = Frame::BUFFER_NONE;
         packet.pvp            = image->getPixelViewport();
         packet.ignoreAlpha    = image->ignoreAlpha();
-
         EQASSERT( packet.pvp.isValid( ));
 
         {
@@ -383,11 +382,12 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
                     // format, type, nChunks, compressor name
                     packet.size += sizeof( ImageHeader ); 
 
-                    const Image::PixelData& data = useCompression ?
+                    const PixelData& data = useCompression ?
                         image->compressPixelData( buffer ) : 
                         image->getPixelData( buffer );
                     pixelDatas.push_back( &data );
-                    
+                    qualities.push_back( image->getQuality( buffer ));
+
                     if( data.isCompressed )
                     {
                         const uint32_t nElements = data.compressedSize.size();
@@ -432,15 +432,15 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
 #ifndef NDEBUG
             sentBytes += sizeof( ImageHeader );
 #endif
-            const Image::PixelData* data = pixelDatas[j];
-            const ImageHeader imageHeader =
+            const PixelData* data = pixelDatas[j];
+            const ImageHeader header =
                   { data->internalFormat, data->externalFormat,
                     data->pixelSize, data->pvp,
                     data->compressorName, data->compressorFlags,
                     data->isCompressed ? data->compressedSize.size() : 1,
-                    data->hasAlpha, { false }};
+                    qualities[ j ] };
 
-            connection->send( &imageHeader, sizeof( ImageHeader ), true );
+            connection->send( &header, sizeof( ImageHeader ), true );
             
             if( data->isCompressed )
             {
@@ -543,21 +543,19 @@ bool FrameData::_cmdTransmit( net::Command& command )
         
         if( packet->buffers & buffer )
         {
-            Image::PixelData pixelData;
-            const ImageHeader* imageHeader = 
+            PixelData pixelData;
+            const ImageHeader* header = 
                               reinterpret_cast< ImageHeader* >( data );
-
-            pixelData.internalFormat  = imageHeader->internalFormat;
-            pixelData.externalFormat  = imageHeader->externalFormat;
-            pixelData.pixelSize       = imageHeader->pixelSize;
-            pixelData.pvp             = imageHeader->pvp;
-            pixelData.compressorName  = imageHeader->compressorName;
-            pixelData.compressorFlags = imageHeader->compressorFlags;
-            pixelData.hasAlpha        = imageHeader->hasAlpha;
+            pixelData.internalFormat  = header->internalFormat;
+            pixelData.externalFormat  = header->externalFormat;
+            pixelData.pixelSize       = header->pixelSize;
+            pixelData.pvp             = header->pvp;
+            pixelData.compressorName  = header->compressorName;
+            pixelData.compressorFlags = header->compressorFlags;
             pixelData.isCompressed = 
                 pixelData.compressorName > EQ_COMPRESSOR_NONE;
 
-            const uint32_t nChunks    = imageHeader->nChunks;
+            const uint32_t nChunks    = header->nChunks;
             data += sizeof( ImageHeader );
 
             if( pixelData.isCompressed )
@@ -583,10 +581,9 @@ bool FrameData::_cmdTransmit( net::Command& command )
                 data += size;
                 EQASSERT( size == pixelData.pvp.getArea()*pixelData.pixelSize );
             }
+
+            image->setQuality( buffer, header->quality );
             image->setPixelData( buffer, pixelData );
-            // Prevent ~PixelData from freeing pointers
-            pixelData.compressedSize.clear();
-            pixelData.compressedData.clear();
         }
     }
 

@@ -20,6 +20,7 @@
 #define EQ_IMAGE_H
 
 #include <eq/client/frame.h>         // for Frame::Buffer enum
+#include <eq/client/pixelData.h>     // member
 #include <eq/client/windowSystem.h>  // for OpenGL types
 
 #include <eq/fabric/pixelViewport.h> // member
@@ -35,64 +36,16 @@ namespace eq
     /**
      * A holder for pixel data.
      *
-     * An image holds color and depth information for a rectangular region.
+     * An image holds color and depth information for one rectangular region.
      */
     class Image
     {
     public:
-        /** Constructs a new Image. */
+        /** Construct a new Image. @version 1.0 */
         EQ_EXPORT Image();
+
+        /** Destruct the Image. @version 1.0 */
         EQ_EXPORT virtual ~Image();
-
-        struct PixelData : public base::NonCopyable
-        {
-            EQ_EXPORT PixelData();
-            EQ_EXPORT ~PixelData();
-            void flush();
-
-            /**
-             * The type of data stored in FrameBuffer or texture on the GPU.
-             * @sa the input token types in plugins/compressor.h
-             */
-            uint32_t internalFormat;
-
-            /**
-             * The type of data stored in pixels in main memory.
-             * @sa the output token types in plugins/compressor.h
-             */
-            uint32_t externalFormat;
-
-            /**
-             * The size of one pixel, in bytes, stored in pixels.
-             * @sa the output token types in plugins/compressor.h
-             */
-            uint32_t pixelSize;
-
-            /**
-             * The dimensions of the pixel data in pixels.
-             *
-             * Note that this pvp might differ from the image pvp since the
-             * data is downloaded from the GPU using a plugin, which might
-             * compress the data. If unmodified pixel data is required, the
-             * correct download plugin has to be used.
-             *
-             * @sa setDownloadName()
-             */
-            PixelViewport pvp;
-
-            void* pixels;  //!< uncompressed pixel data, pvp * pixelSize bytes
-
-            /** The compressed pixel data blocks. */
-            std::vector< void* >    compressedData;
-
-            /** Sizes of each compressed pixel data block. */
-            std::vector< uint64_t > compressedSize;
-
-            uint32_t compressorName;  //!< The compressor used
-            uint32_t compressorFlags; //!< Flags used for compression
-            bool isCompressed;        //!< The compressed pixel data is valid
-            bool hasAlpha;            //!< The uncompressed data has alpha
-        };
 
         /** @name Image parameters */
         //@{
@@ -190,12 +143,10 @@ namespace eq
         EQ_EXPORT uint32_t getPixelDataSize( const Frame::Buffer buffer ) const;
 
         /** @return the pixel data. */
-        EQ_EXPORT const PixelData& getPixelData( const Frame::Buffer buffer )
-                                       const;
+        EQ_EXPORT const PixelData& getPixelData( const Frame::Buffer ) const;
 
-        /** @return compress, if needed, and return the pixel data. */
-        EQ_EXPORT const PixelData& compressPixelData( const Frame::Buffer 
-                                                          buffer );
+        /** @return the compressed pixel data, compressing it if needed. */
+        EQ_EXPORT const PixelData& compressPixelData( const Frame::Buffer );
 
         /**
          * @return true if the image has pixel data for the buffer, false if
@@ -355,8 +306,8 @@ namespace eq
          */
         EQ_EXPORT void findTransferers( const Frame::Buffer buffer,
                                         const GLEWContext* glewContext,
-                                        EqCompressorInfos& result );
-
+                                        std::vector< uint32_t >& names );
+        
         /** @internal Re-allocate, if needed, a compressor instance. */
         EQ_EXPORT bool allocCompressor( const Frame::Buffer buffer, 
                                         const uint32_t name );
@@ -399,6 +350,8 @@ namespace eq
             /** During the call of setPixelData or writeImage, we have to 
                 manage an internal buffer to copy the data */
             eq::base::Bufferb localBuffer;
+
+            bool hasAlpha; //!< The uncompressed pixels contain alpha
         };
 
         /** @return an appropriate compressor name for the given buffer.*/
@@ -437,7 +390,7 @@ namespace eq
         Attachment _depth;
 
         EQ_EXPORT Attachment& _getAttachment( const Frame::Buffer buffer );
-        EQ_EXPORT const Attachment& _getAttachment( const Frame::Buffer buffer ) const;
+        EQ_EXPORT const Attachment& _getAttachment( const Frame::Buffer ) const;
 
         Memory& _getMemory( const Frame::Buffer buffer )
             { return _getAttachment( buffer ).memory; }
@@ -446,6 +399,10 @@ namespace eq
 
         /** Find and activate a decompression engine */
         bool _allocDecompressor( Attachment& attachment, uint32_t name );
+
+        void _findTransferers( const Frame::Buffer buffer,
+                               const GLEWContext* glewContext,
+                               base::CompressorInfos& result );
 
         /** Alpha channel significance. */
         bool _ignoreAlpha;

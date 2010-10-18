@@ -165,42 +165,43 @@ void Channel::_testFormats( float applyZoom )
     for( uint32_t i=0; _enums[i].internalFormatString; ++i )
     {
         const uint32_t internalFormat = _enums[i].internalFormat;
+        image->flush();
         image->setInternalFormat( eq::Frame::BUFFER_COLOR, internalFormat );
         image->setQuality( eq::Frame::BUFFER_COLOR, 0.f );
         image->disableAlphaUsage();
 
         const GLEWContext* glewContext = glewGetContext();
-        EqCompressorInfos infos;
-        image->findTransferers( eq::Frame::BUFFER_COLOR, glewContext, infos );
+        std::vector< uint32_t > names;
+        image->findTransferers( eq::Frame::BUFFER_COLOR, glewContext, names );
 
-        for( EqCompressorInfos::const_iterator j = infos.begin();
-             j != infos.end(); ++j )
+        for( std::vector< uint32_t >::const_iterator j = names.begin();
+             j != names.end(); ++j )
         {
-            const EqCompressorInfo& info = *j;
             _draw( 0 );
 
             // setup
-            const uint32_t outputToken = info.outputTokenType;
-            snprintf( event.formatType, 32, "%s/%x/%x", 
-                _enums[i].internalFormatString, outputToken, info.name );
-
             event.formatType[31] = '\0';
             event.data.type = ConfigEvent::READBACK;
 
-            image->allocDownloader( eq::Frame::BUFFER_COLOR, info.name, 
-                                    glewContext );
+            image->allocDownloader( eq::Frame::BUFFER_COLOR, *j, glewContext );
             image->setPixelViewport( pvp );
+
+            const uint32_t outputToken = 
+                image->getExternalFormat( eq::Frame::BUFFER_COLOR );
+            snprintf( event.formatType, 32, "%s/%x/%x", 
+                _enums[i].internalFormatString, outputToken, *j );
+
 
             // read
             clock.reset();
             image->readback( eq::Frame::BUFFER_COLOR, pvp, zoom, glObjects );
             event.msec = clock.getTimef();
 
-            const eq::Image::PixelData& pixel = 
+            const eq::PixelData& pixels =
                 image->getPixelData( eq::Frame::BUFFER_COLOR );
-            event.area.x() = pixel.pvp.w;             
-            event.area.y() = pixel.pvp.h;
-            event.dataSizeGPU = pixel.pvp.h * pixel.pvp.w * _enums[i].pixelSize;
+            event.area.x() = pixels.pvp.w;             
+            event.area.y() = pixels.pvp.h;
+            event.dataSizeGPU = pixels.pvp.getArea() * _enums[i].pixelSize;
             event.dataSizeCPU = 
                 image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
 
@@ -223,7 +224,7 @@ void Channel::_testFormats( float applyZoom )
             eq::Compositor::assembleImage( image, op );
             event.msec = clock.getTimef();
 
-            const eq::Image::PixelData& pixelA =
+            const eq::PixelData& pixelA =
                 image->getPixelData( eq::Frame::BUFFER_COLOR );
             event.area.x() = pixelA.pvp.w; 
             event.area.y() = pixelA.pvp.h;

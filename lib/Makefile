@@ -169,6 +169,7 @@ HEADER_SRC = \
 	client/os.h \
 	client/packets.h \
 	client/pipe.h \
+	client/pixelData.h \
 	client/segment.h \
 	client/server.h \
 	client/statistic.h \
@@ -304,6 +305,7 @@ CXXFILES = \
 	client/os.cpp \
 	client/pipe.cpp \
 	client/pipeStatistics.cpp \
+	client/pixelData.cpp \
 	client/roiEmptySpaceFinder.cpp \
 	client/roiFinder.cpp \
 	client/roiTracker.cpp \

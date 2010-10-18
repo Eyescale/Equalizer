@@ -25,6 +25,7 @@
 #include "frame.h"
 #include "frameData.h"
 #include "global.h"
+#include "image.h"
 #include "jitter.h"
 #include "log.h"
 #include "node.h"
