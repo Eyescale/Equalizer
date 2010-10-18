@@ -4,7 +4,7 @@ if(MSVC)
   add_definitions(/wd4996)
 endif(MSVC)
 
-set( HEADER 
+set(HEADER 
   cameraAnimation.h
   channel.h
   config.h
@@ -20,7 +20,7 @@ set( HEADER
   pipe.h
   ply.h
   tracker.h
-  typeDefs.h
+  typedefs.h
   vertexBufferBase.h
   vertexBufferData.h
   vertexBufferDist.h
@@ -59,7 +59,7 @@ add_executable(eqPly MACOSX_BUNDLE
   )
 
 if(MSVC)
-  SOURCE_GROUP("CMakes Makefile" FILES CMakeLists.txt)
+  SOURCE_GROUP("CMake Files" FILES CMakeLists.txt)
 endif(MSVC)
   
 target_link_libraries(eqPly Equalizer EqualizerAdmin)
