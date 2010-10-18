@@ -35,11 +35,11 @@ endmacro(FORWARD_HEADERS DIR)
 
 
 if(WIN32)
-  # Must be contain libboost_system-vcXX-mt-gd-XXX.X.lib, 
+  # Looking for libboost_system-vcXX-mt-gd-XXX.X.lib, 
   #  libboost_system-vcXX-mt-XXX.X.lib, libboost_regex-vcXX-mt-gd-XXX.X.lib 
   #  libboost_regex-vcXX-mt-XXX.X.lib, libboost_date_time-vcXX-mt-gd-XXX.X.lib  
   #  libboost_date_time-vcXX-mt-XXX.X.lib.
-  # Use Boost pro to install boost compiled library  
+  # Use BoostPro to install compiled boost library  
   set(Boost_USE_STATIC_LIBS ON)
 endif(WIN32)
 set(Boost_USE_MULTITHREADED ON)
@@ -142,18 +142,6 @@ include(${CMAKE_SOURCE_DIR}/externals/UseGLEW.cmake)
 include(${CMAKE_SOURCE_DIR}/externals/UseVMMLib.cmake)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DEQ_BUILD_DIR=${CMAKE_BINARY_DIR}/")
 
-add_subdirectory(admin)
-add_subdirectory(examples)
-add_subdirectory(lib)
-add_subdirectory(server)
-add_subdirectory(tests)
-add_subdirectory(tools)
-
-add_executable(eqServer server/eqServer.cpp)
-target_link_libraries(eqServer EqualizerServer)
-install(TARGETS eqServer DESTINATION bin)
-
-
 #info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
 set(CPACK_PACKAGE_NAME "Equalizer")
@@ -185,6 +173,18 @@ set(CPACK_COMPONENT_VMMLIB_DISPLAY_NAME "VMMLib header files")
 set(CPACK_COMPONENT_VMMLIB_DESCRIPTION
   "vmmlib is a vector and matrix math library implemented using C++ templates, thus making it very easy to integrate into other libraries and programs.")
 
-
 include(InstallRequiredSystemLibraries)
 include(CPack)
+
+
+add_subdirectory(admin)
+add_subdirectory(examples)
+add_subdirectory(lib)
+add_subdirectory(server)
+add_subdirectory(tests)
+add_subdirectory(tools)
+
+add_executable(eqServer server/eqServer.cpp)
+target_link_libraries(eqServer EqualizerServer)
+install(TARGETS eqServer DESTINATION bin)
+
