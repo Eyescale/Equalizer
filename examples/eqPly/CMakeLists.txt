@@ -4,7 +4,37 @@ if(MSVC)
   add_definitions(/wd4996)
 endif(MSVC)
 
+set( HEADER 
+  cameraAnimation.h
+  channel.h
+  config.h
+  configEvent.h
+  eqPly.h
+  fragmentShader_glsl.h
+  frameData.h
+  initData.h
+  localInitData.h
+  modelAssigner.h
+  node.h
+  node.h
+  pipe.h
+  ply.h
+  tracker.h
+  typeDefs.h
+  vertexBufferBase.h
+  vertexBufferData.h
+  vertexBufferDist.h
+  vertexBufferLeaf.h
+  vertexBufferNode.h
+  vertexBufferRoot.h
+  vertexBufferState.h
+  vertexData.h
+  vertexShader_glsl.h
+  view.h
+  window.h)
+  
 add_executable(eqPly MACOSX_BUNDLE
+  ${HEADER}
   cameraAnimation.cpp
   channel.cpp
   config.cpp
@@ -28,6 +58,10 @@ add_executable(eqPly MACOSX_BUNDLE
   window.cpp
   )
 
+if(MSVC)
+  SOURCE_GROUP("CMakes Makefile" FILES CMakeLists.txt)
+endif(MSVC)
+  
 target_link_libraries(eqPly Equalizer EqualizerAdmin)
 
 install(TARGETS eqPly DESTINATION bin)
