@@ -2,7 +2,14 @@
 #               2010 Stefan Eilemann <eile@eyescale.ch>
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+
 project(Equalizer)
+set(VERSION_MAJOR "0")
+set(VERSION_MINOR "9")
+set(VERSION_PATCH "2")
+set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+
+
 enable_testing()
 
 IF(NOT CMAKE_BUILD_TYPE)
@@ -143,20 +150,34 @@ include(${CMAKE_SOURCE_DIR}/externals/UseGLEW.cmake)
 include(${CMAKE_SOURCE_DIR}/externals/UseVMMLib.cmake)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DEQ_BUILD_DIR=${CMAKE_BINARY_DIR}/")
 
+
+add_subdirectory(admin)
+add_subdirectory(examples)
+add_subdirectory(lib)
+add_subdirectory(server)
+add_subdirectory(tests)
+add_subdirectory(tools)
+
+add_executable(eqServer server/eqServer.cpp)
+target_link_libraries(eqServer EqualizerServer)
+install(TARGETS eqServer DESTINATION bin)
+
+
 #info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
 set(CPACK_PACKAGE_NAME "Equalizer")
 set(CPACK_PACKAGE_VENDOR "http://www.equalizergraphics.com/")
 set(CPACK_PACKAGE_CONTACT "Stefan Eilemann <eile@eyescale.ch>")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Parallel Rendering Framework")
-set(CPACK_PACKAGE_VERSION_MAJOR "0")
-set(CPACK_PACKAGE_VERSION_MINOR "9")
-set(CPACK_PACKAGE_VERSION_PATCH "2")
-set(VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
+set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
 
-set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/LICENSE)
+# licence must have a file extension on mac
+set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_BINARY_DIR}/licence.txt)
+configure_file(${CMAKE_SOURCE_DIR}/LICENSE ${CPACK_RESOURCE_FILE_LICENSE} COPYONLY)
 
-set(CPACK_COMPONENTS_ALL Unspecified dev tools data vmmlib)
+set(CPACK_COMPONENTS_ALL dev tools data vmmlib)
 
 set(CPACK_COMPONENT_DEV_DISPLAY_NAME "Headers and Libraries")
 set(CPACK_COMPONENT_DEV_DESCRIPTION
@@ -176,16 +197,3 @@ set(CPACK_COMPONENT_VMMLIB_DESCRIPTION
 
 include(InstallRequiredSystemLibraries)
 include(CPack)
-
-
-add_subdirectory(admin)
-add_subdirectory(examples)
-add_subdirectory(lib)
-add_subdirectory(server)
-add_subdirectory(tests)
-add_subdirectory(tools)
-
-add_executable(eqServer server/eqServer.cpp)
-target_link_libraries(eqServer EqualizerServer)
-install(TARGETS eqServer DESTINATION bin)
-
