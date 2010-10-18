@@ -486,7 +486,6 @@ bool Config::handleEvent( const ConfigEvent* event )
         case Event::VIEW_RESIZE:
         {
             View* view = find< View >( event->data.originator );
-            EQASSERT( view );
             if( view )
                 return view->handleEvent( event->data );
             break;
