@@ -1,4 +1,4 @@
-Doxygen fix
+CMake fix
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
