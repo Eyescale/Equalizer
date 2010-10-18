@@ -26,6 +26,8 @@
 #  include <dirent.h>
 #endif
 
+#include <sys/stat.h>
+
 namespace eq
 {
 namespace base
@@ -131,6 +133,16 @@ inline std::string getDirname( const std::string& filename )
             lastSeparator = i+1;
 
     return filename.substr( 0, lastSeparator );
+}
+
+inline bool fileExists( const std::string filename ) 
+{ 
+  struct stat stFileInfo; 
+  int intStat; 
+
+  // Attempt to get the file attributes 
+  intStat = stat( filename.c_str(),&stFileInfo ); 
+  return intStat == 0;
 }
 
 }

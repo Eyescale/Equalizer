@@ -19,6 +19,7 @@
 #include "global.h"
 #include "nodeFactory.h"
 #include <eq/base/base.h>
+#include <eq/base/file.h>
 #include <eq/base/lock.h>
 
 namespace eq
@@ -26,7 +27,10 @@ namespace eq
 NodeFactory* Global::_nodeFactory = 0;
 
 #ifdef WIN32 
-   std::string Global::_configFile = "../examples/configs/4-window.all.eqc";
+   std::string Global::_configFile = 
+        base::fileExists( "../../../../examples/configs/4-window.all.eqc" ) ? 
+        "../../../../examples/configs/4-window.all.eqc" : 
+        "../examples/configs/4-window.all.eqc";
 #endif
 #ifdef Darwin
 #    ifdef XCODE
