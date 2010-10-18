@@ -59,7 +59,7 @@ class MessagePump;
 class Node;
 class Observer;
 class Pipe;
-class PixelData;
+struct PixelData;
 class Segment;
 class Server;
 class View;

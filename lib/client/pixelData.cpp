@@ -25,12 +25,12 @@ PixelData::PixelData()
     reset();
 }
 
-PixelData::PixelData::~PixelData()
+PixelData::~PixelData()
 {
     reset();
 }
 
-void PixelData::PixelData::reset()
+void PixelData::reset()
 {
     internalFormat = EQ_COMPRESSOR_DATATYPE_NONE;
     externalFormat = EQ_COMPRESSOR_DATATYPE_NONE;
