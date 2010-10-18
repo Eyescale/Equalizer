@@ -454,7 +454,7 @@ void Node::_connectMulticast( NodePtr node )
 
 NodePtr Node::getNode( const NodeID& id ) const
 { 
-    base::ScopedMutex<> mutex( _nodes );
+    base::ScopedMutex< base::SpinLock > mutex( _nodes );
     NodeHash::const_iterator i = _nodes->find( id );
     if( i == _nodes->end( ))
         return 0;
@@ -764,7 +764,7 @@ NodePtr Node::connect( const NodeID& nodeID )
     // Extract all node pointers, the _nodes hash will be modified later
     Nodes nodes;
     {
-        base::ScopedMutex<> mutex( _nodes );
+        base::ScopedMutex< base::SpinLock > mutex( _nodes );
         for( NodeHash::const_iterator i = _nodes->begin();
              i != _nodes->end(); ++i )
         {
@@ -802,7 +802,7 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
     // happen a lot during initialization, and are therefore not time-critical.
     base::ScopedMutex<> mutex( _connectMutex );
     {
-        base::ScopedMutex<> mutexNodes( _nodes ); 
+        base::ScopedMutex< base::SpinLock > mutexNodes( _nodes ); 
         NodeHash::const_iterator i = _nodes->find( nodeID );
         if( i != _nodes->end( ))
             node = i->second;
@@ -843,7 +843,7 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
         return node;
 
     {
-        base::ScopedMutex<> mutexNodes( _nodes );
+        base::ScopedMutex< base::SpinLock > mutexNodes( _nodes );
         // connect failed - maybe simultaneous connect from peer?
         NodeHash::const_iterator i = _nodes->find( nodeID );
         if( i != _nodes->end( ))
@@ -974,7 +974,7 @@ void Node::_handleDisconnect()
             node->_outgoing = 0;
 
             EQINFO << node << " disconnected from " << this << std::endl;
-            base::ScopedMutex<> mutex( _nodes );
+            base::ScopedMutex< base::SpinLock > mutex( _nodes );
             _nodes->erase( node->_id );
         }
         else
@@ -1413,7 +1413,7 @@ bool Node::_cmdConnect( Command& command )
     
     _connectionNodes[ connection ] = remoteNode;
     {
-        base::ScopedMutex<> mutex( _nodes );
+        base::ScopedMutex< base::SpinLock > mutex( _nodes );
         _nodes.data[ remoteNode->_id ] = remoteNode;
     }
     EQVERB << "Added node " << nodeID << std::endl;
@@ -1490,7 +1490,7 @@ bool Node::_cmdConnectReply( Command& command )
     
     _connectionNodes[ connection ] = remoteNode;
     {
-        base::ScopedMutex<> mutex( _nodes );
+        base::ScopedMutex< base::SpinLock > mutex( _nodes );
         _nodes.data[ remoteNode->_id ] = remoteNode;
     }
     EQVERB << "Added node " << nodeID << std::endl;
@@ -1555,7 +1555,7 @@ bool Node::_cmdID( Command& command )
             EQASSERTINFO( data.empty(), data );
 
             {
-                base::ScopedMutex<> nodesMutex( _nodes );
+                base::ScopedMutex< base::SpinLock > mutex( _nodes );
                 _nodes.data[ nodeID ] = node;
             }
             EQVERB << "Added node " << nodeID << " with multicast "
@@ -1630,7 +1630,7 @@ bool Node::_cmdDisconnect( Command& command )
 
         _connectionNodes.erase( connection );
         {
-            base::ScopedMutex<> mutex( _nodes );
+            base::ScopedMutex< base::SpinLock > mutex( _nodes );
             _nodes->erase( node->_id );
         }
 
@@ -1710,7 +1710,7 @@ bool Node::_cmdGetNodeDataReply( Command& command )
     EQASSERT( data.empty( ));
 
     {
-        base::ScopedMutex<> nodesMutex( _nodes );
+        base::ScopedMutex< base::SpinLock > mutex( _nodes );
         _nodes.data[ nodeID ] = node;
     }
     EQVERB << "Added node " << nodeID << " without connection" << std::endl;

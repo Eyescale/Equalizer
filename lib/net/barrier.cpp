@@ -183,10 +183,9 @@ bool Barrier::_cmdEnter( Command& command )
     }
 
     // delete node vector for version
-    map< uint32_t, Nodes >::iterator it = _enteredNodes.find( version );
-    EQASSERT( it != _enteredNodes.end( ));
-    _enteredNodes.erase( it );
-
+    map< uint32_t, Nodes >::iterator i = _enteredNodes.find( version );
+    EQASSERT( i != _enteredNodes.end( ));
+    _enteredNodes.erase( i );
     return true;
 }
 

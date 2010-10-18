@@ -1,9 +1,9 @@
-CMake fix
+Opt: use SpinLock for net::Node::_nodes
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [ ] New Feature
-[x] Cleanup
-[ ] Optimization
+[ ] Cleanup
+[x] Optimization
 [ ] Documentation

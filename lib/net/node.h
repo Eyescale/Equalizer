@@ -495,7 +495,7 @@ namespace net
         typedef base::UUIDHash< NodePtr > NodeHash;
 
         /** The connected nodes. */
-        base::Lockable< NodeHash > _nodes; // read: all, write: recv only
+        base::Lockable< NodeHash, base::SpinLock > _nodes; // r: all, w: recv
 
         /** The node for each connection. */
         typedef base::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;
