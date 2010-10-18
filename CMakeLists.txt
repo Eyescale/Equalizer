@@ -105,9 +105,13 @@ if(WIN32)
 
   set(PTHREAD_LIBRARIES ${PTHREAD_BIN_DIR}/pthreadVC2.lib)
   file(COPY ${PTHREAD_BIN_DIR}/pthreadVC2.dll
-    DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/debug/)
+       DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/debug/ )
   install(FILES ${PTHREAD_BIN_DIR}/pthreadVC2.dll
-    DESTINATION bin)
+          DESTINATION bin)
+  file(COPY ${PTHREAD_BIN_DIR}/pthreadVC2.dll
+       DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/release/ )
+  install(FILES ${PTHREAD_BIN_DIR}/pthreadVC2.dll
+          DESTINATION bin)
 else(WIN32)
   set(PTHREAD_LIBRARIES pthread)
   if(LINUX)
