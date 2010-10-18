@@ -20,6 +20,7 @@
 #include "frame.h"
 
 #include <server/equalizers/framerateEqualizer.h>
+#include <server/equalizers/loadEqualizer.h>
 #include <server/canvas.h>
 #include <server/global.h>
 #include <server/layout.h>
@@ -264,13 +265,18 @@ void ConfigTool::_writeResources( Config* config ) const
 
     for( unsigned n=0; n < nNodes && c < _nChannels; ++n )
     {
+        Node* node = new Node( config );
+
         std::ostringstream nodeName;
         if( n < nodesNames.size() )
             nodeName << nodesNames[ n ];
         else
+        {
             nodeName << "node" << n;
+            if( n == 0 )
+                node->setApplicationNode( true );
+        }
 
-        Node* node = new Node( config );
         node->setName( nodeName.str( ));
 
         ConnectionDescriptionPtr connectionDescription = 
@@ -380,6 +386,7 @@ void ConfigTool::_write2D( Config* config ) const
     wall.bottomRight = eq::Vector3f(  .32f, -.2f, -.75f );
     wall.topLeft     = eq::Vector3f( -.32f,  .2f, -.75f );
     compound->setWall( wall );
+    compound->addEqualizer( new LoadEqualizer );
 
     const unsigned step = static_cast< unsigned >
         ( 100000.0f / ( _useDestination ? _nChannels : _nChannels - 1 ));
