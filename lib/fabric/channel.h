@@ -62,16 +62,16 @@ namespace fabric
         /** @return the parent window. @version 1.0 */
         const W* getWindow() const { return _window; }
 
-        /** Update the native view identifier and version. @internal */
+        /** @internal Update the native view identifier and version. */
         void setViewVersion( const net::ObjectVersion& view );
 
-        /** Set the channel's pixel viewport wrt its parent window. @internal */
+        /** @internal Set the channel's pixel viewport wrt its parent window. */
         void setPixelViewport( const PixelViewport& pvp );
 
-        /** Set the channel's viewport wrt its parent window. @internal */
+        /** @internal Set the channel's viewport wrt its parent window. */
         EQFABRIC_EXPORT void setViewport( const Viewport& vp );
 
-        /** Notification that the vp/pvp has changed. @internal */
+        /** @internal Notification that the vp/pvp has changed. */
         virtual void notifyViewportChanged();
 
         /** @return the native pixel viewport. @version 1.0 */
@@ -112,6 +112,19 @@ namespace fabric
 
         /** Const-version of accept(). @version 1.0 */
         EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor ) const;
+
+        /**
+         * Set the capabilities supported by the channel
+         *
+         * Channel which do not support all capabilities required by the current
+         * destination view do not execute any tasks. The capabilities are an
+         * application-defined bit mask. By default all bits are set.
+         * @version 1.0
+         */
+        EQFABRIC_EXPORT void setCapabilities( const uint64_t bitmask );
+
+        /** @return the supported capabilities. @version 1.0 */
+        EQFABRIC_EXPORT uint64_t getCapabilities() const;
 
         /** @warning Undocumented - may not be supported in the future */
         EQFABRIC_EXPORT void setMaxSize( const Vector2i& size );
@@ -308,13 +321,16 @@ namespace fabric
 
         enum DirtyBits
         {
-            DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 0, // 64
-            DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 1, // 128
-            DIRTY_MEMBER     = Object::DIRTY_CUSTOM << 2, // 256
-            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 3, // 512
+            DIRTY_ATTRIBUTES    = Object::DIRTY_CUSTOM << 0, //   64
+            DIRTY_VIEWPORT      = Object::DIRTY_CUSTOM << 1, //  128
+            DIRTY_MEMBER        = Object::DIRTY_CUSTOM << 2, //  256
+            DIRTY_FRUSTUM       = Object::DIRTY_CUSTOM << 3, //  512
+            DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 4, // 1024
             DIRTY_CHANNEL_BITS = 
                DIRTY_ATTRIBUTES | DIRTY_VIEWPORT | DIRTY_MEMBER | DIRTY_FRUSTUM
         };
+
+        virtual void updateCapabilities() {}; //!< @internal
 
     private:
         /** The parent window. */
@@ -322,10 +338,13 @@ namespace fabric
 
         struct BackupData
         {
-            BackupData() : fixedVP( true ) {}
+            BackupData() : capabilities( EQ_BIT_ALL_64 ), fixedVP( true ) {}
 
             /** The native render context parameters of this channel. */
             RenderContext nativeContext;
+
+            /** Bitmask of supported capabilities */
+            uint64_t capabilities;
 
             /** true if the vp is immutable, false if the pvp is immutable */
             bool fixedVP;
@@ -343,7 +362,7 @@ namespace fabric
 
         /** Overdraw limiter */
         Vector2i    _maxSize;
-        
+
         union // placeholder for binary-compatible changes
         {
             char dummy[32];

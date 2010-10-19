@@ -22,6 +22,7 @@
 #include "channelUpdateVisitor.h"
 #include "compound.h"
 #include "compoundVisitor.h"
+#include "configVisitor.h"
 #include "config.h"
 #include "global.h"
 #include "log.h"
@@ -39,12 +40,43 @@
 
 #include "channel.ipp"
 
+#include <set>
+
 namespace eq
 {
 namespace server
 {
 typedef net::CommandFunc<Channel> CmdFunc;
 typedef fabric::Channel< Window, Channel > Super;
+
+namespace
+{
+    typedef std::set< View* > ViewSet;
+
+    class ViewFinder : public ConfigVisitor
+    {
+    public:
+        ViewFinder( const Channel* channel ) : _channel( channel ) {}
+        virtual ~ViewFinder(){}
+
+        virtual VisitorResult visit( Compound* compound )
+        {
+            Channel* channel = compound->getChannel();
+            if( channel != _channel )
+                return TRAVERSE_CONTINUE;
+
+            channel = compound->getInheritChannel();
+            _viewSet.insert( channel->getView( ));
+            return TRAVERSE_CONTINUE;
+        }
+
+        ViewSet& getViews() { return _viewSet; }
+
+    private:
+        const Channel*     _channel;
+        ViewSet  _viewSet;
+    };
+}
 
 Channel::Channel( Window* parent )
         : Super( parent )
@@ -184,6 +216,16 @@ net::CommandQueue* Channel::getCommandThreadQueue()
     Window* window = getWindow();
     EQASSERT( window );
     return window->getCommandThreadQueue(); 
+}
+
+bool Channel::supportsView( const View* view ) const
+{
+    if( !view )
+        return true;
+
+    const uint64_t minimum = view->getMinimumCapabilities();
+    const uint64_t supported = getCapabilities();
+    return( (supported & minimum) == minimum );
 }
 
 void Channel::activate()
@@ -562,6 +604,16 @@ std::ostream& operator << ( std::ostream& os, const Channel& channel)
        << base::enableFlush;
 
     return os;
+}
+
+void Channel::updateCapabilities()
+{
+    ViewFinder visitor( this );
+    getConfig()->accept( visitor );
+    ViewSet& views = visitor.getViews();
+
+    for( ViewSet::const_iterator i = views.begin(); i != views.end(); ++i ) 
+        (*i)->updateCapabilities();
 }
 
 }

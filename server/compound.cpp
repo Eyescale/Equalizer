@@ -293,7 +293,12 @@ bool Compound::isRunning() const
     const Channel* channel = getChannel();
     if( !channel )
         return true;
-    return channel->isRunning();
+
+    if( !channel->isRunning( ))
+        return false;
+
+    const View* view = _inherit.channel->getView();
+    return channel->supportsView( view );
 }
 
 //---------------------------------------------------------------------------
@@ -1060,6 +1065,10 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         _inherit.tasks |= fabric::TASK_VIEW;
     else
         _inherit.tasks &= ~fabric::TASK_VIEW;
+
+    const View* view = _inherit.channel ? _inherit.channel->getView() : 0;
+    if( !channel->supportsView( view ))
+        _inherit.tasks = fabric::TASK_NONE;
 
     if( frameNumber != 0 &&
         ( !_inherit.pvp.hasArea() || !_inherit.range.hasData( )) )

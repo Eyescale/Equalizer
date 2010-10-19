@@ -300,6 +300,7 @@ namespace server
             { return _inherit.frustumData; }
         uint32_t getInheritTasks()           const { return _inherit.tasks; }
         uint32_t getInheritEyes()            const { return _inherit.eyes; }
+        Channel* getInheritChannel()               { return _inherit.channel; }
         const Channel* getInheritChannel()   const { return _inherit.channel; }
         
         /** @return true if the task is set, false if not. */

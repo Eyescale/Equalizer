@@ -1,4 +1,9 @@
-CMake: Bring CPack configuration up-to-standard
+Implement rendering capability support (Carsten Rohn)
+- Add Channel::setCapabilities
+- Add View::setMinimumCapabilities, setMaximumCapabilities, getCapabilities
+- Implement capability update logic, task generation and equalizer updates
+
+Documentation to follow.
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

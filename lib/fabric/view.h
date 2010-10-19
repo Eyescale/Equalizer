@@ -124,6 +124,58 @@ namespace fabric
         virtual EQFABRIC_EXPORT void restore(); //!< @internal
         //@}
 
+        /**
+         * Set the minimum required capabilities for this view.
+         *
+         * Any channel which does not support all of the bits in this mask does
+         * not execute any tasks. By default no bit is set.
+         * 
+         * @param bitmask the capabilities as bitmask
+         * @version 1.0
+         */
+        EQFABRIC_EXPORT void setMinimumCapabilities( const uint64_t bitmask );
+
+        /** @return the bitmask of the minimum capabilities. @version 1.0 */
+        EQFABRIC_EXPORT uint64_t getMinimumCapabilities() const;
+        //@}
+
+        /**
+         * Set the maximum desiredcapabilities for this view.
+         *
+         * The capabilities returned by getCapabilities() during rendering match
+         * the lowest common denominator of all channel capabilities and this
+         * bitmask. Logically it has to be a superset of the minimum
+         * capabilities. By default all bits are set.
+         *
+         * The capabilities are used to selectively disable source channels in
+         * conjunction with a load equalizer. Each channel typically sets its
+         * capabilities during configInit. The application sets the minimum
+         * and maximum capabilities needed or desired to render this view. The
+         * channel queries the capabilities to be used using getCapabilities().
+         *
+         * @param bitmask the capabilities as bitmask
+         * @version 1.0 
+         */
+        EQFABRIC_EXPORT void setMaximumCapabilities(const uint64_t bitmask);
+
+        /**
+         * @return the bitmask that represents the maximum capabilities.
+         * @version 1.0
+         */
+        EQFABRIC_EXPORT uint64_t getMaximumCapabilities() const;
+        //@}
+
+        /**
+         * @return the bitmask usable for rendering.
+         * @sa setMaximumCapabilities()
+         * @version 1.0
+         */
+        EQFABRIC_EXPORT uint64_t getCapabilities() const;
+        //@}
+
+        void setCapabilities( const uint64_t bitmask ); //!< @internal
+        virtual void updateCapabilities() {}; //!< @internal
+
     protected:
         /** @internal Construct a new view. */
         EQFABRIC_EXPORT View( L* layout );
@@ -153,13 +205,17 @@ namespace fabric
 
         enum DirtyBits
         {
-            DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 0,
-            DIRTY_OBSERVER   = Object::DIRTY_CUSTOM << 1,
-            DIRTY_OVERDRAW   = Object::DIRTY_CUSTOM << 2,
-            DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 3,
-            DIRTY_MODE       = Object::DIRTY_CUSTOM << 4,
+            DIRTY_VIEWPORT      = Object::DIRTY_CUSTOM << 0,
+            DIRTY_OBSERVER      = Object::DIRTY_CUSTOM << 1,
+            DIRTY_OVERDRAW      = Object::DIRTY_CUSTOM << 2,
+            DIRTY_FRUSTUM       = Object::DIRTY_CUSTOM << 3,
+            DIRTY_MODE          = Object::DIRTY_CUSTOM << 4,
+            DIRTY_MINCAPS       = Object::DIRTY_CUSTOM << 5,
+            DIRTY_MAXCAPS       = Object::DIRTY_CUSTOM << 6,
+            DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 7,
             DIRTY_VIEW_BITS = DIRTY_VIEWPORT | DIRTY_OBSERVER | DIRTY_OVERDRAW |
-                              DIRTY_FRUSTUM | DIRTY_MODE
+                              DIRTY_FRUSTUM | DIRTY_MODE | DIRTY_MINCAPS |
+                              DIRTY_MAXCAPS | DIRTY_CAPABILITIES
         };
 
     private:
@@ -176,6 +232,10 @@ namespace fabric
         Vector2i _overdraw;
 
         Mode _mode;
+
+        uint64_t _minimumCapabilities;
+        uint64_t _maximumCapabilities;
+        uint64_t _capabilities;  
 
         union // placeholder for binary-compatible changes
         {

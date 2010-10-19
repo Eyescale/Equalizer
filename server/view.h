@@ -91,7 +91,10 @@ namespace server
          * @param mode the new rendering mode 
          */
         virtual void activateMode( const Mode mode );
+
+        virtual void updateCapabilities();
         //@}
+
 
     protected:
         /** @sa eq::View::deserialize() */

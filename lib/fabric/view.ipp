@@ -33,6 +33,9 @@ View< L, V, O >::View( L* layout )
         , _observer( 0 )
         , _overdraw( Vector2i::ZERO )
         , _mode( MODE_MONO )
+        , _minimumCapabilities( EQ_BIT_NONE )
+        , _maximumCapabilities( EQ_BIT_ALL_64 )
+        , _capabilities( EQ_BIT_ALL_64 )
 {
     // Note: Views are an exception to the strong structuring, since render
     // client views are multi-buffered (once per pipe) and do not have a parent
@@ -63,6 +66,12 @@ void View< L, V, O >::serialize( net::DataOStream& os, const uint64_t dirtyBits)
         os << *static_cast< Frustum* >( this );
     if( dirtyBits & DIRTY_MODE )
         os << _mode;
+    if( dirtyBits & DIRTY_MINCAPS )
+        os << _minimumCapabilities;
+    if( dirtyBits & DIRTY_MAXCAPS )
+        os << _maximumCapabilities;
+    if( dirtyBits & DIRTY_CAPABILITIES )
+        os << _capabilities;
 }
 
 template< class L, class V, class O > 
@@ -108,6 +117,16 @@ void View< L, V, O >::deserialize( net::DataIStream& is,
         is >> mode;
         activateMode( mode );
     }
+    if( dirtyBits & ( DIRTY_MINCAPS | DIRTY_MAXCAPS ) )
+    {
+        if( dirtyBits & DIRTY_MINCAPS )
+            is >> _minimumCapabilities;
+        if( dirtyBits & DIRTY_MAXCAPS )
+            is >> _maximumCapabilities;
+        updateCapabilities();
+    }
+    if( dirtyBits & DIRTY_CAPABILITIES )
+        is >> _capabilities;
 }
 
 template< class L, class V, class O > 
@@ -145,6 +164,9 @@ template< class L, class V, class O > void View< L, V, O >::restore()
 {
     Object::restore();
     Frustum::restore();
+    setMinimumCapabilities( EQ_BIT_NONE );
+    setMinimumCapabilities( EQ_BIT_ALL_64 );
+    setCapabilities( EQ_BIT_ALL_64 );
 }
 
 template< class L, class V, class O > 
@@ -272,6 +294,54 @@ std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view )
     os << base::exdent << "}" << std::endl << base::enableHeader
        << base::enableFlush;
     return os;
+}
+
+template< class L, class V, class O > 
+void View< L, V, O >::setMinimumCapabilities( uint64_t bitmask )
+{
+    if( bitmask == _minimumCapabilities )
+        return;
+
+    _minimumCapabilities = bitmask;
+    setDirty( DIRTY_MINCAPS );
+}
+
+template< class L, class V, class O > 
+uint64_t View< L, V, O >::getMinimumCapabilities() const
+{
+    return _minimumCapabilities;
+}
+
+template< class L, class V, class O > 
+void View< L, V, O >::setMaximumCapabilities( uint64_t bitmask )
+{
+    if( bitmask == _maximumCapabilities )
+        return;
+
+    _maximumCapabilities = bitmask;
+    setDirty( DIRTY_MAXCAPS );
+}
+
+template< class L, class V, class O > 
+uint64_t View< L, V, O >::getMaximumCapabilities() const
+{
+    return _maximumCapabilities;
+}
+
+template< class L, class V, class O > 
+void View< L, V, O >::setCapabilities( uint64_t bitmask )
+{
+    if( bitmask == _capabilities )
+        return;
+
+    _capabilities = bitmask;
+    setDirty( DIRTY_CAPABILITIES );
+}
+
+template< class L, class V, class O > 
+uint64_t View< L, V, O >::getCapabilities() const
+{
+    return _capabilities;
 }
 
 }

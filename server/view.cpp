@@ -60,11 +60,11 @@ View::~View()
 
 namespace
 {
-class ViewUpdater : public ConfigVisitor
+class FrustumUpdater : public ConfigVisitor
 {
 public:
-    ViewUpdater( const Channels& channels ) : _channels( channels ) {}
-    virtual ~ViewUpdater() {}
+    FrustumUpdater( const Channels& channels ) : _channels( channels ) {}
+    virtual ~FrustumUpdater() {}
 
     virtual VisitorResult visit( Compound* compound )
         {
@@ -86,6 +86,39 @@ public:
 private:
     const Channels& _channels;
 };
+
+class CapabilitiesUpdater : public ConfigVisitor
+{
+public:
+    CapabilitiesUpdater( View* view )
+            : _view( view )
+            , _capabilities( _view->getCapabilities( ))
+        {}
+
+    virtual ~CapabilitiesUpdater(){}
+
+    virtual VisitorResult visit( Compound* compound )
+    {
+        const Channel* dest = compound->getInheritChannel();
+        if( !dest || dest->getView() != _view )
+            return TRAVERSE_CONTINUE;
+
+        const Channel* src = compound->getChannel();
+        if( !src->supportsView( _view ))
+            return TRAVERSE_CONTINUE;
+
+        const uint64_t supported = src->getCapabilities();
+        _capabilities &= supported;
+        return TRAVERSE_CONTINUE;
+    }
+
+    uint64_t getCapabilities() const { return _capabilities; }
+
+private:
+    View* const _view;
+    uint64_t _capabilities;
+};
+
 }
 
 void View::setDirty( const uint64_t bits )
@@ -118,7 +151,7 @@ void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
         Config* config = getConfig();
         EQASSERT( config );
 
-        ViewUpdater updater( channels );
+        FrustumUpdater updater( channels );
         config->accept( updater );
     }
 }
@@ -226,6 +259,13 @@ void View::activateMode( const Mode mode )
     trigger( 0, false );
     Super::activateMode( mode );
     trigger( 0, true );
+}
+
+void View::updateCapabilities()
+{
+    CapabilitiesUpdater visitor( this );
+    getConfig()->accept( visitor );
+    setCapabilities( visitor.getCapabilities( ));
 }
 
 }

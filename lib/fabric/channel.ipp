@@ -120,6 +120,8 @@ void Channel< W, C >::serialize( net::DataOStream& os, const uint64_t dirtyBits)
            << _data.nativeContext.overdraw;
     if( dirtyBits & DIRTY_FRUSTUM )
         os << _data.nativeContext.frustum;
+    if( dirtyBits & DIRTY_CAPABILITIES )
+        os << _data.capabilities;
 }
 
 template< class W, class C >
@@ -148,6 +150,11 @@ void Channel< W, C >::deserialize( net::DataIStream& is,
            >> _data.nativeContext.overdraw;
     if( dirtyBits & DIRTY_FRUSTUM )
         is >> _data.nativeContext.frustum;
+    if( dirtyBits & DIRTY_CAPABILITIES )
+    {
+        is >> _data.capabilities;
+        updateCapabilities();
+    }
 }
 
 template< class W, class C >
@@ -273,6 +280,22 @@ void Channel< W, C >::setViewVersion( const net::ObjectVersion& view )
 
     _data.nativeContext.view = view;
     setDirty( DIRTY_MEMBER );
+}
+
+template< class W, class C >
+uint64_t Channel< W, C >::getCapabilities() const
+{
+    return _data.capabilities;
+}
+
+template< class W, class C >
+void Channel< W, C >::setCapabilities( const uint64_t bitmask )
+{
+    if ( bitmask == _data.capabilities )
+        return;
+
+    _data.capabilities = bitmask;
+    setDirty( DIRTY_CAPABILITIES );
 }
 
 template< class W, class C >

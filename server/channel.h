@@ -124,6 +124,12 @@ namespace server
         /** @return the channel's view. */
         View* getView() { return _view; }
 
+        /**
+         * @return true if this channel supports the capabilities needed for
+         *         the view.
+         */
+        bool supportsView( const View* view ) const;
+
         /** @return the channel's layout. */
         EQSERVER_EXPORT const Layout* getLayout() const;
 
@@ -235,6 +241,8 @@ namespace server
         bool _cmdFrameFinishReply( net::Command& command );
         bool _cmdNop( net::Command& command )
             { return true; }
+
+        virtual void updateCapabilities();
 
         // For access to _fixedPVP
         friend std::ostream& operator << ( std::ostream&, const Channel& );
