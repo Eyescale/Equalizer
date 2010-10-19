@@ -1,6 +1,9 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+19/Oct/2010
+  eq::net::Node::disconnect( NodePtr ) replaces ::close( NodePtr )
+
 18/Oct/2010
   eq::PixelData replaces eq::Image::PixelData
     eq::Image method signatures change accordingly

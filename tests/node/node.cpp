@@ -128,7 +128,7 @@ int main( int argc, char **argv )
 
     lock.set();
 
-    TEST( client->close( serverProxy ));
+    TEST( client->disconnect( serverProxy ));
     TEST( client->close( ));
     TEST( server->close( ));
 

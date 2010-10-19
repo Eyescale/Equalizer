@@ -1,9 +1,4 @@
-Implement rendering capability support (Carsten Rohn)
-- Add Channel::setCapabilities
-- Add View::setMinimumCapabilities, setMaximumCapabilities, getCapabilities
-- Implement capability update logic, task generation and equalizer updates
-
-Documentation to follow.
+Rename Node::close to disconnect for consistency reasons
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

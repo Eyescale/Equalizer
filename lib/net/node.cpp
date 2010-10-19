@@ -461,7 +461,7 @@ NodePtr Node::getNode( const NodeID& id ) const
     return i->second;
 }
 
-bool Node::close( NodePtr node )
+bool Node::disconnect( NodePtr node )
 {
     if( !node || _state != STATE_LISTENING )
         return false;

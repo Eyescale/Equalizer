@@ -134,7 +134,7 @@ bool Server::shutdown()
     waitRequest( packet.requestID, result );
 
     if( result )
-        static_cast< net::Node* >( getClient().get( ))->close( this );
+        static_cast< net::Node* >( getClient().get( ))->disconnect( this );
 
     return result;
 }

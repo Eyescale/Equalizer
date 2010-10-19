@@ -332,7 +332,7 @@ bool Client::_cmdExit( net::Command& command )
 {
     _running = false;
     // Close connection here, this is the last packet we'll get on it
-    command.getLocalNode()->close( command.getNode( ));
+    command.getLocalNode()->disconnect( command.getNode( ));
     return true;
 }
 }

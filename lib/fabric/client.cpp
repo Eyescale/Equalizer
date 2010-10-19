@@ -81,7 +81,7 @@ bool Client::disconnectServer( net::NodePtr server )
         return false;
     }
 
-    if( net::Node::close( server ))
+    if( net::Node::disconnect( server ))
         return true;
 
     EQWARN << "Server disconnect failed" << std::endl;

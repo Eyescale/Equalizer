@@ -176,7 +176,7 @@ namespace net
          * @return <code>true</code> if the node was disconnected correctly,
          *         <code>false</code> otherwise.
          */
-        EQ_EXPORT bool close( NodePtr node );
+        EQ_EXPORT bool disconnect( NodePtr node );
         //@}
 
         /**
