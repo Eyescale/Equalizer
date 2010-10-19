@@ -1626,8 +1626,8 @@ bool Node::_cmdDisconnect( Command& command )
         node->_outgoing = 0;
 
         _removeConnection( connection );
-        EQASSERT( _connectionNodes.find( connection )!=_connectionNodes.end( ));
 
+        EQASSERT( _connectionNodes.find( connection )!=_connectionNodes.end( ));
         _connectionNodes.erase( connection );
         {
             base::ScopedMutex< base::SpinLock > mutex( _nodes );

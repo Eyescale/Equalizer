@@ -1,9 +1,9 @@
-Rename Node::close to disconnect for consistency reasons
+Fix server-side view capability calculation
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
-[x] New Feature
+[x] Bugfix
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

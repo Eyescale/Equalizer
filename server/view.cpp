@@ -92,7 +92,7 @@ class CapabilitiesUpdater : public ConfigVisitor
 public:
     CapabilitiesUpdater( View* view )
             : _view( view )
-            , _capabilities( _view->getCapabilities( ))
+            , _capabilities( _view->getMaximumCapabilities( ))
         {}
 
     virtual ~CapabilitiesUpdater(){}
