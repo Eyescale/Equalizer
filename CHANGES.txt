@@ -1,6 +1,10 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+18/Oct/2010
+  eq::PixelData replaces eq::Image::PixelData
+    eq::Image method signatures change accordingly
+
 07/Oct/2010
   removed eq::net::Object::makeThreadSafe and isThreadSafe
     application has to lock sync(), if needed

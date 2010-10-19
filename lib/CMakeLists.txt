@@ -68,9 +68,9 @@ target_link_libraries(Equalizer
   )
 
 install(TARGETS Equalizer
-  ARCHIVE DESTINATION lib COMPONENT dev
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
+  ARCHIVE DESTINATION lib COMPONENT lib
+  LIBRARY DESTINATION lib COMPONENT lib
+  RUNTIME DESTINATION bin COMPONENT lib
   )
 
 foreach(HEADER ${HEADERS})
@@ -79,4 +79,4 @@ foreach(HEADER ${HEADERS})
 endforeach(HEADER ${HEADERS})
 
 configure_file(Equalizer.pc.in Equalizer.pc @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Equalizer.pc DESTINATION lib/pkgconfig COMPONENT dev)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Equalizer.pc DESTINATION lib/pkgconfig COMPONENT lib)

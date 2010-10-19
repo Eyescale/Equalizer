@@ -1,4 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#               2010 Stefan Eilemann <eile@eyescale.ch>
 
 find_package(OpenSceneGraph 2.9.8 COMPONENTS osgDB osgUtil)
 
@@ -9,7 +10,9 @@ endif(NOT OPENSCENEGRAPH_FOUND)
 
 include_directories(SYSTEM ${OPENSCENEGRAPH_INCLUDE_DIRS})
 
-add_executable(osgScaleViewer MACOSX_BUNDLE
+set(HEADERS channel.h)
+
+set(SOURCES
   main.cpp
   osgScaleViewer.cpp
   channel.cpp
@@ -22,9 +25,11 @@ add_executable(osgScaleViewer MACOSX_BUNDLE
   sceneView.cpp
   tracker.cpp
   window.cpp
-  quad.cpp
-  )
+  quad.cpp)
+
+add_executable(osgScaleViewer MACOSX_BUNDLE ${HEADERS} ${SOURCES})
 
 target_link_libraries(osgScaleViewer Equalizer ${OPENSCENEGRAPH_LIBRARIES})
 
-install(TARGETS osgScaleViewer DESTINATION bin)
+install(TARGETS osgScaleViewer DESTINATION bin COMPONENT apps)
+install(FILES ${HEADERS} ${SOURCES} DESTINATION share/Equalizer/examples/osgScaleViewer COMPONENT examples)

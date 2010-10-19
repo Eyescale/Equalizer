@@ -1,9 +1,9 @@
-Opt: use SpinLock for net::Node::_nodes
+CMake: Bring CPack configuration up-to-standard
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [ ] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation

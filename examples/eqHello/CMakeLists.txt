@@ -2,4 +2,5 @@
 
 add_executable(eqHello MACOSX_BUNDLE hello.cpp)
 target_link_libraries(eqHello Equalizer)
-install(TARGETS eqHello DESTINATION bin)
+install(TARGETS eqHello DESTINATION bin COMPONENT apps)
+install(FILES hello.cpp DESTINATION share/Equalizer/examples/eqHello COMPONENT examples)

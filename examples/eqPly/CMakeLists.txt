@@ -1,10 +1,11 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#               2010 Stefan Eilemann <eile@eyescale.ch>
 
 if(MSVC)
   add_definitions(/wd4996)
 endif(MSVC)
 
-set(HEADER 
+set(HEADERS
   cameraAnimation.h
   channel.h
   config.h
@@ -32,9 +33,8 @@ set(HEADER
   vertexShader_glsl.h
   view.h
   window.h)
-  
-add_executable(eqPly MACOSX_BUNDLE
-  ${HEADER}
+
+set(SOURCES
   cameraAnimation.cpp
   channel.cpp
   config.cpp
@@ -55,8 +55,9 @@ add_executable(eqPly MACOSX_BUNDLE
   vertexBufferRoot.cpp
   vertexData.cpp
   view.cpp
-  window.cpp
-  )
+  window.cpp)
+  
+add_executable(eqPly MACOSX_BUNDLE ${HEADERS} ${SOURCES})
 
 if(MSVC)
   SOURCE_GROUP("CMake Files" FILES CMakeLists.txt)
@@ -64,7 +65,7 @@ endif(MSVC)
   
 target_link_libraries(eqPly Equalizer EqualizerAdmin)
 
-install(TARGETS eqPly DESTINATION bin)
+install(TARGETS eqPly DESTINATION bin COMPONENT apps)
 
-install(FILES rockerArm.ply screwdriver.ply
-  DESTINATION share/Equalizer/data COMPONENT data)
+install(FILES rockerArm.ply screwdriver.ply DESTINATION share/Equalizer/data COMPONENT data)
+install(FILES ${HEADERS} ${SOURCES} DESTINATION share/Equalizer/examples/eqPly COMPONENT examples)

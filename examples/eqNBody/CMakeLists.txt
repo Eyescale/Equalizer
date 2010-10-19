@@ -1,4 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#               2010 Stefan Eilemann <eile@eyescale.ch>
 
 find_package(CUDA)
 
@@ -12,8 +13,9 @@ set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 
 cuda_compile(NBODY_FILES nbody.cu)
 
-add_executable(eqNBody MACOSX_BUNDLE
-  ${NBODY_FILES}
+set(HEADERS channel.h)
+
+set(SOURCES
   channel.cpp
   client.cpp
   config.cpp
@@ -27,9 +29,11 @@ add_executable(eqNBody MACOSX_BUNDLE
   render_particles.cpp
   sharedData.cpp
   sharedDataProxy.cpp
-  window.cpp
-  )
+  window.cpp)
+
+add_executable(eqNBody MACOSX_BUNDLE ${NBODY_FILES} ${HEADERS} ${SOURCES})
 
 target_link_libraries(eqNBody Equalizer ${CUDA_LIBRARIES})
 
-install(TARGETS eqNBody DESTINATION bin)
+install(TARGETS eqNBody DESTINATION bin COMPONENT apps)
+install(FILES ${NBODY_FILES} ${HEADERS} ${SOURCES} DESTINATION share/Equalizer/examples/eqNBody COMPONENT examples)

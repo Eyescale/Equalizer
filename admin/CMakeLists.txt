@@ -49,9 +49,9 @@ add_library(EqualizerAdmin SHARED ${SOURCES})
 target_link_libraries(EqualizerAdmin Equalizer)
 
 install(TARGETS EqualizerAdmin
-  ARCHIVE DESTINATION lib COMPONENT dev
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
+  ARCHIVE DESTINATION lib COMPONENT lib
+  LIBRARY DESTINATION lib COMPONENT lib
+  RUNTIME DESTINATION bin COMPONENT lib
   )
 
 install(FILES ${HEADERS} DESTINATION include/eq/admin COMPONENT dev)

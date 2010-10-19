@@ -166,30 +166,38 @@ install(TARGETS eqServer DESTINATION bin)
 #info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
 set(CPACK_PACKAGE_NAME "Equalizer")
-set(CPACK_PACKAGE_VENDOR "http://www.equalizergraphics.com/")
+set(CPACK_PACKAGE_VENDOR "http://www.eyescale.ch")
 set(CPACK_PACKAGE_CONTACT "Stefan Eilemann <eile@eyescale.ch>")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Parallel Rendering Framework")
 set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
+set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/LICENSE.txt)
+set(CPACK_RESOURCE_FILE_README ${CMAKE_SOURCE_DIR}/RELNOTES.txt)
 
-# licence must have a file extension on mac
-set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_BINARY_DIR}/licence.txt)
-configure_file(${CMAKE_SOURCE_DIR}/LICENSE ${CPACK_RESOURCE_FILE_LICENSE} COPYONLY)
+set(CPACK_COMPONENTS_ALL lib dev apps examples tools data vmmlib)
 
-set(CPACK_COMPONENTS_ALL dev tools data vmmlib)
+set(CPACK_COMPONENT_LIB_DISPLAY_NAME "Core Libraries")
+set(CPACK_COMPONENT_LIB_DESCRIPTION "Equalizer Runtime Libraries")
 
-set(CPACK_COMPONENT_DEV_DISPLAY_NAME "Headers and Libraries")
-set(CPACK_COMPONENT_DEV_DESCRIPTION
-  "Header Files and Developer Libraries")
+set(CPACK_COMPONENT_DEV_DISPLAY_NAME "Headers")
+set(CPACK_COMPONENT_DEV_DESCRIPTION "Header Files for Developments")
+set(CPACK_COMPONENT_DEV_DEPENDS vmmlib lib)
+
+set(CPACK_COMPONENT_APPS_DISPLAY_NAME "Example Applications")
+set(CPACK_COMPONENT_APPS_DESCRIPTION "Example programs build with Equalizer")
+set(CPACK_COMPONENT_APPS_DEPENDS lib data)
+
+set(CPACK_COMPONENT_EXAMPLES_DISPLAY_NAME "Examples Source Code")
+set(CPACK_COMPONENT_EXAMPLES_DESCRIPTION "Source code of example programs")
+set(CPACK_COMPONENT_EXAMPLES_DEPENDS dev data)
 
 set(CPACK_COMPONENT_TOOLS_DISPLAY_NAME "Tools")
-set(CPACK_COMPONENT_TOOLS_DESCRIPTION
-  "Some useful stuff")
+set(CPACK_COMPONENT_TOOLS_DESCRIPTION "Utility programs around Equalizer")
+set(CPACK_COMPONENT_TOOLS_DEPENDS lib)
 
 set(CPACK_COMPONENT_DATA_DISPLAY_NAME "Data files")
-set(CPACK_COMPONENT_DATA_DESCRIPTION
-  "Example configuration files and data sets")
+set(CPACK_COMPONENT_DATA_DESCRIPTION "Example configuration files and data sets")
 
 set(CPACK_COMPONENT_VMMLIB_DISPLAY_NAME "VMMLib header files")
 set(CPACK_COMPONENT_VMMLIB_DESCRIPTION

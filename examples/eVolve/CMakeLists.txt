@@ -1,6 +1,9 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#               2010 Stefan Eilemann <eile@eyescale.ch>
 
-add_executable(eVolve MACOSX_BUNDLE
+set(HEADERS eVolve.h)
+
+set(SOURCES
   channel.cpp
   config.cpp
   eVolve.cpp
@@ -15,12 +18,14 @@ add_executable(eVolve MACOSX_BUNDLE
   rawVolModel.cpp
   rawVolModelRenderer.cpp
   sliceClipping.cpp
-  window.cpp
-  )
+  window.cpp)
+
+add_executable(eVolve MACOSX_BUNDLE ${HEADERS} ${SOURCES})
 
 target_link_libraries(eVolve Equalizer)
 
-install(TARGETS eVolve DESTINATION bin)
+install(TARGETS eVolve DESTINATION bin COMPONENT apps)
 
 install(FILES Bucky32x32x32_d.raw Bucky32x32x32_d.raw.vhf
   DESTINATION share/Equalizer/data COMPONENT data)
+install(FILES ${HEADERS} ${SOURCES} DESTINATION share/Equalizer/examples/eVolve COMPONENT examples)

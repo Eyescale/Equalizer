@@ -58,7 +58,7 @@ add_library(EqualizerServer SHARED
 target_link_libraries(EqualizerServer Equalizer)
 
 install(TARGETS EqualizerServer
-  ARCHIVE DESTINATION lib COMPONENT dev
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
+  ARCHIVE DESTINATION lib COMPONENT lib
+  LIBRARY DESTINATION lib COMPONENT lib
+  RUNTIME DESTINATION bin COMPONENT lib
   )

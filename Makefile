@@ -52,7 +52,7 @@ admin: lib
 dev: examples server
 	@echo "Development essentials compiled successfully"
 
-postcompile: subdirs RELNOTES README.rst
+postcompile: subdirs RELNOTES.txt README.rst
 	@echo
 	@echo "----- Compilation successful -----"
 	@echo $(BUILD_MODE) build of Equalizer with support for:
@@ -90,7 +90,7 @@ else
 endif
 	@echo
 
-RELNOTES: lib/RelNotes.dox
+RELNOTES.txt: lib/RelNotes.dox
 	-links -dump $< > $@.tmp && mv $@.tmp $@
 
 README.rst: lib/RelNotes.dox
