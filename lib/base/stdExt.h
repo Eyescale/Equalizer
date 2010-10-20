@@ -170,7 +170,7 @@ EQ_STDEXT_NAMESPACE_OPEN
 
     /** Find the element in the given vector. @version 1.0 */
     template< typename T > typename std::vector< T >::iterator 
-    find( std::vector< T >& container, T& element )
+    find( std::vector< T >& container, const T& element )
         { return std::find( container.begin(), container.end(), element ); }
 
     /** Find the element in the given vector. @version 1.0 */
