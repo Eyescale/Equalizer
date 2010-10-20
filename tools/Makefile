@@ -4,6 +4,7 @@ include $(TOP)/make/system.mk
 SUBDIRS = \
 	configTool \
 	eVolveConverter \
+	netperf \
 	netproxy \
 	windowAdmin \
 

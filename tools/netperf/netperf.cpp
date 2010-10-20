@@ -18,19 +18,9 @@
 // Tests network throughput
 // Usage: see 'netPerf -h'
 
+#define EQ_RELEASE_ASSERT
 #include <pthread.h> // must come first!
-
-#define EQ_TEST_NO_WATCHDOG
-#include <test.h>
-#include <eq/base/scopedMutex.h>
-#include <eq/base/monitor.h>
-#include <eq/base/rng.h>
-#include <eq/base/sleep.h>
-#include <eq/net/connection.h>
-#include <eq/net/connectionDescription.h>
-#include <eq/net/connectionSet.h>
-#include <eq/net/connectionType.h>
-#include <eq/net/init.h>
+#include <eq/eq.h>
 
 #ifndef MIN
 #  define MIN EQ_MIN
@@ -68,9 +58,9 @@ public:
                 return false;
 
             const uint8_t packet = _buffer.getData()[0];
-            TESTINFO( _lastPacket == 0 || _lastPacket - 1 == packet,
-                      static_cast< int >( _lastPacket ) << ", " <<
-                      static_cast< int >( packet ));
+            EQASSERTINFO( _lastPacket == 0 || _lastPacket - 1 == packet,
+                          static_cast< int >( _lastPacket ) << ", " <<
+                          static_cast< int >( packet ));
             _lastPacket = packet;
 
             _connection->recvNB( _buffer.getData(), _buffer.getSize() );
@@ -79,8 +69,8 @@ public:
 
             const size_t probe = (_rng.get< size_t >() % (_buffer.getSize( )-1))
                                   + 1;
-            TESTINFO( _buffer[probe] == static_cast< uint8_t >( probe ),
-                      (int)_buffer[probe] << " != " << (probe&0xff) );
+            EQASSERTINFO( _buffer[probe] == static_cast< uint8_t >( probe ),
+                          (int)_buffer[probe] << " != " << (probe&0xff) );
 
             if( time < 1000.f )
                 return true;
@@ -98,13 +88,13 @@ public:
 
     void executeReceive()
         {
-            TEST( _hasConnection == false );
+            EQASSERT( _hasConnection == false );
             _hasConnection = true;
         }
 
     void stop()
         {
-            TEST( _hasConnection == false );
+            EQASSERT( _hasConnection == false );
             _connection = 0;
             _hasConnection = true;
         }
@@ -152,20 +142,20 @@ public:
 
     virtual bool init()
         {
-            TEST( _connection->listen( ));
+            EQCHECK( _connection->listen( ));
             _connection->acceptNB();
             _connectionSet.addConnection( _connection );
 
             // Get first client
             const ConnectionSet::Event event = _connectionSet.select();
-            TEST( event == ConnectionSet::EVENT_CONNECT );
+            EQASSERT( event == ConnectionSet::EVENT_CONNECT );
 
             ConnectionPtr resultConn = _connectionSet.getConnection();
             ConnectionPtr newConn    = resultConn->acceptSync();
             resultConn->acceptNB();
         
-            TEST( resultConn == _connection );
-            TEST( newConn.isValid( ));
+            EQASSERT( resultConn == _connection );
+            EQASSERT( newConn.isValid( ));
 
             _receivers.push_back( RecvConn( new Receiver( _packetSize, newConn),
                                             newConn ));
@@ -195,7 +185,7 @@ public:
                         newConn = resultConn->acceptSync();
                         resultConn->acceptNB();
 
-                        TEST( newConn.isValid( ));
+                        EQASSERT( newConn.isValid( ));
 
                         _receivers.push_back( 
                             RecvConn( new Receiver( _packetSize, newConn ),
@@ -213,7 +203,7 @@ public:
                         if( resultConn == _connection )
                         {
                             // really a close event of the listener
-                            TEST( resultConn->isClosed( ));
+                            EQASSERT( resultConn->isClosed( ));
                             _connectionSet.removeConnection( resultConn );
                             std::cerr << "listener closed" << std::endl;
                             break;
@@ -230,7 +220,7 @@ public:
                                 break;
                             }
                         }
-                        TEST( receiver );
+                        EQASSERT( receiver );
 
                         if( _useThreads )
                         {
@@ -282,11 +272,12 @@ public:
                         break;
 
                     default:
-                        TESTINFO( false, "Not reachable" );
+                        EQASSERTINFO( false, "Not reachable" );
                 }
             }
-            TESTINFO( _receivers.empty(), _receivers.size() );
-            TESTINFO( _connectionSet.getSize() <= 1, _connectionSet.getSize( ));
+            EQASSERTINFO( _receivers.empty(), _receivers.size() );
+            EQASSERTINFO( _connectionSet.getSize() <= 1,
+                          _connectionSet.getSize( ));
             _connectionSet.clear();
         }
 
@@ -304,7 +295,7 @@ private:
 
 int main( int argc, char **argv )
 {
-    TEST( eq::net::init( argc, argv ));
+    EQCHECK( eq::net::init( argc, argv ));
 
     ConnectionDescriptionPtr description = new ConnectionDescription;
     description->type = CONNECTIONTYPE_TCPIP;
@@ -379,7 +370,7 @@ int main( int argc, char **argv )
             selector->start();
         }
         else
-            TEST( connection->connect( ));
+            EQCHECK( connection->connect( ));
 
         eq::base::Buffer< uint8_t > buffer;
         buffer.resize( packetSize );
@@ -394,7 +385,7 @@ int main( int argc, char **argv )
         while( nPackets-- )
         {
             buffer.getData()[0] = nPackets;
-            TEST( connection->send( buffer.getData(), buffer.getSize() ));
+            EQCHECK( connection->send( buffer.getData(), buffer.getSize() ));
             const float time = clock.getTimef();
             if( time > 1000.f )
             {
@@ -430,7 +421,7 @@ int main( int argc, char **argv )
         selector = new Selector( connection, packetSize, useThreads );
         selector->start();
         
-        TESTINFO( connection->getRefCount() >= 1, connection->getRefCount( ));
+        EQASSERTINFO( connection->getRefCount()>=1, connection->getRefCount( ));
     
         if ( selector )
             selector->join();

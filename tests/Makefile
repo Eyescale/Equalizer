@@ -4,7 +4,6 @@ include $(TOP)/make/system.mk
 SUBDIRS = \
 	compositor \
 	image \
-	accept \
 	base \
 	client \
 	compressorByte \
@@ -13,7 +12,6 @@ SUBDIRS = \
 	frustum \
 	loader \
 	net \
-	netperf \
 	node \
 	openmp \
 	reliability \

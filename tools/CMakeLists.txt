@@ -27,6 +27,9 @@ if(NOT WIN32) # TODO: make it compatible!
     )
 endif(NOT WIN32)
 
+add_tool(netperf netperf/netperf.cpp)
+target_link_libraries(netperf Equalizer)
+
 add_tool(netproxy netproxy/netproxy.cpp)
 target_link_libraries(netproxy Equalizer)
 
