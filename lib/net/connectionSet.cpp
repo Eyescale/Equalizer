@@ -324,9 +324,6 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                     }
                     if( event == EVENT_DATA && _connection->isListening( ))
                         event = EVENT_CONNECT; 
-
-                    EQVERB << "selected connection " << _connection << " of "
-                           << getSize() << ", event " << event << std::endl;
                     return event;
                 }
         }

@@ -1,11 +1,9 @@
-Tests cleanups:
-- remove some obsolete tests
-- move netperf to tools
+Fix EQVERB output
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
