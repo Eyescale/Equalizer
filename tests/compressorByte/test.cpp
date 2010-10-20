@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -237,13 +238,14 @@ std::vector< std::string > getFiles( const std::string path,
                                      std::vector< std::string >& files, 
                                      const std::string& ext )
 {
-    const eq::base::Strings& paths = eq::base::Global::getPluginDirectories();
+    const eq::base::PluginRegistry& reg = eq::base::Global::getPluginRegistry();
+    const eq::base::Strings& paths = reg.getDirectories();
     for ( uint64_t j = 0; j < paths.size(); j++)
     {
-        eq::base::Strings candidats = 
+        eq::base::Strings candidates = 
             eq::base::searchDirectory( paths[j], ext.c_str() );
-        for( eq::base::Strings::const_iterator i = candidats.begin();
-                i != candidats.end(); ++i )
+        for( eq::base::Strings::const_iterator i = candidates.begin();
+                i != candidates.end(); ++i )
         {
             const std::string& filename = *i;
             files.push_back( paths[j] + '/' + filename );

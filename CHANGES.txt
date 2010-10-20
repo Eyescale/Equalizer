@@ -1,6 +1,16 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+20/Oct/2010
+  void PluginRegistry::addDirectory( const std::string& path );
+  void PluginRegistry::removeDirectory( const std::string& path );
+  const Strings& PluginRegistry::getDirectories() const;
+    replaces
+  const Strings& Global::getPluginDirectories();
+  static void Global::addPluginDirectory( const std::string&
+  static void Global::removePluginDirectory( const std::string& path );
+
+
 19/Oct/2010
   eq::net::Node::disconnect( NodePtr ) replaces ::close( NodePtr )
 

@@ -29,6 +29,24 @@ namespace base
     class PluginRegistry
     {
     public:
+        /**
+         * Construct a new plugin registry.
+         *
+         * The plugin registry used by Equalizer can be obtained using
+         * Global::getPluginRegistry().
+         */
+        PluginRegistry();
+
+        /** Add a new directory to search for compressor DSOs during init(). */
+        EQ_EXPORT void addDirectory( const std::string& path );
+
+        /** Remove a plugin directory. */
+        EQ_EXPORT void removeDirectory( const std::string& path );
+
+        /**
+         * @return all directories to search for compressor DSOs during init().
+         */
+        EQ_EXPORT const Strings& getDirectories() const;
 
         /** Search all global plugin directories and register found DSOs */
         void init();
@@ -43,6 +61,7 @@ namespace base
         EQ_EXPORT Plugin* findPlugin( const uint32_t name );
 
     private:
+        Strings _directories;
         Plugins _plugins;
 
         /** Initialize a single DSO .*/

@@ -24,14 +24,104 @@
 #include "file.h"
 #include "global.h"
 #include "plugin.h"
+#include "stdExt.h"
 
 #include <vector>
 #include <typeinfo>
+
+#ifdef WIN32_API
+#  include <direct.h>
+#  define getcwd _getcwd
+#  ifndef MAXPATHLEN
+#    define MAXPATHLEN 1024
+#  endif
+#endif
+
 
 namespace eq
 {
 namespace base
 {
+namespace
+{
+Strings _initPluginDirectories()
+{
+    Strings pluginDirectories;
+
+    char* env = getenv( "EQ_PLUGIN_PATH" );
+    std::string envString( env ? env : "" );
+
+    if( envString.empty( ))
+    {
+        pluginDirectories.push_back( "/usr/local/share/Equalizer/plugins" );
+        pluginDirectories.push_back( ".eqPlugins" );
+
+        char cwd[MAXPATHLEN];
+        pluginDirectories.push_back( getcwd( cwd, MAXPATHLEN ));
+
+#ifdef WIN32
+        if( GetModuleFileName( 0, cwd, MAXPATHLEN ) > 0 )
+        {
+            pluginDirectories.push_back( base::getDirname( cwd ));
+        }
+#endif
+
+#ifdef Darwin
+        env = getenv( "DYLD_LIBRARY_PATH" );
+#else
+        env = getenv( "LD_LIBRARY_PATH" );
+#endif
+        if( env )
+            envString = env;
+    }
+
+#ifdef WIN32
+    const char separator = ';';
+#else
+    const char separator = ':';
+#endif
+        
+    while( !envString.empty( ))
+    {
+        size_t nextPos = envString.find( separator );
+        if ( nextPos == std::string::npos )
+            nextPos = envString.size();
+
+        std::string path = envString.substr( 0, nextPos );
+        if ( nextPos == envString.size())
+            envString = "";
+        else
+            envString = envString.substr( nextPos + 1, envString.size() );
+
+        if( !path.empty( ))
+            pluginDirectories.push_back( path );
+    }
+
+    return pluginDirectories;
+}
+
+}
+
+PluginRegistry::PluginRegistry()
+        : _directories( _initPluginDirectories( ))
+{}
+ 
+const Strings& PluginRegistry::getDirectories() const
+{
+    return _directories;
+}
+
+void  PluginRegistry::addDirectory( const std::string& path )
+{
+    _directories.push_back( path );
+}
+
+void PluginRegistry::removeDirectory( const std::string& path )
+{
+    Strings::iterator i = stde::find( _directories, path );
+    if( i != _directories.end( ))
+        _directories.erase( i );
+}
 
 void PluginRegistry::init()
 {
@@ -41,12 +131,9 @@ void PluginRegistry::init()
     _initPlugin( "" );
     EQASSERT( _plugins.size() == 1 );
 
-    // search all plugin directories for plugin DSOs
-    const Strings& directories = Global::getPluginDirectories();
-
     // for each directory
-    for( Strings::const_iterator i = directories.begin();
-         i != directories.end(); ++i )
+    for( Strings::const_iterator i = _directories.begin();
+         i != _directories.end(); ++i )
     {
         const std::string& directory = *i;
         EQLOG( LOG_PLUGIN ) << "Searching plugins in " << directory

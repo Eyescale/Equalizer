@@ -121,6 +121,7 @@ typedef Strings StringVector
 
 class CPUCompressor; //!< @internal
 class Plugin;        //!< @internal
+class PluginRegistry;
 struct CompressorInfo; //!< @internal
 
 /** @internal A vector of compressor information structures. */
