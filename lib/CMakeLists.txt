@@ -57,6 +57,9 @@ if(APPLE)
     set(GLX_LIBRARY GL)
   endif(EQ_GLX_USED)
 endif(APPLE)
+if(NOT CUDA_FOUND)
+  set(CUDA_LIBRARIES)
+endif(NOT CUDA_FOUND)
 
 add_library(Equalizer SHARED ${SOURCES})
 target_link_libraries(Equalizer
