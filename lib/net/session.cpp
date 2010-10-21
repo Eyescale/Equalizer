@@ -729,7 +729,8 @@ bool Session::_dispatchObjectCommand( Command& command )
 #endif
         EQCHECK( object->dispatchCommand( clone ));
         EQASSERTINFO( clone.getDispatchID() <= EQ_ID_MAX, clone );
-        EQASSERTINFO( clone.getDispatchID() != command.getDispatchID(),
+        EQASSERTINFO( &clone == &command || // command already reused
+                      clone.getDispatchID() != command.getDispatchID(),
                       command );
     }
     return true;
