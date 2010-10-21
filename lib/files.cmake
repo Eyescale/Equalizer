@@ -359,14 +359,14 @@ set(COMPRESSOR_SOURCES
   compressor/compressorYUV.cpp
   )
 
-if(APPLE AND OPENGL_GLU_FOUND)
+if(EQ_AGL_USED)
   set(CLIENT_SOURCES ${CLIENT_SOURCES}
     client/aglEventHandler.cpp
     client/aglMessagePump.cpp
     client/aglWindow.cpp
     client/aglPipe.cpp
     )
-endif(APPLE AND OPENGL_GLU_FOUND)
+endif(EQ_AGL_USED)
 
 if(WIN32)
   set(CLIENT_SOURCES ${CLIENT_SOURCES}
@@ -380,12 +380,12 @@ if(WIN32)
     )
 endif(WIN32)
 
-if(GLX_USED)
+if(EQ_GLX_USED)
   set(CLIENT_SOURCES ${CLIENT_SOURCES}
     client/glXEventHandler.cpp
     client/glXMessagePump.cpp
     client/glXWindow.cpp
     client/glXPipe.cpp
     )
-endif(GLX_USED)
+endif(EQ_GLX_USED)
 

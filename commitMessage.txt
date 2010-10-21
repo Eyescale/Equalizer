@@ -1,9 +1,16 @@
-CMake: add some deb dependencies
+CMake:
+- Properly implement GLX and AGL on OS X
+- Add found-feature message
+- Fix CUDA support
+- Override CMake's '-isystem' ignorance on OS X
+
+Doxygen cleanups
+Bugfixes on revision 5001
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

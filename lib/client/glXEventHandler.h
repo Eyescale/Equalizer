@@ -31,9 +31,7 @@ namespace eq
     class GLXWindowIF;
     class Window;
 
-    /**
-     * The event handler for glX.
-     */
+    /** The event handler for glX/X11. */
     class GLXEventHandler : public EventHandler
     {
     public:
@@ -58,7 +56,7 @@ namespace eq
         /** Clear the event set of the current thread. */
         static void clearEventSet();
 
-        /** Constructs a new glx event handler. */
+        /** Construct a new glx event handler. */
         GLXEventHandler( GLXPipe* pipe );
 
         /** Destructs the glX event handler. */

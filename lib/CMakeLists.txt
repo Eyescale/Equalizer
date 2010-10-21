@@ -50,10 +50,12 @@ forward_headers(eq ${HEADERS})
 add_definitions(-DEQ_EXPORTS -DEQ_PLUGIN_BUILD -DGLEW_STATIC)
 
 if(APPLE)
-  find_library(CARBON_LIBRARY Carbon)
-  if(X11_FOUND)
+  if(EQ_AGL_USED)
+    find_library(CARBON_LIBRARY Carbon)
+  endif(EQ_AGL_USED)
+  if(EQ_GLX_USED)
     set(GLX_LIBRARY GL)
-  endif(X11_FOUND)
+  endif(EQ_GLX_USED)
 endif(APPLE)
 
 add_library(Equalizer SHARED ${SOURCES})
@@ -65,6 +67,7 @@ target_link_libraries(Equalizer
   ${CARBON_LIBRARY}
   ${X11_LIBRARIES}
   ${GLX_LIBRARY}
+  ${CUDA_LIBRARIES}
   )
 
 install(TARGETS Equalizer

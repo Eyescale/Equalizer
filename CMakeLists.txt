@@ -9,18 +9,20 @@ set(VERSION_MINOR "9")
 set(VERSION_PATCH "2")
 set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
-
 enable_testing()
 
 IF(NOT CMAKE_BUILD_TYPE)
    SET(CMAKE_BUILD_TYPE Debug)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
+SET(EQ_PREFER_AGL 1)
+
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(EQ_FEATURES)
 
 set(EQ_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
 file(MAKE_DIRECTORY ${EQ_INCLUDE_DIR})
@@ -42,11 +44,6 @@ endmacro(FORWARD_HEADERS DIR)
 
 
 if(WIN32)
-  # Looking for libboost_system-vcXX-mt-gd-XXX.X.lib, 
-  #  libboost_system-vcXX-mt-XXX.X.lib, libboost_regex-vcXX-mt-gd-XXX.X.lib 
-  #  libboost_regex-vcXX-mt-XXX.X.lib, libboost_date_time-vcXX-mt-gd-XXX.X.lib  
-  #  libboost_date_time-vcXX-mt-XXX.X.lib.
-  # Use BoostPro to install compiled boost library  
   set(Boost_USE_STATIC_LIBS ON)
 endif(WIN32)
 set(Boost_USE_MULTITHREADED ON)
@@ -56,16 +53,16 @@ add_definitions(-DBOOST_ALL_NO_LIB)
 link_directories(${Boost_LIBRARY_DIRS})
 include_directories(AFTER SYSTEM ${Boost_INCLUDE_DIRS})
 
-if(CMAKE_COMPILER_IS_GNUCXX)
-  _Boost_COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
-endif(CMAKE_COMPILER_IS_GNUCXX)
-
 find_package(OpenMP)
 if(OPENMP_FOUND)
+  if(CMAKE_COMPILER_IS_GNUCXX)
+    _Boost_COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
+  endif(CMAKE_COMPILER_IS_GNUCXX)
   if(CMAKE_COMPILER_IS_GNUCXX AND GCC_COMPILER_VERSION LESS 43)
     message(STATUS "  Disabling OpenMP due to bug in gcc ${GCC_COMPILER_VERSION}")
   else(CMAKE_COMPILER_IS_GNUCXX AND GCC_COMPILER_VERSION LESS 43)
-    set(OPENMP_USED 1)
+    set(EQ_OPENMP_USED 1)
+    set(EQ_FEATURES "${EQ_FEATURES} OpenMP")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -77,8 +74,37 @@ include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
 
 find_package(X11)
 if(X11_FOUND)
-  include_directories(SYSTEM ${X11_INCLUDE_DIR})
+  if(APPLE)
+    set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?
+    if(EXISTS /Developer/SDKs/MacOSX10.6.sdk)
+      if(EQ_PREFER_AGL)
+        set(EQ_AGL_USED 1)
+      else(EQ_PREFER_AGL)
+        set(EQ_GLX_USED 1)
+      endif(EQ_PREFER_AGL)
+    else(EXISTS /Developer/SDKs/MacOSX10.6.sdk)
+      set(EQ_AGL_USED 1)
+      set(EQ_GLX_USED 1)
+    endif(EXISTS /Developer/SDKs/MacOSX10.6.sdk)
+  else(APPLE)
+    set(EQ_GLX_USED 1)
+  endif(APPLE)
 endif(X11_FOUND)
+
+if(EQ_GLX_USED)
+  include_directories(SYSTEM ${X11_INCLUDE_DIR})
+  set(EQ_FEATURES "${EQ_FEATURES} GLX")
+endif(EQ_GLX_USED)
+if(EQ_AGL_USED)
+  set(EQ_FEATURES "${EQ_FEATURES} AGL")
+endif(EQ_AGL_USED)
+
+find_package(CUDA)
+if(CUDA_FOUND)
+  include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
+  set(CUDA_PROPAGATE_HOST_FLAGS OFF)
+  set(EQ_FEATURES "${EQ_FEATURES} CUDA")
+endif(CUDA_FOUND)
 
 
 if(MSVC)
@@ -124,11 +150,6 @@ else(WIN32)
 endif(WIN32)
 
 
-if(X11_FOUND AND NOT(APPLE AND OPENGL_GLU_FOUND AND EXISTS /Developer/SDKs/MacOSX10.6.sdk))
-  set(GLX_USED 1)
-endif(X11_FOUND AND NOT(APPLE AND OPENGL_GLU_FOUND AND EXISTS /Developer/SDKs/MacOSX10.6.sdk))
-
-
 if(APPLE)
   link_directories(/usr/X11R6/lib)
   include_directories(SYSTEM /usr/X11R6/include)
@@ -136,13 +157,13 @@ if(APPLE)
   if(NOT XCODE_VERSION)
     add_definitions(-DDarwin)
   endif(NOT XCODE_VERSION)
-  if(GLX_USED)
-    set (CMAKE_OSX_ARCHITECTURES "x86_64")
-    set (CUDA_64_BIT_DEVICE_CODE ON) 
-  else(GLX_USED)
+  if(EQ_AGL_USED)
     set (CMAKE_OSX_ARCHITECTURES "i386")
     set (CUDA_64_BIT_DEVICE_CODE OFF) 
-  endif(GLX_USED)
+  else(EQ_AGL_USED)
+    set (CMAKE_OSX_ARCHITECTURES "i386;x86_64")
+    set (CUDA_64_BIT_DEVICE_CODE ON) 
+  endif(EQ_AGL_USED)
 endif(APPLE)
 
 
@@ -162,6 +183,7 @@ add_executable(eqServer server/eqServer.cpp)
 target_link_libraries(eqServer EqualizerServer)
 install(TARGETS eqServer DESTINATION bin)
 
+message(STATUS "Supported Features:${EQ_FEATURES}")
 
 #info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 

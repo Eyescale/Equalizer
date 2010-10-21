@@ -240,8 +240,8 @@ namespace eq
         /**
          * Set the OS-specific window.
          * 
-         * The SystemWindow implements the window-system-dependent part, e.g., the
-         * drawable creation. This window forwards certain calls, e.g.,
+         * The SystemWindow implements the window-system-dependent part, e.g.,
+         * the drawable creation. This window forwards certain calls, e.g.,
          * swapBuffers(), to the SystemWindow. The os-specific window has to be
          * initialized.
          * @version 1.0

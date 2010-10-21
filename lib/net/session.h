@@ -421,7 +421,7 @@ namespace net
 
         struct SendQueueItem
         {
-            uint64_t age;
+            int64_t age;
             Object* object;
         };
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,13 +23,14 @@
 
 namespace eq
 {
-    /** Receive and dispatch Carbon events. @internal */
+    /** Receive and dispatch Carbon events. */
     class AGLMessagePump : public MessagePump
     {
     public:
         AGLMessagePump();
+        virtual ~AGLMessagePump();
 
-        /** Wake up dispatchOneEvent(). */
+        /** Wake up dispatchOneEvent() from another thread. */
         virtual void postWakeup();
 
         /** Get and dispatch all pending system events, non-blocking. */
@@ -37,8 +38,6 @@ namespace eq
 
         /** Get and dispatch at least one pending system event, blocking. */
         virtual void dispatchOne();
-
-        virtual ~AGLMessagePump();
 
     private:
         EventQueueRef _receiverQueue;

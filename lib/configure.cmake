@@ -19,9 +19,13 @@ if(Boost_FOUND)
   list(APPEND EQUALIZER_DEFINES EQ_USE_BOOST)
 endif(Boost_FOUND)
 
-if(OPENMP_USED)
+if(EQ_OPENMP_USED)
   list(APPEND EQUALIZER_DEFINES EQ_USE_OPENMP)
-endif(OPENMP_USED)
+endif(EQ_OPENMP_USED)
+
+if(CUDA_FOUND)
+  list(APPEND EQUALIZER_DEFINES EQ_USE_CUDA)
+endif(CUDA_FOUND)
 
 # maybe use BOOST_WINDOWS instead?
 if(WIN32)
@@ -37,15 +41,13 @@ if(WIN32)
   set(ARCH Win32)
 endif(WIN32)
 
-# on APPLE glu is inside the AGL library.
-# so if there is glu on APPLE, there must be AGL available
-if(APPLE AND OPENGL_GLU_FOUND)
+if(EQ_AGL_USED)
   list(APPEND EQUALIZER_DEFINES AGL)
-endif(APPLE AND OPENGL_GLU_FOUND)
+endif(EQ_AGL_USED)
 
-if(GLX_USED)
+if(EQ_GLX_USED)
   list(APPEND EQUALIZER_DEFINES GLX)
-endif(GLX_USED)
+endif(EQ_GLX_USED)
 
 if(APPLE)
   list(APPEND EQUALIZER_DEFINES Darwin)
@@ -74,12 +76,12 @@ foreach(DEF ${EQUALIZER_DEFINES})
   file(APPEND ${DEFINES_FILE_IN}
     "#ifndef ${DEF}\n"
     "#  define ${DEF}\n"
-    "#endif\n\n"
+    "#endif\n"
     )
 endforeach(DEF ${EQUALIZER_DEFINES})
 
 file(APPEND ${DEFINES_FILE_IN}
-  "#endif /* EQBASE_DEFINES_${ARCH}_H */\n"
+  "\n#endif /* EQBASE_DEFINES_${ARCH}_H */\n"
   )
 
 configure_file(${DEFINES_FILE_IN} ${DEFINES_FILE} COPYONLY)

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
- *                        , Makhinya Maxim
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2009, Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -33,31 +33,35 @@ namespace eq
     class GLWindow : public SystemWindow
     {
     public:
+        /** Construct a new GL window. @version 1.0 */
         EQ_EXPORT GLWindow( Window* parent );
-        EQ_EXPORT virtual ~GLWindow();
-        
-        EQ_EXPORT virtual void makeCurrent() const;
 
-        /** Bind the window's FBO, if it uses an FBO drawable. */
-        EQ_EXPORT virtual void bindFrameBuffer() const;
+        /** Destruct a new GL window. @version 1.0 */
+        EQ_EXPORT virtual ~GLWindow();
+
+        /** Bind the FBO and update the pipe's current cache. @version 1.0 */
+        EQ_EXPORT virtual void makeCurrent() const;
 
         /** @name Frame Buffer Object support. */
         //@{
-        /** Build and initialize the FBO. */
+        /** Bind the window's FBO, if it uses an FBO drawable. @version 1.0 */
+        EQ_EXPORT virtual void bindFrameBuffer() const;
+
+        /** Build and initialize the FBO. @version 1.0 */
         EQ_EXPORT virtual bool configInitFBO();
 
-        /** Destroy FBO. */
+        /** Destroy the FBO. @version 1.0 */
         EQ_EXPORT virtual void configExitFBO();
 
-        /** @return the FBO of this window, or 0 if no FBO is used. */
+        /** @return the FBO of this window, or 0. @version 1.0 */
         EQ_EXPORT virtual const util::FrameBufferObject* getFrameBufferObject()
             const { return _fbo; }
         //@}
      
-        /** Initialize the GLEW context for this window. */
+        /** Initialize the GLEW context for this window. @version 1.0 */
         EQ_EXPORT virtual void initGLEW();
         
-        /** De-initialize the GLEW context. */
+        /** De-initialize the GLEW context. @version 1.0 */
         EQ_EXPORT virtual void exitGLEW() { _glewInitialized = false; }
         
         /**
@@ -72,10 +76,14 @@ namespace eq
          *
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
+         * @version 1.0
          */
         EQ_EXPORT virtual const GLEWContext* glewGetContext() const;
 
-        /** Set up _drawableConfig by querying the current context. */
+        /**
+         * Set up the drawable config by querying the current context.
+         * @version 1.0
+         */
         EQ_EXPORT virtual void queryDrawableConfig( DrawableConfig& );
 
     private:

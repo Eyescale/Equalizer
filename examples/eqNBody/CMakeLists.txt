@@ -1,15 +1,10 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010 Stefan Eilemann <eile@eyescale.ch>
 
-find_package(CUDA)
-
 if(NOT CUDA_FOUND)
   message(WARNING "CUDA not found: Example 'eqNBody' will be skipped!")
   return()
 endif(NOT CUDA_FOUND)
-
-include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
-set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 
 cuda_compile(NBODY_FILES nbody.cu)
 

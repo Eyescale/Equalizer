@@ -61,9 +61,9 @@ if(NOT GLEW_FOUND OR NOT GLEW_MX_SUPPORTED)
   add_definitions(-DGLEW_STATIC=1 -DGLEW_MX=1)
   add_library(${GLEW_LIBRARY} STATIC ${GLEW_DIR}/src/glew.c)
 
-  if(APPLE AND X11_FOUND)
+  if(EQ_GLX_USED)
     add_definitions(-DGLEW_APPLE_GLX=1)
-  endif(APPLE AND X11_FOUND)
+  endif(EQ_GLX_USED)
 endif(NOT GLEW_FOUND OR NOT GLEW_MX_SUPPORTED)
 
 include_directories(BEFORE SYSTEM ${GLEW_INCLUDE_DIRS})

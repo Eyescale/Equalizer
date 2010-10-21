@@ -313,9 +313,9 @@ void WGLPipe::_configInitDriverVersion()
     const std::string regPath("SOFTWARE\\NVIDIA Corporation\\Installer");
     const std::string regKey("Version");
 
-    // try to Read registre on x64 OS
+    // try to read registry on x64
     if( RegOpenKeyEx( HKEY_LOCAL_MACHINE, regPath.c_str(), 0, 
-        KEY_READ | KEY_WOW64_64KEY, &key )!=ERROR_SUCCESS )
+                      KEY_READ | KEY_WOW64_64KEY, &key ) != ERROR_SUCCESS )
     {
         EQWARN << "RegOpenKeyEx(" << regPath << ") returned error" 
                << std::endl;
@@ -327,7 +327,7 @@ void WGLPipe::_configInitDriverVersion()
         // try to Read registre on 32 bits OS
         RegCloseKey(key);
         if( RegOpenKeyEx( HKEY_LOCAL_MACHINE, regPath.c_str(), 0, 
-            KEY_READ , &key )!=ERROR_SUCCESS )
+                          KEY_READ , &key ) != ERROR_SUCCESS )
         {
             EQWARN << "RegOpenKeyEx(" << regPath << ") returned error" 
                    << std::endl;

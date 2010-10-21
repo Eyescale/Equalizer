@@ -105,7 +105,8 @@ void Session::_setLocalNode( NodePtr node )
 void Session::expireInstanceData( const int64_t age )
 { 
     EQASSERT( _instanceCache ); 
-    _instanceCache->expire( age ); 
+    if( _instanceCache )
+        _instanceCache->expire( age ); 
 }
 
 void Session::disableInstanceCache()
@@ -1027,9 +1028,8 @@ bool Session::_cmdRegisterObject( Command& command )
     EQLOG( LOG_OBJECTS ) << "Cmd register object " << packet << std::endl;
 
     const uint32_t size = Global::getIAttribute( 
-                                 Global::IATTR_SESSION_SEND_QUEUE_SIZE );
-    const uint32_t age = Global::getIAttribute( 
-                             Global::IATTR_SESSION_SEND_AGE );
+                             Global::IATTR_SESSION_SEND_QUEUE_SIZE );
+    const int32_t age = Global::getIAttribute( Global::IATTR_SESSION_SEND_AGE );
 #if 0
     if( _sendQueue.size() >= size )
         return true;
@@ -1037,7 +1037,7 @@ bool Session::_cmdRegisterObject( Command& command )
     
     SendQueueItem item;
     item.age = age ? age + _clock.getTime64() :
-                     std::numeric_limits< uint64_t >::max();
+                     std::numeric_limits< int64_t >::max();
     item.object = packet->object;
     _sendQueue.push_back( item );
     while( _sendQueue.size() > size )
@@ -1056,8 +1056,7 @@ bool Session::_cmdDeregisterObject( Command& command )
     Object* object = static_cast<Object*>(
         _localNode->getRequestData( packet->requestID ));    
 
-    for( SendQueue::iterator i = _sendQueue.begin(); 
-         i < _sendQueue.end(); i++ )
+    for( SendQueue::iterator i = _sendQueue.begin(); i < _sendQueue.end(); i++ )
     {
         if( i->object == object )
         {
@@ -1096,21 +1095,23 @@ bool Session::_cmdMapObject( Command& command )
     SessionSubscribeObjectPacket subscribePacket( packet );
     subscribePacket.instanceID = _genNextID( _instanceIDs );
 
-    EQASSERT( _instanceCache );
-    const InstanceCache::Data& cached = (*_instanceCache)[ id ];
-    if( cached != InstanceCache::Data::NONE )
+    if( _instanceCache )
     {
-        const ObjectInstanceDataIStreamDeque& versions = cached.versions;
-        EQASSERT( !cached.versions.empty( ));
-        subscribePacket.useCache = true;
-        subscribePacket.masterInstanceID = cached.masterInstanceID;
-        subscribePacket.minCachedVersion = versions.front()->getVersion();
-        subscribePacket.maxCachedVersion = versions.back()->getVersion();
-        EQLOG( LOG_OBJECTS ) << "Object " << id << " have v"
-                             << subscribePacket.minCachedVersion << ".."
-                             << subscribePacket.maxCachedVersion << std::endl;
+        const InstanceCache::Data& cached = (*_instanceCache)[ id ];
+        if( cached != InstanceCache::Data::NONE )
+        {
+            const ObjectInstanceDataIStreamDeque& versions = cached.versions;
+            EQASSERT( !cached.versions.empty( ));
+            subscribePacket.useCache = true;
+            subscribePacket.masterInstanceID = cached.masterInstanceID;
+            subscribePacket.minCachedVersion = versions.front()->getVersion();
+            subscribePacket.maxCachedVersion = versions.back()->getVersion();
+            EQLOG( LOG_OBJECTS ) << "Object " << id << " have v"
+                                 << subscribePacket.minCachedVersion << ".."
+                                 << subscribePacket.maxCachedVersion
+                                 << std::endl;
+        }
     }
-
     send( master, subscribePacket );
     return true;
 }
@@ -1318,8 +1319,8 @@ bool Session::_cmdUnmapObject( Command& command )
         command.getPacket< SessionUnmapObjectPacket >();
 
     EQLOG( LOG_OBJECTS ) << "Cmd unmap object " << packet << std::endl;
-    EQASSERT( _instanceCache );
-    _instanceCache->erase( packet->objectID );
+    if( _instanceCache )
+        _instanceCache->erase( packet->objectID );
 
     ObjectsHash::iterator i = _objects->find( packet->objectID );
     if( i == _objects->end( )) // nothing to do
@@ -1363,7 +1364,7 @@ bool Session::_cmdInstance( Command& command )
         result = _invokeObjectCommand( command );
     }
 
-    if ( !_instanceCache )
+    if( !_instanceCache )
         return true;
     
     const ObjectVersion rev( packet->objectID, packet->version ); 
