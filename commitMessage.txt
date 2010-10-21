@@ -1,4 +1,4 @@
-Fix EQVERB output
+CMake: add some deb dependencies
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

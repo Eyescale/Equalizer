@@ -203,5 +203,7 @@ set(CPACK_COMPONENT_VMMLIB_DISPLAY_NAME "VMMLib header files")
 set(CPACK_COMPONENT_VMMLIB_DESCRIPTION
   "vmmlib is a vector and matrix math library implemented using C++ templates, thus making it very easy to integrate into other libraries and programs.")
 
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-system-dev, libboost-regex-dev, libboost-date-time-dev, bison, flex, libx11-dev")
+
 include(InstallRequiredSystemLibraries)
 include(CPack)
