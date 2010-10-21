@@ -53,6 +53,8 @@ uint32_t    Global::_objectBufferSize = _getObjectBufferSize();
 int32_t     Global::_iAttributes[IATTR_ALL] =
 {
     100,   // INSTANCE_CACHE_SIZE
+    100,   // REGISTER_SEND_QUEUE_SIZE
+    100,   // REGISTER_SEND_AGE
     10,    // RSP_TIMEOUT
     1,     // RSP_ERROR_DOWNSCALE
     5,     // RSP_ERROR_UPSCALE

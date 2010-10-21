@@ -71,7 +71,6 @@ Config::~Config()
 
 bool Config::init()
 {
-    _loadModels();
 
     if( !_animation.isValid( ))
         _animation.loadAnimation( _initData.getPathFilename( ));
@@ -99,6 +98,9 @@ bool Config::init()
         _deregisterData();
         return false;
     }
+
+    _loadModels();
+    _registerModels();
 
     // init tracker
     if( !_initData.getTrackerPort().empty( ))
@@ -212,7 +214,10 @@ void Config::_loadModels()
             }
         }
     }
-    
+}
+
+void Config::_registerModels()
+{
     // Register distribution helpers on each config run
     const bool createDist = _modelDist.empty(); //first run, create distributors
     const size_t  nModels = _models.size();

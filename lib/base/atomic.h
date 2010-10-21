@@ -333,7 +333,7 @@ private:
     Lock _lock;
 };
 #endif
-
+typedef Atomic< long long > a_int64_t;
 typedef Atomic< long > a_int32_t;
 typedef Atomic< bool > a_bool_t;
 }

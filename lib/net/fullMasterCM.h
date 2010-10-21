@@ -58,6 +58,11 @@ namespace net
         virtual void setObject( Object* object ) { _object = object; }
         virtual const Object* getObject( ) const { return _object; }
 
+        /** Speculatively send instance data to all nodes. */
+        virtual void sendInstanceDatas( Nodes& nodes );
+
+        virtual void tunePacket( ObjectInstancePacket& packet ) const;
+    
     protected:
         /** The number of commits, needed for auto-obsoletion. */
         uint32_t _commitCount;
@@ -88,6 +93,8 @@ namespace net
         /** The list of full instance datas, head version last. */
         InstanceDataDeque _instanceDatas;
         InstanceDatas _instanceDataCache;
+
+        bool _sendOnRegister;
 
         /* The command handlers. */
         bool _cmdCommit( Command& command );

@@ -32,6 +32,7 @@ namespace net
 {
     class Node;
     class Object;
+    struct ObjectInstancePacket;
 
     /** 
      * The object change manager base class.
@@ -139,6 +140,9 @@ namespace net
                                        const uint32_t )
             { EQDONTCALL; }
 
+        /** Speculatively send instance data to all nodes. */
+        virtual void sendInstanceDatas( Nodes& nodes ){}
+
         /** @return the object associate. @internal*/
         virtual const Object* getObject( ) const { EQDONTCALL; return 0; }
 
@@ -147,6 +151,13 @@ namespace net
 
         /** The default CM for unattached objects. */
         static ObjectCM* ZERO;
+        /**
+         * setup the packet during send on register 
+         *
+         * @param packet the packet to setup
+         * @intenal
+         **/
+        virtual void tunePacket( ObjectInstancePacket& packet ) const {}
 
     protected:
 #ifdef EQ_INSTRUMENT_MULTICAST

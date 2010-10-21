@@ -39,7 +39,6 @@
 #include <eq/fabric/paths.h>
 #include <eq/fabric/iAttribute.h>
 #include <eq/net/command.h>
-#include <eq/net/global.h>
 #include <eq/base/sleep.h>
 
 #include "configDeregistrator.h"
@@ -61,7 +60,8 @@ Config::Config( ServerPtr parent )
         , _state( STATE_STOPPED )
         , _needsFinish( false )
 {
-    const Global* global = Global::instance();    
+    disableInstanceCache();
+    const Global* global = Global::instance();
     for( int i=0; i<FATTR_ALL; ++i )
     {
         const FAttribute attr = static_cast< FAttribute >( i );

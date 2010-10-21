@@ -46,11 +46,13 @@ void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
     packet.sequence   = _sequence++;
     packet.dataSize   = sizeUncompressed;
 
-    const Object* object = _cm->getObject();
+    const Object* object    = _cm->getObject();
     packet.sessionID        = object->getSession()->getID();
     packet.objectID         = object->getID();
     packet.instanceID       = _instanceID;
     packet.masterInstanceID = object->getInstanceID();
+
+    _cm->tunePacket( packet );
 
     if( _nodeID == NodeID::ZERO )
     {
@@ -63,7 +65,7 @@ void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
                       "Expected multicast to one group" );
 
         packet.type = PACKETTYPE_EQNET_SESSION;
-        packet.command = CMD_SESSION_INSTANCE;
+        packet.command = CMD_SESSION_OBJECT_INSTANCE;
         packet.nodeID = _nodeID;
     }
 

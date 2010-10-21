@@ -388,6 +388,9 @@ namespace net
 
         const NodeID& getNodeID() const { return _id; }
 
+        /** Assemble a vector of the currently connected nodes. */
+        void getNodes( Nodes& nodes ) const;
+
         /** Serialize the node's information. */
         EQ_EXPORT std::string serialize() const;
         /** Deserialize the node information, consumes given data. */

@@ -241,6 +241,28 @@ namespace net
         uint32_t            slaveInstanceID;
     };
 
+    struct SessionRegisterObjectPacket : public SessionPacket
+    {
+        SessionRegisterObjectPacket()
+            {
+                command = CMD_SESSION_REGISTER_OBJECT;
+                size    = sizeof( SessionRegisterObjectPacket ); 
+            }
+        
+        Object* object;
+    };
+
+    struct SessionDeregisterObjectPacket : public SessionPacket
+    {
+        SessionDeregisterObjectPacket()
+            {
+                command = CMD_SESSION_DEREGISTER_OBJECT;
+                size    = sizeof( SessionDeregisterObjectPacket ); 
+            }
+        
+        uint32_t requestID;
+    };
+
     struct SessionDetachObjectPacket : public SessionPacket
     {
         SessionDetachObjectPacket()

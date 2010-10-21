@@ -69,6 +69,35 @@ DataOStream::~DataOStream()
 
 void DataOStream::enable( const Nodes& receivers )
 {
+    _setupConnections( receivers );
+#if 0
+    EQLOG( LOG_OBJECTS )
+        << "Enabled " << typeid( *this ).name() << " with " << mcSet.size()
+        << "/" << _connections.size() << " multicast connections" << std::endl;
+#endif
+    enable();
+}
+
+void DataOStream::enable( NodePtr node, const bool useMulticast )
+{
+    _setupConnection( node, useMulticast );
+    enable();
+}
+
+void DataOStream::enable()
+{
+    EQASSERT( !_enabled );
+    EQASSERT( _save || !_connections.empty( ));
+    _bufferType = BUFFER_NONE;
+    _bufferStart = 0;
+    _dataSent    = false;
+    _enabled     = true;
+    _buffer.setSize( 0 );
+}
+
+void DataOStream::_setupConnections( const Nodes& receivers )
+{
+    EQASSERT( _connections.empty( ));
 #ifdef NDEBUG
     const bool useMulticast = receivers.size() > 1;
 #else
@@ -95,54 +124,42 @@ void DataOStream::enable( const Nodes& receivers )
         
         _connections.push_back( connection );
     }
-
-#if 0
-    EQLOG( LOG_OBJECTS )
-        << "Enabled " << typeid( *this ).name() << " with " << mcSet.size()
-        << "/" << _connections.size() << " multicast connections" << std::endl;
-#endif
-    enable();
 }
 
-void DataOStream::enable( NodePtr node, const bool useMulticast )
+void DataOStream::_setupConnection( NodePtr node, const bool useMulticast )
 {
+    EQASSERT( _connections.empty( ));
     ConnectionPtr connection = useMulticast ? node->getMulticast() : 0;
     if( !connection )
         connection = node->getConnection();
         
     _connections.push_back( connection );
-    enable();
 }
 
-void DataOStream::enable()
+void DataOStream::resend( const Nodes& receivers )
 {
-    EQASSERT( !_enabled );
-    EQASSERT( _save || !_connections.empty( ));
-    _bufferType = BUFFER_NONE;
-    _bufferStart = 0;
-    _dataSent    = false;
-    _enabled     = true;
-    _buffer.setSize( 0 );
+    _setupConnections( receivers );
+    _resend();
 }
 
-void DataOStream::resend( NodePtr node )
+void DataOStream::resend( NodePtr node, const bool useMulticast )
+{
+    _setupConnection( node, useMulticast );
+    _resend( );
+}
+
+void DataOStream::_resend( )
 {
     EQASSERT( !_enabled );
-    EQASSERT( _connections.empty( ));
+    EQASSERT( !_connections.empty( ));
     EQASSERT( _save );
     
-    ConnectionPtr connection = node->getMulticast();
-    if( !connection )
-        connection = node->getConnection();
-        
-    _connections.push_back( connection );
-    if ( _bufferType != BUFFER_ALL )
+    if( _bufferType != BUFFER_ALL )
     {
         _bufferType = BUFFER_ALL;
         _compress(  _buffer.getData(), _buffer.getSize() );
     }
     _sendFooter( _buffer.getData(), _buffer.getSize() );
-
     _connections.clear();
 }
 

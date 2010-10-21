@@ -45,7 +45,8 @@ typedef CommandFunc<FullMasterCM> CmdFunc;
 FullMasterCM::FullMasterCM( Object* object )
         : MasterCM( object ),
           _commitCount( 0 ),
-          _nVersions( 0 )
+          _nVersions( 0 ),
+          _sendOnRegister( false )
 {
     registerCommand( CMD_OBJECT_COMMIT, 
                      CmdFunc( this, &FullMasterCM::_cmdCommit ), 0 );
@@ -66,6 +67,31 @@ FullMasterCM::~FullMasterCM()
         delete *i;
     }
     _instanceDataCache.clear();
+}
+
+void FullMasterCM::sendInstanceDatas( Nodes& nodes )
+{
+    EQ_TS_THREAD( _cmdThread );
+
+    if( !_slaves.empty( ))
+       return;
+
+    InstanceData* data = _instanceDatas.back();
+    data->os.setNodeID( NodeID::ZERO );
+
+    _sendOnRegister = true;
+    data->os.resend( nodes );
+    _sendOnRegister = false;
+}
+
+void FullMasterCM::tunePacket( ObjectInstancePacket& packet ) const
+{
+    if( _sendOnRegister )
+    {
+        packet.type     = PACKETTYPE_EQNET_SESSION;
+        packet.command  = CMD_SESSION_INSTANCE;
+        packet.nodeID   = NodeID::ZERO;
+    }
 }
 
 void FullMasterCM::init()
@@ -138,7 +164,7 @@ uint32_t FullMasterCM::addSlave( Command& command )
     NodePtr node = command.getNode();
     SessionSubscribeObjectPacket* packet =
         command.getPacket<SessionSubscribeObjectPacket>();
-    const uint32_t requested = packet->requestedVersion;
+    const uint32_t requested  = packet->requestedVersion;
     const uint32_t instanceID = packet->instanceID;
 
     EQASSERT( _version != VERSION_NONE );
@@ -156,8 +182,7 @@ uint32_t FullMasterCM::addSlave( Command& command )
         stream.setVersion( _version );
         stream.setNodeID( node->getNodeID( ));
         stream.enableSave();
-
-        stream.resend( node );
+        stream.resend( node, true );
         return VERSION_INVALID;
     }
 
@@ -212,7 +237,7 @@ uint32_t FullMasterCM::addSlave( Command& command )
 
         data->os.setInstanceID( instanceID );
         data->os.setNodeID( node->getNodeID( ));
-        data->os.resend( node );
+        data->os.resend( node, true );
 #ifdef EQ_INSTRUMENT_MULTICAST
         ++_miss;
 #endif
@@ -235,8 +260,7 @@ void FullMasterCM::removeSlave( NodePtr node )
     const NodeID& nodeID = node->getNodeID();
     EQASSERT( _slavesCount[ nodeID ] != 0 );
 
-    --_slavesCount[ nodeID ];
-    if( _slavesCount[ nodeID ] == 0 )
+    if( --_slavesCount[ nodeID ] == 0 )
     {
         Nodes::iterator i = stde::find( _slaves, node );
         EQASSERT( i != _slaves.end( ));

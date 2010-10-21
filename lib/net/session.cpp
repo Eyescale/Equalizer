@@ -22,6 +22,7 @@
 #include "connection.h"
 #include "connectionDescription.h"
 #include "global.h"
+#include "instanceCache.h" // member
 #include "log.h"
 #include "objectCM.h"
 #include "objectInstanceDataIStream.h"
@@ -47,8 +48,8 @@ Session::Session()
         , _isMaster( false )
         , _idPool( 0 ) // Master pool is filled in Node::registerSession
         , _instanceIDs( std::numeric_limits< long >::min( )) 
-        , _instanceCache( Global::getIAttribute( 
-                              Global::IATTR_INSTANCE_CACHE_SIZE ) * EQ_1MB )
+        , _instanceCache( new InstanceCache( Global::getIAttribute( 
+                              Global::IATTR_INSTANCE_CACHE_SIZE ) * EQ_1MB ) )
 {
     EQINFO << "New Session @" << (void*)this << std::endl;
 }
@@ -87,7 +88,9 @@ Session::~Session()
     }
     //EQASSERT( _objects->empty( ))
 #endif
+    EQASSERT( !_instanceCache );
     _objects->clear();
+    _sendQueue.clear();
 }
 
 void Session::_setLocalNode( NodePtr node )
@@ -97,6 +100,19 @@ void Session::_setLocalNode( NodePtr node )
         return; // TODO deregister command functions?
 
     notifyMapped( node );
+}
+
+void Session::expireInstanceData( const int64_t age )
+{ 
+    EQASSERT( _instanceCache ); 
+    _instanceCache->expire( age ); 
+}
+
+void Session::disableInstanceCache()
+{
+    EQASSERT( !_localNode );
+    delete _instanceCache;
+    _instanceCache = 0;
 }
 
 CommandQueue* Session::getCommandThreadQueue()
@@ -132,6 +148,10 @@ void Session::notifyMapped( NodePtr node )
                      CmdFunc( this, &Session::_cmdAttachObject ), 0 );
     registerCommand( CMD_SESSION_DETACH_OBJECT,
                      CmdFunc( this, &Session::_cmdDetachObject ), 0 );
+    registerCommand( CMD_SESSION_REGISTER_OBJECT,
+                     CmdFunc( this, &Session::_cmdRegisterObject ), queue );
+    registerCommand( CMD_SESSION_DEREGISTER_OBJECT,
+                     CmdFunc( this, &Session::_cmdDeregisterObject ), queue );
     registerCommand( CMD_SESSION_MAP_OBJECT,
                      CmdFunc( this, &Session::_cmdMapObject ), queue );
     registerCommand( CMD_SESSION_UNMAP_OBJECT,
@@ -145,6 +165,8 @@ void Session::notifyMapped( NodePtr node )
                      queue );
     registerCommand( CMD_SESSION_UNSUBSCRIBE_OBJECT,
                      CmdFunc( this, &Session::_cmdUnsubscribeObject ), queue );
+    registerCommand( CMD_SESSION_OBJECT_INSTANCE,
+                     CmdFunc( this, &Session::_cmdInstance ), queue );
     registerCommand( CMD_SESSION_INSTANCE,
                      CmdFunc( this, &Session::_cmdInstance ), queue );
 }
@@ -572,6 +594,13 @@ bool Session::registerObject( Object* object )
     object->setupChangeManager( object->getChangeType(), true );
     attachObject( object, id, EQ_ID_INVALID );
 
+    if( Global::getIAttribute( Global::IATTR_SESSION_SEND_QUEUE_SIZE ) > 0 )
+    {
+        SessionRegisterObjectPacket packet;
+        packet.object = object;
+        _sendLocal( packet );
+    }
+
     _setIDMasterSync( requestID ); // sync, master knows our ID now
     object->notifyAttached();
 
@@ -593,6 +622,15 @@ void Session::deregisterObject( Object* object )
 
     object->notifyDetach();
     const uint32_t requestID = _unsetIDMasterNB( id );
+
+    if( Global::getIAttribute( Global::IATTR_SESSION_SEND_QUEUE_SIZE ) > 0 )
+    {
+        // remove from send queue
+        SessionDeregisterObjectPacket packet;
+        packet.requestID = _localNode->registerRequest( object );
+        _sendLocal( packet );
+        _localNode->waitRequest( packet.requestID );
+    }
 
     // unmap slaves
     const Nodes* slaves = object->_getSlaveNodes();
@@ -645,6 +683,25 @@ void Session::ackRequest( NodePtr node, const uint32_t requestID )
     {
         SessionAckRequestPacket reply( requestID );
         send( node, reply );
+    }
+}
+
+void Session::notifyCommandThreadIdle()
+{
+    EQ_TS_THREAD( _commandThread );
+
+    Nodes nodes;
+    _localNode->getNodes( nodes );
+
+    CommandQueue* queue = getCommandThreadQueue();
+    while( !_sendQueue.empty() && queue->isEmpty( ))
+    {
+        SendQueueItem& object = _sendQueue.front();
+
+        if( object.age > _clock.getTime64() )
+            object.object->_cm->sendInstanceDatas( nodes );
+
+        _sendQueue.pop_front();
     }
 }
 
@@ -819,7 +876,6 @@ bool Session::_cmdAckRequest( Command& command )
     return true;
 }
 
-
 bool Session::_cmdGenIDs( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
@@ -963,6 +1019,57 @@ bool Session::_cmdDetachObject( Command& command )
     return true;
 }
 
+bool Session::_cmdRegisterObject( Command& command )
+{
+    EQ_TS_THREAD( _commandThread );
+    const SessionRegisterObjectPacket* packet = 
+        command.getPacket< SessionRegisterObjectPacket >();
+    EQLOG( LOG_OBJECTS ) << "Cmd register object " << packet << std::endl;
+
+    const uint32_t size = Global::getIAttribute( 
+                                 Global::IATTR_SESSION_SEND_QUEUE_SIZE );
+    const uint32_t age = Global::getIAttribute( 
+                             Global::IATTR_SESSION_SEND_AGE );
+#if 0
+    if( _sendQueue.size() >= size )
+        return true;
+#endif
+    
+    SendQueueItem item;
+    item.age = age ? age + _clock.getTime64() :
+                     std::numeric_limits< uint64_t >::max();
+    item.object = packet->object;
+    _sendQueue.push_back( item );
+    while( _sendQueue.size() > size )
+        _sendQueue.pop_front();
+
+    return true;
+}
+
+bool Session::_cmdDeregisterObject( Command& command )
+{
+    EQ_TS_THREAD( _commandThread );
+    const SessionDeregisterObjectPacket* packet = 
+        command.getPacket< SessionDeregisterObjectPacket >();
+    EQLOG( LOG_OBJECTS ) << "Cmd deregister object " << packet << std::endl;
+
+    Object* object = static_cast<Object*>(
+        _localNode->getRequestData( packet->requestID ));    
+
+    for( SendQueue::iterator i = _sendQueue.begin(); 
+         i < _sendQueue.end(); i++ )
+    {
+        if( i->object == object )
+        {
+            _sendQueue.erase( i );
+            break;
+        }
+    }
+
+    _localNode->serveRequest( packet->requestID );
+    return true;
+}
+
 bool Session::_cmdMapObject( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
@@ -989,7 +1096,8 @@ bool Session::_cmdMapObject( Command& command )
     SessionSubscribeObjectPacket subscribePacket( packet );
     subscribePacket.instanceID = _genNextID( _instanceIDs );
 
-    const InstanceCache::Data& cached = _instanceCache[ id ];
+    EQASSERT( _instanceCache );
+    const InstanceCache::Data& cached = (*_instanceCache)[ id ];
     if( cached != InstanceCache::Data::NONE )
     {
         const ObjectInstanceDataIStreamDeque& versions = cached.versions;
@@ -1142,18 +1250,20 @@ bool Session::_cmdSubscribeObjectReply( Command& command )
         {
             const uint32_t id = packet->objectID;
             const uint32_t start = packet->cachedVersion;
+            
+            EQASSERT( _instanceCache );
             if( start != VERSION_INVALID )
             {
-                const InstanceCache::Data& cached = _instanceCache[ id ];
+                const InstanceCache::Data& cached = (*_instanceCache)[ id ];
                 EQASSERT( cached != InstanceCache::Data::NONE );
                 EQASSERT( !cached.versions.empty( ));
             
                 object->_cm->addInstanceDatas( cached.versions, start );
-                EQCHECK( _instanceCache.release( id, 2 ));
+                EQCHECK( _instanceCache->release( id, 2 ));
             }
             else
             {
-                EQCHECK( _instanceCache.release( id ));
+                EQCHECK( _instanceCache->release( id ));
             }
         }
     }
@@ -1208,8 +1318,8 @@ bool Session::_cmdUnmapObject( Command& command )
         command.getPacket< SessionUnmapObjectPacket >();
 
     EQLOG( LOG_OBJECTS ) << "Cmd unmap object " << packet << std::endl;
-
-    _instanceCache.erase( packet->objectID );
+    EQASSERT( _instanceCache );
+    _instanceCache->erase( packet->objectID );
 
     ObjectsHash::iterator i = _objects->find( packet->objectID );
     if( i == _objects->end( )) // nothing to do
@@ -1253,8 +1363,11 @@ bool Session::_cmdInstance( Command& command )
         result = _invokeObjectCommand( command );
     }
 
+    if ( !_instanceCache )
+        return true;
+    
     const ObjectVersion rev( packet->objectID, packet->version ); 
-    _instanceCache.add( rev, packet->masterInstanceID, command, usage );
+    _instanceCache->add( rev, packet->masterInstanceID, command, usage );
     return result;
 }
 

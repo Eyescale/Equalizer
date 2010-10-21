@@ -538,6 +538,7 @@ void Node::_removeSession( Session* session )
     }
 
     session->_setLocalNode( 0 );
+    session->disableInstanceCache( );
     session->_server    = 0;
     if( session->_isMaster )
         session->_isMaster  = false;
@@ -756,6 +757,16 @@ bool Node::_connect( NodePtr node, ConnectionPtr connection )
     return true;
 }
 
+void Node::getNodes( Nodes& nodes ) const
+{
+    base::ScopedMutex< base::SpinLock > mutex( _nodes );
+    for( NodeHash::const_iterator i = _nodes->begin();
+         i != _nodes->end(); ++i )
+    {
+        nodes.push_back( i->second );
+    }
+}
+
 NodePtr Node::connect( const NodeID& nodeID )
 {
     EQASSERT( nodeID != NodeID::ZERO );
@@ -812,7 +823,7 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
     {
         if( !node->isConnected( ))
             connect( node );
-        return node->isConnected() ? node : 0;        
+        return node->isConnected() ? node : 0;
     }
 
     EQINFO << "Connecting node " << nodeID << std::endl;
@@ -877,7 +888,7 @@ void Node::_runReceiverThread()
                 _handleConnect();
                 break;
 
-            case ConnectionSet::EVENT_DATA:      
+            case ConnectionSet::EVENT_DATA:
                 _handleData();
                 break;
 
@@ -1049,10 +1060,11 @@ bool Node::_handleData()
                                                  sizeof( uint64_t );
 
     connection->recvNB( ptr, size - sizeof( uint64_t ));
-    const bool gotData = connection->recvSync( 0, 0 );    
+    const bool gotData = connection->recvSync( 0, 0 );
 
     EQASSERT( gotData );
     EQASSERT( command.isValid( ));
+    EQASSERT( command.isFree( ));
 
     // start next receive
     connection->recvNB( sizePtr, sizeof( uint64_t ));
@@ -1081,9 +1093,9 @@ void Node::_dispatchCommand( Command& command )
     EQASSERT( command.isValid( ));
 
     const bool dispatched = dispatchCommand( command );
- 
+
     _redispatchCommands();
-  
+
     if( !dispatched )
     {
         command.retain();
@@ -1110,10 +1122,17 @@ bool Node::dispatchCommand( Command& command )
                 static_cast<SessionPacket*>( command.getPacket( ));
             const SessionID& id = sessionPacket->sessionID;
             SessionHash::const_iterator i = _sessions->find( id );
-            EQASSERTINFO( i != _sessions->end(),
-                          "Can't find session for " << command );
+            EQASSERTINFO( i != _sessions->end() ||
+                         ( type==PACKETTYPE_EQNET_SESSION && 
+                           sessionPacket->command == CMD_SESSION_INSTANCE ),
+                         "Can't find session for " << command );
 
-            Session* session = i->second;            
+            if( i == _sessions->end() && type == PACKETTYPE_EQNET_SESSION && 
+                sessionPacket->command == CMD_SESSION_INSTANCE )
+            {
+                return true;
+            }
+            Session* session = i->second;
             return session->dispatchCommand( command );
         }
 
@@ -1173,6 +1192,16 @@ void Node::_runCommandThread()
             EQABORT( "Error handling " << *command );
         }
         command->release();
+
+        if( _commandThreadQueue.isEmpty( ))
+        {
+            for( SessionHash::const_iterator i = _sessions->begin();
+                 i != _sessions->end() && _commandThreadQueue.isEmpty(); ++i )
+            {
+                Session* session = i->second;
+                session->notifyCommandThreadIdle();
+            }
+        }
     }
  
     _commandThreadQueue.flush();
@@ -1197,7 +1226,7 @@ bool Node::invokeCommand( Command& command )
             const SessionPacket* sessionPacket = 
                 static_cast<SessionPacket*>( command.getPacket( ));
             const SessionID& id = sessionPacket->sessionID;
-            Session* session = 0;            
+            Session* session = 0;
             {
                 base::ScopedMutex< base::SpinLock > mutex( _sessions );
                 SessionHash::const_iterator i = _sessions->find( id );
@@ -1700,7 +1729,7 @@ bool Node::_cmdGetNodeDataReply( Command& command )
         return true;
     }
 
-    // new node: create and add unconnected node        
+    // new node: create and add unconnected node
     NodePtr node = createNode( packet->nodeType );
     EQASSERT( node.isValid( ));
 

@@ -19,7 +19,6 @@
 #define EQNET_SESSION_H
 
 #include <eq/net/dispatcher.h>    // base class
-#include <eq/net/instanceCache.h> // member
 #include <eq/net/node.h>          // used in inline method
 #include <eq/net/objectVersion.h> // member
 #include <eq/net/packets.h>       // used in inline method
@@ -34,6 +33,8 @@ namespace eq
 {
 namespace net
 {
+     class InstanceCache;
+
     /**
      * Provides higher-level functionality to a set of nodes.
      *
@@ -74,6 +75,9 @@ namespace net
         /** @return the server hosting this session, or 0 if the session is not
          *          mapped.. */
         NodePtr getServer() { return _server; }
+
+        /** Disable the instance cache of an unattached session. */
+        EQ_EXPORT void disableInstanceCache();
         //@}
 
 
@@ -367,8 +371,13 @@ namespace net
 
     protected:
         /** @internal */
-        void expireInstanceData( const int64_t age )
-            { _instanceCache.expire( age ); }
+        void expireInstanceData( const int64_t age );
+
+        /**
+         * @internal
+         * Notification - no pending commands for the command thread.
+         */
+        EQ_EXPORT virtual void notifyCommandThreadIdle();
 
         /** @internal ack an operation to the sender. */
         void ackRequest( NodePtr node, const uint32_t requestID );
@@ -404,10 +413,22 @@ namespace net
         /** The id->master mapping table. */
         base::Lockable< NodeIDHash, base::SpinLock > _idMasters;
         
+        /** The global clock for send-on-register for objects. */
+        base::Clock _clock;
+
         /** All registered and mapped objects. */
         base::Lockable< ObjectsHash, base::SpinLock > _objects;
 
-        InstanceCache _instanceCache; //!< cached object mapping data
+        struct SendQueueItem
+        {
+            uint64_t age;
+            Object* object;
+        };
+
+        typedef std::deque< SendQueueItem > SendQueue;
+        SendQueue _sendQueue;      //!< Object data to broadcast when idle
+
+        InstanceCache* _instanceCache; //!< cached object mapping data
 
         const NodeID _pollIDMaster( const uint32_t id ) const;
         NodePtr _pollIDMasterNode( const uint32_t id ) const;
@@ -451,6 +472,8 @@ namespace net
         bool _cmdSubscribeObjectReply( Command& command );
         bool _cmdUnsubscribeObject( Command& command );
         bool _cmdInstance( Command& command );
+        bool _cmdRegisterObject( Command& command );
+        bool _cmdDeregisterObject( Command& command );
 
         EQ_TS_VAR( _receiverThread );
         EQ_TS_VAR( _commandThread );

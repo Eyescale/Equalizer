@@ -53,19 +53,23 @@ namespace DataStreamTest
         void enable( NodePtr node, const bool useMulticast );
         EQ_EXPORT void enable();
 
-        /** Resend the saved buffer. */
-        void resend( NodePtr node );
-
         /** Disable, flush and unlock the output to the current receivers. */
         EQ_EXPORT void disable();
 
         /** Enable copying of all data into a saved buffer. */
         void enableSave();
+
         /** Disable copying of all data into a saved buffer. */
         void disableSave();
 
         /** @return if data was sent since the last enable() */
         bool hasSentData() const { return _dataSent; }
+        
+        /** Resend the saved buffer to the given node. */
+        void resend( NodePtr node, const bool useMulticast  );
+
+        /** Resend the saved buffer to all given nodes. */
+        void resend( const Nodes& receivers );
 
         /** @return the buffer with the saved data. */
         const base::Bufferb& getSaveBuffer() const 
@@ -176,6 +180,17 @@ namespace DataStreamTest
         /** compress data, if compressor found */
         void _compress( const void* src, const uint64_t size );
 
+        /** Resend the saved buffer to all enabled connections. */
+        void _resend();
+        
+        /**
+         * Set up the connection list for a group of  nodes, using multicast
+         * where possible.
+         */
+        void _setupConnections( const Nodes& receivers );
+
+        /** Set up the connection (list) for one node. */
+        void _setupConnection( NodePtr node, const bool useMulticast );
     };
 
     std::ostream& operator << ( std::ostream& os,

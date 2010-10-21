@@ -116,6 +116,7 @@ namespace eqPly
         eq::admin::ServerPtr _admin;
 
         void _loadModels();
+        void _registerModels();
         void _loadPath();
         void _deregisterData();
         bool _handleKeyEvent( const eq::KeyEvent& event );
