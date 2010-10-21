@@ -1,6 +1,9 @@
 # Copyright (c) 2010 Daniel Pfeifer
 #               2010, Stefan Eilemann <eile@eyescale.ch>
 
+file(GLOB COMPOSITOR_IMAGES compositor/*.rgb)
+file(COPY image/images ${COMPOSITOR_IMAGES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/examples/include # test depend on examples... oh well
