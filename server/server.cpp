@@ -30,7 +30,8 @@
 #include "window.h"
 
 #include <eq/admin/packets.h>
-#include <eq/client/packets.h>
+#include <eq/client/serverPackets.h>
+#include <eq/fabric/serverPackets.h>
 #include <eq/net/command.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/net/global.h>

@@ -24,7 +24,7 @@
 #include "image.h"
 #include "log.h"
 #include "node.h"
-#include "packets.h"
+#include "frameDataPackets.h"
 #include "roiFinder.h"
 
 #include <eq/net/command.h>

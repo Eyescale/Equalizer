@@ -18,7 +18,7 @@
 #include "command.h"
 
 #include "node.h"
-#include "packets.h"
+
 
 namespace eq
 {

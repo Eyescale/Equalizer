@@ -86,10 +86,12 @@ set(NET_HEADERS
 
 set(FABRIC_HEADERS
   fabric/canvas.h
+  fabric/canvasPackets.h
   fabric/channel.h
   fabric/colorMask.h
   fabric/commands.h
   fabric/config.h
+  fabric/configPackets.h
   fabric/configVisitor.h
   fabric/client.h
   fabric/drawableConfig.h
@@ -98,6 +100,7 @@ set(FABRIC_HEADERS
   fabric/frustum.h
   fabric/global.h
   fabric/layout.h
+  fabric/layoutPackets.h
   fabric/iAttribute.h
   fabric/init.h
   fabric/leafVisitor.h
@@ -110,6 +113,7 @@ set(FABRIC_HEADERS
   fabric/packetType.h
   fabric/paths.h
   fabric/pipe.h
+  fabric/pipePackets.h
   fabric/pixel.h
   fabric/pixelViewport.h
   fabric/projection.h
@@ -118,6 +122,7 @@ set(FABRIC_HEADERS
   fabric/segment.h
   fabric/serializable.h
   fabric/server.h
+  fabric/serverPackets.h
   fabric/subPixel.h
   fabric/task.h
   fabric/types.h
@@ -126,6 +131,7 @@ set(FABRIC_HEADERS
   fabric/visitorResult.h
   fabric/wall.h
   fabric/window.h
+  fabric/windowPackets.h
   fabric/zoom.h
   )
 
@@ -137,13 +143,16 @@ set(CLIENT_HEADERS
   client/aglWindowEvent.h
   client/canvas.h
   client/channel.h
+  client/channelPackets.h
   client/channelStatistics.h
   client/client.h
+  client/clientPackets.h
   client/commandQueue.h
   client/compositor.h
   client/computeContext.h
   client/config.h
   client/configEvent.h
+  client/configPackets.h
   client/configParams.h
   client/configStatistics.h
   client/cudaContext.h
@@ -152,6 +161,7 @@ set(CLIENT_HEADERS
   client/eye.h
   client/frame.h
   client/frameData.h
+  client/frameDataPackets.h
   client/glWindow.h
   client/glXEventHandler.h
   client/glXMessagePump.h
@@ -165,14 +175,17 @@ set(CLIENT_HEADERS
   client/log.h
   client/messagePump.h
   client/node.h
+  client/nodePackets.h
   client/nodeFactory.h
   client/observer.h
   client/os.h
   client/packets.h
   client/pipe.h
+  client/pipePackets.h
   client/pixelData.h
   client/segment.h
   client/server.h
+  client/serverPackets.h
   client/statistic.h
   client/statisticSampler.h
   client/systemPipe.h
@@ -187,6 +200,7 @@ set(CLIENT_HEADERS
   client/wglWindow.h
   client/wglWindowEvent.h
   client/window.h
+  client/windowPackets.h
   client/windowStatistics.h
   client/windowSystem.h
   )

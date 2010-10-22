@@ -19,6 +19,7 @@
 #include "window.h"
 
 #include "channel.h"
+#include "channelPackets.h"
 #include "client.h"
 #include "config.h"
 #include "configEvent.h"
@@ -28,9 +29,10 @@
 #include "node.h"
 #include "nodeFactory.h"
 #include "pipe.h"
-#include "systemWindow.h"
-#include "packets.h"
+#include "pipePackets.h"
 #include "server.h"
+#include "systemWindow.h"
+#include "windowPackets.h"
 #include "windowStatistics.h"
 #include <eq/fabric/elementVisitor.h>
 

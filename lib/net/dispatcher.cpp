@@ -20,7 +20,6 @@
 #include "command.h"
 #include "commandQueue.h"
 #include "node.h"
-#include "packets.h"
 
 #include <eq/base/log.h>
 

@@ -98,7 +98,6 @@
 #include <eq/client/node.h>
 #include <eq/client/nodeFactory.h>
 #include <eq/client/observer.h>
-#include <eq/client/packets.h>
 #include <eq/client/pipe.h>
 #include <eq/client/server.h>
 #include <eq/client/segment.h>

@@ -23,12 +23,14 @@
 #include "client.h"
 #include "channel.h"
 #include "config.h"
+#include "configPackets.h"
 #include "frameData.h"
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
-#include "packets.h"
+#include "nodePackets.h"
 #include "pipe.h"
+#include "pipePackets.h"
 #include "server.h"
 
 #ifdef AGL

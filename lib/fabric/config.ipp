@@ -18,7 +18,7 @@
 
 #include "config.h"
 
-#include "packets.h"
+#include "configPackets.h"
 #include "paths.h"
 
 #include "configProxy.ipp"

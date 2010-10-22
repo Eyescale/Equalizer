@@ -88,18 +88,22 @@ HEADER_SRC = \
 	net/types.h \
 	net/version.h \
 	fabric/canvas.h \
+	fabric/canvasPackets.h \
 	fabric/channel.h \
+	fabric/channelPackets.h \
+	fabric/client.h \
 	fabric/colorMask.h \
 	fabric/commands.h \
 	fabric/config.h \
+	fabric/configPackets.h \
 	fabric/configVisitor.h \
-	fabric/client.h \
 	fabric/drawableConfig.h \
 	fabric/elementVisitor.h \
 	fabric/eye.h \
 	fabric/frustum.h \
 	fabric/global.h \
 	fabric/layout.h \
+	fabric/layoutPackets.h \
 	fabric/iAttribute.h \
 	fabric/init.h \
 	fabric/leafVisitor.h \
@@ -112,6 +116,7 @@ HEADER_SRC = \
 	fabric/packetType.h \
 	fabric/paths.h \
 	fabric/pipe.h \
+	fabric/pipePackets.h \
 	fabric/pixel.h \
 	fabric/pixelViewport.h \
 	fabric/projection.h \
@@ -120,6 +125,7 @@ HEADER_SRC = \
 	fabric/segment.h \
 	fabric/serializable.h \
 	fabric/server.h \
+	fabric/serverPackets.h \
 	fabric/subPixel.h \
 	fabric/task.h \
 	fabric/types.h \
@@ -128,6 +134,7 @@ HEADER_SRC = \
 	fabric/visitorResult.h \
 	fabric/wall.h \
 	fabric/window.h \
+	fabric/windowPackets.h \
 	fabric/zoom.h \
 	client/aglEventHandler.h \
 	client/aglMessagePump.h \
@@ -136,12 +143,15 @@ HEADER_SRC = \
 	client/aglWindowEvent.h \
 	client/canvas.h \
 	client/channel.h \
+	client/channelPackets.h \
 	client/channelStatistics.h \
 	client/client.h \
+	client/clientPackets.h \
 	client/commandQueue.h \
 	client/compositor.h \
 	client/computeContext.h \
 	client/config.h \
+	client/configPackets.h \
 	client/configEvent.h \
 	client/configParams.h \
 	client/configStatistics.h \
@@ -151,6 +161,7 @@ HEADER_SRC = \
 	client/eye.h \
 	client/frame.h \
 	client/frameData.h \
+	client/frameDataPackets.h \
 	client/glWindow.h \
 	client/glXEventHandler.h \
 	client/glXMessagePump.h \
@@ -164,14 +175,17 @@ HEADER_SRC = \
 	client/log.h \
 	client/messagePump.h \
 	client/node.h \
+	client/nodePackets.h \
 	client/nodeFactory.h \
 	client/observer.h \
 	client/os.h \
 	client/packets.h \
 	client/pipe.h \
+	client/pipePackets.h \
 	client/pixelData.h \
 	client/segment.h \
 	client/server.h \
+	client/serverPackets.h \
 	client/statistic.h \
 	client/statisticSampler.h \
 	client/systemPipe.h \
@@ -186,6 +200,7 @@ HEADER_SRC = \
 	client/wglWindow.h \
 	client/wglWindowEvent.h \
 	client/window.h \
+	client/windowPackets.h \
 	client/windowStatistics.h \
 	client/windowSystem.h \
 	util/accum.h \

@@ -35,7 +35,6 @@
 #include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/viewport.h>      // member
 #include <eq/net/object.h>
-#include <eq/net/packets.h>
 
 #include <iostream>
 #include <vector>

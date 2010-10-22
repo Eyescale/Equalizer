@@ -17,6 +17,7 @@
 
 #include "channel.h"
 
+#include "channelPackets.h"
 #include "channelStatistics.h"
 #include "client.h"
 #include "compositor.h"
@@ -30,11 +31,11 @@
 #include "log.h"
 #include "node.h"
 #include "nodeFactory.h"
-#include "packets.h"
 #include "pipe.h"
 #include "server.h"
 #include "systemWindow.h"
 #include "view.h"
+#include "windowPackets.h"
 
 #include <eq/util/accum.h>
 #include <eq/util/frameBufferObject.h>

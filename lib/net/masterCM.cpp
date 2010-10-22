@@ -23,7 +23,6 @@
 #include "object.h"
 #include "objectPackets.h"
 #include "objectSlaveDataIStream.h"
-#include "packets.h"
 
 namespace eq
 {

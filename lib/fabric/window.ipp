@@ -21,7 +21,7 @@
 #include "channel.h"
 #include "elementVisitor.h"
 #include "log.h"
-#include "packets.h"
+#include "windowPackets.h"
 #include "task.h"
 
 #include <eq/net/command.h>

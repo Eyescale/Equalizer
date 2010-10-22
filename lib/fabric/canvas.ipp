@@ -19,7 +19,7 @@
 
 #include "elementVisitor.h"
 #include "nameFinder.h"
-#include "packets.h"
+#include "canvasPackets.h"
 #include "paths.h"
 #include "segment.h"
 

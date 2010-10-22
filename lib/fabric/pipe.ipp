@@ -20,7 +20,7 @@
 
 #include "elementVisitor.h"
 #include "leafVisitor.h"
-#include "packets.h"
+#include "pipePackets.h"
 #include "task.h"
 
 #include <eq/net/command.h>

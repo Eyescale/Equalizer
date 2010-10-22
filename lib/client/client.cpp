@@ -21,9 +21,9 @@
 #include "global.h"
 #include "init.h"
 #include "nodeFactory.h"
-#include "packets.h"
 #include "server.h"
 
+#include <eq/fabric/commands.h>
 #include <eq/fabric/nodeType.h>
 #include <eq/net/command.h>
 #include <eq/net/connection.h>

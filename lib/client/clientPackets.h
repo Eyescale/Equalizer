@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,35 +16,21 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQFABRIC_PACKETS_H
-#define EQFABRIC_PACKETS_H
+#ifndef EQ_CLIENTPACKETS_H
+#define EQ_CLIENTPACKETS_H
 
-#include <eq/fabric/commands.h>      // enum 
-#include <eq/fabric/packetType.h>    // member
+#include <eq/client/packets.h> // base structs
 
-#include <eq/net/packets.h> // 'base'
-#include <eq/net/objectVersion.h> // member
-
+/** @cond IGNORE */
 namespace eq
 {
-namespace fabric
-{
-/** @cond IGNORE */
-    struct ServerPacket : public net::Packet
+  struct ClientExitPacket : public ClientPacket
     {
-        ServerPacket(){ type = PACKETTYPE_EQ_SERVER; }
+        ClientExitPacket()
+            {
+                command = fabric::CMD_CLIENT_EXIT;
+                size    = sizeof( ClientExitPacket );
+            }
     };
-
-    typedef net::SessionPacket ConfigPacket;
-
-    typedef net::ObjectPacket PipePacket;
-    typedef net::ObjectPacket WindowPacket;
-    typedef net::ObjectPacket CanvasPacket;
-    typedef net::ObjectPacket LayoutPacket;
-   
-/** @endcond */
 }
-}
-
-#endif // EQFABRIC_PACKETS_H
-
+#endif //EQ_CLIENTPACKETS_H

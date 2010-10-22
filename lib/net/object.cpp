@@ -26,7 +26,6 @@
 #include "log.h"
 #include "nullCM.h"
 #include "objectCM.h"
-#include "packets.h"
 #include "session.h"
 #include "staticMasterCM.h"
 #include "staticSlaveCM.h"

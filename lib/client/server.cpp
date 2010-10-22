@@ -23,7 +23,7 @@
 #include "global.h"
 #include "node.h"
 #include "nodeFactory.h"
-#include "packets.h"
+#include "serverPackets.h"
 #include "types.h"
 
 #include <eq/net/command.h>

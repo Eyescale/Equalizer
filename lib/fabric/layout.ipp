@@ -20,7 +20,7 @@
 #include "elementVisitor.h"
 #include "nameFinder.h"
 #include "observer.h"
-#include "packets.h"
+#include "layoutPackets.h"
 #include "paths.h"
 
 #include <eq/net/command.h>

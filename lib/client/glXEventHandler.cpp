@@ -22,7 +22,6 @@
 #include "glXWindowEvent.h"
 #include "global.h"
 #include "log.h"
-#include "packets.h"
 #include "pipe.h"
 #include "window.h"
 #include "X11Connection.h"

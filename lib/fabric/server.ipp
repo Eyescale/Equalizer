@@ -17,7 +17,8 @@
 
 #include "server.h"
 
-#include "packets.h"
+#include "configPackets.h"
+#include "serverPackets.h"
 
 #include <eq/net/command.h>
 #include <eq/net/connectionDescription.h>

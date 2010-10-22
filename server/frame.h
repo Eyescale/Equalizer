@@ -22,7 +22,6 @@
 #include "compound.h"
 
 #include <eq/client/frame.h>
-#include <eq/client/packets.h>
 #include <eq/base/bitOperation.h> // function getIndexOfLastBit
 
 namespace eq

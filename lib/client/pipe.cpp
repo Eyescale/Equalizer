@@ -26,11 +26,13 @@
 #include "log.h"
 #include "node.h"
 #include "nodeFactory.h"
+#include "nodePackets.h"
+#include "pipePackets.h"
 #include "pipeStatistics.h"
-#include "packets.h"
 #include "server.h"
 #include "view.h"
 #include "window.h"
+#include "windowPackets.h"
 #include "X11Connection.h"
 
 #ifdef GLX

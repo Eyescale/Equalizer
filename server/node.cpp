@@ -28,7 +28,8 @@
 #include "server.h"
 #include "window.h"
 
-#include <eq/client/packets.h>
+#include <eq/client/configPackets.h>
+#include <eq/client/nodePackets.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
 #include <eq/net/barrier.h>

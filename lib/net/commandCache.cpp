@@ -19,7 +19,6 @@
 
 #include "command.h"
 #include "node.h"
-#include "packets.h"
 
 using namespace std;
 

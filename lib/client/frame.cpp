@@ -18,7 +18,6 @@
 #include "frame.h"
 
 #include "frameData.h"
-#include "packets.h"
 
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>

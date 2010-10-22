@@ -35,9 +35,13 @@
 #include "view.h"
 #include "window.h"
 
+#include <eq/client/clientPackets.h>
 #include <eq/client/configEvent.h>
-#include <eq/fabric/paths.h>
+#include <eq/client/configPackets.h>
+#include <eq/fabric/configPackets.h>
 #include <eq/fabric/iAttribute.h>
+#include <eq/fabric/paths.h>
+#include <eq/fabric/serverPackets.h>
 #include <eq/net/command.h>
 #include <eq/base/sleep.h>
 

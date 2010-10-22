@@ -20,7 +20,7 @@
 
 #include "leafVisitor.h"
 #include "paths.h"
-#include "packets.h"
+#include "pipePackets.h"
 
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
