@@ -59,7 +59,7 @@ if(OPENMP_FOUND)
     _Boost_COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
   endif(CMAKE_COMPILER_IS_GNUCXX)
   if(CMAKE_COMPILER_IS_GNUCXX AND GCC_COMPILER_VERSION LESS 43)
-    message(STATUS "  Disabling OpenMP due to bug in gcc ${GCC_COMPILER_VERSION}")
+    message(STATUS "  Disable OpenMP due to bug in gcc ${GCC_COMPILER_VERSION}")
   else(CMAKE_COMPILER_IS_GNUCXX AND GCC_COMPILER_VERSION LESS 43)
     set(EQ_OPENMP_USED 1)
     set(EQ_FEATURES "${EQ_FEATURES} OpenMP")
@@ -71,6 +71,11 @@ endif(OPENMP_FOUND)
 
 find_package(OpenGL REQUIRED)
 include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
+
+if(APPLE)
+  # WAR otherwise MacPorts X11 (/opt/local) is preferred
+  LIST(APPEND CMAKE_SYSTEM_LIBRARY_PATH /usr/X11R6/lib)
+endif(APPLE)
 
 find_package(X11)
 if(X11_FOUND)
@@ -100,12 +105,6 @@ if(EQ_AGL_USED)
 endif(EQ_AGL_USED)
 
 find_package(CUDA)
-if(CUDA_FOUND)
-  include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
-  set(CUDA_PROPAGATE_HOST_FLAGS OFF)
-  set(EQ_FEATURES "${EQ_FEATURES} CUDA")
-endif(CUDA_FOUND)
-
 
 if(MSVC)
   add_definitions(/D_CRT_SECURE_NO_WARNINGS)
@@ -164,7 +163,17 @@ if(APPLE)
     set (CMAKE_OSX_ARCHITECTURES "i386;x86_64")
     set (CUDA_64_BIT_DEVICE_CODE ON) 
   endif(EQ_AGL_USED)
+  if(CUDA_FOUND AND CMAKE_OSX_ARCHITECTURES MATCHES ".*64.*")
+    set(CUDA_FOUND 0)
+    message(STATUS "  Disable CUDA due to missing 64 bit libraries")
+  endif(CUDA_FOUND AND CMAKE_OSX_ARCHITECTURES MATCHES ".*64.*")
 endif(APPLE)
+
+if(CUDA_FOUND)
+  include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
+  set(CUDA_PROPAGATE_HOST_FLAGS OFF)
+  set(EQ_FEATURES "${EQ_FEATURES} CUDA")
+endif(CUDA_FOUND)
 
 
 include(${CMAKE_SOURCE_DIR}/externals/UseGLEW.cmake)

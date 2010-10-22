@@ -52,10 +52,13 @@ add_definitions(-DEQ_EXPORTS -DEQ_PLUGIN_BUILD -DGLEW_STATIC)
 if(APPLE)
   if(EQ_AGL_USED)
     find_library(CARBON_LIBRARY Carbon)
+    set(GL_LIBRARIES "${OPENGL_LIBRARIES}")
   endif(EQ_AGL_USED)
   if(EQ_GLX_USED)
-    set(GLX_LIBRARY GL)
+    set(GL_LIBRARIES ${GL_LIBRARIES} GL)
   endif(EQ_GLX_USED)
+else(APPLE)
+  set(GL_LIBRARIES "${OPENGL_LIBRARIES}")
 endif(APPLE)
 if(NOT CUDA_FOUND)
   set(CUDA_LIBRARIES)
@@ -65,11 +68,10 @@ add_library(Equalizer SHARED ${SOURCES})
 target_link_libraries(Equalizer
   ${PTHREAD_LIBRARIES}
   ${Boost_LIBRARIES}
-  ${OPENGL_LIBRARIES}
   ${GLEW_LIBRARY}
   ${CARBON_LIBRARY}
   ${X11_LIBRARIES}
-  ${GLX_LIBRARY}
+  ${GL_LIBRARIES}
   ${CUDA_LIBRARIES}
   )
 

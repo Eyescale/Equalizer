@@ -27,13 +27,17 @@ namespace eq
 {
 GLXWindow::GLXWindow( Window* parent )
     : GLXWindowIF( parent )
+    , _xDisplay( 0 )
     , _xDrawable ( 0 )
     , _glXContext( 0 )
     , _glXNVSwapGroup( 0 )
     , _glxewContext( new GLXEWContext )
     , _glxewInitialized( false )
 {
-
+    Pipe* pipe = getPipe();
+    GLXPipe* glxPipe = dynamic_cast< GLXPipe* >( pipe->getSystemPipe( ));
+    if( glxPipe )
+        _xDisplay = glxPipe->getXDisplay();
 }
 
 GLXWindow::~GLXWindow( )
@@ -61,8 +65,7 @@ bool GLXWindow::configInit( )
     setGLXContext( context );
 
     // Early glxew init to have function pointers for init code
-    Display* display = getXDisplay();
-    glXMakeCurrent( display, None, 0 );
+    glXMakeCurrent( _xDisplay, None, 0 );
     glxewInit();
 
     if( !context )
@@ -88,36 +91,9 @@ bool GLXWindow::configInit( )
     return success;
 }
 
-
-Display* GLXWindow::getXDisplay()
-{
-    Pipe* pipe = getPipe();
-    GLXPipe* glxPipe = dynamic_cast< GLXPipe* >( pipe->getSystemPipe( ));
-    if( glxPipe )
-        return glxPipe->getXDisplay();
-
-    EQUNIMPLEMENTED;    
-    return 0;
-}
-
-Display* GLXWindow::getXDisplay() const
-{
-    const Pipe* pipe = getPipe();
-
-    EQASSERT( pipe );
-    EQASSERT( pipe->getSystemPipe( ));
-    EQASSERT( dynamic_cast< const GLXPipe* >( pipe->getSystemPipe( )));
-
-    const GLXPipe* glxPipe =
-        static_cast< const GLXPipe* >( pipe->getSystemPipe( ));
-    return glxPipe->getXDisplay();
-}
-
-
 XVisualInfo* GLXWindow::chooseXVisualInfo()
 {
-    Display* display = getXDisplay();
-    if( !display )
+    if( !_xDisplay )
     {
         _window->setErrorMessage( "Pipe has no X11 display connection" );
         return 0;
@@ -221,8 +197,8 @@ XVisualInfo* GLXWindow::chooseXVisualInfo()
 
 
     // Choose visual
-    const int    screen  = DefaultScreen( display );
-    XVisualInfo *visInfo = glXChooseVisual( display, screen, 
+    const int    screen  = DefaultScreen( _xDisplay );
+    XVisualInfo *visInfo = glXChooseVisual( _xDisplay, screen, 
                                             &attributes.front( ));
 
     while( !visInfo && !backoffAttributes.empty( ))
@@ -238,7 +214,7 @@ XVisualInfo* GLXWindow::chooseXVisualInfo()
         else                            // one-elem attribute
             attributes.erase( iter );
 
-        visInfo = glXChooseVisual( display, screen, &attributes.front( ));
+        visInfo = glXChooseVisual( _xDisplay, screen, &attributes.front( ));
     }
 
     if ( !visInfo )
@@ -259,9 +235,7 @@ GLXContext GLXWindow::createGLXContext( XVisualInfo* visualInfo )
         return 0;
     }
 
-    Display* display = getXDisplay();
-
-    if( !display )
+    if( !_xDisplay )
     {
         _window->setErrorMessage( "Pipe has no X11 display connection" );
         return 0;
@@ -279,7 +253,7 @@ GLXContext GLXWindow::createGLXContext( XVisualInfo* visualInfo )
         shareCtx = shareGLXWindow->getGLXContext();
     }
 
-    GLXContext context = glXCreateContext( display, visualInfo, shareCtx, True);
+    GLXContext context = glXCreateContext( _xDisplay, visualInfo, shareCtx, True);
     if ( !context )
     {
         _window->setErrorMessage( "Could not create OpenGL context" );
@@ -316,9 +290,7 @@ bool GLXWindow::configInitGLXDrawable( XVisualInfo* visualInfo )
 
 bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
 {
-    Display* display = getXDisplay();
-
-    if( !display )
+    if( !_xDisplay )
     {
         _window->setErrorMessage( "Pipe has no X11 display connection" );
         return false;
@@ -327,10 +299,10 @@ bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
     PixelViewport pvp = _window->getPixelViewport();
     if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
     {
-        const int screen = DefaultScreen( display );
+        const int screen = DefaultScreen( _xDisplay );
     
-        pvp.h = DisplayHeight( display, screen );
-        pvp.w = DisplayWidth( display, screen );
+        pvp.h = DisplayHeight( _xDisplay, screen );
+        pvp.w = DisplayWidth( _xDisplay, screen );
         pvp.x = 0;
         pvp.y = 0;
         
@@ -342,17 +314,17 @@ bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
         return false;
 
     // map and wait for MapNotify event
-    XMapWindow( display, drawable );
+    XMapWindow( _xDisplay, drawable );
     
     XEvent event;
-    XIfEvent( display, &event, WaitForNotify, (XPointer)(drawable) );
+    XIfEvent( _xDisplay, &event, WaitForNotify, (XPointer)(drawable) );
     
-    XMoveResizeWindow( display, drawable, pvp.x, pvp.y, pvp.w, pvp.h );
-    XFlush( display );
+    XMoveResizeWindow( _xDisplay, drawable, pvp.x, pvp.y, pvp.w, pvp.h );
+    XFlush( _xDisplay );
     
     // Grab keyboard focus in fullscreen mode
     if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
-        XGrabKeyboard( display, drawable, True, GrabModeAsync, GrabModeAsync, 
+        XGrabKeyboard( _xDisplay, drawable, True, GrabModeAsync, GrabModeAsync, 
                       CurrentTime );
     
     setXDrawable( drawable );
@@ -372,17 +344,16 @@ XID GLXWindow::_createGLXWindow( XVisualInfo* visualInfo ,
         return 0;
     }
 
-    Display* display = getXDisplay();
-    if( !display )
+    if( !_xDisplay )
     {
         _window->setErrorMessage( "Pipe has no X11 display connection" );
         return 0;
     }
 
-    const int            screen = DefaultScreen( display );
-    XID                  parent = RootWindow( display, screen );
+    const int            screen = DefaultScreen( _xDisplay );
+    XID                  parent = RootWindow( _xDisplay, screen );
     XSetWindowAttributes wa;
-    wa.colormap          = XCreateColormap( display, parent, visualInfo->visual,
+    wa.colormap          = XCreateColormap( _xDisplay, parent, visualInfo->visual,
                                             AllocNone );
     wa.background_pixmap = None;
     wa.border_pixel      = 0;
@@ -396,7 +367,7 @@ XID GLXWindow::_createGLXWindow( XVisualInfo* visualInfo ,
     else
         wa.override_redirect = True;
 
-    XID drawable = XCreateWindow( display, parent, 
+    XID drawable = XCreateWindow( _xDisplay, parent, 
                                   pvp.x, pvp.y, pvp.w, pvp.h,
                                   0, visualInfo->depth, InputOutput,
                                   visualInfo->visual, 
@@ -423,11 +394,11 @@ XID GLXWindow::_createGLXWindow( XVisualInfo* visualInfo ,
     else
         windowTitle << name;
 
-    XStoreName( display, drawable, windowTitle.str().c_str( ));
+    XStoreName( _xDisplay, drawable, windowTitle.str().c_str( ));
 
     // Register for close window request from the window manager
-    Atom deleteAtom = XInternAtom( display, "WM_DELETE_WINDOW", False );
-    XSetWMProtocols( display, drawable, &deleteAtom, 1 );
+    Atom deleteAtom = XInternAtom( _xDisplay, "WM_DELETE_WINDOW", False );
+    XSetWMProtocols( _xDisplay, drawable, &deleteAtom, 1 );
 
     return drawable;
 }
@@ -442,8 +413,7 @@ bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
         return false;
     }
 
-    Display* display = getXDisplay();
-    if( !display )
+    if( !_xDisplay )
     {
         _window->setErrorMessage( "Pipe has no X11 display connection" );
         return false;
@@ -452,7 +422,7 @@ bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
     // Check for GLX >= 1.3
     int major = 0;
     int minor = 0;
-    if( !glXQueryVersion( display, &major, &minor ))
+    if( !glXQueryVersion( _xDisplay, &major, &minor ))
     {
         _window->setErrorMessage( "Can't get GLX version" );
         return false;
@@ -465,15 +435,15 @@ bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
     }
 
     // Find FB config for X visual
-    const int    screen   = DefaultScreen( display );
+    const int    screen   = DefaultScreen( _xDisplay );
     int          nConfigs = 0;
-    GLXFBConfig* configs  = glXGetFBConfigs( display, screen, &nConfigs );
+    GLXFBConfig* configs  = glXGetFBConfigs( _xDisplay, screen, &nConfigs );
     GLXFBConfig  config   = 0;
 
     for( int i = 0; i < nConfigs; ++i )
     {
         int visualID;
-        if( glXGetFBConfigAttrib( display, configs[i], GLX_VISUAL_ID, 
+        if( glXGetFBConfigAttrib( _xDisplay, configs[i], GLX_VISUAL_ID, 
                                   &visualID ) == 0 )
         {
             if( visualID == static_cast< int >( visualInfo->visualid ))
@@ -498,14 +468,14 @@ bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
                                GLX_PRESERVED_CONTENTS, True,
                                0 };
 
-    XID pbuffer = glXCreatePbuffer( display, config, attributes );
+    XID pbuffer = glXCreatePbuffer( _xDisplay, config, attributes );
     if ( !pbuffer )
     {
         _window->setErrorMessage( "Could not create PBuffer" );
         return false;
     }   
    
-    XFlush( display );
+    XFlush( _xDisplay );
     setXDrawable( pbuffer );
 
     EQINFO << "Created X11 PBuffer " << pbuffer << std::endl;
@@ -529,8 +499,7 @@ void GLXWindow::setXDrawable( XID drawable )
     initEventHandler();
 
     // query pixel viewport of window
-    Display* display = getXDisplay();
-    EQASSERT( display );
+    EQASSERT( _xDisplay );
 
     switch( getIAttribute( Window::IATTR_HINT_DRAWABLE ))
     {
@@ -538,8 +507,8 @@ void GLXWindow::setXDrawable( XID drawable )
         {
             unsigned width = 0;
             unsigned height = 0;
-            glXQueryDrawable( display, drawable, GLX_WIDTH,  &width );
-            glXQueryDrawable( display, drawable, GLX_HEIGHT, &height );
+            glXQueryDrawable( _xDisplay, drawable, GLX_WIDTH,  &width );
+            glXQueryDrawable( _xDisplay, drawable, GLX_HEIGHT, &height );
 
             _window->setPixelViewport( 
                 PixelViewport( 0, 0, int32_t( width ), int32_t( height )));
@@ -548,19 +517,20 @@ void GLXWindow::setXDrawable( XID drawable )
         case WINDOW:
         {
             XWindowAttributes wa;
-            XGetWindowAttributes( display, drawable, &wa );
+            XGetWindowAttributes( _xDisplay, drawable, &wa );
     
             // position is relative to parent: translate to absolute coords
             ::Window root, parent, *children;
             unsigned nChildren;
     
-            XQueryTree(display, drawable, &root, &parent, &children, &nChildren);
+            XQueryTree( _xDisplay, drawable, &root, &parent, &children,
+                        &nChildren );
             if( children != 0 )
                 XFree( children );
 
             int x,y;
             ::Window childReturn;
-            XTranslateCoordinates( display, parent, root, wa.x, wa.y, &x, &y,
+            XTranslateCoordinates( _xDisplay, parent, root, wa.x, wa.y, &x, &y,
                                    &childReturn );
 
             _window->setPixelViewport( PixelViewport( x, y,
@@ -582,15 +552,14 @@ void GLXWindow::setGLXContext( GLXContext context )
 
 void GLXWindow::configExit( )
 {
-    Display* display = getXDisplay();
-    if( !display ) 
+    if( !_xDisplay ) 
         return;
 
     leaveNVSwapBarrier();
     configExitFBO();
     exitGLEW();
     
-    glXMakeCurrent( display, None, 0 );
+    glXMakeCurrent( _xDisplay, None, 0 );
 
     GLXContext context  = getGLXContext();
     XID        drawable = getXDrawable();
@@ -599,14 +568,14 @@ void GLXWindow::configExit( )
     setXDrawable( 0 );
 
     if( context )
-        glXDestroyContext( display, context );
+        glXDestroyContext( _xDisplay, context );
 
     if( drawable )
     {
         if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == PBUFFER )
-            glXDestroyPbuffer( display, drawable );
+            glXDestroyPbuffer( _xDisplay, drawable );
         else
-            XDestroyWindow( display, drawable );
+            XDestroyWindow( _xDisplay, drawable );
     }
 
     EQINFO << "Destroyed GLX context and X drawable " << std::endl;
@@ -614,10 +583,9 @@ void GLXWindow::configExit( )
 
 void GLXWindow::makeCurrent() const
 {
-    Display* display = getXDisplay();
-    EQASSERT( display );
+    EQASSERT( _xDisplay );
 
-    glXMakeCurrent( display, _xDrawable, _glXContext );
+    glXMakeCurrent( _xDisplay, _xDrawable, _glXContext );
     GLXWindowIF::makeCurrent();
     if( _glXContext )
     {
@@ -627,10 +595,8 @@ void GLXWindow::makeCurrent() const
 
 void GLXWindow::swapBuffers()
 {
-    Display* display = getXDisplay();
-    EQASSERT( display );
-
-    glXSwapBuffers( display, _xDrawable );
+    EQASSERT( _xDisplay );
+    glXSwapBuffers( _xDisplay, _xDrawable );
 }
 
 void GLXWindow::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
@@ -648,12 +614,11 @@ void GLXWindow::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
         return;
     }
 
-    Display* display = getXDisplay();
-    const int screen = DefaultScreen( display );
+    const int screen = DefaultScreen( _xDisplay );
     uint32_t maxBarrier = 0;
     uint32_t maxGroup = 0;
     
-    glXQueryMaxSwapGroupsNV( display, screen, &maxGroup, &maxBarrier );
+    glXQueryMaxSwapGroupsNV( _xDisplay, screen, &maxGroup, &maxBarrier );
 
     if( group > maxGroup )
     {
@@ -671,7 +636,7 @@ void GLXWindow::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
         return;
     }
 
-    if( !glXJoinSwapGroupNV( display, _xDrawable, group ))
+    if( !glXJoinSwapGroupNV( _xDisplay, _xDrawable, group ))
     {
         EQWARN << "Failed to join swap group " << group << std::endl;
         return;
@@ -679,7 +644,7 @@ void GLXWindow::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 
     _glXNVSwapGroup = group;
 
-    if( !glXBindSwapBarrierNV( display, group, barrier ))
+    if( !glXBindSwapBarrierNV( _xDisplay, group, barrier ))
     {
         EQWARN << "Failed to bind swap barrier " << barrier << std::endl;
         return;
@@ -694,14 +659,12 @@ void GLXWindow::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 
 void GLXWindow::leaveNVSwapBarrier()
 {
-    if( _glXNVSwapGroup == 0)
+    if( _glXNVSwapGroup == 0 )
         return;
 
 #if 1
-    Display* display = getXDisplay();
-
-    glXBindSwapBarrierNV( display, _glXNVSwapGroup, 0 );
-    glXJoinSwapGroupNV( display, _xDrawable, 0 );
+    glXBindSwapBarrierNV( _xDisplay, _glXNVSwapGroup, 0 );
+    glXJoinSwapGroupNV( _xDisplay, _xDrawable, 0 );
     
     _glXNVSwapGroup = 0;
 #else

@@ -30,14 +30,11 @@
 
 #include <X11/keysym.h>
 
-using namespace eq::base;
-using namespace std;
-
 namespace eq
 {
 namespace
 {
-static PerThreadRef< GLXEventHandler::EventSet > _pipeConnections;
+static base::PerThreadRef< GLXEventHandler::EventSet > _pipeConnections;
 }
 
 GLXEventHandler::GLXEventHandler( GLXPipe* pipe )
@@ -88,7 +85,7 @@ void GLXEventHandler::clearEventSet()
 #endif
 
     _pipeConnections = 0;
-    EQINFO << "Cleared glX event set" << endl;
+    EQINFO << "Cleared glX event set" << std::endl;
 }
 
 void GLXEventHandler::dispatchOne()
@@ -109,7 +106,7 @@ bool GLXEventHandler::_dispatch( const int timeout )
         {
             net::ConnectionPtr connection = connections->getConnection();
             connections->removeConnection( connection );
-            EQERROR << "Display connection shut down" << endl;
+            EQERROR << "Display connection shut down" << std::endl;
             break;
         }
             
@@ -123,7 +120,7 @@ bool GLXEventHandler::_dispatch( const int timeout )
         case net::ConnectionSet::EVENT_CONNECT:
         case net::ConnectionSet::EVENT_ERROR:      
         default:
-            EQWARN << "Error during select" << endl;
+            EQWARN << "Error during select" << std::endl;
             break;
 
         case net::ConnectionSet::EVENT_TIMEOUT:
@@ -239,7 +236,7 @@ void GLXEventHandler::_processEvent( GLXWindowEvent& event )
 
     if( !window )
     {
-        EQINFO << "Can't match window to received X event" << endl;
+        EQINFO << "Can't match window to received X event" << std::endl;
         return;
     }
     EQASSERT( glXWindow );
@@ -327,12 +324,12 @@ void GLXEventHandler::_processEvent( GLXWindowEvent& event )
         case ReparentNotify:
         case VisibilityNotify:
             event.type = Event::UNKNOWN;
-            EQINFO << "Ignored X event, type " << xEvent.type << endl;
+            EQINFO << "Ignored X event, type " << xEvent.type << std::endl;
             break;
 
         default:
             event.type = Event::UNKNOWN;
-            EQWARN << "Unhandled X event, type " << xEvent.type << endl;
+            EQWARN << "Unhandled X event, type " << xEvent.type << std::endl;
             break;
     }
 
@@ -436,7 +433,7 @@ uint32_t GLXEventHandler::_getKey( XEvent& event )
             {
                 return key;
             }
-            EQWARN << "Unrecognized X11 key code " << key << endl;
+            EQWARN << "Unrecognized X11 key code " << key << std::endl;
             return KC_VOID;
     }
 }

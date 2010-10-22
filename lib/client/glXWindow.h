@@ -42,7 +42,6 @@ namespace eq
 
         /** @return GLX display */
         virtual Display* getXDisplay() = 0;
-        virtual Display* getXDisplay() const = 0;
     };
 
     /** Equalizer default implementation of a GLX window */
@@ -78,8 +77,7 @@ namespace eq
         virtual XID getXDrawable() const { return _xDrawable; }
 
         /** @return the X11 display */
-        virtual Display* getXDisplay();
-        virtual Display* getXDisplay() const;
+        virtual Display* getXDisplay() { return _xDisplay; }
         GLXEWContext* glxewGetContext() { return _glxewContext; }
         
         /**
@@ -183,6 +181,8 @@ namespace eq
         void exitGLXEW() { _glxewInitialized = false; }
 
     private:
+        /** The display connection (maintained by GLXPipe) */
+        Display*   _xDisplay;
         /** The X11 drawable ID of the window. */
         XID        _xDrawable;
         /** The glX rendering context. */

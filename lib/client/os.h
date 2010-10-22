@@ -174,11 +174,11 @@ namespace eq
  * Set the current X display connection.
  *
  * This function stores a per-thread display connection, similar to the current
- * WGL/AGL context. It is used by the eq::util classes to retrieve the display
- * without having to know the eq::Pipe. The GLXPipe sets it
+ * WGL/AGL context. It is used by some  eq and eq::util classes to retrieve the
+ * display without having to know the eq::Pipe. The GLXPipe sets it
  * automatically. Applications using the GLX window system with a custom
- * SystemPipe have to set it using this function.
- * 
+ * SystemPipe implementation have to set it using this function.
+ *
  * @param display the current display connection to use.
  */
 void XSetCurrentDisplay( Display* display );

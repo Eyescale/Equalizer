@@ -1,9 +1,10 @@
-Fix non-CUDA build
+CMake: CUDA and X11 fixes
+X11/glX: Clean up in window Display handling.
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
