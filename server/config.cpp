@@ -45,6 +45,7 @@
 #include <eq/net/command.h>
 #include <eq/base/sleep.h>
 
+#include "channelStopFrameVisitor.h"
 #include "configDeregistrator.h"
 #include "configRegistrator.h"
 #include "configUpdateVisitor.h"
@@ -107,6 +108,8 @@ void Config::notifyMapped( net::NodePtr node )
                      ConfigFunc( this, &Config::_cmdCreateReply ), cmdQ );
     registerCommand( fabric::CMD_CONFIG_START_FRAME, 
                      ConfigFunc( this, &Config::_cmdStartFrame ), mainQ );
+    registerCommand( fabric::CMD_CONFIG_STOP_FRAMES, 
+                     ConfigFunc( this, &Config::_cmdStopFrames ), cmdQ );
     registerCommand( fabric::CMD_CONFIG_FINISH_ALL_FRAMES, 
                      ConfigFunc( this, &Config::_cmdFinishAllFrames ), mainQ );
     registerCommand( fabric::CMD_CONFIG_FREEZE_LOAD_BALANCING, 
@@ -1031,6 +1034,18 @@ bool Config::_cmdFinishAllFrames( net::Command& command )
     EQVERB << "handle config all frames finish " << packet << std::endl;
 
     _flushAllFrames();
+    return true;
+}
+
+bool Config::_cmdStopFrames( net::Command& command )
+{
+    const ConfigStopFramesPacket* packet = 
+        command.getPacket<ConfigStopFramesPacket>();
+    EQVERB << "handle config stop frames " << packet << std::endl;
+
+    ChannelStopFrameVisitor visitor( _currentFrame );
+    accept( visitor );
+
     return true;
 }
 

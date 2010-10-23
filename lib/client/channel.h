@@ -489,6 +489,21 @@ namespace eq
         /** Notification that parameters influencing the vp/pvp have changed.*/
         EQ_EXPORT virtual void notifyViewportChanged();
 
+        /** 
+         * Notify interruption of the rendering.
+         *
+         * This method is called from the Client command thread, as opposed to
+         * the rendering thread. Its purpose is to cause the rendering thread
+         * to stop its operations as soon as possible. Normal rendering shall
+         * recommence after the given frame.
+         *
+         * @param lastFrameNumber stop rendering until this frame has been
+         *        processed.
+         * @version 1.0
+         */
+        EQ_EXPORT virtual void notifyStopFrame(const uint32_t lastFrameNumber)
+             {}
+
     private:
         //-------------------- Members --------------------
         friend class fabric::Window< Pipe, Window, Channel >;
@@ -569,6 +584,7 @@ namespace eq
         bool _cmdFrameTransmit( net::Command& command );
         bool _cmdFrameViewStart( net::Command& command );
         bool _cmdFrameViewFinish( net::Command& command );
+        bool _cmdStopFrame( net::Command& command );
     };
 }
 

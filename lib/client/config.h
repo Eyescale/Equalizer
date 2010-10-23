@@ -252,6 +252,18 @@ namespace eq
          */
         void releaseFrameLocal( const uint32_t frameNumber )
             { _unlockedFrame = frameNumber; }
+
+        /**
+         * Asynchronously signal all channels to interrupt their rendering.
+         *
+         * This method may be called from any thread in the application
+         * process. It causes Channel::notifyStopFrame() to be called
+         * immediately on all active channels.
+         *
+         * @version 1.0
+         */
+        EQ_EXPORT void stopFrames();
+
         //@}
 
         /** @name Event handling */

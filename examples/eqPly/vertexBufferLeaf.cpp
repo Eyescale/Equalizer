@@ -271,6 +271,9 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
 /*  Render the leaf.  */
 void VertexBufferLeaf::render( VertexBufferState& state ) const
 {
+    if ( state.stopRendering( ))
+        return;
+    
     switch( state.getRenderMode() )
     {
     case RENDER_MODE_IMMEDIATE:

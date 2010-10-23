@@ -554,6 +554,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             _frameData.togglePilotMode();
             return true;
         case ' ':
+            stopFrames();
             _spinX   = 0;
             _spinY   = 0;
             _advance = 0;

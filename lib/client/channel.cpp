@@ -75,6 +75,7 @@ void Channel::attachToSession( const uint32_t id,
 {
     Super::attachToSession( id, instanceID, session );
     net::CommandQueue* queue = getWindow()->getPipeThreadQueue();
+    net::CommandQueue* commandQ = session->getCommandThreadQueue();
 
     registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT, 
                      CmdFunc( this, &Channel::_cmdConfigInit ), queue );
@@ -100,6 +101,8 @@ void Channel::attachToSession( const uint32_t id,
                      CmdFunc( this, &Channel::_cmdFrameViewStart ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_VIEW_FINISH, 
                      CmdFunc( this, &Channel::_cmdFrameViewFinish ), queue );
+    registerCommand( fabric::CMD_CHANNEL_STOP_FRAME, 
+                     CmdFunc( this, &Channel::_cmdStopFrame ), commandQ );
 }
 
 Pipe* Channel::getPipe()
@@ -1346,6 +1349,16 @@ bool Channel::_cmdFrameViewFinish( net::Command& command )
     return true;
 }
 
+bool Channel::_cmdStopFrame( net::Command& command )
+{
+    ChannelStopFramePacket* packet = 
+        command.getPacket<ChannelStopFramePacket>();
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK channel stop frame " << getName()
+                                      <<  " " << packet << std::endl;
+
+    notifyStopFrame( packet->lastFrameNumber );
+    return true;
+}
 }
 
 #include "../fabric/channel.ipp"

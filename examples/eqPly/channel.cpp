@@ -62,6 +62,7 @@ Channel::Channel( eq::Window* parent )
         : eq::Channel( parent )
         , _model(0)
         , _modelID( EQ_ID_INVALID )
+        , _frameStartRendering( 0 )
 {
 }
 
@@ -92,6 +93,9 @@ bool Channel::configExit()
 
 void Channel::frameClear( const uint32_t frameID )
 {
+    if( stopRendering( ))
+        return;
+
     _initJitter();
     const FrameData& frameData = _getFrameData();
     const uint32_t eyeIndex = eq::base::getIndexOfLastBit( getEye() );
@@ -121,6 +125,9 @@ void Channel::frameClear( const uint32_t frameID )
 
 void Channel::frameDraw( const uint32_t frameID )
 {
+    if( stopRendering( ))
+        return;
+
     _initJitter();
     if( _isDone( ))
         return;
@@ -183,6 +190,9 @@ void Channel::frameDraw( const uint32_t frameID )
 
 void Channel::frameAssemble( const uint32_t frameID )
 {
+    if( stopRendering( ))
+        return;
+
     if( _isDone( ))
         return;
 
@@ -232,6 +242,9 @@ void Channel::frameAssemble( const uint32_t frameID )
 
 void Channel::frameReadback( const uint32_t frameID )
 {
+    if( stopRendering( ))
+        return;
+
     if( _isDone( ))
         return;
 
@@ -254,6 +267,9 @@ void Channel::frameReadback( const uint32_t frameID )
 
 void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber )
 {
+    if( stopRendering( ))
+        return;
+
     for( size_t i = 0; i < eq::NUM_EYES; ++i )
         _accum[ i ].stepsDone = 0;
 
@@ -262,6 +278,9 @@ void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber )
 
 void Channel::frameViewStart( const uint32_t frameID )
 {
+    if( stopRendering( ))
+        return;
+
     _currentPVP = getPixelViewport();
     _initJitter();
     eq::Channel::frameViewStart( frameID );
@@ -270,6 +289,9 @@ void Channel::frameViewStart( const uint32_t frameID )
 void Channel::frameFinish( const uint32_t frameID,
                            const uint32_t frameNumber )
 {
+    if( stopRendering( ))
+        return;
+
     for( size_t i = 0; i < eq::NUM_EYES; ++i )
     {
         Accum& accum = _accum[ i ];
@@ -287,6 +309,9 @@ void Channel::frameFinish( const uint32_t frameID,
 
 void Channel::frameViewFinish( const uint32_t frameID )
 {
+    if( stopRendering( ))
+        return;
+
     applyBuffer();
 
     const FrameData& frameData = _getFrameData();
@@ -482,6 +507,11 @@ bool Channel::_initAccum()
     return true;
 }
 
+bool Channel::stopRendering() const
+{ 
+    return getPipe()->getCurrentFrame() < _frameStartRendering; 
+}
+
 eq::Vector2f Channel::_getJitter() const
 {
     const FrameData& frameData = _getFrameData();
@@ -582,6 +612,7 @@ void Channel::_drawModel( const Model* model )
         state.setColors( true );
     else
         state.setColors( false );
+    state.setChannel( this );
 
     _initFrustum( culler, model->getBoundingSphere( ));
 
@@ -603,6 +634,9 @@ void Channel::_drawModel( const Model* model )
 
     while( !candidates.empty() )
     {
+        if( stopRendering( ))
+            return;
+
         const mesh::VertexBufferBase* treeNode = candidates.back();
         candidates.pop_back();
             
@@ -667,7 +701,8 @@ void Channel::_drawModel( const Model* model )
     }
     
     model->endRendering( state );
-    
+    state.setChannel( 0 );
+
     if( program != VertexBufferState::INVALID )
         glUseProgram( 0 );
 

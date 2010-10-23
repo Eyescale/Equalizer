@@ -63,6 +63,8 @@ namespace eqPly
     public:
         Channel( eq::Window* parent );
 
+        bool stopRendering() const;
+
     protected:
         virtual ~Channel() {}
 
@@ -81,6 +83,8 @@ namespace eqPly
 
         /** Applies the perspective or orthographic frustum. */
         virtual void applyFrustum() const;
+        virtual void notifyStopFrame( const uint32_t lastFrameNumber )
+            { _frameStartRendering = lastFrameNumber + 1; }
 
     private:
         void _drawModel( const Model* model );
@@ -104,6 +108,7 @@ namespace eqPly
 
         const Model* _model;
         uint32_t     _modelID;
+        uint32_t     _frameStartRendering;
 
         struct Accum
         {

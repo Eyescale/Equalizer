@@ -150,6 +150,9 @@ void VertexBufferNode::updateRange()
 /*  Render the node by rendering the children.  */
 void VertexBufferNode::render( VertexBufferState& state ) const
 {
+    if ( state.stopRendering( ))
+        return;
+
     _left->render( state );
     _right->render( state );
 }

@@ -82,6 +82,16 @@ namespace eq
 
         uint32_t frameNumber;
         uint32_t version;
+    };  
+
+    struct ChannelStopFramePacket : public net::ObjectPacket
+    {
+        ChannelStopFramePacket()
+            {
+                command       = fabric::CMD_CHANNEL_STOP_FRAME;
+                size          = sizeof( ChannelStopFramePacket );
+            }
+        uint32_t lastFrameNumber;
     };
 
     struct ChannelFrameFinishPacket : public ChannelTaskPacket

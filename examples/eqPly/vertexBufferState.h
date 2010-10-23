@@ -40,6 +40,7 @@
 
 #ifdef EQUALIZER
 #   include <eq/eq.h>
+#   include "channel.h"
 #endif // EQUALIZER
 
 
@@ -56,6 +57,7 @@ namespace mesh
 
         virtual bool useColors() const { return _useColors; }
         virtual void setColors( const bool colors ) { _useColors = colors; }
+        virtual bool stopRendering() const { return false; }
         virtual RenderMode getRenderMode() const { return _renderMode; }
         virtual void setRenderMode( const RenderMode mode ) 
         { 
@@ -188,8 +190,15 @@ namespace eqPly
         virtual void deleteAll() { _objectManager->deleteAll(); }
         bool isShared() const { return _objectManager->isShared(); }
         
+        void setChannel( const Channel* channel )
+             { _channel = channel; }
+
+        virtual bool stopRendering( ) const
+            { EQASSERT( _channel ); return _channel->stopRendering(); }
+
     private:
         eq::Window::ObjectManager* _objectManager;
+        const Channel* _channel;
     };
 } // namespace eqPly
 #endif // EQUALIZER

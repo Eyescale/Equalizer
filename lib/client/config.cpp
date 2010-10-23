@@ -320,6 +320,12 @@ uint32_t Config::finishAllFrames()
     return _currentFrame;
 }
 
+void Config::stopFrames()
+{
+    ConfigStopFramesPacket packet;
+    send( packet );
+}
+
 namespace
 {
 class ChangeLatencyVisitor : public ConfigVisitor

@@ -155,6 +155,15 @@ namespace eq
         const uint32_t frameID;
     };
 
+    struct ConfigStopFramesPacket : public ConfigPacket
+    {
+        ConfigStopFramesPacket()
+            {
+                command   = fabric::CMD_CONFIG_STOP_FRAMES;
+                size      = sizeof( ConfigStopFramesPacket );
+            }
+    };
+
     struct ConfigReleaseFrameLocalPacket : public ConfigPacket
     {
         ConfigReleaseFrameLocalPacket()

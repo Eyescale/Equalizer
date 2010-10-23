@@ -85,6 +85,7 @@ namespace fabric
         CMD_CONFIG_RELEASE_FRAME_LOCAL,
         CMD_CONFIG_FRAME_FINISH,
         CMD_CONFIG_FINISH_ALL_FRAMES,
+        CMD_CONFIG_STOP_FRAMES,
         CMD_CONFIG_EVENT,
         CMD_CONFIG_FREEZE_LOAD_BALANCING,
         CMD_CONFIG_SYNC_CLOCK,
@@ -164,6 +165,7 @@ namespace fabric
         CMD_CHANNEL_FRAME_TRANSMIT,
         CMD_CHANNEL_FRAME_VIEW_START,
         CMD_CHANNEL_FRAME_VIEW_FINISH,
+        CMD_CHANNEL_STOP_FRAME,
         CMD_CHANNEL_CUSTOM = 30 // some buffer for binary-compatible patches
     };
 
