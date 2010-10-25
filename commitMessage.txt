@@ -1,9 +1,10 @@
-CMake: CUDA and X11 fixes
-X11/glX: Clean up in window Display handling.
+Load Equalizer refactoring:
+- Dynamically compute target time during split calculation
+- Smoothen by interpolating between current and ideal split
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

@@ -108,16 +108,16 @@ namespace server
         
         struct Node
         {
-            Node() : left(0), right(0), compound(0), splitMode( MODE_VERTICAL )
-                   , time( 0.0f ), usage( 0.0f ) {}
+            Node() : left(0), right(0), compound(0), mode( MODE_VERTICAL )
+                   , resources( 0.0f ), split( 0.5f ), boundaryf( 0.0f ) {}
             ~Node() { delete left; delete right; }
 
             Node*     left;      //<! Left child (only on non-leafs)
             Node*     right;     //<! Right child (only on non-leafs)
             Compound* compound;  //<! The corresponding child (only on leafs)
-            LoadEqualizer::Mode splitMode; //<! What to adapt
-            float     time;      //<! target render time for next frame
-            float     usage;     //<! total usage of subtree
+            LoadEqualizer::Mode mode; //<! What to adapt
+            float     resources; //<! total amount of resources of subtree
+            float     split;     //<! 0..1 global (vp, range) split
             float     boundaryf;
             Vector2i  boundary2i;
             Vector2i  maxSize;
@@ -139,7 +139,7 @@ namespace server
             float        load;          //<! time/vp.area
         };
 
-        typedef std::vector< Data >                  LBDatas;
+        typedef std::vector< Data > LBDatas;
         typedef std::pair< uint32_t,  LBDatas > LBFrameData;
         
         std::deque< LBFrameData > _history;
@@ -151,21 +151,25 @@ namespace server
         //-------------------- Methods --------------------
         /** @return true if we have a valid LB tree */
         Node* _buildTree( const Compounds& children );
+        void _init( Node* node, const Viewport& vp, const Range& range );
 
         /** Clear the tree, does not delete the nodes. */
         void _clearTree( Node* node );
 
         /** Obsolete _history so that front-most item is youngest available. */
         void _checkHistory();
-        
+
+        /** Update all node fields influencing the split */
+        void _update( Node* node );
+
         /** Adjust the split of each node based on the front-most _history. */
         void _computeSplit();
-        float _assignTargetTimes( Node* node, const float totalTime, 
-                                  const float resourceTime );
-        void _assignLeftoverTime( Node* node, const float time );
         void _removeEmpty( LBDatas& items );
-        void _computeSplit( Node* node, LBDatas* sortedData,
+
+        void _computeSplit( Node* node, const float time, LBDatas* sortedData,
                             const eq::Viewport& vp, const eq::Range& range );
+        void _assign( Compound* compound, const Viewport& vp,
+                      const Range& range );
 
         static bool _compareX( const Data& data1, const Data& data2 )
             { return data1.vp.x < data2.vp.x; }
