@@ -409,52 +409,6 @@ void LoadEqualizer::_update( Node* node )
     }
 }
 
-void LoadEqualizer::_checkHistory()
-{
-    // 1. Find youngest complete load data set
-    uint32_t useFrame = 0;
-    for( std::deque< LBFrameData >::reverse_iterator i = _history.rbegin();
-         i != _history.rend() && useFrame == 0; ++i )
-    {
-        const LBFrameData& frameData = *i;
-        const LBDatas& items = frameData.second;
-        bool isComplete = true;
-
-        for( LBDatas::const_iterator j = items.begin();
-             j != items.end() && isComplete; ++j )
-        {
-            const Data& data = *j;
-
-            if( data.time < 0 )
-                isComplete = false;
-        }
-
-        if( isComplete )
-            useFrame = frameData.first;
-    }
-
-    // 2. delete old, unneeded data sets
-    while( !_history.empty() && _history.front().first < useFrame )
-        _history.pop_front();
-    
-    if( _history.empty( )) // insert fake set
-    {
-        _history.resize( 1 );
-
-        LBFrameData&  frameData  = _history.front();
-        LBDatas& items      = frameData.second;
-
-        frameData.first = 0; // frameNumber
-        items.resize( 1 );
-        
-        Data& data = items.front();
-        data.time = 1;
-        data.load = 1.f;
-        EQASSERT( data.taskID == 0 );
-        EQASSERT( data.channel == 0 );
-    }
-}
-
 void LoadEqualizer::_computeSplit()
 {
     EQASSERT( !_history.empty( ));
