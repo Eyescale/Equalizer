@@ -1,6 +1,4 @@
-Load Equalizer refactoring:
-- Dynamically compute target time during split calculation
-- Smoothen by interpolating between current and ideal split
+Minor cleanups on Load Equalizer refactoring
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

@@ -166,6 +166,7 @@ void LoadEqualizer::_init( Node* node, const Viewport& vp, const Range& range )
     case MODE_DB:
         leftRange.end = range.start + ( range.end - range.start ) * .5f;
         rightRange.start = leftRange.end;
+        node->split = leftRange.end;
         break;
     }
 
@@ -174,9 +175,9 @@ void LoadEqualizer::_init( Node* node, const Viewport& vp, const Range& range )
     {
         EQASSERT( node->right->mode == MODE_2D );
 
-        node->left->mode = node->mode == MODE_VERTICAL ? MODE_HORIZONTAL : 
-                                                         MODE_VERTICAL;
-        node->right->mode = node->left->mode;;
+        node->left->mode = (node->mode == MODE_VERTICAL) ? MODE_HORIZONTAL : 
+                                                           MODE_VERTICAL;
+        node->right->mode = node->left->mode;
     }
     _init( node->left, leftVP, leftRange );
     _init( node->right, rightVP, rightRange );
@@ -326,59 +327,6 @@ void LoadEqualizer::_checkHistory()
     }
 }
 
-void LoadEqualizer::_computeSplit()
-{
-    EQASSERT( !_history.empty( ));
-    
-    const LBFrameData& frameData = _history.front();
-    const Compound* compound = getCompound();
-    EQLOG( LOG_LB2 ) << "----- balance " << compound->getChannel()->getName()
-                    << " using frame " << frameData.first << std::endl;
-
-    // sort load items for each of the split directions
-    LBDatas items( frameData.second );
-    _removeEmpty( items );
-
-    LBDatas sortedData[3] = { items, items, items };
-
-    if( _mode == MODE_DB )
-    {
-        LBDatas& rangeData = sortedData[ MODE_DB ];
-        sort( rangeData.begin(), rangeData.end(), _compareRange );
-    }
-    else
-    {
-        LBDatas& xData = sortedData[ MODE_VERTICAL ];
-        sort( xData.begin(), xData.end(), _compareX );
-
-        LBDatas& yData = sortedData[ MODE_HORIZONTAL ];
-        sort( yData.begin(), yData.end(), _compareY );
-
-#ifndef NDEBUG
-        for( LBDatas::const_iterator i = xData.begin(); i != xData.end();
-             ++i )
-        {  
-            const Data& data = *i;
-            EQLOG( LOG_LB2 ) << "  " << data.vp << ", load " << data.load 
-                            << " (t=" << data.load * data.vp.getArea() << ")"
-                            << std::endl;
-        }
-#endif
-    }
-
-    // Compute total rendering time
-    int64_t totalTime = 0;
-    for( LBDatas::const_iterator i = items.begin(); i != items.end(); ++i )
-    {  
-        const Data& data = *i;
-        totalTime += data.time;
-    }
-
-    EQLOG( LOG_LB2 ) << "Render time " << totalTime << " for "
-                     << _tree->resources << " resources" << std::endl;
-    _computeSplit( _tree, float( totalTime ), sortedData, Viewport(), Range( ));
-}
-
 void LoadEqualizer::_update( Node* node )
 {
     if( !node )
@@ -459,6 +407,105 @@ void LoadEqualizer::_update( Node* node )
             EQUNIMPLEMENTED;
         }
     }
+}
+
+void LoadEqualizer::_checkHistory()
+{
+    // 1. Find youngest complete load data set
+    uint32_t useFrame = 0;
+    for( std::deque< LBFrameData >::reverse_iterator i = _history.rbegin();
+         i != _history.rend() && useFrame == 0; ++i )
+    {
+        const LBFrameData& frameData = *i;
+        const LBDatas& items = frameData.second;
+        bool isComplete = true;
+
+        for( LBDatas::const_iterator j = items.begin();
+             j != items.end() && isComplete; ++j )
+        {
+            const Data& data = *j;
+
+            if( data.time < 0 )
+                isComplete = false;
+        }
+
+        if( isComplete )
+            useFrame = frameData.first;
+    }
+
+    // 2. delete old, unneeded data sets
+    while( !_history.empty() && _history.front().first < useFrame )
+        _history.pop_front();
+    
+    if( _history.empty( )) // insert fake set
+    {
+        _history.resize( 1 );
+
+        LBFrameData&  frameData  = _history.front();
+        LBDatas& items      = frameData.second;
+
+        frameData.first = 0; // frameNumber
+        items.resize( 1 );
+        
+        Data& data = items.front();
+        data.time = 1;
+        data.load = 1.f;
+        EQASSERT( data.taskID == 0 );
+        EQASSERT( data.channel == 0 );
+    }
+}
+
+void LoadEqualizer::_computeSplit()
+{
+    EQASSERT( !_history.empty( ));
+    
+    const LBFrameData& frameData = _history.front();
+    const Compound* compound = getCompound();
+    EQLOG( LOG_LB2 ) << "----- balance " << compound->getChannel()->getName()
+                    << " using frame " << frameData.first << std::endl;
+
+    // sort load items for each of the split directions
+    LBDatas items( frameData.second );
+    _removeEmpty( items );
+
+    LBDatas sortedData[3] = { items, items, items };
+
+    if( _mode == MODE_DB )
+    {
+        LBDatas& rangeData = sortedData[ MODE_DB ];
+        sort( rangeData.begin(), rangeData.end(), _compareRange );
+    }
+    else
+    {
+        LBDatas& xData = sortedData[ MODE_VERTICAL ];
+        sort( xData.begin(), xData.end(), _compareX );
+
+        LBDatas& yData = sortedData[ MODE_HORIZONTAL ];
+        sort( yData.begin(), yData.end(), _compareY );
+
+#ifndef NDEBUG
+        for( LBDatas::const_iterator i = xData.begin(); i != xData.end();
+             ++i )
+        {  
+            const Data& data = *i;
+            EQLOG( LOG_LB2 ) << "  " << data.vp << ", load " << data.load 
+                            << " (t=" << data.load * data.vp.getArea() << ")"
+                            << std::endl;
+        }
+#endif
+    }
+
+    // Compute total rendering time
+    int64_t totalTime = 0;
+    for( LBDatas::const_iterator i = items.begin(); i != items.end(); ++i )
+    {  
+        const Data& data = *i;
+        totalTime += data.time;
+    }
+
+    EQLOG( LOG_LB2 ) << "Render time " << totalTime << " for "
+                     << _tree->resources << " resources" << std::endl;
+    _computeSplit( _tree, float( totalTime ), sortedData, Viewport(), Range( ));
 }
 
 void LoadEqualizer::_removeEmpty( LBDatas& items )
