@@ -93,17 +93,15 @@ bool GLWindow::configInitFBO()
         stencilSize = 1;
 
     if( _fbo->init( pvp.w, pvp.h, colorFormat, depthSize, stencilSize ))
-    {
         return true;
-    }
+
     if( getIAttribute( Window::IATTR_PLANES_STENCIL ) == AUTO &&
         _fbo->init( pvp.w, pvp.h, colorFormat, depthSize, 0 ))
     {
         return true;
     }
 
-    _window->setErrorMessage( "FBO initialization failed: " + 
-                              _fbo->getErrorMessage( ));
+    _window->setErrorMessage( "FBO initialization failed" );
     delete _fbo;
     _fbo = 0;
     return false;

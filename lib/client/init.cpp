@@ -41,6 +41,9 @@ namespace
 static bool _initialized = false;
 }
 
+extern void _initErrors();
+extern void _exitErrors();
+
 bool init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
     EQINFO << "Equalizer v" << Version::getString() << " initializing"
@@ -52,6 +55,7 @@ bool init( const int argc, char** argv, NodeFactory* nodeFactory )
         return false;
     }
     _initialized = true;
+    _initErrors();
 
 #ifdef AGL
     ProcessSerialNumber selfProcess = { 0, kCurrentProcess };
@@ -110,6 +114,7 @@ bool exit()
 #endif
 
     Global::_nodeFactory = 0;
+    _exitErrors();
     return fabric::exit();
 }
 

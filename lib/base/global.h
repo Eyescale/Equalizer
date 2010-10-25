@@ -28,23 +28,19 @@ namespace eq
 {
 namespace base
 {
-    /** 
-     * Global parameter handling for the Equalizer base library. 
-     */
+    /** Global parameter handling for the Equalizer base library. */
     class Global
     {
     public:
-        /** @return the plugin registry. */
+        /** @return the plugin registry. @version 1.0 */
         EQ_EXPORT static PluginRegistry& getPluginRegistry();
 
+        /** @return the error registry. @version 1.0 */
+        EQ_EXPORT static ErrorRegistry& getErrorRegistry();
+
     private:
-        EQ_EXPORT friend bool init( const int argc, char** argv );
-        EQ_EXPORT friend bool exit();
-
-        static Strings _initPluginDirectories();
-//        friend bool testInitPluginDirectories();
-
-        static PluginRegistry _pluginRegistry;
+        friend bool init( const int argc, char** argv );
+        friend bool exit();
     };
 }
 }

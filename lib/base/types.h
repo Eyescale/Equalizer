@@ -105,6 +105,7 @@ typedef SSIZE_T    ssize_t;
 #define EQ_100MB (104857600)
 
 #define EQ_64KB  (65536)
+#define EQ_128KB (131072)
 #define EQ_48MB  (50331648)
 #define EQ_64MB  (67108864)
 
@@ -121,6 +122,7 @@ typedef Strings StringVector
 
 class CPUCompressor; //!< @internal
 class Plugin;        //!< @internal
+class ErrorRegistry;
 class PluginRegistry;
 struct CompressorInfo; //!< @internal
 

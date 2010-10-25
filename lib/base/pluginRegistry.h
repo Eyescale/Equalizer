@@ -25,11 +25,12 @@ namespace eq
 {
 namespace base
 {
-    /** The registry for all loaded Equalizer plugins. @internal */
+    /** The registry for all loaded Equalizer plugins. */
     class PluginRegistry
     {
     public:
         /**
+         * @internal
          * Construct a new plugin registry.
          *
          * The plugin registry used by Equalizer can be obtained using
@@ -37,27 +38,31 @@ namespace base
          */
         PluginRegistry();
 
-        /** Add a new directory to search for compressor DSOs during init(). */
+        /**
+         * Add a new directory to search for compressor DSOs during init().
+         * @version 1.0
+         */
         EQ_EXPORT void addDirectory( const std::string& path );
 
-        /** Remove a plugin directory. */
+        /** Remove a plugin directory. @version 1.0 */
         EQ_EXPORT void removeDirectory( const std::string& path );
 
         /**
          * @return all directories to search for compressor DSOs during init().
+         * @version 1.0
          */
         EQ_EXPORT const Strings& getDirectories() const;
 
-        /** Search all global plugin directories and register found DSOs */
+        /** @internal Search all plugin directories and register found DSOs */
         void init();
         
-        /** Exit all library and free all plugins */
+        /** @internal Exit all library and free all plugins */
         void exit();
         
-        /** @return all registered compressor plugins */
+        /** @internal @return all registered compressor plugins */
         EQ_EXPORT const Plugins& getPlugins() const;
 
-        /** @return the plugin containing the given compressor, or 0. */
+        /** @internal @return the plugin containing the given compressor. */
         EQ_EXPORT Plugin* findPlugin( const uint32_t name );
 
     private:

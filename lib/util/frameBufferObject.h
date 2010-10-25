@@ -22,6 +22,7 @@
 #include <eq/util/texture.h> // member
 #include <eq/util/types.h>
 
+#include <eq/client/error.h>
 #include <eq/client/os.h>    // for GLEW
 
 #include <vector>
@@ -65,7 +66,7 @@ namespace util
          * @param depthSize The bit depth of the depth attachment.
          * @param stencilSize The bit depth of the stencil attachment.
          * @return true on success, false otherwise
-         * @sa resize(), getErrorMessage()
+         * @sa resize(), getError()
          * @version 1.0
          */
         EQ_EXPORT bool init( const int32_t width, const int32_t height, 
@@ -81,7 +82,7 @@ namespace util
          *
          * The FBO becomes the read and draw buffer of the current context.
          *
-         * @sa getErrorMessage()
+         * @sa getError()
          * @version 1.0
          */
         EQ_EXPORT void bind();
@@ -100,7 +101,7 @@ namespace util
          * size does not change.
          *
          * @return true on success, false on error.
-         * @sa getErrorMessage()
+         * @sa getError()
          * @version 1.0
          */
         EQ_EXPORT bool resize( const int32_t width, const int32_t height );
@@ -120,7 +121,7 @@ namespace util
         const Texture& getDepthTexture() const { return _depth; }
 
         /** @return the reason for the last failed operation. @version 1.0 */
-        const std::string& getErrorMessage() { return _error; }
+        const Error& getError() { return _error; }
 
         /** @return the GLEW context. @version 1.0 */
         const GLEWContext* glewGetContext() const { return _glewContext; }
@@ -137,7 +138,7 @@ namespace util
         const GLEWContext* const _glewContext;
 
         /** The reason for the last error. */
-        std::string _error;
+        Error _error;
 
         bool _valid;
 

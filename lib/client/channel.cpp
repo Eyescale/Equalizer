@@ -227,7 +227,7 @@ bool Channel::_configInitFBO()
     }
     // else
 
-    setErrorMessage( "FBO initialization failed: " + _fbo->getErrorMessage( ));
+    setErrorMessage( "FBO initialization failed" );
     delete _fbo;
     _fbo = 0;
     return false;

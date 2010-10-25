@@ -54,7 +54,8 @@ bool FrameBufferObject::addColorTexture()
 {
     if( _colors.size() >= 16 )
     {
-        EQERROR << "Too many color textures, can't add another one";
+        _error = ERROR_FRAMEBUFFER_FULL_COLOR_TEXTURES;
+        EQERROR << _error << std::endl;
         return false;
     }
 
@@ -73,7 +74,7 @@ bool FrameBufferObject::init( const int32_t width, const int32_t height,
 
     if( _fboID )
     {
-        _error = "FBO already initialized";
+        _error = ERROR_FRAMEBUFFER_INITIALIZED;
         EQWARN << _error << std::endl;
         return false;
     }
@@ -134,27 +135,25 @@ bool FrameBufferObject::_checkStatus()
             return true;
 
         case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-            _error = "Unsupported framebuffer format";
+            _error = ERROR_FRAMEBUFFER_UNSUPPORTED;
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-            _error = "Framebuffer incomplete, missing attachment";
+            _error = ERROR_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT;
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-            _error = "Framebuffer incomplete, incomplete attachment";
+            _error = ERROR_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-            _error = "Framebuffer incomplete, \
-                      attached images must have same dimensions";
+            _error = ERROR_FRAMEBUFFER_INCOMPLETE_DIMENSIONS;
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-            _error = "Framebuffer incomplete, \
-                      attached images must have same format";
+            _error = ERROR_FRAMEBUFFER_INCOMPLETE_FORMATS;
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-            _error = "Framebuffer incomplete, missing draw buffer";
+            _error = ERROR_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER;
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-            _error = "Framebuffer incomplete, missing read buffer";
+            _error = ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER;
             break;
         default:
             break;

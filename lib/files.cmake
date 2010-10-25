@@ -17,6 +17,7 @@ set(BASE_HEADERS
   base/debug.h
   base/defines.h
   base/dso.h
+  base/errorRegistry.h
   base/executionListener.h
   base/file.h
   base/global.h
@@ -156,6 +157,7 @@ set(CLIENT_HEADERS
   client/configParams.h
   client/configStatistics.h
   client/cudaContext.h
+  client/error.h
   client/event.h
   client/eventHandler.h
   client/eye.h
@@ -220,6 +222,7 @@ set(BASE_SOURCES
   base/cpuCompressor.cpp
   base/debug.cpp
   base/dso.cpp
+  base/errorRegistry.cpp
   base/global.cpp
   base/idPool.cpp
   base/init.cpp
@@ -317,6 +320,7 @@ set(CLIENT_SOURCES
   client/configParams.cpp
   client/configStatistics.cpp
   client/cudaContext.cpp
+  client/error.cpp
   client/event.cpp
   client/eventHandler.cpp
   client/frame.cpp

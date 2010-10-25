@@ -1,9 +1,10 @@
-Minor cleanups on Load Equalizer refactoring
+Error handling refactoring part 1: infrastructure and
+util::FrameBufferObject.
 
 [ ] May break build
-[ ] May break existing applications (see CHANGES.txt)
+[x] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

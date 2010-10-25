@@ -1,6 +1,11 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+21/Oct/2010
+  Error util::FrameBufferObject::getError() const;
+    replaces
+  const std::string& util::FrameBufferObject::getErrorMessage() const;
+
 20/Oct/2010
   void PluginRegistry::addDirectory( const std::string& path );
   void PluginRegistry::removeDirectory( const std::string& path );

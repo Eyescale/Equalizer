@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,32 +15,35 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "file.h"
-#include "global.h"
 #include "errorRegistry.h"
-#include "pluginRegistry.h"
 
-#include <algorithm>
-
-
-namespace eq
+namespace eq 
 {
 namespace base
 {
 namespace
 {
-static PluginRegistry _pluginRegistry;
-static ErrorRegistry _errorRegistry;
+static std::string _empty;
 }
 
-PluginRegistry& Global::getPluginRegistry()
+const std::string& ErrorRegistry::getString( const uint32_t error ) const
 {
-    return _pluginRegistry;
+    ErrorHash::const_iterator i = _errors.find( error );
+    if( i == _errors.end( ))
+        return _empty;
+
+    return i->second;
 }
 
-ErrorRegistry& Global::getErrorRegistry()
+
+void ErrorRegistry::setString( const uint32_t error, const std::string& text )
 {
-    return _errorRegistry;
+    _errors[ error ] = text;
+}
+
+void ErrorRegistry::eraseString( const uint32_t error )
+{
+    _errors.erase( error );
 }
 
 }
