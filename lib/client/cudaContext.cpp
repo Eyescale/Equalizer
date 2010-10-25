@@ -64,10 +64,9 @@ namespace eq
         EQASSERT( static_cast< uint32_t >( device_count ) > device );
         if( static_cast< uint32_t >( device_count ) <= device )
         {
-            std::ostringstream stream;
-            stream << "Not enough cuda devices, requested device " << device
-                   << " of " << device_count;
-            setErrorMessage( stream.str( ));
+            EQWARN << "Not enough cuda devices, requested device " << device
+                   << " of " << device_count << std::endl;
+            setError( ERROR_CUDACONTEXT_DEVICE_NOTFOUND );
             return false;
         }
 
@@ -89,16 +88,16 @@ namespace eq
         cudaError_t err = cudaGetLastError();
         if( cudaSuccess != err) 
         {
-            std::ostringstream msg;
-            msg << "CUDA initialization error: " << cudaGetErrorString( err );
-            setErrorMessage( msg.str( ));
+            EQWARN << "CUDA initialization error: "
+                   << cudaGetErrorString( err ) << std::endl;
+            setError( ERROR_CUDACONTEXT_INIT_FAILED );
             return false;
         }                         
 
         EQINFO << "Using CUDA device: " << device << std::endl;
         return true;
 #else
-        setErrorMessage( "Client library compiled without CUDA support" );
+        setError( ERROR_CUDACONTEXT_MISSING_SUPPORT );
         return false;
 #endif
     }
@@ -112,7 +111,7 @@ namespace eq
         // Clean up all runtime-related resources associated with this thread.
         cudaThreadExit();
 #else
-        setErrorMessage( "Client library compiled without CUDA support" );
+        setError( ERROR_CUDACONTEXT_MISSING_SUPPORT );
 #endif
     }
     

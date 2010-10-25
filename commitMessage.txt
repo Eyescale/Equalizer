@@ -1,5 +1,4 @@
-Error handling refactoring part 1: infrastructure and
-util::FrameBufferObject.
+Error handling refactoring part 2: ComputeContext
 
 [ ] May break build
 [x] May break existing applications (see CHANGES.txt)

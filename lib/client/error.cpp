@@ -49,6 +49,13 @@ ErrorData _errors[] = {
       "Too many color textures, can't add another one" },
     { ERROR_FRAMEBUFFER_INITIALIZED, "FBO already initialized" },
 
+    { ERROR_CUDACONTEXT_DEVICE_NOTFOUND,
+      "Device not found, not enough CUDA devices" },
+    { ERROR_CUDACONTEXT_INIT_FAILED,
+      "CUDA initialization failed (see client log for more information)" },
+    { ERROR_CUDACONTEXT_MISSING_SUPPORT,
+      "Client library compiled without CUDA support" },
+
     { 0, "" } // last!
 };
 }

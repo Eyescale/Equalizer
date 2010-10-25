@@ -19,6 +19,7 @@
 #ifndef EQ_COMPUTE_CONTEXT_H
 #define EQ_COMPUTE_CONTEXT_H
 
+#include <eq/client/error.h>
 #include <eq/base/base.h>
 
 namespace eq
@@ -56,28 +57,28 @@ namespace eq
         /** @name Methods forwarded from Pipe */
         //@{
         /** Initialize the ComputeContext. */
-        EQ_EXPORT virtual bool configInit( ) = 0;
+        EQ_EXPORT virtual bool configInit() = 0;
 
         /** De-initialize the ComputeContext. */
-        EQ_EXPORT virtual void configExit( ) = 0;
+        EQ_EXPORT virtual void configExit() = 0;
         //@}
 
-        /** @return the reason of the last failed operation. */
-        const std::string & getErrorMessage() const { return _error; }
+        /** @return the reason for the last failed operation. @version 1.0 */
+        const Error& getError() { return _error; }
 
     protected:
         /** @name Error information. */
         //@{
         /** 
-         * Set a message why the last operation failed.
+         * Set a reason why the last operation failed.
          * 
-         * The message will be transmitted to the originator of the request, for
+         * The error will be transmitted to the originator of the request, for
          * example to Config::init when set from within the configInit method.
          *
-         * @param message the error message.
+         * @param error the error code.
          * @version 1.0
          */
-        void setErrorMessage( const std::string& message ) { _error = message; }
+        void setError( const uint32_t error ) { _error = Error( error ); }
         //@}
 
     private:
@@ -85,11 +86,11 @@ namespace eq
         Pipe* const _pipe;
 
         /** The reason for the last error. */
-        std::string _error;
+        Error _error;
 
         union // placeholder for binary-compatible changes
         {
-            char dummy[64];
+            char dummy[32];
         };
 
     };
