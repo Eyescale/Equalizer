@@ -213,8 +213,7 @@ namespace net
          * 
          * @param version The new head version.
          */
-        virtual void notifyNewHeadVersion( const uint32_t version )
-            { EQASSERT( getVersion()==VERSION_NONE||version<getVersion()+100 );}
+        virtual void notifyNewHeadVersion( const uint32_t version );
 
         /** 
          * Notification that a new version was received by a master object.

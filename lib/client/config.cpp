@@ -191,7 +191,7 @@ bool Config::exit()
     return ret;
 }
 
-bool Config::update( )
+bool Config::update()
 {
     commit();
 
@@ -210,8 +210,9 @@ bool Config::update( )
     uint32_t finishID = 0;
     client->waitRequest( packet.finishID, finishID );
 
-    if( version == net::VERSION_NONE )
+    if( finishID == EQ_ID_INVALID )
     {
+        sync( version );
         client->unregisterRequest( packet.requestID );
         return true;
     }

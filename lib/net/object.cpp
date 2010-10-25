@@ -266,6 +266,12 @@ uint32_t Object::getOldestVersion() const
     return _cm->getOldestVersion();
 }
 
+void Object::notifyNewHeadVersion( const uint32_t version )
+{ 
+    EQASSERTINFO( getVersion() == VERSION_NONE || version<getVersion() + 100, 
+                  base::className( this ));
+}
+
 uint32_t Object::getMasterInstanceID() const
 {
     return _cm->getMasterInstanceID();
