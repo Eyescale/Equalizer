@@ -1,9 +1,9 @@
-Clean up compound initialization
+CMake: use lib/debug and bin/debug as install targets for debug builds
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

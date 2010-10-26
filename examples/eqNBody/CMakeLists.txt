@@ -30,5 +30,5 @@ add_executable(eqNBody MACOSX_BUNDLE ${NBODY_FILES} ${HEADERS} ${SOURCES})
 
 target_link_libraries(eqNBody Equalizer ${CUDA_LIBRARIES})
 
-install(TARGETS eqNBody DESTINATION bin COMPONENT apps)
+install(TARGETS eqNBody DESTINATION "bin${EQ_INSTALL_POSTFIX}" COMPONENT apps)
 install(FILES ${NBODY_FILES} ${HEADERS} ${SOURCES} DESTINATION share/Equalizer/examples/eqNBody COMPONENT examples)

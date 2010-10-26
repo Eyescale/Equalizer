@@ -14,5 +14,5 @@ add_executable(eqPixelBench MACOSX_BUNDLE ${HEADERS} ${SOURCES})
 
 target_link_libraries(eqPixelBench Equalizer EqualizerAdmin)
 
-install(TARGETS eqPixelBench DESTINATION bin COMPONENT apps)
+install(TARGETS eqPixelBench DESTINATION "bin${EQ_INSTALL_POSTFIX}" COMPONENT apps)
 install(FILES ${HEADERS} ${SOURCES} DESTINATION share/Equalizer/examples/eqPixelBench COMPONENT examples)

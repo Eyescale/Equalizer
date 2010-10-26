@@ -15,6 +15,10 @@ IF(NOT CMAKE_BUILD_TYPE)
    SET(CMAKE_BUILD_TYPE Debug)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
+IF(CMAKE_BUILD_TYPE MATCHES Debug)
+ SET(EQ_INSTALL_POSTFIX "/debug")
+ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
+
 SET(EQ_PREFER_AGL 1)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -190,7 +194,7 @@ add_subdirectory(tools)
 
 add_executable(eqServer server/eqServer.cpp)
 target_link_libraries(eqServer EqualizerServer)
-install(TARGETS eqServer DESTINATION bin)
+install(TARGETS eqServer DESTINATION "bin${EQ_INSTALL_POSTFIX}" COMPONENT lib)
 
 message(STATUS "Supported Features:${EQ_FEATURES}")
 

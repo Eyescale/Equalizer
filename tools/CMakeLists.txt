@@ -36,4 +36,4 @@ target_link_libraries(netproxy Equalizer)
 add_tool(windowAdmin windowAdmin/main.cpp)
 target_link_libraries(windowAdmin Equalizer EqualizerAdmin)
 
-install(TARGETS ${TOOLS} DESTINATION bin COMPONENT tools)
+install(TARGETS ${TOOLS} DESTINATION "bin${EQ_INSTALL_POSTFIX}" COMPONENT tools)
