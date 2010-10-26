@@ -977,8 +977,7 @@ bool Config::_cmdUpdate( net::Command& command )
     net::NodePtr node = command.getNode();
     if( !_needsFinish )
     {
-        ConfigUpdateVersionPacket reply( packet, net::VERSION_NONE,
-                                         EQ_ID_INVALID );
+        ConfigUpdateVersionPacket reply( packet, getVersion(), EQ_ID_INVALID );
         send( node, reply );
         return true;
     }
