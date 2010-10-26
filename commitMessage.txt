@@ -1,4 +1,4 @@
-CMake: use lib/debug and bin/debug as install targets for debug builds
+Add transfer engine for RGB10_A2 external format
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

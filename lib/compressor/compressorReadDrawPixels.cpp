@@ -76,7 +76,8 @@ REGISTER_TRANSFER( RGBA, BGRA_UINT_8_8_8_8_REV, 4, 1., 1., 2., false );
 REGISTER_TRANSFER( RGBA, RGB, 3, 1., 1., .7, true );
 REGISTER_TRANSFER( RGBA, BGR, 3, 1., 1., .7, true );
 
-REGISTER_TRANSFER( RGB10_A2, BGR10_A2, 4, 1., 1., 1., false );
+REGISTER_TRANSFER( RGB10_A2, BGR10_A2, 4, 1., 1., 1.1, false );
+REGISTER_TRANSFER( RGB10_A2, RGB10_A2, 4, 1., 1., 1., false );
 
 REGISTER_TRANSFER( RGBA16F, RGBA16F, 8, 1., 1., 1., false );
 REGISTER_TRANSFER( RGBA16F, BGRA16F, 8, 1., 1., 1.1, false );
@@ -162,6 +163,11 @@ CompressorReadDrawPixels::CompressorReadDrawPixels( const unsigned name )
             break;
         case EQ_COMPRESSOR_TRANSFER_RGB10_A2_TO_BGR10_A2:
             _format = GL_BGRA;
+            _type = GL_UNSIGNED_INT_10_10_10_2;
+            _internalFormat = GL_RGB10_A2;
+            break;
+        case EQ_COMPRESSOR_TRANSFER_RGB10_A2_TO_RGB10_A2:
+            _format = GL_RGBA;
             _type = GL_UNSIGNED_INT_10_10_10_2;
             _internalFormat = GL_RGB10_A2;
             break;

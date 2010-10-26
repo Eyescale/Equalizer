@@ -136,6 +136,8 @@
 
 /* Transfer data from internal RGB10_A2 to external BGR10_A2 format */
 #define EQ_COMPRESSOR_TRANSFER_RGB10_A2_TO_BGR10_A2                 0x200u
+/* Transfer data from internal RGB10_A2 to external RGB10_A2 format */
+#define EQ_COMPRESSOR_TRANSFER_RGB10_A2_TO_RGB10_A2                 0x201u
 
 /* Transfer data from internal RGBA16F to external RGBA format with a data type
    half float */
