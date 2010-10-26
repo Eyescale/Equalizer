@@ -42,7 +42,6 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
 {
     compound->setTaskID( ++_taskID );
     compound->updateFrustum();
-    compound->updateInheritData( 0 ); // set up initial values
 
     Channel* channel = compound->getChannel();
     if( !channel || // non-channel root compounds
@@ -57,11 +56,14 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
             eyes = fabric::EYES_ALL;
 
         compound->activate( eyes );
-        compound->updateInheritData( 0 ); // re-calculate activation
     }
 
     if( channel )
+    {
+        compound->initInheritTasks();
         channel->addTasks( compound->getInheritTasks( ));
+    }
+    compound->updateInheritData( 0 ); // set up initial values
 
     return TRAVERSE_CONTINUE;    
 }

@@ -1,9 +1,9 @@
-Error handling refactoring part 2: ComputeContext
+Clean up compound initialization
 
 [ ] May break build
-[x] May break existing applications (see CHANGES.txt)
+[ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

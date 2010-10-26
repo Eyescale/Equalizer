@@ -1050,33 +1050,16 @@ void Compound::updateInheritData( const uint32_t frameNumber )
     }
 
     // Tasks
-    if( _data.tasks == fabric::TASK_DEFAULT )
-    {
-        if( isLeaf( ))
-            _inherit.tasks = fabric::TASK_ALL;
-        else
-            _inherit.tasks = fabric::TASK_ASSEMBLE | fabric::TASK_READBACK;
-    }
-    else
-        _inherit.tasks = _data.tasks;
-
-    const Channel* channel = getChannel();
-    if( isDestination() && channel->getView( ))
-        _inherit.tasks |= fabric::TASK_VIEW;
-    else
-        _inherit.tasks &= ~fabric::TASK_VIEW;
+    initInheritTasks();
 
     const View* view = _inherit.channel ? _inherit.channel->getView() : 0;
-    if( !channel->supportsView( view ))
+    const Channel* channel = getChannel();
+    if( channel && !channel->supportsView( view ))
         _inherit.tasks = fabric::TASK_NONE;
 
-    if( frameNumber != 0 &&
-        ( !_inherit.pvp.hasArea() || !_inherit.range.hasData( )) )
-    {
-        // Channels with no PVP or range do not execute tasks (ignored during
-        // init)
+    if( !_inherit.pvp.hasArea() || !_inherit.range.hasData( ))
+        // Channels with no PVP or range do not execute tasks
         _inherit.tasks = fabric::TASK_NONE;
-    }
 }
 
 void Compound::_updateInheritPVP( const PixelViewport& oldPVP )
@@ -1136,6 +1119,25 @@ void Compound::_updateInheritOverdraw()
     EQASSERTINFO( pvp.h >= _inherit.overdraw.y() + _inherit.overdraw.w(), 
                   pvp.h << " < " <<
                   _inherit.overdraw.y() + _inherit.overdraw.w( ));
+}
+
+void Compound::initInheritTasks()
+{
+    if( _data.tasks == fabric::TASK_DEFAULT )
+    {
+        if( isLeaf( ))
+            _inherit.tasks = fabric::TASK_ALL;
+        else
+            _inherit.tasks = fabric::TASK_ASSEMBLE | fabric::TASK_READBACK;
+    }
+    else
+        _inherit.tasks = _data.tasks;
+
+    const Channel* channel = getChannel();
+    if( isDestination() && channel->getView( ))
+        _inherit.tasks |= fabric::TASK_VIEW;
+    else
+        _inherit.tasks &= ~fabric::TASK_VIEW;
 }
 
 std::ostream& operator << (std::ostream& os, const Compound& compound)

@@ -466,11 +466,10 @@ void ViewEqualizer::_updateListeners()
     _listeners.resize( nChildren );
     for( size_t i = 0; i < nChildren; ++i )
     {
-        EQLOG( LOG_LB1 ) << base::disableFlush << "Tasks for view " << i 
-                         << ": ";
+        EQLOG(LOG_LB1) << base::disableFlush << "Tasks for view " << i << ": ";
         Listener& listener = _listeners[ i ];        
         listener.update( children[i] );
-        EQLOG( LOG_LB1 ) << std::endl << base::enableFlush;
+        EQLOG(LOG_LB1) << std::endl << base::enableFlush;
     }
 }
 

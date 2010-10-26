@@ -414,6 +414,9 @@ namespace server
         /** Exit this compound. */
         void exit();
 
+        /** Initialize the default tasks of this compound. */
+        void initInheritTasks();
+
         /** Register all distributed objects (frames) */
         void register_();
 
