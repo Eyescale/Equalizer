@@ -213,7 +213,7 @@ namespace net
          * 
          * @param version The new head version.
          */
-        virtual void notifyNewHeadVersion( const uint32_t version );
+        EQ_EXPORT virtual void notifyNewHeadVersion( const uint32_t version );
 
         /** 
          * Notification that a new version was received by a master object.
