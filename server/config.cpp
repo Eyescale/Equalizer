@@ -562,7 +562,7 @@ bool Config::_connectNodes()
         Node* node = *i;
         if( node->isActive( ))
         {
-            if( !node->connect() && !node->launch( ))
+            if( !node->connect( ))
             {
                 success = false;
                 break;
@@ -744,28 +744,16 @@ bool Config::_init( const uint32_t initID )
     _finishedFrame = 0;
     _initID = initID;
 
-    for( Compounds::const_iterator i = _compounds.begin();
-         i != _compounds.end(); ++i )
-    {
-        Compound* compound = *i;
-        compound->init();
-    }
+    for( CompoundsCIter i = _compounds.begin(); i != _compounds.end(); ++i )
+        (*i)->init();
 
     const Observers& observers = getObservers();
-    for( Observers::const_iterator i = observers.begin();
-         i != observers.end(); ++i )
-    {
-        Observer* observer = *i;
-        observer->init();
-    }
+    for( ObserversCIter i = observers.begin(); i != observers.end(); ++i )
+        (*i)->init();
 
     const Canvases& canvases = getCanvases();
-    for( Canvases::const_iterator i = canvases.begin();
-         i != canvases.end(); ++i )
-    {
-        Canvas* canvas = *i;
-        canvas->init();
-    }
+    for( CanvasesCIter i = canvases.begin(); i != canvases.end(); ++i )
+        (*i)->init();
 
     if( !_updateRunning( ))
         return false;

@@ -80,6 +80,13 @@ typedef std::vector< Observer* >     Observers;
 typedef std::vector< Segment* >      Segments;
 typedef std::vector< View* >         Views;
 
+typedef Compounds::iterator CompoundsIter;
+typedef Compounds::const_iterator CompoundsCIter;
+typedef Observers::iterator ObserversIter;
+typedef Observers::const_iterator ObserversCIter;
+typedef Canvases::iterator CanvasesIter;
+typedef Canvases::const_iterator CanvasesCIter;
+
 typedef base::RefPtr< Server > ServerPtr;
 typedef base::RefPtr< const Server > ConstServerPtr;
 typedef base::RefPtr< ConnectionDescription >   ConnectionDescriptionPtr;
