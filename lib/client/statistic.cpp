@@ -29,66 +29,66 @@ namespace eq
 {
 namespace
 {
-/** String representation of statistic event types. */
-static std::string _statisticNames[Statistic::ALL] =
+struct StatisticData
 {
-    "NO EVENT",
-    "clear",
-    "draw",
-    "finish draw",
-    "assemble",
-    "wait frame",
-    "readback",
-    "transmit",
-    "compress",
-    "view finish",
-    "finish",
-    "throttle",
-    "barrier",
-    "swap",
-    "pipe idle",
-    "receive",
-    "start frame",
-    "finish frame",
-    "wait finish"
+    const Statistic::Type type;
+    const std::string name;
+    const Vector3f color;
 };
 
-static Vector3f _statisticColors[Statistic::ALL] = 
-{
-    Vector3f( 0.f, 0.f, 0.f ),
-    Vector3f( .5f, 1.0f, .5f ), // clear
-    Vector3f( 0.f, 1.0f, 0.f ), // draw
-    Vector3f( 0.f, .5f, 0.f ), // draw finish
-    Vector3f( 1.0f, 1.0f, 0.f ),  // assemble
-    Vector3f( 1.0f, 0.f, 0.f ), // wait frame
-    Vector3f( 1.0f, .5f, .5f ), // readback    
-    Vector3f( 0.f, 0.f, 1.0f ), // transmit
-    Vector3f( 0.f, 1.f, 1.f ), // compress
-    Vector3f( 1.f, 0.f, 1.0f ), // view finish
-    Vector3f( 1.0f, 1.0f, 0.f ), // finish
-    Vector3f( 1.0f, 0.f, 1.f ), // throttle
-    Vector3f( 1.0f, 0.f, 0.f ), // swap barrier
-    Vector3f( 1.f, 1.f, 1.f ), // swap
-    Vector3f( 1.f, 1.f, 1.f ), // pipe idle
-    Vector3f( .7f, 1.f, .7f ), // decompress
-    Vector3f( .5f, 1.0f, .5f ), // start frame
-    Vector3f( .5f, .5f, .5f ), // finish frame
-    Vector3f( 1.0f, 0.f, 0.f ) // wait finish frame
-};
+static StatisticData _statisticData[] =
+{{ Statistic::NONE,
+   "NO EVENT",     Vector3f( 0.f, 0.f, 0.f ) }, 
+ { Statistic::CHANNEL_CLEAR,
+   "clear",        Vector3f( .5f, 1.0f, .5f ) }, 
+ { Statistic::CHANNEL_DRAW,
+   "draw",         Vector3f( 0.f, 1.0f, 0.f ) }, 
+ { Statistic::CHANNEL_DRAW_FINISH,
+   "finish draw",  Vector3f( 0.f, .5f, 0.f ) }, 
+ { Statistic::CHANNEL_ASSEMBLE,
+   "assemble",     Vector3f( 1.0f, 1.0f, 0.f ) },
+ { Statistic::CHANNEL_WAIT_FRAME,
+   "wait frame",   Vector3f( 1.0f, 0.f, 0.f ) }, 
+ { Statistic::CHANNEL_READBACK,
+   "readback",     Vector3f( 1.0f, .5f, .5f ) }, 
+ { Statistic::CHANNEL_FRAME_TRANSMIT,
+   "transmit",     Vector3f( 0.f, 0.f, 1.0f ) }, 
+ { Statistic::CHANNEL_FRAME_COMPRESS,
+   "compress",     Vector3f( 0.f, 1.f, 1.f ) }, 
+ { Statistic::CHANNEL_VIEW_FINISH,
+   "view finish",  Vector3f( 1.f, 0.f, 1.0f ) }, 
+ { Statistic::WINDOW_FINISH,
+   "finish",       Vector3f( 1.0f, 1.0f, 0.f ) },
+ { Statistic::WINDOW_THROTTLE_FRAMERATE,
+   "throttle",     Vector3f( 1.0f, 0.f, 1.f ) }, 
+ { Statistic::WINDOW_SWAP_BARRIER,
+   "barrier",      Vector3f( 1.0f, 0.f, 0.f ) }, 
+ { Statistic::WINDOW_SWAP,
+   "swap",         Vector3f( 1.f, 1.f, 1.f ) }, 
+ { Statistic::PIPE_IDLE,
+   "pipe idle",    Vector3f( 1.f, 1.f, 1.f ) }, 
+ { Statistic::FRAME_RECEIVE,
+   "receive",      Vector3f( .7f, 1.f, .7f ) }, 
+ { Statistic::CONFIG_START_FRAME,
+   "start frame",  Vector3f( .5f, 1.0f, .5f ) }, 
+ { Statistic::CONFIG_FINISH_FRAME,
+   "finish frame", Vector3f( .5f, .5f, .5f ) }, 
+ { Statistic::CONFIG_WAIT_FINISH_FRAME,
+   "wait finish",  Vector3f( 1.0f, 0.f, 0.f ) }, 
+ { Statistic::ALL,
+   "ALL EVENTS",   Vector3f( 0.0f, 0.f, 0.f ) }} ;
 }
 
 const std::string& Statistic::getName( const Type type )
 {
-    EQASSERT( sizeof( _statisticNames ) / sizeof( std::string ) == ALL );
-
-    return _statisticNames[ type ];
+    EQASSERT( _statisticData[ type ].type == type );
+    return _statisticData[ type ].name;
 }
 
 const Vector3f& Statistic::getColor( const Type type )
 {
-    EQASSERT( sizeof( _statisticColors ) / sizeof( Vector3f ) == ALL );
-
-    return _statisticColors[ type ];
+    EQASSERT( _statisticData[ type ].type == type );
+    return _statisticData[ type ].color;
 }
 
 std::ostream& operator << ( std::ostream& os, const Statistic& event )
