@@ -37,3 +37,7 @@ add_tool(windowAdmin windowAdmin/main.cpp)
 target_link_libraries(windowAdmin Equalizer EqualizerAdmin)
 
 install(TARGETS ${TOOLS} DESTINATION "bin${EQ_INSTALL_POSTFIX}" COMPONENT tools)
+if(MSVC)
+    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/affinityCheck.pdb DESTINATION "bin${EQ_INSTALL_POSTFIX}" COMPONENT dev)
+    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/netperf.pdb DESTINATION "bin${EQ_INSTALL_POSTFIX}" COMPONENT dev)
+endif(MSVC)

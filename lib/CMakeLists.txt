@@ -88,3 +88,6 @@ endforeach(HEADER ${HEADERS})
 
 configure_file(Equalizer.pc.in Equalizer.pc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Equalizer.pc DESTINATION lib/pkgconfig COMPONENT lib)
+if(MSVC)
+    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/Equalizer.pdb DESTINATION "bin${EQ_INSTALL_POSTFIX}" COMPONENT dev)
+endif(MSVC)

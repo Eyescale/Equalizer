@@ -55,3 +55,6 @@ install(TARGETS EqualizerAdmin
   )
 
 install(FILES ${HEADERS} DESTINATION include/eq/admin COMPONENT dev)
+if(MSVC)
+    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/EqualizerAdmin.pdb DESTINATION "bin${EQ_INSTALL_POSTFIX}" COMPONENT dev)
+endif(MSVC)
