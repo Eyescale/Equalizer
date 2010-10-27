@@ -65,7 +65,7 @@ endif(MSVC)
   
 target_link_libraries(eqPly Equalizer EqualizerAdmin)
 
-install(TARGETS eqPly DESTINATION "bin${EQ_INSTALL_POSTFIX}" COMPONENT apps)
+install(TARGETS eqPly DESTINATION bin COMPONENT apps)
 
 install(FILES rockerArm.ply screwdriver.ply DESTINATION share/Equalizer/data COMPONENT data)
 install(FILES ${HEADERS} ${SOURCES} DESTINATION share/Equalizer/examples/eqPly COMPONENT examples)

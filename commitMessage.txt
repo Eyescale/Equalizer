@@ -1,9 +1,11 @@
-Add new experimental 2D/DB load equalizer
+CMake:
+- remove useless debug install postfix
+- refactor copy script generation
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

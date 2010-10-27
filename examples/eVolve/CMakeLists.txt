@@ -24,7 +24,7 @@ add_executable(eVolve MACOSX_BUNDLE ${HEADERS} ${SOURCES})
 
 target_link_libraries(eVolve Equalizer)
 
-install(TARGETS eVolve DESTINATION "bin${EQ_INSTALL_POSTFIX}" COMPONENT apps)
+install(TARGETS eVolve DESTINATION bin COMPONENT apps)
 
 install(FILES Bucky32x32x32_d.raw Bucky32x32x32_d.raw.vhf
   DESTINATION share/Equalizer/data COMPONENT data)

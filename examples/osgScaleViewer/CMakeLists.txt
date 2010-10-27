@@ -31,5 +31,5 @@ add_executable(osgScaleViewer MACOSX_BUNDLE ${HEADERS} ${SOURCES})
 
 target_link_libraries(osgScaleViewer Equalizer ${OPENSCENEGRAPH_LIBRARIES})
 
-install(TARGETS osgScaleViewer DESTINATION "bin${EQ_INSTALL_POSTFIX}" COMPONENT apps)
+install(TARGETS osgScaleViewer DESTINATION bin COMPONENT apps)
 install(FILES ${HEADERS} ${SOURCES} DESTINATION share/Equalizer/examples/osgScaleViewer COMPONENT examples)
