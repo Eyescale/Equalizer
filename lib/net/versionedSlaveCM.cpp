@@ -251,6 +251,12 @@ void VersionedSlaveCM::addInstanceDatas(
          i != head.end(); ++i )
     {
         const ObjectInstanceDataIStream* stream = *i;
+#ifndef NDEBUG
+        ObjectDataIStream* debugStream = 0;
+        _queuedVersions.getFront( debugStream );
+        if( debugStream )
+            EQASSERT( debugStream->getVersion() == stream->getVersion() + 1);        
+#endif
         _queuedVersions.pushFront( new ObjectInstanceDataIStream( *stream ));
 #if 0
         EQLOG( LOG_OBJECTS ) << stream->getVersion() << ' ';
@@ -264,6 +270,12 @@ void VersionedSlaveCM::addInstanceDatas(
          i != tail.end(); ++i )
     {
         const ObjectInstanceDataIStream* stream = *i;
+#ifndef NDEBUG
+        ObjectDataIStream* debugStream = 0;
+        _queuedVersions.getBack( debugStream );
+        if( debugStream )
+            EQASSERT( debugStream->getVersion() + 1 == stream->getVersion( ));        
+#endif
         _queuedVersions.push( new ObjectInstanceDataIStream( *stream ));
 #if 0
         EQLOG( LOG_OBJECTS ) << stream->getVersion() << ' ';
@@ -333,6 +345,18 @@ bool VersionedSlaveCM::_cmdInstance( Command& command )
                              << "." << _object->getInstanceID() << " ready"
                              << std::endl;
 #endif
+#ifndef NDEBUG
+        ObjectDataIStream* debugStream = 0;
+        _queuedVersions.getBack( debugStream );
+        if ( debugStream )
+        {
+            EQASSERT( debugStream->getVersion() + 1 == version );
+        }
+        else
+        {
+            EQASSERT( _version == 0 || _version + 1 == version );
+        }
+#endif
         _queuedVersions.push( _currentIStream );
         _object->notifyNewHeadVersion( version );
         _currentIStream = 0;
@@ -359,6 +383,18 @@ bool VersionedSlaveCM::_cmdDelta( Command& command )
         EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID()
                              << "." << _object->getInstanceID() << " ready"
                              << std::endl;
+#endif
+#ifndef NDEBUG
+        ObjectDataIStream* debugStream = 0;
+        _queuedVersions.getBack( debugStream );
+        if ( debugStream )
+        {
+            EQASSERT( debugStream->getVersion() + 1 == version );
+        }
+        else
+        {
+            EQASSERT( _version + 1 == version );
+        }
 #endif
         _queuedVersions.push( _currentIStream );
         _object->notifyNewHeadVersion( version );
