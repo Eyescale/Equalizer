@@ -98,8 +98,8 @@ bool DeltaMasterCM::_cmdCommit( Command& command )
                 _releaseInstanceData( instanceData );
 
 #if 0
-            EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
-                                 << _object->getID() << std::endl;
+            EQLOG( LOG_OBJECTS ) << "Committed v" << _version << " " 
+                                 << *_object << std::endl;
 #endif
         }
         localNode->serveRequest( packet->requestID, _version );

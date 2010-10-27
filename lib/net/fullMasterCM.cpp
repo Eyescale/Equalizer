@@ -213,15 +213,12 @@ uint32_t FullMasterCM::addSlave( Command& command )
     }
 
 #if 0
-    EQLOG( LOG_OBJECTS ) << "Object " << _object->_id << " (" 
-                         << typeid( *_object).name() << ") v" << _version
-                         << ", instantiate on " << node->getNodeID() 
-                         << " with v" 
-                         << ((requested == VERSION_OLDEST) ? oldest : requested)
-                         << " (" << requested << ") sending " << start << ".."
-                         << end << " have " << _version - _nVersions << ".."
-                         << _version << " " << _instanceDatas.size()
-                         << std::endl;
+    EQLOG( LOG_OBJECTS )
+        << *_object << ", instantiate on " << node->getNodeID() << " with v"
+        << ((requested == VERSION_OLDEST) ? oldest : requested) << " ("
+        << requested << ") sending " << start << ".." << end << " have "
+        << _version - _nVersions << ".." << _version << " "
+        << _instanceDatas.size() << std::endl;
 #endif
     EQASSERT( start >= oldest );
 

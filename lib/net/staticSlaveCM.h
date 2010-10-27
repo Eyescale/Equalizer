@@ -68,7 +68,7 @@ namespace net
             { EQDONTCALL; return VERSION_INVALID; }
         virtual void removeSlave( NodePtr ) { EQDONTCALL; }
 
-        virtual void applyMapData();
+        virtual void applyMapData( const uint32_t version );
         virtual void addInstanceDatas( const ObjectInstanceDataIStreamDeque&, 
                                        const uint32_t startVersion );
         virtual const Object* getObject( ) const { return _object; }

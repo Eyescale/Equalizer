@@ -46,9 +46,10 @@ StaticSlaveCM::~StaticSlaveCM()
     _currentIStream = 0;
 }
 
-void StaticSlaveCM::applyMapData()
+void StaticSlaveCM::applyMapData( const uint32_t version )
 {
     EQASSERT( _currentIStream );
+    EQASSERT( version == VERSION_NONE );
     _currentIStream->waitReady();
 
     _object->applyInstanceData( *_currentIStream );

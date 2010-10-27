@@ -349,9 +349,8 @@ void Session::_attachObject( Object* object, const uint32_t id,
 
     getLocalNode()->flushCommands(); // redispatch pending commands
 
-    EQLOG( LOG_OBJECTS ) << "attached " << base::className( object ) << " id "
-                         << object->getID() << '.' << object->getInstanceID()
-                         << " cm " << base::className( object->_cm ) << " @" 
+    EQLOG( LOG_OBJECTS ) << "attached " << object << " cm "
+                         << base::className( object->_cm ) << " @" 
                          << static_cast< void* >( object ) << std::endl;
 }
 
@@ -419,8 +418,7 @@ void Session::_detachObject( Object* object )
         return;
 
     EQASSERT( _objects->find( id ) != _objects->end( ));
-    EQLOG( LOG_OBJECTS ) << "Detach " << base::className( object )
-                         << " from id " << id << std::endl;
+    EQLOG( LOG_OBJECTS ) << "Detach " << object << std::endl;
 
     Objects& objects = _objects.data[ id ];
     Objects::iterator i = find( objects.begin(),objects.end(), object );
@@ -524,15 +522,10 @@ bool Session::mapObjectSync( const uint32_t requestID )
 
     const bool mapped = ( object->getID() != EQ_ID_INVALID );
     if( mapped )
-    {
-        object->_cm->applyMapData(); // apply instance data on slave instances
-        if( version != VERSION_OLDEST && version != VERSION_NONE )
-            object->sync( version );
-    }
+        object->_cm->applyMapData( version ); // apply initial instance data
 
     object->notifyAttached();
-    EQLOG( LOG_OBJECTS ) << "Mapped " << base::className( object ) << " to " 
-                         << ObjectVersion( object ) << std::endl;
+    EQLOG( LOG_OBJECTS ) << "Mapped " << object << std::endl;
     return mapped;
 }
 
@@ -544,8 +537,7 @@ void Session::unmapObject( Object* object )
     if( id == EQ_ID_INVALID ) // not registered
         return;
 
-    EQLOG( LOG_OBJECTS ) << "Unmap " << base::className( object ) << " from id "
-        << object->getID() << std::endl;
+    EQLOG( LOG_OBJECTS ) << "Unmap " << object << std::endl;
 
     object->notifyDetach();
 
@@ -605,8 +597,7 @@ bool Session::registerObject( Object* object )
     _setIDMasterSync( requestID ); // sync, master knows our ID now
     object->notifyAttached();
 
-    EQLOG( LOG_OBJECTS ) << "Registered " << base::className( object )
-                         << " to id " << id << std::endl;
+    EQLOG( LOG_OBJECTS ) << "Registered " << object << std::endl;
     return true;
 }
 
@@ -617,8 +608,7 @@ void Session::deregisterObject( Object* object )
     if( id == EQ_ID_INVALID ) // not registered
         return;
 
-    EQLOG( LOG_OBJECTS ) << "Deregister " << base::className( object ) 
-                         << " from id " << id << std::endl;
+    EQLOG( LOG_OBJECTS ) << "Deregister " << object << std::endl;
     EQASSERT( object->isMaster( ));
 
     object->notifyDetach();
@@ -1171,6 +1161,17 @@ bool Session::_cmdSubscribeObject( Command& command )
         
             reply.cachedVersion = master->_cm->addSlave( command );
             reply.result = true;
+            switch( reply.version )
+            {
+            case VERSION_OLDEST:
+                reply.version = master->getOldestVersion();
+                break;
+            case VERSION_NONE:
+                reply.version = master->getVersion();
+                break;
+            default:
+                break;
+            }
         }
         else
         {
@@ -1214,10 +1215,8 @@ bool Session::_cmdSubscribeObjectSuccess( Command& command )
     EQASSERT( object );
     EQASSERT( !object->isMaster( ));
 
-    object->setupChangeManager( 
-        static_cast< Object::ChangeType >( packet->changeType ), false, 
-        packet->masterInstanceID );
-
+    object->setupChangeManager( Object::ChangeType( packet->changeType ), false, 
+                                packet->masterInstanceID );
     _attachObject( object, packet->objectID, packet->instanceID );
     return true;
 }

@@ -1,11 +1,25 @@
-CMake:
-- remove useless debug install postfix
-- refactor copy script generation
+Fix race during object mapping when:
+
+  master processes subscribe req (send map data v X)
+  master commits v X+1
+
+  slave cmd receives map data v X
+  slave cmd receives map reply (unblock main)
+  slave main calls applyMapData
+  applyMapData pops v X
+  slave cmd receives and drops v X+1 since _version = NONE and
+    _queuedVersions empty 
+
+Solve it by:
+
+  never drop received packets
+  send map version from master to slave
+  drop unfit versions in applyMapData
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

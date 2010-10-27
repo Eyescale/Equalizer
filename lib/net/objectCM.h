@@ -133,7 +133,7 @@ namespace net
         virtual const Nodes* getSlaveNodes() const { return 0; }
 
         /** Apply the initial data after mapping. */
-        virtual void applyMapData() = 0;
+        virtual void applyMapData( const uint32_t version ) = 0;
 
         /** Add existing instance data to the object (from session cache) */
         virtual void addInstanceDatas( const ObjectInstanceDataIStreamDeque&,

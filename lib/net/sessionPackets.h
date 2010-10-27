@@ -207,24 +207,24 @@ namespace net
     {
         SessionSubscribeObjectReplyPacket( 
             const SessionSubscribeObjectPacket* request )
+                : requestID( request->requestID )
+                , objectID( request->objectID )
+                , useCache( request->useCache )
             {
                 command   = CMD_SESSION_SUBSCRIBE_OBJECT_REPLY;
                 size      = sizeof( SessionSubscribeObjectReplyPacket ); 
                 sessionID = request->sessionID;
-                requestID = request->requestID;
-                objectID  = request->objectID;
                 version   = request->requestedVersion;
                 cachedVersion = VERSION_INVALID;
-                useCache  = request->useCache;
             }
         
         NodeID nodeID;
-        uint32_t requestID;
-        uint32_t objectID;
+        const uint32_t requestID;
+        const uint32_t objectID;
         uint32_t version;
         uint32_t cachedVersion;
-        bool     result;
-        bool     useCache;
+        bool result;
+        const bool useCache;
     };
 
     struct SessionUnsubscribeObjectPacket : public SessionPacket

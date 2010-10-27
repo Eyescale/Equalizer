@@ -182,27 +182,47 @@ void VersionedSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
 }
 
 
-void VersionedSlaveCM::applyMapData()
+void VersionedSlaveCM::applyMapData( const uint32_t version )
 {
-    ObjectDataIStream* is = _queuedVersions.pop();
-    EQASSERTINFO( is->getType() == ObjectDataIStream::TYPE_INSTANCE,
-                  typeid( *_object ).name() << " id " << _object->getID() <<
-                  "." << _object->getInstanceID( ));
+    while( true )
+    {
+        ObjectDataIStream* is = _queuedVersions.pop();
+        if( is->getVersion() == version )
+        {
+            EQASSERTINFO( is->getType() == ObjectDataIStream::TYPE_INSTANCE,
+                          *_object );
 
-    _object->applyInstanceData( *is );
-    _version = is->getVersion();
-    EQASSERT( _version != VERSION_INVALID );
+            _object->applyInstanceData( *is );
+            _version = is->getVersion();
+            EQASSERT( _version != VERSION_INVALID );
 
-    EQASSERTINFO( is->getRemainingBufferSize()==0 && is->nRemainingBuffers()==0,
-                  "Object " << typeid( *_object ).name() << 
-                  " did not unpack all data" );
+            EQASSERTINFO( is->getRemainingBufferSize()==0 &&
+                          is->nRemainingBuffers()==0,
+                          *_object << " did not unpack all data" );
 
-    delete is;
+            delete is;
 #if 0
-    EQLOG( LOG_OBJECTS ) << "Mapped initial data for " << _object->getID()
-                         << "." << _object->getInstanceID() << " v" << _version
-                         << " ready" << std::endl;
+            EQLOG( LOG_OBJECTS ) << "Mapped initial data of " << _object
+                                 << std::endl;
 #endif
+            return;
+        }
+        else
+        {
+            // Found the following case:
+            // - p1, t1 calls commit
+            // - p1, t2 calls mapObject
+            // - p1, cmd commits new version
+            // - p1, cmd subscribes object
+            // - p1, rcv attaches object
+            // - p1, cmd receives commit data
+            // -> newly attached object recv new commit data before map data,
+            //    ignore it
+            EQASSERTINFO( is->getVersion() > version,
+                          is->getVersion() << " <= " << version );
+            delete is;
+        }
+    }
 }
 
 void VersionedSlaveCM::addInstanceDatas(
@@ -274,26 +294,15 @@ void VersionedSlaveCM::addInstanceDatas(
         ObjectDataIStream* debugStream = 0;
         _queuedVersions.getBack( debugStream );
         if( debugStream )
-            EQASSERT( debugStream->getVersion() + 1 == stream->getVersion( ));        
+        {
+            EQASSERT( debugStream->getVersion() + 1 == stream->getVersion( ));
+        } 
 #endif
         _queuedVersions.push( new ObjectInstanceDataIStream( *stream ));
 #if 0
         EQLOG( LOG_OBJECTS ) << stream->getVersion() << ' ';
 #endif
     }
-
-#ifndef NDEBUG // consistency check
-    uint32_t version = std::numeric_limits< uint32_t >::max();
-    for( ObjectInstanceDataIStreams::const_iterator i = tail.begin();
-         i != tail.end(); ++i )
-    {
-        const ObjectInstanceDataIStream* stream = *i;
-        if( version != std::numeric_limits< uint32_t >::max( ))
-            EQASSERT( version + 1 == stream->getVersion( ));
-        version = stream->getVersion();
-    }
-#endif
-
 #if 0
     EQLOG( LOG_OBJECTS ) << std::endl << base::enableFlush;
 #endif
@@ -302,35 +311,10 @@ void VersionedSlaveCM::addInstanceDatas(
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-
-bool VersionedSlaveCM::_ignoreCommand( const Command& command ) const
-{
-    if( _version != VERSION_NONE || !_queuedVersions.isEmpty( ))
-        return false;
-
-    const ObjectPacket* packet = command.getPacket< const ObjectPacket >();
-
-    if( packet->instanceID == _object->getInstanceID( ))
-        return false;
-
-    // Detected the following case:
-    // - p1, t1 calls commit
-    // - p1, t2 calls mapObject
-    // - p1, cmd commits new version
-    // - p1, cmd subscribes object
-    // - p1, rcv attaches object
-    // - p1, cmd receives commit data
-    // -> newly attached object recv new commit data before map data, ignore it
-    return true;
-}
-
 bool VersionedSlaveCM::_cmdInstance( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
     EQASSERT( command.getNode().isValid( ));
-
-    if( _ignoreCommand( command ))
-        return true;
 
     if( !_currentIStream )
         _currentIStream = new ObjectInstanceDataIStream;
@@ -352,10 +336,6 @@ bool VersionedSlaveCM::_cmdInstance( Command& command )
         {
             EQASSERT( debugStream->getVersion() + 1 == version );
         }
-        else
-        {
-            EQASSERT( _version == 0 || _version + 1 == version );
-        }
 #endif
         _queuedVersions.push( _currentIStream );
         _object->notifyNewHeadVersion( version );
@@ -367,9 +347,6 @@ bool VersionedSlaveCM::_cmdInstance( Command& command )
 bool VersionedSlaveCM::_cmdDelta( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
-
-    if( _ignoreCommand( command ))
-        return true;
 
     if( !_currentIStream )
         _currentIStream = new ObjectDeltaDataIStream;
@@ -391,10 +368,6 @@ bool VersionedSlaveCM::_cmdDelta( Command& command )
         {
             EQASSERT( debugStream->getVersion() + 1 == version );
         }
-        else
-        {
-            EQASSERT( _version + 1 == version );
-        }
 #endif
         _queuedVersions.push( _currentIStream );
         _object->notifyNewHeadVersion( version );
@@ -414,7 +387,7 @@ bool VersionedSlaveCM::_cmdCommit( Command& command )
     NodePtr localNode = _object->getLocalNode();
     if( !_master || !_master->isConnected( ))
     {
-        EQASSERTINFO( false, "Master node not connected" );
+        EQASSERTINFO( false, "Master node not connected " << *_object );
         localNode->serveRequest( packet->requestID,
                                  static_cast< uint32_t >( VERSION_NONE ));
         return true;

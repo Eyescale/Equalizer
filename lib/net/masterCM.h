@@ -58,7 +58,7 @@ namespace net
         virtual bool isMaster() const { return true; }
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_ID_INVALID; }
-        virtual void applyMapData() { EQDONTCALL; }
+        virtual void applyMapData( const uint32_t version ) { EQDONTCALL; }
         virtual const Nodes* getSlaveNodes() const { return &_slaves; }
 
         virtual const Object* getObject( ) const { return _object; }

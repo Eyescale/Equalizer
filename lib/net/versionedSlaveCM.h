@@ -68,7 +68,7 @@ namespace net
             { EQDONTCALL; return VERSION_INVALID; }
         virtual void removeSlave( NodePtr ) { EQDONTCALL; }
 
-        virtual void applyMapData();
+        virtual void applyMapData( const uint32_t version );
         virtual void addInstanceDatas( const ObjectInstanceDataIStreamDeque&, 
                                        const uint32_t startVersion );
 
@@ -99,8 +99,6 @@ namespace net
 
         /** Apply the data in the input stream to the object */
         virtual void _unpackOneVersion( ObjectDataIStream* is );
-
-        bool _ignoreCommand( const Command& command ) const;
 
         /* The command handlers. */
         bool _cmdInstance( Command& command );

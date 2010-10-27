@@ -70,7 +70,7 @@ namespace net
         virtual uint32_t addSlave( Command& command );
         virtual void removeSlave( NodePtr ) {}
 
-        virtual void applyMapData() { EQDONTCALL; }
+        virtual void applyMapData( const uint32_t version ) { EQDONTCALL; }
 
     private:
         /** The managed object. */

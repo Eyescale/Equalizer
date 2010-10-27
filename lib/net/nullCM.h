@@ -67,7 +67,7 @@ namespace net
             { EQDONTCALL; return VERSION_INVALID; }
         virtual void removeSlave( NodePtr ) { EQDONTCALL; }
 
-        virtual void applyMapData() { EQDONTCALL; }
+        virtual void applyMapData( const uint32_t version ) { EQDONTCALL; }
 
     private:
     };
