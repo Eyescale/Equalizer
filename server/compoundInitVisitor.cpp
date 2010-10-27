@@ -42,6 +42,7 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
 {
     compound->setTaskID( ++_taskID );
     compound->updateFrustum();
+    compound->updateInheritData( 0 ); // Compound::activate needs _inherit.eyes
 
     Channel* channel = compound->getChannel();
     if( !channel || // non-channel root compounds
@@ -63,8 +64,6 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
         compound->initInheritTasks();
         channel->addTasks( compound->getInheritTasks( ));
     }
-    compound->updateInheritData( 0 ); // set up initial values
-
     return TRAVERSE_CONTINUE;    
 }
 

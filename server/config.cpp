@@ -758,6 +758,10 @@ bool Config::_init( const uint32_t initID )
     if( !_updateRunning( ))
         return false;
 
+    // Needed to set up active state for first LB update
+    for( CompoundsCIter i = _compounds.begin(); i != _compounds.end(); ++i )
+        (*i)->update( 0 );
+
     _needsFinish = false;
     _state = STATE_RUNNING;
     return true;

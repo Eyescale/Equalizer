@@ -113,6 +113,9 @@ namespace server
         const Compound* getRoot() const
             { return _parent ? _parent->getRoot() : this; }
 
+        /** @return true if this is the top-most compound. */
+        bool isRoot() const { return _parent==0; }
+
         /** @return the next sibling, or 0. */
         Compound* getNext() const;
 

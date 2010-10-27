@@ -297,6 +297,7 @@ bool Compound::isRunning() const
     if( !channel->isRunning( ))
         return false;
 
+    EQASSERT( _inherit.channel );
     const View* view = _inherit.channel->getView();
     return channel->supportsView( view );
 }
@@ -429,9 +430,9 @@ bool Compound::isDestination() const
         return true;
 
     for( const Compound* compound = getParent(); compound;
-         compound = compound->getParent())
+         compound = compound->getParent( ))
     {
-        if( compound->getChannel() )
+        if( compound->getChannel( ))
             return false;
     }
 
@@ -505,7 +506,7 @@ void Compound::updateFrustum()
 
     if( segment->getCurrentType() == Frustum::TYPE_NONE )
     {
-        EQASSERT( segment->getCanvas()->getCurrentType() != Frustum::TYPE_NONE );
+        EQASSERT( segment->getCanvas()->getCurrentType() != Frustum::TYPE_NONE);
         segment->notifyFrustumChanged();
     }
 
@@ -896,7 +897,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
     _data.zoom.validate();
     const PixelViewport oldPVP( _inherit.pvp );
 
-    if( !_parent )
+    if( isRoot( ))
     {
         _inherit = _data;
         _inherit.zoom = Zoom::NONE; // will be reapplied below
