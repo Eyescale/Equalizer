@@ -33,6 +33,7 @@ add_library(EqualizerServer SHARED
   equalizers/equalizer.cpp
   equalizers/loadEqualizer.cpp
   equalizers/monitorEqualizer.cpp
+  equalizers/treeEqualizer.cpp
   equalizers/viewEqualizer.cpp
   frame.cpp
   frameData.cpp

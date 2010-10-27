@@ -27,7 +27,6 @@ cmake:
 	@mkdir -p debug
 	@cd debug; cmake ..
 	@$(MAKE) -C debug
-	-@$(MAKE) -C debug check
 
 cmakeRelease:
 	@mkdir -p release

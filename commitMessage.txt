@@ -1,9 +1,9 @@
-Add transfer engine for RGB10_A2 external format
+Add new experimental 2D/DB load equalizer
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [x] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

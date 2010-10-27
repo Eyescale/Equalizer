@@ -25,6 +25,7 @@
 #include "equalizers/dfrEqualizer.h"
 #include "equalizers/framerateEqualizer.h"
 #include "equalizers/loadEqualizer.h"
+#include "equalizers/treeEqualizer.h"
 #include "equalizers/monitorEqualizer.h"
 #include "equalizers/viewEqualizer.h"
 #include "frame.h"
@@ -65,6 +66,7 @@
         static eq::server::Compound*    eqCompound = 0; // avoid name clash
         static eq::server::DFREqualizer* dfrEqualizer = 0;
         static eq::server::LoadEqualizer* loadEqualizer = 0;
+        static eq::server::TreeEqualizer* treeEqualizer = 0;
         static eq::server::SwapBarrier* swapBarrier = 0;
         static eq::server::Frame*       frame = 0;
         static eq::server::ConnectionDescriptionPtr connectionDescription;
@@ -181,6 +183,7 @@
 %token EQTOKEN_DFREQUALIZER
 %token EQTOKEN_FRAMERATEEQUALIZER
 %token EQTOKEN_LOADEQUALIZER
+%token EQTOKEN_TREEEQUALIZER
 %token EQTOKEN_MONITOREQUALIZER
 %token EQTOKEN_VIEWEQUALIZER
 %token EQTOKEN_DAMPING
@@ -279,6 +282,7 @@
     float                   _float;
     eq::net::ConnectionType   _connectionType;
     eq::server::LoadEqualizer::Mode _loadEqualizerMode;
+    eq::server::TreeEqualizer::Mode _treeEqualizerMode;
     float                   _viewport[4];
 }
 
@@ -288,6 +292,7 @@
 %type <_unsigned>         UNSIGNED colorMask colorMaskBit colorMaskBits;
 %type <_connectionType>   connectionType;
 %type <_loadEqualizerMode> loadEqualizerMode;
+%type <_treeEqualizerMode> treeEqualizerMode;
 %type <_viewport>         viewport;
 %type <_float>            FLOAT;
 
@@ -1080,7 +1085,7 @@ loadBalancerMode:
         eqCompound->addEqualizer( new eq::server::MonitorEqualizer );
     }
 
-equalizer: dfrEqualizer | framerateEqualizer | loadEqualizer | 
+equalizer: dfrEqualizer | framerateEqualizer | loadEqualizer | treeEqualizer |
            monitorEqualizer | viewEqualizer
         
 dfrEqualizer: EQTOKEN_DFREQUALIZER '{' 
@@ -1100,6 +1105,13 @@ loadEqualizer: EQTOKEN_LOADEQUALIZER '{'
     {
         eqCompound->addEqualizer( loadEqualizer );
         loadEqualizer = 0; 
+    }
+treeEqualizer: EQTOKEN_TREEEQUALIZER '{' 
+    { treeEqualizer = new eq::server::TreeEqualizer; }
+    treeEqualizerFields '}' 
+    {
+        eqCompound->addEqualizer( treeEqualizer );
+        treeEqualizer = 0; 
     }
 monitorEqualizer: EQTOKEN_MONITOREQUALIZER '{' '}'
     {
@@ -1128,6 +1140,20 @@ loadEqualizerMode:
     | EQTOKEN_DB         { $$ = eq::server::LoadEqualizer::MODE_DB; }
     | EQTOKEN_HORIZONTAL { $$ = eq::server::LoadEqualizer::MODE_HORIZONTAL; }
     | EQTOKEN_VERTICAL   { $$ = eq::server::LoadEqualizer::MODE_VERTICAL; }
+    
+treeEqualizerFields: /* null */ | treeEqualizerFields treeEqualizerField
+treeEqualizerField:
+    EQTOKEN_DAMPING FLOAT            { treeEqualizer->setDamping( $2 ); }
+    | EQTOKEN_BOUNDARY '[' UNSIGNED UNSIGNED ']' 
+                  { treeEqualizer->setBoundary( eq::Vector2i( $3, $4 )) }
+    | EQTOKEN_BOUNDARY FLOAT  { treeEqualizer->setBoundary( $2 ) }
+    | EQTOKEN_MODE treeEqualizerMode { treeEqualizer->setMode( $2 ); }
+
+treeEqualizerMode: 
+    EQTOKEN_2D           { $$ = eq::server::TreeEqualizer::MODE_2D; }
+    | EQTOKEN_DB         { $$ = eq::server::TreeEqualizer::MODE_DB; }
+    | EQTOKEN_HORIZONTAL { $$ = eq::server::TreeEqualizer::MODE_HORIZONTAL; }
+    | EQTOKEN_VERTICAL   { $$ = eq::server::TreeEqualizer::MODE_VERTICAL; }
     
 
 swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier; }

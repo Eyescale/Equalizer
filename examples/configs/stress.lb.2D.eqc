@@ -1,4 +1,8 @@
 #Equalizer 1.0 ascii
+global
+{
+    EQ_CHANNEL_IATTR_HINT_STATISTICS NICEST
+}
 
 # Config stress-testing the 2D load-balancer
 server

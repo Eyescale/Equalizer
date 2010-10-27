@@ -720,8 +720,8 @@ void Channel::drawStatistics()
     const Window::Font* font = window->getSmallFont();
 
     // find min/max time
-    int64_t                 xMax      = 0;
-    int64_t                 xMin      = std::numeric_limits< int64_t >::max();
+    int64_t xMax = 0;
+    int64_t xMin = std::numeric_limits< int64_t >::max();
 
     for( std::vector<eq::FrameStatistics>::const_iterator i =statistics.begin();
          i != statistics.end(); ++i )

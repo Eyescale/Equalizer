@@ -18,6 +18,8 @@
 
 #include "compound.h"
 #include "equalizers/loadEqualizer.h"
+#include "equalizers/treeEqualizer.h"
+
 #ifdef WIN32_API
  #include "parser.cpp.h"
 #else
@@ -177,6 +179,7 @@ loadBalancer                    { return EQTOKEN_LOADBALANCER; }
 DFR_equalizer                   { return EQTOKEN_DFREQUALIZER; }
 framerate_equalizer             { return EQTOKEN_FRAMERATEEQUALIZER; }
 load_equalizer                  { return EQTOKEN_LOADEQUALIZER; }
+tree_equalizer                  { return EQTOKEN_TREEEQUALIZER; }
 monitor_equalizer               { return EQTOKEN_MONITOREQUALIZER; }
 view_equalizer                  { return EQTOKEN_VIEWEQUALIZER; }
 damping                         { return EQTOKEN_DAMPING; }
