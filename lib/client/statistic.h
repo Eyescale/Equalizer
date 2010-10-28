@@ -37,9 +37,9 @@ namespace eq
             CHANNEL_ASSEMBLE,
             CHANNEL_WAIT_FRAME,
             CHANNEL_READBACK,
+            CHANNEL_VIEW_FINISH,
             CHANNEL_FRAME_TRANSMIT,
             CHANNEL_FRAME_COMPRESS,
-            CHANNEL_VIEW_FINISH,
             WINDOW_FINISH,
             WINDOW_THROTTLE_FRAMERATE,
             WINDOW_SWAP_BARRIER,
@@ -74,6 +74,7 @@ namespace eq
         static const Vector3f& getColor( const Type type );
     };
 
+    EQ_EXPORT std::ostream& operator << (std::ostream&, const Statistic::Type&);
     EQ_EXPORT std::ostream& operator << ( std::ostream&, const Statistic& );
 }
 

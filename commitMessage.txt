@@ -1,9 +1,13 @@
-Fix race in Node::notifyCommandThreadIdle
+Channel statistics overlay:
+- Fix transmit stat with >1 source channel
+- Fix size of transmit stats
+- Change rendering to work without depth buffer by depth-sorting stats and text
+
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
