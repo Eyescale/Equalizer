@@ -677,23 +677,21 @@ void Session::ackRequest( NodePtr node, const uint32_t requestID )
     }
 }
 
-void Session::notifyCommandThreadIdle()
+bool Session::notifyCommandThreadIdle()
 {
     EQ_TS_THREAD( _commandThread );
+    if( _sendQueue.empty( ))
+        return false;
 
     Nodes nodes;
     _localNode->getNodes( nodes );
 
-    CommandQueue* queue = getCommandThreadQueue();
-    while( !_sendQueue.empty() && queue->isEmpty( ))
-    {
-        SendQueueItem& object = _sendQueue.front();
+    SendQueueItem& object = _sendQueue.front();
+    if( object.age > _clock.getTime64() )
+        object.object->_cm->sendInstanceDatas( nodes );
 
-        if( object.age > _clock.getTime64() )
-            object.object->_cm->sendInstanceDatas( nodes );
-
-        _sendQueue.pop_front();
-    }
+    _sendQueue.pop_front();
+    return !_sendQueue.empty();
 }
 
 //===========================================================================

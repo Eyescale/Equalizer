@@ -1193,13 +1193,17 @@ void Node::_runCommandThread()
         }
         command->release();
 
-        if( _commandThreadQueue.isEmpty( ))
+        bool callAgain = true;
+        while( _commandThreadQueue.isEmpty() && callAgain )
         {
+            callAgain = false;
+
+            base::ScopedMutex< base::SpinLock > mutex( _sessions );
             for( SessionHash::const_iterator i = _sessions->begin();
-                 i != _sessions->end() && _commandThreadQueue.isEmpty(); ++i )
+                 i != _sessions->end(); ++i )
             {
-                Session* session = i->second;
-                session->notifyCommandThreadIdle();
+                if( i->second->notifyCommandThreadIdle( ))
+                    callAgain = true;
             }
         }
     }

@@ -376,8 +376,9 @@ namespace net
         /**
          * @internal
          * Notification - no pending commands for the command thread.
+         * @return true if more work is pending.
          */
-        EQ_EXPORT virtual void notifyCommandThreadIdle();
+        EQ_EXPORT virtual bool notifyCommandThreadIdle();
 
         /** @internal ack an operation to the sender. */
         void ackRequest( NodePtr node, const uint32_t requestID );
