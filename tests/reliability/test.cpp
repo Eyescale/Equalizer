@@ -35,6 +35,11 @@ protected:
             setErrorMessage( "Node::configInit failure" );
             return false;
         }
+    virtual void frameStart( const uint32_t id, const uint32_t number )
+        {
+            TEST( !getPipes().empty( ));
+            eq::Node::frameStart( id, number );
+        }
 };
 
 class Pipe : public eq::Pipe
@@ -49,6 +54,11 @@ protected:
                 return eq::Pipe::configInit( initID );
             setErrorMessage( "Pipe::configInit failure" );
             return false;
+        }
+    virtual void frameStart( const uint32_t id, const uint32_t number )
+        {
+            TEST( !getWindows().empty( ));
+            eq::Pipe::frameStart( id, number );
         }
 };
 

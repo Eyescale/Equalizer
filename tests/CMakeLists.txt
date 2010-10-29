@@ -2,7 +2,9 @@
 #               2010, Stefan Eilemann <eile@eyescale.ch>
 
 file(GLOB COMPOSITOR_IMAGES compositor/*.rgb)
-file(COPY image/images ${COMPOSITOR_IMAGES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(GLOB TEST_CONFIGS reliability/*.eqc)
+file(COPY image/images ${COMPOSITOR_IMAGES} ${TEST_CONFIGS}
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}

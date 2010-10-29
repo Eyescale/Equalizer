@@ -1,13 +1,10 @@
-Channel statistics overlay:
-- Fix transmit stat with >1 source channel
-- Fix size of transmit stats
-- Change rendering to work without depth buffer by depth-sorting stats and text
-
+Fix CMake test run of reliability test
+Add new (failing) test in reliability test
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
-[x] New Feature
-[x] Cleanup
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
