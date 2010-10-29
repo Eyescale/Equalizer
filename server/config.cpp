@@ -507,7 +507,6 @@ bool Config::_updateRunning()
         }
     }
 
-    _syncClock();
     return result;
 }
 
@@ -810,6 +809,8 @@ bool Config::exit()
 void Config::_startFrame( const uint32_t frameID )
 {
     EQASSERT( _state == STATE_RUNNING );
+    
+    _syncClock();
 
     ++_currentFrame;
     EQLOG( base::LOG_ANY ) << "----- Start Frame ----- " << _currentFrame
@@ -890,10 +891,7 @@ void Config::_flushAllFrames()
     {
         Node* node = *i;
         if( node->isRunning( ))
-        {
-            EQASSERT( node->isActive( ));
             node->flushFrames( _currentFrame );
-        }
     }
 
     EQLOG( base::LOG_ANY ) << "--- Flush All Frames -- " << std::endl;
@@ -964,7 +962,7 @@ bool Config::_cmdUpdate( net::Command& command )
     EQVERB << "handle config update " << packet << std::endl;
 
     sync();
-    commit();
+    commit();    
 
     net::NodePtr node = command.getNode();
     if( !_needsFinish )

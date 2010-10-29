@@ -103,8 +103,7 @@ void Session::_setLocalNode( NodePtr node )
 }
 
 void Session::expireInstanceData( const int64_t age )
-{ 
-    EQASSERT( _instanceCache ); 
+{
     if( _instanceCache )
         _instanceCache->expire( age ); 
 }
