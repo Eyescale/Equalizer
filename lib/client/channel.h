@@ -129,7 +129,7 @@ namespace eq
          * The data returned by these methods depends on the context (callback)
          * they are called from, typically the data for the current rendering
          * task. If they are called outside of a frame task method, they
-         * return the channel's native parameter, e.g., a placeholder value for
+         * return the channel's native parameter or a placeholder value for
          * the task decomposition parameters.
          */
         //@{

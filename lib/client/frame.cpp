@@ -92,35 +92,10 @@ uint32_t Frame::getPhase() const
     return _frameData->getPhase();
 }
 
-void Frame::setRange( const Range& range )
-{
-    EQASSERT( _frameData );
-    _frameData->setRange( range );    
-}
-
-void Frame::setInputZoom( const Zoom& zoom )
-{
-    EQASSERT( _frameData );
-    EQASSERT( zoom.isValid( ));
-    _frameData->setZoom( zoom );
-}
-
-const Zoom& Frame::getInputZoom() const
-{
-    EQASSERT( _frameData );
-    return _frameData->getZoom();
-}
-
 const Images& Frame::getImages() const
 {
     EQASSERT( _frameData );
     return _frameData->getImages();
-}
-
-void Frame::setPixelViewport( const PixelViewport& pvp )
-{
-    EQASSERT( _frameData );
-    _frameData->setPixelViewport( pvp );
 }
 
 void Frame::clear()

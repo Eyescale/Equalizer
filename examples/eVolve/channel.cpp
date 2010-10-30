@@ -251,6 +251,7 @@ void Channel::_orderFrames( eq::Frames& frames )
 void Channel::frameAssemble( const uint32_t frameID )
 {
     const bool composeOnly = (_drawRange == eq::Range::ALL);
+    eq::FrameData* data = _frame.getData();
 
     _startAssemble();
 
@@ -290,7 +291,7 @@ void Channel::frameAssemble( const uint32_t frameID )
     if( !composeOnly && coveredPVP.hasArea( ))
     {
         _frame.clear();
-        _frame.setRange( _drawRange );
+        data->setRange( _drawRange );
         dbFrames.push_back( &_frame );
     }
 
@@ -307,7 +308,7 @@ void Channel::frameAssemble( const uint32_t frameID )
 
             _frame.setOffset( eq::Vector2i( 0, 0 ));
             _frame.setZoom( zoom );
-            _frame.setPixelViewport( coveredPVP );
+            data->setPixelViewport( coveredPVP );
             _frame.readback( glObjects, getDrawableConfig( ));
             clearViewport( coveredPVP );
 

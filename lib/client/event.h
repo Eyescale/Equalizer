@@ -82,6 +82,7 @@ namespace eq
     /**
      * Mouse pointer button definition. The enums are defined as masks, so that
      * the state of all buttons can be OR'd using the same enum.
+     * @version 1.0
      */
     enum PointerButton
     {
@@ -93,7 +94,10 @@ namespace eq
         PTR_BUTTON5     = EQ_BIT5
     };
 
-    /** Event for a size or position change on a Window, Channel or View. */
+    /**
+     * Event for a size or position change on a Window, Channel or View.
+     * @version 1.0
+     */
     struct ResizeEvent
     {
         int32_t x; //!< new X position, relative to parent
@@ -104,7 +108,7 @@ namespace eq
         float dh;  //!< view only: new height relative to initial height
     };
 
-    /** Event for a pointer (mouse) motion or click. */
+    /** Event for a pointer (mouse) motion or click. @version 1.0 */
     struct PointerEvent
     {
         int32_t x;             //!< X position relative to entity
@@ -117,7 +121,7 @@ namespace eq
         int32_t yAxis;         //!< y wheel rotation
     };
 
-    /** Event for a key press or release. */
+    /** Event for a key press or release. @version 1.0 */
     struct KeyEvent
     {
         uint32_t key; //!<  KeyCode for special keys, ascii code otherwise
@@ -145,6 +149,7 @@ namespace eq
      * User-defined event.
      *
      * See the eqPixelBench example on how to use user-defined events.
+     * @version 1.0
      */
     struct UserEvent
     {
@@ -158,6 +163,7 @@ namespace eq
      * filled into the anonymous union. The originator typically contains the
      * net::Object identifier of the entity emitting the event. The rendering
      * context is only set for pointer events.
+     * @version 1.0
      */
     struct Event
     {
@@ -188,13 +194,8 @@ namespace eq
             MAGELLAN_AXIS,        //!< SpaceMouse movement data in magellan
             MAGELLAN_BUTTON,      //!< SpaceMouse button data in magellan
             UNKNOWN,              //!< Event type not known by the event handler
-            FILL1,  // some buffer for binary-compatible patches
-            FILL2,
-            FILL3,
-            FILL4,
-            FILL5,
             /** User-defined events have to be of this type or higher */
-            USER,
+            USER = UNKNOWN + 5, // some buffer for binary-compatible patches
             ALL // must be last
         };
 

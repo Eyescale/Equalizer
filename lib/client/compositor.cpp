@@ -23,6 +23,7 @@
 #include "channelStatistics.h"
 #include "client.h"
 #include "compositor.h"
+#include "frameData.h"
 #include "image.h"
 #include "log.h"
 #include "server.h"
@@ -122,7 +123,7 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
             frame->waitReady();
         }
 
-        if( frame->getInputZoom() != Zoom::NONE )
+        if( frame->getData()->getZoom() != Zoom::NONE )
             return false;
 
         const Images& images = frame->getImages();        
@@ -565,7 +566,7 @@ bool Compositor::_collectOutputData(
         EQASSERTINFO( frame->getPixel() == Pixel::ALL &&
                       frame->getSubPixel() == SubPixel::ALL &&
                       frame->getZoom() == Zoom::NONE &&
-                      frame->getInputZoom() == Zoom::NONE,
+                      frame->getData()->getZoom() == Zoom::NONE,
                       "CPU-based compositing not implemented for given frames");
         if( frame->getPixel() != Pixel::ALL )
             return false;
@@ -1042,7 +1043,7 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
     operation.offset  = frame->getOffset();
     operation.pixel   = frame->getPixel();
     operation.zoom    = frame->getZoom();
-    operation.zoom.apply( frame->getInputZoom( ));
+    operation.zoom.apply( frame->getData()->getZoom( ));
 
     for( Images::const_iterator i = images.begin(); i != images.end(); ++i )
     {

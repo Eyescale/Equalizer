@@ -35,22 +35,27 @@ namespace eq
         /** Construct a new event handler. @version 1.0 */
         EQ_EXPORT EventHandler() : _lastEventWindow( 0 ) {}
 
-        /** Destruct the event handler. */
+        /** Destruct the event handler. @version 1.0 */
         EQ_EXPORT virtual ~EventHandler(){}
 
-        /** Compute the mouse move delta from the previous pointer event. */
+        /**
+         * @internal
+         * Compute the mouse move delta from the previous pointer event.
+         */
         EQ_EXPORT void _computePointerDelta(const Window* window, Event& event);
 
-        /** Find and set the rendering context at the mouse position. */
+        /**
+         * @internal
+         * Find and set the rendering context at the mouse position.
+         */
         EQ_EXPORT void _getRenderContext( const Window* window, Event& event );
 
+    private:
         /** The previous pointer event to compute mouse movement deltas. */
         Event _lastPointerEvent;
 
         /** The window of the previous pointer event. */
         const Window* _lastEventWindow;
-
-    private:
     };
 }
 

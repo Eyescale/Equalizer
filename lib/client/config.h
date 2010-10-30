@@ -338,6 +338,9 @@ namespace eq
         /** 
          * Deregister a distributed object.
          *
+         * This method ensures that the data for buffered object is kept for
+         * latency frames to allow mapping on slave nodes.
+         *
          * @param object the object instance.
          */
         EQ_EXPORT virtual void deregisterObject( net::Object* object );
@@ -378,7 +381,7 @@ namespace eq
         /** true while the config is initialized and no window has exited. */
         bool _running;
 
-        /** a light object for the latency deregister */
+        /** @internal A proxy object to keep master data within latency. */
         class LatencyObject : public net::Object
         {
         public:
@@ -416,7 +419,7 @@ namespace eq
          */
         void _updateStatistics( const uint32_t finishedFrame );
 
-        /** Release all deregisterd buffered objects after their latency is
+        /** Release all deregistered buffered objects after their latency is
             done. */
         void _releaseObjects();
 

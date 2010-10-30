@@ -1,9 +1,9 @@
-Fix Doxygen
+Simplify eq::Frame API, doxygen improvements
 
 [ ] May break build
-[ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[x] May break existing applications (see CHANGES.txt)
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

@@ -23,7 +23,10 @@
 
 namespace eq
 {
-    /** @warning  Experimental - may not be supported in the future. */
+    /**
+     * CUDA implementation of a ComputeContext
+     * @warning Experimental - may not be supported in the future.
+     */
     class CUDAContext : public ComputeContext
     {
     public:

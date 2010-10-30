@@ -26,9 +26,9 @@ namespace eq
     class MessagePump;
 
     /**
+     * @internal
      * Augments an net::CommandQueue to pump system-specific events where
      * required by the underlying window/operating system.
-     * @internal
      */
     class CommandQueue : public net::CommandQueue
     {

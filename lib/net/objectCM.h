@@ -52,9 +52,7 @@ namespace net
         /** Initialize the change manager. */
         virtual void init() = 0;
 
-        /**
-         * @name Versioning
-         */
+        /** @name Versioning */
         //@{
         /** 
          * Start committing a new version.
