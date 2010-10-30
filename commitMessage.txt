@@ -1,5 +1,4 @@
-Fix CMake test run of reliability test
-Add new (failing) test in reliability test
+Fix Doxygen
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

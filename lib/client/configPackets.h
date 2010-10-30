@@ -233,4 +233,5 @@ namespace eq
         return os;
     }    
 }
+/** @endcond */
 #endif //EQ_CONFIGPACKETS_H

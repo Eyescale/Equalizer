@@ -211,4 +211,5 @@ namespace eq
         return os;
     }
 }
+/** @endcond */
 #endif //EQ_WINDOWPACKETS_H

@@ -75,4 +75,5 @@ namespace fabric
     }
 }
 }
+/** @endcond */
 #endif //EQFABRIC_SERVERPACKETS_H

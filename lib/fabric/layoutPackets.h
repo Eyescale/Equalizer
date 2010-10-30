@@ -51,4 +51,5 @@ namespace fabric
     };
 }
 }
+/** @endcond */
 #endif //EQFABRIC_LAYOUTPACKETS_H

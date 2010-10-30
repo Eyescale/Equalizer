@@ -126,4 +126,5 @@ namespace eq
         return os;
     }
 }
+/** @endcond */
 #endif //EQ_SERVERPACKETS_H

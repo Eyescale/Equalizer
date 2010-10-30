@@ -251,4 +251,5 @@ namespace eq
         return os;
     }
 }
+/** @endcond */
 #endif //EQ_CHANNELPACKETS_H

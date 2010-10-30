@@ -51,4 +51,5 @@ namespace fabric
     };
 }
 }
+/** @endcond */
 #endif //EQFABRIC_CANVASPACKETS_H

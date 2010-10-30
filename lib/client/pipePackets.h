@@ -187,4 +187,5 @@ namespace eq
         return os;
     }
 }
+/** @endcond */
 #endif //EQ_PIPEPACKETS_H

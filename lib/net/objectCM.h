@@ -151,12 +151,8 @@ namespace net
 
         /** The default CM for unattached objects. */
         static ObjectCM* ZERO;
-        /**
-         * setup the packet during send on register 
-         *
-         * @param packet the packet to setup
-         * @intenal
-         **/
+
+        /** @internal **/
         virtual void tunePacket( ObjectInstancePacket& packet ) const {}
 
     protected:

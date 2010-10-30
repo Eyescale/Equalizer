@@ -20,7 +20,8 @@
 #define EQFABRIC_CONFIGPACKETS_H
 
 #include <eq/fabric/packets.h> // base structs
-#include <eq/fabric/serverPackets.h> // base structs
+#include <eq/fabric/serverPackets.h> // used inline
+
 /** @cond IGNORE */
 namespace eq
 {
@@ -91,4 +92,5 @@ struct ConfigCreateReplyPacket : public ConfigPacket
     };
 }
 }
+/** @endcond */
 #endif //EQFABRIC_CONFIGPACKETS_H

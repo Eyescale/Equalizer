@@ -183,4 +183,5 @@ namespace eq
         return os;
     }
 }
+/** @endcond */
 #endif //EQ_NODEPACKETS_H

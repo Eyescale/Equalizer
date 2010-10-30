@@ -33,4 +33,5 @@ namespace eq
             }
     };
 }
+/** @endcond */
 #endif //EQ_CLIENTPACKETS_H

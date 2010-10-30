@@ -65,4 +65,5 @@ namespace eq
         uint32_t version;
     };
 }
+/** @endcond */
 #endif //EQ_FRAMEDATAPACKETS_H
