@@ -497,6 +497,9 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
 
     const float leftTime = time * node->left->resources / node->resources;
 
+    LBDatas workingSet = datas[ node->mode ];
+    float timeLeft = leftTime;
+
     switch( node->mode )
     {
         case MODE_VERTICAL:
@@ -505,8 +508,6 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
 
             float splitPos = vp.x;
             const float end = vp.getXEnd();
-            LBDatas workingSet = datas[ MODE_VERTICAL ];
-            float timeLeft = leftTime;
 
             while( timeLeft > std::numeric_limits< float >::epsilon() &&
                    splitPos < end && !workingSet.empty())
@@ -664,8 +665,6 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             EQASSERT( range == Range::ALL );
             float splitPos = vp.y;
             const float end = vp.getYEnd();
-            LBDatas workingSet = datas[ MODE_HORIZONTAL ];
-            float timeLeft = leftTime;
 
             while( timeLeft > std::numeric_limits< float >::epsilon() &&
                    splitPos < end && !workingSet.empty( ))
@@ -818,8 +817,6 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             EQASSERT( vp == Viewport::FULL );
             float splitPos = range.start;
             const float end = range.end;
-            LBDatas workingSet = datas[ MODE_DB ];
-            float timeLeft = leftTime;
 
             while( timeLeft > std::numeric_limits< float >::epsilon() && 
                    splitPos < end && !workingSet.empty( ))
