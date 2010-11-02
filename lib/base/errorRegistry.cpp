@@ -28,11 +28,6 @@ namespace
 static std::string _empty;
 }
 
-ErrorRegistry::~ErrorRegistry()
-{
-    EQASSERT( _errors.empty( ));
-}
-
 const std::string& ErrorRegistry::getString( const uint32_t error ) const
 {
     ErrorHash::const_iterator i = _errors.find( error );

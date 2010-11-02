@@ -18,6 +18,7 @@
 
 #include "init.h"
 
+#include "errorRegistry.h"
 #include "global.h"
 #include "log.h"
 #include "pluginRegistry.h"
@@ -79,6 +80,8 @@ EQ_EXPORT bool init( const int argc, char** argv )
 
 EQ_EXPORT bool exit()
 {
+    EQASSERT( Global::getErrorRegistry().isEmpty( ));
+
     // de-initialize registered plugins
     PluginRegistry& pluginRegistry = Global::getPluginRegistry();
     pluginRegistry.exit(); 

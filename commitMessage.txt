@@ -1,4 +1,4 @@
-Fix node launch failure reporting
+Fix some tests
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
