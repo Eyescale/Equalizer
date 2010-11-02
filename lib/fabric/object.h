@@ -64,18 +64,22 @@ namespace fabric
         /** @name Error Information. */
         //@{
         /** 
-         * Set a message why the last operation failed.
+         * Set an error code why the last operation failed.
          * 
-         * The message will be transmitted to the originator of the request, for
+         * The error will be transmitted to the originator of the request, for
          * example to Config::init when set from within configInit().
          *
-         * @param message the error message.
+         * @param error the error message.
          * @version 1.0
          */
+        EQFABRIC_EXPORT void setError( const uint32_t error );
+
         EQFABRIC_EXPORT void setErrorMessage( const std::string& message );
 
-        /** @return the error message from the last operation. */
-        const std::string& getErrorMessage() const { return _error; }
+        /** @return the last error from the last failed operation. */
+        uint32_t getError() const { return _error; }
+
+        const std::string& getErrorMessage() const { return _errorStr; }
         //@}
 
         /** @name Data Access */
@@ -196,7 +200,8 @@ namespace fabric
         uint32_t _tasks;
 
         /** The reason for the last error. */
-        std::string _error;
+        uint32_t _error;
+        std::string _errorStr;
 
         /** The identifiers of removed children since the last slave commit. */
         std::vector< uint32_t > _removedChildren;

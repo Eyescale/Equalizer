@@ -1,8 +1,9 @@
-Initialize errors with ERROR_NONE
+Add error code to fabric::Object, string will be replaced when all
+subclasses are updated.
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

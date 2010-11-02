@@ -17,6 +17,7 @@
 
 #include "object.h"
 
+#include "error.h"
 #include "task.h"
 
 #include <eq/net/session.h>
@@ -29,6 +30,7 @@ namespace fabric
 Object::Object()
         : _userData( 0 )
         , _tasks( TASK_NONE )
+        , _error( ERROR_NONE )
 {}
 
 Object::~Object()
@@ -132,7 +134,7 @@ void Object::serialize( net::DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_TASKS )
         os << _tasks;
     if( dirtyBits & DIRTY_ERROR )
-        os << _error;
+        os << _error << _errorStr;
     if( dirtyBits & DIRTY_REMOVED )
     {
         EQASSERT( !isMaster() || 
@@ -154,7 +156,7 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_TASKS )
         is >> _tasks;
     if( dirtyBits & DIRTY_ERROR )
-        is >> _error;
+        is >> _error >> _errorStr;
     if( dirtyBits & DIRTY_REMOVED )
     {
         std::vector< uint32_t > removed;
@@ -265,11 +267,19 @@ void Object::setTasks( const uint32_t tasks )
     setDirty( DIRTY_TASKS );
 }
 
+void Object::setError( const uint32_t error )
+{
+    if( _error == error )
+        return;
+    _error = error;
+    setDirty( DIRTY_ERROR );
+}
+
 void Object::setErrorMessage( const std::string& message )
 {
-    if( _error == message )
+    if( _errorStr == message )
         return;
-    _error = message;
+    _errorStr = message;
     setDirty( DIRTY_ERROR );
 }
 
