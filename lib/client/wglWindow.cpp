@@ -237,7 +237,7 @@ bool WGLWindow::configInit()
 {
     if( !initWGLAffinityDC( ))
     {
-        _window->setErrorMessage( "Can't create affinity dc" );
+        setError( ERROR_WGL_CREATEAFFINITYDC_FAILED );
         return false;
     }
 
@@ -258,8 +258,7 @@ bool WGLWindow::configInit()
     {
         exitWGLAffinityDC();
         setWGLDC( 0, WGL_DC_NONE );
-        _window->setErrorMessage(
-            "configInitWGLDrawable did not set a WGL drawable" );
+        setError( ERROR_WGLWINDOW_NO_DRAWABLE );
         return false;
     }
 
@@ -347,9 +346,8 @@ bool WGLWindow::configInitWGLFBO( int pixelFormat )
     DescribePixelFormat( _wglDC, pixelFormat, sizeof( pfd ), &pfd );
     if( !SetPixelFormat( _wglDC, pixelFormat, &pfd ))
     {
-        std::ostringstream error;
-        error << "Can't set window pixel format: " << base::sysError;
-        _window->setErrorMessage( error.str( ));
+        setError( ERROR_WGLWINDOW_SETPIXELFORMAT_FAILED );
+        EQWARN << getError() << ": " << base::sysError << std::endl;
         return false;
     }
 
@@ -375,9 +373,8 @@ bool WGLWindow::configInitWGLWindow( int pixelFormat )
     if( !SetPixelFormat( windowDC, pixelFormat, &pfd ))
     {
         ReleaseDC( hWnd, windowDC );
-        std::ostringstream error;
-        error <<  "Can't set window pixel format: " << base::sysError;
-        _window->setErrorMessage( error.str( ));
+        setError( ERROR_WGLWINDOW_SETPIXELFORMAT_FAILED );
+        EQWARN << getError() << ": " << base::sysError << std::endl;
         return false;
     }
     ReleaseDC( hWnd, windowDC );
@@ -421,9 +418,8 @@ HWND WGLWindow::_createWGLWindow( int pixelFormat, const PixelViewport& pvp  )
 
     if( !RegisterClass( &wc ))
     {
-        std::ostringstream error;
-        error << "Can't register window class: " << base::sysError;
-        _window->setErrorMessage( error.str( ));
+        setError( ERROR_WGLWINDOW_REGISTERCLASS_FAILED );
+        EQWARN << getError() << ": " << base::sysError << std::endl;
         return false;
     }
 
@@ -445,9 +441,8 @@ HWND WGLWindow::_createWGLWindow( int pixelFormat, const PixelViewport& pvp  )
         if( ChangeDisplaySettings( &deviceMode, CDS_FULLSCREEN ) != 
             DISP_CHANGE_SUCCESSFUL )
         {
-            std::ostringstream error;
-            error << "Can't switch to fullscreen mode: " << base::sysError;
-            _window->setErrorMessage( error.str( ));
+            setError( ERROR_WGLWINDOW_FULLSCREEN_FAILED );
+            EQWARN << getError() << ": " << base::sysError << std::endl;
             return false;
         }
         windowStyle = WS_POPUP | WS_MAXIMIZE;
@@ -470,7 +465,8 @@ HWND WGLWindow::_createWGLWindow( int pixelFormat, const PixelViewport& pvp  )
                                 instance, 0 );
     if( !hWnd )
     {
-        _window->setErrorMessage( "Can't create window: " );
+        setError( ERROR_WGLWINDOW_CREATEWINDOW_FAILED );
+        EQWARN << getError() << ": " << base::sysError << std::endl;
         return false;
     }
 
@@ -481,7 +477,7 @@ bool WGLWindow::configInitWGLPBuffer( int pixelFormat )
 {
     if( !WGLEW_ARB_pbuffer )
     {
-        _window->setErrorMessage( "WGL_ARB_pbuffer not supported" );
+        setError( ERROR_WGLWINDOW_ARB_PBUFFER_REQUIRED );
         return false;
     }
 
@@ -500,9 +496,8 @@ bool WGLWindow::configInitWGLPBuffer( int pixelFormat )
     DeleteDC( displayDC );
     if( !pBuffer )
     {
-        std::ostringstream error;
-        error << "Can't create PBuffer: " << base::sysError;
-        _window->setErrorMessage( error.str( ));
+        setError( ERROR_WGLWINDOW_CREATEPBUFFER_FAILED );
+        EQWARN << getError() << ": " << base::sysError << std::endl;
         return false;
     }
 
@@ -572,9 +567,8 @@ int WGLWindow::chooseWGLPixelFormat()
 
     if( pixelFormat == 0 )
     {
-        std::ostringstream error;
-        error << "Can't find matching pixel format: " << base::sysError;
-        _window->setErrorMessage( error.str( ));
+        setError( ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND );
+        EQWARN << getError() << ": " << base::sysError << std::endl;
         return 0;
     }
  
@@ -587,9 +581,8 @@ int WGLWindow::chooseWGLPixelFormat()
         DescribePixelFormat( _wglAffinityDC, pixelFormat, sizeof(pfd), &pfd );
         if( !SetPixelFormat( _wglAffinityDC, pixelFormat, &pfd ))
         {
-            std::ostringstream error;
-            error << "Can't set device pixel format: " << base::sysError;
-            _window->setErrorMessage( error.str( ));
+            setError( ERROR_WGLWINDOW_SETAFFINITY_PF_FAILED );
+            EQWARN << getError() << ": " << base::sysError << std::endl;
             return 0;
         }
     }
@@ -683,7 +676,7 @@ int WGLWindow::_chooseWGLPixelFormatARB( HDC pfDC )
     {
         if ( !WGLEW_ARB_pixel_format_float )
         {
-            _window->setErrorMessage( "Floating-point framebuffer unsupported");
+            setError( ERROR_WGLWINDOW_ARB_FLOAT_FB_REQUIRED );
             return 0;
         }
 
@@ -800,8 +793,9 @@ int WGLWindow::_chooseWGLPixelFormatARB( HDC pfDC )
         if( !wglChoosePixelFormatARB( pfDC, &attributes[0], 0, 1,
             &pixelFormat, &nFormats ))
         {
-            EQWARN << "wglChoosePixelFormat failed: " 
-                << base::sysError << std::endl;
+            setError( ERROR_WGLWINDOW_CHOOSE_PF_ARB_FAILED);
+            EQWARN << getError() << ": " << base::sysError << std::endl;
+            return 0;
         }
 
         if( (pixelFormat && nFormats > 0) ||  // found one or
@@ -832,9 +826,8 @@ HGLRC WGLWindow::createWGLContext()
     HGLRC context = wglCreateContext( _useAffinity() ? _wglAffinityDC :_wglDC );
     if( !context )
     {
-        std::ostringstream error;
-        error << "Can't create OpenGL context: " << base::sysError;
-        _window->setErrorMessage( error.str( ));
+        setError( ERROR_WGLWINDOW_CREATECONTEXT_FAILED);
+        EQWARN << getError() << ": " << base::sysError << std::endl;
         return 0;
     }
 

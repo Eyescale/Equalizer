@@ -68,7 +68,7 @@ ErrorData _errors[] = {
     { ERROR_GLXPIPE_DEVICE_NOTFOUND, "Can't open display" },
     { ERROR_GLXPIPE_GLX_NOTFOUND, "Display does not support GLX" },
 
-    { ERROR_WGLPIPE_AFFINITYDC_FAILED, "Can't create affinity DC" },
+    { ERROR_WGL_CREATEAFFINITYDC_FAILED, "Can't create affinity DC" },
     { ERROR_WGLPIPE_ENUMDISPLAYS_FAILED, "Can't enumerate display devices" },
     { ERROR_WGLPIPE_CREATEDC_FAILED, "Can't create device context" },
     { ERROR_WGLPIPE_ENUMGPUS_FAILED, "Can't enumerate GPU" },
@@ -100,6 +100,20 @@ ErrorData _errors[] = {
     { ERROR_GLXWINDOW_GLX_1_3_REQUIRED, "Need at least GLX 1.3" },
     { ERROR_GLXWINDOW_NO_FBCONFIG, "Can't find FBConfig for visual" },
     { ERROR_GLXWINDOW_CREATEPBUFFER_FAILED, "Can't create glX PBuffer" },
+
+    { ERROR_WGLWINDOW_NO_DRAWABLE, "Missing WGL drawable" },
+    { ERROR_WGLWINDOW_SETPIXELFORMAT_FAILED, "Can't set window pixel format" },
+    { ERROR_WGLWINDOW_REGISTERCLASS_FAILED, "Can't register window class" },
+    { ERROR_WGLWINDOW_FULLSCREEN_FAILED, "Can't switch to fullscreen mode" },
+    { ERROR_WGLWINDOW_CREATEWINDOW_FAILED, "Can't create window" },
+    { ERROR_WGLWINDOW_ARB_PBUFFER_REQUIRED, "WGL_ARB_pbuffer not supported" },
+    { ERROR_WGLWINDOW_ARB_FLOAT_FB_REQUIRED,
+      "Floating-point framebuffer not supported" },
+    { ERROR_WGLWINDOW_CREATEPBUFFER_FAILED, "Can't create PBuffer" },
+    { ERROR_WGLWINDOW_SETAFFINITY_PF_FAILED, "Can't set affinity pixel format"},
+    { ERROR_WGLWINDOW_CHOOSE_PF_ARB_FAILED,
+      "Can't choose pixel format using ARB extension"},
+    { ERROR_WGLWINDOW_CREATECONTEXT_FAILED, "Can't create WGL context" },
 
     { 0, "" } // last!
 };

@@ -194,7 +194,6 @@ XVisualInfo* GLXWindow::chooseXVisualInfo()
     if( stencilSize == AUTO )
         backoffAttributes.push_back( GLX_STENCIL_SIZE );
 
-
     // Choose visual
     const int    screen  = DefaultScreen( _xDisplay );
     XVisualInfo *visInfo = glXChooseVisual( _xDisplay, screen, 

@@ -117,7 +117,7 @@ bool WGLPipe::createWGLAffinityDC( HDC& affinityDC )
     affinityDC = wglCreateAffinityDCNV( hGPU );
     if( !affinityDC )
     {
-        setError( ERROR_WGLPIPE_AFFINITYDC_FAILED );
+        setError( ERROR_WGL_CREATEAFFINITYDC_FAILED );
         EQWARN << getError() << ": " << base::sysError << std::endl;
         return false;
     }

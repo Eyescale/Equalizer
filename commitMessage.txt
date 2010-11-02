@@ -1,9 +1,9 @@
-Fix once more X11/CMake/Darwin build
+Error codes: refactor WGLWindow
 
-[ ] May break build
+[x] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[ ] Bugfix
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
