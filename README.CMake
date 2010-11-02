@@ -1,8 +1,8 @@
 
-Equalizer now can be built using CMake. A few glitches still remain, but
-I hope we can deprecate all other build systems ASAP.
+Equalizer is built using CMake. Please report any issues to the eq-dev
+mailing list.
 
-What works (tested):
+Tested are:
  * building and installing on Ubuntu, Mac OS X and Windows
  * creating binary package for Ubuntu
  * creating binary installer for Windows (with selectable components!)
@@ -10,12 +10,9 @@ What works (tested):
  * tests are run by CTest (some fail however)
 
 
-Ubuntu 32bit + 64bit, gcc 4.4.3
+Posix platforms (Linux, Mac OS X)
 ===============================
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make
+$ make (debug|release(|xcode))
 
 
 Windows XP 32bit using Visual C++ 2008 Express

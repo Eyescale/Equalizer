@@ -1,6 +1,43 @@
 #!gmake
-.PHONY: cmake
+.PHONY: debug release xcode docs
 
+all: debug RELNOTES.txt README.rst
+
+debug: debug/CMakeCache.txt
+	@$(MAKE) -C debug
+
+debug/CMakeCache.txt:
+	@mkdir -p debug
+	@cd debug; cmake ..
+
+
+release: release/CMakeCache.txt
+	@$(MAKE) -C release
+
+release/CMakeCache.txt:
+	@mkdir -p release
+	@cd release; cmake .. -DCMAKE_BUILD_TYPE=Release
+
+
+xcode: XCodeCMake/CMakeCache.txt
+	open XCodeCMake/Equalizer.xcodeproj
+
+XCodeCMake/CMakeCache.txt:
+	@mkdir -p XCodeCMake
+	@cd XCodeCMake; cmake -G Xcode ..
+
+docs:
+	@$(DOXYGEN) Doxyfile
+
+RELNOTES.txt: lib/RelNotes.dox
+	-links -dump $< > $@.tmp && mv $@.tmp $@
+
+README.rst: lib/RelNotes.dox
+	-$(PYTHON) make/html2rst.py $< > $@
+
+
+##### old Makefile below
+ifdef OLD
 include make/system.mk
 
 OPTIONAL = \
@@ -22,21 +59,6 @@ TARGETS     = precompile subdirs RELNOTES README.rst postcompile # docs
 CLEAN_EXTRA = obj build $(INSTALL_FILES)
 
 include make/rules.mk
-
-cmake:
-	@mkdir -p debug
-	@cd debug; cmake ..
-	@$(MAKE) -C debug
-
-cmakeRelease:
-	@mkdir -p release
-	@cd release; cmake .. -DCMAKE_BUILD_TYPE=Release
-	@$(MAKE) -C release
-
-cmakeXCode:
-	@mkdir -p cXCode
-	@cd cXCode; cmake -G Xcode ..
-	open cXCode/Equalizer.xcodeproj
 
 docs:
 	@$(DOXYGEN) Doxyfile
@@ -95,3 +117,4 @@ RELNOTES.txt: lib/RelNotes.dox
 
 README.rst: lib/RelNotes.dox
 	-$(PYTHON) make/html2rst.py $< > $@
+endif
