@@ -66,8 +66,8 @@ int OSGScaleViewer::run()
     config->setInitData( _initData );
     if( !config->init( ))
     {
-        std::cout << "Config initialization failed: "
-                  << config->getErrorMessage() << std::endl;
+        std::cout << "Config initialization failed: " << config->getError()
+                  << std::endl;
         server->releaseConfig( config );
         disconnectServer( server );
         return EXIT_FAILURE;

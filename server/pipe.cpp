@@ -224,7 +224,7 @@ bool Pipe::syncConfigInit()
         return true;
     }
 
-    EQWARN << "Pipe initialization failed: " << getErrorMessage() << std::endl;
+    EQWARN << "Pipe initialization failed: " << getError() << std::endl;
     configExit();
     return false;
 }

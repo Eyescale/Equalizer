@@ -37,6 +37,8 @@ namespace base
     class ErrorRegistry
     {
     public:
+        ~ErrorRegistry(); //!< @internal destructor
+
         /** @return the error string for the given error code. @version 1.0 */
         const std::string& getString( const uint32_t error ) const;
 
@@ -47,6 +49,7 @@ namespace base
         void eraseString( const uint32_t error );
 
     private:
+
         typedef stde::hash_map< uint32_t, std::string > ErrorHash;
         ErrorHash _errors;
     };

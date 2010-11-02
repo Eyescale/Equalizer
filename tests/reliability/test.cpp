@@ -17,10 +17,17 @@
 
 #include <test.h>
 #include <eq/eq.h>
+#include "server/global.h"
 
 eq::base::a_int32_t drawCalls;
 eq::base::a_int32_t readbackCalls;
 eq::base::a_int32_t assembleCalls;
+
+enum Error
+{
+    ERROR_NODE_INIT = eq::ERROR_CUSTOM,
+    ERROR_PIPE_INIT
+};
 
 class Node : public eq::Node
 {
@@ -32,7 +39,7 @@ protected:
         {
             if( getName() != "fail" )
                 return eq::Node::configInit( initID );
-            setErrorMessage( "Node::configInit failure" );
+            setError( ERROR_NODE_INIT );
             return false;
         }
     virtual void frameStart( const uint32_t id, const uint32_t number )
@@ -52,7 +59,7 @@ protected:
         {
             if( getName() != "fail" )
                 return eq::Pipe::configInit( initID );
-            setErrorMessage( "Pipe::configInit failure" );
+            setError( ERROR_PIPE_INIT );
             return false;
         }
     virtual void frameStart( const uint32_t id, const uint32_t number )
@@ -98,7 +105,12 @@ int main( const int argc, char** argv )
         EQERROR << "Equalizer init failed" << std::endl;
         return EXIT_FAILURE;
     }
-    
+    eq::server::Global::instance()->setConfigIAttribute(
+        eq::server::Config::IATTR_ROBUSTNESS, eq::ON );
+    eq::base::ErrorRegistry& registry = eq::base::Global::getErrorRegistry();
+    registry.setString( ERROR_NODE_INIT, "Node init failed" );
+    registry.setString( ERROR_PIPE_INIT, "Pipe init failed" );
+
     // 2. get a configuration
     eq::ClientPtr client = new eq::Client;
     eq::net::ConnectionDescriptionPtr desc = new eq::net::ConnectionDescription;
@@ -118,6 +130,8 @@ int main( const int argc, char** argv )
     }
 
     // 7. exit
+    registry.eraseString( ERROR_NODE_INIT );
+    registry.eraseString( ERROR_PIPE_INIT );
     client->exitLocal();
     TESTINFO( client->getRefCount() == 1, client->getRefCount( ));
 

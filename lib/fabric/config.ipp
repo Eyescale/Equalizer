@@ -370,15 +370,15 @@ const std::string& Config< S, C, O, L, CV, N, V >::getName() const
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::setErrorMessage( const std::string& message )
+void Config< S, C, O, L, CV, N, V >::setError( const int32_t error )
 {
-    _proxy->setErrorMessage( message );
+    _proxy->setError( error );
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-const std::string& Config< S, C, O, L, CV, N, V >::getErrorMessage() const
+base::Error Config< S, C, O, L, CV, N, V >::getError() const
 {
-    return _proxy->getErrorMessage();
+    return _proxy->getError();
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >

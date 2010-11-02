@@ -24,6 +24,7 @@
 #include "channel.h"
 #include "config.h"
 #include "configPackets.h"
+#include "error.h"
 #include "frameData.h"
 #include "global.h"
 #include "log.h"
@@ -483,7 +484,7 @@ bool Node::_cmdConfigInit( net::Command& command )
     _finishedFrame = packet->frameNumber;
 
     transmitter.start();
-    setErrorMessage( "" );
+    setError( ERROR_NONE );
     NodeConfigInitReplyPacket reply;
     reply.result = configInit( packet->initID );
 

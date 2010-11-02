@@ -32,6 +32,7 @@ struct ErrorData
 };
 
 ErrorData _errors[] = {
+    { ERROR_FBO_UNSUPPORTED, "Framebuffer objects not supported" },
     { ERROR_FRAMEBUFFER_UNSUPPORTED, "Unsupported framebuffer format" },
     { ERROR_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT,
       "Framebuffer incomplete, missing attachment" },
@@ -60,6 +61,9 @@ ErrorData _errors[] = {
     { ERROR_AGL_MISSING_SUPPORT, "Client library compiled without AGL support"},
     { ERROR_GLX_MISSING_SUPPORT, "Client library compiled without GLX support"},
 
+    { ERROR_NODE_LAUNCH, "Execution of node launch command failed" },
+    { ERROR_NODE_CONNECT, "Node process did not start" },
+
     { ERROR_PIPE_NODE_NOTRUNNING, "Node not running" },
 
     { ERROR_AGLPIPE_DISPLAYS_NOTFOUND, "Can't get display identifier list" },
@@ -80,6 +84,9 @@ ErrorData _errors[] = {
     { ERROR_WGLPIPE_CREATECONTEXT_FAILED,
       "Can't create temporary OpenGL context" },
     { ERROR_WGLPIPE_WGLEWINIT_FAILED, "Pipe WGLEW initialization failed" },
+
+    { ERROR_WINDOW_PIPE_NOTRUNNING, "Pipe not running" },
+    { ERROR_WINDOW_PVP_INVALID, "Invalid window pixel viewport" },
 
     { ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND,
       "Can't find matching pixel format" },
@@ -114,6 +121,8 @@ ErrorData _errors[] = {
     { ERROR_WGLWINDOW_CHOOSE_PF_ARB_FAILED,
       "Can't choose pixel format using ARB extension"},
     { ERROR_WGLWINDOW_CREATECONTEXT_FAILED, "Can't create WGL context" },
+
+    { ERROR_CHANNEL_WINDOW_NOTRUNNING, "Window not running" },
 
     { 0, "" } // last!
 };

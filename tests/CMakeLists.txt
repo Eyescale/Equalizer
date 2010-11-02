@@ -9,7 +9,7 @@ file(COPY image/images ${COMPOSITOR_IMAGES} ${TEST_CONFIGS}
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/examples/include # test depend on examples... oh well
-  ${CMAKE_SOURCE_DIR}/lib # some tests need private headers
+  ${CMAKE_SOURCE_DIR} # some tests need private headers
   )
 
 file(GLOB_RECURSE TEST_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)

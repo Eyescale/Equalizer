@@ -37,7 +37,7 @@ public:
         {
             _result = true;
             _sync = false;
-            _error.clear();
+            _error = ERROR_NONE;
             return TRAVERSE_CONTINUE;
         }
 
@@ -67,12 +67,13 @@ public:
 
     bool getResult() const { return _result; }
     bool needsSync() const { return _sync; }
-    const std::string& getErrorMessage() const { return _error; }
+    base::Error getError() const
+        { EQASSERT( _error != ERROR_NONE ); return _error; }
 
 private:
     bool _result; // success or failure
     bool _sync;   // call again after init failure
-    std::string _error; // error message
+    base::Error _error; // error message
 
     template< class T > VisitorResult _updateDown( T* entity ) const
         {
@@ -108,8 +109,7 @@ private:
                     if( !entity->syncConfigInit( ))
                     {
                         entity->sync();
-                        _error = name + " '" + entity->getName() + "': " +
-                            entity->getErrorMessage() + ' ' + _error;
+                        _error = entity->getError();
                         _result = false;
                         _sync = true;
                     }
@@ -123,8 +123,7 @@ private:
                     if( !entity->syncConfigExit( ))
                     {
                         entity->sync();
-                        _error = name + " '" + entity->getName() + "': " +
-                            entity->getErrorMessage() + ' ' + _error;
+                        _error = entity->getError();
                         _result = false;
                     }
                     else

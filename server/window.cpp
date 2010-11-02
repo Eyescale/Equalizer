@@ -337,7 +337,7 @@ bool Window::syncConfigInit()
         return true;
     }
 
-    EQWARN << "Window initialization failed: " << getErrorMessage() <<std::endl;
+    EQWARN << "Window initialization failed: " << getError() <<std::endl;
     configExit();
     return false;
 }

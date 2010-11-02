@@ -33,25 +33,23 @@
 
 #include <stdlib.h>
 
-using namespace std;
-
 namespace eVolve
 {
 
 static const std::string _help(
-    string( "eVolve - Equalizer volume rendering example\n" ) +
-    string( "\tRun-time commands:\n" ) +
-    string( "\t\tLeft Mouse Button:         Rotate model\n" ) +
-    string( "\t\tMiddle Mouse Button:       Move model in X, Y\n" ) +
-    string( "\t\tRight Mouse Button:        Move model in Z\n" ) +
-    string( "\t\t<Esc>, All Mouse Buttons:  Exit program\n" ) +
-    string( "\t\t<Space>, r:                Reset camera\n" ) +
-    string( "\t\to:                         Toggle " ) +
-    string( "perspective/orthographic\n" ) +
-    string( "\t\ts:                         Toggle statistics " ) +
-    string( "overlay\n" ) +
-    string( "\t\tl:                         Switch layout for active canvas\n")+
-    string( "\t\tF1, h:                     Toggle help overlay\n" )
+    std::string( "eVolve - Equalizer volume rendering example\n" ) +
+    std::string( "\tRun-time commands:\n" ) +
+    std::string( "\t\tLeft Mouse Button:         Rotate model\n" ) +
+    std::string( "\t\tMiddle Mouse Button:       Move model in X, Y\n" ) +
+    std::string( "\t\tRight Mouse Button:        Move model in Z\n" ) +
+    std::string( "\t\t<Esc>, All Mouse Buttons:  Exit program\n" ) +
+    std::string( "\t\t<Space>, r:                Reset camera\n" ) +
+    std::string( "\t\to:                         Toggle " ) +
+    std::string( "perspective/orthographic\n" ) +
+    std::string( "\t\ts:                         Toggle statistics " ) +
+    std::string( "overlay\n" ) +
+    std::string( "\t\tl:                         Switch layout for active canvas\n")+
+    std::string( "\t\tF1, h:                     Toggle help overlay\n" )
  );
 
 const std::string& EVolve::getHelp()
@@ -69,7 +67,7 @@ int EVolve::run()
     eq::ServerPtr server = new eq::Server;
     if( !connectServer( server ))
     {
-        EQERROR << "Can't open server" << endl;
+        EQERROR << "Can't open server" << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -79,7 +77,7 @@ int EVolve::run()
 
     if( !config )
     {
-        EQERROR << "No matching config on server" << endl;
+        EQERROR << "No matching config on server" << std::endl;
         disconnectServer( server );
         return EXIT_FAILURE;
     }
@@ -90,15 +88,15 @@ int EVolve::run()
     config->setInitData( _initData );
     if( !config->init( ))
     {
-        EQERROR << "Config initialization failed: " 
-                << config->getErrorMessage() << endl;
+        EQERROR << "Config initialization failed: " << config->getError()
+                << std::endl;
         server->releaseConfig( config );
         disconnectServer( server );
         return EXIT_FAILURE;
     }
 
     EQLOG( LOG_STATS ) << "Config init took " << clock.getTimef() << " ms"
-                       << endl;
+                       << std::endl;
 
     // 4. run main loop
     uint32_t maxFrames = _initData.getMaxFrames();
@@ -113,17 +111,17 @@ int EVolve::run()
     const float    time  = clock.getTimef();
     EQLOG( LOG_STATS ) << "Rendering took " << time << " ms (" << frame
                        << " frames @ " << ( frame / time * 1000.f) << " FPS)"
-                       << endl;
+                       << std::endl;
 
     // 5. exit config
     clock.reset();
     config->exit();
-    EQLOG( LOG_STATS ) << "Exit took " << clock.getTimef() << " ms" <<endl;
+    EQLOG( LOG_STATS ) << "Exit took " << clock.getTimef() << " ms" <<std::endl;
 
     // 6. cleanup and exit
     server->releaseConfig( config );
     if( !disconnectServer( server ))
-        EQERROR << "Client::disconnectServer failed" << endl;
+        EQERROR << "Client::disconnectServer failed" << std::endl;
     server = 0;
 
     return EXIT_SUCCESS;

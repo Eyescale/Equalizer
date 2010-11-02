@@ -24,6 +24,7 @@
 #include "config.h"
 #include "configEvent.h"
 #include "event.h"
+#include "error.h"
 #include "global.h"
 #include "log.h"
 #include "node.h"
@@ -337,7 +338,7 @@ bool Window::configInit( const uint32_t initID )
 {
     if( !getPixelViewport().isValid( ))
     {
-        setErrorMessage( "Window pixel viewport invalid - pipe init failed?" );
+        setError( ERROR_WINDOW_PVP_INVALID );
         return false;
     }
 
@@ -378,15 +379,14 @@ bool Window::configInitSystemWindow( const uint32_t )
 #endif
 
         default:
-            EQERROR << "Window system " << pipe->getWindowSystem() 
-                    << " not implemented or supported" << std::endl;
+            setError( ERROR_WINDOWSYSTEM_UNKNOWN );
             return false;
     }
 
     EQASSERT( systemWindow );
     if( !systemWindow->configInit( ))
     {
-        EQWARN << "System Window initialization failed: " << getErrorMessage()
+        EQWARN << "System window initialization failed: " << getError()
                << std::endl;
         delete systemWindow;
         return false;
@@ -679,7 +679,7 @@ bool Window::_cmdConfigInit( net::Command& command )
     EQLOG( LOG_INIT ) << "TASK window config init " << packet << std::endl;
 
     WindowConfigInitReplyPacket reply;
-    setErrorMessage( std::string( ));
+    setError( ERROR_NONE );
 
     if( getPipe()->isRunning( ))
     {
@@ -690,7 +690,7 @@ bool Window::_cmdConfigInit( net::Command& command )
     }
     else
     {
-        setErrorMessage( "pipe not running" );
+        setError( ERROR_WINDOW_PIPE_NOTRUNNING );
         reply.result = false;
     }
     EQLOG( LOG_INIT ) << "TASK window config init reply " << &reply <<std::endl;

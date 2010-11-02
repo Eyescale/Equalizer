@@ -1,6 +1,6 @@
 
-/* 
- * Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/*
+ * Copyright (c) 2006-20010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,13 +35,12 @@
  */
 
 #include "pipe.h"
-#include "node.h"
+
 #include "config.h"
+#include "error.h"
+#include "node.h"
 
 #include <eq/eq.h>
-
-using namespace eq::base;
-using namespace std;
 
 namespace eVolve
 {
@@ -56,7 +55,7 @@ eq::WindowSystem Pipe::selectWindowSystem() const
     if( !supportsWindowSystem( ws ))
     {
         EQWARN << "Window system " << ws 
-               << " not supported, using default window system" << endl;
+               << " not supported, using default window system" << std::endl;
         return eq::Pipe::selectWindowSystem();
     }
 
@@ -75,18 +74,17 @@ bool Pipe::configInit( const uint32_t initID )
     const bool mapped = config->mapObject( &_frameData, frameDataID );
     EQASSERT( mapped );
 
-    const string&  filename  = initData.getFilename();
+    const std::string& filename = initData.getFilename();
     const uint32_t precision = initData.getPrecision();
-    EQINFO << "Loading model " << filename << endl;
+    EQINFO << "Loading model " << filename << std::endl;
 
     _renderer = new Renderer( filename.c_str(), precision );
     EQASSERT( _renderer );
 
     if( !_renderer->loadHeader( initData.getBrightness(), initData.getAlpha( )))
     {
-        setErrorMessage( "Can't load model header file" );
-        EQWARN << "Can't load model header file: " << filename << ".vhf"
-               << endl;
+        setError( ERROR_EVOLVE_LOADMODEL_FAILED );
+        EQWARN << getError() << ": " << filename << ".vhf" << std::endl;
         delete _renderer;
         _renderer = 0;
         return false;

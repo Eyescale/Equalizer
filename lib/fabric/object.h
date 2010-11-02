@@ -75,12 +75,8 @@ namespace fabric
          */
         EQFABRIC_EXPORT void setError( const int32_t error );
 
-        EQFABRIC_EXPORT void setErrorMessage( const std::string& message );
-
-        /** @return the last error from the last failed operation. */
+        /** @return the error from the last failed operation. @version 1.0 */
         base::Error getError() const { return _error; }
-
-        const std::string& getErrorMessage() const { return _errorStr; }
         //@}
 
         /** @name Data Access */
@@ -202,7 +198,6 @@ namespace fabric
 
         /** The reason for the last error. */
         base::Error _error;
-        std::string _errorStr;
 
         /** The identifiers of removed children since the last slave commit. */
         std::vector< uint32_t > _removedChildren;

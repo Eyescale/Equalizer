@@ -23,6 +23,7 @@
 #include "compositor.h"
 #include "config.h"
 #include "configEvent.h"
+#include "error.h"
 #include "frame.h"
 #include "frameData.h"
 #include "global.h"
@@ -196,7 +197,7 @@ bool Channel::_configInitFBO()
     if( !window->getSystemWindow()  ||
         !GLEW_ARB_texture_non_power_of_two || !GLEW_EXT_framebuffer_object )
     {
-        setErrorMessage( "Can't use FBO due to missing GL extensions" );
+        setError( ERROR_FBO_UNSUPPORTED );
         return false;
     }
         
@@ -227,7 +228,7 @@ bool Channel::_configInitFBO()
     }
     // else
 
-    setErrorMessage( "FBO initialization failed" );
+    setError( _fbo->getError( ));
     delete _fbo;
     _fbo = 0;
     return false;
@@ -1070,7 +1071,7 @@ bool Channel::_cmdConfigInit( net::Command& command )
     changeLatency( config->getLatency( ));
 
     ChannelConfigInitReplyPacket reply;
-    setErrorMessage( std::string( ));
+    setError( ERROR_NONE );
 
     const Window* window = getWindow();
     if( window->isRunning( ))
@@ -1092,7 +1093,7 @@ bool Channel::_cmdConfigInit( net::Command& command )
     }
     else
     {
-        setErrorMessage( "window not running" );
+        setError( ERROR_CHANNEL_WINDOW_NOTRUNNING );
         reply.result = false;
     }
 

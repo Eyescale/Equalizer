@@ -38,6 +38,7 @@
 #include <eq/client/clientPackets.h>
 #include <eq/client/configEvent.h>
 #include <eq/client/configPackets.h>
+#include <eq/client/error.h>
 #include <eq/fabric/configPackets.h>
 #include <eq/fabric/iAttribute.h>
 #include <eq/fabric/paths.h>
@@ -482,8 +483,6 @@ bool Config::_updateRunning()
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING ||
               _state == STATE_EXITING );
 
-    setErrorMessage( "" );
-
     if( !_connectNodes() && !failValue )
         return false;
 
@@ -659,17 +658,17 @@ bool Config::_updateNodes()
     
     ConfigUpdateSyncVisitor syncUpdate;
     accept( syncUpdate );
-    const bool result = syncUpdate.getResult();
 
+    const bool result = syncUpdate.getResult();
     if( !result )
-        setErrorMessage( getErrorMessage() + syncUpdate.getErrorMessage( ));
+        setError( syncUpdate.getError( ));
 
     if( syncUpdate.needsSync( )) // init failure, call again (exit pending)
     {
         EQASSERT( !result );
         accept( syncUpdate );
         if( !syncUpdate.getResult( ))
-            setErrorMessage( getErrorMessage() + syncUpdate.getErrorMessage( ));
+            setError( syncUpdate.getError( ));
         EQASSERT( !syncUpdate.needsSync( ));
     }
 
@@ -920,6 +919,7 @@ bool Config::_cmdInit( net::Command& command )
     EQVERB << "handle config start init " << packet << std::endl;
 
     sync();
+    setError( ERROR_NONE );
     commit();
 
     ConfigInitReplyPacket reply( packet );
@@ -929,11 +929,11 @@ bool Config::_cmdInit( net::Command& command )
 
     sync( net::VERSION_HEAD );
     EQINFO << "Config init " << (reply.result ? "successful: ": "failed: ") 
-           << getErrorMessage() << std::endl;
+           << getError() << std::endl;
 
     reply.version = commit();
     send( command.getNode(), reply );
-    setErrorMessage( "" );
+    setError( ERROR_NONE );
     return true;
 }
 
@@ -943,6 +943,7 @@ bool Config::_cmdExit( net::Command& command )
         command.getPacket<ConfigExitPacket>();
     ConfigExitReplyPacket   reply( packet );
     EQVERB << "handle config exit " << packet << std::endl;
+    setError( ERROR_NONE );
 
     if( _state == STATE_RUNNING )
         reply.result = exit();
@@ -962,6 +963,7 @@ bool Config::_cmdUpdate( net::Command& command )
     EQVERB << "handle config update " << packet << std::endl;
 
     sync();
+    setError( ERROR_NONE );
     commit();    
 
     net::NodePtr node = command.getNode();
@@ -986,8 +988,8 @@ bool Config::_cmdUpdate( net::Command& command )
     reply.result = _updateRunning();
     if( !reply.result && !getIAttribute( IATTR_ROBUSTNESS ))
     {
-        EQWARN << "Config update failed, exiting config: " 
-               << getErrorMessage() << std::endl;
+        EQWARN << "Config update failed, exiting config: " << getError()
+               << std::endl;
         exit();
     }
     EQINFO << "Updated " << *this << std::endl;

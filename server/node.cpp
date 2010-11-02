@@ -29,6 +29,7 @@
 #include "window.h"
 
 #include <eq/client/configPackets.h>
+#include <eq/client/error.h>
 #include <eq/client/nodePackets.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
@@ -229,13 +230,8 @@ bool Node::connect()
     EQLOG( LOG_INIT ) << "Connecting node" << std::endl;
     if( !localNode->connect( _node ) && !launch( ))
     {
-        std::stringstream nodeString;
-        nodeString << "Connection to node failed, node does not run and launch "
-                   << "command failed: " << *this;
-        
-        setErrorMessage( getErrorMessage() + nodeString.str( ));
-        EQERROR << "Connection to " << _node->getNodeID() << " failed"
-                << std::endl;
+        EQWARN << "Connection to " << _node->getNodeID() << " failed"
+               << std::endl;
         _state = STATE_FAILED;
         _node = 0;
         return false;
@@ -259,6 +255,7 @@ bool Node::launch()
                << std::endl;
     }
 
+    setError( ERROR_NODE_LAUNCH );
     return false;
 }
 
@@ -302,10 +299,8 @@ bool Node::syncLaunch( const base::Clock& clock )
                 ConnectionDescriptionPtr desc = *i;
                 data << desc->getHostname() << ' ';
             }
-            setErrorMessage( getErrorMessage() + 
-                             "Connection failed, node did not start ( " +
-                             data.str() + ") " );
-            EQERROR << getErrorMessage() << std::endl;
+            setError( ERROR_NODE_CONNECT );
+            EQWARN << getError() << std::endl;
 
             _state = STATE_FAILED;
             return false;
@@ -464,7 +459,7 @@ bool Node::syncConfigInit()
         return true;
     }
 
-    EQWARN << "Node initialization failed: " << getErrorMessage() << std::endl;
+    EQWARN << "Node initialization failed: " << getError() << std::endl;
     configExit();
     return false;
 }

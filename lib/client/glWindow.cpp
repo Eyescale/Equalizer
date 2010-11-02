@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
-                          , Makhinya Maxim
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+                      2009, Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,6 +18,7 @@
 
 #include "glWindow.h"
 
+#include "error.h"
 #include "global.h"
 #include "pipe.h"
 
@@ -53,7 +54,7 @@ void GLWindow::initGLEW()
 
     const GLenum result = glewInit();
     if( result != GLEW_OK )
-        _window->setErrorMessage( "GLEW initialization failed: " + result );
+        EQWARN << "GLEW initialization failed: " << std::endl;
     else
         _glewInitialized = true;
 }
@@ -71,11 +72,10 @@ GLEWContext* GLWindow::glewGetContext()
 bool GLWindow::configInitFBO()
 {
     if( !_glewInitialized ||
-        !GLEW_ARB_texture_non_power_of_two ||
-        !GLEW_EXT_framebuffer_object )
+        !GLEW_ARB_texture_non_power_of_two || !GLEW_EXT_framebuffer_object )
     {
-        _window->setErrorMessage( "Framebuffer objects unsupported" );
-         return false;
+        setError( ERROR_FBO_UNSUPPORTED );
+        return false;
     }
     
     // needs glew initialized (see above)
@@ -101,7 +101,7 @@ bool GLWindow::configInitFBO()
         return true;
     }
 
-    _window->setErrorMessage( "FBO initialization failed" );
+    setError( _fbo->getError( ));
     delete _fbo;
     _fbo = 0;
     return false;

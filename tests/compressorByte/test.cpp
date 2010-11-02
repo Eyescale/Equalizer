@@ -35,9 +35,9 @@
 #include <sstream>
 #include <string>
 
-#include "base/compressorInfo.h" // private header
-#include "base/cpuCompressor.h" // private header
-#include "base/plugin.h" // private header
+#include "lib/base/compressorInfo.h" // private header
+#include "lib/base/cpuCompressor.h" // private header
+#include "lib/base/plugin.h" // private header
 
 void testCompressByte( const uint32_t nameCompressor,
                        char* data, const uint64_t size,

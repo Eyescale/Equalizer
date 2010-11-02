@@ -30,6 +30,7 @@
 
 #include "channel.h"
 #include "config.h"
+#include "error.h"
 #include "node.h"
 #include "pipe.h"
 #include "window.h"
@@ -67,7 +68,8 @@ int main( const int argc, char** argv )
         EQERROR << "Equalizer init failed" << endl;
         return EXIT_FAILURE;
     }
-    
+    eVolve::initErrors();
+
     // 3. initialization of local client node
     RefPtr< eVolve::EVolve > client = new eVolve::EVolve( initData );
     if( !client->initLocal( argc, argv ))
@@ -84,6 +86,7 @@ int main( const int argc, char** argv )
     client->exitLocal();
     client = 0;
 
+    eVolve::exitErrors();
     eq::exit();
     return ret;
 }

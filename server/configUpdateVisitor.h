@@ -74,7 +74,7 @@ private:
                 case STATE_STOPPED:
                     if( entity->isActive( ))
                     {
-                        entity->setErrorMessage( std::string( ));
+                        entity->setError( ERROR_NONE );
                         entity->configInit( _initID, _frameNumber );
                         return TRAVERSE_CONTINUE;
                     }

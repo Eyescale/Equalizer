@@ -28,7 +28,7 @@
 #include <eq/net/init.h>
 #include <eq/net/packets.h>
 
-#include "base/cpuCompressor.h" // private header
+#include "lib/base/cpuCompressor.h" // private header
 
 // Tests the functionality of the DataOStream and DataIStream
 

@@ -132,19 +132,19 @@ namespace fabric
         /** @return the name of the object. @version 1.0 */
         EQFABRIC_EXPORT const std::string& getName() const;
 
-        /**
-         * Set a message why the last operation failed.
+        /** 
+         * Set an error code why the last operation failed.
          * 
-         * The message will be transmitted to the originator of the request, for
+         * The error will be transmitted to the originator of the request, for
          * example to Config::init when set from within configInit().
          *
-         * @param message the error message.
+         * @param error the error message.
          * @version 1.0
          */
-        EQFABRIC_EXPORT void setErrorMessage( const std::string& message );
+        EQFABRIC_EXPORT void setError( const int32_t error );
 
-        /** @return the error message from the last operation. */
-        EQFABRIC_EXPORT const std::string& getErrorMessage() const;
+        /** @return the error from the last failed operation. @version 1.0 */
+        EQFABRIC_EXPORT base::Error getError() const;
         //@}
 
         /** @name Attributes */

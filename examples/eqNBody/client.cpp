@@ -34,24 +34,23 @@
 
 #include <stdlib.h>
 
-using namespace std;
-
 namespace eqNbody
 {
     
-    Client::Client( const InitData& initData ) : _initData( initData ), _config(NULL)
-    {
-    }
+    Client::Client( const InitData& initData )
+            : _initData( initData )
+            , _config( 0 )
+    {}
     
     int Client::init()
     {
-        EQASSERT(_config == NULL);
+        EQASSERT( !_config );
         
         // 1. connect to server
         _server = new eq::Server;
         if( !connectServer( _server ))
         {
-            EQERROR << "Can't open server" << endl;
+            EQERROR << "Can't open server" << std::endl;
             return EXIT_FAILURE;
         }
         
@@ -61,7 +60,7 @@ namespace eqNbody
         
         if( !_config )
         {
-            EQERROR << "No matching config on server" << endl;
+            EQERROR << "No matching config on server" << std::endl;
             disconnectServer( _server );
             return EXIT_FAILURE;
         }
@@ -70,7 +69,8 @@ namespace eqNbody
         _config->setInitData( _initData );
         if( !_config->init() )
         {
-            EQERROR << "Config initialization failed: " << _config->getErrorMessage() << endl;
+            EQERROR << "Config initialization failed: " << _config->getError()
+                    << std::endl;
             _server->releaseConfig( _config );
             disconnectServer( _server );
             return EXIT_FAILURE;
@@ -81,7 +81,7 @@ namespace eqNbody
     
     int Client::exit()
     {
-        EQASSERT(_config != NULL);
+        EQASSERT( _config );
 
         // Exit config
         _config->exit();
@@ -89,7 +89,7 @@ namespace eqNbody
         // Cleanup
         _server->releaseConfig( _config );
         if( !disconnectServer( _server )) {
-            EQERROR << "Client::disconnectServer failed" << endl;
+            EQERROR << "Client::disconnectServer failed" << std::endl;
             return EXIT_FAILURE;
         }
         

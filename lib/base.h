@@ -28,7 +28,9 @@
  */
 
 #include <eq/base/base.h>
+#include <eq/base/errorRegistry.h>
 #include <eq/base/file.h>
+#include <eq/base/global.h>
 #include <eq/base/sleep.h>
 
 #endif // EQBASE_H

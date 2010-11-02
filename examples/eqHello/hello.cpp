@@ -86,8 +86,8 @@ int main( const int argc, char** argv )
         }
         else
         {
-            EQERROR << "Config initialization failed: " 
-                    << config->getErrorMessage() << endl;
+            EQERROR << "Config initialization failed: " << config->getError()
+                    << endl;
             error = true;
         }
 

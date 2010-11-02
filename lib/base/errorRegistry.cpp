@@ -17,6 +17,8 @@
 
 #include "errorRegistry.h"
 
+#include "debug.h"
+
 namespace eq 
 {
 namespace base
@@ -24,6 +26,11 @@ namespace base
 namespace
 {
 static std::string _empty;
+}
+
+ErrorRegistry::~ErrorRegistry()
+{
+    EQASSERT( _errors.empty( ));
 }
 
 const std::string& ErrorRegistry::getString( const uint32_t error ) const

@@ -16,8 +16,8 @@
  */
 
 #include <test.h>
-#include "../../server/loader.h"
-#include "../../server/server.h"
+#include "server/loader.h"
+#include "server/server.h"
 
 #include <eq/base/init.h>
 

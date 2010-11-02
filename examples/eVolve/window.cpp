@@ -27,6 +27,8 @@
  */
 
 #include "window.h"
+
+#include "error.h"
 #include "pipe.h"
 
 namespace eVolve
@@ -50,17 +52,17 @@ bool Window::configInitGL( const uint32_t initID )
 
     if( !GLEW_ARB_shader_objects )
     {
-        setErrorMessage( "eVolve needs GL_ARB_shader_objects extension" );
+        setError( ERROR_EVOLVE_ARB_SHADER_OBJECTS_MISSING );
         return false;
     }
     if( !GLEW_EXT_blend_func_separate )
     {
-        setErrorMessage( "eVolve needs GL_EXT_blend_func_separate extension" );
+        setError( ERROR_EVOLVE_EXT_BLEND_FUNC_SEPARATE_MISSING );
         return false;
     }
     if( !GLEW_ARB_multitexture )
     {
-        setErrorMessage( "eVolve needs GLEW_ARB_multitexture extension" );
+        setError( ERROR_EVOLVE_ARB_MULTITEXTURE_MISSING );
         return false;
     }
 
@@ -74,7 +76,7 @@ bool Window::configInitGL( const uint32_t initID )
 
     if( !renderer->loadShaders( ))
     {
-        setErrorMessage( "Can't load shaders" );
+        setError( ERROR_EVOLVE_LOADSHADERS_FAILED );
         return false;
     }
 

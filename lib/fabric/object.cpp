@@ -133,7 +133,7 @@ void Object::serialize( net::DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_TASKS )
         os << _tasks;
     if( dirtyBits & DIRTY_ERROR )
-        os << _error << _errorStr;
+        os << _error;
     if( dirtyBits & DIRTY_REMOVED )
     {
         EQASSERT( !isMaster() || 
@@ -155,7 +155,7 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_TASKS )
         is >> _tasks;
     if( dirtyBits & DIRTY_ERROR )
-        is >> _error >> _errorStr;
+        is >> _error;
     if( dirtyBits & DIRTY_REMOVED )
     {
         std::vector< uint32_t > removed;
@@ -271,14 +271,6 @@ void Object::setError( const int32_t error )
     if( _error == error )
         return;
     _error = base::Error( error );
-    setDirty( DIRTY_ERROR );
-}
-
-void Object::setErrorMessage( const std::string& message )
-{
-    if( _errorStr == message )
-        return;
-    _errorStr = message;
     setDirty( DIRTY_ERROR );
 }
 

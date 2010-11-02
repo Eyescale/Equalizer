@@ -1,10 +1,13 @@
 #!gmake
-.PHONY: debug release xcode debug_glx docs
+.PHONY: debug tests release xcode debug_glx docs
 
 all: debug RELNOTES.txt README.rst
 
 debug: debug/CMakeCache.txt
 	@$(MAKE) -C debug
+
+tests: debug/CMakeCache.txt
+	@$(MAKE) -C debug check
 
 debug/CMakeCache.txt:
 	@mkdir -p debug

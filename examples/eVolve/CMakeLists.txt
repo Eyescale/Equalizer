@@ -6,6 +6,7 @@ set(HEADERS eVolve.h)
 set(SOURCES
   channel.cpp
   config.cpp
+  error.cpp
   eVolve.cpp
   frameData.cpp
   framesOrderer.cpp
