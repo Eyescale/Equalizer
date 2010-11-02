@@ -76,10 +76,17 @@ include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
 
 if(APPLE)
   # WAR otherwise MacPorts X11 (/opt/local) is preferred
-  LIST(APPEND CMAKE_SYSTEM_LIBRARY_PATH /usr/X11R6/lib)
+  LIST(REMOVE_ITEM CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
+  LIST(REMOVE_ITEM CMAKE_SYSTEM_PREFIX_PATH /opt/local)
 endif(APPLE)
 
 find_package(X11)
+
+if(APPLE)
+  LIST(APPEND CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
+  LIST(APPEND CMAKE_SYSTEM_PREFIX_PATH /opt/local)
+endif(APPLE)
+
 if(X11_FOUND)
   if(APPLE)
     set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?

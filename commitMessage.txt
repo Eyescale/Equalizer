@@ -1,10 +1,9 @@
-Error codes: refactor GLXWindow
-Tweak CMake for AGL/GLX setting on OS X
+Fix once more X11/CMake/Darwin build
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
-[x] New Feature
-[x] Cleanup
+[x] Bugfix
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
