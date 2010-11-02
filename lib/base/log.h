@@ -86,8 +86,6 @@ namespace base
             { 
                 assert( _blocked );// Too many enableFlush on log stream
                 --_blocked;
-                if( !_blocked ) 
-                    pubsync();
             }
 
         void disableHeader() { ++_noHeader; } // use counted variable to allow

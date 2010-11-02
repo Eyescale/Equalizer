@@ -1,9 +1,11 @@
-Error codes: refactor WGLWindow
+Object stream compression:
+- Fix allocation of compressor
+- Clean up and print instrumentation, if active
 
-[x] May break build
+[ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
-[x] New Feature
+[x] Bugfix
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
