@@ -43,8 +43,9 @@ public:
         }
 
     virtual VisitorResult visitPost( Node* node )
-        { 
-            node->flushSendBuffer();
+        {
+			if( node->isRunning() )
+                node->flushSendBuffer();
             return TRAVERSE_CONTINUE; 
         }
 private:
