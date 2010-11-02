@@ -1,14 +1,9 @@
-Error message:
-- retire Object error string
-- move remaining classes to error codes
+Untabify
 
-Remove 'fail' code from eqPly -- has unit test now.
-Set init reliability default to 'OFF'
-
-[x] May break build
-[x] May break existing applications (see CHANGES.txt)
-[x] Bugfix
-[x] New Feature
+[ ] May break build
+[ ] May break existing applications (see CHANGES.txt)
+[ ] Bugfix
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
