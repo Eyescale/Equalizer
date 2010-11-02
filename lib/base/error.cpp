@@ -20,6 +20,8 @@
 #include <eq/base/errorRegistry.h>
 #include <eq/base/global.h>
 
+#include <iostream>
+
 namespace eq
 {
 namespace base
