@@ -1,4 +1,4 @@
-Fix some tests
+Add missing files
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
