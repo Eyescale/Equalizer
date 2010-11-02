@@ -34,6 +34,7 @@ FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext,
     : _fboID( 0 )
     , _depth( textureTarget, glewContext )
     , _glewContext( glewContext )
+    , _error( ERROR_NONE )
     , _valid( false )
 {
     EQASSERT( GLEW_EXT_framebuffer_object );

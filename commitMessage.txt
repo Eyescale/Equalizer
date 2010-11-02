@@ -1,9 +1,9 @@
-Simplify eq::Frame API, doxygen improvements
+Initialize errors with ERROR_NONE
 
 [ ] May break build
-[x] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[ ] May break existing applications (see CHANGES.txt)
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

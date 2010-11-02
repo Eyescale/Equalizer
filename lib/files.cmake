@@ -98,6 +98,7 @@ set(FABRIC_HEADERS
   fabric/drawableConfig.h
   fabric/elementVisitor.h
   fabric/eye.h
+  fabric/error.h
   fabric/frustum.h
   fabric/global.h
   fabric/layout.h
@@ -292,6 +293,7 @@ set(FABRIC_SOURCES
   fabric/client.cpp
   fabric/colorMask.cpp
   fabric/eye.cpp
+  fabric/error.cpp
   fabric/frustum.cpp
   fabric/global.cpp
   fabric/iAttribute.cpp

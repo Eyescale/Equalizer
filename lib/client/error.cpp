@@ -76,17 +76,5 @@ void _exitErrors()
         registry.eraseString( _errors[i].code );
 }
 
-std::ostream& operator << ( std::ostream& os, const Error& error )
-{
-    const base::ErrorRegistry& registry = base::Global::getErrorRegistry();
-    const std::string& text = registry.getString( error );
-    if( text.empty( ))
-        os << "error " << uint32_t( error );
-    else
-        os << text << " (" << uint32_t( error ) << ")";
-
-    return os;
-}
-
 }
 

@@ -243,6 +243,7 @@ void Pipe::_runThread()
         net::Command* command = _pipeThreadQueue->pop();
         _waitTime += ( config->getTime() - startWait );
 
+        EQASSERT( command );
         EQCHECK( config->invokeCommand( *command ));
         command->release();
     }

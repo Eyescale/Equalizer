@@ -15,36 +15,26 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_ERROR_H
-#define EQ_ERROR_H
+#ifndef EQFABRIC_ERROR_H
+#define EQFABRIC_ERROR_H
 
-#include <eq/fabric/error.h>
+#include <eq/base/base.h>
+#include <eq/base/types.h> // EQ_KB definitions
 
 namespace eq
+{
+namespace fabric
 {
     /** Defines errors produced by Equalizer classes. */
     enum Error
     {
-        ERROR_NONE = fabric::ERROR_NONE,
-        ERROR_FRAMEBUFFER_UNSUPPORTED = fabric::ERROR_CUSTOM,
-        ERROR_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT,
-        ERROR_FRAMEBUFFER_INCOMPLETE_ATTACHMENT,
-        ERROR_FRAMEBUFFER_INCOMPLETE_DIMENSIONS,
-        ERROR_FRAMEBUFFER_INCOMPLETE_FORMATS,
-        ERROR_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER,
-        ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER,
-        ERROR_FRAMEBUFFER_FULL_COLOR_TEXTURES,
-        ERROR_FRAMEBUFFER_INITIALIZED,
-
-        ERROR_CUDACONTEXT_DEVICE_NOTFOUND,
-        ERROR_CUDACONTEXT_INIT_FAILED,
-        ERROR_CUDACONTEXT_MISSING_SUPPORT,
-
-        ERROR_CUSTOM = EQ_128KB
+        ERROR_NONE = 0, // use base::ERROR_NONE,
+        // ERROR_ = base::ERROR_CUSTOM,
+        ERROR_CUSTOM = EQ_64KB,
     };
 
     /** Print the error in a human-readable format. @version 1.0 */
-    inline std::ostream& operator << ( std::ostream& os, const Error& error)
-        { os << fabric::Error( error ); return os; }
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Error& error);
 }
-#endif // EQ_ERROR_H
+}
+#endif // EQFABRIC_ERROR_H

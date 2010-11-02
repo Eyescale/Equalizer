@@ -425,9 +425,6 @@ bool Compound::isDestination() const
 {
     if( !getChannel( ))
         return false;
-    
-    if( !getParent( ))
-        return true;
 
     for( const Compound* compound = getParent(); compound;
          compound = compound->getParent( ))
