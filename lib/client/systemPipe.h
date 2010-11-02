@@ -19,6 +19,7 @@
 #ifndef EQ_SYSTEM_PIPE_H
 #define EQ_SYSTEM_PIPE_H
 
+#include <eq/client/error.h> // enum
 #include <eq/base/base.h>
 #include <string>
 
@@ -52,34 +53,27 @@ namespace eq
         virtual void configExit( ) = 0;
         //@}
 
-        /** @return the reason of the last failed operation. */
-        const std::string & getErrorMessage() const { return _error; }
-
         /** @return the parent Pipe. */
         Pipe* getPipe() { return _pipe; }
         
         /** @return the parent Pipe. */
         const Pipe* getPipe() const { return _pipe; }
 
+        /** @return the last error. */
+        base::Error getError() const;
+
     protected:
         /** @name Error information. */
         //@{
         /** 
-         * Set a message why the last operation failed.
-         * 
-         * The message will be transmitted to the originator of the request, for
-         * example to Config::init when set from within the configInit method.
-         *
-         * @param message the error message.
+         * Set an error code why the last operation failed.
+         * @param error the error code.
          */
-        void setErrorMessage( const std::string& message ) { _error = message; }
+        void setError( const uint32_t error );
         //@}
 
         /** The parent eq::Pipe. */
         Pipe* const _pipe;
-
-        /** The reason for the last error. */
-        std::string _error;
 
     private:
         union // placeholder for binary-compatible changes

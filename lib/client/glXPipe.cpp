@@ -53,19 +53,15 @@ bool GLXPipe::configInit( )
             
     if( !xDisplay )
     {
-        std::ostringstream msg;
-        msg << "Can't open display: " << XDisplayName( displayName.c_str( ));
-        setErrorMessage( msg.str( ));
+        setError( ERROR_GLXPIPE_DEVICE_NOTFOUND );
+        EQERROR << getError() << ": " << XDisplayName( displayName.c_str( ));
         return false;
     }
 
     int major, event, error;
     if( !XQueryExtension( xDisplay, "GLX", &major, &event, &error ))
     {
-        std::ostringstream msg;
-        msg << "Display " << XDisplayName( displayName.c_str( ))
-            << " does not support GLX";
-        setErrorMessage( msg.str( ));
+        setError( ERROR_GLXPIPE_GLX_NOTFOUND );
         XCloseDisplay( xDisplay );
         return false;
     }
@@ -75,7 +71,7 @@ bool GLXPipe::configInit( )
            << _pipe->getDevice() << std::endl;
     return true;
 #else
-    setErrorMessage( "Client library compiled without GLX support" );
+    setError( ERROR_GLX_MISSING_SUPPORT );
     return false;
 #endif
 }

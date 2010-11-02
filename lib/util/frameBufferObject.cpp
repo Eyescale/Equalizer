@@ -18,6 +18,8 @@
 
 #include "frameBufferObject.h"
 
+#include <eq/client/error.h>
+
 #include <eq/fabric/pixelViewport.h>
 
 #ifdef WIN32
@@ -34,7 +36,7 @@ FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext,
     : _fboID( 0 )
     , _depth( textureTarget, glewContext )
     , _glewContext( glewContext )
-    , _error( ERROR_NONE )
+    , _error( base::ERROR_NONE )
     , _valid( false )
 {
     EQASSERT( GLEW_EXT_framebuffer_object );
@@ -51,11 +53,16 @@ FrameBufferObject::~FrameBufferObject()
     }
 }
 
+void FrameBufferObject::_setError( const int32_t error )
+{
+    _error = base::Error( error );
+}
+
 bool FrameBufferObject::addColorTexture()
 {
     if( _colors.size() >= 16 )
     {
-        _error = ERROR_FRAMEBUFFER_FULL_COLOR_TEXTURES;
+        _setError( ERROR_FRAMEBUFFER_FULL_COLOR_TEXTURES );
         EQERROR << _error << std::endl;
         return false;
     }
@@ -75,7 +82,7 @@ bool FrameBufferObject::init( const int32_t width, const int32_t height,
 
     if( _fboID )
     {
-        _error = ERROR_FRAMEBUFFER_INITIALIZED;
+        _setError( ERROR_FRAMEBUFFER_INITIALIZED );
         EQWARN << _error << std::endl;
         return false;
     }
@@ -136,25 +143,25 @@ bool FrameBufferObject::_checkStatus()
             return true;
 
         case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-            _error = ERROR_FRAMEBUFFER_UNSUPPORTED;
+            _setError( ERROR_FRAMEBUFFER_UNSUPPORTED );
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-            _error = ERROR_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT;
+            _setError( ERROR_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT );
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-            _error = ERROR_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
+            _setError( ERROR_FRAMEBUFFER_INCOMPLETE_ATTACHMENT );
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-            _error = ERROR_FRAMEBUFFER_INCOMPLETE_DIMENSIONS;
+            _setError( ERROR_FRAMEBUFFER_INCOMPLETE_DIMENSIONS );
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-            _error = ERROR_FRAMEBUFFER_INCOMPLETE_FORMATS;
+            _setError( ERROR_FRAMEBUFFER_INCOMPLETE_FORMATS );
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-            _error = ERROR_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER;
+            _setError( ERROR_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER );
             break;
         case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-            _error = ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER;
+            _setError( ERROR_FRAMEBUFFER_INCOMPLETE_READ_BUFFER );
             break;
         default:
             break;

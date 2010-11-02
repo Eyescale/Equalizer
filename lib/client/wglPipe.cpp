@@ -117,9 +117,8 @@ bool WGLPipe::createWGLAffinityDC( HDC& affinityDC )
     affinityDC = wglCreateAffinityDCNV( hGPU );
     if( !affinityDC )
     {
-        std::stringstream error;
-        error << "Can't create affinity DC: " << base::sysError;
-        setErrorMessage( error.str( ));
+        setError( ERROR_WGLPIPE_AFFINITYDC_FAILED );
+        EQERROR << getError() << ": " << base::sysError << std::endl;
         return false;
     }
 
@@ -137,8 +136,8 @@ HDC WGLPipe::createWGLDisplayDC()
 
     if( !EnumDisplayDevices( 0, device, &devInfo, 0 ))
     {
-        std::ostringstream error;
-        error << "Can't enumerate display devices: " << base::sysError;
+        setError( ERROR_WGLPIPE_ENUMDISPLAYS_FAILED );
+        EQERROR << getError() << ": " << base::sysError << std::endl;
         _pipe->setErrorMessage( error.str( ));
         return 0;
     }
@@ -146,9 +145,8 @@ HDC WGLPipe::createWGLDisplayDC()
     const HDC displayDC = CreateDC( "DISPLAY", devInfo.DeviceName, 0, 0 );
     if( !displayDC )
     {
-        std::ostringstream error;
-        error << "Can't create device context: " << base::sysError;
-        _pipe->setErrorMessage( error.str( ));
+        setError( ERROR_WGLPIPE_CREATEDC_FAILED );
+        EQERROR << getError() << ": " << base::sysError << std::endl;
         return 0;
     }
 
@@ -178,9 +176,8 @@ bool WGLPipe::_getGPUHandle( HGPUNV& handle )
 
     if( !wglEnumGpusNV( device, &handle ))
     {
-        std::ostringstream error;
-        error << "Can't enumerate GPU #" << device;
-        setErrorMessage( error.str( ));
+        setError( ERROR_WGLPIPE_ENUMGPUS_FAILED );
+        EQERROR << getError() << ": " << base::sysError << std::endl;
         return false;
     }
 
@@ -207,8 +204,8 @@ bool WGLPipe::_configInitWGLEW()
 
     if( !RegisterClass( &wc ))
     {
-        EQWARN << "Can't register temporary window class: " 
-               << base::sysError << std::endl;
+        setError( ERROR_WGLPIPE_REGISTERCLASS_FAILED );
+        EQERROR << getError() << ": " << base::sysError << std::endl;
         return false;
     }
 
@@ -224,8 +221,8 @@ bool WGLPipe::_configInitWGLEW()
 
     if( !hWnd )
     {
-        EQWARN << "Can't create temporary window: "
-               << base::sysError << std::endl;
+        setError( ERROR_WGLPIPE_CREATEWINDOW_FAILED );
+        EQERROR << getError() << ": " << base::sysError << std::endl;
         UnregisterClass( classStr.c_str(),  instance );
         return false;
     }
@@ -240,8 +237,8 @@ bool WGLPipe::_configInitWGLEW()
     int pf = ChoosePixelFormat( dc, &pfd );
     if( pf == 0 )
     {
-        EQWARN << "Can't find temporary pixel format: "
-               << base::sysError << std::endl;
+        setError( ERROR_WGLPIPE_CHOOSEPF_FAILED );
+        EQERROR << getError() << ": " << base::sysError << std::endl;
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
         return false;
@@ -249,8 +246,8 @@ bool WGLPipe::_configInitWGLEW()
  
     if( !SetPixelFormat( dc, pf, &pfd ))
     {
-        EQWARN << "Can't set pixel format: " 
-               << base::sysError << std::endl;
+        setError( ERROR_WGLPIPE_SETPF_FAILED );
+        EQERROR << getError() << ": " << base::sysError << std::endl;
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
@@ -261,8 +258,8 @@ bool WGLPipe::_configInitWGLEW()
     HGLRC context = wglCreateContext( dc );
     if( !context )
     {
-         EQWARN << "Can't create temporary OpenGL context: " 
-                << base::sysError << std::endl;
+        setError( ERROR_WGLPIPE_CREATECONTEXT_FAILED );
+        EQERROR << getError() << ": " << base::sysError << std::endl;
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
@@ -275,18 +272,23 @@ bool WGLPipe::_configInitWGLEW()
     wglMakeCurrent( dc, context );
 
     const GLenum result = wglewInit();
+    bool success = true;
     if( result != GLEW_OK )
-        EQWARN << "Pipe WGLEW initialization failed with error " << result 
-               << std::endl;
+    {
+        setError( ERROR_WGLPIPE_WGLEWINIT_FAILED );
+        EQERROR << getError() << ": " << base::sysError << std::endl;
+        success = false;
+    }
     else
+    {
         EQINFO << "Pipe WGLEW initialization successful" << std::endl;
+        success = configInitGL();
+    }
 
-    const bool success = configInitGL();
     wglDeleteContext( context );
     ReleaseDC( hWnd, dc );
     DestroyWindow( hWnd );
     UnregisterClass( classStr.c_str(),  instance );
-
     wglMakeCurrent( oldDC, oldContext );
 
     return success;

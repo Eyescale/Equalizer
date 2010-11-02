@@ -104,6 +104,7 @@ typedef SSIZE_T    ssize_t;
 #define EQ_10MB  (10485760)
 #define EQ_100MB (104857600)
 
+#define EQ_32KB  (32768)
 #define EQ_64KB  (65536)
 #define EQ_128KB (131072)
 #define EQ_48MB  (50331648)

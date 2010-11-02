@@ -18,6 +18,7 @@
 #ifndef EQFABRIC_OBJECT_H
 #define EQFABRIC_OBJECT_H
 
+#include <eq/fabric/error.h>        // enum
 #include <eq/fabric/serializable.h> // base class
 #include <eq/net/objectVersion.h>   // member
 
@@ -72,12 +73,12 @@ namespace fabric
          * @param error the error message.
          * @version 1.0
          */
-        EQFABRIC_EXPORT void setError( const uint32_t error );
+        EQFABRIC_EXPORT void setError( const int32_t error );
 
         EQFABRIC_EXPORT void setErrorMessage( const std::string& message );
 
         /** @return the last error from the last failed operation. */
-        uint32_t getError() const { return _error; }
+        base::Error getError() const { return _error; }
 
         const std::string& getErrorMessage() const { return _errorStr; }
         //@}
@@ -200,7 +201,7 @@ namespace fabric
         uint32_t _tasks;
 
         /** The reason for the last error. */
-        uint32_t _error;
+        base::Error _error;
         std::string _errorStr;
 
         /** The identifiers of removed children since the last slave commit. */

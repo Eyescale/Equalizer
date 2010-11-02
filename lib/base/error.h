@@ -15,26 +15,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "error.h"
+#ifndef EQBASE_ERROR_H
+#define EQBASE_ERROR_H
 
-#include <eq/base/errorRegistry.h>
-#include <eq/base/global.h>
+#include <eq/base/base.h>
+#include <eq/base/types.h> // EQ_KB definitions
 
 namespace eq
 {
-namespace fabric
+namespace base
 {
-std::ostream& operator << ( std::ostream& os, const Error& error )
-{
-    const base::ErrorRegistry& registry = base::Global::getErrorRegistry();
-    const std::string& text = registry.getString( error );
-    if( text.empty( ))
-        os << "error " << uint32_t( error );
-    else
-        os << text << " (" << uint32_t( error ) << ")";
+    /** Defines errors produced by Equalizer classes. */
+    enum Error
+    {
+        ERROR_NONE = 0,
+        ERROR_CUSTOM = EQ_32KB,
+    };
 
-    return os;
+    /** Print the error in a human-readable format. @version 1.0 */
+    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Error& error);
 }
-
 }
-}
+#endif // EQBASE_ERROR_H

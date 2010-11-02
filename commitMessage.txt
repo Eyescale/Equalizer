@@ -1,10 +1,9 @@
-Add error code to fabric::Object, string will be replaced when all
-subclasses are updated.
+CMake: create proper default top-level Makefile
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

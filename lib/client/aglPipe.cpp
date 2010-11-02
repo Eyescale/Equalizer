@@ -55,18 +55,13 @@ bool AGLPipe::configInit()
         if( CGGetOnlineDisplayList( device+1, displayIDs, &nDisplays ) !=
             kCGErrorSuccess )
         {
-            ostringstream msg;
-            msg << "Can't get display identifier for display " << device;
-            setErrorMessage( msg.str( ));
+            setError( ERROR_AGLPIPE_DISPLAYS_NOTFOUND );
             return false;
         }
 
         if( nDisplays <= device )
         {
-            ostringstream msg;
-            msg << "Can't get display identifier for display " << device
-                << ", not enough displays in this system";
-            setErrorMessage( msg.str( ));
+            setError( ERROR_AGLPIPE_DEVICE_NOTFOUND );
             return false;
         }
 
@@ -77,7 +72,7 @@ bool AGLPipe::configInit()
     EQINFO << "Using CG displayID " << displayID << endl;
     return true;
 #else
-    setErrorMessage( "Client library compiled without AGL support" );
+    setError( ERROR_AGL_MISSING_SUPPORT );
     return false;
 #endif
 }

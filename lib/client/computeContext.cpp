@@ -18,20 +18,24 @@
 
 #include "computeContext.h"
 
-#include <eq/base/debug.h>
+#include "pipe.h"
 
 namespace eq
 {
 
 ComputeContext::ComputeContext( Pipe* parent )
         : _pipe( parent )
-        , _error( ERROR_NONE )
 {
     EQASSERT( _pipe ); 
 }
 
 ComputeContext::~ComputeContext()
 {
+}
+
+void ComputeContext::setError( const uint32_t error )
+{
+    _pipe->setError( error );
 }
 
 }

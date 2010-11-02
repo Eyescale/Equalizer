@@ -56,6 +56,30 @@ ErrorData _errors[] = {
     { ERROR_CUDACONTEXT_MISSING_SUPPORT,
       "Client library compiled without CUDA support" },
 
+    { ERROR_WINDOWSYSTEM_UNKNOWN, "Unknown windowing system" },
+    { ERROR_AGL_MISSING_SUPPORT, "Client library compiled without AGL support"},
+    { ERROR_GLX_MISSING_SUPPORT, "Client library compiled without GLX support"},
+
+    { ERROR_PIPE_NODE_NOTRUNNING, "Node not running" },
+
+    { ERROR_AGLPIPE_DISPLAYS_NOTFOUND, "Can't get display identifier list" },
+    { ERROR_AGLPIPE_DEVICE_NOTFOUND, "Can't get display identifier for device"},
+
+    { ERROR_GLXPIPE_DEVICE_NOTFOUND, "Can't open display" },
+    { ERROR_GLXPIPE_GLX_NOTFOUND, "Display does not support GLX" },
+
+    { ERROR_WGLPIPE_AFFINITYDC_FAILED, "Can't create affinity DC" },
+    { ERROR_WGLPIPE_ENUMDISPLAYS_FAILED, "Can't enumerate display devices" },
+    { ERROR_WGLPIPE_CREATEDC_FAILED, "Can't create device context" },
+    { ERROR_WGLPIPE_ENUMGPUS_FAILED, "Can't enumerate GPU" },
+    { ERROR_WGLPIPE_REGISTERCLASS_FAILED,
+      "Can't register temporary window class" },
+    { ERROR_WGLPIPE_CREATEWINDOW_FAILED, "Can't create temporary window" },
+    { ERROR_WGLPIPE_CHOOSEPF_FAILED, "Can't find temporary pixel format" },
+    { ERROR_WGLPIPE_SETPF_FAILED, "Can't set temporary pixel format" },
+    { ERROR_WGLPIPE_CREATECONTEXT_FAILED,
+      "Can't create temporary OpenGL context" },
+    { ERROR_WGLPIPE_WGLEWINIT_FAILED, "Pipe WGLEW initialization failed" },
     { 0, "" } // last!
 };
 }

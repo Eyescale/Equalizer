@@ -63,9 +63,6 @@ namespace eq
         EQ_EXPORT virtual void configExit() = 0;
         //@}
 
-        /** @return the reason for the last failed operation. @version 1.0 */
-        const Error& getError() { return _error; }
-
     protected:
         /** @name Error information. */
         //@{
@@ -78,15 +75,12 @@ namespace eq
          * @param error the error code.
          * @version 1.0
          */
-        void setError( const uint32_t error ) { _error = Error( error ); }
+        void setError( const uint32_t error );
         //@}
 
     private:
         /** The eq::Pipe used by the context. */
         Pipe* const _pipe;
-
-        /** The reason for the last error. */
-        Error _error;
 
         union // placeholder for binary-compatible changes
         {

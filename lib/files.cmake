@@ -17,6 +17,7 @@ set(BASE_HEADERS
   base/debug.h
   base/defines.h
   base/dso.h
+  base/error.h
   base/errorRegistry.h
   base/executionListener.h
   base/file.h
@@ -223,6 +224,7 @@ set(BASE_SOURCES
   base/cpuCompressor.cpp
   base/debug.cpp
   base/dso.cpp
+  base/error.cpp
   base/errorRegistry.cpp
   base/global.cpp
   base/idPool.cpp
@@ -293,7 +295,6 @@ set(FABRIC_SOURCES
   fabric/client.cpp
   fabric/colorMask.cpp
   fabric/eye.cpp
-  fabric/error.cpp
   fabric/frustum.cpp
   fabric/global.cpp
   fabric/iAttribute.cpp

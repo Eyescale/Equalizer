@@ -17,7 +17,6 @@
 
 #include "object.h"
 
-#include "error.h"
 #include "task.h"
 
 #include <eq/net/session.h>
@@ -267,11 +266,11 @@ void Object::setTasks( const uint32_t tasks )
     setDirty( DIRTY_TASKS );
 }
 
-void Object::setError( const uint32_t error )
+void Object::setError( const int32_t error )
 {
     if( _error == error )
         return;
-    _error = error;
+    _error = base::Error( error );
     setDirty( DIRTY_ERROR );
 }
 

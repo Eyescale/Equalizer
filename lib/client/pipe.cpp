@@ -491,9 +491,9 @@ bool Pipe::configInit( const uint32_t initID )
 
         if( !computeCtx->configInit() )
         {
-            setErrorMessage( "GPU Computing context initialization failed: " + 
-                computeCtx->getError( ));
-            EQERROR << getErrorMessage() << std::endl;
+            EQASSERT( getError() != ERROR_NONE );
+            EQWARN << "GPU Computing context initialization failed: "
+                   << getError() << std::endl;
             delete computeCtx;
             return false;
         }
@@ -532,17 +532,16 @@ bool Pipe::configInitSystemPipe( const uint32_t )
 #endif
 
         default:
-            EQERROR << "Unknown window system: " << _windowSystem << std::endl;
-            setErrorMessage( "Unknown window system" );
+            setError( ERROR_WINDOWSYSTEM_UNKNOWN );
             return false;
     }
 
     EQASSERT( systemPipe );
     if( !systemPipe->configInit( ))
     {
-        setErrorMessage( "System Pipe initialization failed: " + 
-            systemPipe->getErrorMessage( ));
-        EQERROR << getErrorMessage() << std::endl;
+        EQASSERT( getError() != ERROR_NONE );
+        EQERROR << "System pipe context initialization failed: "
+                << getError() << std::endl;
         delete systemPipe;
         return false;
     }
@@ -734,7 +733,7 @@ bool Pipe::_cmdConfigInit( net::Command& command )
     _state.waitEQ( STATE_MAPPED );
 
     PipeConfigInitReplyPacket reply;
-    setErrorMessage( std::string( ));
+    setError( ERROR_NONE );
 
     Node* node = getNode();
     EQASSERT( node );
@@ -757,7 +756,7 @@ bool Pipe::_cmdConfigInit( net::Command& command )
     }
     else
     {
-        setErrorMessage( "node not running" );
+        setError( ERROR_PIPE_NODE_NOTRUNNING );
         reply.result = false;
     }
 

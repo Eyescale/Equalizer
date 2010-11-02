@@ -22,8 +22,8 @@
 #include <eq/util/texture.h> // member
 #include <eq/util/types.h>
 
-#include <eq/client/error.h>
 #include <eq/client/os.h>    // for GLEW
+#include <eq/base/error.h>
 
 #include <vector>
 
@@ -121,7 +121,7 @@ namespace util
         const Texture& getDepthTexture() const { return _depth; }
 
         /** @return the reason for the last failed operation. @version 1.0 */
-        const Error& getError() { return _error; }
+        const base::Error& getError() { return _error; }
 
         /** @return the GLEW context. @version 1.0 */
         const GLEWContext* glewGetContext() const { return _glewContext; }
@@ -138,7 +138,7 @@ namespace util
         const GLEWContext* const _glewContext;
 
         /** The reason for the last error. */
-        Error _error;
+        base::Error _error;
 
         bool _valid;
 
@@ -151,6 +151,8 @@ namespace util
 
         /** Check the result after changes to an FBO and set the _valid flag. */
         bool _checkStatus();
+
+        void _setError( const int32_t error );
     };
 }
 }

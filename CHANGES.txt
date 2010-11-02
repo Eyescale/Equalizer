@@ -1,12 +1,12 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
-01/Nov/2010
-  void fabric::Object::setError( const uint32_t error )
-  uint32_t fabric::Object::getError() const
+02/Nov/2010
+  void fabric::Object::setError( const int32_t error )
+  base::Error fabric::Object::getError() const
     replace
   void fabric::Object::setErrorMessage( const std::string& error )
-  const std::string& fabric::Object::getError() const
+  const std::string& fabric::Object::getErrorMessage() const
 
 29/Oct/2010
   void FrameData::setZoom( const Zoom& zoom );

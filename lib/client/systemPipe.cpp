@@ -17,7 +17,7 @@
 
 #include "systemPipe.h"
 
-#include <eq/base/debug.h>
+#include "pipe.h"
 
 namespace eq
 {
@@ -30,6 +30,16 @@ SystemPipe::SystemPipe( Pipe* parent )
 
 SystemPipe::~SystemPipe()
 {
+}
+
+base::Error SystemPipe::getError() const
+{
+    return _pipe->getError();
+}
+
+void SystemPipe::setError( const uint32_t error )
+{
+    _pipe->setError( error );
 }
 
 }
