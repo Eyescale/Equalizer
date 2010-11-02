@@ -562,6 +562,7 @@ bool Config::_connectNodes()
         {
             if( !node->connect( ))
             {
+                setError( node->getError( ));
                 success = false;
                 break;
             }
@@ -572,7 +573,10 @@ bool Config::_connectNodes()
     {
         Node* node = *i;
         if( node->isActive() && !node->syncLaunch( clock ))
+        {
+            setError( node->getError( ));
             success = false;
+        }
     }
 
     return success;
@@ -924,9 +928,11 @@ bool Config::_cmdInit( net::Command& command )
 
     ConfigInitReplyPacket reply( packet );
     reply.result = _init( packet->initID );
+    EQWARN << getError() << std::endl;
     if( !reply.result )
         exit();
 
+    EQWARN << getError() << std::endl;
     sync( net::VERSION_HEAD );
     EQINFO << "Config init " << (reply.result ? "successful: ": "failed: ") 
            << getError() << std::endl;
