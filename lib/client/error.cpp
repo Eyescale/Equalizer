@@ -92,6 +92,15 @@ ErrorData _errors[] = {
     { ERROR_AGLWINDOW_CREATEWINDOW_FAILED, "Can't create Carbon window" },
     { ERROR_AGLWINDOW_SETWINDOW_FAILED, "Can't set Carbon window" },
 
+    { ERROR_GLXWINDOW_NO_DRAWABLE, "Missing GLX drawable" },
+    { ERROR_GLXWINDOW_NO_DISPLAY, "Missing X11 display connection" },
+    { ERROR_GLXWINDOW_CREATECONTEXT_FAILED, "Can't create glX context" },
+    { ERROR_GLXWINDOW_CREATEWINDOW_FAILED, "Can't create X11 window" },
+    { ERROR_GLXWINDOW_GLXQUERYVERSION_FAILED, "Can't get GLX version" },
+    { ERROR_GLXWINDOW_GLX_1_3_REQUIRED, "Need at least GLX 1.3" },
+    { ERROR_GLXWINDOW_NO_FBCONFIG, "Can't find FBConfig for visual" },
+    { ERROR_GLXWINDOW_CREATEPBUFFER_FAILED, "Can't create glX PBuffer" },
+
     { 0, "" } // last!
 };
 }

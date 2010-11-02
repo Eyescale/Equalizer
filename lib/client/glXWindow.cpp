@@ -76,9 +76,8 @@ bool GLXWindow::configInit( )
 
     if( !success || !_xDrawable )
     {
-        _window->setErrorMessage(
-            "configInitGLXDrawable did not set a X11 drawable: " +
-            _window->getErrorMessage( ));
+        if( getError() == ERROR_NONE )
+            setError( ERROR_GLXWINDOW_NO_DRAWABLE );
         return false;
     }
 
@@ -95,7 +94,7 @@ XVisualInfo* GLXWindow::chooseXVisualInfo()
 {
     if( !_xDisplay )
     {
-        _window->setErrorMessage( "Pipe has no X11 display connection" );
+        setError( ERROR_GLXWINDOW_NO_DISPLAY );
         return 0;
     }
 
@@ -218,7 +217,7 @@ XVisualInfo* GLXWindow::chooseXVisualInfo()
     }
 
     if ( !visInfo )
-        _window->setErrorMessage( "Could not find a matching visual" );
+        setError( ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND );
     else
         EQINFO << "Using visual 0x" << std::hex << visInfo->visualid
                << std::dec << std::endl;
@@ -231,13 +230,13 @@ GLXContext GLXWindow::createGLXContext( XVisualInfo* visualInfo )
 {
     if( !visualInfo )
     {
-        _window->setErrorMessage( "No visual info given" );
+        setError( ERROR_SYSTEMWINDOW_NO_PIXELFORMAT );
         return 0;
     }
 
     if( !_xDisplay )
     {
-        _window->setErrorMessage( "Pipe has no X11 display connection" );
+        setError( ERROR_GLXWINDOW_NO_DISPLAY );
         return 0;
     }
 
@@ -253,10 +252,11 @@ GLXContext GLXWindow::createGLXContext( XVisualInfo* visualInfo )
         shareCtx = shareGLXWindow->getGLXContext();
     }
 
-    GLXContext context = glXCreateContext( _xDisplay, visualInfo, shareCtx, True);
+    GLXContext context = glXCreateContext( _xDisplay, visualInfo, shareCtx,
+                                           True );
     if ( !context )
     {
-        _window->setErrorMessage( "Could not create OpenGL context" );
+        setError( ERROR_GLXWINDOW_CREATECONTEXT_FAILED );
         return 0;
     }
 
@@ -292,7 +292,7 @@ bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
 {
     if( !_xDisplay )
     {
-        _window->setErrorMessage( "Pipe has no X11 display connection" );
+        setError( ERROR_GLXWINDOW_NO_DISPLAY );
         return false;
     }
     
@@ -340,13 +340,13 @@ XID GLXWindow::_createGLXWindow( XVisualInfo* visualInfo ,
 
     if( !visualInfo )
     {
-        _window->setErrorMessage( "No visual info given" );
+        setError( ERROR_SYSTEMWINDOW_NO_PIXELFORMAT );
         return 0;
     }
 
     if( !_xDisplay )
     {
-        _window->setErrorMessage( "Pipe has no X11 display connection" );
+        setError( ERROR_GLXWINDOW_NO_DISPLAY );
         return 0;
     }
 
@@ -377,7 +377,7 @@ XID GLXWindow::_createGLXWindow( XVisualInfo* visualInfo ,
 
     if ( !drawable )
     {
-        _window->setErrorMessage( "Could not create window" );
+        setError( ERROR_GLXWINDOW_CREATEWINDOW_FAILED );
         return 0;
     }   
 
@@ -409,13 +409,13 @@ bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
 
     if( !visualInfo )
     {
-        _window->setErrorMessage( "No visual info given" );
+        setError( ERROR_SYSTEMWINDOW_NO_PIXELFORMAT );
         return false;
     }
 
     if( !_xDisplay )
     {
-        _window->setErrorMessage( "Pipe has no X11 display connection" );
+        setError( ERROR_GLXWINDOW_NO_DISPLAY );
         return false;
     }
 
@@ -424,13 +424,13 @@ bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
     int minor = 0;
     if( !glXQueryVersion( _xDisplay, &major, &minor ))
     {
-        _window->setErrorMessage( "Can't get GLX version" );
+        setError( ERROR_GLXWINDOW_GLXQUERYVERSION_FAILED );
         return false;
     }
 
     if( major < 1 || (major == 1 && minor < 3 ))
     {
-        _window->setErrorMessage( "Need at least GLX 1.3" );
+        setError( ERROR_GLXWINDOW_GLX_1_3_REQUIRED );
         return false;
     }
 
@@ -456,7 +456,7 @@ bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
 
     if( !config )
     {
-        _window->setErrorMessage( "Can't find FBConfig for visual" );
+        setError( ERROR_GLXWINDOW_NO_FBCONFIG );
         return false;
     }
 
@@ -471,7 +471,7 @@ bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
     XID pbuffer = glXCreatePbuffer( _xDisplay, config, attributes );
     if ( !pbuffer )
     {
-        _window->setErrorMessage( "Could not create PBuffer" );
+        setError( ERROR_GLXWINDOW_CREATEPBUFFER_FAILED );
         return false;
     }   
    
@@ -679,7 +679,7 @@ void GLXWindow::initGLXEW()
 
     const GLenum result = glxewInit();
     if( result != GLEW_OK )
-        _window->setErrorMessage( "GLXEW initialization failed: " + result );
+        EQWARN << "GLXEW initialization failed: " << result << std::endl;
     else
         _glxewInitialized = true;
 }
