@@ -9,10 +9,6 @@ bison_target(PARSER loader.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
 flex_target(LEXER loader.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
 add_flex_bison_dependency(LEXER PARSER)
 
-if(MSVC)
-  configure_file(${CMAKE_CURRENT_BINARY_DIR}/parser.cpp.h ${BISON_PARSER_OUTPUT_HEADER} COPYONLY)
-endif(MSVC)
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_definitions(-DEQSERVER_EXPORTS -DYY_NEVER_INTERACTIVE)

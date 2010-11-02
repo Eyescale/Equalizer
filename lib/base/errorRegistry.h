@@ -38,13 +38,13 @@ namespace base
     {
     public:
         /** @return the error string for the given error code. @version 1.0 */
-        const std::string& getString( const uint32_t error ) const;
+        EQ_EXPORT const std::string& getString( const uint32_t error ) const;
 
         /** Set an error string for the given error code. @version 1.0 */
-        void setString( const uint32_t error, const std::string& text );
+        EQ_EXPORT void setString(const uint32_t error, const std::string& text);
 
         /** Clear a given error code string. @version 1.0 */
-        void eraseString( const uint32_t error );
+        EQ_EXPORT void eraseString( const uint32_t error );
 
         bool isEmpty() const { return _errors.empty(); } //!< @internal
 

@@ -39,8 +39,8 @@ namespace base
         EQ_EXPORT static ErrorRegistry& getErrorRegistry();
 
     private:
-        friend bool init( const int argc, char** argv );
-        friend bool exit();
+        friend EQ_EXPORT bool init( const int argc, char** argv );
+        friend EQ_EXPORT bool exit();
     };
 }
 }

@@ -138,7 +138,6 @@ HDC WGLPipe::createWGLDisplayDC()
     {
         setError( ERROR_WGLPIPE_ENUMDISPLAYS_FAILED );
         EQWARN << getError() << ": " << base::sysError << std::endl;
-        _pipe->setErrorMessage( error.str( ));
         return 0;
     }
 
