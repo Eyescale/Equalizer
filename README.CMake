@@ -12,8 +12,11 @@ Tested are:
 
 Posix platforms (Linux, Mac OS X)
 ===============================
+
 $ make (debug|release(|xcode))
 
+You may also use CMake directly. The default Makefile exist purely for
+convenience.
 
 Windows XP 32bit using Visual C++ 2008 Express
 ==============================================

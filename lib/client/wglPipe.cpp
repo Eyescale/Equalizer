@@ -118,7 +118,7 @@ bool WGLPipe::createWGLAffinityDC( HDC& affinityDC )
     if( !affinityDC )
     {
         setError( ERROR_WGLPIPE_AFFINITYDC_FAILED );
-        EQERROR << getError() << ": " << base::sysError << std::endl;
+        EQWARN << getError() << ": " << base::sysError << std::endl;
         return false;
     }
 
@@ -137,7 +137,7 @@ HDC WGLPipe::createWGLDisplayDC()
     if( !EnumDisplayDevices( 0, device, &devInfo, 0 ))
     {
         setError( ERROR_WGLPIPE_ENUMDISPLAYS_FAILED );
-        EQERROR << getError() << ": " << base::sysError << std::endl;
+        EQWARN << getError() << ": " << base::sysError << std::endl;
         _pipe->setErrorMessage( error.str( ));
         return 0;
     }
@@ -146,7 +146,7 @@ HDC WGLPipe::createWGLDisplayDC()
     if( !displayDC )
     {
         setError( ERROR_WGLPIPE_CREATEDC_FAILED );
-        EQERROR << getError() << ": " << base::sysError << std::endl;
+        EQWARN << getError() << ": " << base::sysError << std::endl;
         return 0;
     }
 
@@ -177,7 +177,7 @@ bool WGLPipe::_getGPUHandle( HGPUNV& handle )
     if( !wglEnumGpusNV( device, &handle ))
     {
         setError( ERROR_WGLPIPE_ENUMGPUS_FAILED );
-        EQERROR << getError() << ": " << base::sysError << std::endl;
+        EQWARN << getError() << ": " << base::sysError << std::endl;
         return false;
     }
 
@@ -205,7 +205,7 @@ bool WGLPipe::_configInitWGLEW()
     if( !RegisterClass( &wc ))
     {
         setError( ERROR_WGLPIPE_REGISTERCLASS_FAILED );
-        EQERROR << getError() << ": " << base::sysError << std::endl;
+        EQWARN << getError() << ": " << base::sysError << std::endl;
         return false;
     }
 
@@ -222,7 +222,7 @@ bool WGLPipe::_configInitWGLEW()
     if( !hWnd )
     {
         setError( ERROR_WGLPIPE_CREATEWINDOW_FAILED );
-        EQERROR << getError() << ": " << base::sysError << std::endl;
+        EQWARN << getError() << ": " << base::sysError << std::endl;
         UnregisterClass( classStr.c_str(),  instance );
         return false;
     }
@@ -238,7 +238,7 @@ bool WGLPipe::_configInitWGLEW()
     if( pf == 0 )
     {
         setError( ERROR_WGLPIPE_CHOOSEPF_FAILED );
-        EQERROR << getError() << ": " << base::sysError << std::endl;
+        EQWARN << getError() << ": " << base::sysError << std::endl;
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
         return false;
@@ -247,7 +247,7 @@ bool WGLPipe::_configInitWGLEW()
     if( !SetPixelFormat( dc, pf, &pfd ))
     {
         setError( ERROR_WGLPIPE_SETPF_FAILED );
-        EQERROR << getError() << ": " << base::sysError << std::endl;
+        EQWARN << getError() << ": " << base::sysError << std::endl;
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
@@ -259,7 +259,7 @@ bool WGLPipe::_configInitWGLEW()
     if( !context )
     {
         setError( ERROR_WGLPIPE_CREATECONTEXT_FAILED );
-        EQERROR << getError() << ": " << base::sysError << std::endl;
+        EQWARN << getError() << ": " << base::sysError << std::endl;
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
@@ -276,7 +276,7 @@ bool WGLPipe::_configInitWGLEW()
     if( result != GLEW_OK )
     {
         setError( ERROR_WGLPIPE_WGLEWINIT_FAILED );
-        EQERROR << getError() << ": " << base::sysError << std::endl;
+        EQWARN << getError() << ": " << base::sysError << std::endl;
         success = false;
     }
     else

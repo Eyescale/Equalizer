@@ -73,4 +73,16 @@ int32_t SystemWindow::getIAttribute( const Window::IAttribute attr ) const
     return _window->getIAttribute( attr );
 }
 
+void SystemWindow::setError( const int32_t error )
+{
+    EQASSERT( _window );
+    _window->setError( error );
+}
+
+base::Error SystemWindow::getError() const
+{
+    EQASSERT( _window );
+    return _window->getError();
+}
+
 }

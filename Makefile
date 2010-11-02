@@ -1,5 +1,5 @@
 #!gmake
-.PHONY: debug release xcode docs
+.PHONY: debug release xcode debug_glx docs
 
 all: debug RELNOTES.txt README.rst
 
@@ -28,6 +28,15 @@ XCodeCMake/CMakeCache.txt:
 
 docs:
 	@$(DOXYGEN) Doxyfile
+
+
+debug_glx: debug_glx/CMakeCache.txt
+	@$(MAKE) -C debug_glx
+
+debug_glx/CMakeCache.txt:
+	@mkdir -p debug_glx
+	@cd debug_glx; cmake .. -DEQ_PREFER_AGL=0
+
 
 RELNOTES.txt: lib/RelNotes.dox
 	-links -dump $< > $@.tmp && mv $@.tmp $@

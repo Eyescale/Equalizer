@@ -80,6 +80,18 @@ ErrorData _errors[] = {
     { ERROR_WGLPIPE_CREATECONTEXT_FAILED,
       "Can't create temporary OpenGL context" },
     { ERROR_WGLPIPE_WGLEWINIT_FAILED, "Pipe WGLEW initialization failed" },
+
+    { ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND,
+      "Can't find matching pixel format" },
+    { ERROR_SYSTEMWINDOW_NO_PIXELFORMAT, "Missing pixel format" },
+
+    { ERROR_AGLWINDOW_NO_CONTEXT, "Missing AGL context" },
+    { ERROR_AGLWINDOW_CREATECONTEXT_FAILED, "Can't create AGL context" },
+    { ERROR_AGLWINDOW_CREATEPBUFFER_FAILED, "Can't create AGL PBuffer" },
+    { ERROR_AGLWINDOW_SETPBUFFER_FAILED, "Can't set AGL PBuffer" },
+    { ERROR_AGLWINDOW_CREATEWINDOW_FAILED, "Can't create Carbon window" },
+    { ERROR_AGLWINDOW_SETWINDOW_FAILED, "Can't set Carbon window" },
+
     { 0, "" } // last!
 };
 }

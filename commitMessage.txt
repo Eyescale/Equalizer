@@ -1,9 +1,9 @@
-CMake: create proper default top-level Makefile
+Error codes: refactor AGLWindow
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [x] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

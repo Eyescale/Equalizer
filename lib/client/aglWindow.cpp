@@ -25,8 +25,7 @@
 #include "pipe.h"
 #include "window.h"
 
-#define ERROR( code )                                               \
-    std::string( reinterpret_cast< const char* >( aglErrorString( code )))
+#define AGLERROR std::string( (const char*)( aglErrorString( aglGetError( ))))
 
 namespace eq
 {
@@ -283,7 +282,7 @@ AGLPixelFormat AGLWindow::chooseAGLPixelFormat()
     }
 
     if( !pixelFormat )
-        _window->setErrorMessage( "Could not find a matching pixel format" );
+        setError( ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND );
 
     Global::leaveCarbon();
     return pixelFormat;
@@ -303,7 +302,7 @@ AGLContext AGLWindow::createAGLContext( AGLPixelFormat pixelFormat )
 {
     if( !pixelFormat )
     {
-        _window->setErrorMessage( "No pixel format given" );
+        setError( ERROR_SYSTEMWINDOW_NO_PIXELFORMAT );
         return 0;
     }
 
@@ -324,8 +323,8 @@ AGLContext AGLWindow::createAGLContext( AGLPixelFormat pixelFormat )
 
     if( !context ) 
     {
-        _window->setErrorMessage( "Could not create AGL context: " + 
-                                  ERROR( aglGetError( )));
+        setError( ERROR_AGLWINDOW_CREATECONTEXT_FAILED );
+        EQWARN << getError() << ": " << AGLERROR << std::endl;
         Global::leaveCarbon();
         return 0;
     }
@@ -377,7 +376,7 @@ bool AGLWindow::configInitAGLPBuffer()
     AGLContext context = getAGLContext();
     if( !context )
     {
-        _window->setErrorMessage( "No AGLContext set" );
+        setError( ERROR_AGLWINDOW_NO_CONTEXT );
         return false;
     }
 
@@ -387,16 +386,16 @@ bool AGLWindow::configInitAGLPBuffer()
     if( !aglCreatePBuffer( pvp.w, pvp.h, GL_TEXTURE_RECTANGLE_EXT, GL_RGBA,
                            0, &pbuffer ))
     {
-        _window->setErrorMessage( "Could not create PBuffer: " + 
-                                  ERROR( aglGetError( )));
+        setError( ERROR_AGLWINDOW_CREATEPBUFFER_FAILED );
+        EQWARN << getError() << ": " << AGLERROR << std::endl;
         return false;
     }
 
     // attach to context
     if( !aglSetPBuffer( context, pbuffer, 0, 0, aglGetVirtualScreen( context )))
     {
-        _window->setErrorMessage( "aglSetPBuffer failed: " +
-                                  ERROR( aglGetError( )));
+        setError( ERROR_AGLWINDOW_SETPBUFFER_FAILED );
+        EQWARN << getError() << ": " << AGLERROR << std::endl;
         return false;
     }
 
@@ -409,7 +408,7 @@ bool AGLWindow::configInitAGLFullscreen()
     AGLContext context = getAGLContext();
     if( !context )
     {
-        _window->setErrorMessage( "No AGLContext set" );
+        setError( ERROR_AGLWINDOW_NO_CONTEXT );
         return false;
     }
 
@@ -422,7 +421,7 @@ bool AGLWindow::configInitAGLFullscreen()
     const PixelViewport& pvp       = pipePVP.isValid() ? pipePVP : windowPVP;
 
     if( !aglSetFullScreen( context, pvp.w, pvp.h, 0, 0 ))
-        EQWARN << "aglSetFullScreen to " << pvp << " failed: " << aglGetError()
+        EQWARN << "aglSetFullScreen to " << pvp << " failed: " << AGLERROR
                << std::endl;
 
     Global::leaveCarbon();
@@ -437,7 +436,7 @@ bool AGLWindow::configInitAGLWindow()
     AGLContext context = getAGLContext();
     if( !context )
     {
-        _window->setErrorMessage( "No AGLContext set" );
+        setError( ERROR_AGLWINDOW_NO_CONTEXT );
         return false;
     }
 
@@ -464,9 +463,8 @@ bool AGLWindow::configInitAGLWindow()
                                              &windowRect, &windowRef );
     if( status != noErr )
     {
-        std::stringstream error;
-        error << "Could not create carbon window: " << status;
-        _window->setErrorMessage( error.str( ));
+        setError( ERROR_AGLWINDOW_CREATEWINDOW_FAILED );
+        EQWARN << getError() << ": " << status << std::endl;
         Global::leaveCarbon();
         return false;
     }
@@ -493,8 +491,8 @@ bool AGLWindow::configInitAGLWindow()
         
     if( !aglSetWindowRef( context, windowRef ))
     {
-        _window->setErrorMessage( "aglSetWindowRef failed: " +
-                                  ERROR( aglGetError( )));
+        setError( ERROR_AGLWINDOW_SETWINDOW_FAILED );
+        EQWARN << getError() << ": " << AGLERROR << std::endl;
         Global::leaveCarbon();
         return false;
     }

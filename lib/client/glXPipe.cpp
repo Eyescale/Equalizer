@@ -54,7 +54,7 @@ bool GLXPipe::configInit( )
     if( !xDisplay )
     {
         setError( ERROR_GLXPIPE_DEVICE_NOTFOUND );
-        EQERROR << getError() << ": " << XDisplayName( displayName.c_str( ));
+        EQWARN << getError() << ": " << XDisplayName( displayName.c_str( ));
         return false;
     }
 
@@ -181,40 +181,40 @@ void GLXPipe::_setXDisplay( Display* display )
 int GLXPipe::XErrorHandler( Display* display, XErrorEvent* event )
 {
 #ifdef GLX
-    EQERROR << base::disableFlush;
-    EQERROR << "X Error occured: " << base::disableHeader << base::indent;
+    EQWARN << base::disableFlush;
+    EQWARN << "X Error occured: " << base::disableHeader << base::indent;
 
     char buffer[256];
     XGetErrorText( display, event->error_code, buffer, 256);
 
-    EQERROR << buffer << std::endl;
-    EQERROR << "Major opcode: " << (int)event->request_code << std::endl;
-    EQERROR << "Minor opcode: " << (int)event->minor_code << std::endl;
-    EQERROR << "Error code: " << (int)event->error_code << std::endl;
-    EQERROR << "Request serial: " << event->serial << std::endl;
-    EQERROR << "Current serial: " << NextRequest( display ) - 1 << std::endl;
+    EQWARN << buffer << std::endl;
+    EQWARN << "Major opcode: " << (int)event->request_code << std::endl;
+    EQWARN << "Minor opcode: " << (int)event->minor_code << std::endl;
+    EQWARN << "Error code: " << (int)event->error_code << std::endl;
+    EQWARN << "Request serial: " << event->serial << std::endl;
+    EQWARN << "Current serial: " << NextRequest( display ) - 1 << std::endl;
 
     switch( event->error_code )
     {
         case BadValue:
-            EQERROR << "  Value: " << event->resourceid << std::endl;
+            EQWARN << "  Value: " << event->resourceid << std::endl;
             break;
 
         case BadAtom:
-            EQERROR << "  AtomID: " << event->resourceid << std::endl;
+            EQWARN << "  AtomID: " << event->resourceid << std::endl;
             break;
 
         default:
-            EQERROR << "  ResourceID: " << event->resourceid << std::endl;
+            EQWARN << "  ResourceID: " << event->resourceid << std::endl;
             break;
     }
-    EQERROR << base::enableFlush << base::exdent << base::enableHeader;
+    EQWARN << base::enableFlush << base::exdent << base::enableHeader;
 
 #ifndef NDEBUG
     if( getenv( "EQ_ABORT_WAIT" ))
     {
-        EQERROR << "Caught X Error, entering infinite loop for debugging" 
-                << std::endl;
+        EQWARN << "Caught X Error, entering infinite loop for debugging" 
+               << std::endl;
         while( true ) ;
     }
 #endif

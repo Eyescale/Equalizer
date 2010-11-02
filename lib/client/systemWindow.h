@@ -146,6 +146,19 @@ namespace util
          */
         EQ_EXPORT virtual const GLEWContext* glewGetContext() const { return 0;}
 
+        /** 
+         * Set an error code why the last operation failed.
+         * 
+         * The error will be set on the parent window.
+         *
+         * @param error the error message.
+         * @version 1.0
+         */
+        EQ_EXPORT void setError( const int32_t error );
+
+        /** @return the last error from the last failed window operation. */
+        base::Error getError() const;
+
     protected:
         /** The parent eq::Window. */
         Window* const _window;
