@@ -36,6 +36,8 @@ target_link_libraries(netproxy Equalizer)
 add_tool(windowAdmin windowAdmin/main.cpp)
 target_link_libraries(windowAdmin Equalizer EqualizerAdmin)
 
+# add_subdirectory(configEditor)
+
 install(TARGETS ${TOOLS} DESTINATION bin COMPONENT tools)
 if(MSVC)
     install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/affinityCheck.pdb DESTINATION bin COMPONENT dev)

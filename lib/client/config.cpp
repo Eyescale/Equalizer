@@ -161,7 +161,10 @@ bool Config::init( const uint32_t initID )
         client->processCommand();
     localNode->waitRequest( packet.requestID, _running );
 
-    handleEvents();
+    if( _running )
+        handleEvents();
+    else
+        EQWARN << "Config initialization failed: " << getError() << std::endl;
     return _running;
 }
 

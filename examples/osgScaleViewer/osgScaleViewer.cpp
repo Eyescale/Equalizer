@@ -48,17 +48,17 @@ int OSGScaleViewer::run()
     eq::ServerPtr server = new eq::Server();
     if( !connectServer( server ))
     {
-        std::cout << "Can't open server" << std::endl;
+        EQERROR << "Can't open server" << std::endl;
         return EXIT_FAILURE;
     }
 
     // 2. choose config
     eq::ConfigParams configParams;
-    Config* config = static_cast<Config*>( server->chooseConfig( configParams ));
+    Config* config = static_cast<Config*>( server->chooseConfig( configParams));
 
     if( !config )
     {
-        std::cout << "No matching config on server" << std::endl;
+        EQERROR << "No matching config on server" << std::endl;
         disconnectServer( server );
         return EXIT_FAILURE;
     }
@@ -66,8 +66,6 @@ int OSGScaleViewer::run()
     config->setInitData( _initData );
     if( !config->init( ))
     {
-        std::cout << "Config initialization failed: " << config->getError()
-                  << std::endl;
         server->releaseConfig( config );
         disconnectServer( server );
         return EXIT_FAILURE;
@@ -87,7 +85,7 @@ int OSGScaleViewer::run()
     // 6. cleanup and exit
     server->releaseConfig( config );
     if( !disconnectServer( server ))
-        std::cout << "Client::disconnectServer failed" << std::endl;
+        EQERROR << "Client::disconnectServer failed" << std::endl;
 
     server = 0;
 

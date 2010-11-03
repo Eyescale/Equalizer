@@ -85,11 +85,7 @@ int main( const int argc, char** argv )
             config->exit();
         }
         else
-        {
-            EQERROR << "Config initialization failed: " << config->getError()
-                    << endl;
             error = true;
-        }
 
         // 6. release config
         eq::releaseConfig( config );

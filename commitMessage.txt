@@ -1,4 +1,4 @@
-CMake: simplify VS solution
+Move config init error message to client lib
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

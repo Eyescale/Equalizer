@@ -69,8 +69,6 @@ namespace eqNbody
         _config->setInitData( _initData );
         if( !_config->init() )
         {
-            EQERROR << "Config initialization failed: " << _config->getError()
-                    << std::endl;
             _server->releaseConfig( _config );
             disconnectServer( _server );
             return EXIT_FAILURE;

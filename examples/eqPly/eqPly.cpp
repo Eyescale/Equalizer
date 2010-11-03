@@ -107,8 +107,6 @@ int EqPly::run()
     config->setInitData( _initData );
     if( !config->init( ))
     {
-        EQERROR << "Config initialization failed: " << config->getError()
-                << std::endl;
         server->releaseConfig( config );
         disconnectServer( server );
         return EXIT_FAILURE;

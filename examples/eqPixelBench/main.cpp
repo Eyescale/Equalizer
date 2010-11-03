@@ -89,8 +89,6 @@ int main( int argc, char** argv )
 
     if( !config->init( 0 ))
     {
-        EQERROR << "Config initialization failed: " << config->getError()
-                << std::endl;
         server->releaseConfig( config );
         client->disconnectServer( server );
         client->exitLocal();
