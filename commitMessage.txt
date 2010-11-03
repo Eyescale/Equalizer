@@ -1,9 +1,9 @@
-CMake: add aux source, code cleanups
+Error codes: Programming Guide update
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[x] New Feature
-[x] Cleanup
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation
