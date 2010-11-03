@@ -164,7 +164,8 @@ bool Config::init( const uint32_t initID )
     if( _running )
         handleEvents();
     else
-        EQWARN << "Config initialization failed: " << getError() << std::endl;
+        EQWARN << "Config initialization failed: " << getError() << std::endl
+               << "    Consult client log for further information" << std::endl;
     return _running;
 }
 

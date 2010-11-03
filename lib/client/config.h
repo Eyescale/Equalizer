@@ -134,7 +134,7 @@ namespace eq
          * The initialization fails if at least one of the configInit task
          * methods fails. The application can use setErrorMessage on the render
          * client to pass an error string to the application process, which it
-         * can query it using getErrorMessage().
+         * can query it using getError().
          * 
          * @param initID an identifier to be passed to all init methods.
          * @return true if the initialization was successful, false if not.

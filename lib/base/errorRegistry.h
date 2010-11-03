@@ -29,10 +29,12 @@ namespace base
      * A registry translating error codes to strings.
      *
      * Applications can register custom error strings starting at
-     * eq::ERROR_CUSTOM. Error registration is not thread-safe. Equalizer
-     * registers errors only during eq::init().
+     * eq::ERROR_CUSTOM. Error registration and erasure is not
+     * thread-safe. Equalizer registers errors only during eq::init(). It is
+     * strongly advised to register application-specific errors before
+     * eq::init() and erase them after eq::exit().
      *
-     * @sa eq::Error
+     * @sa eq::base::Error, eq::Error
      */
     class ErrorRegistry
     {

@@ -196,7 +196,11 @@ add_subdirectory(lib)
 add_subdirectory(server)
 add_subdirectory(tests)
 add_subdirectory(tools)
-    
+
+IF(EXISTS "${CMAKE_SOURCE_DIR}/auxilary" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/auxilary")
+  add_subdirectory(auxilary)
+ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/auxilary" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/auxilary")
+
 add_executable(eqServer server/eqServer.cpp)
 target_link_libraries(eqServer EqualizerServer)
 install(TARGETS eqServer DESTINATION bin COMPONENT lib)

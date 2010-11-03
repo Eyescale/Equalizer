@@ -1,9 +1,9 @@
-Move config init error message to client lib
+CMake: add aux source, code cleanups
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

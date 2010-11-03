@@ -63,12 +63,14 @@ int main( const int argc, char** argv )
 
     // 2. Equalizer initialization
     NodeFactory nodeFactory;
+    eVolve::initErrors();
+
     if( !eq::init( argc, argv, &nodeFactory ))
     {
         EQERROR << "Equalizer init failed" << endl;
+        eVolve::exitErrors();
         return EXIT_FAILURE;
     }
-    eVolve::initErrors();
 
     // 3. initialization of local client node
     RefPtr< eVolve::EVolve > client = new eVolve::EVolve( initData );
@@ -76,6 +78,7 @@ int main( const int argc, char** argv )
     {
         EQERROR << "Can't init client" << endl;
         eq::exit();
+        eVolve::exitErrors();
         return EXIT_FAILURE;
     }
 
@@ -86,7 +89,7 @@ int main( const int argc, char** argv )
     client->exitLocal();
     client = 0;
 
-    eVolve::exitErrors();
     eq::exit();
+    eVolve::exitErrors();
     return ret;
 }
