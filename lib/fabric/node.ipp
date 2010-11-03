@@ -20,6 +20,7 @@
 
 #include "elementVisitor.h"
 #include "leafVisitor.h"
+#include "log.h"
 #include "paths.h"
 
 namespace eq
@@ -43,13 +44,13 @@ Node< C, N, P, V >::Node( C* parent )
         , _isAppNode( false )
 {
     parent->_addNode( static_cast< N* >( this ) );
-    EQINFO << "New " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
 }
 
 template< class C, class N, class P, class V >
 Node< C, N, P, V >::~Node()
 {
-    EQINFO << "Delete " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << base::className( this ) << std::endl;
     while( !_pipes.empty() )
     {
         P* pipe = _pipes.back();
@@ -308,6 +309,34 @@ P* Node< C, N, P, V >::findPipe( const uint32_t id )
             return pipe;
     }
     return 0;
+}
+
+template< class C, class N, class P, class V >
+std::ostream& operator << ( std::ostream& os, const Node< C, N, P, V >& node )
+{
+    os << base::disableFlush << base::disableHeader;
+    if( node.isApplicationNode( ))
+        os << "appNode" << std::endl;
+    else
+        os << "node" << std::endl;
+
+    os << "{" << std::endl << base::indent;
+
+    const std::string& name = node.getName();
+    if( !name.empty( ))
+        os << "name     \"" << name << "\"" << std::endl;
+
+    node.output( os );
+
+    const typename N::Pipes& pipes = node.getPipes();
+    for( typename N::Pipes::const_iterator i = pipes.begin();
+         i != pipes.end(); ++i )
+    {
+        os << **i;
+    }
+    os << base::exdent << "}" << std::endl
+       << base::enableHeader << base::enableFlush;
+    return os;
 }
 
 }

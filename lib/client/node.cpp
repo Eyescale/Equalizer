@@ -592,3 +592,7 @@ bool Node::_cmdFrameTasksFinish( net::Command& command )
 #include "../fabric/node.ipp"
 template class eq::fabric::Node< eq::Config, eq::Node, eq::Pipe,
                                  eq::NodeVisitor >;
+/** @cond IGNORE */
+template std::ostream& eq::fabric::operator << ( std::ostream&,
+                                                 const eq::Super& );
+/** @endcond */

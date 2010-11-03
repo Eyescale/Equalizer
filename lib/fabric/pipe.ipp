@@ -20,6 +20,7 @@
 
 #include "elementVisitor.h"
 #include "leafVisitor.h"
+#include "log.h"
 #include "pipePackets.h"
 #include "task.h"
 
@@ -50,13 +51,13 @@ Pipe< N, P, W, V >::Pipe( N* parent )
 {
     memset( _iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
     parent->_addPipe( static_cast< P* >( this ) );
-    EQINFO << "New " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
 }
 
 template< class N, class P, class W, class V >
 Pipe< N, P, W, V >::~Pipe()
 {
-    EQINFO << "Delete " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << base::className( this ) << std::endl;
     while( !_windows.empty() )
     {
         W* window = _windows.back();
@@ -407,6 +408,41 @@ Pipe< N, P, W, V >::_cmdNewWindowReply( net::Command& command )
     getLocalNode()->serveRequest( packet->requestID, packet->windowID );
 
     return true;
+}
+
+template< class N, class P, class W, class V >
+std::ostream& operator << ( std::ostream& os, const Pipe< N, P, W, V >& pipe )
+{
+    os << base::disableFlush << base::disableHeader << "pipe" << std::endl;
+    os << "{" << std::endl << base::indent;
+
+    const std::string& name = pipe.getName();
+    if( !name.empty( ))
+        os << "name     \"" << name << "\"" << std::endl;
+
+    if( pipe.getPort() != EQ_UNDEFINED_UINT32 )
+        os << "port     " << pipe.getPort() << std::endl;
+        
+    if( pipe.getDevice() != EQ_UNDEFINED_UINT32 )
+        os << "device   " << pipe.getDevice() << std::endl;
+    
+    const PixelViewport& pvp = pipe.getPixelViewport();
+    if( pvp.isValid( ))
+        os << "viewport " << pvp << std::endl;
+
+    pipe.output( os );
+    os << std::endl;
+
+    const typename P::Windows& windows = pipe.getWindows();
+    for( typename P::Windows::const_iterator i = windows.begin();
+         i != windows.end(); ++i )
+    {
+        os << **i;
+    }
+
+    os << base::exdent << "}" << std::endl << base::enableHeader
+       << base::enableFlush;
+    return os;
 }
 
 }

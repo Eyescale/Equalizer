@@ -132,6 +132,8 @@ namespace eqPly
 
         /** @return a pointer to a connected admin server. */
         eq::admin::ServerPtr _getAdminServer();
+        void _closeAdminServer();
+
         void _setMessage( const std::string& message );
         void _updateData();
     };

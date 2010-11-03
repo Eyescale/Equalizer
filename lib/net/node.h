@@ -530,7 +530,11 @@ namespace net
                     : _node( node )
                 {}
             
-            virtual bool init(){ return _node->_commandThread->start(); }
+            virtual bool init()
+                {
+                    setDebugName( std::string("Rcv ") + base::className(_node));
+                    return _node->_commandThread->start();
+                }
             virtual void run(){ _node->_runReceiverThread(); }
 
         private:
@@ -546,6 +550,12 @@ namespace net
                     : _node( node )
                 {}
             
+            
+            virtual bool init()
+                {
+                    setDebugName( std::string("Cmd ") + base::className(_node));
+                    return true;
+                }
             virtual void run(){ _node->_runCommandThread(); }
 
         private:

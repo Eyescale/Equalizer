@@ -499,87 +499,21 @@ bool Channel::_cmdFrameFinishReply( net::Command& command )
     return true;
 }
 
-std::ostream& operator << ( std::ostream& os, const Channel& channel)
+bool Channel::omitOutput() const
 {
-    os << base::disableFlush << base::disableHeader << "channel" << std::endl;
-    os << "{" << std::endl << base::indent;
+    // don't print generated channels for now
+    return !getView() && !getSegment();
+}
 
-    const std::string& name = channel.getName();
-    if( !name.empty( ))
-        os << "name     \"" << name << "\"" << std::endl;
-
-    const Segment* segment = channel.getSegment();
-    const View*    view    = channel.getView();
-    if( view && segment )
-    {
-        os << "path     ( ";
-
-        const Config* config = channel.getConfig();
-        const std::string& segmentName = segment->getName();
-        if( !segmentName.empty() && 
-            config->find< Segment >( segmentName ) == segment )
-        {
-            os << "segment \"" << segmentName << "\" ";
-        }
-        else
-            os << segment->getPath() << ' ';
-        
-        const std::string& viewName = view->getName();
-        if( !viewName.empty() && 
-            config->find< View >( viewName ) == view )
-        {
-            os << "view \"" << viewName << '\"';
-        }
-        else
-            os << view->getPath();
-        
-        os << " )" << std::endl; 
-    }
-
-    const Viewport& vp = channel.getViewport();
-    const PixelViewport& pvp = channel.getPixelViewport();
-    if( vp.isValid( ) && channel.hasFixedViewport( ))
-    {
-        if( pvp.hasArea( ))
-            os << "viewport " << pvp << std::endl;
-        os << "viewport " << vp << std::endl;
-    }
-    else if( pvp.hasArea( ))
-    {
-        if( vp != Viewport::FULL && vp.isValid( ))
-            os << "viewport " << vp << std::endl;
-        os << "viewport " << pvp << std::endl;
-    }
-
-
-    const uint32_t drawable = channel.getDrawable();
-    if( drawable !=  Channel::FB_WINDOW )
-    {
-        os << "drawable [";
-        
-        if ((drawable &  Channel::FBO_COLOR) != 0 )
-        {
-           os << " FBO_COLOR";
-        }
-        
-        if ((drawable &  Channel::FBO_DEPTH) != 0)
-        {
-           os << " FBO_DEPTH"; 
-        } 
-        if ((drawable &  Channel::FBO_STENCIL) != 0) 
-        {
-           os << " FBO_STENCIL";  
-        }
-        
-        os << " ]" << std::endl;
-    }
+void Channel::output( std::ostream& os ) const
+{
     bool attrPrinted   = false;
     
-    for( Channel::IAttribute i = static_cast<Channel::IAttribute>( 0 );
-         i < Channel::IATTR_LAST;
-         i = static_cast<Channel::IAttribute>( static_cast<uint32_t>(i)+1 ))
+    for( IAttribute i = static_cast<IAttribute>( 0 );
+         i < IATTR_LAST;
+         i = static_cast<IAttribute>( static_cast<uint32_t>(i)+1 ))
     {
-        const int value = channel.getIAttribute( i );
+        const int value = getIAttribute( i );
         if( value == Global::instance()->getChannelIAttribute( i ))
             continue;
 
@@ -590,20 +524,15 @@ std::ostream& operator << ( std::ostream& os, const Channel& channel)
             attrPrinted = true;
         }
         
-        os << ( i==Channel::IATTR_HINT_STATISTICS ?
+        os << ( i==IATTR_HINT_STATISTICS ?
                 "hint_statistics   " :
-                i==Channel::IATTR_HINT_SENDTOKEN ?
+                i==IATTR_HINT_SENDTOKEN ?
                     "hint_sendtoken    " : "ERROR" )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
     }
     
     if( attrPrinted )
         os << base::exdent << "}" << std::endl << std::endl;
-
-    os << base::exdent << "}" << std::endl << base::enableHeader
-       << base::enableFlush;
-
-    return os;
 }
 
 void Channel::updateCapabilities()
@@ -621,3 +550,7 @@ void Channel::updateCapabilities()
 
 #include "../lib/fabric/channel.ipp"
 template class eq::fabric::Channel< eq::server::Window, eq::server::Channel >;
+/** @cond IGNORE */
+template std::ostream& eq::fabric::operator << ( std::ostream&,
+                                                 const eq::server::Super& );
+/** @endcond */

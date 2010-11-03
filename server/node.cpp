@@ -721,22 +721,9 @@ bool Node::_cmdFrameFinishReply( net::Command& command )
     return true;
 }
 
-std::ostream& operator << ( std::ostream& os, const Node& node )
+void Node::output( std::ostream& os ) const
 {
-    os << base::disableFlush << base::disableHeader;
-    if( node.isApplicationNode( ))
-        os << "appNode" << std::endl;
-    else
-        os << "node" << std::endl;
-
-    os << "{" << std::endl << base::indent;
-
-    const std::string& name = node.getName();
-    if( !name.empty( ))
-        os << "name     \"" << name << "\"" << std::endl;
-
-    const ConnectionDescriptions& descriptions = 
-        node.getConnectionDescriptions();
+    const ConnectionDescriptions& descriptions = getConnectionDescriptions();
     for( ConnectionDescriptions::const_iterator i = descriptions.begin();
          i != descriptions.end(); ++i )
     {
@@ -750,7 +737,7 @@ std::ostream& operator << ( std::ostream& os, const Node& node )
          i < Node::SATTR_LAST;
          i = static_cast<Node::SAttribute>( static_cast<uint32_t>( i )+1))
     {
-        const std::string& value = node.getSAttribute( i );
+        const std::string& value = getSAttribute( i );
         if( value == Global::instance()->getNodeSAttribute( i ))
             continue;
 
@@ -770,7 +757,7 @@ std::ostream& operator << ( std::ostream& os, const Node& node )
          i < Node::CATTR_LAST; 
          i = static_cast<Node::CAttribute>( static_cast<uint32_t>( i )+1))
     {
-        const char value = node.getCAttribute( i );
+        const char value = getCAttribute( i );
         if( value == Global::instance()->getNodeCAttribute( i ))
             continue;
 
@@ -790,7 +777,7 @@ std::ostream& operator << ( std::ostream& os, const Node& node )
          i < Node::IATTR_LAST;
          i = static_cast< Node::IAttribute >( static_cast<uint32_t>( i )+1))
     {
-        const int value = node.getIAttribute( i );
+        const int value = getIAttribute( i );
         if( value == Global::instance()->getNodeIAttribute( i ))
             continue;
 
@@ -809,14 +796,6 @@ std::ostream& operator << ( std::ostream& os, const Node& node )
     
     if( attrPrinted )
         os << base::exdent << "}" << std::endl << std::endl;
-
-    const Pipes& pipes = node.getPipes();
-    for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
-        os << *i;
-
-    os << base::exdent << "}" << std::endl
-       << base::enableHeader << base::enableFlush;
-    return os;
 }
 
 }
@@ -825,3 +804,7 @@ std::ostream& operator << ( std::ostream& os, const Node& node )
 #include "../lib/fabric/node.ipp"
 template class eq::fabric::Node< eq::server::Config, eq::server::Node,
                                  eq::server::Pipe, eq::server::NodeVisitor >;
+/** @cond IGNORE */
+template std::ostream& eq::fabric::operator << ( std::ostream&,
+                                                 const eq::server::Super& );
+/** @endcond */

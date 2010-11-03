@@ -77,7 +77,7 @@ Compound::Compound( Config* parent )
 {
     EQASSERT( parent );
     parent->addCompound( this );
-    EQINFO << "New root compound @" << (void*)this << std::endl;
+    EQLOG( LOG_INIT ) << "New root compound @" << (void*)this << std::endl;
 }
 
 Compound::Compound( Compound* parent )
@@ -90,7 +90,7 @@ Compound::Compound( Compound* parent )
 {
     EQASSERT( parent );
     parent->_addChild( this );
-    EQINFO << "New compound child @" << (void*)this << std::endl;
+    EQLOG( LOG_INIT ) << "New compound child @" << (void*)this << std::endl;
 }
 
 Compound::~Compound()

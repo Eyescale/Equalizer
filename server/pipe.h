@@ -119,6 +119,7 @@ namespace server
         //@}
 
         void send( net::ObjectPacket& packet );
+        void output( std::ostream& ) const; //!< @internal
 
     protected:
 
@@ -155,8 +156,6 @@ namespace server
         bool _cmdConfigInitReply( net::Command& command );
         bool _cmdConfigExitReply( net::Command& command );
     };
-
-    std::ostream& operator << ( std::ostream& os, const Pipe* pipe );
 }
 }
 #endif // EQSERVER_PIPE_H

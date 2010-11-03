@@ -157,15 +157,15 @@ bool Server::listen()
 void Server::init()
 {
     EQASSERT( isListening( ));
-    base::Thread::setDebugName( typeid( *this ).name( ));
+    base::Thread::setDebugName( base::className( this ));
 
     const Configs& configs = getConfigs();
     if( configs.empty( ))
         EQWARN << "No configurations loaded" << std::endl;
 
     EQINFO << base::disableFlush << "Running server: " << std::endl
-        << base::indent << Global::instance() << *this << base::exdent
-        << base::enableFlush;
+           << base::indent << Global::instance() << *this << base::exdent
+           << base::enableFlush << std::endl;
 
     for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
         registerConfig( *i );

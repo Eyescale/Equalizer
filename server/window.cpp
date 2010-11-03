@@ -520,37 +520,15 @@ bool Window::_cmdConfigExitReply( net::Command& command )
     return true;
 }
 
-std::ostream& operator << ( std::ostream& os, const Window& window )
+void Window::output( std::ostream& os ) const
 {
-    os << base::disableFlush << base::disableHeader << "window" << std::endl;
-    os << "{" << std::endl << base::indent;
-
-    const std::string& name = window.getName();
-    if( !name.empty( ))
-        os << "name     \"" << name << "\"" << std::endl;
-
-    const Viewport& vp = window.getViewport();
-    const PixelViewport& pvp = window.getPixelViewport();
-    if( vp.isValid( ) && window.hasFixedViewport( ))
-    {
-        if( pvp.hasArea( ))
-            os << "viewport " << pvp << std::endl;
-        os << "viewport " << vp << std::endl;
-    }
-    else if( pvp.hasArea( ))
-    {
-        if( vp != Viewport::FULL && vp.isValid( ))
-            os << "viewport " << vp << std::endl;
-        os << "viewport " << pvp << std::endl;
-    }
-
     bool attrPrinted   = false;
     
-    for( Window::IAttribute i = static_cast<Window::IAttribute>( 0 );
-         i < Window::IATTR_LAST; 
-         i = static_cast<Window::IAttribute>( static_cast<uint32_t>( i )+1))
+    for( IAttribute i = static_cast<IAttribute>( 0 );
+         i < IATTR_LAST;
+         i = static_cast<IAttribute>( static_cast<uint32_t>( i )+1))
     {
-        const int value = window.getIAttribute( i );
+        const int value = getIAttribute( i );
         if( value == Global::instance()->getWindowIAttribute( i ))
             continue;
 
@@ -561,56 +539,41 @@ std::ostream& operator << ( std::ostream& os, const Window& window )
             attrPrinted = true;
         }
         
-        os << ( i== Window::IATTR_HINT_STEREO ?
+        os << ( i== IATTR_HINT_STEREO ?
                     "hint_stereo        " :
-                i== Window::IATTR_HINT_DOUBLEBUFFER ?
+                i== IATTR_HINT_DOUBLEBUFFER ?
                     "hint_doublebuffer  " :
-                i== Window::IATTR_HINT_FULLSCREEN ?
+                i== IATTR_HINT_FULLSCREEN ?
                     "hint_fullscreen    " :
-                i== Window::IATTR_HINT_DECORATION ?
+                i== IATTR_HINT_DECORATION ?
                     "hint_decoration    " :
-                i== Window::IATTR_HINT_SWAPSYNC ?
+                i== IATTR_HINT_SWAPSYNC ?
                     "hint_swapsync      " :
-                i== Window::IATTR_HINT_DRAWABLE ?
+                i== IATTR_HINT_DRAWABLE ?
                     "hint_drawable      " :
-                i== Window::IATTR_HINT_STATISTICS ?
+                i== IATTR_HINT_STATISTICS ?
                     "hint_statistics    " :
-                i== Window::IATTR_HINT_SCREENSAVER ?
+                i== IATTR_HINT_SCREENSAVER ?
                     "hint_screensaver   " :
-                i== Window::IATTR_PLANES_COLOR ? 
+                i== IATTR_PLANES_COLOR ? 
                     "planes_color       " :
-                i== Window::IATTR_PLANES_ALPHA ?
+                i== IATTR_PLANES_ALPHA ?
                     "planes_alpha       " :
-                i== Window::IATTR_PLANES_DEPTH ?
+                i== IATTR_PLANES_DEPTH ?
                     "planes_depth       " :
-                i== Window::IATTR_PLANES_STENCIL ?
+                i== IATTR_PLANES_STENCIL ?
                     "planes_stencil     " :
-                i== Window::IATTR_PLANES_ACCUM ?
+                i== IATTR_PLANES_ACCUM ?
                     "planes_accum       " :
-                i== Window::IATTR_PLANES_ACCUM_ALPHA ?
+                i== IATTR_PLANES_ACCUM_ALPHA ?
                     "planes_accum_alpha " :
-                i== Window::IATTR_PLANES_SAMPLES ?
+                i== IATTR_PLANES_SAMPLES ?
                     "planes_samples     " : "ERROR" )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
     }
     
     if( attrPrinted )
         os << base::exdent << "}" << std::endl << std::endl;
-
-    const Channels& channels = window.getChannels();
-    for( Channels::const_iterator i = channels.begin(); 
-         i != channels.end(); ++i )
-    {
-        const Channel* channel = *i;
-        if( channel->getView() && channel->getSegment( ))
-            continue; // don't print generated channels for now
-
-        os << *channel;
-    }
-
-    os << base::exdent << "}" << std::endl << base::enableHeader
-       << base::enableFlush;
-    return os;
 }
 
 }
@@ -620,3 +583,7 @@ std::ostream& operator << ( std::ostream& os, const Window& window )
 template class eq::fabric::Window< eq::server::Pipe, eq::server::Window, 
                                    eq::server::Channel >;
 
+/** @cond IGNORE */
+template std::ostream& eq::fabric::operator << ( std::ostream&,
+                                                 const eq::server::Super& );
+/** @endcond */

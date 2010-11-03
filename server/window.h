@@ -171,6 +171,7 @@ namespace server
         //@}
 
         void send( net::ObjectPacket& packet );
+        void output( std::ostream& ) const; //!< @internal
 
     protected:
 
@@ -235,8 +236,6 @@ namespace server
         // For access to _fixedPVP
         friend std::ostream& operator << ( std::ostream&, const Window*);
     };
-
-    std::ostream& operator << ( std::ostream& os, const Window& window );
 }
 }
 

@@ -51,12 +51,12 @@ Session::Session()
         , _instanceCache( new InstanceCache( Global::getIAttribute( 
                               Global::IATTR_INSTANCE_CACHE_SIZE ) * EQ_1MB ) )
 {
-    EQINFO << "New Session @" << (void*)this << std::endl;
+    EQVERB << "New Session @" << (void*)this << std::endl;
 }
 
 Session::~Session()
 {
-    EQINFO << "Delete Session @" << (void*)this << std::endl;
+    EQVERB << "Delete Session @" << (void*)this << std::endl;
     EQASSERTINFO( !_server, "Session still mapped during deletion");
 
     _id        = SessionID::ZERO;

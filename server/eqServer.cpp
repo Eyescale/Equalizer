@@ -67,7 +67,6 @@ int main( const int argc, char** argv )
     }
 
     server->run();
-
     server->exitLocal();
     server->deleteConfigs();
 

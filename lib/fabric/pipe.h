@@ -139,6 +139,7 @@ namespace fabric
         EQFABRIC_EXPORT virtual void restore(); //!< @internal
         void create( W** window ); //!< @internal
         void release( W* window ); //!< @internal
+        virtual void output( std::ostream& ) const {} //!< @internal
 
     protected:
         //-------------------- Members --------------------
@@ -216,6 +217,9 @@ namespace fabric
         bool _cmdNewWindow( net::Command& command );
         bool _cmdNewWindowReply( net::Command& command );
     };
+
+    template< class N, class P, class W, class V > EQFABRIC_EXPORT
+    std::ostream& operator << ( std::ostream&, const Pipe< N, P, W, V >& );
 }
 }
 

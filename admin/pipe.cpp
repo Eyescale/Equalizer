@@ -82,3 +82,7 @@ net::CommandQueue* Pipe::getMainThreadQueue()
 template class eq::fabric::Pipe< eq::admin::Node, eq::admin::Pipe,
                                  eq::admin::Window, eq::admin::PipeVisitor >;
 
+/** @cond IGNORE */
+template std::ostream& eq::fabric::operator << ( std::ostream&,
+                                                 const eq::admin::Super& );
+/** @endcond */

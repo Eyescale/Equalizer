@@ -327,34 +327,14 @@ bool Pipe::_cmdConfigExitReply( net::Command& command )
     return true;
 }
 
-std::ostream& operator << ( std::ostream& os, const Pipe* pipe )
+void Pipe::output( std::ostream& os ) const
 {
-    if( !pipe )
-        return os;
-    
-    os << base::disableFlush << base::disableHeader << "pipe" << std::endl;
-    os << "{" << std::endl << base::indent;
-
-    const std::string& name = pipe->getName();
-    if( !name.empty( ))
-        os << "name     \"" << name << "\"" << std::endl;
-
-    if( pipe->getPort() != EQ_UNDEFINED_UINT32 )
-        os << "port     " << pipe->getPort() << std::endl;
-        
-    if( pipe->getDevice() != EQ_UNDEFINED_UINT32 )
-        os << "device   " << pipe->getDevice() << std::endl;
-    
-    const PixelViewport& pvp = pipe->getPixelViewport();
-    if( pvp.isValid( ))
-        os << "viewport " << pvp << std::endl;
-
     bool attrPrinted   = false;
-    for( Pipe::IAttribute i = static_cast<Pipe::IAttribute>( 0 ); 
-         i < Pipe::IATTR_LAST; 
-         i = static_cast<Pipe::IAttribute>( static_cast<uint32_t>( i )+1))
+    for( IAttribute i = static_cast<IAttribute>( 0 ); 
+         i < IATTR_LAST;
+         i = static_cast<IAttribute>( static_cast<uint32_t>( i )+1))
     {
-        const int value = pipe->getIAttribute( i );
+        const int value = getIAttribute( i );
         if( value == Global::instance()->getPipeIAttribute( i ))
             continue;
 
@@ -365,25 +345,14 @@ std::ostream& operator << ( std::ostream& os, const Pipe* pipe )
             attrPrinted = true;
         }
         
-        os << ( i == Pipe::IATTR_HINT_THREAD ?
-                "hint_thread          " :
-                i == Pipe::IATTR_HINT_CUDA_GL_INTEROP ?
-                "hint_cuda_GL_interop " : "ERROR" )
+        os << ( i == IATTR_HINT_THREAD ? "hint_thread          " :
+                i == IATTR_HINT_CUDA_GL_INTEROP ? "hint_cuda_GL_interop " :
+                "ERROR" )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
     }
     
     if( attrPrinted )
         os << base::exdent << "}" << std::endl;
-
-    os << std::endl;
-
-    const Windows& windows = pipe->getWindows();
-    for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
-        os << **i;
-
-    os << base::exdent << "}" << std::endl << base::enableHeader
-       << base::enableFlush;
-    return os;
 }
 
 }
@@ -393,3 +362,7 @@ std::ostream& operator << ( std::ostream& os, const Pipe* pipe )
 template class eq::fabric::Pipe< eq::server::Node, eq::server::Pipe, 
                                  eq::server::Window, eq::server::PipeVisitor >;
 
+/** @cond IGNORE */
+template std::ostream& eq::fabric::operator << ( std::ostream&,
+                                                 const eq::server::Super& );
+/** @endcond */

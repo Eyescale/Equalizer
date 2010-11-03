@@ -265,7 +265,7 @@ net::CommandQueue* Pipe::getMainThreadQueue()
 }
 
 Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye,
-                       const bool output )
+                       const bool isOutput )
 {
     EQ_TS_THREAD( _pipeThread );
     Frame* frame = _frames[ frameVersion.identifier ];
@@ -287,7 +287,7 @@ Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye,
     EQASSERT( frameData );
 
     frame->setData( frameData );
-    if( output )
+    if( isOutput )
         _outputFrameDatas[ data.identifier ] = frameData;
     return frame;
 }
@@ -895,3 +895,7 @@ bool Pipe::_cmdFrameDrawFinish( net::Command& command )
 #include "../fabric/pipe.ipp"
 template class eq::fabric::Pipe< eq::Node, eq::Pipe, eq::Window,
                                  eq::PipeVisitor >;
+/** @cond IGNORE */
+template std::ostream& eq::fabric::operator << ( std::ostream&,
+                                                 const eq::Super& );
+/** @endcond */

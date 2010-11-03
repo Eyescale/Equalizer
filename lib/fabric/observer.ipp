@@ -16,7 +16,9 @@
  */
 
 #include "observer.h"
+
 #include "leafVisitor.h"
+#include "log.h"
 #include "paths.h"
 
 #include <eq/net/dataIStream.h>
@@ -34,13 +36,13 @@ Observer< C, O >::Observer( C* config )
     EQASSERT( config );
     config->_addObserver( static_cast< O* >( this ));
     _data.eyeBase = config->getFAttribute( C::FATTR_EYE_BASE );
-    EQINFO << "New " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
 }
 
 template< typename C, typename O >
 Observer< C, O >::~Observer()
 {
-    EQINFO << "Delete " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << base::className( this ) << std::endl;
     _config->_removeObserver( static_cast< O* >( this ));
 }
 

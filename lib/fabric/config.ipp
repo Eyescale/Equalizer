@@ -58,13 +58,13 @@ Config< S, C, O, L, CV, N, V >::Config( base::RefPtr< S > server )
 #pragma warning( pop )
 {
     server->_addConfig( static_cast< C* >( this ));
-    EQINFO << "New " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
 Config< S, C, O, L, CV, N, V >::~Config()
 {
-    EQINFO << "Delete " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << base::className( this ) << std::endl;
     _appNodeID = net::NodeID::ZERO;
 
     while( !_canvases.empty( ))

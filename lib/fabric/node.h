@@ -98,6 +98,7 @@ namespace fabric
         EQFABRIC_EXPORT virtual void restore(); //!< @internal
         void create( P** pipe ); //!< @internal
         void release( P* pipe ); //!< @internal
+        virtual void output( std::ostream& ) const {} //!< @internal
 
     protected:
         /** @internal Construct a new node. */
@@ -157,6 +158,9 @@ namespace fabric
         EQFABRIC_EXPORT virtual uint32_t commitNB(); //!< @internal
         bool _mapNodeObjects() { return _config->mapNodeObjects(); }
     };
+
+    template< class C, class N, class P, class V > EQFABRIC_EXPORT
+    std::ostream& operator << ( std::ostream&, const Node< C, N, P, V >& );
 }
 }
 

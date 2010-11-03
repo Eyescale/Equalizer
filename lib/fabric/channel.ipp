@@ -18,6 +18,7 @@
 #include "channel.h"
 
 #include "leafVisitor.h"
+#include "log.h"
 #include "task.h"
 
 #include <eq/net/dataIStream.h>
@@ -45,7 +46,7 @@ Channel< W, C >::Channel( W* parent )
 {
     memset( _iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
     parent->_addChannel( static_cast< C* >( this ));
-    EQINFO << "New " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
 }
 
 template< class W, class C >
@@ -61,13 +62,13 @@ Channel< W, C >::Channel( const Channel& from )
 
     for( int i = 0; i < IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
-    EQINFO << "New " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
 }
 
 template< class W, class C >
 void Channel< W, C >::init()
 {
-    EQINFO << "Delete " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << base::className( this ) << std::endl;
     notifyViewportChanged();
     unsetDirty( DIRTY_VIEWPORT );
 }
@@ -341,6 +342,62 @@ template< class W, class C >
 const std::string& Channel< W, C >::getIAttributeString( const IAttribute attr )
 {
     return _iAttributeStrings[attr];
+}
+
+template< class W, class C >
+std::ostream& operator << ( std::ostream& os, const Channel< W, C >& channel)
+{
+    if( channel.omitOutput( ))
+        return os;
+
+    os << base::disableFlush << base::disableHeader << "channel" << std::endl;
+    os << "{" << std::endl << base::indent;
+
+    const std::string& name = channel.getName();
+    if( !name.empty( ))
+        os << "name     \"" << name << "\"" << std::endl;
+
+    const Viewport& vp = channel.getViewport();
+    const PixelViewport& pvp = channel.getPixelViewport();
+    if( vp.isValid( ) && channel.hasFixedViewport( ))
+    {
+        if( pvp.hasArea( ))
+            os << "viewport " << pvp << std::endl;
+        os << "viewport " << vp << std::endl;
+    }
+    else if( pvp.hasArea( ))
+    {
+        if( vp != Viewport::FULL && vp.isValid( ))
+            os << "viewport " << vp << std::endl;
+        os << "viewport " << pvp << std::endl;
+    }
+
+
+    const uint32_t drawable = channel.getDrawable();
+    if( drawable != C::FB_WINDOW )
+    {
+        os << "drawable [";
+        
+        if ((drawable & C::FBO_COLOR) != 0 )
+        {
+           os << " FBO_COLOR";
+        }
+        
+        if ((drawable & C::FBO_DEPTH) != 0)
+        {
+           os << " FBO_DEPTH"; 
+        } 
+        if ((drawable & C::FBO_STENCIL) != 0) 
+        {
+           os << " FBO_STENCIL";  
+        }
+        
+        os << " ]" << std::endl;
+    }
+    os << base::exdent << "}" << std::endl << base::enableHeader
+       << base::enableFlush;
+
+    return os;
 }
 
 }

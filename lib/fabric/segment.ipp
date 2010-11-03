@@ -19,6 +19,7 @@
 #include "segment.h"
 
 #include "leafVisitor.h"
+#include "log.h"
 #include "paths.h"
 #include "pipePackets.h"
 
@@ -38,13 +39,13 @@ Segment< C, S, CH >::Segment( C* canvas )
 {
     EQASSERT( canvas );
     canvas->_addChild( static_cast< S* >( this ));
-    EQINFO << "New " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
 }
 
 template< class C, class S, class CH >
 Segment< C, S, CH >::~Segment()
 {
-    EQINFO << "Delete " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << base::className( this ) << std::endl;
     _canvas->_removeChild( static_cast< S* >( this ));
     _channel = 0;
 }

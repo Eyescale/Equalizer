@@ -230,7 +230,7 @@ namespace fabric
         void sync( const uint32_t version = net::VERSION_HEAD );
         //@}
 
-        void output( std::ostream& ) const {} //!< @internal
+        virtual void output( std::ostream& ) const {} //!< @internal
 
     protected:
         /** @internal Construct a new config. */

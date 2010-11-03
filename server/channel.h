@@ -188,6 +188,9 @@ namespace server
         void removeListener( ChannelListener* listener );
         //@}
 
+        bool omitOutput() const; //!< @internal
+        void output( std::ostream& ) const; //!< @internal
+
     protected:
         /** @sa net::Object::attachToSession. */
         virtual void attachToSession( const uint32_t id, 
@@ -242,12 +245,7 @@ namespace server
             { return true; }
 
         virtual void updateCapabilities();
-
-        // For access to _fixedPVP
-        friend std::ostream& operator << ( std::ostream&, const Channel& );
     };
-
-    std::ostream& operator << ( std::ostream& os, const Channel& channel);
 }
 }
 #endif // EQSERVER_CHANNEL_H

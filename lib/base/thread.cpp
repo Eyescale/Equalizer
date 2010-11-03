@@ -363,6 +363,7 @@ typedef struct tagTHREADNAME_INFO
 
 void Thread::setDebugName( const std::string& name )
 {
+    EQINFO << "Thread " << name << std::endl;
 #ifdef _MSC_VER
 #  ifndef NDEBUG
     ::Sleep(10);

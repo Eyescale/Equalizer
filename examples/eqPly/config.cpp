@@ -136,15 +136,7 @@ bool Config::exit()
 {
     const bool ret = eq::Config::exit();
     _deregisterData();
-
-    if( _admin.isValid( ))
-    {
-        eq::admin::ClientPtr client = _admin->getClient();
-        client->disconnectServer( _admin );
-        client->exitLocal();
-        _admin = 0;
-        eq::admin::exit();
-    }
+    _closeAdminServer();
 
     // retain models and distributors for possible other config runs, destructor
     // deletes it
@@ -945,6 +937,7 @@ void Config::_setMessage( const std::string& message )
 
 eq::admin::ServerPtr Config::_getAdminServer()
 {
+    // Debug: _closeAdminServer();
     if( _admin.isValid() && _admin->isConnected( ))
         return _admin;
 
@@ -965,6 +958,21 @@ eq::admin::ServerPtr Config::_getAdminServer()
         eq::admin::exit();
     }
     return _admin;
+}
+
+void Config::_closeAdminServer()
+{
+    if( !_admin )
+        return;
+
+    eq::admin::ClientPtr client = _admin->getClient();
+    client->disconnectServer( _admin );
+    client->exitLocal();
+    EQASSERT( client->getRefCount() == 1 );
+    EQASSERT( _admin->getRefCount() == 1 );
+    
+    _admin = 0;
+    eq::admin::exit();
 }
 
 }

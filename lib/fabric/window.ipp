@@ -62,7 +62,7 @@ Window< P, W, C >::Window( P* parent )
 {
     EQASSERT( parent );
     parent->_addWindow( static_cast< W* >( this ) );
-    EQINFO << "New " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
 }
 
 template< class P, class W, class C >
@@ -75,7 +75,7 @@ Window< P, W, C >::BackupData::BackupData()
 template< class P, class W, class C >
 Window< P, W, C >::~Window( )
 {    
-    EQINFO << "Delete " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << base::className( this ) << std::endl;
     while( !_channels.empty( ))
     {
         C* channel = _channels.back();
@@ -462,14 +462,53 @@ bool Window< P, W, C >::_cmdNewChannel( net::Command& command )
     return true;
 }
 
-template< class P, class W, class C > bool
-Window< P, W, C >::_cmdNewChannelReply( net::Command& command )
+template< class P, class W, class C >
+bool Window< P, W, C >::_cmdNewChannelReply( net::Command& command )
 {
     const WindowNewChannelReplyPacket* packet =
         command.getPacket< WindowNewChannelReplyPacket >();
     getLocalNode()->serveRequest( packet->requestID, packet->channelID );
 
     return true;
+}
+
+template< class P, class W, class C >
+std::ostream& operator << ( std::ostream& os, const Window< P, W, C >& window )
+{
+    os << base::disableFlush << base::disableHeader << "window" << std::endl;
+    os << "{" << std::endl << base::indent;
+
+    const std::string& name = window.getName();
+    if( !name.empty( ))
+        os << "name     \"" << name << "\"" << std::endl;
+
+    const Viewport& vp = window.getViewport();
+    const PixelViewport& pvp = window.getPixelViewport();
+    if( vp.isValid( ) && window.hasFixedViewport( ))
+    {
+        if( pvp.hasArea( ))
+            os << "viewport " << pvp << std::endl;
+        os << "viewport " << vp << std::endl;
+    }
+    else if( pvp.hasArea( ))
+    {
+        if( vp != Viewport::FULL && vp.isValid( ))
+            os << "viewport " << vp << std::endl;
+        os << "viewport " << pvp << std::endl;
+    }
+
+    window.output( os );
+
+    const typename W::Channels& channels = window.getChannels();
+    for( typename W::Channels::const_iterator i = channels.begin(); 
+         i != channels.end(); ++i )
+    {
+        os << **i;
+    }
+
+    os << base::exdent << "}" << std::endl << base::enableHeader
+       << base::enableFlush;
+    return os;
 }
 
 }

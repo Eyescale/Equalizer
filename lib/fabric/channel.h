@@ -273,6 +273,9 @@ namespace fabric
         EQFABRIC_EXPORT static const std::string& getIAttributeString(
                                                         const IAttribute attr );
         //@}
+
+        virtual bool omitOutput() const { return false; } //!< @internal
+        virtual void output( std::ostream& ) const {} //!< @internal
         
     protected:
         /** Construct a new channel. @internal */
@@ -368,6 +371,9 @@ namespace fabric
             char dummy[32];
         };
     };
+
+    template< class W, class C > EQFABRIC_EXPORT
+    std::ostream& operator << ( std::ostream&, const Channel< W, C >& );
 }
 }
 

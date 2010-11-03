@@ -170,6 +170,7 @@ namespace fabric
         EQFABRIC_EXPORT virtual void restore(); //!< @internal
         void create( C** channel ); //!< @internal
         void release( C* channel ); //!< @internal
+        virtual void output( std::ostream& ) const {} //!< @internal
         //@}
 
     protected: 
@@ -260,6 +261,10 @@ namespace fabric
         bool _cmdNewChannel( net::Command& command );
         bool _cmdNewChannelReply( net::Command& command );
     };
+
+    template< class P, class W, class C > EQFABRIC_EXPORT
+    std::ostream& operator << ( std::ostream& os,
+                                const Window< P, W, C >& window );
 }
 }
 

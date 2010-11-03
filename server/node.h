@@ -244,6 +244,8 @@ namespace server
         static const std::string& getCAttributeString( const CAttribute attr );
         //@}
 
+        void output( std::ostream& os ) const; //!< @internal
+
     protected:
 
         /** @sa net::Object::attachToSession. */
@@ -324,8 +326,6 @@ namespace server
         bool _cmdConfigExitReply( net::Command& command );
         bool _cmdFrameFinishReply( net::Command& command );
     };
-
-    std::ostream& operator << ( std::ostream& os, const Node& node );
 }
 }
 #endif // EQSERVER_NODE_H

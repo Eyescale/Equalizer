@@ -48,12 +48,12 @@ Node::Node()
     _receiverThread = new ReceiverThread( this );
     _commandThread  = new CommandThread( this );
 
-    EQINFO << "New Node @" << (void*)this << " " << _id << std::endl;
+    EQVERB << "New Node @" << (void*)this << " " << _id << std::endl;
 }
 
 Node::~Node()
 {
-    EQINFO << "Delete Node @" << (void*)this << " " << _id << std::endl;
+    EQVERB << "Delete Node @" << (void*)this << " " << _id << std::endl;
     EQASSERT( _outgoing == 0 );
     EQASSERT( _incoming.isEmpty( ));
     EQASSERT( _connectionNodes.empty( ));
@@ -874,10 +874,6 @@ NodePtr Node::_connect( const NodeID& nodeID, NodePtr server )
 //----------------------------------------------------------------------
 void Node::_runReceiverThread()
 {
-    EQINFO << "Entered receiver thread of " << base::className( this )
-           << std::endl;
-    base::Thread::setDebugName( std::string( "Rcv " ) + base::className(this));
-
     int nErrors = 0;
     while( _state == STATE_LISTENING )
     {
@@ -1178,10 +1174,6 @@ void Node::_redispatchCommands()
 //----------------------------------------------------------------------
 void Node::_runCommandThread()
 {
-    EQINFO << "Entered command thread of " << base::className( this )
-           << std::endl;
-    base::Thread::setDebugName( std::string( "Cmd " ) + base::className(this));
-
     while( _state == STATE_LISTENING )
     {
         Command* command = _commandThreadQueue.pop();

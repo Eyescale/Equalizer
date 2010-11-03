@@ -1,9 +1,11 @@
-Error codes: Programming Guide update
+Move basic output operators to fabric
+Denoisify fabric ctors/dtors
+
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation
