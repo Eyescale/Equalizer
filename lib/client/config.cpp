@@ -815,7 +815,7 @@ template class eq::fabric::Config< eq::Server, eq::Config, eq::Observer,
                                    eq::Layout, eq::Canvas, eq::Node,
                                    eq::ConfigVisitor >;
 /** @cond IGNORE */
-template std::ostream& eq::fabric::operator << ( std::ostream&,
+template EQFABRIC_EXPORT std::ostream& eq::fabric::operator << ( std::ostream&,
                                                  const eq::Config::Super& );
 /** @endcond */
 

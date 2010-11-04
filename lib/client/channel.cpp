@@ -1364,7 +1364,7 @@ bool Channel::_cmdStopFrame( net::Command& command )
 #include "../fabric/channel.ipp"
 template class eq::fabric::Channel< eq::Window, eq::Channel >;
 /** @cond IGNORE */
-template std::ostream& eq::fabric::operator << ( std::ostream&,
+template EQFABRIC_EXPORT std::ostream& eq::fabric::operator << ( std::ostream&,
                                                  const eq::Super& );
 /** @endcond */
 

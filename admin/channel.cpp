@@ -73,6 +73,6 @@ ServerPtr Channel::getServer()
 #include "../lib/fabric/channel.ipp"
 template class eq::fabric::Channel< eq::admin::Window, eq::admin::Channel >;
 /** @cond IGNORE */
-template std::ostream& eq::fabric::operator << ( std::ostream&,
+template EQFABRIC_EXPORT std::ostream& eq::fabric::operator << ( std::ostream&,
                                                  const eq::admin::Super& );
 /** @endcond */

@@ -45,6 +45,6 @@ ServerPtr Observer::getServer()
 #include "../fabric/observer.ipp"
 template class eq::fabric::Observer< eq::Config, eq::Observer >;
 /** @cond IGNORE */
-template std::ostream& eq::fabric::operator << ( std::ostream&,
+template EQFABRIC_EXPORT std::ostream& eq::fabric::operator << ( std::ostream&,
                       const eq::fabric::Observer< eq::Config, eq::Observer >& );
 /** @endcond */

@@ -49,6 +49,6 @@ ServerPtr Layout::getServer()
 
 template class eq::fabric::Layout< eq::Config, eq::Layout, eq::View >;
 /** @cond IGNORE */
-template std::ostream& eq::fabric::operator << ( std::ostream&,
+template EQFABRIC_EXPORT std::ostream& eq::fabric::operator << ( std::ostream&,
                 const eq::fabric::Layout< eq::Config, eq::Layout, eq::View >& );
 /** @endcond */

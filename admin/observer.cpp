@@ -51,6 +51,6 @@ ServerPtr Observer::getServer()
 template class eq::fabric::Observer< eq::admin::Config, eq::admin::Observer >;
 
 /** @cond IGNORE */
-template std::ostream& eq::fabric::operator << ( std::ostream&,
+template EQFABRIC_EXPORT std::ostream& eq::fabric::operator << ( std::ostream&,
                                                  const eq::admin::Super& );
 /** @endcond */

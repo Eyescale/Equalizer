@@ -1,11 +1,9 @@
-Move basic output operators to fabric
-Denoisify fabric ctors/dtors
-
+Export ostream operators
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -65,6 +65,6 @@ ServerPtr Window::getServer()
 template class eq::fabric::Window< eq::admin::Pipe, eq::admin::Window,
                                    eq::admin::Channel >;
 /** @cond IGNORE */
-template std::ostream& eq::fabric::operator << ( std::ostream&,
+template EQFABRIC_EXPORT std::ostream& eq::fabric::operator << ( std::ostream&,
                                                  const eq::admin::Super& );
 /** @endcond */

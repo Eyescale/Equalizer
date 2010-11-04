@@ -63,7 +63,7 @@ template class eq::fabric::Config< eq::admin::Server, eq::admin::Config,
                                    eq::admin::ConfigVisitor >;
 
 /** @cond IGNORE */
-template std::ostream& eq::fabric::operator << ( std::ostream&,
+template EQFABRIC_EXPORT std::ostream& eq::fabric::operator << ( std::ostream&,
                                               const eq::admin::Config::Super& );
 /** @endcond */
 

@@ -55,6 +55,6 @@ ServerPtr Canvas::getServer()
 template class eq::fabric::Canvas< eq::Config, eq::Canvas, eq::Segment,
                                    eq::Layout >;
 /** @cond IGNORE */
-template std::ostream& eq::fabric::operator << ( std::ostream&,
+template EQFABRIC_EXPORT std::ostream& eq::fabric::operator << ( std::ostream&,
                                                  const eq::Super& );
 /** @endcond */

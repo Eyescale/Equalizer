@@ -593,6 +593,6 @@ bool Node::_cmdFrameTasksFinish( net::Command& command )
 template class eq::fabric::Node< eq::Config, eq::Node, eq::Pipe,
                                  eq::NodeVisitor >;
 /** @cond IGNORE */
-template std::ostream& eq::fabric::operator << ( std::ostream&,
+template EQFABRIC_EXPORT std::ostream& eq::fabric::operator << ( std::ostream&,
                                                  const eq::Super& );
 /** @endcond */

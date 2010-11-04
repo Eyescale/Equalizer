@@ -126,6 +126,6 @@ bool View::handleEvent( const Event& event )
 #include "../fabric/view.ipp"
 template class eq::fabric::View< eq::Layout, eq::View, eq::Observer >;
 /** @cond IGNORE */
-template std::ostream& eq::fabric::operator << ( std::ostream&,
+template EQFABRIC_EXPORT std::ostream& eq::fabric::operator << ( std::ostream&,
                 const eq::fabric::View< eq::Layout, eq::View, eq::Observer >& );
 /** @endcond */
