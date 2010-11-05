@@ -1,6 +1,4 @@
-Stereo switching: consolidate visitors.
-Fix typo in file format lexer (eyeBase->eye_base)
-Fix server channel output
+Remove dead variable
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

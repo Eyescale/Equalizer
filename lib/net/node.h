@@ -510,9 +510,6 @@ namespace net
         /** Needed for thread-safety during nodeID-based connect() */
         base::Lock _connectMutex;
 
-        /** The request id for the async launch operation. */
-        uint32_t _launchID;
-
         /** Commands re-scheduled for dispatch. */
         CommandList  _pendingCommands;
 
