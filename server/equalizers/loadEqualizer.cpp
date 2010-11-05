@@ -41,7 +41,7 @@ LoadEqualizer::LoadEqualizer()
         , _tree( 0 )
         , _boundary2i( 1, 1 )
         , _boundaryf( std::numeric_limits<float>::epsilon() )
-
+        , _assembleOnlyLimit( std::numeric_limits< float >::max( ) )
 {
     EQINFO << "New LoadEqualizer @" << (void*)this << std::endl;
 }
@@ -54,6 +54,7 @@ LoadEqualizer::LoadEqualizer( const LoadEqualizer& from )
         , _tree( 0 )
         , _boundary2i( from._boundary2i )
         , _boundaryf( from._boundaryf )
+        , _assembleOnlyLimit( from._assembleOnlyLimit )
 {}
 
 LoadEqualizer::~LoadEqualizer()
@@ -234,10 +235,14 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
             int64_t endTime   = 0;
             bool    loadSet   = false;
             int64_t timeTransmit = 0;
-            for( uint32_t k = 0; k < nStatistics && !loadSet; ++k )
+            for( uint32_t k = 0; k < nStatistics; ++k )
             {
                 const Statistic& stat = statistics[k];
-                if( stat.task != taskID ) // from different compound
+                if( stat.task == data.destTaskID )
+                    _updateAssembleTime( data, stat );
+
+                // from different compound
+                if( stat.task != taskID || loadSet ) 
                     continue;
 
                 switch( stat.type )
@@ -261,13 +266,14 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
                         break;
                 }
             }
-    
+
             if( startTime == std::numeric_limits< int64_t >::max( ))
                 return;
-    
+
             data.time = endTime - startTime;
             data.time = EQ_MAX( data.time, 1 );
             data.time = EQ_MAX( data.time, timeTransmit );
+            data.assembleTime = EQ_MAX( data.assembleTime, 0 );
             data.load = static_cast< float >( data.time ) / data.vp.getArea();
             EQLOG( LOG_LB2 ) << "Added load "<< data.load << " (t=" << data.time
                             << ") for " << channel->getName() << " " << data.vp
@@ -278,6 +284,23 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
             // Note: if the same channel is used twice as a child, the 
             // load-compound association does not work.
         }
+    }
+}
+
+void LoadEqualizer::_updateAssembleTime( Data& data, const Statistic& stat )
+{
+    switch( stat.type )
+    {
+        case Statistic::CHANNEL_WAIT_FRAME:
+            data.assembleTime -= stat.endTime - stat.startTime;
+            break;
+
+        case Statistic::CHANNEL_ASSEMBLE:
+            data.assembleTime += stat.endTime - stat.startTime;
+            break;
+
+        default:
+            break;
     }
 }
 
@@ -327,6 +350,22 @@ void LoadEqualizer::_checkHistory()
     }
 }
 
+float LoadEqualizer::_getTotalResources( ) const
+{
+    const Compounds& children = getCompound()->getChildren();
+
+    float resources = 0.f;
+    for( Compounds::const_iterator i = children.begin();
+             i != children.end(); i++ )
+    {
+       const Compound* compound = *i;
+       if( compound->isRunning( ))
+           resources += compound->getUsage();
+    }
+
+    return resources;
+}
+
 void LoadEqualizer::_update( Node* node )
 {
     if( !node )
@@ -336,77 +375,129 @@ void LoadEqualizer::_update( Node* node )
     if( compound )
     {
         const Channel* channel = compound->getChannel();
-        const PixelViewport& pvp = channel->getPixelViewport();
         EQASSERT( channel );
-
+        const PixelViewport& pvp = channel->getPixelViewport();
         node->resources = compound->isRunning() ? compound->getUsage() : 0.f;
+        EQASSERT( node->resources >= 0.f );
+
         node->maxSize.x() = pvp.w; 
         node->maxSize.y() = pvp.h; 
         node->boundaryf = _boundaryf;
         node->boundary2i = _boundary2i;
+        if( node->compound->hasDestinationChannel() )
+        {
+            const float nResources = _getTotalResources();
+            if( _assembleOnlyLimit <= nResources - node->resources )
+            {
+                node->resources = 0.f;
+                return; // OPT
+            }
+
+            const float time = float( _getTotalTime( ));
+            float assembleTime = float( _getAssembleTime( ));
+
+            if( assembleTime == 0 || node->resources == 0.f )
+                return; 
+
+            float timePerResource = time / ( nResources - node->resources );
+            
+            assembleTime = EQ_MIN( assembleTime, 
+                                   timePerResource * node->resources );
+
+            timePerResource = (time + assembleTime) / nResources;
+            node->resources -= ( assembleTime / timePerResource );
+
+            EQASSERT( node->resources >= 0.f );
+        }
         return;
     }
     // else
 
-    EQASSERT( node->left );
-    EQASSERT( node->right );
+    Node* left = node->left;
+    Node* right = node->right;
+    
+    EQASSERT( left );
+    EQASSERT( right );
 
-    _update( node->left );
-    _update( node->right );
+    _update( left );
+    _update( right );
 
-    node->resources = node->left->resources + node->right->resources;
+    node->resources = left->resources + right->resources;
 
-    if( node->left->resources == 0.f )
+    if( left->resources == 0.f )
     {
-        node->maxSize = node->right->maxSize;
-        node->boundary2i = node->right->boundary2i;
-        node->boundaryf = node->right->boundaryf;
+        node->maxSize    = right->maxSize;
+        node->boundary2i = right->boundary2i;
+        node->boundaryf  = right->boundaryf;
     }
-    else if( node->right->resources == 0.f )
+    else if( right->resources == 0.f )
     {
-        node->maxSize = node->left->maxSize;
-        node->boundary2i = node->left->boundary2i;
-        node->boundaryf = node->left->boundaryf;
+        node->maxSize = left->maxSize;
+        node->boundary2i = left->boundary2i;
+        node->boundaryf = left->boundaryf;
     }
     else
     {
         switch( node->mode )
         {
         case MODE_VERTICAL:
-            node->maxSize.x() = node->left->maxSize.x() +
-                                node->right->maxSize.x();  
-            node->maxSize.y() = EQ_MIN( node->left->maxSize.y(), 
-                                        node->right->maxSize.y() ); 
-            node->boundary2i.x() = node->left->boundary2i.x() +
-                                   node->right->boundary2i.x();
-            node->boundary2i.y() = EQ_MAX( node->left->boundary2i.y(), 
-                                           node->right->boundary2i.y());
-            node->boundaryf = EQ_MAX( node->left->boundaryf,
-                                      node->right->boundaryf );
+            node->maxSize.x() = left->maxSize.x() + right->maxSize.x();  
+            node->maxSize.y() = EQ_MIN( left->maxSize.y(), right->maxSize.y());
+            node->boundary2i.x() = left->boundary2i.x()+ right->boundary2i.x();
+            node->boundary2i.y() = EQ_MAX( left->boundary2i.y(), 
+                                           right->boundary2i.y());
+            node->boundaryf = EQ_MAX( left->boundaryf, right->boundaryf );
             break;
         case MODE_HORIZONTAL:
-            node->maxSize.x() = EQ_MIN( node->left->maxSize.x(), 
-                                        node->right->maxSize.x() );  
-            node->maxSize.y() = node->left->maxSize.y() +
-                                node->right->maxSize.y(); 
-            node->boundary2i.x() = EQ_MAX( node->left->boundary2i.x(), 
-                                           node->right->boundary2i.x() );
-            node->boundary2i.y() = node->left->boundary2i.y() +
-                                   node->right->boundary2i.y();
-            node->boundaryf = EQ_MAX( node->left->boundaryf,
-                                      node->right->boundaryf );
+            node->maxSize.x() = EQ_MIN( left->maxSize.x(), right->maxSize.x());
+            node->maxSize.y() = left->maxSize.y() + right->maxSize.y(); 
+            node->boundary2i.x() = EQ_MAX( left->boundary2i.x(), 
+                                           right->boundary2i.x() );
+            node->boundary2i.y() = left->boundary2i.y()+ right->boundary2i.y();
+            node->boundaryf = EQ_MAX( left->boundaryf, right->boundaryf );
             break;
         case MODE_DB:
-            node->boundary2i.x() = EQ_MAX( node->left->boundary2i.x(), 
-                                           node->right->boundary2i.x() );
-            node->boundary2i.y() = EQ_MAX( node->left->boundary2i.y(), 
-                                           node->right->boundary2i.y() );
-            node->boundaryf = node->left->boundaryf +node->right->boundaryf;
+            node->boundary2i.x() = EQ_MAX( left->boundary2i.x(), 
+                                           right->boundary2i.x() );
+            node->boundary2i.y() = EQ_MAX( left->boundary2i.y(), 
+                                           right->boundary2i.y() );
+            node->boundaryf = left->boundaryf + right->boundaryf;
             break;
         default:
             EQUNIMPLEMENTED;
         }
     }
+}
+
+int64_t LoadEqualizer::_getTotalTime() 
+{
+    const LBFrameData& frameData = _history.front();
+    LBDatas items( frameData.second );
+    _removeEmpty( items );
+
+    int64_t totalTime = 0;
+    for( LBDatas::const_iterator i = items.begin(); i != items.end(); ++i )
+    {  
+        const Data& data = *i;
+        totalTime += data.time;
+    }
+    return totalTime;
+}
+
+int64_t LoadEqualizer::_getAssembleTime( )
+{
+    const LBFrameData& frameData = _history.front();
+    LBDatas items( frameData.second );
+    _removeEmpty( items );
+
+    int64_t assembleTime = 0;
+    for( LBDatas::const_iterator i = items.begin(); i != items.end(); ++i )
+    {  
+        const Data& data = *i;
+        EQASSERT( assembleTime == 0 || data.assembleTime == 0 );
+        assembleTime += data.assembleTime;
+    }
+    return assembleTime;
 }
 
 void LoadEqualizer::_computeSplit()
@@ -449,17 +540,10 @@ void LoadEqualizer::_computeSplit()
 #endif
     }
 
-    // Compute total rendering time
-    int64_t totalTime = 0;
-    for( LBDatas::const_iterator i = items.begin(); i != items.end(); ++i )
-    {  
-        const Data& data = *i;
-        totalTime += data.time;
-    }
-
-    EQLOG( LOG_LB2 ) << "Render time " << totalTime << " for "
+    EQLOG( LOG_LB2 ) << "Render time " << time << " for "
                      << _tree->resources << " resources" << std::endl;
-    _computeSplit( _tree, float( totalTime ), sortedData, Viewport(), Range( ));
+    _computeSplit( _tree, float( _getTotalTime() ), 
+                   sortedData, Viewport(), Range( ));
 }
 
 void LoadEqualizer::_removeEmpty( LBDatas& items )
@@ -532,7 +616,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                 for( LBDatas::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
                 {
-                    const Data& data = *i;                        
+                    const Data& data = *i;
                     currentPos = EQ_MIN( currentPos, data.vp.getXEnd( ));
                 }
 
@@ -542,7 +626,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
 
                 // accumulate normalized load in splitPos...currentPos
                 EQLOG( LOG_LB2 ) << "Computing load in X " << splitPos << "..."
-                                << currentPos << std::endl;
+                                 << currentPos << std::endl;
                 float currentLoad = 0.f;
                 for( LBDatas::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
@@ -587,7 +671,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
 
                 if( currentTime >= timeLeft ) // found last region
                 {
-                    splitPos += (width * timeLeft / currentTime );
+                    splitPos += ( width * timeLeft / currentTime );
                     timeLeft = 0.0f;
                 }
                 else
@@ -689,7 +773,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                 for( LBDatas::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
                 {
-                    const Data& data = *i;                        
+                    const Data& data = *i;
                     currentPos = EQ_MIN( currentPos, data.vp.getYEnd( ));
                 }
 
@@ -738,7 +822,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                 const float height       = currentPos - splitPos;
                 const float area         = height * vp.w;
                 const float currentTime  = area * currentLoad;
-                    
+
                 EQLOG( LOG_LB2 ) << splitPos << "..." << currentPos 
                                 << ": t=" << currentTime << " of " 
                                 << timeLeft << std::endl;
@@ -765,7 +849,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                 root->getInheritPixelViewport().h );
             const float boundary = static_cast< float >(node->boundary2i.y( )) /
                                        pvpH;
-            
+
             if( node->left->resources == 0.f )
                 splitPos = vp.y;
             else if( node->right->resources == 0.f )
@@ -940,6 +1024,11 @@ void LoadEqualizer::_assign( Compound* compound, const Viewport& vp,
     data.range   = range;
     data.channel = compound->getChannel();
     data.taskID  = compound->getTaskID();
+
+    const Compound* destCompound = getCompound();
+    if( destCompound->getChannel() == compound->getChannel( ))
+        data.destTaskID  = destCompound->getTaskID();
+
     EQASSERT( data.taskID > 0 );
 
     if( !vp.hasArea() || !range.hasData( )) // will not render

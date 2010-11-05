@@ -97,15 +97,17 @@ namespace server
         /** @return if the compound is a leaf compound. */
         bool isLeaf() const { return _children.empty(); }
 
-        /** @return if the compound has the destination channel. */
+        /** @return true if this is the top-most compound with a channel. */
         bool isDestination() const;
+
+        /** @return if the compound has the destination channel. */
+        bool hasDestinationChannel() const;
         
         /** @return the children of this compound. */
         const Compounds& getChildren() const { return _children; }
 
         /** @return the parent compound. */
-        Compound* getParent() const
-            { return _parent; }
+        Compound* getParent() const { return _parent; }
 
         /** @return the root of the compound tree. */
         Compound* getRoot()
@@ -161,8 +163,7 @@ namespace server
         EQSERVER_EXPORT void addEqualizer( Equalizer* equalizer );
 
         /** Get the attached load balancers. */
-        const Equalizers& getEqualizers() const
-            { return _equalizers; }
+        const Equalizers& getEqualizers() const { return _equalizers; }
 
         /** 
          * Set the tasks to be executed by the compound, overwriting previous
@@ -231,7 +232,8 @@ namespace server
         void setMaxFPS( const float fps )          { _data.maxFPS = fps; }
         float getMaxFPS() const                    { return _data.maxFPS; }
 
-        void setUsage( const float usage )         { _usage = usage; }
+        void setUsage( const float usage )         
+            { EQASSERT( usage >= 0.f ); _usage = usage; }
         float getUsage() const                     { return _usage; }
 
         void setTaskID( const uint32_t id )        { _taskID = id; }

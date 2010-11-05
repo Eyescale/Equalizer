@@ -263,6 +263,7 @@
 %token EQTOKEN_RGBA32F
 %token EQTOKEN_MODE
 %token EQTOKEN_2D
+%token EQTOKEN_ASSEMBLE_ONLY_LIMIT
 %token EQTOKEN_DB
 %token EQTOKEN_BOUNDARY
 %token EQTOKEN_ZOOM
@@ -1041,6 +1042,7 @@ loadBalancerField:
         else if( dfrEqualizer )
             dfrEqualizer->setDamping( $2 );
     }
+    | EQTOKEN_ASSEMBLE_ONLY_LIMIT FLOAT  { loadEqualizer->setAssembleOnlyLimit( $2 ) }
     | EQTOKEN_FRAMERATE FLOAT     { dfrEqualizer->setFrameRate( $2 ) }
     | EQTOKEN_BOUNDARY '[' UNSIGNED UNSIGNED ']' 
                   { loadEqualizer->setBoundary( eq::Vector2i( $3, $4 )) }
@@ -1132,6 +1134,7 @@ loadEqualizerField:
     EQTOKEN_DAMPING FLOAT            { loadEqualizer->setDamping( $2 ); }
     | EQTOKEN_BOUNDARY '[' UNSIGNED UNSIGNED ']' 
                   { loadEqualizer->setBoundary( eq::Vector2i( $3, $4 )) }
+    | EQTOKEN_ASSEMBLE_ONLY_LIMIT FLOAT  { loadEqualizer->setAssembleOnlyLimit( $2 ) }
     | EQTOKEN_BOUNDARY FLOAT  { loadEqualizer->setBoundary( $2 ) }
     | EQTOKEN_MODE loadEqualizerMode { loadEqualizer->setMode( $2 ); }
 

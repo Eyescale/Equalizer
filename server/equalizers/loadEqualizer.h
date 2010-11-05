@@ -96,6 +96,9 @@ namespace server
         /** @return the boundary for DB ranges. */
         float getBoundaryf() const { return _boundaryf; }
 
+        void setAssembleOnlyLimit( const float limit )
+            { _assembleOnlyLimit = limit; }
+
     protected:
         virtual void notifyChildAdded( Compound* compound, Compound* child )
             { EQASSERT( !_tree ); }
@@ -129,13 +132,15 @@ namespace server
 
         struct Data
         {
-            Data() : channel( 0 ), taskID( 0 ), time( -1 ) {}
-
+            Data() : channel( 0 ), taskID( 0 ), destTaskID( 0 )
+                   , time( -1 ), assembleTime( 0 ) {}
             Channel*     channel;
             uint32_t     taskID;
+            uint32_t     destTaskID;
             eq::Viewport vp;
             eq::Range    range;
             int64_t      time;
+            int64_t      assembleTime;
             float        load;          //<! time/vp.area
         };
 
@@ -146,15 +151,25 @@ namespace server
 
         Vector2i _boundary2i;  // default: 1 1
         float    _boundaryf;   // default: numeric_limits<float>::epsilon
+        float    _assembleOnlyLimit; // default: numeric_limits<float>::max
 
-        
         //-------------------- Methods --------------------
         /** @return true if we have a valid LB tree */
         Node* _buildTree( const Compounds& children );
         void _init( Node* node, const Viewport& vp, const Range& range );
 
+        /** Setup assembly with the compound dest value */  
+        void _updateAssembleTime( Data& data, const Statistic& stat );
+
         /** Clear the tree, does not delete the nodes. */
         void _clearTree( Node* node );
+
+        /** get the total time used by the rendering. */
+        int64_t _getTotalTime();
+
+        /** get the assembly time used by the compound which use
+            the destination Channel. */
+        int64_t _getAssembleTime( );
 
         /** Obsolete _history so that front-most item is youngest available. */
         void _checkHistory();
@@ -170,6 +185,9 @@ namespace server
                             const eq::Viewport& vp, const eq::Range& range );
         void _assign( Compound* compound, const Viewport& vp,
                       const Range& range );
+
+        /** Get the resource for all children compound. */
+        float _getTotalResources( ) const;
 
         static bool _compareX( const Data& data1, const Data& data2 )
             { return data1.vp.x < data2.vp.x; }

@@ -268,6 +268,7 @@ local_sync                      { return EQTOKEN_LOCAL_SYNC; }
 mode                            { return EQTOKEN_MODE; }
 boundary                        { return EQTOKEN_BOUNDARY; }
 2D                              { return EQTOKEN_2D; }
+assemble_only_limit             { return EQTOKEN_ASSEMBLE_ONLY_LIMIT; }
 DB                              { return EQTOKEN_DB; }
 zoom                            { return EQTOKEN_ZOOM; }
 MONO                            { return EQTOKEN_MONO; }

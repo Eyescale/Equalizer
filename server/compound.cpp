@@ -376,6 +376,7 @@ void Compound::addInputFrame( Frame* frame )
     _inputFrames.push_back( frame ); 
     frame->_compound = this;
 }
+
 void Compound::addOutputFrame( Frame* frame )
 { 
     if( frame->getName().empty() )
@@ -435,6 +436,12 @@ bool Compound::isDestination() const
 
     return true;
 }
+
+bool Compound::hasDestinationChannel() const
+{
+    return getChannel() && getChannel() == getInheritChannel();
+}
+
 //---------------------------------------------------------------------------
 // frustum operations
 //---------------------------------------------------------------------------
