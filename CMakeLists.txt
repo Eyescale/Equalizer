@@ -128,35 +128,9 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
-if(WIN32)
-   include_directories(SYSTEM ${CMAKE_SOURCE_DIR}/Windows/pthreads/include)
-  
-   if(NOT BISON_EXECUTABLE)
-     set(BISON_EXECUTABLE ${CMAKE_SOURCE_DIR}/Windows/bin/bison.exe)
-   endif(NOT BISON_EXECUTABLE)
-   if(NOT FLEX_EXECUTABLE)
-     set(FLEX_EXECUTABLE ${CMAKE_SOURCE_DIR}/Windows/bin/flex.exe)
-   endif(NOT FLEX_EXECUTABLE)
-
-  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(PTHREAD_BIN_DIR ${CMAKE_SOURCE_DIR}/Windows/pthreads/lib64)
-  else(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(PTHREAD_BIN_DIR ${CMAKE_SOURCE_DIR}/Windows/pthreads/lib)
-  endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-
-  set(PTHREAD_LIBRARIES ${PTHREAD_BIN_DIR}/pthreadVC2.lib)
-  file(COPY ${PTHREAD_BIN_DIR}/pthreadVC2.dll
-       DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/debug/ )
-  file(COPY ${PTHREAD_BIN_DIR}/pthreadVC2.dll
-       DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/release/ )
-  install(FILES ${PTHREAD_BIN_DIR}/pthreadVC2.dll DESTINATION bin)
-else(WIN32)
-  set(PTHREAD_LIBRARIES pthread)
-  if(LINUX)
-    add_definitions(-fPIC) # 64bit Linux wants this
-  endif(LINUX)
-endif(WIN32)
-
+if(LINUX)
+  add_definitions(-fPIC) # 64bit Linux wants this
+endif(LINUX)
 
 if(APPLE)
   link_directories(/usr/X11R6/lib)
@@ -187,6 +161,9 @@ endif(CUDA_FOUND)
 
 include(${CMAKE_SOURCE_DIR}/externals/UseGLEW.cmake)
 include(${CMAKE_SOURCE_DIR}/externals/UseVMMLib.cmake)
+include(${CMAKE_SOURCE_DIR}/externals/UseGnuWin32.cmake)
+include(${CMAKE_SOURCE_DIR}/externals/UsePthreads.cmake)
+set(PTHREAD_LIBRARIES pthread)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DEQ_BUILD_DIR=\"${CMAKE_BINARY_DIR}/\"")
 
 

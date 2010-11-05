@@ -20,11 +20,8 @@
 #include "equalizers/loadEqualizer.h"
 #include "equalizers/treeEqualizer.h"
 
-#ifdef WIN32_API
- #include "parser.cpp.h"
-#else
- #include "parser.hpp"
-#endif
+#include "parser.hpp"
+
 #include <eq/base/base.h>
 #include <stdlib.h>
 

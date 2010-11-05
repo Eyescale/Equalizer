@@ -1,9 +1,13 @@
-Fix Posix build
+PThreads and GnuWin32 external components
+
+* PThread library now is built by CMake on Windows
+* Flex and Bison (the latest version!) are included and used
+* the 'Windows' directory in the source path is not used by CMake
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
