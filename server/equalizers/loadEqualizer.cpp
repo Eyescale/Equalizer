@@ -540,10 +540,10 @@ void LoadEqualizer::_computeSplit()
 #endif
     }
 
+    const float time = float( _getTotalTime( ));
     EQLOG( LOG_LB2 ) << "Render time " << time << " for "
                      << _tree->resources << " resources" << std::endl;
-    _computeSplit( _tree, float( _getTotalTime() ), 
-                   sortedData, Viewport(), Range( ));
+    _computeSplit( _tree, time, sortedData, Viewport(), Range( ));
 }
 
 void LoadEqualizer::_removeEmpty( LBDatas& items )
