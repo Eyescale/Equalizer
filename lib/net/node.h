@@ -526,10 +526,7 @@ namespace net
         class ReceiverThread : public base::Thread
         {
         public:
-            ReceiverThread( Node* node ) 
-                    : _node( node )
-                {}
-            
+            ReceiverThread( Node* node ) : _node( node ){}
             virtual bool init()
                 {
                     setDebugName( std::string("Rcv ") + base::className(_node));
@@ -546,11 +543,7 @@ namespace net
         class CommandThread : public base::Thread
         {
         public:
-            CommandThread( Node* node ) 
-                    : _node( node )
-                {}
-            
-            
+            CommandThread( Node* node ) : _node( node ){}
             virtual bool init()
                 {
                     setDebugName( std::string("Cmd ") + base::className(_node));

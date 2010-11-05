@@ -83,7 +83,7 @@ namespace server
          */
         EQSERVER_EXPORT bool removeCompound( Compound* compound );
 
-        /** @return the vecotr of compounds. */
+        /** @return the vector of compounds. */
         const Compounds& getCompounds() const { return _compounds; }
 
         /** 

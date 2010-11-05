@@ -225,7 +225,7 @@ void TreeEqualizer::_notifyLoadData( Node* node, Channel* channel,
         return;
 
     node->time = endTime - startTime;
-    node->time = EQ_MAX( node->time, 1.f );
+    node->time = EQ_MAX( node->time, 1 );
     node->time = EQ_MAX( node->time, timeTransmit );
 }
 
@@ -321,23 +321,25 @@ void TreeEqualizer::_split( Node* node )
         return;
     EQASSERT( node->left && node->right );
 
+    Node* left = node->left;
+    Node* right = node->right;
     // easy outs
-    if( node->left->resources == 0.f )
+    if( left->resources == 0.f )
     {
         node->split = 0.f;
         return;
     }
-    if( node->right->resources == 0.f )
+    if( right->resources == 0.f )
     {
         node->split = 1.f;
         return;
     }
 
     // new split
-    const float target = node->time * node->left->resources / node->resources;
-    const float leftTime = node->left->time;
+    const float target = node->time * left->resources / node->resources;
+    const float leftTime = float(left->time);
     float split = 0.f;
-        const float rightTime = node->right->time;
+    const float rightTime = float(right->time);
 
     if( leftTime >= target )
         split = target / leftTime * node->split;
@@ -349,13 +351,13 @@ void TreeEqualizer::_split( Node* node )
 
     EQLOG( LOG_LB2 )
         << "Should split at " << split << " (" << target << ": " << leftTime
-        << " by " << node->left->resources << "/" << rightTime << " by "
-        << node->right->resources << ")" << std::endl;
+        << " by " << left->resources << "/" << rightTime << " by "
+        << right->resources << ")" << std::endl;
     node->split = (1.f - _damping) * split + _damping * node->split;
     EQLOG( LOG_LB2 ) << "Dampened split at " << node->split << std::endl;
 
-    _split( node->left );
-    _split( node->right );
+    _split( left );
+    _split( right );
 }
 
 void TreeEqualizer::_assign( Node* node, const Viewport& vp,
