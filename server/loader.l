@@ -210,7 +210,7 @@ PIPE_filename                   { return EQTOKEN_FILENAME; }
 filename                        { return EQTOKEN_FILENAME; }
 task                            { return EQTOKEN_TASK; }
 eye                             { return EQTOKEN_EYE; }
-eyeBase                         { return EQTOKEN_EYE_BASE; }
+eye_base                        { return EQTOKEN_EYE_BASE; }
 robustness                      { return EQTOKEN_ROBUSTNESS; }
 buffer                          { return EQTOKEN_BUFFER; }
 CLEAR                           { return EQTOKEN_CLEAR; }

@@ -1,9 +1,11 @@
-Export ostream operators
+Stereo switching: consolidate visitors.
+Fix typo in file format lexer (eyeBase->eye_base)
+Fix server channel output
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

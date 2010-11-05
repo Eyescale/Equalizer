@@ -43,8 +43,10 @@ Segment::Segment( Canvas* parent )
 
 Segment::~Segment()
 {
-    Compounds compounds;
-    _findDestinationCompounds( compounds );
+    ConfigDestCompoundVisitor visitor( _destinationChannels, false /*activeOnly*/ );
+    getConfig()->accept( visitor );
+    const Compounds& compounds = visitor.getResult();
+
     for( Compounds::const_iterator i = compounds.begin();
          i != compounds.end(); ++i )
     {
@@ -146,12 +148,6 @@ SegmentPath Segment::getPath() const
     EQASSERT( i != segments.end( ));
     path.segmentIndex = std::distance( segments.begin(), i );
     return path;
-}
-
-void Segment::_findDestinationCompounds( Compounds& result ) const
-{
-    ConfigDestCompoundVisitor visitor( _destinationChannels, result );
-    getConfig()->accept( visitor );
 }
 
 }

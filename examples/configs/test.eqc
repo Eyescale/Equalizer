@@ -1,181 +1,1758 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
-# 8-to-2 wall load-balancing example configuration
 global
 {
-    EQ_WINDOW_IATTR_HINT_SWAPSYNC OFF
-    EQ_WINDOW_IATTR_HINT_STATISTICS OFF
-    EQ_NODE_IATTR_LAUNCH_TIMEOUT 100
+    EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER                 OFF
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN                   ON
+    EQ_WINDOW_IATTR_HINT_DRAWABLE                     pbuffer
 }
-
-server
+server 
 {
-    config
+    config 
     {
+        name    "EQ_CONFIG_de3ef730b88f1eb2:4c39d8009aaa2fec"
+        
+        attributes
+        {
+            eye_base     0.05
+            robustness   0
+        }
         appNode
         {
-            pipe
+            name     "node0"
+            connection
             {
-                name "failGPU 1"
-                window
-                {
-                    name "left"
-                    viewport [ 0.2 0.05 0.3 0.3 ]
-                    attributes { hint_swapsync ON }
-
-                    channel { name "left-src" }
-                    channel { name "left-dst" }
-                }
+                type          TCPIP
+                hostname      "node0"
+                filename      "default"
             }
             pipe
             {
-                name "GPU 2"
+                name     "pipe0n0"
+                device   0
+                
                 window
                 {
-                    name "right"
-                    viewport [ 0.5 0.05 0.3 0.3 ]
-                    attributes { hint_swapsync ON }
+                    name     "window0"
+                    viewport [ 100 100 1024 768 ]
                     
-                    channel { name "right-src" }
-                    channel { name "right-dst" }
-                }
-            }
-            pipe
-            {
-                name "GPU 3"
-                window
-                {
-                    name "source1"
-                    viewport [ 0.025 0.4 0.3 0.3 ]
-                    channel { name "source1" }
-                }
-            }
-            pipe
-            {
-                name "GPU 4"
-                window
-                {
-                    name "source2"
-                    viewport [ 0.35 0.4 0.3 0.3 ]
-                    channel { name "source2" }
-                }
-            }
-            pipe
-            {
-                name "GPU 5"
-                window
-                {
-                    name "source3"
-                    viewport [ 0.675 0.4 0.3 0.3 ]
-                    channel { name "source3" }
-                }
-            }
-            pipe
-            {
-                name "GPU 6"
-                window
-                {
-                    name "source4"
-                    viewport [ 0.025 0.7 0.3 0.3 ]
-                    channel { name "source4" }
-                }
-            }
-            pipe
-            {
-                name "GPU 7"
-                window
-                {
-                    name "source5"
-                    viewport [ 0.35 0.7 0.3 0.3 ]
-                    channel { name "source5" }
+                    attributes
+                    {
+                        hint_doublebuffer  ON
+                        hint_fullscreen    OFF
+                        hint_drawable      window
+                    }
+                    
+                    channel
+                    {
+                        name     "channel0"
+                        viewport [ 0 0 1 1 ]
+                    }
                 }
             }
         }
-
         node
         {
-            name "foo"
-            connection { hostname "foo" }
+            name     "node1"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1231
+                filename      "default"
+            }
             pipe
             {
-                name "GPU 8"
+                name     "pipe0n1"
+                device   0
+                
                 window
                 {
-                    name "source6"
-                    viewport [ 0.675 0.7 0.3 0.3 ]
-                    channel { name "source6" }
+                    name     "window1"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel1"
+                        viewport [ 0 0 1 1 ]
+                    }
                 }
             }
         }
-
-        layout
+        node
         {
-            name "1x1"
-            view {}
-        }
-
-        canvas
-        {
-            layout "1x1"
-
-            wall
+            name     "node2"
+            connection
             {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
+                type          TCPIP
+                hostname "127.0.0.1" port 1232
+                filename      "default"
             }
-
-            segment { channel "left-dst" viewport [ 0  0 .5 1 ] }
-            segment { channel "right-dst" viewport [ .5 0 .5 1 ] }
+            pipe
+            {
+                name     "pipe0n2"
+                device   0
+                
+                window
+                {
+                    name     "window2"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel2"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
         }
-        
+        node
+        {
+            name     "node3"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1233
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n3"
+                device   0
+                
+                window
+                {
+                    name     "window3"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel3"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node4"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1234
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n4"
+                device   0
+                
+                window
+                {
+                    name     "window4"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel4"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node5"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1235
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n5"
+                device   0
+                
+                window
+                {
+                    name     "window5"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel5"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node6"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1236
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n6"
+                device   0
+                
+                window
+                {
+                    name     "window6"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel6"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node7"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1237
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n7"
+                device   0
+                
+                window
+                {
+                    name     "window7"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel7"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node8"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1238
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n8"
+                device   0
+                
+                window
+                {
+                    name     "window8"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel8"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node9"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1239
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n9"
+                device   0
+                
+                window
+                {
+                    name     "window9"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel9"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node10"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1240
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n10"
+                device   0
+                
+                window
+                {
+                    name     "window10"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel10"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node11"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1241
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n11"
+                device   0
+                
+                window
+                {
+                    name     "window11"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel11"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node12"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1242
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n12"
+                device   0
+                
+                window
+                {
+                    name     "window12"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel12"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node13"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1243
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n13"
+                device   0
+                
+                window
+                {
+                    name     "window13"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel13"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node14"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1244
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n14"
+                device   0
+                
+                window
+                {
+                    name     "window14"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel14"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node15"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1245
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n15"
+                device   0
+                
+                window
+                {
+                    name     "window15"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel15"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node16"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1246
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n16"
+                device   0
+                
+                window
+                {
+                    name     "window16"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel16"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node17"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1247
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n17"
+                device   0
+                
+                window
+                {
+                    name     "window17"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel17"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node18"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1248
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n18"
+                device   0
+                
+                window
+                {
+                    name     "window18"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel18"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node19"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1249
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n19"
+                device   0
+                
+                window
+                {
+                    name     "window19"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel19"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node20"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1250
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n20"
+                device   0
+                
+                window
+                {
+                    name     "window20"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel20"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node21"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1251
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n21"
+                device   0
+                
+                window
+                {
+                    name     "window21"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel21"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node22"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1252
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n22"
+                device   0
+                
+                window
+                {
+                    name     "window22"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel22"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node23"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1253
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n23"
+                device   0
+                
+                window
+                {
+                    name     "window23"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel23"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node24"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1254
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n24"
+                device   0
+                
+                window
+                {
+                    name     "window24"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel24"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node25"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1255
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n25"
+                device   0
+                
+                window
+                {
+                    name     "window25"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel25"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node26"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1256
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n26"
+                device   0
+                
+                window
+                {
+                    name     "window26"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel26"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node27"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1257
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n27"
+                device   0
+                
+                window
+                {
+                    name     "window27"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel27"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node28"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1258
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n28"
+                device   0
+                
+                window
+                {
+                    name     "window28"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel28"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node29"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1259
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n29"
+                device   0
+                
+                window
+                {
+                    name     "window29"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel29"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node30"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1260
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n30"
+                device   0
+                
+                window
+                {
+                    name     "window30"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel30"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
+        node
+        {
+            name     "node31"
+            connection
+            {
+                type          TCPIP
+                hostname "127.0.0.1" port 1261
+                filename      "default"
+            }
+            pipe
+            {
+                name     "pipe0n31"
+                device   0
+                
+                window
+                {
+                    name     "window31"
+                    viewport [ 0 0 0 0 ]
+                    viewport [ 0 0 1024 768 ]
+                    channel
+                    {
+                        name     "channel31"
+                        viewport [ 0 0 1 1 ]
+                    }
+                }
+            }
+        }
         compound
         {
-            view_equalizer {}
+            channel  "channel0"
+            eye [ CYCLOP ]
+            wall
+            {
+                bottom_left  [      -0.32       -0.2      -0.75 ]
+                bottom_right [       0.32       -0.2      -0.75 ]
+                top_left     [      -0.32        0.2      -0.75 ]
+            }
+            
+            load_equalizer
+            {
+                mode    2D
+            }
+            
             compound
             {
-                channel ( segment 0 view 0 )
-                load_equalizer { mode 2D }
-                swapbarrier{}
-
-                compound {}
-                compound { channel "source1" outputframe{ name "ls1" }}
-                compound { channel "source2" outputframe{ name "ls2"  }}
-                compound { channel "source3" outputframe{ name "ls3"  }}
-                compound { channel "source4" outputframe{ name "ls4"  }}
-                compound { channel "source5" outputframe{ name "ls5"  }}
-                compound { channel "source6" outputframe{ name "ls6"  }}
-                compound { channel "right-src" outputframe{ name "lrs"  }}
-                inputframe{ name "ls1" }
-                inputframe{ name "ls2" }
-                inputframe{ name "ls3" }
-                inputframe{ name "ls4" }
-                inputframe{ name "ls5" }
-                inputframe{ name "ls6" }
-                inputframe{ name "lrs" }
+                viewport [ 0 0 1 0.03125 ]
             }
             compound
             {
-                channel ( segment 1 view 0 )
-                load_equalizer { mode 2D }
-                swapbarrier{}
-
-                compound {}
-                compound { channel "source1" outputframe{ name "rs1" }}
-                compound { channel "source2" outputframe{ name "rs2" }}
-                compound { channel "source3" outputframe{ name "rs3" }}
-                compound { channel "source4" outputframe{ name "rs4" }}
-                compound { channel "source5" outputframe{ name "rs5" }}
-                compound { channel "source6" outputframe{ name "rs6" }}
-                compound { channel "left-src" outputframe{ name "rls" }}
-                inputframe{ name "rs1" }
-                inputframe{ name "rs2" }
-                inputframe{ name "rs3" }
-                inputframe{ name "rs4" }
-                inputframe{ name "rs5" }
-                inputframe{ name "rs6" }
-                inputframe{ name "rls" }
+                channel  "channel1"
+                viewport [ 0 0.03125 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel1"
+                }
+            }
+            compound
+            {
+                channel  "channel2"
+                viewport [ 0 0.0625 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel2"
+                }
+            }
+            compound
+            {
+                channel  "channel3"
+                viewport [ 0 0.09375 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel3"
+                }
+            }
+            compound
+            {
+                channel  "channel4"
+                viewport [ 0 0.125 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel4"
+                }
+            }
+            compound
+            {
+                channel  "channel5"
+                viewport [ 0 0.15625 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel5"
+                }
+            }
+            compound
+            {
+                channel  "channel6"
+                viewport [ 0 0.1875 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel6"
+                }
+            }
+            compound
+            {
+                channel  "channel7"
+                viewport [ 0 0.21875 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel7"
+                }
+            }
+            compound
+            {
+                channel  "channel8"
+                viewport [ 0 0.25 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel8"
+                }
+            }
+            compound
+            {
+                channel  "channel9"
+                viewport [ 0 0.28125 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel9"
+                }
+            }
+            compound
+            {
+                channel  "channel10"
+                viewport [ 0 0.3125 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel10"
+                }
+            }
+            compound
+            {
+                channel  "channel11"
+                viewport [ 0 0.34375 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel11"
+                }
+            }
+            compound
+            {
+                channel  "channel12"
+                viewport [ 0 0.375 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel12"
+                }
+            }
+            compound
+            {
+                channel  "channel13"
+                viewport [ 0 0.40625 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel13"
+                }
+            }
+            compound
+            {
+                channel  "channel14"
+                viewport [ 0 0.4375 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel14"
+                }
+            }
+            compound
+            {
+                channel  "channel15"
+                viewport [ 0 0.46875 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel15"
+                }
+            }
+            compound
+            {
+                channel  "channel16"
+                viewport [ 0 0.5 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel16"
+                }
+            }
+            compound
+            {
+                channel  "channel17"
+                viewport [ 0 0.53125 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel17"
+                }
+            }
+            compound
+            {
+                channel  "channel18"
+                viewport [ 0 0.5625 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel18"
+                }
+            }
+            compound
+            {
+                channel  "channel19"
+                viewport [ 0 0.59375 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel19"
+                }
+            }
+            compound
+            {
+                channel  "channel20"
+                viewport [ 0 0.625 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel20"
+                }
+            }
+            compound
+            {
+                channel  "channel21"
+                viewport [ 0 0.65625 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel21"
+                }
+            }
+            compound
+            {
+                channel  "channel22"
+                viewport [ 0 0.6875 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel22"
+                }
+            }
+            compound
+            {
+                channel  "channel23"
+                viewport [ 0 0.71875 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel23"
+                }
+            }
+            compound
+            {
+                channel  "channel24"
+                viewport [ 0 0.75 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel24"
+                }
+            }
+            compound
+            {
+                channel  "channel25"
+                viewport [ 0 0.78125 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel25"
+                }
+            }
+            compound
+            {
+                channel  "channel26"
+                viewport [ 0 0.8125 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel26"
+                }
+            }
+            compound
+            {
+                channel  "channel27"
+                viewport [ 0 0.84375 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel27"
+                }
+            }
+            compound
+            {
+                channel  "channel28"
+                viewport [ 0 0.875 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel28"
+                }
+            }
+            compound
+            {
+                channel  "channel29"
+                viewport [ 0 0.90625 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel29"
+                }
+            }
+            compound
+            {
+                channel  "channel30"
+                viewport [ 0 0.9375 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel30"
+                }
+            }
+            compound
+            {
+                channel  "channel31"
+                viewport [ 0 0.96875 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel31"
+                }
+            }
+            inputframe
+            {
+                name     "frame.channel1"
+            }
+            inputframe
+            {
+                name     "frame.channel2"
+            }
+            inputframe
+            {
+                name     "frame.channel3"
+            }
+            inputframe
+            {
+                name     "frame.channel4"
+            }
+            inputframe
+            {
+                name     "frame.channel5"
+            }
+            inputframe
+            {
+                name     "frame.channel6"
+            }
+            inputframe
+            {
+                name     "frame.channel7"
+            }
+            inputframe
+            {
+                name     "frame.channel8"
+            }
+            inputframe
+            {
+                name     "frame.channel9"
+            }
+            inputframe
+            {
+                name     "frame.channel10"
+            }
+            inputframe
+            {
+                name     "frame.channel11"
+            }
+            inputframe
+            {
+                name     "frame.channel12"
+            }
+            inputframe
+            {
+                name     "frame.channel13"
+            }
+            inputframe
+            {
+                name     "frame.channel14"
+            }
+            inputframe
+            {
+                name     "frame.channel15"
+            }
+            inputframe
+            {
+                name     "frame.channel16"
+            }
+            inputframe
+            {
+                name     "frame.channel17"
+            }
+            inputframe
+            {
+                name     "frame.channel18"
+            }
+            inputframe
+            {
+                name     "frame.channel19"
+            }
+            inputframe
+            {
+                name     "frame.channel20"
+            }
+            inputframe
+            {
+                name     "frame.channel21"
+            }
+            inputframe
+            {
+                name     "frame.channel22"
+            }
+            inputframe
+            {
+                name     "frame.channel23"
+            }
+            inputframe
+            {
+                name     "frame.channel24"
+            }
+            inputframe
+            {
+                name     "frame.channel25"
+            }
+            inputframe
+            {
+                name     "frame.channel26"
+            }
+            inputframe
+            {
+                name     "frame.channel27"
+            }
+            inputframe
+            {
+                name     "frame.channel28"
+            }
+            inputframe
+            {
+                name     "frame.channel29"
+            }
+            inputframe
+            {
+                name     "frame.channel30"
+            }
+            inputframe
+            {
+                name     "frame.channel31"
             }
         }
-    }    
+        compound
+        {
+            channel  "channel0"
+            eye [ LEFT ]
+            wall
+            {
+                bottom_left  [      -0.32       -0.2      -0.75 ]
+                bottom_right [       0.32       -0.2      -0.75 ]
+                top_left     [      -0.32        0.2      -0.75 ]
+            }
+            
+            load_equalizer
+            {
+                mode    2D
+            }
+            
+            compound
+            {
+                viewport [ 0 0 1 0.03125 ]
+            }
+            compound
+            {
+                channel  "channel1"
+                viewport [ 0 0.03125 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel1"
+                }
+            }
+            compound
+            {
+                channel  "channel2"
+                viewport [ 0 0.0625 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel2"
+                }
+            }
+            compound
+            {
+                channel  "channel3"
+                viewport [ 0 0.09375 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel3"
+                }
+            }
+            compound
+            {
+                channel  "channel4"
+                viewport [ 0 0.125 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel4"
+                }
+            }
+            compound
+            {
+                channel  "channel5"
+                viewport [ 0 0.15625 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel5"
+                }
+            }
+            compound
+            {
+                channel  "channel6"
+                viewport [ 0 0.1875 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel6"
+                }
+            }
+            compound
+            {
+                channel  "channel7"
+                viewport [ 0 0.21875 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel7"
+                }
+            }
+            compound
+            {
+                channel  "channel8"
+                viewport [ 0 0.25 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel8"
+                }
+            }
+            compound
+            {
+                channel  "channel9"
+                viewport [ 0 0.28125 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel9"
+                }
+            }
+            compound
+            {
+                channel  "channel10"
+                viewport [ 0 0.3125 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel10"
+                }
+            }
+            compound
+            {
+                channel  "channel11"
+                viewport [ 0 0.34375 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel11"
+                }
+            }
+            compound
+            {
+                channel  "channel12"
+                viewport [ 0 0.375 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel12"
+                }
+            }
+            compound
+            {
+                channel  "channel13"
+                viewport [ 0 0.40625 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel13"
+                }
+            }
+            compound
+            {
+                channel  "channel14"
+                viewport [ 0 0.4375 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel14"
+                }
+            }
+            compound
+            {
+                channel  "channel15"
+                viewport [ 0 0.46875 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel15"
+                }
+            }
+            inputframe
+            {
+                name     "frame.channel1"
+            }
+            inputframe
+            {
+                name     "frame.channel2"
+            }
+            inputframe
+            {
+                name     "frame.channel3"
+            }
+            inputframe
+            {
+                name     "frame.channel4"
+            }
+            inputframe
+            {
+                name     "frame.channel5"
+            }
+            inputframe
+            {
+                name     "frame.channel6"
+            }
+            inputframe
+            {
+                name     "frame.channel7"
+            }
+            inputframe
+            {
+                name     "frame.channel8"
+            }
+            inputframe
+            {
+                name     "frame.channel9"
+            }
+            inputframe
+            {
+                name     "frame.channel10"
+            }
+            inputframe
+            {
+                name     "frame.channel11"
+            }
+            inputframe
+            {
+                name     "frame.channel12"
+            }
+            inputframe
+            {
+                name     "frame.channel13"
+            }
+            inputframe
+            {
+                name     "frame.channel14"
+            }
+            inputframe
+            {
+                name     "frame.channel15"
+            }
+        }
+        compound
+        {
+            channel  "channel0"
+            eye [ RIGHT ]
+            wall
+            {
+                bottom_left  [      -0.32       -0.2      -0.75 ]
+                bottom_right [       0.32       -0.2      -0.75 ]
+                top_left     [      -0.32        0.2      -0.75 ]
+            }
+            
+            load_equalizer
+            {
+                mode    2D
+            }
+            
+            compound
+            {
+                channel  "channel16"
+                viewport [ 0 0.5 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel16"
+                }
+            }
+            compound
+            {
+                channel  "channel17"
+                viewport [ 0 0.53125 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel17"
+                }
+            }
+            compound
+            {
+                channel  "channel18"
+                viewport [ 0 0.5625 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel18"
+                }
+            }
+            compound
+            {
+                channel  "channel19"
+                viewport [ 0 0.59375 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel19"
+                }
+            }
+            compound
+            {
+                channel  "channel20"
+                viewport [ 0 0.625 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel20"
+                }
+            }
+            compound
+            {
+                channel  "channel21"
+                viewport [ 0 0.65625 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel21"
+                }
+            }
+            compound
+            {
+                channel  "channel22"
+                viewport [ 0 0.6875 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel22"
+                }
+            }
+            compound
+            {
+                channel  "channel23"
+                viewport [ 0 0.71875 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel23"
+                }
+            }
+            compound
+            {
+                channel  "channel24"
+                viewport [ 0 0.75 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel24"
+                }
+            }
+            compound
+            {
+                channel  "channel25"
+                viewport [ 0 0.78125 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel25"
+                }
+            }
+            compound
+            {
+                channel  "channel26"
+                viewport [ 0 0.8125 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel26"
+                }
+            }
+            compound
+            {
+                channel  "channel27"
+                viewport [ 0 0.84375 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel27"
+                }
+            }
+            compound
+            {
+                channel  "channel28"
+                viewport [ 0 0.875 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel28"
+                }
+            }
+            compound
+            {
+                channel  "channel29"
+                viewport [ 0 0.90625 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel29"
+                }
+            }
+            compound
+            {
+                channel  "channel30"
+                viewport [ 0 0.9375 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel30"
+                }
+            }
+            compound
+            {
+                channel  "channel31"
+                viewport [ 0 0.96875 1 0.03125 ]
+                outputframe
+                {
+                    name     "frame.channel31"
+                }
+            }
+            inputframe
+            {
+                name     "frame.channel16"
+            }
+            inputframe
+            {
+                name     "frame.channel17"
+            }
+            inputframe
+            {
+                name     "frame.channel18"
+            }
+            inputframe
+            {
+                name     "frame.channel19"
+            }
+            inputframe
+            {
+                name     "frame.channel20"
+            }
+            inputframe
+            {
+                name     "frame.channel21"
+            }
+            inputframe
+            {
+                name     "frame.channel22"
+            }
+            inputframe
+            {
+                name     "frame.channel23"
+            }
+            inputframe
+            {
+                name     "frame.channel24"
+            }
+            inputframe
+            {
+                name     "frame.channel25"
+            }
+            inputframe
+            {
+                name     "frame.channel26"
+            }
+            inputframe
+            {
+                name     "frame.channel27"
+            }
+            inputframe
+            {
+                name     "frame.channel28"
+            }
+            inputframe
+            {
+                name     "frame.channel29"
+            }
+            inputframe
+            {
+                name     "frame.channel30"
+            }
+            inputframe
+            {
+                name     "frame.channel31"
+            }
+        }
+    }
 }
+

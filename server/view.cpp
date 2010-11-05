@@ -22,8 +22,7 @@
 #include "channel.h"
 #include "compound.h"
 #include "config.h"
-#include "configVisitor.h"
-#include "findEyeDestCompoundVisitor.h"
+#include "configDestCompoundVisitor.h"
 #include "layout.h"
 #include "observer.h"
 #include "segment.h"
@@ -216,7 +215,7 @@ void View::trigger( const Canvas* canvas, const bool active )
     for( Channels::const_iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
     {
-        const Channel* channel = *i;
+        Channel* channel = *i;
         const Canvas* channelCanvas = channel->getCanvas();
         const Layout* canvasLayout = channelCanvas->getActiveLayout();
         if( (canvas && channelCanvas != canvas) ||
@@ -232,12 +231,13 @@ void View::trigger( const Canvas* canvas, const bool active )
         if( eyes == 0 )
             continue;
 
-        Compounds compounds;
-        ConfigDestCompoundVisitor visitor( channel, compounds );
+        ConfigDestCompoundVisitor visitor( channel, true /*activeOnly*/ );
         config->accept( visitor );     
+
+        const Compounds& compounds = visitor.getResult();
         for( Compounds::const_iterator j = compounds.begin(); 
              j != compounds.end(); ++j )
-        {       
+        {
             Compound* compound = *j;
             if( active )
                 compound->activate( eyes );

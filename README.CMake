@@ -18,8 +18,8 @@ $ make (debug|release(|xcode))
 You may also use CMake directly. The default Makefile exist purely for
 convenience.
 
-Windows XP 32bit using Visual C++ 2008 Express
-==============================================
+Windows, Visual Studio
+======================
 Use CMake GUI
  1. choose source dir and build dir
  2. hit 'Configure' a few times, resolve red entries, hit 'Configure' again

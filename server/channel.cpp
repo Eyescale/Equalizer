@@ -502,7 +502,7 @@ bool Channel::_cmdFrameFinishReply( net::Command& command )
 bool Channel::omitOutput() const
 {
     // don't print generated channels for now
-    return !getView() && !getSegment();
+    return _view || _segment;
 }
 
 void Channel::output( std::ostream& os ) const

@@ -55,16 +55,17 @@ int main( int argc, char** argv )
 {
     ConfigTool configTool;
 
-    if( configTool.parseArguments( argc, argv ))
+    if( !configTool.parseArguments( argc, argv ))
+        ::exit( EXIT_FAILURE );
+
+    eq::base::Log::setOutput( std::cout );
+    eq::NodeFactory nodeFactory;
+    if( !eq::init( 0, 0, &nodeFactory ))
     {
-        eq::NodeFactory nodeFactory;
-        if( !eq::init( 0, 0, &nodeFactory ))
-        {
-            EQERROR << "Equalizer init failed" << endl;
-            return EXIT_FAILURE;
-        }
-        configTool.writeConfig();
+        EQERROR << "Equalizer init failed" << endl;
+        return EXIT_FAILURE;
     }
+    configTool.writeConfig();
 }
 
 ConfigTool::ConfigTool()
