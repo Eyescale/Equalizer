@@ -58,8 +58,6 @@ bool init( const int argc, char** argv, NodeFactory* nodeFactory )
     _initErrors();
 
 #ifdef AGL
-    ProcessSerialNumber selfProcess = { 0, kCurrentProcess };
-    SetFrontProcess( &selfProcess );
     GetCurrentEventQueue();
 #endif
 

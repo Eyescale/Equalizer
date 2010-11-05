@@ -424,6 +424,10 @@ bool AGLWindow::configInitAGLFullscreen()
         EQWARN << "aglSetFullScreen to " << pvp << " failed: " << AGLERROR
                << std::endl;
 
+    // Do focus hell
+    ProcessSerialNumber selfProcess = { 0, kCurrentProcess };
+    SetFrontProcess( &selfProcess );
+
     Global::leaveCarbon();
 
     _window->setPixelViewport( pvp );
@@ -499,6 +503,11 @@ bool AGLWindow::configInitAGLWindow()
 
     // show
     ShowWindow( windowRef );
+
+    // Do focus hell
+    ProcessSerialNumber selfProcess = { 0, kCurrentProcess };
+    SetFrontProcess( &selfProcess );
+
     Global::leaveCarbon();
     setCarbonWindow( windowRef );
 
