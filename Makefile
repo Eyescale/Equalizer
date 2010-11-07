@@ -39,12 +39,12 @@ debug_glx/CMakeCache.txt:
 	@cd debug_glx; cmake .. -DEQ_PREFER_AGL=0
 
 
-docs: doc.int doc.ext
+docs: ../website/build/documents/Developer/API/internal ../website/build/documents/Developer/API
 
-doc.int: lib
+../website/build/documents/Developer/API/internal: lib
 	$(DOXYGEN) Doxyfile.int
 
-doc.ext: release
+../website/build/documents/Developer/API: release/include release
 	$(DOXYGEN) Doxyfile.ext
 
 
