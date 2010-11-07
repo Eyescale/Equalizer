@@ -30,19 +30,23 @@ set(EQ_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
 file(MAKE_DIRECTORY ${EQ_INCLUDE_DIR})
 include_directories(BEFORE ${EQ_INCLUDE_DIR})
 
-# create forwarding headers
-macro(FORWARD_HEADERS DIR)
+# public header generation and targets
+macro(HEADER_TARGETS DIR NAME)
+  set(INST_HEADERS_TMP)
   foreach(FILE ${ARGN})
-    get_filename_component(ABSOLUTE ${FILE} ABSOLUTE)
-    file(RELATIVE_PATH RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${ABSOLUTE})
-    set(FWDFILE ${EQ_INCLUDE_DIR}/${DIR}/${RELATIVE})
-    if(NOT EXISTS ${FWDFILE})
-      get_filename_component(PATH ${RELATIVE} PATH)
-      file(RELATIVE_PATH INCLUDE ${EQ_INCLUDE_DIR}/${DIR}/${PATH} ${ABSOLUTE})
-      file(WRITE ${FWDFILE} "#include \"${INCLUDE}\"\n")
-    endif(NOT EXISTS ${FWDFILE})
+    set(HEADER_SRC ${CMAKE_CURRENT_SOURCE_DIR}/${FILE})
+    set(HEADER_DEST ${EQ_INCLUDE_DIR}/${DIR}/${FILE})
+    get_filename_component(HEADER_DIR ${HEADER_DEST} PATH)
+
+    ADD_CUSTOM_COMMAND(
+      OUTPUT ${HEADER_DEST}
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${HEADER_DIR}
+      COMMAND ${CMAKE_COMMAND} -E copy ${HEADER_SRC} ${HEADER_DEST}
+      DEPENDS ${HEADER_SRC} )
+    set(INST_HEADERS_TMP ${INST_HEADERS_TMP} ${HEADER_DEST})
   endforeach(FILE ${ARGN})
-endmacro(FORWARD_HEADERS DIR)
+  set(${NAME}_TARGETS ${INST_HEADERS_TMP})
+endmacro(HEADER_TARGETS DIR TARGETS)
 
 
 if(WIN32)

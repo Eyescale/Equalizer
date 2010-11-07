@@ -1,5 +1,4 @@
-# Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010 Stefan Eilemann <eile@eyescale.ch>
+# Copyright (c) 2010 Stefan Eilemann <eile@eyescale.ch>
 
 if(WIN32)
     if(NOT COPY_TARGET)

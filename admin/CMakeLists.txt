@@ -41,11 +41,11 @@ if(MSVC)
   set(SOURCES ${SOURCES} ${HEADERS})
 endif(MSVC)
 
-forward_headers(eq/admin ${HEADERS})
+header_targets(eq/admin ADMIN ${HEADERS})
 
 add_definitions(-DEQADMIN_EXPORTS)
 
-add_library(EqualizerAdmin SHARED ${SOURCES})
+add_library(EqualizerAdmin SHARED ${SOURCES} ${ADMIN_TARGETS})
 target_link_libraries(EqualizerAdmin Equalizer)
 
 install(TARGETS EqualizerAdmin

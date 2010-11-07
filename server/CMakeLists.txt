@@ -57,6 +57,7 @@ add_library(EqualizerServer SHARED
   )
 
 target_link_libraries(EqualizerServer Equalizer)
+add_dependencies(EqualizerServer EqualizerAdmin)
 
 install(TARGETS EqualizerServer
   ARCHIVE DESTINATION lib COMPONENT lib

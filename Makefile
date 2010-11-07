@@ -3,6 +3,8 @@
 
 all: debug RELNOTES.txt README.rst
 
+DOXYGEN ?= doxygen
+
 debug: debug/CMakeCache.txt
 	@$(MAKE) -C debug
 
@@ -29,16 +31,21 @@ XCodeCMake/CMakeCache.txt:
 	@mkdir -p XCodeCMake
 	@cd XCodeCMake; cmake -G Xcode ..
 
-docs:
-	@$(DOXYGEN) Doxyfile
-
-
 debug_glx: debug_glx/CMakeCache.txt
 	@$(MAKE) -C debug_glx
 
 debug_glx/CMakeCache.txt:
 	@mkdir -p debug_glx
 	@cd debug_glx; cmake .. -DEQ_PREFER_AGL=0
+
+
+docs: doc.int doc.ext
+
+doc.int: lib
+	$(DOXYGEN) Doxyfile.int
+
+doc.ext: release
+	$(DOXYGEN) Doxyfile.ext
 
 
 RELNOTES.txt: lib/RelNotes.dox

@@ -1,13 +1,10 @@
-PThreads and GnuWin32 external components
-
-* PThread library now is built by CMake on Windows
-* Flex and Bison (the latest version!) are included and used
-* the 'Windows' directory in the source path is not used by CMake
+Separate doxygen into internal and external documentation
+Tweak CMake to copy instead of forward headers (needed for the above)
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
-[ ] New Feature
+[ ] Bugfix
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

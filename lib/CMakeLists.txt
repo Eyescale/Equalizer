@@ -40,7 +40,7 @@ if(MSVC)
   set(SOURCES ${SOURCES} ${HEADERS})
 endif(MSVC)
 
-forward_headers(eq ${HEADERS})
+header_targets(eq CLIENT ${HEADERS})
 
 add_definitions(-DEQ_EXPORTS -DEQ_PLUGIN_BUILD -DGLEW_STATIC)
 
@@ -59,7 +59,7 @@ if(NOT CUDA_FOUND)
   set(CUDA_LIBRARIES)
 endif(NOT CUDA_FOUND)
 
-add_library(Equalizer SHARED ${SOURCES})
+add_library(Equalizer SHARED ${SOURCES} ${CLIENT_TARGETS})
 target_link_libraries(Equalizer
   ${PTHREAD_LIBRARIES}
   ${Boost_LIBRARIES}
