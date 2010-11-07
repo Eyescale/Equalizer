@@ -1,10 +1,9 @@
-Separate doxygen into internal and external documentation
-Tweak CMake to copy instead of forward headers (needed for the above)
+Tweak Doxyfile
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
