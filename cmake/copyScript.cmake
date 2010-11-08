@@ -44,6 +44,9 @@ if(WIN32)
         "copy \"${WIN_BIN_DIR}\\bin\\debug\\EqualizerAdmin.dll\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}debug\"\n"
         "copy \"${WIN_BIN_DIR}\\bin\\debug\\EqualizerAdmin.pdb\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}debug\"\n"
         "copy \"${WIN_BIN_DIR}\\admin\\debug\\EqualizerAdmin.lib\" \"${COPY_TARGET}\\lib\\${PLATFORM_TYPE}debug\"\n\n"
+        
+        "copy \"${WIN_BIN_DIR}\\bin\\debug\\pthread.dll\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}debug\"\n"
+        "copy \"${WIN_BIN_DIR}\\Debug\\pthread.lib\" \"${COPY_TARGET}\\lib\\${PLATFORM_TYPE}debug\"\n\n"
 
         "copy \"${WIN_BIN_DIR}\\bin\\${COPY_TARGET_RELEASE_TYPE}\\eqServer.exe\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}release\"\n"
         "copy \"${WIN_BIN_DIR}\\bin\\${COPY_TARGET_RELEASE_TYPE}\\netperf.exe\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}release\"\n"
@@ -64,7 +67,9 @@ if(WIN32)
         "copy \"${WIN_BIN_DIR}\\bin\\${COPY_TARGET_RELEASE_TYPE}\\affinityCheck.pdb\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}release\"\n"
         "copy \"${WIN_BIN_DIR}\\bin\\${COPY_TARGET_RELEASE_TYPE}\\Equalizer.pdb\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}release\"\n"
         "copy \"${WIN_BIN_DIR}\\bin\\${COPY_TARGET_RELEASE_TYPE}\\EqualizerServer.pdb\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}release\"\n"
-        "copy \"${WIN_BIN_DIR}\\bin\\${COPY_TARGET_RELEASE_TYPE}\\EqualizerAdmin.pdb\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}release\"\n\n"
+        "copy \"${WIN_BIN_DIR}\\bin\\${COPY_TARGET_RELEASE_TYPE}\\EqualizerAdmin.pdb\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}release\"\n"
+        "copy \"${WIN_BIN_DIR}\\bin\\${COPY_TARGET_RELEASE_TYPE}\\pthread.dll\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}release\"\n"
+        "copy \"${WIN_BIN_DIR}\\${COPY_TARGET_RELEASE_TYPE}\\pthread.lib\" \"${COPY_TARGET}\\lib\\${PLATFORM_TYPE}release\"\n\n"
     )                
   endif(COPY_TARGET_RELEASE_TYPE MATCHES "RelWithDebInfo")
 

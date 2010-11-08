@@ -157,7 +157,7 @@ namespace util
         EQ_EXPORT void setError( const int32_t error );
 
         /** @return the last error from the last failed window operation. */
-        base::Error getError() const;
+        EQ_EXPORT base::Error getError() const;
 
     protected:
         /** The parent eq::Window. */
