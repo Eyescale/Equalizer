@@ -20,6 +20,10 @@
 
 #include "ddsbase.h"
 
+#ifdef WIN32
+#  define snprintf _snprintf
+#endif
+
 #define DDS_MAXSTR (256)
 
 #define DDS_BLOCKSIZE (1<<20)

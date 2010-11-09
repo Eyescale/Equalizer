@@ -37,18 +37,16 @@ eq_add_tool(configTool
     EqualizerServer
   )
 
-if(NOT WIN32) # TODO: make it compatible!
-  eq_add_tool(eVolveConverter
-    HEADERS
-      eVolveConverter/codebase.h
-      eVolveConverter/ddsbase.h
-      eVolveConverter/eVolveConverter.h
-      eVolveConverter/hlp.h
-    SOURCES
-      eVolveConverter/eVolveConverter.cpp
-      eVolveConverter/ddsbase.cpp
-    )
-endif(NOT WIN32)
+eq_add_tool(eVolveConverter
+  HEADERS
+    eVolveConverter/codebase.h
+    eVolveConverter/ddsbase.h
+    eVolveConverter/eVolveConverter.h
+    eVolveConverter/hlp.h
+  SOURCES
+    eVolveConverter/eVolveConverter.cpp
+    eVolveConverter/ddsbase.cpp
+  )
 
 eq_add_tool(netperf
   SOURCES
