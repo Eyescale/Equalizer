@@ -160,9 +160,14 @@ namespace fabric
             DIRTY_SEGMENTS  = Object::DIRTY_CUSTOM << 1,
             DIRTY_LAYOUTS   = Object::DIRTY_CUSTOM << 2,
             DIRTY_FRUSTUM   = Object::DIRTY_CUSTOM << 3,
-            DIRTY_CANVAS_BITS = DIRTY_LAYOUT | DIRTY_SEGMENTS |
-                                DIRTY_LAYOUTS | DIRTY_FRUSTUM
+            DIRTY_CANVAS_BITS =
+                DIRTY_LAYOUT | DIRTY_SEGMENTS | DIRTY_LAYOUTS | DIRTY_FRUSTUM |
+                DIRTY_OBJECT_BITS
         };
+
+        /** @internal @return the bits to be re-committed by the master. */
+        virtual uint64_t getRedistributableBits() const
+            { return DIRTY_CANVAS_BITS; }
 
         template< class, class, class > friend class Segment;
         friend class Object;

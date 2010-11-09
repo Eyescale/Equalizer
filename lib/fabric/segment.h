@@ -151,7 +151,6 @@ namespace fabric
         /** @sa Serializable::setDirty() @internal */
         virtual void setDirty( const uint64_t bits );
 
-    private:
         enum DirtyBits
         {
             DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 0,
@@ -159,9 +158,14 @@ namespace fabric
             DIRTY_CHANNEL    = Object::DIRTY_CUSTOM << 2,
             DIRTY_EYES       = Object::DIRTY_CUSTOM << 3,
             DIRTY_SEGMENT_BITS = DIRTY_VIEWPORT | DIRTY_FRUSTUM |
-                                 DIRTY_CHANNEL | DIRTY_EYES
+                                 DIRTY_CHANNEL | DIRTY_EYES | DIRTY_OBJECT_BITS
         };
 
+        /** @internal @return the bits to be re-committed by the master. */
+        virtual uint64_t getRedistributableBits() const
+            { return DIRTY_SEGMENT_BITS; }
+
+    private:
         /** The parent canvas. */
         C* const _canvas;
 
