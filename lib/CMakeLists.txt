@@ -1,46 +1,18 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010 Stefan Eilemann <eile@eyescale.ch>
 
+include(PurpleAddLibrary)
+include(PurpleAddAmalgamation)
 include(${CMAKE_CURRENT_SOURCE_DIR}/configure.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/files.cmake)
 
-set(HEADERS
-  ${BASE_HEADERS}
-  ${CLIENT_HEADERS}
-  ${FABRIC_HEADERS}
-  ${NET_HEADERS}
-  ${PLUGIN_HEADERS}
-  ${UTIL_HEADERS}
-  base.h
-  client.h
-  eq.h
-  fabric.h
-  net.h
-  util.h
-  admin.h
-  )
-
-set(SOURCES
-  ${BASE_SOURCES}
-  ${CLIENT_SOURCES}
-  ${FABRIC_SOURCES}
-  ${NET_SOURCES}
-  ${UTIL_SOURCES}
-  ${COMPRESSOR_SOURCES}
-  )
-
-if(MSVC)
-  source_group(base FILES ${BASE_HEADERS} ${BASE_SOURCES})
-  source_group(client FILES ${CLIENT_HEADERS} ${CLIENT_SOURCES})
-  source_group(fabric FILES ${FABRIC_HEADERS} ${FABRIC_SOURCES})
-  source_group(net FILES ${NET_HEADERS} ${NET_SOURCES})
-  source_group(plugin FILES ${PLUGIN_HEADERS})
-  source_group(util FILES ${UTIL_HEADERS} ${UTIL_SOURCES})
-  source_group(compressor FILES ${COMPRESSOR_SOURCES})
-  set(SOURCES ${SOURCES} ${HEADERS})
-endif(MSVC)
-
-header_targets(eq CLIENT ${HEADERS})
+source_group(base FILES ${BASE_HEADERS} ${BASE_SOURCES})
+source_group(client FILES ${CLIENT_HEADERS} ${CLIENT_SOURCES})
+source_group(fabric FILES ${FABRIC_HEADERS} ${FABRIC_SOURCES})
+source_group(net FILES ${NET_HEADERS} ${NET_SOURCES})
+source_group(plugin FILES ${PLUGIN_HEADERS})
+source_group(util FILES ${UTIL_HEADERS} ${UTIL_SOURCES})
+source_group(compressor FILES ${COMPRESSOR_SOURCES})
 
 add_definitions(-DEQ_EXPORTS -DEQ_PLUGIN_BUILD -DGLEW_STATIC)
 
@@ -59,28 +31,53 @@ if(NOT CUDA_FOUND)
   set(CUDA_LIBRARIES)
 endif(NOT CUDA_FOUND)
 
-add_library(Equalizer SHARED ${SOURCES} ${CLIENT_TARGETS})
-target_link_libraries(Equalizer
-  ${PTHREAD_LIBRARIES}
-  ${Boost_LIBRARIES}
-  ${GLEW_LIBRARY}
-  ${CARBON_LIBRARY}
-  ${X11_LIBRARIES}
-  ${GL_LIBRARIES}
-  ${CUDA_LIBRARIES}
+# TODO: split this library
+purple_add_library(eq_transitional SHARED
+  FORWARD HEADERS
+    ${BASE_HEADERS}
+    ${CLIENT_HEADERS}
+    ${FABRIC_HEADERS}
+    ${NET_HEADERS}
+    ${PLUGIN_HEADERS}
+    ${UTIL_HEADERS}
+    base.h
+    client.h
+    eq.h
+    fabric.h
+    net.h
+    util.h
+    admin.h
+  SOURCES
+    ${BASE_SOURCES}
+    ${CLIENT_SOURCES}
+    ${FABRIC_SOURCES}
+    ${NET_SOURCES}
+    ${UTIL_SOURCES}
+    ${COMPRESSOR_SOURCES}
+  LINK_LIBRARIES
+    ${PTHREAD_LIBRARIES}
+    ${Boost_LIBRARIES}
+    ${GLEW_LIBRARY}
+    ${CARBON_LIBRARY}
+    ${X11_LIBRARIES}
+    ${GL_LIBRARIES}
+    ${CUDA_LIBRARIES}
+  HEADERS_DESTINATION eq
   )
 
-install(TARGETS Equalizer
-  ARCHIVE DESTINATION lib COMPONENT lib
-  LIBRARY DESTINATION lib COMPONENT lib
-  RUNTIME DESTINATION bin COMPONENT lib
+purple_add_amalgamation(Equalizer
+    shared eq_transitional
+  LINK_LIBRARIES
+    ${PTHREAD_LIBRARIES}
+    ${Boost_LIBRARIES}
+    ${GLEW_LIBRARY}
+    ${CARBON_LIBRARY}
+    ${X11_LIBRARIES}
+    ${GL_LIBRARIES}
+    ${CUDA_LIBRARIES}
   )
 
-foreach(HEADER ${HEADERS})
-  string(REGEX MATCH "(.*)[/\\]" DIR ${HEADER})
-  install(FILES ${HEADER} DESTINATION include/eq/${DIR} COMPONENT dev)
-endforeach(HEADER ${HEADERS})
-
+# TODO: this will be incorporated into PURPLE_ADD_LIBRARY
 configure_file(Equalizer.pc.in Equalizer.pc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Equalizer.pc DESTINATION lib/pkgconfig COMPONENT lib)
 if(MSVC)

@@ -1,6 +1,11 @@
 # Copyright (c) 2010 Daniel Pfeifer
 #               2010, Stefan Eilemann <eile@eyescale.ch>
 
+option(EQUALIZER_BUILD_TESTS "Build Equalizer unit tests." ON)
+if(NOT EQUALIZER_BUILD_TESTS)
+  return()
+endif(NOT EQUALIZER_BUILD_TESTS)
+
 file(GLOB COMPOSITOR_IMAGES compositor/*.rgb)
 file(GLOB TEST_CONFIGS reliability/*.eqc)
 file(COPY image/images ${COMPOSITOR_IMAGES} ${TEST_CONFIGS}

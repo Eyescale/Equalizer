@@ -28,8 +28,8 @@
 
 #include "rawVolModelRenderer.h"
 
-#include "fragmentShader_glsl.h"
-#include "vertexShader_glsl.h"
+#include "fragmentShader.glsl.h"
+#include "vertexShader.glsl.h"
 
 
 namespace eVolve

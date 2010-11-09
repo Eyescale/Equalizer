@@ -31,8 +31,8 @@
 #include "pipe.h"
 #include "config.h"
 
-#include "fragmentShader_glsl.h"
-#include "vertexShader_glsl.h"
+#include "fragmentShader.glsl.h"
+#include "vertexShader.glsl.h"
     
 #include <fstream>
 #include <sstream>
@@ -137,7 +137,7 @@ void Window::_loadLogo()
 
 void Window::_loadShaders()
 {
-    if( _state->getShader( vertexShader_glsl.c_str( )) !=
+    if( _state->getShader( vertexShader_glsl ) !=
         VertexBufferState::INVALID )
     {
         // already loaded
@@ -152,10 +152,10 @@ void Window::_loadShaders()
         return;
     }
 
-    const GLuint vShader = _state->newShader( vertexShader_glsl.c_str(), 
+    const GLuint vShader = _state->newShader( vertexShader_glsl,
                                               GL_VERTEX_SHADER );
     EQASSERT( vShader != VertexBufferState::INVALID );
-    const GLchar* vShaderPtr = vertexShader_glsl.c_str();
+    const GLchar* vShaderPtr = vertexShader_glsl;
     glShaderSource( vShader, 1, &vShaderPtr, 0 );
     glCompileShader( vShader );
 
@@ -168,9 +168,9 @@ void Window::_loadShaders()
     }
     
     const GLuint fShader = 
-        _state->newShader( fragmentShader_glsl.c_str(), GL_FRAGMENT_SHADER );
+        _state->newShader( fragmentShader_glsl, GL_FRAGMENT_SHADER );
     EQASSERT( fShader != VertexBufferState::INVALID );
-    const GLchar* fShaderPtr = fragmentShader_glsl.c_str();
+    const GLchar* fShaderPtr = fragmentShader_glsl;
     glShaderSource( fShader, 1, &fShaderPtr, 0 );
     glCompileShader( fShader );
     glGetShaderiv( fShader, GL_COMPILE_STATUS, &status );

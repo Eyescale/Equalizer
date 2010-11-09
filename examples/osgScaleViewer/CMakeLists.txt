@@ -10,26 +10,24 @@ endif(NOT OPENSCENEGRAPH_FOUND)
 
 include_directories(SYSTEM ${OPENSCENEGRAPH_INCLUDE_DIRS})
 
-set(HEADERS channel.h)
-
-set(SOURCES
-  main.cpp
-  osgScaleViewer.cpp
-  channel.cpp
-  config.cpp
-  frameData.cpp
-  initData.cpp
-  node.cpp
-  pipe.cpp
-  sceneReader.cpp
-  sceneView.cpp
-  tracker.cpp
-  window.cpp
-  quad.cpp)
-
-add_executable(osgScaleViewer MACOSX_BUNDLE ${HEADERS} ${SOURCES})
-
-target_link_libraries(osgScaleViewer Equalizer ${OPENSCENEGRAPH_LIBRARIES})
-
-install(TARGETS osgScaleViewer DESTINATION bin COMPONENT apps)
-install(FILES ${HEADERS} ${SOURCES} DESTINATION share/Equalizer/examples/osgScaleViewer COMPONENT examples)
+eq_add_example(osgScaleViewer
+  HEADERS
+    channel.h
+  SOURCES
+    main.cpp
+    osgScaleViewer.cpp
+    channel.cpp
+    config.cpp
+    frameData.cpp
+    initData.cpp
+    node.cpp
+    pipe.cpp
+    sceneReader.cpp
+    sceneView.cpp
+    tracker.cpp
+    window.cpp
+    quad.cpp
+  LINK_LIBRARIES
+    Equalizer
+    ${OPENSCENEGRAPH_LIBRARIES}
+  )

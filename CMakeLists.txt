@@ -2,8 +2,10 @@
 #               2010 Stefan Eilemann <eile@eyescale.ch>
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-
 project(Equalizer)
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
+
 set(VERSION_MAJOR "0")
 set(VERSION_MINOR "9")
 set(VERSION_PATCH "2")
@@ -236,4 +238,4 @@ set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-system-dev, libboost-regex-dev, libbo
 
 include(InstallRequiredSystemLibraries)
 include(CPack)
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/copyScript.cmake)
+include(copyScript)
