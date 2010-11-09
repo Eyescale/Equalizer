@@ -416,7 +416,7 @@ void TreeEqualizer::_assign( Node* node, const Viewport& vp,
                 absoluteSplit = end - boundary;
                 
             const uint32_t ratio( absoluteSplit / boundary + .5f );
-            absoluteSplit = ratio * boundary;
+            absoluteSplit = uint32_t( ratio * boundary );
         }
 
         absoluteSplit = EQ_MAX( absoluteSplit, vp.x );
@@ -475,7 +475,7 @@ void TreeEqualizer::_assign( Node* node, const Viewport& vp,
                 absoluteSplit = end - boundary;
                 
             const uint32_t ratio( absoluteSplit / boundary + .5f );
-            absoluteSplit = ratio * boundary;
+            absoluteSplit = uint32_t( ratio * boundary );
         }
 
         absoluteSplit = EQ_MAX( absoluteSplit, vp.y );
@@ -515,7 +515,7 @@ void TreeEqualizer::_assign( Node* node, const Viewport& vp,
         else if( node->right->resources == 0.f )
             absoluteSplit = end;
 
-        const uint32_t ratio( absoluteSplit / boundary + .5f );
+        const uint32_t ratio = uint32_t( absoluteSplit / boundary + .5f );
         absoluteSplit = ratio * boundary;
         if( (absoluteSplit - range.start) < boundary )
             absoluteSplit = range.start;

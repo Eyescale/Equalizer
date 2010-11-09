@@ -261,7 +261,7 @@ static int readTransferFunction( FILE* file,  vector<unsigned char>& TF )
     if( TFSize!=256  )
         EQWARN << "Wrong size of transfer function, should be 256" << endl;
         
-	TFSize = clip<int32_t>( TFSize, 1, 256 );
+	TFSize = clip<int>( TFSize, 1, 256 );
 
     int tmp;
     for( unsigned i=0; i<TFSize; i++ )
@@ -906,7 +906,7 @@ static int calculateAndSaveDerivatives( const string& dst,
                 const unsigned char * curP = curPy +  x;
                 const unsigned char * prvP = curP  - wh;
                 const unsigned char * nxtP = curP  + wh;
-                int32_t gx = 
+                int gx = 
                       nxtP[  ws+1 ]+ 3*curP[  ws+1 ]+   prvP[  ws+1 ]+
                     3*nxtP[     1 ]+ 6*curP[     1 ]+ 3*prvP[     1 ]+
                       nxtP[ -ws+1 ]+ 3*curP[ -ws+1 ]+   prvP[ -ws+1 ]-
@@ -915,7 +915,7 @@ static int calculateAndSaveDerivatives( const string& dst,
                     3*nxtP[    -1 ]- 6*curP[    -1 ]- 3*prvP[    -1 ]-
                       nxtP[ -ws-1 ]- 3*curP[ -ws-1 ]-   prvP[ -ws-1 ];
 
-                int32_t gy = 
+                int gy = 
                       nxtP[  ws+1 ]+ 3*curP[  ws+1 ]+   prvP[  ws+1 ]+
                     3*nxtP[  ws   ]+ 6*curP[  ws   ]+ 3*prvP[  ws   ]+
                       nxtP[  ws-1 ]+ 3*curP[  ws-1 ]+   prvP[  ws-1 ]-
@@ -924,7 +924,7 @@ static int calculateAndSaveDerivatives( const string& dst,
                     3*nxtP[ -ws   ]- 6*curP[ -ws   ]- 3*prvP[ -ws   ]-
                       nxtP[ -ws-1 ]- 3*curP[ -ws-1 ]-   prvP[ -ws-1 ];
 
-                int32_t gz = 
+                int gz = 
                       nxtP[  ws+1 ]+ 3*nxtP[    1 ]+   nxtP[ -ws+1 ]+
                     3*nxtP[  ws   ]+ 6*nxtP[    0 ]+ 3*nxtP[ -ws   ]+
                       nxtP[  ws-1 ]+ 3*nxtP[   -1 ]+   nxtP[ -ws-1 ]-
@@ -934,7 +934,7 @@ static int calculateAndSaveDerivatives( const string& dst,
                       prvP[  ws-1 ]- 3*prvP[   -1 ]-   prvP[ -ws-1 ];
 
 
-                int32_t length = static_cast<int32_t>(
+                int length = static_cast<int>(
                                         sqrt(double((gx*gx+gy*gy+gz*gz))+1));
 
                 gx = ( gx*255/length + 255 )/2; 

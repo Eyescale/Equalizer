@@ -784,7 +784,7 @@ void Channel::drawStatistics()
         }
     }
     const Viewport& vp = getViewport();
-    const uint32_t width( pvp.w/vp.w );
+    const uint32_t width = uint32_t( pvp.w/vp.w );
     uint32_t scale = 1;
 
     while( (xMax - xMin) / scale > width )
@@ -793,7 +793,7 @@ void Channel::drawStatistics()
     xMax  /= scale;
     int64_t xStart = xMax - width + SPACE;
 
-    const uint32_t height( pvp.h / vp.h);
+    const uint32_t height = uint32_t( pvp.h / vp.h);
     uint32_t nextY = height - SPACE;
 
     float dim = 0.0f;

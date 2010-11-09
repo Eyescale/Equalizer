@@ -65,7 +65,7 @@ CameraAnimation::Step CameraAnimation::getNextStep()
     if( _curFrame < curStep.frame )
         _curFrame = curStep.frame+1;
 
-    const float interval  = nextStep.frame - curStep.frame;
+    const float interval  = float( nextStep.frame - curStep.frame );
     const float curCoeff  = ( nextStep.frame - _curFrame ) / interval;
     const float nextCoeff = ( _curFrame - curStep.frame ) / interval;
 
