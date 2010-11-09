@@ -159,7 +159,9 @@ namespace fabric
             DIRTY_LAYOUT    = Object::DIRTY_CUSTOM << 0,
             DIRTY_SEGMENTS  = Object::DIRTY_CUSTOM << 1,
             DIRTY_LAYOUTS   = Object::DIRTY_CUSTOM << 2,
-            DIRTY_FRUSTUM   = Object::DIRTY_CUSTOM << 3
+            DIRTY_FRUSTUM   = Object::DIRTY_CUSTOM << 3,
+            DIRTY_CANVAS_BITS = DIRTY_LAYOUT | DIRTY_SEGMENTS |
+                                DIRTY_LAYOUTS | DIRTY_FRUSTUM
         };
 
         template< class, class, class > friend class Segment;

@@ -157,7 +157,9 @@ namespace fabric
             DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 0,
             DIRTY_FRUSTUM    = Object::DIRTY_CUSTOM << 1,
             DIRTY_CHANNEL    = Object::DIRTY_CUSTOM << 2,
-            DIRTY_EYES       = Object::DIRTY_CUSTOM << 3
+            DIRTY_EYES       = Object::DIRTY_CUSTOM << 3,
+            DIRTY_SEGMENT_BITS = DIRTY_VIEWPORT | DIRTY_FRUSTUM |
+                                 DIRTY_CHANNEL | DIRTY_EYES
         };
 
         /** The parent canvas. */

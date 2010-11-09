@@ -116,8 +116,14 @@ namespace fabric
         enum DirtyBits
         {
             DIRTY_EYE_BASE   = Object::DIRTY_CUSTOM << 0,
-            DIRTY_HEAD       = Object::DIRTY_CUSTOM << 1
+            DIRTY_HEAD       = Object::DIRTY_CUSTOM << 1,
+            DIRTY_OBSERVER_BITS =
+                DIRTY_EYE_BASE | DIRTY_HEAD | DIRTY_OBJECT_BITS
         };
+
+        /** @internal @return the bits to be re-committed by the master. */
+        virtual uint64_t getRedistributableBits() const
+            { return DIRTY_OBSERVER_BITS; }
 
     private:
         /** The parent Config. */

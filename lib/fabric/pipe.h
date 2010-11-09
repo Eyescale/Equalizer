@@ -174,9 +174,14 @@ namespace fabric
             DIRTY_WINDOWS         = Object::DIRTY_CUSTOM << 1,
             DIRTY_PIXELVIEWPORT   = Object::DIRTY_CUSTOM << 2,
             DIRTY_MEMBER          = Object::DIRTY_CUSTOM << 3,
-            DIRTY_PIPE_BITS = DIRTY_ATTRIBUTES | DIRTY_WINDOWS |
-                              DIRTY_PIXELVIEWPORT | DIRTY_MEMBER
+            DIRTY_PIPE_BITS =
+                DIRTY_ATTRIBUTES | DIRTY_WINDOWS | DIRTY_PIXELVIEWPORT |
+                DIRTY_MEMBER | DIRTY_OBJECT_BITS
         };
+
+        /** @internal @return the bits to be re-committed by the master. */
+        virtual uint64_t getRedistributableBits() const
+            { return DIRTY_PIPE_BITS; }
 
     private:
         /** The parent node. */

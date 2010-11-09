@@ -98,8 +98,7 @@ namespace server
 
     protected:
         /** @sa eq::View::deserialize() */
-        virtual void deserialize( net::DataIStream& is, 
-                                  const uint64_t dirtyBits );
+        virtual void deserialize( net::DataIStream&, const uint64_t );
         virtual void setDirty( const uint64_t bits );
 
     private:

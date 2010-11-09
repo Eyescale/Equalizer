@@ -330,8 +330,13 @@ namespace fabric
             DIRTY_FRUSTUM       = Object::DIRTY_CUSTOM << 3, //  512
             DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 4, // 1024
             DIRTY_CHANNEL_BITS = 
-               DIRTY_ATTRIBUTES | DIRTY_VIEWPORT | DIRTY_MEMBER | DIRTY_FRUSTUM
+               DIRTY_ATTRIBUTES | DIRTY_VIEWPORT | DIRTY_MEMBER |
+               DIRTY_FRUSTUM | DIRTY_OBJECT_BITS
         };
+
+        /** @internal @return the bits to be re-committed by the master. */
+        virtual uint64_t getRedistributableBits() const
+            { return DIRTY_CHANNEL_BITS; }
 
         virtual void updateCapabilities() {}; //!< @internal
 

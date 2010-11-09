@@ -127,7 +127,6 @@ namespace server
         virtual void attachToSession( const uint32_t id, 
                                       const uint32_t instanceID, 
                                       net::Session* session );
-        virtual void deserialize( eq::net::DataIStream&, const uint64_t );
 
         /** @internal Execute the slave remove request. */
         virtual void removeChild( const uint32_t id );

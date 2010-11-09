@@ -73,13 +73,6 @@ void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID,
                      PipeFunc( this, &Pipe::_cmdConfigExitReply ), queue );
 }
 
-void Pipe::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
-{
-    Super::deserialize( is, dirtyBits );
-    EQASSERT( isMaster( ));
-    setDirty( dirtyBits & DIRTY_PIPE_BITS ); // redistribute slave changes
-}
-
 void Pipe::removeChild( const uint32_t id )
 {
     EQASSERT( getConfig()->isRunning( ));

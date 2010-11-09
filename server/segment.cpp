@@ -43,7 +43,8 @@ Segment::Segment( Canvas* parent )
 
 Segment::~Segment()
 {
-    ConfigDestCompoundVisitor visitor( _destinationChannels, false /*activeOnly*/ );
+    ConfigDestCompoundVisitor visitor( _destinationChannels,
+                                       false /*activeOnly*/ );
     getConfig()->accept( visitor );
     const Compounds& compounds = visitor.getResult();
 

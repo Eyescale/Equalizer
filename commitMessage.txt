@@ -1,8 +1,8 @@
-Tweak Doxyfile
+Fix and unify server-side redistribution of admin changes.
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

@@ -126,8 +126,14 @@ namespace fabric
             DIRTY_ATTRIBUTES      = Object::DIRTY_CUSTOM << 0,
             DIRTY_PIPES           = Object::DIRTY_CUSTOM << 1,
             DIRTY_MEMBER          = Object::DIRTY_CUSTOM << 2,
-            DIRTY_NODE_BITS = DIRTY_ATTRIBUTES | DIRTY_PIPES | DIRTY_MEMBER
+            DIRTY_NODE_BITS =
+                DIRTY_ATTRIBUTES | DIRTY_PIPES | DIRTY_MEMBER |
+                DIRTY_OBJECT_BITS
         };
+
+        /** @internal @return the bits to be re-committed by the master. */
+        virtual uint64_t getRedistributableBits() const
+            { return DIRTY_NODE_BITS; }
 
     private:
         /** Pipe children. */

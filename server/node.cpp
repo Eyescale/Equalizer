@@ -660,13 +660,6 @@ void Node::_flushBarriers()
     _barriers.clear();
 }
 
-void Node::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
-{
-    Super::deserialize( is, dirtyBits );
-    EQASSERT( isMaster( ));
-    setDirty( dirtyBits & DIRTY_NODE_BITS ); // redistribute slave changes
-}
-
 bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
 {
     ConnectionDescriptions::iterator i = 

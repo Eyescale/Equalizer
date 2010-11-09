@@ -213,10 +213,15 @@ namespace fabric
             DIRTY_MINCAPS       = Object::DIRTY_CUSTOM << 5,
             DIRTY_MAXCAPS       = Object::DIRTY_CUSTOM << 6,
             DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 7,
-            DIRTY_VIEW_BITS = DIRTY_VIEWPORT | DIRTY_OBSERVER | DIRTY_OVERDRAW |
-                              DIRTY_FRUSTUM | DIRTY_MODE | DIRTY_MINCAPS |
-                              DIRTY_MAXCAPS | DIRTY_CAPABILITIES
+            DIRTY_VIEW_BITS =
+                DIRTY_VIEWPORT | DIRTY_OBSERVER | DIRTY_OVERDRAW |
+                DIRTY_FRUSTUM | DIRTY_MODE | DIRTY_MINCAPS | DIRTY_MAXCAPS |
+                DIRTY_CAPABILITIES | DIRTY_OBJECT_BITS
         };
+
+        /** @internal @return the bits to be re-committed by the master. */
+        virtual uint64_t getRedistributableBits() const
+            { return DIRTY_VIEW_BITS; }
 
     private:
         /** Parent layout (application-side). */

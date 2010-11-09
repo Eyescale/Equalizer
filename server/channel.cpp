@@ -126,13 +126,6 @@ Channel::~Channel()
 {
 }
 
-void Channel::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
-{
-    Super::deserialize( is, dirtyBits );
-    EQASSERT( isMaster( ));
-    setDirty( dirtyBits & DIRTY_CHANNEL_BITS ); // redistribute slave changes
-}
-
 void Channel::postDelete()
 {
     //_state |= STATE_DELETE;

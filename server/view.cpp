@@ -139,10 +139,8 @@ void View::setDirty( const uint64_t bits )
 
 void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
 {
-    //EQINFO << getVersion() << base::backtrace << std::endl;
     EQASSERT( isMaster( ));
     Super::deserialize( is, dirtyBits );
-    setDirty( dirtyBits & DIRTY_VIEW_BITS ); // redistribute slave changes
 
     if( dirtyBits & ( DIRTY_FRUSTUM | DIRTY_OVERDRAW ))
     {

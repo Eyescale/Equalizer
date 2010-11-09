@@ -172,7 +172,7 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     }
 
     if( isMaster( )) // redistribute changes
-        setDirty( dirtyBits & ( DIRTY_NAME | DIRTY_USERDATA | DIRTY_ERROR ));
+        setDirty( dirtyBits & getRedistributableBits( ));
 
     // Update user data state
     if( !(dirtyBits & DIRTY_USERDATA) ||!_userData )

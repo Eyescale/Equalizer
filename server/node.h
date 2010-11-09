@@ -253,8 +253,6 @@ namespace server
                                       const uint32_t instanceID, 
                                       net::Session* session );
         
-        void deserialize( net::DataIStream& is, const uint64_t dirtyBits );
-    
     private:
         /** String attributes. */
         std::string _sAttributes[SATTR_ALL];

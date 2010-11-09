@@ -209,9 +209,14 @@ namespace fabric
             DIRTY_CHANNELS        = Object::DIRTY_CUSTOM << 1,
             DIRTY_VIEWPORT        = Object::DIRTY_CUSTOM << 2,
             DIRTY_DRAWABLECONFIG  = Object::DIRTY_CUSTOM << 3,
-            DIRTY_WINDOW_BITS = DIRTY_ATTRIBUTES | DIRTY_CHANNELS |
-                                DIRTY_VIEWPORT | DIRTY_DRAWABLECONFIG
+            DIRTY_WINDOW_BITS =
+                DIRTY_ATTRIBUTES | DIRTY_CHANNELS | DIRTY_VIEWPORT |
+                DIRTY_DRAWABLECONFIG | DIRTY_OBJECT_BITS
         };
+
+        /** @internal @return the bits to be re-committed by the master. */
+        virtual uint64_t getRedistributableBits() const
+            { return DIRTY_WINDOW_BITS; }
 
     private:
         /** The parent pipe. */

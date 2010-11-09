@@ -118,12 +118,17 @@ namespace fabric
         /** @sa Serializable::setDirty() @internal */
         EQFABRIC_EXPORT virtual void setDirty( const uint64_t bits );
 
-    private:
         enum DirtyBits
         {
             DIRTY_VIEWS      = Object::DIRTY_CUSTOM << 0,
+            DIRTY_LAYOUT_BITS = DIRTY_VIEWS | DIRTY_OBJECT_BITS
         };
 
+        /** @internal @return the bits to be re-committed by the master. */
+        virtual uint64_t getRedistributableBits() const
+            { return DIRTY_LAYOUT_BITS; }
+
+    private:
         /** The parent Config. */
         C* const _config;
 

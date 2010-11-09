@@ -117,7 +117,8 @@ namespace fabric
             DIRTY_TASKS      = Serializable::DIRTY_CUSTOM << 3, // 8
             DIRTY_REMOVED    = Serializable::DIRTY_CUSTOM << 4, // 16
             // Leave room for binary-compatible patches
-            DIRTY_CUSTOM     = Serializable::DIRTY_CUSTOM << 6 // 64
+            DIRTY_CUSTOM     = Serializable::DIRTY_CUSTOM << 6, // 64
+            DIRTY_OBJECT_BITS = DIRTY_NAME | DIRTY_USERDATA | DIRTY_ERROR
         };
 
     protected:
@@ -143,6 +144,11 @@ namespace fabric
 
         EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
                                             const uint64_t dirtyBits );
+
+
+        /** @internal @return the bits to be re-committed by the master. */
+        virtual uint64_t getRedistributableBits() const
+            { return DIRTY_OBJECT_BITS; }
 
         /**
          * @internal
