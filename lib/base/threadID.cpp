@@ -25,6 +25,12 @@ namespace eq
 {
 namespace base
 {
+
+struct ThreadIDPrivate
+{
+    pthread_t pthread;
+};
+
 const ThreadID ThreadID::ZERO;
 
 ThreadID::ThreadID()

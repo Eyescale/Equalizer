@@ -24,7 +24,7 @@ namespace eq
 {
 namespace base
 {
-    class ThreadIDPrivate;
+    struct ThreadIDPrivate;
 
     /** An utility class to wrap OS-specific thread identifiers. */
     class ThreadID
@@ -64,24 +64,5 @@ namespace base
     std::ostream& operator << ( std::ostream& os, const ThreadID& threadID );
 }
 }
+
 #endif // EQBASE_THREADID_H
-
-#ifdef PTHREAD_H // Crude test if pthread.h was included
-#  ifndef EQBASE_THREADIDPRIVATE_H
-#  define EQBASE_THREADIDPRIVATE_H
-
-namespace eq
-{
-namespace base
-{
-
-class ThreadIDPrivate
-{
-public:
-    pthread_t pthread;
-};
-
-}
-}
-#  endif // EQBASE_THREADIDPRIVATE_H
-#endif // PTHREAD_H

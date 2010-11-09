@@ -41,6 +41,12 @@ namespace eq
 {
 namespace base
 {
+
+struct ThreadIDPrivate
+{
+    pthread_t pthread;
+};
+
 namespace
 {
 static Lock& _listenerLock()
