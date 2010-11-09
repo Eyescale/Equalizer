@@ -32,10 +32,10 @@ namespace base
     public:
 
         /** Construct a new compressor. */
-        EQ_EXPORT Compressor();
+        EQ_BASE_DECL Compressor();
 
         /** Destruct the compressor. */
-        EQ_EXPORT virtual ~Compressor();
+        EQ_BASE_DECL virtual ~Compressor();
 
         /** @return the plugin for the current compressor. */
         Plugin* getPlugin() { return _plugin; }
@@ -45,13 +45,13 @@ namespace base
 
         /** @return true if the compressor is ready for the 
          *          current compressor name. */
-        virtual EQ_EXPORT bool isValid( uint32_t name ) const;
+        virtual EQ_BASE_DECL bool isValid( uint32_t name ) const;
 
         /** Remove all information about the current compressor. */
-        EQ_EXPORT void reset();
+        EQ_BASE_DECL void reset();
 
         /** @return the quality produced by the current compressor instance. */
-        float getQuality() const;
+        EQ_BASE_DECL float getQuality() const;
 
         /** @return the information about the current compressor instance. */
         const CompressorInfo& getInfo() const
@@ -85,14 +85,14 @@ namespace base
          *
          * @param name the name of the compressor
          */
-        EQ_EXPORT bool _initCompressor( uint32_t name );
+        EQ_BASE_DECL bool _initCompressor( uint32_t name );
 
         /**
          * Initialize the specified decompressor or uploader 
          *
          * @param name the name of the compressor
          */
-        EQ_EXPORT bool _initDecompressor( uint32_t name );
+        EQ_BASE_DECL bool _initDecompressor( uint32_t name );
 
         EQ_TS_VAR( _thread );
     };

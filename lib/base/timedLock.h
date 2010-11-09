@@ -32,10 +32,10 @@ namespace base
     {
     public:
         /** Construct a new timed lock. @version 1.0 */
-        EQ_EXPORT TimedLock();
+        EQ_BASE_DECL TimedLock();
 
         /** Destruct the lock. @version 1.0 */
-        EQ_EXPORT ~TimedLock();
+        EQ_BASE_DECL ~TimedLock();
 
         /** 
          * Set the lock. 
@@ -46,10 +46,10 @@ namespace base
          * @return true if the lock was acquired, false if not.
          * @version 1.0
          */
-        EQ_EXPORT bool set( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+        EQ_BASE_DECL bool set( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
 
         /** Release the lock. @version 1.0 */
-        EQ_EXPORT void unset();
+        EQ_BASE_DECL void unset();
 
         /** 
          * Attempt to set the lock.
@@ -57,7 +57,7 @@ namespace base
          * @return true if the lock was acquired, false if not.
          * @version 1.0
          */
-        EQ_EXPORT bool trySet();
+        EQ_BASE_DECL bool trySet();
 
         /** 
          * Test if the lock is set.
@@ -65,7 +65,7 @@ namespace base
          * @return true if the lock is set, false if it is not set.
          * @version 1.0
          */
-        EQ_EXPORT bool isSet(); 
+        EQ_BASE_DECL bool isSet(); 
 
     private:
         TimedLockPrivate* _data;

@@ -18,7 +18,7 @@
 #ifndef EQBASE_REFERENCED_H
 #define EQBASE_REFERENCED_H
 
-#include <eq/base/base.h>     // for EQ_EXPORT
+#include <eq/base/base.h>     // for EQ_BASE_DECL
 #include <eq/base/debug.h>    // for EQERROR
 #include <eq/base/atomic.h>   // member
 #include <typeinfo>
@@ -97,7 +97,7 @@ namespace base
             }
 
     protected:
-        EQ_EXPORT void deleteReferenced( const Referenced* object ) const;
+        EQ_BASE_DECL void deleteReferenced( const Referenced* object ) const;
 
     private:
         mutable a_int32_t _refCount;

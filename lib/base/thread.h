@@ -18,13 +18,13 @@
 #ifndef EQBASE_THREAD_H
 #define EQBASE_THREAD_H
 
-#ifdef EQ_EXPORTS
+#ifdef EQ_BASE_DECLS
    // We need to instantiate a Monitor< State > when compiling the library,
    // but we don't want to have <pthread.h> for a normal build, hence this hack
 #  include <pthread.h>
 #endif
 
-#include <eq/base/base.h>     // EQ_EXPORT definition
+#include <eq/base/base.h>     // EQ_BASE_DECL definition
 #include <eq/base/debug.h>    // debug macros in thread-safety checks
 #include <eq/base/lock.h>     // member
 #include <eq/base/monitor.h>  // member
@@ -45,10 +45,10 @@ namespace base
     {
     public:
         /** Construct a new thread. @version 1.0 */
-        EQ_EXPORT Thread();
+        EQ_BASE_DECL Thread();
 
         /** Destruct the thread. @version 1.0 */
-        EQ_EXPORT virtual ~Thread();
+        EQ_BASE_DECL virtual ~Thread();
 
         /** 
          * Start the thread.
@@ -61,7 +61,7 @@ namespace base
          * @sa init(), run(), addListener()
          * @version 1.0
          */
-        EQ_EXPORT bool start();
+        EQ_BASE_DECL bool start();
 
         /** 
          * The init function for the child thread.
@@ -94,7 +94,7 @@ namespace base
          *
          * @version 1.0
          */
-        EQ_EXPORT virtual void exit();
+        EQ_BASE_DECL virtual void exit();
 
         /** 
          * Cancel (stop) the child thread.
@@ -102,7 +102,7 @@ namespace base
          * This function is not to be called from the child thread.
          * @version 1.0
          */
-        EQ_EXPORT void cancel();
+        EQ_BASE_DECL void cancel();
 
         /** 
          * Wait for the exit of the child thread.
@@ -110,7 +110,7 @@ namespace base
          * @return true if the thread was joined, false otherwise.
          * @version 1.0
          */
-        EQ_EXPORT bool join();
+        EQ_BASE_DECL bool join();
 
         /** 
          * Return if the thread is stopped.
@@ -141,7 +141,7 @@ namespace base
          *         thread, false if not.
          * @version 1.0
          */
-        EQ_EXPORT bool isCurrent() const;
+        EQ_BASE_DECL bool isCurrent() const;
 
         /** 
          * Add a new thread state listener.
@@ -149,7 +149,7 @@ namespace base
          * @param listener the listener.
          * @version 1.0
          */
-        EQ_EXPORT static void addListener( ExecutionListener* listener );
+        EQ_BASE_DECL static void addListener( ExecutionListener* listener );
 
         /** 
          * Remove a thread state listener.
@@ -157,22 +157,22 @@ namespace base
          * @param listener the listener.
          * @version 1.0
          */
-        EQ_EXPORT static bool removeListener( ExecutionListener* listener );
+        EQ_BASE_DECL static bool removeListener( ExecutionListener* listener );
 
         /** Remove all registered listeners, used at exit. @version 1.0 */
-        EQ_EXPORT static void removeAllListeners();
+        EQ_BASE_DECL static void removeAllListeners();
 
         /** @return a unique identifier for the calling thread. @version 1.0 */
-        EQ_EXPORT static ThreadID getSelfThreadID();
+        EQ_BASE_DECL static ThreadID getSelfThreadID();
 
         /** @internal */
-        EQ_EXPORT static void yield();
+        EQ_BASE_DECL static void yield();
 
         /** @internal */
         static void pinCurrentThread();
 
         /** @internal */
-        EQ_EXPORT static void setDebugName( const std::string& name );
+        EQ_BASE_DECL static void setDebugName( const std::string& name );
 
     private:
         ThreadID _id;

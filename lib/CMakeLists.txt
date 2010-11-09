@@ -6,7 +6,7 @@ include(PurpleAddAmalgamation)
 include(${CMAKE_CURRENT_SOURCE_DIR}/configure.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/files.cmake)
 
-source_group(base FILES ${BASE_HEADERS} ${BASE_SOURCES})
+#source_group(base FILES ${BASE_HEADERS} ${BASE_SOURCES})
 source_group(client FILES ${CLIENT_HEADERS} ${CLIENT_SOURCES})
 source_group(fabric FILES ${FABRIC_HEADERS} ${FABRIC_SOURCES})
 source_group(net FILES ${NET_HEADERS} ${NET_SOURCES})
@@ -31,10 +31,20 @@ if(NOT CUDA_FOUND)
   set(CUDA_LIBRARIES)
 endif(NOT CUDA_FOUND)
 
+purple_add_library(eq_base
+  FORWARD HEADERS
+    ${BASE_HEADERS}
+  SOURCES
+    ${BASE_SOURCES}
+  LINK_LIBRARIES
+    ${PTHREAD_LIBRARIES}
+  HEADERS_DESTINATION eq
+  )
+
 # TODO: split this library
 purple_add_library(eq_transitional SHARED
   FORWARD HEADERS
-    ${BASE_HEADERS}
+    #${BASE_HEADERS}
     ${CLIENT_HEADERS}
     ${FABRIC_HEADERS}
     ${NET_HEADERS}
@@ -48,13 +58,14 @@ purple_add_library(eq_transitional SHARED
     util.h
     admin.h
   SOURCES
-    ${BASE_SOURCES}
+    #${BASE_SOURCES}
     ${CLIENT_SOURCES}
     ${FABRIC_SOURCES}
     ${NET_SOURCES}
     ${UTIL_SOURCES}
     ${COMPRESSOR_SOURCES}
   LINK_LIBRARIES
+    shared eq_base
     ${PTHREAD_LIBRARIES}
     ${Boost_LIBRARIES}
     ${GLEW_LIBRARY}
@@ -66,6 +77,7 @@ purple_add_library(eq_transitional SHARED
   )
 
 purple_add_amalgamation(Equalizer
+    shared eq_base
     shared eq_transitional
   LINK_LIBRARIES
     ${PTHREAD_LIBRARIES}

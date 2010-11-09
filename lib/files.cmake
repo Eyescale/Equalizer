@@ -233,7 +233,6 @@ set(BASE_SOURCES
   base/lock.cpp
   base/log.cpp
   base/memoryMap.cpp
-  base/monitor.cpp
   base/omp.cpp
   base/plugin.cpp
   base/pluginRegistry.cpp

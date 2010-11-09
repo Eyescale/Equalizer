@@ -32,7 +32,7 @@ namespace base
 {
 
 #ifndef NDEBUG
-EQ_EXPORT void abort()
+void abort()
 {
     EQERROR << "abort called from: "  << backtrace << std::endl;
 
@@ -45,7 +45,7 @@ EQ_EXPORT void abort()
 }
 #endif // DEBUG
 
-EQ_EXPORT void checkHeap()
+void checkHeap()
 {
 #ifdef _MSC_VER
     static a_int32_t count( 0 );
@@ -59,7 +59,7 @@ EQ_EXPORT void checkHeap()
 #endif
 }
 
-EQ_EXPORT std::ostream& backtrace( std::ostream& os )
+std::ostream& backtrace( std::ostream& os )
 {
 #ifdef WIN32
     os << "backtrace not implemented";
@@ -102,7 +102,7 @@ EQ_EXPORT std::ostream& backtrace( std::ostream& os )
     return os;
 }
 
-EQ_EXPORT std::ostream& sysError( std::ostream& os )
+std::ostream& sysError( std::ostream& os )
 {
 #ifdef WIN32
     const DWORD error = GetLastError();

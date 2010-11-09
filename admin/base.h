@@ -25,15 +25,10 @@
 
 #include <eq/base/base.h>
 
-#ifdef _MSC_VER
-#  ifdef EQADMIN_EXPORTS
-#    define EQADMIN_EXPORT EQ_DLLEXPORT
-#  else
-#    define EQADMIN_EXPORT EQ_DLLIMPORT
-#  endif
-#else // WIN32
-/** Mark the following function as exported in the Equalizer DSO. @internal */
-#  define EQADMIN_EXPORT
+#ifdef EQADMIN_EXPORTS
+#  define EQADMIN_EXPORT BOOST_SYMBOL_EXPORT
+#else
+#  define EQADMIN_EXPORT BOOST_SYMBOL_IMPORT
 #endif
 
 #endif //EQADMIN_BASE_H

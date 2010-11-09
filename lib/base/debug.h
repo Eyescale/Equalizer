@@ -37,13 +37,13 @@ namespace base
  * Used to trap into an infinite loop to allow debugging of assertions
  * @internal
  */
-EQ_EXPORT void abort();
+EQ_BASE_DECL void abort();
 
 /**
  * Check the consistency of the heap and abort on error (Win32 only).
  * @internal
  */
-EQ_EXPORT void checkHeap();
+EQ_BASE_DECL void checkHeap();
 
 /** 
  * Print a textual description of the current system error.
@@ -51,7 +51,7 @@ EQ_EXPORT void checkHeap();
  * The current system error is OS-specific, e.g., errno or GetLastError().
  * @version 1.0
  */
-EQ_EXPORT std::ostream& sysError( std::ostream& os );
+EQ_BASE_DECL std::ostream& sysError( std::ostream& os );
 
 /** 
  * Print the current call stack.
@@ -59,7 +59,7 @@ EQ_EXPORT std::ostream& sysError( std::ostream& os );
  * May not be implemented on all platforms.
  * @version 1.0
  */
-EQ_EXPORT std::ostream& backtrace( std::ostream& os );
+EQ_BASE_DECL std::ostream& backtrace( std::ostream& os );
 
 /** Print the RTTI name of the given class. @version 1.0 */
 template< class T > inline std::string className( T* object )

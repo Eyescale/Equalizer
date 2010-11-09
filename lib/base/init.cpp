@@ -37,7 +37,7 @@ namespace
     static std::ofstream* _logFile = 0;
 }
 
-EQ_EXPORT bool init( const int argc, char** argv )
+bool init( const int argc, char** argv )
 {
     EQINFO << "Log level " << base::Log::getLogLevelString() << " topics " 
            << base::Log::topics << std::endl;
@@ -78,7 +78,7 @@ EQ_EXPORT bool init( const int argc, char** argv )
     return true;
 }
 
-EQ_EXPORT bool exit()
+bool exit()
 {
     EQASSERT( Global::getErrorRegistry().isEmpty( ));
 

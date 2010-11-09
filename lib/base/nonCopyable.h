@@ -18,14 +18,14 @@
 #ifndef EQBASE_NONCOPYABLE_H
 #define EQBASE_NONCOPYABLE_H
 
-#include <eq/base/base.h> // for EQ_EXPORT
+#include <eq/base/base.h> // for EQ_BASE_DECL
 
 namespace eq
 {
 namespace base
 {
     /** Base class to make objects non-copyable. */
-    class EQ_EXPORT NonCopyable 
+    class EQ_BASE_DECL NonCopyable 
     {
     protected:
         NonCopyable() {}

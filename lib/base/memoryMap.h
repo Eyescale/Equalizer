@@ -32,7 +32,7 @@ namespace base
     {
     public:
         /** Construct a new memory map. @version 1.0 */
-        EQ_EXPORT MemoryMap();
+        EQ_BASE_DECL MemoryMap();
 
         /** 
          * Destruct the memory map.
@@ -41,7 +41,7 @@ namespace base
          * @sa unmap()
          * @version 1.0
          */
-        EQ_EXPORT ~MemoryMap();
+        EQ_BASE_DECL ~MemoryMap();
 
         /** 
          * Map a file to a memory address.
@@ -53,10 +53,10 @@ namespace base
          * @return the pointer to the mapped file, or 0 upon error.
          * @version 1.0
          */
-        EQ_EXPORT const void* map( const std::string& fileName );
+        EQ_BASE_DECL const void* map( const std::string& fileName );
 
         /** Unmap the file. @version 1.0 */
-        EQ_EXPORT void unmap();
+        EQ_BASE_DECL void unmap();
 
         /** @return the pointer to the memory map. @version 1.0 */
         const void* getAddress() const { return _ptr; }

@@ -35,16 +35,16 @@ namespace base
     {
     public:
         /** Construct a new lock. @version 1.0 */
-        EQ_EXPORT Lock();
+        EQ_BASE_DECL Lock();
 
         /** Destruct the lock. @version 1.0 */
-        EQ_EXPORT ~Lock();
+        EQ_BASE_DECL ~Lock();
 
         /** Acquire the lock. @version 1.0 */
-        EQ_EXPORT void set();
+        EQ_BASE_DECL void set();
 
         /** Release the lock. @version 1.0 */
-        EQ_EXPORT void unset();
+        EQ_BASE_DECL void unset();
 
         /** 
          * Attempt to acquire the lock.
@@ -55,7 +55,7 @@ namespace base
          *         it was not set.
          * @version 1.0
          */
-        EQ_EXPORT bool trySet();
+        EQ_BASE_DECL bool trySet();
 
         /** 
          * Test if the lock is set.
@@ -64,7 +64,7 @@ namespace base
          *         it is not set.
          * @version 1.0
          */
-        EQ_EXPORT bool isSet();
+        EQ_BASE_DECL bool isSet();
 
     private:
         LockPrivate* _data;

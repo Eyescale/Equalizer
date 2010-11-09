@@ -31,7 +31,7 @@ namespace base
      *
      * Not to be subclassed.
      */
-    class EQ_EXPORT UUID
+    class EQ_BASE_DECL UUID
     {
     public:
         /** 

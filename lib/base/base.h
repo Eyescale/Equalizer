@@ -23,6 +23,7 @@
 #ifndef EQBASE_BASE_H
 #define EQBASE_BASE_H
 
+#include <boost/config.hpp>
 #include <eq/base/defines.h>
 
 #ifdef WIN32
@@ -46,35 +47,35 @@
 #  include <windef.h>
 #endif
 
-#ifdef _MSC_VER
-#  define EQ_DLLEXPORT __declspec(dllexport) 
-#  define EQ_DLLIMPORT __declspec(dllimport)
-#  ifdef EQ_EXPORTS
-#    define EQ_EXPORT EQ_DLLEXPORT
-#    define GLEW_BUILD
-#    define EQFABRIC_EXPORT EQ_EXPORT
-#  else
-#    define EQ_EXPORT EQ_DLLIMPORT
-#  endif
-   // Need to predefine server library exports for forward declaration of 
-   // eqsStartLocalServer
-#  ifdef EQSERVER_EXPORTS
-#    define EQSERVER_EXPORT EQ_DLLEXPORT
-#    define EQFABRIC_EXPORT EQSERVER_EXPORT
-#  else
-#    define EQSERVER_EXPORT EQ_DLLIMPORT
-#  endif
-#  ifdef EQADMIN_EXPORTS
-#    define EQFABRIC_EXPORT EQ_DLLEXPORT
-#  endif
-#  ifndef EQFABRIC_EXPORT
-#    define EQFABRIC_EXPORT EQ_DLLIMPORT
-#  endif
-#else // WIN32
-/** Mark the following function as exported in the Equalizer DSO. @internal */
-#  define EQ_EXPORT
-#  define EQSERVER_EXPORT
-#  define EQFABRIC_EXPORT
+#if defined(EQ_BASE_STATIC)
+#  define EQ_BASE_DECL
+#elif defined(EQ_BASE_SHARED)
+#  define EQ_BASE_DECL BOOST_SYMBOL_EXPORT
+#else
+#  define EQ_BASE_DECL BOOST_SYMBOL_IMPORT
+#endif
+
+#ifdef EQ_EXPORTS
+#  define EQ_EXPORT BOOST_SYMBOL_EXPORT
+#  define GLEW_BUILD
+#  define EQFABRIC_EXPORT EQ_EXPORT
+#else
+#  define EQ_EXPORT BOOST_SYMBOL_IMPORT
+#endif
+
+// Need to predefine server library exports for forward declaration of 
+// eqsStartLocalServer
+#ifdef EQSERVER_EXPORTS
+#  define EQSERVER_EXPORT BOOST_SYMBOL_EXPORT
+#  define EQFABRIC_EXPORT EQSERVER_EXPORT
+#else
+#  define EQSERVER_EXPORT BOOST_SYMBOL_IMPORT
+#endif
+#ifdef EQADMIN_EXPORTS
+#  define EQFABRIC_EXPORT BOOST_SYMBOL_EXPORT
+#endif
+#ifndef EQFABRIC_EXPORT
+#  define EQFABRIC_EXPORT BOOST_SYMBOL_IMPORT
 #endif
 
 // Defining our own min/max macros seems to be the only sane way to get this

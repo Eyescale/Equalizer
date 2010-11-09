@@ -18,24 +18,13 @@
 #ifndef EQBASE_MONITOR_H
 #define EQBASE_MONITOR_H
 
+#include <pthread.h>
 #include <eq/base/nonCopyable.h> // base class
 
 #include <errno.h>
 #include <string.h>
 #include <iostream>
 #include <typeinfo>
-
-#ifdef PTHREAD_MUTEX_INITIALIZER // Crude test if pthread.h was included
-#  ifndef HAVE_PTHREAD_H
-#    define HAVE_PTHREAD_H
-#  endif
-#  ifndef EQ_EXPORTS // pthread.h included, not building Eq (inline impl)
-#    define EQ_PT_EXPORT
-#  endif
-#endif
-#ifndef EQ_PT_EXPORT // pthread.h not included or building eq (explicit export)
-#  define EQ_PT_EXPORT EQ_EXPORT 
-#endif 
 
 namespace eq
 {
@@ -65,14 +54,14 @@ namespace base
         Monitor( const T& value ) : _value( value ) { _construct(); }
         
         /** Destructs the monitor. @version 1.0 */
-        EQ_PT_EXPORT ~Monitor();
+        ~Monitor();
 
         /** @name Changing the monitored value. */
         //@{
         /** Increment the monitored value, prefix only. @version 1.0 */
-        EQ_PT_EXPORT Monitor& operator++ ();
+        Monitor& operator++ ();
         /** Decrement the monitored value, prefix only. @version 1.0 */
-        EQ_PT_EXPORT Monitor& operator-- ();
+        Monitor& operator-- ();
 
         /** Assign a new value. @version 1.0 */
         Monitor& operator = ( const T& value )
@@ -82,10 +71,10 @@ namespace base
             }
 
         /** Perform an or operation on the value. @version 1.0 */
-        EQ_PT_EXPORT Monitor& operator |= ( const T& value );
+        Monitor& operator |= ( const T& value );
 
         /** Set a new value. @version 1.0 */
-        EQ_PT_EXPORT void set( const T& value );
+        void set( const T& value );
         //@}
 
         /** @name Monitor the value. */
@@ -95,21 +84,21 @@ namespace base
          * @return the value when reaching the condition.
          * @version 1.0
          */
-        EQ_PT_EXPORT const T& waitEQ( const T& value ) const;
+        const T& waitEQ( const T& value ) const;
 
         /**
          * Block until the monitor has not the given value.
          * @return the value when reaching the condition.
          * @version 1.0
          */
-        EQ_PT_EXPORT const T& waitNE( const T& value ) const;
+        const T& waitNE( const T& value ) const;
 
         /**
          * Block until the monitor has none of the given values.
          * @return the value when reaching the condition.
          * @version 1.0
          */
-        EQ_PT_EXPORT const T& waitNE( const T& v1, const T& v2 ) const;
+        const T& waitNE( const T& v1, const T& v2 ) const;
 
         /**
          * Block until the monitor has a value greater or equal to the given
@@ -117,7 +106,7 @@ namespace base
          * @return the value when reaching the condition.
          * @version 1.0
          */
-        EQ_PT_EXPORT const T& waitGE( const T& value ) const;
+        const T& waitGE( const T& value ) const;
 
         /**
          * Block until the monitor has a value less or equal to the given
@@ -125,7 +114,7 @@ namespace base
          * @return the value when reaching the condition.
          * @version 1.0
          */
-        EQ_PT_EXPORT const T& waitLE( const T& value ) const;
+        const T& waitLE( const T& value ) const;
         //@}
 
         /** @name Comparison Operators. @version 1.0 */
@@ -175,11 +164,8 @@ namespace base
         T _value;
         MonitorPrivate* _data;
 
-        EQ_PT_EXPORT void _construct();
+        void _construct();
     };
-
-typedef Monitor< bool >     Monitorb;
-typedef Monitor< uint32_t > Monitoru;
 
 /** Print the monitor to the given output stream. @version 1.0 */
 template< typename T >
@@ -195,8 +181,6 @@ inline std::ostream& operator << ( std::ostream& os, const Monitor<T>& monitor )
 //----------------------------------------------------------------------
 // implementation
 //----------------------------------------------------------------------
-
-#ifdef HAVE_PTHREAD_H
 
 #include <eq/base/debug.h>
 #include <eq/base/log.h>
@@ -364,5 +348,5 @@ inline const T& Monitor<T>::waitLE( const T& value ) const
 
 }
 }
-#endif // HAVE_PTHREAD_H
+
 #endif //EQBASE_MONITOR_H

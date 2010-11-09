@@ -18,7 +18,7 @@
 #ifndef EQBASE_THREADID_H
 #define EQBASE_THREADID_H
 
-#include <eq/base/base.h>     // EQ_EXPORT definition
+#include <eq/base/base.h>     // EQ_BASE_DECL definition
 
 namespace eq
 {
@@ -31,27 +31,27 @@ namespace base
     {
     public:
         /** Construct a new, zero thread identifier. @version 1.0 */
-        EQ_EXPORT ThreadID();
+        EQ_BASE_DECL ThreadID();
 
         /** Construct a copy of a thread identifier. @version 1.0 */
-        EQ_EXPORT ThreadID( const ThreadID& from );
+        EQ_BASE_DECL ThreadID( const ThreadID& from );
 
         /** Destruct this thread identifier. @version 1.0 */
-        EQ_EXPORT ~ThreadID();
+        EQ_BASE_DECL ~ThreadID();
 
         /** Assign another thread identifier. @version 1.0 */
-        EQ_EXPORT ThreadID& operator = ( const ThreadID& from );
+        EQ_BASE_DECL ThreadID& operator = ( const ThreadID& from );
 
         /** @return true if the threads are equal, false if not. @version 1.0 */
-        EQ_EXPORT bool operator == ( const ThreadID& rhs ) const;
+        EQ_BASE_DECL bool operator == ( const ThreadID& rhs ) const;
 
         /**
          * @return true if the threads are different, false otherwise.
          * @version 1.0
          */
-        EQ_EXPORT bool operator != ( const ThreadID& rhs ) const;
+        EQ_BASE_DECL bool operator != ( const ThreadID& rhs ) const;
         
-        EQ_EXPORT static const ThreadID ZERO; //!< a 'NULL' thread identifier
+        EQ_BASE_DECL static const ThreadID ZERO; //!< a 'NULL' thread identifier
 
     private:
         ThreadIDPrivate* const _data;
@@ -66,7 +66,7 @@ namespace base
 }
 #endif // EQBASE_THREADID_H
 
-#ifdef PTHREAD_MUTEX_INITIALIZER // Crude test if pthread.h was included
+#ifdef PTHREAD_H // Crude test if pthread.h was included
 #  ifndef EQBASE_THREADIDPRIVATE_H
 #  define EQBASE_THREADIDPRIVATE_H
 
@@ -84,4 +84,4 @@ public:
 }
 }
 #  endif // EQBASE_THREADIDPRIVATE_H
-#endif // PTHREAD_MUTEX_INITIALIZER
+#endif // PTHREAD_H
