@@ -115,6 +115,12 @@ namespace fabric
         /** Remove dirty flags to clear data from distribution. @version 1.0 */
         virtual void unsetDirty( const uint64_t bits ) { _dirty &= ~bits; }
 
+        virtual void notifyAttached()
+            {
+                if( isMaster( ))
+                    _dirty = DIRTY_NONE;
+            }
+
     private:
         virtual void getInstanceData( net::DataOStream& os )
             {
