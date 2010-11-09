@@ -18,7 +18,7 @@
 #ifndef EQNET_CONNECTION_SET_H
 #define EQNET_CONNECTION_SET_H
 
-#ifdef EQ_EXPORTS
+#ifdef EQ_NET_DECLS
    // We need to instantiate a Monitor< Event > when compiling the library,
    // but we don't want to have <pthread.h> for a normal build, hence this hack
 #  include <pthread.h>
@@ -68,12 +68,12 @@ namespace net
             EVENT_ALL
         };
 
-        EQ_EXPORT ConnectionSet();
-        EQ_EXPORT ~ConnectionSet();
+        EQ_NET_DECL ConnectionSet();
+        EQ_NET_DECL ~ConnectionSet();
 
-        EQ_EXPORT void addConnection( ConnectionPtr connection );
-        EQ_EXPORT bool removeConnection( ConnectionPtr connection );
-        EQ_EXPORT void clear();
+        EQ_NET_DECL void addConnection( ConnectionPtr connection );
+        EQ_NET_DECL bool removeConnection( ConnectionPtr connection );
+        EQ_NET_DECL void clear();
         size_t getSize()  const { return _connections.size(); }
         bool   isEmpty() const { return _connections.empty(); }
 
@@ -89,12 +89,12 @@ namespace net
          *                indefinitly.
          * @return The event occured during selection.
          */
-        EQ_EXPORT Event select( const int timeout = -1 );
+        EQ_NET_DECL Event select( const int timeout = -1 );
 
         /**
          * Interrupt the current or next select call.
          */
-        EQ_EXPORT void interrupt();
+        EQ_NET_DECL void interrupt();
 
         /** @internal Trigger rebuilding of internal caches. */
         void setDirty();
@@ -180,9 +180,9 @@ namespace net
         EQ_TS_VAR( _selectThread );
     };
 
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+    EQ_NET_DECL std::ostream& operator << ( std::ostream& os, 
                                           const ConnectionSet* set );
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+    EQ_NET_DECL std::ostream& operator << ( std::ostream& os, 
                                           const ConnectionSet::Event event );
 }
 }

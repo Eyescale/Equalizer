@@ -9,7 +9,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/files.cmake)
 #source_group(base FILES ${BASE_HEADERS} ${BASE_SOURCES})
 source_group(client FILES ${CLIENT_HEADERS} ${CLIENT_SOURCES})
 source_group(fabric FILES ${FABRIC_HEADERS} ${FABRIC_SOURCES})
-source_group(net FILES ${NET_HEADERS} ${NET_SOURCES})
+#source_group(net FILES ${NET_HEADERS} ${NET_SOURCES})
 source_group(plugin FILES ${PLUGIN_HEADERS})
 source_group(util FILES ${UTIL_HEADERS} ${UTIL_SOURCES})
 source_group(compressor FILES ${COMPRESSOR_SOURCES})
@@ -41,13 +41,24 @@ purple_add_library(eq_base
   HEADERS_DESTINATION eq
   )
 
+purple_add_library(eq_net
+  FORWARD HEADERS
+    ${NET_HEADERS}
+  SOURCES
+    ${NET_SOURCES}
+  LINK_LIBRARIES
+    ${Boost_SYSTEM_LIBRARY}
+    shared eq_base
+  HEADERS_DESTINATION eq
+  )
+
 # TODO: split this library
 purple_add_library(eq_transitional SHARED
   FORWARD HEADERS
     #${BASE_HEADERS}
     ${CLIENT_HEADERS}
     ${FABRIC_HEADERS}
-    ${NET_HEADERS}
+    #${NET_HEADERS}
     ${PLUGIN_HEADERS}
     ${UTIL_HEADERS}
     base.h
@@ -61,11 +72,12 @@ purple_add_library(eq_transitional SHARED
     #${BASE_SOURCES}
     ${CLIENT_SOURCES}
     ${FABRIC_SOURCES}
-    ${NET_SOURCES}
+    #${NET_SOURCES}
     ${UTIL_SOURCES}
     ${COMPRESSOR_SOURCES}
   LINK_LIBRARIES
     shared eq_base
+    shared eq_net
     ${PTHREAD_LIBRARIES}
     ${Boost_LIBRARIES}
     ${GLEW_LIBRARY}
@@ -78,6 +90,7 @@ purple_add_library(eq_transitional SHARED
 
 purple_add_amalgamation(Equalizer
     shared eq_base
+    shared eq_net
     shared eq_transitional
   LINK_LIBRARIES
     ${PTHREAD_LIBRARIES}

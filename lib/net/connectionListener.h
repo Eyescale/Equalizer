@@ -25,7 +25,7 @@ namespace eq
 namespace net
 {
     /** A listener interface to connection changes. */
-    class EQ_EXPORT ConnectionListener
+    class EQ_NET_DECL ConnectionListener
     {
     public:
         virtual ~ConnectionListener() {}

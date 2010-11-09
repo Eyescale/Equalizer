@@ -20,7 +20,7 @@
 
 #include <eq/net/types.h>
 
-#include <eq/base/base.h>
+#include <eq/net/base.h>
 #include <eq/base/thread.h> // thread-safety checks
 
 #include <vector>
@@ -40,15 +40,15 @@ namespace net
     class CommandCache
     {
     public:
-        EQ_EXPORT CommandCache();
-        EQ_EXPORT ~CommandCache();
+        EQ_NET_DECL CommandCache();
+        EQ_NET_DECL ~CommandCache();
 
         /** @return a new command. */
-        EQ_EXPORT Command& alloc( NodePtr node, NodePtr localNode,
+        EQ_NET_DECL Command& alloc( NodePtr node, NodePtr localNode,
                                   const uint64_t size );
 
         /** @return a clone of a command. */
-        EQ_EXPORT Command& clone( Command& from );
+        EQ_NET_DECL Command& clone( Command& from );
 
         /** Flush all allocated commands. */
         void flush();

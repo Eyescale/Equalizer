@@ -18,7 +18,7 @@
 #ifndef EQNET_GLOBAL_H
 #define EQNET_GLOBAL_H
 
-#include <eq/base/base.h>
+#include <eq/net/base.h>
 #include <string>
 
 namespace eq
@@ -30,7 +30,7 @@ namespace net
     /** 
      * Global parameter handling for the Equalizer network implementation. 
      */
-    class EQ_EXPORT Global
+    class EQ_NET_DECL Global
     {
     public:
         /** 

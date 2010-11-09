@@ -20,6 +20,7 @@
 #define EQNET_DATAISTREAM_H
 
 #include <eq/base/buffer.h> // member
+#include <eq/net/base.h>
 #include <eq/net/types.h>
 #include <eq/base/types.h>
 
@@ -37,16 +38,16 @@ namespace net
     public:
         /** @name Internal */
         //@{ 
-        EQ_EXPORT DataIStream();
+        EQ_NET_DECL DataIStream();
         DataIStream( const DataIStream& );
-        EQ_EXPORT virtual ~DataIStream();
+        EQ_NET_DECL virtual ~DataIStream();
 
         /** Get the number of remaining buffers. */
         virtual size_t nRemainingBuffers() const = 0;
 
         virtual uint32_t getVersion() const = 0;
 
-        virtual EQ_EXPORT void reset();
+        virtual EQ_NET_DECL void reset();
         //@}
 
         /** @name Data input */
@@ -85,7 +86,7 @@ namespace net
                                   std::vector< C* >& result );
 
         /** Read a number of bytes from the stream into a buffer.  */
-        EQ_EXPORT void read( void* data, uint64_t size );
+        EQ_NET_DECL void read( void* data, uint64_t size );
 
         /** 
          * Get the pointer to the remaining data in the current buffer.
@@ -98,13 +99,13 @@ namespace net
          * the DataOStream, a symmetric read from the DataIStream has at least n
          * bytes available.
          */
-        EQ_EXPORT const void*    getRemainingBuffer();
+        EQ_NET_DECL const void*    getRemainingBuffer();
 
         /** Get the size of the remaining data in the current buffer. */
-        EQ_EXPORT uint64_t       getRemainingBufferSize();
+        EQ_NET_DECL uint64_t       getRemainingBufferSize();
 
         /** Advance the current buffer by a number of bytes. */
-        EQ_EXPORT void           advanceBuffer( const uint64_t offset );
+        EQ_NET_DECL void           advanceBuffer( const uint64_t offset );
         //@}
  
     protected:

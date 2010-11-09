@@ -31,19 +31,19 @@ namespace net
     class BufferConnection : public Connection
     {
     public:
-        EQ_EXPORT BufferConnection();
-        EQ_EXPORT virtual ~BufferConnection();
+        EQ_NET_DECL BufferConnection();
+        EQ_NET_DECL virtual ~BufferConnection();
 
-        EQ_EXPORT void sendBuffer( ConnectionPtr connection );
+        EQ_NET_DECL void sendBuffer( ConnectionPtr connection );
 
-        EQ_EXPORT uint64_t getSize() const { return _buffer.getSize(); }
+        EQ_NET_DECL uint64_t getSize() const { return _buffer.getSize(); }
 
     protected:
         virtual void readNB( void*, const uint64_t )
             { EQDONTCALL; }
         virtual int64_t readSync( void*, const uint64_t, const bool )
             { EQDONTCALL; return -1; }
-        EQ_EXPORT virtual int64_t write( const void* buffer,
+        EQ_NET_DECL virtual int64_t write( const void* buffer,
                                          const uint64_t bytes );
 
         virtual Notifier getNotifier() const { EQDONTCALL; return 0; }

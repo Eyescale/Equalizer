@@ -36,7 +36,7 @@ namespace eq
 namespace net
 {
 
-EQ_EXPORT bool init( const int argc, char** argv )
+bool init( const int argc, char** argv )
 {
     if( !base::init( argc, argv ))
         return false;
@@ -76,7 +76,7 @@ EQ_EXPORT bool init( const int argc, char** argv )
     return true;
 }
 
-EQ_EXPORT bool exit()
+bool exit()
 {
 #ifdef WIN32
     if( WSACleanup() != 0 )

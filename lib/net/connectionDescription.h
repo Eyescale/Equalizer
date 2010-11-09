@@ -19,6 +19,7 @@
 #define EQNET_CONNECTIONDESCRIPTION_H
 
 #include <eq/net/connectionType.h> // member enum
+#include <eq/net/base.h>
 #include <eq/net/types.h>
 
 #include <eq/base/base.h>
@@ -53,8 +54,8 @@ namespace net
         uint16_t port;
 
         /** @return this description as a string. */
-        EQ_EXPORT std::string toString() const;
-        EQ_EXPORT void serialize( std::ostream& os ) const;
+        EQ_NET_DECL std::string toString() const;
+        EQ_NET_DECL void serialize( std::ostream& os ) const;
 
         /** 
          * Reads the connection description from a string.
@@ -71,23 +72,23 @@ namespace net
          * @return <code>true</code> if the information was read correctly, 
          *         <code>false</code> if not.
          */
-        EQ_EXPORT bool fromString( std::string& data );
+        EQ_NET_DECL bool fromString( std::string& data );
 
         /** @name Data Access
          *
          * std::strings are not public because of DLL allocation issues.
          */
         //@{
-        EQ_EXPORT void setHostname( const std::string& hostname );
-        EQ_EXPORT const std::string& getHostname() const;
+        EQ_NET_DECL void setHostname( const std::string& hostname );
+        EQ_NET_DECL const std::string& getHostname() const;
 
-        EQ_EXPORT void setInterface( const std::string& interfacename );
-        EQ_EXPORT const std::string& getInterface() const;
+        EQ_NET_DECL void setInterface( const std::string& interfacename );
+        EQ_NET_DECL const std::string& getInterface() const;
 
-        EQ_EXPORT void setFilename( const std::string& filename );
-        EQ_EXPORT const std::string& getFilename() const;
+        EQ_NET_DECL void setFilename( const std::string& filename );
+        EQ_NET_DECL const std::string& getFilename() const;
 
-        EQ_EXPORT bool isSameMulticastGroup( ConnectionDescriptionPtr rhs );
+        EQ_NET_DECL bool isSameMulticastGroup( ConnectionDescriptionPtr rhs );
         //@}
 
         /**
@@ -117,13 +118,13 @@ namespace net
         };
         //@}
 
-        EQ_EXPORT static const std::string&
+        EQ_NET_DECL static const std::string&
         getSAttributeString( const SAttribute attr );
-        EQ_EXPORT static const std::string&
+        EQ_NET_DECL static const std::string&
         getIAttributeString( const IAttribute attr );
 
     protected:
-        EQ_EXPORT virtual ~ConnectionDescription() {}
+        EQ_NET_DECL virtual ~ConnectionDescription() {}
 
     private:
         /** The host name. */
@@ -136,7 +137,7 @@ namespace net
         std::string _filename;
     };
 
-    EQ_EXPORT std::ostream& operator << ( std::ostream&,
+    EQ_NET_DECL std::ostream& operator << ( std::ostream&,
                                           const ConnectionDescription& );
 }
 }

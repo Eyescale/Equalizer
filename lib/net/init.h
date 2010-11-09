@@ -18,6 +18,7 @@
 #ifndef EQNET_INIT_H
 #define EQNET_INIT_H
 
+#include <eq/net/base.h>
 #include <eq/base/init.h>
 
 namespace eq
@@ -34,7 +35,7 @@ namespace net
      * @return <code>true</code> if the library was successfully initialised,
      *         <code>false</code> otherwise.
      */
-    EQ_EXPORT bool init( const int argc, char** argv );
+    EQ_NET_DECL bool init( const int argc, char** argv );
 
     /**
      * De-initialize the Equalizer network classes.
@@ -42,7 +43,7 @@ namespace net
      * @return <code>true</code> if the library was successfully de-initialised,
      *         <code>false</code> otherwise.
      */
-    EQ_EXPORT bool exit();
+    EQ_NET_DECL bool exit();
 }
 }
 

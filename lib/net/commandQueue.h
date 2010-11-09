@@ -18,6 +18,7 @@
 #ifndef EQNET_COMMANDQUEUE_H
 #define EQNET_COMMANDQUEUE_H
 
+#include <eq/net/base.h>
 #include <eq/base/lock.h>
 #include <eq/base/mtQueue.h>
 #include <eq/base/nonCopyable.h>
@@ -35,18 +36,18 @@ namespace net
     class CommandQueue : public base::NonCopyable
     {
     public:
-        EQ_EXPORT CommandQueue();
-        EQ_EXPORT virtual ~CommandQueue();
+        EQ_NET_DECL CommandQueue();
+        EQ_NET_DECL virtual ~CommandQueue();
 
         /** 
          * Push a command to the queue.
          * 
          * @param packet the command packet.
          */
-        EQ_EXPORT virtual void push( Command& packet );
+        EQ_NET_DECL virtual void push( Command& packet );
 
         /** Push a command to the front of the queue. */
-        EQ_EXPORT virtual void pushFront( Command& packet );
+        EQ_NET_DECL virtual void pushFront( Command& packet );
 
         /** Wake up the command queue, pop() will return 0. */
         virtual void wakeup() { _commands.push( static_cast< Command* >( 0 )); }
@@ -58,7 +59,7 @@ namespace net
          * 
          * @return the next command in the queue.
          */
-        EQ_EXPORT virtual Command* pop();
+        EQ_NET_DECL virtual Command* pop();
 
         /** 
          * Try to pop a command from the queue.
@@ -67,7 +68,7 @@ namespace net
          * 
          * @return the next command in the queue, or 0 if no command is queued.
          */
-        EQ_EXPORT virtual Command* tryPop();
+        EQ_NET_DECL virtual Command* tryPop();
 
         /** 
          * @return <code>true</code> if the command queue is empty,
@@ -76,7 +77,7 @@ namespace net
         bool isEmpty() const { return _commands.isEmpty(); }
 
         /** Flush all cached commands. */
-        virtual void flush();
+        EQ_NET_DECL virtual void flush();
 
         /** @return the size of the queue. */
         size_t getSize() const { return _commands.getSize(); }

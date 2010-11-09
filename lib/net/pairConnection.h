@@ -31,19 +31,19 @@ namespace net
     class PairConnection : public Connection
     {
     public:
-        EQ_EXPORT PairConnection( ConnectionPtr readConnection,
+        EQ_NET_DECL PairConnection( ConnectionPtr readConnection,
                                   ConnectionPtr writeConnection );
 
-        EQ_EXPORT ConnectionPtr getSibling();
+        EQ_NET_DECL ConnectionPtr getSibling();
 
-        EQ_EXPORT virtual bool connect();
-        EQ_EXPORT virtual void close();
+        EQ_NET_DECL virtual bool connect();
+        EQ_NET_DECL virtual void close();
 
         virtual Notifier getNotifier() const
             { return _readConnection->getNotifier(); }
 
     protected:
-        EQ_EXPORT virtual ~PairConnection();
+        EQ_NET_DECL virtual ~PairConnection();
 
         virtual void readNB( void* buffer, const uint64_t bytes )
             { _readConnection->readNB( buffer, bytes ); }

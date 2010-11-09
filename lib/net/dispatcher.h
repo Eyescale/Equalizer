@@ -20,7 +20,7 @@
 
 #include <eq/net/commandFunc.h> // member
 
-#include <eq/base/base.h>
+#include <eq/net/base.h>
 
 #include <vector>
 
@@ -42,9 +42,9 @@ namespace net
     class Dispatcher
     {
     public:
-        EQ_EXPORT Dispatcher();
-        EQ_EXPORT Dispatcher( const Dispatcher& from );
-        EQ_EXPORT virtual ~Dispatcher();
+        EQ_NET_DECL Dispatcher();
+        EQ_NET_DECL Dispatcher( const Dispatcher& from );
+        EQ_NET_DECL virtual ~Dispatcher();
 
         /** NOP assignment operator. */
         const Dispatcher& operator = ( const Dispatcher& ) { return *this; }
@@ -56,7 +56,7 @@ namespace net
          * @return true if the command was dispatched, false if not.
          * @sa registerCommand
          */
-        EQ_EXPORT virtual bool dispatchCommand( Command& command );
+        EQ_NET_DECL virtual bool dispatchCommand( Command& command );
 
         /** 
          * Handles a received command packet for this object by calling the
@@ -66,7 +66,7 @@ namespace net
          * @return the result of the operation.
          * @sa registerCommand
          */
-        EQ_EXPORT virtual bool invokeCommand( Command& command );
+        EQ_NET_DECL virtual bool invokeCommand( Command& command );
  
     protected:
         /** 
@@ -92,10 +92,10 @@ namespace net
          * @param command the command
          * @return the result of the operation.
          */
-        bool _cmdUnknown( Command& command );
+        EQ_NET_DECL bool _cmdUnknown( Command& command );
 
     private:
-        EQ_EXPORT void _registerCommand( const uint32_t command, 
+        EQ_NET_DECL void _registerCommand( const uint32_t command, 
                                          const CommandFunc< Dispatcher >& func,
                                          CommandQueue* destinationQueue );
 

@@ -514,7 +514,7 @@ bool ConnectionSet::_setupFDSet()
     return true;
 }   
 
-EQ_EXPORT std::ostream& operator << ( std::ostream& os,
+std::ostream& operator << ( std::ostream& os,
                                       const ConnectionSet* set)
 {
     const Connections& connections = set->getConnections();
@@ -531,7 +531,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
     return os;
 }
 
-EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+std::ostream& operator << ( std::ostream& os, 
                                       const ConnectionSet::Event event )
 {
     if( event >= ConnectionSet::EVENT_ALL )

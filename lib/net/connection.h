@@ -22,7 +22,7 @@
 #include <eq/net/packets.h>               // used in inline method
 #include <eq/net/types.h>                 // Connections type
 
-#include <eq/base/base.h>
+#include <eq/net/base.h>
 #include <eq/base/refPtr.h>
 #include <eq/base/referenced.h>
 #include <eq/base/scopedMutex.h>
@@ -83,7 +83,7 @@ namespace net
          * @param description the connection parameters.
          * @return the connection.
          */
-        EQ_EXPORT static ConnectionPtr create( ConnectionDescriptionPtr 
+        EQ_NET_DECL static ConnectionPtr create( ConnectionDescriptionPtr 
                                                    description );
 
         /** @name Data Access */
@@ -105,10 +105,10 @@ namespace net
          * 
          * @param description the connection parameters.
          */
-        EQ_EXPORT void setDescription( ConnectionDescriptionPtr description );
+        EQ_NET_DECL void setDescription( ConnectionDescriptionPtr description );
 
         /** @return the description for this connection. */
-        EQ_EXPORT ConnectionDescriptionPtr getDescription() const;
+        EQ_NET_DECL ConnectionDescriptionPtr getDescription() const;
         //@}
 
 
@@ -186,7 +186,7 @@ namespace net
          * @param bytes the number of bytes to read.
          * @sa recvSync()
          */
-        EQ_EXPORT void recvNB( void* buffer, const uint64_t bytes );
+        EQ_NET_DECL void recvNB( void* buffer, const uint64_t bytes );
 
         /** 
          * Finish reading data from the connection.
@@ -202,7 +202,7 @@ namespace net
          *              exactly why.
          * @return true if all requested data has been read, false otherwise.
          */
-        EQ_EXPORT bool recvSync( void** buffer, uint64_t* bytes,
+        EQ_NET_DECL bool recvSync( void** buffer, uint64_t* bytes,
                                  const bool block = true );
 
         void getRecvData( void** buffer, uint64_t* bytes )
@@ -255,7 +255,7 @@ namespace net
          * @return true if all data has been read, false if not.
          * @sa lockSend(), unlockSend()
          */
-        EQ_EXPORT bool send( const void* buffer, const uint64_t bytes, 
+        EQ_NET_DECL bool send( const void* buffer, const uint64_t bytes, 
                              const bool isLocked = false );
 
         /** Lock the connection, no other thread can send data. */
@@ -309,7 +309,7 @@ namespace net
          * @param size the data size in bytes.
          * @return true if all data has been read, false if not.
          */
-        EQ_EXPORT bool send( Packet& packet, const void* data,
+        EQ_NET_DECL bool send( Packet& packet, const void* data,
                              const uint64_t size );
 
         /** 
@@ -320,7 +320,7 @@ namespace net
          * @param isLocked true if the connection is locked externally.
          * @return true if the packet was sent successfully to all connections.
          */
-        static EQ_EXPORT bool send( const Connections& connections,
+        static EQ_NET_DECL bool send( const Connections& connections,
                           const Packet& packet, const bool isLocked = false );
         /** 
          * Sends a packaged message including additional data to multiple
@@ -333,7 +333,7 @@ namespace net
          * @param isLocked true if the connection is locked externally.
          * @return true if the packet was sent successfully to all receivers.
          */
-        static EQ_EXPORT bool send( const Connections& connections,
+        static EQ_NET_DECL bool send( const Connections& connections,
                                     Packet& packet, const void* data,
                                     const uint64_t size,
                                     const bool isLocked = false );

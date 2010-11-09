@@ -21,6 +21,7 @@
 
 #include <eq/base/buffer.h> // member
 #include <eq/net/types.h>
+#include <eq/net/base.h>
 
 #include <iostream>
 #include <vector>
@@ -45,16 +46,16 @@ namespace DataStreamTest
     public:
         /** @name Internal */
         //@{
-        EQ_EXPORT DataOStream();
-        virtual EQ_EXPORT ~DataOStream();
+        EQ_NET_DECL DataOStream();
+        virtual EQ_NET_DECL ~DataOStream();
 
         /** Enable output, locks the connections to the receivers */ 
         void enable( const Nodes& receivers );
         void enable( NodePtr node, const bool useMulticast );
-        EQ_EXPORT void enable();
+        EQ_NET_DECL void enable();
 
         /** Disable, flush and unlock the output to the current receivers. */
-        EQ_EXPORT void disable();
+        EQ_NET_DECL void disable();
 
         /** Enable copying of all data into a saved buffer. */
         void enableSave();
@@ -87,7 +88,7 @@ namespace DataStreamTest
         DataOStream& operator << ( const std::vector< T >& value );
 
         /** Write a number of bytes from data into the stream. */
-        EQ_EXPORT void write( const void* data, uint64_t size );
+        EQ_NET_DECL void write( const void* data, uint64_t size );
 
         /**
          * Serialize child objects.
@@ -122,7 +123,7 @@ namespace DataStreamTest
         //@}
 
         /** Reset the whole stream. */
-        virtual EQ_EXPORT void reset();
+        virtual EQ_NET_DECL void reset();
 
         /** Locked connections to the receivers, if _enabled */
         Connections _connections;

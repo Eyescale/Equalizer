@@ -64,7 +64,7 @@ namespace net
     {
     public:
         /** Construct a new Node. */
-        EQ_EXPORT Node();
+        EQ_NET_DECL Node();
 
         /** @name Data Access. */
         //@{
@@ -83,7 +83,7 @@ namespace net
          * @param id the node identifier.
          * @return the node.
          */
-        EQ_EXPORT NodePtr getNode( const NodeID& id ) const;
+        EQ_NET_DECL NodePtr getNode( const NodeID& id ) const;
         //@}
 
         /**
@@ -110,7 +110,7 @@ namespace net
          * @return <code>true</code> if the client was successfully initialized,
          *         <code>false</code> otherwise.
          */
-        EQ_EXPORT virtual bool initLocal( const int argc, char** argv );
+        EQ_NET_DECL virtual bool initLocal( const int argc, char** argv );
 
         /** Exit a local, listening node. */
         virtual bool exitLocal() { return close(); }
@@ -127,7 +127,7 @@ namespace net
          *         <code>false</code> if not.
          * @sa connect
          */
-        EQ_EXPORT virtual bool listen();
+        EQ_NET_DECL virtual bool listen();
 
         /** 
          * Close a listening node.
@@ -138,7 +138,7 @@ namespace net
          * @return <code>true</code> if the node was stopped, <code>false</code>
          *         if it was not stopped.
          */
-        EQ_EXPORT virtual bool close();
+        EQ_NET_DECL virtual bool close();
 
         /** 
          * Connect a proxy node to this listening node.
@@ -154,7 +154,7 @@ namespace net
          * @return true if this node was connected, false otherwise.
          * @sa initConnect, syncConnect
          */
-        EQ_EXPORT bool connect( NodePtr node );
+        EQ_NET_DECL bool connect( NodePtr node );
 
         /** 
          * Create and connect a node given by an identifier.
@@ -167,7 +167,7 @@ namespace net
          * @return the connected node, or an invalid RefPtr if the node could
          *         not be connected.
          */
-        NodePtr connect( const NodeID& nodeID );
+        EQ_NET_DECL NodePtr connect( const NodeID& nodeID );
 
         /** 
          * Disconnects a connected node.
@@ -176,7 +176,7 @@ namespace net
          * @return <code>true</code> if the node was disconnected correctly,
          *         <code>false</code> otherwise.
          */
-        EQ_EXPORT bool disconnect( NodePtr node );
+        EQ_NET_DECL bool disconnect( NodePtr node );
         //@}
 
         /**
@@ -191,7 +191,7 @@ namespace net
          * 
          * @param cd the connection description.
          */
-        EQ_EXPORT void addConnectionDescription( ConnectionDescriptionPtr cd );
+        EQ_NET_DECL void addConnectionDescription( ConnectionDescriptionPtr cd );
         
         /** 
          * Removes a connection description.
@@ -200,10 +200,10 @@ namespace net
          * @return true if the connection description was removed, false
          *         otherwise.
          */
-        EQ_EXPORT bool removeConnectionDescription(ConnectionDescriptionPtr cd);
+        EQ_NET_DECL bool removeConnectionDescription(ConnectionDescriptionPtr cd);
 
         /** @return the number of stored connection descriptions. */
-        EQ_EXPORT const ConnectionDescriptions& getConnectionDescriptions()
+        EQ_NET_DECL const ConnectionDescriptions& getConnectionDescriptions()
                             const;
 
         /** @return the connection to this node. */
@@ -324,8 +324,8 @@ namespace net
         Command& cloneCommand( Command& command )
             { return _commandCache.clone( command ); }
 
-        void acquireSendToken( NodePtr toNode );
-        void releaseSendToken( NodePtr toNode );
+        EQ_NET_DECL void acquireSendToken( NodePtr toNode );
+        EQ_NET_DECL void releaseSendToken( NodePtr toNode );
         //@}
 
         /**
@@ -339,7 +339,7 @@ namespace net
          *
          * @param session the session.
          */
-        EQ_EXPORT void registerSession( Session* session );
+        EQ_NET_DECL void registerSession( Session* session );
 
         /** Deregister a (master) session. */
         bool deregisterSession( Session* session )
@@ -357,7 +357,7 @@ namespace net
          * @return <code>true</code> if the session was mapped,
          *         <code>false</code> if not.
          */
-        EQ_EXPORT bool mapSession( NodePtr server, Session* session, 
+        EQ_NET_DECL bool mapSession( NodePtr server, Session* session, 
                                    const SessionID& id );
 
         /** 
@@ -367,10 +367,10 @@ namespace net
          * @return <code>true</code> if the session was unmapped,
          *         <code>false</code> if there was an error.
          */
-        EQ_EXPORT bool unmapSession( Session* session );
+        EQ_NET_DECL bool unmapSession( Session* session );
 
         /** @return the mapped session with the given identifier, or 0. */
-        EQ_EXPORT Session* getSession( const SessionID& id );
+        EQ_NET_DECL Session* getSession( const SessionID& id );
 
         bool hasSessions() const { return !_sessions->empty(); }
         //@}
@@ -392,13 +392,13 @@ namespace net
         void getNodes( Nodes& nodes ) const;
 
         /** Serialize the node's information. */
-        EQ_EXPORT std::string serialize() const;
+        EQ_NET_DECL std::string serialize() const;
         /** Deserialize the node information, consumes given data. */
-        EQ_EXPORT bool deserialize( std::string& data );
+        EQ_NET_DECL bool deserialize( std::string& data );
 
     protected:
         /** Destructs this node. */
-        EQ_EXPORT virtual ~Node();
+        EQ_NET_DECL virtual ~Node();
 
         /** 
          * Connect a node proxy to this node.
@@ -413,7 +413,7 @@ namespace net
          *         <code>false</code> otherwise.
          * @internal
          */
-        bool _connect( NodePtr node, ConnectionPtr connection );
+        EQ_NET_DECL bool _connect( NodePtr node, ConnectionPtr connection );
 
         /** 
          * Dispatches a packet to the registered command queue.
@@ -422,7 +422,7 @@ namespace net
          * @return the result of the operation.
          * @sa invokeCommand
          */
-        EQ_EXPORT virtual bool dispatchCommand( Command& command );
+        EQ_NET_DECL virtual bool dispatchCommand( Command& command );
 
         /** 
          * Invokes the command handler method for the packet.
@@ -431,7 +431,7 @@ namespace net
          * @return true if the result of the operation is handled.
          * @sa Dispatcher::invokeCommand
          */
-        EQ_EXPORT virtual bool invokeCommand( Command& command );
+        EQ_NET_DECL virtual bool invokeCommand( Command& command );
 
         /** @return the type of the node, used during connect(). */
         virtual uint32_t getType() const { return NODETYPE_EQNET_NODE; }
@@ -443,7 +443,7 @@ namespace net
          * @return the node.
          * @sa getType()
          */
-        EQ_EXPORT virtual NodePtr createNode( const uint32_t type );
+        EQ_NET_DECL virtual NodePtr createNode( const uint32_t type );
 
     private:
         /** The state of the node. */
@@ -454,9 +454,9 @@ namespace net
             STATE_LISTENING  //!< local node, listening
         };
 
-        friend EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+        friend EQ_NET_DECL std::ostream& operator << ( std::ostream& os, 
                                                      const Node& node );
-        friend EQ_EXPORT std::ostream& operator << ( std::ostream&,
+        friend EQ_NET_DECL std::ostream& operator << ( std::ostream&,
                                                      const State );
 
         /** Globally unique node identifier. */
@@ -559,7 +559,7 @@ namespace net
 
         bool _connectSelf();
         void _connectMulticast( NodePtr node );
-        EQ_EXPORT void _addConnection( ConnectionPtr connection );
+        EQ_NET_DECL void _addConnection( ConnectionPtr connection );
         void _removeConnection( ConnectionPtr connection );
         void _cleanup();
 
@@ -632,8 +632,8 @@ namespace net
         EQ_TS_VAR( _recvThread );
     };
 
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Node& node );
-    EQ_EXPORT std::ostream& operator << ( std::ostream&, const Node::State );
+    EQ_NET_DECL std::ostream& operator << ( std::ostream& os, const Node& node );
+    EQ_NET_DECL std::ostream& operator << ( std::ostream&, const Node::State );
 }
 }
 

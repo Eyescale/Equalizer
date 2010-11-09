@@ -122,7 +122,7 @@ void Command::_free()
     _dispatchID = EQ_ID_INVALID;
 }        
 
-EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Command& command )
+std::ostream& operator << ( std::ostream& os, const Command& command )
 {
     if( command.isValid( ))
     {

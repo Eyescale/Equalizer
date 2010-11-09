@@ -18,7 +18,7 @@
 #ifndef EQNET_OBJECTVERSION_H
 #define EQNET_OBJECTVERSION_H
 
-#include <eq/base/base.h>
+#include <eq/net/base.h>
 #include <eq/base/stdExt.h>
 
 #include <iostream>
@@ -38,11 +38,11 @@ namespace net
      */
     struct ObjectVersion
     {
-        EQ_EXPORT ObjectVersion();
-        EQ_EXPORT ObjectVersion( const uint32_t identifier,
+        EQ_NET_DECL ObjectVersion();
+        EQ_NET_DECL ObjectVersion( const uint32_t identifier,
                                  const uint32_t version );
-        EQ_EXPORT ObjectVersion( const Object* object );
-        EQ_EXPORT ObjectVersion& operator = ( const Object* object );
+        EQ_NET_DECL ObjectVersion( const Object* object );
+        EQ_NET_DECL ObjectVersion& operator = ( const Object* object );
         bool operator == ( const ObjectVersion& value ) const
             {
                 return ( identifier == value.identifier &&

@@ -19,7 +19,7 @@
 #ifndef EQNET_RSPCONNECTION_H
 #define EQNET_RSPCONNECTION_H
 
-#ifdef EQ_EXPORTS
+#ifdef EQ_NET_DECLS
    // We need to instantiate a Monitor< State > when compiling the library,
    // but we don't want to have <pthread.h> for a normal build, hence this hack
 #  include <pthread.h>

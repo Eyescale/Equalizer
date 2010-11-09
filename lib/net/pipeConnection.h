@@ -46,9 +46,9 @@ namespace net
     {
     public:
         /** Construct a new pipe connection. */
-        EQ_EXPORT PipeConnection();
+        EQ_NET_DECL PipeConnection();
         /** Destruct this pipe connection. */
-        EQ_EXPORT virtual ~PipeConnection();
+        EQ_NET_DECL virtual ~PipeConnection();
 
         virtual bool connect();
         virtual void close();

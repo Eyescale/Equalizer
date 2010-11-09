@@ -33,23 +33,23 @@ namespace net
     class EventConnection : public Connection
     {
     public:
-        EQ_EXPORT EventConnection();
-        EQ_EXPORT virtual ~EventConnection();
+        EQ_NET_DECL EventConnection();
+        EQ_NET_DECL virtual ~EventConnection();
 
-        EQ_EXPORT virtual bool connect();
-        EQ_EXPORT virtual void close();
+        EQ_NET_DECL virtual bool connect();
+        EQ_NET_DECL virtual void close();
 
-        EQ_EXPORT void set();
-        EQ_EXPORT void reset();
+        EQ_NET_DECL void set();
+        EQ_NET_DECL void reset();
 
-        EQ_EXPORT virtual Notifier getNotifier() const;
+        EQ_NET_DECL virtual Notifier getNotifier() const;
 
     protected:
         virtual void readNB( void*, const uint64_t )
             { EQDONTCALL; }
         virtual int64_t readSync( void*, const uint64_t, const bool )
             { EQDONTCALL; return -1; }
-        EQ_EXPORT virtual int64_t write( const void*, const uint64_t )
+        EQ_NET_DECL virtual int64_t write( const void*, const uint64_t )
             { EQDONTCALL; return -1; }
 
     private:

@@ -44,13 +44,13 @@ namespace net
          * barrier with the session. Note the node of the object master, i.e.,
          * this instance, and the barrier master node might be different.
          */
-        EQ_EXPORT Barrier( NodePtr master, const uint32_t height = 0 );
+        EQ_NET_DECL Barrier( NodePtr master, const uint32_t height = 0 );
 
         /** Construct a new barrier, to be mapped to the master version. */
-        EQ_EXPORT Barrier();
+        EQ_NET_DECL Barrier();
 
         /** Destruct the barrier. */
-        EQ_EXPORT virtual ~Barrier();
+        EQ_NET_DECL virtual ~Barrier();
 
         /** 
          * @name Data Access
@@ -77,7 +77,7 @@ namespace net
          * The implementation assumes that the master node instance also enters
          * the barrier.
          */
-        EQ_EXPORT void enter();
+        EQ_NET_DECL void enter();
         //@}
 
     protected:

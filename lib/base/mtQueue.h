@@ -18,6 +18,7 @@
 #ifndef EQBASE_MTQUEUE_H
 #define EQBASE_MTQUEUE_H
 
+#include <pthread.h>
 #include <eq/base/base.h>
 #include <eq/base/debug.h>
 
@@ -116,15 +117,6 @@ namespace base
 // implementation
 //----------------------------------------------------------------------
 
-// Crude test if pthread.h was included
-#ifdef PTHREAD_MUTEX_INITIALIZER
-#  ifndef HAVE_PTHREAD_H
-#    define HAVE_PTHREAD_H
-#  endif
-#endif
-
-#ifdef HAVE_PTHREAD_H
-
 class MTQueuePrivate
 {
 public:
@@ -133,14 +125,14 @@ public:
 };
 
 template< typename T >
-MTQueue<T>::MTQueue()
+inline MTQueue<T>::MTQueue()
         : _data( new MTQueuePrivate )
 {
     _init();
 }
 
 template< typename T >
-MTQueue< T >::MTQueue( const MTQueue< T >& from )
+inline MTQueue< T >::MTQueue( const MTQueue< T >& from )
         : _queue( from._queue )
         , _data( new MTQueuePrivate )
 {
@@ -148,7 +140,7 @@ MTQueue< T >::MTQueue( const MTQueue< T >& from )
 }
 
 template< typename T >
-void MTQueue< T >::_init()
+inline void MTQueue< T >::_init()
 {
     // mutex init
     int error = pthread_mutex_init( &_data->mutex, 0 );
@@ -169,7 +161,7 @@ void MTQueue< T >::_init()
 }
 
 template< typename T >
-MTQueue< T >& MTQueue< T >::operator = ( const MTQueue< T >& from )
+inline MTQueue< T >& MTQueue< T >::operator = ( const MTQueue< T >& from )
 {
     pthread_mutex_lock( &_data->mutex );
     _queue = from._queue;
@@ -180,7 +172,7 @@ MTQueue< T >& MTQueue< T >::operator = ( const MTQueue< T >& from )
 
 
 template< typename T >
-MTQueue<T>::~MTQueue()
+inline MTQueue<T>::~MTQueue()
 {
     pthread_mutex_destroy( &_data->mutex );
     pthread_cond_destroy( &_data->cond );
@@ -189,7 +181,7 @@ MTQueue<T>::~MTQueue()
 }
 
 template< typename T >
-void MTQueue<T>::clear()
+inline void MTQueue<T>::clear()
 {
     pthread_mutex_lock( &_data->mutex );
     _queue.clear();
@@ -197,7 +189,7 @@ void MTQueue<T>::clear()
 }
 
 template< typename T >
-T MTQueue<T>::pop()
+inline T MTQueue<T>::pop()
 {
     pthread_mutex_lock( &_data->mutex );
     while( _queue.empty( ))
@@ -211,7 +203,7 @@ T MTQueue<T>::pop()
 }
 
 template< typename T >
-bool MTQueue<T>::tryPop( T& result )
+inline bool MTQueue<T>::tryPop( T& result )
 {
     if( _queue.empty( ))
         return false;
@@ -230,7 +222,7 @@ bool MTQueue<T>::tryPop( T& result )
 }   
 
 template< typename T >
-bool MTQueue<T>::getFront( T& result ) const
+inline bool MTQueue<T>::getFront( T& result ) const
 {
     pthread_mutex_lock( &_data->mutex );
     if( _queue.empty( ))
@@ -245,7 +237,7 @@ bool MTQueue<T>::getFront( T& result ) const
 }
 
 template< typename T >
-bool MTQueue<T>::getBack( T& result ) const
+inline bool MTQueue<T>::getBack( T& result ) const
 {
     pthread_mutex_lock( &_data->mutex );
     if( _queue.empty( ))
@@ -260,7 +252,7 @@ bool MTQueue<T>::getBack( T& result ) const
 }
 
 template< typename T >
-void MTQueue<T>::push( const T& element )
+inline void MTQueue<T>::push( const T& element )
 {
     pthread_mutex_lock( &_data->mutex );
     _queue.push_back( element );
@@ -269,7 +261,7 @@ void MTQueue<T>::push( const T& element )
 }
 
 template< typename T >
-void MTQueue<T>::push( const std::vector< T >& elements )
+inline void MTQueue<T>::push( const std::vector< T >& elements )
 {
     pthread_mutex_lock( &_data->mutex );
     _queue.insert( _queue.end(), elements.begin(), elements.end( ));
@@ -278,15 +270,15 @@ void MTQueue<T>::push( const std::vector< T >& elements )
 }
 
 template< typename T >
-void MTQueue<T>::pushFront( const T& element )
+inline void MTQueue<T>::pushFront( const T& element )
 {
     pthread_mutex_lock( &_data->mutex );
     _queue.push_front( element );
     pthread_cond_signal( &_data->cond );
     pthread_mutex_unlock( &_data->mutex );
 }
-#endif //HAVE_PTHREAD_H
-}
 
 }
+}
+
 #endif //EQBASE_MTQUEUE_H

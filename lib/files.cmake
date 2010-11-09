@@ -54,6 +54,7 @@ set(BASE_HEADERS
   )
 
 set(NET_HEADERS
+  net/base.h
   net/barrier.h
   net/bufferConnection.h
   net/command.h
