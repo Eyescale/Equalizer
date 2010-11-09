@@ -1,4 +1,4 @@
-Add missing server-side redistribution of admin changes.
+Fix 3102344: Re-make boost optional for non-Windows builds
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

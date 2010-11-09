@@ -26,9 +26,9 @@
 #include <eq/base/base.h>
 
 #ifdef EQADMIN_EXPORTS
-#  define EQADMIN_EXPORT BOOST_SYMBOL_EXPORT
+#  define EQADMIN_EXPORT EQ_DLLEXPORT
 #else
-#  define EQADMIN_EXPORT BOOST_SYMBOL_IMPORT
+#  define EQADMIN_EXPORT EQ_DLLIMPORT
 #endif
 
 #endif //EQADMIN_BASE_H

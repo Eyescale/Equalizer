@@ -280,7 +280,6 @@ set(NET_SOURCES
   net/packets.cpp
   net/pairConnection.cpp
   net/pipeConnection.cpp
-  net/rspConnection.cpp
   net/session.cpp
   net/socketConnection.cpp
   net/staticMasterCM.cpp
@@ -378,6 +377,10 @@ set(COMPRESSOR_SOURCES
   compressor/compressorRLEYUV.cpp
   compressor/compressorYUV.cpp
   )
+
+if(Boost_FOUND)
+  set(NET_SOURCES ${NET_SOURCES} net/rspConnection.cpp)
+endif(Boost_FOUND)
 
 if(EQ_AGL_USED)
   set(CLIENT_SOURCES ${CLIENT_SOURCES}
