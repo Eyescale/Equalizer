@@ -31,26 +31,8 @@ if(NOT CUDA_FOUND)
   set(CUDA_LIBRARIES)
 endif(NOT CUDA_FOUND)
 
-purple_add_library(eq_base
-  FORWARD HEADERS
-    ${BASE_HEADERS}
-  SOURCES
-    ${BASE_SOURCES}
-  LINK_LIBRARIES
-    ${PTHREAD_LIBRARIES}
-  HEADERS_DESTINATION eq
-  )
-
-purple_add_library(eq_net
-  FORWARD HEADERS
-    ${NET_HEADERS}
-  SOURCES
-    ${NET_SOURCES}
-  LINK_LIBRARIES
-    ${Boost_SYSTEM_LIBRARY}
-    shared eq_base
-  HEADERS_DESTINATION eq
-  )
+add_subdirectory(base)
+add_subdirectory(net)
 
 # TODO: split this library
 purple_add_library(eq_transitional SHARED
@@ -61,11 +43,11 @@ purple_add_library(eq_transitional SHARED
     #${NET_HEADERS}
     ${PLUGIN_HEADERS}
     ${UTIL_HEADERS}
-    base.h
+    #base.h
     client.h
     eq.h
     fabric.h
-    net.h
+    #net.h
     util.h
     admin.h
   SOURCES
@@ -85,7 +67,7 @@ purple_add_library(eq_transitional SHARED
     ${X11_LIBRARIES}
     ${GL_LIBRARIES}
     ${CUDA_LIBRARIES}
-  HEADERS_DESTINATION eq
+  HEADERS_PREFIX "eq/"
   )
 
 purple_add_amalgamation(Equalizer

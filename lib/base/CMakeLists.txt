@@ -1,0 +1,78 @@
+##
+# Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+##
+
+purple_add_library(eq_base
+  FORWARD HEADERS
+    atomic.h
+    base.h
+    bitOperation.h
+    buffer.h
+    clock.h
+    compareAndSwap.h
+    debug.h
+    defines.h
+    dso.h
+    error.h
+    errorRegistry.h
+    executionListener.h
+    file.h
+    global.h
+    hash.h
+    idPool.h
+    init.h
+    launcher.h
+    lfQueue.h
+    lock.h
+    lockable.h
+    log.h
+    memoryMap.h
+    monitor.h
+    mtQueue.h
+    nonCopyable.h
+    omp.h
+    perThread.h
+    perThreadRef.h
+    pluginRegistry.h
+    refPtr.h
+    referenced.h
+    requestHandler.h
+    rng.h
+    scopedMutex.h
+    sleep.h
+    spinLock.h
+    stdExt.h
+    thread.h
+    threadID.h
+    timedLock.h
+    types.h
+    uuid.h
+  HEADERS_PREFIX "eq/base/"
+  INCLUDE_ALL_HEADER eq/base.h
+  SOURCES
+    compressor.cpp
+    cpuCompressor.cpp
+    debug.cpp
+    dso.cpp
+    error.cpp
+    errorRegistry.cpp
+    global.cpp
+    idPool.cpp
+    init.cpp
+    launcher.cpp
+    lock.cpp
+    log.cpp
+    memoryMap.cpp
+    omp.cpp
+    plugin.cpp
+    pluginRegistry.cpp
+    referenced.cpp
+    requestHandler.cpp
+    rng.cpp
+    thread.cpp
+    threadID.cpp
+    timedLock.cpp
+    uuid.cpp
+  LINK_LIBRARIES
+    ${PTHREAD_LIBRARIES}
+  )

@@ -1,5 +1,9 @@
 ##
-# Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+# Copyright (c) 2010 Daniel Pfeifer, All rights reserved.
+#
+# This file is freely distributable without licensing fees and
+# is provided without guarantee or warrantee expressed or implied.
+# This file is -not- in the public domain.
 ##
 
 include(ParseArguments)
@@ -14,7 +18,16 @@ function(PURPLE_ADD_AMALGAMATION NAME)
 
   foreach(LIBRARY ${LIBRARIES})
     get_property(SOURCES TARGET ${LIBRARY} PROPERTY SOURCES)
-    list(APPEND THIS_SOURCES ${SOURCES})
+    get_property(SOURCE_DIRECTORY TARGET ${LIBRARY} PROPERTY SOURCE_DIRECTORY)
+
+    foreach(SOURCE ${SOURCES})
+      if(IS_ABSOLUTE ${SOURCE})
+        list(APPEND THIS_SOURCES ${SOURCE})
+      else(IS_ABSOLUTE ${SOURCE})
+        list(APPEND THIS_SOURCES "${SOURCE_DIRECTORY}/${SOURCE}")
+      endif(IS_ABSOLUTE ${SOURCE})
+    endforeach(SOURCE ${SOURCES})
+
     get_property(DEFINITIONS TARGET ${LIBRARY} PROPERTY COMPILE_DEFINITIONS)
     list(APPEND THIS_DEFINITIONS ${DEFINITIONS})
   endforeach(LIBRARY ${ARGN})

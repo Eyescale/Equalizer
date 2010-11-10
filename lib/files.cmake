@@ -7,86 +7,6 @@ set(PLUGIN_HEADERS
   plugins/compressorTypes.h
   )
 
-set(BASE_HEADERS
-  base/atomic.h
-  base/base.h
-  base/bitOperation.h
-  base/buffer.h
-  base/clock.h
-  base/compareAndSwap.h
-  base/debug.h
-  base/defines.h
-  base/dso.h
-  base/error.h
-  base/errorRegistry.h
-  base/executionListener.h
-  base/file.h
-  base/global.h
-  base/hash.h
-  base/idPool.h
-  base/init.h
-  base/launcher.h
-  base/lfQueue.h
-  base/lock.h
-  base/lockable.h
-  base/log.h
-  base/memoryMap.h
-  base/monitor.h
-  base/mtQueue.h
-  base/nonCopyable.h
-  base/omp.h
-  base/perThread.h
-  base/perThreadRef.h
-  base/pluginRegistry.h
-  base/refPtr.h
-  base/referenced.h
-  base/requestHandler.h
-  base/rng.h
-  base/scopedMutex.h
-  base/sleep.h
-  base/spinLock.h
-  base/stdExt.h
-  base/thread.h
-  base/threadID.h
-  base/timedLock.h
-  base/types.h
-  base/uuid.h
-  )
-
-set(NET_HEADERS
-  net/base.h
-  net/barrier.h
-  net/bufferConnection.h
-  net/command.h
-  net/commandCache.h
-  net/commandFunc.h
-  net/commandQueue.h
-  net/commands.h
-  net/connection.h
-  net/connection.ipp
-  net/connectionDescription.h
-  net/connectionListener.h
-  net/connectionSet.h
-  net/connectionType.h
-  net/dataIStream.h
-  net/dataOStream.h
-  net/dispatcher.h
-  net/global.h
-  net/init.h
-  net/instanceCache.h
-  net/log.h
-  net/node.h
-  net/nodeType.h
-  net/object.h
-  net/objectCM.h
-  net/objectVersion.h
-  net/packets.h
-  net/pairConnection.h
-  net/session.h
-  net/types.h
-  net/version.h
-  )
-
 set(FABRIC_HEADERS
   fabric/canvas.h
   fabric/canvasPackets.h
@@ -220,76 +140,6 @@ set(UTIL_HEADERS
   util/types.h
   )
 
-set(BASE_SOURCES
-  base/compressor.cpp
-  base/cpuCompressor.cpp
-  base/debug.cpp
-  base/dso.cpp
-  base/error.cpp
-  base/errorRegistry.cpp
-  base/global.cpp
-  base/idPool.cpp
-  base/init.cpp
-  base/launcher.cpp
-  base/lock.cpp
-  base/log.cpp
-  base/memoryMap.cpp
-  base/omp.cpp
-  base/plugin.cpp
-  base/pluginRegistry.cpp
-  base/referenced.cpp
-  base/requestHandler.cpp
-  base/rng.cpp
-  base/thread.cpp
-  base/threadID.cpp
-  base/timedLock.cpp
-  base/uuid.cpp
-  )
-
-set(NET_SOURCES
-  net/barrier.cpp
-  net/bufferConnection.cpp
-  net/command.cpp
-  net/commandCache.cpp
-  net/commandQueue.cpp
-  net/connection.cpp
-  net/connectionDescription.cpp
-  net/connectionSet.cpp
-  net/dataIStream.cpp
-  net/dataOStream.cpp
-  net/deltaMasterCM.cpp
-  net/dispatcher.cpp
-  net/eventConnection.cpp
-  net/fdConnection.cpp
-  net/fullMasterCM.cpp
-  net/global.cpp
-  net/init.cpp
-  net/instanceCache.cpp
-  net/masterCM.cpp
-  net/mcipConnection.cpp
-  net/namedPipeConnection.cpp
-  net/node.cpp
-  net/object.cpp
-  net/objectCM.cpp
-  net/objectDataIStream.cpp
-  net/objectDeltaDataIStream.cpp
-  net/objectDeltaDataOStream.cpp
-  net/objectInstanceDataIStream.cpp
-  net/objectInstanceDataOStream.cpp
-  net/objectSlaveDataOStream.cpp
-  net/objectVersion.cpp
-  net/packets.cpp
-  net/pairConnection.cpp
-  net/pipeConnection.cpp
-  net/session.cpp
-  net/socketConnection.cpp
-  net/staticMasterCM.cpp
-  net/staticSlaveCM.cpp
-  net/unbufferedMasterCM.cpp
-  net/versionedSlaveCM.cpp
-  net/pgmConnection.h
-  )
-
 set(FABRIC_SOURCES
   fabric/client.cpp
   fabric/colorMask.cpp
@@ -379,10 +229,6 @@ set(COMPRESSOR_SOURCES
   compressor/compressorYUV.cpp
   )
 
-if(Boost_FOUND)
-  set(NET_SOURCES ${NET_SOURCES} net/rspConnection.cpp)
-endif(Boost_FOUND)
-
 if(EQ_AGL_USED)
   set(CLIENT_SOURCES ${CLIENT_SOURCES}
     client/aglEventHandler.cpp
@@ -398,9 +244,6 @@ if(WIN32)
     client/wglMessagePump.cpp
     client/wglWindow.cpp
     client/wglPipe.cpp
-    )
-  set(NET_SOURCES ${NET_SOURCES}
-    net/pgmConnection.cpp
     )
 endif(WIN32)
 
