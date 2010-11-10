@@ -1,10 +1,10 @@
 
 Prerequisites:
 
- boost (optional, not yet needed): RSP, the protocol used for multicast data
-   distribution, requires boost::asio. The preferred way on Ubuntu Linux 
+ boost (optional): RSP, the protocol used for multicast data
+   distribution, requires boost::asio. The preferred way on Ubuntu Linux
    is to install
-   "sudo apt-get install libboost-system-dev libboost-regex-dev libboost-date-time-dev".
+    "sudo apt-get install libboost-system-dev libboost-regex-dev libboost-date-time-dev".
 
  Manual compilation should be done using:
    "./bjam variant=release threading=multi --layout=tagged --with-system --with-date_time --with-regex"

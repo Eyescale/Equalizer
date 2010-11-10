@@ -1,2 +1,0 @@
-
-WINDOW_SYSTEM   ?= AGL

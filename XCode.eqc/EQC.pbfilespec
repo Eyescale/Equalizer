@@ -1,0 +1,20 @@
+/**
+    Standard file type specifications
+
+    Copyright (c) 1999-2008 Apple Inc.
+    All rights reserved.
+
+    Standard file type specifications that are built into Xcode.  Any or all of these could be overridden by separate file type specification property lists.
+*/
+(
+	// User Generated for Equalizer Config Files
+    {
+        Identifier = sourcecode.eqc;
+        BasedOn = sourcecode;
+        Name = "Equalizer Config Files";
+        ComputerLanguage = eqc;
+        Language = "xcode.lang.eqc";
+    },
+)
+
+/* $Id: Standard\040file\040types.pbfilespec,v 1.80 2005/11/03 02:54:17 tooker Exp $ */

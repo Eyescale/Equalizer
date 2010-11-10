@@ -21,7 +21,7 @@
 
                             Directory Layout
                             
- make/      files for the build environment.
+ CMake/     files for the build environment.
  externals/ third-party source code used by Equalizer
  lib/       the sources of the client library, i.e., libeq
  lib/base/    basic source code: utilities, OS abstraction, etc.
@@ -35,48 +35,6 @@
 
                            Build Environment
 
- The build environment is using GNU make. Furthermore, flex and bison
- are needed during compilation. The directory make/ contains the
- following files:
- 
-   system.mk: Generic Makefile included first by each Makefile. Sets
-     common variables, e.g., $(TOP) to find the make/ directory. This
-     file includes `uname`.mk early on.
-
-   `uname`.mk: The system-specific Makefile, e.g., Linux.mk. This file
-     customizes system-specific settings.
-
-   rules.mk: The build rules to be used by the Makefiles. Typically
-     included at the end of each Makefile.
-
-   local.mk: Optional, non-versioned file containing local machine build
-     settings.
-
-  The build environment uses the following targets and variables:
-
-    TARGETS  Variable to be set by the Makefile to define the targets.
-             The following targets are defined:
-
-      subdirs        Traverses into all SUBDIRS
-      $(HEADERS)     All header file targets derived from HEADER_SRC
-      $(DYNAMIC_LIB) A dynamic library for all VARIANTS build from all sources.
-      $(STATIC_LIB)  A static library for all VARIANTS build from all sources.
-      $(PROGRAMS)    Executables for PROGRAM on all VARIANTS.
-
-    install  Copies all include files and libraries from BUILD_DIR to
-             INSTALL_DIR
-
-
-   BUILD_FAT   If defined, fat (universal) libraries and binaries are
-               build. Currently only supported on Darwin.
-   SUBDIRS     Variable listing all sub directories to traverse into when
-               executing rule subdirs
-   VARIANTS    All variants to build on a specific ARCHitecture. 
-               Defaults to SUBARCH
-   VARIANT     The variant from VARIANTS currently in build.
-   ARCH        The current architecture, i.e., `uname`
-   SUBARCH     The current sub-architecure, i.e., `uname -m`
-   CXXFILES    The source files for a library or executable
-   HEADER_SRC  The source header files, i.e. headers to be packaged and
-               installed.
-   PROGRAM     The name of the stand-alone executable to be build.
+ The build environment is using CMake 2.8 or later. Furthermore, flex
+ and bison are needed during compilation. More details can be found in
+ README.CMake.

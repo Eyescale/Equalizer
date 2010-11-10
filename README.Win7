@@ -1,8 +1,8 @@
 
                                 Overview
 
-Windows 7 is not yet officially supported, but it has been reported to
-work. There are apparently still issues with GPU affinity on Windows 7.
+GPU affinity for NVidia Quadro cards needs at least driver release 265
+on Windows 7.
 
 
                  Multi-Node Configurations on Windows 7

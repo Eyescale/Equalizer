@@ -1,0 +1,587 @@
+(
+	{
+		Identifier = "xcode.lang.eqc.preprocessor";
+		Syntax = {
+			Start = "#";
+			EscapeChar = "\\";
+			End = "\n";
+			StartAtBOL = YES;
+			Tokenizer = "xcode.lang.eqc.preprocessor.lexer";
+			IncludeRules = (
+				"xcode.lang.eqc.preprocessor.mark",
+				"xcode.lang.eqc.preprocessor.include",
+				"xcode.lang.eqc.preprocessor.systeminclude",
+				"xcode.lang.eqc.preprocessor.import",
+				"xcode.lang.eqc.preprocessor.systemimport",
+				"xcode.lang.eqc.preprocessor.define",
+				"xcode.lang.eqc.preprocessor.warning",
+				"xcode.lang.eqc.preprocessor.error",
+			);
+			Type = "xcode.syntax.preprocessor";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.preprocessor.lexer";
+		Syntax = {
+			IncludeRules = (
+				"xcode.lang.comment.headerdoc",
+				"xcode.lang.comment",
+				"xcode.lang.comment.singleline",
+				"xcode.lang.string",
+				"xcode.lang.character",
+				"xcode.lang.number",
+				"xcode.lang.eqc.preprocessor.identifier",
+			);
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.preprocessor.systemIncludeString";
+		Syntax = {
+			Start = "<";
+			End = ">";
+			Type = "xcode.syntax.string";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.preprocessor.identifier";
+		Syntax = {
+			StartChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+			Chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+			Words = (
+				define,
+				elif,
+				else,
+				endif,
+				error,
+				if,
+				ifdef,
+				ifndef,
+				import,
+				include,
+				line,
+				pragma,
+				undef,
+				warning,
+			);
+			Type = "xcode.syntax.preprocessor.keyword";
+			AltType = "xcode.syntax.preprocessor.identifier";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.preprocessor.mark";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.preprocessor.lexer";
+			Rules = (
+				pragma,
+				"xcode.lang.eqc.preprocessor.mark.therest",
+			);
+			Type = "xcode.syntax.preprocessor";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.preprocessor.mark.therest";
+		Syntax = {
+			Match = (
+				"^[ \t]*mark[ \t]*(.*)$",
+			);
+			CaptureTypes = (
+				"xcode.syntax.mark",
+			);
+			Type = "xcode.syntax.preprocessor";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.preprocessor.define";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.preprocessor.lexer";
+			Rules = (
+				define,
+				"xcode.lang.eqc.preprocessor.define.name",
+			);
+			Type = "xcode.syntax.preprocessor";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.preprocessor.define.name";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.preprocessor.lexer";
+			Rules = (
+				"xcode.lang.eqc.preprocessor.identifier",
+			);
+			Type = "xcode.syntax.definition.macro";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.preprocessor.warning";
+		Syntax = {
+			Start = warning;
+			EscapeChar = "\\";
+			Until = "\n";
+			Type = "xcode.syntax.preprocessor";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.preprocessor.error";
+		Syntax = {
+			Start = error;
+			EscapeChar = "\\";
+			Until = "\n";
+			Type = "xcode.syntax.preprocessor";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.preprocessor.include.lexer";
+		Syntax = {
+			IncludeRules = (
+				"xcode.lang.comment.headerdoc",
+				"xcode.lang.comment",
+				"xcode.lang.comment.singleline",
+				"xcode.lang.string",
+				"xcode.lang.eqc.preprocessor.systemIncludeString",
+				"xcode.lang.character",
+				"xcode.lang.number",
+				"xcode.lang.eqc.preprocessor.identifier",
+			);
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.preprocessor.include";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.preprocessor.include.lexer";
+			Rules = (
+				include,
+				"xcode.lang.string",
+			);
+			Type = "xcode.syntax.preprocessor.include";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.preprocessor.systeminclude";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.preprocessor.include.lexer";
+			Rules = (
+				include,
+				"xcode.lang.eqc.preprocessor.systemIncludeString",
+			);
+			Type = "xcode.syntax.preprocessor.include";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.preprocessor.import";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.preprocessor.include.lexer";
+			Rules = (
+				import,
+				"xcode.lang.string",
+			);
+			Type = "xcode.syntax.preprocessor.include";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.preprocessor.systemimport";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.preprocessor.include.lexer";
+			Rules = (
+				import,
+				"xcode.lang.eqc.preprocessor.systemIncludeString",
+			);
+			Type = "xcode.syntax.preprocessor.include";
+		};
+	},
+	{
+		Identifier = "xcode.lang.comment.headerdoc";
+		BasedOn = "xcode.lang.comment";
+		Syntax = {
+			Start = "/*!";
+			End = "*/";
+			Foldable = YES;
+			IncludeRules = (
+				"xcode.lang.comment.headerdoc.keywords",
+				"xcode.lang.url",
+				"xcode.lang.url.mail",
+				"xcode.lang.comment.mark",
+			);
+			Type = "xcode.syntax.comment.doc";
+		};
+	},
+	{
+		Identifier = "xcode.lang.comment.headerdoc.keywords";
+		Syntax = {
+			StartChars = "@";
+			Chars = "abcdefghijklmnopqrstuvwxyz";
+			Words = (
+				"@abstract",
+				"@callback",
+				"@category",
+				"@class",
+				"@const",
+				"@constant",
+				"@defined",
+				"@discussion",
+				"@enum",
+				"@field",
+				"@function",
+				"@header",
+				"@method",
+				"@param",
+				"@property",
+				"@protocol",
+				"@result",
+				"@struct",
+				"@thread",
+				"@typedef",
+				"@union",
+				"@var",
+			);
+			Type = "xcode.syntax.comment.doc.keyword";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.identifier";
+		Syntax = {
+			StartChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+			Chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+			Words = (
+				global,
+				server,
+				connection,
+				type,
+				hostname,
+				config,
+				latency,
+				attributes,
+				appNode,
+				node,
+				observer,
+				layout,
+				canvas,
+				compound,
+				name,
+				"TCPIP_port",
+				"PIPE_filename",
+				command,
+				"command_quote",
+				timeout,
+				"thread_model",
+				pipe,
+				port,
+				name,
+				device,
+				viewport,
+				window,
+				channel,
+				view,
+				wall,
+				projection,
+				"bottom_left",
+				"bottom_right",
+				"top_left",
+				type,
+				origin,
+				distance,
+				fov,
+				hpr,
+				segment,
+			);
+			Type = "xcode.syntax.keyword";
+			AltType = "xcode.syntax.identifier";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.interestingOperators";
+		Syntax = {
+			Words = (
+				"...",
+				".",
+				"->",
+			);
+			Type = "xcode.syntax.plain";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc";
+		Description = "EQC Coloring";
+		IncludeInMenu = YES;
+		BasedOn = "xcode.lang.simpleColoring";
+		Name = C;
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.lexer";
+			IncludeRules = (
+				"xcode.lang.eqc.function.declaration",
+				"xcode.lang.eqc.function.knr",
+				"xcode.lang.eqc.function",
+				"xcode.lang.eqc.typedef",
+				"xcode.lang.eqc.block",
+				"xcode.lang.eqc.bracketexpr",
+				"xcode.lang.eqc.parenexpr",
+				"xcode.lang.eqc.initializer",
+			);
+			Type = "xcode.syntax.plain";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.lexer";
+		Syntax = {
+			IncludeRules = (
+				"xcode.lang.comment.headerdoc",
+				"xcode.lang.comment",
+				"xcode.lang.comment.singleline",
+        "xcode.lang.comment.singleline.pound",
+				"xcode.lang.eqc.preprocessor",
+				"xcode.lang.string",
+				"xcode.lang.character",
+				"xcode.lang.completionplaceholder",
+				"xcode.lang.eqc.attribute",
+				"xcode.lang.eqc.identifier",
+				"xcode.lang.number",
+				"xcode.lang.eqc.interestingOperators",
+			);
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.attribute";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.lexer.attribute";
+			Rules = (
+				"__attribute__",
+				"xcode.lang.eqc.parenexpr.attribute",
+			);
+			Type = "xcode.syntax.eqc.attribute";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.lexer.attribute";
+		Syntax = {
+			IncludeRules = (
+				"xcode.lang.comment.headerdoc",
+				"xcode.lang.comment",
+				"xcode.lang.comment.singleline",
+				"xcode.lang.eqc.preprocessor",
+				"xcode.lang.string",
+				"xcode.lang.character",
+				"xcode.lang.completionplaceholder",
+				"xcode.lang.eqc.identifier",
+				"xcode.lang.number",
+				"xcode.lang.eqc.interestingOperators",
+			);
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.parenexpr.attribute";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.lexer.attribute";
+			Start = "(";
+			End = ")";
+			Recursive = YES;
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.function.declaration";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.lexer";
+			Rules = (
+				"xcode.lang.eqc.function.declarator",
+				"xcode.lang.eqc.identifier?",
+				";",
+			);
+			Type = "xcode.syntax.declaration.eqc.function";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.function";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.lexer";
+			Rules = (
+				"xcode.lang.eqc.function.declarator",
+				"xcode.lang.eqc.block",
+			);
+			Type = "xcode.syntax.definition.eqc.function";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.function.knr";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.lexer";
+			Rules = (
+				"xcode.lang.eqc.function.declarator",
+				"xcode.lang.eqc.identifier|auto|char|const|double|enum|float|int|long|register|short|signed|struct|union|unsigned|void",
+				"xcode.lang.eqc.knrargs+",
+				"xcode.lang.eqc.block",
+			);
+			Type = "xcode.syntax.definition.eqc.function";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.knrargs";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.lexer";
+			Rules = (
+				"xcode.lang.eqc.identifier|auto|char|const|double|enum|float|int|long|register|short|signed|struct|union|unsigned|void|*|,*",
+				"xcode.lang.eqc.parenexpr*",
+				"xcode.lang.eqc.bracketexpr*",
+				";",
+			);
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.function.declarator";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.lexer";
+			Rules = (
+				"xcode.lang.eqc.function.name",
+				"xcode.lang.eqc.parenexpr",
+			);
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.function.name";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.lexer";
+			Rules = (
+				"xcode.lang.eqc.identifier",
+			);
+			Type = "xcode.syntax.name.partial";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.lexer.typedef";
+		Syntax = {
+			IncludeRules = (
+				"xcode.lang.comment.headerdoc",
+				"xcode.lang.comment",
+				"xcode.lang.comment.singleline",
+				"xcode.lang.eqc.preprocessor",
+				"xcode.lang.string",
+				"xcode.lang.character",
+				"xcode.lang.completionplaceholder",
+				"xcode.lang.eqc.attribute",
+				"xcode.lang.eqc.typedef.end",
+				"xcode.lang.eqc.identifier",
+				"xcode.lang.number",
+				"xcode.lang.eqc.interestingOperators",
+			);
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.lexer.typedef.name";
+		Syntax = {
+			IncludeRules = (
+				"xcode.lang.comment.headerdoc",
+				"xcode.lang.comment",
+				"xcode.lang.comment.singleline",
+				"xcode.lang.eqc.preprocessor",
+				"xcode.lang.string",
+				"xcode.lang.character",
+				"xcode.lang.completionplaceholder",
+				"xcode.lang.eqc.attribute",
+				"xcode.lang.eqc.typedef.name",
+				"xcode.lang.eqc.identifier",
+				"xcode.lang.number",
+				"xcode.lang.eqc.interestingOperators",
+			);
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.typedef";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.lexer.typedef";
+			Start = typedef;
+			End = "xcode.lang.eqc.typedef.end";
+			AltEnd = ";";
+			Foldable = YES;
+			Recursive = YES;
+			IncludeRules = (
+				"xcode.lang.eqc.typedef.function",
+				"xcode.lang.eqc.block",
+				"xcode.lang.eqc.bracketexpr",
+				"xcode.lang.eqc.parenexpr",
+			);
+			Type = "xcode.syntax.typedef";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.typedef.name";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.lexer";
+			Rules = (
+				"xcode.lang.eqc.identifier",
+			);
+			Type = "xcode.syntax.name.partial";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.typedef.end";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.lexer.typedef.name";
+			Rules = (
+				"xcode.lang.eqc.typedef.name",
+				";",
+			);
+			Type = "xcode.syntax.name.tree";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.typedef.function";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.lexer.typedef.name";
+			Rules = (
+				"(",
+				"*",
+				"xcode.lang.eqc.typedef.name",
+				")",
+			);
+			Type = "xcode.syntax.name.tree";
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.block";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.lexer";
+			Start = "{";
+			End = "}";
+			Foldable = YES;
+			Recursive = YES;
+			IncludeRules = (
+				"xcode.lang.eqc.bracketexpr",
+				"xcode.lang.eqc.parenexpr",
+			);
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.parenexpr";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.lexer";
+			Start = "(";
+			End = ")";
+			Recursive = YES;
+			IncludeRules = (
+				"xcode.lang.eqc.bracketexpr",
+			);
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.bracketexpr";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.lexer";
+			Start = "[";
+			End = "]";
+			Recursive = YES;
+			IncludeRules = (
+				"xcode.lang.eqc.parenexpr",
+			);
+		};
+	},
+	{
+		Identifier = "xcode.lang.eqc.initializer";
+		Syntax = {
+			Tokenizer = "xcode.lang.eqc.lexer";
+			Start = "=";
+			End = ";";
+			Recursive = NO;
+			IncludeRules = (
+				"xcode.lang.eqc.parenexpr",
+				"xcode.lang.eqc.bracketexpr",
+			);
+		};
+	},
+)

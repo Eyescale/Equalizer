@@ -1,11 +1,9 @@
 
                          Windows-Specific Notes
 
- Equalizer has been fully tested with Visual Studio 2005 and Windows
- XP. Support for Cygwin is preliminary.
+ Equalizer is tested with CMake-generated Visual Studio 2008 projects on
+ Windows XP and 7. Support for Cygwin is preliminary.
  
- The Visual Studio solution and project files are in the VS2005 directory.
-
 
                        Multi-Node Configurations
 

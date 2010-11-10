@@ -33,7 +33,3 @@ $ mkdir build
 $ cd build
 $ cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw32.cmake ..
 $ make
-
-Known Problems:
-  * Two files fail to compile
-     -> Someone knowledgeable about the source will need to have a look
