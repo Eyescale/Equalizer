@@ -44,7 +44,6 @@ protected:
         }
     virtual void frameStart( const uint32_t id, const uint32_t number )
         {
-            TEST( !getPipes().empty( ));
             eq::Node::frameStart( id, number );
         }
 };
@@ -121,6 +120,12 @@ int main( const int argc, char** argv )
 
     eq::base::Strings configs = eq::base::searchDirectory( ".", "*.eqc" );
     stde::usort( configs ); // have a predictable order
+
+    if( argc == 2 )
+    {
+        configs.clear();
+        configs.push_back( argv[1] );
+    }
 
     for( eq::base::Strings::const_iterator i = configs.begin();
         i != configs.end(); ++i )
