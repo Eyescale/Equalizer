@@ -37,7 +37,7 @@ function(PURPLE_ADD_AMALGAMATION NAME)
   purple_expand_libraries(THIS_LIBRARIES ${THIS_LINK_LIBRARIES})
   target_link_libraries(${NAME} ${THIS_LIBRARIES})
 
-  install(TARGETS ${THIS_TARGET}
+  install(TARGETS ${NAME}
     ARCHIVE DESTINATION lib COMPONENT dev
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
