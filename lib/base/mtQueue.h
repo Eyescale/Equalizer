@@ -18,7 +18,6 @@
 #ifndef EQBASE_MTQUEUE_H
 #define EQBASE_MTQUEUE_H
 
-#include <pthread.h>
 #include <eq/base/base.h>
 #include <eq/base/debug.h>
 
@@ -116,6 +115,15 @@ namespace base
 //----------------------------------------------------------------------
 // implementation
 //----------------------------------------------------------------------
+
+// Crude test if pthread.h was included
+#ifdef PTHREAD_MUTEX_INITIALIZER
+#  ifndef HAVE_PTHREAD_H
+#    define HAVE_PTHREAD_H
+#  endif
+#endif
+
+#ifdef HAVE_PTHREAD_H
 
 class MTQueuePrivate
 {
@@ -277,8 +285,8 @@ inline void MTQueue<T>::pushFront( const T& element )
     pthread_cond_signal( &_data->cond );
     pthread_mutex_unlock( &_data->mutex );
 }
+#endif //HAVE_PTHREAD_H
+}
 
 }
-}
-
 #endif //EQBASE_MTQUEUE_H

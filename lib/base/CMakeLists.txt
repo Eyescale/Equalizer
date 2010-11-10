@@ -63,6 +63,7 @@ purple_add_library(eq_base
     lock.cpp
     log.cpp
     memoryMap.cpp
+    monitor.cpp
     omp.cpp
     plugin.cpp
     pluginRegistry.cpp
