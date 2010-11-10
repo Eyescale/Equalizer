@@ -308,6 +308,24 @@ void FrameData::_setReady( const uint32_t version )
     }
 }
 
+void FrameData::addListener( base::Monitor<uint32_t>& listener )
+{
+    base::ScopedMutex< base::SpinLock > mutex( _listeners );
+
+    _listeners->push_back( &listener );
+    if( _readyVersion >= getVersion( ))
+        ++listener;
+}
+
+void FrameData::removeListener( base::Monitor<uint32_t>& listener )
+{
+    base::ScopedMutex< base::SpinLock > mutex( _listeners );
+
+    Monitors::iterator i = std::find( _listeners->begin(), _listeners->end(),
+                                      &listener );
+    EQASSERT( i != _listeners->end( ));
+    _listeners->erase( i );
+}
 
 void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
                           Channel* channel, const uint32_t taskID,
@@ -342,10 +360,10 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
     const net::Session*     session    = getSession();
     EQASSERT( session );
 
-    packet.sessionID    = session->getID();
-    packet.objectID     = getID();
-    packet.version      = getVersion();
-    packet.frameNumber  = frameNumber;
+    packet.sessionID   = session->getID();
+    packet.objectID    = getID();
+    packet.version     = getVersion();
+    packet.frameNumber = frameNumber;
 
     // send all images
     for( Images::const_iterator i = _images.begin(); i != _images.end(); ++i )
@@ -478,30 +496,11 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
     }
 
     FrameDataReadyPacket readyPacket;
-    readyPacket.zoom      = _zoom;
+    readyPacket.data      = _data;
     readyPacket.sessionID = session->getID();
     readyPacket.objectID  = getID();
     readyPacket.version   = getVersion();
     toNode->send( readyPacket );
-}
-
-void FrameData::addListener( base::Monitor<uint32_t>& listener )
-{
-    base::ScopedMutex< base::SpinLock > mutex( _listeners );
-
-    _listeners->push_back( &listener );
-    if( _readyVersion >= getVersion( ))
-        ++listener;
-}
-
-void FrameData::removeListener( base::Monitor<uint32_t>& listener )
-{
-    base::ScopedMutex< base::SpinLock > mutex( _listeners );
-
-    Monitors::iterator i = std::find( _listeners->begin(), _listeners->end(),
-                                      &listener );
-    EQASSERT( i != _listeners->end( ));
-    _listeners->erase( i );
 }
 
 //----- Command handlers
@@ -528,6 +527,7 @@ bool FrameData::_cmdTransmit( net::Command& command )
                                packet->frameNumber, originator );
 
     Image*   image = _allocImage( Frame::TYPE_MEMORY, DrawableConfig( ));
+
     // Note on the const_cast: since the PixelData structure stores non-const
     // pointers, we have to go non-const at some point, even though we do not
     // modify the data.
@@ -612,7 +612,7 @@ bool FrameData::_cmdReady( net::Command& command )
     if( getVersion() == packet->version )
     {
         _applyVersion( packet->version );
-        _zoom = packet->zoom;
+        _data = packet->data;
         _setReady( packet->version );
     }
     else
@@ -643,7 +643,7 @@ bool FrameData::_cmdUpdate( net::Command& command )
         if( candidate->version != packet->version )
             continue;
 
-        _zoom = candidate->zoom;
+        _data = candidate->data;
         cmd->release();
         _readyVersions.erase( i );
         _setReady( packet->version );

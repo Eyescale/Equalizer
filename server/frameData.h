@@ -50,9 +50,9 @@ namespace server
 
         /** Set the position of the data relative to the window. */
         void setOffset( const Vector2i& offset ) 
-            { _data.offset = offset; }
+            { _offset = offset; }
         /** @return the position of the data relative to the window. */
-        const Vector2i& getOffset() const { return _data.offset; }
+        const Vector2i& getOffset() const { return _offset; }
 
         /** Set the (color, depth) buffers of the source frame. */
         void setBuffers( const uint32_t buffers ) 
@@ -105,6 +105,9 @@ namespace server
         
         /** The zoom factor of the output frame after readback. */
         eq::Zoom _zoom;
+
+        /** Position wrt destination view. */
+        Vector2i _offset;
 
         /** The number of the config frame when this data was last used. */
         uint32_t _frameNumber;

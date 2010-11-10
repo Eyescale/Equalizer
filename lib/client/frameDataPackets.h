@@ -20,6 +20,7 @@
 #define EQ_FRAMEDATAPACKETS_H
 
 #include <eq/client/packets.h> // base structs
+#include <eq/client/frameData.h> // member
 
 /** @cond IGNORE */
 namespace eq
@@ -36,8 +37,8 @@ namespace eq
             }
 
         PixelViewport pvp;
-        uint32_t      version;
         uint32_t      buffers;
+        uint32_t      version;
         uint32_t      frameNumber;
         bool          ignoreAlpha;
 
@@ -51,7 +52,8 @@ namespace eq
                 command = fabric::CMD_FRAMEDATA_READY;
                 size    = sizeof( FrameDataReadyPacket );
             }
-        Zoom     zoom;
+
+        FrameData::Data data;
         uint32_t version;
     };
 

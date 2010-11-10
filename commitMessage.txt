@@ -1,8 +1,12 @@
-Remove old build system files, update READMEs
+FrameData cleanups:
+- Remove unused members
+- Move zoom to _data
+- Transmit all _data from output to input
+- doxygen
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

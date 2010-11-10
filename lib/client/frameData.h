@@ -41,27 +41,49 @@ namespace server
     class  ROIFinder;
 
     /**
-     * A frame data holds multiple images and is used by frames.
-     * It is not intended to be used directly by application code.
+     * A holder for multiple images.
+     *
+     * The FrameData is used to connect the Image data for multiple frames.
+     * Equalizer uses the same frame data for all input and output frames of the
+     * same name. This enables frame-specific parameters to be set on the Frame,
+     * and generic parameters (of the output frame) to be set on the FrameData,
+     * as well as ready synchronization of the pixel data.
      */
     class FrameData : public net::Object
     {
     public:
+        /** Construct a new frame data holder. @version 1.0 */
         EQ_EXPORT FrameData();
+
+        /** Destruct this frame data. @version 1.0 */
         EQ_EXPORT virtual ~FrameData();
 
-        /** 
-         * @name Data Access
-         */
+        /** @name Data Access */
         //@{
-        /** @return the enabled frame buffer attachments. */
+        /** @return the enabled frame buffer attachments. @version 1.0 */
         uint32_t getBuffers() const { return _data.buffers; }
-        void     setBuffers( const uint32_t buffers ){ _data.buffers = buffers;}
 
-        /** @return the database-range relative to the destination channel. */
+        /**
+         * Set the enabled frame buffer attachments.
+         *
+         * The default buffers are set for Equalizer input and output frames
+         * according to the configuration, or to 0 for application-created frame
+         * datas.
+         */
+        void setBuffers( const uint32_t buffers ){ _data.buffers = buffers;}
+
+        /**
+         * Get the range.
+         *
+         * The range is set for Equalizer frames to the range of the frame data
+         * relative to the destination channel.
+         *
+         * @return the database-range.
+         * @version 1.0
+         */
         const Range& getRange() const { return _data.range; }
 
-        /** @internal */
+        /** Set the range of this frame. @version 1.0 */
         void setRange( const Range& range ) { _data.range = range; }
         
         /** @return the pixel decomposition wrt the destination channel. */
@@ -88,11 +110,11 @@ namespace server
         /** Set the minimum quality after compression. */
         void setQuality( const Frame::Buffer buffer, const float quality );
 
-        /** Set additional zoom during compositing, distributed. @internal */
-        void setZoom( const Zoom& zoom ) { _zoom = zoom; }
+        /** Set additional zoom for input frames, distributed. @internal */
+        void setZoom( const Zoom& zoom ) { _data.zoom = zoom; }
 
         /** @return the additional zoom. @internal */
-        const Zoom& getZoom() const { return _zoom; }
+        const Zoom& getZoom() const { return _data.zoom; }
         //@}
 
         /**
@@ -200,24 +222,22 @@ namespace server
     private:
         struct Data
         {
-            Data() : offset( Vector2i::ZERO ), buffers( 0 ), format( 0 )
-                   , type( 0 ), period( 1 ), phase( 0 )
-                   , frameType( Frame::TYPE_MEMORY ) {}
+            Data() : frameType( Frame::TYPE_MEMORY ), buffers( 0 ), period( 1 )
+                   , phase( 0 ) {}
 
             PixelViewport pvp;
-            Vector2i      offset;
+            Frame::Type   frameType;
             uint32_t      buffers;
-            uint32_t      format;
-            uint32_t      type;
             uint32_t      period;
             uint32_t      phase;
-            Frame::Type   frameType;
             Range         range;     //<! database-range of src wrt to dest
             Pixel         pixel;     //<! pixel decomposition of source
             SubPixel      subpixel;  //<! subpixel decomposition of source
+            Zoom          zoom;
         } _data;
 
-        friend class eq::server::FrameData;
+        friend class server::FrameData;
+        friend struct FrameDataReadyPacket;
 
         Images _images;
         Images _imageCache;
@@ -250,7 +270,6 @@ namespace server
         bool _useSendToken;
         float _colorQuality;
         float _depthQuality;
-        Zoom  _zoom;
 
         union // placeholder for binary-compatible changes
         {
