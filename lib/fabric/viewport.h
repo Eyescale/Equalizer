@@ -19,7 +19,7 @@
 #define EQFABRIC_VIEWPORT_H
 
 #include <eq/fabric/types.h>
-#include <eq/base/base.h>
+#include <eq/fabric/base.h>
 #include <eq/base/debug.h>
 
 #include <iostream>
@@ -178,7 +178,7 @@ namespace fabric
         float w;
         float h;
 
-        EQ_EXPORT static const Viewport FULL; //!< A full viewport.
+        EQ_FABRIC_DECL static const Viewport FULL; //!< A full viewport.
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Viewport& vp )

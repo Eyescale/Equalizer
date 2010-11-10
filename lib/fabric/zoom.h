@@ -18,6 +18,7 @@
 #ifndef EQFABRIC_ZOOM_H
 #define EQFABRIC_ZOOM_H
 
+#include <eq/fabric/base.h>
 #include <eq/fabric/types.h>
 
 namespace eq
@@ -64,7 +65,7 @@ namespace fabric
             }
 
         /** The zoom NONE (1,1) value. */
-        EQ_EXPORT static const Zoom NONE;
+        EQ_FABRIC_DECL static const Zoom NONE;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Zoom& zoom )

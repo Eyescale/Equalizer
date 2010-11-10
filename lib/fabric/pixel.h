@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_PIXEL_H
 #define EQFABRIC_PIXEL_H
 
-#include <eq/base/base.h>
+#include <eq/fabric/base.h>
 #include <eq/base/log.h>
 
 namespace eq
@@ -106,7 +106,7 @@ namespace fabric
         uint32_t h;
 
         /** A pixel specification covering all pixels */
-        EQ_EXPORT static const Pixel ALL; 
+        EQ_FABRIC_DECL static const Pixel ALL; 
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Pixel& pixel )

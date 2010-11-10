@@ -8,15 +8,28 @@
 
 include(ParseArguments)
 include(PurpleForwardHeaders)
+include(PurplePrecompileHeaders)
 
 function(PURPLE_ADD_LIBRARY NAME)
   string(TOUPPER ${NAME} UPPER_NAME)
 
-  parse_arguments(THIS
-    "SOURCES;HEADERS;HEADERS_PREFIX;LINK_LIBRARIES;INCLUDE_ALL_HEADER"
-    "SHARED;STATIC;FRAMEWORK;FORWARD"
-    ${ARGN}
+  set(ARG_NAMES
+    SOURCES
+    HEADERS
+    HEADERS_PREFIX
+    LINK_LIBRARIES
+    INCLUDE_ALL_HEADER
+	PRECOMPILE_HEADERS
     )
+
+  set(OPTION_NAMES
+    SHARED
+    STATIC
+    #FRAMEWORK
+    FORWARD
+    )
+
+  parse_arguments(THIS "${ARG_NAMES}" "${OPTION_NAMES}" ${ARGN})
 
   #purple_doxygen(doc_${NAME}_external HTML ${HEADERS})
   #purple_doxygen(doc_${NAME}_internal HTML ${HEADERS} ${SOURCES})
@@ -24,6 +37,10 @@ function(PURPLE_ADD_LIBRARY NAME)
   if(THIS_FORWARD)
     purple_forward_headers(${THIS_HEADERS_PREFIX} ${THIS_HEADERS})
   endif(THIS_FORWARD)
+
+  if(THIS_PRECOMPILE_HEADERS)
+    purple_precompile_header(${NAME} THIS_SOURCES ${THIS_PRECOMPILE_HEADERS})
+  endif(THIS_PRECOMPILE_HEADERS)
 
   if(THIS_INCLUDE_ALL_HEADER)
     purple_include_all_header(${THIS_INCLUDE_ALL_HEADER}

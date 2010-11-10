@@ -7,58 +7,6 @@ set(PLUGIN_HEADERS
   plugins/compressorTypes.h
   )
 
-set(FABRIC_HEADERS
-  fabric/canvas.h
-  fabric/canvasPackets.h
-  fabric/channel.h
-  fabric/colorMask.h
-  fabric/commands.h
-  fabric/config.h
-  fabric/configPackets.h
-  fabric/configVisitor.h
-  fabric/client.h
-  fabric/drawableConfig.h
-  fabric/elementVisitor.h
-  fabric/eye.h
-  fabric/error.h
-  fabric/frustum.h
-  fabric/global.h
-  fabric/layout.h
-  fabric/layoutPackets.h
-  fabric/iAttribute.h
-  fabric/init.h
-  fabric/leafVisitor.h
-  fabric/log.h
-  fabric/node.h
-  fabric/nodeType.h
-  fabric/object.h
-  fabric/observer.h
-  fabric/packets.h
-  fabric/packetType.h
-  fabric/paths.h
-  fabric/pipe.h
-  fabric/pipePackets.h
-  fabric/pixel.h
-  fabric/pixelViewport.h
-  fabric/projection.h
-  fabric/range.h
-  fabric/renderContext.h
-  fabric/segment.h
-  fabric/serializable.h
-  fabric/server.h
-  fabric/serverPackets.h
-  fabric/subPixel.h
-  fabric/task.h
-  fabric/types.h
-  fabric/viewport.h
-  fabric/view.h
-  fabric/visitorResult.h
-  fabric/wall.h
-  fabric/window.h
-  fabric/windowPackets.h
-  fabric/zoom.h
-  )
-
 set(CLIENT_HEADERS
   client/aglEventHandler.h
   client/aglMessagePump.h
@@ -138,25 +86,6 @@ set(UTIL_HEADERS
   util/objectManager.h
   util/texture.h
   util/types.h
-  )
-
-set(FABRIC_SOURCES
-  fabric/client.cpp
-  fabric/colorMask.cpp
-  fabric/eye.cpp
-  fabric/frustum.cpp
-  fabric/global.cpp
-  fabric/iAttribute.cpp
-  fabric/init.cpp
-  fabric/object.cpp
-  fabric/pixel.cpp
-  fabric/projection.cpp
-  fabric/range.cpp
-  fabric/renderContext.cpp
-  fabric/subPixel.cpp
-  fabric/viewport.cpp
-  fabric/wall.cpp
-  fabric/zoom.cpp
   )
 
 set(CLIENT_SOURCES

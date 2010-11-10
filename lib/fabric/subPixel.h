@@ -19,7 +19,7 @@
 #ifndef EQFABRIC_SUBPIXEL_H
 #define EQFABRIC_SUBPIXEL_H
 
-#include <eq/base/base.h>
+#include <eq/fabric/base.h>
 #include <eq/base/log.h>
 
 namespace eq
@@ -100,7 +100,7 @@ namespace fabric
         uint32_t index;
         uint32_t size;
 
-        EQ_EXPORT static const SubPixel ALL; 
+        EQ_FABRIC_DECL static const SubPixel ALL; 
     };
 
     inline std::ostream& operator << ( std::ostream& os,

@@ -47,6 +47,12 @@ purple_add_library(eq_net
     session.h
     types.h
     version.h
+  HEADERS_PREFIX
+    "eq/net/"
+  PRECOMPILE_HEADERS
+    precompile.h
+  INCLUDE_ALL_HEADER
+    eq/net.h
   SOURCES
     barrier.cpp
     bufferConnection.cpp
@@ -93,6 +99,4 @@ purple_add_library(eq_net
   LINK_LIBRARIES
     ${NET_ADD_LINKLIB}
     shared eq_base
-  HEADERS_PREFIX "eq/net/"
-  INCLUDE_ALL_HEADER eq/net.h
   )
