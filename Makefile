@@ -44,7 +44,7 @@ docs: ../website/build/documents/Developer/API/internal ../website/build/documen
 ../website/build/documents/Developer/API/internal: lib
 	$(DOXYGEN) Doxyfile.int
 
-../website/build/documents/Developer/API: release/include release
+../website/build/documents/Developer/API: release
 	$(DOXYGEN) Doxyfile.ext
 
 
