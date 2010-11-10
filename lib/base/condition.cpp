@@ -18,6 +18,7 @@
 #include "condition.h"
 
 #include <pthread.h>
+#include <cstring>
 
 namespace eq
 {
