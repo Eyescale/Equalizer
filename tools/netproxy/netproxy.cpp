@@ -18,8 +18,6 @@
 // Proxy forwarding between two sockets
 // Usage: see 'netPerf -h'
 
-#include <pthread.h> // must come first!
-
 #include <eq/net/connection.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/net/connectionSet.h>

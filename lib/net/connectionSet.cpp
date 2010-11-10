@@ -31,18 +31,11 @@
 #ifdef WIN32
 #  define SELECT_TIMEOUT WAIT_TIMEOUT
 #  define SELECT_ERROR   WAIT_FAILED
-#  define BIG_CLUSTER_SUPPORT
 #  define MAX_CONNECTIONS (MAXIMUM_WAIT_OBJECTS - 1)
 #else
 #  define SELECT_TIMEOUT  0
 #  define SELECT_ERROR   -1
 #  define MAX_CONNECTIONS EQ_100KB  // Arbitrary
-#endif
-
-#ifdef BIG_CLUSTER_SUPPORT
-#  ifndef WIN32
-#    error "BIG_CLUSTER_SUPPORT only needed and implemented on Windows"
-#  endif
 #endif
 
 namespace eq
@@ -76,6 +69,50 @@ ConnectionSet::~ConnectionSet()
     _selfConnection = 0;
 }
 
+#ifdef WIN32
+
+/** Handles connections exceeding MAXIMUM_WAIT_OBJECTS */
+class ConnectionSetThread : public eq::base::Thread
+{
+public:
+    ConnectionSetThread( ConnectionSet* parent )
+        : set( new ConnectionSet )
+        , notifier( CreateEvent( 0, false, false, 0 ))
+        , event( ConnectionSet::EVENT_NONE )
+        , _parent( parent )
+    {}
+
+    virtual ~ConnectionSetThread()
+        {
+            delete set;
+            set = 0;
+        }
+
+    ConnectionSet* set;
+    HANDLE         notifier;
+
+    base::Monitor< ConnectionSet::Event > event;
+
+protected:
+    virtual void run()
+        {
+            while ( !set->isEmpty( ))
+            {
+                event = set->select( INFINITE );
+                if( event != ConnectionSet::EVENT_INTERRUPT &&
+                    event != ConnectionSet::EVENT_NONE )
+                {
+                    SetEvent( notifier );
+                    event.waitEQ( ConnectionSet::EVENT_NONE );
+                }
+            }
+        }
+
+private:
+    ConnectionSet* const _parent;
+};
+
+#endif // WIN32
 
 void ConnectionSet::setDirty()
 {
@@ -100,7 +137,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
         base::ScopedMutex<> mutex( _mutex );
         _allConnections.push_back( connection );
 
-#ifdef BIG_CLUSTER_SUPPORT
+#ifdef WIN32
         EQASSERT( _allConnections.size() < MAX_CONNECTIONS * MAX_CONNECTIONS );
         if( _connections.size() < MAX_CONNECTIONS - _threads.size( ))
         {   // can handle it ourself
@@ -130,12 +167,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
             _threads.push_back( thread );
             thread->start();
         }
-#else
-        _connections.push_back( connection );
-        connection->addListener( this );
-
-        EQASSERT( _connections.size() < MAX_CONNECTIONS );
-#endif
+#endif // WIN32
     }
 
     setDirty();
@@ -155,7 +187,7 @@ bool ConnectionSet::removeConnection( ConnectionPtr connection )
         Connections::iterator j = stde::find( _connections, connection );
         if( j == _connections.end( ))
         {
-#ifdef BIG_CLUSTER_SUPPORT
+#ifdef WIN32
             Threads::iterator k = _threads.begin();
             for( ; k != _threads.end(); ++k )
             {
@@ -177,9 +209,7 @@ bool ConnectionSet::removeConnection( ConnectionPtr connection )
 
             EQASSERT( k != _threads.end( ));
             _threads.erase( k );
-#else
-            EQUNREACHABLE;
-#endif
+#endif // WIN32
         }
         else
         {
@@ -198,7 +228,7 @@ void ConnectionSet::clear()
 {
     _connection = 0;
 
-#ifdef BIG_CLUSTER_SUPPORT
+#ifdef WIN32
     for( Threads::iterator i = _threads.begin(); i != _threads.end(); ++i )
     {
         Thread* thread = *i;
@@ -223,37 +253,6 @@ void ConnectionSet::clear()
     _fdSetResult.clear();
 }
 
-#ifdef BIG_CLUSTER_SUPPORT
-ConnectionSet::Thread::Thread( ConnectionSet* parent )
-        : set( new ConnectionSet )
-        , notifier( CreateEvent( 0, false, false, 0 ))
-        , event( EVENT_NONE )
-        , _parent( parent )
-{
-   
-}
-
-ConnectionSet::Thread::~Thread()
-{
-    delete set;
-    set = 0;
-}
-
-
-void ConnectionSet::Thread::run()
-{
-    while ( !set->isEmpty( ))
-    {
-        event = set->select( INFINITE );
-        if( event != EVENT_INTERRUPT && event != EVENT_NONE )
-        {
-            SetEvent( notifier );
-            event.waitEQ( EVENT_NONE );
-        }
-    }
-}
-#endif
-
 ConnectionSet::Event ConnectionSet::select( const int timeout )
 {
     EQ_TS_SCOPED( _selectThread );
@@ -261,7 +260,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
     {
         _connection = 0;
         _error      = 0;
-#ifdef BIG_CLUSTER_SUPPORT
+#ifdef WIN32
         if( _thread )
         {
             _thread->event = EVENT_NONE; // unblock previous thread
@@ -288,9 +287,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 
             case SELECT_ERROR:
 #ifdef WIN32
-#  ifdef BIG_CLUSTER_SUPPORT
                 if( !_thread )
-#  endif
                     _error = GetLastError();
 
                 if( _error == WSA_INVALID_HANDLE )

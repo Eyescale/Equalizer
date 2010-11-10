@@ -61,6 +61,7 @@
 namespace eq
 {
     typedef fabric::Pipe< Node, Pipe, Window, PipeVisitor > Super;
+
 namespace
 {
 static const Window* _ntCurrentWindow = 0;

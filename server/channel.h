@@ -19,19 +19,11 @@
 #ifndef EQSERVER_CHANNEL_H
 #define EQSERVER_CHANNEL_H
 
-#ifdef EQSERVER_EXPORTS
-   // We need to instantiate a Monitor< State > when compiling the library,
-   // but we don't want to have <pthread.h> for a normal build, hence this hack
-#  include <pthread.h>
-#endif
-#include <eq/base/monitor.h>
-
-#include <eq/fabric/channel.h>
-
 #include "base.h"
 #include "state.h"  // enum
 #include "types.h"
 
+#include <eq/fabric/channel.h>       // base class
 #include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/viewport.h>      // member
 #include <eq/net/object.h>

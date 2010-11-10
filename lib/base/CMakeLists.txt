@@ -10,6 +10,7 @@ purple_add_library(eq_base
     buffer.h
     clock.h
     compareAndSwap.h
+    condition.h
     debug.h
     defines.h
     dso.h
@@ -51,6 +52,7 @@ purple_add_library(eq_base
   INCLUDE_ALL_HEADER eq/base.h
   SOURCES
     compressor.cpp
+    condition.cpp
     cpuCompressor.cpp
     debug.cpp
     dso.cpp
@@ -63,7 +65,6 @@ purple_add_library(eq_base
     lock.cpp
     log.cpp
     memoryMap.cpp
-    monitor.cpp
     omp.cpp
     plugin.cpp
     pluginRegistry.cpp

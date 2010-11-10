@@ -19,13 +19,6 @@
 #ifndef EQ_PIPE_H
 #define EQ_PIPE_H
 
-#ifdef EQ_EXPORTS
-   // We need to instantiate a Monitor< State > when compiling the library,
-   // but we don't want to have <pthread.h> for a normal build, hence this hack
-#  include <pthread.h>
-#endif
-#include <eq/base/monitor.h>
-
 #include <eq/client/eye.h>            // Eye enum
 #include <eq/client/os.h>             // WGLEWContext
 #include <eq/client/types.h>

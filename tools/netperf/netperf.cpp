@@ -19,7 +19,7 @@
 // Usage: see 'netPerf -h'
 
 #define EQ_RELEASE_ASSERT
-#include <pthread.h> // must come first!
+
 #include <eq/eq.h>
 
 #ifndef MIN

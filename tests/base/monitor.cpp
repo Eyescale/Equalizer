@@ -15,9 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-# include <pthread.h> // must come first!
-
 #include "test.h"
+
 #include <eq/base/clock.h>
 #include <eq/base/monitor.h>
 #include <eq/base/thread.h>
@@ -25,7 +24,7 @@
 
 #define NLOOPS 200000
 
-eq::base::Monitor< uint64_t > monitor;
+eq::base::Monitor< int64_t > monitor;
 
 class Thread : public eq::base::Thread
 {

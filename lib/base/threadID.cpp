@@ -15,11 +15,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <pthread.h> // first!
-#include <cstring>   // for memset
 #include "threadID.h"
 
 #include "log.h"
+
+#include <pthread.h>
+#include <cstring>   // for memset
 
 namespace eq
 {

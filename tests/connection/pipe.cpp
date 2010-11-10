@@ -67,7 +67,7 @@ int main( int argc, char **argv )
     const char message[] = "buh!";
     const size_t nChars  = strlen( message ) + 1;
 
-    TEST( connection->send( message, nChars ) == nChars );
+    TEST( connection->send( message, nChars ));
 
     connection->close();
     connection = NULL;

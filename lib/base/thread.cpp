@@ -15,7 +15,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <pthread.h>
 #include "thread.h"
 
 #include "base.h"
@@ -29,7 +28,7 @@
 #include <eq/base/lock.h>
 
 #include <errno.h>
-#include <string.h>
+#include <pthread.h>
 #include <algorithm>
 
 // Experimental Win32 thread pinning

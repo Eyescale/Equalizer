@@ -19,6 +19,7 @@
 #define EQBASE_MTQUEUE_H
 
 #include <eq/base/base.h>
+#include <eq/base/condition.h>
 #include <eq/base/debug.h>
 
 #include <queue>
@@ -28,32 +29,32 @@ namespace eq
 {
 namespace base
 {
-    class MTQueuePrivate;
-
     /**
      * A thread-safe queue with a blocking read access.
      *
      * Typically used to communicate between two execution threads.
-     *
-     * To instantiate the template code for this class, applications have to
-     * include pthread.h before this file. pthread.h is not automatically
-     * included to avoid hard to resolve type conflicts with other header files
-     * on Windows.
      */
     template< typename T > class MTQueue
     {
     public:
         /** Construct a new queue. @version 1.0 */
-        MTQueue();
+        MTQueue() {}
 
         /** Construct a copy of a queue. @version 1.0 */
-        MTQueue( const MTQueue< T >& from );
+        MTQueue( const MTQueue< T >& from ) : _queue( from._queue ) {}
 
         /** Destruct this Queue. @version 1.0 */
-        ~MTQueue();
+        ~MTQueue() {}
 
         /** Assign the values of another queue. @version 1.0 */
-        MTQueue< T >& operator = ( const MTQueue< T >& from ); 
+        MTQueue< T >& operator = ( const MTQueue< T >& from )
+            {
+                _cond.lock();
+                _queue = from._queue;
+                _cond.signal();
+                _cond.unlock();
+                return *this;
+            }
 
         /** @return true if the queue is empty, false otherwise. @version 1.0 */
         bool isEmpty() const { return _queue.empty(); }
@@ -62,13 +63,29 @@ namespace base
         size_t getSize() const { return _queue.size(); }
 
         /** Reset (empty) the queue. @version 1.0 */
-        void clear();
+        void clear()
+            {
+                _cond.lock();
+                _queue.clear();
+                _cond.unlock();
+            }
 
         /** 
          * Retrieve and pop the front element from the queue, may block.
          * @version 1.0
          */
-        T pop();
+        T pop()
+            {
+                _cond.lock();
+                while( _queue.empty( ))
+                    _cond.wait();
+                
+                EQASSERT( !_queue.empty( ));
+                T element = _queue.front();
+                _queue.pop_front();
+                _cond.unlock();
+                return element;
+            }
 
         /** 
          * Retrieve and pop the front element from the queue if it is not empty.
@@ -78,7 +95,20 @@ namespace base
          *         is empty.
          * @version 1.0
          */
-        bool tryPop( T& result );
+        bool tryPop( T& result )
+            {
+                _cond.lock();
+                if( _queue.empty( ))
+                {
+                    _cond.unlock();
+                    return false;
+                }
+
+                result = _queue.front();
+                _queue.pop_front();
+                _cond.unlock();
+                return true;
+            }   
 
         /** 
          * @param result the front value or unmodified.
@@ -86,7 +116,19 @@ namespace base
          *         is empty.
          * @version 1.0
          */
-        bool getFront( T& result ) const;
+        bool getFront( T& result ) const
+            {
+                _cond.lock();
+                if( _queue.empty( ))
+                {
+                    _cond.unlock();
+                    return false;
+                }
+                // else
+                result = _queue.front();
+                _cond.unlock();
+                return true;
+            }
 
         /** 
          * @param result the last value or unmodified.
@@ -94,199 +136,51 @@ namespace base
          *         is empty.
          * @version 1.0
          */
-        bool getBack( T& result ) const;
+        bool getBack( T& result ) const
+            {
+                _cond.lock();
+                if( _queue.empty( ))
+                {
+                    _cond.unlock();
+                    return false;
+                }
+                // else
+                result = _queue.back();
+                _cond.unlock();
+                return true;
+            }
 
         /** Push a new element to the back of the queue. @version 1.0 */
-        void push( const T& element );
+        void push( const T& element )
+            {
+                _cond.lock();
+                _queue.push_back( element );
+                _cond.signal();
+                _cond.unlock();
+            }
 
         /** Push a vector of elements to the back of the queue. @version 1.0 */
-        void push( const std::vector< T >& elements );
+        void push( const std::vector< T >& elements )
+            {
+                _cond.lock();
+                _queue.insert( _queue.end(), elements.begin(), elements.end( ));
+                _cond.signal();
+                _cond.unlock();
+            }
 
         /** Push a new element to the front of the queue. @version 1.0 */
-        void pushFront( const T& element );
+        void pushFront( const T& element )
+            {
+                _cond.lock();
+                _queue.push_front( element );
+                _cond.signal();
+                _cond.unlock();
+            }
 
     private:
         std::deque< T > _queue;
-        MTQueuePrivate* _data;
-
-        void _init();
+        mutable Condition _cond;
     };
-
-//----------------------------------------------------------------------
-// implementation
-//----------------------------------------------------------------------
-
-// Crude test if pthread.h was included
-#ifdef PTHREAD_MUTEX_INITIALIZER
-#  ifndef HAVE_PTHREAD_H
-#    define HAVE_PTHREAD_H
-#  endif
-#endif
-
-#ifdef HAVE_PTHREAD_H
-
-class MTQueuePrivate
-{
-public:
-    pthread_mutex_t mutex;
-    pthread_cond_t  cond;
-};
-
-template< typename T >
-inline MTQueue<T>::MTQueue()
-        : _data( new MTQueuePrivate )
-{
-    _init();
 }
-
-template< typename T >
-inline MTQueue< T >::MTQueue( const MTQueue< T >& from )
-        : _queue( from._queue )
-        , _data( new MTQueuePrivate )
-{
-    _init();
-}
-
-template< typename T >
-inline void MTQueue< T >::_init()
-{
-    // mutex init
-    int error = pthread_mutex_init( &_data->mutex, 0 );
-    if( error )
-    {
-        EQERROR << "Error creating pthread mutex: " 
-                << strerror( error ) << std::endl;
-        return;
-    }
-    // condvar init
-    error = pthread_cond_init( &_data->cond, 0 );
-    if( error )
-    {
-        EQERROR << "Error creating pthread condition: " 
-                << strerror( error ) << std::endl;
-        return;
-    }
-}
-
-template< typename T >
-inline MTQueue< T >& MTQueue< T >::operator = ( const MTQueue< T >& from )
-{
-    pthread_mutex_lock( &_data->mutex );
-    _queue = from._queue;
-    pthread_cond_signal( &_data->cond );
-    pthread_mutex_unlock( &_data->mutex );
-    return *this;
-}
-
-
-template< typename T >
-inline MTQueue<T>::~MTQueue()
-{
-    pthread_mutex_destroy( &_data->mutex );
-    pthread_cond_destroy( &_data->cond );
-    delete _data;
-    _data = 0;
-}
-
-template< typename T >
-inline void MTQueue<T>::clear()
-{
-    pthread_mutex_lock( &_data->mutex );
-    _queue.clear();
-    pthread_mutex_unlock( &_data->mutex );
-}
-
-template< typename T >
-inline T MTQueue<T>::pop()
-{
-    pthread_mutex_lock( &_data->mutex );
-    while( _queue.empty( ))
-        pthread_cond_wait( &_data->cond, &_data->mutex );
-                
-    EQASSERT( !_queue.empty( ));
-    T element = _queue.front();
-    _queue.pop_front();
-    pthread_mutex_unlock( &_data->mutex );
-    return element;
-}
-
-template< typename T >
-inline bool MTQueue<T>::tryPop( T& result )
-{
-    if( _queue.empty( ))
-        return false;
-    
-    pthread_mutex_lock( &_data->mutex );
-    if( _queue.empty( ))
-    {
-        pthread_mutex_unlock( &_data->mutex );
-        return false;
-    }
-    
-    result = _queue.front();
-    _queue.pop_front();
-    pthread_mutex_unlock( &_data->mutex );
-    return true;
-}   
-
-template< typename T >
-inline bool MTQueue<T>::getFront( T& result ) const
-{
-    pthread_mutex_lock( &_data->mutex );
-    if( _queue.empty( ))
-    {
-        pthread_mutex_unlock( &_data->mutex );
-        return false;
-    }
-    // else
-    result = _queue.front();
-    pthread_mutex_unlock( &_data->mutex );
-    return true;
-}
-
-template< typename T >
-inline bool MTQueue<T>::getBack( T& result ) const
-{
-    pthread_mutex_lock( &_data->mutex );
-    if( _queue.empty( ))
-    {
-        pthread_mutex_unlock( &_data->mutex );
-        return false;
-    }
-    // else
-    result = _queue.back();
-    pthread_mutex_unlock( &_data->mutex );
-    return true;
-}
-
-template< typename T >
-inline void MTQueue<T>::push( const T& element )
-{
-    pthread_mutex_lock( &_data->mutex );
-    _queue.push_back( element );
-    pthread_cond_signal( &_data->cond );
-    pthread_mutex_unlock( &_data->mutex );
-}
-
-template< typename T >
-inline void MTQueue<T>::push( const std::vector< T >& elements )
-{
-    pthread_mutex_lock( &_data->mutex );
-    _queue.insert( _queue.end(), elements.begin(), elements.end( ));
-    pthread_cond_signal( &_data->cond );
-    pthread_mutex_unlock( &_data->mutex );
-}
-
-template< typename T >
-inline void MTQueue<T>::pushFront( const T& element )
-{
-    pthread_mutex_lock( &_data->mutex );
-    _queue.push_front( element );
-    pthread_cond_signal( &_data->cond );
-    pthread_mutex_unlock( &_data->mutex );
-}
-#endif //HAVE_PTHREAD_H
-}
-
 }
 #endif //EQBASE_MTQUEUE_H

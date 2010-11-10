@@ -18,12 +18,6 @@
 #ifndef EQNET_CONNECTION_SET_H
 #define EQNET_CONNECTION_SET_H
 
-#ifdef EQ_NET_DECLS
-   // We need to instantiate a Monitor< Event > when compiling the library,
-   // but we don't want to have <pthread.h> for a normal build, hence this hack
-#  include <pthread.h>
-#endif
-
 #include <eq/net/connectionListener.h> // base class
 
 #include <eq/base/base.h>
@@ -32,9 +26,7 @@
 #include <eq/base/monitor.h>
 #include <eq/base/refPtr.h>
 
-#ifdef WIN32
-#  include <eq/base/thread.h>
-#else
+#ifndef WIN32
 #  include <poll.h>
 #endif
 
@@ -42,9 +34,8 @@ namespace eq
 {
 namespace net
 {
-    class Message;
-    class Network;
     class EventConnection;
+    class ConnectionSetThread;
 
     /**
      * A set of connections. 
@@ -105,26 +96,8 @@ namespace net
     private:
  
 #ifdef WIN32
-        /** Handles connections exceeding MAXIMUM_WAIT_OBJECTS */
-        class Thread : public eq::base::Thread
-        {
-        public:
-            Thread( ConnectionSet* parent );
-            virtual ~Thread();
-
-            ConnectionSet* set;
-            HANDLE         notifier;
-            
-            base::Monitor< Event > event;
-
-        protected:
-            virtual void run();
-
-        private:
-            ConnectionSet* const _parent;
-        };
-
-        typedef std::vector< Thread* > Threads;
+        typedef ConnectionSetThread Thread;
+        typedef std::vector< ConnectionSetThread* > Threads;
         /** Threads used to handle more than MAXIMUM_WAIT_OBJECTS connections */
         Threads _threads;
 
