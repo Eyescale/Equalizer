@@ -50,6 +50,12 @@ macro(HEADER_TARGETS DIR NAME)
   set(${NAME}_TARGETS ${INST_HEADERS_TMP})
 endmacro(HEADER_TARGETS DIR TARGETS)
 
+if(MSVC)
+  add_definitions(/D_CRT_SECURE_NO_WARNINGS)
+  add_definitions(/W2)
+  # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015&start=0
+  set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR")
+endif(MSVC)
 
 if(WIN32)
   set(Boost_USE_STATIC_LIBS ON)
@@ -124,11 +130,6 @@ endif(EQ_AGL_USED)
 
 find_package(CUDA)
 
-if(MSVC)
-  add_definitions(/D_CRT_SECURE_NO_WARNINGS)
-  add_definitions(/W2)
-endif(MSVC)
-
 if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings")
   if(NOT XCODE_VERSION) # XCode doesn't know -isystem...
@@ -138,7 +139,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 if(LINUX)
-  add_definitions(-fPIC) # 64bit Linux wants this
+    add_definitions(-fPIC) # 64bit Linux wants this
 endif(LINUX)
 
 if(APPLE)
