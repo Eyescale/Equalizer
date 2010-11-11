@@ -87,6 +87,6 @@ purple_add_amalgamation(Equalizer
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY
 configure_file(Equalizer.pc.in Equalizer.pc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Equalizer.pc DESTINATION lib/pkgconfig COMPONENT lib)
-if(MSVC)
-    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/Equalizer.pdb DESTINATION bin COMPONENT dev)
-endif(MSVC)
+if(MSVC_IDE)
+  install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/Equalizer.pdb DESTINATION bin COMPONENT dev)
+endif(MSVC_IDE)

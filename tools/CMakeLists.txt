@@ -71,7 +71,7 @@ eq_add_tool(windowAdmin
   )
 
 # TODO: integrate these into EQ_ADD_TOOL
-if(MSVC)
-    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/affinityCheck.pdb DESTINATION bin COMPONENT dev)
-    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/netperf.pdb DESTINATION bin COMPONENT dev)
-endif(MSVC)
+if(MSVC_IDE)
+  install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/affinityCheck.pdb DESTINATION bin COMPONENT dev)
+  install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/netperf.pdb DESTINATION bin COMPONENT dev)
+endif(MSVC_IDE)

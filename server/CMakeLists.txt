@@ -60,10 +60,10 @@ target_link_libraries(EqualizerServer Equalizer)
 add_dependencies(EqualizerServer EqualizerAdmin)
 
 install(TARGETS EqualizerServer
-  ARCHIVE DESTINATION lib COMPONENT lib
-  LIBRARY DESTINATION lib COMPONENT lib
-  RUNTIME DESTINATION bin COMPONENT lib
+  ARCHIVE DESTINATION lib COMPONENT dev
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
   )
-if(MSVC)
-    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/EqualizerServer.pdb DESTINATION bin COMPONENT dev)
-endif(MSVC)
+if(MSVC_IDE)
+  install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/EqualizerServer.pdb DESTINATION bin COMPONENT dev)
+endif(MSVC_IDE)

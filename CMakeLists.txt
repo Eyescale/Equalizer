@@ -190,10 +190,11 @@ ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/auxilary" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR
 
 add_executable(eqServer server/eqServer.cpp)
 target_link_libraries(eqServer EqualizerServer)
-install(TARGETS eqServer DESTINATION bin COMPONENT lib)
-if(MSVC)
-    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/eqServer.pdb DESTINATION bin COMPONENT dev)
-endif(MSVC)
+install(TARGETS eqServer DESTINATION bin)
+
+if(MSVC_IDE)
+  install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/eqServer.pdb DESTINATION bin COMPONENT dev)
+endif(MSVC_IDE)
 
 
 message(STATUS "Supported Features:${EQ_FEATURES}")
