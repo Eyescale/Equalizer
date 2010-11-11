@@ -31,7 +31,7 @@ namespace eq
     class GLXWindowIF;
     class Window;
 
-    /** The event handler for glX/X11. */
+    /** The event handler for glX/X11 windows. */
     class GLXEventHandler : public EventHandler
     {
     public:

@@ -53,32 +53,37 @@ namespace eq
     using fabric::FASTEST;
     using fabric::HORIZONTAL;
 
-    /** 
-     * Global parameter handling for the Equalizer client library. 
-     */
+    /** Global parameter handling for the Equalizer client library. */
     class Global : public fabric::Global
     {
     public:
-        /** @return the node factory. */
+        /** @return the node factory. @version 1.0 */
         static NodeFactory* getNodeFactory() { return _nodeFactory; }
 
         /** 
          * Set the config file for the app-local server.
-         * 
+         *
+         * When started without specifying an explicit server connection,
+         * Equalizer will create an server instance in an application thread
+         * using this config file.
+         *
          * @param configFile the default configFile.
+         * @version 1.0
          */
         EQ_EXPORT static void setConfigFile( const std::string& configFile );
 
-        /** @return the default config file for the app-local server. */
+        /** @return the config file for the app-local server. @version 1.0 */
         EQ_EXPORT static const std::string& getConfigFile();
 
         /** 
          * Global lock for all non-thread-safe Carbon API calls. 
          * Note: this is a nop on non-AGL builds. Do not use unless you know the
          * side effects, i.e., ask on the eq-dev mailing list.
+         * @version 1.0
          */
         static void enterCarbon();
-        /** Global unlock for all non-thread-safe Carbon API calls */
+
+        /** Global unlock for non-thread-safe Carbon API calls. @version 1.0 */
         static void leaveCarbon();
 
     private:

@@ -48,6 +48,12 @@ namespace server
      * same name. This enables frame-specific parameters to be set on the Frame,
      * and generic parameters (of the output frame) to be set on the FrameData,
      * as well as ready synchronization of the pixel data.
+     *
+     * An application may allocate its own Frame and FrameData for
+     * application-specific purposes.
+     *
+     * Parameters set on an Equalizer output frame data are automatically
+     * transported to the corresponding input frames.
      */
     class FrameData : public net::Object
     {
@@ -86,70 +92,108 @@ namespace server
         /** Set the range of this frame. @version 1.0 */
         void setRange( const Range& range ) { _data.range = range; }
         
-        /** @return the pixel decomposition wrt the destination channel. */
+        /**
+         * @return the pixel decomposition wrt the destination channel.
+         * @version 1.0
+         */
         const Pixel& getPixel() const { return _data.pixel; }
         
-        /** @return the subpixel decomposition wrt the destination channel. */
+        /**
+         * @return the subpixel decomposition wrt the destination channel.
+         * @version 1.0
+         */
         const SubPixel& getSubPixel() const { return _data.subpixel; }
 
-        /** @return the DPlex period relative to the destination channel. */
+        /**
+         * @return the DPlex period relative to the destination channel.
+         * @version 1.0
+         */
         uint32_t getPeriod() const { return _data.period; }
 
-        /** @return the DPlex phase relative to the destination channel. */
+        /**
+         * @return the DPlex phase relative to the destination channel.
+         * @version 1.0
+         */
         uint32_t getPhase() const { return _data.phase; }
 
-        /** The images of this frame data holder */
+        /** The images of this frame data holder. @version 1.0 */
         const Images& getImages() const { return _images; }
 
-        /** The covered area. */
+        /**
+         * Set the covered area for readbacks.
+         *
+         * Preset for Equalizer output frames. The given pixel viewport is used
+         * together with the Frame offset to compute the area for the readback()
+         * operation.
+         * @version 1.0
+         */
         void setPixelViewport( const PixelViewport& pvp ) { _data.pvp = pvp; }
         
-        /** Enable/disable alpha usage for newly allocated images. */
+        /**
+         * Set alpha usage for newly allocated images.
+         *
+         * Disabling alpha allows the selection of download or compression
+         * plugins which drop the alpha channel for better performance.
+         * @version 1.0
+         */
         void setAlphaUsage( const bool useAlpha ) { _useAlpha = useAlpha; }
 
-        /** Set the minimum quality after compression. */
+        /**
+         * Set the minimum quality after download and compression.
+         *
+         * Setting a lower quality decreases the image quality while increasing
+         * the performance of scalable rendering. An application typically
+         * selects a lower quality during interaction. Setting a quality of 1.0
+         * provides lossless image compositing.
+         * @version 1.0
+         */
         void setQuality( const Frame::Buffer buffer, const float quality );
 
-        /** Set additional zoom for input frames, distributed. @internal */
+        /** @internal Set additional zoom for input frames. */
         void setZoom( const Zoom& zoom ) { _data.zoom = zoom; }
 
-        /** @return the additional zoom. @internal */
+        /** @internal @return the additional zoom. */
         const Zoom& getZoom() const { return _data.zoom; }
         //@}
 
-        /**
-         * @name Operations
-         */
+        /** @name Operations */
         //@{
         /** 
          * Allocate and add a new image.
-         * 
+         *
+         * The allocated image inherits the current quality, storage type from
+         * this frame data and the internal format corresponding to the given
+         * drawable config.
+         *
          * @return the image.
+         * @version 1.0
          */
         EQ_EXPORT Image* newImage( const Frame::Type type,
                                    const DrawableConfig& config );
 
-        /** Flush the frame by deleting all images. */
+        /** Flush the frame by deleting all images. @version 1.0 */
         void flush();
 
-        /** Clear the frame by recycling the attached images. */
+        /** Clear the frame by recycling the attached images. @version 1.0 */
         EQ_EXPORT void clear();
 
         /** 
-         * Read back a set of images according to the current frame data.
+         * Read back an image for this frame data.
          * 
-         * The newly read images are added to the data, existing images are
-         * retained.
+         * The newly read images are added to the data using
+         * newImage(). Existing images are retained.
          *
          * @param frame the corresponding output frame holder.
          * @param glObjects the GL object manager for the current GL context.
          * @param config the configuration of the source frame buffer.
+         * @version 1.0
          */
         void readback( const Frame& frame, 
                        util::ObjectManager< const void* >* glObjects,
                        const DrawableConfig& config );
 
-        /** 
+        /**
+         * @internal
          * Transmit the frame data to the specified node.
          *
          * Used internally after readback to push the image data to the input
@@ -165,25 +209,29 @@ namespace server
                        Channel* channel, const uint32_t taskID, 
                        const uint32_t statisticsIndex );
 
-        /** 
+        /**
          * Set the frame data ready.
          * 
-         * The frame data is automatically set ready by syncReadback
-         * and upon receiving of the transmit commands.
+         * The frame data is automatically set ready by readback() and after
+         * receiving an output frame.
+         * @version 1.0
          */
         void setReady();
 
-        /** @return true if the frame data is ready, false if not. */
+        /** @return true if the frame data is ready. @version 1.0 */
         bool isReady() const   { return _readyVersion >= getVersion(); }
 
-        /** Wait for the frame data to become available. */
+        /** Wait for the frame data to become available. @version 1.0 */
         void waitReady() const { _readyVersion.waitGE( getVersion( )); }
 
         /** 
-         * Add a listener which will be incremented when the frame is
-         * ready.
+         * Add a ready listener.
+         *
+         * The listener value will will be incremented when the frame is ready,
+         * which might happen immediately.
          * 
          * @param listener the listener.
+         * @version 1.0
          */
         void addListener( base::Monitor<uint32_t>& listener );
 
@@ -191,6 +239,7 @@ namespace server
          * Remove a frame listener.
          * 
          * @param listener the listener.
+         * @version 1.0
          */
         void removeListener( base::Monitor<uint32_t>& listener );
         
@@ -198,6 +247,7 @@ namespace server
          * Disable the usage of a frame buffer attachment for all images.
          * 
          * @param buffer the buffer to disable.
+         * @version 1.0
          */
         void disableBuffer( const Frame::Buffer buffer )
             { _data.buffers &= ~buffer; }
@@ -206,7 +256,7 @@ namespace server
         void useSendToken( const bool use ) { _useSendToken = use; }
         //@}
 
-        /** @warning internal use only. */
+        /** @internal */
         void update( const uint32_t version );
 
     protected:
