@@ -167,6 +167,11 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
             _threads.push_back( thread );
             thread->start();
         }
+#else
+        _connections.push_back( connection );
+        connection->addListener( this );
+
+        EQASSERT( _connections.size() < MAX_CONNECTIONS );
 #endif // WIN32
     }
 
@@ -209,7 +214,9 @@ bool ConnectionSet::removeConnection( ConnectionPtr connection )
 
             EQASSERT( k != _threads.end( ));
             _threads.erase( k );
-#endif // WIN32
+#else
+            EQUNREACHABLE;
+#endif
         }
         else
         {

@@ -1,9 +1,9 @@
-Doxygen improvements
+Fix connection set on Posix (broke in revision 5091)
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [ ] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation
