@@ -123,10 +123,7 @@ static VisitorResult updateEyes( Compound* compound )
     Segment* segment = channel->getSegment();
     View* view = channel->getView();
 
-    EQASSERT( view );
-    EQASSERT( segment );
-
-    if( segment == 0 || view == 0 )
+    if( segment == 0 || view == 0 ) // view-less dest compound
         return TRAVERSE_PRUNE;
 
     uint32_t compoundEyes = compound->getEyes();

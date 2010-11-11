@@ -49,7 +49,7 @@ public:
 int main( int argc, char **argv )
 {
     Thread waiter;
-    uint64_t nOps = NLOOPS;
+    int64_t nOps = NLOOPS;
     
     TEST( waiter.start( ));
     eq::base::Clock clock;

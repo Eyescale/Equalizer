@@ -1014,9 +1014,9 @@ void Compound::updateInheritData( const uint32_t frameNumber )
                             fabric::FBO) || 
                  _inherit.channel->getDrawable() != Channel::FB_WINDOW );
             const bool stereoWindow = window->getDrawableConfig().stereo;
-            const Segment* segment = _inherit.channel->getSegment(); 
-            const bool stereoEyes =
-                (segment->getEyes() & EYES_STEREO ) == EYES_STEREO;
+            const Segment* segment = _inherit.channel->getSegment();
+            const uint32_t eyes = segment ? segment->getEyes() : _inherit.eyes;
+            const bool stereoEyes = ( eyes & EYES_STEREO ) == EYES_STEREO;
 
             if(( usesFBO || !stereoWindow ) && stereoEyes )
                 _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::ANAGLYPH;
