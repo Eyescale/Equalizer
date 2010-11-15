@@ -5,6 +5,7 @@
 purple_add_library(eq_base SHARED
   HEADERS_PREFIX "eq/base/"
   FORWARD HEADERS
+    ../base.h
     atomic.h
     base.h
     bitOperation.h
@@ -52,8 +53,6 @@ purple_add_library(eq_base SHARED
   PRECOMPILE_HEADERS
     <pthread.h>
     precompile.h
-  INCLUDE_ALL_HEADER
-    eq/base.h
   SOURCES
     compressor.cpp
     condition.cpp

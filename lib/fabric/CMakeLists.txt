@@ -5,6 +5,7 @@
 purple_add_library(eq_fabric SHARED
   HEADERS_PREFIX "eq/fabric/"
   FORWARD HEADERS
+    ../fabric.h
     base.h
     canvas.h
     canvasPackets.h
@@ -75,5 +76,4 @@ purple_add_library(eq_fabric SHARED
   LINK_LIBRARIES
     shared eq_base
     shared eq_net
-  INCLUDE_ALL_HEADER eq/fabric.h
   )

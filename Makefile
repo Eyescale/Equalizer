@@ -1,5 +1,5 @@
 #!gmake
-.PHONY: debug tests release xcode debug_glx docs
+.PHONY: debug tests release xcode debug_glx docs docs/install
 
 all: debug RELNOTES.txt README.rst
 
@@ -41,11 +41,18 @@ debug_glx/Makefile:
 
 docs: ../website/build/documents/Developer/API/internal ../website/build/documents/Developer/API
 
-../website/build/documents/Developer/API/internal: lib
+../website/build/documents/Developer/API/internal: lib Doxyfile.int
 	$(DOXYGEN) Doxyfile.int
 
-../website/build/documents/Developer/API: release
+../website/build/documents/Developer/API: docs/install Doxyfile.ext
 	$(DOXYGEN) Doxyfile.ext
+
+docs/install: docs/Makefile
+	@$(MAKE) -C docs install
+
+docs/Makefile:
+	@mkdir -p docs
+	@cd docs; cmake -D CMAKE_INSTALL_PREFIX:STRING=install ..
 
 
 RELNOTES.txt: lib/RelNotes.dox

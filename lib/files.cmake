@@ -8,6 +8,7 @@ set(PLUGIN_HEADERS
   )
 
 set(CLIENT_HEADERS
+  client.h
   client/aglEventHandler.h
   client/aglMessagePump.h
   client/aglPipe.h
@@ -79,6 +80,7 @@ set(CLIENT_HEADERS
   )
 
 set(UTIL_HEADERS
+  util.h
   util/accum.h
   util/accumBufferObject.h
   util/bitmapFont.h

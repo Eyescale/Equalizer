@@ -36,18 +36,10 @@ add_subdirectory(fabric)
 purple_add_library(eq SHARED
   HEADERS_PREFIX "eq/"
   FORWARD HEADERS
-    #${BASE_HEADERS}
     ${CLIENT_HEADERS}
-    #${FABRIC_HEADERS}
-    #${NET_HEADERS}
     ${PLUGIN_HEADERS}
     ${UTIL_HEADERS}
-    #base.h
-    client.h
     eq.h
-    #fabric.h
-    #net.h
-    util.h
     admin.h
   SOURCES
     #${BASE_SOURCES}

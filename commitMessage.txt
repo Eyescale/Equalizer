@@ -1,8 +1,8 @@
-CMake: reduce compile time by building less libraries
+Temporary (?) fix for external doxygen
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

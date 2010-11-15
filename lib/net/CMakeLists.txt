@@ -17,6 +17,7 @@ endif(WIN32)
 purple_add_library(eq_net SHARED
   HEADERS_PREFIX "eq/net/"
   FORWARD HEADERS
+    ../net.h
     base.h
     barrier.h
     bufferConnection.h
@@ -50,8 +51,6 @@ purple_add_library(eq_net SHARED
     version.h
   PRECOMPILE_HEADERS
     precompile.h
-  INCLUDE_ALL_HEADER
-    eq/net.h
   SOURCES
     barrier.cpp
     bufferConnection.cpp
