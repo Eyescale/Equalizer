@@ -13,6 +13,19 @@ include_directories(SYSTEM ${OPENSCENEGRAPH_INCLUDE_DIRS})
 eq_add_example(osgScaleViewer
   HEADERS
     channel.h
+    config.h
+    frameData.h
+    initData.h
+    node.h
+    nodeFactory.h
+    osgScaleViewer.h
+    pipe.h
+    quad.h
+    sceneReader.h
+    sceneView.h
+    tracker.h
+    util.h
+    window.h
   SOURCES
     main.cpp
     osgScaleViewer.cpp

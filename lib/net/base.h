@@ -1,4 +1,4 @@
- /* Copyright (c) 2010, Daniel Pfeifer <daniel@pfeifer-mail.de> 
+/* Copyright (c) 2010, Daniel Pfeifer <daniel@pfeifer-mail.de> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published

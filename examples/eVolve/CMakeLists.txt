@@ -5,7 +5,22 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 eq_add_example(eVolve
   HEADERS
+    channel.h
+    config.h
     eVolve.h
+    error.h
+    frameData.h
+    framesOrderer.h
+    glslShaders.h
+    hlp.h
+    initData.h
+    localInitData.h
+    node.h
+    pipe.h
+    rawVolModel.h
+    rawVolModelRenderer.h
+    sliceClipping.h
+    window.h
   SOURCES
     channel.cpp
     config.cpp
