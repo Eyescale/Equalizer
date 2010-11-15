@@ -595,7 +595,7 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
     int64_t startTime = std::numeric_limits< int64_t >::max();
     int64_t endTime   = 0;
     bool  loadSet   = false;
-    int64_t timeTransmit = 0;
+    int64_t transmitTime = 0;
     for( uint32_t i = 0; i < nStatistics && !loadSet; ++i )
     {
         const eq::Statistic& data = statistics[i];
@@ -604,22 +604,27 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
         
         switch( data.type )
         {
-            case eq::Statistic::CHANNEL_CLEAR:
-            case eq::Statistic::CHANNEL_DRAW:
-            case eq::Statistic::CHANNEL_READBACK:
-                startTime = EQ_MIN( startTime, data.startTime );
-                endTime   = EQ_MAX( endTime, data.endTime );
-                break;
-            case Statistic::CHANNEL_FRAME_TRANSMIT:
-                timeTransmit += data.startTime - data.endTime;
-                break;
+        case eq::Statistic::CHANNEL_CLEAR:
+        case eq::Statistic::CHANNEL_DRAW:
+        case eq::Statistic::CHANNEL_READBACK:
+            startTime = EQ_MIN( startTime, data.startTime );
+            endTime   = EQ_MAX( endTime, data.endTime );
+            break;
+
+        case Statistic::CHANNEL_FRAME_TRANSMIT:
+            transmitTime += data.startTime - data.endTime;
+            break;
+        case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
+            transmitTime -= data.endTime - data.startTime;
+            break;
+
             // assemble blocks on input frames, stop using subsequent data
-            case eq::Statistic::CHANNEL_ASSEMBLE:
-                loadSet = true;
-                break;
+        case eq::Statistic::CHANNEL_ASSEMBLE:
+            loadSet = true;
+            break;
                 
-            default:
-                break;
+        default:
+            break;
         }
     }
 
@@ -628,7 +633,7 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
     
     EQASSERTINFO( load.missing > 0, load );
 
-    const int64_t time = EQ_MAX(endTime - startTime, timeTransmit );
+    const int64_t time = EQ_MAX(endTime - startTime, transmitTime );
     load.time += time;
     --load.missing;
 

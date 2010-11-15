@@ -52,7 +52,8 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
 
     if( hint == NICEST &&
         type != Statistic::CHANNEL_FRAME_TRANSMIT &&
-        type != Statistic::CHANNEL_FRAME_COMPRESS )
+        type != Statistic::CHANNEL_FRAME_COMPRESS &&
+        type != Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN )
     {
         channel->getWindow()->finish();
     }
@@ -70,7 +71,8 @@ ChannelStatistics::~ChannelStatistics()
     const Statistic::Type type = event.data.statistic.type;
     if( hint == NICEST &&
         type != Statistic::CHANNEL_FRAME_TRANSMIT &&
-        type != Statistic::CHANNEL_FRAME_COMPRESS )
+        type != Statistic::CHANNEL_FRAME_COMPRESS &&
+        type != Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN )
     {
         _owner->getWindow()->finish();
     }

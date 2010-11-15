@@ -772,6 +772,7 @@ void Channel::drawStatistics()
                 }
                 case Statistic::CHANNEL_FRAME_TRANSMIT:
                 case Statistic::CHANNEL_FRAME_COMPRESS:
+                case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
                     entities[ id ].doubleHeight = true;
                     break;
                 default:
@@ -843,6 +844,7 @@ void Channel::drawStatistics()
 
                 case Statistic::CHANNEL_FRAME_TRANSMIT:
                 case Statistic::CHANNEL_FRAME_COMPRESS:
+                case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
                     y = data.yPos - (HEIGHT + SPACE);
                     break;
                 default:
@@ -866,8 +868,9 @@ void Channel::drawStatistics()
                 
                 switch( stat.type )
                 {
-                case Statistic::CHANNEL_WAIT_FRAME:
                 case Statistic::CONFIG_WAIT_FINISH_FRAME:
+                case Statistic::CHANNEL_FRAME_WAIT_READY:
+                case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
                     y1 -= SPACE;
                     y2 += SPACE;
                     break;

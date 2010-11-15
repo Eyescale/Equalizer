@@ -266,7 +266,8 @@ void Channel::frameAssemble( const uint32_t frameID )
     {
         eq::Frame* frame = *i;
         {
-            eq::ChannelStatistics stat(eq::Statistic::CHANNEL_WAIT_FRAME, this);
+            eq::ChannelStatistics stat( eq::Statistic::CHANNEL_FRAME_WAIT_READY,
+                                        this );
             frame->waitReady( );
         }
         const eq::Range& range = frame->getRange();

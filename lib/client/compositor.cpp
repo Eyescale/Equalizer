@@ -119,7 +119,8 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
     {
         const Frame* frame = *i;
         {
-            ChannelStatistics event( Statistic::CHANNEL_WAIT_FRAME, channel );
+            ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
+                                     channel );
             frame->waitReady();
         }
 
@@ -295,7 +296,7 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
         {
             Frame* frame = *i;
             {
-                ChannelStatistics event( Statistic::CHANNEL_WAIT_FRAME,
+                ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
                                          channel );
                 frame->waitReady( );
             }
@@ -421,7 +422,8 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
     while( !unusedFrames.empty( ))
     {
         {
-            ChannelStatistics event( Statistic::CHANNEL_WAIT_FRAME, channel );
+            ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
+                                     channel );
             monitor.waitGE( ++nUsedFrames );
         }
 

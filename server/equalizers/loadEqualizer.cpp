@@ -234,7 +234,7 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
             int64_t startTime = std::numeric_limits< int64_t >::max();
             int64_t endTime   = 0;
             bool    loadSet   = false;
-            int64_t timeTransmit = 0;
+            int64_t transmitTime = 0;
             for( uint32_t k = 0; k < nStatistics; ++k )
             {
                 const Statistic& stat = statistics[k];
@@ -247,23 +247,27 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
 
                 switch( stat.type )
                 {
-                    case Statistic::CHANNEL_CLEAR:
-                    case Statistic::CHANNEL_DRAW:
-                    case Statistic::CHANNEL_READBACK:
-                        startTime = EQ_MIN( startTime, stat.startTime );
-                        endTime   = EQ_MAX( endTime, stat.endTime );
-                        break;
-                    case Statistic::CHANNEL_FRAME_TRANSMIT:
-                        timeTransmit += stat.endTime - stat.startTime;
-                        break;
-                    // assemble blocks on input frames, stop using subsequent
-                    // data
-                    case Statistic::CHANNEL_ASSEMBLE:
-                        loadSet = true;
-                        break;
+                case Statistic::CHANNEL_CLEAR:
+                case Statistic::CHANNEL_DRAW:
+                case Statistic::CHANNEL_READBACK:
+                    startTime = EQ_MIN( startTime, stat.startTime );
+                    endTime   = EQ_MAX( endTime, stat.endTime );
+                    break;
 
-                    default:
-                        break;
+                case Statistic::CHANNEL_FRAME_TRANSMIT:
+                    transmitTime += stat.endTime - stat.startTime;
+                    break;
+                case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
+                    transmitTime -= stat.endTime - stat.startTime;
+                    break;
+
+                // assemble blocks on input frames, stop using subsequent data
+                case Statistic::CHANNEL_ASSEMBLE:
+                    loadSet = true;
+                    break;
+
+                default:
+                    break;
                 }
             }
 
@@ -272,7 +276,7 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
 
             data.time = endTime - startTime;
             data.time = EQ_MAX( data.time, 1 );
-            data.time = EQ_MAX( data.time, timeTransmit );
+            data.time = EQ_MAX( data.time, transmitTime );
             data.assembleTime = EQ_MAX( data.assembleTime, 0 );
             data.load = static_cast< float >( data.time ) / data.vp.getArea();
             EQLOG( LOG_LB2 ) << "Added load "<< data.load << " (t=" << data.time
@@ -291,7 +295,7 @@ void LoadEqualizer::_updateAssembleTime( Data& data, const Statistic& stat )
 {
     switch( stat.type )
     {
-        case Statistic::CHANNEL_WAIT_FRAME:
+        case Statistic::CHANNEL_FRAME_WAIT_READY:
             data.assembleTime -= stat.endTime - stat.startTime;
             break;
 

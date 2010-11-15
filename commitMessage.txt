@@ -1,9 +1,10 @@
-Fix connection set on Posix (broke in revision 5091)
+Add send token statistic to overlay (C. Rohn) and equalizers
+Rename FRAME_WAIT_READY statistic for consistency
 
 [ ] May break build
-[ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[x] May break existing applications (see CHANGES.txt)
+[ ] Bugfix
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

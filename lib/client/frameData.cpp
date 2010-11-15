@@ -333,8 +333,8 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
 {
     ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT,
                                      channel );
-    transmitEvent.event.data.statistic.task = taskID;
     transmitEvent.statisticsIndex = statisticsIndex;
+    transmitEvent.event.data.statistic.task = taskID;
 
     if( _data.buffers == 0 )
     {
@@ -437,7 +437,13 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
 
         // send image pixel data packet
         if( _useSendToken )
+        {
+            ChannelStatistics waitEvent(Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN,
+                                        channel );
+            waitEvent.statisticsIndex = statisticsIndex;
+            waitEvent.event.data.statistic.task = taskID;
             getLocalNode()->acquireSendToken( toNode );
+        }
 
         connection->lockSend();
         connection->send( &packet, packetSize, true );
