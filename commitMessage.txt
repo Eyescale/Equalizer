@@ -1,10 +1,9 @@
-Add send token statistic to overlay (C. Rohn) and equalizers
-Rename FRAME_WAIT_READY statistic for consistency
+CMake: reduce compile time by building less libraries
 
 [ ] May break build
-[x] May break existing applications (see CHANGES.txt)
+[ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

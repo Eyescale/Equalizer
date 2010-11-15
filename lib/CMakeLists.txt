@@ -33,7 +33,8 @@ add_subdirectory(net)
 add_subdirectory(fabric)
 
 # TODO: split this library
-purple_add_library(eq_transitional SHARED
+purple_add_library(eq SHARED
+  HEADERS_PREFIX "eq/"
   FORWARD HEADERS
     #${BASE_HEADERS}
     ${CLIENT_HEADERS}
@@ -66,14 +67,13 @@ purple_add_library(eq_transitional SHARED
     ${X11_LIBRARIES}
     ${GL_LIBRARIES}
     ${CUDA_LIBRARIES}
-  HEADERS_PREFIX "eq/"
   )
 
 purple_add_amalgamation(Equalizer
     shared eq_base
     shared eq_net
     shared eq_fabric
-    shared eq_transitional
+    shared eq
   LINK_LIBRARIES
     ${PTHREAD_LIBRARIES}
     ${Boost_LIBRARIES}

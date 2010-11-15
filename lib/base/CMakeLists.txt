@@ -2,7 +2,8 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 ##
 
-purple_add_library(eq_base
+purple_add_library(eq_base SHARED
+  HEADERS_PREFIX "eq/base/"
   FORWARD HEADERS
     atomic.h
     base.h
@@ -48,8 +49,6 @@ purple_add_library(eq_base
     timedLock.h
     types.h
     uuid.h
-  HEADERS_PREFIX
-    "eq/base/"
   PRECOMPILE_HEADERS
     <pthread.h>
     precompile.h

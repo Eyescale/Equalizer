@@ -14,7 +14,8 @@ if(WIN32)
   list(APPEND NET_ADD_SOURCES pgmConnection.cpp)
 endif(WIN32)
 
-purple_add_library(eq_net
+purple_add_library(eq_net SHARED
+  HEADERS_PREFIX "eq/net/"
   FORWARD HEADERS
     base.h
     barrier.h
@@ -47,8 +48,6 @@ purple_add_library(eq_net
     session.h
     types.h
     version.h
-  HEADERS_PREFIX
-    "eq/net/"
   PRECOMPILE_HEADERS
     precompile.h
   INCLUDE_ALL_HEADER

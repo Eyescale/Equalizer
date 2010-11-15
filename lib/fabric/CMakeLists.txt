@@ -2,7 +2,8 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 ##
 
-purple_add_library(eq_fabric
+purple_add_library(eq_fabric SHARED
+  HEADERS_PREFIX "eq/fabric/"
   FORWARD HEADERS
     base.h
     canvas.h
@@ -74,6 +75,5 @@ purple_add_library(eq_fabric
   LINK_LIBRARIES
     shared eq_base
     shared eq_net
-  HEADERS_PREFIX "eq/fabric/"
   INCLUDE_ALL_HEADER eq/fabric.h
   )
