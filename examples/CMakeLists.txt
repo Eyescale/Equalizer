@@ -10,7 +10,7 @@ function(EQ_ADD_EXAMPLE NAME)
 
   eq_stringify_shaders(SHADERS ${THIS_SHADERS})
 
-  set(THIS_TARGET exe_${NAME})
+  set(THIS_TARGET ${NAME})
   add_executable(${THIS_TARGET} MACOSX_BUNDLE ${THIS_SOURCES} ${THIS_HEADERS} ${SHADERS})
 
   purple_expand_libraries(LINK_LIBRARIES ${THIS_LINK_LIBRARIES})

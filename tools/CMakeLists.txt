@@ -5,7 +5,7 @@ include(PurpleExpandLibraries)
 
 macro(EQ_ADD_TOOL NAME)
   parse_arguments(THIS "SOURCES;HEADERS;LINK_LIBRARIES" "" ${ARGN})
-  set(THIS_TARGET exe_${NAME})
+  set(THIS_TARGET ${NAME})
   add_executable(${THIS_TARGET} ${THIS_SOURCES} ${THIS_HEADERS})
   purple_expand_libraries(LINK_LIBRARIES ${THIS_LINK_LIBRARIES})
   target_link_libraries(${THIS_TARGET} ${LINK_LIBRARIES})
