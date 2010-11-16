@@ -27,6 +27,7 @@
 #include <eq/fabric/subPixel.h>      // member
 #include <eq/net/object.h>           // base class
 #include <eq/base/monitor.h>         // member
+#include <eq/base/spinLock.h>        // member
 
 #include <set>                       // member
 

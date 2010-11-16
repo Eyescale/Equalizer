@@ -127,9 +127,11 @@ namespace base
          * @param result the result of the request.
          * @version 1.0
          */
-        EQ_BASE_DECL void serveRequest( const uint32_t requestID, void* result=0 );
+        EQ_BASE_DECL void serveRequest( const uint32_t requestID,
+                                        void* result = 0 );
         /** Serve a request with a uint32_t result. @version 1.0 */
-        EQ_BASE_DECL void serveRequest( const uint32_t requestID, uint32_t result);
+        EQ_BASE_DECL void serveRequest( const uint32_t requestID,
+                                        uint32_t result );
         /** Serve a request with a bool result. @version 1.0 */
         EQ_BASE_DECL void serveRequest( const uint32_t requestID, bool result );
 

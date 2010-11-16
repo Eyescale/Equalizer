@@ -44,12 +44,7 @@ namespace net
         CMD_NODE_ACQUIRE_SEND_TOKEN,
         CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY,
         CMD_NODE_RELEASE_SEND_TOKEN,
-        CMD_NODE_FILL1, // some buffer for binary-compatible patches
-        CMD_NODE_FILL2,
-        CMD_NODE_FILL3,
-        CMD_NODE_FILL4,
-        CMD_NODE_FILL5,
-        CMD_NODE_CUSTOM // must be last
+        CMD_NODE_CUSTOM = 30  // some buffer for binary-compatible patches
     };
 
     enum SessionCommand
