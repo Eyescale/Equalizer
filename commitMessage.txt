@@ -1,10 +1,8 @@
-Add make clean target
-Fix osgSV cmake for partial osg installs
-Upgrade to glew 1.5.7 with glu removed
+Minor CMake cleanup
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

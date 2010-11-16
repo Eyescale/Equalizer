@@ -49,13 +49,10 @@ if(NOT GLEW_FOUND OR NOT GLEW_MX_SUPPORTED)
   set(GLEW_NAME glew-1.5.7)
   set(GLEW_TGZ ${CMAKE_SOURCE_DIR}/externals/${GLEW_NAME}.tgz)
   set(GLEW_DIR ${CMAKE_BINARY_DIR}/${GLEW_NAME})
-  set(GLEW_PATCH ${CMAKE_SOURCE_DIR}/externals/${GLEW_NAME}.patch)
 
   if(NOT EXISTS ${GLEW_DIR})
     execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
       ${GLEW_TGZ} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-    execute_process(COMMAND ${CMAKE_COMMAND} -E patch -p0 <
-      ${GLEW_PATCH} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
   endif(NOT EXISTS ${GLEW_DIR})
 
   set(GLEW_INCLUDE_DIRS ${GLEW_DIR}/include)
