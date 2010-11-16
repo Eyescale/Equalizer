@@ -50,8 +50,8 @@ add_library(pthread SHARED
   ${PTHREADS_DIR}/nonportable.c
   )
 
-set_target_properties(pthread PROPERTIES
-  COMPILE_DEFINITIONS PTW32_BUILD=1)
+set_target_properties(pthread PROPERTIES COMPILE_DEFINITIONS PTW32_BUILD=1)
+target_link_libraries(pthread Ws2_32)
 
 install(TARGETS pthread
   ARCHIVE DESTINATION lib COMPONENT dev
