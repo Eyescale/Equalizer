@@ -433,6 +433,7 @@ namespace net
 
         const NodeID _pollIDMaster( const uint32_t id ) const;
         NodePtr _pollIDMasterNode( const uint32_t id ) const;
+        NodePtr _connectMaster( const uint32_t id );
 
         void _registerThreadObject( Object* object, const uint32_t id );
 
@@ -467,10 +468,9 @@ namespace net
         bool _cmdAttachObject( Command& command );
         bool _cmdDetachObject( Command& command );
         bool _cmdMapObject( Command& command );
+        bool _cmdMapObjectSuccess( Command& command );
+        bool _cmdMapObjectReply( Command& command );
         bool _cmdUnmapObject( Command& command );
-        bool _cmdSubscribeObject( Command& command );
-        bool _cmdSubscribeObjectSuccess( Command& command );
-        bool _cmdSubscribeObjectReply( Command& command );
         bool _cmdUnsubscribeObject( Command& command );
         bool _cmdInstance( Command& command );
         bool _cmdRegisterObject( Command& command );

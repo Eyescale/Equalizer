@@ -139,34 +139,6 @@ namespace net
             {
                 command = CMD_SESSION_MAP_OBJECT;
                 size    = sizeof( SessionMapObjectPacket ); 
-            }
-        
-        NodeID   masterNodeID;
-        uint32_t requestID;
-        uint32_t objectID;
-        uint32_t version;
-    };
-
-    struct SessionUnmapObjectPacket : public SessionPacket
-    {
-        SessionUnmapObjectPacket()
-            {
-                command = CMD_SESSION_UNMAP_OBJECT;
-                size    = sizeof( SessionUnmapObjectPacket ); 
-            }
-        
-        uint32_t objectID;
-    };
-
-    struct SessionSubscribeObjectPacket : public SessionPacket
-    {
-        SessionSubscribeObjectPacket( const SessionMapObjectPacket* mapPacket )
-            {
-                command = CMD_SESSION_SUBSCRIBE_OBJECT;
-                size    = sizeof( SessionSubscribeObjectPacket );
-                requestID  = mapPacket->requestID;
-                requestedVersion = mapPacket->version;
-                objectID   = mapPacket->objectID;
                 minCachedVersion = VERSION_HEAD;
                 maxCachedVersion = 0;
                 useCache   = false;
@@ -182,13 +154,14 @@ namespace net
         bool     useCache;
     };
 
-    struct SessionSubscribeObjectSuccessPacket : public SessionPacket
+
+    struct SessionMapObjectSuccessPacket : public SessionPacket
     {
-        SessionSubscribeObjectSuccessPacket( 
-            const SessionSubscribeObjectPacket* request )
+        SessionMapObjectSuccessPacket( 
+            const SessionMapObjectPacket* request )
             {
-                command    = CMD_SESSION_SUBSCRIBE_OBJECT_SUCCESS;
-                size       = sizeof( SessionSubscribeObjectSuccessPacket ); 
+                command    = CMD_SESSION_MAP_OBJECT_SUCCESS;
+                size       = sizeof( SessionMapObjectSuccessPacket ); 
                 sessionID  = request->sessionID;
                 requestID  = request->requestID;
                 objectID   = request->objectID;
@@ -203,16 +176,16 @@ namespace net
         uint32_t masterInstanceID;
     };
 
-    struct SessionSubscribeObjectReplyPacket : public SessionPacket
+    struct SessionMapObjectReplyPacket : public SessionPacket
     {
-        SessionSubscribeObjectReplyPacket( 
-            const SessionSubscribeObjectPacket* request )
+        SessionMapObjectReplyPacket( 
+            const SessionMapObjectPacket* request )
                 : requestID( request->requestID )
                 , objectID( request->objectID )
                 , useCache( request->useCache )
             {
-                command   = CMD_SESSION_SUBSCRIBE_OBJECT_REPLY;
-                size      = sizeof( SessionSubscribeObjectReplyPacket ); 
+                command   = CMD_SESSION_MAP_OBJECT_REPLY;
+                size      = sizeof( SessionMapObjectReplyPacket ); 
                 sessionID = request->sessionID;
                 version   = request->requestedVersion;
                 cachedVersion = VERSION_INVALID;
@@ -225,6 +198,17 @@ namespace net
         uint32_t cachedVersion;
         bool result;
         const bool useCache;
+    };
+
+    struct SessionUnmapObjectPacket : public SessionPacket
+    {
+        SessionUnmapObjectPacket()
+            {
+                command = CMD_SESSION_UNMAP_OBJECT;
+                size    = sizeof( SessionUnmapObjectPacket ); 
+            }
+        
+        uint32_t objectID;
     };
 
     struct SessionUnsubscribeObjectPacket : public SessionPacket
@@ -307,28 +291,21 @@ namespace net
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const SessionMapObjectPacket* packet )
-    {
-        os << (SessionPacket*)packet << " id " << packet->objectID << " req "
-           << packet->requestID << " v" << packet->version;
-        return os;
-    }
-    inline std::ostream& operator << ( std::ostream& os, 
-                                    const SessionSubscribeObjectPacket* packet )
+                                    const SessionMapObjectPacket* packet )
     {
         os << (SessionPacket*)packet << " id " << packet->objectID << "." 
            << packet->instanceID << " req " << packet->requestID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                             const SessionSubscribeObjectSuccessPacket* packet )
+                             const SessionMapObjectSuccessPacket* packet )
     {
         os << (SessionPacket*)packet << " id " << packet->objectID << "." 
            << packet->instanceID << " req " << packet->requestID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                               const SessionSubscribeObjectReplyPacket* packet )
+                               const SessionMapObjectReplyPacket* packet )
     {
         os << (SessionPacket*)packet << " id " << packet->objectID << " req "
            << packet->requestID << " v" << packet->cachedVersion;

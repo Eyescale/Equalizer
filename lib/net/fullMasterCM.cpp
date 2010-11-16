@@ -159,11 +159,11 @@ uint32_t FullMasterCM::addSlave( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
     EQASSERT( command->type == PACKETTYPE_EQNET_SESSION );
-    EQASSERT( command->command == CMD_SESSION_SUBSCRIBE_OBJECT );
+    EQASSERT( command->command == CMD_SESSION_MAP_OBJECT );
 
     NodePtr node = command.getNode();
-    SessionSubscribeObjectPacket* packet =
-        command.getPacket<SessionSubscribeObjectPacket>();
+    SessionMapObjectPacket* packet =
+        command.getPacket<SessionMapObjectPacket>();
     const uint32_t requested  = packet->requestedVersion;
     const uint32_t instanceID = packet->instanceID;
 

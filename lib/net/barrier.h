@@ -74,8 +74,8 @@ namespace net
         /** 
          * Enter the barrier, blocks until the barrier has been reached.
          *
-         * The implementation assumes that the master node instance also enters
-         * the barrier.
+         * The implementation currently assumes that the master node instance
+         * also enters the barrier.
          */
         EQ_NET_DECL void enter();
         //@}

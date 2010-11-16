@@ -154,15 +154,14 @@ void Session::notifyMapped( NodePtr node )
                      CmdFunc( this, &Session::_cmdDeregisterObject ), queue );
     registerCommand( CMD_SESSION_MAP_OBJECT,
                      CmdFunc( this, &Session::_cmdMapObject ), queue );
+    registerCommand( CMD_SESSION_MAP_OBJECT,
+                     CmdFunc( this, &Session::_cmdMapObject ), queue );
+    registerCommand( CMD_SESSION_MAP_OBJECT_SUCCESS,
+                     CmdFunc( this, &Session::_cmdMapObjectSuccess ), 0 );
+    registerCommand( CMD_SESSION_MAP_OBJECT_REPLY,
+                     CmdFunc( this, &Session::_cmdMapObjectReply ), queue );
     registerCommand( CMD_SESSION_UNMAP_OBJECT,
                      CmdFunc( this, &Session::_cmdUnmapObject ), 0 );
-    registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT,
-                     CmdFunc( this, &Session::_cmdSubscribeObject ), queue );
-    registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT_SUCCESS,
-                     CmdFunc( this, &Session::_cmdSubscribeObjectSuccess ), 0 );
-    registerCommand( CMD_SESSION_SUBSCRIBE_OBJECT_REPLY,
-                     CmdFunc( this, &Session::_cmdSubscribeObjectReply ),
-                     queue );
     registerCommand( CMD_SESSION_UNSUBSCRIBE_OBJECT,
                      CmdFunc( this, &Session::_cmdUnsubscribeObject ), queue );
     registerCommand( CMD_SESSION_OBJECT_INSTANCE,
@@ -446,62 +445,41 @@ uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
                                const uint32_t version )
 {
     EQ_TS_NOT_THREAD( _commandThread );
-    EQASSERT( object );
-    EQASSERT( id <= EQ_ID_MAX );
-
     EQLOG( LOG_OBJECTS ) << "Mapping " << base::className( object ) << " to id "
                          << id << " version " << version << std::endl;
-
+    EQASSERT( object );
+    EQASSERT( id <= EQ_ID_MAX );
     EQASSERT( object->getID() == EQ_ID_INVALID );
     EQASSERT( !object->isMaster( ));
     EQASSERT( !_localNode->inCommandThread( ));
-        
-    // Connect master node, can't do that from the command thread!
-    NodeID masterNodeID = _pollIDMaster( id );
-    NodePtr master;
 
-    if( masterNodeID != NodeID::ZERO )
-    {
-        master = _localNode->connect( masterNodeID );
-        if( !master || master->isClosed( ))
-        {
-            if( !_isMaster ) // clear local cache
-            {
-                SessionUnsetIDMasterPacket packet;
-                packet.identifier = id;
-                packet.requestID = _localNode->registerRequest();
-                _sendLocal( packet );
-                _localNode->waitRequest( packet.requestID );
-            }
-            master = 0;
-        }
-    }
-
+    NodePtr master = _connectMaster( id );
     if( !master )
-    {
-        masterNodeID = getIDMaster( id );
-        if( masterNodeID == NodeID::ZERO )
-        {
-            EQWARN << "Can't find master node for object id " << id <<std::endl;
-            return EQ_ID_INVALID;
-        }
-
-        master = _localNode->connect( masterNodeID );
-        if( !master || master->isClosed( ))
-        {
-            EQWARN << "Can't connect master node with id " << masterNodeID
-                   << " for object id " << id << std::endl;
-            return EQ_ID_INVALID;
-        }
-    }
+        return EQ_ID_INVALID;
 
     SessionMapObjectPacket packet;
     packet.requestID    = _localNode->registerRequest( object );
     packet.objectID     = id;
-    packet.version      = version;
-    packet.masterNodeID = masterNodeID;
+    packet.requestedVersion = version;
+    packet.instanceID = _genNextID( _instanceIDs );
 
-    _sendLocal( packet );
+    if( _instanceCache )
+    {
+        const InstanceCache::Data& cached = (*_instanceCache)[ id ];
+        if( cached != InstanceCache::Data::NONE )
+        {
+            const ObjectInstanceDataIStreamDeque& versions = cached.versions;
+            EQASSERT( !cached.versions.empty( ));
+            packet.useCache = true;
+            packet.masterInstanceID = cached.masterInstanceID;
+            packet.minCachedVersion = versions.front()->getVersion();
+            packet.maxCachedVersion = versions.back()->getVersion();
+            EQLOG( LOG_OBJECTS ) << "Object " << id << " have v"
+                                 << packet.minCachedVersion << ".."
+                                 << packet.maxCachedVersion << std::endl;
+        }
+    }
+    send( master, packet );
     return packet.requestID;
 }
 
@@ -660,6 +638,42 @@ void Session::releaseObject( Object* object )
         deregisterObject( object );
     else
         unmapObject( object );
+}
+
+NodePtr Session::_connectMaster( const uint32_t id )
+{
+    NodeID masterNodeID = _pollIDMaster( id );
+
+    if( masterNodeID != NodeID::ZERO )
+    {
+        NodePtr master = _localNode->connect( masterNodeID );
+        if( master.isValid() && !master->isClosed( ))
+            return master;
+
+        if( !_isMaster ) // clear local cache
+        {
+            SessionUnsetIDMasterPacket packet;
+            packet.identifier = id;
+            packet.requestID = _localNode->registerRequest();
+            _sendLocal( packet );
+            _localNode->waitRequest( packet.requestID );
+        }
+    }
+
+    masterNodeID = getIDMaster( id );
+    if( masterNodeID == NodeID::ZERO )
+    {
+        EQWARN << "Can't find master node for object id " << id <<std::endl;
+        return 0;
+    }
+
+    NodePtr master = _localNode->connect( masterNodeID );
+    if( master.isValid() && !master->isClosed( ))
+    return master;
+
+    EQWARN << "Can't connect master node with id " << masterNodeID
+           << " for object id " << id << std::endl;
+    return 0;
 }
 
 void Session::ackRequest( NodePtr node, const uint32_t requestID )
@@ -1059,56 +1073,9 @@ bool Session::_cmdDeregisterObject( Command& command )
 bool Session::_cmdMapObject( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
-    const SessionMapObjectPacket* packet = 
-        command.getPacket< SessionMapObjectPacket >();
+    SessionMapObjectPacket* packet =
+        command.getPacket<SessionMapObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd map object " << packet << std::endl;
-
-#ifndef NDEBUG
-    Object* object = static_cast<Object*>(
-        _localNode->getRequestData( packet->requestID ));    
-
-    EQASSERT( object );
-    EQASSERT( !object->isMaster( ));
-    EQASSERT( packet->masterNodeID != NodeID::ZERO );
-#endif
-
-    const uint32_t id = packet->objectID;
-    NodePtr master = _localNode->getNode( packet->masterNodeID );
-
-    EQASSERTINFO( master.isValid() && master->isConnected(),
-                  "Master node for object id " << id << " not connected" );
-
-    // slave instantiation - subscribe first
-    SessionSubscribeObjectPacket subscribePacket( packet );
-    subscribePacket.instanceID = _genNextID( _instanceIDs );
-
-    if( _instanceCache )
-    {
-        const InstanceCache::Data& cached = (*_instanceCache)[ id ];
-        if( cached != InstanceCache::Data::NONE )
-        {
-            const ObjectInstanceDataIStreamDeque& versions = cached.versions;
-            EQASSERT( !cached.versions.empty( ));
-            subscribePacket.useCache = true;
-            subscribePacket.masterInstanceID = cached.masterInstanceID;
-            subscribePacket.minCachedVersion = versions.front()->getVersion();
-            subscribePacket.maxCachedVersion = versions.back()->getVersion();
-            EQLOG( LOG_OBJECTS ) << "Object " << id << " have v"
-                                 << subscribePacket.minCachedVersion << ".."
-                                 << subscribePacket.maxCachedVersion
-                                 << std::endl;
-        }
-    }
-    send( master, subscribePacket );
-    return true;
-}
-
-bool Session::_cmdSubscribeObject( Command& command )
-{
-    EQ_TS_THREAD( _commandThread );
-    SessionSubscribeObjectPacket* packet =
-        command.getPacket<SessionSubscribeObjectPacket>();
-    EQLOG( LOG_OBJECTS ) << "Cmd subscribe object " << packet << std::endl;
 
     NodePtr        node = command.getNode();
     const uint32_t id   = packet->objectID;
@@ -1134,7 +1101,7 @@ bool Session::_cmdSubscribeObject( Command& command )
         }
     }
     
-    SessionSubscribeObjectReplyPacket reply( packet );
+    SessionMapObjectReplyPacket reply( packet );
     reply.nodeID = node->getNodeID();
 
     if( master )
@@ -1145,7 +1112,7 @@ bool Session::_cmdSubscribeObject( Command& command )
         if( version == VERSION_OLDEST || version == VERSION_NONE ||
             version >= oldestVersion)
         {
-            SessionSubscribeObjectSuccessPacket successPacket( packet );
+            SessionMapObjectSuccessPacket successPacket( packet );
             successPacket.changeType       = master->getChangeType();
             successPacket.masterInstanceID = master->getInstanceID();
             successPacket.nodeID = node->getNodeID();
@@ -1182,7 +1149,7 @@ bool Session::_cmdSubscribeObject( Command& command )
     }
     else
     {
-        EQWARN << "Can't find master object to subscribe " << id << std::endl;
+        EQWARN << "Can't find master object to map " << id << std::endl;
         reply.result = false;
     }
 
@@ -1191,19 +1158,19 @@ bool Session::_cmdSubscribeObject( Command& command )
     return true;
 }
 
-bool Session::_cmdSubscribeObjectSuccess( Command& command )
+bool Session::_cmdMapObjectSuccess( Command& command )
 {
     EQ_TS_THREAD( _receiverThread );
-    const SessionSubscribeObjectSuccessPacket* packet = 
-        command.getPacket<SessionSubscribeObjectSuccessPacket>();
+    const SessionMapObjectSuccessPacket* packet = 
+        command.getPacket<SessionMapObjectSuccessPacket>();
 
-    // Subscribe success packets are potentially multicasted (see above)
+    // Map success packets are potentially multicasted (see above)
     // verify that we are the intended receiver
     const NodeID& nodeID = packet->nodeID;
     if( nodeID != _localNode->getNodeID( ))
         return true;
 
-    EQLOG( LOG_OBJECTS ) << "Cmd subscribe object success " << packet
+    EQLOG( LOG_OBJECTS ) << "Cmd map object success " << packet
                          << std::endl;
 
     // set up change manager and attach object to dispatch table
@@ -1212,21 +1179,21 @@ bool Session::_cmdSubscribeObjectSuccess( Command& command )
     EQASSERT( object );
     EQASSERT( !object->isMaster( ));
 
-    object->setupChangeManager( Object::ChangeType( packet->changeType ), false, 
+    object->setupChangeManager( Object::ChangeType( packet->changeType ), false,
                                 packet->masterInstanceID );
     _attachObject( object, packet->objectID, packet->instanceID );
     return true;
 }
 
-bool Session::_cmdSubscribeObjectReply( Command& command )
+bool Session::_cmdMapObjectReply( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
-    const SessionSubscribeObjectReplyPacket* packet = 
-        command.getPacket<SessionSubscribeObjectReplyPacket>();
-    EQLOG( LOG_OBJECTS ) << "Cmd subscribe object reply " << packet
+    const SessionMapObjectReplyPacket* packet = 
+        command.getPacket<SessionMapObjectReplyPacket>();
+    EQLOG( LOG_OBJECTS ) << "Cmd map object reply " << packet
                          << std::endl;
 
-    // Subscribe reply packets are potentially multicasted (see above)
+    // Map reply packets are potentially multicasted (see above)
     // verify that we are the intended receiver
     const NodeID& nodeID = packet->nodeID;
     if( nodeID != _localNode->getNodeID( ))
@@ -1265,7 +1232,7 @@ bool Session::_cmdSubscribeObjectReply( Command& command )
         }
     }
     else
-        EQWARN << "Could not subscribe object " << packet->objectID
+        EQWARN << "Could not map object " << packet->objectID
                << std::endl;
 
     _localNode->serveRequest( packet->requestID, packet->version );
