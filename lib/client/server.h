@@ -20,6 +20,7 @@
 
 #include <eq/client/types.h>     // basic typedefs
 #include <eq/fabric/server.h>    // base class
+#include <eq/net/node.h>         // base class
 
 namespace eq
 {
@@ -27,10 +28,6 @@ namespace eq
     class Config;
     class ConfigParams;
     class NodeFactory;
-    namespace net
-    {
-        class node;
-    }
 
     /**
      * Proxy object for the connection to an Equalizer server.
@@ -40,8 +37,8 @@ namespace eq
      * and release a Config from the server.
      * @sa Client::connectServer
      */
-    class Server : public fabric::Server< Client, Server, Config, 
-                                          NodeFactory, net::Node >
+    class Server : public fabric::Server< Client, Server, Config, NodeFactory,
+                                          net::Node >
     {
     public:
         /** Construct a new server. */

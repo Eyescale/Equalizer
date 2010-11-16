@@ -21,13 +21,10 @@
 #include <eq/admin/base.h>
 #include <eq/admin/types.h>
 #include <eq/fabric/server.h>       // base class
+#include <eq/net/node.h>         // base class
 
 namespace eq
 {
-namespace net
-{
-    class Node;
-}
 namespace admin
 {
     class NodeFactory;
@@ -38,8 +35,8 @@ namespace admin
      *
      * @sa Client::connectServer
      */
-    class Server : public fabric::Server< Client, Server, Config, 
-                                          NodeFactory, eq::net::Node >
+    class Server : public fabric::Server< Client, Server, Config, NodeFactory,
+                                          net::Node >
     {
     public:
         /** Construct a new server. @version 1.0 */

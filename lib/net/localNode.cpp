@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c)  2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                     2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -31,7 +32,7 @@ namespace eq
 namespace net
 {
 
-typedef CommandFunc<LocalNode> NodeFunc;
+typedef CommandFunc<LocalNode> CmdFunc;
 
 LocalNode::LocalNode( ) : _hasSendToken( true )
 {
@@ -156,37 +157,37 @@ bool LocalNode::listen()
 
     CommandQueue* queue = getCommandThreadQueue();
     registerCommand( CMD_NODE_STOP,
-                     NodeFunc( this, &LocalNode::_cmdStop ), queue );
+                     CmdFunc( this, &LocalNode::_cmdStop ), queue );
     registerCommand( CMD_NODE_REGISTER_SESSION,
-                    NodeFunc( this, &LocalNode::_cmdRegisterSession ), 0 );
+                    CmdFunc( this, &LocalNode::_cmdRegisterSession ), 0 );
     registerCommand( CMD_NODE_MAP_SESSION,
-                    NodeFunc( this, &LocalNode::_cmdMapSession ), queue );
+                    CmdFunc( this, &LocalNode::_cmdMapSession ), queue );
     registerCommand( CMD_NODE_MAP_SESSION_REPLY,
-                    NodeFunc( this, &LocalNode::_cmdMapSessionReply ), 0 );
+                    CmdFunc( this, &LocalNode::_cmdMapSessionReply ), 0 );
     registerCommand( CMD_NODE_UNMAP_SESSION, 
-                    NodeFunc( this, &LocalNode::_cmdUnmapSession ), queue );
+                    CmdFunc( this, &LocalNode::_cmdUnmapSession ), queue );
     registerCommand( CMD_NODE_UNMAP_SESSION_REPLY,
-                    NodeFunc( this, &LocalNode::_cmdUnmapSessionReply ), 0 );
+                    CmdFunc( this, &LocalNode::_cmdUnmapSessionReply ), 0 );
     registerCommand( CMD_NODE_CONNECT,
-                    NodeFunc( this, &LocalNode::_cmdConnect ), 0);
+                    CmdFunc( this, &LocalNode::_cmdConnect ), 0);
     registerCommand( CMD_NODE_CONNECT_REPLY,
-                    NodeFunc( this, &LocalNode::_cmdConnectReply ), 0 );
+                    CmdFunc( this, &LocalNode::_cmdConnectReply ), 0 );
     registerCommand( CMD_NODE_CONNECT_ACK, 
-                    NodeFunc( this, &LocalNode::_cmdConnectAck ), 0 );
+                    CmdFunc( this, &LocalNode::_cmdConnectAck ), 0 );
     registerCommand( CMD_NODE_ID,
-                    NodeFunc( this, &LocalNode::_cmdID ), 0 );
+                    CmdFunc( this, &LocalNode::_cmdID ), 0 );
     registerCommand( CMD_NODE_DISCONNECT,
-                    NodeFunc( this, &LocalNode::_cmdDisconnect ), 0 );
+                    CmdFunc( this, &LocalNode::_cmdDisconnect ), 0 );
     registerCommand( CMD_NODE_GET_NODE_DATA,
-                    NodeFunc( this, &LocalNode::_cmdGetNodeData), queue );
+                    CmdFunc( this, &LocalNode::_cmdGetNodeData), queue );
     registerCommand( CMD_NODE_GET_NODE_DATA_REPLY,
-                    NodeFunc( this, &LocalNode::_cmdGetNodeDataReply ), 0 );
+                    CmdFunc( this, &LocalNode::_cmdGetNodeDataReply ), 0 );
     registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN,
-                    NodeFunc( this, &LocalNode::_cmdAcquireSendToken ), queue );
+                    CmdFunc( this, &LocalNode::_cmdAcquireSendToken ), queue );
     registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY,
-                    NodeFunc( this, &LocalNode::_cmdAcquireSendTokenReply ) , 0 );
+                     CmdFunc( this, &LocalNode::_cmdAcquireSendTokenReply ), 0);
     registerCommand( CMD_NODE_RELEASE_SEND_TOKEN,
-                    NodeFunc( this, &LocalNode::_cmdReleaseSendToken ), queue );
+                     CmdFunc( this, &LocalNode::_cmdReleaseSendToken ), queue );
 
     EQVERB << base::className( this ) << " start command and receiver thread "
            << std::endl;
@@ -410,7 +411,7 @@ bool LocalNode::disconnect( NodePtr node )
     if( node->_state != STATE_CONNECTED )
         return true;
 
-    EQASSERT( !_inCommandThread( ));
+    EQASSERT( !inCommandThread( ));
 
     NodeDisconnectPacket packet;
     packet.requestID = registerRequest( node.get( ));
@@ -469,7 +470,7 @@ void LocalNode::_removeSession( Session* session )
 
 void LocalNode::registerSession( Session* session )
 {
-    EQASSERT( !_inCommandThread( ));
+    EQASSERT( !inCommandThread( ));
     NodeRegisterSessionPacket packet;
     packet.requestID = registerRequest( session );
     send( packet );
@@ -522,7 +523,7 @@ Session* LocalNode::getSession( const SessionID& id )
 
 void LocalNode::acquireSendToken( NodePtr node )
 {
-    EQASSERT( !_inCommandThread( ));
+    EQASSERT( !inCommandThread( ));
     EQASSERT( !_inReceiverThread( ));
 
     NodeAcquireSendTokenPacket packet;
@@ -1590,7 +1591,7 @@ bool LocalNode::_cmdGetNodeDataReply( Command& command )
 
 bool LocalNode::_cmdAcquireSendToken( Command& command )
 {
-    EQASSERT( _inCommandThread( ));
+    EQASSERT( inCommandThread( ));
     if( !_hasSendToken ) // no token available
     {
         command.retain();
@@ -1618,7 +1619,7 @@ bool LocalNode::_cmdAcquireSendTokenReply( Command& command )
 
 bool LocalNode::_cmdReleaseSendToken( Command& )
 {
-    EQASSERT( _inCommandThread( ));
+    EQASSERT( inCommandThread( ));
     EQASSERT( !_hasSendToken );
 
     if( _sendTokenQueue.empty( ))

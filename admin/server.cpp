@@ -35,7 +35,7 @@ namespace
 }
 
 typedef net::CommandFunc< Server > CmdFunc;
-typedef fabric::Server< Client, Server, Config, NodeFactory, eq::net::Node > Super;
+typedef fabric::Server< Client, Server, Config, NodeFactory, net::Node > Super;
 
 Server::Server()
         : Super( &_nf )

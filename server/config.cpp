@@ -642,11 +642,12 @@ void Config::_stopNodes()
 
         if( netNode->isConnected( ))
         {
-            net::NodePtr localNode = getLocalNode();
+            net::LocalNodePtr localNode = getLocalNode();
             EQASSERT( localNode.isValid( ));
 
             EQWARN << "Forcefully disconnecting exited render client node"
                    << std::endl;
+            localNode->disconnect( netNode );
         }
 
         EQLOG( LOG_INIT ) << "Disconnected node" << std::endl;

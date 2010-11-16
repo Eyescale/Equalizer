@@ -1,4 +1,4 @@
-Minor code cleanup
+Code cleanup on revision 5117
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

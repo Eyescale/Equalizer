@@ -451,7 +451,7 @@ uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
     EQASSERT( id <= EQ_ID_MAX );
     EQASSERT( object->getID() == EQ_ID_INVALID );
     EQASSERT( !object->isMaster( ));
- //   EQASSERT( !_localNode->inCommandThread( ));
+    EQASSERT( !_localNode->inCommandThread( ));
 
     NodePtr master = _connectMaster( id );
     if( !master )

@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -195,7 +196,6 @@ namespace net
         EQ_NET_DECL Session* getSession( const SessionID& id );
 
         bool hasSessions() const { return !_sessions->empty(); }
-
         //@}
 
         /** 
@@ -217,6 +217,12 @@ namespace net
         /** Return the command queue to the command thread. */
         virtual CommandQueue* getCommandThreadQueue() 
             { return &_commandThreadQueue; }
+
+        /** 
+         * @return true if executed from the command handler thread, false if
+         *         not.
+         */
+        bool inCommandThread() const  { return _commandThread->isCurrent(); }
 
         /**
          * Flush all pending commands on this listening node.
@@ -368,7 +374,8 @@ namespace net
             CommandThread( LocalNode* localNode ) : _localNode( localNode ){}
             virtual bool init()
                 {
-                    setDebugName( std::string("Cmd ") + base::className(_localNode));
+                    setDebugName( std::string("Cmd ") +
+                                  base::className( _localNode ));
                     return true;
                 }
             virtual void run(){ _localNode->_runCommandThread(); }
@@ -376,12 +383,6 @@ namespace net
             LocalNode* _localNode;
         };
         CommandThread* _commandThread;
-
-        /** 
-         * @return <code>true</code> if executed from the command handler
-         *         thread, <code>false</code> if not.
-         */
-        bool _inCommandThread() const  { return _commandThread->isCurrent(); }
 
         void _dispatchCommand( Command& command );
         void _runCommandThread();

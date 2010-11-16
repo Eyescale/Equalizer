@@ -55,8 +55,8 @@ static NodeFactory _nf;
 }
 
 typedef net::CommandFunc<Server> ServerFunc;
-typedef fabric::Server< net::Node, Server, Config, 
-                        NodeFactory, eq::net::LocalNode > Super;
+typedef fabric::Server< net::Node, Server, Config, NodeFactory,
+                        net::LocalNode > Super;
 
 Server::Server()
         : Super( &_nf )

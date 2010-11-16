@@ -20,7 +20,9 @@
 
 #include <eq/fabric/types.h>     // basic typedefs
 #include <eq/fabric/nodeType.h>  // for NODETYPE_EQ_SERVER enum
-#include <eq/net/command.h>
+
+#include <eq/net/types.h>
+
 namespace eq
 {
 namespace fabric

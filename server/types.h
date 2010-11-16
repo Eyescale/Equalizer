@@ -58,6 +58,7 @@ class Equalizer;
 class Frame;
 class Layout;
 class Node;
+class NodeFactory;
 class Observer;
 class Pipe;
 class Segment;
@@ -140,6 +141,9 @@ typedef fabric::ElementVisitor< Node, PipeVisitor > NodeVisitor;
 
 /** A visitor to traverse layouts and children. */
 typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
+
+class ConfigVisitor;
+class ServerVisitor;
 
 }
 }

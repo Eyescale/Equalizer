@@ -53,7 +53,7 @@ typedef base::UUID SessionID;
 
 /** A reference pointer for Node pointers. */
 typedef base::RefPtr< Node >                  NodePtr;
-/** A reference pointer for Node pointers. */
+/** A reference pointer for LocalNode pointers. */
 typedef base::RefPtr< LocalNode >             LocalNodePtr;
 /** A reference pointer for Connection pointers. */
 typedef base::RefPtr< Connection >            ConnectionPtr;
