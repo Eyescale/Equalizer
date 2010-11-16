@@ -21,7 +21,7 @@
 #include "objectCM.h"            // base class
 #include "version.h"             // enum
 #include <eq/base/idPool.h>      // for EQ_ID_INVALID
-#include <eq/base/thread.h>      // mtQueue instanciate
+#include <eq/base/thread.h>      // thread-safety macro
 #include <eq/base/mtQueue.h>     // member
 #include "objectSlaveDataOStream.h" // member
 

@@ -171,8 +171,8 @@ bool Client::disconnectServer( ServerPtr server )
     // shut down process-local server (see _startLocalServer)
     if( server->_localServer )
     {
-        EQASSERT( server->isConnected( ))
-        EQCHECK( server->shutdown() );
+        EQASSERT( server->isConnected( ));
+        EQCHECK( server->shutdown( ));
         _joinLocalServer();
         server->_localServer = false;
         server->setClient( 0 );
