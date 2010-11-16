@@ -19,7 +19,7 @@
 #define EQNET_SESSION_H
 
 #include <eq/net/dispatcher.h>    // base class
-#include <eq/net/node.h>          // used in inline method
+#include <eq/net/localNode.h>          // used in inline method
 #include <eq/net/objectVersion.h> // member
 #include <eq/net/packets.h>       // used in inline method
 #include <eq/net/version.h>       // enum
@@ -64,7 +64,7 @@ namespace net
          * @return the local node to which this session is mapped, or 0 if the
          *         session is not mapped.
          */
-        NodePtr getLocalNode(){ return _localNode; }
+        LocalNodePtr getLocalNode(){ return _localNode; }
 
         /**
          * @return the queue to the command thread of the local node, or 0 if
@@ -296,7 +296,7 @@ namespace net
          *
          * @param node the node to which the session has been mapped.
          */
-        EQ_NET_DECL virtual void notifyMapped( NodePtr node );
+        EQ_NET_DECL virtual void notifyMapped( LocalNodePtr node );
         //@}
 
         /** @name Sending session packets */
@@ -389,11 +389,11 @@ namespace net
 
     private:
         /** Set the local node to which this session is mapped */
-        void _setLocalNode( NodePtr node );
+        void _setLocalNode( LocalNodePtr node );
 
-        friend class Node;
+        friend class LocalNode;
         /** The local node managing the session. */
-        NodePtr _localNode;
+        LocalNodePtr _localNode;
 
         /** The node hosting the session. */
         NodePtr _server;

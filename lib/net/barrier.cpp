@@ -100,7 +100,7 @@ void Barrier::enter()
     if( !_master )
     {
         Session* session   = getSession();
-        NodePtr  localNode = session->getLocalNode();
+        LocalNodePtr  localNode = session->getLocalNode();
         _master = localNode->connect( _masterID );
     }
 

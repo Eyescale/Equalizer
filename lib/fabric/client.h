@@ -19,14 +19,14 @@
 #define EQFABRIC_CLIENT_H
 
 #include <eq/fabric/types.h>        // basic types
-#include <eq/net/node.h>            // base class
+#include <eq/net/localNode.h>       // base class
 
 namespace eq
 {
 namespace fabric
 {
     /** A client represents a network node of the application in the cluster. */
-    class Client : public net::Node
+    class Client : public net::LocalNode
     {
     public:
         /** 
@@ -70,7 +70,7 @@ namespace fabric
         EQFABRIC_EXPORT virtual bool dispatchCommand( net::Command& command );
 
         /** @sa net::Node::invokeCommand. @internal */
-        EQFABRIC_EXPORT virtual bool invokeCommand(net::Command&);
+        EQFABRIC_EXPORT virtual bool invokeCommand( net::Command& );
 
     private:
         union // placeholder for binary-compatible changes

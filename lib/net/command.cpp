@@ -62,7 +62,7 @@ void Command::release()
     --_refCount;
 }
 
-size_t Command::_alloc( NodePtr node, NodePtr localNode, const uint64_t size )
+size_t Command::_alloc( NodePtr node, LocalNodePtr localNode, const uint64_t size )
 {
     EQ_TS_THREAD( _writeThread );
     EQASSERT( _refCount == 0 );

@@ -78,7 +78,7 @@ Config::~Config()
     base::Log::setClock( 0 );
 }
 
-void Config::notifyMapped( net::NodePtr node )
+void Config::notifyMapped( net::LocalNodePtr node )
 {
     Super::notifyMapped( node );
 
@@ -149,7 +149,7 @@ bool Config::init( const uint32_t initID )
     _finishedFrame = 0;
     _frameTimes.clear();
 
-    net::NodePtr localNode = getLocalNode();
+    net::LocalNodePtr localNode = getLocalNode();
     ConfigInitPacket packet;
     packet.requestID  = localNode->registerRequest();
     packet.initID     = initID;
@@ -173,7 +173,7 @@ bool Config::exit()
 {
     finishAllFrames();
 
-    net::NodePtr localNode = getLocalNode();
+    net::LocalNodePtr localNode = getLocalNode();
     ConfigExitPacket packet;
     packet.requestID = localNode->registerRequest();
     send( packet );
@@ -385,7 +385,7 @@ void Config::sendEvent( ConfigEvent& event )
 
     if( !_appNode )
     {
-        net::NodePtr localNode = getLocalNode();
+        net::LocalNodePtr localNode = getLocalNode();
         _appNode = localNode->connect( getAppNodeID( ));
     }
     EQASSERT( _appNode );

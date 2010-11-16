@@ -64,7 +64,7 @@ VersionedSlaveCM::~VersionedSlaveCM()
 
 uint32_t VersionedSlaveCM::commitNB()
 {
-    NodePtr localNode = _object->getLocalNode();
+    LocalNodePtr localNode = _object->getLocalNode();
     ObjectCommitPacket packet;
     packet.instanceID = _object->_instanceID;
     packet.requestID  = localNode->registerRequest();
@@ -75,7 +75,7 @@ uint32_t VersionedSlaveCM::commitNB()
 
 uint32_t VersionedSlaveCM::commitSync( const uint32_t commitID )
 {
-    NodePtr localNode = _object->getLocalNode();
+    LocalNodePtr localNode = _object->getLocalNode();
     uint32_t version = VERSION_NONE;
     localNode->waitRequest( commitID, version );
     return version;
@@ -112,7 +112,7 @@ uint32_t VersionedSlaveCM::sync( const uint32_t v )
         delete is;
     }
 
-    NodePtr node = _object->getLocalNode();
+    LocalNodePtr node = _object->getLocalNode();
     if( node.isValid( ))
         node->flushCommands();
 
@@ -134,7 +134,7 @@ void VersionedSlaveCM::_syncToHead()
         delete is;
     }
 
-    NodePtr localNode = _object->getLocalNode();
+    LocalNodePtr localNode = _object->getLocalNode();
     if( localNode.isValid( ))
         localNode->flushCommands();
 }
@@ -383,7 +383,7 @@ bool VersionedSlaveCM::_cmdCommit( Command& command )
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;
 #endif
-    NodePtr localNode = _object->getLocalNode();
+    LocalNodePtr localNode = _object->getLocalNode();
     if( !_master || !_master->isConnected( ))
     {
         EQASSERTINFO( false, "Master node not connected " << *_object );

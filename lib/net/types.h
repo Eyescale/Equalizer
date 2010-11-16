@@ -34,10 +34,12 @@ namespace net
 #define EQNET_SEPARATOR '#'
 
 class Node;
+class LocalNode;
 class Session;
 class Object;
 class Barrier;
 class Command;
+class CommandQueue;
 class Connection;
 class ConnectionDescription;
 class ObjectInstanceDataIStream;
@@ -51,6 +53,8 @@ typedef base::UUID SessionID;
 
 /** A reference pointer for Node pointers. */
 typedef base::RefPtr< Node >                  NodePtr;
+/** A reference pointer for Node pointers. */
+typedef base::RefPtr< LocalNode >             LocalNodePtr;
 /** A reference pointer for Connection pointers. */
 typedef base::RefPtr< Connection >            ConnectionPtr;
 /** A reference pointer for ConnectionDescription pointers. */

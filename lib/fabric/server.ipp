@@ -29,26 +29,26 @@ namespace eq
 namespace fabric
 {
 
-#define CmdFunc net::CommandFunc< Server< CL, S, CFG, NF > >
+#define CmdFunc net::CommandFunc< Server< CL, S, CFG, NF, N > >
 
-template< class CL, class S, class CFG, class NF >
-Server< CL, S, CFG, NF >::Server( NF* nodeFactory )
+template< class CL, class S, class CFG, class NF, class N >
+Server< CL, S, CFG, NF, N >::Server( NF* nodeFactory )
         : _nodeFactory( nodeFactory )
 {
     EQASSERT( nodeFactory );
     EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
 }
 
-template< class CL, class S, class CFG, class NF >
-Server< CL, S, CFG, NF >::~Server()
+template< class CL, class S, class CFG, class NF, class N >
+Server< CL, S, CFG, NF, N >::~Server()
 {
     EQLOG( LOG_INIT ) << "Delete " << base::className( this ) << std::endl;
     _client = 0;
     EQASSERT( _configs.empty( ));
 }
 
-template< class CL, class S, class CFG, class NF >
-void Server< CL, S, CFG, NF >::setClient( ClientPtr client )
+template< class CL, class S, class CFG, class NF, class N >
+void Server< CL, S, CFG, NF, N >::setClient( ClientPtr client )
 {
     _client = client;
     if( !client )
@@ -61,16 +61,16 @@ void Server< CL, S, CFG, NF >::setClient( ClientPtr client )
                      CmdFunc( this, &Server::_cmdDestroyConfig ), queue );
 }
 
-template< class CL, class S, class CFG, class NF >
-void Server< CL, S, CFG, NF >::_addConfig( CFG* config )
+template< class CL, class S, class CFG, class NF, class N >
+void Server< CL, S, CFG, NF, N >::_addConfig( CFG* config )
 { 
     EQASSERT( config->getServer() == static_cast< S* >( this ));
     EQASSERT( stde::find( _configs, config ) == _configs.end( ));
     _configs.push_back( config );
 }
 
-template< class CL, class S, class CFG, class NF >
-bool Server< CL, S, CFG, NF >::_removeConfig( CFG* config )
+template< class CL, class S, class CFG, class NF, class N >
+bool Server< CL, S, CFG, NF, N >::_removeConfig( CFG* config )
 {
     typename Configs::iterator i = stde::find( _configs, config );
     if( i == _configs.end( ))
@@ -83,8 +83,8 @@ bool Server< CL, S, CFG, NF >::_removeConfig( CFG* config )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-template< class CL, class S, class CFG, class NF > bool
-Server< CL, S, CFG, NF >::_cmdCreateConfig( net::Command& command )
+template< class CL, class S, class CFG, class NF, class N > bool
+Server< CL, S, CFG, NF, N >::_cmdCreateConfig( net::Command& command )
 {
     const ServerCreateConfigPacket* packet = 
         command.getPacket<ServerCreateConfigPacket>();
@@ -92,7 +92,7 @@ Server< CL, S, CFG, NF >::_cmdCreateConfig( net::Command& command )
     EQASSERT( packet->proxy.identifier <= EQ_ID_MAX );
     
     CFG* config = _nodeFactory->createConfig( static_cast< S* >( this ));
-    net::NodePtr localNode = command.getLocalNode();
+    net::LocalNodePtr localNode = command.getLocalNode();
     localNode->mapSession( command.getNode(), config, packet->configID );
     config->map( packet->proxy );
 
@@ -105,14 +105,14 @@ Server< CL, S, CFG, NF >::_cmdCreateConfig( net::Command& command )
     return true;
 }
 
-template< class CL, class S, class CFG, class NF > bool
-Server< CL, S, CFG, NF >::_cmdDestroyConfig( net::Command& command )
+template< class CL, class S, class CFG, class NF, class N > bool
+Server< CL, S, CFG, NF, N >::_cmdDestroyConfig( net::Command& command )
 {
     const ServerDestroyConfigPacket* packet = 
         command.getPacket<ServerDestroyConfigPacket>();
     EQVERB << "Handle destroy config " << packet << std::endl;
     
-    net::NodePtr  localNode  = command.getLocalNode();
+    net::LocalNodePtr  localNode  = command.getLocalNode();
     net::Session* session    = localNode->getSession( packet->configID );
 
     CFG* config = EQSAFECAST( CFG*, session );
@@ -128,9 +128,9 @@ Server< CL, S, CFG, NF >::_cmdDestroyConfig( net::Command& command )
     return true;
 }
 
-template< class CL, class S, class CFG, class NF >
+template< class CL, class S, class CFG, class NF, class N >
 std::ostream& operator << ( std::ostream& os, 
-                            const Server< CL, S, CFG, NF >& server )
+                            const Server< CL, S, CFG, NF, N >& server )
 {
     os << base::disableFlush << base::disableHeader << "server " << std::endl;
     os << "{" << std::endl << base::indent;

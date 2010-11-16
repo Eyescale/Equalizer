@@ -292,7 +292,6 @@ private:
 
 }
 
-
 int main( int argc, char **argv )
 {
     EQCHECK( eq::net::init( argc, argv ));

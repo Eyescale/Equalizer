@@ -19,35 +19,17 @@
 #ifndef EQNET_NODE_H
 #define EQNET_NODE_H
 
-#include "dispatcher.h"               // base class
-#include "commandCache.h"             // member
-#include "commandQueue.h"             // member
-#include "connectionSet.h"            // member
-#include "nodeType.h"                 // for NODETYPE_EQNET_NODE enum
-#include "types.h"
+#include <eq/net/dispatcher.h>        // base class
+#include <eq/net/connection.h>        // member - ConnectionPtr
+#include <eq/net/nodeType.h>          // for NODETYPE_EQNET_NODE enum
+#include <eq/net/types.h>
 
-#include <eq/base/base.h>
-#include <eq/base/lockable.h>
-#include <eq/base/perThread.h>
-#include <eq/base/requestHandler.h>
-#include <eq/base/spinLock.h>
-#include <eq/base/thread.h>
-
-#include <list>
-
-#pragma warning(disable : 4190)
-extern "C" EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer( const
-                                                                 std::string& );
-extern "C" EQSERVER_EXPORT void                   eqsJoinLocalServer();
-#pragma warning(default : 4190)
+#include <eq/base/base.h>             // EQ_NET_DECL
 
 namespace eq
 {
 namespace net
 {
-    class Command;
-    class ConnectionDescription;
-    class Session;
 
     /**
      * Manages a node.
@@ -55,12 +37,9 @@ namespace net
      * A node represents a separate entity in a peer-to-peer network, typically
      * a process on a cluster node or on a shared-memory system. It should have
      * at least one Connection through which is reachable. A Node provides the
-     * basic communication facilities through message passing. Nodes manage
-     * sessions, that is, one or more Session can be mapped to a Node, in which
-     * case the node will dispatch packets to these sessions.
+     * basic communication facilities through message passing.
      */
-    class Node : public Dispatcher, public base::RequestHandler,
-                 public base::Referenced
+    class Node : public Dispatcher, public base::Referenced
     {
     public:
         /** Construct a new Node. */
@@ -71,112 +50,10 @@ namespace net
         bool operator == ( const Node* n ) const;
 
         bool  isConnected() const 
-            { return (_state == STATE_CONNECTED || _state == STATE_LISTENING); }
+            { return (_state == STATE_CONNECTED || _state == STATE_LISTENING);}
         bool  isClosed() const { return _state == STATE_CLOSED; }
         bool  isListening() const { return _state == STATE_LISTENING; }
 
-        /** 
-         * Get a node by identifier.
-         *
-         * The node might not be connected.
-         *
-         * @param id the node identifier.
-         * @return the node.
-         */
-        EQ_NET_DECL NodePtr getNode( const NodeID& id ) const;
-        //@}
-
-        /**
-         * @name State Changes
-         *
-         * The following methods affect the state of the node by changing its
-         * connectivity to the network.
-         */
-        //@{
-        /** 
-         * Initialize a local, listening node.
-         *
-         * The '--eq-listen &lt;connection description&gt;' command line options
-         * is recognized by this method to add listening connections to this
-         * node. This parameter might be used multiple
-         * times. ConnectionDescription::fromString() is used to parse the
-         * provided description.
-         *
-         * Please note that further command line parameters are recognized by
-         * eq::init().
-         *
-         * @param argc the command line argument count.
-         * @param argv the command line argument values.
-         * @return <code>true</code> if the client was successfully initialized,
-         *         <code>false</code> otherwise.
-         */
-        EQ_NET_DECL virtual bool initLocal( const int argc, char** argv );
-
-        /** Exit a local, listening node. */
-        virtual bool exitLocal() { return close(); }
-
-        /** 
-         * Open all connections and put this node into the listening state.
-         *
-         * The node will spawn a receiver and command thread, and listen on all
-         * connections described for incoming commands. The node will be in the
-         * listening state if the method completed successfully. A listening
-         * node can connect other nodes.
-         * 
-         * @return <code>true</code> if the node could be initialized,
-         *         <code>false</code> if not.
-         * @sa connect
-         */
-        EQ_NET_DECL virtual bool listen();
-
-        /** 
-         * Close a listening node.
-         * 
-         * Disconnects all connected node proxies, closes the listening
-         * connections and terminates all threads created in listen().
-         * 
-         * @return <code>true</code> if the node was stopped, <code>false</code>
-         *         if it was not stopped.
-         */
-        EQ_NET_DECL virtual bool close();
-
-        /** 
-         * Connect a proxy node to this listening node.
-         *
-         * The connection descriptions of the node are used to connect the
-         * node. On success, the node is in the connected state, otherwise its
-         * state is unchanged.
-         *
-         * This method is one-sided, that is, the node to be connected should
-         * not initiate a connection to this node at the same time.
-         *
-         * @param node the remote node.
-         * @return true if this node was connected, false otherwise.
-         * @sa initConnect, syncConnect
-         */
-        EQ_NET_DECL bool connect( NodePtr node );
-
-        /** 
-         * Create and connect a node given by an identifier.
-         *
-         * This method is two-sided and thread-safe, that is, it can be called
-         * by mulltiple threads on the same node with the same nodeID, or
-         * concurrently on two nodes with each others' nodeID.
-         * 
-         * @param nodeID the identifier of the node to connect.
-         * @return the connected node, or an invalid RefPtr if the node could
-         *         not be connected.
-         */
-        EQ_NET_DECL NodePtr connect( const NodeID& nodeID );
-
-        /** 
-         * Disconnects a connected node.
-         *
-         * @param node the remote node.
-         * @return <code>true</code> if the node was disconnected correctly,
-         *         <code>false</code> otherwise.
-         */
-        EQ_NET_DECL bool disconnect( NodePtr node );
         //@}
 
         /**
@@ -311,85 +188,9 @@ namespace net
                     return false;
                 return connection->send( packet );
             }
-
-        /**
-         * Flush all pending commands on this listening node.
-         *
-         * This causes the receiver thread to redispatch all pending commands,
-         * which are normally only redispatched when a new command is received.
-         */
-        void flushCommands() { _incoming.interrupt(); }
-
-        /** @internal Clone the given command. */
-        Command& cloneCommand( Command& command )
-            { return _commandCache.clone( command ); }
-
-        EQ_NET_DECL void acquireSendToken( NodePtr toNode );
-        EQ_NET_DECL void releaseSendToken( NodePtr toNode );
         //@}
-
-        /**
-         * @name Session management
-         */
-        //@{
-        /**
-         * Register a new session using this node as the session server.
-         *
-         * This method assigns the session identifier. The node has to be local.
-         *
-         * @param session the session.
-         */
-        EQ_NET_DECL void registerSession( Session* session );
-
-        /** Deregister a (master) session. */
-        bool deregisterSession( Session* session )
-            { return unmapSession( session ); }
-
-        /**
-         * Maps a local session object to the session of the same identifier on
-         * the server.
-         *
-         * The node has to be a remote node.
-         * 
-         * @param server the node serving the session.
-         * @param session the session.
-         * @param id the identifier of the session.
-         * @return <code>true</code> if the session was mapped,
-         *         <code>false</code> if not.
-         */
-        EQ_NET_DECL bool mapSession( NodePtr server, Session* session, 
-                                   const SessionID& id );
-
-        /** 
-         * Unmaps a mapped session.
-         * 
-         * @param session the session.
-         * @return <code>true</code> if the session was unmapped,
-         *         <code>false</code> if there was an error.
-         */
-        EQ_NET_DECL bool unmapSession( Session* session );
-
-        /** @return the mapped session with the given identifier, or 0. */
-        EQ_NET_DECL Session* getSession( const SessionID& id );
-
-        bool hasSessions() const { return !_sessions->empty(); }
-        //@}
-
-        /** Return the command queue to the command thread. */
-        CommandQueue* getCommandThreadQueue() 
-            { EQASSERT( isLocal( )); return &_commandThreadQueue; }
-
-        /** 
-         * @return <code>true</code> if executed from the command handler
-         *         thread, <code>false</code> if not.
-         */
-        bool inCommandThread() const  { return _commandThread->isCurrent(); }
-        bool inReceiverThread() const { return _receiverThread->isCurrent(); }
 
         const NodeID& getNodeID() const { return _id; }
-
-        /** Assemble a vector of the currently connected nodes. */
-        void getNodes( Nodes& nodes ) const;
 
         /** Serialize the node's information. */
         EQ_NET_DECL std::string serialize() const;
@@ -399,39 +200,6 @@ namespace net
     protected:
         /** Destructs this node. */
         EQ_NET_DECL virtual ~Node();
-
-        /** 
-         * Connect a node proxy to this node.
-         *
-         * This node has to be in the listening state. The node proxy will be
-         * put in the connected state upon success. The connection has to be
-         * connected.
-         *
-         * @param node the remote node.
-         * @param connection the connection to the remote node.
-         * @return <code>true</code> if the node was connected correctly,
-         *         <code>false</code> otherwise.
-         * @internal
-         */
-        EQ_NET_DECL bool _connect( NodePtr node, ConnectionPtr connection );
-
-        /** 
-         * Dispatches a packet to the registered command queue.
-         * 
-         * @param command the command.
-         * @return the result of the operation.
-         * @sa invokeCommand
-         */
-        EQ_NET_DECL virtual bool dispatchCommand( Command& command );
-
-        /** 
-         * Invokes the command handler method for the packet.
-         * 
-         * @param command the command.
-         * @return true if the result of the operation is handled.
-         * @sa Dispatcher::invokeCommand
-         */
-        EQ_NET_DECL virtual bool invokeCommand( Command& command );
 
         /** @return the type of the node, used during connect(). */
         virtual uint32_t getType() const { return NODETYPE_EQNET_NODE; }
@@ -458,6 +226,7 @@ namespace net
                                                      const Node& node );
         friend EQ_NET_DECL std::ostream& operator << ( std::ostream&,
                                                      const State );
+        friend class LocalNode;
 
         /** Globally unique node identifier. */
         NodeID _id;
@@ -465,19 +234,11 @@ namespace net
         /** The current state of this node. */
         State _state;
 
-        typedef base::UUIDHash< Session* > SessionHash;
-        /** The current mapped sessions of this node. */
-        base::Lockable< SessionHash, base::SpinLock > _sessions;
-
         /** The connection to this node. */
         ConnectionPtr _outgoing;
 
         /** The multicast connection to this node, can be 0. */
         base::Lockable< ConnectionPtr > _outMulticast;
-
-        /** The connection set of all connections from/to this node. */
-        ConnectionSet _incoming;
-        friend net::ConnectionPtr (::eqsStartLocalServer( const std::string& ));
 
         struct MCData
         {
@@ -495,102 +256,8 @@ namespace net
          */
         MCDatas _multicasts;
 
-        typedef base::UUIDHash< NodePtr > NodeHash;
-
-        /** The connected nodes. */
-        base::Lockable< NodeHash, base::SpinLock > _nodes; // r: all, w: recv
-
-        /** The node for each connection. */
-        typedef base::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;
-        ConnectionNodeHash _connectionNodes; // read and write: recv only
-
-        /** The receiver->command command queue. */
-        CommandQueue _commandThreadQueue;
-
-        /** Needed for thread-safety during nodeID-based connect() */
-        base::Lock _connectMutex;
-
-        /** Commands re-scheduled for dispatch. */
-        CommandList  _pendingCommands;
-
-        /** The command 'allocator' */
-        CommandCache _commandCache;
-
         /** The list of descriptions on how this node is reachable. */
         ConnectionDescriptions _connectionDescriptions;
-
-        /** The receiver thread. */
-        class ReceiverThread : public base::Thread
-        {
-        public:
-            ReceiverThread( Node* node ) : _node( node ){}
-            virtual bool init()
-                {
-                    setDebugName( std::string("Rcv ") + base::className(_node));
-                    return _node->_commandThread->start();
-                }
-            virtual void run(){ _node->_runReceiverThread(); }
-
-        private:
-            Node* _node;
-        };
-        ReceiverThread* _receiverThread;
-
-        /** The command handler thread. */
-        class CommandThread : public base::Thread
-        {
-        public:
-            CommandThread( Node* node ) : _node( node ){}
-            virtual bool init()
-                {
-                    setDebugName( std::string("Cmd ") + base::className(_node));
-                    return true;
-                }
-            virtual void run(){ _node->_runCommandThread(); }
-
-        private:
-            Node* _node;
-        };
-        CommandThread* _commandThread;
-
-        /** true if the send token can be granted, false otherwise. */
-        bool _hasSendToken;
-        std::deque< Command* > _sendTokenQueue;
-
-        bool _connectSelf();
-        void _connectMulticast( NodePtr node );
-        EQ_NET_DECL void _addConnection( ConnectionPtr connection );
-        void _removeConnection( ConnectionPtr connection );
-        void _cleanup();
-
-        void _dispatchCommand( Command& command );
-
-        /** 
-         * Find a connected node using a connection description
-         * 
-         * @param connectionDescription the connection description for the node.
-         * @return the node, or an invalid pointer if no node was found.
-         */
-        NodePtr _findConnectedNode( const char* connectionDescription );
-
-        /**
-         * Adds an already mapped session to this node.
-         * 
-         * @param session the session.
-         * @param server the node serving the session.
-         * @param sessionID the identifier of the session.
-         */
-        void _addSession( Session* session, NodePtr server,
-                          const SessionID& sessionID );
-
-        /** 
-         * Removes an unmapped session from this node.
-         * 
-         * @param session the session.
-         */
-        void _removeSession( Session* session );
-
-        NodePtr _connect( const NodeID& nodeID, NodePtr server );
 
         /** Ensures the connectivity of this node. */
         ConnectionPtr _getConnection()
@@ -600,36 +267,6 @@ namespace net
                     return connection;
                 return 0;
             }
-
-        void _runReceiverThread();
-        void   _handleConnect();
-        void   _handleDisconnect();
-        bool   _handleData();
-
-        void _runCommandThread();
-        void   _redispatchCommands();
-
-        /** The command functions. */
-        bool _cmdStop( Command& command );
-        bool _cmdRegisterSession( Command& command );
-        bool _cmdRegisterSessionReply( Command& command );
-        bool _cmdMapSession( Command& command );
-        bool _cmdMapSessionReply( Command& command );
-        bool _cmdUnmapSession( Command& command );
-        bool _cmdUnmapSessionReply( Command& command );
-        bool _cmdConnect( Command& command );
-        bool _cmdConnectReply( Command& command );
-        bool _cmdConnectAck( Command& command );
-        bool _cmdID( Command& command );
-        bool _cmdDisconnect( Command& command );
-        bool _cmdGetNodeData( Command& command );
-        bool _cmdGetNodeDataReply( Command& command );
-        bool _cmdAcquireSendToken( Command& command );
-        bool _cmdAcquireSendTokenReply( Command& command );
-        bool _cmdReleaseSendToken( Command& command );
-
-        EQ_TS_VAR( _cmdThread );
-        EQ_TS_VAR( _recvThread );
     };
 
     EQ_NET_DECL std::ostream& operator << ( std::ostream& os, const Node& node );

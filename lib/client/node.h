@@ -23,8 +23,8 @@
 #include <eq/client/visitorResult.h>  // enum
 #include <eq/fabric/node.h>           // base class
 
-#include <eq/net/barrier.h>
-#include <eq/net/objectVersion.h>
+#include <eq/net/types.h>
+#include <eq/base/mtQueue.h>          // member
 #include <eq/base/base.h>
 
 namespace eq

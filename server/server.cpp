@@ -36,7 +36,7 @@
 #include <eq/net/connectionDescription.h>
 #include <eq/net/global.h>
 #include <eq/net/init.h>
-#include <eq/net/node.h>
+#include <eq/net/localNode.h>
 #include <eq/base/refPtr.h>
 #include <eq/base/sleep.h>
 
@@ -55,7 +55,8 @@ static NodeFactory _nf;
 }
 
 typedef net::CommandFunc<Server> ServerFunc;
-typedef fabric::Server< net::Node, Server, Config, NodeFactory > Super;
+typedef fabric::Server< net::Node, Server, Config, 
+                        NodeFactory, eq::net::LocalNode > Super;
 
 Server::Server()
         : Super( &_nf )
@@ -249,7 +250,7 @@ bool Server::dispatchCommand( net::Command& command )
             return net::Dispatcher::dispatchCommand( command );
             
         default:
-            return net::Node::dispatchCommand( command );
+            return net::LocalNode::dispatchCommand( command );
     }
 }
 
@@ -261,7 +262,7 @@ bool Server::invokeCommand( net::Command& command )
             return net::Dispatcher::invokeCommand( command );
             
         default:
-            return net::Node::invokeCommand( command );
+            return net::LocalNode::invokeCommand( command );
     }
 }
 
@@ -490,11 +491,13 @@ bool Server::_cmdUnmap( net::Command& command )
 #include "../lib/fabric/server.ipp"
 template class eq::fabric::Server< eq::net::Node, eq::server::Server,
                                    eq::server::Config,
-                                   eq::server::NodeFactory >;
+                                   eq::server::NodeFactory,
+                                   eq::net::LocalNode >;
 
 /** @cond IGNORE */
 template std::ostream& eq::fabric::operator <<
 ( std::ostream&, const fabric::Server< eq::net::Node, eq::server::Server,
                                        eq::server::Config,
-                                       eq::server::NodeFactory >& );
+                                       eq::server::NodeFactory,
+                                       eq::net::LocalNode >& );
 /** @endcond */

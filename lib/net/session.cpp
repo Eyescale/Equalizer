@@ -93,7 +93,7 @@ Session::~Session()
     _sendQueue.clear();
 }
 
-void Session::_setLocalNode( NodePtr node )
+void Session::_setLocalNode( LocalNodePtr node )
 {
     _localNode = node;
     if( !_localNode )
@@ -124,7 +124,7 @@ CommandQueue* Session::getCommandThreadQueue()
     return _localNode->getCommandThreadQueue();
 }
 
-void Session::notifyMapped( NodePtr node )
+void Session::notifyMapped( LocalNodePtr node )
 {
     EQASSERT( node.isValid( ));
 
@@ -451,7 +451,7 @@ uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
     EQASSERT( id <= EQ_ID_MAX );
     EQASSERT( object->getID() == EQ_ID_INVALID );
     EQASSERT( !object->isMaster( ));
-    EQASSERT( !_localNode->inCommandThread( ));
+ //   EQASSERT( !_localNode->inCommandThread( ));
 
     NodePtr master = _connectMaster( id );
     if( !master )
@@ -526,7 +526,7 @@ void Session::unmapObject( Object* object )
     if( masterInstanceID != EQ_ID_INVALID )
     {
         const NodeID masterNodeID = _pollIDMaster( id );
-        NodePtr localNode = _localNode;
+        LocalNodePtr localNode = _localNode;
         NodePtr master    = localNode.isValid() ? 
                                 localNode->getNode( masterNodeID ) : 0;
         if( master.isValid() && master->isConnected( ))

@@ -18,6 +18,7 @@
 #include <test.h>
 
 #include <eq/net/command.h>
+#include <eq/net/commandCache.h>
 #include <eq/net/init.h>
 #include <eq/net/instanceCache.h>
 #include <eq/net/objectVersion.h>

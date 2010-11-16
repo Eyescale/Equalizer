@@ -33,7 +33,7 @@ namespace eq
 {
 
 typedef net::CommandFunc< Server > CmdFunc;
-typedef fabric::Server< Client, Server, Config, NodeFactory > Super;
+typedef fabric::Server< Client, Server, Config, NodeFactory, net::Node > Super;
 
 Server::Server()
         : Super( Global::getNodeFactory( ))
@@ -83,7 +83,8 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
     }
 
     ServerChooseConfigPacket packet;
-    packet.requestID = registerRequest();
+    ClientPtr client = getClient();
+    packet.requestID =  client->registerRequest();
 
     const std::string& workDir = parameters.getWorkDir();
     std::string rendererInfo = workDir + '#' + renderClient;
@@ -95,27 +96,27 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
 
     send( packet, rendererInfo );
 
-    while( !isRequestServed( packet.requestID ))
+    while( !client->isRequestServed( packet.requestID ))
         getClient()->processCommand();
 
     void* ptr = 0;
-    waitRequest( packet.requestID, ptr );
+    client->waitRequest( packet.requestID, ptr );
     return static_cast<Config*>( ptr );
 }
 
 void Server::releaseConfig( Config* config )
 {
     EQASSERT( isConnected( ));
-
+    ClientPtr client = getClient();
     ServerReleaseConfigPacket packet;
-    packet.requestID = registerRequest();
+    packet.requestID = client->registerRequest();
     packet.configID  = config->getID();
     send( packet );
 
-    while( !isRequestServed( packet.requestID ))
-        getClient()->processCommand();
+    while( !client->isRequestServed( packet.requestID ))
+        client->processCommand();
 
-    waitRequest( packet.requestID );
+    client->waitRequest( packet.requestID );
 }
 
 bool Server::shutdown()
@@ -123,18 +124,19 @@ bool Server::shutdown()
     if( !isConnected( ))
         return false;
 
+    ClientPtr client = getClient();
     ServerShutdownPacket packet;
-    packet.requestID = registerRequest();
+    packet.requestID = client->registerRequest();
     send( packet );
 
-    while( !isRequestServed( packet.requestID ))
+    while( !client->isRequestServed( packet.requestID ))
         getClient()->processCommand();
 
     bool result = false;
-    waitRequest( packet.requestID, result );
+    client->waitRequest( packet.requestID, result );
 
     if( result )
-        static_cast< net::Node* >( getClient().get( ))->disconnect( this );
+        static_cast< net::LocalNode* >( getClient().get( ))->disconnect( this );
 
     return result;
 }
@@ -148,19 +150,19 @@ bool Server::_cmdChooseConfigReply( net::Command& command )
         command.getPacket<ServerChooseConfigReplyPacket>();
     EQVERB << "Handle choose config reply " << packet << std::endl;
 
+    net::LocalNodePtr  localNode = command.getLocalNode();
     if( packet->configID == net::SessionID::ZERO )
     {
-        serveRequest( packet->requestID, (void*)0 );
+        localNode->serveRequest( packet->requestID, (void*)0 );
         return true;
     }
 
-    net::NodePtr  localNode = command.getLocalNode();
     net::Session* session   = localNode->getSession( packet->configID );
     Config*       config    = static_cast< Config* >( session );
     EQASSERTINFO( dynamic_cast< Config* >( session ), 
                   "Session id " << packet->configID << " @" << (void*)session );
 
-    serveRequest( packet->requestID, config );
+    localNode->serveRequest( packet->requestID, config );
     return true;
 }
 
@@ -169,7 +171,8 @@ bool Server::_cmdReleaseConfigReply( net::Command& command )
     const ServerReleaseConfigReplyPacket* packet = 
         command.getPacket<ServerReleaseConfigReplyPacket>();
 
-    serveRequest( packet->requestID );
+    net::LocalNodePtr  localNode = command.getLocalNode();
+    localNode->serveRequest( packet->requestID );
     return true;
 }
 
@@ -179,12 +182,13 @@ bool Server::_cmdShutdownReply( net::Command& command )
         command.getPacket<ServerShutdownReplyPacket>();
     EQINFO << "Handle shutdown reply " << packet << std::endl;
 
-    serveRequest( packet->requestID, packet->result );
+    net::LocalNodePtr  localNode = command.getLocalNode();
+    localNode->serveRequest( packet->requestID, packet->result );
     return true;
 }
 }
 
 #include "../fabric/server.ipp"
 template class eq::fabric::Server< eq::Client, eq::Server, eq::Config,
-                                   eq::NodeFactory >;
+                                   eq::NodeFactory, eq::net::Node >;
 

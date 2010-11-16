@@ -40,6 +40,7 @@ purple_add_library(eq_net SHARED
     init.h
     instanceCache.h
     log.h
+    localNode.h
     node.h
     nodeType.h
     object.h
@@ -71,6 +72,7 @@ purple_add_library(eq_net SHARED
     global.cpp
     init.cpp
     instanceCache.cpp
+    localNode.cpp
     masterCM.cpp
     mcipConnection.cpp
     namedPipeConnection.cpp

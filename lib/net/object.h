@@ -74,7 +74,7 @@ namespace net
          * @return the local node to which this object is mapped, or 0 if the
          *         object is not mapped.
          */
-        EQ_NET_DECL NodePtr getLocalNode();
+        EQ_NET_DECL LocalNodePtr getLocalNode();
 
         /**
          * @return the session to which this object is mapped, or 0 if the

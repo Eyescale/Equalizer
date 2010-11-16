@@ -23,6 +23,7 @@
 
 #include <eq/admin/packets.h>
 #include <eq/net/command.h>
+#include <eq/net/dispatcher.h>
 
 namespace eq
 {
@@ -34,7 +35,7 @@ namespace
 }
 
 typedef net::CommandFunc< Server > CmdFunc;
-typedef fabric::Server< Client, Server, Config, NodeFactory > Super;
+typedef fabric::Server< Client, Server, Config, NodeFactory, eq::net::Node > Super;
 
 Server::Server()
         : Super( &_nf )
@@ -56,23 +57,27 @@ void Server::setClient( ClientPtr client )
 void Server::map()
 {
     ServerMapPacket packet;
-    packet.requestID = registerRequest();
+    ClientPtr client = getClient();
+
+    packet.requestID = client->registerRequest();
     send( packet );
 
-    while( !isRequestServed( packet.requestID ))
-        getClient()->processCommand();
-    waitRequest( packet.requestID );
+    while( !client->isRequestServed( packet.requestID ))
+        client->processCommand();
+    client->waitRequest( packet.requestID );
 }
 
 void Server::unmap()
 {
     ServerUnmapPacket packet;
-    packet.requestID = registerRequest();
+    ClientPtr client = getClient();
+    
+    packet.requestID = client->registerRequest();
     send( packet );
 
-    while( !isRequestServed( packet.requestID ))
-        getClient()->processCommand();
-    waitRequest( packet.requestID );
+    while( !client->isRequestServed( packet.requestID ))
+        client->processCommand();
+    client->waitRequest( packet.requestID );
 }
 
 net::CommandQueue* Server::getMainThreadQueue()
@@ -84,8 +89,8 @@ bool Server::_cmdMapReply( net::Command& command )
 {
     const ServerMapReplyPacket* packet = 
         command.getPacket< ServerMapReplyPacket >();
-
-    serveRequest( packet->requestID );
+    ClientPtr client = getClient();
+    client->serveRequest( packet->requestID );
     return true;
 }
 
@@ -94,7 +99,8 @@ bool Server::_cmdUnmapReply( net::Command& command )
     const ServerUnmapReplyPacket* packet = 
         command.getPacket< ServerUnmapReplyPacket >();
 
-    serveRequest( packet->requestID );
+    ClientPtr client = getClient();
+    client->serveRequest( packet->requestID );
     return true;
 }
 
@@ -102,7 +108,8 @@ bool Server::_cmdUnmapReply( net::Command& command )
 }
 #include "../lib/fabric/server.ipp"
 template class eq::fabric::Server< eq::admin::Client, eq::admin::Server,
-                                   eq::admin::Config, eq::admin::NodeFactory >;
+                                   eq::admin::Config, eq::admin::NodeFactory,
+                                   eq::net::Node >;
 
 /** @cond IGNORE */
 template std::ostream& eq::fabric::operator << ( std::ostream&,

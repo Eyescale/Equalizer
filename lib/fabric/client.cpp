@@ -22,6 +22,7 @@
 #include "packetType.h"
 
 #include <eq/net/command.h>
+#include <eq/net/commandQueue.h>
 #include <eq/net/connection.h>
 #include <eq/net/connectionDescription.h>
 #include <eq/base/dso.h>
@@ -81,7 +82,7 @@ bool Client::disconnectServer( net::NodePtr server )
         return false;
     }
 
-    if( net::Node::disconnect( server ))
+    if( net::LocalNode::disconnect( server ))
         return true;
 
     EQWARN << "Server disconnect failed" << std::endl;
@@ -120,7 +121,7 @@ bool Client::dispatchCommand( net::Command& command )
         }
 
         default:
-            return net::Node::dispatchCommand( command );
+            return net::LocalNode::dispatchCommand( command );
     }
 }
 
@@ -140,7 +141,7 @@ bool Client::invokeCommand( net::Command& command )
         }
 
         default:
-            return net::Node::invokeCommand( command );
+            return net::LocalNode::invokeCommand( command );
     }
 }
 

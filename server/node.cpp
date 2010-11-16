@@ -218,7 +218,7 @@ bool Node::connect()
         return true;
     }
 
-    net::NodePtr localNode = getLocalNode();
+    net::LocalNodePtr localNode = getLocalNode();
     EQASSERT( localNode.isValid( ));
     
     if( isApplicationNode( ))
@@ -269,7 +269,7 @@ bool Node::syncLaunch( const base::Clock& clock )
         return true;
 
     EQASSERT( !isApplicationNode( ));
-    net::NodePtr localNode = getLocalNode();
+    net::LocalNodePtr localNode = getLocalNode();
     EQASSERT( localNode.isValid( ));
 
     const int32_t timeOut = getIAttribute( IATTR_LAUNCH_TIMEOUT );

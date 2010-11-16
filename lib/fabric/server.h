@@ -20,9 +20,7 @@
 
 #include <eq/fabric/types.h>     // basic typedefs
 #include <eq/fabric/nodeType.h>  // for NODETYPE_EQ_SERVER enum
-
-#include <eq/net/node.h>         // base class
-
+#include <eq/net/command.h>
 namespace eq
 {
 namespace fabric
@@ -35,8 +33,8 @@ namespace fabric
      * and release a Config from the server.
      * @sa Client::connectServer
      */
-    template< class CL, class S, class CFG, class NF >
-    class Server : public net::Node
+    template< class CL, class S, class CFG, class NF, class N >
+    class Server : public N
     {
     public:
         typedef base::RefPtr< CL > ClientPtr;
@@ -96,8 +94,8 @@ namespace fabric
         bool _cmdDestroyConfig( net::Command& command );
     };
 
-    template< class CL, class S, class CFG, class NF > EQFABRIC_EXPORT
-    std::ostream& operator << ( std::ostream&, const Server< CL, S, CFG, NF>& );
+    template< class CL, class S, class CFG, class NF, class N > EQFABRIC_EXPORT
+    std::ostream& operator << ( std::ostream&, const Server< CL, S, CFG, NF, N>& );
 }
 }
 

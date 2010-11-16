@@ -133,7 +133,7 @@ const Nodes* Object::_getSlaveNodes() const
     return _cm->getSlaveNodes();
 }
 
-NodePtr Object::getLocalNode()
+LocalNodePtr Object::getLocalNode()
 { 
     return _session ? _session->getLocalNode() : 0; 
 }

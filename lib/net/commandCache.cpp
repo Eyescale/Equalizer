@@ -177,7 +177,7 @@ Command& CommandCache::_newCommand( const Cache which )
     return *( cache.back( ));
 }
 
-Command& CommandCache::alloc( NodePtr node, NodePtr localNode, 
+Command& CommandCache::alloc( NodePtr node, LocalNodePtr localNode, 
                               const uint64_t size )
 {
     EQ_TS_THREAD( _thread );

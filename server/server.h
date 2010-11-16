@@ -25,6 +25,7 @@
 #include <eq/fabric/server.h>    // base class
 #include <eq/net/command.h>      // used in inline method
 #include <eq/net/commandQueue.h> // member
+#include <eq/net/localNode.h> // member
 
 namespace eq
 {
@@ -32,6 +33,7 @@ namespace fabric
 {
     template< class, class, class, class, class, class, class > class Config;
 }
+
 namespace server
 {
     class NodeFactory;
@@ -42,7 +44,7 @@ namespace server
      * The Equalizer server.
      */
     class Server : public fabric::Server< net::Node, Server, Config,
-                                          NodeFactory >
+                                          NodeFactory, eq::net::LocalNode >
     {
     public:
         /** 

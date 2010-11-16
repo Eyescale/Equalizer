@@ -18,7 +18,7 @@
 #ifndef EQNET_COMMAND_H
 #define EQNET_COMMAND_H
 
-#include <eq/net/node.h> // NodePtr members
+#include <eq/net/localNode.h> // NodePtr members
 
 #include <eq/base/base.h>
 #include <eq/base/refPtr.h>
@@ -50,7 +50,7 @@ namespace net
             { EQASSERT( _packet ); return static_cast<P*>( _packet ); }
 
         NodePtr getNode()      const { return _node; }
-        NodePtr getLocalNode() const { return _localNode; }
+        LocalNodePtr getLocalNode() const { return _localNode; }
 
         bool     operator ! () const     { return ( _packet==0 ); }
 
@@ -77,7 +77,7 @@ namespace net
         ~Command();
 
         /** @return the number of newly allocated bytes. */
-        size_t _alloc( NodePtr node, NodePtr localNode, const uint64_t size );
+        size_t _alloc( NodePtr node, LocalNodePtr localNode, const uint64_t size );
 
         /** 
          * Clone the from command into this command.
@@ -97,7 +97,7 @@ namespace net
         void _free();
 
         NodePtr  _node; //!< The node sending the packet
-        NodePtr  _localNode; //!< The node receiving the packet
+        LocalNodePtr  _localNode; //!< The node receiving the packet
         Packet*  _packet; //!< The packet (this or master _data)
 
         Packet* _data; //!< Our allocated data

@@ -1299,7 +1299,7 @@ bool Channel::_cmdFrameTransmit( net::Command& command )
                                       << packet << std::endl;
 
     net::Session* session = getSession();
-    net::NodePtr localNode = session->getLocalNode();
+    net::LocalNodePtr localNode = session->getLocalNode();
     net::NodePtr server = session->getServer();
     Pipe* pipe = getPipe();
     Frame* frame = pipe->getFrame( packet->frame, packet->context.eye, false );

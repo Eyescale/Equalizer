@@ -185,7 +185,7 @@ namespace server
 
     protected:
         /** @sa net::Session::notifyMapped. */
-        virtual void notifyMapped( net::NodePtr node );
+        virtual void notifyMapped( net::LocalNodePtr node );
 
         friend class Server; // for commit()
 

@@ -221,7 +221,7 @@ namespace fabric
         if( !child->isAttached( ))
         {
             EQASSERT( !isMaster( ));
-            net::NodePtr localNode = child->getConfig()->getLocalNode();
+            net::LocalNodePtr localNode = child->getConfig()->getLocalNode();
             PKG packet;
             packet.requestID = localNode->registerRequest();
 

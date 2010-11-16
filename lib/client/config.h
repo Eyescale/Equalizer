@@ -346,7 +346,7 @@ namespace eq
         EQ_EXPORT virtual void deregisterObject( net::Object* object );
 
     protected:
-        EQ_EXPORT virtual void notifyMapped( net::NodePtr node ); //!< @internal
+        EQ_EXPORT virtual void notifyMapped( net::LocalNodePtr node ); //!< @internal
         /** @internal */
         EQ_EXPORT virtual void changeLatency( const uint32_t latency );
         EQ_EXPORT virtual void unmap(); //!< @internal

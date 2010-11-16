@@ -240,7 +240,7 @@ namespace fabric
         EQFABRIC_EXPORT virtual ~Config();
 
         /** @internal */
-        EQFABRIC_EXPORT virtual void notifyMapped( net::NodePtr node );
+        EQFABRIC_EXPORT virtual void notifyMapped( net::LocalNodePtr node );
 
         /** @internal Execute the slave remove request. */
         EQFABRIC_EXPORT virtual void _removeChild( const uint32_t )
@@ -250,7 +250,7 @@ namespace fabric
         void deregister(); //!< @internal
         void map( const net::ObjectVersion proxy ); //!< @internal
         virtual void unmap(); //!< @internal
-        template< class, class, class, class > friend class Server; // map/unmap
+        template< class, class, class, class, class > friend class Server; // map/unmap
 
         void setAppNodeID( const net::NodeID& nodeID ); //!< @internal
         /** @internal */

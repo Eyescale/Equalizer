@@ -61,7 +61,7 @@ MasterCM::~MasterCM()
 
 uint32_t MasterCM::commitNB()
 {
-    NodePtr localNode = _object->getLocalNode();
+    LocalNodePtr localNode = _object->getLocalNode();
     ObjectCommitPacket packet;
     packet.instanceID = _object->_instanceID;
     packet.requestID  = localNode->registerRequest();
@@ -72,7 +72,7 @@ uint32_t MasterCM::commitNB()
 
 uint32_t MasterCM::commitSync( const uint32_t commitID )
 {
-    NodePtr localNode = _object->getLocalNode();
+    LocalNodePtr localNode = _object->getLocalNode();
     uint32_t version = VERSION_NONE;
     localNode->waitRequest( commitID, version );
     return version;

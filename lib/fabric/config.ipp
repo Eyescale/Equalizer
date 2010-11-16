@@ -102,7 +102,7 @@ Config< S, C, O, L, CV, N, V >::~Config()
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::notifyMapped( net::NodePtr node )
+void Config< S, C, O, L, CV, N, V >::notifyMapped( net::LocalNodePtr node )
 {
     net::Session::notifyMapped( node );
 

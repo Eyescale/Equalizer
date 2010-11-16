@@ -75,7 +75,7 @@ bool DeltaMasterCM::_cmdCommit( Command& command )
             _deltaData.disable();
         }
 
-        NodePtr localNode = _object->getLocalNode();
+        LocalNodePtr localNode = _object->getLocalNode();
         if( _slaves.empty() || _deltaData.hasSentData( ))
         {
             // save instance data

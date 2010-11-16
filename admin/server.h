@@ -24,6 +24,10 @@
 
 namespace eq
 {
+namespace net
+{
+    class Node;
+}
 namespace admin
 {
     class NodeFactory;
@@ -34,7 +38,8 @@ namespace admin
      *
      * @sa Client::connectServer
      */
-    class Server : public fabric::Server< Client, Server, Config, NodeFactory >
+    class Server : public fabric::Server< Client, Server, Config, 
+                                          NodeFactory, eq::net::Node >
     {
     public:
         /** Construct a new server. @version 1.0 */

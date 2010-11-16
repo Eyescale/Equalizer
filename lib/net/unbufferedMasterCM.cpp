@@ -139,7 +139,7 @@ void UnbufferedMasterCM::removeSlave( NodePtr node )
 bool UnbufferedMasterCM::_cmdCommit( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
-    NodePtr localNode = _object->getLocalNode();
+    LocalNodePtr localNode = _object->getLocalNode();
     const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
 #if 0
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command

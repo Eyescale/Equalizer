@@ -42,7 +42,7 @@ public:
             description->type = eq::net::CONNECTIONTYPE_TCPIP;
             description->port = _master ? 4242 : 4243;
 
-            eq::net::NodePtr node = new eq::net::Node;
+            eq::net::LocalNodePtr node = new eq::net::LocalNode;
             node->addConnectionDescription( description );
             TEST( node->listen( ));
 

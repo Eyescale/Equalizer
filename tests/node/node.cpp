@@ -49,14 +49,14 @@ struct DataPacket : public eq::net::NodePacket
     char     data[8];
 };
 
-class Server : public eq::net::Node
+class Server : public eq::net::LocalNode
 {
 public:
     Server() : _messagesLeft( NMESSAGES ){}
 
     virtual bool listen()
         {
-            if( !eq::net::Node::listen( ))
+            if( !eq::net::LocalNode::listen( ))
                 return false;
 
             registerCommand( eq::net::CMD_NODE_CUSTOM, 
@@ -109,7 +109,7 @@ int main( int argc, char **argv )
     connDesc->type       = eq::net::CONNECTIONTYPE_TCPIP;
     connDesc->setHostname( "localhost" );
 
-    eq::net::NodePtr client = new eq::net::Node;
+    eq::net::LocalNodePtr client = new eq::net::LocalNode;
     client->addConnectionDescription( connDesc );
     TEST( client->listen( ));
     TEST( client->connect( serverProxy ));

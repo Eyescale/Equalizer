@@ -91,7 +91,7 @@ Config::~Config()
     }
 }
 
-void Config::notifyMapped( net::NodePtr node )
+void Config::notifyMapped( net::LocalNodePtr node )
 {
     Super::notifyMapped( node );
 
@@ -647,7 +647,6 @@ void Config::_stopNodes()
 
             EQWARN << "Forcefully disconnecting exited render client node"
                    << std::endl;
-            localNode->disconnect( netNode );
         }
 
         EQLOG( LOG_INIT ) << "Disconnected node" << std::endl;
@@ -979,7 +978,7 @@ bool Config::_cmdUpdate( net::Command& command )
         return true;
     }
 
-    net::NodePtr localNode = getLocalNode();
+    net::LocalNodePtr localNode = getLocalNode();
     ConfigUpdateVersionPacket replyVersion( packet, getVersion(),
                                             localNode->registerRequest( ));
     send( node, replyVersion );

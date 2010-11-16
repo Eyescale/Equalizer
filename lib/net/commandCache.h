@@ -44,7 +44,7 @@ namespace net
         EQ_NET_DECL ~CommandCache();
 
         /** @return a new command. */
-        EQ_NET_DECL Command& alloc( NodePtr node, NodePtr localNode,
+        EQ_NET_DECL Command& alloc( NodePtr node, LocalNodePtr localNode,
                                   const uint64_t size );
 
         /** @return a clone of a command. */
