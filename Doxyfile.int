@@ -25,7 +25,7 @@ DOXYFILE_ENCODING      = UTF-8
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded
 # by quotes) that should identify the project.
 
-PROJECT_NAME           = Equalizer
+PROJECT_NAME           = Equalizer Internal
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number.
 # This could be handy for archiving the generated documentation or
@@ -1379,6 +1379,10 @@ PREDEFINED             = EQ_GCC_4_1_OR_LATER= \
                          EQ_USE_BOOST= \
                          EQ_USE_CUDA= \
                          EQ_USE_OPENMP= \
+                         EQ_DLLIMPORT= \
+                         EQFABRIC_EXPORT= \
+                         EQ_BASE_DECL= \
+                         EQ_NET_DECL= 
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then
 # this tag can be used to specify a list of macro names that should be expanded.
@@ -1387,8 +1391,7 @@ PREDEFINED             = EQ_GCC_4_1_OR_LATER= \
 
 EXPAND_AS_DEFINED      = EQ_EXPORT \
                          EQSERVER_EXPORT \
-                         EQADMIN_EXPORT \
-                         EQ_BASE_DECL
+                         EQADMIN_EXPORT
 
 # If the SKIP_FUNCTION_MACROS tag is set to YES (the default) then
 # doxygen's preprocessor will remove all function-like macros that are alone
