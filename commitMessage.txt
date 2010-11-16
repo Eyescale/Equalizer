@@ -1,9 +1,11 @@
-Fix Win32 pthread build
+Add make clean target
+Fix osgSV cmake for partial osg installs
+Upgrade to glew 1.5.7 with glu removed
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

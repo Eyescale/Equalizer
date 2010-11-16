@@ -3,10 +3,10 @@
 
 find_package(OpenSceneGraph 2.9.8 COMPONENTS osgDB osgUtil)
 
-if(NOT OPENSCENEGRAPH_FOUND)
+if(OSG_LIBRARY MATCHES "OSG_LIBRARY-NOTFOUND")
   message(WARNING "OSG not found: Example 'osgScaleViewer' will be skipped!")
   return()
-endif(NOT OPENSCENEGRAPH_FOUND)
+endif(OSG_LIBRARY MATCHES "OSG_LIBRARY-NOTFOUND")
 
 include_directories(SYSTEM ${OPENSCENEGRAPH_INCLUDE_DIRS})
 

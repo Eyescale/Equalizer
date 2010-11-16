@@ -1,7 +1,9 @@
 #!gmake
-.PHONY: debug tests release xcode debug_glx docs docs/install
+.PHONY: debug tests release xcode debug_glx docs docs/install clean
 
 all: debug RELNOTES.txt README.rst
+clean:
+	rm -rf debug release docs XCode debug_glx 
 
 DOXYGEN ?= doxygen
 
