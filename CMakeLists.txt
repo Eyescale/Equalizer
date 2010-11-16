@@ -58,6 +58,7 @@ if(MSVC)
 endif(MSVC)
 
 if(WIN32)
+  set(EQ_FEATURES "${EQ_FEATURES} WGL")
   set(Boost_USE_STATIC_LIBS ON)
 endif(WIN32)
 set(Boost_USE_MULTITHREADED ON)

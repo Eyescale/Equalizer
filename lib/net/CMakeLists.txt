@@ -12,6 +12,7 @@ endif(Boost_FOUND)
 
 if(WIN32)
   list(APPEND NET_ADD_SOURCES pgmConnection.cpp)
+  list(APPEND NET_ADD_LINKLIB Ws2_32 mswsock) 
 endif(WIN32)
 
 purple_add_library(eq_net SHARED

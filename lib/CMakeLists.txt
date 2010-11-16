@@ -13,6 +13,10 @@ source_group(compressor FILES ${COMPRESSOR_SOURCES})
 
 add_definitions(-DEQ_EXPORTS -DEQ_PLUGIN_BUILD -DGLEW_STATIC)
 
+if(WIN32)
+  list(APPEND ADD_LINKLIB Ws2_32 mswsock)
+endif(WIN32)
+
 if(APPLE)
   if(EQ_AGL_USED)
     find_library(CARBON_LIBRARY Carbon)
@@ -74,6 +78,7 @@ purple_add_amalgamation(Equalizer
     ${X11_LIBRARIES}
     ${GL_LIBRARIES}
     ${CUDA_LIBRARIES}
+    ${ADD_LINKLIB}
   )
 
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY

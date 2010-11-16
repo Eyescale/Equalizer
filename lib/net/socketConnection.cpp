@@ -30,7 +30,6 @@
 
 #ifdef WIN32
 #  include <mswsock.h>
-
 #  ifndef WSA_FLAG_SDP
 #    define WSA_FLAG_SDP 0x40
 #  endif
