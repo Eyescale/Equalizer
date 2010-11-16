@@ -16,8 +16,7 @@ macro(PURPLE_DOXYGEN NAME)
   if(THIS_DOXYFILE)
     configure_file(${THIS_DOXYFILE} ${DOXYFILE} COPYONLY)
   else()
-    execute_process(COMMAND ${DOXYGEN_EXECUTABLE} -s -g ${DOXYFILE}
-      OUTPUT_QUIET ERROR_QUIET)
+    execute_process(COMMAND ${DOXYGEN_EXECUTABLE} -s -g ${DOXYFILE})
   endif()
 
   foreach(PARAM ${THIS_PARAMETERS})
