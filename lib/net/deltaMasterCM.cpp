@@ -35,7 +35,10 @@ typedef CommandFunc<DeltaMasterCM> CmdFunc;
         
 DeltaMasterCM::DeltaMasterCM( Object* object )
         : FullMasterCM( object )
+#pragma warning( push )
+#pragma warning( disable : 4355 )
         , _deltaData( this )
+#pragma warning( push )
 {
     registerCommand( CMD_OBJECT_COMMIT, 
                      CmdFunc( this, &DeltaMasterCM::_cmdCommit ), 0 );
