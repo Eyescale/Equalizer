@@ -112,14 +112,14 @@ namespace DataStreamTest
                                const uint32_t nChunks,
                                const void* const* chunks,
                                const uint64_t* chunkSizes,
-                               const uint64_t sizeUncompressed ) = 0;
+                               const uint64_t size ) = 0;
                                  
         /** Send the trailing data (packet) to the receivers */
         virtual void sendFooter( const uint32_t compressor,
                                  const uint32_t nChunks,
                                  const void* const* chunks, 
                                  const uint64_t* chunkSizes,
-                                 const uint64_t sizeUncompressed ) = 0;
+                                 const uint64_t size ) = 0;
         //@}
 
         /** Reset the whole stream. */
@@ -128,8 +128,6 @@ namespace DataStreamTest
         /** Locked connections to the receivers, if _enabled */
         Connections _connections;
         friend class DataStreamTest::Sender;
-
-        base::CPUCompressor* const compressor;
 
     private:        
         enum BufferType
@@ -142,11 +140,16 @@ namespace DataStreamTest
         
         /** The buffer used for saving and buffering */
         base::Bufferb  _buffer;
+
         /** The start position of the buffering, always 0 if !_save */
         uint64_t _bufferStart;
         
+        /** The compressor instance. */
+        base::CPUCompressor* const _compressor;
+
         /** The output stream is enabled for writing */
         bool _enabled;
+
         /** Some data has been sent since it was _enabled */
         bool _dataSent;
 

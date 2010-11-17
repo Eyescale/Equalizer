@@ -48,22 +48,22 @@ base::a_int32_t timeToCompress;
 }
 
 DataOStream::DataOStream()
-        : compressor( new base::CPUCompressor )
-        , _bufferType( BUFFER_NONE )
+        : _bufferType( BUFFER_NONE )
         , _bufferStart( 0 )
+        , _compressor( new base::CPUCompressor )
         , _enabled( false )
         , _dataSent( false )
         , _save( false )
 {
-    compressor->initCompressor( EQ_COMPRESSOR_DATATYPE_BYTE, 1.f );
-    EQVERB << "Using byte compressor " << compressor->getName() << std::endl;
+    _compressor->initCompressor( EQ_COMPRESSOR_DATATYPE_BYTE, 1.f );
+    EQVERB << "Using byte compressor " << _compressor->getName() << std::endl;
 }
 
 DataOStream::~DataOStream()
 {
     // Can't call disable() from destructor since it uses virtual functions
     EQASSERT( !_enabled );
-    delete compressor;
+    delete _compressor;
 }
 
 void DataOStream::enable( const Nodes& receivers )
@@ -277,7 +277,7 @@ void DataOStream::_sendData( const void* data, const uint64_t size )
 
     if( _bufferType == BUFFER_NONE )
     {
-        const uint32_t nChunks = compressor->getNumResults( );
+        const uint32_t nChunks = _compressor->getNumResults( );
         uint64_t* chunkSizes = static_cast< uint64_t* >( 
                                    alloca( nChunks * sizeof( uint64_t )));
         void** chunks = static_cast< void ** >( 
@@ -285,7 +285,8 @@ void DataOStream::_sendData( const void* data, const uint64_t size )
 
         if( _getCompressedData( chunks, chunkSizes ) < size )
         {
-            sendData( compressor->getName(), nChunks, chunks, chunkSizes, size);
+            sendData( _compressor->getName(), nChunks, chunks, chunkSizes,
+                      size );
             return;
         }
     }
@@ -297,7 +298,7 @@ void DataOStream::_sendFooter( const void* buffer, const uint64_t size )
 {
     if( _bufferType != BUFFER_NONE )
     {
-        const uint32_t nChunks = compressor->getNumResults( );
+        const uint32_t nChunks = _compressor->getNumResults( );
         uint64_t* chunkSizes = static_cast< uint64_t* >( 
                                    alloca( nChunks * sizeof( uint64_t )));
         void** chunks = static_cast< void ** >( 
@@ -305,7 +306,7 @@ void DataOStream::_sendFooter( const void* buffer, const uint64_t size )
 
         if( _getCompressedData( chunks, chunkSizes ) < size )
         {
-            sendFooter( compressor->getName(), nChunks, chunks, chunkSizes,
+            sendFooter( _compressor->getName(), nChunks, chunks, chunkSizes,
                         size );
             return;
         }
@@ -318,7 +319,7 @@ void DataOStream::_compress( const void* src, const uint64_t sizeSrc )
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
     nBytesTryToCompress += sizeSrc;
 #endif
-    if( !compressor->isValid( ))
+    if( !_compressor->isValid( ))
     {
         _bufferType = BUFFER_NONE;
         return;
@@ -329,11 +330,11 @@ void DataOStream::_compress( const void* src, const uint64_t sizeSrc )
 #endif
     const uint64_t inDims[2] = { 0, sizeSrc };
 
-    compressor->compress( const_cast< void* >( src ), inDims );
+    _compressor->compress( const_cast< void* >( src ), inDims );
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
     timeToCompress += uint32_t( clock.getTimef() * 1000.f );
-    const uint32_t nChunks = compressor->getNumResults( );
+    const uint32_t nChunks = _compressor->getNumResults( );
 
     EQASSERT( nChunks > 0 );
     for( size_t i = 0; i < nChunks; i++ )
@@ -341,7 +342,7 @@ void DataOStream::_compress( const void* src, const uint64_t sizeSrc )
         void* chunk;
         uint64_t chunkSize;
 
-        compressor->getResult(  i, &chunk, &chunkSize );
+        _compressor->getResult(  i, &chunk, &chunkSize );
         nBytesCompressed += chunkSize;
     }
 #endif
@@ -351,13 +352,13 @@ uint64_t DataOStream::_getCompressedData( void** chunks, uint64_t* chunkSizes )
     const
 {    
     EQASSERT( _bufferType != BUFFER_NONE );
-    const uint32_t nChunks = compressor->getNumResults( );
+    const uint32_t nChunks = _compressor->getNumResults( );
     EQASSERT( nChunks > 0 );
 
     uint64_t dataSize = 0;
     for ( uint32_t i = 0; i < nChunks; i++ )
     {
-        compressor->getResult( i, &chunks[i], &chunkSizes[i] );
+        _compressor->getResult( i, &chunks[i], &chunkSizes[i] );
         dataSize += chunkSizes[i];
     }
 

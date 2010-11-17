@@ -140,8 +140,9 @@ const Command* ObjectDataIStream::getNextCommand()
     return _commands.front();
 }
 
-template< typename P > bool ObjectDataIStream::_getNextBuffer( 
-    const uint32_t cmd, const uint8_t** buffer, uint64_t* size )
+template< typename P > bool ObjectDataIStream::_getNextBuffer(
+    const uint32_t cmd, uint32_t* compressor, uint32_t* nChunks,
+    const void** chunkData, uint64_t* size )
 {
     const Command* command = getNextCommand();
     if( !command )
@@ -157,29 +158,22 @@ template< typename P > bool ObjectDataIStream::_getNextBuffer(
     const P* packet = command->getPacket< P >();
 
     if( packet->dataSize == 0 ) // empty packet
-        return _getNextBuffer< P >( cmd, buffer, size );
+        return _getNextBuffer< P >( cmd, compressor, nChunks, chunkData, size );
 
     *size = packet->dataSize;
-    const uint8_t* data = reinterpret_cast<const uint8_t*>( packet+1 );
-
-    if( packet->compressorName > EQ_COMPRESSOR_NONE )
-    {
-        _decompress( data, buffer, packet->compressorName, packet->nChunks,
-                     packet->dataSize );
-        return true;
-    }
-
-    *buffer = data + 8;
-    EQASSERT( *reinterpret_cast<const uint64_t*>( data ) == packet->dataSize );
+    *compressor = packet->compressorName;
+    *nChunks = packet->nChunks;
+    *chunkData = packet->data;
+    *size = packet->dataSize;
     return true;
 }
 
 template bool ObjectDataIStream::_getNextBuffer< ObjectDeltaPacket >(
-    const uint32_t, const uint8_t**, uint64_t* );
+    const uint32_t, uint32_t*, uint32_t*, const void**, uint64_t* );
 template bool ObjectDataIStream::_getNextBuffer< ObjectInstancePacket >(
-    const uint32_t, const uint8_t**, uint64_t* );
+    const uint32_t, uint32_t*, uint32_t*, const void**, uint64_t* );
 template bool ObjectDataIStream::_getNextBuffer< ObjectSlaveDeltaPacket >(
-    const uint32_t, const uint8_t**, uint64_t* );
+    const uint32_t, uint32_t*, uint32_t*, const void**, uint64_t* );
 
 }
 }

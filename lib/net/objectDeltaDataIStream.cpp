@@ -26,11 +26,14 @@ namespace eq
 {
 namespace net
 {
-bool ObjectDeltaDataIStream::getNextBuffer( const uint8_t** buffer, 
+bool ObjectDeltaDataIStream::getNextBuffer( uint32_t* compressor,
+                                            uint32_t* nChunks,
+                                            const void** chunkData,
                                             uint64_t* size )
 {
     return _getNextBuffer< ObjectDeltaPacket >( CMD_OBJECT_DELTA,
-                                                buffer, size );
+                                                compressor, nChunks, chunkData,
+                                                size );
 }
 
 }

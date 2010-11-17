@@ -38,53 +38,30 @@ ObjectSlaveDataOStream::ObjectSlaveDataOStream( const ObjectCM* cm )
 ObjectSlaveDataOStream::~ObjectSlaveDataOStream()
 {}
 
-void ObjectSlaveDataOStream::_sendPacket( ObjectSlaveDeltaPacket& packet,
-                                          const void* const* chunks,
-                                          const uint64_t* chunkSizes,
-                                          const uint64_t sizeUncompressed )
-{
-    const Object* object = _cm->getObject();   
-     
-    packet.version    = object->getVersion();
-    packet.sequence   = _sequence++;
-    packet.dataSize   = sizeUncompressed;
-    packet.sessionID  = object->getSession()->getID();
-    packet.objectID   = object->getID();
-    packet.instanceID = object->getMasterInstanceID();
-
-#if 0
-    EQLOG( LOG_OBJECTS ) << "send " << &packet << " to " << _connections.size()
-                         << " receivers " << std::endl;
-#endif
-
-    Connection::send( _connections, packet, chunks, chunkSizes, packet.nChunks);
-}
-
-void ObjectSlaveDataOStream::sendData( const uint32_t name,
+void ObjectSlaveDataOStream::sendData( const uint32_t compressor,
                                        const uint32_t nChunks,
-                                       const void* const* buffers,
-                                       const uint64_t* sizes,
-                                       const uint64_t sizeUncompressed )
+                                       const void* const* chunks,
+                                       const uint64_t* chunkSizes,
+                                       const uint64_t size )
 {
     ObjectSlaveDeltaPacket packet;
-    packet.compressorName = name;
-    packet.nChunks        = nChunks;
-    packet.commit         = _commit;
-    _sendPacket( packet, buffers, sizes, sizeUncompressed );
+    packet.commit = _commit;
+    packet.instanceID = _cm->getObject()->getMasterInstanceID();
+    sendPacket( packet, compressor, nChunks, chunks, chunkSizes, size );
 }
 
-void ObjectSlaveDataOStream::sendFooter( const uint32_t name, 
+void ObjectSlaveDataOStream::sendFooter( const uint32_t compressor,
                                          const uint32_t nChunks,
-                                         const void* const* buffers, 
-                                         const uint64_t* sizes,
-                                         const uint64_t sizeUncompressed )
+                                         const void* const* chunks, 
+                                         const uint64_t* chunkSizes,
+                                         const uint64_t size )
 {
     ObjectSlaveDeltaPacket packet;
-    packet.last           = true;
-    packet.compressorName = name;
-    packet.nChunks        = nChunks;
-    packet.commit         = _commit;
-    _sendPacket( packet, buffers, sizes, sizeUncompressed );
+    packet.last = true;
+    packet.commit = _commit;
+    packet.instanceID = _cm->getObject()->getMasterInstanceID();
+
+    sendPacket( packet, compressor, nChunks, chunks, chunkSizes, size );
 
     _sequence = 0;
     _commit = base::UUID( true /* generate */ );

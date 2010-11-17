@@ -38,7 +38,8 @@ namespace net
         virtual Type getType() const { return TYPE_DELTA; }
 
     protected:
-        virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size );
+        virtual bool getNextBuffer( uint32_t* compressor, uint32_t* nChunks,
+                                    const void** chunkData, uint64_t* size );
     };
 }
 }

@@ -47,12 +47,6 @@ namespace net
                                  const void* const* chunks, 
                                  const uint64_t* chunkSizes,
                                  const uint64_t sizeUncompressed );
-
-    private:
-        void _sendPacket( ObjectDeltaPacket& packet,
-                          const void* const* chunks, const uint64_t* chunkSizes,
-                          const uint64_t sizeUncompressed );
-
     };
 }
 }

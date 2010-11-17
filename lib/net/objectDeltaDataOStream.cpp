@@ -37,58 +37,25 @@ ObjectDeltaDataOStream::ObjectDeltaDataOStream( const ObjectCM* cm )
 ObjectDeltaDataOStream::~ObjectDeltaDataOStream()
 {}
 
-void ObjectDeltaDataOStream::_sendPacket( ObjectDeltaPacket& packet,
-                                          const void* const* chunks,
-                                          const uint64_t* chunkSizes,
-                                          const uint64_t sizeUncompressed )
-{
-    packet.version   = _version;
-    packet.sequence  = _sequence++;
-    packet.dataSize  = sizeUncompressed;
-
-    const Object* object = _cm->getObject();
-    packet.sessionID = object->getSession()->getID();
-    packet.objectID  = object->getID();
-
-#if 0
-    EQLOG( LOG_OBJECTS ) << "send " << &packet << " to " << _connections.size()
-                         << " receivers " << std::endl;
-#endif
-
-    if( sizeUncompressed > 0 )
-        Connection::send( _connections, packet, chunks, chunkSizes, 
-                          packet.nChunks );
-    else
-    {
-        EQASSERT( packet.nChunks == 1 );
-        EQASSERT( chunkSizes[ 0 ] == 0 );
-        Connection::send( _connections, packet );
-    }
-}
-
-void ObjectDeltaDataOStream::sendData( const uint32_t name,
+void ObjectDeltaDataOStream::sendData( const uint32_t compressor,
                                        const uint32_t nChunks,
                                        const void* const* buffers,
                                        const uint64_t* sizes,
-                                       const uint64_t sizeUncompressed )
+                                       const uint64_t size )
 {
     ObjectDeltaPacket packet;
-    packet.compressorName = name;
-    packet.nChunks        = nChunks;
-    _sendPacket( packet, buffers, sizes, sizeUncompressed );
+    sendPacket( packet, compressor, nChunks, buffers, sizes, size );
 }
 
-void ObjectDeltaDataOStream::sendFooter( const uint32_t name, 
+void ObjectDeltaDataOStream::sendFooter( const uint32_t compressor,
                                          const uint32_t nChunks,
                                          const void* const* buffers, 
                                          const uint64_t* sizes,
-                                         const uint64_t sizeUncompressed )
+                                         const uint64_t size )
 {
     ObjectDeltaPacket packet;
-    packet.last           = true;
-    packet.compressorName = name;
-    packet.nChunks        = nChunks;
-    _sendPacket( packet, buffers, sizes, sizeUncompressed );
+    packet.last = true;
+    sendPacket( packet, compressor, nChunks, buffers, sizes, size );
     _sequence = 0;
 }
 

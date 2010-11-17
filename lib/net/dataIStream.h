@@ -109,12 +109,8 @@ namespace net
         //@}
  
     protected:
-        base::CPUCompressor* const decompressor;
-        virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size ) =0;
-
-        void _decompress( const uint8_t* src, const uint8_t** dst, 
-                          const uint32_t name, const uint32_t nChunks,
-                          const uint64_t dataSize );
+        virtual bool getNextBuffer( uint32_t* compressor, uint32_t* nChunks,
+                                    const void** chunkData, uint64_t* size )=0;
 
     private:
         /** The current input buffer */
@@ -124,13 +120,18 @@ namespace net
         /** The current read position in the buffer */
         uint64_t  _position;
 
-        eq::base::Bufferb _data; //!< decompress buffer
+        base::CPUCompressor* const _decompressor; //!< current decompressor
+        eq::base::Bufferb _data; //!< decompressed buffer
 
         /**
          * Check that the current buffer has data left, get the next buffer is
          * necessary, return false if no data is left. 
          */
         bool _checkBuffer();
+        
+        const uint8_t* _decompress( const void* data, const uint32_t name,
+                                    const uint32_t nChunks,
+                                    const uint64_t dataSize );
 
         /** Read a vector of trivial data. */
         template< typename T >

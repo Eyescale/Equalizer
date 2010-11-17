@@ -34,6 +34,7 @@
 // Tests the functionality of the DataOStream and DataIStream
 
 #define CONTAINER_SIZE 4096
+
 static std::string _message( "So long, and thanks for all the fish" );
 
 struct HeaderPacket : public eq::net::Packet
@@ -55,6 +56,8 @@ struct DataPacket : public eq::net::Packet
         }
         
     uint64_t dataSize;
+    uint32_t compressorName;
+    uint32_t nChunks;
     EQ_ALIGN8( uint8_t data[8] );
 };
 
@@ -70,21 +73,20 @@ struct FooterPacket : public eq::net::Packet
 class DataOStream : public eq::net::DataOStream
 {
 public:
-    DataOStream()
-        { compressor->reset(); }
+    DataOStream() {}
 
 protected:
-    virtual void sendData( const uint32_t name, const uint32_t nChunks,
-                           const void* const* buffer, const uint64_t* size,
-                           const uint64_t sizeUncompressed  )
+    virtual void sendData( const uint32_t compressor, const uint32_t nChunks,
+                           const void* const* chunks,
+                           const uint64_t* chunkSizes, const uint64_t size  )
         {
             DataPacket packet;
-            packet.dataSize = sizeUncompressed;
-            eq::net::Connection::send( _connections, packet, buffer[0], 
-                                       sizeUncompressed, 
-                                       true /*isLocked*/ );
-            EQINFO << "Sent buffer of " << sizeUncompressed << " bytes"
-                   << std::endl;
+            packet.dataSize = size;
+            packet.compressorName = compressor;
+            packet.nChunks = nChunks;
+
+            eq::net::Connection::send( _connections, packet, chunks, chunkSizes,
+                                       nChunks );
         }
 
     virtual void sendFooter( const uint32_t name, 
@@ -97,7 +99,7 @@ protected:
                 sendData( name, nChunks, buffer, size, sizeUncompressed );
 
             FooterPacket packet;
-            eq::net::Connection::send( _connections, packet, true/*isLocked*/ );
+            eq::net::Connection::send( _connections, packet );
             EQINFO << "Sent footer" << std::endl;
         }
 };
@@ -115,7 +117,8 @@ public:
     virtual uint32_t getVersion() const { return eq::net::VERSION_NONE;}
 
 protected:
-    virtual bool getNextBuffer( const uint8_t** buffer, uint64_t* size )
+    virtual bool getNextBuffer( uint32_t* compressor, uint32_t* nChunks,
+                                const void** chunkData, uint64_t* size )
         {
             eq::net::Command* command = _commands.tryPop();
             if( !command )
@@ -125,9 +128,10 @@ protected:
 
             DataPacket* packet = command->getPacket<DataPacket>();
             
-            *buffer = packet->data;
-            *size   = packet->dataSize;
-            EQINFO << "Got buffer of " << *size << " bytes" << std::endl;
+            *compressor = packet->compressorName;
+            *nChunks = packet->nChunks;
+            *size = packet->dataSize;
+            *chunkData = packet->data;
 
             command->release();
             return true;
@@ -157,7 +161,6 @@ protected:
         {
             ::DataOStream stream;
 
-            _connection->lockSend();
             stream._connections.push_back( _connection );
             stream.enable();
 
@@ -172,6 +175,8 @@ protected:
             stream << doubles;
 
             stream << _message;
+
+
             stream.disable();
         }
 

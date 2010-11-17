@@ -66,6 +66,7 @@ namespace net
         NodeID nodeID;
         uint32_t masterInstanceID;
         uint32_t fill;
+        EQ_ALIGN8( uint8_t data[8] );
     };
 
     struct ObjectDeltaPacket : public ObjectDataPacket
@@ -76,6 +77,7 @@ namespace net
                 size       = sizeof( ObjectDeltaPacket ); 
                 instanceID = EQ_ID_NONE; // multicasted
             }
+        EQ_ALIGN8( uint8_t data[8] );
     };
 
     struct ObjectSlaveDeltaPacket : public ObjectDataPacket
@@ -87,6 +89,7 @@ namespace net
             }
 
         base::UUID commit;
+        EQ_ALIGN8( uint8_t data[8] );
     };
 
     //------------------------------------------------------------

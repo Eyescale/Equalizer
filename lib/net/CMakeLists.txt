@@ -80,6 +80,7 @@ purple_add_library(eq_net SHARED
     object.cpp
     objectCM.cpp
     objectDataIStream.cpp
+    objectDataOStream.cpp
     objectDeltaDataIStream.cpp
     objectDeltaDataOStream.cpp
     objectInstanceDataIStream.cpp

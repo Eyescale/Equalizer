@@ -63,7 +63,8 @@ namespace net
         const Command* getNextCommand();
 
         template< typename P >
-        bool _getNextBuffer( const uint32_t cmd, const uint8_t** buffer,
+        bool _getNextBuffer( const uint32_t cmd, uint32_t* compressor,
+                             uint32_t* nChunks, const void** chunkData,
                              uint64_t* size );
 
     private:

@@ -65,8 +65,8 @@ namespace base
          * @param outSize the return value to store the result size in bytes
          */
         EQ_BASE_DECL void getResult( const unsigned i, 
-                                  void** const out, 
-                                  uint64_t* const outSize ) const ;
+                                     void** const out, 
+                                     uint64_t* const outSize ) const ;
 
         /**
          * Decompress two-dimensional data.
@@ -80,11 +80,11 @@ namespace base
          * @param flags capability flags for the decompression.
          */
         EQ_BASE_DECL void decompress( const void* const* in, 
-                                   const uint64_t* const inSizes,
-                                   const unsigned numInputs,
-                                   void* const out,
-                                   uint64_t pvpOut[4],
-                                   const uint64_t flags );
+                                      const uint64_t* const inSizes,
+                                      const unsigned numInputs,
+                                      void* const out,
+                                      uint64_t pvpOut[4],
+                                      const uint64_t flags );
 
         /**
          * Decompress one-dimensional data.

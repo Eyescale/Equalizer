@@ -27,11 +27,14 @@ namespace eq
 namespace net
 {
 
-bool ObjectInstanceDataIStream::getNextBuffer( const uint8_t** buffer, 
+bool ObjectInstanceDataIStream::getNextBuffer( uint32_t* compressor,
+                                               uint32_t* nChunks,
+                                               const void** chunkData,
                                                uint64_t* size )
 {
     return _getNextBuffer< ObjectInstancePacket >( CMD_OBJECT_INSTANCE, 
-                                                   buffer, size );
+                                                   compressor, nChunks,
+                                                   chunkData, size );
 }
 
 }

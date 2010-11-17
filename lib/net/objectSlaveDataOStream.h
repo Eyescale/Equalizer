@@ -49,10 +49,6 @@ namespace net
 
     private:
         base::UUID _commit;
-
-        void _sendPacket( ObjectSlaveDeltaPacket& packet,
-                          const void* const* chunks, const uint64_t* chunkSizes,
-                          const uint64_t sizeUncompressed );
     };
 }
 }

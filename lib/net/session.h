@@ -236,7 +236,7 @@ namespace net
          * @sa registerObject
          */
         EQ_NET_DECL bool mapObject( Object* object, const uint32_t id, 
-                                  const uint32_t version = VERSION_OLDEST );
+                                    const uint32_t version = VERSION_OLDEST );
 
         /** Start mapping a distributed object. */
         EQ_NET_DECL uint32_t mapObjectNB( Object* object, const uint32_t id, 

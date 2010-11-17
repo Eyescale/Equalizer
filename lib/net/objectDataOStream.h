@@ -25,7 +25,7 @@ namespace eq
 {
 namespace net
 {
-    class Object;
+    struct ObjectDataPacket;
 
     /**
      * The DataOStream for object data.
@@ -44,6 +44,10 @@ namespace net
         virtual void reset() { DataOStream::reset(); _sequence = 0; }
 
     protected:
+        void sendPacket( ObjectDataPacket& packet, const uint32_t compressor,
+                         const uint32_t nChunks, const void* const* chunks,
+                         const uint64_t* chunkSizes, const uint64_t size );
+
         const ObjectCM* _cm;
         uint32_t _version;
         uint32_t _sequence;

@@ -33,23 +33,23 @@ namespace net
 {
 
 DataIStream::DataIStream()
-        : decompressor( new base::CPUCompressor )
-        , _input( 0 )
+        : _input( 0 )
         , _inputSize( 0 )
         , _position( 0 )
+        , _decompressor( new base::CPUCompressor )
 {}
 
 DataIStream::DataIStream( const DataIStream& )
-        : decompressor( new base::CPUCompressor )
-        , _input( 0 )
+        : _input( 0 )
         , _inputSize( 0 )
         , _position( 0 )
+        , _decompressor( new base::CPUCompressor )
 {}
 
 DataIStream::~DataIStream()
 {
     reset();
-    delete decompressor;
+    delete _decompressor;
 }
 
 void DataIStream::reset()
@@ -110,24 +110,32 @@ bool DataIStream::_checkBuffer()
 {
     while( _position >= _inputSize )
     {
-        if( !getNextBuffer( &_input, &_inputSize ))
+        uint32_t compressor = EQ_COMPRESSOR_NONE;
+        uint32_t nChunks = 0;
+        const void* chunkData = 0;
+        
+        if( !getNextBuffer( &compressor, &nChunks, &chunkData, &_inputSize ))
             return false;
+
+        _input = _decompress( chunkData, compressor, nChunks, _inputSize );
         _position = 0;
     }
     return true;
 }
 
-void DataIStream::_decompress( const uint8_t* src, const uint8_t** dst, 
-                               const uint32_t name, const uint32_t nChunks,
-                               const uint64_t dataSize )
+const uint8_t* DataIStream::_decompress( const void* data, const uint32_t name,
+                                         const uint32_t nChunks,
+                                         const uint64_t dataSize )
 {
-    _data.resize( dataSize );
-    *dst = _data.getData();
-        
-    EQASSERT( name > EQ_COMPRESSOR_NONE );
+    const uint8_t* src = reinterpret_cast< const uint8_t* >( data );
+    if( name == EQ_COMPRESSOR_NONE )
+        return src;
 
-    if ( !decompressor->isValid( name ) )
-        decompressor->initDecompressor( name );
+    EQASSERT( name > EQ_COMPRESSOR_NONE );
+    _data.resize( dataSize );
+
+    if ( !_decompressor->isValid( name ) )
+        _decompressor->initDecompressor( name );
 
     uint64_t outDim[2] = { 0, dataSize };
     uint64_t* chunkSizes = static_cast< uint64_t* >( 
@@ -135,7 +143,7 @@ void DataIStream::_decompress( const uint8_t* src, const uint8_t** dst,
     void** chunks = static_cast< void ** >( 
                                 alloca( nChunks * sizeof( void* )));
     
-    for( size_t i = 0; i < nChunks; ++i )
+    for( uint32_t i = 0; i < nChunks; ++i )
     {
         const uint64_t size = *reinterpret_cast< const uint64_t* >( src );
         chunkSizes[ i ] = size;
@@ -146,9 +154,9 @@ void DataIStream::_decompress( const uint8_t* src, const uint8_t** dst,
         src += size;
     }
 
-    decompressor->decompress( chunks, chunkSizes, nChunks, 
-                            _data.getData(), outDim );
-
+    _decompressor->decompress( chunks, chunkSizes, nChunks, 
+                               _data.getData(), outDim );
+    return _data.getData();
 }
 
 }

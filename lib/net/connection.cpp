@@ -441,6 +441,7 @@ bool Connection::send( const Connections& connections, Packet& packet,
     if( connections.empty( ))
         return true;
 
+    packet.size -= 8;
     const uint64_t headerSize = packet.size;
     for( size_t i = 0; i < nItems; ++i )
     {

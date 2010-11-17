@@ -37,20 +37,15 @@ ObjectInstanceDataOStream::~ObjectInstanceDataOStream()
 {}
 
 void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
+                                             const uint32_t compressor,
+                                             const uint32_t nChunks,
                                              const void* const* chunks,
                                              const uint64_t* chunkSizes,
-                                             const uint64_t sizeUncompressed )
+                                             const uint64_t size )
 {
-    packet.version    = _version;
-    packet.sequence   = _sequence++;
-    packet.dataSize   = sizeUncompressed;
-
     const Object* object    = _cm->getObject();
-    packet.sessionID        = object->getSession()->getID();
-    packet.objectID         = object->getID();
     packet.instanceID       = _instanceID;
     packet.masterInstanceID = object->getInstanceID();
-
     _cm->tunePacket( packet );
 
     if( _nodeID == NodeID::ZERO )
@@ -68,40 +63,28 @@ void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
         packet.nodeID = _nodeID;
     }
 
-    if( sizeUncompressed > 0 )
-        Connection::send( _connections, packet, chunks, chunkSizes, 
-                          packet.nChunks );
-    else
-    {
-        EQASSERT( packet.nChunks == 1 );
-        EQASSERT( chunkSizes[ 0 ] == 0 );
-        Connection::send( _connections, packet );
-    }
+    sendPacket( packet, compressor, nChunks, chunks, chunkSizes, size );
 }
 
-void ObjectInstanceDataOStream::sendData( const uint32_t name,
+void ObjectInstanceDataOStream::sendData( const uint32_t compressor,
                                           const uint32_t nChunks,
                                           const void* const* chunks,
                                           const uint64_t* chunkSizes,
-                                          const uint64_t sizeUncompressed )
+                                          const uint64_t size )
 {
     ObjectInstancePacket packet;
-    packet.compressorName = name;
-    packet.nChunks        = nChunks;
-    _sendPacket( packet, chunks, chunkSizes, sizeUncompressed );
+    _sendPacket( packet, compressor, nChunks, chunks, chunkSizes, size );
 }
 
-void ObjectInstanceDataOStream::sendFooter( const uint32_t name, 
+void ObjectInstanceDataOStream::sendFooter( const uint32_t compressor, 
                                             const uint32_t nChunks,
                                             const void* const* chunks,
                                             const uint64_t* chunkSizes,
-                                            const uint64_t sizeUncompressed )
+                                            const uint64_t size )
 {
     ObjectInstancePacket packet;
-    packet.compressorName = name;
-    packet.nChunks        = nChunks;
     packet.last = true;
-    _sendPacket( packet, chunks, chunkSizes, sizeUncompressed );
+    _sendPacket( packet, compressor, nChunks, chunks, chunkSizes, size );
     _sequence = 0;
 }
 }

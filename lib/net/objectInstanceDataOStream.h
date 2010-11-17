@@ -60,8 +60,9 @@ namespace net
         uint32_t      _instanceID;
 
         void _sendPacket( ObjectInstancePacket& packet,
+                          const uint32_t compressor, const uint32_t nChunks,
                           const void* const* chunks, const uint64_t* chunkSizes,
-                          const uint64_t sizeUncompressed );
+                          const uint64_t size );
     };
 }
 }

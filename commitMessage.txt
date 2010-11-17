@@ -1,9 +1,14 @@
-Code cleanup on revision 5117
+Clean up data stream code:
+- decompress in DataIStream, symmetric to compress in DataOStream
+- make compressor/decompressor private
+- OPT: don't send size twice for uncompressed data
+- simplify ostream send packet code
+- adapt test
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation

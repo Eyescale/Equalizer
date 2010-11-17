@@ -392,6 +392,7 @@ bool VersionedSlaveCM::_cmdCommit( Command& command )
         return true;
     }
 
+    _ostream.setVersion( _object->getVersion( ));
     _ostream.enable( _master, false );
     _object->pack( _ostream );
     _ostream.disable();
