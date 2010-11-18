@@ -104,8 +104,7 @@ int main( const int argc, char** argv )
         EQERROR << "Equalizer init failed" << std::endl;
         return EXIT_FAILURE;
     }
-    eq::server::Global::instance()->setConfigIAttribute(
-        eq::server::Config::IATTR_ROBUSTNESS, eq::ON );
+
     eq::base::ErrorRegistry& registry = eq::base::Global::getErrorRegistry();
     registry.setString( ERROR_NODE_INIT, "Node init failed" );
     registry.setString( ERROR_PIPE_INIT, "Pipe init failed" );
@@ -146,6 +145,8 @@ int main( const int argc, char** argv )
 
 void _testConfig( eq::ClientPtr client, const std::string& filename )
 {
+    eq::server::Global::instance()->setConfigIAttribute(
+        eq::server::Config::IATTR_ROBUSTNESS, eq::ON );
     eq::ServerPtr server = new eq::Server;
     eq::Global::setConfigFile( filename );
     TEST( client->connectServer( server ));
@@ -158,23 +159,25 @@ void _testConfig( eq::ClientPtr client, const std::string& filename )
     std::string name = config->getName();
     size_t index = name.find( '-' );
     TESTINFO( index != std::string::npos,
-              "Config name has to be '<name>-<int>d<int>r<int>a': " << filename);
+             "Config name has to be '<name>-<int>d<int>r<int>a': " << filename);
     name = name.substr( index + 1 );
     const int nDraw = atoi( name.c_str( ));
 
     index = name.find( 'd' );
     TESTINFO( index != std::string::npos,
-              "Config name has to be '<name>-<int>d<int>r<int>a': " << filename);
+             "Config name has to be '<name>-<int>d<int>r<int>a': " << filename);
     name = name.substr( index + 1 );
     const int nReadback = atoi( name.c_str( ));
 
     index = name.find( 'r' );
     TESTINFO( index != std::string::npos,
-              "Config name has to be '<name>-<int>d<int>r<int>a': " << filename);
+             "Config name has to be '<name>-<int>d<int>r<int>a': " << filename);
     name = name.substr( index + 1 );
     const int nAssemble = atoi( name.c_str( ));
 
     // 3. init config
+    TESTINFO( config->getIAttribute( eq::Config::IATTR_ROBUSTNESS ) == eq::ON,
+              filename );
     TESTINFO( config->init( 0 ), filename );
 
     // 4. run main loop
