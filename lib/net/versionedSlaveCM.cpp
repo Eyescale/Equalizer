@@ -200,7 +200,9 @@ void VersionedSlaveCM::applyMapData( const uint32_t version )
 
             EQASSERTINFO( is->getRemainingBufferSize()==0 &&
                           is->nRemainingBuffers()==0,
-                          *_object << " did not unpack all data" );
+                          *_object << " did not unpack all data, " <<
+                          is->getRemainingBufferSize() << " bytes, " <<
+                          is->nRemainingBuffers() << " buffer(s)" );
 
             delete is;
 #if 0

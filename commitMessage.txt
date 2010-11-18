@@ -1,9 +1,9 @@
-Speed up byte stream compressor by 4x for word-sized streams
+Fix non-word-sized byte compression (C&P bug)
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
-[x] Optimization
+[ ] Cleanup
+[ ] Optimization
 [ ] Documentation

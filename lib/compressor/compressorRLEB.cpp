@@ -73,9 +73,7 @@ ssize_t _compress( const void* const inData, const eq_uint64_t nPixels,
 {
     const eq_uint64_t size = nPixels * sizeof( T );
     const ssize_t nChunks = _setupResults( 1, size, results );
-
-    const eq_uint64_t nElems = nPixels;
-    const float width = static_cast< float >( nElems ) /  
+    const float width = static_cast< float >( nPixels ) /  
                         static_cast< float >( nChunks );
 
     const T* const data = reinterpret_cast< const T* >( inData );
@@ -88,7 +86,7 @@ ssize_t _compress( const void* const inData, const eq_uint64_t nPixels,
         const eq_uint64_t startIndex = static_cast< eq_uint64_t >( i * width );
         
         eq_uint64_t nextIndex;
-        if ( i == nChunks -1 )
+        if ( i == nChunks - 1 )
             nextIndex = nPixels;
         else
             nextIndex = static_cast< eq_uint64_t >(( i + 1 ) * width );
@@ -110,7 +108,7 @@ void CompressorRLEB::compress( const void* const inData,
     else if( (nPixels & 0x1) == 0 )
         _nResults = _compress< uint16_t >( inData, nPixels>>1, _results );
     else
-        _nResults = _compress< uint8_t >( inData, nPixels/4, _results );
+        _nResults = _compress< uint8_t >( inData, nPixels, _results );
 }
 
 //----------------------------------------------------------------------
