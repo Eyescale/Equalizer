@@ -9,7 +9,7 @@ call "%VS90COMNTOOLS%vsvars32.bat"
 if not exist build\NUL md build
 cd build
 
-%CMAKE% -DCMAKE_BUILD_TYPE=Release -G "NMake Makefiles" ..
+%CMAKE% -DCMAKE_BUILD_TYPE=Release -DCMAKE_BUILD_TYPE=Debug -G "NMake Makefiles" ..
 
 nmake preinstall
 
