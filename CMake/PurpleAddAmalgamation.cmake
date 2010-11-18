@@ -6,6 +6,7 @@
 # This file is -not- in the public domain.
 ##
 
+include(PurpleInstallPDB)
 include(PurpleExpandLibraries)
 
 function(PURPLE_ADD_AMALGAMATION NAME)
@@ -34,7 +35,6 @@ function(PURPLE_ADD_AMALGAMATION NAME)
     list(APPEND THIS_DEFINITIONS ${DEFINITIONS})
   endforeach(LIBRARY)
 
-  
   add_library(${NAME} SHARED ${THIS_SOURCES})
   set_target_properties(${NAME} PROPERTIES COMPILE_DEFINITIONS "${THIS_DEFINITIONS}")
   purple_expand_libraries(THIS_LINK_LIBRARIES ${THIS_LIBRARIES} EXCLUDE ${ARGN})
@@ -45,4 +45,5 @@ function(PURPLE_ADD_AMALGAMATION NAME)
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
     )
+  purple_install_pdb(${NAME} DESTINATION bin COMPONENT dev)
 endfunction(PURPLE_ADD_AMALGAMATION NAME)

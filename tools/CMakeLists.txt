@@ -1,6 +1,7 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 
 include(ParseArguments)
+include(PurpleInstallPDB)
 include(PurpleExpandLibraries)
 
 macro(EQ_ADD_TOOL NAME)
@@ -11,6 +12,7 @@ macro(EQ_ADD_TOOL NAME)
   target_link_libraries(${THIS_TARGET} ${LINK_LIBRARIES})
   set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME})
   install(TARGETS ${THIS_TARGET} DESTINATION bin COMPONENT tools)
+  purple_install_pdb(${THIS_TARGET} DESTINATION bin COMPONENT tools)
 endmacro(EQ_ADD_TOOL NAME)
 
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/examples/include)
@@ -70,8 +72,9 @@ eq_add_tool(windowAdmin
     shared EqualizerAdmin
   )
 
-# TODO: integrate these into EQ_ADD_TOOL
-if(MSVC_IDE)
-  install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/affinityCheck.pdb DESTINATION bin COMPONENT dev)
-  install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/netperf.pdb DESTINATION bin COMPONENT dev)
-endif(MSVC_IDE)
+eq_add_tool(eqServer
+  SOURCES
+    ../server/eqServer.cpp
+  LINK_LIBRARIES
+    shared EqualizerServer
+  )

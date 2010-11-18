@@ -7,6 +7,7 @@
 ##
 
 include(ParseArguments)
+include(PurpleInstallPDB)
 include(PurpleForwardHeaders)
 include(PurpleExpandLibraries)
 include(PurplePrecompileHeaders)
@@ -68,6 +69,7 @@ function(PURPLE_ADD_LIBRARY NAME)
       SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	  LINK_LIBRARIES "${THIS_LINK_LIBRARIES}"
       )
+	purple_install_pdb(${THIS_TARGET} DESTINATION bin COMPONENT dev)
   endif(THIS_SHARED)
 
   if(THIS_STATIC)

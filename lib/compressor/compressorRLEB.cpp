@@ -17,6 +17,7 @@
  */
 
 #include "compressorRLEB.h"
+#include <limits>
 
 namespace
 {

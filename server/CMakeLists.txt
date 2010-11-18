@@ -60,7 +60,3 @@ purple_add_library(EqualizerServer SHARED
   LINK_LIBRARIES
     Equalizer
   )
-
-if(MSVC_IDE)
-  install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/EqualizerServer.pdb DESTINATION bin COMPONENT dev)
-endif(MSVC_IDE)
