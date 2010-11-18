@@ -6,14 +6,13 @@
 # This file is -not- in the public domain.
 ##
 
-include(ParseArguments)
 include(PurpleExpandLibraries)
 
 function(PURPLE_ADD_AMALGAMATION NAME)
-  parse_arguments(THIS "LINK_LIBRARIES" "" ${ARGN})
-  purple_expand_libraries(LIBRARIES ${THIS_DEFAULT_ARGS})
+  purple_expand_libraries(LIBRARIES ${ARGN})
 
   set(THIS_SOURCES)
+  set(THIS_LIBRARIES)
   set(THIS_DEFINITIONS)
 
   foreach(LIBRARY ${LIBRARIES})
@@ -28,14 +27,18 @@ function(PURPLE_ADD_AMALGAMATION NAME)
       endif(IS_ABSOLUTE ${SOURCE})
     endforeach(SOURCE ${SOURCES})
 
+    get_property(LINK_LIBRARIES TARGET ${LIBRARY} PROPERTY LINK_LIBRARIES)
+	list(APPEND THIS_LIBRARIES ${LINK_LIBRARIES})
+
     get_property(DEFINITIONS TARGET ${LIBRARY} PROPERTY COMPILE_DEFINITIONS)
     list(APPEND THIS_DEFINITIONS ${DEFINITIONS})
-  endforeach(LIBRARY ${ARGN})
+  endforeach(LIBRARY)
 
+  
   add_library(${NAME} SHARED ${THIS_SOURCES})
   set_target_properties(${NAME} PROPERTIES COMPILE_DEFINITIONS "${THIS_DEFINITIONS}")
-  purple_expand_libraries(THIS_LIBRARIES ${THIS_LINK_LIBRARIES})
-  target_link_libraries(${NAME} ${THIS_LIBRARIES})
+  purple_expand_libraries(THIS_LINK_LIBRARIES ${THIS_LIBRARIES} EXCLUDE ${ARGN})
+  target_link_libraries(${NAME} ${THIS_LINK_LIBRARIES})
 
   install(TARGETS ${NAME}
     ARCHIVE DESTINATION lib COMPONENT dev

@@ -15,5 +15,5 @@ eq_add_example(eqPixelBench
     window.cpp
   LINK_LIBRARIES
     Equalizer
-    EqualizerAdmin
+    shared EqualizerAdmin
   )

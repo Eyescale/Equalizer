@@ -2,7 +2,7 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 ##
 
-purple_add_library(eq_base SHARED
+purple_add_library(eq_base ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/base/"
   FORWARD HEADERS
     ../base.h

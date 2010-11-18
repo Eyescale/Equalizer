@@ -6,11 +6,17 @@
 # This file is -not- in the public domain.
 ##
 
+include(ParseArguments)
+
 macro(PURPLE_EXPAND_LIBRARIES VAR)
   set(${VAR})
   set(VARIANT)
-  foreach(LIBRARY ${ARGN})
-    if(VARIANT STREQUAL "shared")
+  parse_arguments(THIS "EXCLUDE" "" ${ARGN})
+  foreach(LIBRARY ${THIS_DEFAULT_ARGS})
+    list(FIND THIS_EXCLUDE ${LIBRARY} EXCLUDED)
+	if(NOT EXCLUDED EQUAL -1)
+	  # skip
+    elseif(VARIANT STREQUAL "shared")
       list(APPEND ${VAR} lib_${LIBRARY}_shared)
     elseif(VARIANT STREQUAL "static")
       list(APPEND ${VAR} lib_${LIBRARY}_static)
@@ -18,5 +24,5 @@ macro(PURPLE_EXPAND_LIBRARIES VAR)
       list(APPEND ${VAR} ${LIBRARY})
     endif()
     set(VARIANT ${LIBRARY})
-  endforeach(LIBRARY ${ARGN})
+  endforeach(LIBRARY)
 endmacro(PURPLE_EXPAND_LIBRARIES VAR)

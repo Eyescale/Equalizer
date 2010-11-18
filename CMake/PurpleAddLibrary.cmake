@@ -8,6 +8,7 @@
 
 include(ParseArguments)
 include(PurpleForwardHeaders)
+include(PurpleExpandLibraries)
 include(PurplePrecompileHeaders)
 
 function(PURPLE_ADD_LIBRARY NAME)
@@ -65,6 +66,7 @@ function(PURPLE_ADD_LIBRARY NAME)
       OUTPUT_NAME ${NAME}
       COMPILE_DEFINITIONS ${UPPER_NAME}_SHARED
       SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+	  LINK_LIBRARIES "${THIS_LINK_LIBRARIES}"
       )
   endif(THIS_SHARED)
 
@@ -77,20 +79,23 @@ function(PURPLE_ADD_LIBRARY NAME)
       OUTPUT_NAME ${NAME}
       COMPILE_DEFINITIONS ${UPPER_NAME}_STATIC
       SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+	  LINK_LIBRARIES "${THIS_LINK_LIBRARIES}"
       PREFIX lib
       )
   endif(THIS_STATIC)
 
-  foreach(HEADER ${THIS_HEADERS})
-    string(REGEX MATCH "(.*)[/\\]" DIR ${HEADER})
-    install(FILES ${HEADER}
-      DESTINATION include/${THIS_HEADERS_PREFIX}/${DIR} COMPONENT dev)
-    #set_property(SOURCE ${HEADER} PROPERTY MACOSX_PACKAGE_LOCATION Headers/${DIR})
-  endforeach(HEADER ${THIS_HEADERS})
+  if(NOT THIS_EXCLUDE)
+    foreach(HEADER ${THIS_HEADERS})
+      string(REGEX MATCH "(.*)[/\\]" DIR ${HEADER})
+      install(FILES ${HEADER}
+        DESTINATION include/${THIS_HEADERS_PREFIX}/${DIR} COMPONENT dev)
+      #set_property(SOURCE ${HEADER} PROPERTY MACOSX_PACKAGE_LOCATION Headers/${DIR})
+    endforeach(HEADER ${THIS_HEADERS})
 
-  install(TARGETS ${THIS_TARGETS}
-    ARCHIVE DESTINATION lib COMPONENT dev
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin
-    )
+    install(TARGETS ${THIS_TARGETS}
+      ARCHIVE DESTINATION lib COMPONENT dev
+      LIBRARY DESTINATION lib
+      RUNTIME DESTINATION bin
+      )
+  endif(NOT THIS_EXCLUDE)
 endfunction(PURPLE_ADD_LIBRARY NAME)

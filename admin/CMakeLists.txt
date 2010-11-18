@@ -1,60 +1,47 @@
+# Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 
-set(HEADERS
-  admin.h
-  base.h
-  canvas.h
-  channel.h
-  client.h
-  config.h
-  init.h
-  layout.h
-  node.h
-  observer.h
-  packets.h
-  pipe.h
-  segment.h
-  server.h
-  types.h
-  view.h
-  visitorResult.h
-  window.h
+include(PurpleAddLibrary)
+
+purple_add_library(EqualizerAdmin SHARED
+  HEADERS_PREFIX "eq/admin/"
+  FORWARD HEADERS
+    admin.h
+    base.h
+    canvas.h
+    channel.h
+    client.h
+    config.h
+    init.h
+    layout.h
+    node.h
+    observer.h
+    packets.h
+    pipe.h
+    segment.h
+    server.h
+    types.h
+    view.h
+    visitorResult.h
+    window.h
+  SOURCES
+    canvas.cpp
+    channel.cpp
+    client.cpp
+    config.cpp
+    init.cpp
+    layout.cpp
+    node.cpp
+    nodeFactory.cpp
+    observer.cpp
+    pipe.cpp
+    segment.cpp
+    server.cpp
+    view.cpp
+    window.cpp
+  LINK_LIBRARIES
+    Equalizer
   )
 
-set(SOURCES
-  canvas.cpp
-  channel.cpp
-  client.cpp
-  config.cpp
-  init.cpp
-  layout.cpp
-  node.cpp
-  nodeFactory.cpp
-  observer.cpp
-  pipe.cpp
-  segment.cpp
-  server.cpp
-  view.cpp
-  window.cpp
-  )
-
-if(MSVC)
-  set(SOURCES ${SOURCES} ${HEADERS})
-endif(MSVC)
-
-header_targets(eq/admin ADMIN ${HEADERS})
-
-add_definitions(-DEQADMIN_EXPORTS)
-
-add_library(EqualizerAdmin SHARED ${SOURCES} ${ADMIN_TARGETS})
-target_link_libraries(EqualizerAdmin Equalizer)
-
-install(TARGETS EqualizerAdmin
-  ARCHIVE DESTINATION lib COMPONENT dev
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-  )
-
-install(FILES ${HEADERS} DESTINATION include/eq/admin COMPONENT dev)
 if(MSVC_IDE)
   install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/EqualizerAdmin.pdb DESTINATION bin COMPONENT dev)
 endif(MSVC_IDE)

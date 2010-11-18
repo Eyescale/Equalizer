@@ -32,27 +32,12 @@ set(EQ_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
 file(MAKE_DIRECTORY ${EQ_INCLUDE_DIR})
 include_directories(BEFORE ${EQ_INCLUDE_DIR})
 
-# public header generation and targets
-macro(HEADER_TARGETS DIR NAME)
-  set(INST_HEADERS_TMP)
-  foreach(FILE ${ARGN})
-    set(HEADER_SRC ${CMAKE_CURRENT_SOURCE_DIR}/${FILE})
-    set(HEADER_DEST ${EQ_INCLUDE_DIR}/${DIR}/${FILE})
-    get_filename_component(HEADER_DIR ${HEADER_DEST} PATH)
-
-    ADD_CUSTOM_COMMAND(
-      OUTPUT ${HEADER_DEST}
-      COMMAND ${CMAKE_COMMAND} -E make_directory ${HEADER_DIR}
-      COMMAND ${CMAKE_COMMAND} -E copy ${HEADER_SRC} ${HEADER_DEST}
-      DEPENDS ${HEADER_SRC} )
-    set(INST_HEADERS_TMP ${INST_HEADERS_TMP} ${HEADER_DEST})
-  endforeach(FILE ${ARGN})
-  set(${NAME}_TARGETS ${INST_HEADERS_TMP})
-endmacro(HEADER_TARGETS DIR TARGETS)
-
 if(MSVC)
-  add_definitions(/D_CRT_SECURE_NO_WARNINGS)
-  add_definitions(/W2)
+  add_definitions(
+    /D_CRT_SECURE_NO_WARNINGS
+    /wd4244 # conversion from X to Y, possible loss of data
+    /wd4800 # forcing value to bool 'true' or 'false' (performance warning)
+    )
   # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015&start=0
   set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR")
 endif(MSVC)
@@ -191,7 +176,7 @@ IF(EXISTS "${CMAKE_SOURCE_DIR}/auxilary" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/a
 ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/auxilary" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/auxilary")
 
 add_executable(eqServer server/eqServer.cpp)
-target_link_libraries(eqServer EqualizerServer)
+target_link_libraries(eqServer lib_EqualizerServer_shared)
 install(TARGETS eqServer DESTINATION bin)
 
 if(MSVC_IDE)

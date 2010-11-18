@@ -34,7 +34,7 @@ eq_add_tool(configTool
     configTool/writeFromFile.cpp
   LINK_LIBRARIES
     Equalizer
-    EqualizerServer
+    shared EqualizerServer
   )
 
 eq_add_tool(eVolveConverter
@@ -67,7 +67,7 @@ eq_add_tool(windowAdmin
     windowAdmin/main.cpp
   LINK_LIBRARIES
     Equalizer
-    EqualizerAdmin
+    shared EqualizerAdmin
   )
 
 # TODO: integrate these into EQ_ADD_TOOL

@@ -15,7 +15,7 @@ if(WIN32)
   list(APPEND NET_ADD_LINKLIB Ws2_32 mswsock) 
 endif(WIN32)
 
-purple_add_library(eq_net SHARED
+purple_add_library(eq_net ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/net/"
   FORWARD HEADERS
     ../net.h

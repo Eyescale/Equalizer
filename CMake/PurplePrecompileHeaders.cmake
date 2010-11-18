@@ -11,9 +11,14 @@ macro(_PURPLE_PRECOMPILE_HEADER_GCC  NAME SOURCE_VAR)
 endmacro(_PURPLE_PRECOMPILE_HEADER_GCC)
 
 macro(_PURPLE_PRECOMPILE_HEADER_MSVC  NAME SOURCE_VAR)
-  set(PCH_HEADER ${CMAKE_CURRENT_BINARY_DIR}/${NAME}_pch.hpp)
-  set(PCH_SOURCE ${CMAKE_CURRENT_BINARY_DIR}/${NAME}_pch.cpp)
-  set(PCH_BINARY "$(IntDir)/${NAME}.pch")
+  set(PCH_HEADER "${CMAKE_CURRENT_BINARY_DIR}/${NAME}_pch.hpp")
+  set(PCH_SOURCE "${CMAKE_CURRENT_BINARY_DIR}/${NAME}_pch.cpp")
+  
+  if(MSVC_IDE)
+    set(PCH_BINARY "$(IntDir)/${NAME}.pch")
+  else()
+    set(PCH_BINARY "${CMAKE_CURRENT_BINARY_DIR}/${NAME}.pch")
+  endif()
 
   file(WRITE ${PCH_HEADER}.in "/* ${NAME} precompuled header file */\n\n")
   foreach(HEADER ${ARGN})

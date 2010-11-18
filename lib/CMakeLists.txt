@@ -6,6 +6,11 @@ include(PurpleAddAmalgamation)
 include(${CMAKE_CURRENT_SOURCE_DIR}/configure.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/files.cmake)
 
+option(EQUALIZER_BUILD_STATIC_LIBS "Build static libraries" OFF)
+if(NOT EQUALIZER_BUILD_STATIC_LIBS)
+  set(EQ_LIB_VARIANT SHARED)
+endif()
+
 source_group(client FILES ${CLIENT_HEADERS} ${CLIENT_SOURCES})
 source_group(plugin FILES ${PLUGIN_HEADERS})
 source_group(util FILES ${UTIL_HEADERS} ${UTIL_SOURCES})
@@ -37,7 +42,7 @@ add_subdirectory(net)
 add_subdirectory(fabric)
 
 # TODO: split this library
-purple_add_library(eq SHARED
+purple_add_library(eq ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/"
   FORWARD HEADERS
     ${CLIENT_HEADERS}
@@ -46,10 +51,7 @@ purple_add_library(eq SHARED
     eq.h
     admin.h
   SOURCES
-    #${BASE_SOURCES}
     ${CLIENT_SOURCES}
-    #${FABRIC_SOURCES}
-    #${NET_SOURCES}
     ${UTIL_SOURCES}
     ${COMPRESSOR_SOURCES}
   LINK_LIBRARIES
@@ -66,19 +68,10 @@ purple_add_library(eq SHARED
   )
 
 purple_add_amalgamation(Equalizer
-    shared eq_base
-    shared eq_net
-    shared eq_fabric
-    shared eq
-  LINK_LIBRARIES
-    ${PTHREAD_LIBRARIES}
-    ${Boost_LIBRARIES}
-    ${GLEW_LIBRARY}
-    ${CARBON_LIBRARY}
-    ${X11_LIBRARIES}
-    ${GL_LIBRARIES}
-    ${CUDA_LIBRARIES}
-    ${ADD_LINKLIB}
+  shared eq_base
+  shared eq_net
+  shared eq_fabric
+  shared eq
   )
 
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY

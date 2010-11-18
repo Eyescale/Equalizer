@@ -25,7 +25,9 @@
 
 #include <eq/base/base.h>
 
-#ifdef EQADMIN_EXPORTS
+#if defined(EQUALIZERADMIN_STATIC)
+#  define EQADMIN_EXPORT
+#elif defined(EQUALIZERADMIN_SHARED)
 #  define EQADMIN_EXPORT EQ_DLLEXPORT
 #else
 #  define EQADMIN_EXPORT EQ_DLLIMPORT

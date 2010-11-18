@@ -61,7 +61,7 @@ eq_add_example(eqPly
     fragmentShader.glsl
   LINK_LIBRARIES
     Equalizer
-    EqualizerAdmin
+    shared EqualizerAdmin
   )
 
 install(FILES rockerArm.ply screwdriver.ply DESTINATION share/Equalizer/data COMPONENT data)
