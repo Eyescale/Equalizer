@@ -34,40 +34,62 @@ namespace
 REGISTER_ENGINE( CompressorRLEB, BYTE, BYTE, 1., 0.7, 1., false );
 }
 
-static inline void _compress( const void* const input, const uint64_t nPixels,
-                              eq::plugin::Compressor::Result** results )
+static inline void _compress( const uint8_t* const in, const uint64_t nPixels,
+                              eq::plugin::Compressor::Result* result )
 {
     if( nPixels == 0 )
     {
-        results[0]->setSize( 0 );
+        result->setSize( 0 );
         return;
     }
 
-    const uint8_t* pixel = reinterpret_cast< const uint8_t* >( input );
-    uint8_t* oneOut( reinterpret_cast< uint8_t* >( 
-                                 results[ 0 ]->getData( ))); 
-    
-    uint8_t oneLast(pixel[0]);
-    uint8_t oneSame( 1 );
-    uint8_t one(0);
+    uint8_t* tokenOut( result->getData( )); 
+    uint8_t tokenLast( in[0] );
+    uint8_t tokenSame( 1 );
+    uint8_t token(0);
     
     for( uint64_t i = 1; i < nPixels; ++i )
     {
-        one = pixel[i];
-        if( one == oneLast && oneSame != 255 )
-            ++oneSame;
+        token = in[i];
+        if( token == tokenLast && tokenSame != 255 )
+            ++tokenSame;
         else
         {
-            WRITE_OUTPUT( one );
-            oneLast = one;
-            oneSame = 1;
+            WRITE_OUTPUT( token );
+            tokenLast = token;
+            tokenSame = 1;
         }
     }
 
-    WRITE_OUTPUT( one );
+    WRITE_OUTPUT( token );
 
-    results[0]->setSize( reinterpret_cast< uint8_t* > ( oneOut )  -
-                         results[0]->getData( ));
+    result->setSize( tokenOut - result->getData( ));
+}
+
+
+static inline void _decompress( const uint8_t* in, uint8_t* out,
+                                const uint64_t nPixels )
+{
+    uint8_t token(0);
+    uint8_t tokenLeft(0);
+   
+    for( uint64_t i = 0; i < nPixels ; ++i )
+    {
+        if( tokenLeft == 0 )
+        {
+            token = *in; ++in;
+            if( token == _rleMarker )
+            {
+                token     = *in; ++in;
+                tokenLeft = *in; ++in;
+            }
+            else // single symbol
+                tokenLeft = 1;
+        }
+
+        --tokenLeft;
+        out[i] = token;
+    }
 }
 
 void CompressorRLEB::compress( const void* const inData, 
@@ -98,7 +120,7 @@ void CompressorRLEB::compress( const void* const inData,
             nextIndex = static_cast< uint64_t >(( i + 1 ) * width );
         const uint64_t chunkSize = ( nextIndex - startIndex );
 
-        _compress( &data[ startIndex ], chunkSize, &_results[i] );
+        _compress( &data[ startIndex ], chunkSize, _results[i] );
     }
     _nResults = nChunks;
 }
@@ -124,7 +146,7 @@ void CompressorRLEB::decompress( const void* const* inData,
 #ifdef EQ_USE_OPENMP
 #pragma omp parallel for
 #endif
-    for( ssize_t i = 0; i < static_cast< ssize_t >( nInputs ) ; i++ )
+    for( ssize_t i = 0; i < static_cast< ssize_t >( nInputs ) ; ++i )
     {
         const uint64_t startIndex = static_cast<uint64_t>( i * width );
         
@@ -138,31 +160,7 @@ void CompressorRLEB::decompress( const void* const* inData,
         uint8_t* out = reinterpret_cast< uint8_t* >( outData ) + 
                          startIndex;
 
-        const uint8_t* oneIn   = in[ i + 0 ];
-        
-        uint8_t one(0);
-        uint8_t oneLeft(0);
-   
-        for( uint64_t j = 0; j < chunkSize ; ++j )
-        {
-
-           if( oneLeft == 0 )
-           {
-               one = *oneIn; ++oneIn;
-               if( one == _rleMarker )
-               {
-                   one     = *oneIn; ++oneIn;
-                   oneLeft = *oneIn; ++oneIn;
-               }
-               else // single symbol
-                        oneLeft = 1;
-           }
-           --oneLeft;
-
-           
-           out[j] = one;
-        }
-
+        _decompress( in[i], out, chunkSize );
     }
 }
 

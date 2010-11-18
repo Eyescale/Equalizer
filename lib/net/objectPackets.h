@@ -63,6 +63,7 @@ namespace net
                 type    = PACKETTYPE_EQNET_SESSION;
                 command = CMD_SESSION_OBJECT_INSTANCE;
                 size    = sizeof( ObjectInstancePacket );
+                data[0] = 0;
             }
 
         NodeID nodeID;
