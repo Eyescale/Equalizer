@@ -97,12 +97,8 @@ void DataOStream::enable()
 void DataOStream::_setupConnections( const Nodes& receivers )
 {
     EQASSERT( _connections.empty( ));
-#ifdef NDEBUG
-    const bool useMulticast = receivers.size() > 1;
-#else
-    const bool useMulticast = true;
-#endif
 
+    const bool useMulticast = receivers.size() > 1;
     ConnectionDescriptions mcSet;
 
     for( Nodes::const_iterator i = receivers.begin(); i != receivers.end(); ++i)

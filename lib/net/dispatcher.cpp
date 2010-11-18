@@ -23,8 +23,6 @@
 
 #include <eq/base/log.h>
 
-using namespace std;
-
 namespace eq
 {
 namespace net
@@ -73,7 +71,7 @@ void Dispatcher::_registerCommand( const uint32_t command,
 bool Dispatcher::dispatchCommand( Command& command )
 {
     EQVERB << "dispatch " << static_cast< ObjectPacket* >( command.getPacket( ))
-           << ", " << typeid( *this ).name() << endl;
+           << ", " << typeid( *this ).name() << std::endl;
 
     const uint32_t which = command->command;
 #ifndef NDEBUG
@@ -82,7 +80,7 @@ bool Dispatcher::dispatchCommand( Command& command )
         EQABORT( "Command " << command
                  << " higher than number of registered command handlers ("
                  << _qTable.size() << ") for object of type "
-                 << typeid(*this).name() << endl );
+                 << base::className( this ) << std::endl );
         return false;
     }
 #endif
@@ -113,7 +111,7 @@ bool Dispatcher::invokeCommand( Command& command )
         EQERROR << "Command " << which
                 << " higher than number of registered command handlers ("
                 << _vTable.size() << ") for object of type "
-                << typeid(*this).name() << endl;
+                << base::className( this ) << std::endl;
         return false;
     }
 #endif
@@ -123,7 +121,7 @@ bool Dispatcher::invokeCommand( Command& command )
 bool Dispatcher::_cmdUnknown( Command& command )
 {
     EQERROR << "Unknown " << command << " for " << typeid(*this).name()
-            << " @" << static_cast< void* >( this ) << endl;
+            << " @" << static_cast< void* >( this ) << std::endl;
     EQUNREACHABLE;
     return false;
 }

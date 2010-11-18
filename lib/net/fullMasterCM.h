@@ -60,8 +60,6 @@ namespace net
 
         /** Speculatively send instance data to all nodes. */
         virtual void sendInstanceDatas( Nodes& nodes );
-
-        virtual void tunePacket( ObjectInstancePacket& packet ) const;
     
     protected:
         /** The number of commits, needed for auto-obsoletion. */
@@ -93,8 +91,6 @@ namespace net
         /** The list of full instance datas, head version last. */
         InstanceDataDeque _instanceDatas;
         InstanceDatas _instanceDataCache;
-
-        bool _sendOnRegister;
 
         /* The command handlers. */
         bool _cmdCommit( Command& command );

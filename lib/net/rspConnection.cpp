@@ -474,7 +474,6 @@ bool RSPConnection::_initThread()
 void RSPConnection::_runThread()
 {
     //__debugbreak();
-    EQINFO << "Started RSP protocol thread" << std::endl;
     _ioService.reset();
     _ioService.run();
 }

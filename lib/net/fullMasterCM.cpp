@@ -43,10 +43,9 @@ base::a_int32_t _bytesBuffered;
 typedef CommandFunc<FullMasterCM> CmdFunc;
 
 FullMasterCM::FullMasterCM( Object* object )
-        : MasterCM( object ),
-          _commitCount( 0 ),
-          _nVersions( 0 ),
-          _sendOnRegister( false )
+        : MasterCM( object )
+        , _commitCount( 0 )
+        , _nVersions( 0 )
 {
     registerCommand( CMD_OBJECT_COMMIT, 
                      CmdFunc( this, &FullMasterCM::_cmdCommit ), 0 );
@@ -78,20 +77,8 @@ void FullMasterCM::sendInstanceDatas( Nodes& nodes )
 
     InstanceData* data = _instanceDatas.back();
     data->os.setNodeID( NodeID::ZERO );
-
-    _sendOnRegister = true;
+    data->os.setInstanceID( EQ_ID_NONE );
     data->os.resend( nodes );
-    _sendOnRegister = false;
-}
-
-void FullMasterCM::tunePacket( ObjectInstancePacket& packet ) const
-{
-    if( _sendOnRegister )
-    {
-        packet.type     = PACKETTYPE_EQNET_SESSION;
-        packet.command  = CMD_SESSION_INSTANCE;
-        packet.nodeID   = NodeID::ZERO;
-    }
 }
 
 void FullMasterCM::init()
@@ -309,7 +296,7 @@ FullMasterCM::InstanceData* FullMasterCM::_newInstanceData()
     }
 
     instanceData->os.enableSave();
-    instanceData->os.setInstanceID( EQ_ID_NONE );
+    instanceData->os.setInstanceID( EQ_ID_ANY );
     instanceData->os.setNodeID( NodeID::ZERO );
     return instanceData;
 }

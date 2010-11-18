@@ -150,9 +150,6 @@ namespace net
         /** The default CM for unattached objects. */
         static ObjectCM* ZERO;
 
-        /** @internal **/
-        virtual void tunePacket( ObjectInstancePacket& packet ) const {}
-
     protected:
 #ifdef EQ_INSTRUMENT_MULTICAST
         static base::a_int32_t _hit;

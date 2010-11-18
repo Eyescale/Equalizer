@@ -76,8 +76,8 @@ namespace net
         /** The managed object. */
         Object* _object;
 
-        /** istream for receiving the current version */
-        ObjectDataIStream* _currentIStream;
+        /** input stream for receiving the current version */
+        ObjectInstanceDataIStream* _currentIStream;
 
     private:
         /* The command handlers. */

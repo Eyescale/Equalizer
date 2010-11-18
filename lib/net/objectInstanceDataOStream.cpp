@@ -44,24 +44,25 @@ void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
                                              const uint64_t size )
 {
     const Object* object    = _cm->getObject();
+    packet.nodeID           = _nodeID;
     packet.instanceID       = _instanceID;
     packet.masterInstanceID = object->getInstanceID();
-    _cm->tunePacket( packet );
 
+    if( _instanceID == EQ_ID_NONE ) // send-on-register
+        packet.command = CMD_SESSION_INSTANCE;
+
+#ifndef NDEBUG
     if( _nodeID == NodeID::ZERO )
     {
-        EQASSERT( packet.nodeID == NodeID::ZERO );
+        EQASSERT( _instanceID == EQ_ID_NONE || _instanceID == EQ_ID_ANY );
     }
     else
     {
-        EQASSERT( _instanceID != EQ_ID_NONE );
+        EQASSERT( _instanceID < EQ_ID_MAX );
         EQASSERTINFO( _connections.size() == 1,
                       "Expected multicast to one group" );
-
-        packet.type = PACKETTYPE_EQNET_SESSION;
-        packet.command = CMD_SESSION_OBJECT_INSTANCE;
-        packet.nodeID = _nodeID;
     }
+#endif
 
     sendPacket( packet, compressor, nChunks, chunks, chunkSizes, size );
 }

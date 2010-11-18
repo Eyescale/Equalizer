@@ -165,9 +165,9 @@ void Session::notifyMapped( LocalNodePtr node )
     registerCommand( CMD_SESSION_UNSUBSCRIBE_OBJECT,
                      CmdFunc( this, &Session::_cmdUnsubscribeObject ), queue );
     registerCommand( CMD_SESSION_OBJECT_INSTANCE,
-                     CmdFunc( this, &Session::_cmdInstance ), queue );
+                     CmdFunc( this, &Session::_cmdInstance ), 0 );
     registerCommand( CMD_SESSION_INSTANCE,
-                     CmdFunc( this, &Session::_cmdInstance ), queue );
+                     CmdFunc( this, &Session::_cmdInstance ), 0 );
 }
 
 //---------------------------------------------------------------------------
@@ -1306,11 +1306,11 @@ bool Session::_cmdUnmapObject( Command& command )
 
 bool Session::_cmdInstance( Command& command )
 {
+    EQ_TS_THREAD( _receiverThread );
+    EQASSERT( _localNode.isValid( ));
+
     ObjectInstancePacket* packet = command.getPacket< ObjectInstancePacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd instance " << packet << std::endl;
-
-    EQ_TS_THREAD( _commandThread );
-    EQASSERT( _localNode.isValid( ));
 
     packet->type = PACKETTYPE_EQNET_OBJECT;
     packet->command = CMD_OBJECT_INSTANCE;
@@ -1318,20 +1318,30 @@ bool Session::_cmdInstance( Command& command )
     uint32_t usage = 0;
     bool result = true;
 
+    // Packet is send due to:
+    //  map request:      concrete nodeID and instanceID, dispatch
+    //  master commit:    instanceID == ANY, dispatch
+    //  send-on-register: instanceID == NONE, do not dispatch
     if( packet->nodeID == _localNode->getNodeID( ))
     {
         EQASSERT( packet->instanceID <= EQ_ID_MAX );
 
-        usage = 1; // TODO correct usage count
-        command.setDispatchID( packet->instanceID );
-        result = _invokeObjectCommand( command );
+        usage = 1;
+        result = _dispatchObjectCommand( command );
+    }
+    else if( packet->instanceID != EQ_ID_NONE )
+    {
+        EQASSERTINFO( packet->instanceID == EQ_ID_ANY, packet );
+        packet->instanceID = EQ_ID_NONE; // drop if there are no local instances
+        result = _dispatchObjectCommand( command );
     }
 
-    if( !_instanceCache )
-        return true;
-    
-    const ObjectVersion rev( packet->objectID, packet->version ); 
-    _instanceCache->add( rev, packet->masterInstanceID, command, usage );
+    if( _instanceCache )
+    {
+        const ObjectVersion rev( packet->objectID, packet->version ); 
+        _instanceCache->add( rev, packet->masterInstanceID, command, usage );
+    }
+
     return result;
 }
 

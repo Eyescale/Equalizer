@@ -963,16 +963,16 @@ bool LocalNode::dispatchCommand( Command& command )
                 static_cast<SessionPacket*>( command.getPacket( ));
             const SessionID& id = sessionPacket->sessionID;
             SessionHash::const_iterator i = _sessions->find( id );
-            EQASSERTINFO( i != _sessions->end() ||
-                         ( type==PACKETTYPE_EQNET_SESSION && 
-                           sessionPacket->command == CMD_SESSION_INSTANCE ),
-                         "Can't find session for " << command );
 
-            if( i == _sessions->end() && type == PACKETTYPE_EQNET_SESSION && 
-                sessionPacket->command == CMD_SESSION_INSTANCE )
+            if( i == _sessions->end( ))
             {
+                // multicasted instance data can be ignored
+                EQASSERTINFO( type==PACKETTYPE_EQNET_SESSION && 
+                              sessionPacket->command == CMD_SESSION_INSTANCE,
+                              "Can't find session for " << command );
                 return true;
             }
+
             Session* session = i->second;
             return session->dispatchCommand( command );
         }

@@ -59,7 +59,9 @@ namespace net
         ObjectInstancePacket()
                 : fill( 0 )
             {
-                command = CMD_OBJECT_INSTANCE;
+                // Always goes through session which caches and forwards to obj
+                type    = PACKETTYPE_EQNET_SESSION;
+                command = CMD_SESSION_OBJECT_INSTANCE;
                 size    = sizeof( ObjectInstancePacket );
             }
 
@@ -97,7 +99,7 @@ namespace net
                                        const ObjectDataPacket* packet )
     {
         os << (ObjectPacket*)packet << " v" << packet->version
-           << " size " << packet->dataSize << " s" << packet->sequence;
+           << " size " << packet->dataSize << " seq " << packet->sequence;
         return os;
     }
 
@@ -105,7 +107,7 @@ namespace net
                                        const ObjectInstancePacket* packet )
     {
         os << (ObjectDataPacket*)packet << " master " 
-           << packet->masterInstanceID;
+           << packet->masterInstanceID << " node " << packet->nodeID;
         return os;
     }
 }

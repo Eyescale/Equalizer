@@ -321,6 +321,7 @@ bool VersionedSlaveCM::_cmdInstance( Command& command )
     if( !_currentIStream )
         _currentIStream = new ObjectInstanceDataIStream;
 
+    EQASSERT( _currentIStream->getType() == ObjectDataIStream::TYPE_INSTANCE );
     _currentIStream->addDataPacket( command );
 
     if( _currentIStream->isReady( ))
@@ -353,6 +354,7 @@ bool VersionedSlaveCM::_cmdDelta( Command& command )
     if( !_currentIStream )
         _currentIStream = new ObjectDeltaDataIStream;
 
+    EQASSERT( _currentIStream->getType() == ObjectDataIStream::TYPE_DELTA );
     _currentIStream->addDataPacket( command );
 
     if( _currentIStream->isReady( ))

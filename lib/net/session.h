@@ -109,7 +109,6 @@ namespace net
         EQ_NET_DECL virtual bool invokeCommand( Command& packet );
         //@}
 
-
         /**
          * @name Identifier management
          */
@@ -272,7 +271,7 @@ namespace net
          *                   EQ_ID_INVALID if this method should generate one.
          */
         EQ_NET_DECL void attachObject( Object* object, const uint32_t id, 
-                           const uint32_t instanceID );
+                                       const uint32_t instanceID );
 
         /** 
          * Detach an object.

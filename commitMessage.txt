@@ -1,9 +1,7 @@
 Clean up data stream code:
-- decompress in DataIStream, symmetric to compress in DataOStream
-- make compressor/decompressor private
-- OPT: don't send size twice for uncompressed data
-- simplify ostream send packet code
-- adapt test
+- always funnel instance packets through session cache
+- Clean up and document packets header code for the three cases sending
+  instance data (send-on-register, commit, map)
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

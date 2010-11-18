@@ -102,6 +102,8 @@ uint32_t UnbufferedMasterCM::addSlave( Command& command )
     if( !os.hasSentData( )) // if no data, send empty packet to set version
     {
         ObjectInstancePacket instancePacket;
+        instancePacket.type = PACKETTYPE_EQNET_OBJECT;
+        instancePacket.command = CMD_OBJECT_INSTANCE;
         instancePacket.nChunks = 0;
         instancePacket.last = true;
         instancePacket.version = _version;
