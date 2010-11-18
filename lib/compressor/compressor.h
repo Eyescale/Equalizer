@@ -23,10 +23,7 @@
 
 #include <eq/base/base.h>
 #include <eq/base/buffer.h>
-#include <typeinfo>
 #include <vector>
-
-typedef unsigned long eq_uint32_t;
 
 /**
  * @file compressor/compressor.h

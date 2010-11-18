@@ -161,10 +161,10 @@ void CompressorRLE4HF::compress( const void* const inData,
     {
         if( useAlpha )
             _nResults = _compress< uint64_t, uint16_t, Swizzle, UseAlpha >(
-                                                        inData, nPixels, _results );
+                            inData, nPixels, _results );
         else
             _nResults = _compress< uint64_t, uint16_t, Swizzle, NoAlpha >(
-                                                        inData, nPixels, _results );
+                            inData, nPixels, _results );
     }
     else 
     {

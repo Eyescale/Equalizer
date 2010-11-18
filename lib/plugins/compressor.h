@@ -325,7 +325,7 @@ extern "C" {
         float speed;
 
         /**
-         * The output token type of a transfer plugin.
+         * The output token type of a plugin.
          *
          * The output token type describes the format of the data produced by a
          * downloader and consumed by the uploader of the same compressor.

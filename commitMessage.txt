@@ -1,11 +1,9 @@
-CMake: add option to force OpenMP with gcc < 4.4
-Clean up byte-stream compressor
-Fix release build
+Speed up byte stream compressor by 4x for word-sized streams
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
-[x] New Feature
+[ ] Bugfix
+[ ] New Feature
 [x] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation
