@@ -49,7 +49,7 @@ endmacro(_PURPLE_PRECOMPILE_HEADER_MSVC)
 
 macro(PURPLE_PRECOMPILE_HEADER)
   if(MSVC)
-    _purple_precompile_header_msvc(${ARGN})
+  #  _purple_precompile_header_msvc(${ARGN})
   endif(MSVC)
   # TODO
 endmacro(PURPLE_PRECOMPILE_HEADER)
