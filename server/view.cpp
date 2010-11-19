@@ -250,9 +250,11 @@ void View::activateMode( const Mode mode )
     if( getMode() == mode )
         return;
 
-    const Config* config = getConfig();
+    Config* config = getConfig();
     if( config->isStopped( ))
         return;
+
+    config->postNeedsFinish();
 
     trigger( 0, false );
     Super::activateMode( mode );

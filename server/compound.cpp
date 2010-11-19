@@ -1022,16 +1022,17 @@ void Compound::updateInheritData( const uint32_t frameNumber )
                 _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::ANAGLYPH;
         }
 
+        const bool phaseActive = ( (frameNumber % _inherit.period) ==
+                                   _inherit.phase );
+        // run-time failure detection
+        const bool channelActive = _inherit.channel->isRunning();
+
         for( size_t i = 0; i < fabric::NUM_EYES; ++i )
         {
             const uint32_t eye = 1 << i;
             const bool destActive =
                 isDestination() ? _data.active[i] : _inherit.active[i];
             const bool eyeActive = _inherit.eyes & eye;
-            const bool phaseActive = 
-                (( frameNumber % _inherit.period ) == _inherit.phase );
-            const bool channelActive =
-                _inherit.channel->isRunning(); // run-time failure detection
 
             if( destActive && eyeActive && phaseActive && channelActive )
                 _inherit.active[i] = 1;

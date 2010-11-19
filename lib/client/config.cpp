@@ -171,6 +171,7 @@ bool Config::init( const uint32_t initID )
 
 bool Config::exit()
 {
+    update();
     finishAllFrames();
 
     net::LocalNodePtr localNode = getLocalNode();

@@ -1,19 +1,11 @@
-Refactor glX/X11 event handling and dispatch:
-- one event handler per window (as with AGL, WGL)
-- GLX message pump holds and polls X11 connections
-- event handler registers Display connections
-- allow GLXWindow creation without GLXPipey
--> Decouples event handler system pipe and system window implementations
--> Simplifies code significantly
+- unify CMake option naming
+- fix run-time stereo switch
+- update config before exit
 
-Change base::PerThread, removing deletion callback, deletes object directly.
-
-Clean up CMake options.
-
-[x] May break build
-[x] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
-[x] New Feature
+[ ] May break build
+[ ] May break existing applications (see CHANGES.txt)
+[x] Bugfix
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
