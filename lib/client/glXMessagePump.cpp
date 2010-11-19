@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,6 +18,7 @@
 #include "glXMessagePump.h"
 
 #include "glXEventHandler.h"
+#include "X11Connection.h"
 
 #include <eq/base/debug.h>
 #include <eq/base/log.h>
@@ -27,49 +28,79 @@ using namespace std;
 namespace eq
 {
 GLXMessagePump::GLXMessagePump()
-        :  _wakeupSet( 0 )
 {
 }
 
 GLXMessagePump::~GLXMessagePump()
 {
-    _wakeupSet = 0;
 }
 
 void GLXMessagePump::postWakeup()
 {
-    if( !_wakeupSet )
-    {
-        EQWARN << "Receiver thread not waiting?" << endl;
-        return;
-    }
-
-    _wakeupSet->interrupt();
+    _connections.interrupt();
 }
 
 void GLXMessagePump::dispatchOne()
 {
-    if( !_wakeupSet )
-        _wakeupSet = GLXEventHandler::getEventSet();
+    const net::ConnectionSet::Event event = _connections.select();
+    switch( event )
+    {
+        case net::ConnectionSet::EVENT_DISCONNECT:
+        {
+            net::ConnectionPtr connection = _connections.getConnection();
+            _connections.removeConnection( connection );
+            EQERROR << "Display connection shut down" << std::endl;
+            break;
+        }
+            
+        case net::ConnectionSet::EVENT_DATA:
+            GLXEventHandler::dispatch();
+            break;
 
-    GLXEventHandler::dispatchOne();
+        case net::ConnectionSet::EVENT_INTERRUPT:      
+            break;
+
+        case net::ConnectionSet::EVENT_CONNECT:
+        case net::ConnectionSet::EVENT_ERROR:      
+        default:
+            EQWARN << "Error during select" << std::endl;
+            break;
+
+        case net::ConnectionSet::EVENT_TIMEOUT:
+            break;
+    }
 }
 
 void GLXMessagePump::dispatchAll()
 {
-    if( !_wakeupSet )
-        _wakeupSet = GLXEventHandler::getEventSet();
-
-    GLXEventHandler::dispatchAll();
+    GLXEventHandler::dispatch();
 }
 
-void GLXMessagePump::dispatchDone()
+void GLXMessagePump::register_( Display* display )
 {
-    if( !_wakeupSet )
-        return;
+    if( ++_referenced[ display ] == 1 )
+        _connections.addConnection( new X11Connection( display ));
+}
 
-    _wakeupSet = 0;
-    GLXEventHandler::clearEventSet();
+void GLXMessagePump::deregister( Display* display )
+{
+    if( --_referenced[ display ] == 0 )
+    {
+        const net::Connections& connections = _connections.getConnections();
+        for( net::Connections::const_iterator i = connections.begin();
+             i != connections.end(); ++i )
+        {
+            net::ConnectionPtr connection = *i;
+            const X11Connection* x11Connection =
+                static_cast< const X11Connection* >( connection.get( ));
+            if( x11Connection->getDisplay() == display )
+            {
+                _connections.removeConnection( connection );
+                break;
+            }
+        }
+        _referenced.erase( _referenced.find( display ));                
+    }
 }
 
 }

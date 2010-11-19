@@ -51,9 +51,6 @@ namespace eq
         /** @sa net::CommandQueue::tryPop(). */
         virtual net::Command* tryPop();
 
-        /** @sa net::CommandQueue::flush(). */
-        virtual void flush();
-
         void setMessagePump( MessagePump* pump ) { _messagePump = pump; }
         MessagePump* getMessagePump() { return _messagePump; }
 

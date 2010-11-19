@@ -613,6 +613,16 @@ void Config::_exitMessagePump()
     delete pump;
 }
 
+MessagePump* Config::getMessagePump()
+{
+    ClientPtr client = getClient();
+    CommandQueue* queue = EQSAFECAST( CommandQueue*, 
+                                      client->getMainThreadQueue( ));
+    if( queue )
+        return queue->getMessagePump();
+    return 0;
+}
+
 void Config::freezeLoadBalancing( const bool onOff )
 {
     ConfigFreezeLoadBalancingPacket packet;

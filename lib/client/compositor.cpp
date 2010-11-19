@@ -61,17 +61,9 @@ static const char seed = 42;
 static const char* shaderDBKey = &seed;
 static const char* colorDBKey  = shaderDBKey + 1;
 static const char* depthDBKey  = shaderDBKey + 2;
-class ResultImage : public Image
-{
-public:
-    virtual ~ResultImage() {}
-
-    void notifyPerThreadDelete() { delete this; }
-};
-
 
 // Image used for CPU-based assembly
-static base::PerThread< ResultImage > _resultImage;
+static base::PerThread< Image > _resultImage;
 
 static bool _useCPUAssembly( const Frames& frames, Channel* channel, 
                              const bool blendAlpha = false )
@@ -513,12 +505,9 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
     }
 
     // prepare output image
+    if( !_resultImage )
+        _resultImage = new Image;
     Image* result = _resultImage.get();
-    if( !result )
-    {
-        _resultImage = new ResultImage;
-        result       = _resultImage.get();
-    }
 
     // pre-condition check for current _merge implementations
     EQASSERT( colorInternalFormat != 0 );

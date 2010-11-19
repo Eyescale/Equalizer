@@ -33,7 +33,6 @@
 #include "view.h"
 #include "window.h"
 #include "windowPackets.h"
-#include "X11Connection.h"
 
 #ifdef GLX
 #  include "glXMessagePump.h"
@@ -227,6 +226,14 @@ MessagePump* Pipe::createMessagePump()
             EQUNREACHABLE;
             return 0;
     }
+}
+
+MessagePump* Pipe::getMessagePump()
+{
+    EQ_TS_THREAD( _pipeThread );
+    if( _pipeThreadQueue )
+        return _pipeThreadQueue->getMessagePump();
+    return 0;
 }
 
 void Pipe::_runThread()

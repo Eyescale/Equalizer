@@ -18,33 +18,25 @@
 #ifndef EQ_X11_CONNECTION_H
 #define EQ_X11_CONNECTION_H
 
-#include <eq/client/windowSystem.h>
-
-#ifdef GLX
-#  include <eq/client/glXPipe.h>
-#endif
+#include <eq/client/os.h>
 
 #include <eq/net/connection.h>
 
 namespace eq
 {
-#ifdef GLX
     /**
      * @internal
      * An X11 Display connection wrapper.
      *
-     * This class is used to monitor multiple GLXPipe X11 display connections
-     * for events using a net::ConnectionSet.
+     * This class is used to monitor multiple X11 display connections for events
+     * using a net::ConnectionSet.
      */
     class X11Connection : public net::Connection
     {
     public:
-        X11Connection( GLXPipe* pipe_ )
-                : pipe( pipe_ )
+        X11Connection( Display* display )
+                : _display( display )
             {
-                EQASSERT( pipe_ );
-                EQASSERT( pipe_->getXDisplay( ));
-
                 _state = STATE_CONNECTED;
                 EQINFO << "New X11 Connection @" << (void*)this << std::endl;
             }
@@ -53,12 +45,9 @@ namespace eq
             { EQINFO << "Delete X11 connection @" << (void*)this << std::endl; }
 
         virtual Notifier getNotifier() const
-            {
-                Display* const display = pipe->getXDisplay();
-                return display ? ConnectionNumber( display ) : -1;
-            }
+            { return ConnectionNumber( _display ); }
 
-        GLXPipe* const pipe;
+        const Display* getDisplay() const { return _display; }
 
     protected:
         virtual void readNB( void*, const uint64_t ) { EQDONTCALL; }
@@ -68,10 +57,8 @@ namespace eq
             { EQDONTCALL; return -1; }
 
     private:
+        Display* const _display;
     };
-#else
-    class X11Connection : public eq::net::Connection {};
-#endif
 }
 
 #endif // EQ_X11_CONNECTION_H

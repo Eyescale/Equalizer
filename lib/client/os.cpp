@@ -58,8 +58,6 @@ class DisplayPtr
 {
 public:
     DisplayPtr() : display( 0 ) {}
-    void notifyPerThreadDelete() { delete this; }
-
     Display* display;
 };
 

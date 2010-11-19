@@ -34,7 +34,7 @@ namespace base
     /**
      * Implements thread-specific storage for C++ objects.
      * 
-     * The object has to implement notifyPerThreadDelete().
+     * The object is deleted on thread exit.
      *
      * To instantiate the template code for this class, applications have to
      * include pthread.h before this file. pthread.h is not automatically
@@ -63,6 +63,13 @@ namespace base
         T* operator->();
         /** Access the thread-local object. @version 1.0 */
         const T* operator->() const;
+
+        /** @return the held object reference. @version 1.0 */
+        T& operator*()
+            { EQASSERTINFO( get(), className( this )); return *get(); }
+        /** @return the held object reference. @version 1.0 */
+        const T& operator*() const
+            { EQASSERTINFO( get(), className( this )); return *get(); }
 
         /**
          * @return true if the thread-local variables hold the same object.
@@ -152,8 +159,7 @@ PerThread<T>::~PerThread()
     Thread::removeListener( this );
 
     T* object = get();
-    if( object )
-        object->notifyPerThreadDelete();
+    delete object;
 
     pthread_key_delete( _data->key );
     delete _data;
@@ -166,8 +172,7 @@ void PerThread<T>::notifyExecutionStopping()
     T* object = get();
     pthread_setspecific( _data->key, 0 );
 
-    if( object )
-        object->notifyPerThreadDelete();
+    delete object;
 }
 
 template< typename T >

@@ -223,6 +223,9 @@ namespace eq
          * @version 1.0
          */
         EQ_CLIENT_DECL virtual MessagePump* createMessagePump();
+
+        /** @return the pipe's message pump, or 0. @version 1.0 */
+        MessagePump* getMessagePump();
         //@}
 
     protected:

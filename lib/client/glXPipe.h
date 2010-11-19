@@ -24,8 +24,6 @@
 
 namespace eq
 {
-    class GLXEventHandler;
-
     /** Equalizer default implementation of a GLX window */
     class EQ_CLIENT_DECL GLXPipe : public SystemPipe
     {
@@ -48,18 +46,10 @@ namespace eq
          * @return true if the deinitialization was successful, false otherwise.
          */
         virtual void configExit( );
-
-        /** Init the GLX-specific event handler. */
-        virtual void initEventHandler();
-        /** Exit the GLX-specific event handler. */
-        virtual void exitEventHandler();
         //@}
 
         /** @return the X display connection for this pipe. */
         Display* getXDisplay() const { return _xDisplay; }
-
-        /** @return the associated event handler. */
-        GLXEventHandler* getGLXEventHandler() { return _eventHandler; }
 
     private:
         /** 
@@ -84,9 +74,6 @@ namespace eq
 
         /** Window-system specific display information. */
         Display* _xDisplay;
-
-        /** The event handler for our display connection. */
-        GLXEventHandler* _eventHandler;
 
         union // placeholder for binary-compatible changes
         {

@@ -48,10 +48,16 @@ namespace eq
     class EQ_CLIENT_DECL GLXWindow : public GLXWindowIF
     {
     public:
-        GLXWindow( Window* parent );
-        virtual ~GLXWindow( );
+        /**
+         * Construct a new glX/X11 system window.
+         *
+         * If no display connection is given (the default), the constructor
+         * will try to query the display from the pipe's system (GLX) pipe.
+         */
+        GLXWindow( Window* parent, Display* xDisplay = 0 );
+        virtual ~GLXWindow();
 
-        virtual void configExit( );
+        virtual void configExit();
         virtual void makeCurrent() const;
         virtual void swapBuffers();
         virtual void joinNVSwapBarrier( const uint32_t group,
@@ -78,6 +84,8 @@ namespace eq
 
         /** @return the X11 display */
         virtual Display* getXDisplay() { return _xDisplay; }
+
+        /** @return the GLEW context. */
         GLXEWContext* glxewGetContext() { return _glxewContext; }
         
         /**
@@ -189,6 +197,9 @@ namespace eq
         GLXContext _glXContext;
         /** The currently joined swap group. */
         uint32_t _glXNVSwapGroup;
+
+        /** The event handler. */
+        GLXEventHandler* _glXEventHandler;
 
         /** The GLX extension pointer table. */
         GLXEWContext* const _glxewContext;

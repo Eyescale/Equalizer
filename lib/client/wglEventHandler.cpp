@@ -59,25 +59,11 @@ namespace eq
 
 namespace
 {
-class HandlerMap
 #ifdef _MSC_VER
-    : public stde::hash_map< HWND, WGLEventHandler* >
+    typedef public stde::hash_map< HWND, WGLEventHandler* > HandlerMap;
 #else // Cygwin does not want to instantiate a hash with key=HWND
-    : public stde::hash_map< void*, WGLEventHandler* >
+    typedef public stde::hash_map< void*, WGLEventHandler* > HandlerMap;
 #endif
-{
-public:
-    virtual ~HandlerMap() {}
-
-    void notifyPerThreadDelete() 
-        {
-            if( !empty( ))
-                EQWARN << size() 
-                       << " WGL event handlers registered during thread exit"
-                       << std::endl;
-            delete this;
-        }
-};
 
 static base::PerThread< HandlerMap > _handlers;
 

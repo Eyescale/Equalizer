@@ -28,11 +28,6 @@
 
 namespace eq
 {
-    class Layout;
-    class Node;
-    class Observer;
-    struct ConfigEvent;
-
     /**
      * A configuration is a visualization session driven by an application.
      *
@@ -335,6 +330,9 @@ namespace eq
          */
         void setupMessagePump( Pipe* pipe );
 
+        /** @return the config's message pump, or 0. @version 1.0 */
+        MessagePump* getMessagePump();
+
         /** 
          * Deregister a distributed object.
          *
@@ -346,7 +344,8 @@ namespace eq
         EQ_CLIENT_DECL virtual void deregisterObject( net::Object* object );
 
     protected:
-        EQ_CLIENT_DECL virtual void notifyMapped( net::LocalNodePtr node ); //!< @internal
+        /** @internal */
+        EQ_CLIENT_DECL virtual void notifyMapped( net::LocalNodePtr node );
         /** @internal */
         EQ_CLIENT_DECL virtual void changeLatency( const uint32_t latency );
         EQ_CLIENT_DECL virtual void unmap(); //!< @internal

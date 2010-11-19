@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,8 +18,10 @@
 #ifndef EQ_GLXMESSAGEPUMP_H
 #define EQ_GLXMESSAGEPUMP_H
 
-#include <eq/client/messagePump.h>     // base class
-#include <eq/client/glXEventHandler.h> // member [_wakeupSet]
+#include <eq/client/messagePump.h> // base class
+#include <eq/client/os.h>          // X11
+
+#include <eq/net/connectionSet.h>  // member
 
 namespace eq
 {
@@ -30,6 +32,7 @@ namespace eq
     {
     public:
         GLXMessagePump();
+        virtual ~GLXMessagePump();
 
         /** Wake up dispatchOne(). */
         virtual void postWakeup();
@@ -40,13 +43,15 @@ namespace eq
         /** Get and dispatch at least one pending system event, blocking. */
         virtual void dispatchOne();
         
-        /** Clean up, no more dispatch from thread. */
-        virtual void dispatchDone();
-        
-        virtual ~GLXMessagePump();
+        /** Register a new Display connection for event dispatch. */
+        void register_( Display* display );
+
+        /** Deregister a Display connection from event dispatch. */
+        void deregister( Display* display );
 
     private:
-        GLXEventSetPtr _wakeupSet;
+        net::ConnectionSet _connections; //!< Registered Display connections
+        stde::hash_map< void*, size_t > _referenced; //!< # of registrations
     };
 }
 

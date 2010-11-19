@@ -18,7 +18,6 @@
 
 #include "glXPipe.h"
 
-#include "glXEventHandler.h"
 #include "global.h"
 #include "log.h"
 #include "pipe.h"
@@ -32,7 +31,6 @@ namespace eq
 GLXPipe::GLXPipe( Pipe* parent )
         : SystemPipe( parent )
         , _xDisplay( 0 )
-        , _eventHandler( 0 )
 {
 }
 
@@ -120,14 +118,11 @@ void GLXPipe::_setXDisplay( Display* display )
     if( _xDisplay == display )
         return;
 
-    if( _xDisplay )
-        exitEventHandler();
     _xDisplay = display; 
     XSetCurrentDisplay( display );
 
     if( display )
     {
-        initEventHandler();
 #ifndef NDEBUG
         // somewhat reduntant since it is a global handler
         XSetErrorHandler( eq::GLXPipe::XErrorHandler );
@@ -223,18 +218,5 @@ int GLXPipe::XErrorHandler( Display* display, XErrorEvent* event )
 
     return 0;
 }
-
-void GLXPipe::initEventHandler()
-{
-    EQASSERT( !_eventHandler );
-    _eventHandler = new GLXEventHandler( this );
-}
-
-void GLXPipe::exitEventHandler()
-{
-    delete _eventHandler;
-    _eventHandler = 0;
-}
-
 
 }

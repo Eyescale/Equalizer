@@ -3,7 +3,7 @@
 # two-to-one sort-first config, for cluster change hostnames
 global
 {
-    EQ_WINDOW_IATTR_HINT_DRAWABLE pbuffer
+    EQ_WINDOW_IATTR_HINT_DRAWABLE FBO
 }
 
 server

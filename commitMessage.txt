@@ -1,9 +1,19 @@
-Delete empty dirs
+Refactor glX/X11 event handling and dispatch:
+- one event handler per window (as with AGL, WGL)
+- GLX message pump holds and polls X11 connections
+- event handler registers Display connections
+- allow GLXWindow creation without GLXPipey
+-> Decouples event handler system pipe and system window implementations
+-> Simplifies code significantly
 
-[ ] May break build
-[ ] May break existing applications (see CHANGES.txt)
+Change base::PerThread, removing deletion callback, deletes object directly.
+
+Clean up CMake options.
+
+[x] May break build
+[x] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -17,16 +17,18 @@
 
 #include "glXEventHandler.h"
 
+#include "config.h"
 #include "event.h"
 #include "glXWindow.h"
 #include "glXWindowEvent.h"
+#include "glXMessagePump.h"
 #include "global.h"
 #include "log.h"
 #include "pipe.h"
 #include "window.h"
 #include "X11Connection.h"
 
-#include <eq/base/perThreadRef.h>
+#include <eq/base/perThread.h>
 
 #include <X11/keysym.h>
 
@@ -34,172 +36,90 @@ namespace eq
 {
 namespace
 {
-static base::PerThreadRef< GLXEventHandler::EventSet > _pipeConnections;
+typedef std::vector< GLXEventHandler* > GLXEventHandlers;
+static base::PerThread< GLXEventHandlers > _eventHandlers;
 }
 
-GLXEventHandler::GLXEventHandler( GLXPipe* pipe )
-        : _pipe( pipe )
+GLXEventHandler::GLXEventHandler( GLXWindowIF* window )
+        : _window( window )
 {
-    if( !_pipeConnections )
-        _pipeConnections = new GLXEventHandler::EventSet;
-    
-    _pipeConnections->addConnection( new X11Connection( pipe ));
+    EQASSERT( window );
+
+    if( !_eventHandlers )
+        _eventHandlers = new GLXEventHandlers;
+    _eventHandlers->push_back( this );
+
+    Pipe* pipe = window->getPipe();
+    GLXMessagePump* messagePump =
+        dynamic_cast< GLXMessagePump* >( pipe->isThreaded() ?
+                                         pipe->getMessagePump() :
+                                         pipe->getConfig()->getMessagePump( ));
+    if( messagePump )
+    {
+        Display* display = window->getXDisplay();
+        EQASSERT( display );
+        messagePump->register_( display );
+    }
+    else
+        EQINFO << "Using GLXEventHandler without GLXMessagePump, external "
+               << "event dispatch needed" << std::endl;
 }
 
 GLXEventHandler::~GLXEventHandler()
 {
-    EQASSERT( _pipeConnections.isValid( ));
-    EQASSERT( _windows.empty( ));
-
-    const net::Connections& connections = _pipeConnections->getConnections();
-
-    for( net::Connections::const_iterator i = connections.begin(); 
-         i != connections.end(); ++i )
+    Pipe* pipe = _window->getPipe();
+    GLXMessagePump* messagePump =
+        dynamic_cast< GLXMessagePump* >( pipe->isThreaded() ?
+                                         pipe->getMessagePump() :
+                                         pipe->getConfig()->getMessagePump( ));
+    if( messagePump )
     {
-        net::ConnectionPtr connection = *i;
-        X11ConnectionPtr x11Connection = static_cast< X11Connection* >( 
-                                             connection.get( ));
-        if( x11Connection->pipe == _pipe )
-        {
-            _pipeConnections->removeConnection( connection );
-            x11Connection = 0;
-            EQASSERTINFO( connection->getRefCount() == 1,
-                          connection->getRefCount( ));
-            break;
-        }
+        Display* display = _window->getXDisplay();
+        EQASSERT( display );
+        messagePump->deregister( display );
+    }
+
+    GLXEventHandlers::iterator i = stde::find( *_eventHandlers, this );
+    EQASSERT( i != _eventHandlers->end( ));
+    _eventHandlers->erase( i );
+    if( _eventHandlers->empty( ))
+    {
+        delete _eventHandlers.get();
+        _eventHandlers = 0;
     }
 }
 
-GLXEventSetPtr GLXEventHandler::getEventSet()
+void GLXEventHandler::dispatch()
 {
-    return _pipeConnections.get();
-}
-
-void GLXEventHandler::clearEventSet()
-{
-    EQASSERTINFO( !_pipeConnections || _pipeConnections->isEmpty(),
-                  _pipeConnections->getConnections().size( ));
-#if 0 // Asserts with more than one non-threaded pipe
-    EQASSERTINFO( !_pipeConnections || _pipeConnections->getRefCount() == 1,
-                  _pipeConnections->getRefCount( ));
-#endif
-
-    _pipeConnections = 0;
-    EQINFO << "Cleared glX event set" << std::endl;
-}
-
-void GLXEventHandler::dispatchOne()
-{
-    _dispatch( -1 );
-}
-
-bool GLXEventHandler::_dispatch( const int timeout )
-{
-    GLXEventSetPtr connections = _pipeConnections.get();
-    if( !connections )
-        return false;
-
-    const net::ConnectionSet::Event event = connections->select( timeout );
-    switch( event )
-    {
-        case net::ConnectionSet::EVENT_DISCONNECT:
-        {
-            net::ConnectionPtr connection = connections->getConnection();
-            connections->removeConnection( connection );
-            EQERROR << "Display connection shut down" << std::endl;
-            break;
-        }
-            
-        case net::ConnectionSet::EVENT_DATA:
-            GLXEventHandler::dispatchAll();
-            break;
-                
-        case net::ConnectionSet::EVENT_INTERRUPT:      
-            break;
-
-        case net::ConnectionSet::EVENT_CONNECT:
-        case net::ConnectionSet::EVENT_ERROR:      
-        default:
-            EQWARN << "Error during select" << std::endl;
-            break;
-
-        case net::ConnectionSet::EVENT_TIMEOUT:
-            return false;
-    }
-
-    return true;
-}
-
-void GLXEventHandler::dispatchAll()
-{
-    GLXEventSetPtr pipeConnections = _pipeConnections.get();
-    if( !pipeConnections )
+    if( !_eventHandlers )
         return;
 
-    const net::Connections& connections = pipeConnections->getConnections();
-
-    for( net::Connections::const_iterator i = connections.begin(); 
-         i != connections.end(); ++i )
+    for( GLXEventHandlers::const_iterator i = _eventHandlers->begin();
+         i != _eventHandlers->end(); ++i )
     {
-        net::ConnectionPtr connection = *i;
-        X11ConnectionPtr x11Connection = static_cast< X11Connection* >( 
-                                             connection.get( ));
-        
-        _handleEvents( x11Connection );
+        (*i)->_dispatch();
     }
-
-    while( _dispatch( 0 )) // handle disconnect and interrupt events
-        ;
 }
 
-void GLXEventHandler::registerWindow( GLXWindowIF* window )
+void GLXEventHandler::_dispatch()
 {
-    EQ_TS_THREAD( _thread );
-    const XID xid = window->getXDrawable();
-    EQASSERT( _windows.find( xid ) == _windows.end( ));
-
-    _windows[ xid ] = window;
-}
-
-void GLXEventHandler::deregisterWindow( GLXWindowIF* window )
-{
-    EQ_TS_THREAD( _thread );
-    const XID xid = window->getXDrawable();
-    EQASSERT( xid );
-    
-    if( xid )
-    {
-        WindowMap::iterator i = _windows.find( xid );
-        EQASSERT( i != _windows.end( ));
-        if( i != _windows.end( ))
-            _windows.erase( i );
+    Display* display = _window->getXDisplay();
+    EQASSERT( display );
+    if( !display )
         return;
-    }
-
-    for( WindowMap::iterator i = _windows.begin(); i != _windows.end(); ++i)
-    {
-        if( i->second == window )
-        {
-            _windows.erase( i );
-            return;
-        }
-    }
-}
-
-void GLXEventHandler::_handleEvents( X11ConnectionPtr connection )
-{
-    GLXPipe*         glXPipe = connection->pipe;
-    Display*         display = glXPipe->getXDisplay();
-    GLXEventHandler* handler = glXPipe->getGLXEventHandler();
-    EQASSERT( handler );
 
     while( XPending( display ))
     {
         GLXWindowEvent event;
         XEvent&        xEvent = event.xEvent;
         XNextEvent( display, &xEvent );
-        
-        handler->_processEvent( event );
+
+        for( GLXEventHandlers::const_iterator i = _eventHandlers->begin();
+             i != _eventHandlers->end(); ++i )
+        {
+            GLXEventHandler* handler = *i;
+            handler->_processEvent( event );
+        }
     }
 }
 
@@ -230,16 +150,10 @@ void GLXEventHandler::_processEvent( GLXWindowEvent& event )
     XEvent& xEvent = event.xEvent;
     XID drawable = xEvent.xany.window;
 
-    WindowMap::const_iterator i = _windows.find( drawable );
-    GLXWindowIF* const glXWindow = (i == _windows.end()) ? 0 : i->second;
-    Window* const window = glXWindow ? glXWindow->getWindow() : 0;
-
-    if( !window )
-    {
-        EQINFO << "Can't match window to received X event" << std::endl;
+    if( _window->getXDrawable() != drawable )
         return;
-    }
-    EQASSERT( glXWindow );
+
+    Window* window = _window->getWindow();
 
     switch( xEvent.type )
     {
@@ -334,7 +248,7 @@ void GLXEventHandler::_processEvent( GLXWindowEvent& event )
     }
 
     event.originator = window->getID();
-    glXWindow->processEvent( event );
+    _window->processEvent( event );
 }
 
 uint32_t GLXEventHandler::_getButtonState( XEvent& event )

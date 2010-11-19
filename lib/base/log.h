@@ -191,8 +191,6 @@ namespace base
          */
         static EQ_BASE_DECL void setClock( Clock* clock );
 
-        void notifyPerThreadDelete() { delete this; }
-
     private:
         LogBuffer _logBuffer; 
 

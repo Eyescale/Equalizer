@@ -19,18 +19,12 @@
 #define EQ_EVENTHANDLER_H
 
 #include <eq/client/event.h>         // member
-#include <eq/base/hash.h>
 
 namespace eq
 {
-    class Pipe;
-    class Window;
-
     /** Base class for window system-specific event handlers */
     class EventHandler
     {
-    public:
-
     protected:
         /** Construct a new event handler. @version 1.0 */
         EQ_CLIENT_DECL EventHandler() : _lastEventWindow( 0 ) {}

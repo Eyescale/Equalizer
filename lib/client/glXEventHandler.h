@@ -19,80 +19,38 @@
 #define EQ_GLXEVENTHANDLER_H
 
 #include <eq/client/eventHandler.h> // base class
-#include <eq/client/types.h>        // basic typedefs
 #include <eq/client/os.h>           // XEvent type
+#include <eq/client/types.h>        // basic typedefs
 
-#include <eq/net/connectionSet.h>
+#include <eq/base/thread.h> // thread-safety macro
 
 namespace eq
 {
-    class GLXPipe;
-    class GLXWindowEvent;
-    class GLXWindowIF;
-    class Window;
-
     /** The event handler for glX/X11 windows. */
     class GLXEventHandler : public EventHandler
     {
     public:
-        class EventSet : public net::ConnectionSet, public base::Referenced
-        {
-        public:
-            void notifyPerThreadDelete() { unref(); }
-
-        protected:
-            virtual ~EventSet(){}
-        };
-
-        /** Dispatch at least one event for the current thread, blocking. */
-        static void dispatchOne();
-
         /** Dispatch all pending events on the current thread, non-blocking. */
-        static void dispatchAll();
-
-        /** Get the event set of the current thread. */
-        static base::RefPtr< EventSet > getEventSet();
-
-        /** Clear the event set of the current thread. */
-        static void clearEventSet();
+        static void dispatch();
 
         /** Construct a new glx event handler. */
-        GLXEventHandler( GLXPipe* pipe );
+        GLXEventHandler( GLXWindowIF* window );
 
         /** Destructs the glX event handler. */
         virtual ~GLXEventHandler();
 
-        /** Register a window for event handling. */
-        void registerWindow( GLXWindowIF* window );
-
-        /** Deregister a window from event handling. */
-        void deregisterWindow( GLXWindowIF* window );
-
     private:
         /** The corresponding glX pipe. */
-        GLXPipe* const _pipe;
+        GLXWindowIF* const _window;
 
-        typedef stde::hash_map< XID, GLXWindowIF* > WindowMap;
-
-        /** Registered windows. */
-        WindowMap _windows;
-
-        static void _handleEvents( X11ConnectionPtr connection );
-
-        /** @return true if something was handled, false on timeout */
-        static bool _dispatch( const int timeout );
-
+        void _dispatch();
         void _processEvent( GLXWindowEvent& event );
-        uint32_t  _getButtonState( XEvent& event );
-        uint32_t  _getButtonAction( XEvent& event );
-        uint32_t  _getKey( XEvent& event );
+        uint32_t _getButtonState( XEvent& event );
+        uint32_t _getButtonAction( XEvent& event );
+        uint32_t _getKey( XEvent& event );
 
         EQ_TS_VAR( _thread );
     };
-
-    /** @cond IGNORE */
-    typedef base::RefPtr< GLXEventHandler::EventSet > GLXEventSetPtr; 
-    /** @endcond */
 }
 
 #endif // EQ_GLXEVENTHANDLER_H

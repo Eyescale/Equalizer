@@ -1,6 +1,11 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+19/Nov/2010
+  The GLXEventHandler is new per-window. Event handler init/exit has
+  been moved from GLXPipe to GLXWindow and the GLXEventHandler API has
+  changed accordingly.
+
 15/Nov/2010
   Statistic::CHANNEL_FRAME_WAIT_READY replaces Statistic::CHANNEL_WAIT_FRAME
 

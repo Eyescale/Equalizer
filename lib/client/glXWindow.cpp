@@ -25,19 +25,23 @@
 
 namespace eq
 {
-GLXWindow::GLXWindow( Window* parent )
+GLXWindow::GLXWindow( Window* parent, Display* xDisplay )
     : GLXWindowIF( parent )
-    , _xDisplay( 0 )
+    , _xDisplay( xDisplay )
     , _xDrawable ( 0 )
     , _glXContext( 0 )
     , _glXNVSwapGroup( 0 )
+    , _glXEventHandler( 0 )
     , _glxewContext( new GLXEWContext )
     , _glxewInitialized( false )
 {
-    Pipe* pipe = getPipe();
-    GLXPipe* glxPipe = dynamic_cast< GLXPipe* >( pipe->getSystemPipe( ));
-    if( glxPipe )
-        _xDisplay = glxPipe->getXDisplay();
+    if( !_xDisplay )
+    {
+        Pipe* pipe = getPipe();
+        GLXPipe* glxPipe = dynamic_cast< GLXPipe* >( pipe->getSystemPipe( ));
+        if( glxPipe )
+            _xDisplay = glxPipe->getXDisplay();
+    }
 }
 
 GLXWindow::~GLXWindow( )
@@ -685,28 +689,14 @@ void GLXWindow::initGLXEW()
 
 void GLXWindow::initEventHandler()
 {
-    Pipe* pipe = getPipe();
-    GLXPipe* glxPipe = dynamic_cast< GLXPipe* >( pipe->getSystemPipe( ));
-    if( !glxPipe )
-        return;
-
-    GLXEventHandler* eventHandler = glxPipe->getGLXEventHandler();
-    EQASSERT( eventHandler );
-    if( eventHandler )
-        eventHandler->registerWindow( this );
+    EQASSERT( !_glXEventHandler );
+    _glXEventHandler = new GLXEventHandler( this );
 }
 
 void GLXWindow::exitEventHandler()
 {
-    Pipe* pipe = getPipe();
-    GLXPipe* glxPipe = dynamic_cast< GLXPipe* >( pipe->getSystemPipe( ));
-    if( !glxPipe )
-        return;
-
-    GLXEventHandler* eventHandler = glxPipe->getGLXEventHandler();
-    EQASSERT( eventHandler );
-    if( eventHandler )
-        eventHandler->deregisterWindow( this );
+    delete _glXEventHandler;
+    _glXEventHandler = 0;
 }
 
 }
