@@ -353,9 +353,11 @@ namespace net
          * @param nItems the number of data elements.
          * @return true if the packet was sent successfully to all receivers.
          */
-        static bool send( const Connections& connections, Packet& packet,
-                          const void* const* items, const uint64_t* itemSizes, 
-                          const size_t nItems );
+        static bool EQ_NET_DECL send( const Connections& connections, 
+                                      Packet& packet,
+                                      const void* const* items, 
+                                      const uint64_t* itemSizes, 
+                                      const size_t nItems );
 
         /** 
          * Write data to the connection.
