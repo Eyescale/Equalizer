@@ -92,7 +92,7 @@ std::vector< uint32_t > getCompressorNames( const uint32_t tokenType )
 }
 
 void testCompressByte( const uint32_t nameCompressor,
-                       const uint8_t* data, const uint64_t size,
+                       uint8_t* data, const uint64_t size,
                        uint64_t& _compressedSize,
                        float& _timeCompress, 
                        float& _timeDecompress )
