@@ -22,7 +22,7 @@
 #include <eq/client/statistic.h>     // member
 #include <eq/fabric/renderContext.h> // member
 
-#include <eq/base/base.h>
+#include <eq/client/base.h>
 
 namespace eq
 {
@@ -168,7 +168,7 @@ namespace eq
     struct Event
     {
         /** Construct a new event. */
-        EQ_EXPORT Event();
+        EQ_CLIENT_DECL Event();
 
         /** The type of the event. */
         enum Type // Also update string table in event.cpp
@@ -232,12 +232,12 @@ namespace eq
         RenderContext context;
     };
 
-    EQ_EXPORT std::ostream& operator << ( std::ostream&, const Event& );
-    EQ_EXPORT std::ostream& operator << ( std::ostream&, const Event::Type& );
-    EQ_EXPORT std::ostream& operator << ( std::ostream&, const ResizeEvent& );
-    EQ_EXPORT std::ostream& operator << ( std::ostream&, const PointerEvent& );
-    EQ_EXPORT std::ostream& operator << ( std::ostream&, const KeyEvent& );
-    EQ_EXPORT std::ostream& operator << ( std::ostream&, const MagellanEvent& );
+    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream&, const Event& );
+    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream&, const Event::Type& );
+    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream&, const ResizeEvent& );
+    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream&, const PointerEvent& );
+    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream&, const KeyEvent& );
+    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream&, const MagellanEvent& );
 }
 
 #endif // EQ_EVENT_H

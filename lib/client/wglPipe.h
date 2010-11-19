@@ -19,13 +19,14 @@
 #ifndef EQ_WGL_PIPE_H
 #define EQ_WGL_PIPE_H
 
+#include <eq/client/base.h>
 #include <eq/client/systemPipe.h> // base class
 #include <eq/client/os.h>     // GLEW
 
 namespace eq
 {
     /** Equalizer default implementation of a WGL window */
-    class EQ_EXPORT WGLPipe : public SystemPipe
+    class EQ_CLIENT_DECL WGLPipe : public SystemPipe
     {
     public:
         WGLPipe( Pipe* parent );

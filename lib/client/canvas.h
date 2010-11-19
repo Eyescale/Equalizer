@@ -19,6 +19,7 @@
 #define EQ_CANVAS_H
 
 #include <eq/client/types.h>
+#include <eq/client/base.h>
 #include <eq/fabric/canvas.h> // base class
 
 namespace eq
@@ -51,15 +52,15 @@ namespace eq
     {
     public:
         /** Construct a new canvas. @version 1.0 */
-        EQ_EXPORT Canvas( Config* parent );
+        EQ_CLIENT_DECL Canvas( Config* parent );
 
         /** Destruct this canvas. @version 1.0 */
-        EQ_EXPORT virtual ~Canvas();
+        EQ_CLIENT_DECL virtual ~Canvas();
 
         /** @name Data Access */
         //@{
         /** @return the Server of this canvas. @version 1.0 */
-        EQ_EXPORT ServerPtr getServer();
+        EQ_CLIENT_DECL ServerPtr getServer();
         //@}
 
     private:

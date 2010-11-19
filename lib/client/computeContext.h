@@ -20,7 +20,7 @@
 #define EQ_COMPUTE_CONTEXT_H
 
 #include <eq/client/error.h>
-#include <eq/base/base.h>
+#include <eq/client/base.h>
 
 namespace eq
 {
@@ -40,10 +40,10 @@ namespace eq
         /**
          * Create a new ComputeContext for the given accelerator.
          */
-        EQ_EXPORT ComputeContext( Pipe* parent ); 
+        EQ_CLIENT_DECL ComputeContext( Pipe* parent ); 
 
         /** Destroy the ComputeContext. */
-        EQ_EXPORT virtual ~ComputeContext();
+        EQ_CLIENT_DECL virtual ~ComputeContext();
 
         /** @name Data Access */
         //@{
@@ -57,10 +57,10 @@ namespace eq
         /** @name Methods forwarded from Pipe */
         //@{
         /** Initialize the ComputeContext. */
-        EQ_EXPORT virtual bool configInit() = 0;
+        EQ_CLIENT_DECL virtual bool configInit() = 0;
 
         /** De-initialize the ComputeContext. */
-        EQ_EXPORT virtual void configExit() = 0;
+        EQ_CLIENT_DECL virtual void configExit() = 0;
         //@}
 
     protected:

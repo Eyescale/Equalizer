@@ -36,11 +36,11 @@ namespace util
     {
     public: 
         /** Construct a new Frame Buffer Object. @version 1.0 */
-        EQ_EXPORT FrameBufferObject( const GLEWContext* const glewContext, 
+        EQ_CLIENT_DECL FrameBufferObject( const GLEWContext* const glewContext, 
                   const GLenum textureTarget = GL_TEXTURE_RECTANGLE_ARB );
 
         /** Destruct the Frame Buffer Object. @version 1.0 */
-        EQ_EXPORT ~FrameBufferObject();
+        EQ_CLIENT_DECL ~FrameBufferObject();
 
         /**
          * Add one color texture to the FBO.
@@ -53,7 +53,7 @@ namespace util
          * @return false if color texture can't be added, otherwise true.
          * @version 1.0
          */
-        EQ_EXPORT bool addColorTexture();
+        EQ_CLIENT_DECL bool addColorTexture();
 
         /**
          * Initialize the Frame Buffer Object.
@@ -69,13 +69,13 @@ namespace util
          * @sa resize(), getError()
          * @version 1.0
          */
-        EQ_EXPORT bool init( const int32_t width, const int32_t height, 
+        EQ_CLIENT_DECL bool init( const int32_t width, const int32_t height, 
                              const GLuint colorFormat,
                              const int32_t depthSize,
                              const int32_t stencilSize );
 
         /** De-initialize the Frame Buffer Object. @version 1.0 */
-        EQ_EXPORT void exit();
+        EQ_CLIENT_DECL void exit();
 
         /**
          * Bind to the Frame Buffer Object.
@@ -85,14 +85,14 @@ namespace util
          * @sa getError()
          * @version 1.0
          */
-        EQ_EXPORT void bind();
+        EQ_CLIENT_DECL void bind();
 
         /**
          * Unbind any Frame Buffer Object and use the default drawable for the
          * current context.
          * @version 1.0
          */
-        EQ_EXPORT void unbind();
+        EQ_CLIENT_DECL void unbind();
 
         /**
          * Resize the FBO.
@@ -104,7 +104,7 @@ namespace util
          * @sa getError()
          * @version 1.0
          */
-        EQ_EXPORT bool resize( const int32_t width, const int32_t height );
+        EQ_CLIENT_DECL bool resize( const int32_t width, const int32_t height );
 
         /** @return the current width. @version 1.0 */
         int32_t getWidth() const

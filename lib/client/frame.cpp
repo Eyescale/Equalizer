@@ -171,7 +171,7 @@ void Frame::removeListener( base::Monitor<uint32_t>& listener )
     _frameData->removeListener( listener );
 }
 
-EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+std::ostream& operator << ( std::ostream& os, 
                                       const Frame::Type type )
 {
     os << "type     ";
@@ -183,7 +183,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os,
     return os;
 }
 
-EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+std::ostream& operator << ( std::ostream& os, 
                                       const Frame::Buffer buffer )
 {
     if( buffer == Frame::BUFFER_NONE )

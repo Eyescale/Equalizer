@@ -20,6 +20,7 @@
 
 #include <eq/fabric/projection.h> // member
 #include <eq/fabric/wall.h>       // member
+#include <eq/fabric/base.h>       // decl
 
 namespace eq
 {
@@ -36,10 +37,10 @@ namespace fabric
     {
     public:
         /** Construct a new frustum. @version 1.0 */
-        EQ_EXPORT Frustum();
+        EQ_FABRIC_DECL Frustum();
         
         /** Destruct the frustum. @version 1.0 */
-        EQ_EXPORT virtual ~Frustum();
+        EQ_FABRIC_DECL virtual ~Frustum();
 
         /** The type of the last specified frustum. @version 1.0 */
         enum Type
@@ -50,23 +51,23 @@ namespace fabric
         };
 
         /** Set the frustum using a wall description. @version 1.0 */
-        EQ_EXPORT virtual void setWall( const Wall& wall );
+        EQ_FABRIC_DECL virtual void setWall( const Wall& wall );
         
         /** Set the frustum using a projection description. @version 1.0 */
-        EQ_EXPORT virtual void setProjection( const Projection& projection );
+        EQ_FABRIC_DECL virtual void setProjection( const Projection& projection );
 
         /** @return the last specified frustum as a wall. @version 1.0 */
-        EQ_EXPORT const Wall& getWall() const { return _data.wall; }
+        EQ_FABRIC_DECL const Wall& getWall() const { return _data.wall; }
 
         /** @return the last specified frustum as a projection. @version 1.0 */
-        EQ_EXPORT const Projection& getProjection() const
+        EQ_FABRIC_DECL const Projection& getProjection() const
             { return _data.projection; }
 
         /** @return the type of the latest specified frustum. @version 1.0 */
-        EQ_EXPORT Type getCurrentType() const { return _data.current; }
+        EQ_FABRIC_DECL Type getCurrentType() const { return _data.current; }
 
         /** Set the last specified frustum to TYPE_NONE. @version 1.0 */
-        EQ_EXPORT virtual void unsetFrustum();
+        EQ_FABRIC_DECL virtual void unsetFrustum();
 
         EQFABRIC_EXPORT virtual void backup(); //!< @internal
         EQFABRIC_EXPORT virtual void restore(); //!< @internal
@@ -95,9 +96,9 @@ namespace fabric
         };
     };
 
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Frustum& );
-    EQ_EXPORT net::DataOStream& operator << (net::DataOStream&, const Frustum&);
-    EQ_EXPORT net::DataIStream& operator >> (net::DataIStream&, Frustum& );
+    EQ_FABRIC_DECL std::ostream& operator << ( std::ostream& os, const Frustum& );
+    EQ_FABRIC_DECL net::DataOStream& operator << (net::DataOStream&, const Frustum&);
+    EQ_FABRIC_DECL net::DataIStream& operator >> (net::DataIStream&, Frustum& );
 }
 }
 #endif // EQFABRIC_FRUSTUM_H

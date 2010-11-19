@@ -18,6 +18,7 @@
 #ifndef EQ_ROI_TRACKER_H
 #define EQ_ROI_TRACKER_H
 
+#include <eq/client/base.h>
 #include <eq/client/types.h>
 
 #include <eq/fabric/pixelViewport.h> // member
@@ -34,7 +35,7 @@ namespace eq
      * Tracks requested areas for ROI. Used to disable ROI when ROI 
      * fails.
      */
-    class EQ_EXPORT ROITracker
+    class EQ_CLIENT_DECL ROITracker
     {
     public:
         ROITracker();

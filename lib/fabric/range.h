@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_RANGE_H
 #define EQFABRIC_RANGE_H
 
-#include <eq/base/base.h>
+#include <eq/fabric/base.h>
 
 #include <iostream>
 
@@ -72,7 +72,7 @@ namespace fabric
         float start;
         float end;
 
-        EQ_EXPORT static const Range ALL; //!< A full database range
+        EQ_FABRIC_DECL static const Range ALL; //!< A full database range
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Range& range )

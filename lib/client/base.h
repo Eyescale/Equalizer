@@ -1,5 +1,5 @@
-
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+ 
+/* Copyright (c) 2010, Daniel Pfeifer <daniel@pfeifer-mail.de> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,22 +15,17 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "windowSystem.h"
+#ifndef EQCLIENT_BASE_H
+#define EQCLIENT_BASE_H
 
-#include <eq/base/debug.h>
+#include <eq/base/base.h>
 
-namespace eq
-{
-std::ostream& operator << ( std::ostream& os, const WindowSystem ws )
-{
-    if( ws >= WINDOW_SYSTEM_ALL )
-        os << "unknown (" << static_cast<unsigned>( ws ) << ')';
-    else 
-        os << ( ws == WINDOW_SYSTEM_NONE ? "none" :
-                ws == WINDOW_SYSTEM_AGL  ? "agl"  :
-                ws == WINDOW_SYSTEM_GLX  ? "glX"  :
-                ws == WINDOW_SYSTEM_WGL  ? "wgl"  : "error" );
+#if defined(EQ_CLIENT_STATIC)
+#  define EQ_CLIENT_DECL
+#elif defined(EQ_CLIENT_SHARED)
+#  define EQ_CLIENT_DECL EQ_DLLEXPORT
+#else
+#  define EQ_CLIENT_DECL EQ_DLLIMPORT
+#endif
 
-    return os;
-}
-}
+#endif /* EQCLIENT_BASE_H */

@@ -32,14 +32,14 @@ namespace eq
          * Construct a statistics sampler and sample the start time.
          * @version 1.0
          */
-        EQ_EXPORT ChannelStatistics( const Statistic::Type type, 
+        EQ_CLIENT_DECL ChannelStatistics( const Statistic::Type type, 
                                      Channel* channel );
 
         /**
          * Destruct the sampler, sample the end time and send the event.
          * @version 1.0
          */
-        virtual EQ_EXPORT ~ChannelStatistics();
+        virtual EQ_CLIENT_DECL ~ChannelStatistics();
 
         uint32_t statisticsIndex; //!< @internal frame index
     };

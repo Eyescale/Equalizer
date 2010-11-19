@@ -41,10 +41,10 @@ namespace util
     {
     public: 
         /** Construct a new accumulation buffer. @version 1.0 */
-        EQ_EXPORT Accum( const GLEWContext* const glewContext );
+        EQ_CLIENT_DECL Accum( const GLEWContext* const glewContext );
 
         /** Destruct the accumulation buffer. @version 1.0 */
-        EQ_EXPORT ~Accum();
+        EQ_CLIENT_DECL ~Accum();
 
         /**
          * Initialize the accumulation buffer.
@@ -54,10 +54,10 @@ namespace util
          * @return true if initialized successfully.
          * @version 1.0
          */
-        EQ_EXPORT bool init( const PixelViewport& pvp, GLuint textureFormat );
+        EQ_CLIENT_DECL bool init( const PixelViewport& pvp, GLuint textureFormat );
 
         /** Exit the accum buffer. @version 1.0 */
-        EQ_EXPORT void exit();
+        EQ_CLIENT_DECL void exit();
 
         /**
          * Resize the accumulation buffer.
@@ -67,22 +67,22 @@ namespace util
          * @return true if the accumulation buffer is correctly resized.
          * @version 1.0
          */
-        EQ_EXPORT bool resize( const int width, const int height );
+        EQ_CLIENT_DECL bool resize( const int width, const int height );
 
         /** Clear the accumulation buffer. @version 1.0 */
-        EQ_EXPORT void clear();
+        EQ_CLIENT_DECL void clear();
 
         /**
          * Accumulate a frame from the read buffer into the accumulation buffer.
          * @version 1.0
          */
-        EQ_EXPORT void accum();
+        EQ_CLIENT_DECL void accum();
 
         /**
          * Copy the result of the accumulation to the current draw buffer.
          * @version 1.0
          */
-        EQ_EXPORT void display();
+        EQ_CLIENT_DECL void display();
 
         /**
          * Get the maximum number of accumulation steps possible.
@@ -90,7 +90,7 @@ namespace util
          * @return the maximum number of steps.
          * @version 1.0
          */
-        EQ_EXPORT uint32_t getMaxSteps() const;
+        EQ_CLIENT_DECL uint32_t getMaxSteps() const;
 
         /**
          * Get the current number of accumulation steps done.
@@ -98,7 +98,7 @@ namespace util
          * @return the number of steps done.
          * @version 1.0
          */
-        EQ_EXPORT uint32_t getNumSteps() const { return _numSteps; }
+        EQ_CLIENT_DECL uint32_t getNumSteps() const { return _numSteps; }
 
         /**
          * Set the total number of accumulation steps that will be done.
@@ -109,11 +109,11 @@ namespace util
          * @param totalSteps the total number of steps to do.
          * @version 1.0
          */
-        EQ_EXPORT void setTotalSteps( uint32_t totalSteps )
+        EQ_CLIENT_DECL void setTotalSteps( uint32_t totalSteps )
             { _totalSteps = totalSteps; }
 
         /** @return the total number of accumulations. @version 1.0 */
-        EQ_EXPORT uint32_t getTotalSteps() { return _totalSteps; }
+        EQ_CLIENT_DECL uint32_t getTotalSteps() { return _totalSteps; }
 
         /**
          * Test if the accumulation uses the FBO implementation.
@@ -121,7 +121,7 @@ namespace util
          * @return true if the accumulation uses an FBO, false if it uses
          *         glAccum().
          */
-        EQ_EXPORT bool usesFBO() const;
+        EQ_CLIENT_DECL bool usesFBO() const;
 
         /**
          * @internal
@@ -130,7 +130,7 @@ namespace util
          * @return true if the accumulation uses an FBO, false if it uses
          *         glAccum().
          */
-        EQ_EXPORT static bool usesFBO( const GLEWContext* glewContext );
+        EQ_CLIENT_DECL static bool usesFBO( const GLEWContext* glewContext );
 
         const GLEWContext* glewGetContext() const { return _glewContext; }
 

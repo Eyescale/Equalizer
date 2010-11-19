@@ -28,7 +28,7 @@
 #include <eq/fabric/zoom.h>             // member
 
 #include <eq/net/objectVersion.h>
-#include <eq/base/base.h>
+#include <eq/fabric/base.h>
 
 namespace eq
 {
@@ -38,7 +38,7 @@ namespace fabric
     class RenderContext
     {
     public: 
-        EQ_EXPORT RenderContext();
+        EQ_FABRIC_DECL RenderContext();
 
         Frustumf       frustum;        //<! frustum for projection matrix
         Frustumf       ortho;          //<! ortho frustum for projection matrix
@@ -67,7 +67,7 @@ namespace fabric
         bool           alignDummy[28]; //<! @internal padding
     };
 
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+    EQ_FABRIC_DECL std::ostream& operator << ( std::ostream& os, 
                                           const RenderContext& ctx );
 }
 }

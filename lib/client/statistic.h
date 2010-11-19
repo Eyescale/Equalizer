@@ -19,7 +19,7 @@
 #define EQ_STATISTIC_H
 
 #include <eq/client/types.h>
-#include <eq/base/base.h>
+#include <eq/client/base.h>
 
 #include <iostream>
 
@@ -75,8 +75,8 @@ namespace eq
         static const Vector3f& getColor( const Type type );
     };
 
-    EQ_EXPORT std::ostream& operator << (std::ostream&, const Statistic::Type&);
-    EQ_EXPORT std::ostream& operator << ( std::ostream&, const Statistic& );
+    EQ_CLIENT_DECL std::ostream& operator << (std::ostream&, const Statistic::Type&);
+    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream&, const Statistic& );
 }
 
 #endif // EQ_STATISTIC_H

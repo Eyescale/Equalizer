@@ -23,7 +23,7 @@
 namespace eq
 {
     /** A window-system event for a GLXWindowIF */
-    class EQ_EXPORT GLXWindowEvent : public Event
+    class EQ_CLIENT_DECL GLXWindowEvent : public Event
     {
     public:
         // Native event

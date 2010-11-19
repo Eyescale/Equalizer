@@ -18,7 +18,7 @@
 #ifndef EQ_CONFIG_PARAMS_H
 #define EQ_CONFIG_PARAMS_H
 
-#include <eq/base/base.h>
+#include <eq/client/base.h>
 #include <string>
 
 namespace eq
@@ -28,7 +28,7 @@ namespace eq
     {
     public:
         /** Construct new configuration parameters. @version 1.0 */
-        EQ_EXPORT ConfigParams();
+        EQ_CLIENT_DECL ConfigParams();
 
         /** Destruct this configuration parameters. @version 1.0 */
         ~ConfigParams(){}
@@ -42,10 +42,10 @@ namespace eq
          * net::Global::getProgramName(), i.e., the filename part of argv[0].
          * @version 1.0
          */
-        EQ_EXPORT void setRenderClient( const std::string& renderClient );
+        EQ_CLIENT_DECL void setRenderClient( const std::string& renderClient );
 
         /** @return the name of the render client executable. @version 1.0 */
-        EQ_EXPORT const std::string& getRenderClient() const;
+        EQ_CLIENT_DECL const std::string& getRenderClient() const;
 
         /**
          * Set the directory from which to launch the render client.
@@ -54,13 +54,13 @@ namespace eq
          * net::Global::getWorkDir(), i.e., the directory part of argv[0].
          * @version 1.0
          */
-        EQ_EXPORT void setWorkDir( const std::string& workDir );
+        EQ_CLIENT_DECL void setWorkDir( const std::string& workDir );
 
         /** 
          * @return the directory from which to launch the render client.
          * @version 1.0
          */
-        EQ_EXPORT const std::string& getWorkDir() const;
+        EQ_CLIENT_DECL const std::string& getWorkDir() const;
         //@}
 
     private:

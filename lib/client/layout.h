@@ -18,6 +18,7 @@
 #ifndef EQ_LAYOUT_H
 #define EQ_LAYOUT_H
 
+#include <eq/client/base.h>
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
 
@@ -45,15 +46,15 @@ namespace eq
     {
     public:
         /** Construct a new layout. @version 1.0 */
-        EQ_EXPORT Layout( Config* parent );
+        EQ_CLIENT_DECL Layout( Config* parent );
 
         /** Destruct a layout. @version 1.0 */
-        EQ_EXPORT virtual ~Layout();
+        EQ_CLIENT_DECL virtual ~Layout();
 
         /** @name Data Access */
         //@{
         /** @return the Server of this layout. @version 1.0 */
-        EQ_EXPORT ServerPtr getServer();
+        EQ_CLIENT_DECL ServerPtr getServer();
         //@}
 
     private:

@@ -18,7 +18,7 @@
 #ifndef EQ_WINDOWSYSTEM_H
 #define EQ_WINDOWSYSTEM_H
 
-#include <eq/base/base.h>
+#include <eq/client/base.h>
 
 #include <string>
 
@@ -34,7 +34,7 @@ namespace eq
         WINDOW_SYSTEM_ALL       // must be last
     };
 
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream& os, 
                                           const WindowSystem ws );
 }
 #endif // EQ_WINDOWSYSTEM_H

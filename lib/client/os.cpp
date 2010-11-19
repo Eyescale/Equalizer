@@ -25,7 +25,7 @@
 
 namespace eq
 {
-EQ_EXPORT void debugGLError( const std::string& when, const GLenum error, 
+void debugGLError( const std::string& when, const GLenum error, 
                    const char* file, const int line )
 {                                                                 
     EQWARN << base::disableFlush << "Got ";

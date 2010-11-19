@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_GLOBAL_H
 #define EQFABRIC_GLOBAL_H
 
-#include <eq/base/base.h>
+#include <eq/fabric/base.h>
 #include <string>
 
 namespace eq
@@ -34,10 +34,10 @@ namespace fabric
          * 
          * @param server the default server.
          */
-        EQ_EXPORT static void setServer( const std::string& server );
+        EQ_FABRIC_DECL static void setServer( const std::string& server );
 
         /** @return the default Equalizer server. */
-        EQ_EXPORT static const std::string& getServer();
+        EQ_FABRIC_DECL static const std::string& getServer();
     };
 }
 }

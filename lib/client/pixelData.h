@@ -33,10 +33,10 @@ namespace eq
     struct PixelData : public base::NonCopyable
     {
         /** Construct new pixel data. @version 1.0 */
-        EQ_EXPORT PixelData();
+        EQ_CLIENT_DECL PixelData();
 
         /** Destruct the pixel data. @version 1.0 */
-        EQ_EXPORT ~PixelData();
+        EQ_CLIENT_DECL ~PixelData();
 
         /**
          * Reset the data.

@@ -34,35 +34,35 @@ namespace eq
     {
     public:
         /** Construct a new GL window. @version 1.0 */
-        EQ_EXPORT GLWindow( Window* parent );
+        EQ_CLIENT_DECL GLWindow( Window* parent );
 
         /** Destruct a new GL window. @version 1.0 */
-        EQ_EXPORT virtual ~GLWindow();
+        EQ_CLIENT_DECL virtual ~GLWindow();
 
         /** Bind the FBO and update the pipe's current cache. @version 1.0 */
-        EQ_EXPORT virtual void makeCurrent() const;
+        EQ_CLIENT_DECL virtual void makeCurrent() const;
 
         /** @name Frame Buffer Object support. */
         //@{
         /** Bind the window's FBO, if it uses an FBO drawable. @version 1.0 */
-        EQ_EXPORT virtual void bindFrameBuffer() const;
+        EQ_CLIENT_DECL virtual void bindFrameBuffer() const;
 
         /** Build and initialize the FBO. @version 1.0 */
-        EQ_EXPORT virtual bool configInitFBO();
+        EQ_CLIENT_DECL virtual bool configInitFBO();
 
         /** Destroy the FBO. @version 1.0 */
-        EQ_EXPORT virtual void configExitFBO();
+        EQ_CLIENT_DECL virtual void configExitFBO();
 
         /** @return the FBO of this window, or 0. @version 1.0 */
-        EQ_EXPORT virtual const util::FrameBufferObject* getFrameBufferObject()
+        EQ_CLIENT_DECL virtual const util::FrameBufferObject* getFrameBufferObject()
             const { return _fbo; }
         //@}
      
         /** Initialize the GLEW context for this window. @version 1.0 */
-        EQ_EXPORT virtual void initGLEW();
+        EQ_CLIENT_DECL virtual void initGLEW();
         
         /** De-initialize the GLEW context. @version 1.0 */
-        EQ_EXPORT virtual void exitGLEW() { _glewInitialized = false; }
+        EQ_CLIENT_DECL virtual void exitGLEW() { _glewInitialized = false; }
         
         /**
          * Get the GLEW context for this window.
@@ -78,13 +78,13 @@ namespace eq
          *         context.
          * @version 1.0
          */
-        EQ_EXPORT virtual const GLEWContext* glewGetContext() const;
+        EQ_CLIENT_DECL virtual const GLEWContext* glewGetContext() const;
 
         /**
          * Set up the drawable config by querying the current context.
          * @version 1.0
          */
-        EQ_EXPORT virtual void queryDrawableConfig( DrawableConfig& );
+        EQ_CLIENT_DECL virtual void queryDrawableConfig( DrawableConfig& );
 
     private:
         bool _glewInitialized ;

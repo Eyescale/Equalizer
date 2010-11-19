@@ -59,7 +59,7 @@ Event::Event()
     bzero( &user, sizeof( user ));
 }
 
-EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event& event )
+std::ostream& operator << ( std::ostream& os, const Event& event )
 {
     os << event.type << ':' << event.originator << ' ';
     switch( event.type )
@@ -102,7 +102,7 @@ EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event& event )
     return os;
 }
 
-EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Event::Type& type)
+std::ostream& operator << ( std::ostream& os, const Event::Type& type)
 {
     if( type >= Event::ALL )
         os << "unknown (" << static_cast<unsigned>( type ) << ')';

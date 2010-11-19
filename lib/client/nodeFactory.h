@@ -19,7 +19,7 @@
 #define EQ_NODEFACTORY_H
 
 #include <eq/client/types.h>
-#include <eq/base/base.h>
+#include <eq/client/base.h>
 
 namespace eq
 {
@@ -31,7 +31,7 @@ namespace eq
      * classes, and are used to selectively override task methods and store
      * additional, application-specific data.
      */
-    class EQ_EXPORT NodeFactory
+    class EQ_CLIENT_DECL NodeFactory
     {
     public:
         /** 

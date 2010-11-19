@@ -45,26 +45,20 @@ endif(NOT CUDA_FOUND)
 add_subdirectory(base)
 add_subdirectory(net)
 add_subdirectory(fabric)
+add_subdirectory(client)
 
 # TODO: split this library
 purple_add_library(eq ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/"
   FORWARD HEADERS
-    ${CLIENT_HEADERS}
     ${PLUGIN_HEADERS}
-    ${UTIL_HEADERS}
     eq.h
     admin.h
   SOURCES
-    ${CLIENT_SOURCES}
-    ${UTIL_SOURCES}
     ${COMPRESSOR_SOURCES}
   LINK_LIBRARIES
     shared eq_base
-    shared eq_net
-    shared eq_fabric
-    ${PTHREAD_LIBRARIES}
-    ${Boost_LIBRARIES}
+    shared eq_client
     ${GLEW_LIBRARY}
     ${CARBON_LIBRARY}
     ${X11_LIBRARIES}
@@ -76,6 +70,7 @@ purple_add_amalgamation(Equalizer
   shared eq_base
   shared eq_net
   shared eq_fabric
+  shared eq_client
   shared eq
   )
 

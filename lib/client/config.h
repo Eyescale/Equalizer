@@ -63,20 +63,20 @@ namespace eq
                                 ConfigVisitor > Super; //!< base class
 
         /** Construct a new config. @version 1.0 */
-        EQ_EXPORT Config( ServerPtr parent );
+        EQ_CLIENT_DECL Config( ServerPtr parent );
 
         /** Destruct a config. @version 1.0 */
-        EQ_EXPORT virtual ~Config();
+        EQ_CLIENT_DECL virtual ~Config();
 
         /** @name Data Access */
         //@{
         /** @return the local client node. @version 1.0 */
-        EQ_EXPORT ClientPtr getClient();
+        EQ_CLIENT_DECL ClientPtr getClient();
 
         /** @return the local client node. @version 1.0 */
-        EQ_EXPORT ConstClientPtr getClient() const;
+        EQ_CLIENT_DECL ConstClientPtr getClient() const;
 
-        EQ_EXPORT net::CommandQueue* getMainThreadQueue(); //!< @internal
+        EQ_CLIENT_DECL net::CommandQueue* getMainThreadQueue(); //!< @internal
 
         /** @return the frame number of the last frame started. @version 1.0 */
         uint32_t getCurrentFrame()  const { return _currentFrame; }
@@ -85,7 +85,7 @@ namespace eq
         uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
 
         /** @internal Get all received statistics. */
-        EQ_EXPORT void getStatistics( std::vector< FrameStatistics >& stats );
+        EQ_CLIENT_DECL void getStatistics( std::vector< FrameStatistics >& stats );
 
         /**
          * @return true while the config is initialized and no exit event
@@ -140,7 +140,7 @@ namespace eq
          * @return true if the initialization was successful, false if not.
          * @version 1.0
          */
-        EQ_EXPORT virtual bool init( const uint32_t initID );
+        EQ_CLIENT_DECL virtual bool init( const uint32_t initID );
 
         /** 
          * Exit this configuration.
@@ -158,7 +158,7 @@ namespace eq
          * @return true if the exit was successful, false if not.
          * @version 1.0
          */
-        EQ_EXPORT virtual bool exit();
+        EQ_CLIENT_DECL virtual bool exit();
 
         /** 
          * Update the configuration.
@@ -180,13 +180,13 @@ namespace eq
          *         resource failed to initialize or exit.
          * @version 1.0
          */
-        EQ_EXPORT bool update();
+        EQ_CLIENT_DECL bool update();
         
         /** @warning Experimental - may not be supported in the future */
-        EQ_EXPORT void freezeLoadBalancing( const bool onOff );
+        EQ_CLIENT_DECL void freezeLoadBalancing( const bool onOff );
 
         /** @sa fabric::Config::setLatency() */
-        EQ_EXPORT virtual void setLatency( const uint32_t latency );
+        EQ_CLIENT_DECL virtual void setLatency( const uint32_t latency );
         //@}
 
         /** @name Frame Control */
@@ -208,7 +208,7 @@ namespace eq
          * @return the frame number of the new frame.
          * @version 1.0
          */
-        EQ_EXPORT virtual uint32_t startFrame( const uint32_t frameID );
+        EQ_CLIENT_DECL virtual uint32_t startFrame( const uint32_t frameID );
 
         /** 
          * Finish the rendering of a frame.
@@ -225,7 +225,7 @@ namespace eq
          *         frame has been finished yet.
          * @version 1.0
          */
-        EQ_EXPORT virtual uint32_t finishFrame();
+        EQ_CLIENT_DECL virtual uint32_t finishFrame();
 
         /**
          * Finish rendering all pending frames.
@@ -236,7 +236,7 @@ namespace eq
          * @return the frame number of the last finished frame.
          * @version 1.0
          */
-        EQ_EXPORT virtual uint32_t finishAllFrames();
+        EQ_CLIENT_DECL virtual uint32_t finishAllFrames();
 
         /**
          * Release the local synchronization of the config for a frame.
@@ -262,7 +262,7 @@ namespace eq
          *
          * @version 1.0
          */
-        EQ_EXPORT void stopFrames();
+        EQ_CLIENT_DECL void stopFrames();
 
         //@}
 
@@ -274,7 +274,7 @@ namespace eq
          * @param event the event.
          * @version 1.0
          */
-        EQ_EXPORT void sendEvent( ConfigEvent& event );
+        EQ_CLIENT_DECL void sendEvent( ConfigEvent& event );
 
         /** 
          * Get the next event.
@@ -288,7 +288,7 @@ namespace eq
          * @version 1.0
          * @sa Client::processCommand()
          */
-        EQ_EXPORT const ConfigEvent* nextEvent();
+        EQ_CLIENT_DECL const ConfigEvent* nextEvent();
 
         /** 
          * Try to get the next event.
@@ -301,7 +301,7 @@ namespace eq
          * @return a config event, or 0 if no events are pending.
          * @version 1.0
          */
-        EQ_EXPORT const ConfigEvent* tryNextEvent();
+        EQ_CLIENT_DECL const ConfigEvent* tryNextEvent();
 
         /** @return true if events are pending. @version 1.0 */
         bool checkEvent() const { return !_eventQueue.isEmpty(); }
@@ -316,7 +316,7 @@ namespace eq
          * pending events, without blocking.
          * @version 1.0
          */
-        EQ_EXPORT virtual void handleEvents();
+        EQ_CLIENT_DECL virtual void handleEvents();
 
         /** 
          * Handle one config event.
@@ -325,7 +325,7 @@ namespace eq
          * @return true if the event requires a redraw, false if not.
          * @version 1.0
          */
-        EQ_EXPORT virtual bool handleEvent( const ConfigEvent* event );
+        EQ_CLIENT_DECL virtual bool handleEvent( const ConfigEvent* event );
         //@}
         
         /** 
@@ -343,14 +343,14 @@ namespace eq
          *
          * @param object the object instance.
          */
-        EQ_EXPORT virtual void deregisterObject( net::Object* object );
+        EQ_CLIENT_DECL virtual void deregisterObject( net::Object* object );
 
     protected:
-        EQ_EXPORT virtual void notifyMapped( net::LocalNodePtr node ); //!< @internal
+        EQ_CLIENT_DECL virtual void notifyMapped( net::LocalNodePtr node ); //!< @internal
         /** @internal */
-        EQ_EXPORT virtual void changeLatency( const uint32_t latency );
-        EQ_EXPORT virtual void unmap(); //!< @internal
-        EQ_EXPORT virtual bool mapViewObjects() const; //!< @internal
+        EQ_CLIENT_DECL virtual void changeLatency( const uint32_t latency );
+        EQ_CLIENT_DECL virtual void unmap(); //!< @internal
+        EQ_CLIENT_DECL virtual bool mapViewObjects() const; //!< @internal
 
     private:
         /** The node running the application thread. */

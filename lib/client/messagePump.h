@@ -18,7 +18,7 @@
 #ifndef EQ_MESSAGEPUMP_H
 #define EQ_MESSAGEPUMP_H
 
-#include <eq/base/base.h>
+#include <eq/client/base.h>
 
 namespace eq
 {

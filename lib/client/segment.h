@@ -18,6 +18,7 @@
 #ifndef EQ_SEGMENT_H
 #define EQ_SEGMENT_H
 
+#include <eq/client/base.h>
 #include <eq/client/types.h>
 #include <eq/fabric/segment.h>        // base class
 
@@ -35,21 +36,21 @@ namespace eq
     {
     public:
         /** Construct a new segment. @version 1.0 */
-        EQ_EXPORT Segment( Canvas* parent );
+        EQ_CLIENT_DECL Segment( Canvas* parent );
 
         /** Destruct a segment. @version 1.0 */
-        EQ_EXPORT virtual ~Segment();
+        EQ_CLIENT_DECL virtual ~Segment();
 
         /** @name Data Access */
         //@{
         /** @return the config of this segment. */
-        EQ_EXPORT Config* getConfig();
+        EQ_CLIENT_DECL Config* getConfig();
 
         /** @return the config of this segment. */
-        EQ_EXPORT const Config* getConfig() const;
+        EQ_CLIENT_DECL const Config* getConfig() const;
 
         /** @return the Server of this segment. */
-        EQ_EXPORT ServerPtr getServer();
+        EQ_CLIENT_DECL ServerPtr getServer();
         //@}
 
     private:

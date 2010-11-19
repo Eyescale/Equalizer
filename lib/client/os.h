@@ -18,7 +18,7 @@
 #ifndef EQ_OS_H
 #define EQ_OS_H
 
-#include <eq/base/base.h>
+#include <eq/client/base.h>
 
 #include <string>
 
@@ -147,7 +147,7 @@ typedef void* HGLRC;
 namespace eq
 {
 /** Output an error OpenGL in a human-readable form to EQWARN */
-EQ_EXPORT void debugGLError( const std::string& when, const GLenum error, 
+EQ_CLIENT_DECL void debugGLError( const std::string& when, const GLenum error, 
                              const char* file, const int line );
 }
 

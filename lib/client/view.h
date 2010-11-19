@@ -20,6 +20,7 @@
 
 #include <eq/client/visitorResult.h>  // enum
 #include <eq/client/types.h>          // member
+#include <eq/client/base.h>
 
 #include <eq/fabric/view.h>           // base class
 #include <eq/fabric/viewport.h>       // member
@@ -41,21 +42,21 @@ namespace eq
     {
     public:
         /** Construct a new view. @version 1.0 */
-        EQ_EXPORT View( Layout* parent );
+        EQ_CLIENT_DECL View( Layout* parent );
 
         /** Destruct this view. @version 1.0 */
-        EQ_EXPORT virtual ~View();
+        EQ_CLIENT_DECL virtual ~View();
 
         /** @name Data Access. */
         //@{
         /** @return the config of this view. @version 1.0 */
-        EQ_EXPORT Config* getConfig();
+        EQ_CLIENT_DECL Config* getConfig();
 
         /** @return the config of this view. @version 1.0 */
-        EQ_EXPORT const Config* getConfig() const;
+        EQ_CLIENT_DECL const Config* getConfig() const;
 
         /** @return the Server of this view. @version 1.0 */
-        EQ_EXPORT ServerPtr getServer();
+        EQ_CLIENT_DECL ServerPtr getServer();
         //@}
 
         /** @name Operations */
@@ -70,12 +71,12 @@ namespace eq
          * @param event the received view event.
          * @return true when the event was handled, false if not.
          */
-        EQ_EXPORT virtual bool handleEvent( const Event& event );
+        EQ_CLIENT_DECL virtual bool handleEvent( const Event& event );
         //@}
 
     protected:
         /** @sa Frustum::deserialize() */
-        EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
+        EQ_CLIENT_DECL virtual void deserialize( net::DataIStream& is, 
                                             const uint64_t dirtyBits );
 
         /** @return the initial frustum value of this view. */

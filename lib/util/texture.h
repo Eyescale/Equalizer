@@ -48,11 +48,11 @@ namespace util
          * functions.
          * @version 1.0
          */
-        EQ_EXPORT Texture( const GLenum target,
+        EQ_CLIENT_DECL Texture( const GLenum target,
                            const GLEWContext* const glewContext = 0 );
 
         /** Destruct the texture. @version 1.0 */
-        EQ_EXPORT virtual ~Texture();
+        EQ_CLIENT_DECL virtual ~Texture();
 
         /** @name Data Access. */
         //@{
@@ -79,7 +79,7 @@ namespace util
          * @param type the OpenGL Type.
          * @version 1.0
          */
-        void setExternalFormat( const uint32_t format, const uint32_t type );
+        EQ_CLIENT_DECL void setExternalFormat( const uint32_t format, const uint32_t type );
 
         /**
          * @return the external data format of the texture, e.g., GL_RGBA.
@@ -103,7 +103,7 @@ namespace util
         int32_t getHeight() const { return _height; }
 
         /** @return true if the texture can be bound. @version 1.0 */
-        EQ_EXPORT bool isValid() const;
+        EQ_CLIENT_DECL bool isValid() const;
         //@}
 
         /** @name Operations. */
@@ -116,45 +116,45 @@ namespace util
          * @param height the height of the texture.
          * @version 1.0
          */
-        EQ_EXPORT void init( const GLuint internalFormat, const int32_t width,
+        EQ_CLIENT_DECL void init( const GLuint internalFormat, const int32_t width,
                              const int32_t height );
 
         /**
          * Clear the texture, including deleting the GL texture name.
          * @version 1.0
          */
-        EQ_EXPORT void flush();
+        EQ_CLIENT_DECL void flush();
 
         /**
          * Copy the specified area from the current read buffer to the
          * texture at 0,0.
          * @version 1.0
          */
-        EQ_EXPORT void copyFromFrameBuffer( const GLuint internalFormat,
+        EQ_CLIENT_DECL void copyFromFrameBuffer( const GLuint internalFormat,
                                             const fabric::PixelViewport& pvp );
 
         /** Copy the specified buffer to the texture at 0,0. @version 1.0 */
-        EQ_EXPORT void upload( const int32_t width, const int32_t height,
+        EQ_CLIENT_DECL void upload( const int32_t width, const int32_t height,
                                const void* ptr );
 
         /**
          * Copy the texture data from the GPU to the given memory address.
          * @version 1.0
          */
-        EQ_EXPORT void download( void* buffer ) const;
+        EQ_CLIENT_DECL void download( void* buffer ) const;
 
         /** Bind the texture. @version 1.0 */
-        EQ_EXPORT void bind() const;
+        EQ_CLIENT_DECL void bind() const;
 
         /** Create and bind a texture to the current FBO. @version 1.0 */
-        EQ_EXPORT void bindToFBO( const GLenum target, const int32_t width,
+        EQ_CLIENT_DECL void bindToFBO( const GLenum target, const int32_t width,
                                   const int32_t height );
         
         /** Resize the texture. @version 1.0 */
-        EQ_EXPORT void resize( const int32_t width, const int32_t height );
+        EQ_CLIENT_DECL void resize( const int32_t width, const int32_t height );
 
         /** Write the texture data as an rgb image file. @version 1.0 */
-        EQ_EXPORT void writeRGB( const std::string& filename ) const;
+        EQ_CLIENT_DECL void writeRGB( const std::string& filename ) const;
         //@}
 
         const GLEWContext* glewGetContext() const { return _glewContext; }
@@ -167,7 +167,7 @@ namespace util
          * Flush the texture without deleting the GL texture name.
          * @version 1.0
          */
-        EQ_EXPORT void flushNoDelete();
+        EQ_CLIENT_DECL void flushNoDelete();
 
         /** 
          * Use an OpenGL texture created externally.
@@ -182,7 +182,7 @@ namespace util
          * @param height the height of the texture.
          * @version 1.0
          */
-        EQ_EXPORT void setGLData( const GLuint id, const GLuint internalFormat,
+        EQ_CLIENT_DECL void setGLData( const GLuint id, const GLuint internalFormat,
                                   const int32_t width, const int32_t height );
         //@}
 

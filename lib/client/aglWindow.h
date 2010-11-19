@@ -37,16 +37,16 @@ namespace eq
         virtual ~AGLWindowIF() {}
 
         /** @return the AGL rendering context. @version 1.0 */
-        EQ_EXPORT virtual AGLContext getAGLContext() const = 0;
+        EQ_CLIENT_DECL virtual AGLContext getAGLContext() const = 0;
 
         /** @return the carbon window reference. @version 1.0 */
-        EQ_EXPORT virtual WindowRef getCarbonWindow() const = 0;
+        EQ_CLIENT_DECL virtual WindowRef getCarbonWindow() const = 0;
 
         /** @return the AGL PBuffer object. @version 1.0 */
-        EQ_EXPORT virtual AGLPbuffer getAGLPBuffer() const = 0;
+        EQ_CLIENT_DECL virtual AGLPbuffer getAGLPBuffer() const = 0;
 
         /** Process an event. @version 1.0 */
-        EQ_EXPORT virtual bool processEvent( const AGLWindowEvent& event );
+        EQ_CLIENT_DECL virtual bool processEvent( const AGLWindowEvent& event );
 
     private:
     };
@@ -56,22 +56,22 @@ namespace eq
     {
     public:
         /** Create a new AGL window for the given eq::Window. @version 1.0 */
-        EQ_EXPORT AGLWindow( Window* parent );
+        EQ_CLIENT_DECL AGLWindow( Window* parent );
 
         /** Destruct the AGL window. @version 1.0 */
-        EQ_EXPORT virtual ~AGLWindow();
+        EQ_CLIENT_DECL virtual ~AGLWindow();
 
         /** @version 1.0 */
-        EQ_EXPORT virtual void configExit( );
+        EQ_CLIENT_DECL virtual void configExit( );
 
         /** @version 1.0 */
-        EQ_EXPORT virtual void makeCurrent() const;
+        EQ_CLIENT_DECL virtual void makeCurrent() const;
 
         /** @version 1.0 */
-        EQ_EXPORT virtual void swapBuffers();
+        EQ_CLIENT_DECL virtual void swapBuffers();
 
         /** Not implemented for AGL. @version 1.0 */
-        EQ_EXPORT virtual void joinNVSwapBarrier( const uint32_t group,
+        EQ_CLIENT_DECL virtual void joinNVSwapBarrier( const uint32_t group,
                                                   const uint32_t barrier );
 
         /** @return the AGL rendering context. @version 1.0 */
@@ -94,7 +94,7 @@ namespace eq
          * @param context the AGL rendering context.
          * @version 1.0
          */
-        EQ_EXPORT virtual void setAGLContext( AGLContext context );
+        EQ_CLIENT_DECL virtual void setAGLContext( AGLContext context );
 
         /** 
          * Set the carbon window to be used with the current AGL context.
@@ -102,7 +102,7 @@ namespace eq
          * @param window the window reference.
          * @version 1.0
          */
-        EQ_EXPORT virtual void setCarbonWindow( WindowRef window );
+        EQ_CLIENT_DECL virtual void setCarbonWindow( WindowRef window );
         
         /** 
          * Set the AGL PBuffer object to be used with the current AGL context.
@@ -110,7 +110,7 @@ namespace eq
          * @param pbuffer the PBuffer.
          * @version 1.0
          */
-        EQ_EXPORT virtual void setAGLPBuffer( AGLPbuffer pbuffer );
+        EQ_CLIENT_DECL virtual void setAGLPBuffer( AGLPbuffer pbuffer );
         //@}
 
         /** @name AGL/Carbon initialization */
@@ -126,7 +126,7 @@ namespace eq
          * @return true if the initialization was successful, false otherwise.
          * @version 1.0
          */
-        EQ_EXPORT virtual bool configInit();
+        EQ_CLIENT_DECL virtual bool configInit();
 
         /** 
          * Choose a pixel format based on the window's attributes.
@@ -140,7 +140,7 @@ namespace eq
          * @return a pixel format, or 0 if no pixel format was found.
          * @version 1.0
          */
-        EQ_EXPORT virtual AGLPixelFormat chooseAGLPixelFormat();
+        EQ_CLIENT_DECL virtual AGLPixelFormat chooseAGLPixelFormat();
 
         /** 
          * Destroy a pixel format obtained with chooseAGLPixelFormat().
@@ -151,7 +151,7 @@ namespace eq
          * @param format a pixel format.
          * @version 1.0
          */
-        EQ_EXPORT virtual void destroyAGLPixelFormat( AGLPixelFormat format );
+        EQ_CLIENT_DECL virtual void destroyAGLPixelFormat( AGLPixelFormat format );
 
         /** 
          * Create an AGL context.
@@ -165,7 +165,7 @@ namespace eq
          * @return the context, or 0 if context creation failed.
          * @version 1.0
          */
-        EQ_EXPORT virtual AGLContext createAGLContext( AGLPixelFormat format );
+        EQ_CLIENT_DECL virtual AGLContext createAGLContext( AGLPixelFormat format );
 
         /** 
          * Initialize the window's drawable (fullscreen, pbuffer or window) and
@@ -177,7 +177,7 @@ namespace eq
          * @return true if the drawable was created, false otherwise.
          * @version 1.0
          */
-        EQ_EXPORT virtual bool configInitAGLDrawable();
+        EQ_CLIENT_DECL virtual bool configInitAGLDrawable();
 
         /** 
          * Initialize the window with a fullscreen Carbon window.
@@ -190,7 +190,7 @@ namespace eq
          * @return true if the window was created, false otherwise.
          * @version 1.0
          */
-        EQ_EXPORT virtual bool configInitAGLFullscreen();
+        EQ_CLIENT_DECL virtual bool configInitAGLFullscreen();
 
         /** 
          * Initialize the window with a normal Carbon window.
@@ -203,7 +203,7 @@ namespace eq
          * @return true if the window was created, false otherwise.
          * @version 1.0
          */
-        EQ_EXPORT virtual bool configInitAGLWindow();
+        EQ_CLIENT_DECL virtual bool configInitAGLWindow();
 
         /** 
          * Initialize the window with an offscreen AGL PBuffer.
@@ -213,23 +213,23 @@ namespace eq
          * @return true if the PBuffer was created, false otherwise.
          * @version 1.0
          */
-        EQ_EXPORT virtual bool configInitAGLPBuffer(); 
+        EQ_CLIENT_DECL virtual bool configInitAGLPBuffer(); 
         
         /**
          * Set up an AGLEventHandler, called by setCarbonWindow().
          * @version 1.0
          */
-        EQ_EXPORT virtual void initEventHandler();
+        EQ_CLIENT_DECL virtual void initEventHandler();
 
         /**
          * Destroy the AGLEventHandler, called by setCarbonWindow().
          * @version 1.0
          */
-        EQ_EXPORT virtual void exitEventHandler();
+        EQ_CLIENT_DECL virtual void exitEventHandler();
         //@}
 
         /** @version 1.0 */
-        EQ_EXPORT virtual bool processEvent( const AGLWindowEvent& event );
+        EQ_CLIENT_DECL virtual bool processEvent( const AGLWindowEvent& event );
 
     private:
         /** The AGL context. */

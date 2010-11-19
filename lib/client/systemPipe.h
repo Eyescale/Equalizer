@@ -20,7 +20,7 @@
 #define EQ_SYSTEM_PIPE_H
 
 #include <eq/client/error.h> // enum
-#include <eq/base/base.h>
+#include <eq/client/base.h>
 #include <string>
 
 namespace eq
@@ -35,7 +35,7 @@ namespace eq
      * SystemPipe, which is initialized in Pipe::configInit. The SystemPipe has
      * to set the pipe's PixelViewport if it is invalid during configInit().
      */
-    class EQ_EXPORT SystemPipe
+    class EQ_CLIENT_DECL SystemPipe
     {
     public:
         /** Create a new SstemPipe for the given eq::Pipe.*/

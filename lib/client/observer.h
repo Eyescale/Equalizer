@@ -20,6 +20,7 @@
 
 #include <eq/fabric/observer.h>         // base class
 #include <eq/client/types.h>
+#include <eq/client/base.h>
 
 namespace eq
 {
@@ -35,15 +36,15 @@ namespace eq
     {
     public:
         /** Construct a new observer. @version 1.0 */
-        EQ_EXPORT Observer( Config* parent );
+        EQ_CLIENT_DECL Observer( Config* parent );
 
         /** Destruct this observer. @version 1.0 */
-        EQ_EXPORT virtual ~Observer();
+        EQ_CLIENT_DECL virtual ~Observer();
 
         /** @name Data Access */
         //@{
         /** @return the Server of this observer. @version 1.0 */
-        EQ_EXPORT ServerPtr getServer();
+        EQ_CLIENT_DECL ServerPtr getServer();
         //@}
 
     private:

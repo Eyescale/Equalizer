@@ -30,7 +30,7 @@ namespace eq
      * When using AGLWindow as a system window for any window of a Pipe, the
      * pipe needs to have an AGLPipe as its SystemPipe.
      */
-    class EQ_EXPORT AGLPipe : public SystemPipe
+    class EQ_CLIENT_DECL AGLPipe : public SystemPipe
     {
     public:
         /** Create a new AGL pipe for the given eq::Pipe. @version 1.0 */

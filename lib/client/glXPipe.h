@@ -27,7 +27,7 @@ namespace eq
     class GLXEventHandler;
 
     /** Equalizer default implementation of a GLX window */
-    class EQ_EXPORT GLXPipe : public SystemPipe
+    class EQ_CLIENT_DECL GLXPipe : public SystemPipe
     {
     public:
         GLXPipe( Pipe* parent );

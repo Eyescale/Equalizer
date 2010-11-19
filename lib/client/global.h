@@ -24,7 +24,7 @@
 #include <eq/fabric/global.h>     // base class
 #include <eq/fabric/iAttribute.h> // enum definition
 
-#include <eq/base/base.h>
+#include <eq/client/base.h>
 
 namespace eq
 {
@@ -70,10 +70,10 @@ namespace eq
          * @param configFile the default configFile.
          * @version 1.0
          */
-        EQ_EXPORT static void setConfigFile( const std::string& configFile );
+        EQ_CLIENT_DECL static void setConfigFile( const std::string& configFile );
 
         /** @return the config file for the app-local server. @version 1.0 */
-        EQ_EXPORT static const std::string& getConfigFile();
+        EQ_CLIENT_DECL static const std::string& getConfigFile();
 
         /** 
          * Global lock for all non-thread-safe Carbon API calls. 
@@ -87,9 +87,9 @@ namespace eq
         static void leaveCarbon();
 
     private:
-        EQ_EXPORT friend bool init( const int argc, char** argv, 
+        EQ_CLIENT_DECL friend bool init( const int argc, char** argv, 
                                     NodeFactory* nodeFactory );
-        EQ_EXPORT friend bool exit();
+        EQ_CLIENT_DECL friend bool exit();
         
         static NodeFactory* _nodeFactory;
 

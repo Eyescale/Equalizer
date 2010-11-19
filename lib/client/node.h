@@ -25,7 +25,7 @@
 
 #include <eq/net/types.h>
 #include <eq/base/mtQueue.h>          // member
-#include <eq/base/base.h>
+#include <eq/client/base.h>
 
 namespace eq
 {
@@ -48,18 +48,18 @@ namespace eq
     {
     public:
         /** Construct a new node. @version 1.0 */
-        EQ_EXPORT Node( Config* parent );
+        EQ_CLIENT_DECL Node( Config* parent );
 
         /** Destruct the node. @version 1.0 */
-        EQ_EXPORT virtual ~Node();
+        EQ_CLIENT_DECL virtual ~Node();
 
         /** @return the parent client node. @version 1.0 */
-        EQ_EXPORT ClientPtr getClient();
+        EQ_CLIENT_DECL ClientPtr getClient();
 
         /** @return the parent server node. @version 1.0 */
-        EQ_EXPORT ServerPtr getServer();
+        EQ_CLIENT_DECL ServerPtr getServer();
 
-        EQ_EXPORT net::CommandQueue* getMainThreadQueue(); //!< @internal
+        EQ_CLIENT_DECL net::CommandQueue* getMainThreadQueue(); //!< @internal
 
         /** 
          * @internal
@@ -80,19 +80,19 @@ namespace eq
         FrameData* getFrameData( const net::ObjectVersion& dataVersion );
 
         /** @internal Wait for the node to be initialized. */
-        EQ_EXPORT void waitInitialized() const;
+        EQ_CLIENT_DECL void waitInitialized() const;
 
         /**
          * @return true if this node is running, false otherwise.
          * @version 1.0 
          */
-        EQ_EXPORT bool isRunning() const;
+        EQ_CLIENT_DECL bool isRunning() const;
 
         /**
          * @return true if this node is stopped, false otherwise.
          * @version 1.0 
          */
-        EQ_EXPORT bool isStopped() const;
+        EQ_CLIENT_DECL bool isStopped() const;
         
         /** 
          * Wait for a frame to be started.
@@ -104,7 +104,7 @@ namespace eq
          * @sa releaseFrame()
          * @version 1.0
          */
-        EQ_EXPORT void waitFrameStarted( const uint32_t frameNumber ) const;
+        EQ_CLIENT_DECL void waitFrameStarted( const uint32_t frameNumber ) const;
 
         /** @internal @return the number of the last finished frame. */
         uint32_t getFinishedFrame() const { return _finishedFrame; }
@@ -146,7 +146,7 @@ namespace eq
 
     protected:
         /** @internal */
-        EQ_EXPORT virtual void attachToSession( const uint32_t id, 
+        EQ_CLIENT_DECL virtual void attachToSession( const uint32_t id, 
                                                 const uint32_t instanceID, 
                                                 net::Session* session );
         /** @name Actions */
@@ -157,7 +157,7 @@ namespace eq
          * @param frameNumber the frame to start.
          * @version 1.0
          */
-        EQ_EXPORT void startFrame( const uint32_t frameNumber );
+        EQ_CLIENT_DECL void startFrame( const uint32_t frameNumber );
 
         /** 
          * Signal the completion of a frame to the parent.
@@ -165,7 +165,7 @@ namespace eq
          * @param frameNumber the frame to end.
          * @version 1.0
          */
-        EQ_EXPORT void releaseFrame( const uint32_t frameNumber );
+        EQ_CLIENT_DECL void releaseFrame( const uint32_t frameNumber );
 
         /** 
          * Release the local synchronization of the parent for a frame.
@@ -173,7 +173,7 @@ namespace eq
          * @param frameNumber the frame to release.
          * @version 1.0
          */
-        EQ_EXPORT void releaseFrameLocal( const uint32_t frameNumber );
+        EQ_CLIENT_DECL void releaseFrameLocal( const uint32_t frameNumber );
         //@}
 
         /**
@@ -190,10 +190,10 @@ namespace eq
          * @param initID the init identifier.
          * @version 1.0
          */
-        EQ_EXPORT virtual bool configInit( const uint32_t initID );
+        EQ_CLIENT_DECL virtual bool configInit( const uint32_t initID );
 
         /** Exit this node. @version 1.0 */
-        EQ_EXPORT virtual bool configExit();
+        EQ_CLIENT_DECL virtual bool configExit();
 
         /**
          * Start rendering a frame.
@@ -208,7 +208,7 @@ namespace eq
          * @sa startFrame(), Config::beginFrame()
          * @version 1.0
          */
-        EQ_EXPORT virtual void frameStart( const uint32_t frameID, 
+        EQ_CLIENT_DECL virtual void frameStart( const uint32_t frameID, 
                                            const uint32_t frameNumber );
 
         /**
@@ -223,7 +223,7 @@ namespace eq
          * @sa endFrame(), Config::finishFrame()
          * @version 1.0
          */
-        EQ_EXPORT virtual void frameFinish( const uint32_t frameID, 
+        EQ_CLIENT_DECL virtual void frameFinish( const uint32_t frameID, 
                                             const uint32_t frameNumber );
 
         /** 
@@ -238,7 +238,7 @@ namespace eq
          * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
          * @version 1.0
          */
-        EQ_EXPORT virtual void frameDrawFinish( const uint32_t frameID, 
+        EQ_CLIENT_DECL virtual void frameDrawFinish( const uint32_t frameID, 
                                                 const uint32_t frameNumber );
 
         /** 
@@ -256,7 +256,7 @@ namespace eq
          * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
          * @version 1.0
          */
-        EQ_EXPORT virtual void frameTasksFinish( const uint32_t frameID, 
+        EQ_CLIENT_DECL virtual void frameTasksFinish( const uint32_t frameID, 
                                                  const uint32_t frameNumber );
         //@}
 

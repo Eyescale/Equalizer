@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_COLORMASK_H
 #define EQFABRIC_COLORMASK_H
 
-#include <eq/base/base.h>
+#include <eq/fabric/base.h>
 #include <iostream>
 
 namespace eq
@@ -46,7 +46,7 @@ namespace fabric
         bool blue;
         bool alpha;
 
-        EQ_EXPORT static const ColorMask ALL;
+        EQ_FABRIC_DECL static const ColorMask ALL;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const ColorMask& mask )
