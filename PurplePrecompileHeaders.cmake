@@ -15,7 +15,7 @@ macro(_PURPLE_PRECOMPILE_HEADER_GCC NAME TARGET)
   _purple_pch_files(PCH_INPUT PCH_SOURCE ${NAME})
 
   set(PCH_HEADER "${CMAKE_CURRENT_BINARY_DIR}/${TARGET}_pch.hxx")
-  set(PCH_BINARY "${CMAKE_CURRENT_BINARY_DIR}/${TARGET}_pch.gch")
+  set(PCH_BINARY "${PCH_HEADER}.gch")
 
   configure_file(${PCH_INPUT} ${PCH_HEADER} COPYONLY)
 
@@ -41,12 +41,11 @@ macro(_PURPLE_PRECOMPILE_HEADER_GCC NAME TARGET)
     COMMAND ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ARG1} ${COMPILE_FLAGS} -x c++-header -o ${PCH_BINARY} ${PCH_HEADER} 
     )
 
-  add_custom_target(pch_${TARGET}
+  add_custom_target(${TARGET}_pch
     DEPENDS	${PCH_BINARY} 
     )
 
-  add_dependencies(${TARGET} pch_${TARGET})
-# add_dependencies(${TARGET} ${PCH_BINARY})
+  add_dependencies(${TARGET} ${TARGET}_pch)
   
   get_target_property(OLD_FLAGS ${TARGET} COMPILE_FLAGS)
   if(${OLD_FLAGS} MATCHES NOTFOUND)
