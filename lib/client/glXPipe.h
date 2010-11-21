@@ -24,11 +24,14 @@
 
 namespace eq
 {
-    /** Equalizer default implementation of a GLX window */
-    class EQ_CLIENT_DECL GLXPipe : public SystemPipe
+    /** Default implementation of a glX system pipe. */
+    class GLXPipe : public SystemPipe
     {
     public:
+        /** Construct a new glX system pipe. @version 1.0 */
         GLXPipe( Pipe* parent );
+
+        /** Destruct this glX pipe. @version 1.0 */
         virtual ~GLXPipe( );
 
         /** @name GLX/X11 initialization */
@@ -37,39 +40,42 @@ namespace eq
          * Initialize this pipe for the GLX window system.
          * 
          * @return true if the initialization was successful, false otherwise.
+         * @version 1.0
          */
-        virtual bool configInit( );
+        virtual bool configInit();
 
         /** 
          * Deinitialize this pipe for the GLX window system.
          * 
          * @return true if the deinitialization was successful, false otherwise.
+         * @version 1.0
          */
-        virtual void configExit( );
+        virtual void configExit();
         //@}
 
-        /** @return the X display connection for this pipe. */
+        /** @return the X display connection for this pipe. @version 1.0 */
         Display* getXDisplay() const { return _xDisplay; }
 
-    private:
+    protected:
         /** 
          * Set the X display connection for this pipe.
          * 
          * This function should only be called from configInit() or
-         * configExit(). Updates the pixel viewport.
+         * configExit(). Updates the pixel viewport. Calls XSetCurrentDisplay().
          *
          * @param display the X display connection for this pipe.
-         * @sa XSetCurrentDisplay()
+         * @version 1.0
          */
-        void _setXDisplay( Display* display );
+        void setXDisplay( Display* display );
 
         /**
          * @return The string representation of this pipe's port and device
          *         setting, in the form used by XOpenDisplay().
+         * @version 1.0
          */
-        std::string _getXDisplayString();
+        std::string getXDisplayString();
 
-        //check if it should be private
+    private:
         static int XErrorHandler( Display* display, XErrorEvent* event );
 
         /** Window-system specific display information. */

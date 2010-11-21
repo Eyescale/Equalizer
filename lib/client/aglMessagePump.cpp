@@ -70,13 +70,13 @@ void AGLMessagePump::dispatchOne()
 
     while( true )
     {
-        EventRef             event;
+        EventRef event;
 
         if( _needGlobalLock )
             Global::enterCarbon();
             
-        const OSStatus       status = ReceiveNextEvent( 0, 0, .05 /* 50ms */,
-                                                        true, &event );
+        const OSStatus status = ReceiveNextEvent( 0, 0, .05 /* 50ms */,
+                                                  true, &event );
         if( status == noErr )
         {
             EQVERB << "Dispatch Carbon event " << event << std::endl;

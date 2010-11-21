@@ -25,28 +25,34 @@
 
 namespace eq
 {
-    /**
-     * Implements a message pump for the X11 window system.
-     */
+    /** A message pump receiving and dispatching X11 events. */
     class GLXMessagePump : public MessagePump
     {
     public:
+        /** Construct a new X11 message pump. @version 1.0 */
         GLXMessagePump();
+
+        /** Destruct this message pump. @version 1.0 */
         virtual ~GLXMessagePump();
 
-        /** Wake up dispatchOne(). */
         virtual void postWakeup();
-
-        /** Get and dispatch all pending system events, non-blocking. */
         virtual void dispatchAll();
-
-        /** Get and dispatch at least one pending system event, blocking. */
         virtual void dispatchOne();
         
-        /** Register a new Display connection for event dispatch. */
+        /**
+         * Register a new Display connection for event dispatch.
+         *
+         * The registrations are referenced, that is, multiple registrations of
+         * the same display cause the Display to be added once to the event
+         * set, but require the same amount of deregistrations to stop event
+         * dispatch on the connection. Not threadsafe.
+         *
+         * @sa GLXEventHandler
+         * @version 1.0
+         */
         void register_( Display* display );
 
-        /** Deregister a Display connection from event dispatch. */
+        /** Deregister a Display connection from event dispatch. @version 1.0 */
         void deregister( Display* display );
 
     private:

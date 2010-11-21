@@ -23,20 +23,18 @@
 
 namespace eq
 {
-    /** Receive and dispatch Carbon events. */
+    /** A message pump receiving and dispatching Carbon events. */
     class AGLMessagePump : public MessagePump
     {
     public:
+        /** Construct a new AGL message pump. @version 1.0 */
         AGLMessagePump();
+
+        /** Destruct this message pump. @version 1.0 */
         virtual ~AGLMessagePump();
 
-        /** Wake up dispatchOneEvent() from another thread. */
         virtual void postWakeup();
-
-        /** Get and dispatch all pending system events, non-blocking. */
         virtual void dispatchAll();
-
-        /** Get and dispatch at least one pending system event, blocking. */
         virtual void dispatchOne();
 
     private:

@@ -1,10 +1,9 @@
-Create and install man pages
-Clean up doxygen output (EQ_CLIENT_DECL, glew, examples)
+GLX API cleanup and documentation.
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

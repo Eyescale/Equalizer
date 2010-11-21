@@ -30,13 +30,19 @@ namespace eq
     class GLXEventHandler : public EventHandler
     {
     public:
-        /** Dispatch all pending events on the current thread, non-blocking. */
+        /**
+         * Dispatch all pending events on the current thread.
+         *
+         * If no event handlers have been constructed by the calling thread,
+         * this function does nothing. This function does not block on events.
+         * @version 1.0
+         */
         static void dispatch();
 
-        /** Construct a new glx event handler. */
+        /** Construct a new glX event handler. @version 1.0 */
         GLXEventHandler( GLXWindowIF* window );
 
-        /** Destructs the glX event handler. */
+        /** Destruct the glX event handler. @version 1.0 */
         virtual ~GLXEventHandler();
 
     private:

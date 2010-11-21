@@ -61,28 +61,6 @@ namespace eq
         /** Destruct the AGL window. @version 1.0 */
         EQ_CLIENT_DECL virtual ~AGLWindow();
 
-        /** @version 1.0 */
-        EQ_CLIENT_DECL virtual void configExit( );
-
-        /** @version 1.0 */
-        EQ_CLIENT_DECL virtual void makeCurrent() const;
-
-        /** @version 1.0 */
-        EQ_CLIENT_DECL virtual void swapBuffers();
-
-        /** Not implemented for AGL. @version 1.0 */
-        EQ_CLIENT_DECL virtual void joinNVSwapBarrier( const uint32_t group,
-                                                  const uint32_t barrier );
-
-        /** @return the AGL rendering context. @version 1.0 */
-        virtual AGLContext getAGLContext() const { return _aglContext; }
-
-        /** @return the carbon window reference. @version 1.0 */
-        virtual WindowRef getCarbonWindow() const { return _carbonWindow; }
-
-        /** @return the AGL PBuffer object. @version 1.0 */
-        virtual AGLPbuffer getAGLPBuffer() const { return _aglPBuffer; }
-
         /** @name Data Access */
         //@{
         /** 
@@ -111,6 +89,15 @@ namespace eq
          * @version 1.0
          */
         EQ_CLIENT_DECL virtual void setAGLPBuffer( AGLPbuffer pbuffer );
+
+        /** @return the AGL rendering context. @version 1.0 */
+        virtual AGLContext getAGLContext() const { return _aglContext; }
+
+        /** @return the carbon window reference. @version 1.0 */
+        virtual WindowRef getCarbonWindow() const { return _carbonWindow; }
+
+        /** @return the AGL PBuffer object. @version 1.0 */
+        virtual AGLPbuffer getAGLPBuffer() const { return _aglPBuffer; }
         //@}
 
         /** @name AGL/Carbon initialization */
@@ -127,6 +114,9 @@ namespace eq
          * @version 1.0
          */
         EQ_CLIENT_DECL virtual bool configInit();
+
+        /** @version 1.0 */
+        EQ_CLIENT_DECL virtual void configExit( );
 
         /** 
          * Choose a pixel format based on the window's attributes.
@@ -228,8 +218,21 @@ namespace eq
         EQ_CLIENT_DECL virtual void exitEventHandler();
         //@}
 
+        /** @name Operations. */
+        //@{
+        /** @version 1.0 */
+        EQ_CLIENT_DECL virtual void makeCurrent() const;
+
+        /** @version 1.0 */
+        EQ_CLIENT_DECL virtual void swapBuffers();
+
+        /** Not implemented for AGL. @version 1.0 */
+        EQ_CLIENT_DECL virtual void joinNVSwapBarrier( const uint32_t group,
+                                                  const uint32_t barrier );
+
         /** @version 1.0 */
         EQ_CLIENT_DECL virtual bool processEvent( const AGLWindowEvent& event );
+        //@}
 
     private:
         /** The AGL context. */

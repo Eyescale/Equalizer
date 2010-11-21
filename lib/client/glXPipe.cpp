@@ -44,7 +44,7 @@ GLXPipe::~GLXPipe( )
 bool GLXPipe::configInit( )
 {
 #ifdef GLX
-    const std::string displayName  = _getXDisplayString();
+    const std::string displayName  = getXDisplayString();
     const char*       cDisplayName = ( displayName.length() == 0 ? 
                                        0 : displayName.c_str( ));
     Display*          xDisplay     = XOpenDisplay( cDisplayName );
@@ -64,7 +64,7 @@ bool GLXPipe::configInit( )
         return false;
     }
 
-    _setXDisplay( xDisplay );
+    setXDisplay( xDisplay );
     EQINFO << "Opened X display " << xDisplay << ", device "
            << _pipe->getDevice() << std::endl;
     return true;
@@ -82,14 +82,14 @@ void GLXPipe::configExit()
     if( !xDisplay )
         return;
 
-    _setXDisplay( 0 );
+    setXDisplay( 0 );
     XCloseDisplay( xDisplay );
     EQINFO << "Closed X display " << xDisplay << std::endl;
 #endif
 }
 
 
-std::string GLXPipe::_getXDisplayString()
+std::string GLXPipe::getXDisplayString()
 {
     std::ostringstream  stringStream;
     
@@ -112,7 +112,7 @@ std::string GLXPipe::_getXDisplayString()
 }
 
 
-void GLXPipe::_setXDisplay( Display* display )
+void GLXPipe::setXDisplay( Display* display )
 {
 #ifdef GLX
     if( _xDisplay == display )
@@ -128,27 +128,28 @@ void GLXPipe::_setXDisplay( Display* display )
         XSetErrorHandler( eq::GLXPipe::XErrorHandler );
 #endif
 
-        std::string       displayString = DisplayString( display );
-        const size_t colonPos      = displayString.find( ':' );
+        std::string displayString = DisplayString( display );
+        const size_t colonPos = displayString.find( ':' );
         if( colonPos != std::string::npos )
         {
-            const std::string displayNumberString = displayString.substr(colonPos+1);
+            const std::string displayNumberString = 
+                displayString.substr( colonPos+1 );
             const uint32_t displayNumber = atoi( displayNumberString.c_str( ));
             const uint32_t port          = _pipe->getPort();
             const uint32_t device        = _pipe->getDevice();
             
             if( port != EQ_UNDEFINED_UINT32 && displayNumber != port )
                 EQWARN << "Display mismatch: provided display connection uses"
-                   << " display " << displayNumber
-                   << ", but pipe has port " << port << std::endl;
+                       << " display " << displayNumber
+                       << ", but pipe has port " << port << std::endl;
 
             if( device != EQ_UNDEFINED_UINT32 &&
                 DefaultScreen( display ) != (int)device )
-                
+            {
                 EQWARN << "Screen mismatch: provided display connection uses"
                        << " default screen " << DefaultScreen( display ) 
                        << ", but pipe has screen " << device << std::endl;
-            
+            }
             //port = displayNumber;
             //device  = DefaultScreen( display );
         }

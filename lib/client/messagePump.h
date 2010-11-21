@@ -22,22 +22,23 @@
 
 namespace eq
 {
-    /**
-     * Defines an interface to process OS messages/events.
-     */
+    /** An interface to process system messages or events. */
     class MessagePump
     {
     public:
+        /** Construct a new message pump. @version 1.0 */
         MessagePump() {}
+
+        /** Destruct this message pump. @version 1.0 */
         virtual ~MessagePump() {}
 
-        /** Wake up dispatchOne(). */
+        /** Unblock dispatchOne(). @version 1.0 */
         virtual void postWakeup() = 0;
 
-        /** Get and dispatch all pending system events, non-blocking. */
+        /** Dispatch all pending system events, does not block. @version 1.0 */
         virtual void dispatchAll() = 0;
 
-        /** Get and dispatch one pending system event, blocking. */
+        /** Dispatch at least one pending system event, blocks. @version 1.0 */
         virtual void dispatchOne() = 0;
     };
 }
