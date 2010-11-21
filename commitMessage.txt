@@ -1,6 +1,5 @@
-- unify CMake option naming
-- fix run-time stereo switch
-- update config before exit
+Create and install man pages
+Clean up doxygen output (EQ_CLIENT_DECL, glew, examples)
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

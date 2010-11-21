@@ -174,6 +174,11 @@ IF(EXISTS "${CMAKE_SOURCE_DIR}/auxilary" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/a
   add_subdirectory(auxilary)
 ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/auxilary" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/auxilary")
 
+IF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
+  install(DIRECTORY man/man3 DESTINATION man COMPONENT man
+          PATTERN "*_docs_*" EXCLUDE)
+ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
+
 
 message(STATUS "Supported Features:${EQ_FEATURES}")
 
@@ -189,13 +194,17 @@ set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
 set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/LICENSE.txt)
 set(CPACK_RESOURCE_FILE_README ${CMAKE_SOURCE_DIR}/RELNOTES.txt)
 
-set(CPACK_COMPONENTS_ALL lib dev apps examples tools data vmmlib)
+set(CPACK_COMPONENTS_ALL lib dev man apps examples tools data vmmlib)
 
 set(CPACK_COMPONENT_LIB_DISPLAY_NAME "Core Libraries")
 set(CPACK_COMPONENT_LIB_DESCRIPTION "Equalizer Runtime Libraries")
 
 set(CPACK_COMPONENT_DEV_DISPLAY_NAME "Headers")
 set(CPACK_COMPONENT_DEV_DESCRIPTION "Header Files for Developments")
+set(CPACK_COMPONENT_DEV_DEPENDS vmmlib lib)
+
+set(CPACK_COMPONENT_DEV_DISPLAY_NAME "Man Pages")
+set(CPACK_COMPONENT_DEV_DESCRIPTION "Manual Pages")
 set(CPACK_COMPONENT_DEV_DEPENDS vmmlib lib)
 
 set(CPACK_COMPONENT_APPS_DISPLAY_NAME "Example Applications")

@@ -86,26 +86,26 @@ const std::string InitData::getTrackerPort() const
 
 bool InitData::parseCommandLine( char **argv, int argc )
 {
-    std::string model = _parseCommandLinePrefix( argv, argc, "--model" );
+    std::string model = _parseCommandLineParam( argc, argv, "--model" );
     if( model.size() > 0 )
     {
         setModelFileName( model );
         return true;
     }
 
-    std::string image = _parseCommandLinePrefix( argv, argc, "--image" );
+    std::string image = _parseCommandLineParam( argc, argv, "--image" );
     if( image.size() > 0 )
         setImageFileName( image );
 
     return true;
 }
 
-std::string InitData::_parseCommandLinePrefix( char** argv, int argc,
-					       std::string prefix )
+std::string InitData::_parseCommandLineParam( int argc, char** argv,
+                                              std::string param )
 {
     for ( int i = 1; i < argc; i++ )
     {
-        if( strcmp( argv[i], prefix.c_str( )) == 0 )
+        if( strcmp( argv[i], param.c_str( )) == 0 )
         {
 	    ++i;
             if( i < argc )

@@ -104,11 +104,13 @@ namespace osgScaleViewer
     private:
         /** 
          * Parses the command line arguments.
-         * @param prefix the prefix to parse.
-         * @return the value of the prefix.
+         * @param argc the argument count.
+         * @param argv the argument values.
+         * @param param the parameter to parse.
+         * @return the value of the param.
          */
-        std::string _parseCommandLinePrefix( char** argv, int argc,
-                                             std::string prefix );
+        std::string _parseCommandLineParam( int argc, char** argv,
+                                            std::string param );
 
         uint32_t _frameDataID;
 

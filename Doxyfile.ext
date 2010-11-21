@@ -38,7 +38,7 @@ PROJECT_NUMBER         = 1.0-alpha
 # If a relative path is entered, it will be relative to the location
 # where doxygen was started. If left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = ../website/build/documents/Developer/API
+OUTPUT_DIRECTORY       = .
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create
 # 4096 sub-directories (in 2 levels) under the output directory of each output
@@ -610,9 +610,10 @@ RECURSIVE              = YES
 # excluded from the INPUT source files. This way you can easily exclude a
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                = docs/install/share/examples/include/tclap \
-                         docs/install/include/eq/admin
-
+EXCLUDE                = docs/install/share/Equalizer/examples/include/tclap \
+                         docs/install/include/eq/admin \
+                         docs/install/include/GL
+                         
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or
 # directories that are symbolic links (a Unix filesystem feature) are excluded
 # from the input.
@@ -781,7 +782,7 @@ GENERATE_HTML          = YES
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
 # put in front of it. If left blank `html' will be used as the default path.
 
-HTML_OUTPUT            = .
+HTML_OUTPUT            = ../website/build/documents/Developer/API
 
 # The HTML_FILE_EXTENSION tag can be used to specify the file extension for
 # each generated HTML page (for example: .htm,.php,.asp). If it is left blank
@@ -1214,7 +1215,7 @@ RTF_EXTENSIONS_FILE    =
 # If the GENERATE_MAN tag is set to YES (the default) Doxygen will
 # generate man pages
 
-GENERATE_MAN           = NO
+GENERATE_MAN           = YES
 
 # The MAN_OUTPUT tag is used to specify where the man pages will be put.
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
@@ -1379,7 +1380,8 @@ PREDEFINED             = EQ_GCC_4_1_OR_LATER= \
                          EQ_DLLIMPORT= \
                          EQFABRIC_EXPORT= \
                          EQ_BASE_DECL= \
-                         EQ_NET_DECL= 
+                         EQ_NET_DECL= \
+                         EQ_CLIENT_DECL= 
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then
 # this tag can be used to specify a list of macro names that should be expanded.
@@ -1484,7 +1486,7 @@ HAVE_DOT               = YES
 # explicitly to a value larger than 0 to get control over the balance
 # between CPU load and processing speed.
 
-DOT_NUM_THREADS        = 4
+DOT_NUM_THREADS        = 0
 
 # By default doxygen will write a font called FreeSans.ttf to the output
 # directory and reference it in all dot files that doxygen generates. This

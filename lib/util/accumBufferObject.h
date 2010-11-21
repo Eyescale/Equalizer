@@ -100,6 +100,7 @@ namespace util
          * Draw a textured quad.
          *
          * @param texture a texture object.
+         * @param pvp The size of the quad.
          * @param value the brightness factor of the result.
          */
         void _drawQuadWithTexture( Texture* texture, const PixelViewport& pvp,
