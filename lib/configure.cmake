@@ -51,12 +51,7 @@ endif(EQ_GLX_USED)
 
 if(APPLE)
   list(APPEND EQUALIZER_DEFINES Darwin)
-  if(CMAKE_GENERATOR MATCHES "Xcode")
-    list(APPEND EQUALIZER_DEFINES XCODE)
-    set(ARCH XCode)
-  else(CMAKE_GENERATOR MATCHES "Xcode")
-    set(ARCH Darwin)
-  endif(CMAKE_GENERATOR MATCHES "Xcode")
+  set(ARCH Darwin)
 endif(APPLE)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")

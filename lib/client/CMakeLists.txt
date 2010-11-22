@@ -179,10 +179,10 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/client/"
   FORWARD HEADERS
     ${CLIENT_HEADERS}
+    ${UTIL_HEADERS}
   SOURCES
-	${UTIL_HEADERS}
-	${UTIL_SOURCES}
     ${CLIENT_SOURCES}
+    ${UTIL_SOURCES}
   LINK_LIBRARIES
     shared eq_base
     shared eq_net

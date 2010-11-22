@@ -19,11 +19,7 @@
 #define EQBASE_DEFINES_H
 
 #ifdef __APPLE__
-#  ifdef Darwin
-#    include <eq/base/definesDarwin.h>
-#  else // must be XCode build
-#    include <eq/base/definesXCode.h>
-#  endif
+#  include <eq/base/definesDarwin.h>
 #endif
 #ifdef __linux
 #  include <eq/base/definesLinux.h>

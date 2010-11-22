@@ -27,11 +27,9 @@ release/Makefile:
 
 
 xcode: XCode/Equalizer.xcodeproj
-	open XCode/Equalizer.xcodeproj
-
-XCode/Equalizer.xcodeproj:
 	@mkdir -p XCode
 	@cd XCode; cmake -G Xcode ..
+	open XCode/Equalizer.xcodeproj
 
 debug_glx: debug_glx/Makefile
 	@$(MAKE) -C debug_glx
