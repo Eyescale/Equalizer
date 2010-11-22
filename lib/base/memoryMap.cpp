@@ -88,7 +88,7 @@ const void* MemoryMap::map( const std::string& filename )
     _fd = open( filename.c_str(), O_RDONLY );
     if( _fd < 0 )
     {
-        EQWARN << "Can't open " << filename << std::endl;
+        EQINFO << "Can't open " << filename << std::endl;
         return 0;
     }
     

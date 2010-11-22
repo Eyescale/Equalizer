@@ -65,7 +65,7 @@ void Global::_setupDefaults()
         _configIAttributes[i] = fabric::UNDEFINED;
 
     _configFAttributes[Config::FATTR_EYE_BASE]         = 0.05f;
-    _configIAttributes[Config::IATTR_ROBUSTNESS]       = fabric::OFF;
+    _configIAttributes[Config::IATTR_ROBUSTNESS]       = fabric::AUTO;
 
     // node
     for( uint32_t i=0; i < Node::CATTR_ALL; ++i )

@@ -95,6 +95,9 @@ int main( int argc, char** argv )
         eq::exit();
         return EXIT_FAILURE;
     }
+    else if( config->getError( ))
+        EQWARN << "Error during initialization: " << config->getError()
+               << std::endl;
 
     EQLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
                             << std::endl;

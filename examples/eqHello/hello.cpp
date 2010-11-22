@@ -73,6 +73,10 @@ int main( const int argc, char** argv )
         // 3. init config
         if( config->init( 0 ))
         {
+            if( config->getError( ))
+                EQWARN << "Error during initialization: " << config->getError()
+                       << std::endl;
+
             // 4. run main loop
             uint32_t spin = 0;
             while( config->isRunning( ))

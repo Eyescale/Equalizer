@@ -1118,14 +1118,14 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
 
     if( !addr )
     {
-        EQERROR << "Can't open " << filename << " for reading" << std::endl;
+        EQINFO << "Can't open " << filename << " for reading" << std::endl;
         return false;
     }
 
     const size_t size = image.getSize();
     if( size < sizeof( RGBHeader ))
     {
-        EQERROR << "Image " << filename << " too small" << std::endl;
+        EQWARN << "Image " << filename << " too small" << std::endl;
         return false;
     }
 

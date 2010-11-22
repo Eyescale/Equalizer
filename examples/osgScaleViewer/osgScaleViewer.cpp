@@ -70,6 +70,9 @@ int OSGScaleViewer::run()
         disconnectServer( server );
         return EXIT_FAILURE;
     }
+    else if( config->getError( ))
+        EQWARN << "Error during initialization: " << config->getError()
+               << std::endl;
 
     // 4. run main loop
     while( config->isRunning( ))

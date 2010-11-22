@@ -111,6 +111,9 @@ int EqPly::run()
         disconnectServer( server );
         return EXIT_FAILURE;
     }
+    else if( config->getError( ))
+        EQWARN << "Error during initialization: " << config->getError()
+               << std::endl;
 
     EQLOG( LOG_STATS ) << "Config init took " << clock.getTimef() << " ms"
                        << std::endl;
@@ -122,6 +125,9 @@ int EqPly::run()
     while( config->isRunning( ) && maxFrames-- )
     {
         config->startFrame();
+        if( config->getError( ))
+            EQWARN << "Error during frame start: " << config->getError()
+                   << std::endl;
         config->finishFrame();
 
         while( !config->needsRedraw( )) // wait for an event requiring redraw

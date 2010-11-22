@@ -57,6 +57,7 @@ namespace server
 {
 typedef net::CommandFunc<Config> ConfigFunc;
 using fabric::ON;
+using fabric::OFF;
 
 Config::Config( ServerPtr parent )
         : Super( parent )
@@ -477,7 +478,7 @@ bool Config::_updateRunning()
         return true;
 
     const bool failValue =
-        (getIAttribute( IATTR_ROBUSTNESS ) == ON) ? true : false;
+        (getIAttribute( IATTR_ROBUSTNESS ) == OFF) ? false : true;
 
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING ||
               _state == STATE_EXITING );
@@ -927,11 +928,10 @@ bool Config::_cmdInit( net::Command& command )
 
     ConfigInitReplyPacket reply( packet );
     reply.result = _init( packet->initID );
-    EQWARN << getError() << std::endl;
+
     if( !reply.result )
         exit();
 
-    EQWARN << getError() << std::endl;
     sync( net::VERSION_HEAD );
     EQINFO << "Config init " << (reply.result ? "successful: ": "failed: ") 
            << getError() << std::endl;
@@ -991,7 +991,7 @@ bool Config::_cmdUpdate( net::Command& command )
 
     ConfigUpdateReplyPacket reply( packet );
     reply.result = _updateRunning();
-    if( !reply.result && !getIAttribute( IATTR_ROBUSTNESS ))
+    if( !reply.result && getIAttribute( IATTR_ROBUSTNESS ) == OFF )
     {
         EQWARN << "Config update failed, exiting config: " << getError()
                << std::endl;

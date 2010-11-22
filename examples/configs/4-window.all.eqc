@@ -269,6 +269,7 @@ server
         # Canvas using all layouts
         canvas
         {
+            layout "HMD"
             layout "Wall"
             layout "MultiView"
             layout "Stereo"
@@ -285,7 +286,6 @@ server
             layout "DirectSend"
             layout "BinarySwap"
             layout "MultiLevel"
-            layout "HMD"
 
             layout "DFR"
 
