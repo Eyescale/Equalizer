@@ -60,9 +60,8 @@ namespace server
         Segment* getSegment( const SegmentPath& path );
         View* getView( const ViewPath& path );
 
-        bool isStopped() const { return ( _state == STATE_STOPPED ); }
         bool isRunning() const { return ( _state == STATE_RUNNING ); }
-        bool isUsed() const { return _appNetNode.isValid(); }
+        bool isUsed() const { return _state != STATE_UNUSED; }
 
         net::CommandQueue* getMainThreadQueue()
             { return getServer()->getMainThreadQueue(); }
@@ -120,7 +119,7 @@ namespace server
         void setApplicationNetNode( net::NodePtr node );
 
         /** @return network node running the application thread. */
-        net::NodePtr getApplicationNetNode() { return _appNetNode; }
+        net::NodePtr findApplicationNetNode();
 
         /** 
          * Set the name of the render client executable. 
@@ -197,9 +196,6 @@ namespace server
 
         /** The list of compounds. */
         Compounds _compounds;
-
-        /** The network node running the application thread. */
-        net::NodePtr _appNetNode;
 
         /** The name of the render client executable. */
         std::string _renderClient;

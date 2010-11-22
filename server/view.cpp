@@ -251,14 +251,16 @@ void View::activateMode( const Mode mode )
         return;
 
     Config* config = getConfig();
-    if( config->isStopped( ))
-        return;
+    if( config->isRunning( ))
+    {
+        config->postNeedsFinish();
+        trigger( 0, false );
+    }
 
-    config->postNeedsFinish();
-
-    trigger( 0, false );
     Super::activateMode( mode );
-    trigger( 0, true );
+
+    if( config->isRunning( ))
+        trigger( 0, true );
 }
 
 void View::updateCapabilities()

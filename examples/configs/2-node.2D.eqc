@@ -29,9 +29,14 @@ server
             connection { hostname "127.0.0.1" }
             pipe { window { channel { name "channel2" }}}
         }
-        compound
+
+        observer {}
+        layout { name "static 2D" view{ observer "" }}
+        layout { name "load-balanced 2D" view{ observer "" }}
+        canvas
         {
-            channel "channel1"
+            layout   "static 2D"
+            layout   "load-balanced 2D"
             wall
             {
                 bottom_left  [ -.32 -.20 -.75 ]
@@ -39,6 +44,12 @@ server
                 top_left     [ -.32  .20 -.75 ]
             }
 
+            segment { channel  "channel1" }
+        }
+
+        compound
+        {
+            channel ( layout "static 2D" )
             compound
             {
                 viewport [ 0 0 1 .5 ]
@@ -47,6 +58,18 @@ server
             {
                 channel "channel2"
                 viewport [ 0 .5 1 .5 ]
+                outputframe {}
+            }
+            inputframe { name "frame.channel2" }
+        }
+        compound
+        {
+            channel ( layout "load-balanced 2D" )
+            load_equalizer{}
+            compound {}
+            compound
+            {
+                channel "channel2"
                 outputframe {}
             }
             inputframe { name "frame.channel2" }

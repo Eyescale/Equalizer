@@ -221,10 +221,15 @@ bool Node::connect()
     net::LocalNodePtr localNode = getLocalNode();
     EQASSERT( localNode.isValid( ));
     
-    if( isApplicationNode( ))
-        _node = getConfig()->getApplicationNetNode();
-    else
+    if( !_node )
+    {
+        EQASSERT( !isApplicationNode( ));
         _node = _createNetNode( this );
+    }
+    else
+    {
+        EQASSERT( isApplicationNode( ));
+    }
 
     EQLOG( LOG_INIT ) << "Connecting node" << std::endl;
     if( !localNode->connect( _node ) && !launch( ))

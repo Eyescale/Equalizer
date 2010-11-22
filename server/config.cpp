@@ -63,7 +63,7 @@ Config::Config( ServerPtr parent )
         : Super( parent )
         , _currentFrame( 0 )
         , _finishedFrame( 0 )
-        , _state( STATE_STOPPED )
+        , _state( STATE_UNUSED )
         , _needsFinish( false )
 {
     disableInstanceCache();
@@ -82,8 +82,6 @@ Config::Config( ServerPtr parent )
 
 Config::~Config()
 {
-    _appNetNode = 0;
-
     while( !_compounds.empty( ))
     {
         Compound* compound = _compounds.back();
@@ -171,6 +169,13 @@ Node* Config::findApplicationNode()
             return node;
     }
     return 0;
+}
+
+net::NodePtr Config::findApplicationNetNode()
+{
+    Node* node = findApplicationNode();
+    EQASSERT( node );
+    return node ? node->getNode() : 0;
 }
 
 void Config::activateCanvas( Canvas* canvas )
@@ -357,15 +362,25 @@ bool Config::removeCompound( Compound* compound )
     return true;
 }
 
-void Config::setApplicationNetNode( net::NodePtr node )
+void Config::setApplicationNetNode( net::NodePtr netNode )
 {
-    EQASSERT( _state == STATE_STOPPED );
-
-    _appNetNode = node;
-    if( node.isValid( ))
-        setAppNodeID( node->getNodeID( ));
+    if( netNode.isValid( ))
+    {
+        EQASSERT( _state == STATE_UNUSED );
+        _state = STATE_STOPPED;
+        setAppNodeID( netNode->getNodeID( ));
+    }
     else
+    {
+        EQASSERT( _state == STATE_STOPPED );
+        _state = STATE_UNUSED;
         setAppNodeID( net::NodeID::ZERO );
+    }
+
+    Node* node = findApplicationNode();
+    EQASSERT( node );
+    if( node )
+        node->setNode( netNode );
 }
 
 Channel* Config::getChannel( const ChannelPath& path )
@@ -601,10 +616,7 @@ void Config::_stopNodes()
 
         EQASSERT( !node->isActive( ));
         if( node->isApplicationNode( ))
-        {
-            node->setNode( 0 );
             continue;
-        }
 
         net::NodePtr netNode = node->getNode();
         if( !netNode ) // already disconnected
@@ -718,13 +730,11 @@ void Config::_syncClock()
     ConfigSyncClockPacket packet;
     packet.time = getServer()->getTime();
 
-    send( _appNetNode, packet );
-
     const Nodes& nodes = getNodes();
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isRunning( ))
+        if( node->isRunning() || node->isApplicationNode( ))
         {
             EQASSERT( node->isActive( ));
             net::NodePtr netNode = node->getNode();
@@ -799,7 +809,7 @@ bool Config::exit()
 
     ConfigEvent exitEvent;
     exitEvent.data.type = Event::EXIT;
-    send( _appNetNode, exitEvent );
+    send( findApplicationNetNode(), exitEvent );
     
     _needsFinish = false;
     _state = STATE_STOPPED;
@@ -830,7 +840,7 @@ void Config::_startFrame( const uint32_t frameID )
     accept( configDataVisitor );
 
     const Nodes& nodes = getNodes();
-    bool appNodeRunning = false;
+    net::NodePtr appNode = findApplicationNetNode();
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
@@ -839,15 +849,15 @@ void Config::_startFrame( const uint32_t frameID )
             EQASSERT( node->isActive( ));
             node->update( frameID, _currentFrame );
             if( node->isApplicationNode( ))
-                appNodeRunning = true;
+                appNode = 0; // release sent (see below)
         }
     }
 
-    if( !appNodeRunning ) // release appNode local sync
+    if( appNode.isValid( )) // release appNode local sync
     {
         ConfigReleaseFrameLocalPacket packet;
         packet.frameNumber = _currentFrame;
-        send( _appNetNode, packet );
+        send( appNode, packet );
     }
 
     // Fix 2976899: Config::finishFrame deadlocks when no nodes are active
@@ -879,7 +889,7 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
     packet.sessionID   = getID();
 
     // do not use send/_bufferedTasks, not thread-safe!
-    _appNetNode->send( packet );
+    findApplicationNetNode()->send( packet );
     EQLOG( LOG_TASKS ) << "TASK config frame finished  " << &packet
                            << std::endl;
 }

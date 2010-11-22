@@ -920,18 +920,28 @@ compoundField:
 viewSegmentRef:
     '(' {
             canvas = 0;
-            segment = 0;
+            segment = config->getSegment( eq::server::SegmentPath( 0 ));
             layout = 0;
-            view = 0;
+            view = config->getView( eq::server::ViewPath( 0 ));;
         }
     viewSegmentRefFields ')'
 
 viewSegmentRefFields : /*null*/ | viewSegmentRefFields viewSegmentRefField
 viewSegmentRefField:
     EQTOKEN_CANVAS STRING 
-        { canvas = config->find< eq::server::Canvas >( $2 ); }
+        {
+            canvas = config->find< eq::server::Canvas >( $2 );
+            if( !canvas )
+                yyerror( "Can't find canvas" );
+            segment = canvas->getSegment( eq::server::SegmentPath( 0 ));
+        }
     | EQTOKEN_CANVAS UNSIGNED 
-        { canvas = config->getCanvas( eq::server::CanvasPath( $2 )); }
+        {
+            canvas = config->getCanvas( eq::server::CanvasPath( $2 ));
+            if( !canvas )
+                yyerror( "Can't find canvas" );
+            segment = canvas->getSegment( eq::server::SegmentPath( 0 ));
+        }
     | EQTOKEN_SEGMENT STRING 
         { 
             if( canvas )
@@ -947,9 +957,19 @@ viewSegmentRefField:
                 segment = config->getSegment( eq::server::SegmentPath( $2 ));
         }
     | EQTOKEN_LAYOUT STRING 
-        { layout = config->find< eq::server::Layout >( $2 ); }
+        {
+            layout = config->find< eq::server::Layout >( $2 );
+            if( !layout )
+                yyerror( "Can't find layout" );
+            view = layout->getView( eq::server::ViewPath( 0 ));;
+        }
     | EQTOKEN_LAYOUT UNSIGNED 
-        { layout = config->getLayout( eq::server::LayoutPath( $2 )); }
+        {
+            layout = config->getLayout( eq::server::LayoutPath( $2 ));
+            if( !layout )
+                yyerror( "Can't find layout" );
+            view = layout->getView( eq::server::ViewPath( 0 ));;
+        }
     | EQTOKEN_VIEW STRING 
         { 
             if( layout )

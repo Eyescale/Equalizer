@@ -1,9 +1,10 @@
 Cleanups:
-- Move connection description vector serialization to connectionDescription.h
-- Loader:
-  o don't add default connections for nodes
-  o always add empty appNode
-  o re-use appNode during parsing
+- Add load-balanced layout to 2-node.2D
+- Move appNetNode storage to appNode
+- Change first split direction for 2D lb
+- Assert-on-parse-error in debug builds
+- Use sensible defaults for view/segment channel specs
+
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

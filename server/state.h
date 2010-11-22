@@ -30,15 +30,16 @@ namespace server
      */
     enum State
     {
-        STATE_STOPPED = EQ_BIT1,      //!< next: INITIALIZING
-        STATE_INITIALIZING = EQ_BIT2, //!< next: INIT_FAILED or INIT_SUCCESS
-        STATE_INIT_SUCCESS = EQ_BIT3, //!< next: RUNNING
-        STATE_INIT_FAILED = EQ_BIT4,  //!< next: EXITING
-        STATE_RUNNING = EQ_BIT5,      //!< next: EXITING
-        STATE_EXITING = EQ_BIT6,      //!< next: EXIT_FAILED or EXIT_SUCCESS
-        STATE_EXIT_SUCCESS = EQ_BIT7, //!< next: STOPPED or FAILED
-        STATE_EXIT_FAILED = EQ_BIT8,  //!< next: STOPPED or FAILED
-        STATE_FAILED = EQ_BIT9,       //!< next: STOPPED
+        STATE_UNUSED = EQ_BIT1,      //!< next: STOPPED
+        STATE_STOPPED = EQ_BIT2,      //!< next: INITIALIZING or UNUSED
+        STATE_INITIALIZING = EQ_BIT3, //!< next: INIT_FAILED or INIT_SUCCESS
+        STATE_INIT_SUCCESS = EQ_BIT4, //!< next: RUNNING
+        STATE_INIT_FAILED = EQ_BIT5,  //!< next: EXITING
+        STATE_RUNNING = EQ_BIT6,      //!< next: EXITING
+        STATE_EXITING = EQ_BIT7,      //!< next: EXIT_FAILED or EXIT_SUCCESS
+        STATE_EXIT_SUCCESS = EQ_BIT8, //!< next: STOPPED or FAILED
+        STATE_EXIT_FAILED = EQ_BIT9,  //!< next: STOPPED or FAILED
+        STATE_FAILED = EQ_BIT10,       //!< next: STOPPED
         STATE_DELETE = EQ_BIT16       //!< additional modifier
     };
 

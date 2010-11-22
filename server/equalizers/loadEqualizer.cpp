@@ -138,7 +138,7 @@ void LoadEqualizer::_init( Node* node, const Viewport& vp, const Range& range )
     // else
 
     if( node->mode == MODE_2D )
-        node->mode = MODE_VERTICAL;
+        node->mode = MODE_HORIZONTAL;
 
     Viewport leftVP = vp;
     Viewport rightVP = vp;
