@@ -21,11 +21,11 @@
 #include <eq/base/base.h>
 
 #if defined(EQ_CLIENT_STATIC)
-#  define EQ_CLIENT_DECL
+#  define EQ_API
 #elif defined(EQ_CLIENT_SHARED)
-#  define EQ_CLIENT_DECL EQ_DLLEXPORT
+#  define EQ_API EQ_DLLEXPORT
 #else
-#  define EQ_CLIENT_DECL EQ_DLLIMPORT
+#  define EQ_API EQ_DLLIMPORT
 #endif
 
 #endif /* EQCLIENT_BASE_H */

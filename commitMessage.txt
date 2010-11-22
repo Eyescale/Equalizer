@@ -1,12 +1,8 @@
-Cleanups:
-- Add load-balanced layout to 2-node.2D
-- Move appNetNode storage to appNode
-- Change first split direction for 2D lb
-- Assert-on-parse-error in debug builds
-- Use sensible defaults for view/segment channel specs
+Rename EQ_CLIENT_DECL -> EQ_API
+cleaned up some class API exports
+EQNET_API [CO_API], EQBASE_API [COBASE_API] and EQADMIN_API to follow later.
 
-
-[ ] May break build
+[x] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [ ] New Feature

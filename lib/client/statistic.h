@@ -75,8 +75,8 @@ namespace eq
         static const Vector3f& getColor( const Type type );
     };
 
-    EQ_CLIENT_DECL std::ostream& operator << (std::ostream&, const Statistic::Type&);
-    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream&, const Statistic& );
+    EQ_API std::ostream& operator << (std::ostream&, const Statistic::Type&);
+    EQ_API std::ostream& operator << ( std::ostream&, const Statistic& );
 }
 
 #endif // EQ_STATISTIC_H

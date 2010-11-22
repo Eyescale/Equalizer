@@ -37,10 +37,10 @@ namespace util
     {
     public: 
         /** Construct a new Accumulation Buffer Object. @version 1.0 */
-        EQ_CLIENT_DECL AccumBufferObject( const GLEWContext* const glewContext );
+        EQ_API AccumBufferObject( const GLEWContext* const glewContext );
 
         /** Destruct the Accumulation Buffer Object. @version 1.0 */
-        EQ_CLIENT_DECL ~AccumBufferObject();
+        EQ_API ~AccumBufferObject();
 
         /**
          * Initialize the Accumulation Buffer Object.
@@ -54,10 +54,10 @@ namespace util
          * @sa Window::getColorFormat(), glReadBuffer()
          * @version 1.0
          */
-        EQ_CLIENT_DECL bool init( const PixelViewport& pvp, const GLuint format );
+        EQ_API bool init( const PixelViewport& pvp, const GLuint format );
 
         /** De-initialize the Accumulation Buffer Object. @version 1.0 */
-        EQ_CLIENT_DECL void exit();
+        EQ_API void exit();
 
         /**
          * Load the current read buffer into the accumulation buffer.
@@ -69,7 +69,7 @@ namespace util
          *              during the load operation.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void load( const GLfloat value );
+        EQ_API void load( const GLfloat value );
 
         /**
          * Accumulate the current read buffer into the accumulation buffer.
@@ -81,7 +81,7 @@ namespace util
          *              during the accum operation.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void accum( const GLfloat value );
+        EQ_API void accum( const GLfloat value );
 
         /**
          * Transfer accumulation buffer values to the draw buffer.
@@ -93,7 +93,7 @@ namespace util
          *              values during the operation.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void display( const GLfloat value );
+        EQ_API void display( const GLfloat value );
 
     private:
         /**

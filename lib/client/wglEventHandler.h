@@ -35,10 +35,10 @@ namespace eq
     {
     public:
         /** Constructs a new WGL event handler. */
-        EQ_CLIENT_DECL WGLEventHandler( WGLWindowIF* window );
+        EQ_API WGLEventHandler( WGLWindowIF* window );
 
         /** Destructs the WGL event handler. */
-        EQ_CLIENT_DECL virtual ~WGLEventHandler();
+        EQ_API virtual ~WGLEventHandler();
 
         /** 
          * @return the function pointer of the previously installed window

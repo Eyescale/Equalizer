@@ -49,7 +49,7 @@ namespace eq
      * @return <code>true</code> if the library was successfully initialized,
      *         <code>false</code> otherwise.
      */
-    EQ_CLIENT_DECL bool init( const int argc, char** argv, NodeFactory* nodeFactory);
+    EQ_API bool init( const int argc, char** argv, NodeFactory* nodeFactory);
     
     /**
      * De-initialize the Equalizer client library.
@@ -57,7 +57,7 @@ namespace eq
      * @return <code>true</code> if the library was successfully de-initialized,
      *         <code>false</code> otherwise.
      */
-    EQ_CLIENT_DECL bool exit();
+    EQ_API bool exit();
 
     /**
      * Convenience function to retrieve a configuration.
@@ -68,7 +68,7 @@ namespace eq
      *
      * @return the pointer to a configuration, or 0 upon error.
      */
-    EQ_CLIENT_DECL Config* getConfig( const int argc, char** argv );
+    EQ_API Config* getConfig( const int argc, char** argv );
 
    /** 
     * Convenience function to release a configuration.
@@ -76,7 +76,7 @@ namespace eq
     * This function releases the configuration, disconnects the server,
     * and stops the local client node.
     */
-    EQ_CLIENT_DECL void releaseConfig( Config* config );
+    EQ_API void releaseConfig( Config* config );
 }
 
 #endif // EQ_INIT_H

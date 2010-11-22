@@ -31,18 +31,18 @@ namespace eq
     {
     public:
         /** Create a new CUDA compute context. */
-        EQ_CLIENT_DECL CUDAContext( Pipe* parent );
+        EQ_API CUDAContext( Pipe* parent );
 
         /** Destroy the context. */
-        EQ_CLIENT_DECL virtual ~CUDAContext( );
+        EQ_API virtual ~CUDAContext( );
 
         /** @name Methods forwarded from eq::Pipe */
         //@{
         /** Initialize the ComputeCtx. */
-        EQ_CLIENT_DECL virtual bool configInit();
+        EQ_API virtual bool configInit();
 
         /** De-initialize the ComputeCtx. */
-        EQ_CLIENT_DECL virtual void configExit();
+        EQ_API virtual void configExit();
         //@}
 
     private:

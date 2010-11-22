@@ -168,7 +168,7 @@ namespace eq
     struct Event
     {
         /** Construct a new event. */
-        EQ_CLIENT_DECL Event();
+        EQ_API Event();
 
         /** The type of the event. */
         enum Type // Also update string table in event.cpp
@@ -232,12 +232,12 @@ namespace eq
         RenderContext context;
     };
 
-    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream&, const Event& );
-    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream&, const Event::Type& );
-    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream&, const ResizeEvent& );
-    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream&, const PointerEvent& );
-    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream&, const KeyEvent& );
-    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream&, const MagellanEvent& );
+    EQ_API std::ostream& operator << ( std::ostream&, const Event& );
+    EQ_API std::ostream& operator << ( std::ostream&, const Event::Type& );
+    EQ_API std::ostream& operator << ( std::ostream&, const ResizeEvent& );
+    EQ_API std::ostream& operator << ( std::ostream&, const PointerEvent& );
+    EQ_API std::ostream& operator << ( std::ostream&, const KeyEvent& );
+    EQ_API std::ostream& operator << ( std::ostream&, const MagellanEvent& );
 }
 
 #endif // EQ_EVENT_H

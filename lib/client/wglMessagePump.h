@@ -28,16 +28,16 @@ namespace eq
     class WGLMessagePump : public MessagePump
     {
     public:
-        EQ_CLIENT_DECL WGLMessagePump();
+        EQ_API WGLMessagePump();
 
         /** Wake up dispatchOneEvent(). */
-        EQ_CLIENT_DECL virtual void postWakeup();
+        EQ_API virtual void postWakeup();
 
         /** Get and dispatch all pending system events, non-blocking. */
-        EQ_CLIENT_DECL virtual void dispatchAll();
+        EQ_API virtual void dispatchAll();
 
         /** Get and dispatch at least one pending system event, blocking. */
-        EQ_CLIENT_DECL virtual void dispatchOne();
+        EQ_API virtual void dispatchOne();
 
         virtual ~WGLMessagePump() {}
 

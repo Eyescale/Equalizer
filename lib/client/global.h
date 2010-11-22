@@ -70,10 +70,10 @@ namespace eq
          * @param configFile the default configFile.
          * @version 1.0
          */
-        EQ_CLIENT_DECL static void setConfigFile( const std::string& configFile );
+        EQ_API static void setConfigFile( const std::string& configFile );
 
         /** @return the config file for the app-local server. @version 1.0 */
-        EQ_CLIENT_DECL static const std::string& getConfigFile();
+        EQ_API static const std::string& getConfigFile();
 
         /** 
          * Global lock for all non-thread-safe Carbon API calls. 
@@ -87,9 +87,9 @@ namespace eq
         static void leaveCarbon();
 
     private:
-        EQ_CLIENT_DECL friend bool init( const int argc, char** argv, 
+        EQ_API friend bool init( const int argc, char** argv, 
                                     NodeFactory* nodeFactory );
-        EQ_CLIENT_DECL friend bool exit();
+        EQ_API friend bool exit();
         
         static NodeFactory* _nodeFactory;
 

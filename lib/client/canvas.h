@@ -52,15 +52,15 @@ namespace eq
     {
     public:
         /** Construct a new canvas. @version 1.0 */
-        EQ_CLIENT_DECL Canvas( Config* parent );
+        EQ_API Canvas( Config* parent );
 
         /** Destruct this canvas. @version 1.0 */
-        EQ_CLIENT_DECL virtual ~Canvas();
+        EQ_API virtual ~Canvas();
 
         /** @name Data Access */
         //@{
         /** @return the Server of this canvas. @version 1.0 */
-        EQ_CLIENT_DECL ServerPtr getServer();
+        EQ_API ServerPtr getServer();
         //@}
 
     private:

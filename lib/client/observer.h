@@ -36,15 +36,15 @@ namespace eq
     {
     public:
         /** Construct a new observer. @version 1.0 */
-        EQ_CLIENT_DECL Observer( Config* parent );
+        EQ_API Observer( Config* parent );
 
         /** Destruct this observer. @version 1.0 */
-        EQ_CLIENT_DECL virtual ~Observer();
+        EQ_API virtual ~Observer();
 
         /** @name Data Access */
         //@{
         /** @return the Server of this observer. @version 1.0 */
-        EQ_CLIENT_DECL ServerPtr getServer();
+        EQ_API ServerPtr getServer();
         //@}
 
     private:

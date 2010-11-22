@@ -30,29 +30,29 @@ namespace eq
     class WGLWindowIF : public GLWindow
     {
     public:
-        EQ_CLIENT_DECL WGLWindowIF( Window* parent ) : GLWindow( parent ) {}
-        EQ_CLIENT_DECL virtual ~WGLWindowIF() {}
+        EQ_API WGLWindowIF( Window* parent ) : GLWindow( parent ) {}
+        EQ_API virtual ~WGLWindowIF() {}
 
         /** @return the WGL rendering context. */
-        EQ_CLIENT_DECL virtual HGLRC getWGLContext() const = 0;
+        EQ_API virtual HGLRC getWGLContext() const = 0;
 
         /** @return the Win32 window handle. */
-        EQ_CLIENT_DECL virtual HWND getWGLWindowHandle() const = 0;
+        EQ_API virtual HWND getWGLWindowHandle() const = 0;
 
         /** @return the Win32 off screen PBuffer handle. */
-        EQ_CLIENT_DECL virtual HPBUFFERARB getWGLPBufferHandle() const = 0;
+        EQ_API virtual HPBUFFERARB getWGLPBufferHandle() const = 0;
 
         /** @return the Win32 device context used for the current drawable. */
-        EQ_CLIENT_DECL virtual HDC getWGLDC() const = 0;
+        EQ_API virtual HDC getWGLDC() const = 0;
 
         /** @return the Win32 affinity device context, if used. */
-        EQ_CLIENT_DECL virtual HDC getWGLAffinityDC() { return 0; }
+        EQ_API virtual HDC getWGLAffinityDC() { return 0; }
 
         /** @return the generic WGL function table for the window's pipe. */
-        EQ_CLIENT_DECL WGLEWContext* wglewGetContext();
+        EQ_API WGLEWContext* wglewGetContext();
 
         /** Process an event received from WGL. */
-        EQ_CLIENT_DECL virtual bool processEvent( const WGLWindowEvent& event )
+        EQ_API virtual bool processEvent( const WGLWindowEvent& event )
             { return _window->processEvent( event ); }
 
         /** @return the WGL OS parent pipe. */
@@ -63,13 +63,13 @@ namespace eq
     class WGLWindow : public WGLWindowIF
     {
     public:
-        EQ_CLIENT_DECL WGLWindow( Window* parent );
-        EQ_CLIENT_DECL virtual ~WGLWindow( );
+        EQ_API WGLWindow( Window* parent );
+        EQ_API virtual ~WGLWindow( );
 
-        EQ_CLIENT_DECL virtual void configExit( );
-        EQ_CLIENT_DECL virtual void makeCurrent() const;
-        EQ_CLIENT_DECL virtual void swapBuffers();
-        EQ_CLIENT_DECL virtual void joinNVSwapBarrier( const uint32_t group,
+        EQ_API virtual void configExit( );
+        EQ_API virtual void makeCurrent() const;
+        EQ_API virtual void swapBuffers();
+        EQ_API virtual void joinNVSwapBarrier( const uint32_t group,
                                                   const uint32_t barrier );
 
         /** @return the Win32 window handle. */
@@ -98,7 +98,7 @@ namespace eq
          *
          * @param handle the window handle.
          */
-        EQ_CLIENT_DECL virtual void setWGLWindowHandle( HWND handle );
+        EQ_API virtual void setWGLWindowHandle( HWND handle );
         
         /** 
          * Set the Win32 off screen pbuffer handle for this window.
@@ -108,7 +108,7 @@ namespace eq
          *
          * @param handle the pbuffer handle.
          */
-        EQ_CLIENT_DECL virtual void setWGLPBufferHandle( HPBUFFERARB handle );
+        EQ_API virtual void setWGLPBufferHandle( HPBUFFERARB handle );
 
         /** 
          * Set the WGL rendering context for this window.
@@ -119,7 +119,7 @@ namespace eq
          *
          * @param context the WGL rendering context.
          */
-        EQ_CLIENT_DECL virtual void setWGLContext( HGLRC context );
+        EQ_API virtual void setWGLContext( HGLRC context );
         //@}
 
         /** @name WGL/Win32 initialization */
@@ -134,20 +134,20 @@ namespace eq
          * 
          * @return true if the initialization was successful, false otherwise.
          */
-        EQ_CLIENT_DECL virtual bool configInit();
+        EQ_API virtual bool configInit();
 
         /** 
          * Create, if needed, an affinity device context for this window.
          *
          * @return false on error, true otherwise
          */
-        EQ_CLIENT_DECL virtual bool initWGLAffinityDC();
+        EQ_API virtual bool initWGLAffinityDC();
 
         /** Destroy the affinity device context. */
-        EQ_CLIENT_DECL virtual void exitWGLAffinityDC();
+        EQ_API virtual void exitWGLAffinityDC();
 
         /** @return the affinity device context. */
-        EQ_CLIENT_DECL virtual HDC getWGLAffinityDC();
+        EQ_API virtual HDC getWGLAffinityDC();
 
         /**
          * Create a device context for the display device of the window.
@@ -157,7 +157,7 @@ namespace eq
          *
          * @return the DC, or 0 upon error.
          */
-        EQ_CLIENT_DECL virtual HDC createWGLDisplayDC();
+        EQ_API virtual HDC createWGLDisplayDC();
 
         /** 
          * Choose a pixel format based on the window's attributes.
@@ -167,7 +167,7 @@ namespace eq
          *
          * @return a pixel format, or 0 if no pixel format was found.
          */
-        EQ_CLIENT_DECL virtual int chooseWGLPixelFormat();
+        EQ_API virtual int chooseWGLPixelFormat();
 
         /** 
          * Initialize the window's drawable (pbuffer or window) and
@@ -178,7 +178,7 @@ namespace eq
          * @param pixelFormat the window's target pixel format.
          * @return true if the drawable was created, false otherwise.
          */
-        EQ_CLIENT_DECL virtual bool configInitWGLDrawable( int pixelFormat );
+        EQ_API virtual bool configInitWGLDrawable( int pixelFormat );
 
         /** 
          * Initialize the window with an on-screen Win32 window.
@@ -188,7 +188,7 @@ namespace eq
          * @param pixelFormat the window's target pixel format.
          * @return true if the drawable was created, false otherwise.
          */
-        EQ_CLIENT_DECL virtual bool configInitWGLWindow( int pixelFormat );
+        EQ_API virtual bool configInitWGLWindow( int pixelFormat );
 
         /** 
          * Initialize the window with an off-screen WGL PBuffer.
@@ -198,10 +198,10 @@ namespace eq
          * @param pixelFormat the window's target pixel format.
          * @return true if the drawable was created, false otherwise.
          */
-        EQ_CLIENT_DECL virtual bool configInitWGLPBuffer( int pixelFormat );
+        EQ_API virtual bool configInitWGLPBuffer( int pixelFormat );
 
         /** Initialize the window for an off-screen FBO */
-        EQ_CLIENT_DECL virtual bool configInitWGLFBO( int pixelFormat );
+        EQ_API virtual bool configInitWGLFBO( int pixelFormat );
 
         /** 
          * Create a WGL context.
@@ -210,14 +210,14 @@ namespace eq
          *
          * @return the context, or 0 if context creation failed.
          */
-        EQ_CLIENT_DECL virtual HGLRC createWGLContext();
+        EQ_API virtual HGLRC createWGLContext();
 
         /** Destroy the given WGL context. */
-        EQ_CLIENT_DECL virtual void destroyWGLContext( HGLRC context );
+        EQ_API virtual void destroyWGLContext( HGLRC context );
 
-        EQ_CLIENT_DECL virtual void initEventHandler();
-        EQ_CLIENT_DECL virtual void exitEventHandler();
-        EQ_CLIENT_DECL virtual bool processEvent( const WGLWindowEvent& event );
+        EQ_API virtual void initEventHandler();
+        EQ_API virtual void exitEventHandler();
+        EQ_API virtual bool processEvent( const WGLWindowEvent& event );
         //@}
 
     protected:

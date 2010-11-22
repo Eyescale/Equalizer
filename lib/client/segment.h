@@ -36,21 +36,21 @@ namespace eq
     {
     public:
         /** Construct a new segment. @version 1.0 */
-        EQ_CLIENT_DECL Segment( Canvas* parent );
+        EQ_API Segment( Canvas* parent );
 
         /** Destruct a segment. @version 1.0 */
-        EQ_CLIENT_DECL virtual ~Segment();
+        EQ_API virtual ~Segment();
 
         /** @name Data Access */
         //@{
         /** @return the config of this segment. */
-        EQ_CLIENT_DECL Config* getConfig();
+        EQ_API Config* getConfig();
 
         /** @return the config of this segment. */
-        EQ_CLIENT_DECL const Config* getConfig() const;
+        EQ_API const Config* getConfig() const;
 
         /** @return the Server of this segment. */
-        EQ_CLIENT_DECL ServerPtr getServer();
+        EQ_API ServerPtr getServer();
         //@}
 
     private:

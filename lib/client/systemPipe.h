@@ -35,22 +35,22 @@ namespace eq
      * SystemPipe, which is initialized in Pipe::configInit. The SystemPipe has
      * to set the pipe's PixelViewport if it is invalid during configInit().
      */
-    class EQ_CLIENT_DECL SystemPipe
+    class SystemPipe
     {
     public:
         /** Create a new SstemPipe for the given eq::Pipe.*/
-        SystemPipe( Pipe* parent );
+        EQ_API SystemPipe( Pipe* parent );
 
         /** Destroy the SystemPipe. */
-        virtual ~SystemPipe( );
+        EQ_API virtual ~SystemPipe( );
 
         /** @name Methods forwarded from eq::Pipe */
         //@{
         /** Initialize the GPU. */
-        virtual bool configInit( ) = 0;
+        EQ_API virtual bool configInit( ) = 0;
 
         /** De-initialize the GPU. */
-        virtual void configExit( ) = 0;
+        EQ_API virtual void configExit( ) = 0;
         //@}
 
         /** @return the parent Pipe. */
@@ -60,7 +60,7 @@ namespace eq
         const Pipe* getPipe() const { return _pipe; }
 
         /** @return the last error. */
-        base::Error getError() const;
+        EQ_API base::Error getError() const;
 
     protected:
         /** @name Error information. */
@@ -69,7 +69,7 @@ namespace eq
          * Set an error code why the last operation failed.
          * @param error the error code.
          */
-        void setError( const uint32_t error );
+        EQ_API void setError( const uint32_t error );
         //@}
 
         /** The parent eq::Pipe. */

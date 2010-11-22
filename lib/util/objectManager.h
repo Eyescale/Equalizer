@@ -21,7 +21,7 @@
 #include <eq/util/types.h>
 
 #include <eq/client/os.h>             // OpenGL/GLEW types
-#include <eq/base/base.h>             // EQ_CLIENT_DECL definition
+#include <eq/base/base.h>             // EQ_API definition
 #include <eq/base/debug.h>            // EQASSERT definition
 #include <eq/base/hash.h>             // member
 #include <eq/base/nonCopyable.h>      // base class
@@ -62,73 +62,73 @@ namespace util
         };
 
         /** Construct a new object manager. */
-        EQ_CLIENT_DECL ObjectManager( const GLEWContext* const glewContext );
+        EQ_API ObjectManager( const GLEWContext* const glewContext );
 
         /** Construct a new object manager sharing data with another manager. */
-        EQ_CLIENT_DECL ObjectManager( const GLEWContext* const glewContext,
+        EQ_API ObjectManager( const GLEWContext* const glewContext,
                                  ObjectManager* shared );
 
-        EQ_CLIENT_DECL virtual ~ObjectManager();
+        EQ_API virtual ~ObjectManager();
 
         /** @return true if more than one OM is using the same data. */
         bool isShared() const { return _data->getRefCount() > 1; }
 
-        EQ_CLIENT_DECL void deleteAll();
+        EQ_API void deleteAll();
 
-        EQ_CLIENT_DECL GLuint getList( const T& key ) const;
-        EQ_CLIENT_DECL GLuint newList( const T& key, const GLsizei num = 1 );
-        EQ_CLIENT_DECL GLuint obtainList( const T& key, const GLsizei num = 1 );
-        EQ_CLIENT_DECL void   deleteList( const T& key );
+        EQ_API GLuint getList( const T& key ) const;
+        EQ_API GLuint newList( const T& key, const GLsizei num = 1 );
+        EQ_API GLuint obtainList( const T& key, const GLsizei num = 1 );
+        EQ_API void   deleteList( const T& key );
 
-        EQ_CLIENT_DECL GLuint getTexture( const T& key ) const;
-        EQ_CLIENT_DECL GLuint newTexture( const T& key );
-        EQ_CLIENT_DECL GLuint obtainTexture( const T& key );
-        EQ_CLIENT_DECL void   deleteTexture( const T& key );
+        EQ_API GLuint getTexture( const T& key ) const;
+        EQ_API GLuint newTexture( const T& key );
+        EQ_API GLuint obtainTexture( const T& key );
+        EQ_API void   deleteTexture( const T& key );
 
-        EQ_CLIENT_DECL bool   supportsBuffers() const;
-        EQ_CLIENT_DECL GLuint getBuffer( const T& key ) const;
-        EQ_CLIENT_DECL GLuint newBuffer( const T& key );
-        EQ_CLIENT_DECL GLuint obtainBuffer( const T& key );
-        EQ_CLIENT_DECL void   deleteBuffer( const T& key );
+        EQ_API bool   supportsBuffers() const;
+        EQ_API GLuint getBuffer( const T& key ) const;
+        EQ_API GLuint newBuffer( const T& key );
+        EQ_API GLuint obtainBuffer( const T& key );
+        EQ_API void   deleteBuffer( const T& key );
 
-        EQ_CLIENT_DECL bool   supportsPrograms() const;
-        EQ_CLIENT_DECL GLuint getProgram( const T& key ) const;
-        EQ_CLIENT_DECL GLuint newProgram( const T& key );
-        EQ_CLIENT_DECL GLuint obtainProgram( const T& key );
-        EQ_CLIENT_DECL void   deleteProgram( const T& key );
+        EQ_API bool   supportsPrograms() const;
+        EQ_API GLuint getProgram( const T& key ) const;
+        EQ_API GLuint newProgram( const T& key );
+        EQ_API GLuint obtainProgram( const T& key );
+        EQ_API void   deleteProgram( const T& key );
 
-        EQ_CLIENT_DECL bool   supportsShaders() const;
-        EQ_CLIENT_DECL GLuint getShader( const T& key ) const;
-        EQ_CLIENT_DECL GLuint newShader( const T& key, const GLenum type );
-        EQ_CLIENT_DECL GLuint obtainShader( const T& key, const GLenum type );
-        EQ_CLIENT_DECL void   deleteShader( const T& key );
+        EQ_API bool   supportsShaders() const;
+        EQ_API GLuint getShader( const T& key ) const;
+        EQ_API GLuint newShader( const T& key, const GLenum type );
+        EQ_API GLuint obtainShader( const T& key, const GLenum type );
+        EQ_API void   deleteShader( const T& key );
 
-        EQ_CLIENT_DECL Accum* getEqAccum( const T& key ) const;
-        EQ_CLIENT_DECL Accum* newEqAccum( const T& key );
-        EQ_CLIENT_DECL Accum* obtainEqAccum( const T& key );
-        EQ_CLIENT_DECL void   deleteEqAccum( const T& key );
+        EQ_API Accum* getEqAccum( const T& key ) const;
+        EQ_API Accum* newEqAccum( const T& key );
+        EQ_API Accum* obtainEqAccum( const T& key );
+        EQ_API void   deleteEqAccum( const T& key );
 
-        EQ_CLIENT_DECL GPUCompressor* getEqUploader( const T& key ) const;
-        EQ_CLIENT_DECL GPUCompressor* newEqUploader( const T& key );
-        EQ_CLIENT_DECL GPUCompressor* obtainEqUploader( const T& key );
-        EQ_CLIENT_DECL void   deleteEqUploader( const T& key );
+        EQ_API GPUCompressor* getEqUploader( const T& key ) const;
+        EQ_API GPUCompressor* newEqUploader( const T& key );
+        EQ_API GPUCompressor* obtainEqUploader( const T& key );
+        EQ_API void   deleteEqUploader( const T& key );
 
-        EQ_CLIENT_DECL bool     supportsEqTexture() const;
-        EQ_CLIENT_DECL Texture* getEqTexture( const T& key ) const;
-        EQ_CLIENT_DECL Texture* newEqTexture( const T& key, const GLenum target );
-        EQ_CLIENT_DECL Texture* obtainEqTexture( const T& key, const GLenum target );
-        EQ_CLIENT_DECL void     deleteEqTexture( const T& key );
+        EQ_API bool     supportsEqTexture() const;
+        EQ_API Texture* getEqTexture( const T& key ) const;
+        EQ_API Texture* newEqTexture( const T& key, const GLenum target );
+        EQ_API Texture* obtainEqTexture( const T& key, const GLenum target );
+        EQ_API void     deleteEqTexture( const T& key );
 
-        EQ_CLIENT_DECL bool               supportsEqFrameBufferObject() const;
-        EQ_CLIENT_DECL FrameBufferObject* getEqFrameBufferObject(const T& key) const;
-        EQ_CLIENT_DECL FrameBufferObject* newEqFrameBufferObject( const T& key );
-        EQ_CLIENT_DECL FrameBufferObject* obtainEqFrameBufferObject( const T& key );
-        EQ_CLIENT_DECL void               deleteEqFrameBufferObject( const T& key );
+        EQ_API bool               supportsEqFrameBufferObject() const;
+        EQ_API FrameBufferObject* getEqFrameBufferObject(const T& key) const;
+        EQ_API FrameBufferObject* newEqFrameBufferObject( const T& key );
+        EQ_API FrameBufferObject* obtainEqFrameBufferObject( const T& key );
+        EQ_API void               deleteEqFrameBufferObject( const T& key );
 
-        EQ_CLIENT_DECL util::BitmapFont< T >* getEqBitmapFont( const T& key ) const;
-        EQ_CLIENT_DECL util::BitmapFont< T >* newEqBitmapFont( const T& key );
-        EQ_CLIENT_DECL util::BitmapFont< T >* obtainEqBitmapFont( const T& key );
-        EQ_CLIENT_DECL void                   deleteEqBitmapFont( const T& key );
+        EQ_API util::BitmapFont< T >* getEqBitmapFont( const T& key ) const;
+        EQ_API util::BitmapFont< T >* newEqBitmapFont( const T& key );
+        EQ_API util::BitmapFont< T >* obtainEqBitmapFont( const T& key );
+        EQ_API void                   deleteEqBitmapFont( const T& key );
 
         const GLEWContext* glewGetContext() const { return _glewContext; }
 

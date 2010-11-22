@@ -44,7 +44,7 @@ namespace util
      * 
      * <img src="http://www.equalizergraphics.com/documents/design/images/compositor.png">
      */
-    class EQ_CLIENT_DECL Compositor
+    class EQ_API Compositor
     {
     public:
         /** A structure describing an image assembly task. */

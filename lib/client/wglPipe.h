@@ -26,11 +26,11 @@
 namespace eq
 {
     /** Equalizer default implementation of a WGL window */
-    class EQ_CLIENT_DECL WGLPipe : public SystemPipe
+    class WGLPipe : public SystemPipe
     {
     public:
-        WGLPipe( Pipe* parent );
-        virtual ~WGLPipe( );
+        EQ_API WGLPipe( Pipe* parent );
+        EQ_API virtual ~WGLPipe( );
 
         /** @name WGL initialization */
         //@{
@@ -39,14 +39,14 @@ namespace eq
          * 
          * @return true if the initialization was successful, false otherwise.
          */
-        virtual bool configInit( );
+        EQ_API virtual bool configInit( );
 
         /** 
          * Deinitialize this pipe for the WGL window system.
          * 
          * @return true if the deinitialization was successful, false otherwise.
          */
-        virtual void configExit( );
+        EQ_API virtual void configExit( );
         //@}
 
         /**
@@ -60,7 +60,7 @@ namespace eq
          * @param affinityDC the affinity device context output parameter.
          * @return the success status.
          */
-        bool createWGLAffinityDC( HDC& affinityDC );
+        EQ_API bool createWGLAffinityDC( HDC& affinityDC );
 
         /** 
          * Create a device context on the display device of this pipe.
@@ -69,7 +69,7 @@ namespace eq
          * 
          * @return the device context, or 0 upon error.
          */
-        HDC createWGLDisplayDC();
+        EQ_API HDC createWGLDisplayDC();
 
         /** @return the generic WGL function table for the pipe. */
         WGLEWContext* wglewGetContext() { return _wglewContext; }
@@ -79,7 +79,7 @@ namespace eq
 
     protected:
         /** Initialize this pipe for OpenGL. */
-        virtual bool configInitGL();
+        EQ_API virtual bool configInitGL();
 
     private:
         bool _configInitWGLEW();

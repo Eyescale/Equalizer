@@ -147,7 +147,7 @@ typedef void* HGLRC;
 namespace eq
 {
 /** Output an error OpenGL in a human-readable form to EQWARN */
-EQ_CLIENT_DECL void debugGLError( const std::string& when, const GLenum error, 
+EQ_API void debugGLError( const std::string& when, const GLenum error, 
                              const char* file, const int line );
 }
 

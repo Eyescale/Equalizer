@@ -46,7 +46,7 @@ namespace util
          *            manager.
          * @version 1.0
          */
-        EQ_CLIENT_DECL BitmapFont( ObjectManager< OMT >& gl, const OMT& key );
+        EQ_API BitmapFont( ObjectManager< OMT >& gl, const OMT& key );
 
         /**
          * Destruct this bitmap font.
@@ -55,7 +55,7 @@ namespace util
          * valid OpenGL context current.
          * @version 1.0
          */
-        EQ_CLIENT_DECL ~BitmapFont();
+        EQ_API ~BitmapFont();
 
         /**
          * Initialize this bitmap font.
@@ -72,17 +72,17 @@ namespace util
          * @param size the size of the font in pixels.
          * @version 1.0
          */
-        EQ_CLIENT_DECL bool init( const WindowSystem ws, const std::string& name,
+        EQ_API bool init( const WindowSystem ws, const std::string& name,
                              const uint32_t size = 12 );
 
         /** De-initialize this bitmap font. @version 1.0 */
-        EQ_CLIENT_DECL void exit();
+        EQ_API void exit();
 
         /**
          * Draw text on the current raster position.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void draw( const std::string& text ) const;
+        EQ_API void draw( const std::string& text ) const;
 
     private:
         ObjectManager< OMT > _gl;

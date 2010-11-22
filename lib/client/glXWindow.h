@@ -25,7 +25,7 @@
 namespace eq
 {
     /** The interface defining the minimum functionality for a glX window. */
-    class EQ_CLIENT_DECL GLXWindowIF : public GLWindow
+    class GLXWindowIF : public GLWindow
     {
     public:
         GLXWindowIF( Window* parent ) : GLWindow( parent ) {}
@@ -45,7 +45,7 @@ namespace eq
     };
 
     /** Equalizer default implementation of a glX window */
-    class EQ_CLIENT_DECL GLXWindow : public GLXWindowIF
+    class GLXWindow : public GLXWindowIF
     {
     public:
         /**
@@ -142,13 +142,13 @@ namespace eq
          * Register with the pipe's GLXEventHandler, called by setXDrawable().
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void initEventHandler();
+        EQ_API virtual void initEventHandler();
 
         /**
          * Deregister with the GLXEventHandler, called by setXDrawable().
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void exitEventHandler();
+        EQ_API virtual void exitEventHandler();
         //@}
 
         /** @name Data Access. */

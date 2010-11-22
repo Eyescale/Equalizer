@@ -37,16 +37,16 @@ namespace eq
         virtual ~AGLWindowIF() {}
 
         /** @return the AGL rendering context. @version 1.0 */
-        EQ_CLIENT_DECL virtual AGLContext getAGLContext() const = 0;
+        EQ_API virtual AGLContext getAGLContext() const = 0;
 
         /** @return the carbon window reference. @version 1.0 */
-        EQ_CLIENT_DECL virtual WindowRef getCarbonWindow() const = 0;
+        EQ_API virtual WindowRef getCarbonWindow() const = 0;
 
         /** @return the AGL PBuffer object. @version 1.0 */
-        EQ_CLIENT_DECL virtual AGLPbuffer getAGLPBuffer() const = 0;
+        EQ_API virtual AGLPbuffer getAGLPBuffer() const = 0;
 
         /** Process an event. @version 1.0 */
-        EQ_CLIENT_DECL virtual bool processEvent( const AGLWindowEvent& event );
+        EQ_API virtual bool processEvent( const AGLWindowEvent& event );
 
     private:
     };
@@ -56,10 +56,10 @@ namespace eq
     {
     public:
         /** Create a new AGL window for the given eq::Window. @version 1.0 */
-        EQ_CLIENT_DECL AGLWindow( Window* parent );
+        EQ_API AGLWindow( Window* parent );
 
         /** Destruct the AGL window. @version 1.0 */
-        EQ_CLIENT_DECL virtual ~AGLWindow();
+        EQ_API virtual ~AGLWindow();
 
         /** @name Data Access */
         //@{
@@ -72,7 +72,7 @@ namespace eq
          * @param context the AGL rendering context.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void setAGLContext( AGLContext context );
+        EQ_API virtual void setAGLContext( AGLContext context );
 
         /** 
          * Set the carbon window to be used with the current AGL context.
@@ -80,7 +80,7 @@ namespace eq
          * @param window the window reference.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void setCarbonWindow( WindowRef window );
+        EQ_API virtual void setCarbonWindow( WindowRef window );
         
         /** 
          * Set the AGL PBuffer object to be used with the current AGL context.
@@ -88,7 +88,7 @@ namespace eq
          * @param pbuffer the PBuffer.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void setAGLPBuffer( AGLPbuffer pbuffer );
+        EQ_API virtual void setAGLPBuffer( AGLPbuffer pbuffer );
 
         /** @return the AGL rendering context. @version 1.0 */
         virtual AGLContext getAGLContext() const { return _aglContext; }
@@ -113,10 +113,10 @@ namespace eq
          * @return true if the initialization was successful, false otherwise.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual bool configInit();
+        EQ_API virtual bool configInit();
 
         /** @version 1.0 */
-        EQ_CLIENT_DECL virtual void configExit( );
+        EQ_API virtual void configExit( );
 
         /** 
          * Choose a pixel format based on the window's attributes.
@@ -130,7 +130,7 @@ namespace eq
          * @return a pixel format, or 0 if no pixel format was found.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual AGLPixelFormat chooseAGLPixelFormat();
+        EQ_API virtual AGLPixelFormat chooseAGLPixelFormat();
 
         /** 
          * Destroy a pixel format obtained with chooseAGLPixelFormat().
@@ -141,7 +141,7 @@ namespace eq
          * @param format a pixel format.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void destroyAGLPixelFormat( AGLPixelFormat format );
+        EQ_API virtual void destroyAGLPixelFormat( AGLPixelFormat format );
 
         /** 
          * Create an AGL context.
@@ -155,7 +155,7 @@ namespace eq
          * @return the context, or 0 if context creation failed.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual AGLContext createAGLContext( AGLPixelFormat format );
+        EQ_API virtual AGLContext createAGLContext( AGLPixelFormat format );
 
         /** 
          * Initialize the window's drawable (fullscreen, pbuffer or window) and
@@ -167,7 +167,7 @@ namespace eq
          * @return true if the drawable was created, false otherwise.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual bool configInitAGLDrawable();
+        EQ_API virtual bool configInitAGLDrawable();
 
         /** 
          * Initialize the window with a fullscreen Carbon window.
@@ -180,7 +180,7 @@ namespace eq
          * @return true if the window was created, false otherwise.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual bool configInitAGLFullscreen();
+        EQ_API virtual bool configInitAGLFullscreen();
 
         /** 
          * Initialize the window with a normal Carbon window.
@@ -193,7 +193,7 @@ namespace eq
          * @return true if the window was created, false otherwise.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual bool configInitAGLWindow();
+        EQ_API virtual bool configInitAGLWindow();
 
         /** 
          * Initialize the window with an offscreen AGL PBuffer.
@@ -203,35 +203,35 @@ namespace eq
          * @return true if the PBuffer was created, false otherwise.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual bool configInitAGLPBuffer(); 
+        EQ_API virtual bool configInitAGLPBuffer(); 
         
         /**
          * Set up an AGLEventHandler, called by setCarbonWindow().
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void initEventHandler();
+        EQ_API virtual void initEventHandler();
 
         /**
          * Destroy the AGLEventHandler, called by setCarbonWindow().
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void exitEventHandler();
+        EQ_API virtual void exitEventHandler();
         //@}
 
         /** @name Operations. */
         //@{
         /** @version 1.0 */
-        EQ_CLIENT_DECL virtual void makeCurrent() const;
+        EQ_API virtual void makeCurrent() const;
 
         /** @version 1.0 */
-        EQ_CLIENT_DECL virtual void swapBuffers();
+        EQ_API virtual void swapBuffers();
 
         /** Not implemented for AGL. @version 1.0 */
-        EQ_CLIENT_DECL virtual void joinNVSwapBarrier( const uint32_t group,
+        EQ_API virtual void joinNVSwapBarrier( const uint32_t group,
                                                   const uint32_t barrier );
 
         /** @version 1.0 */
-        EQ_CLIENT_DECL virtual bool processEvent( const AGLWindowEvent& event );
+        EQ_API virtual bool processEvent( const AGLWindowEvent& event );
         //@}
 
     private:

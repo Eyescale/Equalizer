@@ -31,7 +31,7 @@ namespace eq
      * classes, and are used to selectively override task methods and store
      * additional, application-specific data.
      */
-    class EQ_CLIENT_DECL NodeFactory
+    class EQ_API NodeFactory
     {
     public:
         /** 

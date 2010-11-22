@@ -79,15 +79,15 @@ namespace server
         };
 
         /** Construct a new frame. @version 1.0 */
-        EQ_CLIENT_DECL Frame();
+        EQ_API Frame();
 
         /** Destruct the frame. @version 1.0 */
-        EQ_CLIENT_DECL virtual ~Frame();
+        EQ_API virtual ~Frame();
 
         /** @name Data Access */
         //@{
         /** @return the name of the frame. @version 1.0 */
-        EQ_CLIENT_DECL const std::string& getName() const;
+        EQ_API const std::string& getName() const;
 
         /** @return the position of the frame wrt the channel. @version 1.0 */
         const Vector2i& getOffset() const { return _data.offset; }
@@ -106,31 +106,31 @@ namespace server
          * @return the database range relative to the destination channel.
          * @version 1.0
          */
-        EQ_CLIENT_DECL const Range& getRange() const;
+        EQ_API const Range& getRange() const;
 
         /**
          * @return the pixel parameters relative to the destination channel.
          * @version 1.0
          */
-        EQ_CLIENT_DECL const Pixel& getPixel() const;
+        EQ_API const Pixel& getPixel() const;
 
         /**
          * @return the subpixel parameters wrt the destination channel.
          * @version 1.0
          */
-        EQ_CLIENT_DECL const SubPixel& getSubPixel() const;
+        EQ_API const SubPixel& getSubPixel() const;
 
         /**
          * @return the DPlex period relative to the destination channel.
          * @version 1.0
          */
-        EQ_CLIENT_DECL uint32_t getPeriod() const;
+        EQ_API uint32_t getPeriod() const;
 
         /**
          * @return the DPlex phase relative to the destination channel.
          * @version 1.0
          */
-        EQ_CLIENT_DECL uint32_t getPhase() const;
+        EQ_API uint32_t getPhase() const;
 
         /** @return the zoom factor for readback or assemble. @version 1.0 */
         const Zoom& getZoom() const { return _data.zoom; }
@@ -146,7 +146,7 @@ namespace server
         void setZoom( const Zoom& zoom ) { _data.zoom = zoom; }
 
         /** @return all images of this frame. @version 1.0 */
-        EQ_CLIENT_DECL const Images& getImages() const;
+        EQ_API const Images& getImages() const;
 
         /** Set the data for this frame. @version 1.0 */
         void setData( FrameData* data ) { _frameData = data; }
@@ -158,7 +158,7 @@ namespace server
         const FrameData* getData() const { return _frameData; }
 
         /** @return the enabled frame buffer attachments. @version 1.0 */
-        EQ_CLIENT_DECL uint32_t getBuffers() const;
+        EQ_API uint32_t getBuffers() const;
 
         /** 
          * Disable the usage of a frame buffer attachment for all images.
@@ -166,13 +166,13 @@ namespace server
          * @param buffer the buffer to disable.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void disableBuffer( const Buffer buffer );
+        EQ_API void disableBuffer( const Buffer buffer );
 
         /** Set alpha usage for newly allocated images. @version 1.0 */
-        EQ_CLIENT_DECL void setAlphaUsage( const bool useAlpha );
+        EQ_API void setAlphaUsage( const bool useAlpha );
 
         /** Set the minimum quality after compression. @version 1.0 */
-        EQ_CLIENT_DECL void setQuality( const Frame::Buffer buffer,
+        EQ_API void setQuality( const Frame::Buffer buffer,
                                    const float quality );
 
         /** @internal */
@@ -183,7 +183,7 @@ namespace server
         /** @name Operations */
         //@{
         /** @internal Recycle images attached  to the frame data. */
-        EQ_CLIENT_DECL void clear();
+        EQ_API void clear();
 
         /** @internal Clear and free all images attached to the frame data. */
         void flush();
@@ -197,7 +197,7 @@ namespace server
          * @param config the configuration of the source frame buffer.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void readback( util::ObjectManager< const void* >* glObjects,
+        EQ_API void readback( util::ObjectManager< const void* >* glObjects,
                                  const DrawableConfig& config );
 
         /**
@@ -215,10 +215,10 @@ namespace server
          * @return true if the frame is ready, false if not. 
          * @version 1.0
          */
-        EQ_CLIENT_DECL bool isReady() const;
+        EQ_API bool isReady() const;
 
         /** Wait for the frame to become available. @version 1.0 */
-        EQ_CLIENT_DECL void waitReady() const;
+        EQ_API void waitReady() const;
 
         /** 
          * Add a listener which will be incremented when the frame is ready.
@@ -267,7 +267,7 @@ namespace server
         };
     };
 
-    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream&, const Frame::Type );
-    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream&, const Frame::Buffer );
+    EQ_API std::ostream& operator << ( std::ostream&, const Frame::Type );
+    EQ_API std::ostream& operator << ( std::ostream&, const Frame::Buffer );
 };
 #endif // EQ_FRAME_H

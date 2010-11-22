@@ -44,10 +44,10 @@ namespace eq
     {
     public:
         /** Construct a new channel. @version 1.0 */
-        EQ_CLIENT_DECL Channel( Window* parent );
+        EQ_API Channel( Window* parent );
 
         /** Destruct the channel. @version 1.0 */
-        EQ_CLIENT_DECL virtual ~Channel();
+        EQ_API virtual ~Channel();
 
         /** @name Data Access */
         //@{
@@ -58,25 +58,25 @@ namespace eq
         bool isStopped() const { return (_state == STATE_STOPPED); }
 
         /** @return the parent pipe. @version 1.0 */
-        EQ_CLIENT_DECL Pipe* getPipe();
+        EQ_API Pipe* getPipe();
 
         /** @return the parent pipe. @version 1.0 */
-        EQ_CLIENT_DECL const Pipe* getPipe() const;
+        EQ_API const Pipe* getPipe() const;
 
         /** @return the parent node. @version 1.0 */
-        EQ_CLIENT_DECL Node* getNode();
+        EQ_API Node* getNode();
 
         /** @return the parent node. @version 1.0 */
-        EQ_CLIENT_DECL const Node* getNode() const;
+        EQ_API const Node* getNode() const;
 
         /** @return the parent config. @version 1.0 */
-        EQ_CLIENT_DECL Config* getConfig();
+        EQ_API Config* getConfig();
 
         /** @return the parent config. @version 1.0 */
-        EQ_CLIENT_DECL const Config* getConfig() const;
+        EQ_API const Config* getConfig() const;
 
         /** @return the parent server. @version 1.0 */
-        EQ_CLIENT_DECL ServerPtr getServer();
+        EQ_API ServerPtr getServer();
 
         /** 
          * Get the GLEW context for this channel.
@@ -92,13 +92,13 @@ namespace eq
          *         context.
          * @version 1.0
          */
-        EQ_CLIENT_DECL const GLEWContext* glewGetContext() const;
+        EQ_API const GLEWContext* glewGetContext() const;
 
         /** @return the window's object manager instance. @version 1.0 */
-        EQ_CLIENT_DECL Window::ObjectManager* getObjectManager();
+        EQ_API Window::ObjectManager* getObjectManager();
 
         /** @return the channel's drawable config. @version 1.0 */
-        EQ_CLIENT_DECL const DrawableConfig& getDrawableConfig() const;
+        EQ_API const DrawableConfig& getDrawableConfig() const;
 
         /**
          * Get the channel's native view.
@@ -111,16 +111,16 @@ namespace eq
          * @sa getView()
          * @version 1.0
          */
-        EQ_CLIENT_DECL View* getNativeView();
+        EQ_API View* getNativeView();
 
         /** const-version of getNativeView() @version 1.0 */
-        EQ_CLIENT_DECL const View* getNativeView() const;
+        EQ_API const View* getNativeView() const;
 
         /** @return the FBO used as an alternate frame buffer. @version 1.0*/
-        EQ_CLIENT_DECL util::FrameBufferObject* getFrameBufferObject();
+        EQ_API util::FrameBufferObject* getFrameBufferObject();
 
         /** @internal Add a new statistics event for the current frame. */
-        EQ_CLIENT_DECL void addStatistic( Event& event, const uint32_t index );
+        EQ_API void addStatistic( Event& event, const uint32_t index );
         //@}
 
         /**
@@ -137,7 +137,7 @@ namespace eq
          * @return the jitter vector for the current subpixel decomposition.
          * @version 1.0
          */
-        EQ_CLIENT_DECL Vector2f getJitter() const;
+        EQ_API Vector2f getJitter() const;
 
         /**
          * @return the list of input frames, used from frameAssemble().
@@ -164,10 +164,10 @@ namespace eq
          * @sa getNativeView()
          * @version 1.0
          */
-        EQ_CLIENT_DECL View* getView();
+        EQ_API View* getView();
 
         /** Const version of getView(). @version 1.0 */
-        EQ_CLIENT_DECL const View* getView() const;
+        EQ_API const View* getView() const;
 
         /** 
          * Returns an orthographic frustum for 2D operations on the view.
@@ -178,7 +178,7 @@ namespace eq
          * @return the 2D orthographic frustum.
          * @version 1.0
          */
-        EQ_CLIENT_DECL Frustumf getScreenFrustum() const;
+        EQ_API Frustumf getScreenFrustum() const;
         //@}
 
         /**
@@ -194,21 +194,21 @@ namespace eq
          * @sa getReadBuffer() , getDrawBuffer(), getDrawBufferMask()
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void applyBuffer();
+        EQ_API virtual void applyBuffer();
 
         /** 
          * Apply the current color mask.
          * @sa applyBuffer(), getDrawBufferMask()
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void applyColorMask() const;
+        EQ_API virtual void applyColorMask() const;
 
         /** 
          * Apply the OpenGL viewport for the current rendering task.
          * @sa getViewport()
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void applyViewport() const;
+        EQ_API virtual void applyViewport() const;
 
         /**
          * Apply the perspective frustum matrix for the current rendering task.
@@ -222,7 +222,7 @@ namespace eq
          * @sa getFrustum(), getJitter(), getSubPixel()
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void applyFrustum() const;
+        EQ_API virtual void applyFrustum() const;
 
         /**
          * Apply the orthographic frustum matrix for the current rendering task.
@@ -232,7 +232,7 @@ namespace eq
          * @sa getOrtho(), getJitter()
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void applyOrtho() const;
+        EQ_API virtual void applyOrtho() const;
 
         /** 
          * Apply an orthographic frustum for pixel-based 2D operations. 
@@ -241,25 +241,25 @@ namespace eq
          * positioned relative to the view.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void applyScreenFrustum() const;
+        EQ_API void applyScreenFrustum() const;
 
         /** 
          * Apply the view transformation to position the view frustum.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void applyHeadTransform() const;
+        EQ_API virtual void applyHeadTransform() const;
 
         /** 
          * Apply the current alternate frame buffer.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void applyFrameBufferObject();
+        EQ_API virtual void applyFrameBufferObject();
 
         /** 
          * Rebind the current alternate FBO of the channel or window.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void bindFrameBuffer();        
+        EQ_API void bindFrameBuffer();        
         //@}
 
         /** 
@@ -273,13 +273,13 @@ namespace eq
          * @return true when the event was handled, false if not.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual bool processEvent( const Event& event );
+        EQ_API virtual bool processEvent( const Event& event );
 
         /** Draw a statistics overlay. @version 1.0 */
-        EQ_CLIENT_DECL virtual void drawStatistics();
+        EQ_API virtual void drawStatistics();
 
         /** Outline the current pixel viewport. @version 1.0 */
-        EQ_CLIENT_DECL virtual void outlineViewport();
+        EQ_API virtual void outlineViewport();
  
         /**
          * @internal
@@ -307,11 +307,11 @@ namespace eq
         void changeLatency( const uint32_t latency );
 
         /** @return a fixed unique color for this channel. @version 1.0 */
-        EQ_CLIENT_DECL const Vector3ub& getUniqueColor() const { return _color; }
+        EQ_API const Vector3ub& getUniqueColor() const { return _color; }
 
     protected:
         /** @internal */
-        EQ_CLIENT_DECL void attachToSession( const uint32_t id, 
+        EQ_API void attachToSession( const uint32_t id, 
                                         const uint32_t instanceID, 
                                         net::Session* session );
         /** @name Actions */
@@ -322,7 +322,7 @@ namespace eq
          * @param frameNumber the frame to start.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void startFrame( const uint32_t frameNumber );
+        EQ_API void startFrame( const uint32_t frameNumber );
 
         /** 
          * Signal the completion of a frame to the parent.
@@ -330,7 +330,7 @@ namespace eq
          * @param frameNumber the frame to end.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void releaseFrame( const uint32_t frameNumber );
+        EQ_API void releaseFrame( const uint32_t frameNumber );
 
         /** 
          * Release the local synchronization of the parent for a frame.
@@ -338,7 +338,7 @@ namespace eq
          * @param frameNumber the frame to release.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void releaseFrameLocal( const uint32_t frameNumber );
+        EQ_API void releaseFrameLocal( const uint32_t frameNumber );
 
         /**
          * Setup the OpenGL state for a readback or assemble operation.
@@ -350,10 +350,10 @@ namespace eq
          *
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void setupAssemblyState();
+        EQ_API virtual void setupAssemblyState();
 
         /** Reset the OpenGL state after an assembly operation. @version 1.0 */
-        EQ_CLIENT_DECL virtual void resetAssemblyState();
+        EQ_API virtual void resetAssemblyState();
         //@}
 
         /**
@@ -371,10 +371,10 @@ namespace eq
          * @param initID the init identifier.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual bool configInit( const uint32_t initID );
+        EQ_API virtual bool configInit( const uint32_t initID );
 
         /** Exit this channel. @version 1.0 */
-        EQ_CLIENT_DECL virtual bool configExit();
+        EQ_API virtual bool configExit();
 
         /**
          * Start rendering a frame.
@@ -387,7 +387,7 @@ namespace eq
          * @sa Config::startFrame()
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void frameStart( const uint32_t frameID,
+        EQ_API virtual void frameStart( const uint32_t frameID,
                                            const uint32_t frameNumber );
 
         /**
@@ -400,7 +400,7 @@ namespace eq
          * @param frameNumber the frame to finish.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void frameFinish( const uint32_t frameID, 
+        EQ_API virtual void frameFinish( const uint32_t frameID, 
                                             const uint32_t frameNumber );
 
         /** 
@@ -413,7 +413,7 @@ namespace eq
          * @param frameNumber the frame to finished with draw.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void frameDrawFinish( const uint32_t frameID, 
+        EQ_API virtual void frameDrawFinish( const uint32_t frameID, 
                                                 const uint32_t frameNumber );
 
         /** 
@@ -424,7 +424,7 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void frameClear( const uint32_t frameID );
+        EQ_API virtual void frameClear( const uint32_t frameID );
 
         /** 
          * Draw the scene.
@@ -434,7 +434,7 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void frameDraw( const uint32_t frameID );
+        EQ_API virtual void frameDraw( const uint32_t frameID );
 
         /** 
          * Assemble all input frames.
@@ -445,7 +445,7 @@ namespace eq
          * @sa getInputFrames()
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void frameAssemble( const uint32_t frameID );
+        EQ_API virtual void frameAssemble( const uint32_t frameID );
 
         /** 
          * Read back the rendered frame buffer into all output frames.
@@ -456,7 +456,7 @@ namespace eq
          * @sa getOutputFrames()
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void frameReadback( const uint32_t frameID );
+        EQ_API virtual void frameReadback( const uint32_t frameID );
 
         /** 
          * Start updating a destination channel.
@@ -468,7 +468,7 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void frameViewStart( const uint32_t frameID );
+        EQ_API virtual void frameViewStart( const uint32_t frameID );
 
         /** 
          * Finish updating a destination channel.
@@ -483,11 +483,11 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void frameViewFinish( const uint32_t frameID );
+        EQ_API virtual void frameViewFinish( const uint32_t frameID );
         //@}
 
         /** Notification that parameters influencing the vp/pvp have changed.*/
-        EQ_CLIENT_DECL virtual void notifyViewportChanged();
+        EQ_API virtual void notifyViewportChanged();
 
         /** 
          * Notify interruption of the rendering.
@@ -501,7 +501,7 @@ namespace eq
          *        processed.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void notifyStopFrame(const uint32_t lastFrameNumber)
+        EQ_API virtual void notifyStopFrame(const uint32_t lastFrameNumber)
              {}
 
     private:

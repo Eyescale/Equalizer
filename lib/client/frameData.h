@@ -60,10 +60,10 @@ namespace server
     {
     public:
         /** Construct a new frame data holder. @version 1.0 */
-        EQ_CLIENT_DECL FrameData();
+        EQ_API FrameData();
 
         /** Destruct this frame data. @version 1.0 */
-        EQ_CLIENT_DECL virtual ~FrameData();
+        EQ_API virtual ~FrameData();
 
         /** @name Data Access */
         //@{
@@ -169,14 +169,14 @@ namespace server
          * @return the image.
          * @version 1.0
          */
-        EQ_CLIENT_DECL Image* newImage( const Frame::Type type,
+        EQ_API Image* newImage( const Frame::Type type,
                                    const DrawableConfig& config );
 
         /** Flush the frame by deleting all images. @version 1.0 */
         void flush();
 
         /** Clear the frame by recycling the attached images. @version 1.0 */
-        EQ_CLIENT_DECL void clear();
+        EQ_API void clear();
 
         /** 
          * Read back an image for this frame data.

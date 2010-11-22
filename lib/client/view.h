@@ -42,21 +42,21 @@ namespace eq
     {
     public:
         /** Construct a new view. @version 1.0 */
-        EQ_CLIENT_DECL View( Layout* parent );
+        EQ_API View( Layout* parent );
 
         /** Destruct this view. @version 1.0 */
-        EQ_CLIENT_DECL virtual ~View();
+        EQ_API virtual ~View();
 
         /** @name Data Access. */
         //@{
         /** @return the config of this view. @version 1.0 */
-        EQ_CLIENT_DECL Config* getConfig();
+        EQ_API Config* getConfig();
 
         /** @return the config of this view. @version 1.0 */
-        EQ_CLIENT_DECL const Config* getConfig() const;
+        EQ_API const Config* getConfig() const;
 
         /** @return the Server of this view. @version 1.0 */
-        EQ_CLIENT_DECL ServerPtr getServer();
+        EQ_API ServerPtr getServer();
         //@}
 
         /** @name Operations */
@@ -71,12 +71,12 @@ namespace eq
          * @param event the received view event.
          * @return true when the event was handled, false if not.
          */
-        EQ_CLIENT_DECL virtual bool handleEvent( const Event& event );
+        EQ_API virtual bool handleEvent( const Event& event );
         //@}
 
     protected:
         /** @sa Frustum::deserialize() */
-        EQ_CLIENT_DECL virtual void deserialize( net::DataIStream& is, 
+        EQ_API virtual void deserialize( net::DataIStream& is, 
                                             const uint64_t dirtyBits );
 
         /** @return the initial frustum value of this view. */

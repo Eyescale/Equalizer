@@ -34,7 +34,7 @@ namespace eq
         WINDOW_SYSTEM_ALL       // must be last
     };
 
-    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream& os, 
+    EQ_API std::ostream& operator << ( std::ostream& os, 
                                           const WindowSystem ws );
 }
 #endif // EQ_WINDOWSYSTEM_H

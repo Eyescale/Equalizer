@@ -43,13 +43,13 @@ namespace eq
     {
     public:
         /** Construct a new server. */
-        EQ_CLIENT_DECL Server();
+        EQ_API Server();
 
         /** @name Internal */
         //@{
         virtual void setClient( ClientPtr client );
-        EQ_CLIENT_DECL net::CommandQueue* getMainThreadQueue();
-        EQ_CLIENT_DECL net::CommandQueue* getCommandThreadQueue();
+        EQ_API net::CommandQueue* getMainThreadQueue();
+        EQ_API net::CommandQueue* getCommandThreadQueue();
         //@}
 
         /** 
@@ -59,7 +59,7 @@ namespace eq
          * @return The chosen config, or 0if no matching config was found.
          * @sa ConfigParams
          */
-        EQ_CLIENT_DECL Config* chooseConfig( const ConfigParams& parameters );
+        EQ_API Config* chooseConfig( const ConfigParams& parameters );
 
         /** 
          * Release a configuration.
@@ -69,16 +69,16 @@ namespace eq
          *
          * @param config the configuration.
          */
-        EQ_CLIENT_DECL void releaseConfig( Config* config );
+        EQ_API void releaseConfig( Config* config );
 
         /** Undocumented - may not be supported in the future */
-        EQ_CLIENT_DECL bool shutdown();
+        EQ_API bool shutdown();
         
     protected:
         /**
          * Destructs this server.
          */
-        EQ_CLIENT_DECL virtual ~Server();
+        EQ_API virtual ~Server();
 
     private:
         /** Process-local server */

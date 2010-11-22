@@ -158,7 +158,7 @@ namespace util
          * @param format the GL format 
          * @param type the GL typedata source
          */
-        static EQ_CLIENT_DECL uint32_t getExternalFormat( const uint32_t format,
+        static EQ_API uint32_t getExternalFormat( const uint32_t format,
                                                      const uint32_t type );
 
         /**
@@ -177,7 +177,7 @@ namespace util
          *                       context compatibility should be omitted.
          * @param result the output result vector.
          */
-        static EQ_CLIENT_DECL void findTransferers( const uint32_t internalFormat,
+        static EQ_API void findTransferers( const uint32_t internalFormat,
                                                const uint32_t externalFormat,
                                                const uint64_t capabilities,
                                                const float minQuality,

@@ -52,26 +52,26 @@ namespace eq
     {
     public:
         /** Construct a new pipe. @version 1.0 */
-        EQ_CLIENT_DECL Pipe( Node* parent );
+        EQ_API Pipe( Node* parent );
 
         /** Destruct the pipe. @version 1.0 */
-        EQ_CLIENT_DECL virtual ~Pipe();
+        EQ_API virtual ~Pipe();
 
         /** @name Data Access. */
         //@{
-        EQ_CLIENT_DECL net::CommandQueue* getPipeThreadQueue(); //!< @internal
+        EQ_API net::CommandQueue* getPipeThreadQueue(); //!< @internal
         net::CommandQueue* getMainThreadQueue(); //!< @internal
 
         /** @return the parent configuration. @version 1.0 */
-        EQ_CLIENT_DECL Config* getConfig();
+        EQ_API Config* getConfig();
         /** @return the parent configuration. @version 1.0 */
-        EQ_CLIENT_DECL const Config* getConfig() const;
+        EQ_API const Config* getConfig() const;
 
         /** @return the parent client node. @version 1.0 */
-        EQ_CLIENT_DECL ClientPtr getClient();
+        EQ_API ClientPtr getClient();
 
         /** @return the parent server node. @version 1.0 */
-        EQ_CLIENT_DECL ServerPtr getServer();
+        EQ_API ServerPtr getServer();
 
         /**
          * @return true if this pipe is running, false otherwise.
@@ -83,7 +83,7 @@ namespace eq
          * @return true if this pipe is stopped, false otherwise.
          * @version 1.0 
          */
-        EQ_CLIENT_DECL bool isStopped() const;
+        EQ_API bool isStopped() const;
 
         /**
          * Return the current frame number.
@@ -93,7 +93,7 @@ namespace eq
          * @version 1.0
          */ 
         uint32_t getCurrentFrame()  const { return _currentFrame; }
-        EQ_CLIENT_DECL uint32_t getFinishedFrame() const; //!< @internal
+        EQ_API uint32_t getFinishedFrame() const; //!< @internal
 
         /**
          * Return the window system used by this pipe.
@@ -154,7 +154,7 @@ namespace eq
          * @param frameNumber the frame number.
          * @sa releaseFrame()
          */
-        EQ_CLIENT_DECL void waitFrameFinished( const uint32_t frameNumber ) const;
+        EQ_API void waitFrameFinished( const uint32_t frameNumber ) const;
 
         /**
          * @internal
@@ -163,7 +163,7 @@ namespace eq
          * @param frameNumber the frame number.
          * @sa releaseFrameLocal()
          */
-        EQ_CLIENT_DECL void waitFrameLocal( const uint32_t frameNumber ) const;
+        EQ_API void waitFrameLocal( const uint32_t frameNumber ) const;
 
         /** @internal Start the pipe thread. */
         void startThread();
@@ -222,7 +222,7 @@ namespace eq
          * @return the message pump, or 0.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual MessagePump* createMessagePump();
+        EQ_API virtual MessagePump* createMessagePump();
 
         /** @return the pipe's message pump, or 0. @version 1.0 */
         MessagePump* getMessagePump();
@@ -237,7 +237,7 @@ namespace eq
          * @param frameNumber the frame to start.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void startFrame( const uint32_t frameNumber );
+        EQ_API void startFrame( const uint32_t frameNumber );
 
         /** 
          * Signal the completion of a frame to the parent.
@@ -245,7 +245,7 @@ namespace eq
          * @param frameNumber the frame to end.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void releaseFrame( const uint32_t frameNumber );
+        EQ_API void releaseFrame( const uint32_t frameNumber );
 
         /** 
          * Release the local synchronization of the parent for a frame.
@@ -253,7 +253,7 @@ namespace eq
          * @param frameNumber the frame to release.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void releaseFrameLocal( const uint32_t frameNumber );
+        EQ_API void releaseFrameLocal( const uint32_t frameNumber );
         //@}
 
         /**
@@ -271,7 +271,7 @@ namespace eq
          * @return true if the window system is supported, false if not.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual bool supportsWindowSystem( const WindowSystem system )
+        EQ_API virtual bool supportsWindowSystem( const WindowSystem system )
                                    const;
 
         /** 
@@ -283,7 +283,7 @@ namespace eq
          * @return the window system currently used by this pipe.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual WindowSystem selectWindowSystem() const;
+        EQ_API virtual WindowSystem selectWindowSystem() const;
 
         /** 
          * Initialize this pipe.
@@ -291,7 +291,7 @@ namespace eq
          * @param initID the init identifier.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual bool configInit( const uint32_t initID );
+        EQ_API virtual bool configInit( const uint32_t initID );
 
        /** 
          * Initialize the OS-specific pipe.
@@ -299,13 +299,13 @@ namespace eq
          * @sa setSystemPipe()
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual bool configInitSystemPipe( const uint32_t initID );
+        EQ_API virtual bool configInitSystemPipe( const uint32_t initID );
 
         /** 
          * De-initialize this pipe.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual bool configExit();
+        EQ_API virtual bool configExit();
 
         /**
          * Start rendering a frame.
@@ -324,7 +324,7 @@ namespace eq
          *     Node::waitFrameStarted()
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void frameStart( const uint32_t frameID, 
+        EQ_API virtual void frameStart( const uint32_t frameID, 
                                            const uint32_t frameNumber );
 
         /**
@@ -341,7 +341,7 @@ namespace eq
          * @param frameNumber the frame to finish.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void frameFinish( const uint32_t frameID, 
+        EQ_API virtual void frameFinish( const uint32_t frameID, 
                                             const uint32_t frameNumber );
 
         /** 
@@ -354,11 +354,11 @@ namespace eq
          * @param frameNumber the frame to finished with draw.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void frameDrawFinish( const uint32_t frameID, 
+        EQ_API virtual void frameDrawFinish( const uint32_t frameID, 
                                                 const uint32_t frameNumber );
 
         /** @internal @sa net::Object::attachToSession. */
-        EQ_CLIENT_DECL virtual void attachToSession( const uint32_t id, 
+        EQ_API virtual void attachToSession( const uint32_t id, 
                                                 const uint32_t instanceID, 
                                                 net::Session* session );
 

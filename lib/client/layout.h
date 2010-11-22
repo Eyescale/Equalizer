@@ -46,15 +46,15 @@ namespace eq
     {
     public:
         /** Construct a new layout. @version 1.0 */
-        EQ_CLIENT_DECL Layout( Config* parent );
+        EQ_API Layout( Config* parent );
 
         /** Destruct a layout. @version 1.0 */
-        EQ_CLIENT_DECL virtual ~Layout();
+        EQ_API virtual ~Layout();
 
         /** @name Data Access */
         //@{
         /** @return the Server of this layout. @version 1.0 */
-        EQ_CLIENT_DECL ServerPtr getServer();
+        EQ_API ServerPtr getServer();
         //@}
 
     private:

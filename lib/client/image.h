@@ -42,10 +42,10 @@ namespace eq
     {
     public:
         /** Construct a new Image. @version 1.0 */
-        EQ_CLIENT_DECL Image();
+        EQ_API Image();
 
         /** Destruct the Image. @version 1.0 */
-        EQ_CLIENT_DECL virtual ~Image();
+        EQ_API virtual ~Image();
 
         /** @name Image parameters */
         //@{
@@ -84,14 +84,14 @@ namespace eq
          * @param buffer the buffer type.
          * @param internalFormat the internal format.
          */
-        EQ_CLIENT_DECL void setInternalFormat( const Frame::Buffer buffer, 
+        EQ_API void setInternalFormat( const Frame::Buffer buffer, 
                                           const uint32_t internalFormat );
 
         /** @return the internal GPU format of the pixel data. */
-        EQ_CLIENT_DECL uint32_t getInternalFormat( const Frame::Buffer buffer )const;
+        EQ_API uint32_t getInternalFormat( const Frame::Buffer buffer )const;
 
         /** @return true if the image has a color buffer with alpha values. */
-        EQ_CLIENT_DECL bool hasAlpha() const;
+        EQ_API bool hasAlpha() const;
 
         /** 
          * Set the frame pixel storage type. 
@@ -109,7 +109,7 @@ namespace eq
         Frame::Type getStorageType() const{ return _type; }
 
         /** @return true if the image buffer has valid data. */
-        EQ_CLIENT_DECL bool hasData( const Frame::Buffer buffer ) const;
+        EQ_API bool hasData( const Frame::Buffer buffer ) const;
 
         /** @return the fractional viewport of the image. */
         //const eq::Viewport& getViewport() const { return _data.vp; }
@@ -121,7 +121,7 @@ namespace eq
          *
          * @param pvp the pixel viewport.
          */
-        EQ_CLIENT_DECL void setPixelViewport( const PixelViewport& pvp );
+        EQ_API void setPixelViewport( const PixelViewport& pvp );
 
         /** @return the pixel viewport of the image within 
           *         the frame buffer.
@@ -129,24 +129,24 @@ namespace eq
         const PixelViewport& getPixelViewport() const { return _pvp; }
 
         /** Reset the image to its default state. */
-        EQ_CLIENT_DECL void reset();
+        EQ_API void reset();
         //@}
 
         /** @name Pixel data */
         //@{
         /** @return a pointer to the raw pixel data. */
-        EQ_CLIENT_DECL const uint8_t* getPixelPointer( const Frame::Buffer buffer )
+        EQ_API const uint8_t* getPixelPointer( const Frame::Buffer buffer )
                                      const;
-        EQ_CLIENT_DECL uint8_t* getPixelPointer( const Frame::Buffer buffer );
+        EQ_API uint8_t* getPixelPointer( const Frame::Buffer buffer );
 
         /** @return the size of the raw pixel data in bytes */
-        EQ_CLIENT_DECL uint32_t getPixelDataSize( const Frame::Buffer buffer ) const;
+        EQ_API uint32_t getPixelDataSize( const Frame::Buffer buffer ) const;
 
         /** @return the pixel data. */
-        EQ_CLIENT_DECL const PixelData& getPixelData( const Frame::Buffer ) const;
+        EQ_API const PixelData& getPixelData( const Frame::Buffer ) const;
 
         /** @return the compressed pixel data, compressing it if needed. */
-        EQ_CLIENT_DECL const PixelData& compressPixelData( const Frame::Buffer );
+        EQ_API const PixelData& compressPixelData( const Frame::Buffer );
 
         /**
          * @return true if the image has pixel data for the buffer, false if
@@ -160,10 +160,10 @@ namespace eq
          *
          * @param buffer the image buffer to clear.
          */
-        EQ_CLIENT_DECL void clearPixelData( const Frame::Buffer buffer );
+        EQ_API void clearPixelData( const Frame::Buffer buffer );
 
         /** Validate an image buffer without initializing its content. */
-        EQ_CLIENT_DECL void validatePixelData( const Frame::Buffer buffer );
+        EQ_API void validatePixelData( const Frame::Buffer buffer );
 
         /**
          * Set the pixel data of one of the image buffers.
@@ -175,21 +175,21 @@ namespace eq
          * @param buffer the image buffer to set.
          * @param data the pixel data.
          */
-        EQ_CLIENT_DECL void setPixelData( const Frame::Buffer buffer,
+        EQ_API void setPixelData( const Frame::Buffer buffer,
                                      const PixelData& data );
 
         /** Enable compression and transport of alpha data. */
-        EQ_CLIENT_DECL void enableAlphaUsage();
+        EQ_API void enableAlphaUsage();
 
         /** Disable compression and transport of alpha data. */
-        EQ_CLIENT_DECL void disableAlphaUsage();
+        EQ_API void disableAlphaUsage();
 
         /** Set the minimum quality after a full download-compression path. */
-        EQ_CLIENT_DECL void setQuality( const Frame::Buffer buffer,
+        EQ_API void setQuality( const Frame::Buffer buffer,
                                    const float quality );
 
         /** @return the minimum quality. */
-        EQ_CLIENT_DECL float getQuality( const Frame::Buffer buffer ) const;
+        EQ_API float getQuality( const Frame::Buffer buffer ) const;
 
         /** @return true if alpha data can be ignored. */
         bool ignoreAlpha() const { return _ignoreAlpha; }
@@ -198,20 +198,20 @@ namespace eq
         /** @name Texture access */
         //@{
         /** Get the texture of this image. */
-        EQ_CLIENT_DECL const util::Texture& getTexture( const Frame::Buffer buffer )
+        EQ_API const util::Texture& getTexture( const Frame::Buffer buffer )
             const;
 
         /**
          * @return true if the image has texture data for the buffer, false if
          * not.
          */
-        EQ_CLIENT_DECL bool hasTextureData( const Frame::Buffer buffer ) const;
+        EQ_API bool hasTextureData( const Frame::Buffer buffer ) const;
 
         /** 
          * @return the internal format a texture should use for the given
          *         buffer. 
          */
-        EQ_CLIENT_DECL uint32_t getInternalTextureFormat( const Frame::Buffer which )
+        EQ_API uint32_t getInternalTextureFormat( const Frame::Buffer which )
                                const;
         //@}
 
@@ -228,7 +228,7 @@ namespace eq
          * @param glObjects the GL object manager for the current GL context.
          * @sa setStorageType()
          */
-        EQ_CLIENT_DECL void readback( const uint32_t buffers,
+        EQ_API void readback( const uint32_t buffers,
                                  const PixelViewport& pvp, const Zoom& zoom,
                                  util::ObjectManager< const void* >* glObjects);
 
@@ -253,7 +253,7 @@ namespace eq
          * @param position the destination offset wrt current GL viewport.
          * @param glObjects the OpenGL object manager for the current context.
          */
-        EQ_CLIENT_DECL void upload( const Frame::Buffer buffer,
+        EQ_API void upload( const Frame::Buffer buffer,
                                const Vector2i& position,
                                util::ObjectManager< const void* >* glObjects )
             const;
@@ -268,20 +268,20 @@ namespace eq
          * @param texture the target texture.
          * @param glObjects the OpenGL object manager for the current context.
          */
-        EQ_CLIENT_DECL void upload( const Frame::Buffer buffer,
+        EQ_API void upload( const Frame::Buffer buffer,
                                util::Texture* texture,
                                util::ObjectManager< const void* >* glObjects )
             const;
 
         /** Writes the pixel data as rgb image files. */
-        EQ_CLIENT_DECL bool writeImage( const std::string& filename,
+        EQ_API bool writeImage( const std::string& filename,
                                    const Frame::Buffer buffer ) const;
 
         /** Writes all valid pixel data as separate images. */
-        EQ_CLIENT_DECL bool writeImages( const std::string& filenameTemplate ) const;
+        EQ_API bool writeImages( const std::string& filenameTemplate ) const;
 
         /** Read pixel data from an uncompressed rgb image file. */
-        EQ_CLIENT_DECL bool readImage( const std::string& filename, 
+        EQ_API bool readImage( const std::string& filename, 
                                   const Frame::Buffer buffer   );
 
         /** Setting image offset, used after readback to correct position 
@@ -289,30 +289,30 @@ namespace eq
         void setOffset( int32_t x, int32_t y ) { _pvp.x = x; _pvp.y = y; }
 
         /** Delete all cache data of this image. */
-        EQ_CLIENT_DECL void flush();
+        EQ_API void flush();
         //@}
 
         /** 
          * @internal
          * @return the list of possible compressors for the given buffer.
          */
-        EQ_CLIENT_DECL std::vector< uint32_t > 
+        EQ_API std::vector< uint32_t > 
         findCompressors( const Frame::Buffer buffer ) const;
 
         /** 
          * @internal
          * Assemble a list of possible up/downloaders for the given buffer.
          */
-        EQ_CLIENT_DECL void findTransferers( const Frame::Buffer buffer,
+        EQ_API void findTransferers( const Frame::Buffer buffer,
                                         const GLEWContext* glewContext,
                                         std::vector< uint32_t >& names );
         
         /** @internal Re-allocate, if needed, a compressor instance. */
-        EQ_CLIENT_DECL bool allocCompressor( const Frame::Buffer buffer, 
+        EQ_API bool allocCompressor( const Frame::Buffer buffer, 
                                         const uint32_t name );
 
         /** @internal Re-allocate, if needed, a downloader instance. */
-        EQ_CLIENT_DECL bool allocDownloader( const Frame::Buffer buffer, 
+        EQ_API bool allocDownloader( const Frame::Buffer buffer, 
                                         const uint32_t name,
                                         const GLEWContext* glewContext );
 
@@ -388,8 +388,8 @@ namespace eq
         Attachment _color;
         Attachment _depth;
 
-        EQ_CLIENT_DECL Attachment& _getAttachment( const Frame::Buffer buffer );
-        EQ_CLIENT_DECL const Attachment& _getAttachment( const Frame::Buffer ) const;
+        EQ_API Attachment& _getAttachment( const Frame::Buffer buffer );
+        EQ_API const Attachment& _getAttachment( const Frame::Buffer ) const;
 
         Memory& _getMemory( const Frame::Buffer buffer )
             { return _getAttachment( buffer ).memory; }

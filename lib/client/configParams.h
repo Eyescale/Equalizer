@@ -28,7 +28,7 @@ namespace eq
     {
     public:
         /** Construct new configuration parameters. @version 1.0 */
-        EQ_CLIENT_DECL ConfigParams();
+        EQ_API ConfigParams();
 
         /** Destruct this configuration parameters. @version 1.0 */
         ~ConfigParams(){}
@@ -42,10 +42,10 @@ namespace eq
          * net::Global::getProgramName(), i.e., the filename part of argv[0].
          * @version 1.0
          */
-        EQ_CLIENT_DECL void setRenderClient( const std::string& renderClient );
+        EQ_API void setRenderClient( const std::string& renderClient );
 
         /** @return the name of the render client executable. @version 1.0 */
-        EQ_CLIENT_DECL const std::string& getRenderClient() const;
+        EQ_API const std::string& getRenderClient() const;
 
         /**
          * Set the directory from which to launch the render client.
@@ -54,13 +54,13 @@ namespace eq
          * net::Global::getWorkDir(), i.e., the directory part of argv[0].
          * @version 1.0
          */
-        EQ_CLIENT_DECL void setWorkDir( const std::string& workDir );
+        EQ_API void setWorkDir( const std::string& workDir );
 
         /** 
          * @return the directory from which to launch the render client.
          * @version 1.0
          */
-        EQ_CLIENT_DECL const std::string& getWorkDir() const;
+        EQ_API const std::string& getWorkDir() const;
         //@}
 
     private:

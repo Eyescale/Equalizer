@@ -71,32 +71,32 @@ namespace eq
         typedef util::BitmapFont< const void* > Font;
 
         /** Construct a new window. @version 1.0 */
-        EQ_CLIENT_DECL Window( Pipe* parent );
+        EQ_API Window( Pipe* parent );
 
         /** Destruct the window. @version 1.0 */
-        EQ_CLIENT_DECL virtual ~Window();
+        EQ_API virtual ~Window();
 
         /** @name Data Access */
         //@{
-        EQ_CLIENT_DECL net::CommandQueue* getPipeThreadQueue(); //!< @internal
+        EQ_API net::CommandQueue* getPipeThreadQueue(); //!< @internal
 
         /** @return the Node of this window. @version 1.0 */
-        EQ_CLIENT_DECL const Node* getNode() const; 
+        EQ_API const Node* getNode() const; 
 
         /** @return the Node of this window. @version 1.0 */
-        EQ_CLIENT_DECL Node*       getNode();
+        EQ_API Node*       getNode();
 
         /** @return the Config of this window. @version 1.0 */
-        EQ_CLIENT_DECL const Config* getConfig() const;
+        EQ_API const Config* getConfig() const;
 
         /** @return the Config of this window. @version 1.0 */
-        EQ_CLIENT_DECL Config*       getConfig();
+        EQ_API Config*       getConfig();
 
         /** @return the Client of this window. @version 1.0 */
-        EQ_CLIENT_DECL ClientPtr getClient();
+        EQ_API ClientPtr getClient();
 
         /** @return the Server of this window. @version 1.0 */
-        EQ_CLIENT_DECL ServerPtr getServer();
+        EQ_API ServerPtr getServer();
 
         /**
          * @return true if this window is running, false otherwise.
@@ -119,7 +119,7 @@ namespace eq
          * @return true if a render context was found, false otherwise.
          * @warning experimental - may not be supported in the future.         
          */
-        EQ_CLIENT_DECL bool getRenderContext( const int32_t x, const int32_t y,
+        EQ_API bool getRenderContext( const int32_t x, const int32_t y,
                                          RenderContext& context ) const;
         //@}
 
@@ -159,13 +159,13 @@ namespace eq
          * @return a small bitmap font used for overlays.
          * @warning experimental - may not be supported in the future.         
          */
-        EQ_CLIENT_DECL const Font* getSmallFont();
+        EQ_API const Font* getSmallFont();
 
         /**
          * @return a medium bitmap font used for overlays.
          * @warning experimental - may not be supported in the future.         
          */
-        EQ_CLIENT_DECL const Font* getMediumFont();
+        EQ_API const Font* getMediumFont();
 
         /** 
          * Get the GLEW context for this window.
@@ -181,14 +181,14 @@ namespace eq
          *         context.
          * @version 1.0
          */
-        EQ_CLIENT_DECL const GLEWContext* glewGetContext() const;
+        EQ_API const GLEWContext* glewGetContext() const;
 
         /**
          * @internal
          * @return the OpenGL texture format corresponding to the window's color
          *         drawable configuration
          */
-        EQ_CLIENT_DECL uint32_t getColorFormat() const;
+        EQ_API uint32_t getColorFormat() const;
         //@}
 
         /** @name Actions */
@@ -212,10 +212,10 @@ namespace eq
         virtual void finish() const { glFinish(); }
 
         /** Swap the front and back buffer of the window. @version 1.0 */
-        EQ_CLIENT_DECL virtual void swapBuffers();
+        EQ_API virtual void swapBuffers();
 
         /** Render the current framerate as on overlay. @version 1.0 */
-        EQ_CLIENT_DECL virtual void drawFPS();
+        EQ_API virtual void drawFPS();
 
         /** @return the window's average framerate. @version 1.0 */
         float getFPS() const { return _avgFPS; }
@@ -229,10 +229,10 @@ namespace eq
          * this method will only call SystemWindow::makeCurrent if it has not
          * been done before for this window on this pipe.
          */
-        EQ_CLIENT_DECL virtual void makeCurrent( const bool cache = true ) const;
+        EQ_API virtual void makeCurrent( const bool cache = true ) const;
 
         /** @internal Bind the window's FBO, if it uses one. */
-        EQ_CLIENT_DECL virtual void bindFrameBuffer() const;
+        EQ_API virtual void bindFrameBuffer() const;
         //@}
 
         /**  @name SystemWindow interface */
@@ -246,7 +246,7 @@ namespace eq
          * initialized.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void setSystemWindow( SystemWindow* window );
+        EQ_API void setSystemWindow( SystemWindow* window );
 
         /** @return the OS-specific window implementation. @version 1.0 */
         const SystemWindow* getSystemWindow() const { return _systemWindow; }
@@ -279,14 +279,14 @@ namespace eq
          * @return true when the event was handled, false if not.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual bool processEvent( const Event& event );
+        EQ_API virtual bool processEvent( const Event& event );
         //@}
 
     protected:
         friend class Pipe;
 
         /** @internal */
-        EQ_CLIENT_DECL virtual void attachToSession( const uint32_t id, 
+        EQ_API virtual void attachToSession( const uint32_t id, 
                                                 const uint32_t instanceID, 
                                                 net::Session* session );
         /** @name Actions */
@@ -297,7 +297,7 @@ namespace eq
          * @param frameNumber the frame to start.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void startFrame( const uint32_t frameNumber );
+        EQ_API void startFrame( const uint32_t frameNumber );
 
         /** 
          * Signal the completion of a frame to the parent.
@@ -305,7 +305,7 @@ namespace eq
          * @param frameNumber the frame to end.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void releaseFrame( const uint32_t frameNumber );
+        EQ_API void releaseFrame( const uint32_t frameNumber );
 
         /** 
          * Signal the release of the local synchronization to the parent.
@@ -313,7 +313,7 @@ namespace eq
          * @param frameNumber the frame to release.
          * @version 1.0
          */
-        EQ_CLIENT_DECL void releaseFrameLocal( const uint32_t frameNumber );
+        EQ_API void releaseFrameLocal( const uint32_t frameNumber );
         //@}
 
         /**
@@ -329,7 +329,7 @@ namespace eq
          * @param initID the init identifier.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual bool configInit( const uint32_t initID );
+        EQ_API virtual bool configInit( const uint32_t initID );
 
         /** 
          * Initialize the OS-specific window.
@@ -337,7 +337,7 @@ namespace eq
          * @sa setSystemWindow()
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual bool configInitSystemWindow( const uint32_t initID );
+        EQ_API virtual bool configInitSystemWindow( const uint32_t initID );
 
         /** 
          * Initialize the OpenGL state for this window.
@@ -347,13 +347,13 @@ namespace eq
          *         <code>false</code> if not.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual bool configInitGL( const uint32_t initID );
+        EQ_API virtual bool configInitGL( const uint32_t initID );
 
         /** Exit this window. @version 1.0 */
-        EQ_CLIENT_DECL virtual bool configExit();
+        EQ_API virtual bool configExit();
 
         /** De-initialize the OS-specific window. @version 1.0 */
-        EQ_CLIENT_DECL virtual bool configExitSystemWindow();
+        EQ_API virtual bool configExitSystemWindow();
 
         /** De-initialize the OpenGL state for this window. @version 1.0 */
         virtual bool configExitGL() { return true; }
@@ -368,7 +368,7 @@ namespace eq
          * @param frameNumber the frame to start.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void frameStart( const uint32_t frameID, 
+        EQ_API virtual void frameStart( const uint32_t frameID, 
                                            const uint32_t frameNumber );
 
         /**
@@ -384,7 +384,7 @@ namespace eq
          * @param frameNumber the frame to finish.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void frameFinish( const uint32_t frameID, 
+        EQ_API virtual void frameFinish( const uint32_t frameID, 
                                             const uint32_t frameNumber );
 
         /** 
@@ -397,7 +397,7 @@ namespace eq
          * @param frameNumber the frame to finished with draw.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual void frameDrawFinish( const uint32_t frameID,
+        EQ_API virtual void frameDrawFinish( const uint32_t frameID,
                                                 const uint32_t frameNumber );
         //@}
 

@@ -39,10 +39,10 @@ namespace eq
     {
     public:
         /** Construct a new client. @version 1.0 */
-        EQ_CLIENT_DECL Client();
+        EQ_API Client();
 
         /** Destruct the client. @version 1.0 */
-        EQ_CLIENT_DECL virtual ~Client();
+        EQ_API virtual ~Client();
 
         /** 
          * Open and connect an Equalizer server to the local client.
@@ -53,7 +53,7 @@ namespace eq
          * @return true if the server was connected, false if not.
          * @version 1.0 
          */
-        EQ_CLIENT_DECL bool connectServer( ServerPtr server );
+        EQ_API bool connectServer( ServerPtr server );
 
         /** 
          * Disconnect and close the connection to an Equalizer server.
@@ -62,7 +62,7 @@ namespace eq
          * @return true if the server was disconnected, false if not.
          * @version 1.0 
          */
-        EQ_CLIENT_DECL bool disconnectServer( ServerPtr server );
+        EQ_API bool disconnectServer( ServerPtr server );
 
         /** 
          * Initialize a local, listening node.
@@ -78,13 +78,13 @@ namespace eq
          *         <code>false</code> otherwise.
          * @version 1.0
          */
-        EQ_CLIENT_DECL virtual bool initLocal( const int argc, char** argv );
+        EQ_API virtual bool initLocal( const int argc, char** argv );
 
         /**
          * @return true if the client has commands pending, false otherwise.
          * @version 1.0 
          */
-        EQ_CLIENT_DECL bool hasCommands();
+        EQ_API bool hasCommands();
 
         /** @internal @return the command queue to the main node thread. */
         virtual net::CommandQueue* getMainThreadQueue()
@@ -92,7 +92,7 @@ namespace eq
 
     protected:
         /** @sa net::Node::listen() @internal */
-        EQ_CLIENT_DECL virtual bool listen();
+        EQ_API virtual bool listen();
 
         /**
          * Implements the processing loop for render clients. 
@@ -105,10 +105,10 @@ namespace eq
          * @sa Pipe::createMessagePump()
          * @version 1.0 
          */
-        EQ_CLIENT_DECL virtual void clientLoop();
+        EQ_API virtual void clientLoop();
 
         /** Exit the process cleanly on render clients. @version 1.0 */
-        EQ_CLIENT_DECL virtual void exitClient();
+        EQ_API virtual void exitClient();
 
     private:
         /** The command->node command queue. */
@@ -122,7 +122,7 @@ namespace eq
         };
 
         /** @sa net::Node::createNode */
-        EQ_CLIENT_DECL virtual net::NodePtr createNode( const uint32_t type );
+        EQ_API virtual net::NodePtr createNode( const uint32_t type );
 
         bool _setupClient( const std::string& clientArgs );
 

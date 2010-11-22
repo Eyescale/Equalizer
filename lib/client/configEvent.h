@@ -53,7 +53,7 @@ namespace eq
         Event data; //!< the Event @version 1.0
     };
 
-    EQ_CLIENT_DECL std::ostream& operator << ( std::ostream& os, 
+    EQ_API std::ostream& operator << ( std::ostream& os, 
                                           const ConfigEvent* event );
 }
 
