@@ -34,11 +34,7 @@ NodeFactory* Global::_nodeFactory = 0;
 #endif
 
 #ifdef Darwin
-#    ifdef XCODE
-        std::string Global::_configFile = "./../../../examples/configs/4-window.all.eqc";
-#    else // make
-        std::string Global::_configFile = "examples/configs/4-window.all.eqc";
-#    endif
+    std::string Global::_configFile = "examples/configs/4-window.all.eqc";
 #endif
 #ifdef Linux
    std::string Global::_configFile = "examples/configs/4-window.all.eqc";
