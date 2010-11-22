@@ -91,9 +91,7 @@ namespace net
         EQ_NET_DECL bool isSameMulticastGroup( ConnectionDescriptionPtr rhs );
         //@}
 
-        /**
-         * @name Attributes
-         */
+        /** @name Attributes */
         //@{
         // Note: also update string array init in connectionDescription.cpp
         /** String attributes */
@@ -139,6 +137,20 @@ namespace net
 
     EQ_NET_DECL std::ostream& operator << ( std::ostream&,
                                           const ConnectionDescription& );
+
+    /** Serialize a vector of connection descriptions to a string. */
+    EQ_NET_DECL std::string serialize( const ConnectionDescriptions& );
+
+    /** 
+     * Deserialize a vector or connection descriptions from a string.
+     *
+     * Consumes the data.
+     * @param data The serialized connection descriptions.
+     * @param descriptions return value, deserialized connection descriptions.
+     * @return true on successful parsing, false otherwise.
+     */
+    EQ_NET_DECL bool deserialize( std::string& data,
+                                  ConnectionDescriptions& descriptions );
 }
 }
 

@@ -64,13 +64,13 @@ namespace net
          */
         //@{
         /** 
-         * Initialize a local, listening node.
+         * Initialize the node.
          *
-         * The '--eq-listen &lt;connection description&gt;' command line options
-         * is recognized by this method to add listening connections to this
-         * node. This parameter might be used multiple
-         * times. ConnectionDescription::fromString() is used to parse the
-         * provided description.
+         * Before calling listen(), the '--eq-listen &lt;connection
+         * description&gt;' command line options is recognized by this method to
+         * add listening connections to this node. This parameter might be used
+         * multiple times. ConnectionDescription::fromString() is used to parse
+         * the provided description.
          *
          * Please note that further command line parameters are recognized by
          * eq::init().
@@ -82,18 +82,13 @@ namespace net
          */
         EQ_NET_DECL virtual bool initLocal( const int argc, char** argv );
         
-        /** 
-         * Close the connection.
-         */
-        virtual bool exitLocal() { return close(); }
-
         /**
          * Open all connections and put this node into the listening state.
          *
          * The node will spawn a receiver and command thread, and listen on all
-         * connections described for incoming commands. The node will be in the
-         * listening state if the method completed successfully. A listening
-         * node can connect other nodes.
+         * connections for incoming commands. The node will be in the listening
+         * state if the method completed successfully. A listening node can
+         * connect other nodes.
          * 
          * @return <code>true</code> if the node could be initialized,
          *         <code>false</code> if not.
@@ -111,6 +106,11 @@ namespace net
          *         if it was not stopped.
          */
         EQ_NET_DECL virtual bool close();
+
+        /** 
+         * Close a listening node.
+         */
+        virtual bool exitLocal() { return close(); }
 
         /**
          * Connect a proxy node to this listening node.
@@ -253,6 +253,7 @@ namespace net
          * @sa invokeCommand
          */
         EQ_NET_DECL bool dispatchCommand( Command& command );
+
     protected:
         /** 
          * Connect a node proxy to this node.
@@ -315,12 +316,14 @@ namespace net
             ReceiverThread( LocalNode* localNode ) : _localNode( localNode ){}
             virtual bool init()
                 {
-                    setDebugName( std::string("Rcv ") + base::className(_localNode));
+                    setDebugName( std::string( "Rcv " ) +
+                                  base::className( _localNode ));
                     return _localNode->_commandThread->start();
                 }
             virtual void run(){ _localNode->_runReceiverThread(); }
+
         private:
-            LocalNode* _localNode;
+            LocalNode* const _localNode;
         };
         ReceiverThread* _receiverThread;
 
@@ -374,13 +377,13 @@ namespace net
             CommandThread( LocalNode* localNode ) : _localNode( localNode ){}
             virtual bool init()
                 {
-                    setDebugName( std::string("Cmd ") +
+                    setDebugName( std::string( "Cmd " ) +
                                   base::className( _localNode ));
                     return true;
                 }
             virtual void run(){ _localNode->_runCommandThread(); }
         private:
-            LocalNode* _localNode;
+            LocalNode* const _localNode;
         };
         CommandThread* _commandThread;
 

@@ -109,27 +109,13 @@ bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
 std::string Node::serialize() const
 {
     std::ostringstream data;
-    data << _id << EQNET_SEPARATOR << _connectionDescriptions.size()
-         << EQNET_SEPARATOR;
-
-    for( ConnectionDescriptions::const_iterator i =
-             _connectionDescriptions.begin();
-         i != _connectionDescriptions.end(); ++i )
-    {
-        ConnectionDescriptionPtr desc = *i;
-        desc->serialize( data );
-    }
-    
+    data << _id << EQNET_SEPARATOR << net::serialize( _connectionDescriptions );
     return data.str();
 }
  
 bool Node::deserialize( std::string& data )
 {
     EQASSERT( _state == STATE_CLOSED );
-
-    EQVERB << "Node data: " << data << std::endl;
-    if( !_connectionDescriptions.empty( ))
-        EQWARN << "Node already holds data while deserializing it" << std::endl;
 
     // node id
     size_t nextPos = data.find( EQNET_SEPARATOR );
@@ -141,38 +127,7 @@ bool Node::deserialize( std::string& data )
 
     _id = data.substr( 0, nextPos );
     data = data.substr( nextPos + 1 );
-
-    // num connection descriptions
-    nextPos = data.find( EQNET_SEPARATOR );
-    if( nextPos == std::string::npos || nextPos == 0 )
-    {
-        EQERROR << "Could not parse node data" << std::endl;
-        return false;
-    }
-
-    const std::string sizeStr = data.substr( 0, nextPos );
-    if( !isdigit( sizeStr[0] ))
-    {
-        EQERROR << "Could not parse node data" << std::endl;
-        return false;
-    }
-
-    const size_t nDesc = atoi( sizeStr.c_str( ));
-    data = data.substr( nextPos + 1 );
-
-    // connection descriptions
-    for( size_t i = 0; i<nDesc; ++i )
-    {
-        ConnectionDescriptionPtr desc = new ConnectionDescription;
-        if( !desc->fromString( data ))
-        {
-            EQERROR << "Error during node connection data parsing" << std::endl;
-            return false;
-        }
-        addConnectionDescription( desc );
-    }
-
-    return true;
+    return net::deserialize( data, _connectionDescriptions );
 }
 
 NodePtr Node::createNode( const uint32_t type )

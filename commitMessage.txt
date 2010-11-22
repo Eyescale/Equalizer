@@ -1,9 +1,14 @@
-Re-enable init failure tolerance by default, add warning-on-error in examples.
+Cleanups:
+- Move connection description vector serialization to connectionDescription.h
+- Loader:
+  o don't add default connections for nodes
+  o always add empty appNode
+  o re-use appNode during parsing
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -111,8 +111,8 @@ bool LocalNode::initLocal( const int argc, char** argv )
     
     if( !listen( ))
     {
-        EQWARN << "Can't setup listener(s) on " 
-               << *(Node*)this << std::endl; 
+        EQWARN << "Can't setup listener(s) on " << *static_cast< Node* >( this )
+               << std::endl; 
         return false;
     }
     return true;

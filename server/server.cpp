@@ -327,10 +327,9 @@ bool Server::_cmdChooseConfig( net::Command& command )
     createConfigPacket.configID = config->getID();
     createConfigPacket.proxy = config->getProxyVersion();
     createConfigPacket.proxy.version = config->commit();
+    node->send( createConfigPacket );
 
     reply.configID = config->getID();
-
-    node->send( createConfigPacket );
     node->send( reply );
 
     return true;

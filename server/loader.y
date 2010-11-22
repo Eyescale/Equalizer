@@ -531,6 +531,8 @@ config: EQTOKEN_CONFIG '{'
             {
                 config = new eq::server::Config( server );
                 config->setName( filename );
+                node = new eq::server::Node( config );
+                node->setApplicationNode( true );
             }
         configFields '}' { config = 0; }
 configFields: /*null*/ | configFields configField
@@ -555,16 +557,11 @@ renderNode: EQTOKEN_NODE '{' {
                                  node = new eq::server::Node( config );
                              }
                nodeFields
-               '}' { 
-                        if( node->getConnectionDescriptions().empty( ))
-                            node->addConnectionDescription(
-                                new eq::server::ConnectionDescription );
-                        node = 0; 
-                   }
+               '}' { node = 0; }
 appNode: EQTOKEN_APPNODE '{' 
             {
-                node = new eq::server::Node( config );
-                node->setApplicationNode( true );
+                node = config->findApplicationNode();
+                EQASSERT( node )
             }
             nodeFields
             '}' { node = 0; }

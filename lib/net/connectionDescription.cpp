@@ -268,5 +268,63 @@ std::ostream& operator << ( std::ostream& os,
     return os;
 }
 
+std::string serialize( const ConnectionDescriptions& descriptions )
+{
+    std::ostringstream data;
+    data << descriptions.size() << EQNET_SEPARATOR;
+
+    for( ConnectionDescriptions::const_iterator i = descriptions.begin();
+         i != descriptions.end(); ++i )
+    {
+        ConnectionDescriptionPtr desc = *i;
+        desc->serialize( data );
+    }
+    
+    return data.str();
+}
+
+bool deserialize( std::string& data, ConnectionDescriptions& descriptions )
+{
+    if( !descriptions.empty( ))
+        EQWARN << "Connection descriptions already hold data before deserialize"
+               << std::endl;
+
+    // num connection descriptions
+    size_t nextPos = data.find( EQNET_SEPARATOR );
+    if( nextPos == std::string::npos || nextPos == 0 )
+    {
+        EQERROR << "Could not parse number of connection descriptions"
+                << std::endl;
+        return false;
+    }
+
+    const std::string sizeStr = data.substr( 0, nextPos );
+    if( !isdigit( sizeStr[0] ))
+    {
+        EQERROR << "Could not parse number of connection descriptions"
+                << std::endl;
+        return false;
+    }
+
+    const size_t nDesc = atoi( sizeStr.c_str( ));
+    data = data.substr( nextPos + 1 );
+
+    // connection descriptions
+    for( size_t i = 0; i < nDesc; ++i )
+    {
+        ConnectionDescriptionPtr desc = new ConnectionDescription;
+        if( !desc->fromString( data ))
+        {
+            EQERROR << "Error during connection description parsing"
+                    << std::endl;
+            return false;
+        }
+        descriptions.push_back( desc );
+    }
+
+    return true;
+}
+
+
 }
 }
