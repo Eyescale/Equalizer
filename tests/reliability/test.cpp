@@ -35,7 +35,7 @@ public:
     Node( eq::Config* parent ) : eq::Node( parent ) {}
 
 protected:
-    virtual bool configInit( const uint32_t initID )
+    virtual bool configInit( const eq::uint128_t& initID )
         {
             if( getName() != "fail" )
                 return eq::Node::configInit( initID );
@@ -54,7 +54,7 @@ public:
     Pipe( eq::Node* parent ) : eq::Pipe( parent ) {}
 
 protected:
-    virtual bool configInit( const uint32_t initID )
+    virtual bool configInit( const eq::uint128_t& initID )
         {
             if( getName() != "fail" )
                 return eq::Pipe::configInit( initID );

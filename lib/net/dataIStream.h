@@ -190,12 +190,12 @@ namespace net
     class ObjectFinder
     {
     public:
-        ObjectFinder( const uint32_t id ) : _id( id ) {}
+        ObjectFinder( const base::UUID& id ) : _id( id ) {}
         bool operator()( net::Object* candidate )
             { return candidate->getID() == _id; }
 
     private:
-        const uint32_t _id;
+        const base::UUID _id;
     };
     }
 
@@ -215,7 +215,7 @@ namespace net
         {
             const ObjectVersion& version = *i;
             
-            if( version.identifier == EQ_ID_NONE )
+            if( version.identifier == base::EQ_UUID_NONE )
             {
                 result.push_back( 0 );
                 continue;
@@ -233,7 +233,7 @@ namespace net
                 EQASSERT( session );
                 EQASSERT( !object->isMaster( ));
 
-                EQASSERT( version.identifier <= EQ_ID_MAX );
+                EQASSERT( version.identifier <= base::EQ_UUID_MAX );
                 EQCHECK( session->mapObject( child, version ));
                 result.push_back( child );
             }

@@ -32,19 +32,19 @@ namespace eq
                 size    = sizeof( ConfigCreateNodePacket );
             }
 
-        uint32_t nodeID;
+        base::UUID nodeID;
     };
 
     struct ConfigDestroyNodePacket : public ConfigPacket
     {
-        ConfigDestroyNodePacket( const uint32_t id )
+        ConfigDestroyNodePacket( const base::UUID& id )
                 : nodeID( id )
             {
                 command = fabric::CMD_CONFIG_DESTROY_NODE;
                 size    = sizeof( ConfigDestroyNodePacket );
             }
 
-        const uint32_t nodeID;
+        const base::UUID nodeID;
     };
 
     struct ConfigInitPacket : public ConfigPacket
@@ -55,8 +55,8 @@ namespace eq
                 size      = sizeof( ConfigInitPacket );
             }
 
-        uint32_t requestID;
         uint128_t initID;
+        uint32_t requestID;
     };
 
     struct ConfigInitReplyPacket : public ConfigPacket
@@ -90,7 +90,7 @@ namespace eq
     struct ConfigUpdateVersionPacket : public ConfigPacket
     {
         ConfigUpdateVersionPacket( const ConfigUpdatePacket* request,
-                                   const uint128_t version_, const uint32_t req )
+                                   const uint128_t& version_, const uint32_t req )
                 : versionID( request->versionID )
                 , finishID( request->finishID )
                 , version( version_ )
@@ -145,7 +145,7 @@ namespace eq
 
     struct ConfigStartFramePacket : public ConfigPacket
     {
-        ConfigStartFramePacket( const uint128_t frameID_ )
+        ConfigStartFramePacket( const uint128_t& frameID_ )
                 : frameID( frameID_ )
             {
                 command   = fabric::CMD_CONFIG_START_FRAME;

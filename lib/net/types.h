@@ -77,7 +77,7 @@ typedef std::vector< ConnectionDescriptionPtr >  ConnectionDescriptions;
 typedef std::vector< Command* > Commands;
 typedef std::deque< Command* > CommandDeque;
 typedef std::list< Command* > CommandList;
-typedef stde::hash_map< uint32_t, Objects > ObjectsHash;
+typedef stde::hash_map< base::UUID, Objects > ObjectsHash;
 typedef std::vector< ObjectVersion > ObjectVersions;
 typedef std::deque< ObjectInstanceDataIStream* > ObjectInstanceDataIStreamDeque;
 typedef std::vector< ObjectInstanceDataIStream* > ObjectInstanceDataIStreams;

@@ -85,9 +85,9 @@ void Pipe< N, P, W, V >::restore()
 }
 
 template< class N, class P, class W, class V >
-void Pipe< N, P, W, V >::attachToSession( const uint32_t id,
-                                              const uint32_t instanceID,
-                                              net::Session* session )
+void Pipe< N, P, W, V >::attachToSession( const base::UUID& id,
+                                          const uint32_t instanceID,
+                                          net::Session* session )
 {
     Object::attachToSession( id, instanceID, session );
 
@@ -180,7 +180,7 @@ void Pipe< N, P, W, V >::notifyDetach()
     while( !_windows.empty( ))
     {
         W* window = _windows.back();
-        if( window->getID() > EQ_ID_MAX )
+        if( window->getID() > base::EQ_UUID_MAX )
         {
             EQASSERT( isMaster( ));
             return;
@@ -332,7 +332,7 @@ bool Pipe< N, P, W, V >::_removeWindow( W* window )
 }
 
 template< class N, class P, class W, class V >
-W* Pipe< N, P, W, V >::_findWindow( const uint32_t id )
+W* Pipe< N, P, W, V >::_findWindow( const base::UUID& id )
 {
     for( typename Windows::const_iterator i = _windows.begin(); 
          i != _windows.end(); ++i )
@@ -391,7 +391,7 @@ Pipe< N, P, W, V >::_cmdNewWindow( net::Command& command )
     EQASSERT( window );
 
     _node->getConfig()->registerObject( window );
-    EQASSERT( window->getID() <= EQ_ID_MAX );
+    EQASSERT( window->getID() <= base::EQ_UUID_MAX );
 
     PipeNewWindowReplyPacket reply( packet );
     reply.windowID = window->getID();

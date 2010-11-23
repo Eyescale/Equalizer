@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -73,7 +74,7 @@ namespace eqPly
         void unmapData();
 
         /** @return the requested, default model or 0. */
-        const Model* getModel( const uint32_t id );
+        const Model* getModel( const eq::uint128_t& id );
 
         /** @sa eq::Config::handleEvent */
         virtual bool handleEvent( const eq::ConfigEvent* event );

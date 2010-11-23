@@ -55,7 +55,7 @@ namespace fabric
 
         /** @internal @return the index path to this node. */
         EQFABRIC_EXPORT NodePath getPath() const;
-        P* findPipe( const uint32_t id ); //!< @internal
+        P* findPipe( const base::UUID& id ); //!< @internal
 
         /** 
          * Traverse this node and all children using a node visitor.

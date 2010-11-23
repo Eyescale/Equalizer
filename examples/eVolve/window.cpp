@@ -34,7 +34,7 @@
 namespace eVolve
 {
 
-bool Window::configInit( const eq::base::uint128_t& initID )
+bool Window::configInit( const eq::uint128_t& initID )
 {
     // Enforce alpha channel, since we need one for rendering
     setIAttribute( IATTR_PLANES_ALPHA, 8 );
@@ -42,7 +42,7 @@ bool Window::configInit( const eq::base::uint128_t& initID )
     return eq::Window::configInit( initID );
 }
 
-bool Window::configInitGL( const eq::base::uint128_t& initID )
+bool Window::configInitGL( const eq::uint128_t& initID )
 {
     Pipe*     pipe     = static_cast<Pipe*>( getPipe() );
     Renderer* renderer = pipe->getRenderer();

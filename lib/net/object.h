@@ -68,7 +68,7 @@ namespace net
         /** @name Data Access */
         //@{
         /** @return true if the object is attached, mapped or registered. */
-        bool isAttached() const { return getID() <= EQ_ID_MAX; }
+        bool isAttached() const { return getID() <= base::EQ_UUID_MAX; }
 
         /**
          * @return the local node to which this object is mapped, or 0 if the
@@ -89,7 +89,7 @@ namespace net
         Session* getSession()             { return _session; }
 
         /** @return the session-wide unique object identifier. */
-        uint32_t getID() const         { return _id; }
+        base::UUID getID() const         { return _id; }
 
         /** @return the node-wide unique object instance identifier. */
         uint32_t getInstanceID() const { return _instanceID; }
@@ -305,7 +305,8 @@ namespace net
          * Called when object is attached to session from the receiver thread.
          * @internal
          */
-        EQNET_API virtual void attachToSession( const uint32_t id, 
+
+        EQNET_API virtual void attachToSession( const base::UUID& id, 
                                                 const uint32_t instanceID, 
                                                 Session* session );
 
@@ -349,7 +350,7 @@ namespace net
         friend class VersionedSlaveCM;
 
         /** The session-unique object identifier. */
-        uint32_t _id;
+        base::UUID _id;
 
         /** A session-unique identifier of the concrete instance. */
         uint32_t _instanceID;

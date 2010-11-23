@@ -358,9 +358,9 @@ namespace eq
                                              const uint32_t frameNumber );
 
         /** @internal @sa net::Object::attachToSession. */
-        EQ_API virtual void attachToSession( const uint32_t id, 
-                                                const uint32_t instanceID, 
-                                                net::Session* session );
+        EQ_API virtual void attachToSession( const base::UUID& id, 
+                                             const uint32_t instanceID, 
+                                             net::Session* session );
 
     private:
         //-------------------- Members --------------------
@@ -400,8 +400,8 @@ namespace eq
         /** The time spent waiting since the last frame start. */
         int64_t _waitTime;
 
-        typedef stde::hash_map< uint32_t, Frame* > FrameHash;
-        typedef stde::hash_map< uint32_t, FrameData* > FrameDataHash;
+        typedef stde::hash_map< base::UUID, Frame* > FrameHash;
+        typedef stde::hash_map< base::UUID, FrameData* > FrameDataHash;
 
         /** All assembly frames used by the pipe during rendering. */
         FrameHash _frames;
@@ -409,7 +409,7 @@ namespace eq
         /** All output frame datas used by the pipe during rendering. */
         FrameDataHash _outputFrameDatas;
 
-        typedef stde::hash_map< uint32_t, View* > ViewHash;
+        typedef stde::hash_map< base::UUID, View* > ViewHash;
         /** All views used by the pipe's channels during rendering. */
         ViewHash _views;
 

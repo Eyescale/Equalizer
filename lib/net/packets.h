@@ -82,7 +82,7 @@ namespace net
                 type   = PACKETTYPE_EQNET_OBJECT; 
                 instanceID = EQ_ID_ANY;
             }
-        uint32_t objectID;
+        base::UUID objectID;
         uint32_t instanceID;
         // pad to multiple-of-eight
     };

@@ -27,15 +27,15 @@ namespace net
 ObjectVersion NONE;
 
 ObjectVersion::ObjectVersion()
-        : identifier( EQ_ID_NONE ), version( VERSION_NONE )
+: identifier( base::EQ_UUID_NONE ), version( VERSION_NONE )
 {}
 
-ObjectVersion::ObjectVersion( const uint32_t id_, const uint128_t& version_ )
+ObjectVersion::ObjectVersion( const base::UUID& id_, const uint128_t& version_ )
         : identifier( id_ ), version( version_ )
 {}
 
 ObjectVersion::ObjectVersion( const Object* object )
-        : identifier( EQ_ID_NONE ), version( VERSION_NONE )
+: identifier( base::EQ_UUID_NONE ), version( VERSION_NONE )
 {
     if( object && object->isAttached( ))
     {
@@ -53,7 +53,7 @@ ObjectVersion& ObjectVersion::operator = ( const Object* object )
     }
     else
     {
-        identifier = EQ_ID_NONE;
+        identifier = base::EQ_UUID_NONE;
         version = VERSION_NONE;
     }
 

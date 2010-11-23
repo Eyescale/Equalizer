@@ -203,7 +203,7 @@ namespace eq
         uint32_t type;
 
         /** The identifier of the entity emitting the event. */
-        uint32_t originator;
+        uint128_t originator;
 
         /** Data for the event corresponding to the event type. */
         union

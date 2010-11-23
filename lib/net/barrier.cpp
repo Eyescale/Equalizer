@@ -76,7 +76,7 @@ void Barrier::unpack( DataIStream& is )
 }
 //---------------------------------------------------------------------------
 
-void Barrier::attachToSession( const uint32_t id, const uint32_t instanceID, 
+void Barrier::attachToSession( const base::UUID& id, const uint32_t instanceID, 
                                Session* session )
 {
     Object::attachToSession( id, instanceID, session );

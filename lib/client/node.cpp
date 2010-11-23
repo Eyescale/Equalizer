@@ -69,7 +69,7 @@ Node::~Node()
     EQASSERT( getPipes().empty( ));
 }
 
-void Node::attachToSession( const uint32_t id, 
+void Node::attachToSession( const base::UUID& id, 
                             const uint32_t instanceID, 
                             net::Session* session )
 {
@@ -433,7 +433,7 @@ bool Node::_cmdCreatePipe( net::Command& command )
     EQLOG( LOG_INIT ) << "Create pipe " << packet << std::endl;
 
     EQ_TS_THREAD( _nodeThread );
-    EQASSERT( packet->pipeID <= EQ_ID_MAX );
+    EQASSERT( packet->pipeID <= base::EQ_UUID_MAX );
 
     Pipe* pipe = Global::getNodeFactory()->createPipe( this );
 

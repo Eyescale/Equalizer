@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -88,7 +89,7 @@ VertexBufferDist::~VertexBufferDist()
 
 void VertexBufferDist::registerTree( eq::net::Session* session )
 {
-    EQASSERT( getID() == EQ_ID_INVALID );
+    EQASSERT( getID() == eq::base::EQ_UUID_INVALID );
     session->registerObject( this );
 
     if( _left )
@@ -99,7 +100,7 @@ void VertexBufferDist::registerTree( eq::net::Session* session )
 
 void VertexBufferDist::deregisterTree()
 {
-    EQASSERT( getID() != EQ_ID_INVALID );
+    EQASSERT( getID() != eq::base::EQ_UUID_INVALID );
     EQASSERT( isMaster( ));
 
     getSession()->deregisterObject( this );
@@ -111,7 +112,7 @@ void VertexBufferDist::deregisterTree()
 }
 
 mesh::VertexBufferRoot* VertexBufferDist::mapModel( eq::net::Session* session,
-                                                    const uint32_t modelID )
+                                            const eq::uint128_t& modelID )
 {
     EQASSERT( !_root && !_node );
 
@@ -126,7 +127,7 @@ mesh::VertexBufferRoot* VertexBufferDist::mapModel( eq::net::Session* session,
 
 void VertexBufferDist::unmapTree()
 {
-    EQASSERT( getID() != EQ_ID_INVALID );
+    EQASSERT( getID() != eq::base::EQ_UUID_INVALID );
     EQASSERT( !isMaster( ));
 
     getSession()->unmapObject( this );
@@ -157,7 +158,7 @@ void VertexBufferDist::getInstanceData( eq::net::DataOStream& os )
     }
     else
     {
-        os << EQ_ID_INVALID << EQ_ID_INVALID;
+        os << eq::base::EQ_UUID_INVALID << eq::base::EQ_UUID_INVALID;
 
         EQASSERT( dynamic_cast< const mesh::VertexBufferLeaf* >( _node ));
         const mesh::VertexBufferLeaf* leaf = 
@@ -177,10 +178,10 @@ void VertexBufferDist::applyInstanceData( eq::net::DataIStream& is )
     mesh::VertexBufferNode* node = 0;
     mesh::VertexBufferBase* base = 0;
 
-    uint32_t leftID, rightID;
+    eq::base::UUID leftID, rightID;
     is >> _isRoot >> leftID >> rightID;
 
-    if( leftID != EQ_ID_INVALID && rightID != EQ_ID_INVALID )
+    if( leftID != eq::base::EQ_UUID_INVALID && rightID != eq::base::EQ_UUID_INVALID )
     {
         if( _isRoot )
         {

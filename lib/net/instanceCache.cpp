@@ -178,7 +178,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
 }
 
 
-const InstanceCache::Data& InstanceCache::operator[]( const uint32_t id )
+const InstanceCache::Data& InstanceCache::operator[]( const base::UUID& id )
 {
 #ifdef EQ_INSTRUMENT_CACHE
     ++nRead;
@@ -201,7 +201,7 @@ const InstanceCache::Data& InstanceCache::operator[]( const uint32_t id )
 }
 
 
-bool InstanceCache::release( const uint32_t id, const uint32_t count )
+bool InstanceCache::release( const base::UUID& id, const uint32_t count )
 {
     base::ScopedMutex<> mutex( _items );
     ItemHash::iterator i = _items->find( id );
@@ -217,7 +217,7 @@ bool InstanceCache::release( const uint32_t id, const uint32_t count )
     return true;
 }
 
-bool InstanceCache::erase( const uint32_t id )
+bool InstanceCache::erase( const base::UUID& id )
 {
     base::ScopedMutex<> mutex( _items );
     ItemHash::iterator i = _items->find( id );
@@ -239,7 +239,7 @@ void InstanceCache::expire( const int64_t timeout )
     if( time <= 0 )
         return;
 
-    std::vector< uint32_t > keys;
+    std::vector< base::UUID > keys;
 
     base::ScopedMutex<> mutex( _items );
     for( ItemHash::iterator i = _items->begin(); i != _items->end(); ++i )
@@ -260,7 +260,7 @@ void InstanceCache::expire( const int64_t timeout )
         }
     }
 
-    for( std::vector< uint32_t >::const_iterator i = keys.begin();
+    for( std::vector< base::UUID >::const_iterator i = keys.begin();
          i != keys.end(); ++i )
     {
         Item& item = _items.data[ *i ];
@@ -306,7 +306,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
 
     EQ_TS_SCOPED( _thread );
 
-    std::vector< uint32_t > keys;
+    std::vector< base::UUID > keys;
     const long target = static_cast< long >(
                    static_cast< float >( _maxSize ) * 0.8f );
 
@@ -336,7 +336,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
     {
         streamsLeft = false;
 
-        for( std::vector< uint32_t >::const_iterator i = keys.begin();
+        for( std::vector< base::UUID >::const_iterator i = keys.begin();
              i != keys.end() && _size > target; ++i )
         {
             Item& item = _items.data[ *i ];
@@ -354,7 +354,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
         }
     }
 
-    for( std::vector< uint32_t >::const_iterator i = keys.begin();
+    for( std::vector< base::UUID >::const_iterator i = keys.begin();
          i != keys.end(); ++i )
     {
         Item& item = _items.data[ *i ];

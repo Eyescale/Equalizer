@@ -59,7 +59,7 @@ Pipe::~Pipe()
 {
 }
 
-void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID, 
+void Pipe::attachToSession( const base::UUID& id, const uint32_t instanceID, 
                             net::Session* session )
 {
     Super::attachToSession( id, instanceID, session );

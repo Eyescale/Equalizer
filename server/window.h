@@ -26,7 +26,7 @@
 
 #include <eq/net/barrier.h>
 #include <eq/fabric/window.h> // base class
-
+#include <eq/base/uint128_t.h> // Member
 #include <iostream>
 #include <vector>
 
@@ -176,7 +176,7 @@ namespace server
     protected:
 
         /** @sa net::Object::attachToSession. */
-        virtual void attachToSession( const uint32_t id, 
+        virtual void attachToSession( const base::UUID& id, 
                                       const uint32_t instanceID, 
                                       net::Session* session );
 

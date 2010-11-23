@@ -77,7 +77,7 @@ void Canvas< CFG, C, S, L >::restore()
 }
 
 template< class CFG, class C, class S, class L >
-void Canvas< CFG, C, S, L >::attachToSession( const uint32_t id,
+void Canvas< CFG, C, S, L >::attachToSession( const base::UUID& id,
                                               const uint32_t instanceID,
                                               net::Session* session )
 {
@@ -152,9 +152,9 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
         for( net::ObjectVersions::const_iterator i = layouts.begin();
              i != layouts.end(); ++i )
         {
-            const uint32_t id = (*i).identifier;
+            const base::UUID& id = (*i).identifier;
 
-            if( id == EQ_ID_NONE )
+            if( id == base::EQ_UUID_NONE )
                 _layouts.push_back( 0 );
             else
             {
@@ -394,7 +394,7 @@ Canvas< CFG, C, S, L >::_cmdNewSegment( net::Command& command )
 
     _config->registerObject( segment );
     segment->setAutoObsolete( _config->getLatency() + 1 );
-    EQASSERT( segment->getID() <= EQ_ID_MAX );
+    EQASSERT( segment->getID() <= base::EQ_UUID_MAX );
 
     CanvasNewSegmentReplyPacket reply( packet );
     reply.segmentID = segment->getID();

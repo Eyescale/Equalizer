@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,7 +33,7 @@ namespace eq
 FrameDataStatistics::FrameDataStatistics( const Statistic::Type type, 
                                           FrameData* frameData, 
                                           const uint32_t frameNumber,
-                                          const uint32_t originator )
+                                          const uint128_t& originator )
         : StatisticSampler< FrameData >( type, frameData, frameNumber )
 {
     snprintf( event.data.statistic.resourceName, 32, "node %d", originator );

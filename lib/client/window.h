@@ -286,9 +286,9 @@ namespace eq
         friend class Pipe;
 
         /** @internal */
-        EQ_API virtual void attachToSession( const uint32_t id, 
-                                                const uint32_t instanceID, 
-                                                net::Session* session );
+        EQ_API virtual void attachToSession( const base::UUID& id, 
+                                             const uint32_t instanceID, 
+                                             net::Session* session );
         /** @name Actions */
         //@{
         /** 

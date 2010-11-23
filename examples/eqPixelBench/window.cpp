@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com> 
+ *               2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,7 +32,7 @@
 namespace eqPixelBench
 {
 
-bool Window::configInit( const eq::base::uint128_t& initID )
+bool Window::configInit( const eq::uint128_t& initID )
 {
     setIAttribute( IATTR_PLANES_ALPHA,   8 ); // enforce visual with alpha
     setIAttribute( IATTR_PLANES_STENCIL, 8 ); // enforce visual with stencil

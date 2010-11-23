@@ -24,6 +24,7 @@
 #include <eq/base/lockable.h>  // member
 #include <eq/base/stdExt.h>    // member
 #include <eq/base/thread.h>    // member
+#include <eq/base/uuid.h>      // member
 
 #include <iostream>
 
@@ -83,7 +84,8 @@ namespace net
          * @return the list of cached instance datas, or Data::NONE if no data
          *         is cached for this object.
          */
-        EQNET_API const Data& operator[]( const uint32_t id );
+
+        EQNET_API const Data& operator[]( const base::UUID& id );
 
         /** 
          * Release the retrieved instance data of the given object.
@@ -93,7 +95,7 @@ namespace net
          * @return true if the element was unpinned, false if it is not in the
          *         instance cache.
          */
-        EQNET_API bool release( const uint32_t id, const uint32_t count = 1 );
+        EQNET_API bool release( const base::UUID& id, const uint32_t count = 1 );
 
         /** 
          * Erase all the data for the given object.
@@ -103,7 +105,7 @@ namespace net
          *
          * @return true if the element was erased, false otherwise.
          */
-        EQNET_API bool erase( const uint32_t id );
+        EQNET_API bool erase( const base::UUID& id );
 
         /** @return the number of bytes used by the instance cache. */
         long getSize() const { return _size; }
@@ -124,7 +126,7 @@ namespace net
             unsigned access;
         };
 
-        typedef stde::hash_map< uint32_t, Item > ItemHash;
+        typedef stde::hash_map< base::UUID, Item > ItemHash;
 
         base::Lockable< ItemHash > _items;
 

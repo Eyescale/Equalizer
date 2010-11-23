@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
-   Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+ *                    2007, Tobias Wolf <twolf@access.unizh.ch>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,7 +41,7 @@
 namespace eqPly
 {
 
-    bool Window::configInitSystemWindow( const eq::uint128_t& initID )
+bool Window::configInitSystemWindow( const eq::uint128_t& initID )
 {
 #ifndef Darwin
     if( !eq::Window::configInitSystemWindow( initID ))
@@ -72,7 +73,7 @@ namespace eqPly
 #endif
 }
 
-    bool Window::configInitGL( const eq::uint128_t& initID )
+bool Window::configInitGL( const eq::uint128_t& initID )
 {
     if( !eq::Window::configInitGL( initID ))
         return false;

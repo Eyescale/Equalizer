@@ -37,7 +37,7 @@ FrameData::FrameData()
     , _statistics(    false )
     , _help(          false )
     , _quality( 1.0f )
-    , _currentViewID( EQ_ID_INVALID )
+    , _currentViewID( eq::base::EQ_UUID_INVALID )
 {
     reset();
     EQINFO << "New FrameData " << std::endl;
@@ -110,7 +110,7 @@ void FrameData::setRotation(  const eq::Vector3f& rotation )
     setDirty( DIRTY_CAMERA );
 }
 
-void FrameData::setCurrentViewID( const uint32_t id )
+void FrameData::setCurrentViewID( const eq::uint128_t& id )
 {
     _currentViewID = id;
     setDirty( DIRTY_VIEW );

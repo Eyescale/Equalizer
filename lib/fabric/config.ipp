@@ -266,7 +266,7 @@ namespace
 template< typename T, typename V > class IDFinder : public V
 {
 public:
-    IDFinder( const uint32_t id ) : _id( id ), _result( 0 ) {}
+    IDFinder( const uint128_t& id ) : _id( id ), _result( 0 ) {}
     virtual ~IDFinder(){}
 
     virtual VisitorResult visitPre( T* node ) { return visit( node ); }
@@ -283,15 +283,15 @@ public:
     T* getResult() { return _result; }
 
 private:
-    const uint32_t _id;
-    T*             _result;
+    const uint128_t _id;
+    T*              _result;
 };
 }
 
 
 template< class S, class C, class O, class L, class CV, class N, class V >
 template< typename T >
-void Config< S, C, O, L, CV, N, V >::find( const uint32_t id, T** result )
+void Config< S, C, O, L, CV, N, V >::find( const uint128_t& id, T** result )
 {
     IDFinder< T, V > finder( id );
     static_cast< C* >( this )->accept( finder );
@@ -310,7 +310,7 @@ void Config< S, C, O, L, CV, N, V >::find( const std::string& name,
 
 template< class S, class C, class O, class L, class CV, class N, class V >
 template< typename T >
-T* Config< S, C, O, L, CV, N, V >::find( const uint32_t id )
+T* Config< S, C, O, L, CV, N, V >::find( const uint128_t& id )
 {
     IDFinder< T, V > finder( id );
     static_cast< C* >( this )->accept( finder );
@@ -319,7 +319,7 @@ T* Config< S, C, O, L, CV, N, V >::find( const uint32_t id )
 
 template< class S, class C, class O, class L, class CV, class N, class V >
 template< typename T >
-const T* Config< S, C, O, L, CV, N, V >::find( const uint32_t id ) const
+const T* Config< S, C, O, L, CV, N, V >::find( const uint128_t& id ) const
 {
     IDFinder< const T, V > finder( id );
     static_cast< const C* >( this )->accept( finder );
@@ -555,9 +555,9 @@ void Config< S, C, O, L, CV, N, V >::restore()
 
 // TODO move visitors for operations on childs here.
 template< class S, class C, class O, class L, class CV, class N, class V >
-uint32_t Config< S, C, O, L, CV, N, V >::register_()
+uint128_t Config< S, C, O, L, CV, N, V >::register_()
 {
-    EQASSERT( _proxy->getID() == EQ_ID_INVALID );
+    EQASSERT( _proxy->getID() == base::EQ_UUID_INVALID );
     EQCHECK( registerObject( _proxy ));
     return _proxy->getID();
 }
@@ -565,7 +565,7 @@ uint32_t Config< S, C, O, L, CV, N, V >::register_()
 template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::deregister()
 {
-    EQASSERT( _proxy->getID() <= EQ_ID_MAX );
+    EQASSERT( _proxy->getID() <= base::EQ_UUID_MAX );
     deregisterObject( _proxy );
 }
 
@@ -626,7 +626,7 @@ bool Config< S, C, O, L, CV, N, V >::_removeNode( N* node )
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-N* Config< S, C, O, L, CV, N, V >::_findNode( const uint32_t id )
+N* Config< S, C, O, L, CV, N, V >::_findNode( const uint128_t& id )
 {
     for( typename Nodes::const_iterator i = _nodes.begin(); 
          i != _nodes.end(); ++i )
@@ -654,7 +654,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
 
     registerObject( layout );
     layout->setAutoObsolete( _data.latency + 1 );
-    EQASSERT( layout->getID() <= EQ_ID_MAX );
+    EQASSERT( layout->getID() <= base::EQ_UUID_MAX );
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = layout->getID();
@@ -676,7 +676,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas(
 
     registerObject( canvas );
     canvas->setAutoObsolete( _data.latency + 1 );
-    EQASSERT( canvas->getID() <= EQ_ID_MAX );
+    EQASSERT( canvas->getID() <= base::EQ_UUID_MAX );
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = canvas->getID();
@@ -698,7 +698,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver(
 
     registerObject( observer );
     observer->setAutoObsolete( _data.latency + 1 );
-    EQASSERT( observer->getID() <= EQ_ID_MAX );
+    EQASSERT( observer->getID() <= base::EQ_UUID_MAX );
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = observer->getID();

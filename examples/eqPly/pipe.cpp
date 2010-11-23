@@ -1,6 +1,7 @@
 
 /* 
- * Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -60,7 +61,7 @@ bool Pipe::configInit( const eq::uint128_t& initID )
 
     Config*         config      = static_cast<Config*>( getConfig( ));
     const InitData& initData    = config->getInitData();
-    const uint32_t  frameDataID = initData.getFrameDataID();
+    const eq::uint128_t&  frameDataID = initData.getFrameDataID();
 
     const bool mapped = config->mapObject( &_frameData, frameDataID );
     EQASSERT( mapped );

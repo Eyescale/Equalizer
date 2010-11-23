@@ -148,7 +148,7 @@ namespace fabric
         Pipe( N* parent );
         EQFABRIC_EXPORT virtual ~Pipe( ); //!< @internal
 
-        virtual void attachToSession( const uint32_t id,
+        virtual void attachToSession( const base::UUID& id,
                                       const uint32_t instanceID,
                                       net::Session* session ); //!< @internal
         /** @internal */
@@ -166,7 +166,7 @@ namespace fabric
         /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
-        W* _findWindow( const uint32_t id ); //!< @internal
+        W* _findWindow( const base::UUID& id ); //!< @internal
 
         enum DirtyBits
         {

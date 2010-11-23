@@ -38,34 +38,6 @@ namespace net
         uint32_t requestID;
     };
 
-    struct SessionGenIDsPacket : public SessionPacket
-    {
-        SessionGenIDsPacket() 
-            {
-                command = CMD_SESSION_GEN_IDS;
-                size    = sizeof( SessionGenIDsPacket ); 
-            }
-
-        uint32_t requestID;
-        uint32_t range;
-    };
-
-    struct SessionGenIDsReplyPacket : public SessionPacket
-    {
-        SessionGenIDsReplyPacket( const SessionGenIDsPacket* request )
-            {
-                command   = CMD_SESSION_GEN_IDS_REPLY;
-                size      = sizeof( SessionGenIDsReplyPacket ); 
-                requestID = request->requestID;
-                requested = request->range;
-            }
-
-        uint32_t requestID;
-        uint32_t firstID;
-        uint32_t requested;
-        uint32_t allocated;
-    };
-
     struct SessionSetIDMasterPacket : public SessionPacket
     {
         SessionSetIDMasterPacket()
@@ -74,10 +46,10 @@ namespace net
                 command   = CMD_SESSION_SET_ID_MASTER;
                 size      = sizeof( SessionSetIDMasterPacket ); 
             }
-
-        NodeID   masterID;
-        uint32_t identifier;
-        uint32_t requestID;
+        
+        base::UUID identifier;
+        NodeID     masterID;
+        uint32_t   requestID;
     };
 
     struct SessionUnsetIDMasterPacket : public SessionPacket
@@ -89,8 +61,8 @@ namespace net
                 size      = sizeof( SessionUnsetIDMasterPacket ); 
             }
 
-        uint32_t identifier;
-        uint32_t requestID;
+        base::UUID identifier;
+        uint32_t   requestID;
     };
 
     struct SessionGetIDMasterPacket : public SessionPacket
@@ -101,8 +73,8 @@ namespace net
                 size    = sizeof( SessionGetIDMasterPacket ); 
             }
 
-        uint32_t requestID;
-        uint32_t identifier;
+        base::UUID identifier;
+        uint32_t   requestID;
     };
 
     struct SessionGetIDMasterReplyPacket : public SessionPacket
@@ -114,10 +86,10 @@ namespace net
                 requestID = request->requestID;
                 identifier = request->identifier;
             }
-
-        NodeID   masterID;
-        uint32_t requestID;
-        uint32_t identifier;
+        
+        base::UUID identifier;
+        NodeID     masterID;
+        uint32_t   requestID;
     };
 
     struct SessionAttachObjectPacket : public SessionPacket
@@ -128,9 +100,9 @@ namespace net
                 size    = sizeof( SessionAttachObjectPacket ); 
             }
         
-        uint32_t            requestID;
-        uint32_t            objectID;
-        uint32_t            objectInstanceID;
+        base::UUID  objectID;
+        uint32_t    requestID;
+        uint32_t    objectInstanceID;
     };
 
     struct SessionMapObjectPacket : public SessionPacket
@@ -147,8 +119,8 @@ namespace net
         uint128_t     requestedVersion;
         uint128_t     minCachedVersion;
         uint128_t     maxCachedVersion;
-        uint32_t requestID;
-        uint32_t objectID;
+        base::UUID    objectID;
+        uint32_t      requestID;
         uint32_t instanceID;
         uint32_t masterInstanceID;
         bool     useCache;
@@ -169,8 +141,8 @@ namespace net
             }
         
         NodeID nodeID;
+        base::UUID objectID;
         uint32_t requestID;
-        uint32_t objectID;
         uint32_t instanceID;
         uint32_t changeType;
         uint32_t masterInstanceID;
@@ -192,10 +164,11 @@ namespace net
             }
         
         NodeID nodeID;
+        const base::UUID objectID;
         uint128_t version;
         uint128_t cachedVersion;
         const uint32_t requestID;
-        const uint32_t objectID;
+        
         bool result;
         const bool useCache;
     };
@@ -208,7 +181,7 @@ namespace net
                 size    = sizeof( SessionUnmapObjectPacket ); 
             }
         
-        uint32_t objectID;
+        base::UUID objectID;
     };
 
     struct SessionUnsubscribeObjectPacket : public SessionPacket
@@ -218,9 +191,9 @@ namespace net
                 command = CMD_SESSION_UNSUBSCRIBE_OBJECT;
                 size    = sizeof( SessionUnsubscribeObjectPacket ); 
             }
-        
+       
+        base::UUID          objectID;
         uint32_t            requestID;
-        uint32_t            objectID;
         uint32_t            masterInstanceID;
         uint32_t            slaveInstanceID;
     };
@@ -265,18 +238,12 @@ namespace net
             objectInstanceID = request->slaveInstanceID;
         }
 
+        base::UUID          objectID;
         uint32_t            requestID;
-        uint32_t            objectID;
         uint32_t            objectInstanceID;
     };
 
     //------------------------------------------------------------
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const SessionGenIDsReplyPacket* packet )
-    {
-        os << (SessionPacket*)packet << " id start " << packet->firstID;
-        return os;
-    }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const SessionGetIDMasterPacket* packet )
     {

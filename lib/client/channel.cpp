@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -70,7 +71,7 @@ Channel::~Channel()
 typedef net::CommandFunc<Channel> CmdFunc;
 /** @endcond */
 
-void Channel::attachToSession( const uint32_t id, 
+void Channel::attachToSession( const base::UUID& id, 
                                const uint32_t instanceID, 
                                net::Session* session )
 {
@@ -640,8 +641,8 @@ bool Channel::processEvent( const Event& event )
 
         case Event::CHANNEL_RESIZE:
         {
-            const uint32_t viewID = getNativeContext().view.identifier;
-            if( viewID > EQ_ID_MAX )
+            const base::UUID& viewID = getNativeContext().view.identifier;
+            if( viewID > base::EQ_UUID_MAX )
                 return true;
 
             // transform to view event, which is meaningful for the config 
@@ -725,8 +726,8 @@ void Channel::drawStatistics()
     int64_t xMax = 0;
     int64_t xMin = std::numeric_limits< int64_t >::max();
 
-    std::map< uint32_t, EntityData > entities;
-    std::map< uint32_t, IdleData >   idles;
+    std::map< base::UUID, EntityData > entities;
+    std::map< base::UUID, IdleData >   idles;
 
     for( std::vector<eq::FrameStatistics>::iterator i =statistics.begin();
          i != statistics.end(); ++i )
@@ -737,7 +738,7 @@ void Channel::drawStatistics()
         for( SortedStatistics::iterator j = configStats.begin();
              j != configStats.end(); ++j )
         {
-            const uint32_t id = j->first;
+            const base::UUID& id = j->first;
             Statistics& stats = j->second;
             std::sort( stats.begin(), stats.end(), _compare );
 
@@ -757,7 +758,7 @@ void Channel::drawStatistics()
                 case Statistic::PIPE_IDLE:
                 {
                     IdleData& data = idles[ id ];
-                    std::map< uint32_t, EntityData >::iterator l = 
+                    std::map< base::UUID, EntityData >::iterator l = 
                         entities.find( id );
 
                     if( l != entities.end( ))
@@ -811,13 +812,13 @@ void Channel::drawStatistics()
         for( SortedStatistics::const_iterator j = configStats.begin();
              j != configStats.end(); ++j )
         {
-            const uint32_t    id    = j->first;
+            const base::UUID&    id    = j->first;
             const Statistics& stats = j->second;
 
             if( stats.empty( ))
                 continue;
 
-            std::map< uint32_t, EntityData >::iterator l = entities.find( id );
+            std::map< base::UUID, EntityData >::iterator l = entities.find( id );
             if( l == entities.end( ))
                 continue;
 
@@ -928,7 +929,7 @@ void Channel::drawStatistics()
     }
 
     // Entitity names
-    for( std::map< uint32_t, EntityData >::const_iterator i = entities.begin();
+    for( std::map< base::UUID, EntityData >::const_iterator i = entities.begin();
          i != entities.end(); ++i )
     {
         const EntityData& data = i->second;
@@ -948,7 +949,7 @@ void Channel::drawStatistics()
     if( !idles.empty( ))
         text << ", Idle:";
 
-    for( std::map< uint32_t, IdleData >::const_iterator i = idles.begin();
+    for( std::map< base::UUID, IdleData >::const_iterator i = idles.begin();
          i != idles.end(); ++i )
     {
         const IdleData& data = i->second;

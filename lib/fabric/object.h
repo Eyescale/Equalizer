@@ -206,7 +206,7 @@ namespace fabric
         base::Error _error;
 
         /** The identifiers of removed children since the last slave commit. */
-        std::vector< uint32_t > _removedChildren;
+        std::vector< base::UUID > _removedChildren;
 
         union // placeholder for binary-compatible changes
         {
@@ -228,9 +228,9 @@ namespace fabric
             net::NodePtr node = child->getServer().get();
             sender->send( node, packet );
 
-            uint32_t identifier;
-            localNode->waitRequest( packet.requestID, identifier );
-            EQASSERT( identifier <= EQ_ID_MAX );
+            base::UUID identifier;
+            localNode->waitRequest( packet.requestID, &identifier );
+            EQASSERT( identifier <= base::EQ_UUID_MAX );
             EQCHECK( child->getConfig()->mapObject( child, identifier,
                                                     net::VERSION_NONE ));
         }

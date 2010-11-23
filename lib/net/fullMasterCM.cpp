@@ -256,7 +256,7 @@ void FullMasterCM::removeSlave( NodePtr node )
 void FullMasterCM::_checkConsistency() const
 {
 #ifndef NDEBUG
-    EQASSERT( _object->_id != EQ_ID_INVALID );
+    EQASSERT( _object->_id != base::EQ_UUID_INVALID );
 
     if( _version == VERSION_NONE )
         return;

@@ -179,7 +179,7 @@ namespace fabric
 
         EQFABRIC_EXPORT virtual ~Window(); //!< @internal
 
-        virtual void attachToSession( const uint32_t id,
+        virtual void attachToSession( const base::UUID& id,
                                       const uint32_t instanceID,
                                       net::Session* session ); //!< @internal
 
@@ -201,7 +201,7 @@ namespace fabric
         /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
-        C* _findChannel( const uint32_t id ); //!< @internal
+        C* _findChannel( const base::UUID& id ); //!< @internal
 
         enum DirtyBits
         {

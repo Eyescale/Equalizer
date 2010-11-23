@@ -107,7 +107,7 @@ namespace eqPly
         const Model*     _getModel();
 
         const Model* _model;
-        uint32_t     _modelID;
+        eq::uint128_t     _modelID;
         uint32_t     _frameStartRendering;
 
         struct Accum

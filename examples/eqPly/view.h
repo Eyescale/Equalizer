@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -42,8 +43,8 @@ namespace eqPly
         View( eq::Layout* parent );
         virtual ~View();
 
-        void setModelID( const uint32_t id );
-        uint32_t getModelID() const { return _modelID; }
+        void setModelID( const eq::uint128_t& id );
+        eq::uint128_t getModelID() const { return _modelID; }
 
         void setIdleSteps( const uint32_t steps );
         uint32_t getIdleSteps() const { return _idleSteps; }
@@ -75,7 +76,7 @@ namespace eqPly
 
         Proxy _proxy;
         friend class Proxy;
-        uint32_t _modelID;
+        eq::uint128_t _modelID;
         uint32_t _idleSteps;
     };
 }

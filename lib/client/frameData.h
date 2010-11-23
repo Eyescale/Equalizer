@@ -266,7 +266,7 @@ namespace server
         virtual void applyInstanceData( net::DataIStream& is );
 
         /** @sa net::Object::attachToSession */
-        virtual void attachToSession( const uint32_t id, 
+        virtual void attachToSession( const base::UUID& id, 
                                       const uint32_t instanceID, 
                                       net::Session*  session );
 

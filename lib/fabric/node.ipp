@@ -150,7 +150,7 @@ void Node< C, N, P, V >::notifyDetach()
     while( !_pipes.empty( ))
     {
         P* pipe = _pipes.back();
-        if( pipe->getID() > EQ_ID_MAX )
+        if( pipe->getID() > base::EQ_UUID_MAX )
         {
             EQASSERT( isMaster( ));
             return;
@@ -299,7 +299,7 @@ bool Node< C, N, P, V >::_removePipe( P* pipe )
 }
 
 template< class C, class N, class P, class V >
-P* Node< C, N, P, V >::findPipe( const uint32_t id )
+P* Node< C, N, P, V >::findPipe( const base::UUID& id )
 {
     for( typename Pipes::const_iterator i = _pipes.begin();
          i != _pipes.end(); ++i )

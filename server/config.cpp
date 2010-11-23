@@ -245,7 +245,7 @@ void Config::activateCanvas( Canvas* canvas )
                 subViewport.apply( contribution );
 
                 channel->setViewport( subViewport );
-                if( channel->getWindow()->getID() <= EQ_ID_MAX )
+                if( channel->getWindow()->getID() <= base::EQ_UUID_MAX )
                     // parent is already registered - register channel as well
                     registerObject( channel );
 
@@ -459,7 +459,7 @@ VisitorResult Config::_acceptCompounds( ConfigVisitor& visitor ) const
 // operations
 //===========================================================================
 
-uint32_t Config::register_()
+uint128_t Config::register_()
 {
     ConfigRegistrator registrator( this );
     accept( registrator );
@@ -819,7 +819,7 @@ bool Config::exit()
 //---------------------------------------------------------------------------
 // frame
 //---------------------------------------------------------------------------
-void Config::_startFrame( const uint128_t frameID )
+void Config::_startFrame( const uint128_t& frameID )
 {
     EQASSERT( _state == STATE_RUNNING );
     
@@ -1130,7 +1130,7 @@ template std::ostream& eq::fabric::operator <<
 /** @endcond */
 
 #define FIND_ID_TEMPLATE1( type )                                       \
-    template void eq::server::Config::Super::find< type >( const uint32_t, \
+    template void eq::server::Config::Super::find< type >( const uint128_t&, \
                                                            type** );
 
 FIND_ID_TEMPLATE1( eq::server::Canvas );
@@ -1144,7 +1144,7 @@ FIND_ID_TEMPLATE1( eq::server::View );
 FIND_ID_TEMPLATE1( eq::server::Window );
 
 #define FIND_ID_TEMPLATE2( type )                                       \
-    template type* eq::server::Config::Super::find< type >( const uint32_t );
+    template type* eq::server::Config::Super::find< type >( const uint128_t& );
 
 FIND_ID_TEMPLATE2( eq::server::Canvas );
 FIND_ID_TEMPLATE2( eq::server::Channel );

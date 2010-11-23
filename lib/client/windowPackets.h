@@ -57,7 +57,7 @@ namespace eq
 
     struct WindowConfigExitReplyPacket : public WindowPacket
     {
-        WindowConfigExitReplyPacket( const uint32_t windowID, const bool res )
+        WindowConfigExitReplyPacket( const base::UUID& windowID, const bool res )
                 : result( res )
             {
                 command   = fabric::CMD_WINDOW_CONFIG_EXIT_REPLY;
@@ -76,19 +76,19 @@ namespace eq
                 size    = sizeof( WindowCreateChannelPacket );
             }
 
-        uint32_t channelID;
+        base::UUID channelID;
     };
 
     struct WindowDestroyChannelPacket : public WindowPacket
     {
-        WindowDestroyChannelPacket( const uint32_t channelID_ )
+        WindowDestroyChannelPacket( const base::UUID& channelID_ )
                 : channelID( channelID_ )
             {
                 command = fabric::CMD_WINDOW_DESTROY_CHANNEL;
                 size    = sizeof( WindowDestroyChannelPacket );
             }
 
-        const uint32_t channelID;
+        const base::UUID channelID;
     };
 
     struct WindowFinishPacket : public WindowPacket

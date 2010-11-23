@@ -90,11 +90,11 @@ namespace fabric
         EQFABRIC_EXPORT VisitorResult accept( V& visitor ) const;
 
         /** @return the entity of the given identifier, or 0. @version 1.0 */
-        template< typename T > EQFABRIC_EXPORT T* find( const uint32_t id );
+        template< typename T > EQFABRIC_EXPORT T* find( const uint128_t& id );
 
         /** @return the entity of the given identifier, or 0. @version 1.0 */
         template< typename T > 
-        EQFABRIC_EXPORT const T* find( const uint32_t id ) const;
+        EQFABRIC_EXPORT const T* find( const uint128_t& id ) const;
 
         /** @return the first entity of the given name, or 0. @version 1.0 */
         template< typename T >
@@ -114,7 +114,7 @@ namespace fabric
         CV* getCanvas( const CanvasPath& path );
 
         /** @internal */
-        template< typename T > void find( const uint32_t id, T** result );
+        template< typename T > void find( const uint128_t& id, T** result );
 
         /** @internal */
         template< typename T > void find( const std::string& name,
@@ -246,7 +246,7 @@ namespace fabric
         EQFABRIC_EXPORT virtual void _removeChild( const uint32_t )
             { EQUNIMPLEMENTED; }
 
-        uint32_t register_(); //!< @internal
+        uint128_t register_(); //!< @internal
         void deregister(); //!< @internal
         void map( const net::ObjectVersion proxy ); //!< @internal
         virtual void unmap(); //!< @internal
@@ -269,7 +269,7 @@ namespace fabric
         template< class C2, class V2 >
         friend VisitorResult _acceptImpl( C2*, V2& );
 
-        N* _findNode( const uint32_t id ); //!< @internal
+        N* _findNode( const uint128_t& id ); //!< @internal
         //@}
 
     private:

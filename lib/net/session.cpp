@@ -46,7 +46,6 @@ typedef CommandFunc<Session> CmdFunc;
 Session::Session()
         : _id( true )
         , _isMaster( false )
-        , _idPool( 0 ) // Master pool is filled in Node::registerSession
         , _instanceIDs( std::numeric_limits< long >::min( )) 
         , _instanceCache( new InstanceCache( Global::getIAttribute( 
                               Global::IATTR_INSTANCE_CACHE_SIZE ) * EQ_1MB ) )
@@ -132,10 +131,6 @@ void Session::notifyMapped( LocalNodePtr node )
 
     registerCommand( CMD_SESSION_ACK_REQUEST, 
                      CmdFunc( this, &Session::_cmdAckRequest ), 0 );
-    registerCommand( CMD_SESSION_GEN_IDS, 
-                     CmdFunc( this, &Session::_cmdGenIDs ), queue );
-    registerCommand( CMD_SESSION_GEN_IDS_REPLY,
-                     CmdFunc( this, &Session::_cmdGenIDsReply ), queue );
     registerCommand( CMD_SESSION_SET_ID_MASTER,
                      CmdFunc( this, &Session::_cmdSetIDMaster ), queue );
     registerCommand( CMD_SESSION_UNSET_ID_MASTER,
@@ -171,48 +166,15 @@ void Session::notifyMapped( LocalNodePtr node )
 }
 
 //---------------------------------------------------------------------------
-// identifier generation
-//---------------------------------------------------------------------------
-uint32_t Session::genIDs( const uint32_t range )
-{
-    // TODO: retrieve ID's from non-master nodes?
-
-    uint32_t id = _idPool.genIDs( range );
-    if( id != EQ_ID_INVALID || _isMaster )
-    {
-        if( id == EQ_ID_INVALID )
-            EQWARN << "Out of session identifiers" << std::endl;
-        return id;
-    }
-
-    SessionGenIDsPacket packet;
-    packet.requestID = _localNode->registerRequest();
-    packet.range     = range;
-
-    send( packet );
-    _localNode->waitRequest( packet.requestID, id );
-    
-    if( id == EQ_ID_INVALID )
-        EQWARN << "Out of session identifiers" << std::endl;
-
-    return id;
-}
-
-void Session::freeIDs( const uint32_t start, const uint32_t range )
-{
-    _idPool.freeIDs( start, range );
-}
-
-//---------------------------------------------------------------------------
 // identifier master node mapping
 //---------------------------------------------------------------------------
-void Session::setIDMaster( const uint32_t id, const NodeID& master )
+void Session::setIDMaster( const base::UUID& id, const NodeID& master )
 {
     EQ_TS_NOT_THREAD( _commandThread );
     _setIDMasterSync( _setIDMasterNB( id, master ));
 }
 
-uint32_t Session::_setIDMasterNB( const uint32_t identifier,
+uint32_t Session::_setIDMasterNB( const base::UUID& identifier,
                                   const NodeID& master )
 {
     EQ_TS_NOT_THREAD( _commandThread );
@@ -234,13 +196,13 @@ void Session::_setIDMasterSync( const uint32_t requestID )
     _localNode->waitRequest( requestID );
 }
 
-void Session::unsetIDMaster( const uint32_t identifier )
+void Session::unsetIDMaster( const base::UUID& identifier )
 {
     _unsetIDMasterSync( _unsetIDMasterNB( identifier ));
 }
 
 
-uint32_t Session::_unsetIDMasterNB( const uint32_t identifier )
+uint32_t Session::_unsetIDMasterNB( const base::UUID& identifier )
 {
     EQ_TS_NOT_THREAD( _commandThread );
     SessionUnsetIDMasterPacket packet;
@@ -262,7 +224,7 @@ void Session::_unsetIDMasterSync( const uint32_t requestID )
     _localNode->waitRequest( requestID );
 }
 
-const NodeID Session::_pollIDMaster( const uint32_t id ) const 
+const NodeID Session::_pollIDMaster( const base::UUID& id ) const 
 {
     base::ScopedMutex< base::SpinLock > mutex( _idMasters );
     NodeIDHash::const_iterator i = _idMasters->find( id );
@@ -272,7 +234,7 @@ const NodeID Session::_pollIDMaster( const uint32_t id ) const
     return i->second;
 }
 
-const NodeID Session::getIDMaster( const uint32_t identifier )
+const NodeID Session::getIDMaster( const base::UUID& identifier )
 {
     const NodeID master = _pollIDMaster( identifier );
         
@@ -295,7 +257,7 @@ const NodeID Session::getIDMaster( const uint32_t identifier )
 //---------------------------------------------------------------------------
 // object mapping
 //---------------------------------------------------------------------------
-void Session::attachObject( Object* object, const uint32_t id, 
+void Session::attachObject( Object* object, const base::UUID& id, 
                             const uint32_t instanceID )
 {
     EQASSERT( object );
@@ -327,7 +289,7 @@ uint32_t _genNextID( base::a_int32_t& val )
 }
 }
 
-void Session::_attachObject( Object* object, const uint32_t id, 
+void Session::_attachObject( Object* object, const base::UUID& id, 
                              const uint32_t inInstanceID )
 {
     EQASSERT( object );
@@ -373,8 +335,8 @@ void Session::swapObject( Object* oldObject, Object* newObject )
     EQASSERT( oldObject->isMaster() );
     EQ_TS_THREAD( _receiverThread );
     base::ScopedMutex< base::SpinLock > mutex( _objects );
-    const uint32_t id = oldObject->getID();
-    if( id == EQ_ID_INVALID )
+    const base::UUID& id = oldObject->getID();
+    if( id == base::EQ_UUID_INVALID )
         return;
 
     EQLOG( LOG_OBJECTS ) << "Swap " << base::className( oldObject )
@@ -399,7 +361,7 @@ void Session::swapObject( Object* oldObject, Object* newObject )
 
     oldObject->_cm = ObjectCM::ZERO;
     oldObject->_session = 0;
-    oldObject->_id = EQ_ID_INVALID;
+    oldObject->_id = base::EQ_UUID_INVALID;
     oldObject->_instanceID = EQ_ID_INVALID;
 
     *j = newObject;
@@ -411,8 +373,8 @@ void Session::_detachObject( Object* object )
     EQASSERT( object );
     EQ_TS_THREAD( _receiverThread );
 
-    const uint32_t id = object->getID();
-    if( id == EQ_ID_INVALID )
+    const base::UUID& id = object->getID();
+    if( id == base::EQ_UUID_INVALID )
         return;
 
     EQASSERT( _objects->find( id ) != _objects->end( ));
@@ -434,22 +396,22 @@ void Session::_detachObject( Object* object )
     return;
 }
 
-bool Session::mapObject( Object* object, const uint32_t id,
+bool Session::mapObject( Object* object, const base::UUID& id,
                          const uint128_t& version )
 {
     const uint32_t requestID = mapObjectNB( object, id, version );
     return mapObjectSync( requestID );
 }
 
-uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
+uint32_t Session::mapObjectNB( Object* object, const base::UUID& id,
                                const uint128_t& version )
 {
     EQ_TS_NOT_THREAD( _commandThread );
     EQLOG( LOG_OBJECTS ) << "Mapping " << base::className( object ) << " to id "
                          << id << " version " << version << std::endl;
     EQASSERT( object );
-    EQASSERT( id <= EQ_ID_MAX );
-    EQASSERT( object->getID() == EQ_ID_INVALID );
+    EQASSERT( id <= base::EQ_UUID_MAX );
+    EQASSERT( object->getID() == base::EQ_UUID_INVALID );
     EQASSERT( !object->isMaster( ));
     EQASSERT( !_localNode->inCommandThread( ));
 
@@ -497,7 +459,7 @@ bool Session::mapObjectSync( const uint32_t requestID )
 
     _localNode->waitRequest( requestID, &version );
 
-    const bool mapped = ( object->getID() != EQ_ID_INVALID );
+    const bool mapped = ( object->getID() != base::EQ_UUID_INVALID );
     if( mapped )
         object->_cm->applyMapData( version ); // apply initial instance data
 
@@ -510,8 +472,8 @@ void Session::unmapObject( Object* object )
 {
     EQASSERT( object );
 
-    const uint32_t id = object->getID();
-    if( id == EQ_ID_INVALID ) // not registered
+    const base::UUID& id = object->getID();
+    if( id == base::EQ_UUID_INVALID ) // not registered
         return;
 
     EQLOG( LOG_OBJECTS ) << "Unmap " << object << std::endl;
@@ -553,11 +515,11 @@ void Session::unmapObject( Object* object )
 bool Session::registerObject( Object* object )
 {
     EQASSERT( object );
-    EQASSERT( object->getID() == EQ_ID_INVALID );
+    EQASSERT( object->getID() == base::EQ_UUID_INVALID );
 
-    const uint32_t id = genIDs( 1 );
-    EQASSERT( id != EQ_ID_INVALID );
-    if( id == EQ_ID_INVALID )
+    const base::UUID id( true );
+    EQASSERT( id != base::EQ_UUID_INVALID );
+    if( id == base::EQ_UUID_INVALID )
         return false;
 
     const uint32_t requestID = _setIDMasterNB( id, _localNode->getNodeID( ));
@@ -581,8 +543,8 @@ bool Session::registerObject( Object* object )
 void Session::deregisterObject( Object* object )
 {
     EQASSERT( object )
-    const uint32_t id = object->getID();
-    if( id == EQ_ID_INVALID ) // not registered
+    const base::UUID& id = object->getID();
+    if( id == base::EQ_UUID_INVALID ) // not registered
         return;
 
     EQLOG( LOG_OBJECTS ) << "Deregister " << object << std::endl;
@@ -624,7 +586,7 @@ void Session::deregisterObject( Object* object )
     detachObject( object );
     object->_setChangeManager( ObjectCM::ZERO );
     _unsetIDMasterSync( requestID );
-    freeIDs( id, 1 );
+    //freeIDs( id, 1 );
 }
 
 void Session::releaseObject( Object* object )
@@ -640,7 +602,7 @@ void Session::releaseObject( Object* object )
         unmapObject( object );
 }
 
-NodePtr Session::_connectMaster( const uint32_t id )
+NodePtr Session::_connectMaster( const base::UUID& id )
 {
     NodeID masterNodeID = _pollIDMaster( id );
 
@@ -736,7 +698,7 @@ bool Session::_dispatchObjectCommand( Command& command )
 {
     EQ_TS_THREAD( _receiverThread );
     const ObjectPacket* packet = command.getPacket< ObjectPacket >();
-    const uint32_t id = packet->objectID;
+    const base::UUID& id = packet->objectID;
     const uint32_t instanceID = packet->instanceID;
 
     ObjectsHash::const_iterator i = _objects->find( id );
@@ -838,7 +800,7 @@ Object* Session::_findObject( Command& command )
     EQASSERT( command->type == PACKETTYPE_EQNET_OBJECT );
 
     const ObjectPacket* packet = command.getPacket< ObjectPacket >();
-    const uint32_t id = packet->objectID;
+    const base::UUID& id = packet->objectID;
     const uint32_t instanceID = command.getDispatchID();
     EQASSERTINFO( instanceID <= EQ_ID_MAX, command );
 
@@ -875,38 +837,6 @@ bool Session::_cmdAckRequest( Command& command )
     EQASSERT( packet->requestID != EQ_ID_INVALID );
 
     _localNode->serveRequest( packet->requestID );
-    return true;
-}
-
-bool Session::_cmdGenIDs( Command& command )
-{
-    EQ_TS_THREAD( _commandThread );
-    const SessionGenIDsPacket* packet =command.getPacket<SessionGenIDsPacket>();
-    EQVERB << "Cmd gen IDs: " << packet << std::endl;
-
-    SessionGenIDsReplyPacket reply( packet );
-    const uint32_t range = EQ_MAX( packet->range, MIN_ID_RANGE );
-
-    reply.firstID = _idPool.genIDs( range );
-    reply.allocated = range;
-    send( command.getNode(), reply );
-    return true;
-}
-
-bool Session::_cmdGenIDsReply( Command& command )
-{
-    EQ_TS_THREAD( _commandThread );
-    const SessionGenIDsReplyPacket* packet =
-        command.getPacket<SessionGenIDsReplyPacket>();
-    EQVERB << "Cmd gen IDs reply: " << packet << std::endl;
-
-    _localNode->serveRequest( packet->requestID, packet->firstID );
-
-    const size_t additional = packet->allocated - packet->requested;
-    if( packet->firstID != EQ_ID_INVALID && additional > 0 )
-        // Merge additional identifiers into local pool
-        _idPool.freeIDs( packet->firstID + packet->requested, additional );
-
     return true;
 }
 
@@ -998,7 +928,7 @@ bool Session::_cmdDetachObject( Command& command )
         command.getPacket<SessionDetachObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd detach object " << packet << std::endl;
 
-    const uint32_t id = packet->objectID;
+    const base::UUID& id = packet->objectID;
     ObjectsHash::const_iterator i = _objects->find( id );
     if( i != _objects->end( ))
     {
@@ -1078,7 +1008,7 @@ bool Session::_cmdMapObject( Command& command )
     EQLOG( LOG_OBJECTS ) << "Cmd map object " << packet << std::endl;
 
     NodePtr        node = command.getNode();
-    const uint32_t id   = packet->objectID;
+    const base::UUID& id   = packet->objectID;
 
     Object* master = 0;
     {
@@ -1206,7 +1136,7 @@ bool Session::_cmdMapObjectReply( Command& command )
 
         if( packet->useCache )
         {
-            const uint32_t id = packet->objectID;
+            const base::UUID& id = packet->objectID;
             const uint128_t& start = packet->cachedVersion;
             
             EQASSERT( _instanceCache );
@@ -1241,7 +1171,7 @@ bool Session::_cmdUnsubscribeObject( Command& command )
     EQLOG( LOG_OBJECTS ) << "Cmd unsubscribe object  " << packet << std::endl;
 
     NodePtr        node = command.getNode();
-    const uint32_t id   = packet->objectID;
+    const base::UUID& id   = packet->objectID;
 
     {
         base::ScopedMutex< base::SpinLock > mutex( _objects );

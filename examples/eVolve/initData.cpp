@@ -43,7 +43,7 @@ namespace eVolve
 {
 
 InitData::InitData()
-        : _frameDataID(  EQ_ID_INVALID )
+        : _frameDataID(  eq::base::EQ_UUID_INVALID )
         , _windowSystem( eq::WINDOW_SYSTEM_NONE )
         , _precision( 2 )
         , _brightness( 1.0f )
@@ -61,7 +61,7 @@ InitData::InitData()
 
 InitData::~InitData()
 {
-    setFrameDataID( EQ_ID_INVALID );
+    setFrameDataID( eq::base::EQ_UUID_INVALID );
 }
 
 void InitData::getInstanceData( eq::net::DataOStream& os )
@@ -75,7 +75,7 @@ void InitData::applyInstanceData( eq::net::DataIStream& is )
     is >> _frameDataID >> _windowSystem >> _precision >> _brightness >> _alpha
        >> _filename;
 
-    EQASSERT( _frameDataID != EQ_ID_INVALID );
+    EQASSERT( _frameDataID != eq::base::EQ_UUID_INVALID );
     EQINFO << "New InitData instance" << endl;
 }
 }

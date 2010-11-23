@@ -72,7 +72,7 @@ namespace eq
         EQASSERT( owner );
         
         event.data.type                  = Event::STATISTIC;
-        event.data.originator            = EQ_ID_NONE;
+        event.data.originator            = base::EQ_UUID_NONE;
         event.data.statistic.type        = type;
         event.data.statistic.frameNumber = frameNumber;
         event.data.statistic.resourceName[0] = '\0';

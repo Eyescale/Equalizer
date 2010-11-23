@@ -68,7 +68,7 @@ template EQFABRIC_EXPORT std::ostream& eq::fabric::operator << ( std::ostream&,
 /** @endcond */
 
 #define FIND_ID_TEMPLATE1( type )                                       \
-    template void eq::admin::Config::Super::find< type >( const uint32_t, \
+    template void eq::admin::Config::Super::find< type >( const uint128_t&, \
                                                           type** );
 
 FIND_ID_TEMPLATE1( eq::admin::Channel );
@@ -76,7 +76,7 @@ FIND_ID_TEMPLATE1( eq::admin::Layout );
 FIND_ID_TEMPLATE1( eq::admin::Observer );
 
 #define FIND_ID_TEMPLATE2( type )                                       \
-    template type* eq::admin::Config::Super::find< type >( const uint32_t );
+    template type* eq::admin::Config::Super::find< type >( const uint128_t& );
 
 FIND_ID_TEMPLATE2( eq::admin::Observer );
 FIND_ID_TEMPLATE2( eq::admin::Layout );

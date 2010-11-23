@@ -106,7 +106,7 @@ Channel::Channel( const Channel& from )
     // Don't copy view and segment. Will be re-set by segment copy ctor
 }
 
-void Channel::attachToSession( const uint32_t id, const uint32_t instanceID, 
+void Channel::attachToSession( const base::UUID& id, const uint32_t instanceID, 
                                net::Session* session )
 {
     Super::attachToSession( id, instanceID, session );

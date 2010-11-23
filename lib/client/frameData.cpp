@@ -120,7 +120,7 @@ void FrameData::update( const uint128_t& version )
     send( getLocalNode(), packet );
 }
 
-void FrameData::attachToSession( const uint32_t id, const uint32_t instanceID,
+void FrameData::attachToSession( const base::UUID& id, const uint32_t instanceID,
                                  net::Session* session )
 {
     net::Object::attachToSession( id, instanceID, session );
@@ -524,10 +524,9 @@ bool FrameData::_cmdTransmit( net::Command& command )
     EQASSERT( packet->pvp.isValid( ));
 
     // Very ugly way to get our local eq::Node object identifier
-    uint32_t originator = getID();
     Config* config = EQSAFECAST( Config*, getSession( ));
-    if( config )
-        originator = config->getNodes().front()->getID();
+    const uint128_t& originator = config ? config->getNodes().front()->getID() :
+                                           getID();
 
     FrameDataStatistics event( Statistic::FRAME_RECEIVE, this, 
                                packet->frameNumber, originator );

@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -311,9 +312,9 @@ namespace eq
 
     protected:
         /** @internal */
-        EQ_API void attachToSession( const uint32_t id, 
-                                        const uint32_t instanceID, 
-                                        net::Session* session );
+        EQ_API void attachToSession( const base::UUID& id, 
+                                     const uint32_t instanceID, 
+                                     net::Session* session );
         /** @name Actions */
         //@{
         /** 

@@ -91,7 +91,7 @@ namespace
 
         VisitorResult _register( net::Object* object, const uint32_t nBuffers )
             {
-                EQASSERT( object->getID() == EQ_ID_INVALID );
+                EQASSERT( object->getID() == base::EQ_UUID_INVALID );
                 _config->registerObject( object );
                 if( nBuffers > 0 )
                     object->setAutoObsolete( nBuffers );

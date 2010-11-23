@@ -256,7 +256,7 @@ namespace net
         {
             C* child = *i;
             (*this) << ObjectVersion( child );
-            EQASSERTINFO( !child || child->getID() <= EQ_ID_MAX,
+            EQASSERTINFO( !child || child->getID() <= base::EQ_UUID_MAX,
                           "Found unmapped object during serialization" );
         }
     }

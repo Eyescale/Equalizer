@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -42,9 +43,10 @@ namespace eqPly
         InitData();
         virtual ~InitData();
 
-        void setFrameDataID( const uint32_t id )   { _frameDataID = id; }
+        void setFrameDataID( const eq::uint128_t& id )   
+            { _frameDataID = id; }
 
-        uint32_t           getFrameDataID() const   { return _frameDataID; }
+        eq::uint128_t getFrameDataID() const  { return _frameDataID; }
         eq::WindowSystem   getWindowSystem() const  { return _windowSystem; }
         mesh::RenderMode   getRenderMode() const    { return _renderMode; }
         bool               useGLSL() const          { return _useGLSL; }
@@ -64,7 +66,7 @@ namespace eqPly
         void disableLogo()         { _logo     = false; }
 
     private:
-        uint32_t         _frameDataID;
+        eq::uint128_t    _frameDataID;
         eq::WindowSystem _windowSystem;
         mesh::RenderMode _renderMode;
         bool             _useGLSL;

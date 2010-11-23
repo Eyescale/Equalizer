@@ -1,4 +1,4 @@
-- change initID as uint128_t
+- Replace system IDPool by UUID 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

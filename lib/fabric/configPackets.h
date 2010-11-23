@@ -88,7 +88,7 @@ struct ConfigCreateReplyPacket : public ConfigPacket
             }
 
         const uint32_t requestID;
-        uint32_t entityID;
+        base::UUID     entityID;
     };
 }
 }

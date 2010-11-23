@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -39,7 +40,7 @@ View::View( eq::Layout* parent )
 #pragma warning( disable : 4355 )
         , _proxy( this )
 #pragma warning( pop )
-        , _modelID( EQ_ID_INVALID )
+        , _modelID( eq::base::EQ_UUID_INVALID )
         , _idleSteps( 0 )
 {
     setUserData( &_proxy );
@@ -48,7 +49,7 @@ View::View( eq::Layout* parent )
 View::~View()
 {
     setUserData( 0 );
-    _modelID = EQ_ID_INVALID;
+    _modelID = eq::base::EQ_UUID_INVALID;
     _idleSteps = 0;
 }
 
@@ -74,7 +75,7 @@ void View::Proxy::deserialize( eq::net::DataIStream& is,
     }
 }
 
-void View::setModelID( const uint32_t id )
+void View::setModelID( const eq::base::uint128_t& id )
 {
     if( _modelID == id )
         return;

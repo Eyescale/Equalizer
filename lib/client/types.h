@@ -191,7 +191,7 @@ typedef std::vector< uint16_t >   Vectorus;
 typedef base::RefPtr< X11Connection > X11ConnectionPtr;
     
 // originator id -> statistics
-typedef std::map< uint32_t, Statistics >        SortedStatistics;
+typedef std::map< base::UUID, Statistics >        SortedStatistics;
 
 // frame id, config statistics
 typedef std::pair< uint32_t, SortedStatistics > FrameStatistics;

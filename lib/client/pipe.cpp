@@ -119,7 +119,7 @@ ServerPtr Pipe::getServer()
     return ( node ? node->getServer() : 0);
 }
 
-void Pipe::attachToSession( const uint32_t id, const uint32_t instanceID, 
+void Pipe::attachToSession( const base::UUID& id, const uint32_t instanceID, 
                             net::Session* session )
 {
     Super::attachToSession( id, instanceID, session );
@@ -290,7 +290,7 @@ Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye,
     frame->sync( frameVersion.version );
 
     const net::ObjectVersion& data = frame->getDataVersion( eye );
-    EQASSERT( data.identifier <= EQ_ID_MAX );
+    EQASSERT( data.identifier <= base::EQ_UUID_MAX );
     FrameData* frameData = getNode()->getFrameData( data ); 
     EQASSERT( frameData );
 
@@ -335,7 +335,7 @@ const View* Pipe::getView( const net::ObjectVersion& viewVersion ) const
 View* Pipe::getView( const net::ObjectVersion& viewVersion )
 {
     EQ_TS_THREAD( _pipeThread );
-    if( viewVersion.identifier > EQ_ID_MAX )
+    if( viewVersion.identifier > base::EQ_UUID_MAX )
         return 0;
 
     View* view = _views[ viewVersion.identifier ];

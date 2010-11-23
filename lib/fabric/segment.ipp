@@ -99,7 +99,7 @@ void Segment< C, S, CH >::deserialize( net::DataIStream& is,
         is >> ov;
 
         _channel = 0;
-        if( ov.identifier != EQ_ID_NONE )
+        if( ov.identifier != base::EQ_UUID_NONE )
         {
             _canvas->getConfig()->find( ov.identifier, &_channel );
             EQASSERT( !isMaster() || _channel );

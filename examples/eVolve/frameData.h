@@ -69,9 +69,9 @@ namespace eVolve
 
         /** @name View interface. */
         //*{
-        void setCurrentViewID( const uint32_t id );
+        void setCurrentViewID( const eq::uint128_t& id );
 
-        uint32_t getCurrentViewID() const { return _currentViewID; }
+        eq::uint128_t getCurrentViewID() const { return _currentViewID; }
         //*}
 
         /** @name Message overlay. */
@@ -109,7 +109,7 @@ namespace eVolve
         bool         _statistics;
         bool         _help;
         float        _quality;
-        uint32_t     _currentViewID;
+        eq::uint128_t    _currentViewID;
         std::string  _message;
     };
 }

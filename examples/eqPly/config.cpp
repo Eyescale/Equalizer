@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -64,7 +65,7 @@ Config::~Config()
     for( ModelDists::const_iterator i = _modelDist.begin(); 
          i != _modelDist.end(); ++i )
     {
-        EQASSERT( (*i)->getID() == EQ_ID_INVALID );
+        EQASSERT( (*i)->getID() == eq::base::EQ_UUID_INVALID );
         delete *i;
     }
     _modelDist.clear();
@@ -229,7 +230,7 @@ void Config::_registerModels()
             modelDist = _modelDist[i];
 
         modelDist->registerTree( this );
-        EQASSERT( modelDist->getID() != EQ_ID_INVALID );
+        EQASSERT( modelDist->getID() != eq::base::EQ_UUID_INVALID );
 
         _frameData.setModelID( modelDist->getID( ));
     }
@@ -249,7 +250,7 @@ void Config::_deregisterData()
          i != _modelDist.end(); ++i )
     {
         ModelDist* modelDist = *i;
-        if( modelDist->getID() == EQ_ID_INVALID ) // already done
+        if( modelDist->getID() == eq::base::EQ_UUID_INVALID ) // already done
             continue;
 
         EQASSERT( modelDist->isMaster( ));
@@ -259,21 +260,21 @@ void Config::_deregisterData()
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
 
-    _initData.setFrameDataID( EQ_ID_INVALID );
-    _frameData.setModelID( EQ_ID_INVALID );
+    _initData.setFrameDataID( eq::base::EQ_UUID_INVALID );
+    _frameData.setModelID( eq::base::EQ_UUID_INVALID );
 }
 
 
 void Config::mapData( const eq::uint128_t& initDataID )
 {
-    if( _initData.getID() == EQ_ID_INVALID )
+    if( _initData.getID() == eq::base::EQ_UUID_INVALID )
     {
-        EQCHECK( mapObject( &_initData, initDataID.getLow() ));
+        EQCHECK( mapObject( &_initData, initDataID ));
         unmapObject( &_initData ); // data was retrieved, unmap immediately
     }
     else  // appNode, _initData is registered already
     {
-        EQASSERT( _initData.getID() == initDataID.getLow() );
+        EQASSERT( _initData.getID() == initDataID );
     }
 }
 
@@ -283,7 +284,7 @@ void Config::unmapData()
          i != _modelDist.end(); ++i )
     {
         ModelDist* modelDist = *i;
-        if( modelDist->getID() == EQ_ID_INVALID ) // already done
+        if( modelDist->getID() == eq::base::EQ_UUID_INVALID ) // already done
             continue;
 
         if( !modelDist->isMaster( )) // leave registered on appNode
@@ -291,9 +292,9 @@ void Config::unmapData()
     }
 }
 
-const Model* Config::getModel( const uint32_t modelID )
+const Model* Config::getModel( const eq::uint128_t& modelID )
 {
-    if( modelID > EQ_ID_MAX )
+    if( modelID > eq::base::EQ_UUID_MAX )
         return 0;
 
     // Accessed concurrently from pipe threads
@@ -408,9 +409,10 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
         case eq::Event::POINTER_BUTTON_PRESS:
         {
-            const uint32_t viewID = event->data.context.view.identifier;
+            const eq::uint128_t& viewID = 
+                           event->data.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
-            if( viewID > EQ_ID_MAX )
+            if( viewID > eq::base::EQ_UUID_MAX )
             {
                 _currentCanvas = 0;
                 return true;
@@ -769,7 +771,7 @@ void Config::_switchCanvas()
     if( canvases.empty( ))
         return;
 
-    _frameData.setCurrentViewID( EQ_ID_INVALID );
+    _frameData.setCurrentViewID( eq::base::EQ_UUID_INVALID );
 
     if( !_currentCanvas )
     {
@@ -816,7 +818,7 @@ void Config::_switchView()
     if( i != views.end( ))
         ++i;
     if( i == views.end( ))
-        _frameData.setCurrentViewID( EQ_ID_INVALID );
+        _frameData.setCurrentViewID( eq::base::EQ_UUID_INVALID );
     else
         _frameData.setCurrentViewID( (*i)->getID( ));
 }
@@ -841,9 +843,9 @@ void Config::_switchModel()
         return;
 
     // current model
-    const uint32_t viewID = _frameData.getCurrentViewID();
+    const eq::uint128_t& viewID = _frameData.getCurrentViewID();
     View* view = static_cast< View* >( find< eq::View >( viewID ));
-    const uint32_t currentID = view ?
+    const eq::uint128_t& currentID = view ?
                                view->getModelID() : _frameData.getModelID();
 
     // next model
@@ -860,7 +862,7 @@ void Config::_switchModel()
         i = _modelDist.begin(); // wrap around
 
     // set identifier on view or frame data (default model)
-    const uint32_t modelID = (*i)->getID();
+    const eq::uint128_t& modelID = (*i)->getID();
     if( view )
         view->setModelID( modelID );
     else
@@ -879,7 +881,7 @@ void Config::_switchLayout( int32_t increment )
     if( !_currentCanvas )
         return;
 
-    _frameData.setCurrentViewID( EQ_ID_INVALID );
+    _frameData.setCurrentViewID( eq::base::EQ_UUID_INVALID );
 
     int32_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();

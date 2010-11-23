@@ -53,8 +53,8 @@ namespace eq
                 size    = sizeof( FrameDataReadyPacket );
             }
 
-        FrameData::Data data;
         uint128_t version;
+        FrameData::Data data;
     };
 
     struct FrameDataUpdatePacket : public FrameDataPacket

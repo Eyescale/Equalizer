@@ -114,37 +114,6 @@ namespace net
          */
         //@{
         /** 
-         * Generate a continous block of unique identifiers.
-         *
-         * The identifiers are unique within this session. Identifiers are
-         * reused when they are freed, that is, the same identifier might be
-         * returned twice from this function during runtime, if it was freed in
-         * between.
-         *
-         * Out-of-IDs is signalled by returning EQ_ID_INVALID. This should
-         * rarely happen, since approximately 2^32 identifiers are
-         * available. However, ID fragmentation or generous ID allocation might
-         * deplete this pool.
-         * 
-         * @param range the size of the block.
-         * @return the first identifier of the block, or EQ_ID_INVALID if no
-         *         continous block of identifiers for the request is available.
-         * @sa base::IDPool
-         */
-        EQNET_API uint32_t genIDs( const uint32_t range );
-
-        /** 
-         * Free a continous block of unique identifiers.
-         *
-         * The block size does not need to match the block size during
-         * allocation of the identifiers.
-         *
-         * @param start the first identifier in the block.
-         * @param range the size of the block.
-         */
-        EQNET_API void freeIDs( const uint32_t start, const uint32_t range );
-
-        /** 
          * Set the master node for an identifier.
          * 
          * This can be used to identify the node which is responsible for the
@@ -158,14 +127,14 @@ namespace net
          * @param id the identifier.
          * @param master the master node for the block of identifiers.
          */
-        EQNET_API void setIDMaster( const uint32_t id, const NodeID& master );
+        EQNET_API void setIDMaster( const base::UUID& id, const NodeID& master );
 
         /** 
          * Delete the master node for an identifiers.
          * 
          * @param id the identifier.
          */
-        EQNET_API void unsetIDMaster( const uint32_t id );
+        EQNET_API void unsetIDMaster( const base::UUID& id );
 
         /** 
          * Returns the master node id for an identifier.
@@ -174,7 +143,7 @@ namespace net
          * @return the master node, or Node::ZERO if no master node is
          *         set for the identifier.
          */
-        EQNET_API const NodeID getIDMaster( const uint32_t id );
+        EQNET_API const NodeID getIDMaster( const base::UUID& id );
         //@}
 
 
@@ -234,12 +203,12 @@ namespace net
          *         available.
          * @sa registerObject
          */
-        EQNET_API bool mapObject( Object* object, const uint32_t id, 
-                                  const uint128_t& version = VERSION_OLDEST );
+        EQNET_API bool mapObject( Object* object, const base::UUID& id, 
+                                    const uint128_t& version = VERSION_OLDEST );
 
         /** Start mapping a distributed object. */
-        EQNET_API uint32_t mapObjectNB( Object* object, const uint32_t id, 
-                                        const uint128_t& version = VERSION_OLDEST );
+        EQNET_API uint32_t mapObjectNB( Object* object, const base::UUID& id, 
+                                      const uint128_t& version = VERSION_OLDEST );
         /** Finalize the mapping of a distributed object. */
         EQNET_API bool mapObjectSync( const uint32_t requestID );
 
@@ -270,8 +239,8 @@ namespace net
          * @param instanceID the node-local instance identifier, or
          *                   EQ_ID_INVALID if this method should generate one.
          */
-        EQNET_API void attachObject( Object* object, const uint32_t id, 
-                                       const uint32_t instanceID );
+        EQNET_API void attachObject( Object* object, const base::UUID& id, 
+                                     const uint32_t instanceID );
 
         /** 
          * Detach an object.
@@ -403,13 +372,10 @@ namespace net
         /** The state (master/client) of this session instance. */
         bool _isMaster;
 
-        /** The distributed identifier pool. */
-        base::IDPool _idPool;
-
         /** The identifiers for node-local instance identifiers. */
         base::a_int32_t _instanceIDs;
 
-        typedef stde::hash_map< uint32_t, NodeID > NodeIDHash;
+        typedef stde::hash_map< base::UUID, NodeID > NodeIDHash;
         /** The id->master mapping table. */
         base::Lockable< NodeIDHash, base::SpinLock > _idMasters;
         
@@ -430,9 +396,9 @@ namespace net
 
         InstanceCache* _instanceCache; //!< cached object mapping data
 
-        const NodeID _pollIDMaster( const uint32_t id ) const;
-        NodePtr _pollIDMasterNode( const uint32_t id ) const;
-        NodePtr _connectMaster( const uint32_t id );
+        const NodeID _pollIDMaster( const base::UUID& id ) const;
+        NodePtr _pollIDMasterNode( const base::UUID& id ) const;
+        NodePtr _connectMaster( const base::UUID& id );
 
         void _registerThreadObject( Object* object, const uint32_t id );
 
@@ -447,19 +413,17 @@ namespace net
         bool _invokeObjectCommand( Command& packet );
         Object* _findObject( Command& command );
 
-        void _attachObject( Object* object, const uint32_t id, 
+        void _attachObject( Object* object, const base::UUID& id, 
                             const uint32_t instanceID );
         void _detachObject( Object* object );
 
-        uint32_t _setIDMasterNB( const uint32_t id, const NodeID& master );
+        uint32_t _setIDMasterNB( const base::UUID& id, const NodeID& master );
         void _setIDMasterSync( const uint32_t requestID );
-        uint32_t _unsetIDMasterNB( const uint32_t id );
+        uint32_t _unsetIDMasterNB( const base::UUID& id );
         void _unsetIDMasterSync( const uint32_t requestID );
 
         /** The command handler functions. */
         bool _cmdAckRequest( Command& packet );
-        bool _cmdGenIDs( Command& packet );
-        bool _cmdGenIDsReply( Command& packet );
         bool _cmdSetIDMaster( Command& packet );
         bool _cmdUnsetIDMaster( Command& packet );
         bool _cmdGetIDMaster( Command& packet );

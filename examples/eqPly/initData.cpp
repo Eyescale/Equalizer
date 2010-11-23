@@ -1,6 +1,7 @@
 
 /*
  * Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,7 +41,7 @@ namespace eqPly
 {
 
 InitData::InitData()
-        : _frameDataID( EQ_ID_INVALID )
+        : _frameDataID( eq::base::EQ_UUID_INVALID )
         , _windowSystem( eq::WINDOW_SYSTEM_NONE )
 #ifdef Darwin
         , _renderMode( mesh::RENDER_MODE_BUFFER_OBJECT )
@@ -54,7 +55,7 @@ InitData::InitData()
 
 InitData::~InitData()
 {
-    setFrameDataID( EQ_ID_INVALID );
+    setFrameDataID( eq::base::EQ_UUID_INVALID );
 }
 
 void InitData::getInstanceData( eq::net::DataOStream& os )
@@ -68,7 +69,7 @@ void InitData::applyInstanceData( eq::net::DataIStream& is )
     is >> _frameDataID >> _windowSystem >> _renderMode >> _useGLSL >> _invFaces
        >> _logo;
 
-    EQASSERT( _frameDataID <= EQ_ID_MAX );
+    EQASSERT( _frameDataID <= eq::base::EQ_UUID_MAX );
     EQINFO << "New InitData instance" << std::endl;
 }
 }

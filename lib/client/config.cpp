@@ -455,9 +455,9 @@ bool Config::handleEvent( const ConfigEvent* event )
         {
             EQLOG( LOG_STATS ) << event->data << std::endl;
 
-            const uint32_t originator = event->data.originator;
-            EQASSERT( originator != EQ_ID_INVALID );
-            if( originator == EQ_ID_INVALID )
+            const uint128_t& originator = event->data.originator;
+            EQASSERT( originator != base::EQ_UUID_INVALID );
+            if( originator == base::EQ_UUID_INVALID )
                 return false;
 
             const Statistic& statistic = event->data.statistic;
@@ -646,8 +646,8 @@ void Config::deregisterObject( net::Object* object )
         return;
     }
 
-    const uint32_t id = object->getID();
-    if( id >= EQ_ID_MAX ) // not registered
+    const base::UUID& id = object->getID();
+    if( id >= base::EQ_UUID_MAX ) // not registered
         return;
 
     // Keep a distributed object latency frames.
@@ -687,7 +687,7 @@ bool Config::_cmdCreateNode( net::Command& command )
     const ConfigCreateNodePacket* packet = 
         command.getPacket<ConfigCreateNodePacket>();
     EQVERB << "Handle create node " << packet << std::endl;
-    EQASSERT( packet->nodeID <= EQ_ID_MAX );
+    EQASSERT( packet->nodeID <= base::EQ_UUID_MAX );
 
     Node* node = Global::getNodeFactory()->createNode( this );
     EQCHECK( mapObject( node, packet->nodeID ));
@@ -831,7 +831,7 @@ template EQFABRIC_EXPORT std::ostream& eq::fabric::operator << ( std::ostream&,
 /** @endcond */
 
 #define FIND_ID_TEMPLATE1( type )                                       \
-    template EQ_EXPORT void eq::Config::Super::find< type >( const uint32_t, \
+    template EQ_EXPORT void eq::Config::Super::find< type >( const uint128_t&, \
                                                              type** );
 
 FIND_ID_TEMPLATE1( eq::Window );
@@ -841,7 +841,7 @@ FIND_ID_TEMPLATE1( eq::Observer );
 FIND_ID_TEMPLATE1( eq::Canvas );
 
 #define FIND_ID_TEMPLATE2( type )                                       \
-    template EQ_EXPORT type* eq::Config::Super::find< type >( const uint32_t );
+    template EQ_EXPORT type* eq::Config::Super::find< type >( const uint128_t& );
 
 FIND_ID_TEMPLATE2( eq::Window );
 FIND_ID_TEMPLATE2( eq::Observer );
@@ -850,7 +850,7 @@ FIND_ID_TEMPLATE2( eq::View );
 FIND_ID_TEMPLATE2( eq::Canvas );
 
 #define CONST_FIND_ID_TEMPLATE2( type )                                       \
-    template EQ_EXPORT const type* eq::Config::Super::find< type >( const uint32_t ) const;
+    template EQ_EXPORT const type* eq::Config::Super::find< type >( const uint128_t& ) const;
 
 CONST_FIND_ID_TEMPLATE2( eq::Window );
 CONST_FIND_ID_TEMPLATE2( eq::Observer );

@@ -47,7 +47,7 @@ namespace fabric
             }
 
         const uint32_t requestID;
-        uint32_t segmentID;
+        base::UUID     segmentID;
     };
 }
 }

@@ -32,7 +32,7 @@ namespace eqPly
 {
 
 FrameData::FrameData()
-        : _modelID( EQ_ID_INVALID )
+        : _modelID( eq::base::EQ_UUID_INVALID )
         , _renderMode( mesh::RENDER_MODE_DISPLAY_LIST )
         , _colorMode( COLOR_MODEL )
         , _quality( 1.0f )
@@ -42,7 +42,7 @@ FrameData::FrameData()
         , _wireframe( false )
         , _pilotMode( false )
         , _idle( false )
-        , _currentViewID( EQ_ID_INVALID )
+        , _currentViewID( eq::base::EQ_UUID_INVALID )
 {
     reset();
     EQINFO << "New FrameData " << std::endl;
@@ -77,7 +77,7 @@ void FrameData::deserialize( eq::net::DataIStream& is,
         is >> _message;
 }
 
-void FrameData::setModelID( const uint32_t id )
+void FrameData::setModelID( const eq::uint128_t& id )
 {
     if( _modelID == id )
         return;
@@ -257,7 +257,7 @@ void FrameData::reset()
     setDirty( DIRTY_CAMERA );
 }
 
-void FrameData::setCurrentViewID( const uint32_t id )
+void FrameData::setCurrentViewID( const eq::uint128_t& id )
 {
     _currentViewID = id;
     setDirty( DIRTY_VIEW );

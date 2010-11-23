@@ -52,7 +52,7 @@ namespace eqPly
         
         /** @name Rendering flags. */
         //*{
-        void setModelID( const uint32_t id );
+        void setModelID( const eq::uint128_t& id );
 
         void setColorMode( const ColorMode color );
         void setRenderMode( const mesh::RenderMode mode );
@@ -67,7 +67,7 @@ namespace eqPly
         void togglePilotMode();
         void toggleRenderMode();
 
-        uint32_t getModelID() const { return _modelID; }
+        eq::uint128_t getModelID() const { return _modelID; }
         ColorMode getColorMode() const { return _colorMode; }
         float getQuality() const { return _quality; }
         bool useOrtho() const { return _ortho; }
@@ -99,8 +99,8 @@ namespace eqPly
 
         /** @name View interface. */
         //*{
-        void setCurrentViewID( const uint32_t id );
-        uint32_t getCurrentViewID() const { return _currentViewID; }
+        void setCurrentViewID( const eq::uint128_t& id );
+        eq::uint128_t getCurrentViewID() const { return _currentViewID; }
         //*}
 
         /** @name Message overlay. */
@@ -133,7 +133,7 @@ namespace eqPly
         eq::Matrix4f _modelRotation;
         eq::Vector3f _position;
         
-        uint32_t         _modelID;
+        eq::uint128_t _modelID;
         mesh::RenderMode _renderMode;
         ColorMode        _colorMode;
         float            _quality;
@@ -144,7 +144,7 @@ namespace eqPly
         bool             _pilotMode;
         bool             _idle;
 
-        uint32_t _currentViewID;
+        eq::uint128_t _currentViewID;
         std::string _message;
     };
 }

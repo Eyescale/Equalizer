@@ -95,7 +95,7 @@ void Window< P, W, C >::init()
 }
 
 template< class P, class W, class C >
-void Window< P, W, C >::attachToSession( const uint32_t id,
+void Window< P, W, C >::attachToSession( const base::UUID& id,
                                          const uint32_t instanceID,
                                          net::Session* session )
 {
@@ -274,7 +274,7 @@ bool Window< P, W, C >::_removeChannel( C* channel )
 }
 
 template< class P, class W, class C >
-C* Window< P, W, C >::_findChannel( const uint32_t id )
+C* Window< P, W, C >::_findChannel( const base::UUID& id )
 {
     for( typename Channels::const_iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
@@ -452,12 +452,12 @@ bool Window< P, W, C >::_cmdNewChannel( net::Command& command )
     EQASSERT( channel );
 
     _pipe->getConfig()->registerObject( channel );
-    EQASSERT( channel->getID() <= EQ_ID_MAX );
+    EQASSERT( channel->getID() <= base::EQ_UUID_MAX );
 
     WindowNewChannelReplyPacket reply( packet );
     reply.channelID = channel->getID();
     send( command.getNode(), reply ); 
-    EQASSERT( reply.channelID <= EQ_ID_MAX );
+    EQASSERT( reply.channelID <= base::EQ_UUID_MAX );
 
     return true;
 }

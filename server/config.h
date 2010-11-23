@@ -151,7 +151,7 @@ namespace server
          * Register all shared objects of the session and return the identifier
          * of the config proxy.
          */
-        uint32_t register_();
+        uint128_t register_();
 
         /** 
          * Deregister all shared objects of the session, called before session
@@ -238,7 +238,7 @@ namespace server
 
         bool _init( const uint128_t& initID );
 
-        void _startFrame( const uint128_t frameID );
+        void _startFrame( const uint128_t& frameID );
         void _flushAllFrames();
         //@}
 

@@ -40,8 +40,8 @@ namespace net
     struct ObjectVersion
     {
         EQNET_API ObjectVersion();
-        EQNET_API ObjectVersion( const uint32_t identifier,
-                                   const uint128_t& version );
+        EQNET_API ObjectVersion( const base::UUID& identifier,
+                                 const uint128_t& version );
         EQNET_API ObjectVersion( const Object* object );
         EQNET_API ObjectVersion& operator = ( const Object* object );
      
@@ -69,7 +69,7 @@ namespace net
                     ( identifier == rhs.identifier && version > rhs.version );
             }
 
-        uint32_t identifier;
+        base::UUID      identifier;
         uint128_t version;
 
         /** An unset object version. */
@@ -92,7 +92,10 @@ EQ_STDEXT_NAMESPACE_OPEN
     inline size_t hash_compare< eq::net::ObjectVersion >::operator()
         ( const eq::net::ObjectVersion& key ) const
     {
-        return hash_value( hash_value( key.version ) ^ hash_value( key.identifier ));
+        const size_t hashVersion = hash_value( key.version );
+        const size_t hashID = hash_value( (eq::base::uint128_t)key.identifier );
+
+        return hash_value( hashVersion ^ hashID );
     }
 #else
     /** ObjectVersion hash function. */

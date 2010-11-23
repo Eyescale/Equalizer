@@ -275,7 +275,7 @@ void Channel< W, C >::setViewVersion( const net::ObjectVersion& view )
 {
     if( _data.nativeContext.view == view )
         return;
-    EQASSERTINFO( view.identifier > EQ_ID_MAX ||
+    EQASSERTINFO( view.identifier > base::EQ_UUID_MAX ||
                   _data.nativeContext.view.version <= view.version,
                   _data.nativeContext.view << " ! " << view );
 

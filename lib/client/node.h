@@ -146,9 +146,10 @@ namespace eq
 
     protected:
         /** @internal */
-        EQ_API virtual void attachToSession( const uint32_t id, 
-                                                const uint32_t instanceID, 
-                                                net::Session* session );
+        EQ_API virtual void attachToSession( const base::UUID& id, 
+                                             const uint32_t instanceID, 
+                                             net::Session* session );
+
         /** @name Actions */
         //@{
         /** 
@@ -281,11 +282,11 @@ namespace eq
         /** The number of the last locally released frame. */
         uint32_t _unlockedFrame;
 
-        typedef stde::hash_map< uint32_t, net::Barrier* > BarrierHash;
+        typedef stde::hash_map< base::UUID, net::Barrier* > BarrierHash;
         /** All barriers mapped by the node. */
         base::Lockable< BarrierHash > _barriers;
 
-        typedef stde::hash_map< uint32_t, FrameData* > FrameDataHash;
+        typedef stde::hash_map< base::UUID, FrameData* > FrameDataHash;
         /** All frame datas used by the node during rendering. */
         base::Lockable< FrameDataHash > _frameDatas;
 

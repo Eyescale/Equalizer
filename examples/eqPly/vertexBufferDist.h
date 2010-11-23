@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -48,7 +49,7 @@ namespace eqPly
         void deregisterTree();
 
         mesh::VertexBufferRoot* mapModel( eq::net::Session* session,
-                                          const uint32_t modelID );
+                                          const eq::uint128_t& modelID );
         void unmapTree();
 
     protected:

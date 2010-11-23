@@ -430,8 +430,6 @@ void LocalNode::_addSession( Session* session, NodePtr server,
     session->_id        = sessionID;
     session->_isMaster  = ( server == this && isLocal( ));
     session->_setLocalNode( this );
-    if( session->_isMaster )
-        session->_idPool.freeIDs( 1, base::IDPool::MAX_CAPACITY );
 
     base::ScopedMutex< base::SpinLock > mutex( _sessions );
     EQASSERTINFO( _sessions->find( sessionID ) == _sessions->end(),
