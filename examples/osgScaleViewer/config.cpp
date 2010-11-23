@@ -139,7 +139,7 @@ uint32_t Config::startFrame()
     _clock.reset();
     updateFrameData( elapsed );
 
-    const uint32_t version = _frameData.commit();
+    const eq::uint128_t version = _frameData.commit();
     return eq::Config::startFrame( version );	
 }
 
@@ -153,7 +153,7 @@ const InitData& Config::getInitData() const
     return _initData;
 }
 
-bool Config::mapData( const uint32_t initDataID )
+bool Config::mapData( const eq::uint128_t& initDataID )
 {
     if( _initData.getID() == EQ_ID_INVALID )
     {

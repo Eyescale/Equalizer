@@ -38,12 +38,12 @@ InitData::~InitData()
     setFrameDataID( EQ_ID_INVALID );
 }
 
-void InitData::setFrameDataID( const uint32_t id )
+void InitData::setFrameDataID( const eq::uint128_t& id )
 {
     _frameDataID = id;
 }
 
-uint32_t InitData::getFrameDataID() const
+const eq::uint128_t& InitData::getFrameDataID() const
 {
     return _frameDataID;
 }

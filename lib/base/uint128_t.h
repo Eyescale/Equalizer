@@ -25,7 +25,6 @@ namespace eq
 {
 namespace base
 {
-
     /** A base type for 128 bit unsigned integer values. */
     class EQ_BASE_DECL uint128_t
     {
@@ -149,10 +148,6 @@ namespace base
         /** @internal @return the higher 64 bits of this UINT128. */
         uint64_t setHigh( const uint128_t high ) const { return _high; }
     
-protected:
-#ifndef _MSC_VER
-        friend struct stde::hash< eq::base::uint128_t >;
-#endif
     private:
         uint64_t _high;
         uint64_t _low;
@@ -197,29 +192,30 @@ protected:
 
 }
 }
+
 #ifdef EQ_STDEXT_VC8
-    template<> inline size_t stde::hash_compare< eq::base::uint128_t >::operator() 
+template<> inline size_t stde::hash_compare< eq::base::uint128_t >::operator() 
         ( const eq::base::uint128_t& key ) const
-    {
-        return key.getLow();
-    }
+{
+    return key.getLow();
+}
 
-    template<> inline size_t stde::hash_value( const eq::base::uint128_t& key )
-    {
-        return key.getLow();
-    }
+template<> inline size_t stde::hash_value( const eq::base::uint128_t& key )
+{
+    return key.getLow();
+}
 
-    #else
+#else
 
-    EQ_STDEXT_NAMESPACE_OPEN
-        template<> struct hash< eq::base::uint128_t >
+EQ_STDEXT_NAMESPACE_OPEN
+template<> struct hash< eq::base::uint128_t >
+{
+    size_t operator()( const eq::base::uint128_t& key ) const
         {
-            size_t operator()( const eq::base::uint128_t& key ) const
-            {
-                return key.getLow() ^ key.getHigh();
-            }
-        };
-    EQ_STDEXT_NAMESPACE_CLOSE
+            return key.getHigh() ^ key.getLow();
+        }
+};
+EQ_STDEXT_NAMESPACE_CLOSE
 
 #endif
 #endif // EQBASE_UINT128_H

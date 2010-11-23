@@ -34,15 +34,15 @@
 #include "client.h" // MAX_NGPUS
 
 namespace eqNbody
-{	
-	enum NBodyConfig
-	{
-		NBODY_CONFIG_RANDOM,
-		NBODY_CONFIG_SHELL,
-		NBODY_CONFIG_EXPAND,
-		NBODY_NUM_CONFIGS
-	};
-	
+{   
+    enum NBodyConfig
+    {
+        NBODY_CONFIG_RANDOM,
+        NBODY_CONFIG_SHELL,
+        NBODY_CONFIG_EXPAND,
+        NBODY_NUM_CONFIGS
+    };
+    
     class FrameData : public eq::fabric::Serializable
     {
     public:
@@ -50,40 +50,44 @@ namespace eqNbody
         FrameData();
         virtual ~FrameData();
 
-		void init(unsigned int numBodies);
-		void initHostData();
-		void exit();		
+        void init(unsigned int numBodies);
+        void initHostData();
+        void exit();        
 
-		void updateParameters(NBodyConfig config, float clusterScale, float velocityScale, float ts);
-		
+        void updateParameters(NBodyConfig config, float clusterScale, float velocityScale, float ts);
+        
         void toggleStatistics();
         bool useStatistics() const { return _statistics; }
-		
-		unsigned int getNumDataProxies( void ) const { return _numDataProxies; }
-		unsigned int getProxyID( unsigned int ndx ) const { return _dataProxyID[ndx][0]; }
-		unsigned int getProxyVersion( unsigned int ndx ) const { return _dataProxyID[ndx][1]; }
-		unsigned int getVersionForProxyID( unsigned int pid ) const;
+        
+        unsigned int getNumDataProxies( void ) const { return _numDataProxies; }
+        eq::uint128_t getProxyID( unsigned int ndx ) const
+            { return _dataProxyID[ndx].identifier; }
+        eq::uint128_t getProxyVersion( unsigned int ndx ) const
+            { return _dataProxyID[ndx].version; }
+        eq::uint128_t getVersionForProxyID( const eq::uint128_t& pid ) const;
 
-		void addProxyID( unsigned int pid, const float *range );
-		void updateProxyID( unsigned int pid, unsigned int version, const float *range );
-		
-		virtual uint32_t commit();
-		bool isReady();
+        void addProxyID( const eq::uint128_t& pid, const float *range );
+        void updateProxyID( const eq::uint128_t& pid,
+                            const eq::uint128_t& version,
+                            const float *range );
+        
+        virtual uint32_t commitNB();
+        bool isReady();
 
-		const float* getPosData() const {return _hPos;}
-		const float* getVelData() const {return _hVel;}
-		const float* getColData() const {return _hCol;}
-		
-		float getTimeStep() const { return _deltaTime; }
-		float getClusterScale() const { return _clusterScale; }
-		float getVelocityScale() const { return _velocityScale; }
-		
-		float* getPos() const { return _hPos; }
-		float* getVel() const { return _hVel; }
-		float* getCol() const { return _hCol; }
-		
-		unsigned int getNumBytes( void ) const { return 4*sizeof(float)*_numBodies; }
-		unsigned int getNumBodies( void ) const { return _numBodies; }
+        const float* getPosData() const {return _hPos;}
+        const float* getVelData() const {return _hVel;}
+        const float* getColData() const {return _hCol;}
+        
+        float getTimeStep() const { return _deltaTime; }
+        float getClusterScale() const { return _clusterScale; }
+        float getVelocityScale() const { return _velocityScale; }
+        
+        float* getPos() const { return _hPos; }
+        float* getVel() const { return _hVel; }
+        float* getCol() const { return _hCol; }
+        
+        unsigned int getNumBytes( void ) const { return 4*sizeof(float)*_numBodies; }
+        unsigned int getNumBodies( void ) const { return _numBodies; }
 
     protected:
         virtual void serialize( eq::net::DataOStream& os, const uint64_t dirtyBits );
@@ -91,29 +95,29 @@ namespace eqNbody
 
         enum DirtyBits
         {
-            DIRTY_DATA		= eq::fabric::Serializable::DIRTY_CUSTOM << 0,
-            DIRTY_PROXYDATA	= eq::fabric::Serializable::DIRTY_CUSTOM << 1,
-            DIRTY_FLAGS		= eq::fabric::Serializable::DIRTY_CUSTOM << 2
+            DIRTY_DATA      = eq::fabric::Serializable::DIRTY_CUSTOM << 0,
+            DIRTY_PROXYDATA = eq::fabric::Serializable::DIRTY_CUSTOM << 1,
+            DIRTY_FLAGS     = eq::fabric::Serializable::DIRTY_CUSTOM << 2
         };
-		
-    private:        		
-		void _randomizeData(NBodyConfig config);
-		
+        
+    private:                
+        void _randomizeData(NBodyConfig config);
+        
         bool            _statistics;
         bool            _newParameters;
 
-		unsigned int	_numDataProxies;			// total number of proxies
-		unsigned int	_dataProxyID[MAX_NGPUS][2];	// ID, version
-		float			_dataRanges[MAX_NGPUS];		// ranges covered by proxies
+        unsigned int    _numDataProxies;            // total number of proxies
+        eq::net::ObjectVersion _dataProxyID[MAX_NGPUS]; // ID, version
+        float           _dataRanges[MAX_NGPUS];     // ranges covered by proxies
 
-		unsigned int	_numBodies;		// number of bodies in the simulation
-		float			_deltaTime;		// time step
-		float			_clusterScale;	// scale of the cluster
-		float			_velocityScale;	// velocity scaling
-		
-		float*			_hPos;			// initial position data on the host
-		float*			_hVel;			// initial velocity data on the host
-		float*			_hCol;			// initial color data
+        unsigned int    _numBodies;     // number of bodies in the simulation
+        float           _deltaTime;     // time step
+        float           _clusterScale;  // scale of the cluster
+        float           _velocityScale; // velocity scaling
+        
+        float*          _hPos;          // initial position data on the host
+        float*          _hVel;          // initial velocity data on the host
+        float*          _hCol;          // initial color data
     };
 }
 

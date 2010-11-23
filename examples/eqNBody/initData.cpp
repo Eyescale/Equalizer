@@ -59,6 +59,6 @@ namespace eqNbody
 	void InitData::applyInstanceData( eq::net::DataIStream& is )
 	{
 		is >> _frameDataID;
-		EQASSERT( _frameDataID != EQ_ID_INVALID );
+		EQASSERT( _frameDataID != eq::base::UUID::ZERO );
 	}
 }

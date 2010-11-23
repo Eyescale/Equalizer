@@ -44,9 +44,9 @@ namespace eqNbody
     protected:
         virtual ~Channel();
 
-		bool configInit( const uint32_t initID );
-        virtual void frameDraw( const uint32_t frameID );
-						
+		virtual bool configInit( const eq::uint128_t& initID );
+        virtual void frameDraw( const eq::uint128_t& frameID );
+
 	private:		
 		Controller*     _controller;	
 

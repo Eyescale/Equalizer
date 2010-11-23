@@ -79,8 +79,7 @@ namespace osgScaleViewer
          */
         const InitData& getInitData() const;
 
-        /** Reimplemented */
-        bool mapData( const uint32_t initDataID );
+        bool mapData( const eq::uint128_t& initDataID );
 
     protected:
         void updateFrameData( float elapsed );

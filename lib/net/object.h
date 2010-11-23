@@ -88,8 +88,8 @@ namespace net
          */
         Session* getSession()             { return _session; }
 
-        /** @return the session-wide unique object identifier. */
-        base::UUID getID() const         { return _id; }
+        /** @return the object's unique identifier. */
+        const base::UUID& getID() const { return _id; }
 
         /** @return the node-wide unique object instance identifier. */
         uint32_t getInstanceID() const { return _instanceID; }

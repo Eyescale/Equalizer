@@ -53,7 +53,7 @@ namespace eqNbody
 		bool init(const InitData& initData, float* hPos = NULL, bool usePBO=true);
 		bool exit();
 		
-		void compute(const unsigned int frameID, const float timeStep, const eq::Range& range);
+		void compute(const float timeStep, const eq::Range& range);
 		void draw(float* pos, float* col);
 
 		void setSoftening(float softening);

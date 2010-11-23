@@ -1,4 +1,4 @@
-- Add missing Export 
+Fix Posix build
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

@@ -106,29 +106,4 @@ namespace base
 }
 }
 
-#ifdef EQ_STDEXT_VC8
-template<> inline size_t stde::hash_compare< eq::base::UUID >::operator() 
-    ( const eq::base::UUID& key ) const
-{
-    return key.getLow();
-}
-
-template<> inline size_t stde::hash_value( const eq::base::UUID& key )
-{
-    return key.getLow();
-}
-
-#else
-
-EQ_STDEXT_NAMESPACE_OPEN
-    template<> struct hash< eq::base::UUID >
-    {
-        size_t operator()( const eq::base::UUID& key ) const
-        {
-            return key.getLow();
-        }
-    };
-EQ_STDEXT_NAMESPACE_CLOSE
-
-#endif
 #endif // EQBASE_UUID_H

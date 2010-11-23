@@ -184,7 +184,7 @@ namespace net
 
         /** Start mapping a distributed object. */
         EQNET_API uint32_t mapObjectNB( Object* object, const base::UUID& id, 
-                                      const uint128_t& version = VERSION_OLDEST );
+                                    const uint128_t& version = VERSION_OLDEST );
         /** Finalize the mapping of a distributed object. */
         EQNET_API bool mapObjectSync( const uint32_t requestID );
 
@@ -351,7 +351,7 @@ namespace net
         /** The identifiers for node-local instance identifiers. */
         base::a_int32_t _instanceIDs;
 
-        typedef stde::hash_map< base::UUID, NodeID > NodeIDHash;
+        typedef stde::hash_map< base::uint128_t, NodeID > NodeIDHash;
         /** The id->master mapping table. */
         base::Lockable< NodeIDHash, base::SpinLock > _idMasters;
         

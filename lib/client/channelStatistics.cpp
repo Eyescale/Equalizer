@@ -44,11 +44,8 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
 
     const std::string& name = channel->getName();
     if( name.empty( ))
-    {
-      const eq::base::UUID& id = channel->getID(); 
-        snprintf( event.data.statistic.resourceName, 32, "channel %llu",
-                 (unsigned long long) id.getLow() );
-    }
+        snprintf( event.data.statistic.resourceName, 32, "channel %llx",
+                  channel->getID().getLow( ));
     else
         snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str( ));
     event.data.statistic.resourceName[31] = 0;

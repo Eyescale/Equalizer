@@ -90,8 +90,8 @@ namespace eq
     struct ConfigUpdateVersionPacket : public ConfigPacket
     {
         ConfigUpdateVersionPacket( const ConfigUpdatePacket* request,
-                                   const uint128_t& version_, const uint32_t req )
-                : version( version_ )
+                                   const uint128_t& v, const uint32_t req )
+                : version( v )
                 , versionID( request->versionID )
                 , finishID( request->finishID )
                 , requestID( req )

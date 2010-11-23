@@ -51,7 +51,7 @@ namespace eqNbody
         void setInitData( const InitData& data ) { _initData = data; }
         const InitData& getInitData() const { return _initData; }
 		
-        void mapData( const uint32_t initDataID );		
+        void mapData( const eq::uint128_t& initDataID );		
         void unmapData();
 		
         virtual bool handleEvent( const eq::ConfigEvent* event );

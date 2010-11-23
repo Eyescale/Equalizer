@@ -274,7 +274,7 @@ namespace eq
         base::Monitor< State > _state;
 
         /** The number of the last started frame. */
-        base::Monitor<uint32_t> _currentFrame;
+        base::Monitor< uint32_t > _currentFrame;
 
         /** The number of the last finished frame. */
         uint32_t _finishedFrame;
@@ -282,11 +282,11 @@ namespace eq
         /** The number of the last locally released frame. */
         uint32_t _unlockedFrame;
 
-        typedef stde::hash_map< base::UUID, net::Barrier* > BarrierHash;
+        typedef stde::hash_map< uint128_t, net::Barrier* > BarrierHash;
         /** All barriers mapped by the node. */
         base::Lockable< BarrierHash > _barriers;
 
-        typedef stde::hash_map< base::UUID, FrameData* > FrameDataHash;
+        typedef stde::hash_map< uint128_t, FrameData* > FrameDataHash;
         /** All frame datas used by the node during rendering. */
         base::Lockable< FrameDataHash > _frameDatas;
 
@@ -296,7 +296,8 @@ namespace eq
         };
 
         void _finishFrame( const uint32_t frameNumber ) const;
-        void _frameFinish( const uint128_t& frameID, const uint32_t frameNumber );
+        void _frameFinish( const uint128_t& frameID,
+                           const uint32_t frameNumber );
 
         void _flushObjects();
 

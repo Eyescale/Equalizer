@@ -39,329 +39,327 @@
 
 namespace eqNbody
 {
-    FrameData::FrameData() : _statistics( true ) , _numDataProxies(0), _hPos(0)
-                           , _hVel(0), _hCol(0)
-    {       
-        _numBodies      = 0;
-        _deltaTime      = 0.0f;
-        _clusterScale   = 0.0f;
-        _velocityScale  = 0.0f;
-        _newParameters  = false;
-    }
+FrameData::FrameData() : _statistics( true ) , _numDataProxies(0), _hPos(0)
+                       , _hVel(0), _hCol(0)
+{       
+    _numBodies      = 0;
+    _deltaTime      = 0.0f;
+    _clusterScale   = 0.0f;
+    _velocityScale  = 0.0f;
+    _newParameters  = false;
+}
     
-    FrameData::~FrameData()
+FrameData::~FrameData()
+{
+    _numDataProxies = 0;
+}
+    
+void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
+{       
+    eq::fabric::Serializable::serialize( os, dirtyBits );
+        
+    if( dirtyBits & DIRTY_DATA ) {
+        if(_hPos && _hVel && _hCol) {
+            os.write(_hPos, sizeof(float)*_numBodies*4);
+            os.write(_hVel, sizeof(float)*_numBodies*4);
+            os.write(_hCol, sizeof(float)*_numBodies*4);
+        }
+    }
+        
+    if( dirtyBits & DIRTY_FLAGS )
+        os << _statistics << _numBodies << _clusterScale << _velocityScale
+           << _deltaTime << _newParameters;
+        
+    if( dirtyBits & DIRTY_PROXYDATA )
     {
-        _numDataProxies = 0;
+        os << _numDataProxies;
+        os.write( _dataProxyID, sizeof(eq::net::ObjectVersion) * MAX_NGPUS ); 
+        os.write(&_dataRanges[0], sizeof(float) * MAX_NGPUS);           
     }
+}
     
-    void FrameData::serialize( eq::net::DataOStream& os,
-                               const uint64_t dirtyBits )
-    {       
-        eq::fabric::Serializable::serialize( os, dirtyBits );
+void FrameData::deserialize( eq::net::DataIStream& is,
+                             const uint64_t dirtyBits )
+{
+    eq::fabric::Serializable::deserialize( is, dirtyBits );
         
-        if( dirtyBits & DIRTY_DATA ) {
-            if(_hPos && _hVel && _hCol) {
-                os.write(_hPos, sizeof(float)*_numBodies*4);
-                os.write(_hVel, sizeof(float)*_numBodies*4);
-                os.write(_hCol, sizeof(float)*_numBodies*4);
-            }
-        }
-        
-        if( dirtyBits & DIRTY_FLAGS ) {
-            os << _statistics << _numBodies << _clusterScale << _velocityScale << _deltaTime << _newParameters;
-        }       
-        
-        if( dirtyBits & DIRTY_PROXYDATA ) {
-            os << _numDataProxies;
-            os.write(&_dataProxyID[0][0], sizeof(unsigned int) * MAX_NGPUS * 2);            
-            os.write(&_dataRanges[0], sizeof(float) * MAX_NGPUS);           
+    if( dirtyBits & DIRTY_DATA ) {
+        if(_hPos && _hVel && _hCol) {
+            is.read(_hPos, sizeof(float)*_numBodies*4);
+            is.read(_hVel, sizeof(float)*_numBodies*4);
+            is.read(_hCol, sizeof(float)*_numBodies*4);
         }
     }
-    
-    void FrameData::deserialize( eq::net::DataIStream& is, const uint64_t dirtyBits )
+        
+    if( dirtyBits & DIRTY_FLAGS )
+        is >> _statistics >> _numBodies >> _clusterScale >> _velocityScale
+           >> _deltaTime >> _newParameters;
+        
+    if( dirtyBits & DIRTY_PROXYDATA )
     {
-        eq::fabric::Serializable::deserialize( is, dirtyBits );
-        
-        if( dirtyBits & DIRTY_DATA ) {
-            if(_hPos && _hVel && _hCol) {
-                is.read(_hPos, sizeof(float)*_numBodies*4);
-                is.read(_hVel, sizeof(float)*_numBodies*4);
-                is.read(_hCol, sizeof(float)*_numBodies*4);
-            }
-        }
-        
-        if( dirtyBits & DIRTY_FLAGS ) {
-            is >> _statistics >> _numBodies >> _clusterScale >> _velocityScale >> _deltaTime >> _newParameters;
-        }
-        
-        if( dirtyBits & DIRTY_PROXYDATA ) {
-            is >> _numDataProxies;
-            is.read(&_dataProxyID[0][0], sizeof(unsigned int) * MAX_NGPUS * 2);
-            is.read(&_dataRanges[0], sizeof(float) * MAX_NGPUS);
-        }
+        is >> _numDataProxies;
+        is.read( _dataProxyID, sizeof( eq::net::ObjectVersion ) * MAX_NGPUS );
+        is.read(&_dataRanges[0], sizeof(float) * MAX_NGPUS);
     }
+}
     
-    void FrameData::addProxyID( unsigned int pid, const float *range )
-    {
-        EQASSERT(_numDataProxies < MAX_NGPUS);
+void FrameData::addProxyID( const eq::uint128_t& pid, const float *range )
+{
+    EQASSERT(_numDataProxies < MAX_NGPUS);
         
-        _dataProxyID[_numDataProxies][0] = pid;  
-        _dataProxyID[_numDataProxies][1] = 0;
+    _dataProxyID[_numDataProxies].identifier = pid;  
+    _dataProxyID[_numDataProxies].version = 0;
 
-        _dataRanges[_numDataProxies++] = (range[1] - range[0]);
-        setDirty( DIRTY_PROXYDATA );
-    }
+    _dataRanges[_numDataProxies++] = (range[1] - range[0]);
+    setDirty( DIRTY_PROXYDATA );
+}
     
-    void FrameData::updateProxyID( unsigned int pid, unsigned int version, const float *range )
+void FrameData::updateProxyID( const eq::uint128_t& pid,
+                               const eq::uint128_t& version,
+                               const float *range )
+{
+    // TODO: Better use a hash here!
+    for(unsigned int i=0; i< _numDataProxies; i++)
     {
-        // TODO: Better use a hash here!
-        for(unsigned int i=0; i< _numDataProxies; i++) {
-            if( pid == _dataProxyID[i][0]) {
-                _dataProxyID[i][1] = version;
-                _dataRanges[i] = (range[1] - range[0]);
-                break;
-            }
+        if( pid == _dataProxyID[i].identifier )
+        {
+            _dataProxyID[i].version = version;
+            _dataRanges[i] = (range[1] - range[0]);
+            break;
         }
-        setDirty( DIRTY_PROXYDATA );
     }
+    setDirty( DIRTY_PROXYDATA );
+}
     
-    uint32_t FrameData::commit()
+uint32_t FrameData::commitNB()
+{
+    const uint32_t ret = eq::fabric::Serializable::commitNB();
+    for(unsigned int i=0; i< _numDataProxies; i++)
+        _dataRanges[i] = 0.0f;
+        
+    return ret;
+}
+    
+bool FrameData::isReady()
+{
+    float length = 0.0f;
+        
+    for(unsigned int i=0; i<_numDataProxies; i++) {
+        length += _dataRanges[i];
+    }
+        
+    // Return true if range [0 1] is covered, otherwise false
+    return (length == 1.0f) ? true : false;
+}
+    
+eq::uint128_t FrameData::getVersionForProxyID( const eq::uint128_t& pid ) const
+{       
+    // TODO: Better use a hash here!
+    for( unsigned int i=0; i< _numDataProxies; ++i )
     {
-        bool ret = eq::fabric::Serializable::commit();
-        EQASSERT(ret);
-        
-        for(unsigned int i=0; i< _numDataProxies; i++) {
-            _dataRanges[i] = 0.0f;
-        }       
-        
-        return ret;
+        if( pid == getProxyID( i ))
+            return getProxyVersion( i );
     }
+        
+    return 0;
+}
     
-    bool FrameData::isReady()
-    {
-        float length = 0.0f;
-        
-        for(unsigned int i=0; i<_numDataProxies; i++) {
-            length += _dataRanges[i];
-        }
-        
-        // Return true if range [0 1] is covered, otherwise false
-        return (length == 1.0f) ? true : false;
-    }
+void FrameData::toggleStatistics()
+{
+    _statistics = !_statistics;
+    setDirty( DIRTY_FLAGS );
+}
     
-    unsigned int FrameData::getVersionForProxyID( unsigned int pid ) const
-    {       
-        int version = -1;
-        
-        // TODO: Better use a hash here!
-        for(unsigned int i=0; i< _numDataProxies; i++) {
-            if( pid == getProxyID(i) ) {
-                version = getProxyVersion(i); 
-                break;
-            }
-        }
-        
-        EQASSERT(version != -1)
-        
-        return (unsigned int)version;
-    }
-    
-    void FrameData::toggleStatistics()
-    {
-        _statistics = !_statistics;
-        setDirty( DIRTY_FLAGS );
-    }
-    
-    void FrameData::init(const unsigned int numBodies)
-    {
-        _numBodies  = numBodies;
+void FrameData::init(const unsigned int numBodies)
+{
+    _numBodies  = numBodies;
                 
-        setDirty( DIRTY_FLAGS );
-    }
+    setDirty( DIRTY_FLAGS );
+}
     
-    void FrameData::initHostData()
-    {       
+void FrameData::initHostData()
+{       
 #ifdef ENABLE_HOSTALLOC
-        allocateHostArrays(&_hPos, &_hVel, &_hCol, _numBodies*4*sizeof(float));
+    allocateHostArrays(&_hPos, &_hVel, &_hCol, _numBodies*4*sizeof(float));
 #else
-        _hPos       = new float[_numBodies*4];
-        _hVel       = new float[_numBodies*4];
-        _hCol       = new float[_numBodies*4];
+    _hPos       = new float[_numBodies*4];
+    _hVel       = new float[_numBodies*4];
+    _hCol       = new float[_numBodies*4];
 #endif
         
-        memset(_hPos, 0, _numBodies*4*sizeof(float));
-        memset(_hVel, 0, _numBodies*4*sizeof(float));
-        memset(_hCol, 0, _numBodies*4*sizeof(float));
+    memset(_hPos, 0, _numBodies*4*sizeof(float));
+    memset(_hVel, 0, _numBodies*4*sizeof(float));
+    memset(_hCol, 0, _numBodies*4*sizeof(float));
         
-        setDirty( DIRTY_DATA );
-    }
+    setDirty( DIRTY_DATA );
+}
     
-    void FrameData::exit()
-    {
-        _numDataProxies = 0;
-        _numBodies      = 0;
+void FrameData::exit()
+{
+    _numDataProxies = 0;
+    _numBodies      = 0;
 
 #ifdef ENABLE_HOSTALLOC
-        deleteHostArrays(_hPos, _hVel, _hCol);
+    deleteHostArrays(_hPos, _hVel, _hCol);
 #else
-        delete [] _hPos;
-        delete [] _hVel;    
-        delete [] _hCol;    
+    delete [] _hPos;
+    delete [] _hVel;    
+    delete [] _hCol;    
 #endif
-    }
+}
     
-    void FrameData::updateParameters(NBodyConfig config, float clusterScale, float velocityScale, float ts)
-    {       
-        _clusterScale   = clusterScale;
-        _velocityScale  = velocityScale;
-        _deltaTime      = ts;
-        _newParameters  = true;
+void FrameData::updateParameters(NBodyConfig config, float clusterScale, float velocityScale, float ts)
+{       
+    _clusterScale   = clusterScale;
+    _velocityScale  = velocityScale;
+    _deltaTime      = ts;
+    _newParameters  = true;
         
-        _randomizeData(config);
+    _randomizeData(config);
         
-        setDirty( DIRTY_DATA );
-        setDirty( DIRTY_FLAGS );
-    }
+    setDirty( DIRTY_DATA );
+    setDirty( DIRTY_FLAGS );
+}
     
-    void FrameData::_randomizeData(NBodyConfig config)
+void FrameData::_randomizeData(NBodyConfig config)
+{
+    switch(config)
     {
-        switch(config)
-        {
-            default:
-            case NBODY_CONFIG_RANDOM:
-            {
-                float scale  = _clusterScale * std::max(1.0f, _numBodies / (1024.f));
-                float vscale = _velocityScale * scale;
+      default:
+      case NBODY_CONFIG_RANDOM:
+      {
+          float scale  = _clusterScale * std::max(1.0f, _numBodies / (1024.f));
+          float vscale = _velocityScale * scale;
                 
-                int p = 0, v = 0;
-                unsigned int i = 0;
-                while (i < _numBodies) 
-                {
-                    eq::Vector3f point;
-                    //const int scale = 16;
-                    point.x() = rand() / (float) RAND_MAX * 2 - 1;
-                    point.y() = rand() / (float) RAND_MAX * 2 - 1;
-                    point.z() = rand() / (float) RAND_MAX * 2 - 1;
-                    float lenSqr = point.squared_length();
-                    if (lenSqr > 1)
-                        continue;
-                    eq::Vector3f velocity;
-                    velocity.x() = rand() / (float) RAND_MAX * 2 - 1;
-                    velocity.y() = rand() / (float) RAND_MAX * 2 - 1;
-                    velocity.z() = rand() / (float) RAND_MAX * 2 - 1;
-                    lenSqr = velocity.squared_length();
-                    if (lenSqr > 1)
-                        continue;
+          int p = 0, v = 0;
+          unsigned int i = 0;
+          while (i < _numBodies) 
+          {
+              eq::Vector3f point;
+              //const int scale = 16;
+              point.x() = rand() / (float) RAND_MAX * 2 - 1;
+              point.y() = rand() / (float) RAND_MAX * 2 - 1;
+              point.z() = rand() / (float) RAND_MAX * 2 - 1;
+              float lenSqr = point.squared_length();
+              if (lenSqr > 1)
+                  continue;
+              eq::Vector3f velocity;
+              velocity.x() = rand() / (float) RAND_MAX * 2 - 1;
+              velocity.y() = rand() / (float) RAND_MAX * 2 - 1;
+              velocity.z() = rand() / (float) RAND_MAX * 2 - 1;
+              lenSqr = velocity.squared_length();
+              if (lenSqr > 1)
+                  continue;
                     
-                    _hPos[p++] = point.x() * scale; // pos.x
-                    _hPos[p++] = point.y() * scale; // pos.y
-                    _hPos[p++] = point.z() * scale; // pos.z
-                    _hPos[p++] = 1.0f; // mass
+              _hPos[p++] = point.x() * scale; // pos.x
+              _hPos[p++] = point.y() * scale; // pos.y
+              _hPos[p++] = point.z() * scale; // pos.z
+              _hPos[p++] = 1.0f; // mass
                     
-                    _hVel[v++] = velocity.x() * vscale; // pos.x
-                    _hVel[v++] = velocity.y() * vscale; // pos.x
-                    _hVel[v++] = velocity.z() * vscale; // pos.x
-                    _hVel[v++] = 1.0f; // inverse mass
+              _hVel[v++] = velocity.x() * vscale; // pos.x
+              _hVel[v++] = velocity.y() * vscale; // pos.x
+              _hVel[v++] = velocity.z() * vscale; // pos.x
+              _hVel[v++] = 1.0f; // inverse mass
                     
-                    i++;
-                }
-            }
-                break;
-            case NBODY_CONFIG_SHELL:
-            {
-                float scale = _clusterScale;
-                float vscale = scale * _velocityScale;
-                float inner = 2.5f * scale;
-                float outer = 4.0f * scale;
+              i++;
+          }
+      }
+      break;
+      case NBODY_CONFIG_SHELL:
+      {
+          float scale = _clusterScale;
+          float vscale = scale * _velocityScale;
+          float inner = 2.5f * scale;
+          float outer = 4.0f * scale;
                 
-                int p = 0, v=0;
-                unsigned int i = 0;
-                while (i < _numBodies)//for(int i=0; i < numBodies; i++) 
-                {
-                    float x, y, z;
-                    x = rand() / (float) RAND_MAX * 2 - 1;
-                    y = rand() / (float) RAND_MAX * 2 - 1;
-                    z = rand() / (float) RAND_MAX * 2 - 1;
+          int p = 0, v=0;
+          unsigned int i = 0;
+          while (i < _numBodies)//for(int i=0; i < numBodies; i++) 
+          {
+              float x, y, z;
+              x = rand() / (float) RAND_MAX * 2 - 1;
+              y = rand() / (float) RAND_MAX * 2 - 1;
+              z = rand() / (float) RAND_MAX * 2 - 1;
                     
-                    eq::Vector3f point( x, y, z );
-                    float len = point.normalize();
-                    if (len > 1)
-                        continue;
+              eq::Vector3f point( x, y, z );
+              float len = point.normalize();
+              if (len > 1)
+                  continue;
                     
-                    _hPos[p++] =  point.x() * (inner + (outer - inner) * rand() / (float) RAND_MAX);
-                    _hPos[p++] =  point.y() * (inner + (outer - inner) * rand() / (float) RAND_MAX);
-                    _hPos[p++] =  point.z() * (inner + (outer - inner) * rand() / (float) RAND_MAX);
-                    _hPos[p++] = 1.0f;
+              _hPos[p++] =  point.x() * (inner + (outer - inner) * rand() / (float) RAND_MAX);
+              _hPos[p++] =  point.y() * (inner + (outer - inner) * rand() / (float) RAND_MAX);
+              _hPos[p++] =  point.z() * (inner + (outer - inner) * rand() / (float) RAND_MAX);
+              _hPos[p++] = 1.0f;
                     
-                    x = 0.0f; // * (rand() / (float) RAND_MAX * 2 - 1);
-                    y = 0.0f; // * (rand() / (float) RAND_MAX * 2 - 1);
-                    z = 1.0f; // * (rand() / (float) RAND_MAX * 2 - 1);
-                    eq::Vector3f axis( x, y, z );
-                    axis.normalize();
+              x = 0.0f; // * (rand() / (float) RAND_MAX * 2 - 1);
+              y = 0.0f; // * (rand() / (float) RAND_MAX * 2 - 1);
+              z = 1.0f; // * (rand() / (float) RAND_MAX * 2 - 1);
+              eq::Vector3f axis( x, y, z );
+              axis.normalize();
                     
-                    if (1 - point.dot(axis) < 1e-6)
-                    {
-                        axis.x() = point.y();
-                        axis.y() = point.x();
-                        axis.normalize();
-                    }
-                    //if (point.y < 0) axis = scalevec(axis, -1);
-                    eq::Vector3f vv( _hPos[4*i], _hPos[4*i+1], _hPos[4*i+2] );
-                    vv = vv.cross( axis );
-                    _hVel[v++] = vv.x() * vscale;
-                    _hVel[v++] = vv.y() * vscale;
-                    _hVel[v++] = vv.z() * vscale;
-                    _hVel[v++] = 1.0f;
+              if (1 - point.dot(axis) < 1e-6)
+              {
+                  axis.x() = point.y();
+                  axis.y() = point.x();
+                  axis.normalize();
+              }
+              //if (point.y < 0) axis = scalevec(axis, -1);
+              eq::Vector3f vv( _hPos[4*i], _hPos[4*i+1], _hPos[4*i+2] );
+              vv = vv.cross( axis );
+              _hVel[v++] = vv.x() * vscale;
+              _hVel[v++] = vv.y() * vscale;
+              _hVel[v++] = vv.z() * vscale;
+              _hVel[v++] = 1.0f;
                     
-                    i++;
-                }
-            }
-                break;
-            case NBODY_CONFIG_EXPAND:
-            {
-                float scale = _clusterScale * std::max(1.0f, _numBodies / (1024.f));
-                float vscale = scale * _velocityScale;
+              i++;
+          }
+      }
+      break;
+      case NBODY_CONFIG_EXPAND:
+      {
+          float scale = _clusterScale * std::max(1.0f, _numBodies / (1024.f));
+          float vscale = scale * _velocityScale;
                 
-                int p = 0, v = 0;
-                for(unsigned int i=0; i < _numBodies;) 
-                {
-                    eq::Vector3f point;
+          int p = 0, v = 0;
+          for(unsigned int i=0; i < _numBodies;) 
+          {
+              eq::Vector3f point;
                     
-                    point.x() = rand() / (float) RAND_MAX * 2 - 1;
-                    point.y() = rand() / (float) RAND_MAX * 2 - 1;
-                    point.z() = rand() / (float) RAND_MAX * 2 - 1;
+              point.x() = rand() / (float) RAND_MAX * 2 - 1;
+              point.y() = rand() / (float) RAND_MAX * 2 - 1;
+              point.z() = rand() / (float) RAND_MAX * 2 - 1;
                     
-                    float lenSqr = point.squared_length();
-                    if (lenSqr > 1)
-                        continue;
+              float lenSqr = point.squared_length();
+              if (lenSqr > 1)
+                  continue;
                     
-                    _hPos[p++] = point.x() * scale; // pos.x
-                    _hPos[p++] = point.y() * scale; // pos.y
-                    _hPos[p++] = point.z() * scale; // pos.z
-                    _hPos[p++] = 1.0f; // mass
+              _hPos[p++] = point.x() * scale; // pos.x
+              _hPos[p++] = point.y() * scale; // pos.y
+              _hPos[p++] = point.z() * scale; // pos.z
+              _hPos[p++] = 1.0f; // mass
                     
-                    _hVel[v++] = point.x() * vscale; // pos.x
-                    _hVel[v++] = point.y() * vscale; // pos.x
-                    _hVel[v++] = point.z() * vscale; // pos.x
-                    _hVel[v++] = 1.0f; // inverse mass
+              _hVel[v++] = point.x() * vscale; // pos.x
+              _hVel[v++] = point.y() * vscale; // pos.x
+              _hVel[v++] = point.z() * vscale; // pos.x
+              _hVel[v++] = 1.0f; // inverse mass
                     
-                    i++;
-                }
-            }
-                break;
-        }
-        
-        if (_hCol)
-        {
-            int v = 0;
-            for(unsigned int i=0; i < _numBodies; i++) 
-            {
-                _hCol[v++] = rand() / (float) RAND_MAX;
-                _hCol[v++] = rand() / (float) RAND_MAX;
-                _hCol[v++] = rand() / (float) RAND_MAX;
-                _hCol[v++] = 1.0f;
-            }
-        }       
+              i++;
+          }
+      }
+      break;
     }
+        
+    if (_hCol)
+    {
+        int v = 0;
+        for(unsigned int i=0; i < _numBodies; i++) 
+        {
+            _hCol[v++] = rand() / (float) RAND_MAX;
+            _hCol[v++] = rand() / (float) RAND_MAX;
+            _hCol[v++] = rand() / (float) RAND_MAX;
+            _hCol[v++] = 1.0f;
+        }
+    }       
+}
 }
 

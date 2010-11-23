@@ -1,6 +1,7 @@
 
 /*
  * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,24 +41,24 @@ namespace eqNbody
         InitData();
         virtual ~InitData();
 
-        void setFrameDataID( const uint32_t id )   { _frameDataID = id; }
-        uint32_t getFrameDataID() const   { return _frameDataID; }
+        void setFrameDataID( const eq::uint128_t id )   { _frameDataID = id; }
+        const eq::uint128_t& getFrameDataID() const { return _frameDataID; }
 
-		float getDamping() const { return _damping; }
-		uint32_t getNumBodies() const { return _numBodies; }
-		uint32_t getP() const { return _p; }
-		uint32_t getQ() const { return _q; }
-		
+        float getDamping() const { return _damping; }
+        uint32_t getNumBodies() const { return _numBodies; }
+        uint32_t getP() const { return _p; }
+        uint32_t getQ() const { return _q; }
+        
     protected:
         virtual void getInstanceData( eq::net::DataOStream& os );
         virtual void applyInstanceData( eq::net::DataIStream& is );
 
     private:
-        uint32_t	_frameDataID;
-		uint32_t	_numBodies;		// number of bodies in simulation
-		uint32_t	_p;				// CUDA thread parameter p
-		uint32_t	_q;				// CUDA thread parameter q
-		float		_damping;		// damping factor
+        eq::uint128_t   _frameDataID;
+        uint32_t    _numBodies;     // number of bodies in simulation
+        uint32_t    _p;             // CUDA thread parameter p
+        uint32_t    _q;             // CUDA thread parameter q
+        float       _damping;       // damping factor
     };
 }
 

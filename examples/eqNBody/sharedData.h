@@ -69,7 +69,8 @@ namespace eqNbody
     protected:
 		
     private:   
-		void _sendEvent(ConfigEvent::Type type, unsigned int version, unsigned int pid, const eq::Range& range);
+		void _sendEvent( ConfigEvent::Type type, const eq::uint128_t& version,
+                         const eq::uint128_t& pid, const eq::Range& range);
 		
 		std::vector< SharedDataProxy* >	_proxies;
 		FrameData					_frameData;

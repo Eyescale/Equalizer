@@ -123,7 +123,7 @@ namespace eqNbody
 		return true;
 	}
 						
-	void Controller::compute(const unsigned int frameID, const float timeStep, const eq::Range& range)
+	void Controller::compute(const float timeStep, const eq::Range& range)
 	{
 		int offset	= range.start * _numBodies;
 		int length	= ((range.end - range.start) * _numBodies) / _p;

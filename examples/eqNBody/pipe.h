@@ -46,10 +46,11 @@ namespace eqNbody
     protected:
         virtual ~Pipe() {}
 
-        virtual bool configInit( const uint32_t initID );
+        virtual bool configInit( const eq::uint128_t& initID );
         virtual bool configExit();
 
-        virtual void frameStart( const uint32_t frameID, const uint32_t frameNumber );
+        virtual void frameStart( const eq::uint128_t& frameID,
+                                 const uint32_t frameNumber );
 
     private:
 		SharedData *_data;

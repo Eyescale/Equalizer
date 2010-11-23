@@ -400,8 +400,8 @@ namespace eq
         /** The time spent waiting since the last frame start. */
         int64_t _waitTime;
 
-        typedef stde::hash_map< base::UUID, Frame* > FrameHash;
-        typedef stde::hash_map< base::UUID, FrameData* > FrameDataHash;
+        typedef stde::hash_map< uint128_t, Frame* > FrameHash;
+        typedef stde::hash_map< uint128_t, FrameData* > FrameDataHash;
 
         /** All assembly frames used by the pipe during rendering. */
         FrameHash _frames;
@@ -409,7 +409,7 @@ namespace eq
         /** All output frame datas used by the pipe during rendering. */
         FrameDataHash _outputFrameDatas;
 
-        typedef stde::hash_map< base::UUID, View* > ViewHash;
+        typedef stde::hash_map< uint128_t, View* > ViewHash;
         /** All views used by the pipe's channels during rendering. */
         ViewHash _views;
 

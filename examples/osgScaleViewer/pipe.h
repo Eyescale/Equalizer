@@ -72,7 +72,7 @@ namespace osgScaleViewer
          * Creates the scene graph and registers the frame data, so it can be
          * synced with the server later.
          */
-        virtual bool configInit( const uint32_t initID );
+        virtual bool configInit( const eq::uint128_t& initID );
 
         /**
          * Deregisters the frame data.
@@ -82,7 +82,7 @@ namespace osgScaleViewer
         /**
          * Syncs the frame data with the server and calls updateSceneGraph().
          */
-        virtual void frameStart( const uint32_t frameID,
+        virtual void frameStart( const eq::uint128_t& frameID,
                                  const uint32_t frameNumber );
 
     private:

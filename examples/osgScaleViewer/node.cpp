@@ -47,7 +47,7 @@ Node::Node( eq::Config* parent )
 {
 }
 
-bool Node::configInit( const uint32_t initID )
+bool Node::configInit( const eq::uint128_t& initID )
 {
     if( !eq::Node::configInit( initID ))
         return false;
@@ -114,7 +114,8 @@ bool Node::configExit()
 }
 
 
-void Node::frameStart( const uint32_t frameID, const uint32_t frameNumber )
+void Node::frameStart( const eq::uint128_t& frameID,
+                       const uint32_t frameNumber )
 {
     _frameStamp->setFrameNumber( frameNumber );
 

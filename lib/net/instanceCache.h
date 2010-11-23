@@ -126,7 +126,7 @@ namespace net
             unsigned access;
         };
 
-        typedef stde::hash_map< base::UUID, Item > ItemHash;
+        typedef stde::hash_map< base::uint128_t, Item > ItemHash;
 
         base::Lockable< ItemHash > _items;
 

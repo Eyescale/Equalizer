@@ -53,8 +53,8 @@ namespace osgScaleViewer
                 , _imageFileName( "tests/compositor/Result_Alpha_color.rgb" ) {}
         virtual ~InitData();
 
-        void setFrameDataID( const uint32_t id );
-        uint32_t getFrameDataID() const;
+        void setFrameDataID( const eq::uint128_t& id );
+        const eq::uint128_t& getFrameDataID() const;
 
         /** 
          * Sets the model filename.
@@ -112,7 +112,7 @@ namespace osgScaleViewer
         std::string _parseCommandLineParam( int argc, char** argv,
                                             std::string param );
 
-        uint32_t _frameDataID;
+        eq::uint128_t _frameDataID;
 
         std::string _modelFileName;
         std::string _imageFileName;

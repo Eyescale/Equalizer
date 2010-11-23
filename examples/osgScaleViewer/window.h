@@ -47,7 +47,7 @@ namespace osgScaleViewer
 
     protected:
         virtual ~Window() {}
-        virtual bool configInitGL( const uint32_t initID );
+        virtual bool configInitGL( const eq::uint128_t& initID );
         virtual bool configExitGL();
 
     private:

@@ -30,8 +30,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CHANNEL_H
-#define CHANNEL_H
+#ifndef OSGSV_CHANNEL_H
+#define OSGSV_CHANNEL_H
 
 #define EQ_IGNORE_GLEW
 #include <eq/eq.h>
@@ -60,13 +60,13 @@ public:
 
 protected:
     /** @sa eq::Channel::frameClear() */
-    virtual void frameClear( const uint32_t frameID );
+    virtual void frameClear( const eq::uint128_t& frameID );
 
     /** @sa eq::Channel::frameDraw() **/
-    virtual void frameDraw( const uint32_t frameID );
+    virtual void frameDraw( const eq::uint128_t& frameID );
 
     /** @sa eq::Channel::frameViewFinish() */
-    void frameViewFinish( const uint32_t frameID );
+    void frameViewFinish( const eq::uint128_t& frameID );
 
 private:
 };

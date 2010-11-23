@@ -38,7 +38,7 @@ using namespace std;
 
 namespace eqNbody
 {
-	bool Node::configInit( const uint32_t initID )
+	bool Node::configInit( const eq::uint128_t& initID )
 	{
 		if( !eq::Node::configInit( initID ))
 			return false;

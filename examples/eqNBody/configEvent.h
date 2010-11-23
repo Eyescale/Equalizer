@@ -34,23 +34,23 @@
 
 namespace eqNbody
 {
-	struct ConfigEvent : public eq::ConfigEvent
-	{
-	public:
-		ConfigEvent();
-		
-		enum Type
-		{
-			DATA_CHANGED = eq::Event::USER,
-			PROXY_CHANGED
-		};
-				
-		unsigned int	_version;
-		unsigned int	_proxyID;
-		float			_range[2];
-	};
-	
-	std::ostream& operator << ( std::ostream& os, const ConfigEvent* event );
+    struct ConfigEvent : public eq::ConfigEvent
+    {
+    public:
+        ConfigEvent();
+        
+        enum Type
+        {
+            DATA_CHANGED = eq::Event::USER,
+            PROXY_CHANGED
+        };
+                
+        eq::uint128_t   _version;
+        eq::uint128_t   _proxyID;
+        float           _range[2];
+    };
+    
+    std::ostream& operator << ( std::ostream& os, const ConfigEvent* event );
 }
 
 #endif // EQNBODY_CONFIGEVENT_H

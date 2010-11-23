@@ -50,13 +50,13 @@ Channel::Channel( eq::Window* parent )
 }
 
 
-void Channel::frameClear( const uint32_t frameID )
+void Channel::frameClear( const eq::uint128_t& frameID )
 {
     glEnable( GL_SCISSOR_TEST );
     eq::Channel::frameClear( frameID );
 }
 
-void Channel::frameDraw( const uint32_t frameID )
+void Channel::frameDraw( const eq::uint128_t& frameID )
 {
     // setup OpenGL State
     eq::Channel::frameDraw( frameID );
@@ -106,7 +106,7 @@ void Channel::frameDraw( const uint32_t frameID )
     view->draw();
 }
 
-void Channel::frameViewFinish( const uint32_t frameID )
+void Channel::frameViewFinish( const eq::uint128_t& frameID )
 {
     const Pipe *pipe = static_cast< const Pipe* >( getPipe( ));
     const FrameData& frameData = pipe->getFrameData();

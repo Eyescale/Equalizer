@@ -56,7 +56,7 @@ namespace eqNbody
 		}		
 	}
 	
-	bool Channel::configInit( const uint32_t initID )
+	bool Channel::configInit( const eq::uint128_t& initID )
 	{
 		if( !eq::Channel::configInit( initID )) {
 			return false;
@@ -70,7 +70,7 @@ namespace eqNbody
 		return true;
 	}
 		
-	void Channel::frameDraw( const uint32_t frameID )
+	void Channel::frameDraw( const eq::uint128_t& frameID )
 	{						
 		const eq::Range& range = getRange();
 		SharedData& sd = static_cast<Pipe*>( getPipe() )->getSharedData();
@@ -96,7 +96,7 @@ namespace eqNbody
 		// 4th, update the GPU memory and run one simulation step
 		_controller->setArray(BODYSYSTEM_POSITION, sd.getPos(), sd.getNumBytes());
 		_controller->setArray(BODYSYSTEM_VELOCITY, sd.getVel(), sd.getNumBytes());
-		_controller->compute(frameID, sd.getTimeStep(), range);				
+		_controller->compute(sd.getTimeStep(), range);				
 
 		// 5th, draw the stars
 		eq::Channel::frameDraw( frameID );

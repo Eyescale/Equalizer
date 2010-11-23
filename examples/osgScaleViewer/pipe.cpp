@@ -51,14 +51,14 @@ const FrameData& Pipe::getFrameData() const
     return _frameData;
 }
 
-bool Pipe::configInit( const uint32_t initID )
+bool Pipe::configInit( const eq::uint128_t& initID )
 {
     if( !eq::Pipe::configInit( initID ))
         return false;
 
     Config* config = static_cast<Config*>( getConfig( ));
     const InitData& initData = config->getInitData();
-    const uint32_t frameDataID = initData.getFrameDataID();
+    const eq::uint128_t& frameDataID = initData.getFrameDataID();
     const bool mapped = config->mapObject( &_frameData, frameDataID );
     EQASSERT( mapped );
 
@@ -71,7 +71,7 @@ bool Pipe::configExit()
     return eq::Pipe::configExit();
 }
 
-void Pipe::frameStart( const uint32_t frameID,
+void Pipe::frameStart( const eq::uint128_t& frameID,
                        const uint32_t frameNumber )
 {
     _frameData.sync( frameID );

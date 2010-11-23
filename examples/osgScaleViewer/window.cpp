@@ -34,7 +34,7 @@
 
 namespace osgScaleViewer
 {
-bool Window::configInitGL( const uint32_t initID )
+bool Window::configInitGL( const eq::uint128_t& initID )
 {
     if( !eq::Window::configInitGL( initID ))
         return false;
