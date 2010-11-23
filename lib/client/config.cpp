@@ -647,7 +647,6 @@ void Config::deregisterObject( net::Object* object )
         return;
     }
 
-    const base::UUID& id = object->getID();
     if( !object->isAttached() ) // not registered
         return;
 

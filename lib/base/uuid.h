@@ -125,7 +125,7 @@ EQ_STDEXT_NAMESPACE_OPEN
     {
         size_t operator()( const eq::base::UUID& key ) const
         {
-            return key._low;
+            return key.getLow();
         }
     };
 EQ_STDEXT_NAMESPACE_CLOSE

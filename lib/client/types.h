@@ -21,7 +21,7 @@
 
 #include <eq/fabric/types.h>
 #include <eq/base/refPtr.h>
-#include <eq/base/uint128_t.h>
+#include <eq/base/uuid.h>
 #include <map>
 #include <vector>
 

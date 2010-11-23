@@ -40,8 +40,8 @@ WindowStatistics::WindowStatistics( const Statistic::Type type,
 
     const std::string& name = window->getName();
     if( name.empty( ))
-        snprintf( event.data.statistic.resourceName, 32, "window %d",
-                  window->getID( ));
+        snprintf( event.data.statistic.resourceName, 32, "window %llu",
+                  (unsigned long long)window->getID( ).getLow());
     else
         snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str());
     event.data.statistic.resourceName[31] = 0;

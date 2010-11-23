@@ -151,7 +151,7 @@ namespace base
     
 protected:
 #ifndef _MSC_VER
-        friend struct stde::hash< eq::base::UUID >;
+        friend struct stde::hash< eq::base::uint128_t >;
 #endif
     private:
         uint64_t _high;
@@ -212,11 +212,11 @@ protected:
     #else
 
     EQ_STDEXT_NAMESPACE_OPEN
-        template<> struct hash< eq::base::UUID >
+        template<> struct hash< eq::base::uint128_t >
         {
-            size_t operator()( const eq::base::UUID& key ) const
+            size_t operator()( const eq::base::uint128_t& key ) const
             {
-                return key._high ^ key._low;
+                return key.getLow() ^ key.getHigh();
             }
         };
     EQ_STDEXT_NAMESPACE_CLOSE

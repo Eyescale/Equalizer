@@ -152,8 +152,8 @@ namespace net
     {
         SessionMapObjectReplyPacket( 
             const SessionMapObjectPacket* request )
-                : requestID( request->requestID )
-                , objectID( request->objectID )
+                : objectID( request->objectID )
+                , requestID( request->requestID )
                 , useCache( request->useCache )
             {
                 command   = CMD_SESSION_MAP_OBJECT_REPLY;

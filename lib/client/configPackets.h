@@ -91,9 +91,9 @@ namespace eq
     {
         ConfigUpdateVersionPacket( const ConfigUpdatePacket* request,
                                    const uint128_t& version_, const uint32_t req )
-                : versionID( request->versionID )
+                : version( version_ )
+                , versionID( request->versionID )
                 , finishID( request->finishID )
-                , version( version_ )
                 , requestID( req )
             {
                 command   = fabric::CMD_CONFIG_UPDATE_VERSION;
