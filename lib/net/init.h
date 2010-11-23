@@ -35,7 +35,7 @@ namespace net
      * @return <code>true</code> if the library was successfully initialised,
      *         <code>false</code> otherwise.
      */
-    EQ_NET_DECL bool init( const int argc, char** argv );
+    EQNET_API bool init( const int argc, char** argv );
 
     /**
      * De-initialize the Equalizer network classes.
@@ -43,7 +43,7 @@ namespace net
      * @return <code>true</code> if the library was successfully de-initialised,
      *         <code>false</code> otherwise.
      */
-    EQ_NET_DECL bool exit();
+    EQNET_API bool exit();
 }
 }
 

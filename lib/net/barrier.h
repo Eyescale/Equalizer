@@ -44,13 +44,13 @@ namespace net
          * barrier with the session. Note the node of the object master, i.e.,
          * this instance, and the barrier master node might be different.
          */
-        EQ_NET_DECL Barrier( NodePtr master, const uint32_t height = 0 );
+        EQNET_API Barrier( NodePtr master, const uint32_t height = 0 );
 
         /** Construct a new barrier, to be mapped to the master version. */
-        EQ_NET_DECL Barrier();
+        EQNET_API Barrier();
 
         /** Destruct the barrier. */
-        EQ_NET_DECL virtual ~Barrier();
+        EQNET_API virtual ~Barrier();
 
         /** 
          * @name Data Access
@@ -77,7 +77,7 @@ namespace net
          * The implementation currently assumes that the master node instance
          * also enters the barrier.
          */
-        EQ_NET_DECL void enter();
+        EQNET_API void enter();
         //@}
 
     protected:

@@ -43,10 +43,10 @@ namespace net
     {
     public:
         /** Construct a new instance cache. */
-        EQ_NET_DECL InstanceCache( const long maxSize = EQ_100MB );
+        EQNET_API InstanceCache( const long maxSize = EQ_100MB );
 
         /** Destruct this instance cache. */
-        EQ_NET_DECL ~InstanceCache();
+        EQNET_API ~InstanceCache();
 
         /** 
          * Add a new command to the instance cache.
@@ -57,19 +57,19 @@ namespace net
          * @param usage pre-set usage count.
          * @return true if the command was entered, false if not.
          */
-        EQ_NET_DECL bool add( const ObjectVersion& rev, const uint32_t instanceID, 
+        EQNET_API bool add( const ObjectVersion& rev, const uint32_t instanceID, 
                   Command& command, const uint32_t usage = 0 );
 
         /** One cache entry */
         struct Data
         {
             Data();
-            EQ_NET_DECL bool operator != ( const Data& rhs ) const;
-            EQ_NET_DECL bool operator == ( const Data& rhs ) const;
+            EQNET_API bool operator != ( const Data& rhs ) const;
+            EQNET_API bool operator == ( const Data& rhs ) const;
 
             uint32_t masterInstanceID; //!< The instance ID of the master object
             ObjectInstanceDataIStreamDeque versions; //!< all cached data
-            EQ_NET_DECL static const Data NONE; //!< '0' return value 
+            EQNET_API static const Data NONE; //!< '0' return value 
         };
 
         /**
@@ -83,7 +83,7 @@ namespace net
          * @return the list of cached instance datas, or Data::NONE if no data
          *         is cached for this object.
          */
-        EQ_NET_DECL const Data& operator[]( const uint32_t id );
+        EQNET_API const Data& operator[]( const uint32_t id );
 
         /** 
          * Release the retrieved instance data of the given object.
@@ -93,7 +93,7 @@ namespace net
          * @return true if the element was unpinned, false if it is not in the
          *         instance cache.
          */
-        EQ_NET_DECL bool release( const uint32_t id, const uint32_t count = 1 );
+        EQNET_API bool release( const uint32_t id, const uint32_t count = 1 );
 
         /** 
          * Erase all the data for the given object.
@@ -103,7 +103,7 @@ namespace net
          *
          * @return true if the element was erased, false otherwise.
          */
-        EQ_NET_DECL bool erase( const uint32_t id );
+        EQNET_API bool erase( const uint32_t id );
 
         /** @return the number of bytes used by the instance cache. */
         long getSize() const { return _size; }
@@ -140,7 +140,7 @@ namespace net
         EQ_TS_VAR( _thread );
     };
 
-    EQ_NET_DECL std::ostream& operator << ( std::ostream&, const InstanceCache& );
+    EQNET_API std::ostream& operator << ( std::ostream&, const InstanceCache& );
 }
 }
 #endif //EQNET_INSTANCECACHE_H

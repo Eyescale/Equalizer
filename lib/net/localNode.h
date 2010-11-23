@@ -53,8 +53,8 @@ namespace net
                     , public Node
     {
     public:
-        EQ_NET_DECL LocalNode( );
-        EQ_NET_DECL virtual ~LocalNode( );
+        EQNET_API LocalNode( );
+        EQNET_API virtual ~LocalNode( );
 
         /**
          * @name State Changes
@@ -80,7 +80,7 @@ namespace net
          * @return <code>true</code> if the client was successfully initialized,
          *         <code>false</code> otherwise.
          */
-        EQ_NET_DECL virtual bool initLocal( const int argc, char** argv );
+        EQNET_API virtual bool initLocal( const int argc, char** argv );
         
         /**
          * Open all connections and put this node into the listening state.
@@ -94,7 +94,7 @@ namespace net
          *         <code>false</code> if not.
          * @sa connect
          */
-        EQ_NET_DECL virtual bool listen();
+        EQNET_API virtual bool listen();
 
         /**
          * Close a listening node.
@@ -105,7 +105,7 @@ namespace net
          * @return <code>true</code> if the node was stopped, <code>false</code>
          *         if it was not stopped.
          */
-        EQ_NET_DECL virtual bool close();
+        EQNET_API virtual bool close();
 
         /** 
          * Close a listening node.
@@ -126,7 +126,7 @@ namespace net
          * @return true if this node was connected, false otherwise.
          * @sa initConnect, syncConnect
          */
-        EQ_NET_DECL bool connect( NodePtr node );
+        EQNET_API bool connect( NodePtr node );
 
         /** 
          * Create and connect a node given by an identifier.
@@ -139,7 +139,7 @@ namespace net
          * @return the connected node, or an invalid RefPtr if the node could
          *         not be connected.
          */
-        EQ_NET_DECL NodePtr connect( const NodeID& nodeID );
+        EQNET_API NodePtr connect( const NodeID& nodeID );
 
         /** 
          * Disconnects a connected node.
@@ -148,7 +148,7 @@ namespace net
          * @return <code>true</code> if the node was disconnected correctly,
          *         <code>false</code> otherwise.
          */
-        EQ_NET_DECL virtual bool disconnect( NodePtr node );
+        EQNET_API virtual bool disconnect( NodePtr node );
         //@}
 
         /**
@@ -162,7 +162,7 @@ namespace net
          *
          * @param session the session.
          */
-        EQ_NET_DECL void registerSession( Session* session );
+        EQNET_API void registerSession( Session* session );
 
         /** Deregister a (master) session. */
         bool deregisterSession( Session* session )
@@ -180,7 +180,7 @@ namespace net
          * @return <code>true</code> if the session was mapped,
          *         <code>false</code> if not.
          */
-        EQ_NET_DECL bool mapSession( NodePtr server, Session* session, 
+        EQNET_API bool mapSession( NodePtr server, Session* session, 
                                      const SessionID& id );
 
         /** 
@@ -190,10 +190,10 @@ namespace net
          * @return <code>true</code> if the session was unmapped,
          *         <code>false</code> if there was an error.
          */
-        EQ_NET_DECL bool unmapSession( Session* session );
+        EQNET_API bool unmapSession( Session* session );
 
         /** @return the mapped session with the given identifier, or 0. */
-        EQ_NET_DECL Session* getSession( const SessionID& id );
+        EQNET_API Session* getSession( const SessionID& id );
 
         bool hasSessions() const { return !_sessions->empty(); }
         //@}
@@ -206,13 +206,13 @@ namespace net
          * @param id the node identifier.
          * @return the node.
          */
-        EQ_NET_DECL NodePtr getNode( const NodeID& id ) const;
+        EQNET_API NodePtr getNode( const NodeID& id ) const;
 
         /** Assemble a vector of the currently connected nodes. */
         void getNodes( Nodes& nodes ) const;
 
-        EQ_NET_DECL void acquireSendToken( NodePtr toNode );
-        EQ_NET_DECL void releaseSendToken( NodePtr toNode );
+        EQNET_API void acquireSendToken( NodePtr toNode );
+        EQNET_API void releaseSendToken( NodePtr toNode );
 
         /** Return the command queue to the command thread. */
         virtual CommandQueue* getCommandThreadQueue() 
@@ -243,7 +243,7 @@ namespace net
          * @return true if the result of the operation is handled.
          * @sa Dispatcher::invokeCommand
          */
-        EQ_NET_DECL bool invokeCommand( Command& command );
+        EQNET_API bool invokeCommand( Command& command );
 
         /** 
          * Dispatches a packet to the registered command queue.
@@ -252,7 +252,7 @@ namespace net
          * @return the result of the operation.
          * @sa invokeCommand
          */
-        EQ_NET_DECL bool dispatchCommand( Command& command );
+        EQNET_API bool dispatchCommand( Command& command );
 
     protected:
         /** 
@@ -268,7 +268,7 @@ namespace net
          *         <code>false</code> otherwise.
          * @internal
          */
-        EQ_NET_DECL bool _connect( NodePtr node, ConnectionPtr connection );
+        EQNET_API bool _connect( NodePtr node, ConnectionPtr connection );
 
     private:
 
@@ -331,7 +331,7 @@ namespace net
         void _connectMulticast( NodePtr node );
 
         void _cleanup();
-        EQ_NET_DECL void _addConnection( ConnectionPtr connection );
+        EQNET_API void _addConnection( ConnectionPtr connection );
         void _removeConnection( ConnectionPtr connection );
         NodePtr _connect( const NodeID& nodeID, NodePtr server );
 

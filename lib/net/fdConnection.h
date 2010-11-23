@@ -29,7 +29,7 @@ namespace net
     /**
      * A generic file descriptor-based connection, to be subclassed.
      */
-    class EQ_NET_DECL FDConnection : public Connection
+    class FDConnection : public Connection
     {
     public:
 #ifndef WIN32

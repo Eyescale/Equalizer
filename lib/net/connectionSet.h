@@ -59,12 +59,12 @@ namespace net
             EVENT_ALL
         };
 
-        EQ_NET_DECL ConnectionSet();
-        EQ_NET_DECL ~ConnectionSet();
+        EQNET_API ConnectionSet();
+        EQNET_API ~ConnectionSet();
 
-        EQ_NET_DECL void addConnection( ConnectionPtr connection );
-        EQ_NET_DECL bool removeConnection( ConnectionPtr connection );
-        EQ_NET_DECL void clear();
+        EQNET_API void addConnection( ConnectionPtr connection );
+        EQNET_API bool removeConnection( ConnectionPtr connection );
+        EQNET_API void clear();
         size_t getSize()  const { return _connections.size(); }
         bool   isEmpty() const { return _connections.empty(); }
 
@@ -80,12 +80,12 @@ namespace net
          *                indefinitly.
          * @return The event occured during selection.
          */
-        EQ_NET_DECL Event select( const int timeout = -1 );
+        EQNET_API Event select( const int timeout = -1 );
 
         /**
          * Interrupt the current or next select call.
          */
-        EQ_NET_DECL void interrupt();
+        EQNET_API void interrupt();
 
         /** @internal Trigger rebuilding of internal caches. */
         void setDirty();
@@ -153,9 +153,9 @@ namespace net
         EQ_TS_VAR( _selectThread );
     };
 
-    EQ_NET_DECL std::ostream& operator << ( std::ostream& os, 
+    EQNET_API std::ostream& operator << ( std::ostream& os, 
                                           const ConnectionSet* set );
-    EQ_NET_DECL std::ostream& operator << ( std::ostream& os, 
+    EQNET_API std::ostream& operator << ( std::ostream& os, 
                                           const ConnectionSet::Event event );
 }
 }

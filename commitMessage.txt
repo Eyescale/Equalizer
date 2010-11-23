@@ -1,4 +1,4 @@
-Use server::ConnectionDescription solely for ctor
+Rename EQ_NET_DECL -> EQNET_API
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

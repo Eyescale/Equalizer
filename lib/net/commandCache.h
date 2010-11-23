@@ -40,15 +40,15 @@ namespace net
     class CommandCache
     {
     public:
-        EQ_NET_DECL CommandCache();
-        EQ_NET_DECL ~CommandCache();
+        EQNET_API CommandCache();
+        EQNET_API ~CommandCache();
 
         /** @return a new command. */
-        EQ_NET_DECL Command& alloc( NodePtr node, LocalNodePtr localNode,
+        EQNET_API Command& alloc( NodePtr node, LocalNodePtr localNode,
                                   const uint64_t size );
 
         /** @return a clone of a command. */
-        EQ_NET_DECL Command& clone( Command& from );
+        EQNET_API Command& clone( Command& from );
 
         /** Flush all allocated commands. */
         void flush();

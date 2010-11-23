@@ -83,7 +83,7 @@ namespace net
          * @param description the connection parameters.
          * @return the connection.
          */
-        EQ_NET_DECL static ConnectionPtr create( ConnectionDescriptionPtr 
+        EQNET_API static ConnectionPtr create( ConnectionDescriptionPtr 
                                                    description );
 
         /** @name Data Access */
@@ -105,10 +105,10 @@ namespace net
          * 
          * @param description the connection parameters.
          */
-        EQ_NET_DECL void setDescription( ConnectionDescriptionPtr description );
+        EQNET_API void setDescription( ConnectionDescriptionPtr description );
 
         /** @return the description for this connection. */
-        EQ_NET_DECL ConnectionDescriptionPtr getDescription() const;
+        EQNET_API ConnectionDescriptionPtr getDescription() const;
         //@}
 
 
@@ -186,7 +186,7 @@ namespace net
          * @param bytes the number of bytes to read.
          * @sa recvSync()
          */
-        EQ_NET_DECL void recvNB( void* buffer, const uint64_t bytes );
+        EQNET_API void recvNB( void* buffer, const uint64_t bytes );
 
         /** 
          * Finish reading data from the connection.
@@ -202,7 +202,7 @@ namespace net
          *              exactly why.
          * @return true if all requested data has been read, false otherwise.
          */
-        EQ_NET_DECL bool recvSync( void** buffer, uint64_t* bytes,
+        EQNET_API bool recvSync( void** buffer, uint64_t* bytes,
                                  const bool block = true );
 
         void getRecvData( void** buffer, uint64_t* bytes )
@@ -255,7 +255,7 @@ namespace net
          * @return true if all data has been read, false if not.
          * @sa lockSend(), unlockSend()
          */
-        EQ_NET_DECL bool send( const void* buffer, const uint64_t bytes, 
+        EQNET_API bool send( const void* buffer, const uint64_t bytes, 
                              const bool isLocked = false );
 
         /** Lock the connection, no other thread can send data. */
@@ -309,7 +309,7 @@ namespace net
          * @param size the data size in bytes.
          * @return true if all data has been read, false if not.
          */
-        EQ_NET_DECL bool send( Packet& packet, const void* data,
+        EQNET_API bool send( Packet& packet, const void* data,
                              const uint64_t size );
 
         /** 
@@ -320,7 +320,7 @@ namespace net
          * @param isLocked true if the connection is locked externally.
          * @return true if the packet was sent successfully to all connections.
          */
-        static EQ_NET_DECL bool send( const Connections& connections,
+        static EQNET_API bool send( const Connections& connections,
                           const Packet& packet, const bool isLocked = false );
         /** 
          * Sends a packaged message including additional data to multiple
@@ -333,7 +333,7 @@ namespace net
          * @param isLocked true if the connection is locked externally.
          * @return true if the packet was sent successfully to all receivers.
          */
-        static EQ_NET_DECL bool send( const Connections& connections,
+        static EQNET_API bool send( const Connections& connections,
                                     Packet& packet, const void* data,
                                     const uint64_t size,
                                     const bool isLocked = false );
@@ -353,7 +353,7 @@ namespace net
          * @param nItems the number of data elements.
          * @return true if the packet was sent successfully to all receivers.
          */
-        static bool EQ_NET_DECL send( const Connections& connections, 
+        static bool EQNET_API send( const Connections& connections, 
                                       Packet& packet,
                                       const void* const* items, 
                                       const uint64_t* itemSizes, 

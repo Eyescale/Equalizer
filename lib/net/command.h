@@ -68,8 +68,8 @@ namespace net
         //@{
         bool isFree() const
             { EQ_TS_THREAD( _writeThread ); return ( _refCount==0 ); }
-        EQ_NET_DECL void retain();
-        EQ_NET_DECL void release();
+        EQNET_API void retain();
+        EQNET_API void release();
         //@}
 
     private:
@@ -110,7 +110,7 @@ namespace net
         EQ_TS_VAR( _writeThread );
     };
 
-    EQ_NET_DECL std::ostream& operator << ( std::ostream& os, const Command& );
+    EQNET_API std::ostream& operator << ( std::ostream& os, const Command& );
 }
 }
 #endif // EQNET_COMMAND_H

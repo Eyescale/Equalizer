@@ -24,7 +24,7 @@
 #include <eq/net/nodeType.h>          // for NODETYPE_EQNET_NODE enum
 #include <eq/net/types.h>
 
-#include <eq/base/base.h>             // EQ_NET_DECL
+#include <eq/base/base.h>             // EQNET_API
 
 namespace eq
 {
@@ -43,7 +43,7 @@ namespace net
     {
     public:
         /** Construct a new Node. */
-        EQ_NET_DECL Node();
+        EQNET_API Node();
 
         /** @name Data Access. */
         //@{
@@ -68,7 +68,7 @@ namespace net
          * 
          * @param cd the connection description.
          */
-        EQ_NET_DECL void addConnectionDescription( ConnectionDescriptionPtr cd );
+        EQNET_API void addConnectionDescription( ConnectionDescriptionPtr cd );
         
         /** 
          * Removes a connection description.
@@ -77,10 +77,10 @@ namespace net
          * @return true if the connection description was removed, false
          *         otherwise.
          */
-        EQ_NET_DECL bool removeConnectionDescription(ConnectionDescriptionPtr cd);
+        EQNET_API bool removeConnectionDescription(ConnectionDescriptionPtr cd);
 
         /** @return the number of stored connection descriptions. */
-        EQ_NET_DECL const ConnectionDescriptions& getConnectionDescriptions()
+        EQNET_API const ConnectionDescriptions& getConnectionDescriptions()
                             const;
 
         /** @return the connection to this node. */
@@ -193,13 +193,13 @@ namespace net
         const NodeID& getNodeID() const { return _id; }
 
         /** Serialize the node's information. */
-        EQ_NET_DECL std::string serialize() const;
+        EQNET_API std::string serialize() const;
         /** Deserialize the node information, consumes given data. */
-        EQ_NET_DECL bool deserialize( std::string& data );
+        EQNET_API bool deserialize( std::string& data );
 
     protected:
         /** Destructs this node. */
-        EQ_NET_DECL virtual ~Node();
+        EQNET_API virtual ~Node();
 
         /** @return the type of the node, used during connect(). */
         virtual uint32_t getType() const { return NODETYPE_EQNET_NODE; }
@@ -211,7 +211,7 @@ namespace net
          * @return the node.
          * @sa getType()
          */
-        EQ_NET_DECL virtual NodePtr createNode( const uint32_t type );
+        EQNET_API virtual NodePtr createNode( const uint32_t type );
 
     private:
         /** The state of the node. */
@@ -222,9 +222,9 @@ namespace net
             STATE_LISTENING  //!< local node, listening
         };
 
-        friend EQ_NET_DECL std::ostream& operator << ( std::ostream& os, 
+        friend EQNET_API std::ostream& operator << ( std::ostream& os, 
                                                      const Node& node );
-        friend EQ_NET_DECL std::ostream& operator << ( std::ostream&,
+        friend EQNET_API std::ostream& operator << ( std::ostream&,
                                                      const State );
         friend class LocalNode;
 
@@ -269,8 +269,8 @@ namespace net
             }
     };
 
-    EQ_NET_DECL std::ostream& operator << ( std::ostream& os, const Node& node );
-    EQ_NET_DECL std::ostream& operator << ( std::ostream&, const Node::State );
+    EQNET_API std::ostream& operator << ( std::ostream& os, const Node& node );
+    EQNET_API std::ostream& operator << ( std::ostream&, const Node::State );
 }
 }
 

@@ -46,16 +46,16 @@ namespace DataStreamTest
     public:
         /** @name Internal */
         //@{
-        EQ_NET_DECL DataOStream();
-        virtual EQ_NET_DECL ~DataOStream();
+        EQNET_API DataOStream();
+        virtual EQNET_API ~DataOStream();
 
         /** Enable output, locks the connections to the receivers */ 
         void enable( const Nodes& receivers );
         void enable( NodePtr node, const bool useMulticast );
-        EQ_NET_DECL void enable();
+        EQNET_API void enable();
 
         /** Disable, flush and unlock the output to the current receivers. */
-        EQ_NET_DECL void disable();
+        EQNET_API void disable();
 
         /** Enable copying of all data into a saved buffer. */
         void enableSave();
@@ -88,7 +88,7 @@ namespace DataStreamTest
         DataOStream& operator << ( const std::vector< T >& value );
 
         /** Write a number of bytes from data into the stream. */
-        EQ_NET_DECL void write( const void* data, uint64_t size );
+        EQNET_API void write( const void* data, uint64_t size );
 
         /**
          * Serialize child objects.
@@ -123,7 +123,7 @@ namespace DataStreamTest
         //@}
 
         /** Reset the whole stream. */
-        virtual EQ_NET_DECL void reset();
+        virtual EQNET_API void reset();
 
         /** Locked connections to the receivers, if _enabled */
         Connections _connections;

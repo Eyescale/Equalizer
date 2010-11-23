@@ -38,11 +38,11 @@ namespace net
      */
     struct ObjectVersion
     {
-        EQ_NET_DECL ObjectVersion();
-        EQ_NET_DECL ObjectVersion( const uint32_t identifier,
+        EQNET_API ObjectVersion();
+        EQNET_API ObjectVersion( const uint32_t identifier,
                                  const uint32_t version );
-        EQ_NET_DECL ObjectVersion( const Object* object );
-        EQ_NET_DECL ObjectVersion& operator = ( const Object* object );
+        EQNET_API ObjectVersion( const Object* object );
+        EQNET_API ObjectVersion& operator = ( const Object* object );
         bool operator == ( const ObjectVersion& value ) const
             {
                 return ( identifier == value.identifier &&

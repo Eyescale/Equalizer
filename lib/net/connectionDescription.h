@@ -54,8 +54,8 @@ namespace net
         uint16_t port;
 
         /** @return this description as a string. */
-        EQ_NET_DECL std::string toString() const;
-        EQ_NET_DECL void serialize( std::ostream& os ) const;
+        EQNET_API std::string toString() const;
+        EQNET_API void serialize( std::ostream& os ) const;
 
         /** 
          * Reads the connection description from a string.
@@ -72,23 +72,23 @@ namespace net
          * @return <code>true</code> if the information was read correctly, 
          *         <code>false</code> if not.
          */
-        EQ_NET_DECL bool fromString( std::string& data );
+        EQNET_API bool fromString( std::string& data );
 
         /** @name Data Access
          *
          * std::strings are not public because of DLL allocation issues.
          */
         //@{
-        EQ_NET_DECL void setHostname( const std::string& hostname );
-        EQ_NET_DECL const std::string& getHostname() const;
+        EQNET_API void setHostname( const std::string& hostname );
+        EQNET_API const std::string& getHostname() const;
 
-        EQ_NET_DECL void setInterface( const std::string& interfacename );
-        EQ_NET_DECL const std::string& getInterface() const;
+        EQNET_API void setInterface( const std::string& interfacename );
+        EQNET_API const std::string& getInterface() const;
 
-        EQ_NET_DECL void setFilename( const std::string& filename );
-        EQ_NET_DECL const std::string& getFilename() const;
+        EQNET_API void setFilename( const std::string& filename );
+        EQNET_API const std::string& getFilename() const;
 
-        EQ_NET_DECL bool isSameMulticastGroup( ConnectionDescriptionPtr rhs );
+        EQNET_API bool isSameMulticastGroup( ConnectionDescriptionPtr rhs );
         //@}
 
         /** @name Attributes */
@@ -116,13 +116,13 @@ namespace net
         };
         //@}
 
-        EQ_NET_DECL static const std::string&
+        EQNET_API static const std::string&
         getSAttributeString( const SAttribute attr );
-        EQ_NET_DECL static const std::string&
+        EQNET_API static const std::string&
         getIAttributeString( const IAttribute attr );
 
     protected:
-        EQ_NET_DECL virtual ~ConnectionDescription() {}
+        EQNET_API virtual ~ConnectionDescription() {}
 
     private:
         /** The host name. */
@@ -135,11 +135,11 @@ namespace net
         std::string _filename;
     };
 
-    EQ_NET_DECL std::ostream& operator << ( std::ostream&,
+    EQNET_API std::ostream& operator << ( std::ostream&,
                                           const ConnectionDescription& );
 
     /** Serialize a vector of connection descriptions to a string. */
-    EQ_NET_DECL std::string serialize( const ConnectionDescriptions& );
+    EQNET_API std::string serialize( const ConnectionDescriptions& );
 
     /** 
      * Deserialize a vector or connection descriptions from a string.
@@ -149,7 +149,7 @@ namespace net
      * @param descriptions return value, deserialized connection descriptions.
      * @return true on successful parsing, false otherwise.
      */
-    EQ_NET_DECL bool deserialize( std::string& data,
+    EQNET_API bool deserialize( std::string& data,
                                   ConnectionDescriptions& descriptions );
 }
 }

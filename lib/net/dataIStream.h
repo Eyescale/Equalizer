@@ -31,23 +31,22 @@ namespace eq
 {
 namespace net
 {
-    class DataIStream;
     /** A std::istream-like input data stream for binary data. */
     class DataIStream
     {
     public:
         /** @name Internal */
         //@{ 
-        EQ_NET_DECL DataIStream();
+        EQNET_API DataIStream();
         DataIStream( const DataIStream& );
-        EQ_NET_DECL virtual ~DataIStream();
+        EQNET_API virtual ~DataIStream();
 
         /** Get the number of remaining buffers. */
         virtual size_t nRemainingBuffers() const = 0;
 
         virtual uint32_t getVersion() const = 0;
 
-        virtual EQ_NET_DECL void reset();
+        virtual EQNET_API void reset();
         //@}
 
         /** @name Data input */
@@ -86,7 +85,7 @@ namespace net
                                   std::vector< C* >& result );
 
         /** Read a number of bytes from the stream into a buffer.  */
-        EQ_NET_DECL void read( void* data, uint64_t size );
+        EQNET_API void read( void* data, uint64_t size );
 
         /** 
          * Get the pointer to the remaining data in the current buffer.
@@ -99,13 +98,13 @@ namespace net
          * the DataOStream, a symmetric read from the DataIStream has at least n
          * bytes available.
          */
-        EQ_NET_DECL const void*    getRemainingBuffer();
+        EQNET_API const void*    getRemainingBuffer();
 
         /** Get the size of the remaining data in the current buffer. */
-        EQ_NET_DECL uint64_t       getRemainingBufferSize();
+        EQNET_API uint64_t       getRemainingBufferSize();
 
         /** Advance the current buffer by a number of bytes. */
-        EQ_NET_DECL void           advanceBuffer( const uint64_t offset );
+        EQNET_API void           advanceBuffer( const uint64_t offset );
         //@}
  
     protected:

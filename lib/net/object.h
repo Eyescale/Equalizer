@@ -57,13 +57,13 @@ namespace net
         };
 
         /** Construct a new distributed object. */
-        EQ_NET_DECL Object();
+        EQNET_API Object();
 
         /** Destruct the distributed object. */
-        EQ_NET_DECL virtual ~Object();
+        EQNET_API virtual ~Object();
 
         /** @internal @sa Dispatcher::dispatchCommand(). */
-        EQ_NET_DECL virtual bool dispatchCommand( Command& command );
+        EQNET_API virtual bool dispatchCommand( Command& command );
 
         /** @name Data Access */
         //@{
@@ -74,7 +74,7 @@ namespace net
          * @return the local node to which this object is mapped, or 0 if the
          *         object is not mapped.
          */
-        EQ_NET_DECL LocalNodePtr getLocalNode();
+        EQNET_API LocalNodePtr getLocalNode();
 
         /**
          * @return the session to which this object is mapped, or 0 if the
@@ -95,12 +95,12 @@ namespace net
         uint32_t getInstanceID() const { return _instanceID; }
 
         /** @internal @return the master object instance identifier. */
-        EQ_NET_DECL uint32_t getMasterInstanceID() const;
+        EQNET_API uint32_t getMasterInstanceID() const;
 
         /** 
          * @return true if this instance is the master version, false otherwise.
          */
-        EQ_NET_DECL bool isMaster() const;
+        EQNET_API bool isMaster() const;
         //@}
 
         /** @name Versioning */
@@ -136,7 +136,7 @@ namespace net
          * @return the new head version.
          * @sa commitNB(), commitSync()
          */
-        EQ_NET_DECL uint32_t commit();
+        EQNET_API uint32_t commit();
 
         /** 
          * Start committing a new version of this object.
@@ -147,7 +147,7 @@ namespace net
          * @return the commit identifier to be passed to commitSync
          * @sa commitSync
          */
-        EQ_NET_DECL virtual uint32_t commitNB();
+        EQNET_API virtual uint32_t commitNB();
         
         /** 
          * Finalize a commit transaction.
@@ -155,7 +155,7 @@ namespace net
          * @param commitID the commit identifier returned from commitNB
          * @return the new head version.
          */
-        EQ_NET_DECL virtual uint32_t commitSync( const uint32_t commitID );
+        EQNET_API virtual uint32_t commitSync( const uint32_t commitID );
 
         /** 
          * Automatically obsolete old versions.
@@ -167,10 +167,10 @@ namespace net
          * @param count the number of versions to retain, excluding the head
          *              version.
          */
-        EQ_NET_DECL void setAutoObsolete( const uint32_t count );
+        EQNET_API void setAutoObsolete( const uint32_t count );
 
         /** @return get the number of versions this object retains. */
-        EQ_NET_DECL uint32_t getAutoObsolete() const;
+        EQNET_API uint32_t getAutoObsolete() const;
 
         /** 
          * Sync to a given version.
@@ -191,16 +191,16 @@ namespace net
          *                current version.
          * @return the version of the object after the operation.
          */
-        EQ_NET_DECL uint32_t sync( const uint32_t version = VERSION_HEAD );
+        EQNET_API uint32_t sync( const uint32_t version = VERSION_HEAD );
 
         /** @return the latest available (head) version. */
-        EQ_NET_DECL uint32_t getHeadVersion() const;
+        EQNET_API uint32_t getHeadVersion() const;
 
         /** @return the currently synchronized version. */
-        EQ_NET_DECL uint32_t getVersion() const;
+        EQNET_API uint32_t getVersion() const;
 
         /** @return the oldest available version. */
-        EQ_NET_DECL uint32_t getOldestVersion() const;
+        EQNET_API uint32_t getOldestVersion() const;
 
         /** 
          * Notification that a new head version was received by a slave object.
@@ -213,7 +213,7 @@ namespace net
          * 
          * @param version The new head version.
          */
-        EQ_NET_DECL virtual void notifyNewHeadVersion( const uint32_t version );
+        EQNET_API virtual void notifyNewHeadVersion( const uint32_t version );
 
         /** 
          * Notification that a new version was received by a master object.
@@ -262,23 +262,23 @@ namespace net
         /** @name Packet Transmission */
         //@{
         /** Send a packet to peer object instance(s) on another node. */
-        EQ_NET_DECL bool send( NodePtr node, ObjectPacket& packet );
+        EQNET_API bool send( NodePtr node, ObjectPacket& packet );
 
         /** Send a packet to peer object instance(s) on another node. */
-        EQ_NET_DECL bool send( NodePtr node, ObjectPacket& packet,
+        EQNET_API bool send( NodePtr node, ObjectPacket& packet,
                              const std::string& string );
 
         /** Send a packet to peer object instance(s) on another node. */
-        EQ_NET_DECL bool send( NodePtr node, ObjectPacket& packet, 
+        EQNET_API bool send( NodePtr node, ObjectPacket& packet, 
                              const void* data, const uint64_t size );
         //@}
 
     protected:
         /** Copy constructor. */
-        EQ_NET_DECL Object( const Object& );
+        EQNET_API Object( const Object& );
 
         /** NOP assignment operator. */
-        EQ_NET_DECL const Object& operator = ( const Object& ) { return *this; }
+        EQNET_API const Object& operator = ( const Object& ) { return *this; }
 
         /**
          * Swap the session.
@@ -287,7 +287,7 @@ namespace net
          *
          * @internal
          */
-        EQ_NET_DECL void swapSession( Session* session ) { _session = session; }
+        EQNET_API void swapSession( Session* session ) { _session = session; }
         /** 
          * Setup the change manager.
          * 
@@ -305,7 +305,7 @@ namespace net
          * Called when object is attached to session from the receiver thread.
          * @internal
          */
-        EQ_NET_DECL virtual void attachToSession( const uint32_t id, 
+        EQNET_API virtual void attachToSession( const uint32_t id, 
                                                 const uint32_t instanceID, 
                                                 Session* session );
 
@@ -313,7 +313,7 @@ namespace net
          * Called when the object is detached from the session from the receiver
          * thread. @internal
          */
-        EQ_NET_DECL virtual void detachFromSession();
+        EQNET_API virtual void detachFromSession();
 
         /** @name Notifications */
         /**
@@ -365,7 +365,7 @@ namespace net
 
         EQ_TS_VAR( _thread );
     };
-    EQ_NET_DECL std::ostream& operator << ( std::ostream&, const Object& );
+    EQNET_API std::ostream& operator << ( std::ostream&, const Object& );
 }
 }
 

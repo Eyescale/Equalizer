@@ -42,9 +42,9 @@ namespace net
     class Dispatcher
     {
     public:
-        EQ_NET_DECL Dispatcher();
-        EQ_NET_DECL Dispatcher( const Dispatcher& from );
-        EQ_NET_DECL virtual ~Dispatcher();
+        EQNET_API Dispatcher();
+        EQNET_API Dispatcher( const Dispatcher& from );
+        EQNET_API virtual ~Dispatcher();
 
         /** NOP assignment operator. */
         const Dispatcher& operator = ( const Dispatcher& ) { return *this; }
@@ -56,7 +56,7 @@ namespace net
          * @return true if the command was dispatched, false if not.
          * @sa registerCommand
          */
-        EQ_NET_DECL virtual bool dispatchCommand( Command& command );
+        EQNET_API virtual bool dispatchCommand( Command& command );
 
         /** 
          * Handles a received command packet for this object by calling the
@@ -66,7 +66,7 @@ namespace net
          * @return the result of the operation.
          * @sa registerCommand
          */
-        EQ_NET_DECL virtual bool invokeCommand( Command& command );
+        EQNET_API virtual bool invokeCommand( Command& command );
  
     protected:
         /** 
@@ -92,10 +92,10 @@ namespace net
          * @param command the command
          * @return the result of the operation.
          */
-        EQ_NET_DECL bool _cmdUnknown( Command& command );
+        EQNET_API bool _cmdUnknown( Command& command );
 
     private:
-        EQ_NET_DECL void _registerCommand( const uint32_t command, 
+        EQNET_API void _registerCommand( const uint32_t command, 
                                          const CommandFunc< Dispatcher >& func,
                                          CommandQueue* destinationQueue );
 

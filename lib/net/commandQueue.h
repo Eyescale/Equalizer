@@ -36,18 +36,18 @@ namespace net
     class CommandQueue : public base::NonCopyable
     {
     public:
-        EQ_NET_DECL CommandQueue();
-        EQ_NET_DECL virtual ~CommandQueue();
+        EQNET_API CommandQueue();
+        EQNET_API virtual ~CommandQueue();
 
         /** 
          * Push a command to the queue.
          * 
          * @param packet the command packet.
          */
-        EQ_NET_DECL virtual void push( Command& packet );
+        EQNET_API virtual void push( Command& packet );
 
         /** Push a command to the front of the queue. */
-        EQ_NET_DECL virtual void pushFront( Command& packet );
+        EQNET_API virtual void pushFront( Command& packet );
 
         /** Wake up the command queue, pop() will return 0. */
         virtual void wakeup() { _commands.push( static_cast< Command* >( 0 )); }
@@ -59,7 +59,7 @@ namespace net
          * 
          * @return the next command in the queue.
          */
-        EQ_NET_DECL virtual Command* pop();
+        EQNET_API virtual Command* pop();
 
         /** 
          * Try to pop a command from the queue.
@@ -68,7 +68,7 @@ namespace net
          * 
          * @return the next command in the queue, or 0 if no command is queued.
          */
-        EQ_NET_DECL virtual Command* tryPop();
+        EQNET_API virtual Command* tryPop();
 
         /** 
          * @return <code>true</code> if the command queue is empty,
@@ -77,7 +77,7 @@ namespace net
         bool isEmpty() const { return _commands.isEmpty(); }
 
         /** Flush all cached commands. */
-        EQ_NET_DECL virtual void flush();
+        EQNET_API virtual void flush();
 
         /** @return the size of the queue. */
         size_t getSize() const { return _commands.getSize(); }

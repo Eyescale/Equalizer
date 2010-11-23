@@ -20,11 +20,11 @@
 #include <eq/base/base.h>
 
 #if defined(EQ_NET_STATIC)
-#  define EQ_NET_DECL
+#  define EQNET_API
 #elif defined(EQ_NET_SHARED)
-#  define EQ_NET_DECL EQ_DLLEXPORT
+#  define EQNET_API EQ_DLLEXPORT
 #else
-#  define EQ_NET_DECL EQ_DLLIMPORT
+#  define EQNET_API EQ_DLLIMPORT
 #endif
 
 #endif //EQNET_BASE_H

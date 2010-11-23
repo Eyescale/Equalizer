@@ -30,7 +30,7 @@ namespace net
     /** 
      * Global parameter handling for the Equalizer network implementation. 
      */
-    class EQ_NET_DECL Global
+    class Global
     {
     public:
         /** 
@@ -38,7 +38,7 @@ namespace net
          * 
          * @param programName the program name.
          */
-        static void setProgramName( const std::string& programName );
+        EQNET_API static void setProgramName( const std::string& programName );
 
         /** @return the program name. */
         static const std::string& getProgramName() { return _programName; }
@@ -48,7 +48,7 @@ namespace net
          * 
          * @param workDir the working directory.
          */
-        static void setWorkDir( const std::string& workDir );
+        EQNET_API static void setWorkDir( const std::string& workDir );
 
         /** @return the working directory of the program. */
         static const std::string& getWorkDir() { return _workDir; }
