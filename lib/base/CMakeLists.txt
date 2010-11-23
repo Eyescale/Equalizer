@@ -49,6 +49,7 @@ purple_add_library(eq_base ${EQ_LIB_VARIANT}
     threadID.h
     timedLock.h
     types.h
+    uint128_t.h
     uuid.h
   PRECOMPILE_HEADERS
     <pthread.h>

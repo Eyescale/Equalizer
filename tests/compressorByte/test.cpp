@@ -40,10 +40,10 @@
 #include "lib/base/plugin.h" // private header
 
 void testCompressByte( const uint32_t nameCompressor,
-                       uint8_t* data, const uint64_t size,
-                       uint64_t& compressedSize,
-                       float& timeCompress, 
-                       float& timeDecompress );
+                       const uint8_t* data, const uint64_t size,
+                       uint64_t& _compressedSize,
+                       float& _timeCompress, 
+                       float& _timeDecompress );
 
 void testCompressorFile( );
 std::vector< uint32_t > getCompressorNames( const uint32_t tokenType );
@@ -113,7 +113,7 @@ void testCompressByte( const uint32_t nameCompressor,
     for( size_t j = 0; j < numTests ; j++ )
     {
         clock.reset();
-        compressor.compress( data, inDims, flags );
+        compressor.compress( const_cast<uint8_t*>(data), inDims, flags );
 
         timeCompress += clock.getTimef();
         const size_t numResults = compressor.getNumResults( );

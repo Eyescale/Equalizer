@@ -18,20 +18,20 @@
 #ifndef EQBASE_UUID_H
 #define EQBASE_UUID_H
 
-#include <eq/base/hash.h>
-#include <eq/base/log.h>
-#include <eq/base/rng.h>
+#include <eq/base/rng.h>     // used in inline method
+#include <eq/base/uint128_t.h> // base class
 
 namespace eq
 {
 namespace base
 {
+
     /**
      * Provides a universally unique identifier.
      *
      * Not to be subclassed.
      */
-    class EQ_BASE_DECL UUID
+    class EQ_BASE_DECL UUID : public uint128_t
     {
     public:
         /** 
@@ -41,7 +41,7 @@ namespace base
          * UUID is cleared, i.e., it is equal to UUID::ZERO.
          * @version 1.0
          */
-        UUID( const bool generate = false ) : _high( 0 ), _low( 0 )
+        UUID( const bool generate = false ) : uint128_t()
             { 
                 if( generate )
                 {         
@@ -51,90 +51,43 @@ namespace base
                 }
             }
 
-        /** Create a copy of an universally unique identifier. @version 1.0 */
-        UUID( const UUID& from ) : _high( from._high ), _low( from._low ) {}
+        /**
+         * Construct a new universally unique identifier.
+         * @version 1.0
+         */
+        UUID( const uint64_t high, const uint64_t low ) 
+            : uint128_t( high, low ) {}
 
-        /** Create an UUID from a string. @version 1.0 */
-        UUID( const std::string& from ) { *this = from; }
-
-        /** Assign another universally unique identifier. @version 1.0 */
-        UUID& operator = ( const UUID& from )
-            {
-                _high = from._high;
-                _low = from._low;
-                return *this;
-            }
+        /**
+         * Construct a new universally unique identifier from an unsigned
+         * 128 bit integer value.
+         * @version 1.0
+         */
+        UUID( const uint128_t& from ) : uint128_t( from ) {}
 
         /** Assign another UUID from a string representation. @version 1.0 */
         UUID& operator = ( const std::string& from )
-            {
-                char* next = 0;
+        {
+            char* next = 0;
 #ifdef _MSC_VER
-                _high = ::_strtoui64( from.c_str(), &next, 16 );
+            _high = ::_strtoui64( from.c_str(), &next, 16 );
 #else
-                _high = ::strtoull( from.c_str(), &next, 16 );
+            _high = ::strtoull( from.c_str(), &next, 16 );
 #endif
-                EQASSERT( next != from.c_str( ));
-                EQASSERTINFO( *next == ':', from << ", " << next );
+            EQASSERT( next != from.c_str( ));
+            EQASSERTINFO( *next == ':', from << ", " << next );
 
-                ++next;
+            ++next;
 #ifdef _MSC_VER
-                _low = ::_strtoui64( next, 0, 16 );
+            _low = ::_strtoui64( next, 0, 16 );
 #else
-                _low = ::strtoull( next, 0, 16 );
+            _low = ::strtoull( next, 0, 16 );
 #endif
-                return *this;
-            }
-
-        /** @return true if the UUIDs are equal, false if not. @version 1.0 */
-        bool operator == ( const UUID& rhs ) const
-            { return _high == rhs._high && _low == rhs._low; }
-
-        /**
-         * @return true if the UUIDs are different, false otherwise.
-         * @version 1.0
-         */
-        bool operator != ( const UUID& rhs ) const
-            { return _high != rhs._high || _low != rhs._low; }
-
-        /**
-         * @return true if this UUID is smaller than the RHS UUID.
-         * @version 1.0
-         */
-        bool operator < ( const UUID& rhs ) const
-            { 
-                if( _high < rhs._high )
-                    return true;
-                if( _high > rhs._high )
-                    return false;
-                return _low < rhs._low; 
-            }
-
-        /**
-         * @return true if this UUID is bigger than the rhs UUID.
-         * @version 1.0
-         */
-        bool operator > ( const UUID& rhs ) const
-            { 
-                if( _high > rhs._high )
-                    return true;
-                if( _high < rhs._high )
-                    return false;
-                return _low > rhs._low; 
-            }
-
-        /** @internal @return the lower 64 bits of this UUID. */
-        uint64_t getLow() const { return _low; }
+            return *this;
+        }
 
         /** The NULL UUID. @version 1.0 */
         static const UUID ZERO;
-
-    private:
-        uint64_t _high;
-        uint64_t _low;
-
-        friend std::ostream& operator << ( std::ostream& os, const UUID& id );
-
 #ifdef _MSC_VER
         friend size_t stde::hash_compare< eq::base::UUID >::operator() 
             ( const eq::base::UUID& key ) const;
@@ -146,12 +99,11 @@ namespace base
     /** A hash for UUID keys. @version 1.0 */
     template<class T> class UUIDHash : public stde::hash_map< UUID, T > {};
 
-    /** UUID& ostream operator. */
-    inline std::ostream& operator << ( std::ostream& os, const UUID& id )
-    {
-        os << std::hex << id._high << ':' << id._low << std::dec;
-        return os;
-    }
+/** Special object version values */
+extern EQ_BASE_DECL const UUID EQ_UUID_MAX;
+extern EQ_BASE_DECL const UUID EQ_UUID_NONE;
+extern EQ_BASE_DECL const UUID EQ_UUID_INVALID;
+extern EQ_BASE_DECL const UUID EQ_UUID_ANY;
 }
 }
 
@@ -159,7 +111,7 @@ namespace base
 template<> inline size_t stde::hash_compare< eq::base::UUID >::operator() 
     ( const eq::base::UUID& key ) const
 {
-    return key._low;
+    return key.getLow();
 }
 
 template<> inline size_t stde::hash_value( const eq::base::UUID& key )
@@ -180,4 +132,4 @@ EQ_STDEXT_NAMESPACE_OPEN
 EQ_STDEXT_NAMESPACE_CLOSE
 
 #endif
-#endif // EQBASE_NODE_H
+#endif // EQBASE_UUID_H

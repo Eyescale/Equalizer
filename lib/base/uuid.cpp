@@ -16,6 +16,16 @@
  */
 
 #include "uuid.h"
+namespace eq
+{
+namespace base 
+{
 
-const eq::base::UUID eq::base::UUID::ZERO;
-
+const UUID UUID::ZERO;
+/** Special object version values */
+const UUID EQ_UUID_MAX( 0xfffffffffffffff0u, 0 );
+const UUID EQ_UUID_NONE( 0xfffffffffffffffdu, 0 );
+const UUID EQ_UUID_INVALID( 0xfffffffffffffffeu, 0 );
+const UUID EQ_UUID_ANY( 0xffffffffffffffffu, 0 ) ;
+}
+}
