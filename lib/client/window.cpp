@@ -594,6 +594,7 @@ bool Window::processEvent( const Event& event )
                     continue;
 
                 Event channelEvent = event;
+                EQASSERT( channel->getID() != base::UUID::ZERO );
                 channelEvent.originator = channel->getID();
                 channelEvent.pointer.x -= channelPVP.x;
                 channelEvent.pointer.y = channelPVP.h - y + channelPVP.y;

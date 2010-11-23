@@ -154,7 +154,7 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
         {
             const base::UUID& id = (*i).identifier;
 
-            if( id == base::UUID::NONE )
+            if( id == base::UUID::ZERO )
                 _layouts.push_back( 0 );
             else
             {

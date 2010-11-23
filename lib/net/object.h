@@ -68,7 +68,7 @@ namespace net
         /** @name Data Access */
         //@{
         /** @return true if the object is attached, mapped or registered. */
-        bool isAttached() const { return getID() <= base::UUID::MAX; }
+        bool isAttached() const { return _session != 0; }
 
         /**
          * @return the local node to which this object is mapped, or 0 if the
@@ -298,8 +298,8 @@ namespace net
          * @internal
          */
         void setupChangeManager( const Object::ChangeType type, 
-                                  const bool master, 
-                              const uint32_t masterInstanceID = EQ_ID_INVALID );
+                                 const bool master, 
+                             const uint32_t masterInstanceID = EQ_ID_INVALID );
 
         /**
          * Called when object is attached to session from the receiver thread.

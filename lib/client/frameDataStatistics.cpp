@@ -49,6 +49,7 @@ FrameDataStatistics::FrameDataStatistics( const Statistic::Type type,
 
     const Config* config = EQSAFECAST( const Config*, session );
     event.data.statistic.startTime = config->getTime();
+    EQASSERT( originator != base::UUID::ZERO );
     event.data.originator = originator;
 }
 

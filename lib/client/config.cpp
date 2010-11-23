@@ -456,8 +456,8 @@ bool Config::handleEvent( const ConfigEvent* event )
             EQLOG( LOG_STATS ) << event->data << std::endl;
 
             const uint128_t& originator = event->data.originator;
-            EQASSERT( originator != base::UUID::INVALID );
-            if( originator == base::UUID::INVALID )
+            EQASSERT( originator != base::UUID::ZERO );
+            if( originator == base::UUID::ZERO )
                 return false;
 
             const Statistic& statistic = event->data.statistic;
@@ -498,6 +498,7 @@ bool Config::handleEvent( const ConfigEvent* event )
 
         case Event::VIEW_RESIZE:
         {
+            EQASSERT( event->data.originator != base::UUID::ZERO );
             View* view = find< View >( event->data.originator );
             if( view )
                 return view->handleEvent( event->data );
@@ -647,7 +648,7 @@ void Config::deregisterObject( net::Object* object )
     }
 
     const base::UUID& id = object->getID();
-    if( id >= base::UUID::MAX ) // not registered
+    if( !object->isAttached() ) // not registered
         return;
 
     // Keep a distributed object latency frames.
@@ -687,7 +688,6 @@ bool Config::_cmdCreateNode( net::Command& command )
     const ConfigCreateNodePacket* packet = 
         command.getPacket<ConfigCreateNodePacket>();
     EQVERB << "Handle create node " << packet << std::endl;
-    EQASSERT( packet->nodeID <= base::UUID::MAX );
 
     Node* node = Global::getNodeFactory()->createNode( this );
     EQCHECK( mapObject( node, packet->nodeID ));

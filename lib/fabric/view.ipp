@@ -88,7 +88,7 @@ void View< L, V, O >::deserialize( net::DataIStream& is,
         net::ObjectVersion observer;
         is >> observer;
 
-        if( observer.identifier > base::UUID::MAX )
+        if( observer.identifier == base::UUID::ZERO )
             _observer = 0;
         else
         {

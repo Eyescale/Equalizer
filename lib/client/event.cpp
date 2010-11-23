@@ -54,7 +54,7 @@ static std::string _eventTypeNames[ Event::ALL ] =
 
 Event::Event()
         : type( UNKNOWN )
-        , originator( base::UUID::INVALID )
+        , originator( base::UUID::ZERO )
 {
     bzero( &user, sizeof( user ));
 }

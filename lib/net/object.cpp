@@ -41,7 +41,7 @@ namespace net
 {
 Object::Object()
         : _session          ( 0 )
-        , _id               ( base::UUID::INVALID )
+        , _id               ( true )
         , _instanceID       ( EQ_ID_INVALID )
         , _cm               ( ObjectCM::ZERO )
 {
@@ -50,7 +50,7 @@ Object::Object()
 Object::Object( const Object& object )
         : Dispatcher( object )
         , _session          ( 0 )
-        , _id               ( base::UUID::INVALID )
+        , _id               ( true )
         , _instanceID       ( EQ_ID_INVALID )
         , _cm               ( ObjectCM::ZERO )
 {
@@ -74,7 +74,7 @@ typedef CommandFunc<Object> CmdFunc;
 void Object::attachToSession( const base::UUID& id, const uint32_t instanceID, 
                               Session* session )
 {
-    EQASSERT( id <= base::UUID::MAX );
+    EQASSERT( !isAttached() );
     EQASSERT( instanceID <= EQ_ID_MAX );
     EQASSERT( session );
 
@@ -100,7 +100,6 @@ void Object::attachToSession( const base::UUID& id, const uint32_t instanceID,
 
 void Object::detachFromSession()
 {
-    _id         = base::UUID::INVALID;
     _instanceID = EQ_ID_INVALID;
     _session    = 0;
 }
@@ -141,7 +140,6 @@ LocalNodePtr Object::getLocalNode()
 
 bool Object::send( NodePtr node, ObjectPacket& packet )
 {
-    EQASSERT( _session );
     EQASSERT( isAttached( ));
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
@@ -151,7 +149,7 @@ bool Object::send( NodePtr node, ObjectPacket& packet )
 bool Object::send( NodePtr node, ObjectPacket& packet, 
                    const std::string& string )
 {
-    EQASSERT( _session ); EQASSERT( isAttached() );
+    EQASSERT( isAttached() );
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return node->send( packet, string );
@@ -160,7 +158,7 @@ bool Object::send( NodePtr node, ObjectPacket& packet,
 bool Object::send( NodePtr node, ObjectPacket& packet, 
                    const void* data, const uint64_t size )
 {
-    EQASSERT( _session ); EQASSERT( isAttached() );
+    EQASSERT( isAttached() );
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return node->send( packet, data, size );

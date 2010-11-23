@@ -457,7 +457,7 @@ bool Window< P, W, C >::_cmdNewChannel( net::Command& command )
     WindowNewChannelReplyPacket reply( packet );
     reply.channelID = channel->getID();
     send( command.getNode(), reply ); 
-    EQASSERT( reply.channelID <= base::UUID::MAX );
+    EQASSERT( channel->isAttached( ));
 
     return true;
 }

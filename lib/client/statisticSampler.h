@@ -44,7 +44,7 @@ namespace eq
                 : _owner( owner )
             {
                 EQASSERT( owner );
-
+                EQASSERT( owner->getID() != base::UUID::ZERO );
                 event.data.type                  = Event::STATISTIC;
                 event.data.originator            = owner->getID();
                 event.data.statistic.type        = type;
@@ -63,22 +63,6 @@ namespace eq
         Owner* const _owner;
     };
 
-    template<> inline
-    StatisticSampler< Config >::StatisticSampler( const Statistic::Type type,
-                                                  Config* owner, 
-                                                  const uint32_t frameNumber )
-            : _owner( owner )
-    {
-        EQASSERT( owner );
-        
-        event.data.type                  = Event::STATISTIC;
-        event.data.originator            = base::UUID::NONE;
-        event.data.statistic.type        = type;
-        event.data.statistic.frameNumber = frameNumber;
-        event.data.statistic.resourceName[0] = '\0';
-        event.data.statistic.startTime   = 0;
-        event.data.statistic.endTime     = 0;
-    }
 }
 
 #endif // EQ_STATISTICSAMPLER_H

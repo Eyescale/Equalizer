@@ -118,15 +118,7 @@ void Frame::commitData()
 uint32_t Frame::commitNB()
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
-    {
-        if( _frameData[i] )
-        {
-            _inherit.frameData[i].identifier = _frameData[i]->getID();
-            _inherit.frameData[i].version = _frameData[i]->getVersion();
-        }
-        else
-            _inherit.frameData[i].identifier = base::UUID::INVALID;
-    }
+        _inherit.frameData[i] = _frameData[i];
 
     return net::Object::commitNB();
 }

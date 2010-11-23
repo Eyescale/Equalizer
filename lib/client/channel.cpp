@@ -279,6 +279,7 @@ void Channel::notifyViewportChanged()
     Event event;
     event.type       = Event::CHANNEL_RESIZE;
     event.originator = getID();
+    EQASSERT( event.originator != base::UUID::ZERO );
     event.resize.x   = newPVP.x;
     event.resize.y   = newPVP.y;
     event.resize.w   = newPVP.w;
@@ -642,13 +643,13 @@ bool Channel::processEvent( const Event& event )
         case Event::CHANNEL_RESIZE:
         {
             const base::UUID& viewID = getNativeContext().view.identifier;
-            if( viewID > base::UUID::MAX )
+            if( viewID == base::UUID::ZERO )
                 return true;
 
             // transform to view event, which is meaningful for the config 
             configEvent.data.type       = Event::VIEW_RESIZE;
             configEvent.data.originator = viewID;
-
+            
             ResizeEvent& resize = configEvent.data.resize;
             resize.dw = resize.w / static_cast< float >( _initialSize.x() );
             resize.dh = resize.h / static_cast< float >( _initialSize.y() );

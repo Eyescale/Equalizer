@@ -105,10 +105,7 @@ void Object::notifyDetach()
               _userData->isMaster() == hasMasterUserData( ));
 
     if( _userData->isMaster( ))
-    {
-        _data.userData.identifier = base::UUID::INVALID;
-        _data.userData.version = net::VERSION_NONE;
-    }
+        _data.userData = net::ObjectVersion( 0 );
 
     getSession()->releaseObject( _userData );
 }
@@ -186,7 +183,7 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
                   "Incompatible version, new " << _data.userData << " old " <<
                   net::ObjectVersion( _userData ));
 
-    if( _data.userData.identifier > base::UUID::MAX )
+    if( _data.userData.identifier == base::UUID::ZERO )
     {
         if( _userData->isAttached() && !_userData->isMaster( ))
         {
@@ -196,7 +193,8 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
         return;
     }
 
-    if( !_userData->isAttached( ))
+    if( !_userData->isAttached() &&
+        _data.userData.identifier != base::UUID::ZERO )
     {
         EQASSERT( !hasMasterUserData( ));
         //EQINFO << "Map " << _data.userData << base::backtrace << std::endl;
@@ -207,11 +205,11 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
             return;
         }
     }
-    EQASSERTINFO( _userData->getID() == _data.userData.identifier,
-                  _userData->getID() << " != " << _data.userData.identifier );
 
-    if( !_userData->isMaster( ))
+    if( !_userData->isMaster() && _userData->isAttached( ))
     {
+        EQASSERTINFO( _userData->getID() == _data.userData.identifier,
+                      _userData->getID() << " != " << _data.userData.identifier );
 #if 0
         if( _userData->getVersion() < _data.userData.version )
             EQINFO << "Sync " << _data.userData << base::backtrace
@@ -231,7 +229,7 @@ void Object::setName( const std::string& name )
 
 void Object::setUserData( net::Object* userData )
 {
-    EQASSERT( !userData || userData->getID() == base::UUID::INVALID );
+    EQASSERT( !userData || !userData->isAttached() );
 
     if( _userData == userData )
         return;
@@ -247,7 +245,7 @@ void Object::setUserData( net::Object* userData )
 
     if( hasMasterUserData( ))
         setDirty( DIRTY_USERDATA );
-    else if( _data.userData.identifier <= base::UUID::MAX )
+    else if( _data.userData.identifier != base::UUID::ZERO )
     {
         net::Session* session = getSession();
         if( session )

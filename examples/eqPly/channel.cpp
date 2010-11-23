@@ -61,7 +61,7 @@ namespace eqPly
 Channel::Channel( eq::Window* parent )
         : eq::Channel( parent )
         , _model(0)
-        , _modelID( eq::base::UUID::INVALID )
+        , _modelID( eq::base::UUID::ZERO )
         , _frameStartRendering( 0 )
 {
 }
@@ -73,7 +73,7 @@ bool Channel::configInit( const eq::uint128_t& initID )
 
     setNearFar( 0.1f, 10.0f );
     _model = 0;
-    _modelID = eq::base::UUID::INVALID;
+    _modelID = eq::base::UUID::ZERO;
     return true;
 }
 
@@ -346,6 +346,8 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
         drawStatistics();
 
     ConfigEvent event;
+
+    EQASSERT( getID() != eq::base::UUID::ZERO );
     event.data.originator = getID();
     event.data.type = ConfigEvent::IDLE_AA_LEFT;
 
@@ -586,7 +588,7 @@ const Model* Channel::_getModel()
     EQASSERT( !view || dynamic_cast< const View* >( getView( )));
 
     eq::uint128_t id = view ? view->getModelID() : frameData.getModelID();
-    if( id > eq::base::UUID::MAX )
+    if( id == eq::base::UUID::ZERO )
         id = frameData.getModelID();
     if( id != _modelID )
     {

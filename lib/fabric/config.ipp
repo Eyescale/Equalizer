@@ -557,7 +557,7 @@ void Config< S, C, O, L, CV, N, V >::restore()
 template< class S, class C, class O, class L, class CV, class N, class V >
 uint128_t Config< S, C, O, L, CV, N, V >::register_()
 {
-    EQASSERT( _proxy->getID() == base::UUID::INVALID );
+    EQASSERT( !_proxy->isAttached() );
     EQCHECK( registerObject( _proxy ));
     return _proxy->getID();
 }

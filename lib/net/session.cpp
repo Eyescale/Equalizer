@@ -324,9 +324,11 @@ void Session::swapObject( Object* oldObject, Object* newObject )
     EQASSERT( oldObject->isMaster() );
     EQ_TS_THREAD( _receiverThread );
     base::ScopedMutex< base::SpinLock > mutex( _objects );
-    const base::UUID& id = oldObject->getID();
-    if( id == base::UUID::INVALID )
+
+    if( !oldObject->isAttached() )
         return;
+
+    const base::UUID& id = oldObject->getID();
 
     EQLOG( LOG_OBJECTS ) << "Swap " << base::className( oldObject )
                          << std::endl;
@@ -350,7 +352,6 @@ void Session::swapObject( Object* oldObject, Object* newObject )
 
     oldObject->_cm = ObjectCM::ZERO;
     oldObject->_session = 0;
-    oldObject->_id = base::UUID::INVALID;
     oldObject->_instanceID = EQ_ID_INVALID;
 
     *j = newObject;
@@ -362,9 +363,10 @@ void Session::_detachObject( Object* object )
     EQASSERT( object );
     EQ_TS_THREAD( _receiverThread );
 
-    const base::UUID& id = object->getID();
-    if( id == base::UUID::INVALID )
+    if( !object->isAttached() )
         return;
+
+    const base::UUID& id = object->getID();
 
     EQASSERT( _objects->find( id ) != _objects->end( ));
     EQLOG( LOG_OBJECTS ) << "Detach " << object << std::endl;
@@ -399,10 +401,13 @@ uint32_t Session::mapObjectNB( Object* object, const base::UUID& id,
     EQLOG( LOG_OBJECTS ) << "Mapping " << base::className( object ) << " to id "
                          << id << " version " << version << std::endl;
     EQASSERT( object );
-    EQASSERT( id <= base::UUID::MAX );
-    EQASSERT( object->getID() == base::UUID::INVALID );
+    EQASSERT( !object->isAttached( ));
     EQASSERT( !object->isMaster( ));
     EQASSERT( !_localNode->inCommandThread( ));
+    EQASSERTINFO( id.isGenerated(), id );
+
+    if( !id.isGenerated( ))
+        return EQ_ID_INVALID;
 
     NodePtr master = _connectMaster( id );
     if( !master )
@@ -448,7 +453,7 @@ bool Session::mapObjectSync( const uint32_t requestID )
 
     _localNode->waitRequest( requestID, &version );
 
-    const bool mapped = ( object->getID() != base::UUID::INVALID );
+    const bool mapped = ( object->isAttached() );
     if( mapped )
         object->_cm->applyMapData( version ); // apply initial instance data
 
@@ -461,10 +466,11 @@ void Session::unmapObject( Object* object )
 {
     EQASSERT( object );
 
-    const base::UUID& id = object->getID();
-    if( id == base::UUID::INVALID ) // not registered
+    if( !object->isAttached() ) // not registered
         return;
 
+    const base::UUID& id = object->getID();
+    
     EQLOG( LOG_OBJECTS ) << "Unmap " << object << std::endl;
 
     object->notifyDetach();
@@ -504,12 +510,10 @@ void Session::unmapObject( Object* object )
 bool Session::registerObject( Object* object )
 {
     EQASSERT( object );
-    EQASSERT( object->getID() == base::UUID::INVALID );
+    EQASSERT( !object->isAttached() );
 
-    const base::UUID id( true );
-    EQASSERT( id != base::UUID::INVALID );
-    if( id == base::UUID::INVALID )
-        return false;
+    const base::UUID& id = object->getID( );
+    EQASSERTINFO( id.isGenerated(), id );
 
     const uint32_t requestID = _setIDMasterNB( id, _localNode->getNodeID( ));
     object->setupChangeManager( object->getChangeType(), true );
@@ -531,14 +535,14 @@ bool Session::registerObject( Object* object )
 
 void Session::deregisterObject( Object* object )
 {
-    EQASSERT( object )
-    const base::UUID& id = object->getID();
-    if( id == base::UUID::INVALID ) // not registered
+    EQASSERT( object );
+    if( !object->isAttached() ) // not registered
         return;
 
     EQLOG( LOG_OBJECTS ) << "Deregister " << object << std::endl;
     EQASSERT( object->isMaster( ));
 
+    const base::UUID& id = object->getID();
     object->notifyDetach();
     const uint32_t requestID = _unsetIDMasterNB( id );
 

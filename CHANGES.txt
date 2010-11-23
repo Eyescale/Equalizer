@@ -2,97 +2,60 @@
 This file lists all changes in the public Equalizer API, latest on top:
 
 22/Nov/2010
-  in Session remove setIDMaster and unsetIDMaster
-   
-  modify attachToSession for layout, canvas, window, pipe, node, frameData,
-  channel and Object. 
-   virtual void attachToSession( const base::UUID& id,
-                                 const uint32_t instanceID,
-                                 net::Session* session );
-		replace
-   
-   virtual void attachToSession( const uint32_t id, 
-                                 const uint32_t instanceID,
-                                 net::Session* session );
+  Replace object identifiers with UUIDs
+    Replace defines EQ_ID_INVALID with the new type by UUID::ZERO for object identifiers
+    Removed defines EQ_ID_MAX, NONE, INVALID, ANY for object identifiers
+  Replace object versions with uint128_t
+    Master version have always 0 for the 64bit high value
 
-  modify frameID type for the functions : frameReadback, frameAssemble, 
+  change frameID type to uint128_t for methods: frameReadback, frameAssemble, 
    frameDraw, frameClear, frameStart, startFrame, frameViewStart, 
    frameViewFinish, frameFinish, frameDrawFinish, frameTasksFinish 
    in the classes window, channel, pipe, node and config.  
-     
-     virtual void frameXXXX( const eq::uint128_t& frameID, XXXX );
-     
-       Replace  
-     
-     virtual void frameXXX( const eq::uint128_t& frameID, XXXX );
     
-modify configInit in pipe, window, channel and config
-  virtual bool configInit( const eq::uint128_t& initID );
-    replace
-  virtual bool configInit( const uint32_t initID );
+  change initID type to uint128_t for configInit in pipe, window, channel and config
 
-in pipe.h 
-  virtual bool configInitSystemPipe( const uint128_t& initID );
-    replace
-  virtual bool configInitSystemPipe( const uint32_t initID );
+  in pipe.h 
+    virtual bool configInitSystemPipe( const uint128_t& initID );
+      replace
+    virtual bool configInitSystemPipe( const uint32_t initID );
 
-in Window.h 
-  virtual bool configInitSystemWindow( const eq::uint128_t& initID );
-  virtual bool configInitGL( const eq::uint128_t& initID );
-    replaces
-  virtual bool configInitSystemWindow( const uint32_t initID );
-  virtual bool configInitGL( const uint32_t initID );
+  in Window.h 
+    virtual bool configInitSystemWindow( const eq::uint128_t& initID );
+    virtual bool configInitGL( const eq::uint128_t& initID );
+      replaces
+    virtual bool configInitSystemWindow( const uint32_t initID );
+    virtual bool configInitGL( const uint32_t initID );
 
-  
-in Session.h
-  const NodeID getIDMaster( const base::UUID& id );									 
-  bool mapObject( Object* object, const base::UUID& id, 
-                  const uint128_t& version = VERSION_OLDEST );									   
-  uint32_t mapObjectNB( Object* object, const base::UUID& id, 
-                        const uint128_t& version = VERSION_OLDEST );										
-  void attachObject( Object* object, const base::UUID& id, 
-                     const uint32_t instanceID );
-     replaces
-  void attachObject( Object* object, const uint32_t id, 
-                     const uint32_t instanceID );
-  uint32_t mapObjectNB( Object* object, const uint32_t id,
-                        const uint128_t& version = VERSION_OLDEST );
-  bool mapObject( Object* object, const uint32_t id, 
-                  const uint128_t& version = VERSION_OLDEST );
-  const NodeID getIDMaster( const uint32_t id );
+  in Session.h
+    bool mapObject( Object* object, const base::UUID& id, 
+                    const uint128_t& version = VERSION_OLDEST );									   
+    uint32_t mapObjectNB( Object* object, const base::UUID& id, 
+                          const uint128_t& version = VERSION_OLDEST );								
+  replaces
+    bool mapObject( Object* object, const uint32_t id, 
+                    const uint128_t& version = VERSION_OLDEST );
+    uint32_t mapObjectNB( Object* object, const uint32_t id,
+                          const uint128_t& version = VERSION_OLDEST );
 
-in ObjectVersion.h
-  ObjectVersion( const uint128_t& identifier, const uint128_t& version );
-    replace
-  ObjectVersion( const uint32_t identifier, const uint32_t version );
-                                 
-in Object.h
-  virtual void notifyNewHeadVersion( const uint128_t& version );
-  uint128_t getOldestVersion() const;
-  uint128_t getVersion() const;
-  uint128_t getHeadVersion() const;
-  uint128_t sync( const uint128_t& version = VERSION_HEAD );
-  virtual uint128_t commitSync( const uint32_t commitID );
-  uint128_t commit();
-  base::UUID getID() const
-     replaces
-  uint32_t commit();
-  virtual uint32_t commitSync( const uint32_t commitID );
-  uint32_t sync( const uint32_t version = VERSION_HEAD );
-  uint32_t getHeadVersion() const;
-  uint32_t getVersion() const;
-  uint32_t getOldestVersion() const;
-  virtual void notifyNewHeadVersion( const uint32_t version );
-  uint32_t getID() const
-
-in instanceCache.h					
-  bool erase( const base::UUID& id );
-  bool release( const base::UUID& id, const uint32_t count = 1 );
-  const Data& operator[]( const base::UUID& id );
-     replaces
-  const Data& operator[]( const uint32_t id );
-  bool release( const uint32_t id, const uint32_t count = 1 );
-  bool erase( const uint32_t id );
+  in Object.h
+    virtual void notifyNewHeadVersion( const uint128_t& version );
+    uint128_t getOldestVersion() const;
+    uint128_t getVersion() const;
+    uint128_t getHeadVersion() const;
+    uint128_t sync( const uint128_t& version = VERSION_HEAD );
+    uint128_t commit();
+    virtual uint128_t commitSync( const uint32_t commitID );
+    base::UUID getID() const
+  replaces
+    virtual void notifyNewHeadVersion( const uint32_t version );
+    uint32_t getOldestVersion() const;
+    uint32_t getVersion() const;
+    uint32_t getHeadVersion() const;
+    uint32_t sync( const uint32_t version = VERSION_HEAD );
+    uint32_t commit();
+    virtual uint32_t commitSync( const uint32_t commitID );
+    uint32_t getID() const
 
 19/Nov/2010
   The GLXEventHandler is new per-window. Event handler init/exit has

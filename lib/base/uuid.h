@@ -43,7 +43,7 @@ namespace base
          */
         UUID( const bool generate = false ) : uint128_t()
             { 
-                if( generate )
+                while( generate && _high == 0 )
                 {         
                     RNG rng;
                     _high = rng.get< uint64_t >();
@@ -86,13 +86,11 @@ namespace base
             return *this;
         }
 
+        /** @return true if the UUID was generated. */
+        bool isGenerated() const { return getHigh() != 0; }
+
         /** The NULL UUID. @version 1.0 */
         static const UUID ZERO;
-        /** Special values */
-        static const UUID MAX;
-        static const UUID NONE;
-        static const UUID INVALID;
-        static const UUID ANY;
 #ifdef _MSC_VER
         friend size_t stde::hash_compare< eq::base::UUID >::operator() 
             ( const eq::base::UUID& key ) const;

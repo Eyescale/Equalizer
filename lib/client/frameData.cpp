@@ -528,6 +528,8 @@ bool FrameData::_cmdTransmit( net::Command& command )
     const uint128_t& originator = config ? config->getNodes().front()->getID() :
                                            getID();
 
+    EQASSERT( originator != base::UUID::ZERO );
+
     FrameDataStatistics event( Statistic::FRAME_RECEIVE, this, 
                                packet->frameNumber, originator );
 

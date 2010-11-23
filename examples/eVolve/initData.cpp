@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@ namespace eVolve
 {
 
 InitData::InitData()
-        : _frameDataID(  eq::base::UUID::INVALID )
+        : _frameDataID(  eq::base::UUID::ZERO )
         , _windowSystem( eq::WINDOW_SYSTEM_NONE )
         , _precision( 2 )
         , _brightness( 1.0f )
@@ -61,7 +61,7 @@ InitData::InitData()
 
 InitData::~InitData()
 {
-    setFrameDataID( eq::base::UUID::INVALID );
+    setFrameDataID( eq::base::UUID::ZERO );
 }
 
 void InitData::getInstanceData( eq::net::DataOStream& os )
@@ -75,7 +75,7 @@ void InitData::applyInstanceData( eq::net::DataIStream& is )
     is >> _frameDataID >> _windowSystem >> _precision >> _brightness >> _alpha
        >> _filename;
 
-    EQASSERT( _frameDataID != eq::base::UUID::INVALID );
+    EQASSERT( _frameDataID != eq::base::UUID::ZERO );
     EQINFO << "New InitData instance" << endl;
 }
 }

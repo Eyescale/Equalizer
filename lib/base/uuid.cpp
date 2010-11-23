@@ -21,11 +21,7 @@ namespace eq
 namespace base 
 {
 
+/** Special identifier values */
 const UUID UUID::ZERO;
-/** Special object version values */
-const UUID UUID::MAX( 0xfffffffffffffff0ull, 0 );
-const UUID UUID::NONE( 0xfffffffffffffffdull, 0 );
-const UUID UUID::INVALID( 0xfffffffffffffffeull, 0 );
-const UUID UUID::ANY( 0xffffffffffffffffull, 0 ) ;
 }
 }
