@@ -565,7 +565,7 @@ uint128_t Config< S, C, O, L, CV, N, V >::register_()
 template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::deregister()
 {
-    EQASSERT( _proxy->getID() <= base::UUID::MAX );
+    EQASSERT( _proxy->isAttached() );
     deregisterObject( _proxy );
 }
 
@@ -654,7 +654,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
 
     registerObject( layout );
     layout->setAutoObsolete( _data.latency + 1 );
-    EQASSERT( layout->getID() <= base::UUID::MAX );
+    EQASSERT( layout->isAttached() );
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = layout->getID();
@@ -676,7 +676,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas(
 
     registerObject( canvas );
     canvas->setAutoObsolete( _data.latency + 1 );
-    EQASSERT( canvas->getID() <= base::UUID::MAX );
+    EQASSERT( canvas->isAttached() );
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = canvas->getID();
@@ -698,7 +698,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver(
 
     registerObject( observer );
     observer->setAutoObsolete( _data.latency + 1 );
-    EQASSERT( observer->getID() <= base::UUID::MAX );
+    EQASSERT( observer->isAttached() );
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = observer->getID();

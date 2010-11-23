@@ -151,7 +151,7 @@ bool Object::send( NodePtr node, ObjectPacket& packet )
 bool Object::send( NodePtr node, ObjectPacket& packet, 
                    const std::string& string )
 {
-    EQASSERT( _session ); EQASSERT( _id <= base::UUID::MAX );
+    EQASSERT( _session ); EQASSERT( isAttached() );
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return node->send( packet, string );
@@ -160,7 +160,7 @@ bool Object::send( NodePtr node, ObjectPacket& packet,
 bool Object::send( NodePtr node, ObjectPacket& packet, 
                    const void* data, const uint64_t size )
 {
-    EQASSERT( _session ); EQASSERT( _id <= base::UUID::MAX );
+    EQASSERT( _session ); EQASSERT( isAttached() );
     packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return node->send( packet, data, size );

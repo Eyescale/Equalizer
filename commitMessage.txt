@@ -1,9 +1,9 @@
-- Rename EQ_UUID_XXX by XXX
+- Minor Cleanup / use isAttached() 
 
 [ ] May break build
-[x] May break existing applications (see CHANGES.txt)
+[ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation

@@ -150,7 +150,7 @@ void Node< C, N, P, V >::notifyDetach()
     while( !_pipes.empty( ))
     {
         P* pipe = _pipes.back();
-        if( pipe->getID() > base::UUID::MAX )
+        if( !pipe->isAttached()  )
         {
             EQASSERT( isMaster( ));
             return;

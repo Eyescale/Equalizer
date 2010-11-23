@@ -452,7 +452,7 @@ bool Window< P, W, C >::_cmdNewChannel( net::Command& command )
     EQASSERT( channel );
 
     _pipe->getConfig()->registerObject( channel );
-    EQASSERT( channel->getID() <= base::UUID::MAX );
+    EQASSERT( channel->isAttached() );
 
     WindowNewChannelReplyPacket reply( packet );
     reply.channelID = channel->getID();

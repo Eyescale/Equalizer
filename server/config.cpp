@@ -245,7 +245,7 @@ void Config::activateCanvas( Canvas* canvas )
                 subViewport.apply( contribution );
 
                 channel->setViewport( subViewport );
-                if( channel->getWindow()->getID() <= base::UUID::MAX )
+                if( channel->getWindow()->isAttached() )
                     // parent is already registered - register channel as well
                     registerObject( channel );
 

@@ -394,7 +394,7 @@ Canvas< CFG, C, S, L >::_cmdNewSegment( net::Command& command )
 
     _config->registerObject( segment );
     segment->setAutoObsolete( _config->getLatency() + 1 );
-    EQASSERT( segment->getID() <= base::UUID::MAX );
+    EQASSERT( segment->isAttached() );
 
     CanvasNewSegmentReplyPacket reply( packet );
     reply.segmentID = segment->getID();
