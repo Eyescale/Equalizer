@@ -1,9 +1,9 @@
-- modify isAttached() and use it 
+- Add missing Export 
 
 [ ] May break build
-[x] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[ ] May break existing applications (see CHANGES.txt)
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
-[x] Optimization
+[ ] Cleanup
+[ ] Optimization
 [ ] Documentation

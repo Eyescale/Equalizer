@@ -25,12 +25,12 @@ namespace eq
 namespace net
 {
 /** Special object version values */
-extern EQ_NET_DECL const uint128_t VERSION_NONE;
-extern EQ_NET_DECL const uint128_t VERSION_FIRST;
-extern EQ_NET_DECL const uint128_t VERSION_NEXT;
-extern EQ_NET_DECL const uint128_t VERSION_INVALID;
-extern EQ_NET_DECL const uint128_t VERSION_OLDEST;
-extern EQ_NET_DECL const uint128_t VERSION_HEAD;
+extern EQNET_API const uint128_t VERSION_NONE;
+extern EQNET_API const uint128_t VERSION_FIRST;
+extern EQNET_API const uint128_t VERSION_NEXT;
+extern EQNET_API const uint128_t VERSION_INVALID;
+extern EQNET_API const uint128_t VERSION_OLDEST;
+extern EQNET_API const uint128_t VERSION_HEAD;
 
 }
 }
