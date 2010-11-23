@@ -111,10 +111,10 @@ namespace net
         //@}
 
     private:
-        static std::string _programName;
-        static std::string _workDir;
+        EQNET_API static std::string _programName;
+        EQNET_API static std::string _workDir;
         static uint32_t    _objectBufferSize;
-        static uint16_t    _defaultPort;
+        EQNET_API static uint16_t    _defaultPort;
 
         /** Integer attributes. */
         static int32_t _iAttributes[IATTR_ALL];
