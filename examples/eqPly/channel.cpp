@@ -150,10 +150,10 @@ void Channel::frameDraw( const uint32_t frameID )
     glPolygonMode( GL_FRONT_AND_BACK, 
                    frameData.useWireframe() ? GL_LINE : GL_FILL );
 
-    const eq::Vector3f& translation = frameData.getCameraTranslation();
+    const eq::Vector3f& position = frameData.getCameraPosition();
 
     glMultMatrixf( frameData.getCameraRotation().array );
-    glTranslatef( translation.x(), translation.y(), translation.z() );
+    glTranslatef( position.x(), position.y(), position.z() );
     glMultMatrixf( frameData.getModelRotation().array );
 
     if( frameData.getColorMode() == COLOR_DEMO )
@@ -876,7 +876,7 @@ void Channel::_updateNearFar( const mesh::BoundingSphere& boundingSphere )
     front *= boundingSphere.w();
 
     const eq::Vector3f center = boundingSphere.get_sub_vector< 3 >() + 
-                        frameData.getCameraTranslation( ).get_sub_vector< 3 >();
+                        frameData.getCameraPosition( ).get_sub_vector< 3 >();
     const eq::Vector3f nearPoint  = headTransform * ( center - front );
     const eq::Vector3f farPoint   = headTransform * ( center + front );
 
@@ -907,13 +907,13 @@ void Channel::_initFrustum( eq::FrustumCullerf& culler,
 {
     // setup frustum cull helper
     const FrameData& frameData = _getFrameData();
-    const eq::Matrix4f& rotation     = frameData.getCameraRotation();
+    const eq::Matrix4f& rotation = frameData.getCameraRotation();
     const eq::Matrix4f& modelRotation = frameData.getModelRotation();
-          eq::Matrix4f  translation   = eq::Matrix4f::IDENTITY;
-    translation.set_translation( frameData.getCameraTranslation());
+    eq::Matrix4f position = eq::Matrix4f::IDENTITY;
+    position.set_translation( frameData.getCameraPosition());
 
     const eq::Matrix4f modelView = 
-        getHeadTransform() * rotation * translation * modelRotation;
+        getHeadTransform() * rotation * position * modelRotation;
 
     const bool ortho = frameData.useOrtho();
     const eq::Frustumf& frustum      = ortho ? getOrtho() : getFrustum();

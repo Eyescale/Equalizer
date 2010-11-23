@@ -111,8 +111,10 @@ namespace eqPly
 
         bool _redraw;
         bool _freeze;
+        bool _useIdleAA;
 
         uint32_t _numFramesAA;
+
         eq::admin::ServerPtr _admin;
 
         void _loadModels();

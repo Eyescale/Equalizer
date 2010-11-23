@@ -58,10 +58,6 @@ namespace eqPly
         void setRenderMode( const mesh::RenderMode mode );
         void setIdle( const bool idleMode );
 
-        void setTranslation(   const eq::Vector3f& translation );
-        void setRotation(      const eq::Vector3f& rotation    );
-        void setModelRotation( const eq::Vector3f& rotation    );
-
         void toggleOrtho();
         void toggleStatistics();
         void toggleHelp();
@@ -79,24 +75,26 @@ namespace eqPly
         bool showHelp() const { return _help; }
         bool useWireframe() const { return _wireframe; }
         bool usePilotMode() const { return _pilotMode; }
-        bool isIdle() const { return _idleMode; }
+        bool isIdle() const { return _idle; }
         mesh::RenderMode getRenderMode() const { return _renderMode; }
         //*}
 
         /** @name Camera parameters. */
         //*{
+        void setCameraPosition( const eq::Vector3f& position );
+        void setRotation( const eq::Vector3f& rotation);
+        void setModelRotation( const eq::Vector3f& rotation    );
         void spinCamera( const float x, const float y );
         void spinModel(  const float x, const float y );
         void spinModel(  const float x, const float y, const float z );
         void moveCamera( const float x, const float y, const float z );
-        void setCameraPosition( const float x, const float y, const float z );
 
         const eq::Matrix4f& getCameraRotation() const
             { return _rotation; }
         const eq::Matrix4f& getModelRotation() const
             { return _modelRotation; }
-        const eq::Vector3f& getCameraTranslation() const
-            { return _translation; }
+        const eq::Vector3f& getCameraPosition() const
+            { return _position; }
         //*}
 
         /** @name View interface. */
@@ -133,7 +131,7 @@ namespace eqPly
     private:
         eq::Matrix4f _rotation;
         eq::Matrix4f _modelRotation;
-        eq::Vector3f _translation;
+        eq::Vector3f _position;
         
         uint32_t         _modelID;
         mesh::RenderMode _renderMode;
@@ -144,7 +142,7 @@ namespace eqPly
         bool             _help;
         bool             _wireframe;
         bool             _pilotMode;
-        bool             _idleMode;
+        bool             _idle;
 
         uint32_t _currentViewID;
         std::string _message;

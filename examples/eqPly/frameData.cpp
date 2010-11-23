@@ -41,7 +41,7 @@ FrameData::FrameData()
         , _help( false )
         , _wireframe( false )
         , _pilotMode( false )
-        , _idleMode( false )
+        , _idle( false )
         , _currentViewID( EQ_ID_INVALID )
 {
     reset();
@@ -52,10 +52,10 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
 {
     eq::fabric::Serializable::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_CAMERA )
-        os << _translation << _rotation << _modelRotation;
+        os << _position << _rotation << _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
         os << _modelID << _renderMode << _colorMode << _quality << _ortho
-           << _statistics << _help << _wireframe << _pilotMode << _idleMode;
+           << _statistics << _help << _wireframe << _pilotMode << _idle;
     if( dirtyBits & DIRTY_VIEW )
         os << _currentViewID;
     if( dirtyBits & DIRTY_MESSAGE )
@@ -67,10 +67,10 @@ void FrameData::deserialize( eq::net::DataIStream& is,
 {
     eq::fabric::Serializable::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_CAMERA )
-        is >> _translation >> _rotation >> _modelRotation;
+        is >> _position >> _rotation >> _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
         is >> _modelID >> _renderMode >> _colorMode >> _quality >> _ortho
-           >> _statistics >> _help >> _wireframe >> _pilotMode >> _idleMode;
+           >> _statistics >> _help >> _wireframe >> _pilotMode >> _idle;
     if( dirtyBits & DIRTY_VIEW )
         is >> _currentViewID;
     if( dirtyBits & DIRTY_MESSAGE )
@@ -98,12 +98,12 @@ void FrameData::setRenderMode( const mesh::RenderMode mode )
     setDirty( DIRTY_FLAGS );
 }
 
-void FrameData::setIdle( const bool idleMode )
+void FrameData::setIdle( const bool idle )
 {
-    if( _idleMode == idleMode )
+    if( _idle == idle )
         return;
 
-    _idleMode = idleMode;
+    _idle = idle;
     setDirty( DIRTY_FLAGS );
 }
 
@@ -200,29 +200,21 @@ void FrameData::moveCamera( const float x, const float y, const float z )
         compute_inverse( _rotation, matInverse );
         eq::Vector4f shift = matInverse * eq::Vector4f( x, y, z, 1 );
 
-        _translation += shift;
+        _position += shift;
     }
     else
     {
-        _translation.x() += x;
-        _translation.y() += y;
-        _translation.z() += z;
+        _position.x() += x;
+        _position.y() += y;
+        _position.z() += z;
     }
 
     setDirty( DIRTY_CAMERA );
 }
 
-void FrameData::setCameraPosition( const float x, const float y, const float z )
+void FrameData::setCameraPosition( const eq::Vector3f& position )
 {
-    _translation.x() = x;
-    _translation.y() = y;
-    _translation.z() = z;
-    setDirty( DIRTY_CAMERA );
-}
-
-void FrameData::setTranslation( const eq::Vector3f& translation )
-{
-    _translation = translation;
+    _position = position;
     setDirty( DIRTY_CAMERA );
 }
 
@@ -246,12 +238,22 @@ void FrameData::setModelRotation(  const eq::Vector3f& rotation )
 
 void FrameData::reset()
 {
-    _translation   = eq::Vector3f::ZERO;
-    _translation.z() = -2.f;
-    _rotation      = eq::Matrix4f::IDENTITY;
-    _modelRotation = eq::Matrix4f::IDENTITY;
-    _modelRotation.rotate_x( static_cast<float>( -M_PI_2 ));
-    _modelRotation.rotate_y( static_cast<float>( -M_PI_2 ));
+    eq::Matrix4f model = eq::Matrix4f::IDENTITY;
+    model.rotate_x( static_cast<float>( -M_PI_2 ));
+    model.rotate_y( static_cast<float>( -M_PI_2 ));
+
+    if( _position == eq::Vector3f( 0.f, 0.f, -2.f ) && 
+        _rotation == eq::Matrix4f::IDENTITY && _modelRotation == model )
+    {
+        _position.z() = 0.f;
+    }
+    else
+    {
+        _position   = eq::Vector3f::ZERO;
+        _position.z() = -2.f;
+        _rotation      = eq::Matrix4f::IDENTITY;
+        _modelRotation = model;
+    }
     setDirty( DIRTY_CAMERA );
 }
 

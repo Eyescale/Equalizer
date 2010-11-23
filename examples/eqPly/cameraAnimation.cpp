@@ -70,8 +70,8 @@ CameraAnimation::Step CameraAnimation::getNextStep()
     const float nextCoeff = ( _curFrame - curStep.frame ) / interval;
 
     Step result( _curFrame,
-                 curStep.translation*curCoeff + nextStep.translation*nextCoeff,
-                 curStep.rotation   *curCoeff + nextStep.rotation   *nextCoeff);
+                 curStep.position * curCoeff + nextStep.position * nextCoeff,
+                 curStep.rotation * curCoeff + nextStep.rotation * nextCoeff );
 
     return result;
 }

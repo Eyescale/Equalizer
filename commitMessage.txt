@@ -1,4 +1,4 @@
-Return connection desc vector for thread-safety
+eqPly: make idle-AA runtime switchable, clean up camera parameter naming.
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

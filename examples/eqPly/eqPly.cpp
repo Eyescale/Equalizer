@@ -47,20 +47,17 @@ static const std::string _help(
     std::string( "\t\t<Cursor Keys>:             Move head in X,Y plane\n" )+
     std::string( "\t\t<Page Up,Down>:            Move head in Z\n" )+
     std::string( "\t\t<Esc>, All Mouse Buttons:  Exit program\n" ) +
-    std::string( "\t\t<Space>:                   Reset camera\n" ) +
+    std::string( "\t\t<Space>:                   Reset camera (twice for Immersive Setup)\n" ) +
     std::string( "\t\tF1, h:                     Toggle help overlay\n" ) +
-    std::string( "\t\ti:                         Reset camera for Immersive Setups\n"
-                                                                            ) +
     std::string( "\t\to:                         Toggle perspective/orthographic\n"
                                                                             ) +
     std::string( "\t\ts:                         Toggle statistics overlay\n" ) +
     std::string( "\t\tw:                         Toggle wireframe mode\n" ) +
     std::string( "\t\td:                         Toggle color demo mode\n" ) +
+    std::string( "\t\ti:                         Toggle usage of idle anti-aliasing\n" ) +
     std::string( "\t\tq, Q:                      Adjust non-idle image quality\n" ) +
-    std::string( "\t\tn:                         Toggle navigation mode (trackball,\
-                                                                walk)\n" ) +
-    std::string( "\t\tr:                         Switch rendering mode (display\
-                                                    list, VBO, immediate)\n" ) +
+    std::string( "\t\tn:                         Toggle navigation mode (trackball, walk)\n" ) +
+    std::string( "\t\tr:                         Switch rendering mode (display list, VBO, immediate)\n" ) +
     std::string( "\t\tc:                         Switch active canvas\n" ) +
     std::string( "\t\tv:                         Switch active view\n" ) +
     std::string( "\t\tm:                         Switch model for active view\n" ) +

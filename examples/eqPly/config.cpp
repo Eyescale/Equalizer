@@ -47,6 +47,7 @@ Config::Config( eq::base::RefPtr< eq::Server > parent )
         , _messageTime( 0 )
         , _redraw( true )
         , _freeze( false )
+        , _useIdleAA( true )
         , _numFramesAA( 0 )
 {
 }
@@ -343,9 +344,9 @@ void Config::_updateData()
         const eq::Vector3f&  modelRotation = _animation.getModelRotation();
         const CameraAnimation::Step& curStep = _animation.getNextStep();
 
-        _frameData.setModelRotation( modelRotation        );
-        _frameData.setRotation(     curStep.rotation      );
-        _frameData.setTranslation(  curStep.translation   );
+        _frameData.setModelRotation( modelRotation);
+        _frameData.setRotation( curStep.rotation );
+        _frameData.setCameraPosition( curStep.position );
     }
     else
     {
@@ -523,12 +524,16 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             break;
 
         case ConfigEvent::IDLE_AA_LEFT:
-        {
-            const ConfigEvent* idleEvent = 
-                static_cast< const ConfigEvent* >( event );
-            _numFramesAA = EQ_MAX( _numFramesAA, idleEvent->steps );
+            if( _useIdleAA )
+            {
+                const ConfigEvent* idleEvent = 
+                    static_cast< const ConfigEvent* >( event );
+                _numFramesAA = EQ_MAX( _numFramesAA, idleEvent->steps );
+            }
+            else
+                _numFramesAA = 0;
             return true;
-        }
+
         default:
             break;
     }
@@ -555,11 +560,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             return true;
 
         case 'i':
-        case 'I':
-            _frameData.setCameraPosition( 0.f, 0.f, 0.f );
-            _spinX   = 0;
-            _spinY   = 0;
-            _advance = 0;
+            _useIdleAA = !_useIdleAA;
             return true;
 
         case 'k':

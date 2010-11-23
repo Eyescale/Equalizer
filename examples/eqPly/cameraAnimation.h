@@ -59,17 +59,17 @@ namespace eqPly
         {
             Step()
                 : frame( 0 )
-                , translation( eq::Vector3f( .0f, .0f, -1.0f ))
+                , position( eq::Vector3f( .0f, .0f, -1.0f ))
                 , rotation(    eq::Vector3f( .0f, .0f,   .0f )){}
 
-            Step( int frame_, const eq::Vector3f& translation_,
+            Step( int frame_, const eq::Vector3f& position_,
                               const eq::Vector3f& rotation_  )
                 : frame( frame_ )
-                , translation( translation_ ),
+                , position( position_ ),
                   rotation( rotation_ ){}
 
             int frame;
-            eq::Vector3f translation;
+            eq::Vector3f position;
             eq::Vector3f rotation;
         };
 
