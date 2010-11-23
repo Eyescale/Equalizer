@@ -978,23 +978,36 @@ void Channel::drawStatistics()
             continue;
         }
 
-        if( type == Statistic::WINDOW_FINISH )
+        switch( type )
         {
+          case Statistic::CHANNEL_FRAME_TRANSMIT:
+            x = 0.f;
+            nextY -= (HEIGHT + SPACE);
+
+            glColor3f( 1.f, 1.f, 1.f );
+            glRasterPos3f( x+1.f, nextY-12.f, 0.f );
+            break;
+
+          case Statistic::WINDOW_FINISH:
             x = 0.f;
             nextY -= (HEIGHT + SPACE);
 
             glColor3f( 1.f, 1.f, 1.f );
             glRasterPos3f( x+1.f, nextY-12.f, 0.f );
             font->draw( "window" );
-        }
-        else if( type == Statistic::FRAME_RECEIVE )
-        {
+            break;
+
+          case Statistic::FRAME_RECEIVE:
             x = 0.f;
             nextY -= (HEIGHT + SPACE);
 
             glColor3f( 1.f, 1.f, 1.f );
             glRasterPos3f( x+1.f, nextY-12.f, 0.f );
             font->draw( "node" );
+            break;
+
+          default:
+            break;
         }
 
         x += 60.f;
