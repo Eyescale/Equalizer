@@ -61,7 +61,7 @@ namespace eqPly
 Channel::Channel( eq::Window* parent )
         : eq::Channel( parent )
         , _model(0)
-        , _modelID( eq::base::EQ_UUID_INVALID )
+        , _modelID( eq::base::UUID::INVALID )
         , _frameStartRendering( 0 )
 {
 }
@@ -73,7 +73,7 @@ bool Channel::configInit( const eq::uint128_t& initID )
 
     setNearFar( 0.1f, 10.0f );
     _model = 0;
-    _modelID = eq::base::EQ_UUID_INVALID;
+    _modelID = eq::base::UUID::INVALID;
     return true;
 }
 
@@ -586,7 +586,7 @@ const Model* Channel::_getModel()
     EQASSERT( !view || dynamic_cast< const View* >( getView( )));
 
     eq::uint128_t id = view ? view->getModelID() : frameData.getModelID();
-    if( id > eq::base::EQ_UUID_MAX )
+    if( id > eq::base::UUID::MAX )
         id = frameData.getModelID();
     if( id != _modelID )
     {

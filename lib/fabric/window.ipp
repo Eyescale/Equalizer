@@ -452,12 +452,12 @@ bool Window< P, W, C >::_cmdNewChannel( net::Command& command )
     EQASSERT( channel );
 
     _pipe->getConfig()->registerObject( channel );
-    EQASSERT( channel->getID() <= base::EQ_UUID_MAX );
+    EQASSERT( channel->getID() <= base::UUID::MAX );
 
     WindowNewChannelReplyPacket reply( packet );
     reply.channelID = channel->getID();
     send( command.getNode(), reply ); 
-    EQASSERT( reply.channelID <= base::EQ_UUID_MAX );
+    EQASSERT( reply.channelID <= base::UUID::MAX );
 
     return true;
 }

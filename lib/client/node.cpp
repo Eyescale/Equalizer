@@ -433,7 +433,7 @@ bool Node::_cmdCreatePipe( net::Command& command )
     EQLOG( LOG_INIT ) << "Create pipe " << packet << std::endl;
 
     EQ_TS_THREAD( _nodeThread );
-    EQASSERT( packet->pipeID <= base::EQ_UUID_MAX );
+    EQASSERT( packet->pipeID <= base::UUID::MAX );
 
     Pipe* pipe = Global::getNodeFactory()->createPipe( this );
 

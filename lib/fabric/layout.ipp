@@ -282,7 +282,7 @@ Layout< C, L, V >::_cmdNewView( net::Command& command )
 
     _config->registerObject( view );
     view->setAutoObsolete( _config->getLatency() + 1 );
-    EQASSERT( view->getID() <= base::EQ_UUID_MAX );
+    EQASSERT( view->getID() <= base::UUID::MAX );
 
     LayoutNewViewReplyPacket reply( packet );
     reply.viewID = view->getID();

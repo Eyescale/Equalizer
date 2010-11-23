@@ -154,7 +154,7 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
         {
             const base::UUID& id = (*i).identifier;
 
-            if( id == base::EQ_UUID_NONE )
+            if( id == base::UUID::NONE )
                 _layouts.push_back( 0 );
             else
             {
@@ -394,7 +394,7 @@ Canvas< CFG, C, S, L >::_cmdNewSegment( net::Command& command )
 
     _config->registerObject( segment );
     segment->setAutoObsolete( _config->getLatency() + 1 );
-    EQASSERT( segment->getID() <= base::EQ_UUID_MAX );
+    EQASSERT( segment->getID() <= base::UUID::MAX );
 
     CanvasNewSegmentReplyPacket reply( packet );
     reply.segmentID = segment->getID();

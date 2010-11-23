@@ -40,7 +40,7 @@ View::View( eq::Layout* parent )
 #pragma warning( disable : 4355 )
         , _proxy( this )
 #pragma warning( pop )
-        , _modelID( eq::base::EQ_UUID_INVALID )
+        , _modelID( eq::base::UUID::INVALID )
         , _idleSteps( 0 )
 {
     setUserData( &_proxy );
@@ -49,7 +49,7 @@ View::View( eq::Layout* parent )
 View::~View()
 {
     setUserData( 0 );
-    _modelID = eq::base::EQ_UUID_INVALID;
+    _modelID = eq::base::UUID::INVALID;
     _idleSteps = 0;
 }
 

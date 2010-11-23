@@ -106,7 +106,7 @@ void Object::notifyDetach()
 
     if( _userData->isMaster( ))
     {
-        _data.userData.identifier = base::EQ_UUID_INVALID;
+        _data.userData.identifier = base::UUID::INVALID;
         _data.userData.version = net::VERSION_NONE;
     }
 
@@ -186,7 +186,7 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
                   "Incompatible version, new " << _data.userData << " old " <<
                   net::ObjectVersion( _userData ));
 
-    if( _data.userData.identifier > base::EQ_UUID_MAX )
+    if( _data.userData.identifier > base::UUID::MAX )
     {
         if( _userData->isAttached() && !_userData->isMaster( ))
         {
@@ -231,7 +231,7 @@ void Object::setName( const std::string& name )
 
 void Object::setUserData( net::Object* userData )
 {
-    EQASSERT( !userData || userData->getID() == base::EQ_UUID_INVALID );
+    EQASSERT( !userData || userData->getID() == base::UUID::INVALID );
 
     if( _userData == userData )
         return;
@@ -247,7 +247,7 @@ void Object::setUserData( net::Object* userData )
 
     if( hasMasterUserData( ))
         setDirty( DIRTY_USERDATA );
-    else if( _data.userData.identifier <= base::EQ_UUID_MAX )
+    else if( _data.userData.identifier <= base::UUID::MAX )
     {
         net::Session* session = getSession();
         if( session )

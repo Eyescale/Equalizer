@@ -1,7 +1,7 @@
-- Remove Session::setIDMaster and Session::unsetIDMaster 
+- Rename EQ_UUID_XXX by XXX
 
 [ ] May break build
-[ ] May break existing applications (see CHANGES.txt)
+[x] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup

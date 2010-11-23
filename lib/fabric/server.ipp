@@ -89,7 +89,7 @@ Server< CL, S, CFG, NF, N >::_cmdCreateConfig( net::Command& command )
     const ServerCreateConfigPacket* packet = 
         command.getPacket<ServerCreateConfigPacket>();
     EQVERB << "Handle create config " << packet << std::endl;
-    EQASSERT( packet->proxy.identifier <= base::EQ_UUID_MAX );
+    EQASSERT( packet->proxy.identifier <= base::UUID::MAX );
     
     CFG* config = _nodeFactory->createConfig( static_cast< S* >( this ));
     net::LocalNodePtr localNode = command.getLocalNode();

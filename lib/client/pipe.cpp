@@ -290,7 +290,7 @@ Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye,
     frame->sync( frameVersion.version );
 
     const net::ObjectVersion& data = frame->getDataVersion( eye );
-    EQASSERT( data.identifier <= base::EQ_UUID_MAX );
+    EQASSERT( data.identifier <= base::UUID::MAX );
     FrameData* frameData = getNode()->getFrameData( data ); 
     EQASSERT( frameData );
 
@@ -335,7 +335,7 @@ const View* Pipe::getView( const net::ObjectVersion& viewVersion ) const
 View* Pipe::getView( const net::ObjectVersion& viewVersion )
 {
     EQ_TS_THREAD( _pipeThread );
-    if( viewVersion.identifier > base::EQ_UUID_MAX )
+    if( viewVersion.identifier > base::UUID::MAX )
         return 0;
 
     View* view = _views[ viewVersion.identifier ];

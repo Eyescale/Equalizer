@@ -230,7 +230,7 @@ namespace fabric
 
             base::UUID identifier;
             localNode->waitRequest( packet.requestID, &identifier );
-            EQASSERT( identifier <= base::EQ_UUID_MAX );
+            EQASSERT( identifier <= base::UUID::MAX );
             EQCHECK( child->getConfig()->mapObject( child, identifier,
                                                     net::VERSION_NONE ));
         }

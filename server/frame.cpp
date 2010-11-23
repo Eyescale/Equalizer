@@ -125,7 +125,7 @@ uint32_t Frame::commitNB()
             _inherit.frameData[i].version = _frameData[i]->getVersion();
         }
         else
-            _inherit.frameData[i].identifier = base::EQ_UUID_INVALID;
+            _inherit.frameData[i].identifier = base::UUID::INVALID;
     }
 
     return net::Object::commitNB();

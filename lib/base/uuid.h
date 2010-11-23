@@ -88,6 +88,11 @@ namespace base
 
         /** The NULL UUID. @version 1.0 */
         static const UUID ZERO;
+        /** Special values */
+        static const UUID MAX;
+        static const UUID NONE;
+        static const UUID INVALID;
+        static const UUID ANY;
 #ifdef _MSC_VER
         friend size_t stde::hash_compare< eq::base::UUID >::operator() 
             ( const eq::base::UUID& key ) const;
@@ -99,11 +104,7 @@ namespace base
     /** A hash for UUID keys. @version 1.0 */
     template<class T> class UUIDHash : public stde::hash_map< UUID, T > {};
 
-/** Special object version values */
-extern EQ_BASE_DECL const UUID EQ_UUID_MAX;
-extern EQ_BASE_DECL const UUID EQ_UUID_NONE;
-extern EQ_BASE_DECL const UUID EQ_UUID_INVALID;
-extern EQ_BASE_DECL const UUID EQ_UUID_ANY;
+
 }
 }
 

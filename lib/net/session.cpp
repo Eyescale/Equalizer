@@ -325,7 +325,7 @@ void Session::swapObject( Object* oldObject, Object* newObject )
     EQ_TS_THREAD( _receiverThread );
     base::ScopedMutex< base::SpinLock > mutex( _objects );
     const base::UUID& id = oldObject->getID();
-    if( id == base::EQ_UUID_INVALID )
+    if( id == base::UUID::INVALID )
         return;
 
     EQLOG( LOG_OBJECTS ) << "Swap " << base::className( oldObject )
@@ -350,7 +350,7 @@ void Session::swapObject( Object* oldObject, Object* newObject )
 
     oldObject->_cm = ObjectCM::ZERO;
     oldObject->_session = 0;
-    oldObject->_id = base::EQ_UUID_INVALID;
+    oldObject->_id = base::UUID::INVALID;
     oldObject->_instanceID = EQ_ID_INVALID;
 
     *j = newObject;
@@ -363,7 +363,7 @@ void Session::_detachObject( Object* object )
     EQ_TS_THREAD( _receiverThread );
 
     const base::UUID& id = object->getID();
-    if( id == base::EQ_UUID_INVALID )
+    if( id == base::UUID::INVALID )
         return;
 
     EQASSERT( _objects->find( id ) != _objects->end( ));
@@ -399,8 +399,8 @@ uint32_t Session::mapObjectNB( Object* object, const base::UUID& id,
     EQLOG( LOG_OBJECTS ) << "Mapping " << base::className( object ) << " to id "
                          << id << " version " << version << std::endl;
     EQASSERT( object );
-    EQASSERT( id <= base::EQ_UUID_MAX );
-    EQASSERT( object->getID() == base::EQ_UUID_INVALID );
+    EQASSERT( id <= base::UUID::MAX );
+    EQASSERT( object->getID() == base::UUID::INVALID );
     EQASSERT( !object->isMaster( ));
     EQASSERT( !_localNode->inCommandThread( ));
 
@@ -448,7 +448,7 @@ bool Session::mapObjectSync( const uint32_t requestID )
 
     _localNode->waitRequest( requestID, &version );
 
-    const bool mapped = ( object->getID() != base::EQ_UUID_INVALID );
+    const bool mapped = ( object->getID() != base::UUID::INVALID );
     if( mapped )
         object->_cm->applyMapData( version ); // apply initial instance data
 
@@ -462,7 +462,7 @@ void Session::unmapObject( Object* object )
     EQASSERT( object );
 
     const base::UUID& id = object->getID();
-    if( id == base::EQ_UUID_INVALID ) // not registered
+    if( id == base::UUID::INVALID ) // not registered
         return;
 
     EQLOG( LOG_OBJECTS ) << "Unmap " << object << std::endl;
@@ -504,11 +504,11 @@ void Session::unmapObject( Object* object )
 bool Session::registerObject( Object* object )
 {
     EQASSERT( object );
-    EQASSERT( object->getID() == base::EQ_UUID_INVALID );
+    EQASSERT( object->getID() == base::UUID::INVALID );
 
     const base::UUID id( true );
-    EQASSERT( id != base::EQ_UUID_INVALID );
-    if( id == base::EQ_UUID_INVALID )
+    EQASSERT( id != base::UUID::INVALID );
+    if( id == base::UUID::INVALID )
         return false;
 
     const uint32_t requestID = _setIDMasterNB( id, _localNode->getNodeID( ));
@@ -533,7 +533,7 @@ void Session::deregisterObject( Object* object )
 {
     EQASSERT( object )
     const base::UUID& id = object->getID();
-    if( id == base::EQ_UUID_INVALID ) // not registered
+    if( id == base::UUID::INVALID ) // not registered
         return;
 
     EQLOG( LOG_OBJECTS ) << "Deregister " << object << std::endl;

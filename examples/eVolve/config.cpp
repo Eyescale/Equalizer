@@ -78,7 +78,7 @@ bool Config::init()
 
 void Config::mapData( const eq::uint128_t& initDataID )
 {
-    if( _initData.getID() == eq::base::EQ_UUID_INVALID )
+    if( _initData.getID() == eq::base::UUID::INVALID )
     {
         EQCHECK( mapObject( &_initData, initDataID.getLow() ));
         unmapObject( &_initData ); // data was retrieved, unmap immediately
@@ -103,7 +103,7 @@ void Config::_deregisterData()
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
 
-    _initData.setFrameDataID( eq::base::EQ_UUID_INVALID );
+    _initData.setFrameDataID( eq::base::UUID::INVALID );
 }
 
 
@@ -141,7 +141,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
         {
             const eq::base::UUID& viewID = event->data.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
-            if( viewID > eq::base::EQ_UUID_MAX )
+            if( viewID > eq::base::UUID::MAX )
             {
                 _currentCanvas = 0;
                 return true;
@@ -257,7 +257,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             if( canvases.empty( ))
                 return true;
 
-            _frameData.setCurrentViewID( eq::base::EQ_UUID_INVALID );
+            _frameData.setCurrentViewID( eq::base::UUID::INVALID );
 
             if( !_currentCanvas )
             {
@@ -311,7 +311,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 
             ++i;
             if( i == views.end( ))
-                _frameData.setCurrentViewID( eq::base::EQ_UUID_INVALID );
+                _frameData.setCurrentViewID( eq::base::UUID::INVALID );
             else
                 _frameData.setCurrentViewID( (*i)->getID( ));
             return true;
@@ -334,7 +334,7 @@ void Config::_switchLayout( int32_t increment )
     if( !_currentCanvas )
         return;
 
-    _frameData.setCurrentViewID( eq::base::EQ_UUID_INVALID );
+    _frameData.setCurrentViewID( eq::base::UUID::INVALID );
 
     int32_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();

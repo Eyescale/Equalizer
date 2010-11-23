@@ -54,7 +54,7 @@ public:
 
                 eq::net::Barrier barrier( node, 2 );
                 session.registerObject( &barrier );
-                TEST( barrier.getID() != eq::base::EQ_UUID_INVALID );
+                TEST( barrier.getID() != eq::base::UUID::INVALID );
 
                 _barrier = &barrier;
                 barrier.enter();

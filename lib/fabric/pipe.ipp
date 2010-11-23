@@ -180,7 +180,7 @@ void Pipe< N, P, W, V >::notifyDetach()
     while( !_windows.empty( ))
     {
         W* window = _windows.back();
-        if( window->getID() > base::EQ_UUID_MAX )
+        if( window->getID() > base::UUID::MAX )
         {
             EQASSERT( isMaster( ));
             return;
@@ -391,7 +391,7 @@ Pipe< N, P, W, V >::_cmdNewWindow( net::Command& command )
     EQASSERT( window );
 
     _node->getConfig()->registerObject( window );
-    EQASSERT( window->getID() <= base::EQ_UUID_MAX );
+    EQASSERT( window->getID() <= base::UUID::MAX );
 
     PipeNewWindowReplyPacket reply( packet );
     reply.windowID = window->getID();

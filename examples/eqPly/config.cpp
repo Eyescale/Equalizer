@@ -65,7 +65,7 @@ Config::~Config()
     for( ModelDists::const_iterator i = _modelDist.begin(); 
          i != _modelDist.end(); ++i )
     {
-        EQASSERT( (*i)->getID() == eq::base::EQ_UUID_INVALID );
+        EQASSERT( (*i)->getID() == eq::base::UUID::INVALID );
         delete *i;
     }
     _modelDist.clear();
@@ -230,7 +230,7 @@ void Config::_registerModels()
             modelDist = _modelDist[i];
 
         modelDist->registerTree( this );
-        EQASSERT( modelDist->getID() != eq::base::EQ_UUID_INVALID );
+        EQASSERT( modelDist->getID() != eq::base::UUID::INVALID );
 
         _frameData.setModelID( modelDist->getID( ));
     }
@@ -250,7 +250,7 @@ void Config::_deregisterData()
          i != _modelDist.end(); ++i )
     {
         ModelDist* modelDist = *i;
-        if( modelDist->getID() == eq::base::EQ_UUID_INVALID ) // already done
+        if( modelDist->getID() == eq::base::UUID::INVALID ) // already done
             continue;
 
         EQASSERT( modelDist->isMaster( ));
@@ -260,14 +260,14 @@ void Config::_deregisterData()
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
 
-    _initData.setFrameDataID( eq::base::EQ_UUID_INVALID );
-    _frameData.setModelID( eq::base::EQ_UUID_INVALID );
+    _initData.setFrameDataID( eq::base::UUID::INVALID );
+    _frameData.setModelID( eq::base::UUID::INVALID );
 }
 
 
 void Config::mapData( const eq::uint128_t& initDataID )
 {
-    if( _initData.getID() == eq::base::EQ_UUID_INVALID )
+    if( _initData.getID() == eq::base::UUID::INVALID )
     {
         EQCHECK( mapObject( &_initData, initDataID ));
         unmapObject( &_initData ); // data was retrieved, unmap immediately
@@ -284,7 +284,7 @@ void Config::unmapData()
          i != _modelDist.end(); ++i )
     {
         ModelDist* modelDist = *i;
-        if( modelDist->getID() == eq::base::EQ_UUID_INVALID ) // already done
+        if( modelDist->getID() == eq::base::UUID::INVALID ) // already done
             continue;
 
         if( !modelDist->isMaster( )) // leave registered on appNode
@@ -294,7 +294,7 @@ void Config::unmapData()
 
 const Model* Config::getModel( const eq::uint128_t& modelID )
 {
-    if( modelID > eq::base::EQ_UUID_MAX )
+    if( modelID > eq::base::UUID::MAX )
         return 0;
 
     // Accessed concurrently from pipe threads
@@ -412,7 +412,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             const eq::uint128_t& viewID = 
                            event->data.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
-            if( viewID > eq::base::EQ_UUID_MAX )
+            if( viewID > eq::base::UUID::MAX )
             {
                 _currentCanvas = 0;
                 return true;
@@ -771,7 +771,7 @@ void Config::_switchCanvas()
     if( canvases.empty( ))
         return;
 
-    _frameData.setCurrentViewID( eq::base::EQ_UUID_INVALID );
+    _frameData.setCurrentViewID( eq::base::UUID::INVALID );
 
     if( !_currentCanvas )
     {
@@ -818,7 +818,7 @@ void Config::_switchView()
     if( i != views.end( ))
         ++i;
     if( i == views.end( ))
-        _frameData.setCurrentViewID( eq::base::EQ_UUID_INVALID );
+        _frameData.setCurrentViewID( eq::base::UUID::INVALID );
     else
         _frameData.setCurrentViewID( (*i)->getID( ));
 }
@@ -881,7 +881,7 @@ void Config::_switchLayout( int32_t increment )
     if( !_currentCanvas )
         return;
 
-    _frameData.setCurrentViewID( eq::base::EQ_UUID_INVALID );
+    _frameData.setCurrentViewID( eq::base::UUID::INVALID );
 
     int32_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();

@@ -642,7 +642,7 @@ bool Channel::processEvent( const Event& event )
         case Event::CHANNEL_RESIZE:
         {
             const base::UUID& viewID = getNativeContext().view.identifier;
-            if( viewID > base::EQ_UUID_MAX )
+            if( viewID > base::UUID::MAX )
                 return true;
 
             // transform to view event, which is meaningful for the config 

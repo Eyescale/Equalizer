@@ -215,7 +215,7 @@ namespace net
         {
             const ObjectVersion& version = *i;
             
-            if( version.identifier == base::EQ_UUID_NONE )
+            if( version.identifier == base::UUID::NONE )
             {
                 result.push_back( 0 );
                 continue;
@@ -233,7 +233,7 @@ namespace net
                 EQASSERT( session );
                 EQASSERT( !object->isMaster( ));
 
-                EQASSERT( version.identifier <= base::EQ_UUID_MAX );
+                EQASSERT( version.identifier <= base::UUID::MAX );
                 EQCHECK( session->mapObject( child, version ));
                 result.push_back( child );
             }

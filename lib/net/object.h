@@ -68,7 +68,7 @@ namespace net
         /** @name Data Access */
         //@{
         /** @return true if the object is attached, mapped or registered. */
-        bool isAttached() const { return getID() <= base::EQ_UUID_MAX; }
+        bool isAttached() const { return getID() <= base::UUID::MAX; }
 
         /**
          * @return the local node to which this object is mapped, or 0 if the

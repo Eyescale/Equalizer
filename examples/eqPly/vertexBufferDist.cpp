@@ -89,7 +89,7 @@ VertexBufferDist::~VertexBufferDist()
 
 void VertexBufferDist::registerTree( eq::net::Session* session )
 {
-    EQASSERT( getID() == eq::base::EQ_UUID_INVALID );
+    EQASSERT( getID() == eq::base::UUID::INVALID );
     session->registerObject( this );
 
     if( _left )
@@ -100,7 +100,7 @@ void VertexBufferDist::registerTree( eq::net::Session* session )
 
 void VertexBufferDist::deregisterTree()
 {
-    EQASSERT( getID() != eq::base::EQ_UUID_INVALID );
+    EQASSERT( getID() != eq::base::UUID::INVALID );
     EQASSERT( isMaster( ));
 
     getSession()->deregisterObject( this );
@@ -127,7 +127,7 @@ mesh::VertexBufferRoot* VertexBufferDist::mapModel( eq::net::Session* session,
 
 void VertexBufferDist::unmapTree()
 {
-    EQASSERT( getID() != eq::base::EQ_UUID_INVALID );
+    EQASSERT( getID() != eq::base::UUID::INVALID );
     EQASSERT( !isMaster( ));
 
     getSession()->unmapObject( this );
@@ -158,7 +158,7 @@ void VertexBufferDist::getInstanceData( eq::net::DataOStream& os )
     }
     else
     {
-        os << eq::base::EQ_UUID_INVALID << eq::base::EQ_UUID_INVALID;
+        os << eq::base::UUID::INVALID << eq::base::UUID::INVALID;
 
         EQASSERT( dynamic_cast< const mesh::VertexBufferLeaf* >( _node ));
         const mesh::VertexBufferLeaf* leaf = 
@@ -181,7 +181,7 @@ void VertexBufferDist::applyInstanceData( eq::net::DataIStream& is )
     eq::base::UUID leftID, rightID;
     is >> _isRoot >> leftID >> rightID;
 
-    if( leftID != eq::base::EQ_UUID_INVALID && rightID != eq::base::EQ_UUID_INVALID )
+    if( leftID != eq::base::UUID::INVALID && rightID != eq::base::UUID::INVALID )
     {
         if( _isRoot )
         {

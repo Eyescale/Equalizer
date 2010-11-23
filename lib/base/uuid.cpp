@@ -23,9 +23,9 @@ namespace base
 
 const UUID UUID::ZERO;
 /** Special object version values */
-const UUID EQ_UUID_MAX( 0xfffffffffffffff0u, 0 );
-const UUID EQ_UUID_NONE( 0xfffffffffffffffdu, 0 );
-const UUID EQ_UUID_INVALID( 0xfffffffffffffffeu, 0 );
-const UUID EQ_UUID_ANY( 0xffffffffffffffffu, 0 ) ;
+const UUID UUID::MAX( 0xfffffffffffffff0ull, 0 );
+const UUID UUID::NONE( 0xfffffffffffffffdull, 0 );
+const UUID UUID::INVALID( 0xfffffffffffffffeull, 0 );
+const UUID UUID::ANY( 0xffffffffffffffffull, 0 ) ;
 }
 }
