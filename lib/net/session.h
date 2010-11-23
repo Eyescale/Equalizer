@@ -25,7 +25,6 @@
 #include <eq/net/version.h>       // enum
 
 #include <eq/base/base.h>
-#include <eq/base/idPool.h>
 #include <eq/base/requestHandler.h>
 #include <eq/base/spinLock.h>
 
@@ -113,29 +112,6 @@ namespace net
          * @name Identifier management
          */
         //@{
-        /** 
-         * Set the master node for an identifier.
-         * 
-         * This can be used to identify the node which is responsible for the
-         * object, action or information associated with an identifier. The
-         * identifiers must be unique, it is therefore advised to allocate them
-         * using genIDs().
-         *
-         * The master node must be reachable from this node and known by the
-         * session server node.
-         *
-         * @param id the identifier.
-         * @param master the master node for the block of identifiers.
-         */
-        EQNET_API void setIDMaster( const base::UUID& id, const NodeID& master );
-
-        /** 
-         * Delete the master node for an identifiers.
-         * 
-         * @param id the identifier.
-         */
-        EQNET_API void unsetIDMaster( const base::UUID& id );
-
         /** 
          * Returns the master node id for an identifier.
          * 

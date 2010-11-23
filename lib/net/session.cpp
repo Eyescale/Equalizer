@@ -168,11 +168,6 @@ void Session::notifyMapped( LocalNodePtr node )
 //---------------------------------------------------------------------------
 // identifier master node mapping
 //---------------------------------------------------------------------------
-void Session::setIDMaster( const base::UUID& id, const NodeID& master )
-{
-    EQ_TS_NOT_THREAD( _commandThread );
-    _setIDMasterSync( _setIDMasterNB( id, master ));
-}
 
 uint32_t Session::_setIDMasterNB( const base::UUID& identifier,
                                   const NodeID& master )
@@ -195,12 +190,6 @@ void Session::_setIDMasterSync( const uint32_t requestID )
 {
     _localNode->waitRequest( requestID );
 }
-
-void Session::unsetIDMaster( const base::UUID& identifier )
-{
-    _unsetIDMasterSync( _unsetIDMasterNB( identifier ));
-}
-
 
 uint32_t Session::_unsetIDMasterNB( const base::UUID& identifier )
 {

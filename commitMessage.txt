@@ -1,4 +1,4 @@
-- Replace system IDPool by UUID 
+- Remove Session::setIDMaster and Session::unsetIDMaster 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
