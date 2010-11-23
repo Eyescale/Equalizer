@@ -323,7 +323,7 @@ void Config::releaseCanvas( Canvas* canvas )
     delete canvas;
 }
 
-template< class T > bool Config::_postDelete( const uint32_t id )
+template< class T > bool Config::_postDelete( const base::UUID& id )
 {
     T* child = find< T >( id );
     if( !child )
@@ -333,7 +333,7 @@ template< class T > bool Config::_postDelete( const uint32_t id )
     return true;
 }
 
-void Config::_removeChild( const uint32_t id )
+void Config::_removeChild( const base::UUID& id )
 {
     EQASSERT( isRunning( ));
 

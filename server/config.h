@@ -250,10 +250,10 @@ namespace server
         virtual void releaseCanvas( Canvas* canvas );
 
         /** @internal Execute the slave remove request. */
-        virtual void _removeChild( const uint32_t id );
+        virtual void _removeChild( const base::UUID& id );
 
         /** @internal Post deletion for the given child, returns true if found*/
-        template< class T > bool _postDelete( const uint32_t id );
+        template< class T > bool _postDelete( const base::UUID& id );
 
         /** The command functions. */
         bool _cmdInit( net::Command& command );

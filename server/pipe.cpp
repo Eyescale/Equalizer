@@ -72,7 +72,7 @@ void Pipe::attachToSession( const base::UUID& id, const uint32_t instanceID,
                      PipeFunc( this, &Pipe::_cmdConfigExitReply ), queue );
 }
 
-void Pipe::removeChild( const uint32_t id )
+void Pipe::removeChild( const base::UUID& id )
 {
     EQASSERT( getConfig()->isRunning( ));
 

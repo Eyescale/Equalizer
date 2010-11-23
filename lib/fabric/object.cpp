@@ -157,12 +157,12 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
         is >> _error;
     if( dirtyBits & DIRTY_REMOVED )
     {
-        std::vector< uint32_t > removed;
+        std::vector< base::UUID > removed;
         is >> removed;
         if( !removed.empty( ))
         {
             EQASSERT( isMaster( ));
-            for( std::vector< uint32_t >::const_iterator i = removed.begin();
+            for( std::vector< base::UUID >::const_iterator i = removed.begin();
                  i != removed.end(); ++i )
             {
                 removeChild( *i );

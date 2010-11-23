@@ -129,7 +129,7 @@ namespace server
                                       net::Session* session );
 
         /** @internal Execute the slave remove request. */
-        virtual void removeChild( const uint32_t id );
+        virtual void removeChild( const base::UUID& id );
 
     private:
         /** Number of activations for this pipe. */

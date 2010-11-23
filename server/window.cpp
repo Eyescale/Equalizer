@@ -77,7 +77,7 @@ void Window::attachToSession( const base::UUID& id, const uint32_t instanceID,
                      WindowFunc( this, &Window::_cmdConfigExitReply ), queue );
 }
 
-void Window::removeChild( const uint32_t id )
+void Window::removeChild( const base::UUID& id )
 {
     EQASSERT( getConfig()->isRunning( ));
 
