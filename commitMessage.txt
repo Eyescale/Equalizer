@@ -1,9 +1,10 @@
-eqPly: make idle-AA runtime switchable, clean up camera parameter naming.
+- change frameid as uint128_t
+- change version as UUID
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation

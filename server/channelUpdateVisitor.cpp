@@ -51,7 +51,7 @@ namespace eq
 namespace server
 {
 ChannelUpdateVisitor::ChannelUpdateVisitor( Channel* channel, 
-                                            const uint32_t frameID,
+                                            const uint128_t frameID,
                                             const uint32_t frameNumber )
         : _channel( channel )
         , _eye( EYE_CYCLOP )
@@ -90,7 +90,7 @@ VisitorResult ChannelUpdateVisitor::visitPre( const Compound* compound )
 
     if( compound->testInheritTask( fabric::TASK_CLEAR ))
     {
-        ChannelFrameClearPacket clearPacket;        
+        ChannelFrameClearPacket clearPacket;
         clearPacket.context = context;
 
         _channel->send( clearPacket );
@@ -137,7 +137,7 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
         EQLOG( LOG_TASKS ) << "TASK draw " << _channel->getName() <<  " " 
                            << &drawPacket << std::endl;
     }
-    
+
     _updateDrawFinish( compound );
     _updatePostDraw( compound, context );
     return TRAVERSE_CONTINUE;

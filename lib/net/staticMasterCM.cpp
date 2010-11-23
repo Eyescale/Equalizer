@@ -40,7 +40,7 @@ StaticMasterCM::StaticMasterCM( Object* object )
 StaticMasterCM::~StaticMasterCM()
 {}
 
-uint32_t StaticMasterCM::addSlave( Command& command )
+uint128_t StaticMasterCM::addSlave( Command& command )
 {
     EQASSERT( command->type == PACKETTYPE_EQNET_SESSION );
     EQASSERT( command->command == CMD_SESSION_MAP_OBJECT );

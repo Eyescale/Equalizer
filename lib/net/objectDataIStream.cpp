@@ -110,7 +110,7 @@ size_t ObjectDataIStream::getDataSize() const
     return size;
 }
 
-uint32_t ObjectDataIStream::getPendingVersion() const
+uint128_t ObjectDataIStream::getPendingVersion() const
 {
     if( _commands.empty( ))
         return VERSION_INVALID;

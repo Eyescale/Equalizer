@@ -235,11 +235,11 @@ namespace net
          * @sa registerObject
          */
         EQNET_API bool mapObject( Object* object, const uint32_t id, 
-                                    const uint32_t version = VERSION_OLDEST );
+                                  const uint128_t& version = VERSION_OLDEST );
 
         /** Start mapping a distributed object. */
         EQNET_API uint32_t mapObjectNB( Object* object, const uint32_t id, 
-                                      const uint32_t version = VERSION_OLDEST );
+                                        const uint128_t& version = VERSION_OLDEST );
         /** Finalize the mapping of a distributed object. */
         EQNET_API bool mapObjectSync( const uint32_t requestID );
 

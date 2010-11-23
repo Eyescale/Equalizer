@@ -14,25 +14,19 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
-#ifndef EQNET_VERSION_H
-#define EQNET_VERSION_H
-
-#include <eq\net\types.h>
-#include <eq\net\base.h>
+#include "version.h"
 namespace eq
 {
 namespace net
 {
+
 /** Special object version values */
-extern EQ_NET_DECL const uint128_t VERSION_NONE;
-extern EQ_NET_DECL const uint128_t VERSION_FIRST;
-extern EQ_NET_DECL const uint128_t VERSION_NEXT;
-extern EQ_NET_DECL const uint128_t VERSION_INVALID;
-extern EQ_NET_DECL const uint128_t VERSION_OLDEST;
-extern EQ_NET_DECL const uint128_t VERSION_HEAD;
+const uint128_t VERSION_NONE( 0, 0 );
+const uint128_t VERSION_FIRST( 0, 1 );
+const uint128_t VERSION_NEXT( 0xffffffffffffffffu, 0xfffffffffffffffdu );
+const uint128_t VERSION_INVALID( 0xffffffffffffffffu, 0xfffffffffffffffeu ) ;
+const uint128_t VERSION_OLDEST  = VERSION_INVALID;
+const uint128_t VERSION_HEAD( 0xffffffffffffffffu, 0xffffffffffffffffu );
 
 }
 }
-
-#endif // EQNET_VERSION_H

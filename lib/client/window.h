@@ -368,8 +368,8 @@ namespace eq
          * @param frameNumber the frame to start.
          * @version 1.0
          */
-        EQ_API virtual void frameStart( const uint32_t frameID, 
-                                           const uint32_t frameNumber );
+        EQ_API virtual void frameStart( const uint128_t& frameID, 
+                                        const uint32_t frameNumber );
 
         /**
          * Finish rendering a frame.
@@ -384,8 +384,8 @@ namespace eq
          * @param frameNumber the frame to finish.
          * @version 1.0
          */
-        EQ_API virtual void frameFinish( const uint32_t frameID, 
-                                            const uint32_t frameNumber );
+        EQ_API virtual void frameFinish( const uint128_t& frameID, 
+                                         const uint32_t frameNumber );
 
         /** 
          * Finish drawing.
@@ -397,8 +397,8 @@ namespace eq
          * @param frameNumber the frame to finished with draw.
          * @version 1.0
          */
-        EQ_API virtual void frameDrawFinish( const uint32_t frameID,
-                                                const uint32_t frameNumber );
+        EQ_API virtual void frameDrawFinish( const uint128_t& frameID,
+                                             const uint32_t frameNumber );
         //@}
 
     private:

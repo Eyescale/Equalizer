@@ -285,7 +285,7 @@ namespace net
         bool _hasSendToken;
         std::deque< Command* > _sendTokenQueue;
 
-        typedef base::UUIDHash< Session* > SessionHash;
+        typedef base::uint128_tHash< Session* > SessionHash;
         /** The current mapped sessions of this node. */
         base::Lockable< SessionHash, base::SpinLock > _sessions;
 
@@ -297,7 +297,7 @@ namespace net
         ConnectionNodeHash _connectionNodes; // read and write: recv only
 
         /** The connected nodes. */
-        typedef base::UUIDHash< NodePtr > NodeHash;
+        typedef base::uint128_tHash< NodePtr > NodeHash;
         base::Lockable< NodeHash, base::SpinLock > _nodes; // r: all, w: recv
 
         /** The connection set of all connections from/to this node. */

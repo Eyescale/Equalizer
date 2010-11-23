@@ -40,7 +40,7 @@ namespace server
     class ChannelUpdateVisitor : public CompoundVisitor
     {
     public:
-        ChannelUpdateVisitor( Channel* channel, const uint32_t frameID, 
+        ChannelUpdateVisitor( Channel* channel, const uint128_t frameID, 
                               const uint32_t frameNumber );
         virtual ~ChannelUpdateVisitor() {}
 
@@ -56,11 +56,11 @@ namespace server
         bool isUpdated() const { return _updated; }
 
     private:
-        Channel*       _channel;
-        fabric::Eye    _eye;
-        const uint32_t _frameID;
-        const uint32_t _frameNumber;
-        bool           _updated;
+        Channel*        _channel;
+        fabric::Eye     _eye;
+        const uint128_t _frameID;
+        const uint32_t  _frameNumber;
+        bool            _updated;
 
         bool _skipCompound( const Compound* compound );
 

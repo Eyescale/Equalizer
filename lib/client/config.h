@@ -203,7 +203,7 @@ namespace eq
          * @return the frame number of the new frame.
          * @version 1.0
          */
-        EQ_API virtual uint32_t startFrame( const uint32_t frameID );
+        EQ_API virtual uint32_t startFrame( const uint128_t& frameID );
 
         /** 
          * Finish the rendering of a frame.

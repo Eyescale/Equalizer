@@ -130,7 +130,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
         EQASSERT( item.data.versions.back()->isReady( ));
 
         const ObjectDataIStream* previous = item.data.versions.back();
-        const uint32_t previousVersion = previous->getPendingVersion();
+        const uint128_t previousVersion = previous->getPendingVersion();
 
         if( previousVersion > rev.version )
         {
@@ -139,7 +139,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
 #endif
             return false;
         }
-        if( previousVersion + 1 != rev.version ) // hole
+        if( ( previousVersion + 1 ) != rev.version ) // hole
         {
             EQASSERT( previousVersion < rev.version );
 

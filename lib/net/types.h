@@ -51,6 +51,8 @@ typedef base::UUID NodeID;
 /** A unique identifier for sessions. */
 typedef base::UUID SessionID;
 
+typedef base::uint128_t uint128_t;
+
 /** A reference pointer for Node pointers. */
 typedef base::RefPtr< Node >                  NodePtr;
 /** A reference pointer for LocalNode pointers. */

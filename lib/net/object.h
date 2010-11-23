@@ -136,7 +136,7 @@ namespace net
          * @return the new head version.
          * @sa commitNB(), commitSync()
          */
-        EQNET_API uint32_t commit();
+        EQNET_API uint128_t commit();
 
         /** 
          * Start committing a new version of this object.
@@ -155,7 +155,7 @@ namespace net
          * @param commitID the commit identifier returned from commitNB
          * @return the new head version.
          */
-        EQNET_API virtual uint32_t commitSync( const uint32_t commitID );
+        EQNET_API virtual uint128_t commitSync( const uint32_t commitID );
 
         /** 
          * Automatically obsolete old versions.
@@ -191,16 +191,16 @@ namespace net
          *                current version.
          * @return the version of the object after the operation.
          */
-        EQNET_API uint32_t sync( const uint32_t version = VERSION_HEAD );
+        EQNET_API uint128_t sync( const uint128_t& version = VERSION_HEAD );
 
         /** @return the latest available (head) version. */
-        EQNET_API uint32_t getHeadVersion() const;
+        EQNET_API uint128_t getHeadVersion() const;
 
         /** @return the currently synchronized version. */
-        EQNET_API uint32_t getVersion() const;
+        EQNET_API uint128_t getVersion() const;
 
         /** @return the oldest available version. */
-        EQNET_API uint32_t getOldestVersion() const;
+        EQNET_API uint128_t getOldestVersion() const;
 
         /** 
          * Notification that a new head version was received by a slave object.
@@ -213,7 +213,7 @@ namespace net
          * 
          * @param version The new head version.
          */
-        EQNET_API virtual void notifyNewHeadVersion( const uint32_t version );
+        EQNET_API virtual void notifyNewHeadVersion( const uint128_t& version );
 
         /** 
          * Notification that a new version was received by a master object.

@@ -258,7 +258,7 @@ namespace server
         //@}
 
         /** @internal */
-        void update( const uint32_t version );
+        void update( const uint128_t& version );
 
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
@@ -298,24 +298,25 @@ namespace server
 
         struct ImageVersion
         {
-            ImageVersion( Image* _image, const uint32_t _version )
+            ImageVersion( Image* _image, const uint128_t& _version )
                     : image( _image ), version( _version ) {}
 
             Image*   image;
-            uint32_t version;
+            const uint128_t version;
         };
         std::list<ImageVersion> _pendingImages;
 
         typedef std::deque< net::Command* > Commands;
         Commands _readyVersions;
 
-        typedef base::Monitor< uint32_t > Monitor;
+        typedef base::Monitor< uint128_t > Monitor;
         /** Data ready monitor synchronization primitive. */
         Monitor _readyVersion;
 
-        typedef std::vector< Monitor* > Monitors;
+        typedef base::Monitor< uint32_t > Listener;
+        typedef std::vector< Listener* > Listeners;
         /** External monitors for readiness synchronization. */
-        base::Lockable< Monitors, base::SpinLock > _listeners;
+        base::Lockable< Listeners, base::SpinLock > _listeners;
 
         bool _useAlpha;
         bool _useSendToken;
@@ -332,10 +333,10 @@ namespace server
                             const DrawableConfig& config );
 
         /** Apply all received images of the given version. */
-        void _applyVersion( const uint32_t version );
+        void _applyVersion( const uint128_t& version );
 
         /** Set a specific version ready. */
-        void _setReady( const uint32_t version );
+        void _setReady( const uint128_t& version );
 
         /* The command handlers. */
         bool _cmdTransmit( net::Command& command );

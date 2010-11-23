@@ -56,7 +56,7 @@ namespace eq
                                     const PixelViewport&   pvp,
                                     const Zoom&            zoom,
                                     const uint32_t         stage,
-                                    const uint32_t         frameID,
+                                    const uint128_t&       frameID,
                                     Window::ObjectManager* glObjects );
 
         /** @return the GL function table, valid during readback. */

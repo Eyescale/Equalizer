@@ -158,7 +158,7 @@ namespace server
          *                methods.
          * @param frameNumber the number of the frame.
          */
-        void updateDraw( const uint32_t frameID, const uint32_t frameNumber );
+        void updateDraw( const uint128_t frameID, const uint32_t frameNumber );
 
         /** 
          * Trigger the post-draw operations.
@@ -167,7 +167,7 @@ namespace server
          *                methods.
          * @param frameNumber the number of the frame.
          */
-        void updatePost( const uint32_t frameID, const uint32_t frameNumber );
+        void updatePost( const uint128_t frameID, const uint32_t frameNumber );
         //@}
 
         void send( net::ObjectPacket& packet );

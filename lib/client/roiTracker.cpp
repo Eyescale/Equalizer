@@ -56,7 +56,7 @@ bool ROITracker::_returnPositive( uint8_t*& ticket )
 
 bool ROITracker::useROIFinder( const PixelViewport& pvp,
                                const uint32_t       stage,
-                               const uint32_t       frameID,
+                               const uint128_t&     frameID,
                                      uint8_t*&      ticket )
 {
     EQASSERT( !_needsUpdate );

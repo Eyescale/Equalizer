@@ -310,17 +310,17 @@ SystemPipe* Window::getSystemPipe()
     return pipe->getSystemPipe();
 }
 
-void Window::frameStart( const uint32_t, const uint32_t frameNumber ) 
+void Window::frameStart( const uint128_t&, const uint32_t frameNumber ) 
 {
     startFrame( frameNumber );
 }
 
-void Window::frameDrawFinish( const uint32_t, const uint32_t frameNumber )
+void Window::frameDrawFinish( const uint128_t&, const uint32_t frameNumber )
 {
     releaseFrameLocal( frameNumber );
 }
 
-void Window::frameFinish( const uint32_t, const uint32_t frameNumber )
+void Window::frameFinish( const uint128_t&, const uint32_t frameNumber )
 {
     releaseFrame( frameNumber );
     flush();

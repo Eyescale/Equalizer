@@ -23,6 +23,7 @@
 #include <eq/base/thread.h>    // thread-safety macros
 #include <eq/base/spinLock.h>  // member
 #include <eq/base/timedLock.h> // member
+#include <eq/base/uint128_t.h> // member
 
 #include <list>
 
@@ -91,11 +92,14 @@ namespace base
         EQ_BASE_DECL bool waitRequest( const uint32_t requestID, void*& result,
                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
 
-        /** Wait for a request with a uint32_t result. @version 1.0 */
+        /** Wait for a request with an uint32_t result. @version 1.0 */
         EQ_BASE_DECL bool waitRequest( const uint32_t requestID, uint32_t& result,
                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
         /** Wait for a request with a bool result. @version 1.0 */
         EQ_BASE_DECL bool waitRequest( const uint32_t requestID, bool& result,
+                               const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+        /** Wait for a request with an uint128_t result. @version 1.0 */
+        EQ_BASE_DECL bool waitRequest( const uint32_t requestID, uint128_t* result,
                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
         /** Wait for a request without a result. @version 1.0 */
         EQ_BASE_DECL bool waitRequest( const uint32_t requestID );
@@ -129,12 +133,14 @@ namespace base
          */
         EQ_BASE_DECL void serveRequest( const uint32_t requestID,
                                         void* result = 0 );
-        /** Serve a request with a uint32_t result. @version 1.0 */
+        /** Serve a request with an uint32_t result. @version 1.0 */
         EQ_BASE_DECL void serveRequest( const uint32_t requestID,
                                         uint32_t result );
         /** Serve a request with a bool result. @version 1.0 */
         EQ_BASE_DECL void serveRequest( const uint32_t requestID, bool result );
-
+        /** Serve a request with an uint128_t result. @version 1.0 */
+        EQ_BASE_DECL void serveRequest( const uint32_t requestID,
+                                        const uint128_t& result );
         /**
          * @return true if this request handler has pending requests.
          * @version 1.0
@@ -158,6 +164,11 @@ namespace base
                 void*    rPointer;
                 uint32_t rUint32;
                 bool     rBool;
+                struct
+                {
+                    uint64_t low;
+                    uint64_t high;
+                } rUint128;
             } result;
         };
         // @endcond

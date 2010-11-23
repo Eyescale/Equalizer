@@ -320,7 +320,7 @@ const Model* Config::getModel( const uint32_t modelID )
 uint32_t Config::startFrame()
 {
     _updateData();
-    const uint32_t version = _frameData.commit();
+    const eq::base::uint128_t& version = _frameData.commit();
 
     _numFramesAA = 0;
     _redraw = false;

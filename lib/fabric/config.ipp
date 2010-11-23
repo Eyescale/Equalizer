@@ -588,19 +588,19 @@ void Config< S, C, O, L, CV, N, V >::setDirty( const uint64_t dirtyBits )
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-uint32_t Config< S, C, O, L, CV, N, V >::getVersion() const
+uint128_t Config< S, C, O, L, CV, N, V >::getVersion() const
 {
     return _proxy->getVersion();
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-uint32_t Config< S, C, O, L, CV, N, V >::commit()
+uint128_t Config< S, C, O, L, CV, N, V >::commit()
 {
     return _proxy->commit();
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::sync( const uint32_t version )
+void Config< S, C, O, L, CV, N, V >::sync( const uint128_t& version )
 {
     _proxy->sync( version );
 }

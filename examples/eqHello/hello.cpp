@@ -44,7 +44,7 @@ public:
     Channel( eq::Window* parent ) : eq::Channel( parent ) {}
 
 protected:
-    virtual void frameDraw( const uint32_t spin );
+    virtual void frameDraw( const eq::uint128_t& spin );
 };
 
 class NodeFactory : public eq::NodeFactory
@@ -78,7 +78,7 @@ int main( const int argc, char** argv )
                        << std::endl;
 
             // 4. run main loop
-            uint32_t spin = 0;
+            eq::uint128_t spin = 0;
             while( config->isRunning( ))
             {
                 config->startFrame( ++spin );
@@ -106,7 +106,7 @@ int main( const int argc, char** argv )
 }
 
 /** The rendering routine, a.k.a., glutDisplayFunc() */
-void eqHello::Channel::frameDraw( const uint32_t spin )
+void eqHello::Channel::frameDraw( const eq::uint128_t& spin )
 {
     // setup OpenGL State
     eq::Channel::frameDraw( spin );
@@ -118,7 +118,7 @@ void eqHello::Channel::frameDraw( const uint32_t spin )
     glLightfv( GL_LIGHT0, GL_AMBIENT, lightAmbient );
 
     // rotate scene around the origin
-    glRotatef( static_cast< float >( spin ) * 0.1f, 1.0f, 0.5f, 0.25f );
+    glRotatef( static_cast< float >( spin.getLow( )) * 0.1f, 1.0f, 0.5f, 0.25f );
 
     // render six axis-aligned colored quads around the origin
     //  front

@@ -21,6 +21,7 @@
 
 #include <eq/base/base.h>
 #include <eq/base/refPtr.h>
+#include <eq/base/uint128_t.h>
 #include <vmmlib/vmmlib.hpp>
 
 namespace eq
@@ -44,6 +45,8 @@ typedef vmml::vector< 4, float > Vector4f; //!< A four-component float vector
 /** A three-component byte vector */
 typedef vmml::vector< 3, unsigned char > Vector3ub;
 typedef vmml::frustum< float >  Frustumf; //!< A frustum definition
+
+typedef eq::base::uint128_t uint128_t;
 
 class Client;
 template< class, class > class Channel;

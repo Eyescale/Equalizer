@@ -45,6 +45,7 @@ namespace fabric
 
         Matrix4f       headTransform;  //<! frustum transform for modelview
 
+        uint128_t      frameID;        //<! identifier from Config::beginFrame
         PixelViewport  pvp;            //<! pixel viewport of channel wrt window
         Pixel          pixel;          //<! pixel decomposition wrt to dest
         Vector4i       overdraw;       //<! @internal for pw pp filters
@@ -56,7 +57,6 @@ namespace fabric
         SubPixel       subpixel;       //<! subpixel decomposition wrt to dest
         Zoom           zoom;           //<! up/downsampling wrt to dest
 
-        uint32_t       frameID;        //<! identifier from Config::beginFrame
         uint32_t       buffer;         //<! buffer as passed to glDrawBuffer() 
         uint32_t       taskID;         //<! @internal per-channel task counter
         uint32_t       period;         //<! DPlex period

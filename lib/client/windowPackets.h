@@ -150,9 +150,9 @@ namespace eq
                 size           = sizeof( WindowFrameStartPacket );
             }
 
-        uint32_t frameID;
+        uint128_t version;
+        uint128_t frameID;
         uint32_t frameNumber;
-        uint32_t version;
     };
 
     struct WindowFrameFinishPacket : public WindowPacket
@@ -163,7 +163,7 @@ namespace eq
                 size           = sizeof( WindowFrameFinishPacket );
             }
 
-        uint32_t frameID;
+        uint128_t frameID;
         uint32_t frameNumber;
     };
         
@@ -174,7 +174,7 @@ namespace eq
                 command       = fabric::CMD_WINDOW_FRAME_DRAW_FINISH;
                 size          = sizeof( WindowFrameDrawFinishPacket );
             }
-        uint32_t frameID;
+        uint128_t frameID;
         uint32_t frameNumber;
     };
 

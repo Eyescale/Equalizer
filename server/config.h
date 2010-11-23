@@ -238,7 +238,7 @@ namespace server
 
         bool _init( const uint32_t initID );
 
-        void _startFrame( const uint32_t frameID );
+        void _startFrame( const uint128_t frameID );
         void _flushAllFrames();
         //@}
 

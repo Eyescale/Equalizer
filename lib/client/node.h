@@ -208,8 +208,8 @@ namespace eq
          * @sa startFrame(), Config::beginFrame()
          * @version 1.0
          */
-        EQ_API virtual void frameStart( const uint32_t frameID, 
-                                           const uint32_t frameNumber );
+        EQ_API virtual void frameStart( const uint128_t& frameID, 
+                                        const uint32_t frameNumber );
 
         /**
          * Finish rendering a frame.
@@ -223,8 +223,8 @@ namespace eq
          * @sa endFrame(), Config::finishFrame()
          * @version 1.0
          */
-        EQ_API virtual void frameFinish( const uint32_t frameID, 
-                                            const uint32_t frameNumber );
+        EQ_API virtual void frameFinish( const uint128_t& frameID, 
+                                         const uint32_t frameNumber );
 
         /** 
          * Finish drawing.
@@ -238,8 +238,8 @@ namespace eq
          * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
          * @version 1.0
          */
-        EQ_API virtual void frameDrawFinish( const uint32_t frameID, 
-                                                const uint32_t frameNumber );
+        EQ_API virtual void frameDrawFinish( const uint128_t& frameID, 
+                                             const uint32_t frameNumber );
 
         /** 
          * Finish all rendering tasks.
@@ -256,8 +256,8 @@ namespace eq
          * @sa Pipe::waitFrameLocal(), releaseFrameLocal()
          * @version 1.0
          */
-        EQ_API virtual void frameTasksFinish( const uint32_t frameID, 
-                                                 const uint32_t frameNumber );
+        EQ_API virtual void frameTasksFinish( const uint128_t& frameID, 
+                                              const uint32_t frameNumber );
         //@}
 
     private:
@@ -295,7 +295,7 @@ namespace eq
         };
 
         void _finishFrame( const uint32_t frameNumber ) const;
-        void _frameFinish( const uint32_t frameID, const uint32_t frameNumber );
+        void _frameFinish( const uint128_t& frameID, const uint32_t frameNumber );
 
         void _flushObjects();
 

@@ -50,10 +50,10 @@ namespace net
         
         virtual void increaseCommitCount();
         virtual uint32_t getAutoObsolete() const { return _nVersions; }
-        virtual uint32_t getOldestVersion() const;
+        virtual uint128_t getOldestVersion() const;
         //@}
 
-        virtual uint32_t addSlave( Command& command );
+        virtual uint128_t addSlave( Command& command );
         virtual void removeSlave( NodePtr node );
         virtual void setObject( Object* object ) { _object = object; }
         virtual const Object* getObject( ) const { return _object; }

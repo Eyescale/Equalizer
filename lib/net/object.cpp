@@ -29,6 +29,7 @@
 #include "session.h"
 #include "staticMasterCM.h"
 #include "staticSlaveCM.h"
+#include "types.h"
 #include "unbufferedMasterCM.h"
 
 #include <eq/base/scopedMutex.h>
@@ -165,7 +166,7 @@ bool Object::send( NodePtr node, ObjectPacket& packet,
     return node->send( packet, data, size );
 }
 
-uint32_t Object::commit()
+uint128_t Object::commit()
 {
     const uint32_t requestID = commitNB();
     return commitSync( requestID );
@@ -228,7 +229,7 @@ uint32_t Object::commitNB()
     return _cm->commitNB();
 }
 
-uint32_t Object::commitSync( const uint32_t commitID ) 
+uint128_t Object::commitSync( const uint32_t commitID ) 
 {
     if( commitID == EQ_ID_INVALID )
         return getVersion();
@@ -246,29 +247,30 @@ uint32_t Object::getAutoObsolete() const
     return _cm->getAutoObsolete();
 }
 
-uint32_t Object::sync( const uint32_t version )
+uint128_t Object::sync( const uint128_t& version )
 {
     return _cm->sync( version );
 }
 
-uint32_t Object::getHeadVersion() const
+uint128_t Object::getHeadVersion() const
 {
     return _cm->getHeadVersion();
 }
 
-uint32_t Object::getVersion() const
+uint128_t Object::getVersion() const
 {
     return _cm->getVersion();
 }
 
-uint32_t Object::getOldestVersion() const
+uint128_t Object::getOldestVersion() const
 {
     return _cm->getOldestVersion();
 }
 
-void Object::notifyNewHeadVersion( const uint32_t version )
+void Object::notifyNewHeadVersion( const uint128_t& version )
 { 
-    EQASSERTINFO( getVersion() == VERSION_NONE || version<getVersion() + 100, 
+    EQASSERTINFO( getVersion() == VERSION_NONE || 
+                  version < getVersion() + 100, 
                   base::className( this ));
 }
 

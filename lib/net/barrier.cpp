@@ -135,7 +135,7 @@ bool Barrier::_cmdEnter( Command& command )
     EQLOG( LOG_BARRIER ) << "handle barrier enter " << packet << " barrier v"
                          << getVersion() << endl;
 
-    const uint32_t version = packet->version;
+    const uint128_t version = packet->version;
     Nodes& nodes = _enteredNodes[ packet->version ];
 
     EQLOG( LOG_BARRIER ) << "enter barrier v" << version 
@@ -183,7 +183,7 @@ bool Barrier::_cmdEnter( Command& command )
     }
 
     // delete node vector for version
-    map< uint32_t, Nodes >::iterator i = _enteredNodes.find( version );
+    map< uint128_t, Nodes >::iterator i = _enteredNodes.find( version );
     EQASSERT( i != _enteredNodes.end( ));
     _enteredNodes.erase( i );
     return true;

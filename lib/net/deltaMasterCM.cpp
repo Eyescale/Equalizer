@@ -93,7 +93,7 @@ bool DeltaMasterCM::_cmdCommit( Command& command )
             if( _deltaData.hasSentData() || instanceData->os.hasSentData( ))
             {
                 ++_version;
-                EQASSERT( _version );
+                EQASSERT( _version != VERSION_NONE );
 
                 _addInstanceData( instanceData );
             }

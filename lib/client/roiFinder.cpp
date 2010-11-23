@@ -684,7 +684,7 @@ PixelViewports ROIFinder::findRegions( const uint32_t         buffers,
                                        const PixelViewport&   pvp,
                                        const Zoom&            zoom,
                                        const uint32_t         stage,
-                                       const uint32_t         frameID,
+                                       const uint128_t&       frameID,
                                        Window::ObjectManager* glObjects )
 {
     PixelViewports result;

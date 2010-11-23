@@ -69,9 +69,9 @@ namespace eq
                 sessionID = requestPacket->sessionID;
             }
 
-        uint32_t requestID;
-        uint32_t version;
-        bool     result;
+        uint128_t version;
+        uint32_t  requestID;
+        bool      result;
     };
 
     struct ConfigUpdatePacket : public ConfigPacket
@@ -90,7 +90,7 @@ namespace eq
     struct ConfigUpdateVersionPacket : public ConfigPacket
     {
         ConfigUpdateVersionPacket( const ConfigUpdatePacket* request,
-                                   const uint32_t version_, const uint32_t req )
+                                   const uint128_t version_, const uint32_t req )
                 : versionID( request->versionID )
                 , finishID( request->finishID )
                 , version( version_ )
@@ -101,9 +101,9 @@ namespace eq
                 sessionID = request->sessionID;
             }
 
+        const uint128_t version;
         const uint32_t versionID;
         const uint32_t finishID;
-        const uint32_t version;
         const uint32_t requestID;
     };
 
@@ -116,9 +116,8 @@ namespace eq
                 size      = sizeof( ConfigUpdateReplyPacket );
                 sessionID = request->sessionID;
             }
-
+        uint128_t version;
         const uint32_t requestID;
-        uint32_t version;
         bool result;
     };
 
@@ -146,13 +145,13 @@ namespace eq
 
     struct ConfigStartFramePacket : public ConfigPacket
     {
-        ConfigStartFramePacket( const uint32_t frameID_ )
+        ConfigStartFramePacket( const uint128_t frameID_ )
                 : frameID( frameID_ )
             {
                 command   = fabric::CMD_CONFIG_START_FRAME;
                 size      = sizeof( ConfigStartFramePacket );
             }
-        const uint32_t frameID;
+        const uint128_t frameID;
     };
 
     struct ConfigStopFramesPacket : public ConfigPacket

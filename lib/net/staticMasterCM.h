@@ -49,28 +49,28 @@ namespace net
          */
         //@{
         virtual uint32_t commitNB() { EQDONTCALL; return EQ_ID_INVALID; }
-        virtual uint32_t commitSync( const uint32_t )
+        virtual uint128_t commitSync( const uint32_t )
             { EQDONTCALL; return VERSION_NONE; }
 
         virtual void setAutoObsolete( const uint32_t ) { EQDONTCALL; }
         virtual uint32_t getAutoObsolete() const { EQDONTCALL; return 0; }
 
-        virtual uint32_t sync( const uint32_t )
+        virtual uint128_t sync( const uint128_t& )
             { EQDONTCALL; return VERSION_NONE; }
 
-        virtual uint32_t getHeadVersion() const { return VERSION_NONE; }
-        virtual uint32_t getVersion() const     { return VERSION_NONE; }
-        virtual uint32_t getOldestVersion() const { return VERSION_NONE; }
+        virtual uint128_t getHeadVersion() const { return VERSION_NONE; }
+        virtual uint128_t getVersion() const     { return VERSION_NONE; }
+        virtual uint128_t getOldestVersion() const { return VERSION_NONE; }
         //@}
 
         virtual const Object* getObject( ) const { return _object; }
         virtual bool isMaster() const { return true; }
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_ID_INVALID; }
-        virtual uint32_t addSlave( Command& command );
+        virtual uint128_t addSlave( Command& command );
         virtual void removeSlave( NodePtr ) {}
 
-        virtual void applyMapData( const uint32_t version ) { EQDONTCALL; }
+        virtual void applyMapData( const uint128_t& version ) { EQDONTCALL; }
 
     private:
         /** The managed object. */

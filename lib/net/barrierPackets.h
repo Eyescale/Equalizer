@@ -34,7 +34,7 @@ namespace net
                 command = CMD_BARRIER_ENTER;
                 size    = sizeof( BarrierEnterPacket );
             }
-        uint32_t version;
+        uint128_t version;
         bool handled;
     };
 

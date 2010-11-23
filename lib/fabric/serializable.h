@@ -19,6 +19,7 @@
 #define EQFABRIC_SERIALIZABLE_H
 
 #include <eq/net/object.h>        // base class
+#include <eq/fabric/types.h>      // member
 #include <eq/net/dataOStream.h>   // used inline
 #include <eq/net/dataIStream.h>   // used inline
 
@@ -47,9 +48,9 @@ namespace fabric
         virtual bool isDirty( const uint64_t dirtyBit ) const
             { return ( _dirty & dirtyBit ); }
 
-        virtual uint32_t commitSync( const uint32_t commitID )
+        virtual uint128_t commitSync( const uint32_t commitID )
             {
-                const uint32_t result = net::Object::commitSync( commitID );
+                const uint128_t& result = net::Object::commitSync( commitID );
                 _dirty = DIRTY_NONE;
                 return result;
             }

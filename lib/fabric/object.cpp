@@ -20,6 +20,7 @@
 #include "task.h"
 
 #include <eq/net/session.h>
+#include <eq/net/types.h>
 
 namespace eq
 {
@@ -67,7 +68,8 @@ uint32_t Object::commitNB()
 
         if( _userData->isDirty() && _userData->isAttached( ))
         {
-            const uint32_t version = _userData->commit();
+            const uint128_t& version = _userData->commit();
+            EQASSERT( version != net::VERSION_NONE );
 //            EQINFO << "Committed " << _userData->getID() << " v" << version
 //                   << " of " << base::className( _userData ) << " @"
 //                   << (void*)_userData << base::backtrace << std::endl;

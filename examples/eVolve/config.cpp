@@ -111,7 +111,7 @@ uint32_t Config::startFrame()
 {
     // update database
     _frameData.spinCamera( -0.001f * _spinX, -0.001f * _spinY );
-    const uint32_t version = _frameData.commit();
+    const eq::base::uint128_t& version = _frameData.commit();
 
     _resetMessage();
 

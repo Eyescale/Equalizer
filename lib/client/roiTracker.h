@@ -20,14 +20,13 @@
 
 #include <eq/client/base.h>
 #include <eq/client/types.h>
-
+#include <eq/net/types.h>
 #include <eq/fabric/pixelViewport.h> // member
 
 #include <eq/base/stdExt.h>          // member
 
 #include <vector>
 #include <string>
-
 
 namespace eq
 {
@@ -63,9 +62,9 @@ namespace eq
          * @return true if ROIFinder should be called for given region.
          */
         bool useROIFinder( const PixelViewport&   pvp,
-                            const uint32_t        stage,
-                            const uint32_t        frameID,
-                                  uint8_t*&       ticket );
+                           const uint32_t        stage,
+                           const uint128_t&      frameID,
+                           uint8_t*&       ticket );
 
         /** 
          * Has to be called once after every positive result from useROIFinder.
@@ -108,10 +107,10 @@ namespace eq
         /** Areas for different compositiong stages for previous frame. */
         stde::hash_map< uint32_t, Stage >* _prvFrame;
 
-        uint8_t* _ticket; //!< returned on getDelay, should match on updateDelay
-        bool     _needsUpdate; //!< true after getDelay, false after updateDelay
-        uint32_t _lastFrameID; //!< used to determine new frames
-        uint32_t _lastStage;   //!< used in updateDelay to find last added area
+        uint8_t* _ticket;//!< returned on getDelay, should match on updateDelay
+        bool     _needsUpdate;//!< true after getDelay, false after updateDelay
+        uint128_t _lastFrameID;//!< used to determine new frames
+        uint32_t _lastStage;  //!< used in updateDelay to find last added area
 
         bool _returnPositive( uint8_t*& ticket );
     };

@@ -76,15 +76,15 @@ uint32_t VersionedSlaveCM::commitNB()
     return packet.requestID;
 }
 
-uint32_t VersionedSlaveCM::commitSync( const uint32_t commitID )
+uint128_t VersionedSlaveCM::commitSync( const uint32_t commitID )
 {
     LocalNodePtr localNode = _object->getLocalNode();
-    uint32_t version = VERSION_NONE;
-    localNode->waitRequest( commitID, version );
+    uint128_t version = VERSION_NONE;
+    localNode->waitRequest( commitID, &version );
     return version;
 }
 
-uint32_t VersionedSlaveCM::sync( const uint32_t v )
+uint128_t VersionedSlaveCM::sync( const uint128_t& v )
 {
 #if 0
     EQLOG( LOG_OBJECTS ) << "sync to v" << v << ", id " << _object->getID()
@@ -93,7 +93,7 @@ uint32_t VersionedSlaveCM::sync( const uint32_t v )
     if( _version == v )
         return _version;
 
-    const uint32_t version = (v == VERSION_NEXT) ? _version + 1 : v;
+    const uint128_t version = ( v == VERSION_NEXT ) ? _version + 1 : v;
 
     if( version == VERSION_HEAD )
     {
@@ -143,7 +143,7 @@ void VersionedSlaveCM::_syncToHead()
 }
 
 
-uint32_t VersionedSlaveCM::getHeadVersion() const
+uint128_t VersionedSlaveCM::getHeadVersion() const
 {
     ObjectDataIStream* is = 0;
     if( _queuedVersions.getBack( is ))
@@ -184,7 +184,7 @@ void VersionedSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
 }
 
 
-void VersionedSlaveCM::applyMapData( const uint32_t version )
+void VersionedSlaveCM::applyMapData( const uint128_t& version )
 {
     while( true )
     {
@@ -230,15 +230,15 @@ void VersionedSlaveCM::applyMapData( const uint32_t version )
 }
 
 void VersionedSlaveCM::addInstanceDatas(
-    const ObjectInstanceDataIStreamDeque& cache, const uint32_t startVersion )
+    const ObjectInstanceDataIStreamDeque& cache, const uint128_t& startVersion )
 {
     EQ_TS_THREAD( _cmdThread );
 #if 0
     EQLOG( LOG_OBJECTS ) << base::disableFlush << "Adding data front ";
 #endif
 
-    uint32_t oldest = VERSION_NONE;
-    uint32_t newest = 0;
+    uint128_t oldest = VERSION_NONE;
+    uint128_t newest = VERSION_NONE;
     if( !_queuedVersions.isEmpty( ))
     {
         ObjectDataIStream* is = 0;
@@ -257,7 +257,7 @@ void VersionedSlaveCM::addInstanceDatas(
          i != cache.end(); ++i )
     {
         ObjectInstanceDataIStream* stream = *i;
-        const uint32_t version = stream->getVersion();
+        const uint128_t& version = stream->getVersion();
         if( version < startVersion )
             continue;
         
@@ -328,7 +328,7 @@ bool VersionedSlaveCM::_cmdInstance( Command& command )
 
     if( _currentIStream->isReady( ))
     {
-        const uint32_t version = _currentIStream->getVersion();
+        const uint128_t& version = _currentIStream->getVersion();
 #if 0
         EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID()
                              << "." << _object->getInstanceID() << " ready"
@@ -361,7 +361,7 @@ bool VersionedSlaveCM::_cmdDelta( Command& command )
 
     if( _currentIStream->isReady( ))
     {
-        const uint32_t version = _currentIStream->getVersion();
+        const uint128_t& version = _currentIStream->getVersion();
 #if 0
         EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID()
                              << "." << _object->getInstanceID() << " ready"
@@ -395,7 +395,7 @@ bool VersionedSlaveCM::_cmdCommit( Command& command )
     {
         EQASSERTINFO( false, "Master node not connected " << *_object );
         localNode->serveRequest( packet->requestID,
-                                 static_cast< uint32_t >( VERSION_NONE ));
+                                 VERSION_NONE );
         return true;
     }
 

@@ -300,7 +300,7 @@ void Channel::addStatistic( Event& event, const uint32_t index )
 // operations
 //---------------------------------------------------------------------------
 
-void Channel::frameClear( const uint32_t )
+void Channel::frameClear( const uint128_t& )
 {
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
@@ -318,7 +318,7 @@ void Channel::frameClear( const uint32_t )
     EQ_GL_CALL( glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ));
 }
 
-void Channel::frameDraw( const uint32_t )
+void Channel::frameDraw( const uint128_t& )
 {
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
@@ -332,7 +332,7 @@ void Channel::frameDraw( const uint32_t )
     EQ_GL_CALL( applyHeadTransform( ));
 }
 
-void Channel::frameAssemble( const uint32_t )
+void Channel::frameAssemble( const uint128_t& )
 {
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
@@ -343,7 +343,7 @@ void Channel::frameAssemble( const uint32_t )
     EQ_GL_CALL( resetAssemblyState( ));
 }
 
-void Channel::frameReadback( const uint32_t )
+void Channel::frameReadback( const uint128_t& )
 {
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
@@ -366,20 +366,20 @@ void Channel::startFrame( const uint32_t ) { /* nop */ }
 void Channel::releaseFrame( const uint32_t ) { /* nop */ }
 void Channel::releaseFrameLocal( const uint32_t ) { /* nop */ }
 
-void Channel::frameStart( const uint32_t, const uint32_t frameNumber ) 
+void Channel::frameStart( const uint128_t&, const uint32_t frameNumber ) 
 {
     startFrame( frameNumber );
 }
-void Channel::frameFinish( const uint32_t, const uint32_t frameNumber ) 
+void Channel::frameFinish( const uint128_t&, const uint32_t frameNumber ) 
 {
     releaseFrame( frameNumber );
 }
-void Channel::frameDrawFinish( const uint32_t, const uint32_t frameNumber )
+void Channel::frameDrawFinish( const uint128_t&, const uint32_t frameNumber )
 {
     releaseFrameLocal( frameNumber );
 }
-void Channel::frameViewStart( const uint32_t ) { /* nop */ }
-void Channel::frameViewFinish( const uint32_t ) { /* nop */ }
+void Channel::frameViewStart( const uint128_t& ) { /* nop */ }
+void Channel::frameViewFinish( const uint128_t& ) { /* nop */ }
 
 void Channel::setupAssemblyState()
 {

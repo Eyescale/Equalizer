@@ -819,7 +819,7 @@ bool Config::exit()
 //---------------------------------------------------------------------------
 // frame
 //---------------------------------------------------------------------------
-void Config::_startFrame( const uint32_t frameID )
+void Config::_startFrame( const uint128_t frameID )
 {
     EQASSERT( _state == STATE_RUNNING );
     
@@ -1027,7 +1027,7 @@ bool Config::_cmdStartFrame( net::Command& command )
         // unlock app
         ConfigFrameFinishPacket frameFinishPacket;
         frameFinishPacket.frameNumber = _currentFrame;
-        send( command.getNode(), frameFinishPacket );        
+        send( command.getNode(), frameFinishPacket );
     }
 
     return true;

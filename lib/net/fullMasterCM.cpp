@@ -87,7 +87,7 @@ void FullMasterCM::init()
     MasterCM::init();
 
     InstanceData* data = _newInstanceData();
-    data->os.setVersion( 1 );
+    data->os.setVersion( VERSION_FIRST );
 
     data->os.enable();
     _object->getInstanceData( data->os );
@@ -133,7 +133,7 @@ void FullMasterCM::_obsolete()
     _checkConsistency();
 }
 
-uint32_t FullMasterCM::getOldestVersion() const
+uint128_t FullMasterCM::getOldestVersion() const
 {
     EQ_TS_THREAD( _cmdThread );
     if( _version == VERSION_NONE )
@@ -142,7 +142,7 @@ uint32_t FullMasterCM::getOldestVersion() const
     return _instanceDatas.front()->os.getVersion();
 }
 
-uint32_t FullMasterCM::addSlave( Command& command )
+uint128_t FullMasterCM::addSlave( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
     EQASSERT( command->type == PACKETTYPE_EQNET_SESSION );
@@ -151,7 +151,7 @@ uint32_t FullMasterCM::addSlave( Command& command )
     NodePtr node = command.getNode();
     SessionMapObjectPacket* packet =
         command.getPacket<SessionMapObjectPacket>();
-    const uint32_t requested  = packet->requestedVersion;
+    const uint128_t requested  = packet->requestedVersion;
     const uint32_t instanceID = packet->instanceID;
 
     EQASSERT( _version != VERSION_NONE );
@@ -173,11 +173,11 @@ uint32_t FullMasterCM::addSlave( Command& command )
         return VERSION_INVALID;
     }
 
-    const uint32_t oldest = getOldestVersion();
-    uint32_t start = (requested == VERSION_OLDEST) ? oldest : requested;
-    uint32_t end   = _version;
+    const uint128_t oldest = getOldestVersion();
+    uint128_t start = (requested == VERSION_OLDEST) ? oldest : requested;
+    uint128_t end   = _version;
     const bool useCache = packet->masterInstanceID == _object->getInstanceID();
-    const uint32_t result = useCache ? start : VERSION_INVALID;
+    const uint128_t result = useCache ? start : VERSION_INVALID;
 
     if( packet->useCache && useCache )
     {
@@ -261,12 +261,12 @@ void FullMasterCM::_checkConsistency() const
     if( _version == VERSION_NONE )
         return;
 
-    uint32_t version = _version;
+    uint128_t version = _version;
     for( InstanceDataDeque::const_reverse_iterator i = _instanceDatas.rbegin();
          i != _instanceDatas.rend(); ++i )
     {
         const InstanceData* data = *i;
-        EQASSERT( data->os.getVersion() > 0 );
+        EQASSERT( data->os.getVersion() !=  VERSION_NONE );
         EQASSERTINFO( data->os.getVersion() == version,
                       data->os.getVersion() << " != " << version );
         if( data != _instanceDatas.front( ))
@@ -345,7 +345,7 @@ bool FullMasterCM::_cmdCommit( Command& command )
         if( instanceData->os.hasSentData( ))
         {
             ++_version;
-            EQASSERT( _version );
+            EQASSERT( _version != VERSION_NONE );
 #if 0
             EQINFO << "Committed v" << _version << "@" << _commitCount
                    << ", id " << _object->getID() << std::endl;
@@ -355,7 +355,7 @@ bool FullMasterCM::_cmdCommit( Command& command )
         else
             _instanceDataCache.push_back( instanceData );
 
-        _object->getLocalNode()->serveRequest( packet->requestID, _version );
+        _object->getLocalNode()->serveRequest( packet->requestID, &_version );
     }
 
     _obsolete();

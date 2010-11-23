@@ -39,8 +39,8 @@ namespace net
 
         virtual ~ObjectDataOStream(){}
  
-        void setVersion( const uint32_t version ) { _version = version; }
-        uint32_t getVersion() const { return _version; }
+        void setVersion( const uint128_t& version ) { _version = version; }
+        uint128_t getVersion() const { return _version; }
         virtual void reset() { DataOStream::reset(); _sequence = 0; }
 
     protected:
@@ -49,7 +49,7 @@ namespace net
                          const uint64_t* chunkSizes, const uint64_t size );
 
         const ObjectCM* _cm;
-        uint32_t _version;
+        uint128_t _version;
         uint32_t _sequence;
     };
 }

@@ -138,19 +138,19 @@ namespace net
         SessionMapObjectPacket()
             {
                 command = CMD_SESSION_MAP_OBJECT;
-                size    = sizeof( SessionMapObjectPacket ); 
+                size    = sizeof( SessionMapObjectPacket );
                 minCachedVersion = VERSION_HEAD;
-                maxCachedVersion = 0;
+                maxCachedVersion = VERSION_NONE;
                 useCache   = false;
             }
-        
+
+        uint128_t     requestedVersion;
+        uint128_t     minCachedVersion;
+        uint128_t     maxCachedVersion;
         uint32_t requestID;
         uint32_t objectID;
         uint32_t instanceID;
         uint32_t masterInstanceID;
-        uint32_t requestedVersion;
-        uint32_t minCachedVersion;
-        uint32_t maxCachedVersion;
         bool     useCache;
     };
 
@@ -192,10 +192,10 @@ namespace net
             }
         
         NodeID nodeID;
+        uint128_t version;
+        uint128_t cachedVersion;
         const uint32_t requestID;
         const uint32_t objectID;
-        uint32_t version;
-        uint32_t cachedVersion;
         bool result;
         const bool useCache;
     };

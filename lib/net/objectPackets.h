@@ -45,8 +45,8 @@ namespace net
                            , nChunks( 0 )
                            , last( false ) {}
 
+        uint128_t     version;
         uint64_t dataSize;
-        uint32_t version;
         uint32_t sequence;
         uint32_t compressorName;
         uint32_t nChunks;

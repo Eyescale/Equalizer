@@ -254,7 +254,7 @@ bool Pipe::syncConfigExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Pipe::update( const uint32_t frameID, const uint32_t frameNumber )
+void Pipe::update( const uint128_t frameID, const uint32_t frameNumber )
 {
     EQASSERT( _state == STATE_RUNNING );
     EQASSERT( _active > 0 );

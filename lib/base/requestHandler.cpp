@@ -94,6 +94,18 @@ bool RequestHandler::waitRequest( const uint32_t requestID, uint32_t& rUint32,
     rUint32 = result.rUint32;
     return true;
 }
+
+bool RequestHandler::waitRequest( const uint32_t requestID, uint128_t* rUint128,
+                                  const uint32_t timeout )
+{
+    Request::Result result;
+    if( !_waitRequest( requestID, result, timeout ))
+        return false;
+
+    *rUint128 = uint128_t( result.rUint128.high, result.rUint128.low );
+    return true;
+}
+
 bool RequestHandler::waitRequest( const uint32_t requestID, bool& rBool,
                                   const uint32_t timeout )
 {
@@ -198,6 +210,27 @@ void RequestHandler::serveRequest( const uint32_t requestID, bool result )
     if( request )
     {
         request->result.rBool = result;
+        request->lock.unset();
+    }
+}
+
+void RequestHandler::serveRequest( const uint32_t requestID, const uint128_t& result )
+{
+    Request* request = 0;
+    {
+        ScopedMutex< SpinLock > mutex( _mutex );
+        RequestHash::const_iterator i = _requests.find( requestID );
+        EQASSERTINFO( i != _requests.end(),
+                      "Attempt to serve unregistered request " << requestID );
+
+        request = i->second;
+    }
+        
+    if( request )
+    {
+
+        request->result.rUint128.low = result.getLow();
+        request->result.rUint128.high = result.getHigh();
         request->lock.unset();
     }
 }

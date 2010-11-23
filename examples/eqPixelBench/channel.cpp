@@ -75,7 +75,7 @@ Channel::Channel( eq::Window* parent )
         frameData->newImage( eq::Frame::TYPE_MEMORY, getDrawableConfig( ));
 }
 
-void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber ) 
+void Channel::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber ) 
 {
     Config* config = static_cast< Config* >( getConfig( ));
     const eq::base::Clock* clock  = config->getClock();
@@ -104,7 +104,7 @@ void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber )
     eq::Channel::frameStart( frameID, frameNumber );
 }
 
-void Channel::frameDraw( const uint32_t frameID )
+void Channel::frameDraw( const eq::uint128_t& frameID )
 {
     //----- setup GL state
     applyBuffer();
@@ -468,7 +468,7 @@ void Channel::_saveImage( const eq::Image* image,
     image->writeImages( stringstream.str( ));
 }
 
-void Channel::_draw( const uint32_t spin )
+void Channel::_draw( const eq::uint128_t& spin )
 {
     glPushAttrib( GL_ALL_ATTRIB_BITS );
 
@@ -520,7 +520,7 @@ void Channel::_draw( const uint32_t spin )
     glLightfv( GL_LIGHT0, GL_AMBIENT, lightAmbient );
 
     // rotate scene around the origin
-    glRotatef( static_cast< float >( spin + 3 ) * 10, 1.0f, 0.5f, 0.25f );
+    glRotatef( static_cast< float >( spin.getLow() + 3 ) * 10, 1.0f, 0.5f, 0.25f );
 
     // render six axis-aligned colored quads around the origin
     //  front

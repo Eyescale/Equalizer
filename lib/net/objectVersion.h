@@ -19,6 +19,7 @@
 #define EQNET_OBJECTVERSION_H
 
 #include <eq/net/base.h>
+#include <eq/net/types.h>
 #include <eq/base/stdExt.h>
 
 #include <iostream>
@@ -40,9 +41,10 @@ namespace net
     {
         EQNET_API ObjectVersion();
         EQNET_API ObjectVersion( const uint32_t identifier,
-                                 const uint32_t version );
+                                   const uint128_t& version );
         EQNET_API ObjectVersion( const Object* object );
         EQNET_API ObjectVersion& operator = ( const Object* object );
+     
         bool operator == ( const ObjectVersion& value ) const
             {
                 return ( identifier == value.identifier &&
@@ -68,7 +70,7 @@ namespace net
             }
 
         uint32_t identifier;
-        uint32_t version;
+        uint128_t version;
 
         /** An unset object version. */
         static ObjectVersion NONE;
@@ -90,8 +92,7 @@ EQ_STDEXT_NAMESPACE_OPEN
     inline size_t hash_compare< eq::net::ObjectVersion >::operator()
         ( const eq::net::ObjectVersion& key ) const
     {
-        return hash_value(
-            (static_cast< uint64_t >( key.identifier ) << 32) + key.version );
+        return hash_value( hash_value( key.version ) ^ hash_value( key.identifier ));
     }
 #else
     /** ObjectVersion hash function. */
@@ -99,8 +100,8 @@ EQ_STDEXT_NAMESPACE_OPEN
     {
         template< typename P > size_t operator()( const P& key ) const
         {
-            return hash< uint64_t >()(
-                (static_cast<uint64_t>( key.identifier ) << 32) + key.version);
+            return hash< uint64_t >()( hash_value( key.version ) ^ 
+                                       hash_value( key.identifier ));
         }
     };
 #endif

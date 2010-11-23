@@ -50,20 +50,20 @@ namespace eVolve
 
         virtual bool configInit( const uint32_t initID );
 
-        virtual void frameStart( const uint32_t frameID, 
+        virtual void frameStart( const eq::uint128_t& frameID, 
                                  const uint32_t frameNumber );
 
-        virtual void frameDraw( const uint32_t frameID );
-        virtual void frameAssemble( const uint32_t frameID );
-        virtual void frameReadback( const uint32_t frameID );
-        virtual void frameViewFinish( const uint32_t frameID );
+        virtual void frameDraw( const eq::uint128_t& frameID );
+        virtual void frameAssemble( const eq::uint128_t& frameID );
+        virtual void frameReadback( const eq::uint128_t& frameID );
+        virtual void frameViewFinish( const eq::uint128_t& frameID );
 
         /** Applies the perspective or orthographic frustum. */
         virtual void applyFrustum() const;
 
         void clearViewport( const eq::PixelViewport &pvp );
 
-        void frameClear( const uint32_t frameID );
+        void frameClear( const eq::uint128_t& frameID );
 
     private:
         void _startAssemble();

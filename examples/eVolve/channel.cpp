@@ -73,13 +73,13 @@ bool Channel::configInit( const uint32_t initID )
     return true;
 }
 
-void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber )
+void Channel::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber )
 {
     _drawRange = eq::Range::ALL;
     eq::Channel::frameStart( frameID, frameNumber );
 }
 
-void Channel::frameClear( const uint32_t frameID )
+void Channel::frameClear( const eq::uint128_t& frameID )
 {
     applyBuffer();
     applyViewport();
@@ -114,7 +114,7 @@ static void setLights( eq::Matrix4f& invRotationM )
 }
 
 
-void Channel::frameDraw( const uint32_t frameID )
+void Channel::frameDraw( const eq::uint128_t& frameID )
 {
     // Setup frustum
     EQ_GL_CALL( applyBuffer( ));
@@ -248,7 +248,7 @@ void Channel::_orderFrames( eq::Frames& frames )
 }
 
 
-void Channel::frameAssemble( const uint32_t frameID )
+void Channel::frameAssemble( const eq::uint128_t& frameID )
 {
     const bool composeOnly = (_drawRange == eq::Range::ALL);
     eq::FrameData* data = _frame.getData();
@@ -333,7 +333,7 @@ void Channel::_startAssemble()
     setupAssemblyState();
 }   
 
-void Channel::frameReadback( const uint32_t frameID )
+void Channel::frameReadback( const eq::uint128_t& frameID )
 {
     // Drop depth buffer flag from all output frames
     const eq::Frames& frames = getOutputFrames();
@@ -349,7 +349,7 @@ void Channel::frameReadback( const uint32_t frameID )
     eq::Channel::frameReadback( frameID );
 }
 
-void Channel::frameViewFinish( const uint32_t frameID )
+void Channel::frameViewFinish( const eq::uint128_t& frameID )
 {
     _drawHelp();
     _drawLogo();

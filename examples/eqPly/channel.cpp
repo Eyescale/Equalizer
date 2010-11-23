@@ -88,7 +88,7 @@ bool Channel::configExit()
     return true;
 }
 
-void Channel::frameClear( const uint32_t frameID )
+void Channel::frameClear( const eq::uint128_t& frameID )
 {
     if( stopRendering( ))
         return;
@@ -120,7 +120,7 @@ void Channel::frameClear( const uint32_t frameID )
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
-void Channel::frameDraw( const uint32_t frameID )
+void Channel::frameDraw( const eq::uint128_t& frameID )
 {
     if( stopRendering( ))
         return;
@@ -185,7 +185,7 @@ void Channel::frameDraw( const uint32_t frameID )
     accum.transfer = true;
 }
 
-void Channel::frameAssemble( const uint32_t frameID )
+void Channel::frameAssemble( const eq::uint128_t& frameID )
 {
     if( stopRendering( ))
         return;
@@ -237,7 +237,7 @@ void Channel::frameAssemble( const uint32_t frameID )
     resetAssemblyState();
 }
 
-void Channel::frameReadback( const uint32_t frameID )
+void Channel::frameReadback( const eq::uint128_t& frameID )
 {
     if( stopRendering( ))
         return;
@@ -262,7 +262,7 @@ void Channel::frameReadback( const uint32_t frameID )
     eq::Channel::frameReadback( frameID );
 }
 
-void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber )
+void Channel::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber )
 {
     if( stopRendering( ))
         return;
@@ -273,7 +273,7 @@ void Channel::frameStart( const uint32_t frameID, const uint32_t frameNumber )
     eq::Channel::frameStart( frameID, frameNumber );
 }
 
-void Channel::frameViewStart( const uint32_t frameID )
+void Channel::frameViewStart( const eq::uint128_t& frameID )
 {
     if( stopRendering( ))
         return;
@@ -283,7 +283,7 @@ void Channel::frameViewStart( const uint32_t frameID )
     eq::Channel::frameViewStart( frameID );
 }
 
-void Channel::frameFinish( const uint32_t frameID,
+void Channel::frameFinish( const eq::uint128_t& frameID,
                            const uint32_t frameNumber )
 {
     if( stopRendering( ))
@@ -304,7 +304,7 @@ void Channel::frameFinish( const uint32_t frameID,
     eq::Channel::frameFinish( frameID, frameNumber );
 }
 
-void Channel::frameViewFinish( const uint32_t frameID )
+void Channel::frameViewFinish( const eq::uint128_t& frameID )
 {
     if( stopRendering( ))
         return;

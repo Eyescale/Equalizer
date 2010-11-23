@@ -103,10 +103,10 @@ namespace eq
                 size           = sizeof( NodeFrameStartPacket );
             }
 
-        uint32_t frameID;
+        uint128_t version;
+        uint128_t configVersion;
+        uint128_t frameID;
         uint32_t frameNumber;
-        uint32_t version;
-        uint32_t configVersion;
     };
 
     struct NodeFrameFinishPacket : public NodePacket
@@ -117,7 +117,7 @@ namespace eq
                 size             = sizeof( NodeFrameFinishPacket );
             }
 
-        uint32_t frameID;
+        uint128_t frameID;
         uint32_t frameNumber;
     };
 
@@ -139,7 +139,7 @@ namespace eq
                 command       = fabric::CMD_NODE_FRAME_DRAW_FINISH;
                 size          = sizeof( NodeFrameDrawFinishPacket );
             }
-        uint32_t frameID;
+        uint128_t frameID;
         uint32_t frameNumber;
     };
 
@@ -151,7 +151,7 @@ namespace eq
                 size        = sizeof( NodeFrameTasksFinishPacket );
             }
 
-        uint32_t frameID;
+        uint128_t frameID;
         uint32_t frameNumber;
     };
 

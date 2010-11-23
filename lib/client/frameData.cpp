@@ -111,7 +111,7 @@ void FrameData::applyInstanceData( net::DataIStream& is )
     EQLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
 }
 
-void FrameData::update( const uint32_t version )
+void FrameData::update( const uint128_t& version )
 {
     // trigger process of received ready packets
     FrameDataUpdatePacket packet;
@@ -277,7 +277,7 @@ void FrameData::setReady()
     _setReady( getVersion( ));
 }
 
-void FrameData::_setReady( const uint32_t version )
+void FrameData::_setReady( const uint128_t& version )
 {
     EQASSERTINFO( getVersion() == net::VERSION_NONE || _readyVersion <= version,
                   "v" << getVersion() << " ready " << _readyVersion << " new "
@@ -301,10 +301,10 @@ void FrameData::_setReady( const uint32_t version )
     EQLOG( LOG_ASSEMBLY ) << "set ready " << this << ", " << _listeners->size()
                           << " monitoring" << std::endl;
 
-    for( Monitors::iterator i=_listeners->begin(); i != _listeners->end(); ++i )
+    for( Listeners::iterator i=_listeners->begin(); i != _listeners->end(); ++i )
     {
-        Monitor* monitor = *i;
-        ++(*monitor);
+        Listener* listener = *i;
+        ++(*listener);
     }
 }
 
@@ -321,7 +321,7 @@ void FrameData::removeListener( base::Monitor<uint32_t>& listener )
 {
     base::ScopedMutex< base::SpinLock > mutex( _listeners );
 
-    Monitors::iterator i = std::find( _listeners->begin(), _listeners->end(),
+    Listeners::iterator i = std::find( _listeners->begin(), _listeners->end(),
                                       &listener );
     EQASSERT( i != _listeners->end( ));
     _listeners->erase( i );
@@ -593,7 +593,7 @@ bool FrameData::_cmdTransmit( net::Command& command )
         }
     }
 
-    const uint32_t version = getVersion();
+    const uint128_t& version = getVersion();
 
     if( version == packet->version )
     {
@@ -659,7 +659,7 @@ bool FrameData::_cmdUpdate( net::Command& command )
     return true;
 }
 
-void FrameData::_applyVersion( const uint32_t version )
+void FrameData::_applyVersion( const uint128_t& version )
 {
     EQ_TS_THREAD( _commandThread );
     EQLOG( LOG_ASSEMBLY ) << this << " apply v" << version << std::endl;

@@ -37,8 +37,8 @@ namespace eq
             }
 
         PixelViewport pvp;
+        uint128_t     version;
         uint32_t      buffers;
-        uint32_t      version;
         uint32_t      frameNumber;
         bool          ignoreAlpha;
 
@@ -54,7 +54,7 @@ namespace eq
             }
 
         FrameData::Data data;
-        uint32_t version;
+        uint128_t version;
     };
 
     struct FrameDataUpdatePacket : public FrameDataPacket
@@ -64,7 +64,7 @@ namespace eq
                 command = fabric::CMD_FRAMEDATA_UPDATE;
                 size    = sizeof( FrameDataUpdatePacket );
             }
-        uint32_t version;
+        uint128_t version;
     };
 }
 /** @endcond */

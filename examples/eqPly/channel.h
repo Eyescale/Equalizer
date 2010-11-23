@@ -70,16 +70,16 @@ namespace eqPly
 
         virtual bool configInit( const uint32_t initID );
         virtual bool configExit();
-        virtual void frameClear( const uint32_t frameID );
-        virtual void frameDraw( const uint32_t frameID );
-        virtual void frameAssemble( const uint32_t frameID );
-        virtual void frameReadback( const uint32_t frameID );
-        virtual void frameStart( const uint32_t frameID,
+        virtual void frameClear( const eq::uint128_t& frameID );
+        virtual void frameDraw( const eq::uint128_t& frameID );
+        virtual void frameAssemble( const eq::uint128_t& frameID );
+        virtual void frameReadback( const eq::uint128_t& frameID );
+        virtual void frameStart( const eq::uint128_t& frameID,
                                  const uint32_t frameNumber );
-        virtual void frameFinish( const uint32_t frameID,
+        virtual void frameFinish( const eq::uint128_t& frameID,
                                   const uint32_t frameNumber );
-        virtual void frameViewStart( const uint32_t frameID );
-        virtual void frameViewFinish( const uint32_t frameID );
+        virtual void frameViewStart( const eq::uint128_t& frameID );
+        virtual void frameViewFinish( const eq::uint128_t& frameID );
 
         /** Applies the perspective or orthographic frustum. */
         virtual void applyFrustum() const;

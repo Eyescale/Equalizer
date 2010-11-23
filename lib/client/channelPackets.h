@@ -80,8 +80,8 @@ namespace eq
                 size           = sizeof( ChannelFrameStartPacket );
             }
 
-        uint32_t frameNumber;
-        uint32_t version;
+        uint128_t version;
+        uint32_t  frameNumber;
     };  
 
     struct ChannelStopFramePacket : public net::ObjectPacket
@@ -127,8 +127,8 @@ namespace eq
                 size          = sizeof( ChannelFrameDrawFinishPacket );
             }
 
-        uint32_t frameID;
-        uint32_t frameNumber;
+        uint128_t frameID;
+        uint32_t  frameNumber;
     };
         
     struct ChannelFrameClearPacket : public ChannelTaskPacket

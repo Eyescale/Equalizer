@@ -221,13 +221,13 @@ namespace fabric
         void setDirty( const uint64_t bits );
 
         /** @internal Get the current version. */
-        uint32_t getVersion() const;
+        uint128_t getVersion() const;
 
         /** @internal Commit a new version. */
-        EQFABRIC_EXPORT uint32_t commit();
+        EQFABRIC_EXPORT uint128_t commit();
 
         /** @internal Sync to the given version. */
-        void sync( const uint32_t version = net::VERSION_HEAD );
+        void sync( const uint128_t& version = net::VERSION_HEAD );
         //@}
 
         virtual void output( std::ostream& ) const {} //!< @internal

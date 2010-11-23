@@ -198,7 +198,7 @@ void Window::_loadShaders()
     EQINFO << "Shaders loaded successfully" << std::endl;
 }
 
-void Window::frameStart( const uint32_t frameID, const uint32_t frameNumber )
+void Window::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber )
 {
     const Pipe*      pipe      = static_cast<Pipe*>( getPipe( ));
     const FrameData& frameData = pipe->getFrameData();

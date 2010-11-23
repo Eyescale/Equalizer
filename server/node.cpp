@@ -503,7 +503,7 @@ bool Node::syncConfigExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Node::update( const uint32_t frameID, const uint32_t frameNumber )
+void Node::update( const uint128_t frameID, const uint32_t frameNumber )
 {
     EQVERB << "Start frame " << frameNumber << std::endl;
     EQASSERT( _state == STATE_RUNNING );

@@ -70,15 +70,15 @@ uint32_t MasterCM::commitNB()
     return packet.requestID;
 }
 
-uint32_t MasterCM::commitSync( const uint32_t commitID )
+uint128_t MasterCM::commitSync( const uint32_t commitID )
 {
     LocalNodePtr localNode = _object->getLocalNode();
-    uint32_t version = VERSION_NONE;
-    localNode->waitRequest( commitID, version );
+    uint128_t version = VERSION_NONE;
+    localNode->waitRequest( commitID, &version );
     return version;
 }
 
-uint32_t MasterCM::sync( const uint32_t version )
+uint128_t MasterCM::sync( const uint128_t& version )
 {
     EQASSERT( version == VERSION_NEXT || version == VERSION_HEAD );
 #if 0

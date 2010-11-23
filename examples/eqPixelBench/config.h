@@ -40,7 +40,7 @@ public:
     Config( eq::base::RefPtr< eq::Server > parent );
 
     /** @sa eq::Config::startFrame */
-    virtual uint32_t startFrame( const uint32_t frameID );
+    virtual uint32_t startFrame( const eq::uint128_t& frameID );
 
     /** @sa eq::Config::handleEvent */
     virtual bool handleEvent( const eq::ConfigEvent* event );

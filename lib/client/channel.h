@@ -387,8 +387,8 @@ namespace eq
          * @sa Config::startFrame()
          * @version 1.0
          */
-        EQ_API virtual void frameStart( const uint32_t frameID,
-                                           const uint32_t frameNumber );
+        EQ_API virtual void frameStart( const uint128_t& frameID,
+                                        const uint32_t frameNumber );
 
         /**
          * Finish rendering a frame.
@@ -400,8 +400,8 @@ namespace eq
          * @param frameNumber the frame to finish.
          * @version 1.0
          */
-        EQ_API virtual void frameFinish( const uint32_t frameID, 
-                                            const uint32_t frameNumber );
+        EQ_API virtual void frameFinish( const uint128_t& frameID, 
+	                                     const uint32_t frameNumber );
 
         /** 
          * Finish drawing.
@@ -413,8 +413,8 @@ namespace eq
          * @param frameNumber the frame to finished with draw.
          * @version 1.0
          */
-        EQ_API virtual void frameDrawFinish( const uint32_t frameID, 
-                                                const uint32_t frameNumber );
+        EQ_API virtual void frameDrawFinish( const uint128_t& frameID, 
+                                             const uint32_t frameNumber );
 
         /** 
          * Clear the frame buffer.
@@ -424,7 +424,7 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @version 1.0
          */
-        EQ_API virtual void frameClear( const uint32_t frameID );
+        EQ_API virtual void frameClear( const uint128_t& frameID );
 
         /** 
          * Draw the scene.
@@ -434,7 +434,7 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @version 1.0
          */
-        EQ_API virtual void frameDraw( const uint32_t frameID );
+        EQ_API virtual void frameDraw( const uint128_t& frameID );
 
         /** 
          * Assemble all input frames.
@@ -445,7 +445,7 @@ namespace eq
          * @sa getInputFrames()
          * @version 1.0
          */
-        EQ_API virtual void frameAssemble( const uint32_t frameID );
+        EQ_API virtual void frameAssemble( const uint128_t& frameID );
 
         /** 
          * Read back the rendered frame buffer into all output frames.
@@ -456,7 +456,7 @@ namespace eq
          * @sa getOutputFrames()
          * @version 1.0
          */
-        EQ_API virtual void frameReadback( const uint32_t frameID );
+         EQ_API virtual void frameReadback( const uint128_t& frameID );
 
         /** 
          * Start updating a destination channel.
@@ -468,7 +468,7 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @version 1.0
          */
-        EQ_API virtual void frameViewStart( const uint32_t frameID );
+        EQ_API virtual void frameViewStart( const uint128_t& frameID );
 
         /** 
          * Finish updating a destination channel.
@@ -483,7 +483,7 @@ namespace eq
          * @param frameID the per-frame identifier.
          * @version 1.0
          */
-        EQ_API virtual void frameViewFinish( const uint32_t frameID );
+        EQ_API virtual void frameViewFinish( const uint128_t& frameID );
         //@}
 
         /** Notification that parameters influencing the vp/pvp have changed.*/

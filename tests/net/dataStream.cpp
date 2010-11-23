@@ -28,6 +28,7 @@
 #include <eq/net/connection.h>
 #include <eq/net/init.h>
 #include <eq/net/packets.h>
+#include <eq/net/types.h>
 
 #include "lib/base/cpuCompressor.h" // private header
 
@@ -114,7 +115,7 @@ public:
         }
 
     virtual size_t nRemainingBuffers() const { return _commands.getSize(); }
-    virtual uint32_t getVersion() const { return eq::net::VERSION_NONE;}
+    virtual eq::base::uint128_t getVersion() const { return eq::net::VERSION_NONE;}
 
 protected:
     virtual bool getNextBuffer( uint32_t* compressor, uint32_t* nChunks,

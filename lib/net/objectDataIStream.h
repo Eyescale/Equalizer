@@ -42,8 +42,8 @@ namespace net
         void addDataPacket( Command& command );
         size_t getDataSize() const;
 
-        virtual uint32_t getVersion() const { return _version.get(); }
-        uint32_t getPendingVersion() const;
+        virtual uint128_t getVersion() const { return _version.get(); }
+        uint128_t getPendingVersion() const;
 
         void waitReady() const { _version.waitNE( VERSION_INVALID ); }
         bool isReady() const { return _version != VERSION_INVALID; }
@@ -72,7 +72,7 @@ namespace net
         CommandDeque _commands;
 
         /** The object version associated with this input stream. */
-        base::Monitor< uint32_t > _version;
+        base::Monitor< uint128_t > _version;
 
         void _setReady() { _version = getPendingVersion(); }
 

@@ -68,7 +68,7 @@ namespace net
          * @param commitID the commit identifier returned from commitNB
          * @return the new head version.
          */
-        virtual uint32_t commitSync( const uint32_t commitID ) = 0;
+        virtual uint128_t commitSync( const uint32_t commitID ) = 0;
 
         /** Increase the count of how often commit() was called. */
         virtual void increaseCommitCount() { /* NOP */ }
@@ -91,16 +91,16 @@ namespace net
          *                current version.
          * @return the version of the object after the operation.
          */
-        virtual uint32_t sync( const uint32_t version ) = 0;
+        virtual uint128_t sync( const uint128_t& version ) = 0;
 
         /** @return the latest available (head) version. */
-        virtual uint32_t getHeadVersion() const = 0;
+        virtual uint128_t getHeadVersion() const = 0;
 
         /** @return the current version. */
-        virtual uint32_t getVersion() const = 0;
+        virtual uint128_t getVersion() const = 0;
 
         /** @return the oldest available version. */
-        virtual uint32_t getOldestVersion() const = 0;
+        virtual uint128_t getOldestVersion() const = 0;
         //@}
 
         /** @return if this instance is the master version. */
@@ -118,7 +118,7 @@ namespace net
          * @param command the subscribe command initiating the add.
          * @return the first version the slave has to use from its cache.
          */
-        virtual uint32_t addSlave( Command& command ) = 0;
+        virtual uint128_t addSlave( Command& command ) = 0;
 
         /** 
          * Remove a subscribed slave.
@@ -131,11 +131,11 @@ namespace net
         virtual const Nodes* getSlaveNodes() const { return 0; }
 
         /** Apply the initial data after mapping. */
-        virtual void applyMapData( const uint32_t version ) = 0;
+        virtual void applyMapData( const uint128_t& version ) = 0;
 
         /** Add existing instance data to the object (from session cache) */
         virtual void addInstanceDatas( const ObjectInstanceDataIStreamDeque&,
-                                       const uint32_t )
+                                       const uint128_t& )
             { EQDONTCALL; }
 
         /** Speculatively send instance data to all nodes. */

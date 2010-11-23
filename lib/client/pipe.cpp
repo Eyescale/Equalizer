@@ -579,7 +579,7 @@ bool Pipe::configExit()
 }
 
 
-void Pipe::frameStart( const uint32_t, const uint32_t frameNumber ) 
+void Pipe::frameStart( const uint128_t&, const uint32_t frameNumber ) 
 {
     EQ_TS_THREAD( _pipeThread );
 
@@ -602,7 +602,7 @@ void Pipe::frameStart( const uint32_t, const uint32_t frameNumber )
     startFrame( frameNumber );
 }
 
-void Pipe::frameDrawFinish( const uint32_t, const uint32_t frameNumber )
+void Pipe::frameDrawFinish( const uint128_t&, const uint32_t frameNumber )
 {
     const Node* node = getNode();
     switch( node->getIAttribute( Node::IATTR_THREAD_MODEL ))
@@ -622,7 +622,7 @@ void Pipe::frameDrawFinish( const uint32_t, const uint32_t frameNumber )
     }
 }
 
-void Pipe::frameFinish( const uint32_t, const uint32_t frameNumber )
+void Pipe::frameFinish( const uint128_t&, const uint32_t frameNumber )
 {
     const Node* node = getNode();
     switch( node->getIAttribute( Node::IATTR_THREAD_MODEL ))
@@ -755,7 +755,7 @@ bool Pipe::_cmdConfigInit( net::Command& command )
         
         _state = STATE_INITIALIZING;
 
-        _windowSystem = selectWindowSystem();        
+        _windowSystem = selectWindowSystem();
 
         reply.result = configInit( packet->initID );
         _setupCommandQueue();

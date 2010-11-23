@@ -47,18 +47,18 @@ namespace net
          */
         //@{
         virtual uint32_t commitNB();
-        virtual uint32_t commitSync( const uint32_t commitID );
+        virtual uint128_t commitSync( const uint32_t commitID );
 
-        virtual uint32_t sync( const uint32_t version );
+        virtual uint128_t sync( const uint128_t& version );
 
-        virtual uint32_t getHeadVersion() const { return _version; }
-        virtual uint32_t getVersion() const     { return _version; }
+        virtual uint128_t getHeadVersion() const { return _version; }
+        virtual uint128_t getVersion() const     { return _version; }
         //@}
 
         virtual bool isMaster() const { return true; }
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_ID_INVALID; }
-        virtual void applyMapData( const uint32_t version ) { EQDONTCALL; }
+        virtual void applyMapData( const uint128_t& version ) { EQDONTCALL; }
         virtual const Nodes* getSlaveNodes() const { return &_slaves; }
 
         virtual const Object* getObject( ) const { return _object; }
@@ -71,10 +71,10 @@ namespace net
         Nodes _slaves;
 
         /** The number of object instances subscribed per slave node. */
-        base::UUIDHash< uint32_t > _slavesCount;
+        base::uint128_tHash< uint32_t > _slavesCount;
 
         /** The current version. */
-        uint32_t _version;
+        uint128_t _version;
 
         typedef std::pair< base::UUID, ObjectDataIStream* > PendingStream;
         typedef std::vector< PendingStream > PendingStreams;

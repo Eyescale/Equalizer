@@ -95,6 +95,7 @@ purple_add_library(eq_net ${EQ_LIB_VARIANT}
     staticMasterCM.cpp
     staticSlaveCM.cpp
     unbufferedMasterCM.cpp
+    version.cpp
     versionedSlaveCM.cpp
     pgmConnection.h
     ${NET_ADD_SOURCES}

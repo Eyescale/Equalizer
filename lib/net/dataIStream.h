@@ -44,7 +44,7 @@ namespace net
         /** Get the number of remaining buffers. */
         virtual size_t nRemainingBuffers() const = 0;
 
-        virtual uint32_t getVersion() const = 0;
+        virtual uint128_t getVersion() const = 0;
 
         virtual EQNET_API void reset();
         //@}

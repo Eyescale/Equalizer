@@ -43,10 +43,10 @@ namespace net
         //@{
         virtual void setAutoObsolete( const uint32_t ) { EQDONTCALL; } 
         virtual uint32_t getAutoObsolete() const { EQDONTCALL; return 0; }
-        virtual uint32_t getOldestVersion() const { return _version; }
+        virtual uint128_t getOldestVersion() const { return _version; }
         //@}
 
-        virtual uint32_t addSlave( Command& command );
+        virtual uint128_t addSlave( Command& command );
         virtual void removeSlave( NodePtr node );
 
     private:

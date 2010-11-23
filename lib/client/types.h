@@ -21,7 +21,7 @@
 
 #include <eq/fabric/types.h>
 #include <eq/base/refPtr.h>
-
+#include <eq/base/uint128_t.h>
 #include <map>
 #include <vector>
 
@@ -87,6 +87,8 @@ typedef fabric::SubPixel SubPixel;
 typedef fabric::Viewport Viewport;
 typedef fabric::Wall Wall;
 typedef fabric::Zoom Zoom;
+
+typedef eq::base::uint128_t uint128_t;
 
 /** A visitor to traverse segments. @sa  Segment::accept() */
 typedef fabric::LeafVisitor< Segment > SegmentVisitor;

@@ -49,29 +49,29 @@ namespace net
          */
         //@{
         virtual uint32_t commitNB();
-        virtual uint32_t commitSync( const uint32_t commitID );
+        virtual uint128_t commitSync( const uint32_t commitID );
 
         virtual void setAutoObsolete( const uint32_t ) { EQDONTCALL; }
         virtual uint32_t getAutoObsolete() const { EQDONTCALL; return 0; }
 
-        virtual uint32_t sync( const uint32_t version );
+        virtual uint128_t sync( const uint128_t& version );
 
-        virtual uint32_t getHeadVersion() const;
-        virtual uint32_t getVersion() const { return _version; }
-        virtual uint32_t getOldestVersion() const { return _version; }
+        virtual uint128_t getHeadVersion() const;
+        virtual uint128_t getVersion() const { return _version; }
+        virtual uint128_t getOldestVersion() const { return _version; }
         //@}
 
         virtual bool isMaster() const { return false; }
         virtual uint32_t getMasterInstanceID() const {return _masterInstanceID;}
         virtual void setMasterNode( NodePtr node ) { _master = node; }
 
-        virtual uint32_t addSlave( Command& )
+        virtual uint128_t addSlave( Command& )
             { EQDONTCALL; return VERSION_INVALID; }
         virtual void removeSlave( NodePtr ) { EQDONTCALL; }
 
-        virtual void applyMapData( const uint32_t version );
+        virtual void applyMapData( const uint128_t& version );
         virtual void addInstanceDatas( const ObjectInstanceDataIStreamDeque&, 
-                                       const uint32_t startVersion );
+                                       const uint128_t& startVersion );
 
         virtual const Object* getObject( ) const { return _object; }
     private:
@@ -79,7 +79,7 @@ namespace net
         Object* const _object;
 
         /** The current version. */
-        uint32_t _version;
+        uint128_t _version;
 
         /** istream for receiving the current version */
         ObjectDataIStream* _currentIStream;

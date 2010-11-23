@@ -37,7 +37,7 @@ typedef CommandFunc<UnbufferedMasterCM> CmdFunc;
 UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
         : MasterCM( object )
 {
-    _version = 1;
+    _version = VERSION_FIRST;
     registerCommand( CMD_OBJECT_COMMIT, 
                      CmdFunc( this, &UnbufferedMasterCM::_cmdCommit ), 0 );
     // sync commands are send to any instance, even the master gets the command
@@ -48,7 +48,7 @@ UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
 UnbufferedMasterCM::~UnbufferedMasterCM()
 {}
 
-uint32_t UnbufferedMasterCM::addSlave( Command& command )
+uint128_t UnbufferedMasterCM::addSlave( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
     EQASSERT( command->type == PACKETTYPE_EQNET_SESSION );
@@ -57,11 +57,12 @@ uint32_t UnbufferedMasterCM::addSlave( Command& command )
     NodePtr node = command.getNode();
     SessionMapObjectPacket* packet =
         command.getPacket<SessionMapObjectPacket>();
-    const uint32_t version = packet->requestedVersion;
+    const uint128_t version = packet->requestedVersion;
     const uint32_t instanceID = packet->instanceID;
 
-    EQASSERT( version == VERSION_OLDEST || version == VERSION_NONE ||
-              version == _version );
+    EQASSERT( ( version == VERSION_OLDEST ) || 
+              ( version == VERSION_NONE ) ||
+              ( version == _version ) );
 
     // add to subscribers
     ++_slavesCount[ node->getNodeID() ];
@@ -163,7 +164,7 @@ bool UnbufferedMasterCM::_cmdCommit( Command& command )
     if( os.hasSentData( ))
     {
         ++_version;
-        EQASSERT( _version );
+        EQASSERT( _version != VERSION_NONE );
 #if 0
         EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
                              << _object->getID() << std::endl;

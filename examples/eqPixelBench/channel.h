@@ -42,14 +42,14 @@ public:
     virtual ~Channel() {}
 
 protected:
-    virtual void frameStart( const uint32_t frameID,
+    virtual void frameStart( const eq::uint128_t& frameID,
                              const uint32_t frameNumber );
-    virtual void frameDraw( const uint32_t frameID );
+    virtual void frameDraw( const eq::uint128_t& frameID );
 
     ConfigEvent _createConfigEvent();
 
 private:
-    void _draw( const uint32_t spin );
+    void _draw( const eq::uint128_t& spin );
     void _testFormats( float applyZoom );
     void _testTiledOperations();
     void _testDepthAssemble();

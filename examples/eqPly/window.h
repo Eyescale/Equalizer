@@ -57,7 +57,7 @@ namespace eqPly
         virtual bool configInitSystemWindow( const uint32_t initID );
         virtual bool configInitGL( const uint32_t initID );
         virtual bool configExitGL();
-        virtual void frameStart( const uint32_t frameID,
+        virtual void frameStart( const eq::uint128_t& frameID,
                                  const uint32_t frameNumber );
 
     private:

@@ -80,6 +80,8 @@ typedef std::vector< Observer* >     Observers;
 typedef std::vector< Segment* >      Segments;
 typedef std::vector< View* >         Views;
 
+typedef base::uint128_t uint128_t;
+
 typedef Compounds::iterator CompoundsIter;
 typedef Compounds::const_iterator CompoundsCIter;
 typedef Observers::iterator ObserversIter;

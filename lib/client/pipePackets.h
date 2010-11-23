@@ -109,9 +109,9 @@ namespace eq
                 size           = sizeof( PipeFrameStartPacket );
             }
 
-        uint32_t frameID;
+        uint128_t version;
+        uint128_t frameID;
         uint32_t frameNumber;
-        uint32_t version;
     };
 
     struct PipeFrameFinishPacket : public net::ObjectPacket
@@ -122,7 +122,7 @@ namespace eq
                 size           = sizeof( PipeFrameFinishPacket );
             }
 
-        uint32_t frameID;
+        uint128_t frameID;
         uint32_t frameNumber;
     };
 
@@ -133,7 +133,7 @@ namespace eq
                 command       = fabric::CMD_PIPE_FRAME_DRAW_FINISH;
                 size          = sizeof( PipeFrameDrawFinishPacket );
             }
-        uint32_t frameID;
+        uint128_t frameID;
         uint32_t frameNumber;
     };
 

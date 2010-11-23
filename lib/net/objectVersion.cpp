@@ -30,7 +30,7 @@ ObjectVersion::ObjectVersion()
         : identifier( EQ_ID_NONE ), version( VERSION_NONE )
 {}
 
-ObjectVersion::ObjectVersion( const uint32_t id_, const uint32_t version_ )
+ObjectVersion::ObjectVersion( const uint32_t id_, const uint128_t& version_ )
         : identifier( id_ ), version( version_ )
 {}
 

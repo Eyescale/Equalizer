@@ -46,7 +46,7 @@ Config::~Config()
     _clock = 0;
 }
 
-uint32_t Config::startFrame( const uint32_t frameID )
+uint32_t Config::startFrame( const eq::uint128_t& frameID )
 {
     if( !_clock )
         _clock = new eq::base::Clock;

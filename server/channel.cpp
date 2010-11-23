@@ -359,7 +359,7 @@ bool Channel::syncConfigExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Channel::_setupRenderContext( const uint32_t frameID, 
+void Channel::_setupRenderContext( const uint128_t frameID, 
                                    RenderContext& context )
 {
     context.frameID       = frameID;
@@ -371,7 +371,7 @@ void Channel::_setupRenderContext( const uint32_t frameID,
                   getName( ));
 }
 
-bool Channel::update( const uint32_t frameID, const uint32_t frameNumber )
+bool Channel::update( const uint128_t frameID, const uint32_t frameNumber )
 {
     EQASSERT( isActive( ));
     EQASSERT( isRunning( ));

@@ -435,14 +435,14 @@ void Session::_detachObject( Object* object )
 }
 
 bool Session::mapObject( Object* object, const uint32_t id,
-                         const uint32_t version )
+                         const uint128_t& version )
 {
     const uint32_t requestID = mapObjectNB( object, id, version );
     return mapObjectSync( requestID );
 }
 
 uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
-                               const uint32_t version )
+                               const uint128_t& version )
 {
     EQ_TS_NOT_THREAD( _commandThread );
     EQLOG( LOG_OBJECTS ) << "Mapping " << base::className( object ) << " to id "
@@ -493,9 +493,9 @@ bool Session::mapObjectSync( const uint32_t requestID )
         return false;
 
     Object* object = EQSAFECAST( Object*, data );
-    uint32_t version = VERSION_NONE;
+    uint128_t version = VERSION_NONE;
 
-    _localNode->waitRequest( requestID, version );
+    _localNode->waitRequest( requestID, &version );
 
     const bool mapped = ( object->getID() != EQ_ID_INVALID );
     if( mapped )
@@ -1107,8 +1107,8 @@ bool Session::_cmdMapObject( Command& command )
     if( master )
     {
         // Check requested version
-        const uint32_t version = packet->requestedVersion;
-        const uint32_t oldestVersion = master->getOldestVersion();
+        const uint128_t version = packet->requestedVersion;
+        const uint128_t oldestVersion = master->getOldestVersion();
         if( version == VERSION_OLDEST || version == VERSION_NONE ||
             version >= oldestVersion)
         {
@@ -1125,17 +1125,11 @@ bool Session::_cmdMapObject( Command& command )
         
             reply.cachedVersion = master->_cm->addSlave( command );
             reply.result = true;
-            switch( reply.version )
-            {
-            case VERSION_OLDEST:
+
+            if( reply.version == VERSION_OLDEST )
                 reply.version = master->getOldestVersion();
-                break;
-            case VERSION_NONE:
+            else if( reply.version == VERSION_NONE )
                 reply.version = master->getVersion();
-                break;
-            default:
-                break;
-            }
         }
         else
         {
@@ -1213,7 +1207,7 @@ bool Session::_cmdMapObjectReply( Command& command )
         if( packet->useCache )
         {
             const uint32_t id = packet->objectID;
-            const uint32_t start = packet->cachedVersion;
+            const uint128_t& start = packet->cachedVersion;
             
             EQASSERT( _instanceCache );
             if( start != VERSION_INVALID )
