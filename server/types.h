@@ -53,7 +53,6 @@ class Canvas;
 class Channel;
 class Compound;
 class Config;
-class ConnectionDescription;
 class Equalizer;
 class Frame;
 class Layout;
@@ -90,8 +89,6 @@ typedef Canvases::const_iterator CanvasesCIter;
 
 typedef base::RefPtr< Server > ServerPtr;
 typedef base::RefPtr< const Server > ConstServerPtr;
-typedef base::RefPtr< ConnectionDescription >   ConnectionDescriptionPtr;
-typedef std::vector< ConnectionDescriptionPtr > ConnectionDescriptions;
 
 typedef fabric::Vector4i Vector4i;   //!< A four-component integer vector
 typedef fabric::Vector3f Vector3f;   //!< A three-component float vector

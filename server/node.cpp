@@ -191,14 +191,12 @@ namespace
 static net::NodePtr _createNetNode( Node* node )
 {
     net::NodePtr netNode = new net::Node;
-    const ConnectionDescriptions& descriptions = 
+    const net::ConnectionDescriptions& descriptions = 
         node->getConnectionDescriptions();
-    for( ConnectionDescriptions::const_iterator i = descriptions.begin();
+    for( net::ConnectionDescriptions::const_iterator i = descriptions.begin();
          i != descriptions.end(); ++i )
     {
-        const net::ConnectionDescription* desc = (*i).get();
-        netNode->addConnectionDescription( 
-            new net::ConnectionDescription( *desc ));
+        netNode->addConnectionDescription( *i );
     }
 
     return netNode;
@@ -246,11 +244,11 @@ bool Node::connect()
 
 bool Node::launch()
 {
-    for( ConnectionDescriptions::const_iterator i = 
+    for( net::ConnectionDescriptions::const_iterator i = 
              _connectionDescriptions.begin();
          i != _connectionDescriptions.end(); ++i )
     {
-        ConnectionDescriptionPtr description = *i;
+        net::ConnectionDescriptionPtr description = *i;
         const std::string launchCommand = _createLaunchCommand( description );
         if( base::Launcher::run( launchCommand ))
             return true;
@@ -296,11 +294,11 @@ bool Node::syncLaunch( const base::Clock& clock )
             _node = 0;
             std::ostringstream data;
 
-            for( ConnectionDescriptions::const_iterator i =
+            for( net::ConnectionDescriptions::const_iterator i =
                      _connectionDescriptions.begin();
                  i != _connectionDescriptions.end(); ++i )
             {
-                ConnectionDescriptionPtr desc = *i;
+                net::ConnectionDescriptionPtr desc = *i;
                 data << desc->getHostname() << ' ';
             }
             setError( ERROR_NODE_CONNECT );
@@ -312,7 +310,8 @@ bool Node::syncLaunch( const base::Clock& clock )
     }
 }
 
-std::string Node::_createLaunchCommand( ConnectionDescriptionPtr description )
+std::string Node::_createLaunchCommand(
+    net::ConnectionDescriptionPtr description )
 {
     const std::string& command = getSAttribute( SATTR_LAUNCH_COMMAND );
     const size_t commandLen = command.size();
@@ -664,9 +663,9 @@ void Node::_flushBarriers()
     _barriers.clear();
 }
 
-bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
+bool Node::removeConnectionDescription( net::ConnectionDescriptionPtr cd )
 {
-    ConnectionDescriptions::iterator i = 
+    net::ConnectionDescriptions::iterator i = 
         std::find( _connectionDescriptions.begin(),
                    _connectionDescriptions.end(), cd );
     if( i == _connectionDescriptions.end( ))
@@ -720,11 +719,11 @@ bool Node::_cmdFrameFinishReply( net::Command& command )
 
 void Node::output( std::ostream& os ) const
 {
-    const ConnectionDescriptions& descriptions = getConnectionDescriptions();
-    for( ConnectionDescriptions::const_iterator i = descriptions.begin();
+    const net::ConnectionDescriptions& descriptions = _connectionDescriptions;
+    for( net::ConnectionDescriptions::const_iterator i = descriptions.begin();
          i != descriptions.end(); ++i )
     {
-        ConnectionDescriptionPtr desc = *i;
+        net::ConnectionDescriptionPtr desc = *i;
         os << *desc;
     }
 

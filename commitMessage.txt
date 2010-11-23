@@ -1,8 +1,6 @@
-Rename EQ_CLIENT_DECL -> EQ_API
-cleaned up some class API exports
-EQNET_API [CO_API], EQBASE_API [COBASE_API] and EQADMIN_API to follow later.
+Use server::ConnectionDescription solely for ctor
 
-[x] May break build
+[ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [ ] New Feature

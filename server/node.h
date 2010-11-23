@@ -20,7 +20,6 @@
 #define EQSERVER_NODE_H
 
 #include "config.h"                // used in inline method
-#include "connectionDescription.h" // used in inline method
 #include "state.h"                 // enum
 #include "types.h"
 
@@ -28,6 +27,7 @@
 
 #include <eq/net/barrier.h>
 #include <eq/net/bufferConnection.h>
+#include <eq/net/connectionDescription.h>
 #include <eq/net/node.h>
 
 #include <vector>
@@ -190,7 +190,7 @@ namespace server
          * 
          * @param desc the connection description.
          */
-        void addConnectionDescription( ConnectionDescriptionPtr desc )
+        void addConnectionDescription( net::ConnectionDescriptionPtr desc )
             { _connectionDescriptions.push_back( desc ); }
         
         /** 
@@ -201,10 +201,10 @@ namespace server
          *         otherwise.
          */
         EQSERVER_EXPORT bool removeConnectionDescription(
-            ConnectionDescriptionPtr cd );
+            net::ConnectionDescriptionPtr cd );
 
         /** @return the vector of connection descriptions. */
-        const ConnectionDescriptions& getConnectionDescriptions()
+        const net::ConnectionDescriptions& getConnectionDescriptions()
             const { return _connectionDescriptions; }
 
 
@@ -267,7 +267,7 @@ namespace server
         net::NodePtr _node;
 
         /** The list of descriptions on how this node is reachable. */
-        ConnectionDescriptions _connectionDescriptions;
+        net::ConnectionDescriptions _connectionDescriptions;
 
         /** The frame identifiers non-finished frames. */
         std::map< uint32_t, uint32_t > _frameIDs;
@@ -302,7 +302,7 @@ namespace server
          * @param description the connection description.
          * @return the expanded launch command.
          */
-        std::string _createLaunchCommand( ConnectionDescriptionPtr description);
+        std::string _createLaunchCommand( net::ConnectionDescriptionPtr );
         std::string   _createRemoteCommand();
 
         uint32_t _getFinishLatency() const;

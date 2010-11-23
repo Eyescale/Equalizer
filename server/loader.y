@@ -69,7 +69,7 @@
         static eq::server::TreeEqualizer* treeEqualizer = 0;
         static eq::server::SwapBarrier* swapBarrier = 0;
         static eq::server::Frame*       frame = 0;
-        static eq::server::ConnectionDescriptionPtr connectionDescription;
+        static eq::net::ConnectionDescriptionPtr connectionDescription;
         static eq::fabric::Wall         wall;
         static eq::fabric::Projection   projection;
         static uint32_t                 flags = 0;

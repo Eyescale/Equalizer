@@ -280,7 +280,7 @@ void ConfigTool::_writeResources( Config* config ) const
 
         node->setName( nodeName.str( ));
 
-        ConnectionDescriptionPtr connectionDescription = 
+        eq::net::ConnectionDescriptionPtr connectionDescription = 
             new ConnectionDescription;
         connectionDescription->setHostname( nodeName.str( ));
         node->addConnectionDescription( connectionDescription );
