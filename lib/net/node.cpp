@@ -50,7 +50,7 @@ bool Node::operator == ( const Node* node ) const
     return ( this == node );
 }
 
-const ConnectionDescriptions& Node::getConnectionDescriptions() const 
+ConnectionDescriptions Node::getConnectionDescriptions() const
 {
     return _connectionDescriptions;
 }

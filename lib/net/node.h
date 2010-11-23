@@ -80,8 +80,7 @@ namespace net
         EQNET_API bool removeConnectionDescription(ConnectionDescriptionPtr cd);
 
         /** @return the number of stored connection descriptions. */
-        EQNET_API const ConnectionDescriptions& getConnectionDescriptions()
-                            const;
+        EQNET_API ConnectionDescriptions getConnectionDescriptions() const;
 
         /** @return the connection to this node. */
         ConnectionPtr getConnection() const { return _outgoing; }

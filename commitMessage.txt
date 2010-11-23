@@ -1,4 +1,4 @@
-Rename EQ_NET_DECL -> EQNET_API
+Return connection desc vector for thread-safety
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
