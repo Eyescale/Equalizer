@@ -334,7 +334,7 @@ void Window::releaseFrameLocal( const uint32_t ) { /* nop */ }
 //----------------------------------------------------------------------
 // configInit
 //----------------------------------------------------------------------
-bool Window::configInit( const uint32_t initID )
+bool Window::configInit( const uint128_t& initID )
 {
     if( !getPixelViewport().isValid( ))
     {
@@ -350,7 +350,7 @@ bool Window::configInit( const uint32_t initID )
     return true;
 }
 
-bool Window::configInitSystemWindow( const uint32_t )
+bool Window::configInitSystemWindow( const uint128_t& )
 {
     const Pipe* pipe = getPipe();
     SystemWindow* systemWindow = 0;
@@ -456,7 +456,7 @@ const Window::Font* Window::getMediumFont()
     return font;
 }
 
-bool Window::configInitGL( const uint32_t )
+bool Window::configInitGL( const uint128_t& )
 {
     glEnable( GL_SCISSOR_TEST ); // needed to constrain channel viewport
     glEnable( GL_DEPTH_TEST );

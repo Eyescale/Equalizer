@@ -34,7 +34,7 @@ namespace eq
                 size    = sizeof( ChannelConfigInitPacket );
             }
 
-        uint32_t        initID;
+        uint128_t        initID;
     };
 
     struct ChannelConfigInitReplyPacket : public ChannelPacket

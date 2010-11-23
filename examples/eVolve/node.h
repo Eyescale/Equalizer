@@ -46,7 +46,7 @@ namespace eVolve
     protected:
         virtual ~Node(){}
 
-        virtual bool configInit( const uint32_t initID );
+        virtual bool configInit( const eq::uint128_t& initID );
         virtual bool configExit();
 
     private:

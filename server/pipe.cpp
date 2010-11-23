@@ -184,7 +184,7 @@ void Pipe::send( net::ObjectPacket& packet )
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-void Pipe::configInit( const uint32_t initID, const uint32_t frameNumber )
+void Pipe::configInit( const uint128_t& initID, const uint32_t frameNumber )
 {
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;

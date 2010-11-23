@@ -1,5 +1,4 @@
-- change frameid as uint128_t
-- change version as UUID
+- change initID as uint128_t
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

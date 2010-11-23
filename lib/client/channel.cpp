@@ -182,7 +182,7 @@ bool Channel::configExit()
     _fbo = 0;
     return true;
 }
-bool Channel::configInit( const uint32_t )
+bool Channel::configInit( const uint128_t& )
 { 
     return _configInitFBO(); 
 }

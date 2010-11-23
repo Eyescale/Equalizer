@@ -478,7 +478,7 @@ uint32_t Pipe::getFinishedFrame() const
 //---------------------------------------------------------------------------
 // pipe-thread methods
 //---------------------------------------------------------------------------
-bool Pipe::configInit( const uint32_t initID )
+bool Pipe::configInit( const uint128_t& initID )
 {
     EQ_TS_THREAD( _pipeThread );
 
@@ -512,7 +512,7 @@ bool Pipe::configInit( const uint32_t initID )
     return true;
 }
 
-bool Pipe::configInitSystemPipe( const uint32_t )
+bool Pipe::configInitSystemPipe( const uint128_t& )
 {
     SystemPipe* systemPipe = 0;
 

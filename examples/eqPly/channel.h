@@ -68,7 +68,7 @@ namespace eqPly
     protected:
         virtual ~Channel() {}
 
-        virtual bool configInit( const uint32_t initID );
+        virtual bool configInit( const eq::uint128_t& initID );
         virtual bool configExit();
         virtual void frameClear( const eq::uint128_t& frameID );
         virtual void frameDraw( const eq::uint128_t& frameID );

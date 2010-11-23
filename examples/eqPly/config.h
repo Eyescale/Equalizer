@@ -67,7 +67,7 @@ namespace eqPly
         const InitData& getInitData() const { return _initData; }
 
         /** Map per-config data to the local node process */
-        void mapData( const uint32_t initDataID );
+        void mapData( const eq::uint128_t& initDataID );
 
         /** Unmap per-config data to the local node process */
         void unmapData();

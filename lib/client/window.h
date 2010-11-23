@@ -329,7 +329,7 @@ namespace eq
          * @param initID the init identifier.
          * @version 1.0
          */
-        EQ_API virtual bool configInit( const uint32_t initID );
+         EQ_API virtual bool configInit( const uint128_t& initID );
 
         /** 
          * Initialize the OS-specific window.
@@ -337,8 +337,8 @@ namespace eq
          * @sa setSystemWindow()
          * @version 1.0
          */
-        EQ_API virtual bool configInitSystemWindow( const uint32_t initID );
-
+        EQ_API virtual bool configInitSystemWindow( const uint128_t& initID );
+		
         /** 
          * Initialize the OpenGL state for this window.
          * 
@@ -347,7 +347,7 @@ namespace eq
          *         <code>false</code> if not.
          * @version 1.0
          */
-        EQ_API virtual bool configInitGL( const uint32_t initID );
+        EQ_API virtual bool configInitGL( const uint128_t& initID );
 
         /** Exit this window. @version 1.0 */
         EQ_API virtual bool configExit();

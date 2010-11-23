@@ -54,8 +54,8 @@ namespace eqPly
         
     protected:
         virtual ~Window() {}
-        virtual bool configInitSystemWindow( const uint32_t initID );
-        virtual bool configInitGL( const uint32_t initID );
+        virtual bool configInitSystemWindow( const eq::uint128_t& initID );
+        virtual bool configInitGL( const eq::uint128_t& initID );
         virtual bool configExitGL();
         virtual void frameStart( const eq::uint128_t& frameID,
                                  const uint32_t frameNumber );

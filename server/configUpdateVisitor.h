@@ -30,7 +30,7 @@ namespace
 class ConfigUpdateVisitor : public ConfigVisitor
 {
 public:
-    ConfigUpdateVisitor( const uint32_t initID, const uint32_t frameNumber )
+    ConfigUpdateVisitor( const uint128_t& initID, const uint32_t frameNumber )
             : _initID( initID ), _frameNumber( frameNumber ) {}
     virtual ~ConfigUpdateVisitor() {}
 
@@ -62,8 +62,8 @@ public:
         }
 
 private:
-    const uint32_t _initID;
-    const uint32_t _frameNumber;
+    const uint128_t _initID;
+    const uint32_t  _frameNumber;
 
     template< class T > VisitorResult _updateDown( T* entity ) const
         {

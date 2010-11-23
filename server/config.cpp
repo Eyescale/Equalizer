@@ -748,7 +748,7 @@ void Config::_syncClock()
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-bool Config::_init( const uint32_t initID )
+bool Config::_init( const uint128_t& initID )
 {
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;

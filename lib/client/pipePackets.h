@@ -55,7 +55,7 @@ namespace eq
                 size    = sizeof( PipeConfigInitPacket );
             }
 
-        uint32_t      initID;
+        uint128_t      initID;
         uint32_t      frameNumber;
     };
 

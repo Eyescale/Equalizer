@@ -39,7 +39,7 @@ namespace eqPixelBench
         Window( eq::Pipe* parent ) : eq::Window( parent ) {}
 
     protected:
-        virtual bool configInit( const uint32_t initID );
+        virtual bool configInit( const eq::uint128_t& initID );
     };
 }
 

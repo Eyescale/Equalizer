@@ -76,16 +76,16 @@ bool Config::init()
     return true;
 }
 
-void Config::mapData( const uint32_t initDataID )
+void Config::mapData( const eq::uint128_t& initDataID )
 {
     if( _initData.getID() == EQ_ID_INVALID )
     {
-        EQCHECK( mapObject( &_initData, initDataID ));
+        EQCHECK( mapObject( &_initData, initDataID.getLow() ));
         unmapObject( &_initData ); // data was retrieved, unmap immediately
     }
     else  // appNode, _initData is registered already
     {
-        EQASSERT( _initData.getID() == initDataID );
+        EQASSERT( _initData.getID() == initDataID.getLow() );
     }
 }
 

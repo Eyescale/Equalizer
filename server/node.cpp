@@ -426,7 +426,7 @@ std::string Node::_createRemoteCommand()
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-void Node::configInit( const uint32_t initID, const uint32_t frameNumber )
+void Node::configInit( const uint128_t& initID, const uint32_t frameNumber )
 {
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;

@@ -291,7 +291,7 @@ namespace eq
          * @param initID the init identifier.
          * @version 1.0
          */
-        EQ_API virtual bool configInit( const uint32_t initID );
+        EQ_API virtual bool configInit( const uint128_t& initID );
 
        /** 
          * Initialize the OS-specific pipe.
@@ -299,7 +299,7 @@ namespace eq
          * @sa setSystemPipe()
          * @version 1.0
          */
-        EQ_API virtual bool configInitSystemPipe( const uint32_t initID );
+        EQ_API virtual bool configInitSystemPipe( const uint128_t& initID );
 
         /** 
          * De-initialize this pipe.

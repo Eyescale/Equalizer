@@ -32,7 +32,7 @@ namespace eq
                 size    = sizeof( WindowConfigInitPacket );
             }
 
-        uint32_t       initID;
+        uint128_t       initID;
     };
 
     struct WindowConfigInitReplyPacket : public WindowPacket

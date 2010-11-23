@@ -48,8 +48,8 @@ namespace eVolve
 
     protected:
         virtual ~Window() {}
-        virtual bool configInit( const uint32_t initID );
-        virtual bool configInitGL( const uint32_t initID );
+        virtual bool configInit( const eq::base::uint128_t& initID );
+        virtual bool configInitGL( const eq::base::uint128_t& initID );
         virtual void swapBuffers();
 
     private:

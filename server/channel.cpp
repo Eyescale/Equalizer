@@ -295,7 +295,7 @@ void Channel::addTasks( const uint32_t tasks )
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-void Channel::configInit( const uint32_t initID, const uint32_t frameNumber )
+void Channel::configInit( const uint128_t& initID, const uint32_t frameNumber )
 {
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;

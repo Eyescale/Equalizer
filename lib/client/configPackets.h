@@ -56,7 +56,7 @@ namespace eq
             }
 
         uint32_t requestID;
-        uint32_t initID;
+        uint128_t initID;
     };
 
     struct ConfigInitReplyPacket : public ConfigPacket

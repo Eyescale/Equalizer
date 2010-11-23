@@ -295,7 +295,7 @@ void Window::send( net::ObjectPacket& packet )
 //---------------------------------------------------------------------------
 // init
 //---------------------------------------------------------------------------
-void Window::configInit( const uint32_t initID, const uint32_t frameNumber )
+void Window::configInit( const uint128_t& initID, const uint32_t frameNumber )
 {
     EQASSERT( !needsDelete( ));
     EQASSERT( _state == STATE_STOPPED );

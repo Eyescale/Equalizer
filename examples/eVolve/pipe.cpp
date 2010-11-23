@@ -62,7 +62,7 @@ eq::WindowSystem Pipe::selectWindowSystem() const
     return ws;
 }
 
-bool Pipe::configInit( const uint32_t initID )
+bool Pipe::configInit( const eq::uint128_t& initID )
 {
     if( !eq::Pipe::configInit( initID ))
         return false;

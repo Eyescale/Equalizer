@@ -40,7 +40,7 @@
 namespace eqPly
 {
 
-bool Window::configInitSystemWindow( const uint32_t initID )
+    bool Window::configInitSystemWindow( const eq::uint128_t& initID )
 {
 #ifndef Darwin
     if( !eq::Window::configInitSystemWindow( initID ))
@@ -72,7 +72,7 @@ bool Window::configInitSystemWindow( const uint32_t initID )
 #endif
 }
 
-bool Window::configInitGL( const uint32_t initID )
+    bool Window::configInitGL( const eq::uint128_t& initID )
 {
     if( !eq::Window::configInitGL( initID ))
         return false;

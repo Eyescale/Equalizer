@@ -178,7 +178,7 @@ bool Node::isStopped() const
     return (_state == STATE_STOPPED);
 }
 
-bool Node::configInit( const uint32_t )
+bool Node::configInit( const uint128_t& )
 {
 #ifdef EQ_USE_MAGELLAN
 #  ifdef AGL

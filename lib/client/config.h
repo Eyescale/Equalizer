@@ -135,7 +135,7 @@ namespace eq
          * @return true if the initialization was successful, false if not.
          * @version 1.0
          */
-        EQ_API virtual bool init( const uint32_t initID );
+        EQ_API virtual bool init( const uint128_t& initID );
 
         /** 
          * Exit this configuration.

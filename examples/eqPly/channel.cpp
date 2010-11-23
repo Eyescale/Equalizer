@@ -66,7 +66,7 @@ Channel::Channel( eq::Window* parent )
 {
 }
 
-bool Channel::configInit( const uint32_t initID )
+bool Channel::configInit( const eq::uint128_t& initID )
 {
     if( !eq::Channel::configInit( initID ))
         return false;

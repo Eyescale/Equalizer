@@ -33,7 +33,7 @@ namespace eq
                 size           = sizeof( NodeConfigInitPacket );
             }
 
-        uint32_t initID;
+        uint128_t initID;
         uint32_t frameNumber;
     };
 

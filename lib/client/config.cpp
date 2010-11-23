@@ -141,7 +141,7 @@ void Config::unmap()
     Super::unmap();
 }
 
-bool Config::init( const uint32_t initID )
+bool Config::init( const uint128_t& initID )
 {
     EQASSERT( !_running );
     _currentFrame = 0;

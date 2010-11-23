@@ -162,7 +162,7 @@ namespace server
         virtual void restore();
 
         /** Return the initID for late initialization  */
-        uint32_t getInitID(){ return _initID; }
+        uint128_t getInitID(){ return _initID; }
 
         /** Activate the given canvas after it is complete (dest channels). */
         virtual void activateCanvas( Canvas* canvas );
@@ -192,7 +192,7 @@ namespace server
         Config( const Config& from );
 
         /** The initID for late initialization. */
-        uint32_t _initID;
+        uint128_t _initID;
 
         /** The list of compounds. */
         Compounds _compounds;
@@ -236,7 +236,7 @@ namespace server
         void _deleteEntities( const std::vector< T* >& entities );
         void _syncClock();
 
-        bool _init( const uint32_t initID );
+        bool _init( const uint128_t& initID );
 
         void _startFrame( const uint128_t frameID );
         void _flushAllFrames();
