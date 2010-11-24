@@ -520,7 +520,7 @@ void Channel::_draw( const eq::uint128_t& spin )
     glLightfv( GL_LIGHT0, GL_AMBIENT, lightAmbient );
 
     // rotate scene around the origin
-    glRotatef( static_cast< float >( spin.getLow() + 3 ) * 10, 1.0f, 0.5f, 0.25f );
+    glRotatef( static_cast< float >( spin.low() + 3 ) * 10, 1.0f, 0.5f, 0.25f );
 
     // render six axis-aligned colored quads around the origin
     //  front

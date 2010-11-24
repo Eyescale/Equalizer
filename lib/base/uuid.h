@@ -43,11 +43,11 @@ namespace base
          */
         UUID( const bool generate = false ) : uint128_t()
             { 
-                while( generate && _high == 0 )
+                while( generate && high() == 0 )
                 {         
                     RNG rng;
-                    _high = rng.get< uint64_t >();
-                    _low = rng.get< uint64_t >();
+                    high() = rng.get< uint64_t >();
+                    low() = rng.get< uint64_t >();
                 }
             }
 
@@ -55,8 +55,8 @@ namespace base
          * Construct a new universally unique identifier.
          * @version 1.0
          */
-        UUID( const uint64_t high, const uint64_t low ) 
-            : uint128_t( high, low ) {}
+        UUID( const uint64_t high_, const uint64_t low_ ) 
+            : uint128_t( high_, low_ ) {}
 
         /**
          * Construct a new universally unique identifier from an unsigned
@@ -70,24 +70,24 @@ namespace base
         {
             char* next = 0;
 #ifdef _MSC_VER
-            _high = ::_strtoui64( from.c_str(), &next, 16 );
+            high() = ::_strtoui64( from.c_str(), &next, 16 );
 #else
-            _high = ::strtoull( from.c_str(), &next, 16 );
+            high() = ::strtoull( from.c_str(), &next, 16 );
 #endif
             EQASSERT( next != from.c_str( ));
             EQASSERTINFO( *next == ':', from << ", " << next );
 
             ++next;
 #ifdef _MSC_VER
-            _low = ::_strtoui64( next, 0, 16 );
+            low() = ::_strtoui64( next, 0, 16 );
 #else
-            _low = ::strtoull( next, 0, 16 );
+            low() = ::strtoull( next, 0, 16 );
 #endif
             return *this;
         }
 
         /** @return true if the UUID was generated. */
-        bool isGenerated() const { return getHigh() != 0; }
+        bool isGenerated() const { return high() != 0; }
 
         /** The NULL UUID. @version 1.0 */
         static const UUID ZERO;

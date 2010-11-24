@@ -40,7 +40,7 @@ PipeStatistics::PipeStatistics( const Statistic::Type type, Pipe* pipe )
     const std::string& name = pipe->getName();
     if( name.empty( ))
         snprintf( event.data.statistic.resourceName, 32, "pipe %llx",
-                  pipe->getID().getLow( ));
+                  pipe->getID().low( ));
     else
         snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str( ));
 

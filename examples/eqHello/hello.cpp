@@ -24,7 +24,6 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-
  *
  * Equalizer 'Hello, World!' example. Shows the minimum Equalizer program,
  * rendering spinning quads around the origin.
@@ -118,7 +117,7 @@ void eqHello::Channel::frameDraw( const eq::uint128_t& spin )
     glLightfv( GL_LIGHT0, GL_AMBIENT, lightAmbient );
 
     // rotate scene around the origin
-    glRotatef( static_cast< float >( spin.getLow( )) * 0.1f, 1.0f, 0.5f, 0.25f );
+    glRotatef( static_cast< float >( spin.low( )) * 0.1f, 1.0f, 0.5f, 0.25f );
 
     // render six axis-aligned colored quads around the origin
     //  front

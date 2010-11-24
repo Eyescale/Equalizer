@@ -76,15 +76,14 @@ void Config::mapData( const eq::uint128_t& initDataID )
 {
     if( !_initData.isAttached() )
     {
-        EQCHECK( mapObject( &_initData, initDataID.getLow() ));
+        EQCHECK( mapObject( &_initData, initDataID ));
         unmapObject( &_initData ); // data was retrieved, unmap immediately
     }
     else  // appNode, _initData is registered already
     {
-        EQASSERT( _initData.getID() == initDataID.getLow() );
+        EQASSERT( _initData.getID() == initDataID );
     }
 }
-
 
 bool Config::exit()
 {

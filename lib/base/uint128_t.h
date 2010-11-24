@@ -33,21 +33,21 @@ namespace base
          * Construct a new 128 bit integer with a default value.
          * @version 1.0
          */
-        uint128_t( const uint64_t low = 0 ) 
-            : _high( 0 ), _low( low ) {}
+        uint128_t( const uint64_t low_ = 0 ) 
+            : _high( 0 ), _low( low_ ) {}
 
         /**
          * Construct a new 128 bit integer with default values.
          * @version 1.0
          **/
-        uint128_t( const uint64_t high, const uint64_t low ) 
-            : _high( high ), _low( low ) {}
+        uint128_t( const uint64_t high_, const uint64_t low_ ) 
+            : _high( high_ ), _low( low_ ) {}
 
         /** Assign another 128 bit value. @version 1.0 */
         uint128_t& operator = ( const uint128_t& rhs )
             {
-                _high = rhs.getHigh();
-                _low = rhs.getLow();
+                _high = rhs._high;
+                _low = rhs._low;
                 return *this;
             }
 
@@ -138,25 +138,19 @@ namespace base
                 return *this;
             }
 
-        /** @internal @return the lower 64 bits of this UINT128. */
-        uint64_t getLow() const { return _low; }
-        /** @internal @return the higher 64 bits of this UINT128. */
-        uint64_t getHigh() const { return _high; }
+        /** @return the reference to the lower 64 bits of this 128 bit value. */
+        const uint64_t& low() const { return _low; }
+        /** @return the reference to the high 64 bits of this 128 bit value. */
+        const uint64_t& high() const { return _high; }
 
-        /** @internal @return the lower 64 bits of this UINT128. */
-        uint64_t setLow( const uint128_t low ) const { return _low; }
-        /** @internal @return the higher 64 bits of this UINT128. */
-        uint64_t setHigh( const uint128_t high ) const { return _high; }
-    
+        /** @return the reference to the lower 64 bits of this 128 bit value. */
+        uint64_t& low() { return _low; }
+        /** @return the reference to the high 64 bits of this 128 bit value. */
+        uint64_t& high() { return _high; }
+
     private:
         uint64_t _high;
         uint64_t _low;
-
-        friend class UUID;
-
-        friend uint128_t operator+ ( const uint128_t& a, const uint64_t& b );
-        friend uint128_t operator- ( const uint128_t& a, const uint64_t& b );
-        
     };
 
     /** A hash for uint128t_t keys. @version 1.0 */
@@ -166,7 +160,7 @@ namespace base
     /** ostream operator for 128 bit unsigned integers. @version 1.0 */
     inline std::ostream& operator << ( std::ostream& os, const uint128_t& id )
     {
-        os << std::hex << id.getHigh() << ':' << id.getLow() << std::dec;
+        os << std::hex << id.high() << ':' << id.low() << std::dec;
         return os;
     }
 
@@ -174,9 +168,9 @@ namespace base
     inline uint128_t operator+ ( const uint128_t& a, const uint64_t& b ) 
     {
         uint128_t result = a;
-        result._low += b;
-        if( result._low < a._low )
-            ++result._high;
+        result.low() += b;
+        if( result.low() < a.low( ))
+            ++result.high();
         return result;
     };
 
@@ -184,9 +178,9 @@ namespace base
     inline uint128_t operator- ( const uint128_t& a, const uint64_t& b ) 
     {
         uint128_t result = a;
-        result._low -= b;
-        if( result._low > a._low )
-            --result._high;
+        result.low() -= b;
+        if( result.low() > a.low( ))
+            --result.high();
         return result;
     };
 
@@ -197,12 +191,12 @@ namespace base
 template<> inline size_t stde::hash_compare< eq::base::uint128_t >::operator() 
         ( const eq::base::uint128_t& key ) const
 {
-    return key.getLow();
+    return key.high() ^ key.low();
 }
 
 template<> inline size_t stde::hash_value( const eq::base::uint128_t& key )
 {
-    return key.getLow();
+    return key.high() ^ key.low();
 }
 
 #else
@@ -212,7 +206,7 @@ template<> struct hash< eq::base::uint128_t >
 {
     size_t operator()( const eq::base::uint128_t& key ) const
         {
-            return key.getHigh() ^ key.getLow();
+            return key.high() ^ key.low();
         }
 };
 EQ_STDEXT_NAMESPACE_CLOSE

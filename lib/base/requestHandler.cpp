@@ -229,8 +229,8 @@ void RequestHandler::serveRequest( const uint32_t requestID, const uint128_t& re
     if( request )
     {
 
-        request->result.rUint128.low = result.getLow();
-        request->result.rUint128.high = result.getHigh();
+        request->result.rUint128.low = result.low();
+        request->result.rUint128.high = result.high();
         request->lock.unset();
     }
 }

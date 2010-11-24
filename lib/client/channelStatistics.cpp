@@ -45,7 +45,7 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
     const std::string& name = channel->getName();
     if( name.empty( ))
         snprintf( event.data.statistic.resourceName, 32, "channel %llx",
-                  channel->getID().getLow( ));
+                  channel->getID().low( ));
     else
         snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str( ));
     event.data.statistic.resourceName[31] = 0;
