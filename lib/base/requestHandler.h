@@ -99,7 +99,7 @@ namespace base
         EQBASE_API bool waitRequest( const uint32_t requestID, bool& result,
                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
         /** Wait for a request with an uint128_t result. @version 1.0 */
-        EQBASE_API bool waitRequest( const uint32_t requestID, uint128_t* result,
+        EQBASE_API bool waitRequest(const uint32_t requestID, uint128_t& result,
                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
         /** Wait for a request without a result. @version 1.0 */
         EQBASE_API bool waitRequest( const uint32_t requestID );
@@ -140,7 +140,7 @@ namespace base
         EQBASE_API void serveRequest( const uint32_t requestID, bool result );
         /** Serve a request with an uint128_t result. @version 1.0 */
         EQBASE_API void serveRequest( const uint32_t requestID,
-                                        const uint128_t& result );
+                                      const uint128_t& result );
         /**
          * @return true if this request handler has pending requests.
          * @version 1.0

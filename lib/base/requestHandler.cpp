@@ -95,14 +95,15 @@ bool RequestHandler::waitRequest( const uint32_t requestID, uint32_t& rUint32,
     return true;
 }
 
-bool RequestHandler::waitRequest( const uint32_t requestID, uint128_t* rUint128,
+bool RequestHandler::waitRequest( const uint32_t requestID, uint128_t& rUint128,
                                   const uint32_t timeout )
 {
     Request::Result result;
     if( !_waitRequest( requestID, result, timeout ))
         return false;
 
-    *rUint128 = uint128_t( result.rUint128.high, result.rUint128.low );
+    rUint128.high() = result.rUint128.high;
+    rUint128.low() = result.rUint128.low;
     return true;
 }
 

@@ -211,7 +211,7 @@ bool Config::update()
 
     // wait for new version
     uint128_t version = net::VERSION_INVALID;
-    client->waitRequest( packet.versionID, &version );
+    client->waitRequest( packet.versionID, version );
     uint32_t finishID = 0;
     client->waitRequest( packet.finishID, finishID );
 

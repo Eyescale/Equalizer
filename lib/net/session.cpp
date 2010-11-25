@@ -451,8 +451,7 @@ bool Session::mapObjectSync( const uint32_t requestID )
 
     Object* object = EQSAFECAST( Object*, data );
     uint128_t version = VERSION_NONE;
-
-    _localNode->waitRequest( requestID, &version );
+    _localNode->waitRequest( requestID, version );
 
     const bool mapped = ( object->isAttached() );
     if( mapped )

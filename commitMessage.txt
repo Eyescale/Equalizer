@@ -1,6 +1,6 @@
-Rename EQ_BASE_DECL -> EQBASE_API
+Change RequestHandler::waitRequest to use uint128_t reference.
 
-[x] May break build
+[ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [ ] New Feature

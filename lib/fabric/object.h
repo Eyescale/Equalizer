@@ -228,8 +228,8 @@ namespace fabric
             net::NodePtr node = child->getServer().get();
             sender->send( node, packet );
 
-            base::UUID identifier;
-            localNode->waitRequest( packet.requestID, &identifier );
+            uint128_t identifier;
+            localNode->waitRequest( packet.requestID, identifier );
             EQCHECK( child->getConfig()->mapObject( child, identifier,
                                                     net::VERSION_NONE ));
         }

@@ -74,7 +74,7 @@ uint128_t MasterCM::commitSync( const uint32_t commitID )
 {
     LocalNodePtr localNode = _object->getLocalNode();
     uint128_t version = VERSION_NONE;
-    localNode->waitRequest( commitID, &version );
+    localNode->waitRequest( commitID, version );
     return version;
 }
 
