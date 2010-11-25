@@ -239,7 +239,7 @@ void InstanceCache::expire( const int64_t timeout )
     if( time <= 0 )
         return;
 
-    std::vector< base::UUID > keys;
+    std::vector< base::uint128_t > keys;
 
     base::ScopedMutex<> mutex( _items );
     for( ItemHash::iterator i = _items->begin(); i != _items->end(); ++i )
@@ -260,7 +260,7 @@ void InstanceCache::expire( const int64_t timeout )
         }
     }
 
-    for( std::vector< base::UUID >::const_iterator i = keys.begin();
+    for( std::vector< base::uint128_t >::const_iterator i = keys.begin();
          i != keys.end(); ++i )
     {
         Item& item = _items.data[ *i ];
@@ -306,7 +306,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
 
     EQ_TS_SCOPED( _thread );
 
-    std::vector< base::UUID > keys;
+    std::vector< base::uint128_t > keys;
     const long target = static_cast< long >(
                    static_cast< float >( _maxSize ) * 0.8f );
 
@@ -336,7 +336,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
     {
         streamsLeft = false;
 
-        for( std::vector< base::UUID >::const_iterator i = keys.begin();
+        for( std::vector< base::uint128_t >::const_iterator i = keys.begin();
              i != keys.end() && _size > target; ++i )
         {
             Item& item = _items.data[ *i ];
@@ -354,7 +354,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
         }
     }
 
-    for( std::vector< base::UUID >::const_iterator i = keys.begin();
+    for( std::vector< base::uint128_t >::const_iterator i = keys.begin();
          i != keys.end(); ++i )
     {
         Item& item = _items.data[ *i ];

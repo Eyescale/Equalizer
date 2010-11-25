@@ -69,7 +69,7 @@ namespace net
                     ( identifier == rhs.identifier && version > rhs.version );
             }
 
-        base::UUID      identifier;
+        base::UUID identifier;
         uint128_t version;
 
         /** An unset object version. */

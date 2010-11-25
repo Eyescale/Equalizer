@@ -81,6 +81,12 @@ int main( int argc, char **argv )
     TEST( id5 == eq::base::UUID::ZERO );
     TEST( id5 == id6 );
     
+    eq::base::RNG rng;
+    uint16_t high = rng.get< uint16_t >();
+    int32_t low = rng.get< int32_t >();
+    eq::base::UUID id7( high, low );
+    TEST( id7.high() == high );
+    TEST( id7.low() == uint64_t( low ));
 
     // Load tests
     Thread threads[ N_THREADS ];

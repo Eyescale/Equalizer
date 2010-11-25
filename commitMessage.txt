@@ -1,9 +1,10 @@
-Fix pipe connection unit test race
+Make 'bool' UUID constructor explicit, fix false conversions due to old
+implicit constructor
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
-[x] New Feature
+[x] Bugfix
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

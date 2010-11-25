@@ -42,7 +42,6 @@ void yyerror( const char *errmsg )
 {
     EQERROR << "Parse error: '" << errmsg << "', line " << yylineno+1
             << " at '" << yytext << "'" << std::endl;
-    EQASSERT( false );
     YY_FLUSH_BUFFER;
 }
 

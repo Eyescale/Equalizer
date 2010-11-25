@@ -41,7 +41,7 @@ namespace base
          * UUID is cleared, i.e., it is equal to UUID::ZERO.
          * @version 1.0
          */
-        UUID( const bool generate = false ) : uint128_t()
+        explicit UUID( const bool generate = false ) : uint128_t()
             { 
                 while( generate && high() == 0 )
                 {         

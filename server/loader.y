@@ -1321,7 +1321,7 @@ ServerPtr Loader::loadFile( const std::string& filename )
     eq::loader::loader = 0;
     loader::filename.clear();
 
-    if( loader::server.isValid() && error )
+    if( error )
         loader::server = 0;
 
     eq::server::ServerPtr server = loader::server;
