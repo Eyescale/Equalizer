@@ -36,8 +36,10 @@ FrameDataStatistics::FrameDataStatistics( const Statistic::Type type,
                                           const uint128_t& originator )
         : StatisticSampler< FrameData >( type, frameData, frameNumber )
 {
-    snprintf( event.data.statistic.resourceName, 32, "node %llx",
-              originator.low( ));
+    std::stringstream idstr;
+    idstr << "node " << originator.low();
+    snprintf( event.data.statistic.resourceName, 32, "%s", idstr.str().c_str( ));
+
     event.data.statistic.resourceName[31] = 0;
 
     const net::Session* session = frameData->getSession();

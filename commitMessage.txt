@@ -1,11 +1,9 @@
-Pass frameID by reference during frame update traversal
-Fix view-related assertion
-Fix frame ID storage
+Fixed build on some (strange) linux systems
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
-[x] Optimization
+[ ] Cleanup
+[ ] Optimization
 [ ] Documentation
