@@ -35,28 +35,28 @@ namespace base
     {
     public:
         /** Construct a new condition variable. @version 1.0 */
-        EQ_BASE_DECL Condition();
+        EQBASE_API Condition();
 
         /** Destruct this condition variable. @version 1.0 */
-        EQ_BASE_DECL ~Condition();
+        EQBASE_API ~Condition();
 
         /** Lock the mutex. @version 1.0 */
-        EQ_BASE_DECL void lock();
+        EQBASE_API void lock();
 
         /** Signal the condition. @version 1.0 */
-        EQ_BASE_DECL void signal();
+        EQBASE_API void signal();
 
         /** Broadcast the condition. @version 1.0 */
-        EQ_BASE_DECL void broadcast();
+        EQBASE_API void broadcast();
 
         /** Unlock the mutex. @version 1.0 */
-        EQ_BASE_DECL void unlock();
+        EQBASE_API void unlock();
 
         /**
          * Atomically unlock the mutex, wait for a signal and relock the mutex.
          * @version 1.0
          */
-        EQ_BASE_DECL void wait();
+        EQBASE_API void wait();
 
     private:
         ConditionPrivate* const _data;

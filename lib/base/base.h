@@ -55,11 +55,11 @@
 #endif // _MSC_VER
 
 #if defined(EQ_BASE_STATIC)
-#  define EQ_BASE_DECL
+#  define EQBASE_API
 #elif defined(EQ_BASE_SHARED)
-#  define EQ_BASE_DECL EQ_DLLEXPORT
+#  define EQBASE_API EQ_DLLEXPORT
 #else
-#  define EQ_BASE_DECL EQ_DLLIMPORT
+#  define EQBASE_API EQ_DLLIMPORT
 #endif
 
 #ifdef EQ_EXPORTS

@@ -34,7 +34,7 @@ namespace base
     {
     public:
         /** Construct a new dynamic shared object. @version 1.0 */
-        EQ_BASE_DECL DSO() : _dso( 0 ) {}
+        EQBASE_API DSO() : _dso( 0 ) {}
 
         /** 
          * Open a dynamic shared object.
@@ -43,20 +43,20 @@ namespace base
          * @return true if the DSO was opened, false upon error.
          * @version 1.0
          */
-        EQ_BASE_DECL bool open( const std::string& fileName );
+        EQBASE_API bool open( const std::string& fileName );
 
         /** 
          *Close the DSO, invalidates retrieved function pointers.
          * @version 1.0
          */
-        EQ_BASE_DECL void close();
+        EQBASE_API void close();
     
         /**
          * @return a function pointer in the DSO, or 0 if the function is not
          *         exported by the DSO.
          * @version 1.0
          */
-        EQ_BASE_DECL void* getFunctionPointer( const std::string& functionName );
+        EQBASE_API void* getFunctionPointer( const std::string& functionName );
 
         /** @return true if the DSO is loaded. @version 1.0 */
         bool isOpen() const { return _dso != 0; }

@@ -31,7 +31,7 @@ namespace base
      *
      * Not to be subclassed.
      */
-    class EQ_BASE_DECL UUID : public uint128_t
+    class UUID : public uint128_t
     {
     public:
         /** 
@@ -90,7 +90,7 @@ namespace base
         bool isGenerated() const { return high() != 0; }
 
         /** The NULL UUID. @version 1.0 */
-        static const UUID ZERO;
+        static EQBASE_API const UUID ZERO;
 #ifdef _MSC_VER
         friend size_t stde::hash_compare< eq::base::UUID >::operator() 
             ( const eq::base::UUID& key ) const;

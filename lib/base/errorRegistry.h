@@ -40,13 +40,13 @@ namespace base
     {
     public:
         /** @return the error string for the given error code. @version 1.0 */
-        EQ_BASE_DECL const std::string& getString( const uint32_t error ) const;
+        EQBASE_API const std::string& getString( const uint32_t error ) const;
 
         /** Set an error string for the given error code. @version 1.0 */
-        EQ_BASE_DECL void setString(const uint32_t error, const std::string& text);
+        EQBASE_API void setString(const uint32_t error, const std::string& text);
 
         /** Clear a given error code string. @version 1.0 */
-        EQ_BASE_DECL void eraseString( const uint32_t error );
+        EQBASE_API void eraseString( const uint32_t error );
 
         bool isEmpty() const { return _errors.empty(); } //!< @internal
 

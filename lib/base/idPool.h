@@ -56,10 +56,10 @@ namespace base
          *                        MAX_CAPACITY are considered as allocated.
          * @version 1.0
          */
-        EQ_BASE_DECL IDPool( const uint32_t initialCapacity );
+        EQBASE_API IDPool( const uint32_t initialCapacity );
 
         /** Destruct the identifier pool. */
-        EQ_BASE_DECL ~IDPool();
+        EQBASE_API ~IDPool();
         
         /** 
          * Generate a new, consecutive block of identifiers. 
@@ -69,7 +69,7 @@ namespace base
          *         block of the range is available.
          * @version 1.0
          */
-        EQ_BASE_DECL uint32_t genIDs( const uint32_t range );
+        EQBASE_API uint32_t genIDs( const uint32_t range );
 
         /** 
          * Release a block of previously generated identifiers.
@@ -78,7 +78,7 @@ namespace base
          * @param range the number of consecutive identifiers.
          * @version 1.0
          */
-        EQ_BASE_DECL void freeIDs( const uint32_t start, const uint32_t range );
+        EQBASE_API void freeIDs( const uint32_t start, const uint32_t range );
 
 
     private:

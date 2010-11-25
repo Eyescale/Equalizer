@@ -26,7 +26,7 @@ namespace eq
 namespace base
 {
     /** A base type for 128 bit unsigned integer values. */
-    class EQ_BASE_DECL uint128_t
+    class uint128_t
     {
     public:
         /**

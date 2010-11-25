@@ -31,7 +31,7 @@ namespace base
         /** Construct a new CPU-based compressor */
         CPUCompressor( ){}
 
-        EQ_BASE_DECL bool isValid() const;
+        EQBASE_API bool isValid() const;
         virtual bool isValid( uint32_t name ) const
             { return Compressor::isValid( name ); }
 
@@ -42,7 +42,7 @@ namespace base
          * @param pvpIn the dimensions of the input data
          * @param flags capability flags for the compression
          */
-        EQ_BASE_DECL void compress( void* const in, 
+        EQBASE_API void compress( void* const in, 
                                  const uint64_t  pvpIn[4],
                                  const eq_uint64_t flags );
 
@@ -52,10 +52,10 @@ namespace base
          * @param in the pointer to the input data. 
          * @param inDims the dimensions of the input data
          */
-        EQ_BASE_DECL void compress( void* const in, const uint64_t inDims[2] );
+        EQBASE_API void compress( void* const in, const uint64_t inDims[2] );
 
         /** get the number of compressed chunks. */
-        EQ_BASE_DECL unsigned getNumResults() const;
+        EQBASE_API unsigned getNumResults() const;
 
         /**
          * get the compressed Data for the specified chunk 
@@ -64,7 +64,7 @@ namespace base
          * @param out the return value to store the result pointer
          * @param outSize the return value to store the result size in bytes
          */
-        EQ_BASE_DECL void getResult( const unsigned i, 
+        EQBASE_API void getResult( const unsigned i, 
                                      void** const out, 
                                      uint64_t* const outSize ) const ;
 
@@ -79,7 +79,7 @@ namespace base
          * @param pvpOut the dimensions of the output data.
          * @param flags capability flags for the decompression.
          */
-        EQ_BASE_DECL void decompress( const void* const* in, 
+        EQBASE_API void decompress( const void* const* in, 
                                       const uint64_t* const inSizes,
                                       const unsigned numInputs,
                                       void* const out,
@@ -96,7 +96,7 @@ namespace base
          *            uncompressed output result.
          * @param outDim the dimensions of the output data.
          */
-        EQ_BASE_DECL void decompress( const void* const* in, 
+        EQBASE_API void decompress( const void* const* in, 
                                    const uint64_t* const inSizes,
                                    const unsigned numInputs,
                                    void* const out,
@@ -115,7 +115,7 @@ namespace base
          * @param ignoreMSE the most-significant element of each token can be
          *                  ignored, typically the alpha channel of an image.
          */
-        static EQ_BASE_DECL uint32_t chooseCompressor( 
+        static EQBASE_API uint32_t chooseCompressor( 
                                                 const uint32_t tokenType,
                                                 const float minQuality = 1.0f,
                                                 const bool ignoreMSE = false );
@@ -130,7 +130,7 @@ namespace base
          * @param ignoreMSE the most-significant element of each token can be
          *                  ignored, typically the alpha channel of an image.
          */
-        EQ_BASE_DECL void initCompressor( const uint32_t dataType, 
+        EQBASE_API void initCompressor( const uint32_t dataType, 
                                        const float quality,
                                        const bool ignoreMSE = false );
 

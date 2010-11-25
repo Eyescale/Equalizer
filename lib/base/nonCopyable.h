@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,14 +18,14 @@
 #ifndef EQBASE_NONCOPYABLE_H
 #define EQBASE_NONCOPYABLE_H
 
-#include <eq/base/base.h> // for EQ_BASE_DECL
+#include <eq/base/base.h> // for EQBASE_API
 
 namespace eq
 {
 namespace base
 {
     /** Base class to make objects non-copyable. */
-    class EQ_BASE_DECL NonCopyable 
+    class NonCopyable 
     {
     protected:
         NonCopyable() {}

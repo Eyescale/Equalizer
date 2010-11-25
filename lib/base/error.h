@@ -33,7 +33,7 @@ namespace base
     };
 
     /** Print the error in a human-readable format. @version 1.0 */
-    EQ_BASE_DECL std::ostream& operator << ( std::ostream& os, const Error& error);
+    EQBASE_API std::ostream& operator << ( std::ostream& os, const Error& error);
 }
 }
 #endif // EQBASE_ERROR_H

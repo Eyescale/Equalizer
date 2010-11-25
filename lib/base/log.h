@@ -160,26 +160,26 @@ namespace base
         void enableHeader()  { _logBuffer.enableHeader();  }
 
         /** The current log level. */
-        static EQ_BASE_DECL int level;
+        static EQBASE_API int level;
 
         /** The current log topics. */
-        static EQ_BASE_DECL unsigned topics;
+        static EQBASE_API unsigned topics;
 
         /** The per-thread logger. */
-        static EQ_BASE_DECL Log& instance( const char* subdir, const char* file,
+        static EQBASE_API Log& instance( const char* subdir, const char* file,
                                         const int line );
 
         /** Exit the log instance for the current thread. */
-        static EQ_BASE_DECL void exit();
+        static EQBASE_API void exit();
 
         /** The string representation of the current log level. */
         static std::string& getLogLevelString();
 
         /** Change the output stream. */
-        static EQ_BASE_DECL void setOutput( std::ostream& stream );
+        static EQBASE_API void setOutput( std::ostream& stream );
 
         /** Get the current output stream. @internal */
-        static EQ_BASE_DECL std::ostream& getOutput ();
+        static EQBASE_API std::ostream& getOutput ();
 
         /**
          * Set the reference clock.
@@ -189,7 +189,7 @@ namespace base
          *
          * @param clock the reference clock.
          */
-        static EQ_BASE_DECL void setClock( Clock* clock );
+        static EQBASE_API void setClock( Clock* clock );
 
     private:
         LogBuffer _logBuffer; 
@@ -207,21 +207,21 @@ namespace base
      * lines to be intended by four characters.
      * @version 1.0
      */
-    EQ_BASE_DECL std::ostream& indent( std::ostream& os );
+    EQBASE_API std::ostream& indent( std::ostream& os );
     /** Decrease the indent of the Log stream. @version 1.0 */
-    EQ_BASE_DECL std::ostream& exdent( std::ostream& os );
+    EQBASE_API std::ostream& exdent( std::ostream& os );
 
     /** Disable flushing of the Log stream. @version 1.0 */
-    EQ_BASE_DECL std::ostream& disableFlush( std::ostream& os );
+    EQBASE_API std::ostream& disableFlush( std::ostream& os );
     /** Re-enable flushing of the Log stream. @version 1.0 */
-    EQ_BASE_DECL std::ostream& enableFlush( std::ostream& os );
+    EQBASE_API std::ostream& enableFlush( std::ostream& os );
     /** Flush the Log stream regardless of the auto-flush state. @version 1.0 */
-    EQ_BASE_DECL std::ostream& forceFlush( std::ostream& os );
+    EQBASE_API std::ostream& forceFlush( std::ostream& os );
 
     /** Disable printing of the Log header for subsequent lines. @version 1.0 */
-    EQ_BASE_DECL std::ostream& disableHeader( std::ostream& os );
+    EQBASE_API std::ostream& disableHeader( std::ostream& os );
     /** Re-enable printing of the Log header. @version 1.0 */
-    EQ_BASE_DECL std::ostream& enableHeader( std::ostream& os );
+    EQBASE_API std::ostream& enableHeader( std::ostream& os );
 
 }
 }

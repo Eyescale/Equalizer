@@ -28,7 +28,7 @@ namespace base
      * A listener interface to monitor execution unit (Thread, Process) state
      * changes.
      */
-    class EQ_BASE_DECL ExecutionListener
+    class ExecutionListener
     {
     public:
         /** Destruct the execution listener. @version 1.0 */

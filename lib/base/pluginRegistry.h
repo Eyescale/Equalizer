@@ -42,16 +42,16 @@ namespace base
          * Add a new directory to search for compressor DSOs during init().
          * @version 1.0
          */
-        EQ_BASE_DECL void addDirectory( const std::string& path );
+        EQBASE_API void addDirectory( const std::string& path );
 
         /** Remove a plugin directory. @version 1.0 */
-        EQ_BASE_DECL void removeDirectory( const std::string& path );
+        EQBASE_API void removeDirectory( const std::string& path );
 
         /**
          * @return all directories to search for compressor DSOs during init().
          * @version 1.0
          */
-        EQ_BASE_DECL const Strings& getDirectories() const;
+        EQBASE_API const Strings& getDirectories() const;
 
         /** @internal Search all plugin directories and register found DSOs */
         void init();
@@ -60,10 +60,10 @@ namespace base
         void exit();
         
         /** @internal @return all registered compressor plugins */
-        EQ_BASE_DECL const Plugins& getPlugins() const;
+        EQBASE_API const Plugins& getPlugins() const;
 
         /** @internal @return the plugin containing the given compressor. */
-        EQ_BASE_DECL Plugin* findPlugin( const uint32_t name );
+        EQBASE_API Plugin* findPlugin( const uint32_t name );
 
     private:
         Strings _directories;

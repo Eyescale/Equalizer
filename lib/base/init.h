@@ -34,7 +34,7 @@ namespace base
      *         <code>false</code> otherwise.
      * @version 1.0
      */
-    EQ_BASE_DECL bool init( const int argc, char** argv );
+    EQBASE_API bool init( const int argc, char** argv );
 
     /**
      * De-initialize the Equalizer base classes.
@@ -43,7 +43,7 @@ namespace base
      *         <code>false</code> otherwise.
      * @version 1.0
      */
-    EQ_BASE_DECL bool exit();
+    EQBASE_API bool exit();
 }
 }
 #endif // EQBASE_INIT_H

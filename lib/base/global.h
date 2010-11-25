@@ -33,14 +33,14 @@ namespace base
     {
     public:
         /** @return the plugin registry. @version 1.0 */
-        EQ_BASE_DECL static PluginRegistry& getPluginRegistry();
+        EQBASE_API static PluginRegistry& getPluginRegistry();
 
         /** @return the error registry. @version 1.0 */
-        EQ_BASE_DECL static ErrorRegistry& getErrorRegistry();
+        EQBASE_API static ErrorRegistry& getErrorRegistry();
 
     private:
-        friend EQ_BASE_DECL bool init( const int argc, char** argv );
-        friend EQ_BASE_DECL bool exit();
+        friend EQBASE_API bool init( const int argc, char** argv );
+        friend EQBASE_API bool exit();
     };
 }
 }

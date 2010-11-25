@@ -31,7 +31,7 @@ namespace base
     {
     public:
         /** Execute the given command in a new process. @version 1.0 */
-        EQ_BASE_DECL static bool run( const std::string& command );
+        EQBASE_API static bool run( const std::string& command );
 
     private:
         Launcher(){}

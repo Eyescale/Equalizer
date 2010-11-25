@@ -18,7 +18,7 @@
 #ifndef EQBASE_THREADID_H
 #define EQBASE_THREADID_H
 
-#include <eq/base/base.h>     // EQ_BASE_DECL definition
+#include <eq/base/base.h>     // EQBASE_API definition
 
 namespace eq
 {
@@ -31,27 +31,27 @@ namespace base
     {
     public:
         /** Construct a new, zero thread identifier. @version 1.0 */
-        EQ_BASE_DECL ThreadID();
+        EQBASE_API ThreadID();
 
         /** Construct a copy of a thread identifier. @version 1.0 */
-        EQ_BASE_DECL ThreadID( const ThreadID& from );
+        EQBASE_API ThreadID( const ThreadID& from );
 
         /** Destruct this thread identifier. @version 1.0 */
-        EQ_BASE_DECL ~ThreadID();
+        EQBASE_API ~ThreadID();
 
         /** Assign another thread identifier. @version 1.0 */
-        EQ_BASE_DECL ThreadID& operator = ( const ThreadID& from );
+        EQBASE_API ThreadID& operator = ( const ThreadID& from );
 
         /** @return true if the threads are equal, false if not. @version 1.0 */
-        EQ_BASE_DECL bool operator == ( const ThreadID& rhs ) const;
+        EQBASE_API bool operator == ( const ThreadID& rhs ) const;
 
         /**
          * @return true if the threads are different, false otherwise.
          * @version 1.0
          */
-        EQ_BASE_DECL bool operator != ( const ThreadID& rhs ) const;
+        EQBASE_API bool operator != ( const ThreadID& rhs ) const;
         
-        EQ_BASE_DECL static const ThreadID ZERO; //!< a 'NULL' thread identifier
+        EQBASE_API static const ThreadID ZERO; //!< a 'NULL' thread identifier
 
     private:
         ThreadIDPrivate* const _data;

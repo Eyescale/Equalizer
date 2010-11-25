@@ -1381,7 +1381,7 @@ PREDEFINED             = EQ_GCC_4_1_OR_LATER= \
                          EQ_USE_OPENMP= \
                          EQ_DLLIMPORT= \
                          EQFABRIC_EXPORT= \
-                         EQ_BASE_DECL= \
+                         EQBASE_API= \
                          EQNET_API= \
                          EQ_API= 
 
