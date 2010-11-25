@@ -384,12 +384,7 @@ void Config::sendEvent( ConfigEvent& event )
               event.data.statistic.type != Statistic::NONE );
     EQASSERT( getAppNodeID() != net::NodeID::ZERO );
 
-    if( !_appNode )
-    {
-        net::LocalNodePtr localNode = getLocalNode();
-        _appNode = localNode->connect( getAppNodeID( ));
-    }
-    EQASSERT( _appNode );
+    EQASSERT( _appNode.isValid( ));
 
     event.sessionID = getID();
     _appNode->send( event );
@@ -689,8 +684,12 @@ bool Config::_cmdCreateNode( net::Command& command )
     EQVERB << "Handle create node " << packet << std::endl;
 
     Node* node = Global::getNodeFactory()->createNode( this );
-    EQCHECK( mapObject( node, packet->nodeID ));
 
+    EQASSERT( !_appNode )
+    net::LocalNodePtr localNode = getLocalNode();
+    _appNode = localNode->connect( getAppNodeID( ));
+
+    EQCHECK( mapObject( node, packet->nodeID ));
     return true;
 }
 

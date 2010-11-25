@@ -38,57 +38,28 @@ namespace net
         uint32_t requestID;
     };
 
-    struct SessionSetIDMasterPacket : public SessionPacket
+    struct SessionFindMasterNodeID : public SessionPacket
     {
-        SessionSetIDMasterPacket()
+        SessionFindMasterNodeID()
                 : requestID( EQ_ID_INVALID )
             {
-                command   = CMD_SESSION_SET_ID_MASTER;
-                size      = sizeof( SessionSetIDMasterPacket ); 
+                command   = CMD_SESSION_FIND_MASTER_NODE_ID;
+                size      = sizeof( SessionFindMasterNodeID ); 
             }
         
         base::UUID identifier;
-        NodeID     masterID;
         uint32_t   requestID;
     };
 
-    struct SessionUnsetIDMasterPacket : public SessionPacket
+    struct SessionFindMasterNodeIDReply : public SessionPacket
     {
-        SessionUnsetIDMasterPacket()
-                : requestID( EQ_ID_INVALID )
+        SessionFindMasterNodeIDReply( const SessionFindMasterNodeID* request )
+                : requestID( request->requestID )
             {
-                command   = CMD_SESSION_UNSET_ID_MASTER;
-                size      = sizeof( SessionUnsetIDMasterPacket ); 
+                command   = CMD_SESSION_FIND_MASTER_NODE_ID_REPLY;
+                size      = sizeof( SessionFindMasterNodeIDReply ); 
             }
-
-        base::UUID identifier;
-        uint32_t   requestID;
-    };
-
-    struct SessionGetIDMasterPacket : public SessionPacket
-    {
-        SessionGetIDMasterPacket()
-            {
-                command = CMD_SESSION_GET_ID_MASTER;
-                size    = sizeof( SessionGetIDMasterPacket ); 
-            }
-
-        base::UUID identifier;
-        uint32_t   requestID;
-    };
-
-    struct SessionGetIDMasterReplyPacket : public SessionPacket
-    {
-        SessionGetIDMasterReplyPacket( const SessionGetIDMasterPacket* request )
-            {
-                command   = CMD_SESSION_GET_ID_MASTER_REPLY;
-                size      = sizeof( SessionGetIDMasterReplyPacket );
-                requestID = request->requestID;
-                identifier = request->identifier;
-            }
-        
-        base::UUID identifier;
-        NodeID     masterID;
+        NodeID     masterNodeID;
         uint32_t   requestID;
     };
 
@@ -244,19 +215,6 @@ namespace net
     };
 
     //------------------------------------------------------------
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const SessionGetIDMasterPacket* packet )
-    {
-        os << (SessionPacket*)packet << " id " << packet->identifier;
-        return os;
-    }
-    inline std::ostream& operator << ( std::ostream& os, 
-                                   const SessionGetIDMasterReplyPacket* packet )
-    {
-        os << (SessionPacket*)packet << " id " << packet->identifier
-           << " master " << packet->masterID;
-        return os;
-    }
     inline std::ostream& operator << ( std::ostream& os, 
                                     const SessionMapObjectPacket* packet )
     {

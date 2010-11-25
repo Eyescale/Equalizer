@@ -59,6 +59,11 @@ MasterCM::~MasterCM()
     _slaves.clear();
 }
 
+NodePtr MasterCM::getMasterNode()
+{ 
+    return _object->getLocalNode();
+}
+
 uint32_t MasterCM::commitNB()
 {
     LocalNodePtr localNode = _object->getLocalNode();

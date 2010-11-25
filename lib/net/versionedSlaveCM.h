@@ -65,6 +65,8 @@ namespace net
         virtual uint32_t getMasterInstanceID() const {return _masterInstanceID;}
         virtual void setMasterNode( NodePtr node ) { _master = node; }
 
+        virtual NodePtr getMasterNode();
+
         virtual uint128_t addSlave( Command& )
             { EQDONTCALL; return VERSION_INVALID; }
         virtual void removeSlave( NodePtr ) { EQDONTCALL; }

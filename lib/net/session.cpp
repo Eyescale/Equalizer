@@ -131,14 +131,10 @@ void Session::notifyMapped( LocalNodePtr node )
 
     registerCommand( CMD_SESSION_ACK_REQUEST, 
                      CmdFunc( this, &Session::_cmdAckRequest ), 0 );
-    registerCommand( CMD_SESSION_SET_ID_MASTER,
-                     CmdFunc( this, &Session::_cmdSetIDMaster ), queue );
-    registerCommand( CMD_SESSION_UNSET_ID_MASTER,
-                     CmdFunc( this, &Session::_cmdUnsetIDMaster ), queue );
-    registerCommand( CMD_SESSION_GET_ID_MASTER, 
-                     CmdFunc( this, &Session::_cmdGetIDMaster ), queue );
-    registerCommand( CMD_SESSION_GET_ID_MASTER_REPLY,
-                     CmdFunc( this, &Session::_cmdGetIDMasterReply ), queue );
+    registerCommand( CMD_SESSION_FIND_MASTER_NODE_ID,
+                     CmdFunc( this, &Session::_cmdFindMasterNodeID ), queue );
+    registerCommand( CMD_SESSION_FIND_MASTER_NODE_ID_REPLY,
+                     CmdFunc( this, &Session::_cmdFindMasterNodeIDReply ), 0 );
     registerCommand( CMD_SESSION_ATTACH_OBJECT,
                      CmdFunc( this, &Session::_cmdAttachObject ), 0 );
     registerCommand( CMD_SESSION_DETACH_OBJECT,
@@ -168,79 +164,29 @@ void Session::notifyMapped( LocalNodePtr node )
 //---------------------------------------------------------------------------
 // identifier master node mapping
 //---------------------------------------------------------------------------
-
-uint32_t Session::_setIDMasterNB( const base::UUID& identifier,
-                                  const NodeID& master )
+NodeID Session::_findMasterNodeID( const base::UUID& identifier )
 {
-    EQ_TS_NOT_THREAD( _commandThread );
-
-    SessionSetIDMasterPacket packet;
-    packet.identifier = identifier;
-    packet.masterID = master;
+    // OPT: look up locally first?
+    Nodes nodes;
+    _localNode->getNodes( nodes );
     
-    if( !_isMaster )
-        _sendLocal( packet ); // set on our slave instance (fire&forget)
-
-    packet.requestID = _localNode->registerRequest();
-    send( packet );       // set on master instance (need to wait for ack)
-    return packet.requestID;
-}
-
-void Session::_setIDMasterSync( const uint32_t requestID )
-{
-    _localNode->waitRequest( requestID );
-}
-
-uint32_t Session::_unsetIDMasterNB( const base::UUID& identifier )
-{
-    EQ_TS_NOT_THREAD( _commandThread );
-    SessionUnsetIDMasterPacket packet;
-    packet.identifier = identifier;
-
-    if( !_isMaster ) // unset on our slave instance
+    // OPT: send to multiple nodes at once?
+    for( Nodes::iterator i = nodes.begin(); i != nodes.end(); i++ )
     {
-        base::ScopedMutex< base::SpinLock > mutex( _idMasters );
-        _idMasters->erase( identifier );
+        NodePtr node = *i;
+
+        SessionFindMasterNodeID packet;
+        packet.requestID = _localNode->registerRequest();
+        packet.identifier = identifier;
+        send( node, packet );
+        NodeID masterNodeID = base::UUID::ZERO;
+        _localNode->waitRequest( packet.requestID, &masterNodeID );
+        if( masterNodeID != base::UUID::ZERO )
+            return masterNodeID;
     }
-    
-    packet.requestID = _localNode->registerRequest();
-    send( packet );       // unset on master instance (need to wait for ack)
-    return packet.requestID;
-}
 
-void Session::_unsetIDMasterSync( const uint32_t requestID )
-{
-    _localNode->waitRequest( requestID );
-}
+    return base::UUID::ZERO;
 
-const NodeID Session::_pollIDMaster( const base::UUID& id ) const 
-{
-    base::ScopedMutex< base::SpinLock > mutex( _idMasters );
-    NodeIDHash::const_iterator i = _idMasters->find( id );
-    if( i == _idMasters->end( ))
-        return NodeID::ZERO;
-
-    return i->second;
-}
-
-const NodeID Session::getIDMaster( const base::UUID& identifier )
-{
-    const NodeID master = _pollIDMaster( identifier );
-        
-    if( master != NodeID::ZERO || _isMaster )
-        return master;
-
-    // ask session master instance
-    SessionGetIDMasterPacket packet;
-    packet.requestID = _localNode->registerRequest();
-    packet.identifier = identifier;
-
-    send( packet );
-    _localNode->waitRequest( packet.requestID );
-
-    EQLOG( LOG_OBJECTS ) << "Master node for id " << identifier << ": " 
-        << _pollIDMaster( identifier ) << std::endl;
-    return _pollIDMaster( identifier );
 }
 
 //---------------------------------------------------------------------------
@@ -411,14 +357,15 @@ uint32_t Session::mapObjectNB( Object* object, const base::UUID& id,
         return EQ_ID_INVALID;
 
     NodePtr master = _connectMaster( id );
+    EQASSERT( master );
     if( !master )
         return EQ_ID_INVALID;
 
     SessionMapObjectPacket packet;
-    packet.requestID    = _localNode->registerRequest( object );
-    packet.objectID     = id;
+    packet.requestID        = _localNode->registerRequest( object );
+    packet.objectID         = id;
     packet.requestedVersion = version;
-    packet.instanceID = _genNextID( _instanceIDs );
+    packet.instanceID       = _genNextID( _instanceIDs );
 
     if( _instanceCache )
     {
@@ -482,10 +429,12 @@ void Session::unmapObject( Object* object )
     const uint32_t masterInstanceID = object->getMasterInstanceID();
     if( masterInstanceID != EQ_ID_INVALID )
     {
-        const NodeID masterNodeID = _pollIDMaster( id );
+        // TO-DO : may be we can take master node directly from the object
+        const NodeID masterNodeID = _findMasterNodeID( id );
         LocalNodePtr localNode = _localNode;
         NodePtr master    = localNode.isValid() ? 
-                                localNode->getNode( masterNodeID ) : 0;
+                            localNode->getNode( masterNodeID ) : 0;
+            
         if( master.isValid() && master->isConnected( ))
         {
             SessionUnsubscribeObjectPacket packet;
@@ -515,7 +464,6 @@ bool Session::registerObject( Object* object )
     const base::UUID& id = object->getID( );
     EQASSERTINFO( id.isGenerated(), id );
 
-    const uint32_t requestID = _setIDMasterNB( id, _localNode->getNodeID( ));
     object->setupChangeManager( object->getChangeType(), true );
     attachObject( object, id, EQ_ID_INVALID );
 
@@ -526,7 +474,6 @@ bool Session::registerObject( Object* object )
         _sendLocal( packet );
     }
 
-    _setIDMasterSync( requestID ); // sync, master knows our ID now
     object->notifyAttached();
 
     EQLOG( LOG_OBJECTS ) << "Registered " << object << std::endl;
@@ -544,7 +491,6 @@ void Session::deregisterObject( Object* object )
 
     const base::UUID& id = object->getID();
     object->notifyDetach();
-    const uint32_t requestID = _unsetIDMasterNB( id );
 
     if( Global::getIAttribute( Global::IATTR_SESSION_SEND_QUEUE_SIZE ) > 0 )
     {
@@ -578,8 +524,6 @@ void Session::deregisterObject( Object* object )
 
     detachObject( object );
     object->_setChangeManager( ObjectCM::ZERO );
-    _unsetIDMasterSync( requestID );
-    //freeIDs( id, 1 );
 }
 
 void Session::releaseObject( Object* object )
@@ -597,26 +541,8 @@ void Session::releaseObject( Object* object )
 
 NodePtr Session::_connectMaster( const base::UUID& id )
 {
-    NodeID masterNodeID = _pollIDMaster( id );
-
-    if( masterNodeID != NodeID::ZERO )
-    {
-        NodePtr master = _localNode->connect( masterNodeID );
-        if( master.isValid() && !master->isClosed( ))
-            return master;
-
-        if( !_isMaster ) // clear local cache
-        {
-            SessionUnsetIDMasterPacket packet;
-            packet.identifier = id;
-            packet.requestID = _localNode->registerRequest();
-            _sendLocal( packet );
-            _localNode->waitRequest( packet.requestID );
-        }
-    }
-
-    masterNodeID = getIDMaster( id );
-    if( masterNodeID == NodeID::ZERO )
+    const NodeID masterNodeID = _findMasterNodeID( id );
+    if( masterNodeID == base::UUID::ZERO )
     {
         EQWARN << "Can't find master node for object id " << id <<std::endl;
         return 0;
@@ -624,7 +550,7 @@ NodePtr Session::_connectMaster( const base::UUID& id )
 
     NodePtr master = _localNode->connect( masterNodeID );
     if( master.isValid() && !master->isClosed( ))
-    return master;
+        return master;
 
     EQWARN << "Can't connect master node with id " << masterNodeID
            << " for object id " << id << std::endl;
@@ -833,70 +759,51 @@ bool Session::_cmdAckRequest( Command& command )
     return true;
 }
 
-bool Session::_cmdSetIDMaster( Command& command )
+bool Session::_cmdFindMasterNodeID( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
-    const SessionSetIDMasterPacket* packet = 
-        command.getPacket<SessionSetIDMasterPacket>();
-    EQLOG( LOG_OBJECTS ) << "Cmd set ID master: " << packet << std::endl;
 
-    const NodeID& nodeID = packet->masterID;
-    EQASSERT( nodeID != NodeID::ZERO );
+    const SessionFindMasterNodeID* packet = 
+          command.getPacket<SessionFindMasterNodeID>();
 
-    base::ScopedMutex< base::SpinLock > mutex( _idMasters );
-    _idMasters.data[ packet->identifier ] = nodeID;
+    const base::UUID& id = packet->identifier;
+    EQASSERT( id.isGenerated() );
 
-    ackRequest( command.getNode(), packet->requestID );
-    return true;
-}
-
-bool Session::_cmdUnsetIDMaster( Command& command )
-{
-    EQ_TS_THREAD( _commandThread );
-    const SessionUnsetIDMasterPacket* packet = 
-        command.getPacket<SessionUnsetIDMasterPacket>();
-    EQLOG( LOG_OBJECTS ) << "Cmd unset ID master: " << packet << std::endl;
-
+    SessionFindMasterNodeIDReply reply( packet );
+    base::ScopedMutex< base::SpinLock > mutex( _objects );
+    ObjectsHash::const_iterator i = _objects->find( id );
+    
+    if( i == _objects->end( ))
     {
-        base::ScopedMutex< base::SpinLock > mutex( _idMasters );
-        _idMasters->erase( packet->identifier );
+        send( command.getNode(), reply );
+        return true;
     }
+    
+    const Objects& objects = i->second;
+    EQASSERTINFO( !objects.empty(), packet );
 
-    ackRequest( command.getNode(), packet->requestID );
-    return true;
-}
-
-bool Session::_cmdGetIDMaster( Command& command )
-{
-    EQ_TS_THREAD( _commandThread );
-    const SessionGetIDMasterPacket* packet =
-        command.getPacket<SessionGetIDMasterPacket>();
-    EQLOG( LOG_OBJECTS ) << "handle get idMaster " << packet << std::endl;
-
-    SessionGetIDMasterReplyPacket reply( packet );
-    reply.masterID = _pollIDMaster( packet->identifier );
+    for( Objects::const_iterator j = objects.begin(); j != objects.end(); ++j )
+    {
+        Object* object = *j;
+        const NodePtr masterNode = object->_cm->getMasterNode();
+        if( masterNode.isValid() && ( masterNode->getNodeID() != base::UUID::ZERO ))
+        {
+            reply.masterNodeID = masterNode->getNodeID();
+            break;
+        }
+    }
+    
     send( command.getNode(), reply );
-
     return true;
 }
 
-bool Session::_cmdGetIDMasterReply( Command& command )
+bool Session::_cmdFindMasterNodeIDReply( Command& command )
 {
-    EQ_TS_THREAD( _commandThread );
-    const SessionGetIDMasterReplyPacket* packet = 
-        command.getPacket<SessionGetIDMasterReplyPacket>();
-    EQLOG( LOG_OBJECTS ) << "handle get idMaster reply " << packet << std::endl;
+    const SessionFindMasterNodeIDReply* packet = 
+          command.getPacket<SessionFindMasterNodeIDReply>();
 
-    const NodeID& nodeID = packet->masterID;
+    _localNode->serveRequest( packet->requestID, packet->masterNodeID );
 
-    if( nodeID != NodeID::ZERO )
-    {
-        base::ScopedMutex< base::SpinLock > mutex( _idMasters );
-        _idMasters.data[ packet->identifier ] = nodeID;
-    }
-    // else not found
-
-    _localNode->serveRequest( packet->requestID );
     return true;
 }
 

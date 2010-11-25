@@ -65,6 +65,11 @@ VersionedSlaveCM::~VersionedSlaveCM()
     _master = 0;
 }
 
+NodePtr VersionedSlaveCM::getMasterNode()
+{ 
+    return _master;
+}
+
 uint32_t VersionedSlaveCM::commitNB()
 {
     LocalNodePtr localNode = _object->getLocalNode();

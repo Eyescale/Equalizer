@@ -112,6 +112,9 @@ namespace net
         /** Set the master node. */
         virtual void setMasterNode( NodePtr ) { /* nop */ }
 
+        /** @return the master node, may be 0. */
+        virtual NodePtr getMasterNode() { return 0; } 
+
         /** 
          * Add a subscribed slave to the managed object.
          * 

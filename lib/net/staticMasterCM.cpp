@@ -37,8 +37,12 @@ StaticMasterCM::StaticMasterCM( Object* object )
 #pragma warning( push )
 {}
 
-StaticMasterCM::~StaticMasterCM()
-{}
+StaticMasterCM::~StaticMasterCM(){}
+
+NodePtr StaticMasterCM::getMasterNode()
+{ 
+    return _object->getLocalNode();
+}
 
 uint128_t StaticMasterCM::addSlave( Command& command )
 {

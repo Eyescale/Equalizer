@@ -61,6 +61,8 @@ namespace net
         virtual void applyMapData( const uint128_t& version ) { EQDONTCALL; }
         virtual const Nodes* getSlaveNodes() const { return &_slaves; }
 
+        virtual NodePtr getMasterNode();
+
         virtual const Object* getObject( ) const { return _object; }
 
     protected:

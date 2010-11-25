@@ -109,21 +109,6 @@ namespace net
         //@}
 
         /**
-         * @name Identifier management
-         */
-        //@{
-        /** 
-         * Returns the master node id for an identifier.
-         * 
-         * @param id the identifier.
-         * @return the master node, or Node::ZERO if no master node is
-         *         set for the identifier.
-         */
-        EQNET_API const NodeID getIDMaster( const base::UUID& id );
-        //@}
-
-
-        /**
          * @name Object Registration
          */
         //@{
@@ -351,14 +336,15 @@ namespace net
         /** The identifiers for node-local instance identifiers. */
         base::a_int32_t _instanceIDs;
 
-        typedef stde::hash_map< base::uint128_t, NodeID > NodeIDHash;
-        /** The id->master mapping table. */
-        base::Lockable< NodeIDHash, base::SpinLock > _idMasters;
         
         /** The global clock for send-on-register for objects. */
         base::Clock _clock;
 
-        /** All registered and mapped objects. */
+        /** All registered and mapped objects. 
+         *   - write locked only in receiver thread
+         *   - read unlocked in receiver thread 
+         *   - read locked in all other threads
+         */
         base::Lockable< ObjectsHash, base::SpinLock > _objects;
 
         struct SendQueueItem
@@ -372,8 +358,15 @@ namespace net
 
         InstanceCache* _instanceCache; //!< cached object mapping data
 
-        const NodeID _pollIDMaster( const base::UUID& id ) const;
-        NodePtr _pollIDMasterNode( const base::UUID& id ) const;
+         /** 
+         * Returns the master node id for an identifier.
+         * 
+         * @param id the identifier.
+         * @return the master node, or UUID::ZERO if no master node is
+         *         found for the identifier.
+         */
+        NodeID _findMasterNodeID( const base::UUID& id );
+ 
         NodePtr _connectMaster( const base::UUID& id );
 
         void _registerThreadObject( Object* object, const uint32_t id );
@@ -393,17 +386,10 @@ namespace net
                             const uint32_t instanceID );
         void _detachObject( Object* object );
 
-        uint32_t _setIDMasterNB( const base::UUID& id, const NodeID& master );
-        void _setIDMasterSync( const uint32_t requestID );
-        uint32_t _unsetIDMasterNB( const base::UUID& id );
-        void _unsetIDMasterSync( const uint32_t requestID );
-
         /** The command handler functions. */
         bool _cmdAckRequest( Command& packet );
-        bool _cmdSetIDMaster( Command& packet );
-        bool _cmdUnsetIDMaster( Command& packet );
-        bool _cmdGetIDMaster( Command& packet );
-        bool _cmdGetIDMasterReply( Command& packet );
+        bool _cmdFindMasterNodeID( Command& command );
+        bool _cmdFindMasterNodeIDReply( Command& command );
         bool _cmdAttachObject( Command& command );
         bool _cmdDetachObject( Command& command );
         bool _cmdMapObject( Command& command );
@@ -414,6 +400,7 @@ namespace net
         bool _cmdInstance( Command& command );
         bool _cmdRegisterObject( Command& command );
         bool _cmdDeregisterObject( Command& command );
+
 
         EQ_TS_VAR( _receiverThread );
         EQ_TS_VAR( _commandThread );
