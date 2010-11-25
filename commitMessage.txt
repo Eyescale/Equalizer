@@ -1,15 +1,9 @@
-uint128_t improvements:
-- remove set/getHigh/Low with low()/high() returning (const) reference
-- Fix bug in eVolve
-- Fix VC8 hash function
-- Remove friends
-
-Install static glew-MX lib with specific name
+Minor code cleanups
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
-[x] New Feature
+[ ] Bugfix
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
