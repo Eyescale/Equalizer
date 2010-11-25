@@ -46,7 +46,7 @@ protected:
             TEST( strcmp( "buh!", text ) == 0 );
 
             _connection->close();
-            _connection = NULL;
+            _connection = 0;
         }
 private:
     eq::net::ConnectionPtr _connection;
@@ -68,11 +68,10 @@ int main( int argc, char **argv )
     const size_t nChars  = strlen( message ) + 1;
 
     TEST( connection->send( message, nChars ));
+    server.join();
 
     connection->close();
-    connection = NULL;
-
-    server.join();
+    connection = 0;
     
     return EXIT_SUCCESS;
 }

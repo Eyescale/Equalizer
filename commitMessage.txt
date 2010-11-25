@@ -1,4 +1,4 @@
-fix break build on waitRequest
+Fix pipe connection unit test race
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
