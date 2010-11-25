@@ -355,7 +355,7 @@ bool FullMasterCM::_cmdCommit( Command& command )
         else
             _instanceDataCache.push_back( instanceData );
 
-        _object->getLocalNode()->serveRequest( packet->requestID, &_version );
+        _object->getLocalNode()->serveRequest( packet->requestID, _version );
     }
 
     _obsolete();

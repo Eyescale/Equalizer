@@ -1,5 +1,4 @@
-Make 'bool' UUID constructor explicit, fix false conversions due to old
-implicit constructor
+Fix buffered object commit
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
