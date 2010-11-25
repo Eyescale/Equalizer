@@ -71,7 +71,7 @@ namespace net
         Nodes _slaves;
 
         /** The number of object instances subscribed per slave node. */
-        base::uint128_tHash< uint32_t > _slavesCount;
+        stde::hash_map< uint128_t, uint32_t > _slavesCount;
 
         /** The current version. */
         uint128_t _version;

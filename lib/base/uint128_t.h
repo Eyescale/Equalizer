@@ -153,10 +153,6 @@ namespace base
         uint64_t _low;
     };
 
-    /** A hash for uint128t_t keys. @version 1.0 */
-    template<class T> class uint128_tHash 
-                     : public stde::hash_map< uint128_t, T > {};
-
     /** ostream operator for 128 bit unsigned integers. @version 1.0 */
     inline std::ostream& operator << ( std::ostream& os, const uint128_t& id )
     {

@@ -1,8 +1,8 @@
-Change RequestHandler::waitRequest to use uint128_t reference.
+Fix test compilation, cleanups
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

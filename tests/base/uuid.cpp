@@ -26,10 +26,10 @@
 #define N_THREADS 10
 
 typedef eq::base::uint128_t uint128_t;
+typedef stde::hash_map< uint128_t, bool > TestHash;
 
-bool testConvertUint128ToUUID();
-bool testOperationUint128();
-bool testIncrement();
+void testConvertUint128ToUUID();
+void testIncrement();
 
 class Thread : public eq::base::Thread
 {
@@ -48,7 +48,7 @@ public:
             }
         }
 
-    eq::base::uint128_tHash< bool > hash;
+    TestHash hash;
 };
 
 int main( int argc, char **argv )
@@ -94,12 +94,12 @@ int main( int argc, char **argv )
     EQINFO << N_UUIDS * N_THREADS /clock.getTimef() 
            << " UUID generations and hash ops / ms" << std::endl;
 
-    eq::base::uint128_tHash< bool >& first = threads[0].hash;
-    for( size_t i = 1; i < 0; ++i )
+    TestHash& first = threads[0].hash;
+    for( size_t i = 1; i < N_THREADS; ++i )
     {
-        eq::base::uint128_tHash< bool >& current = threads[i].hash;
+        TestHash& current = threads[i].hash;
 
-        for( eq::base::uint128_tHash< bool >::const_iterator j = current.begin();
+        for( TestHash::const_iterator j = current.begin();
              j != current.end(); ++j )
         {
             eq::base::UUID uuid = j->first;
@@ -122,75 +122,67 @@ int main( int argc, char **argv )
     return EXIT_SUCCESS;
 }
 
-bool testConvertUint128ToUUID()
+void testConvertUint128ToUUID()
 {
     const uint64_t low = 1212;
     const uint64_t high = 2314;
 
     uint128_t test128( high, low );
-    TEST( test128.getLow() == low && test128.getHigh() == high );
+    TEST( test128.low() == low && test128.high() == high );
 
     eq::base::UUID testUUID;
     testUUID = test128;
     const uint128_t compare128 = testUUID;
     TEST( compare128 == test128 );
-
-    return true;
 }
 
-bool testIncrement()
+void testIncrement()
 {
     {
         uint128_t test128( 0, 0 );
         ++test128;
-        TEST( test128.getHigh() == 0 && test128.getLow() == 1 );
+        TEST( test128.high() == 0 && test128.low() == 1 );
         --test128;
-        TEST( test128.getHigh() == 0 && test128.getLow() == 0 );
+        TEST( test128.high() == 0 && test128.low() == 0 );
         test128 = test128 + 1;
-        TEST( test128.getHigh() == 0 && test128.getLow() == 1 );
+        TEST( test128.high() == 0 && test128.low() == 1 );
         test128 = test128 - 1;
-        TEST( test128.getHigh() == 0 && test128.getLow() == 0 );
+        TEST( test128.high() == 0 && test128.low() == 0 );
     }
 
     {
-        uint128_t test128( 0, 0xffffffffffffffffu );
+        uint128_t test128( 0, 0xffffffffffffffffull );
         ++test128;
-        TEST( test128.getHigh() == 1 && test128.getLow() == 0 );
+        TEST( test128.high() == 1 && test128.low() == 0 );
         --test128;
-        TEST( test128.getHigh() == 0  && 
-              test128.getLow() == 0xffffffffffffffffu );
+        TEST( test128.high() == 0 && test128.low() == 0xffffffffffffffffull );
         test128 = test128 + 1;
-        TEST( test128.getHigh() == 1 && test128.getLow() == 0 );
+        TEST( test128.high() == 1 && test128.low() == 0 );
         test128 = test128 - 1;
-        TEST( test128.getHigh() == 0  && 
-              test128.getLow() == 0xffffffffffffffffu );
+        TEST( test128.high() == 0 && test128.low() == 0xffffffffffffffffull );
     }
 
     {
         eq::base::UUID test128( 0, 0 );
         ++test128;
-        TEST( test128.getHigh() == 0 && test128.getLow() == 1 );
+        TEST( test128.high() == 0 && test128.low() == 1 );
         --test128;
-        TEST( test128.getHigh() == 0 && test128.getLow() == 0 );
+        TEST( test128.high() == 0 && test128.low() == 0 );
         test128 = test128 + 1;
-        TEST( test128.getHigh() == 0 && test128.getLow() == 1 );
+        TEST( test128.high() == 0 && test128.low() == 1 );
         test128 = test128 - 1;
-        TEST( test128.getHigh() == 0 && test128.getLow() == 0 );
+        TEST( test128.high() == 0 && test128.low() == 0 );
     }
 
     {
-        eq::base::UUID test128( 0, 0xffffffffffffffffu );
+        eq::base::UUID test128( 0, 0xffffffffffffffffull );
         ++test128;
-        TEST( test128.getHigh() == 1 && test128.getLow() == 0 );
+        TEST( test128.high() == 1 && test128.low() == 0 );
         --test128;
-        TEST( test128.getHigh() == 0  && 
-              test128.getLow() == 0xffffffffffffffffu );
+        TEST( test128.high() == 0 && test128.low() == 0xffffffffffffffffull );
         test128 = test128 + 1;
-        TEST( test128.getHigh() == 1 && test128.getLow() == 0 );
+        TEST( test128.high() == 1 && test128.low() == 0 );
         test128 = test128 - 1;
-        TEST( test128.getHigh() == 0  && 
-              test128.getLow() == 0xffffffffffffffffu );
+        TEST( test128.high() == 0 && test128.low() == 0xffffffffffffffffull );
     }
-
-    return true;
 }
