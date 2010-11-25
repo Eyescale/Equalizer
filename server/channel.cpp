@@ -250,7 +250,7 @@ void Channel::setOutput( View* view, Segment* segment )
     EQASSERT( !_view && !_segment );
     EQASSERT( view && segment );
 
-    _view    = view;
+    _view = view;
     _segment = segment;
 
     view->addChannel( this );
@@ -359,19 +359,19 @@ bool Channel::syncConfigExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Channel::_setupRenderContext( const uint128_t frameID, 
+void Channel::_setupRenderContext( const uint128_t& frameID,
                                    RenderContext& context )
 {
-    context.frameID       = frameID;
-    context.pvp           = getPixelViewport();
-    context.view          = _view;
-    context.vp            = getViewport();
+    context.frameID = frameID;
+    context.pvp = getPixelViewport();
+    context.view = _view;
+    context.vp = getViewport();
     EQASSERTINFO( getNativeContext().view == context.view, 
                   getNativeContext().view << " != " << context.view << " " <<
                   getName( ));
 }
 
-bool Channel::update( const uint128_t frameID, const uint32_t frameNumber )
+bool Channel::update( const uint128_t& frameID, const uint32_t frameNumber )
 {
     EQASSERT( isActive( ));
     EQASSERT( isRunning( ));

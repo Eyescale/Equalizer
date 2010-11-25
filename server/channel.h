@@ -165,7 +165,7 @@ namespace server
          * @param frameNumber the number of the frame.
          * @return true if at least one rendering task was sent.
          */
-        bool update( const uint128_t frameID, const uint32_t frameNumber );
+        bool update( const uint128_t& frameID, const uint32_t frameNumber );
 
         void send( net::ObjectPacket& packet );
         template< typename T >
@@ -221,7 +221,7 @@ namespace server
         //-------------------- Methods --------------------
         Vector3ub _getUniqueColor() const;
 
-        void _setupRenderContext( const uint128_t frameID,
+        void _setupRenderContext( const uint128_t& frameID,
                                   RenderContext& context );
 
         void _fireLoadData( const uint32_t frameNumber, 

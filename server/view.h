@@ -100,10 +100,13 @@ namespace server
         /** @sa eq::View::deserialize() */
         virtual void deserialize( net::DataIStream&, const uint64_t );
         virtual void setDirty( const uint64_t bits );
+        virtual void notifyAttached() { _updateChannels(); }
 
     private:
         /** The list of channels. */
         Channels _channels;
+
+        void _updateChannels() const;
 
         union // placeholder for binary-compatible changes
         {

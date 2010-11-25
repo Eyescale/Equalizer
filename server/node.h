@@ -128,7 +128,7 @@ namespace server
          *                methods.
          * @param frameNumber the number of the frame.
          */
-        void update( const uint128_t frameID, const uint32_t frameNumber );
+        void update( const uint128_t& frameID, const uint32_t frameNumber );
 
         /** 
          * Flush the processing of frames, including frameNumber.
@@ -269,8 +269,9 @@ namespace server
         /** The list of descriptions on how this node is reachable. */
         net::ConnectionDescriptions _connectionDescriptions;
 
+        typedef stde::hash_map< uint32_t, eq::net::uint128_t > FrameIDHash;
         /** The frame identifiers non-finished frames. */
-        std::map< eq::net::uint128_t, eq::net::uint128_t > _frameIDs;
+        FrameIDHash _frameIDs;
 
         /** The number of the last finished frame. */
         uint32_t _finishedFrame;

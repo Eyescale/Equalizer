@@ -367,7 +367,7 @@ bool Window::syncConfigExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Window::updateDraw( const uint128_t frameID, const uint32_t frameNumber )
+void Window::updateDraw( const uint128_t& frameID, const uint32_t frameNumber )
 {
     EQASSERT( isRunning( ));
     EQASSERT( isActive( ));
@@ -400,7 +400,7 @@ void Window::updateDraw( const uint128_t frameID, const uint32_t frameNumber )
     }
 }
 
-void Window::updatePost( const uint128_t frameID, 
+void Window::updatePost( const uint128_t& frameID, 
                          const uint32_t frameNumber )
 {
     _updateSwap( frameNumber );

@@ -503,7 +503,7 @@ bool Node::syncConfigExit()
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
-void Node::update( const uint128_t frameID, const uint32_t frameNumber )
+void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
 {
     EQVERB << "Start frame " << frameNumber << std::endl;
     EQASSERT( _state == STATE_RUNNING );
@@ -609,15 +609,16 @@ void Node::flushFrames( const uint32_t frameNumber )
 
 void Node::_sendFrameFinish( const uint32_t frameNumber )
 {
-    if( _frameIDs.find( frameNumber ) == _frameIDs.end( ))
+    FrameIDHash::iterator i = _frameIDs.find( frameNumber );
+    if( i == _frameIDs.end( ))
         return; // finish already send
 
     NodeFrameFinishPacket packet;
-    packet.frameID     = _frameIDs[ frameNumber ];
+    packet.frameID     = i->second;
     packet.frameNumber = frameNumber;
 
     _send( packet );
-    _frameIDs.erase( frameNumber );
+    _frameIDs.erase( i );
     EQLOG( LOG_TASKS ) << "TASK node finish frame  " << &packet << std::endl;
 }
 

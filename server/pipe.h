@@ -115,7 +115,7 @@ namespace server
          *                methods.
          * @param frameNumber the number of the frame.
          */
-        void update( const uint128_t frameID, const uint32_t frameNumber );
+        void update( const uint128_t& frameID, const uint32_t frameNumber );
         //@}
 
         void send( net::ObjectPacket& packet );

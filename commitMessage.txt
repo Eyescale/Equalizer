@@ -1,9 +1,11 @@
-Fix buffered object commit
+Pass frameID by reference during frame update traversal
+Fix view-related assertion
+Fix frame ID storage
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
-[ ] Optimization
+[x] Cleanup
+[x] Optimization
 [ ] Documentation

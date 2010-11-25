@@ -122,11 +122,19 @@ private:
 
 void View::setDirty( const uint64_t bits )
 {
-    if( bits == 0 )
+    if( bits == 0 || !isAttached( ))
         return;
 
+    Super::setDirty( bits );
+    _updateChannels();
+}
+
+void View::_updateChannels() const
+{
+    EQASSERT( isMaster( ));
     net::ObjectVersion version( this );
-    ++version.version;
+    if( isDirty( ))
+        ++version.version;
         
     for( Channels::const_iterator i = _channels.begin();
          i != _channels.end(); ++i )
@@ -134,7 +142,6 @@ void View::setDirty( const uint64_t bits )
         Channel* channel = *i;
         channel->setViewVersion( version );
     }
-    Super::setDirty( bits );
 }
 
 void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )

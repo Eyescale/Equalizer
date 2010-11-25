@@ -45,6 +45,7 @@ namespace fabric
 
         Matrix4f       headTransform;  //<! frustum transform for modelview
 
+        net::ObjectVersion view;       //<! destination view id and version
         uint128_t      frameID;        //<! identifier from Config::beginFrame
         PixelViewport  pvp;            //<! pixel viewport of channel wrt window
         Pixel          pixel;          //<! pixel decomposition wrt to dest
@@ -52,7 +53,6 @@ namespace fabric
         Viewport       vp;             //<! fractional viewport wrt dest view
 
         Vector2i       offset;         //<! absolute position wrt dest channel
-        net::ObjectVersion view;       //<! destination view id and version
         Range          range;          //<! database-range wrt to dest channel
         SubPixel       subpixel;       //<! subpixel decomposition wrt to dest
         Zoom           zoom;           //<! up/downsampling wrt to dest
