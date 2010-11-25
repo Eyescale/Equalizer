@@ -180,7 +180,7 @@ NodeID Session::_findMasterNodeID( const base::UUID& identifier )
         packet.identifier = identifier;
         send( node, packet );
         NodeID masterNodeID = base::UUID::ZERO;
-        _localNode->waitRequest( packet.requestID, &masterNodeID );
+        _localNode->waitRequest( packet.requestID, masterNodeID );
         if( masterNodeID != base::UUID::ZERO )
             return masterNodeID;
     }
