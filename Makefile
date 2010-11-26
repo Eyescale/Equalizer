@@ -39,12 +39,12 @@ debug_glx/Makefile:
 	@cd debug_glx; cmake .. -DEQ_PREFER_AGL=0
 
 
-docs: ../website/build/documents/Developer/API/internal ../website/build/documents/Developer/API
+docs: ../website/build/documents/Developer/API
 
 ../website/build/documents/Developer/API/internal: lib Doxyfile.int
 	$(DOXYGEN) Doxyfile.int
 
-../website/build/documents/Developer/API: docs/install Doxyfile.ext
+../website/build/documents/Developer/API: ../website/build/documents/Developer/API/internal docs/install Doxyfile.ext
 	$(DOXYGEN) Doxyfile.ext
 
 docs/install: docs/Makefile
