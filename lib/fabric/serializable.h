@@ -125,8 +125,17 @@ namespace fabric
     private:
         virtual void getInstanceData( net::DataOStream& os )
             {
-                os << static_cast< uint64_t >( DIRTY_ALL );
                 serialize( os, DIRTY_ALL );
+            }
+
+        virtual void applyInstanceData( net::DataIStream& is )
+            {
+                if( is.getRemainingBufferSize() == 0 && 
+                    is.nRemainingBuffers() == 0 )
+                {
+                    return;
+                }
+                deserialize( is, DIRTY_ALL );
             }
 
         virtual void pack( net::DataOStream& os )
@@ -138,7 +147,7 @@ namespace fabric
                 serialize( os, _dirty );
             }
 
-        virtual void applyInstanceData( net::DataIStream& is )
+        virtual void unpack( net::DataIStream& is )
             {
                 if( is.getRemainingBufferSize() == 0 && 
                     is.nRemainingBuffers() == 0 )
