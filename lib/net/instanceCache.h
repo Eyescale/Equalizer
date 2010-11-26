@@ -32,14 +32,7 @@ namespace eq
 {
 namespace net
 {
-    class Command;
-    class DataIStream;
-    class ObjectDataIStream;
-    struct ObjectVersion;
-
-    /**
-     * A thread-safe cache for object instance data. @internal
-     */
+    /** @internal A thread-safe cache for object instance data. */
     class InstanceCache
     {
     public:
@@ -69,7 +62,7 @@ namespace net
             EQNET_API bool operator == ( const Data& rhs ) const;
 
             uint32_t masterInstanceID; //!< The instance ID of the master object
-            ObjectInstanceDataIStreamDeque versions; //!< all cached data
+            ObjectDataIStreamDeque versions; //!< all cached data
             EQNET_API static const Data NONE; //!< '0' return value 
         };
 

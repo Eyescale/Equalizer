@@ -1,10 +1,11 @@
-Move appNode connect to proper place
-Fix server-side assertion
+Merge and simplify object data istreams
+Fix alignment of net::ObjectPackets
+Const-correctness fixes in thread-safety macros
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

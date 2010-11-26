@@ -81,9 +81,7 @@ purple_add_library(eq_net ${EQ_LIB_VARIANT}
     objectCM.cpp
     objectDataIStream.cpp
     objectDataOStream.cpp
-    objectDeltaDataIStream.cpp
     objectDeltaDataOStream.cpp
-    objectInstanceDataIStream.cpp
     objectInstanceDataOStream.cpp
     objectSlaveDataOStream.cpp
     objectVersion.cpp

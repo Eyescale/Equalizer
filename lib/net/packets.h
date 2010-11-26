@@ -84,7 +84,7 @@ namespace net
             }
         base::UUID objectID;
         uint32_t instanceID;
-        // pad to multiple-of-eight
+        uint32_t pad; // pad to multiple-of-eight
     };
 
     //------------------------------------------------------------

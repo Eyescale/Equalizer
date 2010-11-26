@@ -21,11 +21,9 @@
 #include "commands.h"
 #include "log.h"
 #include "object.h"
-#include "objectDeltaDataIStream.h"
-#include "objectInstanceDataIStream.h"
+#include "objectDataIStream.h"
 #include "objectPackets.h"
 #include "session.h"
-
 #include <eq/base/scopedMutex.h>
 #include <limits>
 
@@ -58,6 +56,7 @@ VersionedSlaveCM::~VersionedSlaveCM()
     while( !_queuedVersions.isEmpty( ))
         delete _queuedVersions.pop();
 
+    EQASSERT( !_currentIStream );
     delete _currentIStream;
     _currentIStream = 0;
 
@@ -166,13 +165,10 @@ void VersionedSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
                   << _version + 1 << ", got " << is->getVersion() << " for "
                   << *_object );
 
-    if( is->getType() == ObjectDataIStream::TYPE_INSTANCE )
+    if( is->hasInstanceData( ))
         _object->applyInstanceData( *is );
     else
-    {
-        EQASSERT( is->getType() == ObjectDataIStream::TYPE_DELTA );
         _object->unpack( *is );
-    }
 
     _version = is->getVersion();
     EQASSERT( _version != VERSION_INVALID );
@@ -196,8 +192,7 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
         ObjectDataIStream* is = _queuedVersions.pop();
         if( is->getVersion() == version )
         {
-            EQASSERTINFO( is->getType() == ObjectDataIStream::TYPE_INSTANCE,
-                          *_object );
+            EQASSERTINFO( is->hasInstanceData(), *_object );
 
             _object->applyInstanceData( *is );
             _version = is->getVersion();
@@ -205,7 +200,8 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
 
             EQASSERTINFO( is->getRemainingBufferSize()==0 &&
                           is->nRemainingBuffers()==0,
-                          *_object << " did not unpack all data, " <<
+                          base::className( _object ) <<
+                          " did not unpack all data, " <<
                           is->getRemainingBufferSize() << " bytes, " <<
                           is->nRemainingBuffers() << " buffer(s)" );
 
@@ -235,7 +231,7 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
 }
 
 void VersionedSlaveCM::addInstanceDatas(
-    const ObjectInstanceDataIStreamDeque& cache, const uint128_t& startVersion )
+    const ObjectDataIStreamDeque& cache, const uint128_t& startVersion )
 {
     EQ_TS_THREAD( _cmdThread );
 #if 0
@@ -255,18 +251,19 @@ void VersionedSlaveCM::addInstanceDatas(
         newest = is->getVersion();
     }
 
-    ObjectInstanceDataIStreamDeque head;
-    ObjectInstanceDataIStreams tail;
+    ObjectDataIStreamDeque head;
+    ObjectDataIStreams tail;
 
-    for( ObjectInstanceDataIStreamDeque::const_iterator i = cache.begin();
+    for( ObjectDataIStreamDeque::const_iterator i = cache.begin();
          i != cache.end(); ++i )
     {
-        ObjectInstanceDataIStream* stream = *i;
+        ObjectDataIStream* stream = *i;
         const uint128_t& version = stream->getVersion();
         if( version < startVersion )
             continue;
         
         EQASSERT( stream->isReady( ));
+        EQASSERT( stream->hasInstanceData( ));
         if( !stream->isReady( ))
             break;
 
@@ -276,17 +273,17 @@ void VersionedSlaveCM::addInstanceDatas(
             tail.push_back( stream );
     }
 
-    for( ObjectInstanceDataIStreamDeque::const_iterator i = head.begin();
+    for( ObjectDataIStreamDeque::const_iterator i = head.begin();
          i != head.end(); ++i )
     {
-        const ObjectInstanceDataIStream* stream = *i;
+        const ObjectDataIStream* stream = *i;
 #ifndef NDEBUG
         ObjectDataIStream* debugStream = 0;
         _queuedVersions.getFront( debugStream );
         if( debugStream )
             EQASSERT( debugStream->getVersion() == stream->getVersion() + 1);        
 #endif
-        _queuedVersions.pushFront( new ObjectInstanceDataIStream( *stream ));
+        _queuedVersions.pushFront( new ObjectDataIStream( *stream ));
 #if 0
         EQLOG( LOG_OBJECTS ) << stream->getVersion() << ' ';
 #endif
@@ -295,10 +292,10 @@ void VersionedSlaveCM::addInstanceDatas(
 #if 0
     EQLOG( LOG_OBJECTS ) << " back ";
 #endif
-    for( ObjectInstanceDataIStreams::const_iterator i = tail.begin();
+    for( ObjectDataIStreams::const_iterator i = tail.begin();
          i != tail.end(); ++i )
     {
-        const ObjectInstanceDataIStream* stream = *i;
+        const ObjectDataIStream* stream = *i;
 #ifndef NDEBUG
         ObjectDataIStream* debugStream = 0;
         _queuedVersions.getBack( debugStream );
@@ -307,7 +304,7 @@ void VersionedSlaveCM::addInstanceDatas(
             EQASSERT( debugStream->getVersion() + 1 == stream->getVersion( ));
         } 
 #endif
-        _queuedVersions.push( new ObjectInstanceDataIStream( *stream ));
+        _queuedVersions.push( new ObjectDataIStream( *stream ));
 #if 0
         EQLOG( LOG_OBJECTS ) << stream->getVersion() << ' ';
 #endif
@@ -326,11 +323,9 @@ bool VersionedSlaveCM::_cmdInstance( Command& command )
     EQASSERT( command.getNode().isValid( ));
 
     if( !_currentIStream )
-        _currentIStream = new ObjectInstanceDataIStream;
+        _currentIStream = new ObjectDataIStream;
 
-    EQASSERT( _currentIStream->getType() == ObjectDataIStream::TYPE_INSTANCE );
     _currentIStream->addDataPacket( command );
-
     if( _currentIStream->isReady( ))
     {
         const uint128_t& version = _currentIStream->getVersion();
@@ -359,11 +354,9 @@ bool VersionedSlaveCM::_cmdDelta( Command& command )
     EQ_TS_THREAD( _cmdThread );
 
     if( !_currentIStream )
-        _currentIStream = new ObjectDeltaDataIStream;
+        _currentIStream = new ObjectDataIStream;
 
-    EQASSERT( _currentIStream->getType() == ObjectDataIStream::TYPE_DELTA );
     _currentIStream->addDataPacket( command );
-
     if( _currentIStream->isReady( ))
     {
         const uint128_t& version = _currentIStream->getVersion();

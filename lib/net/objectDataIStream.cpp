@@ -15,7 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "objectDeltaDataIStream.h"
+#include "objectDataIStream.h"
 
 #include "command.h"
 #include "commands.h"
@@ -93,6 +93,21 @@ void ObjectDataIStream::addDataPacket( Command& command )
         _setReady();
 }
 
+bool ObjectDataIStream::hasInstanceData() const
+{
+    for( CommandDeque::const_iterator i = _commands.begin(); 
+         i != _commands.end(); ++i )
+    {
+        const Command* command = *i;
+        if( !command )
+            continue;
+        
+        return( (*command)->command == CMD_OBJECT_INSTANCE );
+    }
+    EQUNREACHABLE;
+    return false;
+}
+
 size_t ObjectDataIStream::getDataSize() const
 {
     size_t size = 0;
@@ -131,7 +146,11 @@ const Command* ObjectDataIStream::getNextCommand()
     // release last command
     Command* command = _commands.front();
     if( command )
+    {
         command->release();
+        EQASSERT( _commands.size() < 2 ||
+                  (*_commands[0])->command == (*_commands[1])->command );
+    }
     _commands.pop_front();
 
     if( _commands.empty( ))
@@ -140,40 +159,41 @@ const Command* ObjectDataIStream::getNextCommand()
     return _commands.front();
 }
 
-template< typename P > bool ObjectDataIStream::_getNextBuffer(
-    const uint32_t cmd, uint32_t* compressor, uint32_t* nChunks,
-    const void** chunkData, uint64_t* size )
+bool ObjectDataIStream::getNextBuffer( uint32_t* compressor, uint32_t* nChunks,
+                                       const void** chunkData, uint64_t* size )
 {
     const Command* command = getNextCommand();
     if( !command )
         return false;
 
-    if( (*command)->command != cmd )
-    {
-        EQERROR << "Illegal command in command fifo: " << *command << std::endl;
-        EQUNREACHABLE;
-        return false;    
-    }
-
-    const P* packet = command->getPacket< P >();
+    const ObjectDataPacket* packet = command->getPacket< ObjectDataPacket >();
+    EQASSERT( packet->command == CMD_OBJECT_INSTANCE ||
+              packet->command == CMD_OBJECT_DELTA ||
+              packet->command == CMD_OBJECT_SLAVE_DELTA );
 
     if( packet->dataSize == 0 ) // empty packet
-        return _getNextBuffer< P >( cmd, compressor, nChunks, chunkData, size );
+        return getNextBuffer( compressor, nChunks, chunkData, size );
 
     *size = packet->dataSize;
     *compressor = packet->compressorName;
     *nChunks = packet->nChunks;
-    *chunkData = packet->data;
     *size = packet->dataSize;
+    switch( packet->command )
+    {
+      case CMD_OBJECT_INSTANCE:
+        *chunkData = command->getPacket< ObjectInstancePacket >()->data;
+        break;
+      case CMD_OBJECT_DELTA:
+        *chunkData = command->getPacket< ObjectDeltaPacket >()->data;
+        break;
+      case CMD_OBJECT_SLAVE_DELTA:
+        *chunkData = command->getPacket< ObjectSlaveDeltaPacket >()->data;
+        break;
+    }
     return true;
 }
 
-template bool ObjectDataIStream::_getNextBuffer< ObjectDeltaPacket >(
-    const uint32_t, uint32_t*, uint32_t*, const void**, uint64_t* );
-template bool ObjectDataIStream::_getNextBuffer< ObjectInstancePacket >(
-    const uint32_t, uint32_t*, uint32_t*, const void**, uint64_t* );
-template bool ObjectDataIStream::_getNextBuffer< ObjectSlaveDeltaPacket >(
-    const uint32_t, uint32_t*, uint32_t*, const void**, uint64_t* );
+
 
 }
 }

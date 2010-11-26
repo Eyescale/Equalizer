@@ -163,7 +163,8 @@ namespace net
     { 
         uint64_t nElems = 0;
         read( &nElems, sizeof( nElems ));
-        EQASSERT( nElems <= getRemainingBufferSize( ));
+        EQASSERTINFO( nElems <= getRemainingBufferSize(),
+                      nElems << " > " << getRemainingBufferSize( ));
         if( nElems == 0 )
             str.clear();
         else

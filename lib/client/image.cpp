@@ -734,7 +734,6 @@ const Image::Attachment& Image::_getAttachment( const Frame::Buffer buffer )
 /** Find and activate a compression engine */
 bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
 {
-
     Attachment& attachment = _getAttachment( buffer );
     if( name <= EQ_COMPRESSOR_NONE )
     {

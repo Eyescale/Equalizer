@@ -435,7 +435,7 @@ bool Connection::send( const Connections& connections, Packet& packet,
 }
 
 bool Connection::send( const Connections& connections, Packet& packet,
-                       const void* const* items, const uint64_t* itemSizes, 
+                       const void* const* items, const uint64_t* sizes, 
                        const size_t nItems )
 {
     if( connections.empty( ))
@@ -445,8 +445,8 @@ bool Connection::send( const Connections& connections, Packet& packet,
     const uint64_t headerSize = packet.size;
     for( size_t i = 0; i < nItems; ++i )
     {
-        EQASSERT( itemSizes[i] > 0 );
-        packet.size += itemSizes[ i ] + sizeof( uint64_t );
+        EQASSERT( sizes[i] > 0 );
+        packet.size += sizes[ i ] + sizeof( uint64_t );
     }
 
     for( Connections::const_iterator i = connections.begin(); 
@@ -458,8 +458,8 @@ bool Connection::send( const Connections& connections, Packet& packet,
         bool ok = connection->send( &packet, headerSize, true );
 
         for( size_t j = 0; j < nItems; ++j )
-            ok = ok && connection->send( &itemSizes[j], sizeof(uint64_t), true )
-                    && connection->send( items[j], itemSizes[j], true );
+            ok = ok && connection->send( &sizes[j], sizeof(uint64_t), true )
+                    && connection->send( items[j], sizes[j], true );
 
         connection->unlockSend();
         if( !ok )

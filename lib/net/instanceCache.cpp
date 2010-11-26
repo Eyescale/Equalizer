@@ -18,7 +18,7 @@
 #include "instanceCache.h"
 
 #include "command.h"
-#include "objectInstanceDataIStream.h"
+#include "objectDataIStream.h"
 #include "objectVersion.h"
 
 #include <eq/base/debug.h>
@@ -112,7 +112,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
 
     if( item.data.versions.empty( ))
     {
-        item.data.versions.push_back( new ObjectInstanceDataIStream ); 
+        item.data.versions.push_back( new ObjectDataIStream ); 
     }
     else if( item.data.versions.back()->getPendingVersion() == rev.version )
     {
@@ -152,7 +152,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
         {
             EQASSERT( previous->isReady( ));
         }
-        item.data.versions.push_back( new ObjectInstanceDataIStream ); 
+        item.data.versions.push_back( new ObjectDataIStream ); 
     }
 
     item.time = _clock.getTime64();

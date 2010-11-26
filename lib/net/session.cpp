@@ -22,10 +22,10 @@
 #include "connection.h"
 #include "connectionDescription.h"
 #include "global.h"
-#include "instanceCache.h" // member
+#include "instanceCache.h"
 #include "log.h"
 #include "objectCM.h"
-#include "objectInstanceDataIStream.h"
+#include "objectDataIStream.h"
 #include "objectPackets.h"
 #include "session.h"
 #include "sessionPackets.h"
@@ -372,7 +372,7 @@ uint32_t Session::mapObjectNB( Object* object, const base::UUID& id,
         const InstanceCache::Data& cached = (*_instanceCache)[ id ];
         if( cached != InstanceCache::Data::NONE )
         {
-            const ObjectInstanceDataIStreamDeque& versions = cached.versions;
+            const ObjectDataIStreamDeque& versions = cached.versions;
             EQASSERT( !cached.versions.empty( ));
             packet.useCache = true;
             packet.masterInstanceID = cached.masterInstanceID;

@@ -30,8 +30,6 @@ namespace eq
 namespace net
 {
     class Node;
-    class ObjectDataIStream;
-    class ObjectDeltaDataIStream;
 
     /** 
      * An object change manager handling changes for versioned slave instances.
@@ -72,7 +70,7 @@ namespace net
         virtual void removeSlave( NodePtr ) { EQDONTCALL; }
 
         virtual void applyMapData( const uint128_t& version );
-        virtual void addInstanceDatas( const ObjectInstanceDataIStreamDeque&, 
+        virtual void addInstanceDatas( const ObjectDataIStreamDeque&, 
                                        const uint128_t& startVersion );
         virtual const Object* getObject( ) const { return _object; }
 

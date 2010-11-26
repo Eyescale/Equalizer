@@ -26,10 +26,6 @@ namespace eq
 {
 namespace net
 {
-    class Command;
-    class Node;
-    class ObjectDataIStream;
-
     /** 
      * An object change manager handling static object slave instances.
      * @internal
@@ -69,7 +65,7 @@ namespace net
         virtual void removeSlave( NodePtr ) { EQDONTCALL; }
 
         virtual void applyMapData( const uint128_t& version );
-        virtual void addInstanceDatas( const ObjectInstanceDataIStreamDeque&, 
+        virtual void addInstanceDatas( const ObjectDataIStreamDeque&, 
                                        const uint128_t& startVersion );
         virtual const Object* getObject( ) const { return _object; }
     protected:
@@ -77,7 +73,7 @@ namespace net
         Object* _object;
 
         /** input stream for receiving the current version */
-        ObjectInstanceDataIStream* _currentIStream;
+        ObjectDataIStream* _currentIStream;
 
     private:
         /* The command handlers. */

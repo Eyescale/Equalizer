@@ -42,7 +42,7 @@ class Command;
 class CommandQueue;
 class Connection;
 class ConnectionDescription;
-class ObjectInstanceDataIStream;
+class ObjectDataIStream;
 struct ObjectVersion;
 
 /** A unique identifier for nodes. */
@@ -79,8 +79,8 @@ typedef std::deque< Command* > CommandDeque;
 typedef std::list< Command* > CommandList;
 typedef stde::hash_map< base::uint128_t, Objects > ObjectsHash;
 typedef std::vector< ObjectVersion > ObjectVersions;
-typedef std::deque< ObjectInstanceDataIStream* > ObjectInstanceDataIStreamDeque;
-typedef std::vector< ObjectInstanceDataIStream* > ObjectInstanceDataIStreams;
+typedef std::deque< ObjectDataIStream* > ObjectDataIStreamDeque;
+typedef std::vector< ObjectDataIStream* > ObjectDataIStreams;
 /** @endcond */
 
 #ifdef EQ_USE_DEPRECATED

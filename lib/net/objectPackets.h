@@ -45,19 +45,17 @@ namespace net
                            , nChunks( 0 )
                            , last( false ) {}
 
-        uint128_t     version;
+        uint128_t version;
         uint64_t dataSize;
         uint32_t sequence;
         uint32_t compressorName;
         uint32_t nChunks;
-        bool last;
-        bool pad[7]; // pad to multiple-of-eight
+        EQ_ALIGN8( uint64_t last ); // pad and align to multiple-of-eight
     };
 
     struct ObjectInstancePacket : public ObjectDataPacket
     {
         ObjectInstancePacket()
-                : fill( 0 )
             {
                 // Always goes through session which caches and forwards to obj
                 type    = PACKETTYPE_EQNET_SESSION;
@@ -68,7 +66,6 @@ namespace net
 
         NodeID nodeID;
         uint32_t masterInstanceID;
-        uint32_t fill;
         EQ_ALIGN8( uint8_t data[8] );
     };
 

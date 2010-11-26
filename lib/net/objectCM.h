@@ -137,7 +137,7 @@ namespace net
         virtual void applyMapData( const uint128_t& version ) = 0;
 
         /** Add existing instance data to the object (from session cache) */
-        virtual void addInstanceDatas( const ObjectInstanceDataIStreamDeque&,
+        virtual void addInstanceDatas( const ObjectDataIStreamDeque&,
                                        const uint128_t& )
             { EQDONTCALL; }
 

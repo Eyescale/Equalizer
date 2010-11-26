@@ -216,7 +216,7 @@ namespace base
             {}                                              \
         mutable eq::base::ThreadID id;                      \
         bool extMutex;                                      \
-        bool inRegion;                                      \
+        mutable bool inRegion;                              \
     } NAME;                                                 \
 
 #ifdef EQ_CHECK_THREADSAFETY
@@ -232,7 +232,9 @@ namespace base
         {                                                               \
             EQERROR << "Threadsafety check for " << #NAME               \
                     << " failed on object of type "                     \
-                    << eq::base::className( this ) << std::endl;        \
+                    << eq::base::className( this ) << ", thread "       \
+                    << eq::base::Thread::getSelfThreadID() << " != "    \
+                    << NAME.id << std::endl;                            \
             EQABORT( "Non-threadsave code called from two threads" );   \
         }                                                               \
     }
@@ -241,7 +243,7 @@ namespace base
     {                                                                   \
         if( !NAME.extMutex && NAME.id != eq::base::ThreadID::ZERO )     \
         {                                                               \
-            if( NAME.id ==  eq::base::Thread::getSelfThreadID( ))         \
+            if( NAME.id ==  eq::base::Thread::getSelfThreadID( ))       \
             {                                                           \
                 EQERROR << "Threadsafety check for not " << #NAME       \
                         << " failed on object of type "                 \
@@ -255,7 +257,7 @@ namespace base
     template< typename T > class ScopedThreadCheck : public NonCopyable
     {
     public:
-        explicit ScopedThreadCheck( T& data )
+        explicit ScopedThreadCheck( const T& data )
                 : _data( data )
             {
                 EQASSERTINFO( !data.inRegion,
@@ -269,7 +271,7 @@ namespace base
                 _data.inRegion = false;
             }
     private:
-        T& _data;
+        const T& _data;
     };
 
 # define EQ_TS_SCOPED( NAME ) \

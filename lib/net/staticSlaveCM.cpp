@@ -21,7 +21,7 @@
 #include "commands.h"
 #include "log.h"
 #include "object.h"
-#include "objectInstanceDataIStream.h"
+#include "objectDataIStream.h"
 #include "session.h"
 
 #include <eq/base/scopedMutex.h>
@@ -34,7 +34,7 @@ typedef CommandFunc< StaticSlaveCM > CmdFunc;
 
 StaticSlaveCM::StaticSlaveCM( Object* object )
         : _object( object )
-        , _currentIStream( new ObjectInstanceDataIStream )
+        , _currentIStream( new ObjectDataIStream )
 {
     registerCommand( CMD_OBJECT_INSTANCE,
                      CmdFunc( this, &StaticSlaveCM::_cmdInstance ), 0 );
@@ -52,6 +52,7 @@ void StaticSlaveCM::applyMapData( const uint128_t& version )
     EQASSERT( version == VERSION_NONE );
     _currentIStream->waitReady();
 
+    EQASSERT( _currentIStream->hasInstanceData( ));
     _object->applyInstanceData( *_currentIStream );
     EQASSERTINFO( _currentIStream->getRemainingBufferSize() == 0 &&
                   _currentIStream->nRemainingBuffers() == 0,
@@ -67,7 +68,7 @@ void StaticSlaveCM::applyMapData( const uint128_t& version )
 }
 
 void StaticSlaveCM::addInstanceDatas(
-    const ObjectInstanceDataIStreamDeque& cache, const uint128_t& /* start */ )
+    const ObjectDataIStreamDeque& cache, const uint128_t& /* start */ )
 {
     EQASSERT( _currentIStream );
     EQASSERT( _currentIStream->getDataSize() == 0 );
@@ -75,7 +76,7 @@ void StaticSlaveCM::addInstanceDatas(
     if( cache.empty( ))
         return;
 
-    ObjectInstanceDataIStream* stream = cache.front();
+    ObjectDataIStream* stream = cache.front();
     EQASSERT( stream );
     EQASSERT( stream->isReady( ));
     EQASSERT( stream->getVersion() == VERSION_NONE );
@@ -85,7 +86,7 @@ void StaticSlaveCM::addInstanceDatas(
 
     EQLOG( LOG_OBJECTS ) << "Adding cached instance data" << std::endl;
     delete _currentIStream;
-    _currentIStream = new ObjectInstanceDataIStream( *stream );
+    _currentIStream = new ObjectDataIStream( *stream );
 }
 
 //---------------------------------------------------------------------------

@@ -22,7 +22,7 @@
 #include "log.h"
 #include "object.h"
 #include "objectPackets.h"
-#include "objectSlaveDataIStream.h"
+#include "objectDataIStream.h"
 
 namespace eq
 {
@@ -95,6 +95,7 @@ uint128_t MasterCM::sync( const uint128_t& version )
     if( version == VERSION_NEXT )
     {
         ObjectDataIStream* is = _queuedDeltas.pop();
+        EQASSERT( !is->hasInstanceData( ));
         _object->unpack( *is );
         EQASSERTINFO( is->getRemainingBufferSize() == 0 && 
                       is->nRemainingBuffers()==0,
@@ -109,6 +110,7 @@ uint128_t MasterCM::sync( const uint128_t& version )
     while( _queuedDeltas.tryPop( is ))
     {
         EQASSERT( is );
+        EQASSERT( !is->hasInstanceData( ));
         _object->unpack( *is );
         EQASSERTINFO( is->getRemainingBufferSize() == 0 && 
                       is->nRemainingBuffers()==0,
@@ -146,7 +148,7 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
     if( !istream )
     {
         EQASSERT( i == _pendingDeltas.end( ));
-        istream = new ObjectSlaveDeltaDataIStream;
+        istream = new ObjectDataIStream;
     }
 
     istream->addDataPacket( command );
