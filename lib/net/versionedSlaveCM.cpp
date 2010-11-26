@@ -116,7 +116,8 @@ uint128_t VersionedSlaveCM::sync( const uint128_t& v )
         _unpackOneVersion( is );
         EQASSERTINFO( _version == is->getVersion(), "Have version " 
                       << _version << " instead of " << is->getVersion( ));
-        delete is;
+        is->reset();
+        _iStreamCache.release( is );
     }
 
     LocalNodePtr node = _object->getLocalNode();
@@ -138,7 +139,8 @@ void VersionedSlaveCM::_syncToHead()
         _unpackOneVersion( is );
         EQASSERTINFO( _version == is->getVersion(), "Have version " 
                       << _version << " instead of " << is->getVersion( ));
-        delete is;
+        is->reset();
+        _iStreamCache.release( is );
     }
 
     LocalNodePtr localNode = _object->getLocalNode();
@@ -205,7 +207,8 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
                           is->getRemainingBufferSize() << " bytes, " <<
                           is->nRemainingBuffers() << " buffer(s)" );
 
-            delete is;
+            is->reset();
+            _iStreamCache.release( is );
 #if 0
             EQLOG( LOG_OBJECTS ) << "Mapped initial data of " << _object
                                  << std::endl;
@@ -225,7 +228,8 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
             //    ignore it
             EQASSERTINFO( is->getVersion() > version,
                           is->getVersion() << " <= " << version );
-            delete is;
+            is->reset();
+            _iStreamCache.release( is );
         }
     }
 }
@@ -323,7 +327,7 @@ bool VersionedSlaveCM::_cmdInstance( Command& command )
     EQASSERT( command.getNode().isValid( ));
 
     if( !_currentIStream )
-        _currentIStream = new ObjectDataIStream;
+        _currentIStream = _iStreamCache.alloc();
 
     _currentIStream->addDataPacket( command );
     if( _currentIStream->isReady( ))
@@ -354,7 +358,7 @@ bool VersionedSlaveCM::_cmdDelta( Command& command )
     EQ_TS_THREAD( _cmdThread );
 
     if( !_currentIStream )
-        _currentIStream = new ObjectDataIStream;
+        _currentIStream = _iStreamCache.alloc();
 
     _currentIStream->addDataPacket( command );
     if( _currentIStream->isReady( ))

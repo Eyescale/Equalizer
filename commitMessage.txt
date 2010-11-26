@@ -1,9 +1,10 @@
-Clean up compression plugin helper classes
+Create new object pool allocation class
+Cache input streams and compressors for versioned slave objects
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[ ] New Feature
-[x] Cleanup
-[ ] Optimization
+[x] New Feature
+[ ] Cleanup
+[x] Optimization
 [ ] Documentation

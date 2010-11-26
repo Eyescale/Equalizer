@@ -30,7 +30,7 @@ namespace net
 ObjectDataIStream::ObjectDataIStream()
         : _version( VERSION_INVALID )
 {
-    _commands.push_back( 0 ); // see getNextCommand()
+    reset();
 }
 
 ObjectDataIStream::~ObjectDataIStream()
@@ -65,6 +65,7 @@ void ObjectDataIStream::reset()
     }
 
     _version = VERSION_INVALID;
+    _commands.push_back( 0 ); // see getNextCommand()
 }
 
 void ObjectDataIStream::addDataPacket( Command& command )

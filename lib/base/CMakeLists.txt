@@ -37,6 +37,7 @@ purple_add_library(eq_base ${EQ_LIB_VARIANT}
     perThread.h
     perThreadRef.h
     pluginRegistry.h
+    pool.h
     refPtr.h
     referenced.h
     requestHandler.h

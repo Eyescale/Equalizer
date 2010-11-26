@@ -284,6 +284,7 @@ void FullMasterCM::_checkConsistency() const
 //---------------------------------------------------------------------------
 FullMasterCM::InstanceData* FullMasterCM::_newInstanceData()
 {
+    EQ_TS_SCOPED( _cmdThread );
     InstanceData* instanceData;
 
     if( _instanceDataCache.empty( ))
