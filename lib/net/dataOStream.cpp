@@ -315,7 +315,7 @@ void DataOStream::_compress( const void* src, const uint64_t sizeSrc )
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
     nBytesTryToCompress += sizeSrc;
 #endif
-    if( !_compressor->isValid( ))
+    if( !_compressor->isValid( _compressor->getName( )))
     {
         _bufferType = BUFFER_NONE;
         return;

@@ -738,7 +738,7 @@ bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
     if( name <= EQ_COMPRESSOR_NONE )
     {
         attachment.memory.isCompressed = false;
-        attachment.compressor->initCompressor( name );
+        attachment.compressor->reset();
         return true;
     }
 

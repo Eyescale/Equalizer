@@ -87,11 +87,7 @@ void GPUCompressor::initDownloader( const uint32_t internalFormat,
 bool GPUCompressor::initDownloader( const uint32_t name )
 {
     EQASSERT( name > EQ_COMPRESSOR_NONE );
-    
-    if( name != _name )
-        _initCompressor( name );
-
-    return true;
+    return _initCompressor( name );
 }
 
 void GPUCompressor::initUploader( const uint32_t externalFormat,

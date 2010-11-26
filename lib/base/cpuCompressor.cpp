@@ -29,14 +29,8 @@ namespace eq
 namespace base
 {
 
-bool CPUCompressor::isValid() const
-{
-    return ( _name != EQ_COMPRESSOR_NONE && _plugin && 
-           ( !_isCompressor || _instance ) );
-}
-void CPUCompressor::compress( void* const in, 
-                                  const uint64_t pvpIn[4],
-                                  const eq_uint64_t flags )
+void CPUCompressor::compress( void* const in, const uint64_t pvpIn[4],
+                              const eq_uint64_t flags )
 {
     _plugin->compress( _instance, _name, in, pvpIn, flags );
 }

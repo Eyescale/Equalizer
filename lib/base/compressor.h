@@ -70,8 +70,13 @@ namespace base
         /** Info about the current compressor instance */
         const CompressorInfo* _info;
 
-        /** true if the instance is a compressor, false if downloader */
-        bool _isCompressor;
+        /** Instance allocation state */
+        enum State
+        {
+            STATE_FREE,
+            STATE_COMPRESSOR,
+            STATE_DECOMPRESSOR
+        } _state;
 
         /**
          * Find the plugin where located the compressor

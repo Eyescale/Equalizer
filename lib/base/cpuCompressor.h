@@ -31,10 +31,6 @@ namespace base
         /** Construct a new CPU-based compressor */
         CPUCompressor( ){}
 
-        EQBASE_API bool isValid() const;
-        virtual bool isValid( uint32_t name ) const
-            { return Compressor::isValid( name ); }
-
         /**
          * Compress two-dimensional data.
          *
@@ -140,10 +136,7 @@ namespace base
          * @param name the name of the decompressor
          */                               
         bool initCompressor( uint32_t name )
-        { 
-            _isCompressor = true;
-            return _initCompressor( name );
-        }
+            { return _initCompressor( name ); }
 
         /**
          * Init the decompressor with the specified name   
@@ -151,10 +144,7 @@ namespace base
          * @param name the name of the decompressor
          */
         bool initDecompressor( uint32_t name )
-        { 
-            _isCompressor = false;
-            return _initDecompressor( name );
-        }
+            { return _initDecompressor( name ); }
     };
 }
 }

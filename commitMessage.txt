@@ -1,10 +1,8 @@
-Merge and simplify object data istreams
-Fix alignment of net::ObjectPackets
-Const-correctness fixes in thread-safety macros
+Clean up compression plugin helper classes
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
