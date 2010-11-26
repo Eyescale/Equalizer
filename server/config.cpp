@@ -736,7 +736,7 @@ void Config::_syncClock()
         Node* node = *i;
         if( node->isRunning() || node->isApplicationNode( ))
         {
-            EQASSERT( node->isActive( ));
+            EQASSERT( node->isApplicationNode() || node->isActive( ));
             net::NodePtr netNode = node->getNode();
             EQASSERT( netNode->isConnected( ));
 

@@ -242,6 +242,9 @@ namespace fabric
         /** @internal */
         EQFABRIC_EXPORT virtual void notifyMapped( net::LocalNodePtr node );
 
+        /** @internal */
+        virtual void notifyAttached() {}
+
         /** @internal Execute the slave remove request. */
         EQFABRIC_EXPORT virtual void _removeChild( const base::UUID& )
             { EQUNIMPLEMENTED; }

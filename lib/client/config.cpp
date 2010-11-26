@@ -109,6 +109,14 @@ void Config::notifyMapped( net::LocalNodePtr node )
                      ConfigFunc( this, &Config::_cmdSwapObject ), 0 );
 }
 
+void Config::notifyAttached()
+{
+    EQASSERT( !_appNode )
+    net::LocalNodePtr localNode = getLocalNode();
+    _appNode = localNode->connect( getAppNodeID( ));
+    EQASSERT( _appNode.isValid( ));
+}
+
 net::CommandQueue* Config::getMainThreadQueue()
 {
     return getClient()->getMainThreadQueue();
@@ -192,7 +200,6 @@ bool Config::exit()
     _eventQueue.flush();
     _lastEvent = 0;
     _running = false;
-    _appNode = 0;
     return ret;
 }
 
@@ -684,11 +691,6 @@ bool Config::_cmdCreateNode( net::Command& command )
     EQVERB << "Handle create node " << packet << std::endl;
 
     Node* node = Global::getNodeFactory()->createNode( this );
-
-    EQASSERT( !_appNode )
-    net::LocalNodePtr localNode = getLocalNode();
-    _appNode = localNode->connect( getAppNodeID( ));
-
     EQCHECK( mapObject( node, packet->nodeID ));
     return true;
 }

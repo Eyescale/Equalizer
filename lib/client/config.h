@@ -346,6 +346,7 @@ namespace eq
     protected:
         /** @internal */
         EQ_API virtual void notifyMapped( net::LocalNodePtr node );
+        virtual void notifyAttached(); //!< @internal
         /** @internal */
         EQ_API virtual void changeLatency( const uint32_t latency );
         EQ_API virtual void unmap(); //!< @internal
