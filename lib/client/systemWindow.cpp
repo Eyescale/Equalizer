@@ -85,4 +85,10 @@ base::Error SystemWindow::getError() const
     return _window->getError();
 }
 
+bool SystemWindow::processEvent( const Event& event )
+{
+    EQASSERT( _window );
+    return _window->processEvent( event );
+}
+
 }

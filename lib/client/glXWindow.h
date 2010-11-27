@@ -37,9 +37,6 @@ namespace eq
         /** @return the X11 drawable ID. @version 1.0 */
         virtual XID getXDrawable() const = 0;
 
-        virtual bool processEvent( const GLXWindowEvent& event )
-            { return _window->processEvent( event ); }
-
         /** @return X11 display connection. @version 1.0 */
         virtual Display* getXDisplay() = 0;
     };

@@ -51,10 +51,6 @@ namespace eq
         /** @return the generic WGL function table for the window's pipe. */
         EQ_API WGLEWContext* wglewGetContext();
 
-        /** Process an event received from WGL. */
-        EQ_API virtual bool processEvent( const WGLWindowEvent& event )
-            { return _window->processEvent( event ); }
-
         /** @return the WGL OS parent pipe. */
         WGLPipe* _getWGLPipe();
     };

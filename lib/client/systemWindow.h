@@ -156,8 +156,11 @@ namespace util
          */
         EQ_API void setError( const int32_t error );
 
-        /** @return the last error from the last failed window operation. */
+        /** @return the error from the last failed operation. @version 1.0 */
         EQ_API base::Error getError() const;
+
+        /** Process an event. @version 1.0 */
+        EQ_API virtual bool processEvent( const Event& event );
 
     protected:
         /** The parent eq::Window. */
