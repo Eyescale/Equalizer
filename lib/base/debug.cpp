@@ -31,10 +31,9 @@ namespace eq
 namespace base
 {
 
-#ifndef NDEBUG
 void abort()
 {
-    EQERROR << "abort called from: "  << backtrace << std::endl;
+    EQERROR << "abort called from: " << backtrace << std::endl;
 
     // if EQ_ABORT_WAIT is set, spin forever to allow identifying and debugging
     // crashed nodes.
@@ -43,7 +42,6 @@ void abort()
 
     ::abort();
 }
-#endif // DEBUG
 
 void checkHeap()
 {

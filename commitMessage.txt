@@ -1,10 +1,9 @@
-Create new object pool allocation class
-Cache input streams and compressors for versioned slave objects
+Compile base::abort also for release builds
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
-[x] New Feature
+[x] Bugfix
+[ ] New Feature
 [ ] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation
