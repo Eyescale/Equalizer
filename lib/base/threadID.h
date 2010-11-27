@@ -57,11 +57,12 @@ namespace base
         ThreadIDPrivate* const _data;
         friend class Thread;
 
-        friend std::ostream& operator << ( std::ostream& os, const ThreadID& );
+        friend EQBASE_API 
+        std::ostream& operator << ( std::ostream& os, const ThreadID& );
     };
 
     /** Print the thread to the given output stream. */
-    std::ostream& operator << ( std::ostream& os, const ThreadID& threadID );
+    EQBASE_API std::ostream& operator << ( std::ostream&, const ThreadID& );
 }
 }
 

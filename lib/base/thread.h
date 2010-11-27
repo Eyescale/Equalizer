@@ -233,8 +233,8 @@ namespace base
             EQERROR << "Threadsafety check for " << #NAME               \
                     << " failed on object of type "                     \
                     << eq::base::className( this ) << ", thread "       \
-                   /* << eq::base::Thread::getSelfThreadID()*/ << "  != "    \
-                 /*   << NAME.id */ << std::endl;                       \
+                    << eq::base::Thread::getSelfThreadID() << "  != "   \
+                    << NAME.id << std::endl;                            \
             EQABORT( "Non-threadsave code called from two threads" );   \
         }                                                               \
     }
