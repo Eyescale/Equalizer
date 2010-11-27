@@ -19,7 +19,7 @@
 #define EQNET_VERSIONEDSLAVECM_H
 
 #include "objectCM.h"            // base class
-
+#include "objectDataIStream.h"      // member
 #include "objectSlaveDataOStream.h" // member
 #include "version.h"             // enum
 
