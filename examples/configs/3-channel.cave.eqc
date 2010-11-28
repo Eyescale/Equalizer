@@ -30,11 +30,14 @@ server
                 }
             }
         }
-        compound
+        layout{ view { }}
+        canvas
         {
-            compound
+            layout 0
+            segment
             { 
                 channel "channel-left"
+                viewport [ 0 0 .3333 1 ]
                 wall
                 {
                     bottom_left  [ -1 -1  1 ]
@@ -42,9 +45,10 @@ server
                     top_left     [ -1  1  1 ]
                 }
             }
-            compound
+            segment
             {
                 channel "channel-middle"
+                viewport [ 0.3333 0 .3334 1 ]
                 wall
                 {
                     bottom_left  [ -1 -1 -1 ]
@@ -52,9 +56,10 @@ server
                     top_left     [ -1  1 -1 ]
                 }
             }
-            compound
-            { 
+            segment
+            {
                 channel "channel-right"
+                viewport [ 0.6667 0 .3333 1 ]
                 wall
                 {
                     bottom_left  [ 1 -1 -1 ]

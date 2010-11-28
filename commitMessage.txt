@@ -1,4 +1,4 @@
-Simplify processEvent call chain
+Minor config file cleanups
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
