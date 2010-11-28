@@ -52,10 +52,10 @@ namespace fabric
         EQFABRIC_EXPORT const Viewport& getViewport() const;
 
         /** @return the parent layout of this view. @version 1.0 */
-        EQFABRIC_EXPORT L* getLayout() { return _layout; }
+        L* getLayout() { return _layout; }
 
         /** @return the parent layout of this view. @version 1.0 */
-        EQFABRIC_EXPORT const L* getLayout() const { return _layout; }
+        const L* getLayout() const { return _layout; }
 
         /**
          * @return the observer tracking this view, or 0 for untracked views.
@@ -88,7 +88,7 @@ namespace fabric
         EQFABRIC_EXPORT void setObserver( O* observer );
         
         /** @internal Get the mode of this view. */
-        EQFABRIC_EXPORT Mode getMode( ) const { return _mode; }
+        Mode getMode( ) const { return _mode; }
         
         /**
          * Set the mode of this view.

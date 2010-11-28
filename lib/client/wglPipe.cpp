@@ -22,6 +22,10 @@
 #include "pipe.h"
 #include "wglEventHandler.h"
 
+#ifndef KEY_WOW64_64KEY
+#  define KEY_WOW64_64KEY 0x0100
+#endif
+
 namespace eq
 {
 

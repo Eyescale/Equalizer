@@ -54,7 +54,7 @@ namespace eq
         EQ_API virtual void configExitFBO();
 
         /** @return the FBO of this window, or 0. @version 1.0 */
-        EQ_API virtual const util::FrameBufferObject* getFrameBufferObject()
+        virtual const util::FrameBufferObject* getFrameBufferObject()
             const { return _fbo; }
         //@}
      
@@ -62,7 +62,7 @@ namespace eq
         EQ_API virtual void initGLEW();
         
         /** De-initialize the GLEW context. @version 1.0 */
-        EQ_API virtual void exitGLEW() { _glewInitialized = false; }
+        virtual void exitGLEW() { _glewInitialized = false; }
         
         /**
          * Get the GLEW context for this window.

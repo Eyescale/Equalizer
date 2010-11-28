@@ -1,13 +1,13 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010 Stefan Eilemann <eile@eyescale.ch>
 
-find_package(OpenSceneGraph 2.9.8 COMPONENTS osgDB osgUtil)
-
-if(OSG_LIBRARY MATCHES "OSG_LIBRARY-NOTFOUND")
-  message(WARNING "OSG not found: Example 'osgScaleViewer' will be skipped!")
+option(EQUALIZER_BUILD_OSGSCALEVIEWER "Build osgScaleViewer example" OFF)
+if(NOT EQUALIZER_BUILD_OSGSCALEVIEWER)
+  message(STATUS "Equalizer: Skipping example 'osgScaleViewer'. See EQUALIZER_BUILD_OSGSCALEVIEWER setting")
   return()
-endif(OSG_LIBRARY MATCHES "OSG_LIBRARY-NOTFOUND")
+endif()
 
+find_package(OpenSceneGraph 2.9.8 REQUIRED COMPONENTS osgDB osgUtil)
 include_directories(SYSTEM ${OPENSCENEGRAPH_INCLUDE_DIRS})
 
 eq_add_example(osgScaleViewer

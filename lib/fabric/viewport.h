@@ -168,7 +168,7 @@ namespace fabric
             }
 
         /** Apply the view coverage to this viewport. @internal */
-        EQ_EXPORT void applyView( const Viewport& segmentVP, 
+        EQ_FABRIC_DECL void applyView( const Viewport& segmentVP,
                                   const Viewport& viewVP,
                                   const PixelViewport& pvp, 
                                   const Vector4i& overdraw );

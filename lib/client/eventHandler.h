@@ -27,10 +27,10 @@ namespace eq
     {
     protected:
         /** Construct a new event handler. @version 1.0 */
-        EQ_API EventHandler() : _lastEventWindow( 0 ) {}
+        EventHandler() : _lastEventWindow( 0 ) {}
 
         /** Destruct the event handler. @version 1.0 */
-        EQ_API virtual ~EventHandler(){}
+        virtual ~EventHandler(){}
 
         /**
          * @internal

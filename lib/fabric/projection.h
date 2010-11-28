@@ -19,7 +19,7 @@
 #define EQFABRIC_PROJECTION_H
 
 #include <eq/fabric/types.h>
-#include <eq/base/base.h>
+#include <eq/fabric/base.h>
   
 #include <iostream>
 
@@ -40,7 +40,7 @@ namespace fabric
     class Projection
     {
     public:
-        EQ_EXPORT Projection();
+    	EQ_FABRIC_DECL Projection();
 
         /** 
          * Resize the horizontal FOV.
@@ -48,7 +48,7 @@ namespace fabric
          * @param ratio the amount by which the FOV is grown or shrunk.
          * @version 1.0
          */
-        EQ_EXPORT void resizeHorizontal( const float ratio );
+    	EQ_FABRIC_DECL void resizeHorizontal( const float ratio );
 
         /** 
          * Resize the vertical FOV.
@@ -56,25 +56,25 @@ namespace fabric
          * @param ratio the amount by which the FOV is grown or shrunk.
          * @version 1.0
          */
-        EQ_EXPORT void resizeVertical( const float ratio );
+    	EQ_FABRIC_DECL void resizeVertical( const float ratio );
 
         /**
          * Convert the projection parameters from a wall description.
          * @version 1.0
          */
-        EQ_EXPORT Projection& operator = ( const Wall& wall );
+    	EQ_FABRIC_DECL Projection& operator = ( const Wall& wall );
 
         /**
          * @return true if the two projection definitions are identical.
          * @version 1.0
          */
-        EQ_EXPORT bool operator == ( const Projection& rhs ) const;
+    	EQ_FABRIC_DECL bool operator == ( const Projection& rhs ) const;
 
         /**
          * @return true if the two projection definitions are not identical.
          * @version 1.0
          */
-        EQ_EXPORT bool operator != ( const Projection& rhs ) const;
+    	EQ_FABRIC_DECL bool operator != ( const Projection& rhs ) const;
         
         Vector3f origin;
         float    distance;
@@ -82,7 +82,7 @@ namespace fabric
         Vector3f hpr;
     };
 
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Projection& );
+    EQ_FABRIC_DECL std::ostream& operator << ( std::ostream& os, const Projection& );
 }
 }
 #endif // EQFABRIC_PROJECTION_H

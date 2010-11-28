@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_INIT_H
 #define EQFABRIC_INIT_H
 
-#include <eq/base/base.h>
+#include <eq/fabric/base.h>
 
 /** @file fabric/init.h */
 namespace eq
@@ -35,7 +35,7 @@ namespace fabric
      *         <code>false</code> otherwise.
      * @version 1.0
      */
-    EQ_EXPORT bool init( const int argc, char** argv );
+	EQ_FABRIC_DECL bool init( const int argc, char** argv );
     
     /**
      * De-initialize the Equalizer fabric namespace.
@@ -44,7 +44,7 @@ namespace fabric
      *         <code>false</code> otherwise.
      * @version 1.0
      */
-    EQ_EXPORT bool exit();
+	EQ_FABRIC_DECL bool exit();
 }
 }
 #endif // EQFABRIC_INIT_H

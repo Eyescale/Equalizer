@@ -19,7 +19,7 @@
 #ifndef EQFABRIC_EYE_H
 #define EQFABRIC_EYE_H
 
-#include <eq/base/base.h>
+#include <eq/fabric/base.h>
 #include <iostream>
 
 namespace eq
@@ -41,7 +41,7 @@ namespace fabric
         NUM_EYES       = 3  //!< @internal increase with each new enum 
     };
 
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, const Eye& eye );
+    EQ_FABRIC_DECL std::ostream& operator << ( std::ostream& os, const Eye& eye );
 }
 }
 #endif // EQFABRIC_EYE_H

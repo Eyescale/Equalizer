@@ -36,7 +36,7 @@ namespace net
 
         EQNET_API void sendBuffer( ConnectionPtr connection );
 
-        EQNET_API uint64_t getSize() const { return _buffer.getSize(); }
+        uint64_t getSize() const { return _buffer.getSize(); }
 
     protected:
         virtual void readNB( void*, const uint64_t )

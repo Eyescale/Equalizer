@@ -18,7 +18,7 @@
 #ifndef EQBASE_OMP_H
 #define EQBASE_OMP_H
 
-#include <eq/base/base.h>     // for EQBASE_API
+#include <eq/base/defines.h>
 
 #ifdef EQ_USE_OPENMP
 #  include <omp.h>
@@ -36,7 +36,7 @@ namespace base
          * @return the number of threads used in a parallel region.
          * @version 1.0
          */
-        EQBASE_API static int getNThreads() { return _nThreads; }
+        static int getNThreads() { return _nThreads; }
 
     private:
         static int _nThreads;

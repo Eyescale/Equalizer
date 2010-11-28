@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_IATTRIBUTE_H
 #define EQFABRIC_IATTRIBUTE_H
 
-#include <eq/base/base.h>
+#include <eq/fabric/base.h>
 
 namespace eq
 {
@@ -56,7 +56,7 @@ namespace fabric
         HORIZONTAL = ON   //!< Horizontal load-balancing
     };
 
-    EQ_EXPORT std::ostream& operator << ( std::ostream& os, 
+    EQ_FABRIC_DECL std::ostream& operator << ( std::ostream& os,
                                           const IAttribute value );
 }
 }

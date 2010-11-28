@@ -187,8 +187,6 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
     shared eq_base
     shared eq_net
     shared eq_fabric
-#    ${PTHREAD_LIBRARIES}
-#    ${Boost_LIBRARIES}
     ${GLEW_LIBRARY}
     ${CARBON_LIBRARY}
     ${X11_LIBRARIES}

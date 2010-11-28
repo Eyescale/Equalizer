@@ -278,7 +278,7 @@ namespace net
         EQNET_API Object( const Object& );
 
         /** NOP assignment operator. */
-        EQNET_API const Object& operator = ( const Object& ) { return *this; }
+        const Object& operator = ( const Object& ) { return *this; }
 
         /**
          * Swap the session.
@@ -287,7 +287,7 @@ namespace net
          *
          * @internal
          */
-        EQNET_API void swapSession( Session* session ) { _session = session; }
+        void swapSession( Session* session ) { _session = session; }
         /** 
          * Setup the change manager.
          * 

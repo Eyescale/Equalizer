@@ -122,7 +122,7 @@ namespace net
         getIAttributeString( const IAttribute attr );
 
     protected:
-        EQNET_API virtual ~ConnectionDescription() {}
+        virtual ~ConnectionDescription() {}
 
     private:
         /** The host name. */

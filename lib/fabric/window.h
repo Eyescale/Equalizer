@@ -150,12 +150,12 @@ namespace fabric
         };
 
         /** Set a window attribute. @version 1.0 */
-        EQFABRIC_EXPORT void setIAttribute( const IAttribute attr,
+        void setIAttribute( const IAttribute attr,
                                       const int32_t value )
             { _data.iAttributes[attr] = value; }
 
         /** @return the value of a window attribute. @version 1.0 */
-        EQFABRIC_EXPORT int32_t  getIAttribute( const IAttribute attr ) const
+        int32_t  getIAttribute( const IAttribute attr ) const
             { return _data.iAttributes[attr]; }
 
         /** @internal @return the name of a window attribute. */

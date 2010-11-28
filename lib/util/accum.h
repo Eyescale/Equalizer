@@ -98,7 +98,7 @@ namespace util
          * @return the number of steps done.
          * @version 1.0
          */
-        EQ_API uint32_t getNumSteps() const { return _numSteps; }
+        uint32_t getNumSteps() const { return _numSteps; }
 
         /**
          * Set the total number of accumulation steps that will be done.
@@ -109,11 +109,11 @@ namespace util
          * @param totalSteps the total number of steps to do.
          * @version 1.0
          */
-        EQ_API void setTotalSteps( uint32_t totalSteps )
+        void setTotalSteps( uint32_t totalSteps )
             { _totalSteps = totalSteps; }
 
         /** @return the total number of accumulations. @version 1.0 */
-        EQ_API uint32_t getTotalSteps() { return _totalSteps; }
+        uint32_t getTotalSteps() { return _totalSteps; }
 
         /**
          * Test if the accumulation uses the FBO implementation.

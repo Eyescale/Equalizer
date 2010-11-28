@@ -60,9 +60,9 @@ namespace eq
 namespace
 {
 #ifdef _MSC_VER
-    typedef public stde::hash_map< HWND, WGLEventHandler* > HandlerMap;
+    typedef stde::hash_map< HWND, WGLEventHandler* > HandlerMap;
 #else // Cygwin does not want to instantiate a hash with key=HWND
-    typedef public stde::hash_map< void*, WGLEventHandler* > HandlerMap;
+    typedef stde::hash_map< void*, WGLEventHandler* > HandlerMap;
 #endif
 
 static base::PerThread< HandlerMap > _handlers;

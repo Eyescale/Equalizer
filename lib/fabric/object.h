@@ -18,6 +18,7 @@
 #ifndef EQFABRIC_OBJECT_H
 #define EQFABRIC_OBJECT_H
 
+#include <eq/fabric/base.h>
 #include <eq/fabric/error.h>        // enum
 #include <eq/fabric/serializable.h> // base class
 #include <eq/net/objectVersion.h>   // member
@@ -38,10 +39,10 @@ namespace fabric
         /** @name Data Access. */
         //@{
         /** Set the name of the object. @version 1.0 */
-        EQ_EXPORT void setName( const std::string& name );
+    	EQ_FABRIC_DECL void setName( const std::string& name );
 
         /** @return the name of the object. @version 1.0 */
-        EQ_EXPORT const std::string& getName() const;
+    	EQ_FABRIC_DECL const std::string& getName() const;
 
         /**
          * Set user-specific data.
@@ -53,7 +54,7 @@ namespace fabric
          * object. All instances have to set the same type of object.
          * @version 1.0
          */
-        EQ_EXPORT void setUserData( net::Object* userData );
+    	EQ_FABRIC_DECL void setUserData( net::Object* userData );
 
         /** @return the user-specific data. @version 1.0 */
         net::Object* getUserData() { return _userData; }
@@ -94,9 +95,9 @@ namespace fabric
         //@}
 
         /** @return true if the view has data to commit. @version 1.0 */
-        EQ_EXPORT virtual bool isDirty() const;
+        EQ_FABRIC_DECL virtual bool isDirty() const;
 
-        EQ_EXPORT virtual uint32_t commitNB(); //!< @internal
+        EQ_FABRIC_DECL virtual uint32_t commitNB(); //!< @internal
 
         /** @internal Back up app-specific data, excluding child data. */
         EQFABRIC_EXPORT virtual void backup();
@@ -123,10 +124,10 @@ namespace fabric
 
     protected:
         /** Construct a new Object. */
-        EQ_EXPORT Object();
+        EQ_FABRIC_DECL Object();
         
         /** Destruct the object. */
-        EQ_EXPORT virtual ~Object();
+        EQ_FABRIC_DECL virtual ~Object();
 
         /**
          * @return true if this instance shall hold the master instance of the
@@ -137,12 +138,12 @@ namespace fabric
         /** @internal Set the tasks this entity might potentially execute. */
         EQFABRIC_EXPORT void setTasks( const uint32_t tasks );
 
-        EQ_EXPORT virtual void notifyDetach();
+        EQ_FABRIC_DECL virtual void notifyDetach();
 
-        EQ_EXPORT virtual void serialize( net::DataOStream& os,
+        EQ_FABRIC_DECL virtual void serialize( net::DataOStream& os,
                                           const uint64_t dirtyBits );
 
-        EQ_EXPORT virtual void deserialize( net::DataIStream& is, 
+        EQ_FABRIC_DECL virtual void deserialize( net::DataIStream& is,
                                             const uint64_t dirtyBits );
 
 
@@ -155,7 +156,7 @@ namespace fabric
          * Remove the given child on the master during the next commit.
          * @sa removeChild
          */
-        EQ_EXPORT void postRemove( const Object* child );
+        EQ_FABRIC_DECL void postRemove( const Object* child );
 
         /** @internal Execute the slave remove request. @sa postRemove */
         virtual void removeChild( const base::UUID& ) { EQUNIMPLEMENTED; }

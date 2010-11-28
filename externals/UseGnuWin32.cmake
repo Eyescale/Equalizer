@@ -1,8 +1,8 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 
-if(NOT WIN32)
+if(NOT CMAKE_HOST_WIN32)
   return()
-endif(NOT WIN32)
+endif(NOT CMAKE_HOST_WIN32)
 
 set(GNUWIN32_NAME GnuWin32)
 set(GNUWIN32_TGZ ${CMAKE_SOURCE_DIR}/externals/${GNUWIN32_NAME}.tar.gz)

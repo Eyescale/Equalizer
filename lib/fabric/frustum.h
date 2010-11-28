@@ -57,14 +57,13 @@ namespace fabric
         EQ_FABRIC_DECL virtual void setProjection( const Projection& projection );
 
         /** @return the last specified frustum as a wall. @version 1.0 */
-        EQ_FABRIC_DECL const Wall& getWall() const { return _data.wall; }
+        const Wall& getWall() const { return _data.wall; }
 
         /** @return the last specified frustum as a projection. @version 1.0 */
-        EQ_FABRIC_DECL const Projection& getProjection() const
-            { return _data.projection; }
+        const Projection& getProjection() const { return _data.projection; }
 
         /** @return the type of the latest specified frustum. @version 1.0 */
-        EQ_FABRIC_DECL Type getCurrentType() const { return _data.current; }
+        Type getCurrentType() const { return _data.current; }
 
         /** Set the last specified frustum to TYPE_NONE. @version 1.0 */
         EQ_FABRIC_DECL virtual void unsetFrustum();

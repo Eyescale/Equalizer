@@ -22,8 +22,8 @@ if(WIN32)
     SOURCES
       affinityCheck/affinityCheck.cpp
     LINK_LIBRARIES
-      ${OPENGL_LIBRARIES}
       ${GLEW_LIBRARY}
+      ${OPENGL_LIBRARIES}
     )
 endif(WIN32)
 

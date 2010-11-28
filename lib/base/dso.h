@@ -34,7 +34,7 @@ namespace base
     {
     public:
         /** Construct a new dynamic shared object. @version 1.0 */
-        EQBASE_API DSO() : _dso( 0 ) {}
+        DSO() : _dso( 0 ) {}
 
         /** 
          * Open a dynamic shared object.

@@ -308,7 +308,7 @@ namespace eq
         void changeLatency( const uint32_t latency );
 
         /** @return a fixed unique color for this channel. @version 1.0 */
-        EQ_API const Vector3ub& getUniqueColor() const { return _color; }
+        const Vector3ub& getUniqueColor() const { return _color; }
 
     protected:
         /** @internal */
@@ -502,7 +502,7 @@ namespace eq
          *        processed.
          * @version 1.0
          */
-        EQ_API virtual void notifyStopFrame(const uint32_t lastFrameNumber)
+        virtual void notifyStopFrame(const uint32_t lastFrameNumber)
              {}
 
     private:

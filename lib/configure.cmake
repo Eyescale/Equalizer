@@ -34,12 +34,14 @@ if(WIN32)
     WIN32
     WIN32_API
     WIN32_LEAN_AND_MEAN
-    EQ_USE_MAGELLAN
-    EQ_PGM
     #EQ_INFINIBAND #Enable for IB builds (needs WinOF 2.0 installed)
     )
   set(ARCH Win32)
 endif(WIN32)
+
+if(MSVC)
+  list(APPEND EQUALIZER_DEFINES EQ_PGM EQ_USE_MAGELLAN)
+endif(MSVC)
 
 if(EQ_AGL_USED)
   list(APPEND EQUALIZER_DEFINES AGL)

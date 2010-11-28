@@ -30,8 +30,8 @@ namespace eq
     class WGLWindowIF : public GLWindow
     {
     public:
-        EQ_API WGLWindowIF( Window* parent ) : GLWindow( parent ) {}
-        EQ_API virtual ~WGLWindowIF() {}
+        WGLWindowIF( Window* parent ) : GLWindow( parent ) {}
+        virtual ~WGLWindowIF() {}
 
         /** @return the WGL rendering context. */
         EQ_API virtual HGLRC getWGLContext() const = 0;
@@ -46,7 +46,7 @@ namespace eq
         EQ_API virtual HDC getWGLDC() const = 0;
 
         /** @return the Win32 affinity device context, if used. */
-        EQ_API virtual HDC getWGLAffinityDC() { return 0; }
+        virtual HDC getWGLAffinityDC() { return 0; }
 
         /** @return the generic WGL function table for the window's pipe. */
         EQ_API WGLEWContext* wglewGetContext();

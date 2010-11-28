@@ -303,7 +303,7 @@ namespace net
         /** The connection set of all connections from/to this node. */
         ConnectionSet _incoming;
     
-        friend net::ConnectionPtr (::eqsStartLocalServer( const std::string& ));
+        friend EQSERVER_EXPORT net::ConnectionPtr (::eqsStartLocalServer( const std::string& ));
 
         /**
          * @name Receiver management

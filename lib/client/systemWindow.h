@@ -106,7 +106,7 @@ namespace util
         EQ_API void configExitFBO();
 
         /** @return the FBO of this window, or 0 if no FBO is used. */
-        EQ_API virtual const util::FrameBufferObject* getFrameBufferObject()
+        virtual const util::FrameBufferObject* getFrameBufferObject()
             const { return 0; }
         //@}
 
@@ -144,7 +144,7 @@ namespace util
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
          */
-        EQ_API virtual const GLEWContext* glewGetContext() const { return 0;}
+        virtual const GLEWContext* glewGetContext() const { return 0;}
 
         /** 
          * Set an error code why the last operation failed.
