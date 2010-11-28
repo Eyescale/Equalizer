@@ -21,7 +21,6 @@
 
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
-#include <eq/net/session.h>
 
 using namespace std;
 

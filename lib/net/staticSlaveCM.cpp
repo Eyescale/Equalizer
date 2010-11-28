@@ -22,7 +22,6 @@
 #include "log.h"
 #include "object.h"
 #include "objectDataIStream.h"
-#include "session.h"
 
 #include <eq/base/scopedMutex.h>
 

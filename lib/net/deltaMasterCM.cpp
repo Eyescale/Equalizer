@@ -24,7 +24,6 @@
 #include "node.h"
 #include "object.h"
 #include "objectPackets.h"
-#include "session.h"
 
 namespace eq
 {

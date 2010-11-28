@@ -35,7 +35,6 @@ namespace net
 
 class Node;
 class LocalNode;
-class Session;
 class Object;
 class Barrier;
 class Command;
