@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
+list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 
 set(VERSION_MAJOR "0")
 set(VERSION_MINOR "9")
@@ -24,10 +24,10 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${Equalizer_BINARY_DIR}/bin)
 set(EQ_FEATURES)
 
-set(EQ_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
+set(EQ_INCLUDE_DIR ${Equalizer_BINARY_DIR}/include)
 file(MAKE_DIRECTORY ${EQ_INCLUDE_DIR})
 include_directories(BEFORE ${EQ_INCLUDE_DIR})
 
@@ -118,6 +118,10 @@ find_package(CUDA)
 if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
+
+  if(NOT WIN32 AND NOT XCODE_VERSION)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+  endif()
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 if(LINUX)
@@ -148,10 +152,10 @@ if(CUDA_FOUND)
 endif(CUDA_FOUND)
 
 
-include(${CMAKE_SOURCE_DIR}/externals/UseGLEW.cmake)
-include(${CMAKE_SOURCE_DIR}/externals/UseVMMLib.cmake)
-include(${CMAKE_SOURCE_DIR}/externals/UseGnuWin32.cmake)
-include(${CMAKE_SOURCE_DIR}/externals/UsePthreads.cmake)
+include(${Equalizer_SOURCE_DIR}/externals/UseGLEW.cmake)
+include(${Equalizer_SOURCE_DIR}/externals/UseVMMLib.cmake)
+include(${Equalizer_SOURCE_DIR}/externals/UseGnuWin32.cmake)
+include(${Equalizer_SOURCE_DIR}/externals/UsePthreads.cmake)
 set(PTHREAD_LIBRARIES pthread)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DEQ_BUILD_DIR=\"${CMAKE_BINARY_DIR}/\"")
 
@@ -185,8 +189,8 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Parallel Rendering Framework")
 set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
-set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/LICENSE.txt)
-set(CPACK_RESOURCE_FILE_README ${CMAKE_SOURCE_DIR}/RELNOTES.txt)
+set(CPACK_RESOURCE_FILE_LICENSE ${Equalizer_SOURCE_DIR}/LICENSE.txt)
+set(CPACK_RESOURCE_FILE_README ${Equalizer_SOURCE_DIR}/RELNOTES.txt)
 
 set(CPACK_COMPONENTS_ALL lib dev man apps examples tools data vmmlib)
 

@@ -46,7 +46,7 @@
 #  include <windef.h>
 #endif
 
-#if defined(__declspec)
+#if defined(_MSC_VER) || defined(__declspec)
 #  define EQ_DLLEXPORT __declspec(dllexport)
 #  define EQ_DLLIMPORT __declspec(dllimport)
 #else // _MSC_VER
