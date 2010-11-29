@@ -230,6 +230,36 @@ namespace net
             }
     };
 
+    struct NodeAddListenerPacket : public NodePacket
+    {
+        NodeAddListenerPacket( ConnectionPtr conn )
+                : connection( conn.get( ))
+            {
+                command = CMD_NODE_ADD_LISTENER;
+                size    = sizeof( NodeAddListenerPacket );
+                conn.ref();
+                connectionData[0] = 0;
+            }
+
+        Connection* connection;
+        EQ_ALIGN8( char connectionData[8] );
+    };
+
+    struct NodeRemoveListenerPacket : public NodePacket
+    {
+        NodeRemoveListenerPacket( ConnectionPtr conn )
+                : connection( conn.get( ))
+            {
+                command = CMD_NODE_REMOVE_LISTENER;
+                size    = sizeof( NodeRemoveListenerPacket );
+                conn.ref();
+                connectionData[0] = 0;
+            }
+
+        Connection* connection;
+        EQ_ALIGN8( char connectionData[8] );
+    };
+
     //------------------------------------------------------------
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeMapSessionPacket* packet )

@@ -151,9 +151,7 @@ namespace net
         EQNET_API virtual bool disconnect( NodePtr node );
         //@}
 
-        /**
-         * @name Session management
-         */
+        /** @name Session management */
         //@{
         /**
          * Register a new session using this node as the session server.
@@ -198,6 +196,8 @@ namespace net
         bool hasSessions() const { return !_sessions->empty(); }
         //@}
 
+        /** @name Data Access */
+        //@{
         /** 
          * Get a node by identifier.
          *
@@ -223,6 +223,15 @@ namespace net
          *         not.
          */
         bool inCommandThread() const  { return _commandThread->isCurrent(); }
+        //@}
+
+        /** @name Operations */
+        //@{
+        /** Add a listening connection to this listening node. */
+        void addListener( ConnectionPtr connection );
+
+        /** Remove a listening connection from this listening node. */
+        void removeListener( ConnectionPtr connection );
 
         /**
          * Flush all pending commands on this listening node.
@@ -253,6 +262,7 @@ namespace net
          * @sa invokeCommand
          */
         EQNET_API bool dispatchCommand( Command& command );
+        //@}
 
     protected:
         /** 
@@ -409,6 +419,8 @@ namespace net
         bool _cmdAcquireSendToken( Command& command );
         bool _cmdAcquireSendTokenReply( Command& command );
         bool _cmdReleaseSendToken( Command& command );
+        bool _cmdAddListener( Command& command );
+        bool _cmdRemoveListener( Command& command );
         //@}
 
         EQ_TS_VAR( _cmdThread );

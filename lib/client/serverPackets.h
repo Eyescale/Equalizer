@@ -49,10 +49,12 @@ namespace eq
                 command   = fabric::CMD_SERVER_CHOOSE_CONFIG_REPLY;
                 size      = sizeof( ServerChooseConfigReplyPacket );
                 requestID = requestPacket->requestID;
+                connectionData[0] = 0;
             }
 
         net::SessionID configID;
         uint32_t requestID;
+        EQ_ALIGN8( char connectionData[8] );
     };
 
     struct ServerReleaseConfigPacket : public ServerPacket

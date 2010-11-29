@@ -431,7 +431,6 @@ bool Node::_cmdCreatePipe( net::Command& command )
     const NodeCreatePipePacket* packet = 
         command.getPacket<NodeCreatePipePacket>();
     EQLOG( LOG_INIT ) << "Create pipe " << packet << std::endl;
-
     EQ_TS_THREAD( _nodeThread );
 
     Pipe* pipe = Global::getNodeFactory()->createPipe( this );

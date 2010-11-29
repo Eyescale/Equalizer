@@ -38,6 +38,44 @@ LocalNode::LocalNode( ) : _hasSendToken( true )
 {
     _receiverThread = new ReceiverThread( this );
     _commandThread  = new CommandThread( this );
+
+    CommandQueue* queue = &_commandThreadQueue;
+    registerCommand( CMD_NODE_STOP,
+                     CmdFunc( this, &LocalNode::_cmdStop ), queue );
+    registerCommand( CMD_NODE_REGISTER_SESSION,
+                    CmdFunc( this, &LocalNode::_cmdRegisterSession ), 0 );
+    registerCommand( CMD_NODE_MAP_SESSION,
+                    CmdFunc( this, &LocalNode::_cmdMapSession ), queue );
+    registerCommand( CMD_NODE_MAP_SESSION_REPLY,
+                    CmdFunc( this, &LocalNode::_cmdMapSessionReply ), 0 );
+    registerCommand( CMD_NODE_UNMAP_SESSION, 
+                    CmdFunc( this, &LocalNode::_cmdUnmapSession ), queue );
+    registerCommand( CMD_NODE_UNMAP_SESSION_REPLY,
+                    CmdFunc( this, &LocalNode::_cmdUnmapSessionReply ), 0 );
+    registerCommand( CMD_NODE_CONNECT,
+                    CmdFunc( this, &LocalNode::_cmdConnect ), 0);
+    registerCommand( CMD_NODE_CONNECT_REPLY,
+                    CmdFunc( this, &LocalNode::_cmdConnectReply ), 0 );
+    registerCommand( CMD_NODE_CONNECT_ACK, 
+                    CmdFunc( this, &LocalNode::_cmdConnectAck ), 0 );
+    registerCommand( CMD_NODE_ID,
+                    CmdFunc( this, &LocalNode::_cmdID ), 0 );
+    registerCommand( CMD_NODE_DISCONNECT,
+                    CmdFunc( this, &LocalNode::_cmdDisconnect ), 0 );
+    registerCommand( CMD_NODE_GET_NODE_DATA,
+                    CmdFunc( this, &LocalNode::_cmdGetNodeData), queue );
+    registerCommand( CMD_NODE_GET_NODE_DATA_REPLY,
+                    CmdFunc( this, &LocalNode::_cmdGetNodeDataReply ), 0 );
+    registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN,
+                    CmdFunc( this, &LocalNode::_cmdAcquireSendToken ), queue );
+    registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY,
+                     CmdFunc( this, &LocalNode::_cmdAcquireSendTokenReply ), 0);
+    registerCommand( CMD_NODE_RELEASE_SEND_TOKEN,
+                     CmdFunc( this, &LocalNode::_cmdReleaseSendToken ), queue );
+    registerCommand( CMD_NODE_ADD_LISTENER,
+                     CmdFunc( this, &LocalNode::_cmdAddListener ), 0 );
+    registerCommand( CMD_NODE_REMOVE_LISTENER,
+                     CmdFunc( this, &LocalNode::_cmdRemoveListener ), 0 );
 }
 
 LocalNode::~LocalNode( )
@@ -124,7 +162,7 @@ bool LocalNode::listen()
     if( !isClosed() || !_connectSelf( ))
         return false;
 
-    ConnectionDescriptions& descriptions = _connectionDescriptions;
+    ConnectionDescriptions descriptions = getConnectionDescriptions();
     for( ConnectionDescriptions::const_iterator i =
              descriptions.begin(); i != descriptions.end(); ++i )
     {
@@ -154,40 +192,6 @@ bool LocalNode::listen()
     }
 
     _state = STATE_LISTENING;
-
-    CommandQueue* queue = getCommandThreadQueue();
-    registerCommand( CMD_NODE_STOP,
-                     CmdFunc( this, &LocalNode::_cmdStop ), queue );
-    registerCommand( CMD_NODE_REGISTER_SESSION,
-                    CmdFunc( this, &LocalNode::_cmdRegisterSession ), 0 );
-    registerCommand( CMD_NODE_MAP_SESSION,
-                    CmdFunc( this, &LocalNode::_cmdMapSession ), queue );
-    registerCommand( CMD_NODE_MAP_SESSION_REPLY,
-                    CmdFunc( this, &LocalNode::_cmdMapSessionReply ), 0 );
-    registerCommand( CMD_NODE_UNMAP_SESSION, 
-                    CmdFunc( this, &LocalNode::_cmdUnmapSession ), queue );
-    registerCommand( CMD_NODE_UNMAP_SESSION_REPLY,
-                    CmdFunc( this, &LocalNode::_cmdUnmapSessionReply ), 0 );
-    registerCommand( CMD_NODE_CONNECT,
-                    CmdFunc( this, &LocalNode::_cmdConnect ), 0);
-    registerCommand( CMD_NODE_CONNECT_REPLY,
-                    CmdFunc( this, &LocalNode::_cmdConnectReply ), 0 );
-    registerCommand( CMD_NODE_CONNECT_ACK, 
-                    CmdFunc( this, &LocalNode::_cmdConnectAck ), 0 );
-    registerCommand( CMD_NODE_ID,
-                    CmdFunc( this, &LocalNode::_cmdID ), 0 );
-    registerCommand( CMD_NODE_DISCONNECT,
-                    CmdFunc( this, &LocalNode::_cmdDisconnect ), 0 );
-    registerCommand( CMD_NODE_GET_NODE_DATA,
-                    CmdFunc( this, &LocalNode::_cmdGetNodeData), queue );
-    registerCommand( CMD_NODE_GET_NODE_DATA_REPLY,
-                    CmdFunc( this, &LocalNode::_cmdGetNodeDataReply ), 0 );
-    registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN,
-                    CmdFunc( this, &LocalNode::_cmdAcquireSendToken ), queue );
-    registerCommand( CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY,
-                     CmdFunc( this, &LocalNode::_cmdAcquireSendTokenReply ), 0);
-    registerCommand( CMD_NODE_RELEASE_SEND_TOKEN,
-                     CmdFunc( this, &LocalNode::_cmdReleaseSendToken ), queue );
 
     EQVERB << base::className( this ) << " start command and receiver thread "
            << std::endl;
@@ -222,6 +226,38 @@ bool LocalNode::close()
     EQASSERTINFO( !hasPendingRequests(),
                   *static_cast< base::RequestHandler* >( this ));
     return true;
+}
+
+void LocalNode::addListener( ConnectionPtr connection )
+{
+    EQASSERT( isListening( ));
+    EQASSERT( connection->isListening( ));
+    EQWARN << "Add " << connection << std::endl;
+
+    NodeAddListenerPacket packet( connection );
+    Nodes nodes;
+    getNodes( nodes );
+
+    for( Nodes::iterator i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        (*i)->send( packet, connection->getDescription()->toString( ));
+    }
+}
+
+void LocalNode::removeListener( ConnectionPtr connection )
+{
+    EQASSERT( isListening( ));
+    EQASSERT( connection->isListening( ));
+    EQWARN << "Remove " << connection << std::endl;
+
+    NodeRemoveListenerPacket packet( connection );
+    Nodes nodes;
+    getNodes( nodes );
+
+    for( Nodes::iterator i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        (*i)->send( packet, connection->getDescription()->toString( ));
+    }
 }
 
 void LocalNode::_addConnection( ConnectionPtr connection )
@@ -349,9 +385,9 @@ void LocalNode::_connectMulticast( NodePtr node )
         return;
 
     // Search if the connected node is in the same multicast group as we are
-    for( ConnectionDescriptions::const_iterator i =
-             _connectionDescriptions.begin();
-         i != _connectionDescriptions.end(); ++i )
+    ConnectionDescriptions descriptions = getConnectionDescriptions();
+    for( ConnectionDescriptions::const_iterator i = descriptions.begin();
+         i != descriptions.end(); ++i )
     {
         ConnectionDescriptionPtr description = *i;
         if( description->type < CONNECTIONTYPE_MULTICAST )
@@ -550,9 +586,9 @@ bool LocalNode::connect( NodePtr node )
 
     // try connecting using the given descriptions
     const ConnectionDescriptions& cds = node->getConnectionDescriptions();
-    EQASSERTINFO( !cds.empty(),
-                  "Can't connect to a node without connection descriptions" );
-
+    if( node->getConnectionDescriptions().empty( ))
+        EQWARN << "Can't connect to a node with no listening connections"
+               << std::endl;
     for( ConnectionDescriptions::const_iterator i = cds.begin();
         i != cds.end(); ++i )
     {
@@ -1266,8 +1302,6 @@ bool LocalNode::_cmdConnect( Command& command )
     // create and add connected node
     if( !remoteNode )
         remoteNode = createNode( packet->nodeType );
-    else
-        remoteNode->_connectionDescriptions.clear(); // use data from peer
 
     std::string data = packet->nodeData;
     if( !remoteNode->deserialize( data ))
@@ -1341,8 +1375,6 @@ bool LocalNode::_cmdConnectReply( Command& command )
         else
             remoteNode = createNode( packet->nodeType );
     }
-
-    remoteNode->_connectionDescriptions.clear(); // use data from peer
 
     EQASSERT( remoteNode->getType() == packet->nodeType );
     EQASSERT( remoteNode->_state == STATE_CLOSED );
@@ -1635,6 +1667,76 @@ bool LocalNode::_cmdReleaseSendToken( Command& )
 
     request->getNode()->send( reply );
     request->release();
+    return true;
+}
+
+bool LocalNode::_cmdAddListener( Command& command )
+{
+    NodeAddListenerPacket* packet = 
+        command.getPacket< NodeAddListenerPacket >();
+
+    ConnectionDescriptionPtr description =
+        new ConnectionDescription( packet->connectionData );
+    command.getNode()->addConnectionDescription( description );
+
+    if( command.getNode() != this )
+        return true;
+
+    EQASSERT( packet->connection );
+    ConnectionPtr connection = packet->connection;
+    packet->connection = 0;
+    connection.unref();
+
+    _connectionNodes[ connection ] = this;
+    _incoming.addConnection( connection );
+    if( connection->getDescription()->type >= CONNECTIONTYPE_MULTICAST )
+    {
+        MCData data;
+        data.connection = connection;
+        data.node = this;
+
+        base::ScopedMutex<> mutex( _outMulticast );
+        _multicasts.push_back( data );
+    }
+
+    connection->acceptNB();
+    return true;
+}
+
+bool LocalNode::_cmdRemoveListener( Command& command )
+{
+    NodeRemoveListenerPacket* packet = 
+        command.getPacket< NodeRemoveListenerPacket >();
+
+    ConnectionDescriptionPtr description =
+        new ConnectionDescription( packet->connectionData );
+    command.getNode()->addConnectionDescription( description );
+
+    if( command.getNode() != this )
+        return true;
+
+    EQASSERT( packet->connection );
+    ConnectionPtr connection = packet->connection;
+    packet->connection = 0;
+    connection.unref();
+
+    if( connection->getDescription()->type >= CONNECTIONTYPE_MULTICAST )
+    {
+        base::ScopedMutex<> mutex( _outMulticast );
+        for( MCDatas::iterator i = _multicasts.begin();
+             i != _multicasts.end(); ++i )
+        {
+            if( i->connection == connection )
+            {
+                _multicasts.erase( i );
+                break;
+            }
+        }
+    }
+
+    _incoming.removeConnection( connection );
+    EQASSERT( _connectionNodes.find( connection ) != _connectionNodes.end( ));
+    _connectionNodes.erase( connection );
     return true;
 }
 

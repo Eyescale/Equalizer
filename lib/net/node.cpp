@@ -38,7 +38,7 @@ Node::~Node()
 {
     EQVERB << "Delete Node @" << (void*)this << " " << _id << std::endl;
     EQASSERT( _outgoing == 0 );
-    _connectionDescriptions.clear();
+    _connectionDescriptions->clear();
 }
 
 bool Node::operator == ( const Node* node ) const
@@ -52,7 +52,8 @@ bool Node::operator == ( const Node* node ) const
 
 ConnectionDescriptions Node::getConnectionDescriptions() const
 {
-    return _connectionDescriptions;
+    base::ScopedMutex< base::SpinLock > mutex( _connectionDescriptions );
+    return _connectionDescriptions.data;
 }
 
 ConnectionPtr Node::getMulticast()
@@ -92,24 +93,31 @@ void Node::addConnectionDescription( ConnectionDescriptionPtr cd )
     if( cd->type >= CONNECTIONTYPE_MULTICAST && cd->port == 0 )
         cd->port = EQ_DEFAULT_PORT;
 
-    _connectionDescriptions.push_back( cd ); 
+    base::ScopedMutex< base::SpinLock > mutex( _connectionDescriptions );
+    _connectionDescriptions->push_back( cd ); 
 }
 
 bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
 {
-    ConnectionDescriptions::iterator i = stde::find( _connectionDescriptions,
-                                                     cd );
-    if( i == _connectionDescriptions.end( ))
+    base::ScopedMutex< base::SpinLock > mutex( _connectionDescriptions );
+
+    ConnectionDescriptions::iterator i =
+        stde::find( _connectionDescriptions.data, cd );
+    if( i == _connectionDescriptions->end( ))
         return false;
 
-    _connectionDescriptions.erase( i );
+    _connectionDescriptions->erase( i );
     return true;
 }
 
 std::string Node::serialize() const
 {
     std::ostringstream data;
-    data << _id << EQNET_SEPARATOR << net::serialize( _connectionDescriptions );
+    {
+        base::ScopedMutex< base::SpinLock > mutex( _connectionDescriptions );
+        data << _id << EQNET_SEPARATOR
+             << net::serialize( _connectionDescriptions.data );
+    }
     return data.str();
 }
  
@@ -127,7 +135,10 @@ bool Node::deserialize( std::string& data )
 
     _id = data.substr( 0, nextPos );
     data = data.substr( nextPos + 1 );
-    return net::deserialize( data, _connectionDescriptions );
+
+    base::ScopedMutex< base::SpinLock > mutex( _connectionDescriptions );
+    _connectionDescriptions->clear();
+    return net::deserialize( data, _connectionDescriptions.data );
 }
 
 NodePtr Node::createNode( const uint32_t type )

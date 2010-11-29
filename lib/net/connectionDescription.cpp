@@ -73,6 +73,17 @@ static ConnectionType _getConnectionType( const std::string& string )
 }
 }
 
+ConnectionDescription::ConnectionDescription( const char* data )
+        : type( CONNECTIONTYPE_TCPIP )
+        , bandwidth( 0 )
+        , port( 0 )
+        , _filename( "default" )
+{
+    std::string string( data );
+    fromString( string );
+    EQASSERTINFO( string.empty(), data << " -> " << string );
+}
+
 const std::string& ConnectionDescription::getSAttributeString(
     const SAttribute attr )
 {

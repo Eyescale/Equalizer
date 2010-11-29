@@ -34,13 +34,7 @@ namespace eq
 {
 namespace server
 {
-    class ConfigVisitor;
-    class Layout;
-    class Observer;
-
-    /**
-     * The config.
-     */
+    /** The config. */
     class Config : public fabric::Config< Server, Config, Observer, Layout,
                                           Canvas, Node, ConfigVisitor >
     {

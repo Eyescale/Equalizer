@@ -157,11 +157,12 @@ bool Server::_cmdChooseConfigReply( net::Command& command )
         return true;
     }
 
-    net::Session* session   = localNode->getSession( packet->configID );
-    Config*       config    = static_cast< Config* >( session );
+    net::Session* session = localNode->getSession( packet->configID );
+    Config*       config  = static_cast< Config* >( session );
     EQASSERTINFO( dynamic_cast< Config* >( session ), 
                   "Session id " << packet->configID << " @" << (void*)session );
 
+    config->setupServerConnections( packet->connectionData );
     localNode->serveRequest( packet->requestID, config );
     return true;
 }
@@ -171,7 +172,7 @@ bool Server::_cmdReleaseConfigReply( net::Command& command )
     const ServerReleaseConfigReplyPacket* packet = 
         command.getPacket<ServerReleaseConfigReplyPacket>();
 
-    net::LocalNodePtr  localNode = command.getLocalNode();
+    net::LocalNodePtr localNode = command.getLocalNode();
     localNode->serveRequest( packet->requestID );
     return true;
 }

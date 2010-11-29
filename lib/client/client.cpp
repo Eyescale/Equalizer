@@ -227,18 +227,6 @@ bool Client::initLocal( const int argc, char** argv )
     return true;
 }
 
-bool Client::listen()
-{
-    if( getConnectionDescriptions().empty( )) // add default listener
-    {
-        net::ConnectionDescriptionPtr connDesc = new net::ConnectionDescription;
-        connDesc->type = net::CONNECTIONTYPE_TCPIP;
-        connDesc->port = net::Global::getDefaultPort();
-        addConnectionDescription( connDesc );
-    }
-    return Super::listen();
-}
-
 bool Client::_setupClient( const std::string& clientArgs )
 {
     EQASSERT( isListening( ));

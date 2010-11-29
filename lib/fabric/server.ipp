@@ -111,8 +111,8 @@ Server< CL, S, CFG, NF, N >::_cmdDestroyConfig( net::Command& command )
         command.getPacket<ServerDestroyConfigPacket>();
     EQVERB << "Handle destroy config " << packet << std::endl;
     
-    net::LocalNodePtr  localNode  = command.getLocalNode();
-    net::Session* session    = localNode->getSession( packet->configID );
+    net::LocalNodePtr localNode = command.getLocalNode();
+    net::Session* session = localNode->getSession( packet->configID );
 
     CFG* config = EQSAFECAST( CFG*, session );
     static_cast< typename CFG::Super* >( config )->unmap();

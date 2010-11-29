@@ -44,6 +44,8 @@ namespace net
         CMD_NODE_ACQUIRE_SEND_TOKEN,
         CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY,
         CMD_NODE_RELEASE_SEND_TOKEN,
+        CMD_NODE_ADD_LISTENER,
+        CMD_NODE_REMOVE_LISTENER,
         CMD_NODE_CUSTOM = 30  // some buffer for binary-compatible patches
     };
 

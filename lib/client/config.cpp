@@ -42,6 +42,7 @@
 #include <eq/fabric/task.h>
 #include <eq/net/object.h>
 #include <eq/net/command.h>
+#include <eq/net/connectionDescription.h>
 #include <eq/net/global.h>
 
 namespace eq
@@ -114,7 +115,9 @@ void Config::notifyAttached()
     EQASSERT( !_appNode )
     net::LocalNodePtr localNode = getLocalNode();
     _appNode = localNode->connect( getAppNodeID( ));
-    EQASSERT( _appNode.isValid( ));
+    if( !_appNode )
+        EQWARN << "Connection to application node failed -- "
+               << "misconfigured connections on appNode?" << std::endl;
 }
 
 net::CommandQueue* Config::getMainThreadQueue()
@@ -134,7 +137,7 @@ ConstClientPtr Config::getClient() const
 
 void Config::unmap()
 {
-     {
+    {
         base::ScopedMutex< base::SpinLock > mutex( _latencyObjects );
         while( !_latencyObjects->empty() )
         {
@@ -145,6 +148,16 @@ void Config::unmap()
             latencyObject = 0;
         }
     }
+
+    for( net::Connections::const_iterator i = _connections.begin();
+         i != _connections.end(); ++i )
+    {
+        net::ConnectionPtr connection = *i;
+        getClient()->removeListener( connection );
+        connection->close();
+    }
+    _connections.clear();
+
     _exitMessagePump();
     Super::unmap();
 }
@@ -390,7 +403,6 @@ void Config::sendEvent( ConfigEvent& event )
     EQASSERT( event.data.type != Event::STATISTIC ||
               event.data.statistic.type != Statistic::NONE );
     EQASSERT( getAppNodeID() != net::NodeID::ZERO );
-
     EQASSERT( _appNode.isValid( ));
 
     event.sessionID = getID();
@@ -625,6 +637,30 @@ MessagePump* Config::getMessagePump()
     if( queue )
         return queue->getMessagePump();
     return 0;
+}
+
+void Config::setupServerConnections( const char* connectionData )
+{
+    std::string data = connectionData;
+    net::ConnectionDescriptions descriptions;
+    EQCHECK( net::deserialize( data, descriptions ));
+    EQASSERTINFO( data.empty(), data << " left from " << connectionData );
+
+    for( net::ConnectionDescriptions::const_iterator i = descriptions.begin();
+         i != descriptions.end(); ++i )
+    {
+        net::ConnectionPtr connection = net::Connection::create( *i );
+        if( connection->listen( ))
+        {
+            _connections.push_back( connection );
+            getClient()->addListener( connection );
+        }
+        else
+        {
+            // TODO: Multi-config handling when same connections are spec'd
+            EQASSERT( connection->isListening( ));
+        }
+    }
 }
 
 void Config::freezeLoadBalancing( const bool onOff )

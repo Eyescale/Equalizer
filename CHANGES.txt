@@ -1,6 +1,14 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+29/Nov/2010
+  No automatic listener connections are created for the application
+  node. Existing multi-node configs will fail if they do not configure a
+  listener. AppNode listeners can be added either by specifying them in
+  the configuration filem by using the --eq-listen command line option
+  or programmatically by adding connection descriptions before
+  Client::initLocal().
+
 22/Nov/2010
   Replace object identifiers with UUIDs
     Replace defines EQ_ID_INVALID with the new type by UUID::ZERO for object identifiers

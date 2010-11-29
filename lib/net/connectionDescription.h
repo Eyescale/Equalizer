@@ -44,6 +44,8 @@ namespace net
                 , _filename( "default" )
             {}
 
+        ConnectionDescription( const char* data );
+
         /** The network protocol for the connection. */
         ConnectionType type;
 

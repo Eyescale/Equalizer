@@ -24,7 +24,7 @@
 #include <eq/net/nodeType.h>          // for NODETYPE_EQNET_NODE enum
 #include <eq/net/types.h>
 
-#include <eq/base/base.h>             // EQNET_API
+#include <eq/base/spinLock.h>         // member
 
 namespace eq
 {
@@ -256,7 +256,8 @@ namespace net
         MCDatas _multicasts;
 
         /** The list of descriptions on how this node is reachable. */
-        ConnectionDescriptions _connectionDescriptions;
+        base::Lockable< ConnectionDescriptions, base::SpinLock >
+            _connectionDescriptions;
 
         /** Ensures the connectivity of this node. */
         ConnectionPtr _getConnection()

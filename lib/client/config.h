@@ -105,6 +105,9 @@ namespace eq
          */
         int64_t getTime() const { return _clock.getTime64(); }
 
+        /** @return the config's message pump, or 0. @version 1.0 */
+        MessagePump* getMessagePump();
+
         /** @internal */
         const Channel* findChannel( const std::string& name ) const
             { return find< Channel >( name ); }
@@ -182,6 +185,16 @@ namespace eq
 
         /** @sa fabric::Config::setLatency() */
         EQ_API virtual void setLatency( const uint32_t latency );
+
+        /** 
+         * Deregister a distributed object.
+         *
+         * This method ensures that the data for buffered object is kept for
+         * latency frames to allow mapping on slave nodes.
+         *
+         * @param object the object instance.
+         */
+        EQ_API virtual void deregisterObject( net::Object* object );
         //@}
 
         /** @name Frame Control */
@@ -330,19 +343,9 @@ namespace eq
          */
         void setupMessagePump( Pipe* pipe );
 
-        /** @return the config's message pump, or 0. @version 1.0 */
-        MessagePump* getMessagePump();
-
-        /** 
-         * Deregister a distributed object.
-         *
-         * This method ensures that the data for buffered object is kept for
-         * latency frames to allow mapping on slave nodes.
-         *
-         * @param object the object instance.
-         */
-        EQ_API virtual void deregisterObject( net::Object* object );
-
+        /** @internal Set up appNode connections configured by server. */
+        void setupServerConnections( const char* connectionData );
+        
     protected:
         /** @internal */
         EQ_API virtual void notifyMapped( net::LocalNodePtr node );
@@ -361,6 +364,9 @@ namespace eq
         
         /** The last received event to be released. */
         net::Command* _lastEvent;
+
+        /** The connections configured by the server for this config. */
+        net::Connections _connections;
 
         /** Global statistics events, index per frame and channel. */
         std::deque< FrameStatistics > _statistics;

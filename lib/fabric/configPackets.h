@@ -27,7 +27,7 @@ namespace eq
 {
 namespace fabric
 {
-struct ConfigCreateReplyPacket : public ConfigPacket
+    struct ConfigCreateReplyPacket : public ConfigPacket
     {
         ConfigCreateReplyPacket(const ServerCreateConfigPacket* request)
         {
