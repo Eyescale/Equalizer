@@ -40,7 +40,7 @@ namespace eq
         uint128_t     version;
         uint32_t      buffers;
         uint32_t      frameNumber;
-        bool          ignoreAlpha;
+        bool          useAlpha;
 
         EQ_ALIGN8( uint8_t data[8] );
     };

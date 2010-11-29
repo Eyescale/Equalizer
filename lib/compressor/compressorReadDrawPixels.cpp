@@ -360,6 +360,7 @@ void CompressorReadDrawPixels::upload( const GLEWContext* glewContext,
     }
     else
     {
+        EQASSERT( outDims[0] == 0 && outDims[2]==0 ); // Implement me
         _initTexture( glewContext, flags );
         _texture->setGLData( destination, _internalFormat,
                              outDims[1], outDims[3] );

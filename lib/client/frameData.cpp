@@ -189,8 +189,7 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
         image->reset();
     }
 
-    _useAlpha ? image->enableAlphaUsage() : image->disableAlphaUsage();
-
+    image->setAlphaUsage( _useAlpha );
     image->setStorageType( type );
     image->setQuality( Frame::BUFFER_COLOR, _colorQuality );
     image->setQuality( Frame::BUFFER_DEPTH, _depthQuality ); 
@@ -372,10 +371,10 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
         std::vector< const PixelData* > pixelDatas;
         std::vector< float > qualities;
 
-        packet.size           = packetSize;
-        packet.buffers        = Frame::BUFFER_NONE;
-        packet.pvp            = image->getPixelViewport();
-        packet.ignoreAlpha    = image->ignoreAlpha();
+        packet.size = packetSize;
+        packet.buffers = Frame::BUFFER_NONE;
+        packet.pvp = image->getPixelViewport();
+        packet.useAlpha = image->getAlphaUsage();
         EQASSERT( packet.pvp.isValid( ));
 
         {
@@ -541,7 +540,7 @@ bool FrameData::_cmdTransmit( net::Command& command )
     uint8_t* data  = const_cast< uint8_t* >( packet->data );
 
     image->setPixelViewport( packet->pvp );
-    packet->ignoreAlpha ? image->disableAlphaUsage() :image->enableAlphaUsage();
+    image->setAlphaUsage( packet->useAlpha );
 
     Frame::Buffer buffers[] = { Frame::BUFFER_COLOR, Frame::BUFFER_DEPTH };
     for( unsigned i = 0; i < 2; ++i )

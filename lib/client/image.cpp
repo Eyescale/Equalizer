@@ -219,34 +219,15 @@ bool Image::hasAlpha() const
            _getMemory( Frame::BUFFER_COLOR ).hasAlpha;
 }
 
-bool Image::hasData( const Frame::Buffer buffer ) const
+void Image::setAlphaUsage( const bool enabled )
 {
-    if( _type == Frame::TYPE_MEMORY )
-        return hasPixelData( buffer );
-
-    EQASSERT( _type == Frame::TYPE_TEXTURE );
-    return hasTextureData( buffer );
-}
-
-void Image::enableAlphaUsage()
-{
-    if( !_ignoreAlpha )
+    if( _ignoreAlpha != enabled )
         return;
 
-    _ignoreAlpha = false;
+    _ignoreAlpha = !enabled;
     _color.memory.isCompressed = false;
     _depth.memory.isCompressed = false;
 }    
-
-void Image::disableAlphaUsage()
-{
-    if( _ignoreAlpha )
-        return;
-
-    _ignoreAlpha = true;
-    _color.memory.isCompressed = false;
-    _depth.memory.isCompressed = false;
-}
 
 void Image::setQuality( const Frame::Buffer buffer, const float quality )
 {
@@ -304,31 +285,10 @@ const PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
     return _getAttachment( buffer ).memory;
 }
 
-void Image::upload( const Frame::Buffer buffer, const Vector2i& position,
-                    util::ObjectManager< const void* >* glObjects ) const
-{
-    util::GPUCompressor* uploader = glObjects->obtainEqUploader(
-                                        _getCompressorKey( buffer ));
-    const PixelData& pixelData = getPixelData( buffer );
-    const uint32_t externalFormat = pixelData.externalFormat;
-    const uint32_t internalFormat = pixelData.internalFormat;
-    const uint64_t flags = EQ_COMPRESSOR_TRANSFER |
-                           EQ_COMPRESSOR_USE_FRAMEBUFFER | 
-                           EQ_COMPRESSOR_DATA_2D;
-
-    if( !uploader->isValidUploader( externalFormat, internalFormat, flags ))
-        uploader->initUploader( externalFormat, internalFormat, flags );
-
-    PixelViewport pvp = getPixelViewport();
-    pvp.x = position.x() + pvp.x; 
-    pvp.y = position.y() + pvp.y;
-    uploader->upload( pixelData.pixels, pixelData.pvp, flags, pvp, 0 );
-}
-
 void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
+                    const Vector2i& position,
                     util::ObjectManager< const void* >* glObjects ) const
 {
-    EQASSERT( texture );
     EQASSERT( glObjects );
 
     util::GPUCompressor* uploader = glObjects->obtainEqUploader(
@@ -337,15 +297,21 @@ void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
     const uint32_t externalFormat = pixelData.externalFormat;
     const uint32_t internalFormat = pixelData.internalFormat;
     const uint64_t flags = EQ_COMPRESSOR_TRANSFER |
-                           texture->getCompressorTarget() | 
-                           EQ_COMPRESSOR_DATA_2D;
-    if( !uploader->isValidUploader( externalFormat, internalFormat, flags ) )
+                           EQ_COMPRESSOR_USE_FRAMEBUFFER | 
+                           EQ_COMPRESSOR_DATA_2D |
+                           (texture ? texture->getCompressorTarget() : 0);
+
+    if( !uploader->isValidUploader( externalFormat, internalFormat, flags ))
         uploader->initUploader( externalFormat, internalFormat, flags );
 
-    texture->init( internalFormat, _pvp.w, _pvp.h );
-    uploader->upload( pixelData.pixels, pixelData.pvp,
-                      flags, getPixelViewport(),
-                      texture->getName( ));
+    PixelViewport pvp = getPixelViewport();
+    pvp.x = position.x() + pvp.x; 
+    pvp.y = position.y() + pvp.y;
+    if( texture )
+        texture->init( internalFormat, _pvp.w, _pvp.h );
+
+    uploader->upload( pixelData.pixels, pixelData.pvp, flags, pvp,
+                      texture ? texture->getName() : 0 );
 }
 
 void Image::readback( const uint32_t buffers, const PixelViewport& pvp,
@@ -578,43 +544,42 @@ void Image::clearPixelData( const Frame::Buffer buffer )
 
     validatePixelData( buffer );
 
-    if( buffer == Frame::BUFFER_DEPTH )
+    switch( memory.externalFormat )
     {
-        EQASSERT( memory.externalFormat ==
-                  EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT );
+      case EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT:
         memset( memory.pixels, 0xFF, size );
-    }
-    else
-    {
-        if( getPixelSize( Frame::BUFFER_COLOR ) == 4 )
-        {
-            EQASSERT( memory.externalFormat == EQ_COMPRESSOR_DATATYPE_RGBA ||
-                      memory.externalFormat == EQ_COMPRESSOR_DATATYPE_BGRA );
+        break;
 
-            uint8_t* data = reinterpret_cast< uint8_t* >( memory.pixels );
+      case EQ_COMPRESSOR_DATATYPE_RGBA:
+      case EQ_COMPRESSOR_DATATYPE_BGRA:
+      {
+        uint8_t* data = reinterpret_cast< uint8_t* >( memory.pixels );
 #ifdef Darwin
-            const unsigned char pixel[4] = { 0, 0, 0, 255 };
-            memset_pattern4( data, &pixel, size );
+        const unsigned char pixel[4] = { 0, 0, 0, 255 };
+        memset_pattern4( data, &pixel, size );
 #else
-            bzero( data, size );
+        bzero( data, size );
 
-            if( getPixelSize( Frame::BUFFER_COLOR ) == 4 )
 #ifdef EQ_USE_OPENMP
 #pragma omp parallel for
 #endif
-                for( ssize_t i = 3; i < size; i+=4 )
-                    data[i] = 255;
+        for( ssize_t i = 3; i < size; i+=4 )
+            data[i] = 255;
 #endif
-        }
-        else
-            bzero( memory.pixels, size );
+        break;
+      }
+      default:
+        EQWARN << "Unknown external format " << memory.externalFormat
+               << ", initializing to 0" << std::endl;
+        bzero( memory.pixels, size );
+        break;
     }
 }
 
 void Image::validatePixelData( const Frame::Buffer buffer )
 {
     Memory& memory = _getAttachment( buffer ).memory;
-    memory.useLocalBuffer( );
+    memory.useLocalBuffer();
     memory.state = Memory::VALID;
     memory.isCompressed = false;
 }

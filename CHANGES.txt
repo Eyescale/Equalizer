@@ -9,6 +9,19 @@ This file lists all changes in the public Equalizer API, latest on top:
   or programmatically by adding connection descriptions before
   Client::initLocal().
 
+  Image::setAlphaUsage
+  Image::getAlphaUsage
+  Image::upload( buffer, texture, position, objectManager )
+    replaces
+  Image::enableAlphaUsage
+  Image::disableAlphaUsage
+  Image::ignoreAlpha
+  Image::upload( buffer, position, objectManager )
+  Image::upload( buffer, texture, objectManager )
+
+  Image::hasData is removed
+  
+
 22/Nov/2010
   Replace object identifiers with UUIDs
     Replace defines EQ_ID_INVALID with the new type by UUID::ZERO for object identifiers
@@ -21,49 +34,40 @@ This file lists all changes in the public Equalizer API, latest on top:
    frameViewFinish, frameFinish, frameDrawFinish, frameTasksFinish 
    in the classes window, channel, pipe, node and config.  
     
-  change initID type to uint128_t for configInit in pipe, window, channel and config
+  change initID type to uint128_t for configInit in pipe, window,
+  channel and config
 
-  in pipe.h 
-    virtual bool configInitSystemPipe( const uint128_t& initID );
-      replace
-    virtual bool configInitSystemPipe( const uint32_t initID );
-
-  in Window.h 
-    virtual bool configInitSystemWindow( const eq::uint128_t& initID );
-    virtual bool configInitGL( const eq::uint128_t& initID );
-      replaces
-    virtual bool configInitSystemWindow( const uint32_t initID );
-    virtual bool configInitGL( const uint32_t initID );
-
-  in Session.h
-    bool mapObject( Object* object, const base::UUID& id, 
-                    const uint128_t& version = VERSION_OLDEST );									   
-    uint32_t mapObjectNB( Object* object, const base::UUID& id, 
-                          const uint128_t& version = VERSION_OLDEST );								
-  replaces
-    bool mapObject( Object* object, const uint32_t id, 
-                    const uint128_t& version = VERSION_OLDEST );
-    uint32_t mapObjectNB( Object* object, const uint32_t id,
-                          const uint128_t& version = VERSION_OLDEST );
-
-  in Object.h
-    virtual void notifyNewHeadVersion( const uint128_t& version );
-    uint128_t getOldestVersion() const;
-    uint128_t getVersion() const;
-    uint128_t getHeadVersion() const;
-    uint128_t sync( const uint128_t& version = VERSION_HEAD );
-    uint128_t commit();
-    virtual uint128_t commitSync( const uint32_t commitID );
-    base::UUID getID() const
-  replaces
-    virtual void notifyNewHeadVersion( const uint32_t version );
-    uint32_t getOldestVersion() const;
-    uint32_t getVersion() const;
-    uint32_t getHeadVersion() const;
-    uint32_t sync( const uint32_t version = VERSION_HEAD );
-    uint32_t commit();
-    virtual uint32_t commitSync( const uint32_t commitID );
-    uint32_t getID() const
+  bool Pipe::configInitSystemPipe( const uint128_t& initID );
+  bool Window::configInitSystemWindow( const eq::uint128_t& initID );
+  bool Window::configInitGL( const eq::uint128_t& initID );
+  bool Session::mapObject( Object* object, const base::UUID& id, 
+                           const uint128_t& version = VERSION_OLDEST ); 
+  uint32_t Session::mapObjectNB( Object* object, const base::UUID& id, 
+                                 const uint128_t& version = VERSION_OLDEST ); 
+  void Object::notifyNewHeadVersion( const uint128_t& version );
+  uint128_t Object::getOldestVersion() const;
+  uint128_t Object::getVersion() const;
+  uint128_t Object::getHeadVersion() const;
+  uint128_t Object::sync( const uint128_t& version = VERSION_HEAD );
+  uint128_t Object::commit();
+  uint128_t Object::commitSync( const uint32_t commitID );
+  base::UUID Object::getID() const
+    replaces
+  bool Pipe::configInitSystemPipe( const uint32_t initID );
+  bool Window::configInitSystemWindow( const uint32_t initID );
+  bool Window::configInitGL( const uint32_t initID );
+  bool Session::mapObject( Object* object, const uint32_t id, 
+                           const uint128_t& version = VERSION_OLDEST );
+  uint32_t Session::mapObjectNB( Object* object, const uint32_t id,
+                                 const uint128_t& version = VERSION_OLDEST );
+  void Object::notifyNewHeadVersion( const uint32_t version );
+  uint32_t Object::getOldestVersion() const;
+  uint32_t Object::getVersion() const;
+  uint32_t Object::getHeadVersion() const;
+  uint32_t Object::sync( const uint32_t version = VERSION_HEAD );
+  uint32_t Object::commit();
+  uint32_t Object::commitSync( const uint32_t commitID );
+  uint32_t Object::getID() const
 
 19/Nov/2010
   The GLXEventHandler is new per-window. Event handler init/exit has

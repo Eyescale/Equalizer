@@ -131,7 +131,8 @@ void Window::_loadLogo()
     _logoTexture = om->newEqTexture( _logoTextureName, GL_TEXTURE_2D );
     EQASSERT( _logoTexture );
     
-    image.upload( eq::Frame::BUFFER_COLOR, _logoTexture, om );
+    image.upload( eq::Frame::BUFFER_COLOR, _logoTexture, eq::Vector2i::ZERO,
+                  om );
     EQVERB << "Created logo texture of size " << _logoTexture->getWidth() << "x"
            << _logoTexture->getHeight() << std::endl;
 }

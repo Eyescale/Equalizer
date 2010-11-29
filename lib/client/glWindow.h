@@ -33,10 +33,10 @@ namespace eq
     class GLWindow : public SystemWindow
     {
     public:
-        /** Construct a new GL window. @version 1.0 */
+        /** Construct a new OpenGL window. @version 1.0 */
         EQ_API GLWindow( Window* parent );
 
-        /** Destruct a new GL window. @version 1.0 */
+        /** Destruct a new OpenGL window. @version 1.0 */
         EQ_API virtual ~GLWindow();
 
         /** Bind the FBO and update the pipe's current cache. @version 1.0 */

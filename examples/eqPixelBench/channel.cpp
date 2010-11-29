@@ -168,7 +168,7 @@ void Channel::_testFormats( float applyZoom )
         image->flush();
         image->setInternalFormat( eq::Frame::BUFFER_COLOR, internalFormat );
         image->setQuality( eq::Frame::BUFFER_COLOR, 0.f );
-        image->disableAlphaUsage();
+        image->setAlphaUsage( false );
 
         const GLEWContext* glewContext = glewGetContext();
         std::vector< uint32_t > names;

@@ -38,7 +38,10 @@ namespace eq
         /** Dispatch all pending system events, does not block. @version 1.0 */
         virtual void dispatchAll() = 0;
 
-        /** Dispatch at least one pending system event, blocks. @version 1.0 */
+        /**
+         * Dispatch at least one pending system event, blocks potentially.
+         * @version 1.0
+         */
         virtual void dispatchOne() = 0;
     };
 }
