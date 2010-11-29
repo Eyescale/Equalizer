@@ -1068,7 +1068,7 @@ void Channel::_unrefFrame( const uint32_t frameNumber, const uint32_t index )
         return;
 
     ChannelFrameFinishReplyPacket reply;
-    reply.nStatistics = stats.data.size();
+    reply.nStatistics = uint32_t( stats.data.size( ));
     reply.frameNumber = frameNumber;
     reply.sessionID = getSession()->getID();
     reply.objectID  = getID();

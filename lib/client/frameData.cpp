@@ -407,7 +407,8 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
 
                     if( data.isCompressed )
                     {
-                        const uint32_t nElements = data.compressedSize.size();
+                        const uint32_t nElements = 
+                            uint32_t( data.compressedSize.size( ));
                         for( uint32_t k = 0 ; k < nElements; ++k )
                         {
                             packet.size += sizeof( uint64_t );
@@ -460,7 +461,8 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
                   { data->internalFormat, data->externalFormat,
                     data->pixelSize, data->pvp,
                     data->compressorName, data->compressorFlags,
-                    data->isCompressed ? data->compressedSize.size() : 1,
+                    data->isCompressed ?
+                        uint32_t( data->compressedSize.size( )) : 1,
                     qualities[ j ] };
 
             connection->send( &header, sizeof( ImageHeader ), true );

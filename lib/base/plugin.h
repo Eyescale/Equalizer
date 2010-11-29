@@ -43,7 +43,7 @@ namespace base
         typedef void   ( *Compress_t ) ( void* const, const unsigned, 
                                          void* const, const uint64_t*,
                                          const uint64_t );
-        typedef size_t ( *GetNumResults_t ) ( void* const, const unsigned );
+        typedef unsigned ( *GetNumResults_t ) ( void* const, const unsigned );
         typedef void   ( *GetResult_t ) ( void* const, const unsigned, 
                                           const unsigned, void** const, 
                                           uint64_t* const );

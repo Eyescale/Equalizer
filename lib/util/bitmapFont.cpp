@@ -274,7 +274,7 @@ void BitmapFont< OMT >::draw( const std::string& text ) const
     if( lists != ObjectManager< OMT >::INVALID )
     {
         glListBase( lists );
-        glCallLists( text.size(), GL_UNSIGNED_BYTE, text.c_str( ));
+        glCallLists( GLsizei( text.size( )), GL_UNSIGNED_BYTE, text.c_str( ));
         glListBase( 0 );
     }
 }

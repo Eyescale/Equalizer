@@ -56,12 +56,12 @@ static void _mode2D(       Config*        config,
 {
     Compound* compound =  config->getCompounds()[0];
 
-    const unsigned raws    = yMarks.size() - 1;
-    const unsigned columns = xMarks.size() - 1;
+    const size_t rows    = yMarks.size() - 1;
+    const size_t columns = xMarks.size() - 1;
 
-    unsigned i = 0;
-    for( unsigned y = 0; y < raws; ++y )
-    for( unsigned x = 0; x < columns; ++x )
+    size_t i = 0;
+    for( size_t y = 0; y < rows; ++y )
+    for( size_t x = 0; x < columns; ++x )
     {
         Compound* child = new Compound( compound );
         std::ostringstream channelName;
@@ -172,11 +172,11 @@ static void _modeDS(       Config*                config,
         return;
     }
 
-    const unsigned raws      = yMarks.size() - 1;
-    const unsigned columns   = xMarks.size() - 1;
-    const int      cells     = raws*columns;
+    const size_t rows      = yMarks.size() - 1;
+    const size_t columns   = xMarks.size() - 1;
+    const size_t cells     = rows*columns;
 
-    // check that all specifeid viewports are within a grid
+    // check that all specified viewports are within a grid
     for( size_t i = 0; i < nNodes; ++i  )
     {
         const vector< int >& vals = descr[i];
@@ -191,7 +191,7 @@ static void _modeDS(       Config*                config,
 
     // fill all viewports for grid
     vector< eq::Viewport > tmpVP;
-    for( unsigned y = 0; y < raws; ++y )
+    for( unsigned y = 0; y < rows; ++y )
         for( unsigned x = 0; x < columns; ++x )
             tmpVP.push_back( eq::Viewport( xMarks[x],
                                            yMarks[y],

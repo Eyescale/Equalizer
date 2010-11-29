@@ -304,7 +304,7 @@ int main( int argc, char **argv )
     bool useThreads   = false;
     size_t packetSize = 1048576;
     size_t nPackets   = 0xffffffffu;
-    size_t waitTime   = 0;
+    uint32_t waitTime = 0;
 
     try // command line parsing
     {
@@ -325,7 +325,7 @@ int main( int argc, char **argv )
                                             "number of packets to send", 
                                             false, nPackets, "unsigned",
                                             command );
-        TCLAP::ValueArg<size_t> waitArg( "w", "wait", 
+        TCLAP::ValueArg<uint32_t> waitArg( "w", "wait", 
                                    "wait time (ms) between sends (client only)",
                                          false, 0, "unsigned", command );
 
@@ -383,7 +383,7 @@ int main( int argc, char **argv )
         clock.reset();
         while( nPackets-- )
         {
-            buffer.getData()[0] = nPackets;
+            buffer.getData()[0] = uint8_t( nPackets );
             EQCHECK( connection->send( buffer.getData(), buffer.getSize() ));
             const float time = clock.getTimef();
             if( time > 1000.f )

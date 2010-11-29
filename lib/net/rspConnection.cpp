@@ -564,7 +564,7 @@ void RSPConnection::_writeData()
             DatagramData* header2 = 
                 reinterpret_cast<DatagramData*>( buffer2->getData( ));
 
-            if( header->size + header2->size > _payloadSize )
+            if( uint32_t( header->size + header2->size ) > _payloadSize )
                 break;
 
             memcpy( reinterpret_cast<uint8_t*>( header + 1 ) + header->size,
@@ -1463,7 +1463,7 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
         DatagramData* header =
             reinterpret_cast< DatagramData* >( buffer->getData( ));
         header->type = DATA;
-        header->size = packetSize;
+        header->size = uint16_t( packetSize );
         header->writerID = _id;
         
         memcpy( header + 1, data, packetSize );
@@ -1483,7 +1483,8 @@ void RSPConnection::_sendDatagramCountNode()
         return;
 
     EQLOG( LOG_RSP ) << _children.size() << " nodes" << std::endl;
-    const DatagramCount count = { COUNTNODE, _id, _children.size() };
+    const DatagramCount count = { COUNTNODE, _id,
+                                  uint16_t( _children.size( ))};
     _write->send( buffer( &count, sizeof( count )) );
 }
 

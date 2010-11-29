@@ -92,7 +92,7 @@ bool FrameBufferObject::init( const int32_t width, const int32_t height,
     glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID );
 
     // create and bind textures
-    for( size_t i = 0; i < _colors.size(); ++i )
+    for( unsigned i = 0; i < _colors.size(); ++i )
     {
         _colors[i]->init( colorFormat, width, height );
         _colors[i]->bindToFBO( GL_COLOR_ATTACHMENT0 + i, width, height );

@@ -290,7 +290,7 @@ static int readTransferFunction( FILE* file,  vector<unsigned char>& TF )
 
 static int writeTransferFunction( FILE* file,  const vector<unsigned char>& TF )
 {
-    int TFSize = TF.size() / 4;
+    int TFSize = int( TF.size() / 4 );
     
     fprintf( file,"TF:\n" );
 
