@@ -45,11 +45,10 @@ namespace eq
      * @param argc the command line argument count.
      * @param argv the command line argument values.
      * @param nodeFactory the factory for allocating Equalizer objects.
-     *
-     * @return <code>true</code> if the library was successfully initialized,
-     *         <code>false</code> otherwise.
+     * @return true if the library was successfully initialized, 
+     *         false otherwise.
      */
-    EQ_API bool init( const int argc, char** argv, NodeFactory* nodeFactory);
+    EQ_API bool init( const int argc, char** argv, NodeFactory* nodeFactory );
     
     /**
      * De-initialize the Equalizer client library.

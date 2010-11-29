@@ -30,8 +30,9 @@ namespace base
      * If the command line parameter '--eq-logfile &lt;filename&gt;' is present,
      * all log output is redirected to the given file.
      *
-     * @return <code>true</code> if the library was successfully initialised,
-     *         <code>false</code> otherwise.
+     * @param argc the command line argument count.
+     * @param argv the command line argument values.
+     * @return true if the library was successfully initialised, false otherwise
      * @version 1.0
      */
     EQBASE_API bool init( const int argc, char** argv );

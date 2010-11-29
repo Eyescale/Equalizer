@@ -87,12 +87,11 @@ namespace eq
         static void leaveCarbon();
 
     private:
-        EQ_API friend bool init( const int argc, char** argv, 
-                                    NodeFactory* nodeFactory );
-        EQ_API friend bool exit();
-        
-        static NodeFactory* _nodeFactory;
+        EQ_API friend bool eq::init( const int argc, char** argv,
+                                     NodeFactory* nodeFactory );
+        EQ_API friend bool eq::exit();
 
+        static NodeFactory* _nodeFactory;
         static std::string  _configFile;
     };
 }

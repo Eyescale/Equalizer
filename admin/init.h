@@ -50,8 +50,6 @@ namespace admin
      *
      * @param argc the command line argument count.
      * @param argv the command line argument values.
-     * @param nodeFactory the factory for allocating Equalizer objects.
-     *
      * @return <code>true</code> if the library was successfully initialized,
      *         <code>false</code> otherwise.
      */

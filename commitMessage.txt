@@ -1,14 +1,9 @@
-Implement RFE 2809019: Specify connection from a config file when using appNode
-- Do not add default connections for application node
-- Server transmits configured connections during chooseConfig
-- App opens transmitted listeners and adds them to Client
-- App config closes and removes listeners during releaseConfig()
-- Add new functionality to add/remove connection (descriptions) in eq::net
+Fix all doxygen warnings
 
 [ ] May break build
-[x] May break existing applications (see CHANGES.txt)
+[ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
