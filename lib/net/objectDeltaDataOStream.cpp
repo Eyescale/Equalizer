@@ -18,7 +18,6 @@
 
 #include "objectDeltaDataOStream.h"
 
-#include "log.h"
 #include "object.h"
 #include "objectCM.h"
 #include "objectPackets.h"

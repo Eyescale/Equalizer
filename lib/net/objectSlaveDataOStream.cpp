@@ -22,7 +22,6 @@
 #include "masterCM.h"
 #include "object.h"
 #include "objectPackets.h"
-#include "session.h"
 
 #include <eq/base/idPool.h>
 
