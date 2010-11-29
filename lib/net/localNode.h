@@ -228,10 +228,10 @@ namespace net
         /** @name Operations */
         //@{
         /** Add a listening connection to this listening node. */
-        void addListener( ConnectionPtr connection );
+        EQNET_API void addListener( ConnectionPtr connection );
 
         /** Remove a listening connection from this listening node. */
-        void removeListener( ConnectionPtr connection );
+        EQNET_API void removeListener( ConnectionPtr connection );
 
         /**
          * Flush all pending commands on this listening node.

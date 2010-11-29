@@ -826,12 +826,12 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     attachment.compressor->compress( memory.pixels, inDims,
                                      memory.compressorFlags );
 
-    const size_t numResults = attachment.compressor->getNumResults();
+    const unsigned numResults = attachment.compressor->getNumResults();
     
     memory.compressedSize.resize( numResults );
     memory.compressedData.resize( numResults );
 
-    for( size_t i = 0; i < numResults ; ++i )
+    for( unsigned i = 0; i < numResults ; ++i )
         attachment.compressor->getResult( i, &memory.compressedData[i], 
                                           &memory.compressedSize[i] );
 
@@ -1115,7 +1115,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         return false;
     }
 
-    const size_t nChannels = header.depth;
+    const unsigned nChannels = header.depth;
 
     if( header.nDimensions != 3 ||
         header.minValue != 0 ||

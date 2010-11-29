@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,15 +22,16 @@ namespace eq
 {
 namespace base
 {
-static int _setupNThreads();
+namespace
+{
+static unsigned _setupNThreads();
+unsigned _nThreads = _setupNThreads();
 
-int OMP::_nThreads = _setupNThreads();
-
-static int _setupNThreads()
+static unsigned _setupNThreads()
 {
 #ifdef EQ_USE_OPENMP
     const char* nThreadsEnv = getenv( "OMP_NUM_THREADS" );
-    int         nThreads    = 0;
+    unsigned    nThreads    = 0;
 
     if( nThreadsEnv )
         nThreads = atoi( nThreadsEnv );
@@ -40,11 +41,16 @@ static int _setupNThreads()
 
     EQASSERT( nThreads > 0 );
     omp_set_num_threads( nThreads );
-
     return nThreads;
 #else
     return 1;
 #endif
+}
+}
+
+unsigned OMP::getNThreads()
+{
+    return _nThreads;
 }
 
 }

@@ -100,7 +100,7 @@ static float _getCompressorQuality( const uint32_t name )
 
 template< typename T >
 static void _compare( const void* data, const void* destData,
-                      const eq::Frame::Buffer buffer, bool ignoreAlpha,
+                      const eq::Frame::Buffer buffer, const bool useAlpha,
                       const int64_t nElem, const float quality )
 {
     const T* destValue = reinterpret_cast< const T* >( destData );
@@ -109,7 +109,7 @@ static void _compare( const void* data, const void* destData,
 #pragma omp parallel for
     for( int64_t k = 0; k < nElem; ++k )
     { 
-        if( ignoreAlpha && buffer == eq::Frame::BUFFER_COLOR )
+        if( !useAlpha && buffer == eq::Frame::BUFFER_COLOR )
         {
             // Don't test alpha if alpha is ignored
             if( k % 4 == 3 )
@@ -169,7 +169,8 @@ int main( int argc, char **argv )
         const uint32_t name = *i;
 
         // For alpha, ignore alpha...
-        bool alpha = true;
+        image.setAlphaUsage( true );
+        destImage.setAlphaUsage( true );
         while( true )
         {
             uint64_t totalSize( 0 );
@@ -188,7 +189,7 @@ int main( int argc, char **argv )
 
                 TEST( image.readImage( filename, buffer ));
 
-                if( image.ignoreAlpha() && 
+                if( !image.getAlphaUsage() && 
                     ( buffer != eq::Frame::BUFFER_COLOR || !image.hasAlpha( )))
                 {
                     continue; // Ignoring alpha doesn't make sense
@@ -213,16 +214,8 @@ int main( int argc, char **argv )
                 destImage.setPixelData( buffer,
                                         image.compressPixelData( buffer ));
                 // force recompression
-                if( image.ignoreAlpha( ))
-                {
-                    image.enableAlphaUsage();
-                    image.disableAlphaUsage();
-                }
-                else
-                {
-                    image.disableAlphaUsage();
-                    image.enableAlphaUsage();
-                }
+                image.setAlphaUsage( !image.getAlphaUsage( ));
+                image.setAlphaUsage( !image.getAlphaUsage( ));
 #endif
 
                 // Compress
@@ -275,7 +268,7 @@ int main( int argc, char **argv )
                            << std::hex << name << std::dec << std::setfill(' ')
                            << ", " << std::setw(37) << filename
                            << ", " << std::setw(10) << size << ", "
-                           << !image.ignoreAlpha() << ", " << std::setw(10) 
+                           << image.getAlphaUsage() << ", " << std::setw(10) 
                            << compressedSize << ", " << std::setw(10)
                            << compressTime << ", " << std::setw(10)
                            << decompressTime << std::endl;
@@ -330,18 +323,18 @@ int main( int argc, char **argv )
                 {
                     case 1:
                         _compare< uint8_t >( data, destData, buffer,
-                                             image.ignoreAlpha(), nElem,
+                                             image.getAlphaUsage(), nElem,
                                              quality );
                         break;
                     case 2:
                         if( quality == 1.f )
                             _compare< uint16_t >( data, destData, buffer,
-                                              image.ignoreAlpha(), nElem,
+                                              image.getAlphaUsage(), nElem,
                                               quality );
                         break;
                     case 4:
                         _compare< float >( data, destData, buffer,
-                                           image.ignoreAlpha(), nElem,
+                                           image.getAlphaUsage(), nElem,
                                            quality );
                         break;
                     default:
@@ -356,23 +349,15 @@ int main( int argc, char **argv )
                     << name << std::dec << std::setfill(' ')
                     << ",                                 Total, "
                     << std::setw(10) << totalSize << ", "
-                    << !image.ignoreAlpha() << ", " << std::setw(10)
+                    << image.getAlphaUsage() << ", " << std::setw(10)
                     << totalCompressedSize << ", " << std::setw(10)
                     << totalCompressTime << ", " << std::setw(10)
                     << totalDecompressTime << std::endl << std::endl;
             
-            if( alpha )
-            {
-                alpha = false;
-                image.disableAlphaUsage();
-                destImage.disableAlphaUsage();
-            }
-            else
-            {
-                image.enableAlphaUsage();
-                destImage.enableAlphaUsage();
+            image.setAlphaUsage( !image.getAlphaUsage( ));
+            destImage.setAlphaUsage( image.getAlphaUsage( ));
+            if( image.getAlphaUsage( ))
                 break;
-            }
         }
     }
 

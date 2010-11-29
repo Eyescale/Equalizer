@@ -544,7 +544,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
     // assemble task
     ChannelFrameAssemblePacket packet;
     packet.context   = context;
-    packet.nFrames   = frameIDs.size();
+    packet.nFrames   = uint32_t( frameIDs.size( ));
 
     EQLOG( LOG_ASSEMBLY | LOG_TASKS ) 
         << "TASK assemble " << _channel->getName() <<  " " << &packet << std::endl;
@@ -581,7 +581,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     // readback task
     ChannelFrameReadbackPacket packet;
     packet.context   = context;
-    packet.nFrames   = frames.size();
+    packet.nFrames   = uint32_t( frames.size( ));
 
     _channel->send<net::ObjectVersion>( packet, frameIDs );
     _updated = true;
@@ -627,7 +627,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
         transmitPacket.objectID  = packet.objectID;
         transmitPacket.context   = context;
         transmitPacket.frame     = net::ObjectVersion( outputFrame );
-        transmitPacket.nNodes    = nodeIDs.size();
+        transmitPacket.nNodes    = uint32_t( nodeIDs.size( ));
 
         EQLOG( LOG_ASSEMBLY | LOG_TASKS )
             << "TASK transmit " << _channel->getName() <<  " " << 

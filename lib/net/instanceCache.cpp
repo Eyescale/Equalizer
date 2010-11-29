@@ -45,7 +45,7 @@ base::a_int32_t nUnusedRelease;
 
 const InstanceCache::Data InstanceCache::Data::NONE;
 
-InstanceCache::InstanceCache( const long maxSize )
+InstanceCache::InstanceCache( const uint64_t maxSize )
         : _maxSize( maxSize )
         , _size( 0 )
 {}
@@ -279,6 +279,7 @@ void InstanceCache::_releaseStreams( InstanceCache::Item& item )
         item.data.versions.pop_back();
 
         EQASSERT( stream->isReady( ));
+        EQASSERT( _size >= stream->getDataSize( ));
         _size -= stream->getDataSize();
         delete stream;
     }
@@ -295,6 +296,7 @@ void InstanceCache::_releaseFirstStream( InstanceCache::Item& item )
     item.data.versions.pop_front();
 
     EQASSERT( stream->isReady( ));
+    EQASSERT( _size >= stream->getDataSize( ));
     _size -= stream->getDataSize();
     delete stream;
 }            
@@ -307,7 +309,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
     EQ_TS_SCOPED( _thread );
 
     std::vector< base::uint128_t > keys;
-    const long target = static_cast< long >(
+    const uint64_t target = static_cast< uint64_t >(
                    static_cast< float >( _maxSize ) * 0.8f );
 
     // Release used items (first stream)

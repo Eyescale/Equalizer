@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +18,7 @@
 #ifndef EQBASE_OMP_H
 #define EQBASE_OMP_H
 
-#include <eq/base/defines.h>
+#include <eq/base/base.h>
 
 #ifdef EQ_USE_OPENMP
 #  include <omp.h>
@@ -36,10 +36,7 @@ namespace base
          * @return the number of threads used in a parallel region.
          * @version 1.0
          */
-        static int getNThreads() { return _nThreads; }
-
-    private:
-        static int _nThreads;
+        EQBASE_API static unsigned getNThreads();
     };
 }
 

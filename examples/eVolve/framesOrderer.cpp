@@ -86,7 +86,7 @@ void orderFrames( eq::Frames& frames, const eq::Matrix4d& modelviewM,
         if( dotVals[i] > 0 && dotVals[i+1] > 0 )
             minPos = static_cast< int >( i );
 
-    const uint32_t nFrames = frames.size();
+    const size_t nFrames = frames.size();
     minPos++;
     if( minPos < frames.size()-1 )
     {

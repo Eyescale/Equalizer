@@ -270,17 +270,19 @@ static inline void _decompress( const void* const* inData,
     }
 }
 
-static size_t _setupResults( const uint32_t nChannels, const eq_uint64_t inSize,
-                             eq::plugin::Compressor::ResultVector& results )
+static unsigned _setupResults( const unsigned nChannels,
+                               const eq_uint64_t inSize,
+                               eq::plugin::Compressor::ResultVector& results )
 {
     // determine number of chunks and set up output data structure
 #ifdef EQ_USE_OPENMP
-    const size_t cpuChunks = nChannels * eq::base::OMP::getNThreads() * 4;
+    const unsigned cpuChunks = nChannels * eq::base::OMP::getNThreads() * 4;
     const size_t sizeChunks = inSize / 4096 * nChannels;
-    const size_t minChunks = nChannels > sizeChunks ? nChannels : sizeChunks;
-    const size_t nChunks = minChunks < cpuChunks ? minChunks : cpuChunks;
+    const unsigned minChunks = unsigned( nChannels > sizeChunks ?
+                                         nChannels : sizeChunks );
+    const unsigned nChunks = minChunks < cpuChunks ? minChunks : cpuChunks;
 #else
-    const size_t nChunks = nChannels;
+    const unsigned nChunks = nChannels;
 #endif
 
     while( results.size() < nChunks )
@@ -299,12 +301,12 @@ static size_t _setupResults( const uint32_t nChannels, const eq_uint64_t inSize,
 
 template< typename PixelType, typename ComponentType,
           typename swizzleFunc, typename alphaFunc >
-static inline size_t _compress( const void* const inData,
-                                const eq_uint64_t nPixels,
+static inline unsigned _compress( const void* const inData,
+                                  const eq_uint64_t nPixels,
                                 eq::plugin::Compressor::ResultVector& results )
 {
     const uint64_t size = nPixels * sizeof( PixelType );
-    const size_t nChunks = _setupResults( 4, size, results );
+    const unsigned nChunks = _setupResults( 4, size, results );
 
     const uint64_t nElems = nPixels * 4;
     const float width = static_cast< float >( nElems ) /  

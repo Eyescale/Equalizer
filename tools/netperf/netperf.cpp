@@ -368,8 +368,8 @@ int main( int argc, char **argv )
             selector = new Selector( connection, packetSize, useThreads );
             selector->start();
         }
-        else
-            EQCHECK( connection->connect( ));
+        else if( !connection->connect( ))
+            ::exit( EXIT_FAILURE );
 
         eq::base::Buffer< uint8_t > buffer;
         buffer.resize( packetSize );

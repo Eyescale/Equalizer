@@ -19,6 +19,7 @@
 #ifndef EQ_GLOBAL_H
 #define EQ_GLOBAL_H
 
+#include <eq/client/init.h>       // friend
 #include <eq/client/types.h>
 
 #include <eq/fabric/global.h>     // base class

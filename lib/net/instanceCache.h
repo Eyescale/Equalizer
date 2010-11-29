@@ -37,7 +37,7 @@ namespace net
     {
     public:
         /** Construct a new instance cache. */
-        EQNET_API InstanceCache( const long maxSize = EQ_100MB );
+        EQNET_API InstanceCache( const uint64_t maxSize = EQ_100MB );
 
         /** Destruct this instance cache. */
         EQNET_API ~InstanceCache();
@@ -101,10 +101,10 @@ namespace net
         EQNET_API bool erase( const base::UUID& id );
 
         /** @return the number of bytes used by the instance cache. */
-        long getSize() const { return _size; }
+        uint64_t getSize() const { return _size; }
 
         /** @return the maximum number of bytes used by the instance cache. */
-        long getMaxSize() const { return _maxSize; }
+        uint64_t getMaxSize() const { return _maxSize; }
 
         /** Remove all items which are older than the given time. */
         void expire( const int64_t age );
@@ -123,8 +123,8 @@ namespace net
 
         base::Lockable< ItemHash > _items;
 
-        const long _maxSize; //!< high-water mark to start releasing commands
-        long _size;          //!< Current number of bytes stored
+        const uint64_t _maxSize; //!< high-water mark to start releasing commands
+        uint64_t _size;          //!< Current number of bytes stored
 
         const base::Clock _clock;  //!< Clock for item expiration
 
