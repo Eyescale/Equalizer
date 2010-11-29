@@ -883,16 +883,12 @@ void Config::_switchLayout( int32_t increment )
 
     _frameData.setCurrentViewID( eq::base::UUID::ZERO );
 
-    int32_t index = _currentCanvas->getActiveLayoutIndex() + increment;
+    int64_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();
     EQASSERT( !layouts.empty( ));
 
-    if( index >= static_cast<int32_t>(layouts.size( )) )
-        index = 0;
-    else if ( index < 0 )
-        index = layouts.size( ) - 1;
-
-    _currentCanvas->useLayout( index );
+    index = ( index % layouts.size( ));
+    _currentCanvas->useLayout( uint32_t( index ));
 
     const eq::Layout* layout = _currentCanvas->getLayouts()[index];
     std::ostringstream stream;

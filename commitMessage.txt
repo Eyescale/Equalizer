@@ -1,4 +1,4 @@
-Fix all doxygen warnings
+Fix warnings
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

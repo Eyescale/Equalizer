@@ -28,7 +28,6 @@
 
 #include "config.h"
 
-using namespace std;
 
 namespace eVolve
 {
