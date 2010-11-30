@@ -113,7 +113,9 @@ void WGLWindow::makeCurrent() const
     EQCHECK( wglMakeCurrent( _wglDC, _wglContext ));
     WGLWindowIF::makeCurrent();
     if( _wglContext )
+    {
         EQ_GL_ERROR( "After wglMakeCurrent" );
+    }
 }
 
 void WGLWindow::swapBuffers()

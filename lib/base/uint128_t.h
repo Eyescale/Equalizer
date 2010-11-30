@@ -19,7 +19,7 @@
 #define EQBASE_UINT128_H
 
 #include <eq/base/base.h>
-#include <eq/base/hash.h>
+#include <eq/base/stdext.h>
 
 namespace eq
 {

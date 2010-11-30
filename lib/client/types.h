@@ -27,25 +27,6 @@
 
 namespace eq
 {
-namespace fabric
-{
-class ColorMask;
-struct DrawableConfig;
-class Frustum;
-class Pixel;
-class PixelViewport;
-class Projection;
-class Range;
-class RenderContext;
-class SubPixel;
-class Viewport;
-class Wall;
-class Zoom;
-template< class C, class OV, class LV, class CV, class NV > class ConfigVisitor;
-template< class T, class C > class ElementVisitor;
-template< class T > class LeafVisitor;
-}
-
 class Canvas;
 class Channel;
 class Client;
@@ -87,8 +68,6 @@ typedef fabric::SubPixel SubPixel;
 typedef fabric::Viewport Viewport;
 typedef fabric::Wall Wall;
 typedef fabric::Zoom Zoom;
-
-typedef eq::base::uint128_t uint128_t;
 
 /** A visitor to traverse segments. @sa  Segment::accept() */
 typedef fabric::LeafVisitor< Segment > SegmentVisitor;
@@ -186,6 +165,8 @@ typedef std::vector< uint8_t >    Vectorub;
 /** A vector of unsigned shorts */
 typedef std::vector< uint16_t >   Vectorus;
 
+typedef eq::base::uint128_t uint128_t;
+typedef eq::base::UUID UUID;
 
 /** @cond IGNORE */
 typedef base::RefPtr< X11Connection > X11ConnectionPtr;

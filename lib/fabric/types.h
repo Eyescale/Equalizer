@@ -28,7 +28,18 @@ namespace eq
 {
 namespace fabric
 {
+class ColorMask;
+class Frustum;
+class Pixel;
 class PixelViewport;
+class Projection;
+class Range;
+class RenderContext;
+class SubPixel;
+class Viewport;
+class Wall;
+class Zoom;
+struct DrawableConfig;
 
 typedef vmml::matrix< 3, 3, double > Matrix3d; //!< A 3x3 double matrix
 typedef vmml::matrix< 4, 4, double > Matrix4d; //!< A 4x4 double matrix
@@ -61,6 +72,7 @@ template< class, class, class, class, class > class Server;
 template< class, class, class, class, class, class, class > class Config;
 template< class, class > class ElementVisitor;
 template< class > class LeafVisitor;
+template< class, class, class, class, class> class ConfigVisitor;
 
 typedef base::RefPtr< Client > ClientPtr;
 typedef base::RefPtr< const Client > ConstClientPtr;
