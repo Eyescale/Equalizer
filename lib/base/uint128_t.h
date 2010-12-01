@@ -155,6 +155,15 @@ namespace base
         /** @return the reference to the high 64 bits of this 128 bit value. */
         uint64_t& high() { return _high; }
 
+        /** @return a short, but not necessarily unique, string of the value. */
+        std::string getShortString() const
+            {
+                std::stringstream stream;
+                stream << std::hex << _high << _low;
+                const std::string str = stream.str();
+                return str.substr( 0, 3 ) + ".." +
+                    str.substr( str.length() - 3, std::string::npos );
+            }
     private:
         uint64_t _high;
         uint64_t _low;

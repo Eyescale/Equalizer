@@ -34,7 +34,8 @@ namespace net
 
 typedef CommandFunc<LocalNode> CmdFunc;
 
-LocalNode::LocalNode( ) : _hasSendToken( true )
+LocalNode::LocalNode( )
+        : _hasSendToken( true )
 {
     _receiverThread = new ReceiverThread( this );
     _commandThread  = new CommandThread( this );

@@ -511,7 +511,6 @@ void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
 }
 
 //----- Command handlers
-
 bool FrameData::_cmdTransmit( net::Command& command )
 {
     EQ_TS_THREAD( _commandThread );
@@ -534,7 +533,7 @@ bool FrameData::_cmdTransmit( net::Command& command )
     FrameDataStatistics event( Statistic::FRAME_RECEIVE, this, 
                                packet->frameNumber, originator );
 
-    Image*   image = _allocImage( Frame::TYPE_MEMORY, DrawableConfig( ));
+    Image* image = _allocImage( Frame::TYPE_MEMORY, DrawableConfig( ));
 
     // Note on the const_cast: since the PixelData structure stores non-const
     // pointers, we have to go non-const at some point, even though we do not
@@ -629,7 +628,8 @@ bool FrameData::_cmdReady( net::Command& command )
         _readyVersions.push_back( &command );
     }
 
-    EQLOG( LOG_ASSEMBLY ) << this << " received v" << packet->version << std::endl;
+    EQLOG( LOG_ASSEMBLY ) << this << " received v" << packet->version
+                          << std::endl;
     return true;
 }
 
@@ -655,7 +655,7 @@ bool FrameData::_cmdUpdate( net::Command& command )
         cmd->release();
         _readyVersions.erase( i );
         _setReady( packet->version );
-        break;        
+        break; 
     }
 
     return true;
