@@ -1,9 +1,9 @@
-Fix Posix build
+Minor cleanups, fix CMD_CONFIG_CUSTOM
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -250,7 +250,7 @@ std::ostream& operator << ( std::ostream& os, const Segment< C, S, CH >& s )
     if( vp.isValid( ) && vp != Viewport::FULL )
         os << "viewport " << vp << std::endl;
 
-    os << static_cast< const Frustum& >( segment );
+    os << static_cast< const Frustum& >( segment ) << std::endl;
 
     os << base::exdent << "}" << std::endl << base::enableHeader
        << base::enableFlush;

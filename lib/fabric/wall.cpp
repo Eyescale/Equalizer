@@ -111,10 +111,10 @@ void Wall::resizeBottom( const float ratio )
     bottomRight -= delta;
 }
 
-void Wall::apply( const Viewport& viewport)
+void Wall::apply( const Viewport& viewport )
 {
-    Vector3f u = bottomRight - bottomLeft;
-    Vector3f v = topLeft - bottomLeft;
+    const Vector3f u = bottomRight - bottomLeft;
+    const Vector3f v = topLeft - bottomLeft;
     
     bottomLeft  = bottomLeft + u * viewport.x + v * viewport.y;
     bottomRight = bottomLeft + u * viewport.w;

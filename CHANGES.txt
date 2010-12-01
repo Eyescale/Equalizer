@@ -27,7 +27,7 @@ This file lists all changes in the public Equalizer API, latest on top:
     Replace defines EQ_ID_INVALID with the new type by UUID::ZERO for object identifiers
     Removed defines EQ_ID_MAX, NONE, INVALID, ANY for object identifiers
   Replace object versions with uint128_t
-    Master version have always 0 for the 64bit high value
+    Master versions have always 0 for the 64bit high value
 
   change frameID type to uint128_t for methods: frameReadback, frameAssemble, 
    frameDraw, frameClear, frameStart, startFrame, frameViewStart, 

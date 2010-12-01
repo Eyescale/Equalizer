@@ -402,7 +402,7 @@ namespace eq
          * @version 1.0
          */
         EQ_API virtual void frameFinish( const uint128_t& frameID, 
-	                                     const uint32_t frameNumber );
+                                         const uint32_t frameNumber );
 
         /** 
          * Finish drawing.
