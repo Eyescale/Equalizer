@@ -1,9 +1,9 @@
-Minor cleanups, fix CMD_CONFIG_CUSTOM
+EQ_IGNORE_GLEW-related tweak
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
