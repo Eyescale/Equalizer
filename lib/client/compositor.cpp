@@ -1048,16 +1048,17 @@ void Compositor::assembleImage( const Image* image, const ImageOp& op )
     ImageOp operation = op;
     operation.buffers = Frame::BUFFER_NONE;
 
-    if(( op.buffers & Frame::BUFFER_COLOR ) &&
-       image->hasPixelData( Frame::BUFFER_COLOR ))
+    const Frame::Buffer buffer[] = { Frame::BUFFER_COLOR, Frame::BUFFER_DEPTH };
+    for( unsigned i = 0; i<2; ++i )
     {
-        operation.buffers |= Frame::BUFFER_COLOR;
+        if( (op.buffers & buffer[i]) &&
+            ( image->hasPixelData( buffer[i] ) ||
+              image->hasTextureData( buffer[i] )) )
+        {
+            operation.buffers |= buffer[i];
+        }
     }
-    if(( op.buffers&Frame::BUFFER_DEPTH ) &&
-       image->hasPixelData( Frame::BUFFER_DEPTH ))
-    {
-        operation.buffers |= Frame::BUFFER_DEPTH;
-    }
+
     if( operation.buffers == Frame::BUFFER_NONE )
     {
         EQWARN << "No image attachment buffers to assemble" << std::endl;
@@ -1217,7 +1218,6 @@ void Compositor::resetAssemblyState()
 
 void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
 {
-    EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
     _drawPixels( image, op, Frame::BUFFER_COLOR );
 }
 
@@ -1231,6 +1231,7 @@ void Compositor::_drawPixels( const Image* image,
 
     if ( image->getStorageType() == Frame::TYPE_MEMORY )
     {
+        EQASSERT( image->hasPixelData( which ));
         Channel* channel = op.channel; // needed for glewGetContext
         Window::ObjectManager* objects = channel->getObjectManager();
 
@@ -1335,8 +1336,6 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
 
     EQLOG( LOG_ASSEMBLY ) << "assembleImageDB, fixed function " << pvp 
                           << std::endl;
-    EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
-    EQASSERT( image->hasPixelData( Frame::BUFFER_DEPTH ));
 
     // Z-Based sort-last assembly
     glRasterPos2i( op.offset.x() + pvp.x, op.offset.y() + pvp.y );

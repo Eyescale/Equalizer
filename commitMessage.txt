@@ -1,9 +1,9 @@
-Cache slave object commit input streams, add thread-safety checks to pool
+Fix texture uploads (overlay logo) and Subpixel assembly
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [ ] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation

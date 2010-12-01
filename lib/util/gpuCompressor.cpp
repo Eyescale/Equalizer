@@ -110,7 +110,7 @@ void GPUCompressor::initUploader( const uint32_t externalFormat,
         {
             const base::CompressorInfo& info = *j;
             
-            if((( info.capabilities & capabilities ) != capabilities ) ||
+            if( (info.capabilities & capabilities) != capabilities ||
                 info.outputTokenType != externalFormat ||
                 info.tokenType != internalFormat ||
                 !plugin->isCompatible( info.name, _glewContext ))
@@ -127,7 +127,8 @@ void GPUCompressor::initUploader( const uint32_t externalFormat,
         }
     }
 
-    if ( name == EQ_COMPRESSOR_NONE )
+    EQASSERT( name != EQ_COMPRESSOR_NONE );
+    if( name == EQ_COMPRESSOR_NONE )
         reset();
     else if( name != _name )
         _initDecompressor( name );

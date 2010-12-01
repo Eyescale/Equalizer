@@ -281,7 +281,7 @@ uint8_t* Image::getPixelPointer( const Frame::Buffer buffer )
 
 const PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
 {
-    EQASSERT(hasPixelData(buffer));
+    EQASSERT( hasPixelData( buffer ));
     return _getAttachment( buffer ).memory;
 }
 
@@ -297,9 +297,9 @@ void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
     const uint32_t externalFormat = pixelData.externalFormat;
     const uint32_t internalFormat = pixelData.internalFormat;
     const uint64_t flags = EQ_COMPRESSOR_TRANSFER |
-                           EQ_COMPRESSOR_USE_FRAMEBUFFER | 
                            EQ_COMPRESSOR_DATA_2D |
-                           (texture ? texture->getCompressorTarget() : 0);
+                           ( texture ? texture->getCompressorTarget() :
+                                       EQ_COMPRESSOR_USE_FRAMEBUFFER );
 
     if( !uploader->isValidUploader( externalFormat, internalFormat, flags ))
         uploader->initUploader( externalFormat, internalFormat, flags );
