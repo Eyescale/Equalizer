@@ -172,9 +172,9 @@ static void _modeDS(       Config*                config,
         return;
     }
 
-    const size_t rows      = yMarks.size() - 1;
-    const size_t columns   = xMarks.size() - 1;
-    const size_t cells     = rows*columns;
+    const int rows      = int( yMarks.size( )) - 1;
+    const int columns   = int( xMarks.size( )) - 1;
+    const int cells     = rows*columns;
 
     // check that all specified viewports are within a grid
     for( size_t i = 0; i < nNodes; ++i  )
@@ -191,8 +191,8 @@ static void _modeDS(       Config*                config,
 
     // fill all viewports for grid
     vector< eq::Viewport > tmpVP;
-    for( unsigned y = 0; y < rows; ++y )
-        for( unsigned x = 0; x < columns; ++x )
+    for( int y = 0; y < rows; ++y )
+        for( int x = 0; x < columns; ++x )
             tmpVP.push_back( eq::Viewport( xMarks[x],
                                            yMarks[y],
                                            xMarks[x+1]-xMarks[x],
