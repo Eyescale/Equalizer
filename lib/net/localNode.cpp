@@ -233,7 +233,6 @@ void LocalNode::addListener( ConnectionPtr connection )
 {
     EQASSERT( isListening( ));
     EQASSERT( connection->isListening( ));
-    EQWARN << "Add " << connection << std::endl;
 
     NodeAddListenerPacket packet( connection );
     Nodes nodes;
@@ -249,7 +248,6 @@ void LocalNode::removeListener( ConnectionPtr connection )
 {
     EQASSERT( isListening( ));
     EQASSERT( connection->isListening( ));
-    EQWARN << "Remove " << connection << std::endl;
 
     NodeRemoveListenerPacket packet( connection );
     Nodes nodes;

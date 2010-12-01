@@ -1,4 +1,4 @@
-Tweak stats overlay
+Minor code cleanups
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

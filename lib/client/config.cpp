@@ -137,7 +137,7 @@ ConstClientPtr Config::getClient() const
 
 void Config::unmap()
 {
-     {
+    {
         base::ScopedMutex< base::SpinLock > mutex( _latencyObjects );
         while( !_latencyObjects->empty() )
         {
