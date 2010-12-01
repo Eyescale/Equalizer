@@ -1,9 +1,9 @@
-Minor code cleanups
+Cache slave object commit input streams, add thread-safety checks to pool
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [ ] New Feature
-[x] Cleanup
-[ ] Optimization
+[ ] Cleanup
+[x] Optimization
 [ ] Documentation

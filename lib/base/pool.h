@@ -18,8 +18,10 @@
 #ifndef EQBASE_POOL_H
 #define EQBASE_POOL_H
 
-#include <eq/base/spinLock.h>     // member
 #include <eq/base/nonCopyable.h>  // base class
+#include <eq/base/scopedMutex.h>  // member
+#include <eq/base/spinLock.h>     // member
+#include <eq/base/thread.h>       // thread-safety checks
 
 namespace eq
 {
@@ -39,6 +41,7 @@ namespace base
         T* alloc()
             {
                 ScopedMutex< SpinLock > mutex( _lock );
+                EQ_TS_SCOPED( _thread );
                 if( _cache.empty( ))
                     return new T;
 
@@ -51,6 +54,7 @@ namespace base
         void release( T* item )
             {
                 ScopedMutex< SpinLock > mutex( _lock );
+                EQ_TS_SCOPED( _thread );
                 _cache.push_back( item );
             }
 
@@ -58,6 +62,7 @@ namespace base
         void flush()
             {
                 ScopedMutex< SpinLock > mutex( _lock );
+                EQ_TS_SCOPED( _thread );
                 while( !_cache.empty( ))
                 {
                     delete _cache.back();
@@ -68,6 +73,7 @@ namespace base
     private:
         SpinLock* const _lock;
         std::vector< T* > _cache;
+        EQ_TS_VAR( _thread );
     };
 }
 }

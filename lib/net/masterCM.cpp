@@ -101,7 +101,8 @@ uint128_t MasterCM::sync( const uint128_t& version )
                       is->nRemainingBuffers()==0,
                       "Object " << base::className( _object ) <<
                       " did not unpack all data" );
-        delete is;
+        is->reset();
+        _iStreamCache.release( is );
         return _version;
     }
     // else
@@ -116,7 +117,8 @@ uint128_t MasterCM::sync( const uint128_t& version )
                       is->nRemainingBuffers()==0,
                       "Object " << base::className( _object ) <<
                       " did not unpack all data" );
-        delete is;
+        is->reset();
+        _iStreamCache.release( is );
     }
     return _version;
 }
@@ -148,7 +150,7 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
     if( !istream )
     {
         EQASSERT( i == _pendingDeltas.end( ));
-        istream = new ObjectDataIStream;
+        istream = _iStreamCache.alloc();
     }
 
     istream->addDataPacket( command );

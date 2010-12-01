@@ -20,8 +20,10 @@
 
 #include <eq/net/objectCM.h> // base class
 #include <eq/net/types.h>
+
 #include <eq/base/idPool.h>  // ID_ enum
 #include <eq/base/mtQueue.h> // member
+#include <eq/base/pool.h>    // member
 #include <eq/base/thread.h>  // thread-safety check
 
 namespace eq
@@ -86,6 +88,9 @@ namespace net
 
         /** The change queue. */
         base::MTQueue< ObjectDataIStream* > _queuedDeltas;
+
+        /** Cached input streams (+decompressor) */
+        base::Pool< ObjectDataIStream, true > _iStreamCache;
 
         /* The command handlers. */
         bool _cmdSlaveDelta( Command& command );
