@@ -12,6 +12,7 @@ purple_add_library(eq_base ${EQ_LIB_VARIANT}
     buffer.h
     clock.h
     compareAndSwap.h
+    compiler.h
     condition.h
     debug.h
     defines.h

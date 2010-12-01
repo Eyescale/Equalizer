@@ -28,7 +28,7 @@
 #include <string.h>
 #include <sys/types.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #  include <mswsock.h>
 #  ifndef WSA_FLAG_SDP
 #    define WSA_FLAG_SDP 0x40
@@ -51,13 +51,13 @@ namespace eq
 namespace net
 {
 SocketConnection::SocketConnection( const ConnectionType type )
-#ifdef WIN32
+#ifdef _WIN32
         : _overlappedAcceptData( 0 )
         , _overlappedSocket( INVALID_SOCKET )
         , _overlappedDone( 0 )
 #endif
 {
-#ifdef WIN32
+#ifdef _WIN32
     memset( &_overlapped, 0, sizeof( _overlapped ));
 #endif
 
@@ -109,7 +109,7 @@ bool SocketConnection::connect()
         return false;
     }
 
-#ifdef WIN32
+#ifdef _WIN32
     const bool connected = WSAConnect( _readFD, (sockaddr*)&address, 
                                        sizeof( address ), 0, 0, 0, 0 ) == 0;
 #else
@@ -145,7 +145,7 @@ void SocketConnection::close()
     _state = STATE_CLOSED;
     EQASSERT( _readFD > 0 ); 
 
-#ifdef WIN32
+#ifdef _WIN32
     const bool closed = ( ::closesocket(_readFD) == 0 );
 #else
     const bool closed = ( ::close(_readFD) == 0 );
@@ -162,7 +162,7 @@ void SocketConnection::close()
 //----------------------------------------------------------------------
 // Async IO handles
 //----------------------------------------------------------------------
-#ifdef WIN32
+#ifdef _WIN32
 void SocketConnection::_initAIORead()
 {
     _overlapped.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
@@ -207,7 +207,7 @@ void SocketConnection::_exitAIORead(){ /* NOP */ }
 //----------------------------------------------------------------------
 // accept
 //----------------------------------------------------------------------
-#ifdef WIN32
+#ifdef _WIN32
 void SocketConnection::acceptNB()
 {
     EQASSERT( _state == STATE_LISTENING );
@@ -297,7 +297,7 @@ ConnectionPtr SocketConnection::acceptSync()
     return connection;
 }
 
-#else // !WIN32
+#else // !_WIN32
 
 void SocketConnection::acceptNB(){ /* NOP */ }
  
@@ -338,11 +338,11 @@ ConnectionPtr SocketConnection::acceptSync()
     return newConnection;
 }
 
-#endif // !WIN32
+#endif // !_WIN32
 
 
 
-#ifdef WIN32
+#ifdef _WIN32
 //----------------------------------------------------------------------
 // read
 //----------------------------------------------------------------------
@@ -484,11 +484,11 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes)
     EQUNREACHABLE;
     return -1;
 }
-#endif // WIN32
+#endif // _WIN32
 
 bool SocketConnection::_createSocket()
 {
-#ifdef WIN32
+#ifdef _WIN32
     const DWORD flags = _description->type == CONNECTIONTYPE_SDP ?
                             WSA_FLAG_OVERLAPPED | WSA_FLAG_SDP :
                             WSA_FLAG_OVERLAPPED;
@@ -526,7 +526,7 @@ void SocketConnection::_tuneSocket( const Socket fd )
     setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, 
                 reinterpret_cast<const char*>( &on ), sizeof( on ));
     
-#ifdef WIN32
+#ifdef _WIN32
     const int size = 128768;
     setsockopt( fd, SOL_SOCKET, SO_RCVBUF, 
                 reinterpret_cast<const char*>( &size ), sizeof( size ));

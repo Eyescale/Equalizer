@@ -88,7 +88,7 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
 
     const std::string& workDir = parameters.getWorkDir();
     std::string rendererInfo = workDir + '#' + renderClient;
-#ifdef WIN32 // replace dir delimiters since '\' is often used as escape char
+#ifdef _WIN32 // replace dir delimiters since '\' is often used as escape char
     for( size_t i=0; i<rendererInfo.length(); ++i )
         if( rendererInfo[i] == '\\' )
             rendererInfo[i] = '/';

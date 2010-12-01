@@ -25,7 +25,7 @@ namespace eq
 {
 NodeFactory* Global::_nodeFactory = 0;
 
-#ifdef WIN32 
+#ifdef _WIN32 
 # ifdef EQ_BUILD_DIR
    std::string Global::_configFile = "../../../../examples/configs/4-window.all.eqc";
 # else

@@ -21,7 +21,7 @@
 
 #include <fcntl.h>
 #include <sys/stat.h>
-#ifndef WIN32
+#ifndef _WIN32
 #   include <sys/mman.h>
 #endif
 
@@ -31,7 +31,7 @@ namespace base
 {
 
 MemoryMap::MemoryMap()
-#ifdef WIN32
+#ifdef _WIN32
         : _map( 0 )
 #else
         : _fd( 0 )
@@ -54,7 +54,7 @@ const void* MemoryMap::map( const std::string& filename )
         return 0;
     }
 
-#ifdef WIN32
+#ifdef _WIN32
     // try to open binary file
     HANDLE file = CreateFile( filename.c_str(), GENERIC_READ, FILE_SHARE_READ,
                               0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0 );
@@ -120,7 +120,7 @@ void MemoryMap::unmap()
         return;
     }
 
-#ifdef WIN32
+#ifdef _WIN32
     UnmapViewOfFile( _ptr );
     CloseHandle( _map );
     

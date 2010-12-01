@@ -25,7 +25,7 @@
 
 #include <eq/base/defines.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #  ifndef _MSC_VER
 #    define USE_SYS_TYPES_FD_SET
 #  endif
@@ -89,12 +89,21 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+
 #ifndef _MSC_VER
 #  include <stdint.h>
 #  include <sys/param.h>  // for MIN/MAX
 #endif
 
+#ifdef Darwin
+#  include <crt_externs.h>
+#  define environ (*_NSGetEnviron())
+#elif !defined(_WIN32)
+extern "C" char **environ;
+#endif
+
 #include <eq/base/types.h>
+#include <eq/base/compiler.h>
 
 // defines
 /** A 'NULL' value for an uint32, typically used for identifiers and versions.*/
@@ -105,43 +114,10 @@
 /** Constant defining 'wait forever' in methods with wait parameters. */
 #define EQ_TIMEOUT_INDEFINITE 0
 
-#ifdef _MSC_VER
-/** Declare and align a variable to a 8-byte boundary. */
-#  define EQ_ALIGN8( var )  __declspec (align (8)) var;
-/** Declare and align a variable to a 16-byte boundary. */
-#  define EQ_ALIGN16( var ) __declspec (align (16)) var;
-#else
-/** Declare and align a variable to a 8-byte boundary. */
-#  define EQ_ALIGN8( var )  var __attribute__ ((aligned (8)));
-/** Declare and align a variable to a 16-byte boundary. */
-#  define EQ_ALIGN16( var ) var __attribute__ ((aligned (16)));
-#endif
-
 #define VMMLIB_CUSTOM_CONFIG
 #ifndef NDEBUG
 #  define VMMLIB_SAFE_ACCESSORS
 #endif
 #define VMMLIB_ALIGN( var ) var
-
-#ifdef __GNUC__
-#  if (( __GNUC__ > 4 ) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 0)) )
-#    define EQ_GCC_4_0_OR_LATER
-#  endif
-#  if (( __GNUC__ > 4 ) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 1)) )
-#    define EQ_GCC_4_1_OR_LATER
-#  endif
-#  if (( __GNUC__ > 4 ) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 2)) )
-#    define EQ_GCC_4_2_OR_LATER
-#  endif
-#  if (( __GNUC__ > 4 ) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3)) )
-#    define EQ_GCC_4_3_OR_LATER
-#  endif
-#  if (( __GNUC__ > 4 ) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 4)) )
-#    define EQ_GCC_4_4_OR_LATER
-#  endif
-#  if (( __GNUC__ > 4 ) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 5)) )
-#    define EQ_GCC_4_5_OR_LATER
-#  endif
-#endif // GCC
 
 #endif //EQBASE_BASE_H

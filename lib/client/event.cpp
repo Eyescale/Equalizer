@@ -19,7 +19,7 @@
 
 #include <eq/base/idPool.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #  define bzero( ptr, size ) memset( ptr, 0, size );
 #else
 #  include <strings.h>

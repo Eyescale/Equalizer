@@ -20,7 +20,7 @@
 #include "atomic.h"
 
 #include <errno.h>
-#ifndef WIN32
+#ifndef _WIN32
 #  include <execinfo.h>
 #  include <string.h>
 #  define EQ_BACKTRACE_DEPTH 256
@@ -59,7 +59,7 @@ void checkHeap()
 
 std::ostream& backtrace( std::ostream& os )
 {
-#ifdef WIN32
+#ifdef _WIN32
     os << "backtrace not implemented";
 #else
     void* callstack[ EQ_BACKTRACE_DEPTH ];
@@ -102,7 +102,7 @@ std::ostream& backtrace( std::ostream& os )
 
 std::ostream& sysError( std::ostream& os )
 {
-#ifdef WIN32
+#ifdef _WIN32
     const DWORD error = GetLastError();
     char text[512] = "";
     FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM, 0, error, 0, text, 511, 0 );

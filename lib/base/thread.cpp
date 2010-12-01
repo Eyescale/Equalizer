@@ -32,7 +32,7 @@
 #include <algorithm>
 
 // Experimental Win32 thread pinning
-#ifdef WIN32
+#ifdef _WIN32
 //#  define EQ_WIN32_THREAD_AFFINITY
 #endif
 
@@ -349,7 +349,7 @@ void Thread::pinCurrentThread()
 #endif
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 #ifndef MS_VC_EXCEPTION
 #  define MS_VC_EXCEPTION 0x406D1388
 #endif

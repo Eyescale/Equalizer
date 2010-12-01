@@ -26,7 +26,7 @@
 #include <eq/base/monitor.h>
 #include <eq/base/refPtr.h>
 
-#ifndef WIN32
+#ifndef _WIN32
 #  include <poll.h>
 #endif
 
@@ -95,7 +95,7 @@ namespace net
 
     private:
  
-#ifdef WIN32
+#ifdef _WIN32
         typedef ConnectionSetThread Thread;
         typedef std::vector< ConnectionSetThread* > Threads;
         /** Threads used to handle more than MAXIMUM_WAIT_OBJECTS connections */
@@ -127,7 +127,7 @@ namespace net
         Connections _connections;
 
         // Note: std::vector had to much overhead here
-#ifdef WIN32
+#ifdef _WIN32
         base::Buffer< HANDLE > _fdSet;
 #else
         base::Buffer< pollfd > _fdSetCopy; // 'const' set

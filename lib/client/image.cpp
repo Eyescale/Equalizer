@@ -42,7 +42,7 @@
 
 #include <fstream>
 
-#ifdef WIN32
+#ifdef _WIN32
 #  include <malloc.h>
 #  define bzero( ptr, size ) memset( ptr, 0, size );
 #else
@@ -854,7 +854,7 @@ bool Image::writeImages( const std::string& filenameTemplate ) const
 #define SWAP_INT(v)   ( v = (v&0xff) << 24 | (v&0xff00) << 8 |      \
                         (v&0xff0000) >> 8 | (v&0xff000000) >> 24)
 
-#ifdef WIN32
+#ifdef _WIN32
 #  pragma pack(1)
 #endif
 /** @cond IGNORE */
@@ -876,7 +876,7 @@ struct RGBHeader
         void convert()
         {
 #if defined(__i386__) || defined(__amd64__) || defined (__ia64) || \
-    defined(__x86_64) || defined(WIN32)
+    defined(__x86_64) || defined(_WIN32)
             SWAP_SHORT(magic);
             SWAP_SHORT(nDimensions);
             SWAP_SHORT(width);
@@ -903,7 +903,7 @@ struct RGBHeader
     char fill[404];
 }
 /** @endcond */
-#ifndef WIN32
+#ifndef _WIN32
   __attribute__((packed))
 #endif
 ;

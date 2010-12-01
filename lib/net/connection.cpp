@@ -26,7 +26,7 @@
 #include "socketConnection.h"
 #include "rspConnection.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #  include "namedPipeConnection.h"
 #endif
 #ifdef EQ_INFINIBAND
@@ -83,7 +83,7 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
             connection = new PipeConnection;
             break;
             
-#ifdef WIN32
+#ifdef _WIN32
         case CONNECTIONTYPE_NAMEDPIPE:
             connection = new NamedPipeConnection;
             break;

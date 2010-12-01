@@ -114,7 +114,7 @@ net::ConnectionPtr _startLocalServer()
 
 #ifdef _MSC_VER
     const std::string libName = "EqualizerServer.dll";
-#elif defined (WIN32)
+#elif defined (_WIN32)
     const std::string libName = "libEqualizerServer.dll";
 #elif defined (Darwin)
     const std::string libName = "libEqualizerServer.dylib";

@@ -23,7 +23,7 @@ namespace eq
 namespace net
 {
 EventConnection::EventConnection()
-#ifdef WIN32
+#ifdef _WIN32
         : _event( 0 )
 #else
         : _set( false )
@@ -43,7 +43,7 @@ bool EventConnection::connect()
 
     _state = STATE_CONNECTING;
 
-#ifdef WIN32
+#ifdef _WIN32
     _event = CreateEvent( 0, TRUE, FALSE, 0 );
 #else
     _connection = new PipeConnection;
@@ -58,7 +58,7 @@ bool EventConnection::connect()
 
 void EventConnection::close()
 {
-#ifdef WIN32
+#ifdef _WIN32
     if( _event )
         CloseHandle( _event );
     _event = 0;
@@ -75,7 +75,7 @@ void EventConnection::close()
 
 void EventConnection::set()
 {
-#ifdef WIN32
+#ifdef _WIN32
     SetEvent( _event );
 #else
     base::ScopedMutex<> mutex( _lock );
@@ -89,7 +89,7 @@ void EventConnection::set()
 }
 void EventConnection::reset()
 {
-#ifdef WIN32
+#ifdef _WIN32
     ResetEvent( _event );
 #else
     base::ScopedMutex<> mutex( _lock );
@@ -105,7 +105,7 @@ void EventConnection::reset()
 
 Connection::Notifier EventConnection::getNotifier() const
 {
-#ifdef WIN32
+#ifdef _WIN32
     return _event;
 #else
     return _connection->getNotifier();

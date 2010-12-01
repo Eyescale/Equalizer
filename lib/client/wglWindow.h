@@ -48,11 +48,8 @@ namespace eq
         /** @return the Win32 affinity device context, if used. */
         virtual HDC getWGLAffinityDC() { return 0; }
 
-        /** @return the generic WGL function table for the window's pipe. */
-        EQ_API WGLEWContext* wglewGetContext();
-
-        /** @return the WGL OS parent pipe. */
-        WGLPipe* _getWGLPipe();
+        /** Process the given event. @version 1.0 */
+        EQ_API virtual bool processEvent( const WGLWindowEvent& event ) = 0;
     };
 
     /** Equalizer default implementation of a WGL window */
@@ -237,6 +234,12 @@ namespace eq
 
         /** Unbind a WGL_NV_swap_barrier. */ 
         void leaveNVSwapBarrier();
+
+        /** @return the generic WGL function table for the window's pipe. */
+        EQ_API WGLEWContext* wglewGetContext();
+
+        /** @return the WGL OS parent pipe. */
+        WGLPipe* getWGLPipe();
 
     private:
 

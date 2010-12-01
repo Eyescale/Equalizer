@@ -65,7 +65,7 @@ namespace base
         size_t getSize() const { return _size; }
 
     private:
-#ifdef WIN32
+#ifdef _WIN32
         HANDLE _map;
 #else
         int _fd;

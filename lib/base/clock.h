@@ -26,7 +26,7 @@
 #  include <mach/mach_time.h>
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 #  include <windows.h>
 #else
 #  include <time.h>
@@ -46,7 +46,7 @@ namespace base
                 reset();
 #ifdef Darwin
                 mach_timebase_info( &_timebaseInfo );
-#elif defined (WIN32)
+#elif defined (_WIN32)
                 QueryPerformanceFrequency( &_frequency );
 #endif
             }
@@ -62,7 +62,7 @@ namespace base
             {
 #ifdef Darwin
                 _start = mach_absolute_time();
-#elif defined (WIN32)
+#elif defined (_WIN32)
                 QueryPerformanceCounter( &_start );
 #else
                 clock_gettime( CLOCK_REALTIME, &_start );
@@ -77,7 +77,7 @@ namespace base
                 _start -= static_cast< uint64_t >(
                               time * _timebaseInfo.denom / _timebaseInfo.numer *
                                      1000000 );
-#elif defined (WIN32)
+#elif defined (_WIN32)
                 _start.QuadPart -= static_cast<long long>( 
                     time * _frequency.QuadPart / 1000 );
 #else
@@ -103,7 +103,7 @@ namespace base
                 const int64_t elapsed = mach_absolute_time() - _start;
                 return ( elapsed * _timebaseInfo.numer / _timebaseInfo.denom /
                          1000000.f );
-#elif defined (WIN32)
+#elif defined (_WIN32)
                 LARGE_INTEGER now;
                 QueryPerformanceCounter( &now );
                 return 1000.0f * (now.QuadPart - _start.QuadPart) / 
@@ -128,7 +128,7 @@ namespace base
                 const int64_t elapsed = now - _start;
                 const float time = elapsed * _timebaseInfo.numer /
                                   _timebaseInfo.denom / 1000000.f;
-#elif defined (WIN32)
+#elif defined (_WIN32)
                 LARGE_INTEGER now;
                 QueryPerformanceCounter( &now );
                 const float time = 1000.0f * (now.QuadPart - _start.QuadPart) / 
@@ -153,7 +153,7 @@ namespace base
                 const int64_t elapsed = mach_absolute_time() - _start;
                 return elapsed * _timebaseInfo.numer / _timebaseInfo.denom /
                        1000000;
-#elif defined (WIN32)
+#elif defined (_WIN32)
                 LARGE_INTEGER now;
                 QueryPerformanceCounter( &now );
                 return 1000 * (now.QuadPart - _start.QuadPart) /
@@ -177,7 +177,7 @@ namespace base
                 const int64_t elapsed = mach_absolute_time() - _start;
                 return ( elapsed * _timebaseInfo.numer / _timebaseInfo.denom /
                          1000000. );
-#elif defined (WIN32)
+#elif defined (_WIN32)
                 LARGE_INTEGER now;
                 QueryPerformanceCounter( &now );
                 return 1000.0 * (now.QuadPart - _start.QuadPart) /
@@ -201,7 +201,7 @@ namespace base
          */
         float getMilliSecondsf() const
             {
-#if defined (Darwin) || defined (WIN32)
+#if defined (Darwin) || defined (_WIN32)
                 double time = getTimed();
                 return static_cast<float>
                     (time - static_cast<unsigned>(time/1000.) * 1000);
@@ -220,7 +220,7 @@ namespace base
 #ifdef Darwin
         uint64_t                  _start;
         mach_timebase_info_data_t _timebaseInfo;
-#elif defined (WIN32)
+#elif defined (_WIN32)
         LARGE_INTEGER             _start;
         LARGE_INTEGER             _frequency;
 #else

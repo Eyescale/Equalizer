@@ -59,7 +59,7 @@ Strings _initPluginDirectories()
         char cwd[MAXPATHLEN];
         pluginDirectories.push_back( getcwd( cwd, MAXPATHLEN ));
 
-#ifdef WIN32
+#ifdef _WIN32
         if( GetModuleFileName( 0, cwd, MAXPATHLEN ) > 0 )
         {
             pluginDirectories.push_back( base::getDirname( cwd ));
@@ -75,7 +75,7 @@ Strings _initPluginDirectories()
             envString = env;
     }
 
-#ifdef WIN32
+#ifdef _WIN32
     const char separator = ';';
 #else
     const char separator = ':';
@@ -140,7 +140,7 @@ void PluginRegistry::init()
                             << std::endl;
 
         // search the number of files in the director
-#ifdef WIN32
+#ifdef _WIN32
         Strings files = searchDirectory( directory, "EqualizerCompressor*.dll");
         const char DIRSEP = '\\';
 #elif defined (Darwin)

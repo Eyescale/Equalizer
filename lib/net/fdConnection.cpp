@@ -15,7 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef WIN32
+#ifndef _WIN32
 
 #include "fdConnection.h"
 #include "log.h"

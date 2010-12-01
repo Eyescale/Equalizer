@@ -25,7 +25,7 @@
 #include <signal.h>
 #include <sstream>
 
-#ifndef WIN32
+#ifndef _WIN32
 #  include <sys/wait.h>
 #endif
 
@@ -34,7 +34,7 @@ namespace eq
 namespace base
 {
 
-#ifndef WIN32
+#ifndef _WIN32
 // the signal handler for SIGCHILD
 static void sigChildHandler( int /*signal*/ )
 {
@@ -57,7 +57,7 @@ bool Launcher::run( const std::string& command )
     if( command.empty( ))
         return false;
 
-#ifdef WIN32
+#ifdef _WIN32
     STARTUPINFO         startupInfo = {0};
     PROCESS_INFORMATION procInfo    = {0};
     const char*         cmdLine     = command.c_str();
@@ -132,7 +132,7 @@ bool Launcher::run( const std::string& command )
 #endif
 }
 
-#ifndef WIN32
+#ifndef _WIN32
 void Launcher::_buildCommandLine( const std::string& command, 
                                   std::vector<std::string>& commandLine )
 {

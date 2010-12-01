@@ -41,7 +41,7 @@ bool init( const int argc, char** argv )
     if( !base::init( argc, argv ))
         return false;
 
-#ifdef WIN32
+#ifdef _WIN32
     WORD    wsVersion = MAKEWORD( 2, 0 );
     WSADATA wsData;
     if( WSAStartup( wsVersion, &wsData ) != 0 )
@@ -78,7 +78,7 @@ bool init( const int argc, char** argv )
 
 bool exit()
 {
-#ifdef WIN32
+#ifdef _WIN32
     if( WSACleanup() != 0 )
     {
         EQERROR << "Cleanup of Windows Sockets failed" 

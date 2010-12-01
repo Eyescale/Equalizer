@@ -28,18 +28,9 @@
 #include <vector>
 #include <sys/types.h>
 
-#ifdef sgi
-typedef int socklen_t;
-#endif
+#ifdef _WIN32
+#  include <basetsd.h>
 
-#ifdef Darwin
-#  include <crt_externs.h>
-#  define environ (*_NSGetEnviron())
-#elif !defined(WIN32)
-  extern "C" char **environ;
-#endif
-
-#ifdef WIN32
 typedef int        socklen_t;
 
 #  ifdef _MSC_VER
@@ -116,10 +107,6 @@ namespace base
 {
 /** A vector of std::strings @version 1.0 */
 typedef std::vector< std::string >   Strings;
-
-#ifdef EQ_USE_DEPRECATED
-typedef Strings StringVector
-#endif
 
 class CPUCompressor; //!< @internal
 class Plugin;        //!< @internal

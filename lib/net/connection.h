@@ -32,7 +32,7 @@
 #include <string.h>
 #include <vector>
 
-#ifdef WIN32
+#ifdef _WIN32
 #  define EQ_DEFAULT_PORT (4242)
 #else
 #  define EQ_DEFAULT_PORT (4242 + getuid())
@@ -373,7 +373,7 @@ namespace net
          * The Notifier used by the ConnectionSet to detect readiness of a
          * Connection.
          */
-#ifdef WIN32
+#ifdef _WIN32
         typedef HANDLE Notifier;
 #else
         typedef int Notifier;

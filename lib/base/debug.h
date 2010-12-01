@@ -22,7 +22,7 @@
 #include <eq/base/log.h>
 #include <typeinfo>
 
-#ifndef WIN32
+#ifndef _WIN32
 #  include <cxxabi.h>
 #endif
 
@@ -64,7 +64,7 @@ EQBASE_API std::ostream& backtrace( std::ostream& os );
 /** Print the RTTI name of the given class. @version 1.0 */
 template< class T > inline std::string className( T* object )
 {
-#ifdef WIN32
+#ifdef _WIN32
     return std::string( typeid( *object ).name( ));
 #else
     int status;

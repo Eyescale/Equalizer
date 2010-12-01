@@ -30,21 +30,6 @@ using namespace std;
 namespace eq
 {
 
-WGLEWContext* WGLWindowIF::wglewGetContext()
-{
-    return _getWGLPipe()->wglewGetContext();
-}
-
-WGLPipe* WGLWindowIF::_getWGLPipe()
-{
-    Pipe* pipe = getPipe();
-    EQASSERT( pipe );
-    EQASSERT( pipe->getSystemPipe( ));
-    EQASSERT( dynamic_cast< WGLPipe* >( pipe->getSystemPipe( )));
-
-    return static_cast< WGLPipe* >( pipe->getSystemPipe( ) );
-}
-
 WGLWindow::WGLWindow( Window* parent )
     : WGLWindowIF( parent )
     , _wglWindow( 0 )
@@ -61,7 +46,6 @@ WGLWindow::WGLWindow( Window* parent )
 
 WGLWindow::~WGLWindow( )
 {
-    
 }
 
 void WGLWindow::configExit( )
@@ -524,7 +508,7 @@ bool WGLWindow::initWGLAffinityDC()
     // We need to create one DC per window, since the window DC pixel format and
     // the affinity RC pixel format have to match, and each window has
     // potentially a different pixel format.
-    return _getWGLPipe()->createWGLAffinityDC( _wglAffinityDC );
+    return getWGLPipe()->createWGLAffinityDC( _wglAffinityDC );
 }
 
 HDC WGLWindow::getWGLAffinityDC()
@@ -538,7 +522,7 @@ HDC WGLWindow::getWGLAffinityDC()
 
 HDC WGLWindow::createWGLDisplayDC()
 {
-    return _getWGLPipe()->createWGLDisplayDC();
+    return getWGLPipe()->createWGLDisplayDC();
 }
 
 bool WGLWindow::_useAffinity()
@@ -549,7 +533,7 @@ bool WGLWindow::_useAffinity()
     if( getIAttribute( Window::IATTR_HINT_AFFINITY ) == AUTO &&
         getIAttribute( Window::IATTR_HINT_DRAWABLE ) != FBO )
     {
-        WGLPipe* wglPipe = _getWGLPipe();
+        WGLPipe* wglPipe = getWGLPipe();
         if( wglPipe->getDriverVersion() > 200.f ) // NV driver WAR
             return false;
     }
@@ -881,7 +865,7 @@ bool WGLWindow::processEvent( const WGLWindowEvent& event )
         EndPaint(   _wglWindow, &ps );
     }
 
-    return WGLWindowIF::processEvent( event );
+    return SystemWindow::processEvent( event );
 }
 
 void WGLWindow::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
@@ -945,5 +929,20 @@ void WGLWindow::leaveNVSwapBarrier()
     wglJoinSwapGroupNV( dc, 0 );
 
     _wglNVSwapGroup = 0;
+}
+
+WGLEWContext* WGLWindow::wglewGetContext()
+{
+    return getWGLPipe()->wglewGetContext();
+}
+
+WGLPipe* WGLWindow::getWGLPipe()
+{
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    EQASSERT( pipe->getSystemPipe( ));
+    EQASSERT( dynamic_cast< WGLPipe* >( pipe->getSystemPipe( )));
+
+    return static_cast< WGLPipe* >( pipe->getSystemPipe( ) );
 }
 }

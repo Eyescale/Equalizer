@@ -137,7 +137,7 @@ ConstClientPtr Config::getClient() const
 
 void Config::unmap()
 {
-    {
+     {
         base::ScopedMutex< base::SpinLock > mutex( _latencyObjects );
         while( !_latencyObjects->empty() )
         {
@@ -867,7 +867,7 @@ template EQFABRIC_EXPORT std::ostream& eq::fabric::operator << ( std::ostream&,
 /** @endcond */
 
 #define FIND_ID_TEMPLATE1( type )                                       \
-    template  void eq::Config::Super::find< type >( const uint128_t&, \
+    template EQ_API void eq::Config::Super::find< type >( const uint128_t&, \
                                                              type** );
 
 FIND_ID_TEMPLATE1( eq::Window );
@@ -877,7 +877,7 @@ FIND_ID_TEMPLATE1( eq::Observer );
 FIND_ID_TEMPLATE1( eq::Canvas );
 
 #define FIND_ID_TEMPLATE2( type )                                       \
-    template  type* eq::Config::Super::find< type >( const uint128_t& );
+    template EQ_API type* eq::Config::Super::find< type >( const uint128_t& );
 
 FIND_ID_TEMPLATE2( eq::Window );
 FIND_ID_TEMPLATE2( eq::Observer );
@@ -886,7 +886,7 @@ FIND_ID_TEMPLATE2( eq::View );
 FIND_ID_TEMPLATE2( eq::Canvas );
 
 #define CONST_FIND_ID_TEMPLATE2( type )                                       \
-    template  const type* eq::Config::Super::find< type >( const uint128_t& ) const;
+    template EQ_API const type* eq::Config::Super::find< type >( const uint128_t& ) const;
 
 CONST_FIND_ID_TEMPLATE2( eq::Window );
 CONST_FIND_ID_TEMPLATE2( eq::Observer );
@@ -895,7 +895,7 @@ CONST_FIND_ID_TEMPLATE2( eq::View );
 CONST_FIND_ID_TEMPLATE2( eq::Canvas );
 
 #define FIND_NAME_TEMPLATE1( type )                                     \
-    template  void \
+    template EQ_API void \
     eq::Config::Super::find< type >(const std::string&, const type** ) const;
 FIND_NAME_TEMPLATE1( eq::Window );
 FIND_NAME_TEMPLATE1( eq::Layout );
@@ -904,7 +904,7 @@ FIND_NAME_TEMPLATE1( eq::Canvas );
 
 
 #define CONST_FIND_NAME_TEMPLATE2( type )                               \
-    template  const type*                                      \
+    template EQ_API const type*                                      \
     eq::Config::Super::find< type >( const std::string& ) const;
 
 CONST_FIND_NAME_TEMPLATE2( eq::Window );
@@ -915,7 +915,7 @@ CONST_FIND_NAME_TEMPLATE2( eq::Observer );
 CONST_FIND_NAME_TEMPLATE2( eq::View );
 
 #define FIND_NAME_TEMPLATE2( type )                               \
-    template  type*                                      \
+    template EQ_API type*                                      \
     eq::Config::Super::find< type >( const std::string& );
 
 FIND_NAME_TEMPLATE2( eq::Window );

@@ -50,7 +50,7 @@ namespace base
         {
 #ifdef Linux
             // NOP
-#elif defined (WIN32)
+#elif defined (_WIN32)
             LARGE_INTEGER seed;
             QueryPerformanceCounter( &seed );
             srand( seed.LowPart );
@@ -79,7 +79,7 @@ namespace base
                 return 0;
             }
 
-#elif defined (WIN32)
+#elif defined (_WIN32)
 
             EQASSERTINFO( RAND_MAX >= 32767, RAND_MAX );
 

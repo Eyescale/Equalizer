@@ -22,7 +22,7 @@
 
 #include <eq/fabric/pixelViewport.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #  define bzero( ptr, size ) memset( ptr, 0, size );
 #endif
 

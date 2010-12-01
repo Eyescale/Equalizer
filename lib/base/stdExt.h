@@ -24,6 +24,8 @@
 #ifndef EQBASE_STDEXT_H
 #define EQBASE_STDEXT_H
 
+#include <eq/base/compiler.h>
+
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -39,7 +41,7 @@
 #    endif
 #  endif
 #else
-#  ifdef WIN32
+#  ifdef _WIN32
 #    define EQ_STDEXT_VC8
 #  else
 #    define EQ_STDEXT_STD

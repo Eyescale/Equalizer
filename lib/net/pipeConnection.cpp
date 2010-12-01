@@ -29,7 +29,7 @@ namespace net
 {
 
 PipeConnection::PipeConnection()
-#ifdef WIN32
+#ifdef _WIN32
         : _readHandle( 0 ),
           _writeHandle( 0 ),
           _size( 0 ),
@@ -42,13 +42,13 @@ PipeConnection::PipeConnection()
 
 PipeConnection::~PipeConnection()
 {
-#ifdef WIN32
+#ifdef _WIN32
     CloseHandle( _dataPending );
     _dataPending = 0;
 #endif
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 
 //----------------------------------------------------------------------
 // connect
@@ -171,7 +171,7 @@ int64_t PipeConnection::write( const void* buffer, const uint64_t bytes )
     return bytesWritten;
 }
 
-#else // !WIN32
+#else // !_WIN32
 
 //----------------------------------------------------------------------
 // connect

@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,8 +19,14 @@
 #ifndef EQBASE_UINT128_H
 #define EQBASE_UINT128_H
 
-#include <eq/base/base.h>
 #include <eq/base/stdExt.h>
+
+#ifdef _MSC_VER
+// Don't include <eq/base/types.h> to be minimally intrusive for apps
+// using uint128_t
+#  include <basetsd.h>
+typedef UINT64     uint64_t;
+#endif
 
 namespace eq
 {
@@ -184,6 +191,7 @@ namespace base
 }
 
 #ifdef EQ_STDEXT_VC8
+
 template<> inline size_t stde::hash_compare< eq::base::uint128_t >::operator() 
         ( const eq::base::uint128_t& key ) const
 {
@@ -195,7 +203,7 @@ template<> inline size_t stde::hash_value( const eq::base::uint128_t& key )
     return key.high() ^ key.low();
 }
 
-#else
+#else // EQ_STDEXT_VC8
 
 EQ_STDEXT_NAMESPACE_OPEN
 template<> struct hash< eq::base::uint128_t >
@@ -207,5 +215,5 @@ template<> struct hash< eq::base::uint128_t >
 };
 EQ_STDEXT_NAMESPACE_CLOSE
 
-#endif
+#endif // EQ_STDEXT_VC8
 #endif // EQBASE_UINT128_H

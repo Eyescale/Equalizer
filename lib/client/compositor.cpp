@@ -43,7 +43,7 @@
 #  include <pcapi.h>
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 #  define bzero( ptr, size ) { memset( ptr, 0, size ); }
 #endif
 

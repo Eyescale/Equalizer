@@ -29,7 +29,7 @@
 #include <string.h>
 #include <sys/types.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #  include <mswsock.h>
 #  include <wsrm.h>
 #else
@@ -48,12 +48,12 @@ namespace net
 PGMConnection::PGMConnection()
         : _readFD( INVALID_SOCKET )
         , _writeFD( INVALID_SOCKET )
-#ifdef WIN32
+#ifdef _WIN32
         , _overlappedAcceptData( 0 )
         , _overlappedSocket( INVALID_SOCKET )
 #endif
 {
-#ifdef WIN32
+#ifdef _WIN32
     memset( &_overlapped, 0, sizeof( _overlapped ));
 #endif
 
@@ -153,7 +153,7 @@ bool PGMConnection::listen()
 
     _parseAddress( address );
     
-#ifdef WIN32
+#ifdef _WIN32
     const bool connected = WSAConnect( _writeFD, (sockaddr*)&address, 
                                        size, 0, 0, 0, 0 ) == 0;
 #else
@@ -209,7 +209,7 @@ void PGMConnection::close()
                        << std::endl;
             }
         }
-#ifdef WIN32
+#ifdef _WIN32
         const bool closed = ( ::closesocket( _readFD ) == 0 );
 #else
         const bool closed = ( ::close( _readFD ) == 0 );
@@ -222,7 +222,7 @@ void PGMConnection::close()
 
     if( _writeFD > 0 && isListening( ))
     {
-#ifdef WIN32
+#ifdef _WIN32
         const bool closed = ( ::closesocket( _writeFD ) == 0 );
 #else
         const bool closed = ( ::close( _writeFD ) == 0 );
@@ -241,7 +241,7 @@ void PGMConnection::close()
 //----------------------------------------------------------------------
 // Async IO handles
 //----------------------------------------------------------------------
-#ifdef WIN32
+#ifdef _WIN32
 void PGMConnection::_initAIORead()
 {
     _overlapped.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
@@ -286,7 +286,7 @@ void PGMConnection::_exitAIORead(){ /* NOP */ }
 //----------------------------------------------------------------------
 // accept
 //----------------------------------------------------------------------
-#ifdef WIN32
+#ifdef _WIN32
 void PGMConnection::acceptNB()
 {
     EQASSERT( _state == STATE_LISTENING );
@@ -373,7 +373,7 @@ ConnectionPtr PGMConnection::acceptSync()
     return connection;
 }
 
-#else // !WIN32
+#else // !_WIN32
 
 void PGMConnection::acceptNB(){ /* NOP */ }
  
@@ -415,11 +415,11 @@ ConnectionPtr PGMConnection::acceptSync()
     return newConnection;
 }
 
-#endif // !WIN32
+#endif // !_WIN32
 
 
 
-#ifdef WIN32
+#ifdef _WIN32
 //----------------------------------------------------------------------
 // read
 //----------------------------------------------------------------------
@@ -533,11 +533,11 @@ int64_t PGMConnection::write( const void* buffer, const uint64_t bytes)
     EQUNREACHABLE;
     return -1;
 }
-#endif // WIN32
+#endif // _WIN32
 
 SOCKET PGMConnection::_initSocket( sockaddr_in address )
 {
-#ifdef WIN32
+#ifdef _WIN32
     const DWORD flags = WSA_FLAG_OVERLAPPED;
     const SOCKET fd   = WSASocket( AF_INET, SOCK_STREAM, 
                                    IPPROTO_RM, 0, 0, flags );

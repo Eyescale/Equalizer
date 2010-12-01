@@ -28,7 +28,7 @@
 #include <algorithm>
 #include <errno.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #  define SELECT_TIMEOUT WAIT_TIMEOUT
 #  define SELECT_ERROR   WAIT_FAILED
 #  define MAX_CONNECTIONS (MAXIMUM_WAIT_OBJECTS - 1)
@@ -44,7 +44,7 @@ namespace net
 {
 
 ConnectionSet::ConnectionSet()
-#ifdef WIN32
+#ifdef _WIN32
         : _thread( 0 ),
 #else
         :
@@ -69,7 +69,7 @@ ConnectionSet::~ConnectionSet()
     _selfConnection = 0;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 
 /** Handles connections exceeding MAXIMUM_WAIT_OBJECTS */
 class ConnectionSetThread : public eq::base::Thread
@@ -112,7 +112,7 @@ private:
     ConnectionSet* const _parent;
 };
 
-#endif // WIN32
+#endif // _WIN32
 
 void ConnectionSet::setDirty()
 {
@@ -137,7 +137,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
         base::ScopedMutex<> mutex( _mutex );
         _allConnections.push_back( connection );
 
-#ifdef WIN32
+#ifdef _WIN32
         EQASSERT( _allConnections.size() < MAX_CONNECTIONS * MAX_CONNECTIONS );
         if( _connections.size() < MAX_CONNECTIONS - _threads.size( ))
         {   // can handle it ourself
@@ -172,7 +172,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
         connection->addListener( this );
 
         EQASSERT( _connections.size() < MAX_CONNECTIONS );
-#endif // WIN32
+#endif // _WIN32
     }
 
     setDirty();
@@ -192,7 +192,7 @@ bool ConnectionSet::removeConnection( ConnectionPtr connection )
         Connections::iterator j = stde::find( _connections, connection );
         if( j == _connections.end( ))
         {
-#ifdef WIN32
+#ifdef _WIN32
             Threads::iterator k = _threads.begin();
             for( ; k != _threads.end(); ++k )
             {
@@ -235,7 +235,7 @@ void ConnectionSet::clear()
 {
     _connection = 0;
 
-#ifdef WIN32
+#ifdef _WIN32
     for( Threads::iterator i = _threads.begin(); i != _threads.end(); ++i )
     {
         Thread* thread = *i;
@@ -267,7 +267,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
     {
         _connection = 0;
         _error      = 0;
-#ifdef WIN32
+#ifdef _WIN32
         if( _thread )
         {
             _thread->event = EVENT_NONE; // unblock previous thread
@@ -279,7 +279,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
             return EVENT_INVALID_HANDLE;
 
         // poll for a result
-#ifdef WIN32
+#ifdef _WIN32
         const DWORD waitTime = timeout < 0 ? INFINITE : timeout;
         const DWORD ret = WaitForMultipleObjectsEx( _fdSet.getSize(),
                                                     _fdSet.getData(),
@@ -293,7 +293,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                 return EVENT_TIMEOUT;
 
             case SELECT_ERROR:
-#ifdef WIN32
+#ifdef _WIN32
                 if( !_thread )
                     _error = GetLastError();
 
@@ -334,7 +334,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
     }
 }
      
-#ifdef WIN32
+#ifdef _WIN32
 ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
 {
     const uint32_t i = index - WAIT_OBJECT_0;
@@ -364,7 +364,7 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
 
     return EVENT_DATA;
 }
-#else // WIN32
+#else // _WIN32
 ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t )
 {
     for( size_t i = 0; i < _fdSet.getSize(); ++i )
@@ -406,13 +406,13 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t )
     }
     return EVENT_NONE;
 }
-#endif // else not WIN32
+#endif // else not _WIN32
 
 bool ConnectionSet::_setupFDSet()
 {
     if( !_dirty )
     {
-#ifndef WIN32
+#ifndef _WIN32
         // TODO: verify that poll() really modifies _fdSet, and remove the copy
         // if it doesn't. The man page seems to hint that poll changes fds.
         _fdSet = _fdSetCopy;
@@ -424,7 +424,7 @@ bool ConnectionSet::_setupFDSet()
     _fdSet.setSize( 0 );
     _fdSetResult.setSize( 0 );
 
-#ifdef WIN32
+#ifdef _WIN32
     // add self connection
     HANDLE readHandle = _selfConnection->getNotifier();
     EQASSERT( readHandle );

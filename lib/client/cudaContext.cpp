@@ -75,7 +75,7 @@ namespace eq
         cudaGLSetGLDevice( device );
 
         int usedDevice = static_cast< int >( device );
-#ifdef WIN32
+#ifdef _WIN32
         // retrieve the CUDA device associated to the handle returned by 
         // WGL_NV_gpu_affinity().
         cudaWGLGetDevice( &usedDevice );

@@ -29,7 +29,7 @@ namespace base
 class LockPrivate
 {
 public:
-#ifdef WIN32
+#ifdef _WIN32
     CRITICAL_SECTION cs; 
 #else
     pthread_mutex_t mutex;
@@ -39,7 +39,7 @@ public:
 Lock::Lock()
         : _data ( new LockPrivate )
 {
-#ifdef WIN32
+#ifdef _WIN32
     InitializeCriticalSection( &_data->cs );
 #else
     const int error = pthread_mutex_init( &_data->mutex, 0 );
@@ -55,7 +55,7 @@ Lock::Lock()
 
 Lock::~Lock()
 {
-#ifdef WIN32
+#ifdef _WIN32
     DeleteCriticalSection( &_data->cs ); 
 #else
     pthread_mutex_destroy( &_data->mutex );
@@ -66,7 +66,7 @@ Lock::~Lock()
 
 void Lock::set()
 {
-#ifdef WIN32
+#ifdef _WIN32
     EnterCriticalSection( &_data->cs );
 #else
     pthread_mutex_lock( &_data->mutex );
@@ -75,7 +75,7 @@ void Lock::set()
 
 void Lock::unset()
 {
-#ifdef WIN32
+#ifdef _WIN32
     LeaveCriticalSection( &_data->cs );
 #else
     pthread_mutex_unlock( &_data->mutex );
@@ -84,7 +84,7 @@ void Lock::unset()
 
 bool Lock::trySet()
 {
-#ifdef WIN32
+#ifdef _WIN32
     return TryEnterCriticalSection( &_data->cs );
 #else
     return ( pthread_mutex_trylock( &_data->mutex ) == 0 );
