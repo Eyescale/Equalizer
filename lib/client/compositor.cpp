@@ -1191,6 +1191,10 @@ void Compositor::setupAssemblyState( const PixelViewport& pvp )
     
     glPolygonMode( GL_FRONT, GL_FILL );
 
+    glMatrixMode( GL_TEXTURE );
+    glPushMatrix();
+    glLoadIdentity();
+
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
     glLoadIdentity();
@@ -1206,6 +1210,9 @@ void Compositor::setupAssemblyState( const PixelViewport& pvp )
 void Compositor::resetAssemblyState()
 {
     EQ_GL_ERROR( "before resetAssemblyState" );
+    glMatrixMode( GL_TEXTURE );
+    glPopMatrix();
+
     glMatrixMode( GL_PROJECTION );
     glPopMatrix();
 
