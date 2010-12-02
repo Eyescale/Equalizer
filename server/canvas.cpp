@@ -118,9 +118,12 @@ void Canvas::_switchLayout( const uint32_t oldIndex, const uint32_t newIndex )
     if( oldLayout )
         oldLayout->trigger( this, false );
 
+    if( newIndex == EQ_ID_NONE )
+        return;
+
     Super::activateLayout( newIndex );
 
-    if( newLayout && newIndex != EQ_ID_NONE )
+    if( newLayout )
         newLayout->trigger( this, true );
 }
 

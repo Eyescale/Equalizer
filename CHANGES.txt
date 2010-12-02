@@ -87,7 +87,7 @@ This file lists all changes in the public Equalizer API, latest on top:
 29/Oct/2010
   void FrameData::setZoom( const Zoom& zoom );
   const Zoom& FrameData::getZoom() const;
-    replace
+    replaces
   void Frame::setInputZoom( const Zoom& zoom );
   const Zoom& Frame::getInputZoom() const;
 

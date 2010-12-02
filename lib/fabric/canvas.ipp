@@ -267,7 +267,8 @@ bool Canvas< CFG, C, S, L >::removeLayout( L* layout )
 template< class CFG, class C, class S, class L >
 const L* Canvas< CFG, C, S, L >::getActiveLayout() const
 {
-    EQASSERT( _data.activeLayout < _layouts.size( ));
+    EQASSERTINFO( _data.activeLayout < _layouts.size(),
+                  _data.activeLayout << " >= " << _layouts.size( ));
     return _layouts[ _data.activeLayout ];
 }
 
