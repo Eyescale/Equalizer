@@ -41,7 +41,7 @@ namespace net
         EQNET_API static void setProgramName( const std::string& programName );
 
         /** @return the program name. */
-        static const std::string& getProgramName() { return _programName; }
+        EQNET_API static const std::string& getProgramName();
 
         /** 
          * Sets the working directory of the program.
@@ -51,18 +51,17 @@ namespace net
         EQNET_API static void setWorkDir( const std::string& workDir );
 
         /** @return the working directory of the program. */
-        static const std::string& getWorkDir() { return _workDir; }
+        EQNET_API static const std::string& getWorkDir();
 
         /** 
          * Sets the default listening port.
          * 
          * @param port the default port.
          */
-        static void setDefaultPort( const uint16_t port ) 
-            { _defaultPort = port; }
+        EQNET_API static void setDefaultPort( const uint16_t port );
 
         /** @return the default listening port. */
-        static uint16_t getDefaultPort() { return _defaultPort; }
+        EQNET_API static uint16_t getDefaultPort();
 
         /** 
          * Set the minimum buffer size for Object serialization.
@@ -73,11 +72,10 @@ namespace net
          *
          * @param size the treshold before the DataOStream sends a buffer.
          */
-        static void setObjectBufferSize( const uint32_t size )
-            { _objectBufferSize = size; }
+        EQNET_API static void setObjectBufferSize( const uint32_t size );
 
         /** @return the minimum buffer size for Object serialization. */
-        static uint32_t getObjectBufferSize() { return  _objectBufferSize; }
+        EQNET_API static uint32_t getObjectBufferSize();
 
         /** @name Attributes */
         //@{
@@ -102,22 +100,12 @@ namespace net
         };
 
         /** Set an integer attribute. */
-        static void setIAttribute( const IAttribute attr, const int32_t value )
-            { _iAttributes[ attr ] = value; }
+        EQNET_API static void setIAttribute( const IAttribute attr,
+                                             const int32_t value );
 
         /** @return the value of an integer attribute. */
-        static int32_t getIAttribute( const IAttribute attr )
-            { return _iAttributes[ attr ]; }
+        EQNET_API static int32_t getIAttribute( const IAttribute attr );
         //@}
-
-    private:
-        EQNET_API static std::string _programName;
-        EQNET_API static std::string _workDir;
-        static uint32_t    _objectBufferSize;
-        EQNET_API static uint16_t    _defaultPort;
-
-        /** Integer attributes. */
-        static int32_t _iAttributes[IATTR_ALL];
     };
 }
 }

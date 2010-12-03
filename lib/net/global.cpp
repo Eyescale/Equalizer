@@ -24,6 +24,10 @@ namespace eq
 namespace net
 {
 
+#ifndef Darwin
+#  define BIG_SEND
+#endif
+
 namespace
 {
 static uint32_t _getObjectBufferSize()
@@ -39,18 +43,11 @@ static uint32_t _getObjectBufferSize()
     return 60000;
 }
 
-}
-
-
-#ifndef Darwin
-#  define BIG_SEND
-#endif
-
-std::string Global::_programName;
-std::string Global::_workDir;
-uint16_t    Global::_defaultPort = 0;
-uint32_t    Global::_objectBufferSize = _getObjectBufferSize();
-int32_t     Global::_iAttributes[IATTR_ALL] =
+std::string _programName;
+std::string _workDir;
+uint16_t    _defaultPort = 0;
+uint32_t    _objectBufferSize = _getObjectBufferSize();
+int32_t     _iAttributes[Global::IAttribute::IATTR_ALL] =
 {
     100,   // INSTANCE_CACHE_SIZE
     100,   // REGISTER_SEND_QUEUE_SIZE
@@ -71,15 +68,51 @@ int32_t     Global::_iAttributes[IATTR_ALL] =
 #endif
     524288, // UDP_BUFFER_SIZE
 };
+}
 
 
 void Global::setProgramName( const std::string& programName )
 {
     _programName = programName;
 }
+const std::string& Global::getProgramName()
+{
+    return _programName;
+}
+
 void Global::setWorkDir( const std::string& workDir )
 {
     _workDir = workDir; 
+}
+const std::string& Global::getWorkDir()
+{
+    return _workDir;
+}
+void Global::setDefaultPort( const uint16_t port ) 
+{
+    _defaultPort = port;
+}
+
+uint16_t Global::getDefaultPort()
+{
+    return _defaultPort;
+}
+void Global::setObjectBufferSize( const uint32_t size )
+{
+    _objectBufferSize = size;
+}
+uint32_t Global::getObjectBufferSize()
+{
+    return  _objectBufferSize;
+}
+
+void Global::setIAttribute( const IAttribute attr, const int32_t value )
+{
+    _iAttributes[ attr ] = value;
+}
+int32_t Global::getIAttribute( const IAttribute attr )
+{
+    return _iAttributes[ attr ];
 }
 
 }
