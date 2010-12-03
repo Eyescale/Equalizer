@@ -20,6 +20,7 @@
 #define EQBASE_UINT128_H
 
 #include <eq/base/stdExt.h>
+#include <sstream>
 
 #ifdef _MSC_VER
 // Don't include <eq/base/types.h> to be minimally intrusive for apps
