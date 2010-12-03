@@ -1,4 +1,4 @@
-Fix exit with configs using a NONE layout
+Fix Posix build
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
