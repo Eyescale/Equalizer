@@ -81,7 +81,8 @@ namespace eq
          */
         PixelViewport pvp;
 
-        void* pixels;  //!< uncompressed pixel data, pvp * pixelSize bytes
+        /** uncompressed pixel data, pvp * pixelSize bytes. @version 1.0 */
+        void* pixels;
 
         /** The compressed pixel data blocks. @version 1.0 */
         std::vector< void* > compressedData;

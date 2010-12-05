@@ -57,10 +57,10 @@ namespace fabric
         /** @name Data Access */
         //@{
         /** @return the local server proxy. @version 1.0 */
-        EQFABRIC_EXPORT base::RefPtr< S > getServer();
+        EQFABRIC_API base::RefPtr< S > getServer();
 
         /** @return the local server proxy. @version 1.0 */
-        EQFABRIC_EXPORT base::RefPtr< const S > getServer() const;
+        EQFABRIC_API base::RefPtr< const S > getServer() const;
 
         /** @return the vector of observers, app-node only. @version 1.0 */
         const Observers& getObservers() const { return _observers; }
@@ -84,25 +84,25 @@ namespace fabric
          * @return the result of the visitor traversal.
          * @version 1.0
          */
-        EQFABRIC_EXPORT VisitorResult accept( V& visitor );
+        EQFABRIC_API VisitorResult accept( V& visitor );
 
         /** Const-version of accept(). @version 1.0 */
-        EQFABRIC_EXPORT VisitorResult accept( V& visitor ) const;
+        EQFABRIC_API VisitorResult accept( V& visitor ) const;
 
         /** @return the entity of the given identifier, or 0. @version 1.0 */
-        template< typename T > EQFABRIC_EXPORT T* find( const uint128_t& id );
+        template< typename T > EQFABRIC_API T* find( const uint128_t& id );
 
         /** @return the entity of the given identifier, or 0. @version 1.0 */
         template< typename T > 
-        EQFABRIC_EXPORT const T* find( const uint128_t& id ) const;
+        EQFABRIC_API const T* find( const uint128_t& id ) const;
 
         /** @return the first entity of the given name, or 0. @version 1.0 */
         template< typename T >
-        EQFABRIC_EXPORT T* find( const std::string& name );
+        EQFABRIC_API T* find( const std::string& name );
 
         /** @return the first entity of the given name, or 0. @version 1.0 */
         template< typename T >
-        EQFABRIC_EXPORT const T* find( const std::string& name ) const;
+        EQFABRIC_API const T* find( const std::string& name ) const;
 
         /** @internal @return the observer at the given path. */
         O* getObserver( const ObserverPath& path );
@@ -127,10 +127,10 @@ namespace fabric
         virtual void exitCanvas( CV* ) { /* NOP */ }
 
         /** Set the name of the config. @version 1.0 */
-        EQFABRIC_EXPORT void setName( const std::string& name );
+        EQFABRIC_API void setName( const std::string& name );
 
         /** @return the name of the object. @version 1.0 */
-        EQFABRIC_EXPORT const std::string& getName() const;
+        EQFABRIC_API const std::string& getName() const;
 
         /** 
          * Set an error code why the last operation failed.
@@ -141,10 +141,10 @@ namespace fabric
          * @param error the error message.
          * @version 1.0
          */
-        EQFABRIC_EXPORT void setError( const int32_t error );
+        EQFABRIC_API void setError( const int32_t error );
 
         /** @return the error from the last failed operation. @version 1.0 */
-        EQFABRIC_EXPORT base::Error getError() const;
+        EQFABRIC_API base::Error getError() const;
         //@}
 
         /** @name Attributes */
@@ -209,13 +209,13 @@ namespace fabric
         uint32_t getLatency() const { return _data.latency; }
 
         /** @internal */
-        EQFABRIC_EXPORT net::ObjectVersion getProxyVersion() const;
+        EQFABRIC_API net::ObjectVersion getProxyVersion() const;
 
         /** @internal Back up app-specific data, excluding child data. */
-        EQFABRIC_EXPORT virtual void backup();
+        EQFABRIC_API virtual void backup();
 
         /** @internal Restore the last backup. */
-        EQFABRIC_EXPORT virtual void restore();
+        EQFABRIC_API virtual void restore();
 
         /** @internal @sa Serializable::setDirty() */
         void setDirty( const uint64_t bits );
@@ -224,7 +224,7 @@ namespace fabric
         uint128_t getVersion() const;
 
         /** @internal Commit a new version. */
-        EQFABRIC_EXPORT uint128_t commit();
+        EQFABRIC_API uint128_t commit();
 
         /** @internal Sync to the given version. */
         void sync( const uint128_t& version = net::VERSION_HEAD );
@@ -234,13 +234,13 @@ namespace fabric
 
     protected:
         /** @internal Construct a new config. */
-        EQFABRIC_EXPORT Config( base::RefPtr< S > parent );
+        EQFABRIC_API Config( base::RefPtr< S > parent );
 
         /** @internal Destruct a config. */
-        EQFABRIC_EXPORT virtual ~Config();
+        EQFABRIC_API virtual ~Config();
 
         /** @internal */
-        EQFABRIC_EXPORT virtual void notifyMapped( net::LocalNodePtr node );
+        EQFABRIC_API virtual void notifyMapped( net::LocalNodePtr node );
 
         /** @internal */
         virtual void notifyAttached() {}
@@ -344,7 +344,7 @@ namespace fabric
 
         template< class, class, class, class > friend class Node;
         void _addNode( N* node );
-        EQFABRIC_EXPORT bool _removeNode( N* node );
+        EQFABRIC_API bool _removeNode( N* node );
 
         typedef net::CommandFunc< Config< S, C, O, L, CV, N, V > > CmdFunc;
         bool _cmdNewLayout( net::Command& command );
@@ -354,7 +354,7 @@ namespace fabric
     };
 
     template< class S, class C, class O, class L, class CV, class N, class V >
-    EQFABRIC_EXPORT std::ostream& operator << ( std::ostream& os,
+    EQFABRIC_API std::ostream& operator << ( std::ostream& os,
                                  const Config< S, C, O, L, CV, N, V >& config );
 }
 }

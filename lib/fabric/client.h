@@ -38,7 +38,7 @@ namespace fabric
          * @return true if the server was connected, false if not.
          * @version 1.0 
          */
-        EQFABRIC_EXPORT bool connectServer( net::NodePtr server );
+        EQFABRIC_API bool connectServer( net::NodePtr server );
 
         /** 
          * Disconnect and close the connection to an Equalizer server.
@@ -47,30 +47,30 @@ namespace fabric
          * @return true if the server was disconnected, false if not.
          * @version 1.0 
          */
-        EQFABRIC_EXPORT bool disconnectServer( net::NodePtr server );
+        EQFABRIC_API bool disconnectServer( net::NodePtr server );
 
         /** 
          * Get and process one pending command from the node command queue.
          *
          * @version 1.0 
          */
-        EQFABRIC_EXPORT void processCommand();
+        EQFABRIC_API void processCommand();
 
         /** @return the command queue to the main node thread. @internal */
         virtual net::CommandQueue* getMainThreadQueue() = 0;
 
     protected:
         /** Construct a new client. @internal */
-        EQFABRIC_EXPORT Client();
+        EQFABRIC_API Client();
 
         /** Destruct the client. @internal */
-        EQFABRIC_EXPORT virtual ~Client();
+        EQFABRIC_API virtual ~Client();
 
         /** @sa net::Node::dispatchCommand. @internal */
-        EQFABRIC_EXPORT virtual bool dispatchCommand( net::Command& command );
+        EQFABRIC_API virtual bool dispatchCommand( net::Command& command );
 
         /** @sa net::Node::invokeCommand. @internal */
-        EQFABRIC_EXPORT virtual bool invokeCommand( net::Command& );
+        EQFABRIC_API virtual bool invokeCommand( net::Command& );
 
     private:
         union // placeholder for binary-compatible changes

@@ -30,17 +30,19 @@ namespace eq
     class Observer;
 
     /**
-     * A layout groups one or more View which logically belong together.
+     * A layout groups one or more View, logically belonging together.
      *
-     * A layout belongs to Canvases. The layout assignment can be changed at
-     * run-time by the application, out of a pre-defined set of layouts for each
-     * Canvas. 
+     * A layout belongs to one or more Canvas. Currently, the layout assignment
+     * can be changed at run-time by the application, out of a pre-defined set
+     * of layouts for each canvas.
      * 
-     * The intersection between views and segments defines which output
-     * (sub-)channels are available. Neither the views nor the segments have to
+     * The intersection between views and segments defines which destination
+     * channels are available. Neither the views nor the segments have to
      * cover the full layout or canvas, respectively. These channels are
      * typically used as a destination Channel in a compound. They are
      * automatically created when the configuration is loaded.
+     *
+     * @sa fabric::Layout
      */
     class Layout : public fabric::Layout< Config, Layout, View >
     {
@@ -58,10 +60,8 @@ namespace eq
         //@}
 
     private:
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
     };
 }
 #endif // EQ_LAYOUT_H

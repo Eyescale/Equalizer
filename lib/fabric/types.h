@@ -77,8 +77,11 @@ template< class, class, class, class, class> class ConfigVisitor;
 typedef base::RefPtr< Client > ClientPtr;
 typedef base::RefPtr< const Client > ConstClientPtr;
 
+struct LayoutPath;
 struct NodePath;
+struct ObserverPath;
 struct PipePath;
+struct ViewPath;
 }
 }
 #endif // EQFABRIC_TYPES_H

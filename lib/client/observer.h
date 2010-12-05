@@ -28,9 +28,11 @@ namespace eq
 
     /**
      * An Observer looks at one or more views from a certain position (head
-     * matrix) with a given eye separation. Multiple observer in a configuration
-     * can be used to update independent viewers from one configuration, e.g., a
-     * control host, a HMD and a Cave.
+     * matrix) with a given eye separation. Multiple observers in a
+     * configuration can be used to update independent viewers from one
+     * configuration, e.g., a control host, a HMD and a Cave.
+     *
+     * @sa fabric::Observer
      */
     class Observer : public fabric::Observer< Config, Observer >
     {
@@ -48,10 +50,8 @@ namespace eq
         //@}
 
     private:
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
     };
 }
 #endif // EQ_OBSERVER_H

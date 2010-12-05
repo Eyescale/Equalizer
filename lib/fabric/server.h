@@ -96,7 +96,7 @@ namespace fabric
         bool _cmdDestroyConfig( net::Command& command );
     };
 
-    template< class CL, class S, class CFG, class NF, class N > EQFABRIC_EXPORT
+    template< class CL, class S, class CFG, class NF, class N > EQFABRIC_API
     std::ostream& operator << ( std::ostream&, const Server< CL, S, CFG, NF, N>& );
 }
 }

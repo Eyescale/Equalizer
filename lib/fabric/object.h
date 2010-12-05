@@ -74,7 +74,7 @@ namespace fabric
          * @param error the error message.
          * @version 1.0
          */
-        EQFABRIC_EXPORT void setError( const int32_t error );
+        EQFABRIC_API void setError( const int32_t error );
 
         /** @return the error from the last failed operation. @version 1.0 */
         base::Error getError() const { return _error; }
@@ -100,10 +100,10 @@ namespace fabric
         EQ_FABRIC_DECL virtual uint32_t commitNB(); //!< @internal
 
         /** @internal Back up app-specific data, excluding child data. */
-        EQFABRIC_EXPORT virtual void backup();
+        EQFABRIC_API virtual void backup();
 
         /** @internal Restore the last backup. */
-        EQFABRIC_EXPORT virtual void restore();
+        EQFABRIC_API virtual void restore();
 
         /**
          * The changed parts of the object since the last pack().
@@ -136,7 +136,7 @@ namespace fabric
         virtual bool hasMasterUserData() { return false; }
 
         /** @internal Set the tasks this entity might potentially execute. */
-        EQFABRIC_EXPORT void setTasks( const uint32_t tasks );
+        EQFABRIC_API void setTasks( const uint32_t tasks );
 
         EQ_FABRIC_DECL virtual void notifyDetach();
 

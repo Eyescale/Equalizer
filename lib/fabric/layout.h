@@ -26,54 +26,35 @@
 
 namespace eq
 {
-    class Layout;
-    namespace server { class Layout; }
-
 namespace fabric
 {
-    template< typename T, typename C  > class ElementVisitor;
-    template< class T > class LeafVisitor;
-    template< class, class, class > class View;
-    struct LayoutPath;
-    struct ViewPath;
-
-    /**
-     * A layout groups one or more View which logically belong together.
-     *
-     * A layout belongs to one or more Canvas. The layout assignment can be
-     * changed at run-time by the application, out of a pre-defined set of
-     * layouts for each Canvas.
-     * 
-     * The intersection between views and segments defines which output
-     * (sub-)channels are available. Neither the views nor the segments have to
-     * cover the full layout or canvas, respectively. These channels are
-     * typically used as a destination Channel in a compound. They are
-     * automatically created when the configuration is loaded.
-     */ 
+    /** Base data transport class for layouts. @sa eq::Layout */
     template< class C, class L, class V > class Layout : public Object
     {
     public:
         /** @name Data Access */
         //@{
-        typedef ElementVisitor< L, LeafVisitor< V > > Visitor;
+        /** A vector of pointers to views. @version 1.0 */
         typedef std::vector< V* > Views;
+        /** The layout visitor type. @version 1.0 */
+        typedef ElementVisitor< L, LeafVisitor< V > > Visitor;
 
-        /** @return the current config. */
+        /** @return the current config. @version 1.0 */
         C* getConfig() { return _config; }
 
-        /** @return the current Config. */
+        /** @return the current config. @version 1.0 */
         const C* getConfig() const { return _config; }
 
-        /** Get the list of views. */
+        /** Get the list of views. @version 1.0 */
         const Views& getViews() const { return _views; }
 
-        /** @return the view of the given path. @internal */
+        /** @internal @return the view of the given path. */
         V* getView( const ViewPath& path );
 
-        /** @return the first view of the given name. @internal */
+        /** @internal @return the first view of the given name. */
         V* findView( const std::string& name );
 
-        /** @return the index path to this layout. @internal */
+        /** @internal @return the index path to this layout. */
         LayoutPath getPath() const;
         //@}
 
@@ -84,11 +65,12 @@ namespace fabric
          * 
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
+         * @version 1.0
          */
-        EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor );
+        EQFABRIC_API VisitorResult accept( Visitor& visitor );
 
-        /** Const-version of accept(). */
-        EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor )
+        /** Const-version of accept(). @version 1.0 */
+        EQFABRIC_API VisitorResult accept( Visitor& visitor )
             const;
 
         void create( V** view ); //!< @internal
@@ -96,28 +78,30 @@ namespace fabric
         //@}
         
     protected:
-        /** Construct a new layout. */
-        EQFABRIC_EXPORT Layout( C* config );
+        /** @internal Construct a new layout. */
+        EQFABRIC_API Layout( C* config );
 
-        /** Destruct this layout. */
-        EQFABRIC_EXPORT virtual ~Layout();
+        /** @internal Destruct this layout. */
+        EQFABRIC_API virtual ~Layout();
 
-        EQFABRIC_EXPORT virtual void attachToSession( const base::UUID& id,
+        /** @internal */
+        EQFABRIC_API virtual void attachToSession( const base::UUID& id,
                                       const uint32_t instanceID,
                                       net::Session* session ); //!< @internal
 
-        /** @sa Object::serialize */
-        EQFABRIC_EXPORT virtual void serialize( net::DataOStream& os, 
+        /** @internal */
+        EQFABRIC_API virtual void serialize( net::DataOStream& os, 
                                                 const uint64_t dirtyBits );
-        /** @sa Object::deserialize */
-        EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
+        /** @internal */
+        EQFABRIC_API virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
 
-        EQFABRIC_EXPORT virtual void notifyDetach(); //!< @internal
+        EQFABRIC_API virtual void notifyDetach(); //!< @internal
 
-        /** @sa Serializable::setDirty() @internal */
-        EQFABRIC_EXPORT virtual void setDirty( const uint64_t bits );
+        /** @internal */
+        EQFABRIC_API virtual void setDirty( const uint64_t bits );
 
+        /** @internal */
         enum DirtyBits
         {
             DIRTY_VIEWS      = Object::DIRTY_CUSTOM << 0,
@@ -135,17 +119,15 @@ namespace fabric
         /** Child views on this layout. */
         Views _views;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         template< class, class, class > friend class View;
         friend class Object;
         void _addChild( V* view );
         bool _removeChild( V* view );
 
-        EQFABRIC_EXPORT virtual uint32_t commitNB(); //!< @internal
+        EQFABRIC_API virtual uint32_t commitNB(); //!< @internal
 
         template< class O > void _removeObserver( const O* observer );
         template< class, class, class, class, class, class,

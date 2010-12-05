@@ -83,6 +83,6 @@ template class eq::fabric::Pipe< eq::admin::Node, eq::admin::Pipe,
                                  eq::admin::Window, eq::admin::PipeVisitor >;
 
 /** @cond IGNORE */
-template EQFABRIC_EXPORT std::ostream& eq::fabric::operator << ( std::ostream&,
+template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
                                                  const eq::admin::Super& );
 /** @endcond */

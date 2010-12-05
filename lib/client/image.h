@@ -146,7 +146,7 @@ namespace eq
         EQ_API void flush();
         //@}
 
-        /** @name Pixel Data Access. */
+        /** @name Pixel Data Access */
         //@{
         /** @return a pointer to the raw pixel data. @version 1.0 */
         EQ_API const uint8_t* getPixelPointer( const Frame::Buffer buffer )
@@ -228,7 +228,7 @@ namespace eq
         EQ_API float getQuality( const Frame::Buffer buffer ) const;
         //@}
 
-        /** @name Texture Data Access. */
+        /** @name Texture Data Access */
         //@{
         /** Get the texture of this image. @version 1.0 */
         EQ_API const util::Texture& getTexture( const Frame::Buffer buffer )
@@ -332,18 +332,10 @@ namespace eq
         //@}
 
     private:
-        /** All distributed data. */
-        struct Data
-        {
-            Viewport vp;
-        } _data;
-
         /** The rectangle of the current pixel data. */
         PixelViewport _pvp;
 
-        /**
-         * Raw image data.
-         */
+        /** @internal Raw image data. */
         struct Memory : public PixelData
         {
         public:
@@ -374,10 +366,9 @@ namespace eq
         /** The storage type for the pixel data. */
         Frame::Type _type;
 
-        /** The individual parameters for a buffer. */
-        class Attachment
+        /** @internal The individual parameters for a buffer. */
+        struct Attachment
         {
-        public:
             Attachment();
             ~Attachment();
 

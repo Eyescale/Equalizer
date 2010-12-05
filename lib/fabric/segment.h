@@ -28,15 +28,12 @@ namespace eq
 {
 namespace fabric
 {
-    /**
-     * A segment covers a sub-area of a Canvas. It has a Frustum, and defines
-     * one output Channel of the whole projection area, typically a projector or
-     * screen.
-     */
+    /** Base data transport class for segments. @sa eq::Segment */
     template< class C, class S, class CH >
     class Segment : public Object, public Frustum
     {
     public:
+        /** The segment visitor type. @version 1.0 */
         typedef LeafVisitor< S > Visitor;
 
         /** @name Data Access */
@@ -51,6 +48,7 @@ namespace fabric
         const Viewport& getViewport() const { return _vp; }
 
         /** 
+         * @internal
          * Set the segment's viewport wrt its canvas.
          *
          * The viewport defines which 2D area of the canvas is covered by this
@@ -58,50 +56,51 @@ namespace fabric
          * segment viewports and the views of the layout used by the canvas.
          * 
          * @param vp the fractional viewport.
-         * @internal
          */
-        EQFABRIC_EXPORT void setViewport( const Viewport& vp );
+        EQFABRIC_API void setViewport( const Viewport& vp );
 
         /** 
+         * @internal
          * Set the channel of this segment.
          *
          * The channel defines the output area for this segment, typically a
          * rendering area covering a graphics card output.
          * 
          * @param channel the channel.
-         * @internal
          */
         void setChannel( CH* channel )
             { _channel = channel; setDirty( DIRTY_CHANNEL ); }
 
-        /** Return the output channel of this segment. */
+        /** Return the output channel of this segment. @version 1.0 */
         CH* getChannel()               { return _channel; }
 
-        /** Return the output channel of this segment. */
+        /** Return the output channel of this segment. @version 1.0 */
         const CH* getChannel() const   { return _channel; }
 
-        /** @sa Frustum::setWall() */
-        EQFABRIC_EXPORT virtual void setWall( const Wall& wall );
+        /** @internal @sa Frustum::setWall() */
+        EQFABRIC_API virtual void setWall( const Wall& wall );
         
-        /** @sa Frustum::setProjection() */
-        EQFABRIC_EXPORT virtual void setProjection( const Projection& );
+        /** @internal @sa Frustum::setProjection() */
+        EQFABRIC_API virtual void setProjection( const Projection& );
 
-        /** @sa Frustum::unsetFrustum() */
-        EQFABRIC_EXPORT virtual void unsetFrustum();
+        /** @internal @sa Frustum::unsetFrustum() */
+        EQFABRIC_API virtual void unsetFrustum();
 
-        /** @return the bitwise OR of the eye values. */
+        /** @return the bitwise OR of the eye values. @version 1.0 */
         uint32_t getEyes() const { return _eyes; }
 
-         /** 
+        /** 
+         * @internal
          * Set the eyes to be used by the segument.
          * 
          * Previously set eyes are overwritten.
          *
          * @param eyes the segment eyes.
          */
-        EQFABRIC_EXPORT void setEyes( const uint32_t eyes );
+        EQFABRIC_API void setEyes( const uint32_t eyes );
 
         /** 
+         * @internal
          * Add eyes to be used by the segument.
          *
          * Previously set eyes are preserved.
@@ -120,13 +119,13 @@ namespace fabric
          * @return the result of the visitor traversal.
          * @version 1.0
          */
-        EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor );
+        EQFABRIC_API VisitorResult accept( Visitor& visitor );
 
         /** Const-version of accept(). @version 1.0 */
-        EQFABRIC_EXPORT VisitorResult accept( Visitor& visitor ) const;
+        EQFABRIC_API VisitorResult accept( Visitor& visitor ) const;
 
         /**
-         * Notify that a condition affecting the frustum has changed. @internal
+         * @internal Notify that a condition affecting the frustum has changed.
          */
         void notifyFrustumChanged();
 
@@ -135,22 +134,21 @@ namespace fabric
         //@}
 
     protected:
-        /** Construct a new Segment. */
-        EQFABRIC_EXPORT Segment( C* canvas );
+        /** @internal Construct a new Segment. */
+        EQFABRIC_API Segment( C* canvas );
 
-        /** Destruct this segment. */
-        EQFABRIC_EXPORT virtual ~Segment();
+        /** @internal Destruct this segment. */
+        EQFABRIC_API virtual ~Segment();
 
-        /** @sa Frustum::serialize */
-        EQFABRIC_EXPORT virtual void serialize( net::DataOStream& os, 
+        /** @internal */
+        EQFABRIC_API virtual void serialize( net::DataOStream& os, 
                                                 const uint64_t dirtyBits );
-        /** @sa Frustum::deserialize */
-        EQFABRIC_EXPORT virtual void deserialize( net::DataIStream& is, 
+        /** @internal */
+        EQFABRIC_API virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
+        virtual void setDirty( const uint64_t bits ); //!< @internal
 
-        /** @sa Serializable::setDirty() @internal */
-        virtual void setDirty( const uint64_t bits );
-
+        /** @internal */
         enum DirtyBits
         {
             DIRTY_VIEWPORT   = Object::DIRTY_CUSTOM << 0,
@@ -177,10 +175,8 @@ namespace fabric
 
         uint32_t _eyes;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         virtual uint32_t commitNB(); //!< @internal
     };

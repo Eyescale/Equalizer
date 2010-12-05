@@ -31,6 +31,7 @@ namespace eq
      * A segment covers a sub-area of a Canvas. It has a Frustum, and defines
      * one output Channel of the whole projection area, typically a projector or
      * screen.
+     * @sa fabric::Segment
      */
     class Segment : public fabric::Segment< Canvas, Segment, Channel >
     {
@@ -43,21 +44,19 @@ namespace eq
 
         /** @name Data Access */
         //@{
-        /** @return the config of this segment. */
+        /** @return the config of this segment. @version 1.0 */
         EQ_API Config* getConfig();
 
-        /** @return the config of this segment. */
+        /** @return the config of this segment. @version 1.0 */
         EQ_API const Config* getConfig() const;
 
-        /** @return the Server of this segment. */
+        /** @return the Server of this segment. @version 1.0 */
         EQ_API ServerPtr getServer();
         //@}
 
     private:
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
     };
 
 }

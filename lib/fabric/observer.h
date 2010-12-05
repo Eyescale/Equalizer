@@ -29,19 +29,12 @@ namespace eq
 {
 namespace fabric
 {
-    template< class T > class LeafVisitor;
-    struct ObserverPath;
-
-    /**
-     * An Observer looks at one or more views from a certain position (head
-     * matrix) with a given eye separation. Multiple observers in a
-     * configuration can be used to update independent viewers from one
-     * configuration, e.g., a control host, a HMD and a Cave.
-     */
+    /** Base data transport class for observers. @sa eq::Observer */
     template< class C, class O > class Observer : public Object
     {
     public:
-        typedef std::vector< O* > ObserverVector;
+        /** The observer visitor type. @version 1.0 */
+        typedef LeafVisitor< O > Visitor;
 
         /** @name Data Access */
         //@{
@@ -51,11 +44,11 @@ namespace fabric
         /** @return the parent config of this observer. @version 1.0 */
         C* getConfig() { return _config; }
 
-        /** @return the index path to this observer. @internal */
+        /** @internal @return the index path to this observer. */
         ObserverPath getPath() const;
 
         /** Set the eye separation of this observer. @version 1.0 */
-        EQFABRIC_EXPORT void setEyeBase( const float eyeBase );
+        EQFABRIC_API void setEyeBase( const float eyeBase );
 
         /** @return the current eye separation. @version 1.0 */
         float getEyeBase() const { return _data.eyeBase; }
@@ -72,7 +65,7 @@ namespace fabric
          * @param matrix the matrix
          * @version 1.0
          */
-        EQFABRIC_EXPORT void setHeadMatrix( const Matrix4f& matrix );
+        EQFABRIC_API void setHeadMatrix( const Matrix4f& matrix );
 
         /** @return the current head matrix. @version 1.0 */
         const Matrix4f& getHeadMatrix() const { return _data.headMatrix; }
@@ -87,32 +80,31 @@ namespace fabric
          * @return the result of the visitor traversal.
          * @version 1.0
          */
-        EQFABRIC_EXPORT VisitorResult accept( LeafVisitor< O >& visitor );
+        EQFABRIC_API VisitorResult accept( Visitor& visitor );
 
         /** Const-version of accept(). @version 1.0 */
-        EQFABRIC_EXPORT VisitorResult accept( LeafVisitor< O >& visitor ) const;
+        EQFABRIC_API VisitorResult accept( Visitor& visitor ) const;
 
         virtual void backup(); //!< @internal
         virtual void restore(); //!< @internal
         //@}
         
     protected:
-        /** Construct a new Observer. @internal */
-        EQFABRIC_EXPORT Observer( C* config );
+        /** @internal Construct a new Observer. */
+        EQFABRIC_API Observer( C* config );
 
-        /** Destruct this observer. @internal */
-        EQFABRIC_EXPORT virtual ~Observer();
+        /** @internal Destruct this observer. */
+        EQFABRIC_API virtual ~Observer();
 
-        /** @sa Object::serialize */
+        /** @internal */
         virtual void serialize( net::DataOStream& os,
                                 const uint64_t dirtyBits );
-        /** @sa Object::deserialize */
+        /** @internal */
         virtual void deserialize( net::DataIStream& is,
                                   const uint64_t dirtyBits );
+        virtual void setDirty( const uint64_t bits ); //!< @internal
 
-        /** @sa Serializable::setDirty() @internal */
-        virtual void setDirty( const uint64_t bits );
-
+        /** @internal */
         enum DirtyBits
         {
             DIRTY_EYE_BASE   = Object::DIRTY_CUSTOM << 0,
@@ -141,14 +133,12 @@ namespace fabric
         }
             _data, _backup;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
     };
 
     template< class C, class O >
-    EQFABRIC_EXPORT std::ostream& operator << ( std::ostream&,
+    EQFABRIC_API std::ostream& operator << ( std::ostream&,
                                                 const Observer< C, O >& );
 }
 }

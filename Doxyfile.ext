@@ -1378,9 +1378,9 @@ PREDEFINED             = EQ_GCC_4_1_OR_LATER= \
                          EQ_USE_CUDA= \
                          EQ_USE_OPENMP= \
                          EQ_DLLIMPORT= \
-                         EQFABRIC_EXPORT= \
                          EQBASE_API= \
                          EQNET_API= \
+                         EQFABRIC_API= \
                          EQ_API= 
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then

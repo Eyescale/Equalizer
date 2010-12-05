@@ -35,9 +35,6 @@
 
 namespace eq
 {
-    class CommandQueue;
-    class ComputeContext;
- 
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
      *
@@ -437,10 +434,8 @@ namespace eq
         /** GPU Computing context */
         ComputeContext *_computeContext;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         //-------------------- Methods --------------------
         void _runThread();

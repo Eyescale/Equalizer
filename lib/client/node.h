@@ -117,10 +117,8 @@ namespace eq
             virtual ~TransmitThread() {}
 
             void send( FrameData* data, net::NodePtr node,
-                       const uint32_t frameNumber,
-                       const uint32_t index,
-                       const uint32_t renderTaskid,
-                       Channel* channel );
+                       const uint32_t frameNumber, const uint32_t index,
+                       const uint32_t renderTaskid, Channel* channel );
             
         protected:
             virtual void run();
@@ -128,9 +126,8 @@ namespace eq
         private:
             struct Task
             {
-                Task( FrameData* d, net::NodePtr n, 
-                      const uint32_t f, const uint32_t i,
-                      const uint32_t t, Channel* c );
+                Task( FrameData* d, net::NodePtr n, const uint32_t f,
+                      const uint32_t i, const uint32_t t, Channel* c );
 
                 FrameData*   data;
                 net::NodePtr node;
@@ -290,10 +287,8 @@ namespace eq
         /** All frame datas used by the node during rendering. */
         base::Lockable< FrameDataHash > _frameDatas;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         void _finishFrame( const uint32_t frameNumber ) const;
         void _frameFinish( const uint128_t& frameID,

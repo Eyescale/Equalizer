@@ -68,8 +68,8 @@ namespace fabric
         /** Set the last specified frustum to TYPE_NONE. @version 1.0 */
         EQ_FABRIC_DECL virtual void unsetFrustum();
 
-        EQFABRIC_EXPORT virtual void backup(); //!< @internal
-        EQFABRIC_EXPORT virtual void restore(); //!< @internal
+        EQFABRIC_API virtual void backup(); //!< @internal
+        EQFABRIC_API virtual void restore(); //!< @internal
 
     protected:
 

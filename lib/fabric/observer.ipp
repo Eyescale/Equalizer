@@ -93,13 +93,13 @@ void Observer< C, O >::setDirty( const uint64_t dirtyBits )
 }
 
 template< typename C, typename O >
-VisitorResult Observer< C, O >::accept( LeafVisitor< O >& visitor )
+VisitorResult Observer< C, O >::accept( Visitor& visitor )
 {
     return visitor.visit( static_cast< O* >( this ));
 }
 
 template< typename C, typename O >
-VisitorResult Observer< C, O >::accept( LeafVisitor< O >& visitor ) const
+VisitorResult Observer< C, O >::accept( Visitor& visitor ) const
 {
     return visitor.visit( static_cast< const O* >( this ));
 }
@@ -107,10 +107,10 @@ VisitorResult Observer< C, O >::accept( LeafVisitor< O >& visitor ) const
 template< typename C, typename O >
 ObserverPath Observer< C, O >::getPath() const
 {
-    const ObserverVector&  observers = _config->getObservers();
-    typename ObserverVector::const_iterator i = std::find( observers.begin(), 
-                                                           observers.end(),
-                                                           this );
+    const std::vector< O* >&  observers = _config->getObservers();
+    typename std::vector< O* >::const_iterator i = std::find( observers.begin(),
+                                                              observers.end(),
+                                                              this );
     EQASSERT( i != observers.end( ));
 
     ObserverPath path;

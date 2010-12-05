@@ -61,6 +61,6 @@ ServerPtr Segment::getServer()
 #include "../fabric/segment.ipp"
 template class eq::fabric::Segment< eq::Canvas, eq::Segment, eq::Channel >;
 /** @cond IGNORE */
-template EQFABRIC_EXPORT std::ostream& eq::fabric::operator << ( std::ostream&,
+template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
                                                  const eq::Super& );
 /** @endcond */
