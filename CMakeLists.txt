@@ -38,7 +38,7 @@ if(MSVC)
     /wd4800 # forcing value to bool 'true' or 'false' (performance warning)
     )
   # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015&start=0
-  set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR")
+  set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR /WX")
 endif(MSVC)
 
 if(WIN32)

@@ -21,6 +21,7 @@
 #include "log.h"
 #include "masterCM.h"
 #include "object.h"
+#include "objectDataIStream.h"
 #include "objectPackets.h"
 
 #include <eq/base/idPool.h>

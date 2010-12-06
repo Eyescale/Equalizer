@@ -44,6 +44,7 @@
 #include <eq/base/base.h>
 #include <eq/base/file.h>
 #include <string>
+#pragma warning( disable : 4065 )
 
     namespace eq
     {

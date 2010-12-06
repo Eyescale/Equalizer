@@ -22,6 +22,7 @@
 #include "log.h"
 #include "node.h"
 #include "object.h"
+#include "objectDataIStream.h"
 #include "objectDeltaDataOStream.h"
 #include "objectInstanceDataOStream.h"
 #include "objectPackets.h"
