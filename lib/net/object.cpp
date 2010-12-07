@@ -247,6 +247,8 @@ uint32_t Object::getAutoObsolete() const
 
 uint128_t Object::sync( const uint128_t& version )
 {
+    if( version == VERSION_NONE )
+        return getVersion();
     return _cm->sync( version );
 }
 

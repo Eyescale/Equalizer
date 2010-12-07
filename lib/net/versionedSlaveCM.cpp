@@ -399,12 +399,14 @@ bool VersionedSlaveCM::_cmdCommit( Command& command )
         return true;
     }
 
-    _ostream.setVersion( _object->getVersion( ));
+    _ostream.setVersion( base::UUID( true )); // unique commit version
     _ostream.enable( _master, false );
     _object->pack( _ostream );
     _ostream.disable();
 
-    localNode->serveRequest( packet->requestID, _object->getVersion( ));
+    localNode->serveRequest( packet->requestID,
+                             _ostream.hasSentData() ? _ostream.getVersion() :
+                             VERSION_NONE );
     return true;
 }
 

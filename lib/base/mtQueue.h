@@ -177,6 +177,17 @@ namespace base
                 _cond.unlock();
             }
 
+        /** Push a vector of elements to the front of the queue. @version 1.0 */
+        void pushFront( const std::vector< T >& elements )
+            {
+                _cond.lock();
+                _queue.insert( _queue.begin(),
+                               elements.begin(), elements.end( ));
+                _cond.signal();
+                _cond.unlock();
+            }
+
+
     private:
         std::deque< T > _queue;
         mutable Condition _cond;

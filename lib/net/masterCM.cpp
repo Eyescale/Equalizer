@@ -85,7 +85,8 @@ uint128_t MasterCM::commitSync( const uint32_t commitID )
 
 uint128_t MasterCM::sync( const uint128_t& version )
 {
-    EQASSERT( version == VERSION_NEXT || version == VERSION_HEAD );
+    EQASSERT( version.high() != 0 ||
+              version == VERSION_NEXT || version == VERSION_HEAD );
 #if 0
     EQLOG( LOG_OBJECTS ) << "sync to v" << version << ", id " 
                          << _object->getID() << "." << _object->getInstanceID()
@@ -95,32 +96,45 @@ uint128_t MasterCM::sync( const uint128_t& version )
     if( version == VERSION_NEXT )
     {
         ObjectDataIStream* is = _queuedDeltas.pop();
-        EQASSERT( !is->hasInstanceData( ));
-        _object->unpack( *is );
-        EQASSERTINFO( is->getRemainingBufferSize() == 0 && 
-                      is->nRemainingBuffers()==0,
-                      "Object " << base::className( _object ) <<
-                      " did not unpack all data" );
-        is->reset();
-        _iStreamCache.release( is );
+        _apply( is );
         return _version;
     }
     // else
+    if( version == VERSION_HEAD )
+    {
+        ObjectDataIStream* is = 0;
+        while( _queuedDeltas.tryPop( is ))
+            _apply( is );
+        return _version;
+    }
+    // else apply only concrete slave commit
 
     ObjectDataIStream* is = 0;
-    while( _queuedDeltas.tryPop( is ))
+    ObjectDataIStreams unusedStreams;
+    while( !is )
     {
-        EQASSERT( is );
-        EQASSERT( !is->hasInstanceData( ));
-        _object->unpack( *is );
-        EQASSERTINFO( is->getRemainingBufferSize() == 0 && 
-                      is->nRemainingBuffers()==0,
-                      "Object " << base::className( _object ) <<
-                      " did not unpack all data" );
-        is->reset();
-        _iStreamCache.release( is );
+        ObjectDataIStream* candidate = _queuedDeltas.pop();
+        if( candidate->getVersion() == version )
+            is = candidate;
+        else
+            unusedStreams.push_back( candidate );
     }
-    return _version;
+
+    _apply( is );
+    _queuedDeltas.pushFront( unusedStreams );
+    return version;
+}
+
+void MasterCM::_apply( ObjectDataIStream* is )
+{
+    EQASSERT( !is->hasInstanceData( ));
+    _object->unpack( *is );
+    EQASSERTINFO( is->getRemainingBufferSize() == 0 && 
+                  is->nRemainingBuffers()==0,
+                  "Object " << base::className( _object ) <<
+                  " did not unpack all data" );
+    is->reset();
+    _iStreamCache.release( is );
 }
 
 //---------------------------------------------------------------------------

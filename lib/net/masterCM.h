@@ -92,6 +92,8 @@ namespace net
         /** Cached input streams (+decompressor) */
         base::Pool< ObjectDataIStream, true > _iStreamCache;
 
+        void _apply( ObjectDataIStream* is );
+
         /* The command handlers. */
         bool _cmdSlaveDelta( Command& command );
         bool _cmdDiscard( Command& ) { return true; }

@@ -15,11 +15,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file base/base.h
- *
- * Includes key system header files and defines essential base macros.
- */
 #ifndef EQBASE_COMPILER_H
 #define EQBASE_COMPILER_H
 
