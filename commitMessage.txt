@@ -1,10 +1,12 @@
-Doxygen improvements (up to eq::Segment)
-Rename EQFABRIC_EXPORTS -> EQFABRIC_API
+Connection-related bugfixes:
+- make removeListener synchron (to be done nicer with scoped Future retval)
+- Fix ConnectionDescription removal (values, not pointer comparison)
+- remove, not add in removeListener (C&P)
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

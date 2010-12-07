@@ -231,7 +231,7 @@ namespace net
         EQNET_API void addListener( ConnectionPtr connection );
 
         /** Remove a listening connection from this listening node. */
-        EQNET_API void removeListener( ConnectionPtr connection );
+        EQNET_API uint32_t removeListenerNB( ConnectionPtr connection );
 
         /**
          * Flush all pending commands on this listening node.

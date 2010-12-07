@@ -12,6 +12,10 @@ server
     config
     {
         name "Unlaunchable node-0d0r0a"
+        appNode
+        {
+            connection { hostname "127.0.0.1" }
+        }
         node
         {
             name "foo"

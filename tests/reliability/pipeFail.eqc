@@ -14,6 +14,7 @@ server
         name "Failed pipe-0d0r0a"
         appNode
         {
+            connection { hostname "127.0.0.1" }
             pipe
             {
                 name "fail"

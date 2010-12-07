@@ -75,7 +75,7 @@ namespace base
          */
         EQBASE_API void unregisterRequest( const uint32_t requestID );
 
-        /** 
+        /**
          * Wait a given time for the completion of a request.
          *
          * The request is unregistered upon successful completion, i.e, the

@@ -46,6 +46,13 @@ namespace net
 
         ConnectionDescription( const char* data );
 
+        /** @return true if the two descriptions have the same values. */
+        bool operator == ( const ConnectionDescription& rhs ) const;
+
+        /** @return true if the two descriptions have the different values. */
+        bool operator != ( const ConnectionDescription& rhs ) const
+            { return !( *this == rhs ); }
+
         /** The network protocol for the connection. */
         ConnectionType type;
 
@@ -152,7 +159,7 @@ namespace net
      * @return true on successful parsing, false otherwise.
      */
     EQNET_API bool deserialize( std::string& data,
-                                  ConnectionDescriptions& descriptions );
+                                ConnectionDescriptions& descriptions );
 }
 }
 

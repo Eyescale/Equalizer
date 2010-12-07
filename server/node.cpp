@@ -666,14 +666,17 @@ void Node::_flushBarriers()
 
 bool Node::removeConnectionDescription( net::ConnectionDescriptionPtr cd )
 {
-    net::ConnectionDescriptions::iterator i = 
-        std::find( _connectionDescriptions.begin(),
-                   _connectionDescriptions.end(), cd );
-    if( i == _connectionDescriptions.end( ))
-        return false;
+    // Don't use std::find, RefPtr::operator== compares pointers, not values.
+    for(net::ConnectionDescriptions::iterator i=_connectionDescriptions.begin();
+        i != _connectionDescriptions.end(); ++i )
+    {
+        if( *cd != **i )
+            continue;
 
-    _connectionDescriptions.erase( i );
-    return true;
+        _connectionDescriptions.erase( i );
+        return true;
+    }
+    return false;
 }
 
 void Node::flushSendBuffer()

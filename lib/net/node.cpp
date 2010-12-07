@@ -101,13 +101,17 @@ bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
 {
     base::ScopedMutex< base::SpinLock > mutex( _connectionDescriptions );
 
-    ConnectionDescriptions::iterator i =
-        stde::find( _connectionDescriptions.data, cd );
-    if( i == _connectionDescriptions->end( ))
-        return false;
+    // Don't use std::find, RefPtr::operator== compares pointers, not values.
+    for( ConnectionDescriptions::iterator i = _connectionDescriptions->begin();
+         i != _connectionDescriptions->end(); ++i )
+    {
+        if( *cd != **i )
+            continue;
 
-    _connectionDescriptions->erase( i );
-    return true;
+        _connectionDescriptions->erase( i );
+        return true;
+    }
+    return false;
 }
 
 std::string Node::serialize() const

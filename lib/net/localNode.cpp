@@ -244,12 +244,12 @@ void LocalNode::addListener( ConnectionPtr connection )
     }
 }
 
-void LocalNode::removeListener( ConnectionPtr connection )
+uint32_t LocalNode::removeListenerNB( ConnectionPtr connection )
 {
     EQASSERT( isListening( ));
     EQASSERT( connection->isListening( ));
 
-    NodeRemoveListenerPacket packet( connection );
+    NodeRemoveListenerPacket packet( connection, registerRequest( ));
     Nodes nodes;
     getNodes( nodes );
 
@@ -257,6 +257,7 @@ void LocalNode::removeListener( ConnectionPtr connection )
     {
         (*i)->send( packet, connection->getDescription()->toString( ));
     }
+    return packet.requestID;
 }
 
 void LocalNode::_addConnection( ConnectionPtr connection )
@@ -1709,7 +1710,7 @@ bool LocalNode::_cmdRemoveListener( Command& command )
 
     ConnectionDescriptionPtr description =
         new ConnectionDescription( packet->connectionData );
-    command.getNode()->addConnectionDescription( description );
+    EQCHECK( command.getNode()->removeConnectionDescription( description ));
 
     if( command.getNode() != this )
         return true;
@@ -1736,6 +1737,7 @@ bool LocalNode::_cmdRemoveListener( Command& command )
     _incoming.removeConnection( connection );
     EQASSERT( _connectionNodes.find( connection ) != _connectionNodes.end( ));
     _connectionNodes.erase( connection );
+    serveRequest( packet->requestID );
     return true;
 }
 

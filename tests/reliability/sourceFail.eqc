@@ -14,6 +14,7 @@ server
         name "Source pipe failure-6d3r3a"
         appNode
         {
+            connection { hostname "127.0.0.1" }
             pipe
             {
                 window

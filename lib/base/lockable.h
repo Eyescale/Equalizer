@@ -54,6 +54,16 @@ namespace base
         D data;
         mutable L lock;
     };
+
+    /** Print the data to the given output stream. */
+    template< class D, class L >
+    inline std::ostream& operator << ( std::ostream& os,
+                                       const Lockable<D, L>& l )
+    {
+        os << disableFlush << "<" << l.lock.isSet() << " " << l.data << ">"
+           << enableFlush;
+        return os;
+    }
 }
 }
 #endif // EQBASE_LOCKABLE_H

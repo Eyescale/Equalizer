@@ -149,12 +149,22 @@ void Config::unmap()
         }
     }
 
+    std::vector< uint32_t > requests;
     for( net::Connections::const_iterator i = _connections.begin();
          i != _connections.end(); ++i )
     {
         net::ConnectionPtr connection = *i;
-        getClient()->removeListener( connection );
+        requests.push_back( getClient()->removeListenerNB( connection ));
+    }
+
+    net::LocalNodePtr localNode = getLocalNode();
+    for( size_t i = 0; i < _connections.size(); ++i )
+    {
+        net::ConnectionPtr connection = _connections[i];
+        localNode->waitRequest( requests[ i ] );
         connection->close();
+        // connection and _connections hold reference
+        EQASSERTINFO( connection->getRefCount()==2, connection->getRefCount( ));
     }
     _connections.clear();
 

@@ -71,6 +71,12 @@ typedef std::vector< Barrier* >                  Barriers;
 typedef std::vector< ConnectionPtr >             Connections;
 /** A vector of ConnectionDescriptionPtr's. */
 typedef std::vector< ConnectionDescriptionPtr >  ConnectionDescriptions;
+/** An iterator for a vector of ConnectionDescriptionPtr's. */
+typedef std::vector< ConnectionDescriptionPtr >::iterator
+                                                 ConnectionDescriptionsIter;
+/** A const iterator for a vector of ConnectionDescriptionPtr's. */
+typedef std::vector< ConnectionDescriptionPtr >::const_iterator
+                                                 ConnectionDescriptionsCIter;
 
 /** @cond IGNORE */
 typedef std::vector< Command* > Commands;

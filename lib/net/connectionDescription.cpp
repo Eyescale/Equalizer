@@ -279,6 +279,14 @@ std::ostream& operator << ( std::ostream& os,
     return os;
 }
 
+bool ConnectionDescription::operator == ( const ConnectionDescription& rhs )
+    const
+{
+    return type == rhs.type && bandwidth == rhs.bandwidth &&
+           port == rhs.port && _hostname == rhs._hostname &&
+           _interface == rhs._interface && _filename == rhs._filename;
+}
+
 std::string serialize( const ConnectionDescriptions& descriptions )
 {
     std::ostringstream data;

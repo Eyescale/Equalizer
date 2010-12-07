@@ -247,8 +247,9 @@ namespace net
 
     struct NodeRemoveListenerPacket : public NodePacket
     {
-        NodeRemoveListenerPacket( ConnectionPtr conn )
+        NodeRemoveListenerPacket( ConnectionPtr conn, const uint32_t request )
                 : connection( conn.get( ))
+                , requestID( request )
             {
                 command = CMD_NODE_REMOVE_LISTENER;
                 size    = sizeof( NodeRemoveListenerPacket );
@@ -257,6 +258,7 @@ namespace net
             }
 
         Connection* connection;
+        const uint32_t requestID;
         EQ_ALIGN8( char connectionData[8] );
     };
 
