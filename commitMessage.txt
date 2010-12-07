@@ -1,4 +1,4 @@
-Fix 2/3 eqc output bugs
+Fix compositor test on Linux
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

@@ -72,7 +72,8 @@ namespace base
             T value;
 #ifdef Linux
             int read = ::read( _fd, &value, sizeof( T ));
-            EQASSERT( read == sizeof( T ));
+            EQASSERTINFO( read == sizeof(T),
+                          read << " != " << sizeof( T ) << ": " << sysError );
             if( read != sizeof( T ))
             {
                 EQERROR << "random number generator not working" << std::endl;

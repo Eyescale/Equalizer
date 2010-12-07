@@ -34,14 +34,14 @@ using namespace std;
 
 int main( int argc, char **argv )
 {
+    NodeFactory nodeFactory;
+    TEST( eq::init( 0, 0, &nodeFactory ));
+
     Frame      frame;
     FrameData* frameData = new eq::FrameData;
 
     frameData->setBuffers( Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH );
     frame.setData( frameData );
-
-    NodeFactory nodeFactory;
-    TEST( eq::init( 0, 0, &nodeFactory ));
 
     // 1) 2D assembly test
     Image* image = frameData->newImage( Frame::TYPE_MEMORY, DrawableConfig( ));

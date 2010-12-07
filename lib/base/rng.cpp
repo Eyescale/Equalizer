@@ -34,6 +34,7 @@ bool RNG::_init()
     if( _fd < 0 )
     {
         EQERROR << "Failed to open /dev/urandom :" << sysError << std::endl;
+        EQASSERT( _fd >= 0 );
         return false;
     }
 #endif
