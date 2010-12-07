@@ -31,7 +31,9 @@
 #include <eq/base/lfQueue.h> // member
 #include <eq/base/mtQueue.h> // member
 
+#pragma warning( disable : 4267 )
 #include <boost/asio.hpp>
+#pragma warning( default : 4267 )
 
 namespace eq
 {
