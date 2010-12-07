@@ -1,9 +1,9 @@
-Testing: rename tests target to cdash to be explicit
+Fix 2/3 eqc output bugs
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

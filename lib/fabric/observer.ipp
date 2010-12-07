@@ -144,7 +144,7 @@ std::ostream& operator << ( std::ostream& os, const Observer< C, O >& observer )
 
     const float eyeBase = observer.getEyeBase();
     if( eyeBase != 0.05f /* TODO use Config::FATTR_EYE_BASE */ )
-        os << eyeBase << std::endl;
+        os << "eye_base " << eyeBase << std::endl;
 
     os << base::exdent << "}" << std::endl << base::enableHeader
        << base::enableFlush;
