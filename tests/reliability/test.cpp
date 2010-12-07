@@ -42,7 +42,7 @@ protected:
             setError( ERROR_NODE_INIT );
             return false;
         }
-    virtual void frameStart( const eq::uint128_t id, const uint32_t number )
+    virtual void frameStart( const eq::uint128_t& id, const uint32_t number )
         {
             eq::Node::frameStart( id, number );
         }
@@ -61,7 +61,7 @@ protected:
             setError( ERROR_PIPE_INIT );
             return false;
         }
-    virtual void frameStart( const eq::uint128_t id, const uint32_t number )
+    virtual void frameStart( const eq::uint128_t& id, const uint32_t number )
         {
             TEST( !getWindows().empty( ));
             eq::Pipe::frameStart( id, number );
@@ -74,11 +74,11 @@ public:
     Channel( eq::Window* parent ) : eq::Channel( parent ) {}
 
 protected:
-    virtual void frameDraw( const eq::uint128_t frameID )
+    virtual void frameDraw( const eq::uint128_t& frameID )
         { eq::Channel::frameDraw( frameID ); ++drawCalls; }
-    virtual void frameReadback( const eq::uint128_t frameID )
+    virtual void frameReadback( const eq::uint128_t& frameID )
         { eq::Channel::frameReadback( frameID ); ++readbackCalls; }
-    virtual void frameAssemble( const eq::uint128_t frameID )
+    virtual void frameAssemble( const eq::uint128_t& frameID )
         { eq::Channel::frameAssemble( frameID ); ++assembleCalls; }
 };
 
