@@ -11,7 +11,7 @@ debug: debug/Makefile
 	@$(MAKE) -C debug
 
 tests: debug/Makefile
-	@$(MAKE) -C debug check
+	@cd debug; ctest -D Continuous
 
 debug/Makefile:
 	@mkdir -p debug

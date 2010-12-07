@@ -227,3 +227,4 @@ set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-system-dev, libboost-regex-dev, libbo
 include(InstallRequiredSystemLibraries)
 include(CPack)
 include(copyScript)
+include(CTest)

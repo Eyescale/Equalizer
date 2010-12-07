@@ -1,9 +1,12 @@
-Minor cleanups
+Testing:
+- add test executables to al rule to avoid build breakage
+- add CTest config for CDash (http://my.cdash.org/index.php?project=Equalizer)
+- execute and submit tests on 'make tests'
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation
