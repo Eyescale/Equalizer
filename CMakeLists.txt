@@ -227,4 +227,11 @@ set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-system-dev, libboost-regex-dev, libbo
 include(InstallRequiredSystemLibraries)
 include(CPack)
 include(copyScript)
+
+SET(CTEST_CUSTOM_WARNING_EXCEPTION
+  ${CTEST_CUSTOM_WARNING_EXCEPTION}
+
+  # http://public.kitware.com/Bug/view.php?id=10179
+  "ld: warning: duplicate dylib"
+)
 include(CTest)

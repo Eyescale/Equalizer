@@ -66,10 +66,10 @@ std::ostream& operator << ( std::ostream& os, const Frustum& frustum )
     switch( frustum.getCurrentType( ))
     {
         case Frustum::TYPE_WALL:
-            os << frustum.getWall();
+            os << frustum.getWall() << std::endl;
             break;
         case Frustum::TYPE_PROJECTION:
-            os << frustum.getProjection();
+            os << frustum.getProjection() << std::endl;
             break;
         case Frustum::TYPE_NONE:
             break;

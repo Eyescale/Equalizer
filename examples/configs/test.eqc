@@ -1,122 +1,28 @@
 #Equalizer 1.0 ascii
 
-# stress-test config using multiple windows and a swap barrier, using a mixture
-# of singlepipe and multipipe nodes.
+# 'Hello, World!' config: one window rendering from the application process.
 server
 {
+    connection{}
     config
     {
-        latency 10
         appNode
         {
             pipe
             {
-                viewport [ 0 0 1920 1280 ]
                 window
                 {
-                    viewport [ .025 .025 .3 .3 ]
-                    channel { name "channel1" }
-                }
-                window
-                {
-                    viewport [ .35 .025 .3 .3 ]
-                    channel { name "channel2" }
-                }
-                window
-                {
-                    viewport [ .675 .025 .3 .3 ]
-                    channel { name "channel3" }
-                }
-                window
-                {
-                    viewport [ .025 .35 .3 .3 ]
-                    channel { name "channel4" }
-                }
-                window
-                {
-                    viewport [ .35 .35 .3 .3 ]
-                    channel { name "channel5" }
-                }
-                window
-                {
-                    viewport [ .675 .35 .3 .3 ]
-                    channel { name "channel6" }
-                }
-                window
-                {
-                    viewport [ .025 .675 .3 .3 ]
-                    channel { name "channel7" }
-                }
-                window
-                {
-                    viewport [ .35 .675 .3 .3 ]
-                    channel { name "channel8" }
-                }
-                window
-                {
-                    viewport [ .675 .675 .3 .3 ]
-                    channel { name "channel9" }
+                    viewport [ 0.25 0.25 0.5 0.5 ]
+                    
+                    channel { name "channel" }
                 }
             }
         }
-        observer {}
-        layout { view { observer 0 }}
-        canvas
-        {
-            layout ""
-            wall
-            {
-                bottom_left  [ -2   -1.5 -4 ]
-                bottom_right [  2   -1.5 -4 ]
-                top_left     [ -2    1.5 -4 ]
-            }
-            segment
-            { 
-                channel "channel1"
-                viewport [ .025 .025 .3 .3 ]
-            }
-            segment
-            { 
-                channel "channel2"
-                viewport [ .35 .025 .3 .3 ]
-            }
-            segment
-            { 
-                channel "channel3"
-                viewport [ .675 .025 .3 .3 ]
-            }
-
-            segment
-            { 
-                channel "channel4"
-                viewport [ .025 .35 .3 .3 ]
-            }
-            segment
-            { 
-                channel "channel5"
-                viewport [ .35 .35 .3 .3 ]
-            }
-            segment
-            { 
-                channel "channel6"
-                viewport [ .675 .35 .3 .3 ]
-            }
-
-            segment
-            { 
-                channel "channel7"
-                viewport [ .025 .675 .3 .3 ]
-            }
-            segment
-            { 
-                channel "channel8"
-                viewport [ .35 .675 .3 .3 ]
-            }
-            segment
-            { 
-                channel "channel9"
-                viewport [ .675 .675 .3 .3 ]
-            }
+        compound
+        { 
+            channel "channel"
+            wall {}
+            eye [ LEFT RIGHT ]
         }
     }    
 }
