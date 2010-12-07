@@ -734,7 +734,7 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
                              << connection->_sequence << std::endl;
 
             connection->_appBuffers.push( readBuffers );
-            connection->_sequence += readBuffers.size();
+            connection->_sequence += uint16_t( readBuffers.size( ));
             readBuffers.clear();
             connection->_event->set();
         }
@@ -761,7 +761,7 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
 #endif
 
         connection->_appBuffers.push( readBuffers );
-        connection->_sequence += readBuffers.size();
+        connection->_sequence += uint16_t( readBuffers.size( ));
         connection->_event->set();
     }
 

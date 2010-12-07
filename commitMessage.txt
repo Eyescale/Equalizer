@@ -1,4 +1,4 @@
-Fix AGl window resize event handling
+Fix(?) Win32 RSP warnings
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
