@@ -41,7 +41,8 @@ debug_glx/Makefile:
 
 docs: ../website/build/documents/Developer/API
 
-../website/build/documents/Developer/API/internal: lib Doxyfile.int
+.PHONY: ../website/build/documents/Developer/API/internal
+../website/build/documents/Developer/API/internal:
 	$(DOXYGEN) Doxyfile.int
 
 ../website/build/documents/Developer/API: ../website/build/documents/Developer/API/internal docs/install Doxyfile.ext

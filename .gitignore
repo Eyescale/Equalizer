@@ -10,6 +10,9 @@ Result_*.rgb*
 ___*
 tests/image/images/out_*
 TAGS
+GPATH
+GRTAGS
+GTAGS
 auxilary
 debug
 release
