@@ -109,7 +109,7 @@ bool AGLWindow::processEvent( const AGLWindowEvent& event )
     if( event.type == Event::WINDOW_RESIZE && _aglContext )
         aglUpdateContext( _aglContext );
 
-    return AGLWindowIF::processEvent( event );
+    return SystemWindow::processEvent( event );
 }
 
 void AGLWindow::setAGLContext( AGLContext context )

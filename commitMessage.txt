@@ -1,9 +1,9 @@
-Minor CTest tweak, minor output tweak
+Fix AGl window resize event handling
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

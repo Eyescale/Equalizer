@@ -45,6 +45,9 @@ namespace eq
         /** @return the AGL PBuffer object. @version 1.0 */
         EQ_API virtual AGLPbuffer getAGLPBuffer() const = 0;
 
+        /** Process the given event. @version 1.0 */
+        EQ_API virtual bool processEvent( const AGLWindowEvent& event ) = 0;
+
     private:
     };
 
