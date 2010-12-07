@@ -33,6 +33,7 @@
 #  include <io.h>
 #  define isatty _isatty
 #endif
+#pragma warning( disable : 4267 )
 
 int yylineno = 0;
 const char* yyinString = 0;

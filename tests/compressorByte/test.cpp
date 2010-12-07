@@ -116,7 +116,7 @@ void testCompressByte( const uint32_t nameCompressor,
         compressor.compress( const_cast<uint8_t*>(data), inDims, flags );
 
         timeCompress += clock.getTimef();
-        const size_t numResults = compressor.getNumResults( );
+        const unsigned numResults = compressor.getNumResults( );
 
         uint64_t totalSize = 0;
         std::vector< void * > vectorVoid;
@@ -125,7 +125,7 @@ void testCompressByte( const uint32_t nameCompressor,
         std::vector< uint64_t > vectorSize;
         vectorSize.resize(numResults);
         
-        for( size_t i = 0; i < numResults ; i++ )
+        for( unsigned i = 0; i < numResults ; i++ )
         {
             compressor.getResult( i, &vectorVoid[i], &vectorSize[i] );
             totalSize += vectorSize[i];

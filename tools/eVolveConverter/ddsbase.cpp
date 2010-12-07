@@ -142,9 +142,9 @@ inline int DDS_decode(int bits)
    {return(bits>=1?bits+1:bits);}
 
 // deinterleave a byte stream
-static void deinterleave(unsigned char *data,unsigned int bytes,unsigned int skip,unsigned int block=0,BOOLINT restore=FALSE)
+static void deinterleave(unsigned char *data,size_t bytes,size_t skip,size_t block=0,BOOLINT restore=FALSE)
    {
-   unsigned int i,j,k;
+   size_t i,j,k;
 
    unsigned char *data2,*ptr;
 
@@ -203,11 +203,11 @@ static void deinterleave(unsigned char *data,unsigned int bytes,unsigned int ski
    }
 
 // interleave a byte stream
-static void interleave(unsigned char *data,unsigned int bytes,unsigned int skip,unsigned int block=0)
+static void interleave(unsigned char *data,size_t bytes,unsigned int skip,unsigned int block=0)
    {deinterleave(data,bytes,skip,block,TRUE);}
 
 // write a Differential Data Stream
-void writeDDSfile(const char *filename,unsigned char *data,unsigned int bytes,unsigned int skip,unsigned int strip,int nofree)
+void writeDDSfile(const char *filename,unsigned char *data,size_t bytes,unsigned int skip,unsigned int strip,int nofree)
    {
    int version=1;
 
@@ -359,7 +359,7 @@ void writeDDSfile(const char *filename,unsigned char *data,unsigned int bytes,un
    }
 
 // read a Differential Data Stream
-unsigned char *readDDSfile(const char *filename,unsigned int *bytes)
+unsigned char *readDDSfile(const char *filename,size_t *bytes)
    {
    int version=1;
 
@@ -445,7 +445,7 @@ unsigned char *readDDSfile(const char *filename,unsigned int *bytes)
    }
 
 // write a RAW file
-void writeRAWfile(const char *filename,unsigned char *data,unsigned int bytes,int nofree)
+void writeRAWfile(const char *filename,unsigned char *data,size_t bytes,int nofree)
    {
    if (bytes<1) ERRORMSG();
 
@@ -458,10 +458,10 @@ void writeRAWfile(const char *filename,unsigned char *data,unsigned int bytes,in
    }
 
 // read a RAW file
-unsigned char *readRAWfile(const char *filename,unsigned int *bytes)
+unsigned char *readRAWfile(const char *filename,size_t *bytes)
    {
    unsigned char *data;
-   unsigned int cnt,blkcnt;
+   size_t cnt,blkcnt;
 
    if ((DDS_file=fopen(filename,"rb"))==NULL) return(NULL);
 
@@ -546,7 +546,7 @@ unsigned char *readPNMimage(const char *filename,unsigned int *width,unsigned in
    char str[maxstr];
 
    unsigned char *data,*ptr1,*ptr2;
-   unsigned int bytes;
+   size_t bytes;
 
    int pnmtype,maxval;
    unsigned char *image;
@@ -622,7 +622,7 @@ void writePVMvolume(const char *filename,unsigned const char *volume,
 
    unsigned char *data;
 
-   unsigned int len1=1,len2=1,len3=1,len4=1;
+   size_t len1=1,len2=1,len3=1,len4=1;
 
    if (width<1 || height<1 || depth<1 || components<1) ERRORMSG();
 
@@ -681,7 +681,8 @@ unsigned char *readPVMvolume(const char *filename,
                              unsigned char **comment)
    {
    unsigned char *data,*ptr;
-   unsigned int bytes,numc;
+   size_t bytes;
+   unsigned int numc;
 
    int version=1;
 
@@ -689,7 +690,7 @@ unsigned char *readPVMvolume(const char *filename,
 
    float sx=1.0f,sy=1.0f,sz=1.0f;
 
-   unsigned int len1=0,len2=0,len3=0,len4=0;
+   size_t len1=0,len2=0,len3=0,len4=0;
 
    if ((data=readDDSfile(filename,&bytes))==NULL) return(NULL);
    if (bytes<5) return(NULL);

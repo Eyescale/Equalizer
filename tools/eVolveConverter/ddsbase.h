@@ -24,11 +24,11 @@
 
 #include "codebase.h" // universal code base
 
-void writeDDSfile(const char *filename,unsigned char *data,unsigned int bytes,unsigned int skip=0,unsigned int strip=0,int nofree=0);
-unsigned char *readDDSfile(const char *filename,unsigned int *bytes);
+void writeDDSfile(const char *filename,unsigned char *data,size_t bytes,unsigned int skip=0,unsigned int strip=0,int nofree=0);
+unsigned char *readDDSfile(const char *filename,size_t *bytes);
 
-void writeRAWfile(const char *filename,unsigned char *data,unsigned int bytes,int nofree=0);
-unsigned char *readRAWfile(const char *filename,unsigned int *bytes);
+void writeRAWfile(const char *filename,unsigned char *data,size_t bytes,int nofree=0);
+unsigned char *readRAWfile(const char *filename,size_t *bytes);
 
 void writePNMimage(const char *filename,unsigned const char *image,unsigned int width,unsigned int height,unsigned int components,int dds=0);
 unsigned char *readPNMimage(const char *filename,unsigned int *width,unsigned int *height,unsigned int *components);

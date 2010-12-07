@@ -314,7 +314,7 @@ void VertexBufferLeaf::renderBufferObject( VertexBufferState& state ) const
     glBindBuffer( GL_ARRAY_BUFFER, buffers[VERTEX_OBJECT] );
     glVertexPointer( 3, GL_FLOAT, 0, 0 );
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffers[INDEX_OBJECT] );
-    glDrawElements( GL_TRIANGLES, _indexLength, GL_UNSIGNED_SHORT, 0 );
+    glDrawElements( GL_TRIANGLES, GLsizei( _indexLength ), GL_UNSIGNED_SHORT, 0 );
 }
 
 

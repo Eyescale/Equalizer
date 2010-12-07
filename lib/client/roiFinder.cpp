@@ -519,7 +519,7 @@ void ROIFinder::_findAreas( PixelViewports& resultPVPs )
         // fill temporary array with found regions to 
         // dump it later in _dumpDebug
         _fillWithColor( resultPVPs[i], &_tmpMask[0],
-                        255 - i*200/resultPVPs.size( ));
+                        uint8_t( 255 - i*200/resultPVPs.size( )));
 #endif
 
         PixelViewport& pvp = resultPVPs[i];
