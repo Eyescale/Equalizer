@@ -1,12 +1,9 @@
-Testing:
-- add test executables to al rule to avoid build breakage
-- add CTest config for CDash (http://my.cdash.org/index.php?project=Equalizer)
-- execute and submit tests on 'make tests'
+Testing: rename tests target to cdash to be explicit
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

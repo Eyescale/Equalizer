@@ -1,5 +1,5 @@
 #!gmake
-.PHONY: debug tests release xcode debug_glx docs docs/install clean
+.PHONY: debug tests cdash release xcode debug_glx docs docs/install clean
 
 all: debug RELNOTES.txt README.rst
 clean:
@@ -11,12 +11,18 @@ debug: debug/Makefile
 	@$(MAKE) -C debug
 
 tests: debug/Makefile
-	@cd debug; ctest -D Continuous
+	@$(MAKE) -C debug check
 
 debug/Makefile:
 	@mkdir -p debug
 	@cd debug; cmake ..
 
+cdash: cdash/Makefile
+	@cd cdash; ctest -D Continuous
+
+cdash/Makefile:
+	@mkdir -p cdash
+	@cd cdash; cmake ..
 
 release: release/Makefile
 	@$(MAKE) -C release
