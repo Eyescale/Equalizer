@@ -47,7 +47,7 @@ namespace net
         ConnectionDescription( const char* data );
 
         /** @return true if the two descriptions have the same values. */
-        bool operator == ( const ConnectionDescription& rhs ) const;
+        EQNET_API bool operator == ( const ConnectionDescription& rhs ) const;
 
         /** @return true if the two descriptions have the different values. */
         bool operator != ( const ConnectionDescription& rhs ) const
