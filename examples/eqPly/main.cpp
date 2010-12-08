@@ -70,7 +70,7 @@ int main( const int argc, char** argv )
 
     // 3. initialization of local client node
     eq::base::RefPtr< eqPly::EqPly > client = new eqPly::EqPly( initData );
-    if( client->initLocal( argc, argv ))
+    if( !client->initLocal( argc, argv ))
     {
         EQERROR << "Can't init client" << std::endl;
         eq::exit();

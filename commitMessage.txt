@@ -1,10 +1,9 @@
-Fix Linux executables (access to RNG before init)
-Remove logfile from eqPly: Use --eq-logfile option
+Fix eqPly
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
