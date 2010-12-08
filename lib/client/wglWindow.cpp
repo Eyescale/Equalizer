@@ -143,7 +143,7 @@ void WGLWindow::setWGLWindowHandle( HWND handle )
     pvp.y = windowInfo.rcClient.top;
     pvp.w = windowInfo.rcClient.right  - windowInfo.rcClient.left;
     pvp.h = windowInfo.rcClient.bottom - windowInfo.rcClient.top;
-    _window->setPixelViewport( pvp );
+    getWindow()->setPixelViewport( pvp );
 }
 
 void WGLWindow::setWGLPBufferHandle( HPBUFFERARB handle )
@@ -169,7 +169,7 @@ void WGLWindow::setWGLPBufferHandle( HPBUFFERARB handle )
     PixelViewport pvp;
     pvp.w = w;
     pvp.h = h;
-    _window->setPixelViewport( pvp );
+    getWindow()->setPixelViewport( pvp );
 }
 
 void WGLWindow::setWGLDC( HDC dc, const WGLDCType type )
@@ -343,7 +343,7 @@ bool WGLWindow::configInitWGLFBO( int pixelFormat )
 bool WGLWindow::configInitWGLWindow( int pixelFormat )
 {
     // adjust window size (adds border pixels)
-    const PixelViewport& pvp = _window->getPixelViewport();
+    const PixelViewport& pvp = getWindow()->getPixelViewport();
     HWND hWnd = _createWGLWindow( pixelFormat, pvp );
     if( !hWnd )
         return false;
@@ -386,7 +386,7 @@ bool WGLWindow::configInitWGLWindow( int pixelFormat )
 HWND WGLWindow::_createWGLWindow( int pixelFormat, const PixelViewport& pvp  )
 {
     // window class
-    const std::string& name = _window->getName();
+    const std::string& name = getWindow()->getName();
 
     std::ostringstream className;
     className << (name.empty() ? std::string("Equalizer") : name) 
@@ -467,7 +467,7 @@ bool WGLWindow::configInitWGLPBuffer( int pixelFormat )
         return false;
     }
 
-    const eq::PixelViewport& pvp = _window->getPixelViewport();
+    const eq::PixelViewport& pvp = getWindow()->getPixelViewport();
     EQASSERT( pvp.isValid( ));
 
     const HDC displayDC    = createWGLDisplayDC();
@@ -584,31 +584,31 @@ int WGLWindow::_chooseWGLPixelFormat( HDC pfDC )
     pfd.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
     pfd.iPixelType   = PFD_TYPE_RGBA;
 
-    const int colorSize = _window->getIAttribute( Window::IATTR_PLANES_COLOR );
+    const Window* window = getWindow();
+    const int colorSize = window->getIAttribute( Window::IATTR_PLANES_COLOR );
     if( colorSize > 0 || colorSize == AUTO )
         pfd.cColorBits = colorSize>0 ? colorSize : 1;
 
-    const int alphaSize = _window->getIAttribute( Window::IATTR_PLANES_ALPHA );
+    const int alphaSize = window->getIAttribute( Window::IATTR_PLANES_ALPHA );
     if( alphaSize > 0 || alphaSize == AUTO )
         pfd.cAlphaBits = alphaSize>0 ? alphaSize : 1;
 
-    const int depthSize = _window->getIAttribute( Window::IATTR_PLANES_DEPTH );
+    const int depthSize = window->getIAttribute( Window::IATTR_PLANES_DEPTH );
     if( depthSize > 0  || depthSize == AUTO )
         pfd.cDepthBits = depthSize>0 ? depthSize : 1;
 
-    const int stencilSize = 
-        _window->getIAttribute( Window::IATTR_PLANES_STENCIL );
+    const int stencilSize = window->getIAttribute(Window::IATTR_PLANES_STENCIL);
     if( stencilSize >0 || stencilSize == AUTO )
         pfd.cStencilBits = stencilSize>0 ? stencilSize : 1;
 
-    if( _window->getIAttribute( Window::IATTR_HINT_STEREO ) != OFF )
+    if( window->getIAttribute( Window::IATTR_HINT_STEREO ) != OFF )
         pfd.dwFlags |= PFD_STEREO;
-    if( _window->getIAttribute( Window::IATTR_HINT_DOUBLEBUFFER ) != OFF )
+    if( window->getIAttribute( Window::IATTR_HINT_DOUBLEBUFFER ) != OFF )
         pfd.dwFlags |= PFD_DOUBLEBUFFER;
 
     int pf = ChoosePixelFormat( pfDC, &pfd );
 
-    if( pf == 0 && _window->getIAttribute( Window::IATTR_HINT_STEREO ) == AUTO )
+    if( pf == 0 && window->getIAttribute( Window::IATTR_HINT_STEREO ) == AUTO )
     {        
         EQINFO << "Visual not available, trying mono visual" << std::endl;
         pfd.dwFlags |= PFD_STEREO_DONTCARE;
@@ -624,7 +624,7 @@ int WGLWindow::_chooseWGLPixelFormat( HDC pfDC )
     }
 
     if( pf == 0 &&
-        _window->getIAttribute( Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO )
+        window->getIAttribute( Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO )
     {        
         EQINFO << "Visual not available, trying single-buffered visual" 
                << std::endl;
@@ -752,7 +752,7 @@ int WGLWindow::_chooseWGLPixelFormatARB( HDC pfDC )
     }
     else
     {
-        attributes.push_back( WGL_DRAW_TO_WINDOW_ARB );
+        attributes.push_back( WGL_DRAW_TOWINDOW_ARB );
         attributes.push_back( 1 );
     }
 
@@ -818,7 +818,7 @@ HGLRC WGLWindow::createWGLContext()
     }
 
     // share context
-    const Window* shareWindow = _window->getSharedContextWindow();
+    const Window* shareWindow = getWindow()->getSharedContextWindow();
     const SystemWindow* sysWindow =
         shareWindow ? shareWindow->getSystemWindow() :0;
     if( sysWindow )

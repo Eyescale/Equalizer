@@ -38,28 +38,28 @@ namespace eq
     class SystemPipe
     {
     public:
-        /** Create a new SstemPipe for the given eq::Pipe.*/
+        /** Create a new SstemPipe for the given eq::Pipe. @version 1.0 */
         EQ_API SystemPipe( Pipe* parent );
 
-        /** Destroy the SystemPipe. */
+        /** Destroy the SystemPipe. @version 1.0 */
         EQ_API virtual ~SystemPipe( );
 
-        /** @name Methods forwarded from eq::Pipe */
+        /** @name Methods forwarded from eq::Pipe. */
         //@{
-        /** Initialize the GPU. */
+        /** Initialize the GPU. @version 1.0 */
         EQ_API virtual bool configInit( ) = 0;
 
-        /** De-initialize the GPU. */
+        /** De-initialize the GPU. @version 1.0 */
         EQ_API virtual void configExit( ) = 0;
         //@}
 
-        /** @return the parent Pipe. */
+        /** @return the parent Pipe. @version 1.0 */
         Pipe* getPipe() { return _pipe; }
         
-        /** @return the parent Pipe. */
+        /** @return the parent Pipe. @version 1.0 */
         const Pipe* getPipe() const { return _pipe; }
 
-        /** @return the last error. */
+        /** @return the last error. @version 1.0 */
         EQ_API base::Error getError() const;
 
     protected:
@@ -68,14 +68,15 @@ namespace eq
         /** 
          * Set an error code why the last operation failed.
          * @param error the error code.
+         * @version 1.0
          */
         EQ_API void setError( const uint32_t error );
         //@}
 
+    private:
         /** The parent eq::Pipe. */
         Pipe* const _pipe;
 
-    private:
         union // placeholder for binary-compatible changes
         {
             char dummy[32];

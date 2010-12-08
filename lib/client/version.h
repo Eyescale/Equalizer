@@ -25,30 +25,30 @@
 namespace eq
 {
     // Equalizer version macros and functions
-#   define EQ_VERSION_MAJOR 0 //!< The current major version
-#   define EQ_VERSION_MINOR 9 //!< The current minor version
-#   define EQ_VERSION_PATCH 1 //!< The current patch level
+#   define EQ_VERSION_MAJOR 0 //!< The current major version. @version 1.0
+#   define EQ_VERSION_MINOR 9 //!< The current minor version. @version 1.0
+#   define EQ_VERSION_PATCH 2 //!< The current patch level. @version 1.0
 
     /** Information about the current Equalizer version. */
     class Version
     {
     public:
-        /** @return the current major version of Equalizer */
+        /** @return the current major version of Equalizer. @version 1.0 */
         static uint32_t getMajor();
 
-        /** @return the current minor version of Equalizer */
+        /** @return the current minor version of Equalizer. @version 1.0 */
         static uint32_t getMinor();
 
-        /** @return the current patch level of Equalizer */
+        /** @return the current patch level of Equalizer. @version 1.0 */
         static uint32_t getPatch();
 
-        /** @return the current Equalizer version (MMmmpp) */
+        /** @return the current Equalizer version (MMmmpp). @version 1.0 */
         static uint32_t getInt();
 
-        /** @return the current Equalizer version (MM.mmpp) */
+        /** @return the current Equalizer version (MM.mmpp). @version 1.0 */
         static float    getFloat();
 
-        /** @return the current Equalizer version (MM.mm.pp) */
+        /** @return the current Equalizer version (MM.mm.pp). @version 1.0 */
         static std::string getString();
     };
 }

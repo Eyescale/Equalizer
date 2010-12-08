@@ -997,7 +997,7 @@ void Channel::drawStatistics()
             font->draw( "window" );
             break;
 
-          case Statistic::FRAME_RECEIVE:
+          case Statistic::FRAME_DECOMPRESS:
             x = 0.f;
             nextY -= (HEIGHT + SPACE);
 

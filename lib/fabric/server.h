@@ -27,48 +27,45 @@ namespace eq
 {
 namespace fabric
 {
-    /**
-     * Proxy object for the connection to an Equalizer server.
-     *
-     * The server manages the configurations for a set of Equalizer
-     * applications. This proxy object is used to connect to a server and obtain
-     * and release a Config from the server.
-     * @sa Client::connectServer
-     */
+    /** Base net::Node class for a server. @sa eq::Server */
     template< class CL, class S, class CFG, class NF, class N >
     class Server : public N
     {
     public:
+        /** A reference-counted pointer to the client. */
         typedef base::RefPtr< CL > ClientPtr;
+        /** A reference-counted const pointer to the client. */
         typedef base::RefPtr< const CL > ConstClientPtr;
+        /** A vector of config pointers. */
         typedef std::vector< CFG* > Configs;
+        /** The node factory. */
         typedef NF NodeFactory;
 
         virtual void setClient( ClientPtr client ); //!< @internal
 
-        /** @return the local client proxy. */
+        /** @return the local client proxy. @version 1.0 */
         ClientPtr getClient() { return _client; }
 
-        /** @return the local client proxy. */
+        /** @return the local client proxy. @version 1.0 */
         ConstClientPtr getClient() const { return _client; }
 
-        /** @return the vector of configurations. */
+        /** @return the vector of configurations. @version 1.0 */
         const Configs& getConfigs() const { return _configs; }
 
-        /** @return the node factory. @internal. */
+        /** @internal @return the node factory. */
         NF* getNodeFactory() { return _nodeFactory; }
 
     protected:
-        /** Construct a new server. */
+        /** @internal Construct a new server. */
         Server( NF* nodeFactory );
 
-        /** Destruct this server. */
+        /** @internal Destruct this server. */
         virtual ~Server();
 
-        /**  Add a new config to this server. @internal */
+        /** @internal Add a new config to this server. */
         void _addConfig( CFG* config );
 
-        /** Remove a config from this server. @internal */
+        /** @internal Remove a config from this server. */
         bool _removeConfig( CFG* config );
 
     private:
@@ -80,10 +77,8 @@ namespace fabric
         /** The list of configurations. */
         Configs _configs;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         /** @sa net::Node::getType */
         virtual uint32_t getType() const { return NODETYPE_EQ_SERVER; }

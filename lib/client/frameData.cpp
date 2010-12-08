@@ -530,7 +530,7 @@ bool FrameData::_cmdTransmit( net::Command& command )
 
     EQASSERT( originator != base::UUID::ZERO );
 
-    FrameDataStatistics event( Statistic::FRAME_RECEIVE, this, 
+    FrameDataStatistics event( Statistic::FRAME_DECOMPRESS, this, 
                                packet->frameNumber, originator );
 
     Image* image = _allocImage( Frame::TYPE_MEMORY, DrawableConfig( ));

@@ -244,7 +244,7 @@ GLXContext GLXWindow::createGLXContext( XVisualInfo* visualInfo )
     }
 
     GLXContext    shareCtx    = 0;
-    const Window* shareWindow = _window->getSharedContextWindow();
+    const Window* shareWindow = getWindow()->getSharedContextWindow();
     const SystemWindow* sysWindow = 
         shareWindow ? shareWindow->getSystemWindow() :0;
     if( sysWindow )
@@ -299,7 +299,7 @@ bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
         return false;
     }
     
-    PixelViewport pvp = _window->getPixelViewport();
+    PixelViewport pvp = getWindow()->getPixelViewport();
     if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
     {
         const int screen = DefaultScreen( _xDisplay );
@@ -309,7 +309,7 @@ bool GLXWindow::configInitGLXWindow( XVisualInfo* visualInfo )
         pvp.x = 0;
         pvp.y = 0;
         
-        _window->setPixelViewport( pvp );
+        getWindow()->setPixelViewport( pvp );
     }
     
     XID drawable = _createGLXWindow( visualInfo, pvp );
@@ -385,7 +385,7 @@ XID GLXWindow::_createGLXWindow( XVisualInfo* visualInfo ,
     }   
 
     std::stringstream windowTitle;
-    const std::string& name = _window->getName();
+    const std::string& name = getWindow()->getName();
 
     if( name.empty( ))
     {
@@ -464,7 +464,7 @@ bool GLXWindow::configInitGLXPBuffer( XVisualInfo* visualInfo )
     }
 
     // Create PBuffer
-    const PixelViewport& pvp = _window->getPixelViewport();
+    const PixelViewport& pvp = getWindow()->getPixelViewport();
     const int attributes[] = { GLX_PBUFFER_WIDTH, pvp.w,
                                GLX_PBUFFER_HEIGHT, pvp.h,
                                GLX_LARGEST_PBUFFER, True,
@@ -513,7 +513,7 @@ void GLXWindow::setXDrawable( XID drawable )
             glXQueryDrawable( _xDisplay, drawable, GLX_WIDTH,  &width );
             glXQueryDrawable( _xDisplay, drawable, GLX_HEIGHT, &height );
 
-            _window->setPixelViewport( 
+            getWindow()->setPixelViewport( 
                 PixelViewport( 0, 0, int32_t( width ), int32_t( height )));
             break;
         }
@@ -536,14 +536,14 @@ void GLXWindow::setXDrawable( XID drawable )
             XTranslateCoordinates( _xDisplay, parent, root, wa.x, wa.y, &x, &y,
                                    &childReturn );
 
-            _window->setPixelViewport( PixelViewport( x, y,
+            getWindow()->setPixelViewport( PixelViewport( x, y,
                                                       wa.width, wa.height ));
             break;
         }
         default:
             EQUNIMPLEMENTED;
         case FBO:
-            EQASSERT( _window->getPixelViewport().hasArea( ));
+            EQASSERT( getWindow()->getPixelViewport().hasArea( ));
     }
 }
 

@@ -38,6 +38,7 @@ namespace eq
          * @param type The statistics type.
          * @param owner The originator of the statistics event.
          * @param frameNumber The current frame.
+         * @version 1.0
          */
         StatisticSampler( const Statistic::Type type, Owner* owner, 
                           const uint32_t frameNumber )
@@ -54,7 +55,7 @@ namespace eq
                 event.data.statistic.endTime     = 0;
             }
 
-        /** Destruct and finish statistics sampleing. */
+        /** Destruct and finish statistics sampling. @version 1.0 */
         virtual ~StatisticSampler() {}
 
         ConfigEvent event; //!< The statistics event.

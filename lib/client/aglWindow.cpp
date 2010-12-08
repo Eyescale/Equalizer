@@ -301,7 +301,7 @@ AGLContext AGLWindow::createAGLContext( AGLPixelFormat pixelFormat )
     }
 
     AGLContext    shareCtx    = 0;
-    const Window* shareWindow = _window->getSharedContextWindow();
+    const Window* shareWindow = getWindow()->getSharedContextWindow();
     const SystemWindow* sysWindow =
         shareWindow ? shareWindow->getSystemWindow() :0;
     if( sysWindow )
@@ -375,7 +375,7 @@ bool AGLWindow::configInitAGLPBuffer()
     }
 
     // PBuffer
-    const PixelViewport pvp = _window->getPixelViewport();
+    const PixelViewport pvp = getWindow()->getPixelViewport();
           AGLPbuffer    pbuffer;
     if( !aglCreatePBuffer( pvp.w, pvp.h, GL_TEXTURE_RECTANGLE_EXT, GL_RGBA,
                            0, &pbuffer ))
@@ -411,7 +411,7 @@ bool AGLWindow::configInitAGLFullscreen()
 
     const Pipe* pipe = getPipe();
     const PixelViewport& pipePVP   = pipe->getPixelViewport();
-    const PixelViewport& windowPVP = _window->getPixelViewport();
+    const PixelViewport& windowPVP = getWindow()->getPixelViewport();
     const PixelViewport& pvp       = pipePVP.isValid() ? pipePVP : windowPVP;
 
     if( !aglSetFullScreen( context, pvp.w, pvp.h, 0, 0 ))
@@ -424,7 +424,7 @@ bool AGLWindow::configInitAGLFullscreen()
 
     Global::leaveCarbon();
 
-    _window->setPixelViewport( pvp );
+    getWindow()->setPixelViewport( pvp );
     initEventHandler();
     return true;
 }
@@ -448,7 +448,7 @@ bool AGLWindow::configInitAGLWindow()
         kWindowStandardHandlerAttribute | kWindowInWindowMenuAttribute;
 
     // top, left, bottom, right
-    const PixelViewport   pvp = _window->getPixelViewport();
+    const PixelViewport   pvp = getWindow()->getPixelViewport();
     const int32_t  menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0 ;
     Rect           windowRect = { pvp.y + menuHeight, pvp.x, 
                                   pvp.y + pvp.h + menuHeight,
@@ -468,7 +468,7 @@ bool AGLWindow::configInitAGLWindow()
     }
 
     // window title
-    const std::string& name = _window->getName();
+    const std::string& name = getWindow()->getName();
     std::stringstream windowTitle;
 
     if( name.empty( ))
@@ -534,7 +534,7 @@ void AGLWindow::setCarbonWindow( WindowRef window )
         if( getIAttribute( Window::IATTR_HINT_DECORATION ) != OFF )
             pvp.y -= EQ_AGL_MENUBARHEIGHT;
 
-        _window->setPixelViewport( pvp );
+        getWindow()->setPixelViewport( pvp );
     }
     Global::leaveCarbon();
 }
@@ -562,7 +562,7 @@ void AGLWindow::setAGLPBuffer( AGLPbuffer pbuffer )
         EQASSERT( target == GL_TEXTURE_RECTANGLE_EXT );
 
         const PixelViewport pvp( 0, 0, w, h );
-        _window->setPixelViewport( pvp );
+        getWindow()->setPixelViewport( pvp );
     }
 }
 

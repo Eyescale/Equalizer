@@ -66,7 +66,7 @@ bool GLXPipe::configInit( )
 
     setXDisplay( xDisplay );
     EQINFO << "Opened X display " << xDisplay << ", device "
-           << _pipe->getDevice() << std::endl;
+           << getPipe()->getDevice() << std::endl;
     return true;
 #else
     setError( ERROR_GLX_MISSING_SUPPORT );
@@ -93,8 +93,8 @@ std::string GLXPipe::getXDisplayString()
 {
     std::ostringstream  stringStream;
     
-    const uint32_t port   = _pipe->getPort();
-    const uint32_t device = _pipe->getDevice();
+    const uint32_t port   = getPipe()->getPort();
+    const uint32_t device = getPipe()->getDevice();
 
     if( port != EQ_UNDEFINED_UINT32 )
     { 
@@ -135,8 +135,8 @@ void GLXPipe::setXDisplay( Display* display )
             const std::string displayNumberString = 
                 displayString.substr( colonPos+1 );
             const uint32_t displayNumber = atoi( displayNumberString.c_str( ));
-            const uint32_t port          = _pipe->getPort();
-            const uint32_t device        = _pipe->getDevice();
+            const uint32_t port          = getPipe()->getPort();
+            const uint32_t device        = getPipe()->getDevice();
             
             if( port != EQ_UNDEFINED_UINT32 && displayNumber != port )
                 EQWARN << "Display mismatch: provided display connection uses"
@@ -155,7 +155,7 @@ void GLXPipe::setXDisplay( Display* display )
         }
     }
 
-    PixelViewport pvp = _pipe->getPixelViewport();
+    PixelViewport pvp = getPipe()->getPixelViewport();
     if( pvp.isValid( ))
         return;
 
@@ -169,7 +169,7 @@ void GLXPipe::setXDisplay( Display* display )
     else
         pvp.invalidate();
 
-    _pipe->setPixelViewport( pvp );
+    getPipe()->setPixelViewport( pvp );
 #endif
 }
 

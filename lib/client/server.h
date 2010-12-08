@@ -25,39 +25,36 @@
 
 namespace eq
 {
-    class Client;
-    class Config;
-    class ConfigParams;
-    class NodeFactory;
-
     /**
      * Proxy object for the connection to an Equalizer server.
      *
-     * The server manages the configurations for a set of Equalizer
-     * applications. This proxy object is used to connect to a server and obtain
-     * and release a Config from the server.
-     * @sa Client::connectServer
+     * The server manages the configurations for Equalizer applications. This
+     * proxy object is used to connect to a server and obtain and release a
+     * Config from the server.
+     *
+     * @sa fabric::Server, Client::connectServer()
      */
     class Server : public fabric::Server< Client, Server, Config, NodeFactory,
                                           net::Node >
     {
     public:
-        /** Construct a new server. */
+        /** Construct a new server. @version 1.0 */
         EQ_API Server();
 
         /** @name Internal */
         //@{
-        virtual void setClient( ClientPtr client );
-        EQ_API net::CommandQueue* getMainThreadQueue();
-        EQ_API net::CommandQueue* getCommandThreadQueue();
+        virtual void setClient( ClientPtr client ); //!< @internal
+        EQ_API net::CommandQueue* getMainThreadQueue(); //!< @internal
+        EQ_API net::CommandQueue* getCommandThreadQueue(); //!< @internal
         //@}
 
         /** 
          * Choose a configuration on the server.
          * 
          * @param parameters the configuration parameters
-         * @return The chosen config, or 0if no matching config was found.
+         * @return The chosen config, or 0 if no matching config was found.
          * @sa ConfigParams
+         * @version 1.0
          */
         EQ_API Config* chooseConfig( const ConfigParams& parameters );
 
@@ -68,16 +65,15 @@ namespace eq
          * longer valid after the call.
          *
          * @param config the configuration.
+         * @version 1.0
          */
         EQ_API void releaseConfig( Config* config );
 
-        /** Undocumented - may not be supported in the future */
+        /** @warning Experimental - may not be supported in the future */
         EQ_API bool shutdown();
         
     protected:
-        /**
-         * Destructs this server.
-         */
+        /** @internal Destruct this server. */
         EQ_API virtual ~Server();
 
     private:
@@ -85,10 +81,8 @@ namespace eq
         bool _localServer;
         friend class Client;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         /* The command handler functions. */
         bool _cmdChooseConfigReply( net::Command& command );

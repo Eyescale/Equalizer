@@ -44,7 +44,7 @@ GLWindow::~GLWindow()
 void GLWindow::makeCurrent() const 
 {
     bindFrameBuffer();
-    getPipe()->setCurrent( _window );
+    getPipe()->setCurrent( getWindow( ));
 }
     
 void GLWindow::initGLEW()
@@ -81,8 +81,8 @@ bool GLWindow::configInitFBO()
     // needs glew initialized (see above)
     _fbo = new util::FrameBufferObject( _glewContext );
     
-    const PixelViewport& pvp = _window->getPixelViewport();
-    const GLuint colorFormat = _window->getColorFormat();
+    const PixelViewport& pvp = getWindow()->getPixelViewport();
+    const GLuint colorFormat = getWindow()->getColorFormat();
 
     int depthSize = getIAttribute( Window::IATTR_PLANES_DEPTH );
     if( depthSize == AUTO )

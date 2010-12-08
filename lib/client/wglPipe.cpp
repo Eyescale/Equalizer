@@ -49,7 +49,7 @@ bool WGLPipe::configInit()
     if ( !_configInitWGLEW() )
         return false;
 
-    PixelViewport pvp = _pipe->getPixelViewport();
+    PixelViewport pvp = getPipe()->getPixelViewport();
     if( pvp.isValid( ))
         return true;
 
@@ -95,7 +95,7 @@ bool WGLPipe::configInit()
         DeleteDC( dc );
     }
 
-    _pipe->setPixelViewport( pvp );
+    getPipe()->setPixelViewport( pvp );
     EQINFO << "Pipe pixel viewport " << pvp << std::endl;
     return true;
 }
@@ -103,7 +103,7 @@ bool WGLPipe::configInit()
 
 void WGLPipe::configExit()
 {
-    _pipe->setPixelViewport( eq::PixelViewport( )); // invalidate
+    getPipe()->setPixelViewport( eq::PixelViewport( )); // invalidate
 }
 
 
@@ -131,7 +131,7 @@ bool WGLPipe::createWGLAffinityDC( HDC& affinityDC )
 
 HDC WGLPipe::createWGLDisplayDC()
 {
-    uint32_t device = _pipe->getDevice();
+    uint32_t device = getPipe()->getDevice();
     if( device == EQ_UNDEFINED_UINT32 )
         device = 0;
 
@@ -166,7 +166,7 @@ bool WGLPipe::_getGPUHandle( HGPUNV& handle )
 {
     handle = 0;
 
-    const uint32_t device = _pipe->getDevice();
+    const uint32_t device = getPipe()->getDevice();
     if( device == EQ_UNDEFINED_UINT32 )
         return true;
 

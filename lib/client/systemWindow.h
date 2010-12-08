@@ -36,15 +36,15 @@ namespace util
      * The system window abstracts all window system specific code and
      * facilitates porting to new windowing systems. Each eq::Window uses one
      * eq::SystemWindow, which is created and initialized in
-     * Window::configInitSystemWindow().
+     * Window::configInitSystemWindow.
      */
     class SystemWindow
     {
     public:
-        /** Create a new SystemWindow for the given eq::Window. */
+        /** Create a new SystemWindow for the given eq::Window. @version 1.0 */
         EQ_API SystemWindow( Window* parent );
 
-        /** Destroy the SystemWindow. */
+        /** Destroy the SystemWindow. @version 1.0 */
         EQ_API virtual ~SystemWindow();
         
         /** @name Methods forwarded from eq::Window */
@@ -57,8 +57,9 @@ namespace util
          * 
          * @return true if the window was correctly initialized, false
          *         on any error.
+         * @version 1.0
          */
-        EQ_API virtual bool configInit( ) = 0;
+        EQ_API virtual bool configInit() = 0;
 
         /** 
          * De-initialize this system window.
@@ -66,8 +67,9 @@ namespace util
          * This function might be called on partially or uninitialized system
          * windows, and the implemenation has therefore be tolerant enough to
          * handle this case.
+         * @version 1.0
          */
-        EQ_API virtual void configExit( ) = 0;
+        EQ_API virtual void configExit() = 0;
 
         /** 
          * Make the system window rendering context and drawable current.
@@ -75,13 +77,14 @@ namespace util
          * This function invalidates the pipe's make current cache. If this
          * function is not called, Pipe::setCurrent() has to be called
          * appropriately.
+         * @version 1.0
          */
         EQ_API virtual void makeCurrent() const = 0;
 
-        /** Bind the window's FBO, if it uses an FBO drawable. */
+        /** Bind the window's FBO, if it uses an FBO drawable. @version 1.0 */
         EQ_API virtual void bindFrameBuffer() const = 0;
 
-        /** Swap the front and back buffer, for doublebuffered drawables. */
+        /** Swap the front and back buffer. @version 1.0 */
         EQ_API virtual void swapBuffers() = 0;
 
         /** 
@@ -92,44 +95,60 @@ namespace util
          * 
          * @param group the swap group name.
          * @param barrier the swap barrier name.
+         * @version 1.0
          */
         EQ_API virtual void joinNVSwapBarrier( const uint32_t group,
-                                                  const uint32_t barrier ) = 0;
+                                               const uint32_t barrier ) = 0;
         //@}
 
         /** @name Frame Buffer Object support. */
         //@{
-        /** Build and initialize the FBO. */
+        /** Build and initialize the FBO. @version 1.0 */
         EQ_API bool configInitFBO();
 
-        /** Destroy FBO. */
+        /** Destroy FBO. @version 1.0 */
         EQ_API void configExitFBO();
 
-        /** @return the FBO of this window, or 0 if no FBO is used. */
+        /** @return the FBO of this window, or 0. @version 1.0 */
         virtual const util::FrameBufferObject* getFrameBufferObject()
             const { return 0; }
         //@}
 
         /** @name Convenience interface to eq::Window methods */
         //@{
+        /** @return the parent window. @version 1.0 */
         Window* getWindow() { return _window; }
+
+        /** @return the parent window. @version 1.0 */
         const Window* getWindow() const { return _window; }
 
-        EQ_API Pipe* getPipe(); 
+        /** @return the parent pipe. @version 1.0 */
+        EQ_API Pipe* getPipe();
+
+        /** @return the parent pipe. @version 1.0 */
         EQ_API const Pipe* getPipe() const;
 
-        EQ_API Node* getNode(); 
+        /** @return the parent node. @version 1.0 */
+        EQ_API Node* getNode();
+
+        /** @return the parent node. @version 1.0 */
         EQ_API const Node* getNode() const;
 
+        /** @return the parent config. @version 1.0 */
         EQ_API Config* getConfig();
+
+        /** @return the parent config. @version 1.0 */
         EQ_API const Config* getConfig() const;
 
+        /** @return an integer attribute of the parent window. @version 1.0 */
         EQ_API int32_t getIAttribute( const Window::IAttribute attr ) const;
         //@}
 
-        /** Set up _drawableConfig by querying the current context. */
-        EQ_API virtual void queryDrawableConfig( 
-            DrawableConfig& drawableConfig ) = 0;
+        /**
+         * Set up the given drawable based on the current context.
+         * @version 1.0
+         */
+        EQ_API virtual void queryDrawableConfig( DrawableConfig& dc ) = 0;
 
         /**
          * Get the GLEW context for this window.
@@ -143,6 +162,7 @@ namespace util
          *
          * @return the extended OpenGL function table for the window's OpenGL
          *         context.
+         * @version 1.0
          */
         virtual const GLEWContext* glewGetContext() const { return 0;}
 
@@ -162,15 +182,12 @@ namespace util
         /** Process an event. @version 1.0 */
         EQ_API virtual bool processEvent( const Event& event );
 
-    protected:
+    private:
         /** The parent eq::Window. */
         Window* const _window;
         
-    private:
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[64];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
     };
 }
 

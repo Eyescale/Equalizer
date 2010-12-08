@@ -45,7 +45,7 @@ bool AGLPipe::configInit()
 {
 #ifdef AGL
     CGDirectDisplayID displayID = CGMainDisplayID();
-    const uint32_t device = _pipe->getDevice();
+    const uint32_t device = getPipe()->getDevice();
 
     if( device != EQ_UNDEFINED_UINT32 )
     {
@@ -85,7 +85,7 @@ void AGLPipe::_setCGDisplayID( CGDirectDisplayID id )
         return;
 
     _cgDisplayID = id; 
-    PixelViewport pvp = _pipe->getPixelViewport();
+    PixelViewport pvp = getPipe()->getPixelViewport();
 
     if( pvp.isValid( ))
         return;
@@ -101,7 +101,7 @@ void AGLPipe::_setCGDisplayID( CGDirectDisplayID id )
     else
         pvp.invalidate();
 
-    _pipe->setPixelViewport( pvp );
+    getPipe()->setPixelViewport( pvp );
 #endif
 }
 
