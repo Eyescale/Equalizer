@@ -46,7 +46,7 @@ endif(GLEW_FOUND)
 if(NOT GLEW_FOUND OR NOT GLEW_MX_SUPPORTED)
   message(STATUS "  GLEW will be built by Equalizer.")
 
-  set(GLEW_NAME glew-1.5.7)
+  set(GLEW_NAME glew-1.5.7.1)
   set(GLEW_TGZ ${CMAKE_SOURCE_DIR}/externals/${GLEW_NAME}.tgz)
   set(GLEW_DIR ${CMAKE_BINARY_DIR}/${GLEW_NAME})
 
