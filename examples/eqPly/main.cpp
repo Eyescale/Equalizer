@@ -56,20 +56,7 @@ public:
 
 int main( const int argc, char** argv )
 {
-    // 1. parse arguments
-    eqPly::LocalInitData initData;
-    initData.parseArguments( argc, argv );
-
-    // 2. Redirect log output to file, if requested
-    std::ofstream* logFile = 0;
-    const std::string& logFilename = initData.getLogFilename();
-    if( !logFilename.empty( ))
-    {
-        logFile = new std::ofstream( logFilename.c_str( ));
-        eq::base::Log::setOutput( *logFile );
-    }
-    
-    // 3. Equalizer initialization
+    // 1. Equalizer initialization
     NodeFactory nodeFactory;
     if( !eq::init( argc, argv, &nodeFactory ))
     {
@@ -77,19 +64,23 @@ int main( const int argc, char** argv )
         return EXIT_FAILURE;
     }
 
-    // 4. initialization of local client node
+    // 2. parse arguments
+    eqPly::LocalInitData initData;
+    initData.parseArguments( argc, argv );
+
+    // 3. initialization of local client node
     eq::base::RefPtr< eqPly::EqPly > client = new eqPly::EqPly( initData );
-    if( !client->initLocal( argc, argv ))
+    if( client->initLocal( argc, argv ))
     {
         EQERROR << "Can't init client" << std::endl;
         eq::exit();
         return EXIT_FAILURE;
     }
 
-    // 5. run client
+    // 4. run client
     const int ret = client->run();
 
-    // 6. cleanup and exit
+    // 5. cleanup and exit
     client->exitLocal();
 
     EQASSERTINFO( client->getRefCount() == 1, "Client still referenced by " <<
@@ -97,10 +88,5 @@ int main( const int argc, char** argv )
     client = 0;
 
     eq::exit();
-
-    if( logFile )
-        logFile->close();
-    delete logFile;
-
     return ret;
 }

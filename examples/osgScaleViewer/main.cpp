@@ -43,12 +43,7 @@
 
 int main( const int argc, char** argv )
 {
-    // 1. parse arguments
-    osgScaleViewer::InitData initData;
-    if ( !initData.parseCommandLine( argv, argc ))
-        return -1;
-
-    // 2. Equalizer initialization
+    // 1. Equalizer initialization
     osgScaleViewer::NodeFactory nodeFactory;
     if( !eq::init( argc, argv, &nodeFactory ))
     {
@@ -56,12 +51,17 @@ int main( const int argc, char** argv )
         return EXIT_FAILURE;
     }
 
+    // 2. parse arguments
+    osgScaleViewer::InitData initData;
+    if( !initData.parseCommandLine( argv, argc ))
+        return -1;
+
     // 3. initialization of local client node
     eq::base::RefPtr< osgScaleViewer::OSGScaleViewer > client =
         new osgScaleViewer::OSGScaleViewer( initData );
     if( !client->initLocal( argc, argv ))
     {
-        std::cout << "Can't init client" << std::endl;
+        EQERROR << "Can't init client" << std::endl;
         eq::exit();
         return EXIT_FAILURE;
     }
@@ -72,6 +72,8 @@ int main( const int argc, char** argv )
     // 5. cleanup and exit
     client->exitLocal();
 
+    EQASSERTINFO( client->getRefCount() == 1, "Client still referenced by " <<
+                  client->getRefCount() - 1 );
     client = 0;
 
     eq::exit();

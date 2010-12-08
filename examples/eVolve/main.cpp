@@ -37,9 +37,6 @@
 
 #include <stdlib.h>
 
-using namespace eq::base;
-using namespace std;
-
 class NodeFactory : public eq::NodeFactory
 {
 public:
@@ -57,26 +54,26 @@ public:
 
 int main( const int argc, char** argv )
 {
-    // 1. parse arguments
-    eVolve::LocalInitData initData;
-    initData.parseArguments( argc, argv );
-
-    // 2. Equalizer initialization
+    // 1. Equalizer initialization
     NodeFactory nodeFactory;
     eVolve::initErrors();
 
     if( !eq::init( argc, argv, &nodeFactory ))
     {
-        EQERROR << "Equalizer init failed" << endl;
+        EQERROR << "Equalizer init failed" << std::endl;
         eVolve::exitErrors();
         return EXIT_FAILURE;
     }
 
+    // 2. parse arguments
+    eVolve::LocalInitData initData;
+    initData.parseArguments( argc, argv );
+
     // 3. initialization of local client node
-    RefPtr< eVolve::EVolve > client = new eVolve::EVolve( initData );
+    eq::base::RefPtr< eVolve::EVolve > client = new eVolve::EVolve( initData );
     if( !client->initLocal( argc, argv ))
     {
-        EQERROR << "Can't init client" << endl;
+        EQERROR << "Can't init client" << std::endl;
         eq::exit();
         eVolve::exitErrors();
         return EXIT_FAILURE;
@@ -87,6 +84,9 @@ int main( const int argc, char** argv )
 
     // 5. cleanup and exit
     client->exitLocal();
+
+    EQASSERTINFO( client->getRefCount() == 1, "Client still referenced by " <<
+                  client->getRefCount() - 1 );
     client = 0;
 
     eq::exit();

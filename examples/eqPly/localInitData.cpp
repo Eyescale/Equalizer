@@ -123,9 +123,6 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         TCLAP::SwitchArg invFacesArg( "i", "invertFaces",
                              "Invert faces (valid during binary file creation)",
                                     command, false );
-        TCLAP::ValueArg<std::string> logArg( "l", "log", "output log file",
-                                             false, "eqPly.log", "string",
-                                             command );
         TCLAP::ValueArg<std::string> pathArg( "a", "cameraPath",
                                         "File containing camera path animation",
                                               false, "", "string", command );
@@ -184,9 +181,6 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         if( pathArg.isSet( ))
             _pathFilename = pathArg.getValue();
 
-        if( logArg.isSet( ))
-            _logFilename = logArg.getValue();
-        
         if( glslArg.isSet() )
             enableGLSL();
         if( invFacesArg.isSet() )

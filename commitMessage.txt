@@ -1,8 +1,9 @@
-Doxygen cleanups (up to eq::Version)
+Fix Linux executables (access to RNG before init)
+Remove logfile from eqPly: Use --eq-logfile option
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

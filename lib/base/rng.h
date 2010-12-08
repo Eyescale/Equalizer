@@ -71,6 +71,7 @@ namespace base
         {
             T value;
 #ifdef Linux
+            EQASSERTINFO( _fd >= 0, "init() not called?" );
             int read = ::read( _fd, &value, sizeof( T ));
             EQASSERTINFO( read == sizeof(T),
                           read << " != " << sizeof( T ) << ": " << sysError );
