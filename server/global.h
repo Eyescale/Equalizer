@@ -35,13 +35,13 @@ namespace server
     /**
      * The global default attributes.
      */
-    class EQSERVER_EXPORT Global
+    class Global
     {
     public:
-        static Global* instance();
+        EQSERVER_EXPORT static Global* instance();
 
         /** De-allocate the global instance. */
-        static void clear();
+        EQSERVER_EXPORT static void clear();
 
         /** @name Connection (Description) Attributes. */
         //@{
