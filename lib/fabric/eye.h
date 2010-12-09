@@ -41,7 +41,7 @@ namespace fabric
         NUM_EYES       = 3  //!< @internal increase with each new enum 
     };
 
-    EQ_FABRIC_DECL std::ostream& operator << ( std::ostream& os, const Eye& eye );
+    EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Eye& eye );
 }
 }
 #endif // EQFABRIC_EYE_H

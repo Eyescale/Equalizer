@@ -34,10 +34,10 @@ namespace fabric
          * 
          * @param server the default server.
          */
-        EQ_FABRIC_DECL static void setServer( const std::string& server );
+        EQFABRIC_API static void setServer( const std::string& server );
 
         /** @return the default Equalizer server. */
-        EQ_FABRIC_DECL static const std::string& getServer();
+        EQFABRIC_API static const std::string& getServer();
     };
 }
 }

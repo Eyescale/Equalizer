@@ -194,7 +194,26 @@ std::ostream& operator << ( std::ostream& os, const Wall& wall )
     os << "bottom_left  " << wall.bottomLeft << std::endl;
     os << "bottom_right " << wall.bottomRight << std::endl;
     os << "top_left     " << wall.topLeft << std::endl;
+    if( wall.type != Wall::TYPE_FIXED )
+        os << "type         " << wall.type << std::endl;
     os << base::exdent << "}" << std::endl;
+    return os;
+}
+
+std::ostream& operator << ( std::ostream& os, const Wall::Type& type )
+{
+    switch( type )
+    {
+      case Wall::TYPE_HMD:
+          os << "HMD";
+          break;
+
+      default:
+          EQASSERT( false );
+      case Wall::TYPE_FIXED:
+          os << "fixed";
+          break;
+    }
     return os;
 }
 

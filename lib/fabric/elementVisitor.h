@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_FABRIC_ELEMENTVISITOR_H
-#define EQ_FABRIC_ELEMENTVISITOR_H
+#ifndef EQFABRIC_ELEMENTVISITOR_H
+#define EQFABRIC_ELEMENTVISITOR_H
 
 #include <eq/fabric/leafVisitor.h> // base class
 
@@ -53,4 +53,4 @@ namespace fabric
     };
 }
 }
-#endif // EQ_FABRIC_ELEMENTVISITOR_H
+#endif // EQFABRIC_ELEMENTVISITOR_H

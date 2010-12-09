@@ -72,7 +72,7 @@ namespace fabric
         float start;
         float end;
 
-        EQ_FABRIC_DECL static const Range ALL; //!< A full database range
+        EQFABRIC_API static const Range ALL; //!< A full database range
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Range& range )

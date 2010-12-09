@@ -1,4 +1,5 @@
- /* Copyright (c) 2010, Daniel Pfeifer <daniel@pfeifer-mail.de> 
+/* Copyright (c) 2010, Daniel Pfeifer <daniel@pfeifer-mail.de> 
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,12 +20,13 @@
 
 #include <eq/base/base.h>
 
+
 #if defined(EQ_FABRIC_STATIC)
-#  define EQ_FABRIC_DECL
-#elif defined(EQ_FABRIC_SHARED)
-#  define EQ_FABRIC_DECL EQ_DLLEXPORT
+#  define EQFABRIC_API
+#elif defined(EQ_EXPORTS) || defined(EQSERVER_EXPORTS) || defined(EQUALIZERADMIN_SHARED)
+#  define EQFABRIC_API EQ_DLLEXPORT
 #else
-#  define EQ_FABRIC_DECL EQ_DLLIMPORT
+#  define EQFABRIC_API EQ_DLLIMPORT
 #endif
 
 #endif //EQFABRIC_BASE_H

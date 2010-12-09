@@ -39,10 +39,10 @@ namespace fabric
     {
     public:
         /** Construct a new wall description. */
-    	EQ_FABRIC_DECL Wall();
+    	EQFABRIC_API Wall();
 
         /** Construct a new wall description with default values. */
-    	EQ_FABRIC_DECL Wall( const Vector3f& bottomLeft, const Vector3f& bottomRight,
+    	EQFABRIC_API Wall( const Vector3f& bottomLeft, const Vector3f& bottomRight,
                         const Vector3f& topLeft );
 
         /** 
@@ -51,7 +51,7 @@ namespace fabric
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
-    	EQ_FABRIC_DECL void resizeHorizontal( const float ratio );
+    	EQFABRIC_API void resizeHorizontal( const float ratio );
 
         /** 
          * Resize the wall vertically.
@@ -59,7 +59,7 @@ namespace fabric
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
-    	EQ_FABRIC_DECL void resizeVertical( const float ratio );
+    	EQFABRIC_API void resizeVertical( const float ratio );
         
         /** 
          * Resize the wall on the left side.
@@ -67,7 +67,7 @@ namespace fabric
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
-    	EQ_FABRIC_DECL void resizeLeft( const float ratio );
+    	EQFABRIC_API void resizeLeft( const float ratio );
 
         /** 
          * Resize the wall on the right side.
@@ -75,7 +75,7 @@ namespace fabric
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
-    	EQ_FABRIC_DECL void resizeRight( const float ratio );
+    	EQFABRIC_API void resizeRight( const float ratio );
 
         /** 
          * Resize the wall on the top side.
@@ -83,7 +83,7 @@ namespace fabric
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
-    	EQ_FABRIC_DECL void resizeTop( const float ratio );
+    	EQFABRIC_API void resizeTop( const float ratio );
 
         /** 
          * Resize the wall on the bottom side.
@@ -91,19 +91,19 @@ namespace fabric
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
-    	EQ_FABRIC_DECL void resizeBottom( const float ratio );
+    	EQFABRIC_API void resizeBottom( const float ratio );
 
         /**
          * Compute the sub-frustum for a 2D area on the full wall.
          * @version 1.0
          */
-    	EQ_FABRIC_DECL void apply( const Viewport& viewport);
+    	EQFABRIC_API void apply( const Viewport& viewport);
 
         /**
          * Set the wall parameters from a projection description.
          * @version 1.0
          */
-    	EQ_FABRIC_DECL Wall& operator = ( const Projection& projection );
+    	EQFABRIC_API Wall& operator = ( const Projection& projection );
 
         /** @return the width of the wall. @version 1.0 */
         float getWidth() const { return (bottomRight - bottomLeft).length(); }
@@ -112,10 +112,10 @@ namespace fabric
         float getHeight() const { return (topLeft - bottomLeft).length(); }
 
         /** @return true if the two walls are identical. @version 1.0 */
-        EQ_FABRIC_DECL bool operator == ( const Wall& rhs ) const;
+        EQFABRIC_API bool operator == ( const Wall& rhs ) const;
 
         /** @return true if the two walls are not identical. @version 1.0 */
-        EQ_FABRIC_DECL bool operator != ( const Wall& rhs ) const;
+        EQFABRIC_API bool operator != ( const Wall& rhs ) const;
 
         Vector3f bottomLeft;  //!< The bottom-left corner
         Vector3f bottomRight; //!< The bottom-right corner
@@ -130,7 +130,8 @@ namespace fabric
         Type type; //!< The wall type
     };
 
-    EQ_FABRIC_DECL std::ostream& operator << ( std::ostream& os, const Wall& wall );
+    EQFABRIC_API std::ostream& operator << ( std::ostream&, const Wall& );
+    EQFABRIC_API std::ostream& operator << ( std::ostream&, const Wall::Type& );
 }
 }
 #endif // EQFABRIC_WALL_H

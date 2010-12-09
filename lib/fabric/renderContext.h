@@ -38,7 +38,7 @@ namespace fabric
     class RenderContext
     {
     public: 
-        EQ_FABRIC_DECL RenderContext();
+        EQFABRIC_API RenderContext();
 
         Frustumf       frustum;        //<! frustum for projection matrix
         Frustumf       ortho;          //<! ortho frustum for projection matrix
@@ -67,7 +67,7 @@ namespace fabric
         bool           alignDummy[28]; //<! @internal padding
     };
 
-    EQ_FABRIC_DECL std::ostream& operator << ( std::ostream& os, 
+    EQFABRIC_API std::ostream& operator << ( std::ostream& os, 
                                           const RenderContext& ctx );
 }
 }

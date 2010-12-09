@@ -62,23 +62,12 @@
 #  define EQBASE_API EQ_DLLIMPORT
 #endif
 
-#ifdef EQ_EXPORTS
-#  define EQFABRIC_API EQ_DLLEXPORT
-#endif
-
 // Need to predefine server library exports for forward declaration of 
 // eqsStartLocalServer
 #ifdef EQSERVER_EXPORTS
 #  define EQSERVER_EXPORT EQ_DLLEXPORT
-#  define EQFABRIC_API EQSERVER_EXPORT
 #else
 #  define EQSERVER_EXPORT EQ_DLLIMPORT
-#endif
-#ifdef EQUALIZERADMIN_SHARED
-#  define EQFABRIC_API EQ_DLLEXPORT
-#endif
-#ifndef EQFABRIC_API
-#  define EQFABRIC_API EQ_DLLIMPORT
 #endif
 
 // Defining our own min/max macros seems to be the only sane way to get this

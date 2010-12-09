@@ -1,6 +1,8 @@
-Fix load_equalizer assertion
+Add type output for walls
+Fix and rename missing EQFABRIC_API (was in base/base.h and fabric/base.h)
+dos2unix
 
-[ ] May break build
+[x] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature

@@ -35,7 +35,7 @@ namespace fabric
      *         <code>false</code> otherwise.
      * @version 1.0
      */
-	EQ_FABRIC_DECL bool init( const int argc, char** argv );
+	EQFABRIC_API bool init( const int argc, char** argv );
     
     /**
      * De-initialize the Equalizer fabric namespace.
@@ -44,7 +44,7 @@ namespace fabric
      *         <code>false</code> otherwise.
      * @version 1.0
      */
-	EQ_FABRIC_DECL bool exit();
+	EQFABRIC_API bool exit();
 }
 }
 #endif // EQFABRIC_INIT_H

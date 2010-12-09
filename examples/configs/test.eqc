@@ -21,7 +21,7 @@ server
         compound
         { 
             channel "channel"
-            wall {}
+            wall { type fixed type HMD }
             eye [ LEFT RIGHT ]
         }
     }    

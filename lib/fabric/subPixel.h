@@ -100,7 +100,7 @@ namespace fabric
         uint32_t index;
         uint32_t size;
 
-        EQ_FABRIC_DECL static const SubPixel ALL; 
+        EQFABRIC_API static const SubPixel ALL; 
     };
 
     inline std::ostream& operator << ( std::ostream& os,

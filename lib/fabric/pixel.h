@@ -106,7 +106,7 @@ namespace fabric
         uint32_t h;
 
         /** A pixel specification covering all pixels */
-        EQ_FABRIC_DECL static const Pixel ALL; 
+        EQFABRIC_API static const Pixel ALL; 
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Pixel& pixel )

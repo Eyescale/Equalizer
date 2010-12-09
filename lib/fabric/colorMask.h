@@ -46,7 +46,7 @@ namespace fabric
         bool blue;
         bool alpha;
 
-        EQ_FABRIC_DECL static const ColorMask ALL;
+        EQFABRIC_API static const ColorMask ALL;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const ColorMask& mask )

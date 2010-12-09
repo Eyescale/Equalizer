@@ -56,7 +56,7 @@ namespace fabric
         HORIZONTAL = ON   //!< Horizontal load-balancing
     };
 
-    EQ_FABRIC_DECL std::ostream& operator << ( std::ostream& os,
+    EQFABRIC_API std::ostream& operator << ( std::ostream& os,
                                           const IAttribute value );
 }
 }

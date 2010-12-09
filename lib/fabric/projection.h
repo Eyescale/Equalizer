@@ -40,7 +40,7 @@ namespace fabric
     class Projection
     {
     public:
-    	EQ_FABRIC_DECL Projection();
+    	EQFABRIC_API Projection();
 
         /** 
          * Resize the horizontal FOV.
@@ -48,7 +48,7 @@ namespace fabric
          * @param ratio the amount by which the FOV is grown or shrunk.
          * @version 1.0
          */
-    	EQ_FABRIC_DECL void resizeHorizontal( const float ratio );
+    	EQFABRIC_API void resizeHorizontal( const float ratio );
 
         /** 
          * Resize the vertical FOV.
@@ -56,25 +56,25 @@ namespace fabric
          * @param ratio the amount by which the FOV is grown or shrunk.
          * @version 1.0
          */
-    	EQ_FABRIC_DECL void resizeVertical( const float ratio );
+    	EQFABRIC_API void resizeVertical( const float ratio );
 
         /**
          * Convert the projection parameters from a wall description.
          * @version 1.0
          */
-    	EQ_FABRIC_DECL Projection& operator = ( const Wall& wall );
+    	EQFABRIC_API Projection& operator = ( const Wall& wall );
 
         /**
          * @return true if the two projection definitions are identical.
          * @version 1.0
          */
-    	EQ_FABRIC_DECL bool operator == ( const Projection& rhs ) const;
+    	EQFABRIC_API bool operator == ( const Projection& rhs ) const;
 
         /**
          * @return true if the two projection definitions are not identical.
          * @version 1.0
          */
-    	EQ_FABRIC_DECL bool operator != ( const Projection& rhs ) const;
+    	EQFABRIC_API bool operator != ( const Projection& rhs ) const;
         
         Vector3f origin;
         float    distance;
@@ -82,7 +82,7 @@ namespace fabric
         Vector3f hpr;
     };
 
-    EQ_FABRIC_DECL std::ostream& operator << ( std::ostream& os, const Projection& );
+    EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Projection& );
 }
 }
 #endif // EQFABRIC_PROJECTION_H

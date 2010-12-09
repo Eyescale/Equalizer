@@ -65,7 +65,7 @@ namespace fabric
             }
 
         /** The zoom NONE (1,1) value. */
-        EQ_FABRIC_DECL static const Zoom NONE;
+        EQFABRIC_API static const Zoom NONE;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Zoom& zoom )
