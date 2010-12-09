@@ -160,8 +160,7 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
             {
                 L* layout = 0;
                 _config->find( id, &layout );
-                EQASSERTINFO( layout,
-                              "Layout " << id << " not in " << *_config );
+                EQASSERT( layout );
                 _layouts.push_back( layout );
             }
         }
