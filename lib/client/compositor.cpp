@@ -1168,63 +1168,6 @@ void Compositor::clearStencilBuffer( const ImageOp& op )
     glDisable( GL_STENCIL_TEST );
 }
 
-void Compositor::setupAssemblyState( const PixelViewport& pvp,
-                                     const GLEWContext* gl )
-{
-    EQ_GL_ERROR( "before setupAssemblyState" );
-    glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_LINE_BIT |
-                  GL_PIXEL_MODE_BIT | GL_POLYGON_BIT | GL_TEXTURE_BIT );
-
-    glDisable( GL_DEPTH_TEST );
-    glDisable( GL_BLEND );
-    glDisable( GL_ALPHA_TEST );
-    glDisable( GL_STENCIL_TEST );
-    glDisable( GL_TEXTURE_1D );
-    glDisable( GL_TEXTURE_2D );
-    glDisable( GL_TEXTURE_3D );
-    glDisable( GL_FOG );
-    glDisable( GL_CLIP_PLANE0 );
-    glDisable( GL_CLIP_PLANE1 );
-    glDisable( GL_CLIP_PLANE2 );
-    glDisable( GL_CLIP_PLANE3 );
-    glDisable( GL_CLIP_PLANE4 );
-    glDisable( GL_CLIP_PLANE5 );
-    
-    glPolygonMode( GL_FRONT, GL_FILL );
-    gl->__glewActiveTexture( GL_TEXTURE0 );
-
-    glMatrixMode( GL_TEXTURE );
-    glPushMatrix();
-    glLoadIdentity();
-
-    glMatrixMode( GL_PROJECTION );
-    glPushMatrix();
-    glLoadIdentity();
-    if( pvp.hasArea( ))
-        glOrtho( pvp.x, pvp.x + pvp.w, pvp.y, pvp.y + pvp.h, -1.0f, 1.0f );
-
-    glMatrixMode( GL_MODELVIEW );
-    glPushMatrix();
-    glLoadIdentity();
-    EQ_GL_ERROR( "after  setupAssemblyState" );
-}
-
-void Compositor::resetAssemblyState()
-{
-    EQ_GL_ERROR( "before resetAssemblyState" );
-    glMatrixMode( GL_TEXTURE );
-    glPopMatrix();
-
-    glMatrixMode( GL_PROJECTION );
-    glPopMatrix();
-
-    glMatrixMode( GL_MODELVIEW );
-    glPopMatrix();
-
-    glPopAttrib();
-    EQ_GL_ERROR( "after  resetAssemblyState" );
-}
-
 void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
 {
     _drawPixels( image, op, Frame::BUFFER_COLOR );
@@ -1530,5 +1473,66 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         glPixelZoom( static_cast< float >( op.pixel.w ),
                      static_cast< float >( op.pixel.h ));
 }
+
+#undef glewGetContext
+#define glewGetContext() glCtx
+
+void Compositor::setupAssemblyState( const PixelViewport& pvp,
+                                    const GLEWContext* glCtx )
+{
+    EQ_GL_ERROR( "before setupAssemblyState" );
+    glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_LINE_BIT |
+        GL_PIXEL_MODE_BIT | GL_POLYGON_BIT | GL_TEXTURE_BIT );
+
+    glDisable( GL_DEPTH_TEST );
+    glDisable( GL_BLEND );
+    glDisable( GL_ALPHA_TEST );
+    glDisable( GL_STENCIL_TEST );
+    glDisable( GL_TEXTURE_1D );
+    glDisable( GL_TEXTURE_2D );
+    glDisable( GL_TEXTURE_3D );
+    glDisable( GL_FOG );
+    glDisable( GL_CLIP_PLANE0 );
+    glDisable( GL_CLIP_PLANE1 );
+    glDisable( GL_CLIP_PLANE2 );
+    glDisable( GL_CLIP_PLANE3 );
+    glDisable( GL_CLIP_PLANE4 );
+    glDisable( GL_CLIP_PLANE5 );
+
+    glPolygonMode( GL_FRONT, GL_FILL );
+    glActiveTexture( GL_TEXTURE0 );
+
+    glMatrixMode( GL_TEXTURE );
+    glPushMatrix();
+    glLoadIdentity();
+
+    glMatrixMode( GL_PROJECTION );
+    glPushMatrix();
+    glLoadIdentity();
+    if( pvp.hasArea( ))
+        glOrtho( pvp.x, pvp.x + pvp.w, pvp.y, pvp.y + pvp.h, -1.0f, 1.0f );
+
+    glMatrixMode( GL_MODELVIEW );
+    glPushMatrix();
+    glLoadIdentity();
+    EQ_GL_ERROR( "after  setupAssemblyState" );
+}
+
+void Compositor::resetAssemblyState()
+{
+    EQ_GL_ERROR( "before resetAssemblyState" );
+    glMatrixMode( GL_TEXTURE );
+    glPopMatrix();
+
+    glMatrixMode( GL_PROJECTION );
+    glPopMatrix();
+
+    glMatrixMode( GL_MODELVIEW );
+    glPopMatrix();
+
+    glPopAttrib();
+    EQ_GL_ERROR( "after  resetAssemblyState" );
+}
+
 
 }
