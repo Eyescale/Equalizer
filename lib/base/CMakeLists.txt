@@ -57,6 +57,7 @@ purple_add_library(eq_base ${EQ_LIB_VARIANT}
     <pthread.h>
     precompile.h
   SOURCES
+    clock.cpp
     compressor.cpp
     condition.cpp
     cpuCompressor.cpp
