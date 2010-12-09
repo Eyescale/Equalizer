@@ -65,7 +65,7 @@ inline void memoryBarrier()
  * @version 1.0
  */
 template <class D>
-inline bool compareAndSwap(volatile long * addr, D old, D nw)
+inline bool compareAndSwap(long * addr, D old, D nw)
 {
 #if defined(__GNUC__) && \
     ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) )

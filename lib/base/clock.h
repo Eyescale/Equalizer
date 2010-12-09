@@ -41,7 +41,7 @@ namespace base
     {
     public :
         /** Construct a new clock. @version 1.0 */
-        Clock();
+        EQBASE_API Clock();
 
         /** Destroy the clock. @version 1.0 */
         ~Clock() {}
@@ -50,35 +50,35 @@ namespace base
          * Reset the base time of the clock to the current time.
          * @version 1.0
          */
-        void reset();
+        EQBASE_API void reset();
 
         /** Set the current time of the clock. @version 1.0 */
-        void set( const int64_t time );
+        EQBASE_API void set( const int64_t time );
 
         /** 
          * @return the elapsed time in milliseconds since the last clock reset.
          * @version 1.0
          */
-        float getTimef() const;
+        EQBASE_API float getTimef() const;
 
         /** 
          * @return the elapsed time in milliseconds since the last clock reset
          *         and atomically reset the clock.
          * @version 1.0
          */
-        float resetTimef();
+        EQBASE_API float resetTimef();
 
         /** 
          * @return the elapsed time in milliseconds since the last clock reset.
          * @version 1.0
          */
-        int64_t getTime64() const;
+        EQBASE_API int64_t getTime64() const;
 
         /** 
          * @return the elapsed time in milliseconds since the last clock reset.
          * @version 1.0
          */
-        double getTimed() const;
+        EQBASE_API double getTimed() const;
 
         /** 
          * Returns the millisecond part of the time elapsed since the last
@@ -89,7 +89,7 @@ namespace base
          * @return the millisecond part of the time elapsed. 
          * @version 1.0
          */
-        float getMilliSecondsf() const;
+        EQBASE_API float getMilliSecondsf() const;
 
     private:
 #ifdef Darwin

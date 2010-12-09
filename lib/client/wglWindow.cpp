@@ -752,7 +752,7 @@ int WGLWindow::_chooseWGLPixelFormatARB( HDC pfDC )
     }
     else
     {
-        attributes.push_back( WGL_DRAW_TOWINDOW_ARB );
+        attributes.push_back( WGL_DRAW_TO_WINDOW_ARB );
         attributes.push_back( 1 );
     }
 
