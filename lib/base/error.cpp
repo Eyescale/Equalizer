@@ -31,9 +31,9 @@ std::ostream& operator << ( std::ostream& os, const Error& error )
     const base::ErrorRegistry& registry = base::Global::getErrorRegistry();
     const std::string& text = registry.getString( error );
     if( text.empty( ))
-        os << "error " << uint32_t( error );
+        os << "error 0x" << std::hex << uint32_t( error ) << std::dec;
     else
-        os << text << " (" << uint32_t( error ) << ")";
+        os << text << " (0x" << std::hex << uint32_t(error) << std::dec << ")";
 
     return os;
 }
