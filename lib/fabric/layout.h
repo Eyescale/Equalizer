@@ -67,10 +67,10 @@ namespace fabric
          * @return the result of the visitor traversal.
          * @version 1.0
          */
-        EQFABRIC_API VisitorResult accept( Visitor& visitor );
+        EQFABRIC_INL VisitorResult accept( Visitor& visitor );
 
         /** Const-version of accept(). @version 1.0 */
-        EQFABRIC_API VisitorResult accept( Visitor& visitor )
+        EQFABRIC_INL VisitorResult accept( Visitor& visitor )
             const;
 
         void create( V** view ); //!< @internal
@@ -79,27 +79,27 @@ namespace fabric
         
     protected:
         /** @internal Construct a new layout. */
-        EQFABRIC_API Layout( C* config );
+        EQFABRIC_INL Layout( C* config );
 
         /** @internal Destruct this layout. */
-        EQFABRIC_API virtual ~Layout();
+        EQFABRIC_INL virtual ~Layout();
 
         /** @internal */
-        EQFABRIC_API virtual void attachToSession( const base::UUID& id,
+        EQFABRIC_INL virtual void attachToSession( const base::UUID& id,
                                       const uint32_t instanceID,
                                       net::Session* session ); //!< @internal
 
         /** @internal */
-        EQFABRIC_API virtual void serialize( net::DataOStream& os, 
+        EQFABRIC_INL virtual void serialize( net::DataOStream& os, 
                                                 const uint64_t dirtyBits );
         /** @internal */
-        EQFABRIC_API virtual void deserialize( net::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
 
-        EQFABRIC_API virtual void notifyDetach(); //!< @internal
+        EQFABRIC_INL virtual void notifyDetach(); //!< @internal
 
         /** @internal */
-        EQFABRIC_API virtual void setDirty( const uint64_t bits );
+        EQFABRIC_INL virtual void setDirty( const uint64_t bits );
 
         /** @internal */
         enum DirtyBits
@@ -127,7 +127,7 @@ namespace fabric
         void _addChild( V* view );
         bool _removeChild( V* view );
 
-        EQFABRIC_API virtual uint32_t commitNB(); //!< @internal
+        EQFABRIC_INL virtual uint32_t commitNB(); //!< @internal
 
         template< class O > void _removeObserver( const O* observer );
         template< class, class, class, class, class, class,

@@ -127,5 +127,5 @@ bool View::handleEvent( const Event& event )
 template class eq::fabric::View< eq::Layout, eq::View, eq::Observer >;
 /** @cond IGNORE */
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
-                const eq::fabric::View< eq::Layout, eq::View, eq::Observer >& );
+                                                             const eq::Super& );
 /** @endcond */

@@ -20,13 +20,20 @@
 
 #include <eq/base/base.h>
 
-
 #if defined(EQ_FABRIC_STATIC)
 #  define EQFABRIC_API
-#elif defined(EQ_EXPORTS) || defined(EQSERVER_EXPORTS) || defined(EQUALIZERADMIN_SHARED)
+#  define EQFABRIC_INL
+#elif defined(EQ_FABRIC_SHARED)
 #  define EQFABRIC_API EQ_DLLEXPORT
 #else
 #  define EQFABRIC_API EQ_DLLIMPORT
+#endif
+
+#if defined(EQ_EXPORTS) || defined(EQSERVER_EXPORTS) || \
+     defined(EQ_FABRIC_SHARED) || defined(EQUALIZERADMIN_SHARED)
+#  define EQFABRIC_INL EQ_DLLEXPORT
+#elif !defined(EQFABRIC_INL)
+#  define EQFABRIC_INL EQ_DLLIMPORT
 #endif
 
 #endif //EQFABRIC_BASE_H

@@ -18,6 +18,7 @@
 #ifndef EQFABRIC_OBSERVER_H
 #define EQFABRIC_OBSERVER_H
 
+#include <eq/fabric/base.h>
 #include <eq/fabric/object.h>         // base class
 #include <eq/fabric/types.h>
 #include <eq/fabric/visitorResult.h> // enum
@@ -48,7 +49,7 @@ namespace fabric
         ObserverPath getPath() const;
 
         /** Set the eye separation of this observer. @version 1.0 */
-        EQFABRIC_API void setEyeBase( const float eyeBase );
+        EQFABRIC_INL void setEyeBase( const float eyeBase );
 
         /** @return the current eye separation. @version 1.0 */
         float getEyeBase() const { return _data.eyeBase; }
@@ -65,7 +66,7 @@ namespace fabric
          * @param matrix the matrix
          * @version 1.0
          */
-        EQFABRIC_API void setHeadMatrix( const Matrix4f& matrix );
+        EQFABRIC_INL void setHeadMatrix( const Matrix4f& matrix );
 
         /** @return the current head matrix. @version 1.0 */
         const Matrix4f& getHeadMatrix() const { return _data.headMatrix; }
@@ -80,10 +81,10 @@ namespace fabric
          * @return the result of the visitor traversal.
          * @version 1.0
          */
-        EQFABRIC_API VisitorResult accept( Visitor& visitor );
+        EQFABRIC_INL VisitorResult accept( Visitor& visitor );
 
         /** Const-version of accept(). @version 1.0 */
-        EQFABRIC_API VisitorResult accept( Visitor& visitor ) const;
+        EQFABRIC_INL VisitorResult accept( Visitor& visitor ) const;
 
         virtual void backup(); //!< @internal
         virtual void restore(); //!< @internal
@@ -91,10 +92,10 @@ namespace fabric
         
     protected:
         /** @internal Construct a new Observer. */
-        EQFABRIC_API Observer( C* config );
+        EQFABRIC_INL Observer( C* config );
 
         /** @internal Destruct this observer. */
-        EQFABRIC_API virtual ~Observer();
+        EQFABRIC_INL virtual ~Observer();
 
         /** @internal */
         virtual void serialize( net::DataOStream& os,
@@ -138,8 +139,8 @@ namespace fabric
     };
 
     template< class C, class O >
-    EQFABRIC_API std::ostream& operator << ( std::ostream&,
-                                                const Observer< C, O >& );
+    EQFABRIC_INL std::ostream& operator << ( std::ostream&,
+                                             const Observer< C, O >& );
 }
 }
 #endif // EQFABRIC_OBSERVER_H

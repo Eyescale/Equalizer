@@ -19,6 +19,7 @@
 #ifndef EQFABRIC_VIEW_H
 #define EQFABRIC_VIEW_H
 
+#include <eq/fabric/base.h>
 #include <eq/fabric/frustum.h>        // base class
 #include <eq/fabric/object.h>         // base class
 #include <eq/fabric/types.h>
@@ -49,7 +50,7 @@ namespace fabric
         /** @name Data Access. */
         //@{
         /** @return the viewport of the view wrt its layout. @version 1.0 */
-        EQFABRIC_API const Viewport& getViewport() const;
+        EQFABRIC_INL const Viewport& getViewport() const;
 
         /** @return the parent layout of this view. @version 1.0 */
         L* getLayout() { return _layout; }
@@ -67,25 +68,25 @@ namespace fabric
         const O* getObserver() const { return _observer; }
 
         /** @sa Frustum::setWall() */
-        EQFABRIC_API virtual void setWall( const Wall& wall );
+        EQFABRIC_INL virtual void setWall( const Wall& wall );
         
         /** @sa Frustum::setProjection() */
-        EQFABRIC_API virtual void setProjection( const Projection& );
+        EQFABRIC_INL virtual void setProjection( const Projection& );
 
         /** @sa Frustum::unsetFrustum() */
-        EQFABRIC_API virtual void unsetFrustum();
+        EQFABRIC_INL virtual void unsetFrustum();
 
         /** @warning  Undocumented - may not be supported in the future */
-        EQFABRIC_API void setOverdraw( const Vector2i& pixels );
+        EQFABRIC_INL void setOverdraw( const Vector2i& pixels );
 
         /** @warning  Undocumented - may not be supported in the future */
         const Vector2i& getOverdraw() const { return _overdraw; }
 
         /** @internal Set the 2D viewport wrt Layout and Canvas. */
-        EQFABRIC_API void setViewport( const Viewport& viewport );
+        EQFABRIC_INL void setViewport( const Viewport& viewport );
 
         /** @internal Set the entity tracking this view. */
-        EQFABRIC_API void setObserver( O* observer );
+        EQFABRIC_INL void setObserver( O* observer );
         
         /** @internal Get the mode of this view. */
         Mode getMode( ) const { return _mode; }
@@ -95,7 +96,7 @@ namespace fabric
          *
          * @param mode the new rendering mode 
          */
-        EQFABRIC_API virtual void changeMode( const Mode mode );
+        EQFABRIC_INL virtual void changeMode( const Mode mode );
         
         /**
          * @internal
@@ -115,13 +116,13 @@ namespace fabric
          * @return the result of the visitor traversal.
          * @version 1.0
          */
-        EQFABRIC_API VisitorResult accept( LeafVisitor< V >& visitor );
+        EQFABRIC_INL VisitorResult accept( LeafVisitor< V >& visitor );
 
         /** Const-version of accept(). @version 1.0 */
-        EQFABRIC_API VisitorResult accept( LeafVisitor< V >& visitor ) const;
+        EQFABRIC_INL VisitorResult accept( LeafVisitor< V >& visitor ) const;
 
-        virtual EQFABRIC_API void backup(); //!< @internal
-        virtual EQFABRIC_API void restore(); //!< @internal
+        virtual EQFABRIC_INL void backup(); //!< @internal
+        virtual EQFABRIC_INL void restore(); //!< @internal
         //@}
 
         /**
@@ -133,10 +134,10 @@ namespace fabric
          * @param bitmask the capabilities as bitmask
          * @version 1.0
          */
-        EQFABRIC_API void setMinimumCapabilities( const uint64_t bitmask );
+        EQFABRIC_INL void setMinimumCapabilities( const uint64_t bitmask );
 
         /** @return the bitmask of the minimum capabilities. @version 1.0 */
-        EQFABRIC_API uint64_t getMinimumCapabilities() const;
+        EQFABRIC_INL uint64_t getMinimumCapabilities() const;
         //@}
 
         /**
@@ -156,13 +157,13 @@ namespace fabric
          * @param bitmask the capabilities as bitmask
          * @version 1.0 
          */
-        EQFABRIC_API void setMaximumCapabilities(const uint64_t bitmask);
+        EQFABRIC_INL void setMaximumCapabilities(const uint64_t bitmask);
 
         /**
          * @return the bitmask that represents the maximum capabilities.
          * @version 1.0
          */
-        EQFABRIC_API uint64_t getMaximumCapabilities() const;
+        EQFABRIC_INL uint64_t getMaximumCapabilities() const;
         //@}
 
         /**
@@ -170,7 +171,7 @@ namespace fabric
          * @sa setMaximumCapabilities()
          * @version 1.0
          */
-        EQFABRIC_API uint64_t getCapabilities() const;
+        EQFABRIC_INL uint64_t getCapabilities() const;
         //@}
 
         void setCapabilities( const uint64_t bitmask ); //!< @internal
@@ -178,10 +179,10 @@ namespace fabric
 
     protected:
         /** @internal Construct a new view. */
-        EQFABRIC_API View( L* layout );
+        EQFABRIC_INL View( L* layout );
 
         /** @internal Destruct this view. */
-        EQFABRIC_API virtual ~View();
+        EQFABRIC_INL virtual ~View();
 
         /**
          * By default, the application view instance holds the user data master.
@@ -190,18 +191,18 @@ namespace fabric
         virtual bool hasMasterUserData() { return getLayout() != 0; }
 
         /** Set number of kept versions to config latency by default. */
-        EQFABRIC_API virtual void notifyAttached();
+        EQFABRIC_INL virtual void notifyAttached();
 
         /** @sa Frustum::serialize() */
-        EQFABRIC_API virtual void serialize( net::DataOStream& os,
+        EQFABRIC_INL virtual void serialize( net::DataOStream& os,
                                                 const uint64_t dirtyBits );
 
         /** @sa Frustum::deserialize() */
-        EQFABRIC_API virtual void deserialize( net::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
 
         /** @internal @sa Serializable::setDirty() */
-        EQFABRIC_API virtual void setDirty( const uint64_t bits );
+        EQFABRIC_INL virtual void setDirty( const uint64_t bits );
 
         enum DirtyBits
         {
@@ -249,7 +250,8 @@ namespace fabric
     };
 
     template< class L, class V, class O >
-    std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view );
+    EQFABRIC_INL std::ostream& operator << ( std::ostream& os,
+                                             const View< L, V, O >& view );
 }
 }
 #endif // EQFABRIC_VIEW_H

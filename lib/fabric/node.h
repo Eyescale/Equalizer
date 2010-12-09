@@ -51,10 +51,10 @@ namespace fabric
          *         application process, false otherwise.
          */
         bool isApplicationNode() const { return _isAppNode; }
-        EQFABRIC_API void setApplicationNode( const bool isAppNode ); //!< @internal
+        EQFABRIC_INL void setApplicationNode( const bool isAppNode ); //!< @internal
 
         /** @internal @return the index path to this node. */
-        EQFABRIC_API NodePath getPath() const;
+        EQFABRIC_INL NodePath getPath() const;
         P* findPipe( const base::UUID& id ); //!< @internal
 
         /** 
@@ -64,10 +64,10 @@ namespace fabric
          * @return the result of the visitor traversal.
          * @version 1.0
          */
-        EQFABRIC_API VisitorResult accept( V& visitor );
+        EQFABRIC_INL VisitorResult accept( V& visitor );
 
         /** Const-version of accept(). @version 1.0 */
-        EQFABRIC_API VisitorResult accept( V& visitor ) const;
+        EQFABRIC_INL VisitorResult accept( V& visitor ) const;
         //@}
 
         /** @name Attributes */
@@ -84,18 +84,18 @@ namespace fabric
         };
 
         /** @internal Set a node integer attribute. */
-        EQFABRIC_API void setIAttribute( const IAttribute attr,
+        EQFABRIC_INL void setIAttribute( const IAttribute attr,
                                             const int32_t value );
 
         /** @return the value of a node integer attribute. @version 1.0 */
-        EQFABRIC_API int32_t getIAttribute( const IAttribute attr ) const;
+        EQFABRIC_INL int32_t getIAttribute( const IAttribute attr ) const;
 
         /** @internal @return the name of a node integer attribute. */
         static const std::string& getIAttributeString( const IAttribute attr );
         //@}
 
-        EQFABRIC_API virtual void backup(); //!< @internal
-        EQFABRIC_API virtual void restore(); //!< @internal
+        EQFABRIC_INL virtual void backup(); //!< @internal
+        EQFABRIC_INL virtual void restore(); //!< @internal
         void create( P** pipe ); //!< @internal
         void release( P* pipe ); //!< @internal
         virtual void output( std::ostream& ) const {} //!< @internal
@@ -104,19 +104,19 @@ namespace fabric
         /** @internal Construct a new node. */
         Node( C* parent );
         /** @internal Destruct the node. */
-        EQFABRIC_API virtual ~Node();
+        EQFABRIC_INL virtual ~Node();
 
         /** @internal */
-        EQFABRIC_API virtual void serialize( net::DataOStream& os,
+        EQFABRIC_INL virtual void serialize( net::DataOStream& os,
                                                 const uint64_t dirtyBits );
         /** @internal */
-        EQFABRIC_API virtual void deserialize( net::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
         
-        EQFABRIC_API virtual void notifyDetach(); //!< @internal
+        EQFABRIC_INL virtual void notifyDetach(); //!< @internal
 
         /** @sa Serializable::setDirty() @internal */
-        EQFABRIC_API virtual void setDirty( const uint64_t bits );
+        EQFABRIC_INL virtual void setDirty( const uint64_t bits );
 
         /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
@@ -161,11 +161,11 @@ namespace fabric
         void _addPipe( P* pipe );
         bool _removePipe( P* pipe );
 
-        EQFABRIC_API virtual uint32_t commitNB(); //!< @internal
+        EQFABRIC_INL virtual uint32_t commitNB(); //!< @internal
         bool _mapNodeObjects() { return _config->mapNodeObjects(); }
     };
 
-    template< class C, class N, class P, class V > EQFABRIC_API
+    template< class C, class N, class P, class V > EQFABRIC_INL
     std::ostream& operator << ( std::ostream&, const Node< C, N, P, V >& );
 }
 }

@@ -56,7 +56,7 @@ namespace fabric
           */
         uint32_t getPort() const { return _port; }
         
-        EQFABRIC_API void setPort( const uint32_t port ); //!< @internal
+        EQFABRIC_INL void setPort( const uint32_t port ); //!< @internal
 
         /** 
          * Returns the device number of this pipe.
@@ -71,7 +71,7 @@ namespace fabric
          */
         uint32_t getDevice() const { return _device; }
 
-        EQFABRIC_API void setDevice( const uint32_t device ); //!< @internal
+        EQFABRIC_INL void setDevice( const uint32_t device ); //!< @internal
 
         /** @return the pixel viewport. @version 1.0 */
         const PixelViewport& getPixelViewport() const { return _data.pvp; }
@@ -85,13 +85,13 @@ namespace fabric
          * @param pvp the viewport in pixels.
          * @version 1.0
          */
-        EQFABRIC_API void setPixelViewport( const PixelViewport& pvp );
+        EQFABRIC_INL void setPixelViewport( const PixelViewport& pvp );
 
         /** @internal Notify this pipe that the viewport has changed. */
         void notifyPixelViewportChanged();
 
         /** @internal @return the index path to this pipe. */
-        EQFABRIC_API PipePath getPath() const;
+        EQFABRIC_INL PipePath getPath() const;
 
         /** 
          * Traverse this pipe and all children using a pipe visitor.
@@ -100,10 +100,10 @@ namespace fabric
          * @return the result of the visitor traversal.
          * @version 1.0
          */
-        EQFABRIC_API VisitorResult accept( V& visitor );
+        EQFABRIC_INL VisitorResult accept( V& visitor );
 
         /** Const-version of accept(). @version 1.0 */
-        EQFABRIC_API VisitorResult accept( V& visitor ) const;
+        EQFABRIC_INL VisitorResult accept( V& visitor ) const;
         //@}
 
         /** @name Attributes */
@@ -119,7 +119,7 @@ namespace fabric
         };
 
         /** @internal Set a pipe attribute. */
-        EQFABRIC_API void setIAttribute( const IAttribute attr,
+        EQFABRIC_INL void setIAttribute( const IAttribute attr,
                                             const int32_t value );
 
         /** @return the value of a pipe integer attribute. @version 1.0 */
@@ -131,12 +131,12 @@ namespace fabric
             { return (getIAttribute( IATTR_HINT_THREAD ) == 1 ); }
         
         /** @internal @return the name of a pipe attribute. */
-        EQFABRIC_API static const std::string& getIAttributeString(
+        EQFABRIC_INL static const std::string& getIAttributeString(
                                                       const IAttribute attr );
         //@}
 
-        EQFABRIC_API virtual void backup(); //!< @internal
-        EQFABRIC_API virtual void restore(); //!< @internal
+        EQFABRIC_INL virtual void backup(); //!< @internal
+        EQFABRIC_INL virtual void restore(); //!< @internal
         void create( W** window ); //!< @internal
         void release( W* window ); //!< @internal
         virtual void output( std::ostream& ) const {} //!< @internal
@@ -146,22 +146,22 @@ namespace fabric
 
         /** @internal Construct a new pipe. */
         Pipe( N* parent );
-        EQFABRIC_API virtual ~Pipe( ); //!< @internal
+        EQFABRIC_INL virtual ~Pipe( ); //!< @internal
 
         virtual void attachToSession( const base::UUID& id,
                                       const uint32_t instanceID,
                                       net::Session* session ); //!< @internal
         /** @internal */
-        EQFABRIC_API virtual void serialize( net::DataOStream& os,
+        EQFABRIC_INL virtual void serialize( net::DataOStream& os,
                                                 const uint64_t dirtyBits );
         /** @internal */
-        EQFABRIC_API virtual void deserialize( net::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
 
-        EQFABRIC_API virtual void notifyDetach(); //!< @internal
+        EQFABRIC_INL virtual void notifyDetach(); //!< @internal
 
         /** @internal @sa Serializable::setDirty() */
-        EQFABRIC_API virtual void setDirty( const uint64_t bits );
+        EQFABRIC_INL virtual void setDirty( const uint64_t bits );
 
         /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
@@ -210,10 +210,10 @@ namespace fabric
         Private* _private; // placeholder for binary-compatible changes
 
         void _addWindow( W* window );
-        EQFABRIC_API bool _removeWindow( W* window );
+        EQFABRIC_INL bool _removeWindow( W* window );
         template< class, class, class > friend class Window;
 
-        EQFABRIC_API virtual uint32_t commitNB(); //!< @internal
+        EQFABRIC_INL virtual uint32_t commitNB(); //!< @internal
         bool _mapNodeObjects() { return _node->_mapNodeObjects(); }
 
         typedef net::CommandFunc< Pipe< N, P, W, V > > CmdFunc;
@@ -221,7 +221,7 @@ namespace fabric
         bool _cmdNewWindowReply( net::Command& command );
     };
 
-    template< class N, class P, class W, class V > EQFABRIC_API
+    template< class N, class P, class W, class V > EQFABRIC_INL
     std::ostream& operator << ( std::ostream&, const Pipe< N, P, W, V >& );
 }
 }

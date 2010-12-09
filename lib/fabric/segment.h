@@ -57,7 +57,7 @@ namespace fabric
          * 
          * @param vp the fractional viewport.
          */
-        EQFABRIC_API void setViewport( const Viewport& vp );
+        EQFABRIC_INL void setViewport( const Viewport& vp );
 
         /** 
          * @internal
@@ -78,13 +78,13 @@ namespace fabric
         const CH* getChannel() const   { return _channel; }
 
         /** @internal @sa Frustum::setWall() */
-        EQFABRIC_API virtual void setWall( const Wall& wall );
+        EQFABRIC_INL virtual void setWall( const Wall& wall );
         
         /** @internal @sa Frustum::setProjection() */
-        EQFABRIC_API virtual void setProjection( const Projection& );
+        EQFABRIC_INL virtual void setProjection( const Projection& );
 
         /** @internal @sa Frustum::unsetFrustum() */
-        EQFABRIC_API virtual void unsetFrustum();
+        EQFABRIC_INL virtual void unsetFrustum();
 
         /** @return the bitwise OR of the eye values. @version 1.0 */
         uint32_t getEyes() const { return _eyes; }
@@ -97,7 +97,7 @@ namespace fabric
          *
          * @param eyes the segment eyes.
          */
-        EQFABRIC_API void setEyes( const uint32_t eyes );
+        EQFABRIC_INL void setEyes( const uint32_t eyes );
 
         /** 
          * @internal
@@ -119,10 +119,10 @@ namespace fabric
          * @return the result of the visitor traversal.
          * @version 1.0
          */
-        EQFABRIC_API VisitorResult accept( Visitor& visitor );
+        EQFABRIC_INL VisitorResult accept( Visitor& visitor );
 
         /** Const-version of accept(). @version 1.0 */
-        EQFABRIC_API VisitorResult accept( Visitor& visitor ) const;
+        EQFABRIC_INL VisitorResult accept( Visitor& visitor ) const;
 
         /**
          * @internal Notify that a condition affecting the frustum has changed.
@@ -135,16 +135,16 @@ namespace fabric
 
     protected:
         /** @internal Construct a new Segment. */
-        EQFABRIC_API Segment( C* canvas );
+        EQFABRIC_INL Segment( C* canvas );
 
         /** @internal Destruct this segment. */
-        EQFABRIC_API virtual ~Segment();
+        EQFABRIC_INL virtual ~Segment();
 
         /** @internal */
-        EQFABRIC_API virtual void serialize( net::DataOStream& os, 
+        EQFABRIC_INL virtual void serialize( net::DataOStream& os, 
                                                 const uint64_t dirtyBits );
         /** @internal */
-        EQFABRIC_API virtual void deserialize( net::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
         virtual void setDirty( const uint64_t bits ); //!< @internal
 

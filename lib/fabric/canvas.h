@@ -52,7 +52,7 @@ namespace fabric
         uint32_t getActiveLayoutIndex() const { return _data.activeLayout; }
 
         /** @return the active layout. @version 1.0 */
-        EQFABRIC_API const L* getActiveLayout() const;
+        EQFABRIC_INL const L* getActiveLayout() const;
 
         /** @return the vector of child segments. @version 1.0 */
         const Segments& getSegments() const { return _segments; }        
@@ -64,25 +64,25 @@ namespace fabric
         const Layouts& getLayouts() const { return _layouts; }        
 
         /** @internal Add a new allowed layout to this canvas, can be 0. */
-        EQFABRIC_API void addLayout( L* layout );
+        EQFABRIC_INL void addLayout( L* layout );
 
         /** @internal Remove a layout from this canvas, can be the 0 layout. */
-        EQFABRIC_API bool removeLayout( L* layout );
+        EQFABRIC_INL bool removeLayout( L* layout );
 
         /** @sa Frustum::setWall() */
-        EQFABRIC_API virtual void setWall( const Wall& wall );
+        EQFABRIC_INL virtual void setWall( const Wall& wall );
         
         /** @sa Frustum::setProjection() */
-        EQFABRIC_API virtual void setProjection( const Projection& );
+        EQFABRIC_INL virtual void setProjection( const Projection& );
 
         /** @sa Frustum::unsetFrustum() */
-        EQFABRIC_API virtual void unsetFrustum();
+        EQFABRIC_INL virtual void unsetFrustum();
         //@}
 
         /** @name Operations */
         //@{
         /** Activate the given layout on this canvas. @version 1.0 */
-        EQFABRIC_API virtual void useLayout( const uint32_t index );
+        EQFABRIC_INL virtual void useLayout( const uint32_t index );
 
         /** 
          * Traverse this canvas and all children using a canvas visitor.
@@ -91,13 +91,13 @@ namespace fabric
          * @return the result of the visitor traversal.
          * @version 1.0
          */
-        EQFABRIC_API VisitorResult accept( Visitor& visitor );
+        EQFABRIC_INL VisitorResult accept( Visitor& visitor );
 
         /** Const-version of accept(). @version 1.0 */
-        EQFABRIC_API VisitorResult accept( Visitor& visitor ) const;
+        EQFABRIC_INL VisitorResult accept( Visitor& visitor ) const;
 
-        EQFABRIC_API virtual void backup(); //!< @internal
-        EQFABRIC_API virtual void restore(); //!< @internal
+        EQFABRIC_INL virtual void backup(); //!< @internal
+        EQFABRIC_INL virtual void restore(); //!< @internal
 
         void create( S** segment ); //!< @internal
         void release( S* segment ); //!< @internal
@@ -105,26 +105,26 @@ namespace fabric
 
     protected:
         /** Construct a new Canvas. @internal */
-        EQFABRIC_API Canvas( CFG* config );
+        EQFABRIC_INL Canvas( CFG* config );
 
         /** Destruct this canvas. @internal */
-        EQFABRIC_API virtual ~Canvas();
+        EQFABRIC_INL virtual ~Canvas();
 
-        EQFABRIC_API virtual void attachToSession( const base::UUID& id,
+        EQFABRIC_INL virtual void attachToSession( const base::UUID& id,
                                       const uint32_t instanceID,
                                       net::Session* session ); //!< @internal
 
         /** @sa Frustum::serialize. @internal */
-        EQFABRIC_API void serialize( net::DataOStream& os, 
+        EQFABRIC_INL void serialize( net::DataOStream& os, 
                                         const uint64_t dirtyBits );
         /** @sa Frustum::deserialize. @internal */
-        EQFABRIC_API virtual void deserialize( net::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
 
-        EQFABRIC_API virtual void notifyDetach(); //!< @internal
+        EQFABRIC_INL virtual void notifyDetach(); //!< @internal
 
         /** @sa Serializable::setDirty() @internal */
-        EQFABRIC_API virtual void setDirty( const uint64_t bits );
+        EQFABRIC_INL virtual void setDirty( const uint64_t bits );
 
         /** @internal */
         virtual void activateLayout( const uint32_t index )
@@ -174,7 +174,7 @@ namespace fabric
         void _addChild( S* segment ); //!< @internal
         bool _removeChild( S* segment ); //!< @internal
 
-        EQFABRIC_API virtual uint32_t commitNB(); //!< @internal
+        EQFABRIC_INL virtual uint32_t commitNB(); //!< @internal
         bool _mapViewObjects();
 
         typedef net::CommandFunc< Canvas< CFG, C, S, L > > CmdFunc;

@@ -82,7 +82,7 @@ namespace fabric
          * @param pvp the viewport in pixels.
          * @version 1.0
          */
-        EQFABRIC_API virtual void setPixelViewport(const PixelViewport& pvp);
+        EQFABRIC_INL virtual void setPixelViewport(const PixelViewport& pvp);
 
         /** 
          * Set the window's viewport wrt its parent pipe.
@@ -93,7 +93,7 @@ namespace fabric
          * @param vp the fractional viewport.
          * @version 1.0
          */
-        EQFABRIC_API void setViewport( const eq::fabric::Viewport& vp );
+        EQFABRIC_INL void setViewport( const eq::fabric::Viewport& vp );
 
         /** @return true if a viewport was specified last. @version 1.0 */
         bool hasFixedViewport( ) const { return _data.fixedVP; }
@@ -108,10 +108,10 @@ namespace fabric
          * @return the result of the visitor traversal.
          * @version 1.0
          */
-        EQFABRIC_API VisitorResult accept( Visitor& visitor );
+        EQFABRIC_INL VisitorResult accept( Visitor& visitor );
 
         /** Const-version of accept(). @version 1.0 */
-        EQFABRIC_API VisitorResult accept( Visitor& visitor ) const;
+        EQFABRIC_INL VisitorResult accept( Visitor& visitor ) const;
 
         //@}
 
@@ -159,15 +159,15 @@ namespace fabric
             { return _data.iAttributes[attr]; }
 
         /** @internal @return the name of a window attribute. */
-        EQFABRIC_API static const std::string& getIAttributeString(
+        EQFABRIC_INL static const std::string& getIAttributeString(
                                                       const IAttribute attr );
         //@}
 
         /** @internal @return the index path to this window. */
-        EQFABRIC_API WindowPath getPath() const;
+        EQFABRIC_INL WindowPath getPath() const;
 
-        EQFABRIC_API virtual void backup(); //!< @internal
-        EQFABRIC_API virtual void restore(); //!< @internal
+        EQFABRIC_INL virtual void backup(); //!< @internal
+        EQFABRIC_INL virtual void restore(); //!< @internal
         void create( C** channel ); //!< @internal
         void release( C* channel ); //!< @internal
         virtual void output( std::ostream& ) const {} //!< @internal
@@ -177,23 +177,23 @@ namespace fabric
         /** @internal Construct a new window. */
         Window( P* parent );
 
-        EQFABRIC_API virtual ~Window(); //!< @internal
+        EQFABRIC_INL virtual ~Window(); //!< @internal
 
         virtual void attachToSession( const base::UUID& id,
                                       const uint32_t instanceID,
                                       net::Session* session ); //!< @internal
 
         /** @internal */
-        EQFABRIC_API virtual void serialize( net::DataOStream& os,
+        EQFABRIC_INL virtual void serialize( net::DataOStream& os,
                                                 const uint64_t dirtyBits );
         /** @internal */
-        EQFABRIC_API virtual void deserialize( net::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
         
-        EQFABRIC_API virtual void notifyDetach(); //!< @internal
+        EQFABRIC_INL virtual void notifyDetach(); //!< @internal
 
         /** @sa Serializable::setDirty() @internal */
-        EQFABRIC_API virtual void setDirty( const uint64_t bits );
+        EQFABRIC_INL virtual void setDirty( const uint64_t bits );
 
         /** @internal */
         void _setDrawableConfig( const DrawableConfig& drawableConfig );
@@ -258,9 +258,9 @@ namespace fabric
         void _addChannel( C* channel );
 
         /** Remove a channel from this window. */
-        EQFABRIC_API bool _removeChannel( C* channel );
+        EQFABRIC_INL bool _removeChannel( C* channel );
 
-        EQFABRIC_API virtual uint32_t commitNB(); //!< @internal
+        EQFABRIC_INL virtual uint32_t commitNB(); //!< @internal
         bool _mapNodeObjects() { return _pipe->_mapNodeObjects(); }
 
         typedef net::CommandFunc< Window< P, W, C > > CmdFunc;
@@ -268,7 +268,7 @@ namespace fabric
         bool _cmdNewChannelReply( net::Command& command );
     };
 
-    template< class P, class W, class C > EQFABRIC_API
+    template< class P, class W, class C > EQFABRIC_INL
     std::ostream& operator << ( std::ostream& os,
                                 const Window< P, W, C >& window );
 }

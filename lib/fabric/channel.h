@@ -69,7 +69,7 @@ namespace fabric
         void setPixelViewport( const PixelViewport& pvp );
 
         /** @internal Set the channel's viewport wrt its parent window. */
-        EQFABRIC_API void setViewport( const Viewport& vp );
+        EQFABRIC_INL void setViewport( const Viewport& vp );
 
         /** @internal Notification that the vp/pvp has changed. */
         virtual void notifyViewportChanged();
@@ -92,7 +92,7 @@ namespace fabric
          * @param farPlane the far plane.
          * @version 1.0
          */
-        EQFABRIC_API void setNearFar( const float nearPlane, 
+        EQFABRIC_INL void setNearFar( const float nearPlane, 
                                          const float farPlane);
 
         /**
@@ -108,10 +108,10 @@ namespace fabric
          * @return the result of the visitor traversal.
          * @version 1.0
          */
-        EQFABRIC_API VisitorResult accept( Visitor& visitor );
+        EQFABRIC_INL VisitorResult accept( Visitor& visitor );
 
         /** Const-version of accept(). @version 1.0 */
-        EQFABRIC_API VisitorResult accept( Visitor& visitor ) const;
+        EQFABRIC_INL VisitorResult accept( Visitor& visitor ) const;
 
         /**
          * Set the capabilities supported by the channel
@@ -121,22 +121,22 @@ namespace fabric
          * application-defined bit mask. By default all bits are set.
          * @version 1.0
          */
-        EQFABRIC_API void setCapabilities( const uint64_t bitmask );
+        EQFABRIC_INL void setCapabilities( const uint64_t bitmask );
 
         /** @return the supported capabilities. @version 1.0 */
-        EQFABRIC_API uint64_t getCapabilities() const;
+        EQFABRIC_INL uint64_t getCapabilities() const;
 
         /** @warning Undocumented - may not be supported in the future */
-        EQFABRIC_API void setMaxSize( const Vector2i& size );
+        EQFABRIC_INL void setMaxSize( const Vector2i& size );
 
         void setOverdraw( const Vector4i& overdraw ); //!< @internal
         const Vector2i& getMaxSize()  const { return _maxSize; } //!< @internal
 
         /** @return the index path to this channel. @internal */
-        EQFABRIC_API ChannelPath getPath() const;
+        EQFABRIC_INL ChannelPath getPath() const;
 
-        EQFABRIC_API virtual void backup(); //!< @internal
-        EQFABRIC_API virtual void restore(); //!< @internal
+        EQFABRIC_INL virtual void backup(); //!< @internal
+        EQFABRIC_INL virtual void restore(); //!< @internal
         //@}
 
         /**
@@ -268,9 +268,9 @@ namespace fabric
         };
         
         /** @return the value of an integer attribute. @version 1.0 */
-        EQFABRIC_API int32_t getIAttribute( const IAttribute attr ) const;
+        EQFABRIC_INL int32_t getIAttribute( const IAttribute attr ) const;
         /** @return the name of an integer attribute. @version 1.0 */
-        EQFABRIC_API static const std::string& getIAttributeString(
+        EQFABRIC_INL static const std::string& getIAttributeString(
                                                         const IAttribute attr );
         //@}
 
@@ -279,23 +279,23 @@ namespace fabric
         
     protected:
         /** Construct a new channel. @internal */
-        EQFABRIC_API Channel( W* parent );
+        EQFABRIC_INL Channel( W* parent );
 
         /** Construct a copy of a channel (view/segment dest). @internal */
         Channel( const Channel& from );
 
         /** Destruct the channel. @internal */
-        EQFABRIC_API virtual ~Channel();
+        EQFABRIC_INL virtual ~Channel();
 
         /** @internal */
-        EQFABRIC_API virtual void serialize( net::DataOStream& os,
+        EQFABRIC_INL virtual void serialize( net::DataOStream& os,
                                                 const uint64_t dirtyBits );
         /** @internal */
-        EQFABRIC_API virtual void deserialize( net::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
 
         /** @sa Serializable::setDirty() @internal */
-        EQFABRIC_API virtual void setDirty( const uint64_t bits );
+        EQFABRIC_INL virtual void setDirty( const uint64_t bits );
 
         void setDrawable( const uint32_t drawable ); //!< @internal
 
@@ -377,7 +377,7 @@ namespace fabric
         };
     };
 
-    template< class W, class C > EQFABRIC_API
+    template< class W, class C > EQFABRIC_INL
     std::ostream& operator << ( std::ostream&, const Channel< W, C >& );
 }
 }

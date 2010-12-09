@@ -18,12 +18,12 @@
 #include "viewport.h"
 #include "pixelViewport.h"
 
-const eq::fabric::Viewport eq::fabric::Viewport::FULL;
-
 namespace eq
 {
 namespace fabric
 {
+const Viewport Viewport::FULL;
+
 void Viewport::applyView( const Viewport& segmentVP, const Viewport& viewVP,
                           const PixelViewport& pvp, const Vector4i& overdraw )
 {
