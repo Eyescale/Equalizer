@@ -375,48 +375,52 @@ void LoadEqualizer::_update( Node* node )
     if( !node )
         return;
 
+    if( node->compound )
+        _updateLeaf( node );
+    else
+        _updateNode( node );
+}
+    
+void LoadEqualizer::_updateLeaf( Node* node )
+{
     const Compound* compound = node->compound;
-    if( compound )
-    {
-        const Channel* channel = compound->getChannel();
-        EQASSERT( channel );
-        const PixelViewport& pvp = channel->getPixelViewport();
-        node->resources = compound->isRunning() ? compound->getUsage() : 0.f;
-        EQASSERT( node->resources >= 0.f );
+    const Channel* channel = compound->getChannel();
+    EQASSERT( channel );
+    const PixelViewport& pvp = channel->getPixelViewport();
+    node->resources = compound->isRunning() ? compound->getUsage() : 0.f;
+    EQASSERT( node->resources >= 0.f );
 
-        node->maxSize.x() = pvp.w; 
-        node->maxSize.y() = pvp.h; 
-        node->boundaryf = _boundaryf;
-        node->boundary2i = _boundary2i;
-        if( node->compound->hasDestinationChannel() )
-        {
-            const float nResources = _getTotalResources();
-            if( _assembleOnlyLimit <= nResources - node->resources )
-            {
-                node->resources = 0.f;
-                return; // OPT
-            }
-
-            const float time = float( _getTotalTime( ));
-            float assembleTime = float( _getAssembleTime( ));
-
-            if( assembleTime == 0 || node->resources == 0.f )
-                return; 
-
-            float timePerResource = time / ( nResources - node->resources );
-            
-            assembleTime = EQ_MIN( assembleTime, 
-                                   timePerResource * node->resources );
-
-            timePerResource = (time + assembleTime) / nResources;
-            node->resources -= ( assembleTime / timePerResource );
-
-            EQASSERT( node->resources >= 0.f );
-        }
+    node->maxSize.x() = pvp.w; 
+    node->maxSize.y() = pvp.h; 
+    node->boundaryf = _boundaryf;
+    node->boundary2i = _boundary2i;
+    if( !compound->hasDestinationChannel( ))
         return;
-    }
-    // else
 
+    const float nResources = _getTotalResources();
+    if( _assembleOnlyLimit <= nResources - node->resources )
+    {
+        node->resources = 0.f;
+        return; // OPT
+    }
+
+    const float time = float( _getTotalTime( ));
+    const float assembleTime = float( _getAssembleTime( ));
+    if( assembleTime == 0 || node->resources == 0.f )
+        return; 
+
+    const float timePerResource = time / ( nResources - node->resources );
+    const float renderTime = timePerResource * node->resources ;
+
+    const float clampedAssembleTime = EQ_MIN( assembleTime, renderTime );
+    const float newTimePerResource = (time + clampedAssembleTime) / nResources;
+    node->resources -= ( clampedAssembleTime / newTimePerResource );
+    if( node->resources < 0.f ) // may happen due to fp rounding
+        node->resources = 0.f;
+}
+
+void LoadEqualizer::_updateNode( Node* node )
+{
     Node* left = node->left;
     Node* right = node->right;
     

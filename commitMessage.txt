@@ -1,8 +1,8 @@
-Do not inline clock impl to avoid link issues
+Fix load_equalizer assertion
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization

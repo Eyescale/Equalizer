@@ -176,6 +176,8 @@ namespace server
 
         /** Update all node fields influencing the split */
         void _update( Node* node );
+        void   _updateLeaf( Node* node );
+        void   _updateNode( Node* node );
 
         /** Adjust the split of each node based on the front-most _history. */
         void _computeSplit();
