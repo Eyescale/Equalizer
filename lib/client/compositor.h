@@ -19,6 +19,7 @@
 #define EQ_COMPOSITOR_H
 
 #include <eq/client/frame.h>          // nested type Frame::Buffer
+#include <eq/client/os.h>             // GLEWContext
 #include <eq/client/types.h>          // type definitions
 
 #include <eq/fabric/pixel.h>          // member
@@ -205,8 +206,10 @@ namespace util
         /**
          * Setup the OpenGL state.
          * @param pvp the current pixel viewport.
+         * @param gl the OpenGL function table
          */
-        static void setupAssemblyState( const PixelViewport& pvp );
+        static void setupAssemblyState( const PixelViewport& pvp,
+                                        const GLEWContext* gl );
         
         /**
          * Reset the OpenGL state.

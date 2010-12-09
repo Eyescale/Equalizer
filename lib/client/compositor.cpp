@@ -1168,11 +1168,12 @@ void Compositor::clearStencilBuffer( const ImageOp& op )
     glDisable( GL_STENCIL_TEST );
 }
 
-void Compositor::setupAssemblyState( const PixelViewport& pvp )
+void Compositor::setupAssemblyState( const PixelViewport& pvp,
+                                     const GLEWContext* gl )
 {
     EQ_GL_ERROR( "before setupAssemblyState" );
     glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_LINE_BIT |
-                  GL_PIXEL_MODE_BIT | GL_POLYGON_BIT );
+                  GL_PIXEL_MODE_BIT | GL_POLYGON_BIT | GL_TEXTURE_BIT );
 
     glDisable( GL_DEPTH_TEST );
     glDisable( GL_BLEND );
@@ -1190,6 +1191,7 @@ void Compositor::setupAssemblyState( const PixelViewport& pvp )
     glDisable( GL_CLIP_PLANE5 );
     
     glPolygonMode( GL_FRONT, GL_FILL );
+    gl->__glewActiveTexture( GL_TEXTURE0 );
 
     glMatrixMode( GL_TEXTURE );
     glPushMatrix();

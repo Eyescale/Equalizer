@@ -367,8 +367,6 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
             EQINFO << "Got EOF, closing connection" << std::endl;
             close();
         }
-
-        EQASSERT( _overlappedDone >= 0 );
         SetEvent( _overlapped.hEvent );
     }
     else if( GetLastError() != WSA_IO_PENDING )

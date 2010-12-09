@@ -24,6 +24,9 @@
 #include <eq/base/base.h>
 #include <eq/base/buffer.h>
 #include <vector>
+#ifdef _WIN32
+#  include <malloc.h>
+#endif
 
 /**
  * @file compressor/compressor.h

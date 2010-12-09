@@ -387,7 +387,7 @@ void Channel::setupAssemblyState()
 {
     // copy to be thread-safe when pvp changes
     const PixelViewport pvp( getPixelViewport( ));
-    Compositor::setupAssemblyState( pvp );
+    Compositor::setupAssemblyState( pvp, glewGetContext( ));
 }
 
 void Channel::resetAssemblyState()
