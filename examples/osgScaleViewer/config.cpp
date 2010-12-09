@@ -40,7 +40,7 @@
 namespace osgScaleViewer
 {
 static const float maxVerticalAngle = osg::PI;
-static const float minVerticalAngle = 0.2;
+static const float minVerticalAngle = 0.2f;
 static const float mouseViewSpeed = 0.005f;
 static const float defaultCameraHorizontalAngle( 0.0f );
 static const float defaultCameraVerticalAngle( osg::PI / 2.0f );

@@ -1,4 +1,4 @@
-Minor error output tweak
+Minor code cleanup
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
