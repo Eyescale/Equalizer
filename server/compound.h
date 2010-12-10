@@ -553,8 +553,12 @@ namespace server
         bool _removeChild( Compound* child );
 
         void _updateOverdraw( Wall& wall );
+        void _updateInheritRoot( const PixelViewport& oldPVP );
+        void _updateInheritNode( const PixelViewport& oldPVP );
         void _updateInheritPVP( const PixelViewport& oldPVP );
         void _updateInheritOverdraw();
+        void _updateInheritStereo();
+        void _updateInheritActive( const uint32_t frameNumber );
 
         void _setDefaultFrameName( Frame* frame );
 

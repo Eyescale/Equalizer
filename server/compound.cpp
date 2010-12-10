@@ -53,6 +53,7 @@ namespace eq
 {
 
 using fabric::EYES_STEREO;
+using fabric::UNDEFINED;
 
 namespace server
 {
@@ -901,143 +902,14 @@ void Compound::updateInheritData( const uint32_t frameNumber )
     const PixelViewport oldPVP( _inherit.pvp );
 
     if( isRoot( ))
-    {
-        _inherit = _data;
-        _inherit.zoom = Zoom::NONE; // will be reapplied below
-        _updateInheritPVP( oldPVP );
-
-        if( _inherit.eyes == fabric::EYE_UNDEFINED )
-            _inherit.eyes = fabric::EYES_ALL;
-
-        if( _inherit.period == EQ_UNDEFINED_UINT32 )
-            _inherit.period = 1;
-
-        if( _inherit.phase == EQ_UNDEFINED_UINT32 )
-            _inherit.phase = 0;
-
-        if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
-            _inherit.buffers = eq::Frame::BUFFER_COLOR;
-
-        if( _inherit.iAttributes[IATTR_STEREO_MODE] == fabric::UNDEFINED )
-            _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::AUTO;
-
-        if( _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] == 
-            fabric::UNDEFINED )
-        {
-            _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] = 
-                COLOR_MASK_RED;
-        }
-        if( _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] == 
-            fabric::UNDEFINED )
-        {   
-            _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] =
-                COLOR_MASK_GREEN | COLOR_MASK_BLUE;
-        }
-    }
+        _updateInheritRoot( oldPVP );
     else
-    {
-        _inherit = _parent->_inherit;
-
-        if( !_inherit.channel )
-        {
-            _updateInheritPVP( oldPVP );
-            _inherit.vp.apply( _data.vp );
-        }
-        else if( _inherit.pvp.isValid( ))
-        {
-            EQASSERT( _data.vp.isValid( ));
-            _inherit.pvp.apply( _data.vp );
-
-            // Compute the inherit viewport to be pixel-correct with the
-            // integer-rounded pvp. This is needed to calculate the frustum
-            // correctly.
-            const Viewport vp = _inherit.pvp.getSubVP( _parent->_inherit.pvp );
-            _inherit.vp.apply( vp );
-            
-            _updateInheritOverdraw();
-        }
-        else
-        {
-            EQASSERT( !_inherit.channel->isRunning( ));
-        }
-
-        if( _data.frustumData.isValid( ))
-            _inherit.frustumData = _data.frustumData;
-
-        _inherit.range.apply( _data.range );
-        _inherit.pixel.apply( _data.pixel );
-        _inherit.subpixel.apply( _data.subpixel );
-
-        if( _data.eyes != fabric::EYE_UNDEFINED )
-            _inherit.eyes = _data.eyes;
-        
-        if( _data.period != EQ_UNDEFINED_UINT32 )
-            _inherit.period = _data.period;
-
-        if( _data.phase != EQ_UNDEFINED_UINT32 )
-            _inherit.phase = _data.phase;
-
-        _inherit.maxFPS = _data.maxFPS;
-
-        if( _data.buffers != eq::Frame::BUFFER_UNDEFINED )
-            _inherit.buffers = _data.buffers;
-        
-        if( _data.iAttributes[IATTR_STEREO_MODE] != fabric::UNDEFINED )
-            _inherit.iAttributes[IATTR_STEREO_MODE] =
-                _data.iAttributes[IATTR_STEREO_MODE];
-
-        if( _data.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] !=
-            fabric::UNDEFINED)
-        {
-            _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] = 
-                _data.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK];
-        }
-
-        if( _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] !=
-            fabric::UNDEFINED )
-        {
-            _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] = 
-                _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK];
-        }
-    }
+        _updateInheritNode( oldPVP );
 
     if( _inherit.channel )
     {
-        if( _inherit.iAttributes[IATTR_STEREO_MODE] == fabric::AUTO )
-        {
-            _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::QUAD;
-            const Window* window = _inherit.channel->getWindow();
-            
-            const bool usesFBO =  window && 
-                (( window->getIAttribute( Window::IATTR_HINT_DRAWABLE ) == 
-                            fabric::FBO) || 
-                 _inherit.channel->getDrawable() != Channel::FB_WINDOW );
-            const bool stereoWindow = window->getDrawableConfig().stereo;
-            const Segment* segment = _inherit.channel->getSegment();
-            const uint32_t eyes = segment ? segment->getEyes() : _inherit.eyes;
-            const bool stereoEyes = ( eyes & EYES_STEREO ) == EYES_STEREO;
-
-            if(( usesFBO || !stereoWindow ) && stereoEyes )
-                _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::ANAGLYPH;
-        }
-
-        const bool phaseActive = ( (frameNumber % _inherit.period) ==
-                                   _inherit.phase );
-        // run-time failure detection
-        const bool channelActive = _inherit.channel->isRunning();
-
-        for( size_t i = 0; i < fabric::NUM_EYES; ++i )
-        {
-            const uint32_t eye = 1 << i;
-            const bool destActive =
-                isDestination() ? _data.active[i] : _inherit.active[i];
-            const bool eyeActive = _inherit.eyes & eye;
-
-            if( destActive && eyeActive && phaseActive && channelActive )
-                _inherit.active[i] = 1;
-            else
-                _inherit.active[i] = 0; // deactivate
-        }
+        _updateInheritStereo();
+        _updateInheritActive( frameNumber );
     }
 
     if( _inherit.pvp.isValid( ))
@@ -1065,6 +937,97 @@ void Compound::updateInheritData( const uint32_t frameNumber )
     if( !_inherit.pvp.hasArea() || !_inherit.range.hasData( ))
         // Channels with no PVP or range do not execute tasks
         _inherit.tasks = fabric::TASK_NONE;
+}
+
+void Compound::_updateInheritRoot( const PixelViewport& oldPVP )
+{
+    EQASSERT( !_parent );
+    _inherit = _data;
+    _inherit.zoom = Zoom::NONE; // will be reapplied below
+    _updateInheritPVP( oldPVP );
+
+    if( _inherit.eyes == fabric::EYE_UNDEFINED )
+        _inherit.eyes = fabric::EYES_ALL;
+
+    if( _inherit.period == EQ_UNDEFINED_UINT32 )
+        _inherit.period = 1;
+
+    if( _inherit.phase == EQ_UNDEFINED_UINT32 )
+        _inherit.phase = 0;
+
+    if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
+        _inherit.buffers = eq::Frame::BUFFER_COLOR;
+
+    if( _inherit.iAttributes[IATTR_STEREO_MODE] == UNDEFINED )
+        _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::AUTO;
+
+    if( _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] == UNDEFINED )
+        _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] = COLOR_MASK_RED;
+
+    if( _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] == UNDEFINED )
+        _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] =
+            COLOR_MASK_GREEN | COLOR_MASK_BLUE;
+}
+
+void Compound::_updateInheritNode( const PixelViewport& oldPVP )
+{
+    EQASSERT( _parent );
+    _inherit = _parent->_inherit;
+
+    if( !_inherit.channel )
+    {
+        _updateInheritPVP( oldPVP );
+        _inherit.vp.apply( _data.vp );
+    }
+    else if( _inherit.pvp.isValid( ))
+    {
+        EQASSERT( _data.vp.isValid( ));
+        _inherit.pvp.apply( _data.vp );
+
+        // Compute the inherit viewport to be pixel-correct with the integer-
+        // rounded pvp. This is needed to calculate the frustum correctly.
+        const Viewport vp = _inherit.pvp.getSubVP( _parent->_inherit.pvp );
+        _inherit.vp.apply( vp );
+            
+        _updateInheritOverdraw();
+    }
+    else
+    {
+        EQASSERT( !_inherit.channel->isRunning( ));
+    }
+
+    if( _data.frustumData.isValid( ))
+        _inherit.frustumData = _data.frustumData;
+
+    _inherit.range.apply( _data.range );
+    _inherit.pixel.apply( _data.pixel );
+    _inherit.subpixel.apply( _data.subpixel );
+
+    if( _data.eyes != fabric::EYE_UNDEFINED )
+        _inherit.eyes = _data.eyes;
+        
+    if( _data.period != EQ_UNDEFINED_UINT32 )
+        _inherit.period = _data.period;
+
+    if( _data.phase != EQ_UNDEFINED_UINT32 )
+        _inherit.phase = _data.phase;
+
+    _inherit.maxFPS = _data.maxFPS;
+
+    if( _data.buffers != eq::Frame::BUFFER_UNDEFINED )
+        _inherit.buffers = _data.buffers;
+        
+    if( _data.iAttributes[IATTR_STEREO_MODE] != UNDEFINED )
+        _inherit.iAttributes[IATTR_STEREO_MODE] =
+            _data.iAttributes[IATTR_STEREO_MODE];
+
+    if( _data.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] != UNDEFINED )
+        _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK] = 
+            _data.iAttributes[IATTR_STEREO_ANAGLYPH_LEFT_MASK];
+
+    if( _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] != UNDEFINED )
+        _inherit.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK] = 
+            _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK];
 }
 
 void Compound::_updateInheritPVP( const PixelViewport& oldPVP )
@@ -1143,6 +1106,44 @@ void Compound::initInheritTasks()
         _inherit.tasks |= fabric::TASK_VIEW;
     else
         _inherit.tasks &= ~fabric::TASK_VIEW;
+}
+
+void Compound::_updateInheritStereo()
+{
+    if( _inherit.iAttributes[IATTR_STEREO_MODE] != fabric::AUTO )
+        return;
+
+    _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::QUAD;
+    const Window* window = _inherit.channel->getWindow();
+    const bool usesFBO =  window && 
+        (( window->getIAttribute(Window::IATTR_HINT_DRAWABLE) == fabric::FBO) ||
+         _inherit.channel->getDrawable() != Channel::FB_WINDOW );
+    const bool stereoWindow = window->getDrawableConfig().stereo;
+    const Segment* segment = _inherit.channel->getSegment();
+    const uint32_t eyes = segment ? segment->getEyes() : _inherit.eyes;
+    const bool stereoEyes = ( eyes & EYES_STEREO ) == EYES_STEREO;
+
+    if(( usesFBO || !stereoWindow ) && stereoEyes )
+        _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::ANAGLYPH;
+}
+
+void Compound::_updateInheritActive( const uint32_t frameNumber )
+{
+    const bool phaseActive = ((frameNumber%_inherit.period) == _inherit.phase );
+    const bool channelActive = _inherit.channel->isRunning(); // runtime failure
+
+    for( size_t i = 0; i < fabric::NUM_EYES; ++i )
+    {
+        const uint32_t eye = 1 << i;
+        const bool destActive = isDestination() ? _data.active[i] :
+                                                  _inherit.active[i];
+        const bool eyeActive = _inherit.eyes & eye;
+
+        if( destActive && eyeActive && phaseActive && channelActive )
+            _inherit.active[i] = 1;
+        else
+            _inherit.active[i] = 0; // deactivate
+    }
 }
 
 std::ostream& operator << (std::ostream& os, const Compound& compound)
