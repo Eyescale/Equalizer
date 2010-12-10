@@ -1,13 +1,17 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010 Stefan Eilemann <eile@eyescale.ch>
 
-option(EQUALIZER_BUILD_OSGSCALEVIEWER "Build osgScaleViewer example" OFF)
-if(NOT EQUALIZER_BUILD_OSGSCALEVIEWER)
-  message(STATUS "Equalizer: Skipping example 'osgScaleViewer'. See EQUALIZER_BUILD_OSGSCALEVIEWER setting")
+find_package(OpenSceneGraph 2.9.8 COMPONENTS osgDB osgUtil)
+if(OSG_LIBRARY MATCHES "OSG_LIBRARY-NOTFOUND")
+  message(STATUS "Skipping 'osgScaleViewer' example (OSG not found)")	 
+  return()
+endif()
+if(${OPENSCENEGRAPH_VERSION} VERSION_LESS "2.9.8")
+  message(STATUS "Skipping 'osgScaleViewer' example (OSG ${OPENSCENEGRAPH_VERSION} found, need >= 2.9.8)")
   return()
 endif()
 
-find_package(OpenSceneGraph 2.9.8 REQUIRED COMPONENTS osgDB osgUtil)
+
 include_directories(SYSTEM ${OPENSCENEGRAPH_INCLUDE_DIRS})
 
 eq_add_example(osgScaleViewer

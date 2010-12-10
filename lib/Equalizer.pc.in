@@ -6,7 +6,7 @@ libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 
 Name: Equalizer
-Description: Middleware to create and deploy parallel OpenGL-based applications
+Description: Framework to create and deploy parallel OpenGL-based applications
 Version: @VERSION@
 Requires:
 Conflicts:
