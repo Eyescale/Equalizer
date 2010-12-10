@@ -48,7 +48,7 @@ namespace osgScaleViewer
     {
     public:
         InitData() 
-                : _frameDataID( EQ_ID_INVALID )
+                : _frameDataID( eq::UUID::ZERO )
                 , _modelFileName( "cow.osg" )
                 , _imageFileName( "tests/compositor/Result_Alpha_color.rgb" ) {}
         virtual ~InitData();

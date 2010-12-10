@@ -35,7 +35,7 @@ namespace osgScaleViewer
 {
 InitData::~InitData()
 {
-    setFrameDataID( EQ_ID_INVALID );
+    setFrameDataID( eq::UUID::ZERO );
 }
 
 void InitData::setFrameDataID( const eq::uint128_t& id )
@@ -56,7 +56,6 @@ void InitData::getInstanceData( eq::net::DataOStream& stream )
 void InitData::applyInstanceData( eq::net::DataIStream& stream )
 {
     stream >> _frameDataID >> _modelFileName >> _imageFileName;
-    EQASSERT( _frameDataID != EQ_ID_INVALID );
 }
 
 void InitData::setModelFileName( const std::string &fileName )

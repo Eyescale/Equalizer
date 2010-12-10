@@ -71,13 +71,13 @@ void Config::_deregisterData()
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
         
-    _initData.setFrameDataID( EQ_ID_INVALID );
+    _initData.setFrameDataID( eq::UUID::ZERO );
 }
     
     
 void Config::mapData( const eq::uint128_t& initDataID )
 {       
-    if( _initData.getID() == EQ_ID_INVALID )
+    if( !_initData.isAttached( ))
     {
         EQCHECK( mapObject( &_initData, initDataID ));
         unmapObject( &_initData ); // data was retrieved, unmap immediately

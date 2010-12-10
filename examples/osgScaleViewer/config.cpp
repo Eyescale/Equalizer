@@ -91,7 +91,7 @@ bool Config::exit()
 {
     bool ret = eq::Config::exit();
     
-    _initData.setFrameDataID( EQ_ID_INVALID );
+    _initData.setFrameDataID( eq::UUID::ZERO );
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
     return ret;
@@ -155,7 +155,7 @@ const InitData& Config::getInitData() const
 
 bool Config::mapData( const eq::uint128_t& initDataID )
 {
-    if( _initData.getID() == EQ_ID_INVALID )
+    if( !_initData.isAttached( ))
     {
         EQCHECK( mapObject( &_initData, initDataID ) );
         unmapObject( &_initData );

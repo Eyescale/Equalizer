@@ -83,7 +83,7 @@ public:
 private:
     void _unmap( net::Object* object )
         {
-            if( object->getID() == EQ_ID_INVALID )
+            if( !object->isAttached( ))
                 return;
 
             net::Session* session = object->getSession();

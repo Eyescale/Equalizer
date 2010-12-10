@@ -38,7 +38,7 @@ using namespace std;
 namespace eqNbody
 {
 	
-	InitData::InitData() : _frameDataID( EQ_ID_INVALID )
+InitData::InitData() : _frameDataID( eq::UUID::ZERO )
 	{
 		_damping	= 0.995f;
 		_p			= 256;
@@ -48,7 +48,7 @@ namespace eqNbody
 	
 	InitData::~InitData()
 	{
-		setFrameDataID( EQ_ID_INVALID );
+		setFrameDataID( eq::UUID::ZERO );
 	}
 	
 	void InitData::getInstanceData( eq::net::DataOStream& os )
