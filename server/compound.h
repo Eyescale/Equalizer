@@ -299,7 +299,7 @@ namespace server
         uint32_t getInheritPeriod()          const { return _inherit.period; }
         uint32_t getInheritPhase()           const { return _inherit.phase; }
         float getInheritMaxFPS()             const { return _inherit.maxFPS; }
-        int32_t  getInheritIAttribute( const IAttribute attr ) const
+        int32_t getInheritIAttribute( const IAttribute attr ) const
             { return _inherit.iAttributes[attr]; }
         const FrustumData& getInheritFrustumData() const 
             { return _inherit.frustumData; }

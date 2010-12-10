@@ -28,18 +28,19 @@ namespace fabric
     enum IAttribute
     {
         UNDEFINED  = -0xfffffff, //!< Undefined value
-        EXTERN     = -14, //!< Affinity DC useability (IATTR_HINT_AFFINITY)
-        RGBA32F    = -13, //!< Float32 framebuffer (Window::IATTR_PLANES_COLOR)
-        RGBA16F    = -12, //!< Float16 framebuffer (Window::IATTR_PLANES_COLOR)
-        FBO        = -11, //!< FBO drawable (Window::IATTR_HINT_DRAWABLE)
-        LOCAL_SYNC = -10, //!< Full local sync (Node::IATTR_THREAD_MODEL)
-        DRAW_SYNC  = -9,  //!< Local draw sync (Node::IATTR_THREAD_MODEL)
-        ASYNC      = -8,  //!< No local sync (Node::IATTR_THREAD_MODEL)
-        PBUFFER    = -7,  //!< PBuffer drawable (Window::IATTR_HINT_DRAWABLE)
-        WINDOW     = -6,  //!< Window drawable (Window::IATTR_HINT_DRAWABLE)
-        VERTICAL   = -5,  //!< Vertical load-balancing
-        QUAD       = -4,  //!< Quad-buffered stereo decomposition
-        ANAGLYPH   = -3,  //!< Anaglyphic stereo decomposition
+        EXTERN     = -15, //!< Affinity DC useability (IATTR_HINT_AFFINITY)
+        RGBA32F    = -14, //!< Float32 framebuffer (Window::IATTR_PLANES_COLOR)
+        RGBA16F    = -13, //!< Float16 framebuffer (Window::IATTR_PLANES_COLOR)
+        FBO        = -12, //!< FBO drawable (Window::IATTR_HINT_DRAWABLE)
+        LOCAL_SYNC = -11, //!< Full local sync (Node::IATTR_THREAD_MODEL)
+        DRAW_SYNC  = -10, //!< Local draw sync (Node::IATTR_THREAD_MODEL)
+        ASYNC      = -9,  //!< No local sync (Node::IATTR_THREAD_MODEL)
+        PBUFFER    = -8,  //!< PBuffer drawable (Window::IATTR_HINT_DRAWABLE)
+        WINDOW     = -7,  //!< Window drawable (Window::IATTR_HINT_DRAWABLE)
+        VERTICAL   = -6,  //!< Vertical load-balancing
+        QUAD       = -5,  //!< Quad-buffered stereo decomposition
+        ANAGLYPH   = -4,  //!< Anaglyphic stereo decomposition
+        PASSIVE    = -3,  //!< Passive stereo rendering
         /** 
          * Nicest statisics gathering (Window::IATTR_HINT_STATISTICS,
          * Channel::IATTR_HINT_STATISTICS)
@@ -57,7 +58,7 @@ namespace fabric
     };
 
     EQFABRIC_API std::ostream& operator << ( std::ostream& os,
-                                          const IAttribute value );
+                                             const IAttribute value );
 }
 }
 

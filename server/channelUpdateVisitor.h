@@ -67,7 +67,7 @@ namespace server
         void _updateDrawFinish( const Compound* compound ) const;
         void _updateFrameRate( const Compound* compound ) const;
 
-        uint32_t _getDrawBuffer() const;
+        uint32_t _getDrawBuffer( const Compound* compound ) const;
         fabric::ColorMask _getDrawBufferMask( const Compound* compound ) const;
 
         void _setupRenderContext( const Compound* compound,

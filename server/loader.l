@@ -157,6 +157,7 @@ NICEST                          { return EQTOKEN_NICEST; }
 QUAD                            { return EQTOKEN_QUAD; }
 ANAGLYPH                        { return EQTOKEN_ANAGLYPH; }
 anaglyph                        { return EQTOKEN_ANAGLYPH; }
+PASSIVE                         { return EQTOKEN_PASSIVE; }
 RED                             { return EQTOKEN_RED; }
 GREEN                           { return EQTOKEN_GREEN; }
 BLUE                            { return EQTOKEN_BLUE; }

@@ -1113,17 +1113,24 @@ void Compound::_updateInheritStereo()
     if( _inherit.iAttributes[IATTR_STEREO_MODE] != fabric::AUTO )
         return;
 
-    _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::QUAD;
-    const Window* window = _inherit.channel->getWindow();
-    const bool usesFBO =  window && 
-        (( window->getIAttribute(Window::IATTR_HINT_DRAWABLE) == fabric::FBO) ||
-         _inherit.channel->getDrawable() != Channel::FB_WINDOW );
-    const bool stereoWindow = window->getDrawableConfig().stereo;
     const Segment* segment = _inherit.channel->getSegment();
     const uint32_t eyes = segment ? segment->getEyes() : _inherit.eyes;
     const bool stereoEyes = ( eyes & EYES_STEREO ) == EYES_STEREO;
+    if( !stereoEyes )
+    {
+        _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::PASSIVE;
+        return;
+    }
 
-    if(( usesFBO || !stereoWindow ) && stereoEyes )
+    const Window* window = _inherit.channel->getWindow();
+    const bool stereoWindow = window->getDrawableConfig().stereo;
+    const bool usesFBO =  window && 
+        (( window->getIAttribute(Window::IATTR_HINT_DRAWABLE) == fabric::FBO) ||
+         _inherit.channel->getDrawable() != Channel::FB_WINDOW );
+
+    if( stereoWindow && !usesFBO )
+        _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::QUAD;
+    else
         _inherit.iAttributes[IATTR_STEREO_MODE] = fabric::ANAGLYPH;
 }
 

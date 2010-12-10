@@ -164,6 +164,7 @@
 %token EQTOKEN_NICEST
 %token EQTOKEN_QUAD
 %token EQTOKEN_ANAGLYPH
+%token EQTOKEN_PASSIVE
 %token EQTOKEN_RED
 %token EQTOKEN_GREEN
 %token EQTOKEN_BLUE
@@ -1259,6 +1260,7 @@ IATTR:
     | EQTOKEN_NICEST     { $$ = eq::fabric::NICEST; }
     | EQTOKEN_QUAD       { $$ = eq::fabric::QUAD; }
     | EQTOKEN_ANAGLYPH   { $$ = eq::fabric::ANAGLYPH; } 
+    | EQTOKEN_PASSIVE    { $$ = eq::fabric::PASSIVE; } 
     | EQTOKEN_VERTICAL   { $$ = eq::fabric::VERTICAL; }
     | EQTOKEN_WINDOW     { $$ = eq::fabric::WINDOW; }
     | EQTOKEN_FBO        { $$ = eq::fabric::FBO; }

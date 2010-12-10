@@ -50,6 +50,9 @@ namespace eq
 {
 namespace server
 {
+
+using fabric::PASSIVE;
+
 namespace
 {
 static bool _setDrawBuffers();
@@ -208,7 +211,7 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.offset.x()    = context.pvp.x;
     context.offset.y()    = context.pvp.y;
     context.eye           = _eye;
-    context.buffer        = _getDrawBuffer();
+    context.buffer        = _getDrawBuffer( compound );
     context.bufferMask    = _getDrawBufferMask( compound );
     context.view          = view;
     context.taskID        = compound->getTaskID();
@@ -323,10 +326,13 @@ void ChannelUpdateVisitor::_updateFrameRate( const Compound* compound ) const
         window->setMaxFPS( maxFPS );
 }
 
-uint32_t ChannelUpdateVisitor::_getDrawBuffer() const
+uint32_t ChannelUpdateVisitor::_getDrawBuffer( const Compound* compound ) const
 {
     const DrawableConfig& dc = _channel->getWindow()->getDrawableConfig();
     const uint32_t eye = base::getIndexOfLastBit( _eye );
+
+    if( compound->getInheritIAttribute(Compound::IATTR_STEREO_MODE) == PASSIVE )
+        return _drawBuffer[ 0 ][ dc.doublebuffered ][ eye ];
     return _drawBuffer[ dc.stereo ][ dc.doublebuffered ][ eye ];
 }
 

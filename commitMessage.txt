@@ -1,9 +1,9 @@
-Simplify draw buffer selection by lookup table
+Implement RFE 3132979: Add passive stereo detection to compound auto stereo mode
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[ ] Bugfix
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation

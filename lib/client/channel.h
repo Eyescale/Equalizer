@@ -502,8 +502,7 @@ namespace eq
          *        processed.
          * @version 1.0
          */
-        virtual void notifyStopFrame(const uint32_t lastFrameNumber)
-             {}
+        virtual void notifyStopFrame( const uint32_t lastFrameNumber ) {}
 
     private:
         //-------------------- Members --------------------

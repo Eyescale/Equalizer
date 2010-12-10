@@ -27,40 +27,24 @@ std::ostream& operator << ( std::ostream& os, const IAttribute value )
 {
     switch( value )
     {
-        case UNDEFINED:
-            os << "UNDEFINED"; break;
-        case OFF:
-            os << "OFF"; break;
-        case ON:
-            os << "ON"; break; 
-        case AUTO:
-            os << "AUTO"; break;
-        case NICEST:
-            os << "NICEST"; break;
-        case QUAD:
-            os << "QUAD"; break;
-        case ANAGLYPH:
-            os << "ANAGLYPH"; break;
-        case VERTICAL:
-            os << "VERTICAL"; break;
-        case WINDOW:
-            os << "window"; break;
-        case PBUFFER:
-            os << "pbuffer"; break; 
-        case FBO:
-            os << "FBO"; break; 
-        case RGBA16F:
-            os << "RGBA16F"; break;
-        case RGBA32F:
-            os << "RGBA32F"; break;
-        case ASYNC:
-            os << "ASYNC"; break; 
-        case DRAW_SYNC:
-            os << "DRAW_SYNC"; break; 
-        case LOCAL_SYNC:
-            os << "LOCAL_SYNC"; break; 
-        default:
-            os << static_cast< int >( value );
+        case UNDEFINED:     os << "UNDEFINED"; break;
+        case OFF:           os << "OFF"; break;
+        case ON:            os << "ON"; break; 
+        case AUTO:          os << "AUTO"; break;
+        case NICEST:        os << "NICEST"; break;
+        case QUAD:          os << "QUAD"; break;
+        case ANAGLYPH:      os << "ANAGLYPH"; break;
+        case PASSIVE:       os << "PASSIVE"; break;
+        case VERTICAL:      os << "VERTICAL"; break;
+        case WINDOW:        os << "window"; break;
+        case PBUFFER:       os << "pbuffer"; break; 
+        case FBO:           os << "FBO"; break; 
+        case RGBA16F:       os << "RGBA16F"; break;
+        case RGBA32F:       os << "RGBA32F"; break;
+        case ASYNC:         os << "ASYNC"; break; 
+        case DRAW_SYNC:     os << "DRAW_SYNC"; break; 
+        case LOCAL_SYNC:    os << "LOCAL_SYNC"; break; 
+        default:            os << static_cast< int >( value );
     }
     return os;
 }
