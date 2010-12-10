@@ -24,27 +24,15 @@ namespace eq
 {
     class WGLWindowIF;
 
-    /**
-     * The event processing for WGL.
-     *
-     * The WGL implementation does not use a thread, since messages are handled
-     * by a 'wndproc' callback in the thread which created the window. Each
-     * window has its own WGLEventHandler
-     */
+    /** The event handler for WGL. */
     class WGLEventHandler : public EventHandler
     {
     public:
-        /** Constructs a new WGL event handler. */
+        /** Construct a new WGL event handler for the window. @version 1.0 */
         EQ_API WGLEventHandler( WGLWindowIF* window );
 
-        /** Destructs the WGL event handler. */
+        /** Destruct the WGL event handler. @version 1.0 */
         EQ_API virtual ~WGLEventHandler();
-
-        /** 
-         * @return the function pointer of the previously installed window
-         *         event handler function.
-         */
-        WNDPROC getPreviousWndProc() { return _prevWndProc; }
 
         /**
          * Initialize space mouse event handling for this process.
@@ -53,10 +41,11 @@ namespace eq
          * @sa Node::configInit, Config::sendEvent
          * @version 1.0
          */
-       static bool initMagellan(Node* node);
+        static bool initMagellan(Node* node);
 
        /**
          * De-initialize space mouse event handling for this process.
+         *
          * @sa Node::configInit
          * @version 1.0
          */
@@ -70,10 +59,8 @@ namespace eq
 
         int32_t      _wheelDeltaPerLine;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[64];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         static LRESULT CALLBACK wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
                                          LPARAM lParam );

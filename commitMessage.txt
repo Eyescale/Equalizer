@@ -1,9 +1,9 @@
-Implement RFE 3132979: Add passive stereo detection to compound auto stereo mode
+Doxygen improvements
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [x] Documentation

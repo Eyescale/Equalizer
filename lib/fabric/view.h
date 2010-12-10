@@ -30,12 +30,7 @@ namespace eq
 {
 namespace fabric
 {
-    /**
-     * A View is a 2D area of a Layout. It is a view of the application's data
-     * on a model, in the sense used by the MVC pattern. It can be a scene,
-     * viewing mode, viewing position, or any other representation of the
-     * application's data.
-     */
+    /** Base data transport class for views. @sa eq::View */
     template< class L, class V, class O >
     class View : public Object, public Frustum
     {
@@ -52,10 +47,10 @@ namespace fabric
         /** @return the viewport of the view wrt its layout. @version 1.0 */
         EQFABRIC_INL const Viewport& getViewport() const;
 
-        /** @return the parent layout of this view. @version 1.0 */
+        /** @return the parent layout of this view, can be 0. @version 1.0 */
         L* getLayout() { return _layout; }
 
-        /** @return the parent layout of this view. @version 1.0 */
+        /** @return the parent layout of this view, can be 0. @version 1.0 */
         const L* getLayout() const { return _layout; }
 
         /**
@@ -67,13 +62,13 @@ namespace fabric
         /** const version of getObserver(). @version 1.0 */
         const O* getObserver() const { return _observer; }
 
-        /** @sa Frustum::setWall() */
+        /** @sa Frustum::setWall() @version 1.0 */
         EQFABRIC_INL virtual void setWall( const Wall& wall );
         
-        /** @sa Frustum::setProjection() */
+        /** @sa Frustum::setProjection() @version 1.0 */
         EQFABRIC_INL virtual void setProjection( const Projection& );
 
-        /** @sa Frustum::unsetFrustum() */
+        /** @sa Frustum::unsetFrustum() @version 1.0 */
         EQFABRIC_INL virtual void unsetFrustum();
 
         /** @warning  Undocumented - may not be supported in the future */
@@ -94,7 +89,8 @@ namespace fabric
         /**
          * Set the mode of this view.
          *
-         * @param mode the new rendering mode 
+         * @param mode the new rendering mode
+         * @version 1.0
          */
         EQFABRIC_INL virtual void changeMode( const Mode mode );
         
@@ -141,7 +137,7 @@ namespace fabric
         //@}
 
         /**
-         * Set the maximum desiredcapabilities for this view.
+         * Set the maximum desired capabilities for this view.
          *
          * The capabilities returned by getCapabilities() during rendering match
          * the lowest common denominator of all channel capabilities and this
@@ -187,23 +183,25 @@ namespace fabric
         /**
          * By default, the application view instance holds the user data master.
          * @sa Object::hasMasterUserData().
+         * @version 1.0
          */
         virtual bool hasMasterUserData() { return getLayout() != 0; }
 
-        /** Set number of kept versions to config latency by default. */
+        /** @internal Set number of kept versions to latency. */
         EQFABRIC_INL virtual void notifyAttached();
 
-        /** @sa Frustum::serialize() */
+        /** @internal */
         EQFABRIC_INL virtual void serialize( net::DataOStream& os,
-                                                const uint64_t dirtyBits );
+                                             const uint64_t dirtyBits );
 
-        /** @sa Frustum::deserialize() */
+        /** @internal */
         EQFABRIC_INL virtual void deserialize( net::DataIStream& is, 
                                                   const uint64_t dirtyBits );
 
-        /** @internal @sa Serializable::setDirty() */
+        /** @internal */
         EQFABRIC_INL virtual void setDirty( const uint64_t bits );
 
+        /** @internal */
         enum DirtyBits
         {
             DIRTY_VIEWPORT      = Object::DIRTY_CUSTOM << 0,

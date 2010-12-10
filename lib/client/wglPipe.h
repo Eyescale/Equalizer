@@ -25,11 +25,14 @@
 
 namespace eq
 {
-    /** Equalizer default implementation of a WGL window */
+    /** Equalizer default implementation of a WGL GPU. */
     class WGLPipe : public SystemPipe
     {
     public:
+        /** Construct a new WGL system pipe. @version 1.0 */
         EQ_API WGLPipe( Pipe* parent );
+
+        /** Destruct this WGL system pipe. @version 1.0 */
         EQ_API virtual ~WGLPipe( );
 
         /** @name WGL initialization */
@@ -38,15 +41,17 @@ namespace eq
          * Initialize this pipe for the WGL window system.
          * 
          * @return true if the initialization was successful, false otherwise.
+         * @version 1.0
          */
-        EQ_API virtual bool configInit( );
+        EQ_API virtual bool configInit();
 
         /** 
          * Deinitialize this pipe for the WGL window system.
          * 
          * @return true if the deinitialization was successful, false otherwise.
+         * @version 1.0
          */
-        EQ_API virtual void configExit( );
+        EQ_API virtual void configExit();
         //@}
 
         /**
@@ -59,6 +64,7 @@ namespace eq
          *
          * @param affinityDC the affinity device context output parameter.
          * @return the success status.
+         * @version 1.0
          */
         EQ_API bool createWGLAffinityDC( HDC& affinityDC );
 
@@ -68,6 +74,7 @@ namespace eq
          * The returned device context has to be deallocated using DeleteDC.
          * 
          * @return the device context, or 0 upon error.
+         * @version 1.0
          */
         EQ_API HDC createWGLDisplayDC();
 
@@ -78,7 +85,15 @@ namespace eq
         float getDriverVersion() const { return _driverVersion; }
 
     protected:
-        /** Initialize this pipe for OpenGL. */
+        /**
+         * Initialize this pipe for OpenGL.
+         *
+         * A temporary device context is current during this call. The device
+         * context is not the DC used by the windows of this pipe, most
+         * importantly, it is not an affinity context.
+         *
+         * @version 1.0
+         */
         EQ_API virtual bool configInitGL();
 
     private:
@@ -90,10 +105,8 @@ namespace eq
 
         float _driverVersion;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         void _configInitDriverVersion();
     };

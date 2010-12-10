@@ -221,10 +221,8 @@ namespace eq
         /** The glX extension pointer table is initialized. */
         bool _glxewInitialized;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[64];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         /** Create an unmapped X11 window. */
         XID _createGLXWindow( XVisualInfo* visualInfo , 

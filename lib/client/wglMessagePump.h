@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,33 +22,26 @@
 
 namespace eq
 {
-    /**
-     * Processes OS messages on Win32 systems.
-     */
+    /** Processes OS messages on Win32 systems. */
     class WGLMessagePump : public MessagePump
     {
     public:
+        /** Construct a new WGL message pump. @version 1.0 */
         EQ_API WGLMessagePump();
 
-        /** Wake up dispatchOneEvent(). */
-        EQ_API virtual void postWakeup();
-
-        /** Get and dispatch all pending system events, non-blocking. */
-        EQ_API virtual void dispatchAll();
-
-        /** Get and dispatch at least one pending system event, blocking. */
-        EQ_API virtual void dispatchOne();
-
+        /** Destruct this message pump. @version 1.0 */
         virtual ~WGLMessagePump() {}
+
+        EQ_API virtual void postWakeup();
+        EQ_API virtual void dispatchAll();
+        EQ_API virtual void dispatchOne();
 
     private:
         /** Thread ID of the receiver. */
         DWORD _win32ThreadID;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[64];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         void _initReceiverQueue();
     };

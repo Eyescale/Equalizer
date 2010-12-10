@@ -48,50 +48,6 @@ WGLWindow::~WGLWindow( )
 {
 }
 
-void WGLWindow::configExit( )
-{
-    leaveNVSwapBarrier();
-    configExitFBO();
-    exitGLEW();
-    
-    wglMakeCurrent( 0, 0 );
-
-    HGLRC context        = getWGLContext();
-    HWND  hWnd           = getWGLWindowHandle();
-    HPBUFFERARB hPBuffer = getWGLPBufferHandle();
-
-    exitWGLAffinityDC();
-    setWGLDC( 0, WGL_DC_NONE );
-    setWGLContext( 0 );
-    setWGLWindowHandle( 0 );
-    setWGLPBufferHandle( 0 );
-
-    if( context )
-        destroyWGLContext( context );
-
-    if( hWnd )
-    {
-        // Re-enable screen saver
-        if( getIAttribute( Window::IATTR_HINT_SCREENSAVER ) != ON )
-            SystemParametersInfo( SPI_SETSCREENSAVEACTIVE, _screenSaverActive, 
-                                  0, 0 );
-        
-        char className[256] = {0};
-        GetClassName( hWnd, className, 255 );
-        DestroyWindow( hWnd );
-
-        if( strlen( className ) > 0 )
-            UnregisterClass( className, GetModuleHandle( 0 ));
-    }
-    if( hPBuffer )
-        wglDestroyPbufferARB( hPBuffer );
-
-    if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
-        ChangeDisplaySettings( 0, 0 );
-
-    EQINFO << "Destroyed WGL context and window" << std::endl;
-}
-
 void WGLWindow::makeCurrent() const
 {
     EQCHECK( wglMakeCurrent( _wglDC, _wglContext ));
@@ -509,6 +465,50 @@ bool WGLWindow::initWGLAffinityDC()
     // the affinity RC pixel format have to match, and each window has
     // potentially a different pixel format.
     return getWGLPipe()->createWGLAffinityDC( _wglAffinityDC );
+}
+
+void WGLWindow::configExit( )
+{
+    leaveNVSwapBarrier();
+    configExitFBO();
+    exitGLEW();
+    
+    wglMakeCurrent( 0, 0 );
+
+    HGLRC context        = getWGLContext();
+    HWND  hWnd           = getWGLWindowHandle();
+    HPBUFFERARB hPBuffer = getWGLPBufferHandle();
+
+    exitWGLAffinityDC();
+    setWGLDC( 0, WGL_DC_NONE );
+    setWGLContext( 0 );
+    setWGLWindowHandle( 0 );
+    setWGLPBufferHandle( 0 );
+
+    if( context )
+        destroyWGLContext( context );
+
+    if( hWnd )
+    {
+        // Re-enable screen saver
+        if( getIAttribute( Window::IATTR_HINT_SCREENSAVER ) != ON )
+            SystemParametersInfo( SPI_SETSCREENSAVEACTIVE, _screenSaverActive, 
+                                  0, 0 );
+        
+        char className[256] = {0};
+        GetClassName( hWnd, className, 255 );
+        DestroyWindow( hWnd );
+
+        if( strlen( className ) > 0 )
+            UnregisterClass( className, GetModuleHandle( 0 ));
+    }
+    if( hPBuffer )
+        wglDestroyPbufferARB( hPBuffer );
+
+    if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
+        ChangeDisplaySettings( 0, 0 );
+
+    EQINFO << "Destroyed WGL context and window" << std::endl;
 }
 
 HDC WGLWindow::getWGLAffinityDC()

@@ -42,6 +42,9 @@ namespace eq
         EventRef      _wakeupEvent;
         bool          _needGlobalLock;
 
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
+
         void _initReceiverQueue();
     };
 }

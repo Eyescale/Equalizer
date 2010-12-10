@@ -30,7 +30,7 @@ namespace eq
     class AGLWindowIF : public GLWindow
     {
     public:
-        /** Create a new AGL window for the given eq::Window. @version 1.0 */
+        /** Construct a new AGL window for the given eq::Window. @version 1.0 */
         AGLWindowIF( Window* parent ) : GLWindow( parent ) {}
 
         /** Destruct the AGL window. @version 1.0 */
@@ -49,6 +49,8 @@ namespace eq
         EQ_API virtual bool processEvent( const AGLWindowEvent& event ) = 0;
 
     private:
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
     };
 
     /** Equalizer default implementation of an AGL window interface. */
@@ -228,7 +230,7 @@ namespace eq
 
         /** Not implemented for AGL. @version 1.0 */
         EQ_API virtual void joinNVSwapBarrier( const uint32_t group,
-                                                  const uint32_t barrier );
+                                               const uint32_t barrier );
 
         /** @version 1.0 */
         EQ_API virtual bool processEvent( const AGLWindowEvent& event );
@@ -244,10 +246,8 @@ namespace eq
         /** The AGL event handler. */
         AGLEventHandler* _eventHandler;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[64];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
     };
 }
 

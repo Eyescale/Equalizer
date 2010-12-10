@@ -37,6 +37,7 @@ namespace eq
      *
      * @warning Never commit a View. Equalizer does take care of this to
      *          correctly associate view version with rendering frames.
+     * @sa fabric::View
      */
     class View : public fabric::View< Layout, View, Observer >
     {
@@ -70,12 +71,13 @@ namespace eq
          * 
          * @param event the received view event.
          * @return true when the event was handled, false if not.
+         * @version 1.0
          */
         EQ_API virtual bool handleEvent( const Event& event );
         //@}
 
     protected:
-        /** @sa Frustum::deserialize() */
+        /** @internal */
         EQ_API virtual void deserialize( net::DataIStream& is, 
                                             const uint64_t dirtyBits );
 
@@ -88,10 +90,8 @@ namespace eq
         /** Unmodified, baseline view frustum data, used when resizing. */
         Frustum _baseFrustum;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
     };
 }
 
