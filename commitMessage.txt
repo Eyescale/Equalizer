@@ -1,4 +1,4 @@
-Fix auto-detection of OSG
+Simplify draw buffer selection by lookup table
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

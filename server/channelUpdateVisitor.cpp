@@ -50,6 +50,38 @@ namespace eq
 {
 namespace server
 {
+namespace
+{
+static bool _setDrawBuffers();
+static uint32_t _drawBuffer[2][2][NUM_EYES];
+static bool _drawBufferInit = _setDrawBuffers();
+bool _setDrawBuffers()
+{
+    const int cyclop = base::getIndexOfLastBit( EYE_CYCLOP );
+    const int left = base::getIndexOfLastBit( EYE_LEFT );
+    const int right = base::getIndexOfLastBit( EYE_RIGHT );
+
+    // [stereo][doublebuffered][eye]
+    _drawBuffer[0][0][ cyclop ] = GL_FRONT;
+    _drawBuffer[0][0][ left ] = GL_FRONT;
+    _drawBuffer[0][0][ right ] = GL_FRONT;
+
+    _drawBuffer[0][1][ cyclop ] = GL_BACK;
+    _drawBuffer[0][1][ left ] = GL_BACK;
+    _drawBuffer[0][1][ right ] = GL_BACK;
+
+    _drawBuffer[1][0][ cyclop ] = GL_FRONT;
+    _drawBuffer[1][0][ left ] = GL_FRONT_LEFT;
+    _drawBuffer[1][0][ right ] = GL_FRONT_RIGHT;
+
+    _drawBuffer[1][1][ cyclop ] = GL_BACK;
+    _drawBuffer[1][1][ left ] = GL_BACK_LEFT;
+    _drawBuffer[1][1][ right ] = GL_BACK_RIGHT;
+
+    return true;
+}
+}
+
 ChannelUpdateVisitor::ChannelUpdateVisitor( Channel* channel, 
                                             const uint128_t frameID,
                                             const uint32_t frameNumber )
@@ -293,47 +325,9 @@ void ChannelUpdateVisitor::_updateFrameRate( const Compound* compound ) const
 
 uint32_t ChannelUpdateVisitor::_getDrawBuffer() const
 {
-    const DrawableConfig& drawableConfig =
-        _channel->getWindow()->getDrawableConfig();
-    
-    if( !drawableConfig.stereo )
-    {    
-        if( drawableConfig.doublebuffered )
-            return GL_BACK;
-        // else singlebuffered
-        return GL_FRONT;
-    }
-    else
-    {
-        if( drawableConfig.doublebuffered )
-        {
-            switch( _eye )
-            {
-                case EYE_LEFT:
-                    return GL_BACK_LEFT;
-                    break;
-                case EYE_RIGHT:
-                    return GL_BACK_RIGHT;
-                    break;
-                default:
-                    return GL_BACK;
-                    break;
-            }
-        }
-        // else singlebuffered
-        switch( _eye )
-        {
-            case EYE_LEFT:
-                return GL_FRONT_LEFT;
-                break;
-            case EYE_RIGHT:
-                return GL_FRONT_RIGHT;
-                break;
-            default:
-                return GL_FRONT;
-                break;
-        }
-    }
+    const DrawableConfig& dc = _channel->getWindow()->getDrawableConfig();
+    const uint32_t eye = base::getIndexOfLastBit( _eye );
+    return _drawBuffer[ dc.stereo ][ dc.doublebuffered ][ eye ];
 }
 
 eq::ColorMask ChannelUpdateVisitor::_getDrawBufferMask(const Compound* compound)
