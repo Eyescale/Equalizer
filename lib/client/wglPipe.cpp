@@ -85,14 +85,22 @@ bool WGLPipe::configInit()
     else // ... using Win32 API
     {
         HDC dc = createWGLDisplayDC();
-        EQASSERT( dc );
 
         pvp.x = 0;
         pvp.y = 0;
-        pvp.w = GetDeviceCaps( dc, HORZRES );
-        pvp.h = GetDeviceCaps( dc, VERTRES );
-
-        DeleteDC( dc );
+        if( dc )
+        {
+            pvp.w = GetDeviceCaps( dc, HORZRES );
+            pvp.h = GetDeviceCaps( dc, VERTRES );
+            DeleteDC( dc );
+        }
+        else
+        {
+            EQWARN << "Can't create display dc query pipe resolution: "
+                   << base::sysError << std::endl;
+            pvp.w = 2048;
+            pvp.h = 2048;
+        }
     }
 
     getPipe()->setPixelViewport( pvp );

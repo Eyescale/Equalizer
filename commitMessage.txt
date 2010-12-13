@@ -1,9 +1,10 @@
-Doxygen improvements
+Make Windows 7 PBuffer creation more robust (does still not work without
+affinity)
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation

@@ -415,7 +415,7 @@ HWND WGLWindow::_createWGLWindow( int pixelFormat, const PixelViewport& pvp  )
     return hWnd;
 }
 
-bool WGLWindow::configInitWGLPBuffer( int pixelFormat )
+bool WGLWindow::configInitWGLPBuffer( int pf )
 {
     if( !WGLEW_ARB_pbuffer )
     {
@@ -426,16 +426,21 @@ bool WGLWindow::configInitWGLPBuffer( int pixelFormat )
     const eq::PixelViewport& pvp = getWindow()->getPixelViewport();
     EQASSERT( pvp.isValid( ));
 
-    const HDC displayDC    = createWGLDisplayDC();
-    if( !displayDC )
-        return false;
+    HPBUFFERARB pBuffer = 0;
+    const int attr[] = { WGL_PBUFFER_LARGEST_ARB, TRUE, 0 };
 
-    const HDC dc           = _useAffinity() ? _wglAffinityDC : displayDC;
-    const int attributes[] = { WGL_PBUFFER_LARGEST_ARB, TRUE, 0 };
+    if( _wglAffinityDC )
+        pBuffer = wglCreatePbufferARB( _wglAffinityDC, pf, pvp.w, pvp.h, attr );
+    else
+    {
+        const HDC displayDC = createWGLDisplayDC();
+        if( !displayDC )
+            return false;
 
-    HPBUFFERARB pBuffer = wglCreatePbufferARB( dc, pixelFormat, pvp.w, pvp.h,
-                                               attributes );
-    DeleteDC( displayDC );
+        pBuffer = wglCreatePbufferARB( displayDC, pf, pvp.w, pvp.h, attr );
+        DeleteDC( displayDC );
+    }
+
     if( !pBuffer )
     {
         setError( ERROR_WGLWINDOW_CREATEPBUFFER_FAILED );
