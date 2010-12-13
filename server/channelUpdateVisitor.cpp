@@ -596,10 +596,9 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
     {
         Frame* outputFrame = *i;
-
         const Frames& inputFrames = outputFrame->getInputFrames( context.eye );
-
         std::set< uint128_t > nodeIDs;
+
         for( Frames::const_iterator j = inputFrames.begin();
              j != inputFrames.end(); ++j )
         {

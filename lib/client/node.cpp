@@ -578,8 +578,8 @@ bool Node::_cmdFrameDataTransmit( net::Command& command )
     EQASSERT( !isReady );
     const uint128_t& originator = getID();
     EQASSERT( originator != base::UUID::ZERO );    
-    FrameDataStatistics event( Statistic::NODE_FRAME_DECOMPRESS, frameData, this, 
-                               packet->frameNumber, originator );
+    FrameDataStatistics event( Statistic::NODE_FRAME_DECOMPRESS, frameData,
+                               this, packet->frameNumber, originator );
 
     return frameData->addImage( packet );
 }

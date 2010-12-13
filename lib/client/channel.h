@@ -570,7 +570,7 @@ namespace eq
         bool _cmdFrameAssemble( net::Command& command );
         bool _cmdFrameReadback( net::Command& command );
         bool _cmdFrameTransmit( net::Command& command );
-        bool _cmdFrameTransmitSync( net::Command& command );
+        bool _cmdFrameTransmitAsync( net::Command& command );
         bool _cmdFrameViewStart( net::Command& command );
         bool _cmdFrameViewFinish( net::Command& command );
         bool _cmdStopFrame( net::Command& command );

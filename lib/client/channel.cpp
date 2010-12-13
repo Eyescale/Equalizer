@@ -101,8 +101,8 @@ void Channel::attachToSession( const base::UUID& id,
                      CmdFunc( this, &Channel::_cmdFrameReadback ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT, 
                      CmdFunc( this, &Channel::_cmdFrameTransmit ), queue );
-    registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT_SYNC, 
-                     CmdFunc( this, &Channel::_cmdFrameTransmitSync ), 0 );
+    registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT_ASYNC, 
+                     CmdFunc( this, &Channel::_cmdFrameTransmitAsync ), 0 );
     registerCommand( fabric::CMD_CHANNEL_FRAME_VIEW_START, 
                      CmdFunc( this, &Channel::_cmdFrameViewStart ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_VIEW_FINISH, 
@@ -1311,14 +1311,14 @@ bool Channel::_cmdFrameTransmit( net::Command& command )
 
     ++_statistics[ _statisticsIndex ].used;
 
-    packet->command = fabric::CMD_CHANNEL_FRAME_TRANSMIT_SYNC;
+    packet->command = fabric::CMD_CHANNEL_FRAME_TRANSMIT_ASYNC;
     packet->statisticsIndex = _statisticsIndex;
     packet->frameNumber = getPipe()->getCurrentFrame();
     getNode()->transmitter.getQueue().push( command );
     return true;
 }
 
-bool Channel::_cmdFrameTransmitSync( net::Command& command )
+bool Channel::_cmdFrameTransmitAsync( net::Command& command )
 {
     const ChannelFrameTransmitPacket* packet = 
         command.getPacket<ChannelFrameTransmitPacket>();

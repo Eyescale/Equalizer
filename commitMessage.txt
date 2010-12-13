@@ -1,4 +1,4 @@
-Doxygen improvements
+Minor code cleanups
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
@@ -6,4 +6,4 @@ Doxygen improvements
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation
