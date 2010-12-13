@@ -1,28 +1,52 @@
 #Equalizer 1.0 ascii
 
-# 'Hello, World!' config: one window rendering from the application process.
+# two-pipe sort-first config for dual-GPU machines
 server
 {
-    connection{}
     config
     {
         appNode
         {
-            pipe
+            pipe 
             {
+                device 0
                 window
                 {
-                    viewport [ 0.25 0.25 0.5 0.5 ]
-                    
-                    channel { name "channel" }
+                    viewport [ .25 .25 .5 .5 ]
+                    channel { name "channel1" }
+                }
+            }
+            pipe 
+            {
+                device 0
+                window
+                {
+                    attributes { hint_drawable pbuffer }
+                    channel { name "channel2" }
                 }
             }
         }
         compound
-        { 
-            channel "channel"
-            wall { type fixed type HMD }
-            eye [ LEFT RIGHT ]
+        {
+            channel "channel1"
+            wall
+            {
+                bottom_left  [ -.32 -.20 -.75 ]
+                bottom_right [  .32 -.20 -.75 ]
+                top_left     [ -.32  .20 -.75 ]
+            }
+
+            compound
+            {
+                viewport [ 0 0 1 .5 ]
+            }
+            compound
+            {
+                channel "channel2"
+                viewport [ 0 .5 1 .5 ]
+                outputframe {}
+            }
+            inputframe { name "frame.channel2" }
         }
     }    
 }

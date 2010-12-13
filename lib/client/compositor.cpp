@@ -1478,7 +1478,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
 #define glewGetContext() glCtx
 
 void Compositor::setupAssemblyState( const PixelViewport& pvp,
-                                    const GLEWContext* glCtx )
+                                     const GLEWContext* glCtx )
 {
     EQ_GL_ERROR( "before setupAssemblyState" );
     glPushAttrib( GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_LINE_BIT |
@@ -1500,7 +1500,8 @@ void Compositor::setupAssemblyState( const PixelViewport& pvp,
     glDisable( GL_CLIP_PLANE5 );
 
     glPolygonMode( GL_FRONT, GL_FILL );
-    glActiveTexture( GL_TEXTURE0 );
+    if( GLEW_VERSION_1_3 )
+        glActiveTexture( GL_TEXTURE0 );
 
     glMatrixMode( GL_TEXTURE );
     glPushMatrix();
