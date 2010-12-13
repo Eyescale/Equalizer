@@ -1,4 +1,4 @@
-Move transmit frame to channel/node
+change variable name _nextVersion to version 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

@@ -218,10 +218,10 @@ namespace server
         void setReady();
 
         /** @return true if the frame data is ready. @version 1.0 */
-        bool isReady() const   { return _readyVersion.get() >= _nextVersion; }
+        bool isReady() const   { return _readyVersion.get() >= _version; }
 
         /** Wait for the frame data to become available. @version 1.0 */
-        void waitReady() const { _readyVersion.waitGE( _nextVersion ); }
+        void waitReady() const { _readyVersion.waitGE( _version ); }
         
         /** @internal */
         void setVersion( const uint64_t version );
@@ -297,9 +297,10 @@ namespace server
 
         Images _pendingImages;
 
-        uint64_t _nextVersion; //!< The current version
+        uint64_t _version; //!< The current version
 
         typedef base::Monitor< uint64_t > Monitor;
+
         /** Data ready monitor synchronization primitive. */
         Monitor _readyVersion;
 

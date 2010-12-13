@@ -44,7 +44,7 @@ namespace eq
 typedef net::CommandFunc<FrameData> CmdFunc;
 
 FrameData::FrameData() 
-        : _nextVersion( net::VERSION_NONE.low( ))
+        : _version( net::VERSION_NONE.low( ))
         , _useAlpha( true )
         , _useSendToken( false )
         , _colorQuality( 1.f )
@@ -232,14 +232,14 @@ void FrameData::readback( const Frame& frame,
 
 void FrameData::setVersion( const uint64_t version )
 {
-    EQASSERTINFO( _nextVersion <= version, _nextVersion << " > " << version );
-    _nextVersion = version;
+    EQASSERTINFO( _version <= version, _version << " > " << version );
+    _version = version;
     EQLOG( LOG_ASSEMBLY ) << "New v" << version << std::endl;
 }
 
 void FrameData::setReady()
 {
-    _setReady( _nextVersion );
+    _setReady( _version );
 }
 
 void FrameData::setReady( const NodeFrameDataReadyPacket* packet )
@@ -248,7 +248,7 @@ void FrameData::setReady( const NodeFrameDataReadyPacket* packet )
     EQASSERT(  packet->frameData.version.high() == 0 );
     EQASSERT( _readyVersion < packet->frameData.version.low( ));
     EQASSERT( _readyVersion == 0 || _readyVersion + 1 == packet->frameData.version.low( ));
-    EQASSERT( _nextVersion == packet->frameData.version.low( ));
+    EQASSERT( _version == packet->frameData.version.low( ));
     EQASSERT( _pendingImages.size() == 1 );
     _images.swap( _pendingImages );
     _data = packet->data;
@@ -262,7 +262,7 @@ void FrameData::_setReady( const uint64_t version )
 {
     
     EQASSERTINFO( _readyVersion <= version,
-                  "v" << _nextVersion << " ready " << _readyVersion << " new "
+                  "v" << _version << " ready " << _readyVersion << " new "
                       << version );
 
     base::ScopedMutex< base::SpinLock > mutex( _listeners );
@@ -286,7 +286,7 @@ void FrameData::addListener( base::Monitor<uint32_t>& listener )
     base::ScopedMutex< base::SpinLock > mutex( _listeners );
 
     _listeners->push_back( &listener );
-    if( _readyVersion >= _nextVersion )
+    if( _readyVersion >= _version )
         ++listener;
 }
 
