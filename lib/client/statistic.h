@@ -56,7 +56,7 @@ namespace eq
             WINDOW_SWAP_BARRIER, //!< Sampling of swap barrier block
             WINDOW_SWAP, //!< Sampling of Window::swapBuffers
             PIPE_IDLE, //!< Pipe thread idle ratio
-            FRAME_DECOMPRESS, //!< Sampling of frame decompression
+            NODE_FRAME_DECOMPRESS, //!< Sampling of frame decompression
             CONFIG_START_FRAME, //!< Sampling of Config::startFrame
             CONFIG_FINISH_FRAME, //!< Sampling of Config::finishFrame
             /** Sampling of synchronization time during Config::finishFrame */

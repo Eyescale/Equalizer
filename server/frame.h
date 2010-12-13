@@ -58,7 +58,9 @@ namespace server
 
         FrameData* getMasterData() const { return _masterFrameData; }
         bool       hasData( const eq::Eye eye ) const
-        { return ( _frameData[ base::getIndexOfLastBit( eye ) ] != 0 ); }
+            { return ( _frameData[ base::getIndexOfLastBit( eye ) ] != 0 ); }
+
+        net::ObjectVersion getDataVersion( const Eye eye ) const;
 
         /** 
          * Set the frame's viewport wrt the compound (output frames) or wrt the

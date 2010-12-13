@@ -24,7 +24,7 @@
 #include "image.h"
 #include "log.h"
 #include "node.h"
-#include "frameDataPackets.h"
+#include "nodePackets.h"
 #include "roiFinder.h"
 
 #include <eq/net/command.h>
@@ -41,26 +41,11 @@
 namespace eq
 {
 
-namespace
-{
-struct ImageHeader
-{
-    uint32_t                internalFormat;
-    uint32_t                externalFormat;
-    uint32_t                pixelSize;
-    fabric::PixelViewport   pvp;
-    uint32_t                compressorName;
-    uint32_t                compressorFlags;
-    uint32_t                nChunks;
-    float                   quality;
-};
-
-}
-
 typedef net::CommandFunc<FrameData> CmdFunc;
 
 FrameData::FrameData() 
-        : _useAlpha( true )
+        : _nextVersion( net::VERSION_NONE.low( ))
+        , _useAlpha( true )
         , _useSendToken( false )
         , _colorQuality( 1.f )
         , _depthQuality( 1.f )
@@ -111,33 +96,8 @@ void FrameData::applyInstanceData( net::DataIStream& is )
     EQLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
 }
 
-void FrameData::update( const uint128_t& version )
-{
-    // trigger process of received ready packets
-    FrameDataUpdatePacket packet;
-    packet.instanceID = getInstanceID();
-    packet.version    = version;
-    send( getLocalNode(), packet );
-}
-
-void FrameData::attachToSession( const base::UUID& id, const uint32_t instanceID,
-                                 net::Session* session )
-{
-    net::Object::attachToSession( id, instanceID, session );
-
-    net::CommandQueue* queue = session->getCommandThreadQueue();
-
-    registerCommand( fabric::CMD_FRAMEDATA_TRANSMIT,
-                     CmdFunc( this, &FrameData::_cmdTransmit ), queue );
-    registerCommand( fabric::CMD_FRAMEDATA_READY,
-                     CmdFunc( this, &FrameData::_cmdReady ), queue );
-    registerCommand( fabric::CMD_FRAMEDATA_UPDATE,
-                     CmdFunc( this, &FrameData::_cmdUpdate ), queue );
-}
-
 void FrameData::clear()
 {
-    EQASSERT( _listeners->empty( ));
 
     _imageCacheLock.set();
     _imageCache.insert( _imageCache.end(), _images.begin(), _images.end( ));
@@ -218,7 +178,6 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
     return image;
 }
 
-
 void FrameData::readback( const Frame& frame,
                           util::ObjectManager< const void* >* glObjects,
                           const DrawableConfig& config  )
@@ -271,28 +230,42 @@ void FrameData::readback( const Frame& frame,
     setReady();
 }
 
-void FrameData::setReady()
+void FrameData::setVersion( const uint64_t version )
 {
-    _setReady( getVersion( ));
+    EQASSERTINFO( _nextVersion <= version, _nextVersion << " > " << version );
+    _nextVersion = version;
+    EQLOG( LOG_ASSEMBLY ) << "New v" << version << std::endl;
 }
 
-void FrameData::_setReady( const uint128_t& version )
+void FrameData::setReady()
 {
-    EQASSERTINFO( getVersion() == net::VERSION_NONE || _readyVersion <= version,
-                  "v" << getVersion() << " ready " << _readyVersion << " new "
+    _setReady( _nextVersion );
+}
+
+void FrameData::setReady( const NodeFrameDataReadyPacket* packet )
+{
+    clear();
+    EQASSERT(  packet->frameData.version.high() == 0 );
+    EQASSERT( _readyVersion < packet->frameData.version.low( ));
+    EQASSERT( _readyVersion == 0 || _readyVersion + 1 == packet->frameData.version.low( ));
+    EQASSERT( _nextVersion == packet->frameData.version.low( ));
+    EQASSERT( _pendingImages.size() == 1 );
+    _images.swap( _pendingImages );
+    _data = packet->data;
+    _setReady( packet->frameData.version.low());
+
+    EQLOG( LOG_ASSEMBLY ) << this << " applied v" 
+                          << packet->frameData.version.low() << std::endl;
+}
+
+void FrameData::_setReady( const uint64_t version )
+{
+    
+    EQASSERTINFO( _readyVersion <= version,
+                  "v" << _nextVersion << " ready " << _readyVersion << " new "
                       << version );
 
     base::ScopedMutex< base::SpinLock > mutex( _listeners );
-#ifndef NDEBUG
-    for( std::list< ImageVersion >::iterator i = _pendingImages.begin();
-         i != _pendingImages.end(); ++i )
-    {
-        const ImageVersion& imageVersion = *i;
-        EQASSERTINFO( imageVersion.version > version,
-                      "Frame is ready, but not all images have been set" );
-    }
-#endif
-
     if( _readyVersion >= version )
         return;
 
@@ -300,7 +273,8 @@ void FrameData::_setReady( const uint128_t& version )
     EQLOG( LOG_ASSEMBLY ) << "set ready " << this << ", " << _listeners->size()
                           << " monitoring" << std::endl;
 
-    for( Listeners::iterator i=_listeners->begin(); i != _listeners->end(); ++i )
+    for( Listeners::iterator i= _listeners->begin();
+         i != _listeners->end(); ++i )
     {
         Listener* listener = *i;
         ++(*listener);
@@ -312,7 +286,7 @@ void FrameData::addListener( base::Monitor<uint32_t>& listener )
     base::ScopedMutex< base::SpinLock > mutex( _listeners );
 
     _listeners->push_back( &listener );
-    if( _readyVersion >= getVersion( ))
+    if( _readyVersion >= _nextVersion )
         ++listener;
 }
 
@@ -326,213 +300,8 @@ void FrameData::removeListener( base::Monitor<uint32_t>& listener )
     _listeners->erase( i );
 }
 
-void FrameData::transmit( net::NodePtr toNode, const uint32_t frameNumber,
-                          Channel* channel, const uint32_t taskID,
-                          const uint32_t statisticsIndex )
+bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
 {
-    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT,
-                                     channel );
-    transmitEvent.statisticsIndex = statisticsIndex;
-    transmitEvent.event.data.statistic.task = taskID;
-
-    if( _data.buffers == 0 )
-    {
-        EQWARN << "No buffers for frame data" << std::endl;
-        return;
-    }
-
-    if ( _data.frameType == Frame::TYPE_TEXTURE )
-    {
-        EQWARN << "Can't transmit image of type TEXTURE" << std::endl;
-        EQUNIMPLEMENTED;
-        return;
-    }
-
-    net::ConnectionPtr             connection = toNode->getConnection();
-    net::ConnectionDescriptionPtr description = connection->getDescription();
-
-    // use compression on links up to 2 GBit/s
-    const bool useCompression = ( description->bandwidth <= 262144 );
-
-    FrameDataTransmitPacket packet;
-    const uint64_t          packetSize = sizeof( packet ) - 8*sizeof( uint8_t );
-    const net::Session*     session    = getSession();
-    EQASSERT( session );
-
-    packet.sessionID   = session->getID();
-    packet.objectID    = getID();
-    packet.version     = getVersion();
-    packet.frameNumber = frameNumber;
-
-    // send all images
-    for( Images::const_iterator i = _images.begin(); i != _images.end(); ++i )
-    {
-        Image* image = *i;
-        std::vector< const PixelData* > pixelDatas;
-        std::vector< float > qualities;
-
-        packet.size = packetSize;
-        packet.buffers = Frame::BUFFER_NONE;
-        packet.pvp = image->getPixelViewport();
-        packet.useAlpha = image->getAlphaUsage();
-        EQASSERT( packet.pvp.isValid( ));
-
-        {
-            uint64_t rawSize( 0 );
-            ChannelStatistics compressEvent( Statistic::CHANNEL_FRAME_COMPRESS, 
-                                             channel );
-            compressEvent.statisticsIndex = statisticsIndex;
-            compressEvent.event.data.statistic.task = taskID;
-            compressEvent.event.data.statistic.ratio = 1.0f;
-            if( !useCompression ) // don't send event
-                compressEvent.event.data.statistic.frameNumber = 0;
-
-            // Prepare image pixel data
-            Frame::Buffer buffers[] = {Frame::BUFFER_COLOR,Frame::BUFFER_DEPTH};
-
-            // for each image attachment
-            for( unsigned j = 0; j < 2; ++j )
-            {
-                Frame::Buffer buffer = buffers[j];
-                if( image->hasPixelData( buffer ))
-                {
-                    // format, type, nChunks, compressor name
-                    packet.size += sizeof( ImageHeader ); 
-
-                    const PixelData& data = useCompression ?
-                        image->compressPixelData( buffer ) : 
-                        image->getPixelData( buffer );
-                    pixelDatas.push_back( &data );
-                    qualities.push_back( image->getQuality( buffer ));
-
-                    if( data.isCompressed )
-                    {
-                        const uint32_t nElements = 
-                            uint32_t( data.compressedSize.size( ));
-                        for( uint32_t k = 0 ; k < nElements; ++k )
-                        {
-                            packet.size += sizeof( uint64_t );
-                            packet.size += data.compressedSize[ k ];
-                        }
-                    }
-                    else
-                    {
-                        packet.size += sizeof( uint64_t );
-                        packet.size += image->getPixelDataSize( buffer );
-                    }
-
-                    packet.buffers |= buffer;
-                    rawSize += image->getPixelDataSize( buffer );
-                }
-            }
-
-            if( rawSize > 0 )
-                compressEvent.event.data.statistic.ratio =
-                    static_cast< float >( packet.size ) /
-                    static_cast< float >( rawSize );
-        }
-
-        if( pixelDatas.empty( ))
-            continue;
-
-        // send image pixel data packet
-        if( _useSendToken )
-        {
-            ChannelStatistics waitEvent(Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN,
-                                        channel );
-            waitEvent.statisticsIndex = statisticsIndex;
-            waitEvent.event.data.statistic.task = taskID;
-            getLocalNode()->acquireSendToken( toNode );
-        }
-
-        connection->lockSend();
-        connection->send( &packet, packetSize, true );
-#ifndef NDEBUG
-        size_t sentBytes = packetSize;
-#endif
-
-        for( uint32_t j=0; j < pixelDatas.size(); ++j )
-        {
-#ifndef NDEBUG
-            sentBytes += sizeof( ImageHeader );
-#endif
-            const PixelData* data = pixelDatas[j];
-            const ImageHeader header =
-                  { data->internalFormat, data->externalFormat,
-                    data->pixelSize, data->pvp,
-                    data->compressorName, data->compressorFlags,
-                    data->isCompressed ?
-                        uint32_t( data->compressedSize.size( )) : 1,
-                    qualities[ j ] };
-
-            connection->send( &header, sizeof( ImageHeader ), true );
-            
-            if( data->isCompressed )
-            {
-                for( uint32_t k = 0 ; k < data->compressedSize.size(); ++k )
-                {
-                    const uint64_t dataSize = data->compressedSize[k];
-                    connection->send( &dataSize, sizeof( dataSize ), true );
-                    if( dataSize > 0 )
-                        connection->send( data->compressedData[k], 
-                                          dataSize, true );
-#ifndef NDEBUG
-                    sentBytes += sizeof( dataSize ) + dataSize;
-#endif
-                }
-            }
-            else
-            {
-                const uint64_t dataSize = data->pvp.getArea() * 
-                                          data->pixelSize;
-                connection->send( &dataSize, sizeof( dataSize ), true );
-                connection->send( data->pixels, dataSize, true );
-#ifndef NDEBUG
-                sentBytes += sizeof( dataSize ) + dataSize;
-#endif
-            }
-        }
-#ifndef NDEBUG
-        EQASSERTINFO( sentBytes == packet.size,
-                      sentBytes << " != " << packet.size );
-#endif
-
-        connection->unlockSend();
-        if( _useSendToken )
-            getLocalNode()->releaseSendToken( toNode );
-    }
-
-    FrameDataReadyPacket readyPacket;
-    readyPacket.data      = _data;
-    readyPacket.sessionID = session->getID();
-    readyPacket.objectID  = getID();
-    readyPacket.version   = getVersion();
-    toNode->send( readyPacket );
-}
-
-//----- Command handlers
-bool FrameData::_cmdTransmit( net::Command& command )
-{
-    EQ_TS_THREAD( _commandThread );
-    const FrameDataTransmitPacket* packet =
-        command.getPacket<FrameDataTransmitPacket>();
-
-    EQLOG( LOG_ASSEMBLY )
-        << this << " received image, buffers " << packet->buffers << " pvp "
-        << packet->pvp << " v" << packet->version << std::endl;
-
-    EQASSERT( packet->pvp.isValid( ));
-
-    // Very ugly way to get our local eq::Node object identifier
-    Config* config = EQSAFECAST( Config*, getSession( ));
-    const uint128_t& originator = config ? config->getNodes().front()->getID() :
-                                           getID();
-
-    EQASSERT( originator != base::UUID::ZERO );
-
-    FrameDataStatistics event( Statistic::FRAME_DECOMPRESS, this, 
-                               packet->frameNumber, originator );
-
     Image* image = _allocImage( Frame::TYPE_MEMORY, DrawableConfig( ));
 
     // Note on the const_cast: since the PixelData structure stores non-const
@@ -594,118 +363,10 @@ bool FrameData::_cmdTransmit( net::Command& command )
         }
     }
 
-    const uint128_t& version = getVersion();
-
-    if( version == packet->version )
-    {
-        EQASSERT( _readyVersion < getVersion( ));
-        _images.push_back( image );
-    }
-    else
-    {
-        EQASSERT( version < packet->version );
-        _pendingImages.push_back( ImageVersion( image, packet->version ));
-    }
-
+    EQASSERT( _readyVersion < packet->frameData.version.low( ));
+    EQASSERT( _pendingImages.empty());
+    _pendingImages.push_back( image );
     return true;
-}
-
-bool FrameData::_cmdReady( net::Command& command )
-{
-    EQ_TS_THREAD( _commandThread );
-    const FrameDataReadyPacket* packet =
-        command.getPacket<FrameDataReadyPacket>();
-
-    if( getVersion() == packet->version )
-    {
-        _applyVersion( packet->version );
-        _data = packet->data;
-        _setReady( packet->version );
-    }
-    else
-    {
-        command.retain();
-        _readyVersions.push_back( &command );
-    }
-
-    EQLOG( LOG_ASSEMBLY ) << this << " received v" << packet->version
-                          << std::endl;
-    return true;
-}
-
-bool FrameData::_cmdUpdate( net::Command& command )
-{
-    EQ_TS_THREAD( _commandThread );
-    const FrameDataUpdatePacket* packet =
-        command.getPacket<FrameDataUpdatePacket>();
-
-    _applyVersion( packet->version );
-
-    for( Commands::iterator i = _readyVersions.begin();
-         i != _readyVersions.end(); ++i )
-    {
-        net::Command* cmd = *i;
-        const FrameDataReadyPacket* candidate =
-            cmd->getPacket<FrameDataReadyPacket>();
-
-        if( candidate->version != packet->version )
-            continue;
-
-        _data = candidate->data;
-        cmd->release();
-        _readyVersions.erase( i );
-        _setReady( packet->version );
-        break; 
-    }
-
-    return true;
-}
-
-void FrameData::_applyVersion( const uint128_t& version )
-{
-    EQ_TS_THREAD( _commandThread );
-    EQLOG( LOG_ASSEMBLY ) << this << " apply v" << version << std::endl;
-
-    // Input images sync() to the new version, then send an update packet and
-    // immediately continue. If they read back and setReady faster than we
-    // process this update packet, the readyVersion changes at any given point
-    // in this code.
-    if( _readyVersion == version )
-    {
-#ifndef NDEBUG
-        for( std::list< ImageVersion >::iterator i = _pendingImages.begin();
-             i != _pendingImages.end(); ++i )
-        {
-            const ImageVersion& imageVersion = *i;
-            EQASSERTINFO( imageVersion.version > version,
-                          "Frame is ready, but not all images have been set" );
-        }
-#endif
-
-        // already applied
-        return;
-    }
-
-    // Even if _readyVersion jumped to version in between, there are no pending
-    // images for it, so this loop doesn't do anything.
-    for( std::list< ImageVersion >::iterator i = _pendingImages.begin();
-         i != _pendingImages.end(); )
-    {
-        const ImageVersion& imageVersion = *i;
-        EQASSERT( imageVersion.version >= version );
-
-        if( imageVersion.version == version )
-        {
-            _images.push_back( imageVersion.image );
-            i = _pendingImages.erase( i );
-
-            EQASSERT( _readyVersion < version );
-        }
-        else
-            ++i;
-    }
-
-    EQLOG( LOG_ASSEMBLY ) << this << " applied v" << version << std::endl;
 }
 
 std::ostream& operator << ( std::ostream& os, const FrameData* data )

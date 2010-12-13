@@ -54,7 +54,6 @@ set(CLIENT_HEADERS
   eye.h
   frame.h
   frameData.h
-  frameDataPackets.h
   glWindow.h
   glXEventHandler.h
   glXMessagePump.h

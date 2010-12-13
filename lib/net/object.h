@@ -83,10 +83,13 @@ namespace net
          * @return the session to which this object is mapped, or 0 if the
          *         object is not mapped.
          */
-        Session* getSession()             { return _session; }
+        Session* getSession() { return _session; }
 
         /** @return the object's unique identifier. */
         const base::UUID& getID() const { return _id; }
+
+        /** @internal Set the object's unique identifier */
+        EQNET_API void setID( const base::UUID& identifier );
 
         /** @return the node-wide unique object instance identifier. */
         uint32_t getInstanceID() const { return _instanceID; }

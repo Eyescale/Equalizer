@@ -24,6 +24,7 @@
 #include "configPackets.h"
 #include "error.h"
 #include "frameData.h"
+#include "frameDataStatistics.h"
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
@@ -78,7 +79,7 @@ void Node::attachToSession( const base::UUID& id,
     Config* config = getConfig();
     EQASSERT( config );
     net::CommandQueue* queue = config->getMainThreadQueue();
-
+    net::CommandQueue* command = session->getCommandThreadQueue();
     registerCommand( fabric::CMD_NODE_CREATE_PIPE, 
                      NodeFunc( this, &Node::_cmdCreatePipe ), queue );
     registerCommand( fabric::CMD_NODE_DESTROY_PIPE,
@@ -95,6 +96,10 @@ void Node::attachToSession( const base::UUID& id,
                      NodeFunc( this, &Node::_cmdFrameDrawFinish ), queue );
     registerCommand( fabric::CMD_NODE_FRAME_TASKS_FINISH, 
                      NodeFunc( this, &Node::_cmdFrameTasksFinish ), queue );
+    registerCommand( fabric::CMD_NODE_FRAMEDATA_TRANSMIT,
+                     NodeFunc( this, &Node::_cmdFrameDataTransmit ), command );
+    registerCommand( fabric::CMD_NODE_FRAMEDATA_READY,
+                     NodeFunc( this, &Node::_cmdFrameDataReady ), command );
 }
 
 ClientPtr Node::getClient()
@@ -136,31 +141,21 @@ net::Barrier* Node::getBarrier( const net::ObjectVersion barrier )
     return netBarrier;
 }
 
-FrameData* Node::getFrameData( const net::ObjectVersion& dataVersion )
+FrameData* Node::getFrameData( const net::ObjectVersion& frameData )
 {
     base::ScopedMutex<> mutex( _frameDatas );
-    FrameData* frameData = _frameDatas.data[ dataVersion.identifier ];
+    FrameData* data = _frameDatas.data[ frameData.identifier ];
 
-    if( !frameData )
+    if( !data )
     {
-        net::Session* session = getSession();
-        
-        frameData = new FrameData;
-        EQCHECK( session->mapObject( frameData, dataVersion ));
-        frameData->update( dataVersion.version );
-
-        _frameDatas.data[ dataVersion.identifier ] = frameData;
-        return frameData;
+        data = new FrameData;
+        data->setID( frameData.identifier );
+        _frameDatas.data[ frameData.identifier ] = data;
     }
 
-    if( frameData->getVersion() < dataVersion.version )
-    {
-        frameData->sync( dataVersion.version );
-        frameData->update( dataVersion.version );
-    }
-    EQASSERT( frameData->getVersion() == dataVersion.version );
-
-    return frameData;
+    EQASSERT( frameData.version.high() == 0 );
+    data->setVersion( frameData.version.low( ));
+    return data;
 }
 
 void Node::waitInitialized() const
@@ -388,38 +383,20 @@ void Node::_flushObjects()
     _frameDatas->clear();
 }
 
-Node::TransmitThread::Task::Task( FrameData* d, net::NodePtr n,
-                                  const uint32_t f, const uint32_t i,
-                                  const uint32_t t, Channel* c )
-    : data( d )
-    , node( n )
-    , frameNumber( f )
-    , index( i )
-    , renderTaskID( t )
-    , channel( c ){}
-
-void Node::TransmitThread::send( FrameData* data, net::NodePtr node,
-                                 const uint32_t frameNumber, 
-                                 const uint32_t index,
-                                 const uint32_t renderTaskID,
-                                 Channel* channel )
-{
-    _tasks.push( Task( data, node, frameNumber, index, renderTaskID, channel ));
-}
-
 void Node::TransmitThread::run()
 {
     base::Thread::setDebugName( std::string( "Trm " ) + typeid( *_node).name());
+    Config* config = _node->getConfig();
+    EQASSERT( config );
+
     while( true )
     {
-        const Task task = _tasks.pop();
-        if( _tasks.isEmpty() && !task.node )
+        net::Command* command = _queue.pop();
+        if( !command )
             return; // exit thread
-        
-        EQLOG( LOG_ASSEMBLY ) << "node transmit " << task.data->getID()
-                              << " to " << task.node->getNodeID() << std::endl;
-        task.channel->transmit( task.node, task.frameNumber, 
-                                task.data, task.index, task.renderTaskID );
+
+        EQCHECK( config->invokeCommand( *command ));
+        command->release();
     }
 }
 
@@ -511,7 +488,7 @@ bool Node::_cmdConfigExit( net::Command& command )
     }
     
     _state = configExit() ? STATE_STOPPED : STATE_FAILED;
-    transmitter.send( 0, 0, 0, 0, 0, 0 );
+    transmitter.getQueue().wakeup();
     transmitter.join();
     _flushObjects();
 
@@ -584,8 +561,45 @@ bool Node::_cmdFrameTasksFinish( net::Command& command )
     frameTasksFinish( packet->frameID, packet->frameNumber );
     return true;
 }
+
+bool Node::_cmdFrameDataTransmit( net::Command& command )
+{
+    const NodeFrameDataTransmitPacket* packet =
+        command.getPacket<NodeFrameDataTransmitPacket>();
+
+    EQLOG( LOG_ASSEMBLY )
+        << "received image data for " << packet->frameData << ", buffers "
+        << packet->buffers << " pvp " << packet->pvp << std::endl;
+
+    EQASSERT( packet->pvp.isValid( ));
+
+    FrameData* frameData = getFrameData( packet->frameData );
+    bool isReady = frameData->isReady();
+    EQASSERT( !isReady );
+    const uint128_t& originator = getID();
+    EQASSERT( originator != base::UUID::ZERO );    
+    FrameDataStatistics event( Statistic::NODE_FRAME_DECOMPRESS, frameData, this, 
+                               packet->frameNumber, originator );
+
+    return frameData->addImage( packet );
 }
 
+bool Node::_cmdFrameDataReady( net::Command& command )
+{
+    const NodeFrameDataReadyPacket* packet =
+        command.getPacket<NodeFrameDataReadyPacket>();
+
+    EQLOG( LOG_ASSEMBLY ) << "received ready for " << packet->frameData
+                          << std::endl;
+    FrameData* frameData = getFrameData( packet->frameData );
+    EQASSERT( frameData );
+    EQASSERT( !frameData->isReady() );
+    frameData->setReady( packet );
+    EQASSERT( frameData->isReady() );
+    return true;
+}
+
+}
 
 #include "../fabric/node.ipp"
 template class eq::fabric::Node< eq::Config, eq::Node, eq::Pipe,

@@ -19,7 +19,8 @@
 #ifndef EQ_NODEPACKETS_H
 #define EQ_NODEPACKETS_H
 
-#include <eq/client/packets.h> // base structs
+#include <eq/client/packets.h>   // base structs
+#include <eq/client/frameData.h> // member
 
 /** @cond IGNORE */
 namespace eq
@@ -141,6 +142,36 @@ namespace eq
             }
         uint128_t frameID;
         uint32_t frameNumber;
+    };
+
+    struct NodeFrameDataTransmitPacket : public NodePacket
+    {
+        NodeFrameDataTransmitPacket()
+            {
+                command = fabric::CMD_NODE_FRAMEDATA_TRANSMIT;
+                size    = sizeof( NodeFrameDataTransmitPacket );
+            }
+
+        net::ObjectVersion frameData;
+        PixelViewport pvp;
+        uint32_t      buffers;
+        uint32_t      frameNumber;
+        bool          useAlpha;
+
+        EQ_ALIGN8( uint8_t data[8] );
+    };
+
+    struct NodeFrameDataReadyPacket : public NodePacket
+    {
+        NodeFrameDataReadyPacket( const FrameData* fd )
+                : frameData( fd ), data( fd->_data )
+            {
+                command = fabric::CMD_NODE_FRAMEDATA_READY;
+                size    = sizeof( NodeFrameDataReadyPacket );
+            }
+
+        const net::ObjectVersion frameData;
+        const FrameData::Data data;
     };
 
     struct NodeFrameTasksFinishPacket : public NodePacket

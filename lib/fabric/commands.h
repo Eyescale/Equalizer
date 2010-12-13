@@ -106,6 +106,8 @@ namespace fabric
         CMD_NODE_FRAME_FINISH_REPLY,
         CMD_NODE_FRAME_DRAW_FINISH,
         CMD_NODE_FRAME_TASKS_FINISH,
+        CMD_NODE_FRAMEDATA_TRANSMIT,       
+        CMD_NODE_FRAMEDATA_READY,
         CMD_NODE_CUSTOM = 30  // some buffer for binary-compatible patches
     };
 
@@ -163,6 +165,7 @@ namespace fabric
         CMD_CHANNEL_FRAME_ASSEMBLE,
         CMD_CHANNEL_FRAME_READBACK,
         CMD_CHANNEL_FRAME_TRANSMIT,
+        CMD_CHANNEL_FRAME_TRANSMIT_SYNC,
         CMD_CHANNEL_FRAME_VIEW_START,
         CMD_CHANNEL_FRAME_VIEW_FINISH,
         CMD_CHANNEL_STOP_FRAME,
@@ -181,14 +184,6 @@ namespace fabric
         CMD_LAYOUT_NEW_VIEW = net::CMD_OBJECT_CUSTOM, // 10 
         CMD_LAYOUT_NEW_VIEW_REPLY,
         CMD_LAYOUT_CUSTOM = 20 // some buffer for binary-compatible patches
-    };
-
-    enum FrameDataCommand
-    {
-        CMD_FRAMEDATA_TRANSMIT = net::CMD_OBJECT_CUSTOM, // 10
-        CMD_FRAMEDATA_READY,
-        CMD_FRAMEDATA_UPDATE,
-        CMD_FRAMEDATA_CUSTOM = 20 // some buffer for binary-compatible patches
     };
 /** @endcond */
 }

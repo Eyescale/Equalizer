@@ -599,41 +599,37 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
 
         const Frames& inputFrames = outputFrame->getInputFrames( context.eye );
 
-        std::vector< net::NodeID > nodeIDs;
+        std::set< uint128_t > nodeIDs;
         for( Frames::const_iterator j = inputFrames.begin();
              j != inputFrames.end(); ++j )
         {
             const Frame* inputFrame   = *j;
             const Node*  inputNode    = inputFrame->getNode();
             net::NodePtr inputNetNode = inputNode->getNode();
-            const net::NodeID& nodeID = inputNetNode->getNodeID();
-            EQASSERT( node );
 
-            if( nodeID == outputNodeID ) // TODO filter: buffers, vp, eye
-                continue;
+            ChannelFrameTransmitPacket transmitPacket;
+            transmitPacket.netNodeID = inputNetNode->getNodeID();
 
-            nodeIDs.push_back( nodeID );
+            if( transmitPacket.netNodeID == outputNodeID ||
+                nodeIDs.find( transmitPacket.netNodeID ) != nodeIDs.end( ))
+            {
+                continue;  // TODO filter: buffers, vp, eye
+            }
+
+            // send
+            transmitPacket.sessionID = packet.sessionID;
+            transmitPacket.objectID  = packet.objectID;
+            transmitPacket.context   = context;
+            transmitPacket.frameData = outputFrame->getDataVersion( _eye );
+            transmitPacket.clientNodeID = inputNode->getID();
+
+            EQLOG( LOG_ASSEMBLY | LOG_TASKS )
+                << "TASK transmit " << _channel->getName() <<  " "
+                << &transmitPacket << std::endl;
+
+            _channel->send( transmitPacket );
+            nodeIDs.insert( transmitPacket.netNodeID );
         }
-
-        // sort & filter dupes
-        stde::usort( nodeIDs );
-
-        if( nodeIDs.empty( ))
-            continue;
-
-        // send
-        ChannelFrameTransmitPacket transmitPacket;
-        transmitPacket.sessionID = packet.sessionID;
-        transmitPacket.objectID  = packet.objectID;
-        transmitPacket.context   = context;
-        transmitPacket.frame     = net::ObjectVersion( outputFrame );
-        transmitPacket.nNodes    = uint32_t( nodeIDs.size( ));
-
-        EQLOG( LOG_ASSEMBLY | LOG_TASKS )
-            << "TASK transmit " << _channel->getName() <<  " " << 
-            &transmitPacket << " first " << nodeIDs[0] << std::endl;
-
-        _channel->send<net::NodeID>( transmitPacket, nodeIDs );
     }        
 }
 

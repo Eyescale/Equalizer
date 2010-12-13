@@ -30,6 +30,8 @@
 
 namespace eq
 {
+    struct ChannelFrameTransmitPacket;
+
     /**
      * A channel represents a two-dimensional viewport within a Window.
      *
@@ -281,23 +283,6 @@ namespace eq
 
         /** Outline the current pixel viewport. @version 1.0 */
         EQ_API virtual void outlineViewport();
- 
-        /**
-         * @internal
-         * Transmit (pixel) frame data to a node.
-         *
-         * Transmit frame data to the node and if the statistic is ready,
-         * we send it.
-         * 
-         * @param toNode the receiving node.
-         * @param frameNumber the current frame number.
-         * @param frameData the frameData which make the send operation.
-         * @param index the vector statistic index.
-         * @param taskID per-channel task counter
-         */
-        void transmit( net::NodePtr toNode, const uint32_t frameNumber,
-                       FrameData* frameData, const uint32_t index, 
-                       const uint32_t taskID );
 
         /**
           * @internal
@@ -571,6 +556,9 @@ namespace eq
         /** Check for and send frame finish reply. */
         void _unrefFrame( const uint32_t frameNumber, const uint32_t index );
 
+        /** Transmit the frame data to the nodeID. */
+        void _transmit( const ChannelFrameTransmitPacket* packet );
+
         /* The command handler functions. */
         bool _cmdConfigInit( net::Command& command );
         bool _cmdConfigExit( net::Command& command );
@@ -582,6 +570,7 @@ namespace eq
         bool _cmdFrameAssemble( net::Command& command );
         bool _cmdFrameReadback( net::Command& command );
         bool _cmdFrameTransmit( net::Command& command );
+        bool _cmdFrameTransmitSync( net::Command& command );
         bool _cmdFrameViewStart( net::Command& command );
         bool _cmdFrameViewFinish( net::Command& command );
         bool _cmdStopFrame( net::Command& command );

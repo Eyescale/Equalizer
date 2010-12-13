@@ -181,6 +181,11 @@ void Frame::addInputFrame( Frame* frame, const uint32_t eyes )
     }
 }
 
+net::ObjectVersion Frame::getDataVersion( const Eye eye ) const
+{
+    return net::ObjectVersion( _frameData[ base::getIndexOfLastBit( eye ) ] );
+}
+
 std::ostream& operator << ( std::ostream& os, const Frame* frame )
 {
     if( !frame )

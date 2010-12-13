@@ -138,6 +138,13 @@ LocalNodePtr Object::getLocalNode()
     return _session ? _session->getLocalNode() : 0; 
 }
 
+void Object::setID( const base::UUID& identifier )
+{
+    EQASSERT( !isAttached( ));
+    EQASSERT( identifier.isGenerated( ));
+    _id = identifier;
+}
+
 bool Object::send( NodePtr node, ObjectPacket& packet )
 {
     EQASSERT( isAttached( ));

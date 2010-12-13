@@ -27,6 +27,7 @@
 #include <eq/fabric/subPixel.h>      // member
 #include <eq/net/object.h>           // base class
 #include <eq/base/monitor.h>         // member
+#include <eq/base/scopedMutex.h>     // member
 #include <eq/base/spinLock.h>        // member
 
 #include <set>                       // member
@@ -38,8 +39,9 @@ namespace server
 {
     class FrameData;
 }
-    class  Image;
     class  ROIFinder;
+    struct NodeFrameDataTransmitPacket;
+    struct NodeFrameDataReadyPacket;
 
     /**
      * A holder for multiple images.
@@ -59,6 +61,19 @@ namespace server
     class FrameData : public net::Object
     {
     public:
+        void assembleFrame( Frame* frame, Channel* channel );
+        struct ImageHeader
+        {
+            uint32_t                internalFormat;
+            uint32_t                externalFormat;
+            uint32_t                pixelSize;
+            fabric::PixelViewport   pvp;
+            uint32_t                compressorName;
+            uint32_t                compressorFlags;
+            uint32_t                nChunks;
+            float                   quality;
+        };
+
         /** Construct a new frame data holder. @version 1.0 */
         EQ_API FrameData();
 
@@ -170,7 +185,7 @@ namespace server
          * @version 1.0
          */
         EQ_API Image* newImage( const Frame::Type type,
-                                   const DrawableConfig& config );
+                                const DrawableConfig& config );
 
         /** Flush the frame by deleting all images. @version 1.0 */
         void flush();
@@ -194,23 +209,6 @@ namespace server
                        const DrawableConfig& config );
 
         /**
-         * @internal
-         * Transmit the frame data to the specified node.
-         *
-         * Used internally after readback to push the image data to the input
-         * frame nodes. Do not use directly.
-         * 
-         * @param toNode the receiving node.
-         * @param frameNumber the current frame number
-         * @param channel the sender channel for statistics
-         * @param taskID per-channel task counter
-         * @param statisticsIndex the index where statistique will be added
-         */        
-        void transmit( net::NodePtr toNode, const uint32_t frameNumber,
-                       Channel* channel, const uint32_t taskID, 
-                       const uint32_t statisticsIndex );
-
-        /**
          * Set the frame data ready.
          * 
          * The frame data is automatically set ready by readback() and after
@@ -220,10 +218,13 @@ namespace server
         void setReady();
 
         /** @return true if the frame data is ready. @version 1.0 */
-        bool isReady() const   { return _readyVersion >= getVersion(); }
+        bool isReady() const   { return _readyVersion.get() >= _nextVersion; }
 
         /** Wait for the frame data to become available. @version 1.0 */
-        void waitReady() const { _readyVersion.waitGE( getVersion( )); }
+        void waitReady() const { _readyVersion.waitGE( _nextVersion ); }
+        
+        /** @internal */
+        void setVersion( const uint64_t version );
 
         /** 
          * Add a ready listener.
@@ -254,23 +255,22 @@ namespace server
             { _data.buffers &= ~buffer; }
  
         /** @internal */
-        void useSendToken( const bool use ) { _useSendToken = use; }
+        void setSendToken( const bool use ) { _useSendToken = use; }
+        /** @internal */       
+        bool getSendToken(){ return _useSendToken; }
         //@}
 
         /** @internal */
-        void update( const uint128_t& version );
+        bool addImage( const NodeFrameDataTransmitPacket* packet );
+        void setReady( const NodeFrameDataReadyPacket* packet ); //!< @internal
 
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
         virtual void getInstanceData( net::DataOStream& os );
         virtual void applyInstanceData( net::DataIStream& is );
 
-        /** @sa net::Object::attachToSession */
-        virtual void attachToSession( const base::UUID& id, 
-                                      const uint32_t instanceID, 
-                                      net::Session*  session );
-
     private:
+        friend struct NodeFrameDataReadyPacket;
         struct Data
         {
             Data() : frameType( Frame::TYPE_MEMORY ), buffers( 0 ), period( 1 )
@@ -288,7 +288,6 @@ namespace server
         } _data;
 
         friend class server::FrameData;
-        friend struct FrameDataReadyPacket;
 
         Images _images;
         Images _imageCache;
@@ -296,20 +295,11 @@ namespace server
 
         ROIFinder* _roiFinder;
 
-        struct ImageVersion
-        {
-            ImageVersion( Image* _image, const uint128_t& _version )
-                    : image( _image ), version( _version ) {}
+        Images _pendingImages;
 
-            Image*   image;
-            const uint128_t version;
-        };
-        std::list<ImageVersion> _pendingImages;
+        uint64_t _nextVersion; //!< The current version
 
-        typedef std::deque< net::Command* > Commands;
-        Commands _readyVersions;
-
-        typedef base::Monitor< uint128_t > Monitor;
+        typedef base::Monitor< uint64_t > Monitor;
         /** Data ready monitor synchronization primitive. */
         Monitor _readyVersion;
 
@@ -329,19 +319,14 @@ namespace server
         };
 
         /** Allocate or reuse an image. */
-        Image* _allocImage( const eq::Frame::Type type,
+        Image* _allocImage( const Frame::Type type,
                             const DrawableConfig& config );
 
         /** Apply all received images of the given version. */
         void _applyVersion( const uint128_t& version );
 
         /** Set a specific version ready. */
-        void _setReady( const uint128_t& version );
-
-        /* The command handlers. */
-        bool _cmdTransmit( net::Command& command );
-        bool _cmdReady( net::Command& command );
-        bool _cmdUpdate( net::Command& command );
+        void _setReady( const uint64_t version );
 
         EQ_TS_VAR( _commandThread );
     };

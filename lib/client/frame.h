@@ -237,9 +237,6 @@ namespace server
         void removeListener( base::Monitor<uint32_t>& listener );
         //@}
 
-        /** @internal */
-        void useSendToken( const bool use );
-
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
         virtual void getInstanceData( net::DataOStream& os );

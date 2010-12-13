@@ -186,7 +186,6 @@ NodeID Session::_findMasterNodeID( const base::UUID& identifier )
     }
 
     return base::UUID::ZERO;
-
 }
 
 //---------------------------------------------------------------------------

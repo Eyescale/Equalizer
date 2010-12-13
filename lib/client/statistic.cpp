@@ -69,7 +69,7 @@ static StatisticData _statisticData[] =
    "swap",         Vector3f( 1.f, 1.f, 1.f ) }, 
  { Statistic::PIPE_IDLE,
    "pipe idle",    Vector3f( 1.f, 1.f, 1.f ) }, 
- { Statistic::FRAME_DECOMPRESS,
+ { Statistic::NODE_FRAME_DECOMPRESS,
    "decompress",   Vector3f( .7f, 1.f, .7f ) }, 
  { Statistic::CONFIG_START_FRAME,
    "start frame",  Vector3f( .5f, 1.0f, .5f ) }, 

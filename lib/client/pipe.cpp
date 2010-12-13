@@ -290,13 +290,26 @@ Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye,
     frame->sync( frameVersion.version );
 
     const net::ObjectVersion& data = frame->getDataVersion( eye );
+    EQLOG( LOG_ASSEMBLY ) << "Use " << data << std::endl;
+
     EQASSERT( data.identifier.isGenerated( ));
     FrameData* frameData = getNode()->getFrameData( data ); 
     EQASSERT( frameData );
 
-    frame->setData( frameData );
     if( isOutput )
+    {    
+        if( !frameData->isAttached() )
+        { 
+            net::Session* session = getSession();
+            EQCHECK( session->mapObject( frameData, data ));
+        }
+        else if( frameData->getVersion() < data.version )
+            frameData->sync( data.version );
+
         _outputFrameDatas[ data.identifier ] = frameData;
+    }
+
+    frame->setData( frameData );
     return frame;
 }
 

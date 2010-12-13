@@ -32,9 +32,11 @@ namespace eq
     {
     public:
         FrameDataStatistics( const Statistic::Type type, FrameData* frameData,
-                             const uint32_t frameNumber,
+                             Node* node, const uint32_t frameNumber,
                              const uint128_t& originator );
         ~FrameDataStatistics();
+    private:
+        Node* _node;
     };
 }
 

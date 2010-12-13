@@ -1,10 +1,9 @@
-Make Windows 7 PBuffer creation more robust (does still not work without
-affinity)
+Move transmit frame to channel/node
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation

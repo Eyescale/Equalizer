@@ -116,28 +116,13 @@ namespace eq
             TransmitThread( Node* parent ) : _node( parent ) {}
             virtual ~TransmitThread() {}
 
-            void send( FrameData* data, net::NodePtr node,
-                       const uint32_t frameNumber, const uint32_t index,
-                       const uint32_t renderTaskid, Channel* channel );
+            net::CommandQueue& getQueue() { return _queue; }
             
         protected:
             virtual void run();
 
         private:
-            struct Task
-            {
-                Task( FrameData* d, net::NodePtr n, const uint32_t f,
-                      const uint32_t i, const uint32_t t, Channel* c );
-
-                FrameData*   data;
-                net::NodePtr node;
-                const uint32_t     frameNumber;
-                const uint32_t     index;
-                const uint32_t     renderTaskID;
-                Channel*           channel;
-            };
-
-            base::MTQueue< Task > _tasks;
+            net::CommandQueue     _queue;
             Node* const           _node;
         } transmitter;
 
@@ -305,8 +290,11 @@ namespace eq
         bool _cmdFrameFinish( net::Command& command );
         bool _cmdFrameDrawFinish( net::Command& command );
         bool _cmdFrameTasksFinish( net::Command& command );
+        bool _cmdFrameDataTransmit( net::Command& command );
+        bool _cmdFrameDataReady( net::Command& command );
 
         EQ_TS_VAR( _nodeThread );
+        EQ_TS_VAR( _commandThread );
     };
 }
 

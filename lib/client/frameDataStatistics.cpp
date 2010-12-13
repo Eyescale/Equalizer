@@ -21,6 +21,7 @@
 #include "config.h"
 #include "global.h"
 #include "pipe.h"
+#include "node.h"
 #include "frameData.h"
 
 #ifdef _MSC_VER
@@ -32,15 +33,17 @@ namespace eq
 
 FrameDataStatistics::FrameDataStatistics( const Statistic::Type type, 
                                           FrameData* frameData, 
+                                          Node* node,
                                           const uint32_t frameNumber,
                                           const uint128_t& originator )
         : StatisticSampler< FrameData >( type, frameData, frameNumber )
+        , _node( node )
 {
     snprintf( event.data.statistic.resourceName, 32, "Node %s",
               originator.getShortString().c_str( ));
     event.data.statistic.resourceName[31] = 0;
 
-    const net::Session* session = frameData->getSession();
+    const net::Session* session = node->getSession();
     EQASSERT( session );
     if( !session )
     {
@@ -60,7 +63,7 @@ FrameDataStatistics::~FrameDataStatistics()
     if( event.data.statistic.frameNumber == 0 ) // does not belong to a frame
         return;
 
-    net::Session* session = _owner->getSession();
+    net::Session* session = _node->getSession();
     EQASSERT( session );
     if( !session )
         return;

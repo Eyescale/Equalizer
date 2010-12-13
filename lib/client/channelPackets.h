@@ -182,9 +182,11 @@ namespace eq
             }
 
         
-        net::ObjectVersion frame;
-        uint32_t           nNodes;
-        EQ_ALIGN8( net::NodeID nodes[1] );
+        net::ObjectVersion frameData;
+        uint128_t          netNodeID;
+        uint128_t          clientNodeID;
+        uint32_t           statisticsIndex;
+        uint32_t           frameNumber;
     };
 
     struct ChannelFrameViewStartPacket : public ChannelTaskPacket
@@ -195,7 +197,7 @@ namespace eq
                 size          = sizeof( ChannelFrameViewStartPacket );
             }
     };
-        
+
     struct ChannelFrameViewFinishPacket : public ChannelTaskPacket
     {
         ChannelFrameViewFinishPacket()
@@ -238,10 +240,11 @@ namespace eq
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                      const ChannelFrameTransmitPacket* packet )
+                                     const ChannelFrameTransmitPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " frame " << packet->frame
-           << " nNodes " << packet->nNodes;
+        os << (net::ObjectPacket*)packet << " frame data " << packet->frameData
+           << " receiver " << packet->clientNodeID << " on "
+           << packet->netNodeID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
