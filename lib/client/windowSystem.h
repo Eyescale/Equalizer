@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -34,8 +34,8 @@ namespace eq
         WINDOW_SYSTEM_ALL       // must be last
     };
 
-    EQ_API std::ostream& operator << ( std::ostream& os, 
-                                          const WindowSystem ws );
+    /** Print the window system name to the given output stream. @version 1.0 */
+    EQ_API std::ostream& operator << ( std::ostream& os, const WindowSystem& );
 }
 #endif // EQ_WINDOWSYSTEM_H
 

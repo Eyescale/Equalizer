@@ -173,10 +173,10 @@ namespace fabric
                                   const PixelViewport& pvp, 
                                   const Vector4i& overdraw );
 
-        float x;
-        float y;
-        float w;
-        float h;
+        float x; //!< The X coordinate
+        float y; //!< The Y coordinate
+        float w; //!< The width
+        float h; //!< The height
 
         EQFABRIC_API static const Viewport FULL; //!< A full viewport.
     };

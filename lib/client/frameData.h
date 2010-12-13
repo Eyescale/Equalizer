@@ -331,6 +331,8 @@ namespace server
 
         EQ_TS_VAR( _commandThread );
     };
+
+    /** Print the frame data to the given output stream. @version 1.0 */
     std::ostream& operator << ( std::ostream& os, const FrameData* data );
 }
 

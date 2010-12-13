@@ -69,8 +69,8 @@ namespace fabric
             }
         
 
-        float start;
-        float end;
+        float start; //!< The start position
+        float end;   //!< The end position
 
         EQFABRIC_API static const Range ALL; //!< A full database range
     };

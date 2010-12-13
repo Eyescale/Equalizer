@@ -84,7 +84,7 @@ typedef fabric::LeafVisitor< Observer > ObserverVisitor;
 /** A visitor to traverse channels. @sa Channel::accept() */
 typedef fabric::LeafVisitor< Channel > ChannelVisitor;
 
-/** A visitor to traverse Canvas and children. */
+/** A visitor to traverse canvases and children. */
 typedef fabric::ElementVisitor< Canvas, SegmentVisitor > CanvasVisitor;
 
 /** A visitor to traverse windows and children. */

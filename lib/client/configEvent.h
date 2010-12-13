@@ -53,8 +53,9 @@ namespace eq
         Event data; //!< the Event @version 1.0
     };
 
+    /** Print the config event to the given output stream. @version 1.0 */
     EQ_API std::ostream& operator << ( std::ostream& os, 
-                                          const ConfigEvent* event );
+                                       const ConfigEvent* event );
 }
 
 #endif // EQ_CONFIGEVENT_H

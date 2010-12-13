@@ -232,11 +232,17 @@ namespace eq
         RenderContext context;
     };
 
+    /** Print the event to the given output stream. @version 1.0 */
     EQ_API std::ostream& operator << ( std::ostream&, const Event& );
+    /** Print the event type to the given output stream. @version 1.0 */
     EQ_API std::ostream& operator << ( std::ostream&, const Event::Type& );
+    /** Print the resize event to the given output stream. @version 1.0 */
     EQ_API std::ostream& operator << ( std::ostream&, const ResizeEvent& );
+    /** Print the pointer event to the given output stream. @version 1.0 */
     EQ_API std::ostream& operator << ( std::ostream&, const PointerEvent& );
+    /** Print the key event to the given output stream. @version 1.0 */
     EQ_API std::ostream& operator << ( std::ostream&, const KeyEvent& );
+    /** Print the space mouse event to the given output stream. @version 1.0 */
     EQ_API std::ostream& operator << ( std::ostream&, const MagellanEvent& );
 }
 

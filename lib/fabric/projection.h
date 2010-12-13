@@ -76,10 +76,10 @@ namespace fabric
          */
     	EQFABRIC_API bool operator != ( const Projection& rhs ) const;
         
-        Vector3f origin;
-        float    distance;
-        Vector2f fov;
-        Vector3f hpr;
+        Vector3f origin;   //!< The position of the projection
+        float    distance; //!< The distance of the projection surface
+        Vector2f fov;      //!< The x and y opening angle of the projection
+        Vector3f hpr;      //!< The orientation (head, pitch, roll)
     };
 
     EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Projection& );

@@ -1308,9 +1308,4 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
     return true;
 }
 
-std::ostream& operator << ( std::ostream& os, const Image* image )
-{
-    os << "image " << image->_pvp;
-    return os;
-}
 }

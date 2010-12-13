@@ -23,7 +23,6 @@
 
 namespace eq
 {
-    /** Defines an eye pass. */
     typedef fabric::Eye Eye;
 
     /** @cond IGNORE */

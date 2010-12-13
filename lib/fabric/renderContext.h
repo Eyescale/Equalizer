@@ -40,31 +40,31 @@ namespace fabric
     public: 
         EQFABRIC_API RenderContext();
 
-        Frustumf       frustum;        //<! frustum for projection matrix
-        Frustumf       ortho;          //<! ortho frustum for projection matrix
+        Frustumf       frustum;        //!< frustum for projection matrix
+        Frustumf       ortho;          //!< ortho frustum for projection matrix
 
-        Matrix4f       headTransform;  //<! frustum transform for modelview
+        Matrix4f       headTransform;  //!< frustum transform for modelview
 
-        net::ObjectVersion view;       //<! destination view id and version
-        uint128_t      frameID;        //<! identifier from Config::beginFrame
-        PixelViewport  pvp;            //<! pixel viewport of channel wrt window
-        Pixel          pixel;          //<! pixel decomposition wrt to dest
-        Vector4i       overdraw;       //<! @internal for pw pp filters
-        Viewport       vp;             //<! fractional viewport wrt dest view
+        net::ObjectVersion view;       //!< destination view id and version
+        uint128_t      frameID;        //!< identifier from Config::beginFrame
+        PixelViewport  pvp;            //!< pixel viewport of channel wrt window
+        Pixel          pixel;          //!< pixel decomposition wrt to dest
+        Vector4i       overdraw;       //!< @internal for pw pp filters
+        Viewport       vp;             //!< fractional viewport wrt dest view
 
-        Vector2i       offset;         //<! absolute position wrt dest channel
-        Range          range;          //<! database-range wrt to dest channel
-        SubPixel       subpixel;       //<! subpixel decomposition wrt to dest
-        Zoom           zoom;           //<! up/downsampling wrt to dest
+        Vector2i       offset;         //!< absolute position wrt dest channel
+        Range          range;          //!< database-range wrt to dest channel
+        SubPixel       subpixel;       //!< subpixel decomposition wrt to dest
+        Zoom           zoom;           //!< up/downsampling wrt to dest
 
-        uint32_t       buffer;         //<! buffer as passed to glDrawBuffer() 
-        uint32_t       taskID;         //<! @internal per-channel task counter
-        uint32_t       period;         //<! DPlex period
-        uint32_t       phase;          //<! DPlex phase
-        Eye            eye;            //<! current eye pass
+        uint32_t       buffer;         //!< buffer as passed to glDrawBuffer() 
+        uint32_t       taskID;         //!< @internal per-channel task counter
+        uint32_t       period;         //!< DPlex period
+        uint32_t       phase;          //!< DPlex phase
+        Eye            eye;            //!< current eye pass
 
-        ColorMask      bufferMask;     //<! color mask for anaglyph stereo
-        bool           alignDummy[28]; //<! @internal padding
+        ColorMask      bufferMask;     //!< color mask for anaglyph stereo
+        bool           alignDummy[28]; //!< @internal padding
     };
 
     EQFABRIC_API std::ostream& operator << ( std::ostream& os, 

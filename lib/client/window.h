@@ -64,7 +64,7 @@ namespace eq
     class Window : public fabric::Window< Pipe, Window, Channel >
     {
     public:
-        /** The per-window object manager. @version 1.0 */
+        /** The per-window OpenGL object manager. @version 1.0 */
         typedef util::ObjectManager< const void* > ObjectManager;
 
         /** Fonts used for overlays. @version 1.0 */

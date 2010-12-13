@@ -27,10 +27,9 @@ namespace eq
     class WGLWindowEvent : public Event
     {
     public:
-        // Native event data
-        UINT uMsg;
-        WPARAM wParam;
-        LPARAM lParam;
+        UINT uMsg;     //!< The windows message @version 1.0
+        WPARAM wParam; //!< Extra message data @version 1.0
+        LPARAM lParam; //!< Extra message data @version 1.0
     };
 }
 

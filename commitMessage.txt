@@ -1,9 +1,9 @@
-change variable name _nextVersion to version 
+Doxygen improvements
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[x] Optimization
-[ ] Documentation
+[ ] Optimization
+[x] Documentation

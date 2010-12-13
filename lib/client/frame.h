@@ -258,13 +258,13 @@ namespace server
         }
         _data;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[64];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
     };
 
+    /** Print the frame type to the given output stream. @version 1.0 */
     EQ_API std::ostream& operator << ( std::ostream&, const Frame::Type );
+    /** Print the frame buffer value to the given output stream. @version 1.0 */
     EQ_API std::ostream& operator << ( std::ostream&, const Frame::Buffer );
 };
 #endif // EQ_FRAME_H

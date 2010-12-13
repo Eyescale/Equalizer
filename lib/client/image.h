@@ -440,10 +440,6 @@ namespace eq
                         util::ObjectManager< const void* >* glObjects );
         void _readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
                             util::ObjectManager< const void* >* glObjects );
-
-        friend std::ostream& operator << ( std::ostream& os, const Image* );
     };
-
-    std::ostream& operator << ( std::ostream& os, const Image* image );
 };
 #endif // EQ_IMAGE_H

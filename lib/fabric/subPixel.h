@@ -97,10 +97,10 @@ namespace fabric
         /** @return true if the pixel specification is valid. @internal */
         bool isValid() const { return ( index < size ); }
 
-        uint32_t index;
-        uint32_t size;
+        uint32_t index; //!< The contributor id
+        uint32_t size;  //!< Total number of contributors
 
-        EQFABRIC_API static const SubPixel ALL; 
+        EQFABRIC_API static const SubPixel ALL;
     };
 
     inline std::ostream& operator << ( std::ostream& os,
