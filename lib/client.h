@@ -70,7 +70,7 @@
  * RenderContext for a PointerEvent. The RenderContext describes the rendering
  * setup of the last Channel draw operation on the pointer position.
  *
- * During scalable rendering, a Frame is used to represent and output frame
+ * During scalable rendering, a Frame is used to represent an output frame
  * during Channel::frameReadback or an input frame during
  * Channel::frameAssemble. Each Frame holds a FrameData, which is a container
  * for images and links the input with the output frames. An Image represents a
