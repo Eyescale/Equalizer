@@ -574,8 +574,7 @@ bool Node::_cmdFrameDataTransmit( net::Command& command )
     EQASSERT( packet->pvp.isValid( ));
 
     FrameData* frameData = getFrameData( packet->frameData );
-    bool isReady = frameData->isReady();
-    EQASSERT( !isReady );
+    EQCHECK( frameData->isReady() );
     const uint128_t& originator = getID();
     EQASSERT( originator != base::UUID::ZERO );    
     FrameDataStatistics event( Statistic::NODE_FRAME_DECOMPRESS, frameData,
