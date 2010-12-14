@@ -1,4 +1,4 @@
-CMake: Fix Darwin architecture detection
+Fix rounding of Clock::getTime64() and imageIO test
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

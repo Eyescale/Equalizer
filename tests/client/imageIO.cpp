@@ -32,16 +32,16 @@ int main( int argc, char **argv )
     TEST( eq::init( argc, argv, &nodeFactory ));
 
     eq::Strings images;
-    eq::Strings candidates = eq::base::searchDirectory( "../image/images",
-                                                        "*.rgb");
+    eq::Strings candidates = eq::base::searchDirectory( "images", "*.rgb");
     for( eq::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
     {
         const std::string& filename = *i;
         const size_t decompPos = filename.find( "out_" );
         if( decompPos == std::string::npos )
-            images.push_back( "../image/images/" + filename );
+            images.push_back( "images/" + filename );
     }
+    TEST( !images.empty( ));
 
     eq::Image image;
     // For each image

@@ -111,19 +111,19 @@ int64_t Clock::getTime64() const
 {
 #ifdef Darwin
     const int64_t elapsed = mach_absolute_time() - _start;
-    return elapsed * _timebaseInfo.numer / _timebaseInfo.denom /
-        1000000;
+    return (elapsed * _timebaseInfo.numer / _timebaseInfo.denom + 500000) /
+            1000000;
 #elif defined (_WIN32)
     LARGE_INTEGER now;
     QueryPerformanceCounter( &now );
-    return 1000 * (now.QuadPart - _start.QuadPart) /
-        _frequency.QuadPart;
+    return (1000 * (now.QuadPart-_start.QuadPart) + (_frequency.QuadPart>>1)) /
+            _frequency.QuadPart;
 #else
     struct timespec now;
     clock_gettime( CLOCK_REALTIME, &now );
     return ( 1000 * (now.tv_sec - _start.tv_sec) +
              static_cast< int64_t >(0.000001f * 
-                                    (now.tv_nsec-_start.tv_nsec)));
+                                    (now.tv_nsec - _start.tv_nsec + 500000)));
 #endif
 }
 
