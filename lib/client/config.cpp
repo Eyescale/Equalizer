@@ -800,7 +800,7 @@ bool Config::_cmdExitReply( net::Command& command )
     EQVERB << "handle exit reply " << packet << std::endl;
 
     _exitMessagePump();
-    getLocalNode()->serveRequest( packet->requestID, (void*)(packet->result) );    
+    getLocalNode()->serveRequest( packet->requestID, (void*)(packet->result) );
     return true;
 }
 

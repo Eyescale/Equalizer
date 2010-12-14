@@ -179,7 +179,7 @@ IF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
 ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
 
 
-if(APPLE)
+if(APPLE AND CMAKE_OSX_ARCHITECTURES)
   message(STATUS "Supported Features:${EQ_FEATURES} [${CMAKE_OSX_ARCHITECTURES}]")
 else()
   message(STATUS "Supported Features:${EQ_FEATURES}")

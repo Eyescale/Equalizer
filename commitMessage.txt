@@ -1,15 +1,9 @@
-Remove Session and ConfigProxy (cstalder)
-- Objects are registered and mapped with net::LocalNode
-- New class ObjectStore managing object mapping and dispatch
-- eq::Config is now an net::Object
-- Add convenience methods (de)registerObject and (un)mapObject to eq::Config
+Fix release warning
 
-More testing needed
-
-[x] May break build
-[x] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
-[x] New Feature
-[x] Cleanup
-[x] Optimization
+[ ] May break build
+[ ] May break existing applications (see CHANGES.txt)
+[x] Bugfix
+[ ] New Feature
+[ ] Cleanup
+[ ] Optimization
 [ ] Documentation

@@ -574,8 +574,6 @@ bool Node::_cmdFrameDataTransmit( net::Command& command )
 
     FrameData* frameData = getFrameData( packet->frameData );
     EQCHECK( frameData->isReady() );
-    const uint128_t& originator = getID();
-    EQASSERT( originator != base::UUID::ZERO );    
     NodeStatistics event( Statistic::NODE_FRAME_DECOMPRESS, this,
                           packet->frameNumber );
 

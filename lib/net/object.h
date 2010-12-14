@@ -309,8 +309,9 @@ namespace net
                                        LocalNodePtr localNode );
 
         /**
-         * Called when the object is detached from the local node from the receiver
-         * thread. @internal
+         * @internal
+         * Called when the object is detached from the local node from the
+         * receiver thread.
          */
         EQNET_API virtual void detach();
 
