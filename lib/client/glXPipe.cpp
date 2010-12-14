@@ -65,8 +65,8 @@ bool GLXPipe::configInit( )
     }
 
     setXDisplay( xDisplay );
-    EQINFO << "Opened X display " << xDisplay << ", device "
-           << getPipe()->getDevice() << std::endl;
+    EQINFO << "Opened X display " << XDisplayName( displayName.c_str( )) << " @"
+           << xDisplay << ", device " << getPipe()->getDevice() << std::endl;
     return true;
 #else
     setError( ERROR_GLX_MISSING_SUPPORT );

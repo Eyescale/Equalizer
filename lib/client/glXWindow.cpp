@@ -569,6 +569,7 @@ void GLXWindow::configExit( )
 
     setGLXContext( 0 );
     setXDrawable( 0 );
+    XSync( _xDisplay, False ); // WAR to assert in glXDestroyContext/xcb_io.c:183
 
     if( context )
         glXDestroyContext( _xDisplay, context );
