@@ -543,7 +543,7 @@ NodePtr Session::_connectMaster( const base::UUID& id )
     const NodeID masterNodeID = _findMasterNodeID( id );
     if( masterNodeID == base::UUID::ZERO )
     {
-        EQWARN << "Can't find master node for object id " << id <<std::endl;
+        EQWARN << "Can't find master node for object id " << id << std::endl;
         return 0;
     }
 

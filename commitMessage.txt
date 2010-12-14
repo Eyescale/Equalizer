@@ -1,4 +1,4 @@
-Fix reliability test on Linux
+CMake: Fix Darwin architecture detection [untested]
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
