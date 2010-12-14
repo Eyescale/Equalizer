@@ -63,7 +63,7 @@ protected:
         }
     virtual void frameStart( const eq::uint128_t& id, const uint32_t number )
         {
-            TEST( !getWindows().empty( ));
+            TESTINFO( !getWindows().empty(), getConfig()->getName( ));
             eq::Pipe::frameStart( id, number );
         }
 };

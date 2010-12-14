@@ -1,9 +1,9 @@
-Fix rounding of Clock::getTime64() and imageIO test
+Minor code cleanup
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
