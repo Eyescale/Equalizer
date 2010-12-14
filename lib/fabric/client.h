@@ -60,18 +60,18 @@ namespace fabric
         /** @return the command queue to the main node thread. @internal */
         virtual net::CommandQueue* getMainThreadQueue() = 0;
 
+        /** @internal */
+        EQFABRIC_API virtual bool dispatchCommand( net::Command& command );
+
+        /** @internal */
+        EQFABRIC_API virtual bool invokeCommand( net::Command& );
+
     protected:
         /** Construct a new client. @internal */
         EQFABRIC_API Client();
 
         /** Destruct the client. @internal */
         EQFABRIC_API virtual ~Client();
-
-        /** @sa net::Node::dispatchCommand. @internal */
-        EQFABRIC_API virtual bool dispatchCommand( net::Command& command );
-
-        /** @sa net::Node::invokeCommand. @internal */
-        EQFABRIC_API virtual bool invokeCommand( net::Command& );
 
     private:
         union // placeholder for binary-compatible changes

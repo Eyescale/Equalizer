@@ -20,7 +20,6 @@
 
 #include "objectCM.h"
 #include "objectPackets.h"
-#include "session.h"
 
 #include <eq/plugins/compressorTypes.h>
 
@@ -43,7 +42,6 @@ void ObjectDataOStream::sendPacket( ObjectDataPacket& packet,
     packet.dataSize = size;
 
     const Object* object = _cm->getObject();
-    packet.sessionID = object->getSession()->getID();
     packet.objectID  = object->getID();
 
 #if 0

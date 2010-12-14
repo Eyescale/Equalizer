@@ -84,10 +84,10 @@ Node::~Node()
 {
 }
 
-void Node::attachToSession( const base::UUID& id, const uint32_t instanceID, 
-                               net::Session* session )
+void Node::attach( const base::UUID& id, const uint32_t instanceID, 
+                   net::LocalNodePtr localNode )
 {
-    Super::attachToSession( id, instanceID, session );
+    Super::attach( id, instanceID, localNode );
     
     net::CommandQueue* queue = getCommandThreadQueue();
 
@@ -438,8 +438,7 @@ void Node::configInit( const uint128_t& initID, const uint32_t frameNumber )
     EQLOG( LOG_INIT ) << "Create node" << std::endl;
     ConfigCreateNodePacket createNodePacket;
     createNodePacket.nodeID = getID();
-    createNodePacket.sessionID = getConfig()->getID();
-    _node->send( createNodePacket );
+    getConfig()->send( _node, createNodePacket );
 
     EQLOG( LOG_INIT ) << "Init node" << std::endl;
     NodeConfigInitPacket packet;
@@ -658,7 +657,7 @@ void Node::_flushBarriers()
          i != _barriers.end(); ++ i )
     {
         net::Barrier* barrier = *i;
-        getConfig()->deregisterObject( barrier );
+        getServer()->deregisterObject( barrier );
         delete barrier;
     }
     _barriers.clear();

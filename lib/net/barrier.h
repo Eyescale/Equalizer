@@ -40,9 +40,10 @@ namespace net
          * The master node will maintain the barrier state. It has to be
          * reachable from all other nodes participating in the barrier.
          *
-         * This instance should be registered as the master version of the
-         * barrier with the session. Note the node of the object master, i.e.,
-         * this instance, and the barrier master node might be different.
+         * The instance created using this constructor should be registered as
+         * the master version of the barrier with the LocalNode. Note the node
+         * of the object master, i.e., this instance, and the barrier's master
+         * node might be different.
          */
         EQNET_API Barrier( NodePtr master, const uint32_t height = 0 );
 
@@ -81,9 +82,10 @@ namespace net
         //@}
 
     protected:
-        virtual void attachToSession( const base::UUID& id, 
-                                      const uint32_t instanceID, 
-                                      Session* session );
+        virtual void attach( const base::UUID& id, 
+                             const uint32_t instanceID, 
+                             LocalNodePtr localNode );
+
         virtual ChangeType getChangeType() const { return DELTA; }
 
         virtual void getInstanceData( DataOStream& os );

@@ -26,8 +26,7 @@
 #include "objectDeltaDataOStream.h"
 #include "objectInstanceDataOStream.h"
 #include "objectPackets.h"
-#include "session.h"
-#include "sessionPackets.h"
+#include "objectStorePackets.h"
 
 namespace eq
 {
@@ -52,12 +51,12 @@ UnbufferedMasterCM::~UnbufferedMasterCM()
 uint128_t UnbufferedMasterCM::addSlave( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
-    EQASSERT( command->type == PACKETTYPE_EQNET_SESSION );
-    EQASSERT( command->command == CMD_SESSION_MAP_OBJECT );
+    EQASSERT( command->type == PACKETTYPE_EQNET_OBJECTSTORE );
+    EQASSERT( command->command == CMD_OBJECTSTORE_MAP_OBJECT );
 
     NodePtr node = command.getNode();
-    SessionMapObjectPacket* packet =
-        command.getPacket<SessionMapObjectPacket>();
+    ObjectStoreMapObjectPacket* packet =
+        command.getPacket<ObjectStoreMapObjectPacket>();
     const uint128_t version = packet->requestedVersion;
     const uint32_t instanceID = packet->instanceID;
 

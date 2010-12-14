@@ -24,11 +24,11 @@
 #include "configPackets.h"
 #include "error.h"
 #include "frameData.h"
-#include "frameDataStatistics.h"
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
 #include "nodePackets.h"
+#include "nodeStatistics.h"
 #include "pipe.h"
 #include "pipePackets.h"
 #include "server.h"
@@ -70,16 +70,16 @@ Node::~Node()
     EQASSERT( getPipes().empty( ));
 }
 
-void Node::attachToSession( const base::UUID& id, 
-                            const uint32_t instanceID, 
-                            net::Session* session )
+void Node::attach( const base::UUID& id, 
+                   const uint32_t instanceID, 
+                   net::LocalNodePtr localNode )
 {
-    Super::attachToSession( id, instanceID, session );
+    Super::attach( id, instanceID, localNode );
 
     Config* config = getConfig();
     EQASSERT( config );
     net::CommandQueue* queue = config->getMainThreadQueue();
-    net::CommandQueue* command = session->getCommandThreadQueue();
+    net::CommandQueue* command = localNode->getCommandThreadQueue();
     registerCommand( fabric::CMD_NODE_CREATE_PIPE, 
                      NodeFunc( this, &Node::_cmdCreatePipe ), queue );
     registerCommand( fabric::CMD_NODE_DESTROY_PIPE,
@@ -130,10 +130,10 @@ net::Barrier* Node::getBarrier( const net::ObjectVersion barrier )
         netBarrier->sync( barrier.version );
     else
     {
-        net::Session* session = getSession();
+        ClientPtr client = getClient();
 
         netBarrier = new net::Barrier;
-        EQCHECK( session->mapObject( netBarrier, barrier ));
+        EQCHECK( client->mapObject( netBarrier, barrier ));
 
         _barriers.data[ barrier.identifier ] = netBarrier;
     }
@@ -359,14 +359,14 @@ void Node::frameTasksFinish( const uint128_t&, const uint32_t frameNumber )
 
 void Node::_flushObjects()
 {
-    net::Session* session = getSession();
+    ClientPtr client = getClient();
     {
         base::ScopedMutex<> mutex( _barriers );
         for( BarrierHash::const_iterator i =_barriers->begin();
              i != _barriers->end(); ++ i )
         {
             net::Barrier* barrier = i->second;
-            session->unmapObject( barrier );
+            client->unmapObject( barrier );
             delete barrier;
         }
         _barriers->clear();
@@ -377,7 +377,7 @@ void Node::_flushObjects()
          i != _frameDatas->end(); ++ i )
     {
         FrameData* frameData = i->second;
-        session->unmapObject( frameData );
+        client->unmapObject( frameData );
         delete frameData;
     }
     _frameDatas->clear();
@@ -386,8 +386,7 @@ void Node::_flushObjects()
 void Node::TransmitThread::run()
 {
     base::Thread::setDebugName( std::string( "Trm " ) + typeid( *_node).name());
-    Config* config = _node->getConfig();
-    EQASSERT( config );
+    ClientPtr client = _node->getClient();
 
     while( true )
     {
@@ -395,7 +394,7 @@ void Node::TransmitThread::run()
         if( !command )
             return; // exit thread
 
-        EQCHECK( config->invokeCommand( *command ));
+        EQCHECK( client->invokeCommand( *command ));
         command->release();
     }
 }
@@ -440,7 +439,7 @@ bool Node::_cmdDestroyPipe( net::Command& command )
     config->unmapObject( pipe );
     Global::getNodeFactory()->releasePipe( pipe );
 
-    config->send( getServer(), reply ); // do not use Object::send()
+    getServer()->send( reply ); // send to config object
     return true;
 }
 
@@ -577,8 +576,8 @@ bool Node::_cmdFrameDataTransmit( net::Command& command )
     EQCHECK( frameData->isReady() );
     const uint128_t& originator = getID();
     EQASSERT( originator != base::UUID::ZERO );    
-    FrameDataStatistics event( Statistic::NODE_FRAME_DECOMPRESS, frameData,
-                               this, packet->frameNumber, originator );
+    NodeStatistics event( Statistic::NODE_FRAME_DECOMPRESS, this,
+                          packet->frameNumber );
 
     return frameData->addImage( packet );
 }
@@ -605,5 +604,5 @@ template class eq::fabric::Node< eq::Config, eq::Node, eq::Pipe,
                                  eq::NodeVisitor >;
 /** @cond IGNORE */
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
-                                                 const eq::Super& );
+                                                             const eq::Super& );
 /** @endcond */

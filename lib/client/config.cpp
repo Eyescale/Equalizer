@@ -79,9 +79,11 @@ Config::~Config()
     base::Log::setClock( 0 );
 }
 
-void Config::notifyMapped( net::LocalNodePtr node )
+void Config::attach( const base::UUID& id, 
+                     const uint32_t instanceID, 
+                     net::LocalNodePtr localNode )
 {
-    Super::notifyMapped( node );
+    Super::attach( id, instanceID, localNode );
 
     ServerPtr          server = getServer();
     net::CommandQueue* queue  = server->getMainThreadQueue();
@@ -112,7 +114,9 @@ void Config::notifyMapped( net::LocalNodePtr node )
 
 void Config::notifyAttached()
 {
+    fabric::Object::notifyAttached();
     EQASSERT( !_appNode )
+    EQASSERT( getAppNodeID().isGenerated() )
     net::LocalNodePtr localNode = getLocalNode();
     _appNode = localNode->connect( getAppNodeID( ));
     if( !_appNode )
@@ -120,30 +124,16 @@ void Config::notifyAttached()
                << "misconfigured connections on appNode?" << std::endl;
 }
 
-net::CommandQueue* Config::getMainThreadQueue()
-{
-    return getClient()->getMainThreadQueue();
-}
-
-ClientPtr Config::getClient()
-{ 
-    return getServer()->getClient(); 
-}
-
-ConstClientPtr Config::getClient() const
-{ 
-    return getServer()->getClient(); 
-}
-
-void Config::unmap()
+void Config::notifyDetach()
 {
     {
+        ClientPtr client = getClient();
         base::ScopedMutex< base::SpinLock > mutex( _latencyObjects );
         while( !_latencyObjects->empty() )
         {
             LatencyObject* latencyObject = _latencyObjects->back();
             _latencyObjects->pop_back();
-            Session::deregisterObject( latencyObject );
+            client->deregisterObject( latencyObject );
             delete latencyObject;
             latencyObject = 0;
         }
@@ -166,10 +156,25 @@ void Config::unmap()
         // connection and _connections hold reference
         EQASSERTINFO( connection->getRefCount()==2, connection->getRefCount( ));
     }
-    _connections.clear();
 
+    _connections.clear();
     _exitMessagePump();
-    Super::unmap();
+    Super::notifyDetach();
+}
+
+net::CommandQueue* Config::getMainThreadQueue()
+{
+    return getClient()->getMainThreadQueue();
+}
+
+ClientPtr Config::getClient()
+{ 
+    return getServer()->getClient(); 
+}
+
+ConstClientPtr Config::getClient() const
+{ 
+    return getServer()->getClient(); 
 }
 
 bool Config::init( const uint128_t& initID )
@@ -185,7 +190,7 @@ bool Config::init( const uint128_t& initID )
     packet.requestID  = localNode->registerRequest();
     packet.initID     = initID;
 
-    send( packet );
+    send( getServer(), packet );
     
     ClientPtr client = getClient();
     while( !localNode->isRequestServed( packet.requestID ))
@@ -208,7 +213,7 @@ bool Config::exit()
     net::LocalNodePtr localNode = getLocalNode();
     ConfigExitPacket packet;
     packet.requestID = localNode->registerRequest();
-    send( packet );
+    send( getServer(), packet );
 
     ClientPtr client = getClient();
     while( !localNode->isRequestServed( packet.requestID ))
@@ -237,7 +242,7 @@ bool Config::update()
     packet.versionID = client->registerRequest();
     packet.finishID = client->registerRequest();
     packet.requestID = client->registerRequest();
-    send( packet );
+    send( getServer(), packet );
 
     // wait for new version
     uint128_t version = net::VERSION_INVALID;
@@ -256,7 +261,7 @@ bool Config::update()
         client->processCommand();
 
     sync( version );
-    ackRequest( getServer(), finishID );
+    client->ackRequest( getServer(), finishID );
 
     while( !client->isRequestServed( packet.requestID ))
         client->processCommand();
@@ -274,7 +279,7 @@ uint32_t Config::startFrame( const uint128_t& frameID )
     // Request new frame
     ClientPtr client = getClient();
     ConfigStartFramePacket packet( frameID );
-    send( packet );
+    send( getServer(), packet );
 
     ++_currentFrame;
     EQLOG( base::LOG_ANY ) << "---- Started Frame ---- " << _currentFrame
@@ -289,7 +294,7 @@ void Config::_frameStart()
     while( _frameTimes.size() > getLatency() )
     {
         const int64_t age = _frameTimes.back() - _frameTimes.front();
-        expireInstanceData( age );
+        getClient()->expireInstanceData( age );
         _frameTimes.pop_front();
     }
 }
@@ -343,7 +348,7 @@ uint32_t Config::finishAllFrames()
 
     EQLOG( base::LOG_ANY ) << "-- Finish All Frames --" << std::endl;
     ConfigFinishAllFramesPacket packet;
-    send( packet );
+    send( getServer(), packet );
 
     ClientPtr client = getClient();
     while( _finishedFrame < _currentFrame )
@@ -359,7 +364,7 @@ uint32_t Config::finishAllFrames()
 void Config::stopFrames()
 {
     ConfigStopFramesPacket packet;
-    send( packet );
+    send( getServer(), packet );
 }
 
 namespace
@@ -415,8 +420,7 @@ void Config::sendEvent( ConfigEvent& event )
     EQASSERT( getAppNodeID() != net::NodeID::ZERO );
     EQASSERT( _appNode.isValid( ));
 
-    event.sessionID = getID();
-    _appNode->send( event );
+    send( _appNode, event );
 }
 
 const ConfigEvent* Config::nextEvent()
@@ -677,7 +681,12 @@ void Config::freezeLoadBalancing( const bool onOff )
 {
     ConfigFreezeLoadBalancingPacket packet;
     packet.freeze = onOff;
-    send( packet );
+    send( getServer(), packet );
+}
+
+bool Config::registerObject( net::Object* object )
+{
+    return getClient()->registerObject( object );
 }
 
 void Config::deregisterObject( net::Object* object )
@@ -686,12 +695,12 @@ void Config::deregisterObject( net::Object* object )
     EQASSERT( object->isMaster( ));
 
     const uint32_t latency = getLatency();
-
+    ClientPtr client = getClient();
     if( latency == 0 || !_running || 
         object->getChangeType() == net::Object::STATIC || 
         object->getChangeType() == net::Object::UNBUFFERED ) // OPT
     {
-        Session::deregisterObject( object );
+        client->deregisterObject( object );
         return;
     }
 
@@ -702,25 +711,36 @@ void Config::deregisterObject( net::Object* object )
     // Replaces the object with a dummy proxy object using the
     // existing master change manager.
     ConfigSwapObjectPacket packet;
-    packet.sessionID         = getID();
     packet.requestID         = getLocalNode()->registerRequest();
     packet.object            = object;
 
-    getLocalNode()->send( packet );
-    getLocalNode()->waitRequest( packet.requestID );
+    send( client, packet );
+    client->waitRequest( packet.requestID );
+}
+
+bool Config::mapObject( net::Object* object, const base::UUID& id,
+                        const uint128_t& version )
+{
+    return getClient()->mapObject( object, id, version );
+}
+
+void Config::unmapObject( net::Object* object )
+{
+    getClient()->unmapObject( object );
 }
 
 void Config::_releaseObjects()
 {
+    ClientPtr client = getClient();
+
     base::ScopedMutex< base::SpinLock > mutex( _latencyObjects );
     while( !_latencyObjects->empty() )
     {
         LatencyObject* latencyObject = _latencyObjects->front();
-
         if ( latencyObject->frameNumber > _currentFrame )
             break;
 
-        Session::deregisterObject( latencyObject );
+        client->deregisterObject( latencyObject );
         _latencyObjects->erase( _latencyObjects->begin() );
 
         delete latencyObject;
@@ -758,7 +778,7 @@ bool Config::_cmdDestroyNode( net::Command& command )
     unmapObject( node );
     Global::getNodeFactory()->releaseNode( node );
 
-    send( getServer(), reply );
+    getServer()->send( reply );
     return true;
 }
 
@@ -856,7 +876,7 @@ bool Config::_cmdSwapObject( net::Command& command )
     LatencyObject* latencyObject = new LatencyObject( object->getChangeType( ));
     latencyObject->frameNumber   = _currentFrame + getLatency() + 1;
 
-    swapObject( object, latencyObject  );
+    getLocalNode()->swapObject( object, latencyObject  );
     
     base::ScopedMutex< base::SpinLock > mutex( _latencyObjects );
     _latencyObjects->push_back( latencyObject );

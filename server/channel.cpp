@@ -106,10 +106,10 @@ Channel::Channel( const Channel& from )
     // Don't copy view and segment. Will be re-set by segment copy ctor
 }
 
-void Channel::attachToSession( const base::UUID& id, const uint32_t instanceID, 
-                               net::Session* session )
+void Channel::attach( const base::UUID& id, const uint32_t instanceID, 
+                               net::LocalNodePtr localNode )
 {
-    Super::attachToSession( id, instanceID, session );
+    Super::attach( id, instanceID, localNode );
     
     net::CommandQueue* serverQ  = getMainThreadQueue();
     net::CommandQueue* commandQ = getCommandThreadQueue();
@@ -128,11 +128,8 @@ Channel::~Channel()
 
 void Channel::postDelete()
 {
-    //_state |= STATE_DELETE;
-    //getConfig()->postNeedsFinish();
-
     // Deregister server-queue command handler to avoid assertion in
-    // Session::invokeCommand after channel deletion
+    // LocalNode::invokeCommand after channel deletion
     registerCommand( fabric::CMD_CHANNEL_FRAME_FINISH_REPLY,
                      CmdFunc( this, &Channel::_cmdNop ), 0 );
 }

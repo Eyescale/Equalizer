@@ -354,10 +354,10 @@ namespace eq
         EQ_API virtual void frameDrawFinish( const uint128_t& frameID, 
                                              const uint32_t frameNumber );
 
-        /** @internal @sa net::Object::attachToSession. */
-        EQ_API virtual void attachToSession( const base::UUID& id, 
-                                             const uint32_t instanceID, 
-                                             net::Session* session );
+        /** @internal @sa net::Object::attach. */
+        EQ_API virtual void attach( const base::UUID& id, 
+                                    const uint32_t instanceID, 
+                                    net::LocalNodePtr LocalNode );
 
     private:
         //-------------------- Members --------------------

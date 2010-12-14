@@ -119,10 +119,10 @@ ServerPtr Pipe::getServer()
     return ( node ? node->getServer() : 0);
 }
 
-void Pipe::attachToSession( const base::UUID& id, const uint32_t instanceID, 
-                            net::Session* session )
+void Pipe::attach( const base::UUID& id, const uint32_t instanceID, 
+                   net::LocalNodePtr localNode )
 {
-    Super::attachToSession( id, instanceID, session );
+    Super::attach( id, instanceID, localNode );
     
     net::CommandQueue* queue = getPipeThreadQueue();
 
@@ -241,6 +241,7 @@ void Pipe::_runThread()
     EQ_TS_THREAD( _pipeThread );
     EQINFO << "Entered pipe thread" << std::endl;
 
+    ClientPtr client = getClient();
     Config* config = getConfig();
     EQASSERT( config );
     EQASSERT( _pipeThreadQueue );
@@ -252,7 +253,7 @@ void Pipe::_runThread()
         _waitTime += ( config->getTime() - startWait );
 
         EQASSERT( command );
-        EQCHECK( config->invokeCommand( *command ));
+        EQCHECK( client->invokeCommand( *command ));
         command->release();
     }
 
@@ -280,10 +281,10 @@ Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye,
 
     if( !frame )
     {
-        net::Session* session = getSession();
+        ClientPtr client = getClient();
         frame = new Frame();
         
-        EQCHECK( session->mapObject( frame, frameVersion ));
+        EQCHECK( client->mapObject( frame, frameVersion ));
         _frames[ frameVersion.identifier ] = frame;
     }
     
@@ -300,8 +301,8 @@ Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye,
     {    
         if( !frameData->isAttached() )
         { 
-            net::Session* session = getSession();
-            EQCHECK( session->mapObject( frameData, data ));
+            ClientPtr client = getClient();
+            EQCHECK( client->mapObject( frameData, data ));
         }
         else if( frameData->getVersion() < data.version )
             frameData->sync( data.version );
@@ -316,15 +317,14 @@ Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye,
 void Pipe::flushFrames()
 {
     EQ_TS_THREAD( _pipeThread );
-    net::Session* session = getSession();
-
+    ClientPtr client = getClient();
     for( FrameHash::const_iterator i = _frames.begin(); i != _frames.end(); ++i)
     {
         Frame* frame = i->second;
 
         frame->setData( 0 ); // 'output' datas cleared below and from node
         frame->flush();
-        session->unmapObject( frame );
+        client->unmapObject( frame );
         delete frame;
     }
     _frames.clear();
@@ -356,10 +356,10 @@ View* Pipe::getView( const net::ObjectVersion& viewVersion )
     {
         NodeFactory* nodeFactory = Global::getNodeFactory();
         view = nodeFactory->createView( 0 );
+        view->_pipe = this;
         EQASSERT( view );
-
-        net::Session* session = const_cast< net::Session* >( getSession( ));
-        EQCHECK( session->mapObject( view, viewVersion ));
+        ClientPtr client = getClient();
+        EQCHECK( client->mapObject( view, viewVersion ));
 
         _views[ viewVersion.identifier ] = view;
     }
@@ -382,8 +382,8 @@ void Pipe::_releaseViews()
                 continue;
 
             // release unused view to avoid memory leaks due to deltas piling up
-            net::Session* session = getSession();
-            session->unmapObject( view );
+            ClientPtr client = getClient();
+            client->unmapObject( view );
             
             _views.erase( i );
 
@@ -400,13 +400,13 @@ void Pipe::_flushViews()
 {
     EQ_TS_THREAD( _pipeThread );
     NodeFactory*  nodeFactory = Global::getNodeFactory();
-    net::Session* session     = getSession();
+    ClientPtr client = getClient();
 
     for( ViewHash::const_iterator i = _views.begin(); i != _views.end(); ++i)
     {
         View* view = i->second;
 
-        session->unmapObject( view );
+        client->unmapObject( view );
         nodeFactory->releaseView( view );
     }
     _views.clear();
@@ -740,7 +740,7 @@ bool Pipe::_cmdDestroyWindow(  net::Command& command  )
     config->unmapObject( window );
     Global::getNodeFactory()->releaseWindow( window );
 
-    config->send( getServer(), reply ); // do not use Object::send()
+    getServer()->send( reply ); // do not use Object::send()
     return true;
 }
 

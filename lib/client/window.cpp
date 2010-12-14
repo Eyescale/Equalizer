@@ -98,10 +98,10 @@ Window::~Window()
     _objectManager = 0;
 }
 
-void Window::attachToSession( const base::UUID& id, const uint32_t instanceID, 
-                              net::Session* session )
+void Window::attach( const base::UUID& id, const uint32_t instanceID, 
+                     net::LocalNodePtr localNode )
 {
-    Super::attachToSession( id, instanceID, session );
+    Super::attach( id, instanceID, localNode );
 
     net::CommandQueue* queue = getPipe()->getPipeThreadQueue();
 
@@ -669,7 +669,7 @@ bool Window::_cmdDestroyChannel( net::Command& command )
     config->unmapObject( channel );
     Global::getNodeFactory()->releaseChannel( channel );
 
-    config->send( getServer(), reply ); // do not use Object::send()
+    getServer()->send( reply ); // do not use Object::send()
     return true;
 }
 

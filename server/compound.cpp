@@ -202,6 +202,11 @@ Node* Compound::getNode()
     return channel ? channel->getNode() : 0; 
 }
 
+ServerPtr Compound::getServer()
+{
+    return getConfig()->getServer();
+}
+
 void Compound::setChannel( Channel* channel )
 { 
     _data.channel = channel;
@@ -814,14 +819,14 @@ void Compound::exit()
 
 void Compound::register_()
 {
-    Config* config = getConfig();
-    const uint32_t latency = config->getLatency();
+    ServerPtr server = getServer();
+    const uint32_t latency = getConfig()->getLatency();
 
     for( Frames::const_iterator i = _outputFrames.begin(); 
          i != _outputFrames.end(); ++i )
     {
         Frame* frame = *i;
-        config->registerObject( frame );
+        server->registerObject( frame );
         frame->setAutoObsolete( latency );
         EQLOG( eq::LOG_ASSEMBLY ) << "Output frame \"" << frame->getName() 
                                   << "\" id " << frame->getID() << std::endl;
@@ -831,7 +836,7 @@ void Compound::register_()
          i != _inputFrames.end(); ++i )
     {
         Frame* frame = *i;
-        config->registerObject( frame );
+        server->registerObject( frame );
         frame->setAutoObsolete( latency );
         EQLOG( eq::LOG_ASSEMBLY ) << "Input frame \"" << frame->getName() 
                                   << "\" id " << frame->getID() << std::endl;
@@ -840,21 +845,21 @@ void Compound::register_()
 
 void Compound::deregister()
 {
-    Config* config = getConfig();
+    ServerPtr server = getServer();
 
     for( Frames::const_iterator i = _outputFrames.begin(); 
          i != _outputFrames.end(); ++i )
     {
         Frame* frame = *i;
         frame->flush();
-        config->deregisterObject( frame );
+        server->deregisterObject( frame );
     }
 
     for( Frames::const_iterator i = _inputFrames.begin(); 
          i != _inputFrames.end(); ++i )
     {
         Frame* frame = *i;
-        config->deregisterObject( frame );
+        server->deregisterObject( frame );
     }
 }
 
@@ -887,9 +892,8 @@ void Compound::update( const uint32_t frameNumber )
         }
         else
         {
-            Config* config = getConfig();
-            config->registerObject( barrier );
-            barrier->setAutoObsolete( config->getLatency() + 1 );
+            getServer()->registerObject( barrier );
+            barrier->setAutoObsolete( getConfig()->getLatency() + 1 );
         }
     }
 }

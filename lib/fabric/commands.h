@@ -54,7 +54,7 @@ namespace fabric
 
     enum ClientCommand
     {
-        CMD_CLIENT_EXIT               = net::CMD_NODE_CUSTOM,
+        CMD_CLIENT_EXIT = net::CMD_NODE_CUSTOM,
         CMD_CLIENT_FILL1, // some buffer for binary-compatible patches
         CMD_CLIENT_FILL2,
         CMD_CLIENT_FILL3,
@@ -65,7 +65,7 @@ namespace fabric
 
     enum ConfigCommand
     {
-        CMD_CONFIG_NEW_LAYOUT = net::CMD_SESSION_CUSTOM, // 30
+        CMD_CONFIG_NEW_LAYOUT = net::CMD_OBJECT_CUSTOM, // 10
         CMD_CONFIG_NEW_CANVAS,
         CMD_CONFIG_NEW_OBSERVER,
         CMD_CONFIG_NEW_ENTITY_REPLY,
@@ -90,7 +90,7 @@ namespace fabric
         CMD_CONFIG_FREEZE_LOAD_BALANCING,
         CMD_CONFIG_SYNC_CLOCK,
         CMD_CONFIG_SWAP_OBJECT,
-        CMD_CONFIG_CUSTOM = 60 // some buffer for binary-compatible patches
+        CMD_CONFIG_CUSTOM = 40 // some buffer for binary-compatible patches
     };
 
     enum NodeCommand

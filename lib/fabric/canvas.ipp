@@ -77,11 +77,11 @@ void Canvas< CFG, C, S, L >::restore()
 }
 
 template< class CFG, class C, class S, class L >
-void Canvas< CFG, C, S, L >::attachToSession( const base::UUID& id,
-                                              const uint32_t instanceID,
-                                              net::Session* session )
+void Canvas< CFG, C, S, L >::attach( const base::UUID& id,
+                                     const uint32_t instanceID,
+                                     net::LocalNodePtr localNode )
 {
-    Object::attachToSession( id, instanceID, session );
+    Object::attach( id, instanceID, localNode );
 
     net::CommandQueue* queue = _config->getMainThreadQueue();
     EQASSERT( queue );
@@ -392,7 +392,7 @@ Canvas< CFG, C, S, L >::_cmdNewSegment( net::Command& command )
     create( &segment );
     EQASSERT( segment );
 
-    _config->registerObject( segment );
+    getLocalNode()->registerObject( segment );
     segment->setAutoObsolete( _config->getLatency() + 1 );
     EQASSERT( segment->isAttached() );
 

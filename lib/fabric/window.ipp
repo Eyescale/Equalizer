@@ -95,11 +95,11 @@ void Window< P, W, C >::init()
 }
 
 template< class P, class W, class C >
-void Window< P, W, C >::attachToSession( const base::UUID& id,
-                                         const uint32_t instanceID,
-                                         net::Session* session )
+void Window< P, W, C >::attach( const base::UUID& id,
+                                const uint32_t instanceID,
+                                net::LocalNodePtr localNode )
 {
-    Object::attachToSession( id, instanceID, session );
+    Object::attach( id, instanceID, localNode );
 
     net::CommandQueue* queue = _pipe->getMainThreadQueue();
     EQASSERT( queue );
@@ -212,15 +212,14 @@ void Window< P, W, C >::setDirty( const uint64_t dirtyBits )
 template< class P, class W, class C >
 void Window< P, W, C >::notifyDetach()
 {
-    net::Session* session = getSession();
-    EQASSERT( session );
+    net::LocalNodePtr node = getLocalNode();
 
     if( isMaster( ))
     {
         for( typename Channels::const_iterator i = _channels.begin();
              i != _channels.end(); ++i )
         {
-            session->releaseObject( *i );
+            node->releaseObject( *i );
         }
     }
     else
@@ -230,7 +229,7 @@ void Window< P, W, C >::notifyDetach()
             C* channel = _channels.back();
             EQASSERT( channel->isAttached( ));
 
-            session->releaseObject( channel );
+            node->releaseObject( channel );
             _removeChannel( channel );
             _pipe->getServer()->getNodeFactory()->releaseChannel( channel );
         }
@@ -451,7 +450,7 @@ bool Window< P, W, C >::_cmdNewChannel( net::Command& command )
     create( &channel );
     EQASSERT( channel );
 
-    _pipe->getConfig()->registerObject( channel );
+    getLocalNode()->registerObject( channel );
     EQASSERT( channel->isAttached() );
 
     WindowNewChannelReplyPacket reply( packet );

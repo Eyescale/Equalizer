@@ -28,12 +28,6 @@ namespace net
     {
         CMD_NODE_STOP,
         CMD_NODE_MESSAGE,
-        CMD_NODE_REGISTER_SESSION,
-        CMD_NODE_MAP_SESSION,
-        CMD_NODE_MAP_SESSION_REPLY,
-        CMD_NODE_UNMAP_SESSION,
-        CMD_NODE_UNMAP_SESSION_REPLY,
-        CMD_NODE_SESSION,
         CMD_NODE_CONNECT,
         CMD_NODE_CONNECT_REPLY,
         CMD_NODE_CONNECT_ACK,
@@ -49,23 +43,23 @@ namespace net
         CMD_NODE_CUSTOM = 30  // some buffer for binary-compatible patches
     };
 
-    enum SessionCommand
+    enum ObjectStoreCommand
     {
-        CMD_SESSION_ACK_REQUEST,
-        CMD_SESSION_FIND_MASTER_NODE_ID,
-        CMD_SESSION_FIND_MASTER_NODE_ID_REPLY,
-        CMD_SESSION_ATTACH_OBJECT,
-        CMD_SESSION_DETACH_OBJECT,
-        CMD_SESSION_REGISTER_OBJECT,
-        CMD_SESSION_DEREGISTER_OBJECT,
-        CMD_SESSION_MAP_OBJECT,
-        CMD_SESSION_MAP_OBJECT_SUCCESS,
-        CMD_SESSION_MAP_OBJECT_REPLY,
-        CMD_SESSION_UNMAP_OBJECT,
-        CMD_SESSION_UNSUBSCRIBE_OBJECT,
-        CMD_SESSION_OBJECT_INSTANCE,
-        CMD_SESSION_INSTANCE,
-        CMD_SESSION_CUSTOM = 30  // some buffer for binary-compatible patches
+        CMD_OBJECTSTORE_ACK_REQUEST,
+        CMD_OBJECTSTORE_FIND_MASTER_NODE_ID,
+        CMD_OBJECTSTORE_FIND_MASTER_NODE_ID_REPLY,
+        CMD_OBJECTSTORE_ATTACH_OBJECT,
+        CMD_OBJECTSTORE_DETACH_OBJECT,
+        CMD_OBJECTSTORE_REGISTER_OBJECT,
+        CMD_OBJECTSTORE_DEREGISTER_OBJECT,
+        CMD_OBJECTSTORE_MAP_OBJECT,
+        CMD_OBJECTSTORE_MAP_OBJECT_SUCCESS,
+        CMD_OBJECTSTORE_MAP_OBJECT_REPLY,
+        CMD_OBJECTSTORE_UNMAP_OBJECT,
+        CMD_OBJECTSTORE_UNSUBSCRIBE_OBJECT,
+        CMD_OBJECTSTORE_OBJECT_INSTANCE,
+        CMD_OBJECTSTORE_INSTANCE,
+        CMD_OBJECTSTORE_CUSTOM = 30  // buffer for binary-compatible patches
     };
 
     enum ObjectCommand
@@ -81,12 +75,7 @@ namespace net
     {
         CMD_BARRIER_ENTER = CMD_OBJECT_CUSTOM,
         CMD_BARRIER_ENTER_REPLY,
-        CMD_BARRIER_FILL1, // some buffer for binary-compatible patches
-        CMD_BARRIER_FILL2,
-        CMD_BARRIER_FILL3,
-        CMD_BARRIER_FILL4,
-        CMD_BARRIER_FILL5,
-        CMD_BARRIER_ALL
+        CMD_BARRIER_CUSTOM = 20 // some buffer for binary-compatible patches
     };
 }
 }

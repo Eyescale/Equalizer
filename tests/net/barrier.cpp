@@ -23,12 +23,10 @@
 #include <eq/net/connectionDescription.h>
 #include <eq/net/init.h>
 #include <eq/net/node.h>
-#include <eq/net/session.h>
 
 #include <iostream>
 
 eq::base::Monitor< eq::net::Barrier* > _barrier( 0 );
-eq::net::SessionID sessionID;
 
 class NodeThread : public eq::base::Thread
 {
@@ -48,20 +46,16 @@ public:
 
             if( _master )
             {
-                eq::net::Session session;
-                node->registerSession( &session );
-                sessionID = session.getID();
 
                 eq::net::Barrier barrier( node, 2 );
-                session.registerObject( &barrier );
+                node->registerObject( &barrier );
                 TEST( barrier.isAttached( ));
 
                 _barrier = &barrier;
                 barrier.enter();
 
                 _barrier.waitEQ( 0 ); // wait for slave to unmap session
-                session.deregisterObject( &barrier );
-                node->deregisterSession( &session );
+                node->deregisterObject( &barrier );
             }
             else
             {
@@ -74,14 +68,10 @@ public:
                 server->addConnectionDescription( serverDesc );
                 TEST( node->connect( server ));
 
-                eq::net::Session session;
-                TEST( node->mapSession( server, &session, sessionID ));
-                
                 std::cerr << "Slave enter" << std::endl;
                 _barrier->enter();
                 std::cerr << "Slave left" << std::endl;
 
-                node->unmapSession( &session );
                 _barrier = 0;
             }
 

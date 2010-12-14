@@ -149,7 +149,6 @@ namespace net
 
 #include <eq/net/object.h>
 #include <eq/net/objectVersion.h>
-#include <eq/net/session.h>
 
 namespace eq
 {
@@ -229,12 +228,11 @@ namespace net
             {
                 C* child = 0;
                 object->create( &child );
-                Session* session = object->getSession();
+                LocalNodePtr localNode = object->getLocalNode();
                 EQASSERT( child );
-                EQASSERT( session );
                 EQASSERT( !object->isMaster( ));
 
-                EQCHECK( session->mapObject( child, version ));
+                EQCHECK( localNode->mapObject( child, version ));
                 result.push_back( child );
             }
             else
@@ -259,9 +257,8 @@ namespace net
 
             if( child->isAttached() && !child->isMaster( ))
             {
-                Session* session = object->getSession();
-                EQASSERT( session );
-                session->unmapObject( child );
+                LocalNodePtr localNode = object->getLocalNode();
+                localNode->unmapObject( child );
             }
             object->release( child );
         }

@@ -51,7 +51,9 @@ namespace fabric
          *         application process, false otherwise.
          */
         bool isApplicationNode() const { return _isAppNode; }
-        EQFABRIC_INL void setApplicationNode( const bool isAppNode ); //!< @internal
+
+        /** @internal */
+        EQFABRIC_INL void setApplicationNode( const bool isAppNode );
 
         /** @internal @return the index path to this node. */
         EQFABRIC_INL NodePath getPath() const;

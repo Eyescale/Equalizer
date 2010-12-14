@@ -616,8 +616,6 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
             }
 
             // send
-            transmitPacket.sessionID = packet.sessionID;
-            transmitPacket.objectID  = packet.objectID;
             transmitPacket.context   = context;
             transmitPacket.frameData = outputFrame->getDataVersion( _eye );
             transmitPacket.clientNodeID = inputNode->getID();

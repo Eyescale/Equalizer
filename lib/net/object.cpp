@@ -26,7 +26,6 @@
 #include "log.h"
 #include "nullCM.h"
 #include "objectCM.h"
-#include "session.h"
 #include "staticMasterCM.h"
 #include "staticSlaveCM.h"
 #include "types.h"
@@ -40,30 +39,29 @@ namespace eq
 namespace net
 {
 Object::Object()
-        : _session          ( 0 )
-        , _id               ( true )
+        : _id               ( true )
         , _instanceID       ( EQ_ID_INVALID )
         , _cm               ( ObjectCM::ZERO )
-{
-}
+{}
 
 Object::Object( const Object& object )
         : Dispatcher( object )
-        , _session          ( 0 )
         , _id               ( true )
+        , _localNode        ( 0 )
         , _instanceID       ( EQ_ID_INVALID )
         , _cm               ( ObjectCM::ZERO )
-{
-}
-
+{}
 
 Object::~Object()
 {
-    EQASSERTINFO( !_session,
-                  "Object " << _id << " is still registered in session " <<
-                  _session->getID() << " in destructor" );
-    if( _session )
-        _session->releaseObject( this );
+    EQASSERTINFO( !_localNode,
+                  "Object " << _id << " is still registered in localNode " <<
+                  _localNode->getNodeID() << " in destructor" );
+    
+    if( _localNode.isValid() )
+        _localNode->releaseObject( this );
+    _localNode = 0;
+
     if( _cm != ObjectCM::ZERO )
         delete _cm;
     _cm = 0;
@@ -71,18 +69,18 @@ Object::~Object()
 
 typedef CommandFunc<Object> CmdFunc;
 
-void Object::attachToSession( const base::UUID& id, const uint32_t instanceID, 
-                              Session* session )
+void Object::attach( const base::UUID& id, 
+                     const uint32_t instanceID, 
+                     LocalNodePtr localNode )
 {
     EQASSERT( !isAttached() );
     EQASSERT( instanceID <= EQ_ID_MAX );
-    EQASSERT( session );
 
     _id         = id;
     _instanceID = instanceID;
-    _session    = session;
+    _localNode  = localNode;
 
-    CommandQueue* queue = session->getCommandThreadQueue();
+    CommandQueue* queue = localNode->getCommandThreadQueue();
 
     registerCommand( CMD_OBJECT_INSTANCE,
                      CmdFunc( this, &Object::_cmdForward ), queue );
@@ -98,10 +96,10 @@ void Object::attachToSession( const base::UUID& id, const uint32_t instanceID,
                          << (isMaster() ? " master" : " slave") << std::endl;
 }
 
-void Object::detachFromSession()
+void Object::detach()
 {
     _instanceID = EQ_ID_INVALID;
-    _session    = 0;
+    _localNode = 0;
 }
 
 bool Object::dispatchCommand( Command& command )
@@ -133,11 +131,6 @@ const Nodes* Object::_getSlaveNodes() const
     return _cm->getSlaveNodes();
 }
 
-LocalNodePtr Object::getLocalNode()
-{ 
-    return _session ? _session->getLocalNode() : 0; 
-}
-
 void Object::setID( const base::UUID& identifier )
 {
     EQASSERT( !isAttached( ));
@@ -148,7 +141,6 @@ void Object::setID( const base::UUID& identifier )
 bool Object::send( NodePtr node, ObjectPacket& packet )
 {
     EQASSERT( isAttached( ));
-    packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return node->send( packet );
 }
@@ -157,7 +149,6 @@ bool Object::send( NodePtr node, ObjectPacket& packet,
                    const std::string& string )
 {
     EQASSERT( isAttached() );
-    packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return node->send( packet, string );
 }
@@ -166,7 +157,6 @@ bool Object::send( NodePtr node, ObjectPacket& packet,
                    const void* data, const uint64_t size )
 {
     EQASSERT( isAttached() );
-    packet.sessionID = _session->getID();
     packet.objectID  = _id;
     return node->send( packet, data, size );
 }

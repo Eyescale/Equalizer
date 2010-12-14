@@ -33,6 +33,7 @@ typedef fabric::View< Layout, View, Observer > Super;
 
 View::View( Layout* parent )
         : Super( parent )
+        , _pipe( 0 )
 {
 }
 
@@ -56,7 +57,11 @@ Config* View::getConfig()
     if( layout )
         return layout->getConfig();
 
-    return EQSAFECAST( Config*, getSession( )) ;
+    if( _pipe )
+        return _pipe->getConfig();
+
+    EQUNREACHABLE;
+    return 0;
 }
 
 const Config* View::getConfig() const
@@ -65,7 +70,11 @@ const Config* View::getConfig() const
     if( layout )
         return layout->getConfig();
 
-    return EQSAFECAST( const Config*, getSession( )) ;
+    if( _pipe )
+        return _pipe->getConfig();
+
+    EQUNREACHABLE;
+    return 0;
 }
 
 ServerPtr View::getServer() 

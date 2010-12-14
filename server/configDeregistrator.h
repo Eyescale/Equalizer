@@ -58,6 +58,11 @@ namespace server
                 return TRAVERSE_CONTINUE; 
             }
 
+        virtual VisitorResult visitPost( Config* config )
+            { 
+                _deregister( config );
+                return TRAVERSE_CONTINUE; 
+            }
         virtual VisitorResult visitPost( Node* node )
             { 
                 _deregister( node );
@@ -91,13 +96,11 @@ namespace server
                 EQASSERT( object->isAttached( ));
                 if( !object->isAttached( ))
                     return;
-
-                net::Session* session = object->getSession();
-                EQASSERT( session );
                 EQASSERT( object->isMaster( ));
 
                 object->sync();
-                session->releaseObject( object );
+                net::LocalNodePtr node = object->getLocalNode();
+                node->releaseObject( object );
             }
     };
 }

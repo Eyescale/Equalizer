@@ -45,10 +45,10 @@ namespace eqPly
         VertexBufferDist( const mesh::VertexBufferRoot* root );
         virtual ~VertexBufferDist();
 
-        void registerTree( eq::net::Session* session );
+        void registerTree( eq::net::LocalNodePtr node );
         void deregisterTree();
 
-        mesh::VertexBufferRoot* mapModel( eq::net::Session* session,
+        mesh::VertexBufferRoot* mapModel( eq::net::LocalNodePtr node,
                                           const eq::uint128_t& modelID );
         void unmapTree();
 

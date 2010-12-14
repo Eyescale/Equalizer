@@ -24,6 +24,8 @@
 #include <eq/fabric/types.h>
 #include <eq/fabric/visitorResult.h> // enum
 
+#include <eq/net/types.h>            // LocalNodePtr
+
 namespace eq
 {
 namespace fabric
@@ -148,9 +150,9 @@ namespace fabric
         Pipe( N* parent );
         EQFABRIC_INL virtual ~Pipe( ); //!< @internal
 
-        virtual void attachToSession( const base::UUID& id,
-                                      const uint32_t instanceID,
-                                      net::Session* session ); //!< @internal
+        virtual void attach( const base::UUID& id,
+                             const uint32_t instanceID,
+                             net::LocalNodePtr localNode ); //!< @internal
         /** @internal */
         EQFABRIC_INL virtual void serialize( net::DataOStream& os,
                                                 const uint64_t dirtyBits );

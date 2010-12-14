@@ -24,8 +24,7 @@
 #include "object.h"
 #include "objectDataIStream.h"
 #include "objectPackets.h"
-#include "session.h"
-#include "sessionPackets.h"
+#include "objectStorePackets.h"
 
 //#define EQ_INSTRUMENT
 
@@ -145,12 +144,12 @@ uint128_t FullMasterCM::getOldestVersion() const
 uint128_t FullMasterCM::addSlave( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
-    EQASSERT( command->type == PACKETTYPE_EQNET_SESSION );
-    EQASSERT( command->command == CMD_SESSION_MAP_OBJECT );
+    EQASSERT( command->type == PACKETTYPE_EQNET_OBJECTSTORE );
+    EQASSERT( command->command == CMD_OBJECTSTORE_MAP_OBJECT );
 
     NodePtr node = command.getNode();
-    SessionMapObjectPacket* packet =
-        command.getPacket<SessionMapObjectPacket>();
+    ObjectStoreMapObjectPacket* packet =
+        command.getPacket<ObjectStoreMapObjectPacket>();
     const uint128_t requested  = packet->requestedVersion;
     const uint32_t instanceID = packet->instanceID;
 

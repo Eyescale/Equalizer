@@ -47,11 +47,10 @@ namespace fabric
         /**
          * Set user-specific data.
          *
-         * The application is responsible to register the master version of the
-         * user data object. Commit, sync and Session::mapObject of the user
-         * data object are automatically executed when commiting and syncing
-         * this object. Not all instances of the object have to set a user data
-         * object. All instances have to set the same type of object.
+         * Registration, mapping, commit and sync of the user data object are
+         * automatically executed when committing and syncing this object. Not
+         * all instances of the object have to set a user data object. All
+         * instances have to set the same type of object.
          * @version 1.0
          */
     	EQFABRIC_API void setUserData( net::Object* userData );
@@ -231,8 +230,8 @@ namespace fabric
 
             uint128_t identifier;
             localNode->waitRequest( packet.requestID, identifier );
-            EQCHECK( child->getConfig()->mapObject( child, identifier,
-                                                    net::VERSION_NONE ));
+            EQCHECK( localNode->mapObject( child, identifier,
+                                           net::VERSION_NONE ));
         }
         child->commit();
     }
@@ -286,7 +285,7 @@ namespace fabric
                 return;
             }
 
-            getSession()->releaseObject( child );
+            getLocalNode()->releaseObject( child );
             if( !isMaster( ))
             {
                 static_cast< P* >( this )->_removeChild( child );

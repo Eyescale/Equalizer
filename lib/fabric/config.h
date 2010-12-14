@@ -24,8 +24,6 @@
 #include <eq/fabric/visitorResult.h> // enum
 #include <eq/fabric/object.h>        // DIRTY_CUSTOM enum
 
-#include <eq/net/session.h>          // base class
-
 namespace eq
 {
 class Config;
@@ -42,12 +40,9 @@ namespace fabric
     struct LayoutPath;
     struct ObserverPath;
 
-    template< class, class, class, class, class, class, class >
-    class ConfigProxy;
-
     /** Base data class for a configuration. @sa eq::Config */
     template< class S, class C, class O, class L, class CV, class N, class V >
-    class Config : public net::Session
+    class Config : public Object
     {
     public:
         typedef std::vector< O* >  Observers; //!< A vector of observers
@@ -126,26 +121,6 @@ namespace fabric
 
         /** @internal Init the given canvas in a running config. */
         virtual void exitCanvas( CV* ) { /* NOP */ }
-
-        /** Set the name of the config. @version 1.0 */
-        EQFABRIC_INL void setName( const std::string& name );
-
-        /** @return the name of the object. @version 1.0 */
-        EQFABRIC_INL const std::string& getName() const;
-
-        /** 
-         * Set an error code why the last operation failed.
-         * 
-         * The error will be transmitted to the originator of the request, for
-         * example to Config::init when set from within configInit().
-         *
-         * @param error the error message.
-         * @version 1.0
-         */
-        EQFABRIC_INL void setError( const int32_t error );
-
-        /** @return the error from the last failed operation. @version 1.0 */
-        EQFABRIC_INL base::Error getError() const;
         //@}
 
         /** @name Attributes */
@@ -209,29 +184,19 @@ namespace fabric
         /** @return the latency of this config. @version 1.0 */
         uint32_t getLatency() const { return _data.latency; }
 
-        /** @internal */
-        EQFABRIC_INL net::ObjectVersion getProxyVersion() const;
-
-        /** @internal Back up app-specific data, excluding child data. */
-        EQFABRIC_INL virtual void backup();
-
         /** @internal Restore the last backup. */
         EQFABRIC_INL virtual void restore();
-
-        /** @internal @sa Serializable::setDirty() */
-        void setDirty( const uint64_t bits );
-
-        /** @internal Get the current version. */
-        uint128_t getVersion() const;
-
-        /** @internal Commit a new version. */
-        EQFABRIC_INL uint128_t commit();
-
-        /** @internal Sync to the given version. */
-        void sync( const uint128_t& version = net::VERSION_HEAD );
         //@}
 
         virtual void output( std::ostream& ) const {} //!< @internal
+        void create( O** observer ); //!< @internal
+        void release( O* observer ); //!< @internal
+        void create( L** layout );   //!< @internal
+        void release( L* layout );   //!< @internal
+        void create( CV** canvas );  //!< @internal
+        void release( CV* canvas );  //!< @internal
+        void create( N** node );     //!< @internal
+        void release( N* node );     //!< @internal
 
     protected:
         /** @internal Construct a new config. */
@@ -241,19 +206,21 @@ namespace fabric
         EQFABRIC_INL virtual ~Config();
 
         /** @internal */
-        EQFABRIC_INL virtual void notifyMapped( net::LocalNodePtr node );
+        EQFABRIC_INL virtual void attach( const base::UUID& id, 
+                                          const uint32_t instanceID, 
+                                          net::LocalNodePtr localNode );
 
         /** @internal */
-        virtual void notifyAttached() {}
+        EQFABRIC_INL virtual void serialize( net::DataOStream& os, 
+                                             const uint64_t dirtyBits );
+        EQFABRIC_INL virtual void deserialize( net::DataIStream& is, 
+                                               const uint64_t dirtyBits );
+        EQFABRIC_INL virtual void notifyDetach();
 
         /** @internal Execute the slave remove request. */
         virtual void _removeChild( const base::UUID& )
             { EQUNIMPLEMENTED; }
 
-        uint128_t register_(); //!< @internal
-        void deregister(); //!< @internal
-        void map( const net::ObjectVersion proxy ); //!< @internal
-        virtual void unmap(); //!< @internal
         template< class, class, class, class, class > friend class Server; // map/unmap
 
         void setAppNodeID( const net::NodeID& nodeID ); //!< @internal
@@ -320,16 +287,12 @@ namespace fabric
             uint32_t latency;
         }
             _data, _backup;
-
-        /** Data distribution proxy */
-        ConfigProxy< S, C, O, L, CV, N, V >* const _proxy;
-        template< class, class, class, class, class, class, class >
-        friend class ConfigProxy;
-        
         union // placeholder for binary-compatible changes
         {
             char dummy[32];
         };
+
+        EQFABRIC_INL virtual uint32_t commitNB(); //!< @internal
 
         template< class, class > friend class Observer;
         void _addObserver( O* observer );

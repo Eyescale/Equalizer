@@ -151,19 +151,26 @@ bool Server::_cmdChooseConfigReply( net::Command& command )
     EQVERB << "Handle choose config reply " << packet << std::endl;
 
     net::LocalNodePtr  localNode = command.getLocalNode();
-    if( packet->configID == net::SessionID::ZERO )
+    if( packet->configID == eq::base::UUID::ZERO )
     {
         localNode->serveRequest( packet->requestID, (void*)0 );
         return true;
     }
 
-    net::Session* session = localNode->getSession( packet->configID );
-    Config*       config  = static_cast< Config* >( session );
-    EQASSERTINFO( dynamic_cast< Config* >( session ), 
-                  "Session id " << packet->configID << " @" << (void*)session );
+    const Configs& configs = getConfigs();
+   
+    for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
+    {
+        Config* config = *i;
+        if( config->getID() ==  packet->configID )
+        {
+            config->setupServerConnections( packet->connectionData );
+            localNode->serveRequest( packet->requestID, config );
+            return true;
+        }
+    }
 
-    config->setupServerConnections( packet->connectionData );
-    localNode->serveRequest( packet->requestID, config );
+    EQUNIMPLEMENTED
     return true;
 }
 

@@ -63,6 +63,7 @@ Server::Server()
         , _running( false )
 {
     base::Log::setClock( &_clock );
+    disableInstanceCache();
 
     registerCommand( fabric::CMD_SERVER_CHOOSE_CONFIG,
                      ServerFunc( this, &Server::_cmdChooseConfig ),
@@ -169,7 +170,7 @@ void Server::init()
            << base::enableFlush << std::endl;
 
     for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
-        registerConfig( *i );
+        (*i)->register_();
 }
 
 void Server::exit()
@@ -179,7 +180,7 @@ void Server::exit()
         EQWARN << "No configurations loaded" << std::endl;
 
     for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
-        deregisterConfig( *i );
+        (*i)->deregister();
 }
 
 void Server::run()
@@ -201,7 +202,7 @@ void Server::_addConfig( Config* config )
     }
 
     if( _running )
-        registerConfig( config );
+        config->register_();
 }
 
 bool Server::_removeConfig( Config* config )
@@ -211,7 +212,7 @@ bool Server::_removeConfig( Config* config )
         return false;
 
     if( _running )
-        deregisterConfig( config );
+        config->deregister();
 
     return Super::_removeConfig( config );
 }
@@ -225,18 +226,6 @@ void Server::deleteConfigs()
         _removeConfig( config );
         delete config;
     }
-}
-
-void Server::registerConfig( Config* config )
-{
-    registerSession( config );
-    config->register_();
-}
-
-bool Server::deregisterConfig( Config* config )
-{
-    config->deregister();
-    return deregisterSession( config );
 }
 
 //===========================================================================
@@ -306,7 +295,7 @@ bool Server::_cmdChooseConfig( net::Command& command )
 
     if( !config )
     {
-        reply.configID = net::SessionID::ZERO;
+        reply.configID = UUID::ZERO;
         node->send( reply );
         return true;
     }
@@ -323,10 +312,10 @@ bool Server::_cmdChooseConfig( net::Command& command )
     config->setWorkDir( workDir );
     config->setRenderClient( renderClient );
 
+    config->commit();
+
     fabric::ServerCreateConfigPacket createConfigPacket;
-    createConfigPacket.configID = config->getID();
-    createConfigPacket.proxy = config->getProxyVersion();
-    createConfigPacket.proxy.version = config->commit();
+    createConfigPacket.configVersion = config;
     node->send( createConfigPacket );
 
     reply.configID = config->getID();
@@ -447,8 +436,7 @@ bool Server::_cmdMap( net::Command& command )
     {
         Config* config = *i;
         fabric::ServerCreateConfigPacket createConfigPacket;
-        createConfigPacket.configID = config->getID();
-        createConfigPacket.proxy = config->getProxyVersion();
+        createConfigPacket.configVersion = config;
         node->send( createConfigPacket );
     }
 

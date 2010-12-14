@@ -25,6 +25,8 @@
 #include <eq/net/commandCache.h>    // member
 #include <eq/net/commandQueue.h>    // member
 #include <eq/net/connectionSet.h>   // member
+#include <eq/net/objectVersion.h>   // used in inline method
+
 
 #include <eq/base/lockable.h>       // member
 #include <eq/base/spinLock.h>       // member
@@ -40,8 +42,7 @@ namespace eq
 {
 namespace net
 {
-
-    class Session;
+    class ObjectStore;
 
     /** 
      * Specialization of a local node.
@@ -151,49 +152,88 @@ namespace net
         EQNET_API virtual bool disconnect( NodePtr node );
         //@}
 
-        /** @name Session management */
+        /** @name Object Registry */
         //@{
-        /**
-         * Register a new session using this node as the session server.
-         *
-         * This method assigns the session identifier. The node has to be local.
-         *
-         * @param session the session.
-         */
-        EQNET_API void registerSession( Session* session );
-
-        /** Deregister a (master) session. */
-        bool deregisterSession( Session* session )
-            { return unmapSession( session ); }
-
-        /**
-         * Maps a local session object to the session of the same identifier on
-         * the server.
-         *
-         * The node has to be a remote node.
-         * 
-         * @param server the node serving the session.
-         * @param session the session.
-         * @param id the identifier of the session.
-         * @return <code>true</code> if the session was mapped,
-         *         <code>false</code> if not.
-         */
-        EQNET_API bool mapSession( NodePtr server, Session* session, 
-                                     const SessionID& id );
+        /** Disable the instance cache of an stopped local node. */
+        EQNET_API void disableInstanceCache();
 
         /** 
-         * Unmaps a mapped session.
-         * 
-         * @param session the session.
-         * @return <code>true</code> if the session was unmapped,
-         *         <code>false</code> if there was an error.
+         * Register a distributed object.
+         *
+         * Registering a distributed object makes this object the master
+         * version. The object's identifier is used to map slave instances of
+         * the object. Master versions of objects are typically writable and can
+         * commit new versions of the distributed object.
+         *
+         * @param object the object instance.
+         * @return true if the object was registered, false otherwise.
          */
-        EQNET_API bool unmapSession( Session* session );
+        EQNET_API bool registerObject( Object* object );
 
-        /** @return the mapped session with the given identifier, or 0. */
-        EQNET_API Session* getSession( const SessionID& id );
+        /** 
+         * Deregister a distributed object.
+         *
+         * @param object the object instance.
+         */
+        EQNET_API virtual void deregisterObject( Object* object );
 
-        bool hasSessions() const { return !_sessions->empty(); }
+        /** 
+         * Map a distributed object.
+         *
+         * The mapped object becomes a slave instance of the master version
+         * which was registered with the provided identifier. The given version
+         * can be used to map a specific version.
+         *
+         * If VERSION_NONE is provided, the slave instance is not initialized
+         * with any data from the master. This is useful if the object has been
+         * pre-initialized by other means, for example from a shared file
+         * system.
+         *
+         * If VERSION_OLDEST is provided, the oldest available version is
+         * mapped.
+         *
+         * If the requested version does no longer exist, mapObject()
+         * will fail. If the requested version is newer than the head version,
+         * mapObject() will block until the requested version is available.
+         *
+         * Mapping an object is a potentially time-consuming operation. Using
+         * mapObjectNB() and mapObjectSync() to asynchronously map multiple
+         * objects in parallel improves performance of this operation.
+         *
+         * @param object the object.
+         * @param id the master object identifier.
+         * @param version the initial version.
+         * @return true if the object was mapped, false if the master of the
+         *         object is not found or the requested version is no longer
+         *         available.
+         * @sa registerObject
+         */
+        EQNET_API bool mapObject( Object* object, const base::UUID& id, 
+                                  const uint128_t& version = VERSION_OLDEST );
+
+        /** Convenience wrapper for mapObject(). */
+        bool mapObject( Object* object, const ObjectVersion& v )
+            { return mapObject( object, v.identifier, v.version ); }
+
+        /** Start mapping a distributed object. */
+        EQNET_API uint32_t mapObjectNB( Object* object, const base::UUID& id, 
+                                    const uint128_t& version = VERSION_OLDEST );
+        /** Finalize the mapping of a distributed object. */
+        EQNET_API bool mapObjectSync( const uint32_t requestID );
+
+        /** 
+         * Unmap a mapped object.
+         * 
+         * @param object the mapped object.
+         */
+        EQNET_API void unmapObject( Object* object );
+
+        /** Convenience method to deregister or unmap an object. */
+        EQNET_API void releaseObject( Object* object );
+
+        /** @internal swap the existing object by a new object and keep
+                      the cm, id and instanceID. */
+        EQNET_API void swapObject( Object* oldObject, Object* newObject );
         //@}
 
         /** @name Data Access */
@@ -264,6 +304,12 @@ namespace net
         EQNET_API bool dispatchCommand( Command& command );
         //@}
 
+        /** @internal ack an operation to the sender. */
+        EQNET_API void ackRequest( NodePtr node, const uint32_t requestID );
+
+        /** @internal */
+        EQNET_API void expireInstanceData( const int64_t age );
+
     protected:
         /** 
          * Connect a node proxy to this node.
@@ -281,7 +327,6 @@ namespace net
         EQNET_API bool _connect( NodePtr node, ConnectionPtr connection );
 
     private:
-
         /** Commands re-scheduled for dispatch. */
         CommandList  _pendingCommands;
     
@@ -295,9 +340,8 @@ namespace net
         bool _hasSendToken;
         std::deque< Command* > _sendTokenQueue;
 
-        typedef stde::hash_map< uint128_t, Session* > SessionHash;
-        /** The current mapped sessions of this node. */
-        base::Lockable< SessionHash, base::SpinLock > _sessions;
+        /** Manager of distributed object */
+        ObjectStore* _objectStore;
 
         /** Needed for thread-safety during nodeID-based connect() */
         base::Lock _connectMutex;
@@ -313,11 +357,10 @@ namespace net
         /** The connection set of all connections from/to this node. */
         ConnectionSet _incoming;
     
-        friend EQSERVER_EXPORT net::ConnectionPtr (::eqsStartLocalServer( const std::string& ));
+        friend EQSERVER_EXPORT 
+        net::ConnectionPtr (::eqsStartLocalServer( const std::string& ));
 
-        /**
-         * @name Receiver management
-         */
+        /** @name Receiver management */
         //@{
         /** The receiver thread. */
         class ReceiverThread : public base::Thread
@@ -344,23 +387,6 @@ namespace net
         EQNET_API void _addConnection( ConnectionPtr connection );
         void _removeConnection( ConnectionPtr connection );
         NodePtr _connect( const NodeID& nodeID, NodePtr server );
-
-        /**
-         * Adds an already mapped session to this node.
-         * 
-         * @param session the session.
-         * @param server the node serving the session.
-         * @param sessionID the identifier of the session.
-         */
-        void _addSession( Session* session, NodePtr server,
-                          const SessionID& sessionID );
-
-        /** 
-         * Removes an unmapped session from this node.
-         * 
-         * @param session the session.
-         */
-        void _removeSession( Session* session );
 
         /** 
          * @return <code>true</code> if executed from the command handler
@@ -403,12 +429,6 @@ namespace net
 
         /** The command functions. */
         bool _cmdStop( Command& command );
-        bool _cmdRegisterSession( Command& command );
-        bool _cmdRegisterSessionReply( Command& command );
-        bool _cmdMapSession( Command& command );
-        bool _cmdMapSessionReply( Command& command );
-        bool _cmdUnmapSession( Command& command );
-        bool _cmdUnmapSessionReply( Command& command );
         bool _cmdConnect( Command& command );
         bool _cmdConnectReply( Command& command );
         bool _cmdConnectAck( Command& command );

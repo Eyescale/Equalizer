@@ -66,7 +66,6 @@ Config::Config( ServerPtr parent )
         , _state( STATE_UNUSED )
         , _needsFinish( false )
 {
-    disableInstanceCache();
     const Global* global = Global::instance();
     for( int i=0; i<FATTR_ALL; ++i )
     {
@@ -90,10 +89,12 @@ Config::~Config()
     }
 }
 
-void Config::notifyMapped( net::LocalNodePtr node )
+void Config::attach( const base::UUID& id, 
+                     const uint32_t instanceID, 
+                     net::LocalNodePtr localNode )
 {
-    Super::notifyMapped( node );
-
+    Super::attach( id, instanceID, localNode );
+    
     net::CommandQueue* mainQ = getMainThreadQueue();
     net::CommandQueue* cmdQ = getCommandThreadQueue();
 
@@ -247,7 +248,7 @@ void Config::activateCanvas( Canvas* canvas )
                 channel->setViewport( subViewport );
                 if( channel->getWindow()->isAttached() )
                     // parent is already registered - register channel as well
-                    registerObject( channel );
+                    getServer()->registerObject( channel );
 
                 EQLOG( LOG_VIEW ) 
                     << "View @" << (void*)view << ' ' << view->getViewport()
@@ -459,11 +460,11 @@ VisitorResult Config::_acceptCompounds( ConfigVisitor& visitor ) const
 // operations
 //===========================================================================
 
-uint128_t Config::register_()
+void Config::register_()
 {
-    ConfigRegistrator registrator( this );
+    ServerPtr server = getServer();
+    ConfigRegistrator registrator;
     accept( registrator );
-    return Super::register_();
 }
 
 void Config::deregister()
@@ -471,7 +472,6 @@ void Config::deregister()
     sync();
     ConfigDeregistrator deregistrator;
     accept( deregistrator );
-    Super::deregister();
 }
 
 void Config::restore()
@@ -699,7 +699,7 @@ void Config::_deleteEntities( const std::vector< T* >& entities )
         T* entity = entities[ i ];
         if( entity->needsDelete( ))
         {
-            deregisterObject( entity );
+            getServer()->deregisterObject( entity );
             delete entity;
         }
         else
@@ -712,12 +712,11 @@ uint32_t Config::_createConfig( Node* node )
     EQASSERT( !node->isApplicationNode( ));
     EQASSERT( node->isActive( ));
 
-    // create config (session) on each non-app node
+    // create config on each non-app node
     //   app-node already has config from chooseConfig
     fabric::ServerCreateConfigPacket createConfigPacket;
-    createConfigPacket.configID = getID();
     createConfigPacket.requestID = getLocalNode()->registerRequest();
-    createConfigPacket.proxy = getProxyVersion();
+    createConfigPacket.configVersion = this;
 
     net::NodePtr netNode = node->getNode();
     netNode->send( createConfigPacket );
@@ -886,10 +885,9 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
     // the frame is finished
     ConfigFrameFinishPacket packet;
     packet.frameNumber = frameNumber;
-    packet.sessionID   = getID();
 
     // do not use send/_bufferedTasks, not thread-safe!
-    findApplicationNetNode()->send( packet );
+    send( findApplicationNetNode(), packet );
     EQLOG( LOG_TASKS ) << "TASK config frame finished  " << &packet
                            << std::endl;
 }
@@ -928,6 +926,7 @@ void Config::changeLatency( const uint32_t latency )
 //---------------------------------------------------------------------------
 bool Config::_cmdInit( net::Command& command )
 {
+    EQ_TS_THREAD( _mainThread );
     const ConfigInitPacket* packet =
         command.getPacket<ConfigInitPacket>();
     EQVERB << "handle config start init " << packet << std::endl;
@@ -1057,6 +1056,8 @@ bool Config::_cmdStopFrames( net::Command& command )
 
 bool Config::_cmdCreateReply( net::Command& command ) 
 {
+    EQ_TS_THREAD( _cmdThread );
+    EQ_TS_NOT_THREAD( _mainThread );
     const fabric::ConfigCreateReplyPacket* packet = 
         command.getPacket< fabric::ConfigCreateReplyPacket >();
 

@@ -35,69 +35,6 @@ namespace net
             }
     };
 
-    struct NodeRegisterSessionPacket : public NodePacket
-    {
-        NodeRegisterSessionPacket()
-            {
-                command   = CMD_NODE_REGISTER_SESSION;
-                size      = sizeof(NodeRegisterSessionPacket);
-            }
-
-        uint32_t requestID;
-    };
-
-    struct NodeMapSessionPacket : public NodePacket
-    {
-        NodeMapSessionPacket()
-            {
-                command   = CMD_NODE_MAP_SESSION;
-                size      = sizeof(NodeMapSessionPacket);
-            }
-
-        SessionID sessionID;
-        uint32_t requestID;
-    };
-
-    struct NodeMapSessionReplyPacket : public NodePacket
-    {
-        NodeMapSessionReplyPacket( const NodeMapSessionPacket* requestPacket ) 
-            {
-                command   = CMD_NODE_MAP_SESSION_REPLY;
-                size      = sizeof( NodeMapSessionReplyPacket );
-                requestID = requestPacket->requestID;
-                sessionID = requestPacket->sessionID;
-            }
-            
-        SessionID sessionID;
-        uint32_t requestID;
-    };
-
-    struct NodeUnmapSessionPacket : public NodePacket
-    {
-        NodeUnmapSessionPacket()
-            {
-                command   = CMD_NODE_UNMAP_SESSION;
-                size      = sizeof(NodeUnmapSessionPacket);
-                sessionID = SessionID::ZERO;
-            }
-
-        SessionID sessionID;
-        uint32_t requestID;
-    };
-
-    struct NodeUnmapSessionReplyPacket : public NodePacket
-    {
-        NodeUnmapSessionReplyPacket( const NodeUnmapSessionPacket* request )
-            {
-                command   = CMD_NODE_UNMAP_SESSION_REPLY;
-                size      = sizeof( NodeUnmapSessionReplyPacket );
-                requestID = request->requestID;
-            }
-            
-        uint32_t requestID;
-        bool     result;
-    };
-
     struct NodeConnectPacket : public NodePacket
     {
         NodeConnectPacket()
@@ -263,20 +200,6 @@ namespace net
     };
 
     //------------------------------------------------------------
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const NodeMapSessionPacket* packet )
-    {
-        os << (NodePacket*)packet << " req " << packet->requestID
-           << " sessionID " << packet->sessionID;
-        return os;
-    }
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const NodeMapSessionReplyPacket* packet )
-    {
-        os << (NodePacket*)packet << " req " << packet->requestID
-           << " sessionID " << packet->sessionID;
-        return os;
-    }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeConnectPacket* packet )
     {

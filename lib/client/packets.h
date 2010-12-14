@@ -26,8 +26,7 @@
 namespace eq
 {
 /** @cond IGNORE */
-    typedef net::SessionPacket ConfigPacket;
-    typedef net::ObjectPacket  FrameDataPacket;
+    typedef net::ObjectPacket  ConfigPacket;
     typedef net::ObjectPacket  ChannelPacket;
     typedef net::ObjectPacket  WindowPacket;
     typedef net::ObjectPacket  PipePacket;

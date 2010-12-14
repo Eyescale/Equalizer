@@ -30,37 +30,42 @@ namespace
     class ConfigRegistrator : public ConfigVisitor
     {
     public:
-        ConfigRegistrator( Config* config ) : _config( config ) {}
-        virtual ~ConfigRegistrator(){}
+        ConfigRegistrator() {}
+        virtual ~ConfigRegistrator() {}
 
         virtual VisitorResult visit( Observer* observer )
             { 
                 // double commit on update/delete
-                return _register( observer, _config->getLatency() + 1 );
+                return _register( observer, 
+                                  observer->getConfig()->getLatency() + 1 );
             }
 
         virtual VisitorResult visit( Segment* segment )
             { 
                 // double commit on update/delete
-                return _register( segment, _config->getLatency() + 1 );
+                return _register( segment,
+                                  segment->getConfig()->getLatency() + 1 );
             }
 
         virtual VisitorResult visitPost( Canvas* canvas )
             { 
                 // double commit on update/delete
-                return _register( canvas, _config->getLatency() + 1 );
+                return _register( canvas,
+                                  canvas->getConfig()->getLatency() + 1 );
             }
 
         virtual VisitorResult visit( View* view )
             {
                 // double commit on update/delete
-                return _register( view, _config->getLatency() + 1 );
+                return _register( view,
+                                  view->getConfig()->getLatency() + 1 );
             }
 
         virtual VisitorResult visitPost( Layout* layout )
             { 
                 // double commit on update/delete
-                return _register( layout, _config->getLatency() + 1 );
+                return _register( layout,
+                                  layout->getConfig()->getLatency() + 1 );
             }
 
         virtual VisitorResult visit( Channel* channel )
@@ -86,13 +91,18 @@ namespace
                 return TRAVERSE_CONTINUE; 
             }
 
-    private:
-        Config* const _config;
-
-        VisitorResult _register( net::Object* object, const uint32_t nBuffers )
+        virtual VisitorResult visitPost( Config* config )
             {
+                return _register( config, 0 );
+            }
+
+    private:
+        template< class O >
+        VisitorResult _register( O* object, const uint32_t nBuffers )
+            {
+                ServerPtr server = object->getServer();
                 EQASSERT( !object->isAttached() );
-                _config->registerObject( object );
+                server->registerObject( object );
                 if( nBuffers > 0 )
                     object->setAutoObsolete( nBuffers );
                 return TRAVERSE_CONTINUE; 

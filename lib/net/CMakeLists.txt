@@ -52,7 +52,6 @@ purple_add_library(eq_net ${EQ_LIB_VARIANT}
     objectVersion.h
     packets.h
     pairConnection.h
-    session.h
     types.h
     version.h
   PRECOMPILE_HEADERS
@@ -88,11 +87,11 @@ purple_add_library(eq_net ${EQ_LIB_VARIANT}
     objectDeltaDataOStream.cpp
     objectInstanceDataOStream.cpp
     objectSlaveDataOStream.cpp
+    objectStore.cpp
     objectVersion.cpp
     packets.cpp
     pairConnection.cpp
     pipeConnection.cpp
-    session.cpp
     socketConnection.cpp
     staticMasterCM.cpp
     staticSlaveCM.cpp

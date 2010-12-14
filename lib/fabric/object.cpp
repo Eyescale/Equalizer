@@ -19,7 +19,6 @@
 
 #include "task.h"
 
-#include <eq/net/session.h>
 #include <eq/net/types.h>
 
 namespace eq
@@ -37,9 +36,9 @@ Object::~Object()
 {
     EQASSERTINFO( !_userData,
                   "Unset user data before destructor to allow clean release" )
-    net::Session* session = getSession();
-    if( session )
-        session->releaseObject( this );
+    net::LocalNodePtr node = getLocalNode();
+    if( node.isValid() )
+        node->releaseObject( this );
 }
 
 bool Object::isDirty() const
@@ -61,7 +60,7 @@ uint32_t Object::commitNB()
     {
         if( !_userData->isAttached() && hasMasterUserData( ))
         {
-            getSession()->registerObject( _userData );
+            getLocalNode()->registerObject( _userData );
             _data.userData = _userData;
             setDirty( DIRTY_USERDATA );
         }
@@ -107,7 +106,7 @@ void Object::notifyDetach()
     if( _userData->isMaster( ))
         _data.userData = net::ObjectVersion( 0 );
 
-    getSession()->releaseObject( _userData );
+    getLocalNode()->releaseObject( _userData );
 }
 
 void Object::backup()
@@ -188,7 +187,7 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
         if( _userData->isAttached() && !_userData->isMaster( ))
         {
             EQASSERT( !hasMasterUserData( ));
-            getSession()->unmapObject( _userData );
+            getLocalNode()->unmapObject( _userData );
         }
         return;
     }
@@ -198,7 +197,7 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
     {
         EQASSERT( !hasMasterUserData( ));
         //EQINFO << "Map " << _data.userData << base::backtrace << std::endl;
-        if( !getSession()->mapObject( _userData, _data.userData ))
+        if( !getLocalNode()->mapObject( _userData, _data.userData ))
         {
             EQWARN << "Mapping of " << base::className( _userData )
                    << " user data failed" << std::endl;
@@ -236,9 +235,8 @@ void Object::setUserData( net::Object* userData )
 
     if( _userData && _userData->isAttached( ))
     {
-        net::Session* session = _userData->getSession();
         EQASSERT( _userData->isMaster() == hasMasterUserData( ));
-        session->releaseObject( _userData );
+        _userData->getLocalNode()->releaseObject( _userData );
     }
 
     _userData = userData;
@@ -247,9 +245,9 @@ void Object::setUserData( net::Object* userData )
         setDirty( DIRTY_USERDATA );
     else if( _data.userData.identifier != base::UUID::ZERO )
     {
-        net::Session* session = getSession();
-        if( session )
-            session->mapObject( _userData, _data.userData );
+        net::LocalNodePtr node = getLocalNode();
+        if( node.isValid() )
+            node->mapObject( _userData, _data.userData );
     }
 }
 

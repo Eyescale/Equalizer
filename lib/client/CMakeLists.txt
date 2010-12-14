@@ -115,7 +115,6 @@ set(CLIENT_SOURCES
   eventHandler.cpp
   frame.cpp
   frameData.cpp
-  frameDataStatistics.cpp
   glWindow.cpp
   global.cpp
   image.cpp
@@ -124,6 +123,7 @@ set(CLIENT_SOURCES
   layout.cpp
   node.cpp
   nodeFactory.cpp
+  nodeStatistics.cpp
   observer.cpp
   os.cpp
   pipe.cpp

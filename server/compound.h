@@ -125,6 +125,7 @@ namespace server
         const Config* getConfig() const { return getRoot()->_config; }
 
         Node* getNode();
+        ServerPtr getServer();
 
         void setName( const std::string& name ) { _name = name; }
         const std::string& getName() const      { return _name; }

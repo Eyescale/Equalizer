@@ -78,9 +78,6 @@ namespace server
         /** @return the global time in milliseconds. */
         int64_t getTime() const { return _clock.getTime64(); }
 
-        void registerConfig( Config* config );
-        bool deregisterConfig( Config* config );
-
         /** @sa net::Node::listen() @internal */
         virtual bool listen();
 

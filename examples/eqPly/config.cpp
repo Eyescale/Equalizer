@@ -73,7 +73,6 @@ Config::~Config()
 
 bool Config::init()
 {
-
     if( !_animation.isValid( ))
         _animation.loadAnimation( _initData.getPathFilename( ));
 
@@ -229,7 +228,7 @@ void Config::_registerModels()
         else
             modelDist = _modelDist[i];
 
-        modelDist->registerTree( this );
+        modelDist->registerTree( getClient( ));
         EQASSERT( modelDist->isAttached() );
 
         _frameData.setModelID( modelDist->getID( ));
@@ -311,7 +310,7 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
     }
     
     _modelDist.push_back( new ModelDist );
-    Model* model = _modelDist.back()->mapModel( this, modelID );
+    Model* model = _modelDist.back()->mapModel( getClient(), modelID );
     EQASSERT( model );
     _models.push_back( model );
 

@@ -150,14 +150,14 @@ void Node< C, N, P, V >::notifyDetach()
     while( !_pipes.empty( ))
     {
         P* pipe = _pipes.back();
-        if( !pipe->isAttached()  )
+        if( !pipe->isAttached( ))
         {
             EQASSERT( isMaster( ));
             return;
         }
 
         EQASSERT( !isMaster( ));
-        _config->unmapObject( pipe );
+        getLocalNode()->unmapObject( pipe );
         _removePipe( pipe );
         _config->getServer()->getNodeFactory()->releasePipe( pipe );
     }

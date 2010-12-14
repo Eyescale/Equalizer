@@ -25,6 +25,7 @@
 
 #include <eq/fabric/config.h>        // base class
 #include <eq/base/monitor.h>         // member
+#include <eq/base/spinLock.h>        // member
 
 namespace eq
 {
@@ -33,7 +34,7 @@ namespace eq
      *
      * The application Client can choose a configuration from a Server. The
      * Config will be instantiated though the NodeFactory. The Config groups all
-     * processes of the application in a single net::Session.
+     * processes of the application in a single session.
      *
      * A configuration has a number of nodes, which represent the processes
      * involved in it. While the Server drives all nodes, a Config instance in a
@@ -187,14 +188,42 @@ namespace eq
         EQ_API virtual void setLatency( const uint32_t latency );
 
         /** 
+         * Register a distributed object.
+         *
+         * Provided for symmetry with deregisterObject. Forwards registration to
+         * local client node.
+         * @version 1.0
+         */
+        EQ_API bool registerObject( net::Object* object );
+
+        /**
          * Deregister a distributed object.
          *
          * This method ensures that the data for buffered object is kept for
          * latency frames to allow mapping on slave nodes.
          *
          * @param object the object instance.
+         * @version 1.0
          */
         EQ_API virtual void deregisterObject( net::Object* object );
+
+        /** 
+         * Map a distributed object.
+         *
+         * Provided for symmetry with deregisterObject. Forwards mapping to
+         * local client node.
+         * @version 1.0
+         */
+        EQ_API bool mapObject( net::Object* object, const base::UUID& id, 
+                               const uint128_t& version = net::VERSION_OLDEST );
+
+        /** 
+         * Unmap a mapped object.
+         * 
+         * Provided for symmetry with deregisterObject. Forwards unmapping to
+         * local client node.
+         */
+        EQ_API void unmapObject( net::Object* object );
         //@}
 
         /** @name Frame Control */
@@ -345,14 +374,17 @@ namespace eq
 
         /** @internal Set up appNode connections configured by server. */
         void setupServerConnections( const char* connectionData );
-        
+
     protected:
         /** @internal */
-        EQ_API virtual void notifyMapped( net::LocalNodePtr node );
+        EQ_API void attach( const base::UUID& id, 
+                            const uint32_t instanceID, 
+                            net::LocalNodePtr localNode );
+
         EQ_API virtual void notifyAttached(); //!< @internal
+        EQ_API virtual void notifyDetach(); //!< @internal
         /** @internal */
         EQ_API virtual void changeLatency( const uint32_t latency );
-        EQ_API virtual void unmap(); //!< @internal
         EQ_API virtual bool mapViewObjects() const; //!< @internal
 
     private:
@@ -393,8 +425,6 @@ namespace eq
         public:
             LatencyObject( const ChangeType type ) : _changeType( type ) {}
             uint32_t frameNumber;
-            void swapSession( net::Session* session )
-                { net::Object::swapSession( session ); }
 
         protected:
             virtual ChangeType getChangeType() const { return _changeType; }

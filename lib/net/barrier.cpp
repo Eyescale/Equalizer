@@ -23,7 +23,6 @@
 #include "dataOStream.h"
 #include "log.h"
 #include "barrierPackets.h"
-#include "session.h"
 
 using namespace eq::base;
 using namespace std;
@@ -76,12 +75,12 @@ void Barrier::unpack( DataIStream& is )
 }
 //---------------------------------------------------------------------------
 
-void Barrier::attachToSession( const base::UUID& id, const uint32_t instanceID, 
-                               Session* session )
+void Barrier::attach( const base::UUID& id, const uint32_t instanceID, 
+                      LocalNodePtr localNode )
 {
-    Object::attachToSession( id, instanceID, session );
+    Object::attach( id, instanceID, localNode );
 
-    CommandQueue* queue = session->getCommandThreadQueue();
+    CommandQueue* queue = localNode->getCommandThreadQueue();
 
     registerCommand( CMD_BARRIER_ENTER,
                      CmdFunc( this, &Barrier::_cmdEnter ), queue );
@@ -99,8 +98,7 @@ void Barrier::enter()
 
     if( !_master )
     {
-        Session* session   = getSession();
-        LocalNodePtr  localNode = session->getLocalNode();
+        LocalNodePtr localNode = getLocalNode();
         _master = localNode->connect( _masterID );
     }
 
@@ -108,7 +106,6 @@ void Barrier::enter()
     EQASSERT( _master->isConnected( ));
     EQLOG( LOG_BARRIER ) << "enter barrier " << getID() << " v" << getVersion()
                          << ", height " << _height << endl;
-    EQASSERT( getSession( ));
 
     const uint32_t leaveVal = _leaveNotify.get() + 1;
 
@@ -124,8 +121,7 @@ void Barrier::enter()
 bool Barrier::_cmdEnter( Command& command )
 {
     EQ_TS_THREAD( _thread );
-    EQASSERTINFO( !_master || _master == getSession()->getLocalNode(),
-                  _master );
+    EQASSERTINFO( !_master || _master == getLocalNode(), _master );
 
     BarrierEnterPacket* packet = command.getPacket< BarrierEnterPacket >();
     if( packet->handled )
@@ -162,7 +158,6 @@ bool Barrier::_cmdEnter( Command& command )
     EQLOG( LOG_BARRIER ) << "Barrier reached" << endl;
 
     BarrierEnterReplyPacket reply;
-    reply.sessionID  = getSession()->getID();
     reply.objectID   = getID();
 
     stde::usort( nodes );

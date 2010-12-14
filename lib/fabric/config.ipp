@@ -21,7 +21,6 @@
 #include "configPackets.h"
 #include "paths.h"
 
-#include "configProxy.ipp"
 #include "nameFinder.h"
 
 #include <eq/net/command.h>
@@ -50,12 +49,8 @@ std::string _iAttributeStrings[] =
 
 template< class S, class C, class O, class L, class CV, class N, class V >
 Config< S, C, O, L, CV, N, V >::Config( base::RefPtr< S > server )
-        : net::Session()
+        : Object()
         , _server( server )
-#pragma warning( push )
-#pragma warning( disable : 4355 )
-        , _proxy( new ConfigProxy< S, C, O, L, CV, N, V >( *this ))
-#pragma warning( pop )
 {
     server->_addConfig( static_cast< C* >( this ));
     EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
@@ -98,13 +93,14 @@ Config< S, C, O, L, CV, N, V >::~Config()
     _server->_removeConfig( static_cast< C* >( this ));
     _server = 0;
 
-    delete _proxy;
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::notifyMapped( net::LocalNodePtr node )
+void Config< S, C, O, L, CV, N, V >::attach( const base::UUID& id, 
+                                             const uint32_t instanceID, 
+                                             net::LocalNodePtr localNode )
 {
-    net::Session::notifyMapped( node );
+    Object::attach( id, instanceID, localNode );
 
     net::CommandQueue* queue = _server->getMainThreadQueue();
     EQASSERT( queue );
@@ -358,30 +354,6 @@ O* Config< S, C, O, L, CV, N, V >::getObserver( const ObserverPath& path )
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::setName( const std::string& name )
-{
-    _proxy->setName( name );
-}
-
-template< class S, class C, class O, class L, class CV, class N, class V >
-const std::string& Config< S, C, O, L, CV, N, V >::getName() const
-{
-    return _proxy->getName();
-}
-
-template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::setError( const int32_t error )
-{
-    _proxy->setError( error );
-}
-
-template< class S, class C, class O, class L, class CV, class N, class V >
-base::Error Config< S, C, O, L, CV, N, V >::getError() const
-{
-    return _proxy->getError();
-}
-
-template< class S, class C, class O, class L, class CV, class N, class V >
 const std::string& Config< S, C, O, L, CV, N, V >::getFAttributeString(
     const FAttribute attr )
 {
@@ -445,8 +417,8 @@ bool Config< S, C, O, L, CV, N, V >::_removeObserver( O* observer )
     EQASSERT( observer->getConfig() == this );
     _observers.erase( i );
     setDirty( DIRTY_OBSERVERS );
-    if( !_proxy->isMaster( ))
-        _proxy->postRemove( observer );
+    if( !isMaster( ))
+        postRemove( observer );
     return true;
 }
 
@@ -476,8 +448,8 @@ bool Config< S, C, O, L, CV, N, V >::_removeLayout( L* layout )
     EQASSERT( layout->getConfig() == this );
     _layouts.erase( i );
     setDirty( DIRTY_LAYOUTS );
-    if( !_proxy->isMaster( ))
-        _proxy->postRemove( layout );
+    if( !isMaster( ))
+        postRemove( layout );
     return true;
 }
 
@@ -487,6 +459,58 @@ void Config< S, C, O, L, CV, N, V >::_addCanvas( CV* canvas )
     EQASSERT( canvas->getConfig() == this );
     _canvases.push_back( canvas );
     setDirty( DIRTY_CANVASES );
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+void Config< S, C, O, L, CV, N, V >::create( O** observer ) 
+{
+    *observer = getServer()->getNodeFactory()->createObserver(
+        static_cast< C* >( this ));
+}
+  
+template< class S, class C, class O, class L, class CV, class N, class V >
+void Config< S, C, O, L, CV, N, V >::release( O* observer ) 
+{ 
+    getServer()->getNodeFactory()->releaseObserver( observer ); 
+}
+  
+template< class S, class C, class O, class L, class CV, class N, class V >
+void Config< S, C, O, L, CV, N, V >::create( L** layout )
+{
+    *layout = getServer()->getNodeFactory()->createLayout(
+        static_cast< C* >( this ));
+}
+  
+template< class S, class C, class O, class L, class CV, class N, class V >
+void Config< S, C, O, L, CV, N, V >::release( L* layout )
+{ 
+    getServer()->getNodeFactory()->releaseLayout( layout ); 
+}
+  
+template< class S, class C, class O, class L, class CV, class N, class V >
+void Config< S, C, O, L, CV, N, V >::create( CV** canvas )
+{
+    *canvas = getServer()->getNodeFactory()->createCanvas(
+        static_cast< C* >( this ));
+}
+  
+template< class S, class C, class O, class L, class CV, class N, class V >
+void Config< S, C, O, L, CV, N, V >::release( CV* canvas )
+{
+    getServer()->getNodeFactory()->releaseCanvas( canvas );
+}
+ 
+template< class S, class C, class O, class L, class CV, class N, class V >
+void Config< S, C, O, L, CV, N, V >::create( N** node )
+{
+    *node = getServer()->getNodeFactory()->createNode(
+        static_cast< C* >( this ));
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+void Config< S, C, O, L, CV, N, V >::release( N* node )
+{ 
+     getServer()->getNodeFactory()->releaseNode( node ); 
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
@@ -500,8 +524,8 @@ bool Config< S, C, O, L, CV, N, V >::_removeCanvas( CV* canvas )
     EQASSERT( canvas->getConfig() == this );
     _canvases.erase( i );
     setDirty( DIRTY_CANVASES );
-    if( !_proxy->isMaster( ))
-        _proxy->postRemove( canvas );
+    if( !isMaster( ))
+        postRemove( canvas );
     return true;
 }
 
@@ -526,23 +550,9 @@ void Config< S, C, O, L, CV, N, V >::setAppNodeID( const net::NodeID& nodeID )
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-net::ObjectVersion Config< S, C, O, L, CV, N, V >::getProxyVersion() const
-{
-    EQASSERT( _proxy->isMaster( ));
-    return _proxy;
-}
-
-template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::backup()
-{
-    _backup = _data;
-    _proxy->backup();
-}
-
-template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::restore()
 {
-    _proxy->restore();
+    Object::restore();
     if( _data.latency != _backup.latency )
     {
         _data = _backup;
@@ -551,58 +561,6 @@ void Config< S, C, O, L, CV, N, V >::restore()
     else
         _data = _backup;
     setDirty( DIRTY_MEMBER );
-}
-
-// TODO move visitors for operations on childs here.
-template< class S, class C, class O, class L, class CV, class N, class V >
-uint128_t Config< S, C, O, L, CV, N, V >::register_()
-{
-    EQASSERT( !_proxy->isAttached() );
-    EQCHECK( registerObject( _proxy ));
-    return _proxy->getID();
-}
-
-template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::deregister()
-{
-    EQASSERT( _proxy->isAttached() );
-    deregisterObject( _proxy );
-}
-
-template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::map( const net::ObjectVersion proxy )
-{
-    EQCHECK( mapObject( _proxy, proxy ));
-}
-
-template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::unmap()
-{
-    unmapObject( _proxy );
-}
-
-template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::setDirty( const uint64_t dirtyBits )
-{
-    return _proxy->setDirty( dirtyBits );
-}
-
-template< class S, class C, class O, class L, class CV, class N, class V >
-uint128_t Config< S, C, O, L, CV, N, V >::getVersion() const
-{
-    return _proxy->getVersion();
-}
-
-template< class S, class C, class O, class L, class CV, class N, class V >
-uint128_t Config< S, C, O, L, CV, N, V >::commit()
-{
-    return _proxy->commit();
-}
-
-template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::sync( const uint128_t& version )
-{
-    _proxy->sync( version );
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
@@ -638,6 +596,188 @@ N* Config< S, C, O, L, CV, N, V >::_findNode( const uint128_t& id )
     return 0;
 }
 
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+uint32_t Config< S, C, O, L, CV, N, V >::commitNB()
+{
+    if( Serializable::isDirty( Config::DIRTY_NODES ))
+        commitChildren< N >( _nodes );
+    if( Serializable::isDirty( Config::DIRTY_OBSERVERS ))
+        commitChildren< O, ConfigNewObserverPacket, C >(
+            _observers, static_cast< C* >( this ));
+    // Always traverse layouts: view objects may be dirty
+    commitChildren< L, ConfigNewLayoutPacket, C >( _layouts,
+                                                   static_cast<C*>( this ));
+    if( Serializable::isDirty( Config::DIRTY_CANVASES ))
+        commitChildren< CV, ConfigNewCanvasPacket, C >(
+            _canvases, static_cast< C* >( this ));
+    return Object::commitNB();
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+void Config< S, C, O, L, CV, N, V >::serialize( net::DataOStream& os,
+                                                const uint64_t dirtyBits )
+{
+    Object::serialize( os, dirtyBits );
+
+    if( dirtyBits & Config::DIRTY_MEMBER )
+        os << _appNodeID;
+    if( dirtyBits & Config::DIRTY_ATTRIBUTES )
+    {
+        os.write( _fAttributes, C::FATTR_ALL * sizeof( float ));
+        os.write( _iAttributes, C::IATTR_ALL * sizeof( int32_t ));
+    }
+    if( isMaster( ) )
+    {
+        if( dirtyBits & Config::DIRTY_NODES )
+            os.serializeChildren( _nodes );
+        if( dirtyBits & Config::DIRTY_OBSERVERS )
+            os.serializeChildren( _observers );
+        if( dirtyBits & Config::DIRTY_LAYOUTS )
+            os.serializeChildren( _layouts );
+        if( dirtyBits & Config::DIRTY_CANVASES )
+            os.serializeChildren( _canvases );
+    }
+    if( dirtyBits & Config::DIRTY_LATENCY )
+        os << _data.latency;
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+void Config< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is, 
+                                                  const uint64_t dirtyBits )
+{
+    Object::deserialize( is, dirtyBits );
+    
+    if( dirtyBits & Config::DIRTY_MEMBER )
+        is >> _appNodeID;
+    if( dirtyBits & Config::DIRTY_ATTRIBUTES )
+    {
+        is.read( _fAttributes, C::FATTR_ALL * sizeof( float ));
+        is.read( _iAttributes, C::IATTR_ALL * sizeof( int32_t ));
+    }
+    if( isMaster( ))
+    {
+        if( dirtyBits & Config::DIRTY_NODES )
+            syncChildren( _nodes );
+        if( dirtyBits & Config::DIRTY_OBSERVERS )
+            syncChildren( _observers );
+        if( dirtyBits & Config::DIRTY_LAYOUTS )
+            syncChildren( _layouts );
+        if( dirtyBits & Config::DIRTY_CANVASES )
+            syncChildren( _canvases );
+    }
+    else
+    {
+        if( dirtyBits & Config::DIRTY_NODES )
+        {
+            if( mapNodeObjects( ))
+            {
+                typename C::Nodes result;
+                is.deserializeChildren( this, _nodes, result );
+                _nodes.swap( result );
+                EQASSERT( _nodes.size() == result.size( ));
+            }
+            else // consume unused ObjectVersions
+            {
+                net::ObjectVersions childIDs;
+                is >> childIDs;
+            }
+        }
+
+        if( mapViewObjects( )) // depends on _config._appNodeID !
+        {
+            if( dirtyBits & Config::DIRTY_OBSERVERS )
+            {
+                typename C::Observers result;
+                is.deserializeChildren( this, _observers, result );
+                _observers.swap( result );
+                EQASSERT( _observers.size() == result.size( ));
+            }
+            if( dirtyBits & Config::DIRTY_LAYOUTS )
+            {
+                typename C::Layouts result;
+                is.deserializeChildren( this, _layouts, result );
+                _layouts.swap( result );
+                EQASSERT( _layouts.size() == result.size( ));
+            }
+            if( dirtyBits & Config::DIRTY_CANVASES )
+            {
+                typename C::Canvases result;
+                is.deserializeChildren( this, _canvases, result );
+                _canvases.swap( result );
+                EQASSERT( _canvases.size() == result.size( ));
+            }
+        }
+        else // consume unused ObjectVersions
+        {
+            net::ObjectVersions childIDs;
+            if( dirtyBits & Config::DIRTY_OBSERVERS )
+                is >> childIDs;
+            if( dirtyBits & Config::DIRTY_LAYOUTS )
+                is >> childIDs;
+            if( dirtyBits & Config::DIRTY_CANVASES )
+                is >> childIDs;
+        }
+    }
+
+    if( dirtyBits & Config::DIRTY_LATENCY )
+    {
+        uint32_t latency = 0;
+        is >> latency;
+        if( _data.latency != latency )
+        {
+            _data.latency = latency;
+            changeLatency( latency );
+        }
+    }
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
+void Config< S, C, O, L, CV, N, V >::notifyDetach()
+{
+    if( isMaster( ))
+        return;
+
+    typename S::NodeFactory* nodeFactory = getServer()->getNodeFactory();
+
+    net::LocalNodePtr localNode = getLocalNode();
+    while( !_nodes.empty( ))
+    {
+        EQASSERT( mapNodeObjects( ));
+        N* node = _nodes.back();
+        localNode->unmapObject( node );
+        _removeNode( node );
+        nodeFactory->releaseNode( node );
+    }
+
+    while( !_canvases.empty( ))
+    {
+        EQASSERT( mapViewObjects( ));
+        CV* canvas = _canvases.back();
+        localNode->unmapObject( canvas );
+        _removeCanvas( canvas );
+        nodeFactory->releaseCanvas( canvas );
+    }
+
+    while( !_layouts.empty( ))
+    {
+        EQASSERT( mapViewObjects( ));
+        L* layout = _layouts.back();
+        localNode->unmapObject( layout );
+        _removeLayout( layout );
+        nodeFactory->releaseLayout( layout );
+    }
+
+    while( !_observers.empty( ))
+    {
+        EQASSERT( mapViewObjects( ));
+        O* observer = _observers.back();
+        localNode->unmapObject( observer );
+        _removeObserver( observer );
+        nodeFactory->releaseObserver( observer );
+    }
+}
+
 //----------------------------------------------------------------------
 // Command handlers
 //----------------------------------------------------------------------
@@ -649,16 +789,16 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
         command.getPacket< ConfigNewLayoutPacket >();
     
     L* layout = 0;
-    _proxy->create( &layout );
+    create( &layout );
     EQASSERT( layout );
 
-    registerObject( layout );
+    getLocalNode()->registerObject( layout );
     layout->setAutoObsolete( _data.latency + 1 );
     EQASSERT( layout->isAttached() );
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = layout->getID();
-    send( command.getNode(), reply ); 
+    command.getNode()->send( reply ); 
 
     return true;
 }
@@ -671,17 +811,16 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas(
         command.getPacket< ConfigNewCanvasPacket >();
     
     CV* canvas = 0;
-    _proxy->create( &canvas );
+    create( &canvas );
     EQASSERT( canvas );
 
-    registerObject( canvas );
+    getLocalNode()->registerObject( canvas );
     canvas->setAutoObsolete( _data.latency + 1 );
     EQASSERT( canvas->isAttached() );
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = canvas->getID();
-    send( command.getNode(), reply ); 
-
+    command.getNode()->send( reply ); 
     return true;
 }
 
@@ -693,16 +832,16 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver(
         command.getPacket< ConfigNewObserverPacket >();
     
     O* observer = 0;
-    _proxy->create( &observer );
+    create( &observer );
     EQASSERT( observer );
 
-    registerObject( observer );
+    getLocalNode()->registerObject( observer );
     observer->setAutoObsolete( _data.latency + 1 );
     EQASSERT( observer->isAttached() );
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = observer->getID();
-    send( command.getNode(), reply ); 
+    command.getNode()->send( reply ); 
 
     return true;
 }

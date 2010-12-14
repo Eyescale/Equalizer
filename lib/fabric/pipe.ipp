@@ -85,11 +85,11 @@ void Pipe< N, P, W, V >::restore()
 }
 
 template< class N, class P, class W, class V >
-void Pipe< N, P, W, V >::attachToSession( const base::UUID& id,
-                                          const uint32_t instanceID,
-                                          net::Session* session )
+void Pipe< N, P, W, V >::attach( const base::UUID& id,
+                                 const uint32_t instanceID,
+                                 net::LocalNodePtr localNode )
 {
-    Object::attachToSession( id, instanceID, session );
+    Object::attach( id, instanceID, localNode );
 
     net::CommandQueue* queue = _node->getConfig()->getMainThreadQueue();
     EQASSERT( queue );
@@ -186,11 +186,9 @@ void Pipe< N, P, W, V >::notifyDetach()
             return;
         }
 
-        net::Session* session = getSession();
-        EQASSERT( session );
         EQASSERT( !isMaster( ));
 
-        session->unmapObject( window );
+        getLocalNode()->unmapObject( window );
         _removeWindow( window );
         _node->getServer()->getNodeFactory()->releaseWindow( window );
     }
@@ -390,7 +388,7 @@ Pipe< N, P, W, V >::_cmdNewWindow( net::Command& command )
     create( &window );
     EQASSERT( window );
 
-    _node->getConfig()->registerObject( window );
+    getLocalNode()->registerObject( window );
     EQASSERT( window->isAttached() );
 
     PipeNewWindowReplyPacket reply( packet );

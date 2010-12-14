@@ -297,9 +297,9 @@ namespace eq
 
     protected:
         /** @internal */
-        EQ_API void attachToSession( const base::UUID& id, 
-                                     const uint32_t instanceID, 
-                                     net::Session* session );
+        EQ_API void attach( const base::UUID& id, 
+                            const uint32_t instanceID, 
+                            net::LocalNodePtr localNode );
         /** @name Actions */
         //@{
         /** 

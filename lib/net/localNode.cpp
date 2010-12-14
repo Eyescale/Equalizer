@@ -17,12 +17,14 @@
  */
  
 #include "localNode.h"
+
 #include "command.h"
 #include "connectionDescription.h"
 #include "global.h"
 #include "nodePackets.h"
+#include "object.h"
+#include "objectStore.h"
 #include "pipeConnection.h"
-#include "session.h"
 
 #include <eq/base/log.h>
 #include <eq/base/requestHandler.h>
@@ -36,23 +38,16 @@ typedef CommandFunc<LocalNode> CmdFunc;
 
 LocalNode::LocalNode( )
         : _hasSendToken( true )
+        , _objectStore( 0 )
 {
     _receiverThread = new ReceiverThread( this );
     _commandThread  = new CommandThread( this );
 
+    _objectStore = new ObjectStore( this );
+
     CommandQueue* queue = &_commandThreadQueue;
     registerCommand( CMD_NODE_STOP,
                      CmdFunc( this, &LocalNode::_cmdStop ), queue );
-    registerCommand( CMD_NODE_REGISTER_SESSION,
-                    CmdFunc( this, &LocalNode::_cmdRegisterSession ), 0 );
-    registerCommand( CMD_NODE_MAP_SESSION,
-                    CmdFunc( this, &LocalNode::_cmdMapSession ), queue );
-    registerCommand( CMD_NODE_MAP_SESSION_REPLY,
-                    CmdFunc( this, &LocalNode::_cmdMapSessionReply ), 0 );
-    registerCommand( CMD_NODE_UNMAP_SESSION, 
-                    CmdFunc( this, &LocalNode::_cmdUnmapSession ), queue );
-    registerCommand( CMD_NODE_UNMAP_SESSION_REPLY,
-                    CmdFunc( this, &LocalNode::_cmdUnmapSessionReply ), 0 );
     registerCommand( CMD_NODE_CONNECT,
                     CmdFunc( this, &LocalNode::_cmdConnect ), 0);
     registerCommand( CMD_NODE_CONNECT_REPLY,
@@ -87,22 +82,8 @@ LocalNode::~LocalNode( )
     EQASSERT( _nodes->empty( ));
     EQASSERT( !hasPendingRequests( ));
 
-#ifndef NDEBUG
-    if( !_sessions->empty( ))
-    {
-        EQINFO << _sessions->size() << " mapped sessions" << std::endl;
-        
-        for( SessionHash::const_iterator i = _sessions->begin();
-             i != _sessions->end(); ++i )
-        {
-            const Session* session = i->second;
-            EQINFO << "    Session " << session->getID() << std::endl;
-        }
-    }
-#endif
-
-    EQASSERT( _sessions->empty( ));
-
+    delete _objectStore;
+    _objectStore = 0;
     EQASSERT( !_commandThread->isRunning( ));
     delete _commandThread;
     _commandThread = 0;
@@ -210,6 +191,7 @@ bool LocalNode::close()
     NodeStopPacket packet;
     send( packet );
 
+    _objectStore->clear();
     EQCHECK( _receiverThread->join( ));
     _cleanup();
 
@@ -457,103 +439,73 @@ bool LocalNode::disconnect( NodePtr node )
     return true;
 }
 
-void LocalNode::_addSession( Session* session, NodePtr server,
-                        const SessionID& sessionID )
+//----------------------------------------------------------------------
+// Object functionality
+//----------------------------------------------------------------------
+void LocalNode::disableInstanceCache()
 {
-    EQ_TS_THREAD( _recvThread );
-
-    session->_server    = server;
-    session->_id        = sessionID;
-    session->_isMaster  = ( server == this && isLocal( ));
-    session->_setLocalNode( this );
-
-    base::ScopedMutex< base::SpinLock > mutex( _sessions );
-    EQASSERTINFO( _sessions->find( sessionID ) == _sessions->end(),
-                  "Session " << sessionID << " @" << (void*)session
-                  << " already mapped on " << this << " @"
-                  <<  (void*)_sessions.data[ sessionID ] );
-    _sessions.data[ sessionID ] = session;
-
-    EQINFO << (session->_isMaster ? "master" : "client") << " session, id "
-           << sessionID << ", served by " << *server << ", mapped on "
-           << *(Node*)this << std::endl;
+    _objectStore->disableInstanceCache();
 }
 
-void LocalNode::_removeSession( Session* session )
+bool LocalNode::registerObject( Object* object )
 {
-    EQ_TS_THREAD( _recvThread );
-    {
-        base::ScopedMutex< base::SpinLock > mutex( _sessions );
-        EQASSERT( _sessions->find( session->getID( )) != 
-                                            _sessions->end( ));
+    return _objectStore->registerObject( object );
+}
 
-        _sessions->erase( session->getID( ));
-        EQINFO << "Erased session " << session->getID() << ", " 
-               << _sessions->size() << " left" << std::endl;
-    }
+void LocalNode::deregisterObject( Object* object )
+{
+    _objectStore->deregisterObject( object );
+}
+bool LocalNode::mapObject( Object* object, const base::UUID& id,
+                           const uint128_t& version )
+{
+    const uint32_t requestID = _objectStore->mapObjectNB( object, id, version );
+    return _objectStore->mapObjectSync( requestID );
+}
 
-    session->_setLocalNode( 0 );
-    session->disableInstanceCache( );
-    session->_server    = 0;
-    if( session->_isMaster )
-        session->_isMaster  = false;
+uint32_t LocalNode::mapObjectNB( Object* object, const base::UUID& id, 
+                            const uint128_t& version )
+{
+    return _objectStore->mapObjectNB( object, id, version );
+}
+
+bool LocalNode::mapObjectSync( const uint32_t requestID )
+{
+    return _objectStore->mapObjectSync( requestID );
+}
+
+void LocalNode::unmapObject( Object* object )
+{
+    _objectStore->unmapObject( object );
+}
+
+void LocalNode::ackRequest( NodePtr node, const uint32_t requestID )
+{
+    _objectStore->ackRequest( node, requestID );
+}
+
+void LocalNode::expireInstanceData( const int64_t age )
+{
+    _objectStore->expireInstanceData( age );
+}
+
+void LocalNode::swapObject( Object* oldObject, Object* newObject )
+{
+    _objectStore->swapObject( oldObject, newObject );
+}
+
+void LocalNode::releaseObject( Object* object )
+{
+    EQASSERT( object );
+    if( !object || !object->isAttached( ))
+        return;
+
+    if( object->isMaster( ))
+        _objectStore->deregisterObject( object );
     else
-        // generate a new id for a slave session so it can become a master
-        session->_id = SessionID( true );
+        _objectStore->unmapObject( object );
 }
 
-void LocalNode::registerSession( Session* session )
-{
-    EQASSERT( !inCommandThread( ));
-    NodeRegisterSessionPacket packet;
-    packet.requestID = registerRequest( session );
-    send( packet );
-
-    waitRequest( packet.requestID );
-}
-
-//----------------------------------------------------------------------
-// Session functionality
-//----------------------------------------------------------------------
-bool LocalNode::mapSession( NodePtr server, Session* session, const SessionID& id )
-{
-    EQASSERT( id != SessionID::ZERO );
-    EQASSERT( server != this );
-
-    NodeMapSessionPacket packet;
-    packet.requestID = registerRequest( session );
-    packet.sessionID = id;
-    server->send( packet );
-
-    waitRequest( packet.requestID );
-    return ( session->getID() != SessionID::ZERO );
-}
-
-bool LocalNode::unmapSession( Session* session )
-{
-    EQASSERT( isLocal( ));
-
-    NodeUnmapSessionPacket packet;
-    packet.requestID = registerRequest( session );
-    packet.sessionID = session->getID();
-    session->getServer()->send( packet );
-
-    bool ret = false;
-    waitRequest( packet.requestID, ret );
-    return ret;
-}
-
-Session* LocalNode::getSession( const SessionID& id )
-{
-    base::ScopedMutex< base::SpinLock > mutex( _sessions );
-    SessionHash::const_iterator i = _sessions->find( id );
-    
-    EQASSERT( i != _sessions->end( ));
-    if( i == _sessions->end( ))
-        return 0;
-
-    return i->second;
-}
 
 void LocalNode::acquireSendToken( NodePtr node )
 {
@@ -990,25 +942,10 @@ bool LocalNode::dispatchCommand( Command& command )
             EQCHECK( Dispatcher::dispatchCommand( command ));
             return true;
 
-        case PACKETTYPE_EQNET_SESSION:
+        case PACKETTYPE_EQNET_OBJECTSTORE:
         case PACKETTYPE_EQNET_OBJECT:
         {
-            const SessionPacket* sessionPacket = 
-                static_cast<SessionPacket*>( command.getPacket( ));
-            const SessionID& id = sessionPacket->sessionID;
-            SessionHash::const_iterator i = _sessions->find( id );
-
-            if( i == _sessions->end( ))
-            {
-                // multicasted instance data can be ignored
-                EQASSERTINFO( type==PACKETTYPE_EQNET_SESSION && 
-                              sessionPacket->command == CMD_SESSION_INSTANCE,
-                              "Can't find session for " << command );
-                return true;
-            }
-
-            Session* session = i->second;
-            return session->dispatchCommand( command );
+            return _objectStore->dispatchCommand( command );
         }
 
         default:
@@ -1063,19 +1000,10 @@ void LocalNode::_runCommandThread()
             EQABORT( "Error handling " << *command );
         }
         command->release();
-
-        bool callAgain = true;
-        while( _commandThreadQueue.isEmpty() && callAgain )
+        while( _commandThreadQueue.isEmpty( ))
         {
-            callAgain = false;
-
-            base::ScopedMutex< base::SpinLock > mutex( _sessions );
-            for( SessionHash::const_iterator i = _sessions->begin();
-                 i != _sessions->end(); ++i )
-            {
-                if( i->second->notifyCommandThreadIdle( ))
-                    callAgain = true;
-            }
+            if( !_objectStore->notifyCommandThreadIdle( )) // nothing to do
+                break;
         }
     }
  
@@ -1095,25 +1023,10 @@ bool LocalNode::invokeCommand( Command& command )
         case PACKETTYPE_EQNET_NODE:
             return Dispatcher::invokeCommand( command );
 
-        case PACKETTYPE_EQNET_SESSION:
+        case PACKETTYPE_EQNET_OBJECTSTORE:
         case PACKETTYPE_EQNET_OBJECT:
         {
-            const SessionPacket* sessionPacket = 
-                static_cast<SessionPacket*>( command.getPacket( ));
-            const SessionID& id = sessionPacket->sessionID;
-            Session* session = 0;
-            {
-                base::ScopedMutex< base::SpinLock > mutex( _sessions );
-                SessionHash::const_iterator i = _sessions->find( id );
-                EQASSERTINFO( i != _sessions->end(),
-                              "Can't find session for " << sessionPacket );
-
-                session = i->second;
-            } 
-            if( !session )
-                return false;
-
-            return session->invokeCommand( command );
+            return _objectStore->invokeCommand( command );
         }
 
         default:
@@ -1133,133 +1046,6 @@ bool LocalNode::_cmdStop( Command& )
     return true;
 }
 
-bool LocalNode::_cmdRegisterSession( Command& command )
-{
-    EQ_TS_THREAD( _recvThread );
-    EQASSERT( _state == STATE_LISTENING );
-    EQASSERTINFO( command.getNode() == this, 
-                  command.getNode() << " != " << this );
-
-    const NodeRegisterSessionPacket* packet = 
-        command.getPacket< NodeRegisterSessionPacket >();
-    EQVERB << "Cmd register session: " << packet << std::endl;
-    
-    Session* session = static_cast< Session* >( 
-        getRequestData( packet->requestID ));
-    EQASSERT( session );
-
-    _addSession( session, this, session->getID( ));
-    serveRequest( packet->requestID );
-    return true;
-}
-
-
-bool LocalNode::_cmdMapSession( Command& command )
-{
-    EQ_TS_THREAD( _cmdThread );
-    EQASSERT( _state == STATE_LISTENING );
-
-    const NodeMapSessionPacket* packet = 
-        command.getPacket<NodeMapSessionPacket>();
-    EQVERB << "Cmd map session: " << packet << std::endl;
-    
-    NodePtr node = command.getNode();
-    NodeMapSessionReplyPacket reply( packet );
-
-    if( node == this )
-    {
-        EQASSERTINFO( node == this, 
-                      "Can't map a session using myself as server " );
-        reply.sessionID = SessionID::ZERO;
-    }
-    else
-    {
-        const SessionID& sessionID = packet->sessionID;
-        base::ScopedMutex< base::SpinLock > mutex( _sessions );
-        SessionHash::const_iterator i = _sessions->find( sessionID );
-        
-        if( i == _sessions->end( ))
-        {
-            EQWARN << "Can't find session " << sessionID << " to map"
-                   << std::endl;
-            reply.sessionID = SessionID::ZERO;
-        }
-    }
-
-    node->send( reply );
-    return true;
-}
-
-bool LocalNode::_cmdMapSessionReply( Command& command)
-{
-    EQ_TS_THREAD( _recvThread );
-    const NodeMapSessionReplyPacket* packet = 
-        command.getPacket<NodeMapSessionReplyPacket>();
-    EQVERB << "Cmd map session reply: " << packet << std::endl;
-
-    const uint32_t requestID = packet->requestID;
-    if( packet->sessionID != SessionID::ZERO )
-    {
-        NodePtr  node    = command.getNode(); 
-        Session* session = static_cast< Session* >( 
-            getRequestData( requestID ));
-        EQASSERT( session );
-        EQASSERT( node != this );
-
-        _addSession( session, node, packet->sessionID );
-    }
-
-    serveRequest( requestID );
-    return true;
-}
-
-bool LocalNode::_cmdUnmapSession( Command& command )
-{
-    EQ_TS_THREAD( _cmdThread );
-    const NodeUnmapSessionPacket* packet =
-        command.getPacket<NodeUnmapSessionPacket>();
-    EQVERB << "Cmd unmap session: " << packet << std::endl;
-    
-    const SessionID& sessionID = packet->sessionID;
-    NodeUnmapSessionReplyPacket reply( packet );
-    {
-        base::ScopedMutex< base::SpinLock > mutex( _sessions );
-        SessionHash::const_iterator i = _sessions->find( sessionID );
-        reply.result = (i == _sessions->end() ? false : true );
-    }
-
-#if 0
-    if( session && session->_server == this )
-        ;// TODO: unmap all session slave instances.
-#endif
-
-    command.getNode()->send( reply );
-    return true;
-}
-
-bool LocalNode::_cmdUnmapSessionReply( Command& command)
-{
-    EQ_TS_THREAD( _recvThread );
-    const NodeUnmapSessionReplyPacket* packet = 
-        command.getPacket<NodeUnmapSessionReplyPacket>();
-    EQVERB << "Cmd unmap session reply: " << packet << std::endl;
-
-    const uint32_t requestID = packet->requestID;
-    Session* session = static_cast< Session* >(
-        getRequestData( requestID ));
-    EQASSERT( session );
-
-    if( session )
-    {
-        _removeSession( session ); // TODO use session existence as return value
-        serveRequest( requestID, true );
-    }
-    else
-        serveRequest( requestID, false );
-
-    // packet->result is false if server-side session was already unmapped
-    return true;
-}
 
 bool LocalNode::_cmdConnect( Command& command )
 {

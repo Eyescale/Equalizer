@@ -16,28 +16,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_FRAMEDATASTATISTICS_H
-#define EQ_FRAMEDATASTATISTICS_H
+#ifndef EQ_NODESTATISTICS_H
+#define EQ_NODESTATISTICS_H
 
 #include <eq/client/statisticSampler.h> // base class
 
 namespace eq
 {
-    class FrameData;
+    class Node;
 
     /**
      * Holds one statistics event, used for profiling.
      */
-    class FrameDataStatistics : public StatisticSampler< FrameData >
+    class NodeStatistics : public StatisticSampler< Node >
     {
     public:
-        FrameDataStatistics( const Statistic::Type type, FrameData* frameData,
-                             Node* node, const uint32_t frameNumber,
-                             const uint128_t& originator );
-        ~FrameDataStatistics();
-    private:
-        Node* _node;
+        NodeStatistics( const Statistic::Type type, Node* node,
+                        const uint32_t frameNumber );
+        ~NodeStatistics();
     };
 }
 
-#endif // EQ_FRAMEDATASTATISTICS_H
+#endif // EQ_NODESTATISTICS_H

@@ -57,11 +57,11 @@ Layout< C, L, V >::~Layout()
 }
 
 template< class C, class L, class V >
-void Layout< C, L, V >::attachToSession( const base::UUID& id,
-                                         const uint32_t instanceID,
-                                         net::Session* session )
+void Layout< C, L, V >::attach( const base::UUID& id,
+                                const uint32_t instanceID,
+                                net::LocalNodePtr localNode )
 {
-    Object::attachToSession( id, instanceID, session );
+    Object::attach( id, instanceID, localNode );
 
     net::CommandQueue* queue = _config->getMainThreadQueue();
     EQASSERT( queue );
@@ -280,7 +280,7 @@ Layout< C, L, V >::_cmdNewView( net::Command& command )
     create( &view );
     EQASSERT( view );
 
-    _config->registerObject( view );
+    getLocalNode()->registerObject( view );
     view->setAutoObsolete( _config->getLatency() + 1 );
     EQASSERT( view->isAttached() );
 

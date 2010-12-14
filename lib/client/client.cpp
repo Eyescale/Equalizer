@@ -281,7 +281,6 @@ void Client::clientLoop()
 
     // cleanup
     _mainThreadQueue.flush();
-    EQASSERT( !hasSessions( ));
 }
 
 void Client::exitClient()

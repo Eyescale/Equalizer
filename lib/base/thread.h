@@ -253,7 +253,7 @@ namespace base
         }                                                               \
     }
 
-    /** @internal */
+    /** @cond IGNORE */
     template< typename T > class ScopedThreadCheck : public NonCopyable
     {
     public:
@@ -273,6 +273,7 @@ namespace base
     private:
         const T& _data;
     };
+    /** @endcond */
 
 # define EQ_TS_SCOPED( NAME ) \
     eq::base::ScopedThreadCheck< NAME ## Struct > scoped ## NAME ## Check(NAME);

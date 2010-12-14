@@ -166,22 +166,13 @@ namespace server
         void changeLatency( const uint32_t latency );
         //@}
 
-        void send( net::SessionPacket& packet ) 
-            { 
-                packet.sessionID = getConfig()->getID(); 
-                _bufferedTasks.send( packet );
-            }
-        void send( net::SessionPacket& packet, const std::string& string ) 
-            {
-                packet.sessionID = getConfig()->getID(); 
-                _bufferedTasks.send( packet, string );
-            }
+        void send( net::NodePacket& packet ) 
+            { _bufferedTasks.send( packet ); }
+        void send( net::NodePacket& packet, const std::string& string ) 
+            { _bufferedTasks.send( packet, string ); }
         template< typename T >
-        void send( net::SessionPacket &packet, const std::vector<T>& data )
-            {
-                packet.sessionID = getConfig()->getID(); 
-                _bufferedTasks.send( packet, data );
-            }
+        void send( net::NodePacket &packet, const std::vector<T>& data )
+            { _bufferedTasks.send( packet, data ); }
 
         void flushSendBuffer();
 
@@ -248,10 +239,10 @@ namespace server
 
     protected:
 
-        /** @sa net::Object::attachToSession. */
-        virtual void attachToSession( const base::UUID& id, 
-                                      const uint32_t instanceID, 
-                                      net::Session* session );
+        /** @sa net::Object::attach. */
+        virtual void attach( const base::UUID& id, 
+                             const uint32_t instanceID, 
+                             net::LocalNodePtr localNode );
         
     private:
         /** String attributes. */

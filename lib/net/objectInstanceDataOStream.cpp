@@ -23,7 +23,6 @@
 #include "object.h"
 #include "objectDataIStream.h"
 #include "objectPackets.h"
-#include "session.h"
 
 namespace eq
 {
@@ -50,7 +49,7 @@ void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
     packet.masterInstanceID = object->getInstanceID();
 
     if( _instanceID == EQ_ID_NONE ) // send-on-register
-        packet.command = CMD_SESSION_INSTANCE;
+        packet.command = CMD_OBJECTSTORE_INSTANCE;
 
 #ifndef NDEBUG
     if( _nodeID == NodeID::ZERO )

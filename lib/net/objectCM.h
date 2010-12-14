@@ -136,7 +136,7 @@ namespace net
         /** Apply the initial data after mapping. */
         virtual void applyMapData( const uint128_t& version ) = 0;
 
-        /** Add existing instance data to the object (from session cache) */
+        /** Add existing instance data to the object (from local node cache) */
         virtual void addInstanceDatas( const ObjectDataIStreamDeque&,
                                        const uint128_t& )
             { EQDONTCALL; }

@@ -34,7 +34,7 @@ namespace fabric
         ServerPacket(){ type = PACKETTYPE_EQ_SERVER; }
     };
 
-    typedef net::SessionPacket ConfigPacket;
+    typedef net::ObjectPacket ConfigPacket;
 
     typedef net::ObjectPacket PipePacket;
     typedef net::ObjectPacket WindowPacket;

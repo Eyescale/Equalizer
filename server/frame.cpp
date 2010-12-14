@@ -23,7 +23,6 @@
 
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
-#include <eq/net/session.h>
 
 using namespace eq::base;
 using namespace std;
@@ -78,12 +77,10 @@ void Frame::flush()
 {
     unsetData();
 
-    net::Session* session = getSession();
-    EQASSERT( session );
     while( !_datas.empty( ))
     {
         FrameData* data = _datas.front();
-        session->deregisterObject( data );
+        getLocalNode()->deregisterObject( data );
         _datas.pop_front();
     }
 
@@ -147,11 +144,8 @@ void Frame::cycleData( const uint32_t frameNumber, const uint32_t eyes )
         else // still used - allocate new data
         {
             data = new FrameData;
-        
-            net::Session* session = getSession();
-            EQASSERT( session );
 
-            session->registerObject( data );
+            getLocalNode()->registerObject( data );
             data->setAutoObsolete( 1 ); // current + in use by render nodes
         }
 

@@ -85,9 +85,9 @@ namespace fabric
         EQFABRIC_INL virtual ~Layout();
 
         /** @internal */
-        EQFABRIC_INL virtual void attachToSession( const base::UUID& id,
-                                      const uint32_t instanceID,
-                                      net::Session* session ); //!< @internal
+        EQFABRIC_INL virtual void attach( const base::UUID& id,
+                                          const uint32_t instanceID,
+                                          net::LocalNodePtr localNode );
 
         /** @internal */
         EQFABRIC_INL virtual void serialize( net::DataOStream& os, 

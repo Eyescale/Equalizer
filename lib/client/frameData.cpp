@@ -19,7 +19,7 @@
 #include "frameData.h"
 
 #include "config.h"
-#include "frameDataStatistics.h"
+#include "nodeStatistics.h"
 #include "channelStatistics.h"
 #include "image.h"
 #include "log.h"
@@ -32,7 +32,6 @@
 #include <eq/net/connectionDescription.h>
 #include <eq/net/dataIStream.h>
 #include <eq/net/dataOStream.h>
-#include <eq/net/session.h>
 #include <eq/base/monitor.h>
 
 #include <eq/plugins/compressor.h>

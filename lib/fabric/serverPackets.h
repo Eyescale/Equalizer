@@ -35,8 +35,7 @@ namespace fabric
                 size      = sizeof( ServerCreateConfigPacket );
             }
 
-        net::SessionID configID;
-        net::ObjectVersion proxy;
+        net::ObjectVersion configVersion;
         uint32_t requestID;
     };
 
@@ -49,7 +48,7 @@ namespace fabric
                 size    = sizeof( ServerDestroyConfigPacket );
             }
 
-        net::SessionID configID;
+        base::UUID configID;
         uint32_t requestID;
     };
 
@@ -69,8 +68,8 @@ namespace fabric
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ServerCreateConfigPacket* packet )
     {
-        os << (ServerPacket*)packet << " config " << packet->configID 
-            << " request " << packet->requestID;
+        os << (ServerPacket*)packet << " config version "
+           << packet->configVersion << " request " << packet->requestID;
         return os;
     }
 }

@@ -89,12 +89,9 @@ Server< CL, S, CFG, NF, N >::_cmdCreateConfig( net::Command& command )
     const ServerCreateConfigPacket* packet = 
         command.getPacket<ServerCreateConfigPacket>();
     EQVERB << "Handle create config " << packet << std::endl;
-    
     CFG* config = _nodeFactory->createConfig( static_cast< S* >( this ));
     net::LocalNodePtr localNode = command.getLocalNode();
-    localNode->mapSession( command.getNode(), config, packet->configID );
-    config->map( packet->proxy );
-
+    localNode->mapObject( config, packet->configVersion );
     if( packet->requestID <= EQ_ID_MAX )
     {
         ConfigCreateReplyPacket reply( packet );
@@ -112,11 +109,20 @@ Server< CL, S, CFG, NF, N >::_cmdDestroyConfig( net::Command& command )
     EQVERB << "Handle destroy config " << packet << std::endl;
     
     net::LocalNodePtr localNode = command.getLocalNode();
-    net::Session* session = localNode->getSession( packet->configID );
 
-    CFG* config = EQSAFECAST( CFG*, session );
-    static_cast< typename CFG::Super* >( config )->unmap();
-    EQCHECK( localNode->unmapSession( config ));
+    CFG* config = 0;
+    for( typename Configs::const_iterator i = _configs.begin();
+         i != _configs.end(); ++i )
+    {
+        if( (*i)->getID() ==  packet->configID )
+        {
+            config = *i;
+            break;
+        }
+    }
+    EQASSERT( config );
+
+    localNode->unmapObject( config );
     _nodeFactory->releaseConfig( config );
 
     if( packet->requestID <= EQ_ID_MAX )

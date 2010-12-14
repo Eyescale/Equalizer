@@ -87,15 +87,16 @@ VertexBufferDist::~VertexBufferDist()
     _right = 0;
 }
 
-void VertexBufferDist::registerTree( eq::net::Session* session )
+void VertexBufferDist::registerTree( eq::net::LocalNodePtr node )
 {
     EQASSERT( !isAttached() );
-    session->registerObject( this );
+    EQCHECK( node->registerObject( this ));
 
     if( _left )
-        _left->registerTree( session );
+        _left->registerTree( node );
+    
     if( _right )
-        _right->registerTree( session );
+        _right->registerTree( node );
 }
 
 void VertexBufferDist::deregisterTree()
@@ -103,7 +104,7 @@ void VertexBufferDist::deregisterTree()
     EQASSERT( isAttached() );
     EQASSERT( isMaster( ));
 
-    getSession()->deregisterObject( this );
+    getLocalNode()->deregisterObject( this );
 
     if( _left )
         _left->deregisterTree();
@@ -111,12 +112,13 @@ void VertexBufferDist::deregisterTree()
         _right->deregisterTree();
 }
 
-mesh::VertexBufferRoot* VertexBufferDist::mapModel( eq::net::Session* session,
-                                            const eq::uint128_t& modelID )
+mesh::VertexBufferRoot* VertexBufferDist::mapModel( 
+                                      eq::net::LocalNodePtr node,
+                                      const eq::uint128_t& modelID )
 {
     EQASSERT( !_root && !_node );
 
-    if( !session->mapObject( this, modelID ))
+    if( !node->mapObject( this, modelID ))
     {
         EQWARN << "Mapping of model failed" << endl;
         return 0;
@@ -130,7 +132,7 @@ void VertexBufferDist::unmapTree()
     EQASSERT( isAttached() );
     EQASSERT( !isMaster( ));
 
-    getSession()->unmapObject( this );
+    getLocalNode()->unmapObject( this );
 
     if( _left )
         _left->unmapTree();
@@ -203,15 +205,14 @@ void VertexBufferDist::applyInstanceData( eq::net::DataIStream& is )
         base   = node;
         _left  = new VertexBufferDist( _root, 0 );
         _right = new VertexBufferDist( _root, 0 );
-
-        eq::net::Session* session = getSession();
-        const uint32_t sync1 = session->mapObjectNB( _left, leftID );
-        const uint32_t sync2 = session->mapObjectNB( _right, rightID );
+        eq::net::LocalNodePtr localNode = getLocalNode();
+        const uint32_t sync1 = localNode->mapObjectNB( _left, leftID );
+        const uint32_t sync2 = localNode->mapObjectNB( _right, rightID );
         EQASSERT( sync1 != EQ_ID_INVALID );
         EQASSERT( sync2 != EQ_ID_INVALID );
 
-        EQCHECK( session->mapObjectSync( sync1 ));
-        EQCHECK( session->mapObjectSync( sync2 ));
+        EQCHECK( localNode->mapObjectSync( sync1 ));
+        EQCHECK( localNode->mapObjectSync( sync2 ));
 
         node->_left  = const_cast< mesh::VertexBufferBase* >( _left->_node );
         node->_right = const_cast< mesh::VertexBufferBase* >( _right->_node );

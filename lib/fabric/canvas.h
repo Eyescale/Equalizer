@@ -110,9 +110,10 @@ namespace fabric
         /** Destruct this canvas. @internal */
         EQFABRIC_INL virtual ~Canvas();
 
-        EQFABRIC_INL virtual void attachToSession( const base::UUID& id,
-                                      const uint32_t instanceID,
-                                      net::Session* session ); //!< @internal
+        /** @internal */
+        EQFABRIC_INL virtual void attach( const base::UUID& id,
+                                          const uint32_t instanceID,
+                                          net::LocalNodePtr localNode );
 
         /** @sa Frustum::serialize. @internal */
         EQFABRIC_INL void serialize( net::DataOStream& os, 

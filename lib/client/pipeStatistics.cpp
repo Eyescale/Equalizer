@@ -31,12 +31,6 @@ namespace eq
 PipeStatistics::PipeStatistics( const Statistic::Type type, Pipe* pipe )
         : StatisticSampler< Pipe >( type, pipe, pipe->getCurrentFrame( ))
 {
-#if 0
-    const int32_t hint = pipe->getIAttribute( Pipe::IATTR_HINT_STATISTICS );
-    if( hint == OFF )
-        return;
-#endif
-
     const std::string& name = pipe->getName();
     if( name.empty( ))
         snprintf( event.data.statistic.resourceName, 32, "Pipe %s",

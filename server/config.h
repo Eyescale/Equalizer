@@ -59,6 +59,8 @@ namespace server
 
         net::CommandQueue* getMainThreadQueue()
             { return getServer()->getMainThreadQueue(); }
+        net::CommandQueue* getCommandThreadQueue()
+            { return getServer()->getCommandThreadQueue(); }
         
         /** 
          * Adds a new compound to this config.
@@ -141,16 +143,10 @@ namespace server
         // Used by Server::releaseConfig() to make sure config is exited
         bool exit();
 
-        /** 
-         * Register all shared objects of the session and return the identifier
-         * of the config proxy.
-         */
-        uint128_t register_();
+        /** Register the config and all shared object children. */
+        void register_();
 
-        /** 
-         * Deregister all shared objects of the session, called before session
-         * teardown.
-         */
+        /** Deregister all shared objects and the config. */
         void deregister();
         
         virtual void restore();
@@ -177,8 +173,10 @@ namespace server
         virtual bool mapNodeObjects() const { return true; } //!< @internal
 
     protected:
-        /** @sa net::Session::notifyMapped. */
-        virtual void notifyMapped( net::LocalNodePtr node );
+        /** @internal */
+        void attach( const base::UUID& id, 
+                     const uint32_t instanceID, 
+                     net::LocalNodePtr localNode );
 
         friend class Server; // for commit()
 
@@ -258,6 +256,9 @@ namespace server
         bool _cmdFinishAllFrames( net::Command& command ); 
         bool _cmdCreateReply( net::Command& command );
         bool _cmdFreezeLoadBalancing( net::Command& command );
+
+        EQ_TS_VAR( _cmdThread );
+        EQ_TS_VAR( _mainThread );
     };
 }
 }

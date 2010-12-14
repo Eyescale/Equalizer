@@ -49,10 +49,10 @@ namespace net
         //@{
         bool operator == ( const Node* n ) const;
 
-        bool  isConnected() const 
+        bool isConnected() const 
             { return (_state == STATE_CONNECTED || _state == STATE_LISTENING);}
-        bool  isClosed() const { return _state == STATE_CLOSED; }
-        bool  isListening() const { return _state == STATE_LISTENING; }
+        bool isClosed() const { return _state == STATE_CLOSED; }
+        bool isListening() const { return _state == STATE_LISTENING; }
 
         //@}
 

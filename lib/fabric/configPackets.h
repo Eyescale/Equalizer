@@ -33,7 +33,7 @@ namespace fabric
         {
             command   = CMD_CONFIG_CREATE_REPLY;
             size      = sizeof( ConfigCreateReplyPacket );
-            sessionID = request->configID;
+            objectID  = request->configVersion.identifier;
             requestID = request->requestID;
         }
 

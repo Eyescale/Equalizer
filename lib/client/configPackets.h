@@ -66,7 +66,7 @@ namespace eq
                 command   = fabric::CMD_CONFIG_INIT_REPLY;
                 size      = sizeof( ConfigInitReplyPacket );
                 requestID = requestPacket->requestID;
-                sessionID = requestPacket->sessionID;
+                objectID  = requestPacket->objectID;
             }
 
         uint128_t version;
@@ -98,7 +98,7 @@ namespace eq
             {
                 command   = fabric::CMD_CONFIG_UPDATE_VERSION;
                 size      = sizeof( ConfigUpdateVersionPacket );
-                sessionID = request->sessionID;
+                objectID  = request->objectID;
             }
 
         const uint128_t version;
@@ -114,7 +114,7 @@ namespace eq
             {
                 command   = fabric::CMD_CONFIG_UPDATE_REPLY;
                 size      = sizeof( ConfigUpdateReplyPacket );
-                sessionID = request->sessionID;
+                objectID  = request->objectID;
             }
         uint128_t version;
         const uint32_t requestID;

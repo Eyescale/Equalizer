@@ -73,13 +73,13 @@ Channel::~Channel()
 typedef net::CommandFunc<Channel> CmdFunc;
 /** @endcond */
 
-void Channel::attachToSession( const base::UUID& id, 
-                               const uint32_t instanceID, 
-                               net::Session* session )
+void Channel::attach( const base::UUID& id, 
+                      const uint32_t instanceID, 
+                      net::LocalNodePtr localNode )
 {
-    Super::attachToSession( id, instanceID, session );
+    Super::attach( id, instanceID, localNode );
     net::CommandQueue* queue = getWindow()->getPipeThreadQueue();
-    net::CommandQueue* commandQ = session->getCommandThreadQueue();
+    net::CommandQueue* commandQ = localNode->getCommandThreadQueue();
 
     registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT, 
                      CmdFunc( this, &Channel::_cmdConfigInit ), queue );
@@ -1066,7 +1066,6 @@ void Channel::_unrefFrame( const uint32_t frameNumber, const uint32_t index )
     ChannelFrameFinishReplyPacket reply;
     reply.nStatistics = uint32_t( stats.data.size( ));
     reply.frameNumber = frameNumber;
-    reply.sessionID = getSession()->getID();
     reply.objectID  = getID();
     getServer()->send( reply, stats.data );
     stats.data.clear();
@@ -1344,8 +1343,7 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
         return;
     }
 
-    net::Session* session = getSession();
-    net::LocalNodePtr localNode = session->getLocalNode();
+    net::LocalNodePtr localNode = getLocalNode();
     net::NodePtr toNode = localNode->connect( command->netNodeID );
     net::ConnectionPtr connection = toNode->getConnection();
     net::ConnectionDescriptionPtr description = connection->getDescription();
@@ -1356,7 +1354,6 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
     NodeFrameDataTransmitPacket packet;
     const uint64_t packetSize = sizeof( packet ) - 8 * sizeof( uint8_t );
 
-    packet.sessionID   = session->getID();
     packet.objectID    = command->clientNodeID;
     packet.frameData   = frameData;
     packet.frameNumber = command->frameNumber;
@@ -1509,7 +1506,6 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
 
     // all data transmitted -> ready
     NodeFrameDataReadyPacket readyPacket( frameData );
-    readyPacket.sessionID = session->getID();
     readyPacket.objectID  = command->clientNodeID;
     toNode->send( readyPacket );
 }

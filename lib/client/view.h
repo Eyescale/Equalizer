@@ -85,7 +85,8 @@ namespace eq
         const Frustum& getBaseFrustum() const { return _baseFrustum; }
 
     private:
-        friend class Pipe; // for commit()
+        Pipe* _pipe; // for render-client views
+        friend class Pipe;
 
         /** Unmodified, baseline view frustum data, used when resizing. */
         Frustum _baseFrustum;

@@ -19,7 +19,7 @@
 #define EQNET_OBJECT_H
 
 #include <eq/net/dispatcher.h>    // base class
-#include <eq/net/node.h>          // used in RefPtr
+#include <eq/net/localNode.h>     // used in RefPtr
 #include <eq/net/types.h>         // for Nodes
 #include <eq/net/version.h>       // used as default parameter
 
@@ -29,9 +29,7 @@ namespace net
 {
     class DataIStream;
     class DataOStream;
-    class Node;
     class ObjectCM;
-    class Session;
     struct ObjectPacket;
 
     /** 
@@ -65,25 +63,13 @@ namespace net
         /** @name Data Access */
         //@{
         /** @return true if the object is attached, mapped or registered. */
-        bool isAttached() const { return _session != 0; }
+        bool isAttached() const { return _localNode.isValid(); }
 
         /**
          * @return the local node to which this object is mapped, or 0 if the
          *         object is not mapped.
          */
-        EQNET_API LocalNodePtr getLocalNode();
-
-        /**
-         * @return the session to which this object is mapped, or 0 if the
-         *         object is not mapped.
-         */
-        const Session* getSession() const { return _session; }
-
-        /**
-         * @return the session to which this object is mapped, or 0 if the
-         *         object is not mapped.
-         */
-        Session* getSession() { return _session; }
+        LocalNodePtr getLocalNode(){ return _localNode; };
 
         /** @return the object's unique identifier. */
         const base::UUID& getID() const { return _id; }
@@ -300,14 +286,6 @@ namespace net
         /** NOP assignment operator. */
         const Object& operator = ( const Object& ) { return *this; }
 
-        /**
-         * Swap the session.
-         *
-         * @param session the new session to use.
-         *
-         * @internal
-         */
-        void swapSession( Session* session ) { _session = session; }
         /** 
          * Setup the change manager.
          * 
@@ -322,19 +300,19 @@ namespace net
                              const uint32_t masterInstanceID = EQ_ID_INVALID );
 
         /**
-         * Called when object is attached to session from the receiver thread.
+         * Called when object is attached to local node from the receiver thread.
          * @internal
          */
 
-        EQNET_API virtual void attachToSession( const base::UUID& id, 
-                                                const uint32_t instanceID, 
-                                                Session* session );
+        EQNET_API virtual void attach( const base::UUID& id, 
+                                       const uint32_t instanceID, 
+                                       LocalNodePtr localNode );
 
         /**
-         * Called when the object is detached from the session from the receiver
+         * Called when the object is detached from the local node from the receiver
          * thread. @internal
          */
-        EQNET_API virtual void detachFromSession();
+        EQNET_API virtual void detach();
 
         /** @name Notifications */
         /**
@@ -354,12 +332,12 @@ namespace net
          * @sa isMaster()
          */
         virtual void notifyDetach() {};
+
         //@}
 
     private:
         /** Indicates if this instance is the copy on the server node. */
-        Session*     _session;
-        friend class Session;
+        friend class ObjectStore;
 
         friend class DeltaMasterCM;
         friend class FullMasterCM;
@@ -371,6 +349,9 @@ namespace net
 
         /** The session-unique object identifier. */
         base::UUID _id;
+
+        /** The node where this object is attached. */
+        LocalNodePtr _localNode;
 
         /** A session-unique identifier of the concrete instance. */
         uint32_t _instanceID;

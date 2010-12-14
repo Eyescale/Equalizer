@@ -32,7 +32,7 @@ namespace net
     enum PacketType
     {
         PACKETTYPE_EQNET_NODE,
-        PACKETTYPE_EQNET_SESSION,
+        PACKETTYPE_EQNET_OBJECTSTORE,
         PACKETTYPE_EQNET_OBJECT,
         PACKETTYPE_EQNET_CUSTOM = 1<<7
     };
@@ -68,14 +68,13 @@ namespace net
     };
 
     /** Packet sent to and handled by an eq::net::Session. */
-    struct SessionPacket : public NodePacket
+    struct ObjectStorePacket : public NodePacket
     {
-        SessionPacket() { type = PACKETTYPE_EQNET_SESSION; }
-        base::UUID sessionID;
+        ObjectStorePacket() { type = PACKETTYPE_EQNET_OBJECTSTORE; }
     };
 
     /** Packet sent to and handled by an eq::net::Object. */
-    struct ObjectPacket : public SessionPacket
+    struct ObjectPacket : public NodePacket
     {
         ObjectPacket()
             {
@@ -98,15 +97,15 @@ namespace net
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const SessionPacket* packet )
+                                       const ObjectStorePacket* packet )
     {
-        os << (NodePacket*)packet << " session " << packet->sessionID;
+        os << (NodePacket*)packet;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ObjectPacket* packet )
     {
-        os << (SessionPacket*)packet << " object " << packet->objectID
+        os << (NodePacket*)packet << " object " << packet->objectID
            << "." << packet->instanceID;
         return os;
     }

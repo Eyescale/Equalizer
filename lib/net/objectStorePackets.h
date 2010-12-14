@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_SESSIONPACKETS_H
-#define EQNET_SESSIONPACKETS_H
+#ifndef EQNET_ObjectStorePacketS_H
+#define EQNET_ObjectStorePacketS_H
 
 #include <eq/net/packets.h> // base structs
 
@@ -26,49 +26,50 @@ namespace eq
 {
 namespace net
 {
-    struct SessionAckRequestPacket : public SessionPacket
+    struct ObjectStoreAckRequestPacket : public ObjectStorePacket
     {
-        SessionAckRequestPacket( const uint32_t requestID_ )
+        ObjectStoreAckRequestPacket( const uint32_t requestID_ )
             {
-                command   = CMD_SESSION_ACK_REQUEST;
-                size      = sizeof( SessionAckRequestPacket ); 
+                command   = CMD_OBJECTSTORE_ACK_REQUEST;
+                size      = sizeof( ObjectStoreAckRequestPacket ); 
                 requestID = requestID_;
             }
         
         uint32_t requestID;
     };
 
-    struct SessionFindMasterNodeID : public SessionPacket
+    struct ObjectStoreFindMasterNodeID : public ObjectStorePacket
     {
-        SessionFindMasterNodeID()
+        ObjectStoreFindMasterNodeID()
                 : requestID( EQ_ID_INVALID )
             {
-                command   = CMD_SESSION_FIND_MASTER_NODE_ID;
-                size      = sizeof( SessionFindMasterNodeID ); 
+                command   = CMD_OBJECTSTORE_FIND_MASTER_NODE_ID;
+                size      = sizeof( ObjectStoreFindMasterNodeID ); 
             }
         
         base::UUID identifier;
         uint32_t   requestID;
     };
 
-    struct SessionFindMasterNodeIDReply : public SessionPacket
+    struct ObjectStoreFindMasterNodeIDReply : public ObjectStorePacket
     {
-        SessionFindMasterNodeIDReply( const SessionFindMasterNodeID* request )
+        ObjectStoreFindMasterNodeIDReply( 
+                          const ObjectStoreFindMasterNodeID* request )
                 : requestID( request->requestID )
             {
-                command   = CMD_SESSION_FIND_MASTER_NODE_ID_REPLY;
-                size      = sizeof( SessionFindMasterNodeIDReply ); 
+                command   = CMD_OBJECTSTORE_FIND_MASTER_NODE_ID_REPLY;
+                size      = sizeof( ObjectStoreFindMasterNodeIDReply ); 
             }
         NodeID     masterNodeID;
         uint32_t   requestID;
     };
 
-    struct SessionAttachObjectPacket : public SessionPacket
+    struct ObjectStoreAttachObjectPacket : public ObjectStorePacket
     {
-        SessionAttachObjectPacket()
+        ObjectStoreAttachObjectPacket()
             {
-                command = CMD_SESSION_ATTACH_OBJECT;
-                size    = sizeof( SessionAttachObjectPacket ); 
+                command = CMD_OBJECTSTORE_ATTACH_OBJECT;
+                size    = sizeof( ObjectStoreAttachObjectPacket ); 
             }
         
         base::UUID  objectID;
@@ -76,12 +77,12 @@ namespace net
         uint32_t    objectInstanceID;
     };
 
-    struct SessionMapObjectPacket : public SessionPacket
+    struct ObjectStoreMapObjectPacket : public ObjectStorePacket
     {
-        SessionMapObjectPacket()
+        ObjectStoreMapObjectPacket()
             {
-                command = CMD_SESSION_MAP_OBJECT;
-                size    = sizeof( SessionMapObjectPacket );
+                command = CMD_OBJECTSTORE_MAP_OBJECT;
+                size    = sizeof( ObjectStoreMapObjectPacket );
                 minCachedVersion = VERSION_HEAD;
                 maxCachedVersion = VERSION_NONE;
                 useCache   = false;
@@ -98,14 +99,13 @@ namespace net
     };
 
 
-    struct SessionMapObjectSuccessPacket : public SessionPacket
+    struct ObjectStoreMapObjectSuccessPacket : public ObjectStorePacket
     {
-        SessionMapObjectSuccessPacket( 
-            const SessionMapObjectPacket* request )
+        ObjectStoreMapObjectSuccessPacket( 
+            const ObjectStoreMapObjectPacket* request )
             {
-                command    = CMD_SESSION_MAP_OBJECT_SUCCESS;
-                size       = sizeof( SessionMapObjectSuccessPacket ); 
-                sessionID  = request->sessionID;
+                command    = CMD_OBJECTSTORE_MAP_OBJECT_SUCCESS;
+                size       = sizeof( ObjectStoreMapObjectSuccessPacket ); 
                 requestID  = request->requestID;
                 objectID   = request->objectID;
                 instanceID = request->instanceID;
@@ -119,17 +119,17 @@ namespace net
         uint32_t masterInstanceID;
     };
 
-    struct SessionMapObjectReplyPacket : public SessionPacket
+    struct ObjectStoreMapObjectReplyPacket : public ObjectStorePacket
     {
-        SessionMapObjectReplyPacket( 
-            const SessionMapObjectPacket* request )
+        ObjectStoreMapObjectReplyPacket( 
+            const ObjectStoreMapObjectPacket* request )
                 : objectID( request->objectID )
                 , requestID( request->requestID )
                 , useCache( request->useCache )
             {
-                command   = CMD_SESSION_MAP_OBJECT_REPLY;
-                size      = sizeof( SessionMapObjectReplyPacket ); 
-                sessionID = request->sessionID;
+                command   = CMD_OBJECTSTORE_MAP_OBJECT_REPLY;
+                size      = sizeof( ObjectStoreMapObjectReplyPacket ); 
+//                sessionID = request->sessionID;
                 version   = request->requestedVersion;
                 cachedVersion = VERSION_INVALID;
             }
@@ -144,23 +144,23 @@ namespace net
         const bool useCache;
     };
 
-    struct SessionUnmapObjectPacket : public SessionPacket
+    struct ObjectStoreUnmapObjectPacket : public ObjectStorePacket
     {
-        SessionUnmapObjectPacket()
+        ObjectStoreUnmapObjectPacket()
             {
-                command = CMD_SESSION_UNMAP_OBJECT;
-                size    = sizeof( SessionUnmapObjectPacket ); 
+                command = CMD_OBJECTSTORE_UNMAP_OBJECT;
+                size    = sizeof( ObjectStoreUnmapObjectPacket ); 
             }
         
         base::UUID objectID;
     };
 
-    struct SessionUnsubscribeObjectPacket : public SessionPacket
+    struct ObjectStoreUnsubscribeObjectPacket : public ObjectStorePacket
     {
-        SessionUnsubscribeObjectPacket()
+        ObjectStoreUnsubscribeObjectPacket()
             {
-                command = CMD_SESSION_UNSUBSCRIBE_OBJECT;
-                size    = sizeof( SessionUnsubscribeObjectPacket ); 
+                command = CMD_OBJECTSTORE_UNSUBSCRIBE_OBJECT;
+                size    = sizeof( ObjectStoreUnsubscribeObjectPacket ); 
             }
        
         base::UUID          objectID;
@@ -169,41 +169,41 @@ namespace net
         uint32_t            slaveInstanceID;
     };
 
-    struct SessionRegisterObjectPacket : public SessionPacket
+    struct ObjectStoreRegisterObjectPacket : public ObjectStorePacket
     {
-        SessionRegisterObjectPacket()
+        ObjectStoreRegisterObjectPacket()
             {
-                command = CMD_SESSION_REGISTER_OBJECT;
-                size    = sizeof( SessionRegisterObjectPacket ); 
+                command = CMD_OBJECTSTORE_REGISTER_OBJECT;
+                size    = sizeof( ObjectStoreRegisterObjectPacket ); 
             }
         
         Object* object;
     };
 
-    struct SessionDeregisterObjectPacket : public SessionPacket
+    struct ObjectStoreDeregisterObjectPacket : public ObjectStorePacket
     {
-        SessionDeregisterObjectPacket()
+        ObjectStoreDeregisterObjectPacket()
             {
-                command = CMD_SESSION_DEREGISTER_OBJECT;
-                size    = sizeof( SessionDeregisterObjectPacket ); 
+                command = CMD_OBJECTSTORE_DEREGISTER_OBJECT;
+                size    = sizeof( ObjectStoreDeregisterObjectPacket ); 
             }
         
         uint32_t requestID;
     };
 
-    struct SessionDetachObjectPacket : public SessionPacket
+    struct ObjectStoreDetachObjectPacket : public ObjectStorePacket
     {
-        SessionDetachObjectPacket()
+        ObjectStoreDetachObjectPacket()
         {
-            command   = CMD_SESSION_DETACH_OBJECT;
-            size      = sizeof( SessionDetachObjectPacket ); 
+            command   = CMD_OBJECTSTORE_DETACH_OBJECT;
+            size      = sizeof( ObjectStoreDetachObjectPacket ); 
             requestID = EQ_ID_INVALID;
         }
 
-        SessionDetachObjectPacket(const SessionUnsubscribeObjectPacket* request)
+        ObjectStoreDetachObjectPacket(const ObjectStoreUnsubscribeObjectPacket* request)
         {
-            command   = CMD_SESSION_DETACH_OBJECT;
-            size      = sizeof( SessionDetachObjectPacket ); 
+            command   = CMD_OBJECTSTORE_DETACH_OBJECT;
+            size      = sizeof( ObjectStoreDetachObjectPacket ); 
             requestID = request->requestID;
             objectID  = request->objectID;
             objectInstanceID = request->slaveInstanceID;
@@ -216,23 +216,23 @@ namespace net
 
     //------------------------------------------------------------
     inline std::ostream& operator << ( std::ostream& os, 
-                                    const SessionMapObjectPacket* packet )
+                                    const ObjectStoreMapObjectPacket* packet )
     {
-        os << (SessionPacket*)packet << " id " << packet->objectID << "." 
+        os << (ObjectStorePacket*)packet << " id " << packet->objectID << "." 
            << packet->instanceID << " req " << packet->requestID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                             const SessionMapObjectSuccessPacket* packet )
+                             const ObjectStoreMapObjectSuccessPacket* packet )
     {
-        os << (SessionPacket*)packet << " id " << packet->objectID << "." 
+        os << (ObjectStorePacket*)packet << " id " << packet->objectID << "." 
            << packet->instanceID << " req " << packet->requestID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                               const SessionMapObjectReplyPacket* packet )
+                               const ObjectStoreMapObjectReplyPacket* packet )
     {
-        os << (SessionPacket*)packet << " id " << packet->objectID << " req "
+        os << (ObjectStorePacket*)packet << " id " << packet->objectID << " req "
            << packet->requestID << " v" << packet->cachedVersion;
         return os;
     }
@@ -240,5 +240,5 @@ namespace net
 }
 /** @endcond */
 
-#endif // EQNET_SESSIONPACKETS_H
+#endif // EQNET_ObjectStorePacketS_H
 
