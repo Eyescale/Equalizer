@@ -1,4 +1,4 @@
-CMake: Fix Darwin architecture detection [untested]
+CMake: Fix Darwin architecture detection
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

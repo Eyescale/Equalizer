@@ -3,7 +3,7 @@
 
 all: debug RELNOTES.txt README.rst
 clean:
-	rm -rf debug release docs XCode debug_glx man
+	rm -rf debug release docs XCode debug_glx man cdash
 
 DOXYGEN ?= doxygen
 
