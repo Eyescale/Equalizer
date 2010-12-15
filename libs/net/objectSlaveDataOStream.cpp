@@ -24,8 +24,6 @@
 #include "objectDataIStream.h"
 #include "objectPackets.h"
 
-#include <eq/base/idPool.h>
-
 namespace eq
 {
 namespace net

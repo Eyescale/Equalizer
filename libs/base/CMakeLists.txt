@@ -23,7 +23,6 @@ purple_add_library(eq_base ${EQ_LIB_VARIANT}
     file.h
     global.h
     hash.h
-    idPool.h
     init.h
     launcher.h
     lfQueue.h
@@ -66,7 +65,6 @@ purple_add_library(eq_base ${EQ_LIB_VARIANT}
     error.cpp
     errorRegistry.cpp
     global.cpp
-    idPool.cpp
     init.cpp
     launcher.cpp
     lock.cpp

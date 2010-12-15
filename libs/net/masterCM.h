@@ -21,7 +21,6 @@
 #include <eq/net/objectCM.h> // base class
 #include <eq/net/types.h>
 
-#include <eq/base/idPool.h>  // ID_ enum
 #include <eq/base/mtQueue.h> // member
 #include <eq/base/pool.h>    // member
 #include <eq/base/thread.h>  // thread-safety check

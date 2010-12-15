@@ -23,8 +23,6 @@
 #include <eq/net/types.h>
 #include <eq/net/version.h>  // enum
 
-#include <eq/base/idPool.h> // for EQ_ID_*
-
 namespace eq
 {
 namespace net

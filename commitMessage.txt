@@ -1,4 +1,4 @@
-Transform ObjectStorePacket in NodePacket
+Remove IDPool
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

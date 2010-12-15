@@ -21,6 +21,7 @@
 
 #include <eq/base/base.h>
 #include <eq/base/buffer.h> // member
+#include <eq/base/thread.h> // for EQ_TS_VAR
 
 #ifdef WIN32
 #  include <eq/net/connection.h>

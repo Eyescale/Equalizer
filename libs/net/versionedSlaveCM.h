@@ -23,7 +23,6 @@
 #include "objectSlaveDataOStream.h" // member
 #include "version.h"             // enum
 
-#include <eq/base/idPool.h>      // for EQ_ID_INVALID
 #include <eq/base/mtQueue.h>     // member
 #include <eq/base/pool.h>        // member
 #include <eq/base/thread.h>      // thread-safety macro

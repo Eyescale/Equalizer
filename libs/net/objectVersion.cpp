@@ -18,7 +18,6 @@
 #include "objectVersion.h"
 
 #include "object.h"
-#include <eq/base/idPool.h>
 
 namespace eq
 {

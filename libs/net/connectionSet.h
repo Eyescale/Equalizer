@@ -25,6 +25,7 @@
 #include <eq/base/hash.h>
 #include <eq/base/monitor.h>
 #include <eq/base/refPtr.h>
+#include <eq/base/thread.h> // for EQ_TS_VAR
 
 #ifndef _WIN32
 #  include <poll.h>

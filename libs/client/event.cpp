@@ -17,8 +17,6 @@
 
 #include "event.h"
 
-#include <eq/base/idPool.h>
-
 #ifdef _WIN32
 #  define bzero( ptr, size ) memset( ptr, 0, size );
 #else

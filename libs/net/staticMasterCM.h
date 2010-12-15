@@ -21,7 +21,6 @@
 
 #include <eq/net/objectCM.h> // base class
 #include <eq/net/version.h>  // enum
-#include <eq/base/idPool.h>  // for EQ_ID_INVALID
 #include "objectInstanceDataOStream.h"
 
 #include <deque>

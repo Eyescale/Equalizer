@@ -18,7 +18,6 @@
 #include "requestHandler.h"
 
 #include "scopedMutex.h"
-#include "idPool.h"
 
 #include <eq/base/debug.h>
 
@@ -54,7 +53,7 @@ uint32_t RequestHandler::registerRequest( void* data )
     }
 
     request->data = data;
-    _requestID = ( _requestID + 1 ) % IDPool::MAX_CAPACITY;
+    _requestID = ( _requestID + 1 ) % EQ_ID_MAX;
     _requests[ _requestID ] = request;
 
     //EQINFO << "Registered " << _requestID << std::endl;
