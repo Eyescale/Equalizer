@@ -48,7 +48,7 @@ ServerPtr Canvas::getServer()
 }
 }
 
-#include "../lib/fabric/canvas.ipp"
+#include "../libs/fabric/canvas.ipp"
 template class eq::fabric::Canvas< eq::admin::Config, eq::admin::Canvas,
                                    eq::admin::Segment, eq::admin::Layout >;
 

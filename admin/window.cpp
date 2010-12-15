@@ -61,7 +61,7 @@ ServerPtr Window::getServer()
 }
 }
 
-#include "../lib/fabric/window.ipp"
+#include "../libs/fabric/window.ipp"
 template class eq::fabric::Window< eq::admin::Pipe, eq::admin::Window,
                                    eq::admin::Channel >;
 /** @cond IGNORE */

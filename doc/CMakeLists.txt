@@ -23,7 +23,7 @@ purple_doxygen(doc_internal
     ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.int
   INPUT
     ${CMAKE_BINARY_DIR}/include/vmmlib
-    ${CMAKE_SOURCE_DIR}/lib
+    ${CMAKE_SOURCE_DIR}/libs
     ${CMAKE_SOURCE_DIR}/admin
     ${CMAKE_SOURCE_DIR}/examples
     ${CMAKE_SOURCE_DIR}/server

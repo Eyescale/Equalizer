@@ -1,10 +1,9 @@
-Fix compressor plugin nameing on non-Windows platforms. Still read
-old-named libraries for compatibility
+Rename folder lib to libs
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

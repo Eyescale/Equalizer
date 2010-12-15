@@ -47,7 +47,7 @@ ServerPtr Layout::getServer()
 }
 }
 
-#include "../lib/fabric/layout.ipp"
+#include "../libs/fabric/layout.ipp"
 template class eq::fabric::Layout< eq::admin::Config, eq::admin::Layout,
                                    eq::admin::View >;
 

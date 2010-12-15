@@ -33,8 +33,8 @@
 #include <numeric>
 #include <fstream>
 
-#include "lib/base/compressorInfo.h" // private header
-#include "lib/base/plugin.h" // private header
+#include "libs/base/compressorInfo.h" // private header
+#include "libs/base/plugin.h" // private header
 
 
 // Tests the functionality and speed of the image compression.

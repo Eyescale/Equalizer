@@ -280,7 +280,7 @@ void View::updateCapabilities()
 }
 }
 
-#include "../lib/fabric/view.ipp"
+#include "../libs/fabric/view.ipp"
 
 template class eq::fabric::View< eq::server::Layout, eq::server::View,
                                  eq::server::Observer >;

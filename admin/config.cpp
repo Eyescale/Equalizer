@@ -56,9 +56,9 @@ ConstClientPtr Config::getClient() const
 }
 }
 
-#include "../lib/fabric/config.ipp"
-#include "../lib/fabric/view.ipp"
-#include "../lib/fabric/observer.ipp"
+#include "../libs/fabric/config.ipp"
+#include "../libs/fabric/view.ipp"
+#include "../libs/fabric/observer.ipp"
 template class eq::fabric::Config< eq::admin::Server, eq::admin::Config,
                                    eq::admin::Observer, eq::admin::Layout,
                                    eq::admin::Canvas, eq::admin::Node,

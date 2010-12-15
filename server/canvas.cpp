@@ -137,7 +137,7 @@ void Canvas::postDelete()
 }
 
 #include "nodeFactory.h"
-#include "../lib/fabric/canvas.ipp"
+#include "../libs/fabric/canvas.ipp"
 
 template class eq::fabric::Canvas< eq::server::Config, eq::server::Canvas,
                                    eq::server::Segment, eq::server::Layout >;

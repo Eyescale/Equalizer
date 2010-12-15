@@ -78,7 +78,7 @@ net::CommandQueue* Pipe::getMainThreadQueue()
 }
 }
 
-#include "../lib/fabric/pipe.ipp"
+#include "../libs/fabric/pipe.ipp"
 template class eq::fabric::Pipe< eq::admin::Node, eq::admin::Pipe,
                                  eq::admin::Window, eq::admin::PipeVisitor >;
 

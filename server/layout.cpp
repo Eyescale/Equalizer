@@ -70,7 +70,7 @@ void Layout::trigger( const Canvas* canvas, const bool active )
 }
 
 #include "nodeFactory.h"
-#include "../lib/fabric/layout.ipp"
+#include "../libs/fabric/layout.ipp"
 
 template class eq::fabric::Layout< eq::server::Config, eq::server::Layout,
                                    eq::server::View >;

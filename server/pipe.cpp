@@ -350,7 +350,7 @@ void Pipe::output( std::ostream& os ) const
 }
 }
 
-#include "../lib/fabric/pipe.ipp"
+#include "../libs/fabric/pipe.ipp"
 template class eq::fabric::Pipe< eq::server::Node, eq::server::Pipe, 
                                  eq::server::Window, eq::server::PipeVisitor >;
 
