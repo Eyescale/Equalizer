@@ -62,8 +62,8 @@ docs/Makefile:
 	@cd docs; cmake -D CMAKE_INSTALL_PREFIX:STRING=install ..
 
 
-RELNOTES.txt: lib/RelNotes.dox
+RELNOTES.txt: libs/RelNotes.dox
 	-links -dump $< > $@.tmp && mv $@.tmp $@
 
-README.rst: lib/RelNotes.dox
+README.rst: libs/RelNotes.dox
 	-$(PYTHON) make/html2rst.py $< > $@
