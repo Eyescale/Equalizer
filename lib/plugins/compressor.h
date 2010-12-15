@@ -48,8 +48,8 @@
  *
  * To implement a compression plugin, the following steps are to be taken:
  *  - Create a new shared library named EqualizerCompressorNAME.dll (Win32),
- *    libeqCompressorNAME.dylib (Mac OS X) or libeqCompressorNAME.so
- *    (Linux).
+ *    libEqualizerCompressorNAME.dylib (Mac OS X) or 
+ *    libEqualizerCompressorNAME.so (Linux).
  *  - Define EQ_PLUGIN_BUILD and then include eq/plugins/compressor.h (this
  *    header file).
  *  - Implement all relevant C functions from this header file. All plugins have

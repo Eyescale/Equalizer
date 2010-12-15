@@ -1,4 +1,5 @@
-Fix release warning
+Fix compressor plugin nameing on non-Windows platforms. Still read
+old-named libraries for compatibility
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

@@ -144,10 +144,12 @@ void PluginRegistry::init()
         Strings files = searchDirectory( directory, "EqualizerCompressor*.dll");
         const char DIRSEP = '\\';
 #elif defined (Darwin)
-        Strings files = searchDirectory( directory, "libeqCompressor*dylib" );
+        Strings files = searchDirectory( directory, "libeqCompressor*.dylib" ) +
+            searchDirectory( directory, "libEqualizerCompressor*.dylib" );
         const char DIRSEP = '/';
 #else
-        Strings files = searchDirectory( directory, "libeqCompressor*so" );
+        Strings files = searchDirectory( directory, "libeqCompressor*.so" ) +
+            searchDirectory( directory, "libEqualizerCompressor*.so" );
         const char DIRSEP = '/';
 #endif
         

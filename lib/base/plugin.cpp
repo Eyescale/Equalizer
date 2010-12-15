@@ -53,10 +53,10 @@ bool Plugin::init( const std::string& libraryName )
     deleteDecompressor = ( DeleteDecompressor_t )
         ( _dso.getFunctionPointer( "EqCompressorDeleteDecompressor" ));
     
-    deleteCompressor = ( DeleteCompressor_t)
+    deleteCompressor = ( DeleteCompressor_t )
         ( _dso.getFunctionPointer( "EqCompressorDeleteCompressor" ));
     
-    newCompressor = ( NewCompressor_t)
+    newCompressor = ( NewCompressor_t )
         ( _dso.getFunctionPointer( "EqCompressorNewCompressor" ));
     
     newDecompressor = ( NewDecompressor_t )
