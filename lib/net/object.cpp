@@ -227,7 +227,7 @@ uint32_t Object::commitNB()
 uint128_t Object::commitSync( const uint32_t commitID ) 
 {
     if( commitID == EQ_ID_INVALID )
-        return getVersion();
+        return isMaster() ? getVersion() : VERSION_NONE;
 
     return _cm->commitSync( commitID );
 }
