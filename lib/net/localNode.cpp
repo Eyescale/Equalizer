@@ -216,6 +216,7 @@ void LocalNode::addListener( ConnectionPtr connection )
     EQASSERT( isListening( ));
     EQASSERT( connection->isListening( ));
 
+    connection->ref( EQ_REFERENCED_PARAM );
     NodeAddListenerPacket packet( connection );
     Nodes nodes;
     getNodes( nodes );
@@ -231,6 +232,7 @@ uint32_t LocalNode::removeListenerNB( ConnectionPtr connection )
     EQASSERT( isListening( ));
     EQASSERT( connection->isListening( ));
 
+    connection->ref( EQ_REFERENCED_PARAM );
     NodeRemoveListenerPacket packet( connection, registerRequest( ));
     Nodes nodes;
     getNodes( nodes );
@@ -676,7 +678,7 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr server )
 
     EQASSERT( dynamic_cast< Node* >( (Dispatcher*)result ));
     node = static_cast< Node* >( result );
-    node.unref(); // ref'd before serveRequest()
+    node->unref( EQ_REFERENCED_PARAM ); // ref'd before serveRequest()
 
     if( node->isConnected( ))
         return node;
@@ -1374,7 +1376,7 @@ bool LocalNode::_cmdGetNodeDataReply( Command& command )
         // Requested node connected to us in the meantime
         NodePtr node = i->second;
         
-        node.ref();
+        node->ref( EQ_REFERENCED_PARAM );
         serveRequest( requestID, node.get( ));
         return true;
     }
@@ -1400,7 +1402,7 @@ bool LocalNode::_cmdGetNodeDataReply( Command& command )
     }
     EQVERB << "Added node " << nodeID << " without connection" << std::endl;
 
-    node.ref();
+    node->ref( EQ_REFERENCED_PARAM );
     serveRequest( requestID, node.get( ));
     return true;
 }
@@ -1471,7 +1473,7 @@ bool LocalNode::_cmdAddListener( Command& command )
     EQASSERT( packet->connection );
     ConnectionPtr connection = packet->connection;
     packet->connection = 0;
-    connection.unref();
+    connection->unref( EQ_REFERENCED_PARAM );
 
     _connectionNodes[ connection ] = this;
     _incoming.addConnection( connection );
@@ -1504,7 +1506,7 @@ bool LocalNode::_cmdRemoveListener( Command& command )
     EQASSERT( packet->connection );
     ConnectionPtr connection = packet->connection;
     packet->connection = 0;
-    connection.unref();
+    connection->unref( EQ_REFERENCED_PARAM );
 
     if( connection->getDescription()->type >= CONNECTIONTYPE_MULTICAST )
     {

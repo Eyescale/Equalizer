@@ -25,6 +25,15 @@
 #include <typeinfo>
 #include <stdlib.h>
 
+//#define EQ_REFERENCED_DEBUG
+#ifdef EQ_REFERENCED_DEBUG
+#  define EQ_REFERENCED_ARGS const void* holder
+#  define EQ_REFERENCED_PARAM (const void*)(this)
+#else
+#  define EQ_REFERENCED_ARGS
+#  define EQ_REFERENCED_PARAM
+#endif
+
 namespace eq
 {
 namespace base
@@ -41,39 +50,20 @@ namespace base
         RefPtr()                     : _ptr( 0 )         {}
 
         /** Construct a reference pointer from a C pointer. @version 1.0 */
-        RefPtr( T* const ptr )       : _ptr( ptr )       { ref(); }
+        RefPtr( T* const ptr )       : _ptr( ptr )       { _ref(); }
 
         /** Construct a copy of a reference pointer. @version 1.0 */
-        RefPtr( const RefPtr& from ) : _ptr( from._ptr ) { ref(); }
+        RefPtr( const RefPtr& from ) : _ptr( from._ptr ) { _ref(); }
 
         /**
          * Construct a copy of a reference pointer of a different type.
          * @version 1.0
          */
         template< class O > RefPtr( RefPtr< O > from )
-                : _ptr( from.get( )) { ref(); }
+                : _ptr( from.get( )) { _ref(); }
 
         /** Destruct this reference pointer. @version 1.0 */
-        ~RefPtr() { unref(); _ptr = 0; }
-
-        /** Artificially reference the held object. @version 1.0 */
-        void ref()   { if(_ptr) _ptr->ref(); }
-
-        /** Artificially dereference the held object. @version 1.0 */
-        void unref() 
-        {
-            if(_ptr)
-            {
-#ifndef NDEBUG
-                const bool abondon = (_ptr->getRefCount() == 1);
-                _ptr->unref();
-                if( abondon ) 
-                    _ptr = 0;
-#else
-                _ptr->unref();
-#endif
-            }
-        }
+        ~RefPtr() { _unref(); _ptr = 0; }
 
         /** Assign another RefPtr to this reference pointer. @version 1.0 */
         RefPtr& operator = ( const RefPtr& rhs )
@@ -83,8 +73,8 @@ namespace base
 
                 T* tmp = _ptr;
                 _ptr = rhs._ptr;
-                ref();
-                if( tmp ) tmp->unref();
+                _ref();
+                if( tmp ) tmp->unref( EQ_REFERENCED_PARAM );
                 return *this;
             }
 
@@ -96,8 +86,8 @@ namespace base
 
                 T* tmp = _ptr;
                 _ptr = ptr;
-                ref();
-                if( tmp ) tmp->unref();
+                _ref();
+                if( tmp ) tmp->unref( EQ_REFERENCED_PARAM );
                 return *this;
             }
 
@@ -167,6 +157,25 @@ namespace base
         
     private:
         T* _ptr;
+
+        /** Artificially reference the held object. */
+        void _ref()   { if(_ptr) _ptr->ref( EQ_REFERENCED_PARAM ); }
+
+        /** Artificially dereference the held object. */
+        void _unref() 
+        {
+            if(_ptr)
+            {
+#ifndef NDEBUG
+                const bool abondon = (_ptr->getRefCount() == 1);
+                _ptr->unref( EQ_REFERENCED_PARAM );
+                if( abondon ) 
+                    _ptr = 0;
+#else
+                _ptr->unref( EQ_REFERENCED_PARAM );
+#endif
+            }
+        }
     };
 
     /** Print the reference pointer to the given output stream. */
@@ -174,8 +183,15 @@ namespace base
     inline std::ostream& operator << ( std::ostream& os, const RefPtr<T>& rp )
     {
         const T* p = rp.get();
-        if( p ) 
-            os << disableFlush << "RP<" << *p << ">" << enableFlush;
+        if( p )
+        {
+            os << disableFlush << "RP<" << *p << ">";
+#ifdef EQ_REFERENCED_DEBUG
+            os << std::endl;
+            p->printHolders( os );
+#endif
+            os << enableFlush;
+        }
         else
             os << "RP< NULL >";
 

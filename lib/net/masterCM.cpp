@@ -85,8 +85,8 @@ uint128_t MasterCM::commitSync( const uint32_t commitID )
 
 uint128_t MasterCM::sync( const uint128_t& version )
 {
-    EQASSERT( version.high() != 0 ||
-              version == VERSION_NEXT || version == VERSION_HEAD );
+    EQASSERTINFO( version.high() != 0 || version == VERSION_NEXT ||
+                  version == VERSION_HEAD, version );
 #if 0
     EQLOG( LOG_OBJECTS ) << "sync to v" << version << ", id " 
                          << _object->getID() << "." << _object->getInstanceID()

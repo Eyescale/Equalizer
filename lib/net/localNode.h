@@ -446,6 +446,11 @@ namespace net
         EQ_TS_VAR( _cmdThread );
         EQ_TS_VAR( _recvThread );
     };
+    inline std::ostream& operator << ( std::ostream& os, const LocalNode& node )
+    {
+        os << static_cast< const Node& >( node );
+        return os;
+    }
 }
 }
 #endif // EQNET_LOCALNODE_H

@@ -21,6 +21,13 @@
 #include <eq/base/base.h>     // for EQBASE_API
 #include <eq/base/debug.h>    // for EQERROR
 #include <eq/base/atomic.h>   // member
+#ifdef EQ_REFERENCED_DEBUG
+#  include <eq/base/hash.h>
+#  include <eq/base/lockable.h>
+#  include <eq/base/scopedMutex.h>
+#  include <eq/base/spinLock.h>
+#endif
+
 #include <typeinfo>
 
 namespace eq
@@ -40,12 +47,21 @@ namespace base
     {
     public:
         /** Increase the reference count. @version 1.0 .*/
-        void ref() const
+        void ref( EQ_REFERENCED_ARGS ) const
         {
 #ifndef NDEBUG
-            EQASSERTINFO( !_hasBeenDeleted, typeid( *this ).name( ));
+            EQASSERTINFO( !_hasBeenDeleted, className( this ));
 #endif
             ++_refCount;
+
+#ifdef EQ_REFERENCED_DEBUG
+            std::stringstream cs;
+            cs << backtrace;
+            ScopedMutex< SpinLock > referencedMutex( _holders );
+            HolderHash::iterator i = _holders->find( holder );
+            EQASSERTINFO( i == _holders->end(), i->second );
+            _holders.data[ holder ] = cs.str();
+#endif
         }
 
         /** 
@@ -54,7 +70,7 @@ namespace base
          * The object is deleted when the reference count reaches 0.
          * @version 1.0
          */
-        void unref() const
+        void unref( EQ_REFERENCED_ARGS ) const
             { 
 #ifndef NDEBUG
                 EQASSERT( !_hasBeenDeleted );
@@ -63,10 +79,34 @@ namespace base
                 const bool deleteMe = (--_refCount==0);
                 if( deleteMe )
                     deleteReferenced( this );
+#ifdef EQ_REFERENCED_DEBUG
+                else
+                {
+                    ScopedMutex< SpinLock > referencedMutex( _holders );
+                    HolderHash::iterator i = _holders->find( holder );
+                    EQASSERT( i != _holders->end( ));
+                    _holders->erase( i );
+                }
+#endif
             }
 
         /** @return the current reference count. @version 1.0 */
         int  getRefCount() const { return _refCount; }
+
+#ifdef EQ_REFERENCED_DEBUG
+        void printHolders( std::ostream& os ) const
+            {
+                os << disableFlush << disableHeader;
+                ScopedMutex< SpinLock > referencedMutex( _holders );
+                for( HolderHash::const_iterator i = _holders->begin();
+                     i != _holders->end(); ++i )
+                {
+                    os << "Holder " << i->first << ": " << i->second 
+                       << std::endl;
+                }
+                os << enableHeader << enableFlush;
+            }
+#endif
 
     protected:
         /** Construct a new reference-counted object. @version 1.0 */
@@ -96,12 +136,16 @@ namespace base
                               "Deleting object with ref count " << _refCount );
             }
 
-    protected:
         EQBASE_API void deleteReferenced( const Referenced* object ) const;
 
     private:
         mutable a_int32_t _refCount;
         bool _hasBeenDeleted;
+
+#ifdef EQ_REFERENCED_DEBUG
+        typedef PtrHash< const void*, std::string > HolderHash;
+        mutable Lockable< HolderHash, SpinLock > _holders;
+#endif
     };
 }
 

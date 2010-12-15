@@ -174,7 +174,6 @@ namespace net
             {
                 command = CMD_NODE_ADD_LISTENER;
                 size    = sizeof( NodeAddListenerPacket );
-                conn.ref();
                 connectionData[0] = 0;
             }
 
@@ -190,7 +189,6 @@ namespace net
             {
                 command = CMD_NODE_REMOVE_LISTENER;
                 size    = sizeof( NodeRemoveListenerPacket );
-                conn.ref();
                 connectionData[0] = 0;
             }
 

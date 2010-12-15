@@ -123,7 +123,7 @@ namespace net
 
         base::Lockable< ItemHash > _items;
 
-        const uint64_t _maxSize; //!< high-water mark to start releasing commands
+        const uint64_t _maxSize; //!<high-water mark to start releasing commands
         uint64_t _size;          //!< Current number of bytes stored
 
         const base::Clock _clock;  //!< Clock for item expiration
