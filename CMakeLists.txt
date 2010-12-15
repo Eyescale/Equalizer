@@ -165,7 +165,6 @@ add_subdirectory(examples)
 add_subdirectory(libs)
 add_subdirectory(tests)
 add_subdirectory(tools)
-add_subdirectory(doc)
 
 IF(EXISTS "${CMAKE_SOURCE_DIR}/auxilary" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/auxilary")
   add_subdirectory(auxilary)

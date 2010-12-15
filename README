@@ -2,9 +2,10 @@
                                Quickstart
 
  This directory is the top-level directory for the Equalizer sources.
- Executing 'make' should build all targets. See also the FAQ in this
- directory. End-User and developer documentation can be found on the
- Equalizer website at http://www.equalizergraphics.com/
+ Executing 'make' should build all targets. See also the doc/FAQ.
+ Platform-specific READMEs are in doc/. End-User and developer
+ documentation can be found on the Equalizer website at
+ http://www.equalizergraphics.com/
 
                            Running Equalizer
 
