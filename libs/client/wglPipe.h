@@ -97,9 +97,6 @@ namespace eq
         EQ_API virtual bool configInitGL();
 
     private:
-        bool _configInitWGLEW();
-        bool _getGPUHandle( HGPUNV& handle );
-
         /** Extended WGL function entries. */
         WGLEWContext* const _wglewContext;
 
@@ -108,6 +105,8 @@ namespace eq
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
+        bool _configInitWGLEW();
+        bool _getGPUHandle( HGPUNV& handle );
         void _configInitDriverVersion();
     };
 }

@@ -48,11 +48,13 @@ namespace eq
         /**
          * Construct a new glX/X11 system window.
          *
-         * If no display connection is given (the default), the constructor
-         * will try to query the display from the pipe's system (GLX) pipe.
+         * If no display connection or no GLXEWContext is given (the default),
+         * the constructor will try to query the corresponding data from the
+         * pipe's system pipe (GLXPipe). The GLXEWContext has to be initialized.
          * @version 1.0
          */
-        GLXWindow( Window* parent, Display* xDisplay = 0 );
+        GLXWindow( Window* parent, Display* xDisplay = 0,
+                   GLXEWContext* glxewContext = 0 );
 
         /** Destruct this glX window. @version 1.0 */
         virtual ~GLXWindow();
@@ -129,12 +131,6 @@ namespace eq
          */
         virtual bool configInitGLXPBuffer( XVisualInfo* visualInfo );
 
-        /** @internal Initialize the GLXEW context for this window. */
-        void initGLXEW();
-
-        /** @internal De-initialize the GLXEW context. */
-        void exitGLXEW() { _glxewInitialized = false; }
-
         /**
          * Register with the pipe's GLXEventHandler, called by setXDrawable().
          * @version 1.0
@@ -156,10 +152,10 @@ namespace eq
         /**  @return  the X11 drawable ID. @version 1.0 */
         virtual XID getXDrawable() const { return _xDrawable; }
 
-        /** @return the X11 display.  @version 1.0 */
+        /** @return the X11 display. @version 1.0 */
         virtual Display* getXDisplay() { return _xDisplay; }
 
-        /** @return the GLXEW context.  @version 1.0*/
+        /** @return the GLXEW context. @version 1.0*/
         GLXEWContext* glxewGetContext() { return _glxewContext; }
 
         /** 
@@ -216,10 +212,7 @@ namespace eq
         GLXEventHandler* _glXEventHandler;
 
         /** The glX extension pointer table. */
-        GLXEWContext* const _glxewContext;
-
-        /** The glX extension pointer table is initialized. */
-        bool _glxewInitialized;
+        GLXEWContext* _glxewContext;
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

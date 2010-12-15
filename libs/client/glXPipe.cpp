@@ -31,11 +31,13 @@ namespace eq
 GLXPipe::GLXPipe( Pipe* parent )
         : SystemPipe( parent )
         , _xDisplay( 0 )
+        , _glxewContext( new GLXEWContext )
 {
 }
 
 GLXPipe::~GLXPipe( )
 {
+    delete _glxewContext;
 }
 
 //---------------------------------------------------------------------------
@@ -43,7 +45,6 @@ GLXPipe::~GLXPipe( )
 //---------------------------------------------------------------------------
 bool GLXPipe::configInit( )
 {
-#ifdef GLX
     const std::string displayName  = getXDisplayString();
     const char*       cDisplayName = ( displayName.length() == 0 ? 
                                        0 : displayName.c_str( ));
@@ -67,17 +68,12 @@ bool GLXPipe::configInit( )
     setXDisplay( xDisplay );
     EQINFO << "Opened X display " << XDisplayName( displayName.c_str( )) << " @"
            << xDisplay << ", device " << getPipe()->getDevice() << std::endl;
-    return true;
-#else
-    setError( ERROR_GLX_MISSING_SUPPORT );
-    return false;
-#endif
-}
 
+    return _configInitGLXEW();
+}
 
 void GLXPipe::configExit()
 {
-#ifdef GLX
     Display* xDisplay = getXDisplay();
     if( !xDisplay )
         return;
@@ -85,7 +81,6 @@ void GLXPipe::configExit()
     setXDisplay( 0 );
     XCloseDisplay( xDisplay );
     EQINFO << "Closed X display " << xDisplay << std::endl;
-#endif
 }
 
 
@@ -114,7 +109,6 @@ std::string GLXPipe::getXDisplayString()
 
 void GLXPipe::setXDisplay( Display* display )
 {
-#ifdef GLX
     if( _xDisplay == display )
         return;
 
@@ -170,13 +164,80 @@ void GLXPipe::setXDisplay( Display* display )
         pvp.invalidate();
 
     getPipe()->setPixelViewport( pvp );
-#endif
 }
 
+bool GLXPipe::_configInitGLXEW()
+{
+    EQASSERT( _xDisplay );
+
+    //----- Create and make current a temporary GL context to initialize GLXEW
+    // visual
+    std::vector<int> attributes;
+    attributes.push_back( GLX_RGBA );
+    attributes.push_back( None );
+
+    const int    screen  = DefaultScreen( _xDisplay );
+    XVisualInfo *visualInfo = glXChooseVisual( _xDisplay, screen,
+                                               &attributes.front( ));
+    if( !visualInfo )
+    {
+        setError( ERROR_SYSTEMPIPE_PIXELFORMAT_NOTFOUND );
+        return false;
+    }
+
+    //context
+    GLXContext context = glXCreateContext( _xDisplay, visualInfo, 0, True );
+    if( !context )
+    {
+        setError( ERROR_SYSTEMPIPE_CREATECONTEXT_FAILED );
+        return false;
+    }
+
+    // window
+    const XID parent = RootWindow( _xDisplay, screen );
+    XSetWindowAttributes wa;
+    wa.colormap = XCreateColormap( _xDisplay, parent, visualInfo->visual,
+                                   AllocNone );
+    wa.background_pixmap = None;
+    wa.border_pixel = 0;
+    XID drawable = XCreateWindow( _xDisplay, parent, 0, 0, 16, 16,
+                                  0, visualInfo->depth, InputOutput,
+                                  visualInfo->visual, 
+                                  CWBackPixmap | CWBorderPixel | CWColormap,
+                                  &wa );
+    if( !drawable )
+    {
+        setError( ERROR_SYSTEMPIPE_CREATEWINDOW_FAILED );
+        return false;
+    }   
+
+    XFree( visualInfo );
+    XSync( _xDisplay, False );
+
+    glXMakeCurrent( _xDisplay, drawable, context );
+
+    const GLenum result = glxewInit();
+    bool success = result == GLEW_OK;
+    if( !success )
+    {
+        setError( ERROR_GLXPIPE_GLXEWINIT_FAILED );
+        EQWARN << getError() << ": " << result << std::endl;
+    }
+    else
+    {
+        EQINFO << "Pipe GLXEW initialization successful" << std::endl;
+        success = configInitGL();
+    }
+
+    XSync( _xDisplay, False );
+    glXDestroyContext( _xDisplay, context );
+    XDestroyWindow( _xDisplay, drawable );
+
+    return success;
+}
 
 int GLXPipe::XErrorHandler( Display* display, XErrorEvent* event )
 {
-#ifdef GLX
     EQWARN << base::disableFlush;
     EQWARN << "X Error occured: " << base::disableHeader << base::indent;
 
@@ -214,8 +275,6 @@ int GLXPipe::XErrorHandler( Display* display, XErrorEvent* event )
         while( true ) ;
     }
 #endif
-
-#endif // GLX
 
     return 0;
 }

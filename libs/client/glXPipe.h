@@ -42,7 +42,7 @@ namespace eq
          * @return true if the initialization was successful, false otherwise.
          * @version 1.0
          */
-        virtual bool configInit();
+        EQ_API virtual bool configInit();
 
         /** 
          * Deinitialize this pipe for the GLX window system.
@@ -50,11 +50,14 @@ namespace eq
          * @return true if the deinitialization was successful, false otherwise.
          * @version 1.0
          */
-        virtual void configExit();
+        EQ_API virtual void configExit();
         //@}
 
         /** @return the X display connection for this pipe. @version 1.0 */
         Display* getXDisplay() const { return _xDisplay; }
+
+        /** @return the generic GLX function table for the pipe. */
+        GLXEWContext* glxewGetContext() { return _glxewContext; }
 
     protected:
         /** 
@@ -75,16 +78,28 @@ namespace eq
          */
         std::string getXDisplayString();
 
+        /**
+         * Initialize this pipe for OpenGL.
+         *
+         * A temporary GL context is current during this call. The context is
+         * not the one used by the windows of this pipe.
+         *
+         * @version 1.0
+         */
+        virtual bool configInitGL() { return true; }
+
     private:
         static int XErrorHandler( Display* display, XErrorEvent* event );
 
         /** Window-system specific display information. */
         Display* _xDisplay;
+ 
+        /** Extended GLX function entries. */
+        GLXEWContext* const _glxewContext;
+        bool _configInitGLXEW();
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
     };
 }
 

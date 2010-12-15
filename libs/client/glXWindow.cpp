@@ -25,15 +25,15 @@
 
 namespace eq
 {
-GLXWindow::GLXWindow( Window* parent, Display* xDisplay )
+GLXWindow::GLXWindow( Window* parent, Display* xDisplay,
+                      GLXEWContext* glxewContext )
     : GLXWindowIF( parent )
     , _xDisplay( xDisplay )
     , _xDrawable ( 0 )
     , _glXContext( 0 )
     , _glXNVSwapGroup( 0 )
     , _glXEventHandler( 0 )
-    , _glxewContext( new GLXEWContext )
-    , _glxewInitialized( false )
+    , _glxewContext( glxewContext )
 {
     if( !_xDisplay )
     {
@@ -42,12 +42,17 @@ GLXWindow::GLXWindow( Window* parent, Display* xDisplay )
         if( glxPipe )
             _xDisplay = glxPipe->getXDisplay();
     }
+    if( !_glxewContext )
+    {
+        Pipe* pipe = getPipe();
+        GLXPipe* glxPipe = dynamic_cast< GLXPipe* >( pipe->getSystemPipe( ));
+        if( glxPipe )
+            _glxewContext = glxPipe->glxewGetContext();
+    }
 }
 
 GLXWindow::~GLXWindow( )
 {
-    _glxewInitialized = false;
-    delete _glxewContext;
 }
 
 //---------------------------------------------------------------------------
@@ -67,11 +72,6 @@ bool GLXWindow::configInit( )
 
     GLXContext context = createGLXContext( visualInfo );
     setGLXContext( context );
-
-    // Early glxew init to have function pointers for init code
-    glXMakeCurrent( _xDisplay, None, 0 );
-    glxewInit();
-
     if( !context )
         return false;
 
@@ -231,15 +231,14 @@ XVisualInfo* GLXWindow::chooseXVisualInfo()
 
 GLXContext GLXWindow::createGLXContext( XVisualInfo* visualInfo )
 {
-    if( !visualInfo )
-    {
-        setError( ERROR_SYSTEMWINDOW_NO_PIXELFORMAT );
-        return 0;
-    }
-
     if( !_xDisplay )
     {
         setError( ERROR_GLXWINDOW_NO_DISPLAY );
+        return 0;
+    }
+    if( !visualInfo )
+    {
+        setError( ERROR_SYSTEMWINDOW_NO_PIXELFORMAT );
         return 0;
     }
 
@@ -257,7 +256,7 @@ GLXContext GLXWindow::createGLXContext( XVisualInfo* visualInfo )
 
     GLXContext context = glXCreateContext( _xDisplay, visualInfo, shareCtx,
                                            True );
-    if ( !context )
+    if( !context )
     {
         setError( ERROR_GLXWINDOW_CREATECONTEXT_FAILED );
         return 0;
@@ -561,7 +560,7 @@ void GLXWindow::configExit( )
     leaveNVSwapBarrier();
     configExitFBO();
     exitGLEW();
-    
+
     glXMakeCurrent( _xDisplay, None, 0 );
 
     GLXContext context  = getGLXContext();
@@ -569,7 +568,7 @@ void GLXWindow::configExit( )
 
     setGLXContext( 0 );
     setXDrawable( 0 );
-    XSync( _xDisplay, False ); // WAR to assert in glXDestroyContext/xcb_io.c:183
+    XSync( _xDisplay, False ); // WAR assert in glXDestroyContext/xcb_io.c:183
 
     if( context )
         glXDestroyContext( _xDisplay, context );
@@ -674,18 +673,6 @@ void GLXWindow::leaveNVSwapBarrier()
 #else
     EQUNIMPLEMENTED;
 #endif
-}
-
-void GLXWindow::initGLXEW()
-{
-    if( _glxewInitialized )
-        return;
-
-    const GLenum result = glxewInit();
-    if( result != GLEW_OK )
-        EQWARN << "GLXEW initialization failed: " << result << std::endl;
-    else
-        _glxewInitialized = true;
 }
 
 void GLXWindow::initEventHandler()

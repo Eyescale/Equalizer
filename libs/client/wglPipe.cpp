@@ -30,9 +30,9 @@ namespace eq
 {
 
 WGLPipe::WGLPipe( Pipe* parent )
-    : SystemPipe( parent )
-    , _wglewContext( new WGLEWContext )
-    , _driverVersion( 0.f )
+        : SystemPipe( parent )
+        , _wglewContext( new WGLEWContext )
+        , _driverVersion( 0.f )
 {
 }
 
@@ -195,7 +195,6 @@ bool WGLPipe::_getGPUHandle( HGPUNV& handle )
     return true;
 }
 
-
 bool WGLPipe::_configInitWGLEW()
 {
     //----- Create and make current a temporary GL context to initialize WGLEW
@@ -232,7 +231,7 @@ bool WGLPipe::_configInitWGLEW()
 
     if( !hWnd )
     {
-        setError( ERROR_WGLPIPE_CREATEWINDOW_FAILED );
+        setError( ERROR_SYSTEMPIPE_CREATEWINDOW_FAILED );
         EQWARN << getError() << ": " << base::sysError << std::endl;
         UnregisterClass( classStr.c_str(),  instance );
         return false;
@@ -248,7 +247,7 @@ bool WGLPipe::_configInitWGLEW()
     int pf = ChoosePixelFormat( dc, &pfd );
     if( pf == 0 )
     {
-        setError( ERROR_WGLPIPE_CHOOSEPF_FAILED );
+        setError( ERROR_SYSTEMPIPE_PIXELFORMAT_NOTFOUND );
         EQWARN << getError() << ": " << base::sysError << std::endl;
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
@@ -269,7 +268,7 @@ bool WGLPipe::_configInitWGLEW()
     HGLRC context = wglCreateContext( dc );
     if( !context )
     {
-        setError( ERROR_WGLPIPE_CREATECONTEXT_FAILED );
+        setError( ERROR_SYSTEMPIPE_CREATECONTEXT_FAILED );
         EQWARN << getError() << ": " << base::sysError << std::endl;
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
@@ -283,12 +282,11 @@ bool WGLPipe::_configInitWGLEW()
     wglMakeCurrent( dc, context );
 
     const GLenum result = wglewInit();
-    bool success = true;
-    if( result != GLEW_OK )
+    bool success = result == GLEW_OK;
+    if( !success )
     {
         setError( ERROR_WGLPIPE_WGLEWINIT_FAILED );
-        EQWARN << getError() << ": " << base::sysError << std::endl;
-        success = false;
+        EQWARN << getError() << ": " << result << std::endl;
     }
     else
     {
