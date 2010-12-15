@@ -944,10 +944,9 @@ bool LocalNode::dispatchCommand( Command& command )
             EQCHECK( Dispatcher::dispatchCommand( command ));
             return true;
 
-        case PACKETTYPE_EQNET_OBJECTSTORE:
         case PACKETTYPE_EQNET_OBJECT:
         {
-            return _objectStore->dispatchCommand( command );
+            return _objectStore->dispatchObjectCommand( command );
         }
 
         default:
@@ -1024,11 +1023,9 @@ bool LocalNode::invokeCommand( Command& command )
     {
         case PACKETTYPE_EQNET_NODE:
             return Dispatcher::invokeCommand( command );
-
-        case PACKETTYPE_EQNET_OBJECTSTORE:
         case PACKETTYPE_EQNET_OBJECT:
         {
-            return _objectStore->invokeCommand( command );
+            return _objectStore->invokeObjectCommand( command );
         }
 
         default:

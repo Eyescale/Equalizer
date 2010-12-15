@@ -58,8 +58,8 @@ namespace net
         ObjectInstancePacket()
             {
                 // Always goes through session which caches and forwards to obj
-                type    = PACKETTYPE_EQNET_OBJECTSTORE;
-                command = CMD_OBJECTSTORE_OBJECT_INSTANCE;
+                type    = PACKETTYPE_EQNET_NODE;
+                command = CMD_NODE_OBJECT_INSTANCE;
                 size    = sizeof( ObjectInstancePacket );
                 data[0] = 0;
             }

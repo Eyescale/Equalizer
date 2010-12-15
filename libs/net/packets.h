@@ -32,7 +32,6 @@ namespace net
     enum PacketType
     {
         PACKETTYPE_EQNET_NODE,
-        PACKETTYPE_EQNET_OBJECTSTORE,
         PACKETTYPE_EQNET_OBJECT,
         PACKETTYPE_EQNET_CUSTOM = 1<<7
     };
@@ -67,12 +66,6 @@ namespace net
         NodePacket(){ type = PACKETTYPE_EQNET_NODE; }
     };
 
-    /** Packet sent to and handled by an eq::net::Session. */
-    struct ObjectStorePacket : public NodePacket
-    {
-        ObjectStorePacket() { type = PACKETTYPE_EQNET_OBJECTSTORE; }
-    };
-
     /** Packet sent to and handled by an eq::net::Object. */
     struct ObjectPacket : public NodePacket
     {
@@ -97,9 +90,9 @@ namespace net
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                       const ObjectStorePacket* packet )
+                                       const NodePacket* packet )
     {
-        os << (NodePacket*)packet;
+        os << (Packet*)packet;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

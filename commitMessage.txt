@@ -1,9 +1,9 @@
-Rename folder lib to libs
+Transform ObjectStorePacket in NodePacket
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [ ] New Feature
 [x] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation

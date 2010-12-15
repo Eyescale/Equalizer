@@ -21,10 +21,10 @@
 #include "commands.h"
 #include "log.h"
 #include "node.h"
+#include "nodePackets.h"
 #include "object.h"
 #include "objectDataIStream.h"
 #include "objectPackets.h"
-#include "objectStorePackets.h"
 
 //#define EQ_INSTRUMENT
 
@@ -144,12 +144,12 @@ uint128_t FullMasterCM::getOldestVersion() const
 uint128_t FullMasterCM::addSlave( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
-    EQASSERT( command->type == PACKETTYPE_EQNET_OBJECTSTORE );
-    EQASSERT( command->command == CMD_OBJECTSTORE_MAP_OBJECT );
+    EQASSERT( command->type == PACKETTYPE_EQNET_NODE );
+    EQASSERT( command->command == CMD_NODE_MAP_OBJECT );
 
     NodePtr node = command.getNode();
-    ObjectStoreMapObjectPacket* packet =
-        command.getPacket<ObjectStoreMapObjectPacket>();
+    NodeMapObjectPacket* packet =
+        command.getPacket<NodeMapObjectPacket>();
     const uint128_t requested  = packet->requestedVersion;
     const uint32_t instanceID = packet->instanceID;
 

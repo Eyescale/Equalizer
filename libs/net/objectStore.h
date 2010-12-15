@@ -28,7 +28,6 @@
 
 #include <eq/base/base.h>
 #include <eq/base/lockable.h>
-#include <eq/base/requestHandler.h>
 
 #include <eq/base/spinLock.h>
 
@@ -57,16 +56,16 @@ namespace net
         /** @name Command Packet Dispatch */
         //@{
         /** 
-         * Dispatches a command packet to the registered command queue.
+         * Dispatches a command object packet to the registered command queue.
          *
-         * Session packets are dispatch on this session, object packets to the
-         * appropriate objects mapped on this session.
+         * Object packets are dispatch to the appropriate objects mapped on 
+         * this session.
          * 
          * @param packet the command packet.
          * @return true if the command was dispatched, false otherwise.
-         * @sa Dispatcher::dispatchCommand
          */
-        virtual bool dispatchCommand( Command& packet );
+        bool dispatchObjectCommand( Command& packet );
+
 
         /** 
          * Invokes the registered handler method for a command packet.
@@ -78,7 +77,7 @@ namespace net
          * @return the result of the operation.
          * @sa Dispatcher::invokeCommand
          */
-        virtual bool invokeCommand( Command& packet );
+        bool invokeObjectCommand( Command& packet );
         //@}
 
         /**
@@ -205,9 +204,6 @@ namespace net
         NodeID _findMasterNodeID( const base::UUID& id );
  
         NodePtr _connectMaster( const base::UUID& id );
-
-        bool _dispatchObjectCommand( Command& command );
-        bool _invokeObjectCommand( Command& packet );
         Object* _findObject( Command& command );
 
         void _attachObject( Object* object, const base::UUID& id, 

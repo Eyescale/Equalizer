@@ -402,6 +402,15 @@ namespace net
         bool   _handleData();
         //@}
 
+        friend class ObjectStore;
+        template< typename T >
+        void _registerCommand( const uint32_t command,
+                               const CommandFunc< T >& func,
+                               CommandQueue* destinationQueue )
+        {
+            registerCommand( command, func, destinationQueue );
+        }
+
         /**
          * @name Command management
          */

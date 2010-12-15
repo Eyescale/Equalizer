@@ -197,6 +197,194 @@ namespace net
         EQ_ALIGN8( char connectionData[8] );
     };
 
+    struct NodeAckRequestPacket : public NodePacket
+    {
+        NodeAckRequestPacket( const uint32_t requestID_ )
+            {
+                command   = CMD_NODE_ACK_REQUEST;
+                size      = sizeof( NodeAckRequestPacket ); 
+                requestID = requestID_;
+            }
+        
+        uint32_t requestID;
+    };
+
+    struct NodeFindMasterNodeID : public NodePacket
+    {
+        NodeFindMasterNodeID()
+                : requestID( EQ_ID_INVALID )
+            {
+                command   = CMD_NODE_FIND_MASTER_NODE_ID;
+                size      = sizeof( NodeFindMasterNodeID ); 
+            }
+        
+        base::UUID identifier;
+        uint32_t   requestID;
+    };
+
+    struct NodeFindMasterNodeIDReply : public NodePacket
+    {
+        NodeFindMasterNodeIDReply( 
+                          const NodeFindMasterNodeID* request )
+                : requestID( request->requestID )
+            {
+                command   = CMD_NODE_FIND_MASTER_NODE_ID_REPLY;
+                size      = sizeof( NodeFindMasterNodeIDReply ); 
+            }
+        NodeID     masterNodeID;
+        uint32_t   requestID;
+    };
+
+    struct NodeAttachObjectPacket : public NodePacket
+    {
+        NodeAttachObjectPacket()
+            {
+                command = CMD_NODE_ATTACH_OBJECT;
+                size    = sizeof( NodeAttachObjectPacket ); 
+            }
+        
+        base::UUID  objectID;
+        uint32_t    requestID;
+        uint32_t    objectInstanceID;
+    };
+
+    struct NodeMapObjectPacket : public NodePacket
+    {
+        NodeMapObjectPacket()
+            {
+                command = CMD_NODE_MAP_OBJECT;
+                size    = sizeof( NodeMapObjectPacket );
+                minCachedVersion = VERSION_HEAD;
+                maxCachedVersion = VERSION_NONE;
+                useCache   = false;
+            }
+
+        uint128_t     requestedVersion;
+        uint128_t     minCachedVersion;
+        uint128_t     maxCachedVersion;
+        base::UUID    objectID;
+        uint32_t      requestID;
+        uint32_t instanceID;
+        uint32_t masterInstanceID;
+        bool     useCache;
+    };
+
+
+    struct NodeMapObjectSuccessPacket : public NodePacket
+    {
+        NodeMapObjectSuccessPacket( 
+            const NodeMapObjectPacket* request )
+            {
+                command    = CMD_NODE_MAP_OBJECT_SUCCESS;
+                size       = sizeof( NodeMapObjectSuccessPacket ); 
+                requestID  = request->requestID;
+                objectID   = request->objectID;
+                instanceID = request->instanceID;
+            }
+        
+        NodeID nodeID;
+        base::UUID objectID;
+        uint32_t requestID;
+        uint32_t instanceID;
+        uint32_t changeType;
+        uint32_t masterInstanceID;
+    };
+
+    struct NodeMapObjectReplyPacket : public NodePacket
+    {
+        NodeMapObjectReplyPacket( 
+            const NodeMapObjectPacket* request )
+                : objectID( request->objectID )
+                , requestID( request->requestID )
+                , useCache( request->useCache )
+            {
+                command   = CMD_NODE_MAP_OBJECT_REPLY;
+                size      = sizeof( NodeMapObjectReplyPacket ); 
+//                sessionID = request->sessionID;
+                version   = request->requestedVersion;
+                cachedVersion = VERSION_INVALID;
+            }
+        
+        NodeID nodeID;
+        const base::UUID objectID;
+        uint128_t version;
+        uint128_t cachedVersion;
+        const uint32_t requestID;
+        
+        bool result;
+        const bool useCache;
+    };
+
+    struct NodeUnmapObjectPacket : public NodePacket
+    {
+        NodeUnmapObjectPacket()
+            {
+                command = CMD_NODE_UNMAP_OBJECT;
+                size    = sizeof( NodeUnmapObjectPacket ); 
+            }
+        
+        base::UUID objectID;
+    };
+
+    struct NodeUnsubscribeObjectPacket : public NodePacket
+    {
+        NodeUnsubscribeObjectPacket()
+            {
+                command = CMD_NODE_UNSUBSCRIBE_OBJECT;
+                size    = sizeof( NodeUnsubscribeObjectPacket ); 
+            }
+       
+        base::UUID          objectID;
+        uint32_t            requestID;
+        uint32_t            masterInstanceID;
+        uint32_t            slaveInstanceID;
+    };
+
+    struct NodeRegisterObjectPacket : public NodePacket
+    {
+        NodeRegisterObjectPacket()
+            {
+                command = CMD_NODE_REGISTER_OBJECT;
+                size    = sizeof( NodeRegisterObjectPacket ); 
+            }
+        
+        Object* object;
+    };
+
+    struct NodeDeregisterObjectPacket : public NodePacket
+    {
+        NodeDeregisterObjectPacket()
+            {
+                command = CMD_NODE_DEREGISTER_OBJECT;
+                size    = sizeof( NodeDeregisterObjectPacket ); 
+            }
+        
+        uint32_t requestID;
+    };
+
+    struct NodeDetachObjectPacket : public NodePacket
+    {
+        NodeDetachObjectPacket()
+        {
+            command   = CMD_NODE_DETACH_OBJECT;
+            size      = sizeof( NodeDetachObjectPacket ); 
+            requestID = EQ_ID_INVALID;
+        }
+
+        NodeDetachObjectPacket(const NodeUnsubscribeObjectPacket* request)
+        {
+            command   = CMD_NODE_DETACH_OBJECT;
+            size      = sizeof( NodeDetachObjectPacket ); 
+            requestID = request->requestID;
+            objectID  = request->objectID;
+            objectInstanceID = request->slaveInstanceID;
+        }
+
+        base::UUID          objectID;
+        uint32_t            requestID;
+        uint32_t            objectInstanceID;
+    };
+
     //------------------------------------------------------------
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeConnectPacket* packet )
@@ -226,6 +414,28 @@ namespace net
            << packet->type << " data " << packet->nodeData;
         return os;
     }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                    const NodeMapObjectPacket* packet )
+    {
+        os << (NodePacket*)packet << " id " << packet->objectID << "." 
+           << packet->instanceID << " req " << packet->requestID;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                             const NodeMapObjectSuccessPacket* packet )
+    {
+        os << (NodePacket*)packet << " id " << packet->objectID << "." 
+           << packet->instanceID << " req " << packet->requestID;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                               const NodeMapObjectReplyPacket* packet )
+    {
+        os << (NodePacket*)packet << " id " << packet->objectID << " req "
+           << packet->requestID << " v" << packet->cachedVersion;
+        return os;
+    }
+
 
 }
 }

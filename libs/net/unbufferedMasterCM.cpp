@@ -21,12 +21,12 @@
 #include "commands.h"
 #include "log.h"
 #include "node.h"
+#include "nodePackets.h"
 #include "object.h"
 #include "objectDataIStream.h"
 #include "objectDeltaDataOStream.h"
 #include "objectInstanceDataOStream.h"
 #include "objectPackets.h"
-#include "objectStorePackets.h"
 
 namespace eq
 {
@@ -51,12 +51,12 @@ UnbufferedMasterCM::~UnbufferedMasterCM()
 uint128_t UnbufferedMasterCM::addSlave( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
-    EQASSERT( command->type == PACKETTYPE_EQNET_OBJECTSTORE );
-    EQASSERT( command->command == CMD_OBJECTSTORE_MAP_OBJECT );
+    EQASSERT( command->type == PACKETTYPE_EQNET_NODE );
+    EQASSERT( command->command == CMD_NODE_MAP_OBJECT );
 
     NodePtr node = command.getNode();
-    ObjectStoreMapObjectPacket* packet =
-        command.getPacket<ObjectStoreMapObjectPacket>();
+    NodeMapObjectPacket* packet =
+        command.getPacket<NodeMapObjectPacket>();
     const uint128_t version = packet->requestedVersion;
     const uint32_t instanceID = packet->instanceID;
 

@@ -49,7 +49,7 @@ void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
     packet.masterInstanceID = object->getInstanceID();
 
     if( _instanceID == EQ_ID_NONE ) // send-on-register
-        packet.command = CMD_OBJECTSTORE_INSTANCE;
+        packet.command = CMD_NODE_INSTANCE;
 
 #ifndef NDEBUG
     if( _nodeID == NodeID::ZERO )

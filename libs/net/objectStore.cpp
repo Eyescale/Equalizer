@@ -25,11 +25,10 @@
 #include "global.h"
 #include "instanceCache.h" // member
 #include "log.h"
-
+#include "nodePackets.h"
 #include "objectCM.h"
 #include "objectDataIStream.h"
 #include "objectPackets.h"
-#include "objectStorePackets.h"
 
 //#define DEBUG_DISPATCH
 #ifdef DEBUG_DISPATCH
@@ -53,39 +52,39 @@ ObjectStore::ObjectStore( LocalNode* localNode )
     EQVERB << "New ObjectStore @" << (void*)this << std::endl;
     CommandQueue* queue = _localNode->getCommandThreadQueue();
 
-    registerCommand( CMD_OBJECTSTORE_ACK_REQUEST, 
+    _localNode->_registerCommand( CMD_NODE_ACK_REQUEST, 
                      CmdFunc( this, &ObjectStore::_cmdAckRequest ), 0 );
-    registerCommand( CMD_OBJECTSTORE_FIND_MASTER_NODE_ID,
+    _localNode->_registerCommand( CMD_NODE_FIND_MASTER_NODE_ID,
                      CmdFunc( this, &ObjectStore::_cmdFindMasterNodeID ),
                      queue );
-    registerCommand( CMD_OBJECTSTORE_FIND_MASTER_NODE_ID_REPLY,
+    _localNode->_registerCommand( CMD_NODE_FIND_MASTER_NODE_ID_REPLY,
                      CmdFunc( this, &ObjectStore::_cmdFindMasterNodeIDReply ),
                      0 );
-    registerCommand( CMD_OBJECTSTORE_ATTACH_OBJECT,
+    _localNode->_registerCommand( CMD_NODE_ATTACH_OBJECT,
                      CmdFunc( this, &ObjectStore::_cmdAttachObject ), 0 );
-    registerCommand( CMD_OBJECTSTORE_DETACH_OBJECT,
+    _localNode->_registerCommand( CMD_NODE_DETACH_OBJECT,
                      CmdFunc( this, &ObjectStore::_cmdDetachObject ), 0 );
-    registerCommand( CMD_OBJECTSTORE_REGISTER_OBJECT,
+    _localNode->_registerCommand( CMD_NODE_REGISTER_OBJECT,
                      CmdFunc( this, &ObjectStore::_cmdRegisterObject ), queue );
-    registerCommand( CMD_OBJECTSTORE_DEREGISTER_OBJECT,
+    _localNode->_registerCommand( CMD_NODE_DEREGISTER_OBJECT,
                      CmdFunc( this, &ObjectStore::_cmdDeregisterObject ),
                      queue );
-    registerCommand( CMD_OBJECTSTORE_MAP_OBJECT,
+    _localNode->_registerCommand( CMD_NODE_MAP_OBJECT,
                      CmdFunc( this, &ObjectStore::_cmdMapObject ), queue );
-    registerCommand( CMD_OBJECTSTORE_MAP_OBJECT,
+    _localNode->_registerCommand( CMD_NODE_MAP_OBJECT,
                      CmdFunc( this, &ObjectStore::_cmdMapObject ), queue );
-    registerCommand( CMD_OBJECTSTORE_MAP_OBJECT_SUCCESS,
+    _localNode->_registerCommand( CMD_NODE_MAP_OBJECT_SUCCESS,
                      CmdFunc( this, &ObjectStore::_cmdMapObjectSuccess ), 0 );
-    registerCommand( CMD_OBJECTSTORE_MAP_OBJECT_REPLY,
+    _localNode->_registerCommand( CMD_NODE_MAP_OBJECT_REPLY,
                      CmdFunc( this, &ObjectStore::_cmdMapObjectReply ), queue );
-    registerCommand( CMD_OBJECTSTORE_UNMAP_OBJECT,
+    _localNode->_registerCommand( CMD_NODE_UNMAP_OBJECT,
                      CmdFunc( this, &ObjectStore::_cmdUnmapObject ), 0 );
-    registerCommand( CMD_OBJECTSTORE_UNSUBSCRIBE_OBJECT,
+    _localNode->_registerCommand( CMD_NODE_UNSUBSCRIBE_OBJECT,
                      CmdFunc( this, &ObjectStore::_cmdUnsubscribeObject ),
                      queue );
-    registerCommand( CMD_OBJECTSTORE_OBJECT_INSTANCE,
+    _localNode->_registerCommand( CMD_NODE_OBJECT_INSTANCE,
                      CmdFunc( this, &ObjectStore::_cmdInstance ), 0 );
-    registerCommand( CMD_OBJECTSTORE_INSTANCE,
+    _localNode->_registerCommand( CMD_NODE_INSTANCE,
                      CmdFunc( this, &ObjectStore::_cmdInstance ), 0 );
 }
 
@@ -155,7 +154,7 @@ NodeID ObjectStore::_findMasterNodeID( const base::UUID& identifier )
     {
         NodePtr node = *i;
 
-        ObjectStoreFindMasterNodeID packet;
+        NodeFindMasterNodeID packet;
         packet.requestID = _localNode->registerRequest();
         packet.identifier = identifier;
         node->send( packet );
@@ -178,7 +177,7 @@ void ObjectStore::attachObject( Object* object, const base::UUID& id,
     EQASSERT( object );
     EQ_TS_NOT_THREAD( _receiverThread );
 
-    ObjectStoreAttachObjectPacket packet;
+    NodeAttachObjectPacket packet;
     packet.requestID = _localNode->registerRequest( object );
     packet.objectID = id;
     packet.objectInstanceID = instanceID;
@@ -233,7 +232,7 @@ void ObjectStore::detachObject( Object* object )
     EQASSERT( object );
     EQ_TS_NOT_THREAD( _receiverThread );
 
-    ObjectStoreDetachObjectPacket packet;
+    NodeDetachObjectPacket packet;
     packet.requestID = _localNode->registerRequest();
     packet.objectID  = object->getID();
     packet.objectInstanceID  = object->getInstanceID();
@@ -333,7 +332,7 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id,
     if( !master )
         return EQ_ID_INVALID;
 
-    ObjectStoreMapObjectPacket packet;
+    NodeMapObjectPacket packet;
     packet.requestID        = _localNode->registerRequest( object );
     packet.objectID         = id;
     packet.requestedVersion = version;
@@ -407,7 +406,7 @@ void ObjectStore::unmapObject( Object* object )
             
         if( master.isValid() && master->isConnected( ))
         {
-            ObjectStoreUnsubscribeObjectPacket packet;
+            NodeUnsubscribeObjectPacket packet;
             packet.requestID = _localNode->registerRequest();
             packet.objectID  = id;
             packet.masterInstanceID = masterInstanceID;
@@ -443,7 +442,7 @@ bool ObjectStore::registerObject( Object* object )
 
     if( Global::getIAttribute( Global::IATTR_NODE_SEND_QUEUE_SIZE )> 0 )
     {
-        ObjectStoreRegisterObjectPacket packet;
+        NodeRegisterObjectPacket packet;
         packet.object = object;
         _localNode->send( packet );
     }
@@ -469,7 +468,7 @@ void ObjectStore::deregisterObject( Object* object )
     if( Global::getIAttribute( Global::IATTR_NODE_SEND_QUEUE_SIZE )> 0 )
     {
         // remove from send queue
-        ObjectStoreDeregisterObjectPacket packet;
+        NodeDeregisterObjectPacket packet;
         packet.requestID = _localNode->registerRequest( object );
         _localNode->send( packet );
         _localNode->waitRequest( packet.requestID );
@@ -484,7 +483,7 @@ void ObjectStore::deregisterObject( Object* object )
                << base::className( object ) << " id " << object->getID()
                << std::endl;
 
-        ObjectStoreUnmapObjectPacket packet;
+        NodeUnmapObjectPacket packet;
         packet.objectID = id;
 
         for( Nodes::const_iterator i = slaves->begin();
@@ -531,7 +530,7 @@ void ObjectStore::ackRequest( NodePtr node, const uint32_t requestID )
         _localNode->serveRequest( requestID );
     else
     {
-        ObjectStoreAckRequestPacket reply( requestID );
+        NodeAckRequestPacket reply( requestID );
         node->send( reply );
     }
 }
@@ -556,29 +555,7 @@ bool ObjectStore::notifyCommandThreadIdle()
 //===========================================================================
 // Packet handling
 //===========================================================================
-bool ObjectStore::dispatchCommand( Command& command )
-{
-    EQVERB << "dispatch " << command << std::endl;
-    EQASSERT( command.isValid( ));
-    EQ_TS_THREAD( _receiverThread );
-
-    switch( command->type )
-    {
-        case PACKETTYPE_EQNET_OBJECTSTORE:
-            EQCHECK( Dispatcher::dispatchCommand( command ));
-            return true;
-
-        case PACKETTYPE_EQNET_OBJECT:
-            return _dispatchObjectCommand( command );
-
-        default:
-            EQABORT( "Unknown packet type " << command->type << " for "
-                     << command );
-            return true;
-    }
-}
-
-bool ObjectStore::_dispatchObjectCommand( Command& command )
+bool ObjectStore::dispatchObjectCommand( Command& command )
 {
     EQ_TS_THREAD( _receiverThread );
     const ObjectPacket* packet = command.getPacket< ObjectPacket >();
@@ -641,26 +618,7 @@ bool ObjectStore::_dispatchObjectCommand( Command& command )
     return true;
 }
 
-bool ObjectStore::invokeCommand( Command& command )
-{
-    EQVERB << "invoke " << command << std::endl;
-    EQASSERT( command.isValid( ));
-
-    switch( command->type )
-    {
-        case PACKETTYPE_EQNET_OBJECTSTORE:
-            return Dispatcher::invokeCommand( command );
-
-        case PACKETTYPE_EQNET_OBJECT:
-            return _invokeObjectCommand( command );
-
-        default:
-            EQWARN << "Unhandled command " << command << std::endl;
-            return false;
-    }
-}
-
-bool ObjectStore::_invokeObjectCommand( Command& command )
+bool ObjectStore::invokeObjectCommand( Command& command )
 {
     EQASSERT( command.isValid( ));
     EQASSERT( command->type == PACKETTYPE_EQNET_OBJECT );
@@ -716,8 +674,8 @@ Object* ObjectStore::_findObject( Command& command )
 
 bool ObjectStore::_cmdAckRequest( Command& command )
 {
-    const ObjectStoreAckRequestPacket* packet = 
-        command.getPacket<ObjectStoreAckRequestPacket>();
+    const NodeAckRequestPacket* packet = 
+        command.getPacket<NodeAckRequestPacket>();
     EQASSERT( packet->requestID != EQ_ID_INVALID );
 
     _localNode->serveRequest( packet->requestID );
@@ -728,13 +686,13 @@ bool ObjectStore::_cmdFindMasterNodeID( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
 
-    const ObjectStoreFindMasterNodeID* packet = 
-          command.getPacket<ObjectStoreFindMasterNodeID>();
+    const NodeFindMasterNodeID* packet = 
+          command.getPacket<NodeFindMasterNodeID>();
 
     const base::UUID& id = packet->identifier;
     EQASSERT( id.isGenerated() );
 
-    ObjectStoreFindMasterNodeIDReply reply( packet );
+    NodeFindMasterNodeIDReply reply( packet );
     base::ScopedMutex< base::SpinLock > mutex( _objects );
     ObjectsHash::const_iterator i = _objects->find( id );
     
@@ -764,8 +722,8 @@ bool ObjectStore::_cmdFindMasterNodeID( Command& command )
 
 bool ObjectStore::_cmdFindMasterNodeIDReply( Command& command )
 {
-    const ObjectStoreFindMasterNodeIDReply* packet = 
-          command.getPacket<ObjectStoreFindMasterNodeIDReply>();
+    const NodeFindMasterNodeIDReply* packet = 
+          command.getPacket<NodeFindMasterNodeIDReply>();
 
     _localNode->serveRequest( packet->requestID, packet->masterNodeID );
 
@@ -775,8 +733,8 @@ bool ObjectStore::_cmdFindMasterNodeIDReply( Command& command )
 bool ObjectStore::_cmdAttachObject( Command& command )
 {
     EQ_TS_THREAD( _receiverThread );
-    const ObjectStoreAttachObjectPacket* packet = 
-        command.getPacket<ObjectStoreAttachObjectPacket>();
+    const NodeAttachObjectPacket* packet = 
+        command.getPacket<NodeAttachObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd attach object " << packet << std::endl;
 
     Object* object = static_cast< Object* >( _localNode->getRequestData( 
@@ -789,8 +747,8 @@ bool ObjectStore::_cmdAttachObject( Command& command )
 bool ObjectStore::_cmdDetachObject( Command& command )
 {
     EQ_TS_THREAD( _receiverThread );
-    const ObjectStoreDetachObjectPacket* packet = 
-        command.getPacket<ObjectStoreDetachObjectPacket>();
+    const NodeDetachObjectPacket* packet = 
+        command.getPacket<NodeDetachObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd detach object " << packet << std::endl;
 
     const base::UUID& id = packet->objectID;
@@ -819,8 +777,8 @@ bool ObjectStore::_cmdDetachObject( Command& command )
 bool ObjectStore::_cmdRegisterObject( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
-    const ObjectStoreRegisterObjectPacket* packet = 
-        command.getPacket< ObjectStoreRegisterObjectPacket >();
+    const NodeRegisterObjectPacket* packet = 
+        command.getPacket< NodeRegisterObjectPacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd register object " << packet << std::endl;
 
     const uint32_t size = Global::getIAttribute( 
@@ -845,8 +803,8 @@ bool ObjectStore::_cmdRegisterObject( Command& command )
 bool ObjectStore::_cmdDeregisterObject( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
-    const ObjectStoreDeregisterObjectPacket* packet = 
-        command.getPacket< ObjectStoreDeregisterObjectPacket >();
+    const NodeDeregisterObjectPacket* packet = 
+        command.getPacket< NodeDeregisterObjectPacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd deregister object " << packet << std::endl;
 
     Object* object = static_cast<Object*>(
@@ -868,8 +826,8 @@ bool ObjectStore::_cmdDeregisterObject( Command& command )
 bool ObjectStore::_cmdMapObject( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
-    ObjectStoreMapObjectPacket* packet =
-        command.getPacket<ObjectStoreMapObjectPacket>();
+    NodeMapObjectPacket* packet =
+        command.getPacket<NodeMapObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd map object " << packet << std::endl;
 
     NodePtr        node = command.getNode();
@@ -896,7 +854,7 @@ bool ObjectStore::_cmdMapObject( Command& command )
         }
     }
     
-    ObjectStoreMapObjectReplyPacket reply( packet );
+    NodeMapObjectReplyPacket reply( packet );
     reply.nodeID = node->getNodeID();
 
     if( master )
@@ -907,7 +865,7 @@ bool ObjectStore::_cmdMapObject( Command& command )
         if( version == VERSION_OLDEST || version == VERSION_NONE ||
             version >= oldestVersion)
         {
-            ObjectStoreMapObjectSuccessPacket successPacket( packet );
+            NodeMapObjectSuccessPacket successPacket( packet );
             successPacket.changeType       = master->getChangeType();
             successPacket.masterInstanceID = master->getInstanceID();
             successPacket.nodeID = node->getNodeID();
@@ -950,8 +908,8 @@ bool ObjectStore::_cmdMapObject( Command& command )
 bool ObjectStore::_cmdMapObjectSuccess( Command& command )
 {
     EQ_TS_THREAD( _receiverThread );
-    const ObjectStoreMapObjectSuccessPacket* packet = 
-        command.getPacket<ObjectStoreMapObjectSuccessPacket>();
+    const NodeMapObjectSuccessPacket* packet = 
+        command.getPacket<NodeMapObjectSuccessPacket>();
 
     // Map success packets are potentially multicasted (see above)
     // verify that we are the intended receiver
@@ -977,8 +935,8 @@ bool ObjectStore::_cmdMapObjectSuccess( Command& command )
 bool ObjectStore::_cmdMapObjectReply( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
-    const ObjectStoreMapObjectReplyPacket* packet = 
-        command.getPacket<ObjectStoreMapObjectReplyPacket>();
+    const NodeMapObjectReplyPacket* packet = 
+        command.getPacket<NodeMapObjectReplyPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd map object reply " << packet
                          << std::endl;
 
@@ -1031,8 +989,8 @@ bool ObjectStore::_cmdMapObjectReply( Command& command )
 bool ObjectStore::_cmdUnsubscribeObject( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
-    ObjectStoreUnsubscribeObjectPacket* packet =
-        command.getPacket<ObjectStoreUnsubscribeObjectPacket>();
+    NodeUnsubscribeObjectPacket* packet =
+        command.getPacket<NodeUnsubscribeObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd unsubscribe object  " << packet << std::endl;
 
     NodePtr        node = command.getNode();
@@ -1059,7 +1017,7 @@ bool ObjectStore::_cmdUnsubscribeObject( Command& command )
         }
     }
 
-    ObjectStoreDetachObjectPacket detachPacket( packet );
+    NodeDetachObjectPacket detachPacket( packet );
     node->send( detachPacket );
     return true;
 }
@@ -1067,8 +1025,8 @@ bool ObjectStore::_cmdUnsubscribeObject( Command& command )
 bool ObjectStore::_cmdUnmapObject( Command& command )
 {
     EQ_TS_THREAD( _receiverThread );
-    const ObjectStoreUnmapObjectPacket* packet = 
-        command.getPacket< ObjectStoreUnmapObjectPacket >();
+    const NodeUnmapObjectPacket* packet = 
+        command.getPacket< NodeUnmapObjectPacket >();
 
     EQLOG( LOG_OBJECTS ) << "Cmd unmap object " << packet << std::endl;
     if( _instanceCache )
@@ -1116,13 +1074,13 @@ bool ObjectStore::_cmdInstance( Command& command )
         EQASSERT( packet->instanceID <= EQ_ID_MAX );
 
         usage = 1;
-        result = _dispatchObjectCommand( command );
+        result = dispatchObjectCommand( command );
     }
     else if( packet->instanceID != EQ_ID_NONE )
     {
         EQASSERTINFO( packet->instanceID == EQ_ID_ANY, packet );
         packet->instanceID = EQ_ID_NONE; // drop if there are no local instances
-        result = _dispatchObjectCommand( command );
+        result = dispatchObjectCommand( command );
     }
 
     if( _instanceCache )

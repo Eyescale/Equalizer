@@ -130,8 +130,8 @@ std::ostream& operator << ( std::ostream& os, const Command& command )
         const Packet* packet = command.getPacket() ;
         switch( packet->type )
         {
-            case PACKETTYPE_EQNET_OBJECTSTORE:
-                os << static_cast< const ObjectStorePacket* >( packet );
+            case PACKETTYPE_EQNET_NODE:
+                os << static_cast< const NodePacket* >( packet );
                 break;
 
             case PACKETTYPE_EQNET_OBJECT:
