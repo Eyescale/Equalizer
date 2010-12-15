@@ -122,7 +122,7 @@ ObjectStore::~ObjectStore()
 
 void ObjectStore::clear( )
 {
-   // EQASSERT( _objects->empty( ));
+    EQASSERT( _objects->empty( ));
     expireInstanceData( 0 );
     _objects->clear();
     _sendQueue.clear();

@@ -246,7 +246,7 @@ void Pipe::_runThread()
     EQASSERT( config );
     EQASSERT( _pipeThreadQueue );
 
-    while( _thread->isRunning( ))
+    while( _pipeThreadQueue )
     {
         const int64_t startWait = config->getTime();
         net::Command* command = _pipeThreadQueue->pop();
@@ -257,7 +257,7 @@ void Pipe::_runThread()
         command->release();
     }
 
-    EQUNREACHABLE; // since we are exited from _cmdConfigExit
+    EQINFO << "Leaving pipe thread" << std::endl;
 }
 
 net::CommandQueue* Pipe::getPipeThreadQueue()
@@ -431,7 +431,6 @@ void Pipe::startThread()
 {
     _pipeThreadQueue = new CommandQueue;
     _thread          = new PipeThread( this );
-
     _thread->start();
 }
 
@@ -446,9 +445,6 @@ void Pipe::joinThread()
     _thread->join();
     delete _thread;
     _thread = 0;
-
-    delete _pipeThreadQueue;
-    _pipeThreadQueue = 0;
 }
 
 void Pipe::waitExited() const
@@ -769,8 +765,8 @@ bool Pipe::_cmdConfigInit( net::Command& command )
         _state = STATE_INITIALIZING;
 
         _windowSystem = selectWindowSystem();
-
         reply.result = configInit( packet->initID );
+
         _setupCommandQueue();
         if( reply.result )
             _state = STATE_RUNNING;
@@ -811,13 +807,11 @@ bool Pipe::_cmdExitThread( net::Command& command )
     EQASSERT( _thread );
 
     // cleanup
-    command.release();
     _pipeThreadQueue->flush();
     _exitCommandQueue();
+    delete _pipeThreadQueue;
+    _pipeThreadQueue = 0;
 
-    EQINFO << "Leaving pipe thread" << std::endl;
-    _thread->exit();
-    EQUNREACHABLE;
     return true;
 }
 

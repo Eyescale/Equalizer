@@ -137,7 +137,7 @@ int main( const int argc, char** argv )
     registry.eraseString( ERROR_NODE_INIT );
     registry.eraseString( ERROR_PIPE_INIT );
     client->exitLocal();
-    TESTINFO( client->getRefCount() == 1, client->getRefCount( ));
+    TESTINFO( client->getRefCount() == 1, client );
 
     eq::exit();
     return EXIT_SUCCESS;

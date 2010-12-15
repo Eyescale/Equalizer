@@ -23,9 +23,9 @@
 #include <eq/base/atomic.h>   // member
 #ifdef EQ_REFERENCED_DEBUG
 #  include <eq/base/hash.h>
+#  include <eq/base/lock.h>
 #  include <eq/base/lockable.h>
 #  include <eq/base/scopedMutex.h>
-#  include <eq/base/spinLock.h>
 #endif
 
 #include <typeinfo>
@@ -57,7 +57,7 @@ namespace base
 #ifdef EQ_REFERENCED_DEBUG
             std::stringstream cs;
             cs << backtrace;
-            ScopedMutex< SpinLock > referencedMutex( _holders );
+            ScopedMutex<> referencedMutex( _holders );
             HolderHash::iterator i = _holders->find( holder );
             EQASSERTINFO( i == _holders->end(), i->second );
             _holders.data[ holder ] = cs.str();
@@ -82,7 +82,7 @@ namespace base
 #ifdef EQ_REFERENCED_DEBUG
                 else
                 {
-                    ScopedMutex< SpinLock > referencedMutex( _holders );
+                    ScopedMutex<> referencedMutex( _holders );
                     HolderHash::iterator i = _holders->find( holder );
                     EQASSERT( i != _holders->end( ));
                     _holders->erase( i );
@@ -97,7 +97,7 @@ namespace base
         void printHolders( std::ostream& os ) const
             {
                 os << disableFlush << disableHeader;
-                ScopedMutex< SpinLock > referencedMutex( _holders );
+                ScopedMutex<> referencedMutex( _holders );
                 for( HolderHash::const_iterator i = _holders->begin();
                      i != _holders->end(); ++i )
                 {
@@ -144,7 +144,7 @@ namespace base
 
 #ifdef EQ_REFERENCED_DEBUG
         typedef PtrHash< const void*, std::string > HolderHash;
-        mutable Lockable< HolderHash, SpinLock > _holders;
+        mutable Lockable< HolderHash, Lock > _holders;
 #endif
     };
 }
