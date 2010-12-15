@@ -573,11 +573,12 @@ bool Node::_cmdFrameDataTransmit( net::Command& command )
     EQASSERT( packet->pvp.isValid( ));
 
     FrameData* frameData = getFrameData( packet->frameData );
-    EQCHECK( frameData->isReady() );
+    EQASSERT( !frameData->isReady() );
+
     NodeStatistics event( Statistic::NODE_FRAME_DECOMPRESS, this,
                           packet->frameNumber );
-
-    return frameData->addImage( packet );
+    EQCHECK( frameData->addImage( packet ));
+    return true;
 }
 
 bool Node::_cmdFrameDataReady( net::Command& command )
