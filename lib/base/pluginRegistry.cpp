@@ -135,21 +135,22 @@ void PluginRegistry::init()
     for( Strings::const_iterator i = _directories.begin();
          i != _directories.end(); ++i )
     {
-        const std::string& directory = *i;
-        EQLOG( LOG_PLUGIN ) << "Searching plugins in " << directory
-                            << std::endl;
+        const std::string& dir = *i;
+        EQLOG( LOG_PLUGIN ) << "Searching plugins in " << dir << std::endl;
 
         // search the number of files in the director
 #ifdef _WIN32
-        Strings files = searchDirectory( directory, "EqualizerCompressor*.dll");
+        Strings files = searchDirectory( dir, "EqualizerCompressor*.dll");
         const char DIRSEP = '\\';
 #elif defined (Darwin)
-        Strings files = searchDirectory( directory, "libeqCompressor*.dylib" ) +
-            searchDirectory( directory, "libEqualizerCompressor*.dylib" );
+        Strings files = searchDirectory( dir, "libEqualizerCompressor*.dylib" );
+        Strings oldFiles = searchDirectory( dir, "libeqCompressor*.dylib" );
+        files.insert( files.end(), oldFiles.begin(), oldFiles.end( ));
         const char DIRSEP = '/';
 #else
-        Strings files = searchDirectory( directory, "libeqCompressor*.so" ) +
-            searchDirectory( directory, "libEqualizerCompressor*.so" );
+        Strings files = searchDirectory( dir, "libEqualizerCompressor*.so" );
+        Strings oldFiles = searchDirectory( dir, "libeqCompressor*.so" );
+        files.insert( files.end(), oldFiles.begin(), oldFiles.end( ));
         const char DIRSEP = '/';
 #endif
         
@@ -157,8 +158,8 @@ void PluginRegistry::init()
         for( Strings::const_iterator j = files.begin(); j != files.end(); ++j )
         {
             // build path + name of library
-            const std::string libraryName = 
-                directory.empty() ? *j : directory + DIRSEP + *j;
+            const std::string libraryName =
+                dir.empty() ? *j : dir + DIRSEP + *j;
             _initPlugin( libraryName );
         }
     }
