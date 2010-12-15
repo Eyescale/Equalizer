@@ -6,6 +6,7 @@ clean:
 	rm -rf debug release docs XCode debug_glx man cdash
 
 DOXYGEN ?= doxygen
+PYTHON ?= python
 
 debug: debug/Makefile
 	@$(MAKE) -C debug
@@ -66,4 +67,4 @@ RELNOTES.txt: libs/RelNotes.dox
 	-links -dump $< > $@.tmp && mv $@.tmp $@
 
 README.rst: libs/RelNotes.dox
-	-$(PYTHON) make/html2rst.py $< > $@
+	-$(PYTHON) CMake/html2rst.py $< > $@
