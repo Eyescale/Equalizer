@@ -800,7 +800,7 @@ void Node::output( std::ostream& os ) const
 }
 }
 
-#include "../libs/fabric/node.ipp"
+#include "../fabric/node.ipp"
 template class eq::fabric::Node< eq::server::Config, eq::server::Node,
                                  eq::server::Pipe, eq::server::NodeVisitor >;
 /** @cond IGNORE */

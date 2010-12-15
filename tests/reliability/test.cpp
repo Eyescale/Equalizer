@@ -17,7 +17,7 @@
 
 #include <test.h>
 #include <eq/eq.h>
-#include "server/global.h"
+#include "libs/server/global.h"
 
 eq::base::a_int32_t drawCalls;
 eq::base::a_int32_t readbackCalls;

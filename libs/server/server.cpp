@@ -476,7 +476,7 @@ bool Server::_cmdUnmap( net::Command& command )
 
 }
 }
-#include "../libs/fabric/server.ipp"
+#include "../fabric/server.ipp"
 template class eq::fabric::Server< eq::net::Node, eq::server::Server,
                                    eq::server::Config,
                                    eq::server::NodeFactory,

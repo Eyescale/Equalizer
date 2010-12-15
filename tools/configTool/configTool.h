@@ -18,7 +18,7 @@
 #ifndef EQ_CONFIGTOOL_H
 #define EQ_CONFIGTOOL_H
 
-#include <server/config.h>
+#include <libs/server/config.h>
 
 #include <string>
 

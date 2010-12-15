@@ -15,56 +15,44 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "window.h"
+#include "layout.h"
 
-#include "channel.h"
 #include "config.h"
-#include "node.h"
 #include "nodeFactory.h"
-#include "pipe.h"
+#include "view.h"
 #include "server.h"
 
 namespace eq
 {
 namespace admin
 {
-typedef fabric::Window< Pipe, Window, Channel > Super;
+typedef fabric::Layout< Config, Layout, View > Super;
 
-Window::Window( Pipe* parent )
+Layout::Layout( Config* parent )
         : Super( parent )
-{}
-
-Window::~Window()
-{}
-
-const Config* Window::getConfig() const
 {
-    const Pipe* pipe = getPipe();
-    EQASSERT( pipe );
-    return ( pipe ? pipe->getConfig() : 0 );
 }
 
-Config* Window::getConfig() 
+Layout::~Layout()
 {
-    Pipe* pipe = getPipe();
-    EQASSERT( pipe );
-    return ( pipe ? pipe->getConfig() : 0 );
 }
 
-ServerPtr Window::getServer() 
+ServerPtr Layout::getServer() 
 {
-    Pipe* pipe = getPipe();
-    EQASSERT( pipe );
-    return ( pipe ? pipe->getServer() : 0 );
+    Config* config = getConfig();
+    EQASSERT( config );
+    return ( config ? config->getServer() : 0 );
 }
 
 }
 }
 
-#include "../libs/fabric/window.ipp"
-template class eq::fabric::Window< eq::admin::Pipe, eq::admin::Window,
-                                   eq::admin::Channel >;
+#include "../fabric/layout.ipp"
+template class eq::fabric::Layout< eq::admin::Config, eq::admin::Layout,
+                                   eq::admin::View >;
+
 /** @cond IGNORE */
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
-                                                      const eq::admin::Super& );
+                                                 const eq::admin::Super& );
 /** @endcond */
+

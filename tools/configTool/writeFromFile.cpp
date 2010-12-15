@@ -18,14 +18,14 @@
 #include "configTool.h"
 #include "frame.h"
 
-#include <server/equalizers/framerateEqualizer.h>
-#include <server/canvas.h>
-#include <server/global.h>
-#include <server/layout.h>
-#include <server/node.h>
-#include <server/segment.h>
-#include <server/view.h>
-#include <server/window.h>
+#include <libs/server/equalizers/framerateEqualizer.h>
+#include <libs/server/canvas.h>
+#include <libs/server/global.h>
+#include <libs/server/layout.h>
+#include <libs/server/node.h>
+#include <libs/server/segment.h>
+#include <libs/server/view.h>
+#include <libs/server/window.h>
 
 #include <eq/fabric/viewport.h>
 

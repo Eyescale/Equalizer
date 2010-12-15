@@ -15,63 +15,55 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "channel.h"
-
-#include "server.h"
 #include "window.h"
+
+#include "channel.h"
+#include "config.h"
+#include "node.h"
+#include "nodeFactory.h"
+#include "pipe.h"
+#include "server.h"
 
 namespace eq
 {
 namespace admin
 {
-typedef fabric::Channel< Window, Channel > Super;
+typedef fabric::Window< Pipe, Window, Channel > Super;
 
-Channel::Channel( Window* parent )
+Window::Window( Pipe* parent )
         : Super( parent )
 {}
 
-Channel::~Channel()
+Window::~Window()
 {}
 
-Pipe* Channel::getPipe()
+const Config* Window::getConfig() const
 {
-    Window* window = getWindow();
-    EQASSERT( window );
-    return ( window ? window->getPipe() : 0 );
-}
-const Pipe* Channel::getPipe() const
-{
-    const Window* window = getWindow();
-    EQASSERT( window );
-    return ( window ? window->getPipe() : 0 );
+    const Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return ( pipe ? pipe->getConfig() : 0 );
 }
 
-Config* Channel::getConfig()
+Config* Window::getConfig() 
 {
-    Window* window = getWindow();
-    EQASSERT( window );
-    return ( window ? window->getConfig() : 0 );
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return ( pipe ? pipe->getConfig() : 0 );
 }
 
-const Config* Channel::getConfig() const
+ServerPtr Window::getServer() 
 {
-    const Window* window = getWindow();
-    EQASSERT( window );
-    return ( window ? window->getConfig() : 0 );
-}
-
-ServerPtr Channel::getServer()
-{
-    Window* window = getWindow();
-    EQASSERT( window );
-    return ( window ? window->getServer() : 0 );
+    Pipe* pipe = getPipe();
+    EQASSERT( pipe );
+    return ( pipe ? pipe->getServer() : 0 );
 }
 
 }
 }
 
-#include "../libs/fabric/channel.ipp"
-template class eq::fabric::Channel< eq::admin::Window, eq::admin::Channel >;
+#include "../fabric/window.ipp"
+template class eq::fabric::Window< eq::admin::Pipe, eq::admin::Window,
+                                   eq::admin::Channel >;
 /** @cond IGNORE */
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
                                                       const eq::admin::Super& );

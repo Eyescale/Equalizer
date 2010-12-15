@@ -74,7 +74,7 @@ eq_add_tool(windowAdmin
 
 eq_add_tool(eqServer
   SOURCES
-    ../server/eqServer.cpp
+    ../libs/server/eqServer.cpp
   LINK_LIBRARIES
     shared EqualizerServer
   )

@@ -15,11 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "canvas.h"
+#include "observer.h"
 
 #include "config.h"
 #include "layout.h"
-#include "nodeFactory.h"
 #include "segment.h"
 #include "server.h"
 
@@ -27,18 +26,18 @@ namespace eq
 {
 namespace admin
 {
-typedef fabric::Canvas< Config, Canvas, Segment, Layout > Super;
+typedef fabric::Observer< Config, Observer > Super;
 
-Canvas::Canvas( Config* parent )
+Observer::Observer( Config* parent )
         : Super( parent )
 {
 }
 
-Canvas::~Canvas()
+Observer::~Observer()
 {
 }
 
-ServerPtr Canvas::getServer() 
+ServerPtr Observer::getServer() 
 {
     Config* config = getConfig();
     EQASSERT( config );
@@ -48,12 +47,10 @@ ServerPtr Canvas::getServer()
 }
 }
 
-#include "../libs/fabric/canvas.ipp"
-template class eq::fabric::Canvas< eq::admin::Config, eq::admin::Canvas,
-                                   eq::admin::Segment, eq::admin::Layout >;
+#include "../fabric/observer.ipp"
+template class eq::fabric::Observer< eq::admin::Config, eq::admin::Observer >;
 
 /** @cond IGNORE */
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
                                                  const eq::admin::Super& );
 /** @endcond */
-

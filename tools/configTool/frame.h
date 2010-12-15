@@ -19,7 +19,7 @@
 #ifndef EQ_CONFIGTOOL_FRAME_H
 #define EQ_CONFIGTOOL_FRAME_H
 
-#include <server/frame.h>
+#include <libs/server/frame.h>
 
 #include <string>
 #include <iostream>

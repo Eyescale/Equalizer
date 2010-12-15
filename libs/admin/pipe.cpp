@@ -15,43 +15,74 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "node.h"
-
-#include "config.h"
-#include "layout.h"
-#include "nodeFactory.h"
 #include "pipe.h"
-#include "segment.h"
+
+#include "client.h"
+#include "config.h"
+#include "node.h"
+#include "nodeFactory.h"
 #include "server.h"
+#include "window.h"
 
 namespace eq
 {
 namespace admin
 {
-typedef fabric::Node< Config, Node, Pipe, NodeVisitor > Super;
+typedef fabric::Pipe< Node, Pipe, Window, PipeVisitor > Super;
 
-Node::Node( Config* parent )
+Pipe::Pipe( Node* parent )
         : Super( parent )
 {}
 
-Node::~Node()
+Pipe::~Pipe()
 {}
 
-ServerPtr Node::getServer()
+Config* Pipe::getConfig()
+{
+    Node* node = getNode();
+    EQASSERT( node );
+    return ( node ? node->getConfig() : 0);
+}
+
+const Config* Pipe::getConfig() const
+{
+    const Node* node = getNode();
+    EQASSERT( node );
+    return ( node ? node->getConfig() : 0);
+}
+
+
+ServerPtr Pipe::getServer()
 {
     Config* config = getConfig();
     EQASSERT( config );
     return ( config ? config->getServer() : 0 );
 }
 
+ClientPtr Pipe::getClient()
+{
+    ServerPtr server = getServer();
+    EQASSERT( server.isValid( ));
+
+    if( !server )
+        return 0;
+    return server->getClient();
+}
+
+net::CommandQueue* Pipe::getMainThreadQueue()
+{
+    return getServer()->getMainThreadQueue();
+}
+
+
 }
 }
 
-#include "../libs/fabric/node.ipp"
-template class eq::fabric::Node< eq::admin::Config, eq::admin::Node,
-                                 eq::admin::Pipe, eq::admin::NodeVisitor >;
+#include "../fabric/pipe.ipp"
+template class eq::fabric::Pipe< eq::admin::Node, eq::admin::Pipe,
+                                 eq::admin::Window, eq::admin::PipeVisitor >;
+
 /** @cond IGNORE */
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
-                                                const eq::admin::Super& );
+                                                 const eq::admin::Super& );
 /** @endcond */
-

@@ -15,41 +15,30 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "view.h"
+#include "canvas.h"
 
 #include "config.h"
 #include "layout.h"
-#include "observer.h"
+#include "nodeFactory.h"
+#include "segment.h"
 #include "server.h"
 
 namespace eq
 {
 namespace admin
 {
-typedef fabric::View< Layout, View, Observer > Super;
+typedef fabric::Canvas< Config, Canvas, Segment, Layout > Super;
 
-View::View( Layout* parent )
+Canvas::Canvas( Config* parent )
         : Super( parent )
-{}
-
-View::~View()
-{}
-
-Config* View::getConfig()
 {
-    Layout* layout = getLayout();
-    EQASSERT( layout );
-    return layout ? layout->getConfig() : 0;
 }
 
-const Config* View::getConfig() const
+Canvas::~Canvas()
 {
-    const Layout* layout = getLayout();
-    EQASSERT( layout );
-    return layout ? layout->getConfig() : 0;
 }
 
-ServerPtr View::getServer() 
+ServerPtr Canvas::getServer() 
 {
     Config* config = getConfig();
     EQASSERT( config );
@@ -59,11 +48,12 @@ ServerPtr View::getServer()
 }
 }
 
-#include "../libs/fabric/view.ipp"
-template class eq::fabric::View< eq::admin::Layout, eq::admin::View,
-                                 eq::admin::Observer >;
+#include "../fabric/canvas.ipp"
+template class eq::fabric::Canvas< eq::admin::Config, eq::admin::Canvas,
+                                   eq::admin::Segment, eq::admin::Layout >;
 
 /** @cond IGNORE */
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
                                                  const eq::admin::Super& );
 /** @endcond */
+

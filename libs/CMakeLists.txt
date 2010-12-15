@@ -46,6 +46,8 @@ add_subdirectory(base)
 add_subdirectory(net)
 add_subdirectory(fabric)
 add_subdirectory(client)
+add_subdirectory(admin)
+add_subdirectory(server)
 
 # TODO: split this library
 purple_add_library(eq ${EQ_LIB_VARIANT}
