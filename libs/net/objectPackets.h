@@ -75,7 +75,7 @@ namespace net
             {
                 command    = CMD_OBJECT_DELTA;
                 size       = sizeof( ObjectDeltaPacket ); 
-                instanceID = EQ_ID_NONE; // multicasted
+                instanceID = EQ_INSTANCE_NONE; // multicasted
             }
         EQ_ALIGN8( uint8_t data[8] );
     };

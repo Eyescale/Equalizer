@@ -47,7 +47,7 @@ namespace net
          * @name Versioning
          */
         //@{
-        virtual uint32_t commitNB() { EQDONTCALL; return EQ_ID_INVALID; }
+        virtual uint32_t commitNB() { EQDONTCALL; return EQ_UNDEFINED_UINT32; }
         virtual uint128_t commitSync( const uint32_t )
             { EQDONTCALL; return VERSION_NONE; }
 
@@ -66,7 +66,7 @@ namespace net
         virtual bool isMaster() const { return true; }
         virtual NodePtr getMasterNode();
         virtual uint32_t getMasterInstanceID() const
-            { EQDONTCALL; return EQ_ID_INVALID; }
+            { EQDONTCALL; return EQ_INSTANCE_INVALID; }
         virtual uint128_t addSlave( Command& command );
         virtual void removeSlave( NodePtr ) {}
 

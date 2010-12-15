@@ -29,7 +29,7 @@ namespace fabric
     struct ServerCreateConfigPacket : public ServerPacket
     {
         ServerCreateConfigPacket()
-                : requestID( EQ_ID_INVALID )
+                : requestID( EQ_UNDEFINED_UINT32 )
             {
                 command   = CMD_SERVER_CREATE_CONFIG;
                 size      = sizeof( ServerCreateConfigPacket );
@@ -42,7 +42,7 @@ namespace fabric
     struct ServerDestroyConfigPacket : public ServerPacket
     {
         ServerDestroyConfigPacket()
-                : requestID ( EQ_ID_INVALID )
+                : requestID ( EQ_UNDEFINED_UINT32 )
             {
                 command = CMD_SERVER_DESTROY_CONFIG;
                 size    = sizeof( ServerDestroyConfigPacket );

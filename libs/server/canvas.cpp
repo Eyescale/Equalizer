@@ -93,14 +93,14 @@ void Canvas::activateLayout( const uint32_t index )
 void Canvas::init()
 {
     EQASSERT( _state == STATE_STOPPED );
-    _switchLayout( EQ_ID_NONE, getActiveLayoutIndex( ));
+    _switchLayout( EQ_UNDEFINED_UINT32, getActiveLayoutIndex( ));
     _state = STATE_RUNNING;
 }
 
 void Canvas::exit()
 {
     EQASSERT( _state == STATE_RUNNING || _state == STATE_DELETE );
-    _switchLayout( getActiveLayoutIndex(), EQ_ID_NONE );
+    _switchLayout( getActiveLayoutIndex(), EQ_UNDEFINED_UINT32 );
     if( _state == STATE_RUNNING )
         _state = STATE_STOPPED;
 }
@@ -118,7 +118,7 @@ void Canvas::_switchLayout( const uint32_t oldIndex, const uint32_t newIndex )
     if( oldLayout )
         oldLayout->trigger( this, false );
 
-    if( newIndex == EQ_ID_NONE )
+    if( newIndex == EQ_UNDEFINED_UINT32 )
         return;
 
     Super::activateLayout( newIndex );

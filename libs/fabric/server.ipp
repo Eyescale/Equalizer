@@ -92,7 +92,7 @@ Server< CL, S, CFG, NF, N >::_cmdCreateConfig( net::Command& command )
     CFG* config = _nodeFactory->createConfig( static_cast< S* >( this ));
     net::LocalNodePtr localNode = command.getLocalNode();
     localNode->mapObject( config, packet->configVersion );
-    if( packet->requestID <= EQ_ID_MAX )
+    if( packet->requestID != EQ_UNDEFINED_UINT32 )
     {
         ConfigCreateReplyPacket reply( packet );
         command.getNode()->send( reply );
@@ -125,7 +125,7 @@ Server< CL, S, CFG, NF, N >::_cmdDestroyConfig( net::Command& command )
     localNode->unmapObject( config );
     _nodeFactory->releaseConfig( config );
 
-    if( packet->requestID <= EQ_ID_MAX )
+    if( packet->requestID != EQ_UNDEFINED_UINT32 )
     {
         ServerDestroyConfigReplyPacket reply( packet );
         command.getNode()->send( reply );

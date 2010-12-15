@@ -38,7 +38,7 @@ namespace net
     struct NodeConnectPacket : public NodePacket
     {
         NodeConnectPacket()
-                : requestID( EQ_ID_INVALID )
+                : requestID( EQ_UNDEFINED_UINT32 )
                 , fill( 0 )
             {
                 command     = CMD_NODE_CONNECT;
@@ -212,7 +212,7 @@ namespace net
     struct NodeFindMasterNodeID : public NodePacket
     {
         NodeFindMasterNodeID()
-                : requestID( EQ_ID_INVALID )
+                : requestID( EQ_UNDEFINED_UINT32 )
             {
                 command   = CMD_NODE_FIND_MASTER_NODE_ID;
                 size      = sizeof( NodeFindMasterNodeID ); 
@@ -365,17 +365,17 @@ namespace net
     struct NodeDetachObjectPacket : public NodePacket
     {
         NodeDetachObjectPacket()
+                : requestID( EQ_UNDEFINED_UINT32 )
         {
             command   = CMD_NODE_DETACH_OBJECT;
             size      = sizeof( NodeDetachObjectPacket ); 
-            requestID = EQ_ID_INVALID;
         }
 
         NodeDetachObjectPacket(const NodeUnsubscribeObjectPacket* request)
+                : requestID( request->requestID )
         {
             command   = CMD_NODE_DETACH_OBJECT;
             size      = sizeof( NodeDetachObjectPacket ); 
-            requestID = request->requestID;
             objectID  = request->objectID;
             objectInstanceID = request->slaveInstanceID;
         }

@@ -30,7 +30,7 @@ namespace net
 {
 ObjectInstanceDataOStream::ObjectInstanceDataOStream( const ObjectCM* cm )
         : ObjectDataOStream( cm )
-        , _instanceID( EQ_ID_ANY )
+        , _instanceID( EQ_INSTANCE_ALL )
 {}
 
 ObjectInstanceDataOStream::~ObjectInstanceDataOStream()
@@ -48,17 +48,18 @@ void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
     packet.instanceID       = _instanceID;
     packet.masterInstanceID = object->getInstanceID();
 
-    if( _instanceID == EQ_ID_NONE ) // send-on-register
+    if( _instanceID == EQ_INSTANCE_NONE ) // send-on-register
         packet.command = CMD_NODE_INSTANCE;
 
 #ifndef NDEBUG
     if( _nodeID == NodeID::ZERO )
     {
-        EQASSERT( _instanceID == EQ_ID_NONE || _instanceID == EQ_ID_ANY );
+        EQASSERT( _instanceID == EQ_INSTANCE_NONE ||
+                  _instanceID == EQ_INSTANCE_ALL );
     }
     else
     {
-        EQASSERT( _instanceID < EQ_ID_MAX );
+        EQASSERT( _instanceID < EQ_INSTANCE_MAX );
         EQASSERTINFO( _connections.size() == 1,
                       "Expected multicast to one group" );
     }

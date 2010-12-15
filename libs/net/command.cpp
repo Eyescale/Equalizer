@@ -30,7 +30,7 @@ Command::Command()
         , _data( 0 )
         , _dataSize( 0 )
         , _refCountMaster( 0 )
-        , _dispatchID( EQ_ID_INVALID )
+        , _dispatchID( EQ_INSTANCE_INVALID )
 {}
 
 Command::~Command() 
@@ -85,7 +85,7 @@ size_t Command::_alloc( NodePtr node, LocalNodePtr localNode, const uint64_t siz
     _node = node;
     _localNode = localNode;
     _refCountMaster = 0;
-    _dispatchID = EQ_ID_INVALID;
+    _dispatchID = EQ_INSTANCE_INVALID;
     _packet = _data;
     _packet->size = size;
 
@@ -102,7 +102,7 @@ void Command::_clone( Command& from )
     _packet = from._packet;
 
     _refCountMaster = &from._refCount;
-    _dispatchID = EQ_ID_INVALID;
+    _dispatchID = EQ_INSTANCE_INVALID;
 }
 
 void Command::_free()
@@ -119,7 +119,7 @@ void Command::_free()
     _node = 0;
     _localNode = 0;
     _refCountMaster = 0;
-    _dispatchID = EQ_ID_INVALID;
+    _dispatchID = EQ_INSTANCE_INVALID;
 }        
 
 std::ostream& operator << ( std::ostream& os, const Command& command )

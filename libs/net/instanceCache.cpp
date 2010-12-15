@@ -63,7 +63,7 @@ InstanceCache::~InstanceCache()
 }
 
 InstanceCache::Data::Data() 
-  : masterInstanceID( EQ_ID_INVALID )
+        : masterInstanceID( EQ_INSTANCE_INVALID )
 {}
 
 bool InstanceCache::Data::operator != ( const InstanceCache::Data& rhs ) const

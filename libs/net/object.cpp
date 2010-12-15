@@ -40,7 +40,7 @@ namespace net
 {
 Object::Object()
         : _id               ( true )
-        , _instanceID       ( EQ_ID_INVALID )
+        , _instanceID       ( EQ_INSTANCE_INVALID )
         , _cm               ( ObjectCM::ZERO )
 {}
 
@@ -48,7 +48,7 @@ Object::Object( const Object& object )
         : Dispatcher( object )
         , _id               ( true )
         , _localNode        ( 0 )
-        , _instanceID       ( EQ_ID_INVALID )
+        , _instanceID       ( EQ_INSTANCE_INVALID )
         , _cm               ( ObjectCM::ZERO )
 {}
 
@@ -74,7 +74,7 @@ void Object::attach( const base::UUID& id,
                      LocalNodePtr localNode )
 {
     EQASSERT( !isAttached() );
-    EQASSERT( instanceID <= EQ_ID_MAX );
+    EQASSERT( instanceID <= EQ_INSTANCE_MAX );
 
     _id         = id;
     _instanceID = instanceID;
@@ -98,7 +98,7 @@ void Object::attach( const base::UUID& id,
 
 void Object::detach()
 {
-    _instanceID = EQ_ID_INVALID;
+    _instanceID = EQ_INSTANCE_INVALID;
     _localNode = 0;
 }
 
@@ -219,14 +219,14 @@ uint32_t Object::commitNB()
     if( !isDirty( ))
     {
         _cm->increaseCommitCount();
-        return EQ_ID_INVALID;
+        return EQ_UNDEFINED_UINT32;
     }
     return _cm->commitNB();
 }
 
 uint128_t Object::commitSync( const uint32_t commitID ) 
 {
-    if( commitID == EQ_ID_INVALID )
+    if( commitID == EQ_UNDEFINED_UINT32 )
         return isMaster() ? getVersion() : VERSION_NONE;
 
     return _cm->commitSync( commitID );

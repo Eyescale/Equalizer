@@ -101,11 +101,6 @@ typedef SSIZE_T    ssize_t;
 #define EQ_48MB  (50331648)
 #define EQ_64MB  (67108864)
 
-#define EQ_ID_MAX     0xfffffff0u //!< The biggest identifier possible
-#define EQ_ID_NONE    0xfffffffdu //!< None/NULL identifier
-#define EQ_ID_INVALID 0xfffffffeu //!< Invalid/unset identifier
-#define EQ_ID_ANY     0xffffffffu //!< Any/all identifiers
-
 namespace eq
 {
 namespace base

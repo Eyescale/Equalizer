@@ -53,10 +53,8 @@ uint32_t RequestHandler::registerRequest( void* data )
     }
 
     request->data = data;
-    _requestID = ( _requestID + 1 ) % EQ_ID_MAX;
+    _requestID = ( _requestID + 1 ) % EQ_MAX_UINT32;
     _requests[ _requestID ] = request;
-
-    //EQINFO << "Registered " << _requestID << std::endl;
     return _requestID;
 }
 

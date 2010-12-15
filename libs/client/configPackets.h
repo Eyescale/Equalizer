@@ -216,10 +216,10 @@ namespace eq
     struct ConfigSwapObjectPacket : public ConfigPacket
     {
         ConfigSwapObjectPacket()
+                : requestID( EQ_UNDEFINED_UINT32 )
         {
             command   = fabric::CMD_CONFIG_SWAP_OBJECT;
             size      = sizeof( ConfigSwapObjectPacket ); 
-            requestID = EQ_ID_INVALID;
         }
         uint32_t         requestID;
         net::Object*     object;

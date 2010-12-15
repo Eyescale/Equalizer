@@ -53,7 +53,7 @@ void CommandQueue::push( Command& command )
 {
     EQASSERT( command.isValid( ));
     EQASSERT( command->type != PACKETTYPE_EQNET_OBJECT ||
-              command.getDispatchID() <= EQ_ID_MAX );
+              command.getDispatchID() <= EQ_INSTANCE_MAX );
     
     command.retain();
     _commands.push( &command );
@@ -63,7 +63,7 @@ void CommandQueue::pushFront( Command& command )
 {
     EQASSERT( command.isValid( ));
     EQASSERT( command->type != PACKETTYPE_EQNET_OBJECT ||
-              command.getDispatchID() <= EQ_ID_MAX );
+              command.getDispatchID() <= EQ_INSTANCE_MAX );
     
     command.retain();
     _commands.pushFront( &command );

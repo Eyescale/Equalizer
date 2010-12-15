@@ -208,8 +208,6 @@ void VertexBufferDist::applyInstanceData( eq::net::DataIStream& is )
         eq::net::LocalNodePtr localNode = getLocalNode();
         const uint32_t sync1 = localNode->mapObjectNB( _left, leftID );
         const uint32_t sync2 = localNode->mapObjectNB( _right, rightID );
-        EQASSERT( sync1 != EQ_ID_INVALID );
-        EQASSERT( sync2 != EQ_ID_INVALID );
 
         EQCHECK( localNode->mapObjectSync( sync1 ));
         EQCHECK( localNode->mapObjectSync( sync2 ));

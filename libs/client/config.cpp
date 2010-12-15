@@ -250,7 +250,7 @@ bool Config::update()
     uint32_t finishID = 0;
     client->waitRequest( packet.finishID, finishID );
 
-    if( finishID == EQ_ID_INVALID )
+    if( finishID == EQ_UNDEFINED_UINT32 )
     {
         sync( version );
         client->unregisterRequest( packet.requestID );
@@ -881,7 +881,7 @@ bool Config::_cmdSwapObject( net::Command& command )
     base::ScopedMutex< base::SpinLock > mutex( _latencyObjects );
     _latencyObjects->push_back( latencyObject );
 
-    EQASSERT( packet->requestID != EQ_ID_INVALID );
+    EQASSERT( packet->requestID != EQ_UNDEFINED_UINT32 );
     getLocalNode()->serveRequest( packet->requestID );
     return true;
 }

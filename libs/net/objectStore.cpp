@@ -197,7 +197,7 @@ uint32_t _genNextID( base::a_int32_t& val )
         result = static_cast< uint32_t >(
             static_cast< int64_t >( id ) + 0x7FFFFFFFu );
     }
-    while( result > EQ_ID_MAX );
+    while( result > EQ_INSTANCE_MAX );
 
     return result;
 }
@@ -210,7 +210,7 @@ void ObjectStore::_attachObject( Object* object, const base::UUID& id,
     EQ_TS_THREAD( _receiverThread );
 
     uint32_t instanceID = inInstanceID;
-    if( inInstanceID == EQ_ID_INVALID )
+    if( inInstanceID == EQ_INSTANCE_INVALID )
         instanceID = _genNextID( _instanceIDs );
 
     object->attach( id, instanceID, _localNode );
@@ -276,7 +276,7 @@ void ObjectStore::swapObject( Object* oldObject, Object* newObject )
 
     oldObject->_cm = ObjectCM::ZERO;
     oldObject->_localNode = 0;
-    oldObject->_instanceID = EQ_ID_INVALID;
+    oldObject->_instanceID = EQ_INSTANCE_INVALID;
 
     *j = newObject;
 }
@@ -306,13 +306,13 @@ void ObjectStore::_detachObject( Object* object )
             _objects->erase( id );
     }
 
-    EQASSERT( object->getInstanceID() != EQ_ID_INVALID );
+    EQASSERT( object->getInstanceID() != EQ_INSTANCE_INVALID );
     object->detach();
     return;
 }
 
 uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id,
-                               const uint128_t& version )
+                                   const uint128_t& version )
 {
     EQ_TS_NOT_THREAD( _commandThread );
     EQ_TS_NOT_THREAD( _receiverThread );
@@ -325,12 +325,12 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id,
     EQASSERTINFO( id.isGenerated(), id );
 
     if( !id.isGenerated( ))
-        return EQ_ID_INVALID;
+        return EQ_UNDEFINED_UINT32;
 
     NodePtr master = _connectMaster( id );
     EQASSERT( master );
     if( !master )
-        return EQ_ID_INVALID;
+        return EQ_UNDEFINED_UINT32;
 
     NodeMapObjectPacket packet;
     packet.requestID        = _localNode->registerRequest( object );
@@ -360,7 +360,7 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id,
 
 bool ObjectStore::mapObjectSync( const uint32_t requestID )
 {
-    if( requestID == EQ_ID_INVALID )
+    if( requestID == EQ_UNDEFINED_UINT32 )
         return false;
 
     void* data = _localNode->getRequestData( requestID );    
@@ -398,7 +398,7 @@ void ObjectStore::unmapObject( Object* object )
     EQ_TS_NOT_THREAD( _commandThread );
     
     const uint32_t masterInstanceID = object->getMasterInstanceID();
-    if( masterInstanceID != EQ_ID_INVALID )
+    if( masterInstanceID != EQ_INSTANCE_INVALID )
     {
         // TO-DO : may be we can take master node directly from the object
         const NodeID masterNodeID = _findMasterNodeID( id );
@@ -437,8 +437,9 @@ bool ObjectStore::registerObject( Object* object )
     const base::UUID& id = object->getID( );
     EQASSERTINFO( id.isGenerated(), id );
 
-    object->setupChangeManager( object->getChangeType(), true );
-    attachObject( object, id, EQ_ID_INVALID );
+    object->setupChangeManager( object->getChangeType(), true,
+                                EQ_INSTANCE_INVALID );
+    attachObject( object, id, EQ_INSTANCE_INVALID );
 
     if( Global::getIAttribute( Global::IATTR_NODE_SEND_QUEUE_SIZE )> 0 )
     {
@@ -523,7 +524,7 @@ NodePtr ObjectStore::_connectMaster( const base::UUID& id )
 
 void ObjectStore::ackRequest( NodePtr node, const uint32_t requestID )
 {
-    if( requestID == EQ_ID_INVALID ) // no need to ack operation
+    if( requestID == EQ_UNDEFINED_UINT32 ) // no need to ack operation
         return;
 
     if( node == _localNode ) // OPT
@@ -567,12 +568,12 @@ bool ObjectStore::dispatchObjectCommand( Command& command )
     if( i == _objects->end( ))
         // When the instance ID is set to none, we only care about the packet
         // when we have an object of the given ID (multicast)
-        return ( instanceID == EQ_ID_NONE );
+        return ( instanceID == EQ_INSTANCE_NONE );
 
     const Objects& objects = i->second;
     EQASSERTINFO( !objects.empty(), packet );
 
-    if( instanceID <= EQ_ID_MAX )
+    if( instanceID <= EQ_INSTANCE_MAX )
     {
         for( Objects::const_iterator j = objects.begin(); j!=objects.end(); ++j)
         {
@@ -590,7 +591,7 @@ bool ObjectStore::dispatchObjectCommand( Command& command )
     Objects::const_iterator j = objects.begin();
     Object* object = *j;
     EQCHECK( object->dispatchCommand( command ));
-    EQASSERTINFO( command.getDispatchID() <= EQ_ID_MAX, command );
+    EQASSERTINFO( command.getDispatchID() <= EQ_INSTANCE_MAX, command );
     EQASSERTINFO( command.getDispatchID() == object->getInstanceID(),
                   command.getDispatchID() << " != " << object->getInstanceID());
 
@@ -610,7 +611,7 @@ bool ObjectStore::dispatchObjectCommand( Command& command )
         instances.insert( instance );
 #endif
         EQCHECK( object->dispatchCommand( clone ));
-        EQASSERTINFO( clone.getDispatchID() <= EQ_ID_MAX, clone );
+        EQASSERTINFO( clone.getDispatchID() <= EQ_INSTANCE_MAX, clone );
         EQASSERTINFO( &clone == &command || // command already reused
                       clone.getDispatchID() != command.getDispatchID(),
                       command );
@@ -644,7 +645,7 @@ Object* ObjectStore::_findObject( Command& command )
     const ObjectPacket* packet = command.getPacket< ObjectPacket >();
     const base::UUID& id = packet->objectID;
     const uint32_t instanceID = command.getDispatchID();
-    EQASSERTINFO( instanceID <= EQ_ID_MAX, command );
+    EQASSERTINFO( instanceID <= EQ_INSTANCE_MAX, command );
 
     base::ScopedMutex< base::SpinLock > mutex( _objects );
     ObjectsHash::const_iterator i = _objects->find( id );
@@ -676,7 +677,7 @@ bool ObjectStore::_cmdAckRequest( Command& command )
 {
     const NodeAckRequestPacket* packet = 
         command.getPacket<NodeAckRequestPacket>();
-    EQASSERT( packet->requestID != EQ_ID_INVALID );
+    EQASSERT( packet->requestID != EQ_UNDEFINED_UINT32 );
 
     _localNode->serveRequest( packet->requestID );
     return true;
@@ -769,7 +770,7 @@ bool ObjectStore::_cmdDetachObject( Command& command )
         }
     }
 
-    EQASSERT( packet->requestID != EQ_ID_INVALID );
+    EQASSERT( packet->requestID != EQ_UNDEFINED_UINT32 );
     _localNode->serveRequest( packet->requestID );
     return true;
 }
@@ -1067,19 +1068,21 @@ bool ObjectStore::_cmdInstance( Command& command )
 
     // Packet is send due to:
     //  map request:      concrete nodeID and instanceID, dispatch
-    //  master commit:    instanceID == ANY, dispatch
+    //  master commit:    instanceID == ALL, dispatch
     //  send-on-register: instanceID == NONE, do not dispatch
     if( packet->nodeID == _localNode->getNodeID( ))
     {
-        EQASSERT( packet->instanceID <= EQ_ID_MAX );
+        EQASSERT( packet->instanceID <= EQ_INSTANCE_MAX );
 
         usage = 1;
         result = dispatchObjectCommand( command );
     }
-    else if( packet->instanceID != EQ_ID_NONE )
+    else if( packet->instanceID != EQ_INSTANCE_NONE )
     {
-        EQASSERTINFO( packet->instanceID == EQ_ID_ANY, packet );
-        packet->instanceID = EQ_ID_NONE; // drop if there are no local instances
+        EQASSERTINFO( packet->instanceID == EQ_INSTANCE_ALL, packet );
+
+        // drop if there are no local instances
+        packet->instanceID = EQ_INSTANCE_NONE;
         result = dispatchObjectCommand( command );
     }
 

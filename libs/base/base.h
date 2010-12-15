@@ -95,8 +95,11 @@ extern "C" char **environ;
 #include <eq/base/compiler.h>
 
 // defines
-/** A 'NULL' value for an uint32, typically used for identifiers and versions.*/
+/** A 'NULL' value for an uint32.*/
 #define EQ_UNDEFINED_UINT32   (0xffffffffu)
+/** The biggest usable value when using special uint32 values.*/
+#define EQ_MAX_UINT32         (0xfffffff0u)
+
 //#define EQ_UNDEFINED_FLOAT    (std::numeric_limits<float>::quiet_NaN( ))
 //#define EQ_UNDEFINED_INT32    (0x7fffffffu)
 

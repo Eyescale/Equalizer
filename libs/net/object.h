@@ -292,12 +292,12 @@ namespace net
          * @param type the type of the change manager.
          * @param master true if this object is the master.
          * @param masterInstanceID the instance identifier of the master object,
-         *                         when master == false.
+         *                         used when master == false.
          * @internal
          */
         void setupChangeManager( const Object::ChangeType type, 
                                  const bool master, 
-                             const uint32_t masterInstanceID = EQ_ID_INVALID );
+                                 const uint32_t masterInstanceID );
 
         /**
          * Called when object is attached to local node from the receiver thread.

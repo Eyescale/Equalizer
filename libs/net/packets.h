@@ -69,8 +69,8 @@ namespace net
     {
         ObjectPacket()
             {
-                type   = PACKETTYPE_EQNET_OBJECT; 
-                instanceID = EQ_ID_ANY;
+                type = PACKETTYPE_EQNET_OBJECT; 
+                instanceID = EQ_INSTANCE_ALL;
             }
         base::UUID objectID;
         uint32_t instanceID;

@@ -1142,7 +1142,7 @@ bool LocalNode::_cmdConnectReply( Command& command )
         EQINFO << "ignoring connect reply, node already connected" << std::endl;
         _removeConnection( connection );
         
-        if( packet->requestID != EQ_ID_INVALID )
+        if( packet->requestID != EQ_UNDEFINED_UINT32 )
             serveRequest( packet->requestID, false );
         
         return true;
@@ -1151,7 +1151,7 @@ bool LocalNode::_cmdConnectReply( Command& command )
     // create and add node
     if( !remoteNode )
     {
-        if( packet->requestID != EQ_ID_INVALID )
+        if( packet->requestID != EQ_UNDEFINED_UINT32 )
         {
             void* ptr = getRequestData( packet->requestID );
             EQASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));
@@ -1180,7 +1180,7 @@ bool LocalNode::_cmdConnectReply( Command& command )
     }
     EQVERB << "Added node " << nodeID << std::endl;
 
-    if( packet->requestID != EQ_ID_INVALID )
+    if( packet->requestID != EQ_UNDEFINED_UINT32 )
         serveRequest( packet->requestID, true );
 
     NodeConnectAckPacket ack;

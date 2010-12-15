@@ -67,7 +67,7 @@ bool DeltaMasterCM::_cmdCommit( Command& command )
 
     ++_commitCount;
 
-    if( packet->requestID != EQ_ID_INVALID )
+    if( packet->requestID != EQ_UNDEFINED_UINT32 )
     {
         if( !_slaves.empty( ))
         {

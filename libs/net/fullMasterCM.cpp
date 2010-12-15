@@ -76,7 +76,7 @@ void FullMasterCM::sendInstanceDatas( Nodes& nodes )
 
     InstanceData* data = _instanceDatas.back();
     data->os.setNodeID( NodeID::ZERO );
-    data->os.setInstanceID( EQ_ID_NONE );
+    data->os.setInstanceID( EQ_INSTANCE_NONE );
     data->os.resend( nodes );
 }
 
@@ -101,7 +101,7 @@ void FullMasterCM::increaseCommitCount()
 {
     ObjectCommitPacket packet;
     packet.instanceID = _object->_instanceID;
-    packet.requestID = EQ_ID_INVALID;
+    packet.requestID = EQ_UNDEFINED_UINT32;
 
     NodePtr localNode = _object->getLocalNode();
     _object->send( localNode, packet );    
@@ -296,7 +296,7 @@ FullMasterCM::InstanceData* FullMasterCM::_newInstanceData()
     }
 
     instanceData->os.enableSave();
-    instanceData->os.setInstanceID( EQ_ID_ANY );
+    instanceData->os.setInstanceID( EQ_INSTANCE_ALL );
     instanceData->os.setNodeID( NodeID::ZERO );
     return instanceData;
 }
@@ -332,7 +332,7 @@ bool FullMasterCM::_cmdCommit( Command& command )
 
     ++_commitCount;
 
-    if( packet->requestID != EQ_ID_INVALID )
+    if( packet->requestID != EQ_UNDEFINED_UINT32 )
     {
         InstanceData* instanceData = _newInstanceData();
         instanceData->commitCount = _commitCount;

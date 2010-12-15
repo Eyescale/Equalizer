@@ -983,7 +983,8 @@ bool Config::_cmdUpdate( net::Command& command )
     net::NodePtr node = command.getNode();
     if( !_needsFinish )
     {
-        ConfigUpdateVersionPacket reply( packet, getVersion(), EQ_ID_INVALID );
+        ConfigUpdateVersionPacket reply( packet, getVersion(),
+                                         EQ_UNDEFINED_UINT32 );
         send( node, reply );
         return true;
     }
