@@ -19,6 +19,7 @@ debug/Makefile:
 	@cd debug; cmake ..
 
 cdash: cdash/Makefile
+	@$(MAKE) -C cdash clean
 	@cd cdash; ctest -D Continuous
 
 cdash/Makefile:
