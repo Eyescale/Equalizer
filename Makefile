@@ -7,6 +7,7 @@ clean:
 
 DOXYGEN ?= doxygen
 PYTHON ?= python
+CTEST ?= /opt/local/bin/ctest
 
 debug: debug/Makefile
 	@$(MAKE) -C debug
@@ -20,7 +21,7 @@ debug/Makefile:
 
 cdash: cdash/Makefile
 	@$(MAKE) -C cdash clean
-	@cd cdash; ctest -D Continuous
+	@cd cdash; $(CTEST) -D Continuous
 
 cdash/Makefile:
 	@mkdir -p cdash
