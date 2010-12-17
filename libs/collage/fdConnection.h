@@ -19,7 +19,7 @@
 #ifndef EQNET_FDCONNECTION_H
 #define EQNET_FDCONNECTION_H
 
-#include <eq/net/connection.h>
+#include <co/connection.h>
 
 namespace eq
 {

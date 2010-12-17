@@ -1,11 +1,9 @@
-rename Include\net to Include\co
-change all eq\net include path
-rename net.h to co.h 
+fix linux build
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
-[x] Optimization
+[ ] Cleanup
+[ ] Optimization
 [ ] Documentation

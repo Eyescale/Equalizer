@@ -20,7 +20,7 @@
 
 #include <eq/client/os.h>
 
-#include <eq/net/connection.h>
+#include <co/connection.h>
 
 namespace eq
 {
