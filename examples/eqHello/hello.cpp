@@ -120,63 +120,23 @@ void eqHello::Channel::frameDraw( const eq::uint128_t& spin )
     glRotatef( static_cast< float >( spin.low( )) * 0.1f, 1.0f, 0.5f, 0.25f );
 
     // render six axis-aligned colored quads around the origin
-    //  front
-    glColor3f( 1.0f, 0.5f, 0.5f );
-    glNormal3f( 0.0f, 0.0f, 1.0f );
-    glBegin( GL_TRIANGLE_STRIP );
-    glVertex3f(  .7f,  .7f, -1.0f );
-    glVertex3f( -.7f,  .7f, -1.0f );
-    glVertex3f(  .7f, -.7f, -1.0f );
-    glVertex3f( -.7f, -.7f, -1.0f );
-    glEnd();
+    for( int i = 0; i < 6; i++ )
+    {
+        glColor3f( (i&1) ? 0.5f:1.0f, (i&2) ? 1.0f:0.5f, (i&4) ? 1.0f:0.5f );
 
-    //  bottom
-    glColor3f( 0.5f, 1.0f, 0.5f );
-    glNormal3f( 0.0f, 1.0f, 0.0f );
-    glBegin( GL_TRIANGLE_STRIP );
-    glVertex3f(  .7f, -1.0f,  .7f );
-    glVertex3f( -.7f, -1.0f,  .7f );
-    glVertex3f(  .7f, -1.0f, -.7f );
-    glVertex3f( -.7f, -1.0f, -.7f );
-    glEnd();
+        glNormal3f( 0.0f, 0.0f, 1.0f );
+        glBegin( GL_TRIANGLE_STRIP );
+            glVertex3f(  .7f,  .7f, -1.0f );
+            glVertex3f( -.7f,  .7f, -1.0f );
+            glVertex3f(  .7f, -.7f, -1.0f );
+            glVertex3f( -.7f, -.7f, -1.0f );
+        glEnd();
 
-    //  back
-    glColor3f( 0.5f, 0.5f, 1.0f );
-    glNormal3f( 0.0f, 0.0f, -1.0f );
-    glBegin( GL_TRIANGLE_STRIP );
-    glVertex3f(  .7f,  .7f, 1.0f );
-    glVertex3f( -.7f,  .7f, 1.0f );
-    glVertex3f(  .7f, -.7f, 1.0f );
-    glVertex3f( -.7f, -.7f, 1.0f );
-    glEnd();
-
-    //  top
-    glColor3f( 1.0f, 1.0f, 0.5f );
-    glNormal3f( 0.f, -1.f, 0.f );
-    glBegin( GL_TRIANGLE_STRIP );
-    glVertex3f(  .7f, 1.0f,  .7f );
-    glVertex3f( -.7f, 1.0f,  .7f );
-    glVertex3f(  .7f, 1.0f, -.7f );
-    glVertex3f( -.7f, 1.0f, -.7f );
-    glEnd();
-
-    //  right
-    glColor3f( 1.0f, 0.5f, 1.0f );
-    glNormal3f( -1.f, 0.f, 0.f );
-    glBegin( GL_TRIANGLE_STRIP );
-    glVertex3f( 1.0f,  .7f,  .7f );
-    glVertex3f( 1.0f, -.7f,  .7f );
-    glVertex3f( 1.0f,  .7f, -.7f );
-    glVertex3f( 1.0f, -.7f, -.7f );
-    glEnd();
-
-    //  left
-    glColor3f( 0.5f, 1.0f, 1.0f );
-    glNormal3f( 1.f, 0.f, 0.f );
-    glBegin( GL_TRIANGLE_STRIP );
-    glVertex3f( -1.0f,  .7f,  .7f );
-    glVertex3f( -1.0f, -.7f,  .7f );
-    glVertex3f( -1.0f,  .7f, -.7f );
-    glVertex3f( -1.0f, -.7f, -.7f );
-    glEnd();
+        if( i < 3 )
+            glRotatef(  90.0f, 0.0f, 1.0f, 0.0f );
+        else if( i == 3 )
+            glRotatef(  90.0f, 1.0f, 0.0f, 0.0f );
+        else
+            glRotatef( 180.0f, 1.0f, 0.0f, 0.0f );
+    }
 }
