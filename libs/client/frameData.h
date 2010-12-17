@@ -25,7 +25,7 @@
 #include <eq/fabric/pixel.h>         // member
 #include <eq/fabric/range.h>         // member
 #include <eq/fabric/subPixel.h>      // member
-#include <eq/net/object.h>           // base class
+#include <co/object.h>           // base class
 #include <eq/base/monitor.h>         // member
 #include <eq/base/scopedMutex.h>     // member
 #include <eq/base/spinLock.h>        // member

@@ -42,7 +42,7 @@
 #include <eq/fabric/iAttribute.h>
 #include <eq/fabric/paths.h>
 #include <eq/fabric/serverPackets.h>
-#include <eq/net/command.h>
+#include <co/command.h>
 #include <eq/base/sleep.h>
 
 #include "channelStopFrameVisitor.h"

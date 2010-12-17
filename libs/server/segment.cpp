@@ -27,7 +27,7 @@
 #include "window.h"
 
 #include <eq/fabric/paths.h>
-#include <eq/net/dataOStream.h>
+#include <co/dataOStream.h>
 
 namespace eq
 {

@@ -24,9 +24,9 @@
 #include "pipePackets.h"
 #include "task.h"
 
-#include <eq/net/command.h>
-#include <eq/net/dataIStream.h>
-#include <eq/net/dataOStream.h>
+#include <co/command.h>
+#include <co/dataIStream.h>
+#include <co/dataOStream.h>
 
 namespace eq
 {

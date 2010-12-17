@@ -18,8 +18,8 @@
 #ifndef EQNET_INSTANCECACHE_H
 #define EQNET_INSTANCECACHE_H
 
-#include <eq/net/base.h>
-#include <eq/net/types.h>
+#include <co/base.h>
+#include <co/types.h>
 
 #include <eq/base/lockable.h>  // member
 #include <eq/base/stdExt.h>    // member

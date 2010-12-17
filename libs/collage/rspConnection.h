@@ -19,11 +19,11 @@
 #ifndef EQNET_RSPCONNECTION_H
 #define EQNET_RSPCONNECTION_H
 
-#include <eq/net/connection.h>
+#include <co/connection.h>
 
 #ifdef EQ_USE_BOOST
-#include <eq/net/connectionSet.h> // member
-#include <eq/net/types.h>
+#include <co/connectionSet.h> // member
+#include <co/types.h>
 #include "eventConnection.h" // member
 
 #include <eq/base/base.h>

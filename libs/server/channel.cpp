@@ -35,7 +35,7 @@
 #include <eq/client/log.h>
 #include <eq/client/windowPackets.h>
 #include <eq/fabric/paths.h>
-#include <eq/net/command.h>
+#include <co/command.h>
 #include <eq/base/base.h>
 #include <eq/base/debug.h>
 

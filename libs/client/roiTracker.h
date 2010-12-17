@@ -20,7 +20,7 @@
 
 #include <eq/client/base.h>
 #include <eq/client/types.h>
-#include <eq/net/types.h>
+#include <co/types.h>
 #include <eq/fabric/pixelViewport.h> // member
 
 #include <eq/base/stdExt.h>          // member

@@ -19,7 +19,7 @@
 
 #include "task.h"
 
-#include <eq/net/types.h>
+#include <co/types.h>
 
 namespace eq
 {

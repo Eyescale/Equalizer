@@ -19,7 +19,7 @@
 #define EQNET_PIPE_CONNECTION_H
 
 #ifdef WIN32
-#  include <eq/net/connection.h>
+#  include <co/connection.h>
 #else
 #  include "fdConnection.h"
 #endif

@@ -24,7 +24,7 @@
 #include <eq/fabric/types.h>
 #include <eq/fabric/visitorResult.h> // enum
 
-#include <eq/net/types.h>            // LocalNodePtr
+#include <co/types.h>            // LocalNodePtr
 
 namespace eq
 {

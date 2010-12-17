@@ -19,7 +19,7 @@
 #ifndef EQFABRIC_COMMANDS_H
 #define EQFABRIC_COMMANDS_H
 
-#include <eq/net/commands.h>
+#include <co/commands.h>
 
 namespace eq
 {

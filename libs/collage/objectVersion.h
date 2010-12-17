@@ -18,8 +18,8 @@
 #ifndef EQNET_OBJECTVERSION_H
 #define EQNET_OBJECTVERSION_H
 
-#include <eq/net/base.h>
-#include <eq/net/types.h>
+#include <co/base.h>
+#include <co/types.h>
 #include <eq/base/stdExt.h>
 
 #include <iostream>

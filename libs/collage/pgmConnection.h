@@ -21,7 +21,7 @@
 #include <eq/base/base.h>
 #ifdef EQ_PGM
 
-#include <eq/net/connection.h>
+#include <co/connection.h>
 #include <eq/base/buffer.h> // member
 #include <eq/base/thread.h> // for EQ_TS_VAR
 

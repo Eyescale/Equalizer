@@ -32,8 +32,8 @@
 #include <eq/client/nodePackets.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
-#include <eq/net/barrier.h>
-#include <eq/net/command.h>
+#include <co/barrier.h>
+#include <co/command.h>
 #include <eq/base/launcher.h>
 #include <eq/base/sleep.h>
 

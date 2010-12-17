@@ -21,8 +21,8 @@
 #include <eq/fabric/commands.h>      // enum 
 #include <eq/fabric/packetType.h>    // member
 
-#include <eq/net/packets.h> // 'base'
-#include <eq/net/objectVersion.h> // member
+#include <co/packets.h> // 'base'
+#include <co/objectVersion.h> // member
 
 namespace eq
 {

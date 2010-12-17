@@ -21,8 +21,8 @@
 #include "global.h"
 #include "loader.h"
 
-#include <eq/net/node.h>
-#include <eq/net/pairConnection.h>
+#include <co/node.h>
+#include <co/pairConnection.h>
 
 #define CONFIG "server{ config{ appNode{ pipe {                            \
     window { viewport [ .25 .25 .5 .5 ] channel { name \"channel\" }}}}    \

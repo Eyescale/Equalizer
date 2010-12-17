@@ -18,7 +18,7 @@
 #ifndef EQNET_COMMAND_H
 #define EQNET_COMMAND_H
 
-#include <eq/net/localNode.h> // NodePtr members
+#include <co/localNode.h> // NodePtr members
 
 #include <eq/base/base.h>
 #include <eq/base/refPtr.h>

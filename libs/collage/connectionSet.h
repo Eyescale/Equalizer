@@ -18,7 +18,7 @@
 #ifndef EQNET_CONNECTION_SET_H
 #define EQNET_CONNECTION_SET_H
 
-#include <eq/net/connectionListener.h> // base class
+#include <co/connectionListener.h> // base class
 
 #include <eq/base/base.h>
 #include <eq/base/buffer.h>

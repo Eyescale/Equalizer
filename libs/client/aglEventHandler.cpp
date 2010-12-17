@@ -26,7 +26,7 @@
 #include "pipe.h"
 #include "window.h"
 
-#include <eq/net/global.h>
+#include <co/global.h>
 #include <eq/base/file.h>
 
 #ifdef EQ_USE_MAGELLAN

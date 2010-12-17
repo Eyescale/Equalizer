@@ -54,7 +54,7 @@
 
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/task.h>
-#include <eq/net/command.h>
+#include <co/command.h>
 #include <sstream>
 
 namespace eq

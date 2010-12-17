@@ -19,8 +19,8 @@
 #ifndef EQNET_STATICMASTERCM_H
 #define EQNET_STATICMASTERCM_H
 
-#include <eq/net/objectCM.h> // base class
-#include <eq/net/version.h>  // enum
+#include <co/objectCM.h> // base class
+#include <co/version.h>  // enum
 #include "objectInstanceDataOStream.h"
 
 #include <deque>

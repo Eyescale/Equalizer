@@ -24,9 +24,9 @@
 #include "observer.h"
 #include "paths.h"
 
-#include <eq/net/command.h>
-#include <eq/net/dataIStream.h>
-#include <eq/net/dataOStream.h>
+#include <co/command.h>
+#include <co/dataIStream.h>
+#include <co/dataOStream.h>
 #include <eq/base/stdExt.h>
 
 namespace eq

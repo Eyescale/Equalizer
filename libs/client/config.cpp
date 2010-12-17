@@ -40,10 +40,10 @@
 
 #include <eq/fabric/configVisitor.h>
 #include <eq/fabric/task.h>
-#include <eq/net/object.h>
-#include <eq/net/command.h>
-#include <eq/net/connectionDescription.h>
-#include <eq/net/global.h>
+#include <co/object.h>
+#include <co/command.h>
+#include <co/connectionDescription.h>
+#include <co/global.h>
 
 namespace eq
 {

@@ -19,10 +19,10 @@
 #ifndef EQNET_NODE_H
 #define EQNET_NODE_H
 
-#include <eq/net/dispatcher.h>        // base class
-#include <eq/net/connection.h>        // member - ConnectionPtr
-#include <eq/net/nodeType.h>          // for NODETYPE_EQNET_NODE enum
-#include <eq/net/types.h>
+#include <co/dispatcher.h>        // base class
+#include <co/connection.h>        // member - ConnectionPtr
+#include <co/nodeType.h>          // for NODETYPE_EQNET_NODE enum
+#include <co/types.h>
 
 #include <eq/base/spinLock.h>         // member
 

@@ -18,7 +18,7 @@
 #ifndef EQNET_BUFFER_CONNECTION_H
 #define EQNET_BUFFER_CONNECTION_H
 
-#include <eq/net/connection.h>   // base class
+#include <co/connection.h>   // base class
 #include <eq/base/buffer.h>      // member
 
 namespace eq

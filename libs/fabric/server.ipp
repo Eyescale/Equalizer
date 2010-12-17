@@ -21,8 +21,8 @@
 #include "log.h"
 #include "serverPackets.h"
 
-#include <eq/net/command.h>
-#include <eq/net/connectionDescription.h>
+#include <co/command.h>
+#include <co/connectionDescription.h>
 
 namespace eq
 {

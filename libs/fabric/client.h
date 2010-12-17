@@ -20,7 +20,7 @@
 
 #include <eq/fabric/base.h>
 #include <eq/fabric/types.h>        // basic types
-#include <eq/net/localNode.h>       // base class
+#include <co/localNode.h>       // base class
 
 namespace eq
 {

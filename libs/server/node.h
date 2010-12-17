@@ -25,10 +25,10 @@
 
 #include <eq/fabric/node.h> // base class
 
-#include <eq/net/barrier.h>
-#include <eq/net/bufferConnection.h>
-#include <eq/net/connectionDescription.h>
-#include <eq/net/node.h>
+#include <co/barrier.h>
+#include <co/bufferConnection.h>
+#include <co/connectionDescription.h>
+#include <co/node.h>
 
 #include <vector>
 

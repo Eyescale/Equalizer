@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_NODETYPE_H
 #define EQFABRIC_NODETYPE_H
 
-#include <eq/net/nodeType.h> // 'base' enum
+#include <co/nodeType.h> // 'base' enum
 
 namespace eq
 {

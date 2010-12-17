@@ -18,7 +18,7 @@
 #ifndef EQNET_GLOBAL_H
 #define EQNET_GLOBAL_H
 
-#include <eq/net/base.h>
+#include <co/base.h>
 #include <string>
 
 namespace eq

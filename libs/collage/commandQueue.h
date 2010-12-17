@@ -18,7 +18,7 @@
 #ifndef EQNET_COMMANDQUEUE_H
 #define EQNET_COMMANDQUEUE_H
 
-#include <eq/net/base.h>
+#include <co/base.h>
 #include <eq/base/lock.h>
 #include <eq/base/mtQueue.h>
 #include <eq/base/nonCopyable.h>

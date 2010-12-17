@@ -18,8 +18,8 @@
 #ifndef EQNET_MCIPCONNECTION_H
 #define EQNET_MCIPCONNECTION_H
 
-#include <eq/net/connection.h>         // base class
-#include <eq/net/connectionListener.h> // base class
+#include <co/connection.h>         // base class
+#include <co/connectionListener.h> // base class
 
 namespace eq
 {

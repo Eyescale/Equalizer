@@ -32,11 +32,11 @@
 #include <eq/admin/packets.h>
 #include <eq/client/serverPackets.h>
 #include <eq/fabric/serverPackets.h>
-#include <eq/net/command.h>
-#include <eq/net/connectionDescription.h>
-#include <eq/net/global.h>
-#include <eq/net/init.h>
-#include <eq/net/localNode.h>
+#include <co/command.h>
+#include <co/connectionDescription.h>
+#include <co/global.h>
+#include <co/init.h>
+#include <co/localNode.h>
 #include <eq/base/refPtr.h>
 #include <eq/base/sleep.h>
 

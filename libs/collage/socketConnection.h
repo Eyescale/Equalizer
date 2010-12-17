@@ -18,14 +18,14 @@
 #ifndef EQNET_SOCKETCONNECTION_H
 #define EQNET_SOCKETCONNECTION_H
 
-#include <eq/net/connectionType.h> // enum
+#include <co/connectionType.h> // enum
 #include <eq/base/base.h>
 #include <eq/base/buffer.h> // member
 #include <eq/base/thread.h> // for EQ_TS_VAR
 
 
 #ifdef WIN32
-#  include <eq/net/connection.h>
+#  include <co/connection.h>
 #else
 #  include "fdConnection.h"
 #  include <netinet/in.h>

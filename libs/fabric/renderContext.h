@@ -27,7 +27,7 @@
 #include <eq/fabric/types.h>
 #include <eq/fabric/zoom.h>             // member
 
-#include <eq/net/objectVersion.h>
+#include <co/objectVersion.h>
 #include <eq/fabric/base.h>
 
 namespace eq

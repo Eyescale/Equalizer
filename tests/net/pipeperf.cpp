@@ -21,10 +21,10 @@
 
 #include <test.h>
 #include <eq/base/monitor.h>
-#include <eq/net/connection.h>
-#include <eq/net/connectionDescription.h>
-#include <eq/net/connectionSet.h>
-#include <eq/net/init.h>
+#include <co/connection.h>
+#include <co/connectionDescription.h>
+#include <co/connectionSet.h>
+#include <co/init.h>
 
 #include <iostream>
 

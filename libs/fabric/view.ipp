@@ -22,8 +22,8 @@
 #include "log.h"
 #include "paths.h"
 
-#include <eq/net/dataIStream.h>
-#include <eq/net/dataOStream.h>
+#include <co/dataIStream.h>
+#include <co/dataOStream.h>
 
 namespace eq
 {

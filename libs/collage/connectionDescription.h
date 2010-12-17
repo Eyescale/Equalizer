@@ -18,9 +18,9 @@
 #ifndef EQNET_CONNECTIONDESCRIPTION_H
 #define EQNET_CONNECTIONDESCRIPTION_H
 
-#include <eq/net/connectionType.h> // member enum
-#include <eq/net/base.h>
-#include <eq/net/types.h>
+#include <co/connectionType.h> // member enum
+#include <co/base.h>
+#include <co/types.h>
 
 #include <eq/base/base.h>
 #include <eq/base/referenced.h>

@@ -17,18 +17,18 @@
 
 #include <test.h>
 
-#include <eq/net/dataIStream.h>
-#include <eq/net/dataOStream.h>
+#include <co/dataIStream.h>
+#include <co/dataOStream.h>
 
 #include <eq/base/thread.h>
-#include <eq/net/connectionDescription.h>
-#include <eq/net/command.h>
-#include <eq/net/commandCache.h>
-#include <eq/net/commandQueue.h>
-#include <eq/net/connection.h>
-#include <eq/net/init.h>
-#include <eq/net/packets.h>
-#include <eq/net/types.h>
+#include <co/connectionDescription.h>
+#include <co/command.h>
+#include <co/commandCache.h>
+#include <co/commandQueue.h>
+#include <co/connection.h>
+#include <co/init.h>
+#include <co/packets.h>
+#include <co/types.h>
 
 #include "libs/base/cpuCompressor.h" // private header
 

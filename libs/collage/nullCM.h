@@ -18,8 +18,8 @@
 #ifndef EQNET_NULLCM_H
 #define EQNET_NULLCM_H
 
-#include <eq/net/objectCM.h> // base class
-#include <eq/net/version.h>  // used enum
+#include <co/objectCM.h> // base class
+#include <co/version.h>  // used enum
 
 namespace eq
 {

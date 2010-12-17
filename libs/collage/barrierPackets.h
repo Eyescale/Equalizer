@@ -19,7 +19,7 @@
 #ifndef EQNET_BARRIERPACKETS_H
 #define EQNET_BARRIERPACKETS_H
 
-#include <eq/net/packets.h> // base structs
+#include <co/packets.h> // base structs
 
 /** @cond IGNORE */
 namespace eq

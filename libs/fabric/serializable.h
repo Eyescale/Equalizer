@@ -18,10 +18,10 @@
 #ifndef EQFABRIC_SERIALIZABLE_H
 #define EQFABRIC_SERIALIZABLE_H
 
-#include <eq/net/object.h>        // base class
+#include <co/object.h>        // base class
 #include <eq/fabric/types.h>      // member
-#include <eq/net/dataOStream.h>   // used inline
-#include <eq/net/dataIStream.h>   // used inline
+#include <co/dataOStream.h>   // used inline
+#include <co/dataIStream.h>   // used inline
 
 namespace eq
 {

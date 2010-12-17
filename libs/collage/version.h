@@ -18,8 +18,8 @@
 #ifndef EQNET_VERSION_H
 #define EQNET_VERSION_H
 
-#include <eq/net/types.h>
-#include <eq/net/base.h>
+#include <co/types.h>
+#include <co/base.h>
 namespace eq
 {
 namespace net

@@ -31,8 +31,8 @@
 #include "window.h"
 
 #include <eq/fabric/paths.h>
-#include <eq/net/dataIStream.h>
-#include <eq/net/dataOStream.h>
+#include <co/dataIStream.h>
+#include <co/dataOStream.h>
 #include <eq/base/stdExt.h>
 
 namespace eq

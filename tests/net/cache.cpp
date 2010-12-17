@@ -17,11 +17,11 @@
 
 #include <test.h>
 
-#include <eq/net/command.h>
-#include <eq/net/commandCache.h>
-#include <eq/net/init.h>
-#include <eq/net/instanceCache.h>
-#include <eq/net/objectVersion.h>
+#include <co/command.h>
+#include <co/commandCache.h>
+#include <co/init.h>
+#include <co/instanceCache.h>
+#include <co/objectVersion.h>
 
 #include <eq/base/rng.h>
 #include <eq/base/thread.h>

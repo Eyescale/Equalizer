@@ -19,9 +19,9 @@
 #ifndef EQNET_PACKETS_H
 #define EQNET_PACKETS_H
 
-#include <eq/net/commands.h> // used for CMD_ enums
-#include <eq/net/types.h>
-#include <eq/net/version.h>  // enum
+#include <co/commands.h> // used for CMD_ enums
+#include <co/types.h>
+#include <co/version.h>  // enum
 
 namespace eq
 {

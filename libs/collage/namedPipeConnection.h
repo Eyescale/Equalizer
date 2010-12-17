@@ -24,7 +24,7 @@
 #include <eq/base/thread.h> // for EQ_TS_VAR
 
 #ifdef WIN32
-#  include <eq/net/connection.h>
+#  include <co/connection.h>
 #else
 #  include "fdConnection.h"
 #  include <netinet/in.h>

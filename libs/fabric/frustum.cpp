@@ -17,8 +17,8 @@
 
 #include "frustum.h"
 
-#include <eq/net/dataOStream.h>
-#include <eq/net/dataIStream.h>
+#include <co/dataOStream.h>
+#include <co/dataIStream.h>
 
 namespace eq
 {

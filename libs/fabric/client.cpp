@@ -21,10 +21,10 @@
 #include "nodeType.h"
 #include "packetType.h"
 
-#include <eq/net/command.h>
-#include <eq/net/commandQueue.h>
-#include <eq/net/connection.h>
-#include <eq/net/connectionDescription.h>
+#include <co/command.h>
+#include <co/commandQueue.h>
+#include <co/connection.h>
+#include <co/connectionDescription.h>
 #include <eq/base/dso.h>
 
 namespace eq

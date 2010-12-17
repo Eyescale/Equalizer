@@ -48,8 +48,8 @@
 #endif
 
 #include <eq/fabric/task.h>
-#include <eq/net/barrier.h>
-#include <eq/net/command.h>
+#include <co/barrier.h>
+#include <co/command.h>
 #include <eq/base/sleep.h>
 
 namespace eq

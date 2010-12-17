@@ -18,8 +18,8 @@
 #ifndef EQNET_OBJECTCM_H
 #define EQNET_OBJECTCM_H
 
-#include <eq/net/dispatcher.h>   // base class
-#include <eq/net/types.h>
+#include <co/dispatcher.h>   // base class
+#include <co/types.h>
 
 //#define EQ_INSTRUMENT_MULTICAST
 #ifdef EQ_INSTRUMENT_MULTICAST

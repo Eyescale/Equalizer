@@ -30,7 +30,7 @@
 #include <eq/client/pipePackets.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
-#include <eq/net/command.h>
+#include <co/command.h>
 
 namespace eq
 {

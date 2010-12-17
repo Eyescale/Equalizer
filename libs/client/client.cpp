@@ -25,10 +25,10 @@
 
 #include <eq/fabric/commands.h>
 #include <eq/fabric/nodeType.h>
-#include <eq/net/command.h>
-#include <eq/net/connection.h>
-#include <eq/net/connectionDescription.h>
-#include <eq/net/global.h>
+#include <co/command.h>
+#include <co/connection.h>
+#include <co/connectionDescription.h>
+#include <co/global.h>
 #include <eq/base/dso.h>
 
 #ifdef WIN32_API

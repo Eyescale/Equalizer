@@ -22,8 +22,8 @@
 #include "init.h"
 #include "loader.h"
 
-#include <eq/net/global.h>
-#include <eq/net/init.h>
+#include <co/global.h>
+#include <co/init.h>
 
 #include <iostream>
 

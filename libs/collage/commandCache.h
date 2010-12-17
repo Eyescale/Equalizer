@@ -18,9 +18,9 @@
 #ifndef EQNET_COMMANDCACHE_H
 #define EQNET_COMMANDCACHE_H
 
-#include <eq/net/types.h>
+#include <co/types.h>
 
-#include <eq/net/base.h>
+#include <co/base.h>
 #include <eq/base/thread.h> // thread-safety checks
 
 #include <vector>

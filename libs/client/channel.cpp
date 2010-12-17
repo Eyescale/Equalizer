@@ -43,8 +43,8 @@
 #include <eq/util/accum.h>
 #include <eq/util/frameBufferObject.h>
 #include <eq/fabric/commands.h>
-#include <eq/net/command.h>
-#include <eq/net/connectionDescription.h>
+#include <co/command.h>
+#include <co/connectionDescription.h>
 #include <eq/base/rng.h>
 
 namespace eq

@@ -27,7 +27,7 @@
 
 #include <eq/fabric/pipe.h>           // base class
 
-#include <eq/net/objectVersion.h>
+#include <co/objectVersion.h>
 
 #include <eq/base/lock.h>
 #include <eq/base/refPtr.h>

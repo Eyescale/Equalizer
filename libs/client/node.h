@@ -23,7 +23,7 @@
 #include <eq/client/visitorResult.h>  // enum
 #include <eq/fabric/node.h>           // base class
 
-#include <eq/net/types.h>
+#include <co/types.h>
 #include <eq/base/mtQueue.h>          // member
 #include <eq/client/base.h>
 

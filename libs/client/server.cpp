@@ -26,8 +26,8 @@
 #include "serverPackets.h"
 #include "types.h"
 
-#include <eq/net/command.h>
-#include <eq/net/connection.h>
+#include <co/command.h>
+#include <co/connection.h>
 
 namespace eq
 {

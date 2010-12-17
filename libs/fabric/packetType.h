@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_PACKETTYPE_H
 #define EQFABRIC_PACKETTYPE_H
 
-#include <eq/net/packets.h> // 'base' enum
+#include <co/packets.h> // 'base' enum
 
 namespace eq
 {

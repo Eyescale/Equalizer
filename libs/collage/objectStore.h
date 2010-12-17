@@ -19,12 +19,12 @@
 #ifndef EQNET_OBJECTSTORE_H
 #define EQNET_OBJECTSTORE_H
 
-#include <eq/net/dispatcher.h>    // parent
+#include <co/dispatcher.h>    // parent
 
-#include <eq/net/localNode.h>     // member
-#include <eq/net/objectVersion.h> // member
-#include <eq/net/packets.h>       // used in inline method
-#include <eq/net/version.h>       // enum
+#include <co/localNode.h>     // member
+#include <co/objectVersion.h> // member
+#include <co/packets.h>       // used in inline method
+#include <co/version.h>       // enum
 
 #include <eq/base/base.h>
 #include <eq/base/lockable.h>

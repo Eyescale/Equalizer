@@ -18,7 +18,7 @@
 #ifndef EQSERVER_SWAPBARRIER_H
 #define EQSERVER_SWAPBARRIER_H
 
-#include <eq/net/node.h>
+#include <co/node.h>
 
 namespace eq
 {

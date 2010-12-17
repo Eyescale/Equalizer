@@ -18,8 +18,8 @@
 #ifndef EQNET_OBJECTDATAISTREAM_H
 #define EQNET_OBJECTDATAISTREAM_H
 
-#include <eq/net/dataIStream.h>   // base class
-#include <eq/net/version.h>       // enum
+#include <co/dataIStream.h>   // base class
+#include <co/version.h>       // enum
 #include <eq/base/monitor.h>      // member
 #include <eq/base/thread.h>       // member
 

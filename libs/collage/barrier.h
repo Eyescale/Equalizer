@@ -18,8 +18,8 @@
 #ifndef EQNET_BARRIER_H
 #define EQNET_BARRIER_H
 
-#include <eq/net/object.h>   // base class
-#include <eq/net/types.h>
+#include <co/object.h>   // base class
+#include <co/types.h>
 #include <eq/base/monitor.h> // member
 
 #include <map>

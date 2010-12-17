@@ -1,4 +1,6 @@
-Remove IDPool
+rename Include\net to Include\co
+change all eq\net include path
+rename net.h to co.h 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

@@ -18,7 +18,7 @@
 #ifndef EQ_COMMANDQUEUE_H
 #define EQ_COMMANDQUEUE_H
 
-#include <eq/net/commandQueue.h>    // base class
+#include <co/commandQueue.h>    // base class
 #include <eq/client/windowSystem.h> // enum
 
 namespace eq

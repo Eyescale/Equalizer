@@ -27,11 +27,11 @@
 #include "nodePackets.h"
 #include "roiFinder.h"
 
-#include <eq/net/command.h>
-#include <eq/net/commandFunc.h>
-#include <eq/net/connectionDescription.h>
-#include <eq/net/dataIStream.h>
-#include <eq/net/dataOStream.h>
+#include <co/command.h>
+#include <co/commandFunc.h>
+#include <co/connectionDescription.h>
+#include <co/dataIStream.h>
+#include <co/dataOStream.h>
 #include <eq/base/monitor.h>
 
 #include <eq/plugins/compressor.h>

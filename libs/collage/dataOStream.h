@@ -20,8 +20,8 @@
 #define EQNET_DATAOSTREAM_H
 
 #include <eq/base/buffer.h> // member
-#include <eq/net/types.h>
-#include <eq/net/base.h>
+#include <co/types.h>
+#include <co/base.h>
 
 #include <iostream>
 #include <vector>
@@ -203,8 +203,8 @@ namespace DataStreamTest
 }
 }
 
-#include <eq/net/object.h>
-#include <eq/net/objectVersion.h>
+#include <co/object.h>
+#include <co/objectVersion.h>
 
 namespace eq
 {

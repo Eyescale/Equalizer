@@ -18,7 +18,7 @@
 #ifndef EQNET_EVENT_CONNECTION_H
 #define EQNET_EVENT_CONNECTION_H
 
-#include <eq/net/connection.h>   // base class
+#include <co/connection.h>   // base class
 
 namespace eq
 {

@@ -27,7 +27,7 @@
 #include <eq/util/objectManager.h>
 
 #include <eq/fabric/colorMask.h>
-#include <eq/net/node.h>
+#include <co/node.h>
 
 #include <eq/base/global.h>
 #include <eq/base/memoryMap.h>

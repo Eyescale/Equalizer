@@ -23,7 +23,7 @@
 
 #include "nameFinder.h"
 
-#include <eq/net/command.h>
+#include <co/command.h>
 
 #include "layout.ipp" // Layout::_removeObserver template impl
 

@@ -21,7 +21,7 @@
 #include <eq/client/base.h>
 #include <eq/client/types.h>     // basic typedefs
 #include <eq/fabric/server.h>    // base class
-#include <eq/net/node.h>         // base class
+#include <co/node.h>         // base class
 
 namespace eq
 {

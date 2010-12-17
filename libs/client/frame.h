@@ -24,9 +24,9 @@
 #include <eq/client/base.h>
 
 #include <eq/fabric/zoom.h>   // member
-#include <eq/net/object.h>
-#include <eq/net/objectVersion.h>
-#include <eq/net/types.h>
+#include <co/object.h>
+#include <co/objectVersion.h>
+#include <co/types.h>
 #include <eq/base/bitOperation.h> // function getIndexOfLastBit
 #include <eq/base/monitor.h>
 

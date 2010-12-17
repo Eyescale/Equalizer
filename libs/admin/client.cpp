@@ -18,7 +18,7 @@
 #include "client.h"
 
 #include "server.h"
-#include <eq/net/command.h>
+#include <co/command.h>
 
 namespace eq
 {

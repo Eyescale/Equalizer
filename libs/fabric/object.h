@@ -21,7 +21,7 @@
 #include <eq/fabric/base.h>
 #include <eq/fabric/error.h>        // enum
 #include <eq/fabric/serializable.h> // base class
-#include <eq/net/objectVersion.h>   // member
+#include <co/objectVersion.h>   // member
 
 namespace eq
 {

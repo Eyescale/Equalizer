@@ -18,8 +18,8 @@
 #ifndef EQNET_MASTERCM_H
 #define EQNET_MASTERCM_H
 
-#include <eq/net/objectCM.h> // base class
-#include <eq/net/types.h>
+#include <co/objectCM.h> // base class
+#include <co/types.h>
 
 #include <eq/base/mtQueue.h> // member
 #include <eq/base/pool.h>    // member

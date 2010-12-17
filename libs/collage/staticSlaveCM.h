@@ -18,8 +18,8 @@
 #ifndef EQNET_STATICSLAVECM_H
 #define EQNET_STATICSLAVECM_H
 
-#include <eq/net/objectCM.h>     // base class
-#include <eq/net/version.h>      // enum
+#include <co/objectCM.h>     // base class
+#include <co/version.h>      // enum
 
 namespace eq
 {

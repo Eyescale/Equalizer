@@ -19,13 +19,13 @@
 #ifndef EQNET_LOCALNODE_H
 #define EQNET_LOCALNODE_H
 
-#include <eq/net/node.h>            // base class
+#include <co/node.h>            // base class
 #include <eq/base/requestHandler.h> // base class
 
-#include <eq/net/commandCache.h>    // member
-#include <eq/net/commandQueue.h>    // member
-#include <eq/net/connectionSet.h>   // member
-#include <eq/net/objectVersion.h>   // used in inline method
+#include <co/commandCache.h>    // member
+#include <co/commandQueue.h>    // member
+#include <co/connectionSet.h>   // member
+#include <co/objectVersion.h>   // used in inline method
 
 
 #include <eq/base/lockable.h>       // member

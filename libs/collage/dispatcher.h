@@ -18,9 +18,9 @@
 #ifndef EQNET_DISPATCHER_H
 #define EQNET_DISPATCHER_H
 
-#include <eq/net/commandFunc.h> // member
+#include <co/commandFunc.h> // member
 
-#include <eq/net/base.h>
+#include <co/base.h>
 
 #include <vector>
 

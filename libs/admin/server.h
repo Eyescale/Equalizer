@@ -21,7 +21,7 @@
 #include <eq/admin/base.h>
 #include <eq/admin/types.h>
 #include <eq/fabric/server.h>       // base class
-#include <eq/net/node.h>         // base class
+#include <co/node.h>         // base class
 
 namespace eq
 {

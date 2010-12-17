@@ -19,7 +19,7 @@
 
 #include "global.h"
 #include <eq/base/log.h>
-#include <eq/net/connection.h>
+#include <co/connection.h>
 
 namespace eq
 {

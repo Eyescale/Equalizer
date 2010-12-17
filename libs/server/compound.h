@@ -32,7 +32,7 @@
 #include <eq/fabric/viewport.h>   // member
 #include <eq/fabric/wall.h>       // used in inline method
 #include <eq/fabric/zoom.h>       // member
-#include <eq/net/barrier.h>
+#include <co/barrier.h>
 #include <eq/base/thread.h>
 #include <iostream>
 #include <vector>

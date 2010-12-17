@@ -20,9 +20,9 @@ if(WIN32)
 endif(WIN32)
 
 purple_add_library(eq_net ${EQ_LIB_VARIANT}
-  HEADERS_PREFIX "eq/net/"
+  HEADERS_PREFIX "co/"
   FORWARD HEADERS
-    ../net.h
+    ../co.h
     base.h
     barrier.h
     bufferConnection.h

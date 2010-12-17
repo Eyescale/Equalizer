@@ -18,11 +18,11 @@
 #ifndef EQNET_CONNECTION_H
 #define EQNET_CONNECTION_H
 
-#include <eq/net/connectionType.h>        // enum
-#include <eq/net/packets.h>               // used in inline method
-#include <eq/net/types.h>                 // Connections type
+#include <co/connectionType.h>        // enum
+#include <co/packets.h>               // used in inline method
+#include <co/types.h>                 // Connections type
 
-#include <eq/net/base.h>
+#include <co/base.h>
 #include <eq/base/refPtr.h>
 #include <eq/base/referenced.h>
 #include <eq/base/scopedMutex.h>

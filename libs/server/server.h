@@ -23,8 +23,8 @@
 #include "visitorResult.h" // enum
 
 #include <eq/fabric/server.h>    // base class
-#include <eq/net/command.h>      // used in inline method
-#include <eq/net/commandQueue.h> // member
+#include <co/command.h>      // used in inline method
+#include <co/commandQueue.h> // member
 
 namespace eq
 {

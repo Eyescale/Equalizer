@@ -41,9 +41,9 @@
 
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/task.h>
-#include <eq/net/barrier.h>
-#include <eq/net/command.h>
-#include <eq/net/connection.h>
+#include <co/barrier.h>
+#include <co/command.h>
+#include <co/connection.h>
 #include <eq/base/scopedMutex.h>
 
 namespace eq

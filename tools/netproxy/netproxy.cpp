@@ -18,11 +18,11 @@
 // Proxy forwarding between two sockets
 // Usage: see 'netPerf -h'
 
-#include <eq/net/connection.h>
-#include <eq/net/connectionDescription.h>
-#include <eq/net/connectionSet.h>
-#include <eq/net/global.h>
-#include <eq/net/init.h>
+#include <co/connection.h>
+#include <co/connectionDescription.h>
+#include <co/connectionSet.h>
+#include <co/global.h>
+#include <co/init.h>
 
 #include <iostream>
 

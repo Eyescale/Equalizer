@@ -18,12 +18,12 @@
 #include <test.h>
 
 #include <eq/base/lock.h>
-#include <eq/net/command.h>
-#include <eq/net/connection.h>
-#include <eq/net/connectionDescription.h>
-#include <eq/net/init.h>
-#include <eq/net/node.h>
-#include <eq/net/packets.h>
+#include <co/command.h>
+#include <co/connection.h>
+#include <co/connectionDescription.h>
+#include <co/init.h>
+#include <co/node.h>
+#include <co/packets.h>
 
 #include <iostream>
 

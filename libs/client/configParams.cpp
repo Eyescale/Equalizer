@@ -17,7 +17,7 @@
 
 #include "configParams.h"
 
-#include <eq/net/global.h>
+#include <co/global.h>
 
 using namespace std;
 

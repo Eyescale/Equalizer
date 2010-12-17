@@ -22,8 +22,8 @@
 #include "nodeFactory.h"
 
 #include <eq/admin/packets.h>
-#include <eq/net/command.h>
-#include <eq/net/dispatcher.h>
+#include <co/command.h>
+#include <co/dispatcher.h>
 
 namespace eq
 {

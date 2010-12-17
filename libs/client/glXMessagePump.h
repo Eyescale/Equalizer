@@ -21,7 +21,7 @@
 #include <eq/client/messagePump.h> // base class
 #include <eq/client/os.h>          // X11
 
-#include <eq/net/connectionSet.h>  // member
+#include <co/connectionSet.h>  // member
 
 namespace eq
 {

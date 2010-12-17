@@ -18,7 +18,7 @@
 #ifndef EQNET_CONNECTIONLISTENER_H
 #define EQNET_CONNECTIONLISTENER_H
 
-#include <eq/net/connection.h> // nested Connection::State enum
+#include <co/connection.h> // nested Connection::State enum
 
 namespace eq
 {

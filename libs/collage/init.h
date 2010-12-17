@@ -18,7 +18,7 @@
 #ifndef EQNET_INIT_H
 #define EQNET_INIT_H
 
-#include <eq/net/base.h>
+#include <co/base.h>
 #include <eq/base/init.h>
 
 namespace eq

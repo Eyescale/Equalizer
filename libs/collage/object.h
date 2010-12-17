@@ -18,10 +18,10 @@
 #ifndef EQNET_OBJECT_H
 #define EQNET_OBJECT_H
 
-#include <eq/net/dispatcher.h>    // base class
-#include <eq/net/localNode.h>     // used in RefPtr
-#include <eq/net/types.h>         // for Nodes
-#include <eq/net/version.h>       // used as default parameter
+#include <co/dispatcher.h>    // base class
+#include <co/localNode.h>     // used in RefPtr
+#include <co/types.h>         // for Nodes
+#include <co/version.h>       // used as default parameter
 
 namespace eq
 {

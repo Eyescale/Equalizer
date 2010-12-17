@@ -61,16 +61,16 @@
 
  */
 
-#include <eq/net/barrier.h>
-#include <eq/net/command.h>
-#include <eq/net/connection.h>
-#include <eq/net/connectionDescription.h>
-#include <eq/net/connectionType.h>
-#include <eq/net/dataIStream.h>
-#include <eq/net/dataOStream.h>
-#include <eq/net/global.h>
-#include <eq/net/init.h>
-#include <eq/net/object.h>
+#include <co/barrier.h>
+#include <co/command.h>
+#include <co/connection.h>
+#include <co/connectionDescription.h>
+#include <co/connectionType.h>
+#include <co/dataIStream.h>
+#include <co/dataOStream.h>
+#include <co/global.h>
+#include <co/init.h>
+#include <co/object.h>
 
 #endif // EQNET_H
 
