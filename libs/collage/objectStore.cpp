@@ -533,9 +533,9 @@ bool ObjectStore::dispatchObjectCommand( Command& command )
     const ObjectPacket* packet = command.getPacket< ObjectPacket >();
     const base::UUID& id = packet->objectID;
     const uint32_t instanceID = packet->instanceID;
+    EQASSERTINFO( id != base::UUID::ZERO, packet );
 
     ObjectsHash::const_iterator i = _objects->find( id );
-
     if( i == _objects->end( ))
         // When the instance ID is set to none, we only care about the packet
         // when we have an object of the given ID (multicast)

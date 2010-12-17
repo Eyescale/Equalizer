@@ -287,7 +287,6 @@ Layout< C, L, V >::_cmdNewView( net::Command& command )
     LayoutNewViewReplyPacket reply( packet );
     reply.viewID = view->getID();
     send( command.getNode(), reply ); 
-
     return true;
 }
 

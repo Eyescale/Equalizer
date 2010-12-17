@@ -399,7 +399,6 @@ Canvas< CFG, C, S, L >::_cmdNewSegment( net::Command& command )
     CanvasNewSegmentReplyPacket reply( packet );
     reply.segmentID = segment->getID();
     send( command.getNode(), reply ); 
-
     return true;
 }
 

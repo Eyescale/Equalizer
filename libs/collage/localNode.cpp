@@ -937,20 +937,18 @@ bool LocalNode::dispatchCommand( Command& command )
     EQVERB << "dispatch " << command << " by " << _id << std::endl;
     EQASSERT( command.isValid( ));
 
-    const uint32_t type = command->type;
-    switch( type )
+    switch( command->type )
     {
         case PACKETTYPE_EQNET_NODE:
             EQCHECK( Dispatcher::dispatchCommand( command ));
             return true;
 
         case PACKETTYPE_EQNET_OBJECT:
-        {
             return _objectStore->dispatchObjectCommand( command );
-        }
 
         default:
-            EQABORT( "Unknown packet type " << type << " for " << command );
+            EQABORT( "Unknown packet type " << command->type << " for " <<
+                     command );
             return true;
     }
 }

@@ -115,7 +115,7 @@ void Config< S, C, O, L, CV, N, V >::attach( const base::UUID& id,
                      queue);
     registerCommand( fabric::CMD_CONFIG_NEW_ENTITY_REPLY, 
            CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply ),
-                     0);
+                     0 );
 }
 
 template< class C, class V >
@@ -798,8 +798,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = layout->getID();
-    command.getNode()->send( reply ); 
-
+    send( command.getNode(), reply ); 
     return true;
 }
 
@@ -820,7 +819,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas(
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = canvas->getID();
-    command.getNode()->send( reply ); 
+    send( command.getNode(), reply ); 
     return true;
 }
 
@@ -841,8 +840,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver(
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = observer->getID();
-    command.getNode()->send( reply ); 
-
+    send( command.getNode(), reply ); 
     return true;
 }
 

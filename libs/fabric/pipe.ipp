@@ -394,7 +394,6 @@ Pipe< N, P, W, V >::_cmdNewWindow( net::Command& command )
     PipeNewWindowReplyPacket reply( packet );
     reply.windowID = window->getID();
     send( command.getNode(), reply ); 
-
     return true;
 }
 
