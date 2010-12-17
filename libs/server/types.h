@@ -81,6 +81,7 @@ typedef std::vector< Segment* >      Segments;
 typedef std::vector< View* >         Views;
 
 typedef base::uint128_t uint128_t;
+typedef base::UUID UUID;
 
 typedef Compounds::iterator CompoundsIter;
 typedef Compounds::const_iterator CompoundsCIter;

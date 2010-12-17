@@ -40,29 +40,27 @@ Dispatcher::~Dispatcher()
 //===========================================================================
 // command handling
 //===========================================================================
-void Dispatcher::_registerCommand( const uint32_t command,
-                                   const CommandFunc< Dispatcher >& func,
+void Dispatcher::_registerCommand( const uint32_t command, const Func& func,
                                    CommandQueue* destinationQueue )
 {
-    EQASSERT( _vTable.size() == _qTable.size( ));
+    EQASSERT( _fTable.size() == _qTable.size( ));
 
-    if( _vTable.size() <= command )
+    if( _fTable.size() <= command )
     {
-        while( _vTable.size() < command )
+        while( _fTable.size() < command )
         {
-            _vTable.push_back( 
-                CommandFunc< Dispatcher >( this, &Dispatcher::_cmdUnknown ));
+            _fTable.push_back( Func( this, &Dispatcher::_cmdUnknown ));
             _qTable.push_back( 0 );
         }
 
-        _vTable.push_back( func );
+        _fTable.push_back( func );
         _qTable.push_back( destinationQueue );
 
-        EQASSERT( _vTable.size() == command + 1 );
+        EQASSERT( _fTable.size() == command + 1 );
     }
     else
     {
-        _vTable[command] = func;
+        _fTable[command] = func;
         _qTable[command] = destinationQueue;
     }
 }
@@ -88,40 +86,20 @@ bool Dispatcher::dispatchCommand( Command& command )
     CommandQueue* queue = _qTable[which];
     if( queue )
     {
+        command.setDispatchFunction( _fTable[which] );
         queue->push( command );
         return true;
     }
     // else
 
-#ifdef NDEBUG
-    _vTable[which]( command );
-#else
-    const bool result = _vTable[which]( command );
-    EQASSERTINFO( result, result );
-#endif
+    EQCHECK( _fTable[which]( command ));
     return true;
-}
-
-bool Dispatcher::invokeCommand( Command& command )
-{
-    const uint32_t which = command->command;
-#ifndef NDEBUG
-    if( which >= _vTable.size( ))
-    {
-        EQERROR << "Command " << which
-                << " higher than number of registered command handlers ("
-                << _vTable.size() << ") for object of type "
-                << base::className( this ) << std::endl;
-        return false;
-    }
-#endif
-    return _vTable[which]( command );
 }
 
 bool Dispatcher::_cmdUnknown( Command& command )
 {
-    EQERROR << "Unknown " << command << " for " << typeid(*this).name()
-            << " @" << static_cast< void* >( this ) << std::endl;
+    EQERROR << "Unknown " << command << " for " << base::className( this )
+            << base::backtrace << std::endl;
     EQUNREACHABLE;
     return false;
 }

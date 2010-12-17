@@ -70,16 +70,12 @@ Node::~Node()
     EQASSERT( getPipes().empty( ));
 }
 
-void Node::attach( const base::UUID& id, 
-                   const uint32_t instanceID, 
-                   net::LocalNodePtr localNode )
+void Node::attach( const base::UUID& id, const uint32_t instanceID )
 {
-    Super::attach( id, instanceID, localNode );
+    Super::attach( id, instanceID );
 
-    Config* config = getConfig();
-    EQASSERT( config );
-    net::CommandQueue* queue = config->getMainThreadQueue();
-    net::CommandQueue* command = localNode->getCommandThreadQueue();
+    net::CommandQueue* queue = getMainThreadQueue();
+    net::CommandQueue* commandQ = getCommandThreadQueue();
     registerCommand( fabric::CMD_NODE_CREATE_PIPE, 
                      NodeFunc( this, &Node::_cmdCreatePipe ), queue );
     registerCommand( fabric::CMD_NODE_DESTROY_PIPE,
@@ -97,9 +93,9 @@ void Node::attach( const base::UUID& id,
     registerCommand( fabric::CMD_NODE_FRAME_TASKS_FINISH, 
                      NodeFunc( this, &Node::_cmdFrameTasksFinish ), queue );
     registerCommand( fabric::CMD_NODE_FRAMEDATA_TRANSMIT,
-                     NodeFunc( this, &Node::_cmdFrameDataTransmit ), command );
+                     NodeFunc( this, &Node::_cmdFrameDataTransmit ), commandQ );
     registerCommand( fabric::CMD_NODE_FRAMEDATA_READY,
-                     NodeFunc( this, &Node::_cmdFrameDataReady ), command );
+                     NodeFunc( this, &Node::_cmdFrameDataReady ), commandQ );
 }
 
 ClientPtr Node::getClient()
@@ -118,7 +114,12 @@ ServerPtr Node::getServer()
 
 net::CommandQueue* Node::getMainThreadQueue()
 {
-    return getClient()->getMainThreadQueue();
+    return getConfig()->getMainThreadQueue();
+}
+
+net::CommandQueue* Node::getCommandThreadQueue()
+{
+    return getConfig()->getCommandThreadQueue();
 }
 
 net::Barrier* Node::getBarrier( const net::ObjectVersion barrier )
@@ -386,7 +387,6 @@ void Node::_flushObjects()
 void Node::TransmitThread::run()
 {
     base::Thread::setDebugName( std::string( "Trm " ) + typeid( *_node).name());
-    ClientPtr client = _node->getClient();
 
     while( true )
     {
@@ -394,7 +394,7 @@ void Node::TransmitThread::run()
         if( !command )
             return; // exit thread
 
-        EQCHECK( client->invokeCommand( *command ));
+        EQCHECK( command->invoke( ));
         command->release();
     }
 }

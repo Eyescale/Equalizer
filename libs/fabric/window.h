@@ -179,9 +179,8 @@ namespace fabric
 
         EQFABRIC_INL virtual ~Window(); //!< @internal
 
-        virtual void attach( const base::UUID& id,
-                             const uint32_t instanceID,
-                             net::LocalNodePtr localNode ); //!< @internal
+        /** @internal */
+        virtual void attach( const base::UUID& id, const uint32_t instanceID );
 
         /** @internal */
         EQFABRIC_INL virtual void serialize( net::DataOStream& os,

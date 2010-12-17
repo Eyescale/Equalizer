@@ -82,9 +82,7 @@ namespace net
         //@}
 
     protected:
-        virtual void attach( const base::UUID& id, 
-                             const uint32_t instanceID, 
-                             LocalNodePtr localNode );
+        virtual void attach( const base::UUID& id, const uint32_t instanceID );
 
         virtual ChangeType getChangeType() const { return DELTA; }
 

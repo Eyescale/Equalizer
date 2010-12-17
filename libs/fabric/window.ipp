@@ -95,11 +95,9 @@ void Window< P, W, C >::init()
 }
 
 template< class P, class W, class C >
-void Window< P, W, C >::attach( const base::UUID& id,
-                                const uint32_t instanceID,
-                                net::LocalNodePtr localNode )
+void Window< P, W, C >::attach( const base::UUID& id, const uint32_t instanceID)
 {
-    Object::attach( id, instanceID, localNode );
+    Object::attach( id, instanceID );
 
     net::CommandQueue* queue = _pipe->getMainThreadQueue();
     EQASSERT( queue );
@@ -212,6 +210,7 @@ void Window< P, W, C >::setDirty( const uint64_t dirtyBits )
 template< class P, class W, class C >
 void Window< P, W, C >::notifyDetach()
 {
+    Object::notifyDetach();
     net::LocalNodePtr node = getLocalNode();
 
     if( isMaster( ))

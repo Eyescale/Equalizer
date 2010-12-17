@@ -42,12 +42,17 @@ VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
         , _ostream( this )
 #pragma warning( push )
 {
-    registerCommand( CMD_OBJECT_INSTANCE,
-                     CmdFunc( this, &VersionedSlaveCM::_cmdInstance ), 0 );
-    registerCommand( CMD_OBJECT_DELTA,
-                     CmdFunc( this, &VersionedSlaveCM::_cmdDelta ), 0 );
-    registerCommand( CMD_OBJECT_COMMIT, 
-                     CmdFunc( this, &VersionedSlaveCM::_cmdCommit ), 0 );
+    EQASSERT( object );
+    EQASSERT( object->getLocalNode( ));
+    CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
+
+    object->registerCommand( CMD_OBJECT_INSTANCE,
+                             CmdFunc( this, &VersionedSlaveCM::_cmdInstance ),
+                             q );
+    object->registerCommand( CMD_OBJECT_DELTA,
+                             CmdFunc( this, &VersionedSlaveCM::_cmdDelta ), q );
+    object->registerCommand( CMD_OBJECT_COMMIT, 
+                             CmdFunc( this, &VersionedSlaveCM::_cmdCommit ), q);
 }
 
 VersionedSlaveCM::~VersionedSlaveCM()
@@ -63,9 +68,9 @@ VersionedSlaveCM::~VersionedSlaveCM()
     _master = 0;
 }
 
-NodePtr VersionedSlaveCM::getMasterNode()
+const NodeID& VersionedSlaveCM::getMasterNodeID() const
 { 
-    return _master;
+    return _master->getNodeID();
 }
 
 uint32_t VersionedSlaveCM::commitNB()

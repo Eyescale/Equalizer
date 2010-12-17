@@ -65,19 +65,6 @@ namespace net
          * @return true if the command was dispatched, false otherwise.
          */
         bool dispatchObjectCommand( Command& packet );
-
-
-        /** 
-         * Invokes the registered handler method for a command packet.
-         * 
-         * For object packets, invocation is forwarded to the appropriate
-         * object(s).
-         *
-         * @param packet the command packet.
-         * @return the result of the operation.
-         * @sa Dispatcher::invokeCommand
-         */
-        bool invokeObjectCommand( Command& packet );
         //@}
 
         /**
@@ -204,7 +191,6 @@ namespace net
         NodeID _findMasterNodeID( const base::UUID& id );
  
         NodePtr _connectMaster( const base::UUID& id );
-        Object* _findObject( Command& command );
 
         void _attachObject( Object* object, const base::UUID& id, 
                             const uint32_t instanceID );

@@ -62,10 +62,10 @@ namespace net
         //@}
 
         virtual bool isMaster() const { return false; }
+
         virtual uint32_t getMasterInstanceID() const {return _masterInstanceID;}
         virtual void setMasterNode( NodePtr node ) { _master = node; }
-
-        virtual NodePtr getMasterNode();
+        virtual const NodeID& getMasterNodeID() const;
 
         virtual uint128_t addSlave( Command& )
             { EQDONTCALL; return VERSION_INVALID; }

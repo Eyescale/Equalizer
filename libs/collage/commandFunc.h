@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,6 +17,9 @@
 
 #ifndef EQNET_COMMANDFUNC_H
 #define EQNET_COMMANDFUNC_H
+
+#include <eq/base/base.h>
+#include <eq/base/debug.h>
 
 namespace eq
 {
@@ -39,14 +42,18 @@ namespace net
 
         template< typename O > CommandFunc( const O& from )
                 : _object( from._object ),
-                  _func(
-                      static_cast<bool (T::*)( Command& )>(from._func))
+                  _func( static_cast<bool (T::*)( Command& )>(from._func))
             {}
 
         bool operator()( Command& command )
         {
+            EQASSERT( _object );
+            EQASSERT( _func );
             return (_object->*_func)( command );
         }
+
+        void clear() { _object = 0; _func = 0; }
+        bool isValid() const { return _object && _func; }
 
         // Can't make private because copy constructor needs access. Can't
         // declare friend because C++ does not allow generic template friends in
@@ -55,6 +62,17 @@ namespace net
         T* _object;
         bool (T::*_func)( Command& );
     };
+
+    template< typename T >
+    inline std::ostream& operator << ( std::ostream& os,
+                                       const CommandFunc<T>& func )
+    {
+        if( func._object && func._func )
+            os << "CommandFunc of " << base::className( func._object );
+        else
+            os << "invalid CommandFunc";
+        return os;
+    }
 }
 }
 

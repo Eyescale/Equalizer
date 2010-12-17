@@ -54,6 +54,9 @@ namespace eq
 
         /** @name Data Access */
         //@{
+        EQ_API net::CommandQueue* getPipeThreadQueue(); //!< @internal
+        EQ_API net::CommandQueue* getCommandThreadQueue(); //!< @internal
+
         /**
          * @return true if this channel is stopped, false otherwise.
          * @version 1.0 
@@ -297,9 +300,8 @@ namespace eq
 
     protected:
         /** @internal */
-        EQ_API void attach( const base::UUID& id, 
-                            const uint32_t instanceID, 
-                            net::LocalNodePtr localNode );
+        EQ_API void attach( const base::UUID& id, const uint32_t instanceID );
+
         /** @name Actions */
         //@{
         /** 

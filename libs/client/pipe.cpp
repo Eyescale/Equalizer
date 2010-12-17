@@ -119,10 +119,9 @@ ServerPtr Pipe::getServer()
     return ( node ? node->getServer() : 0);
 }
 
-void Pipe::attach( const base::UUID& id, const uint32_t instanceID, 
-                   net::LocalNodePtr localNode )
+void Pipe::attach( const base::UUID& id, const uint32_t instanceID )
 {
-    Super::attach( id, instanceID, localNode );
+    Super::attach( id, instanceID );
     
     net::CommandQueue* queue = getPipeThreadQueue();
 
@@ -241,7 +240,6 @@ void Pipe::_runThread()
     EQ_TS_THREAD( _pipeThread );
     EQINFO << "Entered pipe thread" << std::endl;
 
-    ClientPtr client = getClient();
     Config* config = getConfig();
     EQASSERT( config );
     EQASSERT( _pipeThreadQueue );
@@ -253,7 +251,7 @@ void Pipe::_runThread()
         _waitTime += ( config->getTime() - startWait );
 
         EQASSERT( command );
-        EQCHECK( client->invokeCommand( *command ));
+        EQCHECK( command->invoke( ));
         command->release();
     }
 
@@ -271,6 +269,11 @@ net::CommandQueue* Pipe::getPipeThreadQueue()
 net::CommandQueue* Pipe::getMainThreadQueue()
 {
     return getServer()->getMainThreadQueue();
+}
+
+net::CommandQueue* Pipe::getCommandThreadQueue()
+{
+    return getServer()->getCommandThreadQueue();
 }
 
 Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye,

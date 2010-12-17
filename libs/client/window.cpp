@@ -98,12 +98,11 @@ Window::~Window()
     _objectManager = 0;
 }
 
-void Window::attach( const base::UUID& id, const uint32_t instanceID, 
-                     net::LocalNodePtr localNode )
+void Window::attach( const base::UUID& id, const uint32_t instanceID )
 {
-    Super::attach( id, instanceID, localNode );
+    Super::attach( id, instanceID );
 
-    net::CommandQueue* queue = getPipe()->getPipeThreadQueue();
+    net::CommandQueue* queue = getPipeThreadQueue();
 
     registerCommand( fabric::CMD_WINDOW_CREATE_CHANNEL, 
                      WindowFunc( this, &Window::_cmdCreateChannel ), queue );
@@ -183,9 +182,12 @@ void Window::drawFPS()
 
 net::CommandQueue* Window::getPipeThreadQueue()
 { 
-    Pipe* pipe = getPipe();
-    EQASSERT( pipe );
-    return pipe->getPipeThreadQueue(); 
+    return getPipe()->getPipeThreadQueue(); 
+}
+
+net::CommandQueue* Window::getCommandThreadQueue()
+{ 
+    return getPipe()->getCommandThreadQueue(); 
 }
 
 const Node* Window::getNode() const 

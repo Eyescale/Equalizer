@@ -60,6 +60,7 @@ namespace eq
         EQ_API ServerPtr getServer();
 
         EQ_API net::CommandQueue* getMainThreadQueue(); //!< @internal
+        EQ_API net::CommandQueue* getCommandThreadQueue(); //!< @internal
 
         /** 
          * @internal
@@ -128,9 +129,7 @@ namespace eq
 
     protected:
         /** @internal */
-        EQ_API virtual void attach( const base::UUID& id, 
-                                    const uint32_t instanceID, 
-                                    net::LocalNodePtr localNode );
+        EQ_API virtual void attach( const UUID& id, const uint32_t instanceID );
 
         /** @name Actions */
         //@{

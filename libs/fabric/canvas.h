@@ -112,8 +112,7 @@ namespace fabric
 
         /** @internal */
         EQFABRIC_INL virtual void attach( const base::UUID& id,
-                                          const uint32_t instanceID,
-                                          net::LocalNodePtr localNode );
+                                          const uint32_t instanceID );
 
         /** @sa Frustum::serialize. @internal */
         EQFABRIC_INL void serialize( net::DataOStream& os, 

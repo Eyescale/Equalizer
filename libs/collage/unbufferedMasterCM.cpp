@@ -38,11 +38,17 @@ UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
         : MasterCM( object )
 {
     _version = VERSION_FIRST;
-    registerCommand( CMD_OBJECT_COMMIT, 
-                     CmdFunc( this, &UnbufferedMasterCM::_cmdCommit ), 0 );
+    EQASSERT( object );
+    EQASSERT( object->getLocalNode( ));
+    CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
+
+    object->registerCommand( CMD_OBJECT_COMMIT, 
+                             CmdFunc( this, &UnbufferedMasterCM::_cmdCommit ),
+                             q );
     // sync commands are send to any instance, even the master gets the command
-    registerCommand( CMD_OBJECT_DELTA,
-                     CmdFunc( this, &UnbufferedMasterCM::_cmdDiscard ), 0 );
+    object->registerCommand( CMD_OBJECT_DELTA,
+                             CmdFunc( this, &UnbufferedMasterCM::_cmdDiscard ),
+                             q );
 }
 
 UnbufferedMasterCM::~UnbufferedMasterCM()

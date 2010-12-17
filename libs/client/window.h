@@ -79,6 +79,7 @@ namespace eq
         /** @name Data Access */
         //@{
         EQ_API net::CommandQueue* getPipeThreadQueue(); //!< @internal
+        EQ_API net::CommandQueue* getCommandThreadQueue(); //!< @internal
 
         /** @return the Node of this window. @version 1.0 */
         EQ_API const Node* getNode() const; 
@@ -286,9 +287,8 @@ namespace eq
         friend class Pipe;
 
         /** @internal */
-        EQ_API virtual void attach( const base::UUID& id, 
-                                    const uint32_t instanceID, 
-                                    net::LocalNodePtr localNode );
+        EQ_API virtual void attach( const UUID& id, const uint32_t instanceID );
+
         /** @name Actions */
         //@{
         /** 

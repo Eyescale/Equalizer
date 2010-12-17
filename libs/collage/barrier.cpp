@@ -75,12 +75,11 @@ void Barrier::unpack( DataIStream& is )
 }
 //---------------------------------------------------------------------------
 
-void Barrier::attach( const base::UUID& id, const uint32_t instanceID, 
-                      LocalNodePtr localNode )
+void Barrier::attach( const base::UUID& id, const uint32_t instanceID )
 {
-    Object::attach( id, instanceID, localNode );
+    Object::attach( id, instanceID );
 
-    CommandQueue* queue = localNode->getCommandThreadQueue();
+    CommandQueue* queue = getLocalNode()->getCommandThreadQueue();
 
     registerCommand( CMD_BARRIER_ENTER,
                      CmdFunc( this, &Barrier::_cmdEnter ), queue );

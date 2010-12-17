@@ -58,6 +58,7 @@ namespace eq
         //@{
         EQ_API net::CommandQueue* getPipeThreadQueue(); //!< @internal
         net::CommandQueue* getMainThreadQueue(); //!< @internal
+        net::CommandQueue* getCommandThreadQueue(); //!< @internal
 
         /** @return the parent configuration. @version 1.0 */
         EQ_API Config* getConfig();
@@ -354,10 +355,8 @@ namespace eq
         EQ_API virtual void frameDrawFinish( const uint128_t& frameID, 
                                              const uint32_t frameNumber );
 
-        /** @internal @sa net::Object::attach. */
-        EQ_API virtual void attach( const base::UUID& id, 
-                                    const uint32_t instanceID, 
-                                    net::LocalNodePtr LocalNode );
+        /** @internal */
+        EQ_API virtual void attach( const UUID& id, const uint32_t instanceID );
 
     private:
         //-------------------- Members --------------------

@@ -73,13 +73,12 @@ Channel::~Channel()
 typedef net::CommandFunc<Channel> CmdFunc;
 /** @endcond */
 
-void Channel::attach( const base::UUID& id, 
-                      const uint32_t instanceID, 
-                      net::LocalNodePtr localNode )
+void Channel::attach( const base::UUID& id, const uint32_t instanceID )
 {
-    Super::attach( id, instanceID, localNode );
-    net::CommandQueue* queue = getWindow()->getPipeThreadQueue();
-    net::CommandQueue* commandQ = localNode->getCommandThreadQueue();
+    Super::attach( id, instanceID );
+    net::CommandQueue* queue = getPipeThreadQueue();
+    net::CommandQueue* commandQ = getCommandThreadQueue();
+    net::CommandQueue* transmitQ = &getNode()->transmitter.getQueue();
 
     registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT, 
                      CmdFunc( this, &Channel::_cmdConfigInit ), queue );
@@ -102,13 +101,24 @@ void Channel::attach( const base::UUID& id,
     registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT, 
                      CmdFunc( this, &Channel::_cmdFrameTransmit ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT_ASYNC, 
-                     CmdFunc( this, &Channel::_cmdFrameTransmitAsync ), 0 );
+                     CmdFunc( this, &Channel::_cmdFrameTransmitAsync ),
+                     transmitQ );
     registerCommand( fabric::CMD_CHANNEL_FRAME_VIEW_START, 
                      CmdFunc( this, &Channel::_cmdFrameViewStart ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_VIEW_FINISH, 
                      CmdFunc( this, &Channel::_cmdFrameViewFinish ), queue );
     registerCommand( fabric::CMD_CHANNEL_STOP_FRAME, 
                      CmdFunc( this, &Channel::_cmdStopFrame ), commandQ );
+}
+
+net::CommandQueue* Channel::getPipeThreadQueue()
+{ 
+    return getWindow()->getPipeThreadQueue(); 
+}
+
+net::CommandQueue* Channel::getCommandThreadQueue()
+{ 
+    return getWindow()->getCommandThreadQueue(); 
 }
 
 Pipe* Channel::getPipe()
@@ -1313,7 +1323,7 @@ bool Channel::_cmdFrameTransmit( net::Command& command )
     packet->command = fabric::CMD_CHANNEL_FRAME_TRANSMIT_ASYNC;
     packet->statisticsIndex = _statisticsIndex;
     packet->frameNumber = getPipe()->getCurrentFrame();
-    getNode()->transmitter.getQueue().push( command );
+    dispatchCommand( command );
     return true;
 }
 

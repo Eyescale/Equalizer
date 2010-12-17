@@ -86,10 +86,9 @@ void Pipe< N, P, W, V >::restore()
 
 template< class N, class P, class W, class V >
 void Pipe< N, P, W, V >::attach( const base::UUID& id,
-                                 const uint32_t instanceID,
-                                 net::LocalNodePtr localNode )
+                                 const uint32_t instanceID )
 {
-    Object::attach( id, instanceID, localNode );
+    Object::attach( id, instanceID );
 
     net::CommandQueue* queue = _node->getConfig()->getMainThreadQueue();
     EQASSERT( queue );
@@ -177,6 +176,7 @@ void Pipe< N, P, W, V >::setDirty( const uint64_t dirtyBits )
 template< class N, class P, class W, class V >
 void Pipe< N, P, W, V >::notifyDetach()
 {
+    Object::notifyDetach();
     while( !_windows.empty( ))
     {
         W* window = _windows.back();

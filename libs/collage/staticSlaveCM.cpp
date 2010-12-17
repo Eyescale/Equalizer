@@ -35,8 +35,12 @@ StaticSlaveCM::StaticSlaveCM( Object* object )
         : _object( object )
         , _currentIStream( new ObjectDataIStream )
 {
-    registerCommand( CMD_OBJECT_INSTANCE,
-                     CmdFunc( this, &StaticSlaveCM::_cmdInstance ), 0 );
+    EQASSERT( object );
+    EQASSERT( object->getLocalNode( ));
+    CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
+
+    object->registerCommand( CMD_OBJECT_INSTANCE,
+                             CmdFunc( this, &StaticSlaveCM::_cmdInstance ), q );
 }
 
 StaticSlaveCM::~StaticSlaveCM()

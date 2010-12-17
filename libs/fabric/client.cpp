@@ -98,10 +98,7 @@ void Client::processCommand()
     if( !command ) // just a wakeup()
         return;
 
-    if( !invokeCommand( *command ))
-    {
-        EQABORT( "Error handling command packet" );
-    }
+    EQCHECK( command->invoke( ));
     command->release();
 }
 
@@ -122,26 +119,6 @@ bool Client::dispatchCommand( net::Command& command )
 
         default:
             return net::LocalNode::dispatchCommand( command );
-    }
-}
-
-bool Client::invokeCommand( net::Command& command )
-{
-    EQVERB << "invokeCommand " << command << std::endl;
-
-    switch( command->type )
-    {
-        case PACKETTYPE_EQ_CLIENT:
-            return net::Dispatcher::invokeCommand( command );
-
-        case PACKETTYPE_EQ_SERVER:
-        {
-            net::NodePtr node = command.getNode();
-            return node->net::Dispatcher::invokeCommand( command );
-        }
-
-        default:
-            return net::LocalNode::invokeCommand( command );
     }
 }
 

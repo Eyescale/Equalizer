@@ -209,27 +209,27 @@ namespace net
         uint32_t requestID;
     };
 
-    struct NodeFindMasterNodeID : public NodePacket
+    struct NodeFindMasterNodeIDPacket : public NodePacket
     {
-        NodeFindMasterNodeID()
+        NodeFindMasterNodeIDPacket()
                 : requestID( EQ_UNDEFINED_UINT32 )
             {
                 command   = CMD_NODE_FIND_MASTER_NODE_ID;
-                size      = sizeof( NodeFindMasterNodeID ); 
+                size      = sizeof( NodeFindMasterNodeIDPacket ); 
             }
         
         base::UUID identifier;
         uint32_t   requestID;
     };
 
-    struct NodeFindMasterNodeIDReply : public NodePacket
+    struct NodeFindMasterNodeIDReplyPacket : public NodePacket
     {
-        NodeFindMasterNodeIDReply( 
-                          const NodeFindMasterNodeID* request )
+        NodeFindMasterNodeIDReplyPacket( 
+                          const NodeFindMasterNodeIDPacket* request )
                 : requestID( request->requestID )
             {
                 command   = CMD_NODE_FIND_MASTER_NODE_ID_REPLY;
-                size      = sizeof( NodeFindMasterNodeIDReply ); 
+                size      = sizeof( NodeFindMasterNodeIDReplyPacket ); 
             }
         NodeID     masterNodeID;
         uint32_t   requestID;

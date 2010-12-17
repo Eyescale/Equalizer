@@ -27,10 +27,7 @@ namespace eq
 {
 namespace net
 {
-    class DataIStream;
-    class DataOStream;
     class ObjectCM;
-    struct ObjectPacket;
 
     /** 
      * A generic, distributed object.
@@ -45,6 +42,7 @@ namespace net
         /** Object change handling characteristics, see Programming Guide */
         enum ChangeType
         {
+            NONE,              //!< @internal
             STATIC,            //!< non-versioned, static object.
             INSTANCE,          //!< use only instance data
             DELTA,             //!< use pack/unpack delta
@@ -57,13 +55,10 @@ namespace net
         /** Destruct the distributed object. */
         EQNET_API virtual ~Object();
 
-        /** @internal @sa Dispatcher::dispatchCommand(). */
-        EQNET_API virtual bool dispatchCommand( Command& command );
-
         /** @name Data Access */
         //@{
         /** @return true if the object is attached, mapped or registered. */
-        bool isAttached() const { return _localNode.isValid(); }
+        bool isAttached() const { return _instanceID != EQ_INSTANCE_INVALID; }
 
         /**
          * @return the local node to which this object is mapped, or 0 if the
@@ -74,14 +69,8 @@ namespace net
         /** @return the object's unique identifier. */
         const base::UUID& getID() const { return _id; }
 
-        /** @internal Set the object's unique identifier */
-        EQNET_API void setID( const base::UUID& identifier );
-
         /** @return the node-wide unique object instance identifier. */
         uint32_t getInstanceID() const { return _instanceID; }
-
-        /** @internal @return the master object instance identifier. */
-        EQNET_API uint32_t getMasterInstanceID() const;
 
         /** 
          * @return true if this instance is the master version, false otherwise.
@@ -279,42 +268,6 @@ namespace net
                              const void* data, const uint64_t size );
         //@}
 
-    protected:
-        /** Copy constructor. */
-        EQNET_API Object( const Object& );
-
-        /** NOP assignment operator. */
-        const Object& operator = ( const Object& ) { return *this; }
-
-        /** 
-         * Setup the change manager.
-         * 
-         * @param type the type of the change manager.
-         * @param master true if this object is the master.
-         * @param masterInstanceID the instance identifier of the master object,
-         *                         used when master == false.
-         * @internal
-         */
-        void setupChangeManager( const Object::ChangeType type, 
-                                 const bool master, 
-                                 const uint32_t masterInstanceID );
-
-        /**
-         * Called when object is attached to local node from the receiver thread.
-         * @internal
-         */
-
-        EQNET_API virtual void attach( const base::UUID& id, 
-                                       const uint32_t instanceID, 
-                                       LocalNodePtr localNode );
-
-        /**
-         * @internal
-         * Called when the object is detached from the local node from the
-         * receiver thread.
-         */
-        EQNET_API virtual void detach();
-
         /** @name Notifications */
         /**
          * Notify that this object has been registered or mapped.
@@ -332,14 +285,68 @@ namespace net
          * unmapping, before the operation is executed.
          * @sa isMaster()
          */
-        virtual void notifyDetach() {};
-
+        virtual void notifyDetach();
         //@}
 
-    private:
-        /** Indicates if this instance is the copy on the server node. */
-        friend class ObjectStore;
+        /** @internal */
+        //@{
+        /** @internal Set the object's unique identifier */
+        EQNET_API void setID( const base::UUID& identifier );
 
+        /** @internal @return the master object instance identifier. */
+        uint32_t getMasterInstanceID() const;
+
+        /** @internal @return the master object instance identifier. */
+        const NodeID& getMasterNodeID() const;
+
+        uint128_t addSlave( Command& command ); //!< @internal
+        void removeSlave( NodePtr node ); //!< @internal
+        void setMasterNode( NodePtr node ); //!< @internal
+        /** @internal */
+        void addInstanceDatas( const ObjectDataIStreamDeque&, const uint128_t&);
+
+        /**
+         * @internal
+         * Setup the change manager.
+         * 
+         * @param type the type of the change manager.
+         * @param master true if this object is the master.
+         * @param localNode the node the object will be attached to.
+         * @param masterInstanceID the instance identifier of the master object,
+         *                         used when master == false.
+         */
+        void setupChangeManager( const Object::ChangeType type, 
+                                 const bool master, LocalNodePtr localNode,
+                                 const uint32_t masterInstanceID );
+        /**
+         * @internal
+         * Called when object is attached from the receiver thread.
+         */
+        EQNET_API virtual void attach( const base::UUID& id, 
+                                       const uint32_t instanceID );
+
+        /**
+         * @internal
+         * Called when the object is detached from the local node from the
+         * receiver thread.
+         */
+        EQNET_API virtual void detach();
+
+        /** @internal Transfer the attachment from the given object. */
+        void transfer( Object* from );
+
+        void applyMapData( const uint128_t& version ); //!< @internal
+        void sendInstanceData( Nodes& nodes ); //!< @internal
+        //@}
+
+    protected:
+        /** Copy constructor. */
+        EQNET_API Object( const Object& );
+
+        /** NOP assignment operator. */
+        const Object& operator = ( const Object& ) { return *this; }
+
+    private:
         friend class DeltaMasterCM;
         friend class FullMasterCM;
         friend class MasterCM;
@@ -362,9 +369,6 @@ namespace net
 
         void _setChangeManager( ObjectCM* cm );
         const Nodes* _getSlaveNodes() const;
-
-        /* The command handlers. */
-        bool _cmdForward( Command& command );
 
         EQ_TS_VAR( _thread );
     };

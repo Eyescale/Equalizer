@@ -24,6 +24,7 @@
 #include "fullMasterCM.h"
 #include "versionedSlaveCM.h"
 #include "log.h"
+#include "nodePackets.h"
 #include "nullCM.h"
 #include "objectCM.h"
 #include "staticMasterCM.h"
@@ -69,31 +70,17 @@ Object::~Object()
 
 typedef CommandFunc<Object> CmdFunc;
 
-void Object::attach( const base::UUID& id, 
-                     const uint32_t instanceID, 
-                     LocalNodePtr localNode )
+void Object::attach( const base::UUID& id, const uint32_t instanceID )
 {
     EQASSERT( !isAttached() );
+    EQASSERT( _localNode );
     EQASSERT( instanceID <= EQ_INSTANCE_MAX );
 
     _id         = id;
     _instanceID = instanceID;
-    _localNode  = localNode;
-
-    CommandQueue* queue = localNode->getCommandThreadQueue();
-
-    registerCommand( CMD_OBJECT_INSTANCE,
-                     CmdFunc( this, &Object::_cmdForward ), queue );
-    registerCommand( CMD_OBJECT_DELTA, 
-                     CmdFunc( this, &Object::_cmdForward ), queue );
-    registerCommand( CMD_OBJECT_SLAVE_DELTA,
-                     CmdFunc( this, &Object::_cmdForward ), queue );
-    registerCommand( CMD_OBJECT_COMMIT, 
-                     CmdFunc( this, &Object::_cmdForward ), queue );
-
-    EQLOG( LOG_OBJECTS ) << _id << '.' << _instanceID << ": " 
-                         << base::className( this )
-                         << (isMaster() ? " master" : " slave") << std::endl;
+    EQLOG( LOG_OBJECTS )
+        << _id << '.' << _instanceID << ": " << base::className( this )
+        << (isMaster() ? " master" : " slave") << std::endl;
 }
 
 void Object::detach()
@@ -102,11 +89,40 @@ void Object::detach()
     _localNode = 0;
 }
 
-bool Object::dispatchCommand( Command& command )
+void Object::notifyDetach()
 {
-    EQASSERT( isAttached( ));
-    command.setDispatchID( _instanceID );
-    return Dispatcher::dispatchCommand( command );
+    if( !isMaster( ))
+        return;
+
+    // unmap slaves
+    const Nodes* slaves = _cm->getSlaveNodes();
+    if( !slaves || slaves->empty( ))
+        return;
+
+    EQWARN << slaves->size() << " slaves subscribed during deregisterObject of "
+           << base::className( this ) << " id " << _id << std::endl;
+
+    NodeUnmapObjectPacket packet;
+    packet.objectID = _id;
+
+    for( Nodes::const_iterator i = slaves->begin(); i != slaves->end(); ++i )
+    {
+        NodePtr node = *i;
+        node->send( packet );
+    }
+}
+
+void Object::transfer( Object* from )
+{
+    _id           = from->_id;
+    _instanceID   = from->getInstanceID();
+    _cm           = from->_cm; 
+    _localNode    = from->_localNode;
+    _cm->setObject( this );
+
+    from->_cm = ObjectCM::ZERO;
+    from->_localNode = 0;
+    from->_instanceID = EQ_INSTANCE_INVALID;
 }
 
 void Object::_setChangeManager( ObjectCM* cm )
@@ -124,11 +140,6 @@ void Object::_setChangeManager( ObjectCM* cm )
     cm->init();
     EQLOG( LOG_OBJECTS ) << "set new change manager " << base::className( cm )
                          << " for " << base::className( this ) << std::endl;
-}
-
-const Nodes* Object::_getSlaveNodes() const
-{
-    return _cm->getSlaveNodes();
 }
 
 void Object::setID( const base::UUID& identifier )
@@ -168,32 +179,46 @@ uint128_t Object::commit()
 }
 
 void Object::setupChangeManager( const Object::ChangeType type, 
-                                 const bool master, 
+                                 const bool master, LocalNodePtr localNode,
                                  const uint32_t masterInstanceID )
 {
+    _localNode = localNode;
+
     switch( type )
     {
+        case Object::NONE:
+            EQASSERT( !_localNode );
+            _setChangeManager( ObjectCM::ZERO );
+            break;
+
         case Object::STATIC:
+            EQASSERT( _localNode );
             if( master )
                 _setChangeManager( new StaticMasterCM( this ));
             else
                 _setChangeManager( new StaticSlaveCM( this ));
             break;
+
         case Object::INSTANCE:
+            EQASSERT( _localNode );
             if( master )
                 _setChangeManager( new FullMasterCM( this ));
             else
                 _setChangeManager( new VersionedSlaveCM( this, 
                                                          masterInstanceID ));
             break;
+
         case Object::DELTA:
+            EQASSERT( _localNode );
             if( master )
                 _setChangeManager( new DeltaMasterCM( this ));
             else
                 _setChangeManager( new VersionedSlaveCM( this,
                                                          masterInstanceID ));
             break;
+
         case Object::UNBUFFERED:
+            EQASSERT( _localNode );
             if( master )
                 _setChangeManager( new UnbufferedMasterCM( this ));
             else
@@ -208,10 +233,40 @@ void Object::setupChangeManager( const Object::ChangeType type,
 //---------------------------------------------------------------------------
 // ChangeManager forwarders
 //---------------------------------------------------------------------------
+void Object::applyMapData( const uint128_t& version )
+{
+    _cm->applyMapData( version );
+}
+
+void Object::sendInstanceData( Nodes& nodes )
+{
+    _cm->sendInstanceData( nodes );
+}
 
 bool Object::isMaster() const
 {
     return _cm->isMaster();
+}
+
+uint128_t Object::addSlave( Command& command )
+{
+    return _cm->addSlave( command );
+}
+
+void Object::removeSlave( NodePtr node )
+{
+    _cm->removeSlave( node );
+}
+
+void Object::setMasterNode( NodePtr node )
+{
+    _cm->setMasterNode( node );
+}
+
+void Object::addInstanceDatas( const ObjectDataIStreamDeque& cache,
+                               const uint128_t& version )
+{
+    _cm->addInstanceDatas( cache, version );
 }
 
 uint32_t Object::commitNB()
@@ -276,9 +331,9 @@ uint32_t Object::getMasterInstanceID() const
     return _cm->getMasterInstanceID();
 }
 
-bool Object::_cmdForward( Command& command )
+const NodeID& Object::getMasterNodeID() const
 {
-    return _cm->invokeCommand( command );
+    return _cm->getMasterNodeID();
 }
 
 std::ostream& operator << ( std::ostream& os, const Object& object )

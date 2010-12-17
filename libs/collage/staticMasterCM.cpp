@@ -40,11 +40,6 @@ StaticMasterCM::StaticMasterCM( Object* object )
 
 StaticMasterCM::~StaticMasterCM(){}
 
-NodePtr StaticMasterCM::getMasterNode()
-{ 
-    return _object->getLocalNode();
-}
-
 uint128_t StaticMasterCM::addSlave( Command& command )
 {
     EQASSERT( command->type == PACKETTYPE_EQNET_NODE );

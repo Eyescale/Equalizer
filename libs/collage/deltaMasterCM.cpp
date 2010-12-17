@@ -40,11 +40,14 @@ DeltaMasterCM::DeltaMasterCM( Object* object )
         , _deltaData( this )
 #pragma warning( push )
 {
-    registerCommand( CMD_OBJECT_COMMIT, 
-                     CmdFunc( this, &DeltaMasterCM::_cmdCommit ), 0 );
+    EQASSERT( object );
+    EQASSERT( object->getLocalNode( ));
+    CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
 
+    registerCommand( CMD_OBJECT_COMMIT, 
+                     CmdFunc( this, &DeltaMasterCM::_cmdCommit ), q );
     registerCommand( CMD_OBJECT_DELTA, 
-                     CmdFunc( this, &DeltaMasterCM::_cmdDiscard ), 0 );
+                     CmdFunc( this, &DeltaMasterCM::_cmdDiscard ), q );
 }
 
 DeltaMasterCM::~DeltaMasterCM()

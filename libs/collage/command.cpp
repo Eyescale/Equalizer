@@ -30,7 +30,7 @@ Command::Command()
         , _data( 0 )
         , _dataSize( 0 )
         , _refCountMaster( 0 )
-        , _dispatchID( EQ_INSTANCE_INVALID )
+        , _func( 0, 0 )
 {}
 
 Command::~Command() 
@@ -62,10 +62,12 @@ void Command::release()
     --_refCount;
 }
 
-size_t Command::_alloc( NodePtr node, LocalNodePtr localNode, const uint64_t size )
+size_t Command::_alloc( NodePtr node, LocalNodePtr localNode,
+                        const uint64_t size )
 {
     EQ_TS_THREAD( _writeThread );
     EQASSERT( _refCount == 0 );
+    EQASSERTINFO( !_func.isValid(), *this );
 
     size_t allocated = 0;
     if( !_data )
@@ -85,7 +87,7 @@ size_t Command::_alloc( NodePtr node, LocalNodePtr localNode, const uint64_t siz
     _node = node;
     _localNode = localNode;
     _refCountMaster = 0;
-    _dispatchID = EQ_INSTANCE_INVALID;
+    _func.clear();
     _packet = _data;
     _packet->size = size;
 
@@ -96,19 +98,20 @@ void Command::_clone( Command& from )
 {
     EQ_TS_THREAD( _writeThread );
     EQASSERT( _refCount == 0 );
+    EQASSERT( !_func.isValid( ));
 
     _node = from._node;
     _localNode = from._localNode;
     _packet = from._packet;
 
     _refCountMaster = &from._refCount;
-    _dispatchID = EQ_INSTANCE_INVALID;
 }
 
 void Command::_free()
 {
     EQ_TS_THREAD( _writeThread );
     EQASSERT( _refCount == 0 );
+    EQASSERT( !_func.isValid( ));
 
     if( _data )
         free( _data );
@@ -119,8 +122,15 @@ void Command::_free()
     _node = 0;
     _localNode = 0;
     _refCountMaster = 0;
-    _dispatchID = EQ_INSTANCE_INVALID;
 }        
+
+bool Command::invoke()
+{
+    EQASSERT( _func.isValid( ));
+    Dispatcher::Func func = _func;
+    _func.clear();
+    return func( *this );
+}
 
 std::ostream& operator << ( std::ostream& os, const Command& command )
 {
@@ -142,12 +152,14 @@ std::ostream& operator << ( std::ostream& os, const Command& command )
                 os << packet;
         }
 
-        os << ", " << command.getNode() << " >:" << command.getDispatchID()
+        os << ", " << command.getNode() << ", r" << command._refCount << " >"
            << base::enableFlush;
     }
     else
         os << "command< empty >";
-    
+
+    if( command._func.isValid( ))
+        os << ' ' << command._func << std::endl;
     return os;
 }
 }

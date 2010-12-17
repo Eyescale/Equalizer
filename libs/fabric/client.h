@@ -63,9 +63,6 @@ namespace fabric
         /** @internal */
         EQFABRIC_API virtual bool dispatchCommand( net::Command& command );
 
-        /** @internal */
-        EQFABRIC_API virtual bool invokeCommand( net::Command& );
-
     protected:
         /** Construct a new client. @internal */
         EQFABRIC_API Client();

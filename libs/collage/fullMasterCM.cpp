@@ -46,8 +46,12 @@ FullMasterCM::FullMasterCM( Object* object )
         , _commitCount( 0 )
         , _nVersions( 0 )
 {
-    registerCommand( CMD_OBJECT_COMMIT, 
-                     CmdFunc( this, &FullMasterCM::_cmdCommit ), 0 );
+    EQASSERT( object );
+    EQASSERT( object->getLocalNode( ));
+    CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
+
+    object->registerCommand( CMD_OBJECT_COMMIT, 
+                             CmdFunc( this, &FullMasterCM::_cmdCommit ), q );
 }
 
 FullMasterCM::~FullMasterCM()
@@ -67,7 +71,7 @@ FullMasterCM::~FullMasterCM()
     _instanceDataCache.clear();
 }
 
-void FullMasterCM::sendInstanceDatas( Nodes& nodes )
+void FullMasterCM::sendInstanceData( Nodes& nodes )
 {
     EQ_TS_THREAD( _cmdThread );
 

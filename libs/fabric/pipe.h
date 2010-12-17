@@ -151,8 +151,7 @@ namespace fabric
         EQFABRIC_INL virtual ~Pipe( ); //!< @internal
 
         virtual void attach( const base::UUID& id,
-                             const uint32_t instanceID,
-                             net::LocalNodePtr localNode ); //!< @internal
+                             const uint32_t instanceID ); //!< @internal
         /** @internal */
         EQFABRIC_INL virtual void serialize( net::DataOStream& os,
                                                 const uint64_t dirtyBits );

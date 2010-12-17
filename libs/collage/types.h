@@ -34,9 +34,9 @@ namespace net
 #define EQNET_SEPARATOR '#'
 
 #define EQ_INSTANCE_MAX     EQ_MAX_UINT32 //!< The biggest instance id possible
-#define EQ_INSTANCE_NONE    0xfffffffdu //!< None/NULL identifier
-#define EQ_INSTANCE_INVALID 0xfffffffeu //!< Invalid/unset instance identifier
-#define EQ_INSTANCE_ALL     0xffffffffu //!< all object instances
+#define EQ_INSTANCE_NONE    0xfffffffdu   //!< None/NULL identifier
+#define EQ_INSTANCE_INVALID 0xfffffffeu   //!< Invalid/unset instance identifier
+#define EQ_INSTANCE_ALL     0xffffffffu   //!< all object instances
 
 class Node;
 class LocalNode;
@@ -46,6 +46,8 @@ class Command;
 class CommandQueue;
 class Connection;
 class ConnectionDescription;
+class DataIStream;
+class DataOStream;
 class ObjectDataIStream;
 struct ObjectVersion;
 
@@ -65,20 +67,23 @@ typedef base::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
 
 /** A vector of NodePtr's. */
 typedef std::vector< NodePtr >                   Nodes;
-/** A vector of Objects. */
+
+/** A vector of objects. */
 typedef std::vector< Object* >                   Objects;
+/** A const iterator for a vector of objects. */
+typedef Objects::const_iterator                  ObjectsCIter;
+
 /** A vector of Barriers. */
 typedef std::vector< Barrier* >                  Barriers;
 /** A vector of ConnectionPtr's. */
 typedef std::vector< ConnectionPtr >             Connections;
+
 /** A vector of ConnectionDescriptionPtr's. */
 typedef std::vector< ConnectionDescriptionPtr >  ConnectionDescriptions;
 /** An iterator for a vector of ConnectionDescriptionPtr's. */
-typedef std::vector< ConnectionDescriptionPtr >::iterator
-                                                 ConnectionDescriptionsIter;
+typedef ConnectionDescriptions::iterator         ConnectionDescriptionsIter;
 /** A const iterator for a vector of ConnectionDescriptionPtr's. */
-typedef std::vector< ConnectionDescriptionPtr >::const_iterator
-                                                 ConnectionDescriptionsCIter;
+typedef ConnectionDescriptions::const_iterator   ConnectionDescriptionsCIter;
 
 /** @cond IGNORE */
 typedef std::vector< Command* > Commands;

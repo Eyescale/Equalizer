@@ -30,8 +30,6 @@ namespace eq
 {
 namespace net
 {
-    class Node;
-    class Object;
     struct ObjectInstancePacket;
 
     /** 
@@ -113,7 +111,7 @@ namespace net
         virtual void setMasterNode( NodePtr ) { /* nop */ }
 
         /** @return the master node, may be 0. */
-        virtual NodePtr getMasterNode() { return 0; } 
+        virtual const NodeID& getMasterNodeID() const { return NodeID::ZERO; } 
 
         /** 
          * Add a subscribed slave to the managed object.
@@ -142,7 +140,7 @@ namespace net
             { EQDONTCALL; }
 
         /** Speculatively send instance data to all nodes. */
-        virtual void sendInstanceDatas( Nodes& nodes ){}
+        virtual void sendInstanceData( Nodes& nodes ){}
 
         /** @return the object associate. @internal*/
         virtual const Object* getObject( ) const { EQDONTCALL; return 0; }

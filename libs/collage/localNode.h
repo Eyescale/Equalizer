@@ -286,20 +286,11 @@ namespace net
             { return _commandCache.clone( command ); }
 
         /** 
-         * Invokes the command handler method for the packet.
-         * 
-         * @param command the command.
-         * @return true if the result of the operation is handled.
-         * @sa Dispatcher::invokeCommand
-         */
-        EQNET_API bool invokeCommand( Command& command );
-
-        /** 
          * Dispatches a packet to the registered command queue.
          * 
          * @param command the command.
          * @return the result of the operation.
-         * @sa invokeCommand
+         * @sa Command::invoke
          */
         EQNET_API bool dispatchCommand( Command& command );
         //@}

@@ -97,10 +97,9 @@ Config< S, C, O, L, CV, N, V >::~Config()
 
 template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::attach( const base::UUID& id, 
-                                             const uint32_t instanceID, 
-                                             net::LocalNodePtr localNode )
+                                             const uint32_t instanceID )
 {
-    Object::attach( id, instanceID, localNode );
+    Object::attach( id, instanceID );
 
     net::CommandQueue* queue = _server->getMainThreadQueue();
     EQASSERT( queue );
@@ -735,6 +734,7 @@ void Config< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
 template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::notifyDetach()
 {
+    Object::notifyDetach();
     if( isMaster( ))
         return;
 

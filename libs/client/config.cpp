@@ -79,14 +79,12 @@ Config::~Config()
     base::Log::setClock( 0 );
 }
 
-void Config::attach( const base::UUID& id, 
-                     const uint32_t instanceID, 
-                     net::LocalNodePtr localNode )
+void Config::attach( const base::UUID& id, const uint32_t instanceID )
 {
-    Super::attach( id, instanceID, localNode );
+    Super::attach( id, instanceID );
 
     ServerPtr          server = getServer();
-    net::CommandQueue* queue  = server->getMainThreadQueue();
+    net::CommandQueue* queue  = getMainThreadQueue();
 
     registerCommand( fabric::CMD_CONFIG_CREATE_NODE,
                      ConfigFunc( this, &Config::_cmdCreateNode ), queue );
@@ -104,8 +102,8 @@ void Config::attach( const base::UUID& id,
                      ConfigFunc( this, &Config::_cmdReleaseFrameLocal ), queue);
     registerCommand( fabric::CMD_CONFIG_FRAME_FINISH, 
                      ConfigFunc( this, &Config::_cmdFrameFinish ), 0 );
-    registerCommand( fabric::CMD_CONFIG_EVENT, 
-                     ConfigFunc( this, &Config::_cmdUnknown ), &_eventQueue );
+    registerCommand( fabric::CMD_CONFIG_EVENT, ConfigFunc( 0, 0 ),
+                     &_eventQueue );
     registerCommand( fabric::CMD_CONFIG_SYNC_CLOCK, 
                      ConfigFunc( this, &Config::_cmdSyncClock ), 0 );
     registerCommand( fabric::CMD_CONFIG_SWAP_OBJECT,
@@ -164,7 +162,12 @@ void Config::notifyDetach()
 
 net::CommandQueue* Config::getMainThreadQueue()
 {
-    return getClient()->getMainThreadQueue();
+    return getServer()->getMainThreadQueue();
+}
+
+net::CommandQueue* Config::getCommandThreadQueue()
+{
+    return getServer()->getCommandThreadQueue();
 }
 
 ClientPtr Config::getClient()

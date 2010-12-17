@@ -185,9 +185,7 @@ namespace server
 
     protected:
         /** @sa net::Object::attach. */
-        virtual void attach( const base::UUID& id, 
-                             const uint32_t instanceID, 
-                             net::LocalNodePtr localNode );
+        virtual void attach( const UUID& id, const uint32_t instanceID );
 
     private:
         //-------------------- Members --------------------

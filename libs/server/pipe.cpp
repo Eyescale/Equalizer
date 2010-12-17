@@ -59,10 +59,9 @@ Pipe::~Pipe()
 {
 }
 
-void Pipe::attach( const base::UUID& id, const uint32_t instanceID, 
-                            net::LocalNodePtr localNode )
+void Pipe::attach( const base::UUID& id, const uint32_t instanceID )
 {
-    Super::attach( id, instanceID, localNode );
+    Super::attach( id, instanceID );
     
     net::CommandQueue* queue = getCommandThreadQueue();
 

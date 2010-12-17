@@ -37,11 +37,13 @@ namespace net
      * networked objects.
      *
      * Provides packet dispatch through a command queue and command handler
-     * table. Returns the result of the invoked command handlers.
+     * table.
      */
     class Dispatcher
     {
     public:
+        typedef CommandFunc< Dispatcher > Func;
+
         EQNET_API Dispatcher();
         EQNET_API Dispatcher( const Dispatcher& from );
         EQNET_API virtual ~Dispatcher();
@@ -58,22 +60,13 @@ namespace net
          */
         EQNET_API virtual bool dispatchCommand( Command& command );
 
-        /** 
-         * Handles a received command packet for this object by calling the
-         * appropriate command handler function.
-         * 
-         * @param command the command.
-         * @return the result of the operation.
-         * @sa registerCommand
-         */
-        EQNET_API virtual bool invokeCommand( Command& command );
- 
     protected:
         /** 
          * Registers a command member function for a command.
          * 
          * If the destination queue is 0, the command function is invoked
-         * directly.
+         * directly upon dispatch, otherwise it is invoked during the processing
+         * of the command queue.
          *
          * @param command the command.
          * @param func the functor to handle the command.
@@ -96,11 +89,11 @@ namespace net
 
     private:
         EQNET_API void _registerCommand( const uint32_t command, 
-                                         const CommandFunc< Dispatcher >& func,
+                                         const Func& func,
                                          CommandQueue* destinationQueue );
 
         /** The command handler function table. */
-        std::vector< CommandFunc< Dispatcher > > _vTable;
+        std::vector< Func > _fTable;
         
         /** Defines a queue to which commands are dispatched from the recv. */
         std::vector< CommandQueue* > _qTable;

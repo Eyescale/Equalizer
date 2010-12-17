@@ -73,6 +73,7 @@ namespace eq
         EQ_API ConstClientPtr getClient() const;
 
         EQ_API net::CommandQueue* getMainThreadQueue(); //!< @internal
+        EQ_API net::CommandQueue* getCommandThreadQueue(); //!< @internal
 
         /** @return the frame number of the last frame started. @version 1.0 */
         uint32_t getCurrentFrame()  const { return _currentFrame; }
@@ -377,9 +378,8 @@ namespace eq
 
     protected:
         /** @internal */
-        EQ_API void attach( const base::UUID& id, 
-                            const uint32_t instanceID, 
-                            net::LocalNodePtr localNode );
+        EQ_API virtual void attach( const base::UUID& id,
+                                    const uint32_t instanceID );
 
         EQ_API virtual void notifyAttached(); //!< @internal
         EQ_API virtual void notifyDetach(); //!< @internal

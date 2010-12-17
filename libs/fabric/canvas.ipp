@@ -78,10 +78,9 @@ void Canvas< CFG, C, S, L >::restore()
 
 template< class CFG, class C, class S, class L >
 void Canvas< CFG, C, S, L >::attach( const base::UUID& id,
-                                     const uint32_t instanceID,
-                                     net::LocalNodePtr localNode )
+                                     const uint32_t instanceID )
 {
-    Object::attach( id, instanceID, localNode );
+    Object::attach( id, instanceID );
 
     net::CommandQueue* queue = _config->getMainThreadQueue();
     EQASSERT( queue );
@@ -194,6 +193,7 @@ void Canvas< CFG, C, S, L >::release( S* segment )
 template< class CFG, class C, class S, class L >
 void Canvas< CFG, C, S, L >::notifyDetach()
 {
+    Object::notifyDetach();
     releaseChildren< C, S >( _segments );
 }
 

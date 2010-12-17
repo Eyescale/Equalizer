@@ -147,6 +147,7 @@ void Node< C, N, P, V >::setDirty( const uint64_t dirtyBits )
 template< class C, class N, class P, class V >
 void Node< C, N, P, V >::notifyDetach()
 {
+    Object::notifyDetach();
     while( !_pipes.empty( ))
     {
         P* pipe = _pipes.back();

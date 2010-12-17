@@ -154,12 +154,15 @@ NodeID ObjectStore::_findMasterNodeID( const base::UUID& identifier )
     {
         NodePtr node = *i;
 
-        NodeFindMasterNodeID packet;
+        NodeFindMasterNodeIDPacket packet;
         packet.requestID = _localNode->registerRequest();
         packet.identifier = identifier;
         node->send( packet );
+
         NodeID masterNodeID = base::UUID::ZERO;
         _localNode->waitRequest( packet.requestID, masterNodeID );
+        EQLOG( LOG_OBJECTS ) << "Find " << identifier << " on " << node << ": "
+                             << masterNodeID << std::endl;
         if( masterNodeID != base::UUID::ZERO )
             return masterNodeID;
     }
@@ -204,7 +207,7 @@ uint32_t _genNextID( base::a_int32_t& val )
 }
 
 void ObjectStore::_attachObject( Object* object, const base::UUID& id, 
-                             const uint32_t inInstanceID )
+                                 const uint32_t inInstanceID )
 {
     EQASSERT( object );
     EQ_TS_THREAD( _receiverThread );
@@ -213,7 +216,8 @@ void ObjectStore::_attachObject( Object* object, const base::UUID& id,
     if( inInstanceID == EQ_INSTANCE_INVALID )
         instanceID = _genNextID( _instanceIDs );
 
-    object->attach( id, instanceID, _localNode );
+    object->attach( id, instanceID );
+
     {
         base::ScopedMutex< base::SpinLock > mutex( _objects );
         Objects& objects = _objects.data[ id ];
@@ -222,8 +226,7 @@ void ObjectStore::_attachObject( Object* object, const base::UUID& id,
 
     _localNode->flushCommands(); // redispatch pending commands
 
-    EQLOG( LOG_OBJECTS ) << "attached " << object << " cm "
-                         << base::className( object->_cm ) << " @" 
+    EQLOG( LOG_OBJECTS ) << "attached " << object << " @" 
                          << static_cast< void* >( object ) << std::endl;
 }
 
@@ -247,37 +250,26 @@ void ObjectStore::swapObject( Object* oldObject, Object* newObject )
     EQASSERT( oldObject );
     EQASSERT( oldObject->isMaster() );
     EQ_TS_THREAD( _receiverThread );
-    base::ScopedMutex< base::SpinLock > mutex( _objects );
 
     if( !oldObject->isAttached() )
         return;
 
+    EQLOG( LOG_OBJECTS ) << "Swap " << base::className( oldObject ) <<std::endl;
     const base::UUID& id = oldObject->getID();
 
-    EQLOG( LOG_OBJECTS ) << "Swap " << base::className( oldObject )
-                         << std::endl;
-
+    base::ScopedMutex< base::SpinLock > mutex( _objects );
     ObjectsHash::iterator i = _objects->find( id );
     EQASSERT( i != _objects->end( ));
     if( i == _objects->end( ))
         return;
 
     Objects& objects = i->second;
-    Objects::iterator j = find( objects.begin(),objects.end(), oldObject );
+    Objects::iterator j = find( objects.begin(), objects.end(), oldObject );
     EQASSERT( j != objects.end( ));
     if( j == objects.end( ))
         return;
 
-    newObject->_id           = id;
-    newObject->_instanceID   = oldObject->getInstanceID();
-    newObject->_cm           = oldObject->_cm; 
-    newObject->_localNode    = oldObject->_localNode;
-    newObject->_cm->setObject( newObject );
-
-    oldObject->_cm = ObjectCM::ZERO;
-    oldObject->_localNode = 0;
-    oldObject->_instanceID = EQ_INSTANCE_INVALID;
-
+    newObject->transfer( oldObject );
     *j = newObject;
 }
 
@@ -373,10 +365,10 @@ bool ObjectStore::mapObjectSync( const uint32_t requestID )
 
     const bool mapped = ( object->isAttached() );
     if( mapped )
-        object->_cm->applyMapData( version ); // apply initial instance data
+        object->applyMapData( version ); // apply initial instance data
 
     object->notifyAttached();
-    EQLOG( LOG_OBJECTS ) << "Mapped " << object << std::endl;
+    EQLOG( LOG_OBJECTS ) << "Mapped " << base::className( object ) << std::endl;
     return mapped;
 }
 
@@ -424,7 +416,7 @@ void ObjectStore::unmapObject( Object* object )
 
     // no unsubscribe sent: Detach directly
     detachObject( object );
-    object->_setChangeManager( ObjectCM::ZERO );
+    object->setupChangeManager( Object::NONE, false, 0, EQ_INSTANCE_INVALID );
     //if( _instanceCache )
     //    _instanceCache->erase( id );
 }
@@ -437,7 +429,7 @@ bool ObjectStore::registerObject( Object* object )
     const base::UUID& id = object->getID( );
     EQASSERTINFO( id.isGenerated(), id );
 
-    object->setupChangeManager( object->getChangeType(), true,
+    object->setupChangeManager( object->getChangeType(), true, _localNode,
                                 EQ_INSTANCE_INVALID );
     attachObject( object, id, EQ_INSTANCE_INVALID );
 
@@ -463,7 +455,6 @@ void ObjectStore::deregisterObject( Object* object )
     EQLOG( LOG_OBJECTS ) << "Deregister " << object << std::endl;
     EQASSERT( object->isMaster( ));
 
-    const base::UUID& id = object->getID();
     object->notifyDetach();
 
     if( Global::getIAttribute( Global::IATTR_NODE_SEND_QUEUE_SIZE )> 0 )
@@ -475,29 +466,9 @@ void ObjectStore::deregisterObject( Object* object )
         _localNode->waitRequest( packet.requestID );
     }
 
-    // unmap slaves
-    const Nodes* slaves = object->_getSlaveNodes();
-    if( slaves && !slaves->empty( ))
-    {
-        EQWARN << slaves->size() 
-               << " slave nodes subscribed during deregisterObject of "
-               << base::className( object ) << " id " << object->getID()
-               << std::endl;
-
-        NodeUnmapObjectPacket packet;
-        packet.objectID = id;
-
-        for( Nodes::const_iterator i = slaves->begin();
-             i != slaves->end(); ++i )
-        {
-            NodePtr node = *i;
-            node->send( packet );
-        }
-    }
-
+    const base::UUID id = object->getID();
     detachObject( object );
-    object->_setChangeManager( ObjectCM::ZERO );
-    
+    object->setupChangeManager( Object::NONE, true, 0, EQ_INSTANCE_INVALID );
     if( _instanceCache )
         _instanceCache->erase( id );
 }
@@ -545,9 +516,9 @@ bool ObjectStore::notifyCommandThreadIdle()
     Nodes nodes;
     _localNode->getNodes( nodes );
 
-    SendQueueItem& object = _sendQueue.front();
-    if( object.age > _clock.getTime64( ))
-        object.object->_cm->sendInstanceDatas( nodes );
+    SendQueueItem& item = _sendQueue.front();
+    if( item.age > _clock.getTime64( ))
+        item.object->sendInstanceData( nodes );
 
     _sendQueue.pop_front();
     return !_sendQueue.empty();
@@ -591,86 +562,14 @@ bool ObjectStore::dispatchObjectCommand( Command& command )
     Objects::const_iterator j = objects.begin();
     Object* object = *j;
     EQCHECK( object->dispatchCommand( command ));
-    EQASSERTINFO( command.getDispatchID() <= EQ_INSTANCE_MAX, command );
-    EQASSERTINFO( command.getDispatchID() == object->getInstanceID(),
-                  command.getDispatchID() << " != " << object->getInstanceID());
-
-#ifdef DEBUG_DISPATCH
-    std::set< uint32_t > instances;
-    instances.insert( object->getInstanceID( ));
-#endif
 
     for( ++j; j != objects.end(); ++j )
     {
         object = *j;
         Command& clone = _localNode->cloneCommand( command );
-
-#ifdef DEBUG_DISPATCH
-        const uint32_t instance = object->getInstanceID();
-        EQASSERT( instances.find( instance ) == instances.end( ));
-        instances.insert( instance );
-#endif
         EQCHECK( object->dispatchCommand( clone ));
-        EQASSERTINFO( clone.getDispatchID() <= EQ_INSTANCE_MAX, clone );
-        EQASSERTINFO( &clone == &command || // command already reused
-                      clone.getDispatchID() != command.getDispatchID(),
-                      command );
     }
     return true;
-}
-
-bool ObjectStore::invokeObjectCommand( Command& command )
-{
-    EQASSERT( command.isValid( ));
-    EQASSERT( command->type == PACKETTYPE_EQNET_OBJECT );
-
-    Object* object = _findObject( command );
-    if( !object )
-        return false;
-    
-    if( !object->invokeCommand( command ))
-    {
-        EQERROR << "Error handling " << command << " for object of type "
-                << base::className( object ) << std::endl;
-        return false;
-    }
-    return true;
-}
-
-Object* ObjectStore::_findObject( Command& command )
-{
-    EQASSERT( command.isValid( ));
-    EQASSERT( command->type == PACKETTYPE_EQNET_OBJECT );
-
-    const ObjectPacket* packet = command.getPacket< ObjectPacket >();
-    const base::UUID& id = packet->objectID;
-    const uint32_t instanceID = command.getDispatchID();
-    EQASSERTINFO( instanceID <= EQ_INSTANCE_MAX, command );
-
-    base::ScopedMutex< base::SpinLock > mutex( _objects );
-    ObjectsHash::const_iterator i = _objects->find( id );
-
-    if( i == _objects->end( ))
-    {
-        EQASSERTINFO( false,
-                      "no objects to handle command " << packet << " instance "
-                      << instanceID << " in " << base::className( this ));
-        return 0;
-    }
-
-    const Objects& objects = i->second;
-    EQASSERTINFO( !objects.empty(), packet );
-
-    for( Objects::const_iterator j = objects.begin(); j != objects.end(); ++j )
-    {
-        Object* object = *j;
-        if( instanceID == object->getInstanceID( ))
-            return object;
-    }
-
-    EQASSERTINFO( false, "object instance " << instanceID << " not found for "<<
-                  packet );
-    return 0;
 }
 
 bool ObjectStore::_cmdAckRequest( Command& command )
@@ -687,47 +586,50 @@ bool ObjectStore::_cmdFindMasterNodeID( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
 
-    const NodeFindMasterNodeID* packet = 
-          command.getPacket<NodeFindMasterNodeID>();
+    const NodeFindMasterNodeIDPacket* packet = 
+          command.getPacket<NodeFindMasterNodeIDPacket>();
 
     const base::UUID& id = packet->identifier;
     EQASSERT( id.isGenerated() );
 
-    NodeFindMasterNodeIDReply reply( packet );
-    base::ScopedMutex< base::SpinLock > mutex( _objects );
-    ObjectsHash::const_iterator i = _objects->find( id );
-    
-    if( i == _objects->end( ))
+    NodeFindMasterNodeIDReplyPacket reply( packet );
     {
-        command.getNode()->send( reply );
-        return true;
-    }
-    
-    const Objects& objects = i->second;
-    EQASSERTINFO( !objects.empty(), packet );
+        base::ScopedMutex< base::SpinLock > mutex( _objects );
+        ObjectsHash::const_iterator i = _objects->find( id );
 
-    for( Objects::const_iterator j = objects.begin(); j != objects.end(); ++j )
-    {
-        Object* object = *j;
-        const NodePtr masterNode = object->_cm->getMasterNode();
-        if( masterNode.isValid() && masterNode->getNodeID()!=base::UUID::ZERO )
+        if( i != _objects->end( ))
         {
-            reply.masterNodeID = masterNode->getNodeID();
-            break;
-        }
-    }
+            const Objects& objects = i->second;
+            EQASSERTINFO( !objects.empty(), packet );
+
+            for( ObjectsCIter j = objects.begin(); j != objects.end(); ++j )
+            {
+                Object* object = *j;
+                if( object->isMaster( ))
+                    reply.masterNodeID = _localNode->getNodeID();
+                else
+                    reply.masterNodeID = object->getMasterNodeID();
+                if( reply.masterNodeID != base::UUID::ZERO )
+                    break;
+            }
     
+            EQLOG( LOG_OBJECTS ) << "Found object " << id << " master:"
+                                 << reply.masterNodeID << std::endl;
+        }
+        else
+            EQLOG( LOG_OBJECTS ) << "Object " << id << " unknown" << std::endl;
+    }
+
     command.getNode()->send( reply );
     return true;
 }
 
 bool ObjectStore::_cmdFindMasterNodeIDReply( Command& command )
 {
-    const NodeFindMasterNodeIDReply* packet = 
-          command.getPacket<NodeFindMasterNodeIDReply>();
+    const NodeFindMasterNodeIDReplyPacket* packet =
+          command.getPacket<NodeFindMasterNodeIDReplyPacket>();
 
     _localNode->serveRequest( packet->requestID, packet->masterNodeID );
-
     return true;
 }
 
@@ -877,7 +779,7 @@ bool ObjectStore::_cmdMapObject( Command& command )
             if( !node->multicast( successPacket ))
                 node->send( successPacket );
         
-            reply.cachedVersion = master->_cm->addSlave( command );
+            reply.cachedVersion = master->addSlave( command );
             reply.result = true;
 
             if( reply.version == VERSION_OLDEST )
@@ -928,7 +830,7 @@ bool ObjectStore::_cmdMapObjectSuccess( Command& command )
     EQASSERT( !object->isMaster( ));
 
     object->setupChangeManager( Object::ChangeType( packet->changeType ), false,
-                                packet->masterInstanceID );
+                                _localNode, packet->masterInstanceID );
     _attachObject( object, packet->objectID, packet->instanceID );
     return true;
 }
@@ -956,7 +858,7 @@ bool ObjectStore::_cmdMapObjectReply( Command& command )
         EQASSERT( object );
         EQASSERT( !object->isMaster( ));
 
-        object->_cm->setMasterNode( command.getNode( ));
+        object->setMasterNode( command.getNode( ));
 
         if( packet->useCache )
         {
@@ -970,7 +872,7 @@ bool ObjectStore::_cmdMapObjectReply( Command& command )
                 EQASSERT( cached != InstanceCache::Data::NONE );
                 EQASSERT( !cached.versions.empty( ));
             
-                object->_cm->addInstanceDatas( cached.versions, start );
+                object->addInstanceDatas( cached.versions, start );
                EQCHECK( _instanceCache->release( id, 2 ));
             }
             else
@@ -1011,7 +913,7 @@ bool ObjectStore::_cmdUnsubscribeObject( Command& command )
                 if( object->isMaster() && 
                     object->getInstanceID() == packet->masterInstanceID )
                 {
-                    object->_cm->removeSlave( node );
+                    object->removeSlave( node );
                     break;
                 }
             }   

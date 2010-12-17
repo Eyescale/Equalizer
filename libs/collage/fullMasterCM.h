@@ -59,7 +59,7 @@ namespace net
         virtual const Object* getObject( ) const { return _object; }
 
         /** Speculatively send instance data to all nodes. */
-        virtual void sendInstanceDatas( Nodes& nodes );
+        virtual void sendInstanceData( Nodes& nodes );
     
     protected:
         /** The number of commits, needed for auto-obsoletion. */

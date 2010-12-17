@@ -58,10 +58,9 @@ Layout< C, L, V >::~Layout()
 
 template< class C, class L, class V >
 void Layout< C, L, V >::attach( const base::UUID& id,
-                                const uint32_t instanceID,
-                                net::LocalNodePtr localNode )
+                                const uint32_t instanceID )
 {
-    Object::attach( id, instanceID, localNode );
+    Object::attach( id, instanceID );
 
     net::CommandQueue* queue = _config->getMainThreadQueue();
     EQASSERT( queue );
@@ -119,6 +118,7 @@ void Layout< C, L, V >::setDirty( const uint64_t dirtyBits )
 template< class C, class L, class V >
 void Layout< C, L, V >::notifyDetach()
 {
+    Object::notifyDetach();
     releaseChildren< L, V >( _views );
 }
 

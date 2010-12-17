@@ -243,26 +243,13 @@ bool Server::dispatchCommand( net::Command& command )
     }
 }
 
-bool Server::invokeCommand( net::Command& command )
-{
-    switch( command->type )
-    {
-        case fabric::PACKETTYPE_EQ_SERVER:
-            return net::Dispatcher::invokeCommand( command );
-            
-        default:
-            return net::LocalNode::invokeCommand( command );
-    }
-}
-
 void Server::handleCommands()
 {
     _running = true;
     while( _running ) // set to false in _cmdShutdown()
     {
         net::Command* command = _mainThreadQueue.pop();
-
-        if( !invokeCommand( *command ))
+        if( !command->invoke( ))
         {
             EQABORT( "Error handling command " << command );
         }

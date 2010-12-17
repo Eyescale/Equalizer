@@ -996,7 +996,7 @@ void LocalNode::_runCommandThread()
         Command* command = _commandThreadQueue.pop();
         EQASSERT( command->isValid( ));
 
-        if( !invokeCommand( *command ))
+        if( !command->invoke( ))
         {
             EQABORT( "Error handling " << *command );
         }
@@ -1011,27 +1011,6 @@ void LocalNode::_runCommandThread()
     _commandThreadQueue.flush();
     EQINFO << "Leaving command thread of " << base::className( this )
            << std::endl;
-}
-
-bool LocalNode::invokeCommand( Command& command )
-{
-    EQVERB << "dispatch " << command << " by " << _id << std::endl;
-    EQASSERT( command.isValid( ));
-
-    const uint32_t type = command->type;
-    switch( type )
-    {
-        case PACKETTYPE_EQNET_NODE:
-            return Dispatcher::invokeCommand( command );
-        case PACKETTYPE_EQNET_OBJECT:
-        {
-            return _objectStore->invokeObjectCommand( command );
-        }
-
-        default:
-            EQABORT( "Unknown packet type " << type << " for " << command );
-            return false;
-    }
 }
 
 bool LocalNode::_cmdStop( Command& )

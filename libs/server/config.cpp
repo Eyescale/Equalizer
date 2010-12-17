@@ -89,11 +89,9 @@ Config::~Config()
     }
 }
 
-void Config::attach( const base::UUID& id, 
-                     const uint32_t instanceID, 
-                     net::LocalNodePtr localNode )
+void Config::attach( const UUID& id, const uint32_t instanceID )
 {
-    Super::attach( id, instanceID, localNode );
+    Super::attach( id, instanceID );
     
     net::CommandQueue* mainQ = getMainThreadQueue();
     net::CommandQueue* cmdQ = getCommandThreadQueue();

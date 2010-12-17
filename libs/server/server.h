@@ -86,9 +86,6 @@ namespace server
 
         /** @sa net::Node::dispatchCommand */
         virtual bool dispatchCommand( net::Command& command );
-
-        /** @sa net::Node::invokeCommand */
-        virtual bool invokeCommand( net::Command& command );
         
     private:
         /** The receiver->main command queue. */

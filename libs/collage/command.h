@@ -60,8 +60,8 @@ namespace net
         bool isValid() const { return ( _packet!=0 ); }
         uint64_t getAllocationSize() const { return _dataSize; }
 
-        void setDispatchID( const uint32_t id ) { _dispatchID = id; }
-        uint32_t getDispatchID() const { return _dispatchID; }
+        void setDispatchFunction( const Dispatcher::Func& func )
+            { EQASSERT( !_func.isValid( )); _func = func; }
         //@}
 
         /** @name Usage tracking. */
@@ -72,19 +72,23 @@ namespace net
         EQNET_API void release();
         //@}
 
+        /** Invoke and clear the command function of a dispatched command. */
+        bool invoke();
+
     private:
         Command();
         ~Command();
 
         /** @return the number of newly allocated bytes. */
-        size_t _alloc( NodePtr node, LocalNodePtr localNode, const uint64_t size );
+        size_t _alloc( NodePtr node, LocalNodePtr localNode,
+                       const uint64_t size );
 
         /** 
          * Clone the from command into this command.
          * 
-         * The command will share all data but the dispatch id. The command's
-         * allocation size will be 0 and it will never delete the shared
-         * data. The command will (de)reference the from command on each
+         * The command will share all data but the dispatch function. The
+         * command's allocation size will be 0 and it will never delete the
+         * shared data. The command will (de)reference the from command on each
          * retain/release.
          */
         void _clone( Command& from );
@@ -106,7 +110,9 @@ namespace net
         base::a_int32_t* _refCountMaster;
         base::a_int32_t _refCount;
 
-        uint32_t _dispatchID;
+        Dispatcher::Func _func;
+        friend std::ostream& operator << ( std::ostream& os, const Command& );
+
         EQ_TS_VAR( _writeThread );
     };
 

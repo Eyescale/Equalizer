@@ -34,11 +34,15 @@ MasterCM::MasterCM( Object* object )
         : _object( object )
         , _version( VERSION_NONE )
 {
+    EQASSERT( object );
+    EQASSERT( object->getLocalNode( ));
+    CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
+
     // sync commands are send to all instances, even the master gets it
-    registerCommand( CMD_OBJECT_INSTANCE,
-                     CmdFunc( this, &MasterCM::_cmdDiscard ), 0 );
-    registerCommand( CMD_OBJECT_SLAVE_DELTA,
-                     CmdFunc( this, &MasterCM::_cmdSlaveDelta ), 0 );
+    object->registerCommand( CMD_OBJECT_INSTANCE,
+                             CmdFunc( this, &MasterCM::_cmdDiscard ), q );
+    object->registerCommand( CMD_OBJECT_SLAVE_DELTA,
+                             CmdFunc( this, &MasterCM::_cmdSlaveDelta ), q );
 }
 
 MasterCM::~MasterCM()
@@ -57,11 +61,6 @@ MasterCM::~MasterCM()
     while( _queuedDeltas.tryPop( is ))
         delete is;
     _slaves.clear();
-}
-
-NodePtr MasterCM::getMasterNode()
-{ 
-    return _object->getLocalNode();
 }
 
 uint32_t MasterCM::commitNB()

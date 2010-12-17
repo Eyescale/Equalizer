@@ -174,9 +174,7 @@ namespace server
 
     protected:
         /** @internal */
-        void attach( const base::UUID& id, 
-                     const uint32_t instanceID, 
-                     net::LocalNodePtr localNode );
+        void attach( const UUID& id, const uint32_t instanceID );
 
         friend class Server; // for commit()
 
