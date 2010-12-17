@@ -26,7 +26,7 @@
 #include <eq/base/rng.h>
 #include <eq/base/thread.h>
 
-#include "libs/net/objectPackets.h" // private header
+#include "libs/collage/objectPackets.h" // private header
 
 // Tests the functionality of the network packet cache
 
