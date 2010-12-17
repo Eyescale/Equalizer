@@ -64,7 +64,6 @@ namespace net
 
         virtual const Object* getObject( ) const { return _object; }
         virtual bool isMaster() const { return true; }
-        virtual NodePtr getMasterNode();
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_INSTANCE_INVALID; }
         virtual uint128_t addSlave( Command& command );
