@@ -285,7 +285,7 @@ namespace net
          * unmapping, before the operation is executed.
          * @sa isMaster()
          */
-        virtual void notifyDetach();
+        EQNET_API virtual void notifyDetach();
         //@}
 
         /** @internal */

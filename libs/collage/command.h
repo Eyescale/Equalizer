@@ -73,7 +73,7 @@ namespace net
         //@}
 
         /** Invoke and clear the command function of a dispatched command. */
-        bool invoke();
+        EQNET_API bool invoke();
 
     private:
         Command();
@@ -111,7 +111,7 @@ namespace net
         base::a_int32_t _refCount;
 
         Dispatcher::Func _func;
-        friend std::ostream& operator << ( std::ostream& os, const Command& );
+        friend EQNET_API std::ostream& operator << ( std::ostream& os, const Command& );
 
         EQ_TS_VAR( _writeThread );
     };
