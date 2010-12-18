@@ -332,7 +332,7 @@ template< class T > bool Config::_postDelete( const base::UUID& id )
     return true;
 }
 
-void Config::_removeChild( const base::UUID& id )
+void Config::removeChild( const base::UUID& id )
 {
     EQASSERT( isRunning( ));
 

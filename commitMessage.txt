@@ -1,4 +1,6 @@
-fix linux build
+- Fix default path eqPly modal
+- Fix add / remove admin
+- Fix break build 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

@@ -39,7 +39,7 @@ namespace eq
 
     struct ChannelTaskPacket : public ChannelPacket
     {
-        RenderContext context;
+        fabric::RenderContext context;
     };
     
     inline std::ostream& operator << ( std::ostream& os, 

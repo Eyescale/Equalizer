@@ -178,6 +178,9 @@ namespace server
 
         friend class Server; // for commit()
 
+        /** @internal Execute the slave remove request. */
+        virtual void removeChild( const base::UUID& id );
+
     private:
         Config( const Config& from );
 
@@ -238,9 +241,6 @@ namespace server
         virtual void releaseLayout( Layout* layout );
         virtual Canvas* createCanvas();
         virtual void releaseCanvas( Canvas* canvas );
-
-        /** @internal Execute the slave remove request. */
-        virtual void _removeChild( const base::UUID& id );
 
         /** @internal Post deletion for the given child, returns true if found*/
         template< class T > bool _postDelete( const base::UUID& id );
