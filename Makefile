@@ -56,6 +56,7 @@ docs: ../website/build/documents/Developer/API
 
 ../website/build/documents/Developer/API: ../website/build/documents/Developer/API/internal docs/install Doxyfile.ext
 	$(DOXYGEN) Doxyfile.ext
+	$(DOXYGEN) Doxyfile.co
 
 docs/install: docs/Makefile
 	@$(MAKE) -C docs install
