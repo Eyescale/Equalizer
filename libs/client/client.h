@@ -87,7 +87,7 @@ namespace eq
         EQ_API bool hasCommands();
 
         /** @internal @return the command queue to the main node thread. */
-        virtual net::CommandQueue* getMainThreadQueue()
+        virtual co::CommandQueue* getMainThreadQueue()
             { return &_mainThreadQueue; }
 
     protected:
@@ -118,13 +118,13 @@ namespace eq
             char dummy[32];
         };
 
-        /** @sa net::Node::createNode */
-        EQ_API virtual net::NodePtr createNode( const uint32_t type );
+        /** @sa co::Node::createNode */
+        EQ_API virtual co::NodePtr createNode( const uint32_t type );
 
         bool _setupClient( const std::string& clientArgs );
 
         /** The command functions. */
-        bool _cmdExit( net::Command& command );
+        bool _cmdExit( co::Command& command );
     };
 }
 

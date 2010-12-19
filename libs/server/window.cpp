@@ -39,7 +39,7 @@ namespace eq
 namespace server
 {
 typedef fabric::Window< Pipe, Window, Channel > Super;
-typedef net::CommandFunc<Window> WindowFunc;
+typedef co::CommandFunc<Window> WindowFunc;
 
 Window::Window( Pipe* parent ) 
         : Super( parent )
@@ -68,7 +68,7 @@ void Window::attach( const base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
-    net::CommandQueue* queue = getCommandThreadQueue();
+    co::CommandQueue* queue = getCommandThreadQueue();
 
     registerCommand( fabric::CMD_WINDOW_CONFIG_INIT_REPLY, 
                      WindowFunc( this, &Window::_cmdConfigInitReply ), queue );
@@ -133,14 +133,14 @@ ServerPtr Window::getServer()
     return ( pipe ? pipe->getServer() : 0 );
 }
 
-net::CommandQueue* Window::getMainThreadQueue()
+co::CommandQueue* Window::getMainThreadQueue()
 {
     Pipe* pipe = getPipe();
     EQASSERT( pipe );
     return pipe->getMainThreadQueue(); 
 }
 
-net::CommandQueue* Window::getCommandThreadQueue()
+co::CommandQueue* Window::getCommandThreadQueue()
 { 
     Pipe* pipe = getPipe();
     EQASSERT( pipe );
@@ -197,7 +197,7 @@ void Window::_resetSwapBarriers()
     Node* node = getNode();
     EQASSERT( node );
 
-    for( std::vector< net::Barrier* >::iterator i = _masterSwapBarriers.begin();
+    for( std::vector< co::Barrier* >::iterator i = _masterSwapBarriers.begin();
          i != _masterSwapBarriers.end(); ++i )
     {
         node->releaseBarrier( *i );
@@ -208,7 +208,7 @@ void Window::_resetSwapBarriers()
     _swapBarriers.clear();
 }
 
-net::Barrier* Window::joinSwapBarrier( net::Barrier* barrier )
+co::Barrier* Window::joinSwapBarrier( co::Barrier* barrier )
 {
     _swapFinish = true;
 
@@ -239,8 +239,8 @@ net::Barrier* Window::joinSwapBarrier( net::Barrier* barrier )
             continue;
         }
 
-        net::Barriers& barriers = window->_swapBarriers;
-        net::Barriers::iterator j = stde::find( barriers, barrier );
+        co::Barriers& barriers = window->_swapBarriers;
+        co::Barriers::iterator j = stde::find( barriers, barrier );
         if( j == barriers.end( ))
             continue;
 
@@ -259,8 +259,8 @@ net::Barrier* Window::joinSwapBarrier( net::Barrier* barrier )
     return barrier;
 }
 
-net::Barrier* Window::joinNVSwapBarrier( const SwapBarrier* swapBarrier,
-                                         net::Barrier* netBarrier )
+co::Barrier* Window::joinNVSwapBarrier( const SwapBarrier* swapBarrier,
+                                         co::Barrier* netBarrier )
 { 
     EQASSERTINFO( !_nvSwapBarrier, 
                   "Only one NV_swap_group barrier per window allowed" );
@@ -282,7 +282,7 @@ net::Barrier* Window::joinNVSwapBarrier( const SwapBarrier* swapBarrier,
 }
 
 
-void Window::send( net::ObjectPacket& packet ) 
+void Window::send( co::ObjectPacket& packet ) 
 {
     packet.objectID = getID(); 
     getNode()->send( packet ); 
@@ -427,10 +427,10 @@ void Window::_updateSwap( const uint32_t frameNumber )
         _maxFPS = std::numeric_limits< float >::max();
     }
     
-    for( std::vector<net::Barrier*>::iterator i = _swapBarriers.begin();
+    for( std::vector<co::Barrier*>::iterator i = _swapBarriers.begin();
          i != _swapBarriers.end(); ++i )
     {
-        const net::Barrier* barrier = *i;
+        const co::Barrier* barrier = *i;
 
         if( barrier->getHeight() <= 1 )
         {
@@ -484,7 +484,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
 //===========================================================================
 // command handling
 //===========================================================================
-bool Window::_cmdConfigInitReply( net::Command& command )
+bool Window::_cmdConfigInitReply( co::Command& command )
 {
     const WindowConfigInitReplyPacket* packet =
         command.getPacket<WindowConfigInitReplyPacket>();
@@ -495,7 +495,7 @@ bool Window::_cmdConfigInitReply( net::Command& command )
     return true;
 }
 
-bool Window::_cmdConfigExitReply( net::Command& command )
+bool Window::_cmdConfigExitReply( co::Command& command )
 {
     const WindowConfigExitReplyPacket* packet =
         command.getPacket<WindowConfigExitReplyPacket>();

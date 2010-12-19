@@ -70,7 +70,7 @@
         static eq::server::TreeEqualizer* treeEqualizer = 0;
         static eq::server::SwapBarrier* swapBarrier = 0;
         static eq::server::Frame*       frame = 0;
-        static eq::net::ConnectionDescriptionPtr connectionDescription;
+        static co::ConnectionDescriptionPtr connectionDescription;
         static eq::fabric::Wall         wall;
         static eq::fabric::Projection   projection;
         static uint32_t                 flags = 0;
@@ -283,7 +283,7 @@
     int                     _int;
     unsigned                _unsigned;
     float                   _float;
-    eq::net::ConnectionType   _connectionType;
+    co::ConnectionType   _connectionType;
     eq::server::LoadEqualizer::Mode _loadEqualizerMode;
     eq::server::TreeEqualizer::Mode _treeEqualizerMode;
     float                   _viewport[4];
@@ -503,13 +503,13 @@ global:
      }
 
 connectionType: 
-    EQTOKEN_TCPIP  { $$ = eq::net::CONNECTIONTYPE_TCPIP; }
-    | EQTOKEN_SDP  { $$ = eq::net::CONNECTIONTYPE_SDP; }
-    | EQTOKEN_IB   { $$ = eq::net::CONNECTIONTYPE_IB; }
-    | EQTOKEN_PIPE { $$ = eq::net::CONNECTIONTYPE_NAMEDPIPE; }
-    | EQTOKEN_MCIP { $$ = eq::net::CONNECTIONTYPE_MCIP; }
-    | EQTOKEN_PGM  { $$ = eq::net::CONNECTIONTYPE_PGM; }
-    | EQTOKEN_RSP  { $$ = eq::net::CONNECTIONTYPE_RSP; }
+    EQTOKEN_TCPIP  { $$ = co::CONNECTIONTYPE_TCPIP; }
+    | EQTOKEN_SDP  { $$ = co::CONNECTIONTYPE_SDP; }
+    | EQTOKEN_IB   { $$ = co::CONNECTIONTYPE_IB; }
+    | EQTOKEN_PIPE { $$ = co::CONNECTIONTYPE_NAMEDPIPE; }
+    | EQTOKEN_MCIP { $$ = co::CONNECTIONTYPE_MCIP; }
+    | EQTOKEN_PGM  { $$ = co::CONNECTIONTYPE_PGM; }
+    | EQTOKEN_RSP  { $$ = co::CONNECTIONTYPE_RSP; }
 
 server: EQTOKEN_SERVER '{' { server = new eq::server::Server(); }
         serverConnections

@@ -98,7 +98,7 @@ namespace server
 
     protected:
         /** @sa eq::View::deserialize() */
-        virtual void deserialize( net::DataIStream&, const uint64_t );
+        virtual void deserialize( co::DataIStream&, const uint64_t );
         virtual void setDirty( const uint64_t bits );
         virtual void notifyAttached() { _updateChannels(); }
 

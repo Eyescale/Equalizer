@@ -26,9 +26,7 @@
 #include "object.h"
 
 
-namespace eq
-{
-namespace net
+namespace co
 {
 StaticMasterCM::StaticMasterCM( Object* object ) 
         : _object( object )
@@ -42,7 +40,7 @@ StaticMasterCM::~StaticMasterCM(){}
 
 uint128_t StaticMasterCM::addSlave( Command& command )
 {
-    EQASSERT( command->type == PACKETTYPE_EQNET_NODE );
+    EQASSERT( command->type == PACKETTYPE_CO_NODE );
     EQASSERT( command->command == CMD_NODE_MAP_OBJECT );
 
     NodePtr node = command.getNode();
@@ -79,5 +77,4 @@ uint128_t StaticMasterCM::addSlave( Command& command )
     return VERSION_INVALID; // no data was in cache
 }
 
-}
 }

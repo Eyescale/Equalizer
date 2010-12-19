@@ -24,8 +24,8 @@ using namespace std;
 namespace eq
 {
 ConfigParams::ConfigParams()
-        : _renderClient( net::Global::getProgramName( ))
-        , _workDir( net::Global::getWorkDir( ))
+        : _renderClient( co::Global::getProgramName( ))
+        , _workDir( co::Global::getWorkDir( ))
 {
 }
 

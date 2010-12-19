@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_OBJECTDATAISTREAM_H
-#define EQNET_OBJECTDATAISTREAM_H
+#ifndef CO_OBJECTDATAISTREAM_H
+#define CO_OBJECTDATAISTREAM_H
 
 #include <co/dataIStream.h>   // base class
 #include <co/version.h>       // enum
@@ -25,9 +25,7 @@
 
 #include <deque>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     /**
      * The DataIStream for object data.
@@ -64,12 +62,11 @@ namespace net
         CommandDeque _commands;
 
         /** The object version associated with this input stream. */
-        base::Monitor< uint128_t > _version;
+        eq::base::Monitor< uint128_t > _version;
 
         void _setReady() { _version = getPendingVersion(); }
 
         EQ_TS_VAR( _thread );
     };
 }
-}
-#endif //EQNET_OBJECTDATAISTREAM_H
+#endif //CO_OBJECTDATAISTREAM_H

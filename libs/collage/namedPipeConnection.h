@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_NAMEDPIPECONNECTION_H
-#define EQNET_NAMEDPIPECONNECTION_H
+#ifndef CO_NAMEDPIPECONNECTION_H
+#define CO_NAMEDPIPECONNECTION_H
 
 #include <eq/base/base.h>
 #include <eq/base/buffer.h> // member
@@ -31,9 +31,7 @@
 #endif
 
 
-namespace eq
-{
-namespace net
+namespace co
 {
     /**
      * A .
@@ -97,6 +95,5 @@ namespace net
 #endif
     };
 }
-}
 
-#endif //EQNET_NAMEDPIPECONNECTION_H 
+#endif //CO_NAMEDPIPECONNECTION_H 

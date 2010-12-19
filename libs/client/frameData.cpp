@@ -40,10 +40,10 @@
 namespace eq
 {
 
-typedef net::CommandFunc<FrameData> CmdFunc;
+typedef co::CommandFunc<FrameData> CmdFunc;
 
 FrameData::FrameData() 
-        : _version( net::VERSION_NONE.low( ))
+        : _version( co::VERSION_NONE.low( ))
         , _useAlpha( true )
         , _useSendToken( false )
         , _colorQuality( 1.f )
@@ -82,13 +82,13 @@ void FrameData::setQuality( Frame::Buffer buffer, float quality )
     _colorQuality = quality;
 }
 
-void FrameData::getInstanceData( net::DataOStream& os )
+void FrameData::getInstanceData( co::DataOStream& os )
 {
     EQUNREACHABLE;
     os << _data;
 }
 
-void FrameData::applyInstanceData( net::DataIStream& is )
+void FrameData::applyInstanceData( co::DataIStream& is )
 {
     clear();
     is >> _data;

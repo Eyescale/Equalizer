@@ -28,9 +28,7 @@
 #include "objectInstanceDataOStream.h"
 #include "objectPackets.h"
 
-namespace eq
-{
-namespace net
+namespace co
 {
 typedef CommandFunc<UnbufferedMasterCM> CmdFunc;
 
@@ -57,7 +55,7 @@ UnbufferedMasterCM::~UnbufferedMasterCM()
 uint128_t UnbufferedMasterCM::addSlave( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
-    EQASSERT( command->type == PACKETTYPE_EQNET_NODE );
+    EQASSERT( command->type == PACKETTYPE_CO_NODE );
     EQASSERT( command->command == CMD_NODE_MAP_OBJECT );
 
     NodePtr node = command.getNode();
@@ -109,7 +107,7 @@ uint128_t UnbufferedMasterCM::addSlave( Command& command )
     if( !os.hasSentData( )) // if no data, send empty packet to set version
     {
         ObjectInstancePacket instancePacket;
-        instancePacket.type = PACKETTYPE_EQNET_OBJECT;
+        instancePacket.type = PACKETTYPE_CO_OBJECT;
         instancePacket.command = CMD_OBJECT_INSTANCE;
         instancePacket.nChunks = 0;
         instancePacket.last = true;
@@ -130,7 +128,7 @@ void UnbufferedMasterCM::removeSlave( NodePtr node )
     EQ_TS_THREAD( _cmdThread );
     // remove from subscribers
     const NodeID& nodeID = node->getNodeID();
-    EQASSERTINFO( _slavesCount[ nodeID ] != 0, base::className( _object ));
+    EQASSERTINFO( _slavesCount[ nodeID ] != 0, eq::base::className( _object ));
 
     --_slavesCount[ nodeID ];
     if( _slavesCount[ nodeID ] == 0 )
@@ -181,5 +179,4 @@ bool UnbufferedMasterCM::_cmdCommit( Command& command )
     return true;
 }
 
-}
 }

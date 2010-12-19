@@ -39,7 +39,7 @@ namespace eq
          * Set the name of the render client executable.
          *
          * The default value is the program name retrieved from
-         * net::Global::getProgramName(), i.e., the filename part of argv[0].
+         * co::Global::getProgramName(), i.e., the filename part of argv[0].
          * @version 1.0
          */
         EQ_API void setRenderClient( const std::string& renderClient );
@@ -51,7 +51,7 @@ namespace eq
          * Set the directory from which to launch the render client.
          *
          * The default value is the program directory retrieved from
-         * net::Global::getWorkDir(), i.e., the directory part of argv[0].
+         * co::Global::getWorkDir(), i.e., the directory part of argv[0].
          * @version 1.0
          */
         EQ_API void setWorkDir( const std::string& workDir );

@@ -27,9 +27,7 @@
 
 using namespace eq::base;
 
-namespace eq
-{
-namespace net
+namespace co
 {
 FDConnection::FDConnection()
         : _readFD( 0 ),
@@ -99,6 +97,5 @@ bool FDConnection::hasData() const
     return nReady > 0;
 }
 
-}
 }
 #endif

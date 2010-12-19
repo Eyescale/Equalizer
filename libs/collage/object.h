@@ -15,17 +15,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_OBJECT_H
-#define EQNET_OBJECT_H
+#ifndef CO_OBJECT_H
+#define CO_OBJECT_H
 
 #include <co/dispatcher.h>    // base class
 #include <co/localNode.h>     // used in RefPtr
 #include <co/types.h>         // for Nodes
 #include <co/version.h>       // used as default parameter
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class ObjectCM;
 
@@ -50,10 +48,10 @@ namespace net
         };
 
         /** Construct a new distributed object. */
-        EQNET_API Object();
+        CO_API Object();
 
         /** Destruct the distributed object. */
-        EQNET_API virtual ~Object();
+        CO_API virtual ~Object();
 
         /** @name Data Access */
         //@{
@@ -67,7 +65,7 @@ namespace net
         LocalNodePtr getLocalNode(){ return _localNode; };
 
         /** @return the object's unique identifier. */
-        const base::UUID& getID() const { return _id; }
+        const eq::base::UUID& getID() const { return _id; }
 
         /** @return the node-wide unique object instance identifier. */
         uint32_t getInstanceID() const { return _instanceID; }
@@ -75,7 +73,7 @@ namespace net
         /** 
          * @return true if this instance is the master version, false otherwise.
          */
-        EQNET_API bool isMaster() const;
+        CO_API bool isMaster() const;
         //@}
 
         /** @name Versioning */
@@ -119,7 +117,7 @@ namespace net
          * @return the new head version.
          * @sa commitNB(), commitSync()
          */
-        EQNET_API uint128_t commit();
+        CO_API uint128_t commit();
 
         /** 
          * Start committing a new version of this object.
@@ -130,7 +128,7 @@ namespace net
          * @return the commit identifier to be passed to commitSync
          * @sa commitSync()
          */
-        EQNET_API virtual uint32_t commitNB();
+        CO_API virtual uint32_t commitNB();
         
         /** 
          * Finalize a commit transaction.
@@ -139,7 +137,7 @@ namespace net
          * @return the new head version.
          * @sa commit()
          */
-        EQNET_API virtual uint128_t commitSync( const uint32_t commitID );
+        CO_API virtual uint128_t commitSync( const uint32_t commitID );
 
         /** 
          * Automatically obsolete old versions.
@@ -151,10 +149,10 @@ namespace net
          * @param count the number of versions to retain, excluding the head
          *              version.
          */
-        EQNET_API void setAutoObsolete( const uint32_t count );
+        CO_API void setAutoObsolete( const uint32_t count );
 
         /** @return get the number of versions this object retains. */
-        EQNET_API uint32_t getAutoObsolete() const;
+        CO_API uint32_t getAutoObsolete() const;
 
         /** 
          * Sync to a given version.
@@ -186,16 +184,16 @@ namespace net
          * @param version the version to synchronize (see above).
          * @return the last version applied.
          */
-        EQNET_API uint128_t sync( const uint128_t& version = VERSION_HEAD );
+        CO_API uint128_t sync( const uint128_t& version = VERSION_HEAD );
 
         /** @return the latest available (head) version. */
-        EQNET_API uint128_t getHeadVersion() const;
+        CO_API uint128_t getHeadVersion() const;
 
         /** @return the currently synchronized version. */
-        EQNET_API uint128_t getVersion() const;
+        CO_API uint128_t getVersion() const;
 
         /** @return the oldest available version. */
-        EQNET_API uint128_t getOldestVersion() const;
+        CO_API uint128_t getOldestVersion() const;
 
         /** 
          * Notification that a new head version was received by a slave object.
@@ -208,7 +206,7 @@ namespace net
          * 
          * @param version The new head version.
          */
-        EQNET_API virtual void notifyNewHeadVersion( const uint128_t& version );
+        CO_API virtual void notifyNewHeadVersion( const uint128_t& version );
 
         /** 
          * Notification that a new version was received by a master object.
@@ -257,15 +255,15 @@ namespace net
         /** @name Packet Transmission */
         //@{
         /** Send a packet to peer object instance(s) on another node. */
-        EQNET_API bool send( NodePtr node, ObjectPacket& packet );
+        CO_API bool send( NodePtr node, ObjectPacket& packet );
 
         /** Send a packet to peer object instance(s) on another node. */
-        EQNET_API bool send( NodePtr node, ObjectPacket& packet,
-                             const std::string& string );
+        CO_API bool send( NodePtr node, ObjectPacket& packet,
+                          const std::string& string );
 
         /** Send a packet to peer object instance(s) on another node. */
-        EQNET_API bool send( NodePtr node, ObjectPacket& packet, 
-                             const void* data, const uint64_t size );
+        CO_API bool send( NodePtr node, ObjectPacket& packet, 
+                          const void* data, const uint64_t size );
         //@}
 
         /** @name Notifications */
@@ -285,13 +283,13 @@ namespace net
          * unmapping, before the operation is executed.
          * @sa isMaster()
          */
-        EQNET_API virtual void notifyDetach();
+        CO_API virtual void notifyDetach();
         //@}
 
         /** @internal */
         //@{
         /** @internal Set the object's unique identifier */
-        EQNET_API void setID( const base::UUID& identifier );
+        CO_API void setID( const eq::base::UUID& identifier );
 
         /** @internal @return the master object instance identifier. */
         uint32_t getMasterInstanceID() const;
@@ -322,15 +320,14 @@ namespace net
          * @internal
          * Called when object is attached from the receiver thread.
          */
-        EQNET_API virtual void attach( const base::UUID& id, 
-                                       const uint32_t instanceID );
-
+        CO_API virtual void attach( const eq::base::UUID& id, 
+                                    const uint32_t instanceID );
         /**
          * @internal
          * Called when the object is detached from the local node from the
          * receiver thread.
          */
-        EQNET_API virtual void detach();
+        CO_API virtual void detach();
 
         /** @internal Transfer the attachment from the given object. */
         void transfer( Object* from );
@@ -341,7 +338,7 @@ namespace net
 
     protected:
         /** Copy constructor. */
-        EQNET_API Object( const Object& );
+        CO_API Object( const Object& );
 
         /** NOP assignment operator. */
         const Object& operator = ( const Object& ) { return *this; }
@@ -356,7 +353,7 @@ namespace net
         friend class VersionedSlaveCM;
 
         /** The session-unique object identifier. */
-        base::UUID _id;
+        eq::base::UUID _id;
 
         /** The node where this object is attached. */
         LocalNodePtr _localNode;
@@ -372,8 +369,7 @@ namespace net
 
         EQ_TS_VAR( _thread );
     };
-    EQNET_API std::ostream& operator << ( std::ostream&, const Object& );
-}
+    CO_API std::ostream& operator << ( std::ostream&, const Object& );
 }
 
-#endif // EQNET_OBJECT_H
+#endif // CO_OBJECT_H

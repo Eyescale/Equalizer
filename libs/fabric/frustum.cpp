@@ -80,7 +80,7 @@ std::ostream& operator << ( std::ostream& os, const Frustum& frustum )
     return os;
 }
 
-net::DataOStream& operator << ( net::DataOStream& os, const Frustum& frustum )
+co::DataOStream& operator << ( co::DataOStream& os, const Frustum& frustum )
 {
     switch( frustum.getCurrentType( ))
     {
@@ -102,7 +102,7 @@ net::DataOStream& operator << ( net::DataOStream& os, const Frustum& frustum )
     return os;
 }
 
-net::DataIStream& operator >> ( net::DataIStream& is, Frustum& frustum )
+co::DataIStream& operator >> ( co::DataIStream& is, Frustum& frustum )
 {
     Frustum::Type type;
     is >> type;

@@ -22,9 +22,7 @@
 
 #include <eq/base/base.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
 Node::Node()
@@ -52,7 +50,7 @@ bool Node::operator == ( const Node* node ) const
 
 ConnectionDescriptions Node::getConnectionDescriptions() const
 {
-    base::ScopedMutex< base::SpinLock > mutex( _connectionDescriptions );
+    eq::base::ScopedMutex< eq::base::SpinLock > mutex( _connectionDescriptions );
     return _connectionDescriptions.data;
 }
 
@@ -67,7 +65,7 @@ ConnectionPtr Node::getMulticast()
     if( connection.isValid() && !connection->isClosed( ))
         return connection;
 
-    base::ScopedMutex<> mutex( _outMulticast );
+    eq::base::ScopedMutex<> mutex( _outMulticast );
     if( _multicasts.empty( ))
         return 0;
 
@@ -93,13 +91,15 @@ void Node::addConnectionDescription( ConnectionDescriptionPtr cd )
     if( cd->type >= CONNECTIONTYPE_MULTICAST && cd->port == 0 )
         cd->port = EQ_DEFAULT_PORT;
 
-    base::ScopedMutex< base::SpinLock > mutex( _connectionDescriptions );
+    eq::base::ScopedMutex< eq::base::SpinLock > 
+                       mutex( _connectionDescriptions );
     _connectionDescriptions->push_back( cd ); 
 }
 
 bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
 {
-    base::ScopedMutex< base::SpinLock > mutex( _connectionDescriptions );
+    eq::base::ScopedMutex< eq::base::SpinLock > 
+                       mutex( _connectionDescriptions );
 
     // Don't use std::find, RefPtr::operator== compares pointers, not values.
     for( ConnectionDescriptions::iterator i = _connectionDescriptions->begin();
@@ -118,9 +118,10 @@ std::string Node::serialize() const
 {
     std::ostringstream data;
     {
-        base::ScopedMutex< base::SpinLock > mutex( _connectionDescriptions );
-        data << _id << EQNET_SEPARATOR
-             << net::serialize( _connectionDescriptions.data );
+        eq::base::ScopedMutex< eq::base::SpinLock >
+                                            mutex( _connectionDescriptions );
+        data << _id << CO_SEPARATOR
+             << co::serialize( _connectionDescriptions.data );
     }
     return data.str();
 }
@@ -130,7 +131,7 @@ bool Node::deserialize( std::string& data )
     EQASSERT( _state == STATE_CLOSED );
 
     // node id
-    size_t nextPos = data.find( EQNET_SEPARATOR );
+    size_t nextPos = data.find( CO_SEPARATOR );
     if( nextPos == std::string::npos || nextPos == 0 )
     {
         EQERROR << "Could not parse node data" << std::endl;
@@ -140,14 +141,15 @@ bool Node::deserialize( std::string& data )
     _id = data.substr( 0, nextPos );
     data = data.substr( nextPos + 1 );
 
-    base::ScopedMutex< base::SpinLock > mutex( _connectionDescriptions );
+    eq::base::ScopedMutex< eq::base::SpinLock > 
+                    mutex( _connectionDescriptions );
     _connectionDescriptions->clear();
-    return net::deserialize( data, _connectionDescriptions.data );
+    return co::deserialize( data, _connectionDescriptions.data );
 }
 
 NodePtr Node::createNode( const uint32_t type )
 {
-    EQASSERTINFO( type == NODETYPE_EQNET_NODE, type );
+    EQASSERTINFO( type == NODETYPE_CO_NODE, type );
     return new Node();
 }
 
@@ -171,5 +173,4 @@ std::ostream& operator << ( std::ostream& os, const Node::State state)
     return os;
 }
 
-}
 }

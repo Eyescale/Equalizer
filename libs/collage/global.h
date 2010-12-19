@@ -15,15 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_GLOBAL_H
-#define EQNET_GLOBAL_H
+#ifndef CO_GLOBAL_H
+#define CO_GLOBAL_H
 
 #include <co/base.h>
 #include <string>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     // global defines
 
@@ -38,30 +36,30 @@ namespace net
          * 
          * @param programName the program name.
          */
-        EQNET_API static void setProgramName( const std::string& programName );
+        CO_API static void setProgramName( const std::string& programName );
 
         /** @return the program name. */
-        EQNET_API static const std::string& getProgramName();
+        CO_API static const std::string& getProgramName();
 
         /** 
          * Sets the working directory of the program.
          * 
          * @param workDir the working directory.
          */
-        EQNET_API static void setWorkDir( const std::string& workDir );
+        CO_API static void setWorkDir( const std::string& workDir );
 
         /** @return the working directory of the program. */
-        EQNET_API static const std::string& getWorkDir();
+        CO_API static const std::string& getWorkDir();
 
         /** 
          * Sets the default listening port.
          * 
          * @param port the default port.
          */
-        EQNET_API static void setDefaultPort( const uint16_t port );
+        CO_API static void setDefaultPort( const uint16_t port );
 
         /** @return the default listening port. */
-        EQNET_API static uint16_t getDefaultPort();
+        CO_API static uint16_t getDefaultPort();
 
         /** 
          * Set the minimum buffer size for Object serialization.
@@ -72,10 +70,10 @@ namespace net
          *
          * @param size the treshold before the DataOStream sends a buffer.
          */
-        EQNET_API static void setObjectBufferSize( const uint32_t size );
+        CO_API static void setObjectBufferSize( const uint32_t size );
 
         /** @return the minimum buffer size for Object serialization. */
-        EQNET_API static uint32_t getObjectBufferSize();
+        CO_API static uint32_t getObjectBufferSize();
 
         /** @name Attributes */
         //@{
@@ -100,15 +98,14 @@ namespace net
         };
 
         /** Set an integer attribute. */
-        EQNET_API static void setIAttribute( const IAttribute attr,
+        CO_API static void setIAttribute( const IAttribute attr,
                                              const int32_t value );
 
         /** @return the value of an integer attribute. */
-        EQNET_API static int32_t getIAttribute( const IAttribute attr );
+        CO_API static int32_t getIAttribute( const IAttribute attr );
         //@}
     };
 }
-}
 
-#endif // EQNET_GLOBAL_H
+#endif // CO_GLOBAL_H
 

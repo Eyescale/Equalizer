@@ -19,9 +19,7 @@
 
 using namespace std;
 
-namespace eq
-{
-namespace net
+namespace co
 {
 PairConnection::PairConnection( ConnectionPtr readConnection,
                                 ConnectionPtr writeConnection )
@@ -104,5 +102,4 @@ void PairConnection::close()
     _sibling           = 0;
 }
 
-}
 }

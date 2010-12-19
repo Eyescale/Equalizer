@@ -16,20 +16,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_DATAISTREAM_H
-#define EQNET_DATAISTREAM_H
+#ifndef CO_DATAISTREAM_H
+#define CO_DATAISTREAM_H
 
-#include <eq/base/buffer.h> // member
 #include <co/base.h>
 #include <co/types.h>
+
+#include <eq/base/buffer.h> // member
 #include <eq/base/types.h>
+
 
 #include <iostream>
 #include <vector>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     /** A std::istream-like input data stream for binary data. */
     class DataIStream
@@ -37,16 +37,16 @@ namespace net
     public:
         /** @name Internal */
         //@{ 
-        EQNET_API DataIStream();
+        CO_API DataIStream();
         DataIStream( const DataIStream& );
-        EQNET_API virtual ~DataIStream();
+        CO_API virtual ~DataIStream();
 
         /** Get the number of remaining buffers. */
         virtual size_t nRemainingBuffers() const = 0;
 
         virtual uint128_t getVersion() const = 0;
 
-        virtual EQNET_API void reset();
+        virtual CO_API void reset();
         //@}
 
         /** @name Data input */
@@ -85,7 +85,7 @@ namespace net
                                   std::vector< C* >& result );
 
         /** Read a number of bytes from the stream into a buffer.  */
-        EQNET_API void read( void* data, uint64_t size );
+        CO_API void read( void* data, uint64_t size );
 
         /** 
          * Get the pointer to the remaining data in the current buffer.
@@ -98,13 +98,13 @@ namespace net
          * the DataOStream, a symmetric read from the DataIStream has at least n
          * bytes available.
          */
-        EQNET_API const void*    getRemainingBuffer();
+        CO_API const void*    getRemainingBuffer();
 
         /** Get the size of the remaining data in the current buffer. */
-        EQNET_API uint64_t       getRemainingBufferSize();
+        CO_API uint64_t       getRemainingBufferSize();
 
         /** Advance the current buffer by a number of bytes. */
-        EQNET_API void           advanceBuffer( const uint64_t offset );
+        CO_API void           advanceBuffer( const uint64_t offset );
         //@}
  
     protected:
@@ -119,7 +119,7 @@ namespace net
         /** The current read position in the buffer */
         uint64_t  _position;
 
-        base::CPUCompressor* const _decompressor; //!< current decompressor
+        eq::base::CPUCompressor* const _decompressor; //!< current decompressor
         eq::base::Bufferb _data; //!< decompressed buffer
 
         /**
@@ -145,15 +145,11 @@ namespace net
         }
     };
 }
-}
 
 #include <co/object.h>
 #include <co/objectVersion.h>
 
-namespace eq
-{
-namespace net
-{
+namespace co{
     /** @name Specialized input operators */
     //@{
     /** Read a std::string. */
@@ -190,12 +186,12 @@ namespace net
     class ObjectFinder
     {
     public:
-        ObjectFinder( const base::UUID& id ) : _id( id ) {}
-        bool operator()( net::Object* candidate )
+        ObjectFinder( const eq::base::UUID& id ) : _id( id ) {}
+        bool operator()( co::Object* candidate )
             { return candidate->getID() == _id; }
 
     private:
-        const base::UUID _id;
+        const eq::base::UUID _id;
     };
     }
 
@@ -215,7 +211,7 @@ namespace net
         {
             const ObjectVersion& version = *i;
             
-            if( version.identifier == base::UUID::ZERO )
+            if( version.identifier == eq::base::UUID::ZERO )
             {
                 result.push_back( 0 );
                 continue;
@@ -306,6 +302,5 @@ namespace net
     { return _readFlatVector( value ); }
     //@}
 }
-}
 
-#endif //EQNET_DATAISTREAM_H
+#endif //CO_DATAISTREAM_H

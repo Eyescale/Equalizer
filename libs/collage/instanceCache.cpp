@@ -23,23 +23,21 @@
 
 #include <eq/base/debug.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
 //#define EQ_INSTRUMENT_CACHE
 #ifdef EQ_INSTRUMENT_CACHE
 namespace
 {
-base::a_int32_t nRead;
-base::a_int32_t nReadHit;
-base::a_int32_t nWrite;
-base::a_int32_t nWriteHit;
-base::a_int32_t nWriteMiss;
-base::a_int32_t nWriteReady;
-base::a_int32_t nWriteOld;
-base::a_int32_t nUsedRelease;
-base::a_int32_t nUnusedRelease;
+eq::base::a_int32_t nRead;
+eq::base::a_int32_t nReadHit;
+eq::base::a_int32_t nWrite;
+eq::base::a_int32_t nWriteHit;
+eq::base::a_int32_t nWriteMiss;
+eq::base::a_int32_t nWriteReady;
+eq::base::a_int32_t nWriteOld;
+eq::base::a_int32_t nUsedRelease;
+eq::base::a_int32_t nUnusedRelease;
 }
 #endif
 
@@ -91,7 +89,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
     ++nWrite;
 #endif
 
-    base::ScopedMutex<> mutex( _items );
+    eq::base::ScopedMutex<> mutex( _items );
     ItemHash::const_iterator i = _items->find( rev.identifier );
     if( i == _items->end( ))
     {
@@ -178,13 +176,13 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
 }
 
 
-const InstanceCache::Data& InstanceCache::operator[]( const base::UUID& id )
+const InstanceCache::Data& InstanceCache::operator[]( const eq::base::UUID& id )
 {
 #ifdef EQ_INSTRUMENT_CACHE
     ++nRead;
 #endif
 
-    base::ScopedMutex<> mutex( _items );
+    eq::base::ScopedMutex<> mutex( _items );
     ItemHash::iterator i = _items->find( id );
     if( i == _items->end( ))
         return Data::NONE;
@@ -201,9 +199,9 @@ const InstanceCache::Data& InstanceCache::operator[]( const base::UUID& id )
 }
 
 
-bool InstanceCache::release( const base::UUID& id, const uint32_t count )
+bool InstanceCache::release( const eq::base::UUID& id, const uint32_t count )
 {
-    base::ScopedMutex<> mutex( _items );
+    eq::base::ScopedMutex<> mutex( _items );
     ItemHash::iterator i = _items->find( id );
     if( i == _items->end( ))
         return false;
@@ -217,9 +215,9 @@ bool InstanceCache::release( const base::UUID& id, const uint32_t count )
     return true;
 }
 
-bool InstanceCache::erase( const base::UUID& id )
+bool InstanceCache::erase( const eq::base::UUID& id )
 {
-    base::ScopedMutex<> mutex( _items );
+    eq::base::ScopedMutex<> mutex( _items );
     ItemHash::iterator i = _items->find( id );
     if( i == _items->end( ))
         return false;
@@ -239,9 +237,9 @@ void InstanceCache::expire( const int64_t timeout )
     if( time <= 0 )
         return;
 
-    std::vector< base::uint128_t > keys;
+    std::vector< eq::base::uint128_t > keys;
 
-    base::ScopedMutex<> mutex( _items );
+    eq::base::ScopedMutex<> mutex( _items );
     for( ItemHash::iterator i = _items->begin(); i != _items->end(); ++i )
     {
         Item& item = i->second;
@@ -260,7 +258,7 @@ void InstanceCache::expire( const int64_t timeout )
         }
     }
 
-    for( std::vector< base::uint128_t >::const_iterator i = keys.begin();
+    for( std::vector< eq::base::uint128_t >::const_iterator i = keys.begin();
          i != keys.end(); ++i )
     {
         Item& item = _items.data[ *i ];
@@ -308,7 +306,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
 
     EQ_TS_SCOPED( _thread );
 
-    std::vector< base::uint128_t > keys;
+    std::vector< eq::base::uint128_t > keys;
     const uint64_t target = static_cast< uint64_t >(
                    static_cast< float >( _maxSize ) * 0.8f );
 
@@ -338,7 +336,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
     {
         streamsLeft = false;
 
-        for( std::vector< base::uint128_t >::const_iterator i = keys.begin();
+        for( std::vector< eq::base::uint128_t >::const_iterator i = keys.begin();
              i != keys.end() && _size > target; ++i )
         {
             Item& item = _items.data[ *i ];
@@ -356,7 +354,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
         }
     }
 
-    for( std::vector< base::uint128_t >::const_iterator i = keys.begin();
+    for( std::vector< eq::base::uint128_t >::const_iterator i = keys.begin();
          i != keys.end(); ++i )
     {
         Item& item = _items.data[ *i ];
@@ -389,5 +387,4 @@ std::ostream& operator << ( std::ostream& os,
     return os;
 }
 
-}
 }

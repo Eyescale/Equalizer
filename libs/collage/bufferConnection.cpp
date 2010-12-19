@@ -21,9 +21,7 @@
 
 using namespace std;
 
-namespace eq
-{
-namespace net
+namespace co
 {
 BufferConnection::BufferConnection()
 {
@@ -56,6 +54,5 @@ void BufferConnection::sendBuffer( ConnectionPtr connection )
 
     EQCHECK( connection->send( _buffer.getData(), _buffer.getSize() ));
     _buffer.setSize( 0 );
-}
 }
 }

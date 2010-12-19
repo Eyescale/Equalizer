@@ -30,12 +30,12 @@ namespace fabric
     /**
      * Base class for all distributed, inheritable objects.
      *
-     * This class implements one usage pattern of net::Object, which allows
+     * This class implements one usage pattern of co::Object, which allows
      * subclassing and serialization of distributed Objects used by
      * Equalizer. The inheritance Serializable -> Object -> Frustum -> View
      * illustrates the usage of this class.
      */
-    class Serializable : public net::Object
+    class Serializable : public co::Object
     {
     public:
         /** @return the current dirty bit mask. @version 1.0 */
@@ -50,7 +50,7 @@ namespace fabric
 
         virtual uint128_t commitSync( const uint32_t commitID )
             {
-                const uint128_t& result = net::Object::commitSync( commitID );
+                const uint128_t& result = co::Object::commitSync( commitID );
                 _dirty = DIRTY_NONE;
                 return result;
             }
@@ -64,7 +64,7 @@ namespace fabric
          * @version 1.0
          */
         Serializable( const Serializable& )
-                : net::Object(), _dirty ( DIRTY_NONE ) {}
+                : co::Object(), _dirty ( DIRTY_NONE ) {}
         
         /** Destruct the serializable. @version 1.0 */
         virtual ~Serializable() {}
@@ -81,7 +81,7 @@ namespace fabric
          * need to be transmitted by the overriding method.
          * @version 1.0
          */
-        virtual void serialize( net::DataOStream&, const uint64_t ){};
+        virtual void serialize( co::DataOStream&, const uint64_t ){};
 
         /** 
          * Worker for unpack() and applyInstanceData().
@@ -93,7 +93,7 @@ namespace fabric
          * @sa serialize()
          * @version 1.0
          */
-        virtual void deserialize( net::DataIStream&, const uint64_t ){};
+        virtual void deserialize( co::DataIStream&, const uint64_t ){};
 
         virtual ChangeType getChangeType() const { return DELTA; }
 
@@ -123,12 +123,12 @@ namespace fabric
             }
 
     private:
-        virtual void getInstanceData( net::DataOStream& os )
+        virtual void getInstanceData( co::DataOStream& os )
             {
                 serialize( os, DIRTY_ALL );
             }
 
-        virtual void applyInstanceData( net::DataIStream& is )
+        virtual void applyInstanceData( co::DataIStream& is )
             {
                 if( is.getRemainingBufferSize() == 0 && 
                     is.nRemainingBuffers() == 0 )
@@ -138,7 +138,7 @@ namespace fabric
                 deserialize( is, DIRTY_ALL );
             }
 
-        virtual void pack( net::DataOStream& os )
+        virtual void pack( co::DataOStream& os )
             {
                 if( _dirty == DIRTY_NONE )
                     return;
@@ -147,7 +147,7 @@ namespace fabric
                 serialize( os, _dirty );
             }
 
-        virtual void unpack( net::DataIStream& is )
+        virtual void unpack( co::DataIStream& is )
             {
                 if( is.getRemainingBufferSize() == 0 && 
                     is.nRemainingBuffers() == 0 )

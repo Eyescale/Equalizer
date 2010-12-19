@@ -55,7 +55,7 @@ namespace eq
 {
 namespace server
 {
-typedef net::CommandFunc<Config> ConfigFunc;
+typedef co::CommandFunc<Config> ConfigFunc;
 using fabric::ON;
 using fabric::OFF;
 
@@ -93,8 +93,8 @@ void Config::attach( const UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
     
-    net::CommandQueue* mainQ = getMainThreadQueue();
-    net::CommandQueue* cmdQ = getCommandThreadQueue();
+    co::CommandQueue* mainQ = getMainThreadQueue();
+    co::CommandQueue* cmdQ = getCommandThreadQueue();
 
     registerCommand( fabric::CMD_CONFIG_INIT,
                      ConfigFunc( this, &Config::_cmdInit), mainQ );
@@ -170,7 +170,7 @@ Node* Config::findApplicationNode()
     return 0;
 }
 
-net::NodePtr Config::findApplicationNetNode()
+co::NodePtr Config::findApplicationNetNode()
 {
     Node* node = findApplicationNode();
     EQASSERT( node );
@@ -361,7 +361,7 @@ bool Config::removeCompound( Compound* compound )
     return true;
 }
 
-void Config::setApplicationNetNode( net::NodePtr netNode )
+void Config::setApplicationNetNode( co::NodePtr netNode )
 {
     if( netNode.isValid( ))
     {
@@ -373,7 +373,7 @@ void Config::setApplicationNetNode( net::NodePtr netNode )
     {
         EQASSERT( _state == STATE_STOPPED );
         _state = STATE_UNUSED;
-        setAppNodeID( net::NodeID::ZERO );
+        setAppNodeID( co::NodeID::ZERO );
     }
 
     Node* node = findApplicationNode();
@@ -616,7 +616,7 @@ void Config::_stopNodes()
         if( node->isApplicationNode( ))
             continue;
 
-        net::NodePtr netNode = node->getNode();
+        co::NodePtr netNode = node->getNode();
         if( !netNode ) // already disconnected
             continue;
 
@@ -640,7 +640,7 @@ void Config::_stopNodes()
          i != stoppingNodes.end(); ++i )
     {
         Node*        node    = *i;
-        net::NodePtr netNode = node->getNode();
+        co::NodePtr netNode = node->getNode();
         node->setNode( 0 );
 
         if( nSleeps )
@@ -653,7 +653,7 @@ void Config::_stopNodes()
 
         if( netNode->isConnected( ))
         {
-            net::LocalNodePtr localNode = getLocalNode();
+            co::LocalNodePtr localNode = getLocalNode();
             EQASSERT( localNode.isValid( ));
 
             EQWARN << "Forcefully disconnecting exited render client node"
@@ -716,7 +716,7 @@ uint32_t Config::_createConfig( Node* node )
     createConfigPacket.requestID = getLocalNode()->registerRequest();
     createConfigPacket.configVersion = this;
 
-    net::NodePtr netNode = node->getNode();
+    co::NodePtr netNode = node->getNode();
     netNode->send( createConfigPacket );
 
     return createConfigPacket.requestID;
@@ -734,7 +734,7 @@ void Config::_syncClock()
         if( node->isRunning() || node->isApplicationNode( ))
         {
             EQASSERT( node->isApplicationNode() || node->isActive( ));
-            net::NodePtr netNode = node->getNode();
+            co::NodePtr netNode = node->getNode();
             EQASSERT( netNode->isConnected( ));
 
             send( netNode, packet );
@@ -837,7 +837,7 @@ void Config::_startFrame( const uint128_t& frameID )
     accept( configDataVisitor );
 
     const Nodes& nodes = getNodes();
-    net::NodePtr appNode = findApplicationNetNode();
+    co::NodePtr appNode = findApplicationNetNode();
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
@@ -922,7 +922,7 @@ void Config::changeLatency( const uint32_t latency )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Config::_cmdInit( net::Command& command )
+bool Config::_cmdInit( co::Command& command )
 {
     EQ_TS_THREAD( _mainThread );
     const ConfigInitPacket* packet =
@@ -939,7 +939,7 @@ bool Config::_cmdInit( net::Command& command )
     if( !reply.result )
         exit();
 
-    sync( net::VERSION_HEAD );
+    sync( co::VERSION_HEAD );
     EQINFO << "Config init " << (reply.result ? "successful: ": "failed: ") 
            << getError() << std::endl;
 
@@ -949,7 +949,7 @@ bool Config::_cmdInit( net::Command& command )
     return true;
 }
 
-bool Config::_cmdExit( net::Command& command ) 
+bool Config::_cmdExit( co::Command& command ) 
 {
     const ConfigExitPacket* packet = 
         command.getPacket<ConfigExitPacket>();
@@ -967,7 +967,7 @@ bool Config::_cmdExit( net::Command& command )
     return true;
 }
 
-bool Config::_cmdUpdate( net::Command& command )
+bool Config::_cmdUpdate( co::Command& command )
 {
     const ConfigUpdatePacket* packet = 
         command.getPacket<ConfigUpdatePacket>();
@@ -978,7 +978,7 @@ bool Config::_cmdUpdate( net::Command& command )
     setError( ERROR_NONE );
     commit();    
 
-    net::NodePtr node = command.getNode();
+    co::NodePtr node = command.getNode();
     if( !_needsFinish )
     {
         ConfigUpdateVersionPacket reply( packet, getVersion(),
@@ -987,7 +987,7 @@ bool Config::_cmdUpdate( net::Command& command )
         return true;
     }
 
-    net::LocalNodePtr localNode = getLocalNode();
+    co::LocalNodePtr localNode = getLocalNode();
     ConfigUpdateVersionPacket replyVersion( packet, getVersion(),
                                             localNode->registerRequest( ));
     send( node, replyVersion );
@@ -1012,7 +1012,7 @@ bool Config::_cmdUpdate( net::Command& command )
     return true;
 }
 
-bool Config::_cmdStartFrame( net::Command& command ) 
+bool Config::_cmdStartFrame( co::Command& command ) 
 {
     const ConfigStartFramePacket* packet = 
         command.getPacket<ConfigStartFramePacket>();
@@ -1031,7 +1031,7 @@ bool Config::_cmdStartFrame( net::Command& command )
     return true;
 }
 
-bool Config::_cmdFinishAllFrames( net::Command& command ) 
+bool Config::_cmdFinishAllFrames( co::Command& command ) 
 {
     const ConfigFinishAllFramesPacket* packet = 
         command.getPacket<ConfigFinishAllFramesPacket>();
@@ -1041,7 +1041,7 @@ bool Config::_cmdFinishAllFrames( net::Command& command )
     return true;
 }
 
-bool Config::_cmdStopFrames( net::Command& command )
+bool Config::_cmdStopFrames( co::Command& command )
 {
     const ConfigStopFramesPacket* packet = 
         command.getPacket<ConfigStopFramesPacket>();
@@ -1053,7 +1053,7 @@ bool Config::_cmdStopFrames( net::Command& command )
     return true;
 }
 
-bool Config::_cmdCreateReply( net::Command& command ) 
+bool Config::_cmdCreateReply( co::Command& command ) 
 {
     EQ_TS_THREAD( _cmdThread );
     EQ_TS_NOT_THREAD( _mainThread );
@@ -1090,7 +1090,7 @@ private:
 };
 }
 
-bool Config::_cmdFreezeLoadBalancing( net::Command& command ) 
+bool Config::_cmdFreezeLoadBalancing( co::Command& command ) 
 {
     const ConfigFreezeLoadBalancingPacket* packet = 
         command.getPacket<ConfigFreezeLoadBalancingPacket>();

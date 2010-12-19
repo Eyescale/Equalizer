@@ -53,7 +53,7 @@ void Global::_setupDefaults()
         _connectionIAttributes[i] = fabric::UNDEFINED;
 
     _connectionIAttributes[ ConnectionDescription::IATTR_TYPE ] = 
-        net::CONNECTIONTYPE_TCPIP;
+        co::CONNECTIONTYPE_TCPIP;
     _connectionIAttributes[ ConnectionDescription::IATTR_PORT ] = 0;
     _connectionIAttributes[ ConnectionDescription::IATTR_BANDWIDTH ] = 0;
     _connectionSAttributes[ ConnectionDescription::SATTR_FILENAME ] = "default";
@@ -256,7 +256,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         switch( i )
         { 
             case ConnectionDescription::IATTR_TYPE:
-                os << static_cast< net::ConnectionType >( value );
+                os << static_cast< co::ConnectionType >( value );
                 break;
             default:
                 os << value;

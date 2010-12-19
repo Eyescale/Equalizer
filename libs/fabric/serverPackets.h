@@ -35,7 +35,7 @@ namespace fabric
                 size      = sizeof( ServerCreateConfigPacket );
             }
 
-        net::ObjectVersion configVersion;
+        co::ObjectVersion configVersion;
         uint32_t requestID;
     };
 

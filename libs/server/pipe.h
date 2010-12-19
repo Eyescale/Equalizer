@@ -53,8 +53,8 @@ namespace server
         Config* getConfig();
         const Config* getConfig() const;
 
-        net::CommandQueue* getMainThreadQueue();
-        net::CommandQueue* getCommandThreadQueue();
+        co::CommandQueue* getMainThreadQueue();
+        co::CommandQueue* getCommandThreadQueue();
 
         Channel* getChannel( const ChannelPath& path );
 
@@ -118,12 +118,12 @@ namespace server
         void update( const uint128_t& frameID, const uint32_t frameNumber );
         //@}
 
-        void send( net::ObjectPacket& packet );
+        void send( co::ObjectPacket& packet );
         void output( std::ostream& ) const; //!< @internal
 
     protected:
 
-        /** @sa net::Object::attachToSession. */
+        /** @sa co::Object::attachToSession. */
         virtual void attach( const UUID& id, const uint32_t instanceID );
 
         /** @internal Execute the slave remove request. */
@@ -150,8 +150,8 @@ namespace server
         };
 
         /* command handler functions. */
-        bool _cmdConfigInitReply( net::Command& command );
-        bool _cmdConfigExitReply( net::Command& command );
+        bool _cmdConfigInitReply( co::Command& command );
+        bool _cmdConfigExitReply( co::Command& command );
     };
 }
 }

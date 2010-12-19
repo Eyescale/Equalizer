@@ -57,9 +57,9 @@ namespace server
         bool isRunning() const { return ( _state == STATE_RUNNING ); }
         bool isUsed() const { return _state != STATE_UNUSED; }
 
-        net::CommandQueue* getMainThreadQueue()
+        co::CommandQueue* getMainThreadQueue()
             { return getServer()->getMainThreadQueue(); }
-        net::CommandQueue* getCommandThreadQueue()
+        co::CommandQueue* getCommandThreadQueue()
             { return getServer()->getCommandThreadQueue(); }
         
         /** 
@@ -112,10 +112,10 @@ namespace server
          * 
          * @param node the application node.
          */
-        void setApplicationNetNode( net::NodePtr node );
+        void setApplicationNetNode( co::NodePtr node );
 
         /** @return network node running the application thread. */
-        net::NodePtr findApplicationNetNode();
+        co::NodePtr findApplicationNetNode();
 
         /** 
          * Set the name of the render client executable. 
@@ -246,14 +246,14 @@ namespace server
         template< class T > bool _postDelete( const base::UUID& id );
 
         /** The command functions. */
-        bool _cmdInit( net::Command& command );
-        bool _cmdExit( net::Command& command );
-        bool _cmdUpdate( net::Command& command );
-        bool _cmdStartFrame( net::Command& command );
-        bool _cmdStopFrames( net::Command& command );
-        bool _cmdFinishAllFrames( net::Command& command ); 
-        bool _cmdCreateReply( net::Command& command );
-        bool _cmdFreezeLoadBalancing( net::Command& command );
+        bool _cmdInit( co::Command& command );
+        bool _cmdExit( co::Command& command );
+        bool _cmdUpdate( co::Command& command );
+        bool _cmdStartFrame( co::Command& command );
+        bool _cmdStopFrames( co::Command& command );
+        bool _cmdFinishAllFrames( co::Command& command ); 
+        bool _cmdCreateReply( co::Command& command );
+        bool _cmdFreezeLoadBalancing( co::Command& command );
 
         EQ_TS_VAR( _cmdThread );
         EQ_TS_VAR( _mainThread );

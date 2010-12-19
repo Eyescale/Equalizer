@@ -26,26 +26,26 @@
 namespace eq
 {
 /** @cond IGNORE */
-    typedef net::ObjectPacket  ConfigPacket;
-    typedef net::ObjectPacket  ChannelPacket;
-    typedef net::ObjectPacket  WindowPacket;
-    typedef net::ObjectPacket  PipePacket;
-    typedef net::ObjectPacket  NodePacket;
+    typedef co::ObjectPacket  ConfigPacket;
+    typedef co::ObjectPacket  ChannelPacket;
+    typedef co::ObjectPacket  WindowPacket;
+    typedef co::ObjectPacket  PipePacket;
+    typedef co::ObjectPacket  NodePacket;
 
-    struct ClientPacket : public net::Packet
+    struct ClientPacket : public co::Packet
     {
         ClientPacket(){ type = fabric::PACKETTYPE_EQ_CLIENT; }
     };
 
     struct ChannelTaskPacket : public ChannelPacket
     {
-        fabric::RenderContext context;
+        RenderContext context;
     };
     
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ChannelTaskPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " " << packet->context;
+        os << (co::ObjectPacket*)packet << " " << packet->context;
         return os;
     }
 /** @endcond */

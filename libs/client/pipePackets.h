@@ -24,7 +24,7 @@
 /** @cond IGNORE */
 namespace eq
 {
-    struct PipeCreateWindowPacket : public net::ObjectPacket
+    struct PipeCreateWindowPacket : public co::ObjectPacket
     {
         PipeCreateWindowPacket()
             {
@@ -35,7 +35,7 @@ namespace eq
         base::UUID windowID;
     };
 
-    struct PipeDestroyWindowPacket : public net::ObjectPacket
+    struct PipeDestroyWindowPacket : public co::ObjectPacket
     {
         PipeDestroyWindowPacket( const base::UUID& id )
                 : windowID( id )
@@ -47,7 +47,7 @@ namespace eq
         const base::UUID windowID;
     };
 
-    struct PipeConfigInitPacket : public net::ObjectPacket
+    struct PipeConfigInitPacket : public co::ObjectPacket
     {
         PipeConfigInitPacket()
             {
@@ -59,7 +59,7 @@ namespace eq
         uint32_t      frameNumber;
     };
 
-    struct PipeConfigInitReplyPacket : public net::ObjectPacket
+    struct PipeConfigInitReplyPacket : public co::ObjectPacket
     {
         PipeConfigInitReplyPacket()
             {
@@ -70,7 +70,7 @@ namespace eq
         bool          result;
     };
 
-    struct PipeConfigExitPacket : public net::ObjectPacket
+    struct PipeConfigExitPacket : public co::ObjectPacket
     {
         PipeConfigExitPacket()
             {
@@ -79,7 +79,7 @@ namespace eq
             }
     };
 
-    struct PipeConfigExitReplyPacket : public net::ObjectPacket
+    struct PipeConfigExitReplyPacket : public co::ObjectPacket
     {
         PipeConfigExitReplyPacket( const base::UUID& pipeID, const bool res )
                 : result( res )
@@ -92,7 +92,7 @@ namespace eq
         const bool result;
     };
 
-    struct PipeFrameStartClockPacket : public net::ObjectPacket
+    struct PipeFrameStartClockPacket : public co::ObjectPacket
     {
         PipeFrameStartClockPacket()
             {
@@ -101,7 +101,7 @@ namespace eq
             }
     };
 
-    struct PipeFrameStartPacket : public net::ObjectPacket
+    struct PipeFrameStartPacket : public co::ObjectPacket
     {
         PipeFrameStartPacket()
             {
@@ -114,7 +114,7 @@ namespace eq
         uint32_t frameNumber;
     };
 
-    struct PipeFrameFinishPacket : public net::ObjectPacket
+    struct PipeFrameFinishPacket : public co::ObjectPacket
     {
         PipeFrameFinishPacket()
             {
@@ -149,40 +149,40 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeCreateWindowPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " id " << packet->windowID;
+        os << (co::ObjectPacket*)packet << " id " << packet->windowID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeConfigInitPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " init id " << packet->initID
+        os << (co::ObjectPacket*)packet << " init id " << packet->initID
            << " frame " << packet->frameNumber;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeConfigInitReplyPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " result " << packet->result;
+        os << (co::ObjectPacket*)packet << " result " << packet->result;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeFrameStartPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (co::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeFrameDrawFinishPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (co::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeFrameFinishPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (co::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }

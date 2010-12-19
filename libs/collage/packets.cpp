@@ -18,5 +18,5 @@
 #include "packets.h"
 #include "node.h"
 
-size_t eq::net::Packet::minSize = 4096;
+size_t co::Packet::minSize = 4096;
 

@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_COMMANDCACHE_H
-#define EQNET_COMMANDCACHE_H
+#ifndef CO_COMMANDCACHE_H
+#define CO_COMMANDCACHE_H
 
 #include <co/types.h>
 
@@ -25,9 +25,7 @@
 
 #include <vector>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class Command;
     
@@ -40,15 +38,15 @@ namespace net
     class CommandCache
     {
     public:
-        EQNET_API CommandCache();
-        EQNET_API ~CommandCache();
+        CO_API CommandCache();
+        CO_API ~CommandCache();
 
         /** @return a new command. */
-        EQNET_API Command& alloc( NodePtr node, LocalNodePtr localNode,
+        CO_API Command& alloc( NodePtr node, LocalNodePtr localNode,
                                   const uint64_t size );
 
         /** @return a clone of a command. */
-        EQNET_API Command& clone( Command& from );
+        CO_API Command& clone( Command& from );
 
         /** Flush all allocated commands. */
         void flush();
@@ -76,6 +74,5 @@ namespace net
         EQ_TS_VAR( _thread );
     };
 }
-}
 
-#endif //EQNET_COMMANDCACHE_H
+#endif //CO_COMMANDCACHE_H

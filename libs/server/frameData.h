@@ -28,7 +28,7 @@ namespace server
     /**
      * A holder for a Frame Data and parameters.
      */
-    class FrameData : public net::Object
+    class FrameData : public co::Object
     {
     public:
         /** 
@@ -96,8 +96,8 @@ namespace server
     protected:
         virtual ~FrameData(){}
         virtual ChangeType getChangeType() const { return INSTANCE; }
-        virtual void getInstanceData( net::DataOStream& os );
-        virtual void applyInstanceData( net::DataIStream& is );
+        virtual void getInstanceData( co::DataOStream& os );
+        virtual void applyInstanceData( co::DataIStream& is );
 
     private:
         friend class Frame;

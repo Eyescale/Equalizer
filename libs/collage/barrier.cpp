@@ -27,9 +27,7 @@
 using namespace eq::base;
 using namespace std;
 
-namespace eq
-{
-namespace net
+namespace co
 {
 typedef CommandFunc<Barrier> CmdFunc;
 
@@ -75,7 +73,7 @@ void Barrier::unpack( DataIStream& is )
 }
 //---------------------------------------------------------------------------
 
-void Barrier::attach( const base::UUID& id, const uint32_t instanceID )
+void Barrier::attach( const eq::base::UUID& id, const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
 
@@ -191,5 +189,4 @@ bool Barrier::_cmdEnterReply( Command& )
     return true;
 }
 
-}
 }

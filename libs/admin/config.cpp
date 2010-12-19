@@ -38,7 +38,7 @@ Config::Config( ServerPtr parent )
 Config::~Config()
 {}
 
-net::CommandQueue* Config::getMainThreadQueue()
+co::CommandQueue* Config::getMainThreadQueue()
 {
     return getClient()->getMainThreadQueue();
 }

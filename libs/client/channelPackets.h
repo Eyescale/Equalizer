@@ -84,7 +84,7 @@ namespace eq
         uint32_t  frameNumber;
     };  
 
-    struct ChannelStopFramePacket : public net::ObjectPacket
+    struct ChannelStopFramePacket : public co::ObjectPacket
     {
         ChannelStopFramePacket()
             {
@@ -158,7 +158,7 @@ namespace eq
             }
 
         uint32_t             nFrames;
-        EQ_ALIGN8( net::ObjectVersion frames[1] );
+        EQ_ALIGN8( co::ObjectVersion frames[1] );
     };
         
     struct ChannelFrameReadbackPacket : public ChannelTaskPacket
@@ -170,7 +170,7 @@ namespace eq
             }
 
         uint32_t             nFrames;
-        EQ_ALIGN8( net::ObjectVersion frames[1] );
+        EQ_ALIGN8( co::ObjectVersion frames[1] );
     };
         
     struct ChannelFrameTransmitPacket : public ChannelTaskPacket
@@ -182,7 +182,7 @@ namespace eq
             }
 
         
-        net::ObjectVersion frameData;
+        co::ObjectVersion frameData;
         uint128_t          netNodeID;
         uint128_t          clientNodeID;
         uint32_t           statisticsIndex;
@@ -210,26 +210,26 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                     const ChannelConfigInitReplyPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " result " << packet->result;
+        os << (co::ObjectPacket*)packet << " result " << packet->result;
         return os;
     }
 
     inline std::ostream& operator << ( std::ostream& os, 
                                        const ChannelFrameStartPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber;
+        os << (co::ObjectPacket*)packet << " frame " << packet->frameNumber;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                    const ChannelFrameFinishReplyPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber;
+        os << (co::ObjectPacket*)packet << " frame " << packet->frameNumber;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                     const ChannelFrameDrawFinishPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (co::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }
@@ -242,7 +242,7 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                      const ChannelFrameTransmitPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " frame data " << packet->frameData
+        os << (co::ObjectPacket*)packet << " frame data " << packet->frameData
            << " receiver " << packet->clientNodeID << " on "
            << packet->netNodeID;
         return os;

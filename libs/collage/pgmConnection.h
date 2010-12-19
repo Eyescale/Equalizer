@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_PGMCONNECTION_H
-#define EQNET_PGMCONNECTION_H
+#ifndef CO_PGMCONNECTION_H
+#define CO_PGMCONNECTION_H
 
 #include <eq/base/base.h>
 #ifdef EQ_PGM
@@ -25,9 +25,7 @@
 #include <eq/base/buffer.h> // member
 #include <eq/base/thread.h> // for EQ_TS_VAR
 
-namespace eq
-{
-namespace net
+namespace co
 {
     /** A PGM connection (Pragmatic General Multicast). */
     class PGMConnection : public Connection
@@ -96,7 +94,6 @@ namespace net
         EQ_TS_VAR( _recvThread );
     };
 }
-}
 
 #endif // EQ_PGM
-#endif // EQNET_PGMCONNECTION_H
+#endif // CO_PGMCONNECTION_H

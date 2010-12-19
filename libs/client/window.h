@@ -78,8 +78,8 @@ namespace eq
 
         /** @name Data Access */
         //@{
-        EQ_API net::CommandQueue* getPipeThreadQueue(); //!< @internal
-        EQ_API net::CommandQueue* getCommandThreadQueue(); //!< @internal
+        EQ_API co::CommandQueue* getPipeThreadQueue(); //!< @internal
+        EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
 
         /** @return the Node of this window. @version 1.0 */
         EQ_API const Node* getNode() const; 
@@ -457,21 +457,21 @@ namespace eq
         void _updateFPS();
 
         /** Enter the given barrier. */
-        void _enterBarrier( net::ObjectVersion barrier );
+        void _enterBarrier( co::ObjectVersion barrier );
 
         /* The command functions. */
-        bool _cmdCreateChannel( net::Command& command );
-        bool _cmdDestroyChannel(net::Command& command );
-        bool _cmdConfigInit( net::Command& command );
-        bool _cmdConfigExit( net::Command& command );
-        bool _cmdFrameStart( net::Command& command );
-        bool _cmdFrameFinish( net::Command& command );
-        bool _cmdThrottleFramerate( net::Command& command );
-        bool _cmdFinish( net::Command& command );
-        bool _cmdBarrier( net::Command& command );
-        bool _cmdNVBarrier( net::Command& command );
-        bool _cmdSwap( net::Command& command );
-        bool _cmdFrameDrawFinish( net::Command& command );
+        bool _cmdCreateChannel( co::Command& command );
+        bool _cmdDestroyChannel(co::Command& command );
+        bool _cmdConfigInit( co::Command& command );
+        bool _cmdConfigExit( co::Command& command );
+        bool _cmdFrameStart( co::Command& command );
+        bool _cmdFrameFinish( co::Command& command );
+        bool _cmdThrottleFramerate( co::Command& command );
+        bool _cmdFinish( co::Command& command );
+        bool _cmdBarrier( co::Command& command );
+        bool _cmdNVBarrier( co::Command& command );
+        bool _cmdSwap( co::Command& command );
+        bool _cmdFrameDrawFinish( co::Command& command );
 
         EQ_TS_VAR( _pipeThread );
     };

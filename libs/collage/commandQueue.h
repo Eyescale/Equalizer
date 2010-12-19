@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_COMMANDQUEUE_H
-#define EQNET_COMMANDQUEUE_H
+#ifndef CO_COMMANDQUEUE_H
+#define CO_COMMANDQUEUE_H
 
 #include <co/base.h>
 #include <eq/base/lock.h>
@@ -24,30 +24,28 @@
 #include <eq/base/nonCopyable.h>
 #include <eq/base/thread.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class Command;
 
     /**
      * A CommandQueue is a thread-safe queue for command packets.
      */
-    class CommandQueue : public base::NonCopyable
+    class CommandQueue : public eq::base::NonCopyable
     {
     public:
-        EQNET_API CommandQueue();
-        EQNET_API virtual ~CommandQueue();
+        CO_API CommandQueue();
+        CO_API virtual ~CommandQueue();
 
         /** 
          * Push a command to the queue.
          * 
          * @param packet the command packet.
          */
-        EQNET_API virtual void push( Command& packet );
+        CO_API virtual void push( Command& packet );
 
         /** Push a command to the front of the queue. */
-        EQNET_API virtual void pushFront( Command& packet );
+        CO_API virtual void pushFront( Command& packet );
 
         /** Wake up the command queue, pop() will return 0. */
         virtual void wakeup() { _commands.push( static_cast< Command* >( 0 )); }
@@ -59,7 +57,7 @@ namespace net
          * 
          * @return the next command in the queue.
          */
-        EQNET_API virtual Command* pop();
+        CO_API virtual Command* pop();
 
         /** 
          * Try to pop a command from the queue.
@@ -68,7 +66,7 @@ namespace net
          * 
          * @return the next command in the queue, or 0 if no command is queued.
          */
-        EQNET_API virtual Command* tryPop();
+        CO_API virtual Command* tryPop();
 
         /** 
          * @return <code>true</code> if the command queue is empty,
@@ -77,7 +75,7 @@ namespace net
         bool isEmpty() const { return _commands.isEmpty(); }
 
         /** Flush all cached commands. */
-        EQNET_API virtual void flush();
+        CO_API virtual void flush();
 
         /** @return the size of the queue. */
         size_t getSize() const { return _commands.getSize(); }
@@ -85,9 +83,8 @@ namespace net
         EQ_TS_VAR( _thread );
     private:
         /** Thread-safe command queue. */
-        base::MTQueue< Command* >  _commands;
+        eq::base::MTQueue< Command* >  _commands;
     };
 }
-}
 
-#endif //EQNET_COMMANDQUEUE_H
+#endif //CO_COMMANDQUEUE_H

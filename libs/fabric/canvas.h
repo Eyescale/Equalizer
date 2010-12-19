@@ -115,10 +115,10 @@ namespace fabric
                                           const uint32_t instanceID );
 
         /** @sa Frustum::serialize. @internal */
-        EQFABRIC_INL void serialize( net::DataOStream& os, 
+        EQFABRIC_INL void serialize( co::DataOStream& os, 
                                         const uint64_t dirtyBits );
         /** @sa Frustum::deserialize. @internal */
-        EQFABRIC_INL virtual void deserialize( net::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( co::DataIStream& is, 
                                                   const uint64_t dirtyBits );
 
         EQFABRIC_INL virtual void notifyDetach(); //!< @internal
@@ -177,9 +177,9 @@ namespace fabric
         EQFABRIC_INL virtual uint32_t commitNB(); //!< @internal
         bool _mapViewObjects();
 
-        typedef net::CommandFunc< Canvas< CFG, C, S, L > > CmdFunc;
-        bool _cmdNewSegment( net::Command& command );
-        bool _cmdNewSegmentReply( net::Command& command );
+        typedef co::CommandFunc< Canvas< CFG, C, S, L > > CmdFunc;
+        bool _cmdNewSegment( co::Command& command );
+        bool _cmdNewSegmentReply( co::Command& command );
     };
 
     template< class CFG, class C, class S, class L >

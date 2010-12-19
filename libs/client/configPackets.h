@@ -222,7 +222,7 @@ namespace eq
             size      = sizeof( ConfigSwapObjectPacket ); 
         }
         uint32_t         requestID;
-        net::Object*     object;
+        co::Object*     object;
     };
 
     inline std::ostream& operator << ( std::ostream& os, 

@@ -76,8 +76,8 @@ namespace server
 
         const Compounds& getCompounds() const;
 
-        net::CommandQueue* getMainThreadQueue();
-        net::CommandQueue* getCommandThreadQueue();
+        co::CommandQueue* getMainThreadQueue();
+        co::CommandQueue* getCommandThreadQueue();
 
         /** Increase channel activition count. */
         void activate();
@@ -167,9 +167,9 @@ namespace server
          */
         bool update( const uint128_t& frameID, const uint32_t frameNumber );
 
-        void send( net::ObjectPacket& packet );
+        void send( co::ObjectPacket& packet );
         template< typename T >
-        void send( net::ObjectPacket &packet, const std::vector<T>& data );
+        void send( co::ObjectPacket &packet, const std::vector<T>& data );
         //@}
 
         /** @name Channel listener interface. */
@@ -227,10 +227,10 @@ namespace server
                             const eq::Statistic* statistics );
 
         /* command handler functions. */
-        bool _cmdConfigInitReply( net::Command& command );
-        bool _cmdConfigExitReply( net::Command& command );
-        bool _cmdFrameFinishReply( net::Command& command );
-        bool _cmdNop( net::Command& command )
+        bool _cmdConfigInitReply( co::Command& command );
+        bool _cmdConfigExitReply( co::Command& command );
+        bool _cmdFrameFinishReply( co::Command& command );
+        bool _cmdNop( co::Command& command )
             { return true; }
 
         virtual void updateCapabilities();

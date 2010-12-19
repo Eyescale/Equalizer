@@ -30,7 +30,7 @@ namespace admin
     class Server;
 
     /** 
-     * The client represents the admin tool as a net::Node to the cluster.
+     * The client represents the admin tool as a co::Node to the cluster.
      *
      * The methods initLocal() and exitLocal() should be used to set up and exit
      * the listening node instance for each application process.
@@ -65,20 +65,20 @@ namespace admin
         EQADMIN_EXPORT bool disconnectServer( ServerPtr server );
 
         /** @return the command queue to the main node thread. @internal */
-        virtual net::CommandQueue* getMainThreadQueue()
+        virtual co::CommandQueue* getMainThreadQueue()
             { return &_mainThreadQueue; }
 
     private:
         /** The command->node command queue. */
-        net::CommandQueue _mainThreadQueue;
+        co::CommandQueue _mainThreadQueue;
 
         union // placeholder for binary-compatible changes
         {
             char dummy[32];
         };
 
-        /** @sa net::Node::createNode */
-        EQADMIN_EXPORT virtual net::NodePtr createNode( const uint32_t type );
+        /** @sa co::Node::createNode */
+        EQADMIN_EXPORT virtual co::NodePtr createNode( const uint32_t type );
     };
 }
 }

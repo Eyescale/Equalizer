@@ -132,7 +132,7 @@ void View::setDirty( const uint64_t bits )
 void View::_updateChannels() const
 {
     EQASSERT( isMaster( ));
-    net::ObjectVersion version( this );
+    co::ObjectVersion version( this );
     if( isDirty( ))
         ++version.version;
         
@@ -144,7 +144,7 @@ void View::_updateChannels() const
     }
 }
 
-void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
+void View::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 {
     EQASSERT( isMaster( ));
     Super::deserialize( is, dirtyBits );

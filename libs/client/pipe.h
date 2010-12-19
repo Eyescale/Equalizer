@@ -56,9 +56,9 @@ namespace eq
 
         /** @name Data Access. */
         //@{
-        EQ_API net::CommandQueue* getPipeThreadQueue(); //!< @internal
-        net::CommandQueue* getMainThreadQueue(); //!< @internal
-        net::CommandQueue* getCommandThreadQueue(); //!< @internal
+        EQ_API co::CommandQueue* getPipeThreadQueue(); //!< @internal
+        co::CommandQueue* getMainThreadQueue(); //!< @internal
+        co::CommandQueue* getCommandThreadQueue(); //!< @internal
 
         /** @return the parent configuration. @version 1.0 */
         EQ_API Config* getConfig();
@@ -119,7 +119,7 @@ namespace eq
          * @param output true if an output frame, false if input frame
          * @return the frame.
          */
-        Frame* getFrame( const net::ObjectVersion& frameVersion, 
+        Frame* getFrame( const co::ObjectVersion& frameVersion, 
                          const Eye eye, const bool output );
 
         /** @internal Clear the frame cache and delete all frames. */
@@ -136,10 +136,10 @@ namespace eq
         void setCurrent( const Window* window ) const;
 
         /** @internal @return the view for the given identifier and version. */
-        const View* getView( const net::ObjectVersion& viewVersion ) const;
+        const View* getView( const co::ObjectVersion& viewVersion ) const;
 
         /** @internal @return the view for the given identifier and version. */
-        View* getView( const net::ObjectVersion& viewVersion );
+        View* getView( const co::ObjectVersion& viewVersion );
         //@}
 
         void waitExited() const; //!<  @internal Wait for the pipe to be exited
@@ -450,15 +450,15 @@ namespace eq
         void _flushViews();
 
         /* The command functions. */
-        bool _cmdCreateWindow( net::Command& command );
-        bool _cmdDestroyWindow( net::Command& command );
-        bool _cmdConfigInit( net::Command& command );
-        bool _cmdConfigExit( net::Command& command );
-        bool _cmdFrameStartClock( net::Command& command );
-        bool _cmdFrameStart( net::Command& command );
-        bool _cmdFrameFinish( net::Command& command );
-        bool _cmdFrameDrawFinish( net::Command& command );
-        bool _cmdExitThread( net::Command& command );
+        bool _cmdCreateWindow( co::Command& command );
+        bool _cmdDestroyWindow( co::Command& command );
+        bool _cmdConfigInit( co::Command& command );
+        bool _cmdConfigExit( co::Command& command );
+        bool _cmdFrameStartClock( co::Command& command );
+        bool _cmdFrameStart( co::Command& command );
+        bool _cmdFrameFinish( co::Command& command );
+        bool _cmdFrameDrawFinish( co::Command& command );
+        bool _cmdExitThread( co::Command& command );
 
         EQ_TS_VAR( _pipeThread );
     };

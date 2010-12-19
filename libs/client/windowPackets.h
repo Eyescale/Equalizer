@@ -117,7 +117,7 @@ namespace eq
                 command = fabric::CMD_WINDOW_BARRIER;
                 size    = sizeof( WindowBarrierPacket );
             }
-        net::ObjectVersion barrier;
+        co::ObjectVersion barrier;
     };
     
     struct WindowNVBarrierPacket : public WindowPacket
@@ -128,7 +128,7 @@ namespace eq
                 size    = sizeof( WindowNVBarrierPacket );
             }
 
-        net::ObjectVersion netBarrier;
+        co::ObjectVersion netBarrier;
         uint32_t group;
         uint32_t barrier;
     };
@@ -181,33 +181,33 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                        const WindowCreateChannelPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " id " << packet->channelID;
+        os << (co::ObjectPacket*)packet << " id " << packet->channelID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                       const WindowDestroyChannelPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " id " << packet->channelID;
+        os << (co::ObjectPacket*)packet << " id " << packet->channelID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const WindowFrameStartPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (co::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                      const WindowFrameDrawFinishPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (co::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const WindowBarrierPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " barrier " << packet->barrier;
+        os << (co::ObjectPacket*)packet << " barrier " << packet->barrier;
         return os;
     }
 }

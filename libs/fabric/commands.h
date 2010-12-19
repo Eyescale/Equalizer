@@ -28,7 +28,7 @@ namespace fabric
 /** @cond IGNORE */
     enum ServerCommand
     {
-        CMD_SERVER_CHOOSE_CONFIG        = net::CMD_NODE_CUSTOM,
+        CMD_SERVER_CHOOSE_CONFIG        = co::CMD_NODE_CUSTOM,
         CMD_SERVER_CHOOSE_CONFIG_REPLY,
         CMD_SERVER_CREATE_CONFIG,
         CMD_SERVER_CREATE_CONFIG_REPLY,
@@ -54,7 +54,7 @@ namespace fabric
 
     enum ClientCommand
     {
-        CMD_CLIENT_EXIT = net::CMD_NODE_CUSTOM,
+        CMD_CLIENT_EXIT = co::CMD_NODE_CUSTOM,
         CMD_CLIENT_FILL1, // some buffer for binary-compatible patches
         CMD_CLIENT_FILL2,
         CMD_CLIENT_FILL3,
@@ -65,7 +65,7 @@ namespace fabric
 
     enum ConfigCommand
     {
-        CMD_CONFIG_NEW_LAYOUT = net::CMD_OBJECT_CUSTOM, // 10
+        CMD_CONFIG_NEW_LAYOUT = co::CMD_OBJECT_CUSTOM, // 10
         CMD_CONFIG_NEW_CANVAS,
         CMD_CONFIG_NEW_OBSERVER,
         CMD_CONFIG_NEW_ENTITY_REPLY,
@@ -95,7 +95,7 @@ namespace fabric
 
     enum NodeCommand
     {
-        CMD_NODE_CONFIG_INIT = net::CMD_OBJECT_CUSTOM, // 10
+        CMD_NODE_CONFIG_INIT = co::CMD_OBJECT_CUSTOM, // 10
         CMD_NODE_CONFIG_INIT_REPLY,
         CMD_NODE_CONFIG_EXIT,
         CMD_NODE_CONFIG_EXIT_REPLY,
@@ -113,7 +113,7 @@ namespace fabric
 
     enum PipeCommand
     {
-        CMD_PIPE_NEW_WINDOW = net::CMD_OBJECT_CUSTOM, // 10
+        CMD_PIPE_NEW_WINDOW = co::CMD_OBJECT_CUSTOM, // 10
         CMD_PIPE_NEW_WINDOW_REPLY,
         CMD_PIPE_CONFIG_INIT,
         CMD_PIPE_CONFIG_INIT_REPLY,
@@ -131,7 +131,7 @@ namespace fabric
 
     enum WindowCommand
     {
-        CMD_WINDOW_NEW_CHANNEL = net::CMD_OBJECT_CUSTOM, // 10
+        CMD_WINDOW_NEW_CHANNEL = co::CMD_OBJECT_CUSTOM, // 10
         CMD_WINDOW_NEW_CHANNEL_REPLY,
         CMD_WINDOW_CONFIG_INIT,
         CMD_WINDOW_CONFIG_INIT_REPLY,
@@ -152,7 +152,7 @@ namespace fabric
 
     enum ChannelCommand
     {
-        CMD_CHANNEL_CONFIG_INIT = net::CMD_OBJECT_CUSTOM, // 10
+        CMD_CHANNEL_CONFIG_INIT = co::CMD_OBJECT_CUSTOM, // 10
         CMD_CHANNEL_CONFIG_INIT_REPLY,
         CMD_CHANNEL_CONFIG_EXIT,
         CMD_CHANNEL_CONFIG_EXIT_REPLY,
@@ -174,14 +174,14 @@ namespace fabric
 
     enum CanvasCommand
     {
-        CMD_CANVAS_NEW_SEGMENT = net::CMD_OBJECT_CUSTOM, // 10 
+        CMD_CANVAS_NEW_SEGMENT = co::CMD_OBJECT_CUSTOM, // 10 
         CMD_CANVAS_NEW_SEGMENT_REPLY,
         CMD_CANVAS_CUSTOM = 20 // some buffer for binary-compatible patches
     };
 
     enum LayoutCommand
     {
-        CMD_LAYOUT_NEW_VIEW = net::CMD_OBJECT_CUSTOM, // 10 
+        CMD_LAYOUT_NEW_VIEW = co::CMD_OBJECT_CUSTOM, // 10 
         CMD_LAYOUT_NEW_VIEW_REPLY,
         CMD_LAYOUT_CUSTOM = 20 // some buffer for binary-compatible patches
     };

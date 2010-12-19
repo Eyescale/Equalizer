@@ -15,8 +15,8 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#ifndef EQNET_IBCONNECTION_H
-#define EQNET_IBCONNECTION_H
+#ifndef CO_IBCONNECTION_H
+#define CO_IBCONNECTION_H
 
 #include <eq/base/base.h>
 #ifdef EQ_INFINIBAND
@@ -27,10 +27,7 @@
 #include "ibCompletionQueue.h"
 #include "ibInterface.h"
 
-namespace eq
-{
-namespace net
-{
+namespace co
 
 class IBConnection : public Connection
 
@@ -101,7 +98,6 @@ private:
     EQ_TS_THREAD_DECLARE( _recvThread );
 };
 }
-}
 #endif //EQ_INFINIBAND
 
-#endif //EQNET_IBCONNECTION_H 
+#endif //CO_IBCONNECTION_H 

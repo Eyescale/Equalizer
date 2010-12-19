@@ -69,7 +69,7 @@ private:
 static ServerThread _serverThread;
 }
 
-EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer( 
+EQSERVER_EXPORT co::ConnectionPtr eqsStartLocalServer( 
     const std::string& file )
 {
     if( _serverThread.isRunning( ))
@@ -102,17 +102,17 @@ EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer(
     eq::server::Loader::addDefaultObserver( server );
     eq::server::Loader::convertTo11( server );
 
-    eq::net::ConnectionDescriptionPtr desc = 
+    co::ConnectionDescriptionPtr desc = 
         new eq::server::ConnectionDescription;
-    desc->type = eq::net::CONNECTIONTYPE_PIPE;
+    desc->type = co::CONNECTIONTYPE_PIPE;
 
     // Do not use RefPtr for easier handling
-    eq::net::PairConnection* connection = new eq::net::PairConnection( 
-        eq::net::Connection::create( desc ),
-        eq::net::Connection::create( desc ));
+    co::PairConnection* connection = new co::PairConnection( 
+        co::Connection::create( desc ),
+        co::Connection::create( desc ));
 
     // Wrap in one RefPtr to do correct reference counting and avoid deletion
-    eq::net::ConnectionPtr conn = connection;
+    co::ConnectionPtr conn = connection;
 
     if( !connection->connect( ))
     {
@@ -120,7 +120,7 @@ EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer(
         return 0;
     }
 
-    eq::net::ConnectionPtr sibling = connection->getSibling();
+    co::ConnectionPtr sibling = connection->getSibling();
     server->_addConnection( sibling );
 
     if( !_serverThread.start( server ))

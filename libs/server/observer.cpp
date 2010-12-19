@@ -48,7 +48,7 @@ Observer::~Observer()
 {
 }
 
-void Observer::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
+void Observer::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 {
     Super::deserialize( is, dirtyBits );
 

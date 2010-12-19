@@ -73,7 +73,7 @@ namespace server
         
     protected:
         /** @sa Object::deserialize */
-        virtual void deserialize( net::DataIStream& is, 
+        virtual void deserialize( co::DataIStream& is, 
                                   const uint64_t dirtyBits );
 
     private:

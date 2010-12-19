@@ -22,9 +22,7 @@
 #include "objectCM.h"
 #include "objectPackets.h"
 
-namespace eq
-{
-namespace net
+namespace co
 {
 ObjectDeltaDataOStream::ObjectDeltaDataOStream( const ObjectCM* cm )
         : ObjectDataOStream( cm )
@@ -55,5 +53,4 @@ void ObjectDeltaDataOStream::sendFooter( const uint32_t compressor,
     _sequence = 0;
 }
 
-}
 }

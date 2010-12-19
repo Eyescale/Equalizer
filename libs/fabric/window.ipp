@@ -99,7 +99,7 @@ void Window< P, W, C >::attach( const base::UUID& id, const uint32_t instanceID)
 {
     Object::attach( id, instanceID );
 
-    net::CommandQueue* queue = _pipe->getMainThreadQueue();
+    co::CommandQueue* queue = _pipe->getMainThreadQueue();
     EQASSERT( queue );
 
     registerCommand( fabric::CMD_WINDOW_NEW_CHANNEL, 
@@ -137,7 +137,7 @@ uint32_t Window< P, W, C >::commitNB()
 }
 
 template< class P, class W, class C >
-void Window< P, W, C >::serialize( net::DataOStream& os,
+void Window< P, W, C >::serialize( co::DataOStream& os,
                                    const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
@@ -155,7 +155,7 @@ void Window< P, W, C >::serialize( net::DataOStream& os,
 }
 
 template< class P, class W, class C >
-void Window< P, W, C >::deserialize( net::DataIStream& is,
+void Window< P, W, C >::deserialize( co::DataIStream& is,
                                      const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
@@ -178,7 +178,7 @@ void Window< P, W, C >::deserialize( net::DataIStream& is,
             }
             else // consume unused ObjectVersions
             {
-                net::ObjectVersions childIDs;
+                co::ObjectVersions childIDs;
                 is >> childIDs;
             }
         }
@@ -211,7 +211,7 @@ template< class P, class W, class C >
 void Window< P, W, C >::notifyDetach()
 {
     Object::notifyDetach();
-    net::LocalNodePtr node = getLocalNode();
+    co::LocalNodePtr node = getLocalNode();
 
     if( isMaster( ))
     {
@@ -440,7 +440,7 @@ void Window< P, W, C >::_setDrawableConfig(const DrawableConfig& drawableConfig)
 // Command handlers
 //----------------------------------------------------------------------
 template< class P, class W, class C >
-bool Window< P, W, C >::_cmdNewChannel( net::Command& command )
+bool Window< P, W, C >::_cmdNewChannel( co::Command& command )
 {
     const WindowNewChannelPacket* packet =
         command.getPacket< WindowNewChannelPacket >();
@@ -455,11 +455,13 @@ bool Window< P, W, C >::_cmdNewChannel( net::Command& command )
     WindowNewChannelReplyPacket reply( packet );
     reply.channelID = channel->getID();
     send( command.getNode(), reply ); 
+    EQASSERT( channel->isAttached( ));
+
     return true;
 }
 
 template< class P, class W, class C >
-bool Window< P, W, C >::_cmdNewChannelReply( net::Command& command )
+bool Window< P, W, C >::_cmdNewChannelReply( co::Command& command )
 {
     const WindowNewChannelReplyPacket* packet =
         command.getPacket< WindowNewChannelReplyPacket >();

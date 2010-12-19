@@ -19,10 +19,7 @@
 
 #include <iba/ib_al.h>
 
-namespace eq
-{ 
-namespace net
-{
+namespace co
 
 IBMemBlock::IBMemBlock()
         : _maxBufferSize( 0 )
@@ -75,6 +72,5 @@ bool IBMemBlock::create( ib_pd_handle_t  protectionDomain,
     return true;
 }
 
-}
 }
 #endif //EQ_INFINIBAND

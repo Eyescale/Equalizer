@@ -46,9 +46,7 @@
 #  endif
 #endif
 
-namespace eq
-{
-namespace net
+namespace co
 {
 SocketConnection::SocketConnection( const ConnectionType type )
 #ifdef _WIN32
@@ -120,7 +118,8 @@ bool SocketConnection::connect()
     if( !connected )
     {
         EQWARN << "Could not connect to '" << _description->getHostname() << ":"
-               << _description->port << "': " << base::sysError << std::endl;
+               << _description->port << "': " << eq::base::sysError 
+               << std::endl;
         close();
         return false;
     }
@@ -152,7 +151,8 @@ void SocketConnection::close()
 #endif
 
     if( !closed )
-        EQWARN << "Could not close socket: " << base::sysError << std::endl;
+        EQWARN << "Could not close socket: " << eq::base::sysError 
+               << std::endl;
 
     _readFD  = INVALID_SOCKET;
     _writeFD = INVALID_SOCKET;
@@ -170,7 +170,7 @@ void SocketConnection::_initAIORead()
 
     if( !_overlapped.hEvent )
         EQERROR << "Can't create event for AIO notification: " 
-                << base::sysError << std::endl;
+                << eq::base::sysError << std::endl;
 }
 
 void SocketConnection::_initAIOAccept()
@@ -224,7 +224,7 @@ void SocketConnection::acceptNB()
 
     if( _overlappedSocket == INVALID_SOCKET )
     {
-        EQERROR << "Could not create accept socket: " << base::sysError
+        EQERROR << "Could not create accept socket: " << eq::base::sysError
                 << ", closing listening socket" << std::endl;
         close();
         return;
@@ -242,8 +242,8 @@ void SocketConnection::acceptNB()
                    &got, &_overlapped ) &&
         GetLastError() != WSA_IO_PENDING )
     {
-        EQERROR << "Could not start accept operation: " << base::sysError 
-                << ", closing connection" << std::endl;
+        EQERROR << "Could not start accept operation: " 
+                << eq::base::sysError << ", closing connection" << std::endl;
         close();
     }
 }
@@ -264,7 +264,7 @@ ConnectionPtr SocketConnection::acceptSync()
     DWORD flags = 0;
     if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
     {
-        EQWARN << "Accept completion failed: " << base::sysError 
+        EQWARN << "Accept completion failed: " << eq::base::sysError 
                << ", closing socket" << std::endl;
         close();
         return 0;
@@ -317,7 +317,7 @@ ConnectionPtr SocketConnection::acceptSync()
 
     if( fd == INVALID_SOCKET )
     {
-        EQWARN << "accept failed: " << base::sysError << std::endl;
+      EQWARN << "accept failed: " << eq::base::sysError << std::endl;
         return 0;
     }
 
@@ -371,7 +371,7 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
     }
     else if( GetLastError() != WSA_IO_PENDING )
     {
-        EQWARN << "Could not start overlapped receive: " << base::sysError
+        EQWARN << "Could not start overlapped receive: " << eq::base::sysError
                << ", closing connection" << std::endl;
         close();
     }
@@ -403,7 +403,7 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
         const int err = WSAGetLastError();
         if( err == ERROR_SUCCESS || got > 0 )
         {
-            EQWARN << "Got " << base::sysError << " with " << got
+            EQWARN << "Got " << eq::base::sysError << " with " << got
                    << " bytes on " << _description << std::endl;
             return got;
         }
@@ -426,19 +426,19 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
 
                 EQWARN << "WSAGetOverlappedResult error loop"
                        << std::endl;
-                base::sleep( 1 ); // one millisecond to recover
+                eq::base::sleep( 1 ); // one millisecond to recover
                 break;
 
             default:
-                EQWARN << "Got " << base::sysError << ", closing connection"
-                       << std::endl;
+                EQWARN << "Got " << eq::base::sysError 
+                       << ", closing connection" << std::endl;
                 close();
                 return READ_ERROR;
         }
     }
 }
 
-int64_t SocketConnection::write( const void* buffer, const uint64_t bytes)
+int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
 {
     if( _state != STATE_CONNECTED || _writeFD == INVALID_SOCKET )
         return -1;
@@ -458,7 +458,7 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes)
         // error
         if( GetLastError( ) != WSAEWOULDBLOCK )
         {
-            EQWARN << "Error during write: " << base::sysError << " on "
+            EQWARN << "Error during write: " << eq::base::sysError << " on "
                    << _description << std::endl;
             return -1;
         }
@@ -473,7 +473,8 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes)
         const int result = select( _writeFD+1, 0, &set, 0, 0 );
         if( result <= 0 )
         {
-            EQWARN << "Error during select: " << base::sysError << std::endl;
+            EQWARN << "Error during select: " << eq::base::sysError 
+                   << std::endl;
             return -1;
         }
 #endif
@@ -505,7 +506,8 @@ bool SocketConnection::_createSocket()
 
     if( fd == INVALID_SOCKET )
     {
-        EQERROR << "Could not create socket: " << base::sysError << std::endl;
+        EQERROR << "Could not create socket: " 
+                << eq::base::sysError << std::endl;
         return false;
     }
 
@@ -588,7 +590,7 @@ bool SocketConnection::listen()
     if( !bound )
     {
         EQWARN << "Could not bind socket " << _readFD << ": " 
-               << base::sysError << " to " << inet_ntoa( address.sin_addr )
+               << eq::base::sysError << " to " << inet_ntoa( address.sin_addr )
                << ":" << ntohs( address.sin_port ) << " AF "
                << (int)address.sin_family << std::endl;
 
@@ -602,7 +604,8 @@ bool SocketConnection::listen()
         
     if( !listening )
     {
-        EQWARN << "Could not listen on socket: "<< base::sysError << std::endl;
+        EQWARN << "Could not listen on socket: " 
+               << eq::base::sysError << std::endl;
         close();
         return false;
     }
@@ -645,5 +648,4 @@ uint16_t SocketConnection::_getPort() const
     return ntohs(address.sin_port);
 }
 
-}
 }

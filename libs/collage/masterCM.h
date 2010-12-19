@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_MASTERCM_H
-#define EQNET_MASTERCM_H
+#ifndef CO_MASTERCM_H
+#define CO_MASTERCM_H
 
 #include <co/objectCM.h> // base class
 #include <co/types.h>
@@ -25,9 +25,7 @@
 #include <eq/base/pool.h>    // member
 #include <eq/base/thread.h>  // thread-safety check
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class ObjectDataIStream;
 
@@ -77,17 +75,17 @@ namespace net
         /** The current version. */
         uint128_t _version;
 
-        typedef std::pair< base::UUID, ObjectDataIStream* > PendingStream;
+        typedef std::pair< eq::base::UUID, ObjectDataIStream* > PendingStream;
         typedef std::vector< PendingStream > PendingStreams;
 
         /** Not yet ready streams. */
         PendingStreams _pendingDeltas;
 
         /** The change queue. */
-        base::MTQueue< ObjectDataIStream* > _queuedDeltas;
+        eq::base::MTQueue< ObjectDataIStream* > _queuedDeltas;
 
         /** Cached input streams (+decompressor) */
-        base::Pool< ObjectDataIStream, true > _iStreamCache;
+        eq::base::Pool< ObjectDataIStream, true > _iStreamCache;
 
         void _apply( ObjectDataIStream* is );
 
@@ -98,6 +96,5 @@ namespace net
         EQ_TS_VAR( _cmdThread );
     };
 }
-}
 
-#endif // EQNET_MASTERCM_H
+#endif // CO_MASTERCM_H

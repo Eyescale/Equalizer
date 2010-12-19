@@ -35,7 +35,7 @@ namespace server
     /**
      * A holder for frame data and parameters.
      */
-    class Frame : public net::Object
+    class Frame : public co::Object
     {
     public:
         /** 
@@ -60,7 +60,7 @@ namespace server
         bool       hasData( const eq::Eye eye ) const
             { return ( _frameData[ base::getIndexOfLastBit( eye ) ] != 0 ); }
 
-        net::ObjectVersion getDataVersion( const Eye eye ) const;
+        co::ObjectVersion getDataVersion( const Eye eye ) const;
 
         /** 
          * Set the frame's viewport wrt the compound (output frames) or wrt the
@@ -186,8 +186,8 @@ namespace server
         EQSERVER_EXPORT virtual ~Frame();
         EQSERVER_EXPORT virtual ChangeType getChangeType() const 
                                                             { return INSTANCE; }
-        EQSERVER_EXPORT virtual void getInstanceData( net::DataOStream& os );
-        EQSERVER_EXPORT virtual void applyInstanceData( net::DataIStream& is );
+        EQSERVER_EXPORT virtual void getInstanceData( co::DataOStream& os );
+        EQSERVER_EXPORT virtual void applyInstanceData( co::DataIStream& is );
 
     private:
         /** The parent compound. */

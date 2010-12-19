@@ -27,9 +27,7 @@ using namespace std;
 // 31300 hits, 35 misses, 297640 lookups, 126976b allocated in 31 packets
 // 31300 hits, 35 misses, 49228 lookups, 135168b allocated in 34 packets
 
-namespace eq
-{
-namespace net
+namespace co
 {
 CommandCache::CommandCache()
 {
@@ -203,5 +201,4 @@ Command& CommandCache::clone( Command& from )
     return command;
 }
 
-}
 }

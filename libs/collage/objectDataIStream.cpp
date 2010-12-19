@@ -23,9 +23,7 @@
 
 #include <eq/plugins/compressor.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
 ObjectDataIStream::ObjectDataIStream()
         : _version( VERSION_INVALID )
@@ -194,7 +192,4 @@ bool ObjectDataIStream::getNextBuffer( uint32_t* compressor, uint32_t* nChunks,
     return true;
 }
 
-
-
-}
 }

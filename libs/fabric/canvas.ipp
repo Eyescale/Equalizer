@@ -82,7 +82,7 @@ void Canvas< CFG, C, S, L >::attach( const base::UUID& id,
 {
     Object::attach( id, instanceID );
 
-    net::CommandQueue* queue = _config->getMainThreadQueue();
+    co::CommandQueue* queue = _config->getMainThreadQueue();
     EQASSERT( queue );
 
     registerCommand( fabric::CMD_CANVAS_NEW_SEGMENT, 
@@ -102,7 +102,7 @@ uint32_t Canvas< CFG, C, S, L >::commitNB()
 }
 
 template< class CFG, class C, class S, class L >
-void Canvas< CFG, C, S, L >::serialize( net::DataOStream& os,
+void Canvas< CFG, C, S, L >::serialize( co::DataOStream& os,
                                         const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
@@ -118,7 +118,7 @@ void Canvas< CFG, C, S, L >::serialize( net::DataOStream& os,
 }
 
 template< class CFG, class C, class S, class L >
-void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
+void Canvas< CFG, C, S, L >::deserialize( co::DataIStream& is,
                                           const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
@@ -146,9 +146,9 @@ void Canvas< CFG, C, S, L >::deserialize( net::DataIStream& is,
     if( dirtyBits & DIRTY_LAYOUTS )
     {
         _layouts.clear();
-        net::ObjectVersions layouts;
+        co::ObjectVersions layouts;
         is >> layouts;
-        for( net::ObjectVersions::const_iterator i = layouts.begin();
+        for( co::ObjectVersions::const_iterator i = layouts.begin();
              i != layouts.end(); ++i )
         {
             const base::UUID& id = (*i).identifier;
@@ -383,7 +383,7 @@ void Canvas< CFG, C, S, L >::unsetFrustum()
 // Command handlers
 //----------------------------------------------------------------------
 template< class CFG, class C, class S, class L > bool
-Canvas< CFG, C, S, L >::_cmdNewSegment( net::Command& command )
+Canvas< CFG, C, S, L >::_cmdNewSegment( co::Command& command )
 {
     const CanvasNewSegmentPacket* packet =
         command.getPacket< CanvasNewSegmentPacket >();
@@ -399,11 +399,12 @@ Canvas< CFG, C, S, L >::_cmdNewSegment( net::Command& command )
     CanvasNewSegmentReplyPacket reply( packet );
     reply.segmentID = segment->getID();
     send( command.getNode(), reply ); 
+
     return true;
 }
 
 template< class CFG, class C, class S, class L > bool
-Canvas< CFG, C, S, L >::_cmdNewSegmentReply( net::Command& command )
+Canvas< CFG, C, S, L >::_cmdNewSegmentReply( co::Command& command )
 {
     const CanvasNewSegmentReplyPacket* packet =
         command.getPacket< CanvasNewSegmentReplyPacket >();

@@ -23,9 +23,7 @@
 #define EQNET_IBCOCOMPLETIONQUEUE_H
 #include <iba/ib_al.h>
 #include <eq/base/atomic.h>
-namespace eq
-{
-namespace net
+namespace co
 {
 
 class IBAdapter;
@@ -90,5 +88,5 @@ private:
 };
 }
 }
-#endif //EQNET_IBCOMPLETIONQUEUE_H
+#endif //CO_IBCOMPLETIONQUEUE_H
 #endif //EQ_INFINIBAND

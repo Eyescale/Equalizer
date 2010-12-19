@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_CONNECTIONDESCRIPTION_H
-#define EQNET_CONNECTIONDESCRIPTION_H
+#ifndef CO_CONNECTIONDESCRIPTION_H
+#define CO_CONNECTIONDESCRIPTION_H
 
 #include <co/connectionType.h> // member enum
 #include <co/base.h>
@@ -25,16 +25,14 @@
 #include <eq/base/base.h>
 #include <eq/base/referenced.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     /**
      * Describes Connection parameters.
      *
      * @sa Node
      */
-    class ConnectionDescription : public base::Referenced
+    class ConnectionDescription : public eq::base::Referenced
     {
     public:
         ConnectionDescription() 
@@ -47,7 +45,7 @@ namespace net
         ConnectionDescription( const char* data );
 
         /** @return true if the two descriptions have the same values. */
-        EQNET_API bool operator == ( const ConnectionDescription& rhs ) const;
+        CO_API bool operator == ( const ConnectionDescription& rhs ) const;
 
         /** @return true if the two descriptions have the different values. */
         bool operator != ( const ConnectionDescription& rhs ) const
@@ -63,8 +61,8 @@ namespace net
         uint16_t port;
 
         /** @return this description as a string. */
-        EQNET_API std::string toString() const;
-        EQNET_API void serialize( std::ostream& os ) const;
+        CO_API std::string toString() const;
+        CO_API void serialize( std::ostream& os ) const;
 
         /** 
          * Reads the connection description from a string.
@@ -81,23 +79,23 @@ namespace net
          * @return <code>true</code> if the information was read correctly, 
          *         <code>false</code> if not.
          */
-        EQNET_API bool fromString( std::string& data );
+        CO_API bool fromString( std::string& data );
 
         /** @name Data Access
          *
          * std::strings are not public because of DLL allocation issues.
          */
         //@{
-        EQNET_API void setHostname( const std::string& hostname );
-        EQNET_API const std::string& getHostname() const;
+        CO_API void setHostname( const std::string& hostname );
+        CO_API const std::string& getHostname() const;
 
-        EQNET_API void setInterface( const std::string& interfacename );
-        EQNET_API const std::string& getInterface() const;
+        CO_API void setInterface( const std::string& interfacename );
+        CO_API const std::string& getInterface() const;
 
-        EQNET_API void setFilename( const std::string& filename );
-        EQNET_API const std::string& getFilename() const;
+        CO_API void setFilename( const std::string& filename );
+        CO_API const std::string& getFilename() const;
 
-        EQNET_API bool isSameMulticastGroup( ConnectionDescriptionPtr rhs );
+        CO_API bool isSameMulticastGroup( ConnectionDescriptionPtr rhs );
         //@}
 
         /** @name Attributes */
@@ -125,9 +123,9 @@ namespace net
         };
         //@}
 
-        EQNET_API static const std::string&
+        CO_API static const std::string&
         getSAttributeString( const SAttribute attr );
-        EQNET_API static const std::string&
+        CO_API static const std::string&
         getIAttributeString( const IAttribute attr );
 
     protected:
@@ -144,11 +142,11 @@ namespace net
         std::string _filename;
     };
 
-    EQNET_API std::ostream& operator << ( std::ostream&,
+    CO_API std::ostream& operator << ( std::ostream&,
                                           const ConnectionDescription& );
 
     /** Serialize a vector of connection descriptions to a string. */
-    EQNET_API std::string serialize( const ConnectionDescriptions& );
+    CO_API std::string serialize( const ConnectionDescriptions& );
 
     /** 
      * Deserialize a vector or connection descriptions from a string.
@@ -158,9 +156,8 @@ namespace net
      * @param descriptions return value, deserialized connection descriptions.
      * @return true on successful parsing, false otherwise.
      */
-    EQNET_API bool deserialize( std::string& data,
+    CO_API bool deserialize( std::string& data,
                                 ConnectionDescriptions& descriptions );
 }
-}
 
-#endif // EQNET_CONNECTION_DESCRIPTION_H
+#endif // CO_CONNECTION_DESCRIPTION_H

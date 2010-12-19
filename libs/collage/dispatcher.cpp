@@ -23,9 +23,7 @@
 
 #include <eq/base/log.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
 Dispatcher::Dispatcher()
@@ -78,7 +76,7 @@ bool Dispatcher::dispatchCommand( Command& command )
         EQABORT( "Command " << command
                  << " higher than number of registered command handlers ("
                  << _qTable.size() << ") for object of type "
-                 << base::className( this ) << std::endl );
+                 << eq::base::className( this ) << std::endl );
         return false;
     }
 #endif
@@ -98,11 +96,10 @@ bool Dispatcher::dispatchCommand( Command& command )
 
 bool Dispatcher::_cmdUnknown( Command& command )
 {
-    EQERROR << "Unknown " << command << " for " << base::className( this )
-            << base::backtrace << std::endl;
+    EQERROR << "Unknown " << command << " for " << eq::base::className( this )
+            << eq::base::backtrace << std::endl;
     EQUNREACHABLE;
     return false;
 }
 
-}
 }

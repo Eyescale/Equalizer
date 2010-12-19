@@ -15,15 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_STATICSLAVECM_H
-#define EQNET_STATICSLAVECM_H
+#ifndef CO_STATICSLAVECM_H
+#define CO_STATICSLAVECM_H
 
 #include <co/objectCM.h>     // base class
 #include <co/version.h>      // enum
 
-namespace eq
-{
-namespace net
+namespace co
 {
     /** 
      * An object change manager handling static object slave instances.
@@ -80,6 +78,5 @@ namespace net
         bool _cmdInstance( Command& command );
     };
 }
-}
 
-#endif // EQNET_STATICSLAVECM_H
+#endif // CO_STATICSLAVECM_H

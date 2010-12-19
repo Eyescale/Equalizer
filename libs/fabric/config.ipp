@@ -60,7 +60,7 @@ template< class S, class C, class O, class L, class CV, class N, class V >
 Config< S, C, O, L, CV, N, V >::~Config()
 {
     EQLOG( LOG_INIT ) << "Delete " << base::className( this ) << std::endl;
-    _appNodeID = net::NodeID::ZERO;
+    _appNodeID = co::NodeID::ZERO;
 
     while( !_canvases.empty( ))
     {
@@ -101,7 +101,7 @@ void Config< S, C, O, L, CV, N, V >::attach( const base::UUID& id,
 {
     Object::attach( id, instanceID );
 
-    net::CommandQueue* queue = _server->getMainThreadQueue();
+    co::CommandQueue* queue = _server->getMainThreadQueue();
     EQASSERT( queue );
 
     registerCommand( fabric::CMD_CONFIG_NEW_LAYOUT, 
@@ -115,7 +115,7 @@ void Config< S, C, O, L, CV, N, V >::attach( const base::UUID& id,
                      queue);
     registerCommand( fabric::CMD_CONFIG_NEW_ENTITY_REPLY, 
            CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply ),
-                     0 );
+                     0);
 }
 
 template< class C, class V >
@@ -539,7 +539,7 @@ void Config< S, C, O, L, CV, N, V >::setLatency( const uint32_t latency )
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::setAppNodeID( const net::NodeID& nodeID )
+void Config< S, C, O, L, CV, N, V >::setAppNodeID( const co::NodeID& nodeID )
 {
     if( _appNodeID == nodeID )
         return;
@@ -614,7 +614,7 @@ uint32_t Config< S, C, O, L, CV, N, V >::commitNB()
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::serialize( net::DataOStream& os,
+void Config< S, C, O, L, CV, N, V >::serialize( co::DataOStream& os,
                                                 const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
@@ -642,7 +642,7 @@ void Config< S, C, O, L, CV, N, V >::serialize( net::DataOStream& os,
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is, 
+void Config< S, C, O, L, CV, N, V >::deserialize( co::DataIStream& is, 
                                                   const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
@@ -678,7 +678,7 @@ void Config< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
             }
             else // consume unused ObjectVersions
             {
-                net::ObjectVersions childIDs;
+                co::ObjectVersions childIDs;
                 is >> childIDs;
             }
         }
@@ -709,7 +709,7 @@ void Config< S, C, O, L, CV, N, V >::deserialize( net::DataIStream& is,
         }
         else // consume unused ObjectVersions
         {
-            net::ObjectVersions childIDs;
+            co::ObjectVersions childIDs;
             if( dirtyBits & Config::DIRTY_OBSERVERS )
                 is >> childIDs;
             if( dirtyBits & Config::DIRTY_LAYOUTS )
@@ -740,7 +740,7 @@ void Config< S, C, O, L, CV, N, V >::notifyDetach()
 
     typename S::NodeFactory* nodeFactory = getServer()->getNodeFactory();
 
-    net::LocalNodePtr localNode = getLocalNode();
+    co::LocalNodePtr localNode = getLocalNode();
     while( !_nodes.empty( ))
     {
         EQASSERT( mapNodeObjects( ));
@@ -783,7 +783,7 @@ void Config< S, C, O, L, CV, N, V >::notifyDetach()
 //----------------------------------------------------------------------
 template< class S, class C, class O, class L, class CV, class N, class V >
 bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
-    net::Command& command )
+    co::Command& command )
 {
     const ConfigNewLayoutPacket* packet =
         command.getPacket< ConfigNewLayoutPacket >();
@@ -803,8 +803,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas(
-    net::Command& command )
+bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas( co::Command& command )
 {
     const ConfigNewCanvasPacket* packet =
         command.getPacket< ConfigNewCanvasPacket >();
@@ -824,8 +823,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas(
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver(
-    net::Command& command )
+bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver( co::Command& command )
 {
     const ConfigNewObserverPacket* packet =
         command.getPacket< ConfigNewObserverPacket >();
@@ -845,8 +843,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver(
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-bool Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply(
-    net::Command& command )
+bool Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply( co::Command& command )
 {
     const ConfigNewEntityReplyPacket* packet =
         command.getPacket< ConfigNewEntityReplyPacket >();

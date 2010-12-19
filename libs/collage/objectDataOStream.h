@@ -15,15 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_OBJECTDATAOSTREAM_H
-#define EQNET_OBJECTDATAOSTREAM_H
+#ifndef CO_OBJECTDATAOSTREAM_H
+#define CO_OBJECTDATAOSTREAM_H
 
 #include <co/dataOStream.h>   // base class
 #include <co/version.h>       // enum
 
-namespace eq
-{
-namespace net
+namespace co
 {
     struct ObjectDataPacket;
 
@@ -53,5 +51,4 @@ namespace net
         uint32_t _sequence;
     };
 }
-}
-#endif //EQNET_OBJECTDATAOSTREAM_H
+#endif //CO_OBJECTDATAOSTREAM_H

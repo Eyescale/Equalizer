@@ -89,10 +89,10 @@ namespace fabric
                                           const uint32_t instanceID );
 
         /** @internal */
-        EQFABRIC_INL virtual void serialize( net::DataOStream& os, 
+        EQFABRIC_INL virtual void serialize( co::DataOStream& os, 
                                                 const uint64_t dirtyBits );
         /** @internal */
-        EQFABRIC_INL virtual void deserialize( net::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( co::DataIStream& is, 
                                                   const uint64_t dirtyBits );
 
         EQFABRIC_INL virtual void notifyDetach(); //!< @internal
@@ -132,9 +132,9 @@ namespace fabric
         template< class, class, class, class, class, class,
                   class > friend class Config;
 
-        typedef net::CommandFunc< Layout< C, L, V > > CmdFunc;
-        bool _cmdNewView( net::Command& command );
-        bool _cmdNewViewReply( net::Command& command );
+        typedef co::CommandFunc< Layout< C, L, V > > CmdFunc;
+        bool _cmdNewView( co::Command& command );
+        bool _cmdNewViewReply( co::Command& command );
     };
 
     template< class C, class L, class V >

@@ -24,9 +24,7 @@
 #  include "pgmConnection.h"
 #endif
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
 MCIPConnection::MCIPConnection()
@@ -173,5 +171,4 @@ void MCIPConnection::notifyStateChanged( Connection* connection )
     _fireStateChanged();
 }
 
-}
 }

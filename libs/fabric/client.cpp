@@ -41,15 +41,15 @@ Client::~Client()
     EQASSERT( isClosed( ));
 }
 
-bool Client::connectServer( net::NodePtr server )
+bool Client::connectServer( co::NodePtr server )
 {
     if( server->isConnected( ))
         return true;
 
-    net::ConnectionDescriptionPtr connDesc;
+    co::ConnectionDescriptionPtr connDesc;
     if( server->getConnectionDescriptions().empty( ))
     {
-        connDesc = new net::ConnectionDescription;
+        connDesc = new co::ConnectionDescription;
         connDesc->port = EQ_DEFAULT_PORT;
     
         const std::string globalServer = Global::getServer();
@@ -74,7 +74,7 @@ bool Client::connectServer( net::NodePtr server )
     return false;
 }
 
-bool Client::disconnectServer( net::NodePtr server )
+bool Client::disconnectServer( co::NodePtr server )
 {
     if( !server->isConnected( ))
     {
@@ -82,7 +82,7 @@ bool Client::disconnectServer( net::NodePtr server )
         return false;
     }
 
-    if( net::LocalNode::disconnect( server ))
+    if( co::LocalNode::disconnect( server ))
         return true;
 
     EQWARN << "Server disconnect failed" << std::endl;
@@ -91,10 +91,10 @@ bool Client::disconnectServer( net::NodePtr server )
 
 void Client::processCommand()
 {
-    net::CommandQueue* queue = getMainThreadQueue();
+    co::CommandQueue* queue = getMainThreadQueue();
     EQASSERT( queue );
 
-    net::Command* command = queue->pop();
+    co::Command* command = queue->pop();
     if( !command ) // just a wakeup()
         return;
 
@@ -102,23 +102,23 @@ void Client::processCommand()
     command->release();
 }
 
-bool Client::dispatchCommand( net::Command& command )
+bool Client::dispatchCommand( co::Command& command )
 {
     EQVERB << "dispatchCommand " << command << std::endl;
 
     switch( command->type )
     {
         case PACKETTYPE_EQ_CLIENT:
-            return net::Dispatcher::dispatchCommand( command );
+            return co::Dispatcher::dispatchCommand( command );
 
         case PACKETTYPE_EQ_SERVER:
         {
-            net::NodePtr node = command.getNode();
-            return node->net::Dispatcher::dispatchCommand( command );
+            co::NodePtr node = command.getNode();
+            return node->co::Dispatcher::dispatchCommand( command );
         }
 
         default:
-            return net::LocalNode::dispatchCommand( command );
+            return co::LocalNode::dispatchCommand( command );
     }
 }
 

@@ -31,14 +31,12 @@
 #  endif
 #endif
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
 bool init( const int argc, char** argv )
 {
-    if( !base::init( argc, argv ))
+    if( !eq::base::init( argc, argv ))
         return false;
 
 #ifdef _WIN32
@@ -47,7 +45,7 @@ bool init( const int argc, char** argv )
     if( WSAStartup( wsVersion, &wsData ) != 0 )
     {
         EQERROR << "Initialization of Windows Sockets failed" 
-                << base::sysError << std::endl;
+                << eq::base::sysError << std::endl;
         return false;
     }
 #endif
@@ -59,7 +57,7 @@ bool init( const int argc, char** argv )
             ++i;
             if( i<argc )
             {
-                eq::net::Global::setProgramName( argv[i] );
+                co::Global::setProgramName( argv[i] );
             }
         }
     }
@@ -82,12 +80,11 @@ bool exit()
     if( WSACleanup() != 0 )
     {
         EQERROR << "Cleanup of Windows Sockets failed" 
-                << base::sysError << std::endl;
+                << eq::base::sysError << std::endl;
         return false;
     }
 #endif
-    return base::exit();
+    return eq::base::exit();
 }
 
-}
 }

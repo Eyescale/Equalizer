@@ -19,9 +19,7 @@
 
 #include <limits>
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
 #ifndef Darwin
@@ -115,5 +113,4 @@ int32_t Global::getIAttribute( const IAttribute attr )
     return _iAttributes[ attr ];
 }
 
-}
 }

@@ -881,10 +881,10 @@ void Compound::update( const uint32_t frameNumber )
 
     const BarrierMap& swapBarriers = updateOutputVisitor.getSwapBarriers();
 
-    for( stde::hash_map< std::string, net::Barrier* >::const_iterator i = 
+    for( stde::hash_map< std::string, co::Barrier* >::const_iterator i = 
              swapBarriers.begin(); i != swapBarriers.end(); ++i )
     {
-        net::Barrier* barrier = i->second;
+        co::Barrier* barrier = i->second;
         if( barrier->isAttached( ))
         {
             if( barrier->getHeight() > 1 )

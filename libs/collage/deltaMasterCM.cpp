@@ -26,9 +26,7 @@
 #include "objectDataIStream.h"
 #include "objectPackets.h"
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
 typedef CommandFunc<DeltaMasterCM> CmdFunc;
@@ -115,5 +113,4 @@ bool DeltaMasterCM::_cmdCommit( Command& command )
     return true;
 }
 
-}
 }

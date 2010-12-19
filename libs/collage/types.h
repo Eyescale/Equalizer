@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_TYPES_H
-#define EQNET_TYPES_H
+#ifndef CO_TYPES_H
+#define CO_TYPES_H
 
 #include <eq/base/hash.h>
 #include <eq/base/refPtr.h>
@@ -26,12 +26,10 @@
 #include <list>
 #include <vector>
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
-#define EQNET_SEPARATOR '#'
+#define CO_SEPARATOR '#'
 
 #define EQ_INSTANCE_MAX     EQ_MAX_UINT32 //!< The biggest instance id possible
 #define EQ_INSTANCE_NONE    0xfffffffdu   //!< None/NULL identifier
@@ -52,18 +50,18 @@ class ObjectDataIStream;
 struct ObjectVersion;
 
 /** A unique identifier for nodes. */
-typedef base::UUID NodeID;
+typedef eq::base::UUID NodeID;
 
-typedef base::uint128_t uint128_t;
+typedef eq::base::uint128_t uint128_t;
 
 /** A reference pointer for Node pointers. */
-typedef base::RefPtr< Node >                  NodePtr;
+typedef eq::base::RefPtr< Node >                  NodePtr;
 /** A reference pointer for LocalNode pointers. */
-typedef base::RefPtr< LocalNode >             LocalNodePtr;
+typedef eq::base::RefPtr< LocalNode >             LocalNodePtr;
 /** A reference pointer for Connection pointers. */
-typedef base::RefPtr< Connection >            ConnectionPtr;
+typedef eq::base::RefPtr< Connection >            ConnectionPtr;
 /** A reference pointer for ConnectionDescription pointers. */
-typedef base::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
+typedef eq::base::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
 
 /** A vector of NodePtr's. */
 typedef std::vector< NodePtr >                   Nodes;
@@ -89,7 +87,7 @@ typedef ConnectionDescriptions::const_iterator   ConnectionDescriptionsCIter;
 typedef std::vector< Command* > Commands;
 typedef std::deque< Command* > CommandDeque;
 typedef std::list< Command* > CommandList;
-typedef stde::hash_map< base::uint128_t, Objects > ObjectsHash;
+typedef stde::hash_map< eq::base::uint128_t, Objects > ObjectsHash;
 typedef std::vector< ObjectVersion > ObjectVersions;
 typedef std::deque< ObjectDataIStream* > ObjectDataIStreamDeque;
 typedef std::vector< ObjectDataIStream* > ObjectDataIStreams;
@@ -104,6 +102,5 @@ typedef ConnectionDescriptions ConnectionDescriptionVector;
 typedef ObjectVersions ObjectVersionVector;
 #endif
 }
-}
 
-#endif // EQNET_TYPES_H
+#endif // CO_TYPES_H

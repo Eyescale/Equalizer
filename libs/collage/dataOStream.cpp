@@ -32,25 +32,23 @@
 #  include <eq/base/clock.h>
 #endif
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
 namespace
 {
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-base::a_int32_t nBytes;
-base::a_int32_t nBytesTryToCompress;
-base::a_int32_t nBytesCompressed;
-base::a_int32_t timeToCompress;
+eq::base::a_int32_t nBytes;
+eq::base::a_int32_t nBytesTryToCompress;
+eq::base::a_int32_t nBytesCompressed;
+eq::base::a_int32_t timeToCompress;
 #endif
 }
 
 DataOStream::DataOStream()
         : _bufferType( BUFFER_NONE )
         , _bufferStart( 0 )
-        , _compressor( new base::CPUCompressor )
+        , _compressor( new eq::base::CPUCompressor )
         , _enabled( false )
         , _dataSent( false )
         , _save( false )
@@ -322,7 +320,7 @@ void DataOStream::_compress( const void* src, const uint64_t sizeSrc )
     }
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-    eq::base::Clock clock;
+    co::base::Clock clock;
 #endif
     const uint64_t inDims[2] = { 0, sizeSrc };
 
@@ -379,5 +377,4 @@ std::ostream& operator << ( std::ostream& os,
     return os;
 }
 
-}
 }

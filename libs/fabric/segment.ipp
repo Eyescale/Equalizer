@@ -69,7 +69,7 @@ void Segment< C, S, CH >::setEyes( const uint32_t eyes )
 }
         
 template< class C, class S, class CH > void 
-Segment< C, S, CH >::serialize( net::DataOStream& os, const uint64_t dirtyBits )
+Segment< C, S, CH >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_VIEWPORT )
@@ -77,13 +77,13 @@ Segment< C, S, CH >::serialize( net::DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_FRUSTUM )
         os << *static_cast< Frustum* >( this );
     if( dirtyBits & DIRTY_CHANNEL )
-        os << net::ObjectVersion( _channel );
+        os << co::ObjectVersion( _channel );
     if( dirtyBits & DIRTY_EYES )
         os << _eyes;
 }
 
 template< class C, class S, class CH >
-void Segment< C, S, CH >::deserialize( net::DataIStream& is,
+void Segment< C, S, CH >::deserialize( co::DataIStream& is,
                                        const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
@@ -95,7 +95,7 @@ void Segment< C, S, CH >::deserialize( net::DataIStream& is,
     {
         EQASSERT( _canvas->_mapViewObjects( ))
 
-        net::ObjectVersion ov;
+        co::ObjectVersion ov;
         is >> ov;
 
         _channel = 0;

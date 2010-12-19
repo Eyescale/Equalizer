@@ -38,7 +38,7 @@ namespace server
 {
 
 typedef fabric::Pipe< Node, Pipe, Window, PipeVisitor > Super;
-typedef net::CommandFunc<Pipe> PipeFunc;
+typedef co::CommandFunc<Pipe> PipeFunc;
 
 
 Pipe::Pipe( Node* parent )
@@ -63,7 +63,7 @@ void Pipe::attach( const base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
     
-    net::CommandQueue* queue = getCommandThreadQueue();
+    co::CommandQueue* queue = getCommandThreadQueue();
 
     registerCommand( fabric::CMD_PIPE_CONFIG_INIT_REPLY,
                      PipeFunc( this, &Pipe::_cmdConfigInitReply ), queue );
@@ -109,14 +109,14 @@ const Config* Pipe::getConfig() const
     return ( node ? node->getConfig() : 0);
 }
 
-net::CommandQueue* Pipe::getMainThreadQueue()
+co::CommandQueue* Pipe::getMainThreadQueue()
 { 
     Node* node = getNode();
     EQASSERT( node );
     return node->getMainThreadQueue(); 
 }
 
-net::CommandQueue* Pipe::getCommandThreadQueue()
+co::CommandQueue* Pipe::getCommandThreadQueue()
 { 
     Node* node = getNode();
     EQASSERT( node );
@@ -168,7 +168,7 @@ void Pipe::addTasks( const uint32_t tasks )
     node->addTasks( tasks );
 }
 
-void Pipe::send( net::ObjectPacket& packet )
+void Pipe::send( co::ObjectPacket& packet )
 { 
     Node* node = getNode();
     EQASSERT( node );
@@ -298,7 +298,7 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
 //===========================================================================
 // command handling
 //===========================================================================
-bool Pipe::_cmdConfigInitReply( net::Command& command ) 
+bool Pipe::_cmdConfigInitReply( co::Command& command ) 
 {
     const PipeConfigInitReplyPacket* packet = 
         command.getPacket<PipeConfigInitReplyPacket>();
@@ -308,7 +308,7 @@ bool Pipe::_cmdConfigInitReply( net::Command& command )
     return true;
 }
 
-bool Pipe::_cmdConfigExitReply( net::Command& command ) 
+bool Pipe::_cmdConfigExitReply( co::Command& command ) 
 {
     const PipeConfigExitReplyPacket* packet = 
         command.getPacket<PipeConfigExitReplyPacket>();

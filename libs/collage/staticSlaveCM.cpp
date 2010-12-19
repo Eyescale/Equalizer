@@ -25,9 +25,7 @@
 
 #include <eq/base/scopedMutex.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
 typedef CommandFunc< StaticSlaveCM > CmdFunc;
 
@@ -108,5 +106,4 @@ bool StaticSlaveCM::_cmdInstance( Command& command )
     return true;
 }
 
-}
 }

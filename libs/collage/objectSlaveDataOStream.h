@@ -15,14 +15,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_OBJECTSLAVEDATAOSTREAM_H
-#define EQNET_OBJECTSLAVEDATAOSTREAM_H
+#ifndef CO_OBJECTSLAVEDATAOSTREAM_H
+#define CO_OBJECTSLAVEDATAOSTREAM_H
 
 #include "objectDataOStream.h"   // base class
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class Object;
     struct ObjectSlaveDeltaPacket;
@@ -48,8 +46,7 @@ namespace net
                                  const uint64_t sizeUncompressed );
 
     private:
-        base::UUID _commit;
+        eq::base::UUID _commit;
     };
 }
-}
-#endif //EQNET_OBJECTSLAVEDATAOSTREAM_H
+#endif //CO_OBJECTSLAVEDATAOSTREAM_H

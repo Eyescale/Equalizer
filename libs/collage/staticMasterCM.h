@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_STATICMASTERCM_H
-#define EQNET_STATICMASTERCM_H
+#ifndef CO_STATICMASTERCM_H
+#define CO_STATICMASTERCM_H
 
 #include <co/objectCM.h> // base class
 #include <co/version.h>  // enum
@@ -25,9 +25,7 @@
 
 #include <deque>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class Node;
 
@@ -77,6 +75,5 @@ namespace net
         ObjectInstanceDataOStream _os;
     };
 }
-}
 
-#endif // EQNET_STATICMASTERCM_H
+#endif // CO_STATICMASTERCM_H

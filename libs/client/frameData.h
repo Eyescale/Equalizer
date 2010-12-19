@@ -58,7 +58,7 @@ namespace server
      * Parameters set on an Equalizer output frame data are automatically
      * transported to the corresponding input frames.
      */
-    class FrameData : public net::Object
+    class FrameData : public co::Object
     {
     public:
         void assembleFrame( Frame* frame, Channel* channel );
@@ -266,8 +266,8 @@ namespace server
 
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
-        virtual void getInstanceData( net::DataOStream& os );
-        virtual void applyInstanceData( net::DataIStream& is );
+        virtual void getInstanceData( co::DataOStream& os );
+        virtual void applyInstanceData( co::DataIStream& is );
 
     private:
         friend struct NodeFrameDataReadyPacket;

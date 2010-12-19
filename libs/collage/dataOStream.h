@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_DATAOSTREAM_H
-#define EQNET_DATAOSTREAM_H
+#ifndef CO_DATAOSTREAM_H
+#define CO_DATAOSTREAM_H
 
 #include <eq/base/buffer.h> // member
 #include <co/types.h>
@@ -26,9 +26,7 @@
 #include <iostream>
 #include <vector>
 
-namespace eq
-{
-namespace net
+namespace co
 {
 namespace DataStreamTest
 {
@@ -41,21 +39,21 @@ namespace DataStreamTest
      *
      * Derived classes send the data using the appropriate command packets.
      */
-    class DataOStream : public base::NonCopyable
+    class DataOStream : public eq::base::NonCopyable
     {
     public:
         /** @name Internal */
         //@{
-        EQNET_API DataOStream();
-        virtual EQNET_API ~DataOStream();
+        CO_API DataOStream();
+        virtual CO_API ~DataOStream();
 
         /** Enable output, locks the connections to the receivers */ 
         void enable( const Nodes& receivers );
         void enable( NodePtr node, const bool useMulticast );
-        EQNET_API void enable();
+        CO_API void enable();
 
         /** Disable, flush and unlock the output to the current receivers. */
-        EQNET_API void disable();
+        CO_API void disable();
 
         /** Enable copying of all data into a saved buffer. */
         void enableSave();
@@ -73,7 +71,7 @@ namespace DataStreamTest
         void resend( const Nodes& receivers );
 
         /** @return the buffer with the saved data. */
-        const base::Bufferb& getSaveBuffer() const 
+        const eq::base::Bufferb& getSaveBuffer() const 
             { EQASSERT( _save ); return _buffer; }
         //@}
 
@@ -88,7 +86,7 @@ namespace DataStreamTest
         DataOStream& operator << ( const std::vector< T >& value );
 
         /** Write a number of bytes from data into the stream. */
-        EQNET_API void write( const void* data, uint64_t size );
+        CO_API void write( const void* data, uint64_t size );
 
         /**
          * Serialize child objects.
@@ -123,7 +121,7 @@ namespace DataStreamTest
         //@}
 
         /** Reset the whole stream. */
-        virtual EQNET_API void reset();
+        virtual CO_API void reset();
 
         /** Locked connections to the receivers, if _enabled */
         Connections _connections;
@@ -139,13 +137,13 @@ namespace DataStreamTest
         BufferType _bufferType;
         
         /** The buffer used for saving and buffering */
-        base::Bufferb  _buffer;
+        eq::base::Bufferb  _buffer;
 
         /** The start position of the buffering, always 0 if !_save */
         uint64_t _bufferStart;
         
         /** The compressor instance. */
-        base::CPUCompressor* const _compressor;
+        eq::base::CPUCompressor* const _compressor;
 
         /** The output stream is enabled for writing */
         bool _enabled;
@@ -201,14 +199,11 @@ namespace DataStreamTest
                                 const DataOStream& dataOStream );
 
 }
-}
 
 #include <co/object.h>
 #include <co/objectVersion.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     /** @name Specialized output operators */
     //@{
@@ -303,5 +298,4 @@ namespace net
     { return _writeFlatVector( value ); }
     //@}
 }
-}
-#endif //EQNET_DATAOSTREAM_H
+#endif //CO_DATAOSTREAM_H

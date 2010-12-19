@@ -35,7 +35,7 @@ namespace eq
      * @sa fabric::Server, Client::connectServer()
      */
     class Server : public fabric::Server< Client, Server, Config, NodeFactory,
-                                          net::Node >
+                                          co::Node >
     {
     public:
         /** Construct a new server. @version 1.0 */
@@ -44,8 +44,8 @@ namespace eq
         /** @name Internal */
         //@{
         virtual void setClient( ClientPtr client ); //!< @internal
-        EQ_API net::CommandQueue* getMainThreadQueue(); //!< @internal
-        EQ_API net::CommandQueue* getCommandThreadQueue(); //!< @internal
+        EQ_API co::CommandQueue* getMainThreadQueue(); //!< @internal
+        EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
         //@}
 
         /** 
@@ -85,9 +85,9 @@ namespace eq
         Private* _private; // placeholder for binary-compatible changes
 
         /* The command handler functions. */
-        bool _cmdChooseConfigReply( net::Command& command );
-        bool _cmdReleaseConfigReply( net::Command& command );
-        bool _cmdShutdownReply( net::Command& command );
+        bool _cmdChooseConfigReply( co::Command& command );
+        bool _cmdReleaseConfigReply( co::Command& command );
+        bool _cmdShutdownReply( co::Command& command );
     };
 }
 

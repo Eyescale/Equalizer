@@ -29,17 +29,17 @@ namespace eq
 namespace fabric
 {
 /** @cond IGNORE */
-    struct ServerPacket : public net::Packet
+    struct ServerPacket : public co::Packet
     {
         ServerPacket(){ type = PACKETTYPE_EQ_SERVER; }
     };
 
-    typedef net::ObjectPacket ConfigPacket;
+    typedef co::ObjectPacket ConfigPacket;
 
-    typedef net::ObjectPacket PipePacket;
-    typedef net::ObjectPacket WindowPacket;
-    typedef net::ObjectPacket CanvasPacket;
-    typedef net::ObjectPacket LayoutPacket;
+    typedef co::ObjectPacket PipePacket;
+    typedef co::ObjectPacket WindowPacket;
+    typedef co::ObjectPacket CanvasPacket;
+    typedef co::ObjectPacket LayoutPacket;
    
 /** @endcond */
 }

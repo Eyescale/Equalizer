@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_BASE_H
 #define EQFABRIC_BASE_H
 
-#include <eq/base/base.h>
+#include <co/base.h>
 
 #if defined(EQ_FABRIC_STATIC)
 #  define EQFABRIC_API

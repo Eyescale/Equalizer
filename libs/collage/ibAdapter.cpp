@@ -19,9 +19,7 @@
 #include "ibAdapter.h"
 #ifdef EQ_INFINIBAND
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
 void IBAdapter::close()
@@ -130,7 +128,6 @@ bool IBAdapter::open( )
     }
 
     return true;
-}
 }
 }
 #endif //EQ_INFINIBAND

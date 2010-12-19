@@ -56,7 +56,7 @@ namespace eq
         void deregister( Display* display );
 
     private:
-        net::ConnectionSet _connections; //!< Registered Display connections
+        co::ConnectionSet _connections; //!< Registered Display connections
         stde::hash_map< void*, size_t > _referenced; //!< # of registrations
     };
 }

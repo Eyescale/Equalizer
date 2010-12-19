@@ -22,9 +22,7 @@
 #include <co/packets.h> // base structs
 
 /** @cond IGNORE */
-namespace eq
-{
-namespace net
+namespace co
 {
     struct ObjectCommitPacket : public ObjectPacket
     {
@@ -58,7 +56,7 @@ namespace net
         ObjectInstancePacket()
             {
                 // Always goes through session which caches and forwards to obj
-                type    = PACKETTYPE_EQNET_NODE;
+                type    = PACKETTYPE_CO_NODE;
                 command = CMD_NODE_OBJECT_INSTANCE;
                 size    = sizeof( ObjectInstancePacket );
                 data[0] = 0;
@@ -88,7 +86,7 @@ namespace net
                 size       = sizeof( ObjectSlaveDeltaPacket ); 
             }
 
-        base::UUID commit;
+        eq::base::UUID commit;
         EQ_ALIGN8( uint8_t data[8] );
     };
 
@@ -108,7 +106,6 @@ namespace net
            << packet->masterInstanceID << " node " << packet->nodeID;
         return os;
     }
-}
 }
 /** @endcond */
 

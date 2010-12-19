@@ -469,7 +469,7 @@ namespace server
             { return _iAttributeStrings[attr]; }
         //@}
 
-        typedef stde::hash_map<std::string, net::Barrier*> BarrierMap;
+        typedef stde::hash_map<std::string, co::Barrier*> BarrierMap;
         typedef stde::hash_map<std::string, Frame*>        FrameMap;
 
     private:

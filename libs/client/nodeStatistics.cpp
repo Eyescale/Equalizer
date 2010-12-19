@@ -44,7 +44,7 @@ NodeStatistics::NodeStatistics( const Statistic::Type type,
 
     event.data.statistic.resourceName[31] = 0;
 
-    net::LocalNodePtr localNode = node->getLocalNode();
+    co::LocalNodePtr localNode = node->getLocalNode();
     EQASSERT( localNode );
     if( !localNode )
     {
@@ -64,7 +64,7 @@ NodeStatistics::~NodeStatistics()
     if( event.data.statistic.frameNumber == 0 ) // does not belong to a frame
         return;
 
-    net::LocalNodePtr localNode = _owner->getLocalNode();
+    co::LocalNodePtr localNode = _owner->getLocalNode();
     EQASSERT( localNode );
     if( !localNode )
         return;

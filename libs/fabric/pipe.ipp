@@ -90,7 +90,7 @@ void Pipe< N, P, W, V >::attach( const base::UUID& id,
 {
     Object::attach( id, instanceID );
 
-    net::CommandQueue* queue = _node->getConfig()->getMainThreadQueue();
+    co::CommandQueue* queue = _node->getConfig()->getMainThreadQueue();
     EQASSERT( queue );
 
     registerCommand( fabric::CMD_PIPE_NEW_WINDOW, 
@@ -110,7 +110,7 @@ uint32_t Pipe< N, P, W, V >::commitNB()
 }
 
 template< class N, class P, class W, class V >
-void Pipe< N, P, W, V >::serialize( net::DataOStream& os,
+void Pipe< N, P, W, V >::serialize( co::DataOStream& os,
                                     const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
@@ -128,7 +128,7 @@ void Pipe< N, P, W, V >::serialize( net::DataOStream& os,
 }
 
 template< class N, class P, class W, class V >
-void Pipe< N, P, W, V >::deserialize( net::DataIStream& is,
+void Pipe< N, P, W, V >::deserialize( co::DataIStream& is,
                                       const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
@@ -151,7 +151,7 @@ void Pipe< N, P, W, V >::deserialize( net::DataIStream& is,
             }
             else // consume unused ObjectVersions
             {
-                net::ObjectVersions childIDs;
+                co::ObjectVersions childIDs;
                 is >> childIDs;
             }
         }
@@ -379,7 +379,7 @@ void Pipe< N, P, W, V >::notifyPixelViewportChanged()
 // Command handlers
 //----------------------------------------------------------------------
 template< class N, class P, class W, class V > bool
-Pipe< N, P, W, V >::_cmdNewWindow( net::Command& command )
+Pipe< N, P, W, V >::_cmdNewWindow( co::Command& command )
 {
     const PipeNewWindowPacket* packet =
         command.getPacket< PipeNewWindowPacket >();
@@ -394,11 +394,12 @@ Pipe< N, P, W, V >::_cmdNewWindow( net::Command& command )
     PipeNewWindowReplyPacket reply( packet );
     reply.windowID = window->getID();
     send( command.getNode(), reply ); 
+
     return true;
 }
 
 template< class N, class P, class W, class V > bool
-Pipe< N, P, W, V >::_cmdNewWindowReply( net::Command& command )
+Pipe< N, P, W, V >::_cmdNewWindowReply( co::Command& command )
 {
     const PipeNewWindowReplyPacket* packet =
         command.getPacket< PipeNewWindowReplyPacket >();

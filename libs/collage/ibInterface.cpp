@@ -25,9 +25,7 @@
 #define EQ_NUMBLOCKMEMORY 1    // maybe remove it
 #define EQ_MAXBUFFSIZE EQ_NUMBUFFER*EQ_MAXBLOCKBUFFER
 #define EQ_IB_MAXINLINE 600
-namespace eq
-{ 
-namespace net
+namespace co
 {
 
 
@@ -561,7 +559,6 @@ int64_t IBInterface::postRdmaWrite( const void* buffer, uint32_t numBytes )
     _timeTotalWrite += clock.getTimef();
 #endif
     return size;
-}
 }
 }
 #endif //EQ_INFINIBAND

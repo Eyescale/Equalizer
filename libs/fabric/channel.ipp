@@ -108,7 +108,7 @@ void Channel< W, C >::restore()
 }
 
 template< class W, class C >
-void Channel< W, C >::serialize( net::DataOStream& os, const uint64_t dirtyBits)
+void Channel< W, C >::serialize( co::DataOStream& os, const uint64_t dirtyBits)
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
@@ -126,7 +126,7 @@ void Channel< W, C >::serialize( net::DataOStream& os, const uint64_t dirtyBits)
 }
 
 template< class W, class C >
-void Channel< W, C >::deserialize( net::DataIStream& is,
+void Channel< W, C >::deserialize( co::DataIStream& is,
                                    const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
@@ -271,7 +271,7 @@ void Channel< W, C >::setDrawable( const uint32_t drawable )
 }
 
 template< class W, class C >
-void Channel< W, C >::setViewVersion( const net::ObjectVersion& view )
+void Channel< W, C >::setViewVersion( const co::ObjectVersion& view )
 {
     if( _data.nativeContext.view == view )
         return;

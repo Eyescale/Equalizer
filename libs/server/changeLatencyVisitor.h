@@ -82,7 +82,7 @@ public:
 private:
     const uint32_t _latency;
 
-    VisitorResult _visit( net::Object* object )
+    VisitorResult _visit( co::Object* object )
         {
             // double commit on update/delete
             object->setAutoObsolete( _latency + 1 );

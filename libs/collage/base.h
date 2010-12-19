@@ -14,17 +14,21 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_BASE_H
-#define EQNET_BASE_H
+#ifndef CO_BASE_H
+#define CO_BASE_H
 
 #include <eq/base/base.h>
 
+namespace co{}
+/* deprecated namespace */
+namespace eq{ namespace net = co; }
+
 #if defined(EQ_NET_STATIC)
-#  define EQNET_API
+#  define CO_API
 #elif defined(EQ_NET_SHARED)
-#  define EQNET_API EQ_DLLEXPORT
+#  define CO_API EQ_DLLEXPORT
 #else
-#  define EQNET_API EQ_DLLIMPORT
+#  define CO_API EQ_DLLIMPORT
 #endif
 
-#endif //EQNET_BASE_H
+#endif //CO_BASE_H

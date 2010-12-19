@@ -27,7 +27,7 @@ namespace fabric
     /** Packet types to identify the target of a packet. */
     enum PacketType
     {
-        PACKETTYPE_EQ_CLIENT = net::PACKETTYPE_EQNET_CUSTOM, // 128
+        PACKETTYPE_EQ_CLIENT = co::PACKETTYPE_CO_CUSTOM, // 128
         PACKETTYPE_EQ_SERVER,
         PACKETTYPE_EQ_CUSTOM = 1<<8 // 256
     };

@@ -26,7 +26,7 @@
 namespace eq
 {
 
-    struct NodeConfigInitPacket : public net::ObjectPacket
+    struct NodeConfigInitPacket : public co::ObjectPacket
     {
         NodeConfigInitPacket()
             {
@@ -38,7 +38,7 @@ namespace eq
         uint32_t frameNumber;
     };
 
-    struct NodeConfigInitReplyPacket : public net::ObjectPacket
+    struct NodeConfigInitReplyPacket : public co::ObjectPacket
     {
         NodeConfigInitReplyPacket()
             {
@@ -98,7 +98,7 @@ namespace eq
     struct NodeFrameStartPacket : public NodePacket
     {
         NodeFrameStartPacket()
-                : configVersion( net::VERSION_INVALID )
+                : configVersion( co::VERSION_INVALID )
             {
                 command        = fabric::CMD_NODE_FRAME_START;
                 size           = sizeof( NodeFrameStartPacket );
@@ -152,7 +152,7 @@ namespace eq
                 size    = sizeof( NodeFrameDataTransmitPacket );
             }
 
-        net::ObjectVersion frameData;
+        co::ObjectVersion frameData;
         PixelViewport pvp;
         uint32_t      buffers;
         uint32_t      frameNumber;
@@ -170,7 +170,7 @@ namespace eq
                 size    = sizeof( NodeFrameDataReadyPacket );
             }
 
-        const net::ObjectVersion frameData;
+        const co::ObjectVersion frameData;
         const FrameData::Data data;
     };
 
@@ -189,27 +189,27 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeCreatePipePacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " id " << packet->pipeID;
+        os << (co::ObjectPacket*)packet << " id " << packet->pipeID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeFrameStartPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (co::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeFrameDrawFinishPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (co::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeFrameFinishPacket* packet )
     {
-        os << (net::ObjectPacket*)packet << " frame " << packet->frameNumber
+        os << (co::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
         return os;
     }

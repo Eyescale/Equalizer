@@ -54,7 +54,7 @@ namespace server
      * (input-)frame-specific, while others are set by the output frame on its
      * data and therefore shared between all input frames.
      */
-    class Frame : public net::Object
+    class Frame : public co::Object
     {
     public:
         /** 
@@ -176,7 +176,7 @@ namespace server
                                    const float quality );
 
         /** @internal */
-        const net::ObjectVersion& getDataVersion( const Eye eye ) const
+        const co::ObjectVersion& getDataVersion( const Eye eye ) const
             { return _data.frameData[ base::getIndexOfLastBit( eye ) ]; }
         //@}
 
@@ -239,8 +239,8 @@ namespace server
 
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
-        virtual void getInstanceData( net::DataOStream& os );
-        virtual void applyInstanceData( net::DataIStream& is );
+        virtual void getInstanceData( co::DataOStream& os );
+        virtual void applyInstanceData( co::DataIStream& is );
 
     private:
         std::string _name;
@@ -254,7 +254,7 @@ namespace server
 
             Vector2i offset;
             Zoom zoom;
-            net::ObjectVersion frameData[ NUM_EYES ];
+            co::ObjectVersion frameData[ NUM_EYES ];
         }
         _data;
 

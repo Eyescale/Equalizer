@@ -15,15 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_COMMANDFUNC_H
-#define EQNET_COMMANDFUNC_H
+#ifndef CO_COMMANDFUNC_H
+#define CO_COMMANDFUNC_H
 
 #include <eq/base/base.h>
 #include <eq/base/debug.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class Command;
 
@@ -68,12 +66,11 @@ namespace net
                                        const CommandFunc<T>& func )
     {
         if( func._object && func._func )
-            os << "CommandFunc of " << base::className( func._object );
+            os << "CommandFunc of " << eq::base::className( func._object );
         else
             os << "invalid CommandFunc";
         return os;
     }
 }
-}
 
-#endif //EQNET_COMMANDFUNC_H
+#endif //CO_COMMANDFUNC_H

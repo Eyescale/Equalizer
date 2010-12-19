@@ -42,7 +42,7 @@ namespace eq
 namespace server
 {
 typedef fabric::Node< Config, Node, Pipe, NodeVisitor > Super;
-typedef net::CommandFunc<Node> NodeFunc;
+typedef co::CommandFunc<Node> NodeFunc;
 namespace
 {
 #define S_MAKE_ATTR_STRING( attr ) ( std::string("EQ_NODE_") + #attr )
@@ -88,7 +88,7 @@ void Node::attach( const base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
     
-    net::CommandQueue* queue = getCommandThreadQueue();
+    co::CommandQueue* queue = getCommandThreadQueue();
 
     registerCommand( fabric::CMD_NODE_CONFIG_INIT_REPLY, 
                      NodeFunc( this, &Node::_cmdConfigInitReply ), queue );
@@ -108,12 +108,12 @@ ConstServerPtr Node::getServer() const
     return getConfig() ? getConfig()->getServer() : 0;
 }
 
-net::CommandQueue* Node::getMainThreadQueue()
+co::CommandQueue* Node::getMainThreadQueue()
 {
     return getConfig()->getMainThreadQueue();
 }
 
-net::CommandQueue* Node::getCommandThreadQueue()
+co::CommandQueue* Node::getCommandThreadQueue()
 {
     return getConfig()->getCommandThreadQueue();
 }
@@ -187,12 +187,12 @@ const std::string& Node::getCAttributeString( const CAttribute attr )
 
 namespace
 {
-static net::NodePtr _createNetNode( Node* node )
+static co::NodePtr _createNetNode( Node* node )
 {
-    net::NodePtr netNode = new net::Node;
-    const net::ConnectionDescriptions& descriptions = 
+    co::NodePtr netNode = new co::Node;
+    const co::ConnectionDescriptions& descriptions = 
         node->getConnectionDescriptions();
-    for( net::ConnectionDescriptions::const_iterator i = descriptions.begin();
+    for( co::ConnectionDescriptions::const_iterator i = descriptions.begin();
          i != descriptions.end(); ++i )
     {
         netNode->addConnectionDescription( *i );
@@ -215,7 +215,7 @@ bool Node::connect()
         return true;
     }
 
-    net::LocalNodePtr localNode = getLocalNode();
+    co::LocalNodePtr localNode = getLocalNode();
     EQASSERT( localNode.isValid( ));
     
     if( !_node )
@@ -243,13 +243,13 @@ bool Node::connect()
 
 bool Node::launch()
 {
-    for( net::ConnectionDescriptions::const_iterator i = 
+    for( co::ConnectionDescriptions::const_iterator i = 
              _connectionDescriptions.begin();
          i != _connectionDescriptions.end(); ++i )
     {
-        net::ConnectionDescriptionPtr description = *i;
+        co::ConnectionDescriptionPtr description = *i;
         const std::string launchCommand = _createLaunchCommand( description );
-        if( base::Launcher::run( launchCommand ))
+        if( eq::base::Launcher::run( launchCommand ))
             return true;
 
         EQWARN << "Could not launch node using '" << launchCommand << "'" 
@@ -260,7 +260,7 @@ bool Node::launch()
     return false;
 }
 
-bool Node::syncLaunch( const base::Clock& clock )
+bool Node::syncLaunch( const eq::base::Clock& clock )
 {
     EQASSERT( isActive( ));
 
@@ -271,33 +271,33 @@ bool Node::syncLaunch( const base::Clock& clock )
         return true;
 
     EQASSERT( !isApplicationNode( ));
-    net::LocalNodePtr localNode = getLocalNode();
+    co::LocalNodePtr localNode = getLocalNode();
     EQASSERT( localNode.isValid( ));
 
     const int32_t timeOut = getIAttribute( IATTR_LAUNCH_TIMEOUT );
 
     while( true )
     {
-        net::NodePtr node = localNode->getNode( _node->getNodeID( ));
+        co::NodePtr node = localNode->getNode( _node->getNodeID( ));
         if( node.isValid() && node->isConnected( ))
         {
             EQASSERT( _node->getRefCount() == 1 );
-            _node = node; // Use net::Node already connected
+            _node = node; // Use co::Node already connected
             return true;
         }
         
-        base::sleep( 100 /*ms*/ );
+        eq::base::sleep( 100 /*ms*/ );
         if( clock.getTime64() > timeOut )
         {
             EQASSERT( _node->getRefCount() == 1 );
             _node = 0;
             std::ostringstream data;
 
-            for( net::ConnectionDescriptions::const_iterator i =
+            for( co::ConnectionDescriptions::const_iterator i =
                      _connectionDescriptions.begin();
                  i != _connectionDescriptions.end(); ++i )
             {
-                net::ConnectionDescriptionPtr desc = *i;
+                co::ConnectionDescriptionPtr desc = *i;
                 data << desc->getHostname() << ' ';
             }
             setError( ERROR_NODE_CONNECT );
@@ -310,7 +310,7 @@ bool Node::syncLaunch( const base::Clock& clock )
 }
 
 std::string Node::_createLaunchCommand(
-    net::ConnectionDescriptionPtr description )
+    co::ConnectionDescriptionPtr description )
 {
     const std::string& command = getSAttribute( SATTR_LAUNCH_COMMAND );
     const size_t commandLen = command.size();
@@ -417,7 +417,7 @@ std::string Node::_createRemoteCommand()
 
     stringStream
         << quote << program << quote << " -- --eq-client " << quote
-        << remoteData << workDir << EQNET_SEPARATOR << ownData << quote;
+        << remoteData << workDir << CO_SEPARATOR << ownData << quote;
 
     return stringStream.str();
 }
@@ -623,13 +623,13 @@ void Node::_sendFrameFinish( const uint32_t frameNumber )
 //---------------------------------------------------------------------------
 // Barrier cache
 //---------------------------------------------------------------------------
-net::Barrier* Node::getBarrier()
+co::Barrier* Node::getBarrier()
 {
     if( _barriers.empty() )
-        return new net::Barrier( _node );
+        return new co::Barrier( _node );
     // else
 
-    net::Barrier* barrier = _barriers.back();
+    co::Barrier* barrier = _barriers.back();
     _barriers.pop_back();
     barrier->setHeight(0);
     return barrier;
@@ -637,35 +637,35 @@ net::Barrier* Node::getBarrier()
 
 void Node::changeLatency( const uint32_t latency )
 {
-    for( net::Barriers::const_iterator i = _barriers.begin(); 
+    for( co::Barriers::const_iterator i = _barriers.begin(); 
          i != _barriers.end(); ++ i )
     {
-        net::Barrier* barrier = *i;
+        co::Barrier* barrier = *i;
         barrier->setAutoObsolete( latency + 1 );
     }
 }
 
-void Node::releaseBarrier( net::Barrier* barrier )
+void Node::releaseBarrier( co::Barrier* barrier )
 {
     _barriers.push_back( barrier );
 }
 
 void Node::_flushBarriers()
 {
-    for( std::vector< net::Barrier* >::const_iterator i =_barriers.begin(); 
+    for( std::vector< co::Barrier* >::const_iterator i =_barriers.begin(); 
          i != _barriers.end(); ++ i )
     {
-        net::Barrier* barrier = *i;
+        co::Barrier* barrier = *i;
         getServer()->deregisterObject( barrier );
         delete barrier;
     }
     _barriers.clear();
 }
 
-bool Node::removeConnectionDescription( net::ConnectionDescriptionPtr cd )
+bool Node::removeConnectionDescription( co::ConnectionDescriptionPtr cd )
 {
     // Don't use std::find, RefPtr::operator== compares pointers, not values.
-    for(net::ConnectionDescriptions::iterator i=_connectionDescriptions.begin();
+    for(co::ConnectionDescriptions::iterator i=_connectionDescriptions.begin();
         i != _connectionDescriptions.end(); ++i )
     {
         if( *cd != **i )
@@ -685,7 +685,7 @@ void Node::flushSendBuffer()
 //===========================================================================
 // command handling
 //===========================================================================
-bool Node::_cmdConfigInitReply( net::Command& command )
+bool Node::_cmdConfigInitReply( co::Command& command )
 {
     const NodeConfigInitReplyPacket* packet = 
         command.getPacket<NodeConfigInitReplyPacket>();
@@ -696,7 +696,7 @@ bool Node::_cmdConfigInitReply( net::Command& command )
     return true;
 }
 
-bool Node::_cmdConfigExitReply( net::Command& command )
+bool Node::_cmdConfigExitReply( co::Command& command )
 {
     const NodeConfigExitReplyPacket* packet =
         command.getPacket<NodeConfigExitReplyPacket>();
@@ -707,7 +707,7 @@ bool Node::_cmdConfigExitReply( net::Command& command )
     return true;
 }
 
-bool Node::_cmdFrameFinishReply( net::Command& command )
+bool Node::_cmdFrameFinishReply( co::Command& command )
 {
     const NodeFrameFinishReplyPacket* packet = 
         command.getPacket<NodeFrameFinishReplyPacket>();
@@ -721,11 +721,11 @@ bool Node::_cmdFrameFinishReply( net::Command& command )
 
 void Node::output( std::ostream& os ) const
 {
-    const net::ConnectionDescriptions& descriptions = _connectionDescriptions;
-    for( net::ConnectionDescriptions::const_iterator i = descriptions.begin();
+    const co::ConnectionDescriptions& descriptions = _connectionDescriptions;
+    for( co::ConnectionDescriptions::const_iterator i = descriptions.begin();
          i != descriptions.end(); ++i )
     {
-        net::ConnectionDescriptionPtr desc = *i;
+        co::ConnectionDescriptionPtr desc = *i;
         os << *desc;
     }
 

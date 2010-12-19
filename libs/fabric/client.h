@@ -27,7 +27,7 @@ namespace eq
 namespace fabric
 {
     /** A client represents a network node of the application in the cluster. */
-    class Client : public net::LocalNode
+    class Client : public co::LocalNode
     {
     public:
         /** 
@@ -39,7 +39,7 @@ namespace fabric
          * @return true if the server was connected, false if not.
          * @version 1.0 
          */
-        EQFABRIC_API bool connectServer( net::NodePtr server );
+        EQFABRIC_API bool connectServer( co::NodePtr server );
 
         /** 
          * Disconnect and close the connection to an Equalizer server.
@@ -48,7 +48,7 @@ namespace fabric
          * @return true if the server was disconnected, false if not.
          * @version 1.0 
          */
-        EQFABRIC_API bool disconnectServer( net::NodePtr server );
+        EQFABRIC_API bool disconnectServer( co::NodePtr server );
 
         /** 
          * Get and process one pending command from the node command queue.
@@ -58,10 +58,10 @@ namespace fabric
         EQFABRIC_API void processCommand();
 
         /** @return the command queue to the main node thread. @internal */
-        virtual net::CommandQueue* getMainThreadQueue() = 0;
+        virtual co::CommandQueue* getMainThreadQueue() = 0;
 
         /** @internal */
-        EQFABRIC_API virtual bool dispatchCommand( net::Command& command );
+        EQFABRIC_API virtual bool dispatchCommand( co::Command& command );
 
     protected:
         /** Construct a new client. @internal */

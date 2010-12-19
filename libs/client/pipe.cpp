@@ -67,7 +67,7 @@ static const Window* _ntCurrentWindow = 0;
 }
 
 /** @cond IGNORE */
-typedef net::CommandFunc<Pipe> PipeFunc;
+typedef co::CommandFunc<Pipe> PipeFunc;
 /** @endcond */
 
 Pipe::Pipe( Node* parent )
@@ -119,11 +119,11 @@ ServerPtr Pipe::getServer()
     return ( node ? node->getServer() : 0);
 }
 
-void Pipe::attach( const base::UUID& id, const uint32_t instanceID )
+void Pipe::attach( const eq::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
     
-    net::CommandQueue* queue = getPipeThreadQueue();
+    co::CommandQueue* queue = getPipeThreadQueue();
 
     registerCommand( fabric::CMD_PIPE_CONFIG_INIT, 
                      PipeFunc( this, &Pipe::_cmdConfigInit ), queue );
@@ -247,7 +247,7 @@ void Pipe::_runThread()
     while( _pipeThreadQueue )
     {
         const int64_t startWait = config->getTime();
-        net::Command* command = _pipeThreadQueue->pop();
+        co::Command* command = _pipeThreadQueue->pop();
         _waitTime += ( config->getTime() - startWait );
 
         EQASSERT( command );
@@ -258,7 +258,7 @@ void Pipe::_runThread()
     EQINFO << "Leaving pipe thread" << std::endl;
 }
 
-net::CommandQueue* Pipe::getPipeThreadQueue()
+co::CommandQueue* Pipe::getPipeThreadQueue()
 {
     if( _thread )
         return _pipeThreadQueue;
@@ -266,17 +266,17 @@ net::CommandQueue* Pipe::getPipeThreadQueue()
     return getNode()->getMainThreadQueue();
 }
 
-net::CommandQueue* Pipe::getMainThreadQueue()
+co::CommandQueue* Pipe::getMainThreadQueue()
 {
     return getServer()->getMainThreadQueue();
 }
 
-net::CommandQueue* Pipe::getCommandThreadQueue()
+co::CommandQueue* Pipe::getCommandThreadQueue()
 {
     return getServer()->getCommandThreadQueue();
 }
 
-Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye,
+Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
                        const bool isOutput )
 {
     EQ_TS_THREAD( _pipeThread );
@@ -293,7 +293,7 @@ Frame* Pipe::getFrame( const net::ObjectVersion& frameVersion, const Eye eye,
     
     frame->sync( frameVersion.version );
 
-    const net::ObjectVersion& data = frame->getDataVersion( eye );
+    const co::ObjectVersion& data = frame->getDataVersion( eye );
     EQLOG( LOG_ASSEMBLY ) << "Use " << data << std::endl;
 
     EQASSERT( data.identifier.isGenerated( ));
@@ -341,14 +341,14 @@ void Pipe::flushFrames()
     _outputFrameDatas.clear();
 }
 
-const View* Pipe::getView( const net::ObjectVersion& viewVersion ) const
+const View* Pipe::getView( const co::ObjectVersion& viewVersion ) const
 {
     // Yie-ha: we want to have a const-interface to get a view on the render
     //         clients, but view mapping is by definition non-const.
     return const_cast< Pipe* >( this )->getView( viewVersion );
 }
 
-View* Pipe::getView( const net::ObjectVersion& viewVersion )
+View* Pipe::getView( const co::ObjectVersion& viewVersion )
 {
     EQ_TS_THREAD( _pipeThread );
     if( viewVersion.identifier == base::UUID::ZERO )
@@ -685,7 +685,7 @@ void Pipe::releaseFrameLocal( const uint32_t frameNumber )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Pipe::_cmdCreateWindow(  net::Command& command  )
+bool Pipe::_cmdCreateWindow(  co::Command& command  )
 {
     const PipeCreateWindowPacket* packet = 
         command.getPacket<PipeCreateWindowPacket>();
@@ -700,7 +700,7 @@ bool Pipe::_cmdCreateWindow(  net::Command& command  )
     return true;
 }
 
-bool Pipe::_cmdDestroyWindow(  net::Command& command  )
+bool Pipe::_cmdDestroyWindow(  co::Command& command  )
 {
     const PipeDestroyWindowPacket* packet =
         command.getPacket<PipeDestroyWindowPacket>();
@@ -743,7 +743,7 @@ bool Pipe::_cmdDestroyWindow(  net::Command& command  )
     return true;
 }
 
-bool Pipe::_cmdConfigInit( net::Command& command )
+bool Pipe::_cmdConfigInit( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
     const PipeConfigInitPacket* packet = 
@@ -782,14 +782,14 @@ bool Pipe::_cmdConfigInit( net::Command& command )
 
     EQLOG( LOG_INIT ) << "TASK pipe config init reply " << &reply << std::endl;
 
-    net::NodePtr nodePtr = command.getNode();
+    co::NodePtr nodePtr = command.getNode();
 
     commit();
     send( nodePtr, reply );
     return true;
 }
 
-bool Pipe::_cmdConfigExit( net::Command& command )
+bool Pipe::_cmdConfigExit( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
     const PipeConfigExitPacket* packet = 
@@ -805,7 +805,7 @@ bool Pipe::_cmdConfigExit( net::Command& command )
     return true;
 }
 
-bool Pipe::_cmdExitThread( net::Command& command )
+bool Pipe::_cmdExitThread( co::Command& command )
 {
     EQASSERT( _thread );
 
@@ -818,7 +818,7 @@ bool Pipe::_cmdExitThread( net::Command& command )
     return true;
 }
 
-bool Pipe::_cmdFrameStartClock( net::Command& )
+bool Pipe::_cmdFrameStartClock( co::Command& )
 {
     EQVERB << "start frame clock" << std::endl;
     _frameTimeMutex.set();
@@ -827,7 +827,7 @@ bool Pipe::_cmdFrameStartClock( net::Command& )
     return true;
 }
 
-bool Pipe::_cmdFrameStart( net::Command& command )
+bool Pipe::_cmdFrameStart( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
     const PipeFrameStartPacket* packet = 
@@ -860,7 +860,7 @@ bool Pipe::_cmdFrameStart( net::Command& command )
     return true;
 }
 
-bool Pipe::_cmdFrameFinish( net::Command& command )
+bool Pipe::_cmdFrameFinish( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
     const PipeFrameFinishPacket* packet =
@@ -896,7 +896,7 @@ bool Pipe::_cmdFrameFinish( net::Command& command )
     return true;
 }
 
-bool Pipe::_cmdFrameDrawFinish( net::Command& command )
+bool Pipe::_cmdFrameDrawFinish( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
     PipeFrameDrawFinishPacket* packet = 

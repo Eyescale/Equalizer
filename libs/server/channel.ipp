@@ -8,7 +8,7 @@ namespace server
 {
 
 template< typename T >
-void Channel::send( net::ObjectPacket &packet, const std::vector<T>& data )
+void Channel::send( co::ObjectPacket &packet, const std::vector<T>& data )
 { 
     packet.objectID = getID(); 
     getNode()->send( packet, data ); 

@@ -16,22 +16,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_PACKETS_H
-#define EQNET_PACKETS_H
+#ifndef CO_PACKETS_H
+#define CO_PACKETS_H
 
 #include <co/commands.h> // used for CMD_ enums
 #include <co/types.h>
 #include <co/version.h>  // enum
 
-namespace eq
-{
-namespace net
+namespace co
 {
     enum PacketType
     {
-        PACKETTYPE_EQNET_NODE,
-        PACKETTYPE_EQNET_OBJECT,
-        PACKETTYPE_EQNET_CUSTOM = 1<<7
+        PACKETTYPE_CO_NODE,
+        PACKETTYPE_CO_OBJECT,
+        PACKETTYPE_CO_CUSTOM = 1<<7
     };
 
     /** A packet send over the network. */
@@ -58,21 +56,21 @@ namespace net
     // whole string is appended to the packet, so that the receiver has to do
     // nothing special to receive and use the full packet.
 
-    /** Packet sent to and handled by an eq::net::Node. */
+    /** Packet sent to and handled by an co::Node. */
     struct NodePacket: public Packet
     {
-        NodePacket(){ type = PACKETTYPE_EQNET_NODE; }
+        NodePacket(){ type = PACKETTYPE_CO_NODE; }
     };
 
-    /** Packet sent to and handled by an eq::net::Object. */
+    /** Packet sent to and handled by an co::Object. */
     struct ObjectPacket : public NodePacket
     {
         ObjectPacket()
             {
-                type = PACKETTYPE_EQNET_OBJECT; 
+                type = PACKETTYPE_CO_OBJECT; 
                 instanceID = EQ_INSTANCE_ALL;
             }
-        base::UUID objectID;
+        eq::base::UUID objectID;
         uint32_t instanceID;
         uint32_t pad; // pad to multiple-of-eight
     };
@@ -101,7 +99,6 @@ namespace net
         return os;
     }
 }
-}
 
-#endif // EQNET_PACKETS_H
+#endif // CO_PACKETS_H
 

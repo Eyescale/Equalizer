@@ -40,7 +40,7 @@ namespace eq
      * </ul>
      *
      * Please note that further command line parameters are recognized by
-     * net::Node::initLocal().
+     * co::Node::initLocal().
      *
      * @param argc the command line argument count.
      * @param argv the command line argument values.

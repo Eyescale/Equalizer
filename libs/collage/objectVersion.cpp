@@ -19,22 +19,21 @@
 
 #include "object.h"
 
-namespace eq
-{
-namespace net
+namespace co
 {
 ObjectVersion NONE;
 
 ObjectVersion::ObjectVersion()
-: identifier( base::UUID::ZERO ), version( VERSION_NONE )
+        : identifier( eq::base::UUID::ZERO ), version( VERSION_NONE )
 {}
 
-ObjectVersion::ObjectVersion( const base::UUID& id_, const uint128_t& version_ )
+ObjectVersion::ObjectVersion( const eq::base::UUID& id_, 
+                              const uint128_t& version_ )
         : identifier( id_ ), version( version_ )
 {}
 
 ObjectVersion::ObjectVersion( const Object* object )
-: identifier( base::UUID::ZERO ), version( VERSION_NONE )
+        : identifier( eq::base::UUID::ZERO ), version( VERSION_NONE )
 {
     if( object && object->isAttached( ))
     {
@@ -52,12 +51,11 @@ ObjectVersion& ObjectVersion::operator = ( const Object* object )
     }
     else
     {
-        identifier = base::UUID::ZERO;
+        identifier = eq::base::UUID::ZERO;
         version = VERSION_NONE;
     }
 
     return *this;
 }
 
-}
 }

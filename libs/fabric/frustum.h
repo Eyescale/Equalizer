@@ -22,14 +22,14 @@
 #include <eq/fabric/wall.h>       // member
 #include <eq/fabric/base.h>       // decl
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class DataOStream;
     class DataIStream;
 }
 
+namespace eq
+{
 namespace fabric
 {
     /** A distributed object for frustum data. */
@@ -96,8 +96,8 @@ namespace fabric
     };
 
     EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Frustum& );
-    EQFABRIC_API net::DataOStream& operator << (net::DataOStream&, const Frustum&);
-    EQFABRIC_API net::DataIStream& operator >> (net::DataIStream&, Frustum& );
+    EQFABRIC_API co::DataOStream& operator << (co::DataOStream&, const Frustum&);
+    EQFABRIC_API co::DataIStream& operator >> (co::DataIStream&, Frustum& );
 }
 }
 #endif // EQFABRIC_FRUSTUM_H

@@ -15,14 +15,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_EVENT_CONNECTION_H
-#define EQNET_EVENT_CONNECTION_H
+#ifndef CO_EVENT_CONNECTION_H
+#define CO_EVENT_CONNECTION_H
 
 #include <co/connection.h>   // base class
 
-namespace eq
-{
-namespace net
+namespace co
 {
     /**
      * A connection signalling an event.
@@ -33,23 +31,23 @@ namespace net
     class EventConnection : public Connection
     {
     public:
-        EQNET_API EventConnection();
-        EQNET_API virtual ~EventConnection();
+        CO_API EventConnection();
+        CO_API virtual ~EventConnection();
 
-        EQNET_API virtual bool connect();
-        EQNET_API virtual void close();
+        CO_API virtual bool connect();
+        CO_API virtual void close();
 
-        EQNET_API void set();
-        EQNET_API void reset();
+        CO_API void set();
+        CO_API void reset();
 
-        EQNET_API virtual Notifier getNotifier() const;
+        CO_API virtual Notifier getNotifier() const;
 
     protected:
         virtual void readNB( void*, const uint64_t )
             { EQDONTCALL; }
         virtual int64_t readSync( void*, const uint64_t, const bool )
             { EQDONTCALL; return -1; }
-        EQNET_API virtual int64_t write( const void*, const uint64_t )
+        CO_API virtual int64_t write( const void*, const uint64_t )
             { EQDONTCALL; return -1; }
 
     private:
@@ -57,11 +55,10 @@ namespace net
         HANDLE _event;
 #else
         ConnectionPtr _connection;
-        base::Lock _lock;
+	eq::base::Lock _lock;
         bool _set;
 #endif
     };
 }
-}
 
-#endif //EQNET_EVENT_CONNECTION_H
+#endif //CO_EVENT_CONNECTION_H

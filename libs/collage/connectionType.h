@@ -15,15 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_CONNECTIONTYPE_H
-#define EQNET_CONNECTIONTYPE_H
+#ifndef CO_CONNECTIONTYPE_H
+#define CO_CONNECTIONTYPE_H
 
 #include <eq/base/debug.h>
 #include <iostream>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     /** The supported network protocols. */
     enum ConnectionType
@@ -90,6 +88,5 @@ namespace net
         return os;
     }
 }
-}
 
-#endif // EQNET_CONNECTIONTYPE_H
+#endif // CO_CONNECTIONTYPE_H

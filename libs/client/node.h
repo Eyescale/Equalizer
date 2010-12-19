@@ -37,9 +37,9 @@ namespace eq
      * does not see other node instances. The application process may not have a
      * node, which is the case when it does not contribute to the rendering.
      *
-     * The eq::Node is not to be confused with the eq::net::Node which
+     * The eq::Node is not to be confused with the co::Node which
      * represents the process in the underlying peer-to-peer network layer. The
-     * eq::Client and eq::Server are eq::net::Nodes representing the local
+     * eq::Client and eq::Server are co::Nodes representing the local
      * client and Equalizer server, respectively.
      *
      * @sa fabric::Node
@@ -59,8 +59,8 @@ namespace eq
         /** @return the parent server node. @version 1.0 */
         EQ_API ServerPtr getServer();
 
-        EQ_API net::CommandQueue* getMainThreadQueue(); //!< @internal
-        EQ_API net::CommandQueue* getCommandThreadQueue(); //!< @internal
+        EQ_API co::CommandQueue* getMainThreadQueue(); //!< @internal
+        EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
 
         /** 
          * @internal
@@ -69,7 +69,7 @@ namespace eq
          * @param barrier the barrier identifier and version.
          * @return the barrier.
          */
-        net::Barrier* getBarrier( const net::ObjectVersion barrier );
+        co::Barrier* getBarrier( const co::ObjectVersion barrier );
 
         /** 
          * @internal
@@ -78,7 +78,7 @@ namespace eq
          * @param dataVersion the frame data identifier and version.
          * @return the frame.
          */
-        FrameData* getFrameData( const net::ObjectVersion& dataVersion );
+        FrameData* getFrameData( const co::ObjectVersion& dataVersion );
 
         /** @internal Wait for the node to be initialized. */
         EQ_API void waitInitialized() const;
@@ -117,13 +117,13 @@ namespace eq
             TransmitThread( Node* parent ) : _node( parent ) {}
             virtual ~TransmitThread() {}
 
-            net::CommandQueue& getQueue() { return _queue; }
+            co::CommandQueue& getQueue() { return _queue; }
             
         protected:
             virtual void run();
 
         private:
-            net::CommandQueue     _queue;
+            co::CommandQueue     _queue;
             Node* const           _node;
         } transmitter;
 
@@ -263,7 +263,7 @@ namespace eq
         /** The number of the last locally released frame. */
         uint32_t _unlockedFrame;
 
-        typedef stde::hash_map< uint128_t, net::Barrier* > BarrierHash;
+        typedef stde::hash_map< uint128_t, co::Barrier* > BarrierHash;
         /** All barriers mapped by the node. */
         base::Lockable< BarrierHash > _barriers;
 
@@ -281,16 +281,16 @@ namespace eq
         void _flushObjects();
 
         /** The command functions. */
-        bool _cmdCreatePipe( net::Command& command );
-        bool _cmdDestroyPipe( net::Command& command );
-        bool _cmdConfigInit( net::Command& command );
-        bool _cmdConfigExit( net::Command& command );
-        bool _cmdFrameStart( net::Command& command );
-        bool _cmdFrameFinish( net::Command& command );
-        bool _cmdFrameDrawFinish( net::Command& command );
-        bool _cmdFrameTasksFinish( net::Command& command );
-        bool _cmdFrameDataTransmit( net::Command& command );
-        bool _cmdFrameDataReady( net::Command& command );
+        bool _cmdCreatePipe( co::Command& command );
+        bool _cmdDestroyPipe( co::Command& command );
+        bool _cmdConfigInit( co::Command& command );
+        bool _cmdConfigExit( co::Command& command );
+        bool _cmdFrameStart( co::Command& command );
+        bool _cmdFrameFinish( co::Command& command );
+        bool _cmdFrameDrawFinish( co::Command& command );
+        bool _cmdFrameTasksFinish( co::Command& command );
+        bool _cmdFrameDataTransmit( co::Command& command );
+        bool _cmdFrameDataReady( co::Command& command );
 
         EQ_TS_VAR( _nodeThread );
         EQ_TS_VAR( _commandThread );

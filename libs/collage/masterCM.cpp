@@ -24,9 +24,7 @@
 #include "objectPackets.h"
 #include "objectDataIStream.h"
 
-namespace eq
-{
-namespace net
+namespace co
 {
 typedef CommandFunc<MasterCM> CmdFunc;
 
@@ -130,7 +128,7 @@ void MasterCM::_apply( ObjectDataIStream* is )
     _object->unpack( *is );
     EQASSERTINFO( is->getRemainingBufferSize() == 0 && 
                   is->nRemainingBuffers()==0,
-                  "Object " << base::className( _object ) <<
+                  "Object " << eq::base::className( _object ) <<
                   " did not unpack all data" );
     is->reset();
     _iStreamCache.release( is );
@@ -203,5 +201,4 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
     return true;
 }
 
-}
 }

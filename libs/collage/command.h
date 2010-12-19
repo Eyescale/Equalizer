@@ -15,17 +15,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_COMMAND_H
-#define EQNET_COMMAND_H
+#ifndef CO_COMMAND_H
+#define CO_COMMAND_H
 
 #include <co/localNode.h> // NodePtr members
 
 #include <eq/base/base.h>
 #include <eq/base/refPtr.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {    
     struct Packet;
 
@@ -68,12 +66,12 @@ namespace net
         //@{
         bool isFree() const
             { EQ_TS_THREAD( _writeThread ); return ( _refCount==0 ); }
-        EQNET_API void retain();
-        EQNET_API void release();
+        CO_API void retain();
+        CO_API void release();
         //@}
 
         /** Invoke and clear the command function of a dispatched command. */
-        EQNET_API bool invoke();
+        CO_API bool invoke();
 
     private:
         Command();
@@ -107,16 +105,15 @@ namespace net
         Packet* _data; //!< Our allocated data
         uint64_t _dataSize; //!< The size of the allocation
 
-        base::a_int32_t* _refCountMaster;
-        base::a_int32_t _refCount;
+        eq::base::a_int32_t* _refCountMaster;
+        eq::base::a_int32_t _refCount;
 
         Dispatcher::Func _func;
-        friend EQNET_API std::ostream& operator << ( std::ostream& os, const Command& );
+        friend CO_API std::ostream& operator << ( std::ostream& os, const Command& );
 
         EQ_TS_VAR( _writeThread );
     };
 
-    EQNET_API std::ostream& operator << ( std::ostream& os, const Command& );
+    CO_API std::ostream& operator << ( std::ostream& os, const Command& );
 }
-}
-#endif // EQNET_COMMAND_H
+#endif // CO_COMMAND_H

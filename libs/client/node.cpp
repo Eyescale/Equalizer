@@ -49,7 +49,7 @@
 namespace eq
 {
 /** @cond IGNORE */
-typedef net::CommandFunc<Node> NodeFunc;
+typedef co::CommandFunc<Node> NodeFunc;
 typedef fabric::Node< Config, Node, Pipe, NodeVisitor > Super;
 /** @endcond */
 
@@ -74,8 +74,9 @@ void Node::attach( const base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
-    net::CommandQueue* queue = getMainThreadQueue();
-    net::CommandQueue* commandQ = getCommandThreadQueue();
+    co::CommandQueue* queue = getMainThreadQueue();
+    co::CommandQueue* commandQ = getCommandThreadQueue();
+
     registerCommand( fabric::CMD_NODE_CREATE_PIPE, 
                      NodeFunc( this, &Node::_cmdCreatePipe ), queue );
     registerCommand( fabric::CMD_NODE_DESTROY_PIPE,
@@ -112,20 +113,20 @@ ServerPtr Node::getServer()
     return ( config ? config->getServer() : 0 );
 }
 
-net::CommandQueue* Node::getMainThreadQueue()
+co::CommandQueue* Node::getMainThreadQueue()
 {
     return getConfig()->getMainThreadQueue();
 }
 
-net::CommandQueue* Node::getCommandThreadQueue()
+co::CommandQueue* Node::getCommandThreadQueue()
 {
     return getConfig()->getCommandThreadQueue();
 }
 
-net::Barrier* Node::getBarrier( const net::ObjectVersion barrier )
+co::Barrier* Node::getBarrier( const co::ObjectVersion barrier )
 {
     base::ScopedMutex<> mutex( _barriers );
-    net::Barrier* netBarrier = _barriers.data[ barrier.identifier ];
+    co::Barrier* netBarrier = _barriers.data[ barrier.identifier ];
 
     if( netBarrier )
         netBarrier->sync( barrier.version );
@@ -133,7 +134,7 @@ net::Barrier* Node::getBarrier( const net::ObjectVersion barrier )
     {
         ClientPtr client = getClient();
 
-        netBarrier = new net::Barrier;
+        netBarrier = new co::Barrier;
         EQCHECK( client->mapObject( netBarrier, barrier ));
 
         _barriers.data[ barrier.identifier ] = netBarrier;
@@ -142,7 +143,7 @@ net::Barrier* Node::getBarrier( const net::ObjectVersion barrier )
     return netBarrier;
 }
 
-FrameData* Node::getFrameData( const net::ObjectVersion& frameData )
+FrameData* Node::getFrameData( const co::ObjectVersion& frameData )
 {
     base::ScopedMutex<> mutex( _frameDatas );
     FrameData* data = _frameDatas.data[ frameData.identifier ];
@@ -267,7 +268,7 @@ void Node::releaseFrame( const uint32_t frameNumber )
 
     Config* config = getConfig();
     ServerPtr server = config->getServer();
-    net::NodePtr node = server.get();
+    co::NodePtr node = server.get();
     send( node, packet );
 }
 
@@ -366,7 +367,7 @@ void Node::_flushObjects()
         for( BarrierHash::const_iterator i =_barriers->begin();
              i != _barriers->end(); ++ i )
         {
-            net::Barrier* barrier = i->second;
+            co::Barrier* barrier = i->second;
             client->unmapObject( barrier );
             delete barrier;
         }
@@ -390,7 +391,7 @@ void Node::TransmitThread::run()
 
     while( true )
     {
-        net::Command* command = _queue.pop();
+        co::Command* command = _queue.pop();
         if( !command )
             return; // exit thread
 
@@ -402,7 +403,7 @@ void Node::TransmitThread::run()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Node::_cmdCreatePipe( net::Command& command )
+bool Node::_cmdCreatePipe( co::Command& command )
 {
     const NodeCreatePipePacket* packet = 
         command.getPacket<NodeCreatePipePacket>();
@@ -421,7 +422,7 @@ bool Node::_cmdCreatePipe( net::Command& command )
     return true;
 }
 
-bool Node::_cmdDestroyPipe( net::Command& command )
+bool Node::_cmdDestroyPipe( co::Command& command )
 {
     EQ_TS_THREAD( _nodeThread );
 
@@ -443,7 +444,7 @@ bool Node::_cmdDestroyPipe( net::Command& command )
     return true;
 }
 
-bool Node::_cmdConfigInit( net::Command& command )
+bool Node::_cmdConfigInit( co::Command& command )
 {
     EQ_TS_THREAD( _nodeThread );
 
@@ -472,7 +473,7 @@ bool Node::_cmdConfigInit( net::Command& command )
     return true;
 }
 
-bool Node::_cmdConfigExit( net::Command& command )
+bool Node::_cmdConfigExit( co::Command& command )
 {
     const NodeConfigExitPacket* packet = 
         command.getPacket<NodeConfigExitPacket>();
@@ -496,7 +497,7 @@ bool Node::_cmdConfigExit( net::Command& command )
     return true;
 }
 
-bool Node::_cmdFrameStart( net::Command& command )
+bool Node::_cmdFrameStart( co::Command& command )
 {
     EQ_TS_THREAD( _nodeThread );
     const NodeFrameStartPacket* packet = 
@@ -511,7 +512,7 @@ bool Node::_cmdFrameStart( net::Command& command )
 
     Config* config = getConfig();
     
-    if( packet->configVersion != net::VERSION_INVALID )
+    if( packet->configVersion != co::VERSION_INVALID )
         config->sync( packet->configVersion );
     sync( packet->version );
 
@@ -523,7 +524,7 @@ bool Node::_cmdFrameStart( net::Command& command )
     return true;
 }
 
-bool Node::_cmdFrameFinish( net::Command& command )
+bool Node::_cmdFrameFinish( co::Command& command )
 {
     EQ_TS_THREAD( _nodeThread );
     const NodeFrameFinishPacket* packet = 
@@ -539,7 +540,7 @@ bool Node::_cmdFrameFinish( net::Command& command )
     return true;
 }
 
-bool Node::_cmdFrameDrawFinish( net::Command& command )
+bool Node::_cmdFrameDrawFinish( co::Command& command )
 {
     NodeFrameDrawFinishPacket* packet = 
         command.getPacket< NodeFrameDrawFinishPacket >();
@@ -550,7 +551,7 @@ bool Node::_cmdFrameDrawFinish( net::Command& command )
     return true;
 }
 
-bool Node::_cmdFrameTasksFinish( net::Command& command )
+bool Node::_cmdFrameTasksFinish( co::Command& command )
 {
     NodeFrameTasksFinishPacket* packet = 
         command.getPacket< NodeFrameTasksFinishPacket >();
@@ -561,7 +562,7 @@ bool Node::_cmdFrameTasksFinish( net::Command& command )
     return true;
 }
 
-bool Node::_cmdFrameDataTransmit( net::Command& command )
+bool Node::_cmdFrameDataTransmit( co::Command& command )
 {
     const NodeFrameDataTransmitPacket* packet =
         command.getPacket<NodeFrameDataTransmitPacket>();
@@ -581,7 +582,7 @@ bool Node::_cmdFrameDataTransmit( net::Command& command )
     return true;
 }
 
-bool Node::_cmdFrameDataReady( net::Command& command )
+bool Node::_cmdFrameDataReady( co::Command& command )
 {
     const NodeFrameDataReadyPacket* packet =
         command.getPacket<NodeFrameDataReadyPacket>();

@@ -52,8 +52,8 @@ namespace server
         ServerPtr getServer();
         ConstServerPtr getServer() const;
 
-        net::NodePtr getNode() const { return _node; }
-        void setNode( net::NodePtr node ) { _node = node; }
+        co::NodePtr getNode() const { return _node; }
+        void setNode( co::NodePtr node ) { _node = node; }
 
         Channel* getChannel( const ChannelPath& path );
 
@@ -63,8 +63,8 @@ namespace server
         /** @internal */
         void setState( const State state ) { _state = state; }
 
-        net::CommandQueue* getMainThreadQueue();
-        net::CommandQueue* getCommandThreadQueue();
+        co::CommandQueue* getMainThreadQueue();
+        co::CommandQueue* getCommandThreadQueue();
 
         /** Increase node activition count. */
         void activate();
@@ -153,25 +153,25 @@ namespace server
          * 
          * @return the barrier.
          */
-        net::Barrier* getBarrier();
+        co::Barrier* getBarrier();
 
         /** 
          * Release a barrier server by this node.
          * 
          * @param barrier the barrier.
          */
-        void releaseBarrier( net::Barrier* barrier );
+        void releaseBarrier( co::Barrier* barrier );
 
         /** Change the latency on all objects (barrier) */
         void changeLatency( const uint32_t latency );
         //@}
 
-        void send( net::NodePacket& packet ) 
+        void send( co::NodePacket& packet ) 
             { _bufferedTasks.send( packet ); }
-        void send( net::NodePacket& packet, const std::string& string ) 
+        void send( co::NodePacket& packet, const std::string& string ) 
             { _bufferedTasks.send( packet, string ); }
         template< typename T >
-        void send( net::NodePacket &packet, const std::vector<T>& data )
+        void send( co::NodePacket &packet, const std::vector<T>& data )
             { _bufferedTasks.send( packet, data ); }
 
         void flushSendBuffer();
@@ -181,7 +181,7 @@ namespace server
          * 
          * @param desc the connection description.
          */
-        void addConnectionDescription( net::ConnectionDescriptionPtr desc )
+        void addConnectionDescription( co::ConnectionDescriptionPtr desc )
             { _connectionDescriptions.push_back( desc ); }
         
         /** 
@@ -192,10 +192,10 @@ namespace server
          *         otherwise.
          */
         EQSERVER_EXPORT bool removeConnectionDescription(
-            net::ConnectionDescriptionPtr cd );
+            co::ConnectionDescriptionPtr cd );
 
         /** @return the vector of connection descriptions. */
-        const net::ConnectionDescriptions& getConnectionDescriptions()
+        const co::ConnectionDescriptions& getConnectionDescriptions()
             const { return _connectionDescriptions; }
 
 
@@ -239,7 +239,7 @@ namespace server
 
     protected:
 
-        /** @sa net::Object::attach. */
+        /** @sa co::Object::attach. */
         virtual void attach( const UUID& id, const uint32_t instanceID );
         
     private:
@@ -253,12 +253,12 @@ namespace server
         uint32_t _active;
 
         /** The network node on which this Equalizer node is running. */
-        net::NodePtr _node;
+        co::NodePtr _node;
 
         /** The list of descriptions on how this node is reachable. */
-        net::ConnectionDescriptions _connectionDescriptions;
+        co::ConnectionDescriptions _connectionDescriptions;
 
-        typedef stde::hash_map< uint32_t, eq::net::uint128_t > FrameIDHash;
+        typedef stde::hash_map< uint32_t, co::uint128_t > FrameIDHash;
         /** The frame identifiers non-finished frames. */
         FrameIDHash _frameIDs;
 
@@ -272,10 +272,10 @@ namespace server
         base::Monitor< State > _state;
             
         /** The cached barriers. */
-        std::vector<net::Barrier*> _barriers;
+        std::vector<co::Barrier*> _barriers;
 
         /** Task packets for the current operation. */
-        net::BufferConnection _bufferedTasks;
+        co::BufferConnection _bufferedTasks;
 
         /** The last draw pipe for this entity */
         const Pipe* _lastDrawPipe;
@@ -292,7 +292,7 @@ namespace server
          * @param description the connection description.
          * @return the expanded launch command.
          */
-        std::string _createLaunchCommand( net::ConnectionDescriptionPtr );
+        std::string _createLaunchCommand( co::ConnectionDescriptionPtr );
         std::string   _createRemoteCommand();
 
         uint32_t _getFinishLatency() const;
@@ -301,18 +301,18 @@ namespace server
         /** flush cached barriers. */
         void _flushBarriers();
 
-        void _send( net::ObjectPacket& packet ) 
+        void _send( co::ObjectPacket& packet ) 
             { packet.objectID = getID(); send( packet ); }
-        void _send( net::ObjectPacket& packet, const std::string& string ) 
+        void _send( co::ObjectPacket& packet, const std::string& string ) 
             { packet.objectID = getID(); send( packet, string ); }
 
         /** Send the frame finish packet for the given frame number. */
         void _sendFrameFinish( const uint32_t frameNumber );
 
         /* Command handler functions. */
-        bool _cmdConfigInitReply( net::Command& command );
-        bool _cmdConfigExitReply( net::Command& command );
-        bool _cmdFrameFinishReply( net::Command& command );
+        bool _cmdConfigInitReply( co::Command& command );
+        bool _cmdConfigExitReply( co::Command& command );
+        bool _cmdFrameFinishReply( co::Command& command );
     };
 }
 }

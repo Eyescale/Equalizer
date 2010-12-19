@@ -22,9 +22,7 @@
 
 using namespace std;
 
-namespace eq
-{
-namespace net
+namespace co
 {
 CommandQueue::CommandQueue()
 {
@@ -51,8 +49,7 @@ void CommandQueue::flush()
 
 void CommandQueue::push( Command& command )
 {
-    EQASSERT( command.isValid( ));
-    command.retain();
+    EQASSERT( command.isValid( ));command.retain();
     _commands.push( &command );
 }
 
@@ -77,6 +74,5 @@ Command* CommandQueue::tryPop()
     return command;
 }
 
-}
 }
 

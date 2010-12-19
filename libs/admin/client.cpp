@@ -56,7 +56,7 @@ bool Client::disconnectServer( ServerPtr server )
     return Super::disconnectServer( server.get( ));
 }
 
-net::NodePtr Client::createNode( const uint32_t type )
+co::NodePtr Client::createNode( const uint32_t type )
 { 
     switch( type )
     {
@@ -68,7 +68,7 @@ net::NodePtr Client::createNode( const uint32_t type )
         }
 
         default:
-            return net::Node::createNode( type );
+            return co::Node::createNode( type );
     }
 }
 

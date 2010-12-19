@@ -16,14 +16,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_OBJECTDELTADATAOSTREAM_H
-#define EQNET_OBJECTDELTADATAOSTREAM_H
+#ifndef CO_OBJECTDELTADATAOSTREAM_H
+#define CO_OBJECTDELTADATAOSTREAM_H
 
 #include "objectDataOStream.h"   // base class
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class Object;
     struct ObjectDeltaPacket;
@@ -49,5 +47,4 @@ namespace net
                                  const uint64_t sizeUncompressed );
     };
 }
-}
-#endif //EQNET_OBJECTDELTADATAOSTREAM_H
+#endif //CO_OBJECTDELTADATAOSTREAM_H

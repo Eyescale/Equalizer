@@ -25,14 +25,14 @@
  * This namespace implements the application-visible API to access the Equalizer
  * server. 
  *
- * The Client represents the application instance and net::Node. A Client can
+ * The Client represents the application instance and co::Node. A Client can
  * connect to a Server to retrieve a Config.
  * 
  * The Server, Config, Node, Window and Channel hierarchy represents the
  * rendering entities as described in the configuration file. Each process in
  * the cluster only has the local entities instantiated, that is, there is at
- * most one node per process. The Config is a net::Session, which is normally
- * used to register distributed objects based on eq::Object or eq::net::Object.
+ * most one node per process. The Config is a co::Session, which is normally
+ * used to register distributed objects based on eq::Object or co::Object.
  *
  * The Canvas, Segment, Layout, View and Observer hierarchy represents the
  * physical projection system, logical layout and tracked users. Applications

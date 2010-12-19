@@ -15,24 +15,21 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_VERSION_H
-#define EQNET_VERSION_H
+#ifndef CO_VERSION_H
+#define CO_VERSION_H
 
 #include <co/types.h>
 #include <co/base.h>
-namespace eq
-{
-namespace net
+namespace co
 {
 /** Special object version values */
-extern EQNET_API const uint128_t VERSION_NONE;
-extern EQNET_API const uint128_t VERSION_FIRST;
-extern EQNET_API const uint128_t VERSION_NEXT;
-extern EQNET_API const uint128_t VERSION_INVALID;
-extern EQNET_API const uint128_t VERSION_OLDEST;
-extern EQNET_API const uint128_t VERSION_HEAD;
+extern CO_API const uint128_t VERSION_NONE;
+extern CO_API const uint128_t VERSION_FIRST;
+extern CO_API const uint128_t VERSION_NEXT;
+extern CO_API const uint128_t VERSION_INVALID;
+extern CO_API const uint128_t VERSION_OLDEST;
+extern CO_API const uint128_t VERSION_HEAD;
 
 }
-}
 
-#endif // EQNET_VERSION_H
+#endif // CO_VERSION_H

@@ -31,8 +31,8 @@ namespace eq
 namespace server
 {
     /** The Equalizer server. */
-    class Server : public fabric::Server< net::Node, Server, Config,
-                                          NodeFactory, net::LocalNode >
+    class Server : public fabric::Server< co::Node, Server, Config,
+                                          NodeFactory, co::LocalNode >
     {
     public:
         /** 
@@ -64,7 +64,7 @@ namespace server
         EQSERVER_EXPORT void deleteConfigs();
 
         /** @return the command queue to the server thread */
-        net::CommandQueue* getMainThreadQueue() { return &_mainThreadQueue; }
+        co::CommandQueue* getMainThreadQueue() { return &_mainThreadQueue; }
 
         /** 
          * Traverse this server and all children using a server visitor.
@@ -78,23 +78,23 @@ namespace server
         /** @return the global time in milliseconds. */
         int64_t getTime() const { return _clock.getTime64(); }
 
-        /** @sa net::Node::listen() @internal */
+        /** @sa co::Node::listen() @internal */
         virtual bool listen();
 
     protected:
         virtual ~Server();
 
-        /** @sa net::Node::dispatchCommand */
-        virtual bool dispatchCommand( net::Command& command );
+        /** @sa co::Node::dispatchCommand */
+        virtual bool dispatchCommand( co::Command& command );
         
     private:
         /** The receiver->main command queue. */
-        net::CommandQueue _mainThreadQueue;
+        co::CommandQueue _mainThreadQueue;
 
         /** The global clock. */
         base::Clock _clock;
 
-        net::Nodes _admins; //!< connected admin clients
+        co::Nodes _admins; //!< connected admin clients
 
         /** The current state. */
         bool _running;
@@ -104,7 +104,7 @@ namespace server
             char dummy[32];
         };
 
-        /** @sa net::Node::getType */
+        /** @sa co::Node::getType */
         virtual uint32_t getType() const { return fabric::NODETYPE_EQ_SERVER; }
 
         friend class fabric::Config< Server, Config, Observer, Layout, Canvas,
@@ -117,12 +117,12 @@ namespace server
         bool _removeConfig( Config* config );        
 
         /** The command functions. */
-        bool _cmdChooseConfig( net::Command& command );
-        bool _cmdReleaseConfig( net::Command& command );
-        bool _cmdDestroyConfigReply( net::Command& command );
-        bool _cmdShutdown( net::Command& command );
-        bool _cmdMap( net::Command& command );
-        bool _cmdUnmap( net::Command& command );
+        bool _cmdChooseConfig( co::Command& command );
+        bool _cmdReleaseConfig( co::Command& command );
+        bool _cmdDestroyConfigReply( co::Command& command );
+        bool _cmdShutdown( co::Command& command );
+        bool _cmdMap( co::Command& command );
+        bool _cmdUnmap( co::Command& command );
     };
 }
 }

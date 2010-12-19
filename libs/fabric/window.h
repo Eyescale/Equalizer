@@ -178,15 +178,14 @@ namespace fabric
         Window( P* parent );
 
         EQFABRIC_INL virtual ~Window(); //!< @internal
-
         /** @internal */
         virtual void attach( const base::UUID& id, const uint32_t instanceID );
 
         /** @internal */
-        EQFABRIC_INL virtual void serialize( net::DataOStream& os,
+        EQFABRIC_INL virtual void serialize( co::DataOStream& os,
                                                 const uint64_t dirtyBits );
         /** @internal */
-        EQFABRIC_INL virtual void deserialize( net::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( co::DataIStream& is, 
                                                   const uint64_t dirtyBits );
         
         EQFABRIC_INL virtual void notifyDetach(); //!< @internal
@@ -262,9 +261,9 @@ namespace fabric
         EQFABRIC_INL virtual uint32_t commitNB(); //!< @internal
         bool _mapNodeObjects() { return _pipe->_mapNodeObjects(); }
 
-        typedef net::CommandFunc< Window< P, W, C > > CmdFunc;
-        bool _cmdNewChannel( net::Command& command );
-        bool _cmdNewChannelReply( net::Command& command );
+        typedef co::CommandFunc< Window< P, W, C > > CmdFunc;
+        bool _cmdNewChannel( co::Command& command );
+        bool _cmdNewChannelReply( co::Command& command );
     };
 
     template< class P, class W, class C > EQFABRIC_INL

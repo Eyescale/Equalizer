@@ -78,8 +78,8 @@ namespace eq
 
     protected:
         /** @internal */
-        EQ_API virtual void deserialize( net::DataIStream& is, 
-                                            const uint64_t dirtyBits );
+        EQ_API virtual void deserialize( co::DataIStream& is, 
+                                         const uint64_t dirtyBits );
 
         /** @return the initial frustum value of this view. */
         const Frustum& getBaseFrustum() const { return _baseFrustum; }

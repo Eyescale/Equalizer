@@ -109,10 +109,10 @@ namespace fabric
         EQFABRIC_INL virtual ~Node();
 
         /** @internal */
-        EQFABRIC_INL virtual void serialize( net::DataOStream& os,
+        EQFABRIC_INL virtual void serialize( co::DataOStream& os,
                                                 const uint64_t dirtyBits );
         /** @internal */
-        EQFABRIC_INL virtual void deserialize( net::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( co::DataIStream& is, 
                                                   const uint64_t dirtyBits );
         
         EQFABRIC_INL virtual void notifyDetach(); //!< @internal

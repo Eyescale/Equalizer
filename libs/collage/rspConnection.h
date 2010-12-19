@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_RSPCONNECTION_H
-#define EQNET_RSPCONNECTION_H
+#ifndef CO_RSPCONNECTION_H
+#define CO_RSPCONNECTION_H
 
 #include <co/connection.h>
 
@@ -35,9 +35,7 @@
 #include <boost/asio.hpp>
 #pragma warning( default : 4267 )
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class ConnectionDescription;
 
@@ -84,10 +82,10 @@ namespace net
         virtual ~RSPConnection();
     
     private:
-        typedef base::RefPtr< RSPConnection > RSPConnectionPtr;
+        typedef eq::base::RefPtr< RSPConnection > RSPConnectionPtr;
 
         /** Thread managing network IO and RSP protocol. */
-        class Thread : public base::Thread
+        class Thread : public eq::base::Thread
         {
         public: 
             Thread( RSPConnectionPtr connection )
@@ -197,7 +195,7 @@ namespace net
         uint32_t _payloadSize;
         int32_t  _timeouts;
 
-        typedef base::RefPtr< EventConnection > EventConnectionPtr;
+        typedef eq::base::RefPtr< EventConnection > EventConnectionPtr;
         EventConnectionPtr _event;
 
         boost::asio::io_service        _ioService;
@@ -213,18 +211,18 @@ namespace net
         int64_t         _sendRate;
 
         Thread*          _thread;
-        base::Lock       _mutexConnection;
-        base::Lock       _mutexEvent;
+        eq::base::Lock       _mutexConnection;
+        eq::base::Lock       _mutexEvent;
         uint16_t         _acked;        // sequence ID of last confirmed ack
 
-        typedef base::Bufferb Buffer;
+        typedef eq::base::Bufferb Buffer;
         typedef std::vector< Buffer* > Buffers;
 
         Buffers _buffers;                   //!< Data buffers
         /** Empty read buffers (connected) or write buffers (listening) */
-        base::LFQueue< Buffer* > _threadBuffers;
+        eq::base::LFQueue< Buffer* > _threadBuffers;
         /** Ready data buffers (connected) or empty write buffers (listening) */
-        base::MTQueue< Buffer* > _appBuffers;
+        eq::base::MTQueue< Buffer* > _appBuffers;
 
         Buffer _recvBuffer;                      //!< Receive (thread) buffer
         std::deque< Buffer* > _recvBuffers;      //!< out-of-order buffers
@@ -316,7 +314,6 @@ namespace net
 
     std::ostream& operator << ( std::ostream&, const RSPConnection& );
 }
-}
 
-#endif //EQNET_RSPCONNECTION_H
+#endif //CO_RSPCONNECTION_H
 #endif //EQ_USE_BOOST

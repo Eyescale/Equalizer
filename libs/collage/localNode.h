@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_LOCALNODE_H
-#define EQNET_LOCALNODE_H
+#ifndef CO_LOCALNODE_H
+#define CO_LOCALNODE_H
 
 #include <co/node.h>            // base class
 #include <eq/base/requestHandler.h> // base class
@@ -33,14 +33,12 @@
 #include <eq/base/types.h>          // member
 
 #pragma warning(disable : 4190)
-extern "C" EQSERVER_EXPORT eq::net::ConnectionPtr eqsStartLocalServer( const
+extern "C" EQSERVER_EXPORT co::ConnectionPtr eqsStartLocalServer( const
                                                                  std::string& );
 extern "C" EQSERVER_EXPORT void                   eqsJoinLocalServer();
 #pragma warning(default : 4190)
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class ObjectStore;
 
@@ -50,12 +48,12 @@ namespace net
      * Local nodes listen on network connections, manage connections to other
      * nodes and provide session registration, mapping and command dispatch.
      */
-    class LocalNode : public base::RequestHandler
+    class LocalNode : public eq::base::RequestHandler
                     , public Node
     {
     public:
-        EQNET_API LocalNode( );
-        EQNET_API virtual ~LocalNode( );
+        CO_API LocalNode( );
+        CO_API virtual ~LocalNode( );
 
         /**
          * @name State Changes
@@ -81,7 +79,7 @@ namespace net
          * @return <code>true</code> if the client was successfully initialized,
          *         <code>false</code> otherwise.
          */
-        EQNET_API virtual bool initLocal( const int argc, char** argv );
+        CO_API virtual bool initLocal( const int argc, char** argv );
         
         /**
          * Open all connections and put this node into the listening state.
@@ -95,7 +93,7 @@ namespace net
          *         <code>false</code> if not.
          * @sa connect
          */
-        EQNET_API virtual bool listen();
+        CO_API virtual bool listen();
 
         /**
          * Close a listening node.
@@ -106,7 +104,7 @@ namespace net
          * @return <code>true</code> if the node was stopped, <code>false</code>
          *         if it was not stopped.
          */
-        EQNET_API virtual bool close();
+        CO_API virtual bool close();
 
         /** 
          * Close a listening node.
@@ -127,7 +125,7 @@ namespace net
          * @return true if this node was connected, false otherwise.
          * @sa initConnect, syncConnect
          */
-        EQNET_API bool connect( NodePtr node );
+        CO_API bool connect( NodePtr node );
 
         /** 
          * Create and connect a node given by an identifier.
@@ -140,7 +138,7 @@ namespace net
          * @return the connected node, or an invalid RefPtr if the node could
          *         not be connected.
          */
-        EQNET_API NodePtr connect( const NodeID& nodeID );
+        CO_API NodePtr connect( const NodeID& nodeID );
 
         /** 
          * Disconnects a connected node.
@@ -149,13 +147,13 @@ namespace net
          * @return <code>true</code> if the node was disconnected correctly,
          *         <code>false</code> otherwise.
          */
-        EQNET_API virtual bool disconnect( NodePtr node );
+        CO_API virtual bool disconnect( NodePtr node );
         //@}
 
         /** @name Object Registry */
         //@{
         /** Disable the instance cache of an stopped local node. */
-        EQNET_API void disableInstanceCache();
+        CO_API void disableInstanceCache();
 
         /** 
          * Register a distributed object.
@@ -168,14 +166,14 @@ namespace net
          * @param object the object instance.
          * @return true if the object was registered, false otherwise.
          */
-        EQNET_API bool registerObject( Object* object );
+        CO_API bool registerObject( Object* object );
 
         /** 
          * Deregister a distributed object.
          *
          * @param object the object instance.
          */
-        EQNET_API virtual void deregisterObject( Object* object );
+        CO_API virtual void deregisterObject( Object* object );
 
         /** 
          * Map a distributed object.
@@ -208,7 +206,7 @@ namespace net
          *         available.
          * @sa registerObject
          */
-        EQNET_API bool mapObject( Object* object, const base::UUID& id, 
+        CO_API bool mapObject( Object* object, const eq::base::UUID& id, 
                                   const uint128_t& version = VERSION_OLDEST );
 
         /** Convenience wrapper for mapObject(). */
@@ -216,24 +214,24 @@ namespace net
             { return mapObject( object, v.identifier, v.version ); }
 
         /** Start mapping a distributed object. */
-        EQNET_API uint32_t mapObjectNB( Object* object, const base::UUID& id, 
+        CO_API uint32_t mapObjectNB( Object* object, const eq::base::UUID& id, 
                                     const uint128_t& version = VERSION_OLDEST );
         /** Finalize the mapping of a distributed object. */
-        EQNET_API bool mapObjectSync( const uint32_t requestID );
+        CO_API bool mapObjectSync( const uint32_t requestID );
 
         /** 
          * Unmap a mapped object.
          * 
          * @param object the mapped object.
          */
-        EQNET_API void unmapObject( Object* object );
+        CO_API void unmapObject( Object* object );
 
         /** Convenience method to deregister or unmap an object. */
-        EQNET_API void releaseObject( Object* object );
+        CO_API void releaseObject( Object* object );
 
         /** @internal swap the existing object by a new object and keep
                       the cm, id and instanceID. */
-        EQNET_API void swapObject( Object* oldObject, Object* newObject );
+        CO_API void swapObject( Object* oldObject, Object* newObject );
         //@}
 
         /** @name Data Access */
@@ -246,13 +244,13 @@ namespace net
          * @param id the node identifier.
          * @return the node.
          */
-        EQNET_API NodePtr getNode( const NodeID& id ) const;
+        CO_API NodePtr getNode( const NodeID& id ) const;
 
         /** Assemble a vector of the currently connected nodes. */
         void getNodes( Nodes& nodes ) const;
 
-        EQNET_API void acquireSendToken( NodePtr toNode );
-        EQNET_API void releaseSendToken( NodePtr toNode );
+        CO_API void acquireSendToken( NodePtr toNode );
+        CO_API void releaseSendToken( NodePtr toNode );
 
         /** Return the command queue to the command thread. */
         virtual CommandQueue* getCommandThreadQueue() 
@@ -268,10 +266,10 @@ namespace net
         /** @name Operations */
         //@{
         /** Add a listening connection to this listening node. */
-        EQNET_API void addListener( ConnectionPtr connection );
+        CO_API void addListener( ConnectionPtr connection );
 
         /** Remove a listening connection from this listening node. */
-        EQNET_API uint32_t removeListenerNB( ConnectionPtr connection );
+        CO_API uint32_t removeListenerNB( ConnectionPtr connection );
 
         /**
          * Flush all pending commands on this listening node.
@@ -286,20 +284,32 @@ namespace net
             { return _commandCache.clone( command ); }
 
         /** 
+<<<<<<< Updated upstream
+=======
+         * Invokes the command handler method for the packet.
+         * 
+         * @param command the command.
+         * @return true if the result of the operation is handled.
+         * @sa Dispatcher::invokeCommand
+         */
+        CO_API bool invokeCommand( Command& command );
+
+        /** 
+>>>>>>> Stashed changes
          * Dispatches a packet to the registered command queue.
          * 
          * @param command the command.
          * @return the result of the operation.
          * @sa Command::invoke
          */
-        EQNET_API bool dispatchCommand( Command& command );
+        CO_API bool dispatchCommand( Command& command );
         //@}
 
         /** @internal ack an operation to the sender. */
-        EQNET_API void ackRequest( NodePtr node, const uint32_t requestID );
+        CO_API void ackRequest( NodePtr node, const uint32_t requestID );
 
         /** @internal */
-        EQNET_API void expireInstanceData( const int64_t age );
+        CO_API void expireInstanceData( const int64_t age );
 
     protected:
         /** 
@@ -315,7 +325,7 @@ namespace net
          *         <code>false</code> otherwise.
          * @internal
          */
-        EQNET_API bool _connect( NodePtr node, ConnectionPtr connection );
+        CO_API bool _connect( NodePtr node, ConnectionPtr connection );
 
     private:
         /** Commands re-scheduled for dispatch. */
@@ -335,33 +345,34 @@ namespace net
         ObjectStore* _objectStore;
 
         /** Needed for thread-safety during nodeID-based connect() */
-        base::Lock _connectMutex;
+        eq::base::Lock _connectMutex;
     
         /** The node for each connection. */
-        typedef base::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;
+        typedef eq::base::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;
         ConnectionNodeHash _connectionNodes; // read and write: recv only
 
         /** The connected nodes. */
         typedef stde::hash_map< uint128_t, NodePtr > NodeHash;
-        base::Lockable< NodeHash, base::SpinLock > _nodes; // r: all, w: recv
+        // r: all, w: recv
+        eq::base::Lockable< NodeHash, eq::base::SpinLock > _nodes; 
 
         /** The connection set of all connections from/to this node. */
         ConnectionSet _incoming;
     
         friend EQSERVER_EXPORT 
-        net::ConnectionPtr (::eqsStartLocalServer( const std::string& ));
+        co::ConnectionPtr (::eqsStartLocalServer( const std::string& ));
 
         /** @name Receiver management */
         //@{
         /** The receiver thread. */
-        class ReceiverThread : public base::Thread
+        class ReceiverThread : public eq::base::Thread
         {
         public:
             ReceiverThread( LocalNode* localNode ) : _localNode( localNode ){}
             virtual bool init()
                 {
                     setDebugName( std::string( "Rcv " ) +
-                                  base::className( _localNode ));
+                        eq::base::className( _localNode ));
                     return _localNode->_commandThread->start();
                 }
             virtual void run(){ _localNode->_runReceiverThread(); }
@@ -375,7 +386,7 @@ namespace net
         void _connectMulticast( NodePtr node );
 
         void _cleanup();
-        EQNET_API void _addConnection( ConnectionPtr connection );
+        CO_API void _addConnection( ConnectionPtr connection );
         void _removeConnection( ConnectionPtr connection );
         NodePtr _connect( const NodeID& nodeID, NodePtr server );
 
@@ -407,14 +418,14 @@ namespace net
          */
         //@{
         /** The command handler thread. */
-        class CommandThread : public base::Thread
+        class CommandThread : public eq::base::Thread
         {
         public:
             CommandThread( LocalNode* localNode ) : _localNode( localNode ){}
             virtual bool init()
                 {
                     setDebugName( std::string( "Cmd " ) +
-                                  base::className( _localNode ));
+                                  eq::base::className( _localNode ));
                     return true;
                 }
             virtual void run(){ _localNode->_runCommandThread(); }
@@ -452,5 +463,4 @@ namespace net
         return os;
     }
 }
-}
-#endif // EQNET_LOCALNODE_H
+#endif // CO_LOCALNODE_H

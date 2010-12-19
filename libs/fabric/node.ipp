@@ -91,7 +91,7 @@ uint32_t Node< C, N, P, V >::commitNB()
 }
 
 template< class C, class N, class P, class V > void
-Node< C, N, P, V >::serialize( net::DataOStream& os, const uint64_t dirtyBits )
+Node< C, N, P, V >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
@@ -106,7 +106,7 @@ Node< C, N, P, V >::serialize( net::DataOStream& os, const uint64_t dirtyBits )
 }
 
 template< class C, class N, class P, class V > void
-Node< C, N, P, V >::deserialize( net::DataIStream& is, const uint64_t dirtyBits)
+Node< C, N, P, V >::deserialize( co::DataIStream& is, const uint64_t dirtyBits)
 {
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
@@ -128,7 +128,7 @@ Node< C, N, P, V >::deserialize( net::DataIStream& is, const uint64_t dirtyBits)
             }
             else // consume unused ObjectVersions
             {
-                net::ObjectVersions childIDs;
+                co::ObjectVersions childIDs;
                 is >> childIDs;
             }
         }

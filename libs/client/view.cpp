@@ -41,7 +41,7 @@ View::~View()
 {
 }
 
-void View::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
+void View::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 {
     Super::deserialize( is, dirtyBits );
     if( _baseFrustum.getCurrentType() == TYPE_NONE && 

@@ -54,8 +54,8 @@ namespace eq
 
         /** @name Data Access */
         //@{
-        EQ_API net::CommandQueue* getPipeThreadQueue(); //!< @internal
-        EQ_API net::CommandQueue* getCommandThreadQueue(); //!< @internal
+        EQ_API co::CommandQueue* getPipeThreadQueue(); //!< @internal
+        EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
 
         /**
          * @return true if this channel is stopped, false otherwise.
@@ -562,20 +562,20 @@ namespace eq
         void _transmit( const ChannelFrameTransmitPacket* packet );
 
         /* The command handler functions. */
-        bool _cmdConfigInit( net::Command& command );
-        bool _cmdConfigExit( net::Command& command );
-        bool _cmdFrameStart( net::Command& command );
-        bool _cmdFrameFinish( net::Command& command );
-        bool _cmdFrameClear( net::Command& command );
-        bool _cmdFrameDraw( net::Command& command );
-        bool _cmdFrameDrawFinish( net::Command& command );
-        bool _cmdFrameAssemble( net::Command& command );
-        bool _cmdFrameReadback( net::Command& command );
-        bool _cmdFrameTransmit( net::Command& command );
-        bool _cmdFrameTransmitAsync( net::Command& command );
-        bool _cmdFrameViewStart( net::Command& command );
-        bool _cmdFrameViewFinish( net::Command& command );
-        bool _cmdStopFrame( net::Command& command );
+        bool _cmdConfigInit( co::Command& command );
+        bool _cmdConfigExit( co::Command& command );
+        bool _cmdFrameStart( co::Command& command );
+        bool _cmdFrameFinish( co::Command& command );
+        bool _cmdFrameClear( co::Command& command );
+        bool _cmdFrameDraw( co::Command& command );
+        bool _cmdFrameDrawFinish( co::Command& command );
+        bool _cmdFrameAssemble( co::Command& command );
+        bool _cmdFrameReadback( co::Command& command );
+        bool _cmdFrameTransmit( co::Command& command );
+        bool _cmdFrameTransmitAsync( co::Command& command );
+        bool _cmdFrameViewStart( co::Command& command );
+        bool _cmdFrameViewFinish( co::Command& command );
+        bool _cmdStopFrame( co::Command& command );
     };
 }
 

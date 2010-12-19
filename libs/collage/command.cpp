@@ -20,9 +20,7 @@
 #include "node.h"
 
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
 Command::Command() 
@@ -136,15 +134,15 @@ std::ostream& operator << ( std::ostream& os, const Command& command )
 {
     if( command.isValid( ))
     {
-        os << base::disableFlush << "command< ";
+        os << eq::base::disableFlush << "command< ";
         const Packet* packet = command.getPacket() ;
         switch( packet->type )
         {
-            case PACKETTYPE_EQNET_NODE:
+            case PACKETTYPE_CO_NODE:
                 os << static_cast< const NodePacket* >( packet );
                 break;
 
-            case PACKETTYPE_EQNET_OBJECT:
+            case PACKETTYPE_CO_OBJECT:
                 os << static_cast< const ObjectPacket* >( packet );
                 break;
 
@@ -153,7 +151,7 @@ std::ostream& operator << ( std::ostream& os, const Command& command )
         }
 
         os << ", " << command.getNode() << ", r" << command._refCount << " >"
-           << base::enableFlush;
+           << eq::base::enableFlush;
     }
     else
         os << "command< empty >";
@@ -161,6 +159,5 @@ std::ostream& operator << ( std::ostream& os, const Command& command )
     if( command._func.isValid( ))
         os << ' ' << command._func << std::endl;
     return os;
-}
 }
 }

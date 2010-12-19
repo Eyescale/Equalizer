@@ -27,23 +27,21 @@
 
 #include <string.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
 DataIStream::DataIStream()
         : _input( 0 )
         , _inputSize( 0 )
         , _position( 0 )
-        , _decompressor( new base::CPUCompressor )
+        , _decompressor( new eq::base::CPUCompressor )
 {}
 
 DataIStream::DataIStream( const DataIStream& )
         : _input( 0 )
         , _inputSize( 0 )
         , _position( 0 )
-        , _decompressor( new base::CPUCompressor )
+        , _decompressor( new eq::base::CPUCompressor )
 {}
 
 DataIStream::~DataIStream()
@@ -159,6 +157,5 @@ const uint8_t* DataIStream::_decompress( const void* data, const uint32_t name,
     return _data.getData();
 }
 
-}
 }
 

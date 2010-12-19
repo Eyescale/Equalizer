@@ -16,8 +16,8 @@
  */
 #include <eq/base/base.h>
 #ifdef EQ_INFINIBAND
-#ifndef EQNET_IBINTERFACE_H
-#define EQNET_IBINTERFACE_H
+#ifndef CO_IBINTERFACE_H
+#define CO_IBINTERFACE_H
 #include "ibMemBlock.h"
 #include "ibAdapter.h"
 #include "ibCompletionQueue.h"
@@ -26,9 +26,7 @@
 #include <eq/base/buffer.h>
 #include <vector>
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
 struct IBDest 
@@ -123,6 +121,5 @@ private:
 
 };
 }
-}
-#endif //EQNET_IBCONNECTION_H
+#endif //CO_IBCONNECTION_H
 #endif //EQ_INFINIBAND

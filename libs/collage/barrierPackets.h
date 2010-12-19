@@ -16,15 +16,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_BARRIERPACKETS_H
-#define EQNET_BARRIERPACKETS_H
+#ifndef CO_BARRIERPACKETS_H
+#define CO_BARRIERPACKETS_H
 
 #include <co/packets.h> // base structs
 
 /** @cond IGNORE */
-namespace eq
-{
-namespace net
+namespace co
 {
     struct BarrierEnterPacket : public ObjectPacket
     {
@@ -54,8 +52,7 @@ namespace net
         return os;
     }
 }
-}
 /** @endcond */
 
-#endif // EQNET_BARRIERPACKETS_H
+#endif // CO_BARRIERPACKETS_H
 

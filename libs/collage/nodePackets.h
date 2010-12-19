@@ -22,9 +22,7 @@
 #include <co/packets.h> // base structs
 
 /** @cond IGNORE */
-namespace eq
-{
-namespace net
+namespace co
 {
     struct NodeStopPacket : public NodePacket
     {
@@ -218,7 +216,7 @@ namespace net
                 size      = sizeof( NodeFindMasterNodeIDPacket ); 
             }
         
-        base::UUID identifier;
+        eq::base::UUID identifier;
         uint32_t   requestID;
     };
 
@@ -243,7 +241,7 @@ namespace net
                 size    = sizeof( NodeAttachObjectPacket ); 
             }
         
-        base::UUID  objectID;
+        eq::base::UUID  objectID;
         uint32_t    requestID;
         uint32_t    objectInstanceID;
     };
@@ -262,7 +260,7 @@ namespace net
         uint128_t     requestedVersion;
         uint128_t     minCachedVersion;
         uint128_t     maxCachedVersion;
-        base::UUID    objectID;
+        eq::base::UUID    objectID;
         uint32_t      requestID;
         uint32_t instanceID;
         uint32_t masterInstanceID;
@@ -283,7 +281,7 @@ namespace net
             }
         
         NodeID nodeID;
-        base::UUID objectID;
+        eq::base::UUID objectID;
         uint32_t requestID;
         uint32_t instanceID;
         uint32_t changeType;
@@ -306,7 +304,7 @@ namespace net
             }
         
         NodeID nodeID;
-        const base::UUID objectID;
+        const eq::base::UUID objectID;
         uint128_t version;
         uint128_t cachedVersion;
         const uint32_t requestID;
@@ -323,7 +321,7 @@ namespace net
                 size    = sizeof( NodeUnmapObjectPacket ); 
             }
         
-        base::UUID objectID;
+        eq::base::UUID objectID;
     };
 
     struct NodeUnsubscribeObjectPacket : public NodePacket
@@ -334,7 +332,7 @@ namespace net
                 size    = sizeof( NodeUnsubscribeObjectPacket ); 
             }
        
-        base::UUID          objectID;
+        eq::base::UUID      objectID;
         uint32_t            requestID;
         uint32_t            masterInstanceID;
         uint32_t            slaveInstanceID;
@@ -380,7 +378,7 @@ namespace net
             objectInstanceID = request->slaveInstanceID;
         }
 
-        base::UUID          objectID;
+        eq::base::UUID      objectID;
         uint32_t            requestID;
         uint32_t            objectInstanceID;
     };
@@ -437,7 +435,6 @@ namespace net
     }
 
 
-}
 }
 /** @endcond */
 

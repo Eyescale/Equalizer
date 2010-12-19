@@ -15,14 +15,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_CONNECTIONLISTENER_H
-#define EQNET_CONNECTIONLISTENER_H
+#ifndef CO_CONNECTIONLISTENER_H
+#define CO_CONNECTIONLISTENER_H
 
 #include <co/connection.h> // nested Connection::State enum
 
-namespace eq
-{
-namespace net
+namespace co
 {
     /** A listener interface to connection changes. */
     class ConnectionListener
@@ -33,6 +31,5 @@ namespace net
         virtual void notifyStateChanged( Connection* ){}
     };
 }
-}
 
-#endif // EQNET_CONNECTION_LISTENER_H
+#endif // CO_CONNECTION_LISTENER_H

@@ -142,9 +142,7 @@ private:
     eq::net::CommandQueue _commands;
 };
 
-namespace eq
-{
-namespace net
+namespace co
 {
 namespace DataStreamTest
 {
@@ -184,7 +182,6 @@ protected:
 private:
     eq::base::RefPtr< eq::net::Connection > _connection;
 };
-}
 }
 }
 

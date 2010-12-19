@@ -15,21 +15,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_NODETYPE_H
-#define EQNET_NODETYPE_H
+#ifndef CO_NODETYPE_H
+#define CO_NODETYPE_H
 
 #include <iostream>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     /** Node types to identify connecting nodes. */
     enum NodeType
     {
-        NODETYPE_EQNET_INVALID,         //!< Invalid type
-        NODETYPE_EQNET_NODE,            //!< A plain eq::net::Node
-        NODETYPE_EQNET_USER = 0x100     //!< Application-specific types
+        NODETYPE_CO_INVALID,         //!< Invalid type
+        NODETYPE_CO_NODE,            //!< A plain co::Node
+        NODETYPE_CO_USER = 0x100     //!< Application-specific types
     };
 
     inline std::ostream& operator << ( std::ostream& os, const NodeType& type )
@@ -38,6 +36,5 @@ namespace net
         return os;
     }
 }
-}
 
-#endif // EQNET_NODETYPE_H
+#endif // CO_NODETYPE_H

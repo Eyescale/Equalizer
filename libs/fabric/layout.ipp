@@ -62,7 +62,7 @@ void Layout< C, L, V >::attach( const base::UUID& id,
 {
     Object::attach( id, instanceID );
 
-    net::CommandQueue* queue = _config->getMainThreadQueue();
+    co::CommandQueue* queue = _config->getMainThreadQueue();
     EQASSERT( queue );
 
     registerCommand( fabric::CMD_LAYOUT_NEW_VIEW,
@@ -80,7 +80,7 @@ uint32_t Layout< C, L, V >::commitNB()
 }
 
 template< class C, class L, class V >
-void Layout< C, L, V >::serialize( net::DataOStream& os,
+void Layout< C, L, V >::serialize( co::DataOStream& os,
                                    const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
@@ -90,7 +90,7 @@ void Layout< C, L, V >::serialize( net::DataOStream& os,
 }
 
 template< class C, class L, class V >
-void Layout< C, L, V >::deserialize( net::DataIStream& is, 
+void Layout< C, L, V >::deserialize( co::DataIStream& is, 
                                      const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
@@ -271,7 +271,7 @@ V* Layout< C, L, V >::findView( const std::string& name )
 // Command handlers
 //----------------------------------------------------------------------
 template< class C, class L, class V > bool
-Layout< C, L, V >::_cmdNewView( net::Command& command )
+Layout< C, L, V >::_cmdNewView( co::Command& command )
 {
     const LayoutNewViewPacket* packet =
         command.getPacket< LayoutNewViewPacket >();
@@ -287,11 +287,12 @@ Layout< C, L, V >::_cmdNewView( net::Command& command )
     LayoutNewViewReplyPacket reply( packet );
     reply.viewID = view->getID();
     send( command.getNode(), reply ); 
+
     return true;
 }
 
 template< class C, class L, class V > bool
-Layout< C, L, V >::_cmdNewViewReply( net::Command& command )
+Layout< C, L, V >::_cmdNewViewReply( co::Command& command )
 {
     const LayoutNewViewReplyPacket* packet =
         command.getPacket< LayoutNewViewReplyPacket >();

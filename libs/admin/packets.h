@@ -31,7 +31,7 @@ namespace admin
     //------------------------------------------------------------
     // Server
     //------------------------------------------------------------
-    struct ServerPacket : public net::Packet
+    struct ServerPacket : public co::Packet
     {
         ServerPacket(){ type = fabric::PACKETTYPE_EQ_SERVER; }
     };

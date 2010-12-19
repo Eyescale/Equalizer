@@ -526,7 +526,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
     const Frames& inputFrames = compound->getInputFrames();
     EQASSERT( !inputFrames.empty( ));
 
-    std::vector< net::ObjectVersion > frameIDs;
+    std::vector< co::ObjectVersion > frameIDs;
     for( Frames::const_iterator iter = inputFrames.begin(); 
          iter != inputFrames.end(); ++iter )
     {
@@ -535,7 +535,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
         if( !frame->hasData( _eye )) // TODO: filter: buffers, vp, eye
             continue;
 
-        frameIDs.push_back( net::ObjectVersion( frame ));
+        frameIDs.push_back( co::ObjectVersion( frame ));
     }
 
     if( frameIDs.empty() )
@@ -548,7 +548,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
 
     EQLOG( LOG_ASSEMBLY | LOG_TASKS ) 
         << "TASK assemble " << _channel->getName() <<  " " << &packet << std::endl;
-    _channel->send<net::ObjectVersion>( packet, frameIDs );
+    _channel->send<co::ObjectVersion>( packet, frameIDs );
     _updated = true;
 }
     
@@ -562,7 +562,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     EQASSERT( !outputFrames.empty( ));
 
     Frames frames;
-    std::vector< net::ObjectVersion > frameIDs;
+    std::vector< co::ObjectVersion > frameIDs;
     for( Frames::const_iterator i = outputFrames.begin(); 
          i != outputFrames.end(); ++i )
     {
@@ -572,7 +572,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
             continue;
 
         frames.push_back( frame );
-        frameIDs.push_back( net::ObjectVersion( frame ));
+        frameIDs.push_back( co::ObjectVersion( frame ));
     }
 
     if( frames.empty() )
@@ -583,7 +583,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     packet.context   = context;
     packet.nFrames   = uint32_t( frames.size( ));
 
-    _channel->send<net::ObjectVersion>( packet, frameIDs );
+    _channel->send<co::ObjectVersion>( packet, frameIDs );
     _updated = true;
     EQLOG( LOG_ASSEMBLY | LOG_TASKS ) 
         << "TASK readback " << _channel->getName() <<  " " << &packet
@@ -591,8 +591,8 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
 
     // transmit tasks
     Node* node = _channel->getNode();
-    net::NodePtr netNode = node->getNode();
-    const net::NodeID&  outputNodeID = netNode->getNodeID();
+    co::NodePtr netNode = node->getNode();
+    const co::NodeID&  outputNodeID = netNode->getNodeID();
     for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
     {
         Frame* outputFrame = *i;
@@ -604,7 +604,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
         {
             const Frame* inputFrame   = *j;
             const Node*  inputNode    = inputFrame->getNode();
-            net::NodePtr inputNetNode = inputNode->getNode();
+            co::NodePtr inputNetNode = inputNode->getNode();
 
             ChannelFrameTransmitPacket transmitPacket;
             transmitPacket.netNodeID = inputNetNode->getNodeID();

@@ -16,19 +16,17 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_NODE_H
-#define EQNET_NODE_H
+#ifndef CO_NODE_H
+#define CO_NODE_H
 
 #include <co/dispatcher.h>        // base class
 #include <co/connection.h>        // member - ConnectionPtr
-#include <co/nodeType.h>          // for NODETYPE_EQNET_NODE enum
+#include <co/nodeType.h>          // for NODETYPE_CO_NODE enum
 #include <co/types.h>
 
 #include <eq/base/spinLock.h>         // member
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
     /**
@@ -39,11 +37,11 @@ namespace net
      * at least one Connection through which is reachable. A Node provides the
      * basic communication facilities through message passing.
      */
-    class Node : public Dispatcher, public base::Referenced
+    class Node : public Dispatcher, public eq::base::Referenced
     {
     public:
         /** Construct a new Node. */
-        EQNET_API Node();
+        CO_API Node();
 
         /** @name Data Access. */
         //@{
@@ -68,7 +66,7 @@ namespace net
          * 
          * @param cd the connection description.
          */
-        EQNET_API void addConnectionDescription( ConnectionDescriptionPtr cd );
+        CO_API void addConnectionDescription( ConnectionDescriptionPtr cd );
         
         /** 
          * Removes a connection description.
@@ -77,10 +75,10 @@ namespace net
          * @return true if the connection description was removed, false
          *         otherwise.
          */
-        EQNET_API bool removeConnectionDescription(ConnectionDescriptionPtr cd);
+        CO_API bool removeConnectionDescription(ConnectionDescriptionPtr cd);
 
         /** @return the number of stored connection descriptions. */
-        EQNET_API ConnectionDescriptions getConnectionDescriptions() const;
+        CO_API ConnectionDescriptions getConnectionDescriptions() const;
 
         /** @return the connection to this node. */
         ConnectionPtr getConnection() const { return _outgoing; }
@@ -192,16 +190,16 @@ namespace net
         const NodeID& getNodeID() const { return _id; }
 
         /** Serialize the node's information. */
-        EQNET_API std::string serialize() const;
+        CO_API std::string serialize() const;
         /** Deserialize the node information, consumes given data. */
-        EQNET_API bool deserialize( std::string& data );
+        CO_API bool deserialize( std::string& data );
 
     protected:
         /** Destructs this node. */
-        EQNET_API virtual ~Node();
+        CO_API virtual ~Node();
 
         /** @return the type of the node, used during connect(). */
-        virtual uint32_t getType() const { return NODETYPE_EQNET_NODE; }
+        virtual uint32_t getType() const { return NODETYPE_CO_NODE; }
 
         /** 
          * Factory method to create a new node.
@@ -210,7 +208,7 @@ namespace net
          * @return the node.
          * @sa getType()
          */
-        EQNET_API virtual NodePtr createNode( const uint32_t type );
+        CO_API virtual NodePtr createNode( const uint32_t type );
 
     private:
         /** The state of the node. */
@@ -221,9 +219,9 @@ namespace net
             STATE_LISTENING  //!< local node, listening
         };
 
-        friend EQNET_API std::ostream& operator << ( std::ostream& os, 
+        friend CO_API std::ostream& operator << ( std::ostream& os, 
                                                      const Node& node );
-        friend EQNET_API std::ostream& operator << ( std::ostream&,
+        friend CO_API std::ostream& operator << ( std::ostream&,
                                                      const State );
         friend class LocalNode;
 
@@ -237,7 +235,7 @@ namespace net
         ConnectionPtr _outgoing;
 
         /** The multicast connection to this node, can be 0. */
-        base::Lockable< ConnectionPtr > _outMulticast;
+        eq::base::Lockable< ConnectionPtr > _outMulticast;
 
         struct MCData
         {
@@ -256,7 +254,7 @@ namespace net
         MCDatas _multicasts;
 
         /** The list of descriptions on how this node is reachable. */
-        base::Lockable< ConnectionDescriptions, base::SpinLock >
+        eq::base::Lockable< ConnectionDescriptions, eq::base::SpinLock >
             _connectionDescriptions;
 
         /** Ensures the connectivity of this node. */
@@ -269,9 +267,8 @@ namespace net
             }
     };
 
-    EQNET_API std::ostream& operator << ( std::ostream& os, const Node& node );
-    EQNET_API std::ostream& operator << ( std::ostream&, const Node::State );
-}
+    CO_API std::ostream& operator << ( std::ostream& os, const Node& node );
+    CO_API std::ostream& operator << ( std::ostream&, const Node::State );
 }
 
-#endif // EQNET_NODE_H
+#endif // CO_NODE_H

@@ -31,12 +31,12 @@ FrameData::FrameData()
     _data.frameType = eq::Frame::TYPE_MEMORY;
 }
 
-void FrameData::getInstanceData( net::DataOStream& os )
+void FrameData::getInstanceData( co::DataOStream& os )
 {
     os << _data;
 }
 
-void FrameData::applyInstanceData( net::DataIStream& is )
+void FrameData::applyInstanceData( co::DataIStream& is )
 {
     EQUNREACHABLE;
     is >> _data;

@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_VERSIONEDSLAVECM_H
-#define EQNET_VERSIONEDSLAVECM_H
+#ifndef CO_VERSIONEDSLAVECM_H
+#define CO_VERSIONEDSLAVECM_H
 
 #include "objectCM.h"            // base class
 #include "objectDataIStream.h"      // member
@@ -27,9 +27,7 @@
 #include <eq/base/pool.h>        // member
 #include <eq/base/thread.h>      // thread-safety macro
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class Node;
 
@@ -87,10 +85,10 @@ namespace net
         ObjectDataIStream* _currentIStream;
 
         /** The change queue. */
-        base::MTQueue< ObjectDataIStream* > _queuedVersions;
+        eq::base::MTQueue< ObjectDataIStream* > _queuedVersions;
 
         /** Cached input streams (+decompressor) */
-        base::Pool< ObjectDataIStream, true > _iStreamCache;
+        eq::base::Pool< ObjectDataIStream, true > _iStreamCache;
 
         /** The instance identifier of the master object. */
         uint32_t _masterInstanceID;
@@ -114,6 +112,5 @@ namespace net
         EQ_TS_VAR( _cmdThread );
     };
 }
-}
 
-#endif // EQNET_VERSIONEDSLAVECM_H
+#endif // CO_VERSIONEDSLAVECM_H

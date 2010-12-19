@@ -161,7 +161,7 @@ namespace eq
      *
      * Depending on the Event::Type, the corresponding specific event data is
      * filled into the anonymous union. The originator typically contains the
-     * net::Object identifier of the entity emitting the event. The rendering
+     * co::Object identifier of the entity emitting the event. The rendering
      * context is only set for pointer events.
      * @version 1.0
      */

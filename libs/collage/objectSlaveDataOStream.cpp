@@ -24,9 +24,7 @@
 #include "objectDataIStream.h"
 #include "objectPackets.h"
 
-namespace eq
-{
-namespace net
+namespace co
 {
 ObjectSlaveDataOStream::ObjectSlaveDataOStream( const ObjectCM* cm )
         : ObjectDataOStream( cm )
@@ -62,8 +60,7 @@ void ObjectSlaveDataOStream::sendFooter( const uint32_t compressor,
     sendPacket( packet, compressor, nChunks, chunks, chunkSizes, size );
 
     _sequence = 0;
-    _commit = base::UUID( true /* generate */ );
+    _commit = eq::base::UUID( true /* generate */ );
 }
 
-}
 }

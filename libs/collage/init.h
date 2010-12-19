@@ -15,15 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_INIT_H
-#define EQNET_INIT_H
+#ifndef CO_INIT_H
+#define CO_INIT_H
 
 #include <co/base.h>
 #include <eq/base/init.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class Node;
 
@@ -35,7 +33,7 @@ namespace net
      * @return <code>true</code> if the library was successfully initialised,
      *         <code>false</code> otherwise.
      */
-    EQNET_API bool init( const int argc, char** argv );
+    CO_API bool init( const int argc, char** argv );
 
     /**
      * De-initialize the Equalizer network classes.
@@ -43,9 +41,8 @@ namespace net
      * @return <code>true</code> if the library was successfully de-initialised,
      *         <code>false</code> otherwise.
      */
-    EQNET_API bool exit();
-}
+    CO_API bool exit();
 }
 
-#endif // EQNET_INIT_H
+#endif // CO_INIT_H
 

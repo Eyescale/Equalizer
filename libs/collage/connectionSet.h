@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_CONNECTION_SET_H
-#define EQNET_CONNECTION_SET_H
+#ifndef CO_CONNECTION_SET_H
+#define CO_CONNECTION_SET_H
 
 #include <co/connectionListener.h> // base class
 
@@ -31,9 +31,7 @@
 #  include <poll.h>
 #endif
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class EventConnection;
     class ConnectionSetThread;
@@ -60,12 +58,12 @@ namespace net
             EVENT_ALL
         };
 
-        EQNET_API ConnectionSet();
-        EQNET_API ~ConnectionSet();
+        CO_API ConnectionSet();
+        CO_API ~ConnectionSet();
 
-        EQNET_API void addConnection( ConnectionPtr connection );
-        EQNET_API bool removeConnection( ConnectionPtr connection );
-        EQNET_API void clear();
+        CO_API void addConnection( ConnectionPtr connection );
+        CO_API bool removeConnection( ConnectionPtr connection );
+        CO_API void clear();
         size_t getSize()  const { return _connections.size(); }
         bool   isEmpty() const { return _connections.empty(); }
 
@@ -81,12 +79,12 @@ namespace net
          *                indefinitly.
          * @return The event occured during selection.
          */
-        EQNET_API Event select( const int timeout = -1 );
+        CO_API Event select( const int timeout = -1 );
 
         /**
          * Interrupt the current or next select call.
          */
-        EQNET_API void interrupt();
+        CO_API void interrupt();
 
         /** @internal Trigger rebuilding of internal caches. */
         void setDirty();
@@ -119,7 +117,7 @@ namespace net
 #endif
 
         /** Mutex protecting changes to the set. */
-        base::Lock _mutex;
+        eq::base::Lock _mutex;
 
         /** The connections of this set */
         Connections _allConnections;
@@ -129,15 +127,15 @@ namespace net
 
         // Note: std::vector had to much overhead here
 #ifdef _WIN32
-        base::Buffer< HANDLE > _fdSet;
+        eq::base::Buffer< HANDLE > _fdSet;
 #else
-        base::Buffer< pollfd > _fdSetCopy; // 'const' set
-        base::Buffer< pollfd > _fdSet;     // copy of _fdSetCopy used to poll
+        eq::base::Buffer< pollfd > _fdSetCopy; // 'const' set
+        eq::base::Buffer< pollfd > _fdSet;     // copy of _fdSetCopy used to poll
 #endif
-        base::Buffer< Result > _fdSetResult;
+        eq::base::Buffer< Result > _fdSetResult;
 
         /** The connection to reset a running select, see constructor. */
-        base::RefPtr< EventConnection > _selfConnection;
+        eq::base::RefPtr< EventConnection > _selfConnection;
 
         // result values
         ConnectionPtr _connection;
@@ -154,11 +152,10 @@ namespace net
         EQ_TS_VAR( _selectThread );
     };
 
-    EQNET_API std::ostream& operator << ( std::ostream& os, 
+    CO_API std::ostream& operator << ( std::ostream& os, 
                                           const ConnectionSet* set );
-    EQNET_API std::ostream& operator << ( std::ostream& os, 
+    CO_API std::ostream& operator << ( std::ostream& os, 
                                           const ConnectionSet::Event event );
 }
-}
 
-#endif // EQNET_CONNECTION_SET_H
+#endif // CO_CONNECTION_SET_H

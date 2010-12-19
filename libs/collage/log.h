@@ -15,23 +15,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_LOG_H
-#define EQNET_LOG_H
+#ifndef CO_LOG_H
+#define CO_LOG_H
 
 #include <eq/base/log.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     enum LogTopics
     {
-        LOG_OBJECTS = base::LOG_CUSTOM << 0,  // 16
-        LOG_BARRIER = base::LOG_CUSTOM << 1,  // 32
-        LOG_RSP     = base::LOG_CUSTOM << 2,  // 64
-        LOG_PACKETS = base::LOG_CUSTOM << 3,  // 128
-        LOG_CUSTOM  = base::LOG_CUSTOM << 4   // 256
+        LOG_OBJECTS = eq::base::LOG_CUSTOM << 0,  // 16
+        LOG_BARRIER = eq::base::LOG_CUSTOM << 1,  // 32
+        LOG_RSP     = eq::base::LOG_CUSTOM << 2,  // 64
+        LOG_PACKETS = eq::base::LOG_CUSTOM << 3,  // 128
+        LOG_CUSTOM  = eq::base::LOG_CUSTOM << 4   // 256
     };
 }
-}
-#endif // EQNET_LOG_H
+#endif // CO_LOG_H

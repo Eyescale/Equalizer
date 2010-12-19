@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_CONNECTION_H
-#define EQNET_CONNECTION_H
+#ifndef CO_CONNECTION_H
+#define CO_CONNECTION_H
 
 #include <co/connectionType.h>        // enum
 #include <co/packets.h>               // used in inline method
@@ -39,9 +39,7 @@
 #  define EQ_DEFAULT_PORT (4242 + getuid())
 #endif
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class ConnectionDescription;
     class ConnectionListener;
@@ -60,10 +58,10 @@ namespace net
      * protocols, e.g., SocketConnection for TCP/IP. An implementation may not
      * implement all the functionality defined in this interface.
      *
-     * The Connection is used reference-counted in eq::net, since it has
+     * The Connection is used reference-counted in co, since it has
      * multiple owners, such as the ConnectionSet and Node.
      */
-    class Connection : public base::Referenced, public base::NonCopyable
+    class Connection : public eq::base::Referenced, public eq::base::NonCopyable
     {
     public:
         enum State //! The current state of the Connection
@@ -84,7 +82,7 @@ namespace net
          * @param description the connection parameters.
          * @return the connection.
          */
-        EQNET_API static ConnectionPtr create( ConnectionDescriptionPtr 
+        CO_API static ConnectionPtr create( ConnectionDescriptionPtr 
                                                    description );
 
         /** @name Data Access */
@@ -106,10 +104,10 @@ namespace net
          * 
          * @param description the connection parameters.
          */
-        EQNET_API void setDescription( ConnectionDescriptionPtr description );
+        CO_API void setDescription( ConnectionDescriptionPtr description );
 
         /** @return the description for this connection. */
-        EQNET_API ConnectionDescriptionPtr getDescription() const;
+        CO_API ConnectionDescriptionPtr getDescription() const;
         //@}
 
 
@@ -187,7 +185,7 @@ namespace net
          * @param bytes the number of bytes to read.
          * @sa recvSync()
          */
-        EQNET_API void recvNB( void* buffer, const uint64_t bytes );
+        CO_API void recvNB( void* buffer, const uint64_t bytes );
 
         /** 
          * Finish reading data from the connection.
@@ -203,7 +201,7 @@ namespace net
          *              exactly why.
          * @return true if all requested data has been read, false otherwise.
          */
-        EQNET_API bool recvSync( void** buffer, uint64_t* bytes,
+        CO_API bool recvSync( void** buffer, uint64_t* bytes,
                                  const bool block = true );
 
         void getRecvData( void** buffer, uint64_t* bytes )
@@ -256,7 +254,7 @@ namespace net
          * @return true if all data has been read, false if not.
          * @sa lockSend(), unlockSend()
          */
-        EQNET_API bool send( const void* buffer, const uint64_t bytes, 
+        CO_API bool send( const void* buffer, const uint64_t bytes, 
                              const bool isLocked = false );
 
         /** Lock the connection, no other thread can send data. */
@@ -310,7 +308,7 @@ namespace net
          * @param size the data size in bytes.
          * @return true if all data has been read, false if not.
          */
-        EQNET_API bool send( Packet& packet, const void* data,
+        CO_API bool send( Packet& packet, const void* data,
                              const uint64_t size );
 
         /** 
@@ -321,7 +319,7 @@ namespace net
          * @param isLocked true if the connection is locked externally.
          * @return true if the packet was sent successfully to all connections.
          */
-        static EQNET_API bool send( const Connections& connections,
+        static CO_API bool send( const Connections& connections,
                           const Packet& packet, const bool isLocked = false );
         /** 
          * Sends a packaged message including additional data to multiple
@@ -334,7 +332,7 @@ namespace net
          * @param isLocked true if the connection is locked externally.
          * @return true if the packet was sent successfully to all receivers.
          */
-        static EQNET_API bool send( const Connections& connections,
+        static CO_API bool send( const Connections& connections,
                                     Packet& packet, const void* data,
                                     const uint64_t size,
                                     const bool isLocked = false );
@@ -354,7 +352,7 @@ namespace net
          * @param nItems the number of data elements.
          * @return true if the packet was sent successfully to all receivers.
          */
-        static bool EQNET_API send( const Connections& connections, 
+        static bool CO_API send( const Connections& connections, 
                                       Packet& packet,
                                       const void* const* items, 
                                       const uint64_t* itemSizes, 
@@ -392,7 +390,7 @@ namespace net
         ConnectionDescriptionPtr _description; //!< The connection parameters
 
         /** The lock used to protect multiple write calls. */
-        mutable base::Lock _sendLock;
+        mutable eq::base::Lock _sendLock;
 
         enum ReadStatus
         {
@@ -414,5 +412,4 @@ namespace net
 #   include "connection.ipp" // template implementation
 
 }
-}
-#endif //EQNET_CONNECTION_H
+#endif //CO_CONNECTION_H

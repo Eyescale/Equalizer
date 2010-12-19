@@ -30,7 +30,7 @@ ConnectionDescription::ConnectionDescription()
     const Global* global = Global::instance();
 
     setHostname( global->getConnectionSAttribute( SATTR_HOSTNAME ));
-    type = static_cast< net::ConnectionType >(
+    type = static_cast< co::ConnectionType >(
         global->getConnectionIAttribute( IATTR_TYPE ));
 
     bandwidth = global->getConnectionIAttribute( IATTR_BANDWIDTH );

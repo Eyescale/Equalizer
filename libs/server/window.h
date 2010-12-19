@@ -64,8 +64,8 @@ namespace server
         
         Channel* getChannel( const ChannelPath& path );
 
-        net::CommandQueue* getMainThreadQueue();
-        net::CommandQueue* getCommandThreadQueue();
+        co::CommandQueue* getMainThreadQueue();
+        co::CommandQueue* getCommandThreadQueue();
 
         /** Increase window activition count. */
         void activate();
@@ -107,7 +107,7 @@ namespace server
          *                this is the first window.
          * @return the net::Barrier for the swap barrier group.
          */
-        net::Barrier* joinSwapBarrier( net::Barrier* barrier );
+        co::Barrier* joinSwapBarrier( co::Barrier* barrier );
 
         /** 
          * Join a NV_swap_group barrier for the next update.
@@ -119,8 +119,8 @@ namespace server
          *                   entering.
          * @return the net::Barrier for protecting the swap group entry.
          */
-        net::Barrier* joinNVSwapBarrier( const SwapBarrier* swapBarrier,
-                                         net::Barrier* netBarrier );
+        co::Barrier* joinNVSwapBarrier( const SwapBarrier* swapBarrier,
+                                         co::Barrier* netBarrier );
 
         /** @return true if this window has entered a NV_swap_group. */
         bool hasNVSwapBarrier() const { return (_nvSwapBarrier != 0); }
@@ -170,7 +170,7 @@ namespace server
         void updatePost( const uint128_t& frameID, const uint32_t frameNumber );
         //@}
 
-        void send( net::ObjectPacket& packet );
+        void send( co::ObjectPacket& packet );
         void output( std::ostream& ) const; //!< @internal
 
     protected:
@@ -193,15 +193,15 @@ namespace server
         float _maxFPS;
 
         /** The list of master swap barriers for the current frame. */
-        net::Barriers _masterSwapBarriers;
+        co::Barriers _masterSwapBarriers;
         /** The list of slave swap barriers for the current frame. */
-        net::Barriers _swapBarriers;
+        co::Barriers _swapBarriers;
 
         /** The hardware swap barrier to use. */
         const SwapBarrier* _nvSwapBarrier;
 
         /** The network barrier used to protect hardware barrier entry. */
-        net::Barrier* _nvNetBarrier;
+        co::Barrier* _nvNetBarrier;
 
         /** The last draw channel for this entity */
         const Channel* _lastDrawChannel;
@@ -226,8 +226,8 @@ namespace server
         void _updateSwap( const uint32_t frameNumber );
 
         /* command handler functions. */
-        bool _cmdConfigInitReply( net::Command& command ); 
-        bool _cmdConfigExitReply( net::Command& command ); 
+        bool _cmdConfigInitReply( co::Command& command ); 
+        bool _cmdConfigExitReply( co::Command& command ); 
 
         // For access to _fixedPVP
         friend std::ostream& operator << ( std::ostream&, const Window*);

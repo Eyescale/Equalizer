@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_OBJECTSTORE_H
-#define EQNET_OBJECTSTORE_H
+#ifndef CO_OBJECTSTORE_H
+#define CO_OBJECTSTORE_H
 
 #include <co/dispatcher.h>    // parent
 
@@ -31,9 +31,7 @@
 
 #include <eq/base/spinLock.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class InstanceCache;
 
@@ -94,8 +92,8 @@ namespace net
 
 
         /** Start mapping a distributed object. */
-        uint32_t mapObjectNB( Object* object, const base::UUID& id, 
-                                    const uint128_t& version = VERSION_OLDEST );
+        uint32_t mapObjectNB( Object* object, const eq::base::UUID& id, 
+                              const uint128_t& version = VERSION_OLDEST );
         /** Finalize the mapping of a distributed object. */
         bool mapObjectSync( const uint32_t requestID );
 
@@ -122,8 +120,8 @@ namespace net
          * @param instanceID the node-local instance identifier, or
          *                   EQ_ID_INVALID if this method should generate one.
          */
-        void attachObject( Object* object, const base::UUID& id, 
-                                     const uint32_t instanceID );
+        void attachObject( Object* object, const eq::base::UUID& id, 
+                           const uint32_t instanceID );
 
         /** 
          * Detach an object.
@@ -158,17 +156,17 @@ namespace net
         LocalNode* const _localNode;
 
         /** The identifiers for node-local instance identifiers. */
-        base::a_int32_t _instanceIDs;
+        eq::base::a_int32_t _instanceIDs;
 
         /** All registered and mapped objects. 
          *   - write locked only in receiver thread
          *   - read unlocked in receiver thread 
          *   - read locked in all other threads
          */
-        base::Lockable< ObjectsHash, base::SpinLock > _objects;
+        eq::base::Lockable< ObjectsHash, eq::base::SpinLock > _objects;
 
         /** The global clock for send-on-register timeout. */
-        base::Clock _clock;
+        eq::base::Clock _clock;
 
         struct SendQueueItem
         {
@@ -188,11 +186,11 @@ namespace net
          * @return the master node, or UUID::ZERO if no master node is
          *         found for the identifier.
          */
-        NodeID _findMasterNodeID( const base::UUID& id );
+        NodeID _findMasterNodeID( const eq::base::UUID& id );
  
-        NodePtr _connectMaster( const base::UUID& id );
+        NodePtr _connectMaster( const eq::base::UUID& id );
 
-        void _attachObject( Object* object, const base::UUID& id, 
+        void _attachObject( Object* object, const eq::base::UUID& id, 
                             const uint32_t instanceID );
         void _detachObject( Object* object );
 
@@ -217,6 +215,5 @@ namespace net
 
     std::ostream& operator << ( std::ostream& os, ObjectStore* objectStore );
 }
-}
-#endif // EQNET_OBJECTSTORE_H
+#endif // CO_OBJECTSTORE_H
 

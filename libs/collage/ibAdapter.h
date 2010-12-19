@@ -18,14 +18,12 @@
 #include <eq/base/base.h>
 #ifdef EQ_INFINIBAND
 
-#ifndef EQNET_IBADAPTER_H
-#define EQNET_IBADAPTER_H
+#ifndef CO_IBADAPTER_H
+#define CO_IBADAPTER_H
 #include <iba/ib_al.h>
 #include <iba/ib_types.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
 //
 // Class for controlling an Infiniband Adapter
@@ -63,6 +61,5 @@ class IBAdapter
 
 };
 }
-}
-#endif //EQNET_IBADAPTER_H 
+#endif //CO_IBADAPTER_H 
 #endif //EQ_INFINIBAND

@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_DISPATCHER_H
-#define EQNET_DISPATCHER_H
+#ifndef CO_DISPATCHER_H
+#define CO_DISPATCHER_H
 
 #include <co/commandFunc.h> // member
 
@@ -24,9 +24,7 @@
 
 #include <vector>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class Connection;
     class Command;
@@ -44,9 +42,9 @@ namespace net
     public:
         typedef CommandFunc< Dispatcher > Func;
 
-        EQNET_API Dispatcher();
-        EQNET_API Dispatcher( const Dispatcher& from );
-        EQNET_API virtual ~Dispatcher();
+        CO_API Dispatcher();
+        CO_API Dispatcher( const Dispatcher& from );
+        CO_API virtual ~Dispatcher();
 
         /** NOP assignment operator. */
         const Dispatcher& operator = ( const Dispatcher& ) { return *this; }
@@ -58,7 +56,7 @@ namespace net
          * @return true if the command was dispatched, false if not.
          * @sa registerCommand
          */
-        EQNET_API virtual bool dispatchCommand( Command& command );
+        CO_API virtual bool dispatchCommand( Command& command );
 
     protected:
         /** 
@@ -85,12 +83,12 @@ namespace net
          * @param command the command
          * @return the result of the operation.
          */
-        EQNET_API bool _cmdUnknown( Command& command );
+        CO_API bool _cmdUnknown( Command& command );
 
     private:
-        EQNET_API void _registerCommand( const uint32_t command, 
-                                         const Func& func,
-                                         CommandQueue* destinationQueue );
+        CO_API void _registerCommand( const uint32_t command, 
+                                      const Func& func,
+                                      CommandQueue* destinationQueue );
 
         /** The command handler function table. */
         std::vector< Func > _fTable;
@@ -108,6 +106,5 @@ namespace net
                           destinationQueue );
     }
 }
-}
 
-#endif // EQNET_DISPATCHER_H
+#endif // CO_DISPATCHER_H

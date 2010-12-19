@@ -15,14 +15,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_PAIRCONNECTION_H
-#define EQNET_PAIRCONNECTION_H
+#ifndef CO_PAIRCONNECTION_H
+#define CO_PAIRCONNECTION_H
 
 #include "connection.h"
 
-namespace eq
-{
-namespace net
+namespace co
 {
     /**
      * A meta connection consisting of two (unidirectional) connections
@@ -31,19 +29,19 @@ namespace net
     class PairConnection : public Connection
     {
     public:
-        EQNET_API PairConnection( ConnectionPtr readConnection,
+        CO_API PairConnection( ConnectionPtr readConnection,
                                   ConnectionPtr writeConnection );
 
-        EQNET_API ConnectionPtr getSibling();
+        CO_API ConnectionPtr getSibling();
 
-        EQNET_API virtual bool connect();
-        EQNET_API virtual void close();
+        CO_API virtual bool connect();
+        CO_API virtual void close();
 
         virtual Notifier getNotifier() const
             { return _readConnection->getNotifier(); }
 
     protected:
-        EQNET_API virtual ~PairConnection();
+        CO_API virtual ~PairConnection();
 
         virtual void readNB( void* buffer, const uint64_t bytes )
             { _readConnection->readNB( buffer, bytes ); }
@@ -58,8 +56,7 @@ namespace net
 
         ConnectionPtr _readConnection;
         ConnectionPtr _writeConnection;
-        base::RefPtr<PairConnection> _sibling;
+        eq::base::RefPtr<PairConnection> _sibling;
     };
 }
-}
-#endif //EQNET_PAIRCONNECTION_H
+#endif //CO_PAIRCONNECTION_H

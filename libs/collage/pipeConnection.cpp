@@ -23,9 +23,7 @@
 #include <eq/base/log.h>
 #include <eq/base/thread.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
 PipeConnection::PipeConnection()
@@ -78,7 +76,8 @@ bool PipeConnection::_createPipe()
 {
     if( CreatePipe( &_readHandle, &_writeHandle, 0, 0 ) == 0 )
     {
-        EQERROR << "Could not create pipe: " << base::sysError << std::endl;
+        EQERROR << "Could not create pipe: " << eq::base::sysError 
+                << std::endl;
         close();
         return false;
     }
@@ -113,7 +112,7 @@ int64_t PipeConnection::readSync( void* buffer, const uint64_t bytes,
 
     if( ret == 0 ) // Error
     {
-        EQWARN << "Error during read: " << base::sysError << std::endl;
+        EQWARN << "Error during read: " << eq::base::sysError << std::endl;
         return -1;
     }
 
@@ -149,7 +148,7 @@ int64_t PipeConnection::write( const void* buffer, const uint64_t bytes )
 
     if( ret == 0 ) // Error
     {
-        EQWARN << "Error during write: " << base::sysError << std::endl;
+        EQWARN << "Error during write: " << eq::base::sysError << std::endl;
         bytesWritten = 0;
     }
 
@@ -230,5 +229,4 @@ void PipeConnection::close()
 }
 
 #endif
-}
 }

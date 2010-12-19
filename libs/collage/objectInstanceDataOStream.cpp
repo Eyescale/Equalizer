@@ -24,9 +24,7 @@
 #include "objectDataIStream.h"
 #include "objectPackets.h"
 
-namespace eq
-{
-namespace net
+namespace co
 {
 ObjectInstanceDataOStream::ObjectInstanceDataOStream( const ObjectCM* cm )
         : ObjectDataOStream( cm )
@@ -88,6 +86,5 @@ void ObjectInstanceDataOStream::sendFooter( const uint32_t compressor,
     packet.last = true;
     _sendPacket( packet, compressor, nChunks, chunks, chunkSizes, size );
     _sequence = 0;
-}
 }
 }

@@ -21,9 +21,7 @@
 #include <co/objectCM.h> // base class
 #include <co/version.h>  // used enum
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class Node;
 
@@ -70,7 +68,6 @@ namespace net
 
     private:
     };
-}
 }
 
 #endif // EQNET_NULLCM_H

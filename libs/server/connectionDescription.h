@@ -24,7 +24,7 @@ namespace eq
 {
 namespace server
 {
-    class ConnectionDescription : public net::ConnectionDescription
+    class ConnectionDescription : public co::ConnectionDescription
     {
     public:
         EQSERVER_EXPORT ConnectionDescription();

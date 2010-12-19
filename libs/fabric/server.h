@@ -28,7 +28,7 @@ namespace eq
 {
 namespace fabric
 {
-    /** Base net::Node class for a server. @sa eq::Server */
+    /** Base co::Node class for a server. @sa eq::Server */
     template< class CL, class S, class CFG, class NF, class N >
     class Server : public N
     {
@@ -81,15 +81,15 @@ namespace fabric
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-        /** @sa net::Node::getType */
+        /** @sa co::Node::getType */
         virtual uint32_t getType() const { return NODETYPE_EQ_SERVER; }
 
         template< class, class, class, class, class, class, class >
         friend class Config;
 
         /* The command handler functions. */
-        bool _cmdCreateConfig( net::Command& command );
-        bool _cmdDestroyConfig( net::Command& command );
+        bool _cmdCreateConfig( co::Command& command );
+        bool _cmdDestroyConfig( co::Command& command );
     };
 
     template< class CL, class S, class CFG, class NF, class N > EQFABRIC_INL

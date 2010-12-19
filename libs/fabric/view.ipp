@@ -55,13 +55,13 @@ View< L, V, O >::~View()
 }
 
 template< class L, class V, class O > 
-void View< L, V, O >::serialize( net::DataOStream& os, const uint64_t dirtyBits)
+void View< L, V, O >::serialize( co::DataOStream& os, const uint64_t dirtyBits)
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _viewport;
     if( dirtyBits & DIRTY_OBSERVER )
-        os << net::ObjectVersion( _observer );
+        os << co::ObjectVersion( _observer );
     if( dirtyBits & DIRTY_OVERDRAW )
         os << _overdraw;
     if( dirtyBits & DIRTY_FRUSTUM )
@@ -77,7 +77,7 @@ void View< L, V, O >::serialize( net::DataOStream& os, const uint64_t dirtyBits)
 }
 
 template< class L, class V, class O > 
-void View< L, V, O >::deserialize( net::DataIStream& is, 
+void View< L, V, O >::deserialize( co::DataIStream& is, 
                                    const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
@@ -85,7 +85,7 @@ void View< L, V, O >::deserialize( net::DataIStream& is,
         is >> _viewport;
     if( dirtyBits & DIRTY_OBSERVER )
     {
-        net::ObjectVersion observer;
+        co::ObjectVersion observer;
         is >> observer;
 
         if( observer.identifier == base::UUID::ZERO )
@@ -243,7 +243,7 @@ template< class L, class V, class O >
 void View< L, V, O >::notifyAttached()
 {
     Object::notifyAttached();
-    net::Object* userData = getUserData();
+    co::Object* userData = getUserData();
     if( userData && userData->isMaster( ))
         userData->setAutoObsolete( _layout->getConfig()->getLatency( ));
 }

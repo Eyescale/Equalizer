@@ -58,7 +58,7 @@ namespace eq
 typedef fabric::Window< Pipe, Window, Channel > Super;
 
 /** @cond IGNORE */
-typedef net::CommandFunc<Window> WindowFunc;
+typedef co::CommandFunc<Window> WindowFunc;
 /** @endcond */
 
 namespace
@@ -102,7 +102,7 @@ void Window::attach( const base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
-    net::CommandQueue* queue = getPipeThreadQueue();
+    co::CommandQueue* queue = getPipeThreadQueue();
 
     registerCommand( fabric::CMD_WINDOW_CREATE_CHANNEL, 
                      WindowFunc( this, &Window::_cmdCreateChannel ), queue );
@@ -180,12 +180,12 @@ void Window::drawFPS()
     font->draw( fpsText.str( ));
 }
 
-net::CommandQueue* Window::getPipeThreadQueue()
+co::CommandQueue* Window::getPipeThreadQueue()
 { 
     return getPipe()->getPipeThreadQueue(); 
 }
 
-net::CommandQueue* Window::getCommandThreadQueue()
+co::CommandQueue* Window::getCommandThreadQueue()
 { 
     return getPipe()->getCommandThreadQueue(); 
 }
@@ -533,11 +533,11 @@ const GLEWContext* Window::glewGetContext() const
     return _systemWindow->glewGetContext();
 }
 
-void Window::_enterBarrier( net::ObjectVersion barrier )
+void Window::_enterBarrier( co::ObjectVersion barrier )
 {
-    EQLOG( net::LOG_BARRIER ) << "swap barrier " << barrier << std::endl;
+    EQLOG( co::LOG_BARRIER ) << "swap barrier " << barrier << std::endl;
     Node* node = getNode();
-    net::Barrier* netBarrier = node->getBarrier( barrier );
+    co::Barrier* netBarrier = node->getBarrier( barrier );
 
     WindowStatistics stat( Statistic::WINDOW_SWAP_BARRIER, this );
     netBarrier->enter();
@@ -641,7 +641,7 @@ bool Window::processEvent( const Event& event )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Window::_cmdCreateChannel( net::Command& command )
+bool Window::_cmdCreateChannel( co::Command& command )
 {
     const WindowCreateChannelPacket* packet = 
         command.getPacket<WindowCreateChannelPacket>();
@@ -656,7 +656,7 @@ bool Window::_cmdCreateChannel( net::Command& command )
     return true;
 }
 
-bool Window::_cmdDestroyChannel( net::Command& command ) 
+bool Window::_cmdDestroyChannel( co::Command& command ) 
 {
     const WindowDestroyChannelPacket* packet =
         command.getPacket<WindowDestroyChannelPacket>();
@@ -675,7 +675,7 @@ bool Window::_cmdDestroyChannel( net::Command& command )
     return true;
 }
 
-bool Window::_cmdConfigInit( net::Command& command )
+bool Window::_cmdConfigInit( co::Command& command )
 {
     const WindowConfigInitPacket* packet = 
         command.getPacket<WindowConfigInitPacket>();
@@ -698,14 +698,14 @@ bool Window::_cmdConfigInit( net::Command& command )
     }
     EQLOG( LOG_INIT ) << "TASK window config init reply " << &reply <<std::endl;
 
-    net::NodePtr node = command.getNode();
+    co::NodePtr node = command.getNode();
 
     commit();
     send( node, reply );
     return true;
 }
 
-bool Window::_cmdConfigExit( net::Command& command )
+bool Window::_cmdConfigExit( co::Command& command )
 {
     WindowConfigExitPacket* packet =
         command.getPacket<WindowConfigExitPacket>();
@@ -728,7 +728,7 @@ bool Window::_cmdConfigExit( net::Command& command )
     return true;
 }
 
-bool Window::_cmdFrameStart( net::Command& command )
+bool Window::_cmdFrameStart( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
 
@@ -752,7 +752,7 @@ bool Window::_cmdFrameStart( net::Command& command )
     return true;
 }
 
-bool Window::_cmdFrameFinish( net::Command& command )
+bool Window::_cmdFrameFinish( co::Command& command )
 {
     const WindowFrameFinishPacket* packet =
         command.getPacket<WindowFrameFinishPacket>();
@@ -764,7 +764,7 @@ bool Window::_cmdFrameFinish( net::Command& command )
     return true;
 }
 
-bool Window::_cmdFinish( net::Command& ) 
+bool Window::_cmdFinish( co::Command& ) 
 {
     WindowStatistics stat( Statistic::WINDOW_FINISH, this );
     makeCurrent();
@@ -773,7 +773,7 @@ bool Window::_cmdFinish( net::Command& )
     return true;
 }
 
-bool  Window::_cmdThrottleFramerate( net::Command& command )
+bool  Window::_cmdThrottleFramerate( co::Command& command )
 {
     WindowThrottleFramerate* packet = 
         command.getPacket< WindowThrottleFramerate >();
@@ -794,7 +794,7 @@ bool  Window::_cmdThrottleFramerate( net::Command& command )
     return true;
 }
         
-bool Window::_cmdBarrier( net::Command& command )
+bool Window::_cmdBarrier( co::Command& command )
 {
     const WindowBarrierPacket* packet = 
         command.getPacket<WindowBarrierPacket>();
@@ -805,7 +805,7 @@ bool Window::_cmdBarrier( net::Command& command )
     return true;
 }
 
-bool Window::_cmdNVBarrier( net::Command& command )
+bool Window::_cmdNVBarrier( co::Command& command )
 {
     const WindowNVBarrierPacket* packet = 
         command.getPacket<WindowNVBarrierPacket>();
@@ -818,7 +818,7 @@ bool Window::_cmdNVBarrier( net::Command& command )
     return true;
 }
 
-bool Window::_cmdSwap( net::Command& command ) 
+bool Window::_cmdSwap( co::Command& command ) 
 {
     WindowSwapPacket* packet = command.getPacket< WindowSwapPacket >();
     EQLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << packet
@@ -834,7 +834,7 @@ bool Window::_cmdSwap( net::Command& command )
     return true;
 }
 
-bool Window::_cmdFrameDrawFinish( net::Command& command )
+bool Window::_cmdFrameDrawFinish( co::Command& command )
 {
     WindowFrameDrawFinishPacket* packet = 
         command.getPacket< WindowFrameDrawFinishPacket >();

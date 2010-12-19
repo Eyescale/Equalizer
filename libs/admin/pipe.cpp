@@ -69,7 +69,7 @@ ClientPtr Pipe::getClient()
     return server->getClient();
 }
 
-net::CommandQueue* Pipe::getMainThreadQueue()
+co::CommandQueue* Pipe::getMainThreadQueue()
 {
     return getServer()->getMainThreadQueue();
 }

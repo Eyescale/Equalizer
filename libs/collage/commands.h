@@ -15,14 +15,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_COMMANDS_H
-#define EQNET_COMMANDS_H
+#ifndef CO_COMMANDS_H
+#define CO_COMMANDS_H
 
 #include <eq/base/base.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     enum NodeCommand
     {
@@ -73,7 +71,6 @@ namespace net
         CMD_BARRIER_CUSTOM = 20 // some buffer for binary-compatible patches
     };
 }
-}
 
-#endif // EQNET_COMMANDS_H
+#endif // CO_COMMANDS_H
 

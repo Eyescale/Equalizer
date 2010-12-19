@@ -16,14 +16,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_DELTAMASTERCM_H
-#define EQNET_DELTAMASTERCM_H
+#ifndef CO_DELTAMASTERCM_H
+#define CO_DELTAMASTERCM_H
 
 #include "fullMasterCM.h"              // base class
 #include "objectDeltaDataOStream.h"
-namespace eq
-{
-namespace net
+namespace co
 {
     class Node;
 
@@ -47,6 +45,5 @@ namespace net
         DeltaData _deltaData;
     };
 }
-}
 
-#endif // EQNET_DELTAMASTERCM_H
+#endif // CO_DELTAMASTERCM_H

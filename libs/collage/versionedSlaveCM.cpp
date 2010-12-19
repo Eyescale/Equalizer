@@ -26,9 +26,7 @@
 #include <eq/base/scopedMutex.h>
 #include <limits>
 
-namespace eq
-{
-namespace net
+namespace co
 {
 typedef CommandFunc<VersionedSlaveCM> CmdFunc;
 
@@ -206,7 +204,7 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
 
             EQASSERTINFO( is->getRemainingBufferSize()==0 &&
                           is->nRemainingBuffers()==0,
-                          base::className( _object ) <<
+                          eq::base::className( _object ) <<
                           " did not unpack all data, " <<
                           is->getRemainingBufferSize() << " bytes, " <<
                           is->nRemainingBuffers() << " buffer(s)" );
@@ -404,7 +402,7 @@ bool VersionedSlaveCM::_cmdCommit( Command& command )
         return true;
     }
 
-    _ostream.setVersion( base::UUID( true )); // unique commit version
+    _ostream.setVersion( eq::base::UUID( true )); // unique commit version
     _ostream.enable( _master, false );
     _object->pack( _ostream );
     _ostream.disable();
@@ -415,5 +413,4 @@ bool VersionedSlaveCM::_cmdCommit( Command& command )
     return true;
 }
 
-}
 }

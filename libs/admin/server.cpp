@@ -34,8 +34,8 @@ namespace
     static NodeFactory _nf;
 }
 
-typedef net::CommandFunc< Server > CmdFunc;
-typedef fabric::Server< Client, Server, Config, NodeFactory, net::Node > Super;
+typedef co::CommandFunc< Server > CmdFunc;
+typedef fabric::Server< Client, Server, Config, NodeFactory, co::Node > Super;
 
 Server::Server()
         : Super( &_nf )
@@ -47,7 +47,7 @@ void Server::setClient( ClientPtr client )
     if( !client )
         return;
 
-    net::CommandQueue* queue = client->getMainThreadQueue();
+    co::CommandQueue* queue = client->getMainThreadQueue();
     registerCommand( fabric::CMD_SERVER_MAP_REPLY, 
                      CmdFunc( this, &Server::_cmdMapReply ), queue );
     registerCommand( fabric::CMD_SERVER_UNMAP_REPLY, 
@@ -80,12 +80,12 @@ void Server::unmap()
     client->waitRequest( packet.requestID );
 }
 
-net::CommandQueue* Server::getMainThreadQueue()
+co::CommandQueue* Server::getMainThreadQueue()
 {
     return getClient()->getMainThreadQueue();
 }
 
-bool Server::_cmdMapReply( net::Command& command )
+bool Server::_cmdMapReply( co::Command& command )
 {
     const ServerMapReplyPacket* packet = 
         command.getPacket< ServerMapReplyPacket >();
@@ -94,7 +94,7 @@ bool Server::_cmdMapReply( net::Command& command )
     return true;
 }
 
-bool Server::_cmdUnmapReply( net::Command& command )
+bool Server::_cmdUnmapReply( co::Command& command )
 {
     const ServerUnmapReplyPacket* packet = 
         command.getPacket< ServerUnmapReplyPacket >();
@@ -109,7 +109,7 @@ bool Server::_cmdUnmapReply( net::Command& command )
 #include "../fabric/server.ipp"
 template class eq::fabric::Server< eq::admin::Client, eq::admin::Server,
                                    eq::admin::Config, eq::admin::NodeFactory,
-                                   eq::net::Node >;
+                                   co::Node >;
 
 /** @cond IGNORE */
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,

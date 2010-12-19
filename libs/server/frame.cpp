@@ -44,7 +44,7 @@ Frame::Frame()
 }
 
 Frame::Frame( const Frame& from )
-        : net::Object()
+        : co::Object()
         , _compound( 0 )
         , _name( from._name )
         , _data( from._data )
@@ -62,12 +62,12 @@ Frame::~Frame()
     EQASSERT( _datas.empty());
 }
 
-void Frame::getInstanceData( net::DataOStream& os )
+void Frame::getInstanceData( co::DataOStream& os )
 {
     os << _inherit;
 }
 
-void Frame::applyInstanceData( net::DataIStream& is )
+void Frame::applyInstanceData( co::DataIStream& is )
 {
     EQUNREACHABLE;
     is >> _inherit;
@@ -117,7 +117,7 @@ uint32_t Frame::commitNB()
     for( unsigned i = 0; i < NUM_EYES; ++i )
         _inherit.frameData[i] = _frameData[i];
 
-    return net::Object::commitNB();
+    return co::Object::commitNB();
 }
 
 void Frame::cycleData( const uint32_t frameNumber, const uint32_t eyes )
@@ -175,9 +175,9 @@ void Frame::addInputFrame( Frame* frame, const uint32_t eyes )
     }
 }
 
-net::ObjectVersion Frame::getDataVersion( const Eye eye ) const
+co::ObjectVersion Frame::getDataVersion( const Eye eye ) const
 {
-    return net::ObjectVersion( _frameData[ base::getIndexOfLastBit( eye ) ] );
+    return co::ObjectVersion( _frameData[ eq::base::getIndexOfLastBit( eye ) ] );
 }
 
 std::ostream& operator << ( std::ostream& os, const Frame* frame )

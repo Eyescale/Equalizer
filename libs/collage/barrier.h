@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_BARRIER_H
-#define EQNET_BARRIER_H
+#ifndef CO_BARRIER_H
+#define CO_BARRIER_H
 
 #include <co/object.h>   // base class
 #include <co/types.h>
@@ -24,9 +24,7 @@
 
 #include <map>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class Node;
 
@@ -45,13 +43,13 @@ namespace net
          * of the object master, i.e., this instance, and the barrier's master
          * node might be different.
          */
-        EQNET_API Barrier( NodePtr master, const uint32_t height = 0 );
+        CO_API Barrier( NodePtr master, const uint32_t height = 0 );
 
         /** Construct a new barrier, to be mapped to the master version. */
-        EQNET_API Barrier();
+        CO_API Barrier();
 
         /** Destruct the barrier. */
-        EQNET_API virtual ~Barrier();
+        CO_API virtual ~Barrier();
 
         /** 
          * @name Data Access
@@ -78,11 +76,12 @@ namespace net
          * The implementation currently assumes that the master node instance
          * also enters the barrier.
          */
-        EQNET_API void enter();
+        CO_API void enter();
         //@}
 
     protected:
-        virtual void attach( const base::UUID& id, const uint32_t instanceID );
+        virtual void attach( const eq::base::UUID& id, 
+                             const uint32_t instanceID );
 
         virtual ChangeType getChangeType() const { return DELTA; }
 
@@ -105,7 +104,7 @@ namespace net
         std::map< uint128_t, Nodes > _enteredNodes;
         
         /** The monitor used for barrier leave notification. */
-        base::Monitor<uint32_t> _leaveNotify;
+        eq::base::Monitor<uint32_t> _leaveNotify;
 
         /* The command handlers. */
         bool _cmdEnter( Command& command );
@@ -114,7 +113,6 @@ namespace net
         EQ_TS_VAR( _thread );
     };
 }
-}
 
-#endif // EQNET_BARRIER_H
+#endif // CO_BARRIER_H
 

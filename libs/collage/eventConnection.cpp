@@ -18,9 +18,7 @@
 #include "eventConnection.h"
 #include "pipeConnection.h"
 
-namespace eq
-{
-namespace net
+namespace co
 {
 EventConnection::EventConnection()
 #ifdef _WIN32
@@ -78,7 +76,7 @@ void EventConnection::set()
 #ifdef _WIN32
     SetEvent( _event );
 #else
-    base::ScopedMutex<> mutex( _lock );
+    eq::base::ScopedMutex<> mutex( _lock );
     if( _set )
         return;
     
@@ -92,7 +90,7 @@ void EventConnection::reset()
 #ifdef _WIN32
     ResetEvent( _event );
 #else
-    base::ScopedMutex<> mutex( _lock );
+    eq::base::ScopedMutex<> mutex( _lock );
     if( !_set )
         return;
     
@@ -112,5 +110,4 @@ Connection::Notifier EventConnection::getNotifier() const
 #endif
 }
 
-}
 }

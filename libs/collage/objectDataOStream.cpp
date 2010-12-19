@@ -23,9 +23,7 @@
 
 #include <eq/plugins/compressorTypes.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
 void ObjectDataOStream::sendPacket( ObjectDataPacket& packet,
@@ -65,5 +63,4 @@ void ObjectDataOStream::sendPacket( ObjectDataPacket& packet,
         Connection::send( _connections, packet, chunks, chunkSizes, nChunks );
 }
 
-}
 }

@@ -91,7 +91,7 @@ namespace server
             }
 
     private:
-        void _deregister( net::Object* object )
+        void _deregister( co::Object* object )
             {
                 EQASSERT( object->isAttached( ));
                 if( !object->isAttached( ))
@@ -99,7 +99,7 @@ namespace server
                 EQASSERT( object->isMaster( ));
 
                 object->sync();
-                net::LocalNodePtr node = object->getLocalNode();
+                co::LocalNodePtr node = object->getLocalNode();
                 node->releaseObject( object );
             }
     };

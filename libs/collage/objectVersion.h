@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_OBJECTVERSION_H
-#define EQNET_OBJECTVERSION_H
+#ifndef CO_OBJECTVERSION_H
+#define CO_OBJECTVERSION_H
 
 #include <co/base.h>
 #include <co/types.h>
@@ -24,9 +24,7 @@
 
 #include <iostream>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class Object;
 
@@ -39,11 +37,11 @@ namespace net
      */
     struct ObjectVersion
     {
-        EQNET_API ObjectVersion();
-        EQNET_API ObjectVersion( const base::UUID& identifier,
+        CO_API ObjectVersion();
+        CO_API ObjectVersion( const eq::base::UUID& identifier,
                                  const uint128_t& version );
-        EQNET_API ObjectVersion( const Object* object );
-        EQNET_API ObjectVersion& operator = ( const Object* object );
+        CO_API ObjectVersion( const Object* object );
+        CO_API ObjectVersion& operator = ( const Object* object );
      
         bool operator == ( const ObjectVersion& value ) const
             {
@@ -69,7 +67,7 @@ namespace net
                     ( identifier == rhs.identifier && version > rhs.version );
             }
 
-        base::UUID identifier;
+        eq::base::UUID identifier;
         uint128_t version;
 
         /** An unset object version. */
@@ -83,14 +81,13 @@ namespace net
     }
 
 }
-}
 
 EQ_STDEXT_NAMESPACE_OPEN
 #ifdef EQ_STDEXT_VC8
     /** ObjectVersion hash function. */
     template<>
-    inline size_t hash_compare< eq::net::ObjectVersion >::operator()
-        ( const eq::net::ObjectVersion& key ) const
+    inline size_t hash_compare< co::ObjectVersion >::operator()
+        ( const co::ObjectVersion& key ) const
     {
         const size_t hashVersion = hash_value( key.version );
         const size_t hashID = hash_value( (eq::base::uint128_t)key.identifier );
@@ -99,7 +96,7 @@ EQ_STDEXT_NAMESPACE_OPEN
     }
 #else
     /** ObjectVersion hash function. */
-    template<> struct hash< eq::net::ObjectVersion >
+    template<> struct hash< co::ObjectVersion >
     {
         template< typename P > size_t operator()( const P& key ) const
         {
@@ -110,4 +107,4 @@ EQ_STDEXT_NAMESPACE_OPEN
 #endif
 EQ_STDEXT_NAMESPACE_CLOSE
 
-#endif // EQNET_OBJECT_H
+#endif // CO_OBJECT_H

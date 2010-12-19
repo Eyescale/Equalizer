@@ -54,8 +54,8 @@ namespace
 static NodeFactory _nf;
 }
 
-typedef net::CommandFunc<Server> ServerFunc;
-typedef fabric::Server< net::Node, Server, Config, NodeFactory, net::LocalNode >
+typedef co::CommandFunc<Server> ServerFunc;
+typedef fabric::Server< co::Node, Server, Config, NodeFactory, co::LocalNode >
             Super;
 
 Server::Server()
@@ -148,9 +148,9 @@ bool Server::listen()
 {
     if( getConnectionDescriptions().empty( )) // add default listener
     {
-        net::ConnectionDescriptionPtr connDesc = new net::ConnectionDescription;
-        connDesc->type = net::CONNECTIONTYPE_TCPIP;
-        connDesc->port = net::Global::getDefaultPort();
+        co::ConnectionDescriptionPtr connDesc = new co::ConnectionDescription;
+        connDesc->type = co::CONNECTIONTYPE_TCPIP;
+        connDesc->port = co::Global::getDefaultPort();
         addConnectionDescription( connDesc );
     }
     return Super::listen();
@@ -231,24 +231,25 @@ void Server::deleteConfigs()
 //===========================================================================
 // packet handling methods
 //===========================================================================
-bool Server::dispatchCommand( net::Command& command )
+bool Server::dispatchCommand( co::Command& command )
 {
     switch( command->type )
     {
         case fabric::PACKETTYPE_EQ_SERVER:
-            return net::Dispatcher::dispatchCommand( command );
+            return co::Dispatcher::dispatchCommand( command );
             
         default:
-            return net::LocalNode::dispatchCommand( command );
+            return co::LocalNode::dispatchCommand( command );
     }
 }
+
 
 void Server::handleCommands()
 {
     _running = true;
     while( _running ) // set to false in _cmdShutdown()
     {
-        net::Command* command = _mainThreadQueue.pop();
+        co::Command* command = _mainThreadQueue.pop();
         if( !command->invoke( ))
         {
             EQABORT( "Error handling command " << command );
@@ -259,7 +260,7 @@ void Server::handleCommands()
     _mainThreadQueue.flush();
 }
 
-bool Server::_cmdChooseConfig( net::Command& command ) 
+bool Server::_cmdChooseConfig( co::Command& command ) 
 {
     const ServerChooseConfigPacket* packet = 
         command.getPacket<ServerChooseConfigPacket>();
@@ -278,7 +279,7 @@ bool Server::_cmdChooseConfig( net::Command& command )
     }
     
     ServerChooseConfigReplyPacket reply( packet );
-    net::NodePtr node = command.getNode();
+    co::NodePtr node = command.getNode();
 
     if( !config )
     {
@@ -308,18 +309,18 @@ bool Server::_cmdChooseConfig( net::Command& command )
     reply.configID = config->getID();
     server::Node* appNode = config->findApplicationNode();
     EQASSERT( appNode );
-    node->send( reply, net::serialize( appNode->getConnectionDescriptions( )));
+    node->send( reply, co::serialize( appNode->getConnectionDescriptions( )));
     return true;
 }
 
-bool Server::_cmdReleaseConfig( net::Command& command )
+bool Server::_cmdReleaseConfig( co::Command& command )
 {
     const ServerReleaseConfigPacket* packet = 
         command.getPacket<ServerReleaseConfigPacket>();
     EQINFO << "Handle release config " << packet << std::endl;
 
     ServerReleaseConfigReplyPacket reply( packet );
-    net::NodePtr node = command.getNode();
+    co::NodePtr node = command.getNode();
 
     Config* config = 0;
     const Configs& configs = getConfigs();
@@ -359,7 +360,7 @@ bool Server::_cmdReleaseConfig( net::Command& command )
     return true;
 }
 
-bool Server::_cmdDestroyConfigReply( net::Command& command ) 
+bool Server::_cmdDestroyConfigReply( co::Command& command ) 
 {
     const fabric::ServerDestroyConfigReplyPacket* packet = 
         command.getPacket< fabric::ServerDestroyConfigReplyPacket >();
@@ -368,13 +369,13 @@ bool Server::_cmdDestroyConfigReply( net::Command& command )
     return true;
 }
 
-bool Server::_cmdShutdown( net::Command& command )
+bool Server::_cmdShutdown( co::Command& command )
 {
     const ServerShutdownPacket* packet = 
         command.getPacket< ServerShutdownPacket >();
 
     ServerShutdownReplyPacket reply( packet );
-    net::NodePtr node = command.getNode();
+    co::NodePtr node = command.getNode();
 
     if( !_admins.empty( ))
     {
@@ -413,9 +414,9 @@ bool Server::_cmdShutdown( net::Command& command )
     return true;
 }
 
-bool Server::_cmdMap( net::Command& command )
+bool Server::_cmdMap( co::Command& command )
 {
-    net::NodePtr node = command.getNode();
+    co::NodePtr node = command.getNode();
     _admins.push_back( node );
 
     const Configs& configs = getConfigs();
@@ -434,10 +435,10 @@ bool Server::_cmdMap( net::Command& command )
     return true;
 }
 
-bool Server::_cmdUnmap( net::Command& command )
+bool Server::_cmdUnmap( co::Command& command )
 {
-    net::NodePtr node = command.getNode();
-    net::Nodes::iterator i = stde::find( _admins, node );
+    co::NodePtr node = command.getNode();
+    co::Nodes::iterator i = stde::find( _admins, node );
 
     EQASSERT( i != _admins.end( ));
     if( i != _admins.end( ))
@@ -464,15 +465,15 @@ bool Server::_cmdUnmap( net::Command& command )
 }
 }
 #include "../fabric/server.ipp"
-template class eq::fabric::Server< eq::net::Node, eq::server::Server,
+template class eq::fabric::Server< co::Node, eq::server::Server,
                                    eq::server::Config,
                                    eq::server::NodeFactory,
-                                   eq::net::LocalNode >;
+                                   co::LocalNode >;
 
 /** @cond IGNORE */
 template std::ostream& eq::fabric::operator <<
-( std::ostream&, const fabric::Server< eq::net::Node, eq::server::Server,
+( std::ostream&, const fabric::Server< co::Node, eq::server::Server,
                                        eq::server::Config,
                                        eq::server::NodeFactory,
-                                       eq::net::LocalNode >& );
+                                       co::LocalNode >& );
 /** @endcond */

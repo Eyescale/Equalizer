@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_INSTANCECACHE_H
-#define EQNET_INSTANCECACHE_H
+#ifndef CO_INSTANCECACHE_H
+#define CO_INSTANCECACHE_H
 
 #include <co/base.h>
 #include <co/types.h>
@@ -28,19 +28,17 @@
 
 #include <iostream>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     /** @internal A thread-safe cache for object instance data. */
     class InstanceCache
     {
     public:
         /** Construct a new instance cache. */
-        EQNET_API InstanceCache( const uint64_t maxSize = EQ_100MB );
+        CO_API InstanceCache( const uint64_t maxSize = EQ_100MB );
 
         /** Destruct this instance cache. */
-        EQNET_API ~InstanceCache();
+        CO_API ~InstanceCache();
 
         /** 
          * Add a new command to the instance cache.
@@ -51,19 +49,19 @@ namespace net
          * @param usage pre-set usage count.
          * @return true if the command was entered, false if not.
          */
-        EQNET_API bool add( const ObjectVersion& rev, const uint32_t instanceID, 
+        CO_API bool add( const ObjectVersion& rev, const uint32_t instanceID, 
                   Command& command, const uint32_t usage = 0 );
 
         /** One cache entry */
         struct Data
         {
             Data();
-            EQNET_API bool operator != ( const Data& rhs ) const;
-            EQNET_API bool operator == ( const Data& rhs ) const;
+            CO_API bool operator != ( const Data& rhs ) const;
+            CO_API bool operator == ( const Data& rhs ) const;
 
             uint32_t masterInstanceID; //!< The instance ID of the master object
             ObjectDataIStreamDeque versions; //!< all cached data
-            EQNET_API static const Data NONE; //!< '0' return value 
+            CO_API static const Data NONE; //!< '0' return value 
         };
 
         /**
@@ -78,7 +76,7 @@ namespace net
          *         is cached for this object.
          */
 
-        EQNET_API const Data& operator[]( const base::UUID& id );
+        CO_API const Data& operator[]( const eq::base::UUID& id );
 
         /** 
          * Release the retrieved instance data of the given object.
@@ -88,7 +86,7 @@ namespace net
          * @return true if the element was unpinned, false if it is not in the
          *         instance cache.
          */
-        EQNET_API bool release( const base::UUID& id, const uint32_t count = 1 );
+        CO_API bool release( const eq::base::UUID& id, const uint32_t count = 1 );
 
         /** 
          * Erase all the data for the given object.
@@ -98,7 +96,7 @@ namespace net
          *
          * @return true if the element was erased, false otherwise.
          */
-        EQNET_API bool erase( const base::UUID& id );
+        CO_API bool erase( const eq::base::UUID& id );
 
         /** @return the number of bytes used by the instance cache. */
         uint64_t getSize() const { return _size; }
@@ -109,6 +107,7 @@ namespace net
         /** Remove all items which are older than the given time. */
         void expire( const int64_t age );
 
+        bool empty( ){ return _items->empty(); }
     private:
         struct Item
         {
@@ -119,14 +118,14 @@ namespace net
             unsigned access;
         };
 
-        typedef stde::hash_map< base::uint128_t, Item > ItemHash;
+        typedef stde::hash_map< eq::base::uint128_t, Item > ItemHash;
 
-        base::Lockable< ItemHash > _items;
+        eq::base::Lockable< ItemHash > _items;
 
         const uint64_t _maxSize; //!<high-water mark to start releasing commands
         uint64_t _size;          //!< Current number of bytes stored
 
-        const base::Clock _clock;  //!< Clock for item expiration
+        const eq::base::Clock _clock;  //!< Clock for item expiration
 
         void _releaseItems( const uint32_t minUsage );
         void _releaseStreams( InstanceCache::Item& item );
@@ -135,8 +134,7 @@ namespace net
         EQ_TS_VAR( _thread );
     };
 
-    EQNET_API std::ostream& operator << ( std::ostream&, const InstanceCache& );
+    CO_API std::ostream& operator << ( std::ostream&, const InstanceCache& );
 }
-}
-#endif //EQNET_INSTANCECACHE_H
+#endif //CO_INSTANCECACHE_H
 

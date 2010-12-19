@@ -48,7 +48,7 @@
 namespace eq
 {
 /** @cond IGNORE */
-typedef net::CommandFunc<Config> ConfigFunc;
+typedef co::CommandFunc<Config> ConfigFunc;
 /** @endcond */
 
 Config::Config( ServerPtr server )
@@ -84,7 +84,7 @@ void Config::attach( const base::UUID& id, const uint32_t instanceID )
     Super::attach( id, instanceID );
 
     ServerPtr          server = getServer();
-    net::CommandQueue* queue  = getMainThreadQueue();
+    co::CommandQueue* queue  = getMainThreadQueue();
 
     registerCommand( fabric::CMD_CONFIG_CREATE_NODE,
                      ConfigFunc( this, &Config::_cmdCreateNode ), queue );
@@ -115,7 +115,7 @@ void Config::notifyAttached()
     fabric::Object::notifyAttached();
     EQASSERT( !_appNode )
     EQASSERT( getAppNodeID().isGenerated() )
-    net::LocalNodePtr localNode = getLocalNode();
+    co::LocalNodePtr localNode = getLocalNode();
     _appNode = localNode->connect( getAppNodeID( ));
     if( !_appNode )
         EQWARN << "Connection to application node failed -- "
@@ -138,17 +138,17 @@ void Config::notifyDetach()
     }
 
     std::vector< uint32_t > requests;
-    for( net::Connections::const_iterator i = _connections.begin();
+    for( co::Connections::const_iterator i = _connections.begin();
          i != _connections.end(); ++i )
     {
-        net::ConnectionPtr connection = *i;
+        co::ConnectionPtr connection = *i;
         requests.push_back( getClient()->removeListenerNB( connection ));
     }
 
-    net::LocalNodePtr localNode = getLocalNode();
+    co::LocalNodePtr localNode = getLocalNode();
     for( size_t i = 0; i < _connections.size(); ++i )
     {
-        net::ConnectionPtr connection = _connections[i];
+        co::ConnectionPtr connection = _connections[i];
         localNode->waitRequest( requests[ i ] );
         connection->close();
         // connection and _connections hold reference
@@ -160,12 +160,12 @@ void Config::notifyDetach()
     Super::notifyDetach();
 }
 
-net::CommandQueue* Config::getMainThreadQueue()
+co::CommandQueue* Config::getMainThreadQueue()
 {
     return getServer()->getMainThreadQueue();
 }
 
-net::CommandQueue* Config::getCommandThreadQueue()
+co::CommandQueue* Config::getCommandThreadQueue()
 {
     return getServer()->getCommandThreadQueue();
 }
@@ -188,7 +188,7 @@ bool Config::init( const uint128_t& initID )
     _finishedFrame = 0;
     _frameTimes.clear();
 
-    net::LocalNodePtr localNode = getLocalNode();
+    co::LocalNodePtr localNode = getLocalNode();
     ConfigInitPacket packet;
     packet.requestID  = localNode->registerRequest();
     packet.initID     = initID;
@@ -213,7 +213,7 @@ bool Config::exit()
     update();
     finishAllFrames();
 
-    net::LocalNodePtr localNode = getLocalNode();
+    co::LocalNodePtr localNode = getLocalNode();
     ConfigExitPacket packet;
     packet.requestID = localNode->registerRequest();
     send( getServer(), packet );
@@ -248,7 +248,7 @@ bool Config::update()
     send( getServer(), packet );
 
     // wait for new version
-    uint128_t version = net::VERSION_INVALID;
+    uint128_t version = co::VERSION_INVALID;
     client->waitRequest( packet.versionID, version );
     uint32_t finishID = 0;
     client->waitRequest( packet.finishID, finishID );
@@ -380,7 +380,7 @@ public:
 
     VisitorResult visit( eq::View* view )
     {
-        net::Object* userData = view->getUserData();
+        co::Object* userData = view->getUserData();
         if( userData && userData->isMaster( ))
             userData->setAutoObsolete( _latency + 1 );
         return TRAVERSE_CONTINUE;    
@@ -420,7 +420,7 @@ void Config::sendEvent( ConfigEvent& event )
 {
     EQASSERT( event.data.type != Event::STATISTIC ||
               event.data.statistic.type != Statistic::NONE );
-    EQASSERT( getAppNodeID() != net::NodeID::ZERO );
+    EQASSERT( getAppNodeID() != co::NodeID::ZERO );
     EQASSERT( _appNode.isValid( ));
 
     send( _appNode, event );
@@ -436,7 +436,7 @@ const ConfigEvent* Config::nextEvent()
 
 const ConfigEvent* Config::tryNextEvent()
 {
-    net::Command* command = _eventQueue.tryPop();
+    co::Command* command = _eventQueue.tryPop();
     if( !command )
         return 0;
 
@@ -659,14 +659,14 @@ MessagePump* Config::getMessagePump()
 void Config::setupServerConnections( const char* connectionData )
 {
     std::string data = connectionData;
-    net::ConnectionDescriptions descriptions;
-    EQCHECK( net::deserialize( data, descriptions ));
+    co::ConnectionDescriptions descriptions;
+    EQCHECK( co::deserialize( data, descriptions ));
     EQASSERTINFO( data.empty(), data << " left from " << connectionData );
 
-    for( net::ConnectionDescriptions::const_iterator i = descriptions.begin();
+    for( co::ConnectionDescriptions::const_iterator i = descriptions.begin();
          i != descriptions.end(); ++i )
     {
-        net::ConnectionPtr connection = net::Connection::create( *i );
+        co::ConnectionPtr connection = co::Connection::create( *i );
         if( connection->listen( ))
         {
             _connections.push_back( connection );
@@ -687,12 +687,12 @@ void Config::freezeLoadBalancing( const bool onOff )
     send( getServer(), packet );
 }
 
-bool Config::registerObject( net::Object* object )
+bool Config::registerObject( co::Object* object )
 {
     return getClient()->registerObject( object );
 }
 
-void Config::deregisterObject( net::Object* object )
+void Config::deregisterObject( co::Object* object )
 {
     EQASSERT( object )
     EQASSERT( object->isMaster( ));
@@ -700,8 +700,8 @@ void Config::deregisterObject( net::Object* object )
     const uint32_t latency = getLatency();
     ClientPtr client = getClient();
     if( latency == 0 || !_running || 
-        object->getChangeType() == net::Object::STATIC || 
-        object->getChangeType() == net::Object::UNBUFFERED ) // OPT
+        object->getChangeType() == co::Object::STATIC || 
+        object->getChangeType() == co::Object::UNBUFFERED ) // OPT
     {
         client->deregisterObject( object );
         return;
@@ -721,13 +721,13 @@ void Config::deregisterObject( net::Object* object )
     client->waitRequest( packet.requestID );
 }
 
-bool Config::mapObject( net::Object* object, const base::UUID& id,
+bool Config::mapObject( co::Object* object, const base::UUID& id,
                         const uint128_t& version )
 {
     return getClient()->mapObject( object, id, version );
 }
 
-void Config::unmapObject( net::Object* object )
+void Config::unmapObject( co::Object* object )
 {
     getClient()->unmapObject( object );
 }
@@ -753,7 +753,7 @@ void Config::_releaseObjects()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Config::_cmdCreateNode( net::Command& command )
+bool Config::_cmdCreateNode( co::Command& command )
 {
     const ConfigCreateNodePacket* packet = 
         command.getPacket<ConfigCreateNodePacket>();
@@ -764,7 +764,7 @@ bool Config::_cmdCreateNode( net::Command& command )
     return true;
 }
 
-bool Config::_cmdDestroyNode( net::Command& command ) 
+bool Config::_cmdDestroyNode( co::Command& command ) 
 {
     const ConfigDestroyNodePacket* packet =
         command.getPacket<ConfigDestroyNodePacket>();
@@ -785,7 +785,7 @@ bool Config::_cmdDestroyNode( net::Command& command )
     return true;
 }
 
-bool Config::_cmdInitReply( net::Command& command )
+bool Config::_cmdInitReply( co::Command& command )
 {
     const ConfigInitReplyPacket* packet = 
         command.getPacket<ConfigInitReplyPacket>();
@@ -796,7 +796,7 @@ bool Config::_cmdInitReply( net::Command& command )
     return true;
 }
 
-bool Config::_cmdExitReply( net::Command& command )
+bool Config::_cmdExitReply( co::Command& command )
 {
     const ConfigExitReplyPacket* packet = 
         command.getPacket<ConfigExitReplyPacket>();
@@ -807,7 +807,7 @@ bool Config::_cmdExitReply( net::Command& command )
     return true;
 }
 
-bool Config::_cmdUpdateVersion( net::Command& command )
+bool Config::_cmdUpdateVersion( co::Command& command )
 {
     const ConfigUpdateVersionPacket* packet = 
         command.getPacket<ConfigUpdateVersionPacket>();
@@ -817,7 +817,7 @@ bool Config::_cmdUpdateVersion( net::Command& command )
     return true;
 }
 
-bool Config::_cmdUpdateReply( net::Command& command )
+bool Config::_cmdUpdateReply( co::Command& command )
 {
     const ConfigUpdateReplyPacket* packet = 
         command.getPacket<ConfigUpdateReplyPacket>();
@@ -827,7 +827,7 @@ bool Config::_cmdUpdateReply( net::Command& command )
     return true;
 }
 
-bool Config::_cmdReleaseFrameLocal( net::Command& command )
+bool Config::_cmdReleaseFrameLocal( co::Command& command )
 {
     const ConfigReleaseFrameLocalPacket* packet =
         command.getPacket< ConfigReleaseFrameLocalPacket >();
@@ -837,7 +837,7 @@ bool Config::_cmdReleaseFrameLocal( net::Command& command )
     return true;
 }
 
-bool Config::_cmdFrameFinish( net::Command& command )
+bool Config::_cmdFrameFinish( co::Command& command )
 {
     const ConfigFrameFinishPacket* packet = 
         command.getPacket<ConfigFrameFinishPacket>();
@@ -856,7 +856,7 @@ bool Config::_cmdFrameFinish( net::Command& command )
     return true;
 }
 
-bool Config::_cmdSyncClock( net::Command& command )
+bool Config::_cmdSyncClock( co::Command& command )
 {
     const ConfigSyncClockPacket* packet = 
         command.getPacket< ConfigSyncClockPacket >();
@@ -868,13 +868,13 @@ bool Config::_cmdSyncClock( net::Command& command )
     return true;
 }
 
-bool Config::_cmdSwapObject( net::Command& command )
+bool Config::_cmdSwapObject( co::Command& command )
 {
     const ConfigSwapObjectPacket* packet = 
         command.getPacket<ConfigSwapObjectPacket>();
     EQVERB << "Cmd swap object " << packet << std::endl;
 
-    net::Object* object = packet->object;
+    co::Object* object = packet->object;
 
     LatencyObject* latencyObject = new LatencyObject( object->getChangeType( ));
     latencyObject->frameNumber   = _currentFrame + getLatency() + 1;

@@ -70,15 +70,15 @@ Channel::~Channel()
 }
 
 /** @cond IGNORE */
-typedef net::CommandFunc<Channel> CmdFunc;
+typedef co::CommandFunc<Channel> CmdFunc;
 /** @endcond */
 
 void Channel::attach( const base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
-    net::CommandQueue* queue = getPipeThreadQueue();
-    net::CommandQueue* commandQ = getCommandThreadQueue();
-    net::CommandQueue* transmitQ = &getNode()->transmitter.getQueue();
+    co::CommandQueue* queue = getPipeThreadQueue();
+    co::CommandQueue* commandQ = getCommandThreadQueue();
+    co::CommandQueue* transmitQ = &getNode()->transmitter.getQueue();
 
     registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT, 
                      CmdFunc( this, &Channel::_cmdConfigInit ), queue );
@@ -111,12 +111,12 @@ void Channel::attach( const base::UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdStopFrame ), commandQ );
 }
 
-net::CommandQueue* Channel::getPipeThreadQueue()
+co::CommandQueue* Channel::getPipeThreadQueue()
 { 
     return getWindow()->getPipeThreadQueue(); 
 }
 
-net::CommandQueue* Channel::getCommandThreadQueue()
+co::CommandQueue* Channel::getCommandThreadQueue()
 { 
     return getWindow()->getCommandThreadQueue(); 
 }
@@ -127,6 +127,7 @@ Pipe* Channel::getPipe()
     EQASSERT( window );
     return ( window ? window->getPipe() : 0 );
 }
+
 const Pipe* Channel::getPipe() const
 {
     const Window* window = getWindow();
@@ -1084,7 +1085,7 @@ void Channel::_unrefFrame( const uint32_t frameNumber, const uint32_t index )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Channel::_cmdConfigInit( net::Command& command )
+bool Channel::_cmdConfigInit( co::Command& command )
 {
     const ChannelConfigInitPacket* packet = 
         command.getPacket<ChannelConfigInitPacket>();
@@ -1127,7 +1128,7 @@ bool Channel::_cmdConfigInit( net::Command& command )
     return true;
 }
 
-bool Channel::_cmdConfigExit( net::Command& command )
+bool Channel::_cmdConfigExit( co::Command& command )
 {
     const ChannelConfigExitPacket* packet =
         command.getPacket<ChannelConfigExitPacket>();
@@ -1141,7 +1142,7 @@ bool Channel::_cmdConfigExit( net::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameStart( net::Command& command )
+bool Channel::_cmdFrameStart( co::Command& command )
 {
     ChannelFrameStartPacket* packet = 
         command.getPacket<ChannelFrameStartPacket>();
@@ -1163,7 +1164,7 @@ bool Channel::_cmdFrameStart( net::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameFinish( net::Command& command )
+bool Channel::_cmdFrameFinish( co::Command& command )
 {
     ChannelFrameFinishPacket* packet =
         command.getPacket<ChannelFrameFinishPacket>();
@@ -1179,7 +1180,7 @@ bool Channel::_cmdFrameFinish( net::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameClear( net::Command& command )
+bool Channel::_cmdFrameClear( co::Command& command )
 {
     EQASSERT( _state == STATE_RUNNING );
     ChannelFrameClearPacket* packet = 
@@ -1195,7 +1196,7 @@ bool Channel::_cmdFrameClear( net::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameDraw( net::Command& command )
+bool Channel::_cmdFrameDraw( co::Command& command )
 {
     ChannelFrameDrawPacket* packet = 
         command.getPacket<ChannelFrameDrawPacket>();
@@ -1210,7 +1211,7 @@ bool Channel::_cmdFrameDraw( net::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameDrawFinish( net::Command& command )
+bool Channel::_cmdFrameDrawFinish( co::Command& command )
 {
     ChannelFrameDrawFinishPacket* packet = 
         command.getPacket< ChannelFrameDrawFinishPacket >();
@@ -1223,7 +1224,7 @@ bool Channel::_cmdFrameDrawFinish( net::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameAssemble( net::Command& command )
+bool Channel::_cmdFrameAssemble( co::Command& command )
 {
     ChannelFrameAssemblePacket* packet = 
         command.getPacket<ChannelFrameAssemblePacket>();
@@ -1255,7 +1256,7 @@ bool Channel::_cmdFrameAssemble( net::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameReadback( net::Command& command )
+bool Channel::_cmdFrameReadback( co::Command& command )
 {
     ChannelFrameReadbackPacket* packet = 
         command.getPacket<ChannelFrameReadbackPacket>();
@@ -1311,7 +1312,7 @@ bool Channel::_cmdFrameReadback( net::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameTransmit( net::Command& command )
+bool Channel::_cmdFrameTransmit( co::Command& command )
 {
     ChannelFrameTransmitPacket* packet = 
         command.getPacket<ChannelFrameTransmitPacket>();
@@ -1327,7 +1328,7 @@ bool Channel::_cmdFrameTransmit( net::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameTransmitAsync( net::Command& command )
+bool Channel::_cmdFrameTransmitAsync( co::Command& command )
 {
     const ChannelFrameTransmitPacket* packet = 
         command.getPacket<ChannelFrameTransmitPacket>();
@@ -1353,10 +1354,10 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
         return;
     }
 
-    net::LocalNodePtr localNode = getLocalNode();
-    net::NodePtr toNode = localNode->connect( command->netNodeID );
-    net::ConnectionPtr connection = toNode->getConnection();
-    net::ConnectionDescriptionPtr description = connection->getDescription();
+    co::LocalNodePtr localNode = getLocalNode();
+    co::NodePtr toNode = localNode->connect( command->netNodeID );
+    co::ConnectionPtr connection = toNode->getConnection();
+    co::ConnectionDescriptionPtr description = connection->getDescription();
 
     // use compression on links up to 2 GBit/s
     const bool useCompression = ( description->bandwidth <= 262144 );
@@ -1520,7 +1521,7 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
     toNode->send( readyPacket );
 }
 
-bool Channel::_cmdFrameViewStart( net::Command& command )
+bool Channel::_cmdFrameViewStart( co::Command& command )
 {
     ChannelFrameViewStartPacket* packet = 
         command.getPacket<ChannelFrameViewStartPacket>();
@@ -1534,7 +1535,7 @@ bool Channel::_cmdFrameViewStart( net::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameViewFinish( net::Command& command )
+bool Channel::_cmdFrameViewFinish( co::Command& command )
 {
     ChannelFrameViewFinishPacket* packet = 
         command.getPacket<ChannelFrameViewFinishPacket>();
@@ -1549,7 +1550,7 @@ bool Channel::_cmdFrameViewFinish( net::Command& command )
     return true;
 }
 
-bool Channel::_cmdStopFrame( net::Command& command )
+bool Channel::_cmdStopFrame( co::Command& command )
 {
     ChannelStopFramePacket* packet = 
         command.getPacket<ChannelStopFramePacket>();

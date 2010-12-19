@@ -44,7 +44,7 @@ namespace admin
         EQADMIN_EXPORT Config* getConfig();   //!< @return the parent configuration
         const Config* getConfig() const; //!< @return the parent configuration
 
-        net::CommandQueue* getMainThreadQueue(); //!< @internal
+        co::CommandQueue* getMainThreadQueue(); //!< @internal
         //@}
 
     private:

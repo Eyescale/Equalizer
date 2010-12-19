@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_SOCKETCONNECTION_H
-#define EQNET_SOCKETCONNECTION_H
+#ifndef CO_SOCKETCONNECTION_H
+#define CO_SOCKETCONNECTION_H
 
 #include <co/connectionType.h> // enum
 #include <eq/base/base.h>
@@ -32,9 +32,7 @@
 #endif
 
 
-namespace eq
-{
-namespace net
+namespace co
 {
     /** A socket connection (TCPIP or SDP). */
     class SocketConnection
@@ -113,6 +111,5 @@ namespace net
 #endif
     };
 }
-}
 
-#endif //EQNET_SOCKETCONNECTION_H
+#endif //CO_SOCKETCONNECTION_H

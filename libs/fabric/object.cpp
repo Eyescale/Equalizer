@@ -36,7 +36,7 @@ Object::~Object()
 {
     EQASSERTINFO( !_userData,
                   "Unset user data before destructor to allow clean release" )
-    net::LocalNodePtr node = getLocalNode();
+    co::LocalNodePtr node = getLocalNode();
     if( node.isValid() )
         node->releaseObject( this );
 }
@@ -68,7 +68,7 @@ uint32_t Object::commitNB()
         if( _userData->isDirty() && _userData->isAttached( ))
         {
             const uint128_t& version = _userData->commit();
-            EQASSERT( version != net::VERSION_NONE );
+            EQASSERT( version != co::VERSION_NONE );
 //            EQINFO << "Committed " << _userData->getID() << " v" << version
 //                   << " of " << base::className( _userData ) << " @"
 //                   << (void*)_userData << base::backtrace << std::endl;
@@ -82,7 +82,7 @@ uint32_t Object::commitNB()
                 EQASSERTINFO( _data.userData.identifier != _userData->getID() ||
                               _data.userData.version < _userData->getVersion(),
                               _data.userData << " >= " <<
-                              net::ObjectVersion( _userData ));
+                              co::ObjectVersion( _userData ));
 
                 _data.userData.identifier = _userData->getID();
                 _data.userData.version = version;
@@ -104,7 +104,7 @@ void Object::notifyDetach()
               _userData->isMaster() == hasMasterUserData( ));
 
     if( _userData->isMaster( ))
-        _data.userData = net::ObjectVersion( 0 );
+        _data.userData = co::ObjectVersion( 0 );
 
     getLocalNode()->releaseObject( _userData );
 }
@@ -122,7 +122,7 @@ void Object::restore()
     setDirty( DIRTY_NAME | DIRTY_USERDATA );
 }
 
-void Object::serialize( net::DataOStream& os, const uint64_t dirtyBits )
+void Object::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
     if( dirtyBits & DIRTY_NAME )
         os << _data.name;
@@ -141,7 +141,7 @@ void Object::serialize( net::DataOStream& os, const uint64_t dirtyBits )
     }
 }
 
-void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
+void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 {
     if( dirtyBits & DIRTY_NAME )
         is >> _data.name;
@@ -180,7 +180,7 @@ void Object::deserialize( net::DataIStream& is, const uint64_t dirtyBits )
                   _data.userData.version >= _userData->getVersion() ||
                   _userData->isMaster(),
                   "Incompatible version, new " << _data.userData << " old " <<
-                  net::ObjectVersion( _userData ));
+                  co::ObjectVersion( _userData ));
 
     if( _data.userData.identifier == base::UUID::ZERO )
     {
@@ -226,7 +226,7 @@ void Object::setName( const std::string& name )
     setDirty( DIRTY_NAME );
 }
 
-void Object::setUserData( net::Object* userData )
+void Object::setUserData( co::Object* userData )
 {
     EQASSERT( !userData || !userData->isAttached() );
 
@@ -245,7 +245,7 @@ void Object::setUserData( net::Object* userData )
         setDirty( DIRTY_USERDATA );
     else if( _data.userData.identifier != base::UUID::ZERO )
     {
-        net::LocalNodePtr node = getLocalNode();
+        co::LocalNodePtr node = getLocalNode();
         if( node.isValid() )
             node->mapObject( _userData, _data.userData );
     }

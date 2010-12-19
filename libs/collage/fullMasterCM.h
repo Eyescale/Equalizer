@@ -15,17 +15,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_FULLMASTERCM_H
-#define EQNET_FULLMASTERCM_H
+#ifndef CO_FULLMASTERCM_H
+#define CO_FULLMASTERCM_H
 
 #include "masterCM.h"        // base class
 #include "objectInstanceDataOStream.h" // member
 
 #include <deque>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class Node;
     class ObjectDataIStream;
@@ -96,6 +94,5 @@ namespace net
         bool _cmdCommit( Command& command );
     };
 }
-}
 
-#endif // EQNET_FULLMASTERCM_H
+#endif // CO_FULLMASTERCM_H

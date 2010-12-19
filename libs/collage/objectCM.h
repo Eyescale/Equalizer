@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_OBJECTCM_H
-#define EQNET_OBJECTCM_H
+#ifndef CO_OBJECTCM_H
+#define CO_OBJECTCM_H
 
 #include <co/dispatcher.h>   // base class
 #include <co/types.h>
@@ -26,9 +26,7 @@
 #  include <eq/base/atomic.h>
 #endif
 
-namespace eq
-{
-namespace net
+namespace co
 {
     struct ObjectInstancePacket;
 
@@ -158,6 +156,5 @@ namespace net
 #endif        
     };
 }
-}
 
-#endif // EQNET_OBJECTCM_H
+#endif // CO_OBJECTCM_H

@@ -19,9 +19,7 @@
 
 #include <sstream>
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
 #define SEPARATOR '#'
@@ -245,19 +243,19 @@ bool ConnectionDescription::isSameMulticastGroup( ConnectionDescriptionPtr rhs )
 std::ostream& operator << ( std::ostream& os, 
                             const ConnectionDescription& desc)
 {
-    os << base::disableFlush << base::disableHeader << "connection"
+    os << eq::base::disableFlush << eq::base::disableHeader << "connection"
        << std::endl;
-    os << "{" << std::endl << base::indent;
+    os << "{" << std::endl << eq::base::indent;
 
     os << "type          " 
-       << ( desc.type == net::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
-            desc.type == net::CONNECTIONTYPE_SDP   ? "SDP" : 
-            desc.type == net::CONNECTIONTYPE_PIPE  ? "ANON_PIPE" :
-            desc.type == net::CONNECTIONTYPE_NAMEDPIPE ? "PIPE" :
-            desc.type == net::CONNECTIONTYPE_IB    ? "IB" :
-            desc.type == net::CONNECTIONTYPE_MCIP  ? "MCIP" :
-            desc.type == net::CONNECTIONTYPE_PGM   ? "PGM" :
-            desc.type == net::CONNECTIONTYPE_RSP   ? "RSP" :
+       << ( desc.type == co::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
+            desc.type == co::CONNECTIONTYPE_SDP   ? "SDP" : 
+            desc.type == co::CONNECTIONTYPE_PIPE  ? "ANON_PIPE" :
+            desc.type == co::CONNECTIONTYPE_NAMEDPIPE ? "PIPE" :
+            desc.type == co::CONNECTIONTYPE_IB    ? "IB" :
+            desc.type == co::CONNECTIONTYPE_MCIP  ? "MCIP" :
+            desc.type == co::CONNECTIONTYPE_PGM   ? "PGM" :
+            desc.type == co::CONNECTIONTYPE_RSP   ? "RSP" :
             "ERROR" ) << std::endl;
     
     os << "hostname      \"" << desc.getHostname() << "\"" << std::endl;
@@ -274,7 +272,8 @@ std::ostream& operator << ( std::ostream& os,
     if( desc.bandwidth != 0 )
         os << "bandwidth     " << desc.bandwidth << std::endl;
 
-    os << base::exdent << "}" << base::enableHeader << base::enableFlush
+    os << eq::base::exdent << "}" << eq::base::enableHeader 
+       << eq::base::enableFlush
        << std::endl;
     return os;
 }
@@ -290,7 +289,7 @@ bool ConnectionDescription::operator == ( const ConnectionDescription& rhs )
 std::string serialize( const ConnectionDescriptions& descriptions )
 {
     std::ostringstream data;
-    data << descriptions.size() << EQNET_SEPARATOR;
+    data << descriptions.size() << CO_SEPARATOR;
 
     for( ConnectionDescriptions::const_iterator i = descriptions.begin();
          i != descriptions.end(); ++i )
@@ -309,7 +308,7 @@ bool deserialize( std::string& data, ConnectionDescriptions& descriptions )
                << std::endl;
 
     // num connection descriptions
-    size_t nextPos = data.find( EQNET_SEPARATOR );
+    size_t nextPos = data.find( CO_SEPARATOR );
     if( nextPos == std::string::npos || nextPos == 0 )
     {
         EQERROR << "Could not parse number of connection descriptions"
@@ -344,6 +343,4 @@ bool deserialize( std::string& data, ConnectionDescriptions& descriptions )
     return true;
 }
 
-
-}
 }

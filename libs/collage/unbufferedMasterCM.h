@@ -20,9 +20,7 @@
 
 #include "masterCM.h"           // base class
 
-namespace eq
-{
-namespace net
+namespace co
 {
     class Node;
 
@@ -55,5 +53,4 @@ namespace net
     };
 }
 
-}
-#endif // EQNET_UNBUFFEREDMASTERCM_H
+#endif // CO_UNBUFFEREDMASTERCM_H

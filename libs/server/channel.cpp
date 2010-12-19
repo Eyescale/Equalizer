@@ -47,7 +47,7 @@ namespace eq
 {
 namespace server
 {
-typedef net::CommandFunc<Channel> CmdFunc;
+typedef co::CommandFunc<Channel> CmdFunc;
 typedef fabric::Channel< Window, Channel > Super;
 
 namespace
@@ -110,8 +110,8 @@ void Channel::attach( const base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
     
-    net::CommandQueue* serverQ  = getMainThreadQueue();
-    net::CommandQueue* commandQ = getCommandThreadQueue();
+    co::CommandQueue* serverQ  = getMainThreadQueue();
+    co::CommandQueue* commandQ = getCommandThreadQueue();
 
     registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT_REPLY, 
                      CmdFunc( this, &Channel::_cmdConfigInitReply ), commandQ );
@@ -194,14 +194,14 @@ const Compounds& Channel::getCompounds() const
     return getConfig()->getCompounds();
 }
 
-net::CommandQueue* Channel::getMainThreadQueue()
+co::CommandQueue* Channel::getMainThreadQueue()
 {
     Window* window = getWindow();
     EQASSERT( window );
     return window->getMainThreadQueue(); 
 }
 
-net::CommandQueue* Channel::getCommandThreadQueue()
+co::CommandQueue* Channel::getCommandThreadQueue()
 {
     Window* window = getWindow();
     EQASSERT( window );
@@ -252,7 +252,7 @@ void Channel::setOutput( View* view, Segment* segment )
     view->addChannel( this );
     segment->addDestinationChannel( this );
 
-    net::ObjectVersion viewVersion( view );
+    co::ObjectVersion viewVersion( view );
     if( view && view->isDirty( ))
         ++viewVersion.version;
 
@@ -414,7 +414,7 @@ bool Channel::update( const uint128_t& frameID, const uint32_t frameNumber )
     return updated;
 }
 
-void Channel::send( net::ObjectPacket& packet ) 
+void Channel::send( co::ObjectPacket& packet ) 
 { 
     packet.objectID = getID();
     getNode()->send( packet );
@@ -456,7 +456,7 @@ void Channel::_fireLoadData( const uint32_t frameNumber,
 //===========================================================================
 // command handling
 //===========================================================================
-bool Channel::_cmdConfigInitReply( net::Command& command ) 
+bool Channel::_cmdConfigInitReply( co::Command& command ) 
 {
     const ChannelConfigInitReplyPacket* packet = 
         command.getPacket<ChannelConfigInitReplyPacket>();
@@ -467,7 +467,7 @@ bool Channel::_cmdConfigInitReply( net::Command& command )
     return true;
 }
 
-bool Channel::_cmdConfigExitReply( net::Command& command ) 
+bool Channel::_cmdConfigExitReply( co::Command& command ) 
 {
     const ChannelConfigExitReplyPacket* packet = 
         command.getPacket<ChannelConfigExitReplyPacket>();
@@ -478,7 +478,7 @@ bool Channel::_cmdConfigExitReply( net::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameFinishReply( net::Command& command )
+bool Channel::_cmdFrameFinishReply( co::Command& command )
 {
     const ChannelFrameFinishReplyPacket* packet = 
         command.getPacket<ChannelFrameFinishReplyPacket>();

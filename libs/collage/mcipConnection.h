@@ -15,15 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_MCIPCONNECTION_H
-#define EQNET_MCIPCONNECTION_H
+#ifndef CO_MCIPCONNECTION_H
+#define CO_MCIPCONNECTION_H
 
 #include <co/connection.h>         // base class
 #include <co/connectionListener.h> // base class
 
-namespace eq
-{
-namespace net
+namespace co
 {
     /** 
      * A facade for hiding different IP-based reliable multicast
@@ -58,5 +56,4 @@ namespace net
         ConnectionPtr _impl;
     };
 }
-}
-#endif //EQNET_MCIPCONNECTION_H
+#endif //CO_MCIPCONNECTION_H

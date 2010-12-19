@@ -28,9 +28,7 @@
 
 //#define EQ_INSTRUMENT
 
-namespace eq
-{
-namespace net
+namespace co
 {
 namespace
 {
@@ -148,7 +146,7 @@ uint128_t FullMasterCM::getOldestVersion() const
 uint128_t FullMasterCM::addSlave( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
-    EQASSERT( command->type == PACKETTYPE_EQNET_NODE );
+    EQASSERT( command->type == PACKETTYPE_CO_NODE );
     EQASSERT( command->command == CMD_NODE_MAP_OBJECT );
 
     NodePtr node = command.getNode();
@@ -366,5 +364,4 @@ bool FullMasterCM::_cmdCommit( Command& command )
     return true;
 }
 
-}
 }

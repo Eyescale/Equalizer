@@ -53,13 +53,13 @@ namespace fabric
          * instances have to set the same type of object.
          * @version 1.0
          */
-    	EQFABRIC_API void setUserData( net::Object* userData );
+    	EQFABRIC_API void setUserData( co::Object* userData );
 
         /** @return the user-specific data. @version 1.0 */
-        net::Object* getUserData() { return _userData; }
+        co::Object* getUserData() { return _userData; }
 
         /** @return the user-specific data. @version 1.0 */
-        const net::Object* getUserData() const { return _userData; }
+        const co::Object* getUserData() const { return _userData; }
         //@}
 
         /** @name Error Information. */
@@ -139,10 +139,10 @@ namespace fabric
 
         EQFABRIC_API virtual void notifyDetach();
 
-        EQFABRIC_API virtual void serialize( net::DataOStream& os,
+        EQFABRIC_API virtual void serialize( co::DataOStream& os,
                                           const uint64_t dirtyBits );
 
-        EQFABRIC_API virtual void deserialize( net::DataIStream& is,
+        EQFABRIC_API virtual void deserialize( co::DataIStream& is,
                                             const uint64_t dirtyBits );
 
 
@@ -192,12 +192,12 @@ namespace fabric
             std::string name;
 
             /** The user data parameters if no _userData object is set. */
-            net::ObjectVersion userData;
+            co::ObjectVersion userData;
         }
             _data, _backup;
 
         /** The user data. */
-        net::Object* _userData;
+        co::Object* _userData;
 
         /** Worst-case set of tasks. */
         uint32_t _tasks;
@@ -221,17 +221,17 @@ namespace fabric
         if( !child->isAttached( ))
         {
             EQASSERT( !isMaster( ));
-            net::LocalNodePtr localNode = child->getConfig()->getLocalNode();
+            co::LocalNodePtr localNode = child->getConfig()->getLocalNode();
             PKG packet;
             packet.requestID = localNode->registerRequest();
 
-            net::NodePtr node = child->getServer().get();
+            co::NodePtr node = child->getServer().get();
             sender->send( node, packet );
 
             uint128_t identifier;
             localNode->waitRequest( packet.requestID, identifier );
             EQCHECK( localNode->mapObject( child, identifier,
-                                           net::VERSION_NONE ));
+                                           co::VERSION_NONE ));
         }
         child->commit();
     }

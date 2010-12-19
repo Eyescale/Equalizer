@@ -17,15 +17,13 @@
  */
 #include <eq/base/base.h>
 #ifdef EQ_INFINIBAND
-#ifndef EQNET_IBMEMBLOCK_H
-#define EQNET_IBMEMBLOCK_H
+#ifndef CO_IBMEMBLOCK_H
+#define CO_IBMEMBLOCK_H
 
 #include <eq/base/buffer.h>
 #include <iba/ib_types.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
 class IBMemBlock
 {
@@ -65,6 +63,5 @@ private:
 
 };
 }
-}
-#endif //EQNET_IBCONNECTION_H 
+#endif //CO_IBCONNECTION_H 
 #endif //EQ_INFINIBAND

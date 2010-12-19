@@ -15,9 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #include "version.h"
-namespace eq
-{
-namespace net
+namespace co
 {
 
 /** Special object version values */
@@ -28,5 +26,4 @@ const uint128_t VERSION_INVALID( 0, 0xfffffffffffffffeull ) ;
 const uint128_t VERSION_OLDEST  = VERSION_INVALID;
 const uint128_t VERSION_HEAD( 0, 0xffffffffffffffffull );
 
-}
 }

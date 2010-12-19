@@ -33,28 +33,28 @@ CommandQueue::~CommandQueue()
     _messagePump = 0;
 }
 
-void CommandQueue::push(net::Command& inCommand)
+void CommandQueue::push(co::Command& inCommand)
 {
-    net::CommandQueue::push(inCommand);
+    co::CommandQueue::push(inCommand);
     if( _messagePump )
         _messagePump->postWakeup();
 }
 
-void CommandQueue::pushFront(net::Command& inCommand)
+void CommandQueue::pushFront(co::Command& inCommand)
 {
-    net::CommandQueue::pushFront(inCommand);
+    co::CommandQueue::pushFront(inCommand);
     if( _messagePump )
         _messagePump->postWakeup();
 }
 
 void CommandQueue::wakeup()
 {
-    net::CommandQueue::wakeup();
+    co::CommandQueue::wakeup();
     if( _messagePump )
         _messagePump->postWakeup();
 }
 
-net::Command* CommandQueue::pop()
+co::Command* CommandQueue::pop()
 {
     while( true )
     {
@@ -63,21 +63,21 @@ net::Command* CommandQueue::pop()
 
         // Poll for a command
         if( !isEmpty( ))
-            return net::CommandQueue::pop();
+            return co::CommandQueue::pop();
 
         if( _messagePump )
             _messagePump->dispatchOne(); // blocking - push will send wakeup
         else
-            return net::CommandQueue::pop();
+            return co::CommandQueue::pop();
     }
 }
 
-net::Command* CommandQueue::tryPop()
+co::Command* CommandQueue::tryPop()
 {
     if( _messagePump )
         _messagePump->dispatchAll(); // non-blocking
 
-    return net::CommandQueue::tryPop();
+    return co::CommandQueue::tryPop();
 }
 
 }

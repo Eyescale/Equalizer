@@ -98,10 +98,10 @@ namespace fabric
         EQFABRIC_INL virtual ~Observer();
 
         /** @internal */
-        virtual void serialize( net::DataOStream& os,
+        virtual void serialize( co::DataOStream& os,
                                 const uint64_t dirtyBits );
         /** @internal */
-        virtual void deserialize( net::DataIStream& is,
+        virtual void deserialize( co::DataIStream& is,
                                   const uint64_t dirtyBits );
         virtual void setDirty( const uint64_t bits ); //!< @internal
 

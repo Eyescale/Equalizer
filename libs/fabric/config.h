@@ -210,9 +210,9 @@ namespace fabric
                                           const uint32_t instanceID );
 
         /** @internal */
-        EQFABRIC_INL virtual void serialize( net::DataOStream& os, 
+        EQFABRIC_INL virtual void serialize( co::DataOStream& os, 
                                              const uint64_t dirtyBits );
-        EQFABRIC_INL virtual void deserialize( net::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( co::DataIStream& is, 
                                                const uint64_t dirtyBits );
         EQFABRIC_INL virtual void notifyDetach();
 
@@ -222,9 +222,9 @@ namespace fabric
 
         template< class, class, class, class, class > friend class Server; // map/unmap
 
-        void setAppNodeID( const net::NodeID& nodeID ); //!< @internal
+        void setAppNodeID( const co::NodeID& nodeID ); //!< @internal
         /** @internal */
-        const net::NodeID& getAppNodeID() const { return _appNodeID; }
+        const co::NodeID& getAppNodeID() const { return _appNodeID; }
 
         virtual void changeLatency( const uint32_t ) { /* NOP */ }//!< @internal
         virtual bool mapViewObjects() const { return false; } //!< @internal
@@ -276,7 +276,7 @@ namespace fabric
         Nodes _nodes;
 
         /** The node identifier of the node running the application thread. */
-        net::NodeID _appNodeID;
+        co::NodeID _appNodeID;
 
         struct BackupData
         {
@@ -309,11 +309,11 @@ namespace fabric
         void _addNode( N* node );
         EQFABRIC_INL bool _removeNode( N* node );
 
-        typedef net::CommandFunc< Config< S, C, O, L, CV, N, V > > CmdFunc;
-        bool _cmdNewLayout( net::Command& command );
-        bool _cmdNewCanvas( net::Command& command );
-        bool _cmdNewObserver( net::Command& command );
-        bool _cmdNewEntityReply( net::Command& command );
+        typedef co::CommandFunc< Config< S, C, O, L, CV, N, V > > CmdFunc;
+        bool _cmdNewLayout( co::Command& command );
+        bool _cmdNewCanvas( co::Command& command );
+        bool _cmdNewObserver( co::Command& command );
+        bool _cmdNewEntityReply( co::Command& command );
     };
 
     template< class S, class C, class O, class L, class CV, class N, class V >

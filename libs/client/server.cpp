@@ -32,8 +32,8 @@
 namespace eq
 {
 
-typedef net::CommandFunc< Server > CmdFunc;
-typedef fabric::Server< Client, Server, Config, NodeFactory, net::Node > Super;
+typedef co::CommandFunc< Server > CmdFunc;
+typedef fabric::Server< Client, Server, Config, NodeFactory, co::Node > Super;
 
 Server::Server()
         : Super( Global::getNodeFactory( ))
@@ -51,7 +51,7 @@ void Server::setClient( ClientPtr client )
     if( !client )
         return;
 
-    net::CommandQueue* queue = client->getMainThreadQueue();
+    co::CommandQueue* queue = client->getMainThreadQueue();
     registerCommand( fabric::CMD_SERVER_CHOOSE_CONFIG_REPLY, 
                      CmdFunc( this, &Server::_cmdChooseConfigReply ), queue );
     registerCommand( fabric::CMD_SERVER_RELEASE_CONFIG_REPLY, 
@@ -60,12 +60,12 @@ void Server::setClient( ClientPtr client )
                      CmdFunc( this, &Server::_cmdShutdownReply ), queue );
 }
 
-net::CommandQueue* Server::getMainThreadQueue()
+co::CommandQueue* Server::getMainThreadQueue()
 {
     return getClient()->getMainThreadQueue();
 }
 
-net::CommandQueue* Server::getCommandThreadQueue() 
+co::CommandQueue* Server::getCommandThreadQueue() 
 {
     return getClient()->getCommandThreadQueue();
 }
@@ -136,7 +136,7 @@ bool Server::shutdown()
     client->waitRequest( packet.requestID, result );
 
     if( result )
-        static_cast< net::LocalNode* >( getClient().get( ))->disconnect( this );
+        static_cast< co::LocalNode* >( getClient().get( ))->disconnect( this );
 
     return result;
 }
@@ -144,13 +144,13 @@ bool Server::shutdown()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Server::_cmdChooseConfigReply( net::Command& command )
+bool Server::_cmdChooseConfigReply( co::Command& command )
 {
     const ServerChooseConfigReplyPacket* packet = 
         command.getPacket<ServerChooseConfigReplyPacket>();
     EQVERB << "Handle choose config reply " << packet << std::endl;
 
-    net::LocalNodePtr  localNode = command.getLocalNode();
+    co::LocalNodePtr  localNode = command.getLocalNode();
     if( packet->configID == eq::base::UUID::ZERO )
     {
         localNode->serveRequest( packet->requestID, (void*)0 );
@@ -174,23 +174,23 @@ bool Server::_cmdChooseConfigReply( net::Command& command )
     return true;
 }
 
-bool Server::_cmdReleaseConfigReply( net::Command& command )
+bool Server::_cmdReleaseConfigReply( co::Command& command )
 {
     const ServerReleaseConfigReplyPacket* packet = 
         command.getPacket<ServerReleaseConfigReplyPacket>();
 
-    net::LocalNodePtr localNode = command.getLocalNode();
+    co::LocalNodePtr localNode = command.getLocalNode();
     localNode->serveRequest( packet->requestID );
     return true;
 }
 
-bool Server::_cmdShutdownReply( net::Command& command )
+bool Server::_cmdShutdownReply( co::Command& command )
 {
     const ServerShutdownReplyPacket* packet = 
         command.getPacket<ServerShutdownReplyPacket>();
     EQINFO << "Handle shutdown reply " << packet << std::endl;
 
-    net::LocalNodePtr  localNode = command.getLocalNode();
+    co::LocalNodePtr  localNode = command.getLocalNode();
     localNode->serveRequest( packet->requestID, packet->result );
     return true;
 }
@@ -198,5 +198,5 @@ bool Server::_cmdShutdownReply( net::Command& command )
 
 #include "../fabric/server.ipp"
 template class eq::fabric::Server< eq::Client, eq::Server, eq::Config,
-                                   eq::NodeFactory, eq::net::Node >;
+                                   eq::NodeFactory, co::Node >;
 

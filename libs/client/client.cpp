@@ -39,12 +39,12 @@
 namespace eq
 {
 /** @cond IGNORE */
-typedef net::CommandFunc<Client> ClientFunc;
+typedef co::CommandFunc<Client> ClientFunc;
 
-static net::ConnectionPtr _startLocalServer();
+static co::ConnectionPtr _startLocalServer();
 static void _joinLocalServer();
 
-typedef net::ConnectionPtr (*eqsStartLocalServer_t)( const std::string& file );
+typedef co::ConnectionPtr (*eqsStartLocalServer_t)( const std::string& file );
 typedef void (*eqsJoinLocalServer_t)();
 
 typedef fabric::Client Super;
@@ -81,7 +81,7 @@ bool Client::connectServer( ServerPtr server )
     }
 
     // Use app-local server if no explicit server was set
-    net::ConnectionPtr connection = _startLocalServer();
+    co::ConnectionPtr connection = _startLocalServer();
     if( !connection )
         return false;
 
@@ -103,7 +103,7 @@ base::DSO _libeqserver;
 #define QUOTE( string ) STRINGIFY( string )
 #define STRINGIFY( foo ) #foo
 
-net::ConnectionPtr _startLocalServer()
+co::ConnectionPtr _startLocalServer()
 {
     Strings dirNames;
     dirNames.push_back( "" );
@@ -233,7 +233,7 @@ bool Client::_setupClient( const std::string& clientArgs )
     if( clientArgs.empty( ))
         return true;
 
-    size_t nextPos = clientArgs.find( EQNET_SEPARATOR );
+    size_t nextPos = clientArgs.find( CO_SEPARATOR );
     if( nextPos == std::string::npos )
     {
         EQERROR << "Could not parse working directory: " << clientArgs
@@ -244,12 +244,12 @@ bool Client::_setupClient( const std::string& clientArgs )
     const std::string workDir = clientArgs.substr( 0, nextPos );
     std::string description = clientArgs.substr( nextPos + 1 );
 
-    net::Global::setWorkDir( workDir );
+    co::Global::setWorkDir( workDir );
     if( !workDir.empty() && chdir( workDir.c_str( )) == -1 )
         EQWARN << "Can't change working directory to " << workDir << ": "
                << strerror( errno ) << std::endl;
     
-    nextPos = description.find( EQNET_SEPARATOR );
+    nextPos = description.find( CO_SEPARATOR );
     if( nextPos == std::string::npos )
     {
         EQERROR << "Could not parse server node type: " << description
@@ -257,7 +257,7 @@ bool Client::_setupClient( const std::string& clientArgs )
         return false;
     }
 
-    net::NodePtr server = createNode( fabric::NODETYPE_EQ_SERVER );
+    co::NodePtr server = createNode( fabric::NODETYPE_EQ_SERVER );
     if( !server->deserialize( description ))
         EQWARN << "Can't parse server data" << std::endl;
 
@@ -299,7 +299,7 @@ bool Client::hasCommands()
     return !_mainThreadQueue.isEmpty();
 }
 
-net::NodePtr Client::createNode( const uint32_t type )
+co::NodePtr Client::createNode( const uint32_t type )
 { 
     switch( type )
     {
@@ -311,11 +311,11 @@ net::NodePtr Client::createNode( const uint32_t type )
         }
 
         default:
-            return net::Node::createNode( type );
+            return co::Node::createNode( type );
     }
 }
 
-bool Client::_cmdExit( net::Command& command )
+bool Client::_cmdExit( co::Command& command )
 {
     _running = false;
     // Close connection here, this is the last packet we'll get on it

@@ -29,7 +29,7 @@ namespace eq
 namespace fabric
 {
 
-#define CmdFunc net::CommandFunc< Server< CL, S, CFG, NF, N > >
+#define CmdFunc co::CommandFunc< Server< CL, S, CFG, NF, N > >
 
 template< class CL, class S, class CFG, class NF, class N >
 Server< CL, S, CFG, NF, N >::Server( NF* nodeFactory )
@@ -54,7 +54,7 @@ void Server< CL, S, CFG, NF, N >::setClient( ClientPtr client )
     if( !client )
         return;
 
-    net::CommandQueue* queue = static_cast< S* >( this )->getMainThreadQueue();
+    co::CommandQueue* queue = static_cast< S* >( this )->getMainThreadQueue();
     registerCommand( CMD_SERVER_CREATE_CONFIG, 
                      CmdFunc( this, &Server::_cmdCreateConfig ), queue );
     registerCommand( CMD_SERVER_DESTROY_CONFIG, 
@@ -84,13 +84,13 @@ bool Server< CL, S, CFG, NF, N >::_removeConfig( CFG* config )
 // command handlers
 //---------------------------------------------------------------------------
 template< class CL, class S, class CFG, class NF, class N > bool
-Server< CL, S, CFG, NF, N >::_cmdCreateConfig( net::Command& command )
+Server< CL, S, CFG, NF, N >::_cmdCreateConfig( co::Command& command )
 {
     const ServerCreateConfigPacket* packet = 
         command.getPacket<ServerCreateConfigPacket>();
     EQVERB << "Handle create config " << packet << std::endl;
     CFG* config = _nodeFactory->createConfig( static_cast< S* >( this ));
-    net::LocalNodePtr localNode = command.getLocalNode();
+    co::LocalNodePtr localNode = command.getLocalNode();
     localNode->mapObject( config, packet->configVersion );
     if( packet->requestID != EQ_UNDEFINED_UINT32 )
     {
@@ -102,13 +102,13 @@ Server< CL, S, CFG, NF, N >::_cmdCreateConfig( net::Command& command )
 }
 
 template< class CL, class S, class CFG, class NF, class N > bool
-Server< CL, S, CFG, NF, N >::_cmdDestroyConfig( net::Command& command )
+Server< CL, S, CFG, NF, N >::_cmdDestroyConfig( co::Command& command )
 {
     const ServerDestroyConfigPacket* packet = 
         command.getPacket<ServerDestroyConfigPacket>();
     EQVERB << "Handle destroy config " << packet << std::endl;
     
-    net::LocalNodePtr localNode = command.getLocalNode();
+    co::LocalNodePtr localNode = command.getLocalNode();
 
     CFG* config = 0;
     for( typename Configs::const_iterator i = _configs.begin();
@@ -140,12 +140,12 @@ std::ostream& operator << ( std::ostream& os,
     os << base::disableFlush << base::disableHeader << "server " << std::endl;
     os << "{" << std::endl << base::indent;
     
-    const net::ConnectionDescriptions& cds =
+    const co::ConnectionDescriptions& cds =
         server.getConnectionDescriptions();
-    for( net::ConnectionDescriptions::const_iterator i = cds.begin();
+    for( co::ConnectionDescriptions::const_iterator i = cds.begin();
          i != cds.end(); ++i )
     {
-        net::ConnectionDescriptionPtr desc = *i;
+        co::ConnectionDescriptionPtr desc = *i;
         os << *desc;
     }
 

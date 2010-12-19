@@ -72,8 +72,8 @@ namespace eq
         /** @return the local client node. @version 1.0 */
         EQ_API ConstClientPtr getClient() const;
 
-        EQ_API net::CommandQueue* getMainThreadQueue(); //!< @internal
-        EQ_API net::CommandQueue* getCommandThreadQueue(); //!< @internal
+        EQ_API co::CommandQueue* getMainThreadQueue(); //!< @internal
+        EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
 
         /** @return the frame number of the last frame started. @version 1.0 */
         uint32_t getCurrentFrame()  const { return _currentFrame; }
@@ -195,7 +195,7 @@ namespace eq
          * local client node.
          * @version 1.0
          */
-        EQ_API bool registerObject( net::Object* object );
+        EQ_API bool registerObject( co::Object* object );
 
         /**
          * Deregister a distributed object.
@@ -206,7 +206,7 @@ namespace eq
          * @param object the object instance.
          * @version 1.0
          */
-        EQ_API virtual void deregisterObject( net::Object* object );
+        EQ_API virtual void deregisterObject( co::Object* object );
 
         /** 
          * Map a distributed object.
@@ -215,8 +215,8 @@ namespace eq
          * local client node.
          * @version 1.0
          */
-        EQ_API bool mapObject( net::Object* object, const base::UUID& id, 
-                               const uint128_t& version = net::VERSION_OLDEST );
+        EQ_API bool mapObject( co::Object* object, const base::UUID& id, 
+                               const uint128_t& version = co::VERSION_OLDEST );
 
         /** 
          * Unmap a mapped object.
@@ -224,7 +224,7 @@ namespace eq
          * Provided for symmetry with deregisterObject. Forwards unmapping to
          * local client node.
          */
-        EQ_API void unmapObject( net::Object* object );
+        EQ_API void unmapObject( co::Object* object );
         //@}
 
         /** @name Frame Control */
@@ -378,7 +378,7 @@ namespace eq
 
     protected:
         /** @internal */
-        EQ_API virtual void attach( const base::UUID& id,
+        EQ_API virtual void attach( const eq::base::UUID& id,
                                     const uint32_t instanceID );
 
         EQ_API virtual void notifyAttached(); //!< @internal
@@ -389,16 +389,16 @@ namespace eq
 
     private:
         /** The node running the application thread. */
-        net::NodePtr _appNode;
+        co::NodePtr _appNode;
 
         /** The receiver->app thread event queue. */
         CommandQueue _eventQueue;
         
         /** The last received event to be released. */
-        net::Command* _lastEvent;
+        co::Command* _lastEvent;
 
         /** The connections configured by the server for this config. */
-        net::Connections _connections;
+        co::Connections _connections;
 
         /** Global statistics events, index per frame and channel. */
         std::deque< FrameStatistics > _statistics;
@@ -420,7 +420,7 @@ namespace eq
         bool _running;
 
         /** @internal A proxy object to keep master data within latency. */
-        class LatencyObject : public net::Object
+        class LatencyObject : public co::Object
         {
         public:
             LatencyObject( const ChangeType type ) : _changeType( type ) {}
@@ -428,8 +428,8 @@ namespace eq
 
         protected:
             virtual ChangeType getChangeType() const { return _changeType; }
-            virtual void getInstanceData( net::DataOStream& os ){ EQDONTCALL }
-            virtual void applyInstanceData( net::DataIStream& is ){ EQDONTCALL }
+            virtual void getInstanceData( co::DataOStream& os ){ EQDONTCALL }
+            virtual void applyInstanceData( co::DataIStream& is ){ EQDONTCALL }
         private:
             const ChangeType _changeType;
         };
@@ -463,16 +463,16 @@ namespace eq
         void _exitMessagePump();
 
         /** The command functions. */
-        bool _cmdSyncClock( net::Command& command );
-        bool _cmdCreateNode( net::Command& command );
-        bool _cmdDestroyNode( net::Command& command );
-        bool _cmdInitReply( net::Command& command );
-        bool _cmdExitReply( net::Command& command );
-        bool _cmdUpdateVersion( net::Command& command );
-        bool _cmdUpdateReply( net::Command& command );
-        bool _cmdReleaseFrameLocal( net::Command& command );
-        bool _cmdFrameFinish( net::Command& command );
-        bool _cmdSwapObject( net::Command& command );
+        bool _cmdSyncClock( co::Command& command );
+        bool _cmdCreateNode( co::Command& command );
+        bool _cmdDestroyNode( co::Command& command );
+        bool _cmdInitReply( co::Command& command );
+        bool _cmdExitReply( co::Command& command );
+        bool _cmdUpdateVersion( co::Command& command );
+        bool _cmdUpdateReply( co::Command& command );
+        bool _cmdReleaseFrameLocal( co::Command& command );
+        bool _cmdFrameFinish( co::Command& command );
+        bool _cmdSwapObject( co::Command& command );
     };
 }
 

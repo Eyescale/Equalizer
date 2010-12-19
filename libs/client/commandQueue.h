@@ -27,29 +27,29 @@ namespace eq
 
     /**
      * @internal
-     * Augments an net::CommandQueue to pump system-specific events where
+     * Augments an co::CommandQueue to pump system-specific events where
      * required by the underlying window/operating system.
      */
-    class CommandQueue : public net::CommandQueue
+    class CommandQueue : public co::CommandQueue
     {
     public:
         CommandQueue();
         virtual ~CommandQueue();
 
-        /** @sa net::CommandQueue::push(). */
-        virtual void push( net::Command& packet );
+        /** @sa co::CommandQueue::push(). */
+        virtual void push( co::Command& packet );
 
-        /** @sa net::CommandQueue::pushFront(). */
-        virtual void pushFront( net::Command& packet );
+        /** @sa co::CommandQueue::pushFront(). */
+        virtual void pushFront( co::Command& packet );
 
-        /** @sa net::CommandQueue::wakeup(). */
+        /** @sa co::CommandQueue::wakeup(). */
         virtual void wakeup();
 
-        /** @sa net::CommandQueue::pop(). */
-        virtual net::Command* pop();
+        /** @sa co::CommandQueue::pop(). */
+        virtual co::Command* pop();
 
-        /** @sa net::CommandQueue::tryPop(). */
-        virtual net::Command* tryPop();
+        /** @sa co::CommandQueue::tryPop(). */
+        virtual co::Command* tryPop();
 
         void setMessagePump( MessagePump* pump ) { _messagePump = pump; }
         MessagePump* getMessagePump() { return _messagePump; }

@@ -15,15 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_BUFFER_CONNECTION_H
-#define EQNET_BUFFER_CONNECTION_H
+#ifndef CO_BUFFER_CONNECTION_H
+#define CO_BUFFER_CONNECTION_H
 
 #include <co/connection.h>   // base class
 #include <eq/base/buffer.h>      // member
 
-namespace eq
-{
-namespace net
+namespace co
 {
     /**
      * A proxy connection buffering outgoing data into a memory region.
@@ -31,10 +29,10 @@ namespace net
     class BufferConnection : public Connection
     {
     public:
-        EQNET_API BufferConnection();
-        EQNET_API virtual ~BufferConnection();
+        CO_API BufferConnection();
+        CO_API virtual ~BufferConnection();
 
-        EQNET_API void sendBuffer( ConnectionPtr connection );
+        CO_API void sendBuffer( ConnectionPtr connection );
 
         uint64_t getSize() const { return _buffer.getSize(); }
 
@@ -43,15 +41,14 @@ namespace net
             { EQDONTCALL; }
         virtual int64_t readSync( void*, const uint64_t, const bool )
             { EQDONTCALL; return -1; }
-        EQNET_API virtual int64_t write( const void* buffer,
+        CO_API virtual int64_t write( const void* buffer,
                                          const uint64_t bytes );
 
         virtual Notifier getNotifier() const { EQDONTCALL; return 0; }
 
     private:
-        mutable base::Bufferb _buffer;
+        mutable eq::base::Bufferb _buffer;
     };
 }
-}
 
-#endif //EQNET_BUFFER_CONNECTION_H
+#endif //CO_BUFFER_CONNECTION_H

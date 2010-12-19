@@ -50,7 +50,7 @@ namespace admin
         /** @return the local client node. @version 1.0 */
         EQADMIN_EXPORT ConstClientPtr getClient() const;
 
-        EQADMIN_EXPORT net::CommandQueue* getMainThreadQueue(); //!< @internal
+        EQADMIN_EXPORT co::CommandQueue* getMainThreadQueue(); //!< @internal
 
         /** @internal */
         const Channel* findChannel( const std::string& name ) const

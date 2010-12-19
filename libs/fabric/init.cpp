@@ -34,7 +34,7 @@ bool init( const int argc, char** argv )
     if( ++_initialized != 1 ) // not first
         return true;
 
-    return net::init( argc, argv );
+    return co::init( argc, argv );
 }
     
 bool exit()
@@ -45,7 +45,7 @@ bool exit()
     if( --_initialized != 0 ) // not last
         return true;
 
-    return net::exit();
+    return co::exit();
 }
 
 }

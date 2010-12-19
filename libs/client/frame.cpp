@@ -39,13 +39,13 @@ Frame::~Frame()
         EQINFO << "FrameData attached to frame during deletion" << endl;
 }
 
-void Frame::getInstanceData( net::DataOStream& os )
+void Frame::getInstanceData( co::DataOStream& os )
 {
     EQUNREACHABLE;
     os << _data;
 }
 
-void Frame::applyInstanceData( net::DataIStream& is )
+void Frame::applyInstanceData( co::DataIStream& is )
 {
     is >> _data;
 }

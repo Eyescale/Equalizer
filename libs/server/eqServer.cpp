@@ -38,7 +38,7 @@ int main( const int argc, char** argv )
     if( !eq::server::init( argc, argv ))
         return EXIT_FAILURE;
 
-    eq::net::Global::setDefaultPort( EQ_DEFAULT_PORT );
+    co::Global::setDefaultPort( EQ_DEFAULT_PORT );
 
     eq::server::Loader loader;
     eq::server::ServerPtr server;

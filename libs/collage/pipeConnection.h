@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQNET_PIPE_CONNECTION_H
-#define EQNET_PIPE_CONNECTION_H
+#ifndef CO_PIPE_CONNECTION_H
+#define CO_PIPE_CONNECTION_H
 
 #ifdef WIN32
 #  include <co/connection.h>
@@ -26,9 +26,7 @@
 
 #include <eq/base/thread.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
     /**
      * A uni-directional pipe connection.
@@ -46,9 +44,9 @@ namespace net
     {
     public:
         /** Construct a new pipe connection. */
-        EQNET_API PipeConnection();
+        CO_API PipeConnection();
         /** Destruct this pipe connection. */
-        EQNET_API virtual ~PipeConnection();
+        CO_API virtual ~PipeConnection();
 
         virtual bool connect();
         virtual void close();
@@ -73,12 +71,11 @@ namespace net
 #ifdef WIN32
         HANDLE _readHandle;
         HANDLE _writeHandle;
-        mutable base::Lock _mutex;
+        mutable eq::base::Lock _mutex;
         mutable uint64_t   _size;
         mutable HANDLE     _dataPending;
 #endif
     };
 }
-}
 
-#endif //EQNET_PIPE_CONNECTION_H
+#endif //CO_PIPE_CONNECTION_H

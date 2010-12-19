@@ -16,14 +16,12 @@
  */
 
 #ifndef WIN32
-#ifndef EQNET_FDCONNECTION_H
-#define EQNET_FDCONNECTION_H
+#ifndef CO_FDCONNECTION_H
+#define CO_FDCONNECTION_H
 
 #include <co/connection.h>
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
     /**
@@ -61,7 +59,6 @@ namespace net
            << " writeFD " << connection->_writeFD;
         return os;
     }
-}
 }
 
 #endif //EQNET_FDCONNECTION_H

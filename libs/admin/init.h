@@ -43,7 +43,7 @@ namespace admin
     /**
      * Initialize the Equalizer administrative library.
      *
-     * This function also initializes the network layer using eq::net::init(),
+     * This function also initializes the network layer using co::init(),
      * if eq::init() was not called beforehand by the calling process. It has to
      * be called before any other access to classes or functions in this
      * namespace. It can be called before or after eq::init().

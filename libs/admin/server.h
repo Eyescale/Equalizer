@@ -36,7 +36,7 @@ namespace admin
      * @sa Client::connectServer
      */
     class Server : public fabric::Server< Client, Server, Config, NodeFactory,
-                                          net::Node >
+                                          co::Node >
     {
     public:
         /** Construct a new server. @version 1.0 */
@@ -52,7 +52,7 @@ namespace admin
         void unmap();
 
         virtual void setClient( ClientPtr client ); //!< @internal
-        net::CommandQueue* getMainThreadQueue(); //!< @internal
+        co::CommandQueue* getMainThreadQueue(); //!< @internal
 
     private:
         union // placeholder for binary-compatible changes
@@ -60,8 +60,8 @@ namespace admin
             char dummy[32];
         };
 
-        bool _cmdMapReply( net::Command& command );
-        bool _cmdUnmapReply( net::Command& command );
+        bool _cmdMapReply( co::Command& command );
+        bool _cmdUnmapReply( co::Command& command );
     };
 }
 }

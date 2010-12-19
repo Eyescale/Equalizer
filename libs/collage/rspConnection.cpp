@@ -35,9 +35,7 @@
 
 using namespace boost::asio;
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
 namespace
@@ -123,7 +121,7 @@ void RSPConnection::close()
 
     while(( !_parent && _isWriting() ))
     {
-        base::sleep( 10 );
+        eq::base::sleep( 10 );
     }
     _close();
     _event->set();
@@ -134,7 +132,7 @@ void RSPConnection::_close()
     if( _state == STATE_CLOSED )
         return;
     _state = STATE_CLOSING;
-    base::ScopedMutex<> mutex( _mutexEvent );
+    eq::base::ScopedMutex<> mutex( _mutexEvent );
  
     if( _thread )
     {
@@ -148,7 +146,7 @@ void RSPConnection::_close()
              i != _children.end(); ++i )
         {
             RSPConnectionPtr child = *i;
-            base::ScopedMutex<> mutexChild( child->_mutexEvent );
+            eq::base::ScopedMutex<> mutexChild( child->_mutexEvent );
             child->_appBuffers.push( 0 );
             child->_event->set();
         }
@@ -281,7 +279,7 @@ ConnectionPtr RSPConnection::acceptSync()
         return 0;
         
     // protect event->set, _children and _childrenConnecting
-    base::ScopedMutex<> mutexConn( _mutexConnection );
+    eq::base::ScopedMutex<> mutexConn( _mutexConnection );
     EQASSERT( !_childrenConnecting.empty( ));
     if( _childrenConnecting.empty( ))
         return 0;
@@ -360,7 +358,7 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes, const bool)
         _event->set();
     else
     {
-        base::ScopedMutex<> mutex( _mutexEvent );
+        eq::base::ScopedMutex<> mutex( _mutexEvent );
         if( _appBuffers.isEmpty( ))
             _event->reset();
 
@@ -621,12 +619,12 @@ void RSPConnection::_waitWritable( const uint64_t bytes )
     while( _bucketSize < size )
     {
         //base::sleep( 1 );
-        base::Thread::yield();
+        eq::base::Thread::yield();
         float time = _clock.resetTimef();
 
         while( time == 0.f )
         {
-            base::Thread::yield();
+            eq::base::Thread::yield();
             time = _clock.resetTimef();
         }
 
@@ -728,7 +726,7 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
         Buffer* newBuffer = connection->_newDataBuffer( *buffer );
         if( !newBuffer && !readBuffers.empty( )) // push prepared app buffers
         {
-            base::ScopedMutex<> mutex( connection->_mutexEvent );
+            eq::base::ScopedMutex<> mutex( connection->_mutexEvent );
             EQLOG( LOG_RSP ) << "post " << readBuffers.size()
                              << " buffers starting with sequence "
                              << connection->_sequence << std::endl;
@@ -743,7 +741,7 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
         {
             newBuffer = connection->_newDataBuffer( *buffer );
             //base::sleep( 1 );
-            base::Thread::yield();
+            eq::base::Thread::yield();
         }
 
         freeBuffers.push_back( buffer );
@@ -753,7 +751,7 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
     _appBuffers.push( freeBuffers );
     if( !readBuffers.empty( ))
     {
-        base::ScopedMutex<> mutex( connection->_mutexEvent );
+        eq::base::ScopedMutex<> mutex( connection->_mutexEvent );
 #if 0
         EQLOG( LOG_RSP ) 
             << "post " << readBuffers.size() << " buffers starting at "
@@ -959,7 +957,7 @@ bool RSPConnection::_handleData( Buffer& buffer )
         if( !newBuffer ) // no more data buffers, drop packet
             return true;
 
-        base::ScopedMutex<> mutex( connection->_mutexEvent );
+        eq::base::ScopedMutex<> mutex( connection->_mutexEvent );
         connection->_pushDataBuffer( newBuffer );
             
         while( !connection->_recvBuffers.empty( )) // enqueue ready pending data
@@ -1161,7 +1159,7 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
 
 void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
 {
-    EQLOG( LOG_RSP ) << base::disableFlush << "Queue repeat requests ";
+    EQLOG( LOG_RSP ) << eq::base::disableFlush << "Queue repeat requests ";
     size_t lost = 0;
 
     for( size_t i = 0; i < num; ++i )
@@ -1214,10 +1212,11 @@ void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
         _sendRate -= 1 + int64_t( _sendRate * downScale );
         EQLOG( LOG_RSP ) 
             << ", lost " << lost << " slowing down " << downScale * 100.f
-            << "% to " << _sendRate << " KB/s" << std::endl <<base::enableFlush;
+            << "% to " << _sendRate << " KB/s" << std::endl 
+            << eq::base::enableFlush;
     }
     else
-        EQLOG( LOG_RSP ) << std::endl << base::enableFlush;
+        EQLOG( LOG_RSP ) << std::endl << eq::base::enableFlush;
 }
 
 bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
@@ -1243,7 +1242,8 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
     const uint16_t distance = reqID - gotID;
 
     EQLOG( LOG_RSP ) << "ack request "  << reqID << " from " << writerID
-                     << " got " << gotID << " missing " << distance <<std::endl;
+                     << " got " << gotID << " missing " << distance 
+                     << std::endl;
 
     if( (reqID == gotID) ||
         (gotID > reqID && gotID - reqID <= _numBuffers) ||
@@ -1259,8 +1259,8 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
     uint16_t i = 0;
 
     nacks[ i ].start = connection->_sequence;
-    EQLOG( LOG_RSP ) << base::disableFlush << "nacks: " << nacks[i].start
-                     << "..";
+    EQLOG( LOG_RSP ) << eq::base::disableFlush << "nacks: " 
+                     << nacks[i].start << "..";
     
     std::deque<Buffer*>::const_iterator j = connection->_recvBuffers.begin();
     std::deque<Buffer*>::const_iterator first = j;
@@ -1314,7 +1314,7 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
         ++i;
     }
 
-    EQLOG( LOG_RSP ) << std::endl << base::enableFlush << "send " << i
+    EQLOG( LOG_RSP ) << std::endl << eq::base::enableFlush << "send " << i
                      << " nacks to " << connection->_id << std::endl;
 
     EQASSERT( i > 0 );
@@ -1365,7 +1365,7 @@ bool RSPConnection::_addNewConnection( const uint16_t id )
     if( _findConnection( id ).isValid() )
         return false;
 
-    base::ScopedMutex<> mutexConn( _mutexConnection );
+    eq::base::ScopedMutex<> mutexConn( _mutexConnection );
     for( std::vector< RSPConnectionPtr >::const_iterator i = _children.begin();
          i != _children.end(); ++i )
     {
@@ -1412,7 +1412,7 @@ void RSPConnection::_removeConnection( const uint16_t id )
         RSPConnectionPtr child = *i;
         if( child->_id == id )
         {
-            base::ScopedMutex<> mutex( _mutexEvent ); 
+            eq::base::ScopedMutex<> mutex( _mutexEvent ); 
             _children.erase( i );
                 
             child->_appBuffers.push( 0 );
@@ -1546,8 +1546,9 @@ void RSPConnection::_sendAckRequest()
 std::ostream& operator << ( std::ostream& os,
                             const RSPConnection& connection )
 {
-    os << base::disableFlush << base::disableHeader << "RSPConnection id "
-       << connection.getID() << " send rate " << connection.getSendRate();
+    os << eq::base::disableFlush << eq::base::disableHeader 
+       << "RSPConnection id " << connection.getID() << " send rate " 
+       << connection.getSendRate();
 
 #ifdef EQ_INSTRUMENT_RSP
     const int prec = os.precision();
@@ -1584,11 +1585,10 @@ std::ostream& operator << ( std::ostream& os,
     nNAcksRead = 0;
     writeWaitTime = 0.f;
 #endif
-    os << std::endl << base::enableHeader << base::enableFlush;
+    os << std::endl << eq::base::enableHeader << eq::base::enableFlush;
 
     return os;
 }
 
-}
 }
 #endif //EQ_USE_BOOST

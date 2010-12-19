@@ -27,9 +27,7 @@
 
 
 
-namespace eq
-{
-namespace net
+namespace co
 {
 
 IBCompletionQueue::~IBCompletionQueue()
@@ -177,7 +175,6 @@ void IBCompletionQueue::resetEventRead()
     eq::base::ScopedMutex mutex( _mutex );
     triggerRead();
     ResetEvent( getReadNotifier() );
-}
 }
 }
 #endif //EQ_INFINIBAND
