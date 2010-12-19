@@ -766,6 +766,7 @@ void LocalNode::_runReceiverThread()
         EQWARN << _pendingCommands.size() 
                << " commands pending while leaving command thread" << std::endl;
 
+    _objectStore->clear();
     for( CommandList::const_iterator i = _pendingCommands.begin();
          i != _pendingCommands.end(); ++i )
     {
