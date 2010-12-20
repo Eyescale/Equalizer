@@ -20,16 +20,15 @@
 1. Introduction
 
    Welcome to Equalizer, the standard middleware to create and deploy
-   parallel, scalable OpenGL applications. Equalizer 0.9.1 introduces
-   reliable multicast data distribution and subpixel compounds for full-scene
-   anti-aliasing and depth-of-field decomposition.
+   parallel, scalable OpenGL applications. Equalizer 1.0-alpha introduces XXX
 
-   Equalizer 0.9.1 is a developer release, representing a stable snapshot of
-   the development tree after the 0.9 release. Equalizer 0.9.1 can be
-   retrieved by downloading the source code. , updating the subversion trunk
-   to revision 4082 (svn up -r 4082) or by using:
+   Equalizer 1.0-alpha is a developer release, representing an early snapshot
+   of Equalizer 1.0 API. It is intended for application developers to provide
+   feedback and preview the 1.0 release. Equalizer 1.0-alpha can be retrieved
+   by downloading the source code. , updating the subversion trunk to
+   revision XXX (svn up -r XXX) or by using:
    svn co
-   https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.1
+   https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.2
 
   1.1. Features
 
@@ -53,10 +52,30 @@
 
 2. New in this release
 
-   Equalizer 0.9.1 contains the following features, enhancements, bug fixes
-   and documentation changes:
+   Equalizer 1.0-alpha contains the following features, enhancements, bug
+   fixes and documentation changes:
 
   2.1. New Features
+
+     * Runtime stereo switching allows changing between mono and stereo
+       rendering at runtime.
+     * Collage: a cross-platform C++ library for heterogenous, distributed
+       applications, formerly known as eq::net (beta technology preview).
+     * CMake build system for all supported platforms
+     * Administrative API for runtime configuration changes (beta technology
+       preview).
+     * Slave object commit supports commiting changed data on a slave object
+       instance to the master instance.
+     * Automatic compression of distributed object data.
+     * Support for pixel formats with 10 bit per color component.
+     * Support for GPU-CPU transfer and compression plugins.
+     * Failure tolerance during initialization.
+     * Rendering capabilities allow application-dependent (de-)activation of
+       channels.
+     * Interruptible rendering allows applications to stop rendering on all
+       pending frames.
+
+   0.9.1:
 
      * Subpixel compounds for full-scene anti-aliasing (FSAA) or
        depth-of-field (DOF) decomposition
@@ -65,6 +84,20 @@
 
   2.2. Enhancements
 
+     * Support for Windows 7
+     * RFE 2809019: Specify connection from a config file when using appNode
+     * RFE 3086646: Load and view equalizer: consider assemble time
+     * RFE 3036064: View and load equalizer should consider network times
+     * RFE 2927688: Loadbalancer tile sizes should not exceed channel PVP's
+     * Statistics overlay: Add compression and download ratio, render overlay
+       without usage of depth buffer
+     * CPU compression plugins: allow different output from input token
+     * New command line argument --eq-logfile
+     * New compound auto stereo mode detection (active, anaglyph, passive)
+     * Structured error reporting.
+
+   0.9.1:
+
      * Support for Mac OS X 10.6 Snow Leopard
      * Tile and range boundaries for the load equalizer
      * New eq::util::Accum class for accumulation operations using an FBO or
@@ -72,14 +105,30 @@
      * Multiple windows on the same pipe can join the same software swap
        barrier
      * Configurable message pump
+     * Added attached and detach notification to co::Object.
 
   2.3. Optimizations
+
+     * Mac OS X: Use SpinLocks over pthread locks for improved performance
+       (250x) in various places.
+     * Collage: Simplify and optimize command packet dispatch and invocation
+     * Collage: Optimize RSP multicast using sliding ack window with early
+       acks
+     * Collage: Send object instance data during registration to accelerate
+       object mapping
+
+   0.9.1:
 
      * Configurable object serialization buffer size
      * Performance optimization for image compression
      * Reduce memory footprint for eq::net::Objects with change type DELTA
 
   2.4. Examples
+
+     * New OSGScaleViewer example, evolved from eqOSG contribution
+     * EqPly: Run-time configurable image quality
+
+   0.9.1:
 
      * EqPly: added anti-aliasing when the application is idle
      * EqPly: recursively search directories for models
@@ -92,7 +141,14 @@
   2.6. API Changes
 
    The following changes breaking compatibility with Equalizer 0.6 source
-   code were made:
+   code were made: (CHANGES.txt)
+
+     * Type definitions for vectors of Foo* have changed from FooVector to
+       Foos.
+     * OSPipe and OSWindow have been renamed to SystemPipe and SystemWindow,
+       respectively
+
+   0.9.1:
 
      * The utility classes Accum, AccumBufferObject, FrameBufferObject and
        Texture where moved from the eq to the eq::util namespace.
@@ -106,17 +162,19 @@
    The following documentation has been added or substantially improved since
    the last release:
 
-     * The Programming and User Guide has been extended to 91 pages and 53
+     * The Programming and User Guide has been extended to XXX pages and XXX
        figures.
-     * The Accumulation Buffer Object API has been added to the Programming
-       Guide.
-     * The Subpixel compound provides FSAA and DOF decomposition
-     * Multicast Data Transfer
+     * The XXX
 
   2.8. Bug Fixes
 
-   Equalizer 0.9.1 includes various bugfixes over the 0.9 release, including
-   the following:
+   Equalizer 1.0-alpha includes various bugfixes over the 0.9 release,
+   including the following:
+
+     * 2882248: Spurious network deadlocks on Win32
+     * 3071764: GLX: No distinction between lowercase and uppercase keys
+
+   0.9.1:
 
      * 2873353: Usage of ext/hash_map and -Werror causes compiler error
      * 2834063: eqPly and eVolve freezes on Mac with glX
@@ -145,13 +203,16 @@
    system. A compatibility matrix can be found on the Equalizer website.
 
    Equalizer requires at least OpenGL 1.1, but uses newer OpenGL features
-   when available. Version 0.9.1 has been tested on:
+   when available. Version 1.0-alpha has been tested on:
 
   3.1. Operating System Support
 
-     * Linux: Ubuntu 9.04, 9.10 (i386, x64)
-     * Windows: XP with Visual Studio 2005 (i386, x64)
-     * Mac OS X: 10.5, 10.6 (i386)
+   Equalizer uses CMake to create a platform-specific build environment. The
+   following platforms and build environments are tested:
+
+     * Linux: Ubuntu 10.04, 10.10 (Makefile, i386, x64)
+     * Windows: XP and 7 (Visual Studio 2008, i386, x64)
+     * Mac OS X: 10.5, 10.6 (Makefile, XCode, i386, x64)
 
   3.2. Window System Support
 
@@ -161,8 +222,9 @@
 
   3.3. Documentation
 
-   The Programming and User Guide is available as a hard-copy and online. API
-   documentation can be found on the Equalizer website.
+   The Programming and User Guide is available as a hard-copy (0.9) and
+   online (1.0 alpha). API documentation can be found on the Equalizer
+   website.
 
    As with any open source project, the available source code, in particular
    the shipped examples provide a reference for developing or porting

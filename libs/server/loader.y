@@ -157,7 +157,6 @@
 %token EQTOKEN_ON
 %token EQTOKEN_OFF
 %token EQTOKEN_AUTO
-%token EQTOKEN_EXTERN
 %token EQTOKEN_FASTEST
 %token EQTOKEN_NICEST
 %token EQTOKEN_QUAD
@@ -1261,7 +1260,6 @@ IATTR:
     | EQTOKEN_LOCAL_SYNC { $$ = eq::fabric::LOCAL_SYNC; }
     | EQTOKEN_RGBA16F    { $$ = eq::fabric::RGBA16F; }
     | EQTOKEN_RGBA32F    { $$ = eq::fabric::RGBA32F; }
-    | EQTOKEN_EXTERN     { $$ = eq::fabric::EXTERN; }
     | INTEGER            { $$ = $1; }
 
 STRING: EQTOKEN_STRING

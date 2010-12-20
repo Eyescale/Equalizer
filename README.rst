@@ -28,16 +28,15 @@
 ---------------
 
 Welcome to Equalizer, the standard middleware to create and deploy parallel,
-scalable OpenGL applications. Equalizer 0.9.1 introduces reliable multicast
-data distribution and subpixel compounds for full-scene anti-aliasing and
-depth-of-field decomposition.
+scalable OpenGL applications. Equalizer 1.0-alpha introduces XXX
 
-Equalizer 0.9.1 is a developer release, representing a stable snapshot of the
-development tree after the 0.9 release. Equalizer 0.9.1 can be retrieved by
+Equalizer 1.0-alpha is a developer release, representing an early snapshot of
+Equalizer 1.0 API. It is intended for application developers to provide
+feedback and preview the 1.0 release. Equalizer 1.0-alpha can be retrieved by
 downloading the `source code`_. , updating the subversion trunk to revision
-4082 (``svn up -r 4082``) or by using:
+XXX (``svn up -r XXX``) or by using:
 ``svn co
-https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.1``
+https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.2``
 
 
 1.1. Features
@@ -64,12 +63,32 @@ can be found on the Equalizer website.
 2. New in this release
 ----------------------
 
-Equalizer 0.9.1 contains the following features, enhancements, bug fixes and
-documentation changes:
+Equalizer 1.0-alpha contains the following features, enhancements, bug fixes
+and documentation changes:
 
 
 2.1. New Features
 ~~~~~~~~~~~~~~~~~
+
+-   `Runtime stereo switching`_ allows changing between mono and stereo
+    rendering at runtime.
+-   Collage: a cross-platform C++ library for heterogenous, distributed
+    applications, formerly known as ``eq::net`` (beta technology preview).
+-   CMake build system for all supported platforms
+-   `Administrative API`_ for runtime configuration changes (beta
+    technology preview).
+-   `Slave object commit`_ supports commiting changed data on a slave
+    object instance to the master instance.
+-   Automatic compression of distributed object data.
+-   Support for pixel formats with 10 bit per color component.
+-   Support for `GPU-CPU transfer and compression plugins`_.
+-   `Failure tolerance`_ during initialization.
+-   `Rendering capabilities`_ allow application-dependent (de-)activation
+    of channels.
+-   `Interruptible rendering`_ allows applications to stop rendering on
+    all pending frames.
+
+0.9.1:
 
 -   ` Subpixel compounds`_ for full-scene anti-aliasing (FSAA) or depth-
     of-field (DOF) decomposition
@@ -80,6 +99,22 @@ documentation changes:
 2.2. Enhancements
 ~~~~~~~~~~~~~~~~~
 
+-   Support for Windows 7
+-   `RFE 2809019`_: Specify connection from a config file when using
+    appNode
+-   `RFE 3086646`_: Load and view equalizer: consider assemble time
+-   `RFE 3036064`_: View and load equalizer should consider network times
+-   `RFE 2927688`_: Loadbalancer tile sizes should not exceed channel
+    PVP's
+-   Statistics overlay: Add compression and download ratio, render
+    overlay without usage of depth buffer
+-   CPU compression plugins: allow different output from input token
+-   New command line argument ``--eq-logfile``
+-   New compound auto stereo mode detection (active, anaglyph, passive)
+-   Structured `error reporting`_.
+
+0.9.1:
+
 -   Support for Mac OS X 10.6 Snow Leopard
 -   `Tile and range boundaries`_ for the load equalizer
 -   New `eq::util::Accum`_ class for accumulation operations using an FBO
@@ -87,10 +122,21 @@ documentation changes:
 -   Multiple windows on the same pipe can join the same software swap
     barrier
 -   `Configurable message pump`_
+-   Added attached and detach notification to ``co::Object``.
 
 
 2.3. Optimizations
 ~~~~~~~~~~~~~~~~~~
+
+-   Mac OS X: Use SpinLocks over pthread locks for improved performance
+    (250x) in various places.
+-   Collage: Simplify and optimize command packet dispatch and invocation
+-   Collage: Optimize RSP multicast using sliding ack window with early
+    acks
+-   Collage: Send object instance data during registration to accelerate
+    object mapping
+
+0.9.1:
 
 -   Configurable object serialization buffer size
 -   Performance optimization for image compression
@@ -99,6 +145,11 @@ documentation changes:
 
 2.4. Examples
 ~~~~~~~~~~~~~
+
+-   New `OSGScaleViewer`_ example, evolved from eqOSG contribution
+-   EqPly: Run-time configurable image quality
+
+0.9.1:
 
 -   EqPly: added anti-aliasing when the application is idle
 -   EqPly: recursively search directories for models
@@ -115,7 +166,14 @@ documentation changes:
 ~~~~~~~~~~~~~~~~
 
 The following changes breaking compatibility with Equalizer 0.6 source code
-were made:
+were made: (CHANGES.txt)
+
+-   Type definitions for ``vectors of Foo*`` have changed from
+    ``FooVector`` to ``Foos``.
+-   ``OSPipe`` and ``OSWindow`` have been renamed to ``SystemPipe`` and
+    ``SystemWindow``, respectively
+
+0.9.1:
 
 -   The utility classes ``Accum``, ``AccumBufferObject``,
     ``FrameBufferObject`` and ``Texture`` where moved from the ``eq`` to the
@@ -132,19 +190,21 @@ were made:
 The following documentation has been added or substantially improved since
 the last release:
 
--   The `Programming and User Guide`_ has been extended to 91 pages and
-    53 figures.
--   The Accumulation Buffer Object API has been added to the Programming
-    Guide.
--   `The Subpixel compound`_ provides FSAA and DOF decomposition
--   `Multicast Data Transfer`_
+-   The `Programming and User Guide`_ has been extended to XXX pages and
+    XXX figures.
+-   `The XXX`_
 
 
 2.8. Bug Fixes
 ~~~~~~~~~~~~~~
 
-Equalizer 0.9.1 includes various bugfixes over the 0.9 release, including the
-following:
+Equalizer 1.0-alpha includes various bugfixes over the 0.9 release, including
+the following:
+
+-   `2882248`_: Spurious network deadlocks on Win32
+-   `3071764`_: GLX: No distinction between lowercase and uppercase keys
+
+0.9.1:
 
 -   `2873353`_: Usage of ext/hash_map and -Werror causes compiler error
 -   `2834063`_: eqPly and eVolve freezes on Mac with glX
@@ -177,15 +237,18 @@ operating system, including all Unix variants and the Windows operating
 system. A `compatibility matrix`_ can be found on the Equalizer website.
 
 Equalizer requires at least `OpenGL 1.1`_, but uses newer OpenGL features
-when available. Version 0.9.1 has been tested on:
+when available. Version 1.0-alpha has been tested on:
 
 
 3.1. Operating System Support
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--   **Linux:** Ubuntu 9.04, 9.10 (i386, x64)
--   **Windows:** XP with Visual Studio 2005 (i386, x64)
--   **Mac OS X:** 10.5, 10.6 (i386)
+Equalizer uses CMake to create a platform-specific build environment. The
+following platforms and build environments are tested:
+
+-   **Linux:** Ubuntu 10.04, 10.10 (Makefile, i386, x64)
+-   **Windows:** XP and 7 (Visual Studio 2008, i386, x64)
+-   **Mac OS X:** 10.5, 10.6 (Makefile, XCode, i386, x64)
 
 
 3.2. Window System Support
@@ -199,8 +262,9 @@ when available. Version 0.9.1 has been tested on:
 3.3. Documentation
 ~~~~~~~~~~~~~~~~~~
 
-The Programming and User Guide is available as a `hard-copy`_ and `online`_.
-`API documentation`_ can be found on the Equalizer website.
+The Programming and User Guide is available as a `hard-copy (0.9)`_ and
+`online (1.0 alpha)`_. `API documentation`_ can be found on the Equalizer
+website.
 
 As with any open source project, the available source code, in particular the
 shipped `examples`_ provide a reference for developing or porting
@@ -245,24 +309,51 @@ information.
 .. _3.4. Support: #support
 .. _4. Errata: #errata
 .. _source     code:
-    http://www.equalizergraphics.com/downloads/Equalizer-0.9.1.tar.gz
+    http://www.equalizergraphics.com/downloads/Equalizer-0.9.2.tar.gz
 .. _detailed feature list: /features.html
+.. _Runtime       stereo switching:
+    http://www.equalizergraphics.com/documents/design/stereoSwitch.html
+.. _Administrative       API:
+    http://www.equalizergraphics.com/documents/design/admin.html
+.. _Slave       object commit:
+    http://www.equalizergraphics.com/documents/design/admin.html#slaveWrite
+.. _GPU-CPU       transfer and compression plugins: http://www.equalizerg
+    raphics.com/documents/Developer/API/plugins_2compressor_8h.html#_details
+.. _Failure       tolerance:
+    http://www.equalizergraphics.com/documents/design/nodeFailure.html
+.. _Rendering capabilities:
+    http://www.equalizergraphics.com/documents/design/Capabilities.html
+.. _Interruptible       rendering:
+    http://www.equalizergraphics.com/documents/design/stopFrames.html
 .. _       Subpixel compounds:
     http://www.equalizergraphics.com/documents/design/subpixelCompound.html
 .. _Data distribution and data updates using reliable UDP multicast:
     http://www.equalizergraphics.com/documents/design/multicast.html
+.. _RFE   2809019: https://sourceforge.net/tracker/?func=detail&aid=28090
+    19&group_id=170962&atid=856212
+.. _RFE       3086646: https://sourceforge.net/tracker/?func=detail&aid=3
+    086646&group_id=170962&atid=856212
+.. _RFE       3036064: https://sourceforge.net/tracker/?func=detail&aid=3
+    036064&group_id=170962&atid=856212
+.. _RFE       2927688: https://sourceforge.net/tracker/?func=detail&aid=2
+    927688&group_id=170962&atid=856212
+.. _error reporting:
+    http://www.equalizergraphics.com/documents/design/errorHandling.html
 .. _Tile and range boundaries: http://www.equalizergraphics.com/documents
     /design/loadBalancing.html#boundaries
 .. _eq::util::Accum: http://www.equalizergraphics.com/documents/Developer
     /API/classeq_1_1util_1_1Accum.html
-.. _Configurable message pump: https://sourceforge.net/tracker/?func=deta
-    il&aid=2902505&group_id=170962&atid=856212
+.. _Configurable   message pump: https://sourceforge.net/tracker/?func=de
+    tail&aid=2902505&group_id=170962&atid=856212
+.. _OSGScaleViewer: http://www.equalizergraphics.com/documents/WhitePaper
+    s/OpenSceneGraphClustering.pdf
 .. _Programming and       User Guide:
     http://www.equalizergraphics.com/survey.html
-.. _The   Subpixel compound:
-    http://www.equalizergraphics.com/documents/design/subpixelCompound.html
-.. _Multicast Data Transfer:
-    http://www.equalizergraphics.com/documents/design/multicast.html
+.. _The   XXX: http://www.equalizergraphics.com/documents/design/.html
+.. _2882248: https://sourceforge.net/tracker/?func=detail&aid=2882248&gro
+    up_id=170962&atid=856209
+.. _3071764: https://sourceforge.net/tracker/?func=detail&aid=3071764&gro
+    up_id=170962&atid=856209
 .. _2873353: https://sourceforge.net/tracker/?func=detail&aid=2873353&gro
     up_id=170962&atid=856209
 .. _2834063: https://sourceforge.net/tracker/?func=detail&aid=2834063&gro
@@ -294,13 +385,13 @@ information.
 .. _compatibility matrix:
     http://www.equalizergraphics.com/compatibility.html
 .. _OpenGL 1.1: http://www.opengl.org
-.. _hard-copy: http://www.lulu.com/content/paperback-book/equalizer-09
-    -programming-and-user-guide/7501548
-.. _online: http://www.equalizergraphics.com/survey.html
-.. _API documentation:
+.. _hard-copy   (0.9): http://www.lulu.com/content/paperback-
+    book/equalizer-09-programming-and-user-guide/7501548
+.. _online   (1.0   alpha): http://www.equalizergraphics.com/survey.html
+.. _API   documentation:
     http://www.equalizergraphics.com/documents/Developer/API/index.html
 .. _examples: http://www.equalizergraphics.com/cgi-
-    bin/viewvc.cgi/tags/release-0.9.1/examples/
+    bin/viewvc.cgi/tags/release-0.9.2/examples/
 .. _Developer Documentation:
     http://www.equalizergraphics.com/doc_developer.html
 .. _Documentation     Set: http://www.equalizergraphics.com/documents/Dev

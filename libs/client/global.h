@@ -35,7 +35,6 @@ namespace eq
     typedef fabric::IAttribute IAttrValue;
 #endif
     using fabric::UNDEFINED;
-    using fabric::EXTERN;
     using fabric::RGBA32F;
     using fabric::RGBA16F;
     using fabric::FBO;
