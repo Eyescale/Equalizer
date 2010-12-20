@@ -81,9 +81,6 @@ namespace eq
         /** @return the generic WGL function table for the pipe. */
         WGLEWContext* wglewGetContext() { return _wglewContext; }
 
-        /** @internal @return the NVidia driver version, or 0. */
-        float getDriverVersion() const { return _driverVersion; }
-
     protected:
         /**
          * Initialize this pipe for OpenGL.
@@ -94,20 +91,17 @@ namespace eq
          *
          * @version 1.0
          */
-        EQ_API virtual bool configInitGL();
+        virtual bool configInitGL() { return true; }
 
     private:
         /** Extended WGL function entries. */
         WGLEWContext* const _wglewContext;
-
-        float _driverVersion;
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
         bool _configInitWGLEW();
         bool _getGPUHandle( HGPUNV& handle );
-        void _configInitDriverVersion();
     };
 }
 

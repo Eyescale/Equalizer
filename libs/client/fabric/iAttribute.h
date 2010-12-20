@@ -28,7 +28,6 @@ namespace fabric
     enum IAttribute
     {
         UNDEFINED  = -0xfffffff, //!< Undefined value
-        EXTERN     = -15, //!< Affinity DC useability (IATTR_HINT_AFFINITY)
         RGBA32F    = -14, //!< Float32 framebuffer (Window::IATTR_PLANES_COLOR)
         RGBA16F    = -13, //!< Float16 framebuffer (Window::IATTR_PLANES_COLOR)
         FBO        = -12, //!< FBO drawable (Window::IATTR_HINT_DRAWABLE)

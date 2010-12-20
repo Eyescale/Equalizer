@@ -99,7 +99,6 @@ void Global::_setupDefaults()
     _windowIAttributes[Window::IATTR_HINT_DECORATION]   = fabric::ON;
     _windowIAttributes[Window::IATTR_HINT_DRAWABLE]     = fabric::WINDOW;
     _windowIAttributes[Window::IATTR_HINT_SCREENSAVER]  = fabric::AUTO;
-    _windowIAttributes[Window::IATTR_HINT_AFFINITY]     = fabric::AUTO;
     _windowIAttributes[Window::IATTR_PLANES_COLOR]      = fabric::AUTO;
     _windowIAttributes[Window::IATTR_PLANES_DEPTH]      = fabric::AUTO;
     _windowIAttributes[Window::IATTR_PLANES_STENCIL]    = fabric::AUTO;

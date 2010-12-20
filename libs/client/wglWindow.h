@@ -316,9 +316,6 @@ namespace eq
 
         /** Use ChoosePixelFormat */
         int _chooseWGLPixelFormat( HDC pfDC );
-
-        /** @return true if an affinity DC is used. */
-        bool _useAffinity();
     };
 }
 

@@ -35,7 +35,7 @@ release/Makefile:
 	@cd release; cmake .. -DCMAKE_BUILD_TYPE=Release
 
 
-xcode: XCode/Equalizer.xcodeproj
+xcode:
 	@mkdir -p XCode
 	@cd XCode; cmake -G Xcode ..
 	open XCode/Equalizer.xcodeproj

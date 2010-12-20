@@ -258,9 +258,8 @@ bool WGLWindow::configInitWGLDrawable( int pixelFormat )
 
 bool WGLWindow::configInitWGLFBO( int pixelFormat )
 {
-    if( _useAffinity() )
+    if( _wglAffinityDC )
     {
-        EQASSERT( _wglAffinityDC );
         // move affinity DC to be our main DC
         // deletion is now taken care of by setWGLDC( 0 )
         setWGLDC( _wglAffinityDC, WGL_DC_AFFINITY );
@@ -310,7 +309,7 @@ bool WGLWindow::configInitWGLWindow( int pixelFormat )
     pfd.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
     pfd.nVersion     = 1;
 
-    DescribePixelFormat( _useAffinity() ? _wglAffinityDC : windowDC, 
+    DescribePixelFormat( _wglAffinityDC ? _wglAffinityDC : windowDC, 
                          pixelFormat, sizeof(pfd), &pfd );
     if( !SetPixelFormat( windowDC, pixelFormat, &pfd ))
     {
@@ -530,26 +529,10 @@ HDC WGLWindow::createWGLDisplayDC()
     return getWGLPipe()->createWGLDisplayDC();
 }
 
-bool WGLWindow::_useAffinity()
-{
-    if( getIAttribute( Window::IATTR_HINT_AFFINITY ) == EXTERN )
-        return false;
-
-    if( getIAttribute( Window::IATTR_HINT_AFFINITY ) == AUTO &&
-        getIAttribute( Window::IATTR_HINT_DRAWABLE ) != FBO )
-    {
-        WGLPipe* wglPipe = getWGLPipe();
-        if( wglPipe->getDriverVersion() > 200.f ) // NV driver WAR
-            return false;
-    }
-
-    return _wglAffinityDC != 0;
-}
-
 int WGLWindow::chooseWGLPixelFormat()
 {
     HDC screenDC = GetDC( 0 );
-    HDC pfDC = _useAffinity() ? _wglAffinityDC : screenDC;
+    HDC pfDC = _wglAffinityDC ? _wglAffinityDC : screenDC;
 
     int pixelFormat = (WGLEW_ARB_pixel_format) ? 
         _chooseWGLPixelFormatARB( pfDC ) : _chooseWGLPixelFormat( pfDC );
@@ -814,7 +797,7 @@ HGLRC WGLWindow::createWGLContext()
     EQASSERT( _wglDC );
 
     // create context
-    HGLRC context = wglCreateContext( _useAffinity() ? _wglAffinityDC :_wglDC );
+    HGLRC context = wglCreateContext( _wglAffinityDC ? _wglAffinityDC :_wglDC );
     if( !context )
     {
         setError( ERROR_WGLWINDOW_CREATECONTEXT_FAILED);

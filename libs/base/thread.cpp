@@ -200,7 +200,6 @@ bool Thread::start()
 void Thread::exit()
 {
     EQASSERTINFO( isCurrent(), "Thread::exit not called from child thread" );
-
     EQINFO << "Exiting thread " << base::className( this ) << std::endl;
 
     _state = STATE_STOPPING;
