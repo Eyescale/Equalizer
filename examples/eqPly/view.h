@@ -63,9 +63,9 @@ namespace eqPly
                 DIRTY_IDLE        = eq::fabric::Serializable::DIRTY_CUSTOM << 1
             };
 
-            virtual void serialize( eq::net::DataOStream& os,
+            virtual void serialize( co::DataOStream& os,
                                     const uint64_t dirtyBits );
-            virtual void deserialize( eq::net::DataIStream& is, 
+            virtual void deserialize( co::DataIStream& is, 
                                       const uint64_t dirtyBits );
             virtual void notifyNewVersion() { sync(); }
 

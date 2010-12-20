@@ -19,8 +19,6 @@
 
 #include <co/global.h>
 
-using namespace std;
-
 namespace eq
 {
 ConfigParams::ConfigParams()

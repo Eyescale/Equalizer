@@ -28,42 +28,39 @@
 
 #define BUFFERSIZE 1024
 
-using namespace eq::net;
-
 int main( int argc, char **argv )
 {
     if( argc < 3 )
     {
         EQINFO << "Usage: " << argv[0] << " input output" << std::endl;
         return EXIT_FAILURE;
-
     }
 
-    eq::net::init( argc, argv );
+    co::init( argc, argv );
 
-    ConnectionDescriptionPtr listen = new ConnectionDescription;
-    listen->type = CONNECTIONTYPE_TCPIP;
-    listen->port = Global::getDefaultPort();
+    co::ConnectionDescriptionPtr listen = new co::ConnectionDescription;
+    listen->type = co::CONNECTIONTYPE_TCPIP;
+    listen->port = co::Global::getDefaultPort();
     std::string listenArg( argv[1] );
     listen->fromString( listenArg );
 
-    ConnectionDescriptionPtr forward = new ConnectionDescription;
-    forward->type = CONNECTIONTYPE_TCPIP;
-    forward->port = Global::getDefaultPort() + 1;
+    co::ConnectionDescriptionPtr forward = new co::ConnectionDescription;
+    forward->type = co::CONNECTIONTYPE_TCPIP;
+    forward->port = co::Global::getDefaultPort() + 1;
     std::string forwardArg( argv[2] );
     forward->fromString( forwardArg );
 
     // wait for input connection
-    ConnectionPtr connection = Connection::create( listen );
+    co::ConnectionPtr connection = co::Connection::create( listen );
     if( !connection->listen( ))
     {
         EQERROR << "Can't open listening socket " << listen << std::endl;
-        eq::net::exit();
+        co::exit();
         return EXIT_FAILURE;
     }
     connection->acceptNB();
 
-    ConnectionSet connections;
+    co::ConnectionSet connections;
     connections.addConnection( connection );
     connections.select();
 
@@ -71,17 +68,17 @@ int main( int argc, char **argv )
     connection = connections.getConnection();
     connections.removeConnection( connection );
 
-    ConnectionPtr input = connection->acceptSync();
+    co::ConnectionPtr input = connection->acceptSync();
     uint8_t inputBuffer[ BUFFERSIZE ];
     input->readNB( inputBuffer, BUFFERSIZE );
     connections.addConnection( input );
 
     // connect forwarding socket
-    ConnectionPtr output = Connection::create( forward );
+    co::ConnectionPtr output = co::Connection::create( forward );
     if( !output->connect( ))
     {
         EQERROR << "Can't connect forwarding socket " << forward << std::endl;
-        eq::net::exit();
+        co::exit();
         return EXIT_FAILURE;
     }
 
@@ -93,7 +90,7 @@ int main( int argc, char **argv )
     {
         switch( connections.select( )) // ...get next request
         {
-            case ConnectionSet::EVENT_DATA:  // new data
+            case co::ConnectionSet::EVENT_DATA:  // new data
             {
                 connection = connections.getConnection();
                 const bool isInput = (connection == input);
@@ -116,15 +113,15 @@ int main( int argc, char **argv )
                 break;
             }
 
-            case ConnectionSet::EVENT_DISCONNECT:
-            case ConnectionSet::EVENT_INVALID_HANDLE:
+            case co::ConnectionSet::EVENT_DISCONNECT:
+            case co::ConnectionSet::EVENT_INVALID_HANDLE:
                 EQINFO << "Socket disconnected" << std::endl;
                 return EXIT_SUCCESS;
 
-            case ConnectionSet::EVENT_INTERRUPT:
+            case co::ConnectionSet::EVENT_INTERRUPT:
                 break;
 
-            case ConnectionSet::EVENT_CONNECT:
+            case co::ConnectionSet::EVENT_CONNECT:
             default:
                 assert( 0 );
                 break;

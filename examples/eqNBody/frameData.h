@@ -90,8 +90,8 @@ namespace eqNbody
         unsigned int getNumBodies( void ) const { return _numBodies; }
 
     protected:
-        virtual void serialize( eq::net::DataOStream& os, const uint64_t dirtyBits );
-        virtual void deserialize( eq::net::DataIStream& is, const uint64_t dirtyBits );
+        virtual void serialize( co::DataOStream& os, const uint64_t dirtyBits );
+        virtual void deserialize( co::DataIStream& is, const uint64_t dirtyBits );
 
         enum DirtyBits
         {
@@ -107,7 +107,7 @@ namespace eqNbody
         bool            _newParameters;
 
         unsigned int    _numDataProxies;            // total number of proxies
-        eq::net::ObjectVersion _dataProxyID[MAX_NGPUS]; // ID, version
+        co::ObjectVersion _dataProxyID[MAX_NGPUS]; // ID, version
         float           _dataRanges[MAX_NGPUS];     // ranges covered by proxies
 
         unsigned int    _numBodies;     // number of bodies in the simulation

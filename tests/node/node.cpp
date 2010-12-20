@@ -37,11 +37,11 @@ static const string message =
 #define NMESSAGES 1000
 }
 
-struct DataPacket : public eq::net::NodePacket
+struct DataPacket : public co::NodePacket
 {
     DataPacket()
         {
-            command  = eq::net::CMD_NODE_CUSTOM;
+            command  = co::CMD_NODE_CUSTOM;
             size     = sizeof( DataPacket );
             data[0]  = '\0';
         }
@@ -49,27 +49,27 @@ struct DataPacket : public eq::net::NodePacket
     char     data[8];
 };
 
-class Server : public eq::net::LocalNode
+class Server : public co::LocalNode
 {
 public:
     Server() : _messagesLeft( NMESSAGES ){}
 
     virtual bool listen()
         {
-            if( !eq::net::LocalNode::listen( ))
+            if( !co::LocalNode::listen( ))
                 return false;
 
-            registerCommand( eq::net::CMD_NODE_CUSTOM, 
-                             eq::net::CommandFunc<Server>(
+            registerCommand( co::CMD_NODE_CUSTOM, 
+                             co::CommandFunc<Server>(
                                                        this, &Server::command),
                              getCommandThreadQueue( ));
             return true;
         }
 
 protected:
-    bool command( eq::net::Command& cmd )
+    bool command( co::Command& cmd )
         {
-            TEST( cmd->command == eq::net::CMD_NODE_CUSTOM );
+            TEST( cmd->command == co::CMD_NODE_CUSTOM );
             TEST( _messagesLeft > 0 );
 
             const DataPacket* packet = cmd.getPacket< DataPacket >();
@@ -88,28 +88,28 @@ private:
 
 int main( int argc, char **argv )
 {
-    eq::net::init( argc, argv );
+    co::init( argc, argv );
 
     lock.set();
     eq::base::RefPtr< Server >        server   = new Server;
-    eq::net::ConnectionDescriptionPtr connDesc = 
-        new eq::net::ConnectionDescription;
+    co::ConnectionDescriptionPtr connDesc = 
+        new co::ConnectionDescription;
     
-    connDesc->type = eq::net::CONNECTIONTYPE_TCPIP;
+    connDesc->type = co::CONNECTIONTYPE_TCPIP;
     connDesc->port = 4242;
     connDesc->setHostname( "localhost" );
 
     server->addConnectionDescription( connDesc );
     TEST( server->listen( ));
 
-    eq::net::NodePtr serverProxy = new eq::net::Node;
+    co::NodePtr serverProxy = new co::Node;
     serverProxy->addConnectionDescription( connDesc );
 
-    connDesc = new eq::net::ConnectionDescription;
-    connDesc->type       = eq::net::CONNECTIONTYPE_TCPIP;
+    connDesc = new co::ConnectionDescription;
+    connDesc->type       = co::CONNECTIONTYPE_TCPIP;
     connDesc->setHostname( "localhost" );
 
-    eq::net::LocalNodePtr client = new eq::net::LocalNode;
+    co::LocalNodePtr client = new co::LocalNode;
     client->addConnectionDescription( connDesc );
     TEST( client->listen( ));
     TEST( client->connect( serverProxy ));

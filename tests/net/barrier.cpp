@@ -26,7 +26,7 @@
 
 #include <iostream>
 
-eq::base::Monitor< eq::net::Barrier* > _barrier( 0 );
+eq::base::Monitor< co::Barrier* > _barrier( 0 );
 
 class NodeThread : public eq::base::Thread
 {
@@ -35,19 +35,19 @@ public:
 
     virtual void run()
         {
-            eq::net::ConnectionDescriptionPtr description = 
-                new eq::net::ConnectionDescription;
-            description->type = eq::net::CONNECTIONTYPE_TCPIP;
+            co::ConnectionDescriptionPtr description = 
+                new co::ConnectionDescription;
+            description->type = co::CONNECTIONTYPE_TCPIP;
             description->port = _master ? 4242 : 4243;
 
-            eq::net::LocalNodePtr node = new eq::net::LocalNode;
+            co::LocalNodePtr node = new co::LocalNode;
             node->addConnectionDescription( description );
             TEST( node->listen( ));
 
             if( _master )
             {
 
-                eq::net::Barrier barrier( node, 2 );
+                co::Barrier barrier( node, 2 );
                 node->registerObject( &barrier );
                 TEST( barrier.isAttached( ));
 
@@ -61,9 +61,9 @@ public:
             {
                 _barrier.waitNE( 0 );
 
-                eq::net::NodePtr server = new eq::net::Node;
-                eq::net::ConnectionDescriptionPtr serverDesc = 
-                    new eq::net::ConnectionDescription;
+                co::NodePtr server = new co::Node;
+                co::ConnectionDescriptionPtr serverDesc = 
+                    new co::ConnectionDescription;
                 serverDesc->port = 4242;
                 server->addConnectionDescription( serverDesc );
                 TEST( node->connect( server ));
@@ -84,7 +84,7 @@ private:
 
 int main( int argc, char **argv )
 {
-    TEST( eq::net::init( argc, argv ));
+    TEST( co::init( argc, argv ));
 
     NodeThread server( true );
     NodeThread node( false );
@@ -94,7 +94,7 @@ int main( int argc, char **argv )
     server.join();
     node.join();
 
-    eq::net::exit();
+    co::exit();
     return EXIT_SUCCESS;
 }
 

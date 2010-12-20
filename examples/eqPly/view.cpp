@@ -53,7 +53,7 @@ View::~View()
     _idleSteps = 0;
 }
 
-void View::Proxy::serialize( eq::net::DataOStream& os,
+void View::Proxy::serialize( co::DataOStream& os,
                              const uint64_t dirtyBits )
 {
     if( dirtyBits & DIRTY_MODEL )
@@ -62,7 +62,7 @@ void View::Proxy::serialize( eq::net::DataOStream& os,
         os << _view->_idleSteps;
 }
 
-void View::Proxy::deserialize( eq::net::DataIStream& is,
+void View::Proxy::deserialize( co::DataIStream& is,
                                const uint64_t dirtyBits )
 {
     if( dirtyBits & DIRTY_MODEL )

@@ -20,7 +20,6 @@
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
-#include <eq/base/thread.h>
 #include <co/connectionDescription.h>
 #include <co/command.h>
 #include <co/commandCache.h>
@@ -38,7 +37,7 @@
 
 static std::string _message( "So long, and thanks for all the fish" );
 
-struct HeaderPacket : public eq::net::Packet
+struct HeaderPacket : public co::Packet
 {
     HeaderPacket()
         {
@@ -47,7 +46,7 @@ struct HeaderPacket : public eq::net::Packet
         }
 };
 
-struct DataPacket : public eq::net::Packet
+struct DataPacket : public co::Packet
 {
     DataPacket()
         {
@@ -62,7 +61,7 @@ struct DataPacket : public eq::net::Packet
     EQ_ALIGN8( uint8_t data[8] );
 };
 
-struct FooterPacket : public eq::net::Packet
+struct FooterPacket : public co::Packet
 {
     FooterPacket()
         {
@@ -71,7 +70,7 @@ struct FooterPacket : public eq::net::Packet
         }
 };
 
-class DataOStream : public eq::net::DataOStream
+class DataOStream : public co::DataOStream
 {
 public:
     DataOStream() {}
@@ -86,7 +85,7 @@ protected:
             packet.compressorName = compressor;
             packet.nChunks = nChunks;
 
-            eq::net::Connection::send( _connections, packet, chunks, chunkSizes,
+            co::Connection::send( _connections, packet, chunks, chunkSizes,
                                        nChunks );
         }
 
@@ -100,28 +99,28 @@ protected:
                 sendData( name, nChunks, buffer, size, sizeUncompressed );
 
             FooterPacket packet;
-            eq::net::Connection::send( _connections, packet );
+            co::Connection::send( _connections, packet );
             EQINFO << "Sent footer" << std::endl;
         }
 };
 
-class DataIStream : public eq::net::DataIStream
+class DataIStream : public co::DataIStream
 {
 public:
-    void addDataCommand( eq::net::Command& command )
+    void addDataCommand( co::Command& command )
         {
             TESTINFO( command->command == 2, command );
             _commands.push( command );
         }
 
     virtual size_t nRemainingBuffers() const { return _commands.getSize(); }
-    virtual eq::base::uint128_t getVersion() const { return eq::net::VERSION_NONE;}
+    virtual eq::base::uint128_t getVersion() const { return co::VERSION_NONE;}
 
 protected:
     virtual bool getNextBuffer( uint32_t* compressor, uint32_t* nChunks,
                                 const void** chunkData, uint64_t* size )
         {
-            eq::net::Command* command = _commands.tryPop();
+            co::Command* command = _commands.tryPop();
             if( !command )
                 return false;
 
@@ -139,7 +138,7 @@ protected:
         }
 
 private:
-    eq::net::CommandQueue _commands;
+    co::CommandQueue _commands;
 };
 
 namespace co
@@ -149,7 +148,7 @@ namespace DataStreamTest
 class Sender : public eq::base::Thread
 {
 public:
-    Sender( eq::base::RefPtr< eq::net::Connection > connection )
+    Sender( eq::base::RefPtr< co::Connection > connection )
             : Thread(),
               _connection( connection )
         {}
@@ -180,24 +179,24 @@ protected:
         }
 
 private:
-    eq::base::RefPtr< eq::net::Connection > _connection;
+    eq::base::RefPtr< co::Connection > _connection;
 };
 }
 }
 
 int main( int argc, char **argv )
 {
-    eq::net::init( argc, argv );
-    eq::net::ConnectionDescriptionPtr desc = new eq::net::ConnectionDescription;
-    desc->type = eq::net::CONNECTIONTYPE_PIPE;
-    eq::net::ConnectionPtr connection = eq::net::Connection::create( desc );
+    co::init( argc, argv );
+    co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
+    desc->type = co::CONNECTIONTYPE_PIPE;
+    co::ConnectionPtr connection = co::Connection::create( desc );
 
     TEST( connection->connect( ));
-    eq::net::DataStreamTest::Sender sender( connection );
+    co::DataStreamTest::Sender sender( connection );
     TEST( sender.start( ));
 
     DataIStream           stream;
-    eq::net::CommandCache commandCache;
+    co::CommandCache commandCache;
     bool                  receiving = true;
 
     while( receiving )
@@ -207,7 +206,7 @@ int main( int argc, char **argv )
         TEST( connection->recvSync( 0, 0 ));
         TEST( size );
 
-        eq::net::Command& command = commandCache.alloc( 0, 0, size );
+        co::Command& command = commandCache.alloc( 0, 0, size );
         size -= sizeof( size );
 
         char*      ptr     = reinterpret_cast< char* >( command.getPacket( )) +

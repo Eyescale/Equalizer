@@ -92,11 +92,10 @@ namespace osgScaleViewer
 
     protected:
         /** @sa Object::serialize() */
-        virtual void serialize( eq::net::DataOStream& os,
-                                const uint64_t dirtyBits );
+        virtual void serialize( co::DataOStream& os, const uint64_t dirtyBits );
     
         /** @sa Object::deserialize() */
-        virtual void deserialize( eq::net::DataIStream& is,
+        virtual void deserialize( co::DataIStream& is,
                                   const uint64_t dirtyBits );
 
         /** The changed parts of the data since the last pack(). */

@@ -48,12 +48,12 @@ const eq::uint128_t& InitData::getFrameDataID() const
     return _frameDataID;
 }
 
-void InitData::getInstanceData( eq::net::DataOStream& stream )
+void InitData::getInstanceData( co::DataOStream& stream )
 {
     stream << _frameDataID << _modelFileName << _imageFileName;
 }
 
-void InitData::applyInstanceData( eq::net::DataIStream& stream )
+void InitData::applyInstanceData( co::DataIStream& stream )
 {
     stream >> _frameDataID >> _modelFileName >> _imageFileName;
 }

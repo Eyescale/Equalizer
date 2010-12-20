@@ -1,6 +1,11 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+20/Dec/2010
+  Renamed the eq::net namespace to co(llage). Change all prefixes from
+  eq::net to co or use EQ_USE_DEPRECATED to declare an 'eq::net'
+  namespace alias.
+
 14/Dec/2010
   Removed net::Session. Use net::LocalNode or eq::Config of object
   registration and mapping. The latter retains buffered object data for

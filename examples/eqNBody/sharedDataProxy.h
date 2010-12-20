@@ -53,8 +53,8 @@ namespace eqNbody
 		float* getVelocity() const {return _hVel;}
 		
     protected:
-        virtual void serialize( eq::net::DataOStream& os, const uint64_t dirtyBits );
-        virtual void deserialize( eq::net::DataIStream& is, const uint64_t dirtyBits );
+        virtual void serialize( co::DataOStream& os, const uint64_t dirtyBits );
+        virtual void deserialize( co::DataIStream& is, const uint64_t dirtyBits );
 
         enum DirtyBits
         {

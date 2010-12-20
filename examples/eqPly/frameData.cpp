@@ -48,7 +48,7 @@ FrameData::FrameData()
     EQINFO << "New FrameData " << std::endl;
 }
 
-void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
+void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
     eq::fabric::Serializable::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_CAMERA )
@@ -62,7 +62,7 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
         os << _message;
 }
 
-void FrameData::deserialize( eq::net::DataIStream& is,
+void FrameData::deserialize( co::DataIStream& is,
                              const uint64_t dirtyBits )
 {
     eq::fabric::Serializable::deserialize( is, dirtyBits );

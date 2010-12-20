@@ -44,7 +44,7 @@ namespace osgScaleViewer
      * It holds the frame data ID, so all clients can sync the frame data
      * object. It also holds the model or image filename to load.
      */
-    class InitData : public eq::net::Object
+    class InitData : public co::Object
     {
     public:
         InitData() 
@@ -96,10 +96,10 @@ namespace osgScaleViewer
 
     protected:
         /** Reimplemented */
-        virtual void getInstanceData( eq::net::DataOStream& stream );
+        virtual void getInstanceData( co::DataOStream& stream );
 
         /** Reimplemented */
-        virtual void applyInstanceData( eq::net::DataIStream& stream );
+        virtual void applyInstanceData( co::DataIStream& stream );
 
     private:
         /** 

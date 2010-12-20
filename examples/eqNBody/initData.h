@@ -35,7 +35,7 @@
 
 namespace eqNbody
 {
-    class InitData : public eq::net::Object
+    class InitData : public co::Object
     {
     public:
         InitData();
@@ -50,8 +50,8 @@ namespace eqNbody
         uint32_t getQ() const { return _q; }
         
     protected:
-        virtual void getInstanceData( eq::net::DataOStream& os );
-        virtual void applyInstanceData( eq::net::DataIStream& is );
+        virtual void getInstanceData( co::DataOStream& os );
+        virtual void applyInstanceData( co::DataIStream& is );
 
     private:
         eq::uint128_t   _frameDataID;

@@ -1,4 +1,6 @@
-/* Copyright (c) 2010, Daniel Pfeifer <daniel@pfeifer-mail.de> 
+
+/* Copyright (c) 2010, Daniel Pfeifer <daniel@pfeifer-mail.de>
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,9 +21,12 @@
 
 #include <eq/base/base.h>
 
+
+#ifdef EQ_USE_DEPRECATED
 namespace co{}
-/* deprecated namespace */
+/** Deprecated namespace eq::net */
 namespace eq{ namespace net = co; }
+#endif
 
 #if defined(EQ_NET_STATIC)
 #  define CO_API

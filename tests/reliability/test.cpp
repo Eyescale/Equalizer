@@ -111,7 +111,7 @@ int main( const int argc, char** argv )
 
     // 2. get a configuration
     eq::ClientPtr client = new eq::Client;
-    eq::net::ConnectionDescriptionPtr desc = new eq::net::ConnectionDescription;
+    co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
     std::string addr( "127.0.0.1:37490" );
     TEST( desc->fromString( addr ));
     client->addConnectionDescription( desc );

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,18 +37,18 @@
 
 namespace eqPly 
 {
-    /** eq::net::Object to distribute a model, holds a VertexBufferBase node. */
-    class VertexBufferDist : public eq::net::Object
+    /** co::Object to distribute a model, holds a VertexBufferBase node. */
+    class VertexBufferDist : public co::Object
     {
     public:
         VertexBufferDist();
         VertexBufferDist( const mesh::VertexBufferRoot* root );
         virtual ~VertexBufferDist();
 
-        void registerTree( eq::net::LocalNodePtr node );
+        void registerTree( co::LocalNodePtr node );
         void deregisterTree();
 
-        mesh::VertexBufferRoot* mapModel( eq::net::LocalNodePtr node,
+        mesh::VertexBufferRoot* mapModel( co::LocalNodePtr node,
                                           const eq::uint128_t& modelID );
         void unmapTree();
 
@@ -56,8 +56,8 @@ namespace eqPly
         VertexBufferDist( const mesh::VertexBufferRoot* root,
                           const mesh::VertexBufferBase* node );
 
-        virtual void getInstanceData( eq::net::DataOStream& os );
-        virtual void applyInstanceData( eq::net::DataIStream& is );
+        virtual void getInstanceData( co::DataOStream& os );
+        virtual void applyInstanceData( co::DataIStream& is );
 
     private:
         const mesh::VertexBufferRoot* _root;

@@ -54,7 +54,7 @@ FrameData::~FrameData()
     _numDataProxies = 0;
 }
     
-void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
+void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {       
     eq::fabric::Serializable::serialize( os, dirtyBits );
         
@@ -73,12 +73,12 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_PROXYDATA )
     {
         os << _numDataProxies;
-        os.write( _dataProxyID, sizeof(eq::net::ObjectVersion) * MAX_NGPUS ); 
+        os.write( _dataProxyID, sizeof(co::ObjectVersion) * MAX_NGPUS ); 
         os.write(&_dataRanges[0], sizeof(float) * MAX_NGPUS);           
     }
 }
     
-void FrameData::deserialize( eq::net::DataIStream& is,
+void FrameData::deserialize( co::DataIStream& is,
                              const uint64_t dirtyBits )
 {
     eq::fabric::Serializable::deserialize( is, dirtyBits );
@@ -98,7 +98,7 @@ void FrameData::deserialize( eq::net::DataIStream& is,
     if( dirtyBits & DIRTY_PROXYDATA )
     {
         is >> _numDataProxies;
-        is.read( _dataProxyID, sizeof( eq::net::ObjectVersion ) * MAX_NGPUS );
+        is.read( _dataProxyID, sizeof( co::ObjectVersion ) * MAX_NGPUS );
         is.read(&_dataRanges[0], sizeof(float) * MAX_NGPUS);
     }
 }

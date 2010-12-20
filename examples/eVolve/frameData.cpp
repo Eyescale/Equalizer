@@ -125,7 +125,7 @@ void FrameData::adjustQuality( const float delta )
     EQINFO << "Set non-idle image quality to " << _quality << std::endl;
 }
 
-void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
+void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
     eq::fabric::Serializable::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_VIEW )
@@ -141,7 +141,7 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
         os << _message;
 }
 
-void FrameData::deserialize( eq::net::DataIStream& is, const uint64_t dirtyBits)
+void FrameData::deserialize( co::DataIStream& is, const uint64_t dirtyBits)
 {
     eq::fabric::Serializable::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_VIEW )

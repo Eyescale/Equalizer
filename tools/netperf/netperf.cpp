@@ -29,18 +29,16 @@
 
 #include <iostream>
 
-using namespace eq::net;
-
 namespace
 {
-ConnectionSet       _connectionSet;
+co::ConnectionSet   _connectionSet;
 eq::base::a_int32_t _nClients;
 eq::base::Lock      _mutexPrint;
 
 class Receiver : public eq::base::Thread
 {
 public:
-    Receiver( const size_t packetSize, ConnectionPtr connection )
+    Receiver( const size_t packetSize, co::ConnectionPtr connection )
             : _connection( connection )
             , _mBytesSec( packetSize / 1024.f / 1024.f * 1000.f )
             , _nSamples( 0 )
@@ -76,7 +74,7 @@ public:
                 return true;
 
             _clock.reset();
-            eq::net::ConnectionDescriptionPtr desc = 
+            co::ConnectionDescriptionPtr desc = 
                 _connection->getDescription();
             const eq::base::ScopedMutex<> mutex( _mutexPrint );
             std::cerr << "Recv perf: " << _mBytesSec / time * _nSamples
@@ -124,7 +122,7 @@ private:
 
     eq::base::Bufferb _buffer;
     eq::base::Monitor< bool > _hasConnection;
-    ConnectionPtr             _connection;
+    co::ConnectionPtr _connection;
     const float _mBytesSec;
     size_t      _nSamples;
     size_t      _packetSize;
@@ -134,7 +132,7 @@ private:
 class Selector : public eq::base::Thread
 {
 public:
-    Selector( ConnectionPtr connection, const size_t packetSize,
+    Selector( co::ConnectionPtr connection, const size_t packetSize,
               const bool useThreads )
             : _connection( connection )
             , _packetSize( packetSize )
@@ -147,11 +145,11 @@ public:
             _connectionSet.addConnection( _connection );
 
             // Get first client
-            const ConnectionSet::Event event = _connectionSet.select();
-            EQASSERT( event == ConnectionSet::EVENT_CONNECT );
+            const co::ConnectionSet::Event event = _connectionSet.select();
+            EQASSERT( event == co::ConnectionSet::EVENT_CONNECT );
 
-            ConnectionPtr resultConn = _connectionSet.getConnection();
-            ConnectionPtr newConn    = resultConn->acceptSync();
+            co::ConnectionPtr resultConn = _connectionSet.getConnection();
+            co::ConnectionPtr newConn    = resultConn->acceptSync();
             resultConn->acceptNB();
         
             EQASSERT( resultConn == _connection );
@@ -170,16 +168,16 @@ public:
 
     virtual void run()
         {
-            ConnectionPtr resultConn;
-            ConnectionPtr newConn;
+            co::ConnectionPtr resultConn;
+            co::ConnectionPtr newConn;
             const bool multicast = _connection->getDescription()->type >=
-                                   CONNECTIONTYPE_MULTICAST;
+                                   co::CONNECTIONTYPE_MULTICAST;
 
             while( _nClients > 0 )
             {
                 switch( _connectionSet.select( )) // ...get next request
                 {
-                    case ConnectionSet::EVENT_CONNECT: // new client
+                    case co::ConnectionSet::EVENT_CONNECT: // new client
                     
                         resultConn = _connectionSet.getConnection();
                         newConn = resultConn->acceptSync();
@@ -197,7 +195,7 @@ public:
                         std::cerr << ++_nClients << " clients" << std::endl;
                         break;
 
-                    case ConnectionSet::EVENT_DATA:  // new data
+                    case co::ConnectionSet::EVENT_DATA:  // new data
                     {
                         resultConn = _connectionSet.getConnection();
                         if( resultConn == _connection )
@@ -240,8 +238,8 @@ public:
                         }
                         break;
                     }
-                    case ConnectionSet::EVENT_DISCONNECT:
-                    case ConnectionSet::EVENT_INVALID_HANDLE:  // client done
+                    case co::ConnectionSet::EVENT_DISCONNECT:
+                    case co::ConnectionSet::EVENT_INVALID_HANDLE: // client done
                         resultConn = _connectionSet.getConnection();
                         _connectionSet.removeConnection( resultConn );
 
@@ -268,7 +266,7 @@ public:
                         std::cerr << --_nClients << " clients" << std::endl;
                         break;
 
-                    case ConnectionSet::EVENT_INTERRUPT:
+                    case co::ConnectionSet::EVENT_INTERRUPT:
                         break;
 
                     default:
@@ -282,8 +280,8 @@ public:
         }
 
 private:
-    typedef std::pair< Receiver*, ConnectionPtr > RecvConn;
-    ConnectionPtr    _connection;
+    typedef std::pair< Receiver*, co::ConnectionPtr > RecvConn;
+    co::ConnectionPtr    _connection;
     std::vector< RecvConn > _receivers;
     size_t _packetSize;
     bool _useThreads;
@@ -294,10 +292,10 @@ private:
 
 int main( int argc, char **argv )
 {
-    EQCHECK( eq::net::init( argc, argv ));
+    EQCHECK( co::init( argc, argv ));
 
-    ConnectionDescriptionPtr description = new ConnectionDescription;
-    description->type = CONNECTIONTYPE_TCPIP;
+    co::ConnectionDescriptionPtr description = new co::ConnectionDescription;
+    description->type = co::CONNECTIONTYPE_TCPIP;
     description->port = 4242;
 
     bool isClient     = true;
@@ -354,16 +352,16 @@ int main( int argc, char **argv )
         EQERROR << "Command line parse error: " << exception.error() 
                 << " for argument " << exception.argId() << std::endl;
 
-        eq::net::exit();
+        co::exit();
         return EXIT_FAILURE;
     }
 
     // run
-    ConnectionPtr connection = Connection::create( description );
+    co::ConnectionPtr connection = co::Connection::create( description );
     Selector* selector = 0;
     if( isClient )
     {
-        if( description->type == CONNECTIONTYPE_RSP )
+        if( description->type == co::CONNECTIONTYPE_RSP )
         {
             selector = new Selector( connection, packetSize, useThreads );
             selector->start();

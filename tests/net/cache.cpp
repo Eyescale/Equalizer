@@ -39,7 +39,7 @@ eq::base::Clock _clock;
 class Reader : public eq::base::Thread
 {
 public:
-    Reader( eq::net::InstanceCache& cache )
+    Reader( co::InstanceCache& cache )
             : Thread(),
               _cache( cache )
         {}
@@ -53,7 +53,7 @@ protected:
             while( _clock.getTime64() < RUNTIME )
             {
                 const eq::base::UUID key( _rng.get< uint16_t >(), 0 );
-                if( _cache[ key ] != eq::net::InstanceCache::Data::NONE )
+                if( _cache[ key ] != co::InstanceCache::Data::NONE )
                 {
                     ++hits;
                     _cache.release( key );
@@ -66,19 +66,19 @@ protected:
         }
 
 private:
-    eq::net::InstanceCache& _cache;
+    co::InstanceCache& _cache;
     eq::base::RNG _rng;
 };
 
 int main( int argc, char **argv )
 {
-    eq::net::init( argc, argv );
-    eq::net::CommandCache commandCache;
+    co::init( argc, argv );
+    co::CommandCache commandCache;
 
-    eq::net::Command& command = commandCache.alloc( 0, 0, PACKET_SIZE );
-    eq::net::ObjectInstancePacket* packet = 
-        command.getPacket< eq::net::ObjectInstancePacket >();
-    *packet = eq::net::ObjectInstancePacket();
+    co::Command& command = commandCache.alloc( 0, 0, PACKET_SIZE );
+    co::ObjectInstancePacket* packet = 
+        command.getPacket< co::ObjectInstancePacket >();
+    *packet = co::ObjectInstancePacket();
     packet->last = true;
     packet->dataSize = PACKET_SIZE;
     packet->version = 1;
@@ -87,14 +87,14 @@ int main( int argc, char **argv )
     Reader** readers = static_cast< Reader** >( 
         alloca( N_READER * sizeof( Reader* )));
 
-    eq::net::InstanceCache cache;
+    co::InstanceCache cache;
     eq::base::RNG rng;
 
     size_t hits = 0;
     size_t ops = 0;
 
     for( eq::base::UUID key; key.low() < 65536; ++key ) // Fill cache
-        if( !cache.add( eq::net::ObjectVersion( key, 1 ), 1, command ))
+        if( !cache.add( co::ObjectVersion( key, 1 ), 1, command ))
             break;
 
     _clock.reset();
@@ -107,8 +107,8 @@ int main( int argc, char **argv )
     while( _clock.getTime64() < RUNTIME )
     {
         const eq::base::UUID id( 0, rng.get< uint16_t >( ));
-        const eq::net::ObjectVersion key( id, 1 );
-        if( cache[ key.identifier ] != eq::net::InstanceCache::Data::NONE )
+        const co::ObjectVersion key( id, 1 );
+        if( cache[ key.identifier ] != co::InstanceCache::Data::NONE )
         {
             TEST( cache.release( key.identifier ));
             ++ops;
@@ -138,7 +138,7 @@ int main( int argc, char **argv )
 
     for( eq::base::UUID key; key.low() < 65536; ++key ) // Fill cache
     {
-        if( cache[ key ] != eq::net::InstanceCache::Data::NONE )
+        if( cache[ key ] != co::InstanceCache::Data::NONE )
         {
             TEST( cache.release( key ));
             TEST( cache.erase( key ));
@@ -147,7 +147,7 @@ int main( int argc, char **argv )
 
     for( eq::base::UUID key; key.low() < 65536; ++key ) // Fill cache
     {
-        TEST( cache[ key ] == eq::net::InstanceCache::Data::NONE );
+        TEST( cache[ key ] == co::InstanceCache::Data::NONE );
     }
 
     EQINFO << cache << std::endl;

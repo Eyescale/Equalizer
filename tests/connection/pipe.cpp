@@ -27,7 +27,7 @@
 class Server : public eq::base::Thread
 {
 public:
-    void start( eq::net::ConnectionPtr connection )
+    void start( co::ConnectionPtr connection )
         {
             _connection = connection;
             eq::base::Thread::start();
@@ -38,7 +38,7 @@ protected:
         {
             TEST( _connection.isValid( ));
             TEST( _connection->getState() == 
-                  eq::net::Connection::STATE_CONNECTED );
+                  co::Connection::STATE_CONNECTED );
 
             char text[5];
             _connection->recvNB(  &text, 5 );
@@ -49,16 +49,16 @@ protected:
             _connection = 0;
         }
 private:
-    eq::net::ConnectionPtr _connection;
+    co::ConnectionPtr _connection;
 };
 
 int main( int argc, char **argv )
 {
-    eq::net::init( argc, argv );
+    co::init( argc, argv );
 
-    eq::net::ConnectionDescriptionPtr desc = new eq::net::ConnectionDescription;
-    desc->type = eq::net::CONNECTIONTYPE_PIPE;
-    eq::net::ConnectionPtr connection = eq::net::Connection::create( desc );
+    co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
+    desc->type = co::CONNECTIONTYPE_PIPE;
+    co::ConnectionPtr connection = co::Connection::create( desc );
     TEST( connection->connect( ));
 
     Server server;

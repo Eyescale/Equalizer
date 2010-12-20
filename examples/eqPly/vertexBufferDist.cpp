@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
   
  *
- * eq::net::Object to distribute a model. Has a VertexBufferBase node.
+ * co::Object to distribute a model. Has a VertexBufferBase node.
  */
 
 #include "vertexBufferDist.h"
@@ -87,7 +87,7 @@ VertexBufferDist::~VertexBufferDist()
     _right = 0;
 }
 
-void VertexBufferDist::registerTree( eq::net::LocalNodePtr node )
+void VertexBufferDist::registerTree( co::LocalNodePtr node )
 {
     EQASSERT( !isAttached() );
     EQCHECK( node->registerObject( this ));
@@ -113,7 +113,7 @@ void VertexBufferDist::deregisterTree()
 }
 
 mesh::VertexBufferRoot* VertexBufferDist::mapModel( 
-                                      eq::net::LocalNodePtr node,
+                                      co::LocalNodePtr node,
                                       const eq::uint128_t& modelID )
 {
     EQASSERT( !_root && !_node );
@@ -140,7 +140,7 @@ void VertexBufferDist::unmapTree()
         _right->unmapTree();
 }
 
-void VertexBufferDist::getInstanceData( eq::net::DataOStream& os )
+void VertexBufferDist::getInstanceData( co::DataOStream& os )
 {
     EQASSERT( _node );
     os << _isRoot;
@@ -173,7 +173,7 @@ void VertexBufferDist::getInstanceData( eq::net::DataOStream& os )
     os << _node->_boundingSphere << _node->_range;
 }
 
-void VertexBufferDist::applyInstanceData( eq::net::DataIStream& is )
+void VertexBufferDist::applyInstanceData( co::DataIStream& is )
 {
     EQASSERT( !_node );
 
@@ -205,7 +205,7 @@ void VertexBufferDist::applyInstanceData( eq::net::DataIStream& is )
         base   = node;
         _left  = new VertexBufferDist( _root, 0 );
         _right = new VertexBufferDist( _root, 0 );
-        eq::net::LocalNodePtr localNode = getLocalNode();
+        co::LocalNodePtr localNode = getLocalNode();
         const uint32_t sync1 = localNode->mapObjectNB( _left, leftID );
         const uint32_t sync2 = localNode->mapObjectNB( _right, rightID );
 

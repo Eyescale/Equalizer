@@ -27,44 +27,44 @@
 
 #define PACKETSIZE (2048)
 
-static eq::net::ConnectionType types[] =
+static co::ConnectionType types[] =
 {
-    eq::net::CONNECTIONTYPE_TCPIP,
-    eq::net::CONNECTIONTYPE_PIPE,
+    co::CONNECTIONTYPE_TCPIP,
+    co::CONNECTIONTYPE_PIPE,
 #ifdef EQ_USE_BOOST
-    eq::net::CONNECTIONTYPE_RSP,
+    co::CONNECTIONTYPE_RSP,
 #endif
 #ifdef WIN32
-    eq::net::CONNECTIONTYPE_NAMEDPIPE,
+    co::CONNECTIONTYPE_NAMEDPIPE,
 #endif
 #ifdef EQ_INFINIBAND
-    eq::net::CONNECTIONTYPE_IB,
+    co::CONNECTIONTYPE_IB,
 #endif
-    eq::net::CONNECTIONTYPE_NONE // must be last
+    co::CONNECTIONTYPE_NONE // must be last
 };
 
 
 int main( int argc, char **argv )
 {
-    eq::net::init( argc, argv );
+    co::init( argc, argv );
 
-    for( size_t i = 0; types[i] != eq::net::CONNECTIONTYPE_NONE; ++i )
+    for( size_t i = 0; types[i] != co::CONNECTIONTYPE_NONE; ++i )
     {
-        eq::net::ConnectionDescriptionPtr desc = 
-            new eq::net::ConnectionDescription;
+        co::ConnectionDescriptionPtr desc = 
+            new co::ConnectionDescription;
         desc->type = types[i];
-        if( desc->type >= eq::net::CONNECTIONTYPE_MULTICAST )
+        if( desc->type >= co::CONNECTIONTYPE_MULTICAST )
             desc->setHostname( "239.255.12.34" );
         else
             desc->setHostname( "127.0.0.1" );
 
-        eq::net::ConnectionPtr listener = eq::net::Connection::create( desc );
-        eq::net::ConnectionPtr writer;
-        eq::net::ConnectionPtr reader;
+        co::ConnectionPtr listener = co::Connection::create( desc );
+        co::ConnectionPtr writer;
+        co::ConnectionPtr reader;
 
         switch( desc->type ) // different connections, different semantics..
         {
-            case eq::net::CONNECTIONTYPE_PIPE:
+            case co::CONNECTIONTYPE_PIPE:
                 writer = listener;
                 listener = 0;
                 reader = writer;
@@ -72,8 +72,8 @@ int main( int argc, char **argv )
                 TEST( writer->connect( ));
                 break;
 
-            case eq::net::CONNECTIONTYPE_MCIP:
-            case eq::net::CONNECTIONTYPE_RSP:
+            case co::CONNECTIONTYPE_MCIP:
+            case co::CONNECTIONTYPE_RSP:
                 TESTINFO( listener->listen(), desc );
                 listener->acceptNB();
 
@@ -84,7 +84,7 @@ int main( int argc, char **argv )
                 TESTINFO( listener->listen(), desc );
                 listener->acceptNB();
 
-                writer = eq::net::Connection::create( desc );
+                writer = co::Connection::create( desc );
                 TEST( writer->connect( ));
 
                 reader = listener->acceptSync();

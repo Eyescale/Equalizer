@@ -42,7 +42,7 @@ FrameData::FrameData()
         , _statistics( false )
 {}
 
-void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
+void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
     eq::fabric::Serializable::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_CAMERA )
@@ -51,7 +51,7 @@ void FrameData::serialize( eq::net::DataOStream& os, const uint64_t dirtyBits )
         os << _statistics;
 }
 
-void FrameData::deserialize( eq::net::DataIStream& is,
+void FrameData::deserialize( co::DataIStream& is,
                              const uint64_t dirtyBits )
 {
     eq::fabric::Serializable::deserialize( is, dirtyBits );
@@ -85,7 +85,7 @@ void FrameData::toggleStatistics()
     setDirty( DIRTY_FLAGS );
 }
 
-eq::net::Object::ChangeType FrameData::getChangeType() const
+co::Object::ChangeType FrameData::getChangeType() const
 {
     return DELTA;
 }

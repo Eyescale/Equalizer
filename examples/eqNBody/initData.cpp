@@ -51,12 +51,12 @@ InitData::InitData() : _frameDataID( eq::UUID::ZERO )
 		setFrameDataID( eq::UUID::ZERO );
 	}
 	
-	void InitData::getInstanceData( eq::net::DataOStream& os )
+	void InitData::getInstanceData( co::DataOStream& os )
 	{
 		os << _frameDataID;
 	}
 	
-	void InitData::applyInstanceData( eq::net::DataIStream& is )
+	void InitData::applyInstanceData( co::DataIStream& is )
 	{
 		is >> _frameDataID;
 		EQASSERT( _frameDataID != eq::base::UUID::ZERO );

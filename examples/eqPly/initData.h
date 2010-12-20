@@ -37,7 +37,7 @@
 
 namespace eqPly
 {
-    class InitData : public eq::net::Object
+    class InitData : public co::Object
     {
     public:
         InitData();
@@ -54,8 +54,8 @@ namespace eqPly
         bool               showLogo() const         { return _logo; }
 
     protected:
-        virtual void getInstanceData( eq::net::DataOStream& os );
-        virtual void applyInstanceData( eq::net::DataIStream& is );
+        virtual void getInstanceData( co::DataOStream& os );
+        virtual void applyInstanceData( co::DataIStream& is );
 
         void setWindowSystem( const eq::WindowSystem windowSystem )
             { _windowSystem = windowSystem; }

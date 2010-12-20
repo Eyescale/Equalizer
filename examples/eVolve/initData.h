@@ -36,7 +36,7 @@
 
 namespace eVolve
 {
-    class InitData : public eq::net::Object
+    class InitData : public co::Object
     {
     public:
         InitData();
@@ -52,8 +52,8 @@ namespace eVolve
         const std::string& getFilename()     const { return _filename;     }
 
     protected:
-        virtual void getInstanceData(   eq::net::DataOStream& os );
-        virtual void applyInstanceData( eq::net::DataIStream& is );
+        virtual void getInstanceData(   co::DataOStream& os );
+        virtual void applyInstanceData( co::DataIStream& is );
 
         void setWindowSystem( const eq::WindowSystem windowSystem )
             { _windowSystem = windowSystem; }
