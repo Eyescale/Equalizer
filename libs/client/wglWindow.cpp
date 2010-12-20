@@ -462,9 +462,6 @@ void WGLWindow::exitWGLAffinityDC()
 
 bool WGLWindow::initWGLAffinityDC()
 {
-    if( getIAttribute( Window::IATTR_HINT_AFFINITY ) == OFF )
-        return true;
-
     // We need to create one DC per window, since the window DC pixel format and
     // the affinity RC pixel format have to match, and each window has
     // potentially a different pixel format.
