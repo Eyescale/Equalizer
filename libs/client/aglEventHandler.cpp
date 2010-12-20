@@ -620,7 +620,7 @@ void AGLEventHandler::initMagellan( Node* node )
     else
     {
         std::string program( '\0' + 
-                            base::getFilename( net::Global::getProgramName( )));
+                             base::getFilename( co::Global::getProgramName( )));
         program[0] = program.length() - 1;
 
         _magellanID = RegisterConnexionClient( 0, (uint8_t*)program.c_str( ),

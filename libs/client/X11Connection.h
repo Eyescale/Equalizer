@@ -29,9 +29,9 @@ namespace eq
      * An X11 Display connection wrapper.
      *
      * This class is used to monitor multiple X11 display connections for events
-     * using a net::ConnectionSet.
+     * using a co::ConnectionSet.
      */
-    class X11Connection : public net::Connection
+    class X11Connection : public co::Connection
     {
     public:
         X11Connection( Display* display )

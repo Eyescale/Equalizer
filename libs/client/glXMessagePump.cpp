@@ -42,31 +42,31 @@ void GLXMessagePump::postWakeup()
 
 void GLXMessagePump::dispatchOne()
 {
-    const net::ConnectionSet::Event event = _connections.select();
+    const co::ConnectionSet::Event event = _connections.select();
     switch( event )
     {
-        case net::ConnectionSet::EVENT_DISCONNECT:
+        case co::ConnectionSet::EVENT_DISCONNECT:
         {
-            net::ConnectionPtr connection = _connections.getConnection();
+            co::ConnectionPtr connection = _connections.getConnection();
             _connections.removeConnection( connection );
             EQERROR << "Display connection shut down" << std::endl;
             break;
         }
             
-        case net::ConnectionSet::EVENT_DATA:
+        case co::ConnectionSet::EVENT_DATA:
             GLXEventHandler::dispatch();
             break;
 
-        case net::ConnectionSet::EVENT_INTERRUPT:      
+        case co::ConnectionSet::EVENT_INTERRUPT:      
             break;
 
-        case net::ConnectionSet::EVENT_CONNECT:
-        case net::ConnectionSet::EVENT_ERROR:      
+        case co::ConnectionSet::EVENT_CONNECT:
+        case co::ConnectionSet::EVENT_ERROR:      
         default:
             EQWARN << "Error during select" << std::endl;
             break;
 
-        case net::ConnectionSet::EVENT_TIMEOUT:
+        case co::ConnectionSet::EVENT_TIMEOUT:
             break;
     }
 }
@@ -86,11 +86,11 @@ void GLXMessagePump::deregister( Display* display )
 {
     if( --_referenced[ display ] == 0 )
     {
-        const net::Connections& connections = _connections.getConnections();
-        for( net::Connections::const_iterator i = connections.begin();
+        const co::Connections& connections = _connections.getConnections();
+        for( co::Connections::const_iterator i = connections.begin();
              i != connections.end(); ++i )
         {
-            net::ConnectionPtr connection = *i;
+            co::ConnectionPtr connection = *i;
             const X11Connection* x11Connection =
                 static_cast< const X11Connection* >( connection.get( ));
             if( x11Connection->getDisplay() == display )
