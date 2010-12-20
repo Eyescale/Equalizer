@@ -196,7 +196,7 @@ bool Server::_cmdShutdownReply( co::Command& command )
 }
 }
 
-#include "../fabric/server.ipp"
+#include "fabric/server.ipp"
 template class eq::fabric::Server< eq::Client, eq::Server, eq::Config,
                                    eq::NodeFactory, co::Node >;
 

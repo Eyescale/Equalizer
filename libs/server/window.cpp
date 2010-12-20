@@ -569,7 +569,7 @@ void Window::output( std::ostream& os ) const
 }
 }
 
-#include "../fabric/window.ipp"
+#include "../client/fabric/window.ipp"
 template class eq::fabric::Window< eq::server::Pipe, eq::server::Window, 
                                    eq::server::Channel >;
 

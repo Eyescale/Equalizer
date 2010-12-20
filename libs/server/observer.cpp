@@ -108,7 +108,7 @@ void Observer::postDelete()
 
 }
 }
-#include "../fabric/observer.ipp"
+#include "../client/fabric/observer.ipp"
 template class eq::fabric::Observer< eq::server::Config, eq::server::Observer >;
 /** @cond IGNORE */
 template std::ostream& eq::fabric::operator << ( std::ostream&,

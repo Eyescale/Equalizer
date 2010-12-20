@@ -464,7 +464,7 @@ bool Server::_cmdUnmap( co::Command& command )
 
 }
 }
-#include "../fabric/server.ipp"
+#include "../client/fabric/server.ipp"
 template class eq::fabric::Server< co::Node, eq::server::Server,
                                    eq::server::Config,
                                    eq::server::NodeFactory,

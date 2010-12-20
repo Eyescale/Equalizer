@@ -38,7 +38,7 @@
 #include "../base/plugin.h"
 #include "../base/compressorInfo.h"
 #include "../base/cpuCompressor.h"
-#include "../util/gpuCompressor.h"
+#include "util/gpuCompressor.h"
 
 #include <fstream>
 

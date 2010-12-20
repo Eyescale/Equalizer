@@ -44,7 +44,7 @@ endif(NOT CUDA_FOUND)
 
 add_subdirectory(base)
 add_subdirectory(collage)
-add_subdirectory(fabric)
+add_subdirectory(client/fabric)
 add_subdirectory(client)
 add_subdirectory(admin)
 add_subdirectory(server)

@@ -537,7 +537,7 @@ void Channel::updateCapabilities()
 }
 }
 
-#include "../fabric/channel.ipp"
+#include "../client/fabric/channel.ipp"
 template class eq::fabric::Channel< eq::server::Window, eq::server::Channel >;
 /** @cond IGNORE */
 template std::ostream& eq::fabric::operator << ( std::ostream&,

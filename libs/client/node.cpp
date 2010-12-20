@@ -599,7 +599,7 @@ bool Node::_cmdFrameDataReady( co::Command& command )
 
 }
 
-#include "../fabric/node.ipp"
+#include "fabric/node.ipp"
 template class eq::fabric::Node< eq::Config, eq::Node, eq::Pipe,
                                  eq::NodeVisitor >;
 /** @cond IGNORE */

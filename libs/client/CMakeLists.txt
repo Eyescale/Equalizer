@@ -4,26 +4,7 @@
 
 # TODO: resolve two-way dependancy between client and util!
 
-set(UTIL_HEADERS
-  ../util.h
-  ../util/accum.h
-  ../util/accumBufferObject.h
-  ../util/bitmapFont.h
-  ../util/frameBufferObject.h
-  ../util/objectManager.h
-  ../util/texture.h
-  ../util/types.h
-  )
-
-set(UTIL_SOURCES
-  ../util/accum.cpp
-  ../util/accumBufferObject.cpp
-  ../util/bitmapFont.cpp
-  ../util/gpuCompressor.cpp
-  ../util/frameBufferObject.cpp
-  ../util/objectManager.cpp
-  ../util/texture.cpp
-  )
+add_subdirectory( util )
 
 set(CLIENT_HEADERS
   ../client.h

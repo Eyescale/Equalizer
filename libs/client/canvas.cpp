@@ -51,7 +51,7 @@ ServerPtr Canvas::getServer()
 
 
 #include "server.h"
-#include "../fabric/canvas.ipp"
+#include "fabric/canvas.ipp"
 template class eq::fabric::Canvas< eq::Config, eq::Canvas, eq::Segment,
                                    eq::Layout >;
 /** @cond IGNORE */

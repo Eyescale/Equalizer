@@ -910,7 +910,7 @@ bool Pipe::_cmdFrameDrawFinish( co::Command& command )
 
 }
 
-#include "../fabric/pipe.ipp"
+#include "fabric/pipe.ipp"
 template class eq::fabric::Pipe< eq::Node, eq::Pipe, eq::Window,
                                  eq::PipeVisitor >;
 /** @cond IGNORE */

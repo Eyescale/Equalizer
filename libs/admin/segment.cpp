@@ -62,7 +62,7 @@ ServerPtr Segment::getServer()
 }
 }
 
-#include "../fabric/segment.ipp"
+#include "../client/fabric/segment.ipp"
 template class eq::fabric::Segment< eq::admin::Canvas, eq::admin::Segment,
                                     eq::admin::Channel >;
 

@@ -1562,7 +1562,7 @@ bool Channel::_cmdStopFrame( co::Command& command )
 }
 }
 
-#include "../fabric/channel.ipp"
+#include "fabric/channel.ipp"
 template class eq::fabric::Channel< eq::Window, eq::Channel >;
 /** @cond IGNORE */
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,

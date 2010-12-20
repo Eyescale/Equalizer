@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,29 +15,30 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_H
-#define EQ_H
+#ifndef CO_H
+#define CO_H
 
-#pragma warning(push)
-#pragma warning(disable : 4244) //conversion from .. to ..,possible loss of data
+/**
+ * @namespace co::net
+ * @brief Equalizer network layer.
+ *
+ * The Equalizer network layer provides basic functionality for network
+ * communication, such as Connection and ConnectionSet, as well as higher-level
+ * functionality such as Node and Object.
+ */
 
-#include <eq/client.h>
+// amalgam
 
-#include <eq/util.h>
-#include <eq/fabric.h>
-#include <co/co.h>
-#include <eq/base.h>
+#include <co/barrier.h>
+#include <co/command.h>
+#include <co/connection.h>
+#include <co/connectionDescription.h>
+#include <co/connectionType.h>
+#include <co/dataIStream.h>
+#include <co/dataOStream.h>
+#include <co/global.h>
+#include <co/init.h>
+#include <co/object.h>
 
-#include <vmmlib/vmmlib.hpp>
+#endif // CO_H
 
-#ifdef EQ_USE_DEPRECATED
-namespace eqBase = ::eq::base;
-namespace eqNet  = ::eq::net;
-#endif
-
-/** \mainpage Equalizer API Documentation
-    \htmlinclude "RelNotes.dox"
-*/
-
-#pragma warning(pop)
-#endif // EQ_H

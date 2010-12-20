@@ -38,7 +38,7 @@
 #include <eq/admin/window.h>
 
 #include <eq/fabric.h>
-#include <co.h>
+#include <co/co.h>
 
 #pragma warning(pop)
 #endif // EQ_ADMIN_H

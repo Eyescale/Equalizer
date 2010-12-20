@@ -1118,7 +1118,7 @@ void Config::output( std::ostream& os ) const
 }
 
 #include "nodeFactory.h"
-#include "../fabric/config.ipp"
+#include "../client/fabric/config.ipp"
 template class eq::fabric::Config< eq::server::Server, eq::server::Config,
                                    eq::server::Observer, eq::server::Layout,
                                    eq::server::Canvas, eq::server::Node,

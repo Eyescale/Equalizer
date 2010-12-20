@@ -106,7 +106,7 @@ bool Server::_cmdUnmapReply( co::Command& command )
 
 }
 }
-#include "../fabric/server.ipp"
+#include "../client/fabric/server.ipp"
 template class eq::fabric::Server< eq::admin::Client, eq::admin::Server,
                                    eq::admin::Config, eq::admin::NodeFactory,
                                    co::Node >;

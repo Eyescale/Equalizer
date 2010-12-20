@@ -24,8 +24,8 @@
 
 #include <GL/glew.h>
 
-#include "../base/compressorInfo.h"
-#include "../base/plugin.h"
+#include "../../base/compressorInfo.h"
+#include "../../base/plugin.h"
 
 namespace eq
 {

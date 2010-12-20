@@ -154,7 +154,7 @@ SegmentPath Segment::getPath() const
 }
 }
 
-#include "../fabric/segment.ipp"
+#include "../client/fabric/segment.ipp"
 template class eq::fabric::Segment< eq::server::Canvas, eq::server::Segment,
                                     eq::server::Channel >;
 /** @cond IGNORE */
