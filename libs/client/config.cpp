@@ -721,7 +721,7 @@ void Config::deregisterObject( co::Object* object )
     client->waitRequest( packet.requestID );
 }
 
-bool Config::mapObject( co::Object* object, const base::UUID& id,
+bool Config::mapObject( co::Object* object, const UUID& id,
                         const uint128_t& version )
 {
     return getClient()->mapObject( object, id, version );
