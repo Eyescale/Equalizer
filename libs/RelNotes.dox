@@ -132,6 +132,8 @@
   <li>New command line argument <code>--eq-logfile</code></li>
   <li>New compound auto stereo mode detection (active, anaglyph, passive)</li>
   <li>Structured <a href="http://www.equalizergraphics.com/documents/design/errorHandling.html">error reporting</a>.</li>
+  <li>Upgraded <a href="http://glew.sourceforge.net">GLEW</a> to version
+    1.5.7.2</li>
 </ul>
 <p>0.9.1:</p>
 <ul>
