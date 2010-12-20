@@ -7,7 +7,7 @@ clean:
 
 DOXYGEN ?= doxygen
 PYTHON ?= python
-CTEST ?= /opt/local/bin/ctest
+CTEST ?= ctest
 
 debug: debug/Makefile
 	@$(MAKE) -C debug
