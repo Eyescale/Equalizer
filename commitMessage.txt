@@ -1,4 +1,4 @@
-- fix linux and Darwin build
+- Minor clean up Cmake
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

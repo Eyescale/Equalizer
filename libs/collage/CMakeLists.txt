@@ -19,6 +19,8 @@ if(WIN32)
   list(APPEND NET_ADD_LINKLIB mswsock) 
 endif(WIN32)
 
+add_subdirectory(base)
+
 set(PLUGIN_HEADERS
   plugins/compressor.h
   plugins/compressorTokens.h

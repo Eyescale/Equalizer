@@ -41,13 +41,11 @@ if(NOT CUDA_FOUND)
   set(CUDA_LIBRARIES)
 endif(NOT CUDA_FOUND)
 
-add_subdirectory(collage/base)
 add_subdirectory(collage)
 add_subdirectory(client)
 add_subdirectory(admin)
 add_subdirectory(server)
 
-# TODO: split this library
 purple_add_library(eq ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/"
   HEADERS
