@@ -34,17 +34,19 @@
 namespace eqPly
 {
 
-View::View( eq::Layout* parent )
-        : eq::View( parent )
 #pragma warning( push )
 #pragma warning( disable : 4355 )
+
+View::View( eq::Layout* parent )
+        : eq::View( parent )
         , _proxy( this )
-#pragma warning( pop )
         , _modelID( eq::base::UUID::ZERO )
         , _idleSteps( 0 )
 {
     setUserData( &_proxy );
 }
+
+#pragma warning( pop )
 
 View::~View()
 {
@@ -53,8 +55,7 @@ View::~View()
     _idleSteps = 0;
 }
 
-void View::Proxy::serialize( co::DataOStream& os,
-                             const uint64_t dirtyBits )
+void View::Proxy::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
     if( dirtyBits & DIRTY_MODEL )
         os << _view->_modelID;
@@ -62,8 +63,7 @@ void View::Proxy::serialize( co::DataOStream& os,
         os << _view->_idleSteps;
 }
 
-void View::Proxy::deserialize( co::DataIStream& is,
-                               const uint64_t dirtyBits )
+void View::Proxy::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 {
     if( dirtyBits & DIRTY_MODEL )
         is >> _view->_modelID;

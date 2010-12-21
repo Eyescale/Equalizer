@@ -216,19 +216,7 @@ bool WGLWindow::configInit()
     initGLEW();
 
     if( getIAttribute( Window::IATTR_HINT_SWAPSYNC ) != AUTO )
-    {
-        if( WGLEW_EXT_swap_control )
-        {
-            // set vsync on/off
-            const GLint vsync = 
-                ( getIAttribute( Window::IATTR_HINT_SWAPSYNC )==OFF ) ? 0 : 1;
-            wglSwapIntervalEXT( vsync );
-        }
-        else
-            EQWARN << "WGLEW_EXT_swap_control not supported, ignoring window "
-                   << "swapsync hint" << std::endl;
-    }
-    
+        _initSwapSync();
     if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
         return configInitFBO();
 
@@ -467,6 +455,20 @@ bool WGLWindow::initWGLAffinityDC()
     // potentially a different pixel format.
     return getWGLPipe()->createWGLAffinityDC( _wglAffinityDC );
 }
+
+void WGLWindow::_initSwapSync()
+{
+    if( WGLEW_EXT_swap_control )
+    {
+        // set vsync on/off
+        const GLint vsync =
+            ( getIAttribute( Window::IATTR_HINT_SWAPSYNC )==OFF ) ? 0 : 1;
+        wglSwapIntervalEXT( vsync );
+    }
+    else
+        EQWARN << "WGLEW_EXT_swap_control not supported, ignoring window "
+               << "swapsync hint" << std::endl;
+}   
 
 void WGLWindow::configExit( )
 {

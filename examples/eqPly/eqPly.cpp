@@ -104,11 +104,13 @@ int EqPly::run()
     config->setInitData( _initData );
     if( !config->init( ))
     {
+        EQWARN << "Error during initialization: " << config->getError()
+               << std::endl;
         server->releaseConfig( config );
         disconnectServer( server );
         return EXIT_FAILURE;
     }
-    else if( config->getError( ))
+    if( config->getError( ))
         EQWARN << "Error during initialization: " << config->getError()
                << std::endl;
 

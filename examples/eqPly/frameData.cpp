@@ -62,8 +62,7 @@ void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
         os << _message;
 }
 
-void FrameData::deserialize( co::DataIStream& is,
-                             const uint64_t dirtyBits )
+void FrameData::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 {
     eq::fabric::Serializable::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_CAMERA )

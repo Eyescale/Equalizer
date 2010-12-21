@@ -316,6 +316,8 @@ namespace eq
 
         /** Use ChoosePixelFormat */
         int _chooseWGLPixelFormat( HDC pfDC );
+
+        void _initSwapSync();
     };
 }
 

@@ -87,12 +87,6 @@ bool Config::init()
     _initData.setFrameDataID( _frameData.getID( ));
     registerObject( &_initData );
 
-#if 0
-    eq::admin::ServerPtr server = getAdminServer();
-    if( server.isValid( ))
-        eqAdmin::addWindow( server );
-#endif
-
     // init config
     if( !eq::Config::init( _initData.getID( )))
     {
@@ -259,8 +253,8 @@ void Config::_deregisterData()
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
 
-    _initData.setFrameDataID( eq::base::UUID::ZERO );
-    _frameData.setModelID( eq::base::UUID::ZERO );
+    _initData.setFrameDataID( eq::UUID::ZERO );
+    _frameData.setModelID( eq::UUID::ZERO );
 }
 
 
@@ -293,7 +287,7 @@ void Config::unmapData()
 
 const Model* Config::getModel( const eq::uint128_t& modelID )
 {
-    if( modelID == eq::base::UUID::ZERO )
+    if( modelID == eq::UUID::ZERO )
         return 0;
 
     // Accessed concurrently from pipe threads
@@ -322,9 +316,7 @@ uint32_t Config::startFrame()
     _updateData();
     const eq::base::uint128_t& version = _frameData.commit();
 
-    _numFramesAA = 0;
     _redraw = false;
-
     return eq::Config::startFrame( version );
 }
 
@@ -366,6 +358,8 @@ void Config::_updateData()
     }
     else
         _frameData.setIdle( false );
+
+    _numFramesAA = 0;
 }
 
 bool Config::isIdleAA()
@@ -411,7 +405,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             const eq::uint128_t& viewID = 
                            event->data.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
-            if( viewID == eq::base::UUID::ZERO )
+            if( viewID == eq::UUID::ZERO )
             {
                 _currentCanvas = 0;
                 return true;
@@ -770,7 +764,7 @@ void Config::_switchCanvas()
     if( canvases.empty( ))
         return;
 
-    _frameData.setCurrentViewID( eq::base::UUID::ZERO );
+    _frameData.setCurrentViewID( eq::UUID::ZERO );
 
     if( !_currentCanvas )
     {
@@ -817,7 +811,7 @@ void Config::_switchView()
     if( i != views.end( ))
         ++i;
     if( i == views.end( ))
-        _frameData.setCurrentViewID( eq::base::UUID::ZERO );
+        _frameData.setCurrentViewID( eq::UUID::ZERO );
     else
         _frameData.setCurrentViewID( (*i)->getID( ));
 }
@@ -841,7 +835,7 @@ void Config::_switchModel()
     if( _modelDist.empty( )) // no models
         return;
 
-    // current model
+    // current model of current view
     const eq::uint128_t& viewID = _frameData.getCurrentViewID();
     View* view = static_cast< View* >( find< eq::View >( viewID ));
     const eq::uint128_t& currentID = view ?
@@ -880,7 +874,7 @@ void Config::_switchLayout( int32_t increment )
     if( !_currentCanvas )
         return;
 
-    _frameData.setCurrentViewID( eq::base::UUID::ZERO );
+    _frameData.setCurrentViewID( eq::UUID::ZERO );
 
     int64_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();

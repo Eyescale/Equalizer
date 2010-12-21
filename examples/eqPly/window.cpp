@@ -56,7 +56,7 @@ bool Window::configInitSystemWindow( const eq::uint128_t& initID )
         configExitSystemWindow();
 #endif
 
-        // try with 64bits accum buffer
+        // try with 64 bit accum buffer
         setIAttribute( IATTR_PLANES_ACCUM, 16 );
         if( eq::Window::configInitSystemWindow( initID ))
             return true;

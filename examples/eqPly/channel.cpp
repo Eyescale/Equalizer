@@ -165,9 +165,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
         glColor3f( .75f, .75f, .75f );
 
     if( model )
-    {
         _drawModel( model );
-    }
     else
     {
         glNormal3f( 0.f, -1.f, 0.f );
@@ -346,14 +344,10 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
         drawStatistics();
 
     ConfigEvent event;
-
-    EQASSERT( getID() != eq::base::UUID::ZERO );
     event.data.originator = getID();
     event.data.type = ConfigEvent::IDLE_AA_LEFT;
 
-    const bool isIdle = frameData.isIdle();
-
-    if( isIdle )
+    if( frameData.isIdle( ))
     {
         int32_t maxSteps = 0;
         for( size_t i = 0; i < eq::NUM_EYES; ++i )
@@ -528,10 +522,10 @@ eq::Vector2f Channel::_getJitter() const
         return eq::Vector2f::ZERO;
 
     const eq::PixelViewport& pvp = getPixelViewport();
-    const float pvp_w = static_cast<float>( pvp.w );
-    const float pvp_h = static_cast<float>( pvp.h );
-    const float frustum_w = static_cast<float>(( getFrustum().get_width( )));
-    const float frustum_h = static_cast<float>(( getFrustum().get_height( )));
+    const float pvp_w = float( pvp.w );
+    const float pvp_h = float( pvp.h );
+    const float frustum_w = float(( getFrustum().get_width( )));
+    const float frustum_h = float(( getFrustum().get_height( )));
 
     const float pixel_w = frustum_w / pvp_w;
     const float pixel_h = frustum_h / pvp_h;
@@ -543,14 +537,14 @@ eq::Vector2f Channel::_getJitter() const
     // Sample value randomly computed within the subpixel
     eq::base::RNG rng;
     float value_i = rng.get< float >() * subpixel_w
-                    + static_cast<float>( jitterStep.x( )) * subpixel_w;
+                    + float( jitterStep.x( )) * subpixel_w;
 
     float value_j = rng.get< float >() * subpixel_h
-                    + static_cast<float>( jitterStep.y( )) * subpixel_h;
+                    + float( jitterStep.y( )) * subpixel_h;
 
     const eq::Pixel& pixel = getPixel();
-    value_i /= static_cast<float>( pixel.w );
-    value_j /= static_cast<float>( pixel.h );
+    value_i /= float( pixel.w );
+    value_j /= float( pixel.h );
 
     return eq::Vector2f( value_i, value_j );
 }
@@ -558,7 +552,7 @@ eq::Vector2f Channel::_getJitter() const
 eq::Vector2i Channel::_getJitterStep() const
 {
     const eq::SubPixel& subPixel = getSubPixel();
-    uint32_t channelID = subPixel.index;
+    const uint32_t channelID = subPixel.index;
     const View* view = static_cast< const View* >( getView( ));
     if( !view )
         return eq::Vector2i::ZERO;
@@ -622,14 +616,14 @@ void Channel::_drawModel( const Model* model )
     
     model->beginRendering( state );
     
-    // start with root node
-    std::vector< const mesh::VertexBufferBase* > candidates;
-    candidates.push_back( model );
-
 #ifndef NDEBUG
     size_t verticesRendered = 0;
     size_t verticesOverlap  = 0;
 #endif
+
+    // start with root node
+    std::vector< const mesh::VertexBufferBase* > candidates;
+    candidates.push_back( model );
 
     while( !candidates.empty() )
     {

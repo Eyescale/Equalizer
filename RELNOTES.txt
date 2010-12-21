@@ -163,7 +163,7 @@
    The following documentation has been added or substantially improved since
    the last release:
 
-     * The Programming and User Guide has been extended to XXX pages and XXX
+     * The Programming and User Guide has been extended to 100 pages and 55
        figures.
      * The XXX
 

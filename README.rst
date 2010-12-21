@@ -191,8 +191,8 @@ were made: (CHANGES.txt)
 The following documentation has been added or substantially improved since
 the last release:
 
--   The `Programming and User Guide`_ has been extended to XXX pages and
-    XXX figures.
+-   The `Programming and User Guide`_ has been extended to 100 pages and
+    55 figures.
 -   `The XXX`_
 
 

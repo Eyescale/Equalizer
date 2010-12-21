@@ -69,7 +69,7 @@ void InitData::applyInstanceData( co::DataIStream& is )
     is >> _frameDataID >> _windowSystem >> _renderMode >> _useGLSL >> _invFaces
        >> _logo;
 
-    EQASSERT( _frameDataID != eq::base::UUID::ZERO );
+    EQASSERT( _frameDataID != eq::UUID::ZERO );
     EQINFO << "New InitData instance" << std::endl;
 }
 }
