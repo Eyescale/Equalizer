@@ -18,7 +18,7 @@
 #include "init.h"
 
 #include <eq/fabric/init.h>
-#include <eq/base/debug.h>
+#include <co/base/debug.h>
 
 namespace eq
 {

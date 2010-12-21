@@ -19,7 +19,7 @@
 #include "libs/server/loader.h"
 #include "libs/server/server.h"
 
-#include <eq/base/init.h>
+#include <co/base/init.h>
 
 // Tests restarting the loader after a parse error
 

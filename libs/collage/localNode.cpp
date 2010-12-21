@@ -26,8 +26,8 @@
 #include "objectStore.h"
 #include "pipeConnection.h"
 
-#include <eq/base/log.h>
-#include <eq/base/requestHandler.h>
+#include <co/base/log.h>
+#include <co/base/requestHandler.h>
 
 namespace co
 {

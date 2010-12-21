@@ -17,7 +17,7 @@
 
 #include <test.h>
 
-#include <eq/base/lock.h>
+#include <co/base/lock.h>
 #include <co/command.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>

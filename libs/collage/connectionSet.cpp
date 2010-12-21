@@ -21,9 +21,9 @@
 #include "node.h"
 #include "eventConnection.h"
 
-#include <eq/base/os.h>
-#include <eq/base/stdExt.h>
-#include <eq/base/thread.h>
+#include <co/base/os.h>
+#include <co/base/stdExt.h>
+#include <co/base/thread.h>
 
 #include <algorithm>
 #include <errno.h>

@@ -19,7 +19,7 @@
 #include "compressorReadDrawPixels.h"
 
 #include <eq/util/texture.h>
-#include <eq/base/buffer.h>
+#include <co/base/buffer.h>
 
 #define glewGetContext() glewContext
     

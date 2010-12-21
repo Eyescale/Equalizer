@@ -32,7 +32,7 @@
 #include "types.h"
 #include "unbufferedMasterCM.h"
 
-#include <eq/base/scopedMutex.h>
+#include <co/base/scopedMutex.h>
 #include <iostream>
 
 namespace co

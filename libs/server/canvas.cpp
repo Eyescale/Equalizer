@@ -33,7 +33,7 @@
 #include <eq/fabric/paths.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
-#include <eq/base/stdExt.h>
+#include <co/base/stdExt.h>
 
 namespace eq
 {

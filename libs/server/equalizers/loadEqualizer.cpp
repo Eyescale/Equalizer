@@ -22,7 +22,7 @@
 #include "../log.h"
 
 #include <eq/statistic.h>
-#include <eq/base/debug.h>
+#include <co/base/debug.h>
 
 namespace eq
 {

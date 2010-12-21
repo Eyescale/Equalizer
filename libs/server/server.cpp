@@ -37,8 +37,8 @@
 #include <co/global.h>
 #include <co/init.h>
 #include <co/localNode.h>
-#include <eq/base/refPtr.h>
-#include <eq/base/sleep.h>
+#include <co/base/refPtr.h>
+#include <co/base/sleep.h>
 
 #include <sstream>
 

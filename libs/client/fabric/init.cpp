@@ -18,7 +18,7 @@
 #include "init.h"
 
 #include <co/init.h>
-#include <eq/base/atomic.h>
+#include <co/base/atomic.h>
 
 namespace eq
 {

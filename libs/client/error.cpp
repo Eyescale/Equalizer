@@ -17,8 +17,8 @@
 
 #include "error.h"
 
-#include <eq/base/errorRegistry.h>
-#include <eq/base/global.h>
+#include <co/base/errorRegistry.h>
+#include <co/base/global.h>
 
 namespace eq
 {

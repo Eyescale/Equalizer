@@ -21,10 +21,10 @@
 #include <co/api.h>
 #include <co/types.h>
 
-#include <eq/base/lockable.h>  // member
-#include <eq/base/stdExt.h>    // member
-#include <eq/base/thread.h>    // member
-#include <eq/base/uuid.h>      // member
+#include <co/base/lockable.h>  // member
+#include <co/base/stdExt.h>    // member
+#include <co/base/thread.h>    // member
+#include <co/base/uuid.h>      // member
 
 #include <iostream>
 

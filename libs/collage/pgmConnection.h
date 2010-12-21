@@ -18,12 +18,12 @@
 #ifndef CO_PGMCONNECTION_H
 #define CO_PGMCONNECTION_H
 
-#include <eq/base/os.h>
+#include <co/base/os.h>
 #ifdef EQ_PGM
 
 #include <co/connection.h>
-#include <eq/base/buffer.h> // member
-#include <eq/base/thread.h> // for EQ_TS_VAR
+#include <co/base/buffer.h> // member
+#include <co/base/thread.h> // for EQ_TS_VAR
 
 namespace co
 {

@@ -16,9 +16,9 @@
  */
 
 #include <test.h>
-#include <eq/base/refPtr.h>
-#include <eq/base/referenced.h>
-#include <eq/base/thread.h>
+#include <co/base/refPtr.h>
+#include <co/base/referenced.h>
+#include <co/base/thread.h>
 #include <iostream>
 
 using namespace eq::base;

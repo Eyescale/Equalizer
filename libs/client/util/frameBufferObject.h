@@ -23,7 +23,7 @@
 #include <eq/util/types.h>
 
 #include <eq/os.h>           // for GLEW
-#include <eq/base/error.h>
+#include <co/base/error.h>
 
 #include <vector>
 

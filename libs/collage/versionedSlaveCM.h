@@ -23,9 +23,9 @@
 #include "objectSlaveDataOStream.h" // member
 #include "version.h"             // enum
 
-#include <eq/base/mtQueue.h>     // member
-#include <eq/base/pool.h>        // member
-#include <eq/base/thread.h>      // thread-safety macro
+#include <co/base/mtQueue.h>     // member
+#include <co/base/pool.h>        // member
+#include <co/base/thread.h>      // thread-safety macro
 
 namespace co
 {

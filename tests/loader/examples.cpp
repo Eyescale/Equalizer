@@ -21,8 +21,8 @@
 #include "libs/server/loader.h"
 #include "libs/server/server.h"
 
-#include <eq/base/file.h>
-#include <eq/base/init.h>
+#include <co/base/file.h>
+#include <co/base/init.h>
 
 // Tests loading of all examples/configs/*.eqc files
 

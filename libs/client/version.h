@@ -18,7 +18,7 @@
 #ifndef EQ_VERSION_H
 #define EQ_VERSION_H
 
-#include <eq/base/os.h>
+#include <co/base/os.h>
 
 #include <string>
 

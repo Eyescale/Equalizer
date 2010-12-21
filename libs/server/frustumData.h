@@ -18,7 +18,7 @@
 #ifndef EQSERVER_FRUSTUMDATA_H
 #define EQSERVER_FRUSTUMDATA_H
 
-#include <eq/base/os.h>
+#include <co/base/os.h>
 #include <eq/fabric/eye.h>   // EYE enum
 #include <eq/fabric/wall.h>  // Wall::Type enum
 #include <vmmlib/matrix.hpp>  // member

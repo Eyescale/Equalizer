@@ -17,9 +17,9 @@
 
 #include <pthread.h>
 #include <test.h>
-#include <eq/base/clock.h>
-#include <eq/base/mtQueue.h>
-#include <eq/base/thread.h>
+#include <co/base/clock.h>
+#include <co/base/mtQueue.h>
+#include <co/base/thread.h>
 #include <iostream>
 
 #define NOPS 100000

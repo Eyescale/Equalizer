@@ -22,7 +22,7 @@
 #include <eq/os.h>           // XEvent type
 #include <eq/types.h>        // basic typedefs
 
-#include <eq/base/thread.h> // thread-safety macro
+#include <co/base/thread.h> // thread-safety macro
 
 namespace eq
 {

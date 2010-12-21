@@ -21,7 +21,7 @@
 #include <eq/util/types.h>
 #include <eq/os.h>           // GL prototypes
 #include <eq/windowSystem.h> // enum used
-#include <eq/base/os.h>
+#include <co/base/os.h>
 
 #include <string>
 

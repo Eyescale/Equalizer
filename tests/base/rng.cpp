@@ -18,8 +18,8 @@
 // Tests the functionality of the random number generator
 
 #include <test.h>
-#include <eq/base/init.h>
-#include <eq/base/rng.h>
+#include <co/base/init.h>
+#include <co/base/rng.h>
 
 using namespace eq::base;
 

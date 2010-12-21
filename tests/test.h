@@ -18,9 +18,9 @@
 #ifndef EQTEST_TEST_H
 #define EQTEST_TEST_H
 
-#include <eq/base/log.h>
-#include <eq/base/sleep.h>
-#include <eq/base/thread.h>
+#include <co/base/log.h>
+#include <co/base/sleep.h>
+#include <co/base/thread.h>
 #include <fstream>
 
 #define OUTPUT eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )

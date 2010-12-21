@@ -20,7 +20,7 @@
 #define EQFABRIC_TASK_H
 
 #include <iostream>
-#include <eq/base/types.h>
+#include <co/base/types.h>
 
 namespace eq
 {

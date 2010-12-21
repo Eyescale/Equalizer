@@ -20,7 +20,7 @@
 
 #include <eq/fabric/api.h>
 #include <eq/fabric/types.h>
-#include <eq/base/debug.h>
+#include <co/base/debug.h>
 
 #include <iostream>
 

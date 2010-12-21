@@ -18,9 +18,9 @@
 // Tests the functionality of universally unique identifiers
 
 #include <test.h>
-#include <eq/base/thread.h>
-#include <eq/base/uuid.h>
-#include <eq/base/init.h>
+#include <co/base/thread.h>
+#include <co/base/uuid.h>
+#include <co/base/init.h>
 
 #define N_UUIDS 10000
 #define N_THREADS 10

@@ -21,8 +21,8 @@
 
 #include <co/plugins/compressor.h>
 
-#include <eq/base/os.h>
-#include <eq/base/buffer.h>
+#include <co/base/os.h>
+#include <co/base/buffer.h>
 #include <vector>
 #ifdef _WIN32
 #  include <malloc.h>

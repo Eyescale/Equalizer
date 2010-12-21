@@ -20,12 +20,12 @@
 
 #include <co/connectionListener.h> // base class
 
-#include <eq/base/os.h>
-#include <eq/base/buffer.h>
-#include <eq/base/hash.h>
-#include <eq/base/monitor.h>
-#include <eq/base/refPtr.h>
-#include <eq/base/thread.h> // for EQ_TS_VAR
+#include <co/base/os.h>
+#include <co/base/buffer.h>
+#include <co/base/hash.h>
+#include <co/base/monitor.h>
+#include <co/base/refPtr.h>
+#include <co/base/thread.h> // for EQ_TS_VAR
 
 #ifndef _WIN32
 #  include <poll.h>

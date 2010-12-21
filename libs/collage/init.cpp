@@ -21,7 +21,7 @@
 #include "node.h"
 #include "socketConnection.h"
 
-#include <eq/base/omp.h>
+#include <co/base/omp.h>
 
 #ifdef WIN32_API
 #  include <direct.h>

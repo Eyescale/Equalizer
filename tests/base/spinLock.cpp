@@ -16,7 +16,7 @@
  */
 
 #include "test.h"
-#include <eq/base/spinLock.h>
+#include <co/base/spinLock.h>
 #include <iostream>
 
 #define MAXTHREADS 128

@@ -24,12 +24,12 @@
 #include "node.h"
 #include "types.h"
 
-#include "../base/cpuCompressor.h" // internal header
-#include <eq/base/global.h>
+#include "base/cpuCompressor.h" // internal header
+#include <co/base/global.h>
 
 //#define EQ_INSTRUMENT_DATAOSTREAM
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-#  include <eq/base/clock.h>
+#  include <co/base/clock.h>
 #endif
 
 namespace co

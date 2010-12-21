@@ -23,8 +23,8 @@
 #include <co/instanceCache.h>
 #include <co/objectVersion.h>
 
-#include <eq/base/rng.h>
-#include <eq/base/thread.h>
+#include <co/base/rng.h>
+#include <co/base/thread.h>
 
 #include "libs/collage/objectPackets.h" // private header
 

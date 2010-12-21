@@ -19,7 +19,7 @@
 #define EQADMIN_TYPES_H
 
 #include <eq/admin/api.h>
-#include <eq/base/refPtr.h>
+#include <co/base/refPtr.h>
 
 namespace eq
 {

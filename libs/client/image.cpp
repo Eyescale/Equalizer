@@ -29,15 +29,15 @@
 #include <eq/fabric/colorMask.h>
 #include <co/node.h>
 
-#include <eq/base/global.h>
-#include <eq/base/memoryMap.h>
-#include <eq/base/omp.h>
-#include <eq/base/pluginRegistry.h>
+#include <co/base/global.h>
+#include <co/base/memoryMap.h>
+#include <co/base/omp.h>
+#include <co/base/pluginRegistry.h>
 
 // Internal headers
-#include "../base/plugin.h"
-#include "../base/compressorInfo.h"
-#include "../base/cpuCompressor.h"
+#include "../collage/base/plugin.h"
+#include "../collage/base/compressorInfo.h"
+#include "../collage/base/cpuCompressor.h"
 #include "util/gpuCompressor.h"
 
 #include <fstream>

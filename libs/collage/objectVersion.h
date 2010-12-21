@@ -20,7 +20,7 @@
 
 #include <co/api.h>
 #include <co/types.h>
-#include <eq/base/stdExt.h>
+#include <co/base/stdExt.h>
 
 #include <iostream>
 

@@ -21,7 +21,7 @@
 #include "commandQueue.h"
 #include "node.h"
 
-#include <eq/base/log.h>
+#include <co/base/log.h>
 
 namespace co
 {

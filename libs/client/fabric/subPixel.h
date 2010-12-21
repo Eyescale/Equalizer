@@ -20,7 +20,7 @@
 #define EQFABRIC_SUBPIXEL_H
 
 #include <eq/fabric/api.h>
-#include <eq/base/log.h>
+#include <co/base/log.h>
 
 namespace eq
 {

@@ -24,8 +24,8 @@
 #include "pipe.h"
 #include "window.h"
 
-#include <eq/base/lock.h>
-#include <eq/base/debug.h>
+#include <co/base/lock.h>
+#include <co/base/debug.h>
 
 using namespace eq::base;
 using namespace std;

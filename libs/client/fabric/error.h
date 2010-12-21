@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_ERROR_H
 #define EQFABRIC_ERROR_H
 
-#include <eq/base/error.h>
+#include <co/base/error.h>
 
 namespace eq
 {

@@ -16,8 +16,8 @@
  */
 
 #include "test.h"
-#include <eq/base/atomic.h>
-#include <eq/base/lock.h>
+#include <co/base/atomic.h>
+#include <co/base/lock.h>
 #include <iostream>
 
 #define MAXTHREADS 256

@@ -23,10 +23,10 @@
 #include <co/types.h>                 // Connections type
 
 #include <co/api.h>
-#include <eq/base/refPtr.h>
-#include <eq/base/referenced.h>
-#include <eq/base/scopedMutex.h>
-#include <eq/base/lock.h>
+#include <co/base/refPtr.h>
+#include <co/base/referenced.h>
+#include <co/base/scopedMutex.h>
+#include <co/base/lock.h>
 
 #include <sys/types.h>
 #include <string.h>

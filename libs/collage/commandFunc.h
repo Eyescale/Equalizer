@@ -18,8 +18,8 @@
 #ifndef CO_COMMANDFUNC_H
 #define CO_COMMANDFUNC_H
 
-#include <eq/base/os.h>
-#include <eq/base/debug.h>
+#include <co/base/os.h>
+#include <co/base/debug.h>
 
 namespace co
 {

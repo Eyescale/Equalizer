@@ -21,8 +21,8 @@
 #include "log.h"
 #include "node.h"
 
-#include "../base/cpuCompressor.h" // internal header
-#include <eq/base/debug.h>
+#include "base/cpuCompressor.h" // internal header
+#include <co/base/debug.h>
 #include <co/plugins/compressor.h>
 
 #include <string.h>

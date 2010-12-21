@@ -23,7 +23,7 @@
 #include "object.h"
 #include "objectDataIStream.h"
 
-#include <eq/base/scopedMutex.h>
+#include <co/base/scopedMutex.h>
 
 namespace co
 {

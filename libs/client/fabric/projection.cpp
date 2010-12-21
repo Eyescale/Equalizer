@@ -18,7 +18,7 @@
 #include "projection.h"
 #include "wall.h"
 
-#include <eq/base/log.h>
+#include <co/base/log.h>
 
 #define DEG2RAD( angle ) ((angle) * static_cast<float>(M_PI) / 180.f)
 #define RAD2DEG( angle ) ((angle) * 180.f / static_cast<float>(M_PI))

@@ -23,18 +23,18 @@
 #include <eq/image.h>
 #include <eq/init.h>
 #include <eq/nodeFactory.h>
-#include <eq/base/clock.h>
-#include <eq/base/file.h>
-#include <eq/base/global.h>
-#include <eq/base/pluginRegistry.h>
+#include <co/base/clock.h>
+#include <co/base/file.h>
+#include <co/base/global.h>
+#include <co/base/pluginRegistry.h>
 
 #include <eq/frame.h>    // enum Eye
 
 #include <numeric>
 #include <fstream>
 
-#include "libs/base/compressorInfo.h" // private header
-#include "libs/base/plugin.h" // private header
+#include "libs/collage/base/compressorInfo.h" // private header
+#include "libs/collage/base/plugin.h" // private header
 
 
 // Tests the functionality and speed of the image compression.

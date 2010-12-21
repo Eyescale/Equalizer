@@ -41,8 +41,8 @@
 #include "window.h"
 
 #include <eq/fabric/paths.h>
-#include <eq/base/os.h>
-#include <eq/base/file.h>
+#include <co/base/os.h>
+#include <co/base/file.h>
 #include <string>
 #pragma warning( disable : 4065 )
 

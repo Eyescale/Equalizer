@@ -20,7 +20,7 @@
 #include "connectionDescription.h"
 #include "nodePackets.h"
 
-#include <eq/base/os.h>
+#include <co/base/os.h>
 
 namespace co
 {

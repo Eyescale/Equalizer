@@ -19,9 +19,9 @@
 #define CO_SOCKETCONNECTION_H
 
 #include <co/connectionType.h> // enum
-#include <eq/base/api.h>
-#include <eq/base/buffer.h> // member
-#include <eq/base/thread.h> // for EQ_TS_VAR
+#include <co/base/api.h>
+#include <co/base/buffer.h> // member
+#include <co/base/thread.h> // for EQ_TS_VAR
 
 
 #ifdef WIN32

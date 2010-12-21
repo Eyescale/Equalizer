@@ -18,7 +18,7 @@
 #ifndef CO_COMMANDS_H
 #define CO_COMMANDS_H
 
-#include <eq/base/os.h>
+#include <co/base/os.h>
 
 namespace co
 {

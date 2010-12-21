@@ -18,7 +18,7 @@
 #ifndef EQSERVER_STATE_H
 #define EQSERVER_STATE_H
 
-#include <eq/base/log.h>
+#include <co/base/log.h>
 
 namespace eq
 {

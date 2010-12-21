@@ -19,7 +19,7 @@
 #define EQFABRIC_PIXEL_H
 
 #include <eq/fabric/api.h>
-#include <eq/base/log.h>
+#include <co/base/log.h>
 
 namespace eq
 {

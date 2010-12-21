@@ -16,8 +16,8 @@
  */
 
 #include <test.h>
-#include <eq/base/sleep.h>
-#include <eq/base/thread.h>
+#include <co/base/sleep.h>
+#include <co/base/thread.h>
 #include <iostream>
 
 #define NTHREADS 256

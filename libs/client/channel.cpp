@@ -45,7 +45,7 @@
 #include <eq/fabric/commands.h>
 #include <co/command.h>
 #include <co/connectionDescription.h>
-#include <eq/base/rng.h>
+#include <co/base/rng.h>
 
 namespace eq
 {

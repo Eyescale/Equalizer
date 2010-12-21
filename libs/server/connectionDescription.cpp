@@ -18,7 +18,7 @@
 #include "connectionDescription.h"
 
 #include "global.h"
-#include <eq/base/log.h>
+#include <co/base/log.h>
 #include <co/connection.h>
 
 namespace eq

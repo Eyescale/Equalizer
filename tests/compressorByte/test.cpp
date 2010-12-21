@@ -21,13 +21,13 @@
 #include <eq/init.h>
 #include <eq/nodeFactory.h>
 
-#include <eq/base/buffer.h>
-#include <eq/base/clock.h>
-#include <eq/base/file.h>
-#include <eq/base/global.h>
-#include <eq/base/memoryMap.h>
-#include <eq/base/pluginRegistry.h>
-#include <eq/base/types.h>
+#include <co/base/buffer.h>
+#include <co/base/clock.h>
+#include <co/base/file.h>
+#include <co/base/global.h>
+#include <co/base/memoryMap.h>
+#include <co/base/pluginRegistry.h>
+#include <co/base/types.h>
 
 #include <iostream>  // for std::cerr
 #include <numeric>
@@ -35,9 +35,9 @@
 #include <sstream>
 #include <string>
 
-#include "libs/base/compressorInfo.h" // private header
-#include "libs/base/cpuCompressor.h" // private header
-#include "libs/base/plugin.h" // private header
+#include "libs/collage/base/compressorInfo.h" // private header
+#include "libs/collage/base/cpuCompressor.h" // private header
+#include "libs/collage/base/plugin.h" // private header
 
 void testCompressByte( const uint32_t nameCompressor,
                        const uint8_t* data, const uint64_t size,

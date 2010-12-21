@@ -22,8 +22,8 @@
 #include <eq/fabric/pixel.h>    // used in inline method
 #include <eq/fabric/zoom.h>     // used in inline method
 
-#include <eq/base/os.h>
-#include <eq/base/debug.h>
+#include <co/base/os.h>
+#include <co/base/debug.h>
 
 
 #include <limits>

@@ -26,10 +26,10 @@
 #include <co/types.h>
 #include "eventConnection.h" // member
 
-#include <eq/base/api.h>
-#include <eq/base/buffer.h>  // member
-#include <eq/base/lfQueue.h> // member
-#include <eq/base/mtQueue.h> // member
+#include <co/base/api.h>
+#include <co/base/buffer.h>  // member
+#include <co/base/lfQueue.h> // member
+#include <co/base/mtQueue.h> // member
 
 #pragma warning( disable : 4267 )
 #include <boost/asio.hpp>

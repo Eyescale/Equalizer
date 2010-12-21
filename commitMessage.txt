@@ -1,5 +1,4 @@
-- Place base.h in each libs folder
-- Clean up repertory include
+- Move eq/base to co/base
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

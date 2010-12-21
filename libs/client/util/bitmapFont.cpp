@@ -17,7 +17,7 @@
 
 // HACK: Get rid of deprecated warning for aglUseFont
 //   -Wno-deprecated-declarations would do as well, but here it is more isolated
-#include <eq/base/defines.h>
+#include <co/base/defines.h>
 #ifdef AGL
 #  include <AvailabilityMacros.h>
 #  undef DEPRECATED_ATTRIBUTE
@@ -28,10 +28,10 @@
 
 #include "objectManager.h"
 
-#include <eq/base/debug.h>
-#include <eq/base/lock.h>
-#include <eq/base/log.h>
-#include <eq/base/scopedMutex.h>
+#include <co/base/debug.h>
+#include <co/base/lock.h>
+#include <co/base/log.h>
+#include <co/base/scopedMutex.h>
 
 namespace eq
 {

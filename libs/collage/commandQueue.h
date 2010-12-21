@@ -19,10 +19,10 @@
 #define CO_COMMANDQUEUE_H
 
 #include <co/api.h>
-#include <eq/base/lock.h>
-#include <eq/base/mtQueue.h>
-#include <eq/base/nonCopyable.h>
-#include <eq/base/thread.h>
+#include <co/base/lock.h>
+#include <co/base/mtQueue.h>
+#include <co/base/nonCopyable.h>
+#include <co/base/thread.h>
 
 namespace co
 {

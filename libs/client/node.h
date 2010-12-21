@@ -24,7 +24,7 @@
 #include <eq/fabric/node.h>           // base class
 
 #include <co/types.h>
-#include <eq/base/mtQueue.h>          // member
+#include <co/base/mtQueue.h>          // member
 #include <eq/api.h>
 
 namespace eq

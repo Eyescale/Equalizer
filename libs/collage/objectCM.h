@@ -23,7 +23,7 @@
 
 //#define EQ_INSTRUMENT_MULTICAST
 #ifdef EQ_INSTRUMENT_MULTICAST
-#  include <eq/base/atomic.h>
+#  include <co/base/atomic.h>
 #endif
 
 namespace co

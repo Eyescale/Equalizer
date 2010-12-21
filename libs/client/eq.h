@@ -26,7 +26,7 @@
 #include <eq/util/base.h>
 #include <eq/fabric/base.h>
 #include <co/co.h>
-#include <eq/base/base.h>
+#include <co/base/base.h>
 
 #include <vmmlib/vmmlib.hpp>
 

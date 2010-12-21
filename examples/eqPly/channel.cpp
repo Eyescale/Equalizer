@@ -37,7 +37,7 @@
 #include "view.h"
 #include "window.h"
 #include "vertexBufferState.h"
-#include <eq/base/bitOperation.h> // function getIndexOfLastBit
+#include <co/base/bitOperation.h> // function getIndexOfLastBit
 
 // light parameters
 static GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};

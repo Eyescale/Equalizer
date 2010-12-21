@@ -34,8 +34,8 @@
 #include <eq/fabric/paths.h>
 #include <co/barrier.h>
 #include <co/command.h>
-#include <eq/base/launcher.h>
-#include <eq/base/sleep.h>
+#include <co/base/launcher.h>
+#include <co/base/sleep.h>
 
 namespace eq
 {

@@ -17,7 +17,7 @@
 
 #include <test.h>
 
-#include <eq/base/thread.h>
+#include <co/base/thread.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
 #include <co/init.h>

@@ -26,7 +26,7 @@
 
 #include <co/barrier.h>
 #include <eq/fabric/window.h> // base class
-#include <eq/base/uint128_t.h> // Member
+#include <co/base/uint128_t.h> // Member
 #include <iostream>
 #include <vector>
 

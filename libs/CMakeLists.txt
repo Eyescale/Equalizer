@@ -41,7 +41,7 @@ if(NOT CUDA_FOUND)
   set(CUDA_LIBRARIES)
 endif(NOT CUDA_FOUND)
 
-add_subdirectory(base)
+add_subdirectory(collage/base)
 add_subdirectory(collage)
 add_subdirectory(client)
 add_subdirectory(admin)

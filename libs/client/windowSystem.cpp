@@ -17,7 +17,7 @@
 
 #include "windowSystem.h"
 
-#include <eq/base/debug.h>
+#include <co/base/debug.h>
 
 namespace eq
 {

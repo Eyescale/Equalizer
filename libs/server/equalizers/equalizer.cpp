@@ -23,7 +23,7 @@
 
 #include <eq/client.h>
 #include <eq/server.h>
-#include <eq/base/debug.h>
+#include <co/base/debug.h>
 
 namespace eq
 {

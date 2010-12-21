@@ -23,7 +23,7 @@
  */
 
 // This file references only auto generated files (OK to include here).
-#include <eq/base/defines.h>
+#include <co/base/defines.h>
 
 #ifdef WIN32
 #  ifndef _MSC_VER

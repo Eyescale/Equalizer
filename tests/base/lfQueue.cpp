@@ -16,9 +16,9 @@
  */
 
 #include <test.h>
-#include <eq/base/clock.h>
-#include <eq/base/lfQueue.h>
-#include <eq/base/thread.h>
+#include <co/base/clock.h>
+#include <co/base/lfQueue.h>
+#include <co/base/thread.h>
 #include <iostream>
 
 #define RUNTIME 1000 /*ms*/

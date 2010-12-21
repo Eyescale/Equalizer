@@ -18,7 +18,7 @@
 #ifndef EQSERVER_COMPOUND_LISTENER_H
 #define EQSERVER_COMPOUND_LISTENER_H
 
-#include <eq/base/os.h>
+#include <co/base/os.h>
 
 namespace eq
 {

@@ -24,7 +24,7 @@
 
 #include <eq/fabric/canvas.h> // base class
 
-#include <eq/base/os.h>
+#include <co/base/os.h>
 #include <string>
 
 namespace eq

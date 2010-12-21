@@ -18,7 +18,7 @@
 #ifndef EQ_PLUGIN_COMPRESSORYUV
 #define EQ_PLUGIN_COMPRESSORYUV
 #include "compressor.h"
-#include <eq/base/buffer.h>
+#include <co/base/buffer.h>
 #include <eq/util/texture.h>
 namespace eq
 {

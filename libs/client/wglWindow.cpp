@@ -23,7 +23,7 @@
 #include "wglEventHandler.h"
 #include "wglPipe.h"
 
-#include <eq/base/log.h>
+#include <co/base/log.h>
 
 using namespace std;
 

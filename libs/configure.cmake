@@ -61,7 +61,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(ARCH Linux)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
-set(DEFINES_FILE ${EQ_INCLUDE_DIR}/eq/base/defines${ARCH}.h)
+set(DEFINES_FILE ${EQ_INCLUDE_DIR}/co/base/defines${ARCH}.h)
 set(DEFINES_FILE_IN ${CMAKE_CURRENT_BINARY_DIR}/defines.h.in)
 
 file(WRITE ${DEFINES_FILE_IN}

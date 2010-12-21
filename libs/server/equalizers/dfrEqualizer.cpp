@@ -24,7 +24,7 @@
 
 #include <eq/statistic.h>
 #include <eq/fabric/zoom.h>
-#include <eq/base/debug.h>
+#include <co/base/debug.h>
 
 namespace eq
 {

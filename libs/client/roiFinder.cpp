@@ -33,7 +33,7 @@
 #include "log.h"
 
 #include <eq/util/frameBufferObject.h>
-#include <eq/base/os.h>
+#include <co/base/os.h>
 #include <co/plugins/compressor.h>
 
 

@@ -18,7 +18,7 @@
 #ifndef CO_CONNECTIONTYPE_H
 #define CO_CONNECTIONTYPE_H
 
-#include <eq/base/debug.h>
+#include <co/base/debug.h>
 #include <iostream>
 
 namespace co

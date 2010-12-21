@@ -20,7 +20,7 @@
 
 
 #include <test.h>
-#include <eq/base/monitor.h>
+#include <co/base/monitor.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
 #include <co/connectionSet.h>

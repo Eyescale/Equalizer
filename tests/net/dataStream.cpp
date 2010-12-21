@@ -20,6 +20,7 @@
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
+#include <eq/base/thread.h>
 #include <co/connectionDescription.h>
 #include <co/command.h>
 #include <co/commandCache.h>
@@ -29,7 +30,7 @@
 #include <co/packets.h>
 #include <co/types.h>
 
-#include "libs/base/cpuCompressor.h" // private header
+#include "libs/collage/base/cpuCompressor.h" // private header
 
 // Tests the functionality of the DataOStream and DataIStream
 

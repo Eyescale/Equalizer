@@ -22,7 +22,7 @@
 #include "compound.h"
 
 #include <eq/frame.h>
-#include <eq/base/bitOperation.h> // function getIndexOfLastBit
+#include <co/base/bitOperation.h> // function getIndexOfLastBit
 
 namespace eq
 {

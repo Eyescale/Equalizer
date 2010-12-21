@@ -19,7 +19,7 @@
 #define CO_BUFFER_CONNECTION_H
 
 #include <co/connection.h>   // base class
-#include <eq/base/buffer.h>      // member
+#include <co/base/buffer.h>      // member
 
 namespace co
 {

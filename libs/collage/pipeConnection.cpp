@@ -20,8 +20,8 @@
 #include "connectionDescription.h"
 #include "node.h"
 
-#include <eq/base/log.h>
-#include <eq/base/thread.h>
+#include <co/base/log.h>
+#include <co/base/thread.h>
 
 namespace co
 {

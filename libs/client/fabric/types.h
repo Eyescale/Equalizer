@@ -19,9 +19,9 @@
 #ifndef EQFABRIC_TYPES_H
 #define EQFABRIC_TYPES_H
 
-#include <eq/base/os.h>
-#include <eq/base/refPtr.h>
-#include <eq/base/uint128_t.h>
+#include <co/base/os.h>
+#include <co/base/refPtr.h>
+#include <co/base/uint128_t.h>
 #include <vmmlib/vmmlib.hpp>
 
 namespace eq

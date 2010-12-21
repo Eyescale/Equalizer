@@ -43,7 +43,7 @@
 #include <eq/fabric/paths.h>
 #include <eq/fabric/serverPackets.h>
 #include <co/command.h>
-#include <eq/base/sleep.h>
+#include <co/base/sleep.h>
 
 #include "channelStopFrameVisitor.h"
 #include "configDeregistrator.h"

@@ -21,7 +21,7 @@
 #include "objectDataIStream.h"
 #include "objectVersion.h"
 
-#include <eq/base/debug.h>
+#include <co/base/debug.h>
 
 namespace co
 {

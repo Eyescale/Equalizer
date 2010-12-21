@@ -19,7 +19,7 @@
 #define CO_INIT_H
 
 #include <co/api.h>
-#include <eq/base/init.h>
+#include <co/base/init.h>
 
 namespace co
 {

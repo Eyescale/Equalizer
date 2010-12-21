@@ -17,9 +17,9 @@
 
 #include "test.h"
 
-#include <eq/base/clock.h>
-#include <eq/base/monitor.h>
-#include <eq/base/thread.h>
+#include <co/base/clock.h>
+#include <co/base/monitor.h>
+#include <co/base/thread.h>
 #include <iostream>
 
 #define NLOOPS 200000

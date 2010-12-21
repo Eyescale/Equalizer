@@ -27,7 +27,7 @@
 
 #include <eq/fabric/viewport.h>
 #include <eq/fabric/zoom.h>
-#include <eq/base/debug.h>
+#include <co/base/debug.h>
 #include <vmmlib/vmmlib.hpp>
 
 using namespace eq::base;

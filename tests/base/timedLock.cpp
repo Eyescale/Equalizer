@@ -17,8 +17,8 @@
 
 #include <test.h>
 
-#include <eq/base/clock.h>
-#include <eq/base/timedLock.h>
+#include <co/base/clock.h>
+#include <co/base/timedLock.h>
 
 #include <iostream>
 

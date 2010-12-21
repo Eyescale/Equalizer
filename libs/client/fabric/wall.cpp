@@ -19,7 +19,7 @@
 #include "projection.h"
 #include "pixelViewport.h"
 
-#include <eq/base/log.h>
+#include <co/base/log.h>
 
 #define DEG2RAD( angle ) ((angle) * static_cast<float>(M_PI) / 180.f)
 

@@ -20,8 +20,8 @@
 
 #include <co/localNode.h> // NodePtr members
 
-#include <eq/base/os.h>
-#include <eq/base/refPtr.h>
+#include <co/base/os.h>
+#include <co/base/refPtr.h>
 
 namespace co
 {    

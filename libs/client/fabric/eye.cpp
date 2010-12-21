@@ -18,7 +18,7 @@
 
 #include "eye.h"
 
-#include <eq/base/debug.h>   // for EQABORT
+#include <co/base/debug.h>   // for EQABORT
 
 namespace eq
 {

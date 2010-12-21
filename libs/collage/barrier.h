@@ -20,7 +20,7 @@
 
 #include <co/object.h>   // base class
 #include <co/types.h>
-#include <eq/base/monitor.h> // member
+#include <co/base/monitor.h> // member
 
 #include <map>
 

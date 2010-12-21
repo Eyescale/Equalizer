@@ -29,9 +29,9 @@
 
 #include <co/objectVersion.h>
 
-#include <eq/base/lock.h>
-#include <eq/base/refPtr.h>
-#include <eq/base/thread.h>
+#include <co/base/lock.h>
+#include <co/base/refPtr.h>
+#include <co/base/thread.h>
 
 namespace eq
 {

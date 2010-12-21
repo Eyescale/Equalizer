@@ -32,7 +32,7 @@
 #include <co/connectionDescription.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
-#include <eq/base/monitor.h>
+#include <co/base/monitor.h>
 
 #include <co/plugins/compressor.h>
 #include <algorithm>

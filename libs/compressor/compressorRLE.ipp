@@ -18,7 +18,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <eq/base/omp.h>
+#include <co/base/omp.h>
 
 namespace
 {

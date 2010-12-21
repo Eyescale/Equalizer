@@ -23,7 +23,7 @@
 #include <eq/fabric/viewport.h>      // member
 #include <eq/util/texture.h>         // member
 #include <eq/util/types.h>
-#include <eq/base/buffer.h>          // member
+#include <co/base/buffer.h>          // member
 
 #include <co/plugins/compressor.h> // EqCompressorInfos typedef
 

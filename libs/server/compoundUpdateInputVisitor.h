@@ -20,7 +20,7 @@
 
 #include "compoundVisitor.h" // base class
 
-#include <eq/base/hash.h>
+#include <co/base/hash.h>
 
 namespace eq
 {

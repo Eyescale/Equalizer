@@ -27,8 +27,8 @@
 #include <co/object.h>
 #include <co/objectVersion.h>
 #include <co/types.h>
-#include <eq/base/bitOperation.h> // function getIndexOfLastBit
-#include <eq/base/monitor.h>
+#include <co/base/bitOperation.h> // function getIndexOfLastBit
+#include <co/base/monitor.h>
 
 namespace eq
 {

@@ -24,8 +24,8 @@
 #include "global.h"
 #include "log.h"
 
-#include <eq/base/rng.h>
-#include <eq/base/sleep.h>
+#include <co/base/rng.h>
+#include <co/base/sleep.h>
 
 #include <boost/bind.hpp>
 

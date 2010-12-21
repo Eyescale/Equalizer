@@ -20,7 +20,7 @@
 #define CO_LOCALNODE_H
 
 #include <co/node.h>            // base class
-#include <eq/base/requestHandler.h> // base class
+#include <co/base/requestHandler.h> // base class
 
 #include <co/commandCache.h>    // member
 #include <co/commandQueue.h>    // member
@@ -28,9 +28,9 @@
 #include <co/objectVersion.h>   // used in inline method
 
 
-#include <eq/base/lockable.h>       // member
-#include <eq/base/spinLock.h>       // member
-#include <eq/base/types.h>          // member
+#include <co/base/lockable.h>       // member
+#include <co/base/spinLock.h>       // member
+#include <co/base/types.h>          // member
 
 #pragma warning(disable : 4190)
 extern "C" EQSERVER_EXPORT co::ConnectionPtr eqsStartLocalServer( const

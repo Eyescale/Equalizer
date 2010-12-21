@@ -22,8 +22,8 @@
 #include <eq/os.h>           // GLEW
 #include <eq/frame.h>        // Frame::Buffer enum
 
-#include <eq/base/thread.h>         // thread debug macro
-#include <eq/base/nonCopyable.h>    // base class
+#include <co/base/thread.h>         // thread debug macro
+#include <co/base/nonCopyable.h>    // base class
 
 namespace eq
 {

@@ -24,7 +24,7 @@
 #include <co/nodeType.h>          // for NODETYPE_CO_NODE enum
 #include <co/types.h>
 
-#include <eq/base/spinLock.h>         // member
+#include <co/base/spinLock.h>         // member
 
 namespace co
 {

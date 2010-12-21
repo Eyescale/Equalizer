@@ -19,8 +19,8 @@
 #define EQSERVER_TYPES_H
 
 #include <eq/fabric/types.h>
-#include <eq/base/refPtr.h>
-#include <eq/base/uuid.h>
+#include <co/base/refPtr.h>
+#include <co/base/uuid.h>
 #include <vector>
 
 namespace eq

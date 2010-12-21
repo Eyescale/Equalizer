@@ -20,8 +20,8 @@
 
 #include <co/dataIStream.h>   // base class
 #include <co/version.h>       // enum
-#include <eq/base/monitor.h>      // member
-#include <eq/base/thread.h>       // member
+#include <co/base/monitor.h>      // member
+#include <co/base/thread.h>       // member
 
 #include <deque>
 

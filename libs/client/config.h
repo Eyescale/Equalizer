@@ -24,8 +24,8 @@
 #include <eq/visitorResult.h> // enum
 
 #include <eq/fabric/config.h>        // base class
-#include <eq/base/monitor.h>         // member
-#include <eq/base/spinLock.h>        // member
+#include <co/base/monitor.h>         // member
+#include <co/base/spinLock.h>        // member
 
 namespace eq
 {

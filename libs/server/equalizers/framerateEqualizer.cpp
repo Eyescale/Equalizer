@@ -23,7 +23,7 @@
 #include "../log.h"
 
 #include <eq/statistic.h>
-#include <eq/base/debug.h>
+#include <co/base/debug.h>
 
 #define USE_AVERAGE
 #define VSYNC_CAP 60.f

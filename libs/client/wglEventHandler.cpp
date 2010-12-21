@@ -15,9 +15,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <eq/base/os.h>      // first get windows.h
+#include <co/base/os.h>      // first get windows.h
 #include <pthread.h>           // then get pthreads
-#include <eq/base/perThread.h> // then get perThread to have template code
+#include <co/base/perThread.h> // then get perThread to have template code
 
 #include "wglEventHandler.h"
 #include "config.h"
@@ -28,8 +28,8 @@
 #include "wglWindow.h"
 #include "window.h"
 
-#include <eq/base/debug.h>
-#include <eq/base/executionListener.h>
+#include <co/base/debug.h>
+#include <co/base/executionListener.h>
 
 #include <algorithm>
 #include <windowsx.h>

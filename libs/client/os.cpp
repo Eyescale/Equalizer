@@ -20,8 +20,8 @@
 
 #include "os.h"
 
-#include <eq/base/debug.h>
-#include <eq/base/perThread.h>
+#include <co/base/debug.h>
+#include <co/base/perThread.h>
 
 namespace eq
 {

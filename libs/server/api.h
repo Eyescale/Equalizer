@@ -18,8 +18,8 @@
 #ifndef EQSERVER_API_H
 #define EQSERVER_API_H
 
-#include <eq/base/os.h>
+#include <co/base/os.h>
 
-// Export definitions are predeclared in eq/base/os.h
+// Export definitions are predeclared in co/base/os.h
 
 #endif // EQSERVER_BASE_H

@@ -29,7 +29,7 @@
 #include <co/connection.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
-#include <eq/base/dso.h>
+#include <co/base/dso.h>
 
 #ifdef WIN32_API
 #  include <direct.h>  // for chdir

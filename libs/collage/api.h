@@ -19,7 +19,7 @@
 #ifndef CO_API_H
 #define CO_API_H
 
-#include <eq/base/os.h>
+#include <co/base/os.h>
 
 
 #ifdef EQ_USE_DEPRECATED

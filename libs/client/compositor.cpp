@@ -17,7 +17,7 @@
  */
 
 #include <pthread.h>
-#include <eq/base/perThread.h>
+#include <co/base/perThread.h>
 
 #include "channel.h"
 #include "channelStatistics.h"
@@ -32,10 +32,10 @@
 #include <eq/util/accum.h>
 #include <eq/util/frameBufferObject.h>
 
-#include <eq/base/debug.h>
-#include <eq/base/global.h>
-#include <eq/base/executionListener.h>
-#include <eq/base/monitor.h>
+#include <co/base/debug.h>
+#include <co/base/global.h>
+#include <co/base/executionListener.h>
+#include <co/base/monitor.h>
 
 #include <co/plugins/compressor.h>
 

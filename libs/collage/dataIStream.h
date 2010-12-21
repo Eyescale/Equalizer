@@ -22,8 +22,8 @@
 #include <co/api.h>
 #include <co/types.h>
 
-#include <eq/base/buffer.h> // member
-#include <eq/base/types.h>
+#include <co/base/buffer.h> // member
+#include <co/base/types.h>
 
 
 #include <iostream>

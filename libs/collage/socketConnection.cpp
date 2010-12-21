@@ -19,9 +19,9 @@
 
 #include "connectionDescription.h"
 
-#include <eq/base/os.h>
-#include <eq/base/log.h>
-#include <eq/base/sleep.h>
+#include <co/base/os.h>
+#include <co/base/log.h>
+#include <co/base/sleep.h>
 
 #include <limits>
 #include <sstream>

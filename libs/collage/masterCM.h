@@ -21,9 +21,9 @@
 #include <co/objectCM.h> // base class
 #include <co/types.h>
 
-#include <eq/base/mtQueue.h> // member
-#include <eq/base/pool.h>    // member
-#include <eq/base/thread.h>  // thread-safety check
+#include <co/base/mtQueue.h> // member
+#include <co/base/pool.h>    // member
+#include <co/base/thread.h>  // thread-safety check
 
 namespace co
 {

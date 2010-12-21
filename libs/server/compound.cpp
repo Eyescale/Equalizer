@@ -39,8 +39,8 @@
 
 #include <eq/packets.h>
 #include <eq/fabric/paths.h>
-#include <eq/base/os.h>
-#include <eq/base/stdExt.h>
+#include <co/base/os.h>
+#include <co/base/stdExt.h>
 
 #include <algorithm>
 #include <math.h>
