@@ -17,7 +17,6 @@ if(NOT EQUALIZER_BUILD_MODULARIZED)
 endif(NOT EQUALIZER_BUILD_MODULARIZED)
 
 source_group(client FILES ${CLIENT_HEADERS} ${CLIENT_SOURCES})
-#source_group(plugin FILES ${PLUGIN_HEADERS})
 source_group(util FILES ${UTIL_HEADERS} ${UTIL_SOURCES})
 source_group(compressor FILES ${COMPRESSOR_SOURCES})
 

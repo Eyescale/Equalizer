@@ -1,4 +1,4 @@
-Move plugins in collage
+CMake clean up
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

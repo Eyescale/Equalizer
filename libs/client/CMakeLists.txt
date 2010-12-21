@@ -153,14 +153,10 @@ if(EQ_GLX_USED)
     )
 endif(EQ_GLX_USED)
 
-
-purple_forward_headers("eq/util/" ${UTIL_HEADERS})
-
 purple_add_library(eq_client ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/client/"
   FORWARD HEADERS
     ${CLIENT_HEADERS}
-    ${UTIL_HEADERS}
   SOURCES
     ${CLIENT_SOURCES}
     ${UTIL_SOURCES}
