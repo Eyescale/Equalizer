@@ -18,7 +18,7 @@
 #ifndef EQ_LAYOUT_H
 #define EQ_LAYOUT_H
 
-#include <eq/client/base.h>
+#include <eq/client/api.h>
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
 

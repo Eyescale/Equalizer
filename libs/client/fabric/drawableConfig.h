@@ -18,7 +18,7 @@
 #ifndef EQ_DRAWABLECONFIG_H
 #define EQ_DRAWABLECONFIG_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 
 #include <iostream>
 

@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_OBJECT_H
 #define EQFABRIC_OBJECT_H
 
-#include <eq/fabric/base.h>
+#include <eq/fabric/api.h>
 #include <eq/fabric/error.h>        // enum
 #include <eq/fabric/serializable.h> // base class
 #include <co/objectVersion.h>   // member

@@ -20,7 +20,7 @@
 #define EQ_SYSTEM_PIPE_H
 
 #include <eq/client/error.h> // enum
-#include <eq/client/base.h>
+#include <eq/client/api.h>
 #include <string>
 
 namespace eq

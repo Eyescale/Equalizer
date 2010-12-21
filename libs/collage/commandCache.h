@@ -20,7 +20,7 @@
 
 #include <co/types.h>
 
-#include <co/base.h>
+#include <co/api.h>
 #include <eq/base/thread.h> // thread-safety checks
 
 #include <vector>

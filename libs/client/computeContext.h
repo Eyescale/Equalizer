@@ -20,7 +20,7 @@
 #define EQ_COMPUTE_CONTEXT_H
 
 #include <eq/client/error.h>
-#include <eq/client/base.h>
+#include <eq/client/api.h>
 
 namespace eq
 {

@@ -21,7 +21,7 @@
 #include <errno.h>
 #include <string.h>
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/executionListener.h>
 #include <eq/base/nonCopyable.h>
 

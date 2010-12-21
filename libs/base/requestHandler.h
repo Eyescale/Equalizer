@@ -18,7 +18,7 @@
 #ifndef EQBASE_REQUESTHANDLER_H
 #define EQBASE_REQUESTHANDLER_H
 
-#include <eq/base/base.h>      // EQBASE_API definition
+#include <eq/base/os.h>      // EQBASE_API definition
 #include <eq/base/hash.h>      // member
 #include <eq/base/thread.h>    // thread-safety macros
 #include <eq/base/spinLock.h>  // member

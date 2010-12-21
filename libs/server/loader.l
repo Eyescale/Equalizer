@@ -22,7 +22,7 @@
 
 #include "parser.hpp"
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <stdlib.h>
 
 #define yyerror eqLoader_error

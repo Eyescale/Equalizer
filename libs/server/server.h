@@ -18,7 +18,7 @@
 #ifndef EQSERVER_SERVER_H
 #define EQSERVER_SERVER_H
 
-#include "base.h"
+#include "api.h"
 #include "types.h"
 #include "visitorResult.h" // enum
 

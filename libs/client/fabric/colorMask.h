@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_COLORMASK_H
 #define EQFABRIC_COLORMASK_H
 
-#include <eq/fabric/base.h>
+#include <eq/fabric/api.h>
 #include <iostream>
 
 namespace eq

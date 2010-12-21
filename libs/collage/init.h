@@ -18,7 +18,7 @@
 #ifndef CO_INIT_H
 #define CO_INIT_H
 
-#include <co/base.h>
+#include <co/api.h>
 #include <eq/base/init.h>
 
 namespace co

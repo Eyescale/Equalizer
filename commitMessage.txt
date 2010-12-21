@@ -1,4 +1,5 @@
-CMake clean up
+- Add header in server solution
+- add api.h and os.h in place to base.h 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

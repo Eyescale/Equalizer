@@ -20,8 +20,8 @@
  *
  * Includes key system header files and defines essential base macros.
  */
-#ifndef EQBASE_BASE_H
-#define EQBASE_BASE_H
+#ifndef EQBASE_OS_H
+#define EQBASE_OS_H
 
 #include <eq/base/defines.h>
 
@@ -46,29 +46,7 @@
 #  include <windef.h>
 #endif
 
-#if defined(_MSC_VER) || defined(__declspec)
-#  define EQ_DLLEXPORT __declspec(dllexport)
-#  define EQ_DLLIMPORT __declspec(dllimport)
-#else // _MSC_VER
-#  define EQ_DLLEXPORT
-#  define EQ_DLLIMPORT
-#endif // _MSC_VER
-
-#if defined(EQ_BASE_STATIC)
-#  define EQBASE_API
-#elif defined(EQ_BASE_SHARED)
-#  define EQBASE_API EQ_DLLEXPORT
-#else
-#  define EQBASE_API EQ_DLLIMPORT
-#endif
-
-// Need to predefine server library exports for forward declaration of 
-// eqsStartLocalServer
-#ifdef EQSERVER_EXPORTS
-#  define EQSERVER_EXPORT EQ_DLLEXPORT
-#else
-#  define EQSERVER_EXPORT EQ_DLLIMPORT
-#endif
+#include <eq/base/api.h>
 
 // Defining our own min/max macros seems to be the only sane way to get this
 // functionality across platforms thanks to some screwup in the MS header files.
@@ -112,4 +90,4 @@ extern "C" char **environ;
 #endif
 #define VMMLIB_ALIGN( var ) var
 
-#endif //EQBASE_BASE_H
+#endif //EQBASE_OS_H

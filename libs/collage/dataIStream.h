@@ -19,7 +19,7 @@
 #ifndef CO_DATAISTREAM_H
 #define CO_DATAISTREAM_H
 
-#include <co/base.h>
+#include <co/api.h>
 #include <co/types.h>
 
 #include <eq/base/buffer.h> // member

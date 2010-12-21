@@ -18,7 +18,7 @@
 #ifndef EQ_WINDOWSYSTEM_H
 #define EQ_WINDOWSYSTEM_H
 
-#include <eq/client/base.h>
+#include <eq/client/api.h>
 
 #include <string>
 

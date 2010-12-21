@@ -18,7 +18,7 @@
 #ifndef EQBASE_OMP_H
 #define EQBASE_OMP_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 
 #ifdef EQ_USE_OPENMP
 #  include <omp.h>

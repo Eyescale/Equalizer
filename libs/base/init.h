@@ -18,7 +18,7 @@
 #ifndef EQBASE_INIT_H
 #define EQBASE_INIT_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 
 namespace eq
 {

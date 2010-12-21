@@ -18,7 +18,7 @@
 #ifndef EQ_SEGMENT_H
 #define EQ_SEGMENT_H
 
-#include <eq/client/base.h>
+#include <eq/client/api.h>
 #include <eq/client/types.h>
 #include <eq/fabric/segment.h>        // base class
 

@@ -19,7 +19,7 @@
 #ifndef EQFABRIC_SUBPIXEL_H
 #define EQFABRIC_SUBPIXEL_H
 
-#include <eq/fabric/base.h>
+#include <eq/fabric/api.h>
 #include <eq/base/log.h>
 
 namespace eq

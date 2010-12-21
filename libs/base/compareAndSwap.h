@@ -15,7 +15,7 @@
 #ifndef EQBASE_COMPAREANDSWAP_H
 #define EQBASE_COMPAREANDSWAP_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1300)
 #  include <intrin.h>

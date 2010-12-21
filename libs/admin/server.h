@@ -18,7 +18,7 @@
 #ifndef EQADMIN_SERVER_H
 #define EQADMIN_SERVER_H
 
-#include <eq/admin/base.h>
+#include <eq/admin/api.h>
 #include <eq/admin/types.h>
 #include <eq/fabric/server.h>       // base class
 #include <co/node.h>         // base class

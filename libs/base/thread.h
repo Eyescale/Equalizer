@@ -18,7 +18,7 @@
 #ifndef EQBASE_THREAD_H
 #define EQBASE_THREAD_H
 
-#include <eq/base/base.h>     // EQBASE_API definition
+#include <eq/base/os.h>     // EQBASE_API definition
 #include <eq/base/debug.h>    // debug macros in thread-safety checks
 #include <eq/base/lock.h>     // member
 #include <eq/base/monitor.h>  // member

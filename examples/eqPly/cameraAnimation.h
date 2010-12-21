@@ -29,7 +29,7 @@
 #ifndef EQ_PLY_CAMERAANIMATION_H
 #define EQ_PLY_CAMERAANIMATION_H
 #include <eq/eq.h>
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <math.h>
 #include <string>
 

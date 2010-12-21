@@ -19,7 +19,7 @@
 #ifndef CO_NAMEDPIPECONNECTION_H
 #define CO_NAMEDPIPECONNECTION_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/buffer.h> // member
 #include <eq/base/thread.h> // for EQ_TS_VAR
 

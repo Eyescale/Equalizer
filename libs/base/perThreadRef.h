@@ -18,7 +18,7 @@
 #ifndef EQBASE_PERTHREADREF_H
 #define EQBASE_PERTHREADREF_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/debug.h>
 #include <eq/base/refPtr.h>
 

@@ -18,7 +18,7 @@
 #ifndef EQBASE_EXECUTIONLISTENER_H
 #define EQBASE_EXECUTIONLISTENER_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 
 namespace eq
 {

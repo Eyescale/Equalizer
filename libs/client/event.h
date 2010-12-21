@@ -22,7 +22,7 @@
 #include <eq/client/statistic.h>     // member
 #include <eq/fabric/renderContext.h> // member
 
-#include <eq/client/base.h>
+#include <eq/client/api.h>
 
 namespace eq
 {

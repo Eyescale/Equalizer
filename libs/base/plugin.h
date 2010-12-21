@@ -20,7 +20,7 @@
 #define EQBASE_PLUGIN_H
 
 #include <co/plugins/compressor.h> // member
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/dso.h>           // member
 
 namespace eq

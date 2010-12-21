@@ -18,7 +18,7 @@
 #ifndef EQBASE_SLEEP_H
 #define EQBASE_SLEEP_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 
 namespace eq
 {

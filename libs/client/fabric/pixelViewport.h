@@ -22,7 +22,7 @@
 #include <eq/fabric/pixel.h>    // used in inline method
 #include <eq/fabric/zoom.h>     // used in inline method
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/debug.h>
 
 

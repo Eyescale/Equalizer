@@ -18,7 +18,7 @@
 #ifndef EQBASE_MTQUEUE_H
 #define EQBASE_MTQUEUE_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/condition.h>
 #include <eq/base/debug.h>
 

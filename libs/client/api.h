@@ -1,5 +1,5 @@
  
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010, Daniel Pfeifer <daniel@pfeifer-mail.de> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,22 +15,17 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file admin/base.h
- *
- * Includes key system header files and defines essential admin macros.
- */
-#ifndef EQADMIN_BASE_H
-#define EQADMIN_BASE_H
+#ifndef EQCLIENT_BASE_H
+#define EQCLIENT_BASE_H
 
-#include <eq/base/base.h>
+#include <eq/fabric/api.h>
 
-#if defined(EQUALIZERADMIN_STATIC)
-#  define EQADMIN_EXPORT
-#elif defined(EQUALIZERADMIN_SHARED)
-#  define EQADMIN_EXPORT EQ_DLLEXPORT
+#if defined(EQ_CLIENT_STATIC)
+#  define EQ_API
+#elif defined(EQ_CLIENT_SHARED)
+#  define EQ_API EQ_DLLEXPORT
 #else
-#  define EQADMIN_EXPORT EQ_DLLIMPORT
+#  define EQ_API EQ_DLLIMPORT
 #endif
 
-#endif //EQADMIN_BASE_H
+#endif /* EQCLIENT_BASE_H */

@@ -19,7 +19,7 @@
 #ifndef EQSERVER_CHANNEL_H
 #define EQSERVER_CHANNEL_H
 
-#include "base.h"
+#include "api.h"
 #include "state.h"  // enum
 #include "types.h"
 

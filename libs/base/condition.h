@@ -18,7 +18,7 @@
 #ifndef EQBASE_CONDITION_H
 #define EQBASE_CONDITION_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/debug.h>
 
 namespace eq

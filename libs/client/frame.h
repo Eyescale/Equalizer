@@ -21,7 +21,7 @@
 
 #include <eq/client/eye.h>    // enum Eye
 #include <eq/client/types.h>
-#include <eq/client/base.h>
+#include <eq/client/api.h>
 
 #include <eq/fabric/zoom.h>   // member
 #include <co/object.h>

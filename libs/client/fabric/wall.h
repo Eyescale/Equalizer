@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_WALL_H
 #define EQFABRIC_WALL_H
 
-#include <eq/fabric/base.h>
+#include <eq/fabric/api.h>
 
 #include <eq/client/types.h>
 #include <iostream>

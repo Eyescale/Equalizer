@@ -18,7 +18,7 @@
 #ifndef EQADMIN_TYPES_H
 #define EQADMIN_TYPES_H
 
-#include <eq/admin/base.h>
+#include <eq/admin/api.h>
 #include <eq/base/refPtr.h>
 
 namespace eq

@@ -18,7 +18,7 @@
 #ifndef EQBASE_HASH_H
 #define EQBASE_HASH_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/refPtr.h>
 #include <eq/base/stdExt.h>
 

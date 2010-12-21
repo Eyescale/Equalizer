@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_ZOOM_H
 #define EQFABRIC_ZOOM_H
 
-#include <eq/fabric/base.h>
+#include <eq/fabric/api.h>
 #include <eq/fabric/types.h>
 
 namespace eq

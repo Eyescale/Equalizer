@@ -18,7 +18,7 @@
 #ifndef EQBASE_ERROR_H
 #define EQBASE_ERROR_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/types.h> // EQ_KB definitions
 
 namespace eq

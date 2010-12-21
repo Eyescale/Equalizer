@@ -20,7 +20,7 @@
 
 #include <eq/fabric/projection.h> // member
 #include <eq/fabric/wall.h>       // member
-#include <eq/fabric/base.h>       // decl
+#include <eq/fabric/api.h>       // decl
 
 namespace co
 {

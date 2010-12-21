@@ -18,7 +18,7 @@
 #ifndef EQS_CHANNEL_LISTENER_H
 #define EQS_CHANNEL_LISTENER_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 
 namespace eq
 {

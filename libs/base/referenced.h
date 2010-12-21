@@ -18,7 +18,7 @@
 #ifndef EQBASE_REFERENCED_H
 #define EQBASE_REFERENCED_H
 
-#include <eq/base/base.h>     // for EQBASE_API
+#include <eq/base/os.h>     // for EQBASE_API
 #include <eq/base/debug.h>    // for EQERROR
 #include <eq/base/atomic.h>   // member
 #ifdef EQ_REFERENCED_DEBUG

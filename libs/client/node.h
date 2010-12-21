@@ -25,7 +25,7 @@
 
 #include <co/types.h>
 #include <eq/base/mtQueue.h>          // member
-#include <eq/client/base.h>
+#include <eq/client/api.h>
 
 namespace eq
 {

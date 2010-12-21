@@ -19,7 +19,7 @@
 #ifndef EQBASE_GLOBAL_H
 #define EQBASE_GLOBAL_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/lock.h> // member
 #include <eq/base/types.h>
 #include <string>

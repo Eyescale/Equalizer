@@ -19,7 +19,7 @@
 #ifndef EQFABRIC_VIEW_H
 #define EQFABRIC_VIEW_H
 
-#include <eq/fabric/base.h>
+#include <eq/fabric/api.h>
 #include <eq/fabric/frustum.h>        // base class
 #include <eq/fabric/object.h>         // base class
 #include <eq/fabric/types.h>

@@ -19,7 +19,7 @@
 #ifndef EQFABRIC_CONFIG_H
 #define EQFABRIC_CONFIG_H
 
-#include <eq/fabric/base.h>
+#include <eq/fabric/api.h>
 #include <eq/fabric/types.h>         // typedefs
 #include <eq/fabric/visitorResult.h> // enum
 #include <eq/fabric/object.h>        // DIRTY_CUSTOM enum

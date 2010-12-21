@@ -21,7 +21,7 @@
 
 #include <eq/base/buffer.h> // member
 #include <co/types.h>
-#include <co/base.h>
+#include <co/api.h>
 
 #include <iostream>
 #include <vector>

@@ -18,7 +18,7 @@
 #ifndef CO_COMMANDQUEUE_H
 #define CO_COMMANDQUEUE_H
 
-#include <co/base.h>
+#include <co/api.h>
 #include <eq/base/lock.h>
 #include <eq/base/mtQueue.h>
 #include <eq/base/nonCopyable.h>

@@ -18,7 +18,7 @@
 #ifndef EQBASE_THREADID_H
 #define EQBASE_THREADID_H
 
-#include <eq/base/base.h>     // EQBASE_API definition
+#include <eq/base/os.h>     // EQBASE_API definition
 
 namespace eq
 {

@@ -20,7 +20,7 @@
 
 #include <eq/client/visitorResult.h>  // enum
 #include <eq/client/types.h>          // member
-#include <eq/client/base.h>
+#include <eq/client/api.h>
 
 #include <eq/fabric/view.h>           // base class
 #include <eq/fabric/viewport.h>       // member

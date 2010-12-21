@@ -21,7 +21,7 @@
 
 #include <co/plugins/compressor.h>
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/buffer.h>
 #include <vector>
 #ifdef _WIN32

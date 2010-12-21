@@ -18,7 +18,7 @@
 #ifndef EQBASE_MEMORYMAP_H
 #define EQBASE_MEMORYMAP_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/nonCopyable.h>
 
 #include <string>

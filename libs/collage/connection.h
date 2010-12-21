@@ -22,7 +22,7 @@
 #include <co/packets.h>               // used in inline method
 #include <co/types.h>                 // Connections type
 
-#include <co/base.h>
+#include <co/api.h>
 #include <eq/base/refPtr.h>
 #include <eq/base/referenced.h>
 #include <eq/base/scopedMutex.h>

@@ -27,7 +27,7 @@
 #ifndef EQBASE_LOG_H
 #define EQBASE_LOG_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/clock.h>
 
 #include <assert.h>

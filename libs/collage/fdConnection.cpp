@@ -20,7 +20,7 @@
 #include "fdConnection.h"
 #include "log.h"
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 
 #include <errno.h>
 #include <poll.h>

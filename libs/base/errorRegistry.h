@@ -18,7 +18,7 @@
 #ifndef EQBASE_ERRORREGISTRY_H
 #define EQBASE_ERRORREGISTRY_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/stdExt.h> // hash_map
 
 namespace eq 

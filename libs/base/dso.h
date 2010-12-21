@@ -19,7 +19,7 @@
 #ifndef EQBASE_DSO_H
 #define EQBASE_DSO_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/nonCopyable.h>
 
 #include <string>

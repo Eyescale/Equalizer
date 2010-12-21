@@ -21,7 +21,7 @@
 #include <eq/util/types.h>
 
 #include <eq/client/os.h>             // OpenGL/GLEW types
-#include <eq/base/base.h>             // EQ_API definition
+#include <eq/base/api.h>              // EQ_API definition
 #include <eq/base/debug.h>            // EQASSERT definition
 #include <eq/base/hash.h>             // member
 #include <eq/base/nonCopyable.h>      // base class

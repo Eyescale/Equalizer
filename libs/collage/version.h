@@ -19,7 +19,7 @@
 #define CO_VERSION_H
 
 #include <co/types.h>
-#include <co/base.h>
+#include <co/api.h>
 namespace co
 {
 /** Special object version values */

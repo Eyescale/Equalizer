@@ -18,7 +18,7 @@
 #ifndef CO_GLOBAL_H
 #define CO_GLOBAL_H
 
-#include <co/base.h>
+#include <co/api.h>
 #include <string>
 
 namespace co

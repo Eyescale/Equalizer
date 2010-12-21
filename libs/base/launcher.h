@@ -18,7 +18,7 @@
 #ifndef EQBASE_LAUNCHER_H
 #define EQBASE_LAUNCHER_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <string>
 #include <vector>
 

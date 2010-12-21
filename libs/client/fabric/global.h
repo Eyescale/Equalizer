@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_GLOBAL_H
 #define EQFABRIC_GLOBAL_H
 
-#include <eq/fabric/base.h>
+#include <eq/fabric/api.h>
 #include <string>
 
 namespace eq

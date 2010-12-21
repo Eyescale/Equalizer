@@ -20,7 +20,7 @@
 
 #include <co/connectionListener.h> // base class
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/buffer.h>
 #include <eq/base/hash.h>
 #include <eq/base/monitor.h>

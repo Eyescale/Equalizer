@@ -1,5 +1,5 @@
-
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+ 
+/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,11 +15,22 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSERVER_BASE_H
-#define EQSERVER_BASE_H
+/**
+ * @file admin/api.h
+ *
+ * Includes key system header files and defines essential admin macros.
+ */
+#ifndef EQADMIN_API_H
+#define EQADMIN_API_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 
-// Export definitions are predeclared in eq/base/base.h
+#if defined(EQUALIZERADMIN_STATIC)
+#  define EQADMIN_EXPORT
+#elif defined(EQUALIZERADMIN_SHARED)
+#  define EQADMIN_EXPORT EQ_DLLEXPORT
+#else
+#  define EQADMIN_EXPORT EQ_DLLIMPORT
+#endif
 
-#endif // EQSERVER_BASE_H
+#endif //EQADMIN_API_H

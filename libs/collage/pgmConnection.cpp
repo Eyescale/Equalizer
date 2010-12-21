@@ -21,7 +21,7 @@
 
 #include "connectionDescription.h"
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/log.h>
 
 #include <errno.h>

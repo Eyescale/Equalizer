@@ -29,7 +29,7 @@ purple_add_library(eq_net ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "co/"
   FORWARD HEADERS
     ${PLUGIN_HEADERS}
-    base.h
+    api.h
     barrier.h
     bufferConnection.h
     co.h

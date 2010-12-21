@@ -18,7 +18,7 @@
 #ifndef CO_INSTANCECACHE_H
 #define CO_INSTANCECACHE_H
 
-#include <co/base.h>
+#include <co/api.h>
 #include <co/types.h>
 
 #include <eq/base/lockable.h>  // member

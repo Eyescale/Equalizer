@@ -18,7 +18,7 @@
 #ifndef EQ_SERVER_H
 #define EQ_SERVER_H
 
-#include <eq/client/base.h>
+#include <eq/client/api.h>
 #include <eq/client/types.h>     // basic typedefs
 #include <eq/fabric/server.h>    // base class
 #include <co/node.h>         // base class

@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_INIT_H
 #define EQFABRIC_INIT_H
 
-#include <eq/fabric/base.h>
+#include <eq/fabric/api.h>
 
 /** @file fabric/init.h */
 namespace eq

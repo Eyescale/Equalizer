@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_VIEWPORT_H
 #define EQFABRIC_VIEWPORT_H
 
-#include <eq/fabric/base.h>
+#include <eq/fabric/api.h>
 #include <eq/fabric/types.h>
 #include <eq/base/debug.h>
 

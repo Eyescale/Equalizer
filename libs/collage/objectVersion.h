@@ -18,7 +18,7 @@
 #ifndef CO_OBJECTVERSION_H
 #define CO_OBJECTVERSION_H
 
-#include <co/base.h>
+#include <co/api.h>
 #include <co/types.h>
 #include <eq/base/stdExt.h>
 

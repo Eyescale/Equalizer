@@ -1,5 +1,5 @@
- 
-/* Copyright (c) 2010, Daniel Pfeifer <daniel@pfeifer-mail.de> 
+
+/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,17 +15,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQCLIENT_BASE_H
-#define EQCLIENT_BASE_H
+#ifndef EQSERVER_API_H
+#define EQSERVER_API_H
 
-#include <eq/fabric/base.h>
+#include <eq/base/os.h>
 
-#if defined(EQ_CLIENT_STATIC)
-#  define EQ_API
-#elif defined(EQ_CLIENT_SHARED)
-#  define EQ_API EQ_DLLEXPORT
-#else
-#  define EQ_API EQ_DLLIMPORT
-#endif
+// Export definitions are predeclared in eq/base/os.h
 
-#endif /* EQCLIENT_BASE_H */
+#endif // EQSERVER_BASE_H

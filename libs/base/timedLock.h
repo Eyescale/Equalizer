@@ -18,7 +18,7 @@
 #ifndef EQBASE_TIMEDLOCK_H
 #define EQBASE_TIMEDLOCK_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/nonCopyable.h>
 
 namespace eq

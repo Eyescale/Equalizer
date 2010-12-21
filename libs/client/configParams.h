@@ -18,7 +18,7 @@
 #ifndef EQ_CONFIG_PARAMS_H
 #define EQ_CONFIG_PARAMS_H
 
-#include <eq/client/base.h>
+#include <eq/client/api.h>
 #include <string>
 
 namespace eq

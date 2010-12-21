@@ -18,7 +18,7 @@
 #ifndef EQBASE_NONCOPYABLE_H
 #define EQBASE_NONCOPYABLE_H
 
-#include <eq/base/base.h> // for EQBASE_API
+#include <eq/base/os.h> // for EQBASE_API
 
 namespace eq
 {

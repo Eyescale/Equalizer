@@ -18,7 +18,7 @@
 #ifndef CO_PGMCONNECTION_H
 #define CO_PGMCONNECTION_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #ifdef EQ_PGM
 
 #include <co/connection.h>

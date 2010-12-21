@@ -20,7 +20,7 @@
 
 #include <eq/client/commandQueue.h> // member
 #include <eq/client/types.h>        // basic types
-#include <eq/client/base.h>
+#include <eq/client/api.h>
 #include <eq/fabric/client.h>       // base class
 
 namespace eq

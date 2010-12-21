@@ -25,7 +25,7 @@
 #include <eq/fabric/global.h>     // base class
 #include <eq/fabric/iAttribute.h> // enum definition
 
-#include <eq/client/base.h>
+#include <eq/client/api.h>
 
 namespace eq
 {

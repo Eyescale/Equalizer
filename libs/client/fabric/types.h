@@ -19,7 +19,7 @@
 #ifndef EQFABRIC_TYPES_H
 #define EQFABRIC_TYPES_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/refPtr.h>
 #include <eq/base/uint128_t.h>
 #include <vmmlib/vmmlib.hpp>

@@ -27,7 +27,7 @@
  * non-virtual destructors are not intended to be subclassed.
  */
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/errorRegistry.h>
 #include <eq/base/file.h>
 #include <eq/base/global.h>

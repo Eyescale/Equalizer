@@ -18,7 +18,7 @@
 #ifndef EQBASE_LOCK_H
 #define EQBASE_LOCK_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/nonCopyable.h>
 
 namespace eq

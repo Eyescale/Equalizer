@@ -19,7 +19,7 @@
 #ifndef EQSERVER_LOADER_H
 #define EQSERVER_LOADER_H
 
-#include "base.h"
+#include "api.h"
 #include "types.h"
 
 #include <iostream>

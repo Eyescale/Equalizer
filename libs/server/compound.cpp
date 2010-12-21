@@ -39,7 +39,7 @@
 
 #include <eq/client/packets.h>
 #include <eq/fabric/paths.h>
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/stdExt.h>
 
 #include <algorithm>

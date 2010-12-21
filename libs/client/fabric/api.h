@@ -1,5 +1,4 @@
-
-/* Copyright (c) 2010, Daniel Pfeifer <daniel@pfeifer-mail.de>
+/* Copyright (c) 2010, Daniel Pfeifer <daniel@pfeifer-mail.de> 
  *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -16,24 +15,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef CO_BASE_H
-#define CO_BASE_H
+#ifndef EQFABRIC_BASE_H
+#define EQFABRIC_BASE_H
 
-#include <eq/base/base.h>
+#include <co/api.h>
 
-
-#ifdef EQ_USE_DEPRECATED
-namespace co{}
-/** Deprecated namespace eq::net */
-namespace eq{ namespace net = co; }
-#endif
-
-#if defined(EQ_NET_STATIC)
-#  define CO_API
-#elif defined(EQ_NET_SHARED)
-#  define CO_API EQ_DLLEXPORT
+#if defined(EQ_FABRIC_STATIC)
+#  define EQFABRIC_API
+#  define EQFABRIC_INL
+#elif defined(EQ_FABRIC_SHARED)
+#  define EQFABRIC_API EQ_DLLEXPORT
 #else
-#  define CO_API EQ_DLLIMPORT
+#  define EQFABRIC_API EQ_DLLIMPORT
 #endif
 
-#endif //CO_BASE_H
+#if defined(EQ_EXPORTS) || defined(EQSERVER_EXPORTS) || \
+     defined(EQ_FABRIC_SHARED) || defined(EQUALIZERADMIN_SHARED)
+#  define EQFABRIC_INL EQ_DLLEXPORT
+#elif !defined(EQFABRIC_INL)
+#  define EQFABRIC_INL EQ_DLLIMPORT
+#endif
+
+#endif //EQFABRIC_BASE_H

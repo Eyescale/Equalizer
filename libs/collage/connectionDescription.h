@@ -19,10 +19,10 @@
 #define CO_CONNECTIONDESCRIPTION_H
 
 #include <co/connectionType.h> // member enum
-#include <co/base.h>
+#include <co/api.h>
 #include <co/types.h>
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/referenced.h>
 
 namespace co

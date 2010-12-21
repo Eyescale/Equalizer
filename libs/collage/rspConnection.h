@@ -26,7 +26,7 @@
 #include <co/types.h>
 #include "eventConnection.h" // member
 
-#include <eq/base/base.h>
+#include <eq/base/api.h>
 #include <eq/base/buffer.h>  // member
 #include <eq/base/lfQueue.h> // member
 #include <eq/base/mtQueue.h> // member

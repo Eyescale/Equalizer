@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_IATTRIBUTE_H
 #define EQFABRIC_IATTRIBUTE_H
 
-#include <eq/fabric/base.h>
+#include <eq/fabric/api.h>
 
 namespace eq
 {

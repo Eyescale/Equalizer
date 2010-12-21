@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_CLIENT_H
 #define EQFABRIC_CLIENT_H
 
-#include <eq/fabric/base.h>
+#include <eq/fabric/api.h>
 #include <eq/fabric/types.h>        // basic types
 #include <co/localNode.h>       // base class
 

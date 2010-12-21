@@ -15,7 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <eq/base/base.h>      // first get windows.h
+#include <eq/base/os.h>      // first get windows.h
 #include <pthread.h>           // then get pthreads
 #include <eq/base/perThread.h> // then get perThread to have template code
 

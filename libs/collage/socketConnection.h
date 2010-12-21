@@ -19,7 +19,7 @@
 #define CO_SOCKETCONNECTION_H
 
 #include <co/connectionType.h> // enum
-#include <eq/base/base.h>
+#include <eq/base/api.h>
 #include <eq/base/buffer.h> // member
 #include <eq/base/thread.h> // for EQ_TS_VAR
 

@@ -26,7 +26,7 @@
 #include <co/packets.h>       // used in inline method
 #include <co/version.h>       // enum
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/base/lockable.h>
 
 #include <eq/base/spinLock.h>

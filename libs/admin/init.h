@@ -18,7 +18,7 @@
 #ifndef EQADMIN_INIT_H
 #define EQADMIN_INIT_H
 
-#include <eq/admin/base.h>
+#include <eq/admin/api.h>
 
 namespace eq
 {

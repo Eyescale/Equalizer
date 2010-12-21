@@ -14,7 +14,7 @@ set(CLIENT_HEADERS
   aglPipe.h
   aglWindow.h
   aglWindowEvent.h
-  base.h
+  api.h
   canvas.h
   channel.h
   channelPackets.h

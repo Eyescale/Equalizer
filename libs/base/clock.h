@@ -19,7 +19,7 @@
 #ifndef EQBASE_CLOCK_H
 #define EQBASE_CLOCK_H
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 
 #ifdef Darwin
 // http://developer.apple.com/qa/qa2004/qa1398.html

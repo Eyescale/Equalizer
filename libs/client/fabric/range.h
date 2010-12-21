@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_RANGE_H
 #define EQFABRIC_RANGE_H
 
-#include <eq/fabric/base.h>
+#include <eq/fabric/api.h>
 
 #include <iostream>
 

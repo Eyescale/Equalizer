@@ -39,7 +39,7 @@
 #ifndef JITTER_H_
 #define JITTER_H_
 
-#include <eq/base/base.h>
+#include <eq/base/os.h>
 #include <eq/client/types.h>
 
 namespace eq
