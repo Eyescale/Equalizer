@@ -29,7 +29,7 @@
 #include <eq/util/types.h>
 #include <eq/base/buffer.h>          // member
 
-#include <eq/plugins/compressor.h> // EqCompressorInfos typedef
+#include <co/plugins/compressor.h> // EqCompressorInfos typedef
 
 namespace eq
 {

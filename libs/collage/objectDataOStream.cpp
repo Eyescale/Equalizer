@@ -21,7 +21,7 @@
 #include "objectCM.h"
 #include "objectPackets.h"
 
-#include <eq/plugins/compressorTypes.h>
+#include <co/plugins/compressorTypes.h>
 
 namespace co
 {

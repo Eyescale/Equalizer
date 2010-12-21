@@ -1,9 +1,9 @@
-Fix GLX build
+Move plugins in collage
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
-[ ] Optimization
+[x] Cleanup
+[x] Optimization
 [ ] Documentation

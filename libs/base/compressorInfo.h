@@ -19,7 +19,7 @@
 #define EQBASE_COMPRESSORINFO_H
 
 #include <eq/base/types.h>
-#include <eq/plugins/compressor.h> // base struct
+#include <co/plugins/compressor.h> // base struct
 
 #include <iostream>
 

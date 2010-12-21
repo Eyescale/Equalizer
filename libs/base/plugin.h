@@ -19,7 +19,7 @@
 #ifndef EQBASE_PLUGIN_H
 #define EQBASE_PLUGIN_H
 
-#include <eq/plugins/compressor.h> // member
+#include <co/plugins/compressor.h> // member
 #include <eq/base/base.h>
 #include <eq/base/dso.h>           // member
 

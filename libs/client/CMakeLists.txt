@@ -5,6 +5,7 @@
 # TODO: resolve two-way dependancy between client and util!
 
 add_subdirectory( util )
+add_subdirectory( fabric )
 
 set(CLIENT_HEADERS
   ../client.h

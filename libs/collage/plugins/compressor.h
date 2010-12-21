@@ -193,8 +193,8 @@ typedef unsigned long long eq_uint64_t;
 #define EQ_COMPRESSOR_VERSION_3 1
 /*@}*/
 
-#include <eq/plugins/compressorTokens.h>
-#include <eq/plugins/compressorTypes.h>
+#include <co/plugins/compressorTokens.h>
+#include <co/plugins/compressorTypes.h>
 
 #ifdef __cplusplus
 #  include <vector>

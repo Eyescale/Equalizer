@@ -21,7 +21,7 @@
 #include "commands.h"
 #include "objectPackets.h"
 
-#include <eq/plugins/compressor.h>
+#include <co/plugins/compressor.h>
 
 namespace co
 {

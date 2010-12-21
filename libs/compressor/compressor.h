@@ -19,7 +19,7 @@
 #ifndef EQ_PLUGIN_COMPRESSOR
 #define EQ_PLUGIN_COMPRESSOR 
 
-#include <eq/plugins/compressor.h>
+#include <co/plugins/compressor.h>
 
 #include <eq/base/base.h>
 #include <eq/base/buffer.h>

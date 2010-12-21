@@ -34,7 +34,7 @@
 #include <co/dataOStream.h>
 #include <eq/base/monitor.h>
 
-#include <eq/plugins/compressor.h>
+#include <co/plugins/compressor.h>
 #include <algorithm>
 
 namespace eq

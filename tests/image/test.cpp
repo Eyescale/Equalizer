@@ -18,7 +18,7 @@
 #define EQ_TEST_RUNTIME 1200 // seconds
 #include <test.h>
 
-#include <eq/plugins/compressor.h>
+#include <co/plugins/compressor.h>
 
 #include <eq/client/image.h>
 #include <eq/client/init.h>

@@ -31,7 +31,7 @@
 #include "config.h"
 #include "configEvent.h"
 
-#include <eq/plugins/compressor.h>
+#include <co/plugins/compressor.h>
 
 #ifdef WIN32_API
 #  define snprintf _snprintf

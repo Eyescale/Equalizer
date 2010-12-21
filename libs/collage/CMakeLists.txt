@@ -19,13 +19,20 @@ if(WIN32)
   list(APPEND NET_ADD_LINKLIB mswsock) 
 endif(WIN32)
 
+set(PLUGIN_HEADERS
+  plugins/compressor.h
+  plugins/compressorTokens.h
+  plugins/compressorTypes.h
+  )
+  
 purple_add_library(eq_net ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "co/"
   FORWARD HEADERS
+    ${PLUGIN_HEADERS}
     base.h
     barrier.h
     bufferConnection.h
-	co.h
+    co.h
     command.h
     commandCache.h
     commandFunc.h

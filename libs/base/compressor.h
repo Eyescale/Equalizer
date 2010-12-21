@@ -20,7 +20,7 @@
 #define EQBASE_COMPRESSOR_H
 
 #include <eq/base/thread.h>        // thread-safety macros
-#include <eq/plugins/compressor.h>  // used inline
+#include <co/plugins/compressor.h>  // used inline
 
 namespace eq
 {

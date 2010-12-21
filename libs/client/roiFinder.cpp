@@ -34,7 +34,7 @@
 
 #include <eq/util/frameBufferObject.h>
 #include <eq/base/base.h>
-#include <eq/plugins/compressor.h>
+#include <co/plugins/compressor.h>
 
 
 namespace eq

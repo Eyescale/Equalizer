@@ -1,12 +1,6 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010 Stefan Eilemann <eile@eyescale.ch>
 
-set(PLUGIN_HEADERS
-  plugins/compressor.h
-  plugins/compressorTokens.h
-  plugins/compressorTypes.h
-  )
-
 set(CLIENT_HEADERS
   client.h
   client/aglEventHandler.h

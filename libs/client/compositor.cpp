@@ -37,7 +37,7 @@
 #include <eq/base/executionListener.h>
 #include <eq/base/monitor.h>
 
-#include <eq/plugins/compressor.h>
+#include <co/plugins/compressor.h>
 
 #ifdef EQ_USE_PARACOMP
 #  include <pcapi.h>

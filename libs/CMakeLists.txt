@@ -17,7 +17,7 @@ if(NOT EQUALIZER_BUILD_MODULARIZED)
 endif(NOT EQUALIZER_BUILD_MODULARIZED)
 
 source_group(client FILES ${CLIENT_HEADERS} ${CLIENT_SOURCES})
-source_group(plugin FILES ${PLUGIN_HEADERS})
+#source_group(plugin FILES ${PLUGIN_HEADERS})
 source_group(util FILES ${UTIL_HEADERS} ${UTIL_SOURCES})
 source_group(compressor FILES ${COMPRESSOR_SOURCES})
 
@@ -44,7 +44,6 @@ endif(NOT CUDA_FOUND)
 
 add_subdirectory(base)
 add_subdirectory(collage)
-add_subdirectory(client/fabric)
 add_subdirectory(client)
 add_subdirectory(admin)
 add_subdirectory(server)
@@ -53,7 +52,6 @@ add_subdirectory(server)
 purple_add_library(eq ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/"
   FORWARD HEADERS
-    ${PLUGIN_HEADERS}
     eq.h
     admin.h
   SOURCES

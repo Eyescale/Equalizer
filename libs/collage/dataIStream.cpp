@@ -23,7 +23,7 @@
 
 #include "../base/cpuCompressor.h" // internal header
 #include <eq/base/debug.h>
-#include <eq/plugins/compressor.h>
+#include <co/plugins/compressor.h>
 
 #include <string.h>
 
