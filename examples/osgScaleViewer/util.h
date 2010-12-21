@@ -34,7 +34,6 @@
 #define UTIL_H
 
 #include <osg/Matrix>
-#include <eq/client/types.h>
 #include <vmmlib/matrix.hpp>
 
 /**

@@ -112,6 +112,7 @@ and documentation changes:
 -   New command line argument ``--eq-logfile``
 -   New compound auto stereo mode detection (active, anaglyph, passive)
 -   Structured `error reporting`_.
+-   Upgraded `GLEW`_ to version 1.5.7.2
 
 0.9.1:
 
@@ -339,6 +340,7 @@ information.
     927688&group_id=170962&atid=856212
 .. _error reporting:
     http://www.equalizergraphics.com/documents/design/errorHandling.html
+.. _GLEW: http://glew.sourceforge.net
 .. _Tile and range boundaries: http://www.equalizergraphics.com/documents
     /design/loadBalancing.html#boundaries
 .. _eq::util::Accum: http://www.equalizergraphics.com/documents/Developer

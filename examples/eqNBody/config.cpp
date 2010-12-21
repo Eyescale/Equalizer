@@ -28,12 +28,11 @@
  */
 
 #include "config.h"
-#include <eq/client/types.h>
 
 namespace eqNbody
 {
     
-Config::Config( eq::base::RefPtr< eq::Server > parent )
+Config::Config( eq::ServerPtr parent )
         : eq::Config( parent )
         , _redraw( true )
 {

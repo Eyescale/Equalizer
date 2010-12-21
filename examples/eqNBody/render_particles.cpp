@@ -32,12 +32,10 @@
  */
 
 #include "render_particles.h"
-#include <GL/glew.h>
+#include <eq/eq.h>
 
 #include <math.h>
 #include <assert.h>
-
-#include <eq/base/log.h>
 
 #define GL_POINT_SPRITE_ARB               0x8861
 #define GL_COORD_REPLACE_ARB              0x8862

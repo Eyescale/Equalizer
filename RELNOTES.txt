@@ -95,6 +95,7 @@
      * New command line argument --eq-logfile
      * New compound auto stereo mode detection (active, anaglyph, passive)
      * Structured error reporting.
+     * Upgraded GLEW to version 1.5.7.2
 
    0.9.1:
 

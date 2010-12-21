@@ -36,10 +36,6 @@
 #include <cuda.h>
 #include <cuda_gl_interop.h>
 
-#include <eq/base/log.h>
-
-using namespace std;
-
 namespace eqNbody
 {
 	Controller::Controller() : _numBodies(0), _p(0), _q(0), _usePBO(true)
@@ -85,7 +81,7 @@ namespace eqNbody
 				int size = 0;
 				glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, (GLint*)&size); 
 				if ((unsigned)size != 4 * (sizeof(float) * _numBodies)) {
-					EQERROR << "WARNING: Pixel Buffer Object allocation failed" << endl;
+					EQERROR << "WARNING: Pixel Buffer Object allocation failed" << std::endl;
 				}
 			
 				glBindBuffer(GL_ARRAY_BUFFER, 0);

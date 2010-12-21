@@ -38,9 +38,6 @@
 #include "initData.h"
 #include "nodeFactory.h"
 
-#include <eq/client/init.h>
-#include <eq/client/server.h>
-
 int main( const int argc, char** argv )
 {
     // 1. Equalizer initialization
