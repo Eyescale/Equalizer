@@ -20,8 +20,8 @@
 #include "glXEventHandler.h"
 #include "X11Connection.h"
 
-#include <eq/base/debug.h>
-#include <eq/base/log.h>
+#include <co/base/debug.h>
+#include <co/base/log.h>
 
 using namespace std;
 

@@ -18,8 +18,8 @@
 #include "aglMessagePump.h"
 #include "global.h"
 
-#include <eq/base/debug.h>
-#include <eq/base/log.h>
+#include <eq/debug.h>
+#include <eq/log.h>
 
 namespace eq
 {

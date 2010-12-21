@@ -18,7 +18,7 @@
 #ifndef EQ_X11_CONNECTION_H
 #define EQ_X11_CONNECTION_H
 
-#include <eq/client/os.h>
+#include <eq/os.h>
 
 #include <co/connection.h>
 

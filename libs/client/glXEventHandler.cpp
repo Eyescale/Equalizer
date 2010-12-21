@@ -28,7 +28,7 @@
 #include "window.h"
 #include "X11Connection.h"
 
-#include <eq/base/perThread.h>
+#include <co/base/perThread.h>
 
 #include <X11/keysym.h>
 

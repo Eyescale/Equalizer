@@ -27,7 +27,7 @@
 #include "window.h"
 
 #include <co/global.h>
-#include <eq/base/file.h>
+#include <co/base/file.h>
 
 #ifdef EQ_USE_MAGELLAN
 #  include <3DconnexionClient/ConnexionClientAPI.h>
