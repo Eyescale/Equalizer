@@ -1,4 +1,4 @@
-- Minor clean up Cmake
+- Fix break build
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

@@ -20,7 +20,7 @@
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
-#include <eq/base/thread.h>
+#include <co/base/thread.h>
 #include <co/connectionDescription.h>
 #include <co/command.h>
 #include <co/commandCache.h>
