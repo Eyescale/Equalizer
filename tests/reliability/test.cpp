@@ -75,7 +75,7 @@ public:
 
 protected:
     virtual void frameDraw( const eq::uint128_t& frameID )
-        { eq::Channel::frameDraw( frameID ); ++drawCalls; }
+        { eq::Channel::frameDraw( frameID ); ++drawCalls; eq::base::sleep(10); }
     virtual void frameReadback( const eq::uint128_t& frameID )
         { eq::Channel::frameReadback( frameID ); ++readbackCalls; }
     virtual void frameAssemble( const eq::uint128_t& frameID )

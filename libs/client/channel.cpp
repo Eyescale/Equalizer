@@ -745,7 +745,7 @@ void Channel::drawStatistics()
     std::map< base::UUID, EntityData > entities;
     std::map< base::UUID, IdleData >   idles;
 
-    for( std::vector<eq::FrameStatistics>::iterator i =statistics.begin();
+    for( std::vector< eq::FrameStatistics >::iterator i = statistics.begin();
          i != statistics.end(); ++i )
     {
         eq::FrameStatistics& frameStats  = *i;
@@ -774,7 +774,7 @@ void Channel::drawStatistics()
                 case Statistic::PIPE_IDLE:
                 {
                     IdleData& data = idles[ id ];
-                    std::map< base::UUID, EntityData >::iterator l = 
+                    std::map< UUID, EntityData >::iterator l = 
                         entities.find( id );
 
                     if( l != entities.end( ))
@@ -1077,7 +1077,7 @@ void Channel::_unrefFrame( const uint32_t frameNumber, const uint32_t index )
     ChannelFrameFinishReplyPacket reply;
     reply.nStatistics = uint32_t( stats.data.size( ));
     reply.frameNumber = frameNumber;
-    reply.objectID  = getID();
+    reply.objectID = getID();
     getServer()->send( reply, stats.data );
     stats.data.clear();
 }
@@ -1150,7 +1150,6 @@ bool Channel::_cmdFrameStart( co::Command& command )
 
     //_grabFrame( packet->frameNumber ); single-threaded
     sync( packet->version );
-    //_nativeContext.overdraw = packet->context.overdraw;
 
     overrideContext( packet->context );
     bindFrameBuffer();
