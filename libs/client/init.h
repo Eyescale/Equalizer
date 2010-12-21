@@ -18,7 +18,7 @@
 #ifndef EQ_INIT_H
 #define EQ_INIT_H
 
-#include <eq/client/api.h>
+#include <eq/api.h>
 
 namespace eq
 {

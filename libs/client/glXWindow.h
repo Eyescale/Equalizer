@@ -19,8 +19,8 @@
 #ifndef EQ_OS_WINDOW_GLX_H
 #define EQ_OS_WINDOW_GLX_H
 
-#include <eq/client/glWindow.h>       // base class
-#include <eq/client/glXWindowEvent.h> // used in inline method
+#include <eq/glWindow.h>       // base class
+#include <eq/glXWindowEvent.h> // used in inline method
 
 namespace eq
 {

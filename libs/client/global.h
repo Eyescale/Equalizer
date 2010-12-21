@@ -19,13 +19,13 @@
 #ifndef EQ_GLOBAL_H
 #define EQ_GLOBAL_H
 
-#include <eq/client/init.h>       // friend
-#include <eq/client/types.h>
+#include <eq/init.h>       // friend
+#include <eq/types.h>
 
 #include <eq/fabric/global.h>     // base class
 #include <eq/fabric/iAttribute.h> // enum definition
 
-#include <eq/client/api.h>
+#include <eq/api.h>
 
 namespace eq
 {

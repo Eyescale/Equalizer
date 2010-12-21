@@ -19,9 +19,9 @@
 #ifndef EQ_CHANNELPACKETS_H
 #define EQ_CHANNELPACKETS_H
 
-#include <eq/client/packets.h> // base structs
+#include <eq/packets.h> // base structs
 
-#include <eq/client/statistic.h>     // member
+#include <eq/statistic.h>     // member
 
 /** @cond IGNORE */
 namespace eq

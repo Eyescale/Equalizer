@@ -19,8 +19,8 @@
 #ifndef EQ_AGL_PIPE_H
 #define EQ_AGL_PIPE_H
 
-#include <eq/client/systemPipe.h> // base class
-#include <eq/client/os.h>     // CG types
+#include <eq/systemPipe.h> // base class
+#include <eq/os.h>     // CG types
 
 namespace eq
 {

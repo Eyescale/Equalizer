@@ -23,7 +23,7 @@
 #include "../log.h"
 #include "../pipe.h"
 
-#include <eq/client/statistic.h>
+#include <eq/statistic.h>
 
 #include <set>
 

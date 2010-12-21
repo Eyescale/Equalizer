@@ -18,7 +18,7 @@
 #ifndef EQSERVER_LOG_H
 #define EQSERVER_LOG_H
 
-#include <eq/client/log.h>
+#include <eq/log.h>
 
 namespace eq
 {

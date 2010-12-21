@@ -18,7 +18,7 @@
 // Tests the functionality of the pixel viewport
 
 #include <test.h>
-#include <eq/client/types.h>
+#include <eq/types.h>
 #include <eq/fabric/pixelViewport.h>
 
 using namespace eq;

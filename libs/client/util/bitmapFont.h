@@ -19,8 +19,8 @@
 #define EQUTIL_BITMAPFONT_H
 
 #include <eq/util/types.h>
-#include <eq/client/os.h>           // GL prototypes
-#include <eq/client/windowSystem.h> // enum used
+#include <eq/os.h>           // GL prototypes
+#include <eq/windowSystem.h> // enum used
 #include <eq/base/os.h>
 
 #include <string>

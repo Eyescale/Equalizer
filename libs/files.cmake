@@ -2,12 +2,12 @@
 #               2010 Stefan Eilemann <eile@eyescale.ch>
 
 set(CLIENT_HEADERS
-  client.h
   client/aglEventHandler.h
   client/aglMessagePump.h
   client/aglPipe.h
   client/aglWindow.h
   client/aglWindowEvent.h
+  client/base.h
   client/canvas.h
   client/channel.h
   client/channelPackets.h
@@ -27,9 +27,9 @@ set(CLIENT_HEADERS
   client/event.h
   client/eventHandler.h
   client/eye.h
+  client/eq.h
   client/frame.h
   client/frameData.h
-  client/frameDataPackets.h
   client/glWindow.h
   client/glXEventHandler.h
   client/glXMessagePump.h
@@ -102,7 +102,6 @@ set(CLIENT_SOURCES
   client/eventHandler.cpp
   client/frame.cpp
   client/frameData.cpp
-  client/frameDataStatistics.cpp
   client/glWindow.cpp
   client/global.cpp
   client/image.cpp

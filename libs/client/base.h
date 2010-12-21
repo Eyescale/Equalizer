@@ -79,47 +79,47 @@
  * <img src="http://www.equalizergraphics.com/documents/design/images/clientUML.png">
  */
 
-#include <eq/client/canvas.h>
-#include <eq/client/channelStatistics.h>
-#include <eq/client/channel.h>
-#include <eq/client/client.h>
-#include <eq/client/compositor.h>
-#include <eq/client/config.h>
-#include <eq/client/configEvent.h>
-#include <eq/client/configParams.h>
-#include <eq/client/event.h>
-#include <eq/client/frame.h>
-#include <eq/client/frameData.h>
-#include <eq/client/global.h>
-#include <eq/client/image.h>
-#include <eq/client/init.h>
-#include <eq/client/layout.h>
-#include <eq/client/log.h>
-#include <eq/client/node.h>
-#include <eq/client/nodeFactory.h>
-#include <eq/client/observer.h>
-#include <eq/client/pipe.h>
-#include <eq/client/server.h>
-#include <eq/client/segment.h>
-#include <eq/client/types.h>
-#include <eq/client/version.h>
-#include <eq/client/view.h>
-#include <eq/client/windowSystem.h>
+#include <eq/canvas.h>
+#include <eq/channelStatistics.h>
+#include <eq/channel.h>
+#include <eq/client.h>
+#include <eq/compositor.h>
+#include <eq/config.h>
+#include <eq/configEvent.h>
+#include <eq/configParams.h>
+#include <eq/event.h>
+#include <eq/frame.h>
+#include <eq/frameData.h>
+#include <eq/global.h>
+#include <eq/image.h>
+#include <eq/init.h>
+#include <eq/layout.h>
+#include <eq/log.h>
+#include <eq/node.h>
+#include <eq/nodeFactory.h>
+#include <eq/observer.h>
+#include <eq/pipe.h>
+#include <eq/server.h>
+#include <eq/segment.h>
+#include <eq/types.h>
+#include <eq/version.h>
+#include <eq/view.h>
+#include <eq/windowSystem.h>
 
 #ifdef AGL
-#  include <eq/client/aglEventHandler.h>
-#  include <eq/client/aglPipe.h>
-#  include <eq/client/aglWindow.h>
+#  include <eq/aglEventHandler.h>
+#  include <eq/aglPipe.h>
+#  include <eq/aglWindow.h>
 #endif
 #ifdef GLX
-#  include <eq/client/glXEventHandler.h>
-#  include <eq/client/glXPipe.h>
-#  include <eq/client/glXWindow.h>
+#  include <eq/glXEventHandler.h>
+#  include <eq/glXPipe.h>
+#  include <eq/glXWindow.h>
 #endif
 #ifdef WGL
-#  include <eq/client/wglEventHandler.h>
-#  include <eq/client/wglPipe.h>
-#  include <eq/client/wglWindow.h>
+#  include <eq/wglEventHandler.h>
+#  include <eq/wglPipe.h>
+#  include <eq/wglWindow.h>
 #endif
 
 #endif // EQCLIENT_H

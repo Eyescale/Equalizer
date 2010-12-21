@@ -19,7 +19,7 @@
 #ifndef EQ_GL_WINDOW_H
 #define EQ_GL_WINDOW_H
 
-#include <eq/client/systemWindow.h>         // base class
+#include <eq/systemWindow.h>         // base class
 
 namespace eq
 {

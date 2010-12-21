@@ -18,8 +18,8 @@
 #ifndef EQ_OS_WINDOW_WGL_H
 #define EQ_OS_WINDOW_WGL_H
 
-#include <eq/client/glWindow.h>       // base class
-#include <eq/client/wglWindowEvent.h> // used in inline method
+#include <eq/glWindow.h>       // base class
+#include <eq/wglWindowEvent.h> // used in inline method
 
 namespace eq
 {

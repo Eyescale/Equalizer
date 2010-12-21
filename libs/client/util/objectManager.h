@@ -20,7 +20,7 @@
 
 #include <eq/util/types.h>
 
-#include <eq/client/os.h>             // OpenGL/GLEW types
+#include <eq/os.h>             // OpenGL/GLEW types
 #include <eq/base/api.h>              // EQ_API definition
 #include <eq/base/debug.h>            // EQASSERT definition
 #include <eq/base/hash.h>             // member

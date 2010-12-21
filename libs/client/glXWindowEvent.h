@@ -18,7 +18,7 @@
 #ifndef EQ_GLXWINDOWEVENT_H
 #define EQ_GLXWINDOWEVENT_H
 
-#include <eq/client/event.h>
+#include <eq/event.h>
 
 namespace eq
 {

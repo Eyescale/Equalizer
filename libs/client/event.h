@@ -18,11 +18,11 @@
 #ifndef EQ_EVENT_H
 #define EQ_EVENT_H
 
-#include <eq/client/types.h>
-#include <eq/client/statistic.h>     // member
+#include <eq/types.h>
+#include <eq/statistic.h>     // member
 #include <eq/fabric/renderContext.h> // member
 
-#include <eq/client/api.h>
+#include <eq/api.h>
 
 namespace eq
 {

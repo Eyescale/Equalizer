@@ -18,8 +18,8 @@
 #ifndef EQ_WGLWINDOWEVENT_H
 #define EQ_WGLWINDOWEVENT_H
 
-#include <eq/client/event.h>        // base class
-#include <eq/client/windowSystem.h> // windows.h
+#include <eq/event.h>        // base class
+#include <eq/windowSystem.h> // windows.h
 
 namespace eq
 {

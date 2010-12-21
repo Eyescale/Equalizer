@@ -19,11 +19,11 @@
 #ifndef EQ_PIPE_H
 #define EQ_PIPE_H
 
-#include <eq/client/eye.h>            // Eye enum
-#include <eq/client/os.h>             // WGLEWContext
-#include <eq/client/types.h>
-#include <eq/client/visitorResult.h>  // enum
-#include <eq/client/windowSystem.h>   // enum
+#include <eq/eye.h>            // Eye enum
+#include <eq/os.h>             // WGLEWContext
+#include <eq/types.h>
+#include <eq/visitorResult.h>  // enum
+#include <eq/windowSystem.h>   // enum
 
 #include <eq/fabric/pipe.h>           // base class
 

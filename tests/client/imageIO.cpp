@@ -19,9 +19,9 @@
 
 #include <test.h>
 
-#include <eq/client/nodeFactory.h>
-#include <eq/client/image.h>
-#include <eq/client/init.h>
+#include <eq/nodeFactory.h>
+#include <eq/image.h>
+#include <eq/init.h>
 #include <eq/base/file.h>
 #include <eq/base/memoryMap.h>
 

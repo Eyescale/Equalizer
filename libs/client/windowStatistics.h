@@ -18,7 +18,7 @@
 #ifndef EQ_WINDOWSTATISTICS_H
 #define EQ_WINDOWSTATISTICS_H
 
-#include <eq/client/statisticSampler.h> // base class
+#include <eq/statisticSampler.h> // base class
 
 namespace eq
 {

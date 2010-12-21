@@ -20,15 +20,15 @@
 
 #include <co/plugins/compressor.h>
 
-#include <eq/client/image.h>
-#include <eq/client/init.h>
-#include <eq/client/nodeFactory.h>
+#include <eq/image.h>
+#include <eq/init.h>
+#include <eq/nodeFactory.h>
 #include <eq/base/clock.h>
 #include <eq/base/file.h>
 #include <eq/base/global.h>
 #include <eq/base/pluginRegistry.h>
 
-#include <eq/client/frame.h>    // enum Eye
+#include <eq/frame.h>    // enum Eye
 
 #include <numeric>
 #include <fstream>

@@ -22,7 +22,7 @@
 #include "../config.h"
 #include "../log.h"
 
-#include <eq/client/statistic.h>
+#include <eq/statistic.h>
 #include <eq/base/debug.h>
 
 #define USE_AVERAGE

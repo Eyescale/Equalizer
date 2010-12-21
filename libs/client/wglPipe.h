@@ -19,9 +19,9 @@
 #ifndef EQ_WGL_PIPE_H
 #define EQ_WGL_PIPE_H
 
-#include <eq/client/api.h>
-#include <eq/client/systemPipe.h> // base class
-#include <eq/client/os.h>     // GLEW
+#include <eq/api.h>
+#include <eq/systemPipe.h> // base class
+#include <eq/os.h>     // GLEW
 
 namespace eq
 {

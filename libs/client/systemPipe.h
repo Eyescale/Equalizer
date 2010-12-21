@@ -19,8 +19,8 @@
 #ifndef EQ_SYSTEM_PIPE_H
 #define EQ_SYSTEM_PIPE_H
 
-#include <eq/client/error.h> // enum
-#include <eq/client/api.h>
+#include <eq/error.h> // enum
+#include <eq/api.h>
 #include <string>
 
 namespace eq

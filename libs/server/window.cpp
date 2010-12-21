@@ -28,8 +28,8 @@
 #include "pipe.h"
 #include "swapBarrier.h"
   
-#include <eq/client/pipePackets.h>
-#include <eq/client/windowPackets.h>
+#include <eq/pipePackets.h>
+#include <eq/windowPackets.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
 #include <co/command.h>

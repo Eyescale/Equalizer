@@ -18,7 +18,7 @@
 #ifndef EQ_STATISTICSAMPLER_H
 #define EQ_STATISTICSAMPLER_H
 
-#include <eq/client/configEvent.h> // member
+#include <eq/configEvent.h> // member
 
 namespace eq
 {

@@ -28,7 +28,7 @@
 #ifndef EQ_ADMIN_FIND_PIPE_H
 #define EQ_ADMIN_FIND_PIPE_H
 
-#include <eq/admin.h>
+#include <eq/admin/base.h>
 
 namespace eqAdmin
 {

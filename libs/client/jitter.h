@@ -40,7 +40,7 @@
 #define JITTER_H_
 
 #include <eq/base/os.h>
-#include <eq/client/types.h>
+#include <eq/types.h>
 
 namespace eq
 {

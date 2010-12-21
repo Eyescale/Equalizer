@@ -19,8 +19,8 @@
 #define EQ_OBSERVER_H
 
 #include <eq/fabric/observer.h>         // base class
-#include <eq/client/types.h>
-#include <eq/client/api.h>
+#include <eq/types.h>
+#include <eq/api.h>
 
 namespace eq
 {

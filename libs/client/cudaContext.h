@@ -19,7 +19,7 @@
 #ifndef EQ_CUDACONTEXT_H
 #define EQ_CUDACONTEXT_H
 
-#include <eq/client/computeContext.h> // base class
+#include <eq/computeContext.h> // base class
 
 namespace eq
 {

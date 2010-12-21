@@ -19,9 +19,9 @@
 #ifndef EQ_CONFIG_H
 #define EQ_CONFIG_H
 
-#include <eq/client/commandQueue.h>  // member
-#include <eq/client/types.h>         // typedefs
-#include <eq/client/visitorResult.h> // enum
+#include <eq/commandQueue.h>  // member
+#include <eq/types.h>         // typedefs
+#include <eq/visitorResult.h> // enum
 
 #include <eq/fabric/config.h>        // base class
 #include <eq/base/monitor.h>         // member

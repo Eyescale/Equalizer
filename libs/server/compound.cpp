@@ -37,7 +37,7 @@
 #include "swapBarrier.h"
 #include "view.h"
 
-#include <eq/client/packets.h>
+#include <eq/packets.h>
 #include <eq/fabric/paths.h>
 #include <eq/base/os.h>
 #include <eq/base/stdExt.h>

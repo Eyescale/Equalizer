@@ -21,8 +21,8 @@
 #include "../config.h"
 #include "../log.h"
 
-#include <eq/client/client.h>
-#include <eq/client/server.h>
+#include <eq/client.h>
+#include <eq/server.h>
 #include <eq/base/debug.h>
 
 namespace eq

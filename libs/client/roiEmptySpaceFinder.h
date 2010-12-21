@@ -19,7 +19,7 @@
 #ifndef EQ_ROI_EMPTY_SPACE_FINDER_H
 #define EQ_ROI_EMPTY_SPACE_FINDER_H
 
-#include <eq/client/types.h>
+#include <eq/types.h>
 #include <vector>
 
 namespace eq

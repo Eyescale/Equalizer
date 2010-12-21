@@ -29,8 +29,8 @@
 #include <libs/server/view.h>
 #include <libs/server/window.h>
 
-#include <eq/client/init.h>
-#include <eq/client/nodeFactory.h>
+#include <eq/init.h>
+#include <eq/nodeFactory.h>
 
 #ifndef WIN32
 #  include <sys/param.h>

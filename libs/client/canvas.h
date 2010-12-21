@@ -18,8 +18,8 @@
 #ifndef EQ_CANVAS_H
 #define EQ_CANVAS_H
 
-#include <eq/client/types.h>
-#include <eq/client/api.h>
+#include <eq/types.h>
+#include <eq/api.h>
 #include <eq/fabric/canvas.h> // base class
 
 namespace eq

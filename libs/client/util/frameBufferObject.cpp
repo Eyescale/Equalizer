@@ -18,7 +18,7 @@
 
 #include "frameBufferObject.h"
 
-#include <eq/client/error.h>
+#include <eq/error.h>
 
 #include <eq/fabric/pixelViewport.h>
 

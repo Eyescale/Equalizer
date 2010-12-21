@@ -50,9 +50,9 @@ add_subdirectory(server)
 # TODO: split this library
 purple_add_library(eq ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/"
-  FORWARD HEADERS
-    eq.h
-    admin.h
+  HEADERS
+    client/eq.h
+    ${CLIENT_HEADERS}
   SOURCES
     ${COMPRESSOR_SOURCES}
   LINK_LIBRARIES

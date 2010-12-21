@@ -19,8 +19,8 @@
 #ifndef EQ_GLX_PIPE_H
 #define EQ_GLX_PIPE_H
 
-#include <eq/client/systemPipe.h> // base class
-#include <eq/client/os.h>     // X11 types
+#include <eq/systemPipe.h> // base class
+#include <eq/os.h>     // X11 types
 
 namespace eq
 {

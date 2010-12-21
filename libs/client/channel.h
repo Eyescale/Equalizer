@@ -19,12 +19,12 @@
 #ifndef EQ_CHANNEL_H
 #define EQ_CHANNEL_H
 
-#include <eq/client/event.h>          // member
-#include <eq/client/eye.h>            // enum
-#include <eq/client/types.h>
-#include <eq/client/visitorResult.h>  // enum
-#include <eq/client/window.h>         // nested Window::ObjectManager class
-#include <eq/client/os.h>             // GLEWContext
+#include <eq/event.h>          // member
+#include <eq/eye.h>            // enum
+#include <eq/types.h>
+#include <eq/visitorResult.h>  // enum
+#include <eq/window.h>         // nested Window::ObjectManager class
+#include <eq/os.h>             // GLEWContext
 
 #include <eq/fabric/channel.h>        // base class
 

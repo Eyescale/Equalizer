@@ -18,8 +18,8 @@
 #ifndef EQ_FRAMEDATA_H
 #define EQ_FRAMEDATA_H
 
-#include <eq/client/frame.h>         // enum Frame::Buffer
-#include <eq/client/types.h>         // member
+#include <eq/frame.h>         // enum Frame::Buffer
+#include <eq/types.h>         // member
 
 #include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/pixel.h>         // member

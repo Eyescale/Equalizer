@@ -19,8 +19,8 @@
 #ifndef EQUTIL_ACCUM_H
 #define EQUTIL_ACCUM_H
 
-#include <eq/client/os.h>  // for GLEW
-#include <eq/client/types.h>
+#include <eq/os.h>  // for GLEW
+#include <eq/types.h>
 
 namespace eq
 {

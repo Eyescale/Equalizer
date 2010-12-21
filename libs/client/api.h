@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQCLIENT_BASE_H
-#define EQCLIENT_BASE_H
+#ifndef EQCLIENT_API_H
+#define EQCLIENT_API_H
 
 #include <eq/fabric/api.h>
 
@@ -28,4 +28,4 @@
 #  define EQ_API EQ_DLLIMPORT
 #endif
 
-#endif /* EQCLIENT_BASE_H */
+#endif /* EQCLIENT_API_H */

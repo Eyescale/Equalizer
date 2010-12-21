@@ -18,7 +18,7 @@
 #ifndef EQ_CHANNELSTATISTICS_H
 #define EQ_CHANNELSTATISTICS_H
 
-#include <eq/client/statisticSampler.h> // base class
+#include <eq/statisticSampler.h> // base class
 
 namespace eq
 {

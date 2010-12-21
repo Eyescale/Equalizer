@@ -18,8 +18,8 @@
 #ifndef EQ_ROI_TRACKER_H
 #define EQ_ROI_TRACKER_H
 
-#include <eq/client/api.h>
-#include <eq/client/types.h>
+#include <eq/api.h>
+#include <eq/types.h>
 #include <co/types.h>
 #include <eq/fabric/pixelViewport.h> // member
 

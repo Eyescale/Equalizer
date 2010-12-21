@@ -18,7 +18,7 @@
 #ifndef EQ_EVENTHANDLER_H
 #define EQ_EVENTHANDLER_H
 
-#include <eq/client/event.h>         // member
+#include <eq/event.h>         // member
 
 namespace eq
 {

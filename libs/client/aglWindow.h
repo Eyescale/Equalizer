@@ -19,7 +19,7 @@
 #ifndef EQ_AGL_WINDOW_H
 #define EQ_AGL_WINDOW_H
 
-#include <eq/client/glWindow.h>       // base class
+#include <eq/glWindow.h>       // base class
 
 namespace eq
 {

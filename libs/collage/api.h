@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef CO_BASE_H
-#define CO_BASE_H
+#ifndef CO_API_H
+#define CO_API_H
 
 #include <eq/base/os.h>
 
@@ -36,4 +36,4 @@ namespace eq{ namespace net = co; }
 #  define CO_API EQ_DLLIMPORT
 #endif
 
-#endif //CO_BASE_H
+#endif //CO_API_H

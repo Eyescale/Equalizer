@@ -7,6 +7,7 @@ purple_add_library(EqualizerAdmin SHARED
   FORWARD HEADERS
     admin.h
     api.h
+    base.h
     canvas.h
     channel.h
     client.h

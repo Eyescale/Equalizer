@@ -18,7 +18,7 @@
 #ifndef EQ_AGLWINDOWEVENT_H
 #define EQ_AGLWINDOWEVENT_H
 
-#include <eq/client/event.h> // base class
+#include <eq/event.h> // base class
 
 namespace eq
 {

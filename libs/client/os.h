@@ -18,7 +18,7 @@
 #ifndef EQ_OS_H
 #define EQ_OS_H
 
-#include <eq/client/api.h>
+#include <eq/api.h>
 
 #include <string>
 

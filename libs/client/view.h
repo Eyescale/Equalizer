@@ -18,9 +18,9 @@
 #ifndef EQ_VIEW_H
 #define EQ_VIEW_H
 
-#include <eq/client/visitorResult.h>  // enum
-#include <eq/client/types.h>          // member
-#include <eq/client/api.h>
+#include <eq/visitorResult.h>  // enum
+#include <eq/types.h>          // member
+#include <eq/api.h>
 
 #include <eq/fabric/view.h>           // base class
 #include <eq/fabric/viewport.h>       // member

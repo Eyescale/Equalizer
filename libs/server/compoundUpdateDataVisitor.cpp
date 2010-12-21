@@ -19,7 +19,7 @@
 
 #include "compound.h"
 
-#include <eq/client/log.h>
+#include <eq/log.h>
 
 namespace eq
 {

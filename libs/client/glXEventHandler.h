@@ -18,9 +18,9 @@
 #ifndef EQ_GLXEVENTHANDLER_H
 #define EQ_GLXEVENTHANDLER_H
 
-#include <eq/client/eventHandler.h> // base class
-#include <eq/client/os.h>           // XEvent type
-#include <eq/client/types.h>        // basic typedefs
+#include <eq/eventHandler.h> // base class
+#include <eq/os.h>           // XEvent type
+#include <eq/types.h>        // basic typedefs
 
 #include <eq/base/thread.h> // thread-safety macro
 

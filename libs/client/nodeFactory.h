@@ -18,8 +18,8 @@
 #ifndef EQ_NODEFACTORY_H
 #define EQ_NODEFACTORY_H
 
-#include <eq/client/types.h>
-#include <eq/client/api.h>
+#include <eq/types.h>
+#include <eq/api.h>
 
 namespace eq
 {

@@ -22,7 +22,7 @@
 #include "swapBarrier.h"
 #include "window.h"
 
-#include <eq/client/log.h>
+#include <eq/log.h>
 #include <eq/fabric/iAttribute.h>
 
 namespace eq

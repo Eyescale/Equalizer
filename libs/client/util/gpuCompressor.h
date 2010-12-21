@@ -20,7 +20,7 @@
 
 #include "../../base/compressor.h" // base class
 #include <eq/fabric/types.h>
-#include <eq/client/api.h>
+#include <eq/api.h>
 
 namespace eq
 {

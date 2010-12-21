@@ -5,9 +5,9 @@
 # TODO: resolve two-way dependancy between client and util!
 
 set(UTIL_HEADERS
-  ../util.h
   accum.h
   accumBufferObject.h
+  base.h
   bitmapFont.h
   frameBufferObject.h
   objectManager.h

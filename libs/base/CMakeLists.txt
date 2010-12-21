@@ -5,9 +5,9 @@
 purple_add_library(eq_base ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/base/"
   FORWARD HEADERS
-    ../base.h
     api.h
     atomic.h
+    base.h
     bitOperation.h
     buffer.h
     clock.h

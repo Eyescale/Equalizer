@@ -21,8 +21,8 @@
 
 #include <eq/fabric/window.h>         // base class
 
-#include <eq/client/types.h>
-#include <eq/client/visitorResult.h> // enum
+#include <eq/types.h>
+#include <eq/visitorResult.h> // enum
 
 #include <eq/util/bitmapFont.h>      // member
 #include <eq/util/objectManager.h>   // member

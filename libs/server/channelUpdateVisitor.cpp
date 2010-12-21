@@ -30,11 +30,11 @@
 
 #include "channel.ipp"
 
-#include <eq/client/channelPackets.h>
-#include <eq/client/log.h>
-#include <eq/client/nodePackets.h>
-#include <eq/client/pipePackets.h>
-#include <eq/client/windowPackets.h>
+#include <eq/channelPackets.h>
+#include <eq/log.h>
+#include <eq/nodePackets.h>
+#include <eq/pipePackets.h>
+#include <eq/windowPackets.h>
 #include <eq/fabric/paths.h>
 
 #ifndef GL_BACK_LEFT

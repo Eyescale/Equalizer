@@ -1,5 +1,5 @@
-- Add header in server solution
-- add api.h and os.h in place to base.h 
+- Place base.h in each libs folder
+- Clean up repertory include
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

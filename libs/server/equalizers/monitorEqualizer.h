@@ -20,7 +20,7 @@
 
 #include "equalizer.h"          // base class
 
-#include <eq/client/types.h>
+#include <eq/types.h>
 #include <deque>
 #include <map>
 

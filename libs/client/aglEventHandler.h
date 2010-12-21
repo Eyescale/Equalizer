@@ -18,8 +18,8 @@
 #ifndef EQ_AGLEVENTHANDLER_H
 #define EQ_AGLEVENTHANDLER_H
 
-#include <eq/client/eventHandler.h> // base class
-#include <eq/client/os.h>           // AGL-specific types
+#include <eq/eventHandler.h> // base class
+#include <eq/os.h>           // AGL-specific types
 
 namespace eq
 {

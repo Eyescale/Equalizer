@@ -19,7 +19,7 @@
 #ifndef EQ_WINDOWPACKETS_H
 #define EQ_WINDOWPACKETS_H
 
-#include <eq/client/packets.h> // base structs
+#include <eq/packets.h> // base structs
 
 /** @cond IGNORE */
 namespace eq

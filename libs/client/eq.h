@@ -21,12 +21,12 @@
 #pragma warning(push)
 #pragma warning(disable : 4244) //conversion from .. to ..,possible loss of data
 
-#include <eq/client.h>
-
-#include <eq/util.h>
-#include <eq/fabric.h>
-#include <co/co.h>
 #include <eq/base.h>
+
+#include <eq/util/base.h>
+#include <eq/fabric/base.h>
+#include <co/co.h>
+#include <eq/base/base.h>
 
 #include <vmmlib/vmmlib.hpp>
 

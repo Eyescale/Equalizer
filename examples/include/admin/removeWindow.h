@@ -30,7 +30,7 @@
 
 #include "findPipe.h"
 
-#include <eq/admin.h>
+#include <eq/admin/base.h>
 
 namespace eqAdmin
 {

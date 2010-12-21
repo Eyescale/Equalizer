@@ -19,9 +19,9 @@
 #ifndef EQ_IMAGE_H
 #define EQ_IMAGE_H
 
-#include <eq/client/frame.h>         // for Frame::Buffer enum
-#include <eq/client/pixelData.h>     // member
-#include <eq/client/windowSystem.h>  // for OpenGL types
+#include <eq/frame.h>         // for Frame::Buffer enum
+#include <eq/pixelData.h>     // member
+#include <eq/windowSystem.h>  // for OpenGL types
 
 #include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/viewport.h>      // member

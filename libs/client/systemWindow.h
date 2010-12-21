@@ -19,9 +19,9 @@
 #ifndef EQ_SYSTEM_WINDOW_H
 #define EQ_SYSTEM_WINDOW_H
 
-#include <eq/client/types.h>
-#include <eq/client/window.h>         // Window::IAttribute enum
-#include <eq/client/windowSystem.h>   // GLEWContext
+#include <eq/types.h>
+#include <eq/window.h>         // Window::IAttribute enum
+#include <eq/windowSystem.h>   // GLEWContext
 
 namespace eq
 {

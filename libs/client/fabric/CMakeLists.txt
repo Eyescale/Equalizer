@@ -5,8 +5,8 @@
 purple_add_library(eq_fabric ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/fabric/"
   FORWARD HEADERS
-    ../fabric.h
     api.h
+    base.h
     canvas.h
     canvasPackets.h
     channel.h

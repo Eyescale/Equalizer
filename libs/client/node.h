@@ -19,13 +19,13 @@
 #ifndef EQ_NODE_H
 #define EQ_NODE_H
 
-#include <eq/client/types.h>
-#include <eq/client/visitorResult.h>  // enum
+#include <eq/types.h>
+#include <eq/visitorResult.h>  // enum
 #include <eq/fabric/node.h>           // base class
 
 #include <co/types.h>
 #include <eq/base/mtQueue.h>          // member
-#include <eq/client/api.h>
+#include <eq/api.h>
 
 namespace eq
 {

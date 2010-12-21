@@ -31,9 +31,9 @@
 #include "view.h"
 #include "window.h"
 
-#include <eq/client/channelPackets.h>
-#include <eq/client/log.h>
-#include <eq/client/windowPackets.h>
+#include <eq/channelPackets.h>
+#include <eq/log.h>
+#include <eq/windowPackets.h>
 #include <eq/fabric/paths.h>
 #include <co/command.h>
 #include <eq/base/os.h>

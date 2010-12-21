@@ -19,9 +19,9 @@
 #ifndef EQ_FRAME_H
 #define EQ_FRAME_H
 
-#include <eq/client/eye.h>    // enum Eye
-#include <eq/client/types.h>
-#include <eq/client/api.h>
+#include <eq/eye.h>    // enum Eye
+#include <eq/types.h>
+#include <eq/api.h>
 
 #include <eq/fabric/zoom.h>   // member
 #include <co/object.h>

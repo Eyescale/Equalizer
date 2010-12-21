@@ -19,7 +19,7 @@
 #define EQ_COMMANDQUEUE_H
 
 #include <co/commandQueue.h>    // base class
-#include <eq/client/windowSystem.h> // enum
+#include <eq/windowSystem.h> // enum
 
 namespace eq
 {

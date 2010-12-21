@@ -31,7 +31,7 @@
 #define EQ_PLY_CONFIG_H
 
 #include <eq/eq.h>
-#include <eq/admin.h>
+#include <eq/admin/base.h>
 
 // members
 #include "localInitData.h"

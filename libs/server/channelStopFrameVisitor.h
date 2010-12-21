@@ -16,7 +16,7 @@
  */
 
 #include "channel.h"
-#include "eq/client/channelPackets.h"
+#include "eq/channelPackets.h"
 #include "node.h"
 
 namespace eq

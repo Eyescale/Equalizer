@@ -3,18 +3,19 @@
 ##
 
 # TODO: resolve two-way dependancy between client and util!
+include(PurpleForwardHeaders)
 
 add_subdirectory( util )
 add_subdirectory( fabric )
 
 set(CLIENT_HEADERS
-  ../client.h
   aglEventHandler.h
   aglMessagePump.h
   aglPipe.h
   aglWindow.h
   aglWindowEvent.h
   api.h
+  base.h
   canvas.h
   channel.h
   channelPackets.h
@@ -154,8 +155,9 @@ if(EQ_GLX_USED)
 endif(EQ_GLX_USED)
 
 purple_add_library(eq_client ${EQ_LIB_VARIANT}
-  HEADERS_PREFIX "eq/client/"
+  HEADERS_PREFIX "eq/"
   FORWARD HEADERS
+    eq.h
     ${CLIENT_HEADERS}
   SOURCES
     ${CLIENT_SOURCES}

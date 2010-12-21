@@ -19,8 +19,8 @@
 #ifndef EQUTIL_TEXTURE_H
 #define EQUTIL_TEXTURE_H
 
-#include <eq/client/os.h>           // GLEW
-#include <eq/client/frame.h>        // Frame::Buffer enum
+#include <eq/os.h>           // GLEW
+#include <eq/frame.h>        // Frame::Buffer enum
 
 #include <eq/base/thread.h>         // thread debug macro
 #include <eq/base/nonCopyable.h>    // base class

@@ -25,7 +25,7 @@
 #include "view.h"
 #include "window.h"
 #include "swapBarrier.h"
-#include <eq/client/log.h>
+#include <eq/log.h>
 
 using namespace std;
 using namespace eq::base;

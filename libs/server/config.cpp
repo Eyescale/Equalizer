@@ -34,10 +34,10 @@
 #include "view.h"
 #include "window.h"
 
-#include <eq/client/clientPackets.h>
-#include <eq/client/configEvent.h>
-#include <eq/client/configPackets.h>
-#include <eq/client/error.h>
+#include <eq/clientPackets.h>
+#include <eq/configEvent.h>
+#include <eq/configPackets.h>
+#include <eq/error.h>
 #include <eq/fabric/configPackets.h>
 #include <eq/fabric/iAttribute.h>
 #include <eq/fabric/paths.h>

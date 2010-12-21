@@ -18,8 +18,8 @@
 #ifndef EQ_GLXMESSAGEPUMP_H
 #define EQ_GLXMESSAGEPUMP_H
 
-#include <eq/client/messagePump.h> // base class
-#include <eq/client/os.h>          // X11
+#include <eq/messagePump.h> // base class
+#include <eq/os.h>          // X11
 
 #include <co/connectionSet.h>  // member
 

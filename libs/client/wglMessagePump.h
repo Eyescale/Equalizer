@@ -18,7 +18,7 @@
 #ifndef EQ_WGLMESSAGEPUMP_H
 #define EQ_WGLMESSAGEPUMP_H
 
-#include <eq/client/messagePump.h> // base class
+#include <eq/messagePump.h> // base class
 
 namespace eq
 {

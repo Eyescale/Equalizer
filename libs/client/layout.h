@@ -18,9 +18,9 @@
 #ifndef EQ_LAYOUT_H
 #define EQ_LAYOUT_H
 
-#include <eq/client/api.h>
-#include <eq/client/types.h>
-#include <eq/client/visitorResult.h>  // enum
+#include <eq/api.h>
+#include <eq/types.h>
+#include <eq/visitorResult.h>  // enum
 
 #include <eq/fabric/layout.h>         // base class
 

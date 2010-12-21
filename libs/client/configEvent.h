@@ -18,8 +18,8 @@
 #ifndef EQ_CONFIGEVENT_H
 #define EQ_CONFIGEVENT_H
 
-#include <eq/client/event.h>   // member
-#include <eq/client/packets.h> // base class
+#include <eq/event.h>   // member
+#include <eq/packets.h> // base class
 
 namespace eq
 {

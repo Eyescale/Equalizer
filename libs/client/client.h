@@ -18,9 +18,9 @@
 #ifndef EQ_CLIENT_H
 #define EQ_CLIENT_H
 
-#include <eq/client/commandQueue.h> // member
-#include <eq/client/types.h>        // basic types
-#include <eq/client/api.h>
+#include <eq/commandQueue.h> // member
+#include <eq/types.h>        // basic types
+#include <eq/api.h>
 #include <eq/fabric/client.h>       // base class
 
 namespace eq

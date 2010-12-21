@@ -18,8 +18,8 @@
 #ifndef EQSERVER_FRAMEDATA_H
 #define EQSERVER_FRAMEDATA_H
 
-#include <eq/client/frameData.h>
-#include <eq/client/frame.h>      // for FrameType
+#include <eq/frameData.h>
+#include <eq/frame.h>      // for FrameType
 
 namespace eq
 {

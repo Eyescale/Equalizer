@@ -20,7 +20,7 @@
 
 #include <eq/fabric/api.h>
 
-#include <eq/client/types.h>
+#include <eq/types.h>
 #include <iostream>
 
 namespace eq

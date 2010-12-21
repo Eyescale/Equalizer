@@ -18,8 +18,8 @@
 #ifndef EQ_SEGMENT_H
 #define EQ_SEGMENT_H
 
-#include <eq/client/api.h>
-#include <eq/client/types.h>
+#include <eq/api.h>
+#include <eq/types.h>
 #include <eq/fabric/segment.h>        // base class
 
 namespace eq
