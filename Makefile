@@ -34,6 +34,9 @@ release/Makefile:
 	@mkdir -p release
 	@cd release; cmake .. -DCMAKE_BUILD_TYPE=Release
 
+package: release/Makefile
+	@$(MAKE) -C release clean
+	@$(MAKE) -C release package
 
 xcode:
 	@mkdir -p XCode
