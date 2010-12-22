@@ -30,21 +30,21 @@
 <h2>1. Introduction</h2>
 <p>
   Welcome to Equalizer, the standard middleware to create and deploy parallel,
-  scalable OpenGL applications. Equalizer 1.0-alpha introduces XXX
+  scalable OpenGL applications. This release introduces support for GPU
+  compression plugins, failure tolerance and an administrative API for runtime
+  configuration changes.
 </p>
 <p>
-<p>
-  Equalizer 1.0-alpha is a developer release, representing an early snapshot of
-  Equalizer 1.0 API. It is intended for application developers to provide
+  Equalizer 1.0-alpha is a developer release, representing the full feature set
+  and API of Equalizer 1.0. It is intended for application developers to provide
   feedback and preview the 1.0 release. Equalizer 1.0-alpha can be retrieved by
   downloading the
   <a href="http://www.equalizergraphics.com/downloads/Equalizer-0.9.2.tar.gz">source
-    code</a>.
-  , updating the subversion trunk to revision XXX (<code>svn up -r XXX</code>)
-  or by using:<br>
+    code</a>, updating the subversion trunk to revision XXX (<code>svn up -r
+    XXX</code>) or by using:<br>
   <code>svn co
-    https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.2</code>
-</p>
+    https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.2</code></br>
+  The internal version of this release is 0.9.2.
 </p>
 
 <a name="features"></a>
@@ -63,8 +63,9 @@
     multiple graphics cards, processors and computers to scale rendering
     performance, visual quality and display size.</li>
   <li><b>Distributed Execution:</b> Equalizer applications can be written to
-    support cluster-based execution. The task of distributing the application
-    data is facilitated by support for versioned, distributed objects.</li>
+    support cluster-based execution. Equalizer furnishes and uses the Collage
+    network library, a cross-platform C++ library for building heterogenous,
+    distributed applications.</li>
   <li><b>Support for Stereo and Immersive Environments:</b> Equalizer supports
     both active and passive stereo rendering, as well as head tracking and
     head-mounted displays used in immersive Virtual Reality installations.</li>
@@ -79,31 +80,31 @@
 
 <a name="newFeatures"></a>
 <h3>2.1. New Features</h3>
+<p>1.0-alpha (0.9.2):</p>
 <ul>
-  <li><a href="http://www.equalizergraphics.com/documents/design/stereoSwitch.html">Runtime
-      stereo switching</a> allows changing between mono and stereo rendering at
-    runtime.</li>
-  <li>Collage: a cross-platform C++ library for heterogenous, distributed
-    applications, formerly known as <code>eq::net</code> (beta technology
-    preview).</li>
+  <li>Collage: an object-oriented network library, formerly known
+    as <code>eq::net</code> (beta technology preview)</li>
   <li>CMake build system for all supported platforms</li>
-  <li><a href="http://www.equalizergraphics.com/documents/design/admin.html">Administrative
-      API</a> for runtime configuration changes (beta technology preview).</li>
-  <li><a href="http://www.equalizergraphics.com/documents/design/admin.html#slaveWrite">Slave
-      object commit</a> supports commiting changed data on a slave object
-    instance to the master instance.</li>
-  <li>Automatic compression of distributed object data.</li>
-  <li>Support for pixel formats with 10 bit per color component.</li>
   <li>Support
     for <a href="http://www.equalizergraphics.com/documents/Developer/API/plugins_2compressor_8h.html#_details">GPU-CPU
-      transfer and compression plugins</a>.</li>
+      transfer and compression plugins</a></li>
   <li><a href="http://www.equalizergraphics.com/documents/design/nodeFailure.html">Failure
-      tolerance</a> during initialization.</a>
+     tolerance</a> during initialization</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/admin.html">Administrative
+      API</a> for runtime configuration changes (beta technology preview)</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/stereoSwitch.html">Runtime
+      stereo switching</a> allows to swtich between mono and stereo
+      rendering</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/admin.html#slaveWrite">Slave
+      object commit</a> supports commiting changed data on a slave object
+    instance to the master instance</li>
+  <li>Automatic compression of distributed object data</li>
+  <li>Support for pixel formats with 10 bit per color component</li>
   <li><a href="http://www.equalizergraphics.com/documents/design/Capabilities.html">Rendering capabilities</a>
-    allow application-dependent (de-)activation of channels.</li>
+    allow application-dependent (de-)activation of channels</li>
   <li><a href="http://www.equalizergraphics.com/documents/design/stopFrames.html">Interruptible
       rendering</a> allows applications to stop rendering on all pending
-    frames.</li>
+    frames</li>
 </ul>
 <p>0.9.1:</p>
 <ul>
@@ -116,8 +117,17 @@
 
 <a name="enhancements"></a>
 <h3>2.2. Enhancements</h3>
+<p>1.0-alpha (0.9.2):</p>
 <ul>
   <li>Support for Windows 7</li>
+  <li>Upgraded <a href="http://glew.sourceforge.net">GLEW</a> to version
+    1.5.7.3</li>
+  <li>Structured <a href="http://www.equalizergraphics.com/documents/design/errorHandling.html">error reporting</a></li>
+  <li>Statistics overlay: Add compression and download ratio, render overlay
+    without usage of depth buffer</li>
+  <li>CPU compression plugins: allow different output from input token</li>
+  <li>New command line argument <code>--eq-logfile</code></li>
+  <li>New compound auto stereo mode detection (active, anaglyph, passive)</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2809019&group_id=170962&atid=856212">RFE
   2809019</a>: Specify connection from a config file when using appNode</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=3086646&group_id=170962&atid=856212">RFE
@@ -126,14 +136,6 @@
       3036064</a>: View and load equalizer should consider network times</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2927688&group_id=170962&atid=856212">RFE
       2927688</a>: Loadbalancer tile sizes should not exceed channel PVP's</li>
-  <li>Statistics overlay: Add compression and download ratio, render overlay
-    without usage of depth buffer</li>
-  <li>CPU compression plugins: allow different output from input token</li>
-  <li>New command line argument <code>--eq-logfile</code></li>
-  <li>New compound auto stereo mode detection (active, anaglyph, passive)</li>
-  <li>Structured <a href="http://www.equalizergraphics.com/documents/design/errorHandling.html">error reporting</a>.</li>
-  <li>Upgraded <a href="http://glew.sourceforge.net">GLEW</a> to version
-    1.5.7.2</li>
 </ul>
 <p>0.9.1:</p>
 <ul>
@@ -152,10 +154,11 @@
 
 <a name="optimizations"></a>
 <h3>2.3. Optimizations</h3>
+<p>1.0-alpha (0.9.2):</p>
 <ul>
-  <li>Mac OS X: Use SpinLocks over pthread locks for improved performance (250x)
-    in various places.</li>
-  <li>Collage: Simplify and optimize command packet dispatch and invocation</li>
+  <li>Mac OS X: Use SpinLocks over pthread locks for significantly improved
+    performance in various places</li>
+  <li>Collage: Simplify and speed up command packet dispatch and invocation</li>
   <li>Collage: Optimize RSP multicast using sliding ack window with early
     acks</li>
   <li>Collage: Send object instance data during registration to accelerate
@@ -170,10 +173,12 @@
 
 <a name="examples"></a>
 <h3>2.4. Examples</h3>
+<p>1.0-alpha (0.9.2):</p>
 <ul>
   <li>New <a href="http://www.equalizergraphics.com/documents/WhitePapers/OpenSceneGraphClustering.pdf">OSGScaleViewer</a>
     example, evolved from eqOSG contribution</li>
   <li>EqPly: Run-time configurable image quality</li>
+  <li>EqPly: Run-time toggling of idle anti-aliasing</li>
 </ul>
 <p>0.9.1:</p>
 <ul>
@@ -192,14 +197,12 @@
 <h3>2.6. API Changes</h3>
 <p>
   The following changes breaking compatibility with Equalizer 0.6 source code
-  were made: (CHANGES.txt)
+  were made:
 </p>
-<ul>
-  <li>Type definitions for <code>vectors of Foo*</code> have changed
-    from <code>FooVector</code> to <code>Foos</code>.
-  <li><code>OSPipe</code> and <code>OSWindow</code> have been renamed
-    to <code>SystemPipe</code> and <code>SystemWindow</code>, respectively</li>
-</ul>
+<p>
+  1.0-alpha (0.9.2): API changes for this release have been tracked
+  in <a href="https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.2/CHANGES.txt">CHANGES.txt</a>.
+</p>
 <p>0.9.1:</p>
 <ul>
   <li>The utility classes <code>Accum</code>, <code>AccumBufferObject</code>,
@@ -217,12 +220,37 @@
   The following documentation has been added or substantially improved since the
   last release:
 </p>
+<p>1.0-alpha (0.9.2):</p>
 <ul>
   <li>The <a href="http://www.equalizergraphics.com/survey.html">Programming and
       User Guide</a> has been extended to 100 pages and 55 figures.</li>
-  <li><a href="http://www.equalizergraphics.com/documents/design/.html">The
-  XXX</a></li>
+  <li>Full <a href="http://www.equalizergraphics.com/documents/Developer/API/index.html">API
+      documentation</a> for the public Equalizer API.</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/errorHandling.html">Error
+      handling</a> structures error reporting, mostly during
+      initialization.</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/stopFrames.html">Interruptible
+      rendering</a> allows applications to stop rendering on all pending
+    frames.</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/Capabilities.html">Rendering
+      capabilities</a> allow application-dependent deactivation of
+    channels.</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/admin.html">Administrative
+      API</a> for runtime configuration changes.</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/stereoSwitch.html">Runtime
+      stereo switching</a> allows to change the rendering between mono and
+    stereo at runtime, with different scalability compounds.</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/nodeFailure.html">Failure
+      tolerance</a> during initialization.</li>
 </ul>
+<p>0.9.1:</p>
+<ul>
+  <li><a href="/documents/design/subpixelCompound.html">Subpixel Compound</a>
+      for full-scene anti-aliasing (FSAA) or depth-of-field (DOF).</li>
+  <li><a href="/documents/design/multicast.html">Data distribution and data
+      updates using reliable UDP multicast</a>.</li>
+</ul>
+
 
 <a name="bugfixes"></a>
 <h3>2.8. Bug Fixes</h3>
@@ -230,11 +258,18 @@
   Equalizer 1.0-alpha includes various bugfixes over the 0.9 release,
   including the following:
 </p>
+<p>1.0-alpha (0.9.2):</p>
 <ul>
+  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2976899&group_id=170962&atid=856209">2976899</a>:
+    Config::finishFrame deadlocks when no nodes are active</li>
+  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2994111&group_id=170962&atid=856209">2994111</a>:
+    Rounding errors with 2D LB and 16 sources</li>
+  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=3137933&group_id=170962&atid=856209">3137933</a>:
+    GLXEW init buggy</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2882248&group_id=170962&atid=856209">2882248</a>:
-  Spurious network deadlocks on Win32</a>
-<li><a href="https://sourceforge.net/tracker/?func=detail&aid=3071764&group_id=170962&atid=856209">3071764</a>:
-  GLX: No distinction between lowercase and uppercase keys
+    Spurious network deadlocks on Win32</li>
+  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=3071764&group_id=170962&atid=856209">3071764</a>:
+    GLX: No distinction between lowercase and uppercase keys</li>
 </ul>
 <p>0.9.1:</p>
 <ul>
@@ -242,7 +277,8 @@
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2834063&group_id=170962&atid=856209">2834063</a>: eqPly and eVolve freezes on Mac with glX</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2828296&group_id=170962&atid=856209">2828269</a>: eVolve depth compositing is broken</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2642034&group_id=170962&atid=856209">2642034</a>: Win32: max 64 connections possible</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2874188&group_id=170962&atid=856209">2874188</a>: Lockup at shutdown</li>
+  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2874188&group_id=170962&atid=856209">2874188</a>:
+    Occasional lockup at shutdown</li>
 </ul>
 
 <a name="knownbugs"></a>
@@ -337,6 +373,7 @@
 
 <a name="errata"></a>
 <h2>4. Errata</h2>
+<p>0.9.1:</p>
 <ul>
   <li><a href="http://equalizer.svn.sourceforge.net/viewvc/equalizer/tags/release-0.9.1/patches/wgl_no_glew.patch?view=markup">Patch</a>
     to fix occasional compilation errors on Windows when using
