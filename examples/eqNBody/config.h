@@ -41,8 +41,8 @@ namespace eqNbody
     class Config : public eq::Config
     {
     public:
-        Config( eq::base::RefPtr< eq::Server > parent );
-				
+        Config( eq::ServerPtr parent );
+
         virtual bool init();
         virtual bool exit();
 		

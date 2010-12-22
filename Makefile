@@ -62,6 +62,7 @@ docs: ../website/build/documents/Developer/API
 	$(DOXYGEN) Doxyfile.co
 
 docs/install: docs/Makefile
+	@rm -rf $@
 	@$(MAKE) -C docs install
 
 docs/Makefile:

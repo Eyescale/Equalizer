@@ -44,13 +44,13 @@ if(GLEW_FOUND)
 endif(GLEW_FOUND)
 
 if(NOT GLEW_FOUND OR NOT GLEW_MX_SUPPORTED)
-  message(STATUS "  GLEW will be built by Equalizer.")
 
-  set(GLEW_NAME glew-1.5.7.2)
+  set(GLEW_NAME glew-1.5.7.3)
   set(GLEW_TGZ ${CMAKE_SOURCE_DIR}/externals/${GLEW_NAME}.tgz)
   set(GLEW_DIR ${CMAKE_BINARY_DIR}/${GLEW_NAME})
 
   if(NOT EXISTS ${GLEW_DIR})
+    message(STATUS "  Extracting GLEW to ${GLEW_DIR}")
     execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
       ${GLEW_TGZ} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
   endif(NOT EXISTS ${GLEW_DIR})

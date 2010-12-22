@@ -15,7 +15,7 @@
  */
 
 /**
- * @file co/precompile.h
+ * @file collage/precompile.h
  *
  * Include headers that don't change... STL, Boost, other third-party stuff.
  * Don't include any Equalizer headers here!
