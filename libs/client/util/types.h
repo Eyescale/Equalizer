@@ -38,7 +38,7 @@ typedef std::vector< Texture* >  Textures;
 class GPUCompressor; //!< @internal
 
 #ifdef EQ_USE_DEPRECATED
-typedef Textures TextureVector
+typedef Textures TextureVector;
 #endif
 }
 }

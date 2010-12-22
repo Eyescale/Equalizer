@@ -23,7 +23,7 @@
 #include <string>
 
 /**
- * @file client/os.h
+ * @file eq/os.h
  * 
  * Includes operating system headers for OpenGL and the used window system(s)
  * correctly. Include this file first if you have problems with OpenGL

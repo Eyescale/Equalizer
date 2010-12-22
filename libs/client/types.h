@@ -197,7 +197,7 @@ typedef Views ViewVector;
 typedef Viewports ViewportVector;
 typedef PixelViewports PixelViewportVector;
 typedef Statistics StatisticVector;
-typedef Strings StringVector
+typedef Strings StringVector;
 #endif
 }
 #endif // EQ_TYPES_H
