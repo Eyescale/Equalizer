@@ -48,10 +48,9 @@ add_subdirectory(server)
 
 purple_add_library(eq ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/"
-  HEADERS
+  SOURCES
     client/eq.h
     ${CLIENT_HEADERS}
-  SOURCES
     ${COMPRESSOR_SOURCES}
   LINK_LIBRARIES
     shared eq_base

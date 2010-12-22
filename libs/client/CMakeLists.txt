@@ -159,6 +159,14 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
   FORWARD HEADERS
     eq.h
     ${CLIENT_HEADERS}
+    util/accum.h
+    util/accumBufferObject.h
+    util/base.h
+    util/bitmapFont.h
+    util/frameBufferObject.h
+    util/objectManager.h
+    util/texture.h
+    util/types.h
   SOURCES
     ${CLIENT_SOURCES}
     ${UTIL_SOURCES}

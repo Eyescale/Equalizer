@@ -17,7 +17,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DEQSERVER_EXPORTS -DYY_NEVER_INTERACTIVE)
 
 purple_add_library(EqualizerServer SHARED
-	HEADERS  
+  SOURCES
+    ${BISON_PARSER_OUTPUTS}
+    ${FLEX_LEXER_OUTPUTS}
 	  api.h
 	  config.h
 	  init.h
@@ -71,9 +73,6 @@ purple_add_library(EqualizerServer SHARED
 	  compoundVisitor.h
 	  global.h
 	  window.h
-  SOURCES
-    ${BISON_PARSER_OUTPUTS}
-    ${FLEX_LEXER_OUTPUTS}
     canvas.cpp
     channel.cpp
     channelUpdateVisitor.cpp

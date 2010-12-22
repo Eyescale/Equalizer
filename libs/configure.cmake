@@ -82,4 +82,4 @@ file(APPEND ${DEFINES_FILE_IN}
   )
 
 configure_file(${DEFINES_FILE_IN} ${DEFINES_FILE} COPYONLY)
-install(FILES ${DEFINES_FILE} DESTINATION include/eq/base/ COMPONENT dev)
+install(FILES ${DEFINES_FILE} DESTINATION include/co/base/ COMPONENT dev)
