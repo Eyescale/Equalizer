@@ -4,8 +4,8 @@
 
 # TODO: resolve two-way dependancy between client and util!
 include(PurpleForwardHeaders)
+include(util/files.cmake)
 
-add_subdirectory( util )
 add_subdirectory( fabric )
 
 set(CLIENT_HEADERS
@@ -159,14 +159,7 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
   FORWARD HEADERS
     eq.h
     ${CLIENT_HEADERS}
-    util/accum.h
-    util/accumBufferObject.h
-    util/base.h
-    util/bitmapFont.h
-    util/frameBufferObject.h
-    util/objectManager.h
-    util/texture.h
-    util/types.h
+    ${UTIL_HEADERS}
   SOURCES
     ${CLIENT_SOURCES}
     ${UTIL_SOURCES}
