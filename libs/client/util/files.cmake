@@ -9,6 +9,7 @@ set(UTIL_HEADERS
   util/accumBufferObject.h
   util/base.h
   util/bitmapFont.h
+  util/bitmapFont.ipp
   util/frameBufferObject.h
   util/objectManager.h
   util/objectManager.ipp
