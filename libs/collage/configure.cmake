@@ -1,36 +1,36 @@
+##
+# Path : libs/collage/configure.cmake
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010 Stefan Eilemann <eile@eyescale.ch>
+#               2010 Cedric Stalder <cedric.stalder@gmail.ch>
+##
 
-set(EQUALIZER_DEFINES)
-
-# always define GLEW_MX
-list(APPEND EQUALIZER_DEFINES GLEW_MX)
+set(COLLAGE_DEFINES)
 
 # is the LITTLE_ENDIAN macro actually used?
 # maybe use BOOST_LITTLE_ENDIAN and BOOST_BIG_ENDIAN instead?
 include(TestBigEndian)
 test_big_endian(EQ_BIG_ENDIAN)
 if(NOT EQ_BIG_ENDIAN)
-  list(APPEND EQUALIZER_DEFINES LITTLE_ENDIAN)
+  list(APPEND COLLAGE_DEFINES LITTLE_ENDIAN)
 endif(NOT EQ_BIG_ENDIAN)
 
 # if Boost is considered as a required dep, this macro should be obsolete
 if(Boost_FOUND)
-  list(APPEND EQUALIZER_DEFINES EQ_USE_BOOST)
+  list(APPEND COLLAGE_DEFINES EQ_USE_BOOST)
 endif(Boost_FOUND)
 
-if(EQ_OPENMP_USED)
-  list(APPEND EQUALIZER_DEFINES EQ_USE_OPENMP)
-endif(EQ_OPENMP_USED)
+if(CO_OPENMP_USED)
+  list(APPEND COLLAGE_DEFINES EQ_USE_OPENMP)
+endif(CO_OPENMP_USED)
 
 if(CUDA_FOUND)
-  list(APPEND EQUALIZER_DEFINES EQ_USE_CUDA)
+  list(APPEND COLLAGE_DEFINES EQ_USE_CUDA)
 endif(CUDA_FOUND)
 
 # maybe use BOOST_WINDOWS instead?
 if(WIN32)
-  list(APPEND EQUALIZER_DEFINES
-    WGL
+  list(APPEND COLLAGE_DEFINES
     WIN32
     WIN32_API
     WIN32_LEAN_AND_MEAN
@@ -39,25 +39,13 @@ if(WIN32)
   set(ARCH Win32)
 endif(WIN32)
 
-if(MSVC)
-  list(APPEND EQUALIZER_DEFINES EQ_PGM EQ_USE_MAGELLAN)
-endif(MSVC)
-
-if(EQ_AGL_USED)
-  list(APPEND EQUALIZER_DEFINES AGL)
-endif(EQ_AGL_USED)
-
-if(EQ_GLX_USED)
-  list(APPEND EQUALIZER_DEFINES GLX)
-endif(EQ_GLX_USED)
-
 if(APPLE)
-  list(APPEND EQUALIZER_DEFINES Darwin)
+  list(APPEND COLLAGE_DEFINES Darwin)
   set(ARCH Darwin)
 endif(APPLE)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-  list(APPEND EQUALIZER_DEFINES Linux)
+  list(APPEND COLLAGE_DEFINES Linux)
   set(ARCH Linux)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
@@ -65,20 +53,20 @@ set(DEFINES_FILE ${EQ_INCLUDE_DIR}/co/base/defines${ARCH}.h)
 set(DEFINES_FILE_IN ${CMAKE_CURRENT_BINARY_DIR}/defines.h.in)
 
 file(WRITE ${DEFINES_FILE_IN}
-  "#ifndef EQBASE_DEFINES_${ARCH}_H\n"
-  "#define EQBASE_DEFINES_${ARCH}_H\n\n"
+  "#ifndef COBASE_DEFINES_${ARCH}_H\n"
+  "#define COBASE_DEFINES_${ARCH}_H\n\n"
   )
 
-foreach(DEF ${EQUALIZER_DEFINES})
+foreach(DEF ${COLLAGE_DEFINES})
   file(APPEND ${DEFINES_FILE_IN}
     "#ifndef ${DEF}\n"
     "#  define ${DEF}\n"
     "#endif\n"
     )
-endforeach(DEF ${EQUALIZER_DEFINES})
+endforeach(DEF ${COLLAGE_DEFINES})
 
 file(APPEND ${DEFINES_FILE_IN}
-  "\n#endif /* EQBASE_DEFINES_${ARCH}_H */\n"
+  "\n#endif /* COBASE_DEFINES_${ARCH}_H */\n"
   )
 
 configure_file(${DEFINES_FILE_IN} ${DEFINES_FILE} COPYONLY)

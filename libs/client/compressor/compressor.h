@@ -20,20 +20,22 @@
 #define EQ_PLUGIN_COMPRESSOR 
 
 #include <co/plugins/compressor.h>
-
+#include <co/api.h>
 #include <co/base/os.h>
 #include <co/base/buffer.h>
+#include "..\..\collage\compressor\compressor.h"
 #include <vector>
 #ifdef _WIN32
 #  include <malloc.h>
 #endif
+
+
 
 /**
  * @file compressor/compressor.h
  * 
  * Compression plugin provided with Equalizer.
  */
-
 namespace eq
 {
 namespace plugin
@@ -49,6 +51,8 @@ namespace plugin
                                       const eq_uint64_t, const bool );
         typedef bool ( *IsCompatible_t ) ( const GLEWContext* );
 
+        typedef co::plugin::Compressor::Functions Functions;
+/*
         struct Functions
         {
             Functions( const unsigned name, CompressorGetInfo_t getInfo,
@@ -62,7 +66,8 @@ namespace plugin
             NewCompressor_t      newDecompressor;
             Decompress_t         decompress;
             IsCompatible_t       isCompatible;
-        };
+        };*/
+
 
         /** Construct a new compressor. */
         Compressor();

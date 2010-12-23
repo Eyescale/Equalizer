@@ -25,7 +25,7 @@ static const uint8_t _rleMarker = 0x17; // just a random number
 
 #include "compressorRLE.ipp"
 
-namespace eq
+namespace co
 {
 namespace plugin
 {

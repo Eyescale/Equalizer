@@ -284,18 +284,6 @@ namespace co
             { return _commandCache.clone( command ); }
 
         /** 
-<<<<<<< Updated upstream
-=======
-         * Invokes the command handler method for the packet.
-         * 
-         * @param command the command.
-         * @return true if the result of the operation is handled.
-         * @sa Dispatcher::invokeCommand
-         */
-        CO_API bool invokeCommand( Command& command );
-
-        /** 
->>>>>>> Stashed changes
          * Dispatches a packet to the registered command queue.
          * 
          * @param command the command.

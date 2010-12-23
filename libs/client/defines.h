@@ -1,6 +1,5 @@
-
-/* Copyright (c) 2010, Daniel Pfeifer <daniel@pfeifer-mail.de>
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+ 
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,24 +15,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef CO_API_H
-#define CO_API_H
+#ifndef EQ_DEFINES_H
+#define EQ_DEFINES_H
 
-#include <co/base/os.h>
+#include <co/base/defines.h>
 
-
-#ifdef EQ_USE_DEPRECATED
-namespace co{}
-/** Deprecated namespace eq::net */
-namespace eq{ namespace net = co; }
+#ifdef __APPLE__
+#  include <eq/definesDarwin.h>
+#endif
+#ifdef __linux
+#  include <eq/definesLinux.h>
+#endif
+#ifdef _WIN32 //_MSC_VER
+#  include <eq/definesWin32.h>
 #endif
 
-#if defined(CO_STATIC)
-#  define CO_API
-#elif defined(CO_SHARED)
-#  define CO_API EQ_DLLEXPORT
-#else
-#  define CO_API EQ_DLLIMPORT
-#endif
-
-#endif //CO_API_H
+#endif // EQBASE_DEFINES_H

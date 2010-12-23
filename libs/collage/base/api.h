@@ -33,9 +33,9 @@
 #  define EQ_DLLIMPORT
 #endif // _MSC_VER
 
-#if defined(EQ_BASE_STATIC)
+#if defined(CO_BASE_STATIC)
 #  define EQBASE_API
-#elif defined(EQ_BASE_SHARED)
+#elif defined(CO_BASE_SHARED)
 #  define EQBASE_API EQ_DLLEXPORT
 #else
 #  define EQBASE_API EQ_DLLIMPORT

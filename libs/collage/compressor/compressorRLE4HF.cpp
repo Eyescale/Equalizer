@@ -26,7 +26,7 @@ static const uint16_t _rleMarker = 0xffff;
 
 #include "compressorRLE.ipp"
 
-namespace eq
+namespace co
 {
 namespace plugin
 {

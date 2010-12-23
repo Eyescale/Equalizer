@@ -17,12 +17,12 @@
  */
 
  
-#ifndef EQ_PLUGIN_COMPRESSORRLE4BU
-#define EQ_PLUGIN_COMPRESSORRLE4BU
+#ifndef CO_PLUGIN_COMPRESSORRLE4BU
+#define CO_PLUGIN_COMPRESSORRLE4BU
 
 #include "compressor.h"
 
-namespace eq
+namespace co
 {
 namespace plugin
 {
@@ -41,11 +41,11 @@ public:
                             const eq_uint64_t nPixels, const bool useAlpha );
 
     static void* getNewCompressor( const unsigned name )
-        { return new eq::plugin::CompressorRLE4BU; }
+        { return new co::plugin::CompressorRLE4BU; }
 
     static void* getNewDecompressor( const unsigned name ){ return 0; }
 };
 
 }
 }
-#endif // EQ_PLUGIN_COMPRESSORRLE4BU
+#endif // CO_PLUGIN_COMPRESSORRLE4BU

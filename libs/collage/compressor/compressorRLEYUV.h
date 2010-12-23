@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,21 +16,21 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-#ifndef EQ_PLUGIN_COMPRESSORRLE4B
-#define EQ_PLUGIN_COMPRESSORRLE4B
+#ifndef CO_PLUGIN_COMPRESSORRLEYUV
+#define CO_PLUGIN_COMPRESSORRLEYUV
 
 #include "compressor.h"
 
-namespace eq
+namespace co
 {
 namespace plugin
 {
 
-class CompressorRLE4B : public Compressor
+class CompressorRLEYUV : public Compressor
 {
 public:
-    CompressorRLE4B() : Compressor() {}
-    virtual ~CompressorRLE4B() {}
+    CompressorRLEYUV(): Compressor() {}
+    virtual ~CompressorRLEYUV() {}
 
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
                            const bool useAlpha )
@@ -41,38 +41,34 @@ public:
                             const unsigned nInputs, void* const outData, 
                             const eq_uint64_t nPixels, const bool useAlpha );
     
-
     static void* getNewCompressor( const unsigned name )
-                           { return new eq::plugin::CompressorRLE4B; }
-    static void* getNewDecompressor( const unsigned name ){ return 0; }
+        { return new co::plugin::CompressorRLEYUV; }
 
+    static void* getNewDecompressor( const unsigned name ){ return 0; }
+    
 protected:
     void compress( const void* const inData, const eq_uint64_t nPixels, 
                    const bool useAlpha, const bool swizzle );
 };
 
-
-
-class CompressorDiffRLE4B : public CompressorRLE4B
+class CompressorDiffRLEYUV : public CompressorRLEYUV
 {
 public:
-    CompressorDiffRLE4B() : CompressorRLE4B() {}
-    virtual ~CompressorDiffRLE4B() {}
+    CompressorDiffRLEYUV() : CompressorRLEYUV() {}
+    virtual ~CompressorDiffRLEYUV() {}
 
-    /** get a new instance of compressor RLE 4 bytes and swizzle data. */
-    static void* getNewCompressor( const unsigned name )
-        { return new eq::plugin::CompressorDiffRLE4B; }
+    static void* getNewCompressor( const unsigned name  )
+        { return new co::plugin::CompressorDiffRLEYUV; }
     
     virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
                            const bool useAlpha )
-        { CompressorRLE4B::compress( inData, nPixels, useAlpha, true ); }
+        { CompressorRLEYUV::compress( inData, nPixels, useAlpha, true ); }
 
     static void decompress( const void* const* inData, 
                             const eq_uint64_t* const inSizes, 
                             const unsigned nInputs, void* const outData, 
                             const eq_uint64_t nPixels, const bool useAlpha );
 };    
-
 }
 }
-#endif // EQ_PLUGIN_COMPRESSORRLE4B
+#endif // CO_PLUGIN_COMPRESSORRLEYUV

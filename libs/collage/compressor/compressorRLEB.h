@@ -16,12 +16,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-#ifndef EQ_PLUGIN_COMPRESSORRLEB
-#define EQ_PLUGIN_COMPRESSORRLEB
+#ifndef CO_PLUGIN_COMPRESSORRLEB
+#define CO_PLUGIN_COMPRESSORRLEB
 
 #include "compressor.h"
 
-namespace eq
+namespace co
 {
 namespace plugin
 {
@@ -42,7 +42,7 @@ public:
     
 
     static void* getNewCompressor( const unsigned name )
-        { return new eq::plugin::CompressorRLEB; }
+        { return new co::plugin::CompressorRLEB; }
     static void* getNewDecompressor( const unsigned name ){ return 0; }
 };
 }

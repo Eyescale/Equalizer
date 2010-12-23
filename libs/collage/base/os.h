@@ -30,13 +30,6 @@
 #    define USE_SYS_TYPES_FD_SET
 #  endif
 #  define _USE_MATH_DEFINES
-#  ifndef _WIN32_WINNT
-#    ifdef EQ_USE_MAGELLAN
-#      define _WIN32_WINNT 0x501 // XP
-#    else
-#      define _WIN32_WINNT 0x500 // 2000
-#    endif
-#  endif
 #  define WIN32_LEAN_AND_MEAN
 #  ifndef NOMINMAX
 #    define NOMINMAX

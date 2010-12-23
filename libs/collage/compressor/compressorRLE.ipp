@@ -109,7 +109,7 @@ public:
 template< typename PixelType, typename ComponentType,
           typename swizzleFunc, typename alphaFunc >
 static inline void _compress( const void* const input, const uint64_t nPixels,
-                              eq::plugin::Compressor::Result** results )
+                              co::plugin::Compressor::Result** results )
 {
     if( nPixels == 0 )
     {
@@ -272,7 +272,7 @@ static inline void _decompress( const void* const* inData,
 
 static unsigned _setupResults( const unsigned nChannels,
                                const eq_uint64_t inSize,
-                               eq::plugin::Compressor::ResultVector& results )
+                               co::plugin::Compressor::ResultVector& results )
 {
     // determine number of chunks and set up output data structure
 #ifdef EQ_USE_OPENMP
@@ -286,7 +286,7 @@ static unsigned _setupResults( const unsigned nChannels,
 #endif
 
     while( results.size() < nChunks )
-        results.push_back( new eq::plugin::Compressor::Result );
+        results.push_back( new co::plugin::Compressor::Result );
 
     // The maximum possible size is twice the input size for each chunk, since
     // the worst case scenario is input made of tupels of 'rle marker, data'
@@ -303,7 +303,7 @@ template< typename PixelType, typename ComponentType,
           typename swizzleFunc, typename alphaFunc >
 static inline unsigned _compress( const void* const inData,
                                   const eq_uint64_t nPixels,
-                                eq::plugin::Compressor::ResultVector& results )
+                                co::plugin::Compressor::ResultVector& results )
 {
     const uint64_t size = nPixels * sizeof( PixelType );
     const unsigned nChunks = _setupResults( 4, size, results );

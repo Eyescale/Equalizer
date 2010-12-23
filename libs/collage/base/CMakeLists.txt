@@ -1,86 +1,23 @@
 ##
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+# Copyright (c) 2010 Cedric Stalder <cedric.stalder@gmail.ch>
 ##
+include(PurpleAddLibrary)
+include(${CMAKE_CURRENT_SOURCE_DIR}/files.cmake)
 
-purple_add_library(eq_base ${EQ_LIB_VARIANT}
+source_group( "plugin" FILES ${PLUGIN_HEADERS} )
+source_group( "base" FILES ${COBASE_FORWARD_HEADERS} ${COBASE_HEADERS} ${COBASE_SOURCES})
+
+purple_add_library(co_base ${CO_LIB_VARIANT}
   HEADERS_PREFIX "co/base/"
   FORWARD HEADERS
-    api.h
-    atomic.h
-    base.h
-    bitOperation.h
-    buffer.h
-    clock.h
-    compareAndSwap.h
-    compiler.h
-    condition.h
-    debug.h
-    defines.h
-    dso.h
-    error.h
-    errorRegistry.h
-    executionListener.h
-    file.h
-    global.h
-    hash.h
-    init.h
-    launcher.h
-    lfQueue.h
-    lock.h
-    lockable.h
-    log.h
-    memoryMap.h
-    monitor.h
-    mtQueue.h
-    nonCopyable.h
-    omp.h
-    os.h
-    perThread.h
-    perThreadRef.h
-    pluginRegistry.h
-    pool.h
-    refPtr.h
-    referenced.h
-    requestHandler.h
-    rng.h
-    scopedMutex.h
-    sleep.h
-    spinLock.h
-    stdExt.h
-    thread.h
-    threadID.h
-    timedLock.h
-    types.h
-    uint128_t.h
-    uuid.h
+    ${COBASE_FORWARD_HEADERS}
   PRECOMPILE_HEADERS
     <pthread.h>
     precompile.h
   SOURCES
-    clock.cpp
-    compressor.cpp
-    condition.cpp
-    cpuCompressor.cpp
-    debug.cpp
-    dso.cpp
-    error.cpp
-    errorRegistry.cpp
-    global.cpp
-    init.cpp
-    launcher.cpp
-    lock.cpp
-    log.cpp
-    memoryMap.cpp
-    omp.cpp
-    plugin.cpp
-    pluginRegistry.cpp
-    referenced.cpp
-    requestHandler.cpp
-    rng.cpp
-    thread.cpp
-    threadID.cpp
-    timedLock.cpp
-    uuid.cpp
+    ${COBASE_SOURCES}
+	${COBASE_HEADERS}
   LINK_LIBRARIES
     ${PTHREAD_LIBRARIES}
   )

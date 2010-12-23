@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2009-2010, Sarah Amsellem <sarah.amsellem@gmail.com> 
+ *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,41 +16,38 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
  
-#ifndef EQ_PLUGIN_COMPRESSORRLE10A2
-#define EQ_PLUGIN_COMPRESSORRLE10A2
+#ifndef CO_PLUGIN_COMPRESSOR_DIFF_RLE_565
+#define CO_PLUGIN_COMPRESSOR_DIFF_RLE_565
 
 #include "compressor.h"
 
-namespace eq
+namespace co
 {
 namespace plugin
 {
 
-class CompressorRLE10A2 : public Compressor
+class CompressorRLE565 : public Compressor
 {
 public:
-    CompressorRLE10A2() : Compressor() {}
-    virtual ~CompressorRLE10A2() {}
+    CompressorRLE565(): Compressor() {}
+    virtual ~CompressorRLE565() {}
 
-    virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
-                           const bool useAlpha )
-        { compress( inData, nPixels, useAlpha, false ); }
+    /** Get a new instance of this compressor */
+    static void* getNewCompressor( const unsigned name )
+        { return new co::plugin::CompressorRLE565; }
     
+    /** Not used. */
+    static void* getNewDecompressor( const unsigned name ){ return 0; }
+    
+    virtual void compress( const void* const inData, const eq_uint64_t nPixels, 
+                           const bool useAlpha );
+
     static void decompress( const void* const* inData, 
                             const eq_uint64_t* const inSizes, 
                             const unsigned nInputs, void* const outData, 
                             const eq_uint64_t nPixels, const bool useAlpha );
-    
-
-    static void* getNewCompressor( const unsigned name )
-        { return new eq::plugin::CompressorRLE10A2; }
-    static void* getNewDecompressor( const unsigned name ){ return 0; }
-
-protected:
-    void compress( const void* const inData, const eq_uint64_t nPixels, 
-                   const bool useAlpha, const bool swizzle );
 };
 
 }
 }
-#endif // EQ_PLUGIN_COMPRESSORRLE10A2
+#endif // CO_PLUGIN_COMPRESSOR_DIFF_RLE_565

@@ -17,7 +17,7 @@
 
 #ifndef EQCLIENT_API_H
 #define EQCLIENT_API_H
-
+#include <eq/defines.h>
 #include <eq/fabric/api.h>
 
 #if defined(EQ_CLIENT_STATIC)

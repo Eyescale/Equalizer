@@ -1,171 +1,65 @@
 ##
+# Path : libs/client/CMakeLists.txt
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#               2010 Stefan Eilemann <eile@eyescale.ch>
+#               2010 Cedric Stalder <cedric.stalder@gmail.ch>
 ##
 
 # TODO: resolve two-way dependancy between client and util!
 include(PurpleForwardHeaders)
-include(util/files.cmake)
+include(PurpleAddLibrary)
+include(PurpleAddAmalgamation)
+include(${CMAKE_CURRENT_SOURCE_DIR}/configure.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/files.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/util/files.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/compressor/files.cmake)
+
+option(EQUALIZER_BUILD_STATIC_LIBS "Build static libraries" OFF)
+if(NOT EQUALIZER_BUILD_STATIC_LIBS)
+  set(EQ_LIB_VARIANT SHARED)
+endif()
+
+option(EQUALIZER_BUILD_MODULARIZED "Set this to OFF to build amalgamations only" OFF)
+if(NOT EQUALIZER_BUILD_MODULARIZED)
+  list(APPEND EQ_LIB_VARIANT EXCLUDE_FROM_ALL)
+endif(NOT EQUALIZER_BUILD_MODULARIZED)
+
+add_definitions(-DEQ_EXPORTS -DEQ_PLUGIN_BUILD)
+
+if(APPLE)
+  if(EQ_AGL_USED)
+    find_library(CARBON_LIBRARY Carbon)
+    set(GL_LIBRARIES "${OPENGL_LIBRARIES}")
+  endif(EQ_AGL_USED)
+  if(EQ_GLX_USED)
+    set(GL_LIBRARIES ${GL_LIBRARIES} GL)
+  endif(EQ_GLX_USED)
+else(APPLE)
+  set(GL_LIBRARIES "${OPENGL_LIBRARIES}")
+endif(APPLE)
+if(NOT CUDA_FOUND)
+  set(CUDA_LIBRARIES)
+endif(NOT CUDA_FOUND)
+
+purple_forward_headers("eq/" ${EQ_UTIL_FORWARD_HEADERS})
 
 add_subdirectory( fabric )
-
-set(CLIENT_HEADERS
-  aglEventHandler.h
-  aglMessagePump.h
-  aglPipe.h
-  aglWindow.h
-  aglWindowEvent.h
-  api.h
-  base.h
-  canvas.h
-  channel.h
-  channelPackets.h
-  channelStatistics.h
-  client.h
-  clientPackets.h
-  commandQueue.h
-  compositor.h
-  computeContext.h
-  config.h
-  configEvent.h
-  configPackets.h
-  configParams.h
-  configStatistics.h
-  cudaContext.h
-  error.h
-  event.h
-  eventHandler.h
-  eye.h
-  frame.h
-  frameData.h
-  glWindow.h
-  glXEventHandler.h
-  glXMessagePump.h
-  glXPipe.h
-  glXWindow.h
-  glXWindowEvent.h
-  global.h
-  image.h
-  init.h
-  layout.h
-  log.h
-  messagePump.h
-  node.h
-  nodePackets.h
-  nodeFactory.h
-  observer.h
-  os.h
-  packets.h
-  pipe.h
-  pipePackets.h
-  pixelData.h
-  segment.h
-  server.h
-  serverPackets.h
-  statistic.h
-  statisticSampler.h
-  systemPipe.h
-  systemWindow.h
-  types.h
-  version.h
-  view.h
-  visitorResult.h
-  wglEventHandler.h
-  wglMessagePump.h
-  wglPipe.h
-  wglWindow.h
-  wglWindowEvent.h
-  window.h
-  windowPackets.h
-  windowStatistics.h
-  windowSystem.h
-  )
-
-set(CLIENT_SOURCES
-  canvas.cpp
-  channel.cpp
-  channelStatistics.cpp
-  client.cpp
-  commandQueue.cpp
-  compositor.cpp
-  computeContext.cpp
-  config.cpp
-  configEvent.cpp
-  configParams.cpp
-  configStatistics.cpp
-  cudaContext.cpp
-  error.cpp
-  event.cpp
-  eventHandler.cpp
-  frame.cpp
-  frameData.cpp
-  glWindow.cpp
-  global.cpp
-  image.cpp
-  init.cpp
-  jitter.cpp
-  layout.cpp
-  node.cpp
-  nodeFactory.cpp
-  nodeStatistics.cpp
-  observer.cpp
-  os.cpp
-  pipe.cpp
-  pipeStatistics.cpp
-  pixelData.cpp
-  roiEmptySpaceFinder.cpp
-  roiFinder.cpp
-  roiTracker.cpp
-  segment.cpp
-  server.cpp
-  statistic.cpp
-  systemPipe.cpp
-  systemWindow.cpp
-  version.cpp
-  view.cpp
-  window.cpp
-  windowStatistics.cpp
-  windowSystem.cpp
-  )
-
-if(EQ_AGL_USED)
-  set(CLIENT_SOURCES ${CLIENT_SOURCES}
-    aglEventHandler.cpp
-    aglMessagePump.cpp
-    aglWindow.cpp
-    aglPipe.cpp
-    )
-endif(EQ_AGL_USED)
-
-if(WIN32)
-  set(CLIENT_SOURCES ${CLIENT_SOURCES}
-    wglEventHandler.cpp
-    wglMessagePump.cpp
-    wglWindow.cpp
-    wglPipe.cpp
-    )
-endif(WIN32)
-
-if(EQ_GLX_USED)
-  set(CLIENT_SOURCES ${CLIENT_SOURCES}
-    glXEventHandler.cpp
-    glXMessagePump.cpp
-    glXWindow.cpp
-    glXPipe.cpp
-    )
-endif(EQ_GLX_USED)
+source_group( "plugin" FILES ${PLUGIN_HEADERS} )
+source_group( "util" FILES ${EQ_UTIL_FORWARD_HEADERS} ${EQ_UTIL_HEADERS} ${EQ_UTIL_SOURCES} )
+source_group( "compressor" FILES ${EQ_COMPRESSOR_HEADERS} ${EQ_COMPRESSOR_SOURCES})
 
 purple_add_library(eq_client ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/"
   FORWARD HEADERS
     eq.h
     ${CLIENT_HEADERS}
-    ${UTIL_HEADERS}
+    ${EQ_UTIL_FORWARD_HEADERS}
   SOURCES
     ${CLIENT_SOURCES}
-    ${UTIL_SOURCES}
+    ${EQ_UTIL_SOURCES}
+	${EQ_COMPRESSOR_SOURCES}
   LINK_LIBRARIES
-    shared eq_base
-    shared eq_net
+    shared co
     shared eq_fabric
     ${GLEW_LIBRARY}
     ${CARBON_LIBRARY}
@@ -173,3 +67,13 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
     ${GL_LIBRARIES}
     ${CUDA_LIBRARIES}
   )
+
+purple_add_amalgamation(Equalizer
+  shared co
+  shared eq_fabric
+  shared eq_client
+ )
+
+# TODO: this will be incorporated into PURPLE_ADD_LIBRARY
+configure_file(Equalizer.pc.in Equalizer.pc @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Equalizer.pc DESTINATION lib/pkgconfig COMPONENT lib)

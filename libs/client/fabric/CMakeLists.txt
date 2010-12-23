@@ -1,79 +1,13 @@
 ##
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 ##
-
+include(${CMAKE_CURRENT_SOURCE_DIR}/files.cmake)
 purple_add_library(eq_fabric ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/fabric/"
   FORWARD HEADERS
-    api.h
-    base.h
-    canvas.h
-    canvasPackets.h
-    channel.h
-    colorMask.h
-    commands.h
-    config.h
-    configPackets.h
-    configVisitor.h
-    client.h
-    drawableConfig.h
-    elementVisitor.h
-    eye.h
-    error.h
-    frustum.h
-    global.h
-    layout.h
-    layoutPackets.h
-    iAttribute.h
-    init.h
-    leafVisitor.h
-    log.h
-    node.h
-    nodeType.h
-    object.h
-    observer.h
-    packets.h
-    packetType.h
-    paths.h
-    pipe.h
-    pipePackets.h
-    pixel.h
-    pixelViewport.h
-    projection.h
-    range.h
-    renderContext.h
-    segment.h
-    serializable.h
-    server.h
-    serverPackets.h
-    subPixel.h
-    task.h
-    types.h
-    viewport.h
-    view.h
-    visitorResult.h
-    wall.h
-    window.h
-    windowPackets.h
-    zoom.h
+    ${EQ_FABRIC_FORWARD_HEADERS}
   SOURCES
-    client.cpp
-    colorMask.cpp
-    eye.cpp
-    frustum.cpp
-    global.cpp
-    iAttribute.cpp
-    init.cpp
-    object.cpp
-    pixel.cpp
-    projection.cpp
-    range.cpp
-    renderContext.cpp
-    subPixel.cpp
-    viewport.cpp
-    wall.cpp
-    zoom.cpp
+    ${EQ_FABRIC_SOURCES}
   LINK_LIBRARIES
-    shared eq_base
-    shared eq_net
+    shared co
   )
