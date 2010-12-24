@@ -69,6 +69,7 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
   )
 
 purple_add_amalgamation(Equalizer
+  shared co_base
   shared co
   shared eq_fabric
   shared eq_client
