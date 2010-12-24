@@ -26,7 +26,7 @@
 #  define EQ_BACKTRACE_DEPTH 256
 #endif
 
-namespace eq
+namespace co
 {
 namespace base
 {

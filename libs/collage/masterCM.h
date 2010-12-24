@@ -75,17 +75,17 @@ namespace co
         /** The current version. */
         uint128_t _version;
 
-        typedef std::pair< eq::base::UUID, ObjectDataIStream* > PendingStream;
+        typedef std::pair< co::base::UUID, ObjectDataIStream* > PendingStream;
         typedef std::vector< PendingStream > PendingStreams;
 
         /** Not yet ready streams. */
         PendingStreams _pendingDeltas;
 
         /** The change queue. */
-        eq::base::MTQueue< ObjectDataIStream* > _queuedDeltas;
+        co::base::MTQueue< ObjectDataIStream* > _queuedDeltas;
 
         /** Cached input streams (+decompressor) */
-        eq::base::Pool< ObjectDataIStream, true > _iStreamCache;
+        co::base::Pool< ObjectDataIStream, true > _iStreamCache;
 
         void _apply( ObjectDataIStream* is );
 

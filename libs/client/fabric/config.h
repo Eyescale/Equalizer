@@ -53,10 +53,10 @@ namespace fabric
         /** @name Data Access */
         //@{
         /** @return the local server proxy. @version 1.0 */
-        EQFABRIC_INL base::RefPtr< S > getServer();
+        EQFABRIC_INL co::base::RefPtr< S > getServer();
 
         /** @return the local server proxy. @version 1.0 */
-        EQFABRIC_INL base::RefPtr< const S > getServer() const;
+        EQFABRIC_INL co::base::RefPtr< const S > getServer() const;
 
         /** @return the vector of observers, app-node only. @version 1.0 */
         const Observers& getObservers() const { return _observers; }
@@ -200,13 +200,13 @@ namespace fabric
 
     protected:
         /** @internal Construct a new config. */
-        EQFABRIC_INL Config( base::RefPtr< S > parent );
+        EQFABRIC_INL Config( co::base::RefPtr< S > parent );
 
         /** @internal Destruct a config. */
         EQFABRIC_INL virtual ~Config();
 
         /** @internal */
-        EQFABRIC_INL virtual void attach( const base::UUID& id,
+        EQFABRIC_INL virtual void attach( const co::base::UUID& id,
                                           const uint32_t instanceID );
 
         /** @internal */
@@ -217,7 +217,7 @@ namespace fabric
         EQFABRIC_INL virtual void notifyDetach();
 
         /** @internal Execute the slave remove request. */
-        virtual void _removeChild( const base::UUID& )
+        virtual void _removeChild( const co::base::UUID& )
             { EQUNIMPLEMENTED; }
 
         template< class, class, class, class, class > friend class Server; // map/unmap
@@ -255,7 +255,7 @@ namespace fabric
         };
 
         /** The parent server. */
-        base::RefPtr< S > _server;
+        co::base::RefPtr< S > _server;
         
         /** Float attributes. */
         float _fAttributes[FATTR_ALL];

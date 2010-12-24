@@ -48,18 +48,18 @@ std::string _iAttributeStrings[] =
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-Config< S, C, O, L, CV, N, V >::Config( base::RefPtr< S > server )
+Config< S, C, O, L, CV, N, V >::Config( co::base::RefPtr< S > server )
         : Object()
         , _server( server )
 {
     server->_addConfig( static_cast< C* >( this ));
-    EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
 Config< S, C, O, L, CV, N, V >::~Config()
 {
-    EQLOG( LOG_INIT ) << "Delete " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
     _appNodeID = co::NodeID::ZERO;
 
     while( !_canvases.empty( ))
@@ -96,7 +96,7 @@ Config< S, C, O, L, CV, N, V >::~Config()
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-void Config< S, C, O, L, CV, N, V >::attach( const base::UUID& id, 
+void Config< S, C, O, L, CV, N, V >::attach( const co::base::UUID& id, 
                                              const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
@@ -245,13 +245,13 @@ VisitorResult Config< S, C, O, L, CV, N, V >::accept( V& visitor ) const
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-base::RefPtr< S > Config< S, C, O, L, CV, N, V >::getServer()
+co::base::RefPtr< S > Config< S, C, O, L, CV, N, V >::getServer()
 {
     return _server;
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-base::RefPtr< const S > Config< S, C, O, L, CV, N, V >::getServer() const 
+co::base::RefPtr< const S > Config< S, C, O, L, CV, N, V >::getServer() const 
 {
     return _server;
 }
@@ -856,8 +856,9 @@ template< class S, class C, class O, class L, class CV, class N, class V >
 std::ostream& operator << ( std::ostream& os,
                             const Config< S, C, O, L, CV, N, V >& config )
 {
-    os << base::disableFlush << base::disableHeader << "config " << std::endl;
-    os << "{" << std::endl << base::indent;
+    os << co::base::disableFlush << co::base::disableHeader << "config "
+       << std::endl;
+    os << "{" << std::endl << co::base::indent;
 
     if( !config.getName().empty( ))
         os << "name    \"" << config.getName() << '"' << std::endl;
@@ -866,12 +867,12 @@ std::ostream& operator << ( std::ostream& os,
         os << "latency " << config.getLatency() << std::endl;
     os << std::endl;
 
-    os << "attributes" << std::endl << "{" << std::endl << base::indent
+    os << "attributes" << std::endl << "{" << std::endl << co::base::indent
        << "eye_base     " << config.getFAttribute( C::FATTR_EYE_BASE )
        << std::endl
        << "robustness   " << config.getIAttribute( C::IATTR_ROBUSTNESS )
        << std::endl
-       << base::exdent << "}" << std::endl;
+       << co::base::exdent << "}" << std::endl;
 
     const typename C::Nodes& nodes = config.getNodes();
     for( typename C::Nodes::const_iterator i = nodes.begin();
@@ -900,8 +901,8 @@ std::ostream& operator << ( std::ostream& os,
 
     static_cast< const C& >( config ).output( os );
 
-    os << base::exdent << "}" << std::endl << base::enableHeader
-       << base::enableFlush;
+    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
+       << co::base::enableFlush;
 
     return os;
 }

@@ -18,7 +18,7 @@
 #include "swapBarrier.h"
 
 using namespace std;
-using namespace eq::base;
+using namespace co::base;
 
 namespace eq
 {

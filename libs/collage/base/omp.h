@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_OMP_H
-#define EQBASE_OMP_H
+#ifndef COBASE_OMP_H
+#define COBASE_OMP_H
 
 #include <co/base/os.h>
 
@@ -24,7 +24,7 @@
 #  include <omp.h>
 #endif
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -36,9 +36,9 @@ namespace base
          * @return the number of threads used in a parallel region.
          * @version 1.0
          */
-        EQBASE_API static unsigned getNThreads();
+        COBASE_API static unsigned getNThreads();
     };
 }
 
 }
-#endif //EQBASE_OMP_H
+#endif //COBASE_OMP_H

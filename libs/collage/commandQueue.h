@@ -31,7 +31,7 @@ namespace co
     /**
      * A CommandQueue is a thread-safe queue for command packets.
      */
-    class CommandQueue : public eq::base::NonCopyable
+    class CommandQueue : public co::base::NonCopyable
     {
     public:
         CO_API CommandQueue();
@@ -83,7 +83,7 @@ namespace co
         EQ_TS_VAR( _thread );
     private:
         /** Thread-safe command queue. */
-        eq::base::MTQueue< Command* >  _commands;
+        co::base::MTQueue< Command* >  _commands;
     };
 }
 

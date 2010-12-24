@@ -25,7 +25,7 @@ namespace eq
     /** Defines selective logging classes enabled by setting EQ_LOG_TOPICS. */
     enum LogTopics
     {
-        LOG_PLUGIN   = base::LOG_PLUGIN,       //!< Plugin usage (1)
+        LOG_PLUGIN   = co::base::LOG_PLUGIN,       //!< Plugin usage (1)
         LOG_INIT     = fabric::LOG_INIT,       //!< Initialization (256)
 
         LOG_ASSEMBLY = fabric::LOG_CUSTOM << 0,   //!< Compositing tasks (1024)

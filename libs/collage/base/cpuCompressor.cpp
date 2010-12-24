@@ -24,7 +24,7 @@
 #include "plugin.h"
 #include "pluginRegistry.h"
 
-namespace eq
+namespace co
 {
 namespace base
 {

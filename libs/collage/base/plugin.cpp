@@ -23,7 +23,7 @@
 #include "global.h"
 #include "pluginRegistry.h"
 
-namespace eq
+namespace co
 {
 namespace base
 {

@@ -39,13 +39,13 @@ Canvas< CFG, C, S, L >::Canvas( CFG* config )
 {
     EQASSERT( config );
     config->_addCanvas( static_cast< C* >( this ));
-    EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
 }
 
 template< class CFG, class C, class S, class L >
 Canvas< CFG, C, S, L >::~Canvas()
 {
-    EQLOG( LOG_INIT ) << "Delete " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
     while( !_segments.empty( ))
     {
         S* segment = _segments.back();
@@ -77,7 +77,7 @@ void Canvas< CFG, C, S, L >::restore()
 }
 
 template< class CFG, class C, class S, class L >
-void Canvas< CFG, C, S, L >::attach( const base::UUID& id,
+void Canvas< CFG, C, S, L >::attach( const co::base::UUID& id,
                                      const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
@@ -151,9 +151,9 @@ void Canvas< CFG, C, S, L >::deserialize( co::DataIStream& is,
         for( co::ObjectVersions::const_iterator i = layouts.begin();
              i != layouts.end(); ++i )
         {
-            const base::UUID& id = (*i).identifier;
+            const co::base::UUID& id = (*i).identifier;
 
-            if( id == base::UUID::ZERO )
+            if( id == co::base::UUID::ZERO )
                 _layouts.push_back( 0 );
             else
             {
@@ -417,8 +417,9 @@ template< class CFG, class C, class S, class L >
 std::ostream& operator << ( std::ostream& os, 
                             const Canvas< CFG, C, S, L >& canvas )
 {
-    os << base::disableFlush << base::disableHeader << "canvas" << std::endl;
-    os << "{" << std::endl << base::indent; 
+    os << co::base::disableFlush << co::base::disableHeader << "canvas"
+       << std::endl;
+    os << "{" << std::endl << co::base::indent; 
 
     const std::string& name = canvas.getName();
     if( !name.empty( ))
@@ -452,8 +453,8 @@ std::ostream& operator << ( std::ostream& os,
     {
         os << **i;
     }
-    os << base::exdent << "}" << std::endl << base::enableHeader
-       << base::enableFlush;
+    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
+       << co::base::enableFlush;
     return os;
 }
 

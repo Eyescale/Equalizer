@@ -15,10 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_REFERENCED_H
-#define EQBASE_REFERENCED_H
+#ifndef COBASE_REFERENCED_H
+#define COBASE_REFERENCED_H
 
-#include <co/base/os.h>     // for EQBASE_API
+#include <co/base/os.h>     // for COBASE_API
 #include <co/base/debug.h>    // for EQERROR
 #include <co/base/atomic.h>   // member
 #ifdef EQ_REFERENCED_DEBUG
@@ -30,7 +30,7 @@
 
 #include <typeinfo>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -136,7 +136,7 @@ namespace base
                               "Deleting object with ref count " << _refCount );
             }
 
-        EQBASE_API void deleteReferenced( const Referenced* object ) const;
+        COBASE_API void deleteReferenced( const Referenced* object ) const;
 
     private:
         mutable a_int32_t _refCount;
@@ -150,4 +150,4 @@ namespace base
 }
 
 }
-#endif //EQBASE_REFERENCED_H
+#endif //COBASE_REFERENCED_H

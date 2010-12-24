@@ -15,12 +15,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_EXECUTIONLISTENER_H
-#define EQBASE_EXECUTIONLISTENER_H
+#ifndef COBASE_EXECUTIONLISTENER_H
+#define COBASE_EXECUTIONLISTENER_H
 
 #include <co/base/os.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -43,4 +43,4 @@ namespace base
 }
 
 }
-#endif //EQBASE_EXECUTIONLISTENER_H
+#endif //COBASE_EXECUTIONLISTENER_H

@@ -60,9 +60,9 @@ static uint32_t _drawBuffer[2][2][NUM_EYES];
 static bool _drawBufferInit = _setDrawBuffers();
 bool _setDrawBuffers()
 {
-    const int cyclop = base::getIndexOfLastBit( EYE_CYCLOP );
-    const int left = base::getIndexOfLastBit( EYE_LEFT );
-    const int right = base::getIndexOfLastBit( EYE_RIGHT );
+    const int cyclop = co::base::getIndexOfLastBit( EYE_CYCLOP );
+    const int left = co::base::getIndexOfLastBit( EYE_LEFT );
+    const int right = co::base::getIndexOfLastBit( EYE_RIGHT );
 
     // [stereo][doublebuffered][eye]
     _drawBuffer[0][0][ cyclop ] = GL_FRONT;
@@ -329,7 +329,7 @@ void ChannelUpdateVisitor::_updateFrameRate( const Compound* compound ) const
 uint32_t ChannelUpdateVisitor::_getDrawBuffer( const Compound* compound ) const
 {
     const DrawableConfig& dc = _channel->getWindow()->getDrawableConfig();
-    const uint32_t eye = base::getIndexOfLastBit( _eye );
+    const uint32_t eye = co::base::getIndexOfLastBit( _eye );
 
     if( compound->getInheritIAttribute(Compound::IATTR_STEREO_MODE) == PASSIVE )
         return _drawBuffer[ 0 ][ dc.doublebuffered ][ eye ];

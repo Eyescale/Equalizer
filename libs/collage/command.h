@@ -105,8 +105,8 @@ namespace co
         Packet* _data; //!< Our allocated data
         uint64_t _dataSize; //!< The size of the allocation
 
-        eq::base::a_int32_t* _refCountMaster;
-        eq::base::a_int32_t _refCount;
+        co::base::a_int32_t* _refCountMaster;
+        co::base::a_int32_t _refCount;
 
         Dispatcher::Func _func;
         friend CO_API std::ostream& operator << ( std::ostream& os, const Command& );

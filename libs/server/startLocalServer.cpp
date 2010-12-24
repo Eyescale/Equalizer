@@ -32,7 +32,7 @@
 
 namespace
 {
-class ServerThread : public eq::base::Thread
+class ServerThread : public co::base::Thread
 {
 public:
     ServerThread() {}

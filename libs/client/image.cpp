@@ -74,8 +74,8 @@ void Image::flush()
 }
 
 Image::Attachment::Attachment()
-        : fullCompressor( new base::CPUCompressor )
-        , lossyCompressor( new base::CPUCompressor )
+        : fullCompressor( new co::base::CPUCompressor )
+        , lossyCompressor( new co::base::CPUCompressor )
         , fullTransfer( new util::GPUCompressor )
         , lossyTransfer( new util::GPUCompressor )
         , compressor( fullCompressor )
@@ -146,21 +146,21 @@ uint32_t Image::getInternalFormat( const Frame::Buffer buffer ) const
 std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
     const
 {
-    const base::PluginRegistry& registry = base::Global::getPluginRegistry();
-    const base::Plugins& plugins = registry.getPlugins();
+    const co::base::PluginRegistry& registry = co::base::Global::getPluginRegistry();
+    const co::base::Plugins& plugins = registry.getPlugins();
     const uint32_t tokenType = getExternalFormat( buffer );
 
     std::vector< uint32_t > names;
-    for( base::Plugins::const_iterator i = plugins.begin();
+    for( co::base::Plugins::const_iterator i = plugins.begin();
          i != plugins.end(); ++i )
     {
-        const base::Plugin* plugin = *i;
-        const base::CompressorInfos& infos = plugin->getInfos();
+        const co::base::Plugin* plugin = *i;
+        const co::base::CompressorInfos& infos = plugin->getInfos();
 
-        for( base::CompressorInfos::const_iterator j = infos.begin();
+        for( co::base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
-            const base::CompressorInfo& info = *j;
+            const co::base::CompressorInfo& info = *j;
 
             if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
                 continue;
@@ -180,9 +180,9 @@ void Image::findTransferers( const Frame::Buffer buffer,
                              const GLEWContext* glewContext,
                              std::vector< uint32_t >& names )
 { 
-    base::CompressorInfos infos;
+    co::base::CompressorInfos infos;
     _findTransferers( buffer, glewContext, infos );
-    for( base::CompressorInfos::const_iterator i = infos.begin();
+    for( co::base::CompressorInfos::const_iterator i = infos.begin();
          i != infos.end(); ++i )
     {
         names.push_back( i->name );
@@ -191,7 +191,7 @@ void Image::findTransferers( const Frame::Buffer buffer,
 
 void Image::_findTransferers( const Frame::Buffer buffer,
                              const GLEWContext* glewContext,
-                             base::CompressorInfos& result )
+                             co::base::CompressorInfos& result )
 { 
     util::GPUCompressor::findTransferers(
         getInternalFormat( buffer ), getExternalFormat( buffer ),
@@ -209,7 +209,7 @@ uint32_t Image::_chooseCompressor( const Frame::Buffer buffer ) const
     const float quality = attachment.quality /
                           attachment.lossyTransfer->getQuality();
 
-    return base::CPUCompressor::chooseCompressor( tokenType, quality,
+    return co::base::CPUCompressor::chooseCompressor( tokenType, quality,
                                                   _ignoreAlpha );
 }
 
@@ -595,7 +595,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     memory.isCompressed = false;
     memory.hasAlpha = false;
 
-    base::CompressorInfos transferrers;
+    co::base::CompressorInfos transferrers;
     _findTransferers( buffer, 0 /*GLEW context*/, transferrers );
 
     if( transferrers.empty( ))
@@ -605,7 +605,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
         memory.hasAlpha =
             transferrers.front().capabilities & EQ_COMPRESSOR_IGNORE_ALPHA;
 #ifndef NDEBUG
-        for( base::CompressorInfos::const_iterator i = transferrers.begin();
+        for( co::base::CompressorInfos::const_iterator i = transferrers.begin();
              i != transferrers.end(); ++i )
         {
             EQASSERTINFO( memory.hasAlpha == 
@@ -647,7 +647,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
         return;
     }
 
-    const base::CompressorInfo& info = attachment.compressor->getInfo();
+    const co::base::CompressorInfo& info = attachment.compressor->getInfo();
     if( memory.externalFormat != info.outputTokenType )
     {
         // decompressor output differs from compressor input
@@ -1077,7 +1077,7 @@ bool Image::writeImage( const std::string& filename,
 
 bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
 {
-    base::MemoryMap image;
+    co::base::MemoryMap image;
     const uint8_t* addr = static_cast< const uint8_t* >( image.map( filename ));
 
     if( !addr )

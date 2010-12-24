@@ -128,7 +128,7 @@ void UnbufferedMasterCM::removeSlave( NodePtr node )
     EQ_TS_THREAD( _cmdThread );
     // remove from subscribers
     const NodeID& nodeID = node->getNodeID();
-    EQASSERTINFO( _slavesCount[ nodeID ] != 0, eq::base::className( _object ));
+    EQASSERTINFO( _slavesCount[ nodeID ] != 0, co::base::className( _object ));
 
     --_slavesCount[ nodeID ];
     if( _slavesCount[ nodeID ] == 0 )

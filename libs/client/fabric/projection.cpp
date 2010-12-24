@@ -135,12 +135,12 @@ bool Projection::operator != ( const Projection& rhs ) const
 std::ostream& operator << ( std::ostream& os, const Projection& projection )
 {
     os << "projection" << std::endl;
-    os << "{" << std::endl << base::indent;
+    os << "{" << std::endl << co::base::indent;
     os << "origin   " << projection.origin << std::endl;
     os << "distance " << projection.distance << std::endl;
     os << "fov      " << projection.fov << std::endl;
     os << "hpr      " << projection.hpr << std::endl;
-    os << base::exdent << "}";
+    os << co::base::exdent << "}";
     return os;
 }
 

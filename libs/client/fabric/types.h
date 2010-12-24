@@ -57,7 +57,7 @@ typedef vmml::vector< 4, float > Vector4f; //!< A four-component float vector
 typedef vmml::vector< 3, unsigned char > Vector3ub;
 typedef vmml::frustum< float >  Frustumf; //!< A frustum definition
 
-typedef eq::base::uint128_t uint128_t;
+typedef co::base::uint128_t uint128_t;
 
 class Client;
 template< class, class > class Channel;
@@ -75,8 +75,8 @@ template< class, class > class ElementVisitor;
 template< class > class LeafVisitor;
 template< class, class, class, class, class> class ConfigVisitor;
 
-typedef base::RefPtr< Client > ClientPtr;
-typedef base::RefPtr< const Client > ConstClientPtr;
+typedef co::base::RefPtr< Client > ClientPtr;
+typedef co::base::RefPtr< const Client > ConstClientPtr;
 
 struct LayoutPath;
 struct NodePath;

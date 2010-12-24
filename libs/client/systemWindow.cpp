@@ -79,7 +79,7 @@ void SystemWindow::setError( const int32_t error )
     _window->setError( error );
 }
 
-base::Error SystemWindow::getError() const
+co::base::Error SystemWindow::getError() const
 {
     EQASSERT( _window );
     return _window->getError();

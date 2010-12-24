@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_DEBUG_H
-#define EQBASE_DEBUG_H
+#ifndef COBASE_DEBUG_H
+#define COBASE_DEBUG_H
 
 #include <co/base/defines.h>
 #include <co/base/log.h>
@@ -29,7 +29,7 @@
 // assertions
 // #define EQ_RELEASE_ASSERT
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -37,13 +37,13 @@ namespace base
  * Used to trap into an infinite loop to allow debugging of assertions
  * @internal
  */
-EQBASE_API void abort();
+COBASE_API void abort();
 
 /**
  * Check the consistency of the heap and abort on error (Win32 only).
  * @internal
  */
-EQBASE_API void checkHeap();
+COBASE_API void checkHeap();
 
 /** 
  * Print a textual description of the current system error.
@@ -51,7 +51,7 @@ EQBASE_API void checkHeap();
  * The current system error is OS-specific, e.g., errno or GetLastError().
  * @version 1.0
  */
-EQBASE_API std::ostream& sysError( std::ostream& os );
+COBASE_API std::ostream& sysError( std::ostream& os );
 
 /** 
  * Print the current call stack.
@@ -59,7 +59,7 @@ EQBASE_API std::ostream& sysError( std::ostream& os );
  * May not be implemented on all platforms.
  * @version 1.0
  */
-EQBASE_API std::ostream& backtrace( std::ostream& os );
+COBASE_API std::ostream& backtrace( std::ostream& os );
 
 /** Print the RTTI name of the given class. @version 1.0 */
 template< class T > inline std::string className( T* object )
@@ -89,15 +89,15 @@ template< class T > inline std::string className( T* object )
     {                                                                   \
         if( !(x) )                                                      \
             EQERROR << "##### Assert: " << #x << " #####" << std::endl  \
-                    << eq::base::forceFlush;                            \
-        eq::base::checkHeap();                                          \
+                    << co::base::forceFlush;                            \
+        co::base::checkHeap();                                          \
     }
 #    define EQASSERTINFO(x, info)                                       \
     {                                                                   \
         if( !(x) )                                                      \
             EQERROR << "##### Assert: " << #x << " [" << info << "] #####" \
-                    << std::endl << eq::base::forceFlush;               \
-        eq::base::checkHeap();                                          \
+                    << std::endl << co::base::forceFlush;               \
+        co::base::checkHeap();                                          \
     }
 #    define EQCHECK(x) { const bool eqOk = x; EQASSERTINFO( eqOk, #x ) }
 #  else
@@ -107,15 +107,15 @@ template< class T > inline std::string className( T* object )
 #  endif
 
 #  define EQUNIMPLEMENTED { EQERROR << "Unimplemented code" << std::endl \
-                                    << eq::base::forceFlush; }
+                                    << co::base::forceFlush; }
 #  define EQUNREACHABLE   { EQERROR << "Unreachable code" << std::endl  \
-                                    << eq::base::forceFlush; }
+                                    << co::base::forceFlush; }
 #  define EQDONTCALL                                                    \
     { EQERROR << "Code is not supposed to be called in this context"    \
-              << std::endl << eq::base::forceFlush; }
+              << std::endl << co::base::forceFlush; }
 #  define EQABORT( info ) {                                         \
         EQERROR << "##### Abort: " << info << " #####" << std::endl \
-                << eq::base::forceFlush; }
+                << co::base::forceFlush; }
 
 #else // NDEBUG
 
@@ -124,37 +124,37 @@ template< class T > inline std::string className( T* object )
         if( !(x) )                                                      \
         {                                                               \
             EQERROR << "Assert: " << #x << " ";                         \
-            eq::base::abort();                                          \
+            co::base::abort();                                          \
         }                                                               \
-        eq::base::checkHeap();                                          \
+        co::base::checkHeap();                                          \
     } 
 #  define EQASSERTINFO(x, info)                                         \
     {                                                                   \
         if( !(x) )                                                      \
         {                                                               \
             EQERROR << "Assert: " << #x << " [" << info << "] ";        \
-            eq::base::abort();                                          \
+            co::base::abort();                                          \
         }                                                               \
-        eq::base::checkHeap();                                          \
+        co::base::checkHeap();                                          \
     }
 
 #  define EQUNIMPLEMENTED                                               \
-    { EQERROR << "Unimplemented code in " << eq::base::className( this ) \
+    { EQERROR << "Unimplemented code in " << co::base::className( this ) \
               << " ";                                                   \
-        eq::base::abort(); }
+        co::base::abort(); }
 #  define EQUNREACHABLE                                                 \
-    { EQERROR << "Unreachable code in " << eq::base::className( this )  \
+    { EQERROR << "Unreachable code in " << co::base::className( this )  \
               << " ";                                                   \
-        eq::base::abort(); }
+        co::base::abort(); }
 #  define EQDONTCALL                                                    \
     { EQERROR << "Code is not supposed to be called in this context, type " \
-              << eq::base::className( this ) << " " ;                   \
-        eq::base::abort(); }
+              << co::base::className( this ) << " " ;                   \
+        co::base::abort(); }
 
 #  define EQCHECK(x) { const bool eqOk = x; EQASSERTINFO( eqOk, #x ) }
 #  define EQABORT( info ) {                                             \
         EQERROR << "Abort: " << info << " ";                            \
-        eq::base::abort(); }
+        co::base::abort(); }
 
 #endif // NDEBUG
 
@@ -162,4 +162,4 @@ template< class T > inline std::string className( T* object )
     EQASSERT( in == 0 || dynamic_cast< to >( static_cast< to >( in )))
 
 
-#endif //EQBASE_DEBUG_H
+#endif //COBASE_DEBUG_H

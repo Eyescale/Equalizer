@@ -66,7 +66,7 @@ namespace co
                                        const CommandFunc<T>& func )
     {
         if( func._object && func._func )
-            os << "CommandFunc of " << eq::base::className( func._object );
+            os << "CommandFunc of " << co::base::className( func._object );
         else
             os << "invalid CommandFunc";
         return os;

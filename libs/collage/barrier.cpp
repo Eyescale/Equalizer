@@ -24,7 +24,7 @@
 #include "log.h"
 #include "barrierPackets.h"
 
-using namespace eq::base;
+using namespace co::base;
 using namespace std;
 
 namespace co
@@ -73,7 +73,7 @@ void Barrier::unpack( DataIStream& is )
 }
 //---------------------------------------------------------------------------
 
-void Barrier::attach( const eq::base::UUID& id, const uint32_t instanceID )
+void Barrier::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
 

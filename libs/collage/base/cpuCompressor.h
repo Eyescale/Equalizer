@@ -15,12 +15,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_CPUCOMPRESSOR_H
-#define EQBASE_CPUCOMPRESSOR_H
+#ifndef COBASE_CPUCOMPRESSOR_H
+#define COBASE_CPUCOMPRESSOR_H
 
 #include "compressor.h"
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -38,7 +38,7 @@ namespace base
          * @param pvpIn the dimensions of the input data
          * @param flags capability flags for the compression
          */
-        EQBASE_API void compress( void* const in, 
+        COBASE_API void compress( void* const in, 
                                  const uint64_t  pvpIn[4],
                                  const eq_uint64_t flags );
 
@@ -48,10 +48,10 @@ namespace base
          * @param in the pointer to the input data. 
          * @param inDims the dimensions of the input data
          */
-        EQBASE_API void compress( void* const in, const uint64_t inDims[2] );
+        COBASE_API void compress( void* const in, const uint64_t inDims[2] );
 
         /** get the number of compressed chunks. */
-        EQBASE_API unsigned getNumResults() const;
+        COBASE_API unsigned getNumResults() const;
 
         /**
          * get the compressed Data for the specified chunk 
@@ -60,7 +60,7 @@ namespace base
          * @param out the return value to store the result pointer
          * @param outSize the return value to store the result size in bytes
          */
-        EQBASE_API void getResult( const unsigned i, 
+        COBASE_API void getResult( const unsigned i, 
                                      void** const out, 
                                      uint64_t* const outSize ) const ;
 
@@ -75,7 +75,7 @@ namespace base
          * @param pvpOut the dimensions of the output data.
          * @param flags capability flags for the decompression.
          */
-        EQBASE_API void decompress( const void* const* in, 
+        COBASE_API void decompress( const void* const* in, 
                                       const uint64_t* const inSizes,
                                       const unsigned numInputs,
                                       void* const out,
@@ -92,7 +92,7 @@ namespace base
          *            uncompressed output result.
          * @param outDim the dimensions of the output data.
          */
-        EQBASE_API void decompress( const void* const* in, 
+        COBASE_API void decompress( const void* const* in, 
                                    const uint64_t* const inSizes,
                                    const unsigned numInputs,
                                    void* const out,
@@ -111,7 +111,7 @@ namespace base
          * @param ignoreMSE the most-significant element of each token can be
          *                  ignored, typically the alpha channel of an image.
          */
-        static EQBASE_API uint32_t chooseCompressor( 
+        static COBASE_API uint32_t chooseCompressor( 
                                                 const uint32_t tokenType,
                                                 const float minQuality = 1.0f,
                                                 const bool ignoreMSE = false );
@@ -126,7 +126,7 @@ namespace base
          * @param ignoreMSE the most-significant element of each token can be
          *                  ignored, typically the alpha channel of an image.
          */
-        EQBASE_API void initCompressor( const uint32_t dataType, 
+        COBASE_API void initCompressor( const uint32_t dataType, 
                                        const float quality,
                                        const bool ignoreMSE = false );
 
@@ -148,4 +148,4 @@ namespace base
     };
 }
 }
-#endif  // EQBASE_CPUCOMPRESSOR_H
+#endif  // COBASE_CPUCOMPRESSOR_H

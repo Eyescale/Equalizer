@@ -56,7 +56,7 @@ namespace co
 
         ConnectionPtr _readConnection;
         ConnectionPtr _writeConnection;
-        eq::base::RefPtr<PairConnection> _sibling;
+        co::base::RefPtr<PairConnection> _sibling;
     };
 }
 #endif //CO_PAIRCONNECTION_H

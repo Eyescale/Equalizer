@@ -84,7 +84,7 @@ Node::~Node()
 {
 }
 
-void Node::attach( const base::UUID& id, const uint32_t instanceID )
+void Node::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
     
@@ -249,7 +249,7 @@ bool Node::launch()
     {
         co::ConnectionDescriptionPtr description = *i;
         const std::string launchCommand = _createLaunchCommand( description );
-        if( eq::base::Launcher::run( launchCommand ))
+        if( co::base::Launcher::run( launchCommand ))
             return true;
 
         EQWARN << "Could not launch node using '" << launchCommand << "'" 
@@ -260,7 +260,7 @@ bool Node::launch()
     return false;
 }
 
-bool Node::syncLaunch( const eq::base::Clock& clock )
+bool Node::syncLaunch( const co::base::Clock& clock )
 {
     EQASSERT( isActive( ));
 
@@ -286,7 +286,7 @@ bool Node::syncLaunch( const eq::base::Clock& clock )
             return true;
         }
         
-        eq::base::sleep( 100 /*ms*/ );
+        co::base::sleep( 100 /*ms*/ );
         if( clock.getTime64() > timeOut )
         {
             EQASSERT( _node->getRefCount() == 1 );
@@ -388,9 +388,9 @@ std::string Node::_createRemoteCommand()
         if( strlen( environ[i] ) > 2 && strncmp( environ[i], "EQ_", 3 ) == 0 )
             stringStream << environ[i] << " ";
 
-    stringStream << "EQ_LOG_LEVEL=" << base::Log::getLogLevelString() << " ";
-    if( eq::base::Log::topics != 0 )
-        stringStream << "EQ_LOG_TOPICS=" << base::Log::topics << " ";
+    stringStream << "EQ_LOG_LEVEL=" <<co::base::Log::getLogLevelString() << " ";
+    if( co::base::Log::topics != 0 )
+        stringStream << "EQ_LOG_TOPICS=" <<co::base::Log::topics << " ";
 #endif // WIN32
 
     //----- program + args
@@ -742,7 +742,7 @@ void Node::output( std::ostream& os ) const
         if( !attrPrinted )
         {
             os << std::endl << "attributes" << std::endl;
-            os << "{" << std::endl << base::indent;
+            os << "{" << std::endl << co::base::indent;
             attrPrinted = true;
         }
         
@@ -762,7 +762,7 @@ void Node::output( std::ostream& os ) const
         if( !attrPrinted )
         {
             os << std::endl << "attributes" << std::endl;
-            os << "{" << std::endl << base::indent;
+            os << "{" << std::endl << co::base::indent;
             attrPrinted = true;
         }
         
@@ -782,7 +782,7 @@ void Node::output( std::ostream& os ) const
         if( !attrPrinted )
         {
             os << std::endl << "attributes" << std::endl;
-            os << "{" << std::endl << base::indent;
+            os << "{" << std::endl << co::base::indent;
             attrPrinted = true;
         }
         
@@ -793,7 +793,7 @@ void Node::output( std::ostream& os ) const
     }
     
     if( attrPrinted )
-        os << base::exdent << "}" << std::endl << std::endl;
+        os << co::base::exdent << "}" << std::endl << std::endl;
 }
 
 }

@@ -322,7 +322,7 @@ void Config::releaseCanvas( Canvas* canvas )
     delete canvas;
 }
 
-template< class T > bool Config::_postDelete( const base::UUID& id )
+template< class T > bool Config::_postDelete( const co::base::UUID& id )
 {
     T* child = find< T >( id );
     if( !child )
@@ -332,7 +332,7 @@ template< class T > bool Config::_postDelete( const base::UUID& id )
     return true;
 }
 
-void Config::removeChild( const base::UUID& id )
+void Config::removeChild( const co::base::UUID& id )
 {
     EQASSERT( isRunning( ));
 
@@ -566,7 +566,7 @@ void Config::_startNodes()
 bool Config::_connectNodes()
 {
     bool success = true;
-    base::Clock clock;
+    co::base::Clock clock;
     const Nodes& nodes = getNodes();
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
@@ -647,7 +647,7 @@ void Config::_stopNodes()
         {
             while( netNode->isConnected() && --nSleeps )
             {
-                base::sleep( 100 ); // ms
+                co::base::sleep( 100 ); // ms
             }
         }
 
@@ -823,7 +823,7 @@ void Config::_startFrame( const uint128_t& frameID )
     _syncClock();
 
     ++_currentFrame;
-    EQLOG( base::LOG_ANY ) << "----- Start Frame ----- " << _currentFrame
+    EQLOG( co::base::LOG_ANY ) << "----- Start Frame ----- " << _currentFrame
                            << std::endl;
 
     for( Compounds::const_iterator i = _compounds.begin(); 
@@ -903,7 +903,7 @@ void Config::_flushAllFrames()
             node->flushFrames( _currentFrame );
     }
 
-    EQLOG( base::LOG_ANY ) << "--- Flush All Frames -- " << std::endl;
+    EQLOG( co::base::LOG_ANY ) << "--- Flush All Frames -- " << std::endl;
 }
 
 void Config::changeLatency( const uint32_t latency )
@@ -1103,7 +1103,7 @@ bool Config::_cmdFreezeLoadBalancing( co::Command& command )
 
 void Config::output( std::ostream& os ) const
 {
-    os << base::disableFlush << base::disableHeader;
+    os << co::base::disableFlush << co::base::disableHeader;
 
     for( Compounds::const_iterator i = _compounds.begin(); 
          i != _compounds.end(); ++i )
@@ -1111,7 +1111,7 @@ void Config::output( std::ostream& os ) const
         os << **i;
     }
 
-    os << base::enableHeader << base::enableFlush;
+    os << co::base::enableHeader << co::base::enableFlush;
 }
 
 }

@@ -201,7 +201,7 @@ namespace server
         Vector4i _overdraw;
 
         /** The current state for state change synchronization. */
-        base::Monitor< State > _state;
+        co::base::Monitor< State > _state;
 
         /** The last draw compound for this entity */
         const Compound* _lastDrawCompound;

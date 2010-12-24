@@ -119,7 +119,7 @@ ServerPtr Pipe::getServer()
     return ( node ? node->getServer() : 0);
 }
 
-void Pipe::attach( const eq::base::UUID& id, const uint32_t instanceID )
+void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
     
@@ -351,7 +351,7 @@ const View* Pipe::getView( const co::ObjectVersion& viewVersion ) const
 View* Pipe::getView( const co::ObjectVersion& viewVersion )
 {
     EQ_TS_THREAD( _pipeThread );
-    if( viewVersion.identifier == base::UUID::ZERO )
+    if( viewVersion.identifier ==co::base::UUID::ZERO )
         return 0;
 
     View* view = _views[ viewVersion.identifier ];

@@ -15,13 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_TIMEDLOCK_H
-#define EQBASE_TIMEDLOCK_H
+#ifndef COBASE_TIMEDLOCK_H
+#define COBASE_TIMEDLOCK_H
 
 #include <co/base/os.h>
 #include <co/base/nonCopyable.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -32,10 +32,10 @@ namespace base
     {
     public:
         /** Construct a new timed lock. @version 1.0 */
-        EQBASE_API TimedLock();
+        COBASE_API TimedLock();
 
         /** Destruct the lock. @version 1.0 */
-        EQBASE_API ~TimedLock();
+        COBASE_API ~TimedLock();
 
         /** 
          * Set the lock. 
@@ -46,10 +46,10 @@ namespace base
          * @return true if the lock was acquired, false if not.
          * @version 1.0
          */
-        EQBASE_API bool set( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+        COBASE_API bool set( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
 
         /** Release the lock. @version 1.0 */
-        EQBASE_API void unset();
+        COBASE_API void unset();
 
         /** 
          * Attempt to set the lock.
@@ -57,7 +57,7 @@ namespace base
          * @return true if the lock was acquired, false if not.
          * @version 1.0
          */
-        EQBASE_API bool trySet();
+        COBASE_API bool trySet();
 
         /** 
          * Test if the lock is set.
@@ -65,7 +65,7 @@ namespace base
          * @return true if the lock is set, false if it is not set.
          * @version 1.0
          */
-        EQBASE_API bool isSet(); 
+        COBASE_API bool isSet(); 
 
     private:
         TimedLockPrivate* _data;
@@ -73,4 +73,4 @@ namespace base
     };
 }
 }
-#endif //EQBASE_TIMEDLOCK_H
+#endif //COBASE_TIMEDLOCK_H

@@ -32,7 +32,7 @@ namespace co
      *
      * @sa Node
      */
-    class ConnectionDescription : public eq::base::Referenced
+    class ConnectionDescription : public co::base::Referenced
     {
     public:
         ConnectionDescription() 

@@ -29,7 +29,7 @@
 #  include <sys/wait.h>
 #endif
 
-namespace eq
+namespace co
 {
 namespace base
 {

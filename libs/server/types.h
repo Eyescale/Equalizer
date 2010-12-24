@@ -80,8 +80,8 @@ typedef std::vector< Observer* >     Observers;
 typedef std::vector< Segment* >      Segments;
 typedef std::vector< View* >         Views;
 
-typedef base::uint128_t uint128_t;
-typedef base::UUID UUID;
+typedef co::base::uint128_t uint128_t;
+typedef co::base::UUID UUID;
 
 typedef Compounds::iterator CompoundsIter;
 typedef Compounds::const_iterator CompoundsCIter;
@@ -90,8 +90,8 @@ typedef Observers::const_iterator ObserversCIter;
 typedef Canvases::iterator CanvasesIter;
 typedef Canvases::const_iterator CanvasesCIter;
 
-typedef base::RefPtr< Server > ServerPtr;
-typedef base::RefPtr< const Server > ConstServerPtr;
+typedef co::base::RefPtr< Server > ServerPtr;
+typedef co::base::RefPtr< const Server > ConstServerPtr;
 
 typedef fabric::Vector4i Vector4i;   //!< A four-component integer vector
 typedef fabric::Vector3f Vector3f;   //!< A three-component float vector

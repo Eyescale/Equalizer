@@ -48,7 +48,7 @@ namespace fabric
                 size    = sizeof( ServerDestroyConfigPacket );
             }
 
-        base::UUID configID;
+        co::base::UUID configID;
         uint32_t requestID;
     };
 

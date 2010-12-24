@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_REFPTR_H
-#define EQBASE_REFPTR_H
+#ifndef COBASE_REFPTR_H
+#define COBASE_REFPTR_H
 
 #include <co/base/os.h>
 #include <co/base/debug.h>
@@ -34,7 +34,7 @@
 #  define EQ_REFERENCED_PARAM
 #endif
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -203,4 +203,4 @@ namespace base
 }
 
 }
-#endif //EQBASE_REFPTR_H
+#endif //COBASE_REFPTR_H

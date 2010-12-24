@@ -52,7 +52,15 @@ set(COBASE_FORWARD_HEADERS
     types.h
     uint128_t.h
     uuid.h
-	)
+  )
+
+set(COBASE_HEADERS 
+    compressor.h
+    compressorInfo.h
+    cpuCompressor.h
+    memcpy.h
+    plugin.h
+  )
 
  set(COBASE_SOURCES
     clock.cpp

@@ -18,7 +18,7 @@
 
 #include "clock.h"
 
-namespace eq
+namespace co
 {
 namespace base
 {

@@ -37,7 +37,7 @@ namespace co
      * at least one Connection through which is reachable. A Node provides the
      * basic communication facilities through message passing.
      */
-    class Node : public Dispatcher, public eq::base::Referenced
+    class Node : public Dispatcher, public co::base::Referenced
     {
     public:
         /** Construct a new Node. */
@@ -235,7 +235,7 @@ namespace co
         ConnectionPtr _outgoing;
 
         /** The multicast connection to this node, can be 0. */
-        eq::base::Lockable< ConnectionPtr > _outMulticast;
+        co::base::Lockable< ConnectionPtr > _outMulticast;
 
         struct MCData
         {
@@ -254,7 +254,7 @@ namespace co
         MCDatas _multicasts;
 
         /** The list of descriptions on how this node is reachable. */
-        eq::base::Lockable< ConnectionDescriptions, eq::base::SpinLock >
+        co::base::Lockable< ConnectionDescriptions, co::base::SpinLock >
             _connectionDescriptions;
 
         /** Ensures the connectivity of this node. */

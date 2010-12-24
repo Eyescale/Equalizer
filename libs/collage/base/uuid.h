@@ -15,13 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_UUID_H
-#define EQBASE_UUID_H
+#ifndef COBASE_UUID_H
+#define COBASE_UUID_H
 
 #include <co/base/rng.h>     // used in inline method
 #include <co/base/uint128_t.h> // base class
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -90,12 +90,12 @@ namespace base
         bool isGenerated() const { return high() != 0; }
 
         /** The NULL UUID. @version 1.0 */
-        static EQBASE_API const UUID ZERO;
+        static COBASE_API const UUID ZERO;
 #ifdef _MSC_VER
-        friend size_t stde::hash_compare< eq::base::UUID >::operator() 
-            ( const eq::base::UUID& key ) const;
+        friend size_t stde::hash_compare< co::base::UUID >::operator() 
+            ( const co::base::UUID& key ) const;
 #else
-        friend struct stde::hash< eq::base::UUID >;
+        friend struct stde::hash< co::base::UUID >;
 #endif
     };
 
@@ -106,4 +106,4 @@ namespace base
 }
 }
 
-#endif // EQBASE_UUID_H
+#endif // COBASE_UUID_H

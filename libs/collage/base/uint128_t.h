@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_UINT128_H
-#define EQBASE_UINT128_H
+#ifndef COBASE_UINT128_H
+#define COBASE_UINT128_H
 
 #include <co/base/stdExt.h>
 #include <sstream>
@@ -31,7 +31,7 @@ typedef UINT64     uint64_t;
 #  include <stdint.h>
 #endif
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -204,13 +204,13 @@ namespace base
 
 #ifdef EQ_STDEXT_VC8
 
-template<> inline size_t stde::hash_compare< eq::base::uint128_t >::operator() 
-        ( const eq::base::uint128_t& key ) const
+template<> inline size_t stde::hash_compare< co::base::uint128_t >::operator() 
+        ( const co::base::uint128_t& key ) const
 {
     return key.high() ^ key.low();
 }
 
-template<> inline size_t stde::hash_value( const eq::base::uint128_t& key )
+template<> inline size_t stde::hash_value( const co::base::uint128_t& key )
 {
     return key.high() ^ key.low();
 }
@@ -218,9 +218,9 @@ template<> inline size_t stde::hash_value( const eq::base::uint128_t& key )
 #else // EQ_STDEXT_VC8
 
 EQ_STDEXT_NAMESPACE_OPEN
-template<> struct hash< eq::base::uint128_t >
+template<> struct hash< co::base::uint128_t >
 {
-    size_t operator()( const eq::base::uint128_t& key ) const
+    size_t operator()( const co::base::uint128_t& key ) const
         {
             return key.high() ^ key.low();
         }
@@ -228,4 +228,4 @@ template<> struct hash< eq::base::uint128_t >
 EQ_STDEXT_NAMESPACE_CLOSE
 
 #endif // EQ_STDEXT_VC8
-#endif // EQBASE_UINT128_H
+#endif // COBASE_UINT128_H

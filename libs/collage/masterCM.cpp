@@ -128,7 +128,7 @@ void MasterCM::_apply( ObjectDataIStream* is )
     _object->unpack( *is );
     EQASSERTINFO( is->getRemainingBufferSize() == 0 && 
                   is->nRemainingBuffers()==0,
-                  "Object " << eq::base::className( _object ) <<
+                  "Object " << co::base::className( _object ) <<
                   " did not unpack all data" );
     is->reset();
     _iStreamCache.release( is );
@@ -176,7 +176,7 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
 #if 0
         EQLOG( LOG_OBJECTS )
             << "Queued slave commit " << packet->commit << " object "
-            << _object->getID() << " " << base::className( _object )
+            << _object->getID() << " " << co::base::className( _object )
             << std::endl;
 #endif
     }
@@ -186,7 +186,7 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
 #if 0
         EQLOG( LOG_OBJECTS )
             << "New incomplete slave commit " << packet->commit << " object "
-            << _object->getID() << " " << base::className( _object )
+            << _object->getID() << " " << co::base::className( _object )
             << std::endl;
 #endif
     }
@@ -195,7 +195,7 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
         EQLOG( LOG_OBJECTS )
             << "Got data for incomplete slave commit " << packet->commit
             << " object " << _object->getID() << " "
-            << base::className( _object ) << std::endl;
+            << co::base::className( _object ) << std::endl;
 #endif
 
     return true;

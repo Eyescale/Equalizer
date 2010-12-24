@@ -18,7 +18,7 @@
 #include "omp.h"
 #include "debug.h"
 
-namespace eq
+namespace co
 {
 namespace base
 {

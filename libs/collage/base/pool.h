@@ -15,15 +15,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_POOL_H
-#define EQBASE_POOL_H
+#ifndef COBASE_POOL_H
+#define COBASE_POOL_H
 
 #include <co/base/nonCopyable.h>  // base class
 #include <co/base/scopedMutex.h>  // member
 #include <co/base/spinLock.h>     // member
 #include <co/base/thread.h>       // thread-safety checks
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -77,4 +77,4 @@ namespace base
     };
 }
 }
-#endif // EQBASE_POOL_H
+#endif // COBASE_POOL_H

@@ -300,7 +300,7 @@ namespace eq
 
     protected:
         /** @internal */
-        EQ_API void attach( const base::UUID& id, const uint32_t instanceID );
+        EQ_API void attach( const co::base::UUID& id, const uint32_t instanceID );
 
         /** @name Actions */
         //@{
@@ -525,7 +525,7 @@ namespace eq
         struct FrameStatistics
         {
             Statistics data; //!< all events for one frame
-            base::a_int32_t used; //!< reference count by pipe and xmit thread
+            co::base::a_int32_t used; //!< reference count by pipe and xmit thread
         };
 
         typedef std::vector< FrameStatistics > StatisticsRB;

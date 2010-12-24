@@ -8,12 +8,12 @@
 //  Disclaimer: Not a Boost library.
 
 /* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
-   Modifications to use within eq::base namespace and naming conventions.
+   Modifications to use within co::base namespace and naming conventions.
    Original at http://tim.klingt.org/git?p=boost_lockfree.git;a=tree
 */
 
-#ifndef EQBASE_COMPAREANDSWAP_H
-#define EQBASE_COMPAREANDSWAP_H
+#ifndef COBASE_COMPAREANDSWAP_H
+#define COBASE_COMPAREANDSWAP_H
 
 #include <co/base/os.h>
 
@@ -26,7 +26,7 @@
 #  include <libkern/OSAtomic.h>
 #endif
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -102,4 +102,4 @@ inline bool compareAndSwap(long * addr, D old, D nw)
 }
 
 }
-#endif // EQBASE_COMPAREANDSWAP_H
+#endif // COBASE_COMPAREANDSWAP_H

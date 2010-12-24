@@ -15,14 +15,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_PERTHREADREF_H
-#define EQBASE_PERTHREADREF_H
+#ifndef COBASE_PERTHREADREF_H
+#define COBASE_PERTHREADREF_H
 
 #include <co/base/os.h>
 #include <co/base/debug.h>
 #include <co/base/refPtr.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -228,4 +228,4 @@ bool PerThreadRef<T>::isValid() const
 }
 
 }
-#endif //EQBASE_PERTHREADREF_H
+#endif //COBASE_PERTHREADREF_H

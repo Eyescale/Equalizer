@@ -25,7 +25,7 @@
 #include <errno.h>
 #include <poll.h>
 
-using namespace eq::base;
+using namespace co::base;
 
 namespace co
 {

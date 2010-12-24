@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_FILESEARCH_H
-#define EQBASE_FILESEARCH_H
+#ifndef COBASE_FILESEARCH_H
+#define COBASE_FILESEARCH_H
 
 #include <co/base/debug.h> // EQASSERTINFO macro
 #include <co/base/types.h>
@@ -28,7 +28,7 @@
 
 #include <sys/stat.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -137,4 +137,4 @@ inline std::string getDirname( const std::string& filename )
 
 }
 }
-#endif //EQBASE_FILESEARCH_H
+#endif //COBASE_FILESEARCH_H

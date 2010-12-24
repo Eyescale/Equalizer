@@ -235,7 +235,7 @@ namespace server
          * @param listener the listener.
          * @version 1.0
          */
-        void addListener( base::Monitor<uint32_t>& listener );
+        void addListener( co::base::Monitor<uint32_t>& listener );
 
         /** 
          * Remove a frame listener.
@@ -243,7 +243,7 @@ namespace server
          * @param listener the listener.
          * @version 1.0
          */
-        void removeListener( base::Monitor<uint32_t>& listener );
+        void removeListener( co::base::Monitor<uint32_t>& listener );
         
         /** 
          * Disable the usage of a frame buffer attachment for all images.
@@ -291,7 +291,7 @@ namespace server
 
         Images _images;
         Images _imageCache;
-        base::Lock _imageCacheLock;
+        co::base::Lock _imageCacheLock;
 
         ROIFinder* _roiFinder;
 
@@ -299,15 +299,15 @@ namespace server
 
         uint64_t _version; //!< The current version
 
-        typedef base::Monitor< uint64_t > Monitor;
+        typedef co::base::Monitor< uint64_t > Monitor;
 
         /** Data ready monitor synchronization primitive. */
         Monitor _readyVersion;
 
-        typedef base::Monitor< uint32_t > Listener;
+        typedef co::base::Monitor< uint32_t > Listener;
         typedef std::vector< Listener* > Listeners;
         /** External monitors for readiness synchronization. */
-        base::Lockable< Listeners, base::SpinLock > _listeners;
+        co::base::Lockable< Listeners, co::base::SpinLock > _listeners;
 
         bool _useAlpha;
         bool _useSendToken;

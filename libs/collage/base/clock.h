@@ -16,8 +16,8 @@
  */
 
 
-#ifndef EQBASE_CLOCK_H
-#define EQBASE_CLOCK_H
+#ifndef COBASE_CLOCK_H
+#define COBASE_CLOCK_H
 
 #include <co/base/os.h>
 
@@ -32,7 +32,7 @@
 #  include <time.h>
 #endif
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -41,7 +41,7 @@ namespace base
     {
     public :
         /** Construct a new clock. @version 1.0 */
-        EQBASE_API Clock();
+        COBASE_API Clock();
 
         /** Destroy the clock. @version 1.0 */
         ~Clock() {}
@@ -50,35 +50,35 @@ namespace base
          * Reset the base time of the clock to the current time.
          * @version 1.0
          */
-        EQBASE_API void reset();
+        COBASE_API void reset();
 
         /** Set the current time of the clock. @version 1.0 */
-        EQBASE_API void set( const int64_t time );
+        COBASE_API void set( const int64_t time );
 
         /** 
          * @return the elapsed time in milliseconds since the last clock reset.
          * @version 1.0
          */
-        EQBASE_API float getTimef() const;
+        COBASE_API float getTimef() const;
 
         /** 
          * @return the elapsed time in milliseconds since the last clock reset
          *         and atomically reset the clock.
          * @version 1.0
          */
-        EQBASE_API float resetTimef();
+        COBASE_API float resetTimef();
 
         /** 
          * @return the elapsed time in milliseconds since the last clock reset.
          * @version 1.0
          */
-        EQBASE_API int64_t getTime64() const;
+        COBASE_API int64_t getTime64() const;
 
         /** 
          * @return the elapsed time in milliseconds since the last clock reset.
          * @version 1.0
          */
-        EQBASE_API double getTimed() const;
+        COBASE_API double getTimed() const;
 
         /** 
          * Returns the millisecond part of the time elapsed since the last
@@ -89,7 +89,7 @@ namespace base
          * @return the millisecond part of the time elapsed. 
          * @version 1.0
          */
-        EQBASE_API float getMilliSecondsf() const;
+        COBASE_API float getMilliSecondsf() const;
 
     private:
 #ifdef Darwin
@@ -104,4 +104,4 @@ namespace base
     };
 }
 }
-#endif  // EQBASE_CLOCK_H
+#endif  // COBASE_CLOCK_H

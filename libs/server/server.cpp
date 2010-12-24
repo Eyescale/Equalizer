@@ -62,7 +62,7 @@ Server::Server()
         : Super( &_nf )
         , _running( false )
 {
-    base::Log::setClock( &_clock );
+    co::base::Log::setClock( &_clock );
     disableInstanceCache();
 
     registerCommand( fabric::CMD_SERVER_CHOOSE_CONFIG,
@@ -87,7 +87,7 @@ Server::~Server()
 {
     EQASSERT( getConfigs().empty( )); // not possible - config RefPtr's myself
     deleteConfigs();
-    base::Log::setClock( 0 );
+    co::base::Log::setClock( 0 );
 }
 
 namespace
@@ -159,15 +159,15 @@ bool Server::listen()
 void Server::init()
 {
     EQASSERT( isListening( ));
-    base::Thread::setDebugName( base::className( this ));
+    co::base::Thread::setDebugName( co::base::className( this ));
 
     const Configs& configs = getConfigs();
     if( configs.empty( ))
         EQWARN << "No configurations loaded" << std::endl;
 
-    EQINFO << base::disableFlush << "Running server: " << std::endl
-           << base::indent << Global::instance() << *this << base::exdent
-           << base::enableFlush << std::endl;
+    EQINFO << co::base::disableFlush << "Running server: " << std::endl
+           << co::base::indent << Global::instance() << *this << co::base::exdent
+           << co::base::enableFlush << std::endl;
 
     for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
         (*i)->register_();
@@ -356,7 +356,7 @@ bool Server::_cmdReleaseConfig( co::Command& command )
     EQINFO << "Released " << *config << std::endl;
 
     node->send( reply );
-    EQLOG( base::LOG_ANY ) << "----- Released Config -----" << std::endl;
+    EQLOG( co::base::LOG_ANY ) << "----- Released Config -----" << std::endl;
     return true;
 }
 
@@ -408,7 +408,7 @@ bool Server::_cmdShutdown( co::Command& command )
 
 #ifndef WIN32
     // WAR for 2874188: Lockup at shutdown
-    base::sleep( 100 );
+    co::base::sleep( 100 );
 #endif
 
     return true;

@@ -36,13 +36,13 @@ Observer< C, O >::Observer( C* config )
     EQASSERT( config );
     config->_addObserver( static_cast< O* >( this ));
     _data.eyeBase = config->getFAttribute( C::FATTR_EYE_BASE );
-    EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
 }
 
 template< typename C, typename O >
 Observer< C, O >::~Observer()
 {
-    EQLOG( LOG_INIT ) << "Delete " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
     _config->_removeObserver( static_cast< O* >( this ));
 }
 
@@ -135,8 +135,9 @@ void Observer< C, O >::setHeadMatrix( const Matrix4f& matrix )
 template< typename C, typename O >
 std::ostream& operator << ( std::ostream& os, const Observer< C, O >& observer )
 {
-    os << base::disableFlush << base::disableHeader << "observer" << std::endl;
-    os << "{" << std::endl << base::indent; 
+    os << co::base::disableFlush << co::base::disableHeader << "observer"
+       << std::endl;
+    os << "{" << std::endl << co::base::indent; 
 
     const std::string& name = observer.getName();
     if( !name.empty( ))
@@ -146,8 +147,8 @@ std::ostream& operator << ( std::ostream& os, const Observer< C, O >& observer )
     if( eyeBase != 0.05f /* TODO use Config::FATTR_EYE_BASE */ )
         os << "eye_base " << eyeBase << std::endl;
 
-    os << base::exdent << "}" << std::endl << base::enableHeader
-       << base::enableFlush;
+    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
+       << co::base::enableFlush;
     return os;
 }
 

@@ -21,7 +21,7 @@
 
 #include <co/base/debug.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {

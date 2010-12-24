@@ -39,13 +39,13 @@ Segment< C, S, CH >::Segment( C* canvas )
 {
     EQASSERT( canvas );
     canvas->_addChild( static_cast< S* >( this ));
-    EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
 }
 
 template< class C, class S, class CH >
 Segment< C, S, CH >::~Segment()
 {
-    EQLOG( LOG_INIT ) << "Delete " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
     _canvas->_removeChild( static_cast< S* >( this ));
     _channel = 0;
 }
@@ -99,7 +99,7 @@ void Segment< C, S, CH >::deserialize( co::DataIStream& is,
         is >> ov;
 
         _channel = 0;
-        if( ov.identifier != base::UUID::ZERO )
+        if( ov.identifier != co::base::UUID::ZERO )
         {
             _canvas->getConfig()->find( ov.identifier, &_channel );
             EQASSERT( !isMaster() || _channel );
@@ -215,8 +215,9 @@ template< class C, class S, class CH >
 std::ostream& operator << ( std::ostream& os, const Segment< C, S, CH >& s )
 {
     const S& segment = static_cast< const S& >( s );
-    os << base::disableFlush << base::disableHeader << "segment" << std::endl;
-    os << "{" << std::endl << base::indent;
+    os << co::base::disableFlush << co::base::disableHeader << "segment"
+       << std::endl;
+    os << "{" << std::endl << co::base::indent;
     
     const std::string& name = segment.getName();
     if( !name.empty( ))
@@ -252,8 +253,8 @@ std::ostream& operator << ( std::ostream& os, const Segment< C, S, CH >& s )
 
     os << static_cast< const Frustum& >( segment );
 
-    os << base::exdent << "}" << std::endl << base::enableHeader
-       << base::enableFlush;
+    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
+       << co::base::enableFlush;
     return os;
 }
 

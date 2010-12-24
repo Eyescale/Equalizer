@@ -131,7 +131,7 @@ ErrorData _errors[] = {
 
 void _initErrors()
 {
-    base::ErrorRegistry& registry = base::Global::getErrorRegistry();
+    co::base::ErrorRegistry& registry = co::base::Global::getErrorRegistry();
 
     for( size_t i=0; _errors[i].code != 0; ++i )
         registry.setString( _errors[i].code, _errors[i].text );
@@ -139,7 +139,7 @@ void _initErrors()
 
 void _exitErrors()
 {
-    base::ErrorRegistry& registry = base::Global::getErrorRegistry();
+    co::base::ErrorRegistry& registry = co::base::Global::getErrorRegistry();
 
     for( size_t i=0; _errors[i].code != 0; ++i )
         registry.eraseString( _errors[i].code );

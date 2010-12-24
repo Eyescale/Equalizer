@@ -51,13 +51,13 @@ Pipe< N, P, W, V >::Pipe( N* parent )
 {
     memset( _iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
     parent->_addPipe( static_cast< P* >( this ) );
-    EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
 }
 
 template< class N, class P, class W, class V >
 Pipe< N, P, W, V >::~Pipe()
 {
-    EQLOG( LOG_INIT ) << "Delete " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
     while( !_windows.empty() )
     {
         W* window = _windows.back();
@@ -85,7 +85,7 @@ void Pipe< N, P, W, V >::restore()
 }
 
 template< class N, class P, class W, class V >
-void Pipe< N, P, W, V >::attach( const base::UUID& id,
+void Pipe< N, P, W, V >::attach( const co::base::UUID& id,
                                  const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
@@ -330,7 +330,7 @@ bool Pipe< N, P, W, V >::_removeWindow( W* window )
 }
 
 template< class N, class P, class W, class V >
-W* Pipe< N, P, W, V >::_findWindow( const base::UUID& id )
+W* Pipe< N, P, W, V >::_findWindow( const co::base::UUID& id )
 {
     for( typename Windows::const_iterator i = _windows.begin(); 
          i != _windows.end(); ++i )
@@ -411,8 +411,9 @@ Pipe< N, P, W, V >::_cmdNewWindowReply( co::Command& command )
 template< class N, class P, class W, class V >
 std::ostream& operator << ( std::ostream& os, const Pipe< N, P, W, V >& pipe )
 {
-    os << base::disableFlush << base::disableHeader << "pipe" << std::endl;
-    os << "{" << std::endl << base::indent;
+    os << co::base::disableFlush << co::base::disableHeader << "pipe"
+       << std::endl;
+    os << "{" << std::endl << co::base::indent;
 
     const std::string& name = pipe.getName();
     if( !name.empty( ))
@@ -438,8 +439,8 @@ std::ostream& operator << ( std::ostream& os, const Pipe< N, P, W, V >& pipe )
         os << **i;
     }
 
-    os << base::exdent << "}" << std::endl << base::enableHeader
-       << base::enableFlush;
+    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
+       << co::base::enableFlush;
     return os;
 }
 

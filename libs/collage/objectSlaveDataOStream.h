@@ -46,7 +46,7 @@ namespace co
                                  const uint64_t sizeUncompressed );
 
     private:
-        eq::base::UUID _commit;
+        co::base::UUID _commit;
     };
 }
 #endif //CO_OBJECTSLAVEDATAOSTREAM_H

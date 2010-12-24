@@ -1053,7 +1053,7 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Node* node )
     if( !node )
         return os;
 
-    os << base::disableFlush;
+    os << co::base::disableFlush;
 
     if( node->compound )
         os << node->compound->getChannel()->getName() << " resources " 
@@ -1061,9 +1061,9 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Node* node )
     else
         os << "split " << node->mode << " @ " << node->split << " resources "
            << node->resources << " max size " << node->maxSize  << std::endl
-           << base::indent << node->left << node->right << base::exdent;
+           << co::base::indent << node->left << node->right << co::base::exdent;
 
-    os << base::enableFlush;
+    os << co::base::enableFlush;
     return os;
 }
 
@@ -1082,7 +1082,7 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer* lb )
     if( !lb )
         return os;
 
-    os << base::disableFlush
+    os << co::base::disableFlush
        << "load_equalizer" << std::endl
        << '{' << std::endl
        << "    mode    " << lb->getMode() << std::endl;
@@ -1097,7 +1097,7 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer* lb )
     if( lb->getBoundaryf() != std::numeric_limits<float>::epsilon() )
         os << "    boundary " << lb->getBoundaryf() << std::endl;
 
-    os << '}' << std::endl << base::enableFlush;
+    os << '}' << std::endl << co::base::enableFlush;
     return os;
 }
 

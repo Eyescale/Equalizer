@@ -28,7 +28,7 @@ using namespace std;
 #endif
 
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -168,7 +168,7 @@ LogBuffer::int_type LogBuffer::overflow( LogBuffer::int_type c )
         if( !_noHeader )
         {
             _stringStream << getpid()  << " "
-                          << eq::base::Thread::getSelfThreadID()
+                          << co::base::Thread::getSelfThreadID()
                           << " " << _file << ":" << _line << " "
                           << _clock->getTime64() << " ";
         }

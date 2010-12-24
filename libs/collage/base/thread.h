@@ -15,10 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_THREAD_H
-#define EQBASE_THREAD_H
+#ifndef COBASE_THREAD_H
+#define COBASE_THREAD_H
 
-#include <co/base/os.h>     // EQBASE_API definition
+#include <co/base/os.h>     // COBASE_API definition
 #include <co/base/debug.h>    // debug macros in thread-safety checks
 #include <co/base/lock.h>     // member
 #include <co/base/monitor.h>  // member
@@ -28,7 +28,7 @@
 #include <typeinfo>
 #include <sstream>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -39,10 +39,10 @@ namespace base
     {
     public:
         /** Construct a new thread. @version 1.0 */
-        EQBASE_API Thread();
+        COBASE_API Thread();
 
         /** Destruct the thread. @version 1.0 */
-        EQBASE_API virtual ~Thread();
+        COBASE_API virtual ~Thread();
 
         /** 
          * Start the thread.
@@ -55,7 +55,7 @@ namespace base
          * @sa init(), run(), addListener()
          * @version 1.0
          */
-        EQBASE_API bool start();
+        COBASE_API bool start();
 
         /** 
          * The init function for the child thread.
@@ -88,7 +88,7 @@ namespace base
          *
          * @version 1.0
          */
-        EQBASE_API virtual void exit();
+        COBASE_API virtual void exit();
 
         /** 
          * Cancel (stop) the child thread.
@@ -96,7 +96,7 @@ namespace base
          * This function is not to be called from the child thread.
          * @version 1.0
          */
-        EQBASE_API void cancel();
+        COBASE_API void cancel();
 
         /** 
          * Wait for the exit of the child thread.
@@ -104,7 +104,7 @@ namespace base
          * @return true if the thread was joined, false otherwise.
          * @version 1.0
          */
-        EQBASE_API bool join();
+        COBASE_API bool join();
 
         /** 
          * Return if the thread is stopped.
@@ -135,7 +135,7 @@ namespace base
          *         thread, false if not.
          * @version 1.0
          */
-        EQBASE_API bool isCurrent() const;
+        COBASE_API bool isCurrent() const;
 
         /** 
          * Add a new thread state listener.
@@ -143,7 +143,7 @@ namespace base
          * @param listener the listener.
          * @version 1.0
          */
-        EQBASE_API static void addListener( ExecutionListener* listener );
+        COBASE_API static void addListener( ExecutionListener* listener );
 
         /** 
          * Remove a thread state listener.
@@ -151,22 +151,22 @@ namespace base
          * @param listener the listener.
          * @version 1.0
          */
-        EQBASE_API static bool removeListener( ExecutionListener* listener );
+        COBASE_API static bool removeListener( ExecutionListener* listener );
 
         /** Remove all registered listeners, used at exit. @version 1.0 */
-        EQBASE_API static void removeAllListeners();
+        COBASE_API static void removeAllListeners();
 
         /** @return a unique identifier for the calling thread. @version 1.0 */
-        EQBASE_API static ThreadID getSelfThreadID();
+        COBASE_API static ThreadID getSelfThreadID();
 
         /** @internal */
-        EQBASE_API static void yield();
+        COBASE_API static void yield();
 
         /** @internal */
         static void pinCurrentThread();
 
         /** @internal */
-        EQBASE_API static void setDebugName( const std::string& name );
+        COBASE_API static void setDebugName( const std::string& name );
 
     private:
         ThreadID _id;
@@ -214,7 +214,7 @@ namespace base
         NAME ## Struct ()                                   \
             : extMutex( false ), inRegion( false )          \
             {}                                              \
-        mutable eq::base::ThreadID id;                      \
+        mutable co::base::ThreadID id;                      \
         bool extMutex;                                      \
         mutable bool inRegion;                              \
     } NAME;                                                 \
@@ -222,18 +222,18 @@ namespace base
 #ifdef EQ_CHECK_THREADSAFETY
 #  define EQ_TS_THREAD( NAME )                                          \
     {                                                                   \
-        if( NAME.id == eq::base::ThreadID::ZERO )                       \
+        if( NAME.id == co::base::ThreadID::ZERO )                       \
         {                                                               \
-            NAME.id = eq::base::Thread::getSelfThreadID();              \
+            NAME.id = co::base::Thread::getSelfThreadID();              \
             EQVERB << "Functions for " << #NAME                         \
                    << " locked to this thread" << std::endl;            \
         }                                                               \
-        if( !NAME.extMutex && NAME.id != eq::base::Thread::getSelfThreadID( )) \
+        if( !NAME.extMutex && NAME.id != co::base::Thread::getSelfThreadID( )) \
         {                                                               \
             EQERROR << "Threadsafety check for " << #NAME               \
                     << " failed on object of type "                     \
-                    << eq::base::className( this ) << ", thread "       \
-                    << eq::base::Thread::getSelfThreadID() << "  != "   \
+                    << co::base::className( this ) << ", thread "       \
+                    << co::base::Thread::getSelfThreadID() << "  != "   \
                     << NAME.id << std::endl;                            \
             EQABORT( "Non-threadsave code called from two threads" );   \
         }                                                               \
@@ -241,13 +241,13 @@ namespace base
 
 #  define EQ_TS_NOT_THREAD( NAME )                                      \
     {                                                                   \
-        if( !NAME.extMutex && NAME.id != eq::base::ThreadID::ZERO )     \
+        if( !NAME.extMutex && NAME.id != co::base::ThreadID::ZERO )     \
         {                                                               \
-            if( NAME.id ==  eq::base::Thread::getSelfThreadID( ))       \
+            if( NAME.id ==  co::base::Thread::getSelfThreadID( ))       \
             {                                                           \
                 EQERROR << "Threadsafety check for not " << #NAME       \
                         << " failed on object of type "                 \
-                        << eq::base::className( this ) << std::endl;    \
+                        << co::base::className( this ) << std::endl;    \
                 EQABORT( "Code called from wrong thread" );             \
             }                                                           \
         }                                                               \
@@ -276,7 +276,7 @@ namespace base
     /** @endcond */
 
 # define EQ_TS_SCOPED( NAME ) \
-    eq::base::ScopedThreadCheck< NAME ## Struct > scoped ## NAME ## Check(NAME);
+    co::base::ScopedThreadCheck< NAME ## Struct > scoped ## NAME ## Check(NAME);
 
 #else
 #  define EQ_TS_THREAD( NAME ) {}
@@ -286,4 +286,4 @@ namespace base
 
 }
 }
-#endif //EQBASE_THREAD_H
+#endif //COBASE_THREAD_H

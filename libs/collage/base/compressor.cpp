@@ -23,7 +23,7 @@
 #include "plugin.h"
 #include "pluginRegistry.h"
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -75,7 +75,7 @@ float Compressor::getQuality() const
 
 Plugin* Compressor::_findPlugin( uint32_t name )
 {
-    base::PluginRegistry& registry = base::Global::getPluginRegistry();
+    co::base::PluginRegistry& registry = co::base::Global::getPluginRegistry();
     return registry.findPlugin( name );
 }
 

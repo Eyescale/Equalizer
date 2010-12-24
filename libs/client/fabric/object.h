@@ -76,7 +76,7 @@ namespace fabric
         EQFABRIC_API void setError( const int32_t error );
 
         /** @return the error from the last failed operation. @version 1.0 */
-        base::Error getError() const { return _error; }
+        co::base::Error getError() const { return _error; }
         //@}
 
         /** @name Data Access */
@@ -158,7 +158,7 @@ namespace fabric
         EQFABRIC_API void postRemove( const Object* child );
 
         /** @internal Execute the slave remove request. @sa postRemove */
-        virtual void removeChild( const base::UUID& ) { EQUNIMPLEMENTED; }
+        virtual void removeChild( const co::base::UUID& ) { EQUNIMPLEMENTED; }
 
         /** @internal commit, register child slave instance with the server. */
         template< class C, class PKG, class S >
@@ -203,10 +203,10 @@ namespace fabric
         uint32_t _tasks;
 
         /** The reason for the last error. */
-        base::Error _error;
+        co::base::Error _error;
 
         /** The identifiers of removed children since the last slave commit. */
-        std::vector< base::UUID > _removedChildren;
+        std::vector< co::base::UUID > _removedChildren;
 
         union // placeholder for binary-compatible changes
         {

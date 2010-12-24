@@ -39,13 +39,13 @@ Layout< C, L, V >::Layout( C* config )
 {
     EQASSERT( config );
     static_cast< L* >( this )->_config->_addLayout( static_cast< L* >( this ));
-    EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
 }
 
 template< class C, class L, class V >
 Layout< C, L, V >::~Layout()
 {
-    EQLOG( LOG_INIT ) << "Delete " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
     while( !_views.empty( ))
     {
         V* view = _views.back();
@@ -57,7 +57,7 @@ Layout< C, L, V >::~Layout()
 }
 
 template< class C, class L, class V >
-void Layout< C, L, V >::attach( const base::UUID& id,
+void Layout< C, L, V >::attach( const co::base::UUID& id,
                                 const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
@@ -225,8 +225,8 @@ template< class O > void Layout< C, L, V >::_removeObserver( const O* observer )
         V* view = *i;
         if( view->getObserver() == observer )
         {
-            EQINFO << "Removing " << base::disableHeader << *observer
-                   << " used by " << *view << std::endl << base::enableHeader;
+            EQINFO << "Removing " << co::base::disableHeader << *observer
+                   << " used by " << *view << std::endl << co::base::enableHeader;
             view->setObserver( 0 );
         }
     }
@@ -304,8 +304,9 @@ Layout< C, L, V >::_cmdNewViewReply( co::Command& command )
 template< class C, class L, class V >
 std::ostream& operator << ( std::ostream& os, const Layout< C, L, V >& layout )
 {
-    os << base::disableFlush << base::disableHeader << "layout" << std::endl;
-    os << "{" << std::endl << base::indent; 
+    os << co::base::disableFlush << co::base::disableHeader << "layout"
+       << std::endl;
+    os << "{" << std::endl << co::base::indent; 
 
     const std::string& name = layout.getName();
     if( !name.empty( ))
@@ -317,8 +318,8 @@ std::ostream& operator << ( std::ostream& os, const Layout< C, L, V >& layout )
     {
         os << **i;
     }
-    os << base::exdent << "}" << std::endl << base::enableHeader
-       << base::enableFlush;
+    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
+       << co::base::enableFlush;
     return os;
 }
 

@@ -15,15 +15,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_COMPRESSORINFO_H
-#define EQBASE_COMPRESSORINFO_H
+#ifndef COBASE_COMPRESSORINFO_H
+#define COBASE_COMPRESSORINFO_H
 
 #include <co/base/types.h>
 #include <co/plugins/compressor.h> // base struct
 
 #include <iostream>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -48,4 +48,4 @@ inline std::ostream& operator << ( std::ostream& os, const CompressorInfo& info)
 }
 }
 
-#endif //EQBASE_COMPRESSORINFO_H
+#endif //COBASE_COMPRESSORINFO_H

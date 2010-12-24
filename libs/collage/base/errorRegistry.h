@@ -15,13 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_ERRORREGISTRY_H
-#define EQBASE_ERRORREGISTRY_H
+#ifndef COBASE_ERRORREGISTRY_H
+#define COBASE_ERRORREGISTRY_H
 
 #include <co/base/os.h>
 #include <co/base/stdExt.h> // hash_map
 
-namespace eq 
+namespace co 
 {
 namespace base
 {
@@ -34,19 +34,19 @@ namespace base
      * strongly advised to register application-specific errors before
      * eq::init() and erase them after eq::exit().
      *
-     * @sa eq::base::Error, eq::Error
+     * @sa co::base::Error, eq::Error
      */
     class ErrorRegistry
     {
     public:
         /** @return the error string for the given error code. @version 1.0 */
-        EQBASE_API const std::string& getString( const uint32_t error ) const;
+        COBASE_API const std::string& getString( const uint32_t error ) const;
 
         /** Set an error string for the given error code. @version 1.0 */
-        EQBASE_API void setString(const uint32_t error, const std::string& text);
+        COBASE_API void setString(const uint32_t error, const std::string& text);
 
         /** Clear a given error code string. @version 1.0 */
-        EQBASE_API void eraseString( const uint32_t error );
+        COBASE_API void eraseString( const uint32_t error );
 
         bool isEmpty() const { return _errors.empty(); } //!< @internal
 
@@ -56,4 +56,4 @@ namespace base
     };
 }
 }
-#endif // EQBASE_ERRORREGISTRY_H
+#endif // COBASE_ERRORREGISTRY_H

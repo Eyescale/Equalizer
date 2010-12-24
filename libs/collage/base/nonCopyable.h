@@ -15,12 +15,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_NONCOPYABLE_H
-#define EQBASE_NONCOPYABLE_H
+#ifndef COBASE_NONCOPYABLE_H
+#define COBASE_NONCOPYABLE_H
 
-#include <co/base/os.h> // for EQBASE_API
+#include <co/base/os.h> // for COBASE_API
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -40,4 +40,4 @@ namespace base
 }
 
 }
-#endif //EQBASE_NONCOPYABLE_H
+#endif //COBASE_NONCOPYABLE_H

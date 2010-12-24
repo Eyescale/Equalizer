@@ -34,14 +34,14 @@ DataIStream::DataIStream()
         : _input( 0 )
         , _inputSize( 0 )
         , _position( 0 )
-        , _decompressor( new eq::base::CPUCompressor )
+        , _decompressor( new co::base::CPUCompressor )
 {}
 
 DataIStream::DataIStream( const DataIStream& )
         : _input( 0 )
         , _inputSize( 0 )
         , _position( 0 )
-        , _decompressor( new eq::base::CPUCompressor )
+        , _decompressor( new co::base::CPUCompressor )
 {}
 
 DataIStream::~DataIStream()

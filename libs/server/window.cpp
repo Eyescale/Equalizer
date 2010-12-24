@@ -64,7 +64,7 @@ Window::~Window()
 {
 }
 
-void Window::attach( const base::UUID& id, const uint32_t instanceID )
+void Window::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -76,7 +76,7 @@ void Window::attach( const base::UUID& id, const uint32_t instanceID )
                      WindowFunc( this, &Window::_cmdConfigExitReply ), queue );
 }
 
-void Window::removeChild( const base::UUID& id )
+void Window::removeChild( const co::base::UUID& id )
 {
     EQASSERT( getConfig()->isRunning( ));
 
@@ -525,7 +525,7 @@ void Window::output( std::ostream& os ) const
         if( !attrPrinted )
         {
             os << std::endl << "attributes" << std::endl;
-            os << "{" << std::endl << base::indent;
+            os << "{" << std::endl << co::base::indent;
             attrPrinted = true;
         }
         
@@ -563,7 +563,7 @@ void Window::output( std::ostream& os ) const
     }
     
     if( attrPrinted )
-        os << base::exdent << "}" << std::endl << std::endl;
+        os << co::base::exdent << "}" << std::endl << std::endl;
 }
 
 }

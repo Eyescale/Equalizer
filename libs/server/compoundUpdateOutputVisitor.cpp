@@ -96,7 +96,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         EQASSERT( frameData );
 
         EQLOG( LOG_ASSEMBLY )
-            << base::disableFlush << "Output frame \"" << name << "\" id " 
+            << co::base::disableFlush << "Output frame \"" << name << "\" id " 
             << frame->getID() << " v" << frame->getVersion()+1
             << " data id " << frameData->getID() << " v" 
             << frameData->getVersion() + 1 << " on channel \""
@@ -151,7 +151,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
             << " buffers " << frameData->getBuffers() << " read area "
             << framePVP << " readback " << frame->getInheritZoom()
             << " assemble " << frameData->getZoom() << std::endl
-            << base::enableFlush;
+            << co::base::enableFlush;
     }
 }
 

@@ -60,14 +60,14 @@ void GPUCompressor::initDownloader( const uint32_t internalFormat,
     float speed = 0;
     uint32_t name = EQ_COMPRESSOR_NONE;
     
-    base::CompressorInfos infos;
+    co::base::CompressorInfos infos;
     findTransferers( internalFormat, 0, capabilities, minQuality, 
                      ignoreAlpha, _glewContext, infos );
     
-    for( base::CompressorInfos::const_iterator i = infos.begin();
+    for( co::base::CompressorInfos::const_iterator i = infos.begin();
          i != infos.end(); ++i )
     {
-        const base::CompressorInfo& info = *i;
+        const co::base::CompressorInfo& info = *i;
 
         if( ratio > info.ratio || 
             ( ratio == info.ratio && speed < info.speed))
@@ -94,21 +94,21 @@ void GPUCompressor::initUploader( const uint32_t externalFormat,
                                   const uint32_t internalFormat,
                                   const uint64_t capabilities )
 {
-    base::PluginRegistry& registry = base::Global::getPluginRegistry();
-    const base::Plugins& plugins = registry.getPlugins();
+    co::base::PluginRegistry& registry = co::base::Global::getPluginRegistry();
+    const co::base::Plugins& plugins = registry.getPlugins();
 
     uint32_t name = EQ_COMPRESSOR_NONE;
     float speed = 0.0f;
-    for( base::Plugins::const_iterator i = plugins.begin();
+    for( co::base::Plugins::const_iterator i = plugins.begin();
          i != plugins.end(); ++i )
     {
-        const base::Plugin* plugin = *i;
-        const base::CompressorInfos& infos = plugin->getInfos();
+        const co::base::Plugin* plugin = *i;
+        const co::base::CompressorInfos& infos = plugin->getInfos();
 
-        for( base::CompressorInfos::const_iterator j = infos.begin();
+        for( co::base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
-            const base::CompressorInfo& info = *j;
+            const co::base::CompressorInfo& info = *j;
             
             if( (info.capabilities & capabilities) != capabilities ||
                 info.outputTokenType != externalFormat ||
@@ -265,21 +265,22 @@ void GPUCompressor::findTransferers( const uint32_t internalFormat,
                                      const float    minQuality,
                                      const bool     ignoreAlpha,
                                      const GLEWContext* glewContext,
-                                     base::CompressorInfos& result )
+                                     co::base::CompressorInfos& result )
 {
-    const base::PluginRegistry& registry = base::Global::getPluginRegistry();
-    const base::Plugins& plugins = registry.getPlugins();
+    const co::base::PluginRegistry& registry =
+                                        co::base::Global::getPluginRegistry();
+    const co::base::Plugins& plugins = registry.getPlugins();
     const uint64_t caps = capabilities | EQ_COMPRESSOR_TRANSFER;
 
-    for( base::Plugins::const_iterator i = plugins.begin();
+    for( co::base::Plugins::const_iterator i = plugins.begin();
          i != plugins.end(); ++i )
     {
-        const base::Plugin* plugin = *i;
-        const base::CompressorInfos& infos = plugin->getInfos();
-        for( base::CompressorInfos::const_iterator j = infos.begin();
+        const co::base::Plugin* plugin = *i;
+        const co::base::CompressorInfos& infos = plugin->getInfos();
+        for( co::base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
-            const base::CompressorInfo& info = *j;
+            const co::base::CompressorInfo& info = *j;
             if(( (info.capabilities & caps) == caps )  &&
                ( internalFormat == EQ_COMPRESSOR_DATATYPE_NONE ||
                  info.tokenType == internalFormat )                    &&

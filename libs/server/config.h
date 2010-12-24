@@ -179,7 +179,7 @@ namespace server
         friend class Server; // for commit()
 
         /** @internal Execute the slave remove request. */
-        virtual void removeChild( const base::UUID& id );
+        virtual void removeChild( const co::base::UUID& id );
 
     private:
         Config( const Config& from );
@@ -200,7 +200,7 @@ namespace server
         uint32_t _currentFrame;
 
         /** The last finished frame, or 0. */
-        base::Monitor< uint32_t > _finishedFrame;
+        co::base::Monitor< uint32_t > _finishedFrame;
 
         State _state;
 
@@ -220,7 +220,7 @@ namespace server
         void _updateCanvases();
         bool _connectNodes();
         bool _connectNode( Node* node );
-        bool _syncConnectNode( Node* node, const base::Clock& clock );
+        bool _syncConnectNode( Node* node, const co::base::Clock& clock );
         void _startNodes();
         uint32_t _createConfig( Node* node );
         bool _updateNodes();
@@ -243,7 +243,7 @@ namespace server
         virtual void releaseCanvas( Canvas* canvas );
 
         /** @internal Post deletion for the given child, returns true if found*/
-        template< class T > bool _postDelete( const base::UUID& id );
+        template< class T > bool _postDelete( const co::base::UUID& id );
 
         /** The command functions. */
         bool _cmdInit( co::Command& command );

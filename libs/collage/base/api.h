@@ -20,8 +20,8 @@
  *
  * Includes key system header files and defines essential base macros.
  */
-#ifndef EQBASE_API_H
-#define EQBASE_API_H
+#ifndef COBASE_API_H
+#define COBASE_API_H
 
 #include <co/base/defines.h>
 
@@ -34,11 +34,11 @@
 #endif // _MSC_VER
 
 #if defined(CO_BASE_STATIC)
-#  define EQBASE_API
+#  define COBASE_API
 #elif defined(CO_BASE_SHARED)
-#  define EQBASE_API EQ_DLLEXPORT
+#  define COBASE_API EQ_DLLEXPORT
 #else
-#  define EQBASE_API EQ_DLLIMPORT
+#  define COBASE_API EQ_DLLIMPORT
 #endif
 
 // Need to predefine server library exports for forward declaration of 
@@ -49,4 +49,4 @@
 #  define EQSERVER_EXPORT EQ_DLLIMPORT
 #endif
 
-#endif //EQBASE_API_H
+#endif //COBASE_API_H

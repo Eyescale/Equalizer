@@ -35,8 +35,7 @@ set(CO_FORWARD_HEADERS
     pairConnection.h
     types.h
     version.h
-)
-
+  )
 set(CO_HEADERS 
     barrierPackets.h
     deltaMasterCM.h
@@ -59,8 +58,7 @@ set(CO_HEADERS
     staticSlaveCM.h
     unbufferedMasterCM.h
     versionedSlaveCM.h
-)
-
+  )
 set(CO_SOURCES
     barrier.cpp
     bufferConnection.cpp

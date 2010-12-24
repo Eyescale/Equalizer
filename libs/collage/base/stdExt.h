@@ -21,8 +21,8 @@
  * Include extensions to the STL and define a uniform interface to them.
  */
 
-#ifndef EQBASE_STDEXT_H
-#define EQBASE_STDEXT_H
+#ifndef COBASE_STDEXT_H
+#define COBASE_STDEXT_H
 
 #include <co/base/compiler.h>
 
@@ -192,4 +192,4 @@ EQ_STDEXT_NAMESPACE_OPEN
 
 EQ_STDEXT_NAMESPACE_CLOSE
 
-#endif // EQBASE_STDEXT_H
+#endif // COBASE_STDEXT_H

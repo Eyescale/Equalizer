@@ -127,7 +127,7 @@ namespace server
         virtual void attach( const UUID& id, const uint32_t instanceID );
 
         /** @internal Execute the slave remove request. */
-        virtual void removeChild( const base::UUID& id );
+        virtual void removeChild( const co::base::UUID& id );
 
     private:
         /** Number of activations for this pipe. */
@@ -136,7 +136,7 @@ namespace server
         friend class Node;
 
         /** The current state for state change synchronization. */
-        base::Monitor< State > _state;
+        co::base::Monitor< State > _state;
 
         /* The display (AGL) or output channel (X11?, Win32). */
         //uint32_t _monitor;

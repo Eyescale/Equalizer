@@ -58,7 +58,7 @@ Channel::Channel( Window* parent )
         , _statisticsIndex( 0 )
         , _initialSize( Vector2i::ZERO )
 {
-    base::RNG rng;
+    co::base::RNG rng;
     _color.r() = rng.get< uint8_t >();
     _color.g() = rng.get< uint8_t >();
     _color.b() = rng.get< uint8_t >();
@@ -73,7 +73,7 @@ Channel::~Channel()
 typedef co::CommandFunc<Channel> CmdFunc;
 /** @endcond */
 
-void Channel::attach( const base::UUID& id, const uint32_t instanceID )
+void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
     co::CommandQueue* queue = getPipeThreadQueue();
@@ -294,7 +294,7 @@ void Channel::notifyViewportChanged()
     Event event;
     event.type       = Event::CHANNEL_RESIZE;
     event.originator = getID();
-    EQASSERT( event.originator != base::UUID::ZERO );
+    EQASSERT( event.originator != co::base::UUID::ZERO );
     event.resize.x   = newPVP.x;
     event.resize.y   = newPVP.y;
     event.resize.w   = newPVP.w;
@@ -628,7 +628,7 @@ Vector2f Channel::getJitter() const
     Vector2f jitter;
     if( !table )
     {
-        static base::RNG rng;
+        static co::base::RNG rng;
         jitter.x() = rng.get< float >();
         jitter.y() = rng.get< float >();
     }
@@ -657,8 +657,8 @@ bool Channel::processEvent( const Event& event )
 
         case Event::CHANNEL_RESIZE:
         {
-            const base::UUID& viewID = getNativeContext().view.identifier;
-            if( viewID == base::UUID::ZERO )
+            const co::base::UUID& viewID = getNativeContext().view.identifier;
+            if( viewID == co::base::UUID::ZERO )
                 return true;
 
             // transform to view event, which is meaningful for the config 
@@ -742,8 +742,8 @@ void Channel::drawStatistics()
     int64_t xMax = 0;
     int64_t xMin = std::numeric_limits< int64_t >::max();
 
-    std::map< base::UUID, EntityData > entities;
-    std::map< base::UUID, IdleData >   idles;
+    std::map< co::base::UUID, EntityData > entities;
+    std::map< co::base::UUID, IdleData >   idles;
 
     for( std::vector< eq::FrameStatistics >::iterator i = statistics.begin();
          i != statistics.end(); ++i )
@@ -754,7 +754,7 @@ void Channel::drawStatistics()
         for( SortedStatistics::iterator j = configStats.begin();
              j != configStats.end(); ++j )
         {
-            const base::UUID& id = j->first;
+            const co::base::UUID& id = j->first;
             Statistics& stats = j->second;
             std::sort( stats.begin(), stats.end(), _compare );
 
@@ -828,13 +828,13 @@ void Channel::drawStatistics()
         for( SortedStatistics::const_iterator j = configStats.begin();
              j != configStats.end(); ++j )
         {
-            const base::UUID&    id    = j->first;
+            const co::base::UUID&    id    = j->first;
             const Statistics& stats = j->second;
 
             if( stats.empty( ))
                 continue;
 
-            std::map< base::UUID, EntityData >::iterator l = entities.find( id );
+            std::map< co::base::UUID, EntityData >::iterator l = entities.find( id );
             if( l == entities.end( ))
                 continue;
 
@@ -945,7 +945,7 @@ void Channel::drawStatistics()
     }
 
     // Entitity names
-    for( std::map< base::UUID, EntityData >::const_iterator i = entities.begin();
+    for( std::map< co::base::UUID, EntityData >::const_iterator i = entities.begin();
          i != entities.end(); ++i )
     {
         const EntityData& data = i->second;
@@ -965,7 +965,7 @@ void Channel::drawStatistics()
     if( !idles.empty( ))
         text << ", Idle:";
 
-    for( std::map< base::UUID, IdleData >::const_iterator i = idles.begin();
+    for( std::map< co::base::UUID, IdleData >::const_iterator i = idles.begin();
          i != idles.end(); ++i )
     {
         const IdleData& data = i->second;

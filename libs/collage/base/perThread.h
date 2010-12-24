@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_PERTHREAD_H
-#define EQBASE_PERTHREAD_H
+#ifndef COBASE_PERTHREAD_H
+#define COBASE_PERTHREAD_H
 
 #include <errno.h>
 #include <string.h>
@@ -25,7 +25,7 @@
 #include <co/base/executionListener.h>
 #include <co/base/nonCopyable.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -127,7 +127,7 @@ namespace base
 #include <co/base/debug.h>
 #include <co/base/thread.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -228,4 +228,4 @@ bool PerThread<T>::isValid() const
 }
 #endif // HAVE_PTHREAD_H
 
-#endif //EQBASE_PERTHREAD_H
+#endif //COBASE_PERTHREAD_H

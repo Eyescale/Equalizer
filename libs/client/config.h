@@ -100,7 +100,7 @@ namespace eq
          * The clock in all processes of the config is synchronized to the
          * Server clock. The precision of this synchronization is typically
          * about 1 ms. The clock of the last instantiated config is used as the
-         * base::Log clock.
+         *co::base::Log clock.
          *
          * @return the global time in ms.
          * @version 1.0
@@ -215,7 +215,7 @@ namespace eq
          * local client node.
          * @version 1.0
          */
-        EQ_API bool mapObject( co::Object* object, const base::UUID& id, 
+        EQ_API bool mapObject( co::Object* object, const co::base::UUID& id, 
                                const uint128_t& version = co::VERSION_OLDEST );
 
         /** 
@@ -378,7 +378,7 @@ namespace eq
 
     protected:
         /** @internal */
-        EQ_API virtual void attach( const eq::base::UUID& id,
+        EQ_API virtual void attach( const co::base::UUID& id,
                                     const uint32_t instanceID );
 
         EQ_API virtual void notifyAttached(); //!< @internal
@@ -402,17 +402,17 @@ namespace eq
 
         /** Global statistics events, index per frame and channel. */
         std::deque< FrameStatistics > _statistics;
-        base::Lock                    _statisticsMutex;
+       co::base::Lock                    _statisticsMutex;
         
         /** The last started frame. */
         uint32_t _currentFrame;
         /** The last locally released frame. */
         uint32_t _unlockedFrame;
         /** The last completed frame. */
-        base::Monitor< uint32_t > _finishedFrame;
+       co::base::Monitor< uint32_t > _finishedFrame;
 
         /** The global clock. */
-        base::Clock _clock;
+       co::base::Clock _clock;
 
         std::deque< int64_t > _frameTimes; //!< Start time of last frames
 
@@ -438,7 +438,7 @@ namespace eq
         typedef std::vector< LatencyObject* > LatencyObjects;
 
         /** protected list of the current latency object */
-        base::Lockable< LatencyObjects, base::SpinLock > _latencyObjects;
+       co::base::Lockable< LatencyObjects,co::base::SpinLock > _latencyObjects;
 
         union // placeholder for binary-compatible changes
         {

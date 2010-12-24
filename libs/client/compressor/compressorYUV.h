@@ -63,7 +63,7 @@ public:
 
 protected:
     GLuint   _program;
-    eq::base::Bufferb buffer;
+    co::base::Bufferb buffer;
 
 private:
     void _initShader( const GLEWContext* glewContext, const char* fShaderPtr );
@@ -82,4 +82,4 @@ private:
 
 }
 }
-#endif
+#endif //EQ_PLUGIN_COMPRESSORYUV

@@ -16,7 +16,7 @@
  */
 
 #include "uuid.h"
-namespace eq
+namespace co
 {
 namespace base 
 {

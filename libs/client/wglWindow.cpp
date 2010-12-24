@@ -276,7 +276,7 @@ bool WGLWindow::configInitWGLFBO( int pixelFormat )
     if( !SetPixelFormat( _wglDC, pixelFormat, &pfd ))
     {
         setError( ERROR_WGLWINDOW_SETPIXELFORMAT_FAILED );
-        EQWARN << getError() << ": " << base::sysError << std::endl;
+        EQWARN << getError() << ": " << co::base::sysError << std::endl;
         return false;
     }
 
@@ -303,7 +303,7 @@ bool WGLWindow::configInitWGLWindow( int pixelFormat )
     {
         ReleaseDC( hWnd, windowDC );
         setError( ERROR_WGLWINDOW_SETPIXELFORMAT_FAILED );
-        EQWARN << getError() << ": " << base::sysError << std::endl;
+        EQWARN << getError() << ": " << co::base::sysError << std::endl;
         return false;
     }
     ReleaseDC( hWnd, windowDC );
@@ -348,7 +348,7 @@ HWND WGLWindow::_createWGLWindow( int pixelFormat, const PixelViewport& pvp  )
     if( !RegisterClass( &wc ))
     {
         setError( ERROR_WGLWINDOW_REGISTERCLASS_FAILED );
-        EQWARN << getError() << ": " << base::sysError << std::endl;
+        EQWARN << getError() << ": " << co::base::sysError << std::endl;
         return false;
     }
 
@@ -371,7 +371,7 @@ HWND WGLWindow::_createWGLWindow( int pixelFormat, const PixelViewport& pvp  )
             DISP_CHANGE_SUCCESSFUL )
         {
             setError( ERROR_WGLWINDOW_FULLSCREEN_FAILED );
-            EQWARN << getError() << ": " << base::sysError << std::endl;
+            EQWARN << getError() << ": " << co::base::sysError << std::endl;
             return false;
         }
         windowStyle = WS_POPUP | WS_MAXIMIZE;
@@ -395,7 +395,7 @@ HWND WGLWindow::_createWGLWindow( int pixelFormat, const PixelViewport& pvp  )
     if( !hWnd )
     {
         setError( ERROR_WGLWINDOW_CREATEWINDOW_FAILED );
-        EQWARN << getError() << ": " << base::sysError << std::endl;
+        EQWARN << getError() << ": " << co::base::sysError << std::endl;
         return false;
     }
 
@@ -431,7 +431,7 @@ bool WGLWindow::configInitWGLPBuffer( int pf )
     if( !pBuffer )
     {
         setError( ERROR_WGLWINDOW_CREATEPBUFFER_FAILED );
-        EQWARN << getError() << ": " << base::sysError << std::endl;
+        EQWARN << getError() << ": " << co::base::sysError << std::endl;
         return false;
     }
 
@@ -541,7 +541,7 @@ int WGLWindow::chooseWGLPixelFormat()
     if( pixelFormat == 0 )
     {
         setError( ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND );
-        EQWARN << getError() << ": " << base::sysError << std::endl;
+        EQWARN << getError() << ": " << co::base::sysError << std::endl;
         return 0;
     }
  
@@ -555,7 +555,7 @@ int WGLWindow::chooseWGLPixelFormat()
         if( !SetPixelFormat( _wglAffinityDC, pixelFormat, &pfd ))
         {
             setError( ERROR_WGLWINDOW_SETAFFINITY_PF_FAILED );
-            EQWARN << getError() << ": " << base::sysError << std::endl;
+            EQWARN << getError() << ": " << co::base::sysError << std::endl;
             return 0;
         }
     }
@@ -767,7 +767,7 @@ int WGLWindow::_chooseWGLPixelFormatARB( HDC pfDC )
             &pixelFormat, &nFormats ))
         {
             setError( ERROR_WGLWINDOW_CHOOSE_PF_ARB_FAILED);
-            EQWARN << getError() << ": " << base::sysError << std::endl;
+            EQWARN << getError() << ": " << co::base::sysError << std::endl;
             return 0;
         }
 
@@ -800,7 +800,7 @@ HGLRC WGLWindow::createWGLContext()
     if( !context )
     {
         setError( ERROR_WGLWINDOW_CREATECONTEXT_FAILED);
-        EQWARN << getError() << ": " << base::sysError << std::endl;
+        EQWARN << getError() << ": " << co::base::sysError << std::endl;
         return 0;
     }
 
@@ -816,7 +816,7 @@ HGLRC WGLWindow::createWGLContext()
         HGLRC shareCtx = shareWGLWindow->getWGLContext();
 
         if( shareCtx && !wglShareLists( shareCtx, context ))
-            EQWARN << "Context sharing failed: " << base::sysError << std::endl;
+            EQWARN << "Context sharing failed: " << co::base::sysError << std::endl;
     }
 
     return context;

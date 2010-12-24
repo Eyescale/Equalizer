@@ -16,14 +16,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_PLUGIN_H
-#define EQBASE_PLUGIN_H
+#ifndef COBASE_PLUGIN_H
+#define COBASE_PLUGIN_H
 
 #include <co/plugins/compressor.h> // member
 #include <co/base/os.h>
 #include <co/base/dso.h>           // member
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -122,9 +122,9 @@ namespace base
 
     private:
         CompressorInfos _infos;
-        base::DSO _dso;   
+        co::base::DSO _dso;   
     };
 }
 }
 
-#endif //EQ_PLUGIN_H
+#endif //COBASE_PLUGIN_H

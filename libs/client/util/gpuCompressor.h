@@ -27,7 +27,7 @@ namespace eq
 namespace util
 {
     /** A C++ class to abstract a GPU compressor instance. */
-    class GPUCompressor : public base::Compressor
+    class GPUCompressor : public co::base::Compressor
     {
     public:
         /** Construct a new compressorData */
@@ -177,13 +177,13 @@ namespace util
          *                       context compatibility should be omitted.
          * @param result the output result vector.
          */
-        static EQ_API void findTransferers( const uint32_t internalFormat,
-                                               const uint32_t externalFormat,
-                                               const uint64_t capabilities,
-                                               const float minQuality,
-                                               const bool ignoreAlpha,
-                                               const GLEWContext* glewContext,
-                                               base::CompressorInfos& result );
+        static EQ_API void findTransferers(const uint32_t internalFormat,
+                                           const uint32_t externalFormat,
+                                           const uint64_t capabilities,
+                                           const float minQuality,
+                                           const bool ignoreAlpha,
+                                           const GLEWContext* glewContext,
+                                           co::base::CompressorInfos& result );
 
     private:
         /** the initialized GLEW context describing corresponding

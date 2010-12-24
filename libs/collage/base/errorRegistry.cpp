@@ -19,7 +19,7 @@
 
 #include "debug.h"
 
-namespace eq 
+namespace co 
 {
 namespace base
 {

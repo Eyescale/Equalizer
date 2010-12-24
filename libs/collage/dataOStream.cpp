@@ -38,17 +38,17 @@ namespace co
 namespace
 {
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-eq::base::a_int32_t nBytes;
-eq::base::a_int32_t nBytesTryToCompress;
-eq::base::a_int32_t nBytesCompressed;
-eq::base::a_int32_t timeToCompress;
+co::base::a_int32_t nBytes;
+co::base::a_int32_t nBytesTryToCompress;
+co::base::a_int32_t nBytesCompressed;
+co::base::a_int32_t timeToCompress;
 #endif
 }
 
 DataOStream::DataOStream()
         : _bufferType( BUFFER_NONE )
         , _bufferStart( 0 )
-        , _compressor( new eq::base::CPUCompressor )
+        , _compressor( new co::base::CPUCompressor )
         , _enabled( false )
         , _dataSent( false )
         , _save( false )

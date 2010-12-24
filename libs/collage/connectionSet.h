@@ -117,7 +117,7 @@ namespace co
 #endif
 
         /** Mutex protecting changes to the set. */
-        eq::base::Lock _mutex;
+        co::base::Lock _mutex;
 
         /** The connections of this set */
         Connections _allConnections;
@@ -127,15 +127,15 @@ namespace co
 
         // Note: std::vector had to much overhead here
 #ifdef _WIN32
-        eq::base::Buffer< HANDLE > _fdSet;
+        co::base::Buffer< HANDLE > _fdSet;
 #else
-        eq::base::Buffer< pollfd > _fdSetCopy; // 'const' set
-        eq::base::Buffer< pollfd > _fdSet;     // copy of _fdSetCopy used to poll
+        co::base::Buffer< pollfd > _fdSetCopy; // 'const' set
+        co::base::Buffer< pollfd > _fdSet;     // copy of _fdSetCopy used to poll
 #endif
-        eq::base::Buffer< Result > _fdSetResult;
+        co::base::Buffer< Result > _fdSetResult;
 
         /** The connection to reset a running select, see constructor. */
-        eq::base::RefPtr< EventConnection > _selfConnection;
+        co::base::RefPtr< EventConnection > _selfConnection;
 
         // result values
         ConnectionPtr _connection;

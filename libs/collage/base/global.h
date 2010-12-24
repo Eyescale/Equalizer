@@ -16,15 +16,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_GLOBAL_H
-#define EQBASE_GLOBAL_H
+#ifndef COBASE_GLOBAL_H
+#define COBASE_GLOBAL_H
 
 #include <co/base/os.h>
 #include <co/base/lock.h> // member
 #include <co/base/types.h>
 #include <string>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -33,14 +33,14 @@ namespace base
     {
     public:
         /** @return the plugin registry. @version 1.0 */
-        EQBASE_API static PluginRegistry& getPluginRegistry();
+        COBASE_API static PluginRegistry& getPluginRegistry();
 
         /** @return the error registry. @version 1.0 */
-        EQBASE_API static ErrorRegistry& getErrorRegistry();
+        COBASE_API static ErrorRegistry& getErrorRegistry();
 
     private:
-        friend EQBASE_API bool init( const int argc, char** argv );
-        friend EQBASE_API bool exit();
+        friend COBASE_API bool init( const int argc, char** argv );
+        friend COBASE_API bool exit();
     };
 }
 }

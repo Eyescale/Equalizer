@@ -15,15 +15,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_MEMORYMAP_H
-#define EQBASE_MEMORYMAP_H
+#ifndef COBASE_MEMORYMAP_H
+#define COBASE_MEMORYMAP_H
 
 #include <co/base/os.h>
 #include <co/base/nonCopyable.h>
 
 #include <string>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -32,7 +32,7 @@ namespace base
     {
     public:
         /** Construct a new memory map. @version 1.0 */
-        EQBASE_API MemoryMap();
+        COBASE_API MemoryMap();
 
         /** 
          * Destruct the memory map.
@@ -41,7 +41,7 @@ namespace base
          * @sa unmap()
          * @version 1.0
          */
-        EQBASE_API ~MemoryMap();
+        COBASE_API ~MemoryMap();
 
         /** 
          * Map a file to a memory address.
@@ -53,10 +53,10 @@ namespace base
          * @return the pointer to the mapped file, or 0 upon error.
          * @version 1.0
          */
-        EQBASE_API const void* map( const std::string& fileName );
+        COBASE_API const void* map( const std::string& fileName );
 
         /** Unmap the file. @version 1.0 */
-        EQBASE_API void unmap();
+        COBASE_API void unmap();
 
         /** @return the pointer to the memory map. @version 1.0 */
         const void* getAddress() const { return _ptr; }
@@ -78,4 +78,4 @@ namespace base
 }
 }
 
-#endif //EQBASE_MEMORYMAP_H
+#endif //COBASE_MEMORYMAP_H

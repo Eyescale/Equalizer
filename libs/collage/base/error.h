@@ -15,13 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_ERROR_H
-#define EQBASE_ERROR_H
+#ifndef COBASE_ERROR_H
+#define COBASE_ERROR_H
 
 #include <co/base/os.h>
 #include <co/base/types.h> // EQ_KB definitions
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -33,7 +33,7 @@ namespace base
     };
 
     /** Print the error in a human-readable format. @version 1.0 */
-    EQBASE_API std::ostream& operator << ( std::ostream& os, const Error& error);
+    COBASE_API std::ostream& operator << ( std::ostream& os, const Error& error);
 }
 }
-#endif // EQBASE_ERROR_H
+#endif // COBASE_ERROR_H

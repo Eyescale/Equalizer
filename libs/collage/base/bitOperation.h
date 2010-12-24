@@ -15,12 +15,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_BITOPERATION_H
-#define EQBASE_BITOPERATION_H
+#ifndef COBASE_BITOPERATION_H
+#define COBASE_BITOPERATION_H
 
 #include <co/base/types.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -37,4 +37,4 @@ namespace base
     }
 }
 }
-#endif //EQBASE_BITOPERATION_H
+#endif //COBASE_BITOPERATION_H

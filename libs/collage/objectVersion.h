@@ -38,7 +38,7 @@ namespace co
     struct ObjectVersion
     {
         CO_API ObjectVersion();
-        CO_API ObjectVersion( const eq::base::UUID& identifier,
+        CO_API ObjectVersion( const co::base::UUID& identifier,
                                  const uint128_t& version );
         CO_API ObjectVersion( const Object* object );
         CO_API ObjectVersion& operator = ( const Object* object );
@@ -67,7 +67,7 @@ namespace co
                     ( identifier == rhs.identifier && version > rhs.version );
             }
 
-        eq::base::UUID identifier;
+        co::base::UUID identifier;
         uint128_t version;
 
         /** An unset object version. */
@@ -90,7 +90,7 @@ EQ_STDEXT_NAMESPACE_OPEN
         ( const co::ObjectVersion& key ) const
     {
         const size_t hashVersion = hash_value( key.version );
-        const size_t hashID = hash_value( (eq::base::uint128_t)key.identifier );
+        const size_t hashID = hash_value( (co::base::uint128_t)key.identifier );
 
         return hash_value( hashVersion ^ hashID );
     }

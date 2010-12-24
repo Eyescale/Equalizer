@@ -31,7 +31,7 @@
 
 using namespace std;
 
-namespace eq
+namespace co
 {
 namespace base
 {

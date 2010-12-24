@@ -18,7 +18,7 @@
 #include "refPtr.h" // first - debug macros
 #include "referenced.h"
 
-namespace eq
+namespace co
 {
 namespace base
 {

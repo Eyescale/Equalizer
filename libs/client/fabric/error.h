@@ -24,17 +24,17 @@ namespace eq
 {
 namespace fabric
 {
-    using base::ERROR_NONE;
+    using co::base::ERROR_NONE;
     /** Defines errors produced by Equalizer classes. */
     enum Error
     {
-        // ERROR_ = base::ERROR_CUSTOM,
+        // ERROR_ = co::base::ERROR_CUSTOM,
         ERROR_CUSTOM = EQ_64KB,
     };
 
     /** Print the error in a human-readable format. @version 1.0 */
     inline std::ostream& operator << ( std::ostream& os, const Error& error)
-        { os << base::Error( error ); return os; }
+        { os << co::base::Error( error ); return os; }
 }
 }
 #endif // EQFABRIC_ERROR_H

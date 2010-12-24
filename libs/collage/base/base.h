@@ -15,14 +15,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_H
-#define EQBASE_H
+#ifndef COBASE_H
+#define COBASE_H
 
 /**
- * @namespace eq::base
+ * @namespace co::base
  * @brief Equalizer base abstraction layer.
  *
- * The eq::base namespace provides C++ classes to abstract the underlying
+ * The co::base namespace provides C++ classes to abstract the underlying
  * operating system and implements common helper functionality. Classes with
  * non-virtual destructors are not intended to be subclassed.
  */
@@ -33,5 +33,5 @@
 #include <co/base/global.h>
 #include <co/base/sleep.h>
 
-#endif // EQBASE_H
+#endif // COBASE_H
 

@@ -77,7 +77,7 @@
     }
     }
 
-    using namespace eq::base;
+    using namespace co::base;
     using namespace eq::loader;
 
     int eqLoader_lex();

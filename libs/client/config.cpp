@@ -59,7 +59,7 @@ Config::Config( ServerPtr server )
         , _finishedFrame( 0 )
         , _running( false )
 {
-    base::Log::setClock( &_clock );
+    co::base::Log::setClock( &_clock );
 }
 
 Config::~Config()
@@ -76,10 +76,10 @@ Config::~Config()
     _eventQueue.flush();
     _lastEvent = 0;
     _appNode   = 0;
-    base::Log::setClock( 0 );
+    co::base::Log::setClock( 0 );
 }
 
-void Config::attach( const base::UUID& id, const uint32_t instanceID )
+void Config::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -126,7 +126,7 @@ void Config::notifyDetach()
 {
     {
         ClientPtr client = getClient();
-        base::ScopedMutex< base::SpinLock > mutex( _latencyObjects );
+        co::base::ScopedMutex< co::base::SpinLock > mutex( _latencyObjects );
         while( !_latencyObjects->empty() )
         {
             LatencyObject* latencyObject = _latencyObjects->back();
@@ -285,7 +285,7 @@ uint32_t Config::startFrame( const uint128_t& frameID )
     send( getServer(), packet );
 
     ++_currentFrame;
-    EQLOG( base::LOG_ANY ) << "---- Started Frame ---- " << _currentFrame
+    EQLOG( co::base::LOG_ANY ) << "---- Started Frame ---- " << _currentFrame
                            << std::endl;
     stat.event.data.statistic.frameNumber = _currentFrame;
     return _currentFrame;
@@ -339,7 +339,7 @@ uint32_t Config::finishFrame()
     _updateStatistics( frameToFinish );
     _releaseObjects();
 
-    EQLOG( base::LOG_ANY ) << "---- Finished Frame --- " << frameToFinish
+    EQLOG( co::base::LOG_ANY ) << "---- Finished Frame --- " << frameToFinish
                            << " (" << _currentFrame << ')' << std::endl;
     return frameToFinish;
 }
@@ -349,7 +349,7 @@ uint32_t Config::finishAllFrames()
     if( _finishedFrame == _currentFrame )
         return _currentFrame;
 
-    EQLOG( base::LOG_ANY ) << "-- Finish All Frames --" << std::endl;
+    EQLOG( co::base::LOG_ANY ) << "-- Finish All Frames --" << std::endl;
     ConfigFinishAllFramesPacket packet;
     send( getServer(), packet );
 
@@ -360,7 +360,7 @@ uint32_t Config::finishAllFrames()
     handleEvents();
     _updateStatistics( _currentFrame );
     _releaseObjects();
-    EQLOG( base::LOG_ANY ) << "-- Finished All Frames --" << std::endl;
+    EQLOG( co::base::LOG_ANY ) << "-- Finished All Frames --" << std::endl;
     return _currentFrame;
 }
 
@@ -487,8 +487,8 @@ bool Config::handleEvent( const ConfigEvent* event )
             EQLOG( LOG_STATS ) << event->data << std::endl;
 
             const uint128_t& originator = event->data.originator;
-            EQASSERT( originator != base::UUID::ZERO );
-            if( originator == base::UUID::ZERO )
+            EQASSERT( originator != co::base::UUID::ZERO );
+            if( originator == co::base::UUID::ZERO )
                 return false;
 
             const Statistic& statistic = event->data.statistic;
@@ -501,7 +501,7 @@ bool Config::handleEvent( const ConfigEvent* event )
                 return false;
             }
 
-            base::ScopedMutex<> mutex( _statisticsMutex );
+            co::base::ScopedMutex<> mutex( _statisticsMutex );
 
             for( std::deque< FrameStatistics >::iterator i =_statistics.begin();
                  i != _statistics.end(); ++i )
@@ -529,7 +529,7 @@ bool Config::handleEvent( const ConfigEvent* event )
 
         case Event::VIEW_RESIZE:
         {
-            EQASSERT( event->data.originator != base::UUID::ZERO );
+            EQASSERT( event->data.originator != co::base::UUID::ZERO );
             View* view = find< View >( event->data.originator );
             if( view )
                 return view->handleEvent( event->data );
@@ -612,8 +612,8 @@ void Config::setupMessagePump( Pipe* pipe )
         return;
 
     // called from pipe threads - but only during init
-    static base::Lock _lock;
-    base::ScopedMutex<> mutex( _lock );
+    static co::base::Lock _lock;
+    co::base::ScopedMutex<> mutex( _lock );
 
     if( _eventQueue.getMessagePump( )) // Already done
         return;
@@ -736,7 +736,7 @@ void Config::_releaseObjects()
 {
     ClientPtr client = getClient();
 
-    base::ScopedMutex< base::SpinLock > mutex( _latencyObjects );
+    co::base::ScopedMutex< co::base::SpinLock > mutex( _latencyObjects );
     while( !_latencyObjects->empty() )
     {
         LatencyObject* latencyObject = _latencyObjects->front();
@@ -881,7 +881,7 @@ bool Config::_cmdSwapObject( co::Command& command )
 
     getLocalNode()->swapObject( object, latencyObject  );
     
-    base::ScopedMutex< base::SpinLock > mutex( _latencyObjects );
+    co::base::ScopedMutex< co::base::SpinLock > mutex( _latencyObjects );
     _latencyObjects->push_back( latencyObject );
 
     EQASSERT( packet->requestID != EQ_UNDEFINED_UINT32 );

@@ -62,7 +62,7 @@ namespace co
         CommandDeque _commands;
 
         /** The object version associated with this input stream. */
-        eq::base::Monitor< uint128_t > _version;
+        co::base::Monitor< uint128_t > _version;
 
         void _setReady() { _version = getPendingVersion(); }
 

@@ -15,12 +15,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_BUFFER_H
-#define EQBASE_BUFFER_H
+#ifndef COBASE_BUFFER_H
+#define COBASE_BUFFER_H
 
 #include <co/base/debug.h>       // EQASSERT macro
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -217,4 +217,4 @@ namespace base
 }
 
 }
-#endif //EQBASE_BUFFER_H
+#endif //COBASE_BUFFER_H

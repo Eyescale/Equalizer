@@ -15,10 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_REQUESTHANDLER_H
-#define EQBASE_REQUESTHANDLER_H
+#ifndef COBASE_REQUESTHANDLER_H
+#define COBASE_REQUESTHANDLER_H
 
-#include <co/base/os.h>      // EQBASE_API definition
+#include <co/base/os.h>      // COBASE_API definition
 #include <co/base/hash.h>      // member
 #include <co/base/thread.h>    // thread-safety macros
 #include <co/base/spinLock.h>  // member
@@ -27,7 +27,7 @@
 
 #include <list>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -48,10 +48,10 @@ namespace base
     {
     public:
         /** Construct a new request handler.  @version 1.0 */
-        EQBASE_API RequestHandler();
+        COBASE_API RequestHandler();
 
         /** Destruct the request handler. */
-        EQBASE_API ~RequestHandler();
+        COBASE_API ~RequestHandler();
 
         /** 
          * Register a new request.
@@ -61,7 +61,7 @@ namespace base
          * @return the request identifier.
          * @version 1.0
          */
-        EQBASE_API uint32_t registerRequest( void* data = 0 );
+        COBASE_API uint32_t registerRequest( void* data = 0 );
 
         /** 
          * Unregister a request.
@@ -73,7 +73,7 @@ namespace base
          * @param requestID the request identifier.
          * @version 1.0
          */
-        EQBASE_API void unregisterRequest( const uint32_t requestID );
+        COBASE_API void unregisterRequest( const uint32_t requestID );
 
         /**
          * Wait a given time for the completion of a request.
@@ -89,20 +89,20 @@ namespace base
          * @return true if the request was served, false if not.
          * @version 1.0
          */
-        EQBASE_API bool waitRequest( const uint32_t requestID, void*& result,
+        COBASE_API bool waitRequest( const uint32_t requestID, void*& result,
                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
 
         /** Wait for a request with an uint32_t result. @version 1.0 */
-        EQBASE_API bool waitRequest( const uint32_t requestID, uint32_t& result,
+        COBASE_API bool waitRequest( const uint32_t requestID, uint32_t& result,
                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
         /** Wait for a request with a bool result. @version 1.0 */
-        EQBASE_API bool waitRequest( const uint32_t requestID, bool& result,
+        COBASE_API bool waitRequest( const uint32_t requestID, bool& result,
                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
         /** Wait for a request with an uint128_t result. @version 1.0 */
-        EQBASE_API bool waitRequest(const uint32_t requestID, uint128_t& result,
+        COBASE_API bool waitRequest(const uint32_t requestID, uint128_t& result,
                                const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
         /** Wait for a request without a result. @version 1.0 */
-        EQBASE_API bool waitRequest( const uint32_t requestID );
+        COBASE_API bool waitRequest( const uint32_t requestID );
 
         /** 
          * Poll for the completion of a request.
@@ -113,7 +113,7 @@ namespace base
          * @return true if the request has been served, false if it is pending.
          * @version 1.0
          */
-        EQBASE_API bool isRequestServed( const uint32_t requestID ) const;
+        COBASE_API bool isRequestServed( const uint32_t requestID ) const;
 
         /** 
          * Retrieve the user-specific data for a request.
@@ -122,7 +122,7 @@ namespace base
          * @return the user-specific data for the request.
          * @version 1.0
          */
-        EQBASE_API void* getRequestData( const uint32_t requestID );
+        COBASE_API void* getRequestData( const uint32_t requestID );
 
         /** 
          * Serve a request with a void* result.
@@ -131,15 +131,15 @@ namespace base
          * @param result the result of the request.
          * @version 1.0
          */
-        EQBASE_API void serveRequest( const uint32_t requestID,
+        COBASE_API void serveRequest( const uint32_t requestID,
                                         void* result = 0 );
         /** Serve a request with an uint32_t result. @version 1.0 */
-        EQBASE_API void serveRequest( const uint32_t requestID,
+        COBASE_API void serveRequest( const uint32_t requestID,
                                         uint32_t result );
         /** Serve a request with a bool result. @version 1.0 */
-        EQBASE_API void serveRequest( const uint32_t requestID, bool result );
+        COBASE_API void serveRequest( const uint32_t requestID, bool result );
         /** Serve a request with an uint128_t result. @version 1.0 */
-        EQBASE_API void serveRequest( const uint32_t requestID,
+        COBASE_API void serveRequest( const uint32_t requestID,
                                       const uint128_t& result );
         /**
          * @return true if this request handler has pending requests.
@@ -178,7 +178,7 @@ namespace base
         uint32_t            _requestID;
         RequestHash         _requests;
         std::list<Request*> _freeRequests;
-        friend EQBASE_API std::ostream& operator << (std::ostream&, const RequestHandler&);
+        friend COBASE_API std::ostream& operator << (std::ostream&, const RequestHandler&);
 
         bool _waitRequest( const uint32_t requestID, Request::Result& result,
                            const uint32_t timeout );
@@ -186,8 +186,8 @@ namespace base
         EQ_TS_VAR( _thread );
     };
 
-    EQBASE_API std::ostream& operator << ( std::ostream&, const RequestHandler& );
+    COBASE_API std::ostream& operator << ( std::ostream&, const RequestHandler& );
 }
 
 }
-#endif //EQBASE_REQUESTHANDLER_H
+#endif //COBASE_REQUESTHANDLER_H

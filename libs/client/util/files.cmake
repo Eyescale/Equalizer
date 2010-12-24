@@ -28,4 +28,4 @@ set(EQ_UTIL_SOURCES
   util/frameBufferObject.cpp
   util/objectManager.cpp
   util/texture.cpp
-)
+  )

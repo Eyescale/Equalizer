@@ -119,8 +119,8 @@ namespace co
         /** The current read position in the buffer */
         uint64_t  _position;
 
-        eq::base::CPUCompressor* const _decompressor; //!< current decompressor
-        eq::base::Bufferb _data; //!< decompressed buffer
+        co::base::CPUCompressor* const _decompressor; //!< current decompressor
+        co::base::Bufferb _data; //!< decompressed buffer
 
         /**
          * Check that the current buffer has data left, get the next buffer is
@@ -186,12 +186,12 @@ namespace co{
     class ObjectFinder
     {
     public:
-        ObjectFinder( const eq::base::UUID& id ) : _id( id ) {}
+        ObjectFinder( const co::base::UUID& id ) : _id( id ) {}
         bool operator()( co::Object* candidate )
             { return candidate->getID() == _id; }
 
     private:
-        const eq::base::UUID _id;
+        const co::base::UUID _id;
     };
     }
 
@@ -211,7 +211,7 @@ namespace co{
         {
             const ObjectVersion& version = *i;
             
-            if( version.identifier == eq::base::UUID::ZERO )
+            if( version.identifier == co::base::UUID::ZERO )
             {
                 result.push_back( 0 );
                 continue;

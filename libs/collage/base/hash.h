@@ -15,14 +15,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_HASH_H
-#define EQBASE_HASH_H
+#ifndef COBASE_HASH_H
+#define COBASE_HASH_H
 
 #include <co/base/os.h>
 #include <co/base/refPtr.h>
 #include <co/base/stdExt.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -75,4 +75,4 @@ namespace base
 }
 
 }
-#endif // EQBASE_HASH_H
+#endif // COBASE_HASH_H

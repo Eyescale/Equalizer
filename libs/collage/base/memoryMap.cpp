@@ -25,7 +25,7 @@
 #   include <sys/mman.h>
 #endif
 
-namespace eq
+namespace co
 {
 namespace base
 {

@@ -41,7 +41,7 @@ NodeFactory* Global::_nodeFactory = 0;
 #endif
 
 #ifdef AGL
-static base::Lock _carbonLock;
+static co::base::Lock _carbonLock;
 #endif
 
 void Global::setConfigFile( const std::string& configFile )

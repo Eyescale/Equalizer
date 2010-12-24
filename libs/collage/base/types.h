@@ -21,8 +21,8 @@
  * Basic type definitions not provided by the operating system.
  */
 
-#ifndef EQBASE_TYPES_H
-#define EQBASE_TYPES_H
+#ifndef COBASE_TYPES_H
+#define COBASE_TYPES_H
 
 #include <string>
 #include <vector>
@@ -101,7 +101,7 @@ typedef SSIZE_T    ssize_t;
 #define EQ_48MB  (50331648)
 #define EQ_64MB  (67108864)
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -126,4 +126,4 @@ typedef std::vector< Plugin* > Plugins;
 }
 }
 
-#endif //EQBASE_TYPES_H
+#endif //COBASE_TYPES_H

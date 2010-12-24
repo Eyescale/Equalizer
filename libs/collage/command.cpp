@@ -134,7 +134,7 @@ std::ostream& operator << ( std::ostream& os, const Command& command )
 {
     if( command.isValid( ))
     {
-        os << eq::base::disableFlush << "command< ";
+        os << co::base::disableFlush << "command< ";
         const Packet* packet = command.getPacket() ;
         switch( packet->type )
         {
@@ -151,7 +151,7 @@ std::ostream& operator << ( std::ostream& os, const Command& command )
         }
 
         os << ", " << command.getNode() << ", r" << command._refCount << " >"
-           << eq::base::enableFlush;
+           << co::base::enableFlush;
     }
     else
         os << "command< empty >";

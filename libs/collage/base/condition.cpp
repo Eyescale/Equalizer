@@ -20,7 +20,7 @@
 #include <pthread.h>
 #include <cstring>
 
-namespace eq
+namespace co
 {
 namespace base
 {

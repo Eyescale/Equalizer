@@ -46,7 +46,7 @@ Channel< W, C >::Channel( W* parent )
 {
     memset( _iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
     parent->_addChannel( static_cast< C* >( this ));
-    EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
 }
 
 template< class W, class C >
@@ -62,13 +62,13 @@ Channel< W, C >::Channel( const Channel& from )
 
     for( int i = 0; i < IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
-    EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
 }
 
 template< class W, class C >
 void Channel< W, C >::init()
 {
-    EQLOG( LOG_INIT ) << "Delete " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
     notifyViewportChanged();
     unsetDirty( DIRTY_VIEWPORT );
 }
@@ -275,7 +275,7 @@ void Channel< W, C >::setViewVersion( const co::ObjectVersion& view )
 {
     if( _data.nativeContext.view == view )
         return;
-    EQASSERTINFO( view.identifier != base::UUID::ZERO ||
+    EQASSERTINFO( view.identifier != co::base::UUID::ZERO ||
                   _data.nativeContext.view.version <= view.version,
                   _data.nativeContext.view << " != " << view );
 
@@ -345,13 +345,15 @@ const std::string& Channel< W, C >::getIAttributeString( const IAttribute attr )
 }
 
 template< class W, class C >
-std::ostream& operator << ( std::ostream& os, const Channel< W, C >& channel)
+std::ostream& operator << ( std::ostream& os,
+                            const Channel< W, C >& channel)
 {
     if( channel.omitOutput( ))
         return os;
 
-    os << base::disableFlush << base::disableHeader << "channel" << std::endl;
-    os << "{" << std::endl << base::indent;
+    os << co::base::disableFlush << co::base::disableHeader << "channel"
+       << std::endl;
+    os << "{" << std::endl << co::base::indent;
 
     const std::string& name = channel.getName();
     if( !name.empty( ))
@@ -394,8 +396,8 @@ std::ostream& operator << ( std::ostream& os, const Channel< W, C >& channel)
         
         os << " ]" << std::endl;
     }
-    os << base::exdent << "}" << std::endl << base::enableHeader
-       << base::enableFlush;
+    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
+       << co::base::enableFlush;
 
     return os;
 }

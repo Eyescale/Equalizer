@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_MTQUEUE_H
-#define EQBASE_MTQUEUE_H
+#ifndef COBASE_MTQUEUE_H
+#define COBASE_MTQUEUE_H
 
 #include <co/base/os.h>
 #include <co/base/condition.h>
@@ -25,7 +25,7 @@
 #include <queue>
 #include <string.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -194,4 +194,4 @@ namespace base
     };
 }
 }
-#endif //EQBASE_MTQUEUE_H
+#endif //COBASE_MTQUEUE_H

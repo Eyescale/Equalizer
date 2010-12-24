@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_RNG_H
-#define EQBASE_RNG_H
+#ifndef COBASE_RNG_H
+#define COBASE_RNG_H
 
 #include <co/base/debug.h> // for EQASSERT
 #include <co/base/init.h>  // friend functions
@@ -26,7 +26,7 @@
 #include <limits>
 #include <stdio.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -102,8 +102,8 @@ namespace base
 #endif
         static bool _init();
         static bool _exit();
-        friend EQBASE_API bool init( const int argc, char** argv );
-        friend EQBASE_API bool exit();
+        friend COBASE_API bool init( const int argc, char** argv );
+        friend COBASE_API bool exit();
     };
 
     template<> inline float RNG::get()
@@ -126,4 +126,4 @@ namespace base
     }
 }
 }
-#endif  // EQBASE_RNG_H
+#endif  // COBASE_RNG_H

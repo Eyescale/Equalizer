@@ -34,9 +34,9 @@ namespace fabric
     {
     public:
         /** A reference-counted pointer to the client. */
-        typedef base::RefPtr< CL > ClientPtr;
+        typedef co::base::RefPtr< CL > ClientPtr;
         /** A reference-counted const pointer to the client. */
-        typedef base::RefPtr< const CL > ConstClientPtr;
+        typedef co::base::RefPtr< const CL > ConstClientPtr;
         /** A vector of config pointers. */
         typedef std::vector< CFG* > Configs;
         /** The node factory. */

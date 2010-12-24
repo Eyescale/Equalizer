@@ -32,7 +32,7 @@ SystemPipe::~SystemPipe()
 {
 }
 
-base::Error SystemPipe::getError() const
+co::base::Error SystemPipe::getError() const
 {
     return _pipe->getError();
 }

@@ -86,7 +86,7 @@ namespace co
                 size       = sizeof( ObjectSlaveDeltaPacket ); 
             }
 
-        eq::base::UUID commit;
+        co::base::UUID commit;
         EQ_ALIGN8( uint8_t data[8] );
     };
 

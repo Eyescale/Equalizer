@@ -76,7 +76,7 @@ bool Dispatcher::dispatchCommand( Command& command )
         EQABORT( "Command " << command
                  << " higher than number of registered command handlers ("
                  << _qTable.size() << ") for object of type "
-                 << eq::base::className( this ) << std::endl );
+                 << co::base::className( this ) << std::endl );
         return false;
     }
 #endif
@@ -96,8 +96,8 @@ bool Dispatcher::dispatchCommand( Command& command )
 
 bool Dispatcher::_cmdUnknown( Command& command )
 {
-    EQERROR << "Unknown " << command << " for " << eq::base::className( this )
-            << eq::base::backtrace << std::endl;
+    EQERROR << "Unknown " << command << " for " << co::base::className( this )
+            << co::base::backtrace << std::endl;
     EQUNREACHABLE;
     return false;
 }

@@ -28,7 +28,7 @@ namespace eq
 void debugGLError( const std::string& when, const GLenum error, 
                    const char* file, const int line )
 {                                                                 
-    EQWARN << base::disableFlush << "Got ";
+    EQWARN << co::base::disableFlush << "Got ";
     switch( error )
     {
         case GL_INVALID_ENUM:
@@ -48,7 +48,7 @@ void debugGLError( const std::string& when, const GLenum error,
     }
     
     EQWARN << ' ' << when << " in " << file << ':' << line << std::endl
-           << base::backtrace << std::endl << base::enableFlush;
+           << co::base::backtrace << std::endl << co::base::enableFlush;
 }                                 
 
 #ifdef GLX
@@ -61,7 +61,7 @@ public:
     Display* display;
 };
 
-static base::PerThread< DisplayPtr > _currentDisplay;
+static co::base::PerThread< DisplayPtr > _currentDisplay;
 }
 
 void XSetCurrentDisplay( Display* display )

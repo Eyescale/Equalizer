@@ -150,7 +150,7 @@ namespace fabric
         Pipe( N* parent );
         EQFABRIC_INL virtual ~Pipe( ); //!< @internal
 
-        virtual void attach( const base::UUID& id,
+        virtual void attach( const co::base::UUID& id,
                              const uint32_t instanceID ); //!< @internal
         /** @internal */
         EQFABRIC_INL virtual void serialize( co::DataOStream& os,
@@ -167,7 +167,7 @@ namespace fabric
         /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
-        W* _findWindow( const base::UUID& id ); //!< @internal
+        W* _findWindow( const co::base::UUID& id ); //!< @internal
 
         enum DirtyBits
         {

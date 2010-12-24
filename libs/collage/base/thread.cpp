@@ -36,7 +36,7 @@
 //#  define EQ_WIN32_THREAD_AFFINITY
 #endif
 
-namespace eq
+namespace co
 {
 namespace base
 {

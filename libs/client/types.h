@@ -137,11 +137,11 @@ typedef std::vector< PixelViewport > PixelViewports;
 typedef std::vector< Statistic > Statistics;
 
 /** A reference-counted pointer to an eq::Client */
-typedef base::RefPtr< Client >        ClientPtr;
+typedef co::base::RefPtr< Client >        ClientPtr;
 /** A reference-counted pointer to a const eq::Client */
-typedef base::RefPtr< const Client >  ConstClientPtr;
+typedef co::base::RefPtr< const Client >  ConstClientPtr;
 /** A reference-counted pointer to an eq::Server */
-typedef base::RefPtr< Server >        ServerPtr;
+typedef co::base::RefPtr< Server >        ServerPtr;
 
 typedef fabric::Matrix3d Matrix3d;   //!< A 3x3 double matrix
 typedef fabric::Matrix4d Matrix4d;   //!< A 4x4 double matrix
@@ -168,14 +168,14 @@ typedef std::vector< uint8_t >    Vectorub;
 /** A vector of unsigned shorts */
 typedef std::vector< uint16_t >   Vectorus;
 
-typedef eq::base::uint128_t uint128_t;
-typedef eq::base::UUID UUID;
+typedef co::base::uint128_t uint128_t;
+typedef co::base::UUID UUID;
 
 /** @cond IGNORE */
-typedef base::RefPtr< X11Connection > X11ConnectionPtr;
+typedef co::base::RefPtr< X11Connection > X11ConnectionPtr;
     
 // originator id -> statistics
-typedef std::map< base::uint128_t, Statistics > SortedStatistics;
+typedef std::map<co::base::uint128_t, Statistics > SortedStatistics;
 
 // frame id, config statistics
 typedef std::pair< uint32_t, SortedStatistics > FrameStatistics;

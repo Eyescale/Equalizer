@@ -70,7 +70,7 @@ ConnectionSet::~ConnectionSet()
 #ifdef _WIN32
 
 /** Handles connections exceeding MAXIMUM_WAIT_OBJECTS */
-class ConnectionSetThread : public eq::base::Thread
+class ConnectionSetThread : public co::base::Thread
 {
 public:
     ConnectionSetThread( ConnectionSet* parent )
@@ -89,7 +89,7 @@ public:
     ConnectionSet* set;
     HANDLE         notifier;
 
-    eq::base::Monitor< ConnectionSet::Event > event;
+    co::base::Monitor< ConnectionSet::Event > event;
 
 protected:
     virtual void run()
@@ -132,7 +132,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
     EQASSERT( connection->isConnected() || connection->isListening( ));
 
     { 
-        eq::base::ScopedMutex<> mutex( _mutex );
+        co::base::ScopedMutex<> mutex( _mutex );
         _allConnections.push_back( connection );
 
 #ifdef _WIN32
@@ -179,7 +179,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
 bool ConnectionSet::removeConnection( ConnectionPtr connection )
 {
     {
-        eq::base::ScopedMutex<> mutex( _mutex );
+        co::base::ScopedMutex<> mutex( _mutex );
         Connections::iterator i = stde::find( _allConnections, connection );
         if( i == _allConnections.end( ))
             return false;
@@ -307,7 +307,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                 _error = errno;
 #endif
 
-                EQERROR << "Error during select: " << eq::base::sysError
+                EQERROR << "Error during select: " << co::base::sysError
                         << std::endl;
                 return EVENT_SELECT_ERROR;
 

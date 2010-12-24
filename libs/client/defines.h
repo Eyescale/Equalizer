@@ -30,4 +30,4 @@
 #  include <eq/definesWin32.h>
 #endif
 
-#endif // EQBASE_DEFINES_H
+#endif // EQ_DEFINES_H

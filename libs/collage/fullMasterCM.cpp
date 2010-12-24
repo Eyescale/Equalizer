@@ -125,7 +125,7 @@ void FullMasterCM::_obsolete()
         EQINFO
             << "Remove v" << data->os.getVersion() << " c" << data->commitCount
             << "@" << _commitCount << "/" << _nVersions << " from "
-            << base::className( _object ) << " " << ObjectVersion( _object )
+            << co::base::className( _object ) << " " << ObjectVersion( _object )
             << std::endl;
 #endif
         _instanceDataCache.push_back( data );

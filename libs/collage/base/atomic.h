@@ -8,19 +8,19 @@
 //  Disclaimer: Not a Boost library.
 
 /* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
-   Modifications to use within eq::base namespace and naming conventions.
+   Modifications to use within co::base namespace and naming conventions.
    Original at http://tim.klingt.org/git?p=boost_lockfree.git;a=tree
 */
 
-#ifndef EQBASE_ATOMIC_H
-#define EQBASE_ATOMIC_H
+#ifndef COBASE_ATOMIC_H
+#define COBASE_ATOMIC_H
 
 #include <co/base/nonCopyable.h>    // base class
 #include <co/base/compareAndSwap.h> // used in inline methods
 
 #include <string> // _Atomic_word
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -339,4 +339,4 @@ typedef Atomic< bool > a_bool_t;
 }
 
 }
-#endif  // EQBASE_ATOMIC_H
+#endif  // COBASE_ATOMIC_H

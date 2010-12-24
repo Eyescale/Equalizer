@@ -78,7 +78,7 @@ namespace co
         //@}
 
     protected:
-        virtual void attach( const eq::base::UUID& id, 
+        virtual void attach( const co::base::UUID& id, 
                              const uint32_t instanceID );
 
         virtual ChangeType getChangeType() const { return DELTA; }
@@ -102,7 +102,7 @@ namespace co
         std::map< uint128_t, Nodes > _enteredNodes;
         
         /** The monitor used for barrier leave notification. */
-        eq::base::Monitor<uint32_t> _leaveNotify;
+        co::base::Monitor<uint32_t> _leaveNotify;
 
         /* The command handlers. */
         bool _cmdEnter( Command& command );

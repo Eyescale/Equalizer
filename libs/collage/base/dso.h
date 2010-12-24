@@ -16,15 +16,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_DSO_H
-#define EQBASE_DSO_H
+#ifndef COBASE_DSO_H
+#define COBASE_DSO_H
 
 #include <co/base/os.h>
 #include <co/base/nonCopyable.h>
 
 #include <string>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -43,20 +43,20 @@ namespace base
          * @return true if the DSO was opened, false upon error.
          * @version 1.0
          */
-        EQBASE_API bool open( const std::string& fileName );
+        COBASE_API bool open( const std::string& fileName );
 
         /** 
          *Close the DSO, invalidates retrieved function pointers.
          * @version 1.0
          */
-        EQBASE_API void close();
+        COBASE_API void close();
     
         /**
          * @return a function pointer in the DSO, or 0 if the function is not
          *         exported by the DSO.
          * @version 1.0
          */
-        EQBASE_API void* getFunctionPointer( const std::string& functionName );
+        COBASE_API void* getFunctionPointer( const std::string& functionName );
 
         /** @return true if the DSO is loaded. @version 1.0 */
         bool isOpen() const { return _dso != 0; }
@@ -72,4 +72,4 @@ namespace base
 }
 }
 
-#endif //EQBASE_DSO_H
+#endif //COBASE_DSO_H

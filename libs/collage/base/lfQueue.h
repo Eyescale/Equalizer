@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_LFQUEUE_H
-#define EQBASE_LFQUEUE_H
+#ifndef COBASE_LFQUEUE_H
+#define COBASE_LFQUEUE_H
 
 #include <co/base/atomic.h> // member
 #include <co/base/debug.h>  // used in inline method
@@ -25,7 +25,7 @@
 
 #include <vector>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -151,4 +151,4 @@ namespace base
 
 }
 }
-#endif // EQBASE_LFQUEUE_H
+#endif // COBASE_LFQUEUE_H

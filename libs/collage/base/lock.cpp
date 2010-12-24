@@ -22,7 +22,7 @@
 #include <string.h>
 #include <pthread.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {

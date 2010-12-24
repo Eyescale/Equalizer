@@ -20,8 +20,8 @@
  *
  * Includes key system header files and defines essential base macros.
  */
-#ifndef EQBASE_OS_H
-#define EQBASE_OS_H
+#ifndef COBASE_OS_H
+#define COBASE_OS_H
 
 #include <co/base/defines.h>
 
@@ -83,4 +83,4 @@ extern "C" char **environ;
 #endif
 #define VMMLIB_ALIGN( var ) var
 
-#endif //EQBASE_OS_H
+#endif //COBASE_OS_H

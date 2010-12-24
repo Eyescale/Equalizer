@@ -85,10 +85,10 @@ namespace co
         ObjectDataIStream* _currentIStream;
 
         /** The change queue. */
-        eq::base::MTQueue< ObjectDataIStream* > _queuedVersions;
+        co::base::MTQueue< ObjectDataIStream* > _queuedVersions;
 
         /** Cached input streams (+decompressor) */
-        eq::base::Pool< ObjectDataIStream, true > _iStreamCache;
+        co::base::Pool< ObjectDataIStream, true > _iStreamCache;
 
         /** The instance identifier of the master object. */
         uint32_t _masterInstanceID;

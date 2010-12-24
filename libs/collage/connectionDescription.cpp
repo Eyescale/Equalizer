@@ -243,9 +243,9 @@ bool ConnectionDescription::isSameMulticastGroup( ConnectionDescriptionPtr rhs )
 std::ostream& operator << ( std::ostream& os, 
                             const ConnectionDescription& desc)
 {
-    os << eq::base::disableFlush << eq::base::disableHeader << "connection"
+    os << co::base::disableFlush << co::base::disableHeader << "connection"
        << std::endl;
-    os << "{" << std::endl << eq::base::indent;
+    os << "{" << std::endl << co::base::indent;
 
     os << "type          " 
        << ( desc.type == co::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
@@ -272,8 +272,8 @@ std::ostream& operator << ( std::ostream& os,
     if( desc.bandwidth != 0 )
         os << "bandwidth     " << desc.bandwidth << std::endl;
 
-    os << eq::base::exdent << "}" << eq::base::enableHeader 
-       << eq::base::enableFlush
+    os << co::base::exdent << "}" << co::base::enableHeader 
+       << co::base::enableFlush
        << std::endl;
     return os;
 }

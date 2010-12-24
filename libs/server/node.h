@@ -107,7 +107,7 @@ namespace server
         bool launch();
 
         /** Synchronize the connection of a render slave launch. */
-        bool syncLaunch( const base::Clock& time );
+        bool syncLaunch( const co::base::Clock& time );
 
         /** Start initializing this entity. */
         void configInit( const uint128_t& initID, const uint32_t frameNumber );
@@ -269,7 +269,7 @@ namespace server
         uint32_t _flushedFrame;
 
         /** The current state for state change synchronization. */
-        base::Monitor< State > _state;
+        co::base::Monitor< State > _state;
             
         /** The cached barriers. */
         std::vector<co::Barrier*> _barriers;

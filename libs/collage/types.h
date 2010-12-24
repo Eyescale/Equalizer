@@ -50,18 +50,18 @@ class ObjectDataIStream;
 struct ObjectVersion;
 
 /** A unique identifier for nodes. */
-typedef eq::base::UUID NodeID;
+typedef co::base::UUID NodeID;
 
-typedef eq::base::uint128_t uint128_t;
+typedef co::base::uint128_t uint128_t;
 
 /** A reference pointer for Node pointers. */
-typedef eq::base::RefPtr< Node >                  NodePtr;
+typedef co::base::RefPtr< Node >                  NodePtr;
 /** A reference pointer for LocalNode pointers. */
-typedef eq::base::RefPtr< LocalNode >             LocalNodePtr;
+typedef co::base::RefPtr< LocalNode >             LocalNodePtr;
 /** A reference pointer for Connection pointers. */
-typedef eq::base::RefPtr< Connection >            ConnectionPtr;
+typedef co::base::RefPtr< Connection >            ConnectionPtr;
 /** A reference pointer for ConnectionDescription pointers. */
-typedef eq::base::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
+typedef co::base::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
 
 /** A vector of NodePtr's. */
 typedef std::vector< NodePtr >                   Nodes;
@@ -87,7 +87,7 @@ typedef ConnectionDescriptions::const_iterator   ConnectionDescriptionsCIter;
 typedef std::vector< Command* > Commands;
 typedef std::deque< Command* > CommandDeque;
 typedef std::list< Command* > CommandList;
-typedef stde::hash_map< eq::base::uint128_t, Objects > ObjectsHash;
+typedef stde::hash_map< co::base::uint128_t, Objects > ObjectsHash;
 typedef std::vector< ObjectVersion > ObjectVersions;
 typedef std::deque< ObjectDataIStream* > ObjectDataIStreamDeque;
 typedef std::vector< ObjectDataIStream* > ObjectDataIStreams;

@@ -27,7 +27,7 @@
 #include <co/base/lock.h>
 #include <co/base/debug.h>
 
-using namespace eq::base;
+using namespace co::base;
 using namespace std;
 
 namespace eq

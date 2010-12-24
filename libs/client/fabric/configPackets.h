@@ -88,7 +88,7 @@ namespace fabric
             }
 
         const uint32_t requestID;
-        base::UUID     entityID;
+        co::base::UUID     entityID;
     };
 }
 }

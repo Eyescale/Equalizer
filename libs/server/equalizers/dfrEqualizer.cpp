@@ -158,7 +158,7 @@ std::ostream& operator << ( std::ostream& os, const DFREqualizer* lb )
     if( !lb )
         return os;
 
-    os << base::disableFlush
+    os << co::base::disableFlush
        << "DFR_equalizer " << std::endl
        << '{' << std::endl
        << "    framerate " << lb->getFrameRate() << std::endl;
@@ -166,7 +166,7 @@ std::ostream& operator << ( std::ostream& os, const DFREqualizer* lb )
     if( lb->getDamping() != 0.5f )
         os << "    damping " << lb->getDamping() << std::endl;
     
-    os << '}' << std::endl << base::enableFlush;
+    os << '}' << std::endl << co::base::enableFlush;
     return os;
 }
 

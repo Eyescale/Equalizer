@@ -48,7 +48,7 @@ namespace co
      * Local nodes listen on network connections, manage connections to other
      * nodes and provide session registration, mapping and command dispatch.
      */
-    class LocalNode : public eq::base::RequestHandler
+    class LocalNode : public co::base::RequestHandler
                     , public Node
     {
     public:
@@ -206,7 +206,7 @@ namespace co
          *         available.
          * @sa registerObject
          */
-        CO_API bool mapObject( Object* object, const eq::base::UUID& id, 
+        CO_API bool mapObject( Object* object, const co::base::UUID& id, 
                                   const uint128_t& version = VERSION_OLDEST );
 
         /** Convenience wrapper for mapObject(). */
@@ -214,7 +214,7 @@ namespace co
             { return mapObject( object, v.identifier, v.version ); }
 
         /** Start mapping a distributed object. */
-        CO_API uint32_t mapObjectNB( Object* object, const eq::base::UUID& id, 
+        CO_API uint32_t mapObjectNB( Object* object, const co::base::UUID& id, 
                                     const uint128_t& version = VERSION_OLDEST );
         /** Finalize the mapping of a distributed object. */
         CO_API bool mapObjectSync( const uint32_t requestID );
@@ -333,16 +333,16 @@ namespace co
         ObjectStore* _objectStore;
 
         /** Needed for thread-safety during nodeID-based connect() */
-        eq::base::Lock _connectMutex;
+        co::base::Lock _connectMutex;
     
         /** The node for each connection. */
-        typedef eq::base::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;
+        typedef co::base::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;
         ConnectionNodeHash _connectionNodes; // read and write: recv only
 
         /** The connected nodes. */
         typedef stde::hash_map< uint128_t, NodePtr > NodeHash;
         // r: all, w: recv
-        eq::base::Lockable< NodeHash, eq::base::SpinLock > _nodes; 
+        co::base::Lockable< NodeHash, co::base::SpinLock > _nodes; 
 
         /** The connection set of all connections from/to this node. */
         ConnectionSet _incoming;
@@ -353,14 +353,14 @@ namespace co
         /** @name Receiver management */
         //@{
         /** The receiver thread. */
-        class ReceiverThread : public eq::base::Thread
+        class ReceiverThread : public co::base::Thread
         {
         public:
             ReceiverThread( LocalNode* localNode ) : _localNode( localNode ){}
             virtual bool init()
                 {
                     setDebugName( std::string( "Rcv " ) +
-                        eq::base::className( _localNode ));
+                        co::base::className( _localNode ));
                     return _localNode->_commandThread->start();
                 }
             virtual void run(){ _localNode->_runReceiverThread(); }
@@ -406,14 +406,14 @@ namespace co
          */
         //@{
         /** The command handler thread. */
-        class CommandThread : public eq::base::Thread
+        class CommandThread : public co::base::Thread
         {
         public:
             CommandThread( LocalNode* localNode ) : _localNode( localNode ){}
             virtual bool init()
                 {
                     setDebugName( std::string( "Cmd " ) +
-                                  eq::base::className( _localNode ));
+                                  co::base::className( _localNode ));
                     return true;
                 }
             virtual void run(){ _localNode->_runCommandThread(); }

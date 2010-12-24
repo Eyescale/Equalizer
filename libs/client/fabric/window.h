@@ -123,8 +123,8 @@ namespace fabric
          * Most of these attributes are used by the SystemWindow implementation
          * to configure the window during configInit(). An SystemWindow
          * implementation might not respect all attributes, e.g.,
-         * IATTR_HINT_SWAPSYNC is not implemented by the GLXWindow. Please refer
-         * to the Programming Guide for details.  @version 1.0
+         * IATTR_HINT_SWAPSYNC is not implemented by the GLXWindow. Please
+         * refer to the Programming Guide for details.  @version 1.0
          */
         enum IAttribute
         {
@@ -178,7 +178,8 @@ namespace fabric
 
         EQFABRIC_INL virtual ~Window(); //!< @internal
         /** @internal */
-        virtual void attach( const base::UUID& id, const uint32_t instanceID );
+        virtual void attach( const co::base::UUID& id,
+                             const uint32_t instanceID );
 
         /** @internal */
         EQFABRIC_INL virtual void serialize( co::DataOStream& os,
@@ -198,7 +199,7 @@ namespace fabric
         /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
-        C* _findChannel( const base::UUID& id ); //!< @internal
+        C* _findChannel( const co::base::UUID& id ); //!< @internal
 
         /** @internal */
         enum DirtyBits

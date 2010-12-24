@@ -39,7 +39,7 @@ namespace DataStreamTest
      *
      * Derived classes send the data using the appropriate command packets.
      */
-    class DataOStream : public eq::base::NonCopyable
+    class DataOStream : public co::base::NonCopyable
     {
     public:
         /** @name Internal */
@@ -71,7 +71,7 @@ namespace DataStreamTest
         void resend( const Nodes& receivers );
 
         /** @return the buffer with the saved data. */
-        const eq::base::Bufferb& getSaveBuffer() const 
+        const co::base::Bufferb& getSaveBuffer() const 
             { EQASSERT( _save ); return _buffer; }
         //@}
 
@@ -137,13 +137,13 @@ namespace DataStreamTest
         BufferType _bufferType;
         
         /** The buffer used for saving and buffering */
-        eq::base::Bufferb  _buffer;
+        co::base::Bufferb  _buffer;
 
         /** The start position of the buffering, always 0 if !_save */
         uint64_t _bufferStart;
         
         /** The compressor instance. */
-        eq::base::CPUCompressor* const _compressor;
+        co::base::CPUCompressor* const _compressor;
 
         /** The output stream is enabled for writing */
         bool _enabled;

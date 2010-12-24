@@ -65,7 +65,7 @@ namespace co
         LocalNodePtr getLocalNode(){ return _localNode; };
 
         /** @return the object's unique identifier. */
-        const eq::base::UUID& getID() const { return _id; }
+        const co::base::UUID& getID() const { return _id; }
 
         /** @return the node-wide unique object instance identifier. */
         uint32_t getInstanceID() const { return _instanceID; }
@@ -289,7 +289,7 @@ namespace co
         /** @internal */
         //@{
         /** @internal Set the object's unique identifier */
-        CO_API void setID( const eq::base::UUID& identifier );
+        CO_API void setID( const co::base::UUID& identifier );
 
         /** @internal @return the master object instance identifier. */
         uint32_t getMasterInstanceID() const;
@@ -320,7 +320,7 @@ namespace co
          * @internal
          * Called when object is attached from the receiver thread.
          */
-        CO_API virtual void attach( const eq::base::UUID& id, 
+        CO_API virtual void attach( const co::base::UUID& id, 
                                     const uint32_t instanceID );
         /**
          * @internal
@@ -353,7 +353,7 @@ namespace co
         friend class VersionedSlaveCM;
 
         /** The session-unique object identifier. */
-        eq::base::UUID _id;
+        co::base::UUID _id;
 
         /** The node where this object is attached. */
         LocalNodePtr _localNode;

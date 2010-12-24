@@ -15,13 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_LOCKABLE_H
-#define EQBASE_LOCKABLE_H
+#ifndef COBASE_LOCKABLE_H
+#define COBASE_LOCKABLE_H
 
 #include <co/base/lock.h>
 #include <co/base/nonCopyable.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -66,4 +66,4 @@ namespace base
     }
 }
 }
-#endif // EQBASE_LOCKABLE_H
+#endif // COBASE_LOCKABLE_H

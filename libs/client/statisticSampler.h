@@ -45,7 +45,7 @@ namespace eq
                 : _owner( owner )
             {
                 EQASSERT( owner );
-                EQASSERT( owner->getID() != base::UUID::ZERO );
+                EQASSERT( owner->getID() != co::base::UUID::ZERO );
                 event.data.type                  = Event::STATISTIC;
                 event.data.originator            = owner->getID();
                 event.data.statistic.type        = type;

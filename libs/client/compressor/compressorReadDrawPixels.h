@@ -64,7 +64,7 @@ public:
                          const unsigned     destination );
 
 protected:
-    eq::base::Bufferb _buffer;
+    co::base::Bufferb _buffer;
     util::Texture*    _texture;
     unsigned    _internalFormat; //!< the GL format
     unsigned    _format;         //!< the GL format

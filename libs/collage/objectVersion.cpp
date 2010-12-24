@@ -24,16 +24,16 @@ namespace co
 ObjectVersion NONE;
 
 ObjectVersion::ObjectVersion()
-        : identifier( eq::base::UUID::ZERO ), version( VERSION_NONE )
+        : identifier( co::base::UUID::ZERO ), version( VERSION_NONE )
 {}
 
-ObjectVersion::ObjectVersion( const eq::base::UUID& id_, 
+ObjectVersion::ObjectVersion( const co::base::UUID& id_, 
                               const uint128_t& version_ )
         : identifier( id_ ), version( version_ )
 {}
 
 ObjectVersion::ObjectVersion( const Object* object )
-        : identifier( eq::base::UUID::ZERO ), version( VERSION_NONE )
+        : identifier( co::base::UUID::ZERO ), version( VERSION_NONE )
 {
     if( object && object->isAttached( ))
     {
@@ -51,7 +51,7 @@ ObjectVersion& ObjectVersion::operator = ( const Object* object )
     }
     else
     {
-        identifier = eq::base::UUID::ZERO;
+        identifier = co::base::UUID::ZERO;
         version = VERSION_NONE;
     }
 

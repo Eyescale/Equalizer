@@ -15,12 +15,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_MEMCPY_H
-#define EQBASE_MEMCPY_H
+#ifndef COBASE_MEMCPY_H
+#define COBASE_MEMCPY_H
 
 #include <eq/base/base.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -95,4 +95,4 @@ inline void fastCopy( void *dst, const void *src, uint32_t nbytes )
 
 }
 }
-#endif //EQBASE_FILESEARCH_H
+#endif //COBASE_FILESEARCH_H

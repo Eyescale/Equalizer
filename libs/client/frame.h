@@ -177,7 +177,7 @@ namespace server
 
         /** @internal */
         const co::ObjectVersion& getDataVersion( const Eye eye ) const
-            { return _data.frameData[ base::getIndexOfLastBit( eye ) ]; }
+            { return _data.frameData[co::base::getIndexOfLastBit( eye ) ]; }
         //@}
 
         /** @name Operations */
@@ -226,7 +226,7 @@ namespace server
          * @param listener the listener.
          * @version 1.0
          */
-        void addListener( base::Monitor<uint32_t>& listener );
+        void addListener( co::base::Monitor<uint32_t>& listener );
 
         /** 
          * Remove a frame listener.
@@ -234,7 +234,7 @@ namespace server
          * @param listener the listener.
          * @version 1.0
          */
-        void removeListener( base::Monitor<uint32_t>& listener );
+        void removeListener( co::base::Monitor<uint32_t>& listener );
         //@}
 
     protected:

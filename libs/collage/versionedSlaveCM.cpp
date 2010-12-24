@@ -204,7 +204,7 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
 
             EQASSERTINFO( is->getRemainingBufferSize()==0 &&
                           is->nRemainingBuffers()==0,
-                          eq::base::className( _object ) <<
+                          co::base::className( _object ) <<
                           " did not unpack all data, " <<
                           is->getRemainingBufferSize() << " bytes, " <<
                           is->nRemainingBuffers() << " buffer(s)" );
@@ -241,7 +241,7 @@ void VersionedSlaveCM::addInstanceDatas(
 {
     EQ_TS_THREAD( _cmdThread );
 #if 0
-    EQLOG( LOG_OBJECTS ) << base::disableFlush << "Adding data front ";
+    EQLOG( LOG_OBJECTS ) << co::base::disableFlush << "Adding data front ";
 #endif
 
     uint128_t oldest = VERSION_NONE;
@@ -287,7 +287,7 @@ void VersionedSlaveCM::addInstanceDatas(
         ObjectDataIStream* debugStream = 0;
         _queuedVersions.getFront( debugStream );
         if( debugStream )
-            EQASSERT( debugStream->getVersion() == stream->getVersion() + 1);        
+            EQASSERT( debugStream->getVersion() == stream->getVersion() + 1);
 #endif
         _queuedVersions.pushFront( new ObjectDataIStream( *stream ));
 #if 0
@@ -316,7 +316,7 @@ void VersionedSlaveCM::addInstanceDatas(
 #endif
     }
 #if 0
-    EQLOG( LOG_OBJECTS ) << std::endl << base::enableFlush;
+    EQLOG( LOG_OBJECTS ) << std::endl << co::base::enableFlush;
 #endif
 }
 
@@ -402,7 +402,7 @@ bool VersionedSlaveCM::_cmdCommit( Command& command )
         return true;
     }
 
-    _ostream.setVersion( eq::base::UUID( true )); // unique commit version
+    _ostream.setVersion( co::base::UUID( true )); // unique commit version
     _ostream.enable( _master, false );
     _object->pack( _ostream );
     _ostream.disable();

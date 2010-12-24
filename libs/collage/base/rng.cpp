@@ -17,7 +17,7 @@
 
 #include "rng.h"
 
-namespace eq
+namespace co
 {
 namespace base
 {

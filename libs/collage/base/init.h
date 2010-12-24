@@ -15,12 +15,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_INIT_H
-#define EQBASE_INIT_H
+#ifndef COBASE_INIT_H
+#define COBASE_INIT_H
 
 #include <co/base/os.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -35,7 +35,7 @@ namespace base
      * @return true if the library was successfully initialised, false otherwise
      * @version 1.0
      */
-    EQBASE_API bool init( const int argc, char** argv );
+    COBASE_API bool init( const int argc, char** argv );
 
     /**
      * De-initialize the Equalizer base classes.
@@ -44,8 +44,8 @@ namespace base
      *         <code>false</code> otherwise.
      * @version 1.0
      */
-    EQBASE_API bool exit();
+    COBASE_API bool exit();
 }
 }
-#endif // EQBASE_INIT_H
+#endif // COBASE_INIT_H
 

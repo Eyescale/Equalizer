@@ -151,8 +151,8 @@ namespace co
 
     protected:
 #ifdef EQ_INSTRUMENT_MULTICAST
-        static base::a_int32_t _hit;
-        static base::a_int32_t _miss;
+        static co::base::a_int32_t _hit;
+        static co::base::a_int32_t _miss;
 #endif        
     };
 }

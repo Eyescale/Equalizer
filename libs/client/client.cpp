@@ -97,7 +97,7 @@ bool Client::connectServer( ServerPtr server )
 /** @cond IGNORE */
 namespace
 {
-base::DSO _libeqserver;
+    co::base::DSO _libeqserver;
 }
 
 #define QUOTE( string ) STRINGIFY( string )
@@ -289,7 +289,7 @@ void Client::exitClient()
     if( !eq::exit( ))
         ret = false;
 
-    EQINFO << "Exit " << base::className( this ) << " process used "
+    EQINFO << "Exit " << co::base::className( this ) << " process used "
            << getRefCount() << std::endl;
     ::exit( ret ? EXIT_SUCCESS : EXIT_FAILURE );
 }

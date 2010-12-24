@@ -27,7 +27,7 @@
 
 #include <fstream>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -85,8 +85,8 @@ bool exit()
     // de-initialize registered plugins
     PluginRegistry& pluginRegistry = Global::getPluginRegistry();
     pluginRegistry.exit(); 
-    eq::base::Thread::removeAllListeners();
-    eq::base::Log::exit();
+    co::base::Thread::removeAllListeners();
+    co::base::Log::exit();
 
     const bool ret = RNG::_exit();
     if( _logFile )

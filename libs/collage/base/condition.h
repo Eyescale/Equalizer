@@ -15,13 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_CONDITION_H
-#define EQBASE_CONDITION_H
+#ifndef COBASE_CONDITION_H
+#define COBASE_CONDITION_H
 
 #include <co/base/os.h>
 #include <co/base/debug.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -35,28 +35,28 @@ namespace base
     {
     public:
         /** Construct a new condition variable. @version 1.0 */
-        EQBASE_API Condition();
+        COBASE_API Condition();
 
         /** Destruct this condition variable. @version 1.0 */
-        EQBASE_API ~Condition();
+        COBASE_API ~Condition();
 
         /** Lock the mutex. @version 1.0 */
-        EQBASE_API void lock();
+        COBASE_API void lock();
 
         /** Signal the condition. @version 1.0 */
-        EQBASE_API void signal();
+        COBASE_API void signal();
 
         /** Broadcast the condition. @version 1.0 */
-        EQBASE_API void broadcast();
+        COBASE_API void broadcast();
 
         /** Unlock the mutex. @version 1.0 */
-        EQBASE_API void unlock();
+        COBASE_API void unlock();
 
         /**
          * Atomically unlock the mutex, wait for a signal and relock the mutex.
          * @version 1.0
          */
-        EQBASE_API void wait();
+        COBASE_API void wait();
 
     private:
         ConditionPrivate* const _data;
@@ -64,4 +64,4 @@ namespace base
 }
 }
 
-#endif //EQBASE_CONDITION_H
+#endif //COBASE_CONDITION_H

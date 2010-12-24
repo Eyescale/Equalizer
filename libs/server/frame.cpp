@@ -24,7 +24,7 @@
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
-using namespace eq::base;
+using namespace co::base;
 using namespace std;
 
 namespace eq
@@ -177,7 +177,7 @@ void Frame::addInputFrame( Frame* frame, const uint32_t eyes )
 
 co::ObjectVersion Frame::getDataVersion( const Eye eye ) const
 {
-    return co::ObjectVersion( _frameData[ eq::base::getIndexOfLastBit( eye ) ] );
+    return co::ObjectVersion( _frameData[ co::base::getIndexOfLastBit( eye ) ] );
 }
 
 std::ostream& operator << ( std::ostream& os, const Frame* frame )

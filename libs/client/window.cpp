@@ -98,7 +98,7 @@ Window::~Window()
     _objectManager = 0;
 }
 
-void Window::attach( const base::UUID& id, const uint32_t instanceID )
+void Window::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -596,7 +596,7 @@ bool Window::processEvent( const Event& event )
                     continue;
 
                 Event channelEvent = event;
-                EQASSERT( channel->getID() != base::UUID::ZERO );
+                EQASSERT( channel->getID() != co::base::UUID::ZERO );
                 channelEvent.originator = channel->getID();
                 channelEvent.pointer.x -= channelPVP.x;
                 channelEvent.pointer.y = channelPVP.h - y + channelPVP.y;
@@ -787,7 +787,7 @@ bool  Window::_cmdThrottleFramerate( co::Command& command )
     if( timeLeft >= 1.f )
     {
         WindowStatistics stat( Statistic::WINDOW_THROTTLE_FRAMERATE, this );   
-        base::sleep( static_cast< uint32_t >( timeLeft ));
+        co::base::sleep( static_cast< uint32_t >( timeLeft ));
     }
 
     _lastSwapTime = getConfig()->getTime();

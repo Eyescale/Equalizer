@@ -15,13 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_LOCK_H
-#define EQBASE_LOCK_H
+#ifndef COBASE_LOCK_H
+#define COBASE_LOCK_H
 
 #include <co/base/os.h>
 #include <co/base/nonCopyable.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -35,16 +35,16 @@ namespace base
     {
     public:
         /** Construct a new lock. @version 1.0 */
-        EQBASE_API Lock();
+        COBASE_API Lock();
 
         /** Destruct the lock. @version 1.0 */
-        EQBASE_API ~Lock();
+        COBASE_API ~Lock();
 
         /** Acquire the lock. @version 1.0 */
-        EQBASE_API void set();
+        COBASE_API void set();
 
         /** Release the lock. @version 1.0 */
-        EQBASE_API void unset();
+        COBASE_API void unset();
 
         /** 
          * Attempt to acquire the lock.
@@ -55,7 +55,7 @@ namespace base
          *         it was not set.
          * @version 1.0
          */
-        EQBASE_API bool trySet();
+        COBASE_API bool trySet();
 
         /** 
          * Test if the lock is set.
@@ -64,7 +64,7 @@ namespace base
          *         it is not set.
          * @version 1.0
          */
-        EQBASE_API bool isSet();
+        COBASE_API bool isSet();
 
     private:
         LockPrivate* _data;
@@ -72,4 +72,4 @@ namespace base
 }
 
 }
-#endif //EQBASE_LOCK_H
+#endif //COBASE_LOCK_H

@@ -43,13 +43,13 @@ View< L, V, O >::View( L* layout )
     // client views are multi-buffered (once per pipe) and do not have a parent
     if( layout )
         layout->_addChild( static_cast< V* >( this ));
-    EQLOG( LOG_INIT ) << "New " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
 }
 
 template< class L, class V, class O > 
 View< L, V, O >::~View()
 {
-    EQLOG( LOG_INIT ) << "Delete " << base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
     if( _layout )
         _layout->_removeChild( static_cast< V* >( this ));
 }
@@ -88,7 +88,7 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
         co::ObjectVersion observer;
         is >> observer;
 
-        if( observer.identifier == base::UUID::ZERO )
+        if( observer.identifier == co::base::UUID::ZERO )
             _observer = 0;
         else
         {
@@ -251,8 +251,9 @@ void View< L, V, O >::notifyAttached()
 template< class L, class V, class O >
 std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view )
 {
-    os << base::disableFlush << base::disableHeader << "view" << std::endl;
-    os << "{" << std::endl << base::indent;
+    os << co::base::disableFlush << co::base::disableHeader
+       << "view" << std::endl;
+    os << "{" << std::endl << co::base::indent;
     
     const std::string& name = view.getName();
     if( !name.empty( ))
@@ -293,8 +294,8 @@ std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view )
             break;
     }
 
-    os << base::exdent << "}" << std::endl << base::enableHeader
-       << base::enableFlush;
+    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
+       << co::base::enableFlush;
     return os;
 }
 

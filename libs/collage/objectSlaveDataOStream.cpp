@@ -60,7 +60,7 @@ void ObjectSlaveDataOStream::sendFooter( const uint32_t compressor,
     sendPacket( packet, compressor, nChunks, chunks, chunkSizes, size );
 
     _sequence = 0;
-    _commit = eq::base::UUID( true /* generate */ );
+    _commit = co::base::UUID( true /* generate */ );
 }
 
 }

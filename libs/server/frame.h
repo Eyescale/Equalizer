@@ -58,7 +58,7 @@ namespace server
 
         FrameData* getMasterData() const { return _masterFrameData; }
         bool       hasData( const eq::Eye eye ) const
-            { return ( _frameData[ base::getIndexOfLastBit( eye ) ] != 0 ); }
+            { return ( _frameData[ co::base::getIndexOfLastBit( eye ) ] != 0 ); }
 
         co::ObjectVersion getDataVersion( const Eye eye ) const;
 
@@ -138,7 +138,7 @@ namespace server
         void addInputFrame( Frame* frame, const uint32_t eyes );
         /** @return the vector of current input frames. */
         const Frames& getInputFrames( const eq::Eye eye ) const
-            { return _inputFrames[ eq::base::getIndexOfLastBit( eye ) ]; }
+            { return _inputFrames[ co::base::getIndexOfLastBit( eye ) ]; }
 
         /** Unset the frame data. */
         void unsetData();

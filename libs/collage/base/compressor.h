@@ -16,13 +16,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_COMPRESSOR_H
-#define EQBASE_COMPRESSOR_H
+#ifndef COBASE_COMPRESSOR_H
+#define COBASE_COMPRESSOR_H
 
 #include <co/base/thread.h>        // thread-safety macros
 #include <co/plugins/compressor.h>  // used inline
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -32,10 +32,10 @@ namespace base
     public:
 
         /** Construct a new compressor. */
-        EQBASE_API Compressor();
+        COBASE_API Compressor();
 
         /** Destruct the compressor. */
-        EQBASE_API virtual ~Compressor();
+        COBASE_API virtual ~Compressor();
 
         /** @return the plugin for the current compressor. */
         Plugin* getPlugin() { return _plugin; }
@@ -45,13 +45,13 @@ namespace base
 
         /** @return true if the compressor is ready for the 
          *          current compressor name. */
-        virtual EQBASE_API bool isValid( uint32_t name ) const;
+        virtual COBASE_API bool isValid( uint32_t name ) const;
 
         /** Remove all information about the current compressor. */
-        EQBASE_API void reset();
+        COBASE_API void reset();
 
         /** @return the quality produced by the current compressor instance. */
-        EQBASE_API float getQuality() const;
+        COBASE_API float getQuality() const;
 
         /** @return the information about the current compressor instance. */
         const CompressorInfo& getInfo() const
@@ -90,17 +90,17 @@ namespace base
          *
          * @param name the name of the compressor
          */
-        EQBASE_API bool _initCompressor( uint32_t name );
+        COBASE_API bool _initCompressor( uint32_t name );
 
         /**
          * Initialize the specified decompressor or uploader 
          *
          * @param name the name of the compressor
          */
-        EQBASE_API bool _initDecompressor( uint32_t name );
+        COBASE_API bool _initDecompressor( uint32_t name );
 
         EQ_TS_VAR( _thread );
     };
 }
 }
-#endif  // EQBASE_COMPRESSOR_H
+#endif  // COBASE_COMPRESSOR_H

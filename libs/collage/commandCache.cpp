@@ -77,11 +77,11 @@ void CommandCache::flush()
 #ifdef PROFILE
 namespace
 {
-static base::a_int32_t _hits;
-static base::a_int32_t _misses;
-static base::a_int32_t _lookups;
-static base::a_int32_t _allocs;
-static base::a_int32_t _frees;
+static co::base::a_int32_t _hits;
+static co::base::a_int32_t _misses;
+static co::base::a_int32_t _lookups;
+static co::base::a_int32_t _allocs;
+static co::base::a_int32_t _frees;
 }
 #endif
 

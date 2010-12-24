@@ -38,7 +38,7 @@
 
 #include <errno.h>
 
-using namespace eq::base;
+using namespace co::base;
 using namespace std;
 
 namespace co
@@ -239,11 +239,11 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
                           got << " != " << bytesLeft );
 
 #ifndef NDEBUG
-            if( bytes <= 1024 && ( eq::base::Log::topics & LOG_PACKETS ))
+            if( bytes <= 1024 && ( co::base::Log::topics & LOG_PACKETS ))
             {
                 ptr = static_cast< uint8_t* >( buffer );
-                EQINFO << "recv:" << std::hex << eq::base::disableFlush
-                       << eq::base::disableHeader;
+                EQINFO << "recv:" << std::hex << co::base::disableFlush
+                       << co::base::disableHeader;
                 for( size_t i = 0; i < bytes; ++i )
                 {
                     if( (i % 16) == 0 )
@@ -253,8 +253,8 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
                     EQINFO << std::setfill( '0' ) << std::setw(2)
                            << static_cast< unsigned >( ptr[ i ] );
                 }
-                EQINFO << std::dec << eq::base::enableFlush
-                       << std::endl << eq::base::enableHeader;
+                EQINFO << std::dec << co::base::enableFlush
+                       << std::endl << co::base::enableHeader;
             }
 #endif
             return true;
@@ -285,10 +285,10 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
     ScopedMutex<> mutex( isLocked ? 0 : &_sendLock );
 
 #ifndef NDEBUG
-    if( bytes <= 1024 && ( eq::base::Log::topics & LOG_PACKETS ))
+    if( bytes <= 1024 && ( co::base::Log::topics & LOG_PACKETS ))
     {
-        EQINFO << "send:" << std::hex << eq::base::disableFlush
-               << eq::base::disableHeader << std::endl;
+        EQINFO << "send:" << std::hex << co::base::disableFlush
+               << co::base::disableHeader << std::endl;
         for( size_t i = 0; i < bytes; ++i )
         {
             if( (i % 16) == 0 )
@@ -298,8 +298,8 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
             EQINFO << std::setfill( '0' ) << std::setw(2)
                    << static_cast< unsigned >( ptr[ i ] );
         }
-        EQINFO << std::dec << eq::base::enableFlush
-               << std::endl << eq::base::enableHeader;
+        EQINFO << std::dec << co::base::enableFlush
+               << std::endl << co::base::enableHeader;
     }
 #endif
 

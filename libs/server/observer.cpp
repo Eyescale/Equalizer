@@ -24,7 +24,7 @@
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
-using namespace eq::base;
+using namespace co::base;
 
 namespace eq
 {
@@ -78,9 +78,9 @@ void Observer::_updateEyes()
 
     // eye_world = (+-eye_base/2., 0, 0 ) x head_matrix
     // OPT: don't use vector operator* due to possible simplification
-    const uint32_t cyclop = eq::base::getIndexOfLastBit( eq::EYE_CYCLOP );
-    const uint32_t right  = eq::base::getIndexOfLastBit( eq::EYE_RIGHT );
-    const uint32_t left   = eq::base::getIndexOfLastBit( eq::EYE_LEFT );
+    const uint32_t cyclop = co::base::getIndexOfLastBit( eq::EYE_CYCLOP );
+    const uint32_t right  = co::base::getIndexOfLastBit( eq::EYE_RIGHT );
+    const uint32_t left   = co::base::getIndexOfLastBit( eq::EYE_LEFT );
 
     _eyes[ cyclop ].x() = head.at( 0, 3 );
     _eyes[ cyclop ].y() = head.at( 1, 3 );

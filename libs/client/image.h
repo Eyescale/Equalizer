@@ -355,7 +355,7 @@ namespace eq
 
             /** During the call of setPixelData or writeImage, we have to 
                 manage an internal buffer to copy the data */
-            eq::base::Bufferb localBuffer;
+            co::base::Bufferb localBuffer;
 
             bool hasAlpha; //!< The uncompressed pixels contain alpha
         };
@@ -373,13 +373,13 @@ namespace eq
             ~Attachment();
 
             void flush();
-            base::CPUCompressor* const fullCompressor;
-            base::CPUCompressor* const lossyCompressor;
+           co::base::CPUCompressor* const fullCompressor;
+           co::base::CPUCompressor* const lossyCompressor;
 
             util::GPUCompressor* const fullTransfer;
             util::GPUCompressor* const lossyTransfer;
 
-            base::CPUCompressor* compressor; //!< current CPU (de)compressor
+           co::base::CPUCompressor* compressor; //!< current CPU (de)compressor
             util::GPUCompressor* transfer;   //!< current up/download engine
 
             float quality; //!< the minimum quality
@@ -413,7 +413,7 @@ namespace eq
 
         void _findTransferers( const Frame::Buffer buffer,
                                const GLEWContext* glewContext,
-                               base::CompressorInfos& result );
+                              co::base::CompressorInfos& result );
 
         /** @return a unique key for the frame buffer attachment. */
         const void* _getBufferKey( const Frame::Buffer buffer ) const;

@@ -24,11 +24,11 @@ namespace co
 {
     enum LogTopics
     {
-        LOG_OBJECTS = eq::base::LOG_CUSTOM << 0,  // 16
-        LOG_BARRIER = eq::base::LOG_CUSTOM << 1,  // 32
-        LOG_RSP     = eq::base::LOG_CUSTOM << 2,  // 64
-        LOG_PACKETS = eq::base::LOG_CUSTOM << 3,  // 128
-        LOG_CUSTOM  = eq::base::LOG_CUSTOM << 4   // 256
+        LOG_OBJECTS = co::base::LOG_CUSTOM << 0,  // 16
+        LOG_BARRIER = co::base::LOG_CUSTOM << 1,  // 32
+        LOG_RSP     = co::base::LOG_CUSTOM << 2,  // 64
+        LOG_PACKETS = co::base::LOG_CUSTOM << 3,  // 128
+        LOG_CUSTOM  = co::base::LOG_CUSTOM << 4   // 256
     };
 }
 #endif // CO_LOG_H

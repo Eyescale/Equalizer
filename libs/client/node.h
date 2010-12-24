@@ -111,7 +111,7 @@ namespace eq
         uint32_t getFinishedFrame() const { return _finishedFrame; }
 
         /** @internal */
-        class TransmitThread : public base::Thread
+        class TransmitThread : public co::base::Thread
         {
         public:
             TransmitThread( Node* parent ) : _node( parent ) {}
@@ -252,10 +252,10 @@ namespace eq
             STATE_FAILED
         };
         /** The configInit/configExit state. */
-        base::Monitor< State > _state;
+        co::base::Monitor< State > _state;
 
         /** The number of the last started frame. */
-        base::Monitor< uint32_t > _currentFrame;
+        co::base::Monitor< uint32_t > _currentFrame;
 
         /** The number of the last finished frame. */
         uint32_t _finishedFrame;
@@ -265,11 +265,11 @@ namespace eq
 
         typedef stde::hash_map< uint128_t, co::Barrier* > BarrierHash;
         /** All barriers mapped by the node. */
-        base::Lockable< BarrierHash > _barriers;
+        co::base::Lockable< BarrierHash > _barriers;
 
         typedef stde::hash_map< uint128_t, FrameData* > FrameDataHash;
         /** All frame datas used by the node during rendering. */
-        base::Lockable< FrameDataHash > _frameDatas;
+        co::base::Lockable< FrameDataHash > _frameDatas;
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

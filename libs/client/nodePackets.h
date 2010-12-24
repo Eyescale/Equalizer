@@ -60,7 +60,7 @@ namespace eq
 
     struct NodeConfigExitReplyPacket : public NodePacket
     {
-        NodeConfigExitReplyPacket( const base::UUID& nodeID, const bool res )
+        NodeConfigExitReplyPacket( const co::base::UUID& nodeID, const bool res )
                 : result( res )
             {
                 command   = fabric::CMD_NODE_CONFIG_EXIT_REPLY;
@@ -79,20 +79,20 @@ namespace eq
                 size    = sizeof( NodeCreatePipePacket );
             }
 
-        base::UUID pipeID;
+        co::base::UUID pipeID;
         bool     threaded;
     };
 
     struct NodeDestroyPipePacket : public NodePacket
     {
-        NodeDestroyPipePacket( const base::UUID& id )
+        NodeDestroyPipePacket( const co::base::UUID& id )
                 : pipeID( id )
             {
                 command = fabric::CMD_NODE_DESTROY_PIPE;
                 size    = sizeof( NodeDestroyPipePacket );
             }
 
-        const base::UUID pipeID;
+        const co::base::UUID pipeID;
     };
     
     struct NodeFrameStartPacket : public NodePacket

@@ -55,21 +55,36 @@ set(EQ_FABRIC_FORWARD_HEADERS
     zoom.h
   )
 
+set(EQ_FABRIC_HEADERS
+   nameFinder.h
+  )
+
 set(EQ_FABRIC_SOURCES
+    canvas.ipp
+    channel.ipp
     client.cpp
     colorMask.cpp
+    config.ipp
     eye.cpp
     frustum.cpp
     global.cpp
     iAttribute.cpp
     init.cpp
+    layout.ipp
+    node.ipp
     object.cpp
+    observer.ipp
     pixel.cpp
+    pipe.ipp
     projection.cpp
     range.cpp
     renderContext.cpp
+    segment.ipp
+    server.ipp
     subPixel.cpp
+    view.ipp
     viewport.cpp
+    window.ipp
     wall.cpp
     zoom.cpp
   )

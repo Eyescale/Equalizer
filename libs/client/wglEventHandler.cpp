@@ -65,7 +65,7 @@ namespace
     typedef stde::hash_map< void*, WGLEventHandler* > HandlerMap;
 #endif
 
-static base::PerThread< HandlerMap > _handlers;
+static co::base::PerThread< HandlerMap > _handlers;
 
 static void registerHandler( HWND hWnd, WGLEventHandler* handler )
 {
@@ -421,7 +421,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             break;
     }
     
-    EQASSERT( window->getID() != base::UUID::ZERO );
+    EQASSERT( window->getID() != co::base::UUID::ZERO );
     event.originator = window->getID();
 
     if( _window->processEvent( event ))
@@ -589,7 +589,7 @@ void WGLEventHandler::_magellanEventHandler( LPARAM lParam )
         else if (pRawHid->bRawData[0] == 3) // Buttons
         {
             ConfigEvent event;
-            EQASSERT( _magellanNode->getID() != base::UUID::ZERO );
+            EQASSERT( _magellanNode->getID() != co::base::UUID::ZERO );
             event.data.originator = _magellanNode->getID();
             event.data.type = Event::MAGELLAN_BUTTON;
             event.data.magellan.button = 0;
@@ -613,7 +613,7 @@ void WGLEventHandler::_magellanEventHandler( LPARAM lParam )
         if (_magellanGotTranslation && _magellanGotRotation)
         {
             ConfigEvent event;
-            EQASSERT( _magellanNode->getID() != base::UUID::ZERO );
+            EQASSERT( _magellanNode->getID() != co::base::UUID::ZERO );
             event.data.originator = _magellanNode->getID();
             event.data.type = Event::MAGELLAN_AXIS;
             event.data.magellan.xAxis = _magellanDOFs[0];

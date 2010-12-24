@@ -30,7 +30,7 @@
 #include <co/base/debug.h>
 #include <vmmlib/vmmlib.hpp>
 
-using namespace eq::base;
+using namespace co::base;
 using namespace std;
 
 namespace eq

@@ -23,7 +23,7 @@
 #include <algorithm>
 
 
-namespace eq
+namespace co
 {
 namespace base
 {

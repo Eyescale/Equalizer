@@ -31,7 +31,7 @@
 #include <vmmlib/vmmlib.hpp>
 
 #ifdef EQ_USE_DEPRECATED
-namespace eqBase = ::eq::base;
+namespace eqBase = ::co::base;
 namespace eqNet  = ::eq::net;
 #endif
 

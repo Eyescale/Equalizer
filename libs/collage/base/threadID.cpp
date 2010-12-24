@@ -22,7 +22,7 @@
 #include <pthread.h>
 #include <cstring>   // for memset
 
-namespace eq
+namespace co
 {
 namespace base
 {

@@ -53,7 +53,7 @@ namespace util
      *
      * @sa http://www.equalizergraphics.com/documents/design/objectManager.html
      */
-    template< class T > class ObjectManager : public base::NonCopyable
+    template< class T > class ObjectManager : public co::base::NonCopyable
     {
     public:
         enum
@@ -148,7 +148,7 @@ namespace util
         typedef stde::hash_map< T, Accum* > AccumHash;
         typedef stde::hash_map< T, GPUCompressor* > UploaderHash;
 
-        struct SharedData : public base::Referenced
+        struct SharedData : public co::base::Referenced
         {
             virtual ~SharedData();
 
@@ -170,7 +170,7 @@ namespace util
             };
         };
 
-        typedef base::RefPtr< SharedData > SharedDataPtr;
+        typedef co::base::RefPtr< SharedData > SharedDataPtr;
         SharedDataPtr _data;
 
         union // placeholder for binary-compatible changes

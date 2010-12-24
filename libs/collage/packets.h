@@ -70,7 +70,7 @@ namespace co
                 type = PACKETTYPE_CO_OBJECT; 
                 instanceID = EQ_INSTANCE_ALL;
             }
-        eq::base::UUID objectID;
+        co::base::UUID objectID;
         uint32_t instanceID;
         uint32_t pad; // pad to multiple-of-eight
     };

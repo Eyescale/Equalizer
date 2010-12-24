@@ -76,7 +76,7 @@ namespace co
          *         is cached for this object.
          */
 
-        CO_API const Data& operator[]( const eq::base::UUID& id );
+        CO_API const Data& operator[]( const co::base::UUID& id );
 
         /** 
          * Release the retrieved instance data of the given object.
@@ -86,7 +86,7 @@ namespace co
          * @return true if the element was unpinned, false if it is not in the
          *         instance cache.
          */
-        CO_API bool release( const eq::base::UUID& id, const uint32_t count = 1 );
+        CO_API bool release( const co::base::UUID& id, const uint32_t count = 1 );
 
         /** 
          * Erase all the data for the given object.
@@ -96,7 +96,7 @@ namespace co
          *
          * @return true if the element was erased, false otherwise.
          */
-        CO_API bool erase( const eq::base::UUID& id );
+        CO_API bool erase( const co::base::UUID& id );
 
         /** @return the number of bytes used by the instance cache. */
         uint64_t getSize() const { return _size; }
@@ -118,14 +118,14 @@ namespace co
             unsigned access;
         };
 
-        typedef stde::hash_map< eq::base::uint128_t, Item > ItemHash;
+        typedef stde::hash_map< co::base::uint128_t, Item > ItemHash;
 
-        eq::base::Lockable< ItemHash > _items;
+        co::base::Lockable< ItemHash > _items;
 
         const uint64_t _maxSize; //!<high-water mark to start releasing commands
         uint64_t _size;          //!< Current number of bytes stored
 
-        const eq::base::Clock _clock;  //!< Clock for item expiration
+        const co::base::Clock _clock;  //!< Clock for item expiration
 
         void _releaseItems( const uint32_t minUsage );
         void _releaseStreams( InstanceCache::Item& item );

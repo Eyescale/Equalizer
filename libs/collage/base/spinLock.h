@@ -15,15 +15,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_SPINLOCK_H
-#define EQBASE_SPINLOCK_H
+#ifndef COBASE_SPINLOCK_H
+#define COBASE_SPINLOCK_H
 
 #include <co/base/atomic.h>         // member
 #include <co/base/compareAndSwap.h> // used in inline method
 #include <co/base/nonCopyable.h>    // base class
 #include <co/base/thread.h>         // used in inline method
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -91,4 +91,4 @@ namespace base
 }
 
 }
-#endif //EQBASE_SPINLOCK_H
+#endif //COBASE_SPINLOCK_H

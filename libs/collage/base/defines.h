@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_DEFINES_H
-#define EQBASE_DEFINES_H
+#ifndef COBASE_DEFINES_H
+#define COBASE_DEFINES_H
 
 #ifdef __APPLE__
 #  include <co/base/definesDarwin.h>
@@ -28,4 +28,4 @@
 #  include <co/base/definesWin32.h>
 #endif
 
-#endif // EQBASE_DEFINES_H
+#endif // COBASE_DEFINES_H

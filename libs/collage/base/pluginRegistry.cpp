@@ -38,7 +38,7 @@
 #endif
 
 
-namespace eq
+namespace co
 {
 namespace base
 {

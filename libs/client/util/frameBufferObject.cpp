@@ -36,7 +36,7 @@ FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext,
     : _fboID( 0 )
     , _depth( textureTarget, glewContext )
     , _glewContext( glewContext )
-    , _error( base::ERROR_NONE )
+    , _error( co::base::ERROR_NONE )
     , _valid( false )
 {
     EQASSERT( GLEW_EXT_framebuffer_object );
@@ -55,7 +55,7 @@ FrameBufferObject::~FrameBufferObject()
 
 void FrameBufferObject::_setError( const int32_t error )
 {
-    _error = base::Error( error );
+    _error = co::base::Error( error );
 }
 
 bool FrameBufferObject::addColorTexture()

@@ -39,7 +39,7 @@ namespace eq
      * A Pipe represents a graphics card (GPU) on a Node.
      *
      * All Pipe, Window and Channel task methods are executed in a separate
-     * eq::base::Thread, in parallel with all other pipes in the system. An
+     * co::base::Thread, in parallel with all other pipes in the system. An
      * exception are non-threaded pipes, which execute their tasks on the Node's
      * main thread.
      *
@@ -375,20 +375,20 @@ namespace eq
             STATE_FAILED
         };
         /** The configInit/configExit state. */
-        base::Monitor< State > _state;
+       co::base::Monitor< State > _state;
 
         /** The last started frame. */
         uint32_t _currentFrame;
 
         /** The number of the last finished frame. */
-        base::Monitor< uint32_t > _finishedFrame;
+       co::base::Monitor< uint32_t > _finishedFrame;
 
         /** The number of the last locally unlocked frame. */
-        base::Monitor<uint32_t> _unlockedFrame;
+       co::base::Monitor<uint32_t> _unlockedFrame;
 
         /** The running per-frame statistic clocks. */
         std::deque< int64_t > _frameTimes;
-        base::Lock            _frameTimeMutex;
+       co::base::Lock            _frameTimeMutex;
 
         /** The base time for the currently active frame. */
         int64_t _frameTime;
@@ -410,7 +410,7 @@ namespace eq
         ViewHash _views;
 
         /** The pipe thread. */
-        class PipeThread : public base::Thread
+        class PipeThread : public co::base::Thread
         {
         public:
             PipeThread( Pipe* pipe ) 

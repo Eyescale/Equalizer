@@ -272,14 +272,14 @@ void Compound::addEqualizer( Equalizer* equalizer )
 
 bool Compound::isInheritActive( const Eye eye ) const
 {
-    const uint32_t index = base::getIndexOfLastBit( eye );
+    const uint32_t index = co::base::getIndexOfLastBit( eye );
     EQASSERT( index < NUM_EYES );
     return _inherit.active[ index ];
 }
 
 bool Compound::isLastInheritEye( const Eye eye ) const
 {
-    uint32_t index = base::getIndexOfLastBit( eye );
+    uint32_t index = co::base::getIndexOfLastBit( eye );
     while( ++index < NUM_EYES )
         if( _inherit.active[ index ] )
             return false;
@@ -1159,8 +1159,8 @@ void Compound::_updateInheritActive( const uint32_t frameNumber )
 
 std::ostream& operator << (std::ostream& os, const Compound& compound)
 {
-    os << base::disableFlush << "compound" << std::endl;
-    os << "{" << std::endl << base::indent;
+    os << co::base::disableFlush << "compound" << std::endl;
+    os << "{" << std::endl << co::base::indent;
       
     const std::string& name = compound.getName();
     if( !name.empty( ))
@@ -1317,7 +1317,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
         if( !attrPrinted )
         {
             os << std::endl << "attributes" << std::endl;
-            os << "{" << std::endl << base::indent;
+            os << "{" << std::endl << co::base::indent;
             attrPrinted = true;
         }
         
@@ -1345,7 +1345,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
     }
     
     if( attrPrinted )
-        os << base::exdent << "}" << std::endl << std::endl;
+        os << co::base::exdent << "}" << std::endl << std::endl;
 
     switch( compound.getFrustumType( ))
     {
@@ -1391,7 +1391,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
 
     os << compound.getSwapBarrier();
 
-    os << base::exdent << "}" << std::endl << base::enableFlush;
+    os << co::base::exdent << "}" << std::endl << co::base::enableFlush;
     return os;
 }
 

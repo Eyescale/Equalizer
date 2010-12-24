@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_MONITOR_H
-#define EQBASE_MONITOR_H
+#ifndef COBASE_MONITOR_H
+#define COBASE_MONITOR_H
 
 #include <co/base/nonCopyable.h> // base class
 #include <co/base/condition.h>   // member
@@ -26,7 +26,7 @@
 #include <iostream>
 #include <typeinfo>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -267,4 +267,4 @@ namespace base
     }
 }
 }
-#endif //EQBASE_MONITOR_H
+#endif //COBASE_MONITOR_H

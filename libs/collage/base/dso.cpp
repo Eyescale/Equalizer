@@ -28,7 +28,7 @@
 #  define EQ_DL_ERROR dlerror()
 #endif
 
-namespace eq
+namespace co
 {
 namespace base
 {

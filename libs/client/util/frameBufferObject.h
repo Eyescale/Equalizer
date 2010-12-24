@@ -121,7 +121,7 @@ namespace util
         const Texture& getDepthTexture() const { return _depth; }
 
         /** @return the reason for the last failed operation. @version 1.0 */
-        const base::Error& getError() { return _error; }
+        const co::base::Error& getError() { return _error; }
 
         /** @return the GLEW context. @version 1.0 */
         const GLEWContext* glewGetContext() const { return _glewContext; }
@@ -138,7 +138,7 @@ namespace util
         const GLEWContext* const _glewContext;
 
         /** The reason for the last error. */
-        base::Error _error;
+        co::base::Error _error;
 
         bool _valid;
 

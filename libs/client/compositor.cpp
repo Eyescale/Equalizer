@@ -47,7 +47,7 @@
 #  define bzero( ptr, size ) { memset( ptr, 0, size ); }
 #endif
 
-using eq::base::Monitor;
+using co::base::Monitor;
 
 namespace eq
 {
@@ -63,7 +63,7 @@ static const char* colorDBKey  = shaderDBKey + 1;
 static const char* depthDBKey  = shaderDBKey + 2;
 
 // Image used for CPU-based assembly
-static base::PerThread< Image > _resultImage;
+static co::base::PerThread< Image > _resultImage;
 
 static bool _useCPUAssembly( const Frames& frames, Channel* channel, 
                              const bool blendAlpha = false )

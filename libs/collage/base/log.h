@@ -20,12 +20,12 @@
  * 
  * This file contains the logging classes for Equalizer. The macros EQERROR,
  * EQWARN, EQINFO and EQVERB output messages at their respective logging level,
- * if the level is active. They use a per-thread base::Log instance, which is a
+ * if the level is active. They use a per-thread co::base::Log instance, which is a
  * std::ostream. EQVERB is always inactive in release builds.
  */
 
-#ifndef EQBASE_LOG_H
-#define EQBASE_LOG_H
+#ifndef COBASE_LOG_H
+#define COBASE_LOG_H
 
 #include <co/base/os.h>
 #include <co/base/clock.h>
@@ -41,7 +41,7 @@
 #  define getpid _getpid
 #endif
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -160,26 +160,26 @@ namespace base
         void enableHeader()  { _logBuffer.enableHeader();  }
 
         /** The current log level. */
-        static EQBASE_API int level;
+        static COBASE_API int level;
 
         /** The current log topics. */
-        static EQBASE_API unsigned topics;
+        static COBASE_API unsigned topics;
 
         /** The per-thread logger. */
-        static EQBASE_API Log& instance( const char* subdir, const char* file,
+        static COBASE_API Log& instance( const char* subdir, const char* file,
                                         const int line );
 
         /** Exit the log instance for the current thread. */
-        static EQBASE_API void exit();
+        static COBASE_API void exit();
 
         /** The string representation of the current log level. */
         static std::string& getLogLevelString();
 
         /** Change the output stream. */
-        static EQBASE_API void setOutput( std::ostream& stream );
+        static COBASE_API void setOutput( std::ostream& stream );
 
         /** Get the current output stream. @internal */
-        static EQBASE_API std::ostream& getOutput ();
+        static COBASE_API std::ostream& getOutput ();
 
         /**
          * Set the reference clock.
@@ -189,7 +189,7 @@ namespace base
          *
          * @param clock the reference clock.
          */
-        static EQBASE_API void setClock( Clock* clock );
+        static COBASE_API void setClock( Clock* clock );
 
     private:
         LogBuffer _logBuffer; 
@@ -207,21 +207,21 @@ namespace base
      * lines to be intended by four characters.
      * @version 1.0
      */
-    EQBASE_API std::ostream& indent( std::ostream& os );
+    COBASE_API std::ostream& indent( std::ostream& os );
     /** Decrease the indent of the Log stream. @version 1.0 */
-    EQBASE_API std::ostream& exdent( std::ostream& os );
+    COBASE_API std::ostream& exdent( std::ostream& os );
 
     /** Disable flushing of the Log stream. @version 1.0 */
-    EQBASE_API std::ostream& disableFlush( std::ostream& os );
+    COBASE_API std::ostream& disableFlush( std::ostream& os );
     /** Re-enable flushing of the Log stream. @version 1.0 */
-    EQBASE_API std::ostream& enableFlush( std::ostream& os );
+    COBASE_API std::ostream& enableFlush( std::ostream& os );
     /** Flush the Log stream regardless of the auto-flush state. @version 1.0 */
-    EQBASE_API std::ostream& forceFlush( std::ostream& os );
+    COBASE_API std::ostream& forceFlush( std::ostream& os );
 
     /** Disable printing of the Log header for subsequent lines. @version 1.0 */
-    EQBASE_API std::ostream& disableHeader( std::ostream& os );
+    COBASE_API std::ostream& disableHeader( std::ostream& os );
     /** Re-enable printing of the Log header. @version 1.0 */
-    EQBASE_API std::ostream& enableHeader( std::ostream& os );
+    COBASE_API std::ostream& enableHeader( std::ostream& os );
 
 }
 }
@@ -231,29 +231,29 @@ namespace base
 #endif
 
 /** Output an error message to the per-thread Log stream. @version 1.0 */
-#define EQERROR (eq::base::Log::level >= eq::base::LOG_ERROR) &&    \
-    eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+#define EQERROR (co::base::Log::level >= co::base::LOG_ERROR) &&    \
+    co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
 /** Output a warning message to the per-thread Log stream. @version 1.0 */
-#define EQWARN  (eq::base::Log::level >= eq::base::LOG_WARN)  &&    \
-    eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+#define EQWARN  (co::base::Log::level >= co::base::LOG_WARN)  &&    \
+    co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
 /** Output an informational message to the per-thread Log. @version 1.0 */
-#define EQINFO  (eq::base::Log::level >= eq::base::LOG_INFO)  &&    \
-    eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+#define EQINFO  (co::base::Log::level >= co::base::LOG_INFO)  &&    \
+    co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
 
 #ifdef NDEBUG
 #  define EQVERB if( false )                                    \
-        eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+        co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
 #else
 /** Output a verbatim message to the per-thread Log stream. @version 1.0 */
-#  define EQVERB (eq::base::Log::level >= eq::base::LOG_VERB)  &&    \
-    eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+#  define EQVERB (co::base::Log::level >= co::base::LOG_VERB)  &&    \
+    co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
 #endif
 
 /**
  * Output a message pertaining to a topic to the per-thread Log stream.
  * @version 1.0
  */
-#define EQLOG(topic)  (eq::base::Log::topics & (topic))  &&  \
-    eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+#define EQLOG(topic)  (co::base::Log::topics & (topic))  &&  \
+    co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
 
-#endif //EQBASE_LOG_H
+#endif //COBASE_LOG_H

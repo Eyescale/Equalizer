@@ -22,13 +22,13 @@
 
 #include <iostream>
 
-namespace eq
+namespace co
 {
 namespace base
 {
 std::ostream& operator << ( std::ostream& os, const Error& error )
 {
-    const base::ErrorRegistry& registry = base::Global::getErrorRegistry();
+    const co::base::ErrorRegistry& registry = co::base::Global::getErrorRegistry();
     const std::string& text = registry.getString( error );
     if( text.empty( ))
         os << "error 0x" << std::hex << uint32_t( error ) << std::dec;

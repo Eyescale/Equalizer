@@ -179,7 +179,7 @@ namespace server
         virtual void attach( const UUID& id, const uint32_t instanceID );
 
         /** @internal Execute the slave remove request. */
-        virtual void removeChild( const base::UUID& id );
+        virtual void removeChild( const co::base::UUID& id );
 
     private:
 
@@ -187,7 +187,7 @@ namespace server
         uint32_t _active;
 
         /** The current state for state change synchronization. */
-        base::Monitor< State > _state;
+        co::base::Monitor< State > _state;
         
         /** The maximum frame rate allowed for this window. */
         float _maxFPS;

@@ -55,7 +55,7 @@ namespace co
         HANDLE _event;
 #else
         ConnectionPtr _connection;
-	eq::base::Lock _lock;
+	co::base::Lock _lock;
         bool _set;
 #endif
     };

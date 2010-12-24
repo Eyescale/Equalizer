@@ -82,10 +82,10 @@ namespace co
         virtual ~RSPConnection();
     
     private:
-        typedef eq::base::RefPtr< RSPConnection > RSPConnectionPtr;
+        typedef co::base::RefPtr< RSPConnection > RSPConnectionPtr;
 
         /** Thread managing network IO and RSP protocol. */
-        class Thread : public eq::base::Thread
+        class Thread : public co::base::Thread
         {
         public: 
             Thread( RSPConnectionPtr connection )
@@ -195,7 +195,7 @@ namespace co
         uint32_t _payloadSize;
         int32_t  _timeouts;
 
-        typedef eq::base::RefPtr< EventConnection > EventConnectionPtr;
+        typedef co::base::RefPtr< EventConnection > EventConnectionPtr;
         EventConnectionPtr _event;
 
         boost::asio::io_service        _ioService;
@@ -205,24 +205,24 @@ namespace co
         boost::asio::deadline_timer    _timeout;
         boost::asio::deadline_timer    _wakeup;
         
-        eq::base::Clock _clock;
+        co::base::Clock _clock;
         uint64_t        _maxBucketSize;
         size_t          _bucketSize;
         int64_t         _sendRate;
 
         Thread*          _thread;
-        eq::base::Lock       _mutexConnection;
-        eq::base::Lock       _mutexEvent;
+        co::base::Lock       _mutexConnection;
+        co::base::Lock       _mutexEvent;
         uint16_t         _acked;        // sequence ID of last confirmed ack
 
-        typedef eq::base::Bufferb Buffer;
+        typedef co::base::Bufferb Buffer;
         typedef std::vector< Buffer* > Buffers;
 
         Buffers _buffers;                   //!< Data buffers
         /** Empty read buffers (connected) or write buffers (listening) */
-        eq::base::LFQueue< Buffer* > _threadBuffers;
+        co::base::LFQueue< Buffer* > _threadBuffers;
         /** Ready data buffers (connected) or empty write buffers (listening) */
-        eq::base::MTQueue< Buffer* > _appBuffers;
+        co::base::MTQueue< Buffer* > _appBuffers;
 
         Buffer _recvBuffer;                      //!< Receive (thread) buffer
         std::deque< Buffer* > _recvBuffers;      //!< out-of-order buffers

@@ -15,12 +15,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_SLEEP_H
-#define EQBASE_SLEEP_H
+#ifndef COBASE_SLEEP_H
+#define COBASE_SLEEP_H
 
 #include <co/base/os.h>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -35,4 +35,4 @@ namespace base
     }
 }
 }
-#endif  // EQBASE_SLEEP_H
+#endif  // COBASE_SLEEP_H

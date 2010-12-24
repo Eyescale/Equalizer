@@ -15,14 +15,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_LAUNCHER_H
-#define EQBASE_LAUNCHER_H
+#ifndef COBASE_LAUNCHER_H
+#define COBASE_LAUNCHER_H
 
 #include <co/base/os.h>
 #include <string>
 #include <vector>
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -31,7 +31,7 @@ namespace base
     {
     public:
         /** Execute the given command in a new process. @version 1.0 */
-        EQBASE_API static bool run( const std::string& command );
+        COBASE_API static bool run( const std::string& command );
 
     private:
         Launcher(){}
@@ -43,4 +43,4 @@ namespace base
 }
 
 }
-#endif // EQBASE_LAUNCHER_H
+#endif // COBASE_LAUNCHER_H

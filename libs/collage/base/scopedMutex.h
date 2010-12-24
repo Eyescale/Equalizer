@@ -15,15 +15,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQBASE_SCOPEDMUTEX_H
-#define EQBASE_SCOPEDMUTEX_H
+#ifndef COBASE_SCOPEDMUTEX_H
+#define COBASE_SCOPEDMUTEX_H
 
 #include <co/base/lock.h>        // used in inline method
 #include <co/base/lockable.h>    // used in inline method
 #include <co/base/nonCopyable.h> // base class
 
 
-namespace eq
+namespace co
 {
 namespace base
 {
@@ -72,4 +72,4 @@ namespace base
     };
 }
 }
-#endif //EQBASE_SCOPEDMUTEX_H
+#endif //COBASE_SCOPEDMUTEX_H

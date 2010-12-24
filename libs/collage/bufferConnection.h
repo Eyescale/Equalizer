@@ -47,7 +47,7 @@ namespace co
         virtual Notifier getNotifier() const { EQDONTCALL; return 0; }
 
     private:
-        mutable eq::base::Bufferb _buffer;
+        mutable co::base::Bufferb _buffer;
     };
 }
 
