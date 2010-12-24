@@ -26,7 +26,7 @@
 #include <eq/init.h>
 #include <eq/nodeFactory.h>
 
-using namespace eq::base;
+using namespace co::base;
 using namespace eq;
 using namespace std;
 

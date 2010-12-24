@@ -58,7 +58,7 @@ int main( int argc, char** argv )
     if( !configTool.parseArguments( argc, argv ))
         ::exit( EXIT_FAILURE );
 
-    eq::base::Log::setOutput( std::cout );
+    co::base::Log::setOutput( std::cout );
     eq::NodeFactory nodeFactory;
     if( !eq::init( 0, 0, &nodeFactory ))
     {
@@ -227,9 +227,9 @@ void ConfigTool::writeConfig() const
     _writeResources( config );
     _writeCompound( config );
 
-    eq::base::Log::instance( "", "", 0 )
-        << eq::base::disableHeader << global << *server << std::endl
-        << eq::base::enableHeader << eq::base::disableFlush;
+    co::base::Log::instance( "", "", 0 )
+        << co::base::disableHeader << global << *server << std::endl
+        << co::base::enableHeader << co::base::disableFlush;
 }
 
 static void readNodenames

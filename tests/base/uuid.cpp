@@ -25,13 +25,13 @@
 #define N_UUIDS 10000
 #define N_THREADS 10
 
-typedef eq::base::uint128_t uint128_t;
+typedef co::base::uint128_t uint128_t;
 typedef stde::hash_map< uint128_t, bool > TestHash;
 
 void testConvertUint128ToUUID();
 void testIncrement();
 
-class Thread : public eq::base::Thread
+class Thread : public co::base::Thread
 {
 public:
     virtual void run()
@@ -40,7 +40,7 @@ public:
 
             while( i-- )
             {
-                eq::base::UUID uuid( true );
+                co::base::UUID uuid( true );
         
                 TESTINFO( hash.find( uuid ) == hash.end(),
                           "Iteration " << N_UUIDS - i );
@@ -53,20 +53,20 @@ public:
 
 int main( int argc, char **argv )
 {
-    TEST( eq::base::init( argc, argv ));
+    TEST( co::base::init( argc, argv ));
 
     // basic tests
-    eq::base::UUID id1( true );
-    eq::base::UUID id2( true );
+    co::base::UUID id1( true );
+    co::base::UUID id2( true );
 
-    TEST( id1 != eq::base::UUID::ZERO );
+    TEST( id1 != co::base::UUID::ZERO );
     TEST( id1 != id2 );
 
     id1 = id2;
     TEST( id1 == id2 );
     
-    eq::base::UUID* id3 = new eq::base::UUID( id1 );
-    eq::base::UUID* id4 = new eq::base::UUID( true );
+    co::base::UUID* id3 = new co::base::UUID( id1 );
+    co::base::UUID* id4 = new co::base::UUID( true );
 
     TEST( id1 == *id3 );
     TEST( *id4 != *id3 );
@@ -77,21 +77,21 @@ int main( int argc, char **argv )
     delete id3;
     delete id4;
 
-    eq::base::UUID id5, id6;
-    TEST( id5 == eq::base::UUID::ZERO );
+    co::base::UUID id5, id6;
+    TEST( id5 == co::base::UUID::ZERO );
     TEST( id5 == id6 );
     
-    eq::base::RNG rng;
+    co::base::RNG rng;
     uint16_t high = rng.get< uint16_t >();
     int32_t low = rng.get< int32_t >();
-    eq::base::UUID id7( high, low );
+    co::base::UUID id7( high, low );
     TEST( id7.high() == high );
     TEST( id7.low() == uint64_t( low ));
 
     // Load tests
     Thread threads[ N_THREADS ];
 
-    eq::base::Clock clock;
+    co::base::Clock clock;
     for( size_t i = 0; i < N_THREADS; ++i )
         threads[ i ].start();
     for( size_t i = 0; i < N_THREADS; ++i )
@@ -108,7 +108,7 @@ int main( int argc, char **argv )
         for( TestHash::const_iterator j = current.begin();
              j != current.end(); ++j )
         {
-            eq::base::UUID uuid = j->first;
+            co::base::UUID uuid = j->first;
             TESTINFO( uuid == j->first, j->first << " = " << uuid );
 
             std::ostringstream stream;
@@ -124,7 +124,7 @@ int main( int argc, char **argv )
     }
     testConvertUint128ToUUID();
     testIncrement();
-    TEST( eq::base::exit( ));
+    TEST( co::base::exit( ));
     return EXIT_SUCCESS;
 }
 
@@ -136,7 +136,7 @@ void testConvertUint128ToUUID()
     uint128_t test128( high, low );
     TEST( test128.low() == low && test128.high() == high );
 
-    eq::base::UUID testUUID;
+    co::base::UUID testUUID;
     testUUID = test128;
     const uint128_t compare128 = testUUID;
     TEST( compare128 == test128 );
@@ -169,7 +169,7 @@ void testIncrement()
     }
 
     {
-        eq::base::UUID test128( 0, 0 );
+        co::base::UUID test128( 0, 0 );
         ++test128;
         TEST( test128.high() == 0 && test128.low() == 1 );
         --test128;
@@ -181,7 +181,7 @@ void testIncrement()
     }
 
     {
-        eq::base::UUID test128( 0, 0xffffffffffffffffull );
+        co::base::UUID test128( 0, 0xffffffffffffffffull );
         ++test128;
         TEST( test128.high() == 1 && test128.low() == 0 );
         --test128;

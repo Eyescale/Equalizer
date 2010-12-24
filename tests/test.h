@@ -23,7 +23,7 @@
 #include <co/base/thread.h>
 #include <fstream>
 
-#define OUTPUT eq::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+#define OUTPUT co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
 
 #define TEST( x )                                                       \
     {                                                                   \
@@ -50,21 +50,21 @@ int testMain( int argc, char **argv );
 
 namespace
 {
-class Watchdog : public eq::base::Thread
+class Watchdog : public co::base::Thread
 {
 public:
     Watchdog( const std::string& name ) : _name( name ) {}
 
     virtual void run()
         {
-            eq::base::Thread::setDebugName( "Test Watchdog" );
+            co::base::Thread::setDebugName( "Test Watchdog" );
 #ifdef EQ_TEST_RUNTIME
-            eq::base::sleep( EQ_TEST_RUNTIME * 1000 );
+            co::base::sleep( EQ_TEST_RUNTIME * 1000 );
             TESTINFO( false, 
                       "Watchdog triggered - " << _name <<
                       " did not terminate within " << EQ_TEST_RUNTIME << "s" );
 #else
-            eq::base::sleep( 60000 );
+            co::base::sleep( 60000 );
             TESTINFO( false, 
                       "Watchdog triggered - " << _name <<
                       " did not terminate within 1 minute" );

@@ -37,7 +37,7 @@ FrameData::FrameData()
     , _statistics(    false )
     , _help(          false )
     , _quality( 1.0f )
-    , _currentViewID( eq::base::UUID::ZERO )
+    , _currentViewID( co::base::UUID::ZERO )
 {
     reset();
     EQINFO << "New FrameData " << std::endl;

@@ -32,10 +32,10 @@
 namespace
 {
 co::ConnectionSet   _connectionSet;
-eq::base::a_int32_t _nClients;
-eq::base::Lock      _mutexPrint;
+co::base::a_int32_t _nClients;
+co::base::Lock      _mutexPrint;
 
-class Receiver : public eq::base::Thread
+class Receiver : public co::base::Thread
 {
 public:
     Receiver( const size_t packetSize, co::ConnectionPtr connection )
@@ -76,7 +76,7 @@ public:
             _clock.reset();
             co::ConnectionDescriptionPtr desc = 
                 _connection->getDescription();
-            const eq::base::ScopedMutex<> mutex( _mutexPrint );
+            const co::base::ScopedMutex<> mutex( _mutexPrint );
             std::cerr << "Recv perf: " << _mBytesSec / time * _nSamples
                       << "MB/s (" << _nSamples / time * 1000.f  << "pps) from "
                       << desc->toString() << std::endl;
@@ -117,11 +117,11 @@ public:
         }
         
 private:
-    eq::base::Clock _clock;
-    eq::base::RNG _rng;
+    co::base::Clock _clock;
+    co::base::RNG _rng;
 
-    eq::base::Bufferb _buffer;
-    eq::base::Monitor< bool > _hasConnection;
+    co::base::Bufferb _buffer;
+    co::base::Monitor< bool > _hasConnection;
     co::ConnectionPtr _connection;
     const float _mBytesSec;
     size_t      _nSamples;
@@ -129,7 +129,7 @@ private:
     uint8_t    _lastPacket;
 };
 
-class Selector : public eq::base::Thread
+class Selector : public co::base::Thread
 {
 public:
     Selector( co::ConnectionPtr connection, const size_t packetSize,
@@ -285,7 +285,7 @@ private:
     std::vector< RecvConn > _receivers;
     size_t _packetSize;
     bool _useThreads;
-    eq::base::Bufferb _buffer;
+    co::base::Bufferb _buffer;
 };
 
 }
@@ -369,13 +369,13 @@ int main( int argc, char **argv )
         else if( !connection->connect( ))
             ::exit( EXIT_FAILURE );
 
-        eq::base::Buffer< uint8_t > buffer;
+        co::base::Buffer< uint8_t > buffer;
         buffer.resize( packetSize );
         for( size_t i = 0; i<packetSize; ++i )
             buffer[i] = static_cast< uint8_t >( i );
 
         const float mBytesSec = buffer.getSize() / 1024.0f / 1024.0f * 1000.0f;
-        eq::base::Clock clock;
+        co::base::Clock clock;
         size_t      lastOutput = nPackets;
 
         clock.reset();
@@ -386,7 +386,7 @@ int main( int argc, char **argv )
             const float time = clock.getTimef();
             if( time > 1000.f )
             {
-                const eq::base::ScopedMutex<> mutex( _mutexPrint );
+                const co::base::ScopedMutex<> mutex( _mutexPrint );
                 const size_t nSamples = lastOutput - nPackets;
                 std::cerr << "Send perf: " << mBytesSec / time * nSamples 
                           << "MB/s (" << nSamples / time * 1000.f  << "pps)"
@@ -396,13 +396,13 @@ int main( int argc, char **argv )
                 clock.reset();
             }
             if( waitTime > 0 )
-                eq::base::sleep( waitTime );
+                co::base::sleep( waitTime );
         }
         const float time = clock.getTimef();
         const size_t nSamples = lastOutput - nPackets;
         if( nSamples != 0 )
         {
-            const eq::base::ScopedMutex<> mutex( _mutexPrint );
+            const co::base::ScopedMutex<> mutex( _mutexPrint );
             std::cerr << "Send perf: " << mBytesSec / time * nSamples 
                       << "MB/s (" << nSamples / time * 1000.f  << "pps)"
                       << std::endl;

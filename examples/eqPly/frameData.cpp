@@ -32,7 +32,7 @@ namespace eqPly
 {
 
 FrameData::FrameData()
-        : _modelID( eq::base::UUID::ZERO )
+        : _modelID( co::base::UUID::ZERO )
         , _renderMode( mesh::RENDER_MODE_DISPLAY_LIST )
         , _colorMode( COLOR_MODEL )
         , _quality( 1.0f )
@@ -42,7 +42,7 @@ FrameData::FrameData()
         , _wireframe( false )
         , _pilotMode( false )
         , _idle( false )
-        , _currentViewID( eq::base::UUID::ZERO )
+        , _currentViewID( co::base::UUID::ZERO )
 {
     reset();
     EQINFO << "New FrameData " << std::endl;

@@ -70,7 +70,7 @@ int main( const int argc, char** argv )
     initData.parseArguments( argc, argv );
 
     // 3. initialization of local client node
-    eq::base::RefPtr< eVolve::EVolve > client = new eVolve::EVolve( initData );
+    co::base::RefPtr< eVolve::EVolve > client = new eVolve::EVolve( initData );
     if( !client->initLocal( argc, argv ))
     {
         EQERROR << "Can't init client" << std::endl;

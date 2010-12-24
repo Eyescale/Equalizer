@@ -24,9 +24,9 @@
 
 #define NLOOPS 200000
 
-eq::base::Monitor< int64_t > monitor;
+co::base::Monitor< int64_t > monitor;
 
-class Thread : public eq::base::Thread
+class Thread : public co::base::Thread
 {
 public:
     virtual ~Thread() {}
@@ -34,7 +34,7 @@ public:
         {
             int64_t nOps = NLOOPS;
 
-            eq::base::Clock clock;
+            co::base::Clock clock;
             while( nOps-- )
             {
                 monitor.waitEQ( nOps );
@@ -52,7 +52,7 @@ int main( int argc, char **argv )
     int64_t nOps = NLOOPS;
     
     TEST( waiter.start( ));
-    eq::base::Clock clock;
+    co::base::Clock clock;
 
     while( nOps-- )
     {

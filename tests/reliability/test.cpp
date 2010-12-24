@@ -19,9 +19,9 @@
 #include <eq/eq.h>
 #include "libs/server/global.h"
 
-eq::base::a_int32_t drawCalls;
-eq::base::a_int32_t readbackCalls;
-eq::base::a_int32_t assembleCalls;
+co::base::a_int32_t drawCalls;
+co::base::a_int32_t readbackCalls;
+co::base::a_int32_t assembleCalls;
 
 enum Error
 {
@@ -75,7 +75,7 @@ public:
 
 protected:
     virtual void frameDraw( const eq::uint128_t& frameID )
-        { eq::Channel::frameDraw( frameID ); ++drawCalls; eq::base::sleep(10); }
+        { eq::Channel::frameDraw( frameID ); ++drawCalls; co::base::sleep(10); }
     virtual void frameReadback( const eq::uint128_t& frameID )
         { eq::Channel::frameReadback( frameID ); ++readbackCalls; }
     virtual void frameAssemble( const eq::uint128_t& frameID )
@@ -105,7 +105,7 @@ int main( const int argc, char** argv )
         return EXIT_FAILURE;
     }
 
-    eq::base::ErrorRegistry& registry = eq::base::Global::getErrorRegistry();
+    co::base::ErrorRegistry& registry = co::base::Global::getErrorRegistry();
     registry.setString( ERROR_NODE_INIT, "Node init failed" );
     registry.setString( ERROR_PIPE_INIT, "Pipe init failed" );
 
@@ -117,7 +117,7 @@ int main( const int argc, char** argv )
     client->addConnectionDescription( desc );
     TEST( client->initLocal( argc, argv ));
 
-    eq::base::Strings configs = eq::base::searchDirectory( ".", "*.eqc" );
+    co::base::Strings configs = co::base::searchDirectory( ".", "*.eqc" );
     stde::usort( configs ); // have a predictable order
 
     if( argc == 2 )
@@ -126,7 +126,7 @@ int main( const int argc, char** argv )
         configs.push_back( argv[1] );
     }
 
-    for( eq::base::Strings::const_iterator i = configs.begin();
+    for( co::base::Strings::const_iterator i = configs.begin();
         i != configs.end(); ++i )
     {
         const std::string& config = "./" + *i;

@@ -47,8 +47,8 @@ bool Window::configInitGL( const eq::uint128_t& initID )
         // The code below is not thread-safe, since various STL containers are
         // used within the OSG classes. Since this is init-only, a simple global
         // lock is acceptable.
-        static eq::base::Lock lock;
-        eq::base::ScopedMutex<> mutex( lock );
+        static co::base::Lock lock;
+        co::base::ScopedMutex<> mutex( lock );
         
         _sceneView = new SceneView;
         _sceneView->setDefaults( SceneView::STANDARD_SETTINGS );

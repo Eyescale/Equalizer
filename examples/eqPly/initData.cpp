@@ -41,7 +41,7 @@ namespace eqPly
 {
 
 InitData::InitData()
-        : _frameDataID( eq::base::UUID::ZERO )
+        : _frameDataID( co::base::UUID::ZERO )
         , _windowSystem( eq::WINDOW_SYSTEM_NONE )
 #ifdef Darwin
         , _renderMode( mesh::RENDER_MODE_BUFFER_OBJECT )
@@ -55,7 +55,7 @@ InitData::InitData()
 
 InitData::~InitData()
 {
-    setFrameDataID( eq::base::UUID::ZERO );
+    setFrameDataID( co::base::UUID::ZERO );
 }
 
 void InitData::getInstanceData( co::DataOStream& os )

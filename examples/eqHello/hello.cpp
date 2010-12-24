@@ -32,7 +32,7 @@
 #include <eq/eq.h>
 #include <stdlib.h>
 
-using namespace eq::base;
+using namespace co::base;
 using namespace std;
 
 namespace eqHello

@@ -30,11 +30,11 @@
 
 #define MAXPACKETSIZE (32 * 1048576)
 
-class Sender : public eq::base::Thread
+class Sender : public co::base::Thread
 {
 public:
     Sender( co::ConnectionPtr connection )
-            : eq::base::Thread(),
+            : co::base::Thread(),
               _connection( connection )
         {}
     virtual ~Sender(){}
@@ -43,7 +43,7 @@ protected:
     virtual void run()
         {
             void* buffer = calloc( 1, MAXPACKETSIZE );
-            eq::base::Clock clock;
+            co::base::Clock clock;
 
             for( uint64_t packetSize = MAXPACKETSIZE; packetSize >= 1048576;
                  packetSize = packetSize >> 1 )
@@ -78,7 +78,7 @@ int main( int argc, char **argv )
     TEST( sender.start( ));
 
     void* buffer = calloc( 1, MAXPACKETSIZE );
-    eq::base::Clock clock;
+    co::base::Clock clock;
 
     for( uint64_t packetSize = MAXPACKETSIZE; packetSize >= 1048576;
          packetSize = packetSize >> 1 )

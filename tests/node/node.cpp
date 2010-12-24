@@ -31,7 +31,7 @@ using namespace std;
 
 namespace
 {
-eq::base::Lock lock;
+co::base::Lock lock;
 static const string message =
     "Don't Panic! And now some more text to make the message bigger";
 #define NMESSAGES 1000
@@ -91,7 +91,7 @@ int main( int argc, char **argv )
     co::init( argc, argv );
 
     lock.set();
-    eq::base::RefPtr< Server >        server   = new Server;
+    co::base::RefPtr< Server >        server   = new Server;
     co::ConnectionDescriptionPtr connDesc = 
         new co::ConnectionDescription;
     
@@ -116,7 +116,7 @@ int main( int argc, char **argv )
 
     DataPacket packet;
 
-    eq::base::Clock clock;
+    co::base::Clock clock;
     for( unsigned i = 0; i < NMESSAGES; ++i )
         serverProxy->send( packet, message );
     const float time = clock.getTimef();

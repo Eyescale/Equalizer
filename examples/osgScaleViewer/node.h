@@ -63,7 +63,7 @@ namespace osgScaleViewer
                                  const uint32_t frameNumber );
 
     private:
-        eq::base::a_int32_t _contextID;
+        co::base::a_int32_t _contextID;
         osg::ref_ptr< osg::Node > _model;
         osg::ref_ptr< osg::FrameStamp > _frameStamp;
         osg::ref_ptr< osg::NodeVisitor > _updateVisitor;

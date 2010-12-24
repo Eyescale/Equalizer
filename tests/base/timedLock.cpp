@@ -22,7 +22,7 @@
 
 #include <iostream>
 
-using namespace eq::base;
+using namespace co::base;
 using namespace std;
 
 int main( int argc, char **argv )

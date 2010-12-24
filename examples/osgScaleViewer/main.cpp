@@ -54,7 +54,7 @@ int main( const int argc, char** argv )
         return -1;
 
     // 3. initialization of local client node
-    eq::base::RefPtr< osgScaleViewer::OSGScaleViewer > client =
+    co::base::RefPtr< osgScaleViewer::OSGScaleViewer > client =
         new osgScaleViewer::OSGScaleViewer( initData );
     if( !client->initLocal( argc, argv ))
     {

@@ -24,9 +24,9 @@
 
 #define NOPS 100000
 
-eq::base::MTQueue< uint64_t > queue;
+co::base::MTQueue< uint64_t > queue;
 
-class ReadThread : public eq::base::Thread
+class ReadThread : public co::base::Thread
 {
 public:
     virtual ~ReadThread() {}
@@ -34,7 +34,7 @@ public:
         {
             uint64_t item = 0xffffffffffffffffull;
 
-            eq::base::Clock clock;
+            co::base::Clock clock;
             for( size_t i = 0 ; i < NOPS; ++i )
             {
                 item = queue.pop();
@@ -54,7 +54,7 @@ int main( int argc, char **argv )
     ReadThread reader;
     TEST( reader.start( ));
 
-    eq::base::Clock clock;
+    co::base::Clock clock;
     for( size_t i = 0 ; i < NOPS; ++i )
     {
         queue.push( i );

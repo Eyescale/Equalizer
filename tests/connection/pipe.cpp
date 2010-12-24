@@ -24,13 +24,13 @@
 
 #include <iostream>
 
-class Server : public eq::base::Thread
+class Server : public co::base::Thread
 {
 public:
     void start( co::ConnectionPtr connection )
         {
             _connection = connection;
-            eq::base::Thread::start();
+            co::base::Thread::start();
         }
 
 protected:

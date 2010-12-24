@@ -39,7 +39,7 @@
 namespace eqPly
 {
 
-Config::Config( eq::base::RefPtr< eq::Server > parent )
+Config::Config( co::base::RefPtr< eq::Server > parent )
         : eq::Config( parent )
         , _spinX( 5 )
         , _spinY( 5 )
@@ -183,13 +183,13 @@ void Config::_loadModels()
             }
             else
             {
-                const std::string basename = eq::base::getFilename( filename );
+                const std::string basename = co::base::getFilename( filename );
                 if( basename == "." || basename == ".." )
                     continue;
 
                 // recursively search directories
                 const eq::Strings subFiles =
-                    eq::base::searchDirectory( filename, "*" );
+                    co::base::searchDirectory( filename, "*" );
 
                 if( !subFiles.empty( ))
                     EQINFO << "Searching " << filename << std::endl;
@@ -291,7 +291,7 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
         return 0;
 
     // Accessed concurrently from pipe threads
-    eq::base::ScopedMutex<> _mutex( _modelLock );
+    co::base::ScopedMutex<> _mutex( _modelLock );
 
     const size_t nModels = _models.size();
     EQASSERT( _modelDist.size() == nModels );
@@ -314,7 +314,7 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
 uint32_t Config::startFrame()
 {
     _updateData();
-    const eq::base::uint128_t& version = _frameData.commit();
+    const co::base::uint128_t& version = _frameData.commit();
 
     _redraw = false;
     return eq::Config::startFrame( version );
@@ -560,7 +560,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 
         case 'k':
         {
-            eq::base::RNG rng;
+            co::base::RNG rng;
             if( rng.get< bool >( ))
                 _frameData.toggleOrtho();
             if( rng.get< bool >( ))
@@ -864,7 +864,7 @@ void Config::_switchModel()
     if( view )
     {
         const Model* model = getModel( modelID );
-        _setMessage( "Model " + eq::base::getFilename( model->getName()) +
+        _setMessage( "Model " + co::base::getFilename( model->getName()) +
                      " active" );
     }
 }

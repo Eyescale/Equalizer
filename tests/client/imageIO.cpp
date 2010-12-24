@@ -32,7 +32,7 @@ int main( int argc, char **argv )
     TEST( eq::init( argc, argv, &nodeFactory ));
 
     eq::Strings images;
-    eq::Strings candidates = eq::base::searchDirectory( "images", "*.rgb");
+    eq::Strings candidates = co::base::searchDirectory( "images", "*.rgb");
     for( eq::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
     {
@@ -48,14 +48,14 @@ int main( int argc, char **argv )
     for( eq::Strings::const_iterator i = images.begin(); i != images.end(); ++i)
     {
         const std::string& inFilename = *i;
-        const std::string outFilename = eq::base::getDirname( inFilename ) +
-            "/out_" + eq::base::getFilename( inFilename );
+        const std::string outFilename = co::base::getDirname( inFilename ) +
+            "/out_" + co::base::getFilename( inFilename );
 
         TEST( image.readImage( inFilename, eq::Frame::BUFFER_COLOR ));
         TEST( image.writeImage( outFilename, eq::Frame::BUFFER_COLOR ));
 
-        eq::base::MemoryMap orig;
-        eq::base::MemoryMap copy;
+        co::base::MemoryMap orig;
+        co::base::MemoryMap copy;
         const uint8_t* origPtr = reinterpret_cast< const uint8_t* >(
                                      orig.map( inFilename ));
         const uint8_t* copyPtr = reinterpret_cast< const uint8_t* >(

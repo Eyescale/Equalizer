@@ -160,7 +160,7 @@ void VertexBufferDist::getInstanceData( co::DataOStream& os )
     }
     else
     {
-        os << eq::base::UUID::ZERO << eq::base::UUID::ZERO;
+        os << co::base::UUID::ZERO << co::base::UUID::ZERO;
 
         EQASSERT( dynamic_cast< const mesh::VertexBufferLeaf* >( _node ));
         const mesh::VertexBufferLeaf* leaf = 
@@ -180,10 +180,10 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
     mesh::VertexBufferNode* node = 0;
     mesh::VertexBufferBase* base = 0;
 
-    eq::base::UUID leftID, rightID;
+    co::base::UUID leftID, rightID;
     is >> _isRoot >> leftID >> rightID;
 
-    if( leftID != eq::base::UUID::ZERO && rightID != eq::base::UUID::ZERO )
+    if( leftID != co::base::UUID::ZERO && rightID != co::base::UUID::ZERO )
     {
         if( _isRoot )
         {

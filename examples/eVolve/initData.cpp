@@ -36,14 +36,14 @@
 
 #include "initData.h"
 
-using namespace eq::base;
+using namespace co::base;
 using namespace std;
 
 namespace eVolve
 {
 
 InitData::InitData()
-        : _frameDataID(  eq::base::UUID::ZERO )
+        : _frameDataID(  co::base::UUID::ZERO )
         , _windowSystem( eq::WINDOW_SYSTEM_NONE )
         , _precision( 2 )
         , _brightness( 1.0f )
@@ -61,7 +61,7 @@ InitData::InitData()
 
 InitData::~InitData()
 {
-    setFrameDataID( eq::base::UUID::ZERO );
+    setFrameDataID( co::base::UUID::ZERO );
 }
 
 void InitData::getInstanceData( co::DataOStream& os )
@@ -75,7 +75,7 @@ void InitData::applyInstanceData( co::DataIStream& is )
     is >> _frameDataID >> _windowSystem >> _precision >> _brightness >> _alpha
        >> _filename;
 
-    EQASSERT( _frameDataID != eq::base::UUID::ZERO );
+    EQASSERT( _frameDataID != co::base::UUID::ZERO );
     EQINFO << "New InitData instance" << endl;
 }
 }

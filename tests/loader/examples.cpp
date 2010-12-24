@@ -28,12 +28,12 @@
 
 int main( int argc, char **argv )
 {
-    TEST( eq::base::init( argc, argv ));
+    TEST( co::base::init( argc, argv ));
 
     eq::server::Loader loader;
-    eq::base::Strings candidates = 
-        eq::base::searchDirectory( "../../examples/configs", "*.eqc" );
-    for( eq::base::Strings::const_iterator i = candidates.begin();
+    co::base::Strings candidates = 
+        co::base::searchDirectory( "../../examples/configs", "*.eqc" );
+    for( co::base::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
     {
         const std::string& filename = "../../examples/configs/" + *i;
@@ -50,6 +50,6 @@ int main( int argc, char **argv )
                   global->getConfigFAttribute( attr ) << " file " << filename);
     }
 
-    TEST( eq::base::exit( ));
+    TEST( co::base::exit( ));
     return EXIT_SUCCESS;
 }

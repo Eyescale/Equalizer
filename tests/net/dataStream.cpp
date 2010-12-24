@@ -115,7 +115,7 @@ public:
         }
 
     virtual size_t nRemainingBuffers() const { return _commands.getSize(); }
-    virtual eq::base::uint128_t getVersion() const { return co::VERSION_NONE;}
+    virtual co::base::uint128_t getVersion() const { return co::VERSION_NONE;}
 
 protected:
     virtual bool getNextBuffer( uint32_t* compressor, uint32_t* nChunks,
@@ -146,10 +146,10 @@ namespace co
 {
 namespace DataStreamTest
 {
-class Sender : public eq::base::Thread
+class Sender : public co::base::Thread
 {
 public:
-    Sender( eq::base::RefPtr< co::Connection > connection )
+    Sender( co::base::RefPtr< co::Connection > connection )
             : Thread(),
               _connection( connection )
         {}
@@ -180,7 +180,7 @@ protected:
         }
 
 private:
-    eq::base::RefPtr< co::Connection > _connection;
+    co::base::RefPtr< co::Connection > _connection;
 };
 }
 }

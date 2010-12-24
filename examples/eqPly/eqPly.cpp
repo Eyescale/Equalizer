@@ -99,7 +99,7 @@ int EqPly::run()
     }
 
     // 3. init config
-    eq::base::Clock clock;
+    co::base::Clock clock;
 
     config->setInitData( _initData );
     if( !config->init( ))

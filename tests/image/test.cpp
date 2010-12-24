@@ -49,16 +49,16 @@ namespace
 {
 static std::vector< uint32_t > _getCompressorNames()
 {
-    const eq::base::PluginRegistry& registry = 
-        eq::base::Global::getPluginRegistry();
-    const eq::base::Plugins& plugins = registry.getPlugins();
+    const co::base::PluginRegistry& registry = 
+        co::base::Global::getPluginRegistry();
+    const co::base::Plugins& plugins = registry.getPlugins();
 
     std::vector< uint32_t > names;
-    for( eq::base::Plugins::const_iterator i = plugins.begin();
+    for( co::base::Plugins::const_iterator i = plugins.begin();
          i != plugins.end(); ++i )
     {
-        const eq::base::CompressorInfos& infos = (*i)->getInfos();
-        for( eq::base::CompressorInfos::const_iterator j = infos.begin();
+        const co::base::CompressorInfos& infos = (*i)->getInfos();
+        for( co::base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
             const EqCompressorInfo& info = *j;
@@ -74,16 +74,16 @@ static std::vector< uint32_t > _getCompressorNames()
 #ifdef COMPARE_RESULT
 static float _getCompressorQuality( const uint32_t name )
 {
-    const eq::base::PluginRegistry& registry = 
-        eq::base::Global::getPluginRegistry();
-    const eq::base::Plugins& plugins = registry.getPlugins();
+    const co::base::PluginRegistry& registry = 
+        co::base::Global::getPluginRegistry();
+    const co::base::Plugins& plugins = registry.getPlugins();
 
     float quality = 1.0f;
-    for( eq::base::Plugins::const_iterator i = plugins.begin();
+    for( co::base::Plugins::const_iterator i = plugins.begin();
          i != plugins.end(); ++i )
     {
-        const eq::base::CompressorInfos& infos = (*i)->getInfos();
-        for( eq::base::CompressorInfos::const_iterator j = infos.begin();
+        const co::base::CompressorInfos& infos = (*i)->getInfos();
+        for( co::base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
             if( name != (*j).name )
@@ -129,7 +129,7 @@ int main( int argc, char **argv )
     TEST( eq::init( argc, argv, &nodeFactory ));
 
     eq::Strings images;
-    eq::Strings candidates = eq::base::searchDirectory( "images", "*.rgb");
+    eq::Strings candidates = co::base::searchDirectory( "images", "*.rgb");
     stde::usort( candidates ); // have a predictable order
     for( eq::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
@@ -140,7 +140,7 @@ int main( int argc, char **argv )
             images.push_back( "images/" + filename );
     }
 
-    candidates = eq::base::searchDirectory( "../compositor", "Result*.rgb" );
+    candidates = co::base::searchDirectory( "../compositor", "Result*.rgb" );
     stde::usort( candidates ); // have a predictable order
     for( eq::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
@@ -152,7 +152,7 @@ int main( int argc, char **argv )
     }
     TEST( !images.empty( ));
 
-    eq::base::Clock clock;
+    co::base::Clock clock;
     eq::Image image;
     eq::Image destImage;
     
@@ -279,9 +279,9 @@ int main( int argc, char **argv )
                 totalDecompressTime += decompressTime;
 
 #ifdef WRITE_DECOMPRESSED
-                destImage.writeImage( eq::base::getDirname( filename ) +
+                destImage.writeImage( co::base::getDirname( filename ) +
                                       "/out_" + 
-                                      eq::base::getFilename( filename ),
+                                      co::base::getFilename( filename ),
                                       buffer );
 #endif
 

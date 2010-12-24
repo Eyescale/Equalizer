@@ -26,9 +26,9 @@
 
 #include <iostream>
 
-eq::base::Monitor< co::Barrier* > _barrier( 0 );
+co::base::Monitor< co::Barrier* > _barrier( 0 );
 
-class NodeThread : public eq::base::Thread
+class NodeThread : public co::base::Thread
 {
 public:
     NodeThread( const bool master ) : _master(master) {}

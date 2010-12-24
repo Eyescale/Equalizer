@@ -23,9 +23,9 @@
 
 #define RUNTIME 1000 /*ms*/
 
-eq::base::LFQueue< uint64_t > queue(1024);
+co::base::LFQueue< uint64_t > queue(1024);
 
-class ReadThread : public eq::base::Thread
+class ReadThread : public co::base::Thread
 {
 public:
     virtual ~ReadThread() {}
@@ -35,7 +35,7 @@ public:
             uint64_t nEmpty = 0;
             uint64_t item = 0xffffffffffffffffull;
 
-            eq::base::Clock clock;
+            co::base::Clock clock;
             while( clock.getTime64() < RUNTIME )
             {
                 if( queue.getFront( item ))
@@ -63,7 +63,7 @@ int main( int argc, char **argv )
     
     TEST( reader.start( ));
 
-    eq::base::Clock clock;
+    co::base::Clock clock;
     while( clock.getTime64() < RUNTIME )
     {
         while( queue.push( nOps ))

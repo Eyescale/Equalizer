@@ -61,7 +61,7 @@ namespace eqPly
 Channel::Channel( eq::Window* parent )
         : eq::Channel( parent )
         , _model(0)
-        , _modelID( eq::base::UUID::ZERO )
+        , _modelID( co::base::UUID::ZERO )
         , _frameStartRendering( 0 )
 {
 }
@@ -73,7 +73,7 @@ bool Channel::configInit( const eq::uint128_t& initID )
 
     setNearFar( 0.1f, 10.0f );
     _model = 0;
-    _modelID = eq::base::UUID::ZERO;
+    _modelID = co::base::UUID::ZERO;
     return true;
 }
 
@@ -95,7 +95,7 @@ void Channel::frameClear( const eq::uint128_t& frameID )
 
     _initJitter();
     const FrameData& frameData = _getFrameData();
-    const uint32_t eyeIndex = eq::base::getIndexOfLastBit( getEye() );
+    const uint32_t eyeIndex = co::base::getIndexOfLastBit( getEye() );
     if( _isDone() && !_accum[ eyeIndex ].transfer )
         return;
 
@@ -177,7 +177,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
         glEnd();
     }
 
-    Accum& accum = _accum[ eq::base::getIndexOfLastBit( getEye()) ];
+    Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
     accum.stepsDone = EQ_MAX( accum.stepsDone, 
                               getSubPixel().size * getPeriod( ));
     accum.transfer = true;
@@ -191,7 +191,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     if( _isDone( ))
         return;
 
-    Accum& accum = _accum[ eq::base::getIndexOfLastBit( getEye()) ];
+    Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
 
     if( getPixelViewport() != _currentPVP )
     {
@@ -310,7 +310,7 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
     applyBuffer();
 
     const FrameData& frameData = _getFrameData();
-    Accum& accum = _accum[ eq::base::getIndexOfLastBit( getEye()) ];
+    Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
 
     if( accum.buffer )
     {
@@ -408,7 +408,7 @@ bool Channel::_isDone() const
         return false;
 
     const eq::SubPixel& subpixel = getSubPixel();
-    const Accum& accum = _accum[ eq::base::getIndexOfLastBit( getEye()) ];
+    const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
     return static_cast< int32_t >( subpixel.index ) >= accum.step;
 }
 
@@ -429,7 +429,7 @@ void Channel::_initJitter()
         return;
 
     // ready for the next FSAA
-    Accum& accum = _accum[ eq::base::getIndexOfLastBit( getEye()) ];
+    Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
 
     if( accum.buffer )
         accum.buffer->clear();
@@ -443,7 +443,7 @@ bool Channel::_initAccum()
         return true;
 
     const eq::Eye eye = getEye();
-    Accum& accum = _accum[ eq::base::getIndexOfLastBit( eye ) ];
+    Accum& accum = _accum[ co::base::getIndexOfLastBit( eye ) ];
 
     if( accum.buffer ) // already done
         return true;
@@ -508,7 +508,7 @@ bool Channel::stopRendering() const
 eq::Vector2f Channel::_getJitter() const
 {
     const FrameData& frameData = _getFrameData();
-    const Accum& accum = _accum[ eq::base::getIndexOfLastBit( getEye()) ];
+    const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
 
     if( !frameData.isIdle() || accum.step <= 0 )
         return eq::Channel::getJitter();
@@ -535,7 +535,7 @@ eq::Vector2f Channel::_getJitter() const
     const float subpixel_h = pixel_h / sampleSize;
 
     // Sample value randomly computed within the subpixel
-    eq::base::RNG rng;
+    co::base::RNG rng;
     float value_i = rng.get< float >() * subpixel_w
                     + float( jitterStep.x( )) * subpixel_w;
 
@@ -561,7 +561,7 @@ eq::Vector2i Channel::_getJitterStep() const
     if( totalSteps != 256 )
         return eq::Vector2i::ZERO;
 
-    const Accum& accum = _accum[ eq::base::getIndexOfLastBit( getEye()) ];
+    const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
     const uint32_t subset = totalSteps / getSubPixel().size;
     const uint32_t idx = 
         ( accum.step * primeNumberTable[ channelID ] ) % subset +
@@ -582,7 +582,7 @@ const Model* Channel::_getModel()
     EQASSERT( !view || dynamic_cast< const View* >( getView( )));
 
     eq::uint128_t id = view ? view->getModelID() : frameData.getModelID();
-    if( id == eq::base::UUID::ZERO )
+    if( id == co::base::UUID::ZERO )
         id = frameData.getModelID();
     if( id != _modelID )
     {

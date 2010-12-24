@@ -27,10 +27,10 @@ int main( int argc, char **argv )
 {
     eq::server::Loader loader;
 
-    TEST( eq::base::init( argc, argv ));
+    TEST( co::base::init( argc, argv ));
     TEST( !loader.loadFile( argv[0] ));
     TEST( loader.loadFile( "../../examples/configs/config.eqc" ).isValid( ))
 
-    TEST( eq::base::exit( ));
+    TEST( co::base::exit( ));
     return EXIT_SUCCESS;
 }

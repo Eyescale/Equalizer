@@ -54,7 +54,7 @@ namespace eqPly
     class Config : public eq::Config
     {
     public:
-        Config( eq::base::RefPtr< eq::Server > parent );
+        Config( co::base::RefPtr< eq::Server > parent );
 
         /** @sa eq::Config::init. */
         virtual bool init();
@@ -104,7 +104,7 @@ namespace eqPly
 
         Models     _models;
         ModelDists _modelDist;
-        eq::base::Lock  _modelLock;
+        co::base::Lock  _modelLock;
 
         CameraAnimation _animation;
 

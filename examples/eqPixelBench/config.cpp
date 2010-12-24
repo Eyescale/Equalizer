@@ -33,7 +33,7 @@ using namespace std;
 
 namespace eqPixelBench
 {
-Config::Config( eq::base::RefPtr< eq::Server > parent )
+Config::Config( co::base::RefPtr< eq::Server > parent )
         : eq::Config( parent )
         , _clock(0)
         , _modeTest( false )
@@ -49,7 +49,7 @@ Config::~Config()
 uint32_t Config::startFrame( const eq::uint128_t& frameID )
 {
     if( !_clock )
-        _clock = new eq::base::Clock;
+        _clock = new co::base::Clock;
 
     _clock->reset();
     return eq::Config::startFrame( frameID );

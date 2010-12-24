@@ -21,7 +21,7 @@
 #include <co/base/thread.h>
 #include <iostream>
 
-using namespace eq::base;
+using namespace co::base;
 using namespace std;
 
 #define NTHREADS 16

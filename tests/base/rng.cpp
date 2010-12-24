@@ -21,7 +21,7 @@
 #include <co/base/init.h>
 #include <co/base/rng.h>
 
-using namespace eq::base;
+using namespace co::base;
 
 #define MAXLOOPS 100000
 
@@ -48,7 +48,7 @@ using namespace eq::base;
 
 int main( int argc, char **argv )
 {
-    TEST( eq::base::init( argc, argv ));
+    TEST( co::base::init( argc, argv ));
 
     RNG rng;
 
@@ -66,6 +66,6 @@ int main( int argc, char **argv )
     TESTLOOP( float,  0.1f, 0.9f );
     TESTLOOP( double, 0.1,  0.9 );
 
-    TEST( eq::base::exit( ));
+    TEST( co::base::exit( ));
     return EXIT_SUCCESS;
 }

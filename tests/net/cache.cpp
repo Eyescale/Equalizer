@@ -34,9 +34,9 @@
 #define PACKET_SIZE 4096
 #define RUNTIME 5000
 
-eq::base::Clock _clock;
+co::base::Clock _clock;
 
-class Reader : public eq::base::Thread
+class Reader : public co::base::Thread
 {
 public:
     Reader( co::InstanceCache& cache )
@@ -52,7 +52,7 @@ protected:
             size_t ops = 0;
             while( _clock.getTime64() < RUNTIME )
             {
-                const eq::base::UUID key( _rng.get< uint16_t >(), 0 );
+                const co::base::UUID key( _rng.get< uint16_t >(), 0 );
                 if( _cache[ key ] != co::InstanceCache::Data::NONE )
                 {
                     ++hits;
@@ -67,7 +67,7 @@ protected:
 
 private:
     co::InstanceCache& _cache;
-    eq::base::RNG _rng;
+    co::base::RNG _rng;
 };
 
 int main( int argc, char **argv )
@@ -88,12 +88,12 @@ int main( int argc, char **argv )
         alloca( N_READER * sizeof( Reader* )));
 
     co::InstanceCache cache;
-    eq::base::RNG rng;
+    co::base::RNG rng;
 
     size_t hits = 0;
     size_t ops = 0;
 
-    for( eq::base::UUID key; key.low() < 65536; ++key ) // Fill cache
+    for( co::base::UUID key; key.low() < 65536; ++key ) // Fill cache
         if( !cache.add( co::ObjectVersion( key, 1 ), 1, command ))
             break;
 
@@ -106,7 +106,7 @@ int main( int argc, char **argv )
 
     while( _clock.getTime64() < RUNTIME )
     {
-        const eq::base::UUID id( 0, rng.get< uint16_t >( ));
+        const co::base::UUID id( 0, rng.get< uint16_t >( ));
         const co::ObjectVersion key( id, 1 );
         if( cache[ key.identifier ] != co::InstanceCache::Data::NONE )
         {
@@ -136,7 +136,7 @@ int main( int argc, char **argv )
 
     EQINFO << cache << std::endl;
 
-    for( eq::base::UUID key; key.low() < 65536; ++key ) // Fill cache
+    for( co::base::UUID key; key.low() < 65536; ++key ) // Fill cache
     {
         if( cache[ key ] != co::InstanceCache::Data::NONE )
         {
@@ -145,7 +145,7 @@ int main( int argc, char **argv )
         }
     }
 
-    for( eq::base::UUID key; key.low() < 65536; ++key ) // Fill cache
+    for( co::base::UUID key; key.low() < 65536; ++key ) // Fill cache
     {
         TEST( cache[ key ] == co::InstanceCache::Data::NONE );
     }

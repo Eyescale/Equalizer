@@ -32,7 +32,7 @@
 namespace eVolve
 {
 
-Config::Config( eq::base::RefPtr< eq::Server > parent )
+Config::Config( co::base::RefPtr< eq::Server > parent )
         : eq::Config( parent )
         , _spinX( 5 )
         , _spinY( 5 )
@@ -97,7 +97,7 @@ void Config::_deregisterData()
     deregisterObject( &_initData );
     deregisterObject( &_frameData );
 
-    _initData.setFrameDataID( eq::base::UUID::ZERO );
+    _initData.setFrameDataID( co::base::UUID::ZERO );
 }
 
 
@@ -105,7 +105,7 @@ uint32_t Config::startFrame()
 {
     // update database
     _frameData.spinCamera( -0.001f * _spinX, -0.001f * _spinY );
-    const eq::base::uint128_t& version = _frameData.commit();
+    const co::base::uint128_t& version = _frameData.commit();
 
     _resetMessage();
 
@@ -133,9 +133,9 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
         case eq::Event::POINTER_BUTTON_PRESS:
         {
-            const eq::base::UUID& viewID = event->data.context.view.identifier;
+            const co::base::UUID& viewID = event->data.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
-            if( viewID == eq::base::UUID::ZERO )
+            if( viewID == co::base::UUID::ZERO )
             {
                 _currentCanvas = 0;
                 return true;
@@ -251,7 +251,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             if( canvases.empty( ))
                 return true;
 
-            _frameData.setCurrentViewID( eq::base::UUID::ZERO );
+            _frameData.setCurrentViewID( co::base::UUID::ZERO );
 
             if( !_currentCanvas )
             {
@@ -305,7 +305,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 
             ++i;
             if( i == views.end( ))
-                _frameData.setCurrentViewID( eq::base::UUID::ZERO );
+                _frameData.setCurrentViewID( co::base::UUID::ZERO );
             else
                 _frameData.setCurrentViewID( (*i)->getID( ));
             return true;
@@ -328,7 +328,7 @@ void Config::_switchLayout( int32_t increment )
     if( !_currentCanvas )
         return;
 
-    _frameData.setCurrentViewID( eq::base::UUID::ZERO );
+    _frameData.setCurrentViewID( co::base::UUID::ZERO );
 
     int64_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();

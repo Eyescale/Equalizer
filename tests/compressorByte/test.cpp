@@ -53,7 +53,7 @@ std::vector< std::string > getFiles( const std::string path,
                                      std::vector< std::string >& files, 
                                      const std::string& ext );
 
-eq::base::Bufferb* readDataFile( const std::string& filename );
+co::base::Bufferb* readDataFile( const std::string& filename );
 
 static size_t numTests = 1;
 
@@ -72,15 +72,15 @@ int main( int argc, char **argv )
 
 std::vector< uint32_t > getCompressorNames( const uint32_t tokenType )
 {
-    eq::base::PluginRegistry& registry = eq::base::Global::getPluginRegistry();
-    const eq::base::Plugins& plugins = registry.getPlugins();
+    co::base::PluginRegistry& registry = co::base::Global::getPluginRegistry();
+    const co::base::Plugins& plugins = registry.getPlugins();
 
     std::vector< uint32_t > names;
-    for( eq::base::Plugins::const_iterator i = plugins.begin();
+    for( co::base::Plugins::const_iterator i = plugins.begin();
          i != plugins.end(); ++i )
     {
-        const eq::base::CompressorInfos& infos = (*i)->getInfos();
-        for( eq::base::CompressorInfos::const_iterator j = infos.begin();
+        const co::base::CompressorInfos& infos = (*i)->getInfos();
+        for( co::base::CompressorInfos::const_iterator j = infos.begin();
              j != infos.end(); ++j )
         {
             if ( (*j).tokenType == tokenType )
@@ -97,8 +97,8 @@ void testCompressByte( const uint32_t nameCompressor,
                        float& _timeCompress, 
                        float& _timeDecompress )
 {
-    eq::base::CPUCompressor compressor;
-    eq::base::CPUCompressor decompressor;
+    co::base::CPUCompressor compressor;
+    co::base::CPUCompressor decompressor;
     compressor.initCompressor( nameCompressor );
     decompressor.initDecompressor( nameCompressor );
 
@@ -109,7 +109,7 @@ void testCompressByte( const uint32_t nameCompressor,
     float timeDecompress = 0;
     uint64_t compressedSize = 0;
 
-    eq::base::Clock clock;
+    co::base::Clock clock;
     for( size_t j = 0; j < numTests ; j++ )
     {
         clock.reset();
@@ -132,7 +132,7 @@ void testCompressByte( const uint32_t nameCompressor,
         }
         
         compressedSize += totalSize;
-        eq::base::Bufferb result;
+        co::base::Bufferb result;
         result.resize( size );
         uint8_t* outData = result.getData();
         clock.reset();
@@ -182,8 +182,8 @@ void testCompressorFile( )
         for ( std::vector< std::string >::const_iterator i = files.begin();
               i != files.end(); i++ )
         {
-            eq::base::Bufferb* data = readDataFile( *i );
-            const std::string name = eq::base::getFilename(*i);
+            co::base::Bufferb* data = readDataFile( *i );
+            const std::string name = co::base::getFilename(*i);
             
             if( data == 0 )
                 continue;
@@ -227,13 +227,13 @@ std::vector< std::string > getFiles( const std::string path,
                                      std::vector< std::string >& files, 
                                      const std::string& ext )
 {
-    const eq::base::PluginRegistry& reg = eq::base::Global::getPluginRegistry();
-    const eq::base::Strings& paths = reg.getDirectories();
+    const co::base::PluginRegistry& reg = co::base::Global::getPluginRegistry();
+    const co::base::Strings& paths = reg.getDirectories();
     for ( uint64_t j = 0; j < paths.size(); j++)
     {
-        eq::base::Strings candidates = 
-            eq::base::searchDirectory( paths[j], ext.c_str() );
-        for( eq::base::Strings::const_iterator i = candidates.begin();
+        co::base::Strings candidates = 
+            co::base::searchDirectory( paths[j], ext.c_str() );
+        for( co::base::Strings::const_iterator i = candidates.begin();
                 i != candidates.end(); ++i )
         {
             const std::string& filename = *i;
@@ -243,9 +243,9 @@ std::vector< std::string > getFiles( const std::string path,
     return files;
 }
 
-eq::base::Bufferb* readDataFile( const std::string& filename )
+co::base::Bufferb* readDataFile( const std::string& filename )
 {
-    eq::base::MemoryMap file;
+    co::base::MemoryMap file;
     const uint8_t* addr = static_cast< const uint8_t* >( file.map( filename ));
 
     if( !addr )
@@ -255,7 +255,7 @@ eq::base::Bufferb* readDataFile( const std::string& filename )
     }
 
     const size_t size = file.getSize();    
-    eq::base::Bufferb* data = new eq::base::Bufferb();
+    co::base::Bufferb* data = new co::base::Bufferb();
 
     // read the file
     data->resize( size );

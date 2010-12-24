@@ -23,9 +23,9 @@
 #define NOPS       100000
 
 volatile size_t nThreads;
-eq::base::SpinLock* lock;
+co::base::SpinLock* lock;
 
-class Thread : public eq::base::Thread
+class Thread : public co::base::Thread
 {
 public:
     virtual void run()
@@ -41,7 +41,7 @@ public:
 
 int main( int argc, char **argv )
 {
-    lock = new eq::base::SpinLock;
+    lock = new co::base::SpinLock;
     lock->set();
 
     Thread threads[MAXTHREADS];
@@ -50,7 +50,7 @@ int main( int argc, char **argv )
         for( size_t i = 0; i < nThreads; ++i )
             TEST( threads[i].start( ));
 
-        eq::base::Clock clock;
+        co::base::Clock clock;
         lock->unset();
 
         for( size_t i=0; i<nThreads; i++ )

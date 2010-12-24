@@ -85,7 +85,7 @@ int main( int argc, char** argv )
     }
 
     // 4. init config
-    eq::base::Clock clock;
+    co::base::Clock clock;
 
     if( !config->init( 0 ))
     {

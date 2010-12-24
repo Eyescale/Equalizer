@@ -22,7 +22,7 @@
 
 #define NTHREADS 256
 
-class LoadThread : public eq::base::Thread
+class LoadThread : public co::base::Thread
 {
 public:
     virtual ~LoadThread() {}
@@ -37,7 +37,7 @@ public:
 
     virtual bool init()
         {
-            eq::base::sleep( 10 );
+            co::base::sleep( 10 );
             initLeft = true;
             return true;
         }
@@ -59,7 +59,7 @@ public:
 int main( int argc, char **argv )
 {
     LoadThread loadThreads[NTHREADS];
-    eq::base::Clock clock;
+    co::base::Clock clock;
 
     for( size_t i=0; i<NTHREADS; ++i )
         TEST( loadThreads[i].start( ));
