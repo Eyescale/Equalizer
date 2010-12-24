@@ -238,8 +238,9 @@ bool GLXPipe::_configInitGLXEW()
 
 int GLXPipe::XErrorHandler( Display* display, XErrorEvent* event )
 {
-    EQWARN << base::disableFlush;
-    EQWARN << "X Error occured: " << base::disableHeader << base::indent;
+    EQWARN << co::base::disableFlush;
+    EQWARN << "X Error occured: " << co::base::disableHeader 
+           << co::base::indent;
 
     char buffer[256];
     XGetErrorText( display, event->error_code, buffer, 256);
@@ -265,7 +266,8 @@ int GLXPipe::XErrorHandler( Display* display, XErrorEvent* event )
             EQWARN << "  ResourceID: " << event->resourceid << std::endl;
             break;
     }
-    EQWARN << base::enableFlush << base::exdent << base::enableHeader;
+    EQWARN << co::base::enableFlush << co::base::exdent 
+           << co::base::enableHeader;
 
 #ifndef NDEBUG
     if( getenv( "EQ_ABORT_WAIT" ))

@@ -18,8 +18,6 @@
 
 #include "compressor.h"
 
-#include "..\..\collage\compressor\compressor.h"
-
 namespace eq
 {
 namespace plugin

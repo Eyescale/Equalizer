@@ -1,9 +1,9 @@
-Create library Collage
+Fix linux break build
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
-[x] Optimization
+[ ] Cleanup
+[ ] Optimization
 [ ] Documentation

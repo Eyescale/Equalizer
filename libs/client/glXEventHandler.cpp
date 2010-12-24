@@ -37,7 +37,7 @@ namespace eq
 namespace
 {
 typedef std::vector< GLXEventHandler* > GLXEventHandlers;
-static base::PerThread< GLXEventHandlers > _eventHandlers;
+  static co::base::PerThread< GLXEventHandlers > _eventHandlers;
 }
 
 GLXEventHandler::GLXEventHandler( GLXWindowIF* window )
