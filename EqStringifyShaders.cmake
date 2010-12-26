@@ -10,7 +10,9 @@ macro(EQ_STRINGIFY_SHADERS SOURCES)
     add_custom_command(OUTPUT ${OUTPUT_FILES}
       COMMAND ${CMAKE_COMMAND} -DEQ_STRINGIFY_SHADERS_PROCESSING_MODE=ON
         -DINPUT="${INPUT}" -DOUTPUT="${OUTPUT}"
-        -P ${CMAKE_SOURCE_DIR}/CMake/EqStringifyShaders.cmake)
+        -P ${CMAKE_SOURCE_DIR}/CMake/EqStringifyShaders.cmake
+      DEPENDS ${INPUT}
+      )
     list(APPEND ${SOURCES} ${OUTPUT_FILES})
   endforeach(FILE ${ARGN})
 endmacro(EQ_STRINGIFY_SHADERS SOURCES)
@@ -38,8 +40,8 @@ file(WRITE ${OUTPUT}.cpp
   )
 
 foreach(LINE ${LINES})
-  string(REPLACE "\"" "\\\"" LINE ${LINE})
+  string(REPLACE "\"" "\\\"" LINE "${LINE}")
   file(APPEND ${OUTPUT}.cpp "   \"${LINE}\\n\"\n")
-endforeach(LINE ${LINES})
+endforeach(LINE)
 
 file(APPEND ${OUTPUT}.cpp "   ;\n")
