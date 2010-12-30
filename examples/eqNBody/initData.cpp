@@ -32,33 +32,33 @@
 #include "client.h"
 #include "frameData.h"
 
-using namespace eq::base;
+using namespace co::base;
 using namespace std;
 
 namespace eqNbody
 {
 	
-InitData::InitData() : _frameDataID( eq::UUID::ZERO )
-	{
-		_damping	= 0.995f;
-		_p			= 256;
-		_q			= 1;
-		_numBodies	= NUM_BODIES;
-	}
+    InitData::InitData() : _frameDataID( UUID::ZERO )
+    {
+	_damping	= 0.995f;
+	_p		= 256;
+	_q		= 1;
+	_numBodies	= NUM_BODIES;
+    }
 	
-	InitData::~InitData()
-	{
-		setFrameDataID( eq::UUID::ZERO );
-	}
+    InitData::~InitData()
+    {
+       	setFrameDataID( UUID::ZERO );
+    }
 	
-	void InitData::getInstanceData( co::DataOStream& os )
-	{
-		os << _frameDataID;
-	}
+    void InitData::getInstanceData( co::DataOStream& os )
+    {
+       	os << _frameDataID;
+    }
 	
-	void InitData::applyInstanceData( co::DataIStream& is )
-	{
-		is >> _frameDataID;
-		EQASSERT( _frameDataID != eq::base::UUID::ZERO );
-	}
+    void InitData::applyInstanceData( co::DataIStream& is )
+    {
+       	is >> _frameDataID;
+       	EQASSERT( _frameDataID != UUID::ZERO );
+    }
 }

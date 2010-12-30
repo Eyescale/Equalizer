@@ -1,8 +1,9 @@
-Fix Darwin break build
+- fix break build
+- Minor cleanup of eqNBody
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [ ] Cleanup
 [ ] Optimization

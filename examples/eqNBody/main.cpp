@@ -58,7 +58,7 @@ int main( const int argc, char** argv )
     }
     
     eqNbody::InitData id;
-    eq::base::RefPtr< eqNbody::Client > client = new eqNbody::Client( id );
+    co::base::RefPtr< eqNbody::Client > client = new eqNbody::Client( id );
     if( !client->initLocal( argc, argv ))
     {
         EQERROR << "Can't init client" << std::endl;
@@ -66,20 +66,22 @@ int main( const int argc, char** argv )
         return EXIT_FAILURE;
     }
 
-	// Init
-	if( client->init() != EXIT_SUCCESS ) {
+    // Init
+    if( client->init() != EXIT_SUCCESS ) 
+    {
         EQERROR << "Can't init client" << std::endl;
         eq::exit();
         return EXIT_FAILURE;
-	}
+    }
 
-	// Run the simulation
+    // Run the simulation
     client->run();
 
-	// Exit
-	if( client->exit() != EXIT_SUCCESS ) {
+    // Exit
+    if( client->exit() != EXIT_SUCCESS ) 
+    {
         EQERROR << "Can't exit client" << std::endl;
-	}
+    }
 	
     client->exitLocal();	
     client = 0;

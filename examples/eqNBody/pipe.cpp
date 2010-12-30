@@ -32,7 +32,7 @@
 #include "config.h"
 #include "frameData.h"
 
-using namespace eq::base;
+using namespace co::base;
 using namespace std;
 
 namespace eqNbody
