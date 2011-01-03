@@ -228,9 +228,16 @@ set(CPACK_COMPONENT_VMMLIB_DESCRIPTION
 
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-system-dev, libboost-regex-dev, libboost-date-time-dev, bison, flex, libx11-dev")
 
+if(MSVC)
+  set(CPACK_GENERATOR NSIS)
+  set(CPACK_NSIS_PACKAGE_NAME "Equalizer")
+  set(CPACK_NSIS_DISPLAY_NAME "Equalizer Parallel Rendering Framework")
+endif(MSVC)
+
 include(InstallRequiredSystemLibraries)
 include(CPack)
 include(copyScript)
+
 
 SET(CTEST_CUSTOM_WARNING_EXCEPTION
   ${CTEST_CUSTOM_WARNING_EXCEPTION}

@@ -1,10 +1,9 @@
-- fix break build
-- Minor cleanup of eqNBody
+- Add command for create installer since MSVC project
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[ ] New Feature
+[x] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
