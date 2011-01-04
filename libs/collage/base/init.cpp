@@ -80,8 +80,6 @@ bool init( const int argc, char** argv )
 
 bool exit()
 {
-    EQASSERT( Global::getErrorRegistry().isEmpty( ));
-
     // de-initialize registered plugins
     PluginRegistry& pluginRegistry = Global::getPluginRegistry();
     pluginRegistry.exit(); 
