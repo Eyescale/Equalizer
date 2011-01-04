@@ -166,9 +166,9 @@ add_subdirectory(libs)
 add_subdirectory(tests)
 add_subdirectory(tools)
 
-IF(EXISTS "${CMAKE_SOURCE_DIR}/auxilary" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/auxilary")
-  add_subdirectory(auxilary)
-ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/auxilary" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/auxilary")
+IF(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/auxiliary")
+  add_subdirectory(auxiliary)
+ENDIF()
 
 IF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
   install(DIRECTORY man/man3 DESTINATION man COMPONENT man
