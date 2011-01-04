@@ -6,7 +6,7 @@ libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 
 Name: Collage
-Description: Framework to create a Network layer
+Description: Object-Oriented Network Library
 Version: @VERSION@
 Requires:
 Conflicts:

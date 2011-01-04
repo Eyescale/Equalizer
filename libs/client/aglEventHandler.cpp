@@ -407,7 +407,8 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event )
             break;
         }
         default:
-            EQINFO << "Unhandled mouse event " << GetEventKind( event ) << std::endl;
+            EQINFO << "Unhandled mouse event " << GetEventKind( event )
+                   << std::endl;
             windowEvent.type = Event::UNKNOWN;
             break;
     }

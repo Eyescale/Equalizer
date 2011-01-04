@@ -20,15 +20,18 @@
 1. Introduction
 
    Welcome to Equalizer, the standard middleware to create and deploy
-   parallel, scalable OpenGL applications. Equalizer 1.0-alpha introduces XXX
+   parallel, scalable OpenGL applications. This release introduces support
+   for GPU compression plugins, failure tolerance and an administrative API
+   for runtime configuration changes.
 
-   Equalizer 1.0-alpha is a developer release, representing an early snapshot
-   of Equalizer 1.0 API. It is intended for application developers to provide
-   feedback and preview the 1.0 release. Equalizer 1.0-alpha can be retrieved
-   by downloading the source code. , updating the subversion trunk to
+   Equalizer 1.0-alpha is a developer release, representing the full feature
+   set and API of Equalizer 1.0. It is intended for application developers to
+   provide feedback and preview the 1.0 release. Equalizer 1.0-alpha can be
+   retrieved by downloading the source code, updating the subversion trunk to
    revision XXX (svn up -r XXX) or by using:
    svn co
    https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.2
+   The internal version of this release is 0.9.2.
 
   1.1. Features
 
@@ -43,9 +46,9 @@
        multiple graphics cards, processors and computers to scale rendering
        performance, visual quality and display size.
      * Distributed Execution: Equalizer applications can be written to
-       support cluster-based execution. The task of distributing the
-       application data is facilitated by support for versioned, distributed
-       objects.
+       support cluster-based execution. Equalizer furnishes and uses the
+       Collage network library, a cross-platform C++ library for building
+       heterogenous, distributed applications.
      * Support for Stereo and Immersive Environments: Equalizer supports both
        active and passive stereo rendering, as well as head tracking and
        head-mounted displays used in immersive Virtual Reality installations.
@@ -57,23 +60,25 @@
 
   2.1. New Features
 
-     * Runtime stereo switching allows changing between mono and stereo
-       rendering at runtime.
-     * Collage: a cross-platform C++ library for heterogenous, distributed
-       applications, formerly known as eq::net (beta technology preview).
+   1.0-alpha (0.9.2):
+
+     * Collage: an object-oriented network library, formerly known as eq::net
+       (beta technology preview)
      * CMake build system for all supported platforms
+     * Support for GPU-CPU transfer and compression plugins
+     * Failure tolerance during initialization
      * Administrative API for runtime configuration changes (beta technology
-       preview).
+       preview)
+     * Runtime stereo switching allows to swtich between mono and stereo
+       rendering
      * Slave object commit supports commiting changed data on a slave object
-       instance to the master instance.
-     * Automatic compression of distributed object data.
-     * Support for pixel formats with 10 bit per color component.
-     * Support for GPU-CPU transfer and compression plugins.
-     * Failure tolerance during initialization.
+       instance to the master instance
+     * Automatic compression of distributed object data
+     * Support for pixel formats with 10 bit per color component
      * Rendering capabilities allow application-dependent (de-)activation of
-       channels.
+       channels
      * Interruptible rendering allows applications to stop rendering on all
-       pending frames.
+       pending frames
 
    0.9.1:
 
@@ -84,18 +89,20 @@
 
   2.2. Enhancements
 
+   1.0-alpha (0.9.2):
+
      * Support for Windows 7
-     * RFE 2809019: Specify connection from a config file when using appNode
-     * RFE 3086646: Load and view equalizer: consider assemble time
-     * RFE 3036064: View and load equalizer should consider network times
-     * RFE 2927688: Loadbalancer tile sizes should not exceed channel PVP's
+     * Upgraded GLEW to version 1.5.7.3
+     * Structured error reporting
      * Statistics overlay: Add compression and download ratio, render overlay
        without usage of depth buffer
      * CPU compression plugins: allow different output from input token
      * New command line argument --eq-logfile
      * New compound auto stereo mode detection (active, anaglyph, passive)
-     * Structured error reporting.
-     * Upgraded GLEW to version 1.5.7.2
+     * RFE 2809019: Specify connection from a config file when using appNode
+     * RFE 3086646: Load and view equalizer: consider assemble time
+     * RFE 3036064: View and load equalizer should consider network times
+     * RFE 2927688: Loadbalancer tile sizes should not exceed channel PVP's
 
    0.9.1:
 
@@ -110,9 +117,11 @@
 
   2.3. Optimizations
 
-     * Mac OS X: Use SpinLocks over pthread locks for improved performance
-       (250x) in various places.
-     * Collage: Simplify and optimize command packet dispatch and invocation
+   1.0-alpha (0.9.2):
+
+     * Mac OS X: Use SpinLocks over pthread locks for significantly improved
+       performance in various places
+     * Collage: Simplify and speed up command packet dispatch and invocation
      * Collage: Optimize RSP multicast using sliding ack window with early
        acks
      * Collage: Send object instance data during registration to accelerate
@@ -126,8 +135,11 @@
 
   2.4. Examples
 
+   1.0-alpha (0.9.2):
+
      * New OSGScaleViewer example, evolved from eqOSG contribution
      * EqPly: Run-time configurable image quality
+     * EqPly: Run-time toggling of idle anti-aliasing
 
    0.9.1:
 
@@ -142,12 +154,10 @@
   2.6. API Changes
 
    The following changes breaking compatibility with Equalizer 0.6 source
-   code were made: (CHANGES.txt)
+   code were made:
 
-     * Type definitions for vectors of Foo* have changed from FooVector to
-       Foos.
-     * OSPipe and OSWindow have been renamed to SystemPipe and SystemWindow,
-       respectively
+   1.0-alpha (0.9.2): API changes for this release have been tracked in
+   CHANGES.txt.
 
    0.9.1:
 
@@ -163,15 +173,38 @@
    The following documentation has been added or substantially improved since
    the last release:
 
+   1.0-alpha (0.9.2):
+
      * The Programming and User Guide has been extended to 100 pages and 55
        figures.
-     * The XXX
+     * Full API documentation for the public Equalizer API.
+     * Error handling structures error reporting, mostly during
+       initialization.
+     * Interruptible rendering allows applications to stop rendering on all
+       pending frames.
+     * Rendering capabilities allow application-dependent deactivation of
+       channels.
+     * Administrative API for runtime configuration changes.
+     * Runtime stereo switching allows to change the rendering between mono
+       and stereo at runtime, with different scalability compounds.
+     * Failure tolerance during initialization.
+
+   0.9.1:
+
+     * Subpixel Compound for full-scene anti-aliasing (FSAA) or
+       depth-of-field (DOF).
+     * Data distribution and data updates using reliable UDP multicast.
 
   2.8. Bug Fixes
 
    Equalizer 1.0-alpha includes various bugfixes over the 0.9 release,
    including the following:
 
+   1.0-alpha (0.9.2):
+
+     * 2976899: Config::finishFrame deadlocks when no nodes are active
+     * 2994111: Rounding errors with 2D LB and 16 sources
+     * 3137933: GLXEW init buggy
      * 2882248: Spurious network deadlocks on Win32
      * 3071764: GLX: No distinction between lowercase and uppercase keys
 
@@ -181,7 +214,7 @@
      * 2834063: eqPly and eVolve freezes on Mac with glX
      * 2828269: eVolve depth compositing is broken
      * 2642034: Win32: max 64 connections possible
-     * 2874188: Lockup at shutdown
+     * 2874188: Occasional lockup at shutdown
 
   2.9. Known Bugs
 
@@ -243,6 +276,8 @@
    information.
 
 4. Errata
+
+   0.9.1:
 
      * Patch to fix occasional compilation errors on Windows when using
        EQ_IGNORE_GLEW.
