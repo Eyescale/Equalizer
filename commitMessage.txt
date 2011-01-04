@@ -1,4 +1,4 @@
-Remove false assert
+Revert eVolve exit sequence
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

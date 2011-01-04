@@ -74,8 +74,8 @@ int main( const int argc, char** argv )
     if( !client->initLocal( argc, argv ))
     {
         EQERROR << "Can't init client" << std::endl;
-        eVolve::exitErrors();
         eq::exit();
+        eVolve::exitErrors();
         return EXIT_FAILURE;
     }
 
@@ -89,7 +89,7 @@ int main( const int argc, char** argv )
                   client->getRefCount() - 1 );
     client = 0;
 
-    eVolve::exitErrors();
     eq::exit();
+    eVolve::exitErrors();
     return ret;
 }
