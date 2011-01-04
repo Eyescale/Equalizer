@@ -17,7 +17,7 @@
 
 // HACK: Get rid of deprecated warning for aglUseFont
 //   -Wno-deprecated-declarations would do as well, but here it is more isolated
-#include <co/base/defines.h>
+#include <eq/defines.h>
 #ifdef AGL
 #  include <AvailabilityMacros.h>
 #  undef DEPRECATED_ATTRIBUTE
