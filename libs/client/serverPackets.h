@@ -19,7 +19,7 @@
 #ifndef EQ_SERVERPACKETS_H
 #define EQ_SERVERPACKETS_H
 
-#include <eq/fabric/packets.h> // base structs
+#include <fabric/packets.h> // base structs
 
 /** @cond IGNORE */
 namespace eq

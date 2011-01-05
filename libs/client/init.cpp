@@ -28,7 +28,7 @@
 #include "server.h"
 #include "version.h"
 
-#include <eq/fabric/init.h>
+#include <fabric/init.h>
 
 #ifdef EQ_USE_PARACOMP
 #  include <pcapi.h>

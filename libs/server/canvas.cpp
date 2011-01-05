@@ -30,7 +30,7 @@
 #include "view.h"
 #include "window.h"
 
-#include <eq/fabric/paths.h>
+#include <fabric/paths.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 #include <co/base/stdExt.h>
@@ -137,7 +137,7 @@ void Canvas::postDelete()
 }
 
 #include "nodeFactory.h"
-#include "../client/fabric/canvas.ipp"
+#include "../fabric/canvas.ipp"
 
 template class eq::fabric::Canvas< eq::server::Config, eq::server::Canvas,
                                    eq::server::Segment, eq::server::Layout >;

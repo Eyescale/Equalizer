@@ -22,8 +22,8 @@
 #include <eq/types.h>          // member
 #include <eq/api.h>
 
-#include <eq/fabric/view.h>           // base class
-#include <eq/fabric/viewport.h>       // member
+#include <fabric/view.h>           // base class
+#include <fabric/viewport.h>       // member
 
 namespace eq
 {

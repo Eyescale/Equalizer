@@ -20,7 +20,7 @@
 
 #include <eq/types.h>
 #include <eq/api.h>
-#include <eq/fabric/canvas.h> // base class
+#include <fabric/canvas.h> // base class
 
 namespace eq
 {

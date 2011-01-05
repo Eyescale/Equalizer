@@ -23,8 +23,8 @@
 #include "nodeFactory.h"
 #include "server.h"
 
-#include <eq/fabric/commands.h>
-#include <eq/fabric/nodeType.h>
+#include <fabric/commands.h>
+#include <fabric/nodeType.h>
 #include <co/command.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>

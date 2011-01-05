@@ -18,7 +18,7 @@
 #ifndef EQSERVER_FRUSTUM_H
 #define EQSERVER_FRUSTUM_H
 
-#include <eq/fabric/frustum.h>     // base class
+#include <fabric/frustum.h>     // base class
 
 namespace eq
 {

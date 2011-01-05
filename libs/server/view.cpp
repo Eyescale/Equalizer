@@ -27,7 +27,7 @@
 #include "observer.h"
 #include "segment.h"
 
-#include <eq/fabric/paths.h>
+#include <fabric/paths.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
@@ -280,7 +280,7 @@ void View::updateCapabilities()
 }
 }
 
-#include "../client/fabric/view.ipp"
+#include "../fabric/view.ipp"
 
 template class eq::fabric::View< eq::server::Layout, eq::server::View,
                                  eq::server::Observer >;

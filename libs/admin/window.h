@@ -19,7 +19,7 @@
 #define EQADMIN_WINDOW_H
 
 #include <eq/admin/types.h>         // typedefs
-#include <eq/fabric/window.h>       // base class
+#include <fabric/window.h>       // base class
 
 namespace eq
 {

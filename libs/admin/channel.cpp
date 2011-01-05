@@ -70,7 +70,7 @@ ServerPtr Channel::getServer()
 }
 }
 
-#include "../client/fabric/channel.ipp"
+#include "../fabric/channel.ipp"
 template class eq::fabric::Channel< eq::admin::Window, eq::admin::Channel >;
 /** @cond IGNORE */
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,

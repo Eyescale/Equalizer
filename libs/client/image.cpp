@@ -26,7 +26,7 @@
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
 
-#include <eq/fabric/colorMask.h>
+#include <fabric/colorMask.h>
 #include <co/node.h>
 
 #include <co/base/global.h>

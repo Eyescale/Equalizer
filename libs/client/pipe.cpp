@@ -52,8 +52,8 @@
 #  include "cudaContext.h"
 #endif
 
-#include <eq/fabric/elementVisitor.h>
-#include <eq/fabric/task.h>
+#include <fabric/elementVisitor.h>
+#include <fabric/task.h>
 #include <co/command.h>
 #include <sstream>
 
@@ -910,7 +910,7 @@ bool Pipe::_cmdFrameDrawFinish( co::Command& command )
 
 }
 
-#include "fabric/pipe.ipp"
+#include "../fabric/pipe.ipp"
 template class eq::fabric::Pipe< eq::Node, eq::Pipe, eq::Window,
                                  eq::PipeVisitor >;
 /** @cond IGNORE */

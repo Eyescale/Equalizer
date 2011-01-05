@@ -19,7 +19,7 @@
 
 #include <test.h>
 #include <eq/types.h>
-#include <eq/fabric/pixelViewport.h>
+#include <fabric/pixelViewport.h>
 
 using namespace eq;
 

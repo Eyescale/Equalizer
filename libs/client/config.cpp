@@ -38,8 +38,8 @@
 #include "server.h"
 #include "view.h"
 
-#include <eq/fabric/configVisitor.h>
-#include <eq/fabric/task.h>
+#include <fabric/configVisitor.h>
+#include <fabric/task.h>
 #include <co/object.h>
 #include <co/command.h>
 #include <co/connectionDescription.h>
@@ -890,9 +890,9 @@ bool Config::_cmdSwapObject( co::Command& command )
 }
 }
 
-#include "fabric/config.ipp"
-#include "fabric/view.ipp"
-#include "fabric/observer.ipp"
+#include "../fabric/config.ipp"
+#include "../fabric/view.ipp"
+#include "../fabric/observer.ipp"
 template class eq::fabric::Config< eq::Server, eq::Config, eq::Observer,
                                    eq::Layout, eq::Canvas, eq::Node,
                                    eq::ConfigVisitor >;

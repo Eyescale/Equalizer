@@ -19,7 +19,7 @@
 #define EQADMIN_VIEW_H
 
 #include <eq/admin/types.h>         // typedefs
-#include <eq/fabric/view.h>       // base class
+#include <fabric/view.h>       // base class
 
 namespace eq
 {

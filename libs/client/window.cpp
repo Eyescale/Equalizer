@@ -35,7 +35,7 @@
 #include "systemWindow.h"
 #include "windowPackets.h"
 #include "windowStatistics.h"
-#include <eq/fabric/elementVisitor.h>
+#include <fabric/elementVisitor.h>
 
 #ifdef AGL
 #  include "aglWindow.h"
@@ -47,7 +47,7 @@
 #  include "wglWindow.h"
 #endif
 
-#include <eq/fabric/task.h>
+#include <fabric/task.h>
 #include <co/barrier.h>
 #include <co/command.h>
 #include <co/base/sleep.h>
@@ -847,7 +847,7 @@ bool Window::_cmdFrameDrawFinish( co::Command& command )
 
 }
 
-#include "fabric/window.ipp"
+#include "../fabric/window.ipp"
 template class eq::fabric::Window< eq::Pipe, eq::Window, eq::Channel >;
 /** @cond IGNORE */
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,

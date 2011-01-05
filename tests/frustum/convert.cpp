@@ -17,8 +17,8 @@
  */
 
 #include <test.h>
-#include <eq/fabric/wall.h>
-#include <eq/fabric/projection.h>
+#include <fabric/wall.h>
+#include <fabric/projection.h>
 
 using namespace eq::fabric;
 

@@ -18,7 +18,7 @@
 #ifndef EQ_OBSERVER_H
 #define EQ_OBSERVER_H
 
-#include <eq/fabric/observer.h>         // base class
+#include <fabric/observer.h>         // base class
 #include <eq/types.h>
 #include <eq/api.h>
 

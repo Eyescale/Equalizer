@@ -34,7 +34,7 @@
 #include <eq/channelPackets.h>
 #include <eq/log.h>
 #include <eq/windowPackets.h>
-#include <eq/fabric/paths.h>
+#include <fabric/paths.h>
 #include <co/command.h>
 #include <co/base/os.h>
 #include <co/base/debug.h>
@@ -537,7 +537,7 @@ void Channel::updateCapabilities()
 }
 }
 
-#include "../client/fabric/channel.ipp"
+#include "../fabric/channel.ipp"
 template class eq::fabric::Channel< eq::server::Window, eq::server::Channel >;
 /** @cond IGNORE */
 template std::ostream& eq::fabric::operator << ( std::ostream&,

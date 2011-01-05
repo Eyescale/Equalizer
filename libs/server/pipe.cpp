@@ -28,8 +28,8 @@
 
 #include <eq/nodePackets.h>
 #include <eq/pipePackets.h>
-#include <eq/fabric/elementVisitor.h>
-#include <eq/fabric/paths.h>
+#include <fabric/elementVisitor.h>
+#include <fabric/paths.h>
 #include <co/command.h>
 
 namespace eq
@@ -349,7 +349,7 @@ void Pipe::output( std::ostream& os ) const
 }
 }
 
-#include "../client/fabric/pipe.ipp"
+#include "../fabric/pipe.ipp"
 template class eq::fabric::Pipe< eq::server::Node, eq::server::Pipe, 
                                  eq::server::Window, eq::server::PipeVisitor >;
 

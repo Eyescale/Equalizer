@@ -1,4 +1,4 @@
-Revert eVolve exit sequence
+Move libs/eq/fabric to libs/fabric
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

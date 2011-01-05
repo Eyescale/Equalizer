@@ -20,7 +20,7 @@
 #include "config.h"
 #include "view.h"
 
-#include <eq/fabric/paths.h>
+#include <fabric/paths.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
@@ -70,7 +70,7 @@ void Layout::trigger( const Canvas* canvas, const bool active )
 }
 
 #include "nodeFactory.h"
-#include "../client/fabric/layout.ipp"
+#include "../fabric/layout.ipp"
 
 template class eq::fabric::Layout< eq::server::Config, eq::server::Layout,
                                    eq::server::View >;

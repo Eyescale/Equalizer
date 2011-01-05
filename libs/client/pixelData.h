@@ -19,8 +19,8 @@
 #ifndef EQ_PIXELDATA_H
 #define EQ_PIXELDATA_H
 
-#include <eq/fabric/pixelViewport.h> // member
-#include <eq/fabric/viewport.h>      // member
+#include <fabric/pixelViewport.h> // member
+#include <fabric/viewport.h>      // member
 #include <eq/util/texture.h>         // member
 #include <eq/util/types.h>
 #include <co/base/buffer.h>          // member

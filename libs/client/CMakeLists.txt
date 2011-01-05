@@ -2,7 +2,7 @@
 # Path : libs/client/CMakeLists.txt
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010 Stefan Eilemann <eile@eyescale.ch>
-#               2010 Cedric Stalder <cedric.stalder@gmail.ch>
+#               2011 Cedric Stalder <cedric.stalder@gmail.ch>
 ##
 
 # TODO: resolve two-way dependancy between client and util!
@@ -13,6 +13,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/configure.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/files.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/util/files.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/compressor/files.cmake)
+include( ../fabric/files.cmake )
 
 option(EQUALIZER_BUILD_STATIC_LIBS "Build static libraries" OFF)
 if(NOT EQUALIZER_BUILD_STATIC_LIBS)
@@ -43,7 +44,16 @@ endif(NOT CUDA_FOUND)
 
 purple_forward_headers("eq/" ${EQ_UTIL_FORWARD_HEADERS})
 
-add_subdirectory( fabric )
+purple_add_library( eq_fabric ${EQ_LIB_VARIANT}
+  HEADERS_PREFIX "fabric/"
+  FORWARD HEADERS
+    ${EQ_FABRIC_FORWARD_HEADERS}
+  SOURCES
+    ${EQ_FABRIC_SOURCES}
+  LINK_LIBRARIES
+    shared co
+  )
+
 source_group( "plugin" FILES ${PLUGIN_HEADERS} )
 source_group( "util" FILES ${EQ_UTIL_FORWARD_HEADERS} ${EQ_UTIL_HEADERS} ${EQ_UTIL_SOURCES} )
 source_group( "compressor" FILES ${EQ_COMPRESSOR_HEADERS} ${EQ_COMPRESSOR_SOURCES})
@@ -68,7 +78,7 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
     ${CUDA_LIBRARIES}
   )
 
-purple_add_amalgamation(Equalizer
+purple_add_amalgamation( Equalizer
   shared co_base
   shared co
   shared eq_fabric

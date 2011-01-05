@@ -20,7 +20,7 @@
 
 #include <eq/api.h>
 #include <eq/types.h>
-#include <eq/fabric/segment.h>        // base class
+#include <fabric/segment.h>        // base class
 
 namespace eq
 {

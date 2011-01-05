@@ -21,7 +21,7 @@
 #include <eq/commandQueue.h> // member
 #include <eq/types.h>        // basic types
 #include <eq/api.h>
-#include <eq/fabric/client.h>       // base class
+#include <fabric/client.h>       // base class
 
 namespace eq
 {

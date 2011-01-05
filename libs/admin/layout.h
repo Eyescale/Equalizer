@@ -19,7 +19,7 @@
 #define EQADMIN_LAYOUT_H
 
 #include <eq/admin/types.h>         // typedefs
-#include <eq/fabric/layout.h>       // base class
+#include <fabric/layout.h>       // base class
 
 namespace eq
 {

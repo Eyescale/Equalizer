@@ -19,7 +19,7 @@
 #define EQUTIL_GPUCOMPRESSOR_H
 
 #include "../../collage/base/compressor.h" // base class
-#include <eq/fabric/types.h>
+#include <fabric/types.h>
 #include <eq/api.h>
 
 namespace eq

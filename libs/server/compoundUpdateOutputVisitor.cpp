@@ -23,7 +23,7 @@
 #include "window.h"
 
 #include <eq/log.h>
-#include <eq/fabric/iAttribute.h>
+#include <fabric/iAttribute.h>
 
 namespace eq
 {

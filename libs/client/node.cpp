@@ -39,8 +39,8 @@
 #  include "wglEventHandler.h"
 #endif
 
-#include <eq/fabric/elementVisitor.h>
-#include <eq/fabric/task.h>
+#include <fabric/elementVisitor.h>
+#include <fabric/task.h>
 #include <co/barrier.h>
 #include <co/command.h>
 #include <co/connection.h>
@@ -599,7 +599,7 @@ bool Node::_cmdFrameDataReady( co::Command& command )
 
 }
 
-#include "fabric/node.ipp"
+#include "../fabric/node.ipp"
 template class eq::fabric::Node< eq::Config, eq::Node, eq::Pipe,
                                  eq::NodeVisitor >;
 /** @cond IGNORE */

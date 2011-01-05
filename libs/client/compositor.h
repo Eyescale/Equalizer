@@ -22,7 +22,7 @@
 #include <eq/os.h>             // GLEWContext
 #include <eq/types.h>          // type definitions
 
-#include <eq/fabric/pixel.h>          // member
+#include <fabric/pixel.h>          // member
 
 #include <vector>
 

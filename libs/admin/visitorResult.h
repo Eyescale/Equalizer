@@ -18,7 +18,7 @@
 #ifndef EQADMIN_VISITORRESULT_H
 #define EQADMIN_VISITORRESULT_H
 
-#include <eq/fabric/visitorResult.h> // 'base' class
+#include <fabric/visitorResult.h> // 'base' class
 
 namespace eq
 {

@@ -19,9 +19,9 @@
 #ifndef EQ_PACKETS_H
 #define EQ_PACKETS_H
 
-#include <eq/fabric/commands.h>      // enum 
-#include <eq/fabric/packetType.h>    // member
-#include <eq/fabric/renderContext.h> // member
+#include <fabric/commands.h>      // enum 
+#include <fabric/packetType.h>    // member
+#include <fabric/renderContext.h> // member
 
 namespace eq
 {

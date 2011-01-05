@@ -21,7 +21,7 @@
 
 #include <eq/util/frameBufferObject.h> // base class
 
-#include <eq/fabric/pixelViewport.h> // member
+#include <fabric/pixelViewport.h> // member
 
 namespace eq
 {

@@ -26,7 +26,7 @@
 #include <eq/window.h>         // nested Window::ObjectManager class
 #include <eq/os.h>             // GLEWContext
 
-#include <eq/fabric/channel.h>        // base class
+#include <fabric/channel.h>        // base class
 
 namespace eq
 {

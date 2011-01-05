@@ -42,7 +42,7 @@
 
 #include <eq/util/accum.h>
 #include <eq/util/frameBufferObject.h>
-#include <eq/fabric/commands.h>
+#include <fabric/commands.h>
 #include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/base/rng.h>
@@ -1561,7 +1561,7 @@ bool Channel::_cmdStopFrame( co::Command& command )
 }
 }
 
-#include "fabric/channel.ipp"
+#include "../fabric/channel.ipp"
 template class eq::fabric::Channel< eq::Window, eq::Channel >;
 /** @cond IGNORE */
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,

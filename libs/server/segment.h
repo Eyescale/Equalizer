@@ -21,7 +21,7 @@
 #include "types.h"
 #include "visitorResult.h"  // enum
 
-#include <eq/fabric/segment.h>      // base class
+#include <fabric/segment.h>      // base class
 
 namespace eq
 {

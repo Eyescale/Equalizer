@@ -20,7 +20,7 @@
 #include "compressorYUV.h"
 
 #include <eq/util/frameBufferObject.h>
-#include <eq/fabric/pixelViewport.h>
+#include <fabric/pixelViewport.h>
 
 #include <GL/glew.h>
 

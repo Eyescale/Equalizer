@@ -30,8 +30,8 @@
 #include <eq/configPackets.h>
 #include <eq/error.h>
 #include <eq/nodePackets.h>
-#include <eq/fabric/elementVisitor.h>
-#include <eq/fabric/paths.h>
+#include <fabric/elementVisitor.h>
+#include <fabric/paths.h>
 #include <co/barrier.h>
 #include <co/command.h>
 #include <co/base/launcher.h>
@@ -799,7 +799,7 @@ void Node::output( std::ostream& os ) const
 }
 }
 
-#include "../client/fabric/node.ipp"
+#include "../fabric/node.ipp"
 template class eq::fabric::Node< eq::server::Config, eq::server::Node,
                                  eq::server::Pipe, eq::server::NodeVisitor >;
 /** @cond IGNORE */

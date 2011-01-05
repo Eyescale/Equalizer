@@ -35,7 +35,7 @@
 #include <eq/nodePackets.h>
 #include <eq/pipePackets.h>
 #include <eq/windowPackets.h>
-#include <eq/fabric/paths.h>
+#include <fabric/paths.h>
 
 #ifndef GL_BACK_LEFT
 #  define GL_FRONT_LEFT 0x0400

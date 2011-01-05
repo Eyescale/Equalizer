@@ -25,8 +25,8 @@
 #include "../view.h"
 #include "../segment.h"
 
-#include <eq/fabric/viewport.h>
-#include <eq/fabric/zoom.h>
+#include <fabric/viewport.h>
+#include <fabric/zoom.h>
 #include <co/base/debug.h>
 #include <vmmlib/vmmlib.hpp>
 

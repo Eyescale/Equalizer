@@ -31,7 +31,7 @@
 
 #include <eq/admin/packets.h>
 #include <eq/serverPackets.h>
-#include <eq/fabric/serverPackets.h>
+#include <fabric/serverPackets.h>
 #include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
@@ -464,7 +464,7 @@ bool Server::_cmdUnmap( co::Command& command )
 
 }
 }
-#include "../client/fabric/server.ipp"
+#include "../fabric/server.ipp"
 template class eq::fabric::Server< co::Node, eq::server::Server,
                                    eq::server::Config,
                                    eq::server::NodeFactory,

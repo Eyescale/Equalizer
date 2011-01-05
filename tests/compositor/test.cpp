@@ -18,7 +18,7 @@
 #include <test.h>
 
 #include <co/base/clock.h>
-#include <eq/fabric/drawableConfig.h>
+#include <fabric/drawableConfig.h>
 #include <eq/compositor.h>
 #include <eq/frame.h>
 #include <eq/frameData.h>

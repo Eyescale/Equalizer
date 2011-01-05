@@ -22,7 +22,7 @@
 #include "types.h"
 #include "visitorResult.h"  // enum
 
-#include <eq/fabric/canvas.h> // base class
+#include <fabric/canvas.h> // base class
 
 #include <co/base/os.h>
 #include <string>

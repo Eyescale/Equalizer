@@ -22,7 +22,7 @@
 #include <eq/types.h>
 #include <eq/visitorResult.h>  // enum
 
-#include <eq/fabric/layout.h>         // base class
+#include <fabric/layout.h>         // base class
 
 namespace eq
 {

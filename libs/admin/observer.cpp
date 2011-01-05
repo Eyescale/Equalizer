@@ -47,7 +47,7 @@ ServerPtr Observer::getServer()
 }
 }
 
-#include "../client/fabric/observer.ipp"
+#include "../fabric/observer.ipp"
 template class eq::fabric::Observer< eq::admin::Config, eq::admin::Observer >;
 
 /** @cond IGNORE */

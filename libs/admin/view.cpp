@@ -59,7 +59,7 @@ ServerPtr View::getServer()
 }
 }
 
-#include "../client/fabric/view.ipp"
+#include "../fabric/view.ipp"
 template class eq::fabric::View< eq::admin::Layout, eq::admin::View,
                                  eq::admin::Observer >;
 

@@ -24,7 +24,7 @@
 #include <eq/base.h>
 
 #include <eq/util/base.h>
-#include <eq/fabric/base.h>
+#include <fabric/base.h>
 #include <co/co.h>
 #include <co/base/base.h>
 

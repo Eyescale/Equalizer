@@ -78,7 +78,7 @@ namespace eq
 #ifdef _WIN32
         // retrieve the CUDA device associated to the handle returned by 
         // WGL_NV_gpu_affinity().
-        cudaWGLGetDevice( &usedDevice );
+        cudaWGLGetDevice( &usedDevice, 0 );
 #else
         cudaGetDevice( &usedDevice );
 #endif

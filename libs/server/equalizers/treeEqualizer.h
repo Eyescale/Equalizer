@@ -23,8 +23,8 @@
 #include "equalizer.h"          // base class
 
 #include <eq/types.h>
-#include <eq/fabric/range.h>    // member
-#include <eq/fabric/viewport.h> // member
+#include <fabric/range.h>    // member
+#include <fabric/viewport.h> // member
 
 #include <deque>
 #include <vector>

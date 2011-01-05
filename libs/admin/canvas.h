@@ -19,7 +19,7 @@
 #define EQADMIN_CANVAS_H
 
 #include <eq/admin/types.h>   // typedefs
-#include <eq/fabric/canvas.h> // base class
+#include <fabric/canvas.h> // base class
 
 namespace eq
 {

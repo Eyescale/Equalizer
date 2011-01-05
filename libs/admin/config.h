@@ -19,7 +19,7 @@
 #define EQADMIN_CONFIG_H
 
 #include <eq/admin/types.h>         // typedefs
-#include <eq/fabric/config.h>       // base class
+#include <fabric/config.h>       // base class
 
 namespace eq
 {

@@ -45,7 +45,7 @@ ServerPtr Layout::getServer()
 }
 
 #include "server.h"
-#include "fabric/layout.ipp"
+#include "../fabric/layout.ipp"
 
 template class eq::fabric::Layout< eq::Config, eq::Layout, eq::View >;
 /** @cond IGNORE */

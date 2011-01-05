@@ -25,7 +25,7 @@
 #include "visitorResult.h"  // enum
 
 #include <co/barrier.h>
-#include <eq/fabric/window.h> // base class
+#include <fabric/window.h> // base class
 #include <co/base/uint128_t.h> // Member
 #include <iostream>
 #include <vector>

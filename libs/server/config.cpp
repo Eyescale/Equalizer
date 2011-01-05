@@ -38,10 +38,10 @@
 #include <eq/configEvent.h>
 #include <eq/configPackets.h>
 #include <eq/error.h>
-#include <eq/fabric/configPackets.h>
-#include <eq/fabric/iAttribute.h>
-#include <eq/fabric/paths.h>
-#include <eq/fabric/serverPackets.h>
+#include <fabric/configPackets.h>
+#include <fabric/iAttribute.h>
+#include <fabric/paths.h>
+#include <fabric/serverPackets.h>
 #include <co/command.h>
 #include <co/base/sleep.h>
 
@@ -1118,7 +1118,7 @@ void Config::output( std::ostream& os ) const
 }
 
 #include "nodeFactory.h"
-#include "../client/fabric/config.ipp"
+#include "../fabric/config.ipp"
 template class eq::fabric::Config< eq::server::Server, eq::server::Config,
                                    eq::server::Observer, eq::server::Layout,
                                    eq::server::Canvas, eq::server::Node,

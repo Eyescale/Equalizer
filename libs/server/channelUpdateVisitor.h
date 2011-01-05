@@ -21,7 +21,7 @@
 #include "compoundVisitor.h" // base class
 #include "types.h"
 
-#include <eq/fabric/eye.h>         // member
+#include <fabric/eye.h>         // member
 
 namespace eq
 {

@@ -47,7 +47,7 @@ ServerPtr Node::getServer()
 }
 }
 
-#include "../client/fabric/node.ipp"
+#include "../fabric/node.ipp"
 template class eq::fabric::Node< eq::admin::Config, eq::admin::Node,
                                  eq::admin::Pipe, eq::admin::NodeVisitor >;
 /** @cond IGNORE */
