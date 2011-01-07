@@ -30,7 +30,7 @@
 #endif
 
 /**
- * @file compressor/compressor.h
+ * @file collage/compressor/compressor.h
  * 
  * Compression plugin provided with Equalizer.
  */

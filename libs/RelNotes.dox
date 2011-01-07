@@ -30,8 +30,8 @@
 <h2>1. Introduction</h2>
 <p>
   Welcome to Equalizer, the standard middleware to create and deploy parallel,
-  scalable OpenGL applications. This release introduces support for GPU
-  compression plugins, failure tolerance and an administrative API for runtime
+  scalable OpenGL applications. This release introduces the Collage library,
+  support for GPU compression plugins and an administrative API for runtime
   configuration changes.
 </p>
 <p>
@@ -44,7 +44,7 @@
     XXX</code>) or by using:<br>
   <code>svn co
     https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.2</code></br>
-  The internal version of this release is 0.9.2.
+  The internal version number of this release is 0.9.2.
 </p>
 
 <a name="features"></a>
@@ -83,7 +83,8 @@
 <p>1.0-alpha (0.9.2):</p>
 <ul>
   <li>Collage: an object-oriented network library, formerly known
-    as <code>eq::net</code> (beta technology preview)</li>
+    as <code>eq::net</code>. Eventually Collage will be separated completely
+    from Equalizer. (technology preview)</li>
   <li>CMake build system for all supported platforms</li>
   <li>Support
     for <a href="http://www.equalizergraphics.com/documents/Developer/API/plugins_2compressor_8h.html#_details">GPU-CPU
@@ -91,12 +92,12 @@
   <li><a href="http://www.equalizergraphics.com/documents/design/nodeFailure.html">Failure
      tolerance</a> during initialization</li>
   <li><a href="http://www.equalizergraphics.com/documents/design/admin.html">Administrative
-      API</a> for runtime configuration changes (beta technology preview)</li>
+      API</a> for runtime configuration changes (technology preview)</li>
   <li><a href="http://www.equalizergraphics.com/documents/design/stereoSwitch.html">Runtime
-      stereo switching</a> allows to swtich between mono and stereo
-      rendering</li>
+      stereo switching</a> to select mono and stereo rendering at application
+    runtime</li>
   <li><a href="http://www.equalizergraphics.com/documents/design/admin.html#slaveWrite">Slave
-      object commit</a> supports commiting changed data on a slave object
+      object commit</a> supports serializing changed data on a slave object
     instance to the master instance</li>
   <li>Automatic compression of distributed object data</li>
   <li>Support for pixel formats with 10 bit per color component</li>

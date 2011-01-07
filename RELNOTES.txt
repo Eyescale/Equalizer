@@ -20,9 +20,9 @@
 1. Introduction
 
    Welcome to Equalizer, the standard middleware to create and deploy
-   parallel, scalable OpenGL applications. This release introduces support
-   for GPU compression plugins, failure tolerance and an administrative API
-   for runtime configuration changes.
+   parallel, scalable OpenGL applications. This release introduces the
+   Collage library, support for GPU compression plugins and an administrative
+   API for runtime configuration changes.
 
    Equalizer 1.0-alpha is a developer release, representing the full feature
    set and API of Equalizer 1.0. It is intended for application developers to
@@ -31,7 +31,7 @@
    revision XXX (svn up -r XXX) or by using:
    svn co
    https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.2
-   The internal version of this release is 0.9.2.
+   The internal version number of this release is 0.9.2.
 
   1.1. Features
 
@@ -62,17 +62,18 @@
 
    1.0-alpha (0.9.2):
 
-     * Collage: an object-oriented network library, formerly known as eq::net
-       (beta technology preview)
+     * Collage: an object-oriented network library, formerly known as
+       eq::net. Eventually Collage will be separated completely from
+       Equalizer. (technology preview)
      * CMake build system for all supported platforms
      * Support for GPU-CPU transfer and compression plugins
      * Failure tolerance during initialization
-     * Administrative API for runtime configuration changes (beta technology
+     * Administrative API for runtime configuration changes (technology
        preview)
-     * Runtime stereo switching allows to swtich between mono and stereo
-       rendering
-     * Slave object commit supports commiting changed data on a slave object
-       instance to the master instance
+     * Runtime stereo switching to select mono and stereo rendering at
+       application runtime
+     * Slave object commit supports serializing changed data on a slave
+       object instance to the master instance
      * Automatic compression of distributed object data
      * Support for pixel formats with 10 bit per color component
      * Rendering capabilities allow application-dependent (de-)activation of

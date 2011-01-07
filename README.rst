@@ -28,8 +28,8 @@
 ---------------
 
 Welcome to Equalizer, the standard middleware to create and deploy parallel,
-scalable OpenGL applications. This release introduces support for GPU
-compression plugins, failure tolerance and an administrative API for runtime
+scalable OpenGL applications. This release introduces the Collage library,
+support for GPU compression plugins and an administrative API for runtime
 configuration changes.
 
 Equalizer 1.0-alpha is a developer release, representing the full feature set
@@ -39,7 +39,7 @@ retrieved by downloading the `source code`_, updating the subversion trunk to
 revision XXX (``svn up -r XXX``) or by using:
 ``svn co
 https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.2``
-The internal version of this release is 0.9.2.
+The internal version number of this release is 0.9.2.
 
 
 1.1. Features
@@ -77,15 +77,16 @@ and documentation changes:
 1.0-alpha (0.9.2):
 
 -   Collage: an object-oriented network library, formerly known as
-    ``eq::net`` (beta technology preview)
+    ``eq::net``. Eventually Collage will be separated completely from
+    Equalizer. (technology preview)
 -   CMake build system for all supported platforms
 -   Support for `GPU-CPU transfer and compression plugins`_
 -   `Failure tolerance`_ during initialization
--   `Administrative API`_ for runtime configuration changes (beta
-    technology preview)
--   `Runtime stereo switching`_ allows to swtich between mono and stereo
-    rendering
--   `Slave object commit`_ supports commiting changed data on a slave
+-   `Administrative API`_ for runtime configuration changes (technology
+    preview)
+-   `Runtime stereo switching`_ to select mono and stereo rendering at
+    application runtime
+-   `Slave object commit`_ supports serializing changed data on a slave
     object instance to the master instance
 -   Automatic compression of distributed object data
 -   Support for pixel formats with 10 bit per color component
