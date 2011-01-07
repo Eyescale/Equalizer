@@ -1173,15 +1173,14 @@ void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
     _drawPixels( image, op, Frame::BUFFER_COLOR );
 }
 
-void Compositor::_drawPixels( const Image* image, 
-                              const ImageOp& op,
+void Compositor::_drawPixels( const Image* image, const ImageOp& op,
                               const Frame::Buffer which )
 {
     const PixelViewport& pvp = image->getPixelViewport();
     EQLOG( LOG_ASSEMBLY ) << "_drawPixels " << pvp << " offset " << op.offset
                           << std::endl;
 
-    if ( image->getStorageType() == Frame::TYPE_MEMORY )
+    if( image->getStorageType() == Frame::TYPE_MEMORY )
     {
         EQASSERT( image->hasPixelData( which ));
         Channel* channel = op.channel; // needed for glewGetContext
