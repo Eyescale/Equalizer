@@ -219,7 +219,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             break;
 
         // turn left and right, up and down with mouse pointer
-        case eq::Event::POINTER_MOTION:
+        case eq::Event::CHANNEL_POINTER_MOTION:
             if ( event->data.pointerMotion.buttons == eq::PTR_BUTTON1 &&
                  event->data.pointerMotion.x <= event->data.context.pvp.w &&
                  event->data.pointerMotion.x >= 0 &&
