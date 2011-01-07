@@ -27,7 +27,7 @@
 #include "observer.h"
 #include "segment.h"
 
-#include <fabric/paths.h>
+#include <eq/fabric/paths.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 

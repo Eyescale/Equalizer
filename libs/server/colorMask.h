@@ -20,7 +20,7 @@
 
 #include "compound.h"
 
-#include <fabric/colorMask.h> // base class
+#include <eq/fabric/colorMask.h> // base class
 #include <iostream>
 
 namespace eq

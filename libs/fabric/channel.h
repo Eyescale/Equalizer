@@ -19,11 +19,11 @@
 #ifndef EQFABRIC_CHANNEL_H
 #define EQFABRIC_CHANNEL_H
 
-#include <fabric/object.h>        // base class
-#include <fabric/paths.h>
-#include <fabric/renderContext.h> // member
-#include <fabric/types.h>
-#include <fabric/visitorResult.h> // enum
+#include <eq/fabric/object.h>        // base class
+#include <eq/fabric/paths.h>
+#include <eq/fabric/renderContext.h> // member
+#include <eq/fabric/types.h>
+#include <eq/fabric/visitorResult.h> // enum
 
 namespace eq
 {

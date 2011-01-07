@@ -37,7 +37,7 @@
 #include <eq/admin/visitorResult.h>
 #include <eq/admin/window.h>
 
-#include <fabric/base.h>
+#include <eq/fabric/base.h>
 #include <co/co.h>
 
 #pragma warning(pop)

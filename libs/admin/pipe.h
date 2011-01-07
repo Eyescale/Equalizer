@@ -19,7 +19,7 @@
 #define EQADMIN_PIPE_H
 
 #include <eq/admin/types.h>         // typedefs
-#include <fabric/pipe.h>       // base class
+#include <eq/fabric/pipe.h>       // base class
 
 namespace eq
 {

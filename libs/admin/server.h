@@ -20,7 +20,7 @@
 
 #include <eq/admin/api.h>
 #include <eq/admin/types.h>
-#include <fabric/server.h>       // base class
+#include <eq/fabric/server.h>       // base class
 #include <co/node.h>         // base class
 
 namespace eq

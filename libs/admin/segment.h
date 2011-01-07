@@ -19,7 +19,7 @@
 #define EQADMIN_SEGMENT_H
 
 #include <eq/admin/types.h>         // typedefs
-#include <fabric/segment.h>       // base class
+#include <eq/fabric/segment.h>       // base class
 
 namespace eq
 {

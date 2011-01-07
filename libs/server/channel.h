@@ -23,9 +23,9 @@
 #include "state.h"  // enum
 #include "types.h"
 
-#include <fabric/channel.h>       // base class
-#include <fabric/pixelViewport.h> // member
-#include <fabric/viewport.h>      // member
+#include <eq/fabric/channel.h>       // base class
+#include <eq/fabric/pixelViewport.h> // member
+#include <eq/fabric/viewport.h>      // member
 #include <co/object.h>
 
 #include <iostream>

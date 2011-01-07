@@ -27,7 +27,7 @@
 #include <libs/server/view.h>
 #include <libs/server/window.h>
 
-#include <fabric/viewport.h>
+#include <eq/fabric/viewport.h>
 
 #include <iostream>
 #include <iomanip>

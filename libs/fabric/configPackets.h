@@ -19,8 +19,8 @@
 #ifndef EQFABRIC_CONFIGPACKETS_H
 #define EQFABRIC_CONFIGPACKETS_H
 
-#include <fabric/packets.h> // base structs
-#include <fabric/serverPackets.h> // used inline
+#include <eq/fabric/packets.h> // base structs
+#include <eq/fabric/serverPackets.h> // used inline
 
 /** @cond IGNORE */
 namespace eq

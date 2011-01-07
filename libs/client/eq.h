@@ -24,16 +24,9 @@
 #include <eq/base.h>
 
 #include <eq/util/base.h>
-#include <fabric/base.h>
+#include <eq/fabric/base.h>
 #include <co/co.h>
-#include <co/base/base.h>
-
 #include <vmmlib/vmmlib.hpp>
-
-#ifdef EQ_USE_DEPRECATED
-namespace eqBase = ::co::base;
-namespace eqNet  = ::eq::net;
-#endif
 
 /** \mainpage Equalizer API Documentation
     \htmlinclude "RelNotes.dox"

@@ -9,11 +9,11 @@
 include(PurpleForwardHeaders)
 include(PurpleAddLibrary)
 include(PurpleAddAmalgamation)
-include(${CMAKE_CURRENT_SOURCE_DIR}/configure.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/files.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/util/files.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/compressor/files.cmake)
-include( ../fabric/files.cmake )
+include(configure.cmake)
+include(files.cmake)
+include(util/files.cmake)
+include(compressor/files.cmake)
+include(../fabric/files.cmake)
 
 option(EQUALIZER_BUILD_STATIC_LIBS "Build static libraries" OFF)
 if(NOT EQUALIZER_BUILD_STATIC_LIBS)
@@ -45,13 +45,10 @@ endif(NOT CUDA_FOUND)
 purple_forward_headers("eq/" ${EQ_UTIL_FORWARD_HEADERS})
 
 purple_add_library( eq_fabric ${EQ_LIB_VARIANT}
-  HEADERS_PREFIX "fabric/"
-  FORWARD HEADERS
-    ${EQ_FABRIC_FORWARD_HEADERS}
-  SOURCES
-    ${EQ_FABRIC_SOURCES}
-  LINK_LIBRARIES
-    shared co
+  HEADERS_PREFIX "eq/fabric/"
+  FORWARD HEADERS ${EQ_FABRIC_FORWARD_HEADERS}
+  SOURCES ${EQ_FABRIC_SOURCES}
+  LINK_LIBRARIES shared co
   )
 
 source_group( "plugin" FILES ${PLUGIN_HEADERS} )

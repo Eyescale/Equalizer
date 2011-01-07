@@ -18,8 +18,8 @@
 #ifndef EQFABRIC_PROJECTION_H
 #define EQFABRIC_PROJECTION_H
 
-#include <fabric/types.h>
-#include <fabric/api.h>
+#include <eq/fabric/types.h>
+#include <eq/fabric/api.h>
   
 #include <iostream>
 

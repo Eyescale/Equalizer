@@ -38,7 +38,7 @@
 #include "view.h"
 
 #include <eq/packets.h>
-#include <fabric/paths.h>
+#include <eq/fabric/paths.h>
 #include <co/base/os.h>
 #include <co/base/stdExt.h>
 

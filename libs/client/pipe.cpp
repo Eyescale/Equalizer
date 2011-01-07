@@ -52,8 +52,8 @@
 #  include "cudaContext.h"
 #endif
 
-#include <fabric/elementVisitor.h>
-#include <fabric/task.h>
+#include <eq/fabric/elementVisitor.h>
+#include <eq/fabric/task.h>
 #include <co/command.h>
 #include <sstream>
 

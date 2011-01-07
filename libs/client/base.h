@@ -88,6 +88,7 @@
 #include <eq/configEvent.h>
 #include <eq/configParams.h>
 #include <eq/event.h>
+#include <eq/error.h>
 #include <eq/frame.h>
 #include <eq/frameData.h>
 #include <eq/global.h>

@@ -18,7 +18,7 @@
 #ifndef EQ_LOG_H
 #define EQ_LOG_H
 
-#include <fabric/log.h>
+#include <eq/fabric/log.h>
 
 namespace eq
 {

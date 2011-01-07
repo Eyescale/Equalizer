@@ -30,8 +30,8 @@
 #include <eq/configPackets.h>
 #include <eq/error.h>
 #include <eq/nodePackets.h>
-#include <fabric/elementVisitor.h>
-#include <fabric/paths.h>
+#include <eq/fabric/elementVisitor.h>
+#include <eq/fabric/paths.h>
 #include <co/barrier.h>
 #include <co/command.h>
 #include <co/base/launcher.h>

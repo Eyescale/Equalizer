@@ -22,8 +22,8 @@
 #include <eq/init.h>       // friend
 #include <eq/types.h>
 
-#include <fabric/global.h>     // base class
-#include <fabric/iAttribute.h> // enum definition
+#include <eq/fabric/global.h>     // base class
+#include <eq/fabric/iAttribute.h> // enum definition
 
 #include <eq/api.h>
 

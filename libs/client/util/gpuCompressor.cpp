@@ -18,7 +18,7 @@
 
 #include "gpuCompressor.h"
 
-#include <fabric/pixelViewport.h>
+#include <eq/fabric/pixelViewport.h>
 #include <co/base/global.h>
 #include <co/base/pluginRegistry.h>
 

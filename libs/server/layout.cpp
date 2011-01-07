@@ -20,7 +20,7 @@
 #include "config.h"
 #include "view.h"
 
-#include <fabric/paths.h>
+#include <eq/fabric/paths.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 

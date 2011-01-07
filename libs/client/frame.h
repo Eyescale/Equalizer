@@ -23,7 +23,7 @@
 #include <eq/types.h>
 #include <eq/api.h>
 
-#include <fabric/zoom.h>   // member
+#include <eq/fabric/zoom.h>   // member
 #include <co/object.h>
 #include <co/objectVersion.h>
 #include <co/types.h>

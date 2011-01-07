@@ -40,7 +40,7 @@
 #include "view.h"
 #include "window.h"
 
-#include <fabric/paths.h>
+#include <eq/fabric/paths.h>
 #include <co/base/os.h>
 #include <co/base/file.h>
 #include <string>

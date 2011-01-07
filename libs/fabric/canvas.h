@@ -18,10 +18,10 @@
 #ifndef EQFABRIC_CANVAS_H
 #define EQFABRIC_CANVAS_H
 
-#include <fabric/types.h>
-#include <fabric/visitorResult.h>  // enum
-#include <fabric/frustum.h>        // base class
-#include <fabric/object.h>         // base class
+#include <eq/fabric/types.h>
+#include <eq/fabric/visitorResult.h>  // enum
+#include <eq/fabric/frustum.h>        // base class
+#include <eq/fabric/object.h>         // base class
 
 #include <string>
 

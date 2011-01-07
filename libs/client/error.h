@@ -18,7 +18,7 @@
 #ifndef EQ_ERROR_H
 #define EQ_ERROR_H
 
-#include <fabric/error.h>
+#include <eq/fabric/error.h>
 
 namespace eq
 {

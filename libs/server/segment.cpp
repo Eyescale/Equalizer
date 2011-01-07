@@ -26,7 +26,7 @@
 #include "view.h"
 #include "window.h"
 
-#include <fabric/paths.h>
+#include <eq/fabric/paths.h>
 #include <co/dataOStream.h>
 
 namespace eq

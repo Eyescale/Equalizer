@@ -19,12 +19,12 @@
 #ifndef EQFABRIC_VIEW_H
 #define EQFABRIC_VIEW_H
 
-#include <fabric/api.h>
-#include <fabric/frustum.h>        // base class
-#include <fabric/object.h>         // base class
-#include <fabric/types.h>
-#include <fabric/viewport.h>       // member
-#include <fabric/visitorResult.h>  // enum
+#include <eq/fabric/api.h>
+#include <eq/fabric/frustum.h>        // base class
+#include <eq/fabric/object.h>         // base class
+#include <eq/fabric/types.h>
+#include <eq/fabric/viewport.h>       // member
+#include <eq/fabric/visitorResult.h>  // enum
 
 namespace eq
 {

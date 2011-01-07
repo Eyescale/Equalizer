@@ -18,7 +18,7 @@
 #ifndef EQSERVER_TYPES_H
 #define EQSERVER_TYPES_H
 
-#include <fabric/types.h>
+#include <eq/fabric/types.h>
 #include <co/base/refPtr.h>
 #include <co/base/uuid.h>
 #include <vector>

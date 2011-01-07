@@ -21,7 +21,7 @@
 #include <eq/api.h>
 #include <eq/types.h>
 #include <co/types.h>
-#include <fabric/pixelViewport.h> // member
+#include <eq/fabric/pixelViewport.h> // member
 
 #include <co/base/stdExt.h>          // member
 

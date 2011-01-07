@@ -19,13 +19,13 @@
 #ifndef EQFABRIC_WINDOW_H
 #define EQFABRIC_WINDOW_H
 
-#include <fabric/object.h>        // base class
+#include <eq/fabric/object.h>        // base class
 
-#include <fabric/drawableConfig.h> // enum
-#include <fabric/paths.h>
-#include <fabric/pixelViewport.h>
-#include <fabric/viewport.h>
-#include <fabric/visitorResult.h> // enum
+#include <eq/fabric/drawableConfig.h> // enum
+#include <eq/fabric/paths.h>
+#include <eq/fabric/pixelViewport.h>
+#include <eq/fabric/viewport.h>
+#include <eq/fabric/visitorResult.h> // enum
 
 namespace eq
 {

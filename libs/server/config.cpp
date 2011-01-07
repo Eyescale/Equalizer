@@ -38,10 +38,10 @@
 #include <eq/configEvent.h>
 #include <eq/configPackets.h>
 #include <eq/error.h>
-#include <fabric/configPackets.h>
-#include <fabric/iAttribute.h>
-#include <fabric/paths.h>
-#include <fabric/serverPackets.h>
+#include <eq/fabric/configPackets.h>
+#include <eq/fabric/iAttribute.h>
+#include <eq/fabric/paths.h>
+#include <eq/fabric/serverPackets.h>
 #include <co/command.h>
 #include <co/base/sleep.h>
 

@@ -21,7 +21,7 @@
 #include "compoundVisitor.h"           // base class
 #include "types.h"
 
-#include <fabric/elementVisitor.h>  // base classes
+#include <eq/fabric/elementVisitor.h>  // base classes
 
 namespace eq
 {

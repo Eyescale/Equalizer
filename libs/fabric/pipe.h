@@ -19,10 +19,10 @@
 #ifndef EQFABRIC_PIPE_H
 #define EQFABRIC_PIPE_H
 
-#include <fabric/object.h>        // base class
-#include <fabric/pixelViewport.h> // property
-#include <fabric/types.h>
-#include <fabric/visitorResult.h> // enum
+#include <eq/fabric/object.h>        // base class
+#include <eq/fabric/pixelViewport.h> // property
+#include <eq/fabric/types.h>
+#include <eq/fabric/visitorResult.h> // enum
 
 #include <co/types.h>            // LocalNodePtr
 

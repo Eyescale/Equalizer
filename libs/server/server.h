@@ -22,7 +22,7 @@
 #include "types.h"
 #include "visitorResult.h" // enum
 
-#include <fabric/server.h>    // base class
+#include <eq/fabric/server.h>    // base class
 #include <co/command.h>      // used in inline method
 #include <co/commandQueue.h> // member
 

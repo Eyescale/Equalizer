@@ -23,7 +23,7 @@
 #include "../log.h"
 
 #include <eq/statistic.h>
-#include <fabric/zoom.h>
+#include <eq/fabric/zoom.h>
 #include <co/base/debug.h>
 
 namespace eq

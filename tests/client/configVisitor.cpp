@@ -31,7 +31,7 @@
 #include <eq/pipe.h>
 #include <eq/server.h>
 #include <eq/window.h>
-#include <fabric/configVisitor.h>
+#include <eq/fabric/configVisitor.h>
 
 using namespace eq;
 

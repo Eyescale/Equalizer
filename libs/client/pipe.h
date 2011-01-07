@@ -25,7 +25,7 @@
 #include <eq/visitorResult.h>  // enum
 #include <eq/windowSystem.h>   // enum
 
-#include <fabric/pipe.h>           // base class
+#include <eq/fabric/pipe.h>           // base class
 
 #include <co/objectVersion.h>
 

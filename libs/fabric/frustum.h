@@ -18,9 +18,9 @@
 #ifndef EQFABRIC_FRUSTUM_H
 #define EQFABRIC_FRUSTUM_H
 
-#include <fabric/projection.h> // member
-#include <fabric/wall.h>       // member
-#include <fabric/api.h>       // decl
+#include <eq/fabric/projection.h> // member
+#include <eq/fabric/wall.h>       // member
+#include <eq/fabric/api.h>       // decl
 
 namespace co
 {

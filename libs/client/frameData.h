@@ -21,10 +21,10 @@
 #include <eq/frame.h>         // enum Frame::Buffer
 #include <eq/types.h>         // member
 
-#include <fabric/pixelViewport.h> // member
-#include <fabric/pixel.h>         // member
-#include <fabric/range.h>         // member
-#include <fabric/subPixel.h>      // member
+#include <eq/fabric/pixelViewport.h> // member
+#include <eq/fabric/pixel.h>         // member
+#include <eq/fabric/range.h>         // member
+#include <eq/fabric/subPixel.h>      // member
 #include <co/object.h>           // base class
 #include <co/base/monitor.h>         // member
 #include <co/base/scopedMutex.h>     // member

@@ -20,7 +20,7 @@
 
 #include <eq/types.h>
 #include <eq/statistic.h>     // member
-#include <fabric/renderContext.h> // member
+#include <eq/fabric/renderContext.h> // member
 
 #include <eq/api.h>
 

@@ -21,8 +21,8 @@
 
 #include "types.h"
 
-#include <fabric/observer.h>   // base class
-#include <fabric/eye.h>        // enum
+#include <eq/fabric/observer.h>   // base class
+#include <eq/fabric/eye.h>        // enum
 #include <co/base/bitOperation.h> // function getIndexOfLastBit
 
 #include <string>

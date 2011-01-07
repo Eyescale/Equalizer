@@ -35,8 +35,6 @@
 #include "systemWindow.h"
 #include "windowPackets.h"
 #include "windowStatistics.h"
-#include <fabric/elementVisitor.h>
-
 #ifdef AGL
 #  include "aglWindow.h"
 #endif
@@ -47,7 +45,8 @@
 #  include "wglWindow.h"
 #endif
 
-#include <fabric/task.h>
+#include <eq/fabric/elementVisitor.h>
+#include <eq/fabric/task.h>
 #include <co/barrier.h>
 #include <co/command.h>
 #include <co/base/sleep.h>

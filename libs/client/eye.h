@@ -19,7 +19,7 @@
 #ifndef EQ_EYE_H
 #define EQ_EYE_H
 
-#include <fabric/eye.h> // 'base' class
+#include <eq/fabric/eye.h> // 'base' class
 
 namespace eq
 {

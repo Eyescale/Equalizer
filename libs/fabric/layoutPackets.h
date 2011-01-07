@@ -19,7 +19,7 @@
 #ifndef EQFABRIC_LAYOUTPACKETS_H
 #define EQFABRIC_LAYOUTPACKETS_H
 
-#include <fabric/packets.h> // base structs
+#include <eq/fabric/packets.h> // base structs
 
 /** @cond IGNORE */
 namespace eq

@@ -25,13 +25,13 @@
 #include "visitorResult.h"         // enum
 
 #include <eq/frame.h>
-#include <fabric/projection.h> // used in inline method
-#include <fabric/range.h>      // member
-#include <fabric/subPixel.h>   // member
-#include <fabric/task.h>       // enum
-#include <fabric/viewport.h>   // member
-#include <fabric/wall.h>       // used in inline method
-#include <fabric/zoom.h>       // member
+#include <eq/fabric/projection.h> // used in inline method
+#include <eq/fabric/range.h>      // member
+#include <eq/fabric/subPixel.h>   // member
+#include <eq/fabric/task.h>       // enum
+#include <eq/fabric/viewport.h>   // member
+#include <eq/fabric/wall.h>       // used in inline method
+#include <eq/fabric/zoom.h>       // member
 #include <co/barrier.h>
 #include <co/base/thread.h>
 #include <iostream>

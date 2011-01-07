@@ -19,15 +19,15 @@
 #ifndef EQ_WINDOW_H
 #define EQ_WINDOW_H
 
-#include <fabric/window.h>         // base class
-
 #include <eq/types.h>
 #include <eq/visitorResult.h> // enum
 
 #include <eq/util/bitmapFont.h>      // member
 #include <eq/util/objectManager.h>   // member
-#include <fabric/channel.h>       // friend
-#include <fabric/renderContext.h> // member
+#include <eq/fabric/channel.h>       // friend
+#include <eq/fabric/renderContext.h> // member
+#include <eq/fabric/window.h>        // base class
+
 
 
 /** @file eq/window.h */

@@ -18,9 +18,9 @@
 #ifndef EQFABRIC_PIXELVIEWPORT_H
 #define EQFABRIC_PIXELVIEWPORT_H
 
-#include <fabric/viewport.h> // used in inline method
-#include <fabric/pixel.h>    // used in inline method
-#include <fabric/zoom.h>     // used in inline method
+#include <eq/fabric/viewport.h> // used in inline method
+#include <eq/fabric/pixel.h>    // used in inline method
+#include <eq/fabric/zoom.h>     // used in inline method
 
 #include <co/base/os.h>
 #include <co/base/debug.h>

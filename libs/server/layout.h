@@ -21,7 +21,7 @@
 #include "visitorResult.h" // enum
 #include "types.h"
 
-#include <fabric/layout.h> // base class
+#include <eq/fabric/layout.h> // base class
 #include <string>
 
 namespace eq

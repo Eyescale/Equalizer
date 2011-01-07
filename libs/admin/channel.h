@@ -19,7 +19,7 @@
 #define EQADMIN_CHANNEL_H
 
 #include <eq/admin/types.h>         // typedefs
-#include <fabric/channel.h>       // base class
+#include <eq/fabric/channel.h>       // base class
 
 namespace eq
 {

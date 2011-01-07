@@ -34,7 +34,7 @@
 #include <eq/channelPackets.h>
 #include <eq/log.h>
 #include <eq/windowPackets.h>
-#include <fabric/paths.h>
+#include <eq/fabric/paths.h>
 #include <co/command.h>
 #include <co/base/os.h>
 #include <co/base/debug.h>

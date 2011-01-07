@@ -38,8 +38,8 @@
 #include "server.h"
 #include "view.h"
 
-#include <fabric/configVisitor.h>
-#include <fabric/task.h>
+#include <eq/fabric/configVisitor.h>
+#include <eq/fabric/task.h>
 #include <co/object.h>
 #include <co/command.h>
 #include <co/connectionDescription.h>

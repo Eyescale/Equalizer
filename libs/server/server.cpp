@@ -31,7 +31,7 @@
 
 #include <eq/admin/packets.h>
 #include <eq/serverPackets.h>
-#include <fabric/serverPackets.h>
+#include <eq/fabric/serverPackets.h>
 #include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>

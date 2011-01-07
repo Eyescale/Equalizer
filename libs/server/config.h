@@ -25,7 +25,7 @@
 #include "state.h"         // enum
 #include "visitorResult.h" // enum
 
-#include <fabric/config.h> // base class
+#include <eq/fabric/config.h> // base class
 
 #include <iostream>
 #include <vector>

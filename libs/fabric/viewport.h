@@ -18,8 +18,8 @@
 #ifndef EQFABRIC_VIEWPORT_H
 #define EQFABRIC_VIEWPORT_H
 
-#include <fabric/api.h>
-#include <fabric/types.h>
+#include <eq/fabric/api.h>
+#include <eq/fabric/types.h>
 #include <co/base/debug.h>
 
 #include <iostream>

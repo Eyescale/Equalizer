@@ -17,8 +17,8 @@
 
 #include "frustumData.h"
 
-#include <fabric/projection.h>
-#include <fabric/wall.h>
+#include <eq/fabric/projection.h>
+#include <eq/fabric/wall.h>
 
 #define DEG2RAD( angle ) ( (angle) * static_cast<float>(M_PI) / 180.f )
 

@@ -23,7 +23,7 @@
 #include "state.h"                 // enum
 #include "types.h"
 
-#include <fabric/node.h> // base class
+#include <eq/fabric/node.h> // base class
 
 #include <co/barrier.h>
 #include <co/bufferConnection.h>

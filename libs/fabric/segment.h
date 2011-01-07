@@ -18,11 +18,11 @@
 #ifndef EQFABRIC_SEGMENT_H
 #define EQFABRIC_SEGMENT_H
 
-#include <fabric/types.h>
-#include <fabric/visitorResult.h>  // enum
-#include <fabric/frustum.h>        // base class
-#include <fabric/object.h>         // base class
-#include <fabric/viewport.h>       // member
+#include <eq/fabric/types.h>
+#include <eq/fabric/visitorResult.h>  // enum
+#include <eq/fabric/frustum.h>        // base class
+#include <eq/fabric/object.h>         // base class
+#include <eq/fabric/viewport.h>       // member
 
 namespace eq
 {

@@ -18,9 +18,9 @@
 #ifndef EQFABRIC_SERVER_H
 #define EQFABRIC_SERVER_H
 
-#include <fabric/api.h>
-#include <fabric/types.h>     // basic typedefs
-#include <fabric/nodeType.h>  // for NODETYPE_EQ_SERVER enum
+#include <eq/fabric/api.h>
+#include <eq/fabric/types.h>     // basic typedefs
+#include <eq/fabric/nodeType.h>  // for NODETYPE_EQ_SERVER enum
 
 #include <co/types.h>
 

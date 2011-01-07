@@ -21,7 +21,7 @@
 
 #include <eq/types.h>
 #include <eq/visitorResult.h>  // enum
-#include <fabric/node.h>           // base class
+#include <eq/fabric/node.h>           // base class
 
 #include <co/types.h>
 #include <co/base/mtQueue.h>          // member

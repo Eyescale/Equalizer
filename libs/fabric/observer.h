@@ -18,10 +18,10 @@
 #ifndef EQFABRIC_OBSERVER_H
 #define EQFABRIC_OBSERVER_H
 
-#include <fabric/api.h>
-#include <fabric/object.h>         // base class
-#include <fabric/types.h>
-#include <fabric/visitorResult.h> // enum
+#include <eq/fabric/api.h>
+#include <eq/fabric/object.h>         // base class
+#include <eq/fabric/types.h>
+#include <eq/fabric/visitorResult.h> // enum
 
 #include <string>
 #include <vector>

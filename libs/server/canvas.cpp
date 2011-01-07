@@ -30,7 +30,7 @@
 #include "view.h"
 #include "window.h"
 
-#include <fabric/paths.h>
+#include <eq/fabric/paths.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 #include <co/base/stdExt.h>

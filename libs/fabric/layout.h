@@ -18,9 +18,9 @@
 #ifndef EQFABRIC_LAYOUT_H
 #define EQFABRIC_LAYOUT_H
 
-#include <fabric/object.h>         // base class
-#include <fabric/types.h>
-#include <fabric/visitorResult.h>  // enum
+#include <eq/fabric/object.h>         // base class
+#include <eq/fabric/types.h>
+#include <eq/fabric/visitorResult.h>  // enum
 
 #include <string>
 

@@ -18,8 +18,8 @@
 #ifndef EQFABRIC_PACKETS_H
 #define EQFABRIC_PACKETS_H
 
-#include <fabric/commands.h>      // enum 
-#include <fabric/packetType.h>    // member
+#include <eq/fabric/commands.h>      // enum 
+#include <eq/fabric/packetType.h>    // member
 
 #include <co/packets.h> // 'base'
 #include <co/objectVersion.h> // member

@@ -20,7 +20,7 @@
 
 #include <eq/error.h>
 
-#include <fabric/pixelViewport.h>
+#include <eq/fabric/pixelViewport.h>
 
 #ifdef _WIN32
 #  define bzero( ptr, size ) memset( ptr, 0, size );

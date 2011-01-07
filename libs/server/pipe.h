@@ -23,9 +23,9 @@
 #include "state.h"         // enum
 #include "visitorResult.h" // enum
 
-#include <fabric/iAttribute.h>       // eq::OFF enum
-#include <fabric/pipe.h>             // parent
-#include <fabric/pixelViewport.h>    // member
+#include <eq/fabric/iAttribute.h>       // eq::OFF enum
+#include <eq/fabric/pipe.h>             // parent
+#include <eq/fabric/pixelViewport.h>    // member
 #include <co/base/monitor.h>            // member
 
 #include <ostream>

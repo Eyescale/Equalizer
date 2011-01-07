@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_CHANNELVISITOR_H
 #define EQFABRIC_CHANNELVISITOR_H
 
-#include <fabric/visitorResult.h>  // enum
+#include <eq/fabric/visitorResult.h>  // enum
 
 namespace eq
 {

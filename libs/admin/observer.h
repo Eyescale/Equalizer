@@ -19,7 +19,7 @@
 #define EQADMIN_OBSERVER_H
 
 #include <eq/admin/types.h>         // typedefs
-#include <fabric/observer.h>       // base class
+#include <eq/fabric/observer.h>       // base class
 
 namespace eq
 {

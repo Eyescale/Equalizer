@@ -23,7 +23,7 @@
 #include <eq/types.h>         // typedefs
 #include <eq/visitorResult.h> // enum
 
-#include <fabric/config.h>        // base class
+#include <eq/fabric/config.h>        // base class
 #include <co/base/monitor.h>         // member
 #include <co/base/spinLock.h>        // member
 

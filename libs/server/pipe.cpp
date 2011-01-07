@@ -28,8 +28,8 @@
 
 #include <eq/nodePackets.h>
 #include <eq/pipePackets.h>
-#include <fabric/elementVisitor.h>
-#include <fabric/paths.h>
+#include <eq/fabric/elementVisitor.h>
+#include <eq/fabric/paths.h>
 #include <co/command.h>
 
 namespace eq

@@ -19,7 +19,7 @@
 #ifndef EQFABRIC_ELEMENTVISITOR_H
 #define EQFABRIC_ELEMENTVISITOR_H
 
-#include <fabric/leafVisitor.h> // base class
+#include <eq/fabric/leafVisitor.h> // base class
 
 namespace eq 
 {

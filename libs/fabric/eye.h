@@ -19,7 +19,7 @@
 #ifndef EQFABRIC_EYE_H
 #define EQFABRIC_EYE_H
 
-#include <fabric/api.h>
+#include <eq/fabric/api.h>
 #include <iostream>
 
 namespace eq

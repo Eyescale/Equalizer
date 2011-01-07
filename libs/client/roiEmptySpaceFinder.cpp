@@ -18,7 +18,7 @@
 
 #include "roiEmptySpaceFinder.h"
 
-#include <fabric/pixelViewport.h>
+#include <eq/fabric/pixelViewport.h>
 
 namespace eq
 {

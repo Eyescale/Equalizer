@@ -28,8 +28,8 @@
  * respectively.
  */
 
-#include <fabric/configVisitor.h>
-#include <fabric/drawableConfig.h>
+#include <eq/fabric/configVisitor.h>
+#include <eq/fabric/drawableConfig.h>
 
 #endif // EQFABRIC_H
 

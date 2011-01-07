@@ -18,17 +18,17 @@
 #ifndef EQFABRIC_RENDERCONTEXT_H
 #define EQFABRIC_RENDERCONTEXT_H
 
-#include <fabric/colorMask.h>        // member
-#include <fabric/eye.h>              // member
-#include <fabric/pixel.h>            // member
-#include <fabric/pixelViewport.h>    // member
-#include <fabric/range.h>            // member
-#include <fabric/subPixel.h>         // member
-#include <fabric/types.h>
-#include <fabric/zoom.h>             // member
+#include <eq/fabric/colorMask.h>        // member
+#include <eq/fabric/eye.h>              // member
+#include <eq/fabric/pixel.h>            // member
+#include <eq/fabric/pixelViewport.h>    // member
+#include <eq/fabric/range.h>            // member
+#include <eq/fabric/subPixel.h>         // member
+#include <eq/fabric/types.h>
+#include <eq/fabric/zoom.h>             // member
 
 #include <co/objectVersion.h>
-#include <fabric/api.h>
+#include <eq/fabric/api.h>
 
 namespace eq
 {

@@ -22,7 +22,7 @@
 #include "nodeFactory.h"
 #include "segment.h"
 
-#include <fabric/elementVisitor.h>
+#include <eq/fabric/elementVisitor.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 

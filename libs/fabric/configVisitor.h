@@ -18,8 +18,8 @@
 #ifndef EQFABRIC_CONFIGVISITOR_H
 #define EQFABRIC_CONFIGVISITOR_H
 
-#include <fabric/types.h>
-#include <fabric/elementVisitor.h>       // base class
+#include <eq/fabric/types.h>
+#include <eq/fabric/elementVisitor.h>       // base class
 
 namespace eq
 {
