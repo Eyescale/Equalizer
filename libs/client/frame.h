@@ -134,23 +134,6 @@ namespace server
          */
         EQ_API uint32_t getPhase() const;
 
-        /** @return the zoom factor for readback or assemble. @version 1.0 */
-        const Zoom& getZoom() const { return _data.zoom; }
-
-        /** 
-         * Set zoom filter corresponding to the texture mag/min filter.
-         * 
-         * @param buffer The buffer to disable.
-         * @version 1.0
-         */
-        void setZoomFilter( const ZoomFilter zoomFilter )
-            { _zoomFilter = zoomFilter; }
-        /**
-         * @return The zoom filter used to the texture mag/min filter.
-         * @version 1.0
-         */
-        ZoomFilter getZoomFilter( ) const
-            { return _zoomFilter; }
         /**
          * Set the zoom for this frame holder.
          *
@@ -160,6 +143,22 @@ namespace server
          * @version 1.0
          */
         void setZoom( const Zoom& zoom ) { _data.zoom = zoom; }
+
+        /** @return the zoom factor for readback or assemble. @version 1.0 */
+        const Zoom& getZoom() const { return _data.zoom; }
+
+        /** 
+         * Set the filter applied to zoomed assemble operations.
+         * @version 1.0
+         */
+        void setZoomFilter( const ZoomFilter zoomFilter )
+            { _zoomFilter = zoomFilter; }
+
+        /**
+         * @return the filter applied to zoomed assemble operations.
+         * @version 1.0
+         */
+        ZoomFilter getZoomFilter() const { return _zoomFilter; }
 
         /** @return all images of this frame. @version 1.0 */
         EQ_API const Images& getImages() const;

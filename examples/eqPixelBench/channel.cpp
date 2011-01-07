@@ -194,8 +194,7 @@ void Channel::_testFormats( float applyZoom )
 
             // read
             clock.reset();
-            image->readback( eq::Frame::BUFFER_COLOR, pvp, zoom, 
-                             eq::FILTER_LINEAR, glObjects );
+            image->readback( eq::Frame::BUFFER_COLOR, pvp, zoom, glObjects );
             event.msec = clock.getTimef();
 
             const eq::PixelData& pixels =
@@ -289,8 +288,8 @@ void Channel::_testTiledOperations()
             image->clearPixelData( eq::Frame::BUFFER_DEPTH );
 
             clock.reset();
-            image->readback( eq::Frame::BUFFER_DEPTH, subPVP, 
-                             eq::Zoom(), eq::FILTER_LINEAR, glObjects );
+            image->readback( eq::Frame::BUFFER_DEPTH, subPVP, eq::Zoom(),
+                             glObjects );
             event.msec += clock.getTimef();
             
         }
@@ -319,8 +318,8 @@ void Channel::_testTiledOperations()
             image->clearPixelData( eq::Frame::BUFFER_COLOR );
 
             clock.reset();
-            image->readback( eq::Frame::BUFFER_COLOR, subPVP,  
-                             eq::Zoom(), eq::FILTER_LINEAR, glObjects );
+            image->readback( eq::Frame::BUFFER_COLOR, subPVP, eq::Zoom(),
+                             glObjects );
             event.msec += clock.getTimef();
         }
         config->sendEvent( event );
@@ -408,7 +407,7 @@ void Channel::_testDepthAssemble()
         image->clearPixelData( eq::Frame::BUFFER_DEPTH );
 
         image->readback( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH,
-                         pvp, eq::Zoom(), eq::FILTER_LINEAR, glObjects );
+                         pvp, eq::Zoom(), glObjects );
 
         if( i == NUM_IMAGES-1 )
             _saveImage( image,"EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT",

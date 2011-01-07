@@ -249,12 +249,11 @@ namespace eq
          * @param buffers bit-wise combination of the Frame::Buffer components.
          * @param pvp the area of the frame buffer wrt the drawable.
          * @param zoom the scale factor to apply during readback.
-         * @param zoomFilter the min/mag texture parameter 
          * @param glObjects the GL object manager for the current GL context.
          * @version 1.0
          */
         EQ_API void readback( const uint32_t buffers, const PixelViewport& pvp,
-                              const Zoom& zoom, const ZoomFilter zoomFilter,
+                              const Zoom& zoom,
                               util::ObjectManager< const void* >* glObjects );
 
         /**
@@ -438,10 +437,8 @@ namespace eq
                                  const bool hasAlpha );
 
         void _readback( const Frame::Buffer buffer, const Zoom& zoom,
-                        const ZoomFilter zoomFilter,
                         util::ObjectManager< const void* >* glObjects );
         void _readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
-                            const ZoomFilter zoomFilter,
                             util::ObjectManager< const void* >* glObjects );
     };
 };

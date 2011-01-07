@@ -315,7 +315,7 @@ void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
 }
 
 void Image::readback( const uint32_t buffers, const PixelViewport& pvp,
-                      const Zoom& zoom, const ZoomFilter zoomFilter,
+                      const Zoom& zoom,
                       util::ObjectManager< const void* >* glObjects )
 {
     EQASSERT( glObjects );
@@ -327,10 +327,10 @@ void Image::readback( const uint32_t buffers, const PixelViewport& pvp,
     _depth.memory.state = Memory::INVALID;
 
     if( buffers & Frame::BUFFER_COLOR )
-        _readback( Frame::BUFFER_COLOR, zoom, zoomFilter, glObjects );
+        _readback( Frame::BUFFER_COLOR, zoom, glObjects );
 
     if( buffers & Frame::BUFFER_DEPTH )
-        _readback( Frame::BUFFER_DEPTH, zoom, zoomFilter, glObjects );
+        _readback( Frame::BUFFER_DEPTH, zoom, glObjects );
 
     _pvp.x = 0;
     _pvp.y = 0;
@@ -412,7 +412,6 @@ const void* Image::_getCompressorKey( const Frame::Buffer buffer ) const
 }
 
 void Image::_readback( const Frame::Buffer buffer, const Zoom& zoom,
-                       const ZoomFilter zoomFilter,
                        util::ObjectManager< const void* >* glObjects )
 {
     Attachment& attachment = _getAttachment( buffer );
@@ -430,11 +429,10 @@ void Image::_readback( const Frame::Buffer buffer, const Zoom& zoom,
     else if( zoom == Zoom::NONE ) // normal framebuffer readback
         readback( buffer, 0, glewGetContext( ));
     else // copy to texture, draw zoomed quad into FBO, (read FBO texture)
-        _readbackZoom( buffer, zoom, zoomFilter, glObjects );
+        _readbackZoom( buffer, zoom, glObjects );
 }
 
 void Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
-                           const ZoomFilter zoomFilter,
                            util::ObjectManager< const void* >* glObjects )
 {
     EQASSERT( glObjects );

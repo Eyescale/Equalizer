@@ -125,12 +125,7 @@ namespace util
          */
         EQ_API void flush();
 
-        /** 
-         * Apply min and mag filter to this texture 
-         *
-         * @param filter The type of the texture.
-         * @version 1.0
-         */
+        /** @internal Apply the given texture filtering parameter. */
         void applyZoomFilter( const ZoomFilter filter ) const;
 
         void applyWrap() const; //<! @internal

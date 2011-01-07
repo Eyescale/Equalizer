@@ -15,16 +15,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_ZOOM_H
-#define EQ_ZOOM_H
+#ifndef EQ_ZOOMFILTER_H
+#define EQ_ZOOMFILTER_H
 
 #include <eq/os.h>
 
 namespace eq
 {
-    /**
-     * Zoom filter to apply in min / mag texture parameter
-     */
+    /** Filtering algorithm to applied during zoom operations. */
     EQ_API enum ZoomFilter
     {
         FILTER_NEAREST = GL_NEAREST,
@@ -32,4 +30,4 @@ namespace eq
     };
 
 }
-#endif // EQ_ZOOM_H
+#endif // EQ_ZOOMFILTER_H
