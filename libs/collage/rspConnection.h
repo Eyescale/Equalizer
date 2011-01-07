@@ -238,7 +238,6 @@ namespace co
 
         void _close();
         uint16_t _buildNewID();
-        const std::string _getPortString( const uint16_t port ) const;
 
         void _processOutgoing();
         void _writeData();

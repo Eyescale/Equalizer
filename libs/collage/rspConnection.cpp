@@ -184,14 +184,6 @@ uint16_t RSPConnection::_buildNewID()
     return _id;
 }
 
-const std::string RSPConnection::_getPortString( const uint16_t port ) const
-{
-    std::stringstream out;
-    out << _description->port;
-    std::string portString = out.str();
-    return portString;
-}
-
 bool RSPConnection::listen()
 {
     EQASSERT( _description->type == CONNECTIONTYPE_RSP );
@@ -217,20 +209,21 @@ bool RSPConnection::listen()
         const ip::udp::endpoint readEndpoint( readAddress, 
                                               _description->port );
 
-        const std::string& port = _getPortString( _description->port );
-        boost::asio::ip::udp::resolver resolver( _ioService );
-        boost::asio::ip::udp::resolver::query query( boost::asio::ip::udp::v4(), 
-                                                     _description->getHostname(),
-                                                     port );
+        std::stringstream portStr;
+        portStr << _description->port;
+        const std::string& port = portStr.str();
+        ip::udp::resolver resolver( _ioService );
+        const ip::udp::resolver::query queryHN( ip::udp::v4(),
+                                                _description->getHostname(),
+                                                port );
+        const ip::udp::resolver::iterator end;
+        const ip::udp::resolver::iterator hostnameIP =
+            resolver.resolve( queryHN );
 
-        const boost::asio::ip::udp::resolver::iterator end;
-        boost::asio::ip::udp::resolver::iterator hostnameResolve( 
-                                               resolver.resolve( query ) );
-
-        if( hostnameResolve  == end )
+        if( hostnameIP == end )
             return false;
 
-        const ip::udp::endpoint writeEndpoint = *hostnameResolve;
+        const ip::udp::endpoint writeEndpoint = *hostnameIP;
         const ip::address mcAddr( writeEndpoint.address() );
 
         _read = new ip::udp::socket( _ioService );
@@ -247,16 +240,15 @@ bool RSPConnection::listen()
 
         _read->bind( readEndpoint );
 
-        boost::asio::ip::udp::resolver::query queryInterface( 
-               boost::asio::ip::udp::v4(), _description->getInterface( ), "0" );
+        const ip::udp::resolver::query queryIF( ip::udp::v4(),
+                                          _description->getInterface( ), "0" );
+        const ip::udp::resolver::iterator interfaceIP =
+            resolver.resolve( queryIF );
 
-        hostnameResolve  = resolver.resolve( queryInterface );
-
-        if ( hostnameResolve == end )
+        if ( interfaceIP == end )
             return false;
                 
-        const ip::udp::endpoint interfacePoint = *hostnameResolve;
-        const ip::address ifAddr( interfacePoint.address() );
+        const ip::address ifAddr( ip::udp::endpoint( *interfaceIP ).address( ));
 
         _read->set_option( ip::multicast::join_group( mcAddr.to_v4(),
                                                       ifAddr.to_v4( )));
@@ -408,7 +400,7 @@ void RSPConnection::Thread::run()
 
 void RSPConnection::_handleTimeout( const boost::system::error_code& error )
 {
-    if( error == boost::asio::error::operation_aborted )
+    if( error == error::operation_aborted )
         return;
     
     if( _state == STATE_LISTENING )
