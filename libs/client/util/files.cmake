@@ -12,6 +12,7 @@ set(EQ_UTIL_FORWARD_HEADERS
   util/bitmapFont.ipp
   util/frameBufferObject.h
   util/objectManager.h
+  util/objectManager.ipp
   util/texture.h
   util/types.h
   )
