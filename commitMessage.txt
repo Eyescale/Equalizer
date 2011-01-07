@@ -1,4 +1,5 @@
-Bugs 3152421 Distinguish window and channel pointer events
+- Bugs 3152888 Distinguish eq/defines<OS>.h missing
+- fix missing pointer Event in applications
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

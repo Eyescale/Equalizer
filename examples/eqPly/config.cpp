@@ -400,7 +400,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             }
             break;
 
-        case eq::Event::POINTER_BUTTON_PRESS:
+        case eq::Event::CHANNEL_POINTER_BUTTON_PRESS:
         {
             const eq::uint128_t& viewID = 
                            event->data.context.view.identifier;
@@ -429,7 +429,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             return true;
         }
 
-        case eq::Event::POINTER_BUTTON_RELEASE:
+        case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
         {
             const eq::PointerEvent& releaseEvent = 
                 event->data.pointerButtonRelease;
@@ -451,7 +451,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             }
             break;
         }
-        case eq::Event::POINTER_MOTION:
+        case eq::Event::CHANNEL_POINTER_MOTION:
             if( event->data.pointerMotion.buttons == eq::PTR_BUTTON_NONE )
                 return true;
 
@@ -484,7 +484,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             }
             return true;
 
-        case eq::Event::POINTER_WHEEL:
+        case eq::Event::WINDOW_POINTER_WHEEL:
             _frameData.moveCamera( -0.05f * event->data.pointerWheel.yAxis,
                                    0.f,
                                    0.05f * event->data.pointerWheel.xAxis );

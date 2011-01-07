@@ -15,7 +15,6 @@ if(CUDA_FOUND)
 endif(CUDA_FOUND)
 
 # maybe use BOOST_WINDOWS instead?
-# maybe use BOOST_WINDOWS instead?
 if(WIN32)
   list(APPEND EQUALIZER_DEFINES
     WGL
@@ -33,18 +32,20 @@ endif(MSVC)
 
 if(EQ_AGL_USED)
   list(APPEND EQUALIZER_DEFINES AGL)
+  set(ARCH Darwin)
 endif(EQ_AGL_USED)
 
 if(EQ_GLX_USED)
   list(APPEND EQUALIZER_DEFINES GLX)
+  set(ARCH Linux)
 endif(EQ_GLX_USED)
 
 set(DEFINES_FILE ${EQ_INCLUDE_DIR}/eq/defines${ARCH}.h)
 set(DEFINES_FILE_IN ${CMAKE_CURRENT_BINARY_DIR}/defines.h.in)
 
 file(WRITE ${DEFINES_FILE_IN}
-  "#ifndef EQBASE_DEFINES_${ARCH}_H\n"
-  "#define EQBASE_DEFINES_${ARCH}_H\n\n"
+  "#ifndef EQ_DEFINES_${ARCH}_H\n"
+  "#define EQ_DEFINES_${ARCH}_H\n\n"
   )
 
 foreach(DEF ${EQUALIZER_DEFINES})
@@ -56,7 +57,7 @@ foreach(DEF ${EQUALIZER_DEFINES})
 endforeach(DEF ${EQUALIZER_DEFINES})
 
 file(APPEND ${DEFINES_FILE_IN}
-  "\n#endif /* EQBASE_DEFINES_${ARCH}_H */\n"
+  "\n#endif /* EQ_DEFINES_${ARCH}_H */\n"
   )
 
 configure_file(${DEFINES_FILE_IN} ${DEFINES_FILE} COPYONLY)
