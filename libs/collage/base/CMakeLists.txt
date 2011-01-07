@@ -17,7 +17,7 @@ purple_add_library(co_base ${CO_LIB_VARIANT}
     precompile.h
   SOURCES
     ${COBASE_SOURCES}
-	${COBASE_HEADERS}
+    ${COBASE_HEADERS}
   LINK_LIBRARIES
     ${PTHREAD_LIBRARIES}
   )

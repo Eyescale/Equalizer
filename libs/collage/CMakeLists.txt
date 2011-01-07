@@ -56,12 +56,12 @@ purple_add_library(co ${CO_LIB_VARIANT}
     ${CO_FORWARD_HEADERS}
     ${PLUGIN_HEADERS}
   PRECOMPILE_HEADERS
-	precompile.h
+    precompile.h
   SOURCES
     ${CO_HEADERS}
     ${CO_SOURCES}
-	${CO_COMPRESSOR_HEADERS} 
-	${CO_COMPRESSOR_SOURCES}
+    ${CO_COMPRESSOR_HEADERS} 
+    ${CO_COMPRESSOR_SOURCES}
   LINK_LIBRARIES
     shared co_base
     ${CO_ADD_LINKLIB}

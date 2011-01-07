@@ -1,9 +1,9 @@
-Move libs/eq/fabric to libs/fabric
+bug 3151086 add libraries in the package
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

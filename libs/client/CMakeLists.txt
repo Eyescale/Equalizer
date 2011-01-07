@@ -67,7 +67,7 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
   SOURCES
     ${CLIENT_SOURCES}
     ${EQ_UTIL_SOURCES}
-	${EQ_COMPRESSOR_SOURCES}
+    ${EQ_COMPRESSOR_SOURCES}
   LINK_LIBRARIES
     shared co
     shared eq_fabric

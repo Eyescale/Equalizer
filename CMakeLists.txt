@@ -197,7 +197,7 @@ set(CPACK_RESOURCE_FILE_README ${Equalizer_SOURCE_DIR}/RELNOTES.txt)
 set(CPACK_COMPONENTS_ALL lib dev man apps examples tools data vmmlib)
 
 set(CPACK_COMPONENT_LIB_DISPLAY_NAME "Core Libraries")
-set(CPACK_COMPONENT_LIB_DESCRIPTION "Equalizer Runtime Libraries")
+set(CPACK_COMPONENT_LIB_DESCRIPTION "Equalizer and Collage Runtime Libraries")
 
 set(CPACK_COMPONENT_DEV_DISPLAY_NAME "Headers")
 set(CPACK_COMPONENT_DEV_DESCRIPTION "Header Files for Development")
