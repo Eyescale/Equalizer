@@ -184,6 +184,14 @@ uint16_t RSPConnection::_buildNewID()
     return _id;
 }
 
+const std::string RSPConnection::_getPortString( const uint16_t port ) const
+{
+    std::stringstream out;
+    out << _description->port;
+    std::string portString = out.str();
+    return portString;
+}
+
 bool RSPConnection::listen()
 {
     EQASSERT( _description->type == CONNECTIONTYPE_RSP );
@@ -206,11 +214,24 @@ bool RSPConnection::listen()
     try
     {
         const ip::address readAddress( ip::address::from_string( "0.0.0.0" ));
-        const ip::udp::endpoint readEndpoint( readAddress, _description->port );
+        const ip::udp::endpoint readEndpoint( readAddress, 
+                                              _description->port );
 
-        const ip::address mcAddr(
-            ip::address::from_string( _description->getHostname( )));
-        const ip::udp::endpoint writeEndpoint( mcAddr, _description->port );
+        const std::string& port = _getPortString( _description->port );
+        boost::asio::ip::udp::resolver resolver( _ioService );
+        boost::asio::ip::udp::resolver::query query( boost::asio::ip::udp::v4(), 
+                                                     _description->getHostname(),
+                                                     port );
+
+        const boost::asio::ip::udp::resolver::iterator end;
+        boost::asio::ip::udp::resolver::iterator hostnameResolve( 
+                                               resolver.resolve( query ) );
+
+        if( hostnameResolve  == end )
+            return false;
+
+        const ip::udp::endpoint writeEndpoint = *hostnameResolve;
+        const ip::address mcAddr( writeEndpoint.address() );
 
         _read = new ip::udp::socket( _ioService );
         _write = new ip::udp::socket( _ioService );
@@ -226,8 +247,16 @@ bool RSPConnection::listen()
 
         _read->bind( readEndpoint );
 
-        const ip::address ifAddr( 
-            ip::address::from_string( _description->getInterface( )));
+        boost::asio::ip::udp::resolver::query queryInterface( 
+               boost::asio::ip::udp::v4(), _description->getInterface( ), "0" );
+
+        hostnameResolve  = resolver.resolve( queryInterface );
+
+        if ( hostnameResolve == end )
+            return false;
+                
+        const ip::udp::endpoint interfacePoint = *hostnameResolve;
+        const ip::address ifAddr( interfacePoint.address() );
 
         _read->set_option( ip::multicast::join_group( mcAddr.to_v4(),
                                                       ifAddr.to_v4( )));

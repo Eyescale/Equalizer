@@ -1,9 +1,9 @@
-bug 3151086 add libraries in the package
+Request 3098130 Support for hostnames for multicast connections 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
-[ ] New Feature
+[ ] Bugfix
+[x] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
