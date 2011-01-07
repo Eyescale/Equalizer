@@ -1,6 +1,25 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+7/Jan/2011
+  Rename EVENT_POINTER_* for differanciate channel and window event pointer.
+  Old Value can be used if user set EQ_USE_DEPRECATED.
+  
+  new enum value added
+     CHANNEL_POINTER_MOTION,        // = POINTER_MOTION
+     CHANNEL_POINTER_BUTTON_PRESS,  // = POINTER_BUTTON_PRESS
+     CHANNEL_POINTER_BUTTON_RELEASE, // = POINTER_BUTTON_RELEASE
+     WINDOW_POINTER_WHEEL,           // = POINTER_WHEEL
+     WINDOW_POINTER_MOTION,  
+     WINDOW_POINTER_BUTTON_PRESS,
+     WINDOW_POINTER_BUTTON_RELEASE,
+  
+  enum value deprecated  
+     POINTER_MOTION,
+     POINTER_BUTTON_PRESS,
+     POINTER_BUTTON_RELEASE,
+     POINTER_WHEEL,  
+
 20/Dec/2010
   Renamed the eq::net namespace to co(llage). Change all prefixes from
   eq::net to co or use EQ_USE_DEPRECATED to declare an 'eq::net'

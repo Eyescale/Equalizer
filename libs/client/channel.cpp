@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -649,9 +649,9 @@ bool Channel::processEvent( const Event& event )
 
     switch( event.type )
     {
-        case Event::POINTER_MOTION:
-        case Event::POINTER_BUTTON_PRESS:
-        case Event::POINTER_BUTTON_RELEASE:
+        case Event::CHANNEL_POINTER_MOTION:
+        case Event::CHANNEL_POINTER_BUTTON_PRESS:
+        case Event::CHANNEL_POINTER_BUTTON_RELEASE:
         case Event::STATISTIC:
             break;
 

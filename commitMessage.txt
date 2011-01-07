@@ -1,4 +1,4 @@
-fix problem solving conflict with git 
+Bugs 3152421 Distinguish window and channel pointer events
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

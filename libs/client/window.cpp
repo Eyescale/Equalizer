@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ * Copyright (c) 2009-2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -568,13 +568,13 @@ bool Window::processEvent( const Event& event )
             // else fall through
         case Event::WINDOW_EXPOSE:
         case Event::WINDOW_CLOSE:
-        case Event::POINTER_WHEEL:
+        case Event::WINDOW_POINTER_WHEEL:
         case Event::STATISTIC:
             break;
 
-        case Event::POINTER_MOTION:
-        case Event::POINTER_BUTTON_PRESS:
-        case Event::POINTER_BUTTON_RELEASE:
+        case Event::WINDOW_POINTER_MOTION:
+        case Event::WINDOW_POINTER_BUTTON_PRESS:
+        case Event::WINDOW_POINTER_BUTTON_RELEASE:
         {
             // dispatch pointer events to destination channel, if any
             const Channels& channels = getChannels();
@@ -595,6 +595,23 @@ bool Window::processEvent( const Event& event )
                     continue;
 
                 Event channelEvent = event;
+                switch( event.type )
+                {
+                case Event::WINDOW_POINTER_MOTION:
+                    channelEvent.type = Event::CHANNEL_POINTER_MOTION;
+                    break;
+                case Event::WINDOW_POINTER_BUTTON_PRESS:
+                    channelEvent.type = Event::CHANNEL_POINTER_BUTTON_PRESS;
+                    break;
+                case Event::WINDOW_POINTER_BUTTON_RELEASE:
+                    channelEvent.type = Event::CHANNEL_POINTER_BUTTON_RELEASE;
+                    break;
+                default:
+                    EQWARN << "Unhandled window event of type " << event.type
+                           << std::endl;
+                    EQUNIMPLEMENTED;
+                }
+
                 EQASSERT( channel->getID() != co::base::UUID::ZERO );
                 channelEvent.originator = channel->getID();
                 channelEvent.pointer.x -= channelPVP.x;

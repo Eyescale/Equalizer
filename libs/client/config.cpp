@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
+ *                    2011, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -473,7 +473,8 @@ bool Config::handleEvent( const ConfigEvent* event )
             }    
             break;
 
-        case Event::POINTER_BUTTON_PRESS:
+        case Event::WINDOW_POINTER_BUTTON_PRESS:
+        case Event::CHANNEL_POINTER_BUTTON_PRESS:
             if( event->data.pointerButtonPress.buttons == 
                 ( PTR_BUTTON1 | PTR_BUTTON2 | PTR_BUTTON3 ))
             {

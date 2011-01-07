@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2011, Cedric Stalder <cedric.stalder@gmail.com>  
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -74,10 +75,13 @@ std::ostream& operator << ( std::ostream& os, const Event& event )
             os << event.resize;
             break;
 
-        case Event::POINTER_MOTION:
-        case Event::POINTER_BUTTON_PRESS:
-        case Event::POINTER_BUTTON_RELEASE:
-        case Event::POINTER_WHEEL:
+        case Event::WINDOW_POINTER_MOTION:
+        case Event::WINDOW_POINTER_BUTTON_PRESS:
+        case Event::WINDOW_POINTER_BUTTON_RELEASE:
+        case Event::WINDOW_POINTER_WHEEL:
+        case Event::CHANNEL_POINTER_MOTION:
+        case Event::CHANNEL_POINTER_BUTTON_PRESS:
+        case Event::CHANNEL_POINTER_BUTTON_RELEASE:
             os << event.pointer;
             break;
 

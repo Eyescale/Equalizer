@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+ *                    2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -241,7 +242,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
         {
             _syncButtonState( wParam );
 
-            event.type = Event::POINTER_MOTION;
+            event.type = Event::WINDOW_POINTER_MOTION;
             event.pointerMotion.x = GET_X_LPARAM( lParam );
             event.pointerMotion.y = GET_Y_LPARAM( lParam );
             event.pointerMotion.buttons = _buttonState;
@@ -253,7 +254,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         case WM_LBUTTONDOWN:
             _buttonState |= PTR_BUTTON1;
-            event.type = Event::POINTER_BUTTON_PRESS;
+            event.type = Event::WINDOW_POINTER_BUTTON_PRESS;
             event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
             event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
             event.pointerButtonPress.buttons = _buttonState;
@@ -265,7 +266,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         case WM_MBUTTONDOWN:
             _buttonState |= PTR_BUTTON2;
-            event.type = Event::POINTER_BUTTON_PRESS;
+            event.type = Event::WINDOW_POINTER_BUTTON_PRESS;
             event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
             event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
             event.pointerButtonPress.buttons = _buttonState;
@@ -277,7 +278,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         case WM_RBUTTONDOWN:
             _buttonState |= PTR_BUTTON3;
-            event.type = Event::POINTER_BUTTON_PRESS;
+            event.type = Event::WINDOW_POINTER_BUTTON_PRESS;
             event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
             event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
             event.pointerButtonPress.buttons = _buttonState;
@@ -288,7 +289,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             break;
 
         case WM_XBUTTONDOWN:
-            event.type = Event::POINTER_BUTTON_PRESS;
+            event.type = Event::WINDOW_POINTER_BUTTON_PRESS;
             event.pointerButtonPress.x       = GET_X_LPARAM( lParam );
             event.pointerButtonPress.y       = GET_Y_LPARAM( lParam );
 
@@ -308,7 +309,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         case WM_LBUTTONUP:
             _buttonState &= ~PTR_BUTTON1;
-            event.type = Event::POINTER_BUTTON_RELEASE;
+            event.type = Event::WINDOW_POINTER_BUTTON_RELEASE;
             event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
             event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
             event.pointerButtonRelease.buttons = _buttonState;
@@ -320,7 +321,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         case WM_MBUTTONUP:
             _buttonState &= ~PTR_BUTTON2;
-            event.type = Event::POINTER_BUTTON_RELEASE;
+            event.type = Event::WINDOW_POINTER_BUTTON_RELEASE;
             event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
             event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
             event.pointerButtonRelease.buttons = _buttonState;
@@ -332,7 +333,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
         case WM_RBUTTONUP:
             _buttonState &= ~PTR_BUTTON3;
-            event.type = Event::POINTER_BUTTON_RELEASE;
+            event.type = Event::WINDOW_POINTER_BUTTON_RELEASE;
             event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
             event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
             event.pointerButtonRelease.buttons = _buttonState;
@@ -343,7 +344,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             break;
 
         case WM_XBUTTONUP:
-            event.type = Event::POINTER_BUTTON_RELEASE;
+            event.type = Event::WINDOW_POINTER_BUTTON_RELEASE;
             event.pointerButtonRelease.x       = GET_X_LPARAM( lParam );
             event.pointerButtonRelease.y       = GET_Y_LPARAM( lParam );
 
@@ -362,7 +363,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             break;
 
         case WM_MOUSEWHEEL:
-            event.type = Event::POINTER_WHEEL;
+            event.type = Event::WINDOW_POINTER_WHEEL;
             event.pointerWheel.x     = GET_X_LPARAM( lParam );
             event.pointerWheel.y     = GET_Y_LPARAM( lParam );
             event.pointerWheel.buttons = _buttonState;
@@ -371,7 +372,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 
 #ifdef WM_MOUSEHWHEEL // only available on vista or later
         case WM_MOUSEHWHEEL:
-            event.type = Event::POINTER_WHEEL;
+            event.type = Event::WINDOW_POINTER_WHEEL;
             event.pointerWheel.x     = GET_X_LPARAM( lParam );
             event.pointerWheel.y     = GET_Y_LPARAM( lParam );
             event.pointerWheel.buttons = _buttonState;

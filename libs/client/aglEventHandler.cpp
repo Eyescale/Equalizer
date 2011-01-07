@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+ *                    2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -264,7 +265,7 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event )
     {
         case kEventMouseMoved:
         case kEventMouseDragged:
-            windowEvent.type                  = Event::POINTER_MOTION;
+            windowEvent.type                  = Event::WINDOW_POINTER_MOTION;
             windowEvent.pointerMotion.button  = PTR_BUTTON_NONE;
             // Note: Luckily GetCurrentEventButtonState returns the same bits as
             // our button definitions.
@@ -305,7 +306,7 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event )
             break;
 
         case kEventMouseDown:
-            windowEvent.type = Event::POINTER_BUTTON_PRESS;
+            windowEvent.type = Event::WINDOW_POINTER_BUTTON_PRESS;
             windowEvent.pointerMotion.buttons = _getButtonState();
             windowEvent.pointerButtonPress.button  =
                 _getButtonAction( event );
@@ -342,7 +343,7 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event )
             break;
 
         case kEventMouseUp:
-            windowEvent.type = Event::POINTER_BUTTON_RELEASE;
+            windowEvent.type = Event::WINDOW_POINTER_BUTTON_RELEASE;
             windowEvent.pointerMotion.buttons = _getButtonState();
             windowEvent.pointerButtonRelease.button = 
                 _getButtonAction( event );
@@ -380,7 +381,7 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event )
 
         case kEventMouseWheelMoved:
         {
-            windowEvent.type = Event::POINTER_WHEEL;
+            windowEvent.type = Event::WINDOW_POINTER_WHEEL;
             windowEvent.pointerWheel.button  = PTR_BUTTON_NONE;
             windowEvent.pointerWheel.buttons = _getButtonState();
             windowEvent.pointerWheel.dx = _lastDX;

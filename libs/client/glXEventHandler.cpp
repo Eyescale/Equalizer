@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2011, Cedric Stalder <cedric.stalder@gmail.com>  
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -193,7 +194,7 @@ void GLXEventHandler::_processEvent( GLXWindowEvent& event )
             break;
 
         case MotionNotify:
-            event.type = Event::POINTER_MOTION;
+            event.type = Event::WINDOW_POINTER_MOTION;
             event.pointerMotion.x = xEvent.xmotion.x;
             event.pointerMotion.y = xEvent.xmotion.y;
             event.pointerMotion.buttons = _getButtonState( xEvent );
@@ -204,7 +205,7 @@ void GLXEventHandler::_processEvent( GLXWindowEvent& event )
             break;
 
         case ButtonPress:
-            event.type = Event::POINTER_BUTTON_PRESS;
+            event.type = Event::WINDOW_POINTER_BUTTON_PRESS;
             event.pointerButtonPress.x = xEvent.xbutton.x;
             event.pointerButtonPress.y = xEvent.xbutton.y;
             event.pointerButtonPress.buttons = _getButtonState( xEvent );
@@ -215,7 +216,7 @@ void GLXEventHandler::_processEvent( GLXWindowEvent& event )
             break;
             
         case ButtonRelease:
-            event.type = Event::POINTER_BUTTON_RELEASE;
+            event.type = Event::WINDOW_POINTER_BUTTON_RELEASE;
             event.pointerButtonRelease.x = xEvent.xbutton.x;
             event.pointerButtonRelease.y = xEvent.xbutton.y;
             event.pointerButtonRelease.buttons = _getButtonState( xEvent );

@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+ *                    2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -46,9 +47,9 @@ void EventHandler::_computePointerDelta( const Window* window, Event &event )
 
     switch( event.type )
     {
-        case Event::POINTER_BUTTON_PRESS:
-        case Event::POINTER_BUTTON_RELEASE:
-            if( _lastPointerEvent.type == Event::POINTER_MOTION )
+        case Event::WINDOW_POINTER_BUTTON_PRESS:
+        case Event::WINDOW_POINTER_BUTTON_RELEASE:
+            if( _lastPointerEvent.type == Event::WINDOW_POINTER_MOTION )
             {
                 event.pointer.dx = _lastPointerEvent.pointer.dx;
                 event.pointer.dy = _lastPointerEvent.pointer.dy;
