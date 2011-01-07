@@ -21,7 +21,7 @@
 
 #include <eq/util/frameBufferObject.h>
 
-#include <fabric/pixelViewport.h>
+#include <eq/fabric/pixelViewport.h>
 #include <eq/zoomFilter.h>
 
 #include <GL/glew.h>

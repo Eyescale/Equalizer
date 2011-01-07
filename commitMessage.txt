@@ -3,7 +3,7 @@ fix problem solving conflict with git
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
-[x] New Feature
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
