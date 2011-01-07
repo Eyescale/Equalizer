@@ -211,8 +211,8 @@ namespace co
         int64_t         _sendRate;
 
         Thread*          _thread;
-        co::base::Lock       _mutexConnection;
-        co::base::Lock       _mutexEvent;
+        co::base::Lock   _mutexConnection;
+        co::base::Lock   _mutexEvent;
         uint16_t         _acked;        // sequence ID of last confirmed ack
 
         typedef co::base::Bufferb Buffer;
@@ -238,7 +238,8 @@ namespace co
 
         void _close();
         uint16_t _buildNewID();
-        
+        const std::string _getPortString( const uint16_t port ) const;
+
         void _processOutgoing();
         void _writeData();
         void _repeatData();

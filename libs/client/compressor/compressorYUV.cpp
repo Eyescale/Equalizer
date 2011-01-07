@@ -20,7 +20,9 @@
 #include "compressorYUV.h"
 
 #include <eq/util/frameBufferObject.h>
-#include <eq/fabric/pixelViewport.h>
+
+#include <fabric/pixelViewport.h>
+#include <eq/zoomFilter.h>
 
 #include <GL/glew.h>
 
@@ -149,14 +151,9 @@ void CompressorYUV::_compress( const GLEWContext* glewContext,
 
     glDisable( GL_LIGHTING );
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
-                     GL_NEAREST);
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER,
-                     GL_NEAREST);
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S,
-                     GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T,
-                     GL_CLAMP_TO_EDGE );
+
+    _texture->applyZoomFilter( FILTER_NEAREST );
+    _texture->applyWrap();
 
     _initShader( glewContext, yuv420readback_glsl.c_str() );
 
@@ -257,16 +254,9 @@ void CompressorYUV::_decompress( const GLEWContext* glewContext,
     
     glDisable( GL_LIGHTING );
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S,
-                     GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T,
-                     GL_CLAMP_TO_EDGE );
 
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
-                         GL_NEAREST );
-    
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER,
-                         GL_NEAREST );
+    _texture->applyWrap();
+    _texture->applyZoomFilter( FILTER_NEAREST );
 
     glColor3f( 1.0f, 1.0f, 1.0f );
     const float startX = static_cast< float >( inDims[0] );

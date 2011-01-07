@@ -108,14 +108,8 @@ void AccumBufferObject::_drawQuadWithTexture( Texture* texture,
     glDepthMask( false );
     glDisable( GL_LIGHTING );
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S,
-                     GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T,
-                     GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
-                     GL_NEAREST );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER,
-                     GL_NEAREST );
+    texture->applyWrap();
+    texture->applyZoomFilter( FILTER_NEAREST );
 
     glColor3f( value, value, value );
 

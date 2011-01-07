@@ -201,6 +201,18 @@ void Texture::_grow( const int32_t width, const int32_t height )
     }
 }
 
+void Texture::applyZoomFilter( const ZoomFilter zoomFilter ) const
+{
+    glTexParameteri( _target, GL_TEXTURE_MAG_FILTER, zoomFilter );
+    glTexParameteri( _target, GL_TEXTURE_MIN_FILTER, zoomFilter );
+}
+
+void Texture::applyWrap() const
+{
+    glTexParameteri( _target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+    glTexParameteri( _target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+}
+
 void Texture::copyFromFrameBuffer( const GLuint internalFormat,
                                    const fabric::PixelViewport& pvp )
 {

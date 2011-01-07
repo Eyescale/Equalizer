@@ -383,7 +383,7 @@ void Channel::_drawLogo( )
                      GL_LINEAR );
 
     const float tWidth = float( texture->getWidth( ));
-   const float tHeight = float( texture->getHeight( ));
+    const float tHeight = float( texture->getHeight( ));
 
     glBegin( GL_TRIANGLE_STRIP ); {
         glTexCoord2f( 0.0f, 0.0f );

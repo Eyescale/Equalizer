@@ -1034,6 +1034,7 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
     operation.offset  = frame->getOffset();
     operation.pixel   = frame->getPixel();
     operation.zoom    = frame->getZoom();
+    operation.zoomFilter = frame->getZoomFilter();
     operation.zoom.apply( frame->getData()->getZoom( ));
 
     for( Images::const_iterator i = images.begin(); i != images.end(); ++i )
@@ -1180,7 +1181,12 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
     EQLOG( LOG_ASSEMBLY ) << "_drawPixels " << pvp << " offset " << op.offset
                           << std::endl;
 
+<<<<<<< HEAD
     if( image->getStorageType() == Frame::TYPE_MEMORY )
+=======
+    util::Texture* texture = 0;
+    if ( image->getStorageType() == Frame::TYPE_MEMORY )
+>>>>>>> Request 3076532 Configurable texture filtering for frame
     {
         EQASSERT( image->hasPixelData( which ));
         Channel* channel = op.channel; // needed for glewGetContext
@@ -1191,7 +1197,7 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
             image->upload( which, 0, op.offset, objects );
             return;
         }
-        util::Texture* texture = objects->obtainEqTexture(
+        texture = objects->obtainEqTexture(
             which == Frame::BUFFER_COLOR ? colorDBKey : depthDBKey,
             GL_TEXTURE_RECTANGLE_ARB );
         
@@ -1204,6 +1210,10 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
         image->getTexture( which ).bind();
     }
 
+    const util::Texture* textureTuning = 
+        ( image->getStorageType() == Frame::TYPE_MEMORY ) ?
+            texture : &image->getTexture( which );
+
     if ( which == Frame::BUFFER_COLOR )
         glDepthMask( false );
     else
@@ -1214,25 +1224,9 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
 
     glDisable( GL_LIGHTING );
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S,
-                     GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T,
-                     GL_CLAMP_TO_EDGE );
-
-    if( op.zoom == eq::Zoom::NONE )
-    {
-        glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
-                         GL_NEAREST );
-        glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER,
-                         GL_NEAREST );
-    }
-    else
-    {
-        glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
-                         GL_LINEAR );
-        glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER,
-                         GL_LINEAR );
-    }
+    
+    textureTuning->applyWrap();
+    textureTuning->applyZoomFilter( op.zoomFilter );
 
     glColor3f( 1.0f, 1.0f, 1.0f );
 
@@ -1406,26 +1400,20 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
 
     EQ_GL_CALL( glActiveTexture( GL_TEXTURE1 ));
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
-                     GL_NEAREST );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, 
-                     GL_NEAREST );
 
-    if( useImageTexture )
-        image->getTexture( Frame::BUFFER_COLOR ).bind();
-    else
-        textureColor->bind();
+    const util::Texture* textureColorTuning = useImageTexture ?
+            &image->getTexture( Frame::BUFFER_COLOR ) : textureColor;
+
+    textureColorTuning->applyZoomFilter( op.zoomFilter );
+    textureColorTuning->bind();
     
     EQ_GL_CALL( glActiveTexture( GL_TEXTURE0 ));
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
-                     GL_NEAREST );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, 
-                     GL_NEAREST );
 
-    if( useImageTexture )
-        image->getTexture( Frame::BUFFER_DEPTH ).bind();
-    else
-        textureDepth->bind();
+    const util::Texture* textureDepthTuning = useImageTexture ?
+            &image->getTexture( Frame::BUFFER_DEPTH ) : textureDepth;
+
+    textureDepthTuning->applyZoomFilter( op.zoomFilter );
+    textureDepthTuning->bind();
     
 
     // Draw a quad using shader & textures in the right place

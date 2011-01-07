@@ -20,8 +20,10 @@
 #define EQ_FRAME_H
 
 #include <eq/eye.h>    // enum Eye
-#include <eq/types.h>
+
 #include <eq/api.h>
+#include <eq/types.h>
+#include <eq/zoomFilter.h>   // member
 
 #include <eq/fabric/zoom.h>   // member
 #include <co/object.h>
@@ -135,6 +137,20 @@ namespace server
         /** @return the zoom factor for readback or assemble. @version 1.0 */
         const Zoom& getZoom() const { return _data.zoom; }
 
+        /** 
+         * Set zoom filter corresponding to the texture mag/min filter.
+         * 
+         * @param buffer The buffer to disable.
+         * @version 1.0
+         */
+        void setZoomFilter( const ZoomFilter zoomFilter )
+            { _zoomFilter = zoomFilter; }
+        /**
+         * @return The zoom filter used to the texture mag/min filter.
+         * @version 1.0
+         */
+        ZoomFilter getZoomFilter( ) const
+            { return _zoomFilter; }
         /**
          * Set the zoom for this frame holder.
          *
@@ -245,6 +261,8 @@ namespace server
     private:
         std::string _name;
         FrameData*  _frameData;
+
+        ZoomFilter _zoomFilter; // texture filter
 
         /** The distributed data shared between Frame and server::Frame. */
         friend class eq::server::Frame;

@@ -72,6 +72,7 @@ set(CLIENT_HEADERS
   windowPackets.h
   windowStatistics.h
   windowSystem.h
+  zoomFilter.h
   )
 
 set(CLIENT_SOURCES

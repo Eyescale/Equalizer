@@ -29,6 +29,7 @@ namespace eq
 
 Frame::Frame()
         : _frameData( 0 )
+        , _zoomFilter( FILTER_LINEAR )
 {
     EQINFO << "New Frame @" << (void*)this << endl;
 }

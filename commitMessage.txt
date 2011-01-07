@@ -1,4 +1,4 @@
-Request 3098130 Support for hostnames for multicast connections 
+Request 3076532 Configurable texture filtering for frame  
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

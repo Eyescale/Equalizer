@@ -211,7 +211,8 @@ void FrameData::readback( const Frame& frame,
         pvp.intersect( absPVP );
                 
         Image* image = newImage( _data.frameType, config );
-        image->readback( _data.buffers, pvp, zoom, glObjects );
+        image->readback( _data.buffers, pvp, zoom, 
+                         frame.getZoomFilter(), glObjects );
         image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
 
 #ifndef NDEBUG

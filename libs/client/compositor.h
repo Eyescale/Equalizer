@@ -52,13 +52,15 @@ namespace util
         struct ImageOp
         {
             ImageOp() : channel( 0 ), buffers( 0 )
-                      , offset( Vector2i::ZERO ) {}
+                      , offset( Vector2i::ZERO )
+                      , zoomFilter( FILTER_LINEAR ) {}
 
-            Channel* channel; //!< The destination channel
-            uint32_t buffers; //!< The Frame buffer attachments to use
-            Vector2i offset;  //!< The offset wrt destination window
-            Pixel pixel;      //!< The pixel decomposition parameters
-            Zoom zoom;        //!< The zoom factor
+            Channel* channel;      //!< The destination channel
+            uint32_t buffers;      //!< The Frame buffer attachments to use
+            Vector2i offset;       //!< The offset wrt destination window
+            ZoomFilter zoomFilter; //!< The zoom Filter from Frame
+            Pixel    pixel;        //!< The pixel decomposition parameters
+            Zoom zoom;             //!< The zoom factor
         };
 
         /** @name Frame-based operations. */
