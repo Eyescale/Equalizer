@@ -1,8 +1,8 @@
-Request 3076532 Configurable texture filtering for frame  
+fix problem solving conflict with git 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [x] New Feature
 [ ] Cleanup
 [ ] Optimization

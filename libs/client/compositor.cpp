@@ -1181,12 +1181,8 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
     EQLOG( LOG_ASSEMBLY ) << "_drawPixels " << pvp << " offset " << op.offset
                           << std::endl;
 
-<<<<<<< HEAD
-    if( image->getStorageType() == Frame::TYPE_MEMORY )
-=======
     util::Texture* texture = 0;
     if ( image->getStorageType() == Frame::TYPE_MEMORY )
->>>>>>> Request 3076532 Configurable texture filtering for frame
     {
         EQASSERT( image->hasPixelData( which ));
         Channel* channel = op.channel; // needed for glewGetContext
