@@ -4,7 +4,7 @@
 if(NOT CUDA_FOUND)
   message(STATUS "Skipping 'eqNBody' example (CUDA not found)")	 
   return()
-endif(NOT CUDA_FOUND)
+endif()
 
 cuda_compile(NBODY_FILES nbody.cu)
 

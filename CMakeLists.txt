@@ -115,6 +115,11 @@ endif(EQ_AGL_USED)
 
 find_package(CUDA)
 
+if(WIN32)
+  set(CUDA_FOUND 0)
+  message(STATUS "  Disable CUDA, not yet supported on Windows")
+endif()
+
 if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
@@ -122,6 +127,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
   endif()
 endif(CMAKE_COMPILER_IS_GNUCXX)
+
 if(LINUX)
   add_definitions(-fPIC) # 64bit Linux wants this
 endif(LINUX)
@@ -143,7 +149,6 @@ if(APPLE)
       message(STATUS "  Disable CUDA due to missing 64 bit libraries")
     endif()
   endif(EQ_AGL_USED)
-
 endif(APPLE)
 
 if(CUDA_FOUND)

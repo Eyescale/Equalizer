@@ -289,8 +289,8 @@
   Report</a> if you find any other issue with this release.
 </p>
 <ul>
+  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=3136383&group_id=170962&atid=856209">3136383</a> Windows 7 non-affinity PBuffers broken</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2934387group_id=170962&atid=856209">2934387</a>: Ubuntu: GLX problem with PBuffer</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2931913&group_id=170962&atid=856209">2931913</a> eqPly: DFR + 2D + Idle AA does not work</li>
   <li><a href="https://sourceforge.net/tracker/?func=detail&aid=2843849&group_id=170962&atid=856209">2843849</a>: 64-bit bug in eVolveConverter</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2796444&group_id=170962&atid=856209">2796444</a>: Race during simultaneous node connect</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2609161&group_id=170962&atid=856209">2609161</a>: zoom: depth readback does not work</li>

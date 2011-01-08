@@ -222,8 +222,8 @@
    The following bugs were known at release time. Please file a Bug Report if
    you find any other issue with this release.
 
+     * 3136383 Windows 7 non-affinity PBuffers broken
      * 2934387: Ubuntu: GLX problem with PBuffer
-     * 2931913 eqPly: DFR + 2D + Idle AA does not work
      * 2843849: 64-bit bug in eVolveConverter
      * 2796444: Race during simultaneous node connect
      * 2609161: zoom: depth readback does not work

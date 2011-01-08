@@ -255,8 +255,8 @@ the following:
 The following bugs were known at release time. Please file a `Bug Report`_ if
 you find any other issue with this release.
 
+-   `3136383`_ Windows 7 non-affinity PBuffers broken
 -   `2934387`_: Ubuntu: GLX problem with PBuffer
--   `2931913`_ eqPly: DFR + 2D + Idle AA does not work
 -   `2843849`_: 64-bit bug in eVolveConverter
 -   `2796444`_: Race during simultaneous node connect
 -   `2609161`_: zoom: depth readback does not work
@@ -429,10 +429,10 @@ information.
     up_id=170962&atid=856209
 .. _Bug   Report:
     http://sourceforge.net/tracker/?atid=856209&group_id=170962&func=browse
+.. _3136383: https://sourceforge.net/tracker/?func=detail&aid=3136383&gro
+    up_id=170962&atid=856209
 .. _2934387: https://sourceforge.net/tracker/?func=detail&aid=2934387grou
     p_id=170962&atid=856209
-.. _2931913: https://sourceforge.net/tracker/?func=detail&aid=2931913&gro
-    up_id=170962&atid=856209
 .. _2843849: https://sourceforge.net/tracker/?func=detail&aid=2843849&gro
     up_id=170962&atid=856209
 .. _2796444: http://sourceforge.net/tracker/index.php?func=detail&aid=279
