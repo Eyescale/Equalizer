@@ -1,7 +1,7 @@
 #!gmake
 .PHONY: debug tests cdash release xcode debug_glx docs docs/install clean
 
-all: debug RELNOTES.txt README.rst
+all: release RELNOTES.txt README.rst
 clean:
 	rm -rf debug release docs XCode debug_glx man cdash
 
