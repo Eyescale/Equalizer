@@ -616,7 +616,7 @@ bool Window::processEvent( const Event& event )
                 channelEvent.originator = channel->getID();
                 channelEvent.pointer.x -= channelPVP.x;
                 channelEvent.pointer.y = channelPVP.h - y + channelPVP.y;
-                return channel->processEvent( channelEvent );
+                channel->processEvent( channelEvent );
             }
             break;
         }
