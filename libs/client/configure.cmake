@@ -16,15 +16,17 @@ endif(CUDA_FOUND)
 
 # maybe use BOOST_WINDOWS instead?
 if(WIN32)
-  list(APPEND EQUALIZER_DEFINES
-    WGL
-    WIN32
-    WIN32_API
-    WIN32_LEAN_AND_MEAN
-    #EQ_INFINIBAND #Enable for IB builds (needs WinOF 2.0 installed)
-    )
+  list(APPEND EQUALIZER_DEFINES WGL)
   set(ARCH Win32)
 endif(WIN32)
+
+if(APPLE)
+  set(ARCH Darwin)
+endif(APPLE)
+
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+  set(ARCH Linux)
+endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 if(MSVC)
   list(APPEND EQUALIZER_DEFINES EQ_USE_MAGELLAN)
@@ -32,12 +34,10 @@ endif(MSVC)
 
 if(EQ_AGL_USED)
   list(APPEND EQUALIZER_DEFINES AGL)
-  set(ARCH Darwin)
 endif(EQ_AGL_USED)
 
 if(EQ_GLX_USED)
   list(APPEND EQUALIZER_DEFINES GLX)
-  set(ARCH Linux)
 endif(EQ_GLX_USED)
 
 set(DEFINES_FILE ${EQ_INCLUDE_DIR}/eq/defines${ARCH}.h)
@@ -46,6 +46,7 @@ set(DEFINES_FILE_IN ${CMAKE_CURRENT_BINARY_DIR}/defines.h.in)
 file(WRITE ${DEFINES_FILE_IN}
   "#ifndef EQ_DEFINES_${ARCH}_H\n"
   "#define EQ_DEFINES_${ARCH}_H\n\n"
+  "#include <co/base/defines.h>\n\n"
   )
 
 foreach(DEF ${EQUALIZER_DEFINES})
