@@ -40,8 +40,8 @@
   feedback and preview the 1.0 release. Equalizer 1.0-alpha can be retrieved by
   downloading the
   <a href="http://www.equalizergraphics.com/downloads/Equalizer-0.9.2.tar.gz">source
-    code</a>, updating the subversion trunk to revision XXX (<code>svn up -r
-    XXX</code>) or by using:<br>
+    code</a>, updating the subversion trunk to revision 5385 (<code>svn up -r
+    5385</code>) or by using:<br>
   <code>svn co
     https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.2</code></br>
   The internal version number of this release is 0.9.2.
