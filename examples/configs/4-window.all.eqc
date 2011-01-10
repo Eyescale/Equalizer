@@ -455,8 +455,8 @@ server
             compound
             {
                 load_equalizer { mode 2D }
-                compound {}
 
+                compound {}
                 compound
                 {
                     channel "channel2"

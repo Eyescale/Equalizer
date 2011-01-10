@@ -825,9 +825,15 @@ void Config::_switchViewMode()
     const eq::View::Mode mode = current->getMode( );
 
     if( mode == eq::View::MODE_MONO )
+    {
         current->changeMode( eq::View::MODE_STEREO );
+        _setMessage( "Switched to stereoscopic rendering" );
+    }
     else
+    {
         current->changeMode( eq::View::MODE_MONO );
+        _setMessage( "Switched to monoscopic rendering" );
+    }
 }
 
 void Config::_switchModel()
