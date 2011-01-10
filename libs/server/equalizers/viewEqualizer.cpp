@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -305,18 +305,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
     for( Listeners::iterator i =_listeners.begin(); i != _listeners.end(); ++i )
     {
         Listener& listener = *i;
-#if 0
         const Listener::Load& load = listener.useLoad( frame );
-#else
-        Listener::Load load = listener.useLoad( frame );
-        if( load.nResources > 0 )
-        {
-            const float time = static_cast< float >( load.time ) /
-                               static_cast< float >( load.nResources );
-            load.time = static_cast< int64_t >( 
-                time * sqrtf( static_cast< float >( load.nResources )));
-        }
-#endif
 
         totalTime += load.time;
         loads.push_back( load );
@@ -466,7 +455,8 @@ void ViewEqualizer::_updateListeners()
     _listeners.resize( nChildren );
     for( size_t i = 0; i < nChildren; ++i )
     {
-        EQLOG(LOG_LB1) << co::base::disableFlush << "Tasks for view " << i << ": ";
+        EQLOG( LOG_LB1 ) << co::base::disableFlush << "Tasks for view " << i
+                         << ": ";
         Listener& listener = _listeners[ i ];        
         listener.update( children[i] );
         EQLOG(LOG_LB1) << std::endl << co::base::enableFlush;
@@ -636,6 +626,12 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
     const int64_t time = EQ_MAX(endTime - startTime, transmitTime );
     load.time += time;
     --load.missing;
+
+    if( load.missing == 0 )
+    {
+        const float rTime = float( load.time ) / float( load.nResources );
+        load.time = int64_t( rTime * sqrtf( float( load.nResources )));
+    }
 
     EQLOG( LOG_LB1 ) << "Task " << taskID << ", added time " << time << " to "
                     << load << std::endl;

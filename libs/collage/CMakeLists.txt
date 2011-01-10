@@ -1,9 +1,10 @@
 ##
 # Path : libs/collage/CMakeLists.txt
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 #               2010 Cedric Stalder <cedric.stalder@gmail.ch>
 ##
+
 include(PurpleForwardHeaders)
 include(PurpleAddLibrary)
 include(PurpleAddAmalgamation)
@@ -44,8 +45,8 @@ if(WIN32)
   list(APPEND CO_ADD_LINKLIB mswsock) 
 endif(WIN32)
 
-#TO-DO Add base repertory. The problem is about the path of file here.
-#      Maye be remove base\CMakeLists.txt and build base lib here. 
+#TO-DO Add base directory. The problem is about the path of file here.
+#      Maybe remove base\CMakeLists.txt and build base lib here. 
 source_group( "plugin" FILES ${PLUGIN_HEADERS} )
 source_group( "collage" FILES ${CO_FORWARD_HEADERS} ${CO_HEADERS} ${CO_SOURCES} )
 source_group( "compressor" FILES ${CO_COMPRESSOR_HEADERS} ${CO_COMPRESSOR_SOURCES})

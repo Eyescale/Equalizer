@@ -2,7 +2,7 @@ Equalizer - A programming framework and resource management system for multi-GPU
 
 Equalizer is licensed under the LGPL, unless noted otherwise in external dependencies. See file LGPL for the full license. The examples are licensed under the BSD license. External dependencies are either LGPL or BSD-licensed. See file ACKNOWLEDGEMENTS and AUTHORS for further details.
 
-Copyright (C) 2005-2010, Stefan Eilemann <eile@eyescale.ch>
+Copyright (C) 2005-2011, Stefan Eilemann <eile@eyescale.ch>
 
 This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License version 2.1 as published by the Free Software Foundation.
 

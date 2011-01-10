@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -27,7 +27,7 @@ namespace eq
     // Equalizer version macros and functions
 #   define EQ_VERSION_MAJOR 0 //!< The current major version. @version 1.0
 #   define EQ_VERSION_MINOR 9 //!< The current minor version. @version 1.0
-#   define EQ_VERSION_PATCH 2 //!< The current patch level. @version 1.0
+#   define EQ_VERSION_PATCH 3 //!< The current patch level. @version 1.0
 
     /** Information about the current Equalizer version. */
     class Version
