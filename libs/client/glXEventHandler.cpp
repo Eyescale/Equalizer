@@ -295,8 +295,12 @@ uint32_t GLXEventHandler::_getButtonAction( XEvent& event )
 
 uint32_t GLXEventHandler::_getKey( XEvent& event )
 {
+    int index = 0;
+    if( event.xkey.state & ShiftMask )
+        index = 1;
+
     const KeySym key = XKeycodeToKeysym( event.xany.display, 
-                                         event.xkey.keycode, 0);
+                                         event.xkey.keycode, index );
     switch( key )
     {
         case XK_Escape:    return KC_ESCAPE;    
@@ -339,10 +343,6 @@ uint32_t GLXEventHandler::_getKey( XEvent& event )
         case XK_Alt_R:     return KC_ALT_R;
             
         default: 
-            // 'Useful' Latin1 characters
-            if( (event.xkey.state & ShiftMask) && key >= 'a' && key <= 'z' )
-                return key + 'A' - 'a'; // capitalize letter
-
             if( (key >= XK_space && key <= XK_asciitilde ) ||
                 (key >= XK_nobreakspace && key <= XK_ydiaeresis))
             {
