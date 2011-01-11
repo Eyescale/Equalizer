@@ -117,9 +117,8 @@ void Config::notifyAttached()
     EQASSERT( getAppNodeID().isGenerated() )
     co::LocalNodePtr localNode = getLocalNode();
     _appNode = localNode->connect( getAppNodeID( ));
-    if( !_appNode )
-        EQWARN << "Connection to application node failed -- "
-               << "misconfigured connections on appNode?" << std::endl;
+    EQASSERTINFO( _appNode, "Connection to application node failed -- " <<
+                            "misconfigured connections on appNode?" );
 }
 
 void Config::notifyDetach()

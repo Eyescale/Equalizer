@@ -106,6 +106,7 @@ uint128_t VersionedSlaveCM::sync( const uint128_t& v )
         return _version;
     }
 
+    EQASSERTINFO( version.high() == 0, "Not a master version: " << version )
     EQASSERTINFO( _version <= version,
                   "can't sync to older version of object " << 
                   typeid( *_object ).name() << " " << _object->getID() <<
