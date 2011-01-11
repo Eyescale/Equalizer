@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- * Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2009, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -67,13 +68,11 @@
 
 namespace mesh 
 {
-    
-    
     // basic type definitions   
     typedef vmml::vector< 3, GLfloat >    Vertex;
     typedef vmml::vector< 4, GLubyte >    Color;
     typedef vmml::vector< 3, GLfloat >    Normal;
-    typedef size_t                        Index;
+    typedef unsigned long long            Index;
     typedef GLushort                      ShortIndex;
     
     

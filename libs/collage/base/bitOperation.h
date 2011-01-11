@@ -25,9 +25,9 @@ namespace co
 namespace base
 {
     /** @return the position of the last set bit, or -1. */
-    inline int64_t getIndexOfLastBit( uint32_t value )
+    inline int32_t getIndexOfLastBit( uint32_t value )
     {
-        int64_t count = -1;
+        int32_t count = -1;
         while( value ) 
         {
           ++count;

@@ -95,7 +95,7 @@ void Channel::frameClear( const eq::uint128_t& frameID )
 
     _initJitter();
     const FrameData& frameData = _getFrameData();
-    const uint32_t eyeIndex = co::base::getIndexOfLastBit( getEye() );
+    const int32_t eyeIndex = co::base::getIndexOfLastBit( getEye() );
     if( _isDone() && !_accum[ eyeIndex ].transfer )
         return;
 

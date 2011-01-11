@@ -272,14 +272,17 @@ void Compound::addEqualizer( Equalizer* equalizer )
 
 bool Compound::isInheritActive( const Eye eye ) const
 {
-    const uint32_t index = co::base::getIndexOfLastBit( eye );
+    const int32_t index = co::base::getIndexOfLastBit( eye );
+    EQASSERT( index >= 0 );
     EQASSERT( index < NUM_EYES );
     return _inherit.active[ index ];
 }
 
 bool Compound::isLastInheritEye( const Eye eye ) const
 {
-    uint32_t index = co::base::getIndexOfLastBit( eye );
+    int32_t index = co::base::getIndexOfLastBit( eye );
+    EQASSERT( index >= 0 );
+
     while( ++index < NUM_EYES )
         if( _inherit.active[ index ] )
             return false;
