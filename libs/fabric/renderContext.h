@@ -62,8 +62,9 @@ namespace fabric
         uint32_t       period;         //!< DPlex period
         uint32_t       phase;          //!< DPlex phase
         Eye            eye;            //!< current eye pass
+        uint32_t       alignToEight;   //!< @internal padding
 
-        EQ_ALIGN8( ColorMask bufferMask ); //!< color mask for anaglyph stereo
+        ColorMask      bufferMask;     //!< color mask for anaglyph stereo
         bool           alignDummy[28]; //!< @internal padding
     };
 

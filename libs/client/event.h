@@ -145,7 +145,7 @@ namespace eq
         int16_t zRotation;     //!< Z rotation
     };
 
-#   define EQ_USER_EVENT_SIZE 64
+#   define EQ_USER_EVENT_SIZE 128
     /**
      * User-defined event.
      *
@@ -227,7 +227,8 @@ namespace eq
         };
 
         /** The event type */
-        uint32_t type;
+        Type type;
+        uint32_t alignToEight;   //!< @internal padding
 
         /** The identifier of the entity emitting the event. */
         uint128_t originator;
