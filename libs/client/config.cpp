@@ -725,12 +725,33 @@ void Config::deregisterObject( co::Object* object )
 bool Config::mapObject( co::Object* object, const UUID& id,
                         const uint128_t& version )
 {
-    return getClient()->mapObject( object, id, version );
+    return mapObjectSync( mapObjectNB( object, id, version ));
+}
+
+uint32_t Config::mapObjectNB( co::Object* object, const co::base::UUID& id, 
+                              const uint128_t& version )
+{
+    return getClient()->mapObjectNB( object, id, version );
+}
+
+bool Config::mapObjectSync( const uint32_t requestID )
+{
+    return getClient()->mapObjectSync( requestID );
 }
 
 void Config::unmapObject( co::Object* object )
 {
     getClient()->unmapObject( object );
+}
+
+void Config::releaseObject( co::Object* object )
+{
+    if( !object->isAttached( ))
+        return;
+    if( object->isMaster( ))
+        deregisterObject( object );
+    else
+        unmapObject( object );
 }
 
 void Config::_releaseObjects()
@@ -960,4 +981,3 @@ FIND_NAME_TEMPLATE2( eq::Channel );
 FIND_NAME_TEMPLATE2( eq::Layout );
 FIND_NAME_TEMPLATE2( eq::Observer );
 FIND_NAME_TEMPLATE2( eq::View );
-

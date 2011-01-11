@@ -187,7 +187,10 @@ namespace eq
 
         /** @sa fabric::Config::setLatency() */
         EQ_API virtual void setLatency( const uint32_t latency );
+        //@}
 
+        /** @name Object registry. */
+        //@{
         /** 
          * Register a distributed object.
          *
@@ -195,7 +198,7 @@ namespace eq
          * local client node.
          * @version 1.0
          */
-        EQ_API bool registerObject( co::Object* object );
+        EQ_API virtual bool registerObject( co::Object* object );
 
         /**
          * Deregister a distributed object.
@@ -215,16 +218,29 @@ namespace eq
          * local client node.
          * @version 1.0
          */
-        EQ_API bool mapObject( co::Object* object, const co::base::UUID& id, 
+        EQ_API virtual bool mapObject( co::Object* object,
+                                       const co::base::UUID& id, 
                                const uint128_t& version = co::VERSION_OLDEST );
+
+
+        /** Start mapping a distributed object. @version 1.0 */
+        EQ_API virtual uint32_t mapObjectNB( co::Object* object,
+                                             const co::base::UUID& id, 
+                                const uint128_t& version = co::VERSION_OLDEST );
+        /** Finalize the mapping of a distributed object. @version 1.0 */
+        EQ_API virtual bool mapObjectSync( const uint32_t requestID );
 
         /** 
          * Unmap a mapped object.
          * 
          * Provided for symmetry with deregisterObject. Forwards unmapping to
          * local client node.
+         * @version 1.0
          */
-        EQ_API void unmapObject( co::Object* object );
+        EQ_API virtual void unmapObject( co::Object* object );
+
+        /** Convenience method to deregister or unmap an object. @version 1.0 */
+        EQ_API void releaseObject( co::Object* object );
         //@}
 
         /** @name Frame Control */
