@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2008-2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -44,7 +44,7 @@
 #include <co/base/os.h>
 #include <co/base/file.h>
 #include <string>
-#pragma warning( disable : 4065 )
+#pragma warning(disable: 4065)
 
     namespace eq
     {

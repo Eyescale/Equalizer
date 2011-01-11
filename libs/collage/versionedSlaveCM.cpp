@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -35,10 +35,9 @@ VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
         , _version( VERSION_NONE )
         , _currentIStream( 0 )
         , _masterInstanceID( masterInstanceID )
-#pragma warning( push )
-#pragma warning( disable : 4355 )
+#pragma warning(disable: 4355)
         , _ostream( this )
-#pragma warning( push )
+#pragma warning(default: 4355)
 {
     EQASSERT( object );
     EQASSERT( object->getLocalNode( ));

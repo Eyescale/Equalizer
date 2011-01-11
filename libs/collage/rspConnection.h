@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -31,9 +31,9 @@
 #include <co/base/lfQueue.h> // member
 #include <co/base/mtQueue.h> // member
 
-#pragma warning( disable : 4267 )
+#pragma warning(disable: 4267)
 #include <boost/asio.hpp>
-#pragma warning( default : 4267 )
+#pragma warning(default: 4267)
 
 namespace co
 {

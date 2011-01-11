@@ -246,7 +246,8 @@ void FrameData::setReady( const NodeFrameDataReadyPacket* packet )
     clear();
     EQASSERT(  packet->frameData.version.high() == 0 );
     EQASSERT( _readyVersion < packet->frameData.version.low( ));
-    EQASSERT( _readyVersion == 0 || _readyVersion + 1 == packet->frameData.version.low( ));
+    EQASSERT( _readyVersion == 0 ||
+              _readyVersion + 1 == packet->frameData.version.low( ));
     EQASSERT( _version == packet->frameData.version.low( ));
 
     _images.swap( _pendingImages );

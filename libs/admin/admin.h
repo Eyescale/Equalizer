@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,8 +18,7 @@
 #ifndef EQ_ADMIN_H
 #define EQ_ADMIN_H
 
-#pragma warning(push)
-#pragma warning(disable : 4244) //conversion from .. to ..,possible loss of data
+#pragma warning(disable: 4244) //conversion from .. to ..,possible loss of data
 
 #include <eq/admin/canvas.h>
 #include <eq/admin/channel.h>
@@ -40,5 +39,5 @@
 #include <eq/fabric/base.h>
 #include <co/co.h>
 
-#pragma warning(pop)
+#pragma warning(default: 4244)
 #endif // EQ_ADMIN_H

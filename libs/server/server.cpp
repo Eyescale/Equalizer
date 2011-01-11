@@ -166,8 +166,8 @@ void Server::init()
         EQWARN << "No configurations loaded" << std::endl;
 
     EQINFO << co::base::disableFlush << "Running server: " << std::endl
-           << co::base::indent << Global::instance() << *this << co::base::exdent
-           << co::base::enableFlush << std::endl;
+           << co::base::indent << Global::instance() << *this
+           << co::base::exdent << co::base::enableFlush << std::endl;
 
     for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
         (*i)->register_();

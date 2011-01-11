@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder<cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -55,10 +55,9 @@ typedef fabric::Node< Config, Node, Pipe, NodeVisitor > Super;
 
 Node::Node( Config* parent )
         : Super( parent )
-#pragma warning( push )
-#pragma warning( disable : 4355 )
+#pragma warning( disable: 4355 )
         , transmitter( this )
-#pragma warning( push )
+#pragma warning( default: 4355 )
         , _state( STATE_STOPPED )
         , _finishedFrame( 0 )
         , _unlockedFrame( 0 )

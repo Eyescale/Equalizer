@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -112,11 +112,10 @@ WGLEventHandler::WGLEventHandler( WGLWindowIF* window )
 
     registerHandler( _hWnd, this );
 
-#pragma warning( push )
-#pragma warning( disable : 4312 )
+#pragma warning(disable: 4312)
     _prevWndProc = (WNDPROC)SetWindowLongPtr( _hWnd, GWLP_WNDPROC, 
                                               (LONG_PTR)wndProc );
-#pragma warning( pop ) 
+#pragma warning(default: 4312) 
 
     if( _prevWndProc == wndProc ) // avoid recursion
         _prevWndProc = DefWindowProc;

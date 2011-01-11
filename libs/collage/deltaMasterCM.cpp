@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -33,10 +33,9 @@ typedef CommandFunc<DeltaMasterCM> CmdFunc;
         
 DeltaMasterCM::DeltaMasterCM( Object* object )
         : FullMasterCM( object )
-#pragma warning( push )
-#pragma warning( disable : 4355 )
+#pragma warning(disable : 4355)
         , _deltaData( this )
-#pragma warning( push )
+#pragma warning(default: 4355)
 {
     EQASSERT( object );
     EQASSERT( object->getLocalNode( ));

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -35,7 +35,7 @@
 #pragma warning(disable : 4190)
 extern "C" EQSERVER_EXPORT co::ConnectionPtr eqsStartLocalServer( const
                                                                  std::string& );
-extern "C" EQSERVER_EXPORT void                   eqsJoinLocalServer();
+extern "C" EQSERVER_EXPORT void eqsJoinLocalServer();
 #pragma warning(default : 4190)
 
 namespace co
