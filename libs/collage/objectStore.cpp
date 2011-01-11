@@ -689,7 +689,8 @@ bool ObjectStore::_cmdRegisterObject( Command& command )
 
     const uint32_t size = Global::getIAttribute( 
                              Global::IATTR_NODE_SEND_QUEUE_SIZE );
-    const int32_t age = Global::getIAttribute(Global::IATTR_NODE_SEND_AGE );
+    const int32_t age = Global::getIAttribute(
+                            Global::IATTR_NODE_SEND_QUEUE_AGE );
 #if 0
     if( _sendQueue.size() >= size )
         return true;

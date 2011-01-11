@@ -84,7 +84,7 @@ namespace co
             IATTR_INSTANCE_CACHE_SIZE,   //!< @internal max size in MB
             /** @internal send-on-register queue size */
             IATTR_NODE_SEND_QUEUE_SIZE,
-            IATTR_NODE_SEND_AGE,         //!< @internal send-on-register max age
+            IATTR_NODE_SEND_QUEUE_AGE,   //!< @internal send-on-register max age
             IATTR_RSP_ACK_TIMEOUT,       //!< @internal time out for ack req
             IATTR_RSP_ERROR_DOWNSCALE,   //!< @internal permille per lost packet
             IATTR_RSP_ERROR_UPSCALE,     //!< @internal permille per sent packet

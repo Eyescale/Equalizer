@@ -49,7 +49,7 @@ int32_t     _iAttributes[Global::IATTR_ALL] =
 {
     100,   // INSTANCE_CACHE_SIZE
     100,   // NODE_SEND_QUEUE_SIZE
-    100,   // NODE_SEND_AGE
+    100,   // NODE_SEND_QUEUE_AGE
     10,    // RSP_TIMEOUT
     1,     // RSP_ERROR_DOWNSCALE
     5,     // RSP_ERROR_UPSCALE
