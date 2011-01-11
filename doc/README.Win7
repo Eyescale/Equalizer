@@ -4,6 +4,8 @@
 GPU affinity for NVidia Quadro cards needs at least driver release 265
 on Windows 7.
 
+Disable Aero if you plan on using fullscreen windows.
+
 
                  Multi-Node Configurations on Windows 7
 
