@@ -226,8 +226,8 @@ namespace eq
             ALL // must be last
         };
 
-        /** The event type */
-        Type type;
+        
+        uint32_t type;           //!< The event type
         uint32_t alignToEight;   //!< @internal padding
 
         /** The identifier of the entity emitting the event. */
