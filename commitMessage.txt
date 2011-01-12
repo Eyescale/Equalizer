@@ -1,4 +1,4 @@
-- Fix 3155543 : Missing fragment when use Compressor GPU
+- Fix 3155603 : When building with XCode and then starting eqPly
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
