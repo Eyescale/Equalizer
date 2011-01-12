@@ -35,9 +35,10 @@ VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
         , _version( VERSION_NONE )
         , _currentIStream( 0 )
         , _masterInstanceID( masterInstanceID )
+#pragma warning(push)
 #pragma warning(disable: 4355)
         , _ostream( this )
-#pragma warning(default: 4355)
+#pragma warning(pop)
 {
     EQASSERT( object );
     EQASSERT( object->getLocalNode( ));

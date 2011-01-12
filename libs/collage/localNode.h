@@ -32,11 +32,12 @@
 #include <co/base/spinLock.h>       // member
 #include <co/base/types.h>          // member
 
-#pragma warning(disable : 4190)
+#pragma warning(push)
+#pragma warning(disable: 4190)
 extern "C" EQSERVER_EXPORT co::ConnectionPtr eqsStartLocalServer( const
                                                                  std::string& );
 extern "C" EQSERVER_EXPORT void eqsJoinLocalServer();
-#pragma warning(default : 4190)
+#pragma warning(pop)
 
 namespace co
 {

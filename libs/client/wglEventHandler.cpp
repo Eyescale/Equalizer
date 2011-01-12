@@ -112,10 +112,11 @@ WGLEventHandler::WGLEventHandler( WGLWindowIF* window )
 
     registerHandler( _hWnd, this );
 
+#pragma warning(push)
 #pragma warning(disable: 4312)
     _prevWndProc = (WNDPROC)SetWindowLongPtr( _hWnd, GWLP_WNDPROC, 
                                               (LONG_PTR)wndProc );
-#pragma warning(default: 4312) 
+#pragma warning(pop) 
 
     if( _prevWndProc == wndProc ) // avoid recursion
         _prevWndProc = DefWindowProc;
@@ -488,7 +489,7 @@ uint32_t WGLEventHandler::_getKey( LPARAM lParam, WPARAM wParam )
                 return KC_ALT_R;
             return KC_ALT_L;
 
-        default: 
+        default:
             // 'Useful' Latin1 characters
             if( !(GetKeyState(VK_LSHIFT) & 0x1000 ) &&
                 wParam >= 'A' && wParam <= 'Z' )

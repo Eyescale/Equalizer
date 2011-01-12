@@ -33,9 +33,10 @@ typedef CommandFunc<DeltaMasterCM> CmdFunc;
         
 DeltaMasterCM::DeltaMasterCM( Object* object )
         : FullMasterCM( object )
+#pragma warning(push)
 #pragma warning(disable : 4355)
         , _deltaData( this )
-#pragma warning(default: 4355)
+#pragma warning(pop)
 {
     EQASSERT( object );
     EQASSERT( object->getLocalNode( ));

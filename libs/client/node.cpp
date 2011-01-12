@@ -55,9 +55,10 @@ typedef fabric::Node< Config, Node, Pipe, NodeVisitor > Super;
 
 Node::Node( Config* parent )
         : Super( parent )
-#pragma warning( disable: 4355 )
+#pragma warning(push)
+#pragma warning(disable: 4355)
         , transmitter( this )
-#pragma warning( default: 4355 )
+#pragma warning(pop)
         , _state( STATE_STOPPED )
         , _finishedFrame( 0 )
         , _unlockedFrame( 0 )

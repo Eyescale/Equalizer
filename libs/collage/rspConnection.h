@@ -31,9 +31,10 @@
 #include <co/base/lfQueue.h> // member
 #include <co/base/mtQueue.h> // member
 
+#pragma warning(push)
 #pragma warning(disable: 4267)
 #include <boost/asio.hpp>
-#pragma warning(default: 4267)
+#pragma warning(pop)
 
 namespace co
 {

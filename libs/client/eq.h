@@ -18,6 +18,7 @@
 #ifndef EQ_H
 #define EQ_H
 
+#pragma warning(push)
 #pragma warning(disable: 4244) //conversion from .. to ..,possible loss of data
 
 #include <eq/base.h>
@@ -27,7 +28,7 @@
 #include <co/co.h>
 #include <vmmlib/vmmlib.hpp>
 
-#pragma warning(default: 4244)
+#pragma warning(pop)
 
 /** \mainpage Equalizer API Documentation
     \htmlinclude "RelNotes.dox"
