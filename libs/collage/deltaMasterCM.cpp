@@ -41,10 +41,10 @@ DeltaMasterCM::DeltaMasterCM( Object* object )
     EQASSERT( object->getLocalNode( ));
     CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
 
-    registerCommand( CMD_OBJECT_COMMIT, 
-                     CmdFunc( this, &DeltaMasterCM::_cmdCommit ), q );
-    registerCommand( CMD_OBJECT_DELTA, 
-                     CmdFunc( this, &DeltaMasterCM::_cmdDiscard ), q );
+    object->registerCommand( CMD_OBJECT_COMMIT, 
+                             CmdFunc( this, &DeltaMasterCM::_cmdCommit ), q );
+    object->registerCommand( CMD_OBJECT_DELTA, 
+                             CmdFunc( this, &DeltaMasterCM::_cmdDiscard ), q );
 }
 
 DeltaMasterCM::~DeltaMasterCM()
