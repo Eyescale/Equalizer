@@ -71,9 +71,9 @@ namespace mesh
         
         VertexBufferData&   _globalData;
         Index               _vertexStart;
-        ShortIndex          _vertexLength;
         Index               _indexStart;
         Index               _indexLength;
+        ShortIndex          _vertexLength;
         friend class eqPly::VertexBufferDist;
     };
     

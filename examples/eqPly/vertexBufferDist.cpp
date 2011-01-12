@@ -166,8 +166,8 @@ void VertexBufferDist::getInstanceData( co::DataOStream& os )
         const mesh::VertexBufferLeaf* leaf = 
             static_cast< const mesh::VertexBufferLeaf* >( _node );
 
-        os << leaf->_vertexStart << leaf->_vertexLength << leaf->_indexStart
-           << leaf->_indexLength;
+        os << uint64_t( leaf->_vertexStart ) << uint64_t( leaf->_indexStart )
+           << uint64_t( leaf->_indexLength ) << leaf->_vertexLength;
     }
 
     os << _node->_boundingSphere << _node->_range;
@@ -222,8 +222,11 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
             const_cast< mesh::VertexBufferData& >( _root->_data );
         mesh::VertexBufferLeaf* leaf = new mesh::VertexBufferLeaf( data );
 
-        is >> leaf->_vertexStart >> leaf->_vertexLength >> leaf->_indexStart
-           >> leaf->_indexLength;
+        uint64_t i1, i2, i3;
+        is >> i1 >> i2 >> i3 >> leaf->_vertexLength;
+        leaf->_vertexStart = size_t( i1 );
+        leaf->_indexStart = size_t( i2 );
+        leaf->_indexLength = size_t( i3 );
 
         base = leaf;
     }

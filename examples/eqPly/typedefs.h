@@ -72,7 +72,7 @@ namespace mesh
     typedef vmml::vector< 3, GLfloat >    Vertex;
     typedef vmml::vector< 4, GLubyte >    Color;
     typedef vmml::vector< 3, GLfloat >    Normal;
-    typedef unsigned long long            Index;
+    typedef size_t                        Index;
     typedef GLushort                      ShortIndex;
     
     

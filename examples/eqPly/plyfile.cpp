@@ -935,7 +935,7 @@ PlyFile *ply_read(FILE *fp, int *nelems, char ***elem_names)
         free (words);
         return (NULL);
         }
-      plyfile->version = float( atof (words[2] ));
+      plyfile->version = atof (words[2]);
     }
     else if (equal_strings (words[0], "element"))
       add_element (plyfile, words, nwords);
@@ -2186,7 +2186,7 @@ void write_binary_item(PlyFile *plyfile,
           break;
       case PLY_FLOAT:
       case PLY_FLOAT32:
-          float_val = float( double_val );
+          float_val = double_val;
           if( plyfile->file_type == PLY_BINARY_BE )
           {
               swap4BE(&float_val);
@@ -2588,7 +2588,7 @@ void store_item (
     case PLY_FLOAT:
     case PLY_FLOAT32:
       pfloat = (float *) item;
-      *pfloat = float( double_val );
+      *pfloat = double_val;
       break;
     case PLY_DOUBLE:
       pdouble = (double *) item;
