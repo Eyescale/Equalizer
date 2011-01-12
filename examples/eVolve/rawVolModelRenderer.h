@@ -72,9 +72,7 @@ namespace eVolve
         bool loadShaders();
 
     private:
-        void _putVolumeDataToShader( const VolumeInfo&     volumeInfo,
-                                     const double          sliceDistance,
-                                     const eq::Matrix4f& invRotationM );
+        void _putVolumeDataToShader( const VolumeInfo& volumeInfo, const float sliceDistance, const eq::Matrix4f& invRotationM );
 
         RawVolumeModel  _rawModel;      //!< volume data
         SliceClipper    _sliceClipper;  //!< frame clipping algorithm

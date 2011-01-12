@@ -206,7 +206,7 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
     TD.W  = static_cast<float>( w     ) / static_cast<float>( tW );
     TD.H  = static_cast<float>( h     ) / static_cast<float>( tH );
     TD.D  = static_cast<float>( e-s+1 ) / static_cast<float>( tD );
-    TD.D /= range.end>range.start ? (range.end-range.start) : 1.0 ;
+    TD.D /= range.end>range.start ? (range.end-range.start) : 1.0f;
 
     // Shift coefficient and left border in texture for depth
     TD.Do = range.start;
@@ -291,7 +291,7 @@ static void normalizeScaling
 )
 {
 //Correct proportions according to real size of volume
-    float maxS = EQ_MAX( w, EQ_MAX( h, d ) );
+    float maxS = float( EQ_MAX( w, EQ_MAX( h, d ) ));
 
     scaling.W *= w / maxS;
     scaling.H *= h / maxS;

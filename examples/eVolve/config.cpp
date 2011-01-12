@@ -330,14 +330,14 @@ void Config::_switchLayout( int32_t increment )
 
     _frameData.setCurrentViewID( co::base::UUID::ZERO );
 
-    int64_t index = _currentCanvas->getActiveLayoutIndex() + increment;
+    size_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();
     EQASSERT( !layouts.empty( ));
 
     index = ( index % layouts.size( ));
     _currentCanvas->useLayout( uint32_t( index ));
 
-    const eq::Layout* layout = _currentCanvas->getLayouts()[index];
+    const eq::Layout* layout = _currentCanvas->getActiveLayout();
     std::ostringstream stream;
     stream << "Layout ";
     if( layout )

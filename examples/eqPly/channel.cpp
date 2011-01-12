@@ -617,8 +617,8 @@ void Channel::_drawModel( const Model* model )
     model->beginRendering( state );
     
 #ifndef NDEBUG
-    size_t verticesRendered = 0;
-    size_t verticesOverlap  = 0;
+    uint64_t verticesRendered = 0;
+    uint64_t verticesOverlap  = 0;
 #endif
 
     // start with root node
@@ -700,7 +700,7 @@ void Channel::_drawModel( const Model* model )
         glUseProgram( 0 );
 
 #ifndef NDEBUG
-    const size_t verticesTotal = model->getNumberOfVertices();
+    const uint64_t verticesTotal = model->getNumberOfVertices();
     EQLOG( LOG_CULL ) 
         << getName() << " rendered " << verticesRendered * 100 / verticesTotal
         << "% of model, overlap <= " << verticesOverlap * 100 / verticesTotal

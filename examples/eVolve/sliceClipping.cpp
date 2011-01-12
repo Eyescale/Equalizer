@@ -95,7 +95,7 @@ void SliceClipper::updatePerFrameInfo
 
     for( int i=0; i<8; i++ )
         for( int j=0; j<3; j++)
-            shaderVertices[ i*3+j ] = vertices[i][j];
+            shaderVertices[ i*3+j ] = float( vertices[i][j] );
 
 
     this->viewVec = eq::Vector4d( -modelviewM.array[ 2],
@@ -103,15 +103,16 @@ void SliceClipper::updatePerFrameInfo
                                   -modelviewM.array[10],
                                   0.0                 );
 
-    viewVecf = eq::Vector3f( viewVec.x(), viewVec.y(), viewVec.z() );
+    viewVecf = eq::Vector3f( float( viewVec.x( )), float( viewVec.y( )),
+                             float( viewVec.z( )));
 
     sliceDistance = newSliceDistance;
 
     frontIndex = 0;
-    float maxDist = viewVec.dot( vertices[0] );
+    float maxDist = float( viewVec.dot( vertices[0] ));
     for( int i = 1; i < 8; i++ )
     {
-        float dist = viewVec.dot( vertices[i] );
+        const float dist = float( viewVec.dot( vertices[i] ));
         if ( dist > maxDist)
         {
             maxDist = dist;
@@ -131,7 +132,7 @@ eq::Vector3f SliceClipper::getPosition
     const int sliceNum
 ) const
 {
-    float   dPlaneDist   = planeStart + sliceNum * sliceDistance;
+    const float dPlaneDist = float( planeStart + sliceNum * sliceDistance );
     float3  Position     = float3( 0.0, 0.0, 0.0 );
 
     for( int e = 0; e < 4; e++ )
@@ -153,10 +154,10 @@ eq::Vector3f SliceClipper::getPosition
         float3 vecDir   = vecV2-vecV1;
 
         float denom = vecDir.dot( viewVecf );
-        float lambda = 
-            (denom != 0.0) ? (dPlaneDist - vecStart.dot(viewVecf))/denom : -1.0;
+        float lambda = (denom != 0.0f) ?
+                       (dPlaneDist - vecStart.dot(viewVecf))/denom : -1.0f;
 
-        if(( lambda >= 0.0 ) && ( lambda <= 1.0 ))
+        if(( lambda >= 0.0f ) && ( lambda <= 1.0f ))
         {
             Position = vecStart + vecDir * lambda;
             break;

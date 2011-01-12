@@ -65,12 +65,7 @@ static void renderSlices( const SliceClipper& sliceClipper )
 }
 
 
-void RawVolumeModelRenderer::_putVolumeDataToShader
-(
-    const VolumeInfo&     volumeInfo,
-    const double          sliceDistance,
-    const eq::Matrix4f& invRotationM
-)
+void RawVolumeModelRenderer::_putVolumeDataToShader( const VolumeInfo& volumeInfo, const float sliceDistance, const eq::Matrix4f& invRotationM )
 {
     EQASSERT( _glewContext );
 
@@ -115,12 +110,12 @@ void RawVolumeModelRenderer::_putVolumeDataToShader
     glUniform1fARB( tParamNameGL,  sliceDistance ); //v-shader
 
     tParamNameGL = glGetUniformLocationARB(  shader,  "perspProj" );
-    glUniform1fARB( tParamNameGL,  _ortho ? 0.0 : 1.0 ); //v-shader
+    glUniform1fARB( tParamNameGL,  _ortho ? 0.0f : 1.0f ); //v-shader
 
     tParamNameGL = glGetUniformLocationARB(  shader,  "shininess"     );
     glUniform1fARB( tParamNameGL,  8.0f         ); //f-shader
 
-    // rotate viewPosition in the oposite direction of model rotation
+    // rotate viewPosition in the opposite direction of model rotation
     // to keep light position constant but not recalculate normals 
     // in the fragment shader
     // viewPosition = invRotationM * eq::Vector4f( 0, 0, 1, 0 );
@@ -159,7 +154,7 @@ bool RawVolumeModelRenderer::render
     const uint32_t resolution    = _rawModel.getResolution();
     const double   sliceDistance = 3.6 / ( resolution * _precision );
 
-    _putVolumeDataToShader( volumeInfo, sliceDistance, invRotationM );
+    _putVolumeDataToShader( volumeInfo, float( sliceDistance ), invRotationM );
 
     _sliceClipper.updatePerFrameInfo( modelviewM, modelviewITM,
                                       sliceDistance, range );

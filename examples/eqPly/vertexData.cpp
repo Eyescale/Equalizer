@@ -239,9 +239,9 @@ bool VertexData::readPlyFile( const std::string& filename )
 /*  Calculate the face or vertex normals of the current vertex data.  */
 void VertexData::calculateNormals( const bool vertexNormals )
 {
-    #ifndef NDEBUG
+#ifndef NDEBUG
     int wrongNormals = 0;
-    #endif
+#endif
     
     normals.clear();
     if( vertexNormals )
@@ -260,9 +260,9 @@ void VertexData::calculateNormals( const bool vertexNormals )
     Index   i0, i1, i2;
     for( size_t i = 0; i < triangles.size(); ++i )
     {
-        i0 = triangles[i].at(0);
-        i1 = triangles[i].at(1);
-        i2 = triangles[i].at(2);
+        i0 = triangles[i][0];
+        i1 = triangles[i][1];
+        i2 = triangles[i][2];
         triangleNormal.compute_normal( vertices[i0],
                                        vertices[i1],
                                        vertices[i2] );
@@ -288,10 +288,10 @@ void VertexData::calculateNormals( const bool vertexNormals )
         for( size_t i = 0; i < vertices.size(); ++i )
             normals[i].normalize();
     
-    #ifndef NDEBUG
+#ifndef NDEBUG
     if( wrongNormals > 0 )
         MESHINFO << wrongNormals << " faces had no valid normal." << endl;
-    #endif 
+#endif 
 }
 
 
