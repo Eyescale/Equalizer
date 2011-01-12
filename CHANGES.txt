@@ -1,6 +1,8 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+-------------------------------1.0 alpha-----------------------------------
+
 7/Jan/2011
   Rename EVENT_POINTER_* to differantiate channel and window pointer events.
   Old values can be used when EQ_USE_DEPRECATED is defined.

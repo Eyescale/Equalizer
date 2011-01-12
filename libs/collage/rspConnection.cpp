@@ -245,7 +245,7 @@ bool RSPConnection::listen()
         const ip::udp::resolver::iterator interfaceIP =
             resolver.resolve( queryIF );
 
-        if ( interfaceIP == end )
+        if( interfaceIP == end )
             return false;
                 
         const ip::address ifAddr( ip::udp::endpoint( *interfaceIP ).address( ));
@@ -312,7 +312,7 @@ ConnectionPtr RSPConnection::acceptSync()
 
     EQINFO << "accepted RSP connection " << newConnection->_id << std::endl;
 
-    if ( !_childrenConnecting.empty() )
+    if( !_childrenConnecting.empty() )
         _event->set();
     else 
         _event->reset();
@@ -414,7 +414,7 @@ void RSPConnection::_handleTimeout( const boost::system::error_code& error )
 void RSPConnection::_handleAcceptIDTimeout( )
 {
     ++_timeouts;
-    if ( _timeouts < 20 )
+    if( _timeouts < 20 )
     {
         EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
         _sendSimpleDatagram( ID_HELLO, _id );
@@ -1102,7 +1102,7 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
     ++nAcksRead;
 #endif
 
-    if ( ack->writerID != _id )
+    if( ack->writerID != _id )
         return true;
 
     EQLOG( LOG_RSP ) << "got ack from " << ack->readerID << " for "
@@ -1346,7 +1346,7 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
 bool RSPConnection::_handleCountNode()
 {
     const DatagramCount* countConn = 
-    reinterpret_cast< const DatagramCount* >( _recvBuffer.getData( ));
+        reinterpret_cast< const DatagramCount* >( _recvBuffer.getData( ));
 
     EQLOG( LOG_RSP ) << "Got " << countConn->numConnections << " nodes from " 
                      << countConn->clientID << std::endl;
@@ -1402,10 +1402,10 @@ bool RSPConnection::_addNewConnection( const uint16_t id )
     }
 
     RSPConnectionPtr connection = new RSPConnection();
-    connection->_id            = id;
-    connection->_parent        = this;
-    connection->_state         = STATE_CONNECTED;
-    connection->_description   = _description;
+    connection->_id = id;
+    connection->_parent = this;
+    connection->_state = STATE_CONNECTED;
+    connection->_description = _description;
     EQASSERT( connection->_appBuffers.isEmpty( ));
 
     // Make all buffers available for reading
@@ -1447,18 +1447,19 @@ void RSPConnection::_removeConnection( const uint16_t id )
 
 int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
 {
-    // to do : modify caller for use only rsp parent write
-    if ( _parent.isValid() )
-        return _parent->write( inData, bytes );
-
+    if( _parent.isValid( ))
+    {
+        EQASSERTINFO( !_parent, "Writes are only allowed on RSP listeners" );
+        return -1;
+    }
     EQASSERT( _state == STATE_LISTENING );
 
-    if ( !_write )
+    if( !_write )
         return -1;
 
     // compute number of datagrams
     uint64_t nDatagrams = bytes  / _payloadSize;    
-    if ( nDatagrams * _payloadSize != bytes )
+    if( nDatagrams * _payloadSize != bytes )
         ++nDatagrams;
 
     // queue each datagram (might block if buffers exhausted)
@@ -1500,7 +1501,7 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
 
 void RSPConnection::_sendDatagramCountNode()
 {
-    if ( !_findConnection( _id ) )
+    if( !_findConnection( _id ))
         return;
 
     EQLOG( LOG_RSP ) << _children.size() << " nodes" << std::endl;

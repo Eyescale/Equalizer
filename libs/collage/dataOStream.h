@@ -128,13 +128,13 @@ namespace DataStreamTest
         friend class DataStreamTest::Sender;
 
     private:        
-        enum BufferType
+        enum CompressorState
         {
-            BUFFER_NONE = 0,
-            BUFFER_PARTIAL,
-            BUFFER_ALL
+            NOT_COMPRESSED,
+            PARTIAL_COMPRESSED,
+            FULL_COMPRESSED
         };
-        BufferType _bufferType;
+        CompressorState _compressorState;
         
         /** The buffer used for saving and buffering */
         co::base::Bufferb  _buffer;

@@ -64,7 +64,7 @@ namespace eq
             ALL          // must be last
         };
 
-        Type     type; //!< The type of statistic
+        Type type; //!< The type of statistic
         uint32_t frameNumber; //!< The frame during when the sampling happened
         uint32_t task; //!< @internal
         float ratio; //!< compression ratio (readback, compression)
