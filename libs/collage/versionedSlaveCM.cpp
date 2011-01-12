@@ -68,6 +68,9 @@ VersionedSlaveCM::~VersionedSlaveCM()
 
 const NodeID& VersionedSlaveCM::getMasterNodeID() const
 { 
+    if( !_master )
+        return co::base::UUID::ZERO;
+        
     return _master->getNodeID();
 }
 

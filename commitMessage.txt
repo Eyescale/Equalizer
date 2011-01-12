@@ -1,4 +1,5 @@
-- Fix 3155603 : When building with XCode and then starting eqPly
+- Fix bug : Somtimes crash when view::proxy mapping
+- Minor Cleanup
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
