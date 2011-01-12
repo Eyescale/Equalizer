@@ -797,7 +797,7 @@ void Channel::drawStatistics()
                 }
 
                 xMax = EQ_MAX( xMax, stat.endTime );
-                xMin = EQ_MIN( xMin, stat.endTime );
+                xMin = EQ_MIN( xMin, stat.startTime );
             }
         }
     }
