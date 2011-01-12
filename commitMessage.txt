@@ -1,5 +1,4 @@
-- Fix break build osg project
-- fix missing dylib in lib
+- Fix 3155543 : Missing fragment when use Compressor GPU
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

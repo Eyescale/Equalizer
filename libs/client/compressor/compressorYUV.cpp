@@ -192,7 +192,8 @@ void CompressorYUV::download( const GLEWContext* glewContext,
                               void**             out )
 {
     glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_TEXTURE_BIT |
-                  GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_LIGHTING_BIT );
+                  GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_LIGHTING_BIT |
+                  GL_VIEWPORT_BIT | GL_SCISSOR_BIT );
     glColorMask( true, true, true, true );
     outDims[0] = inDims[0];
     outDims[1] = (inDims[1] + 1) / 2;
@@ -209,18 +210,21 @@ void CompressorYUV::download( const GLEWContext* glewContext,
     {
         // read data in frame Buffer
         // compress data 
-        EQ_GL_CALL( glViewport( 0, 0, inDims[0] + inDims[1] + 1,
-                                      inDims[2] + inDims[3] + 1 ));
-        EQ_GL_CALL( glScissor(  0, 0, inDims[0] + inDims[1] + 1,
-                                      inDims[2] + inDims[3] + 1 ));
+        GLint vp[4];
+        glGetIntegerv( GL_VIEWPORT, vp );
 
+        EQ_GL_CALL( glViewport( 0, 0, vp[0] + vp[2] + 1,
+                                      vp[1] + vp[3] + 1 ));
+        EQ_GL_CALL( glScissor(  0, 0, vp[0] + vp[2] + 1,
+                                      vp[1] + vp[3] + 1 ));
+        
         const eq::fabric::PixelViewport pvp( outDims[0], outDims[2],
                                              outDims[1]*2, outDims[3] );
         _texture->copyFromFrameBuffer( GL_RGBA, pvp );
-
+        
         _compress( glewContext, inDims, outDims );
         buffer.resize( outDims[1] * outDims[3] * 4 );
-        _download( buffer.getData( ));
+        _download( buffer.getData( ));glPopAttrib();
     }
     // the data is in the texture id define by the field "source"
     else if( flags & EQ_COMPRESSOR_USE_TEXTURE_RECT )
