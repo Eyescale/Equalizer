@@ -112,17 +112,13 @@ namespace base
         /** Construct a new reference-counted object. @version 1.0 */
         Referenced()
             : _refCount( 0 )
-#ifndef NDEBUG
             , _hasBeenDeleted( false )
-#endif
             {}
 
         /** Construct a new copy of a reference-counted object. @version 1.0 */
         Referenced( const Referenced& ) 
             : _refCount( 0 )
-#ifndef NDEBUG
             , _hasBeenDeleted( false )
-#endif
             {}
 
         /** Destruct a reference-counted object. @version 1.0 */
