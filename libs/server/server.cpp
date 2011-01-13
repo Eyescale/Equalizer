@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -299,7 +299,6 @@ bool Server::_cmdChooseConfig( co::Command& command )
 
     config->setWorkDir( workDir );
     config->setRenderClient( renderClient );
-
     config->commit();
 
     fabric::ServerCreateConfigPacket createConfigPacket;
@@ -308,8 +307,19 @@ bool Server::_cmdChooseConfig( co::Command& command )
 
     reply.configID = config->getID();
     server::Node* appNode = config->findApplicationNode();
-    EQASSERT( appNode );
-    node->send( reply, co::serialize( appNode->getConnectionDescriptions( )));
+    const co::ConnectionDescriptions& descs = 
+        appNode->getConnectionDescriptions();
+
+    if( descs.empty() && node->getConnectionDescriptions().empty() &&
+        config->getNodes().size() > 1 )
+    {
+        EQWARN << "Likely misconfiguration: Neither the application nor the "
+               << "config file has a connection for this multi-node config. "
+               << "Render clients will be unable to communicate with the app."
+               << std::endl;
+    }
+
+    node->send( reply, co::serialize( descs ));
     return true;
 }
 

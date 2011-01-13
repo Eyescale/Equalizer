@@ -20,8 +20,10 @@
 
 #include "canvas.h" 
 #include "compound.h" 
+#include "connectionDescription.h" 
 #include "config.h" 
 #include "layout.h" 
+#include "node.h" 
 #include "observer.h" 
 #include "segment.h" 
 #include "serverVisitor.h" 
@@ -124,6 +126,20 @@ class ConvertTo11Visitor : public ServerVisitor
     virtual VisitorResult visitPost( Config* config )
     {
         config->setFAttribute( Config::FATTR_VERSION, 1.1f );
+        return TRAVERSE_CONTINUE;
+    }
+
+    virtual VisitorResult visitPre( Node* node )
+    {
+        if( node->isApplicationNode() && 
+            node->getConnectionDescriptions().empty() &&
+            node->getConfig()->getNodes().size() > 1 )
+        {
+            //RFE 3156103: Add default appNode connection for multi-node configs
+            EQINFO << "Adding default appNode connection for multi-node config"
+                   << std::endl;
+            node->addConnectionDescription( new ConnectionDescription );
+        }
         return TRAVERSE_CONTINUE;
     }
 
