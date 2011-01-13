@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -95,7 +95,7 @@ private:
     // init my connection IB
     bool _preRegister();
 
-    EQ_TS_THREAD_DECLARE( _recvThread );
+    EQ_TS_VAR( _recvThread );
 };
 }
 #endif //EQ_INFINIBAND

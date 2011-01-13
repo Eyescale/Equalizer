@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -149,15 +149,7 @@ typedef void* HGLRC;
 #endif
 /** @endcond */
 
-
 // Error-check macros
-#ifdef NDEBUG
-
-#  define EQ_GL_ERROR( when ) 
-#  define EQ_GL_CALL( code ) { code; }
-
-#else // NDEBUG
-
 namespace eq
 {
 /** Output an error OpenGL in a human-readable form to EQWARN */
@@ -165,6 +157,10 @@ EQ_API void debugGLError( const std::string& when, const GLenum error,
                              const char* file, const int line );
 }
 
+#ifdef NDEBUG
+#  define EQ_GL_ERROR( when ) 
+#  define EQ_GL_CALL( code ) { code; }
+#else // NDEBUG
 #  define EQ_GL_ERROR( when )                                           \
     {                                                                   \
         const GLenum eqGlError = glGetError();                          \
@@ -178,7 +174,6 @@ EQ_API void debugGLError( const std::string& when, const GLenum error,
         code;                                             \
         EQ_GL_ERROR( std::string( "after " ) + #code );   \
     }
-
 #endif // NDEBUG
 
 namespace eq

@@ -1,5 +1,5 @@
  
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -70,9 +70,6 @@ extern "C" char **environ;
 #define EQ_UNDEFINED_UINT32   (0xffffffffu)
 /** The biggest usable value when using special uint32 values.*/
 #define EQ_MAX_UINT32         (0xfffffff0u)
-
-//#define EQ_UNDEFINED_FLOAT    (std::numeric_limits<float>::quiet_NaN( ))
-//#define EQ_UNDEFINED_INT32    (0x7fffffffu)
 
 /** Constant defining 'wait forever' in methods with wait parameters. */
 #define EQ_TIMEOUT_INDEFINITE 0
