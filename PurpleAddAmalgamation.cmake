@@ -1,5 +1,6 @@
 ##
 # Copyright (c) 2010 Daniel Pfeifer, All rights reserved.
+#               2011 Stefan Eilemann <eile@eyescale.ch>
 #
 # This file is freely distributable without licensing fees and
 # is provided without guarantee or warrantee expressed or implied.
@@ -36,7 +37,11 @@ function(PURPLE_ADD_AMALGAMATION NAME)
   endforeach(LIBRARY)
 
   add_library(${NAME} SHARED ${THIS_SOURCES})
-  set_target_properties(${NAME} PROPERTIES COMPILE_DEFINITIONS "${THIS_DEFINITIONS}")
+  set_target_properties(${NAME} PROPERTIES
+    COMPILE_DEFINITIONS "${THIS_DEFINITIONS}"
+    VERSION ${VERSION} SOVERSION ${API_VERSION}
+    )
+
   purple_expand_libraries(THIS_LINK_LIBRARIES ${THIS_LIBRARIES} EXCLUDE ${ARGN})
   target_link_libraries(${NAME} ${THIS_LINK_LIBRARIES})
 
