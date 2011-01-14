@@ -67,7 +67,9 @@ VersionedSlaveCM::~VersionedSlaveCM()
 }
 
 const NodeID& VersionedSlaveCM::getMasterNodeID() const
-{ 
+{
+    // There is a small window of opportunity during mapObject when the master
+    // node is not yet set
     if( !_master )
         return co::base::UUID::ZERO;
         

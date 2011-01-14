@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -298,7 +298,6 @@ namespace co
             {
                 command   = CMD_NODE_MAP_OBJECT_REPLY;
                 size      = sizeof( NodeMapObjectReplyPacket ); 
-//                sessionID = request->sessionID;
                 version   = request->requestedVersion;
                 cachedVersion = VERSION_INVALID;
             }

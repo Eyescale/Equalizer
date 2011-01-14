@@ -887,8 +887,12 @@ bool ObjectStore::_cmdMapObjectReply( Command& command )
         }
     }
     else
-        EQWARN << "Could not map object " << packet->objectID
-               << std::endl;
+    {
+        if( packet->useCache )
+            _instanceCache->release( packet->objectID );
+
+        EQWARN << "Could not map object " << packet->objectID << std::endl;
+    }
 
     _localNode->serveRequest( packet->requestID, packet->version );
     return true;
@@ -901,8 +905,8 @@ bool ObjectStore::_cmdUnsubscribeObject( Command& command )
         command.getPacket<NodeUnsubscribeObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd unsubscribe object  " << packet << std::endl;
 
-    NodePtr        node = command.getNode();
-    const co::base::UUID& id   = packet->objectID;
+    NodePtr node = command.getNode();
+    const co::base::UUID& id = packet->objectID;
 
     {
         co::base::ScopedMutex< co::base::SpinLock > mutex( _objects );
