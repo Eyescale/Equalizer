@@ -32,7 +32,10 @@ namespace eqPly
 {
 
 FrameData::FrameData()
-        : _modelID( co::base::UUID::ZERO )
+        : _rotation( eq::Matrix4f::ZERO )
+        , _modelRotation( eq::Matrix4f::ZERO )
+        , _position( eq::Vector3f::ZERO )
+        , _modelID( co::base::UUID::ZERO )
         , _renderMode( mesh::RENDER_MODE_DISPLAY_LIST )
         , _colorMode( COLOR_MODEL )
         , _quality( 1.0f )

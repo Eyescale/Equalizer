@@ -1,10 +1,10 @@
-- Fix bug : Somtimes crash when view::proxy mapping
-- Minor Cleanup
+- Fix bug layout pixel active
+- cleanup Valgrind warning
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
