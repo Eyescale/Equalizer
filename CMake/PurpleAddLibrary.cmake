@@ -35,9 +35,6 @@ function(PURPLE_ADD_LIBRARY NAME)
 
   parse_arguments(THIS "${ARG_NAMES}" "${OPTION_NAMES}" ${ARGN})
 
-  #purple_doxygen(doc_${NAME}_external HTML ${HEADERS})
-  #purple_doxygen(doc_${NAME}_internal HTML ${HEADERS} ${SOURCES})
-
   if(THIS_FORWARD)
     purple_forward_headers(${THIS_HEADERS_PREFIX} ${THIS_HEADERS})
   endif(THIS_FORWARD)

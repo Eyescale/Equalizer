@@ -1,6 +1,6 @@
 
 /* Copyright (c)      2009, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+ *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published 
@@ -28,7 +28,6 @@ namespace co
 {
 namespace base
 {
-
     /** Helper to access dynamic shared objects (DSO) */
     class DSO : public NonCopyable
     {
@@ -45,8 +44,8 @@ namespace base
          */
         COBASE_API bool open( const std::string& fileName );
 
-        /** 
-         *Close the DSO, invalidates retrieved function pointers.
+        /**
+         * Close the DSO, invalidates retrieved function pointers.
          * @version 1.0
          */
         COBASE_API void close();

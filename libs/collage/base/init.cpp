@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -73,7 +73,10 @@ bool init( const int argc, char** argv )
 
     // init all available plugins
     PluginRegistry& pluginRegistry = Global::getPluginRegistry();
-    pluginRegistry.init(); 
+#ifdef EQ_DSO_NAME
+    pluginRegistry.addPlugin( EQ_DSO_NAME );
+#endif
+    pluginRegistry.init();
     Thread::pinCurrentThread();
     return true;
 }

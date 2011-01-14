@@ -36,7 +36,7 @@ Equalizer 1.0-alpha is a developer release, representing the full feature set
 and API of Equalizer 1.0. It is intended for application developers to
 provide feedback and preview the 1.0 release. Equalizer 1.0-alpha can be
 retrieved by downloading the `source code`_, updating the subversion trunk to
-revision 5383 (``svn up -r 5383``) or by using:
+revision 5385 (``svn up -r 5385``) or by using:
 ``svn co
 https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.2``
 The internal version number of this release is 0.9.2.
@@ -73,6 +73,10 @@ and documentation changes:
 
 2.1. New Features
 ~~~~~~~~~~~~~~~~~
+
+1.0-beta (0.9.3):
+
+-   `Mouse wheel support`_
 
 1.0-alpha (0.9.2):
 
@@ -349,6 +353,8 @@ information.
 .. _source     code:
     http://www.equalizergraphics.com/downloads/Equalizer-0.9.2.tar.gz
 .. _detailed feature list: /features.html
+.. _Mouse wheel support: https://sourceforge.net/tracker/index.php?func=d
+    etail&aid=2990876&group_id=170962&atid=856212
 .. _GPU-CPU       transfer and compression plugins: http://www.equalizerg
     raphics.com/documents/Developer/API/plugins_2compressor_8h.html#_details
 .. _Failure      tolerance:

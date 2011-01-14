@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -29,6 +29,8 @@
 #include "version.h"
 
 #include <eq/fabric/init.h>
+#include <co/base/global.h>
+#include <co/base/pluginRegistry.h>
 
 #ifdef EQ_USE_PARACOMP
 #  include <pcapi.h>
@@ -95,6 +97,9 @@ bool init( const int argc, char** argv, NodeFactory* nodeFactory )
     EQASSERT( nodeFactory );
     Global::_nodeFactory = nodeFactory;
 
+#ifdef EQ_DSO_NAME
+    co::base::Global::getPluginRegistry().addPlugin( EQ_DSO_NAME );
+#endif
     return fabric::init( argc, argv );
 }
 

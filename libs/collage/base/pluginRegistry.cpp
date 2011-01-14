@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -125,12 +125,6 @@ void PluginRegistry::removeDirectory( const std::string& path )
 
 void PluginRegistry::init()
 {
-    EQASSERT( _plugins.empty( ));
-
-    // add self
-    _initPlugin( "" );
-    EQASSERT( _plugins.size() == 1 );
-
     // for each directory
     for( Strings::const_iterator i = _directories.begin();
          i != _directories.end(); ++i )
@@ -154,13 +148,13 @@ void PluginRegistry::init()
         const char DIRSEP = '/';
 #endif
         
-        // for each file in the directory
+        // for each file found in the directory
         for( Strings::const_iterator j = files.begin(); j != files.end(); ++j )
         {
             // build path + name of library
             const std::string libraryName =
                 dir.empty() ? *j : dir + DIRSEP + *j;
-            _initPlugin( libraryName );
+            addPlugin( libraryName );
         }
     }
 
@@ -170,8 +164,7 @@ void PluginRegistry::init()
         plugin->initChildren();
     }
 }
-
-void PluginRegistry::_initPlugin( const std::string& filename )
+void PluginRegistry::addPlugin( const std::string& filename )
 {
     Plugin* plugin = new Plugin(); 
     bool add = plugin->init( filename );

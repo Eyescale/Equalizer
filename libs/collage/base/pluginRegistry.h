@@ -56,7 +56,7 @@ namespace base
         /** @internal Search all plugin directories and register found DSOs */
         void init();
         
-        /** @internal Exit all library and free all plugins */
+        /** @internal Exit all DSOs and free all plugins */
         void exit();
         
         /** @internal @return all registered compressor plugins */
@@ -65,12 +65,12 @@ namespace base
         /** @internal @return the plugin containing the given compressor. */
         COBASE_API Plugin* findPlugin( const uint32_t name );
 
+        /** @internal Add a single DSO before init(). */
+        void addPlugin( const std::string& filename );
+
     private:
         Strings _directories;
         Plugins _plugins;
-
-        /** Initialize a single DSO .*/
-        void _initPlugin( const std::string& filename );
     };
 }
 }
