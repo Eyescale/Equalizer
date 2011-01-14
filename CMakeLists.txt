@@ -121,7 +121,6 @@ endif(EQ_AGL_USED)
 
 if(EQUALIZER_USE_CUDA)
   find_package(CUDA)
-
   if(WIN32)
     set(CUDA_FOUND 0)
     message(STATUS "  Disable CUDA, not yet supported on Windows")
@@ -165,14 +164,12 @@ if(CUDA_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} CUDA")
 endif(CUDA_FOUND)
 
-
 include(${Equalizer_SOURCE_DIR}/externals/UseGLEW.cmake)
 include(${Equalizer_SOURCE_DIR}/externals/UseVMMLib.cmake)
 include(${Equalizer_SOURCE_DIR}/externals/UseGnuWin32.cmake)
 include(${Equalizer_SOURCE_DIR}/externals/UsePthreads.cmake)
 set(PTHREAD_LIBRARIES pthread)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DEQ_BUILD_DIR=\"${CMAKE_BINARY_DIR}/\"")
-
 
 add_subdirectory(examples)
 add_subdirectory(libs)
@@ -187,7 +184,6 @@ IF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
   install(DIRECTORY man/man3 DESTINATION man COMPONENT man
           PATTERN "*_docs_*" EXCLUDE)
 ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
-
 
 if(APPLE AND CMAKE_OSX_ARCHITECTURES)
   message(STATUS "Supported Features:${EQ_FEATURES} [${CMAKE_OSX_ARCHITECTURES}]")

@@ -41,10 +41,7 @@ macro(_PURPLE_PRECOMPILE_HEADER_GCC NAME TARGET)
     COMMAND ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ARG1} ${COMPILE_FLAGS} -x c++-header -o ${PCH_BINARY} ${PCH_HEADER} 
     )
 
-  add_custom_target(${TARGET}_pch
-    DEPENDS	${PCH_BINARY} 
-    )
-
+  add_custom_target(${TARGET}_pch DEPENDS ${PCH_BINARY})
   add_dependencies(${TARGET} ${TARGET}_pch)
   
   get_target_property(OLD_FLAGS ${TARGET} COMPILE_FLAGS)

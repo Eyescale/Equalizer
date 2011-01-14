@@ -5,18 +5,15 @@
 #               2010 Cedric Stalder <cedric.stalder@gmail.ch>
 ##
 
-include(PurpleForwardHeaders)
-include(PurpleAddLibrary)
-include(PurpleAddAmalgamation)
-include(${CMAKE_CURRENT_SOURCE_DIR}/files.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/configure.cmake)
+include(files.cmake)
+include(configure.cmake)
 
-option(COLLAGE_BUILD_STATIC_LIBS "Build static libraries" OFF)
+option(COLLAGE_BUILD_STATIC_LIBS "Build static Collage libraries" OFF)
 if(NOT COLLAGE_BUILD_STATIC_LIBS)
   set(CO_LIB_VARIANT SHARED)
 endif()
 
-option(COLLAGE_BUILD_MODULARIZED "Set this to OFF to build amalgamations only" OFF)
+option(COLLAGE_BUILD_MODULARIZED "Build intermediate Collage libraries" OFF)
 if(NOT COLLAGE_BUILD_MODULARIZED)
   list(APPEND CO_LIB_VARIANT EXCLUDE_FROM_ALL)
 endif(NOT COLLAGE_BUILD_MODULARIZED)
@@ -47,10 +44,10 @@ endif(WIN32)
 
 #TO-DO Add base directory. The problem is about the path of file here.
 #      Maybe remove base\CMakeLists.txt and build base lib here. 
-source_group( "plugin" FILES ${PLUGIN_HEADERS} )
-source_group( "collage" FILES ${CO_FORWARD_HEADERS} ${CO_HEADERS} ${CO_SOURCES} )
-source_group( "compressor" FILES ${CO_COMPRESSOR_HEADERS} ${CO_COMPRESSOR_SOURCES})
-  
+source_group("plugin" FILES ${PLUGIN_HEADERS} )
+source_group("collage" FILES ${CO_FORWARD_HEADERS} ${CO_HEADERS} ${CO_SOURCES} )
+source_group("compressor" FILES ${CO_COMPRESSOR_HEADERS} ${CO_COMPRESSOR_SOURCES})
+
 purple_add_library(co ${CO_LIB_VARIANT}
   HEADERS_PREFIX "co/"
   FORWARD HEADERS

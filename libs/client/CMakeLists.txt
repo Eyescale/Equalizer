@@ -6,21 +6,18 @@
 ##
 
 # TODO: resolve two-way dependancy between client and util!
-include(PurpleForwardHeaders)
-include(PurpleAddLibrary)
-include(PurpleAddAmalgamation)
 include(configure.cmake)
 include(files.cmake)
 include(util/files.cmake)
 include(compressor/files.cmake)
 include(../fabric/files.cmake)
 
-option(EQUALIZER_BUILD_STATIC_LIBS "Build static libraries" OFF)
+option(EQUALIZER_BUILD_STATIC_LIBS "Build static Equalizer libraries" OFF)
 if(NOT EQUALIZER_BUILD_STATIC_LIBS)
   set(EQ_LIB_VARIANT SHARED)
 endif()
 
-option(EQUALIZER_BUILD_MODULARIZED "Set this to OFF to build amalgamations only" OFF)
+option(EQUALIZER_BUILD_MODULARIZED "Build intermediate Equalizer libraries" OFF)
 if(NOT EQUALIZER_BUILD_MODULARIZED)
   list(APPEND EQ_LIB_VARIANT EXCLUDE_FROM_ALL)
 endif(NOT EQUALIZER_BUILD_MODULARIZED)
@@ -44,11 +41,11 @@ endif(NOT CUDA_FOUND)
 
 purple_forward_headers("eq/" ${EQ_UTIL_FORWARD_HEADERS})
 
-purple_add_library( eq_fabric ${EQ_LIB_VARIANT}
+purple_add_library(eq_fabric ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/fabric/"
   FORWARD HEADERS ${EQ_FABRIC_FORWARD_HEADERS}
   SOURCES ${EQ_FABRIC_SOURCES}
-  LINK_LIBRARIES shared co
+  LINK_LIBRARIES Collage
   )
 
 source_group( "plugin" FILES ${PLUGIN_HEADERS} )
@@ -66,7 +63,7 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
     ${EQ_UTIL_SOURCES}
     ${EQ_COMPRESSOR_SOURCES}
   LINK_LIBRARIES
-    shared co
+    Collage
     shared eq_fabric
     ${GLEW_LIBRARY}
     ${CARBON_LIBRARY}
@@ -75,9 +72,7 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
     ${CUDA_LIBRARIES}
   )
 
-purple_add_amalgamation( Equalizer
-  shared co_base
-  shared co
+purple_add_amalgamation(Equalizer
   shared eq_fabric
   shared eq_client
  )
