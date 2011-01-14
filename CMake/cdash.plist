@@ -16,6 +16,6 @@
     <string>cdash</string>
   </array>
   <key>StartInterval</key>
-  <integer>3600</integer>
+  <integer>7200</integer>
 </dict>
 </plist>
