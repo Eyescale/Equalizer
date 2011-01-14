@@ -7,6 +7,7 @@
 
 include(files.cmake)
 include(configure.cmake)
+set(CO_VERSION "0.2.0")
 
 option(COLLAGE_BUILD_STATIC_LIBS "Build static Collage libraries" OFF)
 if(NOT COLLAGE_BUILD_STATIC_LIBS)
@@ -69,6 +70,10 @@ purple_add_amalgamation(Collage
     shared co_base
     shared co
   )
+
+# Override Equalizer version for Collage
+set_target_properties(Collage PROPERTIES VERSION ${CO_VERSION}
+                                         SOVERSION ${CO_VERSION})
 
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY
 configure_file(Collage.pc.in Collage.pc @ONLY)

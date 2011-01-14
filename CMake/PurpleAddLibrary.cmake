@@ -1,5 +1,6 @@
 ##
 # Copyright (c) 2010 Daniel Pfeifer, All rights reserved.
+#               2011 Stefan Eilemann <eile@eyescale.ch>
 #
 # This file is freely distributable without licensing fees and
 # is provided without guarantee or warrantee expressed or implied.
@@ -72,6 +73,7 @@ function(PURPLE_ADD_LIBRARY NAME)
     target_link_libraries(${THIS_TARGET} ${LINK_LIBRARIES})
     set_target_properties(${THIS_TARGET} PROPERTIES
       OUTPUT_NAME ${NAME}
+      VERSION ${VERSION} SOVERSION ${API_VERSION}
       COMPILE_DEFINITIONS ${UPPER_NAME}_SHARED
       SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       LINK_LIBRARIES "${THIS_LINK_LIBRARIES}"
@@ -88,6 +90,7 @@ function(PURPLE_ADD_LIBRARY NAME)
     add_library(${THIS_TARGET} STATIC ${THIS_EXCLUDE_FROM_ALL} ${THIS_HEADERS} ${THIS_SOURCES})
     set_target_properties(${THIS_TARGET} PROPERTIES
       OUTPUT_NAME ${NAME}
+      VERSION ${VERSION} SOVERSION ${API_VERSION}
       COMPILE_DEFINITIONS ${UPPER_NAME}_STATIC
       SOURCE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       LINK_LIBRARIES "${THIS_LINK_LIBRARIES}"
