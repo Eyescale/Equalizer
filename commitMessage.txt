@@ -1,4 +1,4 @@
-- remove erroneous glPopAttribute
+- fix bug 3158106 No compressor found in the library
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
