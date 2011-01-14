@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -92,7 +92,9 @@ namespace eq
         PTR_BUTTON2     = EQ_BIT2,
         PTR_BUTTON3     = EQ_BIT3,
         PTR_BUTTON4     = EQ_BIT4,
-        PTR_BUTTON5     = EQ_BIT5
+        PTR_BUTTON5     = EQ_BIT5,
+        PTR_BUTTON6     = EQ_BIT6,
+        PTR_BUTTON7     = EQ_BIT7
     };
 
     /**

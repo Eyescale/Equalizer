@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>  
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -210,7 +210,25 @@ void GLXEventHandler::_processEvent( GLXWindowEvent& event )
             event.pointerButtonPress.y = xEvent.xbutton.y;
             event.pointerButtonPress.buttons = _getButtonState( xEvent );
             event.pointerButtonPress.button  = _getButtonAction( xEvent );
-            
+
+            // Translate wheel events
+            switch( event.pointerButtonPress.button )
+            {
+              case PTR_BUTTON4:
+              case PTR_BUTTON5:
+              case PTR_BUTTON6:
+              case PTR_BUTTON7:
+                switch( event.pointerButtonPress.button )
+                {
+                  case PTR_BUTTON4: event.pointerWheel.xAxis = 1; break;
+                  case PTR_BUTTON5: event.pointerWheel.xAxis = -1; break;
+                  case PTR_BUTTON6: event.pointerWheel.yAxis = 1; break;
+                  case PTR_BUTTON7: event.pointerWheel.yAxis = -1; break;
+                }
+                event.type = Event::WINDOW_POINTER_WHEEL;
+                event.pointerWheel.button = PTR_BUTTON_NONE;
+            }
+
             _computePointerDelta( window, event );
             _getRenderContext( window, event );
             break;
@@ -288,6 +306,8 @@ uint32_t GLXEventHandler::_getButtonAction( XEvent& event )
         case Button3: return PTR_BUTTON3;
         case Button4: return PTR_BUTTON4;
         case Button5: return PTR_BUTTON5;
+        case 6: return PTR_BUTTON6;
+        case 7: return PTR_BUTTON7;
         default: return PTR_BUTTON_NONE;
     }
 }
