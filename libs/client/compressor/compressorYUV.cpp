@@ -224,7 +224,7 @@ void CompressorYUV::download( const GLEWContext* glewContext,
         
         _compress( glewContext, inDims, outDims );
         buffer.resize( outDims[1] * outDims[3] * 4 );
-        _download( buffer.getData( ));glPopAttrib();
+        _download( buffer.getData( ));
     }
     // the data is in the texture id define by the field "source"
     else if( flags & EQ_COMPRESSOR_USE_TEXTURE_RECT )
@@ -294,7 +294,6 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
 {
     glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_TEXTURE_BIT |
                   GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_LIGHTING_BIT );
-    //glColorMask( true, true, true, true );
     if ( !_texture )
     {
         _texture = new util::Texture( GL_TEXTURE_RECTANGLE_ARB, glewContext );
