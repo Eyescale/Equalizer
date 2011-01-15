@@ -89,7 +89,7 @@ namespace server
             };
 
             /** @return the frame number of the youngest complete load. */
-            uint32_t findYoungestLoad() const;
+            uint32_t findYoungestLoad( const uint32_t frame ) const;
             /** Delete older loads and return the load belonging to the frame.*/
             const Load& useLoad( const uint32_t frameNumber );
             /** Insert a new, empty load for the given frame. */

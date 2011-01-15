@@ -425,17 +425,25 @@ uint32_t ViewEqualizer::_findInputFrameNumber() const
     const size_t nChildren = children.size();
     EQASSERT( nChildren == _listeners.size( ));
 
-    for( size_t i = 0; i < nChildren; ++i )
+    bool change = true;
+    while( change )
     {
-        const Compound* child = children[ i ];
-        if( !child->isRunning( ))
-            continue;
+        change = false;
+        for( size_t i = 0; i < nChildren; ++i )
+        {
+            const Compound* child = children[ i ];
+            if( !child->isRunning( ))
+                continue;
 
-        const Listener& listener = _listeners[ i ];
-        const uint32_t youngest = listener.findYoungestLoad();
-        frame = EQ_MIN( frame, youngest );
+            const Listener& listener = _listeners[ i ];
+            const uint32_t youngest = listener.findYoungestLoad( frame );
+            if( frame > youngest )
+            {
+                change = true;
+                frame = youngest;
+            }
+        }
     }
-
     return frame;
 }
 
@@ -637,12 +645,12 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
                     << load << std::endl;
 }
 
-uint32_t ViewEqualizer::Listener::findYoungestLoad() const
+uint32_t ViewEqualizer::Listener::findYoungestLoad( const uint32_t frame ) const
 {
     for( LoadDeque::const_iterator i = _loads.begin(); i != _loads.end(); ++i )
     {
         const Load& load = *i;
-        if( load.missing == 0 )
+        if( load.missing == 0 && load.frame <= frame )
             return load.frame;
     }
     return 0;
