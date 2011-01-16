@@ -58,8 +58,13 @@ bool Launcher::run( const std::string& command )
         return false;
 
 #ifdef _WIN32
-    STARTUPINFO         startupInfo = {0};
-    PROCESS_INFORMATION procInfo    = {0};
+
+    STARTUPINFO         startupInfo;
+    ZeroMemory(&startupInfo, sizeof(STARTUPINFO));
+
+    PROCESS_INFORMATION procInfo;
+    ZeroMemory(&procInfo, sizeof(PROCESS_INFORMATION));
+
     const char*         cmdLine     = command.c_str();
 
     startupInfo.cb = sizeof( STARTUPINFO );
