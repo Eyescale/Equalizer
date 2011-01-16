@@ -66,7 +66,7 @@ namespace base
         COBASE_API Plugin* findPlugin( const uint32_t name );
 
         /** @internal Add a single DSO before init(). */
-        void addPlugin( const std::string& filename );
+        COBASE_API void addPlugin( const std::string& filename );
 
     private:
         Strings _directories;

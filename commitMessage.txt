@@ -1,4 +1,4 @@
-- fix bug 3158106 No compressor found in the library
+- fix break build : Add missing export
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
