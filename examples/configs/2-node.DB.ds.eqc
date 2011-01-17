@@ -1,6 +1,6 @@
 #Equalizer 1.0 ascii
 
-# two-to-one sort-last, direct-send config for cluster at unizh
+# two-to-one sort-last, direct-send config
 global
 {
     EQ_WINDOW_IATTR_PLANES_STENCIL  ON
@@ -9,24 +9,33 @@ global
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
         {
-            connection { hostname "10.42.42.1" }
+            connection { hostname "127.0.0.1" }
             pipe 
             {
                 window 
                 {
                     name    "window1"
+                    viewport [ 100 100 400 400 ]
                     channel { name "channel1" }
                 }
             }
         }
         node
         {
-            connection { hostname "hactar2" }
-            pipe { window { channel { name "channel2" }}}
+            connection { hostname "127.0.0.1" }
+            pipe
+            {
+                window
+                {
+                    viewport [ 600 100 400 400 ]
+                    channel { name "channel2" }
+                }
+            }
         }
         compound
         {

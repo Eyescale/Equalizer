@@ -79,7 +79,8 @@ namespace util
          * @param type the OpenGL Type.
          * @version 1.0
          */
-        EQ_API void setExternalFormat( const uint32_t format, const uint32_t type );
+        EQ_API void setExternalFormat( const uint32_t format,
+                                       const uint32_t type );
 
         /**
          * @return the external data format of the texture, e.g., GL_RGBA.
@@ -117,7 +118,7 @@ namespace util
          * @version 1.0
          */
         EQ_API void init( const GLuint internalFormat, const int32_t width,
-                             const int32_t height );
+                          const int32_t height );
 
         /**
          * Clear the texture, including deleting the GL texture name.
@@ -140,7 +141,7 @@ namespace util
 
         /** Copy the specified buffer to the texture at 0,0. @version 1.0 */
         EQ_API void upload( const int32_t width, const int32_t height,
-                               const void* ptr );
+                            const void* ptr );
 
         /**
          * Copy the texture data from the GPU to the given memory address.
@@ -188,7 +189,7 @@ namespace util
          * @version 1.0
          */
         EQ_API void setGLData( const GLuint id, const GLuint internalFormat,
-                                  const int32_t width, const int32_t height );
+                               const int32_t width, const int32_t height );
         //@}
 
     private:
