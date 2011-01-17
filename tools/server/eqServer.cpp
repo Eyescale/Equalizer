@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -16,11 +16,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "server.h"
+#include "../../libs/server/server.h"
 
-#include "global.h"
-#include "init.h"
-#include "loader.h"
+#include "../../libs/server/global.h"
+#include "../../libs/server/init.h"
+#include "../../libs/server/loader.h"
 
 #include <co/global.h>
 #include <co/init.h>

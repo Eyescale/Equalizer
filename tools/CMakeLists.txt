@@ -19,24 +19,15 @@ include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/examples/include)
 
 if(WIN32)
   eq_add_tool(affinityCheck
-    SOURCES
-      affinityCheck/affinityCheck.cpp
-    LINK_LIBRARIES
-      ${GLEW_LIBRARY}
-      ${OPENGL_LIBRARIES}
+    SOURCES affinityCheck/affinityCheck.cpp
+    LINK_LIBRARIES ${GLEW_LIBRARY} ${OPENGL_LIBRARIES}
     )
 endif(WIN32)
 
 eq_add_tool(configTool
-  HEADERS
-    configTool/configTool.h
-    configTool/frame.h
-  SOURCES
-    configTool/configTool.cpp
-    configTool/writeFromFile.cpp
-  LINK_LIBRARIES
-    Equalizer
-    shared EqualizerServer
+  HEADERS configTool/configTool.h configTool/frame.h
+  SOURCES configTool/configTool.cpp configTool/writeFromFile.cpp
+  LINK_LIBRARIES Equalizer shared EqualizerServer
   )
 
 eq_add_tool(eVolveConverter
@@ -51,30 +42,21 @@ eq_add_tool(eVolveConverter
   )
 
 eq_add_tool(netperf
-  SOURCES
-    netperf/netperf.cpp
-  LINK_LIBRARIES
-    Equalizer
+  SOURCES netperf/netperf.cpp
+  LINK_LIBRARIES Equalizer
   )
 
 eq_add_tool(netproxy
-  SOURCES
-    netproxy/netproxy.cpp
-  LINK_LIBRARIES
-    Equalizer
+  SOURCES netproxy/netproxy.cpp
+  LINK_LIBRARIES Equalizer
   )
 
 eq_add_tool(windowAdmin
-  SOURCES
-    windowAdmin/main.cpp
-  LINK_LIBRARIES
-    Equalizer
-    shared EqualizerAdmin
+  SOURCES windowAdmin/main.cpp
+  LINK_LIBRARIES Equalizer shared EqualizerAdmin
   )
 
 eq_add_tool(eqServer
-  SOURCES
-    ../libs/server/eqServer.cpp
-  LINK_LIBRARIES
-    shared EqualizerServer
+  SOURCES server/eqServer.cpp
+  LINK_LIBRARIES shared EqualizerServer
   )
