@@ -67,7 +67,7 @@ namespace co
                     ( identifier == rhs.identifier && version > rhs.version );
             }
 
-        base::UUID identifier;
+        uint128_t identifier;
         uint128_t version;
 
         /** An unset object version. */
