@@ -419,30 +419,22 @@ uint32_t ViewEqualizer::_findInputFrameNumber() const
 {
     EQASSERT( !_listeners.empty( ));
 
-    uint32_t frame = std::numeric_limits< uint32_t >::max();
+    uint32_t frame = std::numeric_limits< uint32_t >::min();
     const Compound* compound = getCompound();
     const Compounds& children = compound->getChildren();
     const size_t nChildren = children.size();
     EQASSERT( nChildren == _listeners.size( ));
 
-    bool change = true;
-    while( change )
+    for( size_t i = 0; i < nChildren; ++i )
     {
-        change = false;
-        for( size_t i = 0; i < nChildren; ++i )
-        {
-            const Compound* child = children[ i ];
-            if( !child->isRunning( ))
-                continue;
+        const Compound* child = children[ i ];
+        if( !child->isRunning( ))
+            continue;
 
-            const Listener& listener = _listeners[ i ];
-            const uint32_t youngest = listener.findYoungestLoad( frame );
-            if( frame > youngest )
-            {
-                change = true;
-                frame = youngest;
-            }
-        }
+        const Listener& listener = _listeners[ i ];
+        const uint32_t youngest = listener.findYoungestLoad( frame );
+        if( frame < youngest )
+            frame = youngest;
     }
     return frame;
 }
@@ -650,8 +642,8 @@ uint32_t ViewEqualizer::Listener::findYoungestLoad( const uint32_t frame ) const
     for( LoadDeque::const_iterator i = _loads.begin(); i != _loads.end(); ++i )
     {
         const Load& load = *i;
-        if( load.missing == 0 && load.frame <= frame )
-            return load.frame;
+        if( load.missing == 0 )
+            return EQ_MAX( load.frame, frame );
     }
     return 0;
 }
