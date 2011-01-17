@@ -123,13 +123,14 @@ void FrameData::flush()
 Image* FrameData::newImage( const eq::Frame::Type type,
                             const DrawableConfig& config )
 {
-    Image* image = _allocImage( type, config );
+    Image* image = _allocImage( type, config, true /* set quality */ );
     _images.push_back( image );
     return image;
 }
 
 Image* FrameData::_allocImage( const eq::Frame::Type type,
-                               const DrawableConfig& config )
+                               const DrawableConfig& config,
+                               const bool setQuality_ )
 {
     Image* image;
     _imageCacheLock.set();
@@ -150,11 +151,14 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
 
     image->setAlphaUsage( _useAlpha );
     image->setStorageType( type );
-    image->setQuality( Frame::BUFFER_COLOR, _colorQuality );
-    image->setQuality( Frame::BUFFER_DEPTH, _depthQuality ); 
+    if( setQuality_ )
+    {
+        image->setQuality( Frame::BUFFER_COLOR, _colorQuality );
+        image->setQuality( Frame::BUFFER_DEPTH, _depthQuality ); 
+    }
+
     image->setInternalFormat( Frame::BUFFER_DEPTH,
                               EQ_COMPRESSOR_DATATYPE_DEPTH );
-
     switch( config.colorBits )
     {
         case 16:  
@@ -302,7 +306,8 @@ void FrameData::removeListener( co::base::Monitor<uint32_t>& listener )
 
 bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
 {
-    Image* image = _allocImage( Frame::TYPE_MEMORY, DrawableConfig( ));
+    Image* image = _allocImage( Frame::TYPE_MEMORY, DrawableConfig(),
+                                false /* set quality */ );
 
     // Note on the const_cast: since the PixelData structure stores non-const
     // pointers, we have to go non-const at some point, even though we do not
@@ -320,15 +325,14 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
         if( packet->buffers & buffer )
         {
             PixelData pixelData;
-            const ImageHeader* header = 
-                              reinterpret_cast< ImageHeader* >( data );
+            const ImageHeader* header = reinterpret_cast<ImageHeader*>( data );
             pixelData.internalFormat  = header->internalFormat;
             pixelData.externalFormat  = header->externalFormat;
             pixelData.pixelSize       = header->pixelSize;
             pixelData.pvp             = header->pvp;
             pixelData.compressorName  = header->compressorName;
             pixelData.compressorFlags = header->compressorFlags;
-            pixelData.isCompressed = 
+            pixelData.isCompressed =
                 pixelData.compressorName > EQ_COMPRESSOR_NONE;
 
             const uint32_t nChunks    = header->nChunks;

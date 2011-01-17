@@ -642,7 +642,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     {
         EQASSERTINFO( false,
                       "Can't allocate decompressor " << pixels.compressorName <<
-                      ", mismatched compressor installation?" );
+                      ", mismatched compressor plugin installation?" );
         return;
     }
 

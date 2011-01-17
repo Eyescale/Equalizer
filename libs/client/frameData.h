@@ -321,7 +321,8 @@ namespace server
 
         /** Allocate or reuse an image. */
         Image* _allocImage( const Frame::Type type,
-                            const DrawableConfig& config );
+                            const DrawableConfig& config,
+                            const bool setQuality );
 
         /** Apply all received images of the given version. */
         void _applyVersion( const uint128_t& version );
