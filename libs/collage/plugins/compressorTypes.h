@@ -218,6 +218,31 @@
 /** Low quality CPU jpeg compressor from rtt.ag retaining alpha */
 #define EQ_COMPRESSOR_AG_RTT_JPEG_LQ_A   0x100005u
 
+/** Eyescale quasi-lossless CPU jpeg RGBA compressor */
+#define EQ_COMPRESSOR_CH_EYESCALE_JPEG_RGBA100 0x200000u
+/** Eyescale 90% quality CPU jpeg RGBA compressor */
+#define EQ_COMPRESSOR_CH_EYESCALE_JPEG_RGBA90  0x200001u
+/** Eyescale 80% quality CPU jpeg RGBA compressor */
+#define EQ_COMPRESSOR_CH_EYESCALE_JPEG_RGBA80  0x200002u
+/** Eyescale quasi-lossless CPU jpeg BGRA compressor */
+#define EQ_COMPRESSOR_CH_EYESCALE_JPEG_BGRA100 0x200003u
+/** Eyescale 90% quality CPU jpeg BGRA compressor */
+#define EQ_COMPRESSOR_CH_EYESCALE_JPEG_BGRA90  0x200004u
+/** Eyescale 80% quality CPU jpeg BGRA compressor */
+#define EQ_COMPRESSOR_CH_EYESCALE_JPEG_BGRA80  0x200005u
+/** Eyescale quasi-lossless CPU jpeg RGB compressor */
+#define EQ_COMPRESSOR_CH_EYESCALE_JPEG_RGB100  0x200006u
+/** Eyescale 90% quality CPU jpeg RGB compressor */
+#define EQ_COMPRESSOR_CH_EYESCALE_JPEG_RGB90   0x200007u
+/** Eyescale 80% quality CPU jpeg RGB compressor */
+#define EQ_COMPRESSOR_CH_EYESCALE_JPEG_RGB80   0x200008u
+/** Eyescale quasi-lossless CPU jpeg BGR compressor */
+#define EQ_COMPRESSOR_CH_EYESCALE_JPEG_BGR100  0x200009u
+/** Eyescale 90% quality CPU jpeg BGR compressor */
+#define EQ_COMPRESSOR_CH_EYESCALE_JPEG_BGR90   0x20000au
+/** Eyescale 80% quality CPU jpeg BGR compressor */
+#define EQ_COMPRESSOR_CH_EYESCALE_JPEG_BGR80   0x20000bu
+
 /**
  * Private types -FOR DEVELOPMENT ONLY-.
  *
