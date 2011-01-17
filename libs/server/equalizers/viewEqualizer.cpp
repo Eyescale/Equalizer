@@ -419,7 +419,7 @@ uint32_t ViewEqualizer::_findInputFrameNumber() const
 {
     EQASSERT( !_listeners.empty( ));
 
-    uint32_t frame = std::numeric_limits< uint32_t >::min();
+    uint32_t frame = std::numeric_limits< uint32_t >::max();
     const Compound* compound = getCompound();
     const Compounds& children = compound->getChildren();
     const size_t nChildren = children.size();
@@ -433,7 +433,7 @@ uint32_t ViewEqualizer::_findInputFrameNumber() const
 
         const Listener& listener = _listeners[ i ];
         const uint32_t youngest = listener.findYoungestLoad( frame );
-        if( frame < youngest )
+        if( frame > youngest )
             frame = youngest;
     }
     return frame;
@@ -643,7 +643,7 @@ uint32_t ViewEqualizer::Listener::findYoungestLoad( const uint32_t frame ) const
     {
         const Load& load = *i;
         if( load.missing == 0 )
-            return EQ_MAX( load.frame, frame );
+            return EQ_MIN( load.frame, frame );
     }
     return 0;
 }
