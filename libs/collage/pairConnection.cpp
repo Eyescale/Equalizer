@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,8 +17,6 @@
 
 #include "pairConnection.h"
 
-using namespace std;
-
 namespace co
 {
 PairConnection::PairConnection( ConnectionPtr readConnection,
@@ -29,7 +27,7 @@ PairConnection::PairConnection( ConnectionPtr readConnection,
     _sibling = new PairConnection( this );
     EQASSERT( readConnection->isClosed( ));
     EQASSERT( writeConnection->isClosed( ));
-    EQINFO << "New PairConnection @" << (void*)this << endl;
+    EQINFO << "New PairConnection @" << (void*)this << std::endl;
 }
 
 PairConnection::PairConnection( PairConnection* sibling )
@@ -39,7 +37,7 @@ PairConnection::PairConnection( PairConnection* sibling )
 {
     EQASSERT( _readConnection->isClosed( ));
     EQASSERT( _writeConnection->isClosed( ));
-    EQINFO << "New PairConnection Sibling @" << (void*)this << endl;
+    EQINFO << "New PairConnection Sibling @" << (void*)this << std::endl;
 }
 
 PairConnection::~PairConnection()

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,11 +24,11 @@ namespace co
 {
     enum LogTopics
     {
-        LOG_OBJECTS = co::base::LOG_CUSTOM << 0,  // 16
-        LOG_BARRIER = co::base::LOG_CUSTOM << 1,  // 32
-        LOG_RSP     = co::base::LOG_CUSTOM << 2,  // 64
-        LOG_PACKETS = co::base::LOG_CUSTOM << 3,  // 128
-        LOG_CUSTOM  = co::base::LOG_CUSTOM << 4   // 256
+        LOG_OBJECTS = base::LOG_CUSTOM << 0,  // 16
+        LOG_BARRIER = base::LOG_CUSTOM << 1,  // 32
+        LOG_RSP     = base::LOG_CUSTOM << 2,  // 64
+        LOG_PACKETS = base::LOG_CUSTOM << 3,  // 128
+        LOG_CUSTOM  = base::LOG_CUSTOM << 4   // 256
     };
 }
 #endif // CO_LOG_H

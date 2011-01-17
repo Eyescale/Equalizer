@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -78,7 +78,7 @@ namespace co
         //@}
 
     protected:
-        virtual void attach( const co::base::UUID& id, 
+        virtual void attach( const base::UUID& id, 
                              const uint32_t instanceID );
 
         virtual ChangeType getChangeType() const { return DELTA; }
@@ -102,7 +102,7 @@ namespace co
         std::map< uint128_t, Nodes > _enteredNodes;
         
         /** The monitor used for barrier leave notification. */
-        co::base::Monitor<uint32_t> _leaveNotify;
+        base::Monitor< uint32_t > _leaveNotify;
 
         /* The command handlers. */
         bool _cmdEnter( Command& command );

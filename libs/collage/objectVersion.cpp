@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,16 +24,16 @@ namespace co
 ObjectVersion NONE;
 
 ObjectVersion::ObjectVersion()
-        : identifier( co::base::UUID::ZERO ), version( VERSION_NONE )
+        : identifier( base::UUID::ZERO ), version( VERSION_NONE )
 {}
 
-ObjectVersion::ObjectVersion( const co::base::UUID& id_, 
+ObjectVersion::ObjectVersion( const base::UUID& id_, 
                               const uint128_t& version_ )
         : identifier( id_ ), version( version_ )
 {}
 
 ObjectVersion::ObjectVersion( const Object* object )
-        : identifier( co::base::UUID::ZERO ), version( VERSION_NONE )
+        : identifier( base::UUID::ZERO ), version( VERSION_NONE )
 {
     if( object && object->isAttached( ))
     {
@@ -51,7 +51,7 @@ ObjectVersion& ObjectVersion::operator = ( const Object* object )
     }
     else
     {
-        identifier = co::base::UUID::ZERO;
+        identifier = base::UUID::ZERO;
         version = VERSION_NONE;
     }
 

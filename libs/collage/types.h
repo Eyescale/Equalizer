@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -50,18 +50,18 @@ class ObjectDataIStream;
 struct ObjectVersion;
 
 /** A unique identifier for nodes. */
-typedef co::base::UUID NodeID;
+typedef base::UUID NodeID;
 
-typedef co::base::uint128_t uint128_t;
+typedef base::uint128_t uint128_t;
 
 /** A reference pointer for Node pointers. */
-typedef co::base::RefPtr< Node >                  NodePtr;
+typedef base::RefPtr< Node >                  NodePtr;
 /** A reference pointer for LocalNode pointers. */
-typedef co::base::RefPtr< LocalNode >             LocalNodePtr;
+typedef base::RefPtr< LocalNode >             LocalNodePtr;
 /** A reference pointer for Connection pointers. */
-typedef co::base::RefPtr< Connection >            ConnectionPtr;
+typedef base::RefPtr< Connection >            ConnectionPtr;
 /** A reference pointer for ConnectionDescription pointers. */
-typedef co::base::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
+typedef base::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
 
 /** A vector of NodePtr's. */
 typedef std::vector< NodePtr >                   Nodes;
@@ -87,7 +87,7 @@ typedef ConnectionDescriptions::const_iterator   ConnectionDescriptionsCIter;
 typedef std::vector< Command* > Commands;
 typedef std::deque< Command* > CommandDeque;
 typedef std::list< Command* > CommandList;
-typedef stde::hash_map< co::base::uint128_t, Objects > ObjectsHash;
+typedef stde::hash_map< base::uint128_t, Objects > ObjectsHash;
 typedef std::vector< ObjectVersion > ObjectVersions;
 typedef std::deque< ObjectDataIStream* > ObjectDataIStreamDeque;
 typedef std::vector< ObjectDataIStream* > ObjectDataIStreams;

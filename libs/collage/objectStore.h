@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -92,7 +92,7 @@ namespace co
 
 
         /** Start mapping a distributed object. */
-        uint32_t mapObjectNB( Object* object, const co::base::UUID& id, 
+        uint32_t mapObjectNB( Object* object, const base::UUID& id, 
                               const uint128_t& version = VERSION_OLDEST );
         /** Finalize the mapping of a distributed object. */
         bool mapObjectSync( const uint32_t requestID );
@@ -120,7 +120,7 @@ namespace co
          * @param instanceID the node-local instance identifier, or
          *                   EQ_ID_INVALID if this method should generate one.
          */
-        void attachObject( Object* object, const co::base::UUID& id, 
+        void attachObject( Object* object, const base::UUID& id, 
                            const uint32_t instanceID );
 
         /** 
@@ -156,17 +156,17 @@ namespace co
         LocalNode* const _localNode;
 
         /** The identifiers for node-local instance identifiers. */
-        co::base::a_int32_t _instanceIDs;
+        base::a_int32_t _instanceIDs;
 
         /** All registered and mapped objects. 
          *   - write locked only in receiver thread
          *   - read unlocked in receiver thread 
          *   - read locked in all other threads
          */
-        co::base::Lockable< ObjectsHash, co::base::SpinLock > _objects;
+        base::Lockable< ObjectsHash, base::SpinLock > _objects;
 
         /** The global clock for send-on-register timeout. */
-        co::base::Clock _clock;
+        base::Clock _clock;
 
         struct SendQueueItem
         {
@@ -186,11 +186,11 @@ namespace co
          * @return the master node, or UUID::ZERO if no master node is
          *         found for the identifier.
          */
-        NodeID _findMasterNodeID( const co::base::UUID& id );
+        NodeID _findMasterNodeID( const base::UUID& id );
  
-        NodePtr _connectMaster( const co::base::UUID& id );
+        NodePtr _connectMaster( const base::UUID& id );
 
-        void _attachObject( Object* object, const co::base::UUID& id, 
+        void _attachObject( Object* object, const base::UUID& id, 
                             const uint32_t instanceID );
         void _detachObject( Object* object );
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -62,7 +62,7 @@ namespace co
         CommandDeque _commands;
 
         /** The object version associated with this input stream. */
-        co::base::Monitor< uint128_t > _version;
+        base::Monitor< uint128_t > _version;
 
         void _setReady() { _version = getPendingVersion(); }
 

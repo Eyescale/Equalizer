@@ -83,10 +83,10 @@ namespace co
         virtual ~RSPConnection();
     
     private:
-        typedef co::base::RefPtr< RSPConnection > RSPConnectionPtr;
+        typedef base::RefPtr< RSPConnection > RSPConnectionPtr;
 
         /** Thread managing network IO and RSP protocol. */
-        class Thread : public co::base::Thread
+        class Thread : public base::Thread
         {
         public: 
             Thread( RSPConnectionPtr connection )
@@ -196,7 +196,7 @@ namespace co
         uint32_t _payloadSize;
         int32_t  _timeouts;
 
-        typedef co::base::RefPtr< EventConnection > EventConnectionPtr;
+        typedef base::RefPtr< EventConnection > EventConnectionPtr;
         EventConnectionPtr _event;
 
         boost::asio::io_service        _ioService;
@@ -206,24 +206,24 @@ namespace co
         boost::asio::deadline_timer    _timeout;
         boost::asio::deadline_timer    _wakeup;
         
-        co::base::Clock _clock;
+        base::Clock _clock;
         uint64_t        _maxBucketSize;
         size_t          _bucketSize;
         int64_t         _sendRate;
 
         Thread*          _thread;
-        co::base::Lock   _mutexConnection;
-        co::base::Lock   _mutexEvent;
+        base::Lock   _mutexConnection;
+        base::Lock   _mutexEvent;
         uint16_t         _acked;        // sequence ID of last confirmed ack
 
-        typedef co::base::Bufferb Buffer;
+        typedef base::Bufferb Buffer;
         typedef std::vector< Buffer* > Buffers;
 
         Buffers _buffers;                   //!< Data buffers
         /** Empty read buffers (connected) or write buffers (listening) */
-        co::base::LFQueue< Buffer* > _threadBuffers;
+        base::LFQueue< Buffer* > _threadBuffers;
         /** Ready data buffers (connected) or empty write buffers (listening) */
-        co::base::MTQueue< Buffer* > _appBuffers;
+        base::MTQueue< Buffer* > _appBuffers;
 
         Buffer _recvBuffer;                      //!< Receive (thread) buffer
         std::deque< Buffer* > _recvBuffers;      //!< out-of-order buffers

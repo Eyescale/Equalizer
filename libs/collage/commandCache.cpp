@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -77,11 +77,11 @@ void CommandCache::flush()
 #ifdef PROFILE
 namespace
 {
-static co::base::a_int32_t _hits;
-static co::base::a_int32_t _misses;
-static co::base::a_int32_t _lookups;
-static co::base::a_int32_t _allocs;
-static co::base::a_int32_t _frees;
+static base::a_int32_t _hits;
+static base::a_int32_t _misses;
+static base::a_int32_t _lookups;
+static base::a_int32_t _allocs;
+static base::a_int32_t _frees;
 }
 #endif
 

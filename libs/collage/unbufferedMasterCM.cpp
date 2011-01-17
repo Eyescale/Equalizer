@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -128,7 +128,7 @@ void UnbufferedMasterCM::removeSlave( NodePtr node )
     EQ_TS_THREAD( _cmdThread );
     // remove from subscribers
     const NodeID& nodeID = node->getNodeID();
-    EQASSERTINFO( _slavesCount[ nodeID ] != 0, co::base::className( _object ));
+    EQASSERTINFO( _slavesCount[ nodeID ] != 0, base::className( _object ));
 
     --_slavesCount[ nodeID ];
     if( _slavesCount[ nodeID ] == 0 )

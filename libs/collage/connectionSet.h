@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -117,7 +117,7 @@ namespace co
 #endif
 
         /** Mutex protecting changes to the set. */
-        co::base::Lock _mutex;
+        base::Lock _mutex;
 
         /** The connections of this set */
         Connections _allConnections;
@@ -127,15 +127,15 @@ namespace co
 
         // Note: std::vector had to much overhead here
 #ifdef _WIN32
-        co::base::Buffer< HANDLE > _fdSet;
+        base::Buffer< HANDLE > _fdSet;
 #else
-        co::base::Buffer< pollfd > _fdSetCopy; // 'const' set
-        co::base::Buffer< pollfd > _fdSet;     // copy of _fdSetCopy used to poll
+        base::Buffer< pollfd > _fdSetCopy; // 'const' set
+        base::Buffer< pollfd > _fdSet;     // copy of _fdSetCopy used to poll
 #endif
-        co::base::Buffer< Result > _fdSetResult;
+        base::Buffer< Result > _fdSetResult;
 
         /** The connection to reset a running select, see constructor. */
-        co::base::RefPtr< EventConnection > _selfConnection;
+        base::RefPtr< EventConnection > _selfConnection;
 
         // result values
         ConnectionPtr _connection;

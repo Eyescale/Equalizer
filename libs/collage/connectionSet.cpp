@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -70,7 +70,7 @@ ConnectionSet::~ConnectionSet()
 #ifdef _WIN32
 
 /** Handles connections exceeding MAXIMUM_WAIT_OBJECTS */
-class ConnectionSetThread : public co::base::Thread
+class ConnectionSetThread : public base::Thread
 {
 public:
     ConnectionSetThread( ConnectionSet* parent )
@@ -89,7 +89,7 @@ public:
     ConnectionSet* set;
     HANDLE         notifier;
 
-    co::base::Monitor< ConnectionSet::Event > event;
+    base::Monitor< ConnectionSet::Event > event;
 
 protected:
     virtual void run()
@@ -132,7 +132,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
     EQASSERT( connection->isConnected() || connection->isListening( ));
 
     { 
-        co::base::ScopedMutex<> mutex( _mutex );
+        base::ScopedMutex<> mutex( _mutex );
         _allConnections.push_back( connection );
 
 #ifdef _WIN32
@@ -179,7 +179,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
 bool ConnectionSet::removeConnection( ConnectionPtr connection )
 {
     {
-        co::base::ScopedMutex<> mutex( _mutex );
+        base::ScopedMutex<> mutex( _mutex );
         Connections::iterator i = stde::find( _allConnections, connection );
         if( i == _allConnections.end( ))
             return false;
@@ -307,7 +307,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
                 _error = errno;
 #endif
 
-                EQERROR << "Error during select: " << co::base::sysError
+                EQERROR << "Error during select: " << base::sysError
                         << std::endl;
                 return EVENT_SELECT_ERROR;
 

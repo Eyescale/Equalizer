@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -243,9 +243,9 @@ bool ConnectionDescription::isSameMulticastGroup( ConnectionDescriptionPtr rhs )
 std::ostream& operator << ( std::ostream& os, 
                             const ConnectionDescription& desc)
 {
-    os << co::base::disableFlush << co::base::disableHeader << "connection"
+    os << base::disableFlush << base::disableHeader << "connection"
        << std::endl;
-    os << "{" << std::endl << co::base::indent;
+    os << "{" << std::endl << base::indent;
 
     os << "type          " 
        << ( desc.type == co::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
@@ -272,8 +272,7 @@ std::ostream& operator << ( std::ostream& os,
     if( desc.bandwidth != 0 )
         os << "bandwidth     " << desc.bandwidth << std::endl;
 
-    os << co::base::exdent << "}" << co::base::enableHeader 
-       << co::base::enableFlush
+    os << base::exdent << "}" << base::enableHeader << base::enableFlush
        << std::endl;
     return os;
 }

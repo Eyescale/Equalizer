@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -76,7 +76,7 @@ void EventConnection::set()
 #ifdef _WIN32
     SetEvent( _event );
 #else
-    co::base::ScopedMutex<> mutex( _lock );
+    base::ScopedMutex<> mutex( _lock );
     if( _set )
         return;
     
@@ -90,7 +90,7 @@ void EventConnection::reset()
 #ifdef _WIN32
     ResetEvent( _event );
 #else
-    co::base::ScopedMutex<> mutex( _lock );
+    base::ScopedMutex<> mutex( _lock );
     if( !_set )
         return;
     

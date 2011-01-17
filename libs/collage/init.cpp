@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -36,7 +36,7 @@ namespace co
 
 bool init( const int argc, char** argv )
 {
-    if( !co::base::init( argc, argv ))
+    if( !base::init( argc, argv ))
         return false;
 
 #ifdef _WIN32
@@ -45,7 +45,7 @@ bool init( const int argc, char** argv )
     if( WSAStartup( wsVersion, &wsData ) != 0 )
     {
         EQERROR << "Initialization of Windows Sockets failed" 
-                << co::base::sysError << std::endl;
+                << base::sysError << std::endl;
         return false;
     }
 #endif
@@ -80,11 +80,11 @@ bool exit()
     if( WSACleanup() != 0 )
     {
         EQERROR << "Cleanup of Windows Sockets failed" 
-                << co::base::sysError << std::endl;
+                << base::sysError << std::endl;
         return false;
     }
 #endif
-    return co::base::exit();
+    return base::exit();
 }
 
 }

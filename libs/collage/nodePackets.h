@@ -216,7 +216,7 @@ namespace co
                 size      = sizeof( NodeFindMasterNodeIDPacket ); 
             }
         
-        co::base::UUID identifier;
+        base::UUID identifier;
         uint32_t   requestID;
     };
 
@@ -241,7 +241,7 @@ namespace co
                 size    = sizeof( NodeAttachObjectPacket ); 
             }
         
-        co::base::UUID  objectID;
+        base::UUID  objectID;
         uint32_t    requestID;
         uint32_t    objectInstanceID;
     };
@@ -260,7 +260,7 @@ namespace co
         uint128_t     requestedVersion;
         uint128_t     minCachedVersion;
         uint128_t     maxCachedVersion;
-        co::base::UUID    objectID;
+        base::UUID    objectID;
         uint32_t      requestID;
         uint32_t instanceID;
         uint32_t masterInstanceID;
@@ -281,7 +281,7 @@ namespace co
             }
         
         NodeID nodeID;
-        co::base::UUID objectID;
+        base::UUID objectID;
         uint32_t requestID;
         uint32_t instanceID;
         uint32_t changeType;
@@ -303,7 +303,7 @@ namespace co
             }
         
         NodeID nodeID;
-        const co::base::UUID objectID;
+        const base::UUID objectID;
         uint128_t version;
         uint128_t cachedVersion;
         const uint32_t requestID;
@@ -320,7 +320,7 @@ namespace co
                 size    = sizeof( NodeUnmapObjectPacket ); 
             }
         
-        co::base::UUID objectID;
+        base::UUID objectID;
     };
 
     struct NodeUnsubscribeObjectPacket : public NodePacket
@@ -331,7 +331,7 @@ namespace co
                 size    = sizeof( NodeUnsubscribeObjectPacket ); 
             }
        
-        co::base::UUID      objectID;
+        base::UUID      objectID;
         uint32_t            requestID;
         uint32_t            masterInstanceID;
         uint32_t            slaveInstanceID;
@@ -377,7 +377,7 @@ namespace co
             objectInstanceID = request->slaveInstanceID;
         }
 
-        co::base::UUID      objectID;
+        base::UUID      objectID;
         uint32_t            requestID;
         uint32_t            objectInstanceID;
     };

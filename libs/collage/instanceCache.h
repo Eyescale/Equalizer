@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -76,7 +76,7 @@ namespace co
          *         is cached for this object.
          */
 
-        CO_API const Data& operator[]( const co::base::UUID& id );
+        CO_API const Data& operator[]( const base::UUID& id );
 
         /** 
          * Release the retrieved instance data of the given object.
@@ -86,7 +86,7 @@ namespace co
          * @return true if the element was unpinned, false if it is not in the
          *         instance cache.
          */
-        CO_API bool release( const co::base::UUID& id, const uint32_t count = 1 );
+        CO_API bool release( const base::UUID& id, const uint32_t count = 1 );
 
         /** 
          * Erase all the data for the given object.
@@ -96,7 +96,7 @@ namespace co
          *
          * @return true if the element was erased, false otherwise.
          */
-        CO_API bool erase( const co::base::UUID& id );
+        CO_API bool erase( const base::UUID& id );
 
         /** @return the number of bytes used by the instance cache. */
         uint64_t getSize() const { return _size; }
@@ -118,14 +118,14 @@ namespace co
             unsigned access;
         };
 
-        typedef stde::hash_map< co::base::uint128_t, Item > ItemHash;
+        typedef stde::hash_map< base::uint128_t, Item > ItemHash;
 
-        co::base::Lockable< ItemHash > _items;
+        base::Lockable< ItemHash > _items;
 
         const uint64_t _maxSize; //!<high-water mark to start releasing commands
         uint64_t _size;          //!< Current number of bytes stored
 
-        const co::base::Clock _clock;  //!< Clock for item expiration
+        const base::Clock _clock;  //!< Clock for item expiration
 
         void _releaseItems( const uint32_t minUsage );
         void _releaseStreams( InstanceCache::Item& item );

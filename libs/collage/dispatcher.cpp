@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -76,7 +76,7 @@ bool Dispatcher::dispatchCommand( Command& command )
         EQABORT( "Command " << command
                  << " higher than number of registered command handlers ("
                  << _qTable.size() << ") for object of type "
-                 << co::base::className( this ) << std::endl );
+                 << base::className( this ) << std::endl );
         return false;
     }
 #endif
@@ -96,8 +96,8 @@ bool Dispatcher::dispatchCommand( Command& command )
 
 bool Dispatcher::_cmdUnknown( Command& command )
 {
-    EQERROR << "Unknown " << command << " for " << co::base::className( this )
-            << co::base::backtrace << std::endl;
+    EQERROR << "Unknown " << command << " for " << base::className( this )
+            << base::backtrace << std::endl;
     EQUNREACHABLE;
     return false;
 }

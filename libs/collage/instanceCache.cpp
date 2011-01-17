@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -29,15 +29,15 @@ namespace co
 #ifdef EQ_INSTRUMENT_CACHE
 namespace
 {
-co::base::a_int32_t nRead;
-co::base::a_int32_t nReadHit;
-co::base::a_int32_t nWrite;
-co::base::a_int32_t nWriteHit;
-co::base::a_int32_t nWriteMiss;
-co::base::a_int32_t nWriteReady;
-co::base::a_int32_t nWriteOld;
-co::base::a_int32_t nUsedRelease;
-co::base::a_int32_t nUnusedRelease;
+base::a_int32_t nRead;
+base::a_int32_t nReadHit;
+base::a_int32_t nWrite;
+base::a_int32_t nWriteHit;
+base::a_int32_t nWriteMiss;
+base::a_int32_t nWriteReady;
+base::a_int32_t nWriteOld;
+base::a_int32_t nUsedRelease;
+base::a_int32_t nUnusedRelease;
 }
 #endif
 
@@ -89,7 +89,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
     ++nWrite;
 #endif
 
-    co::base::ScopedMutex<> mutex( _items );
+    base::ScopedMutex<> mutex( _items );
     ItemHash::const_iterator i = _items->find( rev.identifier );
     if( i == _items->end( ))
     {
@@ -176,13 +176,13 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
 }
 
 
-const InstanceCache::Data& InstanceCache::operator[]( const co::base::UUID& id )
+const InstanceCache::Data& InstanceCache::operator[]( const base::UUID& id )
 {
 #ifdef EQ_INSTRUMENT_CACHE
     ++nRead;
 #endif
 
-    co::base::ScopedMutex<> mutex( _items );
+    base::ScopedMutex<> mutex( _items );
     ItemHash::iterator i = _items->find( id );
     if( i == _items->end( ))
         return Data::NONE;
@@ -199,9 +199,9 @@ const InstanceCache::Data& InstanceCache::operator[]( const co::base::UUID& id )
 }
 
 
-bool InstanceCache::release( const co::base::UUID& id, const uint32_t count )
+bool InstanceCache::release( const base::UUID& id, const uint32_t count )
 {
-    co::base::ScopedMutex<> mutex( _items );
+    base::ScopedMutex<> mutex( _items );
     ItemHash::iterator i = _items->find( id );
     if( i == _items->end( ))
         return false;
@@ -215,9 +215,9 @@ bool InstanceCache::release( const co::base::UUID& id, const uint32_t count )
     return true;
 }
 
-bool InstanceCache::erase( const co::base::UUID& id )
+bool InstanceCache::erase( const base::UUID& id )
 {
-    co::base::ScopedMutex<> mutex( _items );
+    base::ScopedMutex<> mutex( _items );
     ItemHash::iterator i = _items->find( id );
     if( i == _items->end( ))
         return false;
@@ -237,9 +237,9 @@ void InstanceCache::expire( const int64_t timeout )
     if( time <= 0 )
         return;
 
-    std::vector< co::base::uint128_t > keys;
+    std::vector< base::uint128_t > keys;
 
-    co::base::ScopedMutex<> mutex( _items );
+    base::ScopedMutex<> mutex( _items );
     for( ItemHash::iterator i = _items->begin(); i != _items->end(); ++i )
     {
         Item& item = i->second;
@@ -258,7 +258,7 @@ void InstanceCache::expire( const int64_t timeout )
         }
     }
 
-    for( std::vector< co::base::uint128_t >::const_iterator i = keys.begin();
+    for( std::vector< base::uint128_t >::const_iterator i = keys.begin();
          i != keys.end(); ++i )
     {
         Item& item = _items.data[ *i ];
@@ -306,7 +306,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
 
     EQ_TS_SCOPED( _thread );
 
-    std::vector< co::base::uint128_t > keys;
+    std::vector< base::uint128_t > keys;
     const uint64_t target = static_cast< uint64_t >(
                    static_cast< float >( _maxSize ) * 0.8f );
 
@@ -336,7 +336,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
     {
         streamsLeft = false;
 
-        for( std::vector< co::base::uint128_t >::const_iterator i = keys.begin();
+        for( std::vector< base::uint128_t >::const_iterator i = keys.begin();
              i != keys.end() && _size > target; ++i )
         {
             Item& item = _items.data[ *i ];
@@ -354,7 +354,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
         }
     }
 
-    for( std::vector< co::base::uint128_t >::const_iterator i = keys.begin();
+    for( std::vector< base::uint128_t >::const_iterator i = keys.begin();
          i != keys.end(); ++i )
     {
         Item& item = _items.data[ *i ];

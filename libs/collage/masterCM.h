@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -75,17 +75,17 @@ namespace co
         /** The current version. */
         uint128_t _version;
 
-        typedef std::pair< co::base::UUID, ObjectDataIStream* > PendingStream;
+        typedef std::pair< base::UUID, ObjectDataIStream* > PendingStream;
         typedef std::vector< PendingStream > PendingStreams;
 
         /** Not yet ready streams. */
         PendingStreams _pendingDeltas;
 
         /** The change queue. */
-        co::base::MTQueue< ObjectDataIStream* > _queuedDeltas;
+        base::MTQueue< ObjectDataIStream* > _queuedDeltas;
 
         /** Cached input streams (+decompressor) */
-        co::base::Pool< ObjectDataIStream, true > _iStreamCache;
+        base::Pool< ObjectDataIStream, true > _iStreamCache;
 
         void _apply( ObjectDataIStream* is );
 

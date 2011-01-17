@@ -38,19 +38,19 @@ namespace co
 namespace
 {
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-co::base::a_int32_t nBytes;
-co::base::a_int32_t nBytesProcessed;
-co::base::a_int32_t nBytesCompressed;
-co::base::a_int32_t nBytesCompressedSent;
-co::base::a_int32_t nBytesSent;
-co::base::a_int32_t compressionTime;
+base::a_int32_t nBytes;
+base::a_int32_t nBytesProcessed;
+base::a_int32_t nBytesCompressed;
+base::a_int32_t nBytesCompressedSent;
+base::a_int32_t nBytesSent;
+base::a_int32_t compressionTime;
 #endif
 }
 
 DataOStream::DataOStream()
         : _compressorState( NOT_COMPRESSED )
         , _bufferStart( 0 )
-        , _compressor( new co::base::CPUCompressor )
+        , _compressor( new base::CPUCompressor )
         , _enabled( false )
         , _dataSent( false )
         , _save( false )
@@ -345,7 +345,7 @@ void DataOStream::_compress( const void* src, const uint64_t sizeSrc )
     }
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-    co::base::Clock clock;
+    base::Clock clock;
 #endif
     const uint64_t inDims[2] = { 0, sizeSrc };
 

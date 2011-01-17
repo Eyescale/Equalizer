@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,20 +19,18 @@
 
 #include <string.h>
 
-using namespace std;
-
 namespace co
 {
 BufferConnection::BufferConnection()
 {
     _state = STATE_CONNECTED;
-    EQVERB << "New BufferConnection @" << (void*)this << endl;
+    EQVERB << "New BufferConnection @" << (void*)this << std::endl;
 }
 
 BufferConnection::~BufferConnection()
 {
     if( !_buffer.isEmpty( ))
-        EQWARN << "Deleting BufferConnection with buffered data" << endl;
+        EQWARN << "Deleting BufferConnection with buffered data" << std::endl;
 }
 
 int64_t BufferConnection::write( const void* buffer, const uint64_t bytes )
@@ -48,7 +46,7 @@ void BufferConnection::sendBuffer( ConnectionPtr connection )
 
     if( !connection )
     {
-        EQWARN << "NULL connection during buffer write" << endl;
+        EQWARN << "NULL connection during buffer write" << std::endl;
         return;
     }
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -38,9 +38,6 @@
 
 #include <errno.h>
 
-using namespace co::base;
-using namespace std;
-
 namespace co
 {
 
@@ -51,7 +48,7 @@ Connection::Connection()
         , _aioBytes( 0 )
 {
     _description->type = CONNECTIONTYPE_NONE;
-    EQVERB << "New Connection @" << (void*)this << endl;
+    EQVERB << "New Connection @" << (void*)this << std::endl;
 }
 
 Connection::~Connection()
@@ -64,7 +61,7 @@ Connection::~Connection()
 //    EQASSERTINFO( !_aioBytes && _aioBytes == 0,
 //                  "Pending IO operation during connection destruction" );
 
-    EQVERB << "Delete Connection @" << (void*)this << endl;
+    EQVERB << "Delete Connection @" << (void*)this << std::endl;
 }
 
 ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
@@ -109,7 +106,7 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
             break;
 #endif
         default:
-            EQWARN << "Connection type not implemented" << endl;
+            EQWARN << "Connection type not implemented" << std::endl;
             return connection;
     }
 
@@ -127,16 +124,16 @@ void Connection::addListener( ConnectionListener* listener )
 
 void Connection::removeListener( ConnectionListener* listener )
 {
-    vector< ConnectionListener* >::iterator i = find( _listeners.begin(),
-                                                      _listeners.end(),
-                                                      listener );
+    std::vector< ConnectionListener* >::iterator i = find( _listeners.begin(),
+                                                           _listeners.end(),
+                                                           listener );
     if( i != _listeners.end( ))
         _listeners.erase( i );
 }
 
 void Connection::_fireStateChanged()
 {
-    for( vector<ConnectionListener*>::const_iterator i= _listeners.begin();
+    for( std::vector<ConnectionListener*>::const_iterator i= _listeners.begin();
          i != _listeners.end(); ++i )
 
         (*i)->notifyStateChanged( this );
@@ -206,10 +203,10 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
             if( outBytes )
                 *outBytes -= bytesLeft;
             if( bytes == bytesLeft )
-                EQINFO << "Read on dead connection" << endl;
+                EQINFO << "Read on dead connection" << std::endl;
             else
                 EQERROR << "Error during read after " << bytes - bytesLeft
-                        << " bytes on " << _description << endl;
+                        << " bytes on " << _description << std::endl;
             return false;
         }
         else if( got == 0 )
@@ -222,7 +219,7 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
                     *outBytes = 0;
                 return false;
             }
-            EQVERB << "Zero bytes read" << endl;
+            EQVERB << "Zero bytes read" << std::endl;
         }
 
         if( bytesLeft > static_cast< uint64_t >( got )) // partial read
@@ -239,11 +236,11 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
                           got << " != " << bytesLeft );
 
 #ifndef NDEBUG
-            if( bytes <= 1024 && ( co::base::Log::topics & LOG_PACKETS ))
+            if( bytes <= 1024 && ( base::Log::topics & LOG_PACKETS ))
             {
                 ptr = static_cast< uint8_t* >( buffer );
-                EQINFO << "recv:" << std::hex << co::base::disableFlush
-                       << co::base::disableHeader;
+                EQINFO << "recv:" << std::hex << base::disableFlush
+                       << base::disableHeader;
                 for( size_t i = 0; i < bytes; ++i )
                 {
                     if( (i % 16) == 0 )
@@ -253,8 +250,8 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
                     EQINFO << std::setfill( '0' ) << std::setw(2)
                            << static_cast< unsigned >( ptr[ i ] );
                 }
-                EQINFO << std::dec << co::base::enableFlush
-                       << std::endl << co::base::enableHeader;
+                EQINFO << std::dec << base::enableFlush
+                       << std::endl << base::enableHeader;
             }
 #endif
             return true;
@@ -282,13 +279,13 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
     // 1) Disassemble buffer into 'small enough' pieces and use a header to
     //    reassemble correctly on the other side (aka reliable UDP)
     // 2) Introduce a send thread with a thread-safe task queue
-    ScopedMutex<> mutex( isLocked ? 0 : &_sendLock );
+    base::ScopedMutex<> mutex( isLocked ? 0 : &_sendLock );
 
 #ifndef NDEBUG
-    if( bytes <= 1024 && ( co::base::Log::topics & LOG_PACKETS ))
+    if( bytes <= 1024 && ( base::Log::topics & LOG_PACKETS ))
     {
-        EQINFO << "send:" << std::hex << co::base::disableFlush
-               << co::base::disableHeader << std::endl;
+        EQINFO << "send:" << std::hex << base::disableFlush
+               << base::disableHeader << std::endl;
         for( size_t i = 0; i < bytes; ++i )
         {
             if( (i % 16) == 0 )
@@ -298,8 +295,8 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
             EQINFO << std::setfill( '0' ) << std::setw(2)
                    << static_cast< unsigned >( ptr[ i ] );
         }
-        EQINFO << std::dec << co::base::enableFlush
-               << std::endl << co::base::enableHeader;
+        EQINFO << std::dec << base::enableFlush << std::endl
+               << base::enableHeader;
     }
 #endif
 
@@ -311,11 +308,11 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
         if( wrote == -1 ) // error
         {
             EQERROR << "Error during write after " << bytes - bytesLeft 
-                    << " bytes" << endl;
+                    << " bytes" << std::endl;
             return false;
         }
         else if( wrote == 0 )
-            EQWARN << "Zero bytes write" << endl;
+            EQWARN << "Zero bytes write" << std::endl;
 
         bytesLeft -= wrote;
         ptr += wrote;

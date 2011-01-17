@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -125,7 +125,7 @@ void FullMasterCM::_obsolete()
         EQINFO
             << "Remove v" << data->os.getVersion() << " c" << data->commitCount
             << "@" << _commitCount << "/" << _nVersions << " from "
-            << co::base::className( _object ) << " " << ObjectVersion( _object )
+            << base::className( _object ) << " " << ObjectVersion( _object )
             << std::endl;
 #endif
         _instanceDataCache.push_back( data );

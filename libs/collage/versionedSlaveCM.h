@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -85,10 +85,10 @@ namespace co
         ObjectDataIStream* _currentIStream;
 
         /** The change queue. */
-        co::base::MTQueue< ObjectDataIStream* > _queuedVersions;
+        base::MTQueue< ObjectDataIStream* > _queuedVersions;
 
         /** Cached input streams (+decompressor) */
-        co::base::Pool< ObjectDataIStream, true > _iStreamCache;
+        base::Pool< ObjectDataIStream, true > _iStreamCache;
 
         /** The instance identifier of the master object. */
         uint32_t _masterInstanceID;

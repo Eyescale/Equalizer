@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -70,7 +70,7 @@ namespace co
                 type = PACKETTYPE_CO_OBJECT; 
                 instanceID = EQ_INSTANCE_ALL;
             }
-        co::base::UUID objectID;
+        base::UUID objectID;
         uint32_t instanceID;
         uint32_t pad; // pad to multiple-of-eight
     };

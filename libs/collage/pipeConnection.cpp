@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -76,7 +76,7 @@ bool PipeConnection::_createPipe()
 {
     if( CreatePipe( &_readHandle, &_writeHandle, 0, 0 ) == 0 )
     {
-        EQERROR << "Could not create pipe: " << co::base::sysError 
+        EQERROR << "Could not create pipe: " << base::sysError 
                 << std::endl;
         close();
         return false;
@@ -112,7 +112,7 @@ int64_t PipeConnection::readSync( void* buffer, const uint64_t bytes,
 
     if( ret == 0 ) // Error
     {
-        EQWARN << "Error during read: " << co::base::sysError << std::endl;
+        EQWARN << "Error during read: " << base::sysError << std::endl;
         return -1;
     }
 
@@ -148,7 +148,7 @@ int64_t PipeConnection::write( const void* buffer, const uint64_t bytes )
 
     if( ret == 0 ) // Error
     {
-        EQWARN << "Error during write: " << co::base::sysError << std::endl;
+        EQWARN << "Error during write: " << base::sysError << std::endl;
         bytesWritten = 0;
     }
 

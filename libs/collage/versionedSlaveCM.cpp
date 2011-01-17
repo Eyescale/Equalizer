@@ -71,7 +71,7 @@ const NodeID& VersionedSlaveCM::getMasterNodeID() const
     // There is a small window of opportunity during mapObject when the master
     // node is not yet set
     if( !_master )
-        return co::base::UUID::ZERO;
+        return base::UUID::ZERO;
         
     return _master->getNodeID();
 }
@@ -210,7 +210,7 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
 
             EQASSERTINFO( is->getRemainingBufferSize()==0 &&
                           is->nRemainingBuffers()==0,
-                          co::base::className( _object ) <<
+                          base::className( _object ) <<
                           " did not unpack all data, " <<
                           is->getRemainingBufferSize() << " bytes, " <<
                           is->nRemainingBuffers() << " buffer(s)" );
@@ -247,7 +247,7 @@ void VersionedSlaveCM::addInstanceDatas(
 {
     EQ_TS_THREAD( _cmdThread );
 #if 0
-    EQLOG( LOG_OBJECTS ) << co::base::disableFlush << "Adding data front ";
+    EQLOG( LOG_OBJECTS ) << base::disableFlush << "Adding data front ";
 #endif
 
     uint128_t oldest = VERSION_NONE;
@@ -322,7 +322,7 @@ void VersionedSlaveCM::addInstanceDatas(
 #endif
     }
 #if 0
-    EQLOG( LOG_OBJECTS ) << std::endl << co::base::enableFlush;
+    EQLOG( LOG_OBJECTS ) << std::endl << base::enableFlush;
 #endif
 }
 
@@ -408,7 +408,7 @@ bool VersionedSlaveCM::_cmdCommit( Command& command )
         return true;
     }
 
-    _ostream.setVersion( co::base::UUID( true )); // unique commit version
+    _ostream.setVersion( base::UUID( true )); // unique commit version
     _ostream.enable( _master, false );
     _object->pack( _ostream );
     _ostream.disable();

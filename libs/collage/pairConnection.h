@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,7 +30,7 @@ namespace co
     {
     public:
         CO_API PairConnection( ConnectionPtr readConnection,
-                                  ConnectionPtr writeConnection );
+                               ConnectionPtr writeConnection );
 
         CO_API ConnectionPtr getSibling();
 
@@ -56,7 +56,7 @@ namespace co
 
         ConnectionPtr _readConnection;
         ConnectionPtr _writeConnection;
-        co::base::RefPtr<PairConnection> _sibling;
+        base::RefPtr<PairConnection> _sibling;
     };
 }
 #endif //CO_PAIRCONNECTION_H

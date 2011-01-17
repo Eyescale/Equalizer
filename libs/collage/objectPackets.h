@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -86,7 +86,7 @@ namespace co
                 size       = sizeof( ObjectSlaveDeltaPacket ); 
             }
 
-        co::base::UUID commit;
+        base::UUID commit;
         EQ_ALIGN8( uint8_t data[8] );
     };
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -65,7 +65,7 @@ namespace co
         LocalNodePtr getLocalNode(){ return _localNode; };
 
         /** @return the object's unique identifier. */
-        const co::base::UUID& getID() const { return _id; }
+        const base::UUID& getID() const { return _id; }
 
         /** @return the node-wide unique object instance identifier. */
         uint32_t getInstanceID() const { return _instanceID; }
@@ -289,7 +289,7 @@ namespace co
         /** @internal */
         //@{
         /** @internal Set the object's unique identifier */
-        CO_API void setID( const co::base::UUID& identifier );
+        CO_API void setID( const base::UUID& identifier );
 
         /** @internal @return the master object instance identifier. */
         uint32_t getMasterInstanceID() const;
@@ -320,7 +320,7 @@ namespace co
          * @internal
          * Called when object is attached from the receiver thread.
          */
-        CO_API virtual void attach( const co::base::UUID& id, 
+        CO_API virtual void attach( const base::UUID& id, 
                                     const uint32_t instanceID );
         /**
          * @internal
@@ -353,7 +353,7 @@ namespace co
         friend class VersionedSlaveCM;
 
         /** The session-unique object identifier. */
-        co::base::UUID _id;
+        base::UUID _id;
 
         /** The node where this object is attached. */
         LocalNodePtr _localNode;

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,9 +24,6 @@
 #include "log.h"
 #include "barrierPackets.h"
 
-using namespace co::base;
-using namespace std;
-
 namespace co
 {
 typedef CommandFunc<Barrier> CmdFunc;
@@ -37,12 +34,12 @@ Barrier::Barrier( NodePtr master, const uint32_t height )
         , _master( master )
 {
     EQASSERT( _masterID != NodeID::ZERO );
-    EQINFO << "New barrier of height " << _height << endl;
+    EQINFO << "New barrier of height " << _height << std::endl;
 }
 
 Barrier::Barrier()
 {
-    EQINFO << "Barrier instantiated" << endl;
+    EQINFO << "Barrier instantiated" << std::endl;
 }
 
 Barrier::~Barrier()
@@ -73,7 +70,7 @@ void Barrier::unpack( DataIStream& is )
 }
 //---------------------------------------------------------------------------
 
-void Barrier::attach( const co::base::UUID& id, const uint32_t instanceID )
+void Barrier::attach( const base::UUID& id, const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
 
@@ -102,7 +99,7 @@ void Barrier::enter()
     EQASSERT( _master.isValid( ));
     EQASSERT( _master->isConnected( ));
     EQLOG( LOG_BARRIER ) << "enter barrier " << getID() << " v" << getVersion()
-                         << ", height " << _height << endl;
+                         << ", height " << _height << std::endl;
 
     const uint32_t leaveVal = _leaveNotify.get() + 1;
 
@@ -112,7 +109,7 @@ void Barrier::enter()
     
     _leaveNotify.waitEQ( leaveVal );
     EQLOG( LOG_BARRIER ) << "left barrier " << getID() << " v" << getVersion()
-                         << ", height " << _height << endl;
+                         << ", height " << _height << std::endl;
 }
 
 bool Barrier::_cmdEnter( Command& command )
@@ -126,14 +123,14 @@ bool Barrier::_cmdEnter( Command& command )
     packet->handled = true;
 
     EQLOG( LOG_BARRIER ) << "handle barrier enter " << packet << " barrier v"
-                         << getVersion() << endl;
+                         << getVersion() << std::endl;
 
     const uint128_t version = packet->version;
     Nodes& nodes = _enteredNodes[ packet->version ];
 
     EQLOG( LOG_BARRIER ) << "enter barrier v" << version 
                          << ", has " << nodes.size() << " of " << _height
-                         << endl;
+                         << std::endl;
 
     nodes.push_back( command.getNode( ));
 
@@ -152,7 +149,7 @@ bool Barrier::_cmdEnter( Command& command )
         return true;
 
     EQASSERT( nodes.size() == _height );
-    EQLOG( LOG_BARRIER ) << "Barrier reached" << endl;
+    EQLOG( LOG_BARRIER ) << "Barrier reached" << std::endl;
 
     BarrierEnterReplyPacket reply;
     reply.objectID   = getID();
@@ -161,21 +158,21 @@ bool Barrier::_cmdEnter( Command& command )
 
     for( Nodes::iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
-        RefPtr< Node >& node = *i;
+        NodePtr& node = *i;
         if( node->isLocal( )) // OPT
         {
-            EQLOG( LOG_BARRIER ) << "Unlock local user(s)" << endl;
+            EQLOG( LOG_BARRIER ) << "Unlock local user(s)" << std::endl;
             ++_leaveNotify;
         }
         else
         {
-            EQLOG( LOG_BARRIER ) << "Unlock " << node << endl;
+            EQLOG( LOG_BARRIER ) << "Unlock " << node << std::endl;
             node->send( reply );
         }
     }
 
     // delete node vector for version
-    map< uint128_t, Nodes >::iterator i = _enteredNodes.find( version );
+    std::map< uint128_t, Nodes >::iterator i = _enteredNodes.find( version );
     EQASSERT( i != _enteredNodes.end( ));
     _enteredNodes.erase( i );
     return true;
@@ -184,7 +181,7 @@ bool Barrier::_cmdEnter( Command& command )
 bool Barrier::_cmdEnterReply( Command& )
 {
     EQ_TS_THREAD( _thread );
-    EQLOG( LOG_BARRIER ) << "Got ok, unlock local user(s)" << endl;
+    EQLOG( LOG_BARRIER ) << "Got ok, unlock local user(s)" << std::endl;
     ++_leaveNotify;
     return true;
 }

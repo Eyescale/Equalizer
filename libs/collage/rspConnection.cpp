@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com>
- *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -121,7 +121,7 @@ void RSPConnection::close()
 
     while(( !_parent && _isWriting() ))
     {
-        co::base::sleep( 10 );
+        base::sleep( 10 );
     }
     _close();
     _event->set();
@@ -132,7 +132,7 @@ void RSPConnection::_close()
     if( _state == STATE_CLOSED )
         return;
     _state = STATE_CLOSING;
-    co::base::ScopedMutex<> mutex( _mutexEvent );
+    base::ScopedMutex<> mutex( _mutexEvent );
  
     if( _thread )
     {
@@ -146,7 +146,7 @@ void RSPConnection::_close()
              i != _children.end(); ++i )
         {
             RSPConnectionPtr child = *i;
-            co::base::ScopedMutex<> mutexChild( child->_mutexEvent );
+            base::ScopedMutex<> mutexChild( child->_mutexEvent );
             child->_appBuffers.push( 0 );
             child->_event->set();
         }
@@ -179,7 +179,7 @@ void RSPConnection::_close()
 //----------------------------------------------------------------------
 uint16_t RSPConnection::_buildNewID()
 {
-    co::base::RNG rng;
+    base::RNG rng;
     _id = rng.get< uint16_t >();
     return _id;
 }
@@ -300,7 +300,7 @@ ConnectionPtr RSPConnection::acceptSync()
         return 0;
         
     // protect event->set, _children and _childrenConnecting
-    co::base::ScopedMutex<> mutexConn( _mutexConnection );
+    base::ScopedMutex<> mutexConn( _mutexConnection );
     EQASSERT( !_childrenConnecting.empty( ));
     if( _childrenConnecting.empty( ))
         return 0;
@@ -379,7 +379,7 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes, const bool)
         _event->set();
     else
     {
-        co::base::ScopedMutex<> mutex( _mutexEvent );
+        base::ScopedMutex<> mutex( _mutexEvent );
         if( _appBuffers.isEmpty( ))
             _event->reset();
 
@@ -629,7 +629,7 @@ void RSPConnection::_writeData()
 void RSPConnection::_waitWritable( const uint64_t bytes )
 {
 #ifdef EQ_INSTRUMENT_RSP
-    co::base::Clock clock;
+    base::Clock clock;
 #endif
 
     _bucketSize += static_cast< uint64_t >( _clock.resetTimef() * _sendRate );
@@ -640,12 +640,12 @@ void RSPConnection::_waitWritable( const uint64_t bytes )
     while( _bucketSize < size )
     {
         //base::sleep( 1 );
-        co::base::Thread::yield();
+        base::Thread::yield();
         float time = _clock.resetTimef();
 
         while( time == 0.f )
         {
-            co::base::Thread::yield();
+            base::Thread::yield();
             time = _clock.resetTimef();
         }
 
@@ -747,7 +747,7 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
         Buffer* newBuffer = connection->_newDataBuffer( *buffer );
         if( !newBuffer && !readBuffers.empty( )) // push prepared app buffers
         {
-            co::base::ScopedMutex<> mutex( connection->_mutexEvent );
+            base::ScopedMutex<> mutex( connection->_mutexEvent );
             EQLOG( LOG_RSP ) << "post " << readBuffers.size()
                              << " buffers starting with sequence "
                              << connection->_sequence << std::endl;
@@ -762,7 +762,7 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
         {
             newBuffer = connection->_newDataBuffer( *buffer );
             //base::sleep( 1 );
-            co::base::Thread::yield();
+            base::Thread::yield();
         }
 
         freeBuffers.push_back( buffer );
@@ -772,7 +772,7 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
     _appBuffers.push( freeBuffers );
     if( !readBuffers.empty( ))
     {
-        co::base::ScopedMutex<> mutex( connection->_mutexEvent );
+        base::ScopedMutex<> mutex( connection->_mutexEvent );
 #if 0
         EQLOG( LOG_RSP ) 
             << "post " << readBuffers.size() << " buffers starting at "
@@ -978,7 +978,7 @@ bool RSPConnection::_handleData( Buffer& buffer )
         if( !newBuffer ) // no more data buffers, drop packet
             return true;
 
-        co::base::ScopedMutex<> mutex( connection->_mutexEvent );
+        base::ScopedMutex<> mutex( connection->_mutexEvent );
         connection->_pushDataBuffer( newBuffer );
             
         while( !connection->_recvBuffers.empty( )) // enqueue ready pending data
@@ -1180,7 +1180,7 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
 
 void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
 {
-    EQLOG( LOG_RSP ) << co::base::disableFlush << "Queue repeat requests ";
+    EQLOG( LOG_RSP ) << base::disableFlush << "Queue repeat requests ";
     size_t lost = 0;
 
     for( size_t i = 0; i < num; ++i )
@@ -1234,10 +1234,10 @@ void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
         EQLOG( LOG_RSP ) 
             << ", lost " << lost << " slowing down " << downScale * 100.f
             << "% to " << _sendRate << " KB/s" << std::endl 
-            << co::base::enableFlush;
+            << base::enableFlush;
     }
     else
-        EQLOG( LOG_RSP ) << std::endl << co::base::enableFlush;
+        EQLOG( LOG_RSP ) << std::endl << base::enableFlush;
 }
 
 bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
@@ -1280,7 +1280,7 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
     uint16_t i = 0;
 
     nacks[ i ].start = connection->_sequence;
-    EQLOG( LOG_RSP ) << co::base::disableFlush << "nacks: " 
+    EQLOG( LOG_RSP ) << base::disableFlush << "nacks: " 
                      << nacks[i].start << "..";
     
     std::deque<Buffer*>::const_iterator j = connection->_recvBuffers.begin();
@@ -1335,7 +1335,7 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
         ++i;
     }
 
-    EQLOG( LOG_RSP ) << std::endl << co::base::enableFlush << "send " << i
+    EQLOG( LOG_RSP ) << std::endl << base::enableFlush << "send " << i
                      << " nacks to " << connection->_id << std::endl;
 
     EQASSERT( i > 0 );
@@ -1386,7 +1386,7 @@ bool RSPConnection::_addNewConnection( const uint16_t id )
     if( _findConnection( id ).isValid() )
         return false;
 
-    co::base::ScopedMutex<> mutexConn( _mutexConnection );
+    base::ScopedMutex<> mutexConn( _mutexConnection );
     for( std::vector< RSPConnectionPtr >::const_iterator i = _children.begin();
          i != _children.end(); ++i )
     {
@@ -1433,7 +1433,7 @@ void RSPConnection::_removeConnection( const uint16_t id )
         RSPConnectionPtr child = *i;
         if( child->_id == id )
         {
-            co::base::ScopedMutex<> mutex( _mutexEvent ); 
+            base::ScopedMutex<> mutex( _mutexEvent ); 
             _children.erase( i );
                 
             child->_appBuffers.push( 0 );
@@ -1568,7 +1568,7 @@ void RSPConnection::_sendAckRequest()
 std::ostream& operator << ( std::ostream& os,
                             const RSPConnection& connection )
 {
-    os << co::base::disableFlush << co::base::disableHeader 
+    os << base::disableFlush << base::disableHeader 
        << "RSPConnection id " << connection.getID() << " send rate " 
        << connection.getSendRate();
 
@@ -1578,7 +1578,7 @@ std::ostream& operator << ( std::ostream& os,
 
     const float time = instrumentClock.getTimef();
     const float mbps = 1048.576f * time;
-    os << ": " << co::base::indent << std::endl
+    os << ": " << base::indent << std::endl
        << float( nBytesRead ) / mbps << " / " << float( nBytesWritten ) / mbps
        <<  " MB/s r/w using " << nDatagrams << " dgrams " << nRepeated
        << " repeats " << nMergedDatagrams
@@ -1591,7 +1591,7 @@ std::ostream& operator << ( std::ostream& os,
        << writeWaitTime << " ms"
        << std::endl
        << "receiver: " << nAcksSend << " acks " << nNAcksSend << " nacks"
-       << co::base::exdent;
+       << base::exdent;
 
     nReadData = 0;
     nBytesRead = 0;
@@ -1607,7 +1607,7 @@ std::ostream& operator << ( std::ostream& os,
     nNAcksRead = 0;
     writeWaitTime = 0.f;
 #endif
-    os << std::endl << co::base::enableHeader << co::base::enableFlush;
+    os << std::endl << base::enableHeader << base::enableFlush;
 
     return os;
 }

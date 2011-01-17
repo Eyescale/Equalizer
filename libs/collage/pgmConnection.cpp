@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -108,7 +108,7 @@ bool PGMConnection::listen()
         
     if( !listening )
     {
-        EQWARN << "Could not listen on socket: " << co::base::sysError 
+        EQWARN << "Could not listen on socket: " << base::sysError 
                << std::endl;
         close();
         return false;
@@ -163,7 +163,7 @@ bool PGMConnection::listen()
     if( !connected )
     {
         EQWARN << "Could not connect to '" << _description->getHostname() << ":"
-               << _description->port << "': " << co::base::sysError 
+               << _description->port << "': " << base::sysError 
                << std::endl;
         close();
         return false;
@@ -205,7 +205,7 @@ void PGMConnection::close()
                 ::setsockopt( _readFD, IPPROTO_RM, RM_DEL_RECEIVE_IF,
                      (char*)&interface, sizeof(uint32_t)) == SOCKET_ERROR )
             {
-                EQWARN << "can't delete recv interface " <<  co::base::sysError
+                EQWARN << "can't delete recv interface " <<  base::sysError
                        << std::endl;
             }
         }
@@ -216,7 +216,7 @@ void PGMConnection::close()
 #endif
         
         if( !closed )
-            EQWARN << "Could not close read socket: " << co::base::sysError
+            EQWARN << "Could not close read socket: " << base::sysError
                    << std::endl;
     }
 
@@ -229,7 +229,7 @@ void PGMConnection::close()
 #endif
 
         if( !closed )
-            EQWARN << "Could not close write socket: " << co::base::sysError
+            EQWARN << "Could not close write socket: " << base::sysError
                    << std::endl;
     }
 
@@ -249,7 +249,7 @@ void PGMConnection::_initAIORead()
 
     if( !_overlapped.hEvent )
         EQERROR << "Can't create event for AIO notification: " 
-                << co::base::sysError << std::endl;
+                << base::sysError << std::endl;
 }
 
 void PGMConnection::_initAIOAccept()
@@ -301,7 +301,7 @@ void PGMConnection::acceptNB()
 
     if( _overlappedSocket == INVALID_SOCKET )
     {
-        EQERROR << "Could not create accept socket: " << co::base::sysError
+        EQERROR << "Could not create accept socket: " << base::sysError
                 << ", closing connection" << std::endl;
         close();
         return;
@@ -319,7 +319,7 @@ void PGMConnection::acceptNB()
                    &got, &_overlapped ) &&
         GetLastError() != WSA_IO_PENDING )
     {
-        EQERROR << "Could not start accept operation: " << co::base::sysError 
+        EQERROR << "Could not start accept operation: " << base::sysError 
                 << ", closing connection" << std::endl;
         close();
     }
@@ -341,7 +341,7 @@ ConnectionPtr PGMConnection::acceptSync()
     DWORD flags = 0;
     if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
     {
-        EQWARN << "Accept completion failed: " << co::base::sysError 
+        EQWARN << "Accept completion failed: " << base::sysError 
                << ", closing connection" << std::endl;
         close();
         return 0;
@@ -394,7 +394,7 @@ ConnectionPtr PGMConnection::acceptSync()
 
     if( fd == INVALID_PGM )
     {
-        EQWARN << "accept failed: " << co::base::sysError << std::endl;
+        EQWARN << "accept failed: " << base::sysError << std::endl;
         return 0;
     }
 
@@ -437,7 +437,7 @@ void PGMConnection::readNB( void* buffer, const uint64_t bytes )
     if( WSARecv( _readFD, &wsaBuffer, 1, &got, &flags, &_overlapped, 0 )!= 0 &&
         GetLastError() != WSA_IO_PENDING )
     {
-        EQWARN << "Could not start overlapped receive: " << co::base::sysError
+        EQWARN << "Could not start overlapped receive: " << base::sysError
                << ", closing connection" << std::endl;
         close();
     }
@@ -461,7 +461,7 @@ int64_t PGMConnection::readSync( void* buffer, const uint64_t bytes,
         if( GetLastError() == WSASYSCALLFAILURE ) // happens sometimes!?
             return 0;
 
-        EQWARN << "Read complete failed: " << co::base::sysError 
+        EQWARN << "Read complete failed: " << base::sysError 
                << ", closing connection" << std::endl;
         close();
         return -1;
@@ -510,7 +510,7 @@ int64_t PGMConnection::write( const void* buffer, const uint64_t bytes)
         // error
         if( GetLastError( ) != WSAEWOULDBLOCK )
         {
-            EQWARN << "Error during write: " << co::base::sysError << std::endl;
+            EQWARN << "Error during write: " << base::sysError << std::endl;
             return -1;
         }
 
@@ -524,7 +524,7 @@ int64_t PGMConnection::write( const void* buffer, const uint64_t bytes)
         const int result = select( _writeFD+1, 0, &set, 0, 0 );
         if( result <= 0 )
         {
-            EQWARN << "Error during select: " << co::base::sysError << std::endl;
+            EQWARN << "Error during select: " << base::sysError << std::endl;
             return -1;
         }
 #endif
@@ -547,7 +547,7 @@ SOCKET PGMConnection::_initSocket( sockaddr_in address )
 
     if( fd == INVALID_SOCKET )
     {
-        EQERROR << "Could not create socket: " << co::base::sysError << std::endl;
+        EQERROR << "Could not create socket: " << base::sysError << std::endl;
         return INVALID_SOCKET;
     }
 
@@ -555,7 +555,7 @@ SOCKET PGMConnection::_initSocket( sockaddr_in address )
 
     if( !bound )
     {
-        EQWARN << "Could not bind socket " << fd << ": " << co::base::sysError
+        EQWARN << "Could not bind socket " << fd << ": " << base::sysError
                << " to " << inet_ntoa( address.sin_addr ) << ":" 
                << ntohs( address.sin_port ) << " AF " << (int)address.sin_family
                << std::endl;
@@ -635,7 +635,7 @@ bool PGMConnection::_setSendBufferSize( const int newSize )
                        ( char* )&newSize, sizeof( int )) == SOCKET_ERROR ) 
     {
         EQWARN << "can't SetSendBufferSize, error: " 
-               <<  co::base::sysError << std::endl;
+               <<  base::sysError << std::endl;
         return false;
     }
 
@@ -659,7 +659,7 @@ bool PGMConnection::_setSendRate()
                       (char*)&sendWindow, 
                       sizeof(RM_SEND_WINDOW)) == SOCKET_ERROR ) 
     {
-        EQWARN << "can't set send rate, error: " <<  co::base::sysError
+        EQWARN << "can't set send rate, error: " <<  base::sysError
                << std::endl;
         return false ;
     }
@@ -677,7 +677,7 @@ bool PGMConnection::_setSendInterface()
         ::setsockopt( _writeFD, IPPROTO_RM, RM_SET_SEND_IF,
                      (char*)&interface, sizeof(uint32_t)) == SOCKET_ERROR )
     {
-        EQWARN << "can't set send interface " <<  co::base::sysError << std::endl;
+        EQWARN << "can't set send interface " <<  base::sysError << std::endl;
         return false;
     }
     return true;
@@ -721,7 +721,7 @@ bool PGMConnection::_setFecParameters( const SOCKET fd,
                       (char *)&fec, sizeof( RM_FEC_INFO )))
     {
         EQWARN << "can't set error correction parameters " 
-               << co::base::sysError << std::endl;
+               << base::sysError << std::endl;
         return false;
     }
     return true;
@@ -733,7 +733,7 @@ bool PGMConnection::_setReadBufferSize( int newSize )
                       (char*)&newSize, sizeof(int)) == SOCKET_ERROR ) 
     {
         EQWARN << "can't set receive buffer size, error: " 
-               <<  co::base::sysError << std::endl;
+               <<  base::sysError << std::endl;
         return false;
     }
     return true;
@@ -750,7 +750,7 @@ bool PGMConnection::_setReadInterface()
         ::setsockopt( _readFD, IPPROTO_RM, RM_ADD_RECEIVE_IF,
                      (char*)&interface, sizeof(uint32_t)) == SOCKET_ERROR )
     {
-        EQWARN << "can't add recv interface " <<  co::base::sysError 
+        EQWARN << "can't add recv interface " <<  base::sysError 
                << std::endl;
         return false;
     }
@@ -765,7 +765,7 @@ bool PGMConnection::_enableHighSpeed(  SOCKET fd )
                  (char*)&HighSpeedLanEnabled, sizeof( ULONG )) == SOCKET_ERROR )
     {
         EQWARN << "can't EnableHighSpeedLanOption, error: " 
-               <<  co::base::sysError << std::endl;
+               <<  base::sysError << std::endl;
         return false;
     }
 

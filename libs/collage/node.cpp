@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -50,7 +50,7 @@ bool Node::operator == ( const Node* node ) const
 
 ConnectionDescriptions Node::getConnectionDescriptions() const
 {
-    co::base::ScopedMutex< co::base::SpinLock > mutex( _connectionDescriptions );
+    base::ScopedMutex< base::SpinLock > mutex( _connectionDescriptions );
     return _connectionDescriptions.data;
 }
 
@@ -65,7 +65,7 @@ ConnectionPtr Node::getMulticast()
     if( connection.isValid() && !connection->isClosed( ))
         return connection;
 
-    co::base::ScopedMutex<> mutex( _outMulticast );
+    base::ScopedMutex<> mutex( _outMulticast );
     if( _multicasts.empty( ))
         return 0;
 
@@ -91,14 +91,14 @@ void Node::addConnectionDescription( ConnectionDescriptionPtr cd )
     if( cd->type >= CONNECTIONTYPE_MULTICAST && cd->port == 0 )
         cd->port = EQ_DEFAULT_PORT;
 
-    co::base::ScopedMutex< co::base::SpinLock > 
+    base::ScopedMutex< base::SpinLock > 
                        mutex( _connectionDescriptions );
     _connectionDescriptions->push_back( cd ); 
 }
 
 bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
 {
-    co::base::ScopedMutex< co::base::SpinLock > 
+    base::ScopedMutex< base::SpinLock > 
                        mutex( _connectionDescriptions );
 
     // Don't use std::find, RefPtr::operator== compares pointers, not values.
@@ -118,7 +118,7 @@ std::string Node::serialize() const
 {
     std::ostringstream data;
     {
-        co::base::ScopedMutex< co::base::SpinLock >
+        base::ScopedMutex< base::SpinLock >
                                             mutex( _connectionDescriptions );
         data << _id << CO_SEPARATOR
              << co::serialize( _connectionDescriptions.data );
@@ -141,8 +141,7 @@ bool Node::deserialize( std::string& data )
     _id = data.substr( 0, nextPos );
     data = data.substr( nextPos + 1 );
 
-    co::base::ScopedMutex< co::base::SpinLock > 
-                    mutex( _connectionDescriptions );
+    base::ScopedMutex< base::SpinLock > mutex( _connectionDescriptions );
     _connectionDescriptions->clear();
     return co::deserialize( data, _connectionDescriptions.data );
 }

@@ -1,5 +1,5 @@
 
-/* Copyright (c)  2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c)  2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                     2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -94,10 +94,10 @@ LocalNode::~LocalNode( )
 bool LocalNode::initLocal( const int argc, char** argv )
 {
 #ifndef NDEBUG
-    EQVERB << co::base::disableFlush << "args: ";
+    EQVERB << base::disableFlush << "args: ";
     for( int i=0; i<argc; i++ )
          EQVERB << argv[i] << ", ";
-    EQVERB << std::endl << co::base::enableFlush;
+    EQVERB << std::endl << base::enableFlush;
 #endif
 
     // We do not use getopt_long because it really does not work due to the
@@ -173,7 +173,7 @@ bool LocalNode::listen()
 
     _state = STATE_LISTENING;
 
-    EQVERB << co::base::className( this ) 
+    EQVERB << base::className( this ) 
            << " start command and receiver thread " << std::endl;
     _receiverThread->start();
 
@@ -205,7 +205,7 @@ bool LocalNode::close()
 #endif
 
     EQASSERTINFO( !hasPendingRequests(),
-                  *static_cast< co::base::RequestHandler* >( this ));
+                  *static_cast< base::RequestHandler* >( this ));
     return true;
 }
 
@@ -360,7 +360,7 @@ bool LocalNode::_connectSelf()
 void LocalNode::_connectMulticast( NodePtr node )
 {
     EQASSERT( _inReceiverThread( ));
-    co::base::ScopedMutex<> mutex( _outMulticast );
+    base::ScopedMutex<> mutex( _outMulticast );
 
     if( node->_outMulticast.data.isValid( ))
         // multicast already connected by previous _cmdID
@@ -414,7 +414,7 @@ void LocalNode::_connectMulticast( NodePtr node )
 
 NodePtr LocalNode::getNode( const NodeID& id ) const
 { 
-    co::base::ScopedMutex< co::base::SpinLock > mutex( _nodes );
+    base::ScopedMutex< base::SpinLock > mutex( _nodes );
     NodeHash::const_iterator i = _nodes->find( id );
     if( i == _nodes->end( ))
         return 0;
@@ -456,14 +456,14 @@ void LocalNode::deregisterObject( Object* object )
 {
     _objectStore->deregisterObject( object );
 }
-bool LocalNode::mapObject( Object* object, const co::base::UUID& id,
+bool LocalNode::mapObject( Object* object, const base::UUID& id,
                            const uint128_t& version )
 {
     const uint32_t requestID = _objectStore->mapObjectNB( object, id, version );
     return _objectStore->mapObjectSync( requestID );
 }
 
-uint32_t LocalNode::mapObjectNB( Object* object, const co::base::UUID& id, 
+uint32_t LocalNode::mapObjectNB( Object* object, const base::UUID& id, 
                             const uint128_t& version )
 {
     return _objectStore->mapObjectNB( object, id, version );
@@ -590,7 +590,7 @@ bool LocalNode::_connect( NodePtr node, ConnectionPtr connection )
 
 void LocalNode::getNodes( Nodes& nodes ) const
 {
-    co::base::ScopedMutex< co::base::SpinLock > mutex( _nodes );
+    base::ScopedMutex< base::SpinLock > mutex( _nodes );
     for( NodeHash::const_iterator i = _nodes->begin();
          i != _nodes->end(); ++i )
     {
@@ -606,7 +606,7 @@ NodePtr LocalNode::connect( const NodeID& nodeID )
     // Extract all node pointers, the _nodes hash will be modified later
     Nodes nodes;
     {
-        co::base::ScopedMutex< co::base::SpinLock > mutex( _nodes );
+        base::ScopedMutex< base::SpinLock > mutex( _nodes );
         for( NodeHash::const_iterator i = _nodes->begin();
              i != _nodes->end(); ++i )
         {
@@ -642,9 +642,9 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr server )
     // mutex is to register connecting nodes with this local node, and handle
     // all cases correctly, which is far more complex. Node connections only
     // happen a lot during initialization, and are therefore not time-critical.
-    co::base::ScopedMutex<> mutex( _connectMutex );
+    base::ScopedMutex<> mutex( _connectMutex );
     {
-        co::base::ScopedMutex< co::base::SpinLock > mutexNodes( _nodes ); 
+        base::ScopedMutex< base::SpinLock > mutexNodes( _nodes ); 
         NodeHash::const_iterator i = _nodes->find( nodeID );
         if( i != _nodes->end( ))
             node = i->second;
@@ -685,7 +685,7 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr server )
         return node;
 
     {
-        co::base::ScopedMutex< co::base::SpinLock > mutexNodes( _nodes );
+        base::ScopedMutex< base::SpinLock > mutexNodes( _nodes );
         // connect failed - maybe simultaneous connect from peer?
         NodeHash::const_iterator i = _nodes->find( nodeID );
         if( i != _nodes->end( ))
@@ -778,7 +778,7 @@ void LocalNode::_runReceiverThread()
     _pendingCommands.clear();
     _commandCache.flush();
 
-    EQINFO << "Leaving receiver thread of " << co::base::className( this )
+    EQINFO << "Leaving receiver thread of " << base::className( this )
            << std::endl;
 }
 
@@ -813,7 +813,7 @@ void LocalNode::_handleDisconnect()
             node->_outgoing = 0;
 
             EQINFO << node << " disconnected from " << this << std::endl;
-            co::base::ScopedMutex< co::base::SpinLock > mutex( _nodes );
+            base::ScopedMutex< base::SpinLock > mutex( _nodes );
             _nodes->erase( node->_id );
         }
         else
@@ -821,7 +821,7 @@ void LocalNode::_handleDisconnect()
             EQASSERT( connection->getDescription()->type >= 
                       CONNECTIONTYPE_MULTICAST );
 
-            co::base::ScopedMutex<> mutex( _outMulticast );
+            base::ScopedMutex<> mutex( _outMulticast );
             if( node->_outMulticast == connection )
                 node->_outMulticast = 0;
             else
@@ -855,7 +855,7 @@ bool LocalNode::_handleData()
     EQASSERTINFO( !node || // unconnected node
                   node->_outgoing == connection || // correct UC conn for node
                   connection->getDescription()->type>=CONNECTIONTYPE_MULTICAST,
-                  co::base::className( node ));
+                  base::className( node ));
 
     EQVERB << "Handle data from " << node << std::endl;
 
@@ -1008,7 +1008,7 @@ void LocalNode::_runCommandThread()
     }
  
     _commandThreadQueue.flush();
-    EQINFO << "Leaving command thread of " << co::base::className( this )
+    EQINFO << "Leaving command thread of " << base::className( this )
            << std::endl;
 }
 
@@ -1078,7 +1078,7 @@ bool LocalNode::_cmdConnect( Command& command )
     
     _connectionNodes[ connection ] = remoteNode;
     {
-        co::base::ScopedMutex< co::base::SpinLock > mutex( _nodes );
+        base::ScopedMutex< base::SpinLock > mutex( _nodes );
         _nodes.data[ remoteNode->_id ] = remoteNode;
     }
     EQVERB << "Added node " << nodeID << std::endl;
@@ -1153,7 +1153,7 @@ bool LocalNode::_cmdConnectReply( Command& command )
     
     _connectionNodes[ connection ] = remoteNode;
     {
-        co::base::ScopedMutex< co::base::SpinLock > mutex( _nodes );
+        base::ScopedMutex< base::SpinLock > mutex( _nodes );
         _nodes.data[ remoteNode->_id ] = remoteNode;
     }
     EQVERB << "Added node " << nodeID << std::endl;
@@ -1218,7 +1218,7 @@ bool LocalNode::_cmdID( Command& command )
             EQASSERTINFO( data.empty(), data );
 
             {
-                co::base::ScopedMutex< co::base::SpinLock > mutex( _nodes );
+                base::ScopedMutex< base::SpinLock > mutex( _nodes );
                 _nodes.data[ nodeID ] = node;
             }
             EQVERB << "Added node " << nodeID << " with multicast "
@@ -1230,7 +1230,7 @@ bool LocalNode::_cmdID( Command& command )
     EQASSERT( node.isValid( ));
     EQASSERTINFO( node->_id == nodeID, node->_id << "!=" << nodeID );
 
-    co::base::ScopedMutex<> mutex( _outMulticast );
+    base::ScopedMutex<> mutex( _outMulticast );
     MCDatas::iterator i = node->_multicasts.begin();
     for( ; i != node->_multicasts.end(); ++i )
     {
@@ -1292,7 +1292,7 @@ bool LocalNode::_cmdDisconnect( Command& command )
         EQASSERT( _connectionNodes.find( connection )!=_connectionNodes.end( ));
         _connectionNodes.erase( connection );
         {
-            co::base::ScopedMutex< co::base::SpinLock > mutex( _nodes );
+            base::ScopedMutex< base::SpinLock > mutex( _nodes );
             _nodes->erase( node->_id );
         }
 
@@ -1372,7 +1372,7 @@ bool LocalNode::_cmdGetNodeDataReply( Command& command )
     EQASSERT( data.empty( ));
 
     {
-        co::base::ScopedMutex< co::base::SpinLock > mutex( _nodes );
+        base::ScopedMutex< base::SpinLock > mutex( _nodes );
         _nodes.data[ nodeID ] = node;
     }
     EQVERB << "Added node " << nodeID << " without connection" << std::endl;
@@ -1458,7 +1458,7 @@ bool LocalNode::_cmdAddListener( Command& command )
         data.connection = connection;
         data.node = this;
 
-        co::base::ScopedMutex<> mutex( _outMulticast );
+        base::ScopedMutex<> mutex( _outMulticast );
         _multicasts.push_back( data );
     }
 
@@ -1485,7 +1485,7 @@ bool LocalNode::_cmdRemoveListener( Command& command )
 
     if( connection->getDescription()->type >= CONNECTIONTYPE_MULTICAST )
     {
-        co::base::ScopedMutex<> mutex( _outMulticast );
+        base::ScopedMutex<> mutex( _outMulticast );
         for( MCDatas::iterator i = _multicasts.begin();
              i != _multicasts.end(); ++i )
         {

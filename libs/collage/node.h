@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -37,7 +37,7 @@ namespace co
      * at least one Connection through which is reachable. A Node provides the
      * basic communication facilities through message passing.
      */
-    class Node : public Dispatcher, public co::base::Referenced
+    class Node : public Dispatcher, public base::Referenced
     {
     public:
         /** Construct a new Node. */
@@ -235,7 +235,7 @@ namespace co
         ConnectionPtr _outgoing;
 
         /** The multicast connection to this node, can be 0. */
-        co::base::Lockable< ConnectionPtr > _outMulticast;
+        base::Lockable< ConnectionPtr > _outMulticast;
 
         struct MCData
         {
@@ -254,7 +254,7 @@ namespace co
         MCDatas _multicasts;
 
         /** The list of descriptions on how this node is reachable. */
-        co::base::Lockable< ConnectionDescriptions, co::base::SpinLock >
+        base::Lockable< ConnectionDescriptions, base::SpinLock >
             _connectionDescriptions;
 
         /** Ensures the connectivity of this node. */

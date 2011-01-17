@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -61,7 +61,7 @@ namespace co
      * The Connection is used reference-counted in co, since it has
      * multiple owners, such as the ConnectionSet and Node.
      */
-    class Connection : public co::base::Referenced, public co::base::NonCopyable
+    class Connection : public base::Referenced, public base::NonCopyable
     {
     public:
         enum State //! The current state of the Connection
@@ -390,7 +390,7 @@ namespace co
         ConnectionDescriptionPtr _description; //!< The connection parameters
 
         /** The lock used to protect multiple write calls. */
-        mutable co::base::Lock _sendLock;
+        mutable base::Lock _sendLock;
 
         enum ReadStatus
         {

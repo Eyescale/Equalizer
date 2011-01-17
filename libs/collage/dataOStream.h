@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -39,7 +39,7 @@ namespace DataStreamTest
      *
      * Derived classes send the data using the appropriate command packets.
      */
-    class DataOStream : public co::base::NonCopyable
+    class DataOStream : public base::NonCopyable
     {
     public:
         /** @name Internal */
@@ -71,7 +71,7 @@ namespace DataStreamTest
         void resend( const Nodes& receivers );
 
         /** @return the buffer with the saved data. */
-        const co::base::Bufferb& getSaveBuffer() const 
+        const base::Bufferb& getSaveBuffer() const 
             { EQASSERT( _save ); return _buffer; }
         //@}
 
@@ -137,13 +137,13 @@ namespace DataStreamTest
         CompressorState _compressorState;
         
         /** The buffer used for saving and buffering */
-        co::base::Bufferb  _buffer;
+        base::Bufferb  _buffer;
 
         /** The start position of the buffering, always 0 if !_save */
         uint64_t _bufferStart;
         
         /** The compressor instance. */
-        co::base::CPUCompressor* const _compressor;
+        base::CPUCompressor* const _compressor;
 
         /** The output stream is enabled for writing */
         bool _enabled;

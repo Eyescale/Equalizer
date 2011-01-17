@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -134,7 +134,7 @@ std::ostream& operator << ( std::ostream& os, const Command& command )
 {
     if( command.isValid( ))
     {
-        os << co::base::disableFlush << "command< ";
+        os << base::disableFlush << "command< ";
         const Packet* packet = command.getPacket() ;
         switch( packet->type )
         {
@@ -151,7 +151,7 @@ std::ostream& operator << ( std::ostream& os, const Command& command )
         }
 
         os << ", " << command.getNode() << ", r" << command._refCount << " >"
-           << co::base::enableFlush;
+           << base::enableFlush;
     }
     else
         os << "command< empty >";

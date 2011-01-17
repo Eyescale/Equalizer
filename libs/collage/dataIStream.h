@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *               2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -119,8 +119,8 @@ namespace co
         /** The current read position in the buffer */
         uint64_t  _position;
 
-        co::base::CPUCompressor* const _decompressor; //!< current decompressor
-        co::base::Bufferb _data; //!< decompressed buffer
+        base::CPUCompressor* const _decompressor; //!< current decompressor
+        base::Bufferb _data; //!< decompressed buffer
 
         /**
          * Check that the current buffer has data left, get the next buffer is
@@ -186,12 +186,12 @@ namespace co{
     class ObjectFinder
     {
     public:
-        ObjectFinder( const co::base::UUID& id ) : _id( id ) {}
+        ObjectFinder( const base::UUID& id ) : _id( id ) {}
         bool operator()( co::Object* candidate )
             { return candidate->getID() == _id; }
 
     private:
-        const co::base::UUID _id;
+        const base::UUID _id;
     };
     }
 
@@ -211,7 +211,7 @@ namespace co{
         {
             const ObjectVersion& version = *i;
             
-            if( version.identifier == co::base::UUID::ZERO )
+            if( version.identifier == base::UUID::ZERO )
             {
                 result.push_back( 0 );
                 continue;
