@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # one pipe config rendering in anaglyphic stereo on a 1x1 meter wall
 
@@ -26,7 +26,7 @@ server
         }
         compound 
         {
-            eye [ LEFT RIGHT ]
+            eye [ CYCLOP LEFT RIGHT ]
             channel "channel"
             wall
             {

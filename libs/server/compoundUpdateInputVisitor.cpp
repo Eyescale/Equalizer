@@ -104,7 +104,7 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         //frame->setInheritPixelViewport( framePVP );
 
         //----- Link input frame to output frame (connects frame data)
-        outputFrame->addInputFrame( frame, compound->getInheritEyes( ));
+        outputFrame->addInputFrame( frame, compound );
 
         //----- Commit
         frame->commit();

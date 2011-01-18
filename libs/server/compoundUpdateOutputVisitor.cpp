@@ -91,7 +91,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         //----- Create new frame datas
         //      one frame data used for each eye pass
         //      data is set only on master frame data (will copy to all others)
-        frame->cycleData( _frameNumber, compound->getInheritEyes( ));
+        frame->cycleData( _frameNumber, compound );
         FrameData* frameData = frame->getMasterData();
         EQASSERT( frameData );
 

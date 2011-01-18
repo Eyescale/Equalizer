@@ -1,30 +1,32 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # 'Hello, World!' config: one window rendering from the application process.
 server
 {
+    connection{ hostname "127.0.0.1" }
     config
     {
         appNode
         {
+            connection{ hostname "127.0.0.1" }  
             pipe
             {
                 window
                 {
                     viewport [ 0.1 0.25 0.4 0.4 ]
-                    
                     channel { name "channel1" }
                 }
             }
         }
+
         node
         {
+            connection{ hostname "127.0.0.1" }
             pipe
             {
                 window
                 {
                     viewport [ 0.5 0.25 0.4 0.4 ]
-                    
                     channel { name "channel2" }
                 }
             }

@@ -127,7 +127,7 @@ namespace server
          * @param frameNumber the current frame number.
          * @param eyes the eye passes used.
          */
-        void cycleData( const uint32_t frameNumber, const uint32_t eyes );
+        void cycleData( const uint32_t frameNumber, const Compound* compound );
 
         /** 
          * Add an input frame to this (output) frame
@@ -135,7 +135,7 @@ namespace server
          * @param frame the input frame.
          * @param eyes the eye passes used.
          */
-        void addInputFrame( Frame* frame, const uint32_t eyes );
+        void addInputFrame( Frame* frame, const Compound* compound );
         /** @return the vector of current input frames. */
         const Frames& getInputFrames( const eq::Eye eye ) const
             { return _inputFrames[ co::base::getIndexOfLastBit( eye ) ]; }

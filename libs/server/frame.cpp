@@ -120,14 +120,14 @@ uint32_t Frame::commitNB()
     return co::Object::commitNB();
 }
 
-void Frame::cycleData( const uint32_t frameNumber, const uint32_t eyes )
+void Frame::cycleData( const uint32_t frameNumber, const Compound* compound )
 {
     _masterFrameData = 0;
     for( unsigned i = 0; i < NUM_EYES; ++i )
     {
         _inputFrames[i].clear();
 
-        if( !(eyes & (1<<i))) // eye pass not used
+        if( !compound->isInheritActive( (eq::Eye)(1<<i) ))// eye pass not used
         {
             _frameData[i] = 0;
             continue;
@@ -158,12 +158,13 @@ void Frame::cycleData( const uint32_t frameNumber, const uint32_t eyes )
     }
 }
 
-void Frame::addInputFrame( Frame* frame, const uint32_t eyes )
+void Frame::addInputFrame( Frame* frame, const Compound* compound )
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
     {
-        if( !(eyes & (1<<i)) ||  // eye pass not used
-            !_frameData[i] )     // no output frame for eye pass
+        // eye pass not used && no output frame for eye pass
+        if( !( compound->isInheritActive( (eq::Eye)(1<<i) )) ||  
+            !_frameData[i] )     
         {
             frame->_frameData[i] = 0;
         }

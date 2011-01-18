@@ -1,9 +1,10 @@
-- fix bug : 3155530  Assertion server/config.cpp:875  
+- Fix bug : 3155516  Assertion in frameData.cpp : 249  
+- Update some file config to 1.1 version 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
