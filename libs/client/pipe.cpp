@@ -296,7 +296,6 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
     const co::ObjectVersion& data = frame->getDataVersion( eye );
     EQLOG( LOG_ASSEMBLY ) << "Use " << data << std::endl;
 
-    EQASSERT( data.identifier.isGenerated( ));
     FrameData* frameData = getNode()->getFrameData( data ); 
     EQASSERT( frameData );
 
