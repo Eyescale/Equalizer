@@ -872,7 +872,7 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
         const Node* node = *i;
         if( node->isRunning() && node->getFinishedFrame() < frameNumber )
         {
-            EQASSERT( node->isActive( ));
+            EQASSERT( _needsFinish || node->isActive( ));
             return;
         }
     }

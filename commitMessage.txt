@@ -1,4 +1,4 @@
-- fix break build : Add missing export
+- fix bug : 3155530  Assertion server/config.cpp:875  
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
