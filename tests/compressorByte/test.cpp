@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -99,8 +99,8 @@ void testCompressByte( const uint32_t nameCompressor,
 {
     co::base::CPUCompressor compressor;
     co::base::CPUCompressor decompressor;
-    compressor.initCompressor( nameCompressor );
-    decompressor.initDecompressor( nameCompressor );
+    compressor.co::base::Compressor::initCompressor( nameCompressor );
+    decompressor.co::base::Compressor::initDecompressor( nameCompressor );
 
     const uint64_t flags = EQ_COMPRESSOR_DATA_1D;    
     uint64_t inDims[2]  = { 0, size };

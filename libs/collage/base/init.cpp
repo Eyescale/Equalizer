@@ -75,6 +75,8 @@ bool init( const int argc, char** argv )
     PluginRegistry& pluginRegistry = Global::getPluginRegistry();
 #ifdef EQ_DSO_NAME
     pluginRegistry.addPlugin( EQ_DSO_NAME );
+    co::base::Global::getPluginRegistry().addPlugin(
+        std::string( EQ_BUILD_DIR ) + "libs/collage/" + EQ_DSO_NAME );
 #endif
     pluginRegistry.init();
     Thread::pinCurrentThread();

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -100,9 +100,6 @@ namespace
     co::base::DSO _libeqserver;
 }
 
-#define QUOTE( string ) STRINGIFY( string )
-#define STRINGIFY( foo ) #foo
-
 co::ConnectionPtr _startLocalServer()
 {
     Strings dirNames;
@@ -110,11 +107,11 @@ co::ConnectionPtr _startLocalServer()
 
 #ifdef EQ_BUILD_DIR
 #ifdef NDEBUG
-	dirNames.push_back( std::string( QUOTE( EQ_BUILD_DIR )) + "libs/server/Release/" );
+	dirNames.push_back( std::string( EQ_BUILD_DIR ) + "libs/server/Release/" );
 #else
-	dirNames.push_back( std::string( QUOTE( EQ_BUILD_DIR )) + "libs/server/Debug/" );
+	dirNames.push_back( std::string( EQ_BUILD_DIR ) + "libs/server/Debug/" );
 #endif
-    dirNames.push_back( std::string( QUOTE( EQ_BUILD_DIR )) + "libs/server/" );
+    dirNames.push_back( std::string( EQ_BUILD_DIR ) + "libs/server/" );
 #endif
 
 #ifdef _MSC_VER

@@ -99,6 +99,8 @@ bool init( const int argc, char** argv, NodeFactory* nodeFactory )
 
 #ifdef EQ_DSO_NAME
     co::base::Global::getPluginRegistry().addPlugin( EQ_DSO_NAME );
+    co::base::Global::getPluginRegistry().addPlugin(
+        std::string( EQ_BUILD_DIR ) + "libs/client/" + EQ_DSO_NAME );
 #endif
     return fabric::init( argc, argv );
 }

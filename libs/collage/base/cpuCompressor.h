@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -125,26 +126,11 @@ namespace base
          *                   quality and 1 = full quality, no loss.
          * @param ignoreMSE the most-significant element of each token can be
          *                  ignored, typically the alpha channel of an image.
+         * @return true if a compressor was found, false otherwise.
          */
-        COBASE_API void initCompressor( const uint32_t dataType, 
-                                       const float quality,
-                                       const bool ignoreMSE = false );
-
-        /**
-         * Init the compressor with the specified name   
-         *
-         * @param name the name of the decompressor
-         */                               
-        bool initCompressor( uint32_t name )
-            { return _initCompressor( name ); }
-
-        /**
-         * Init the decompressor with the specified name   
-         *
-         * @param name the name of the decompressor
-         */
-        bool initDecompressor( uint32_t name )
-            { return _initDecompressor( name ); }
+        COBASE_API bool initCompressor( const uint32_t dataType, 
+                                        const float quality,
+                                        const bool ignoreMSE = false );
     };
 }
 }

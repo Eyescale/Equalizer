@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -709,7 +709,7 @@ bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
     if( !attachment.compressor->isValid( name ) )
     {
         attachment.memory.isCompressed = false;
-        if( !attachment.compressor->initCompressor( name ) )
+        if( !attachment.compressor->co::base::Compressor::initCompressor(name))
             return false;
 
         EQLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex

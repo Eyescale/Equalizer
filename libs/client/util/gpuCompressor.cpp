@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -81,13 +81,13 @@ void GPUCompressor::initDownloader( const uint32_t internalFormat,
     if( name == EQ_COMPRESSOR_NONE )
         reset();
     else if( name != _name )
-        _initCompressor( name );
+        initCompressor( name );
 }
 
 bool GPUCompressor::initDownloader( const uint32_t name )
 {
     EQASSERT( name > EQ_COMPRESSOR_NONE );
-    return _initCompressor( name );
+    return initCompressor( name );
 }
 
 void GPUCompressor::initUploader( const uint32_t externalFormat,
@@ -131,7 +131,7 @@ void GPUCompressor::initUploader( const uint32_t externalFormat,
     if( name == EQ_COMPRESSOR_NONE )
         reset();
     else if( name != _name )
-        _initDecompressor( name );
+        initDecompressor( name );
 }
 
 void GPUCompressor::download( const fabric::PixelViewport& pvpIn,

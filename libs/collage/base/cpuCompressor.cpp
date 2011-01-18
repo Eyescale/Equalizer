@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -73,11 +73,11 @@ void CPUCompressor::decompress( const void* const* in,
                          numInputs, out, outDim, EQ_COMPRESSOR_DATA_1D );
 }
 
-void CPUCompressor::initCompressor( const uint32_t dataType, 
-                                        const float quality,
-                                        const bool noAlpha )
+bool CPUCompressor::initCompressor( const uint32_t dataType,
+                                    const float quality, const bool noAlpha )
 {
-    initCompressor( chooseCompressor( dataType, quality, noAlpha ) );
+    return Compressor::initCompressor(
+        chooseCompressor( dataType, quality, noAlpha ));
 }
 
 uint32_t CPUCompressor::chooseCompressor( const uint32_t tokenType, 

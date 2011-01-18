@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -95,7 +95,7 @@ bool Compressor::isValid( uint32_t name ) const
     return _instance != 0;
 }
 
-bool Compressor::_initCompressor( uint32_t name )
+bool Compressor::initCompressor( uint32_t name )
 {
     EQ_TS_SCOPED( _thread );
     EQ_TS_THREAD( _thread );
@@ -130,7 +130,7 @@ bool Compressor::_initCompressor( uint32_t name )
     return true;
 }
 
-bool Compressor::_initDecompressor( uint32_t name )
+bool Compressor::initDecompressor( uint32_t name )
 {
     EQ_TS_SCOPED( _thread );
     EQ_TS_THREAD( _thread );

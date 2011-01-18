@@ -179,8 +179,8 @@ namespace DataStreamTest
          */
         uint64_t _getCompressedData( void** chunks, uint64_t* chunkSizes )const;
 
-        /** compress data, if compressor found */
-        void _compress( const void* src, const uint64_t size );
+        /** Compress data. @return true if compressed, false otherwise. */
+        bool _compress( const void* src, const uint64_t size );
 
         /** Resend the saved buffer to all enabled connections. */
         void _resend();

@@ -55,7 +55,7 @@ DataOStream::DataOStream()
         , _dataSent( false )
         , _save( false )
 {
-    _compressor->initCompressor( EQ_COMPRESSOR_DATATYPE_BYTE, 1.f );
+    EQCHECK( _compressor->initCompressor( EQ_COMPRESSOR_DATATYPE_BYTE, 1.f ));
     EQVERB << "Using byte compressor " << _compressor->getName() << std::endl;
 }
 
@@ -151,8 +151,10 @@ void DataOStream::_resend( )
     
     if( _compressorState != FULL_COMPRESSED )
     {
-        _compress( _buffer.getData(), _buffer.getSize() );
-        _compressorState = FULL_COMPRESSED;
+        if( _compress( _buffer.getData(), _buffer.getSize( )))
+            _compressorState = FULL_COMPRESSED;
+        else
+            _compressorState = NOT_COMPRESSED;
     }
     _sendFooter( _buffer.getData(), _buffer.getSize() );
     _connections.clear();
@@ -171,8 +173,10 @@ void DataOStream::disable()
             const uint64_t size = _buffer.getSize() - _bufferStart;
             if( _compressorState != PARTIAL_COMPRESSED )
             {
-                _compress( ptr, size );
-                _compressorState = PARTIAL_COMPRESSED;
+                if( _compress( ptr, size ))
+                    _compressorState = PARTIAL_COMPRESSED;
+                else
+                    _compressorState = NOT_COMPRESSED;
             }
             _sendFooter( ptr, size );
         }
@@ -185,8 +189,10 @@ void DataOStream::disable()
         {
             if( _compressorState != FULL_COMPRESSED )
             {
-                _compress( _buffer.getData(), _buffer.getSize() );
-                _compressorState = FULL_COMPRESSED;
+                if( _compress( _buffer.getData(), _buffer.getSize( )))
+                    _compressorState = FULL_COMPRESSED;
+                else
+                    _compressorState = NOT_COMPRESSED;
             }
             _sendFooter( _buffer.getData(), _buffer.getSize( ));
         }
@@ -236,8 +242,10 @@ void DataOStream::_flush()
     EQASSERT( _compressorState == NOT_COMPRESSED );
     if( _compressorState != PARTIAL_COMPRESSED )
     {
-        _compress( ptr, size );
-        _compressorState = PARTIAL_COMPRESSED;
+        if( _compress( ptr, size ))
+            _compressorState = PARTIAL_COMPRESSED;
+        else
+            _compressorState = NOT_COMPRESSED;
     }
 
     _sendData( ptr, size );
@@ -333,16 +341,13 @@ void DataOStream::_sendFooter( const void* buffer, const uint64_t size )
     sendFooter( EQ_COMPRESSOR_NONE, 1, &buffer, &size, size );
 }
 
-void DataOStream::_compress( const void* src, const uint64_t sizeSrc )
+bool DataOStream::_compress( const void* src, const uint64_t sizeSrc )
 {
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
     nBytesProcessed += sizeSrc;
 #endif
     if( !_compressor->isValid( _compressor->getName( )))
-    {
-        _compressorState = NOT_COMPRESSED;
-        return;
-    }
+        return false;
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
     base::Clock clock;
@@ -365,6 +370,7 @@ void DataOStream::_compress( const void* src, const uint64_t sizeSrc )
         nBytesCompressed += chunkSize;
     }
 #endif
+    return true;
 }
 
 uint64_t DataOStream::_getCompressedData( void** chunks, uint64_t* chunkSizes )

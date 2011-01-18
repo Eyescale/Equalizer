@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -36,6 +36,22 @@ namespace base
 
         /** Destruct the compressor. */
         COBASE_API virtual ~Compressor();
+
+        /**
+         * Initialize the specified compressor or downloader 
+         *
+         * @param name the name of the compressor
+         * @return true on success, false otherwise.
+         */
+        COBASE_API bool initCompressor( uint32_t name );
+
+        /**
+         * Initialize the specified decompressor or uploader 
+         *
+         * @param name the name of the compressor
+         * @return true on success, false otherwise.
+         */
+        COBASE_API bool initDecompressor( uint32_t name );
 
         /** @return the plugin for the current compressor. */
         Plugin* getPlugin() { return _plugin; }
@@ -84,20 +100,6 @@ namespace base
          * @param name the name of the compressor 
          */
         Plugin* _findPlugin( uint32_t name );
-
-        /**
-         * Initialize the specified compressor or downloader 
-         *
-         * @param name the name of the compressor
-         */
-        COBASE_API bool _initCompressor( uint32_t name );
-
-        /**
-         * Initialize the specified decompressor or uploader 
-         *
-         * @param name the name of the compressor
-         */
-        COBASE_API bool _initDecompressor( uint32_t name );
 
         EQ_TS_VAR( _thread );
     };

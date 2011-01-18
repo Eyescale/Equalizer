@@ -170,7 +170,7 @@ include(${Equalizer_SOURCE_DIR}/externals/UseVMMLib.cmake)
 include(${Equalizer_SOURCE_DIR}/externals/UseGnuWin32.cmake)
 include(${Equalizer_SOURCE_DIR}/externals/UsePthreads.cmake)
 set(PTHREAD_LIBRARIES pthread)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DEQ_BUILD_DIR=\"${CMAKE_BINARY_DIR}/\"")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DEQ_BUILD_DIR=\\\"${CMAKE_BINARY_DIR}/\\\"")
 
 add_subdirectory(examples)
 add_subdirectory(libs)

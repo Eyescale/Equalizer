@@ -1,9 +1,8 @@
 #Equalizer 1.0 ascii
 
-# 'Hello, World!' config: one window rendering from the application process.
+# 2-window test config
 server
 {
-#    connection{}
     config
     {
         appNode
@@ -12,16 +11,51 @@ server
             {
                 window
                 {
-                    viewport [ 0.25 0.25 0.5 0.5 ]
-                    
-                    channel { name "channel" }
+                    name "left"
+                    viewport [ 100 100 480 300 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+                window
+                {
+                    name "right"
+                    viewport [ 580 100 480 300 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
                 }
             }
         }
-        compound
-        { 
-            channel "channel"
-            wall {}
+        observer {}
+        layout { view { observer 0 mode stereo }}
+        canvas
+        {
+            layout 0
+            segment
+            { 
+                channel "channel1"
+                viewport [ 0 0 .5 1 ]
+                wall
+                {
+                    bottom_left  [ -.32 -.2 -1 ]
+                    bottom_right [  .32 -.2 -1 ]
+                    top_left     [ -.32  .2 -1 ]
+                }
+            }
+            segment
+            { 
+                channel "channel2"
+                viewport [ .5 0 .5 1 ]
+                wall
+                {
+                    bottom_left  [ -.64 -.2 -2 ]
+                    bottom_right [  .64 -.2 -2 ]
+                    top_left     [ -.64  .2 -2 ]
+                }
+            }
         }
     }    
 }
