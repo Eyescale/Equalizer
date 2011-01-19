@@ -1,6 +1,10 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
-# 2-window test config
+global
+{
+#    EQ_CONFIG_FATTR_EYE_BASE 1
+}
+
 server
 {
     config
@@ -30,7 +34,7 @@ server
             }
         }
         observer {}
-        layout { view { observer 0 mode stereo }}
+        layout { view { observer 0 mode STEREO }}
         canvas
         {
             layout 0
@@ -51,9 +55,9 @@ server
                 viewport [ .5 0 .5 1 ]
                 wall
                 {
-                    bottom_left  [ -.64 -.2 -2 ]
-                    bottom_right [  .64 -.2 -2 ]
-                    top_left     [ -.64  .2 -2 ]
+                    bottom_left  [ -.64 -.4 -2 ]
+                    bottom_right [  .64 -.4 -2 ]
+                    top_left     [ -.64  .4 -2 ]
                 }
             }
         }
