@@ -26,7 +26,6 @@
 #include <eq/util/base.h>
 #include <eq/fabric/base.h>
 #include <co/co.h>
-#include <vmmlib/vmmlib.hpp>
 
 #pragma warning(pop)
 

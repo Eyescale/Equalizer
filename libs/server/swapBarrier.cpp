@@ -35,8 +35,8 @@ ostream& operator << ( ostream& os, const SwapBarrier* swapBarrier )
         os << disableFlush << "swapbarrier" << endl 
            << "{"<< endl 
            << "    name \"" << swapBarrier->getName() << "\"" << endl
-           << "    group " << swapBarrier->getNVSwapGroup() << endl
-           << "    barrier " << swapBarrier->getNVSwapBarrier()<< endl
+           << "    NV_group " << swapBarrier->getNVSwapGroup() << endl
+           << "    NV_barrier " << swapBarrier->getNVSwapBarrier()<< endl
            << "}"  << enableFlush << endl; 
     }
     else

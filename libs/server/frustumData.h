@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,11 +18,10 @@
 #ifndef EQSERVER_FRUSTUMDATA_H
 #define EQSERVER_FRUSTUMDATA_H
 
-#include <co/base/os.h>
+#include "types.h"
+
 #include <eq/fabric/eye.h>   // EYE enum
 #include <eq/fabric/wall.h>  // Wall::Type enum
-#include <vmmlib/matrix.hpp>  // member
-#include <vmmlib/vector.hpp>  // member
 
 namespace eq
 {
@@ -30,8 +29,8 @@ namespace eq
 namespace server
 {
     /** 
-     * Data derived from eq::Frustum, in a general, optimized format used for
-     * frustum calculations during rendering.
+     * Data derived from fabric::Frustum, in a general, optimized format used
+     * for frustum calculations during rendering.
      */
     class FrustumData
     {
@@ -44,10 +43,10 @@ namespace server
         /** @name Data Update. */
         //@{
         /** Update the frustum data using the given projection. */
-        void applyProjection( const eq::Projection& projection );
+        void applyProjection( const fabric::Projection& projection );
 
         /** Update the frustum data using the given wall. */
-        void applyWall( const eq::Wall& wall );
+        void applyWall( const fabric::Wall& wall );
         //@}
 
         /** @name Data Access. */
@@ -62,14 +61,14 @@ namespace server
         float getHeight() const { return _height; }
 
         /** @return the projection type. */
-        eq::Wall::Type getType() const { return _type; }
+        fabric::Wall::Type getType() const { return _type; }
         //@}
 
     private:
         float _width;
         float _height;
         Matrix4f _xfm;
-        eq::Wall::Type _type;
+        fabric::Wall::Type _type;
     };
 
     std::ostream& operator << ( std::ostream& os, const FrustumData& ); 

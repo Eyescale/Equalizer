@@ -24,7 +24,9 @@
 #include <co/base/file.h>
 #include <co/base/init.h>
 
-// Tests loading of all examples/configs/*.eqc files
+// Tests (re)loading of all examples/configs/*.eqc files
+
+#define OUT co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
 
 int main( int argc, char **argv )
 {
@@ -41,6 +43,7 @@ int main( int argc, char **argv )
         const eq::server::Config::FAttribute attr = 
             eq::server::Config::FATTR_VERSION;
 
+        // load
         global->setConfigFAttribute( attr, 0.f );
         eq::server::ServerPtr server = loader.loadFile( filename );
 
@@ -48,6 +51,30 @@ int main( int argc, char **argv )
         TESTINFO( global->getConfigFAttribute( attr ) == 1.f ||
                   global->getConfigFAttribute( attr ) == 1.1f,
                   global->getConfigFAttribute( attr ) << " file " << filename);
+
+        // convert
+        eq::server::Loader::addOutputCompounds( server );
+        eq::server::Loader::addDestinationViews( server );
+        eq::server::Loader::addDefaultObserver( server );
+        eq::server::Loader::convertTo11( server );
+
+        // output
+        std::ofstream logFile( "testOutput.eqc" );
+        TEST( logFile.is_open( ));
+
+        std::ostream& oldOut = co::base::Log::getOutput();
+        co::base::Log::setOutput( logFile );
+        OUT << eq::server::Global::instance() << *server
+            << co::base::forceFlush;
+        co::base::Log::setOutput( oldOut );
+        OUT << co::base::enableHeader << std::endl;
+        logFile.close();
+
+        // reload output
+        eq::server::Global::clear();
+        server = loader.loadFile( "testOutput.eqc" );
+        TESTINFO( server.isValid(), "Output/reload of " << filename <<
+                  " failed, see testOutput.eqc" );
     }
 
     TEST( co::base::exit( ));

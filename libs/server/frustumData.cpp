@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -34,7 +34,7 @@ FrustumData::FrustumData()
 {
 }
 
-void FrustumData::applyWall( const eq::Wall& wall )
+void FrustumData::applyWall( const fabric::Wall& wall )
 {
     Vector3f u = wall.bottomRight - wall.bottomLeft;
     Vector3f v = wall.topLeft - wall.bottomLeft;
@@ -72,7 +72,7 @@ void FrustumData::applyWall( const eq::Wall& wall )
     _xfm.array[15] = 1.;
 }
 
-void FrustumData::applyProjection( const eq::Projection& projection )
+void FrustumData::applyProjection( const fabric::Projection& projection )
 {
     const float cosH = cosf( DEG2RAD( projection.hpr[0] ));
     const float sinH = sinf( DEG2RAD( projection.hpr[0] ));

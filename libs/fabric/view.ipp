@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -259,8 +259,8 @@ std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view )
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << std::endl;
 
-    const eq::Viewport& vp  = view.getViewport();
-    if( vp.isValid( ) && vp != eq::Viewport::FULL )
+    const Viewport& vp = view.getViewport();
+    if( vp.isValid( ) && vp != Viewport::FULL )
         os << "viewport " << vp << std::endl;
 
     if( view.getMode() == View< L, V, O >::MODE_STEREO )

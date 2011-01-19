@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,8 +18,6 @@
 #ifndef EQSERVER_API_H
 #define EQSERVER_API_H
 
-#include <co/base/os.h>
-
-// Export definitions are predeclared in co/base/os.h
+#include <co/base/api.h> // Export definitions are predeclared there
 
 #endif // EQSERVER_BASE_H

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@
 #ifndef EQFABRIC_TYPES_H
 #define EQFABRIC_TYPES_H
 
+#include <eq/fabric/api.h>
 #include <co/base/os.h>
 #include <co/base/refPtr.h>
 #include <co/base/uint128_t.h>

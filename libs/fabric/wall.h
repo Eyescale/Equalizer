@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,8 +19,7 @@
 #define EQFABRIC_WALL_H
 
 #include <eq/fabric/api.h>
-
-#include <eq/types.h>
+#include <eq/fabric/types.h>
 #include <iostream>
 
 namespace eq
@@ -42,8 +41,9 @@ namespace fabric
     	EQFABRIC_API Wall();
 
         /** Construct a new wall description with default values. */
-    	EQFABRIC_API Wall( const Vector3f& bottomLeft, const Vector3f& bottomRight,
-                        const Vector3f& topLeft );
+    	EQFABRIC_API Wall( const Vector3f& bottomLeft, 
+                           const Vector3f& bottomRight,
+                           const Vector3f& topLeft );
 
         /** 
          * Resize the wall horizontally.
