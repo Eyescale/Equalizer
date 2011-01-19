@@ -70,11 +70,21 @@ int main( int argc, char **argv )
         OUT << co::base::enableHeader << std::endl;
         logFile.close();
 
-        // reload output
+        // cleanup
         eq::server::Global::clear();
+        server->deleteConfigs(); // break server <-> config ref circle
+        TESTINFO( server->getRefCount() == 1,
+                  server->getRefCount() << ": " << server );
+
+        // reload output
         server = loader.loadFile( "testOutput.eqc" );
         TESTINFO( server.isValid(), "Output/reload of " << filename <<
                   " failed, see testOutput.eqc" );
+
+        eq::server::Global::clear();
+        server->deleteConfigs(); // break server <-> config ref circle
+        TESTINFO( server->getRefCount() == 1,
+                  server->getRefCount() << ": " << server );
     }
 
     TEST( co::base::exit( ));

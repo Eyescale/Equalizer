@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -93,9 +93,10 @@ namespace base
         /** @return the current reference count. @version 1.0 */
         int  getRefCount() const { return _refCount; }
 
-#ifdef EQ_REFERENCED_DEBUG
+        /** @internal print holders of this if debugging is enabled. */
         void printHolders( std::ostream& os ) const
             {
+#ifdef EQ_REFERENCED_DEBUG
                 os << disableFlush << disableHeader;
                 ScopedMutex<> referencedMutex( _holders );
                 for( HolderHash::const_iterator i = _holders->begin();
@@ -105,8 +106,8 @@ namespace base
                        << std::endl;
                 }
                 os << enableHeader << enableFlush;
-            }
 #endif
+            }
 
     protected:
         /** Construct a new reference-counted object. @version 1.0 */
