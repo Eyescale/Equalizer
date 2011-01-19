@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # one pipe config rendering in stereo on a 1x1 meter wall
 # Note: requires quad-buffered stereo. Config initialization will fail on 
@@ -12,6 +12,7 @@ global
 
 server
 {
+    connection{ hostname "127.0.0.1" }
     config
     {
         appNode
@@ -25,16 +26,13 @@ server
                 }
             }
         }
-        compound 
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
         {
-            eye [ LEFT RIGHT ]
-            channel "channel"
-            wall
-            {
-                bottom_left  [ -.5 -.5 -1 ]
-                bottom_right [  .5 -.5 -1 ]
-                top_left     [ -.5  .5 -1 ]
-            }
+            layout 0
+            wall{}
+            segment { channel "channel" }
         }
-    }    
+    }
 }

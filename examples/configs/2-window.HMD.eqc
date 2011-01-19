@@ -1,8 +1,9 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # single pipe HMD demo configuration. Distribute using two pipes for deployment
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -28,26 +29,14 @@ server
                 }
             }
         }
-        compound
+        observer{}
+        layout{ view { mode STEREO observer 0 }}
+        canvas
         {
-            wall
-            {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
-                type         HMD
-            }
-
-            compound
-            {
-                channel "channel1"
-                eye     [ LEFT ]
-            }
-            compound
-            { 
-                channel "channel2"
-                eye     [ RIGHT ]
-            }
+            layout 0
+            wall{ type HMD }
+            segment { eye [ LEFT CYCLOPE ] channel "channel1" }
+            segment { eye [ RIGHT CYCLOPE ]channel "channel2" }
         }
     }    
 }

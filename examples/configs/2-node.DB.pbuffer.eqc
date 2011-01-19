@@ -1,17 +1,19 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # two nodes with one pbuffer RGBA32F
 global
 {
-    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN OFF
 }
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
         {   
+            connection { hostname "127.0.0.1" }
             pipe 
             { 
                 window 
@@ -19,11 +21,10 @@ server
                     attributes
                     {
                         hint_drawable pbuffer
-                        planes_color  RGBA32F
+                        
                         planes_depth  ON
                     }
-                    channel 
-                    { 
+                    channel     { 
                         name "channel2" 
                     }
                 }
@@ -31,10 +32,7 @@ server
         }
         node
         {
-            connection 
-            { 
-                hostname "157.26.73.115" TCPIP_port 4242  
-            }
+            connection { hostname "127.0.0.1" }
             pipe 
             {
                 window
@@ -46,17 +44,18 @@ server
                 }
             }
         }
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall{}
+            segment { channel "channel1" }
+        }
         compound
         {
-            channel "channel1"
+            channel  ( canvas 0 segment 0 layout 0 view 0 )
             buffer  [ COLOR DEPTH ]
-
-            wall
-            {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
-            }
 
             compound
             {

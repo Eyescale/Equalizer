@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # Simple config executing the rendering from the application thread
 global
@@ -8,6 +8,7 @@ global
 
 server
 {
+    connection{ hostname "127.0.0.1" }
     config
     {
         appNode
@@ -17,20 +18,17 @@ server
                 window
                 {
                     viewport [ 0.25 0.25 0.5 0.5 ]
-                    
                     channel { name "channel" }
                 }
             }
         }
-        compound
-        { 
-            channel "channel"
-            wall
-            {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
-            }
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall{}
+            segment { channel "channel" }
         }
     }    
 }

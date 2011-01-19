@@ -1,17 +1,19 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # two-node software-framelocked config
 global
 {
-    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN OFF
 }
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
         {
+            connection { hostname "127.0.0.1" }
             pipe 
             {
 #                device 0

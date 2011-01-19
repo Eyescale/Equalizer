@@ -1,8 +1,9 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # 2-window sort-first load-balanced config running on a single pipe.
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -30,9 +31,17 @@ server
                 }
             }
         }
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall{}
+            segment { channel "channel1" }
+        }
         compound
         {
-            channel "channel1"
+            channel  ( segment 0 view 0 )
             load_equalizer { mode VERTICAL }
 
             wall

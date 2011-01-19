@@ -1,18 +1,20 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # two-to-one time-multiplex config
 global
 {
-    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN OFF
 }
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         latency 3
         appNode
         {
+            connection { hostname "127.0.0.1" }
             pipe 
             {
                 window
@@ -33,19 +35,20 @@ server
         }
         node
         {
-            connection { hostname "10.1.1.13" port 2345 }
+            connection { hostname "127.0.0.1" }
             pipe { window { channel { name "channel2" }}}
+        }
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall{}
+            segment { channel "destination" }
         }
         compound
         {
-            channel "destination"
-            wall
-            {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
-            }
-
+            channel  ( segment 0 view 0 )
             framerate_equalizer {}
 
             compound

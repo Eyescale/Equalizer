@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # single-window config for a 2-channel TAN Holobench(tm): L-shaped projection
 # table, each area is 1.8mx1.1m. Deploy in full-screen, quad-stereo and 
@@ -7,6 +7,7 @@
 global { EQ_COMPOUND_IATTR_STEREO_MODE ANAGLYPH }
 server
 {
+    connection{ hostname "127.0.0.1" }
     config
     {
         appNode
@@ -29,10 +30,19 @@ server
                 }
             }
         }
-        compound
+        observer{}
+        layout
         {
-            eye [ LEFT RIGHT ]
-            compound
+            view
+            {
+                observer 0
+                mode STEREO
+            }
+        }
+        canvas
+        {
+            layout 0
+            segment
             {
                 channel "channel-front"
                 wall
@@ -42,7 +52,7 @@ server
                     top_left     [ -.9  .55 -1.1 ]
                 }
             }
-            compound
+            segment
             {
                 channel "channel-bottom"
                 wall
@@ -53,5 +63,6 @@ server
                 }
             }
         }
+
     }    
 }

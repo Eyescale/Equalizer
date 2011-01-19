@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # two-pipe framelocked config
 global
@@ -8,6 +8,7 @@ global
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -51,12 +52,12 @@ server
         {
             compound 
             {
-                channel ( view 0 segment 0 )
+                channel  ( canvas 0 segment 0 layout 0 view 0 )
                 swapbarrier { NV_group 1 NV_barrier 0 }
             }
             compound 
             {
-                channel ( view 0 segment 1 )
+                channel  ( canvas 0 segment 1 layout 0 view 0 )
                 swapbarrier { NV_group 1 NV_barrier 0 }
             }
         }

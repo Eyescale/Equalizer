@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # two pipe fullscreen config for passive stereo output onto a 2x2 meter wall
 # Note: the root compound channel is chosen arbitrarily to define the frustum.
@@ -10,6 +10,7 @@ global
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -31,24 +32,31 @@ server
                 }
             }
         }
-        compound 
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
         {
+            layout 0
             wall
             {
                 bottom_left  [ -1 -1 -1 ]
                 bottom_right [  1 -1 -1 ]
                 top_left     [ -1  1 -1 ]
             }
+            segment { eye [ LEFT CYCLOPE ] channel "channel-left" }
+            segment { eye [ RIGHT CYCLOPE ] channel "channel-right" }
+        }
+        
+        compound 
+        {
             compound
             {
-                channel "channel-left"
-                eye [ LEFT ]
+                channel  ( canvas 0 segment 0 layout 0 view 0 )
                 swapbarrier{}
             }
             compound
             {
-                channel "channel-right"
-                eye [ RIGHT ]
+                channel  ( canvas 0 segment 1 layout 0 view 0 )
                 swapbarrier{}
             }
         }

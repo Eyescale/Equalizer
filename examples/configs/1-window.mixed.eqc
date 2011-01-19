@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # 1-window config showing basic decomposition modes
 global
@@ -9,6 +9,7 @@ global
 
 server
 {
+    connection{ hostname "127.0.0.1" }
     config
     {
         appNode
@@ -40,23 +41,47 @@ server
                 }
             }
         }
-
+        observer{}
+        layout{ view{ observer 0 wall{} } }
+        canvas
+        {
+            layout   0
+            segment{ channel  "clear" }
+        }
+        canvas
+        {
+            layout   0
+            segment{ channel  "2D" }
+        }
+        canvas
+        {
+            layout   0
+            segment{ channel  "DB" }
+        }
+        canvas
+        {
+            layout   3
+            segment{ channel  "DPlex" }
+        }
+        canvas
+        {
+            layout   4
+            segment{ channel  "Eye" }
+        }
+        canvas
+        {
+             layout   5
+             segment{ channel  "Pixel" }
+        }
 
         compound
         {
             task [ CLEAR ]
-            channel "clear"
-            wall{ }
+            channel  ( canvas 0 segment 0 layout 0 view 0 )
         }
         compound
         { 
-            channel "2D"
-            wall 
-            {
-                bottom_left  [ -.32 -.32 -.75 ]
-                bottom_right [  .32 -.32 -.75 ]
-                top_left     [ -.32  .32 -.75 ]
-            }
+            channel  ( canvas 1 segment 0 layout 0 view 0 )
             load_equalizer {}
             compound {}
             compound { channel "2D1" outputframe { }}
@@ -68,14 +93,8 @@ server
         }
         compound
         { 
-            channel "DB"
+            channel  ( canvas 2 segment 0 layout 0 view 0 )
             buffer [ COLOR DEPTH ]
-            wall
-            {
-                bottom_left  [ -.32 -.32 -.75 ]
-                bottom_right [  .32 -.32 -.75 ]
-                top_left     [ -.32  .32 -.75 ]
-            }
             compound { range [ 0. .25 ] }
             compound { range [ .25 .5 ] channel "DB1" outputframe { }}
             compound { range [ .5 .75 ] channel "DB2" outputframe { }}
@@ -86,13 +105,7 @@ server
         }
         compound
         { 
-            channel "DPlex"
-            wall
-            {
-                bottom_left  [ -.32 -.32 -.75 ]
-                bottom_right [  .32 -.32 -.75 ]
-                top_left     [ -.32  .32 -.75 ]
-            }
+            channel  ( canvas 3 segment 0 layout 0 view 0 )
            
             compound 
             {
@@ -116,14 +129,7 @@ server
         }
         compound
         { 
-            channel "Eye"
-            wall
-            {
-                bottom_left  [ -.32 -.32 -.75 ]
-                bottom_right [  .32 -.32 -.75 ]
-                top_left     [ -.32  .32 -.75 ]
-            }
-            eye [ LEFT RIGHT ]
+            channel  ( canvas 4 segment 0 layout 0 view 0 )
 
             compound { eye [ RIGHT ] }
             compound { eye [ LEFT ] channel "Eye1" outputframe{ }}
@@ -136,13 +142,7 @@ server
         }
         compound
         { 
-            channel "Pixel"
-            wall
-            {
-                bottom_left  [ -.32 -.32 -.75 ]
-                bottom_right [  .32 -.32 -.75 ]
-                top_left     [ -.32  .32 -.75 ]
-            }
+            channel  ( canvas 5 segment 0 layout 0 view 0 )
            
             compound { pixel [ 0 0 2 1 ] channel "Pixel1" outputframe{ }}
             compound { pixel [ 1 0 2 1 ] channel "Pixel2" outputframe{ }}

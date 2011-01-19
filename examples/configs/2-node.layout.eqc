@@ -90,22 +90,5 @@ server
                 channel "channel2"
             }
         }
-
-        compound
-        { 
-            channel ( segment 0 view 0 )
-        }
-        compound
-        { 
-            channel ( segment 1 view 0 )
-        }
-        compound
-        { 
-            channel ( segment 0 layout "half1" view 0 )
-        }
-        compound
-        { 
-            channel ( segment 1 layout "half2" view 0 )
-        }
     }    
 }

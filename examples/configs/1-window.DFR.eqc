@@ -1,8 +1,9 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # 1-window DFR (fixed-framerate) config
 server
 {
+    connection{ hostname "127.0.0.1"}
     config
     {
         appNode
@@ -27,16 +28,17 @@ server
                 }
             }
         }
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall{}
+            segment { channel "channel" }
+        }
         compound
         { 
-            channel "channel"
-            wall
-            {
-                bottom_left  [ -.32 -.2 -1 ]
-                bottom_right [  .32 -.2 -1 ]
-                top_left     [ -.32  .2 -1 ]
-            }
-
+            channel( segment 0 view 0 )
             compound
             { 
                 channel "buffer"
@@ -47,7 +49,6 @@ server
                 }
                 outputframe { type texture }
             }
-
             inputframe { name "frame.buffer" }
         }
     }    

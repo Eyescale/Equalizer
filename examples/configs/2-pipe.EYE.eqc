@@ -1,9 +1,10 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # two pipe configuration for active stereo decomposition for a 2x2 meter wall
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -25,31 +26,35 @@ server
                 }
             }
         }
+        observer{}
+        layout{ view { mode STEREO observer 0 }}
+        canvas
+        {
+            layout 0
+            wall{}
+            segment { channel "channel" }
+        }
         compound 
         {
-            channel "channel"
+            channel  ( canvas 0 segment 0 layout 0 view 0 )
             wall
             {
                 bottom_left  [ -1 -1 -1 ]
                 bottom_right [  1 -1 -1 ]
                 top_left     [ -1  1 -1 ]
             }
-            eye [ LEFT RIGHT ]
-
-            compound
-            {
-                eye [ LEFT ]
-            }
+            
+            compound{ eye [ LEFT ] }
             compound
             {
                 channel "channel-right"
-                eye [ RIGHT ]
+                eye [ RIGHT CYCLOPE]
                 outputframe {}
             }
             compound
             {
                 task [ ASSEMBLE ]
-                eye [ RIGHT ]
+                eye [ RIGHT CYCLOPE ]
                 inputframe { name "frame.channel-right" }
             }
         }

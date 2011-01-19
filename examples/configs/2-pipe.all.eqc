@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 # two-pipe demo configuration for dual-GPU machines
 #  canvas tuned for 24" + 19" up-right LCD
 
@@ -13,6 +13,7 @@ global
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -205,28 +206,28 @@ server
         compound
         {
             channel ( layout "Stereo" segment 0 view 0 ) 
-            eye [ LEFT RIGHT ]
+            eye [ CYCLOP LEFT RIGHT ]
             
 
-            compound { eye [ LEFT ] }
+            compound { eye [ LEFT CYCLOP ] }
             compound
             {
                 channel "FBO"
-                eye [ RIGHT ]
+                eye [ RIGHT CYCLOP ]
                 outputframe {}
                 outputframe { type texture name "FBO2" zoom [ .53 .53 ] }
             }
             compound
             {
                 task [ ASSEMBLE ]
-                eye [ RIGHT ]
+                eye [ RIGHT CYCLOP ]
                 inputframe { name "frame.FBO" }
             }
             compound { channel "buffer" eye [ LEFT ] task [ CLEAR ] }
             compound
             {
                 channel "buffer"
-                eye [ RIGHT ]
+                eye [ RIGHT CYCLOP ]
                 task [ CLEAR ASSEMBLE ]
                 inputframe { name "FBO2" }
             }

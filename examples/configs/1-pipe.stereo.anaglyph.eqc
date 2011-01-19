@@ -1,7 +1,6 @@
 #Equalizer 1.1 ascii
 
 # one pipe config rendering in anaglyphic stereo on a 1x1 meter wall
-
 global
 {
     EQ_CONFIG_FATTR_EYE_BASE        0.025
@@ -11,6 +10,7 @@ global
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -24,16 +24,13 @@ server
                 }
             }
         }
-        compound 
+        observer{}
+        layout{ view{ observer 0 }}
+        canvas
         {
-            eye [ CYCLOP LEFT RIGHT ]
-            channel "channel"
-            wall
-            {
-                bottom_left  [ -.32 -.2 -1 ]
-                bottom_right [  .32 -.2 -1 ]
-                top_left     [ -.32  .2 -1 ]
-            }
+            wall{}
+            layout 0
+            segment{ channel "channel" }
         }
-    }    
+    }
 }
