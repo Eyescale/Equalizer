@@ -129,8 +129,9 @@ int main( const int argc, char** argv )
     for( co::base::Strings::const_iterator i = configs.begin();
         i != configs.end(); ++i )
     {
-        const std::string& config = "./" + *i;
-        _testConfig( client, config );
+        const std::string config = "./" + *i;
+        if( config != "./testOutput.eqc" )
+            _testConfig( client, config );
     }
 
     // 7. exit
