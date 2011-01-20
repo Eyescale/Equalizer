@@ -226,7 +226,7 @@ set(CPACK_COMPONENT_EXAMPLES_DESCRIPTION "Source code of example programs")
 set(CPACK_COMPONENT_EXAMPLES_DEPENDS dev data)
 
 set(CPACK_COMPONENT_TOOLS_DISPLAY_NAME "Tools")
-set(CPACK_COMPONENT_TOOLS_DESCRIPTION "Utility programs around Equalizer")
+set(CPACK_COMPONENT_TOOLS_DESCRIPTION "Utility programs for Equalizer")
 set(CPACK_COMPONENT_TOOLS_DEPENDS lib)
 
 set(CPACK_COMPONENT_DATA_DISPLAY_NAME "Data files")
@@ -235,6 +235,9 @@ set(CPACK_COMPONENT_DATA_DESCRIPTION "Example configuration files and data sets"
 set(CPACK_COMPONENT_VMMLIB_DISPLAY_NAME "VMMLib header files")
 set(CPACK_COMPONENT_VMMLIB_DESCRIPTION
   "vmmlib is a vector and matrix math library implemented using C++ templates, thus making it very easy to integrate into other libraries and programs.")
+
+set(CPACK_COMPONENT_FASTJPEG_DISPLAY_NAME "FastJpeg Plugin")
+set(CPACK_COMPONENT_FASTJPEG_DESCRIPTION "High-Performance Compression Plugin")
 
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-system-dev, libboost-regex-dev, libboost-date-time-dev, bison, flex, libx11-dev")
 

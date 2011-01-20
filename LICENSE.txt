@@ -1,6 +1,7 @@
-Equalizer - A programming framework and resource management system for multi-GPU rendering.
+Equalizer - a framework to create and deploy parallel OpenGL-based applications.
+Collage - a cross-platform C++ library for building heterogenous, distributed applications.
 
-Equalizer is licensed under the LGPL, unless noted otherwise in external dependencies. See file LGPL for the full license. The examples are licensed under the BSD license. External dependencies are either LGPL or BSD-licensed. See file ACKNOWLEDGEMENTS and AUTHORS for further details.
+Equalizer and Collage are licensed under the LGPL, unless noted otherwise, e.g., for external dependencies. See file LGPL for the full license. The examples are licensed under the BSD license. External dependencies are either LGPL or BSD-licensed. See file ACKNOWLEDGEMENTS and AUTHORS for further details.
 
 Copyright (C) 2005-2011, Stefan Eilemann <eile@eyescale.ch>
 
