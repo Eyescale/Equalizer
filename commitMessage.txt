@@ -1,9 +1,9 @@
-- Fix VS2008 break build
+- Update Platform documentation 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [ ] Cleanup
 [ ] Optimization
-[ ] Documentation
+[x] Documentation
