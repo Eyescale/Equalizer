@@ -546,7 +546,6 @@ void Channel::applyFrustum() const
     EQ_GL_CALL( glFrustum( frustum.left(), frustum.right(),
                            frustum.bottom(), frustum.top(),
                            frustum.near_plane(), frustum.far_plane() )); 
-    EQVERB << "Perspective " << frustum << std::endl;
 }
 
 void Channel::applyOrtho() const
@@ -558,7 +557,6 @@ void Channel::applyOrtho() const
     EQ_GL_CALL( glOrtho( ortho.left(), ortho.right(),
                          ortho.bottom(), ortho.top(),
                          ortho.near_plane(), ortho.far_plane() )); 
-    EQVERB << "Orthographic " << ortho << std::endl;
 }
 
 void Channel::applyScreenFrustum() const
@@ -567,14 +565,12 @@ void Channel::applyScreenFrustum() const
     EQ_GL_CALL( glOrtho( frustum.left(), frustum.right(),
                          frustum.bottom(), frustum.top(),
                          frustum.near_plane(), frustum.far_plane() ));
-    EQVERB << "Apply " << frustum << std::endl;
 }
 
 void Channel::applyHeadTransform() const
 {
     const Matrix4f& xfm = getHeadTransform();
     EQ_GL_CALL( glMultMatrixf( xfm.array ));
-    EQVERB << "Apply head transform: " << xfm << std::endl;
 }
 
 namespace

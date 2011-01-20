@@ -16,19 +16,26 @@ server
                 window
                 {
                     name "left"
-                    viewport [ 100 100 480 300 ]
+                    viewport [ 100 100 1200 750 ]
                     channel
                     {
+                        viewport [ 0 0 .5 .5 ]
                         name "channel1"
                     }
-                }
-                window
-                {
-                    name "right"
-                    viewport [ 580 100 480 300 ]
                     channel
                     {
+                        viewport [ .5 0 .5 .5 ]
                         name "channel2"
+                    }
+                    channel
+                    {
+                        viewport [ 0 .5 .5 .5 ]
+                        name "channel3"
+                    }
+                    channel
+                    {
+                        viewport [ .5 .5 .5 .5 ]
+                        name "channel4"
                     }
                 }
             }
@@ -41,7 +48,6 @@ server
             segment
             { 
                 channel "channel1"
-                viewport [ 0 0 .5 1 ]
                 wall
                 {
                     bottom_left  [ -.32 -.2 -1 ]
@@ -52,12 +58,31 @@ server
             segment
             { 
                 channel "channel2"
-                viewport [ .5 0 .5 1 ]
                 wall
                 {
-                    bottom_left  [ -.64 -.4 -2 ]
-                    bottom_right [  .64 -.4 -2 ]
-                    top_left     [ -.64  .4 -2 ]
+                    bottom_left  [ -.32 -.2 -2 ]
+                    bottom_right [  .32 -.2 -2 ]
+                    top_left     [ -.32  .2 -2 ]
+                }
+            }
+            segment
+            { 
+                channel "channel3"
+                wall
+                {
+                    bottom_left  [ -.64 -.2 -2 ]
+                    bottom_right [  .0  -.2 -2 ]
+                    top_left     [ -.64  .2 -2 ]
+                }
+            }
+            segment
+            { 
+                channel "channel4"
+                wall
+                {
+                    bottom_left  [  .0  -.2 -2 ]
+                    bottom_right [  .64 -.2 -2 ]
+                    top_left     [  .0   .2 -2 ]
                 }
             }
         }

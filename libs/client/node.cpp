@@ -387,8 +387,8 @@ void Node::_flushObjects()
 
 void Node::TransmitThread::run()
 {
-    co::base::Thread::setDebugName( std::string( "Trm " ) + typeid( *_node).name());
-
+    co::base::Thread::setDebugName( std::string( "Trm " ) +
+                                    typeid( *_node ).name());
     while( true )
     {
         co::Command* command = _queue.pop();
