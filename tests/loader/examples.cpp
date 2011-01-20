@@ -26,7 +26,7 @@
 
 // Tests (re)loading of all examples/configs/*.eqc files
 
-#define OUT co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+#define OUTLOG co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
 
 int main( int argc, char **argv )
 {
@@ -64,10 +64,10 @@ int main( int argc, char **argv )
 
         std::ostream& oldOut = co::base::Log::getOutput();
         co::base::Log::setOutput( logFile );
-        OUT << eq::server::Global::instance() << *server
-            << co::base::forceFlush;
+        OUTLOG << eq::server::Global::instance() << *server
+               << co::base::forceFlush;
         co::base::Log::setOutput( oldOut );
-        OUT << co::base::enableHeader << std::endl;
+        OUTLOG << co::base::enableHeader << std::endl;
         logFile.close();
 
         // cleanup

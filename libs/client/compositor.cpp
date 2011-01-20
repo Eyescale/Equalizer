@@ -1515,5 +1515,4 @@ void Compositor::resetAssemblyState()
     EQ_GL_ERROR( "after  resetAssemblyState" );
 }
 
-
 }
