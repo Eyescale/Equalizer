@@ -53,9 +53,6 @@ Strings _initPluginDirectories()
 
     if( envString.empty( ))
     {
-        pluginDirectories.push_back( "/usr/local/share/Equalizer/plugins" );
-        pluginDirectories.push_back( ".eqPlugins" );
-
         char cwd[MAXPATHLEN];
         pluginDirectories.push_back( getcwd( cwd, MAXPATHLEN ));
 

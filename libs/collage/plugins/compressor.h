@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -64,7 +64,7 @@
  *    template.
  *  - Put the library in the plugin search path (see
  *    eq::Global::getPluginDirectories(), defaults to EQ_PLUGIN_PATH or
- *    "/usr/local/share/Equalizer/plugins;.eqPlugins;$LD_LIBRARY_PATH".
+ *    "/usr/local/share/Equalizer/plugins;.eqPlugins;$HOME/.eqPlugins;$PWD;$LD_LIBRARY_PATH".
  *  - Run the image unit test (tests/image) to verify your plugin.
  *  - Set the compression ratio and speed according to the output of the
  *    image unit test. Use the Equalizer RLE compressor as baseline.

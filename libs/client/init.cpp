@@ -43,6 +43,8 @@ namespace
 static bool _initialized = false;
 }
 
+static void _initPlugins();
+static void _exitPlugins();
 extern void _initErrors();
 extern void _exitErrors();
 
@@ -97,11 +99,7 @@ bool init( const int argc, char** argv, NodeFactory* nodeFactory )
     EQASSERT( nodeFactory );
     Global::_nodeFactory = nodeFactory;
 
-#ifdef EQ_DSO_NAME
-    co::base::Global::getPluginRegistry().addPlugin( EQ_DSO_NAME );
-    co::base::Global::getPluginRegistry().addPlugin(
-        std::string( EQ_BUILD_DIR ) + "libs/client/" + EQ_DSO_NAME );
-#endif
+    _initPlugins();
     return fabric::init( argc, argv );
 }
 
@@ -120,7 +118,37 @@ bool exit()
 
     Global::_nodeFactory = 0;
     _exitErrors();
+    _exitPlugins();
     return fabric::exit();
+}
+
+void _initPlugins()
+{
+    co::base::PluginRegistry& plugins = co::base::Global::getPluginRegistry();
+
+    plugins.addDirectory( "/usr/local/share/Equalizer/plugins" );
+    plugins.addDirectory( ".eqPlugins" );
+
+    const char* home = getenv( "HOME" );
+    if( home )
+        plugins.addDirectory( std::string( home ) + "/.eqPlugins" );
+
+#ifdef EQ_DSO_NAME
+    plugins.addPlugin( EQ_DSO_NAME );
+    plugins.addPlugin(std::string(EQ_BUILD_DIR) + "libs/client/" + EQ_DSO_NAME);
+#endif
+}
+
+void _exitPlugins()
+{
+    co::base::PluginRegistry& plugins = co::base::Global::getPluginRegistry();
+
+    plugins.removeDirectory( "/usr/local/share/Equalizer/plugins" );
+    plugins.removeDirectory( ".eqPlugins" );
+
+    const char* home = getenv( "HOME" );
+    if( home )
+        plugins.removeDirectory( std::string( home ) + "/.eqPlugins" );
 }
 
 Config* getConfig( const int argc, char** argv )
