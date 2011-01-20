@@ -67,6 +67,7 @@ Channel::Channel( Window* parent )
 Channel::~Channel()
 {  
     _statistics.clear();
+    EQASSERT( !_fbo );
 }
 
 /** @cond IGNORE */
@@ -904,10 +905,10 @@ void Channel::drawStatistics()
                 glColor3fv( color.array );
 
                 glBegin( GL_QUADS );
-                glVertex3f( x2, y1, 0.f );
-                glVertex3f( x1, y1, 0.f );
-                glVertex3f( x1, y2, 0.f);
-                glVertex3f( x2, y2, 0.f );
+                    glVertex3f( x2, y1, 0.f );
+                    glVertex3f( x1, y1, 0.f );
+                    glVertex3f( x1, y2, 0.f);
+                    glVertex3f( x2, y2, 0.f );
                 glEnd();
 
                 if( !text.str().empty( ))
@@ -927,14 +928,14 @@ void Channel::drawStatistics()
         const float y2 = static_cast< float >( height );
 
         glBegin( GL_LINES );
-        glColor3f( .5f-dim, 1.0f-dim, .5f-dim );
-        glVertex3f( x, y1, 0.3f );
-        glVertex3f( x, y2, 0.3f );
+            glColor3f( .5f-dim, 1.0f-dim, .5f-dim );
+            glVertex3f( x, y1, 0.3f );
+            glVertex3f( x, y2, 0.3f );
 
-        x = static_cast< float >( frameMax );
-        glColor3f( .5f-dim, .5f-dim, .5f-dim );
-        glVertex3f( x, y1, 0.3f );
-        glVertex3f( x, y2, 0.3f );
+            x = static_cast< float >( frameMax );
+            glColor3f( .5f-dim, .5f-dim, .5f-dim );
+            glVertex3f( x, y1, 0.3f );
+            glVertex3f( x, y2, 0.3f );
         glEnd();
 
         dim += .1f;
@@ -1028,10 +1029,10 @@ void Channel::drawStatistics()
 
         glColor3fv( Statistic::getColor( type ).array );
         glBegin( GL_QUADS );
-        glVertex3f( x2, y1, 0.f );
-        glVertex3f( x,  y1, 0.f );
-        glVertex3f( x,  y2, 0.f );
-        glVertex3f( x2, y2, 0.f );
+            glVertex3f( x2, y1, 0.f );
+            glVertex3f( x,  y1, 0.f );
+            glVertex3f( x,  y2, 0.f );
+            glVertex3f( x2, y2, 0.f );
         glEnd();
 
         glColor3f( 0.f, 0.f, 0.f );

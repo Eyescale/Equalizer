@@ -41,9 +41,9 @@ server
             channel( canvas 0 segment 0 layout 0 view 0 )
             attributes{ stereo_mode ANAGLYPH }
 
-            compound  # CYCLOPE eye draw operation on channel2
+            compound  # CYCLOP eye draw operation on channel2
             {
-                eye     [ CYCLOPE ]
+                eye     [ CYCLOP ]
             }
             compound  # left eye draw operation on channel2
             {

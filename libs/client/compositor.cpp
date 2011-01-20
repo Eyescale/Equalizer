@@ -1426,22 +1426,21 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     const float h = static_cast< float >( pvp.h );
 
     glBegin( GL_TRIANGLE_STRIP );
-    glMultiTexCoord2f( GL_TEXTURE0, 0.0f, 0.0f );
-    glMultiTexCoord2f( GL_TEXTURE1, 0.0f, 0.0f );
-    glVertex3f( startX, startY, 0.0f );
+        glMultiTexCoord2f( GL_TEXTURE0, 0.0f, 0.0f );
+        glMultiTexCoord2f( GL_TEXTURE1, 0.0f, 0.0f );
+        glVertex3f( startX, startY, 0.0f );
 
-    glMultiTexCoord2f( GL_TEXTURE0, w, 0.0f );
-    glMultiTexCoord2f( GL_TEXTURE1, w, 0.0f );
-    glVertex3f( endX, startY, 0.0f );
+        glMultiTexCoord2f( GL_TEXTURE0, w, 0.0f );
+        glMultiTexCoord2f( GL_TEXTURE1, w, 0.0f );
+        glVertex3f( endX, startY, 0.0f );
 
-    glMultiTexCoord2f( GL_TEXTURE0, 0.0f, h );
-    glMultiTexCoord2f( GL_TEXTURE1, 0.0f, h );
-    glVertex3f( startX, endY, 0.0f );
+        glMultiTexCoord2f( GL_TEXTURE0, 0.0f, h );
+        glMultiTexCoord2f( GL_TEXTURE1, 0.0f, h );
+        glVertex3f( startX, endY, 0.0f );
 
-    glMultiTexCoord2f( GL_TEXTURE0, w, h );
-    glMultiTexCoord2f( GL_TEXTURE1, w, h );
-    glVertex3f( endX, endY, 0.0f );
-
+        glMultiTexCoord2f( GL_TEXTURE0, w, h );
+        glMultiTexCoord2f( GL_TEXTURE1, w, h );
+        glVertex3f( endX, endY, 0.0f );
     glEnd();
 
     // restore state
@@ -1501,18 +1500,13 @@ void Compositor::setupAssemblyState( const PixelViewport& pvp,
 
 void Compositor::resetAssemblyState()
 {
-    EQ_GL_ERROR( "before resetAssemblyState" );
-    glMatrixMode( GL_TEXTURE );
-    glPopMatrix();
-
-    glMatrixMode( GL_PROJECTION );
-    glPopMatrix();
-
-    glMatrixMode( GL_MODELVIEW );
-    glPopMatrix();
-
-    glPopAttrib();
-    EQ_GL_ERROR( "after  resetAssemblyState" );
+    EQ_GL_CALL( glMatrixMode( GL_TEXTURE ) );
+    EQ_GL_CALL( glPopMatrix() );
+    EQ_GL_CALL( glMatrixMode( GL_PROJECTION ) );
+    EQ_GL_CALL( glPopMatrix() );
+    EQ_GL_CALL( glMatrixMode( GL_MODELVIEW ));
+    EQ_GL_CALL( glPopMatrix());
+    EQ_GL_CALL( glPopAttrib());
 }
 
 }

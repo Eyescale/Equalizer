@@ -331,8 +331,8 @@ void CompressorReadDrawPixels::download( const GLEWContext* glewContext,
 
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
-        glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3], _format,
-                      _type, _buffer.getData() );
+        EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3], 
+                      _format, _type, _buffer.getData() ) );
     }
     else 
     {

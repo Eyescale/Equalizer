@@ -48,13 +48,13 @@ server
             compound
             {
                 channel "channel-right"
-                eye [ RIGHT CYCLOPE]
+                eye [ RIGHT CYCLOP ]
                 outputframe {}
             }
             compound
             {
                 task [ ASSEMBLE ]
-                eye [ RIGHT CYCLOPE ]
+                eye [ RIGHT CYCLOP ]
                 inputframe { name "frame.channel-right" }
             }
         }

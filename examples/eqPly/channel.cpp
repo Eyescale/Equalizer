@@ -85,7 +85,7 @@ bool Channel::configExit()
         _accum[ i ].buffer = 0;
     }
 
-    return true;
+    return eq::Channel::configExit();
 }
 
 void Channel::frameClear( const eq::uint128_t& frameID )
@@ -170,10 +170,10 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     {
         glNormal3f( 0.f, -1.f, 0.f );
         glBegin( GL_TRIANGLE_STRIP );
-        glVertex3f(  .25f, 0.f,  .25f );
-        glVertex3f( -.25f, 0.f,  .25f );
-        glVertex3f(  .25f, 0.f, -.25f );
-        glVertex3f( -.25f, 0.f, -.25f );
+            glVertex3f(  .25f, 0.f,  .25f );
+            glVertex3f( -.25f, 0.f,  .25f );
+            glVertex3f(  .25f, 0.f, -.25f );
+            glVertex3f( -.25f, 0.f, -.25f );
         glEnd();
     }
 

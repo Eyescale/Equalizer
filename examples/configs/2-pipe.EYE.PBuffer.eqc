@@ -57,25 +57,25 @@ server
             compound
             {
                 channel "buffer1"
-                eye [ LEFT CYCLOPE ]
+                eye [ LEFT CYCLOP ]
                 outputframe { }
             }
             compound
             { 
                 channel "buffer2"
-                eye [ RIGHT CYCLOPE  ]
+                eye [ RIGHT CYCLOP ]
                 outputframe { }
             }
             compound
             {
                 task [ ASSEMBLE ]
-                eye  [ LEFT CYCLOPE  ]
+                eye  [ LEFT CYCLOP ]
                 inputframe { name "frame.buffer1" }
             }
             compound
             {
                 task [ ASSEMBLE ]
-                eye [ RIGHT CYCLOPE  ]
+                eye [ RIGHT CYCLOP ]
                 inputframe { name "frame.buffer2" }
             }
         }

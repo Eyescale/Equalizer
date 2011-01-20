@@ -1,9 +1,11 @@
-- Fix Config file error
+- Fix bug channel forget to do configExit
+- Fix bug config file CYCLOPE -> CYCLOP
+- Minor Cleanup
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

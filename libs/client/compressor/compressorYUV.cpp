@@ -135,10 +135,10 @@ void CompressorYUV::_compress( const GLEWContext* glewContext,
                                const eq_uint64_t inDims[4], 
                                      eq_uint64_t outDims[4] )
 {
-
     if ( _fbo )
     {
         EQCHECK( _fbo->resize( outDims[1], outDims[3] ));
+        _fbo->bind();
     }
     else
     {
@@ -146,7 +146,6 @@ void CompressorYUV::_compress( const GLEWContext* glewContext,
         EQCHECK( _fbo->init( outDims[1], outDims[3], GL_RGBA, 0, 0 ));
     }
 
-    _fbo->bind();
     _texture->bind();
 
     glDisable( GL_LIGHTING );
@@ -169,7 +168,7 @@ void CompressorYUV::_compress( const GLEWContext* glewContext,
     glEnd();
 
     // restore state
-    glEnable( GL_DEPTH_TEST );
+    //glEnable( GL_DEPTH_TEST );
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
     EQ_GL_CALL( glUseProgram( 0 ));
 
@@ -199,6 +198,7 @@ void CompressorYUV::download( const GLEWContext* glewContext,
     outDims[2] = inDims[2];
     outDims[3] = (inDims[3] + 1) / 2;
     outDims[3] *= 2;
+    buffer.resize( outDims[1] * outDims[3] * 4 );
 
     // first time we instanciate the working texture
     if ( !_texture )
@@ -215,7 +215,6 @@ void CompressorYUV::download( const GLEWContext* glewContext,
 
         // compress data 
         _compress( glewContext, inDims, outDims );
-        buffer.resize( outDims[1] * outDims[3] * 4 );
         _download( buffer.getData( ));
     }
     // the data is in the texture id define by the field "source"
@@ -227,7 +226,6 @@ void CompressorYUV::download( const GLEWContext* glewContext,
         // transfer data from gpu to cpu
         _texture->setGLData( source, GL_RGBA, inDims[1], inDims[3] );
         _compress( glewContext, inDims, outDims );
-        buffer.resize( outDims[1] * outDims[3] * 4 );
         _download( buffer.getData( ));
         _texture->flushNoDelete();
     }
@@ -236,7 +234,7 @@ void CompressorYUV::download( const GLEWContext* glewContext,
         EQUNIMPLEMENTED;
     }
     out[0] = buffer.getData();
-    glPopAttrib();
+    EQ_GL_CALL( glPopAttrib() );
 }
 
 void CompressorYUV::_decompress( const GLEWContext* glewContext,

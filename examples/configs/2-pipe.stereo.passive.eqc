@@ -43,8 +43,8 @@ server
                 bottom_right [  1 -1 -1 ]
                 top_left     [ -1  1 -1 ]
             }
-            segment { eye [ LEFT CYCLOPE ] channel "channel-left" }
-            segment { eye [ RIGHT CYCLOPE ] channel "channel-right" }
+            segment { eye [ LEFT CYCLOP ] channel "channel-left" }
+            segment { eye [ RIGHT CYCLOP ] channel "channel-right" }
         }
         
         compound 

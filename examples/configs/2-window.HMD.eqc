@@ -35,8 +35,8 @@ server
         {
             layout 0
             wall{ type HMD }
-            segment { eye [ LEFT CYCLOPE ] channel "channel1" }
-            segment { eye [ RIGHT CYCLOPE ]channel "channel2" }
+            segment { eye [ LEFT CYCLOP ] channel "channel1" }
+            segment { eye [ RIGHT CYCLOP ]channel "channel2" }
         }
     }    
 }

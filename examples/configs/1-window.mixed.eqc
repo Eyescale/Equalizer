@@ -132,12 +132,12 @@ server
         { 
             channel  ( canvas 4 segment 0 layout 1 view 0 )
 
-            compound { eye [ RIGHT CYCLOPE ] }
-            compound { eye [ LEFT CYCLOPE ] channel "Eye1" outputframe{ }}
+            compound { eye [ RIGHT CYCLOP ] }
+            compound { eye [ LEFT CYCLOP ] channel "Eye1" outputframe{ }}
             compound
             {
                 task [ ASSEMBLE ]
-                eye [ LEFT CYCLOPE ]
+                eye [ LEFT CYCLOP ]
                 inputframe{ name "frame.Eye1" }
             }
         }
