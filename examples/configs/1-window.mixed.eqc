@@ -43,6 +43,7 @@ server
         }
         observer{}
         layout{ view{ observer 0 wall{} } }
+        layout{ view{ mode STEREO observer 0 wall{} } }
         canvas
         {
             layout   0
@@ -60,18 +61,18 @@ server
         }
         canvas
         {
-            layout   3
+            layout   0
             segment{ channel  "DPlex" }
         }
         canvas
         {
-            layout   4
+            layout   1
             segment{ channel  "Eye" }
         }
         canvas
         {
-             layout   5
-             segment{ channel  "Pixel" }
+            layout   0
+            segment{ channel  "Pixel" }
         }
 
         compound
@@ -129,14 +130,14 @@ server
         }
         compound
         { 
-            channel  ( canvas 4 segment 0 layout 0 view 0 )
+            channel  ( canvas 4 segment 0 layout 1 view 0 )
 
-            compound { eye [ RIGHT ] }
-            compound { eye [ LEFT ] channel "Eye1" outputframe{ }}
+            compound { eye [ RIGHT CYCLOPE ] }
+            compound { eye [ LEFT CYCLOPE ] channel "Eye1" outputframe{ }}
             compound
             {
                 task [ ASSEMBLE ]
-                eye [ LEFT ]
+                eye [ LEFT CYCLOPE ]
                 inputframe{ name "frame.Eye1" }
             }
         }

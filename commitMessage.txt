@@ -1,9 +1,9 @@
-- Update Platform documentation 
+- Fix Config file error
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [ ] Cleanup
 [ ] Optimization
-[x] Documentation
+[ ] Documentation
