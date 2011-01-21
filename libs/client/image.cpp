@@ -370,7 +370,7 @@ void Image::readback( const Frame::Buffer buffer, const util::Texture* texture,
     else
         downloader->download( _pvp, 0 , flags, memory.pvp, &memory.pixels );
 
-    EQ_GL_CALL( downloader->setGLEWContext( 0 ) );
+    downloader->setGLEWContext( 0 );
     memory.state = Memory::VALID;
 }
 
