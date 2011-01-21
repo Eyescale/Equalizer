@@ -1,11 +1,9 @@
-- Fix bug green line with YUV compressor( mistake with bug 3155543 solution )
-- Fix bug 3155397
-- Minor Cleanup
+- remove GLScissor and glViewport call
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
