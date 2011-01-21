@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *               2007-2009, Maxim Makhinya
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,8 +58,7 @@ namespace eVolve
         virtual void frameReadback( const eq::uint128_t& frameID );
         virtual void frameViewFinish( const eq::uint128_t& frameID );
 
-        /** Applies the perspective or orthographic frustum. */
-        virtual void applyFrustum() const;
+        virtual bool useOrtho() const;
 
         void clearViewport( const eq::PixelViewport &pvp );
 

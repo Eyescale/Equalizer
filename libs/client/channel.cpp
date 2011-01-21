@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -540,7 +540,15 @@ void Channel::applyViewport() const
 
 void Channel::applyFrustum() const
 {
-    Frustumf frustum = getFrustum();
+    if( useOrtho( ))
+        applyOrtho();
+    else
+        applyPerspective();
+}
+
+void Channel::applyPerspective() const
+{
+    Frustumf frustum = getPerspective();
     const Vector2f jitter = getJitter();
 
     frustum.apply_jitter( jitter );
@@ -570,7 +578,21 @@ void Channel::applyScreenFrustum() const
 
 void Channel::applyHeadTransform() const
 {
-    const Matrix4f& xfm = getHeadTransform();
+    if( useOrtho( ))
+        applyOrthoTransform();
+    else
+        applyPerspectiveTransform();
+}
+
+void Channel::applyPerspectiveTransform() const
+{
+    const Matrix4f& xfm = getPerspectiveTransform();
+    EQ_GL_CALL( glMultMatrixf( xfm.array ));
+}
+
+void Channel::applyOrthoTransform() const
+{
+    const Matrix4f& xfm = getOrthoTransform();
     EQ_GL_CALL( glMultMatrixf( xfm.array ));
 }
 

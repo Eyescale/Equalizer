@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *               2007-2009, Maxim Makhinya
  *
  * Redistribution and use in source and binary forms, with or without
@@ -162,22 +162,17 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
 #endif
 }
 
+bool Channel::useOrtho() const
+{
+    const FrameData& frameData = _getFrameData();
+    return frameData.useOrtho();
+}
+
 const FrameData& Channel::_getFrameData() const
 {
     const Pipe* pipe = static_cast< const Pipe* >( getPipe( ));
     return pipe->getFrameData();
 }
-
-void Channel::applyFrustum() const
-{
-    const FrameData& frameData = _getFrameData();
-
-    if( frameData.useOrtho( ))
-        eq::Channel::applyOrtho();
-    else
-        eq::Channel::applyFrustum();
-}
-
 
 void Channel::_calcMVandITMV(
                             eq::Matrix4f& modelviewM,
@@ -200,7 +195,6 @@ void Channel::_calcMVandITMV(
         modelviewM = scale * frameData.getRotation();
     }
     modelviewM.set_translation( frameData.getTranslation( ));
-
     modelviewM = getHeadTransform() * modelviewM;
 
     //calculate inverse transposed matrix
@@ -241,10 +235,10 @@ void Channel::_orderFrames( eq::Frames& frames )
     const FrameData&    frameData = _getFrameData();
     const eq::Matrix4f& rotation  = frameData.getRotation();
 
-    if( !frameData.useOrtho( ))
+    if( !useOrtho( ))
         _calcMVandITMV( modelviewM, modelviewITM );
 
-    orderFrames( frames, modelviewM, modelviewITM, rotation, frameData.useOrtho( ));
+    orderFrames( frames, modelviewM, modelviewITM, rotation, useOrtho( ));
 }
 
 

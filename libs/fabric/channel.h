@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -166,10 +166,27 @@ namespace fabric
         const PixelViewport& getPixelViewport() const { return _context->pvp; }
 
         /**
+         * Select perspective or orthographic rendering.
+         *
+         * Influences the behaviour of getFrustum, getHeadTransform and the
+         * corresponding apply methods in eq::Channel. Intended to be
+         * overwritten by the implementation to select orthographic rendering.
+         * @version 1.0
+         */
+        virtual bool useOrtho() const { return false; }
+
+        /**
+         * @return the current frustum for glFrustum or glOrtho.
+         * @version 1.0
+         */
+        const Frustumf& getFrustum() const
+            { return useOrtho() ? getOrtho() : getPerspective(); }
+
+        /**
          * @return the current perspective frustum for glFrustum.
          * @version 1.0
          */
-        const Frustumf& getFrustum() const { return _context->frustum; }
+        const Frustumf& getPerspective() const { return _context->frustum; }
 
         /**
          * @return the current orthographic frustum for glOrtho.
@@ -187,7 +204,31 @@ namespace fabric
          * @version 1.0
          */
         const Matrix4f& getHeadTransform() const
+        { return useOrtho() ? getOrthoTransform() : getPerspectiveTransform(); }
+
+        /**
+         * Return the perspective view matrix.
+         *
+         * The view matrix is part of the GL_MODEL*VIEW* matrix, and is
+         * typically applied first to the GL_MODELVIEW matrix.
+         * 
+         * @return the head transformation matrix
+         * @version 1.0
+         */
+        const Matrix4f& getPerspectiveTransform() const
             { return _context->headTransform; }
+
+        /**
+         * Return the orthographic view matrix.
+         *
+         * The view matrix is part of the GL_MODEL*VIEW* matrix, and is
+         * typically applied first to the GL_MODELVIEW matrix.
+         * 
+         * @return the head transformation matrix
+         * @version 1.0
+         */
+        const Matrix4f& getOrthoTransform() const
+            { return _context->orthoTransform; }
 
         /**
          * @return the fractional viewport wrt the destination view.

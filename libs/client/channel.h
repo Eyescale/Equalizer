@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -143,7 +143,7 @@ namespace eq
          * @return the jitter vector for the current subpixel decomposition.
          * @version 1.0
          */
-        EQ_API Vector2f getJitter() const;
+        EQ_API virtual Vector2f getJitter() const;
 
         /**
          * @return the list of input frames, used from frameAssemble().
@@ -217,25 +217,27 @@ namespace eq
         EQ_API virtual void applyViewport() const;
 
         /**
-         * Apply the perspective frustum matrix for the current rendering task.
+         * Apply the frustum matrix for the current rendering task.
          *
          * If a sub-pixel decomposition is defined, the frustum is jittered by
          * the amount given by getJitter() to implement software
          * anti-aliasing. Applications which want to implement a different
          * multi-sampling algorithm, e.g., depth-of-field, have to re-implement
-         * applyFrustum() accordingly.
+         * getJitter() or applyFrustum() accordingly.
          *
-         * @sa getFrustum(), getJitter(), getSubPixel()
+         * @sa useOrtho(), getJitter(), getSubPixel()
          * @version 1.0
          */
         EQ_API virtual void applyFrustum() const;
 
         /**
+         * Apply the perspective frustum matrix for the current rendering task.
+         * @version 1.0
+         */
+        EQ_API virtual void applyPerspective() const;
+
+        /**
          * Apply the orthographic frustum matrix for the current rendering task.
-         *
-         * The same jitter as in applyFrustum() is applied.
-         *
-         * @sa getOrtho(), getJitter()
          * @version 1.0
          */
         EQ_API virtual void applyOrtho() const;
@@ -250,10 +252,23 @@ namespace eq
         EQ_API void applyScreenFrustum() const;
 
         /** 
-         * Apply the view transformation to position the view frustum.
+         * Apply the transformation to position the view frustum.
          * @version 1.0
+         * @sa useOrtho()
          */
         EQ_API virtual void applyHeadTransform() const;
+
+        /**
+         * Apply the transformation to position the perspective view frustum.
+         * @version 1.0
+         */
+        EQ_API virtual void applyPerspectiveTransform() const;
+
+        /**
+         * Apply the transformation to position the orthographic view frustum.
+         * @version 1.0
+         */
+        EQ_API virtual void applyOrthoTransform() const;
 
         /** 
          * Apply the current alternate frame buffer.

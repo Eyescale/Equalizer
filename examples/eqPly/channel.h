@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,8 +81,9 @@ namespace eqPly
         virtual void frameViewStart( const eq::uint128_t& frameID );
         virtual void frameViewFinish( const eq::uint128_t& frameID );
 
-        /** Applies the perspective or orthographic frustum. */
-        virtual void applyFrustum() const;
+        virtual bool useOrtho() const;
+        virtual eq::Vector2f getJitter() const;
+
         virtual void notifyStopFrame( const uint32_t lastFrameNumber )
             { _frameStartRendering = lastFrameNumber + 1; }
 
@@ -101,14 +102,13 @@ namespace eqPly
 
         /** the subpixel for this step. */
         eq::Vector2i _getJitterStep() const;
-        eq::Vector2f _getJitter() const;
 
         const FrameData& _getFrameData() const;
         const Model*     _getModel();
 
         const Model* _model;
-        eq::uint128_t     _modelID;
-        uint32_t     _frameStartRendering;
+        eq::uint128_t _modelID;
+        uint32_t _frameStartRendering;
 
         struct Accum
         {

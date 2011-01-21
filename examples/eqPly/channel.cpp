@@ -1,7 +1,7 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
- * Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2007, Tobias Wolf <twolf@access.unizh.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -370,29 +370,10 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
     config->sendEvent( event );
 }
 
-void Channel::applyFrustum() const
+bool Channel::useOrtho() const
 {
     const FrameData& frameData = _getFrameData();
-    const eq::Vector2f jitter = _getJitter();
-
-    if( frameData.useOrtho( ))
-    {
-        eq::Frustumf ortho = getOrtho();
-        ortho.apply_jitter( jitter );
-
-        glOrtho( ortho.left(), ortho.right(),
-                 ortho.bottom(), ortho.top(),
-                 ortho.near_plane(), ortho.far_plane( ));
-    }
-    else
-    {
-        eq::Frustumf frustum = getFrustum();
-        frustum.apply_jitter( jitter );
-
-        glFrustum( frustum.left(), frustum.right(),
-                   frustum.bottom(), frustum.top(),
-                   frustum.near_plane(), frustum.far_plane( ));
-    }
+    return frameData.useOrtho();
 }
 
 const FrameData& Channel::_getFrameData() const
@@ -505,7 +486,7 @@ bool Channel::stopRendering() const
     return getPipe()->getCurrentFrame() < _frameStartRendering; 
 }
 
-eq::Vector2f Channel::_getJitter() const
+eq::Vector2f Channel::getJitter() const
 {
     const FrameData& frameData = _getFrameData();
     const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
@@ -856,7 +837,6 @@ void Channel::_updateNearFar( const mesh::BoundingSphere& boundingSphere )
 {
     // compute dynamic near/far plane of whole model
     const FrameData& frameData = _getFrameData();
-    const bool ortho = frameData.useOrtho();
 
     const eq::Matrix4f& rotation     = frameData.getCameraRotation();
     const eq::Matrix4f headTransform = getHeadTransform() * rotation;
@@ -876,10 +856,11 @@ void Channel::_updateNearFar( const mesh::BoundingSphere& boundingSphere )
     const eq::Vector3f nearPoint  = headTransform * ( center - front );
     const eq::Vector3f farPoint   = headTransform * ( center + front );
 
-    if( ortho )
+    if( useOrtho( ))
     {
-        EQASSERT( fabs( farPoint.z() - nearPoint.z() ) > 
-                  std::numeric_limits< float >::epsilon( ));
+        EQASSERTINFO( fabs( farPoint.z() - nearPoint.z() ) > 
+                      std::numeric_limits< float >::epsilon(),
+                      nearPoint << " == " << farPoint );
         setNearFar( -nearPoint.z(), -farPoint.z() );
     }
     else
@@ -908,13 +889,12 @@ void Channel::_initFrustum( eq::FrustumCullerf& culler,
     eq::Matrix4f position = eq::Matrix4f::IDENTITY;
     position.set_translation( frameData.getCameraPosition());
 
-    const eq::Matrix4f modelView = 
-        getHeadTransform() * rotation * position * modelRotation;
+    const eq::Matrix4f& xfm = getHeadTransform();
+    const eq::Matrix4f modelView = xfm * rotation * position * modelRotation;
 
-    const bool ortho = frameData.useOrtho();
-    const eq::Frustumf& frustum      = ortho ? getOrtho() : getFrustum();
-    const eq::Matrix4f  projection   = ortho ? frustum.compute_ortho_matrix() :
-                                               frustum.compute_matrix();
+    const eq::Frustumf& frustum = getFrustum();
+    const eq::Matrix4f projection = useOrtho() ? frustum.compute_ortho_matrix():
+                                                 frustum.compute_matrix();
     culler.setup( projection * modelView );
 }
 }

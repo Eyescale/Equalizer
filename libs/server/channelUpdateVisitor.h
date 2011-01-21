@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -71,19 +71,24 @@ namespace server
         fabric::ColorMask _getDrawBufferMask( const Compound* compound ) const;
 
         void _setupRenderContext( const Compound* compound,
-                                  fabric::RenderContext& context );
+                                  RenderContext& context );
 
-        void _computeFrustum( const Compound* compound,
-                              fabric::RenderContext& context );
-        Vector3f _getEyePosition( const Compound* compound ) const;
+        void _computeFrustum( const Compound* compound, RenderContext& context);
+        Vector3f _getEyePosition( const Compound* compound,
+                                  const fabric::Eye eye ) const;
         const Matrix4f& _getInverseHeadMatrix( const Compound* compound )
             const;
 
-        void   _computeFrustumCorners( Frustumf& frustum,
-                                       const Compound* compound,
-                                       const FrustumData& frustumData,
-                                       const Vector3f& eye,
-                                       const bool ortho );
+        void _computePerspective( const Compound* compound,
+                                  RenderContext& context,
+                                  const Vector3f& eyeWall );
+        void _computeOrtho( const Compound* compound, RenderContext& context,
+                            const Vector3f& eyeWall );
+        void _computeFrustumCorners( const Compound* compound,
+                                     Frustumf& frustum,
+                                     const FrustumData& frustumData,
+                                     const Vector3f& eye, const bool ortho );
+
         void _updatePostDraw( const Compound* compound, 
                               const fabric::RenderContext& context );
         void _updateAssemble( const Compound* compound,
