@@ -97,15 +97,15 @@ namespace co
 
         void _free();
 
-        NodePtr  _node; //!< The node sending the packet
+        NodePtr       _node;      //!< The node sending the packet
         LocalNodePtr  _localNode; //!< The node receiving the packet
-        Packet*  _packet; //!< The packet (this or master _data)
+        Packet*       _packet;    //!< The packet (this or master _data)
 
-        Packet* _data; //!< Our allocated data
+        Packet*  _data;     //!< Our allocated data
         uint64_t _dataSize; //!< The size of the allocation
 
         base::a_int32_t* _refCountMaster;
-        base::a_int32_t _refCount;
+        base::a_int32_t  _refCount;
 
         Dispatcher::Func _func;
         friend CO_API std::ostream& operator << (std::ostream&, const Command&);

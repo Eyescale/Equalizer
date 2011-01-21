@@ -1,5 +1,5 @@
-- Fix bug channel forget to do configExit
-- Fix bug config file CYCLOPE -> CYCLOP
+- Fix bug green line with YUV compressor( mistake with bug 3155543 solution )
+- Fix bug 3155397
 - Minor Cleanup
 
 [ ] May break build
