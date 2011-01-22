@@ -559,7 +559,7 @@ void Image::clearPixelData( const Frame::Buffer buffer )
 #else
         bzero( data, size );
 
-#ifdef EQ_USE_OPENMP
+#ifdef CO_USE_OPENMP
 #pragma omp parallel for
 #endif
         for( ssize_t i = 3; i < size; i+=4 )

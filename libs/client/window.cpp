@@ -865,7 +865,4 @@ bool Window::_cmdFrameDrawFinish( co::Command& command )
 
 #include "../fabric/window.ipp"
 template class eq::fabric::Window< eq::Pipe, eq::Window, eq::Channel >;
-/** @cond IGNORE */
-template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
-                                                 const eq::Super& );
-/** @endcond */
+

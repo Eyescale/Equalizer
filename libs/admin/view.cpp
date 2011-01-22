@@ -63,7 +63,4 @@ ServerPtr View::getServer()
 template class eq::fabric::View< eq::admin::Layout, eq::admin::View,
                                  eq::admin::Observer >;
 
-/** @cond IGNORE */
-template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
-                                                 const eq::admin::Super& );
-/** @endcond */
+

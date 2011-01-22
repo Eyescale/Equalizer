@@ -753,7 +753,7 @@ void Compositor::_mergeDBImage( void* destColor, void* destDepth,
     const uint32_t* depth = reinterpret_cast< const uint32_t* >
         ( image->getPixelPointer( Frame::BUFFER_DEPTH ));
 
-#ifdef EQ_USE_OPENMP
+#ifdef CO_USE_OPENMP
 #  pragma omp parallel for
 #endif
     for( int32_t y = 0; y < pvp.h; ++y )
@@ -801,7 +801,7 @@ void Compositor::_merge2DImage( void* destColor, void* destDepth,
     const size_t pixelSize = image->getPixelSize( Frame::BUFFER_COLOR );
     const size_t rowLength = pvp.w * pixelSize;
 
-#ifdef EQ_USE_OPENMP
+#ifdef CO_USE_OPENMP
 #  pragma omp parallel for
 #endif
     for( int32_t y = 0; y < pvp.h; ++y )
@@ -860,7 +860,7 @@ void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
     int32_t* destColorStart = destColor + destY*destPVP.w + destX;
     const uint32_t step = sizeof( int32_t );
 
-#ifdef EQ_USE_OPENMP
+#ifdef CO_USE_OPENMP
 #  pragma omp parallel for
 #endif
     for( int32_t y = 0; y < pvp.h; ++y )

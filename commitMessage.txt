@@ -1,9 +1,10 @@
-- remove GLScissor and glViewport call
+- minor clean up  
+- rename EQ_USE_OPENMP to CO_USE_OPENMP 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

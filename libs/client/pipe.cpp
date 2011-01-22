@@ -912,7 +912,4 @@ bool Pipe::_cmdFrameDrawFinish( co::Command& command )
 #include "../fabric/pipe.ipp"
 template class eq::fabric::Pipe< eq::Node, eq::Pipe, eq::Window,
                                  eq::PipeVisitor >;
-/** @cond IGNORE */
-template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
-                                                 const eq::Super& );
-/** @endcond */
+

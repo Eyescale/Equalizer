@@ -79,7 +79,7 @@ ssize_t _compress( const void* const inData, const eq_uint64_t nPixels,
 
     const T* const data = reinterpret_cast< const T* >( inData );
     
-#ifdef EQ_USE_OPENMP
+#ifdef CO_USE_OPENMP
 #pragma omp parallel for
 #endif
     for( ssize_t i = 0; i < static_cast< ssize_t >( nChunks ) ; ++i )
@@ -148,7 +148,7 @@ void _decompress( const void* const* inData, const unsigned nInputs,
 
     const T* const* in = reinterpret_cast< const T* const* >( inData );
 
-#ifdef EQ_USE_OPENMP
+#ifdef CO_USE_OPENMP
 #pragma omp parallel for
 #endif
     for( ssize_t i = 0; i < static_cast< ssize_t >( nInputs ) ; ++i )

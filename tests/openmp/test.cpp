@@ -27,7 +27,7 @@
 #include "test.h"
 #include <pthread.h>
 
-#ifdef EQ_USE_OPENMP
+#ifdef CO_USE_OPENMP
 #  include <omp.h>
 #endif
 
@@ -35,7 +35,7 @@ void* runChild( void* arg )
 {
     unsigned char data[ LOOPSIZE ];
 
-#ifdef EQ_USE_OPENMP
+#ifdef CO_USE_OPENMP
 #  pragma omp parallel for
 #endif
     for( int i = 0; i < LOOPSIZE; ++i )

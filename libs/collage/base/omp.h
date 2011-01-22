@@ -20,7 +20,7 @@
 
 #include <co/base/os.h>
 
-#ifdef EQ_USE_OPENMP
+#ifdef CO_USE_OPENMP
 #  include <omp.h>
 #endif
 

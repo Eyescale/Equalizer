@@ -44,6 +44,10 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #include <math.h>
 #include <string.h>
 
+#ifdef _WIN32
+# define strdup _strdup
+#endif
+
 const char *type_names[] = {
     "invalid",
     "char", "short", "int",

@@ -64,7 +64,4 @@ ServerPtr Window::getServer()
 #include "../fabric/window.ipp"
 template class eq::fabric::Window< eq::admin::Pipe, eq::admin::Window,
                                    eq::admin::Channel >;
-/** @cond IGNORE */
-template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
-                                                      const eq::admin::Super& );
-/** @endcond */
+

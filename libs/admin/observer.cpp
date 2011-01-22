@@ -50,7 +50,3 @@ ServerPtr Observer::getServer()
 #include "../fabric/observer.ipp"
 template class eq::fabric::Observer< eq::admin::Config, eq::admin::Observer >;
 
-/** @cond IGNORE */
-template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
-                                                 const eq::admin::Super& );
-/** @endcond */

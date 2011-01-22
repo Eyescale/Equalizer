@@ -29,7 +29,7 @@ unsigned _nThreads = _setupNThreads();
 
 static unsigned _setupNThreads()
 {
-#ifdef EQ_USE_OPENMP
+#ifdef CO_USE_OPENMP
     const char* nThreadsEnv = getenv( "OMP_NUM_THREADS" );
     unsigned    nThreads    = 0;
 

@@ -15,13 +15,8 @@ if(NOT EQ_BIG_ENDIAN)
   list(APPEND COLLAGE_DEFINES LITTLE_ENDIAN)
 endif(NOT EQ_BIG_ENDIAN)
 
-# if Boost is considered as a required dep, this macro should be obsolete
-if(Boost_FOUND)
-  list(APPEND COLLAGE_DEFINES EQ_USE_BOOST)
-endif(Boost_FOUND)
-
 if(CO_OPENMP_USED)
-  list(APPEND COLLAGE_DEFINES EQ_USE_OPENMP)
+  list(APPEND COLLAGE_DEFINES CO_USE_OPENMP)
 endif(CO_OPENMP_USED)
 
 # maybe use BOOST_WINDOWS instead?

@@ -213,7 +213,7 @@ static inline void _decompress( const void* const* inData,
     const ComponentType* const* in = 
         reinterpret_cast< const ComponentType* const* >( inData );
 
-#ifdef EQ_USE_OPENMP
+#ifdef CO_USE_OPENMP
 #pragma omp parallel for
 #endif
     for( ssize_t i = 0; i < static_cast< ssize_t >( nInputs ) ; i+=4 )
@@ -275,7 +275,7 @@ static unsigned _setupResults( const unsigned nChannels,
                                co::plugin::Compressor::ResultVector& results )
 {
     // determine number of chunks and set up output data structure
-#ifdef EQ_USE_OPENMP
+#ifdef CO_USE_OPENMP
     const unsigned cpuChunks = nChannels * co::base::OMP::getNThreads() * 4;
     const size_t sizeChunks = inSize / 4096 * nChannels;
     const unsigned minChunks = unsigned( nChannels > sizeChunks ?
@@ -315,7 +315,7 @@ static inline unsigned _compress( const void* const inData,
     const ComponentType* const data = 
         reinterpret_cast< const ComponentType* >( inData );
     
-#ifdef EQ_USE_OPENMP
+#ifdef CO_USE_OPENMP
 #pragma omp parallel for
 #endif
     for( ssize_t i = 0; i < static_cast< ssize_t >( nChunks ) ; i += 4 )
