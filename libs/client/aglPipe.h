@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
                       2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -79,10 +79,8 @@ namespace eq
         /** Window-system specific display information. */
         CGDirectDisplayID _cgDisplayID;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
     };
 }
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -35,9 +35,7 @@ namespace server
     class Canvas : public fabric::Canvas< Config, Canvas, Segment, Layout >
     {
     public:
-        /** 
-         * Constructs a new Canvas.
-         */
+        /** Construct a new Canvas. */
         EQSERVER_EXPORT Canvas( Config* parent );
 
         /** Destruct this canvas. */
@@ -89,10 +87,8 @@ namespace server
         }
             _state;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         /** Run-time layout switch */
         void _switchLayout( const uint32_t oldIndex, const uint32_t newIndex );

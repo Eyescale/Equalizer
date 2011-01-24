@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -542,10 +542,8 @@ namespace server
         Frames _inputFrames;
         Frames _outputFrames;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[64];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         EQ_TS_VAR( _serverThread );
 

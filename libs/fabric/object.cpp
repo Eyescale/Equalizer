@@ -202,6 +202,7 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         {
             EQWARN << "Mapping of " << co::base::className( _userData )
                    << " user data failed" << std::endl;
+            EQUNREACHABLE;
             return;
         }
     }

@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -48,11 +48,8 @@ namespace eq
     private:
         int _getFastestDeviceID();
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[64];
-        };
-
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
     };
 }
 

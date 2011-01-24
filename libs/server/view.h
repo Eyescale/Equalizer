@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -106,12 +106,10 @@ namespace server
         /** The list of channels. */
         Channels _channels;
 
-        void _updateChannels() const;
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        void _updateChannels() const;
     };
 }
 }

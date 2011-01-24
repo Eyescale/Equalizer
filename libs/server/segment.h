@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -75,10 +75,8 @@ namespace server
         /** The resulting destination channels from the view intersections. */
         Channels _destinationChannels;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         /** Update the view (wall/projection). */
         void _updateView();

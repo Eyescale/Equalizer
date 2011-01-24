@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -241,10 +241,8 @@ namespace fabric
         uint64_t _maximumCapabilities;
         uint64_t _capabilities;  
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
     };
 
     template< class L, class V, class O >

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -26,14 +26,6 @@
 
 namespace eq
 {
-class Config;
-class Node;
-namespace server
-{
-    class Node;
-    class Config;
-}
-
 namespace fabric
 {
     struct CanvasPath;
@@ -220,7 +212,7 @@ namespace fabric
         virtual void _removeChild( const co::base::UUID& )
             { EQUNIMPLEMENTED; }
 
-        template< class, class, class, class, class > friend class Server; // map/unmap
+        template< class, class, class, class, class > friend class Server;
 
         void setAppNodeID( const co::NodeID& nodeID ); //!< @internal
         /** @internal */
@@ -286,10 +278,9 @@ namespace fabric
             uint32_t latency;
         }
             _data, _backup;
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         EQFABRIC_INL virtual uint32_t commitNB(); //!< @internal
 

@@ -412,10 +412,8 @@ namespace fabric
         /** Overdraw limiter */
         Vector2i    _maxSize;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
     };
 
     template< class W, class C > EQFABRIC_INL

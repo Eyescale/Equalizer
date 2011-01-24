@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -141,10 +141,8 @@ namespace fabric
 
         EQFABRIC_API virtual void serialize( co::DataOStream& os,
                                           const uint64_t dirtyBits );
-
         EQFABRIC_API virtual void deserialize( co::DataIStream& is,
                                             const uint64_t dirtyBits );
-
 
         /** @internal @return the bits to be re-committed by the master. */
         virtual uint64_t getRedistributableBits() const
@@ -208,10 +206,8 @@ namespace fabric
         /** The identifiers of removed children since the last slave commit. */
         std::vector< co::base::UUID > _removedChildren;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[8];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
     };
 
     // Template Implementation

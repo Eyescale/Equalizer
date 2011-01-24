@@ -439,10 +439,8 @@ namespace eq
         /** The time of the last swap command. */
         int64_t _lastSwapTime;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         /** Add a channel's rendering context to the current frame's list */
         void _addRenderContext( const RenderContext& context );

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -689,7 +689,10 @@ void Config::freezeLoadBalancing( const bool onOff )
 
 bool Config::registerObject( co::Object* object )
 {
-    return getClient()->registerObject( object );
+    if( !getClient()->registerObject( object ))
+        return false;
+    object->setAutoObsolete( getLatency() + 1 );
+    return true;
 }
 
 void Config::deregisterObject( co::Object* object )

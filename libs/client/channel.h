@@ -555,10 +555,8 @@ namespace eq
         /** The initial channel size, used for view resize events. */
         Vector2i _initialSize;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         //-------------------- Methods --------------------
         /** Setup the current rendering context. */

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -246,10 +246,8 @@ namespace fabric
         }
             _data, _backup;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         friend class Channel< W, C >;
         /** Add a new channel to this window. */

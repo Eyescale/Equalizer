@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *               2008-2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -152,10 +152,8 @@ namespace server
         
         int32_t     _compoundIAttributes[Compound::IATTR_ALL];
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[64];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         void _setupDefaults();
         void _readEnvironment();

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -71,8 +71,6 @@ namespace fabric
         EQFABRIC_API virtual void backup(); //!< @internal
         EQFABRIC_API virtual void restore(); //!< @internal
 
-    protected:
-
     private:
         struct BackupData
         {
@@ -87,12 +85,10 @@ namespace fabric
             /** The type of the last specified frustum description. */
             Type current;
         }
-            _data, _backup;
+            _data, _backup; 
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[16];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
     };
 
     EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Frustum& );

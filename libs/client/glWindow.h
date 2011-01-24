@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -97,10 +97,8 @@ namespace eq
 
         GLEWContext* glewGetContext();
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
     };
 }
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -149,10 +149,8 @@ namespace fabric
         /** Child segments on this canvas. */
         Segments _segments;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         enum DirtyBits
         {
@@ -160,9 +158,8 @@ namespace fabric
             DIRTY_SEGMENTS  = Object::DIRTY_CUSTOM << 1,
             DIRTY_LAYOUTS   = Object::DIRTY_CUSTOM << 2,
             DIRTY_FRUSTUM   = Object::DIRTY_CUSTOM << 3,
-            DIRTY_CANVAS_BITS =
-                DIRTY_LAYOUT | DIRTY_SEGMENTS | DIRTY_LAYOUTS | DIRTY_FRUSTUM |
-                DIRTY_OBJECT_BITS
+            DIRTY_CANVAS_BITS = DIRTY_LAYOUT | DIRTY_SEGMENTS | DIRTY_LAYOUTS |
+                                DIRTY_FRUSTUM | DIRTY_OBJECT_BITS
         };
 
         /** @internal @return the bits to be re-committed by the master. */

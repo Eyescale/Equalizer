@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2008-2009, Cedric Stalder <cedric.stalder@gmail.com>
-                 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+                 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -142,10 +142,8 @@ namespace util
 
         bool _valid;
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         EQ_TS_VAR( _thread );
 

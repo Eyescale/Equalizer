@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch>
  *               2010, Cedric Stalder<cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -154,10 +154,8 @@ namespace fabric
 
         bool _isAppNode; //!< execute render tasks in application process
 
-        union // placeholder for binary-compatible changes
-        {
-            char dummy[32];
-        };
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
 
         template< class, class, class, class > friend class Pipe;
         void _addPipe( P* pipe );
