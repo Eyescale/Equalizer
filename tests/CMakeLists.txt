@@ -25,6 +25,8 @@ foreach(FILE ${TEST_FILES})
   add_executable(test_${NAME} ${FILE})
   target_link_libraries(test_${NAME} Equalizer lib_EqualizerServer_shared)
   get_target_property(EXECUTABLE test_${NAME} LOCATION)
+  STRING(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
+       EXECUTABLE "${EXECUTABLE}")
   add_test(${NAME} ${EXECUTABLE})
   list(APPEND ALL_TESTS test_${NAME})
 endforeach(FILE ${TEST_FILES})

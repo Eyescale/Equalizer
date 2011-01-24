@@ -1,10 +1,9 @@
-- minor clean up  
-- rename EQ_USE_OPENMP to CO_USE_OPENMP 
+- fix bug RUN_TESTS on VS2008 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
