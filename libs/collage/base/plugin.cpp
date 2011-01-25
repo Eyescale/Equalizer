@@ -84,7 +84,13 @@ bool Plugin::init( const std::string& libraryName )
     }
 
     const size_t nCompressors = getNumCompressors();
-    EQASSERT( nCompressors > 0 );
+    if( nCompressors == 0 )
+    {
+        EQWARN << "Initializing compression DSO " << libraryName 
+           << " failed, 0 compression engines reported" << std::endl;
+        return false;
+    }
+
     _infos.resize( nCompressors );
 
     for( size_t i = 0; i < nCompressors; ++i )
