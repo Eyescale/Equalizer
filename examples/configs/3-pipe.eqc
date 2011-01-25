@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # Simulating a three pipe system on a single pipe. Projections are set up for a
 # 1.5m high wall, 4x3 aspect ratio and 10% overlap. Add pipe device numbers and
@@ -6,6 +6,7 @@
 
 server
 {
+    connection{ hostname "127.0.0.1" }
     config
     {
         appNode
@@ -44,39 +45,57 @@ server
                 }
             }
         }
-        compound
-        { 
-            compound
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            segment 
             { 
-                channel "channel-left"
                 wall
                 {
                     bottom_left  [ -2.8 -1.5 -2 ]
                     bottom_right [  -.8 -1.5 -2 ]
                     top_left     [ -2.8  1.5 -2 ]
                 }
-                swapbarrier {}
+                channel "channel-left" 
             }
-            compound
+            segment 
             { 
-                channel "channel-middle"
                 wall
                 {
                     bottom_left  [ -1 -1.5 -2 ]
                     bottom_right [  1 -1.5 -2 ]
                     top_left     [ -1  1.5 -2 ]
                 }
-                swapbarrier {}
+                channel "channel-middle" 
             }
-            compound
+            segment 
             { 
-                channel "channel-right"
                 wall
                 {
                     bottom_left  [  .8 -1.5 -2 ]
                     bottom_right [ 2.8 -1.5 -2 ]
                     top_left     [  .8  1.5 -2 ]
-                }
+                } 
+                channel "channel-right" 
+            }
+        }
+        compound
+        { 
+            compound
+            { 
+                channel  ( segment 0 view 0 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel  ( segment 1 view 0 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel  ( segment 2 view 0 )
                 swapbarrier {}
             }
         }

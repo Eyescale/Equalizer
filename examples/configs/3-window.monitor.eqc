@@ -1,96 +1,97 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # Destination-driven scaling
 server
 {
-   config
-   {
-       appNode
-       {
-           pipe
-           {
-               window
-               {
-                   name "Left Segment"
-                   viewport [ 100 100 480 300 ]
-                   channel
-                   {
-                       name "channel1"
-                   }
-               }
-               window
-               {
-                   name "Right Segment"
-                   viewport [ 580 100 480 300 ]
-                   channel
-                   {
-                       name "channel2"
-                   }
-               }
-               window
-               {
+    connection{ hostname "127.0.0.1" }
+    config
+    {
+        appNode
+        {
+            pipe
+            {
+                window
+                {
+                    name "Left Segment"
+                    viewport [ 100 100 480 300 ]
+                    channel
+                    {
+                        name "channel1"
+                    }
+                }
+                window
+                {
+                    name "Right Segment"
+                    viewport [ 580 100 480 300 ]
+                    channel
+                    {
+                        name "channel2"
+                    }
+                }
+                window
+                {
                    name "Operator"
                    viewport [ 340 425 480 150 ]
                    channel { name "viewer" }
-               }
-           }
-       }
-
-       layout
-       {
-           name "Simple"
-           view {}
-       }
-
-
-       canvas
-       {
-           layout "Simple"
-           wall
-           {
-               bottom_left  [ -.48 -.15 -.75 ]
-               bottom_right [  .48 -.15 -.75 ]
-               top_left     [ -.48  .15 -.75 ]
-           }
-
-           segment
-           {
-               channel "channel1"
-               viewport [ 0 0 .5 1 ]
-           }
-           segment
-           {
-               channel "channel2"
-               viewport [ .5 0 .5 1 ]
-           }
-       }
-       canvas
-       {
-           layout "Simple"
-           wall {}
-           segment { channel "viewer" }
-       }
-
-       compound
-       {
-           compound
-           {
-               channel ( segment 0 layout "Simple" view 0 )
-               outputframe{}
-           }
-           compound
-           {
-               channel ( segment 1 layout "Simple" view 0 )
-               outputframe{}
-           }
-           compound
-           {
-               channel ( canvas 1 segment 0 layout "Simple" view 0 )
-               monitor_equalizer {}
-               task [ CLEAR ASSEMBLE ]
-               inputframe{ name "frame.channel1" }
-               inputframe{ name "frame.channel2" }
-           }
+                }
+            }
         }
-   }
+        
+        observer{}
+        layout
+        {
+            name "Simple"
+            view {observer 0}
+        }
+
+        canvas
+        {
+            layout "Simple"
+            wall
+            {
+                bottom_left  [ -.48 -.15 -.75 ]
+                bottom_right [  .48 -.15 -.75 ]
+                top_left     [ -.48  .15 -.75 ]
+            }
+
+            segment
+            {
+                channel "channel1"
+                viewport [ 0 0 .5 1 ]
+            }
+            segment
+            {
+                channel "channel2"
+                viewport [ .5 0 .5 1 ]
+            }
+        }
+        canvas
+        {
+            layout "Simple"
+            wall {}
+            segment { channel "viewer" }
+        }
+
+        compound
+        {
+            compound
+            {
+                channel ( segment 0 layout "Simple" view 0 )
+                outputframe{}
+            }
+            compound
+            {
+                channel ( segment 1 layout "Simple" view 0 )
+                outputframe{}
+            }
+            compound
+            {
+                channel ( canvas 1 segment 0 layout "Simple" view 0 )
+                monitor_equalizer {}
+                task [ CLEAR ASSEMBLE ]
+                inputframe{ name "frame.channel1" }
+                inputframe{ name "frame.channel2" }
+            }
+        }
+    }
 }

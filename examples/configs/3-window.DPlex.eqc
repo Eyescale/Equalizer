@@ -1,8 +1,9 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # 3-window time-multiplex config
 server
 {
+    connection{ hostname "127.0.0.1" }
     config
     {
         latency 3 # min: period, opt: period + 1
@@ -46,15 +47,17 @@ server
                 }
             }
         }
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall{}
+            segment { channel "dest" }
+        }
         compound
         { 
-            wall
-            {
-                bottom_left  [ -.32 -.2 -1 ]
-                bottom_right [  .32 -.2 -1 ]
-                top_left     [ -.32  .2 -1 ]
-            }
-            channel "dest"
+            channel  ( segment 0 view 0 )
 
             framerate_equalizer {}
 

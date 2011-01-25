@@ -1,8 +1,9 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # single pipe eye decomposition demo configuration
 server
 {
+    connection{ hostname "127.0.0.1" }
     config
     {
         appNode
@@ -35,19 +36,19 @@ server
                 }
             }
         }
+        observer{}
+        layout{ view { mode STEREO observer 0 }}
+        canvas
+        {
+            layout 0
+            wall{}
+            segment { channel "destination" }
+        }
         compound
         {
-            channel "destination"
+            channel (view 0 segment 0)
             attributes{ stereo_mode ANAGLYPH }
-            eye [ LEFT RIGHT ]
-
-            wall
-            {
-                bottom_left  [ -.32 -.32 -.75 ]
-                bottom_right [  .32 -.32 -.75 ]
-                top_left     [ -.32  .32 -.75 ]
-            }
-
+            eye     [ LEFT RIGHT CYCLOP ]
             compound  # right eye draw operation on channel1
             { 
                 channel "channel1"

@@ -1,8 +1,9 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # single-window config simulating a 3-projector curved projection system
 server
 {
+    connection{ hostname "127.0.0.1" }
     config
     {
         appNode
@@ -41,15 +42,16 @@ server
                 }
             }
         }
+        observer{}
         layout
         {
             name "Static"
-            view {}
+            view {observer 0}
         }
         layout
         {
             name "Dynamic"
-            view {}
+            view {observer 0}
         }
         canvas
         {

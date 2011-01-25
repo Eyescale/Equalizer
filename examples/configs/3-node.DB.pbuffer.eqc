@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # three nodes with one FBO RGBA32F and one pbuffer RGBA32F
 global
@@ -8,33 +8,28 @@ global
 
 server
 {
+    connection{ hostname "127.0.0.1" }
     config
     {
         appNode
         {   
+            connection{ hostname "127.0.0.1" }
             pipe 
             { 
                 window
                 {
                     attributes
-                    { 
-                        
+                    {
                         hint_drawable FBO
                         planes_color  RGBA32F
                     }
-                    channel 
-                    { 
-                        name "channel3" 
-                    }
+                    channel{ name "channel3" }
                 }
             }
         }
         node
         {
-            connection 
-            { 
-                hostname "157.26.73.115" TCPIP_port 4242  
-            }
+            connection{ hostname "node2" }
             pipe 
             {
                 window 
@@ -55,10 +50,7 @@ server
         node
         {
 
-            connection 
-            { 
-                hostname "157.26.73.115" TCPIP_port 4243  
-            }
+            connection{ hostname "node3" }
             pipe 
             {
                 window 
@@ -71,17 +63,19 @@ server
                 }
             }
         }
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall{}
+            segment { channel "channel1" }
+        }
         compound
         {
-            channel "channel1"
+            channel  ( segment 0 view 0 )
             buffer  [ COLOR DEPTH ]
             task    [ CLEAR ASSEMBLE ]
-            wall
-            {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
-            }
 
             compound
             {

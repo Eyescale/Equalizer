@@ -3,6 +3,7 @@
 # single-window config simulating a 3-sided cave with 2x2 meter walls
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -30,7 +31,8 @@ server
                 }
             }
         }
-        layout{ view { }}
+        observer {}
+        layout{ view { observer "" }}
         canvas
         {
             layout 0

@@ -1,9 +1,9 @@
-- fix bug 3161488 : FPS decreases over time   
+- update config file to 1.1 version
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
