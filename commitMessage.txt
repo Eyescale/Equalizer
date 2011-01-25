@@ -1,4 +1,4 @@
-- fix bug RUN_TESTS on VS2008 
+- fix bug 3161488 : FPS decreases over time   
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

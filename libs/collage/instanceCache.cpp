@@ -77,8 +77,7 @@ bool InstanceCache::Data::operator == ( const InstanceCache::Data& rhs ) const
 }
 
 InstanceCache::Item::Item()
-        : time( 0 )
-        , used( 0 )
+        : used( 0 )
         , access( 0 )
 {}
 
@@ -111,6 +110,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
     if( item.data.versions.empty( ))
     {
         item.data.versions.push_back( new ObjectDataIStream ); 
+        item.times.push_back( _clock.getTime64( ));
     }
     else if( item.data.versions.back()->getPendingVersion() == rev.version )
     {
@@ -125,11 +125,10 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
     }
     else
     {
-        EQASSERT( item.data.versions.back()->isReady( ));
-
         const ObjectDataIStream* previous = item.data.versions.back();
-        const uint128_t previousVersion = previous->getPendingVersion();
+        EQASSERT( previous->isReady( ));
 
+        const uint128_t previousVersion = previous->getPendingVersion();
         if( previousVersion > rev.version )
         {
 #ifdef EQ_INSTRUMENT_CACHE
@@ -151,9 +150,8 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
             EQASSERT( previous->isReady( ));
         }
         item.data.versions.push_back( new ObjectDataIStream ); 
+        item.times.push_back( _clock.getTime64( ));
     }
-
-    item.time = _clock.getTime64();
 
     EQASSERT( !item.data.versions.empty( ));
     ObjectDataIStream* stream = item.data.versions.back();
@@ -197,7 +195,6 @@ const InstanceCache::Data& InstanceCache::operator[]( const base::UUID& id )
 #endif
     return item.data;
 }
-
 
 bool InstanceCache::release( const base::UUID& id, const uint32_t count )
 {
@@ -243,64 +240,64 @@ void InstanceCache::expire( const int64_t timeout )
     for( ItemHash::iterator i = _items->begin(); i != _items->end(); ++i )
     {
         Item& item = i->second;
-        EQASSERT( !item.data.versions.empty( ));
+        if( item.access != 0 )
+            continue;
 
-        if( item.time < time )
-        {
-            if( item.access == 0 )
-            {
-                _releaseStreams( item );
-                keys.push_back( i->first );
-            }
-            else
-            {
-                EQWARN << "Expired item " << i->first << " still accessed"
-                       << std::endl;
-                EQUNREACHABLE;
-            }
-        }
+        _releaseStreams( item, time );
+        if( item.data.versions.empty( ))
+            keys.push_back( i->first );
     }
 
     for( std::vector< base::uint128_t >::const_iterator i = keys.begin();
          i != keys.end(); ++i )
     {
-        Item& item = _items.data[ *i ];
-        if( item.data.versions.empty( ))
-            _items->erase( *i );
+        _items->erase( *i );
     }
+}
+
+void InstanceCache::_releaseStreams( InstanceCache::Item& item, 
+                                     const int64_t minTime )
+{
+    EQASSERT( item.access == 0 );
+    while( !item.data.versions.empty() && item.times.front() < minTime )
+        _releaseFirstStream( item );
 }
 
 void InstanceCache::_releaseStreams( InstanceCache::Item& item )
 {
+    EQASSERT( item.access == 0 );
     EQASSERT( !item.data.versions.empty( ));
 
     while( !item.data.versions.empty( ))
     {
-        const ObjectDataIStream* stream = item.data.versions.back();
+        ObjectDataIStream* stream = item.data.versions.back();
         item.data.versions.pop_back();
-
-        EQASSERT( stream->isReady( ));
-        EQASSERT( _size >= stream->getDataSize( ));
-        _size -= stream->getDataSize();
-        delete stream;
+        _deleteStream( stream );
     }
+    item.times.clear();
 }            
 
 void InstanceCache::_releaseFirstStream( InstanceCache::Item& item )
 {
+    EQASSERT( item.access == 0 );
     EQASSERT( !item.data.versions.empty( ));
-
     if( item.data.versions.empty( ))
         return;
 
-    const ObjectDataIStream* stream = item.data.versions.front();
+    ObjectDataIStream* stream = item.data.versions.front();
     item.data.versions.pop_front();
+    item.times.pop_front();
+    _deleteStream( stream );
+}            
 
+void InstanceCache::_deleteStream( ObjectDataIStream* stream )
+{
     EQASSERT( stream->isReady( ));
     EQASSERT( _size >= stream->getDataSize( ));
+
     _size -= stream->getDataSize();
     delete stream;
-}            
+}
 
 void InstanceCache::_releaseItems( const uint32_t minUsage )
 {
@@ -310,8 +307,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
     EQ_TS_SCOPED( _thread );
 
     std::vector< base::uint128_t > keys;
-    const uint64_t target = static_cast< uint64_t >(
-                   static_cast< float >( _maxSize ) * 0.8f );
+    const uint64_t target = uint64_t( float( _maxSize ) * 0.8f );
 
     // Release used items (first stream)
     bool streamsLeft = false;

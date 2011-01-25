@@ -113,9 +113,11 @@ namespace co
         {
             Item();
             Data data;
-            int64_t time;
             unsigned used;
             unsigned access;
+
+            typedef std::deque< int64_t > TimeDeque;
+            TimeDeque times;
         };
 
         typedef stde::hash_map< base::uint128_t, Item > ItemHash;
@@ -129,7 +131,10 @@ namespace co
 
         void _releaseItems( const uint32_t minUsage );
         void _releaseStreams( InstanceCache::Item& item );
+        void _releaseStreams( InstanceCache::Item& item, 
+                              const int64_t minTime );
         void _releaseFirstStream( InstanceCache::Item& item );
+        void _deleteStream( ObjectDataIStream* iStream );
 
         EQ_TS_VAR( _thread );
     };
