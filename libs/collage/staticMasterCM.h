@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -49,8 +49,8 @@ namespace co
         virtual uint128_t commitSync( const uint32_t )
             { EQDONTCALL; return VERSION_NONE; }
 
-        virtual void setAutoObsolete( const uint32_t ) { EQDONTCALL; }
-        virtual uint32_t getAutoObsolete() const { EQDONTCALL; return 0; }
+        virtual void setAutoObsolete( const uint32_t ) {}
+        virtual uint32_t getAutoObsolete() const { return 0; }
 
         virtual uint128_t sync( const uint128_t& )
             { EQDONTCALL; return VERSION_NONE; }

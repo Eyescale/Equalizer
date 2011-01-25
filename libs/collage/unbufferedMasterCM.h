@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -39,8 +39,8 @@ namespace co
          * @name Versioning
          */
         //@{
-        virtual void setAutoObsolete( const uint32_t ) { EQDONTCALL; } 
-        virtual uint32_t getAutoObsolete() const { EQDONTCALL; return 0; }
+        virtual void setAutoObsolete( const uint32_t ) {} 
+        virtual uint32_t getAutoObsolete() const { return 0; }
         virtual uint128_t getOldestVersion() const { return _version; }
         //@}
 
