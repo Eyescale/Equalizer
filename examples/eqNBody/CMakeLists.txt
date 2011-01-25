@@ -1,10 +1,13 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 
 if(NOT CUDA_FOUND)
   message(STATUS "Skipping 'eqNBody' example (CUDA not found)")	 
   return()
 endif()
+
+# WAR bug in FindCUDA.cmake:
+remove_definitions(-DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/")
 
 cuda_compile(NBODY_FILES nbody.cu)
 
