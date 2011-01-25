@@ -1,6 +1,9 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010 Stefan Eilemann <eile@eyescale.ch>
 
+if( NOT EQUALIZER_USE_OSG )
+  return()
+endif()
 find_package(OpenSceneGraph 2.9.8 COMPONENTS osgDB osgUtil)
 if(OSG_LIBRARY MATCHES "OSG_LIBRARY-NOTFOUND")
   message(STATUS "Skipping 'osgScaleViewer' example (OSG not found)")	 
