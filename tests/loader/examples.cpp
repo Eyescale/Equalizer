@@ -27,7 +27,7 @@
 #if defined(_MSC_VER)
 std::string PATH_EXAMPLES = "../../../examples/configs/";
 #else
-std::string PATH_EXAMPLES = "../../examples/configs";
+std::string PATH_EXAMPLES = "../../examples/configs/";
 #endif
 // Tests (re)loading of all examples/configs/*.eqc files
 
@@ -40,7 +40,6 @@ int main( int argc, char **argv )
     eq::server::Loader loader;
     co::base::Strings candidates = 
         co::base::searchDirectory( PATH_EXAMPLES, "*.eqc" );
-    std::cout << "Number Config : " <<candidates.size() << std::endl;
     for( co::base::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
     {
@@ -52,7 +51,6 @@ int main( int argc, char **argv )
         // load
         global->setConfigFAttribute( attr, 0.f );
         eq::server::ServerPtr server = loader.loadFile( filename );
-        std::cout << filename << std::endl;
         TESTINFO( server.isValid(), "Load of " << filename << " failed" );
         TESTINFO( global->getConfigFAttribute( attr ) == 1.f ||
                   global->getConfigFAttribute( attr ) == 1.1f,

@@ -1,8 +1,8 @@
-Update config file to 1.1
+Fix bug Path examples
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
