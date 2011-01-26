@@ -1,4 +1,4 @@
-- fix bug : 3159879  Pixel decomposition broken
+Fix bug no dso pugins can be found
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

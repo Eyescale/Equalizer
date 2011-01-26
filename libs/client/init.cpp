@@ -136,6 +136,11 @@ void _initPlugins()
 #ifdef EQ_DSO_NAME
     plugins.addPlugin( EQ_DSO_NAME );
     plugins.addPlugin(std::string(EQ_BUILD_DIR) + "libs/client/" + EQ_DSO_NAME);
+#ifdef NDEBUG
+	plugins.addPlugin(std::string(EQ_BUILD_DIR) + "libs/client/Release/" + EQ_DSO_NAME);
+#else
+	plugins.addPlugin(std::string(EQ_BUILD_DIR) + "libs/client/Debug/" + EQ_DSO_NAME);
+#endif
 #endif
 }
 
