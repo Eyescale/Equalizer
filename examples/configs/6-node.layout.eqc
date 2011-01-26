@@ -1,6 +1,6 @@
 #Equalizer 1.1 ascii
 
-# six-to-one sort-last, direct-send config for cluster at unizh
+# six-to-one sort-last config for cluster at unizh
 global
 {
     EQ_WINDOW_IATTR_PLANES_STENCIL  ON
@@ -9,57 +9,156 @@ global
 
 server
 {
-    connection { hostname "127.0.0.1" }
+    connection { hostname "hactar1" }
     config
     {
-        node
+        appNode
         {
-            connection { hostname "node1" }
+            connection { hostname "hactar1" }
             pipe 
             {
-                window 
+                window
                 {
-                    name    "window1"
+                    attributes { planes_stencil ON }
                     channel { name "channel1" }
                 }
             }
         }
         node
         {
-            connection { hostname "node2" }
+            connection { hostname "hactar2" }
             pipe { window { channel { name "channel2" }}}
         }
         node
         {
-            connection { hostname "node3" }
+            connection { hostname "hactar3" }
             pipe { window { channel { name "channel3" }}}
         }
         node
         {
-            connection { hostname "node4" }
+            connection { hostname "hactar4" }
             pipe { window { channel { name "channel4" }}}
         }
         node
         {
-            connection { hostname "node5" }
+            connection { hostname "hactar5" }
             pipe { window { channel { name "channel5" }}}
         }
         node
         {
-            connection { hostname "node6" }
+            connection { hostname "hactar6" }
             pipe { window { channel { name "channel6" }}}
         }
         observer{}
-        layout{ view { observer 0 }}
+        layout{ name "DB" view { observer 0 }}
+        layout{ name "2D" view { observer 0 }}
+        layout{ name "DB directSend" view { observer 0 }}
         canvas
         {
-            layout 0
+            layout "DB"
+            layout "2D"
+            layout "DB directSend"
             wall{}
             segment { channel "channel1" }
         }
+        
+        #DB compound
         compound
         {
-            channel  ( segment 0 view 0 )
+            channel  ( segment 0 layout "DB" view 0 )
+            buffer  [ COLOR DEPTH ]
+
+            compound
+            {
+                range   [ 0 .166 ]
+            }
+            compound
+            {
+                channel "channel2"
+                range   [ .166 .333 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel3"
+                range   [ .333 .5 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel4"
+                range   [ .5 .666 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel5"
+                range   [ .666 .833 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel6"
+                range   [ .833 1 ]
+                outputframe {}
+            }
+            inputframe { name "frame.channel2" }
+            inputframe { name "frame.channel3" }
+            inputframe { name "frame.channel4" }
+            inputframe { name "frame.channel5" }
+            inputframe { name "frame.channel6" }
+        }
+        
+        #2D compound
+        compound
+        {
+            channel  ( segment 0 layout "2D" view 0 )
+
+            compound
+            {
+                viewport [ 0 0 1 .166 ]
+            }
+            compound
+            {
+                channel "channel2"
+                viewport [ 0 .166 1 .167 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel3"
+                viewport [ 0 .333 1 .167 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel4"
+                viewport [ 0 .5 1 .166 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel5"
+                viewport [ 0 .666 1 .167 ]
+                outputframe {}
+            }
+            compound
+            {
+                channel "channel6"
+                viewport [ 0 .833 1 .167 ]
+                outputframe {}
+            }
+            inputframe { name "frame.channel2" }
+            inputframe { name "frame.channel3" }
+            inputframe { name "frame.channel4" }
+            inputframe { name "frame.channel5" }
+            inputframe { name "frame.channel6" }
+        }
+        
+        #DB directSend
+        compound
+        {
+            channel  ( segment 0 layout "DB directSend" view 0 )
             buffer  [ COLOR DEPTH ]
 
             wall
