@@ -66,14 +66,10 @@ purple_add_library(co ${CO_LIB_VARIANT}
     ${CO_ADD_LINKLIB}
   )
   
-purple_add_amalgamation(Collage
+purple_add_amalgamation(Collage ${CO_VERSION} ${CO_VERSION}
     shared co_base
     shared co
   )
-
-# Override Equalizer version for Collage
-set_target_properties(Collage PROPERTIES VERSION ${CO_VERSION}
-                                         SOVERSION ${CO_VERSION})
 
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY
 configure_file(Collage.pc.in Collage.pc @ONLY)
