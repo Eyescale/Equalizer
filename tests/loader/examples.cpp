@@ -25,9 +25,9 @@
 #include <co/base/init.h>
 
 #if defined(_MSC_VER)
-std::string PATH_EXAMPLES = "../../../examples/configs/";
+static const std::string CONFIG_DIR = "../../../examples/configs/";
 #else
-std::string PATH_EXAMPLES = "../../examples/configs/";
+static const std::string CONFIG_DIR = "../../examples/configs/";
 #endif
 // Tests (re)loading of all examples/configs/*.eqc files
 
@@ -38,12 +38,12 @@ int main( int argc, char **argv )
     TEST( co::base::init( argc, argv ));
 
     eq::server::Loader loader;
-    co::base::Strings candidates = 
-        co::base::searchDirectory( PATH_EXAMPLES, "*.eqc" );
+    co::base::Strings candidates = co::base::searchDirectory( CONFIG_DIR,
+                                                              "*.eqc" );
     for( co::base::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
     {
-        const std::string& filename = PATH_EXAMPLES + *i;
+        const std::string& filename = CONFIG_DIR + *i;
         eq::server::Global* global = eq::server::Global::instance();
         const eq::server::Config::FAttribute attr = 
             eq::server::Config::FATTR_VERSION;
