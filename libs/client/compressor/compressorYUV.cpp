@@ -303,8 +303,8 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
     else if( flags & EQ_COMPRESSOR_USE_TEXTURE_RECT  )
     {
         /* save the current FBO ID for bind it at the end of the compression */
-        GLint fboIDCurrent = 0;
-        glGetIntegerv( GL_FRAMEBUFFER_BINDING_EXT, &fboIDCurrent );
+        GLint oldFBO = 0;
+        glGetIntegerv( GL_FRAMEBUFFER_BINDING_EXT, &oldFBO );
         
         if ( !_fbo )
             _fbo = new util::FrameBufferObject( glewContext );
@@ -324,7 +324,7 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
         _decompress( glewContext, outDims );
         
         /* apply the initial fbo */
-        EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, fboIDCurrent ));
+        EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, oldFBO ));
         
         texture->flushNoDelete();
     }
