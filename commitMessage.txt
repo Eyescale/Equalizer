@@ -1,9 +1,9 @@
-- Add choice to use OSG
+- fix bug : 3159879  Pixel decomposition broken
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [ ] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation
