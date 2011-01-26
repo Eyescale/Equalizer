@@ -156,9 +156,11 @@ void _initPlugins()
         return;
     }
 #endif
-#endif
     EQWARN << "Built-in Equalizer plugins not loaded: " << EQ_DSO_NAME
-           << " not in search path" << std::endl;
+        << " not in search path" << std::endl;
+#endif
+    EQWARN << "Built-in Equalizer plugins not loaded: EQ_DSO_NAME not defined"
+           << std::endl;
 }
 
 void _exitPlugins()
