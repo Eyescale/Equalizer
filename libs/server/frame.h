@@ -125,7 +125,7 @@ namespace server
          * clears the list of input frames.
          *
          * @param frameNumber the current frame number.
-         * @param eyes the eye passes used.
+         * @param compound the compound holding the output frame.
          */
         void cycleData( const uint32_t frameNumber, const Compound* compound );
 
