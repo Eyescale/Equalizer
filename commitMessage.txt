@@ -1,9 +1,9 @@
-Fix bug Path examples
+Fix bug 3159879  Pixel decomposition broken  
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

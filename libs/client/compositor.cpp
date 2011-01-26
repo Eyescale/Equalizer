@@ -1200,12 +1200,17 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
 
         image->upload( which, ncTexture, Vector2i::ZERO, objects );
         texture->bind();
+        texture->applyZoomFilter( op.zoomFilter );
     }
     else // texture image
     {
         EQASSERT( image->hasTextureData( which ));
         texture = &image->getTexture( which );
         texture->bind();
+        if( op.pixel == Pixel::ALL )
+            texture->applyZoomFilter( FILTER_LINEAR );
+        else
+            texture->applyZoomFilter( FILTER_NEAREST );
     }
 
     if ( which == Frame::BUFFER_COLOR )
@@ -1220,7 +1225,7 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
     
     texture->applyWrap();
-    texture->applyZoomFilter( op.zoomFilter );
+    
 
     glColor3f( 1.0f, 1.0f, 1.0f );
 
