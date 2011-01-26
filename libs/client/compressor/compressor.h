@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,13 +23,10 @@
 #include <co/api.h>
 #include <co/base/os.h>
 #include <co/base/buffer.h>
-#include "../../collage/compressor/compressor.h"
 #include <vector>
 #ifdef _WIN32
 #  include <malloc.h>
 #endif
-
-
 
 /**
  * @file client/compressor/compressor.h
@@ -51,8 +48,6 @@ namespace plugin
                                       const eq_uint64_t, const bool );
         typedef bool ( *IsCompatible_t ) ( const GLEWContext* );
 
-        typedef co::plugin::Compressor::Functions Functions;
-#ifdef false
         struct Functions
         {
             Functions( const unsigned name, CompressorGetInfo_t getInfo,
@@ -67,8 +62,6 @@ namespace plugin
             Decompress_t         decompress;
             IsCompatible_t       isCompatible;
         };
-#endif
-
 
         /** Construct a new compressor. */
         Compressor();

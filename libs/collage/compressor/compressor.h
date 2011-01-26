@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009 - 2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -50,9 +50,9 @@ namespace plugin
                                       const eq_uint64_t, const bool );
         typedef bool ( *IsCompatible_t ) ( const GLEWContext* );
 
-        CO_API struct Functions
+        struct Functions
         {
-            CO_API Functions( const unsigned name, CompressorGetInfo_t getInfo,
+            Functions( const unsigned name, CompressorGetInfo_t getInfo,
                        NewCompressor_t newCompressor,
                        NewCompressor_t newDecompressor,
                        Decompress_t decompress, IsCompatible_t isCompatible );
@@ -126,7 +126,7 @@ namespace plugin
                              const unsigned     destination ) { EQDONTCALL; }
 
         /** @internal Register a new plugin engine. */
-        static CO_API void registerEngine( const Functions& functions );
+        static void registerEngine( const Functions& functions );
 
     protected:
         ResultVector _results;  //!< The compressed data
