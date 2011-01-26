@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # six-node config for 3x2 30" display wall at unizh
 global
@@ -8,6 +8,7 @@ global
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         node
@@ -41,14 +42,13 @@ server
             pipe { window { channel { name "channel6" }}}
         }
 
-        layout
-        {
-            view {}
-        }
+        observer{}
+        layout{ view { observer 0 }}
         layout
         {
             view 
             {
+                observer 0
                 viewport [ 0  0 .5 1 ] 
                 wall
                 {
@@ -59,6 +59,7 @@ server
             }
             view 
             { 
+                observer 0
                 viewport [ .5 0 .5 1 ] 
                 wall
                 {

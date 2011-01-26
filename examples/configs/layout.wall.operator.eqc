@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # Layout example configuration for a display wall with control host.
 server
@@ -38,11 +38,12 @@ server
                 }
             }
         }
-
+        
+        observer{}
         layout
         {
             name "1x1"
-            view {}
+            view { observer 0 }
         }
 
         layout
@@ -50,6 +51,7 @@ server
             name "3x1"
             view
             {
+                observer 0 
                 viewport [ 0 0 .3333 1 ]
                 wall
                 {
@@ -60,6 +62,7 @@ server
             }
             view
             {
+                observer 0 
                 viewport [ .3333 0 .3334 1 ]
                 wall
                 {
@@ -70,6 +73,7 @@ server
             }
             view
             {
+                observer 0 
                 viewport [ .6667 0 .3333 1 ]
                 wall
                 {
@@ -83,10 +87,10 @@ server
         layout
         {
             name "2x2"
-            view { viewport [ 0  0  .5 .5 ] wall {} }
-            view { viewport [ 0  .5 .5 .5 ] wall {} }
-            view { viewport [ .5 0  .5 .5 ] wall {} }
-            view { viewport [ .5 .5 .5 .5 ] wall {} }
+            view { observer 0 viewport [ 0  0  .5 .5 ] wall {} }
+            view { observer 0 viewport [ 0  .5 .5 .5 ] wall {} }
+            view { observer 0 viewport [ .5 0  .5 .5 ] wall {} }
+            view { observer 0 viewport [ .5 .5 .5 .5 ] wall {} }
         }
 
         canvas

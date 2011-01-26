@@ -14,7 +14,7 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
+#define EQ_TEST_RUNTIME 1200 // seconds
 #include <test.h>
 
 #include "libs/server/global.h"
@@ -24,6 +24,11 @@
 #include <co/base/file.h>
 #include <co/base/init.h>
 
+#if defined(_MSC_VER)
+std::string PATH_EXAMPLES = "../../../examples/configs/";
+#else
+std::string PATH_EXAMPLES = "../../examples/configs";
+#endif
 // Tests (re)loading of all examples/configs/*.eqc files
 
 #define OUTLOG co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
@@ -34,11 +39,12 @@ int main( int argc, char **argv )
 
     eq::server::Loader loader;
     co::base::Strings candidates = 
-        co::base::searchDirectory( "../../examples/configs", "*.eqc" );
+        co::base::searchDirectory( PATH_EXAMPLES, "*.eqc" );
+    std::cout << "Number Config : " <<candidates.size() << std::endl;
     for( co::base::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
     {
-        const std::string& filename = "../../examples/configs/" + *i;
+        const std::string& filename = PATH_EXAMPLES + *i;
         eq::server::Global* global = eq::server::Global::instance();
         const eq::server::Config::FAttribute attr = 
             eq::server::Config::FATTR_VERSION;
@@ -46,7 +52,7 @@ int main( int argc, char **argv )
         // load
         global->setConfigFAttribute( attr, 0.f );
         eq::server::ServerPtr server = loader.loadFile( filename );
-
+        std::cout << filename << std::endl;
         TESTINFO( server.isValid(), "Load of " << filename << " failed" );
         TESTINFO( global->getConfigFAttribute( attr ) == 1.f ||
                   global->getConfigFAttribute( attr ) == 1.1f,

@@ -1,8 +1,9 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # 'Hello, World!' config: one window rendering from the application process.
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -26,11 +27,13 @@ server
             }
         }
 
+        observer{}
         layout
         {
             name "Scale"
             view
             {
+                observer 0 
                 viewport [ 0 0 .5 1 ]
                 wall
                 {
@@ -44,7 +47,7 @@ server
         layout
         {
             name "Simple"
-            view {}
+            view { observer 0  }
         }
 
         canvas

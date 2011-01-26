@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # single pipe, four-to-one sort-last demo configuration with stream compositing
 global
@@ -9,6 +9,7 @@ global
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -72,9 +73,17 @@ server
                 }
             }
         }
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall{}
+            segment { channel "channel1" }
+        }
         compound
         {
-            channel "channel4"
+            channel  ( segment 0 view 0 )
             buffer  [ COLOR DEPTH ]
 
             wall

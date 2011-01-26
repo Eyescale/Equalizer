@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 global
 {
     EQ_CHANNEL_IATTR_HINT_STATISTICS NICEST
@@ -7,6 +7,7 @@ global
 # Config stress-testing the 2D load-balancer
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -41,9 +42,17 @@ server
                 }
             }
         }
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall{}
+            segment { channel "channel" }
+        }
         compound
         {
-            channel "channel"
+            channel  ( segment 0 view 0 )
             load_equalizer { mode HORIZONTAL }
 
             wall

@@ -1,8 +1,9 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # three-window config simulating a 5-sided cave, an HMD and an untracked view
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -70,7 +71,7 @@ server
         observer { name "HMD" }
 
         layout { name "Cave" view { observer "Cave" }}
-        layout { name "HMD" view { observer "HMD" }}
+        layout { name "HMD" view { mode STEREO observer "HMD" }}
         layout
         {
             name "Untracked" 
@@ -172,12 +173,12 @@ server
             compound
             {
                 channel ( canvas "HMD" segment 0 layout "HMD" view 0 )
-                eye     [ LEFT ]
+                eye     [ LEFT CYCLOP]
             }
             compound
             { 
                 channel ( canvas "HMD" segment 1 layout "HMD" view 0 )
-                eye     [ RIGHT ]
+                eye     [ RIGHT CYCLOP]
             }
         }
     }    

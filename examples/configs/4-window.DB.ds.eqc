@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # four-to-one sort-last, direct-send single-pipe demo configuration
 global
@@ -8,6 +8,7 @@ global
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -49,17 +50,26 @@ server
                 }
             }
         }
-        compound
+        
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
         {
-            channel   "channel1"
-            buffer    [ COLOR DEPTH ]
-
+            layout 0
             wall
             {
                 bottom_left  [ -.5 -.5 -1 ]
                 bottom_right [  .5 -.5 -1 ]
                 top_left     [ -.5  .5 -1 ]
             }
+            segment { channel "channel1" }
+        }
+        
+        compound
+        {
+            channel  ( segment 0 view 0 )
+            buffer    [ COLOR DEPTH ]
+
             compound
             {
                 range     [ 0.00 0.25 ]

@@ -1,9 +1,10 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # single pipe, multi-level Eye / 2D configuration. Same as 7-window.EYE.2D.eqc,
 # but using only four windows and optimized pixel transfers.
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -41,23 +42,23 @@ server
                 }
             }
         }
+        observer{}
+        layout{ view { mode STEREO observer 0 }}
+        canvas
+        {
+            layout 0
+            wall{}
+            segment { channel "destination" }
+        }
         compound
         {
-            channel "destination"
+            channel  ( segment 0 view 0 )
             attributes{ stereo_mode ANAGLYPH } # remove for quad-buffered stereo
-            eye [ LEFT RIGHT ]
-
-            wall
-            {
-                bottom_left  [ -.32 -.2 -.75 ]
-                bottom_right [  .32 -.2 -.75 ]
-                top_left     [ -.32  .2 -.75 ]
-            }
 
             compound
             {
                 channel "destination"
-                eye     [ LEFT ]
+                eye     [ LEFT CYCLOP ]
 
                 compound
                 {
@@ -74,7 +75,7 @@ server
             compound
             {
                 channel "right-buffer-1"
-                eye     [ RIGHT ]
+                eye     [ RIGHT CYCLOP  ]
 
                 compound
                 {
@@ -93,13 +94,13 @@ server
             compound
             {
                 task      [ ASSEMBLE ]
-                eye       [ LEFT ]
+                eye       [ LEFT CYCLOP  ]
                 inputframe{ name "frame.left-buffer" }
             }
             compound
             {
                 task      [ ASSEMBLE ]
-                eye       [ RIGHT ]
+                eye       [ RIGHT  CYCLOP  ]
                 inputframe{ name "frame.right-buffer-1" }
                 inputframe{ name "frame.right-buffer-2" }
             }

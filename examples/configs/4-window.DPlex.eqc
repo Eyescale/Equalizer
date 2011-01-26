@@ -1,8 +1,9 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # three-to-one DPlex demo configuration
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         latency 3
@@ -49,11 +50,11 @@ server
                 }
             }
         }
-
+        observer{}
         layout
         {
             name "DPlex"
-            view {}
+            view { observer 0 }
         }
         canvas
         {

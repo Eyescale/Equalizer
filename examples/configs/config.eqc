@@ -1,9 +1,9 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # 'Hello, World!' config: one window rendering from the application process.
 server
 {
-    connection{}
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -18,9 +18,17 @@ server
                 }
             }
         }
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall{}
+            segment { channel "channel" }
+        }
         compound
-        { 
-            channel "channel"
+        {
+            channel  ( segment 0 view 0 )
             wall {}
         }
     }    

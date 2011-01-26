@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # stress-test config doing a many-to-one sort-first decomposition
 server
@@ -98,15 +98,23 @@ server
                 }
             }
         }
-        compound
-        { 
-            channel "channel1"
+        observer{}
+        layout{ view { observer 0 }}        
+        canvas
+        {
+            layout 0
             wall
             {
                 bottom_left  [ -1 -1.5 -2 ]
                 bottom_right [  1 -1.5 -2 ]
                 top_left     [ -1  1.5 -2 ]
             }
+            segment { channel "channel1" }
+        }
+        compound
+        { 
+            channel  ( segment 0 view 0 )
+            
             compound
             {
                 viewport [ 0 0 .333 .333 ]

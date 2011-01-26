@@ -1,9 +1,10 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # single-window config simulating a 5-sided cave with 2x2 meter walls on a 
 # single pipe. Some areas of the window are unused.
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -42,9 +43,13 @@ server
                 }
             }
         }
-        compound
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
         {
-            compound
+            layout 0
+            wall{}
+            segment
             { 
                 channel "channel-left"
                 wall
@@ -54,17 +59,7 @@ server
                     top_left     [ -1  1  1 ]
                 }
             }
-            compound
-            {
-                channel "channel-front"
-                wall
-                {
-                    bottom_left  [ -1 -1 -1 ]
-                    bottom_right [  1 -1 -1 ]
-                    top_left     [ -1  1 -1 ]
-                }
-            }
-            compound
+            segment
             { 
                 channel "channel-right"
                 wall
@@ -74,7 +69,7 @@ server
                     top_left     [ 1  1 -1 ]
                 }
             }
-            compound
+            segment
             {
                 channel "channel-bottom"
                 wall
@@ -84,7 +79,7 @@ server
                     top_left     [ -1 -1 -1 ]
                 }
             }
-            compound
+            segment
             { 
                 channel "channel-top"
                 wall

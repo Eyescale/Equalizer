@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # single-machine config simulating a 5-sided cave with 2x2 meter walls, using 
 # cross-loadbalancing. Switch windows to full-screen and distribute to
@@ -11,6 +11,7 @@ global
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         latency 0
@@ -62,10 +63,14 @@ server
                 }
             }
         }
-        compound
+        
+                observer{}
+        layout{ view { observer 0 }}
+        canvas
         {
-            view_equalizer {}
-            compound
+            layout 0
+            wall{}
+            segment
             { 
                 channel "channel-left"
                 wall
@@ -74,7 +79,55 @@ server
                     bottom_right [ -1 -1 -1 ]
                     top_left     [ -1  1  1 ]
                 }
+            }
+            segment
+            { 
+                channel "channel-front"
+                wall
+                {
+                    bottom_left  [ -1 -1 -1 ]
+                    bottom_right [  1 -1 -1 ]
+                    top_left     [ -1  1 -1 ]
+                }
+            }
+            segment
+            { 
+                channel "channel-right"
+                wall
+                {
+                    bottom_left  [ 1 -1 -1 ]
+                    bottom_right [ 1 -1  1 ]
+                    top_left     [ 1  1 -1 ]
+                }
+            }
+            segment
+            {
+                channel "channel-bottom"
+                wall
+                {
+                    bottom_left  [ -1 -1  1 ]
+                    bottom_right [  1 -1  1 ]
+                    top_left     [ -1 -1 -1 ]
+                }
+            }
+            segment
+            { 
+                channel "channel-top"
+                wall
+                {
+                    bottom_left  [ -1  1 -1 ]
+                    bottom_right [  1  1 -1 ]
+                    top_left     [ -1  1  1 ]
+                }
+            }
+        }
 
+        compound
+        {
+            view_equalizer {}
+            compound
+            { 
+                channel  ( segment 0 view 0 )
                 load_equalizer {}
                 compound{ }
                 compound{ channel "channel-front" outputframe{ name "front1" }}
@@ -88,13 +141,7 @@ server
             }
             compound
             {
-                channel "channel-front"
-                wall
-                {
-                    bottom_left  [ -1 -1 -1 ]
-                    bottom_right [  1 -1 -1 ]
-                    top_left     [ -1  1 -1 ]
-                }
+                channel  ( segment 1 view 0 )
 
                 load_equalizer {}
                 compound{ }
@@ -109,13 +156,7 @@ server
             }
             compound
             { 
-                channel "channel-right"
-                wall
-                {
-                    bottom_left  [ 1 -1 -1 ]
-                    bottom_right [ 1 -1  1 ]
-                    top_left     [ 1  1 -1 ]
-                }
+                channel  ( segment 2 view 0 )
 
                 load_equalizer {}
                 compound{ }
@@ -130,14 +171,7 @@ server
             }
             compound
             {
-                channel "channel-top"
-                wall
-                {
-                    bottom_left  [ -1 -1  1 ]
-                    bottom_right [  1 -1  1 ]
-                    top_left     [ -1 -1 -1 ]
-                }
-
+                channel  ( segment 3 view 0 )
                 load_equalizer {}
                 compound{ }
                 compound{ channel "channel-left" outputframe{ name "left4" }}
@@ -151,13 +185,7 @@ server
             }
             compound
             { 
-                channel "channel-bottom"
-                wall
-                {
-                    bottom_left  [ -1  1 -1 ]
-                    bottom_right [  1  1 -1 ]
-                    top_left     [ -1  1  1 ]
-                }
+                channel  ( segment 4 view 0 )
 
                 load_equalizer {}
                 compound{ }

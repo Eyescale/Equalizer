@@ -40,7 +40,7 @@ server
         }
         compound
         {
-            channel  ( canvas 0 segment 0 layout 0 view 0 )
+            channel  ( segment 0 view 0 )
             buffer  [ COLOR DEPTH ]
 
             compound

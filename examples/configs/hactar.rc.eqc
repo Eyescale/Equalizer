@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # config for 3x2 30" display wall at unizh, configured as a 'curved' screen
 global
@@ -8,6 +8,7 @@ global
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         node
@@ -40,9 +41,14 @@ server
             connection { hostname "node1" }
             pipe { window { channel { name "channel6" }}}
         }
-        compound
+        
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
         {
-            compound
+            layout 0
+            wall{}
+            segment
             { 
                 channel "channel1"
                 wall
@@ -51,9 +57,8 @@ server
                     bottom_right [ -.35 .0285 -.99 ]
                     top_left     [ -.54 .4285 -.54 ]
                 }
-                swapbarrier {}
             }
-            compound
+            segment
             { 
                 channel "channel2"
                 wall
@@ -62,9 +67,8 @@ server
                     bottom_right [  .32 .0285 -1 ]
                     top_left     [ -.32 .4285 -1 ]
                 }
-                swapbarrier {}
             }
-            compound
+            segment
             { 
                 channel "channel3"
                 wall
@@ -73,9 +77,8 @@ server
                     bottom_right [  .54 .0285 -.54 ]
                     top_left     [  .35 .4285 -.99 ]
                 }
-                swapbarrier {}
             }
-            compound
+            segment
             { 
                 channel "channel4"
                 wall
@@ -84,9 +87,8 @@ server
                     bottom_right [ -.35  -.4285 -.99 ]
                     top_left     [ -.54  -.0285 -.54 ]
                 }
-                swapbarrier {}
             }
-            compound
+            segment
             { 
                 channel "channel5"
                 wall
@@ -95,9 +97,8 @@ server
                     bottom_right [  .32 -.4285 -1 ]
                     top_left     [ -.32 -.0285 -1 ]
                 }
-                swapbarrier {}
             }
-            compound
+            segment
             { 
                 channel "channel6"
                 wall
@@ -106,6 +107,38 @@ server
                     bottom_right [  .54 -.4285 -.54 ]
                     top_left     [  .35 -.0285 -.99 ]
                 }
+            }
+        }
+        compound
+        {
+            compound
+            { 
+                channel  ( segment 0 view 0 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel  ( segment 1 view 0 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel  ( segment 2 view 0 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel  ( segment 3 view 0 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel  ( segment 4 view 0 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel  ( segment 5 view 0 )
                 swapbarrier {}
             }
         }

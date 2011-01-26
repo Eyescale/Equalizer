@@ -1,9 +1,10 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # stress-test config using multiple windows and a swap barrier, using a mixture
 # of singlepipe and multipipe nodes.
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         latency 10
@@ -83,9 +84,13 @@ server
                 }
             }
         }
-        compound
-        { 
-            compound
+        observer{}
+        layout{ view { observer 0 }}        
+        canvas
+        {
+            layout 0
+            wall{}
+            segment
             { 
                 channel "channel1"
                 wall
@@ -94,9 +99,8 @@ server
                     bottom_right [ -0.8  0.6 -4 ]
                     top_left     [ -2    1.5 -4 ]
                 }
-                swapbarrier {}
             }
-            compound
+            segment
             { 
                 channel "channel2"
                 wall
@@ -105,9 +109,8 @@ server
                     bottom_right [  0.6  0.6 -4 ]
                     top_left     [ -0.6  1.5 -4 ]
                 }
-                swapbarrier {}
             }
-            compound
+            segment
             { 
                 channel "channel3"
                 wall
@@ -116,10 +119,9 @@ server
                     bottom_right [  2    0.6 -4 ]
                     top_left     [  0.8  1.5 -4 ]
                 }
-                swapbarrier {}
             }
 
-            compound
+            segment
             { 
                 channel "channel4"
                 wall
@@ -128,9 +130,8 @@ server
                     bottom_right [ -0.8 -0.45 -4 ]
                     top_left     [ -2    0.45 -4 ]
                 }
-                swapbarrier {}
             }
-            compound
+            segment
             { 
                 channel "channel5"
                 wall
@@ -139,9 +140,8 @@ server
                     bottom_right [  0.6 -0.45 -4 ]
                     top_left     [ -0.6  0.45 -4 ]
                 }
-                swapbarrier {}
             }
-            compound
+            segment
             { 
                 channel "channel6"
                 wall
@@ -150,40 +150,86 @@ server
                     bottom_right [  2   -0.45 -4 ]
                     top_left     [  0.8  0.45 -4 ]
                 }
+            }
+
+            segment
+            { 
+                channel "channel7"
+                wall
+                {
+                    bottom_left  [ -2   -2.5 -4 ]
+                    bottom_right [ -0.8 -2.5 -4 ]
+                    top_left     [ -2   -0.6 -4 ]
+                }
+            }
+            segment
+            { 
+                channel "channel8"
+                wall
+                {
+                    bottom_left  [ -0.6 -2.5 -4 ]
+                    bottom_right [  0.6 -2.5 -4 ]
+                    top_left     [ -0.6 -0.6 -4 ]
+                }
+            }
+            segment
+            { 
+                channel "channel9"
+                wall
+                {
+                    bottom_left  [  0.8 -2.5 -4 ]
+                    bottom_right [  2   -2.5 -4 ]
+                    top_left     [  0.8 -0.6 -4 ]
+                }
+            }
+        }
+        compound
+        { 
+            compound
+            { 
+                channel  ( segment 0 view 0 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel  ( segment 1 view 0 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel  ( segment 2 view 0 )
                 swapbarrier {}
             }
 
             compound
             { 
-                channel "channel7"
-                wall
-                {
-                    bottom_left  [ -2   -1.5 -4 ]
-                    bottom_right [ -0.8 -1.5 -4 ]
-                    top_left     [ -2   -0.6 -4 ]
-                }
+                channel  ( segment 3 view 0 )
                 swapbarrier {}
             }
             compound
             { 
-                channel "channel8"
-                wall
-                {
-                    bottom_left  [ -0.6 -1.5 -4 ]
-                    bottom_right [  0.6 -1.5 -4 ]
-                    top_left     [ -0.6 -0.6 -4 ]
-                }
+                channel  ( segment 4 view 0 )
                 swapbarrier {}
             }
             compound
             { 
-                channel "channel9"
-                wall
-                {
-                    bottom_left  [  0.8 -1.5 -4 ]
-                    bottom_right [  2   -1.5 -4 ]
-                    top_left     [  0.8 -0.6 -4 ]
-                }
+                channel  ( segment 5 view 0 )
+                swapbarrier {}
+            }
+
+            compound
+            { 
+                channel  ( segment 6 view 0 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel  ( segment 7 view 0 )
+                swapbarrier {}
+            }
+            compound
+            { 
+                channel  ( segment 8 view 0 )
                 swapbarrier {}
             }
         }

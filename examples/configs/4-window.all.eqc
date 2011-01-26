@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # four-window configuration showing all Equalizer features
 global
@@ -9,7 +9,7 @@ global
 
 server
 {
-    connection {}
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -57,26 +57,28 @@ server
         }
 
         # Layouts - one for each demo mode
+        observer{}
         layout
         {
             name "Wall"
-            view {}
+            view { observer 0 }
         }
         layout
         {
             name "Stereo"
-            view {}
+            view { mode STEREO observer 0 }
         }
         layout
         {
             name "HMD"
-            view { viewport [ 0 .5 1 .5 ] }
+            view {  mode STEREO observer 0 viewport [ 0 .5 1 .5 ] }
         }
         layout
         {
             name "2D"
             view
             {
+                observer 0 
                 viewport [ 0 .5 .5 .5 ]
                 wall
                 {
@@ -91,6 +93,7 @@ server
             name "DB"
             view
             {
+                observer 0
                 viewport [ 0 .5 .5 .5 ]
                 wall
                 {
@@ -105,6 +108,7 @@ server
             name "DB_Stream"
             view
             {
+                observer 0
                 viewport [ 0 .5 .5 .5 ]
                 wall
                 {
@@ -119,6 +123,7 @@ server
             name "DirectSend"
             view
             {
+                observer 0
                 viewport [ 0 .5 .5 .5 ]
                 wall
                 {
@@ -133,6 +138,7 @@ server
             name "BinarySwap"
             view
             {
+                observer 0
                 viewport [ 0 .5 .5 .5 ]
                 wall
                 {
@@ -147,6 +153,7 @@ server
             name "Eye"
             view
             {
+                observer 0
                 viewport [ 0 .5 .5 .5 ]
                 wall
                 {
@@ -161,6 +168,7 @@ server
             name "Pixel"
             view
             {
+                observer 0
                 viewport [ 0 .5 .5 .5 ]
                 wall
                 {
@@ -175,6 +183,7 @@ server
             name "Subpixel"
             view
             {
+                observer 0
                 viewport [ 0 .5 .5 .5 ]
                 wall
                 {
@@ -189,6 +198,7 @@ server
             name "DPlex"
             view
             {
+                observer 0
                 viewport [ 0 .5 .5 .5 ]
                 wall
                 {
@@ -201,13 +211,14 @@ server
         layout
         {
             name "WallLB"
-            view {}
+            view { observer 0 }
         }
         layout
         {
             name "MultiLevel"
             view
             {
+                observer 0
                 viewport [ 0 .5 .5 .5 ]
                 wall
                 {
@@ -222,6 +233,7 @@ server
             name "MultiView"
             view
             {
+                observer 0
                 viewport [ 0 0 .4 .4 ]
                 wall
                 {
@@ -232,6 +244,7 @@ server
             }
             view
             {
+                observer 0
                 viewport [ .4 0 .6 .4 ]
                 wall
                 {
@@ -242,6 +255,7 @@ server
             }
             view
             {
+                observer 0
                 viewport [ 0 .4 1 .6 ]
                 wall
                 {
@@ -256,6 +270,7 @@ server
             name "DFR"
             view
             {
+                observer 0
                 viewport [ 0 .5 .5 .5 ]
                 wall
                 {
@@ -346,7 +361,6 @@ server
         # Stereo compound - need swap barrier
         compound
         {
-            eye [ LEFT RIGHT ]
             compound
             {
                 channel ( segment 0 layout "Stereo" view 0 )
@@ -381,7 +395,7 @@ server
             compound
             {
                 channel ( segment 0 layout "HMD" view 0 )
-                eye [ LEFT ]
+                eye [ LEFT CYCLOP ]
 
                 # Workaround: Normally one view pre HMD is configured, with two
                 # fully overlapping segments on the canvas.
@@ -403,7 +417,7 @@ server
             compound
             {
                 channel ( segment 1 layout "HMD" view 0 )
-                eye [ RIGHT ]
+                eye [ RIGHT CYCLOP ]
                 compound
                 {
                     wall
@@ -545,32 +559,31 @@ server
         compound
         {
             channel ( segment 0 layout "Eye" view 0 )
-            eye [ LEFT RIGHT ]
 
             compound
             {
-                eye [ LEFT ]
+                eye [ LEFT CYCLOP ]
                 channel "channel2"
                 outputframe {}
             }
-            compound { eye [ RIGHT ] task [ CLEAR ] channel "channel2" }
+            compound { eye [ RIGHT CYCLOP ] task [ CLEAR ] channel "channel2" }
             compound
             {
-                eye [ RIGHT ]
+                eye [ RIGHT CYCLOP ]
                 channel "channel3"
                 outputframe {}
             }
-            compound { eye [ LEFT ] task [ CLEAR ] channel "channel3" }
+            compound { eye [ LEFT CYCLOP ] task [ CLEAR ] channel "channel3" }
             compound
             {
                 task [ CLEAR ASSEMBLE ]
-                eye [ LEFT ]
+                eye [ LEFT  CYCLOP]
                 inputframe { name "frame.channel2" }
             }
             compound
             {
                 task [ CLEAR ASSEMBLE ]
-                eye [ RIGHT ]
+                eye [ RIGHT  CYCLOP]
                 inputframe { name "frame.channel3" }
             }
         }
@@ -682,12 +695,7 @@ server
             channel ( segment 0 layout "DirectSend" view 0 )
             buffer    [ COLOR DEPTH ]
 
-            wall
-            {
-                bottom_left  [ -.5 -.5 -1 ]
-                bottom_right [  .5 -.5 -1 ]
-                top_left     [ -.5  .5 -1 ]
-            }
+            
             compound
             {
                 range     [ 0.00 0.25 ]
@@ -758,13 +766,6 @@ server
         {
             channel ( segment 0 layout "BinarySwap" view 0 )
             buffer  [ COLOR DEPTH ]
-
-            wall
-            {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
-            }
 
             compound
             {

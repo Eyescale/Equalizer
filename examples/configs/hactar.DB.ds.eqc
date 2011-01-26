@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # six-to-one sort-last, direct-send config for cluster at unizh
 global
@@ -9,10 +9,12 @@ global
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
         {
+            connection { hostname "127.0.0.1" }
             pipe 
             {
                 window
@@ -51,17 +53,18 @@ server
             connection { hostname "node6" }
             pipe { window { channel { name "channel6" }}}
         }
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall{}
+            segment { channel "channel1" }
+        }
         compound
         {
-            channel "channel1"
+            channel  ( segment 0 view 0 )
             buffer  [ COLOR DEPTH ]
-
-            wall
-            {
-                bottom_left  [ -.32 -.2 -.75 ]
-                bottom_right [  .32 -.2 -.75 ]
-                top_left     [ -.32  .2 -.75 ]
-            }
 
             compound
             {

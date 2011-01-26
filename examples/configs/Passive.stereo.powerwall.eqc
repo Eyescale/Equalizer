@@ -40,10 +40,12 @@ server
                 }
             }
         }
+        
+        observer{}
         layout 
         { 
             name "Simple"
-            view { }
+            view { observer 0 }
         }  
         canvas 
         { 

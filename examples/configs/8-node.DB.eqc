@@ -1,8 +1,9 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # eight-to-one sort-last config for cluster at unizh
 server
 {
+    connection { hostname "10.42.42.1" }
     config
     {
         node
@@ -73,9 +74,17 @@ server
                 }
             }
         }
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall{}
+            segment { channel "channel1" }
+        }
         compound
         {
-            channel "channel1"
+            channel  ( segment 0 view 0 )
             buffer  [ COLOR DEPTH ]
 
             wall

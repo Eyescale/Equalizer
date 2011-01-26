@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # single-pipe three-to-one sort-last, direct-send pipelined demo configuration
 # The assembly happens pipelined from the draw operation in another window. 
@@ -12,6 +12,7 @@ global
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -59,9 +60,17 @@ server
                 }
             }
         }
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall{}
+            segment { channel "channel3" }
+        }
         compound
         {
-            channel "assemble3"
+            channel  ( segment 0 view 0 )
             buffer  [ COLOR DEPTH ]
 
             wall

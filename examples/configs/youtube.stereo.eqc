@@ -1,4 +1,4 @@
-#Equalizer 1.0 ascii
+#Equalizer 1.1 ascii
 
 # Configuration to create youtube stereo video:
 #  Capture the border-less window OR
@@ -8,6 +8,7 @@
 
 server
 {
+    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -33,34 +34,42 @@ server
                 }
             }
         }
-        compound
-        { 
+        observer{}
+        layout{ view { mode STEREO observer 0 }}
+        canvas
+        {
+            layout 0
             wall
             {
                 bottom_left  [ -1.92 -1.08 -2 ]
                 bottom_right [  1.92 -1.08 -2 ]
                 top_left     [ -1.92  1.08 -2 ]
             }
-
+            segment { channel "channel" }
+            segment { channel "left" }
+            segment { channel "right" }
+            segment { channel "dump" }
+        }
+        compound
+        { 
             compound
             {
-                channel "channel"
+                channel  ( segment 0 view 0 )
                 attributes { stereo_mode ANAGLYPH }
-#                eye [ LEFT RIGHT ]
             }
             compound
             {
-                channel "left"
-                eye [ LEFT ]
+                channel  ( segment 1 view 0 )
+                eye [ LEFT CYCLOP ]
             }
             compound
             {
-                channel "right"
-                eye [ RIGHT ]
+                channel  ( segment 2 view 0 )
+                eye [ RIGHT CYCLOP ]
             }
 #            compound
 #            {
-#                channel "dump"
+#                channel  ( segment 3 view 0 )
 #                task [ READBACK ]
 #                outputframe {}
 #            }
