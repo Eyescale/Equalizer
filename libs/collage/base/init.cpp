@@ -74,11 +74,16 @@ bool init( const int argc, char** argv )
     // init all available plugins
     PluginRegistry& pluginRegistry = Global::getPluginRegistry();
 #ifdef EQ_DSO_NAME
-    pluginRegistry.addPlugin( EQ_DSO_NAME );
-    co::base::Global::getPluginRegistry().addPlugin(
-        std::string( EQ_BUILD_DIR ) + "libs/collage/" + EQ_DSO_NAME );
+    if( !pluginRegistry.addPlugin( EQ_DSO_NAME ) &&
+        !pluginRegistry.addPlugin( std::string( EQ_BUILD_DIR ) + "libs/collage/"
+                                   + EQ_DSO_NAME ))
+    {
+        EQWARN << "Built-in Collage plugins not loaded: " << EQ_DSO_NAME
+               << " not in search path" << std::endl;
+    }
 #endif
     pluginRegistry.init();
+
     Thread::pinCurrentThread();
     return true;
 }

@@ -65,8 +65,8 @@ namespace base
         /** @internal @return the plugin containing the given compressor. */
         COBASE_API Plugin* findPlugin( const uint32_t name );
 
-        /** @internal Add a single DSO before init(). */
-        COBASE_API void addPlugin( const std::string& filename );
+        /** @internal Add a single DSO before init(). @return true if found. */
+        COBASE_API bool addPlugin( const std::string& filename );
 
     private:
         Strings _directories;

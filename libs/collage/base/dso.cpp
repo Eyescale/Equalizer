@@ -44,11 +44,7 @@ bool DSO::open( const std::string& fileName )
     if( fileName.empty( ))
     {
 #ifdef _WIN32 //_MSC_VER
-#  ifndef NDEBUG
-        _dso = GetModuleHandle( "Equalizer_d.dll" );
-#  endif
-        if( !_dso )
-            _dso = GetModuleHandle( "Equalizer.dll" );
+        _dso = GetModuleHandle( 0 );
         EQASSERT( _dso );
 #else
         _dso = RTLD_DEFAULT;

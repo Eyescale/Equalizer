@@ -58,9 +58,7 @@ Strings _initPluginDirectories()
 
 #ifdef _WIN32
         if( GetModuleFileName( 0, cwd, MAXPATHLEN ) > 0 )
-        {
             pluginDirectories.push_back( base::getDirname( cwd ));
-        }
 #endif
 
 #ifdef Darwin
@@ -129,7 +127,6 @@ void PluginRegistry::init()
         const std::string& dir = *i;
         EQLOG( LOG_PLUGIN ) << "Searching plugins in " << dir << std::endl;
 
-        // search the number of files in the director
 #ifdef _WIN32
         Strings files = searchDirectory( dir, "EqualizerCompressor*.dll");
         const char DIRSEP = '\\';
@@ -161,37 +158,33 @@ void PluginRegistry::init()
         plugin->initChildren();
     }
 }
-void PluginRegistry::addPlugin( const std::string& filename )
+
+bool PluginRegistry::addPlugin( const std::string& filename )
 {
     Plugin* plugin = new Plugin(); 
-    bool add = plugin->init( filename );
+    if( !plugin->init( filename ))
+    {
+        delete plugin;
+        return false;
+    }
 
     const CompressorInfos& infos = plugin->getInfos();
-    if( infos.empty( ))
-        add = false;
-            
-    for( Plugins::const_iterator i = _plugins.begin();
-         add && i != _plugins.end(); ++i )
+    for( Plugins::const_iterator i = _plugins.begin(); i != _plugins.end(); ++i)
     {
         const CompressorInfos& infos2 = (*i)->getInfos();
-        // Simple test to avoid using the same dll twice
+
+        // Simple test to avoid loading the same dll twice
         if( infos.front().name == infos2.front().name )
-            add = false;
+        {
+            delete plugin;
+            return true;
+        }
     }
 
-    if( add )
-    {
-        _plugins.push_back( plugin );
-        if( filename.empty( ))
-            EQLOG( LOG_PLUGIN ) << "Found " << plugin->getInfos().size()
-                                << " built-in compression engines" << std::endl;
-        else
-            EQLOG( LOG_PLUGIN )
-                << "Found " << plugin->getInfos().size()
-                << " compression engines in " << filename << std::endl;
-    }
-    else
-        delete plugin;
+    _plugins.push_back( plugin );
+    EQLOG( LOG_PLUGIN ) << "Found " << plugin->getInfos().size()
+                        << " compression engines in " << filename << std::endl;
+    return true;
 }
 
 void PluginRegistry::exit()
