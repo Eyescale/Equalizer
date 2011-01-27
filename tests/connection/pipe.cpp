@@ -24,6 +24,9 @@
 
 #include <iostream>
 
+#define SIZE EQ_64MB
+void* buffer = malloc( SIZE );
+
 class Server : public co::base::Thread
 {
 public:
@@ -41,9 +44,14 @@ protected:
                   co::Connection::STATE_CONNECTED );
 
             char text[5];
-            _connection->recvNB(  &text, 5 );
+            _connection->recvNB( &text, 5 );
             TEST( _connection->recvSync( 0, 0 ));
             TEST( strcmp( "buh!", text ) == 0 );
+
+            co::base::Clock _clock;
+            _connection->recvNB( buffer, SIZE );
+            TEST( _connection->recvSync( 0, 0 ));
+            std::cout << "Recv perf: " << SIZE / _clock.getTimef() / 1024 << "MB/s" << std::endl;
 
             _connection->close();
             _connection = 0;
@@ -68,6 +76,11 @@ int main( int argc, char **argv )
     const size_t nChars  = strlen( message ) + 1;
 
     TEST( connection->send( message, nChars ));
+
+    co::base::Clock _clock;
+    TEST( connection->send( buffer, SIZE ));
+    std::cout << "Send perf: " << SIZE / _clock.getTimef() / 1024 << "MB/s" << std::endl;
+
     server.join();
 
     connection->close();
