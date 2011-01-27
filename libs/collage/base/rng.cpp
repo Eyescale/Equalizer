@@ -24,6 +24,8 @@ namespace base
 
 #ifdef Linux
 int RNG::_fd = -1;
+#elif defined (_WIN32)
+HCRYPTPROV RNG::_provider = 0;
 #endif
 
 bool RNG::_init()
@@ -33,8 +35,16 @@ bool RNG::_init()
     _fd = ::open( "/dev/urandom", O_RDONLY );
     if( _fd < 0 )
     {
-        EQERROR << "Failed to open /dev/urandom :" << sysError << std::endl;
-        EQASSERT( _fd >= 0 );
+        EQERROR << "Failed to open /dev/urandom: " << sysError << std::endl;
+        return false;
+    }
+#elif defined (_WIN32)
+    EQASSERT( !_provider );
+    if( !CryptAcquireContext( &_provider, 0,
+                              0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT ) ||
+        !_provider )
+    {
+        EQERROR << "Failed to acquire crypto context: " << sysError <<std::endl;
         return false;
     }
 #endif
@@ -50,6 +60,15 @@ bool RNG::_exit()
         ::close( _fd );
         _fd = -1;
     }
+#elif defined (_WIN32)
+    if( _provider && !CryptReleaseContext( _provider, 0 ))
+    {
+        EQERROR << "Failed to release crypto context: " << sysError
+                << std::endl;
+        _provider = 0;
+        return false;
+    }
+    _provider = 0;
 #endif
 
     return true;

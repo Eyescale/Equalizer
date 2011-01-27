@@ -22,6 +22,11 @@
 #include <co/base/init.h>  // friend functions
 #include <co/base/nonCopyable.h>
 
+#ifdef _WIN32
+#  include <WinCrypt.h>
+#  pragma comment(lib, "advapi32.lib")
+#endif
+
 #include <fcntl.h>
 #include <limits>
 #include <stdio.h>
@@ -48,13 +53,7 @@ namespace base
         /** Re-initialize the seed value for pseudo RNG's. @version 1.0 */
         void reseed()
         {
-#ifdef Linux
-            // NOP
-#elif defined (_WIN32)
-            LARGE_INTEGER seed;
-            QueryPerformanceCounter( &seed );
-            srand( seed.LowPart );
-#else // Darwin
+#ifdef Darwin
             srandomdev();
 #endif
         }
@@ -82,12 +81,13 @@ namespace base
             }
 
 #elif defined (_WIN32)
-
-            EQASSERTINFO( RAND_MAX >= 32767, RAND_MAX );
-
-            uint8_t* bytes = reinterpret_cast< uint8_t* >( &value );
-            for( size_t i=0; i<sizeof( T ); ++i )
-                bytes[i] = ( rand() & 0xff );
+            EQASSERTINFO( _provider, "init() not called?" );
+            if( !CryptGenRandom( _provider, sizeof( T ), (BYTE*)&value ))
+            {
+                EQASSERTINFO( false, "random number generator not working: " <<
+                                     sysError );
+            }
+            return value;
 #else // Darwin
             uint8_t* bytes = reinterpret_cast< uint8_t* >( &value );
             for( size_t i=0; i<sizeof( T ); ++i )
@@ -99,6 +99,8 @@ namespace base
     private:
 #ifdef Linux
         static int _fd;
+#elif defined (_WIN32)
+        static COBASE_API HCRYPTPROV _provider;
 #endif
         static bool _init();
         static bool _exit();
