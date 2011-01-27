@@ -425,7 +425,7 @@ extern "C" {
      * positioned in a virtual framebuffer. The size of the input data is
      * <code>mul( inDims[1,3,...,n] ) * sizeof( info->dataType )</code>.<br>
      *
-     * The compressor has to store the results internally in its instance data
+     * The compressor has to store the results internally in its instance data.
      * The result of the compression run will be queried later. Results of
      * previous compression do not have to be retained, i.e., they can be
      * overwritten on subsequent compression runs.
