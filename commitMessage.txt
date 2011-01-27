@@ -1,9 +1,9 @@
-Modify test config visitor to understand bug _instanceCache  
+Fix bug test_loader_restart with VS2008  
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [ ] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation

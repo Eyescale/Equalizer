@@ -22,13 +22,19 @@
 
 // Tests restarting the loader after a parse error
 
+#if defined(_MSC_VER)
+static const std::string CONFIG_DIR = "../../../examples/configs/";
+#else
+static const std::string CONFIG_DIR = "../../examples/configs/";
+#endif
+
 int main( int argc, char **argv )
 {
     TEST( eq::server::init( argc, argv ));
 
     eq::server::Loader loader;
     TEST( !loader.loadFile( argv[0] ));
-    TEST( loader.loadFile( "../../examples/configs/config.eqc" ).isValid( ));
+    TEST( loader.loadFile( CONFIG_DIR + "config.eqc" ).isValid( ));
 
     TEST( eq::server::exit( ));
     return EXIT_SUCCESS;
