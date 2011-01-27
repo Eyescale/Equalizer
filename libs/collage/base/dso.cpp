@@ -61,7 +61,7 @@ bool DSO::open( const std::string& fileName )
 #endif
         if( !_dso )
         {
-            EQWARN << "Can't open library: " << EQ_DL_ERROR << std::endl;
+            EQINFO << "Can't open library: " << EQ_DL_ERROR << std::endl;
             return false;
         }
     }

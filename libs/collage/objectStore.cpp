@@ -223,6 +223,9 @@ void ObjectStore::_attachObject( Object* object, const base::UUID& id,
     {
         base::ScopedMutex< base::SpinLock > mutex( _objects );
         Objects& objects = _objects.data[ id ];
+        EQASSERTINFO( !object->isMaster() || objects.empty(),
+            "Attaching master " << *object << ", " << objects.size() <<
+            " attached objects with same ID, first is: " << *objects[0] );
         objects.push_back( object );
     }
 
