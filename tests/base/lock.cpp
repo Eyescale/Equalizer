@@ -20,7 +20,12 @@
 #include <co/base/lock.h>
 #include <iostream>
 
-#define MAXTHREADS 256
+#ifdef _MSC_VER
+#  define MAXTHREADS 128
+#else
+#  define MAXTHREADS 256
+#endif
+
 #define NOPS       1000
 
 volatile size_t nThreads;
@@ -34,7 +39,9 @@ public:
             for( unsigned i = 0; i < NOPS; ++i )
             {
                 lock->set();
+#ifndef _MSC_VER
                 TEST( lock->isSet( ));
+#endif
                 lock->unset();
             }
         }
