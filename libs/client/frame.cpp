@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -29,7 +29,7 @@ namespace eq
 
 Frame::Frame()
         : _frameData( 0 )
-        , _zoomFilter( FILTER_NEAREST )
+        , _zoomFilter( FILTER_LINEAR )
 {
     EQINFO << "New Frame @" << (void*)this << endl;
 }

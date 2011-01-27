@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -1034,7 +1034,8 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
     operation.offset  = frame->getOffset();
     operation.pixel   = frame->getPixel();
     operation.zoom    = frame->getZoom();
-    operation.zoomFilter = frame->getZoomFilter();
+    operation.zoomFilter = (operation.zoom == Zoom::NONE) ? 
+                               FILTER_NEAREST : frame->getZoomFilter();
     operation.zoom.apply( frame->getData()->getZoom( ));
 
     for( Images::const_iterator i = images.begin(); i != images.end(); ++i )
@@ -1199,19 +1200,16 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
         texture = ncTexture;
 
         image->upload( which, ncTexture, Vector2i::ZERO, objects );
-        texture->bind();
-        texture->applyZoomFilter( op.zoomFilter );
     }
     else // texture image
     {
         EQASSERT( image->hasTextureData( which ));
         texture = &image->getTexture( which );
-        texture->bind();
-        if( op.pixel == Pixel::ALL )
-            texture->applyZoomFilter( FILTER_LINEAR );
-        else
-            texture->applyZoomFilter( FILTER_NEAREST );
     }
+
+    texture->bind();
+    texture->applyZoomFilter( op.zoomFilter );
+    texture->applyWrap();    
 
     if ( which == Frame::BUFFER_COLOR )
         glDepthMask( false );
@@ -1224,9 +1222,6 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
     glDisable( GL_LIGHTING );
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
     
-    texture->applyWrap();
-    
-
     glColor3f( 1.0f, 1.0f, 1.0f );
 
     const float startX = static_cast< float >
