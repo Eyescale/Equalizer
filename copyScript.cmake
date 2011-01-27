@@ -48,6 +48,10 @@ if(WIN32)
         "copy \"${WIN_BIN_DIR}\\bin\\debug\\EqualizerAdmin.pdb\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}debug\"\n"
         "copy \"${WIN_BIN_DIR}\\libs\\admin\\debug\\EqualizerAdmin.lib\" \"${COPY_TARGET}\\lib\\${PLATFORM_TYPE}debug\"\n\n"
         
+        "copy \"${WIN_BIN_DIR}\\bin\\debug\\Collage.dll\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}debug\"\n"
+        "copy \"${WIN_BIN_DIR}\\bin\\debug\\Collage.pdb\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}debug\"\n"
+        "copy \"${WIN_BIN_DIR}\\libs\\collage\\debug\\Collage.lib\" \"${COPY_TARGET}\\lib\\${PLATFORM_TYPE}debug\"\n\n"
+        
         "copy \"${WIN_BIN_DIR}\\bin\\debug\\pthread.dll\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}debug\"\n"
         "copy \"${WIN_BIN_DIR}\\Debug\\pthread.lib\" \"${COPY_TARGET}\\lib\\${PLATFORM_TYPE}debug\"\n\n"
 
@@ -61,6 +65,8 @@ if(WIN32)
         "copy \"${WIN_BIN_DIR}\\libs\\server\\${COPY_TARGET_RELEASE_TYPE}\\EqualizerServer.lib\" \"${COPY_TARGET}\\lib\\${PLATFORM_TYPE}release\"\n"
         "copy \"${WIN_BIN_DIR}\\bin\\${COPY_TARGET_RELEASE_TYPE}\\EqualizerAdmin.dll\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}release\"\n"
         "copy \"${WIN_BIN_DIR}\\libs\\admin\\${COPY_TARGET_RELEASE_TYPE}\\EqualizerAdmin.lib\" \"${COPY_TARGET}\\lib\\${PLATFORM_TYPE}release\"\n\n"
+        "copy \"${WIN_BIN_DIR}\\bin\\${COPY_TARGET_RELEASE_TYPE}\\Collage.dll\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}release\"\n"
+        "copy \"${WIN_BIN_DIR}\\libs\\collage\\${COPY_TARGET_RELEASE_TYPE}\\Collage.lib\" \"${COPY_TARGET}\\lib\\${PLATFORM_TYPE}release\"\n\n"
     )
 
   if(COPY_TARGET_RELEASE_TYPE MATCHES "RelWithDebInfo")
@@ -71,6 +77,7 @@ if(WIN32)
         "copy \"${WIN_BIN_DIR}\\bin\\${COPY_TARGET_RELEASE_TYPE}\\Equalizer.pdb\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}release\"\n"
         "copy \"${WIN_BIN_DIR}\\bin\\${COPY_TARGET_RELEASE_TYPE}\\EqualizerServer.pdb\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}release\"\n"
         "copy \"${WIN_BIN_DIR}\\bin\\${COPY_TARGET_RELEASE_TYPE}\\EqualizerAdmin.pdb\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}release\"\n"
+        "copy \"${WIN_BIN_DIR}\\bin\\${COPY_TARGET_RELEASE_TYPE}\\Collage.pdb\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}release\"\n"
         "copy \"${WIN_BIN_DIR}\\bin\\${COPY_TARGET_RELEASE_TYPE}\\pthread.dll\" \"${COPY_TARGET}\\bin\\${PLATFORM_TYPE}release\"\n"
         "copy \"${WIN_BIN_DIR}\\${COPY_TARGET_RELEASE_TYPE}\\pthread.lib\" \"${COPY_TARGET}\\lib\\${PLATFORM_TYPE}release\"\n\n"
     )                
