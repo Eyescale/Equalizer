@@ -17,7 +17,7 @@
 
 #include <test.h>
 
-#include <co/base/lock.h>
+#include <co/base/monitor.h>
 #include <co/command.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
@@ -31,7 +31,9 @@ using namespace std;
 
 namespace
 {
-co::base::Lock lock;
+
+co::base::Monitor<bool> monitor( false ); 
+
 static const string message =
     "Don't Panic! And now some more text to make the message bigger";
 #define NMESSAGES 1000
@@ -77,7 +79,7 @@ protected:
 
             --_messagesLeft;
             if( !_messagesLeft )
-                lock.unset();
+                monitor.set( true );
 
             return true;
         }
@@ -90,7 +92,6 @@ int main( int argc, char **argv )
 {
     co::init( argc, argv );
 
-    lock.set();
     co::base::RefPtr< Server >        server   = new Server;
     co::ConnectionDescriptionPtr connDesc = 
         new co::ConnectionDescription;
@@ -126,7 +127,7 @@ int main( int argc, char **argv )
          << time << "ms" << " (" << size / 1024. * 1000.f / time << " KB/s)" 
          << endl;
 
-    lock.set();
+    monitor.waitEQ( true );
 
     TEST( client->disconnect( serverProxy ));
     TEST( client->close( ));

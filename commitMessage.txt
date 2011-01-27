@@ -1,4 +1,4 @@
-Fix bug lock reentrant VS2008  
+Fix bug test node VS2008  
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
