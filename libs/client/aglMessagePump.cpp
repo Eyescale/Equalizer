@@ -43,13 +43,8 @@ AGLMessagePump::~AGLMessagePump()
 
 void AGLMessagePump::postWakeup()
 {
-    if( !_receiverQueue )
-    {
-        EQWARN << "Receiver thread not waiting?" << std::endl;
-        return;
-    }
-
-    PostEventToQueue( _receiverQueue, _wakeupEvent, kEventPriorityStandard );
+    if( _receiverQueue )
+        PostEventToQueue( _receiverQueue, _wakeupEvent, kEventPriorityStandard);
 }
 
 void AGLMessagePump::_initReceiverQueue()
@@ -58,10 +53,11 @@ void AGLMessagePump::_initReceiverQueue()
     {
         _receiverQueue = GetCurrentEventQueue();
         _needGlobalLock = ( _receiverQueue == GetMainEventQueue( ));
+        EQASSERT( _receiverQueue );
     }
 
     EQASSERTINFO( _receiverQueue == GetCurrentEventQueue(),
-                  "MessagePump::pop() called from two different threads" );
+                  "MessagePump::dispatch() called from two different threads" );
 }
 
 void AGLMessagePump::dispatchOne()
@@ -104,6 +100,8 @@ void AGLMessagePump::dispatchOne()
 
 void AGLMessagePump::dispatchAll()
 {
+    _initReceiverQueue();
+
     while( true )
     {
         EventRef       event;
@@ -134,9 +132,5 @@ void AGLMessagePump::dispatchAll()
 
     if( _needGlobalLock )
         Global::leaveCarbon();
-
-    // Init the receiver queue (and disable _needGlobalLock) after the first
-    // batch (first ReceiveNextEvent is not thread safe)
-    _initReceiverQueue();
 }
 }

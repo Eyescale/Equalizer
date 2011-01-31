@@ -409,9 +409,9 @@ bool Node::_cmdCreatePipe( co::Command& command )
         command.getPacket<NodeCreatePipePacket>();
     EQLOG( LOG_INIT ) << "Create pipe " << packet << std::endl;
     EQ_TS_THREAD( _nodeThread );
+    EQASSERT( _state >= STATE_INIT_FAILED );
 
     Pipe* pipe = Global::getNodeFactory()->createPipe( this );
-
     if( packet->threaded )
         pipe->startThread();
 

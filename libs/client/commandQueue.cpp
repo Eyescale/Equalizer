@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -35,14 +35,14 @@ CommandQueue::~CommandQueue()
 
 void CommandQueue::push(co::Command& inCommand)
 {
-    co::CommandQueue::push(inCommand);
+    co::CommandQueue::push( inCommand );
     if( _messagePump )
         _messagePump->postWakeup();
 }
 
 void CommandQueue::pushFront(co::Command& inCommand)
 {
-    co::CommandQueue::pushFront(inCommand);
+    co::CommandQueue::pushFront( inCommand );
     if( _messagePump )
         _messagePump->postWakeup();
 }
@@ -68,7 +68,7 @@ co::Command* CommandQueue::pop()
         if( _messagePump )
             _messagePump->dispatchOne(); // blocking - push will send wakeup
         else
-            return co::CommandQueue::pop();
+            return co::CommandQueue::pop(); // blocking
     }
 }
 

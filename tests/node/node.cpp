@@ -61,9 +61,8 @@ public:
             if( !co::LocalNode::listen( ))
                 return false;
 
-            registerCommand( co::CMD_NODE_CUSTOM, 
-                             co::CommandFunc<Server>(
-                                                       this, &Server::command),
+            registerCommand( co::CMD_NODE_CUSTOM,
+                             co::CommandFunc<Server>( this, &Server::command ),
                              getCommandThreadQueue( ));
             return true;
         }

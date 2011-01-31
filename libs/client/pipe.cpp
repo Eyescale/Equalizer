@@ -188,7 +188,11 @@ void Pipe::_setupCommandQueue()
     EQASSERT( _pipeThreadQueue );
     EQASSERT( !_pipeThreadQueue->getMessagePump( ));
 
-    _pipeThreadQueue->setMessagePump( createMessagePump( ));
+    MessagePump* pump = createMessagePump();
+    if( pump )
+        pump->dispatchAll(); // initializes _receiverQueue
+
+    _pipeThreadQueue->setMessagePump( pump );
 }
 
 void Pipe::_exitCommandQueue()
@@ -763,7 +767,6 @@ bool Pipe::_cmdConfigInit( co::Command& command )
         _currentFrame  = packet->frameNumber;
         _finishedFrame = packet->frameNumber;
         _unlockedFrame = packet->frameNumber;
-        
         _state = STATE_INITIALIZING;
 
         _windowSystem = selectWindowSystem();
