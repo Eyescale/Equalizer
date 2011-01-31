@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -112,6 +112,9 @@ private:
                         _error = entity->getError();
                         _result = false;
                         _sync = true;
+                        EQWARN << co::base::className( entity )
+                               << " initialization failed: " << _error
+                               << std::endl;
                     }
                     else
                         entity->sync();

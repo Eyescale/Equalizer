@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -327,7 +327,6 @@ bool Window::syncConfigInit()
         return true;
     }
 
-    EQWARN << "Window initialization failed: " << getError() <<std::endl;
     configExit();
     return false;
 }

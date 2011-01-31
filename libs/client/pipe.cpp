@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder<cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -560,6 +560,8 @@ bool Pipe::configInitSystemPipe( const uint128_t& )
 
         default:
             setError( ERROR_WINDOWSYSTEM_UNKNOWN );
+            EQERROR << "Pipe init failed: " << getError() << ": "
+                    << _windowSystem << std::endl;
             return false;
     }
 
@@ -756,6 +758,12 @@ bool Pipe::_cmdConfigInit( co::Command& command )
     const PipeConfigInitPacket* packet = 
         command.getPacket<PipeConfigInitPacket>();
     EQLOG( LOG_INIT ) << "Init pipe " << packet << std::endl;
+
+    if( !isThreaded( ))
+    {
+        _windowSystem = selectWindowSystem();
+        _setupCommandQueue();
+    }
 
     PipeConfigInitReplyPacket reply;
     setError( ERROR_NONE );
