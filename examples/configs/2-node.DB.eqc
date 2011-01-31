@@ -1,9 +1,10 @@
 #Equalizer 1.1 ascii
 
-# two-to-one sort-last config for cluster at unizh
+# two-to-one sort-last config
 global
 {
-    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+    EQ_WINDOW_IATTR_HINT_DRAWABLE pbuffer
+    EQ_WINDOW_IATTR_PLANES_STENCIL ON
 }
 
 server
@@ -18,9 +19,8 @@ server
             {
                 window
                 {
-                    viewport [ 640 400 1280 800 ]
-                    attributes{ hint_fullscreen OFF }
-                    attributes { planes_stencil ON }
+                    viewport [ .25 .25 .5 .5 ]
+                    attributes{ hint_drawable window }
                     channel { name "channel1" }
                 }
             }
@@ -30,17 +30,23 @@ server
             connection { hostname "127.0.0.1" }
             pipe { window { channel { name "channel2" }}}
         }
+
         observer{}
-        layout{ view { observer 0 }}
+        layout{ name "DB static" view { observer 0 }}
+        layout{ name "DB load-balanced" view { observer 0 }}
+        layout{ name "DB direct-send" view { observer 0 }}
         canvas
         {
-            layout 0
+            layout "DB static"
+            layout "DB load-balanced"
+            layout "DB direct-send"
             wall{}
             segment { channel "channel1" }
         }
+
         compound
         {
-            channel  ( segment 0 view 0 )
+            channel  ( segment 0 layout "DB static" view 0 )
             buffer  [ COLOR DEPTH ]
 
             compound
@@ -53,6 +59,45 @@ server
                 range   [ .5 1 ]
                 outputframe {}
             }
+            inputframe { name "frame.channel2" }
+        }
+        compound
+        {
+            channel  ( segment 0 layout "DB load-balanced" view 0 )
+            buffer  [ COLOR DEPTH ]
+            load_equalizer { mode DB }
+            compound {}
+            compound
+            {
+                channel "channel2"
+                outputframe {}
+            }
+            inputframe { name "frame.channel2" }
+        }
+        compound
+        {
+            channel  ( canvas 0 segment 0 layout "DB direct-send" view 0 )
+            buffer  [ COLOR DEPTH ]
+
+            compound
+            {
+                channel "channel2"
+
+                compound {
+                    range [ 0 .5 ]
+                    outputframe { name "stripe1.c2" viewport [ 0 0   1  .5 ] }
+                }
+                inputframe { name "stripe2.c1" }
+                outputframe { buffer [ COLOR ] viewport [ 0 .5 1 .5 ] }
+            }
+            compound
+            {
+                range [ .5 1 ]
+
+                outputframe { name "stripe2.c1" viewport [ 0 .5 1 .5 ] }
+            }
+            inputframe { name "stripe1.c2" }
+
             inputframe { name "frame.channel2" }
         }
     }    

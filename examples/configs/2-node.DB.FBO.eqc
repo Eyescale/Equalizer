@@ -1,6 +1,6 @@
 #Equalizer 1.1 ascii
 
-# two node DB decomposition using a source float FBO
+# two node DB decomposition using a float FBO as source
 server
 {
     connection { hostname "127.0.0.1" }

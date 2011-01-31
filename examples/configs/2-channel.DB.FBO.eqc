@@ -38,7 +38,8 @@ server
         {
             channel ( canvas 0 segment 0 layout 0 view 0 )
             buffer  [ COLOR DEPTH ]
-            compound{ range   [ 0 .5 ] }
+
+            compound { range   [ 0 .5 ] }
             compound
             { 
                 channel "buffer"

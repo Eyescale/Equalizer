@@ -1,7 +1,11 @@
 #Equalizer 1.1 ascii
-
 # one pipe fullscreen config using two channels for passive stereo output.
-# assumes 8x3 aspect ratio of the pipe - change wall coordinates to adapt
+# assumes 4x3 aspect ratio of the pipe - change wall coordinates to adapt
+global
+{
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+}
+
 server
 {
     connection{ hostname "127.0.0.1" }
@@ -23,29 +27,35 @@ server
                         name "channel-right" 
                         viewport [ 0.5 0 0.5 1.0 ]
                     }
+                    channel 
+                    {
+                        name "channel-mono" 
+                    }
                 }
             }
         }
         observer{}
-        layout{ view { observer 0 }}
+        layout{ view { mode STEREO observer 0 }}
         canvas
         {
             layout 0
-            wall
-            {
-                bottom_left  [ -.2 -.15 -1 ]
-                bottom_right [  .2 -.15 -1 ]
-                top_left     [ -.2  .15 -1 ]
-            }
+            wall {}
             segment
             {
-                eye [ LEFT CYCLOP ]
+                eye [ LEFT ]
                 channel "channel-left"
+                viewport [ .25 0 .5 1 ]
             }
             segment
             {
-                eye [ RIGHT CYCLOP ]
+                eye [ RIGHT ]
                 channel "channel-right"
+                viewport [ .25 0 .5 1 ]
+            }
+            segment
+            {
+                eye [ CYCLOP ]
+                channel "channel-mono"
             }
         }
     }    

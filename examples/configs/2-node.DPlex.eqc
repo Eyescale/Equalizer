@@ -1,10 +1,5 @@
 #Equalizer 1.1 ascii
-
 # two-to-one time-multiplex config
-global
-{
-    EQ_WINDOW_IATTR_HINT_FULLSCREEN OFF
-}
 
 server
 {
@@ -19,8 +14,7 @@ server
             {
                 window
                 {
-                    viewport [ 640 400 1280 800 ]
-                    attributes{ hint_fullscreen OFF }
+                    viewport [ .25 .25 .5 .5 ]
                     channel { name "destination" }
                 }
             }
@@ -36,8 +30,16 @@ server
         node
         {
             connection { hostname "127.0.0.1" }
-            pipe { window { channel { name "channel2" }}}
+            pipe
+            {
+                window
+                {
+                    attributes { hint_drawable pbuffer } 
+                    channel { name "channel2" }
+                }
+            }
         }
+
         observer{}
         layout{ view { observer 0 }}
         canvas
@@ -46,6 +48,7 @@ server
             wall{}
             segment { channel "destination" }
         }
+
         compound
         {
             channel  ( segment 0 view 0 )
@@ -54,15 +57,13 @@ server
             compound
             { 
                 channel "channel1"
-                phase  0
-                period 2
+                period 2 phase  0
                 outputframe { name "frame.DPlex" }
             }
             compound
             { 
                 channel "channel2"
-                phase  1
-                period 2
+                period 2 phase  1
                 outputframe { name "frame.DPlex" }
             }
 

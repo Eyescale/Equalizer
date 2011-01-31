@@ -1,6 +1,6 @@
 #Equalizer 1.1 ascii
-
 # three-to-one DPlex demo configuration
+
 server
 {
     connection { hostname "127.0.0.1" }
@@ -50,6 +50,7 @@ server
                 }
             }
         }
+
         observer{}
         layout
         {
