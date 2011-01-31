@@ -51,7 +51,7 @@ namespace eq
 namespace server
 {
 
-using fabric::PASSIVE;
+using fabric::QUAD;
 
 namespace
 {
@@ -331,9 +331,9 @@ uint32_t ChannelUpdateVisitor::_getDrawBuffer( const Compound* compound ) const
     const DrawableConfig& dc = _channel->getWindow()->getDrawableConfig();
     const int32_t eye = co::base::getIndexOfLastBit( _eye );
 
-    if( compound->getInheritIAttribute(Compound::IATTR_STEREO_MODE) == PASSIVE )
-        return _drawBuffer[ 0 ][ dc.doublebuffered ][ eye ];
-    return _drawBuffer[ dc.stereo ][ dc.doublebuffered ][ eye ];
+    if( compound->getInheritIAttribute(Compound::IATTR_STEREO_MODE) == QUAD )
+        return _drawBuffer[ dc.stereo ][ dc.doublebuffered ][ eye ];
+    return _drawBuffer[ 0 ][ dc.doublebuffered ][ eye ];
 }
 
 eq::ColorMask ChannelUpdateVisitor::_getDrawBufferMask(const Compound* compound)
