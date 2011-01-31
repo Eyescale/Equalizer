@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -1103,7 +1103,7 @@ bool Config::_cmdFreezeLoadBalancing( co::Command& command )
 
 void Config::output( std::ostream& os ) const
 {
-    os << co::base::disableFlush << co::base::disableHeader;
+    os << std::endl << co::base::disableFlush << co::base::disableHeader;
 
     for( Compounds::const_iterator i = _compounds.begin(); 
          i != _compounds.end(); ++i )

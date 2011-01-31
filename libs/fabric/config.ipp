@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -880,6 +880,8 @@ std::ostream& operator << ( std::ostream& os,
     {
         os << **i;
     }
+    os << std::endl;
+
     const typename C::Observers& observers = config.getObservers();
     for( typename C::Observers::const_iterator i = observers.begin(); 
          i !=observers.end(); ++i )

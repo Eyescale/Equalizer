@@ -924,14 +924,20 @@ viewSegmentRefField:
         {
             canvas = config->find< eq::server::Canvas >( $2 );
             if( !canvas )
+            {
                 yyerror( "Can't find canvas" );
+                YYERROR;
+            }
             segment = canvas->getSegment( eq::server::SegmentPath( 0 ));
         }
     | EQTOKEN_CANVAS UNSIGNED 
         {
             canvas = config->getCanvas( eq::server::CanvasPath( $2 ));
             if( !canvas )
+            {
                 yyerror( "Can't find canvas" );
+                YYERROR;
+            }
             segment = canvas->getSegment( eq::server::SegmentPath( 0 ));
         }
     | EQTOKEN_SEGMENT STRING 
@@ -952,14 +958,20 @@ viewSegmentRefField:
         {
             layout = config->find< eq::server::Layout >( $2 );
             if( !layout )
+            {
                 yyerror( "Can't find layout" );
+                YYERROR;
+            }
             view = layout->getView( eq::server::ViewPath( 0 ));;
         }
     | EQTOKEN_LAYOUT UNSIGNED 
         {
             layout = config->getLayout( eq::server::LayoutPath( $2 ));
             if( !layout )
+            {
                 yyerror( "Can't find layout" );
+                YYERROR;
+            }
             view = layout->getView( eq::server::ViewPath( 0 ));;
         }
     | EQTOKEN_VIEW STRING 
