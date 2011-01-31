@@ -1,6 +1,6 @@
 #Equalizer 1.1 ascii
-
 # two-pipe sort-last config for dual-GPU machines
+
 global
 {
     EQ_WINDOW_IATTR_PLANES_STENCIL  ON

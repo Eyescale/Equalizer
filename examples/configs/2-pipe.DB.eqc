@@ -1,6 +1,6 @@
 #Equalizer 1.1 ascii
-
 # two-pipe sort-last config for dual-GPU machines
+
 server
 {
     connection { hostname "127.0.0.1" }
@@ -28,6 +28,7 @@ server
                 }
             }
         }
+
         observer{}
         layout{ view { observer 0 }}
         canvas
@@ -36,6 +37,7 @@ server
             wall{}
             segment { channel "channel1" }
         }
+
         compound
         {
             channel  ( canvas 0 segment 0 layout 0 view 0 )

@@ -1,11 +1,5 @@
 #Equalizer 1.1 ascii
-
 # dual pipe, two-to-one stereo config for a dual-GPU workstation
-
-global
-{
-    EQ_COMPOUND_IATTR_STEREO_MODE   ANAGLYPH  # remove me for active stereo
-}
 
 server
 {
@@ -41,6 +35,7 @@ server
                 }
             }
         }
+
         observer{}
         layout{ view { mode STEREO observer 0 }}
         canvas
@@ -49,6 +44,7 @@ server
             wall{}
             segment { channel "channel" }
         }
+
         compound
         {
             channel  ( segment 0 view 0 )
@@ -63,7 +59,7 @@ server
             compound
             { 
                 channel "buffer2"
-                eye [ RIGHT CYCLOP ]
+                eye [ RIGHT ]
                 outputframe { }
             }
             compound
@@ -75,7 +71,7 @@ server
             compound
             {
                 task [ ASSEMBLE ]
-                eye [ RIGHT CYCLOP ]
+                eye [ RIGHT ]
                 inputframe { name "frame.buffer2" }
             }
         }
