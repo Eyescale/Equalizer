@@ -366,7 +366,7 @@ VisitorResult Window< P, W, C >::accept( Visitor& visitor  ) const
 template< class P, class W, class C >
 void Window< P, W, C >::setPixelViewport( const PixelViewport& pvp )
 {
-    EQASSERT( pvp.isValid( ));
+    EQASSERTINFO( pvp.isValid(), pvp );
     if( !pvp.isValid( ))
         return;
 
