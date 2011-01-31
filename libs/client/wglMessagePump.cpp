@@ -47,6 +47,7 @@ void WGLMessagePump::_initReceiverQueue()
         MSG msg;
         PeekMessage( &msg, 0, WM_USER, WM_USER, PM_NOREMOVE );
         _win32ThreadID = GetCurrentThreadId();
+        EQASSERT( _win32ThreadID );
     }
     EQASSERTINFO( _win32ThreadID == GetCurrentThreadId(),
                   "WGLMessagePump::pop() called from two different threads" );

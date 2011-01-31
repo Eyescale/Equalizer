@@ -244,6 +244,10 @@ void Pipe::_runThread()
     EQ_TS_THREAD( _pipeThread );
     EQINFO << "Entered pipe thread" << std::endl;
 
+    _state.waitEQ( STATE_MAPPED );
+    _windowSystem = selectWindowSystem();
+    _setupCommandQueue();
+
     Config* config = getConfig();
     EQASSERT( config );
     EQASSERT( _pipeThreadQueue );
@@ -753,8 +757,6 @@ bool Pipe::_cmdConfigInit( co::Command& command )
         command.getPacket<PipeConfigInitPacket>();
     EQLOG( LOG_INIT ) << "Init pipe " << packet << std::endl;
 
-    _state.waitEQ( STATE_MAPPED );
-
     PipeConfigInitReplyPacket reply;
     setError( ERROR_NONE );
 
@@ -769,10 +771,8 @@ bool Pipe::_cmdConfigInit( co::Command& command )
         _unlockedFrame = packet->frameNumber;
         _state = STATE_INITIALIZING;
 
-        _windowSystem = selectWindowSystem();
         reply.result = configInit( packet->initID );
 
-        _setupCommandQueue();
         if( reply.result )
             _state = STATE_RUNNING;
     }
