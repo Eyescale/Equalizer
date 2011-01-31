@@ -1,4 +1,4 @@
-Fix bug test node VS2008  
+Fix bug 3165152 Assert: instance cache not empty on exit  
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

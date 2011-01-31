@@ -259,7 +259,7 @@ void InstanceCache::_releaseStreams( InstanceCache::Item& item,
                                      const int64_t minTime )
 {
     EQASSERT( item.access == 0 );
-    while( !item.data.versions.empty() && item.times.front() < minTime )
+    while( !item.data.versions.empty() && item.times.front() <= minTime )
         _releaseFirstStream( item );
 }
 
