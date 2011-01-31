@@ -22,6 +22,7 @@
 #include "compound.h" 
 #include "connectionDescription.h" 
 #include "config.h" 
+#include "global.h" 
 #include "layout.h" 
 #include "node.h" 
 #include "observer.h" 
@@ -126,6 +127,7 @@ class ConvertTo11Visitor : public ServerVisitor
     virtual VisitorResult visitPost( Config* config )
     {
         config->setFAttribute( Config::FATTR_VERSION, 1.1f );
+        Global::instance()->setConfigFAttribute( Config::FATTR_VERSION, 1.1f );
         return TRAVERSE_CONTINUE;
     }
 
