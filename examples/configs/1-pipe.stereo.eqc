@@ -1,16 +1,19 @@
 #Equalizer 1.1 ascii
 
-# one pipe config rendering in anaglyphic stereo on a 1x1 meter wall
+# one pipe config rendering in stereo on a 1x1 meter wall
+# Note: Uses quad-buffered stereo where available, falls back to anaglyphic
+# stereo otherwise. Uncomment the stereo mode global to force anaglyphic.
+
 global
 {
     EQ_CONFIG_FATTR_EYE_BASE        0.025
     EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
-    EQ_COMPOUND_IATTR_STEREO_MODE   ANAGLYPH
+    #EQ_COMPOUND_IATTR_STEREO_MODE ANAGLYPH
 }
 
 server
 {
-    connection { hostname "127.0.0.1" }
+    connection{ hostname "127.0.0.1" }
     config
     {
         appNode
@@ -19,18 +22,17 @@ server
             {
                 window
                 {
-                    viewport [ 100 100 500 500 ]
                     channel { name "channel" }
                 }
             }
         }
         observer{}
-        layout{ view{ observer 0 }}
+        layout{ view { mode STEREO observer 0 }}
         canvas
         {
-            wall{}
             layout 0
-            segment{ channel "channel" }
+            wall{}
+            segment { channel "channel" }
         }
     }
 }

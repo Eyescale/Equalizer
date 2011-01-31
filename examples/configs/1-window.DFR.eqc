@@ -1,6 +1,6 @@
 #Equalizer 1.1 ascii
+# 1-window dynamic frame resolution (fixed-framerate) config
 
-# 1-window DFR (fixed-framerate) config
 server
 {
     connection{ hostname "127.0.0.1"}
