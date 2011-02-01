@@ -1,6 +1,6 @@
 #Equalizer 1.1 ascii
-
 # single pipe, two-to-one sort-last demo configuration
+
 server
 {
     connection { hostname "127.0.0.1" }

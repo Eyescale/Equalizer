@@ -1,6 +1,6 @@
 #Equalizer 1.1 ascii
-
 # 2-window test config with layouts
+
 server
 {
     connection { hostname "127.0.0.1" }
@@ -28,6 +28,7 @@ server
                 }
             }
         }
+
         observer {}
         layout
         {
@@ -42,23 +43,13 @@ server
             {
                 observer 0
                 viewport [ 0 0 .5 1 ]
-                wall
-                {
-                    bottom_left  [ -.32 -.40 -.75 ]
-                    bottom_right [  .32 -.40 -.75 ]
-                    top_left     [ -.32  .40 -.75 ]
-                }
+                wall {}
             }
             view
             {
                 observer 0
                 viewport [ .5 0 .5 1 ]
-                wall
-                {
-                    bottom_left  [ -.32 -.40 -.75 ]
-                    bottom_right [  .32 -.40 -.75 ]
-                    top_left     [ -.32  .40 -.75 ]
-                }
+                wall {}
             }
         }
         layout
@@ -70,9 +61,9 @@ server
                 viewport [ 0 0 .3333 1 ]
                 wall
                 {
-                    bottom_left  [ -.21 -.40 -.75 ]
-                    bottom_right [  .21 -.40 -.75 ]
-                    top_left     [ -.21  .40 -.75 ]
+                    bottom_left  [ -.53 -.50 -1 ]
+                    bottom_right [  .53 -.50 -1 ]
+                    top_left     [ -.53  .50 -1 ]
                 }
             }
             view
@@ -81,9 +72,9 @@ server
                 viewport [ .3333 0 .3334 1 ]
                 wall
                 {
-                    bottom_left  [ -.21 -.40 -.75 ]
-                    bottom_right [  .21 -.40 -.75 ]
-                    top_left     [ -.21  .40 -.75 ]
+                    bottom_left  [ -.53 -.50 -1 ]
+                    bottom_right [  .53 -.50 -1 ]
+                    top_left     [ -.53  .50 -1 ]
                 }
             }
             view
@@ -92,9 +83,9 @@ server
                 viewport [ .6667 0 .3333 1 ]
                 wall
                 {
-                    bottom_left  [ -.21 -.40 -.75 ]
-                    bottom_right [  .21 -.40 -.75 ]
-                    top_left     [ -.21  .40 -.75 ]
+                    bottom_left  [ -.53 -.50 -1 ]
+                    bottom_right [  .53 -.50 -1 ]
+                    top_left     [ -.53  .50 -1 ]
                 }
             }
         }
@@ -115,9 +106,9 @@ server
             layout "Simple"
             wall
             {
-                bottom_left  [ -.64 -.2 -1 ]
-                bottom_right [  .64 -.2 -1 ]
-                top_left     [ -.64  .2 -1 ]
+                bottom_left  [ -1.6 -.5 -1 ]
+                bottom_right [  1.6 -.5 -1 ]
+                top_left     [ -1.6  .5 -1 ]
             }
 
             segment

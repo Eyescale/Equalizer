@@ -1,11 +1,10 @@
 #Equalizer 1.1 ascii
 # two-pipe demo configuration for dual-GPU machines
-#  canvas tuned for 24" + 19" up-right LCD
+#  canvas tuned for 24" straight + 19" up-right LCD
 
 global
 {
     EQ_WINDOW_IATTR_PLANES_STENCIL ON
-    EQ_COMPOUND_IATTR_STEREO_MODE ANAGLYPH
     EQ_CHANNEL_IATTR_HINT_STATISTICS NICEST
     EQ_WINDOW_IATTR_PLANES_SAMPLES 4
     EQ_CONFIG_FATTR_EYE_BASE .01
@@ -120,12 +119,12 @@ server
             }
         }
         layout { name "Wall" view {} }
-        layout { name "Wall Inter-Segment Load-Balancing" view {} }
+        layout { name "Wall Cross-Segment Load-Balancing" view {} }
         canvas
         {
             layout "Wall"
             layout "2D" 
-            layout "Wall Inter-Segment Load-Balancing"
+            layout "Wall Cross-Segment Load-Balancing"
             layout "DB"
             layout "Stereo"
             layout "DPlex" 
@@ -250,7 +249,7 @@ server
             view_equalizer {}
             compound
             {
-                channel ( layout "Wall Inter-Segment Load-Balancing" segment 0 view 0 ) 
+                channel ( layout "Wall Cross-Segment Load-Balancing" segment 0 view 0 ) 
                 load_equalizer{ mode HORIZONTAL }
 
                 compound { }
@@ -260,7 +259,7 @@ server
             }
             compound
             {
-                channel ( layout "Wall Inter-Segment Load-Balancing" segment 1 view 0 ) 
+                channel ( layout "Wall Cross-Segment Load-Balancing" segment 1 view 0 ) 
                 load_equalizer{ mode HORIZONTAL }
 
                 compound { channel "channel" outputframe { }}

@@ -1,6 +1,6 @@
 #Equalizer 1.1 ascii
-
 # 2-window test config
+
 server
 {
     connection { hostname "127.0.0.1" }
@@ -30,6 +30,7 @@ server
                 }
             }
         }
+
         observer {}
         layout { view { observer 0 }}
         canvas
@@ -37,9 +38,9 @@ server
             layout 0
             wall
             {
-                bottom_left  [ -.64 -.2 -1 ]
-                bottom_right [  .64 -.2 -1 ]
-                top_left     [ -.64  .2 -1 ]
+                bottom_left  [ -1.6 -.5 -1 ]
+                bottom_right [  1.6 -.5 -1 ]
+                top_left     [ -1.6  .5 -1 ]
             }
             segment
             { 

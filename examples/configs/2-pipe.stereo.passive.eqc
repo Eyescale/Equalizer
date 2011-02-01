@@ -1,7 +1,5 @@
 #Equalizer 1.1 ascii
-
-# two pipe fullscreen config for passive stereo output onto a 2x2 meter wall
-# Note: the root compound channel is chosen arbitrarily to define the frustum.
+# two pipe fullscreen config for passive stereo output
 
 global
 {
@@ -33,16 +31,11 @@ server
             }
         }
         observer{}
-        layout{ view { observer 0 }}
+        layout{ view { mode STEREO observer 0 }}
         canvas
         {
             layout 0
-            wall
-            {
-                bottom_left  [ -1 -1 -1 ]
-                bottom_right [  1 -1 -1 ]
-                top_left     [ -1  1 -1 ]
-            }
+            wall {}
             segment { eye [ LEFT CYCLOP ] channel "channel-left" }
             segment { eye [ RIGHT CYCLOP ] channel "channel-right" }
         }

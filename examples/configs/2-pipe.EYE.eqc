@@ -1,6 +1,5 @@
 #Equalizer 1.1 ascii
-
-# two pipe configuration for active stereo decomposition for a 2x2 meter wall
+# two pipe configuration for active stereo decomposition
 
 server
 {
@@ -14,6 +13,7 @@ server
                 device 0
                 window
                 {
+                    viewport [ .25 .25 .5 .5 ]
                     channel { name "channel" }
                 }
             }
@@ -37,24 +37,18 @@ server
         compound 
         {
             channel  ( canvas 0 segment 0 layout 0 view 0 )
-            wall
-            {
-                bottom_left  [ -1 -1 -1 ]
-                bottom_right [  1 -1 -1 ]
-                top_left     [ -1  1 -1 ]
-            }
             
-            compound{ eye [ LEFT ] }
+            compound{ eye [ LEFT CYCLOP ] }
             compound
             {
                 channel "channel-right"
-                eye [ RIGHT CYCLOP ]
+                eye [ RIGHT ]
                 outputframe {}
             }
             compound
             {
                 task [ ASSEMBLE ]
-                eye [ RIGHT CYCLOP ]
+                eye [ RIGHT ]
                 inputframe { name "frame.channel-right" }
             }
         }

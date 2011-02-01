@@ -1,6 +1,6 @@
 #Equalizer 1.1 ascii
+# 2-window sort-first, constant-framerate config running on a single GPU
 
-# 2-window sort-first, constant-framerate config running on a single pipe.
 server
 {
     connection { hostname "127.0.0.1" }
@@ -12,20 +12,16 @@ server
             {
                 window
                 {
+                    attributes { hint_drawable pbuffer }
+                    channel { name "source1" }
+                    channel { name "source2" }
+                }
+                window
+                {
                     viewport [ .25 .25 .5 .5 ]
                     name "2D and Dynamic Frame Resize"
 
                     channel { name "channel" }
-                }
-            }
-            pipe
-            {
-                window
-                {
-                    viewport [ .25 .25 .5 .5 ]
-                    attributes { hint_drawable pbuffer }
-                    channel { name "source1" }
-                    channel { name "source2" }
                 }
             }
         }
@@ -45,7 +41,7 @@ server
             {
                 channel "source2"
 
-                load_equalizer { mode VERTICAL }
+                load_equalizer {}
                 compound {}
                 compound { channel "source1" outputframe{} }
                 inputframe { name "frame.source1" }

@@ -1,9 +1,8 @@
-#Equalizer 1.1 ascii
-# single pipe HMD demo configuration. Distribute using two pipes for deployment
+#Equalizer 1.0 ascii
+# single pipe stereo config showing normal and HMD head-tracking
 
 server
 {
-    connection { hostname "127.0.0.1" }
     config
     {
         appNode
@@ -29,14 +28,21 @@ server
             }
         }
 
-        observer{}
-        layout{ view { mode STEREO observer 0 }}
+        observer {}
+        layout { view { mode STEREO observer 0 }}
         canvas
         {
             layout 0
-            wall{ type HMD }
-            segment { eye [ LEFT CYCLOP ] channel "channel1" }
-            segment { eye [ RIGHT CYCLOP ]channel "channel2" }
+            segment
+            {
+                channel "channel1"
+                wall {}
+            }
+            segment
+            {
+                channel "channel2"
+                wall { type HMD }
+            }
         }
     }    
 }

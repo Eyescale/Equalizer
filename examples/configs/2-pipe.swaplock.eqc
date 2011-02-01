@@ -1,6 +1,6 @@
 #Equalizer 1.1 ascii
+# two-pipe hardware framelocked (G-Sync) config
 
-# two-pipe framelocked config
 global
 {
     EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
