@@ -3,12 +3,16 @@
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
-
 list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
+
+include(revision)
 
 set(VERSION_MAJOR "0")
 set(VERSION_MINOR "9")
 set(VERSION_PATCH "3")
+if(EQ_REVISION)
+  set(VERSION_PATCH ${VERSION_PATCH}.${EQ_REVISION})
+endif()
 set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 set(API_VERSION "1.0.0")
 

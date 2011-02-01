@@ -26,8 +26,8 @@
 #include "nodeFactory.h"
 #include "os.h"
 #include "server.h"
-#include "version.h"
 
+#include <eq/version.h>
 #include <eq/fabric/init.h>
 #include <co/base/global.h>
 #include <co/base/pluginRegistry.h>

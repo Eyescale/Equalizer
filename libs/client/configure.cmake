@@ -1,21 +1,27 @@
 ##
 # Path : libs/configure.cmake
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 #               2010 Cedric Stalder <cedric.stalder@gmail.ch>
 ##
 
+# versioning
+if(NOT EQ_REVISION)
+  set(EQ_REVISION 0)
+endif()
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.in.h ${EQ_INCLUDE_DIR}/eq/version.h)
+install(FILES ${EQ_INCLUDE_DIR}/eq/version.h DESTINATION include/eq/ COMPONENT dev)
+
+# compile-time definitions
 set(EQUALIZER_DEFINES)
 
-# always define GLEW_MX
-list(APPEND EQUALIZER_DEFINES GLEW_MX)
+list(APPEND EQUALIZER_DEFINES GLEW_MX) # always define GLEW_MX
 
 if(CUDA_FOUND)
   list(APPEND EQUALIZER_DEFINES EQ_USE_CUDA)
 endif(CUDA_FOUND)
 
-# maybe use BOOST_WINDOWS instead?
-if(WIN32)
+if(WIN32) # maybe use BOOST_WINDOWS instead?
   list(APPEND EQUALIZER_DEFINES WGL)
   set(ARCH Win32)
 endif(WIN32)
@@ -63,3 +69,4 @@ file(APPEND ${DEFINES_FILE_IN}
 
 configure_file(${DEFINES_FILE_IN} ${DEFINES_FILE} COPYONLY)
 install(FILES ${DEFINES_FILE} DESTINATION include/eq/ COMPONENT dev)
+

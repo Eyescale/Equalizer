@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,10 +15,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "version.h"
+#include <eq/version.h>
 #include <sstream>
 
-using namespace eq;
+namespace eq
+{
 
 uint32_t Version::getMajor() 
 {
@@ -31,6 +32,10 @@ uint32_t Version::getMinor()
 uint32_t Version::getPatch() 
 {
     return EQ_VERSION_PATCH; 
+}
+uint32_t Version::getRevision() 
+{
+    return EQ_VERSION_REVISION;
 }
 
 uint32_t Version::getInt()
@@ -52,5 +57,11 @@ std::string Version::getString()
     if( EQ_VERSION_PATCH > 0 )
         version << '.' << EQ_VERSION_PATCH;
 
+    const uint32_t revision = getRevision();
+    if( revision > 0 )
+        version << '.' << revision;
+
     return version.str();
+}
+
 }

@@ -18,19 +18,26 @@
 #ifndef EQ_VERSION_H
 #define EQ_VERSION_H
 
-#include <co/base/os.h>
-
+#include <eq/api.h>
 #include <string>
 
 namespace eq
 {
     // Equalizer version macros and functions
-#   define EQ_VERSION_MAJOR 0 //!< The current major version. @version 1.0
-#   define EQ_VERSION_MINOR 9 //!< The current minor version. @version 1.0
-#   define EQ_VERSION_PATCH 3 //!< The current patch level. @version 1.0
+    /** The current major version. @version 1.0 */
+#   define EQ_VERSION_MAJOR ${VERSION_MAJOR}
+
+    /** The current minor version. @version 1.0 */
+#   define EQ_VERSION_MINOR ${VERSION_MINOR}
+
+    /** The current patch level. @version 1.0 */
+#   define EQ_VERSION_PATCH ${VERSION_PATCH}
+
+    /** The subversion revision, may be 0. @version 1.0 */
+#   define EQ_VERSION_REVISION ${EQ_REVISION}
 
     /** Information about the current Equalizer version. */
-    class Version
+    class EQ_API Version
     {
     public:
         /** @return the current major version of Equalizer. @version 1.0 */
@@ -42,13 +49,19 @@ namespace eq
         /** @return the current patch level of Equalizer. @version 1.0 */
         static uint32_t getPatch();
 
+        /** @return the current revision of Equalizer. @version 1.0 */
+        static uint32_t getRevision();
+
         /** @return the current Equalizer version (MMmmpp). @version 1.0 */
         static uint32_t getInt();
 
         /** @return the current Equalizer version (MM.mmpp). @version 1.0 */
         static float    getFloat();
 
-        /** @return the current Equalizer version (MM.mm.pp). @version 1.0 */
+        /**
+         * @return the current Equalizer version (MM.mm.pp[.rr]).
+         * @version 1.0
+         */
         static std::string getString();
     };
 }

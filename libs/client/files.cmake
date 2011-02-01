@@ -60,7 +60,6 @@ set(CLIENT_HEADERS
   systemPipe.h
   systemWindow.h
   types.h
-  version.h
   view.h
   visitorResult.h
   wglEventHandler.h
