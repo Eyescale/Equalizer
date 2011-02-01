@@ -274,7 +274,7 @@ STEREO                          { return EQTOKEN_STEREO; }
 [+-]?[0-9]*[\.][0-9]+           { return EQTOKEN_FLOAT; }
 [+]?[0-9]+                      { return EQTOKEN_UNSIGNED; }
 [+-]?[0-9]+                     { return EQTOKEN_INTEGER; }
-\"[-\\\., _%@<>:a-zA-Z0-9\! \/]*\"  { return EQTOKEN_STRING; }
+\"[-\\\., _%&@<>:a-zA-Z0-9\! \/]*\"  { return EQTOKEN_STRING; }
 '.'                             { return EQTOKEN_CHARACTER; }
 
 [\(\){}\[\]]                    { return *yytext; }
