@@ -133,9 +133,10 @@ namespace server
          * Add an input frame to this (output) frame
          * 
          * @param frame the input frame.
-         * @param eyes the eye passes used.
+         * @param compound the compound holding the input frame.
          */
         void addInputFrame( Frame* frame, const Compound* compound );
+
         /** @return the vector of current input frames. */
         const Frames& getInputFrames( const eq::Eye eye ) const
             { return _inputFrames[ co::base::getIndexOfLastBit( eye ) ]; }

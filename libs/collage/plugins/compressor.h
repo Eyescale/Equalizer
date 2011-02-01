@@ -177,7 +177,7 @@ typedef unsigned long long eq_uint64_t;
 #    define EQ_PLUGIN_API __declspec(dllimport)
 #  endif
 #else // _WIN32
-#  define EQ_PLUGIN_API
+#  define EQ_PLUGIN_API __attribute__ ((visibility("default")))
 #endif
 /** @endcond */
 

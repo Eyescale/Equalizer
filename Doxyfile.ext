@@ -1221,7 +1221,7 @@ GENERATE_MAN           = YES
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
 # put in front of it. If left blank `man' will be used as the default path.
 
-MAN_OUTPUT             = man
+MAN_OUTPUT             = doc/man
 
 # The MAN_EXTENSION tag determines the extension that is added to
 # the generated man pages (default is the subroutine's section .3)

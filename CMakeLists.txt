@@ -23,6 +23,7 @@ option(EQUALIZER_FORCE_OPENMP "Force usage of buggy OpenMP implementation" OFF)
 option(EQUALIZER_USE_BOOST "Test for Boost support" ON)
 option(EQUALIZER_USE_CUDA "Test for CUDA support" ON)
 option(EQUALIZER_USE_OSG "Test for OpenSceneGraph support" ON)
+option(EQUALIZER_CPACK_AUX "Package auxiliary software" OFF)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
@@ -171,6 +172,7 @@ include(${Equalizer_SOURCE_DIR}/externals/UseVMMLib.cmake)
 include(${Equalizer_SOURCE_DIR}/externals/UseGnuWin32.cmake)
 include(${Equalizer_SOURCE_DIR}/externals/UsePthreads.cmake)
 set(PTHREAD_LIBRARIES pthread)
+set(CPACK_STRIP_FILES TRUE)
 add_definitions(-DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/")
 
 add_subdirectory(examples)
@@ -182,10 +184,10 @@ IF(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/
   add_subdirectory(auxiliary)
 ENDIF()
 
-IF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
-  install(DIRECTORY man/man3 DESTINATION man COMPONENT man
+IF(EXISTS "${CMAKE_SOURCE_DIR}/doc/man/man3")
+  install(DIRECTORY doc/man/man3 DESTINATION man COMPONENT man
           PATTERN "*_docs_*" EXCLUDE)
-ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
+ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/doc/man/man3")
 
 if(APPLE AND CMAKE_OSX_ARCHITECTURES)
   message(STATUS "Supported Features:${EQ_FEATURES} [${CMAKE_OSX_ARCHITECTURES}]")
@@ -193,9 +195,10 @@ else()
   message(STATUS "Supported Features:${EQ_FEATURES}")
 endif()
 
-include(package)
+if(NOT EQUALIZER_CPACK_AUX)
+  include(CPackConfig)
+endif()
 include(copyScript)
-
 
 SET(CTEST_CUSTOM_WARNING_EXCEPTION
   ${CTEST_CUSTOM_WARNING_EXCEPTION}
