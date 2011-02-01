@@ -1,10 +1,5 @@
 #Equalizer 1.1 ascii
 
-global
-{
-#    EQ_CONFIG_FATTR_EYE_BASE 1
-}
-
 server
 {
     connection { hostname "127.0.0.1" }
@@ -14,77 +9,78 @@ server
         {
             pipe
             {
+                #device 0 # Quadro1
                 window
                 {
-                    name "left"
-                    viewport [ 100 100 1200 750 ]
-                    channel
-                    {
-                        viewport [ 0 0 .5 .5 ]
-                        name "channel1"
-                    }
-                    channel
-                    {
-                        viewport [ .5 0 .5 .5 ]
-                        name "channel2"
-                    }
-                    channel
-                    {
-                        viewport [ 0 .5 .5 .5 ]
-                        name "channel3"
-                    }
-                    channel
-                    {
-                        viewport [ .5 .5 .5 .5 ]
-                        name "channel4"
-                    }
+                    viewport [ 100 100 400 300 ]
+                    channel { name "channel1" }
+                }
+            }
+            pipe
+            {
+                #device 1 # Quadro2
+                window
+                {
+                    viewport [ 500 100 400 300 ]
+                    channel { name "channel2" }
+                }
+            }
+            pipe
+            {
+                #device 3 # Tesla
+                window
+                {
+                    attributes{ hint_drawable FBO }
+                    channel { name "buffer" }
                 }
             }
         }
-        observer {}
-        layout { view { observer 0 mode STEREO }}
+
+        layout { view { }}
         canvas
         {
             layout 0
+            wall
+            {
+                bottom_left  [ -1.6 -.5 -1 ]
+                bottom_right [  1.6 -.5 -1 ]
+                top_left     [ -1.6  .5 -1 ]
+            }
             segment
             { 
                 channel "channel1"
-                wall
-                {
-                    bottom_left  [ -.32 -.2 -1 ]
-                    bottom_right [  .32 -.2 -1 ]
-                    top_left     [ -.32  .2 -1 ]
-                }
+                viewport [ 0 0 .5 1 ]
             }
             segment
             { 
                 channel "channel2"
-                wall
-                {
-                    bottom_left  [ -.32 -.2 -2 ]
-                    bottom_right [  .32 -.2 -2 ]
-                    top_left     [ -.32  .2 -2 ]
-                }
+                viewport [ .5 0 .5 1 ]
             }
-            segment
-            { 
-                channel "channel3"
-                wall
+        }
+
+        compound
+        {
+            compound
+            {
+                channel ( segment 0 view 0 )
+                compound
                 {
-                    bottom_left  [ -.64 -.2 -2 ]
-                    bottom_right [  .0  -.2 -2 ]
-                    top_left     [ -.64  .2 -2 ]
+                    channel "buffer"
+                    outputframe { name "left" }
                 }
+                inputframe { name "left" }
+                swapbarrier{}
             }
-            segment
-            { 
-                channel "channel4"
-                wall
+            compound
+            {
+                channel ( segment 1 view 0 )
+                compound
                 {
-                    bottom_left  [  .0  -.2 -2 ]
-                    bottom_right [  .64 -.2 -2 ]
-                    top_left     [  .0   .2 -2 ]
+                    channel "buffer"
+                    outputframe { name "right" }
                 }
+                inputframe { name "right" }
+                swapbarrier{}
             }
         }
     }    
