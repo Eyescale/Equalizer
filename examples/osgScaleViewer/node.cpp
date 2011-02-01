@@ -38,6 +38,7 @@
 
 #include <osg/MatrixTransform>
 #include <osg/Texture2D>
+#include <osgUtil/UpdateVisitor>
 
 namespace osgScaleViewer
 {
@@ -57,7 +58,7 @@ bool Node::configInit( const eq::uint128_t& initID )
         return false;
 
     _frameStamp = new osg::FrameStamp;
-    _updateVisitor = new osg::NodeVisitor;
+    _updateVisitor = new osgUtil::UpdateVisitor;
     _updateVisitor->setFrameStamp( _frameStamp );
     _contextID = 0;
 
