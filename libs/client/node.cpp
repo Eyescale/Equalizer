@@ -603,3 +603,7 @@ bool Node::_cmdFrameDataReady( co::Command& command )
 template class eq::fabric::Node< eq::Config, eq::Node, eq::Pipe,
                                  eq::NodeVisitor >;
 
+/** @cond IGNORE */
+template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
+                                                             const eq::Super& );
+/** @endcond */

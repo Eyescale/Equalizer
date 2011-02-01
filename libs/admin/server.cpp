@@ -111,4 +111,7 @@ template class eq::fabric::Server< eq::admin::Client, eq::admin::Server,
                                    eq::admin::Config, eq::admin::NodeFactory,
                                    co::Node >;
 
-
+/** @cond IGNORE */
+template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
+                                                       const eq::admin::Super& );
+/** @endcond */

@@ -100,7 +100,7 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
             break;
 
 #endif
-#ifdef EQ_USE_BOOST
+#ifdef CO_USE_BOOST
         case CONNECTIONTYPE_RSP:
             connection = new RSPConnection;
             break;

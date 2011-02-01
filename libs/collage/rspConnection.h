@@ -21,7 +21,7 @@
 
 #include <co/connection.h>
 
-#ifdef EQ_USE_BOOST
+#ifdef CO_USE_BOOST
 #include <co/connectionSet.h> // member
 #include <co/types.h>
 #include "eventConnection.h" // member
@@ -317,4 +317,4 @@ namespace co
 }
 
 #endif //CO_RSPCONNECTION_H
-#endif //EQ_USE_BOOST
+#endif //CO_USE_BOOST

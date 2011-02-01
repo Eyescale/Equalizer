@@ -1,10 +1,10 @@
-Fix bug : View Equalizer about assert load.missing 
-remove test Pixel all in compositor
+- Fix bug : revert some part of commit 5468 
+- rename EQ_USE_BOOST -> CO_USE_BOOST
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

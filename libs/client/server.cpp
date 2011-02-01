@@ -200,4 +200,7 @@ bool Server::_cmdShutdownReply( co::Command& command )
 template class eq::fabric::Server< eq::Client, eq::Server, eq::Config,
                                    eq::NodeFactory, co::Node >;
 
-
+/** @cond IGNORE */
+template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
+                                                             const eq::Super& );
+/** @endcond */

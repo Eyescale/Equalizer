@@ -18,7 +18,7 @@
 
 #include "rspConnection.h"
 
-#ifdef EQ_USE_BOOST
+#ifdef CO_USE_BOOST
 #include "connection.h"
 #include "connectionDescription.h"
 #include "global.h"
@@ -1613,4 +1613,4 @@ std::ostream& operator << ( std::ostream& os,
 }
 
 }
-#endif //EQ_USE_BOOST
+#endif //CO_USE_BOOST

@@ -53,7 +53,7 @@ bool MCIPConnection::connect()
 
     _impl->removeListener( this );
 #endif
-#ifdef EQ_USE_BOOST
+#ifdef CO_USE_BOOST
     _description->type = CONNECTIONTYPE_RSP;
     _impl = new RSPConnection();
     _impl->addListener( this );
@@ -84,7 +84,7 @@ bool MCIPConnection::listen()
 
     _impl->removeListener( this );
 #endif
-#ifdef EQ_USE_BOOST
+#ifdef CO_USE_BOOST
     _description->type = CONNECTIONTYPE_RSP;    
     _impl = new RSPConnection();
     _impl->addListener( this );

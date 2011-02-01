@@ -921,6 +921,10 @@ template class eq::fabric::Config< eq::Server, eq::Config, eq::Observer,
                                    eq::Layout, eq::Canvas, eq::Node,
                                    eq::ConfigVisitor >;
 
+/** @cond IGNORE */
+template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
+                                                 const eq::Config::Super& );
+/** @endcond */
 
 #define FIND_ID_TEMPLATE1( type )                                       \
     template EQ_API void eq::Config::Super::find< type >( const uint128_t&, \

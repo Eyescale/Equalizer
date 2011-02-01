@@ -64,6 +64,10 @@ template class eq::fabric::Config< eq::admin::Server, eq::admin::Config,
                                    eq::admin::Canvas, eq::admin::Node,
                                    eq::admin::ConfigVisitor >;
 
+/** @cond IGNORE */
+template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
+                                              const eq::admin::Config::Super& );
+/** @endcond */
 
 #define FIND_ID_TEMPLATE1( type )                                       \
     template void eq::admin::Config::Super::find< type >( const co::uint128_t&, \
