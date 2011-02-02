@@ -72,11 +72,11 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
     ${CUDA_LIBRARIES}
   )
 
-purple_add_amalgamation(Equalizer ${VERSION} ${API_VERSION}
+purple_add_amalgamation(Equalizer eq ${VERSION} ${API_VERSION}
   shared eq_fabric
   shared eq_client
  )
 
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY
 configure_file(Equalizer.pc.in Equalizer.pc @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Equalizer.pc DESTINATION lib/pkgconfig COMPONENT lib)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Equalizer.pc DESTINATION lib/pkgconfig COMPONENT eqlib)

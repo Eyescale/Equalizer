@@ -1,4 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#               2011 Stefan Eilemann <eile@eyescale.ch>
 
 include(PurpleAddLibrary)
 
@@ -16,6 +17,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DEQSERVER_EXPORTS -DYY_NEVER_INTERACTIVE)
 
 purple_add_library(EqualizerServer SHARED
+  HEADERS_PREFIX "eq/server/"
   SOURCES
     ${BISON_PARSER_OUTPUTS}
     ${FLEX_LEXER_OUTPUTS}

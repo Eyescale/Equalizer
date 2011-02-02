@@ -66,11 +66,11 @@ purple_add_library(co ${CO_LIB_VARIANT}
     ${CO_ADD_LINKLIB}
   )
   
-purple_add_amalgamation(Collage ${CO_VERSION} ${CO_VERSION}
+purple_add_amalgamation(Collage co ${CO_VERSION} ${CO_VERSION}
     shared co_base
     shared co
   )
 
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY
 configure_file(Collage.pc.in Collage.pc @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Collage.pc DESTINATION lib/pkgconfig COMPONENT lib)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Collage.pc DESTINATION lib/pkgconfig COMPONENT colib)

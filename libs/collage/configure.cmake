@@ -1,7 +1,7 @@
 ##
 # Path : libs/collage/configure.cmake
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 #               2010 Cedric Stalder <cedric.stalder@gmail.ch>
 ##
 
@@ -66,4 +66,4 @@ file(APPEND ${DEFINES_FILE_IN}
   )
 
 configure_file(${DEFINES_FILE_IN} ${DEFINES_FILE} COPYONLY)
-install(FILES ${DEFINES_FILE} DESTINATION include/co/base/ COMPONENT dev)
+install(FILES ${DEFINES_FILE} DESTINATION include/co/base/ COMPONENT codev)
