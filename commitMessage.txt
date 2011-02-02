@@ -1,4 +1,4 @@
-- 3166620  send-on-register should not send to self  
+- add patch for anonymousPipe  
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
