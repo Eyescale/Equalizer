@@ -31,7 +31,7 @@ namespace eq
 #   define EQ_VERSION_MINOR ${VERSION_MINOR}
 
     /** The current patch level. @version 1.0 */
-#   define EQ_VERSION_PATCH ${VERSION_PATCH}
+#   define EQ_VERSION_PATCH ${VERSION_SUB}
 
     /** The subversion revision, may be 0. @version 1.0 */
 #   define EQ_VERSION_REVISION ${EQ_REVISION}
