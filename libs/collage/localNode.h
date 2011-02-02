@@ -248,7 +248,7 @@ namespace co
         CO_API NodePtr getNode( const NodeID& id ) const;
 
         /** Assemble a vector of the currently connected nodes. */
-        void getNodes( Nodes& nodes ) const;
+        void getNodes( Nodes& nodes, const bool addSelf = true ) const;
 
         CO_API void acquireSendToken( NodePtr toNode );
         CO_API void releaseSendToken( NodePtr toNode );

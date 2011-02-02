@@ -588,13 +588,14 @@ bool LocalNode::_connect( NodePtr node, ConnectionPtr connection )
     return true;
 }
 
-void LocalNode::getNodes( Nodes& nodes ) const
+void LocalNode::getNodes( Nodes& nodes, const bool addSelf ) const
 {
     base::ScopedMutex< base::SpinLock > mutex( _nodes );
     for( NodeHash::const_iterator i = _nodes->begin();
          i != _nodes->end(); ++i )
     {
-        nodes.push_back( i->second );
+        if( addSelf || i->second != this )
+            nodes.push_back( i->second );
     }
 }
 

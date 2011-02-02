@@ -520,7 +520,7 @@ bool ObjectStore::notifyCommandThreadIdle()
         return false;
 
     Nodes nodes;
-    _localNode->getNodes( nodes );
+    _localNode->getNodes( nodes, false );
 
     SendQueueItem& item = _sendQueue.front();
     if( item.age > _clock.getTime64( ))
