@@ -412,8 +412,6 @@ void ObjectStore::unmapObject( Object* object )
             master->send( packet );
 
             _localNode->waitRequest( packet.requestID );
-            //if( _instanceCache )
-            //    _instanceCache->erase( id );
             return;
         }
         EQERROR << "Master node for object id " << id << " not connected"
@@ -423,8 +421,6 @@ void ObjectStore::unmapObject( Object* object )
     // no unsubscribe sent: Detach directly
     detachObject( object );
     object->setupChangeManager( Object::NONE, false, 0, EQ_INSTANCE_INVALID );
-    //if( _instanceCache )
-    //    _instanceCache->erase( id );
 }
 
 bool ObjectStore::registerObject( Object* object )
@@ -439,7 +435,7 @@ bool ObjectStore::registerObject( Object* object )
                                 EQ_INSTANCE_INVALID );
     attachObject( object, id, EQ_INSTANCE_INVALID );
 
-    if( Global::getIAttribute( Global::IATTR_NODE_SEND_QUEUE_SIZE )> 0 )
+    if( Global::getIAttribute( Global::IATTR_NODE_SEND_QUEUE_SIZE ))
     {
         NodeRegisterObjectPacket packet;
         packet.object = object;
@@ -463,7 +459,7 @@ void ObjectStore::deregisterObject( Object* object )
 
     object->notifyDetach();
 
-    if( Global::getIAttribute( Global::IATTR_NODE_SEND_QUEUE_SIZE )> 0 )
+    if( Global::getIAttribute( Global::IATTR_NODE_SEND_QUEUE_SIZE ) > 0  )
     {
         // remove from send queue
         NodeDeregisterObjectPacket packet;
@@ -478,8 +474,6 @@ void ObjectStore::deregisterObject( Object* object )
     if( _instanceCache )
         _instanceCache->erase( id );
 }
-
-
 
 NodePtr ObjectStore::_connectMaster( const base::UUID& id )
 {
@@ -521,11 +515,18 @@ bool ObjectStore::notifyCommandThreadIdle()
 
     Nodes nodes;
     _localNode->getNodes( nodes, false );
-
     SendQueueItem& item = _sendQueue.front();
-    if( item.age > _clock.getTime64( ))
-        item.object->sendInstanceData( nodes );
 
+    if( item.age > _clock.getTime64( ))
+    {
+        if( nodes.size() )
+            item.object->sendInstanceData( nodes );
+        else
+        {
+            co::base::Thread::yield();
+            return !_sendQueue.empty();
+        }
+    }
     _sendQueue.pop_front();
     return !_sendQueue.empty();
 }

@@ -1,9 +1,9 @@
-- add patch for anonymousPipe  
+- Fix breaks barrier test. 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
-[x] Optimization
+[x] Cleanup
+[ ] Optimization
 [ ] Documentation
