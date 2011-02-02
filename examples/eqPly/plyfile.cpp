@@ -1,4 +1,4 @@
-/* Copyright (c) 2005-2007, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
    All rights reserved.
    - Cleaned up code for 64 bit, little and big endian support
    - Added new ply data types (uint8, float32, int32)
@@ -919,7 +919,10 @@ PlyFile *ply_read(FILE *fp, int *nelems, char ***elem_names)
 
   words = get_words (plyfile->fp, &nwords, &orig_line);
   if (!words || !equal_strings (words[0], "ply"))
+  {
+    free( plyfile );
     return (NULL);
+  }
 
   while (words) {
 
