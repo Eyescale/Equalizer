@@ -29,6 +29,7 @@
 
 #include <eq/version.h>
 #include <eq/fabric/init.h>
+#include <co/global.h>
 #include <co/base/global.h>
 #include <co/base/pluginRegistry.h>
 
@@ -93,6 +94,14 @@ bool init( const int argc, char** argv, NodeFactory* nodeFactory )
             ++i;
             if( i<argc )
                 Global::setConfigFile( argv[i] );
+        }
+        else if( strcmp( "--eq-render-client", argv[i] ) == 0 )
+        {
+            ++i;
+            if( i<argc )
+            {
+                co::Global::setProgramName( argv[i] );
+            }
         }
     }
     

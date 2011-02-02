@@ -50,17 +50,6 @@ bool init( const int argc, char** argv )
     }
 #endif
 
-    for( int i=1; i < argc; ++i )
-    {
-        if( strcmp( "--eq-render-client", argv[i] ) == 0 )
-        {
-            ++i;
-            if( i<argc )
-            {
-                co::Global::setProgramName( argv[i] );
-            }
-        }
-    }
     const std::string& programName = Global::getProgramName();
     if( programName.empty() && argc > 0 )
         Global::setProgramName( argv[0] );

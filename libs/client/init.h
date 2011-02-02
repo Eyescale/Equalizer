@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -35,12 +35,14 @@ namespace eq
      *   <li>--eq-config &lt;filename&gt; to specify the configuration file if
      *         an application-specific server is used (cf.
      *         Global::setConfigFile())</li>
+     *   <li>--eq-render-client &lt;filename&gt; to specify an alternate name
+     *         for the render client executable (default is argv[0]).</li>
      *   <li>--eq-logfile &lt;filename&gt; to specify an output file for debug
      *         logging.</li>
      * </ul>
      *
      * Please note that further command line parameters are recognized by
-     * co::Node::initLocal().
+     * co::LocalNode::initLocal().
      *
      * @param argc the command line argument count.
      * @param argv the command line argument values.
