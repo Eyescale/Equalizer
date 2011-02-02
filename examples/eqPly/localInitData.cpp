@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -113,7 +113,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                                              false, 0xffffffffu, "unsigned",
                                              command );
         TCLAP::ValueArg<std::string> wsArg( "w", "windowSystem", wsHelp,
-                                       false, "auto", "string", command );
+                                            false, "auto", "string", command );
         TCLAP::ValueArg<std::string> modeArg( "c", "renderMode", 
                                  "Rendering Mode (immediate, displayList, VBO)",
                                               false, "auto", "string",
@@ -131,7 +131,9 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         TCLAP::VariableSwitchArg ignoreEqArgs( "eq",
                                                "Ignored Equalizer options",
                                                command );
-        TCLAP::IgnoreUnlabeledArg ignoreArgs( command );
+        TCLAP::UnlabeledMultiArg< std::string >
+            ignoreArgs( "ignore", "Ignored unlabeled arguments", false, "any",
+                        command );
 
         command.parse( argc, argv );
 

@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com>
+
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -38,8 +38,6 @@
 #endif
 #include <tclap/CmdLine.h>
 
-using namespace std;
-
 namespace eVolve
 {
 LocalInitData::LocalInitData()
@@ -66,7 +64,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
 {
     try
     {
-        string wsHelp = "Window System API ( one of: ";
+        std::string wsHelp = "Window System API ( one of: ";
 #ifdef AGL
         wsHelp += "AGL ";
 #endif
@@ -78,13 +76,14 @@ void LocalInitData::parseArguments( const int argc, char** argv )
 #endif
         wsHelp += ")";
 
-        string desc = EVolve::getHelp();
+        std::string desc = EVolve::getHelp();
 
         TCLAP::CmdLine command( desc );
         
-        TCLAP::ValueArg<string> modelArg( "m", "model", "raw model file name",
-                                          false, "Bucky32x32x32.raw", "string",
-                                          command );
+        TCLAP::ValueArg<std::string> modelArg( "m", "model", 
+                                               "raw model file name",
+                                               false, "Bucky32x32x32.raw",
+                                               "string", command );
         TCLAP::SwitchArg residentArg( "r", "resident", 
            "Keep client resident (see resident node documentation on website)", 
                                       command, false );
@@ -104,12 +103,14 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         TCLAP::SwitchArg orthoArg( "o", "ortho", 
                                    "use orthographic projection", 
                                    command, false );
-        TCLAP::ValueArg<string> wsArg( "w", "windowSystem", wsHelp,
-                                       false, "auto", "string", command );
+        TCLAP::ValueArg<std::string> wsArg( "w", "windowSystem", wsHelp,
+                                            false, "auto", "string", command );
         TCLAP::VariableSwitchArg ignoreEqArgs( "eq",
                                                "Ignored Equalizer options",
                                                command );
-        TCLAP::IgnoreUnlabeledArg ignoreArgs( command );
+        TCLAP::UnlabeledMultiArg< std::string >
+            ignoreArgs( "ignore", "Ignored unlabeled arguments", false, "any",
+                        command );
 
         command.parse( argc, argv );
 
@@ -117,7 +118,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             setFilename( modelArg.getValue( ));
         if( wsArg.isSet( ))
         {
-            string windowSystem = wsArg.getValue();
+            std::string windowSystem = wsArg.getValue();
             transform( windowSystem.begin(), windowSystem.end(),
                        windowSystem.begin(), (int(*)(int))std::tolower );
 
@@ -145,7 +146,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
     catch( TCLAP::ArgException& exception )
     {
         EQERROR << "Command line parse error: " << exception.error() 
-                << " for argument " << exception.argId() << endl;
+                << " for argument " << exception.argId() << std::endl;
         ::exit( EXIT_FAILURE );
     }
 }
