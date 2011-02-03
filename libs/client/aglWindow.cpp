@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
-                          , Maxim Makhinya
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+                      2010, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -170,24 +170,41 @@ AGLPixelFormat AGLWindow::chooseAGLPixelFormat()
     attributes.push_back( AGL_DISPLAY_MASK );
     attributes.push_back( glDisplayMask );
 
-    const int colorSize = getIAttribute( Window::IATTR_PLANES_COLOR );
-    if( colorSize > 0 || colorSize == AUTO )
+    GLint colorSize = getIAttribute( Window::IATTR_PLANES_COLOR );
+    if( colorSize != OFF )
     {
-        const GLint size = colorSize > 0 ? colorSize : 8;
+        switch( colorSize )
+        {
+          case RGBA16F:
+            attributes.push_back( AGL_COLOR_FLOAT );
+            colorSize = 16;
+            break;
+          case RGBA32F:
+            attributes.push_back( AGL_COLOR_FLOAT );
+            colorSize = 32;
+            break;
+          case AUTO:
+            colorSize = 8;
+            break;
+          default:
+              break;
+        }
 
         attributes.push_back( AGL_RED_SIZE );
-        attributes.push_back( size );
+        attributes.push_back( colorSize );
         attributes.push_back( AGL_GREEN_SIZE );
-        attributes.push_back( size );
+        attributes.push_back( colorSize );
         attributes.push_back( AGL_BLUE_SIZE );
-        attributes.push_back( size );
+        attributes.push_back( colorSize );
+
+        const int alphaSize = getIAttribute( Window::IATTR_PLANES_ALPHA );
+        if( alphaSize > 0 || alphaSize == AUTO )
+        {
+            attributes.push_back( AGL_ALPHA_SIZE );
+            attributes.push_back( alphaSize > 0 ? alphaSize : colorSize );
+        }
     }
-    const int alphaSize = getIAttribute( Window::IATTR_PLANES_ALPHA );
-    if( alphaSize > 0 || alphaSize == AUTO )
-    {
-        attributes.push_back( AGL_ALPHA_SIZE );
-        attributes.push_back( alphaSize>0 ? alphaSize : 8  );
-    }
+
     const int depthSize = getIAttribute( Window::IATTR_PLANES_DEPTH );
     if( depthSize > 0 || depthSize == AUTO )
     { 
