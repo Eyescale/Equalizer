@@ -58,7 +58,15 @@ set(CPACK_COMPONENT_VMMLIB_DESCRIPTION
 
 set(CPACK_RPM_PACKAGE_LICENSE "LGPL, BSD")
 set(CPACK_RPM_PACKAGE_GROUP "Development/Libraries/Parallel")
+set(CPACK_RPM_PACKAGE_VERSION ${SHORT_VERSION})
+
+if(NOT CPACK_DEBIAN_PACKAGE_MAINTAINER)
+  set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Stefan Eilemann <eile@eyescale.ch>")
+endif()
+set(CPACK_DEBIAN_PACKAGE_SECTION "Development")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-system-dev, libboost-regex-dev, libboost-date-time-dev, bison, flex, libx11-dev")
+
+set(CPACK_OSX_PACKAGE_VERSION "10.5")
 
 if(EQ_REVISION)
   set(CPACK_RPM_PACKAGE_RELEASE ${EQ_REVISION})
