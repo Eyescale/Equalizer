@@ -72,17 +72,34 @@ bool init( const int argc, char** argv )
     }
 
     // init all available plugins
-    PluginRegistry& pluginRegistry = Global::getPluginRegistry();
+    PluginRegistry& plugins = Global::getPluginRegistry();
 #ifdef EQ_DSO_NAME
-    if( !pluginRegistry.addPlugin( EQ_DSO_NAME ) &&
-        !pluginRegistry.addPlugin( std::string( EQ_BUILD_DIR ) + "libs/collage/"
-                                   + EQ_DSO_NAME ))
-    {
-        EQWARN << "Built-in Collage plugins not loaded: " << EQ_DSO_NAME
-               << " not in search path" << std::endl;
-    }
+    if( plugins.addPlugin( EQ_DSO_NAME )) // Found by LDD
+        return;
+
+    // Hard-coded compile locations as backup:
+    std::string absDSO = std::string( EQ_BUILD_DIR ) + "libs/client/" + 
+                         EQ_DSO_NAME;
+    if( plugins.addPlugin( absDSO ))
+        return;
+
+#  ifdef NDEBUG
+    absDSO = std::string( EQ_BUILD_DIR ) + "libs/client/Release/" + EQ_DSO_NAME;
+#  else
+    absDSO = std::string( EQ_BUILD_DIR ) + "libs/client/Debug/" + EQ_DSO_NAME;
+#  endif
+
+    if( plugins.addPlugin( absDSO ))
+        return;
+
+    EQWARN << "Built-in Collage plugins not loaded: " << EQ_DSO_NAME
+           << " not in library search path and " << absDSO << " not found"
+           << std::endl;
+#else
+    EQWARN << "Built-in Collage plugins not loaded: EQ_DSO_NAME not defined"
+           << std::endl;
 #endif
-    pluginRegistry.init();
+    plugins.init();
 
     Thread::pinCurrentThread();
     return true;
@@ -91,8 +108,8 @@ bool init( const int argc, char** argv )
 bool exit()
 {
     // de-initialize registered plugins
-    PluginRegistry& pluginRegistry = Global::getPluginRegistry();
-    pluginRegistry.exit(); 
+    PluginRegistry& plugins = Global::getPluginRegistry();
+    plugins.exit(); 
     co::base::Thread::removeAllListeners();
     co::base::Log::exit();
 

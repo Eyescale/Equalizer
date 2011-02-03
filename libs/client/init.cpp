@@ -147,23 +147,23 @@ void _initPlugins()
         return;
 
     // Hard-coded compile locations as backup:
-#  ifdef _MSC_VER
-#    ifdef NDEBUG
-    const std::string absDSO = std::string( EQ_BUILD_DIR ) +
-                               "libs/client/Release/" + EQ_DSO_NAME;
-#    else
-    const std::string absDSO = std::string( EQ_BUILD_DIR ) +
-                               "libs/client/Debug/" + EQ_DSO_NAME;
-#    endif
+    std::string absDSO = std::string( EQ_BUILD_DIR ) + "libs/client/" + 
+                         EQ_DSO_NAME;
+    if( plugins.addPlugin( absDSO ))
+        return;
+
+#  ifdef NDEBUG
+    absDSO = std::string( EQ_BUILD_DIR ) + "libs/client/Release/" + EQ_DSO_NAME;
 #  else
-    const std::string absDSO = std::string( EQ_BUILD_DIR ) +
-                               "libs/client/" + EQ_DSO_NAME;
+    absDSO = std::string( EQ_BUILD_DIR ) + "libs/client/Debug/" + EQ_DSO_NAME;
 #  endif
 
-    if( !plugins.addPlugin( absDSO ))
-        EQWARN << "Built-in Equalizer plugins not loaded: " << EQ_DSO_NAME
-               << " not in library search path and " << absDSO << " not found"
-               << std::endl;
+    if( plugins.addPlugin( absDSO ))
+        return;
+
+    EQWARN << "Built-in Equalizer plugins not loaded: " << EQ_DSO_NAME
+           << " not in library search path and " << absDSO << " not found"
+           << std::endl;
 #else
     EQWARN << "Built-in Equalizer plugins not loaded: EQ_DSO_NAME not defined"
            << std::endl;
