@@ -74,27 +74,23 @@ bool init( const int argc, char** argv )
     // init all available plugins
     PluginRegistry& plugins = Global::getPluginRegistry();
 #ifdef EQ_DSO_NAME
-    if( plugins.addPlugin( EQ_DSO_NAME )) // Found by LDD
-        return;
-
-    // Hard-coded compile locations as backup:
-    std::string absDSO = std::string( EQ_BUILD_DIR ) + "libs/client/" + 
-                         EQ_DSO_NAME;
-    if( plugins.addPlugin( absDSO ))
-        return;
-
+    if( !plugins.addPlugin( EQ_DSO_NAME ) && // Found by LDD
+        // Hard-coded compile locations as backup:
+        !plugins.addPlugin( std::string( EQ_BUILD_DIR ) + "libs/client/" + 
+                            EQ_DSO_NAME ) &&
 #  ifdef NDEBUG
-    absDSO = std::string( EQ_BUILD_DIR ) + "libs/client/Release/" + EQ_DSO_NAME;
+        !plugins.addPlugin( std::string( EQ_BUILD_DIR ) + "libs/client/Release/"
+                            + EQ_DSO_NAME ) &&
 #  else
-    absDSO = std::string( EQ_BUILD_DIR ) + "libs/client/Debug/" + EQ_DSO_NAME;
+        !plugins.addPlugin( std::string( EQ_BUILD_DIR ) + "libs/client/Debug/"
+                            + EQ_DSO_NAME )
 #  endif
-
-    if( plugins.addPlugin( absDSO ))
-        return;
-
-    EQWARN << "Built-in Collage plugins not loaded: " << EQ_DSO_NAME
-           << " not in library search path and " << absDSO << " not found"
-           << std::endl;
+        )
+    {
+        EQWARN << "Built-in Collage plugins not loaded: " << EQ_DSO_NAME
+               << " not in library search path and hardcoded locations not "
+               << "found" << std::endl;
+    }
 #else
     EQWARN << "Built-in Collage plugins not loaded: EQ_DSO_NAME not defined"
            << std::endl;
