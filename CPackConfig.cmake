@@ -14,7 +14,7 @@ set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
 set(CPACK_RESOURCE_FILE_LICENSE ${Equalizer_SOURCE_DIR}/LICENSE.txt)
 set(CPACK_RESOURCE_FILE_README ${Equalizer_SOURCE_DIR}/RELNOTES.txt)
 
-set(CPACK_COMPONENTS_ALL colib codev eqlib eqdev man apps examples tools data vmmlib)
+set(CPACK_COMPONENTS_ALL colib codev eqlib eqdev man doc apps examples tools data vmmlib)
 
 set(CPACK_COMPONENT_COLIB_DISPLAY_NAME "Collage Library")
 set(CPACK_COMPONENT_COLIB_DESCRIPTION "Collage Runtime Library")
@@ -33,6 +33,9 @@ set(CPACK_COMPONENT_EQDEV_DEPENDS vmmlib eqlib codev)
 
 set(CPACK_COMPONENT_MAN_DISPLAY_NAME "Man Pages")
 set(CPACK_COMPONENT_MAN_DESCRIPTION "Manual Pages")
+
+set(CPACK_COMPONENT_MAN_DISPLAY_NAME "Documentation")
+set(CPACK_COMPONENT_MAN_DESCRIPTION "Auxiliary Documentation: README, License, etc.")
 
 set(CPACK_COMPONENT_APPS_DISPLAY_NAME "Example Applications")
 set(CPACK_COMPONENT_APPS_DESCRIPTION "Example programs build with Equalizer")
