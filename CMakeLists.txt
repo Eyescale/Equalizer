@@ -17,6 +17,7 @@ else()
 endif()
 
 set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+set(SHORT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_SUB})
 set(API_VERSION "1.0.0")
 
 enable_testing()
