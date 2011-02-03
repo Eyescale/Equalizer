@@ -163,6 +163,7 @@ int main( int argc, char **argv )
 
     // For each compressor...
     std::vector< uint32_t > names( _getCompressorNames( ));
+    TESTINFO( names.size() > 23, names.size( ));
     for( std::vector< uint32_t >::const_iterator i = names.begin();
          i != names.end(); ++i )
     {

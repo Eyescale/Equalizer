@@ -76,13 +76,13 @@ bool init( const int argc, char** argv )
 #ifdef EQ_DSO_NAME
     if( !plugins.addPlugin( EQ_DSO_NAME ) && // Found by LDD
         // Hard-coded compile locations as backup:
-        !plugins.addPlugin( std::string( EQ_BUILD_DIR ) + "libs/client/" + 
+        !plugins.addPlugin( std::string( EQ_BUILD_DIR ) + "libs/collage/" + 
                             EQ_DSO_NAME ) &&
 #  ifdef NDEBUG
-        !plugins.addPlugin( std::string( EQ_BUILD_DIR ) + "libs/client/Release/"
-                            + EQ_DSO_NAME ) &&
+        !plugins.addPlugin( std::string( EQ_BUILD_DIR ) +
+                            "libs/collage/Release/" + EQ_DSO_NAME )
 #  else
-        !plugins.addPlugin( std::string( EQ_BUILD_DIR ) + "libs/client/Debug/"
+        !plugins.addPlugin( std::string( EQ_BUILD_DIR ) + "libs/collage/Debug/"
                             + EQ_DSO_NAME )
 #  endif
         )

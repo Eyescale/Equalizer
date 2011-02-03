@@ -62,7 +62,7 @@ void Observer< C, O >::restore()
 }
 
 template< typename C, typename O >
-void Observer< C, O >::serialize( co::DataOStream& os, 
+void Observer< C, O >::serialize( co::DataOStream& os,
                                   const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
