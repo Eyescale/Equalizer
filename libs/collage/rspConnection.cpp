@@ -34,6 +34,9 @@
 #define EQ_RSP_MAX_TIMEOUTS 2000
 
 using namespace boost::asio;
+#if defined __GNUC__ // Problems with boost resolver iterators in listen()
+#  pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
 
 namespace co
 {
