@@ -2,18 +2,19 @@
                                Quickstart
 
  This directory is the top-level directory for the Equalizer sources.
- Executing 'make' should build all targets. See also the doc/FAQ.
- Platform-specific READMEs are in doc/. End-User and developer
- documentation can be found on the Equalizer website at
- http://www.equalizergraphics.com/
+ For Windows, use cmake to build a Visual Studio Solution. For all other
+ platforms, executing 'make' invokes cmake and builds all debug
+ targets. See also the doc/FAQ.  Platform-specific READMEs are in
+ doc/. End-User and developer documentation can be found on the
+ Equalizer website at http://www.equalizergraphics.com/
 
                            Running Equalizer
 
  The main example is eqPly, a scalable rendering program for polygonal
  data. Furthermore, there is eqHello, a very simple Equalizer program,
- and eVolve, a scalable volume renderer. To run examples, first setup
- your library search path as prompted at the end of the build
- process. Now start the example: 'build/<os>/bin/eqPly'.
+ eVolve, a scalable volume renderer and osgScaleViewer, an
+ OpenSceneGraph-based example. To run examples, simply start the
+ executable: debug/bin/eqPly'.
 
  The default launch mechanism for nodes uses ssh. If your configuration
  contains remote nodes, make sure a passwordless login using ssh is
@@ -24,14 +25,15 @@
                             
  CMake/     files for the build environment.
  externals/ third-party source code used by Equalizer
- lib/       the sources of the client library, i.e., libeq
- lib/base/    basic source code: utilities, OS abstraction, etc.
- lib/net/     the sources for the networking P2P layer
- lib/client/  the client-side implementation of Equalizer
- server/    the server source code
+ libs/      the sources for all libraries
+ libs/collage/  the Collage network library
+ libs/fabric/   the Equalizer data synchronization fabric.
+ libs/client/   the client-side implementation of Equalizer
+ libs/server/   the server-side implementation of Equalizer
+ libs/admin/    the interface to modify the configuration of a running server
  examples/  Equalizer example programs
  tests/     small programs testing certain functionality (unit tests)
- tools/     miscellanous tools
+ tools/     miscellanous tools and the server executable
 
 
                            Build Environment

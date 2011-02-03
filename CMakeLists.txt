@@ -193,10 +193,13 @@ IF(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/
   add_subdirectory(auxiliary)
 ENDIF()
 
-IF(EXISTS "${CMAKE_SOURCE_DIR}/doc/man/man3")
-  install(DIRECTORY doc/man/man3 DESTINATION man COMPONENT man
-          PATTERN "*_docs_*" EXCLUDE)
-ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/doc/man/man3")
+install(DIRECTORY doc/ DESTINATION share/Equalizer/doc COMPONENT doc
+        PATTERN ".svn" EXCLUDE)
+install(FILES RELNOTES.txt AUTHORS CHANGES.txt ACKNOWLEDGEMENTS LGPL LICENSE.txt DESTINATION share/Equalizer/doc COMPONENT doc)
+IF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
+  install(DIRECTORY man/man3 DESTINATION man COMPONENT man
+          PATTERN "*_docs_*" EXCLUDE PATTERN ".svn" EXCLUDE)
+ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
 
 if(APPLE AND CMAKE_OSX_ARCHITECTURES)
   message(STATUS "Supported Features:${EQ_FEATURES} [${CMAKE_OSX_ARCHITECTURES}]")
@@ -209,10 +212,7 @@ if(NOT EQUALIZER_CPACK_AUX)
 endif()
 include(copyScript)
 
-SET(CTEST_CUSTOM_WARNING_EXCEPTION
-  ${CTEST_CUSTOM_WARNING_EXCEPTION}
-
+SET(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}
   # http://public.kitware.com/Bug/view.php?id=10179
-  "ld: warning: duplicate dylib"
-)
+  "ld: warning: duplicate dylib")
 include(CTest)
