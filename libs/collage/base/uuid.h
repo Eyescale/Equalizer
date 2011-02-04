@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -67,24 +67,7 @@ namespace base
 
         /** Assign another UUID from a string representation. @version 1.0 */
         UUID& operator = ( const std::string& from )
-        {
-            char* next = 0;
-#ifdef _MSC_VER
-            high() = ::_strtoui64( from.c_str(), &next, 16 );
-#else
-            high() = ::strtoull( from.c_str(), &next, 16 );
-#endif
-            EQASSERT( next != from.c_str( ));
-            EQASSERTINFO( *next == ':', from << ", " << next );
-
-            ++next;
-#ifdef _MSC_VER
-            low() = ::_strtoui64( next, 0, 16 );
-#else
-            low() = ::strtoull( next, 0, 16 );
-#endif
-            return *this;
-        }
+            { *(static_cast< uint128_t* >( this )) = from; return *this; }
 
         /** @return true if the UUID was generated. */
         bool isGenerated() const { return high() != 0; }

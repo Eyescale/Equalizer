@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -60,6 +60,35 @@ namespace base
                 _low = rhs._low;
                 return *this;
             }
+
+        /** Assign an 128 bit value from a std::string. @version 1.0 */
+        uint128_t& operator = ( const std::string& from )
+        {
+            char* next = 0;
+#ifdef _MSC_VER
+            _high = ::_strtoui64( from.c_str(), &next, 16 );
+#else
+            _high = ::strtoull( from.c_str(), &next, 16 );
+#endif
+            EQASSERT( next != from.c_str( ));
+            if( *next == '\0' ) // short representation, high was 0
+            {
+                _low = _high;
+                _high = 0;
+            }
+            else
+            {
+                EQASSERTINFO( *next == ':', from << ", " << next );
+                ++next;
+#ifdef _MSC_VER
+                _low = ::_strtoui64( next, 0, 16 );
+#else
+                _low = ::strtoull( next, 0, 16 );
+#endif
+            }
+            return *this;
+        }
+
 
         /**
          * @return true if the values are equal, false if not.
@@ -175,7 +204,10 @@ namespace base
     /** ostream operator for 128 bit unsigned integers. @version 1.0 */
     inline std::ostream& operator << ( std::ostream& os, const uint128_t& id )
     {
-        os << std::hex << id.high() << ':' << id.low() << std::dec;
+        if( id.high() == 0 )
+            os << std::hex << id.low() << std::dec;
+        else
+            os << std::hex << id.high() << ':' << id.low() << std::dec;
         return os;
     }
 
