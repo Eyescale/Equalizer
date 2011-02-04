@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -68,14 +68,14 @@ namespace base
         LOG_ANY    = 0xffffu     //!< Log all Equalizer topics
     };
 
-    /** The string buffer used for logging. @internal */
+    /** @internal The string buffer used for logging. */
     class LogBuffer : public std::streambuf
     {
     public:
         LogBuffer( std::ostream& stream )
-                : _line(0), _indent(0), _blocked(0), _noHeader(0), 
+                : _line(0), _indent(0), _blocked(0), _noHeader(0),
                   _newLine(true), _stream(stream)
-            {}
+            { _thread[0] = 0; }
         virtual ~LogBuffer() {}
 
         void indent() { ++_indent; }
@@ -91,13 +91,9 @@ namespace base
         void disableHeader() { ++_noHeader; } // use counted variable to allow
         void enableHeader()  { --_noHeader; } //   nested enable/disable calls
 
-#ifdef _WIN32
-        void setLogInfo( const char* subdir, const char* file, const int line )
-            { _file = file; _line = line; } // SUBDIR not needed on WIN32
-#else
-        void setLogInfo( const char* subdir, const char* file, const int line )
-            { _file = std::string( subdir ) + '/' + file; _line = line; }
-#endif
+        COBASE_API void setThreadName( const std::string& name );
+        void setLogInfo( const char* file, const int line )
+            { _file = file; _line = line; }
 
     protected:
         virtual int_type overflow( LogBuffer::int_type c );
@@ -117,6 +113,9 @@ namespace base
     private:
         LogBuffer( const LogBuffer& );
         LogBuffer& operator = ( const LogBuffer& );
+
+        /** Short thread name. */
+        char _thread[12];
 
         /** The current file logging. */
         std::string _file;
@@ -166,8 +165,7 @@ namespace base
         static COBASE_API unsigned topics;
 
         /** The per-thread logger. */
-        static COBASE_API Log& instance( const char* subdir, const char* file,
-                                        const int line );
+        static COBASE_API Log& instance( const char* file, const int line );
 
         /** Exit the log instance for the current thread. */
         static COBASE_API void exit();
@@ -191,15 +189,18 @@ namespace base
          */
         static COBASE_API void setClock( Clock* clock );
 
+        /** @internal */
+        void setThreadName( const std::string& name )
+            { _logBuffer.setThreadName( name ); }
+
     private:
         LogBuffer _logBuffer; 
 
         Log( const Log& );
         Log& operator = ( const Log& );
 
-        void setLogInfo( const char* subdir, const char* file, const int line )
-            { _logBuffer.setLogInfo( subdir, file, line ); }
-
+        void setLogInfo( const char* file, const int line )
+            { _logBuffer.setLogInfo( file, line ); }
     };
 
     /** 
@@ -222,31 +223,26 @@ namespace base
     COBASE_API std::ostream& disableHeader( std::ostream& os );
     /** Re-enable printing of the Log header. @version 1.0 */
     COBASE_API std::ostream& enableHeader( std::ostream& os );
-
 }
 }
-
-#ifndef SUBDIR
-#  define SUBDIR ""
-#endif
 
 /** Output an error message to the per-thread Log stream. @version 1.0 */
 #define EQERROR (co::base::Log::level >= co::base::LOG_ERROR) &&    \
-    co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+    co::base::Log::instance( __FILE__, __LINE__ )
 /** Output a warning message to the per-thread Log stream. @version 1.0 */
 #define EQWARN  (co::base::Log::level >= co::base::LOG_WARN)  &&    \
-    co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+    co::base::Log::instance( __FILE__, __LINE__ )
 /** Output an informational message to the per-thread Log. @version 1.0 */
 #define EQINFO  (co::base::Log::level >= co::base::LOG_INFO)  &&    \
-    co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+    co::base::Log::instance( __FILE__, __LINE__ )
 
 #ifdef NDEBUG
 #  define EQVERB if( false )                                    \
-        co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+        co::base::Log::instance( __FILE__, __LINE__ )
 #else
 /** Output a verbatim message to the per-thread Log stream. @version 1.0 */
 #  define EQVERB (co::base::Log::level >= co::base::LOG_VERB)  &&    \
-    co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+    co::base::Log::instance( __FILE__, __LINE__ )
 #endif
 
 /**
@@ -254,6 +250,6 @@ namespace base
  * @version 1.0
  */
 #define EQLOG(topic)  (co::base::Log::topics & (topic))  &&  \
-    co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+    co::base::Log::instance( __FILE__, __LINE__ )
 
 #endif //COBASE_LOG_H

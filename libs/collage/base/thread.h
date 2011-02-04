@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -166,7 +166,7 @@ namespace base
         static void pinCurrentThread();
 
         /** @internal */
-        COBASE_API static void setDebugName( const std::string& name );
+        COBASE_API static void setName( const std::string& name );
 
     private:
         ThreadID _id;

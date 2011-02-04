@@ -51,6 +51,7 @@ extern void _exitErrors();
 
 bool init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
+    co::base::Log::instance( __FILE__, __LINE__ ).setThreadName( "Main" );
     EQINFO << "Equalizer v" << Version::getString() << " initializing"
            << std::endl;
 

@@ -4,6 +4,14 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
 
+option(EQUALIZER_PREFER_AGL "Prefer AGL over GLX on Mac OS X" ON)
+option(EQUALIZER_FORCE_OPENMP "Force usage of buggy OpenMP implementation" OFF)
+option(EQUALIZER_USE_BOOST "Test for Boost support" ON)
+option(EQUALIZER_USE_CUDA "Test for CUDA support" ON)
+option(EQUALIZER_USE_OSG "Test for OpenSceneGraph support" ON)
+option(EQUALIZER_CPACK_AUX "Package auxiliary software" OFF)
+option(EQUALIZER_NIGHTLY "Package nightly builds" ON)
+
 list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 list(APPEND CMAKE_PREFIX_PATH ${SystemDrive}:/cygwin/bin)
 
@@ -12,7 +20,7 @@ include(revision)
 set(VERSION_MAJOR "0")
 set(VERSION_MINOR "9")
 set(VERSION_SUB "3")
-if(EQ_REVISION)
+if(EQ_REVISION AND EQUALIZER_NIGHTLY)
   set(VERSION_PATCH ${VERSION_SUB}.${EQ_REVISION})
 else()
   set(VERSION_PATCH ${VERSION_SUB})
@@ -28,13 +36,6 @@ IF(NOT CMAKE_BUILD_TYPE)
    SET(CMAKE_BUILD_TYPE Debug)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-option(EQUALIZER_PREFER_AGL "Prefer AGL over GLX on Mac OS X" ON)
-option(EQUALIZER_FORCE_OPENMP "Force usage of buggy OpenMP implementation" OFF)
-option(EQUALIZER_USE_BOOST "Test for Boost support" ON)
-option(EQUALIZER_USE_CUDA "Test for CUDA support" ON)
-option(EQUALIZER_USE_OSG "Test for OpenSceneGraph support" ON)
-option(EQUALIZER_CPACK_AUX "Package auxiliary software" OFF)
-
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -47,6 +48,7 @@ file(MAKE_DIRECTORY ${EQ_INCLUDE_DIR})
 include_directories(BEFORE ${EQ_INCLUDE_DIR})
 
 if(MSVC)
+  set(EQ_FEATURES "${EQ_FEATURES} WGL")
   add_definitions(
     /D_CRT_SECURE_NO_WARNINGS
     /wd4244 # conversion from X to Y, possible loss of data
@@ -62,7 +64,6 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 if(EQUALIZER_USE_BOOST)
   if(WIN32)
-    set(EQ_FEATURES "${EQ_FEATURES} WGL")
     set(Boost_USE_STATIC_LIBS ON)
   endif(WIN32)
   set(Boost_USE_MULTITHREADED ON)
@@ -96,7 +97,14 @@ if(APPLE)
   # WAR otherwise MacPorts X11 (/opt/local) is preferred
   LIST(REMOVE_ITEM CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
   LIST(REMOVE_ITEM CMAKE_SYSTEM_PREFIX_PATH /opt/local)
-endif(APPLE)
+else()
+  if(CMAKE_SIZEOF_VOID_P MATCHES "8")
+    set(EQUALIZER_BUILD_ARCH "64" CACHE STRING "Build Architecture")
+  else()
+    set(EQUALIZER_BUILD_ARCH "32" CACHE STRING "Build Architecture")
+  endif()
+  mark_as_advanced(EQUALIZER_BUILD_ARCH)
+endif()
 
 find_package(X11)
 
@@ -205,12 +213,13 @@ IF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
 ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
 
 if(APPLE AND CMAKE_OSX_ARCHITECTURES)
-  string(REPLACE ";" "-" VERSION_ARCH "${CMAKE_OSX_ARCHITECTURES}")
-  set(VERSION_PATCH ${VERSION_PATCH}-${VERSION_ARCH})
-  message(STATUS "Supported Features:${EQ_FEATURES} [${CMAKE_OSX_ARCHITECTURES}]")
-else()
-  message(STATUS "Supported Features:${EQ_FEATURES}")
+  string(REPLACE ";" "-" EQUALIZER_BUILD_ARCH "${CMAKE_OSX_ARCHITECTURES}")
 endif()
+if(EQUALIZER_NIGHTLY)
+  set(VERSION_PATCH ${VERSION_PATCH}-${EQUALIZER_BUILD_ARCH})
+endif()
+
+message(STATUS "Supported Features:${EQ_FEATURES} [${EQUALIZER_BUILD_ARCH}]")
 
 if(NOT EQUALIZER_CPACK_AUX)
   include(CPackConfig)

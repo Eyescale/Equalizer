@@ -360,8 +360,7 @@ namespace co
             ReceiverThread( LocalNode* localNode ) : _localNode( localNode ){}
             virtual bool init()
                 {
-                    setDebugName( std::string( "Rcv " ) +
-                        base::className( _localNode ));
+                    setName( std::string("Rcv ") + base::className(_localNode));
                     return _localNode->_commandThread->start();
                 }
             virtual void run(){ _localNode->_runReceiverThread(); }
@@ -413,8 +412,7 @@ namespace co
             CommandThread( LocalNode* localNode ) : _localNode( localNode ){}
             virtual bool init()
                 {
-                    setDebugName( std::string( "Cmd " ) +
-                                  base::className( _localNode ));
+                    setName( std::string("Cmd ") + base::className(_localNode));
                     return true;
                 }
             virtual void run(){ _localNode->_runCommandThread(); }

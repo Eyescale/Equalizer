@@ -39,8 +39,9 @@ namespace
 
 bool init( const int argc, char** argv )
 {
-    EQINFO << "Log level " << base::Log::getLogLevelString() << " topics " 
-           << base::Log::topics << std::endl;
+    Log::instance( __FILE__, __LINE__ ).setThreadName( "Main" );
+    EQINFO << "Log level " << Log::getLogLevelString() << " topics " 
+           << Log::topics << std::endl;
 
     for( int i=1; i<argc; ++i )
     {
@@ -56,7 +57,7 @@ bool init( const int argc, char** argv )
                 else
                 {
                     EQWARN << "Can't open log file " << argv[i] << ": "
-                           << base::sysError << std::endl;
+                           << sysError << std::endl;
                     delete _logFile;
                     _logFile = 0;
                     return false;
@@ -106,8 +107,8 @@ bool exit()
     // de-initialize registered plugins
     PluginRegistry& plugins = Global::getPluginRegistry();
     plugins.exit(); 
-    co::base::Thread::removeAllListeners();
-    co::base::Log::exit();
+    Thread::removeAllListeners();
+    Log::exit();
 
     const bool ret = RNG::_exit();
     if( _logFile )

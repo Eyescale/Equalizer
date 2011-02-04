@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,8 +30,6 @@ static const std::string CONFIG_DIR = "../../../examples/configs/";
 static const std::string CONFIG_DIR = "../../examples/configs/";
 #endif
 // Tests (re)loading of all examples/configs/*.eqc files
-
-#define OUTLOG co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
 
 int main( int argc, char **argv )
 {
@@ -68,10 +66,10 @@ int main( int argc, char **argv )
 
         std::ostream& oldOut = co::base::Log::getOutput();
         co::base::Log::setOutput( logFile );
-        OUTLOG << eq::server::Global::instance() << *server
+        OUTPUT << eq::server::Global::instance() << *server
                << co::base::forceFlush;
         co::base::Log::setOutput( oldOut );
-        OUTLOG << co::base::enableHeader << std::endl;
+        OUTPUT << co::base::enableHeader << std::endl;
         logFile.close();
 
         // cleanup

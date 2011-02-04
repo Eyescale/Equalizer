@@ -288,11 +288,11 @@ void Client::clientLoop()
 void Client::exitClient()
 {
     bool ret = exitLocal();
-    if( !eq::exit( ))
-        ret = false;
-
     EQINFO << "Exit " << co::base::className( this ) << " process used "
            << getRefCount() << std::endl;
+
+    if( !eq::exit( ))
+        ret = false;
     ::exit( ret ? EXIT_SUCCESS : EXIT_FAILURE );
 }
 

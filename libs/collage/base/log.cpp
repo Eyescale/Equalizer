@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,6 +25,7 @@ using namespace std;
 
 #ifdef _MSC_VER
 #  define atoll _atoi64
+#  define snprintf _snprintf
 #endif
 
 
@@ -117,8 +118,7 @@ unsigned getLogTopics()
     return 0;
 }
 
-Log& Log::instance( const char* subdir, const char* file,
-                              const int line )
+Log& Log::instance( const char* file, const int line )
 {
     Log* log = _logInstance.get();
     if( !log )
@@ -127,7 +127,7 @@ Log& Log::instance( const char* subdir, const char* file,
         _logInstance = log;
     }
 
-    log->setLogInfo( subdir, file, line );
+    log->setLogInfo( file, line );
     return *log;
 }
 
@@ -158,6 +158,13 @@ std::ostream& Log::getOutput()
 }
 
 
+void LogBuffer::setThreadName( const std::string& name )
+{
+    EQASSERT( !name.empty( ));
+    snprintf( _thread, 12, "%s", name.c_str( ));
+    _thread[11] = 0;
+}
+
 LogBuffer::int_type LogBuffer::overflow( LogBuffer::int_type c )
 {
     if( c == EOF )
@@ -167,10 +174,9 @@ LogBuffer::int_type LogBuffer::overflow( LogBuffer::int_type c )
     {
         if( !_noHeader )
         {
-            _stringStream << getpid()  << " "
-                          << co::base::Thread::getSelfThreadID()
-                          << " " << _file << ":" << _line << " "
-                          << _clock->getTime64() << " ";
+            //assert( _thread[0] );
+            _stringStream << getpid()  << " " << _thread << " " << _file << ":"
+                          << _line << " " << _clock->getTime64() << " ";
         }
 
         for( int i=0; i<_indent; ++i )

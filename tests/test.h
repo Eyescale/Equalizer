@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,7 +23,7 @@
 #include <co/base/thread.h>
 #include <fstream>
 
-#define OUTPUT co::base::Log::instance( SUBDIR, __FILE__, __LINE__ )
+#define OUTPUT co::base::Log::instance( __FILE__, __LINE__ )
 
 #define TEST( x )                                                       \
     {                                                                   \
@@ -57,7 +57,7 @@ public:
 
     virtual void run()
         {
-            co::base::Thread::setDebugName( "Test Watchdog" );
+            co::base::Thread::setName( "Watchdog" );
 #ifdef EQ_TEST_RUNTIME
             co::base::sleep( EQ_TEST_RUNTIME * 1000 );
             TESTINFO( false, 

@@ -75,7 +75,7 @@ float Compressor::getQuality() const
 
 Plugin* Compressor::_findPlugin( uint32_t name )
 {
-    co::base::PluginRegistry& registry = co::base::Global::getPluginRegistry();
+    PluginRegistry& registry = Global::getPluginRegistry();
     return registry.findPlugin( name );
 }
 

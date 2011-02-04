@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -99,7 +99,7 @@ void* Thread::runChild( void* arg )
 
 void Thread::_runChild()
 {
-    setDebugName( className( this ));
+    setName( className( this ));
     pinCurrentThread();
     _id._data->pthread = pthread_self();
 
@@ -200,7 +200,7 @@ bool Thread::start()
 void Thread::exit()
 {
     EQASSERTINFO( isCurrent(), "Thread::exit not called from child thread" );
-    EQINFO << "Exiting thread " << base::className( this ) << std::endl;
+    EQINFO << "Exiting thread " << className( this ) << std::endl;
 
     _state = STATE_STOPPING;
     pthread_exit( 0 );
@@ -211,7 +211,7 @@ void Thread::cancel()
 {
     EQASSERTINFO( !isCurrent(), "Thread::cancel called from child thread" );
 
-    EQINFO << "Cancelling thread " << base::className( this ) << std::endl;
+    EQINFO << "Cancelling thread " << className( this ) << std::endl;
     _state = STATE_STOPPING;
 
     pthread_cancel( _id._data->pthread );
@@ -365,9 +365,11 @@ typedef struct tagTHREADNAME_INFO
 
 #endif
 
-void Thread::setDebugName( const std::string& name )
+void Thread::setName( const std::string& name )
 {
+    Log::instance( __FILE__, __LINE__ ).setThreadName( name );
     EQINFO << "Thread " << name << std::endl;
+
 #ifdef _MSC_VER
 #  ifndef NDEBUG
     ::Sleep(10);
@@ -390,8 +392,7 @@ void Thread::setDebugName( const std::string& name )
     pthread_setname_np( name.c_str( ));
 #else
     // Not implemented
-    EQVERB << "Thread::setDebugName( " << name << " ) not implemented" 
-           << std::endl;
+    EQVERB << "Thread::setName( " << name << " ) not implemented" << std::endl;
 #endif
 }
 

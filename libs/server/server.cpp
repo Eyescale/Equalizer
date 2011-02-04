@@ -159,7 +159,7 @@ bool Server::listen()
 void Server::init()
 {
     EQASSERT( isListening( ));
-    co::base::Thread::setDebugName( co::base::className( this ));
+    co::base::Thread::setName( co::base::className( this ));
 
     const Configs& configs = getConfigs();
     if( configs.empty( ))

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -227,7 +227,7 @@ void ConfigTool::writeConfig() const
     _writeResources( config );
     _writeCompound( config );
 
-    co::base::Log::instance( "", "", 0 )
+    co::base::Log::instance( "", 0 )
         << co::base::disableHeader << global << *server << std::endl
         << co::base::enableHeader << co::base::disableFlush;
 }

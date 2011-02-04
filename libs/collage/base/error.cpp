@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,7 +28,7 @@ namespace base
 {
 std::ostream& operator << ( std::ostream& os, const Error& error )
 {
-    const co::base::ErrorRegistry& registry = co::base::Global::getErrorRegistry();
+    const ErrorRegistry& registry = Global::getErrorRegistry();
     const std::string& text = registry.getString( error );
     if( text.empty( ))
         os << "error 0x" << std::hex << uint32_t( error ) << std::dec;
