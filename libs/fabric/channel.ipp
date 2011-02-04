@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -242,25 +242,27 @@ template< class W, class C >
 void Channel< W, C >::setNearFar( const float nearPlane, const float farPlane )
 {
     EQASSERT( _context );
-    if( _data.nativeContext.frustum.near_plane() == nearPlane && 
-        _data.nativeContext.frustum.far_plane() == farPlane )
+    if( _data.nativeContext.frustum.near_plane() != nearPlane ||
+        _data.nativeContext.frustum.far_plane() != farPlane )
     {
-        return;
+        _data.nativeContext.frustum.adjust_near( nearPlane );
+        _data.nativeContext.frustum.far_plane() = farPlane;
+        _data.nativeContext.ortho.near_plane()  = nearPlane;
+        _data.nativeContext.ortho.far_plane()   = farPlane;
+        setDirty( DIRTY_FRUSTUM );
     }
 
-    _data.nativeContext.frustum.adjust_near( nearPlane );
-    _data.nativeContext.frustum.far_plane() = farPlane;
-    _data.nativeContext.ortho.near_plane()  = nearPlane;
-    _data.nativeContext.ortho.far_plane()   = farPlane;
+    if( _context == &_data.nativeContext )
+        return;
 
-    if( _context != &_data.nativeContext )
+    if( _context->frustum.near_plane() != nearPlane ||
+        _context->frustum.far_plane() != farPlane )
     {
         _context->frustum.adjust_near( nearPlane );
         _context->frustum.far_plane() = farPlane;
         _context->ortho.near_plane() = nearPlane;
         _context->ortho.far_plane()  = farPlane;
     }
-    setDirty( DIRTY_FRUSTUM );
 }
 
 template< class W, class C >
