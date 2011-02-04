@@ -3,7 +3,9 @@
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(Equalizer)
+
 list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
+list(APPEND CMAKE_PREFIX_PATH ${SystemDrive}:/cygwin/bin)
 
 include(revision)
 
