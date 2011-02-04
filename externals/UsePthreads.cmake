@@ -56,5 +56,5 @@ target_link_libraries(pthread Ws2_32)
 install(TARGETS pthread
   ARCHIVE DESTINATION lib COMPONENT codev
   LIBRARY DESTINATION lib COMPONENT codev
-  RUNTIME DESTINATION bin COMPONENT cobin
+  RUNTIME DESTINATION bin COMPONENT colib
   )
