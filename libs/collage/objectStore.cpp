@@ -435,7 +435,7 @@ bool ObjectStore::registerObject( Object* object )
                                 EQ_INSTANCE_INVALID );
     attachObject( object, id, EQ_INSTANCE_INVALID );
 
-    if( Global::getIAttribute( Global::IATTR_NODE_SEND_QUEUE_SIZE ))
+    if( Global::getIAttribute( Global::IATTR_NODE_SEND_QUEUE_SIZE ) > 0 )
     {
         NodeRegisterObjectPacket packet;
         packet.object = object;

@@ -93,13 +93,13 @@ namespace server
         virtual void activateMode( const Mode mode );
 
         virtual void updateCapabilities();
+        virtual void setDirty( const uint64_t bits ); //!< @internal
         //@}
 
 
     protected:
         /** @sa eq::View::deserialize() */
         virtual void deserialize( co::DataIStream&, const uint64_t );
-        virtual void setDirty( const uint64_t bits );
         virtual void notifyAttached() { _updateChannels(); }
 
     private:

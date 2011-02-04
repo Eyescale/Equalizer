@@ -196,7 +196,6 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
 {
     const Channel* destChannel = compound->getInheritChannel();
     EQASSERT( destChannel );
-    const View* view = destChannel->getView();
 
     context.frameID       = _frameID;
     context.pvp           = compound->getInheritPixelViewport();
@@ -213,8 +212,11 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.eye           = _eye;
     context.buffer        = _getDrawBuffer( compound );
     context.bufferMask    = _getDrawBufferMask( compound );
-    context.view          = view;
+    context.view          = destChannel->getViewVersion();
     context.taskID        = compound->getTaskID();
+
+    const View* view = destChannel->getView();
+    EQASSERT( context.view == view );
 
     if( view )
     {

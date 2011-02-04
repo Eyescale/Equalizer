@@ -45,8 +45,8 @@ namespace fabric
         virtual bool isDirty() const { return ( _dirty != DIRTY_NONE ); }
 
         /** @return true if the given dirty bit is set. @version 1.0 */
-        virtual bool isDirty( const uint64_t dirtyBit ) const
-            { return ( _dirty & dirtyBit ); }
+        virtual bool isDirty( const uint64_t dirtyBits ) const
+            { return (_dirty & dirtyBits) == dirtyBits; }
 
         virtual uint128_t commitSync( const uint32_t commitID )
             {

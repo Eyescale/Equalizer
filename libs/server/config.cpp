@@ -977,7 +977,7 @@ bool Config::_cmdUpdate( co::Command& command )
 
     sync();
     setError( ERROR_NONE );
-    commit();    
+    commit();
 
     co::NodePtr node = command.getNode();
     if( !_needsFinish )

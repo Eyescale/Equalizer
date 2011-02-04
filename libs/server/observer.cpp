@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -20,6 +20,7 @@
 
 #include "config.h"
 #include "global.h"
+#include "view.h"
 
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
@@ -48,6 +49,13 @@ Observer::~Observer()
 {
 }
 
+void Observer::setDirty( const uint64_t bits )
+{
+    Super::setDirty( bits );
+    for( ViewsCIter i = _views.begin(); i != _views.end(); ++i )
+        (*i)->setDirty( View::DIRTY_OBSERVER );
+}
+
 void Observer::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 {
     Super::deserialize( is, dirtyBits );
@@ -63,6 +71,20 @@ ServerPtr Observer::getServer()
     Config* config = getConfig();
     EQASSERT( config );
     return ( config ? config->getServer() : 0 );
+}
+
+void Observer::addView( View* view )
+{
+    EQASSERT( stde::find( _views, view ) == _views.end( ));
+    _views.push_back( view );
+}
+
+void Observer::removeView( View* view )
+{
+    ViewsIter i = stde::find( _views, view );
+    EQASSERT( i != _views.end( ));
+    if( i != _views.end( ))
+        _views.erase( i );
 }
 
 void Observer::init()

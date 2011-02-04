@@ -53,6 +53,9 @@ namespace fabric
         /** @return the parent layout of this view, can be 0. @version 1.0 */
         const L* getLayout() const { return _layout; }
 
+        /** Set the entity tracking this view. @version 1.0 */
+        EQFABRIC_INL void setObserver( O* observer );
+        
         /**
          * @return the observer tracking this view, or 0 for untracked views.
          * @version 1.0
@@ -80,9 +83,6 @@ namespace fabric
         /** @internal Set the 2D viewport wrt Layout and Canvas. */
         EQFABRIC_INL void setViewport( const Viewport& viewport );
 
-        /** @internal Set the entity tracking this view. */
-        EQFABRIC_INL void setObserver( O* observer );
-        
         /** @internal Get the mode of this view. */
         Mode getMode( ) const { return _mode; }
         
@@ -173,6 +173,23 @@ namespace fabric
         void setCapabilities( const uint64_t bitmask ); //!< @internal
         virtual void updateCapabilities() {}; //!< @internal
 
+        /** @internal */
+        enum DirtyBits
+        {
+            DIRTY_VIEWPORT      = Object::DIRTY_CUSTOM << 0,
+            DIRTY_OBSERVER      = Object::DIRTY_CUSTOM << 1,
+            DIRTY_OVERDRAW      = Object::DIRTY_CUSTOM << 2,
+            DIRTY_FRUSTUM       = Object::DIRTY_CUSTOM << 3,
+            DIRTY_MODE          = Object::DIRTY_CUSTOM << 4,
+            DIRTY_MINCAPS       = Object::DIRTY_CUSTOM << 5,
+            DIRTY_MAXCAPS       = Object::DIRTY_CUSTOM << 6,
+            DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 7,
+            DIRTY_VIEW_BITS =
+                DIRTY_VIEWPORT | DIRTY_OBSERVER | DIRTY_OVERDRAW |
+                DIRTY_FRUSTUM | DIRTY_MODE | DIRTY_MINCAPS | DIRTY_MAXCAPS |
+                DIRTY_CAPABILITIES | DIRTY_OBJECT_BITS
+        };
+
     protected:
         /** @internal Construct a new view. */
         EQFABRIC_INL View( L* layout );
@@ -200,23 +217,6 @@ namespace fabric
 
         /** @internal */
         EQFABRIC_INL virtual void setDirty( const uint64_t bits );
-
-        /** @internal */
-        enum DirtyBits
-        {
-            DIRTY_VIEWPORT      = Object::DIRTY_CUSTOM << 0,
-            DIRTY_OBSERVER      = Object::DIRTY_CUSTOM << 1,
-            DIRTY_OVERDRAW      = Object::DIRTY_CUSTOM << 2,
-            DIRTY_FRUSTUM       = Object::DIRTY_CUSTOM << 3,
-            DIRTY_MODE          = Object::DIRTY_CUSTOM << 4,
-            DIRTY_MINCAPS       = Object::DIRTY_CUSTOM << 5,
-            DIRTY_MAXCAPS       = Object::DIRTY_CUSTOM << 6,
-            DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 7,
-            DIRTY_VIEW_BITS =
-                DIRTY_VIEWPORT | DIRTY_OBSERVER | DIRTY_OVERDRAW |
-                DIRTY_FRUSTUM | DIRTY_MODE | DIRTY_MINCAPS | DIRTY_MAXCAPS |
-                DIRTY_CAPABILITIES | DIRTY_OBJECT_BITS
-        };
 
         /** @internal @return the bits to be re-committed by the master. */
         virtual uint64_t getRedistributableBits() const

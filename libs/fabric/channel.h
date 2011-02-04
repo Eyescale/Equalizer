@@ -65,6 +65,10 @@ namespace fabric
         /** @internal Update the native view identifier and version. */
         void setViewVersion( const co::ObjectVersion& view );
 
+        /** @internal @return the native view identifier and version. */
+        const co::ObjectVersion& getViewVersion() const
+            { return _data.nativeContext.view; }
+
         /** @internal Set the channel's pixel viewport wrt its parent window. */
         void setPixelViewport( const PixelViewport& pvp );
 

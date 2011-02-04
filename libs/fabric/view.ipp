@@ -89,7 +89,11 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
         is >> observer;
 
         if( observer.identifier == co::base::UUID::ZERO )
+        {
+            if( _observer )
+                _observer->removeView( static_cast< V* >( this ));
             _observer = 0;
+        }
         else
         {
             if( !_observer && _layout ) // don't map render client observers yet
@@ -97,11 +101,14 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
                 L* layout = getLayout();
                 EQASSERT( layout && layout->getConfig( ));
                 layout->getConfig()->find( observer.identifier, &_observer );
+                if( _observer )
+                    _observer->addView( static_cast< V* >( this ));
                 EQASSERT( _observer );
                 EQASSERT( _observer->getID() == observer.identifier );
             }
             if( _observer )
             {
+                EQASSERT( _observer->getID() == observer.identifier );
                 if( _observer->isMaster( ))
                     _observer->sync();
                 else
@@ -177,7 +184,11 @@ void View< L, V, O >::setObserver( O* observer )
     if( _observer == observer )
         return;
 
+    if( _observer )
+        _observer->removeView( static_cast< V* >( this ));
     _observer = observer;
+    if( _observer )
+        _observer->addView( static_cast< V* >( this ));
     setDirty( DIRTY_OBSERVER );
 }
 
@@ -248,6 +259,54 @@ void View< L, V, O >::notifyAttached()
         userData->setAutoObsolete( _layout->getConfig()->getLatency( ));
 }
 
+template< class L, class V, class O > 
+void View< L, V, O >::setMinimumCapabilities( uint64_t bitmask )
+{
+    if( bitmask == _minimumCapabilities )
+        return;
+
+    _minimumCapabilities = bitmask;
+    setDirty( DIRTY_MINCAPS );
+}
+
+template< class L, class V, class O > 
+uint64_t View< L, V, O >::getMinimumCapabilities() const
+{
+    return _minimumCapabilities;
+}
+
+template< class L, class V, class O > 
+void View< L, V, O >::setMaximumCapabilities( uint64_t bitmask )
+{
+    if( bitmask == _maximumCapabilities )
+        return;
+
+    _maximumCapabilities = bitmask;
+    setDirty( DIRTY_MAXCAPS );
+}
+
+template< class L, class V, class O > 
+uint64_t View< L, V, O >::getMaximumCapabilities() const
+{
+    return _maximumCapabilities;
+}
+
+template< class L, class V, class O > 
+void View< L, V, O >::setCapabilities( uint64_t bitmask )
+{
+    if( bitmask == _capabilities )
+        return;
+
+    _capabilities = bitmask;
+    setDirty( DIRTY_CAPABILITIES );
+}
+
+template< class L, class V, class O > 
+uint64_t View< L, V, O >::getCapabilities() const
+{
+    return _capabilities;
+}
+
 template< class L, class V, class O >
 std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view )
 {
@@ -297,54 +356,6 @@ std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view )
     os << co::base::exdent << "}" << std::endl << co::base::enableHeader
        << co::base::enableFlush;
     return os;
-}
-
-template< class L, class V, class O > 
-void View< L, V, O >::setMinimumCapabilities( uint64_t bitmask )
-{
-    if( bitmask == _minimumCapabilities )
-        return;
-
-    _minimumCapabilities = bitmask;
-    setDirty( DIRTY_MINCAPS );
-}
-
-template< class L, class V, class O > 
-uint64_t View< L, V, O >::getMinimumCapabilities() const
-{
-    return _minimumCapabilities;
-}
-
-template< class L, class V, class O > 
-void View< L, V, O >::setMaximumCapabilities( uint64_t bitmask )
-{
-    if( bitmask == _maximumCapabilities )
-        return;
-
-    _maximumCapabilities = bitmask;
-    setDirty( DIRTY_MAXCAPS );
-}
-
-template< class L, class V, class O > 
-uint64_t View< L, V, O >::getMaximumCapabilities() const
-{
-    return _maximumCapabilities;
-}
-
-template< class L, class V, class O > 
-void View< L, V, O >::setCapabilities( uint64_t bitmask )
-{
-    if( bitmask == _capabilities )
-        return;
-
-    _capabilities = bitmask;
-    setDirty( DIRTY_CAPABILITIES );
-}
-
-template< class L, class V, class O > 
-uint64_t View< L, V, O >::getCapabilities() const
-{
-    return _capabilities;
 }
 
 }

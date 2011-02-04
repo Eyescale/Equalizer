@@ -93,7 +93,7 @@ namespace fabric
         uint32_t getTasks() const { return _tasks; }
         //@}
 
-        /** @return true if the view has data to commit. @version 1.0 */
+        /** @return true if the object has data to commit. @version 1.0 */
         EQFABRIC_API virtual bool isDirty() const;
 
         EQFABRIC_API virtual uint32_t commitNB(); //!< @internal

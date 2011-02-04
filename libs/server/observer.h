@@ -70,8 +70,13 @@ namespace server
         /** Schedule deletion of this observer. */
         void postDelete();
         //@}
-        
+
+        void addView( View* view );    //!< @internal
+        void removeView( View* view ); //!< @internal
+
     protected:
+        virtual void setDirty( const uint64_t bits ); //!< @internal
+
         /** @sa Object::deserialize */
         virtual void deserialize( co::DataIStream& is, 
                                   const uint64_t dirtyBits );
@@ -82,6 +87,9 @@ namespace server
 
         /** The eye positions in world space. */ 
         fabric::Vector3f _eyes[ eq::fabric::NUM_EYES ];
+
+        /** Views tracked by this observer. */
+        Views _views;
 
         enum State
         {

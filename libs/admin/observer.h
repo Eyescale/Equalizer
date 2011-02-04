@@ -42,6 +42,9 @@ namespace admin
         EQADMIN_EXPORT ServerPtr getServer();
         //@}
 
+        void addView( View* ) { /* nop */ } //!< @internal
+        void removeView( View* ) { /* nop */ } //!< @internal
+
     private:
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
