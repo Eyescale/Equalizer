@@ -19,6 +19,7 @@
 #ifndef COBASE_UINT128_H
 #define COBASE_UINT128_H
 
+#include <co/base/debug.h> // EQASSERT macros
 #include <co/base/stdExt.h>
 #include <sstream>
 
