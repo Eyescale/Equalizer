@@ -45,7 +45,7 @@ endif(GLEW_FOUND)
 
 if(NOT GLEW_FOUND OR NOT GLEW_MX_SUPPORTED)
 
-  set(GLEW_NAME glew-1.5.7.3)
+  set(GLEW_NAME glew-1.5.8)
   set(GLEW_TGZ ${CMAKE_SOURCE_DIR}/externals/${GLEW_NAME}.tgz)
   set(GLEW_DIR ${CMAKE_BINARY_DIR}/${GLEW_NAME})
 
