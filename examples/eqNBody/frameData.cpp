@@ -1,7 +1,7 @@
 
 /*
  * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -108,7 +108,7 @@ void FrameData::addProxyID( const eq::uint128_t& pid, const float *range )
     EQASSERT(_numDataProxies < MAX_NGPUS);
         
     _dataProxyID[_numDataProxies].identifier = pid;  
-    _dataProxyID[_numDataProxies].version = 0;
+    _dataProxyID[_numDataProxies].version = co::VERSION_NONE;
 
     _dataRanges[_numDataProxies++] = (range[1] - range[0]);
     setDirty( DIRTY_PROXYDATA );
