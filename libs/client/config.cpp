@@ -198,6 +198,7 @@ bool Config::init( const uint128_t& initID )
     while( !localNode->isRequestServed( packet.requestID ))
         client->processCommand();
     localNode->waitRequest( packet.requestID, _running );
+    localNode->enableSendOnRegister();
 
     if( _running )
         handleEvents();
@@ -213,6 +214,8 @@ bool Config::exit()
     finishAllFrames();
 
     co::LocalNodePtr localNode = getLocalNode();
+    localNode->disableSendOnRegister();
+
     ConfigExitPacket packet;
     packet.requestID = localNode->registerRequest();
     send( getServer(), packet );
@@ -259,6 +262,7 @@ bool Config::update()
         return true;
     }
 
+    client->disableSendOnRegister();
     while( _finishedFrame < _currentFrame )
         client->processCommand();
 
@@ -270,6 +274,7 @@ bool Config::update()
 
     bool result = false;
     client->waitRequest( packet.requestID, result );
+    client->enableSendOnRegister();
     return result;
 }
 
