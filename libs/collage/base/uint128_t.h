@@ -19,7 +19,7 @@
 #ifndef COBASE_UINT128_H
 #define COBASE_UINT128_H
 
-#include <co/base/debug.h> // EQASSERT macros
+#include <co/base/api.h>
 #include <co/base/stdExt.h>
 #include <sstream>
 
@@ -63,33 +63,7 @@ namespace base
             }
 
         /** Assign an 128 bit value from a std::string. @version 1.0 */
-        uint128_t& operator = ( const std::string& from )
-        {
-            char* next = 0;
-#ifdef _MSC_VER
-            _high = ::_strtoui64( from.c_str(), &next, 16 );
-#else
-            _high = ::strtoull( from.c_str(), &next, 16 );
-#endif
-            EQASSERT( next != from.c_str( ));
-            if( *next == '\0' ) // short representation, high was 0
-            {
-                _low = _high;
-                _high = 0;
-            }
-            else
-            {
-                EQASSERTINFO( *next == ':', from << ", " << next );
-                ++next;
-#ifdef _MSC_VER
-                _low = ::_strtoui64( next, 0, 16 );
-#else
-                _low = ::strtoull( next, 0, 16 );
-#endif
-            }
-            return *this;
-        }
-
+        COBASE_API uint128_t& operator = ( const std::string& from );
 
         /**
          * @return true if the values are equal, false if not.

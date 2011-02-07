@@ -86,5 +86,6 @@ set(COBASE_HEADERS
     thread.cpp
     threadID.cpp
     timedLock.cpp
+    uint128_t.cpp
     uuid.cpp
   )
