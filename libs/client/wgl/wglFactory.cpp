@@ -17,9 +17,10 @@
 
 #include "../uiFactory.h"
 
-#include "../wglWindow.h"
-#include "../wglPipe.h"
+#include "../wglEventHandler.h"
 #include "../wglMessagePump.h"
+#include "../wglPipe.h"
+#include "../wglWindow.h"
 
 namespace eq
 {

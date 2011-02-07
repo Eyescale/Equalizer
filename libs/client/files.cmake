@@ -122,3 +122,34 @@ set(CLIENT_SOURCES
   windowStatistics.cpp
   windowSystem.cpp
   )
+
+if(EQ_AGL_USED)
+  set(CLIENT_SOURCES ${CLIENT_SOURCES}
+    aglEventHandler.cpp
+    aglMessagePump.cpp
+    aglWindow.cpp
+    aglPipe.cpp
+    agl/aglFactory.cpp
+  )
+endif(EQ_AGL_USED)
+
+if(WIN32)
+  set(CLIENT_SOURCES ${CLIENT_SOURCES}
+    wglEventHandler.cpp
+    wglMessagePump.cpp
+    wglWindow.cpp
+    wglPipe.cpp
+    wgl/wglFactory.cpp
+  )
+endif(WIN32)
+
+if(EQ_GLX_USED)
+  set(CLIENT_SOURCES ${CLIENT_SOURCES}
+    glXEventHandler.cpp
+    glXMessagePump.cpp
+    glXWindow.cpp
+    glXPipe.cpp
+    glx/glxFactory.cpp
+  )
+endif(EQ_GLX_USED)
+

@@ -22,7 +22,7 @@ namespace eq
 
 namespace
 {
-UIFactory::UIFactory* _stack = 0;
+UIFactory* _stack = 0;
 }
 
 UIFactory::UIFactory( eq::WindowSystem type )
