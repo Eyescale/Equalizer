@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- *               2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -249,8 +249,6 @@ bool VertexBufferRoot::_readBinary( std::string filename )
     int fd = open( filename.c_str(), O_RDONLY );
     if( fd < 0 )
         return false;
-    
-    MESHINFO << "Reading cached binary representation." << endl;
     
     // retrieving file information
     struct stat status;

@@ -179,7 +179,7 @@ bool LocalNode::listen()
            << " start command and receiver thread " << std::endl;
     _receiverThread->start();
 
-    EQINFO << this << " listening." << std::endl;
+    EQINFO << *this << " listening." << std::endl;
     return true;
 }
 

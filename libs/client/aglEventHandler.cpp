@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -79,9 +79,9 @@ AGLEventHandler::AGLEventHandler( AGLWindowIF* window )
 
     const size_t nEvents = sizeof( events ) / sizeof( EventTypeSpec );
 
-    if( _window->getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
-        InstallApplicationEventHandler( eventHandler, nEvents, events,
-                                        this, &_eventHandler );
+    if( fullscreen )
+        InstallApplicationEventHandler( eventHandler, nEvents, events, this,
+                                        &_eventHandler );
     else
         InstallWindowEventHandler( carbonWindow, eventHandler, nEvents, events,
                                    this, &_eventHandler );
@@ -97,11 +97,9 @@ AGLEventHandler::AGLEventHandler( AGLWindowIF* window )
             eq::AGLEventHandler::_dispatchEventUPP );
         EventQueueRef target = GetCurrentEventQueue();
 
-        if( _window->getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
-        {
-            InstallApplicationEventHandler( eventDispatcher, nEvents,
-                                            events, target, &_eventDispatcher );
-        }
+        if( fullscreen )
+            InstallApplicationEventHandler( eventDispatcher, nEvents, events,
+                                            target, &_eventDispatcher );
         else
             InstallWindowEventHandler( carbonWindow, eventDispatcher, nEvents,
                                        events, target, &_eventDispatcher );
@@ -112,10 +110,10 @@ AGLEventHandler::AGLEventHandler( AGLWindowIF* window )
     Global::leaveCarbon();
 
     if( fullscreen )
-        EQINFO << "Installed event handlers for carbon window " << carbonWindow
+        EQINFO << "Installed event handlers for fullscreen carbon context"
                << std::endl;
     else
-        EQINFO << "Installed event handlers for fullscreen carbon context"
+        EQINFO << "Installed event handlers for carbon window " << carbonWindow
                << std::endl;
 }
 

@@ -472,7 +472,7 @@ bool Channel::_initAccum()
     }
 
     // else
-    EQINFO << "Initialized "
+    EQVERB << "Initialized "
            << (accum.buffer->usesFBO() ? "FBO accum" : "glAccum")
            << " buffer for " << getName() << " " << getEye() 
            << std::endl;

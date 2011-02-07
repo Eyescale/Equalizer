@@ -311,7 +311,7 @@ uint32_t Config::finishFrame()
     ClientPtr client = getClient();
     const uint32_t latency = getLatency();
     const uint32_t frameToFinish = (_currentFrame >= latency) ? 
-                                      _currentFrame - latency : 0;
+                                       _currentFrame - latency : 0;
 
     ConfigStatistics stat( Statistic::CONFIG_FINISH_FRAME, this );
     stat.event.data.statistic.frameNumber = frameToFinish;

@@ -368,7 +368,6 @@ typedef struct tagTHREADNAME_INFO
 void Thread::setName( const std::string& name )
 {
     Log::instance( __FILE__, __LINE__ ).setThreadName( name );
-    EQINFO << "Thread " << name << std::endl;
 
 #ifdef _MSC_VER
 #  ifndef NDEBUG

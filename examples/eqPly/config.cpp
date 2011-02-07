@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *               2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -167,7 +167,6 @@ void Config::_loadModels()
      
             if( _isPlyfile( filename ))
             {
-                EQINFO << "Loading " << filename << std::endl;
                 Model* model = new Model;
 
                 if( _initData.useInvertedFaces() )
@@ -191,8 +190,6 @@ void Config::_loadModels()
                 const eq::Strings subFiles =
                     co::base::searchDirectory( filename, "*" );
 
-                if( !subFiles.empty( ))
-                    EQINFO << "Searching " << filename << std::endl;
                 for( eq::Strings::const_iterator i = subFiles.begin();
                      i != subFiles.end(); ++i )
                 {
