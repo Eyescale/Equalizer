@@ -35,15 +35,7 @@
 #include "systemWindow.h"
 #include "windowPackets.h"
 #include "windowStatistics.h"
-#ifdef AGL
-#  include "aglWindow.h"
-#endif
-#ifdef GLX
-#  include "glXWindow.h"
-#endif
-#ifdef WGL
-#  include "wglWindow.h"
-#endif
+#include "uiFactory.h"
 
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/task.h>
@@ -359,35 +351,8 @@ bool Window::configInit( const uint128_t& initID )
 bool Window::configInitSystemWindow( const uint128_t& )
 {
     const Pipe* pipe = getPipe();
-    SystemWindow* systemWindow = 0;
-
-    switch( pipe->getWindowSystem( ))
-    {
-#ifdef GLX
-        case WINDOW_SYSTEM_GLX:
-            EQINFO << "Using GLXWindow" << std::endl;
-            systemWindow = new GLXWindow( this );
-            break;
-#endif
-
-#ifdef AGL
-        case WINDOW_SYSTEM_AGL:
-            EQINFO << "Using AGLWindow" << std::endl;
-            systemWindow = new AGLWindow( this );
-            break;
-#endif
-
-#ifdef WGL
-        case WINDOW_SYSTEM_WGL:
-            EQINFO << "Using WGLWindow" << std::endl;
-            systemWindow = new WGLWindow( this );
-            break;
-#endif
-
-        default:
-            setError( ERROR_WINDOWSYSTEM_UNKNOWN );
-            return false;
-    }
+    SystemWindow* systemWindow =
+        UIFactory::createSystemWindow( pipe->getWindowSystem(), this );
 
     EQASSERT( systemWindow );
     if( !systemWindow->configInit( ))

@@ -72,10 +72,28 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
     ${CUDA_LIBRARIES}
   )
 
+set(ui_libraries)
+
+if(EQ_AGL_USED)
+  add_subdirectory(agl)
+  list(APPEND ui_libraries shared eq_agl)
+endif(EQ_AGL_USED)
+
+if(EQ_GLX_USED)
+  add_subdirectory(glx)
+  list(APPEND ui_libraries shared eq_glx)
+endif(EQ_GLX_USED)
+
+if(WIN32)
+  add_subdirectory(wgl)
+  list(APPEND ui_libraries shared eq_wgl)
+endif(WIN32)
+
 purple_add_amalgamation(Equalizer eq ${SHORT_VERSION} ${API_VERSION}
   shared eq_fabric
   shared eq_client
- )
+  ${ui_libraries}
+  )
 
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY
 configure_file(Equalizer.pc.in Equalizer.pc @ONLY)

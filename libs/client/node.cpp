@@ -32,12 +32,7 @@
 #include "pipe.h"
 #include "pipePackets.h"
 #include "server.h"
-
-#ifdef AGL
-#  include "aglEventHandler.h"
-#elif defined WGL
-#  include "wglEventHandler.h"
-#endif
+#include "uiFactory.h"
 
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/task.h>
@@ -177,29 +172,13 @@ bool Node::isStopped() const
 
 bool Node::configInit( const uint128_t& )
 {
-#ifdef EQ_USE_MAGELLAN
-#  ifdef AGL
-    AGLEventHandler::initMagellan( this );
-#  elif defined WGL
-    WGLEventHandler::initMagellan( this );
-#  else
-    EQUNIMPLEMENTED;
-#  endif
-#endif
+	UIFactory::configInit( this );
     return true;
 }
 
 bool Node::configExit()
 {
-#ifdef EQ_USE_MAGELLAN
-#  ifdef AGL
-    AGLEventHandler::exitMagellan( this );
-#  elif defined WGL
-    WGLEventHandler::exitMagellan( this );
-#  else
-    EQUNIMPLEMENTED;
-#  endif
-#endif
+	UIFactory::configExit( this );
     return true;
 }
 

@@ -18,10 +18,6 @@
 
 #include "eventHandler.h"
 
-#ifdef GLX
-#  include "glXEventHandler.h"
-#endif
-
 #include "pipe.h"
 #include "window.h"
 

@@ -34,18 +34,9 @@
 #include "window.h"
 #include "windowPackets.h"
 
-#ifdef GLX
-#  include "glXMessagePump.h"
-#  include "glXPipe.h"
-#endif
-#ifdef WGL
-#  include "wglMessagePump.h"
-#  include "wglPipe.h"
-#endif
-#ifdef AGL
-#  include "aglMessagePump.h"
-#  include "aglPipe.h"
-#endif
+#include "uiFactory.h"
+#include "messagePump.h"
+#include "systemPipe.h"
 
 #include "computeContext.h"
 #ifdef EQ_USE_CUDA
@@ -147,24 +138,12 @@ void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
 
 bool Pipe::supportsWindowSystem( const WindowSystem windowSystem ) const
 {
-    switch( windowSystem )
-    {
-#ifdef GLX
-        case WINDOW_SYSTEM_GLX: return true;
-#endif
-#ifdef AGL
-        case WINDOW_SYSTEM_AGL: return true;
-#endif
-#ifdef WGL
-        case WINDOW_SYSTEM_WGL: return true;
-#endif
-        default:                return false;
-    }
+	return UIFactory::supports( windowSystem );
 }
 
 WindowSystem Pipe::selectWindowSystem() const
 {
-    for( WindowSystem i=WINDOW_SYSTEM_NONE; i<WINDOW_SYSTEM_ALL; 
+    for( WindowSystem i = WINDOW_SYSTEM_NONE; i < WINDOW_SYSTEM_ALL; 
          i = (WindowSystem)((int)i+1) )
     {
         if( supportsWindowSystem( i ))
@@ -210,25 +189,7 @@ void Pipe::_exitCommandQueue()
 
 MessagePump* Pipe::createMessagePump()
 {
-    switch( _windowSystem )
-    {
-#ifdef GLX
-        case WINDOW_SYSTEM_GLX:
-            return new GLXMessagePump();
-#endif
-#ifdef WGL
-        case WINDOW_SYSTEM_WGL:
-            return new WGLMessagePump();
-#endif
-#ifdef AGL
-        case WINDOW_SYSTEM_AGL:
-            return new AGLMessagePump();
-#endif
-
-        default:
-            EQUNREACHABLE;
-            return 0;
-    }
+	return UIFactory::createMessagePump( _windowSystem );
 }
 
 MessagePump* Pipe::getMessagePump()
@@ -533,37 +494,7 @@ bool Pipe::configInit( const uint128_t& initID )
 
 bool Pipe::configInitSystemPipe( const uint128_t& )
 {
-    SystemPipe* systemPipe = 0;
-
-    switch( _windowSystem )
-    {
-#ifdef GLX
-        case WINDOW_SYSTEM_GLX:
-            EQINFO << "Using GLXPipe" << std::endl;
-            systemPipe = new GLXPipe( this );
-            break;
-#endif
-
-#ifdef AGL
-        case WINDOW_SYSTEM_AGL:
-            EQINFO << "Using AGLPipe" << std::endl;
-            systemPipe = new AGLPipe( this );
-            break;
-#endif
-
-#ifdef WGL
-        case WINDOW_SYSTEM_WGL:
-            EQINFO << "Using WGLPipe" << std::endl;
-            systemPipe = new WGLPipe( this );
-            break;
-#endif
-
-        default:
-            setError( ERROR_WINDOWSYSTEM_UNKNOWN );
-            EQERROR << "Pipe init failed: " << getError() << ": "
-                    << _windowSystem << std::endl;
-            return false;
-    }
+    SystemPipe* systemPipe = UIFactory::createSystemPipe( _windowSystem, this );
 
     EQASSERT( systemPipe );
     if( !systemPipe->configInit( ))

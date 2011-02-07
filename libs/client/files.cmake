@@ -60,6 +60,7 @@ set(CLIENT_HEADERS
   systemPipe.h
   systemWindow.h
   types.h
+  uiFactory.h
   view.h
   visitorResult.h
   wglEventHandler.h
@@ -114,37 +115,10 @@ set(CLIENT_SOURCES
   statistic.cpp
   systemPipe.cpp
   systemWindow.cpp
+  uiFactory.cpp
   version.cpp
   view.cpp
   window.cpp
   windowStatistics.cpp
   windowSystem.cpp
   )
-
-if(EQ_AGL_USED)
-  set(CLIENT_SOURCES ${CLIENT_SOURCES}
-    aglEventHandler.cpp
-    aglMessagePump.cpp
-    aglWindow.cpp
-    aglPipe.cpp
-    )
-endif(EQ_AGL_USED)
-
-if(WIN32)
-  set(CLIENT_SOURCES ${CLIENT_SOURCES}
-    wglEventHandler.cpp
-    wglMessagePump.cpp
-    wglWindow.cpp
-    wglPipe.cpp
-    )
-endif(WIN32)
-
-if(EQ_GLX_USED)
-  set(CLIENT_SOURCES ${CLIENT_SOURCES}
-    glXEventHandler.cpp
-    glXMessagePump.cpp
-    glXWindow.cpp
-    glXPipe.cpp
-    )
-endif(EQ_GLX_USED)
-
