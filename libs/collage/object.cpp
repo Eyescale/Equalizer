@@ -331,9 +331,9 @@ uint32_t Object::getMasterInstanceID() const
     return _cm->getMasterInstanceID();
 }
 
-const NodeID& Object::getMasterNodeID() const
+NodePtr Object::getMasterNode()
 {
-    return _cm->getMasterNodeID();
+    return _cm->getMasterNode();
 }
 
 std::ostream& operator << ( std::ostream& os, const Object& object )

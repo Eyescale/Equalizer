@@ -409,10 +409,9 @@ void ObjectStore::unmapObject( Object* object )
     const uint32_t masterInstanceID = object->getMasterInstanceID();
     if( masterInstanceID != EQ_INSTANCE_INVALID )
     {
-        // TO-DO : may be we can take master node directly from the object
-        const NodeID masterNodeID = _findMasterNodeID( id );
-        NodePtr master = _localNode->getNode( masterNodeID );
-            
+        NodePtr master = object->getMasterNode();
+        EQASSERT( master )
+
         if( master.isValid() && master->isConnected( ))
         {
             NodeUnsubscribeObjectPacket packet;
@@ -603,7 +602,11 @@ bool ObjectStore::_cmdFindMasterNodeID( Command& command )
                 if( object->isMaster( ))
                     reply.masterNodeID = _localNode->getNodeID();
                 else
-                    reply.masterNodeID = object->getMasterNodeID();
+                {
+                    NodePtr master = object->getMasterNode();
+                    if( master.isValid( ))
+                        reply.masterNodeID = master->getNodeID();
+                }
                 if( reply.masterNodeID != base::UUID::ZERO )
                     break;
             }

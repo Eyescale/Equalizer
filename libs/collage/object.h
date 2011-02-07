@@ -295,7 +295,7 @@ namespace co
         uint32_t getMasterInstanceID() const;
 
         /** @internal @return the master object instance identifier. */
-        const NodeID& getMasterNodeID() const;
+        NodePtr getMasterNode();
 
         uint128_t addSlave( Command& command ); //!< @internal
         void removeSlave( NodePtr node ); //!< @internal

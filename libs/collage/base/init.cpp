@@ -35,10 +35,16 @@ namespace base
 namespace
 {
     static std::ofstream* _logFile = 0;
+    static bool _initialized = false;
 }
 
 bool init( const int argc, char** argv )
 {
+    EQASSERT( !_initialized );
+    if( _initialized )
+        return false;
+
+    _initialized = true;
     Log::instance( __FILE__, __LINE__ ).setThreadName( "Main" );
     EQINFO << "Log level " << Log::getLogLevelString() << " topics " 
            << Log::topics << std::endl;
@@ -104,6 +110,11 @@ bool init( const int argc, char** argv )
 
 bool exit()
 {
+    EQASSERT( _initialized );
+    if( !_initialized )
+        return false;
+    _initialized = false;
+
     // de-initialize registered plugins
     PluginRegistry& plugins = Global::getPluginRegistry();
     plugins.exit(); 

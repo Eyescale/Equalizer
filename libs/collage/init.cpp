@@ -34,8 +34,18 @@
 namespace co
 {
 
+namespace
+{
+    static bool _initialized = false;
+}
+
 bool init( const int argc, char** argv )
 {
+    EQASSERT( !_initialized );
+    if( _initialized )
+        return false;
+
+    _initialized = true;
     if( !base::init( argc, argv ))
         return false;
 
@@ -65,6 +75,10 @@ bool init( const int argc, char** argv )
 
 bool exit()
 {
+    EQASSERT( _initialized );
+    if( !_initialized )
+        return false;
+    _initialized = false;
 #ifdef _WIN32
     if( WSACleanup() != 0 )
     {

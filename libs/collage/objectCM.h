@@ -30,13 +30,13 @@ namespace co
 {
     struct ObjectInstancePacket;
 
-    /** 
+    /**
+     * @internal
      * The object change manager base class.
      *
-     * Each object has a change manager to create and store version
-     * information. The type of change manager depends on the object
-     * implementation, and if it is the master object or a slave object.
-     * @internal
+     * Each object has a change manager to create and store version information.
+     * The type of change manager depends on the object implementation, and if
+     * it is the master object or a slave object.
      */
     class ObjectCM : public Dispatcher
     {
@@ -109,7 +109,7 @@ namespace co
         virtual void setMasterNode( NodePtr ) { /* nop */ }
 
         /** @return the master node, may be 0. */
-        virtual const NodeID& getMasterNodeID() const { return NodeID::ZERO; } 
+        virtual NodePtr getMasterNode() { return 0; } 
 
         /** 
          * Add a subscribed slave to the managed object.

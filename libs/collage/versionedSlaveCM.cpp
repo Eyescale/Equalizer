@@ -28,7 +28,7 @@
 
 namespace co
 {
-typedef CommandFunc<VersionedSlaveCM> CmdFunc;
+typedef CommandFunc< VersionedSlaveCM > CmdFunc;
 
 VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
         : _object( object )
@@ -64,16 +64,6 @@ VersionedSlaveCM::~VersionedSlaveCM()
 
     _version = VERSION_NONE;
     _master = 0;
-}
-
-const NodeID& VersionedSlaveCM::getMasterNodeID() const
-{
-    // There is a small window of opportunity during mapObject when the master
-    // node is not yet set
-    if( !_master )
-        return base::UUID::ZERO;
-        
-    return _master->getNodeID();
 }
 
 uint32_t VersionedSlaveCM::commitNB()

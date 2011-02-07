@@ -63,7 +63,7 @@ namespace co
 
         virtual uint32_t getMasterInstanceID() const {return _masterInstanceID;}
         virtual void setMasterNode( NodePtr node ) { _master = node; }
-        virtual const NodeID& getMasterNodeID() const;
+        virtual NodePtr getMasterNode() { return _master; }
 
         virtual uint128_t addSlave( Command& )
             { EQDONTCALL; return VERSION_INVALID; }
