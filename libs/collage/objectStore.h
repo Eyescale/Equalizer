@@ -45,10 +45,7 @@ namespace co
         /** Destruct this ObjectStore. */
         virtual ~ObjectStore();
 
-        /** Disable the instance cache of an stopped local node. */
-        void disableInstanceCache();
-
-        /** Cleanup all instance and objects link. */
+        /** Remove all objects and clear all caches. */
         void clear();
 
         /** @name Command Packet Dispatch */
@@ -65,9 +62,7 @@ namespace co
         bool dispatchObjectCommand( Command& packet );
         //@}
 
-        /**
-         * @name Object Registration
-         */
+        /** @name Object Registration */
         //@{
         /** 
          * Register a distributed object.
@@ -112,8 +107,8 @@ namespace co
          * Attach an object to an identifier.
          *
          * Attaching an object to an identifier enables it to receive object
-         * commands through this session. It does not establish any mapping to
-         * other object instances with the same identifier.
+         * commands though the local node. It does not establish any data
+         * mapping to other object instances with the same identifier.
          * 
          * @param object the object.
          * @param id the object identifier.
@@ -132,10 +127,32 @@ namespace co
 
         /** Convenience method to deregister or unmap an object. */
         void releaseObject( Object* object );
+
+        /** @internal swap the existing object by a new object and keep
+                      the cm, id and instanceID. */
+        void swapObject( Object* oldObject, Object* newObject );
         //@}
 
-        /** @internal */
+        /** @name Instance Cache. */
+        //@{
+        /** Expire all data older than age from the cache. */
         void expireInstanceData( const int64_t age );
+
+        /** Disable the instance cache of an stopped local node. */
+        void disableInstanceCache();
+
+        /** Enable sending data of newly registered objects when idle. */
+        void enableSendOnRegister();
+        
+        /**
+         * Disable sending data of newly registered objects when idle.
+         *
+         * Enable and disable are counted, that is, the last disable on a
+         * matched series of enable/disable will be effective. When
+         * send-on-register gets deactivated, the associated queue is cleared
+         * and all data send on multicast connections is finished.
+         */
+        void disableSendOnRegister(); 
 
         /**
          * @internal
@@ -143,10 +160,7 @@ namespace co
          * @return true if more work is pending.
          */
         virtual bool notifyCommandThreadIdle();
-
-        /** @internal swap the existing object by a new object and keep
-                      the cm, id and instanceID. */
-        void swapObject( Object* oldObject, Object* newObject );
+        //@}
 
     private:
         /** The local node managing the object store. */
@@ -154,6 +168,9 @@ namespace co
 
         /** The identifiers for node-local instance identifiers. */
         base::a_int32_t _instanceIDs;
+
+        /** startSendOnRegister() invocations. */
+        base::a_int32_t _sendOnRegister;
 
         /** All registered and mapped objects. 
          *   - write locked only in receiver thread
@@ -204,6 +221,7 @@ namespace co
         bool _cmdInstance( Command& command );
         bool _cmdRegisterObject( Command& command );
         bool _cmdDeregisterObject( Command& command );
+        bool _cmdDisableSendOnRegister( Command& command );
 
         EQ_TS_VAR( _receiverThread );
         EQ_TS_VAR( _commandThread );

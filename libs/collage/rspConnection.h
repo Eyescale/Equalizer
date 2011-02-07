@@ -68,7 +68,7 @@ namespace co
         virtual int64_t write( const void* buffer, const uint64_t bytes );
 
         /** @internal Finish all pending send operations. */
-        void finish();
+        virtual void finish();
 
         /** @internal @return current send speed in kilobyte per second. */
         int64_t getSendRate() const { return _sendRate; }

@@ -382,6 +382,17 @@ namespace co
         uint32_t            objectInstanceID;
     };
 
+    struct NodeDisableSendOnRegisterPacket : public NodePacket
+    {
+        NodeDisableSendOnRegisterPacket()
+            {
+                command = CMD_NODE_DISABLE_SEND_ON_REGISTER;
+                size    = sizeof( NodeDisableSendOnRegisterPacket ); 
+            }
+        
+        uint32_t    requestID;
+    };
+
     //------------------------------------------------------------
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeConnectPacket* packet )

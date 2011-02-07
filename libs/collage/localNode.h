@@ -153,9 +153,29 @@ namespace co
 
         /** @name Object Registry */
         //@{
-        /** Disable the instance cache of an stopped local node. */
+        /** Disable the instance cache of a stopped local node. */
         CO_API void disableInstanceCache();
 
+        /**
+         * Enable sending instance data after registration.
+         *
+         * Send-on-register starts transmitting instance data of registered
+         * objects directly after they have been registered. The data is cached
+         * on remote nodes and accelerates object mapping. Send-on-register
+         * should not be active when remote nodes are joining a multicast group
+         * of this node, since they will potentially read out-of-order data
+         * streams on the multicast connection.
+         *
+         * Enable and disable are counted, that is, the last disable on a
+         * matched series of enable/disable will be effective. The disable is
+         * completely synchronous, that is, no more instance data will be sent
+         * after an effective disable.
+         */
+        CO_API void enableSendOnRegister();
+        
+        /** Disable sending data of newly registered objects when idle. */
+        CO_API void disableSendOnRegister(); 
+        
         /** 
          * Register a distributed object.
          *

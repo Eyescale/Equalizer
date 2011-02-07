@@ -468,6 +468,16 @@ void LocalNode::expireInstanceData( const int64_t age )
     _objectStore->expireInstanceData( age );
 }
 
+void LocalNode::enableSendOnRegister()
+{
+    _objectStore->enableSendOnRegister();
+}
+
+void LocalNode::disableSendOnRegister()
+{
+    _objectStore->disableSendOnRegister();
+}
+
 bool LocalNode::registerObject( Object* object )
 {
     return _objectStore->registerObject( object );

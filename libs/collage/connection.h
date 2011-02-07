@@ -320,7 +320,8 @@ namespace co
          * @return true if the packet was sent successfully to all connections.
          */
         static CO_API bool send( const Connections& connections,
-                          const Packet& packet, const bool isLocked = false );
+                                 const Packet& packet,
+                                 const bool isLocked = false );
         /** 
          * Sends a packaged message including additional data to multiple
          * connections.
@@ -333,9 +334,9 @@ namespace co
          * @return true if the packet was sent successfully to all receivers.
          */
         static CO_API bool send( const Connections& connections,
-                                    Packet& packet, const void* data,
-                                    const uint64_t size,
-                                    const bool isLocked = false );
+                                 Packet& packet, const void* data,
+                                 const uint64_t size,
+                                 const bool isLocked = false );
         /** 
          * Sends a packaged message including additional, multiple data items to
          * multiple connections.
@@ -353,10 +354,9 @@ namespace co
          * @return true if the packet was sent successfully to all receivers.
          */
         static bool CO_API send( const Connections& connections, 
-                                      Packet& packet,
-                                      const void* const* items, 
-                                      const uint64_t* itemSizes, 
-                                      const size_t nItems );
+                                 Packet& packet, const void* const* items, 
+                                 const uint64_t* itemSizes,
+                                 const size_t nItems );
 
         /** 
          * Write data to the connection.
@@ -366,6 +366,9 @@ namespace co
          * @return the number of bytes written, or -1 upon error.
          */
         virtual int64_t write( const void* buffer, const uint64_t bytes ) = 0;
+
+        /** @internal Finish all pending send operations. */
+        virtual void finish() { EQUNIMPLEMENTED; }
         //@}
 
         /**

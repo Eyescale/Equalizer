@@ -11,6 +11,7 @@ option(EQUALIZER_USE_CUDA "Test for CUDA support" ON)
 option(EQUALIZER_USE_OSG "Test for OpenSceneGraph support" ON)
 option(EQUALIZER_CPACK_AUX "Package auxiliary software" OFF)
 option(EQUALIZER_NIGHTLY "Package nightly builds" ON)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 list(APPEND CMAKE_PREFIX_PATH ${SystemDrive}:/cygwin/bin)

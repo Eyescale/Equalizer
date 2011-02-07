@@ -47,41 +47,39 @@ ObjectStore::ObjectStore( LocalNode* localNode )
         , _instanceCache( new InstanceCache( Global::getIAttribute( 
                               Global::IATTR_INSTANCE_CACHE_SIZE ) * EQ_1MB ) )
 {
-    EQVERB << "New ObjectStore @" << (void*)this << std::endl;
-    CommandQueue* queue = _localNode->getCommandThreadQueue();
+    EQASSERT( localNode );
+    CommandQueue* queue = localNode->getCommandThreadQueue();
 
-    _localNode->_registerCommand( CMD_NODE_FIND_MASTER_NODE_ID,
-                     CmdFunc( this, &ObjectStore::_cmdFindMasterNodeID ),
-                     queue );
-    _localNode->_registerCommand( CMD_NODE_FIND_MASTER_NODE_ID_REPLY,
-                     CmdFunc( this, &ObjectStore::_cmdFindMasterNodeIDReply ),
-                     0 );
-    _localNode->_registerCommand( CMD_NODE_ATTACH_OBJECT,
-                     CmdFunc( this, &ObjectStore::_cmdAttachObject ), 0 );
-    _localNode->_registerCommand( CMD_NODE_DETACH_OBJECT,
-                     CmdFunc( this, &ObjectStore::_cmdDetachObject ), 0 );
-    _localNode->_registerCommand( CMD_NODE_REGISTER_OBJECT,
-                     CmdFunc( this, &ObjectStore::_cmdRegisterObject ), queue );
-    _localNode->_registerCommand( CMD_NODE_DEREGISTER_OBJECT,
-                     CmdFunc( this, &ObjectStore::_cmdDeregisterObject ),
-                     queue );
-    _localNode->_registerCommand( CMD_NODE_MAP_OBJECT,
-                     CmdFunc( this, &ObjectStore::_cmdMapObject ), queue );
-    _localNode->_registerCommand( CMD_NODE_MAP_OBJECT,
-                     CmdFunc( this, &ObjectStore::_cmdMapObject ), queue );
-    _localNode->_registerCommand( CMD_NODE_MAP_OBJECT_SUCCESS,
-                     CmdFunc( this, &ObjectStore::_cmdMapObjectSuccess ), 0 );
-    _localNode->_registerCommand( CMD_NODE_MAP_OBJECT_REPLY,
-                     CmdFunc( this, &ObjectStore::_cmdMapObjectReply ), queue );
-    _localNode->_registerCommand( CMD_NODE_UNMAP_OBJECT,
-                     CmdFunc( this, &ObjectStore::_cmdUnmapObject ), 0 );
-    _localNode->_registerCommand( CMD_NODE_UNSUBSCRIBE_OBJECT,
-                     CmdFunc( this, &ObjectStore::_cmdUnsubscribeObject ),
-                     queue );
-    _localNode->_registerCommand( CMD_NODE_OBJECT_INSTANCE,
-                     CmdFunc( this, &ObjectStore::_cmdInstance ), 0 );
-    _localNode->_registerCommand( CMD_NODE_INSTANCE,
-                     CmdFunc( this, &ObjectStore::_cmdInstance ), 0 );
+    localNode->_registerCommand( CMD_NODE_FIND_MASTER_NODE_ID,
+        CmdFunc( this, &ObjectStore::_cmdFindMasterNodeID ), queue );
+    localNode->_registerCommand( CMD_NODE_FIND_MASTER_NODE_ID_REPLY,
+        CmdFunc( this, &ObjectStore::_cmdFindMasterNodeIDReply ), 0 );
+    localNode->_registerCommand( CMD_NODE_ATTACH_OBJECT,
+        CmdFunc( this, &ObjectStore::_cmdAttachObject ), 0 );
+    localNode->_registerCommand( CMD_NODE_DETACH_OBJECT,
+        CmdFunc( this, &ObjectStore::_cmdDetachObject ), 0 );
+    localNode->_registerCommand( CMD_NODE_REGISTER_OBJECT,
+        CmdFunc( this, &ObjectStore::_cmdRegisterObject ), queue );
+    localNode->_registerCommand( CMD_NODE_DEREGISTER_OBJECT,
+        CmdFunc( this, &ObjectStore::_cmdDeregisterObject ), queue );
+    localNode->_registerCommand( CMD_NODE_MAP_OBJECT,
+        CmdFunc( this, &ObjectStore::_cmdMapObject ), queue );
+    localNode->_registerCommand( CMD_NODE_MAP_OBJECT,
+        CmdFunc( this, &ObjectStore::_cmdMapObject ), queue );
+    localNode->_registerCommand( CMD_NODE_MAP_OBJECT_SUCCESS,
+        CmdFunc( this, &ObjectStore::_cmdMapObjectSuccess ), 0 );
+    localNode->_registerCommand( CMD_NODE_MAP_OBJECT_REPLY,
+        CmdFunc( this, &ObjectStore::_cmdMapObjectReply ), queue );
+    localNode->_registerCommand( CMD_NODE_UNMAP_OBJECT,
+        CmdFunc( this, &ObjectStore::_cmdUnmapObject ), 0 );
+    localNode->_registerCommand( CMD_NODE_UNSUBSCRIBE_OBJECT,
+        CmdFunc( this, &ObjectStore::_cmdUnsubscribeObject ), queue );
+    localNode->_registerCommand( CMD_NODE_OBJECT_INSTANCE,
+        CmdFunc( this, &ObjectStore::_cmdInstance ), 0 );
+    localNode->_registerCommand( CMD_NODE_INSTANCE,
+        CmdFunc( this, &ObjectStore::_cmdInstance ), 0 );
+    localNode->_registerCommand( CMD_NODE_DISABLE_SEND_ON_REGISTER,
+        CmdFunc( this, &ObjectStore::_cmdDisableSendOnRegister ), queue );
 }
 
 ObjectStore::~ObjectStore()
@@ -119,10 +117,8 @@ void ObjectStore::clear( )
 {
     EQASSERT( _objects->empty( ));
     expireInstanceData( 0 );
-    if( _instanceCache )
-    {
-        EQASSERT( _instanceCache->empty( ));
-    }
+    EQASSERT( !_instanceCache || _instanceCache->empty( ));
+
     _objects->clear();
     _sendQueue.clear();
 }
@@ -138,6 +134,24 @@ void ObjectStore::expireInstanceData( const int64_t age )
 {
     if( _instanceCache )
         _instanceCache->expire( age ); 
+}
+
+void ObjectStore::enableSendOnRegister()
+{
+    ++_sendOnRegister;
+}
+
+void ObjectStore::disableSendOnRegister()
+{
+    if( Global::getIAttribute( Global::IATTR_NODE_SEND_QUEUE_SIZE ) > 0 )
+    {
+        NodeDisableSendOnRegisterPacket packet;
+        packet.requestID = _localNode->registerRequest();
+        _localNode->send( packet );
+        _localNode->waitRequest( packet.requestID );
+    }
+    else // OPT
+        --_sendOnRegister;
 }
 
 //---------------------------------------------------------------------------
@@ -168,7 +182,6 @@ NodeID ObjectStore::_findMasterNodeID( const base::UUID& identifier )
     }
 
     return base::UUID::ZERO;
-
 }
 
 //---------------------------------------------------------------------------
@@ -497,19 +510,20 @@ bool ObjectStore::notifyCommandThreadIdle()
     if( _sendQueue.empty( ))
         return false;
 
-    Nodes nodes;
-    _localNode->getNodes( nodes, false );
+    EQASSERT( _sendOnRegister > 0 );
     SendQueueItem& item = _sendQueue.front();
 
     if( item.age > _clock.getTime64( ))
     {
-        if( nodes.size() )
-            item.object->sendInstanceData( nodes );
-        else
+        Nodes nodes;
+        _localNode->getNodes( nodes, false );
+        if( nodes.empty( ))
         {
-            co::base::Thread::yield();
+            base::Thread::yield();
             return !_sendQueue.empty();
         }
+
+        item.object->sendInstanceData( nodes );
     }
     _sendQueue.pop_front();
     return !_sendQueue.empty();
@@ -661,24 +675,23 @@ bool ObjectStore::_cmdDetachObject( Command& command )
 bool ObjectStore::_cmdRegisterObject( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
+    if( _sendOnRegister <= 0 )
+        return true;
+
     const NodeRegisterObjectPacket* packet = 
         command.getPacket< NodeRegisterObjectPacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd register object " << packet << std::endl;
 
-    const uint32_t size = Global::getIAttribute( 
-                             Global::IATTR_NODE_SEND_QUEUE_SIZE );
     const int32_t age = Global::getIAttribute(
                             Global::IATTR_NODE_SEND_QUEUE_AGE );
-#if 0
-    if( _sendQueue.size() >= size )
-        return true;
-#endif
-    
     SendQueueItem item;
     item.age = age ? age + _clock.getTime64() :
                      std::numeric_limits< int64_t >::max();
     item.object = packet->object;
     _sendQueue.push_back( item );
+
+    const uint32_t size = Global::getIAttribute( 
+                             Global::IATTR_NODE_SEND_QUEUE_SIZE );
     while( _sendQueue.size() > size )
         _sendQueue.pop_front();
 
@@ -692,8 +705,7 @@ bool ObjectStore::_cmdDeregisterObject( Command& command )
         command.getPacket< NodeDeregisterObjectPacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd deregister object " << packet << std::endl;
 
-    Object* object = static_cast<Object*>(
-        _localNode->getRequestData( packet->requestID ));    
+    const void* object = _localNode->getRequestData( packet->requestID ); 
 
     for( SendQueue::iterator i = _sendQueue.begin(); i < _sendQueue.end(); ++i )
     {
@@ -715,9 +727,8 @@ bool ObjectStore::_cmdMapObject( Command& command )
         command.getPacket<NodeMapObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd map object " << packet << std::endl;
 
-    NodePtr        node = command.getNode();
-    const base::UUID& id   = packet->objectID;
-
+    NodePtr node = command.getNode();
+    const base::UUID& id = packet->objectID;
     Object* master = 0;
     {
         base::ScopedMutex< base::SpinLock > mutex( _objects );
@@ -982,6 +993,32 @@ bool ObjectStore::_cmdInstance( Command& command )
     }
 
     return result;
+}
+
+bool ObjectStore::_cmdDisableSendOnRegister( Command& command )
+{
+    EQ_TS_THREAD( _commandThread );
+    EQASSERTINFO( _sendOnRegister > 0, _sendOnRegister );
+
+    if( --_sendOnRegister == 0 )
+    {
+        _sendQueue.clear();
+
+        Nodes nodes;
+        _localNode->getNodes( nodes, false );
+        for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
+        {
+            NodePtr node = *i;
+            ConnectionPtr connection = node->getMulticast();
+            if( connection.isValid( ))
+                connection->finish();
+        }
+    }
+
+    NodeDisableSendOnRegisterPacket* packet =
+        command.getPacket< NodeDisableSendOnRegisterPacket >();
+    _localNode->serveRequest( packet->requestID );
+    return true;
 }
 
 std::ostream& operator << ( std::ostream& os, ObjectStore* objectStore )
