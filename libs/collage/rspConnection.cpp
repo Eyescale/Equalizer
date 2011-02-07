@@ -1511,7 +1511,7 @@ void RSPConnection::finish()
     }
     EQASSERT( _state == STATE_LISTENING );
     
-    EQCHECK( _appBuffers.waitSize( _buffers.size( )) == _numBuffers );
+    _appBuffers.waitSize( _buffers.size( ));
 }
 
 void RSPConnection::_sendDatagramCountNode()
