@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -61,6 +61,22 @@ namespace base
 
         /** @return the number of items currently in the queue. @version 1.0 */
         size_t getSize() const { return _queue.size(); }
+
+        /**
+         * Wait for the size to be at least the number of given elements.
+         *
+         * @return the current size when the condition was fulfilled.
+         * @version 1.0
+         */
+        size_t waitSize( const size_t minSize ) const
+            {
+                _cond.lock();
+                while( _queue.size() < minSize )
+                    _cond.wait();
+                const size_t size = _queue.size();
+                _cond.unlock();
+                return size;
+            }
 
         /** Reset (empty) the queue. @version 1.0 */
         void clear()

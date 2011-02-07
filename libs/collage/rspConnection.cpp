@@ -286,7 +286,7 @@ bool RSPConnection::listen()
     }
 
     // Make all buffers available for writing
-    EQASSERT(_appBuffers.isEmpty());
+    EQASSERT( _appBuffers.isEmpty( ));
     _appBuffers.push( _buffers );
 
     _fireStateChanged();
@@ -1465,7 +1465,7 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
     if( nDatagrams * _payloadSize != bytes )
         ++nDatagrams;
 
-    // queue each datagram (might block if buffers exhausted)
+    // queue each datagram (might block if buffers are exhausted)
     const uint8_t* data = reinterpret_cast< const uint8_t* >( inData );
     const uint8_t* end = data + bytes;
     for( uint64_t i = 0; i < nDatagrams; ++i )
@@ -1500,6 +1500,18 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
     EQLOG( LOG_RSP ) << "queued " << nDatagrams << " datagrams, " 
                      << bytes << " bytes" << std::endl;
     return bytes;
+}
+
+void RSPConnection::finish()
+{
+    if( _parent.isValid( ))
+    {
+        EQASSERTINFO( !_parent, "Writes are only allowed on RSP listeners" );
+        return;
+    }
+    EQASSERT( _state == STATE_LISTENING );
+    
+    EQCHECK( _appBuffers.waitSize( _buffers.size( )) == _numBuffers );
 }
 
 void RSPConnection::_sendDatagramCountNode()

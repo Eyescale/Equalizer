@@ -67,6 +67,9 @@ namespace co
                                   const bool ignored );
         virtual int64_t write( const void* buffer, const uint64_t bytes );
 
+        /** @internal Finish all pending send operations. */
+        void finish();
+
         /** @internal @return current send speed in kilobyte per second. */
         int64_t getSendRate() const { return _sendRate; }
 
@@ -211,10 +214,10 @@ namespace co
         size_t          _bucketSize;
         int64_t         _sendRate;
 
-        Thread*          _thread;
+        Thread*      _thread;
         base::Lock   _mutexConnection;
         base::Lock   _mutexEvent;
-        uint16_t         _acked;        // sequence ID of last confirmed ack
+        uint16_t     _acked;        // sequence ID of last confirmed ack
 
         typedef base::Bufferb Buffer;
         typedef std::vector< Buffer* > Buffers;
