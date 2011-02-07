@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -55,6 +55,7 @@ namespace eq
             WINDOW_THROTTLE_FRAMERATE,
             WINDOW_SWAP_BARRIER, //!< Sampling of swap barrier block
             WINDOW_SWAP, //!< Sampling of Window::swapBuffers
+            WINDOW_FPS, //!< Framerate sampling
             PIPE_IDLE, //!< Pipe thread idle ratio
             NODE_FRAME_DECOMPRESS, //!< Sampling of frame decompression
             CONFIG_START_FRAME, //!< Sampling of Config::startFrame
@@ -73,11 +74,13 @@ namespace eq
         {
             int64_t  startTime; //!< Absolute start time of the operation
             int64_t  idleTime;  //!< Absolute idle time of PIPE_IDLE
+            float    currentFPS; //!< FPS of last frame (WINDOW_FPS)
         };
         union
         {
-            int64_t  endTime; //!< Absolute end time of the operation
-            int64_t  totalTime; //!< Total time of a pipe frame (PIPE_IDLE)
+            int64_t  endTime;    //!< Absolute end time of the operation
+            int64_t  totalTime;  //!< Total time of a pipe frame (PIPE_IDLE)
+            float    averageFPS; //!< Weighted sum averaging of FPS (WINDOW_FPS)
         };
 
         char resourceName[32]; //!< A non-unique name of the originator

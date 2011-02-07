@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2009-2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -151,17 +151,22 @@ void Window::_updateFPS()
         _avgFPS = curFPS;
         return;
     }
-    //else  average FPS over time
+    else // average FPS over time
+    {
+        // We calculate weighted sum of average frame rate with current frame
+        // rate to prevent FPS count flickering.
+        //
+        // Weighted sum calculation here is the following:
+        _avgFPS = curFPS * ( _avgFPS + 1.f ) / ( curFPS + 1.f );
 
-    // We calculate weighted sum of average frame rate with current frame rate
-    // to prevent FPS count flickering.
-    //
-    // Weighted sum calculation here is the following:
-    _avgFPS = curFPS * ( _avgFPS + 1.f ) / ( curFPS + 1.f );
+        // The higher current frame rate, the less it affects averaged FR. This
+        // is equivalent of averaging over many frames, i.e. when rendering is
+        // fast, we suppress FPS counter flickering stronger.
+    }
 
-    // The higher current frame rate, the less it affects averaged FR. This is
-    // equivalent of averaging over many frames, i.e. when rendering is fast, we
-    // suppress FPS counter flickering stronger.
+    WindowStatistics stat( Statistic::WINDOW_FPS, this );
+    stat.event.data.statistic.currentFPS = curFPS;
+    stat.event.data.statistic.averageFPS = _avgFPS;
 }
 
 

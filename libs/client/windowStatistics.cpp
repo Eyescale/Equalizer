@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -46,6 +46,8 @@ WindowStatistics::WindowStatistics( const Statistic::Type type,
         snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str());
     event.data.statistic.resourceName[31] = 0;
 
+    if( type == Statistic::WINDOW_FPS )
+        return;
     if( hint == NICEST )
         window->finish();
 
@@ -62,12 +64,15 @@ WindowStatistics::~WindowStatistics()
     if( event.data.statistic.frameNumber == 0 ) // does not belong to a frame
         return;
 
-    if( hint == NICEST )
-        _owner->finish();
+    if( event.data.statistic.type != Statistic::WINDOW_FPS )
+    {
+        if( hint == NICEST )
+            _owner->finish();
 
-    event.data.statistic.endTime = _owner->getConfig()->getTime();
-    if( event.data.statistic.endTime == event.data.statistic.startTime )
-        ++event.data.statistic.endTime;
+        event.data.statistic.endTime = _owner->getConfig()->getTime();
+        if( event.data.statistic.endTime == event.data.statistic.startTime )
+            ++event.data.statistic.endTime;
+    }
     _owner->processEvent( event.data );
 }
 
