@@ -44,6 +44,8 @@ LocalNode::LocalNode( )
     _objectStore = new ObjectStore( this );
 
     CommandQueue* queue = &_commandThreadQueue;
+    _registerCommand( CMD_NODE_ACK_REQUEST, 
+                      CmdFunc( this, &LocalNode::_cmdAckRequest ), 0 );
     registerCommand( CMD_NODE_STOP,
                      CmdFunc( this, &LocalNode::_cmdStop ), queue );
     registerCommand( CMD_NODE_CONNECT,
@@ -439,12 +441,31 @@ bool LocalNode::disconnect( NodePtr node )
     return true;
 }
 
+void LocalNode::ackRequest( NodePtr node, const uint32_t requestID )
+{
+    if( requestID == EQ_UNDEFINED_UINT32 ) // no need to ack operation
+        return;
+
+    if( node == this ) // OPT
+        serveRequest( requestID );
+    else
+    {
+        NodeAckRequestPacket reply( requestID );
+        node->send( reply );
+    }
+}
+
 //----------------------------------------------------------------------
 // Object functionality
 //----------------------------------------------------------------------
 void LocalNode::disableInstanceCache()
 {
     _objectStore->disableInstanceCache();
+}
+
+void LocalNode::expireInstanceData( const int64_t age )
+{
+    _objectStore->expireInstanceData( age );
 }
 
 bool LocalNode::registerObject( Object* object )
@@ -477,16 +498,6 @@ bool LocalNode::mapObjectSync( const uint32_t requestID )
 void LocalNode::unmapObject( Object* object )
 {
     _objectStore->unmapObject( object );
-}
-
-void LocalNode::ackRequest( NodePtr node, const uint32_t requestID )
-{
-    _objectStore->ackRequest( node, requestID );
-}
-
-void LocalNode::expireInstanceData( const int64_t age )
-{
-    _objectStore->expireInstanceData( age );
 }
 
 void LocalNode::swapObject( Object* oldObject, Object* newObject )
@@ -1011,6 +1022,16 @@ void LocalNode::_runCommandThread()
     _commandThreadQueue.flush();
     EQINFO << "Leaving command thread of " << base::className( this )
            << std::endl;
+}
+
+bool LocalNode::_cmdAckRequest( Command& command )
+{
+    const NodeAckRequestPacket* packet = 
+        command.getPacket<NodeAckRequestPacket>();
+    EQASSERT( packet->requestID != EQ_UNDEFINED_UINT32 );
+
+    serveRequest( packet->requestID );
+    return true;
 }
 
 bool LocalNode::_cmdStop( Command& )

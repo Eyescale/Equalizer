@@ -50,8 +50,6 @@ ObjectStore::ObjectStore( LocalNode* localNode )
     EQVERB << "New ObjectStore @" << (void*)this << std::endl;
     CommandQueue* queue = _localNode->getCommandThreadQueue();
 
-    _localNode->_registerCommand( CMD_NODE_ACK_REQUEST, 
-                     CmdFunc( this, &ObjectStore::_cmdAckRequest ), 0 );
     _localNode->_registerCommand( CMD_NODE_FIND_MASTER_NODE_ID,
                      CmdFunc( this, &ObjectStore::_cmdFindMasterNodeID ),
                      queue );
@@ -493,20 +491,6 @@ NodePtr ObjectStore::_connectMaster( const base::UUID& id )
     return 0;
 }
 
-void ObjectStore::ackRequest( NodePtr node, const uint32_t requestID )
-{
-    if( requestID == EQ_UNDEFINED_UINT32 ) // no need to ack operation
-        return;
-
-    if( node == _localNode ) // OPT
-        _localNode->serveRequest( requestID );
-    else
-    {
-        NodeAckRequestPacket reply( requestID );
-        node->send( reply );
-    }
-}
-
 bool ObjectStore::notifyCommandThreadIdle()
 {
     EQ_TS_THREAD( _commandThread );
@@ -576,16 +560,6 @@ bool ObjectStore::dispatchObjectCommand( Command& command )
         Command& clone = _localNode->cloneCommand( command );
         EQCHECK( object->dispatchCommand( clone ));
     }
-    return true;
-}
-
-bool ObjectStore::_cmdAckRequest( Command& command )
-{
-    const NodeAckRequestPacket* packet = 
-        command.getPacket<NodeAckRequestPacket>();
-    EQASSERT( packet->requestID != EQ_UNDEFINED_UINT32 );
-
-    _localNode->serveRequest( packet->requestID );
     return true;
 }
 

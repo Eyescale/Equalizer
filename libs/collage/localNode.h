@@ -426,6 +426,7 @@ namespace co
         void   _redispatchCommands();
 
         /** The command functions. */
+        bool _cmdAckRequest( Command& packet );
         bool _cmdStop( Command& command );
         bool _cmdConnect( Command& command );
         bool _cmdConnectReply( Command& command );

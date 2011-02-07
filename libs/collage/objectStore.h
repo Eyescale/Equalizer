@@ -144,9 +144,6 @@ namespace co
          */
         virtual bool notifyCommandThreadIdle();
 
-        /** @internal ack an operation to the sender. */
-        void ackRequest( NodePtr node, const uint32_t requestID );
-
         /** @internal swap the existing object by a new object and keep
                       the cm, id and instanceID. */
         void swapObject( Object* oldObject, Object* newObject );
@@ -195,7 +192,6 @@ namespace co
         void _detachObject( Object* object );
 
         /** The command handler functions. */
-        bool _cmdAckRequest( Command& packet );
         bool _cmdFindMasterNodeID( Command& command );
         bool _cmdFindMasterNodeIDReply( Command& command );
         bool _cmdAttachObject( Command& command );
