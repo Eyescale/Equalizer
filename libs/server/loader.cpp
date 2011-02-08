@@ -115,6 +115,16 @@ void Loader::addOutputCompounds( ServerPtr server )
 
 namespace
 {
+class ResetSegmentEyes : public ServerVisitor
+{
+    virtual VisitorResult visit( Segment* segment )
+    {
+        if( segment->getEyes() == 0 )
+            segment->setEyes( EYES_ALL );
+        return TRAVERSE_CONTINUE;
+    }
+};
+
 class ConvertTo11Visitor : public ServerVisitor
 {
     virtual VisitorResult visitPre( Config* config )
@@ -126,6 +136,11 @@ class ConvertTo11Visitor : public ServerVisitor
     }
     virtual VisitorResult visitPost( Config* config )
     {
+        // reset eyes of compound-less segments
+        ResetSegmentEyes resetEyes;
+        config->accept( resetEyes );
+
+        // set new version
         config->setFAttribute( Config::FATTR_VERSION, 1.1f );
         Global::instance()->setConfigFAttribute( Config::FATTR_VERSION, 1.1f );
         return TRAVERSE_CONTINUE;
@@ -147,7 +162,7 @@ class ConvertTo11Visitor : public ServerVisitor
 
     virtual VisitorResult visit( Segment* segment )
     {
-        segment->setEyes( 0 ); // eyes will be re-enabled below
+        segment->setEyes( 0 ); // eyes will be re-enabled below and above
         return TRAVERSE_CONTINUE;
     }
 
