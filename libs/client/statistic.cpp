@@ -67,6 +67,8 @@ static StatisticData _statisticData[] =
    "barrier",      Vector3f( 1.0f, 0.f, 0.f ) }, 
  { Statistic::WINDOW_SWAP,
    "swap",         Vector3f( 1.f, 1.f, 1.f ) }, 
+ { Statistic::WINDOW_FPS,
+   "FPS",          Vector3f( 1.f, 1.f, 1.f ) }, 
  { Statistic::PIPE_IDLE,
    "pipe idle",    Vector3f( 1.f, 1.f, 1.f ) }, 
  { Statistic::NODE_FRAME_DECOMPRESS,

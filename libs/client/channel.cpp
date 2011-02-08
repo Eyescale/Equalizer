@@ -790,8 +790,8 @@ void Channel::drawStatistics()
 
                 switch( stat.type )
                 {
-                case Statistic::PIPE_IDLE:
-                {
+                  case Statistic::PIPE_IDLE:
+                  {
                     IdleData& data = idles[ id ];
                     std::map< UUID, EntityData >::iterator l = 
                         entities.find( id );
@@ -804,14 +804,17 @@ void Channel::drawStatistics()
 
                     data.idle += (stat.idleTime * 100ll / stat.totalTime);
                     ++data.nIdle;
+                  }
+                  // no break;
+                  case Statistic::WINDOW_FPS:
                     continue;
-                }
-                case Statistic::CHANNEL_FRAME_TRANSMIT:
-                case Statistic::CHANNEL_FRAME_COMPRESS:
-                case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
+
+                  case Statistic::CHANNEL_FRAME_TRANSMIT:
+                  case Statistic::CHANNEL_FRAME_COMPRESS:
+                  case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
                     entities[ id ].doubleHeight = true;
                     break;
-                default:
+                  default:
                     break;
                 }
 
@@ -853,7 +856,8 @@ void Channel::drawStatistics()
             if( stats.empty( ))
                 continue;
 
-            std::map< co::base::UUID, EntityData >::iterator l = entities.find( id );
+            std::map< co::base::UUID, EntityData >::iterator l = 
+                entities.find( id );
             if( l == entities.end( ))
                 continue;
 
@@ -876,6 +880,7 @@ void Channel::drawStatistics()
                 switch( stat.type )
                 {
                 case Statistic::PIPE_IDLE:
+                case Statistic::WINDOW_FPS:
                     continue;
 
                 case Statistic::CHANNEL_FRAME_TRANSMIT:
@@ -964,8 +969,8 @@ void Channel::drawStatistics()
     }
 
     // Entitity names
-    for( std::map< co::base::UUID, EntityData >::const_iterator i = entities.begin();
-         i != entities.end(); ++i )
+    for( std::map< co::base::UUID, EntityData >::const_iterator i =
+             entities.begin(); i != entities.end(); ++i )
     {
         const EntityData& data = i->second;
 
@@ -1007,7 +1012,7 @@ void Channel::drawStatistics()
     {
         const Statistic::Type type = static_cast< Statistic::Type >( i );
         if( type == Statistic::CHANNEL_DRAW_FINISH ||
-            type == Statistic::PIPE_IDLE )
+            type == Statistic::PIPE_IDLE || type == Statistic::WINDOW_FPS )
         {
             continue;
         }
