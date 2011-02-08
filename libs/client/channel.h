@@ -589,6 +589,8 @@ namespace eq
         bool _cmdFrameViewStart( co::Command& command );
         bool _cmdFrameViewFinish( co::Command& command );
         bool _cmdStopFrame( co::Command& command );
+
+        EQ_TS_VAR( _pipeThread );
     };
 }
 
