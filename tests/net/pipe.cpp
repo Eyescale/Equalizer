@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,14 +18,11 @@
 #include <test.h>
 
 #include <co/base/thread.h>
-#include <co/connection.h>
-#include <co/connectionDescription.h>
 #include <co/init.h>
 
 #include <iostream>
 
-#define SIZE EQ_64MB
-void* buffer = malloc( SIZE );
+#include "libs/collage/pipeConnection.h" // private header
 
 class Server : public co::base::Thread
 {
@@ -48,11 +45,6 @@ protected:
             TEST( _connection->recvSync( 0, 0 ));
             TEST( strcmp( "buh!", text ) == 0 );
 
-            co::base::Clock _clock;
-            _connection->recvNB( buffer, SIZE );
-            TEST( _connection->recvSync( 0, 0 ));
-            std::cout << "Recv perf: " << SIZE / _clock.getTimef() / 1024 << "MB/s" << std::endl;
-
             _connection->close();
             _connection = 0;
         }
@@ -63,23 +55,16 @@ private:
 int main( int argc, char **argv )
 {
     co::init( argc, argv );
-
-    co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
-    desc->type = co::CONNECTIONTYPE_PIPE;
-    co::ConnectionPtr connection = co::Connection::create( desc );
+    co::PipeConnectionPtr connection = new co::PipeConnection;
     TEST( connection->connect( ));
 
     Server server;
-    server.start( connection );
+    server.start( connection->acceptSync( ));
 
     const char message[] = "buh!";
     const size_t nChars  = strlen( message ) + 1;
 
     TEST( connection->send( message, nChars ));
-
-    co::base::Clock _clock;
-    TEST( connection->send( buffer, SIZE ));
-    std::cout << "Send perf: " << SIZE / _clock.getTimef() / 1024 << "MB/s" << std::endl;
 
     server.join();
 

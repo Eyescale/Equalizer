@@ -156,7 +156,7 @@ int main( int argc, char **argv )
     co::ConnectionPtr connection = co::Connection::create( desc );
 
     TEST( connection->connect( ));
-    co::DataStreamTest::Sender sender( connection );
+    co::DataStreamTest::Sender sender( connection->acceptSync( ));
     TEST( sender.start( ));
 
     ::DataIStream stream;

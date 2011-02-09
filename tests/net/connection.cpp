@@ -62,14 +62,12 @@ int main( int argc, char **argv )
         co::ConnectionPtr writer;
         co::ConnectionPtr reader;
 
-        switch( desc->type ) // different connections, different semantics..
+        switch( desc->type ) // different connections, different semantics...
         {
             case co::CONNECTIONTYPE_PIPE:
                 writer = listener;
-                listener = 0;
-                reader = writer;
-
                 TEST( writer->connect( ));
+                reader = writer->acceptSync();
                 break;
 
             case co::CONNECTIONTYPE_MCIP:

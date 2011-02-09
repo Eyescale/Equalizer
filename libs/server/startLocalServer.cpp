@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -22,13 +22,12 @@
 #include "loader.h"
 
 #include <co/node.h>
-#include <co/pairConnection.h>
+
+#include "../collage/pipeConnection.h" // private header
 
 #define CONFIG "server{ config{ appNode{ pipe {                            \
     window { viewport [ .25 .25 .5 .5 ] channel { name \"channel\" }}}}    \
-    compound { channel \"channel\" wall { bottom_left  [ -.8 -.5 -1 ]      \
-                                          bottom_right [  .8 -.5 -1 ]      \
-                                          top_left     [ -.8  .5 -1 ] }}}}"
+    compound { channel \"channel\" wall { }}}}"
 
 namespace
 {
@@ -102,25 +101,14 @@ EQSERVER_EXPORT co::ConnectionPtr eqsStartLocalServer(
     eq::server::Loader::addDefaultObserver( server );
     eq::server::Loader::convertTo11( server );
 
-    co::ConnectionDescriptionPtr desc = 
-        new eq::server::ConnectionDescription;
-    desc->type = co::CONNECTIONTYPE_PIPE;
-
-    // Do not use RefPtr for easier handling
-    co::PairConnection* connection = new co::PairConnection( 
-        co::Connection::create( desc ),
-        co::Connection::create( desc ));
-
-    // Wrap in one RefPtr to do correct reference counting and avoid deletion
-    co::ConnectionPtr conn = connection;
-
+    co::PipeConnectionPtr connection = new co::PipeConnection;
     if( !connection->connect( ))
     {
         EQERROR << "Failed to connect server connection" << std::endl;
         return 0;
     }
 
-    co::ConnectionPtr sibling = connection->getSibling();
+    co::ConnectionPtr sibling = connection->acceptSync();
     server->_addConnection( sibling );
 
     if( !_serverThread.start( server ))
@@ -129,7 +117,7 @@ EQSERVER_EXPORT co::ConnectionPtr eqsStartLocalServer(
         return 0;
     }
 
-    return conn;
+    return connection;
 }
 
 EQSERVER_EXPORT void eqsJoinLocalServer()

@@ -15,8 +15,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifdef _WIN32
-
 #include <limits>
 
 #include "namedPipeConnection.h"
@@ -74,7 +72,14 @@ bool NamedPipeConnection::connect()
     _state = STATE_CONNECTING;
     _fireStateChanged();
 
-    if( !_createNamedPipe( ))
+    const std::string filename = _getFilename();
+    if ( !WaitNamedPipe( filename.c_str(), 20000 )) 
+    { 
+        EQERROR << "Can't create named pipe: " << base::sysError << std::endl; 
+        return false; 
+    }
+
+    if( !_connectNamedPipe( ))
         return false;
 
     _initAIORead();
@@ -115,12 +120,33 @@ void NamedPipeConnection::close()
 
 bool NamedPipeConnection::_createNamedPipe()
 {
+    // Start accept
     const std::string filename = _getFilename();
-    if ( !WaitNamedPipe( filename.c_str(), 20000 )) 
-    { 
-        EQERROR << "Can't create named pipe: " << base::sysError << std::endl; 
-        return false; 
-    }    
+    _fd = CreateNamedPipe( 
+                     filename.c_str(),            // pipe name 
+                     PIPE_ACCESS_DUPLEX |         // read/write access 
+                     FILE_FLAG_OVERLAPPED,        // overlapped mode 
+                     PIPE_TYPE_BYTE |             // message-type  
+                     PIPE_READMODE_BYTE |         // message-read  
+                     PIPE_WAIT,                   // blocking mode 
+                     PIPE_UNLIMITED_INSTANCES,    // number of instances 
+                     EQ_PIPE_BUFFER_SIZE,         // output buffer size 
+                     EQ_PIPE_BUFFER_SIZE,         // input buffer size 
+                     0,                           // default time-out (unused)
+                     0 /*&sa*/);                  // default security attributes
+
+    if ( _fd == INVALID_HANDLE_VALUE ) 
+    {
+        EQERROR << "Could not create named pipe: " 
+                << base::sysError << " file : " << filename << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool NamedPipeConnection::_connectNamedPipe()
+{
+    const std::string filename = _getFilename();
 
     _fd = CreateFile( 
              filename.c_str(),      // pipe name 
@@ -137,10 +163,8 @@ bool NamedPipeConnection::_createNamedPipe()
 
     if( GetLastError() != ERROR_PIPE_BUSY ) 
     {
-        EQERROR << "Can't create named pipe: " 
-                << base::sysError << std::endl; 
+        EQERROR << "Can't create named pipe: " << base::sysError << std::endl; 
         return false;
-     
     }
 
     return _fd != INVALID_HANDLE_VALUE;
@@ -241,43 +265,10 @@ void NamedPipeConnection::acceptNB()
     EQASSERT( _state == STATE_LISTENING );
     ResetEvent( _read.hEvent );
 
-
-#if 0
-    SECURITY_ATTRIBUTES sa;
-    sa.lpSecurityDescriptor = 
-        ( PSECURITY_DESCRIPTOR )malloc( SECURITY_DESCRIPTOR_MIN_LENGTH );
-    InitializeSecurityDescriptor( sa.lpSecurityDescriptor, 
-                                  SECURITY_DESCRIPTOR_REVISION );
-    // ACL is set as NULL in order to allow all access to the object.
-    SetSecurityDescriptorDacl( sa.lpSecurityDescriptor, true, 0, false );
-    sa.nLength = sizeof(sa);
-    sa.bInheritHandle = TRUE;
-#endif
-
-    // Start accept
-    const std::string filename = _getFilename();
-    _fd = CreateNamedPipe( 
-                     filename.c_str(),            // pipe name 
-                     PIPE_ACCESS_DUPLEX |         // read/write access 
-                     FILE_FLAG_OVERLAPPED,        // overlapped mode 
-                     PIPE_TYPE_BYTE |             // message-type  
-                     PIPE_READMODE_BYTE |         // message-read  
-                     PIPE_WAIT,                   // blocking mode 
-                     PIPE_UNLIMITED_INSTANCES,    // number of instances 
-                     EQ_PIPE_BUFFER_SIZE,         // output buffer size 
-                     EQ_PIPE_BUFFER_SIZE,         // input buffer size 
-                     0,                           // default time-out (unused)
-                     0 /*&sa*/);                  // default security attributes
-
-    if ( _fd == INVALID_HANDLE_VALUE ) 
-    {
-        EQERROR << "Could not create named pipe: " 
-                << base::sysError << " file : " << filename << std::endl;
+    if( _createNamedPipe( ))
+        _connectToNewClient( _fd );
+    else
         close();
-        return;
-    }
-
-    _connectToNewClient( _fd );
 }
 
 ConnectionPtr NamedPipeConnection::acceptSync()
@@ -411,5 +402,3 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
     return got;
 }
 }
-
-#endif

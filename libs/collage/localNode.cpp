@@ -276,8 +276,9 @@ void LocalNode::_cleanup()
     EQASSERTINFO( _state == STATE_CLOSED, _state );
 
     _multicasts.clear();
-    _removeConnection( _outgoing );
-    _connectionNodes.erase( _outgoing );
+    PipeConnectionPtr pipe = EQSAFECAST( PipeConnection*, _outgoing.get( ));
+    _removeConnection( pipe->acceptSync( ));
+    _connectionNodes.erase( pipe->acceptSync( ));
     _outMulticast.data = 0;
     _outgoing = 0;
 
@@ -338,24 +339,25 @@ void LocalNode::_cleanup()
 bool LocalNode::_connectSelf()
 {
     // setup local connection to myself
-    _outgoing = new PipeConnection;
-    if( !_outgoing->connect( ))
+    PipeConnectionPtr connection = new PipeConnection;
+    if( !connection->connect( ))
     {
         EQERROR << "Could not create local connection to receiver thread."
                 << std::endl;
-        _outgoing = 0;
         return false;
     }
 
+    _outgoing = connection->acceptSync();
+
     // add to connection set
-    EQASSERT( _outgoing->getDescription().isValid( )); 
-    EQASSERT( _connectionNodes.find( _outgoing ) == _connectionNodes.end( ));
+    EQASSERT( connection->getDescription().isValid( )); 
+    EQASSERT( _connectionNodes.find( connection ) == _connectionNodes.end( ));
 
-    _connectionNodes[ _outgoing ] = this;
+    _connectionNodes[ connection ] = this;
     _nodes.data[ _id ] = this;
-    _addConnection( _outgoing );
+    _addConnection( connection );
 
-    EQVERB << "Added node " << _id << " using " << _outgoing << std::endl;
+    EQVERB << "Added node " << _id << " using " << connection << std::endl;
     return true;
 }
 
@@ -875,7 +877,7 @@ bool LocalNode::_handleData()
     if( i != _connectionNodes.end( ))
         node = i->second;
     EQASSERTINFO( !node || // unconnected node
-                  node->_outgoing == connection || // correct UC conn for node
+                  *(node->_outgoing) == *connection || // correct UC connection
                   connection->getDescription()->type>=CONNECTIONTYPE_MULTICAST,
                   base::className( node ));
 

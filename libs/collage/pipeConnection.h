@@ -18,7 +18,7 @@
 #ifndef CO_PIPE_CONNECTION_H
 #define CO_PIPE_CONNECTION_H
 
-#ifdef WIN32
+#ifdef _WIN32
 #  include <co/connection.h>
 #else
 #  include "fdConnection.h"
@@ -28,15 +28,20 @@
 
 namespace co
 {
+    class NamedPipeConnection;
+    class PipeConnection;
+    typedef base::RefPtr< PipeConnection > PipeConnectionPtr;
+    typedef base::RefPtr< const PipeConnection > ConstPipeConnectionPtr;
+
     /**
-     * A uni-directional pipe connection.
+     * An inter-thread, bi-directional connection using anonymous pipes.
      *
      * The pipe connection is implemented using anonymous pipes, and can
-     * therefore only be used between related threads. A PairConnection can be
-     * used to create a bi-directional communication using two pipe connections.
+     * therefore only be used between related threads. It consist of a pair of
+     * siblings representing the two endpoints.
      */
     class PipeConnection 
-#ifdef WIN32
+#ifdef _WIN32
         : public Connection
 #else
         : public FDConnection
@@ -51,14 +56,17 @@ namespace co
         virtual bool connect();
         virtual void close();
 
-#ifdef WIN32
-        virtual Notifier getNotifier() const { return _dataPending; }
-        bool hasData() const 
-            { return WaitForSingleObject( _dataPending, 0 ) == WAIT_OBJECT_0; }
+#ifdef _WIN32
+        virtual Notifier getNotifier() const;
 #endif
 
+        virtual void acceptNB() { /* nop */ }
+
+        /** @return the sibling of this pipe connection. */
+        virtual ConnectionPtr acceptSync() { return _sibling; }
+
     protected:
-#ifdef WIN32
+#ifdef _WIN32
         virtual void readNB( void* buffer, const uint64_t bytes );
         virtual int64_t readSync( void* buffer, const uint64_t bytes,
                                   const bool ignored );
@@ -66,15 +74,19 @@ namespace co
 #endif
 
     private:
-        bool _createPipe();
+        PipeConnectionPtr _sibling;
 
-#ifdef WIN32
-        HANDLE _readHandle;
-        HANDLE _writeHandle;
-        mutable base::Lock _mutex;
-        mutable uint64_t   _size;
-        mutable HANDLE     _dataPending;
+#ifdef _WIN32
+        typedef base::RefPtr< NamedPipeConnection > NamePipeConnectionPtr;
+        NamedPipeConnectionPtr _readPipe;
+        NamedPipeConnectionPtr _writePipe;
+
+        EQ_TS_VAR( _recvThread );
 #endif
+        struct Private;
+        Private* _private; // placeholder for binary-compatible changes
+
+        bool _createPipes();
     };
 }
 

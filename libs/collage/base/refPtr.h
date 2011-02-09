@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1q as published
@@ -96,27 +96,27 @@ namespace base
          * @version 1.0
          */
         bool operator == ( const RefPtr& rhs ) const 
-            { return ( _ptr==rhs._ptr ); }
+            { return ( _ptr == rhs._ptr ); }
 
         /**
          * @return true if both reference pointer hold different C pointer.
          * @version 1.0
          */
         bool operator != ( const RefPtr& rhs ) const
-            { return ( _ptr!=rhs._ptr ); }
+            { return ( _ptr != rhs._ptr ); }
 
         /**
          * @return true if the left RefPtr is smaller then the right.
          * @version 1.0
          */
-        bool operator <  ( const RefPtr& rhs ) const
+        bool operator < ( const RefPtr& rhs ) const
             { return ( _ptr < rhs._ptr ); }
 
         /**
          * @return true if the right RefPtr is smaller then the left.
          * @version 1.0
          */
-        bool operator >  ( const RefPtr& rhs ) const
+        bool operator > ( const RefPtr& rhs ) const
             { return ( _ptr > rhs._ptr ); }
 
         /** @return true if the RefPtr is empty. @version 1.0 */
@@ -126,13 +126,13 @@ namespace base
          * @return true if the reference pointers holds the C pointer.
          * @version 1.0
          */
-        bool operator == ( const T* ptr ) const { return ( _ptr==ptr ); }
+        bool operator == ( const T* ptr ) const { return ( _ptr == ptr ); }
 
         /**
          * @return true if the reference pointers does not hold the C pointer
          * @version 1.0
          */
-        bool operator != ( const T* ptr ) const { return ( _ptr!=ptr ); }
+        bool operator != ( const T* ptr ) const { return ( _ptr != ptr ); }
 
         /** Access the held object. @version 1.0 */
         T*       operator->()       

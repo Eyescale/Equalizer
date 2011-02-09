@@ -64,6 +64,17 @@ Connection::~Connection()
     EQVERB << "Delete Connection @" << (void*)this << std::endl;
 }
 
+bool Connection::operator == ( const Connection& rhs ) const
+{
+    if( this == &rhs )
+        return true;
+    if( _description->type != CONNECTIONTYPE_PIPE )
+        return false;
+    PipeConnection* pipe = EQSAFECAST( const PipeConnection*, 
+                                       const_cast< Connection* >( this ));
+    return pipe->acceptSync().get() == &rhs;
+}
+
 ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
 {
     ConnectionPtr connection;

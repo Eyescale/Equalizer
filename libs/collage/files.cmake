@@ -1,7 +1,7 @@
-##
-# Path : libs/collage/files.cmake
+
 # Copyright (c) 2010 Cedric Stalder <cedric.stalder@gmail.ch>
-##
+#               2011 Stefan Eilemann <eile@eyescale.ch>
+
 set(CO_FORWARD_HEADERS 
     api.h
     barrier.h
@@ -32,19 +32,17 @@ set(CO_FORWARD_HEADERS
     objectCM.h
     objectVersion.h
     packets.h
-    pairConnection.h
     types.h
     version.h
   )
+
 set(CO_HEADERS 
     barrierPackets.h
     dataOStream.ipp
     deltaMasterCM.h
     eventConnection.h
-    fdConnection.h
     fullMasterCM.h
     masterCM.h
-    namedPipeConnection.h
     nodePackets.h
     nullCM.h
     objectDataIStream.h
@@ -60,6 +58,7 @@ set(CO_HEADERS
     unbufferedMasterCM.h
     versionedSlaveCM.h
   )
+
 set(CO_SOURCES
     barrier.cpp
     bufferConnection.cpp
@@ -74,7 +73,6 @@ set(CO_SOURCES
     deltaMasterCM.cpp
     dispatcher.cpp
     eventConnection.cpp
-    fdConnection.cpp
     fullMasterCM.cpp
     global.cpp
     init.cpp
@@ -82,7 +80,6 @@ set(CO_SOURCES
     localNode.cpp
     masterCM.cpp
     mcipConnection.cpp
-    namedPipeConnection.cpp
     node.cpp
     object.cpp
     objectCM.cpp
@@ -94,7 +91,6 @@ set(CO_SOURCES
     objectStore.cpp
     objectVersion.cpp
     packets.cpp
-    pairConnection.cpp
     pipeConnection.cpp
     socketConnection.cpp
     staticMasterCM.cpp
@@ -133,3 +129,11 @@ set(PLUGIN_HEADERS
     plugins/compressorTokens.h
     plugins/compressorTypes.h
 )
+
+if(WIN32)
+  set(CO_HEADERS ${CO_HEADERS} namedPipeConnection.h)
+  set(CO_SOURCES ${CO_SOURCES} namedPipeConnection.cpp)
+else()
+  set(CO_HEADERS ${CO_HEADERS} fdConnection.h)
+  set(CO_SOURCES ${CO_SOURCES} fdConnection.cpp)
+endif()

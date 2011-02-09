@@ -84,16 +84,5 @@ int64_t FDConnection::write( const void* buffer, const uint64_t bytes )
     return bytesWritten;
 }
 
-bool FDConnection::hasData() const
-{
-    pollfd fd;
-    fd.events  = POLLIN;
-    fd.fd      = getNotifier();
-    EQASSERT( fd.fd > 0 );
-
-    const int nReady = poll( &fd, 1, 0 );
-    return nReady > 0;
-}
-
 }
 #endif

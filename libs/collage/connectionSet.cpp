@@ -358,8 +358,8 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
     // else locally handled connection
 
     _connection = _fdSetResult[i].connection;
-    EQASSERT( _fdSet[i] == _connection->getNotifier( ));
-
+    EQASSERT( _fdSet[i] == _connection->getNotifier() ||
+              _connection->isClosed( ));
     return EVENT_DATA;
 }
 #else // _WIN32

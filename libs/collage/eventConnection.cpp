@@ -81,7 +81,7 @@ void EventConnection::set()
         return;
     
     const char c = 42;
-    _connection->send( &c, 1, true );
+    _connection->acceptSync()->send( &c, 1, true );
     _set = true;
 #endif
 }

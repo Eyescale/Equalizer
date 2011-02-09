@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -19,29 +19,20 @@
 #ifndef CO_NAMEDPIPECONNECTION_H
 #define CO_NAMEDPIPECONNECTION_H
 
-#include <co/base/os.h>
+#include <co/connection.h> // base class
+
+//#include <co/base/os.h>
 #include <co/base/buffer.h> // member
 #include <co/base/thread.h> // for EQ_TS_VAR
 
-#ifdef WIN32
-#  include <co/connection.h>
-#else
-#  include "fdConnection.h"
-#  include <netinet/in.h>
+#ifndef _WIN32
+#  error NamedPipeConnection only supported on Windows
 #endif
-
 
 namespace co
 {
-    /**
-     * A .
-     */
-    class NamedPipeConnection
-#ifdef WIN32
-        : public Connection
-#else
-        : public FDConnection
-#endif
+    /** An inter-process connection using a named pipe. */
+    class NamedPipeConnection : public Connection
     {
     public:
         NamedPipeConnection();
@@ -53,11 +44,7 @@ namespace co
         
         virtual void close();
 
-
-#ifdef WIN32
-        virtual Notifier getNotifier() const {
-            return _read.hEvent; }
-#endif
+        virtual Notifier getNotifier() const { return _read.hEvent; }
 
     protected:
         virtual ~NamedPipeConnection();
@@ -67,19 +54,13 @@ namespace co
         void _initAIORead();
         void _exitAIORead();
 
-#ifdef WIN32
+        friend class PipeConnection;
         virtual void readNB( void* buffer, const uint64_t bytes );
         virtual int64_t readSync( void* buffer, const uint64_t bytes,
                                   const bool ignored );
         virtual int64_t write( const void* buffer, const uint64_t bytes );
-#else
-
-#endif
 
     private:
-        bool _createNamedPipe();
-
-#ifdef WIN32
         HANDLE _fd;
 
         bool _connectToNewClient( HANDLE hPipe ) ;
@@ -92,7 +73,8 @@ namespace co
         EQ_TS_VAR( _recvThread );
 
         std::string _getFilename() const;
-#endif
+        bool _createNamedPipe();
+        bool _connectNamedPipe();
     };
 }
 

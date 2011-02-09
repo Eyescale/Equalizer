@@ -20,6 +20,8 @@
 
 #include <co/connection.h>   // base class
 
+#include "pipeConnection.h"
+
 namespace co
 {
     /**
@@ -54,7 +56,7 @@ namespace co
 #ifdef WIN32
         HANDLE _event;
 #else
-        ConnectionPtr _connection;
+        PipeConnectionPtr _connection;
         base::Lock _lock;
         bool _set;
 #endif

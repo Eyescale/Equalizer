@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,18 +15,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// Tests pipe() throughput
+// Tests PipeConnection throughput
 // Usage: ./pipeperf
 
 
 #include <test.h>
 #include <co/base/monitor.h>
-#include <co/connection.h>
-#include <co/connectionDescription.h>
 #include <co/connectionSet.h>
 #include <co/init.h>
 
 #include <iostream>
+
+#include "libs/collage/pipeConnection.h" // private header
 
 #define MAXPACKETSIZE (32 * 1048576)
 
@@ -34,8 +34,8 @@ class Sender : public co::base::Thread
 {
 public:
     Sender( co::ConnectionPtr connection )
-            : co::base::Thread(),
-              _connection( connection )
+            : co::base::Thread()
+            , _connection( connection )
         {}
     virtual ~Sender(){}
 
@@ -69,12 +69,10 @@ int main( int argc, char **argv )
 {
     co::init( argc, argv );
 
-    co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
-    desc->type = co::CONNECTIONTYPE_PIPE;
-    co::ConnectionPtr connection = co::Connection::create( desc );
+    co::PipeConnectionPtr connection = new co::PipeConnection;
 
     TEST( connection->connect( ));
-    Sender sender( connection );
+    Sender sender( connection->acceptSync( ));
     TEST( sender.start( ));
 
     void* buffer = calloc( 1, MAXPACKETSIZE );

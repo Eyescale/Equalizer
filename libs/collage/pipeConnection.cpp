@@ -19,6 +19,9 @@
 
 #include "connectionDescription.h"
 #include "node.h"
+#ifdef _WIN32
+#  include "namedPipeConnection.h"
+#endif
 
 #include <co/base/log.h>
 #include <co/base/thread.h>
@@ -27,12 +30,6 @@ namespace co
 {
 
 PipeConnection::PipeConnection()
-#ifdef _WIN32
-        : _readHandle( 0 ),
-          _writeHandle( 0 ),
-          _size( 0 ),
-          _dataPending( CreateEvent( 0, TRUE, FALSE, 0 ))
-#endif
 {
     _description->type = CONNECTIONTYPE_PIPE;
     _description->bandwidth = 1024000;
@@ -41,13 +38,12 @@ PipeConnection::PipeConnection()
 PipeConnection::~PipeConnection()
 {
 #ifdef _WIN32
-    CloseHandle( _dataPending );
-    _dataPending = 0;
+    close();
+    _writePipe = 0;
+    _readPipe = 0;
 #endif
 }
 
-#ifdef _WIN32
-
 //----------------------------------------------------------------------
 // connect
 //----------------------------------------------------------------------
@@ -59,132 +55,10 @@ bool PipeConnection::connect()
         return false;
 
     _state = STATE_CONNECTING;
-    _size  = 0;
+    _sibling = new PipeConnection;
+    _sibling->_sibling = this;
 
-    if( !_createPipe( ))
-    {
-        close();
-        return false;
-    }
-
-    _state = STATE_CONNECTED;
-    _fireStateChanged();
-    return true;
-}
-
-bool PipeConnection::_createPipe()
-{
-    if( CreatePipe( &_readHandle, &_writeHandle, 0, 0 ) == 0 )
-    {
-        EQERROR << "Could not create pipe: " << base::sysError 
-                << std::endl;
-        close();
-        return false;
-    }
-    return true;
-}
-
-void PipeConnection::close()
-{
-    if( _writeHandle )
-    {
-        CloseHandle( _writeHandle );
-        _writeHandle = 0;
-    }
-    if( _readHandle )
-    {
-        CloseHandle( _readHandle );
-        _readHandle = 0;
-    }
-    _state = STATE_CLOSED;
-    _fireStateChanged();
-}
-void PipeConnection::readNB( void* buffer, const uint64_t bytes ) { /* NOP */ }
-int64_t PipeConnection::readSync( void* buffer, const uint64_t bytes,
-                                  const bool ignored )
-{
-    if( !_readHandle )
-        return -1;
-
-    DWORD bytesRead = 0;
-    const BOOL ret = ReadFile( _readHandle, buffer, static_cast<DWORD>( bytes ),
-                               &bytesRead, 0 );
-
-    if( ret == 0 ) // Error
-    {
-        EQWARN << "Error during read: " << base::sysError << std::endl;
-        return -1;
-    }
-
-    if( bytesRead == 0 ) // EOF
-    {
-        close();
-        return -1;
-    }
-
-    _mutex.set();
-    EQASSERT( _size >= bytesRead );
-    _size -= bytesRead;
-    if( _size == 0 )
-        ResetEvent( _dataPending );
-    _mutex.unset();
-
-    return bytesRead;
-}
-
-int64_t PipeConnection::write( const void* buffer, const uint64_t bytes )
-{
-    if( _state != STATE_CONNECTED || !_writeHandle )
-        return -1;
-
-    const DWORD size = EQ_MIN( static_cast<DWORD>( bytes ), 4096 );
-
-    _mutex.set();
-    _size += size; // speculatively 'write' everything
-    _mutex.unset();
-
-    DWORD bytesWritten = 0;
-    const BOOL ret = WriteFile( _writeHandle, buffer, size, &bytesWritten, 0 );
-
-    if( ret == 0 ) // Error
-    {
-        EQWARN << "Error during write: " << base::sysError << std::endl;
-        bytesWritten = 0;
-    }
-
-    _mutex.set();
-    EQASSERT( _size >= size - bytesWritten );
-    _size -= ( size - bytesWritten ); // correct size
-
-    if( _size > 0 )
-        SetEvent( _dataPending );
-    else
-    {
-        EQASSERT( _size == 0 );
-        ResetEvent( _dataPending );
-    }
-    _mutex.unset();
-
-    if( ret==0 ) 
-        return -1;
-    return bytesWritten;
-}
-
-#else // !_WIN32
-
-//----------------------------------------------------------------------
-// connect
-//----------------------------------------------------------------------
-bool PipeConnection::connect()
-{
-    EQASSERT( _description->type == CONNECTIONTYPE_PIPE );
-
-    if( _state != STATE_CLOSED )
-        return false;
-
-    _state = STATE_CONNECTING;
-
-    if( !_createPipe( ))
+    if( !_createPipes( ))
     {
         close();
         return false;
@@ -192,11 +66,91 @@ bool PipeConnection::connect()
 
     EQVERB << "readFD " << _readFD << " writeFD " << _writeFD << std::endl;
     _state = STATE_CONNECTED;
+    _sibling->_state = STATE_CONNECTED;
+
     _fireStateChanged();
     return true;
 }
 
-bool PipeConnection::_createPipe()
+#ifdef _WIN32
+
+Connection::Notifier PipeConnection::getNotifier() const 
+{ 
+    EQASSERT( _readPipe );
+    return _readPipe->getNotifier(); 
+}
+
+bool PipeConnection::_createPipes()
+{
+    _readPipe = new NamedPipeConnection;
+    _writePipe = new NamedPipeConnection;
+
+    std::stringstream pipeName;
+    pipeName << "\\\\.\\Pipe\\Collage." << co::base::UUID( true );
+
+    _readPipe->getDescription()->setFilename( pipeName.str() );
+    _readPipe->_initAIOAccept();
+    if( !_readPipe->_createNamedPipe( ))
+        return false;
+    _readPipe->_state = STATE_CONNECTED;
+
+    _writePipe->getDescription()->setFilename( pipeName.str() );
+    if( !_writePipe->_connectNamedPipe( ))
+        return false;
+    _writePipe->_state = STATE_CONNECTED;
+    
+    _sibling->_readPipe  = _writePipe;
+    _sibling->_writePipe = _readPipe;
+    return true;
+}
+
+void PipeConnection::close()
+{
+    if( _state == STATE_CLOSED )
+        return;
+
+    _writePipe->close();
+    _readPipe->close();
+    _sibling = 0;
+    _readPipe = 0;
+    _writePipe = 0;
+
+    _state = STATE_CLOSED;
+    _fireStateChanged();
+}
+
+void PipeConnection::readNB( void* buffer, const uint64_t bytes )
+{
+    if( _state == STATE_CLOSED )
+        return;
+    _readPipe->readNB( buffer, bytes );
+}
+
+int64_t PipeConnection::readSync( void* buffer, const uint64_t bytes,
+                                       const bool ignored )
+{
+    if( _state == STATE_CLOSED )
+        return -1;
+
+    const int64_t bytesRead = _readPipe->readSync( buffer, bytes, ignored );
+
+    if( bytesRead == -1 )
+        close();
+    
+    return bytesRead;
+}
+
+int64_t PipeConnection::write( const void* buffer, const uint64_t bytes )
+{
+    if( _state != STATE_CONNECTED )
+        return -1;
+
+    return _writePipe->write( buffer, bytes );
+}
+
+#else // !_WIN32
+
+bool PipeConnection::_createPipes()
 {
     int pipeFDs[2];
     if( ::pipe( pipeFDs ) == -1 )
@@ -207,26 +161,39 @@ bool PipeConnection::_createPipe()
     }
 
     _readFD  = pipeFDs[0];
+    _sibling->_writeFD = pipeFDs[1];
+
+    if( ::pipe( pipeFDs ) == -1 )
+    {
+        EQERROR << "Could not create pipe: " << strerror( errno );
+        close();
+        return false;
+    }
+
+    _sibling->_readFD  = pipeFDs[0];
     _writeFD = pipeFDs[1];
     return true;
 }
 
 void PipeConnection::close()
 {
+    if( _state == STATE_CLOSED )
+        return;
+
     if( _writeFD > 0 )
     {
-        ::close(_writeFD);
+        ::close( _writeFD );
         _writeFD = 0;
     }
     if( _readFD > 0 )
     {
-        ::close(_readFD);
+        ::close( _readFD );
         _readFD  = 0;
     }
-
     _state = STATE_CLOSED;
+    _sibling = 0;
     _fireStateChanged();
 }
+#endif // else _WIN32
 
-#endif
 }

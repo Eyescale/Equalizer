@@ -108,6 +108,9 @@ namespace co
 
         /** @return the description for this connection. */
         CO_API ConnectionDescriptionPtr getDescription() const;
+
+        /** @internal */
+        bool operator == ( const Connection& rhs ) const;
         //@}
 
 

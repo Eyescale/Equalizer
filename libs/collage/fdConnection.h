@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,7 +15,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef WIN32
 #ifndef CO_FDCONNECTION_H
 #define CO_FDCONNECTION_H
 
@@ -23,18 +22,15 @@
 
 namespace co
 {
+#ifdef _WIN32
+#  error FDConnection not used nor supported on Windows
+#endif
 
-    /**
-     * A generic file descriptor-based connection, to be subclassed.
-     */
+    /** A generic file descriptor-based connection, to be subclassed. */
     class FDConnection : public Connection
     {
     public:
-#ifndef WIN32
         virtual Notifier getNotifier() const { return _readFD; }
-#endif
-
-        bool hasData() const;
 
     protected:
         FDConnection();
@@ -62,4 +58,3 @@ namespace co
 }
 
 #endif //EQNET_FDCONNECTION_H
-#endif // WIN32
