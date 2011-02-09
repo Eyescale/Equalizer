@@ -867,8 +867,7 @@ void Config::_switchModel()
     if( view )
     {
         const Model* model = getModel( modelID );
-        _setMessage( "Model " + co::base::getFilename( model->getName()) +
-                     " active" );
+        _setMessage( "Using " + co::base::getFilename( model->getName( )));
     }
 }
 
