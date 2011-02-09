@@ -38,6 +38,7 @@ set(CO_FORWARD_HEADERS
   )
 set(CO_HEADERS 
     barrierPackets.h
+    dataOStream.ipp
     deltaMasterCM.h
     eventConnection.h
     fdConnection.h

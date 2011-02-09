@@ -209,7 +209,7 @@ namespace fabric
          * @sa Object::getUserDataLatency().
          * @version 1.0
          */
-        virtual uint32_t getUserDataLatency() const;
+        EQFABRIC_INL virtual uint32_t getUserDataLatency() const;
 
         /** @internal */
         EQFABRIC_INL virtual void serialize( co::DataOStream& os,
@@ -217,7 +217,7 @@ namespace fabric
 
         /** @internal */
         EQFABRIC_INL virtual void deserialize( co::DataIStream& is, 
-                                                  const uint64_t dirtyBits );
+                                               const uint64_t dirtyBits );
 
         /** @internal */
         EQFABRIC_INL virtual void setDirty( const uint64_t bits );

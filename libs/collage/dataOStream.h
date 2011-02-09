@@ -169,7 +169,8 @@ namespace DataStreamTest
          * Collect compressed data.
          * @return the total size of the compressed data.
          */
-        uint64_t _getCompressedData( void** chunks, uint64_t* chunkSizes )const;
+        CO_API uint64_t _getCompressedData( void** chunks,
+                                            uint64_t* chunkSizes ) const;
 
         /** Compress data. @return true if compressed, false otherwise. */
         bool _compress( const void* src, const uint64_t size );
