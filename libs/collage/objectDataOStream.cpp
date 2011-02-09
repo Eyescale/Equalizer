@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>.
- *               2010, Cedric Stalder  <cedric.stalder@gmail.com>.
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch>
+ *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,44 +23,20 @@
 
 #include <co/plugins/compressorTypes.h>
 
+#include "dataOStream.ipp"
+
 namespace co
 {
 
-void ObjectDataOStream::sendPacket( ObjectDataPacket& packet,
-                                    const uint32_t compressor,
-                                    const uint32_t nChunks,
-                                    const void* const* chunks,
-                                    const uint64_t* chunkSizes,
-                                    const uint64_t size )
+void ObjectDataOStream::sendData( ObjectDataPacket& packet, const void* buffer,
+                                  const uint64_t size, const bool last )
 {
-    packet.compressorName = compressor;
-    packet.nChunks = nChunks;
     packet.version = _version;
     packet.sequence = _sequence++;
-    packet.dataSize = size;
-
-    const Object* object = _cm->getObject();
-    packet.objectID  = object->getID();
-
-#if 0
-    EQLOG( LOG_OBJECTS ) << "send " << &packet << " to " << _connections.size()
-                         << " receivers " << std::endl;
-#endif
-
-    if( size == 0 )
-    {
-        EQASSERT( nChunks == 1 );
-        EQASSERT( chunkSizes[ 0 ] == 0 );
-        Connection::send( _connections, packet );
-    }
-    else if( compressor == EQ_COMPRESSOR_NONE )
-    {
-        EQASSERT( nChunks == 1 );
-        EQASSERT( chunkSizes[ 0 ] == size );
-        Connection::send( _connections, packet, chunks[0], chunkSizes[0] );
-    }
-    else
-        Connection::send( _connections, packet, chunks, chunkSizes, nChunks );
+    packet.objectID  = _cm->getObject()->getID();
+    DataOStream::sendPacket< ObjectDataPacket >( packet, buffer, size, last );
+    if( last )
+        _sequence = 0;
 }
 
 }

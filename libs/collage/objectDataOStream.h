@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,9 +32,7 @@ namespace co
     {
     public:
         ObjectDataOStream( const ObjectCM* cm )
-                : _cm( cm ), _version( VERSION_NONE )
-                , _sequence( 0 ) {}
-
+                : _cm( cm ), _version( VERSION_NONE ) , _sequence( 0 ) {}
         virtual ~ObjectDataOStream(){}
  
         void setVersion( const uint128_t& version ) { _version = version; }
@@ -42,9 +40,8 @@ namespace co
         virtual void reset() { DataOStream::reset(); _sequence = 0; }
 
     protected:
-        void sendPacket( ObjectDataPacket& packet, const uint32_t compressor,
-                         const uint32_t nChunks, const void* const* chunks,
-                         const uint64_t* chunkSizes, const uint64_t size );
+        void sendData( ObjectDataPacket& packet, const void* buffer,
+                       const uint64_t size, const bool last );
 
         const ObjectCM* _cm;
         uint128_t _version;

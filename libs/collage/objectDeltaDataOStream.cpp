@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>.
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>.
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>.
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -31,26 +31,11 @@ ObjectDeltaDataOStream::ObjectDeltaDataOStream( const ObjectCM* cm )
 ObjectDeltaDataOStream::~ObjectDeltaDataOStream()
 {}
 
-void ObjectDeltaDataOStream::sendData( const uint32_t compressor,
-                                       const uint32_t nChunks,
-                                       const void* const* buffers,
-                                       const uint64_t* sizes,
-                                       const uint64_t size )
+void ObjectDeltaDataOStream::sendData( const void* buffer, const uint64_t size,
+                                       const bool last )
 {
     ObjectDeltaPacket packet;
-    sendPacket( packet, compressor, nChunks, buffers, sizes, size );
-}
-
-void ObjectDeltaDataOStream::sendFooter( const uint32_t compressor,
-                                         const uint32_t nChunks,
-                                         const void* const* buffers, 
-                                         const uint64_t* sizes,
-                                         const uint64_t size )
-{
-    ObjectDeltaPacket packet;
-    packet.last = true;
-    sendPacket( packet, compressor, nChunks, buffers, sizes, size );
-    _sequence = 0;
+    ObjectDataOStream::sendData( packet, buffer, size, last );
 }
 
 }

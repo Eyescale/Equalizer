@@ -156,7 +156,7 @@ void DataOStream::_resend( )
         else
             _compressorState = NOT_COMPRESSED;
     }
-    _sendFooter( _buffer.getData(), _buffer.getSize() );
+    sendData( _buffer.getData(), _buffer.getSize(), true );
     _connections.clear();
 }
 
@@ -178,7 +178,7 @@ void DataOStream::disable()
                 else
                     _compressorState = NOT_COMPRESSED;
             }
-            _sendFooter( ptr, size );
+            sendData( ptr, size, true );
         }
         _dataSent = true;
     }
@@ -194,7 +194,7 @@ void DataOStream::disable()
                 else
                     _compressorState = NOT_COMPRESSED;
             }
-            _sendFooter( _buffer.getData(), _buffer.getSize( ));
+            sendData( _buffer.getData(), _buffer.getSize(), true );
         }
         _dataSent = true;
     }
@@ -248,7 +248,7 @@ void DataOStream::_flush()
             _compressorState = NOT_COMPRESSED;
     }
 
-    _sendData( ptr, size );
+    sendData( ptr, size, false );
     _resetBuffer();
 }
 
@@ -267,78 +267,6 @@ void DataOStream::_resetBuffer()
         _bufferStart = 0;
         _buffer.setSize( 0 );
     }
-}
-
-void DataOStream::_sendData( const void* data, const uint64_t size )
-{
-    EQASSERT( _enabled );
-    if( size == 0 )
-        return;
-    _dataSent = true;
-
-    if( _connections.empty( ))
-        return;
-
-#ifdef EQ_INSTRUMENT_DATAOSTREAM
-    nBytesSent += size;
-#endif
-
-    if( _compressorState != NOT_COMPRESSED )
-    {
-        const uint32_t nChunks = _compressor->getNumResults();
-        uint64_t* chunkSizes = static_cast< uint64_t* >( 
-                                   alloca( nChunks * sizeof( uint64_t )));
-        void** chunks = static_cast< void ** >( 
-                            alloca( nChunks * sizeof( void* )));
-        const uint64_t compressedSize = _getCompressedData( chunks, chunkSizes);
-
-        if( compressedSize < size )
-        {
-#ifdef EQ_INSTRUMENT_DATAOSTREAM
-            nBytesCompressedSent += compressedSize;
-#endif
-            sendData( _compressor->getName(), nChunks, chunks, chunkSizes,
-                      size );
-            return;
-        }
-    }
-        
-#ifdef EQ_INSTRUMENT_DATAOSTREAM
-    nBytesCompressedSent += size;
-#endif
-    sendData( EQ_COMPRESSOR_NONE, 1, &data, &size, size );
-}
-
-void DataOStream::_sendFooter( const void* buffer, const uint64_t size )
-{
-#ifdef EQ_INSTRUMENT_DATAOSTREAM
-    nBytesSent += size;
-#endif
-
-    if( _compressorState != NOT_COMPRESSED )
-    {
-        const uint32_t nChunks = _compressor->getNumResults( );
-        uint64_t* chunkSizes = static_cast< uint64_t* >( 
-                                   alloca( nChunks * sizeof( uint64_t )));
-        void** chunks = static_cast< void ** >( 
-                            alloca( nChunks * sizeof( void* )));
-        const uint64_t compressedSize = _getCompressedData( chunks, chunkSizes);
-
-        if( compressedSize < size )
-        {
-#ifdef EQ_INSTRUMENT_DATAOSTREAM
-            nBytesCompressedSent += compressedSize;
-#endif
-            sendFooter( _compressor->getName(), nChunks, chunks, chunkSizes,
-                        size );
-            return;
-        }
-    }
-
-#ifdef EQ_INSTRUMENT_DATAOSTREAM
-    nBytesCompressedSent += size;
-#endif
-    sendFooter( EQ_COMPRESSOR_NONE, 1, &buffer, &size, size );
 }
 
 bool DataOStream::_compress( const void* src, const uint64_t sizeSrc )

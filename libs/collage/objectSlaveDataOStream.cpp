@@ -34,33 +34,16 @@ ObjectSlaveDataOStream::ObjectSlaveDataOStream( const ObjectCM* cm )
 ObjectSlaveDataOStream::~ObjectSlaveDataOStream()
 {}
 
-void ObjectSlaveDataOStream::sendData( const uint32_t compressor,
-                                       const uint32_t nChunks,
-                                       const void* const* chunks,
-                                       const uint64_t* chunkSizes,
-                                       const uint64_t size )
+void ObjectSlaveDataOStream::sendData( const void* buffer, const uint64_t size,
+                                       const bool last )
 {
     ObjectSlaveDeltaPacket packet;
     packet.commit = _commit;
     packet.instanceID = _cm->getObject()->getMasterInstanceID();
-    sendPacket( packet, compressor, nChunks, chunks, chunkSizes, size );
-}
+    ObjectDataOStream::sendData( packet, buffer, size, last );
 
-void ObjectSlaveDataOStream::sendFooter( const uint32_t compressor,
-                                         const uint32_t nChunks,
-                                         const void* const* chunks, 
-                                         const uint64_t* chunkSizes,
-                                         const uint64_t size )
-{
-    ObjectSlaveDeltaPacket packet;
-    packet.last = true;
-    packet.commit = _commit;
-    packet.instanceID = _cm->getObject()->getMasterInstanceID();
-
-    sendPacket( packet, compressor, nChunks, chunks, chunkSizes, size );
-
-    _sequence = 0;
-    _commit = base::UUID( true /* generate */ );
+    if( last )
+        _commit = base::UUID( true /* generate */ );
 }
 
 }

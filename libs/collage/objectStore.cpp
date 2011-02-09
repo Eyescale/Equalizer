@@ -979,6 +979,8 @@ bool ObjectStore::_cmdInstance( Command& command )
 
         usage = 1;
         result = dispatchObjectCommand( command );
+        EQASSERTINFO( result, "Received instance data for unknown concrete " <<
+                      "object instance: " << command );
     }
     else if( packet->instanceID != EQ_INSTANCE_NONE )
     {
@@ -995,6 +997,7 @@ bool ObjectStore::_cmdInstance( Command& command )
         _instanceCache->add( rev, packet->masterInstanceID, command, usage );
     }
 
+    EQASSERT( result )
     return result;
 }
 

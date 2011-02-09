@@ -19,9 +19,9 @@
 #ifndef CO_DATAOSTREAM_H
 #define CO_DATAOSTREAM_H
 
-#include <co/base/buffer.h> // member
-#include <co/types.h>
 #include <co/api.h>
+#include <co/types.h>
+#include <co/base/buffer.h> // member
 
 #include <iostream>
 #include <vector>
@@ -32,7 +32,6 @@ namespace DataStreamTest
 {
     class Sender;
 }
-    class Connection;
 
     /**
      * A std::ostream buffering and/or retaining data in a binary format.
@@ -97,27 +96,20 @@ namespace DataStreamTest
         template< typename C >
         void serializeChildren( const std::vector< C* >& children );
         //@}
-
  
     protected:
         /** Flush remaining data in the buffer. */
         void _flush();
 
-        /** @name Packet sending, implemented by the subclasses */
+        /** @name Packet sending, used by the subclasses */
         //@{
         /** Send a data buffer (packet) to the receivers. */
-        virtual void sendData( const uint32_t compressor,
-                               const uint32_t nChunks,
-                               const void* const* chunks,
-                               const uint64_t* chunkSizes,
-                               const uint64_t size ) = 0;
-                                 
-        /** Send the trailing data (packet) to the receivers */
-        virtual void sendFooter( const uint32_t compressor,
-                                 const uint32_t nChunks,
-                                 const void* const* chunks, 
-                                 const uint64_t* chunkSizes,
-                                 const uint64_t size ) = 0;
+        virtual void sendData( const void* buffer, const uint64_t size,
+                               const bool last ) = 0;
+
+        template< typename P >
+        void sendPacket( P& packet, const void* buffer, const uint64_t size,
+                         const bool last );
         //@}
 
         /** Reset the whole stream. */

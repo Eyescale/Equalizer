@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -23,12 +23,7 @@
 
 namespace co
 {
-    class Object;
-    struct ObjectInstancePacket;
-
-    /**
-     * The DataOStream for object instance data.
-     */
+    /** The DataOStream for object instance data. */
     class ObjectInstanceDataOStream : public ObjectDataOStream
     {
     public:
@@ -43,24 +38,12 @@ namespace co
         const NodeID& getNodeID() const { return _nodeID; }
 
     protected:
-        virtual void sendData( const uint32_t name, const uint32_t nChunks,
-                               const void* const* chunks, 
-                               const uint64_t* chunkSizes,
-                               const uint64_t sizeUncompressed );
-
-        virtual void sendFooter( const uint32_t name, const uint32_t nChunks,
-                                 const void* const* chunks, 
-                                 const uint64_t* chunkSizes,
-                                 const uint64_t sizeUncompressed );
+        virtual void sendData( const void* buffer, const uint64_t size,
+                               const bool last );
 
     private:
         NodeID        _nodeID;
         uint32_t      _instanceID;
-
-        void _sendPacket( ObjectInstancePacket& packet,
-                          const uint32_t compressor, const uint32_t nChunks,
-                          const void* const* chunks, const uint64_t* chunkSizes,
-                          const uint64_t size );
     };
 }
 #endif //CO_OBJECTINSTANCEDATAOSTREAM_H

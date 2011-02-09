@@ -22,12 +22,7 @@
 
 namespace co
 {
-    class Object;
-    struct ObjectSlaveDeltaPacket;
-
-    /**
-     * The DataOStream for object slave version data.
-     */
+    /** The DataOStream for object slave version data. */
     class ObjectSlaveDataOStream : public ObjectDataOStream
     {
     public:
@@ -35,15 +30,8 @@ namespace co
         virtual ~ObjectSlaveDataOStream();
 
     protected:
-        virtual void sendData( const uint32_t name, const uint32_t nChunks,
-                               const void* const* chunks,
-                               const uint64_t* chunkSizes,
-                               const uint64_t sizeUncompressed );
-
-        virtual void sendFooter( const uint32_t name, const uint32_t nChunks,
-                                 const void* const* chunks, 
-                                 const uint64_t* chunkSizes,
-                                 const uint64_t sizeUncompressed );
+        virtual void sendData( const void* buffer, const uint64_t size,
+                               const bool last );
 
     private:
         base::UUID _commit;

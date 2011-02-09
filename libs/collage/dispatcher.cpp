@@ -66,8 +66,8 @@ void Dispatcher::_registerCommand( const uint32_t command, const Func& func,
 
 bool Dispatcher::dispatchCommand( Command& command )
 {
-    EQVERB << "dispatch " << static_cast< ObjectPacket* >( command.getPacket( ))
-           << ", " << typeid( *this ).name() << std::endl;
+    EQVERB << "dispatch " << command << " on " << base::className( this )
+           << std::endl;
 
     const uint32_t which = command->command;
 #ifndef NDEBUG

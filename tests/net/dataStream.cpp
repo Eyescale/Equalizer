@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,22 +30,14 @@
 #include <co/packets.h>
 #include <co/types.h>
 
+#include "libs/collage/dataOStream.ipp"      // private impl
 #include "libs/collage/base/cpuCompressor.h" // private header
 
 // Tests the functionality of the DataOStream and DataIStream
 
-#define CONTAINER_SIZE 4096
+#define CONTAINER_SIZE EQ_64KB
 
 static std::string _message( "So long, and thanks for all the fish" );
-
-struct HeaderPacket : public co::Packet
-{
-    HeaderPacket()
-        {
-            command        = 0;
-            size           = sizeof( HeaderPacket ); 
-        }
-};
 
 struct DataPacket : public co::Packet
 {
@@ -59,16 +51,8 @@ struct DataPacket : public co::Packet
     uint64_t dataSize;
     uint32_t compressorName;
     uint32_t nChunks;
+    EQ_ALIGN8( uint64_t last ); // pad and align to multiple-of-eight
     EQ_ALIGN8( uint8_t data[8] );
-};
-
-struct FooterPacket : public co::Packet
-{
-    FooterPacket()
-        {
-            command        = 4;
-            size           = sizeof( FooterPacket ); 
-        }
 };
 
 class DataOStream : public co::DataOStream
@@ -77,31 +61,11 @@ public:
     DataOStream() {}
 
 protected:
-    virtual void sendData( const uint32_t compressor, const uint32_t nChunks,
-                           const void* const* chunks,
-                           const uint64_t* chunkSizes, const uint64_t size  )
+    virtual void sendData( const void* buffer, const uint64_t size,
+                           const bool last )
         {
             DataPacket packet;
-            packet.dataSize = size;
-            packet.compressorName = compressor;
-            packet.nChunks = nChunks;
-
-            co::Connection::send( _connections, packet, chunks, chunkSizes,
-                                       nChunks );
-        }
-
-    virtual void sendFooter( const uint32_t name, 
-                             const uint32_t nChunks,
-                             const void* const* buffer, 
-                             const uint64_t* size,
-                             const uint64_t sizeUncompressed  )
-        {
-            if( sizeUncompressed > 0 )
-                sendData( name, nChunks, buffer, size, sizeUncompressed );
-
-            FooterPacket packet;
-            co::Connection::send( _connections, packet );
-            EQINFO << "Sent footer" << std::endl;
+            sendPacket( packet, buffer, size, last );
         }
 };
 
@@ -171,10 +135,9 @@ protected:
             std::vector< double > doubles;
             for( size_t i=0; i<CONTAINER_SIZE; ++i )
                 doubles.push_back( static_cast< double >( i ));
+
             stream << doubles;
-
             stream << _message;
-
 
             stream.disable();
         }
@@ -196,9 +159,9 @@ int main( int argc, char **argv )
     co::DataStreamTest::Sender sender( connection );
     TEST( sender.start( ));
 
-    DataIStream           stream;
+    ::DataIStream stream;
     co::CommandCache commandCache;
-    bool                  receiving = true;
+    bool receiving = true;
 
     while( receiving )
     {
@@ -218,16 +181,10 @@ int main( int argc, char **argv )
         
         switch( command->command )
         {
-            case 0: // header, nop
-                TEST( command.isFree( ));
-                break;
             case 2:
                 stream.addDataCommand( command );
                 TEST( !command.isFree( ));
-                break;
-            case 4:
-                receiving = false;
-                TEST( command.isFree( ));
+                receiving = !command.getPacket< DataPacket >()->last;
                 break;
             default:
                 TEST( false );

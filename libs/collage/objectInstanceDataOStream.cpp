@@ -34,13 +34,11 @@ ObjectInstanceDataOStream::ObjectInstanceDataOStream( const ObjectCM* cm )
 ObjectInstanceDataOStream::~ObjectInstanceDataOStream()
 {}
 
-void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
-                                             const uint32_t compressor,
-                                             const uint32_t nChunks,
-                                             const void* const* chunks,
-                                             const uint64_t* chunkSizes,
-                                             const uint64_t size )
+void ObjectInstanceDataOStream::sendData( const void* buffer,
+                                          const uint64_t size, const bool last )
 {
+    ObjectInstancePacket packet;
+
     const Object* object    = _cm->getObject();
     packet.nodeID           = _nodeID;
     packet.instanceID       = _instanceID;
@@ -63,28 +61,7 @@ void ObjectInstanceDataOStream::_sendPacket( ObjectInstancePacket& packet,
     }
 #endif
 
-    sendPacket( packet, compressor, nChunks, chunks, chunkSizes, size );
+    ObjectDataOStream::sendData( packet, buffer, size, last );
 }
 
-void ObjectInstanceDataOStream::sendData( const uint32_t compressor,
-                                          const uint32_t nChunks,
-                                          const void* const* chunks,
-                                          const uint64_t* chunkSizes,
-                                          const uint64_t size )
-{
-    ObjectInstancePacket packet;
-    _sendPacket( packet, compressor, nChunks, chunks, chunkSizes, size );
-}
-
-void ObjectInstanceDataOStream::sendFooter( const uint32_t compressor, 
-                                            const uint32_t nChunks,
-                                            const void* const* chunks,
-                                            const uint64_t* chunkSizes,
-                                            const uint64_t size )
-{
-    ObjectInstancePacket packet;
-    packet.last = true;
-    _sendPacket( packet, compressor, nChunks, chunks, chunkSizes, size );
-    _sequence = 0;
-}
 }
