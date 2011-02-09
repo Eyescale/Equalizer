@@ -1,9 +1,9 @@
-- Fix breaks barrier test. 
+- Remove include glut.h in glew-1.5.8
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
