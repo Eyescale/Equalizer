@@ -251,12 +251,9 @@ void View< L, V, O >::unsetFrustum()
 }
 
 template< class L, class V, class O > 
-void View< L, V, O >::notifyAttached()
+uint32_t View< L, V, O >::getUserDataLatency() const
 {
-    Object::notifyAttached();
-    co::Object* userData = getUserData();
-    if( userData && userData->isMaster( ))
-        userData->setAutoObsolete( _layout->getConfig()->getLatency( ));
+    return static_cast< const V* >( this )->getConfig()->getLatency();
 }
 
 template< class L, class V, class O > 

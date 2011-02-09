@@ -134,6 +134,9 @@ namespace fabric
          */
         virtual bool hasMasterUserData() { return false; }
 
+        /** @return the latency to be used for keeping user data versions. */
+        virtual uint32_t getUserDataLatency() const { return 0; }
+
         /** @internal Set the tasks this entity might potentially execute. */
         EQFABRIC_API void setTasks( const uint32_t tasks );
 

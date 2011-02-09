@@ -198,14 +198,18 @@ namespace fabric
         EQFABRIC_INL virtual ~View();
 
         /**
-         * By default, the application view instance holds the user data master.
+         * The application view instance holds the user data master by default.
          * @sa Object::hasMasterUserData().
          * @version 1.0
          */
         virtual bool hasMasterUserData() { return getLayout() != 0; }
 
-        /** @internal Set number of kept versions to latency. */
-        EQFABRIC_INL virtual void notifyAttached();
+        /**
+         * The view user data instance uses the config latency by default.
+         * @sa Object::getUserDataLatency().
+         * @version 1.0
+         */
+        virtual uint32_t getUserDataLatency() const;
 
         /** @internal */
         EQFABRIC_INL virtual void serialize( co::DataOStream& os,
