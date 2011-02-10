@@ -327,15 +327,16 @@ GLXContext GLXWindow::createGLXContext( GLXFBConfig* fbConfig )
 
     GLXContext context = GLXEW_VERSION_1_3 ?
         glXCreateNewContext( _xDisplay, fbConfig[ 0 ], type, shCtx, True ):
-        glXCreateContextWithConfigSGIX(_xDisplay, fbConfig[ 0 ], type, shCtx, True);
+        glXCreateContextWithConfigSGIX( _xDisplay, fbConfig[0], type, shCtx,
+                                        True );
 
 #ifdef Darwin
     // WAR http://xquartz.macosforge.org/trac/ticket/466
     if( !context )
     {
         XVisualInfo* visInfo = GLXEW_VERSION_1_3 ?
-                           glXGetVisualFromFBConfig( _xDisplay, fbConfig[ 0 ] ) :
-                           glXGetVisualFromFBConfigSGIX( _xDisplay, fbConfig[ 0 ] );
+                           glXGetVisualFromFBConfig( _xDisplay, fbConfig[0] ) :
+                           glXGetVisualFromFBConfigSGIX(_xDisplay, fbConfig[0]);
         if( !visInfo )
         {
             std::vector<int> attributes;
@@ -457,8 +458,8 @@ XID GLXWindow::_createGLXWindow( GLXFBConfig* fbConfig,
     }
 
     XVisualInfo* visInfo = GLXEW_VERSION_1_3 ?
-                           glXGetVisualFromFBConfig( _xDisplay, fbConfig[ 0 ] ) :
-                           glXGetVisualFromFBConfigSGIX( _xDisplay, fbConfig[ 0 ] );
+                           glXGetVisualFromFBConfig( _xDisplay, fbConfig[0] ) :
+                           glXGetVisualFromFBConfigSGIX(_xDisplay, fbConfig[0]);
     if( !visInfo )
     {
         setError( ERROR_GLXWINDOW_NO_VISUAL );
