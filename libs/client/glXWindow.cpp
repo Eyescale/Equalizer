@@ -351,11 +351,11 @@ GLXContext GLXWindow::createGLXContext( GLXFBConfig* fbConfig )
 
             const int screen = DefaultScreen( _xDisplay );
             visInfo = glXChooseVisual( _xDisplay, screen, &attributes.front( ));
-        }
-        if( !visInfo )
-        {
-            setError( ERROR_GLXWINDOW_NO_VISUAL );
-            return 0;
+            if( !visInfo )
+            {
+                setError( ERROR_GLXWINDOW_NO_VISUAL );
+                return 0;
+            }
         }
 
         context = glXCreateContext( _xDisplay, visInfo, shCtx, True );
