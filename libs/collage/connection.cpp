@@ -70,7 +70,7 @@ bool Connection::operator == ( const Connection& rhs ) const
         return true;
     if( _description->type != CONNECTIONTYPE_PIPE )
         return false;
-    PipeConnection* pipe = EQSAFECAST( const PipeConnection*, 
+    PipeConnection* pipe = EQSAFECAST( PipeConnection*, 
                                        const_cast< Connection* >( this ));
     return pipe->acceptSync().get() == &rhs;
 }

@@ -113,7 +113,7 @@ namespace fabric
                                                 const uint64_t dirtyBits );
         /** @internal */
         EQFABRIC_INL virtual void deserialize( co::DataIStream& is, 
-                                                  const uint64_t dirtyBits );
+                                               const uint64_t dirtyBits );
         
         EQFABRIC_INL virtual void notifyDetach(); //!< @internal
 

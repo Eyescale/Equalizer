@@ -584,6 +584,7 @@ bool LocalNode::connect( NodePtr node )
 bool LocalNode::_connect( NodePtr node, ConnectionPtr connection )
 {
     EQASSERT( connection.isValid( ));
+    EQASSERT( node->getNodeID() != getNodeID( ));
 
     if( !node.isValid() || _state != STATE_LISTENING ||
         !connection->isConnected() || node->_state != STATE_CLOSED )
@@ -1064,8 +1065,7 @@ bool LocalNode::_cmdConnect( Command& command )
     EQASSERT( _inReceiverThread( ));
 
     const NodeConnectPacket* packet = command.getPacket<NodeConnectPacket>();
-    ConnectionPtr        connection = _incoming.getConnection();
-
+    ConnectionPtr connection = _incoming.getConnection();
     const NodeID& nodeID = packet->nodeID;
 
     EQVERB << "handle connect " << packet << std::endl;

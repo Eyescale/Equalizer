@@ -147,7 +147,6 @@ bool NamedPipeConnection::_createNamedPipe()
 bool NamedPipeConnection::_connectNamedPipe()
 {
     const std::string filename = _getFilename();
-
     _fd = CreateFile( 
              filename.c_str(),      // pipe name 
              GENERIC_READ |         // read and write access 
@@ -196,7 +195,6 @@ bool NamedPipeConnection::_connectToNewClient( HANDLE hPipe )
 { 
    // Start an overlapped connection for this pipe instance. 
    const bool fConnected = ConnectNamedPipe( hPipe, &_read ); 
-
    EQASSERT( !fConnected );
  
    switch( GetLastError() ) 
@@ -210,7 +208,7 @@ bool NamedPipeConnection::_connectToNewClient( HANDLE hPipe )
          if( SetEvent( _read.hEvent ) ) 
             return true; 
 
-         // fall through
+      // fall through
       default: 
       {
          EQWARN << "ConnectNamedPipe failed : " << base::sysError << std::endl;
@@ -293,19 +291,16 @@ ConnectionPtr NamedPipeConnection::acceptSync()
     }
 
 
-    NamedPipeConnection* newConnection = new NamedPipeConnection;
-    ConnectionPtr conn( newConnection );
+    base::RefPtr< NamedPipeConnection > newConnection = new NamedPipeConnection;
 
     newConnection->setDescription( _description );
     newConnection->_fd  = _fd;
-    newConnection->_state = STATE_CONNECTED;
     newConnection->_initAIORead();
-
     newConnection->_state  = STATE_CONNECTED;
     _fd = INVALID_HANDLE_VALUE;
 
     EQINFO << "accepted connection" << std::endl;
-    return conn;
+    return newConnection;
 }
 
 //----------------------------------------------------------------------

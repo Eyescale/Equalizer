@@ -46,6 +46,11 @@ namespace co
 
         virtual Notifier getNotifier() const { return _read.hEvent; }
 
+        virtual void readNB( void* buffer, const uint64_t bytes );
+        virtual int64_t readSync( void* buffer, const uint64_t bytes,
+            const bool ignored );
+        virtual int64_t write( const void* buffer, const uint64_t bytes );
+
     protected:
         virtual ~NamedPipeConnection();
 
@@ -53,12 +58,6 @@ namespace co
         void _exitAIOAccept();
         void _initAIORead();
         void _exitAIORead();
-
-        friend class PipeConnection;
-        virtual void readNB( void* buffer, const uint64_t bytes );
-        virtual int64_t readSync( void* buffer, const uint64_t bytes,
-                                  const bool ignored );
-        virtual int64_t write( const void* buffer, const uint64_t bytes );
 
     private:
         HANDLE _fd;

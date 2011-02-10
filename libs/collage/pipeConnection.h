@@ -77,9 +77,7 @@ namespace co
         PipeConnectionPtr _sibling;
 
 #ifdef _WIN32
-        typedef base::RefPtr< NamedPipeConnection > NamePipeConnectionPtr;
-        NamedPipeConnectionPtr _readPipe;
-        NamedPipeConnectionPtr _writePipe;
+        co::ConnectionPtr _namedPipe;
 
         EQ_TS_VAR( _recvThread );
 #endif

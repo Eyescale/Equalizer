@@ -39,8 +39,7 @@ PipeConnection::~PipeConnection()
 {
 #ifdef _WIN32
     close();
-    _writePipe = 0;
-    _readPipe = 0;
+    _namedPipe = 0;
 #endif
 }
 
@@ -64,7 +63,6 @@ bool PipeConnection::connect()
         return false;
     }
 
-    EQVERB << "readFD " << _readFD << " writeFD " << _writeFD << std::endl;
     _state = STATE_CONNECTED;
     _sibling->_state = STATE_CONNECTED;
 
@@ -76,31 +74,32 @@ bool PipeConnection::connect()
 
 Connection::Notifier PipeConnection::getNotifier() const 
 { 
-    EQASSERT( _readPipe );
-    return _readPipe->getNotifier(); 
+    EQASSERT( _namedPipe );
+    return _namedPipe->getNotifier(); 
 }
 
 bool PipeConnection::_createPipes()
 {
-    _readPipe = new NamedPipeConnection;
-    _writePipe = new NamedPipeConnection;
-
     std::stringstream pipeName;
-    pipeName << "\\\\.\\Pipe\\Collage." << co::base::UUID( true );
+    pipeName << "\\\\.\\pipe\\Collage." << co::base::UUID( true );
 
-    _readPipe->getDescription()->setFilename( pipeName.str() );
-    _readPipe->_initAIOAccept();
-    if( !_readPipe->_createNamedPipe( ))
+    _namedPipe = new NamedPipeConnection;
+    _namedPipe->getDescription()->setFilename( pipeName.str() );
+    if( !_namedPipe->listen( ))
         return false;
-    _readPipe->_state = STATE_CONNECTED;
+    _namedPipe->acceptNB();
 
-    _writePipe->getDescription()->setFilename( pipeName.str() );
-    if( !_writePipe->_connectNamedPipe( ))
+    _sibling->_namedPipe = new NamedPipeConnection;
+    _sibling->_namedPipe->getDescription()->setFilename( pipeName.str() );
+    if( !_sibling->_namedPipe->connect( ))
+    {
+        _sibling->_namedPipe = 0;
         return false;
-    _writePipe->_state = STATE_CONNECTED;
-    
-    _sibling->_readPipe  = _writePipe;
-    _sibling->_writePipe = _readPipe;
+    }
+
+    _namedPipe = _namedPipe->acceptSync();
+    _state = STATE_CONNECTED;
+    _sibling->_state = STATE_CONNECTED;
     return true;
 }
 
@@ -109,11 +108,9 @@ void PipeConnection::close()
     if( _state == STATE_CLOSED )
         return;
 
-    _writePipe->close();
-    _readPipe->close();
+    _namedPipe->close();
+    _namedPipe = 0;
     _sibling = 0;
-    _readPipe = 0;
-    _writePipe = 0;
 
     _state = STATE_CLOSED;
     _fireStateChanged();
@@ -123,7 +120,7 @@ void PipeConnection::readNB( void* buffer, const uint64_t bytes )
 {
     if( _state == STATE_CLOSED )
         return;
-    _readPipe->readNB( buffer, bytes );
+    _namedPipe->readNB( buffer, bytes );
 }
 
 int64_t PipeConnection::readSync( void* buffer, const uint64_t bytes,
@@ -132,7 +129,7 @@ int64_t PipeConnection::readSync( void* buffer, const uint64_t bytes,
     if( _state == STATE_CLOSED )
         return -1;
 
-    const int64_t bytesRead = _readPipe->readSync( buffer, bytes, ignored );
+    const int64_t bytesRead = _namedPipe->readSync( buffer, bytes, ignored );
 
     if( bytesRead == -1 )
         close();
@@ -145,7 +142,7 @@ int64_t PipeConnection::write( const void* buffer, const uint64_t bytes )
     if( _state != STATE_CONNECTED )
         return -1;
 
-    return _writePipe->write( buffer, bytes );
+    return _namedPipe->write( buffer, bytes );
 }
 
 #else // !_WIN32
