@@ -92,6 +92,8 @@ ErrorData _errors[] = {
     { ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND,
       "Can't find matching pixel format" },
     { ERROR_SYSTEMWINDOW_NO_PIXELFORMAT, "Missing pixel format" },
+    { ERROR_SYSTEMWINDOW_ARB_FLOAT_FB_REQUIRED,
+      "Floating-point framebuffer not supported" },
 
     { ERROR_AGLWINDOW_NO_CONTEXT, "Missing AGL context" },
     { ERROR_AGLWINDOW_CREATECONTEXT_FAILED, "Can't create AGL context" },
@@ -107,7 +109,10 @@ ErrorData _errors[] = {
     { ERROR_GLXWINDOW_GLXQUERYVERSION_FAILED, "Can't get GLX version" },
     { ERROR_GLXWINDOW_GLX_1_3_REQUIRED, "Need at least GLX 1.3" },
     { ERROR_GLXWINDOW_NO_FBCONFIG, "Can't find FBConfig for visual" },
+    { ERROR_GLXWINDOW_NO_VISUAL, "FBConfig has no associated visual" },
     { ERROR_GLXWINDOW_CREATEPBUFFER_FAILED, "Can't create glX PBuffer" },
+    { ERROR_GLXWINDOW_FBCONFIG_REQUIRED,
+      "Can't find FBConfig functions (GLX 1.3 or GLX_SGIX_fbconfig" },
 
     { ERROR_WGLWINDOW_NO_DRAWABLE, "Missing WGL drawable" },
     { ERROR_WGLWINDOW_SETPIXELFORMAT_FAILED, "Can't set window pixel format" },
@@ -115,8 +120,6 @@ ErrorData _errors[] = {
     { ERROR_WGLWINDOW_FULLSCREEN_FAILED, "Can't switch to fullscreen mode" },
     { ERROR_WGLWINDOW_CREATEWINDOW_FAILED, "Can't create window" },
     { ERROR_WGLWINDOW_ARB_PBUFFER_REQUIRED, "WGL_ARB_pbuffer not supported" },
-    { ERROR_WGLWINDOW_ARB_FLOAT_FB_REQUIRED,
-      "Floating-point framebuffer not supported" },
     { ERROR_WGLWINDOW_CREATEPBUFFER_FAILED, "Can't create PBuffer" },
     { ERROR_WGLWINDOW_SETAFFINITY_PF_FAILED, "Can't set affinity pixel format"},
     { ERROR_WGLWINDOW_CHOOSE_PF_ARB_FAILED,

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -64,9 +64,9 @@ namespace eq
         /** 
          * Initialize this window for the glX window system.
          *
-         * This method first call chooseXVisualInfo(), then createGLXContext()
-         * with the chosen visual, and finally creates a drawable using
-         * configInitGLXDrawable().
+         * This method first call chooseGLXFBConfig(), then createGLXContext()
+         * with the chosen framebuffer config, and finally creates a drawable
+         * using configInitGLXDrawable().
          * 
          * @return true if the initialization was successful, false otherwise.
          * @version 1.0
@@ -77,25 +77,25 @@ namespace eq
         virtual void configExit();
 
         /** 
-         * Choose a X11 visual based on the window's attributes.
+         * Choose a GLX framebuffer config based on the window's attributes.
          * 
-         * The returned XVisualInfo has to be freed using XFree().
+         * The returned FB config has to be freed using XFree().
          *  
          * @return a pixel format, or 0 if no pixel format was found.
          * @version 1.0
          */
-        virtual XVisualInfo* chooseXVisualInfo();
+        virtual GLXFBConfig* chooseGLXFBConfig();
 
         /** 
          * Create a glX context.
          * 
          * This method does not set the window's glX context.
          *
-         * @param visualInfo the visual info for the context.
+         * @param fbConfig the framebuffer config for the context.
          * @return the context, or 0 if context creation failed.
          * @version 1.0
          */
-        virtual GLXContext createGLXContext( XVisualInfo* visualInfo );
+        virtual GLXContext createGLXContext( GLXFBConfig* fbConfig );
 
         /** 
          * Initialize the window's drawable (fullscreen, pbuffer or window) and
@@ -103,33 +103,33 @@ namespace eq
          *
          * Sets the window's X11 drawable on success
          * 
-         * @param visualInfo the visual info for the context.
+         * @param fbConfig the framebuffer config for the context.
          * @return true if the drawable was created, false otherwise.
          * @version 1.0
          */
-        virtual bool configInitGLXDrawable( XVisualInfo* visualInfo );
+        virtual bool configInitGLXDrawable( GLXFBConfig* fbConfig );
         
         /** 
          * Initialize the window with a window and bind the glX context.
          *
          * Sets the window's X11 drawable on success
          * 
-         * @param visualInfo the visual info for the context.
+         * @param fbConfig the framebuffer config for the context.
          * @return true if the window was created, false otherwise.
          * @version 1.0
          */
-        virtual bool configInitGLXWindow( XVisualInfo* visualInfo );
+        virtual bool configInitGLXWindow( GLXFBConfig* fbConfig );
 
         /** 
          * Initialize the window with a PBuffer and bind the glX context.
          *
          * Sets the window's X11 drawable on success
          * 
-         * @param visualInfo the visual info for the context.
+         * @param fbConfig the framebuffer config for the context.
          * @return true if the PBuffer was created, false otherwise.
          * @version 1.0
          */
-        virtual bool configInitGLXPBuffer( XVisualInfo* visualInfo );
+        virtual bool configInitGLXPBuffer( GLXFBConfig* fbConfig );
 
         /**
          * Register with the pipe's GLXEventHandler, called by setXDrawable().
@@ -218,8 +218,7 @@ namespace eq
         Private* _private; // placeholder for binary-compatible changes
 
         /** Create an unmapped X11 window. */
-        XID _createGLXWindow( XVisualInfo* visualInfo , 
-                              const PixelViewport& pvp );
+        XID _createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp );
     };
 }
 

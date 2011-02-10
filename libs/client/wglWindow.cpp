@@ -633,7 +633,6 @@ int WGLWindow::_chooseWGLPixelFormatARB( HDC pfDC )
     attributes.push_back( WGL_FULL_ACCELERATION_ARB );
 
     const int colorSize = getIAttribute( Window::IATTR_PLANES_COLOR );
-
     if( colorSize > 0 || colorSize == AUTO ||
         getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
     {
@@ -645,11 +644,11 @@ int WGLWindow::_chooseWGLPixelFormatARB( HDC pfDC )
         attributes.push_back( WGL_BLUE_BITS_ARB );
         attributes.push_back( colorBits );
     }
-    else if ( colorSize == RGBA16F || colorSize == RGBA32F )
+    else if( colorSize == RGBA16F || colorSize == RGBA32F )
     {
         if ( !WGLEW_ARB_pixel_format_float )
         {
-            setError( ERROR_WGLWINDOW_ARB_FLOAT_FB_REQUIRED );
+            setError( ERROR_SYSTEMWINDOW_ARB_FLOAT_FB_REQUIRED );
             return 0;
         }
 
