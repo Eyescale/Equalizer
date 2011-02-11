@@ -191,7 +191,6 @@ bool LocalNode::close()
     NodeStopPacket packet;
     send( packet );
 
-    //_objectStore->clear();
     EQCHECK( _receiverThread->join( ));
     _cleanup();
 
@@ -833,6 +832,7 @@ void LocalNode::_handleDisconnect()
         NodePtr node = i->second;
         if( node->_outgoing == connection )
         {
+            _objectStore->removeInstanceData( node->_id );
             _connectionNodes.erase( i );
             node->_state    = STATE_CLOSED;
             node->_outgoing = 0;
@@ -1324,6 +1324,7 @@ bool LocalNode::_cmdDisconnect( Command& command )
         _removeConnection( connection );
 
         EQASSERT( _connectionNodes.find( connection )!=_connectionNodes.end( ));
+        _objectStore->removeInstanceData( node->_id );
         _connectionNodes.erase( connection );
         {
             base::ScopedMutex< base::SpinLock > mutex( _nodes );

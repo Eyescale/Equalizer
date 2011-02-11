@@ -83,8 +83,8 @@ void Config::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
-    ServerPtr          server = getServer();
-    co::CommandQueue* queue  = getMainThreadQueue();
+    ServerPtr server = getServer();
+    co::CommandQueue* queue = getMainThreadQueue();
 
     registerCommand( fabric::CMD_CONFIG_CREATE_NODE,
                      ConfigFunc( this, &Config::_cmdCreateNode ), queue );

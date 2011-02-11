@@ -138,6 +138,9 @@ namespace co
         /** Expire all data older than age from the cache. */
         void expireInstanceData( const int64_t age );
 
+        /** Remove all entries of the node from the cache. */
+        void removeInstanceData( const NodeID& nodeID );
+
         /** Disable the instance cache of an stopped local node. */
         void disableInstanceCache();
 

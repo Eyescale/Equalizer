@@ -156,6 +156,9 @@ namespace co
         /** Disable the instance cache of a stopped local node. */
         CO_API void disableInstanceCache();
 
+        /** @internal */
+        CO_API void expireInstanceData( const int64_t age );
+
         /**
          * Enable sending instance data after registration.
          *
@@ -316,9 +319,6 @@ namespace co
 
         /** @internal ack an operation to the sender. */
         CO_API void ackRequest( NodePtr node, const uint32_t requestID );
-
-        /** @internal */
-        CO_API void expireInstanceData( const int64_t age );
 
     protected:
         /** 

@@ -136,6 +136,12 @@ void ObjectStore::expireInstanceData( const int64_t age )
         _instanceCache->expire( age ); 
 }
 
+void ObjectStore::removeInstanceData( const NodeID& nodeID )
+{
+    if( _instanceCache )
+        _instanceCache->remove( nodeID ); 
+}
+
 void ObjectStore::enableSendOnRegister()
 {
     ++_sendOnRegister;

@@ -52,6 +52,9 @@ namespace co
         CO_API bool add( const ObjectVersion& rev, const uint32_t instanceID, 
                   Command& command, const uint32_t usage = 0 );
 
+        /** Remove all items from the given node. */
+        void remove( const NodeID& node );
+
         /** One cache entry */
         struct Data
         {
@@ -108,6 +111,7 @@ namespace co
         void expire( const int64_t age );
 
         bool empty( ){ return _items->empty(); }
+
     private:
         struct Item
         {
@@ -115,13 +119,13 @@ namespace co
             Data data;
             unsigned used;
             unsigned access;
+            NodeID from;
 
             typedef std::deque< int64_t > TimeDeque;
             TimeDeque times;
         };
 
         typedef stde::hash_map< base::uint128_t, Item > ItemHash;
-
         base::Lockable< ItemHash > _items;
 
         const uint64_t _maxSize; //!<high-water mark to start releasing commands

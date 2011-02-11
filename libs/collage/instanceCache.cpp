@@ -88,20 +88,27 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
     ++nWrite;
 #endif
 
+    const NodeID nodeID = command.getNode()->getNodeID();
+
     base::ScopedMutex<> mutex( _items );
     ItemHash::const_iterator i = _items->find( rev.identifier );
     if( i == _items->end( ))
     {
         Item& item = _items.data[ rev.identifier ];
         item.data.masterInstanceID = instanceID;
+        item.from = nodeID;
     }
 
     Item& item = _items.data[ rev.identifier ] ;
-    if( item.data.masterInstanceID != instanceID )
+    if( item.data.masterInstanceID != instanceID || item.from != nodeID )
     {
+        EQASSERT( !item.access ); // same master with different instance ID?!
+        if( item.access != 0 ) // are accessed - don't add
+            return false;
         // trash data from different master mapping
         _releaseStreams( item );
         item.data.masterInstanceID = instanceID;
+        item.from = nodeID;
         item.used = usage;
     }
     else
@@ -173,6 +180,31 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
     return true;
 }
 
+void InstanceCache::remove( const NodeID& nodeID )
+{
+    std::vector< base::uint128_t > keys;
+
+    base::ScopedMutex<> mutex( _items );
+    for( ItemHash::iterator i = _items->begin(); i != _items->end(); ++i )
+    {
+        Item& item = i->second;
+        if( item.from != nodeID )
+            continue;
+
+        EQASSERT( !item.access );
+        if( item.access != 0 )
+            continue;
+
+        _releaseStreams( item );
+        keys.push_back( i->first );
+    }
+
+    for( std::vector< base::uint128_t >::const_iterator i = keys.begin();
+         i != keys.end(); ++i )
+    {
+        _items->erase( *i );
+    }
+}
 
 const InstanceCache::Data& InstanceCache::operator[]( const base::UUID& id )
 {
