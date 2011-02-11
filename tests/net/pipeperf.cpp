@@ -50,8 +50,6 @@ protected:
             for( uint64_t packetSize = MAXPACKETSIZE; packetSize > 0;
                  packetSize = packetSize >> 1 )
             {
-                const float mBytes    = packetSize / 1024.0f / 1024.0f;
-                const float mBytesSec = mBytes * 1000.0f;
                 uint32_t nPackets = 10 * MAXPACKETSIZE / packetSize;
                 if( nPackets > 10000 )
                     nPackets = 10000;
