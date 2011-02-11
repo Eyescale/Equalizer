@@ -380,7 +380,7 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
         close();
     }
 
-    DWORD got   = 0;
+    DWORD got = 0;
     if( !GetOverlappedResult( _fd, &_write, &got, true ))
     {
         if( GetLastError() == ERROR_PIPE_CONNECTED ) 

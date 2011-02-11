@@ -28,7 +28,9 @@
 
 #include "libs/collage/pipeConnection.h" // private header
 
-#define MAXPACKETSIZE (32 * 1048576)
+#define MAXPACKETSIZE EQ_64MB
+
+static co::base::Monitor< unsigned > _nextStage;
 
 class Sender : public co::base::Thread
 {
@@ -43,21 +45,26 @@ protected:
     virtual void run()
         {
             void* buffer = calloc( 1, MAXPACKETSIZE );
-            co::base::Clock clock;
 
-            for( uint64_t packetSize = MAXPACKETSIZE; packetSize >= 1048576;
+            unsigned stage = 2;
+            for( uint64_t packetSize = MAXPACKETSIZE; packetSize > 0;
                  packetSize = packetSize >> 1 )
             {
                 const float mBytes    = packetSize / 1024.0f / 1024.0f;
                 const float mBytesSec = mBytes * 1000.0f;
+                uint32_t nPackets = 10 * MAXPACKETSIZE / packetSize;
+                if( nPackets > 10000 )
+                    nPackets = 10000;
+                uint32_t i = nPackets + 1;
 
-                clock.reset();
-                TEST( _connection->send( buffer, packetSize ));
-
-                std::cerr << "Send perf: " << mBytesSec / clock.getTimef()
-                          << "MB/s (" << mBytes << "MB)" << std::endl;
+                while( --i )
+                {
+                    TEST( _connection->send( buffer, packetSize ));
+                }
+                ++_nextStage;
+                _nextStage.waitGE( stage );
+                stage += 2;
             }
-
             free( buffer );
         }
 
@@ -78,18 +85,36 @@ int main( int argc, char **argv )
     void* buffer = calloc( 1, MAXPACKETSIZE );
     co::base::Clock clock;
 
-    for( uint64_t packetSize = MAXPACKETSIZE; packetSize >= 1048576;
+    unsigned stage = 2;
+    for( uint64_t packetSize = MAXPACKETSIZE; packetSize > 0;
          packetSize = packetSize >> 1 )
     {
         const float mBytes    = packetSize / 1024.0f / 1024.0f;
         const float mBytesSec = mBytes * 1000.0f;
+        uint32_t nPackets = 10 * MAXPACKETSIZE / packetSize;
+        if( nPackets > 10000 )
+            nPackets = 10000;
+        uint32_t i = nPackets + 1;
 
         clock.reset();
-        connection->recvNB( buffer, packetSize );
-        TEST( connection->recvSync( 0, 0 ));
+        while( --i )
+        {
+            connection->recvNB( buffer, packetSize );
+            TEST( connection->recvSync( 0, 0 ));
+        }
+        const float time = clock.getTimef();
+        if( mBytes > 0.2f )
+            std::cerr << nPackets * mBytesSec / time << "MB/s, "
+                      << nPackets / time << "p/ms (" << mBytes << "MB)"
+                      << std::endl;
+        else
+            std::cerr << nPackets * mBytesSec / time << "MB/s, "
+                      << nPackets / time << "p/ms (" << packetSize << "B)"
+                      << std::endl;
 
-        std::cerr << "Recv perf: " << mBytesSec / clock.getTimef() << "MB/s ("
-                  << mBytes << "MB)" << std::endl;
+        ++_nextStage;
+        _nextStage.waitGE( stage );
+        stage += 2;
     }
 
     TEST( sender.join( ));
