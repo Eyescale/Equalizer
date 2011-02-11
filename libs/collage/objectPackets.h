@@ -35,6 +35,17 @@ namespace co
         uint32_t requestID;
     };
 
+    struct ObjectObsoletePacket : public ObjectPacket
+    {
+        ObjectObsoletePacket( const uint32_t c ) : count( c )
+            {
+                command        = CMD_OBJECT_OBSOLETE;
+                size           = sizeof( ObjectObsoletePacket ); 
+            }
+        
+        const uint32_t count;
+    };
+
     struct ObjectDataPacket : public ObjectPacket
     {
         ObjectDataPacket() : dataSize( 0 )

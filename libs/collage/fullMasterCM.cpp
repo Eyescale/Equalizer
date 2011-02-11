@@ -50,6 +50,8 @@ FullMasterCM::FullMasterCM( Object* object )
 
     object->registerCommand( CMD_OBJECT_COMMIT, 
                              CmdFunc( this, &FullMasterCM::_cmdCommit ), q );
+    object->registerCommand( CMD_OBJECT_OBSOLETE, 
+                             CmdFunc( this, &FullMasterCM::_cmdObsolete ), q );
 }
 
 FullMasterCM::~FullMasterCM()
@@ -99,8 +101,20 @@ void FullMasterCM::init()
     ++_commitCount;
 }
 
+void FullMasterCM::setAutoObsolete( const uint32_t count )
+{
+    ObjectObsoletePacket packet( count );
+    packet.instanceID = _object->_instanceID;
+
+    NodePtr localNode = _object->getLocalNode();
+    _object->send( localNode, packet );    
+}
+
 void FullMasterCM::increaseCommitCount()
 {
+    if( _nVersions == 0 )
+        return; // OPT: obsoletion not needed
+
     ObjectCommitPacket packet;
     packet.instanceID = _object->_instanceID;
     packet.requestID = EQ_UNDEFINED_UINT32;
@@ -364,4 +378,14 @@ bool FullMasterCM::_cmdCommit( Command& command )
     return true;
 }
 
+bool FullMasterCM::_cmdObsolete( Command& command )
+{
+    EQ_TS_THREAD( _cmdThread );
+    const ObjectObsoletePacket* packet = 
+        command.getPacket<ObjectObsoletePacket>();
+
+    _nVersions = packet->count;
+    _obsolete();
+    return true;
+}
 }

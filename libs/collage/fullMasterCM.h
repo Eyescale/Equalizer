@@ -43,9 +43,7 @@ namespace co
 
         /** @name Versioning */
         //@{
-        virtual void setAutoObsolete( const uint32_t count )
-            { _nVersions = count; }
-        
+        virtual void setAutoObsolete( const uint32_t count );
         virtual void increaseCommitCount();
         virtual uint32_t getAutoObsolete() const { return _nVersions; }
         virtual uint128_t getOldestVersion() const;
@@ -66,7 +64,7 @@ namespace co
         struct InstanceData
         {
             InstanceData( const MasterCM* cm ) 
-                    : os( cm ), commitCount(0) {}
+                    : os( cm ), commitCount( 0 ) {}
 
             ObjectInstanceDataOStream os;
             uint32_t commitCount;
@@ -92,6 +90,7 @@ namespace co
 
         /* The command handlers. */
         bool _cmdCommit( Command& command );
+        bool _cmdObsolete( Command& command );
     };
 }
 
