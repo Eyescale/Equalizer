@@ -70,6 +70,9 @@ namespace co
         /** @return the node-wide unique object instance identifier. */
         uint32_t getInstanceID() const { return _instanceID; }
 
+        /** @internal @return if this object keeps instance data buffers. */
+        CO_API bool isBuffered() const;
+
         /** 
          * @return true if this instance is the master version, false otherwise.
          */

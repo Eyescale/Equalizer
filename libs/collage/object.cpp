@@ -243,6 +243,11 @@ void Object::sendInstanceData( Nodes& nodes )
     _cm->sendInstanceData( nodes );
 }
 
+bool Object::isBuffered() const
+{
+    return _cm->isBuffered();
+}
+
 bool Object::isMaster() const
 {
     return _cm->isMaster();

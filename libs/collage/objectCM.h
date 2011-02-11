@@ -42,7 +42,7 @@ namespace co
     {
     public:
         /** Construct a new change manager. */
-        ObjectCM() {}
+        ObjectCM( Object* object ) : _object( object ){}
         virtual ~ObjectCM() {}
 
         /** Initialize the change manager. */
@@ -99,6 +99,9 @@ namespace co
         virtual uint128_t getOldestVersion() const = 0;
         //@}
 
+        /** @return if this object keeps instance data buffers. */
+        virtual bool isBuffered() const{ return false; }
+
         /** @return if this instance is the master version. */
         virtual bool isMaster() const = 0;
 
@@ -140,16 +143,19 @@ namespace co
         /** Speculatively send instance data to all nodes. */
         virtual void sendInstanceData( Nodes& nodes ){}
 
-        /** @return the object associate. @internal*/
-        virtual const Object* getObject( ) const { EQDONTCALL; return 0; }
+        /** @internal @return the object. */
+        const Object* getObject( ) const { return _object; }
 
-        /** swap the object associate. @internal*/
-        virtual void setObject( Object* object ){ EQDONTCALL; }
+        /** @internal Swap the object. */
+        void setObject( Object* object ) { _object = object; }
 
         /** The default CM for unattached objects. */
         static ObjectCM* ZERO;
 
     protected:
+        /** The managed object. */
+        Object* _object;
+
 #ifdef EQ_INSTRUMENT_MULTICAST
         static base::a_int32_t _hit;
         static base::a_int32_t _miss;

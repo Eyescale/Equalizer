@@ -30,7 +30,7 @@ namespace co
 typedef CommandFunc< StaticSlaveCM > CmdFunc;
 
 StaticSlaveCM::StaticSlaveCM( Object* object )
-        : _object( object )
+        : ObjectCM( object )
         , _currentIStream( new ObjectDataIStream )
 {
     EQASSERT( object );

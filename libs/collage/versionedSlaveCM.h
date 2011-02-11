@@ -72,12 +72,8 @@ namespace co
         virtual void applyMapData( const uint128_t& version );
         virtual void addInstanceDatas( const ObjectDataIStreamDeque&, 
                                        const uint128_t& startVersion );
-        virtual const Object* getObject( ) const { return _object; }
 
     private:
-        /** The managed object. */
-        Object* const _object;
-
         /** The current version. */
         uint128_t _version;
 

@@ -51,8 +51,6 @@ namespace co
 
         virtual uint128_t addSlave( Command& command );
         virtual void removeSlave( NodePtr node );
-        virtual void setObject( Object* object ) { _object = object; }
-        virtual const Object* getObject( ) const { return _object; }
 
         /** Speculatively send instance data to all nodes. */
         virtual void sendInstanceData( Nodes& nodes );
@@ -76,6 +74,8 @@ namespace co
 
         void _obsolete();
         void _checkConsistency() const;
+
+        virtual bool isBuffered() const{ return true; }
 
     private:
         /** The number of old versions to retain. */

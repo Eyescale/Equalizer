@@ -60,7 +60,6 @@ namespace co
         virtual uint128_t getOldestVersion() const { return VERSION_NONE; }
         //@}
 
-        virtual const Object* getObject( ) const { return _object; }
         virtual bool isMaster() const { return true; }
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_INSTANCE_INVALID; }
@@ -71,7 +70,6 @@ namespace co
 
     private:
         /** The managed object. */
-        Object* _object;
         ObjectInstanceDataOStream _os;
     };
 }

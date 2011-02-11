@@ -32,7 +32,7 @@ namespace co
     class NullCM : public ObjectCM
     {
     public:
-        NullCM() {}
+        NullCM() : ObjectCM( 0 ) {}
         virtual ~NullCM() {}
 
         virtual void init() {}

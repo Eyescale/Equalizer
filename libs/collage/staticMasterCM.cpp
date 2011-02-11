@@ -29,7 +29,7 @@
 namespace co
 {
 StaticMasterCM::StaticMasterCM( Object* object ) 
-        : _object( object )
+        : ObjectCM( object )
 #pragma warning(push)
 #pragma warning(disable: 4355)
         , _os( this )

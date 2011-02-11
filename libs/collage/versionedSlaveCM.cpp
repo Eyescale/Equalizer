@@ -31,7 +31,7 @@ namespace co
 typedef CommandFunc< VersionedSlaveCM > CmdFunc;
 
 VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
-        : _object( object )
+        : ObjectCM( object )
         , _version( VERSION_NONE )
         , _currentIStream( 0 )
         , _masterInstanceID( masterInstanceID )

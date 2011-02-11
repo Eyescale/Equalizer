@@ -29,7 +29,7 @@ namespace co
 typedef CommandFunc<MasterCM> CmdFunc;
 
 MasterCM::MasterCM( Object* object )
-        : _object( object )
+        : ObjectCM( object )
         , _version( VERSION_NONE )
 {
     EQASSERT( object );

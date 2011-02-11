@@ -707,9 +707,7 @@ void Config::deregisterObject( co::Object* object )
 
     const uint32_t latency = getLatency();
     ClientPtr client = getClient();
-    if( latency == 0 || !_running || 
-        object->getChangeType() == co::Object::STATIC || 
-        object->getChangeType() == co::Object::UNBUFFERED ) // OPT
+    if( latency == 0 || !_running || !object->isBuffered( )) // OPT
     {
         client->deregisterObject( object );
         return;
