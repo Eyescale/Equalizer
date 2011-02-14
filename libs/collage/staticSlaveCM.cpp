@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -33,7 +33,7 @@ StaticSlaveCM::StaticSlaveCM( Object* object )
         : ObjectCM( object )
         , _currentIStream( new ObjectDataIStream )
 {
-    EQASSERT( object );
+    EQASSERT( _object );
     EQASSERT( object->getLocalNode( ));
     CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
 
@@ -53,6 +53,7 @@ void StaticSlaveCM::applyMapData( const uint128_t& version )
     EQASSERT( version == VERSION_NONE );
     _currentIStream->waitReady();
 
+    EQASSERT( _object );
     EQASSERT( _currentIStream->hasInstanceData( ));
     _object->applyInstanceData( *_currentIStream );
     EQASSERTINFO( _currentIStream->getRemainingBufferSize() == 0 &&

@@ -42,7 +42,7 @@ namespace co
     {
     public:
         /** Construct a new change manager. */
-        ObjectCM( Object* object ) : _object( object ){}
+        ObjectCM( Object* object ) : _object( object ) {}
         virtual ~ObjectCM() {}
 
         /** Initialize the change manager. */
@@ -147,7 +147,8 @@ namespace co
         const Object* getObject( ) const { return _object; }
 
         /** @internal Swap the object. */
-        void setObject( Object* object ) { _object = object; }
+        void setObject( Object* object )
+            { EQASSERT( object ); _object = object; }
 
         /** The default CM for unattached objects. */
         static ObjectCM* ZERO;
