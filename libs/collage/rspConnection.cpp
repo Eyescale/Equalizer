@@ -1450,11 +1450,8 @@ void RSPConnection::_removeConnection( const uint16_t id )
 
 int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
 {
-    if( _parent.isValid( ))
-    {
-        EQASSERTINFO( !_parent, "Writes are only allowed on RSP listeners" );
-        return -1;
-    }
+    if ( _parent.isValid() )
+        return _parent->write( inData, bytes );
     EQASSERT( _state == STATE_LISTENING );
 
     if( !_write )

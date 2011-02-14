@@ -825,7 +825,7 @@ void Config::_startFrame( const uint128_t& frameID )
 
     ++_currentFrame;
     EQLOG( co::base::LOG_ANY ) << "----- Start Frame ----- " << _currentFrame
-                           << std::endl;
+                               << std::endl;
 
     for( Compounds::const_iterator i = _compounds.begin(); 
          i != _compounds.end(); ++i )
