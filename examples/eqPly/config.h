@@ -91,6 +91,9 @@ namespace eqPly
     protected:
         virtual ~Config();
 
+        /** Synchronize config and admin copy. */
+        virtual co::uint128_t sync( 
+                             const co::uint128_t& version = co::VERSION_HEAD );
 
     private:
         int         _spinX, _spinY;

@@ -80,6 +80,18 @@ void Server::unmap()
     client->waitRequest( packet.requestID );
 }
 
+void Server::syncConfig( const co::uint128_t& configID, const co::uint128_t& version  )
+{
+    const Configs& configs = getConfigs();
+    for( eq::admin::Configs::const_iterator i = configs.begin();
+        i != configs.end(); i++ )
+    {
+        Config* config = *i;
+        if( config->getID() == configID )
+            config->sync( version );
+    }
+}
+
 co::CommandQueue* Server::getMainThreadQueue()
 {
     return getClient()->getMainThreadQueue();

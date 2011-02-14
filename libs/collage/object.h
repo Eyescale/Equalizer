@@ -187,7 +187,8 @@ namespace co
          * @param version the version to synchronize (see above).
          * @return the last version applied.
          */
-        CO_API uint128_t sync( const uint128_t& version = VERSION_HEAD );
+        CO_API virtual uint128_t sync( 
+                                     const uint128_t& version = VERSION_HEAD );
 
         /** @return the latest available (head) version. */
         CO_API uint128_t getHeadVersion() const;

@@ -51,6 +51,10 @@ namespace admin
         /** Unmap all server data. @internal */
         void unmap();
 
+        /** Synchronize all sever data. @version 1.0  **/
+        EQADMIN_EXPORT void syncConfig( const co::uint128_t& configID,
+                                        const co::uint128_t& version );
+
         virtual void setClient( ClientPtr client ); //!< @internal
         co::CommandQueue* getMainThreadQueue(); //!< @internal
 

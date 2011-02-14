@@ -755,6 +755,14 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
     }
 }
 
+co::uint128_t Config::sync( const co::uint128_t& version )
+{
+    if( _admin.isValid() && _admin->isConnected( ))
+        _admin->syncConfig( getID(), version );
+
+    return eq::Config::sync( version );
+}
+
 void Config::_switchCanvas()
 {
     const eq::Canvases& canvases = getCanvases();

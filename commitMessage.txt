@@ -1,4 +1,4 @@
-- Remove include glut.h in glew-1.5.8
+- Fix bug 3155386  Admin copies are never synced  
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
