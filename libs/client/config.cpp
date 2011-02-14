@@ -491,9 +491,9 @@ bool Config::handleEvent( const ConfigEvent* event )
         {
             EQLOG( LOG_STATS ) << event->data << std::endl;
 
-            const uint128_t& originator = event->data.originator;
-            EQASSERT( originator != co::base::UUID::ZERO );
-            if( originator == co::base::UUID::ZERO )
+            const uint32_t originator = event->data.serial;
+            EQASSERT( originator != 0 );
+            if( originator == 0 )
                 return false;
 
             const Statistic& statistic = event->data.statistic;

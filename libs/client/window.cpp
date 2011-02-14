@@ -584,6 +584,7 @@ bool Window::processEvent( const Event& event )
 
                 EQASSERT( channel->getID() != co::base::UUID::ZERO );
                 channelEvent.originator = channel->getID();
+                channelEvent.serial = channel->getSerial();
                 channelEvent.pointer.x -= channelPVP.x;
                 channelEvent.pointer.y = channelPVP.h - y + channelPVP.y;
                 channel->processEvent( channelEvent );

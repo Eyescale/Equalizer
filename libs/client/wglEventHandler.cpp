@@ -424,6 +424,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
     
     EQASSERT( window->getID() != co::base::UUID::ZERO );
     event.originator = window->getID();
+    event.serial = window->getSerial();
 
     if( _window->processEvent( event ))
         return result;
@@ -592,6 +593,7 @@ void WGLEventHandler::_magellanEventHandler( LPARAM lParam )
             ConfigEvent event;
             EQASSERT( _magellanNode->getID() != co::base::UUID::ZERO );
             event.data.originator = _magellanNode->getID();
+            event.data.serial = _magellanNode->getSerial();
             event.data.type = Event::MAGELLAN_BUTTON;
             event.data.magellan.button = 0;
             event.data.magellan.buttons = 0;
@@ -616,6 +618,7 @@ void WGLEventHandler::_magellanEventHandler( LPARAM lParam )
             ConfigEvent event;
             EQASSERT( _magellanNode->getID() != co::base::UUID::ZERO );
             event.data.originator = _magellanNode->getID();
+            event.data.serial = _magellanNode->getSerial();
             event.data.type = Event::MAGELLAN_AXIS;
             event.data.magellan.xAxis = _magellanDOFs[0];
             event.data.magellan.yAxis = _magellanDOFs[1];

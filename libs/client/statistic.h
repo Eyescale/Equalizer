@@ -68,9 +68,9 @@ namespace eq
         Type type; //!< The type of statistic
         uint32_t frameNumber; //!< The frame during when the sampling happened
         uint32_t task; //!< @internal
-        uint32_t plugins[2]; //!< color,depth plugins (download, compression)
-        float ratio; //!< compression ratio (readback, compression)
-
+        uint32_t plugins[2]; //!< color,depth plugins (readback, compression)
+        float ratio; //!< compression ratio (transfer, compression)
+        
         union
         {
             int64_t  startTime; //!< Absolute start time of the operation

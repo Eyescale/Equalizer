@@ -283,7 +283,7 @@ void Config::updateCanvas( Canvas* canvas )
             EQASSERT( !channel->isActive( ));
 
             Compound* compound = new Compound( group );
-            compound->setIAttribute( Compound::IATTR_STEREO_MODE, fabric::AUTO );
+            compound->setIAttribute( Compound::IATTR_STEREO_MODE, fabric::AUTO);
             compound->setChannel( channel );
         }
     }

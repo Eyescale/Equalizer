@@ -91,6 +91,8 @@ namespace fabric
          * @warning Experimental - may not be supported in the future
          */
         uint32_t getTasks() const { return _tasks; }
+
+        uint32_t getSerial() const { return _serial; } //!< @internal
         //@}
 
         /** @return true if the object has data to commit. @version 1.0 */
@@ -116,6 +118,7 @@ namespace fabric
             DIRTY_ERROR      = Serializable::DIRTY_CUSTOM << 2, // 4
             DIRTY_TASKS      = Serializable::DIRTY_CUSTOM << 3, // 8
             DIRTY_REMOVED    = Serializable::DIRTY_CUSTOM << 4, // 16
+            DIRTY_SERIAL     = Serializable::DIRTY_CUSTOM << 5, // 32
             // Leave room for binary-compatible patches
             DIRTY_CUSTOM     = Serializable::DIRTY_CUSTOM << 6, // 64
             DIRTY_OBJECT_BITS = DIRTY_NAME | DIRTY_USERDATA | DIRTY_ERROR
@@ -205,6 +208,9 @@ namespace fabric
 
         /** The reason for the last error. */
         co::base::Error _error;
+
+        /** Server-unique serial number. */
+        uint32_t _serial;
 
         /** The identifiers of removed children since the last slave commit. */
         std::vector< co::base::UUID > _removedChildren;

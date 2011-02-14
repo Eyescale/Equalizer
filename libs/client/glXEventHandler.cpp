@@ -267,6 +267,7 @@ void GLXEventHandler::_processEvent( GLXWindowEvent& event )
     }
 
     event.originator = window->getID();
+    event.serial = window->getSerial();
     _window->processEvent( event );
 }
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -56,6 +56,7 @@ NodeStatistics::NodeStatistics( const Statistic::Type type,
     event.data.statistic.startTime = config->getTime();
     EQASSERT( _owner->getID() != UUID::ZERO );
     event.data.originator = _owner->getID();
+    event.data.serial = _owner->getSerial();
 }
 
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>  
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -53,6 +53,7 @@ static std::string _eventTypeNames[ Event::ALL ] =
 
 Event::Event()
         : type( UNKNOWN )
+        , serial( 0 )
         , originator( co::base::UUID::ZERO )
 {
     bzero( &user, sizeof( user ));

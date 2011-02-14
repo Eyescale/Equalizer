@@ -230,7 +230,9 @@ namespace eq
 
         
         uint32_t type;           //!< The event type
-        uint32_t alignToEight;   //!< @internal padding
+
+        // keep before 'uint128_t originator' for alignment
+        uint32_t serial;       //!< server-unique originator serial number
 
         /** The identifier of the entity emitting the event. */
         uint128_t originator;

@@ -244,6 +244,7 @@ bool AGLEventHandler::_handleWindowEvent( EventRef event )
     }
 
     windowEvent.originator = window->getID();
+    windowEvent.serial = window->getSerial();
     return _window->processEvent( windowEvent );
 }
 
@@ -413,6 +414,7 @@ bool AGLEventHandler::_handleMouseEvent( EventRef event )
     }
 
     windowEvent.originator = window->getID();
+    windowEvent.serial = window->getSerial();
     return _window->processEvent( windowEvent );
 }
 
@@ -444,6 +446,7 @@ bool AGLEventHandler::_handleKeyEvent( EventRef event )
     }
 
     windowEvent.originator = window->getID();
+    windowEvent.serial = window->getSerial();
     return _window->processEvent( windowEvent );
 }
 
@@ -569,6 +572,7 @@ void _magellanEventHandler( io_connect_t connection, natural_t messageType,
             { 
                 ConfigEvent event;
                 event.data.originator = _magellanNode->getID();
+                event.serial = _magellanNode->getSerial();
                 event.data.magellan.buttons = state->buttons;
                 event.data.magellan.xAxis = state->axis[0];
                 event.data.magellan.yAxis = state->axis[1];

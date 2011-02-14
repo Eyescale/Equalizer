@@ -30,6 +30,7 @@ Object::Object()
         : _userData( 0 )
         , _tasks( TASK_NONE )
         , _error( ERROR_NONE )
+        , _serial( 0 )
 {}
 
 Object::~Object()
@@ -140,6 +141,8 @@ void Object::serialize( co::DataOStream& os, const uint64_t dirtyBits )
         os << _removedChildren;
         _removedChildren.clear();
     }
+    if( (dirtyBits & DIRTY_SERIAL) && isMaster( ))
+        os << getInstanceID();
 }
 
 void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
@@ -169,6 +172,8 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
             }
         }
     }
+    if( (dirtyBits & DIRTY_SERIAL) && !isMaster( ))
+        is >> _serial;
 
     if( isMaster( )) // redistribute changes
         setDirty( dirtyBits & getRedistributableBits( ));

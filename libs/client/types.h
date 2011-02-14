@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -174,8 +174,8 @@ typedef co::base::UUID UUID;
 /** @cond IGNORE */
 typedef co::base::RefPtr< X11Connection > X11ConnectionPtr;
     
-// originator id -> statistics
-typedef std::map<co::base::uint128_t, Statistics > SortedStatistics;
+// originator serial -> statistics
+typedef std::map< uint32_t, Statistics > SortedStatistics;
 
 // frame id, config statistics
 typedef std::pair< uint32_t, SortedStatistics > FrameStatistics;
