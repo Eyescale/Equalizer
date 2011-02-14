@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -72,7 +73,7 @@ namespace util
          * @param ignoreAlpha true if the downloader may drop the alpha channel.
          * @param capabilities the capabilities required by the downloader.
          */
-        void initDownloader( const uint32_t internalFormat,
+        bool initDownloader( const uint32_t internalFormat,
                              const float minQuality, const bool ignoreAlpha,
                              const uint64_t capabilities );
 
@@ -96,7 +97,7 @@ namespace util
          * @param internalFormat the output of the uploader.
          * @param capabilities the capabilities required by the uploader.
          */
-        void initUploader( const uint32_t externalFormat,
+        bool initUploader( const uint32_t externalFormat,
                            const uint32_t internalFormat,
                            const uint64_t capabilities );
 

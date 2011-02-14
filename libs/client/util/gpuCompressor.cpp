@@ -50,7 +50,7 @@ bool GPUCompressor::isValidUploader( const uint32_t externalFormat,
            _info->tokenType == internalFormat;
 }
 
-void GPUCompressor::initDownloader( const uint32_t internalFormat,
+bool GPUCompressor::initDownloader( const uint32_t internalFormat,
                                     const float    minQuality,
                                     const bool     ignoreAlpha, 
                                     const uint64_t capabilities )
@@ -79,9 +79,13 @@ void GPUCompressor::initDownloader( const uint32_t internalFormat,
     }
 
     if( name == EQ_COMPRESSOR_NONE )
+    {
         reset();
-    else if( name != _name )
-        initCompressor( name );
+        return false;
+    }
+    if( name != _name )
+        return initCompressor( name );
+    return true;
 }
 
 bool GPUCompressor::initDownloader( const uint32_t name )
@@ -90,7 +94,7 @@ bool GPUCompressor::initDownloader( const uint32_t name )
     return initCompressor( name );
 }
 
-void GPUCompressor::initUploader( const uint32_t externalFormat,
+bool GPUCompressor::initUploader( const uint32_t externalFormat,
                                   const uint32_t internalFormat,
                                   const uint64_t capabilities )
 {
@@ -129,9 +133,13 @@ void GPUCompressor::initUploader( const uint32_t externalFormat,
 
     EQASSERT( name != EQ_COMPRESSOR_NONE );
     if( name == EQ_COMPRESSOR_NONE )
+    {
         reset();
-    else if( name != _name )
-        initDecompressor( name );
+        return false;
+    }
+    if( name != _name )
+        return initDecompressor( name );
+    return true;
 }
 
 void GPUCompressor::download( const fabric::PixelViewport& pvpIn,

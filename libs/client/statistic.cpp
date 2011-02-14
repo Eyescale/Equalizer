@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -42,7 +42,7 @@ static StatisticData _statisticData[] =
  { Statistic::CHANNEL_CLEAR,
    "clear",        Vector3f( .5f, 1.0f, .5f ) }, 
  { Statistic::CHANNEL_DRAW,
-   "draw",         Vector3f( 0.f, 1.0f, 0.f ) }, 
+   "draw",         Vector3f( 0.f, .9f, 0.f ) }, 
  { Statistic::CHANNEL_DRAW_FINISH,
    "finish draw",  Vector3f( 0.f, .5f, 0.f ) }, 
  { Statistic::CHANNEL_ASSEMBLE,
@@ -56,7 +56,7 @@ static StatisticData _statisticData[] =
  { Statistic::CHANNEL_FRAME_TRANSMIT,
    "transmit",     Vector3f( 0.f, 0.f, 1.0f ) }, 
  { Statistic::CHANNEL_FRAME_COMPRESS,
-   "compress",     Vector3f( 0.f, 1.f, 1.f ) }, 
+   "compress",     Vector3f( 0.f, .7f, 1.f ) }, 
  { Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN,
    "wait send token", Vector3f( 1.f, 0.f, 0.f ) }, 
  { Statistic::WINDOW_FINISH,
@@ -72,7 +72,7 @@ static StatisticData _statisticData[] =
  { Statistic::PIPE_IDLE,
    "pipe idle",    Vector3f( 1.f, 1.f, 1.f ) }, 
  { Statistic::NODE_FRAME_DECOMPRESS,
-   "decompress",   Vector3f( .7f, 1.f, .7f ) }, 
+   "decompress",   Vector3f( 0.f, .7f, 1.f ) }, 
  { Statistic::CONFIG_START_FRAME,
    "start frame",  Vector3f( .5f, 1.0f, .5f ) }, 
  { Statistic::CONFIG_FINISH_FRAME,

@@ -727,6 +727,8 @@ struct EntityData
     uint32_t yPos;
     bool doubleHeight;
     std::string name;
+    std::set< uint32_t > downloaders;
+    std::set< uint32_t > compressors;
 };
 
 struct IdleData
@@ -758,6 +760,7 @@ void Channel::drawStatistics()
     if( statistics.empty( )) 
         return;
 
+    //----- setup
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
@@ -772,7 +775,7 @@ void Channel::drawStatistics()
     Window* window = getWindow();
     const Window::Font* font = window->getSmallFont();
 
-    // find min/max time
+    //----- find min/max time
     int64_t xMax = 0;
     int64_t xMin = std::numeric_limits< int64_t >::max();
 
@@ -808,7 +811,7 @@ void Channel::drawStatistics()
                   case Statistic::PIPE_IDLE:
                   {
                     IdleData& data = idles[ id ];
-                    std::map< UUID, EntityData >::iterator l = 
+                    std::map< UUID, EntityData >::iterator l =
                         entities.find( id );
 
                     if( l != entities.end( ))
@@ -851,6 +854,7 @@ void Channel::drawStatistics()
     const uint32_t height = uint32_t( pvp.h / vp.h);
     uint32_t nextY = height - SPACE;
 
+    //----- statistics
     float dim = 0.0f;
     for( std::vector< eq::FrameStatistics >::reverse_iterator 
              i = statistics.rbegin(); i != statistics.rend(); ++i )
@@ -871,8 +875,7 @@ void Channel::drawStatistics()
             if( stats.empty( ))
                 continue;
 
-            std::map< co::base::UUID, EntityData >::iterator l = 
-                entities.find( id );
+            std::map< UUID, EntityData >::iterator l = entities.find( id );
             if( l == entities.end( ))
                 continue;
 
@@ -894,13 +897,13 @@ void Channel::drawStatistics()
 
                 switch( stat.type )
                 {
-                case Statistic::PIPE_IDLE:
-                case Statistic::WINDOW_FPS:
+                  case Statistic::PIPE_IDLE:
+                  case Statistic::WINDOW_FPS:
                     continue;
 
-                case Statistic::CHANNEL_FRAME_TRANSMIT:
-                case Statistic::CHANNEL_FRAME_COMPRESS:
-                case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
+                  case Statistic::CHANNEL_FRAME_TRANSMIT:
+                  case Statistic::CHANNEL_FRAME_COMPRESS:
+                  case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
                     y = data.yPos - (HEIGHT + SPACE);
                     break;
                 default:
@@ -924,19 +927,29 @@ void Channel::drawStatistics()
                 
                 switch( stat.type )
                 {
-                case Statistic::CONFIG_WAIT_FINISH_FRAME:
-                case Statistic::CHANNEL_FRAME_WAIT_READY:
-                case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
+                  case Statistic::CONFIG_WAIT_FINISH_FRAME:
+                  case Statistic::CHANNEL_FRAME_WAIT_READY:
+                  case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
                     y1 -= SPACE;
                     y2 += SPACE;
                     break;
 
-                case Statistic::CHANNEL_FRAME_COMPRESS:
+                  case Statistic::CHANNEL_FRAME_COMPRESS:
                     y1 -= SPACE;
                     y2 += SPACE;
-                    // no break;
-                case Statistic::CHANNEL_READBACK:
                     text << unsigned( 100.f * stat.ratio ) << '%';
+                    if( stat.plugins[ 0 ]  > EQ_COMPRESSOR_NONE )
+                        data.compressors.insert( stat.plugins[0] );
+                    if( stat.plugins[ 1 ]  > EQ_COMPRESSOR_NONE )
+                        data.compressors.insert( stat.plugins[1] );
+                    break;
+
+                  case Statistic::CHANNEL_READBACK:
+                    text << unsigned( 100.f * stat.ratio ) << '%';
+                    if( stat.plugins[ 0 ]  > EQ_COMPRESSOR_NONE )
+                        data.downloaders.insert( stat.plugins[0] );
+                    if( stat.plugins[ 1 ]  > EQ_COMPRESSOR_NONE )
+                        data.downloaders.insert( stat.plugins[1] );
                     break;
 
                 default:
@@ -955,7 +968,7 @@ void Channel::drawStatistics()
 
                 if( !text.str().empty( ))
                 {
-                    glColor3f( 0.f, 0.f, 0.f );
+                    glColor3f( 1.f, 1.f, 1.f );
                     glRasterPos3f( x1+1, y2, 0.f );
                     font->draw( text.str( ));
                 }
@@ -983,7 +996,7 @@ void Channel::drawStatistics()
         dim += .1f;
     }
 
-    // Entitity names
+    //----- Entitity names
     for( std::map< co::base::UUID, EntityData >::const_iterator i =
              entities.begin(); i != entities.end(); ++i )
     {
@@ -992,9 +1005,30 @@ void Channel::drawStatistics()
         glColor3f( 1.f, 1.f, 1.f );
         glRasterPos3f( 60.f, data.yPos-SPACE-12.0f, 0.99f );
         font->draw( data.name );
+
+        std::stringstream downloaders;
+        for( std::set<uint32_t>::const_iterator j = data.downloaders.begin();
+             j != data.downloaders.end(); ++j )
+        {
+            downloaders << " 0x" << std::hex << *j << std::dec;
+        }
+        if( !downloaders.str().empty( ))
+            font->draw( std::string( ", down" ) + downloaders.str( ));
+
+        std::stringstream compressors;
+        for( std::set<uint32_t>::const_iterator j = data.compressors.begin();
+             j != data.compressors.end(); ++j )
+        {
+            compressors << " 0x" << std::hex << *j << std::dec;
+        }
+        if( !compressors.str().empty( ))
+        {
+            glRasterPos3f( 80.f, data.yPos - HEIGHT - 2*SPACE - 12.0f, 0.99f );
+            font->draw( std::string( "compressors" ) + compressors.str( ));
+        }
     }
 
-    // Global stats (scale, GPU idle)
+    //----- Global stats (scale, GPU idle)
     glColor3f( 1.f, 1.f, 1.f );
     nextY -= (HEIGHT + SPACE);
     glRasterPos3f( 60.f, static_cast< float >( nextY ), 0.99f );
@@ -1015,7 +1049,7 @@ void Channel::drawStatistics()
 
     font->draw( text.str( ));
     
-    // Legend
+    //----- Legend
     nextY -= SPACE;
     float x = 0.f;
 
@@ -1317,6 +1351,10 @@ bool Channel::_cmdFrameReadback( co::Command& command )
     size_t out = 0;
     const DrawableConfig& dc = getDrawableConfig();
     const size_t colorBytes = ( 3 * dc.colorBits + dc.alphaBits ) / 8;
+
+    event.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
+    event.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
+
     for( Frames::const_iterator i = _outputFrames.begin(); 
          i != _outputFrames.end(); ++i)
     {
@@ -1331,11 +1369,15 @@ bool Channel::_cmdFrameReadback( co::Command& command )
             {
                 in += colorBytes * image->getPixelViewport().getArea();
                 out += image->getPixelDataSize( Frame::BUFFER_COLOR );
+                event.event.data.statistic.plugins[0] =
+                    image->getDownloaderName( Frame::BUFFER_COLOR );
             }
             if( image->hasPixelData( Frame::BUFFER_DEPTH ))
             {
                 in += 4 * image->getPixelViewport().getArea();
                 out += image->getPixelDataSize( Frame::BUFFER_DEPTH );
+                event.event.data.statistic.plugins[1] =
+                    image->getDownloaderName( Frame::BUFFER_DEPTH );
             }
         }
     }
@@ -1435,6 +1477,9 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
             compressEvent.statisticsIndex = command->statisticsIndex;
             compressEvent.event.data.statistic.task = command->context.taskID;
             compressEvent.event.data.statistic.ratio = 1.0f;
+            compressEvent.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
+            compressEvent.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
+
             if( !useCompression ) // don't send event
                 compressEvent.event.data.statistic.frameNumber = 0;
 
@@ -1465,6 +1510,8 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
                             packet.size += sizeof( uint64_t );
                             packet.size += data.compressedSize[ k ];
                         }
+                        compressEvent.event.data.statistic.plugins[j] =
+                            data.compressorName;
                     }
                     else
                     {

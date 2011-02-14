@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -250,9 +250,10 @@ namespace eq
          * @param pvp the area of the frame buffer wrt the drawable.
          * @param zoom the scale factor to apply during readback.
          * @param glObjects the GL object manager for the current GL context.
+         * @return true when data was read back, false on error.
          * @version 1.0
          */
-        EQ_API void readback( const uint32_t buffers, const PixelViewport& pvp,
+        EQ_API bool readback( const uint32_t buffers, const PixelViewport& pvp,
                               const Zoom& zoom,
                               util::ObjectManager< const void* >* glObjects );
 
@@ -266,8 +267,9 @@ namespace eq
          * @param buffer the buffer type.
          * @param texture the OpenGL texture name.
          * @param glewContext function table for the current GL context.
+         * @return true when data was read back, false on error.
          */
-        void readback( const Frame::Buffer buffer, const util::Texture* texture,
+        bool readback( const Frame::Buffer buffer, const util::Texture* texture,
                        const GLEWContext* glewContext );
 
         /**
@@ -329,6 +331,9 @@ namespace eq
         EQ_API bool allocDownloader( const Frame::Buffer buffer, 
                                      const uint32_t name,
                                      const GLEWContext* glewContext );
+
+        /** @internal */
+        EQ_API uint32_t getDownloaderName( const Frame::Buffer buffer ) const;
         //@}
 
     private:
@@ -373,13 +378,13 @@ namespace eq
             ~Attachment();
 
             void flush();
-           co::base::CPUCompressor* const fullCompressor;
-           co::base::CPUCompressor* const lossyCompressor;
+            co::base::CPUCompressor* const fullCompressor;
+            co::base::CPUCompressor* const lossyCompressor;
 
             util::GPUCompressor* const fullTransfer;
             util::GPUCompressor* const lossyTransfer;
 
-           co::base::CPUCompressor* compressor; //!< current CPU (de)compressor
+            co::base::CPUCompressor* compressor; //!< current CPU (de)compressor
             util::GPUCompressor* transfer;   //!< current up/download engine
 
             float quality; //!< the minimum quality
@@ -436,9 +441,9 @@ namespace eq
                                  const uint32_t pixelSize,
                                  const bool hasAlpha );
 
-        void _readback( const Frame::Buffer buffer, const Zoom& zoom,
+        bool _readback( const Frame::Buffer buffer, const Zoom& zoom,
                         util::ObjectManager< const void* >* glObjects );
-        void _readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
+        bool _readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
                             util::ObjectManager< const void* >* glObjects );
     };
 };
