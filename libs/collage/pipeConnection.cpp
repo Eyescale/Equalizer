@@ -37,10 +37,7 @@ PipeConnection::PipeConnection()
 
 PipeConnection::~PipeConnection()
 {
-#ifdef _WIN32
     close();
-    _namedPipe = 0;
-#endif
 }
 
 //----------------------------------------------------------------------
