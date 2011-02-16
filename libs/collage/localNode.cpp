@@ -260,7 +260,7 @@ void LocalNode::_removeConnection( ConnectionPtr connection )
     {
         uint64_t bytes( 0 );
         connection->getRecvData( &buffer, &bytes );
-        EQASSERT( buffer );
+        EQASSERTINFO( buffer, *connection );
         EQASSERT( bytes == sizeof( uint64_t ));
     }
 

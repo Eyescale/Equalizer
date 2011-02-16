@@ -110,10 +110,10 @@ AGLEventHandler::AGLEventHandler( AGLWindowIF* window )
     Global::leaveCarbon();
 
     if( fullscreen )
-        EQINFO << "Installed event handlers for fullscreen carbon context"
+        EQVERB << "Installed event handlers for fullscreen carbon context"
                << std::endl;
     else
-        EQINFO << "Installed event handlers for carbon window " << carbonWindow
+        EQVERB << "Installed event handlers for carbon window " << carbonWindow
                << std::endl;
 }
 
@@ -182,7 +182,8 @@ bool AGLEventHandler::_handleEvent( EventRef event )
         case kEventClassKeyboard:
             return _handleKeyEvent( event );
         default:
-            EQINFO << "Unknown event class " << GetEventClass( event ) << std::endl;
+            EQINFO << "Unknown event class " << GetEventClass( event )
+                   << std::endl;
             return false;
     }
 }

@@ -1,11 +1,6 @@
 #Equalizer 1.1 ascii
 
 # two-to-one sort-first config, for cluster change hostnames
-global
-{
-    EQ_WINDOW_IATTR_HINT_DRAWABLE FBO
-}
-
 server
 {
     connection { hostname "roku.local" }
@@ -15,6 +10,7 @@ server
         appNode
         {
             connection { hostname "roku.local" }
+            connection { type RSP }
             pipe 
             {
                 window
@@ -28,6 +24,7 @@ server
         node
         {
             connection { hostname "eyescale.local" }
+            connection { type RSP }
             pipe { window { channel { name "channel2" }}}
         }
 

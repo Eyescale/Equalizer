@@ -151,7 +151,8 @@ void Config::notifyDetach()
         localNode->waitRequest( requests[ i ] );
         connection->close();
         // connection and _connections hold reference
-        EQASSERTINFO( connection->getRefCount()==2, connection->getRefCount( ));
+        EQASSERTINFO( connection->getRefCount()==2, 
+                      connection->getRefCount() << ": " << *connection );
     }
 
     _connections.clear();
