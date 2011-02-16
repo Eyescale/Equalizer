@@ -69,8 +69,6 @@ namespace co
         virtual void applyMapData( const uint128_t& version ) { EQDONTCALL; }
 
     private:
-        /** The managed object. */
-        ObjectInstanceDataOStream _os;
     };
 }
 

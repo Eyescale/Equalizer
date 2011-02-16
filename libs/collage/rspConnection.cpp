@@ -481,7 +481,7 @@ void RSPConnection::_handleConnectedTimeout( )
 
 bool RSPConnection::_initThread()
 {
-    EQINFO << "Started RSP protocol thread" << std::endl;
+    EQLOG( LOG_RSP ) << "Started RSP protocol thread" << std::endl;
     _timeouts = 0;
  
    // send a first datagram for announce me and discover other connection 

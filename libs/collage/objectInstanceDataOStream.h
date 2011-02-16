@@ -29,21 +29,31 @@ namespace co
     public:
         ObjectInstanceDataOStream( const ObjectCM* cm );
         virtual ~ObjectInstanceDataOStream();
- 
-        void setInstanceID( const uint32_t instanceID )
-            { _instanceID = instanceID; }
 
-        void setNodeID( const NodeID& nodeID )
-            { _nodeID = nodeID; }
-        const NodeID& getNodeID() const { return _nodeID; }
+        virtual void reset();
+
+        /** Set up commit of the given version to the receivers. */
+        virtual void enableCommit( const uint128_t& version,
+                                   const Nodes& receivers );
+
+        /** Set up mapping of the given version to the given node. */
+        void enableMap( const uint128_t& version, NodePtr node,
+                        const uint32_t instanceID );
+
+        /** Send-on-register instance data to all receivers. */
+        void sendInstanceData( const Nodes& receivers );
+
+        /** Send mapping data to the node, using multicast if available. */
+        void sendMapData( NodePtr node, const uint32_t instanceID );
 
     protected:
         virtual void sendData( const void* buffer, const uint64_t size,
                                const bool last );
 
     private:
-        NodeID        _nodeID;
-        uint32_t      _instanceID;
+        NodeID _nodeID;
+        uint32_t _instanceID;
+        uint32_t _command;
     };
 }
 #endif //CO_OBJECTINSTANCEDATAOSTREAM_H

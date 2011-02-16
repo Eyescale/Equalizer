@@ -73,8 +73,7 @@ bool DeltaMasterCM::_cmdCommit( Command& command )
         if( !_slaves.empty( ))
         {
             _deltaData.reset();
-            _deltaData.setVersion( _version + 1 );
-            _deltaData.enable( _slaves );
+            _deltaData.enableCommit( _version + 1, _slaves );
             _object->pack( _deltaData );
             _deltaData.disable();
         }
@@ -85,9 +84,8 @@ bool DeltaMasterCM::_cmdCommit( Command& command )
             // save instance data
             InstanceData* instanceData = _newInstanceData();
             instanceData->commitCount = _commitCount;
-            instanceData->os.setVersion( _version + 1 );
 
-            instanceData->os.enable();
+            instanceData->os.enableCommit( _version + 1, Nodes( ));
             _object->getInstanceData( instanceData->os );
             instanceData->os.disable();
 

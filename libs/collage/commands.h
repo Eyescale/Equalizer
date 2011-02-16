@@ -51,7 +51,8 @@ namespace co
         CMD_NODE_UNMAP_OBJECT,
         CMD_NODE_UNSUBSCRIBE_OBJECT,
         CMD_NODE_OBJECT_INSTANCE,
-        CMD_NODE_INSTANCE,
+        CMD_NODE_OBJECT_INSTANCE_MAP,
+        CMD_NODE_OBJECT_INSTANCE_COMMIT,
         CMD_NODE_DISABLE_SEND_ON_REGISTER,
         CMD_NODE_CUSTOM = 40  // some buffer for binary-compatible patches
     };

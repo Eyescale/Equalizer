@@ -28,9 +28,25 @@
 namespace co
 {
 
+void ObjectDataOStream::reset()
+{
+    DataOStream::reset();
+    _sequence = 0;
+    _version = VERSION_INVALID;
+}
+
+void ObjectDataOStream::enableCommit( const uint128_t& version,
+                                      const Nodes& receivers )
+{
+    _version = version;
+    _setupConnections( receivers );
+    _enable();
+}
+
 void ObjectDataOStream::sendData( ObjectDataPacket& packet, const void* buffer,
                                   const uint64_t size, const bool last )
 {
+    EQASSERT( _version != VERSION_INVALID );
     packet.version = _version;
     packet.sequence = _sequence++;
     packet.objectID  = _cm->getObject()->getID();

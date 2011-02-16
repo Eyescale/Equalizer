@@ -83,6 +83,7 @@ namespace co
         base::Pool< ObjectDataIStream, true > _iStreamCache;
 
         void _apply( ObjectDataIStream* is );
+        void _sendEmptyVersion( NodePtr node, const uint32_t instanceID );
 
         /* The command handlers. */
         bool _cmdSlaveDelta( Command& command );

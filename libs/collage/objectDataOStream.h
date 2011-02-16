@@ -25,19 +25,21 @@ namespace co
 {
     struct ObjectDataPacket;
 
-    /**
-     * The DataOStream for object data.
-     */
+    /** The DataOStream for object data. */
     class ObjectDataOStream : public DataOStream
     {
     public:
         ObjectDataOStream( const ObjectCM* cm )
-                : _cm( cm ), _version( VERSION_NONE ) , _sequence( 0 ) {}
+                : _cm( cm ), _version( VERSION_INVALID ) , _sequence( 0 ) {}
         virtual ~ObjectDataOStream(){}
  
-        void setVersion( const uint128_t& version ) { _version = version; }
+        virtual void reset();
+
+        /** Set up commit of the given version to the receivers. */
+        virtual void enableCommit( const uint128_t& version,
+                                   const Nodes& receivers );
+
         uint128_t getVersion() const { return _version; }
-        virtual void reset() { DataOStream::reset(); _sequence = 0; }
 
     protected:
         void sendData( ObjectDataPacket& packet, const void* buffer,

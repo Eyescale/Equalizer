@@ -125,7 +125,7 @@ protected:
             ::DataOStream stream;
 
             stream._connections.push_back( _connection );
-            stream.enable();
+            stream._enable();
 
             int foo = 42;
             stream << foo;

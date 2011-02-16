@@ -24,16 +24,13 @@
 #include "node.h"
 #include "nodePackets.h"
 #include "object.h"
+#include "objectPackets.h"
 
 
 namespace co
 {
 StaticMasterCM::StaticMasterCM( Object* object ) 
         : ObjectCM( object )
-#pragma warning(push)
-#pragma warning(disable: 4355)
-        , _os( this )
-#pragma warning(pop)
 {}
 
 StaticMasterCM::~StaticMasterCM(){}
@@ -47,8 +44,8 @@ uint128_t StaticMasterCM::addSlave( Command& command )
     NodeMapObjectPacket* packet =
         command.getPacket<NodeMapObjectPacket>();
     const uint32_t instanceID = packet->instanceID;
-    EQASSERT( packet->requestedVersion == VERSION_OLDEST ||
-              packet->requestedVersion == VERSION_NONE );
+    const uint128_t version = packet->requestedVersion;
+    EQASSERT( version == VERSION_OLDEST || version == VERSION_NONE );
 
     const bool useCache = packet->masterInstanceID == _object->getInstanceID();
 
@@ -62,18 +59,33 @@ uint128_t StaticMasterCM::addSlave( Command& command )
         return VERSION_NONE;
     }
 
-    _os.reset();
-    _os.setInstanceID( instanceID );
-    _os.setNodeID( node->getNodeID( ));
-    _os.enable( node, true );
-
-    _object->getInstanceData( _os );
-
-    _os.disable();
 #ifdef EQ_INSTRUMENT_MULTICAST
     ++_miss;
 #endif
 
+    if( version != VERSION_NONE ) // send current data
+    {
+        // send instance data
+        ObjectInstanceDataOStream os( this );
+
+        os.enableMap( VERSION_NONE, node, instanceID );
+        _object->getInstanceData( os );
+        os.disable();
+        EQASSERTINFO( os.hasSentData(),
+                      "Static objects should always serialize data" );
+
+        if( os.hasSentData( ))
+            return VERSION_INVALID; // no data was in cache
+    }
+
+    // no data, send empty packet to set version
+    ObjectInstancePacket instancePacket;
+    instancePacket.type = PACKETTYPE_CO_OBJECT;
+    instancePacket.command = CMD_OBJECT_INSTANCE;
+    instancePacket.last = true;
+    instancePacket.instanceID = instanceID;
+    instancePacket.masterInstanceID = _object->getInstanceID();
+    _object->send( node, instancePacket );
     return VERSION_INVALID; // no data was in cache
 }
 

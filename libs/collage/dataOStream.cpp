@@ -66,24 +66,7 @@ DataOStream::~DataOStream()
     delete _compressor;
 }
 
-void DataOStream::enable( const Nodes& receivers )
-{
-    _setupConnections( receivers );
-#if 0
-    EQLOG( LOG_OBJECTS )
-        << "Enabled " << typeid( *this ).name() << " with " << mcSet.size()
-        << "/" << _connections.size() << " multicast connections" << std::endl;
-#endif
-    enable();
-}
-
-void DataOStream::enable( NodePtr node, const bool useMulticast )
-{
-    _setupConnection( node, useMulticast );
-    enable();
-}
-
-void DataOStream::enable()
+void DataOStream::_enable()
 {
     EQASSERT( !_enabled );
     EQASSERT( _save || !_connections.empty( ));
@@ -129,18 +112,6 @@ void DataOStream::_setupConnection( NodePtr node, const bool useMulticast )
         connection = node->getConnection();
         
     _connections.push_back( connection );
-}
-
-void DataOStream::resend( const Nodes& receivers )
-{
-    _setupConnections( receivers );
-    _resend();
-}
-
-void DataOStream::resend( NodePtr node, const bool useMulticast )
-{
-    _setupConnection( node, useMulticast );
-    _resend( );
 }
 
 void DataOStream::_resend( )
@@ -199,7 +170,6 @@ void DataOStream::disable()
         _dataSent = true;
     }
 
-    reset();
     _enabled = false;
     _connections.clear();
 }

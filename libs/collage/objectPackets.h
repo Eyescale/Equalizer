@@ -48,11 +48,13 @@ namespace co
 
     struct ObjectDataPacket : public ObjectPacket
     {
-        ObjectDataPacket() : dataSize( 0 )
-                           , sequence( 0 )
-                           , compressorName( 0 )
-                           , nChunks( 0 )
-                           , last( false ) {}
+        ObjectDataPacket()
+                : version( VERSION_NONE )
+                , dataSize( 0 )
+                , sequence( 0 )
+                , compressorName( 0 )
+                , nChunks( 0 )
+                , last( false ) {}
 
         uint128_t version;
         uint64_t dataSize;

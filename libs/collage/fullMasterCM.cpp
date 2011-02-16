@@ -74,14 +74,11 @@ FullMasterCM::~FullMasterCM()
 void FullMasterCM::sendInstanceData( Nodes& nodes )
 {
     EQ_TS_THREAD( _cmdThread );
-
     if( !_slaves.empty( ))
        return;
 
     InstanceData* data = _instanceDatas.back();
-    data->os.setNodeID( NodeID::ZERO );
-    data->os.setInstanceID( EQ_INSTANCE_NONE );
-    data->os.resend( nodes );
+    data->os.sendInstanceData( nodes );
 }
 
 void FullMasterCM::init()
@@ -90,9 +87,8 @@ void FullMasterCM::init()
     MasterCM::init();
 
     InstanceData* data = _newInstanceData();
-    data->os.setVersion( VERSION_FIRST );
 
-    data->os.enable();
+    data->os.enableCommit( VERSION_FIRST, _slaves );
     _object->getInstanceData( data->os );
     data->os.disable();
         
@@ -179,12 +175,7 @@ uint128_t FullMasterCM::addSlave( Command& command )
 
     if( requested == VERSION_NONE ) // no data to send
     {
-        ObjectInstanceDataOStream stream( this );
-        stream.setInstanceID( instanceID );
-        stream.setVersion( _version );
-        stream.setNodeID( node->getNodeID( ));
-        stream.enableSave();
-        stream.resend( node, true );
+        _sendEmptyVersion( node, instanceID );
         return VERSION_INVALID;
     }
 
@@ -233,10 +224,8 @@ uint128_t FullMasterCM::addSlave( Command& command )
     {
         InstanceData* data = *i;
         EQASSERT( data );
+        data->os.sendMapData( node, instanceID );
 
-        data->os.setInstanceID( instanceID );
-        data->os.setNodeID( node->getNodeID( ));
-        data->os.resend( node, true );
 #ifdef EQ_INSTRUMENT_MULTICAST
         ++_miss;
 #endif
@@ -281,7 +270,7 @@ void FullMasterCM::_checkConsistency() const
          i != _instanceDatas.rend(); ++i )
     {
         const InstanceData* data = *i;
-        EQASSERT( data->os.getVersion() !=  VERSION_NONE );
+        EQASSERT( data->os.getVersion() != VERSION_NONE );
         EQASSERTINFO( data->os.getVersion() == version,
                       data->os.getVersion() << " != " << version );
         if( data != _instanceDatas.front( ))
@@ -311,15 +300,17 @@ FullMasterCM::InstanceData* FullMasterCM::_newInstanceData()
         _instanceDataCache.pop_back();
     }
 
+    instanceData->os.reset();
     instanceData->os.enableSave();
-    instanceData->os.setInstanceID( EQ_INSTANCE_ALL );
-    instanceData->os.setNodeID( NodeID::ZERO );
     return instanceData;
 }
 
 void FullMasterCM::_addInstanceData( InstanceData* data )
 {
     EQ_TS_THREAD( _cmdThread );
+    EQASSERT( data->os.getVersion() != VERSION_NONE );
+    EQASSERT( data->os.getVersion() != VERSION_INVALID );
+
     _instanceDatas.push_back( data );
 #ifdef EQ_INSTRUMENT
     _bytesBuffered += data->os.getSaveBuffer().getSize();
@@ -352,9 +343,8 @@ bool FullMasterCM::_cmdCommit( Command& command )
     {
         InstanceData* instanceData = _newInstanceData();
         instanceData->commitCount = _commitCount;
-        instanceData->os.setVersion( _version + 1 );
 
-        instanceData->os.enable( _slaves );
+        instanceData->os.enableCommit( _version + 1, _slaves );
         _object->getInstanceData( instanceData->os );
         instanceData->os.disable();
 

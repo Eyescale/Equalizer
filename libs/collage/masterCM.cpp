@@ -134,6 +134,18 @@ void MasterCM::_apply( ObjectDataIStream* is )
     _iStreamCache.release( is );
 }
 
+void MasterCM::_sendEmptyVersion( NodePtr node, const uint32_t instanceID )
+{
+    ObjectInstancePacket instancePacket;
+    instancePacket.type = PACKETTYPE_CO_OBJECT;
+    instancePacket.command = CMD_OBJECT_INSTANCE;
+    instancePacket.last = true;
+    instancePacket.version = _version;
+    instancePacket.instanceID = instanceID;
+    instancePacket.masterInstanceID = _object->getInstanceID();
+    _object->send( node, instancePacket );
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------

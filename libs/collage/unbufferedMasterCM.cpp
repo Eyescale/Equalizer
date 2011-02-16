@@ -91,35 +91,23 @@ uint128_t UnbufferedMasterCM::addSlave( Command& command )
             packet->minCachedVersion : _version;
     }
 
-    // send instance data
-    ObjectInstanceDataOStream os( this );
-    os.setVersion( _version );
-    os.setInstanceID( instanceID );
-    os.setNodeID( node->getNodeID( ));
-
-    if( version != VERSION_NONE ) // send current data
-    {
-        os.enable( node, true );
-        _object->getInstanceData( os );
-        os.disable();
-    }
-
-    if( !os.hasSentData( )) // if no data, send empty packet to set version
-    {
-        ObjectInstancePacket instancePacket;
-        instancePacket.type = PACKETTYPE_CO_OBJECT;
-        instancePacket.command = CMD_OBJECT_INSTANCE;
-        instancePacket.nChunks = 0;
-        instancePacket.last = true;
-        instancePacket.version = _version;
-        instancePacket.dataSize = 0;
-        instancePacket.instanceID = instanceID;
-        instancePacket.masterInstanceID = _object->getInstanceID();
-        _object->send( node, instancePacket );
-    }
 #ifdef EQ_INSTRUMENT_MULTICAST
     ++_miss;
 #endif
+    if( version != VERSION_NONE ) // send current data
+    {
+        // send instance data
+        ObjectInstanceDataOStream os( this );
+
+        os.enableMap( _version, node, instanceID );
+        _object->getInstanceData( os );
+        os.disable();
+        if( os.hasSentData( ))
+            return VERSION_INVALID; // no data was in cache
+    }
+
+    // no data, send empty packet to set version
+    _sendEmptyVersion( node, instanceID );
     return VERSION_INVALID; // no data was in cache
 }
 
@@ -159,9 +147,7 @@ bool UnbufferedMasterCM::_cmdCommit( Command& command )
     }
 
     ObjectDeltaDataOStream os( this );
-
-    os.setVersion( _version + 1 );
-    os.enable( _slaves );
+    os.enableCommit( _version + 1, _slaves );
     _object->pack( os );
     os.disable();
 

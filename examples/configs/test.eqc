@@ -1,87 +1,74 @@
 #Equalizer 1.1 ascii
 
+# two-to-one sort-first config, for cluster change hostnames
+global
+{
+    EQ_WINDOW_IATTR_HINT_DRAWABLE FBO
+}
+
 server
 {
-    connection { hostname "127.0.0.1" }
+    connection { hostname "roku.local" }
     config
-    {
+    {latency 1
+
         appNode
         {
-            pipe
+            connection { hostname "roku.local" }
+            pipe 
             {
-                #device 0 # Quadro1
                 window
                 {
-                    viewport [ 100 100 400 300 ]
+                    viewport [ .25 .25 .5 .5 ]
+                    attributes{ hint_drawable window }
                     channel { name "channel1" }
                 }
             }
-            pipe
-            {
-                #device 1 # Quadro2
-                window
-                {
-                    viewport [ 500 100 400 300 ]
-                    channel { name "channel2" }
-                }
-            }
-            pipe
-            {
-                #device 3 # Tesla
-                window
-                {
-                    attributes{ hint_drawable FBO }
-                    channel { name "buffer" }
-                }
-            }
+        }
+        node
+        {
+            connection { hostname "eyescale.local" }
+            pipe { window { channel { name "channel2" }}}
         }
 
-        layout { view { }}
+        observer {}
+        layout { name "2D static" view{ observer "" }}
+        layout { name "2D load-balanced" view{ observer "" }}
         canvas
         {
-            layout 0
-            wall
-            {
-                bottom_left  [ -1.6 -.5 -1 ]
-                bottom_right [  1.6 -.5 -1 ]
-                top_left     [ -1.6  .5 -1 ]
-            }
-            segment
-            { 
-                channel "channel1"
-                viewport [ 0 0 .5 1 ]
-            }
-            segment
-            { 
-                channel "channel2"
-                viewport [ .5 0 .5 1 ]
-            }
+            layout   "2D static"
+            layout   "2D load-balanced"
+            wall {}
+
+            segment { channel  "channel1" }
         }
 
         compound
         {
+            channel ( layout "2D static" )
             compound
             {
-                channel ( segment 0 view 0 )
-                compound
-                {
-                    channel "buffer"
-                    outputframe { name "left" }
-                }
-                inputframe { name "left" }
-                swapbarrier{}
+                viewport [ 0 0 1 .5 ]
             }
             compound
             {
-                channel ( segment 1 view 0 )
-                compound
-                {
-                    channel "buffer"
-                    outputframe { name "right" }
-                }
-                inputframe { name "right" }
-                swapbarrier{}
+                channel "channel2"
+                viewport [ 0 .5 1 .5 ]
+                outputframe {}
             }
+            inputframe { name "frame.channel2" }
+        }
+        compound
+        {
+            channel ( layout "2D load-balanced" )
+            load_equalizer{}
+            compound {}
+            compound
+            {
+                channel "channel2"
+                outputframe {}
+            }
+            inputframe { name "frame.channel2" }
         }
     }    
 }

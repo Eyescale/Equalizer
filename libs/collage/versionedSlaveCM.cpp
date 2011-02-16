@@ -232,8 +232,8 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
     }
 }
 
-void VersionedSlaveCM::addInstanceDatas(
-    const ObjectDataIStreamDeque& cache, const uint128_t& startVersion )
+void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
+                                         const uint128_t& startVersion )
 {
     EQ_TS_THREAD( _cmdThread );
 #if 0
@@ -398,8 +398,7 @@ bool VersionedSlaveCM::_cmdCommit( Command& command )
         return true;
     }
 
-    _ostream.setVersion( base::UUID( true )); // unique commit version
-    _ostream.enable( _master, false );
+    _ostream.enableCommit( _master );
     _object->pack( _ostream );
     _ostream.disable();
 

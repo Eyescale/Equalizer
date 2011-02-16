@@ -76,7 +76,9 @@ ObjectStore::ObjectStore( LocalNode* localNode )
         CmdFunc( this, &ObjectStore::_cmdUnsubscribeObject ), queue );
     localNode->_registerCommand( CMD_NODE_OBJECT_INSTANCE,
         CmdFunc( this, &ObjectStore::_cmdInstance ), 0 );
-    localNode->_registerCommand( CMD_NODE_INSTANCE,
+    localNode->_registerCommand( CMD_NODE_OBJECT_INSTANCE_MAP,
+        CmdFunc( this, &ObjectStore::_cmdInstance ), 0 );
+    localNode->_registerCommand( CMD_NODE_OBJECT_INSTANCE_COMMIT,
         CmdFunc( this, &ObjectStore::_cmdInstance ), 0 );
     localNode->_registerCommand( CMD_NODE_DISABLE_SEND_ON_REGISTER,
         CmdFunc( this, &ObjectStore::_cmdDisableSendOnRegister ), queue );
@@ -969,40 +971,44 @@ bool ObjectStore::_cmdInstance( Command& command )
     ObjectInstancePacket* packet = command.getPacket< ObjectInstancePacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd instance " << packet << std::endl;
 
+    const uint32_t type = packet->command;
+
     packet->type = PACKETTYPE_CO_OBJECT;
     packet->command = CMD_OBJECT_INSTANCE;
+    const ObjectVersion rev( packet->objectID, packet->version ); 
 
-    uint32_t usage = 0;
-    bool result = true;
-
-    // Packet is send due to:
-    //  map request:      concrete nodeID and instanceID, dispatch
-    //  master commit:    instanceID == ALL, dispatch
-    //  send-on-register: instanceID == NONE, do not dispatch
-    if( packet->nodeID == _localNode->getNodeID( ))
+    switch( type )
     {
+      case CMD_NODE_OBJECT_INSTANCE:
+        EQASSERT( packet->nodeID == NodeID::ZERO );
+        EQASSERT( packet->instanceID == EQ_INSTANCE_NONE );
+        if( _instanceCache )
+            _instanceCache->add( rev, packet->masterInstanceID, command, 0 );
+        return true;
+
+      case CMD_NODE_OBJECT_INSTANCE_MAP:
+        if( _instanceCache )
+            _instanceCache->add( rev, packet->masterInstanceID, command, 1 );
+
+        if( packet->nodeID != _localNode->getNodeID( )) // not for me
+            return true;
+
         EQASSERT( packet->instanceID <= EQ_INSTANCE_MAX );
+        return dispatchObjectCommand( command );
 
-        usage = 1;
-        result = dispatchObjectCommand( command );
-        EQASSERTINFO( result, "Received instance data for unknown concrete " <<
-                      "object instance: " << command );
-    }
-    else if( packet->instanceID == EQ_INSTANCE_ALL )
-    {
-        // drop if there are no local instances
-        packet->instanceID = EQ_INSTANCE_NONE;
-        result = dispatchObjectCommand( command );
-    }
+      case CMD_NODE_OBJECT_INSTANCE_COMMIT:
+        EQASSERT( packet->nodeID == NodeID::ZERO );
+        EQASSERT( packet->instanceID == EQ_INSTANCE_NONE );
 
-    if( _instanceCache )
-    {
-        const ObjectVersion rev( packet->objectID, packet->version ); 
-        _instanceCache->add( rev, packet->masterInstanceID, command, usage );
-    }
+        if( _instanceCache )
+            _instanceCache->add( rev, packet->masterInstanceID, command, 0 );
 
-    EQASSERT( result )
-    return result;
+        return dispatchObjectCommand( command );
+
+      default:
+        EQUNREACHABLE;
+        return false;
+    }
 }
 
 bool ObjectStore::_cmdDisableSendOnRegister( Command& command )
