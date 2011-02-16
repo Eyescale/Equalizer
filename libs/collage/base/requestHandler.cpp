@@ -139,10 +139,7 @@ bool RequestHandler::_waitRequest( const uint32_t requestID,
     if( requestServed )
         result = request->result;
 
-    ScopedMutex< SpinLock > mutex( _mutex );
-    RequestHash::iterator i = _requests.find( requestID );
-    _requests.erase( i );
-    _freeRequests.push_front( request );
+    unregisterRequest( requestID );
     
     //EQINFO << "Cleared " << requestID << std::endl;
     return requestServed;
