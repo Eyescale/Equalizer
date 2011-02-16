@@ -64,7 +64,7 @@ if(NOT CPACK_DEBIAN_PACKAGE_MAINTAINER)
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Stefan Eilemann <eile@eyescale.ch>")
 endif()
 set(CPACK_DEBIAN_PACKAGE_SECTION "Development")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-system-dev, libboost-regex-dev, libboost-date-time-dev, bison, flex, libx11-dev")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-system, libx11-dev")
 
 set(CPACK_OSX_PACKAGE_VERSION "10.5")
 
