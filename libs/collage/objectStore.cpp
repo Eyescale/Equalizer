@@ -988,10 +988,8 @@ bool ObjectStore::_cmdInstance( Command& command )
         EQASSERTINFO( result, "Received instance data for unknown concrete " <<
                       "object instance: " << command );
     }
-    else if( packet->instanceID != EQ_INSTANCE_NONE )
+    else if( packet->instanceID == EQ_INSTANCE_ALL )
     {
-        EQASSERTINFO( packet->instanceID == EQ_INSTANCE_ALL, packet );
-
         // drop if there are no local instances
         packet->instanceID = EQ_INSTANCE_NONE;
         result = dispatchObjectCommand( command );
