@@ -76,12 +76,10 @@ namespace base
          * @param pvpOut the dimensions of the output data.
          * @param flags capability flags for the decompression.
          */
-        COBASE_API void decompress( const void* const* in, 
-                                      const uint64_t* const inSizes,
-                                      const unsigned numInputs,
-                                      void* const out,
-                                      uint64_t pvpOut[4],
-                                      const uint64_t flags );
+        COBASE_API void decompress( const void* const* in,
+                                    const uint64_t* const inSizes,
+                                    const unsigned numInputs, void* const out,
+                                    uint64_t pvpOut[4], const uint64_t flags );
 
         /**
          * Decompress one-dimensional data.
@@ -93,11 +91,10 @@ namespace base
          *            uncompressed output result.
          * @param outDim the dimensions of the output data.
          */
-        COBASE_API void decompress( const void* const* in, 
-                                   const uint64_t* const inSizes,
-                                   const unsigned numInputs,
-                                   void* const out,
-                                   uint64_t outDim[2]);
+        COBASE_API void decompress( const void* const* in,
+                                    const uint64_t* const inSizes,
+                                    const unsigned numInputs, void* const out,
+                                    uint64_t outDim[2] );
 
         
         /**

@@ -53,14 +53,7 @@ inline void _compressChunk( const T* const in, const eq_uint64_t nPixels,
     for( eq_uint64_t i = 1; i < nPixels; ++i )
     {
         token = in[i];
-        if( token == tokenLast && tokenSame != std::numeric_limits< T >::max( ))
-            ++tokenSame;
-        else
-        {
-            WRITE_OUTPUT( token );
-            tokenLast = token;
-            tokenSame = 1;
-        }
+        COMPRESS( token );
     }
 
     WRITE_OUTPUT( token );

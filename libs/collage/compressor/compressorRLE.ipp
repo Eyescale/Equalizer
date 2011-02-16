@@ -63,47 +63,55 @@ public:
     static bool _initialized ## cls ## type = _register ## cls ## type();
 
 
-#define WRITE_OUTPUT( name )                                            \
-    {                                                                   \
-        if( name ## Last == _rleMarker )                                \
-        {                                                               \
-            name ## Out[0] = _rleMarker;                                \
-            name ## Out[1] = _rleMarker;                                \
-            name ## Out[2] = name ## Same;                              \
-            name ## Out += 3;                                           \
-        }                                                               \
-        else                                                            \
-            switch( name ## Same )                                      \
-            {                                                           \
-                case 0:                                                 \
-                    break;                                              \
-                case 2:                                                 \
-                    name ## Out[0] = name ## Last;                      \
-                    name ## Out[1] = name ## Last;                      \
-                    name ## Out += 2;                                   \
-                    break;                                              \
-                case 1:                                                 \
-                    name ## Out[0] = name ## Last;                      \
-                    ++(name ## Out);                                    \
-                    break;                                              \
-                default:                                                \
-                    name ## Out[0] = _rleMarker;                        \
-                    name ## Out[1] = name ## Last;                      \
-                    name ## Out[2] = name ## Same;                      \
-                    name ## Out += 3;                                   \
-                    break;                                              \
-            }                                                           \
+template< typename T > 
+static inline void _write( const T token, const T numTokens, T*& out )
+{
+    if( token == _rleMarker )
+    {
+        out[0] = _rleMarker;
+        out[1] = _rleMarker;
+        out[2] = numTokens;
+        out += 3;
     }
+    else switch( numTokens )
+    {
+      case 2:
+        out[0] = token;
+        out[1] = token;
+        out += 2;
+        break;
 
-#define WRITE( name )                                                   \
-    if( name == name ## Last && name ## Same != 255 )                   \
-        ++(name ## Same );                                              \
-    else                                                                \
-    {                                                                   \
-        WRITE_OUTPUT( name );                                           \
-        name ## Last = name;                                            \
-        name ## Same = 1;                                               \
+      case 1:
+        out[0] = token;
+        ++out;
+        break;
+
+      case 0: EQASSERT( false ); break;
+
+      default:
+        out[0] = _rleMarker;
+        out[1] = token;
+        out[2] = numTokens;
+        out += 3;
+        break;
     }
+}
+#define WRITE_OUTPUT( name ) _write( name ## Last, name ## Same, name ## Out )
+
+template< typename T >
+static inline void _compressToken( const T in, T& last, T& numLast, T*& out )
+{
+    if( in == last && numLast != std::numeric_limits< T >::max( ))
+        ++numLast;
+    else
+    {
+        _write( last, numLast, out );
+        last = in;
+        numLast = 1;
+    }
+}
+#define COMPRESS( name )                            \
+    _compressToken( name, name ## Last, name ## Same, name ## Out )
 
 
 template< typename PixelType, typename ComponentType,
@@ -147,23 +155,23 @@ static inline void _compress( const void* const input, const uint64_t nPixels,
         if( alphaFunc::use( ))
         {
             swizzleFunc::swizzle( *pixel, one, two, three, four );
-            WRITE( one );
-            WRITE( two );
-            WRITE( three );
-            WRITE( four );
+            COMPRESS( one );
+            COMPRESS( two );
+            COMPRESS( three );
+            COMPRESS( four );
         }
         else
         {
             swizzleFunc::swizzle( *pixel, one, two, three );
-            WRITE( one );
-            WRITE( two );
-            WRITE( three );
+            COMPRESS( one );
+            COMPRESS( two );
+            COMPRESS( three );
         }
     }
 
     WRITE_OUTPUT( one );
     WRITE_OUTPUT( two );
-    WRITE_OUTPUT( three )
+    WRITE_OUTPUT( three );
     WRITE_OUTPUT( four );
 
     results[0]->setSize( reinterpret_cast< uint8_t* > ( oneOut )  -

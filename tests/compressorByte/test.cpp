@@ -15,6 +15,7 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 #define EQ_TEST_RUNTIME 120 // seconds
 #include <test.h>
 
@@ -55,16 +56,11 @@ std::vector< std::string > getFiles( const std::string path,
 
 co::base::Bufferb* readDataFile( const std::string& filename );
 
-static size_t numTests = 1;
-
 int main( int argc, char **argv )
 {
-    if( argc >= 3 && strcmp( argv[1], "-t" ) == 0 )
-        numTests = atoi( argv[2] );
-
     eq::NodeFactory nodeFactory;
     eq::init( argc, argv, &nodeFactory );
-    testCompressorFile( );
+    testCompressorFile();
     eq::exit();
 
     return EXIT_SUCCESS;
@@ -110,50 +106,41 @@ void testCompressByte( const uint32_t nameCompressor,
     uint64_t compressedSize = 0;
 
     co::base::Clock clock;
-    for( size_t j = 0; j < numTests ; j++ )
+    compressor.compress( const_cast<uint8_t*>(data), inDims, flags );
+    timeCompress = clock.getTimef();
+
+    const unsigned numResults = compressor.getNumResults( );
+
+    std::vector< void * > vectorVoid;
+    vectorVoid.resize( numResults );
+
+    std::vector< uint64_t > vectorSize;
+    vectorSize.resize(numResults);
+
+    compressedSize = 0;        
+    for( unsigned i = 0; i < numResults ; i++ )
     {
-        clock.reset();
-        compressor.compress( const_cast<uint8_t*>(data), inDims, flags );
-
-        timeCompress += clock.getTimef();
-        const unsigned numResults = compressor.getNumResults( );
-
-        uint64_t totalSize = 0;
-        std::vector< void * > vectorVoid;
-
-        vectorVoid.resize(numResults);
-        std::vector< uint64_t > vectorSize;
-        vectorSize.resize(numResults);
-        
-        for( unsigned i = 0; i < numResults ; i++ )
-        {
-            compressor.getResult( i, &vectorVoid[i], &vectorSize[i] );
-            totalSize += vectorSize[i];
-        }
-        
-        compressedSize += totalSize;
-        co::base::Bufferb result;
-        result.resize( size );
-        uint8_t* outData = result.getData();
-        clock.reset();
-        
-        decompressor.decompress( &vectorVoid.front(), &totalSize,
-                                 numResults, outData, inDims, flags );
-        
-        timeDecompress += clock.getTimef();
-        compare( outData, data, size );
+        compressor.getResult( i, &vectorVoid[i], &vectorSize[i] );
+        compressedSize += vectorSize[i];
     }
+        
+    co::base::Bufferb result;
+    result.resize( size );
+    uint8_t* outData = result.getData();
+        
+    clock.reset();
+    decompressor.decompress( &vectorVoid.front(), &vectorSize.front(),
+                             numResults, outData, inDims );
 
-    std::cout << std::setw(10) << compressedSize / numTests << ", " 
-              << std::setw(7) << timeCompress / numTests << ", "
-              << std::setw(7) << timeDecompress / numTests << std::endl;
-    
-    _compressedSize += compressedSize / numTests;
-    _timeCompress += timeCompress / numTests;
-    _timeDecompress += timeDecompress / numTests;   
+    timeDecompress += clock.getTimef();
+    compare( outData, data, size );
+
+    _compressedSize += compressedSize;
+    _timeCompress += timeCompress;
+    _timeDecompress += timeDecompress;   
 }
 
-void testCompressorFile( )
+void testCompressorFile()
 {
     std::vector< uint32_t >compressorNames = 
         getCompressorNames( EQ_COMPRESSOR_DATATYPE_BYTE );
@@ -168,46 +155,54 @@ void testCompressorFile( )
     
     std::cout.setf( std::ios::right, std::ios::adjustfield );
     std::cout.precision( 5 );
-    std::cout << "               File,          Compressor,       SIZE, "
-              << "    Compressd, t_comp,    t_decomp" << std::endl;
+    std::cout << "                File, Compressor,       SIZE, "
+              << "Compressed,     t_comp,   t_decomp" << std::endl;
     
-    for ( std::vector< uint32_t >::const_iterator j = 
-               compressorNames.begin(); j != compressorNames.end(); j++ )
+    for( std::vector< uint32_t >::const_iterator i = compressorNames.begin();
+         i != compressorNames.end(); ++i )
     {
-        
-        uint64_t compressedSize = 0;
-        float timeCompress = 0; 
-        float timeDecompress = 0;
-        uint64_t uncompressedSize = 0;
-        for ( std::vector< std::string >::const_iterator i = files.begin();
-              i != files.end(); i++ )
+        uint64_t totalResult = 0;
+        uint64_t totalSize = 0;
+        float totalCompressionTime = 0;
+        float totalDecompressionTime = 0;
+
+        for ( std::vector< std::string >::const_iterator j = files.begin();
+              j != files.end(); ++j )
         {
-            co::base::Bufferb* data = readDataFile( *i );
-            const std::string name = co::base::getFilename(*i);
+            co::base::Bufferb* data = readDataFile( *j );
+            const std::string name = co::base::getFilename( *j );
             
             if( data == 0 )
                 continue;
             
-            uncompressedSize += data->getSize() * numTests;
-            std::cout  << std::setw(30) << name << ", 0x" 
-                       << std::setw(8) << std::setfill( '0' )
-                       << std::hex << *j << std::dec << std::setfill(' ')
-                       << ", " << std::setw(10) 
-                       << data->getSize() * numTests  << ", ";
-            
-            testCompressByte( *j, data->getData(), data->getSize(),
-                              compressedSize, timeCompress, timeDecompress );
-            
-        }
-        std::cout  << std::setw(30) << "Total : "<< ", 0x" 
-                   << std::setw(8) << std::setfill( '0' )
-                   << std::hex << *j << std::dec << std::setfill(' ')
-                   << ", " << std::setw(10) 
-                   << uncompressedSize  << ", ";
+            uint64_t compressedSize = 0;
+            float compressTime = 0.f;
+            float decompressTime = 0.f;
 
-        std::cout << std::setw(10) << compressedSize << ", " 
-                  << std::setw(7) << timeCompress << ", " << std::setw(7);
-        std::cout << timeDecompress << std::endl << std::endl;
+            testCompressByte( *i, data->getData(), data->getSize(),
+                              compressedSize, compressTime, decompressTime );
+
+            totalSize += data->getSize();
+            totalResult += compressedSize;
+            totalCompressionTime += compressTime;
+            totalDecompressionTime = decompressTime;
+
+            std::cout  << std::setw(20) << name << ", 0x" 
+                       << std::setw(8) << std::setfill( '0' )
+                       << std::hex << *i << std::dec << std::setfill(' ')
+                       << ", " << std::setw(10) << data->getSize() << ", "
+                       << std::setw(10) << compressedSize << ", " 
+                       << std::setw(10) << compressTime << ", "
+                       << std::setw(10) << decompressTime << std::endl;
+    
+        }
+        std::cout << std::setw(24) << "Total: 0x" << std::setw(8)
+                  << std::setfill( '0' ) << std::hex << *i << std::dec
+                  << std::setfill(' ') << ", " << std::setw(10) << totalSize
+                  << ", " << std::setw(10) << totalResult << ", "
+                  << std::setw(10) << totalCompressionTime << ", "
+                  << std::setw(10) << totalDecompressionTime << std::endl
+                  << std::endl;
     }
 }
 
