@@ -88,7 +88,7 @@ namespace DataStreamTest
  
     protected:
         /** Enable output. */
-        void _enable();
+        CO_API void _enable();
 
         /** Flush remaining data in the buffer. */
         void _flush();
