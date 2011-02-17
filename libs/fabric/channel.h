@@ -62,6 +62,10 @@ namespace fabric
         /** @return the parent window. @version 1.0 */
         const W* getWindow() const { return _window; }
 
+        /** @internal @return the native view identifier and version. */
+        const bool isDestination() const
+            { return _data.nativeContext.view.identifier!=co::base::UUID::ZERO;}
+
         /** @internal Update the native view identifier and version. */
         void setViewVersion( const co::ObjectVersion& view );
 
@@ -96,8 +100,8 @@ namespace fabric
          * @param farPlane the far plane.
          * @version 1.0
          */
-        EQFABRIC_INL void setNearFar( const float nearPlane, 
-                                         const float farPlane);
+        EQFABRIC_INL void setNearFar( const float nearPlane,
+                                      const float farPlane);
 
         /**
          * @return the channel's framebuffer attachment configuration.

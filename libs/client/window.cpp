@@ -552,7 +552,7 @@ bool Window::processEvent( const Event& event )
                  i != channels.end(); ++i )
             {
                 Channel* channel = *i;
-                if( !channel->getNativeView( ))
+                if( !channel->isDestination( ))
                     continue;
 
                 const PixelViewport& pvp = getPixelViewport();
@@ -567,16 +567,16 @@ bool Window::processEvent( const Event& event )
                 Event channelEvent = event;
                 switch( event.type )
                 {
-                case Event::WINDOW_POINTER_MOTION:
+                  case Event::WINDOW_POINTER_MOTION:
                     channelEvent.type = Event::CHANNEL_POINTER_MOTION;
                     break;
-                case Event::WINDOW_POINTER_BUTTON_PRESS:
+                  case Event::WINDOW_POINTER_BUTTON_PRESS:
                     channelEvent.type = Event::CHANNEL_POINTER_BUTTON_PRESS;
                     break;
-                case Event::WINDOW_POINTER_BUTTON_RELEASE:
+                  case Event::WINDOW_POINTER_BUTTON_RELEASE:
                     channelEvent.type = Event::CHANNEL_POINTER_BUTTON_RELEASE;
                     break;
-                default:
+                  default:
                     EQWARN << "Unhandled window event of type " << event.type
                            << std::endl;
                     EQUNIMPLEMENTED;
