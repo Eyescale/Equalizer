@@ -206,19 +206,22 @@ void DataOStream::write( const void* data, uint64_t size )
 void DataOStream::_flush()
 {
     EQASSERT( _enabled );
-    const void* ptr = _buffer.getData() + _bufferStart;
-    const uint64_t size = _buffer.getSize() - _bufferStart;
-
-    EQASSERT( _compressorState == NOT_COMPRESSED );
-    if( _compressorState != PARTIAL_COMPRESSED )
+    if( !_connections.empty( ))
     {
-        if( _compress( ptr, size ))
-            _compressorState = PARTIAL_COMPRESSED;
-        else
-            _compressorState = NOT_COMPRESSED;
-    }
+        const void* ptr = _buffer.getData() + _bufferStart;
+        const uint64_t size = _buffer.getSize() - _bufferStart;
 
-    sendData( ptr, size, false );
+        EQASSERT( _compressorState == NOT_COMPRESSED );
+        if( _compressorState != PARTIAL_COMPRESSED )
+        {
+            if( _compress( ptr, size ))
+                _compressorState = PARTIAL_COMPRESSED;
+            else
+                _compressorState = NOT_COMPRESSED;
+        }
+
+        sendData( ptr, size, false );
+    }
     _resetBuffer();
 }
 
