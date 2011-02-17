@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -76,7 +76,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 
         //----- compute readback area
         const Viewport& frameVP = frame->getViewport();
-        const PixelViewport& inheritPVP=compound->getInheritPixelViewport();
+        const PixelViewport& inheritPVP = compound->getInheritPixelViewport();
         PixelViewport framePVP( inheritPVP );
         framePVP.apply( frameVP );
         
@@ -128,11 +128,8 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 
         //----- Set frame parameters:
         // 1) offset is position wrt window, i.e., the channel position
-        if( compound->getInheritChannel() == channel ||
-            compound->getIAttribute( Compound::IATTR_HINT_OFFSET )==fabric::ON )
-        {
+        if( compound->getInheritChannel() == channel )
             frame->setInheritOffset( Vector2i( inheritPVP.x, inheritPVP.y ));
-        }
         else
         {
             const PixelViewport& nativePVP = channel->getPixelViewport();

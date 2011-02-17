@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,20 +25,14 @@ namespace eq
 {
 namespace server
 {
-    /**
-     * A holder for a Frame Data and parameters.
-     */
+    /** A holder for a Frame Data and parameters. */
     class FrameData : public co::Object
     {
     public:
-        /** 
-         * Constructs a new FrameData.
-         */
+        /** Construct a new FrameData. */
         FrameData();
 
-        /**
-         * @name Data Access
-         */
+        /** @name Data Access */
         //@{
         /** Set the number of the frame when this data was last used. */
         void setFrameNumber( const uint32_t number ) { _frameNumber = number; }

@@ -126,7 +126,6 @@
 %token EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_LEFT_MASK
 %token EQTOKEN_COMPOUND_IATTR_STEREO_ANAGLYPH_RIGHT_MASK
 %token EQTOKEN_COMPOUND_IATTR_UPDATE_FOV
-%token EQTOKEN_COMPOUND_IATTR_HINT_OFFSET
 %token EQTOKEN_CHANNEL_IATTR_HINT_STATISTICS
 %token EQTOKEN_CHANNEL_IATTR_HINT_SENDTOKEN
 %token EQTOKEN_SERVER
@@ -255,7 +254,6 @@
 %token EQTOKEN_STEREO_ANAGLYPH_LEFT_MASK
 %token EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK
 %token EQTOKEN_UPDATE_FOV
-%token EQTOKEN_HINT_OFFSET
 %token EQTOKEN_PBUFFER
 %token EQTOKEN_FBO
 %token EQTOKEN_RGBA16F
@@ -487,11 +485,6 @@ global:
      {
          EQWARN << "ignoring removed attribute EQ_COMPOUND_IATTR_UPDATE_FOV"
                 << std::endl;
-     }
-     | EQTOKEN_COMPOUND_IATTR_HINT_OFFSET IATTR
-     {
-         eq::server::Global::instance()->setCompoundIAttribute(
-             eq::server::Compound::IATTR_HINT_OFFSET, $2 );
      }
 
 connectionType: 
@@ -1232,8 +1225,6 @@ compoundAttribute:
                 eq::server::Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK, $2 ); }
     | EQTOKEN_UPDATE_FOV IATTR
         { EQWARN << "ignoring removed attribute update_FOV" << std::endl; }
-    | EQTOKEN_HINT_OFFSET IATTR
-        { eqCompound->setIAttribute(eq::server::Compound::IATTR_HINT_OFFSET, $2 ); }
 
 viewport: '[' FLOAT FLOAT FLOAT FLOAT ']'
      { 

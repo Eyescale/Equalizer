@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -166,26 +166,19 @@ void MonitorEqualizer::_updateZoomAndOffset()
         const Viewport& viewport = _viewports[ i ];
 
         // compute and apply input frame offset
-        const int32_t offsetX = static_cast< int32_t >(
-            static_cast< float >( pvp.w ) * viewport.x );
-        const int32_t offsetY = static_cast< int32_t >(
-            static_cast< float >( pvp.h ) * viewport.y );
+        const int32_t offsetX = int32_t( float( pvp.w ) * viewport.x );
+        const int32_t offsetY = int32_t( float( pvp.h ) * viewport.y );
         frame->setOffset( Vector2i( offsetX, offsetY ));
         
         // compute and apply output frame zoom
-        const int32_t width   = static_cast< int32_t >(
-            static_cast< float >( pvp.w ) * viewport.w );
-        const int32_t height  = static_cast< int32_t >(
-            static_cast< float >( pvp.h ) * viewport.h ) ; 
+        const int32_t width   = int32_t( float( pvp.w ) * viewport.w );
+        const int32_t height  = int32_t( float( pvp.h ) * viewport.h ) ; 
 
         const PixelViewport& srcPVP( srcCompound->getInheritPixelViewport( ));
-        const float factorW = static_cast< float >( width ) / 
-                              static_cast< float >( srcPVP.w );
-        const float factorH = static_cast< float >( height ) / 
-                              static_cast< float >( srcPVP.h );
+        const float factorW = float( width ) / float( srcPVP.w );
+        const float factorH = float( height ) / float( srcPVP.h );
             
         const Zoom newZoom( factorW, factorH );
-            
         outputFrame->setZoom( newZoom );
     }
 }

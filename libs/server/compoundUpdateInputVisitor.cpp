@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -73,14 +73,12 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         Vector2i frameOffset = outputFrame->getMasterData()->getOffset() +
                                frame->getOffset();
 
-        if( channel != compound->getInheritChannel() &&
-            compound->getIAttribute( Compound::IATTR_HINT_OFFSET )!=fabric::ON )
+        if( channel != compound->getInheritChannel( ))
         {
             // compute delta offset between source and destination, since the
             // channel's native origin (as opposed to destination) is used.
             const Viewport& frameVP = frame->getViewport();
-            const PixelViewport& inheritPVP =
-                compound->getInheritPixelViewport();
+            const PixelViewport& inheritPVP=compound->getInheritPixelViewport();
             PixelViewport framePVP( inheritPVP );
 
             framePVP.apply( frameVP );

@@ -230,8 +230,7 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
                                   pvp, destChannel->getOverdraw( ));
     }
 
-    if( _channel != destChannel &&
-        compound->getIAttribute( Compound::IATTR_HINT_OFFSET ) != fabric::ON )
+    if( _channel != destChannel )
     {
         const PixelViewport& nativePVP = _channel->getPixelViewport();
         context.pvp.x = nativePVP.x;

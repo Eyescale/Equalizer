@@ -81,7 +81,6 @@ namespace server
             IATTR_STEREO_MODE,
             IATTR_STEREO_ANAGLYPH_LEFT_MASK,
             IATTR_STEREO_ANAGLYPH_RIGHT_MASK,
-            IATTR_HINT_OFFSET,
             IATTR_FILL1,
             IATTR_FILL2,
             IATTR_ALL

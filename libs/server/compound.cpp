@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -62,7 +62,6 @@ std::string Compound::_iAttributeStrings[IATTR_ALL] = {
     MAKE_ATTR_STRING( IATTR_STEREO_MODE ),
     MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_LEFT_MASK ),
     MAKE_ATTR_STRING( IATTR_STEREO_ANAGLYPH_RIGHT_MASK ),
-    MAKE_ATTR_STRING( IATTR_HINT_OFFSET ),
     MAKE_ATTR_STRING( IATTR_FILL1 ),
     MAKE_ATTR_STRING( IATTR_FILL2 )
 };
@@ -122,24 +121,12 @@ Compound::~Compound()
         _parent->_removeChild( this );
     }
 
-    for( Frames::const_iterator i = _inputFrames.begin(); 
-         i != _inputFrames.end(); ++i )
-    {
-        Frame* frame = *i;
-
-        frame->_compound = 0;
-        delete frame;
-    }
+    for( FramesCIter i = _inputFrames.begin(); i != _inputFrames.end(); ++i )
+        delete *i;
     _inputFrames.clear();
 
-    for( Frames::const_iterator i = _outputFrames.begin(); 
-         i != _outputFrames.end(); ++i )
-    {
-        Frame* frame = *i;
-
-        frame->_compound = 0;
-        delete frame;
-    }
+    for( FramesCIter i = _outputFrames.begin(); i != _outputFrames.end(); ++i )
+        delete *i;
     _outputFrames.clear();
 }
 
@@ -382,7 +369,7 @@ void Compound::addInputFrame( Frame* frame )
     if( frame->getName().empty() )
         _setDefaultFrameName( frame );
     _inputFrames.push_back( frame ); 
-    frame->_compound = this;
+    frame->setCompound( this );
 }
 
 void Compound::addOutputFrame( Frame* frame )
@@ -390,7 +377,7 @@ void Compound::addOutputFrame( Frame* frame )
     if( frame->getName().empty() )
         _setDefaultFrameName( frame );
     _outputFrames.push_back( frame ); 
-    frame->_compound = this;
+    frame->setCompound( this );
 }
 
 void Compound::_setDefaultFrameName( Frame* frame )
@@ -1326,8 +1313,6 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
         
         os << ( i==Compound::IATTR_STEREO_MODE ?
                     "stereo_mode                " :
-                i==Compound::IATTR_HINT_OFFSET ?
-                    "offset                     " :
                 i==Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK ?
                     "stereo_anaglyph_left_mask  " :
                 i==Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK ?
@@ -1336,7 +1321,6 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
         switch( i )
         {
             case Compound::IATTR_STEREO_MODE:
-            case Compound::IATTR_HINT_OFFSET:
                 os << static_cast< fabric::IAttribute >( value ) << std::endl;
                 break;
 

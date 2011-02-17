@@ -52,11 +52,9 @@ server
         }
         compound
         {
-            attributes { hint_offset ON }
-            channel ( segment 0 view 0 )
-
             compound
             {
+                channel ( segment 0 view 0 )
                 outputframe { viewport [ 0 0 .5 1 ] name "left" type texture }
                 outputframe { viewport [ .5 0 .5 1 ] name "right" type texture }
             }

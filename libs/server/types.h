@@ -83,14 +83,16 @@ typedef std::vector< View* >         Views;
 typedef co::base::uint128_t uint128_t;
 typedef co::base::UUID UUID;
 
-typedef Compounds::iterator CompoundsIter;
-typedef Compounds::const_iterator CompoundsCIter;
-typedef Observers::iterator ObserversIter;
-typedef Observers::const_iterator ObserversCIter;
-typedef Canvases::iterator CanvasesIter;
 typedef Canvases::const_iterator CanvasesCIter;
-typedef Views::iterator ViewsIter;
+typedef Canvases::iterator CanvasesIter;
+typedef Compounds::const_iterator CompoundsCIter;
+typedef Compounds::iterator CompoundsIter;
+typedef Frames::const_iterator FramesCIter;
+typedef Frames::iterator FramesIter;
+typedef Observers::const_iterator ObserversCIter;
+typedef Observers::iterator ObserversIter;
 typedef Views::const_iterator ViewsCIter;
+typedef Views::iterator ViewsIter;
 
 typedef co::base::RefPtr< Server > ServerPtr;
 typedef co::base::RefPtr< const Server > ConstServerPtr;

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -23,9 +23,6 @@
 
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
-
-using namespace co::base;
-using namespace std;
 
 namespace eq
 {
@@ -60,6 +57,8 @@ Frame::Frame( const Frame& from )
 Frame::~Frame()
 {
     EQASSERT( _datas.empty());
+    _compound = 0;
+    _masterFrameData = 0;
 }
 
 void Frame::getInstanceData( co::DataOStream& os )
@@ -186,11 +185,11 @@ std::ostream& operator << ( std::ostream& os, const Frame* frame )
     if( !frame )
         return os;
     
-    os << disableFlush << "frame" << endl;
-    os << "{" << endl << indent;
+    os << co::base::disableFlush << "frame" << std::endl;
+    os << "{" << std::endl << co::base::indent;
       
     const std::string& name = frame->getName();
-    os << "name     \"" << name << "\"" << endl;
+    os << "name     \"" << name << "\"" << std::endl;
 
     const uint32_t buffers = frame->getBuffers();
     if( buffers != eq::Frame::BUFFER_UNDEFINED )
@@ -198,7 +197,7 @@ std::ostream& operator << ( std::ostream& os, const Frame* frame )
         os << "buffers  [";
         if( buffers & eq::Frame::BUFFER_COLOR )  os << " COLOR";
         if( buffers & eq::Frame::BUFFER_DEPTH )  os << " DEPTH";
-        os << " ]" << endl;
+        os << " ]" << std::endl;
     }
 
     const eq::Frame::Type frameType = frame->getType();
@@ -207,13 +206,13 @@ std::ostream& operator << ( std::ostream& os, const Frame* frame )
     
     const eq::Viewport& vp = frame->getViewport();
     if( vp != eq::Viewport::FULL )
-        os << "viewport " << vp << endl;
+        os << "viewport " << vp << std::endl;
 
     const eq::Zoom& zoom = frame->getZoom();
     if( zoom.isValid() && zoom != eq::Zoom::NONE )
-        os << zoom << endl;
+        os << zoom << std::endl;
 
-    os << exdent << "}" << endl << enableFlush;
+    os << co::base::exdent << "}" << std::endl << co::base::enableFlush;
     return os;
 }
 

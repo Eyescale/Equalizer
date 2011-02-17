@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -32,9 +32,7 @@ namespace server
     class FrameData;
     class Node;
 
-    /**
-     * A holder for frame data and parameters.
-     */
+    /** A holder for frame data and parameters. */
     class Frame : public co::Object
     {
     public:
@@ -42,12 +40,15 @@ namespace server
          * Constructs a new Frame.
          */
         EQSERVER_EXPORT Frame();
+        EQSERVER_EXPORT virtual ~Frame();
         Frame( const Frame& from );
 
         /**
          * @name Data Access
          */
         //@{
+        void setCompound( Compound* compound )
+            { EQASSERT( !_compound ); _compound = compound; }
         Compound* getCompound() const { return _compound; }
         Channel* getChannel() const 
             { return _compound ? _compound->getChannel() :0; }
@@ -57,8 +58,8 @@ namespace server
         const std::string& getName() const      { return _name; }
 
         FrameData* getMasterData() const { return _masterFrameData; }
-        bool       hasData( const eq::Eye eye ) const
-            { return ( _frameData[ co::base::getIndexOfLastBit( eye ) ] != 0 ); }
+        bool hasData( const eq::Eye eye ) const
+            { return ( _frameData[ co::base::getIndexOfLastBit(eye) ] != 0 ); }
 
         co::ObjectVersion getDataVersion( const Eye eye ) const;
 
@@ -169,9 +170,7 @@ namespace server
         /** @return the frame offset. */
         const Vector2i& getOffset() const { return _data.offset; }
 
-        /** 
-         * Set the offset of the frame.
-         */
+        /** Set the offset of the frame. */
         void setOffset( const Vector2i& offset ) { _data.offset = offset; }
         
         /** Set the inherit frame zoom factor. */
@@ -183,7 +182,6 @@ namespace server
         //@}
         
     protected:
-        EQSERVER_EXPORT virtual ~Frame();
         EQSERVER_EXPORT virtual ChangeType getChangeType() const 
                                                             { return INSTANCE; }
         EQSERVER_EXPORT virtual void getInstanceData( co::DataOStream& os );
@@ -192,7 +190,6 @@ namespace server
     private:
         /** The parent compound. */
         Compound* _compound;
-        friend class Compound;
 
         /** The name which associates input to output frames. */
         std::string _name;
