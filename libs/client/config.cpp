@@ -493,7 +493,7 @@ bool Config::handleEvent( const ConfigEvent* event )
             EQLOG( LOG_STATS ) << event->data << std::endl;
 
             const uint32_t originator = event->data.serial;
-            EQASSERT( originator != 0 );
+            EQASSERTINFO( originator != EQ_INSTANCE_INVALID, event->data );
             if( originator == 0 )
                 return false;
 

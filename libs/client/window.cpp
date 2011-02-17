@@ -639,6 +639,7 @@ bool Window::_cmdCreateChannel( co::Command& command )
 
     Config* config = getConfig();
     EQCHECK( config->mapObject( channel, packet->channelID ));
+    EQASSERT( channel->getSerial() ! EQ_INSTANCE_INVALID );
 
     return true;
 }
