@@ -24,7 +24,7 @@ server
             {
                 window
                 {
-                    attributes{ hint_drawable pbuffer}
+                    attributes{ hint_drawable pbuffer }
                     channel 
                     {
                         name "right-PBuffer" 
@@ -45,12 +45,13 @@ server
         layout 
         { 
             name "Simple"
-            view { observer 0 }
+            view { mode STEREO observer 0 }
         }  
         canvas 
         { 
             layout "Simple"
             wall {}
+
             segment
             {
                 eye [ LEFT CYCLOP ] 
@@ -75,18 +76,13 @@ server
                channel "right-PBuffer" 
                outputframe{} 
            } 
-           inputframe{ name "frame.right" } 
+           inputframe{ name "frame.right-PBuffer" } 
         } 
 
         compound 
         {
             name "Stereo"
-            wall
-            {
-                bottom_left  [ -1 -1 -1 ]
-                bottom_right [  1 -1 -1 ]
-                top_left     [ -1  1 -1 ]
-            }
+
             compound
             {
                 name "Stereo-Left" 

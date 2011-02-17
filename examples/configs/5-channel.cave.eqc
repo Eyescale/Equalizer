@@ -16,30 +16,29 @@ server
                     viewport [ 10 10 800 800 ]
                     channel 
                     {
-                        viewport [ 0 .333 .333 .333 ]
+                        viewport [ 0 .3333 .3333 .3334 ]
                         name "channel-left"
                     }
                     channel 
                     {
-                        viewport [ .333 .333 .333 .333 ]
+                        viewport [ .3333 .3333 .3334 .3334 ]
                         name "channel-front"
                     }
                     channel 
                     {
-                        viewport [ .666 .333 .333 .333 ]
+                        viewport [ .6667 .3334 .3334 .3334 ]
                         name "channel-right"
                     }
                     channel 
                     {
-                        viewport [ .333 .666 .333 .333 ]
+                        viewport [ .3333 .6667 .3334 .3333 ]
                         name "channel-top"
                     }
                     channel 
                     {
-                        viewport [ .333 0 .333 .333 ]
+                        viewport [ .3333 0 .3334 .3333 ]
                         name "channel-bottom"
                     }
-                    channel { name "channel" }
                 }
             }
         }
@@ -48,10 +47,11 @@ server
         canvas
         {
             layout 0
-            wall{}
+
             segment
             { 
                 channel "channel-left"
+                viewport [ 0 0.6667 .3333 .3333 ]
                 wall
                 {
                     bottom_left  [ -1 -1  1 ]
@@ -61,7 +61,19 @@ server
             }
             segment
             { 
+                channel "channel-front"
+                viewport [ 0.3333 0.6667 .3334 .3334 ]
+                wall
+                {
+                    bottom_left  [ -1 -1 -1 ]
+                    bottom_right [  1 -1 -1 ]
+                    top_left     [ -1  1 -1 ]
+                }
+            }
+            segment
+            { 
                 channel "channel-right"
+                viewport [ 0.6667 0.6667 .3333 .3333 ]
                 wall
                 {
                     bottom_left  [ 1 -1 -1 ]
@@ -72,6 +84,7 @@ server
             segment
             {
                 channel "channel-bottom"
+                viewport [ 0.3333 0.3333 .3334 .3334 ]
                 wall
                 {
                     bottom_left  [ -1 -1  1 ]
@@ -82,6 +95,7 @@ server
             segment
             { 
                 channel "channel-top"
+                viewport [ 0.3333 0. .3334 .3333 ]
                 wall
                 {
                     bottom_left  [ -1  1 -1 ]
