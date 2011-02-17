@@ -172,8 +172,7 @@ namespace server
         /** 
          * Set the offset of the frame.
          */
-        void setOffset( const Vector2i& offset )
-           { _data.offset = offset; }
+        void setOffset( const Vector2i& offset ) { _data.offset = offset; }
         
         /** Set the inherit frame zoom factor. */
         void setInheritZoom( const eq::Zoom& zoom )

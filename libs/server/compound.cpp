@@ -1326,14 +1326,17 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
         
         os << ( i==Compound::IATTR_STEREO_MODE ?
                     "stereo_mode                " :
+                i==Compound::IATTR_HINT_OFFSET ?
+                    "offset                     " :
                 i==Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK ?
                     "stereo_anaglyph_left_mask  " :
                 i==Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK ?
-                    "stereo_anaglyph_right_mask " : "ERROR" );
+                    "stereo_anaglyph_right_mask " : "ERROR " );
         
         switch( i )
         {
             case Compound::IATTR_STEREO_MODE:
+            case Compound::IATTR_HINT_OFFSET:
                 os << static_cast< fabric::IAttribute >( value ) << std::endl;
                 break;
 
