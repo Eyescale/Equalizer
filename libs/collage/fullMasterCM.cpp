@@ -138,7 +138,7 @@ void FullMasterCM::_obsolete()
             << base::className( _object ) << " " << ObjectVersion( _object )
             << std::endl;
 #endif
-        _instanceDataCache.push_back( data );
+        _releaseInstanceData( data );
         _instanceDatas.pop_front();
     }
     _checkConsistency();
@@ -321,7 +321,11 @@ void FullMasterCM::_addInstanceData( InstanceData* data )
 void FullMasterCM::_releaseInstanceData( InstanceData* data )
 {
     EQ_TS_THREAD( _cmdThread );
+#ifdef CO_AGGRESSIVE_CACHING
     _instanceDataCache.push_back( data );
+#else
+    delete data;
+#endif
 }
 
 //---------------------------------------------------------------------------

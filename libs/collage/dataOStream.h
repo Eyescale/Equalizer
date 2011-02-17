@@ -57,10 +57,6 @@ namespace DataStreamTest
 
         /** @return if data was sent since the last enable() */
         bool hasSentData() const { return _dataSent; }
-        
-        /** @return the buffer with the saved data. */
-        const base::Bufferb& getSaveBuffer() const 
-            { EQASSERT( _save ); return _buffer; }
         //@}
 
         /** @name Data output */
@@ -119,10 +115,6 @@ namespace DataStreamTest
         /** Reset the whole stream. */
         virtual CO_API void reset();
 
-        /** Locked connections to the receivers, if _enabled */
-        Connections _connections;
-        friend class DataStreamTest::Sender;
-
     private:        
         enum CompressorState
         {
@@ -138,6 +130,10 @@ namespace DataStreamTest
         /** The start position of the buffering, always 0 if !_save */
         uint64_t _bufferStart;
         
+        /** Locked connections to the receivers, if _enabled */
+        Connections _connections;
+        friend class DataStreamTest::Sender;
+
         /** The compressor instance. */
         base::CPUCompressor* const _compressor;
 
@@ -176,8 +172,9 @@ namespace DataStreamTest
         CO_API uint64_t _getCompressedData( void** chunks,
                                             uint64_t* chunkSizes ) const;
 
-        /** Compress data. @return true if compressed, false otherwise. */
-        bool _compress( const void* src, const uint64_t size );
+        /** Compress data and update the compressor state. */
+        void _compress( void* src, const uint64_t size,
+                        const CompressorState result );
     };
 
     std::ostream& operator << ( std::ostream& os,
