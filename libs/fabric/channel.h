@@ -63,7 +63,7 @@ namespace fabric
         const W* getWindow() const { return _window; }
 
         /** @internal @return the native view identifier and version. */
-        const bool isDestination() const
+        bool isDestination() const
             { return _data.nativeContext.view.identifier!=co::base::UUID::ZERO;}
 
         /** @internal Update the native view identifier and version. */

@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-201r10, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Template functions used by all compression routines
  * 
@@ -19,6 +19,8 @@
  */
 
 #include <co/base/omp.h>
+
+#include <limits>
 
 namespace
 {
