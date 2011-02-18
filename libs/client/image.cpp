@@ -1043,15 +1043,11 @@ bool Image::writeImage( const std::string& filename,
     {
         // channel one is R or B
         if ( invertChannel )
-        {
             for( size_t j = 0 * bpc; j < nBytes; j += depth )
                 image.write( &data[j], bpc );
-        }
         else
-        {
             for( size_t j = 2 * bpc; j < nBytes; j += depth )
                 image.write( &data[j], bpc );
-        }
 
         // channel two is G
         for( size_t j = 1 * bpc; j < nBytes; j += depth )
@@ -1059,32 +1055,16 @@ bool Image::writeImage( const std::string& filename,
 
         // channel three is B or G
         if ( invertChannel )
-        {
             for( size_t j = 2 * bpc; j < nBytes; j += depth )
                 image.write( &data[j], bpc );
-        }
         else
-        {
             for( size_t j = 0; j < nBytes; j += depth )
                 image.write( &data[j], bpc );
-        }
 
         // channel four is Alpha
         if( nChannels == 4 )
-        {
             for( size_t j = 3 * bpc; j < nBytes; j += depth )
-            {
-                if( bpc == 1 && header.maxValue == 255 )
-                {
-                    // invert alpha
-                    const uint8_t val = 255 - 
-                        *reinterpret_cast< const uint8_t* >( &data[j] );
-                    image.write( reinterpret_cast<const char*>( &val ), 1 );
-                }
-                else
-                    image.write( &data[j], bpc );
-            }
-        }
+                image.write( &data[j], bpc );
     }
     else
     {

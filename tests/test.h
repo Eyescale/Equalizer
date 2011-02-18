@@ -74,7 +74,6 @@ public:
 private:
     const std::string _name;
 };
-
 }
 
 int main( int argc, char **argv )
