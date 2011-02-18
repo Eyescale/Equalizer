@@ -438,11 +438,9 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
     }
 
     // de-register the monitor
-    for( Frames::const_iterator i = frames.begin(); i != frames.end();
-         ++i )
+    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
     {
         Frame* frame = *i;
-        // syncAssembleFrame( frame );
         frame->removeListener( monitor );
     }
 
@@ -1173,6 +1171,12 @@ void Compositor::clearStencilBuffer( const ImageOp& op )
 void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
 {
     _drawPixels( image, op, Frame::BUFFER_COLOR );
+#if 0
+    static co::base::a_int32_t counter;
+    std::ostringstream stringstream;
+    stringstream << "Image_" << ++counter;
+    image->writeImages( stringstream.str( ));
+#endif
 }
 
 void Compositor::_drawPixels( const Image* image, const ImageOp& op,

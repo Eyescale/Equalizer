@@ -102,7 +102,7 @@ void Channel::frameClear( const eq::uint128_t& frameID )
     applyBuffer();
     applyViewport();
 
-    const eq::View*  view      = getView();
+    const eq::View* view = getView();
     if( view && frameData.getCurrentViewID() == view->getID( ))
         glClearColor( .4f, .4f, .4f, 1.0f );
 #ifndef NDEBUG
