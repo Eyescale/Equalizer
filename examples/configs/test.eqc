@@ -53,8 +53,6 @@ server
                 top_left     [ -1.6  .5 -1 ]
             }
             segment { channel "buffer" }
-            segment { channel "channel1" viewport [ 0 0 .5 1 ] }
-            segment { channel "channel2" viewport [ .5 0 .5 1 ] }
         }
         compound
         {
@@ -66,13 +64,13 @@ server
             }
             compound
             {
-                channel ( segment 1 view 0 )
+                channel "channel1"
                 task [ CLEAR ASSEMBLE ]
                 inputframe { name "left" }
             }
             compound
             {
-                channel ( segment 2 view 0 )
+                channel "channel2"
                 task [ CLEAR ASSEMBLE ]
                 inputframe { name "right" }
             }
