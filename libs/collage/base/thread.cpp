@@ -21,6 +21,7 @@
 #include "debug.h"
 #include "lock.h"
 #include "log.h"
+#include "monitor.h"
 #include "rng.h"
 #include "scopedMutex.h"
 #include "executionListener.h"
@@ -48,6 +49,13 @@ struct ThreadIDPrivate
 
 namespace
 {
+
+static Monitoru& _numThreads()
+{
+    static Monitoru monitor;
+    return monitor;
+}
+
 static Lock& _listenerLock()
 {
     static Lock lock;
@@ -99,6 +107,7 @@ void* Thread::runChild( void* arg )
 
 void Thread::_runChild()
 {
+    ++_numThreads();
     setName( className( this ));
     pinCurrentThread();
     _id._data->pthread = pthread_self();
@@ -161,6 +170,8 @@ void Thread::_notifyStopping()
     {   
         (*i)->notifyExecutionStopping();
     }
+
+    --_numThreads();
 }
 
 bool Thread::start()
@@ -266,6 +277,7 @@ bool Thread::removeListener( ExecutionListener* listener )
 
 void Thread::removeAllListeners()
 {
+    _numThreads().waitEQ( 0 );
     _listenerLock().set();
 
     EQINFO << _listeners().size() << " thread listeners active" << std::endl;
