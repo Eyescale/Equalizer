@@ -935,7 +935,7 @@ bool Image::writeImage( const std::string& filename,
     const Memory& memory = _getMemory( buffer );
 
     const PixelViewport& pvp = memory.pvp;
-    const size_t  nPixels = pvp.w * pvp.h;
+    const size_t nPixels = pvp.w * pvp.h;
 
     if( nPixels == 0 || memory.state != Memory::VALID )
         return false;
@@ -1032,6 +1032,7 @@ bool Image::writeImage( const std::string& filename,
 
     header.convert();
     image.write( reinterpret_cast<const char *>( &header ), sizeof( header ));
+    header.convert();
 
     // Each channel is saved separately
     const size_t depth  = nChannels * bpc;
@@ -1071,11 +1072,11 @@ bool Image::writeImage( const std::string& filename,
         // channel four is Alpha
         if( nChannels == 4 )
         {
-            // invert alpha
             for( size_t j = 3 * bpc; j < nBytes; j += depth )
             {
                 if( bpc == 1 && header.maxValue == 255 )
                 {
+                    // invert alpha
                     const uint8_t val = 255 - 
                         *reinterpret_cast< const uint8_t* >( &data[j] );
                     image.write( reinterpret_cast<const char*>( &val ), 1 );
