@@ -59,12 +59,13 @@ extern base::a_int32_t nBytesSent;
                                   alloca( packet.nChunks * sizeof( uint64_t )));
         void** chunks = static_cast< void ** >(
                             alloca( packet.nChunks * sizeof( void* )));
-        const uint64_t compressedSize = _getCompressedData( chunks, chunkSizes);
-        EQASSERT( compressedSize < size );
-
+        
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
+        const uint64_t compressedSize = _getCompressedData( chunks, chunkSizes);
         nBytesSaved += ((size - compressedSize) * _connections.size( ));
+#else
+        _getCompressedData( chunks, chunkSizes);
 #endif
         packet.compressorName = _compressor->getName();
         Connection::send( _connections, packet, chunks, chunkSizes,
