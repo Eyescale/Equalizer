@@ -73,7 +73,7 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         Vector2i frameOffset = outputFrame->getMasterData()->getOffset() +
                                frame->getOffset();
 
-        if( !compound->isChildOf( outputFrame->getCompound( )))
+        if( !outputFrame->getCompound()->isChildOf( compound ))
             frameOffset = frame->getOffset();
         else if( channel != compound->getInheritChannel( ))
         {
