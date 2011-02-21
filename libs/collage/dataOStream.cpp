@@ -199,7 +199,7 @@ void DataOStream::write( const void* data, uint64_t size )
     EQASSERT( _enabled );
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
     if( compressionTime > 100000 )
-        EQINFO << *this << std::endl;
+        EQWARN << *this << std::endl;
 #endif    
 
     if( _buffer.getSize() - _bufferStart > Global::getObjectBufferSize( ))
@@ -325,9 +325,9 @@ std::ostream& operator << ( std::ostream& os,
 {
     os << "DataOStream "
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-       << " compressed " << nBytesIn << " -> " << nBytesOut << " of "
-       << nBytesIn << " in " << compressionTime/1000 << "ms, saved "
-       << nBytesSaved << " of " << nBytesSent << " brutto sent";
+       << "compressed " << nBytesIn << " -> " << nBytesOut << " of " << nBytesIn
+       << " in " << compressionTime/1000 << "ms, saved " << nBytesSaved
+       << " of " << nBytesSent << " brutto sent";
 
     nBytes = 0;
     nBytesIn = 0;
