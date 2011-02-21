@@ -118,7 +118,7 @@ unsigned getLogTopics()
     return 0;
 }
 
-Log& Log::instance( const char* file, const int line )
+Log& Log::instance()
 {
     Log* log = _logInstance.get();
     if( !log )
@@ -127,8 +127,14 @@ Log& Log::instance( const char* file, const int line )
         _logInstance = log;
     }
 
-    log->setLogInfo( file, line );
     return *log;
+}
+
+Log& Log::instance( const char* file, const int line )
+{
+    Log& log = instance();
+    log.setLogInfo( file, line );
+    return log;
 }
 
 void Log::exit()

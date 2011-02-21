@@ -26,6 +26,8 @@
 #include <iostream>
 #include <vector>
 
+//#define EQ_INSTRUMENT_DATAOSTREAM
+
 namespace co
 {
 namespace DataStreamTest
@@ -118,9 +120,10 @@ namespace DataStreamTest
     private:        
         enum CompressorState
         {
-            NOT_COMPRESSED,
-            PARTIAL_COMPRESSED,
-            FULL_COMPRESSED
+            STATE_UNCOMPRESSED,
+            STATE_PARTIAL,
+            STATE_COMPLETE,
+            STATE_UNCOMPRESSIBLE,
         };
         CompressorState _compressorState;
         
@@ -129,7 +132,10 @@ namespace DataStreamTest
 
         /** The start position of the buffering, always 0 if !_save */
         uint64_t _bufferStart;
-        
+
+        /** The uncompressed size of a completely compressed buffer. */
+        uint64_t _dataSize;
+
         /** Locked connections to the receivers, if _enabled */
         Connections _connections;
         friend class DataStreamTest::Sender;

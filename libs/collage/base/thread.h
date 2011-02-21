@@ -211,23 +211,29 @@ namespace base
 #endif
 
 /** Declare a thread id variable to be used for thread-safety checks. */
-#define EQ_TS_VAR( NAME )                        \
+#define EQ_TS_VAR( NAME )                                   \
+public:                                                     \
     struct NAME ## Struct                                   \
     {                                                       \
         NAME ## Struct ()                                   \
             : extMutex( false ), inRegion( false )          \
             {}                                              \
         mutable co::base::ThreadID id;                      \
+        mutable std::string name;                           \
         bool extMutex;                                      \
         mutable bool inRegion;                              \
     } NAME;                                                 \
+private:
 
 #ifdef EQ_CHECK_THREADSAFETY
+#  define EQ_TS_RESET( NAME ) NAME.id = co::base::ThreadID::ZERO; 
+
 #  define EQ_TS_THREAD( NAME )                                          \
     {                                                                   \
         if( NAME.id == co::base::ThreadID::ZERO )                       \
         {                                                               \
             NAME.id = co::base::Thread::getSelfThreadID();              \
+            NAME.name = co::base::Log::instance().getThreadName();      \
             EQVERB << "Functions for " << #NAME                         \
                    << " locked to this thread" << std::endl;            \
         }                                                               \
@@ -236,8 +242,9 @@ namespace base
             EQERROR << "Threadsafety check for " << #NAME               \
                     << " failed on object of type "                     \
                     << co::base::className( this ) << ", thread "       \
-                    << co::base::Thread::getSelfThreadID() << "  != "   \
-                    << NAME.id << std::endl;                            \
+                    << co::base::Thread::getSelfThreadID() << " ("      \
+                    << co::base::Log::instance().getThreadName() << ") != " \
+                    << NAME.id << " (" << NAME.name << ")" << std::endl; \
             EQABORT( "Non-threadsave code called from two threads" );   \
         }                                                               \
     }
@@ -246,7 +253,7 @@ namespace base
     {                                                                   \
         if( !NAME.extMutex && NAME.id != co::base::ThreadID::ZERO )     \
         {                                                               \
-            if( NAME.id ==  co::base::Thread::getSelfThreadID( ))       \
+            if( NAME.id == co::base::Thread::getSelfThreadID( ))        \
             {                                                           \
                 EQERROR << "Threadsafety check for not " << #NAME       \
                         << " failed on object of type "                 \
@@ -282,6 +289,7 @@ namespace base
     co::base::ScopedThreadCheck< NAME ## Struct > scoped ## NAME ## Check(NAME);
 
 #else
+#  define EQ_TS_RESET( NAME ) {}
 #  define EQ_TS_THREAD( NAME ) {}
 #  define EQ_TS_NOT_THREAD( NAME ) {}
 #  define EQ_TS_SCOPED( NAME ) {}

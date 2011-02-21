@@ -51,7 +51,7 @@ extern void _exitErrors();
 
 bool init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
-    co::base::Log::instance( __FILE__, __LINE__ ).setThreadName( "Main" );
+    co::base::Log::instance().setThreadName( "Main" );
     EQINFO << "Equalizer v" << Version::getString()
 #if ( EQ_VERSION_REVISION > 0 )
            << " [" << EQ_VERSION_REVISION << "]"

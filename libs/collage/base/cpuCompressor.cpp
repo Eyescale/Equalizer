@@ -32,16 +32,22 @@ namespace base
 void CPUCompressor::compress( void* const in, const uint64_t pvpIn[4],
                               const eq_uint64_t flags )
 {
+    EQASSERT( _plugin );
+    EQASSERT( _instance );
     _plugin->compress( _instance, _name, in, pvpIn, flags );
 }
 
 void CPUCompressor::compress( void* const in, const uint64_t inDims[2] )
 {
+    EQASSERT( _plugin );
+    EQASSERT( _instance );
     _plugin->compress( _instance, _name, in, inDims, EQ_COMPRESSOR_DATA_1D );
 }
 
 unsigned CPUCompressor::getNumResults( ) const 
 {
+    EQASSERT( _plugin );
+    EQASSERT( _instance );
     return _plugin->getNumResults( _instance, _name );
 }
 
@@ -49,6 +55,8 @@ void CPUCompressor::getResult( const unsigned i,
                                    void** const out, 
                                    uint64_t* const outSize ) const
 {
+    EQASSERT( _plugin );
+    EQASSERT( _instance );
     return _plugin->getResult( _instance, _name, i, out, outSize ); 
 }
 

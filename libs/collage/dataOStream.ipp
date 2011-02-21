@@ -19,50 +19,55 @@
 
 namespace co
 {
+#ifdef EQ_INSTRUMENT_DATAOSTREAM
+extern base::a_int32_t nBytesSaved;
+extern base::a_int32_t nBytesSent;
+#endif
+
     template< typename P >
     inline void DataOStream::sendPacket( P& packet, const void* buffer,
                                          const uint64_t size, const bool last )
     {
         EQASSERT( last || size != 0 );
-        _dataSent = true;
 
         if( _connections.empty( ))
             return;
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-    nBytesSent += size;
+        nBytesSent += (size * _connections.size( ));
 #endif
         packet.dataSize = size;
         packet.last = last;
 
-        if( _compressorState != NOT_COMPRESSED )
+        if( _compressorState == STATE_UNCOMPRESSED ||
+            _compressorState == STATE_UNCOMPRESSIBLE )
         {
-            packet.nChunks = _compressor->getNumResults( );
-            uint64_t* chunkSizes = static_cast< uint64_t* >(
-                alloca( packet.nChunks * sizeof( uint64_t )));
-            void** chunks = static_cast< void ** >(
-                alloca( packet.nChunks * sizeof( void* )));
-            const uint64_t compressedSize = _getCompressedData( chunks,
-                                                                chunkSizes );
+            EQASSERT( size == 0 || buffer );
 
-            if( compressedSize < size )
-            {
-#ifdef EQ_INSTRUMENT_DATAOSTREAM
-                nBytesCompressedSent += compressedSize;
-#endif
-                packet.compressorName = _compressor->getName();
-                Connection::send( _connections, packet, chunks, chunkSizes,
-                                  packet.nChunks );
-                return;
-            }
+            packet.compressorName = EQ_COMPRESSOR_NONE;
+            packet.nChunks = 1;
+
+            if( size == 0 )
+                Connection::send( _connections, packet );
+            else
+                Connection::send( _connections, packet, buffer, size );
+            return;
         }
 
-        packet.compressorName = EQ_COMPRESSOR_NONE;
-        packet.nChunks = 1;
+        packet.nChunks = _compressor->getNumResults();
+        uint64_t* chunkSizes = static_cast< uint64_t* >(
+                                  alloca( packet.nChunks * sizeof( uint64_t )));
+        void** chunks = static_cast< void ** >(
+                            alloca( packet.nChunks * sizeof( void* )));
+        const uint64_t compressedSize = _getCompressedData( chunks, chunkSizes);
+        EQASSERT( compressedSize < size );
 
-        if( size == 0 )
-            Connection::send( _connections, packet );
-        else
-            Connection::send( _connections, packet, buffer, size );
+
+#ifdef EQ_INSTRUMENT_DATAOSTREAM
+        nBytesSaved += ((size - compressedSize) * _connections.size( ));
+#endif
+        packet.compressorName = _compressor->getName();
+        Connection::send( _connections, packet, chunks, chunkSizes,
+                          packet.nChunks );
     }
 }

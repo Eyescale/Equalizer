@@ -45,7 +45,7 @@ bool init( const int argc, char** argv )
         return false;
 
     _initialized = true;
-    Log::instance( __FILE__, __LINE__ ).setThreadName( "Main" );
+    Log::instance().setThreadName( "Main" );
     EQINFO << "Log level " << Log::getLogLevelString() << " topics " 
            << Log::topics << std::endl;
 

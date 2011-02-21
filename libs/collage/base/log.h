@@ -167,6 +167,9 @@ namespace base
         static COBASE_API unsigned topics;
 
         /** The per-thread logger. */
+        static COBASE_API Log& instance();
+
+        /** The per-thread logger. */
         static COBASE_API Log& instance( const char* file, const int line );
 
         /** Exit the log instance for the current thread. */

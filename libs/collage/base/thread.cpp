@@ -298,7 +298,7 @@ void Thread::removeAllListeners()
 void Thread::untrack()
 {
     EQASSERTINFO( std::string( "Watchdog" ) ==
-                  std::string(Log::instance(__FILE__,__LINE__).getThreadName()),
+                  std::string( Log::instance().getThreadName( )),
                   "Are you sure you want to call this method?" );
     --_numThreads();
 }
@@ -387,7 +387,7 @@ typedef struct tagTHREADNAME_INFO
 
 void Thread::setName( const std::string& name )
 {
-    Log::instance( __FILE__, __LINE__ ).setThreadName( name );
+    Log::instance().setThreadName( name );
 
 #ifdef _MSC_VER
 #  ifndef NDEBUG
