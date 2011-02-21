@@ -162,15 +162,15 @@ void Frame::addInputFrame( Frame* frame, const Compound* compound )
     for( unsigned i = 0; i < NUM_EYES; ++i )
     {
         // eye pass not used && no output frame for eye pass
-        if( !( compound->isInheritActive( (eq::Eye)(1<<i) )) ||  
-            !_frameData[i] )     
-        {
-            frame->_frameData[i] = 0;
-        }
-        else
+        if( compound->isInheritActive( (eq::Eye)(1<<i) ) &&  
+            _frameData[i] )     
         {
             frame->_frameData[i] = _frameData[i];
             _inputFrames[i].push_back( frame );
+        }
+        else
+        {
+            frame->_frameData[i] = 0;           
         }
     }
 }

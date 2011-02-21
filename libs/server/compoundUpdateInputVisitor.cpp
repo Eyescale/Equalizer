@@ -102,17 +102,26 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         //framePVP.x = static_cast< int32_t >( frameVP.x * inheritPVP.w );
         //framePVP.y = static_cast< int32_t >( frameVP.y * inheritPVP.h );
         //frame->setInheritPixelViewport( framePVP );
-
         //----- Link input frame to output frame (connects frame data)
         outputFrame->addInputFrame( frame, compound );
 
-        //----- Commit
-        frame->commit();
-        EQLOG( LOG_ASSEMBLY )
-            << "Input frame  \"" << name << "\" on channel \"" 
-            << channel->getName() << "\" id " << frame->getID() << " v"
-            << frame->getVersion() << "\" tile pos " << frameOffset << ' ' 
-            << frame->getInheritZoom() << std::endl;
+        for( unsigned i = 0; i < NUM_EYES; ++i )
+        {
+            const eq::Eye eye = (eq::Eye)(1<<i);
+            // eye pass  used && output frame for eye pass
+            if( compound->isInheritActive( eye ) && 
+                outputFrame->hasData( eye ))
+            {
+                //----- Commit
+                frame->commit();
+                EQLOG( LOG_ASSEMBLY )
+                    << "Input frame  \"" << name << "\" on channel \"" 
+                    << channel->getName() << "\" id " << frame->getID() << " v"
+                    << frame->getVersion() << "\" tile pos " << frameOffset << ' ' 
+                    << frame->getInheritZoom() << std::endl;
+                break;
+            }
+        }
     }
 
     return TRAVERSE_CONTINUE;

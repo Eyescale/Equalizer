@@ -954,6 +954,12 @@ void Compound::_updateInheritRoot( const PixelViewport& oldPVP )
 
     if( _inherit.eyes == fabric::EYE_UNDEFINED )
         _inherit.eyes = fabric::EYES_ALL;
+    else if( _inherit.channel )
+    {
+        const View* view = _inherit.channel->getView();
+        if( !view )
+            _inherit.eyes = EYE_CYCLOP;
+    }
 
     if( _inherit.period == EQ_UNDEFINED_UINT32 )
         _inherit.period = 1;
@@ -1011,6 +1017,12 @@ void Compound::_updateInheritNode( const PixelViewport& oldPVP )
 
     if( _data.eyes != fabric::EYE_UNDEFINED )
         _inherit.eyes = _data.eyes;
+    else if( _inherit.channel )
+    {
+        const View* view = _inherit.channel->getView();
+        if( !view )
+            _inherit.eyes = EYE_CYCLOP;
+    }
         
     if( _data.period != EQ_UNDEFINED_UINT32 )
         _inherit.period = _data.period;

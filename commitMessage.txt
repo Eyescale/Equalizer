@@ -1,9 +1,9 @@
-- Fix bug 3155386  Admin copies are never synced  
+- Fix bug 3185685  Assembly fails if the channel has no view 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
