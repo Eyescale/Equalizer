@@ -159,6 +159,9 @@ namespace base
         /** @return a unique identifier for the calling thread. @version 1.0 */
         COBASE_API static ThreadID getSelfThreadID();
 
+        /** @internal @warning do not call unless you know the side effects. */
+        COBASE_API void untrack();
+
         /** @internal */
         COBASE_API static void yield();
 

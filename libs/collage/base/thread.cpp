@@ -295,6 +295,14 @@ void Thread::removeAllListeners()
     _listenerLock().unset();
 }
 
+void Thread::untrack()
+{
+    EQASSERTINFO( std::string( "Watchdog" ) ==
+                  std::string(Log::instance(__FILE__,__LINE__).getThreadName()),
+                  "Are you sure you want to call this method?" );
+    --_numThreads();
+}
+
 void Thread::yield()
 {
 #ifdef _MSC_VER

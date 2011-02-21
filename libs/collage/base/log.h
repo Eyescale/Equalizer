@@ -92,6 +92,8 @@ namespace base
         void enableHeader()  { --_noHeader; } //   nested enable/disable calls
 
         COBASE_API void setThreadName( const std::string& name );
+        const char* getThreadName() const { return _thread; }
+
         void setLogInfo( const char* file, const int line )
             { _file = file; _line = line; }
 
@@ -192,6 +194,9 @@ namespace base
         /** @internal */
         void setThreadName( const std::string& name )
             { _logBuffer.setThreadName( name ); }
+
+        /** @internal */
+        const char* getThreadName() const { return _logBuffer.getThreadName(); }
 
     private:
         LogBuffer _logBuffer; 
