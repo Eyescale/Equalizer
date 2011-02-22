@@ -23,9 +23,14 @@
 
 using namespace std;
 
+#ifdef WIN32_API
+#  include <process.h>
+#endif
+
 #ifdef _MSC_VER
 #  define atoll _atoi64
 #  define snprintf _snprintf
+#  define getpid _getpid
 #endif
 
 

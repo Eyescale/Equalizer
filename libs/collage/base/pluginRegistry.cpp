@@ -29,14 +29,14 @@
 #include <vector>
 #include <typeinfo>
 
-#ifdef WIN32_API
+#ifdef _MSC_VER
 #  include <direct.h>
 #  define getcwd _getcwd
-#  ifndef MAXPATHLEN
-#    define MAXPATHLEN 1024
-#  endif
 #endif
 
+#ifndef MAXPATHLEN
+#  define MAXPATHLEN 1024
+#endif
 
 namespace co
 {

@@ -1,8 +1,8 @@
-- Fix bug 3185685  Assembly fails if the channel has no view 
+- Minor cleanup
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
 [x] Cleanup
 [ ] Optimization
