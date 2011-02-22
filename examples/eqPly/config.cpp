@@ -254,7 +254,6 @@ void Config::_deregisterData()
     _frameData.setModelID( eq::UUID::ZERO );
 }
 
-
 void Config::mapData( const eq::uint128_t& initDataID )
 {
     if( !_initData.isAttached() )
@@ -821,26 +820,6 @@ void Config::_switchView()
         _frameData.setCurrentViewID( (*i)->getID( ));
 }
 
-void Config::_switchViewMode()
-{
-    eq::View* current = find< eq::View >( _frameData.getCurrentViewID( ));
-    if( !current )
-        return;
-
-    const eq::View::Mode mode = current->getMode( );
-
-    if( mode == eq::View::MODE_MONO )
-    {
-        current->changeMode( eq::View::MODE_STEREO );
-        _setMessage( "Switched to stereoscopic rendering" );
-    }
-    else
-    {
-        current->changeMode( eq::View::MODE_MONO );
-        _setMessage( "Switched to monoscopic rendering" );
-    }
-}
-
 void Config::_switchModel()
 {
     if( _modelDist.empty( )) // no models
@@ -876,6 +855,26 @@ void Config::_switchModel()
     {
         const Model* model = getModel( modelID );
         _setMessage( "Using " + co::base::getFilename( model->getName( )));
+    }
+}
+
+void Config::_switchViewMode()
+{
+    eq::View* current = find< eq::View >( _frameData.getCurrentViewID( ));
+    if( !current )
+        return;
+
+    const eq::View::Mode mode = current->getMode( );
+
+    if( mode == eq::View::MODE_MONO )
+    {
+        current->changeMode( eq::View::MODE_STEREO );
+        _setMessage( "Switched to stereoscopic rendering" );
+    }
+    else
+    {
+        current->changeMode( eq::View::MODE_MONO );
+        _setMessage( "Switched to monoscopic rendering" );
     }
 }
 

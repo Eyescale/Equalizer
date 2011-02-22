@@ -12,7 +12,7 @@ server
             {
                 window
                 {
-                    viewport [ .05 .3 .4 .3 ]
+                    viewport [ .05 .3 .4 .4 ]
                     channel
                     {
                         name "channel1"
@@ -20,7 +20,7 @@ server
                 }
                 window
                 {
-                    viewport [ .55 .3 .4 .3 ]
+                    viewport [ .55 .3 .4 .4 ]
                     channel
                     {
                         name "channel2"

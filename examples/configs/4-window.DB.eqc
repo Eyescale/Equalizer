@@ -12,7 +12,7 @@ server
             {
                 window
                 {
-                    viewport [ .05 .05 .4 .3 ]
+                    viewport [ .05 .05 .4 .4 ]
                     name "window1"
 
                     channel
@@ -22,7 +22,7 @@ server
                 }
                 window
                 {
-                    viewport [ .55 .05 .4 .3 ]
+                    viewport [ .55 .05 .4 .4 ]
                     name "window2"
 
                     channel
@@ -32,7 +32,7 @@ server
                 }
                 window
                 {
-                    viewport [ .05 .5 .4 .3 ]
+                    viewport [ .05 .55 .4 .4 ]
                     name "window3"
 
                     channel
@@ -42,7 +42,7 @@ server
                 }
                 window
                 {
-                    viewport [ .55 .5 .4 .3 ]
+                    viewport [ .55 .55 .4 .4 ]
                     attributes{ planes_stencil ON }
                     name "window4"
 
