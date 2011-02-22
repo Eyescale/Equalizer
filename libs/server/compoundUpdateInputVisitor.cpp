@@ -105,20 +105,18 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         //----- Link input frame to output frame (connects frame data)
         outputFrame->addInputFrame( frame, compound );
 
-        for( unsigned i = 0; i < NUM_EYES; ++i )
+        for( unsigned k = 0; k < NUM_EYES; ++k )
         {
-            const eq::Eye eye = (eq::Eye)(1<<i);
-            // eye pass  used && output frame for eye pass
-            if( compound->isInheritActive( eye ) && 
-                outputFrame->hasData( eye ))
+            const eq::Eye eye = eq::Eye( 1<<k );
+            if( compound->isInheritActive( eye ) &&  // eye pass used
+                outputFrame->hasData( eye ))         // output data for eye pass
             {
-                //----- Commit
                 frame->commit();
                 EQLOG( LOG_ASSEMBLY )
                     << "Input frame  \"" << name << "\" on channel \"" 
                     << channel->getName() << "\" id " << frame->getID() << " v"
-                    << frame->getVersion() << "\" tile pos " << frameOffset << ' ' 
-                    << frame->getInheritZoom() << std::endl;
+                    << frame->getVersion() << "\" tile pos " << frameOffset
+                    << ' ' << frame->getInheritZoom() << std::endl;
                 break;
             }
         }
