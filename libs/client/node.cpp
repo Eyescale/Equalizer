@@ -454,11 +454,10 @@ bool Node::_cmdConfigInit( co::Command& command )
 
 bool Node::_cmdConfigExit( co::Command& command )
 {
-    const NodeConfigExitPacket* packet = 
-        command.getPacket<NodeConfigExitPacket>();
-    EQLOG( LOG_INIT ) << "Node exit " << packet << std::endl;
-
     EQ_TS_THREAD( _nodeThread );
+    EQLOG( LOG_INIT ) << "Node exit " 
+                      << command.getPacket<NodeConfigExitPacket>() << std::endl;
+
     const Pipes& pipes = getPipes();
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
