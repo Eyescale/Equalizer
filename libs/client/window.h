@@ -338,7 +338,7 @@ namespace eq
          * @version 1.0
          */
         EQ_API virtual bool configInitSystemWindow( const uint128_t& initID );
-		
+
         /** 
          * Initialize the OpenGL state for this window.
          * 

@@ -32,81 +32,81 @@
 
 namespace eqNbody
 {
-	
-	SharedDataProxy::SharedDataProxy() : _offset(0), _numBytes(0)
-	{			
-		_hPos = NULL;
-		_hVel = NULL;
-		_hCol = NULL;		
-	}
-		
-	void SharedDataProxy::serialize( co::DataOStream& os, const uint64_t dirtyBits )
-	{
-		eq::fabric::Serializable::serialize( os, dirtyBits );
-		
-		if( dirtyBits & DIRTY_DATA ) {
-			os << _offset << _numBytes;
+    
+    SharedDataProxy::SharedDataProxy() : _offset(0), _numBytes(0)
+    {            
+        _hPos = NULL;
+        _hVel = NULL;
+        _hCol = NULL;
+    }
+        
+    void SharedDataProxy::serialize( co::DataOStream& os, const uint64_t dirtyBits )
+    {
+        eq::fabric::Serializable::serialize( os, dirtyBits );
+        
+        if( dirtyBits & DIRTY_DATA ) {
+            os << _offset << _numBytes;
 
-			EQASSERT(_hPos != NULL);			
-			EQASSERT(_hVel != NULL);
+            EQASSERT(_hPos != NULL);
+            EQASSERT(_hVel != NULL);
 
-			os.write(_hPos+_offset, _numBytes);
-			os.write(_hVel+_offset, _numBytes);
-			//os.write(_hCol+_offset, _numBytes);			
-		}		
-	}
-	
-	void SharedDataProxy::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
-	{
-		eq::fabric::Serializable::deserialize( is, dirtyBits );
+            os.write(_hPos+_offset, _numBytes);
+            os.write(_hVel+_offset, _numBytes);
+            //os.write(_hCol+_offset, _numBytes);
+        }        
+    }
+    
+    void SharedDataProxy::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
+    {
+        eq::fabric::Serializable::deserialize( is, dirtyBits );
 
-		if( dirtyBits & DIRTY_DATA ) {
-			is >> _offset >> _numBytes;
+        if( dirtyBits & DIRTY_DATA ) {
+            is >> _offset >> _numBytes;
 
-			EQASSERT(_hPos != NULL);
-			EQASSERT(_hVel != NULL);
+            EQASSERT(_hPos != NULL);
+            EQASSERT(_hVel != NULL);
 
-			is.read(_hPos+_offset, _numBytes);
-			is.read(_hVel+_offset, _numBytes);
-			//is.read(_hCol+_offset, _numBytes);
-		}		
-	}
-		
-	void SharedDataProxy::init(const unsigned int offset, const unsigned int numBytes, float *pos, float *vel, float *col)
-	{
-		_offset		= offset;
-		_numBytes	= numBytes;
+            is.read(_hPos+_offset, _numBytes);
+            is.read(_hVel+_offset, _numBytes);
+            //is.read(_hCol+_offset, _numBytes);
+        }        
+    }
+        
+    void SharedDataProxy::init(const unsigned int offset, const unsigned int numBytes, float *pos, float *vel, float *col)
+    {
+        _offset        = offset;
+        _numBytes    = numBytes;
 
-		_hPos		= pos;
-		_hVel		= vel;
-		_hCol		= col;
-		
-		setDirty( DIRTY_DATA );
-	}
+        _hPos        = pos;
+        _hVel        = vel;
+        _hCol        = col;
+        
+        setDirty( DIRTY_DATA );
+    }
 
-	void SharedDataProxy::init(float *pos, float *vel, float *col)
-	{
-		_hPos		= pos;
-		_hVel		= vel;
-		_hCol		= col;
-		
-		setDirty( DIRTY_DATA );
-	}
-	
-	void SharedDataProxy::exit()
-	{
-		_offset		= 0;
-		_numBytes	= 0;
-		
-		_hPos		= NULL;
-		_hVel		= NULL;
-		_hCol		= NULL;				
-	}
-	
-	void SharedDataProxy::markDirty()
-	{
-		setDirty( DIRTY_DATA );
-	}
-	
+    void SharedDataProxy::init(float *pos, float *vel, float *col)
+    {
+        _hPos        = pos;
+        _hVel        = vel;
+        _hCol        = col;
+        
+        setDirty( DIRTY_DATA );
+    }
+    
+    void SharedDataProxy::exit()
+    {
+        _offset      = 0;
+        _numBytes    = 0;
+        
+        _hPos        = NULL;
+        _hVel        = NULL;
+        _hCol        = NULL;
+    }
+    
+    void SharedDataProxy::markDirty()
+    {
+        setDirty( DIRTY_DATA );
+    }
+    
 }
 

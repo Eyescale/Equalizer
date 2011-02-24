@@ -27,36 +27,36 @@ namespace eq
 
 static class : UIFactoryImpl< WINDOW_SYSTEM_WGL >
 {
-	eq::SystemWindow* _createSystemWindow(eq::Window* window) const
-	{
-		EQINFO << "Using WGLWindow" << std::endl;
-		return new WGLWindow(window);
-	}
+    eq::SystemWindow* _createSystemWindow(eq::Window* window) const
+    {
+        EQINFO << "Using WGLWindow" << std::endl;
+        return new WGLWindow(window);
+    }
 
-	eq::SystemPipe* _createSystemPipe(eq::Pipe* pipe) const
-	{
-		EQINFO << "Using WGLPipe" << std::endl;
-		return new WGLPipe(pipe);
-	}
+    eq::SystemPipe* _createSystemPipe(eq::Pipe* pipe) const
+    {
+        EQINFO << "Using WGLPipe" << std::endl;
+        return new WGLPipe(pipe);
+    }
 
-	eq::MessagePump* _createMessagePump() const
-	{
-		return new WGLMessagePump;
-	}
+    eq::MessagePump* _createMessagePump() const
+    {
+        return new WGLMessagePump;
+    }
 
-	void _configInit(eq::Node* node) const
-	{
+    void _configInit(eq::Node* node) const
+    {
 #ifdef EQ_USE_MAGELLAN
-		WGLEventHandler::initMagellan(node);
+        WGLEventHandler::initMagellan(node);
 #endif
-	}
+    }
 
-	void _configExit(eq::Node* node) const
-	{
+    void _configExit(eq::Node* node) const
+    {
 #ifdef EQ_USE_MAGELLAN
-		WGLEventHandler::exitMagellan(node);
+        WGLEventHandler::exitMagellan(node);
 #endif
-	}
+    }
 } _wglFactory;
 
 } // namespace eq

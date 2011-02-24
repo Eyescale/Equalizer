@@ -380,8 +380,8 @@ global:
      {
          eq::server::Global::instance()->setPipeIAttribute(
              eq::server::Pipe::IATTR_HINT_CUDA_GL_INTEROP, $2 );
-	 }
-	 | EQTOKEN_WINDOW_IATTR_HINT_STEREO IATTR
+     }
+     | EQTOKEN_WINDOW_IATTR_HINT_STEREO IATTR
      {
          eq::server::Global::instance()->setWindowIAttribute(
              eq::server::Window::IATTR_HINT_STEREO, $2 );
@@ -892,7 +892,7 @@ compoundField:
     | EQTOKEN_PIXEL '[' UNSIGNED UNSIGNED UNSIGNED UNSIGNED ']'
         { eqCompound->setPixel( eq::Pixel( $3, $4, $5, $6 )); }
     | EQTOKEN_SUBPIXEL '[' UNSIGNED UNSIGNED ']'
-    	{ eqCompound->setSubPixel( eq::SubPixel( $3, $4 )); }
+        { eqCompound->setSubPixel( eq::SubPixel( $3, $4 )); }
     | wall { eqCompound->setWall( wall ); }
     | projection { eqCompound->setProjection( projection ); }
     | loadBalancer

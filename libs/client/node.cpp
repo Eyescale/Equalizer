@@ -172,13 +172,13 @@ bool Node::isStopped() const
 
 bool Node::configInit( const uint128_t& )
 {
-	UIFactory::configInit( this );
+    UIFactory::configInit( this );
     return true;
 }
 
 bool Node::configExit()
 {
-	UIFactory::configExit( this );
+    UIFactory::configExit( this );
     return true;
 }
 

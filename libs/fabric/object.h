@@ -39,10 +39,10 @@ namespace fabric
         /** @name Data Access. */
         //@{
         /** Set the name of the object. @version 1.0 */
-    	EQFABRIC_API void setName( const std::string& name );
+        EQFABRIC_API void setName( const std::string& name );
 
         /** @return the name of the object. @version 1.0 */
-    	EQFABRIC_API const std::string& getName() const;
+        EQFABRIC_API const std::string& getName() const;
 
         /**
          * Set user-specific data.
@@ -53,7 +53,7 @@ namespace fabric
          * instances have to set the same type of object.
          * @version 1.0
          */
-    	EQFABRIC_API void setUserData( co::Object* userData );
+        EQFABRIC_API void setUserData( co::Object* userData );
 
         /** @return the user-specific data. @version 1.0 */
         co::Object* getUserData() { return _userData; }

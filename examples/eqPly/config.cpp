@@ -349,7 +349,7 @@ void Config::_updateData()
     // idle mode
     if( isIdleAA( ))
     {
-    	EQASSERT( _numFramesAA > 0 );
+        EQASSERT( _numFramesAA > 0 );
         _frameData.setIdle( true );
     }
     else

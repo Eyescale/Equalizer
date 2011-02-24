@@ -144,10 +144,6 @@ endif(EQ_AGL_USED)
 
 if(EQUALIZER_USE_CUDA)
   find_package(CUDA)
-  if(WIN32)
-    set(CUDA_FOUND 0)
-    message(STATUS "  Disable CUDA, not yet supported on Windows")
-  endif()
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX)

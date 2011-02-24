@@ -34,50 +34,67 @@
 #ifndef EQNBODY_RENDER_PARTICLES_H 
 #define EQNBODY_RENDER_PARTICLES_H
 
+struct GLEWContextStruct;
+typedef struct GLEWContextStruct GLEWContext;
+
 namespace eqNbody
 {
-	enum DisplayMode
-	{
-		PARTICLE_POINTS,
-		PARTICLE_SPRITES,
-		PARTICLE_SPRITES_COLOR,
-		PARTICLE_NUM_MODES
-	};
-	
-	class ParticleRenderer
-		{
-		public:
-			ParticleRenderer();
-			~ParticleRenderer();
+    enum DisplayMode
+    {
+        PARTICLE_POINTS,
+        PARTICLE_SPRITES,
+        PARTICLE_SPRITES_COLOR,
+        PARTICLE_NUM_MODES
+    };
 
-			void init();
+    class ParticleRenderer
+        {
+        public:
+            ParticleRenderer( const GLEWContext* const glewContext ) 
+                : _glewContext( glewContext )
+                , m_pos(0)
+                , m_numParticles(0)
+                , m_pointSize(1.0f)
+                , m_spriteSize(1.0f)
+                , m_vertexShader(0)
+                , m_pixelShader(0)
+                , m_program(0)
+                , m_texture(0)
+                , m_pbo(0)
+                , m_vboColor(0) { }
 
-			void setPositions(float *pos, int numParticles);
-			void setColors(float *color, int numParticles);
-			void setPBO(unsigned int pbo, int numParticles);
-						
-			void draw(DisplayMode mode = PARTICLE_POINTS);
-			
-			void setPointSize(float size)  { m_pointSize = size; }
-			void setSpriteSize(float size) { m_spriteSize = size; }
-			
-		protected: // methods
-			void _createTexture(int resolution);
-			void _drawPoints(bool color = false);
-			
-		protected: // data
-			float *m_pos;
-			int m_numParticles;
-			
-			float m_pointSize;
-			float m_spriteSize;
-			
-			unsigned int m_vertexShader;
-			unsigned int m_pixelShader;
-			unsigned int m_program;
-			unsigned int m_texture;
-			unsigned int m_pbo;
-			unsigned int m_vboColor;
-		};
+            ~ParticleRenderer();
+
+            void init();
+
+            void setPositions(float *pos, int numParticles);
+            void setColors(float *color, int numParticles);
+            void setPBO(unsigned int pbo, int numParticles);
+
+            void draw(DisplayMode mode = PARTICLE_POINTS);
+            
+            void setPointSize(float size)  { m_pointSize = size; }
+            void setSpriteSize(float size) { m_spriteSize = size; }
+            const GLEWContext* glewGetContext() const { return _glewContext; }
+
+        protected: // methods
+            void _createTexture(int resolution);
+            void _drawPoints(bool color = false);
+        private:
+            const GLEWContext* _glewContext;
+        protected: // data
+            float *m_pos;
+            int m_numParticles;
+            
+            float m_pointSize;
+            float m_spriteSize;
+            
+            unsigned int m_vertexShader;
+            unsigned int m_pixelShader;
+            unsigned int m_program;
+            unsigned int m_texture;
+            unsigned int m_pbo;
+            unsigned int m_vboColor;
+        };
 }
 #endif // EQNBODY_RENDER_PARTICLES_H

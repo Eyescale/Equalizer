@@ -37,28 +37,27 @@ using namespace std;
 
 namespace eqNbody
 {
-	
     InitData::InitData() : _frameDataID( UUID::ZERO )
     {
-	_damping	= 0.995f;
-	_p		= 256;
-	_q		= 1;
-	_numBodies	= NUM_BODIES;
+    _damping    = 0.995f;
+    _p        = 256;
+    _q        = 1;
+    _numBodies    = NUM_BODIES;
     }
-	
+    
     InitData::~InitData()
     {
-       	setFrameDataID( UUID::ZERO );
+           setFrameDataID( UUID::ZERO );
     }
-	
+    
     void InitData::getInstanceData( co::DataOStream& os )
     {
-       	os << _frameDataID;
+           os << _frameDataID;
     }
-	
+    
     void InitData::applyInstanceData( co::DataIStream& is )
     {
-       	is >> _frameDataID;
-       	EQASSERT( _frameDataID != UUID::ZERO );
+           is >> _frameDataID;
+           EQASSERT( _frameDataID != UUID::ZERO );
     }
 }

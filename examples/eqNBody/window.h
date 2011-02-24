@@ -33,15 +33,15 @@
 #include <eq/eq.h>
 
 namespace eqNbody
-{	
+{
     class Window : public eq::Window
     {
     public:
         Window( eq::Pipe* parent ) : eq::Window( parent ) {}
-				
+
     protected:
         virtual ~Window() {}
-        virtual void swapBuffers();		
+        virtual void swapBuffers();
     };
 }
 

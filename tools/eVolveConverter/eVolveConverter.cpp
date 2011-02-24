@@ -261,7 +261,7 @@ static int readTransferFunction( FILE* file,  vector<unsigned char>& TF )
     if( TFSize!=256  )
         EQWARN << "Wrong size of transfer function, should be 256" << endl;
         
-	TFSize = clip<int>( TFSize, 1, 256 );
+    TFSize = clip<int>( TFSize, 1, 256 );
 
     int tmp;
     for( unsigned i=0; i<TFSize; i++ )

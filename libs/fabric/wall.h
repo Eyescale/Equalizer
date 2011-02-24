@@ -38,10 +38,10 @@ namespace fabric
     {
     public:
         /** Construct a new wall description. */
-    	EQFABRIC_API Wall();
+        EQFABRIC_API Wall();
 
         /** Construct a new wall description with default values. */
-    	EQFABRIC_API Wall( const Vector3f& bottomLeft, 
+        EQFABRIC_API Wall( const Vector3f& bottomLeft, 
                            const Vector3f& bottomRight,
                            const Vector3f& topLeft );
 
@@ -51,7 +51,7 @@ namespace fabric
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
-    	EQFABRIC_API void resizeHorizontal( const float ratio );
+        EQFABRIC_API void resizeHorizontal( const float ratio );
 
         /** 
          * Resize the wall vertically.
@@ -59,7 +59,7 @@ namespace fabric
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
-    	EQFABRIC_API void resizeVertical( const float ratio );
+        EQFABRIC_API void resizeVertical( const float ratio );
         
         /** 
          * Resize the wall on the left side.
@@ -67,7 +67,7 @@ namespace fabric
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
-    	EQFABRIC_API void resizeLeft( const float ratio );
+        EQFABRIC_API void resizeLeft( const float ratio );
 
         /** 
          * Resize the wall on the right side.
@@ -75,7 +75,7 @@ namespace fabric
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
-    	EQFABRIC_API void resizeRight( const float ratio );
+        EQFABRIC_API void resizeRight( const float ratio );
 
         /** 
          * Resize the wall on the top side.
@@ -83,7 +83,7 @@ namespace fabric
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
-    	EQFABRIC_API void resizeTop( const float ratio );
+        EQFABRIC_API void resizeTop( const float ratio );
 
         /** 
          * Resize the wall on the bottom side.
@@ -91,19 +91,19 @@ namespace fabric
          * @param ratio the amount by which the wall is grown or shrunk.
          * @version 1.0
          */
-    	EQFABRIC_API void resizeBottom( const float ratio );
+        EQFABRIC_API void resizeBottom( const float ratio );
 
         /**
          * Compute the sub-frustum for a 2D area on the full wall.
          * @version 1.0
          */
-    	EQFABRIC_API void apply( const Viewport& viewport);
+        EQFABRIC_API void apply( const Viewport& viewport);
 
         /**
          * Set the wall parameters from a projection description.
          * @version 1.0
          */
-    	EQFABRIC_API Wall& operator = ( const Projection& projection );
+        EQFABRIC_API Wall& operator = ( const Projection& projection );
 
         /** @return the width of the wall. @version 1.0 */
         float getWidth() const { return (bottomRight - bottomLeft).length(); }

@@ -138,7 +138,7 @@ void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
 
 bool Pipe::supportsWindowSystem( const WindowSystem windowSystem ) const
 {
-	return UIFactory::supports( windowSystem );
+    return UIFactory::supports( windowSystem );
 }
 
 WindowSystem Pipe::selectWindowSystem() const
@@ -189,7 +189,7 @@ void Pipe::_exitCommandQueue()
 
 MessagePump* Pipe::createMessagePump()
 {
-	return UIFactory::createMessagePump( _windowSystem );
+    return UIFactory::createMessagePump( _windowSystem );
 }
 
 MessagePump* Pipe::getMessagePump()

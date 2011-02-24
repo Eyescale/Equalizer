@@ -32,31 +32,31 @@
 using namespace std;
 
 namespace eqNbody
-{	
-	ConfigEvent::ConfigEvent() : _proxyID(0)
-	{
-		_range[0] = _range[1] = 0.0f;
-		size = sizeof( ConfigEvent );
-	}
-	
-	std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
-	{
-		switch( event->data.type )
-		{
-			case ConfigEvent::DATA_CHANGED:
-				os << "datachanged";
-				break;
+{    
+    ConfigEvent::ConfigEvent() : _proxyID(0)
+    {
+        _range[0] = _range[1] = 0.0f;
+        size = sizeof( ConfigEvent );
+    }
 
-			case ConfigEvent::PROXY_CHANGED:
-				os << "proxychanged";
-				break;
-				
-			default:
-				os << static_cast< const eq::ConfigEvent* >( event );
-				return os;
-		}
-						
-		return os;
-	}
-	
+    std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
+    {
+        switch( event->data.type )
+        {
+            case ConfigEvent::DATA_CHANGED:
+                os << "datachanged";
+                break;
+
+            case ConfigEvent::PROXY_CHANGED:
+                os << "proxychanged";
+                break;
+                
+            default:
+                os << static_cast< const eq::ConfigEvent* >( event );
+                return os;
+        }
+
+        return os;
+    }
+    
 }

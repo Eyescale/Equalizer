@@ -1,9 +1,11 @@
-fix bug : 3190280  Wrong compressor when switching image format   
+- Add GlewContext for window project in EQNbody   
+- Code CleanUp
+- Remove All tabulator
 
-[ ] May break build
+[x] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

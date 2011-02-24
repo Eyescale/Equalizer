@@ -41,73 +41,75 @@ using namespace std;
 
 namespace eqNbody
 {
-	Channel::Channel( eq::Window* parent ) : eq::Channel( parent ) ,
-		_registerMem(true),
-		_mapMem(true)
-	{
-		_controller = new Controller();
-	}
+    Channel::Channel( eq::Window* parent ) : eq::Channel( parent ) ,
+        _registerMem(true),
+        _mapMem(true)
+    {
+        _controller = new Controller( glewGetContext() );
+    }
 
-	Channel::~Channel()
-	{
-		if (_controller) {
-			delete _controller;
-			_controller = 0;
-		}		
-	}
-	
-	bool Channel::configInit( const eq::uint128_t& initID )
-	{
-		if( !eq::Channel::configInit( initID )) {
-			return false;
-		}
-		
-		// Initialize the CUDA controller
-		const InitData& id = static_cast<Config*>( getConfig() )->getInitData();
-		SharedData& sd = static_cast<Pipe*>( getPipe() )->getSharedData();
+    Channel::~Channel()
+    {
+        if (_controller) 
+        {
+            delete _controller;
+            _controller = 0;
+        }        
+    }
+    
+    bool Channel::configInit( const eq::uint128_t& initID )
+    {
+        if( !eq::Channel::configInit( initID )) 
+            return false;
 
-		EQCHECK( _controller->init(id, sd.getPos(), true ));
-		return true;
-	}
-		
-	void Channel::frameDraw( const eq::uint128_t& frameID )
-	{						
-		const eq::Range& range = getRange();
-		SharedData& sd = static_cast<Pipe*>( getPipe() )->getSharedData();
+        // Initialize the CUDA controller
+        const InitData& id = static_cast<Config*>( getConfig() )->getInitData();
+        SharedData& sd = static_cast<Pipe*>( getPipe() )->getSharedData();
 
-		// 1st, register the local memory
-		if( _registerMem ) {
-			sd.registerMemory( getRange() );
-			_registerMem = false;
+        EQCHECK( _controller->init(id, sd.getPos(), true ));
+        return true;
+    }
 
-			// Make sure all proxies are mapped before cont'ing
-			return; 
-		}
+    void Channel::frameDraw( const eq::uint128_t& frameID )
+    {
+        const eq::Range& range = getRange();
+        SharedData& sd = static_cast<Pipe*>( getPipe() )->getSharedData();
 
-		// 2nd, map remote memory
-		if( _mapMem ) {
-			sd.mapMemory();
-			_mapMem = false;			
-		}
-		
-		// 3rd, synchronize the shared memory
-		sd.syncMemory();
-		
-		// 4th, update the GPU memory and run one simulation step
-		_controller->setArray(BODYSYSTEM_POSITION, sd.getPos(), sd.getNumBytes());
-		_controller->setArray(BODYSYSTEM_VELOCITY, sd.getVel(), sd.getNumBytes());
-		_controller->compute(sd.getTimeStep(), range);				
+        // 1st, register the local memory
+        if( _registerMem ) 
+        {
+            sd.registerMemory( getRange() );
+            _registerMem = false;
 
-		// 5th, draw the stars
-		eq::Channel::frameDraw( frameID );
-		_controller->draw(sd.getPos(), sd.getCol());
+            // Make sure all proxies are mapped before cont'ing
+            return; 
+        }
+
+        // 2nd, map remote memory
+        if( _mapMem ) 
+        {
+            sd.mapMemory();
+            _mapMem = false;
+        }
+
+        // 3rd, synchronize the shared memory
+        sd.syncMemory();
+
+        // 4th, update the GPU memory and run one simulation step
+        _controller->setArray(BODYSYSTEM_POSITION, sd.getPos(), sd.getNumBytes());
+        _controller->setArray(BODYSYSTEM_VELOCITY, sd.getVel(), sd.getNumBytes());
+        _controller->compute(sd.getTimeStep(), range);
+
+        // 5th, draw the stars
+        eq::Channel::frameDraw( frameID );
+        _controller->draw(sd.getPos(), sd.getCol());
 
 #ifndef NDEBUG
-		outlineViewport();
+        outlineViewport();
 #endif
-		
-		// Finally, redistribute the newly computed data from the GPU to all
-		// interested mappers
-		sd.updateMemory(range, _controller);
-	}			
+
+        // Finally, redistribute the newly computed data from the GPU to all
+        // interested mappers
+        sd.updateMemory(range, _controller);
+    }
 }

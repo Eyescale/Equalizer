@@ -33,6 +33,10 @@
 #include <cstdio>
 #include <string.h>
 
+#ifdef _WIN32
+#  include <windows.h>
+#endif
+
 #include <cuda_gl_interop.h>
 
 extern "C"

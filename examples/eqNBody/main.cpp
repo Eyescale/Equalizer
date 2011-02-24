@@ -40,17 +40,22 @@
 class NodeFactory : public eq::NodeFactory
 {
 public:
-    virtual eq::Config* createConfig( eq::ServerPtr parent )	{ return new eqNbody::Config( parent ); }
-    virtual eq::Node* createNode( eq::Config* parent )			{ return new eqNbody::Node( parent ); }
-    virtual eq::Pipe* createPipe( eq::Node* parent )			{ return new eqNbody::Pipe( parent ); }
-    virtual eq::Window* createWindow( eq::Pipe* parent )		{ return new eqNbody::Window( parent ); }
-    virtual eq::Channel* createChannel( eq::Window* parent )	{ return new eqNbody::Channel( parent ); }
+    virtual eq::Config* createConfig( eq::ServerPtr parent )
+        { return new eqNbody::Config( parent ); }
+    virtual eq::Node* createNode( eq::Config* parent )
+        { return new eqNbody::Node( parent ); }
+    virtual eq::Pipe* createPipe( eq::Node* parent )
+        { return new eqNbody::Pipe( parent ); }
+    virtual eq::Window* createWindow( eq::Pipe* parent )
+        { return new eqNbody::Window( parent ); }
+    virtual eq::Channel* createChannel( eq::Window* parent )
+        { return new eqNbody::Channel( parent ); }
 };
 
 int main( const int argc, char** argv )
 {
     NodeFactory nodeFactory;
-	
+
     if( !eq::init( argc, argv, &nodeFactory ))
     {
         EQERROR << "Equalizer init failed" << std::endl;
@@ -82,10 +87,10 @@ int main( const int argc, char** argv )
     {
         EQERROR << "Can't exit client" << std::endl;
     }
-	
-    client->exitLocal();	
+
+    client->exitLocal();
     client = 0;
-	
+
     eq::exit();
-    return EXIT_SUCCESS;	
+    return EXIT_SUCCESS;
 }

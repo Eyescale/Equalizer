@@ -35,32 +35,32 @@
 
 namespace eqNbody
 {
-SharedData::SharedData(Config *cfg) : _cfg(cfg)
+SharedData::SharedData( Config *cfg ) : _cfg( cfg )
 {
-    EQASSERT(_cfg);
+    EQASSERT( _cfg );
 }
     
 SharedData::~SharedData()
 {
-    if(_cfg)
-    {
+    if( _cfg )
         _cfg = 0;
-    }
 }
             
 void SharedData::registerMemory( const eq::Range& range )
 {       
     // Initialise the local proxy
     unsigned int offset = range.start * _frameData.getNumBodies() * 4;
-    unsigned int numBytes = (range.end - range.start) *
-        _frameData.getNumBytes(); 
+    unsigned int numBytes = ( range.end - range.start ) *
+                            _frameData.getNumBytes(); 
     SharedDataProxy *shMem = new SharedDataProxy();
     _proxies.push_back( shMem );
-        
+    
     // Register the proxy object
     _cfg->registerObject( shMem );
+
     shMem->init( offset, numBytes, _frameData.getPos(), _frameData.getVel(),
-                 _frameData.getCol() );     
+         _frameData.getCol() );     
+
     const eq::uint128_t version = shMem->commit(); 
         
     // Let the app know which range is covered by this proxy

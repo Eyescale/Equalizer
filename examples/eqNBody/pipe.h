@@ -35,14 +35,14 @@
 #include "sharedData.h"
 
 namespace eqNbody
-{	
+{
     class Pipe : public eq::Pipe
     {
     public:
         Pipe( eq::Node* parent );
 
         SharedData& getSharedData() { return *_data; }
-		
+
     protected:
         virtual ~Pipe() {}
 
@@ -53,7 +53,7 @@ namespace eqNbody
                                  const uint32_t frameNumber );
 
     private:
-		SharedData *_data;
+        SharedData *_data;
     };
 }
 

@@ -28,40 +28,40 @@ namespace eq
 class UIFactory
 {
 public:
-	static bool supports( eq::WindowSystem type );
+    static bool supports( eq::WindowSystem type );
 
-	static SystemWindow* createSystemWindow( eq::WindowSystem type,
+    static SystemWindow* createSystemWindow( eq::WindowSystem type,
                                              eq::Window* window );
 
-	static SystemPipe* createSystemPipe( eq::WindowSystem type, eq::Pipe* pipe);
+    static SystemPipe* createSystemPipe( eq::WindowSystem type, eq::Pipe* pipe);
 
-	static MessagePump* createMessagePump( eq::WindowSystem type );
+    static MessagePump* createMessagePump( eq::WindowSystem type );
 
-	static void configInit( eq::Node* node );
-	static void configExit( eq::Node* node );
+    static void configInit( eq::Node* node );
+    static void configExit( eq::Node* node );
 
 protected:
-	UIFactory( eq::WindowSystem type );
-	virtual ~UIFactory() {}
+    UIFactory( eq::WindowSystem type );
+    virtual ~UIFactory() {}
 
 private:
-	virtual eq::SystemWindow* _createSystemWindow(eq::Window* window) const = 0;
+    virtual eq::SystemWindow* _createSystemWindow(eq::Window* window) const = 0;
 
-	virtual eq::SystemPipe* _createSystemPipe(eq::Pipe* pipe) const = 0;
+    virtual eq::SystemPipe* _createSystemPipe(eq::Pipe* pipe) const = 0;
 
-	virtual eq::MessagePump* _createMessagePump() const = 0;
+    virtual eq::MessagePump* _createMessagePump() const = 0;
 
-	virtual void _configInit(eq::Node* node) const {}
-	virtual void _configExit(eq::Node* node) const {}
+    virtual void _configInit(eq::Node* node) const {}
+    virtual void _configExit(eq::Node* node) const {}
 
 private:
-	eq::WindowSystem _type;
-	UIFactory* _next;
+    eq::WindowSystem _type;
+    UIFactory* _next;
 };
 
 template<  eq::WindowSystem WindowSystem > struct UIFactoryImpl: UIFactory
 {
-	UIFactoryImpl() : UIFactory( WindowSystem ) {}
+    UIFactoryImpl() : UIFactory( WindowSystem ) {}
 };
 
 } // namespace eq

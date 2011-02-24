@@ -36,69 +36,69 @@ UIFactory::UIFactory( eq::WindowSystem type )
 eq::SystemWindow* UIFactory::createSystemWindow( eq::WindowSystem type,
                                                  eq::Window* window )
 {
-	for (UIFactory* factory = _stack; factory; factory = factory->_next)
-	{
-		if (factory->_type == type)
-			return factory->_createSystemWindow(window);
-	}
+    for (UIFactory* factory = _stack; factory; factory = factory->_next)
+    {
+        if (factory->_type == type)
+            return factory->_createSystemWindow(window);
+    }
 
-	//EQUNREACHABLE;
-	assert(!"unreachable");
-	return 0;
+    //EQUNREACHABLE;
+    assert(!"unreachable");
+    return 0;
 }
 
 eq::SystemPipe* UIFactory::createSystemPipe( eq::WindowSystem type,
                                              eq::Pipe* pipe )
 {
-	for (UIFactory* factory = _stack; factory; factory = factory->_next)
-	{
-		if (factory->_type == type)
-			return factory->_createSystemPipe(pipe);
-	}
+    for (UIFactory* factory = _stack; factory; factory = factory->_next)
+    {
+        if (factory->_type == type)
+            return factory->_createSystemPipe(pipe);
+    }
 
-	//EQUNREACHABLE;
-	assert(!"unreachable");
-	return 0;
+    //EQUNREACHABLE;
+    assert(!"unreachable");
+    return 0;
 }
 
 eq::MessagePump* UIFactory::createMessagePump( eq::WindowSystem type )
 {
-	for (UIFactory* factory = _stack; factory; factory = factory->_next)
-	{
-		if (factory->_type == type)
-			return factory->_createMessagePump();
-	}
+    for (UIFactory* factory = _stack; factory; factory = factory->_next)
+    {
+        if (factory->_type == type)
+            return factory->_createMessagePump();
+    }
 
-	//EQUNREACHABLE;
-	assert(!"unreachable");
-	return 0;
+    //EQUNREACHABLE;
+    assert(!"unreachable");
+    return 0;
 }
 
 void UIFactory::configInit( eq::Node* node )
 {
-	for (UIFactory* factory = _stack; factory; factory = factory->_next)
-	{
-		factory->_configInit(node);
-	}
+    for (UIFactory* factory = _stack; factory; factory = factory->_next)
+    {
+        factory->_configInit(node);
+    }
 }
 
 void UIFactory::configExit( eq::Node* node )
 {
-	for (UIFactory* factory = _stack; factory; factory = factory->_next)
-	{
-		factory->_configExit(node);
-	}
+    for (UIFactory* factory = _stack; factory; factory = factory->_next)
+    {
+        factory->_configExit(node);
+    }
 }
 
 bool UIFactory::supports( eq::WindowSystem type )
 {
-	for (UIFactory* factory = _stack; factory; factory = factory->_next)
-	{
-		if (factory->_type == type)
-			return true;
-	}
+    for (UIFactory* factory = _stack; factory; factory = factory->_next)
+    {
+        if (factory->_type == type)
+            return true;
+    }
 
-	return false;
+    return false;
 }
 
 } // namespace eq

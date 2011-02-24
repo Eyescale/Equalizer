@@ -39,42 +39,42 @@
 
 namespace eqNbody
 {
-	class SharedDataProxy;
-	class Config;
-	class Controller;
-	
+    class SharedDataProxy;
+    class Config;
+    class Controller;
+    
     class SharedData
     {
     public:
-		
+        
         SharedData(Config *cfg);
-		virtual ~SharedData();
-								
-		const FrameData& getFrameData() const { return _frameData; }
-		
-		void registerMemory( const eq::Range& range );
-		void mapMemory();
-		void syncMemory();
-		void updateMemory( const eq::Range& range, Controller *controller );
+        virtual ~SharedData();
 
-		float* getPos() { return _frameData.getPos(); }
-		float* getCol() { return _frameData.getCol(); }
-		float* getVel() { return _frameData.getVel(); }
+        const FrameData& getFrameData() const { return _frameData; }
+        
+        void registerMemory( const eq::Range& range );
+        void mapMemory();
+        void syncMemory();
+        void updateMemory( const eq::Range& range, Controller *controller );
 
-		float  getTimeStep() { return _frameData.getTimeStep(); }
-		unsigned int getNumBytes() { return _frameData.getNumBytes(); }
-		
-		bool useStatistics() const { return _frameData.useStatistics(); }
-		
+        float* getPos() { return _frameData.getPos(); }
+        float* getCol() { return _frameData.getCol(); }
+        float* getVel() { return _frameData.getVel(); }
+
+        float  getTimeStep() { return _frameData.getTimeStep(); }
+        unsigned int getNumBytes() { return _frameData.getNumBytes(); }
+        
+        bool useStatistics() const { return _frameData.useStatistics(); }
+        
     protected:
-		
+        
     private:   
-		void _sendEvent( ConfigEvent::Type type, const eq::uint128_t& version,
+        void _sendEvent( ConfigEvent::Type type, const eq::uint128_t& version,
                          const eq::uint128_t& pid, const eq::Range& range);
-		
-		std::vector< SharedDataProxy* >	_proxies;
-		FrameData					_frameData;
-		Config*						_cfg;
+        
+        std::vector< SharedDataProxy* >    _proxies;
+        FrameData                    _frameData;
+        Config*                        _cfg;
     };
 }
 

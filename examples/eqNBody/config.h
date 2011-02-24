@@ -45,33 +45,33 @@ namespace eqNbody
 
         virtual bool init();
         virtual bool exit();
-		
+        
         virtual uint32_t startFrame();
-		
+        
         void setInitData( const InitData& data ) { _initData = data; }
         const InitData& getInitData() const { return _initData; }
-		
-        void mapData( const eq::uint128_t& initDataID );		
+        
+        void mapData( const eq::uint128_t& initDataID );
         void unmapData();
-		
+        
         virtual bool handleEvent( const eq::ConfigEvent* event );
         bool needsRedraw();
-				
+                
     protected:
         virtual ~Config() {}
-		
+        
     private:
-        InitData	_initData;
-        FrameData	_frameData;
-        bool		_redraw;
-				
-		bool _readyToCommit();
-		bool _handleKeyEvent( const eq::KeyEvent& event );
+        InitData    _initData;
+        FrameData   _frameData;
+        bool        _redraw;
+                
+        bool _readyToCommit();
+        bool _handleKeyEvent( const eq::KeyEvent& event );
 
-		void _updateSimulation();
-		void _registerData(const ConfigEvent* event);
-		void _updateData(const ConfigEvent* event);
-        void _deregisterData();						
+        void _updateSimulation();
+        void _registerData(const ConfigEvent* event);
+        void _updateData(const ConfigEvent* event);
+        void _deregisterData();
     };
 }
 

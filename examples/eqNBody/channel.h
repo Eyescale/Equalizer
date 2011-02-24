@@ -34,7 +34,7 @@
 
 namespace eqNbody
 {
-	class Controller;
+    class Controller;
 
     class Channel : public eq::Channel
     {
@@ -44,14 +44,14 @@ namespace eqNbody
     protected:
         virtual ~Channel();
 
-		virtual bool configInit( const eq::uint128_t& initID );
+        virtual bool configInit( const eq::uint128_t& initID );
         virtual void frameDraw( const eq::uint128_t& frameID );
 
-	private:		
-		Controller*     _controller;	
+    private:
+        Controller*     _controller;
 
-		bool			_registerMem;
-		bool			_mapMem;
+        bool _registerMem;
+        bool _mapMem;
     };
 }
 

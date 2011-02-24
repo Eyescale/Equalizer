@@ -35,16 +35,16 @@
 using namespace std;
 
 namespace eqNbody
-{						
-	void Window::swapBuffers()
-	{
-		Pipe* pipe = static_cast<Pipe*>( getPipe() );
-		const SharedData& sharedData = pipe->getSharedData();
-		const eq::Channels& channels = getChannels();
-		
-		if( sharedData.useStatistics() && !channels.empty( ))
-			EQ_GL_CALL( channels.back()->drawStatistics( ));
-		
-		eq::Window::swapBuffers();
-	}		
+{
+    void Window::swapBuffers()
+    {
+        Pipe* pipe = static_cast<Pipe*>( getPipe() );
+        const SharedData& sharedData = pipe->getSharedData();
+        const eq::Channels& channels = getChannels();
+        
+        if( sharedData.useStatistics() && !channels.empty( ))
+            EQ_GL_CALL( channels.back()->drawStatistics( ));
+        
+        eq::Window::swapBuffers();
+    }
 }
