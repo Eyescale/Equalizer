@@ -837,6 +837,12 @@ void LocalNode::_handleDisconnect()
             node->_state    = STATE_CLOSED;
             node->_outgoing = 0;
 
+            if( node->_outMulticast.data.isValid( ) )
+                _removeConnection( node->_outMulticast.data );
+
+            node->_outMulticast = 0;
+            node->_multicasts.clear();
+
             EQINFO << node << " disconnected from " << this << std::endl;
             base::ScopedMutex< base::SpinLock > mutex( _nodes );
             _nodes->erase( node->_id );

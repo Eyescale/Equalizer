@@ -132,10 +132,12 @@ void RSPConnection::close()
 
 void RSPConnection::_close()
 {
+    base::ScopedMutex<> mutex( _mutexEvent );
+
     if( _state == STATE_CLOSED )
         return;
+
     _state = STATE_CLOSING;
-    base::ScopedMutex<> mutex( _mutexEvent );
  
     if( _thread )
     {
@@ -144,7 +146,8 @@ void RSPConnection::_close()
         _ioService.stop();
         _thread->join();
         _thread = 0;
-        
+    
+        // notify children to close
         for( RSPConnections::iterator i = _children.begin();
              i != _children.end(); ++i )
         {

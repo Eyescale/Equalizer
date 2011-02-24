@@ -1,9 +1,9 @@
-- Minor cleanup
+fix bug : 3183597  Multicast / RSP assertions on exit  
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
