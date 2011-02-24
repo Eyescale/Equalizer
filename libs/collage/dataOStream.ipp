@@ -20,8 +20,8 @@
 namespace co
 {
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-extern base::a_int32_t nBytesSaved;
-extern base::a_int32_t nBytesSent;
+CO_API extern base::a_int32_t nBytesSaved;
+CO_API extern base::a_int32_t nBytesSent;
 #endif
 
     template< typename P >
@@ -34,7 +34,7 @@ extern base::a_int32_t nBytesSent;
             return;
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-        nBytesSent += (size * _connections.size( ));
+        nBytesSent += (size * long(_connections.size( )));
 #endif
         packet.dataSize = size;
         packet.last = last;
@@ -63,7 +63,7 @@ extern base::a_int32_t nBytesSent;
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
         const uint64_t compressedSize = _getCompressedData( chunks, chunkSizes);
-        nBytesSaved += ((size - compressedSize) * _connections.size( ));
+        nBytesSaved += ((size - compressedSize) * long(_connections.size( )));
 #else
         _getCompressedData( chunks, chunkSizes);
 #endif

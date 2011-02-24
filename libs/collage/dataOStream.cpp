@@ -38,8 +38,8 @@ namespace co
 base::a_int32_t nBytes;
 base::a_int32_t nBytesIn;
 base::a_int32_t nBytesOut;
-base::a_int32_t nBytesSaved;
-base::a_int32_t nBytesSent;
+CO_API base::a_int32_t nBytesSaved;
+CO_API base::a_int32_t nBytesSent;
 base::a_int32_t compressionTime;
 #endif
 
@@ -269,12 +269,12 @@ void DataOStream::_compress( void* src, const uint64_t size,
     uint64_t compressedSize = 0;
     EQASSERT( nChunks > 0 );
 
-    for( size_t i = 0; i < nChunks; ++i )
+    for( uint32_t i = 0; i < nChunks; ++i )
     {
         void* chunk;
         uint64_t chunkSize;
 
-        _compressor->getResult(  i, &chunk, &chunkSize );
+        _compressor->getResult( i, &chunk, &chunkSize );
         compressedSize += chunkSize;
     }
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
