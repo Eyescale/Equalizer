@@ -325,7 +325,7 @@ std::ostream& operator << ( std::ostream& os,
 {
     os << "DataOStream "
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-       << "compressed " << nBytesIn << " -> " << nBytesOut << " of " << nBytesIn
+       << "compressed " << nBytesIn << " -> " << nBytesOut << " of " << nBytes
        << " in " << compressionTime/1000 << "ms, saved " << nBytesSaved
        << " of " << nBytesSent << " brutto sent";
 

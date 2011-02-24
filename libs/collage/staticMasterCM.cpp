@@ -45,18 +45,19 @@ uint128_t StaticMasterCM::addSlave( Command& command )
         command.getPacket<NodeMapObjectPacket>();
     const uint32_t instanceID = packet->instanceID;
     const uint128_t version = packet->requestedVersion;
-    EQASSERT( version == VERSION_OLDEST || version == VERSION_NONE );
+    EQASSERT( version == VERSION_OLDEST || version == VERSION_FIRST ||
+              version == VERSION_NONE );
 
     const bool useCache = packet->masterInstanceID == _object->getInstanceID();
 
     if( useCache &&
-        packet->minCachedVersion == VERSION_NONE && 
-        packet->maxCachedVersion == VERSION_NONE )
+        packet->minCachedVersion == VERSION_FIRST && 
+        packet->maxCachedVersion == VERSION_FIRST )
     {
 #ifdef EQ_INSTRUMENT_MULTICAST
         ++_hit;
 #endif
-        return VERSION_NONE;
+        return VERSION_FIRST;
     }
 
 #ifdef EQ_INSTRUMENT_MULTICAST
@@ -68,7 +69,7 @@ uint128_t StaticMasterCM::addSlave( Command& command )
         // send instance data
         ObjectInstanceDataOStream os( this );
 
-        os.enableMap( VERSION_NONE, node, instanceID );
+        os.enableMap( VERSION_FIRST, node, instanceID );
         _object->getInstanceData( os );
         os.disable();
         EQASSERTINFO( os.hasSentData(),
@@ -82,6 +83,7 @@ uint128_t StaticMasterCM::addSlave( Command& command )
     ObjectInstancePacket instancePacket;
     instancePacket.type = PACKETTYPE_CO_OBJECT;
     instancePacket.command = CMD_OBJECT_INSTANCE;
+    instancePacket.version = VERSION_FIRST;
     instancePacket.last = true;
     instancePacket.instanceID = instanceID;
     instancePacket.masterInstanceID = _object->getInstanceID();

@@ -220,7 +220,7 @@ namespace eq
          */
         EQ_API virtual bool mapObject( co::Object* object,
                                        const co::base::UUID& id, 
-                               const uint128_t& version = co::VERSION_OLDEST );
+                                const uint128_t& version = co::VERSION_OLDEST );
 
 
         /** Start mapping a distributed object. @version 1.0 */

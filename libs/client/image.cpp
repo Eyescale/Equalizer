@@ -598,7 +598,7 @@ void Image::validatePixelData( const Frame::Buffer buffer )
 
 void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
 {
-    Memory& memory   = _getMemory( buffer );
+    Memory& memory = _getMemory( buffer );
     memory.externalFormat = pixels.externalFormat;
     memory.internalFormat = pixels.internalFormat;
     memory.pixelSize = pixels.pixelSize;

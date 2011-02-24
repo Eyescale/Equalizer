@@ -50,10 +50,11 @@ StaticSlaveCM::~StaticSlaveCM()
 void StaticSlaveCM::applyMapData( const uint128_t& version )
 {
     EQASSERT( _currentIStream );
-    EQASSERT( version == VERSION_NONE );
+    EQASSERT( version == VERSION_FIRST );
     _currentIStream->waitReady();
 
     EQASSERT( _object );
+    EQASSERT( _currentIStream->getVersion() == VERSION_FIRST );
     EQASSERT( _currentIStream->hasInstanceData( ));
     _object->applyInstanceData( *_currentIStream );
     EQASSERTINFO( _currentIStream->getRemainingBufferSize() == 0 &&
@@ -81,9 +82,9 @@ void StaticSlaveCM::addInstanceDatas(
     ObjectDataIStream* stream = cache.front();
     EQASSERT( stream );
     EQASSERT( stream->isReady( ));
-    EQASSERT( stream->getVersion() == VERSION_NONE );
+    EQASSERT( stream->getVersion() == VERSION_FIRST );
 
-    if( !stream->isReady() || stream->getVersion() != VERSION_NONE )
+    if( !stream->isReady() || stream->getVersion() != VERSION_FIRST )
         return;
 
     EQLOG( LOG_OBJECTS ) << "Adding cached instance data" << std::endl;

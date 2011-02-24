@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,6 +20,7 @@
 
 #include <co/types.h>
 #include <co/api.h>
+
 namespace co
 {
 /** Special object version values */
@@ -29,7 +30,6 @@ extern CO_API const uint128_t VERSION_NEXT;
 extern CO_API const uint128_t VERSION_INVALID;
 extern CO_API const uint128_t VERSION_OLDEST;
 extern CO_API const uint128_t VERSION_HEAD;
-
 }
 
 #endif // CO_VERSION_H

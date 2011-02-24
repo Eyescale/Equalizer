@@ -64,8 +64,7 @@ uint128_t UnbufferedMasterCM::addSlave( Command& command )
     const uint128_t version = packet->requestedVersion;
     const uint32_t instanceID = packet->instanceID;
 
-    EQASSERT( ( version == VERSION_OLDEST ) || 
-              ( version == VERSION_NONE ) ||
+    EQASSERT( ( version == VERSION_OLDEST ) || ( version == VERSION_NONE ) ||
               ( version == _version ) );
 
     // add to subscribers

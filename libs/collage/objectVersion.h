@@ -32,8 +32,8 @@ namespace co
      * A helper struct bundling an object identifier and version.
      *
      * The struct either contains the object's identifier and version (if it is
-     * registered or mapped), EQ_ID_INVALID and VERSION_NONE if it is unmapped
-     * or EQ_ID_NONE and VERSION_NONE if no object was given.
+     * registered or mapped), base::UUID::ZERO and VERSION_NONE if it is
+     * unmapped or if no object was given.
      */
     struct ObjectVersion
     {

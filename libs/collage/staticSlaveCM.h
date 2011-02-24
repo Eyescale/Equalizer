@@ -47,11 +47,11 @@ namespace co
         virtual uint32_t getAutoObsolete() const { EQDONTCALL; return 0; }
 
         virtual uint128_t sync( const uint128_t& )
-            { EQDONTCALL; return VERSION_NONE; }
+            { EQDONTCALL; return VERSION_FIRST; }
 
-        virtual uint128_t getHeadVersion() const { return VERSION_NONE; }
-        virtual uint128_t getVersion() const     { return VERSION_NONE; }
-        virtual uint128_t getOldestVersion() const { return VERSION_NONE; }
+        virtual uint128_t getHeadVersion() const { return VERSION_FIRST; }
+        virtual uint128_t getVersion() const     { return VERSION_FIRST; }
+        virtual uint128_t getOldestVersion() const { return VERSION_FIRST; }
         //@}
 
         virtual bool isMaster() const { return false; }
