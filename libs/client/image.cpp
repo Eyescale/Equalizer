@@ -817,8 +817,13 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     if( memory.isCompressed )
         return memory;
 
-    if( attachment.compressor->isValid( attachment.compressor->getName( )))
-        memory.compressorName = attachment.compressor->getName();
+    const co::base::CPUCompressor* compressor = attachment.compressor;
+
+    if( compressor->isValid( attachment.compressor->getName( )) && 
+        compressor->getInfo().tokenType == getExternalFormat( buffer ) )
+    {
+        memory.compressorName = compressor->getName();
+    }
     else
     {
         memory.compressorName = _chooseCompressor( buffer );

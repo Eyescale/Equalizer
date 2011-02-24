@@ -1,4 +1,4 @@
-fix bug : 3183597  Multicast / RSP assertions on exit  
+fix bug : 3190280  Wrong compressor when switching image format   
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
