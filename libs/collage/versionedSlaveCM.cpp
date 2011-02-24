@@ -114,8 +114,12 @@ uint128_t VersionedSlaveCM::sync( const uint128_t& v )
         _unpackOneVersion( is );
         EQASSERTINFO( _version == is->getVersion(), "Have version " 
                       << _version << " instead of " << is->getVersion( ));
+#ifdef CO_AGGRESSIVE_CACHING
         is->reset();
         _iStreamCache.release( is );
+#else
+        delete is;
+#endif
     }
 
     LocalNodePtr node = _object->getLocalNode();
@@ -137,8 +141,12 @@ void VersionedSlaveCM::_syncToHead()
         _unpackOneVersion( is );
         EQASSERTINFO( _version == is->getVersion(), "Have version " 
                       << _version << " instead of " << is->getVersion( ));
+#ifdef CO_AGGRESSIVE_CACHING
         is->reset();
         _iStreamCache.release( is );
+#else
+        delete is;
+#endif
     }
 
     LocalNodePtr localNode = _object->getLocalNode();
@@ -226,8 +234,12 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
             //    ignore it
             EQASSERTINFO( is->getVersion() > version,
                           is->getVersion() << " <= " << version );
+#ifdef CO_AGGRESSIVE_CACHING
             is->reset();
             _iStreamCache.release( is );
+#else
+            delete is;
+#endif
         }
     }
 }

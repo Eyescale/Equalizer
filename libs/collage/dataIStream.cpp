@@ -130,7 +130,11 @@ const uint8_t* DataIStream::_decompress( const void* data, const uint32_t name,
         return src;
 
     EQASSERT( name > EQ_COMPRESSOR_NONE );
-    _data.resize( dataSize );
+#ifndef CO_AGGRESSIVE_CACHING
+    _data.clear();
+#endif
+    _data.reserve( dataSize );
+    _data.setSize( dataSize );
 
     if ( !_decompressor->isValid( name ) )
         _decompressor->initDecompressor( name );
