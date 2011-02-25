@@ -60,7 +60,8 @@ namespace base
             {
                 if( _maxSize != _size )
                 {
-                    _data = static_cast< T* >( realloc( _data, _size ));
+                    _data = static_cast< T* >( realloc( _data,
+                                                        _size * sizeof( T )));
                     _maxSize = _size;
                 }
                 return _data;
