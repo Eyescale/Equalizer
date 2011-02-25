@@ -94,14 +94,13 @@ uint128_t VersionedSlaveCM::sync( const uint128_t& v )
     if( _version == v )
         return _version;
 
-    const uint128_t version = ( v == VERSION_NEXT ) ? _version + 1 : v;
-
-    if( version == VERSION_HEAD )
+    if( v == VERSION_HEAD )
     {
         _syncToHead();
         return _version;
     }
 
+    const uint128_t version = ( v == VERSION_NEXT ) ? _version + 1 : v;
     EQASSERTINFO( version.high() == 0, "Not a master version: " << version )
     EQASSERTINFO( _version <= version,
                   "can't sync to older version of object " << 
@@ -109,18 +108,7 @@ uint128_t VersionedSlaveCM::sync( const uint128_t& v )
                   " (" << _version << ", " << version <<")" );
 
     while( _version < version )
-    {
-        ObjectDataIStream* is = _queuedVersions.pop();
-        _unpackOneVersion( is );
-        EQASSERTINFO( _version == is->getVersion(), "Have version " 
-                      << _version << " instead of " << is->getVersion( ));
-#ifdef CO_AGGRESSIVE_CACHING
-        is->reset();
-        _iStreamCache.release( is );
-#else
-        delete is;
-#endif
-    }
+        _unpackOneVersion( _queuedVersions.pop( ));
 
     LocalNodePtr node = _object->getLocalNode();
     if( node.isValid( ))
@@ -136,18 +124,7 @@ void VersionedSlaveCM::_syncToHead()
 
     ObjectDataIStream* is = 0;
     while( _queuedVersions.tryPop( is ))
-    {
-        EQASSERT( is );
         _unpackOneVersion( is );
-        EQASSERTINFO( _version == is->getVersion(), "Have version " 
-                      << _version << " instead of " << is->getVersion( ));
-#ifdef CO_AGGRESSIVE_CACHING
-        is->reset();
-        _iStreamCache.release( is );
-#else
-        delete is;
-#endif
-    }
 
     LocalNodePtr localNode = _object->getLocalNode();
     if( localNode.isValid( ))
@@ -179,17 +156,24 @@ void VersionedSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
         _object->unpack( *is );
 
     _version = is->getVersion();
+
     EQASSERT( _version != VERSION_INVALID );
     EQASSERT( _version != VERSION_NONE );
+    EQASSERTINFO( is->getRemainingBufferSize()==0 && is->nRemainingBuffers()==0,
+                  "Object " << typeid( *_object ).name() <<
+                  " did not unpack all data" );
+
 #if 0
     EQLOG( LOG_OBJECTS ) << "applied v" << _version << ", id "
                          << _object->getID() << "." << _object->getInstanceID()
                          << std::endl;
 #endif
-
-    EQASSERTINFO( is->getRemainingBufferSize()==0 && is->nRemainingBuffers()==0,
-                  "Object " << typeid( *_object ).name() <<
-                  " did not unpack all data" );
+#ifdef CO_AGGRESSIVE_CACHING
+    is->reset();
+    _iStreamCache.release( is );
+#else
+    delete is;
+#endif
 }
 
 
@@ -213,8 +197,12 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
                           is->getRemainingBufferSize() << " bytes, " <<
                           is->nRemainingBuffers() << " buffer(s)" );
 
+#ifdef CO_AGGRESSIVE_CACHING
             is->reset();
             _iStreamCache.release( is );
+#else
+            delete is;
+#endif
 #if 0
             EQLOG( LOG_OBJECTS ) << "Mapped initial data of " << _object
                                  << std::endl;
