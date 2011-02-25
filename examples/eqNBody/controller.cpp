@@ -39,8 +39,8 @@
 namespace eqNbody
 {
 Controller::Controller( const GLEWContext* const glewContext ) 
-    : _glewContext( glewContext )
-    , _renderer( glewContext )
+    : _renderer( glewContext )
+    , _glewContext( glewContext )
     , _numBodies( 0 )
     , _p( 0 )
     , _q( 0 )
