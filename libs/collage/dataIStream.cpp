@@ -133,8 +133,7 @@ const uint8_t* DataIStream::_decompress( const void* data, const uint32_t name,
 #ifndef CO_AGGRESSIVE_CACHING
     _data.clear();
 #endif
-    _data.reserve( dataSize );
-    _data.setSize( dataSize );
+    _data.reset( dataSize );
 
     if ( !_decompressor->isValid( name ) )
         _decompressor->initDecompressor( name );

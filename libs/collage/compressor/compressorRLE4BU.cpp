@@ -123,6 +123,9 @@ void CompressorRLE4BU::compress( const void* const inData,
         const uint64_t cSize = _compress( &data[ startIndex ],
                                           endIndex-startIndex, out );
         _results[i]->setSize( cSize );
+#ifndef CO_AGGRESSIVE_CACHING
+        _results[i]->pack();
+#endif
     }
 }
 

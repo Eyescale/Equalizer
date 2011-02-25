@@ -59,6 +59,9 @@ inline void _compressChunk( const T* const in, const eq_uint64_t nPixels,
     WRITE_OUTPUT( token );
     result->setSize( (tokenOut - reinterpret_cast< T* >( result->getData( ))) *
                      sizeof( T ));
+#ifndef CO_AGGRESSIVE_CACHING
+    result->pack();
+#endif
 }
 
 template< typename T > 

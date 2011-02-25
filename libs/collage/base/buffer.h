@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -50,6 +50,21 @@ namespace base
         /** Flush the buffer, deleting all data. @version 1.0 */
         void clear() 
             { if( _data ) free( _data ); _data=0; _size=0; _maxSize=0; }
+
+        /**
+         * Tighten the allocated memory to the size of the buffer.
+         * @return the new pointer to the first element.
+         * @version 1.0
+         */
+        T* pack()
+            {
+                if( _maxSize != _size )
+                {
+                    _data = static_cast< T* >( realloc( _data, _size ));
+                    _maxSize = _size;
+                }
+                return _data;
+            }
 
         /** Copy constructor, transfers ownership to new Buffer. @version 1.0 */
         Buffer( Buffer& from )
@@ -112,7 +127,7 @@ namespace base
          * @version 1.0
          */
         T* reserve( const uint64_t newSize )
-            { 
+            {
                 if( newSize <= _maxSize )
                     return _data;
 
@@ -121,6 +136,20 @@ namespace base
                 
                 _data = static_cast< T* >( malloc( newSize * sizeof( T )));
                 _maxSize = newSize;
+                return _data;
+            }
+
+        /** 
+         * Set the buffer size and malloc enough memory.
+         *
+         * Existing data may be deleted.
+         * @return the new pointer to the first element.
+         * @version 1.0
+         */
+        T* reset( const uint64_t newSize )
+            {
+                reserve( newSize );
+                setSize( newSize );
                 return _data;
             }
 

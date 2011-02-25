@@ -184,6 +184,12 @@ static inline void _compress( const void* const input, const uint64_t nPixels,
                          results[2]->getData( ));
     results[3]->setSize( reinterpret_cast< uint8_t* >( fourOut )  -
                          results[3]->getData( ));
+#ifndef CO_AGGRESSIVE_CACHING
+    results[0]->pack();
+    results[1]->pack();
+    results[2]->pack();
+    results[3]->pack();
+#endif
 }
 
 #define READ( name )                                        \
@@ -302,7 +308,7 @@ static unsigned _setupResults( const unsigned nChannels,
     // the worst case scenario is input made of tupels of 'rle marker, data'
     const eq_uint64_t maxChunkSize = (inSize/nChunks + 1) * 2;
     for( size_t i = 0; i < nChunks; ++i )
-        results[i]->resize( maxChunkSize );
+        results[i]->reserve( maxChunkSize );
 
     EQVERB << "Compressing " << inSize << " bytes in " << nChunks << " chunks"
            << std::endl;
