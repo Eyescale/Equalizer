@@ -198,6 +198,7 @@ void DataOStream::write( const void* data, uint64_t size )
 {
     EQASSERT( _enabled );
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
+    nBytes += size;
     if( compressionTime > 100000 )
         EQWARN << *this << std::endl;
 #endif    
