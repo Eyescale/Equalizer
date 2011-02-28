@@ -8,7 +8,7 @@ includedir=${prefix}/include
 Name: Equalizer
 Description: Framework to create and deploy parallel OpenGL-based applications
 Version: @VERSION@
-Requires:
+Requires: Collage
 Conflicts:
 Libs: -L${libdir} -lEqualizer
 Cflags: -I${includedir}

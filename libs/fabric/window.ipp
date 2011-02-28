@@ -98,7 +98,6 @@ void Window< P, W, C >::attach( const co::base::UUID& id,
                                 const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
-
     co::CommandQueue* queue = _pipe->getMainThreadQueue();
     EQASSERT( queue );
 
