@@ -24,6 +24,7 @@
 
 #ifndef _WIN32
 #  include <cxxabi.h>
+#  include <stdlib.h>
 #endif
 
 // assertions
