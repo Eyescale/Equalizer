@@ -18,6 +18,8 @@
 #include "eventConnection.h"
 #include "pipeConnection.h"
 
+#include <co/base/scopedMutex.h>
+
 namespace co
 {
 EventConnection::EventConnection()
