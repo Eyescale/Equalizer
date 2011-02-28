@@ -4,7 +4,7 @@
 #info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
 set(CPACK_PACKAGE_NAME "Equalizer")
-set(CPACK_PACKAGE_VENDOR "Eyescale")
+set(CPACK_PACKAGE_VENDOR "http://www.eyescale.ch")
 set(CPACK_PACKAGE_CONTACT "Stefan Eilemann <eile@eyescale.ch>")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Parallel Rendering Framework")
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${Equalizer_SOURCE_DIR}/RELNOTES.txt)
@@ -64,8 +64,8 @@ if(NOT CPACK_DEBIAN_PACKAGE_MAINTAINER)
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
   set(DPUT_HOST "ppa:eilemann/equalizer")
 endif()
-set(CPACK_DEBIAN_BUILD_DEPENDS bison flex)
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libstdc++6, libboost-system, libx11-dev")
+set(CPACK_DEBIAN_BUILD_DEPENDS bison flex libgl1-mesa-dev)
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libboost-system, libx11-dev, libgl1-mesa-dev")
 
 set(CPACK_OSX_PACKAGE_VERSION "10.5")
 
@@ -84,5 +84,5 @@ endif(LINUX)
 
 include(InstallRequiredSystemLibraries)
 include(CPack)
-# include(UploadPPA)
+#include(UploadPPA)
 
