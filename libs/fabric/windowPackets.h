@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -30,7 +30,7 @@ namespace fabric
     {
         WindowNewChannelPacket()
             {
-                command = fabric::CMD_WINDOW_NEW_CHANNEL;
+                command = CMD_WINDOW_NEW_CHANNEL;
                 size    = sizeof( WindowNewChannelPacket );
             }
 
@@ -42,7 +42,7 @@ namespace fabric
         WindowNewChannelReplyPacket( const WindowNewChannelPacket* request )
                 : requestID( request->requestID )
             {
-                command = fabric::CMD_WINDOW_NEW_CHANNEL_REPLY;
+                command = CMD_WINDOW_NEW_CHANNEL_REPLY;
                 size    = sizeof( WindowNewChannelReplyPacket );
             }
 

@@ -93,7 +93,7 @@ namespace fabric
          * @param vp the fractional viewport.
          * @version 1.0
          */
-        EQFABRIC_INL void setViewport( const eq::fabric::Viewport& vp );
+        EQFABRIC_INL void setViewport( const Viewport& vp );
 
         /** @return true if a viewport was specified last. @version 1.0 */
         bool hasFixedViewport( ) const { return _data.fixedVP; }

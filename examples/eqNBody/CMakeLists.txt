@@ -2,7 +2,7 @@
 #               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 
 if(NOT CUDA_FOUND)
-  message(STATUS "Skipping 'eqNBody' example (CUDA not found)")
+  message(STATUS "Skipping 'eqNBody' example (CUDA not found or enabled)")
   return()
 endif()
 

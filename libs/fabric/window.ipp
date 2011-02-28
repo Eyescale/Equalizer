@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -102,10 +102,10 @@ void Window< P, W, C >::attach( const co::base::UUID& id,
     co::CommandQueue* queue = _pipe->getMainThreadQueue();
     EQASSERT( queue );
 
-    registerCommand( fabric::CMD_WINDOW_NEW_CHANNEL, 
+    registerCommand( CMD_WINDOW_NEW_CHANNEL, 
                      CmdFunc( this, &Window< P, W, C >::_cmdNewChannel ),
                      queue );
-    registerCommand( fabric::CMD_WINDOW_NEW_CHANNEL_REPLY, 
+    registerCommand( CMD_WINDOW_NEW_CHANNEL_REPLY, 
                      CmdFunc( this, &Window< P, W, C >::_cmdNewChannelReply ),
                      0 );
 }

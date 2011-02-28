@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -65,9 +65,9 @@ void Layout< C, L, V >::attach( const co::base::UUID& id,
     co::CommandQueue* queue = _config->getMainThreadQueue();
     EQASSERT( queue );
 
-    registerCommand( fabric::CMD_LAYOUT_NEW_VIEW,
+    registerCommand( CMD_LAYOUT_NEW_VIEW,
                      CmdFunc( this, &Layout< C, L, V >::_cmdNewView ), queue );
-    registerCommand( fabric::CMD_LAYOUT_NEW_VIEW_REPLY, 
+    registerCommand( CMD_LAYOUT_NEW_VIEW_REPLY, 
                      CmdFunc( this, &Layout< C, L, V >::_cmdNewViewReply ), 0 );
 }
 

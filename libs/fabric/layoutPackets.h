@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -30,7 +30,7 @@ namespace fabric
     {
         LayoutNewViewPacket()
             {
-                command = fabric::CMD_LAYOUT_NEW_VIEW;
+                command = CMD_LAYOUT_NEW_VIEW;
                 size    = sizeof( LayoutNewViewPacket );
             }
 
@@ -42,7 +42,7 @@ namespace fabric
         LayoutNewViewReplyPacket( const LayoutNewViewPacket* request )
                 : requestID( request->requestID )
             {
-                command = fabric::CMD_LAYOUT_NEW_VIEW_REPLY;
+                command = CMD_LAYOUT_NEW_VIEW_REPLY;
                 size    = sizeof( LayoutNewViewReplyPacket );
             }
 

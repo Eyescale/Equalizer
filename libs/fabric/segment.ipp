@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch>
+ *               2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -239,11 +239,11 @@ std::ostream& operator << ( std::ostream& os, const Segment< C, S, CH >& s )
     if( eyes != EYES_ALL )
     {
         os << "eye      [ ";
-        if( eyes & fabric::EYE_CYCLOP )
+        if( eyes & EYE_CYCLOP )
             os << "CYCLOP ";
-        if( eyes & fabric::EYE_LEFT )
+        if( eyes & EYE_LEFT )
             os << "LEFT ";
-        if( eyes & fabric::EYE_RIGHT )
+        if( eyes & EYE_RIGHT )
             os << "RIGHT ";
         os << "]" << std::endl;
     }

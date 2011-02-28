@@ -104,16 +104,16 @@ void Config< S, C, O, L, CV, N, V >::attach( const co::base::UUID& id,
     co::CommandQueue* queue = _server->getMainThreadQueue();
     EQASSERT( queue );
 
-    registerCommand( fabric::CMD_CONFIG_NEW_LAYOUT, 
+    registerCommand( CMD_CONFIG_NEW_LAYOUT, 
                 CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewLayout ),
                      queue );
-    registerCommand( fabric::CMD_CONFIG_NEW_CANVAS, 
+    registerCommand( CMD_CONFIG_NEW_CANVAS, 
                 CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewCanvas ),
                      queue);
-    registerCommand( fabric::CMD_CONFIG_NEW_OBSERVER, 
+    registerCommand( CMD_CONFIG_NEW_OBSERVER, 
               CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewObserver ),
                      queue);
-    registerCommand( fabric::CMD_CONFIG_NEW_ENTITY_REPLY, 
+    registerCommand( CMD_CONFIG_NEW_ENTITY_REPLY, 
            CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply ),
                      0);
 }

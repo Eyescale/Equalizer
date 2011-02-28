@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -30,7 +30,7 @@ namespace fabric
     {
         CanvasNewSegmentPacket()
             {
-                command = fabric::CMD_CANVAS_NEW_SEGMENT;
+                command = CMD_CANVAS_NEW_SEGMENT;
                 size    = sizeof( CanvasNewSegmentPacket );
             }
 
@@ -42,7 +42,7 @@ namespace fabric
         CanvasNewSegmentReplyPacket( const CanvasNewSegmentPacket* request )
                 : requestID( request->requestID )
             {
-                command = fabric::CMD_CANVAS_NEW_SEGMENT_REPLY;
+                command = CMD_CANVAS_NEW_SEGMENT_REPLY;
                 size    = sizeof( CanvasNewSegmentReplyPacket );
             }
 

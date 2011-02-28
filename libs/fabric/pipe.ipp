@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -93,10 +93,10 @@ void Pipe< N, P, W, V >::attach( const co::base::UUID& id,
     co::CommandQueue* queue = _node->getConfig()->getMainThreadQueue();
     EQASSERT( queue );
 
-    registerCommand( fabric::CMD_PIPE_NEW_WINDOW, 
+    registerCommand( CMD_PIPE_NEW_WINDOW, 
                      CmdFunc( this, &Pipe< N, P, W, V >::_cmdNewWindow ),
                      queue );
-    registerCommand( fabric::CMD_PIPE_NEW_WINDOW_REPLY, 
+    registerCommand( CMD_PIPE_NEW_WINDOW_REPLY, 
                      CmdFunc( this, &Pipe< N, P, W, V >::_cmdNewWindowReply ),
                      0 );
 }

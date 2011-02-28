@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -44,7 +44,7 @@ namespace fabric
     {
         ConfigNewLayoutPacket()
             {
-                command = fabric::CMD_CONFIG_NEW_LAYOUT;
+                command = CMD_CONFIG_NEW_LAYOUT;
                 size    = sizeof( ConfigNewLayoutPacket );
             }
 
@@ -55,7 +55,7 @@ namespace fabric
     {
         ConfigNewCanvasPacket()
             {
-                command = fabric::CMD_CONFIG_NEW_CANVAS;
+                command = CMD_CONFIG_NEW_CANVAS;
                 size    = sizeof( ConfigNewCanvasPacket );
             }
 
@@ -66,7 +66,7 @@ namespace fabric
     {
         ConfigNewObserverPacket()
             {
-                command = fabric::CMD_CONFIG_NEW_OBSERVER;
+                command = CMD_CONFIG_NEW_OBSERVER;
                 size    = sizeof( ConfigNewObserverPacket );
             }
 
@@ -83,7 +83,7 @@ namespace fabric
                 : requestID( request->requestID ) { init(); }
         void init()
             {
-                command = fabric::CMD_CONFIG_NEW_ENTITY_REPLY;
+                command = CMD_CONFIG_NEW_ENTITY_REPLY;
                 size    = sizeof( ConfigNewEntityReplyPacket );
             }
 

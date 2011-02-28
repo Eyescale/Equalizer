@@ -85,10 +85,10 @@ void Canvas< CFG, C, S, L >::attach( const co::base::UUID& id,
     co::CommandQueue* queue = _config->getMainThreadQueue();
     EQASSERT( queue );
 
-    registerCommand( fabric::CMD_CANVAS_NEW_SEGMENT, 
+    registerCommand( CMD_CANVAS_NEW_SEGMENT, 
                      CmdFunc( this, &Canvas< CFG, C, S, L >::_cmdNewSegment ),
                      queue );
-    registerCommand( fabric::CMD_CANVAS_NEW_SEGMENT_REPLY, 
+    registerCommand( CMD_CANVAS_NEW_SEGMENT_REPLY, 
                   CmdFunc( this, &Canvas< CFG, C, S, L >::_cmdNewSegmentReply ),
                      0 );
 }

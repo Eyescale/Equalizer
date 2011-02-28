@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -30,7 +30,7 @@ namespace fabric
     {
         PipeNewWindowPacket()
             {
-                command = fabric::CMD_PIPE_NEW_WINDOW;
+                command = CMD_PIPE_NEW_WINDOW;
                 size    = sizeof( PipeNewWindowPacket );
             }
 
@@ -42,7 +42,7 @@ namespace fabric
         PipeNewWindowReplyPacket( const PipeNewWindowPacket* request )
                 : requestID( request->requestID )
             {
-                command = fabric::CMD_PIPE_NEW_WINDOW_REPLY;
+                command = CMD_PIPE_NEW_WINDOW_REPLY;
                 size    = sizeof( PipeNewWindowReplyPacket );
             }
 
