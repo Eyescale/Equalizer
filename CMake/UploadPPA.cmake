@@ -102,7 +102,7 @@ file(WRITE ${DEBIAN_RULES}
   "BUILDDIR = build_dir\n"
   "\n"
   "build:\n"
-  "	mkdir -f $(BUILDDIR)\n"
+  "	mkdir -p $(BUILDDIR)\n"
   "	cd $(BUILDDIR); cmake ..\n"
   "	make -C $(BUILDDIR) preinstall\n"
   "	touch build\n"
@@ -113,7 +113,7 @@ file(WRITE ${DEBIAN_RULES}
   "\n"
   "binary-arch: build\n"
   "	cd $(BUILDDIR); cmake -DCOMPONENT=Unspecified -DCMAKE_INSTALL_PREFIX=../debian/tmp/usr -P cmake_install.cmake\n"
-  "	mkdir -f debian/tmp/DEBIAN\n"
+  "	mkdir -p debian/tmp/DEBIAN\n"
   "	dpkg-gencontrol -p${CPACK_DEBIAN_PACKAGE_NAME}\n"
   "	dpkg --build debian/tmp ..\n"
   )
@@ -123,7 +123,7 @@ foreach(COMPONENT ${CPACK_COMPONENTS_ALL})
   set(PACKAGE ${CPACK_DEBIAN_PACKAGE_NAME}-${COMPONENT})
   file(APPEND ${DEBIAN_RULES}
     "	cd $(BUILDDIR); cmake -DCOMPONENT=${COMPONENT} -DCMAKE_INSTALL_PREFIX=../${PATH}/usr -P cmake_install.cmake\n"
-    "	mkdir -f ${PATH}/DEBIAN\n"
+    "	mkdir -p ${PATH}/DEBIAN\n"
     "	dpkg-gencontrol -p${PACKAGE} -P${PATH}\n"
     "	dpkg --build ${PATH} ..\n"
     )
