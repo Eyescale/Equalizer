@@ -1,11 +1,17 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
--------------------------------1.0 alpha-----------------------------------
+--------------------------------1.0 beta-----------------------------------
 
 10/Feb/2011
   Changed GLXWindow implementation to use GLXFBConfigs. Use GLXFBConfigs
   in place of XVisualInfo for the appropriate GLXWindow methods.
+
+14/Jan/2011
+  libEqualizer links libCollage dynamically, not statically.
+  All libraries use correct versioning as mandated by the operating system.
+
+-------------------------------1.0 alpha-----------------------------------
 
 7/Jan/2011
   Rename EVENT_POINTER_* to differantiate channel and window pointer events.

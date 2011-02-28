@@ -32,14 +32,13 @@ scalable OpenGL applications. This release introduces the Collage library,
 support for GPU compression plugins and an administrative API for runtime
 configuration changes.
 
-Equalizer 1.0-alpha is a developer release, representing the full feature set
+Equalizer 1.0-beta is a developer release, representing the full feature set
 and API of Equalizer 1.0. It is intended for application developers to
-provide feedback and preview the 1.0 release. Equalizer 1.0-alpha can be
+provide feedback and preview the 1.0 release. Equalizer 1.0-beta can be
 retrieved by downloading the `source code`_, updating the subversion trunk to
-revision 5385 (``svn up -r 5385``) or by using:
-``svn co
-https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.2``
-The internal version number of this release is 0.9.2.
+revision XXX (``svn up -r XXX``) or by using:
+``svn co https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release
+-1.0-beta`` The internal version number of this release is 0.9.3.
 
 
 1.1. Features
@@ -67,16 +66,14 @@ can be found on the Equalizer website.
 2. New in this release
 ----------------------
 
-Equalizer 1.0-alpha contains the following features, enhancements, bug fixes
+Equalizer 1.0-beta contains the following features, enhancements, bug fixes
 and documentation changes:
 
 
 2.1. New Features
 ~~~~~~~~~~~~~~~~~
 
-1.0-beta (0.9.3):
-
--   `Mouse wheel support`_
+1.0-beta (0.9.3): No new features
 
 1.0-alpha (0.9.2):
 
@@ -110,6 +107,15 @@ and documentation changes:
 2.2. Enhancements
 ~~~~~~~~~~~~~~~~~
 
+1.0-beta (0.9.3):
+
+-   `RFE 3076532`_: Configurable texture filtering for frame
+-   `RFE 3175000`_: Add Window FPS event
+-   `RFE 3170562`_: Support distributing segments to multiple channels
+-   `RFE 3160123`_: Support for orthographic stereo frustum
+-   `RFE 2990876`_: Mouse wheel support
+-   Upgraded `GLEW`_ to version 1.5.8
+
 1.0-alpha (0.9.2):
 
 -   Support for Windows 7
@@ -120,6 +126,7 @@ and documentation changes:
 -   CPU compression plugins: allow different output from input token
 -   New command line argument ``--eq-logfile``
 -   New compound auto stereo mode detection (active, anaglyph, passive)
+-   `RFE 3098130`_: Support hostnames for multicast connections
 -   `RFE 2809019`_: Specify connection from a config file when using
     appNode
 -   `RFE 3086646`_: Load and view equalizer: consider assemble time
@@ -142,6 +149,8 @@ and documentation changes:
 2.3. Optimizations
 ~~~~~~~~~~~~~~~~~~
 
+1.0-beta (0.9.3): No new optimizations
+
 1.0-alpha (0.9.2):
 
 -   Mac OS X: Use SpinLocks over pthread locks for significantly improved
@@ -161,6 +170,8 @@ and documentation changes:
 
 2.4. Examples
 ~~~~~~~~~~~~~
+
+1.0-beta (0.9.3): No significant example changes
 
 1.0-alpha (0.9.2):
 
@@ -187,8 +198,7 @@ and documentation changes:
 The following changes breaking compatibility with Equalizer 0.6 source code
 were made:
 
-1.0-alpha (0.9.2): API changes for this release have been tracked in
-    `CHANGES.txt`_.
+1.0-alpha and later: API changes are tracked in `CHANGES.txt`_.
 
 0.9.1:
 
@@ -207,10 +217,14 @@ were made:
 The following documentation has been added or substantially improved since
 the last release:
 
+1.0-beta (0.9.3):
+
+-   The `Programming and User Guide`_ has been extended to 102 pages and
+    56 figures.
+-   Full `API documentation`_ for the public Equalizer API.
+
 1.0-alpha (0.9.2):
 
--   The `Programming and User Guide`_ has been extended to 100 pages and
-    55 figures.
 -   Full `API documentation`_ for the public Equalizer API.
 -   `Error handling`_ structures error reporting, mostly during
     initialization.
@@ -233,11 +247,49 @@ the last release:
 2.8. Bug Fixes
 ~~~~~~~~~~~~~~
 
-Equalizer 1.0-alpha includes various bugfixes over the 0.9 release, including
+Equalizer 1.0-beta includes various bugfixes over the 0.9 release, including
 the following:
+
+1.0-beta (0.9.3):
+
+-   `3190280`_: Wrong compressor when switching image format
+-   `3185777`_: occasional segfault on exit
+-   `3185685`_: Assembly fails if the channel has no view
+-   `3183597`_: Multicast / RSP assertions on exit
+-   `3175659`_: Excessive memory usage with serialization compression
+-   `3175117`_: Occasional hang on exit
+-   `3172604`_: Near plane adaptation fails sometimes
+-   `3171582`_: Assertion during admin mapping
+-   `3168709`_: AGL/GLX: (half) float PBuffers not implemented
+-   `3166620`_: send-on-register should not send to self
+-   `3166560`_: Win32: RNG not random
+-   `3166619`_: Win32: PipeConnection too slow
+-   `3166437`_: Startup deadlock
+-   `3165985`_: Send-on-register and multicast don't match
+-   `3161488`_: FPS decreases over time
+-   `3159980`_: Constant reallocation of decompression engines
+-   `3158106`_: 'Self' compressor plugin init fails
+-   `3156359`_: 'Admin' passive window uses anaglyph in
+    1-pipe.stereo.anagly
+-   `3156321`_: Delta object commits call getInstanceData(), not pack()
+-   `3156114`_: Release build / NDEBUG issues
+-   `3156103`_: Add default appNode connection for multi-node configs
+-   `3156102`_: 32/64 bit interoperability broken
+-   `3156100`_: MSVC / gcc interoperability broken
+-   `3155603`_: XCode-build binaries don't find server library
+-   `3155543`_: Missing fragments when using YUV GPU Compressor
+-   `3155530`_: Assertion server/config.cpp:875
+-   `3155511`_: Wrong detection of AUTO stereo mode
+-   `3155397`_: GL_INVALID_OPERATION when switching layouts
+-   `3155386`_: Admin copies are never synced
+-   `3138516`_: eVolve is broken
+-   `2985875`_: View user data mapping fails during initialization
+-   `2934387`_: Ubuntu: GLX problem with PBuffer
+-   `2003195`_: Ortho frustra ignores eye offset
 
 1.0-alpha (0.9.2):
 
+-   `3152421`_: Distinguish window and channel pointer events
 -   `2976899`_: Config::finishFrame deadlocks when no nodes are active
 -   `2994111`_: Rounding errors with 2D LB and 16 sources
 -   `3137933`_: GLXEW init buggy
@@ -259,13 +311,11 @@ the following:
 The following bugs were known at release time. Please file a `Bug Report`_ if
 you find any other issue with this release.
 
+-   `3159879`_ compressor YUV - Pixel decomposition broken
 -   `3136383`_ Windows 7 non-affinity PBuffers broken
--   `2934387`_: Ubuntu: GLX problem with PBuffer
--   `2843849`_: 64-bit bug in eVolveConverter
 -   `2796444`_: Race during simultaneous node connect
 -   `2609161`_: zoom: depth readback does not work
 -   `2556940`_: zoom: FBO usage
--   `2003195`_: Ortho frustra ignores eye offset
 -   `1854929`_: eqPly GLSL shader has artefacts
 
 
@@ -277,7 +327,7 @@ operating system, including all Unix variants and the Windows operating
 system. A `compatibility matrix`_ can be found on the Equalizer website.
 
 Equalizer requires at least `OpenGL 1.1`_, but uses newer OpenGL features
-when available. Version 1.0-alpha has been tested on:
+when available. Version 1.0-beta has been tested on:
 
 
 3.1. Operating System Support
@@ -303,7 +353,7 @@ following platforms and build environments are tested:
 ~~~~~~~~~~~~~~~~~~
 
 The Programming and User Guide is available as a `hard-copy (0.9)`_ and
-`online (1.0 alpha)`_. `API documentation`_ can be found on the Equalizer
+`online (1.0 beta)`_. `API documentation`_ can be found on the Equalizer
 website.
 
 As with any open source project, the available source code, in particular the
@@ -351,10 +401,8 @@ information.
 .. _3.4. Support: #support
 .. _4. Errata: #errata
 .. _source     code:
-    http://www.equalizergraphics.com/downloads/Equalizer-0.9.2.tar.gz
+    http://www.equalizergraphics.com/downloads/Equalizer-1.0-beta.tar.gz
 .. _detailed feature list: /features.html
-.. _Mouse wheel support: https://sourceforge.net/tracker/index.php?func=d
-    etail&aid=2990876&group_id=170962&atid=856212
 .. _GPU-CPU       transfer and compression plugins: http://www.equalizerg
     raphics.com/documents/Developer/API/plugins_2compressor_8h.html#_details
 .. _Failure      tolerance:
@@ -373,9 +421,22 @@ information.
     http://www.equalizergraphics.com/documents/design/subpixelCompound.html
 .. _Data distribution and data updates using reliable UDP multicast:
     http://www.equalizergraphics.com/documents/design/multicast.html
+.. _RFE 3076532: https://sourceforge.net/tracker/index.php?func=detail&ai
+    d=3076532&group_id=170962&atid=856212
+.. _RFE 3175000: https://sourceforge.net/tracker/index.php?func=detail&ai
+    d=3175000&group_id=170962&atid=856212
+.. _RFE 3170562: https://sourceforge.net/tracker/index.php?func=detail&ai
+    d=3170562&group_id=170962&atid=856212
+.. _RFE 3160123: https://sourceforge.net/tracker/index.php?func=detail&ai
+    d=3160123&group_id=170962&atid=856212
+.. _RFE 2990876: https://sourceforge.net/tracker/index.php?func=detail&ai
+    d=2990876&group_id=170962&atid=856212
+.. _GLEW: http://glew.sourceforge.net
 .. _GLEW: http://glew.sourceforge.net
 .. _error reporting:
     http://www.equalizergraphics.com/documents/design/errorHandling.html
+.. _RFE 3098130: https://sourceforge.net/tracker/index.php?func=detail&ai
+    d=3098130&group_id=170962&atid=856212
 .. _RFE   2809019: https://sourceforge.net/tracker/?func=detail&aid=28090
     19&group_id=170962&atid=856212
 .. _RFE       3086646: https://sourceforge.net/tracker/?func=detail&aid=3
@@ -393,11 +454,13 @@ information.
 .. _OSGScaleViewer: http://www.equalizergraphics.com/documents/WhitePaper
     s/OpenSceneGraphClustering.pdf
 .. _CHANGES.txt: https://equalizer.svn.sourceforge.net/svnroot/equalizer/
-    tags/release-0.9.2/CHANGES.txt
+    tags/release-1.0-beta/CHANGES.txt
 .. _Programming and       User Guide:
     http://www.equalizergraphics.com/survey.html
 .. _API       documentation:
-    http://www.equalizergraphics.com/documents/Developer/API/index.html
+    http://www.equalizergraphics.com/documents/Developer/API-0/9/3/index.html
+.. _API       documentation:
+    http://www.equalizergraphics.com/documents/Developer/API-0.9.2/index.html
 .. _Error       handling:
     http://www.equalizergraphics.com/documents/design/errorHandling.html
 .. _Interruptible       rendering:
@@ -413,6 +476,74 @@ information.
 .. _Subpixel Compound: /documents/design/subpixelCompound.html
 .. _Data distribution and data       updates using reliable UDP
     multicast: /documents/design/multicast.html
+.. _3190280: https://sourceforge.net/tracker/?func=detail&aid=3190280&gro
+    up_id=170962&atid=856209
+.. _3185777: https://sourceforge.net/tracker/?func=detail&aid=3185777&gro
+    up_id=170962&atid=856209
+.. _3185685: https://sourceforge.net/tracker/?func=detail&aid=3185685&gro
+    up_id=170962&atid=856209
+.. _3183597: https://sourceforge.net/tracker/?func=detail&aid=3183597&gro
+    up_id=170962&atid=856209
+.. _3175659: https://sourceforge.net/tracker/?func=detail&aid=3175659&gro
+    up_id=170962&atid=856209
+.. _3175117: https://sourceforge.net/tracker/?func=detail&aid=3175117&gro
+    up_id=170962&atid=856209
+.. _3172604: https://sourceforge.net/tracker/?func=detail&aid=3172604&gro
+    up_id=170962&atid=856209
+.. _3171582: https://sourceforge.net/tracker/?func=detail&aid=3171582&gro
+    up_id=170962&atid=856209
+.. _3168709: https://sourceforge.net/tracker/?func=detail&aid=3168709&gro
+    up_id=170962&atid=856209
+.. _3166620: https://sourceforge.net/tracker/?func=detail&aid=3166620&gro
+    up_id=170962&atid=856209
+.. _3166560: https://sourceforge.net/tracker/?func=detail&aid=3166560&gro
+    up_id=170962&atid=856209
+.. _3166619: https://sourceforge.net/tracker/?func=detail&aid=3166619&gro
+    up_id=170962&atid=856209
+.. _3166437: https://sourceforge.net/tracker/?func=detail&aid=3166437&gro
+    up_id=170962&atid=856209
+.. _3165985: https://sourceforge.net/tracker/?func=detail&aid=3165985&gro
+    up_id=170962&atid=856209
+.. _3161488: https://sourceforge.net/tracker/?func=detail&aid=3161488&gro
+    up_id=170962&atid=856209
+.. _3159980: https://sourceforge.net/tracker/?func=detail&aid=3159980&gro
+    up_id=170962&atid=856209
+.. _3158106: https://sourceforge.net/tracker/?func=detail&aid=3158106&gro
+    up_id=170962&atid=856209
+.. _3156359: https://sourceforge.net/tracker/?func=detail&aid=3156359&gro
+    up_id=170962&atid=856209
+.. _3156321: https://sourceforge.net/tracker/?func=detail&aid=3156321&gro
+    up_id=170962&atid=856209
+.. _3156114: https://sourceforge.net/tracker/?func=detail&aid=3156114&gro
+    up_id=170962&atid=856209
+.. _3156103: https://sourceforge.net/tracker/?func=detail&aid=3156103&gro
+    up_id=170962&atid=856209
+.. _3156102: https://sourceforge.net/tracker/?func=detail&aid=3156102&gro
+    up_id=170962&atid=856209
+.. _3156100: https://sourceforge.net/tracker/?func=detail&aid=3156100&gro
+    up_id=170962&atid=856209
+.. _3155603: https://sourceforge.net/tracker/?func=detail&aid=3155603&gro
+    up_id=170962&atid=856209
+.. _3155543: https://sourceforge.net/tracker/?func=detail&aid=3155543&gro
+    up_id=170962&atid=856209
+.. _3155530: https://sourceforge.net/tracker/?func=detail&aid=3155530&gro
+    up_id=170962&atid=856209
+.. _3155511: https://sourceforge.net/tracker/?func=detail&aid=3155511&gro
+    up_id=170962&atid=856209
+.. _3155397: https://sourceforge.net/tracker/?func=detail&aid=3155397&gro
+    up_id=170962&atid=856209
+.. _3155386: https://sourceforge.net/tracker/?func=detail&aid=3155386&gro
+    up_id=170962&atid=856209
+.. _3138516: https://sourceforge.net/tracker/?func=detail&aid=3138516&gro
+    up_id=170962&atid=856209
+.. _2985875: https://sourceforge.net/tracker/?func=detail&aid=2985875&gro
+    up_id=170962&atid=856209
+.. _2934387: https://sourceforge.net/tracker/?func=detail&aid=2934387&gro
+    up_id=170962&atid=856209
+.. _2003195: https://sourceforge.net/tracker/?func=detail&aid=2003195&gro
+    up_id=170962&atid=856209
+.. _3152421: https://sourceforge.net/tracker/?func=detail&aid=3152421&gro
+    up_id=170962&atid=856209
 .. _2976899: https://sourceforge.net/tracker/?func=detail&aid=2976899&gro
     up_id=170962&atid=856209
 .. _2994111: https://sourceforge.net/tracker/?func=detail&aid=2994111&gro
@@ -435,11 +566,9 @@ information.
     up_id=170962&atid=856209
 .. _Bug   Report:
     http://sourceforge.net/tracker/?atid=856209&group_id=170962&func=browse
-.. _3136383: https://sourceforge.net/tracker/?func=detail&aid=3136383&gro
+.. _3159879: https://sourceforge.net/tracker/?func=detail&aid=3159879&gro
     up_id=170962&atid=856209
-.. _2934387: https://sourceforge.net/tracker/?func=detail&aid=2934387grou
-    p_id=170962&atid=856209
-.. _2843849: https://sourceforge.net/tracker/?func=detail&aid=2843849&gro
+.. _3136383: https://sourceforge.net/tracker/?func=detail&aid=3136383&gro
     up_id=170962&atid=856209
 .. _2796444: http://sourceforge.net/tracker/index.php?func=detail&aid=279
     6444&group_id=170962&atid=856209
@@ -447,8 +576,6 @@ information.
     9161&group_id=170962&atid=856209
 .. _2556940: http://sourceforge.net/tracker/index.php?func=detail&aid=255
     6940&group_id=170962&atid=856209
-.. _2003195: http://sourceforge.net/tracker/index.php?func=detail&aid=200
-    3195&group_id=170962&atid=856209
 .. _1854929: http://sourceforge.net/tracker/index.php?func=detail&aid=185
     4929&group_id=170962&atid=856209
 .. _compatibility matrix:
@@ -456,11 +583,11 @@ information.
 .. _OpenGL 1.1: http://www.opengl.org
 .. _hard-copy   (0.9): http://www.lulu.com/content/paperback-
     book/equalizer-09-programming-and-user-guide/7501548
-.. _online   (1.0   alpha): http://www.equalizergraphics.com/survey.html
+.. _online   (1.0   beta): http://www.equalizergraphics.com/survey.html
 .. _API   documentation:
-    http://www.equalizergraphics.com/documents/Developer/API/index.html
+    http://www.equalizergraphics.com/documents/Developer/API-0.9.3/index.html
 .. _examples: http://www.equalizergraphics.com/cgi-
-    bin/viewvc.cgi/tags/release-0.9.2/examples/
+    bin/viewvc.cgi/tags/release-1.0-beta/examples/
 .. _Developer Documentation:
     http://www.equalizergraphics.com/doc_developer.html
 .. _Documentation     Set: http://www.equalizergraphics.com/documents/Dev

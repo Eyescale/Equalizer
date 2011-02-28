@@ -24,14 +24,14 @@
    Collage library, support for GPU compression plugins and an administrative
    API for runtime configuration changes.
 
-   Equalizer 1.0-alpha is a developer release, representing the full feature
+   Equalizer 1.0-beta is a developer release, representing the full feature
    set and API of Equalizer 1.0. It is intended for application developers to
-   provide feedback and preview the 1.0 release. Equalizer 1.0-alpha can be
+   provide feedback and preview the 1.0 release. Equalizer 1.0-beta can be
    retrieved by downloading the source code, updating the subversion trunk to
-   revision 5385 (svn up -r 5385) or by using:
+   revision XXX (svn up -r XXX) or by using:
    svn co
-   https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-0.9.2
-   The internal version number of this release is 0.9.2.
+   https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-1.0-beta
+   The internal version number of this release is 0.9.3.
 
   1.1. Features
 
@@ -55,14 +55,12 @@
 
 2. New in this release
 
-   Equalizer 1.0-alpha contains the following features, enhancements, bug
+   Equalizer 1.0-beta contains the following features, enhancements, bug
    fixes and documentation changes:
 
   2.1. New Features
 
-   1.0-beta (0.9.3):
-
-     * Mouse wheel support
+   1.0-beta (0.9.3): No new features
 
    1.0-alpha (0.9.2):
 
@@ -94,6 +92,15 @@
 
   2.2. Enhancements
 
+   1.0-beta (0.9.3):
+
+     * RFE 3076532: Configurable texture filtering for frame
+     * RFE 3175000: Add Window FPS event
+     * RFE 3170562: Support distributing segments to multiple channels
+     * RFE 3160123: Support for orthographic stereo frustum
+     * RFE 2990876: Mouse wheel support
+     * Upgraded GLEW to version 1.5.8
+
    1.0-alpha (0.9.2):
 
      * Support for Windows 7
@@ -104,6 +111,7 @@
      * CPU compression plugins: allow different output from input token
      * New command line argument --eq-logfile
      * New compound auto stereo mode detection (active, anaglyph, passive)
+     * RFE 3098130: Support hostnames for multicast connections
      * RFE 2809019: Specify connection from a config file when using appNode
      * RFE 3086646: Load and view equalizer: consider assemble time
      * RFE 3036064: View and load equalizer should consider network times
@@ -122,6 +130,8 @@
 
   2.3. Optimizations
 
+   1.0-beta (0.9.3): No new optimizations
+
    1.0-alpha (0.9.2):
 
      * Mac OS X: Use SpinLocks over pthread locks for significantly improved
@@ -139,6 +149,8 @@
      * Reduce memory footprint for eq::net::Objects with change type DELTA
 
   2.4. Examples
+
+   1.0-beta (0.9.3): No significant example changes
 
    1.0-alpha (0.9.2):
 
@@ -161,8 +173,7 @@
    The following changes breaking compatibility with Equalizer 0.6 source
    code were made:
 
-   1.0-alpha (0.9.2): API changes for this release have been tracked in
-   CHANGES.txt.
+   1.0-alpha and later: API changes are tracked in CHANGES.txt.
 
    0.9.1:
 
@@ -178,10 +189,14 @@
    The following documentation has been added or substantially improved since
    the last release:
 
+   1.0-beta (0.9.3):
+
+     * The Programming and User Guide has been extended to 102 pages and 56
+       figures.
+     * Full API documentation for the public Equalizer API.
+
    1.0-alpha (0.9.2):
 
-     * The Programming and User Guide has been extended to 100 pages and 55
-       figures.
      * Full API documentation for the public Equalizer API.
      * Error handling structures error reporting, mostly during
        initialization.
@@ -202,11 +217,48 @@
 
   2.8. Bug Fixes
 
-   Equalizer 1.0-alpha includes various bugfixes over the 0.9 release,
+   Equalizer 1.0-beta includes various bugfixes over the 0.9 release,
    including the following:
+
+   1.0-beta (0.9.3):
+
+     * 3190280: Wrong compressor when switching image format
+     * 3185777: occasional segfault on exit
+     * 3185685: Assembly fails if the channel has no view
+     * 3183597: Multicast / RSP assertions on exit
+     * 3175659: Excessive memory usage with serialization compression
+     * 3175117: Occasional hang on exit
+     * 3172604: Near plane adaptation fails sometimes
+     * 3171582: Assertion during admin mapping
+     * 3168709: AGL/GLX: (half) float PBuffers not implemented
+     * 3166620: send-on-register should not send to self
+     * 3166560: Win32: RNG not random
+     * 3166619: Win32: PipeConnection too slow
+     * 3166437: Startup deadlock
+     * 3165985: Send-on-register and multicast don't match
+     * 3161488: FPS decreases over time
+     * 3159980: Constant reallocation of decompression engines
+     * 3158106: 'Self' compressor plugin init fails
+     * 3156359: 'Admin' passive window uses anaglyph in 1-pipe.stereo.anagly
+     * 3156321: Delta object commits call getInstanceData(), not pack()
+     * 3156114: Release build / NDEBUG issues
+     * 3156103: Add default appNode connection for multi-node configs
+     * 3156102: 32/64 bit interoperability broken
+     * 3156100: MSVC / gcc interoperability broken
+     * 3155603: XCode-build binaries don't find server library
+     * 3155543: Missing fragments when using YUV GPU Compressor
+     * 3155530: Assertion server/config.cpp:875
+     * 3155511: Wrong detection of AUTO stereo mode
+     * 3155397: GL_INVALID_OPERATION when switching layouts
+     * 3155386: Admin copies are never synced
+     * 3138516: eVolve is broken
+     * 2985875: View user data mapping fails during initialization
+     * 2934387: Ubuntu: GLX problem with PBuffer
+     * 2003195: Ortho frustra ignores eye offset
 
    1.0-alpha (0.9.2):
 
+     * 3152421: Distinguish window and channel pointer events
      * 2976899: Config::finishFrame deadlocks when no nodes are active
      * 2994111: Rounding errors with 2D LB and 16 sources
      * 3137933: GLXEW init buggy
@@ -226,13 +278,11 @@
    The following bugs were known at release time. Please file a Bug Report if
    you find any other issue with this release.
 
+     * 3159879 compressor YUV - Pixel decomposition broken
      * 3136383 Windows 7 non-affinity PBuffers broken
-     * 2934387: Ubuntu: GLX problem with PBuffer
-     * 2843849: 64-bit bug in eVolveConverter
      * 2796444: Race during simultaneous node connect
      * 2609161: zoom: depth readback does not work
      * 2556940: zoom: FBO usage
-     * 2003195: Ortho frustra ignores eye offset
      * 1854929: eqPly GLSL shader has artefacts
 
 3. About
@@ -242,7 +292,7 @@
    system. A compatibility matrix can be found on the Equalizer website.
 
    Equalizer requires at least OpenGL 1.1, but uses newer OpenGL features
-   when available. Version 1.0-alpha has been tested on:
+   when available. Version 1.0-beta has been tested on:
 
   3.1. Operating System Support
 
@@ -262,7 +312,7 @@
   3.3. Documentation
 
    The Programming and User Guide is available as a hard-copy (0.9) and
-   online (1.0 alpha). API documentation can be found on the Equalizer
+   online (1.0 beta). API documentation can be found on the Equalizer
    website.
 
    As with any open source project, the available source code, in particular
